@@ -34,9 +34,6 @@ val sourceJar by tasks.registering(Jar::class) {
     from(sourceSets["main"].allSource)
 }
 
-// TODO: https://github.com/Kotlin/dokka/issues/1052
-tasks.getByName("validatePlugins").enabled = false
-
 val gradlePluginImplementationClass = "org.jetbrains.dokka.gradle.DokkaPlugin"
 
 publishing {

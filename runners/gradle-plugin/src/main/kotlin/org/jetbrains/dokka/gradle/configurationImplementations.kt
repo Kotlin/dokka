@@ -34,8 +34,8 @@ class GradleSourceRootImpl : SourceRoot, Serializable {
 }
 
 open class GradleDokkaSourceSet constructor(
-    @Transient val name: String,
-    @Transient internal val project: Project
+    @Transient @get:Input val name: String,
+    @Transient @get:Internal internal val project: Project
 ) : DokkaSourceSet {
 
     @Input
@@ -117,6 +117,7 @@ open class GradleDokkaSourceSet constructor(
     @Optional
     var platform: String? = null
 
+    @Internal
     @Transient
     var collectKotlinTasks: (() -> List<Any?>?)? = null
 
