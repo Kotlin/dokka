@@ -60,6 +60,13 @@ class CliIntegrationTest : AbstractCliIntegrationTest() {
             "Expected more than 10 extensions being present (found $amountOfExtensionsLoaded)"
         )
 
+        val undocumentedReportRegex = Regex("""Undocumented:""")
+        val amountOfUndocumentedReports = undocumentedReportRegex.findAll(result.output).count()
+        assertTrue(
+            amountOfUndocumentedReports > 0,
+            "Expected at least one report of undocumented code (found $amountOfUndocumentedReports)"
+        )
+
         assertTrue(dokkaOutputDir.isDirectory, "Missing dokka output directory")
 
         val imagesDir = File(dokkaOutputDir, "images")
