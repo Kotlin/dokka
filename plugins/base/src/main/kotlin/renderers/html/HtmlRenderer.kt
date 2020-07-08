@@ -74,7 +74,7 @@ open class HtmlRenderer(
                 node.extra.extraHtmlAttributes().forEach { attributes[it.extraKey] = it.extraValue }
                 childrenCallback()
             }
-            node.dci.kind in setOf(ContentKind.Symbol, ContentKind.Sample) -> div("symbol $additionalClasses") {
+            node.dci.kind in setOf(ContentKind.Symbol) -> div("symbol $additionalClasses") {
                 childrenCallback()
                 if (node.hasStyle(TextStyle.Monospace)) copyButton()
             }
@@ -548,8 +548,11 @@ open class HtmlRenderer(
         code: ContentCode,
         pageContext: ContentPage
     ) {
-        code(code.style.joinToString(" ") { it.toString().toLowerCase() }) {
-            code.children.forEach { buildContentNode(it, pageContext) }
+        div("sample-container") {
+            code(code.style.joinToString(" ") { it.toString().toLowerCase() }) {
+                attributes["theme"] = "idea"
+                code.children.forEach { buildContentNode(it, pageContext) }
+            }
         }
     }
 
