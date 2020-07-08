@@ -1,5 +1,6 @@
 import org.jetbrains.configureBintrayPublication
 import org.jetbrains.CrossPlatformExec
+
 /**
  * [mavenBin] configuration is used to download Maven Plugin Plugin
  * for generating plugin-help.xml and plugin.xml files
@@ -30,6 +31,7 @@ dependencies {
 val mavenBinDir = "$buildDir/maven-bin"
 val mavenBuildDir = "$buildDir/maven"
 val mvn = File(mavenBinDir, "apache-maven-$mavenVersion/bin/mvn")
+extra.set("MVN_BINARY_PATH", mvn.absolutePath)
 
 tasks.named<Delete>("clean") {
     delete(mavenBinDir)
@@ -48,6 +50,7 @@ val setupMaven by tasks.registering(Sync::class) {
  */
 val generatePom by tasks.registering(Copy::class) {
     val dokka_version: String by project
+    inputs.property("dokka_version", dokka_version)
 
     from("$projectDir/pom.tpl.xml") {
         rename("(.*).tpl.xml", "$1.xml")

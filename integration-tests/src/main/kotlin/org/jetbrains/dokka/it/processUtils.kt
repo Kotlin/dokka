@@ -1,4 +1,4 @@
-package org.jetbrains.dokka.it.cli
+package org.jetbrains.dokka.it
 
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.async
