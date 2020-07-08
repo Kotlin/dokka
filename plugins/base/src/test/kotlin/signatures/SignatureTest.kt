@@ -19,8 +19,8 @@ class SignatureTest : AbstractCoreTest() {
     fun `fun`() {
 
         val configuration = dokkaConfiguration {
-            passes {
-                pass {
+            sourceSets {
+                sourceSet {
                     sourceRoots = listOf("src/main/kotlin/test/Test.kt")
                 }
             }
@@ -46,8 +46,8 @@ class SignatureTest : AbstractCoreTest() {
     fun `open fun`() {
 
         val configuration = dokkaConfiguration {
-            passes {
-                pass {
+            sourceSets {
+                sourceSet {
                     sourceRoots = listOf("src/main/kotlin/test/Test.kt")
                 }
             }
@@ -73,8 +73,8 @@ class SignatureTest : AbstractCoreTest() {
     fun `open suspend fun`() {
 
         val configuration = dokkaConfiguration {
-            passes {
-                pass {
+            sourceSets {
+                sourceSet {
                     sourceRoots = listOf("src/main/kotlin/test/Test.kt")
                 }
             }
@@ -100,8 +100,8 @@ class SignatureTest : AbstractCoreTest() {
     fun `fun with params`() {
 
         val configuration = dokkaConfiguration {
-            passes {
-                pass {
+            sourceSets {
+                sourceSet {
                     sourceRoots = listOf("src/main/kotlin/test/Test.kt")
                 }
             }
@@ -129,8 +129,8 @@ class SignatureTest : AbstractCoreTest() {
     fun `fun with function param`() {
 
         val configuration = dokkaConfiguration {
-            passes {
-                pass {
+            sourceSets {
+                sourceSet {
                     sourceRoots = listOf("src/main/kotlin/test/Test.kt")
                 }
             }
@@ -157,8 +157,8 @@ class SignatureTest : AbstractCoreTest() {
     fun `fun with generic param`() {
 
         val configuration = dokkaConfiguration {
-            passes {
-                pass {
+            sourceSets {
+                sourceSet {
                     sourceRoots = listOf("src/main/kotlin/test/Test.kt")
                 }
             }
@@ -185,8 +185,8 @@ class SignatureTest : AbstractCoreTest() {
     fun `fun with generic bounded param`() {
 
         val configuration = dokkaConfiguration {
-            passes {
-                pass {
+            sourceSets {
+                sourceSet {
                     sourceRoots = listOf("src/main/kotlin/test/Test.kt")
                 }
             }
@@ -213,8 +213,8 @@ class SignatureTest : AbstractCoreTest() {
     fun `fun with keywords, params and generic bound`() {
 
         val configuration = dokkaConfiguration {
-            passes {
-                pass {
+            sourceSets {
+                sourceSet {
                     sourceRoots = listOf("src/main/kotlin/test/Test.kt")
                 }
             }
@@ -242,8 +242,8 @@ class SignatureTest : AbstractCoreTest() {
     fun `fun with annotation`() {
 
         val configuration = dokkaConfiguration {
-            passes {
-                pass {
+            sourceSets {
+                sourceSet {
                     sourceRoots = listOf("src/main/kotlin/test/Test.kt")
                 }
             }
@@ -283,8 +283,8 @@ class SignatureTest : AbstractCoreTest() {
     fun `fun with two annotations`() {
 
         val configuration = dokkaConfiguration {
-            passes {
-                pass {
+            sourceSets {
+                sourceSet {
                     sourceRoots = listOf("src/main/kotlin/test/Test.kt")
                 }
             }
@@ -331,8 +331,8 @@ class SignatureTest : AbstractCoreTest() {
     fun `fun with annotation with array`() {
 
         val configuration = dokkaConfiguration {
-            passes {
-                pass {
+            sourceSets {
+                sourceSet {
                     sourceRoots = listOf("src/main/kotlin/test/Test.kt")
                 }
             }
