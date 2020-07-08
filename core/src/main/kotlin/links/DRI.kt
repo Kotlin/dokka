@@ -1,8 +1,6 @@
 package org.jetbrains.dokka.links
 
 import org.jetbrains.dokka.model.ClassKind
-import org.jetbrains.dokka.model.Documentable
-import org.jetbrains.dokka.model.WithSupertypes
 
 /**
  * [DRI] stands for DokkaResourceIdentifier

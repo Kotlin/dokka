@@ -554,28 +554,28 @@ private class DokkaDescriptorVisitor(
         getDocumentation()?.toSourceSetDependent() ?: emptyMap()
 
     private fun ClassDescriptor.resolveClassDescriptionData(): ClassInfo {
-        tailrec fun processSuperClasses(
+        tailrec fun buildInheritanceInformation(
             inheritorClass: ClassDescriptor?,
             interfaces: List<ClassDescriptor>,
             level: Int = 0,
-            inheritanceTree: Set<InheritanceLevel> = emptySet()
+            inheritanceInformation: Set<InheritanceLevel> = emptySet()
         ): Set<InheritanceLevel> {
-            if (inheritorClass == null && interfaces.isEmpty()) return inheritanceTree
+            if (inheritorClass == null && interfaces.isEmpty()) return inheritanceInformation
 
-            val updatedTree = inheritanceTree + InheritanceLevel(
+            val updated = inheritanceInformation + InheritanceLevel(
                 level,
                 inheritorClass?.let { DRI.from(it) },
                 interfaces.map { DRI.from(it) })
             val superInterfacesFromClass = inheritorClass?.getSuperInterfaces().orEmpty()
-            return processSuperClasses(
+            return buildInheritanceInformation(
                 inheritorClass = inheritorClass?.getSuperClassNotAny(),
                 interfaces = interfaces.flatMap { it.getSuperInterfaces() } + superInterfacesFromClass,
                 level = level + 1,
-                inheritanceTree = updatedTree
+                inheritanceInformation = updated
             )
         }
         return ClassInfo(
-            processSuperClasses(getSuperClassNotAny(), getSuperInterfaces()).sortedBy { it.level },
+            buildInheritanceInformation(getSuperClassNotAny(), getSuperInterfaces()).sortedBy { it.level },
             resolveDescriptorData()
         )
     }
