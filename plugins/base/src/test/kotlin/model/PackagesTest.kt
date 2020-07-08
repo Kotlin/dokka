@@ -14,8 +14,8 @@ class PackagesTest : AbstractModelTest("/src/main/kotlin/packages/Test.kt", "pac
             """.trimIndent(),
             prependPackage = false,
             configuration = dokkaConfiguration {
-                passes {
-                    pass {
+                sourceSets {
+                    sourceSet {
                         sourceRoots = listOf("src/main/kotlin")
                         displayName = "JVM"
                     }

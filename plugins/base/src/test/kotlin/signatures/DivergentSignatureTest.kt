@@ -5,8 +5,8 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
 import org.junit.jupiter.api.Test
-import utils.*
 import java.nio.file.Paths
+import utils.TestOutputWriterPlugin
 
 class DivergentSignatureTest : AbstractCoreTest() {
 
@@ -16,30 +16,33 @@ class DivergentSignatureTest : AbstractCoreTest() {
         val testDataDir = getTestDataDir("multiplatform/basicMultiplatformTest").toAbsolutePath()
 
         val configuration = dokkaConfiguration {
-            passes {
-                pass {
+            sourceSets {
+                sourceSet {
                     moduleName = "example"
+                    displayName = "js"
+                    name = "js"
                     analysisPlatform = "js"
                     sourceRoots = listOf("jsMain", "commonMain", "jvmAndJsSecondCommonMain").map {
                         Paths.get("$testDataDir/$it/kotlin").toString()
                     }
-                    sourceSetID = "js"
                 }
-                pass {
+                sourceSet {
                     moduleName = "example"
+                    displayName = "jvm"
+                    name = "jvm"
                     analysisPlatform = "jvm"
                     sourceRoots = listOf("jvmMain", "commonMain", "jvmAndJsSecondCommonMain").map {
                         Paths.get("$testDataDir/$it/kotlin").toString()
                     }
-                    sourceSetID = "jvm"
                 }
-                pass {
+                sourceSet {
                     moduleName = "example"
+                    displayName = "common"
+                    name = "common"
                     analysisPlatform = "common"
                     sourceRoots = listOf("commonMain").map {
                         Paths.get("$testDataDir/$it/kotlin").toString()
                     }
-                    sourceSetID = "common"
                 }
             }
         }
@@ -54,7 +57,7 @@ class DivergentSignatureTest : AbstractCoreTest() {
                 val content = writerPlugin.renderedContent("example/example/-clock/get-time.html")
 
                 assert(content.count() == 1)
-                assert(content.select("[data-filterable-current=js jvm common]").single().brief == "")
+                assert(content.select("[data-filterable-current=example/js example/jvm example/common]").single().brief == "")
             }
         }
     }
@@ -65,30 +68,33 @@ class DivergentSignatureTest : AbstractCoreTest() {
         val testDataDir = getTestDataDir("multiplatform/basicMultiplatformTest").toAbsolutePath()
 
         val configuration = dokkaConfiguration {
-            passes {
-                pass {
+            sourceSets {
+                sourceSet {
                     moduleName = "example"
+                    displayName = "js"
+                    name = "js"
                     analysisPlatform = "js"
                     sourceRoots = listOf("jsMain", "commonMain", "jvmAndJsSecondCommonMain").map {
                         Paths.get("$testDataDir/$it/kotlin").toString()
                     }
-                    sourceSetID = "js"
                 }
-                pass {
+                sourceSet {
                     moduleName = "example"
+                    displayName = "jvm"
+                    name = "jvm"
                     analysisPlatform = "jvm"
                     sourceRoots = listOf("jvmMain", "commonMain", "jvmAndJsSecondCommonMain").map {
                         Paths.get("$testDataDir/$it/kotlin").toString()
                     }
-                    sourceSetID = "jvm"
                 }
-                pass {
+                sourceSet {
                     moduleName = "example"
+                    displayName = "common"
+                    name = "common"
                     analysisPlatform = "common"
                     sourceRoots = listOf("commonMain").map {
                         Paths.get("$testDataDir/$it/kotlin").toString()
                     }
-                    sourceSetID = "common"
                 }
             }
         }
@@ -102,8 +108,8 @@ class DivergentSignatureTest : AbstractCoreTest() {
             renderingStage = { _, _ ->
                 val content = writerPlugin.renderedContent("example/example/-clock/get-times-in-millis.html")
                 assert(content.count() == 2)
-                assert(content.select("[data-filterable-current=jvm common]").single().brief == "Time in minis")
-                assert(content.select("[data-filterable-current=js]").single().brief == "JS implementation of getTimeInMillis example/js" )
+                assert(content.select("[data-filterable-current=example/jvm example/common]").single().brief == "Time in minis")
+                assert(content.select("[data-filterable-current=example/js]").single().brief == "JS implementation of getTimeInMillis js" )
             }
         }
     }
@@ -114,30 +120,33 @@ class DivergentSignatureTest : AbstractCoreTest() {
         val testDataDir = getTestDataDir("multiplatform/basicMultiplatformTest").toAbsolutePath()
 
         val configuration = dokkaConfiguration {
-            passes {
-                pass {
+            sourceSets {
+                sourceSet {
                     moduleName = "example"
+                    displayName = "js"
+                    name = "js"
                     analysisPlatform = "js"
                     sourceRoots = listOf("jsMain", "commonMain", "jvmAndJsSecondCommonMain").map {
                         Paths.get("$testDataDir/$it/kotlin").toString()
                     }
-                    sourceSetID = "js"
                 }
-                pass {
+                sourceSet {
                     moduleName = "example"
+                    displayName = "jvm"
+                    name = "jvm"
                     analysisPlatform = "jvm"
                     sourceRoots = listOf("jvmMain", "commonMain", "jvmAndJsSecondCommonMain").map {
                         Paths.get("$testDataDir/$it/kotlin").toString()
                     }
-                    sourceSetID = "jvm"
                 }
-                pass {
+                sourceSet {
                     moduleName = "example"
+                    displayName = "common"
+                    name = "common"
                     analysisPlatform = "common"
                     sourceRoots = listOf("commonMain").map {
                         Paths.get("$testDataDir/$it/kotlin").toString()
                     }
-                    sourceSetID = "common"
                 }
             }
         }
@@ -151,9 +160,9 @@ class DivergentSignatureTest : AbstractCoreTest() {
             renderingStage = { _, _ ->
                 val content = writerPlugin.renderedContent("example/example/-clock/get-year.html")
                 assert(content.count() == 3)
-                assert(content.select("[data-filterable-current=jvm]").single().brief == "JVM custom kdoc example/jvm")
-                assert(content.select("[data-filterable-current=js]").single().brief == "JS custom kdoc example/js")
-                assert(content.select("[data-filterable-current=common]").single().brief == "example/common")
+                assert(content.select("[data-filterable-current=example/jvm]").single().brief == "JVM custom kdoc jvm")
+                assert(content.select("[data-filterable-current=example/js]").single().brief == "JS custom kdoc js")
+                assert(content.select("[data-filterable-current=example/common]").single().brief == "common")
             }
         }
     }
