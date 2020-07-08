@@ -149,7 +149,7 @@ open class CommonmarkRenderer(
                     platforms.joinToString(
                         prefix = " [",
                         postfix = "] $text "
-                    ) { it.sourceSetID.toString() })
+                    ) { "${it.moduleDisplayName}/${it.displayName}" })
                 buildNewLine()
             }
         }
@@ -166,7 +166,7 @@ open class CommonmarkRenderer(
     ) {
         if (node.dci.kind == ContentKind.Sample || node.dci.kind == ContentKind.Parameters) {
             node.sourceSets.forEach { sourcesetData ->
-                append(sourcesetData.sourceSetID.toString())
+                append("${sourcesetData.moduleDisplayName}/${sourcesetData.displayName}")
                 buildNewLine()
                 buildTable(
                     node.copy(
@@ -251,7 +251,7 @@ open class CommonmarkRenderer(
         distinct.values.forEach { entry ->
             val (instance, sourceSets) = entry.getInstanceAndSourceSets()
 
-            append(sourceSets.joinToString(prefix = "#### [", postfix = "]") { it.sourceSetID.toString() })
+            append(sourceSets.joinToString(prefix = "#### [", postfix = "]") { "${it.moduleDisplayName}/${it.displayName}" })
             buildNewLine()
             instance.before?.let {
                 append("##### Brief description")
@@ -266,7 +266,7 @@ open class CommonmarkRenderer(
                 .values.forEach { innerEntry ->
                     val (innerInstance, innerSourceSets) = innerEntry.getInstanceAndSourceSets()
                     if(sourceSets.size > 1) {
-                        append(innerSourceSets.joinToString(prefix = "###### [", postfix = "]") { it.sourceSetID.toString() })
+                        append(innerSourceSets.joinToString(prefix = "###### [", postfix = "]") { "${it.moduleDisplayName}/${it.displayName}" })
                         buildNewLine()
                     }
                     innerInstance.divergent.build(this@buildDivergent, pageContext)
