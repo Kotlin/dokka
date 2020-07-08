@@ -88,9 +88,6 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
     var sourceDirectories: List<String> = emptyList()
 
     @Parameter
-    var sourceRoots: List<SourceRoot> = emptyList()
-
-    @Parameter
     var samples: List<String> = emptyList()
 
     @Parameter

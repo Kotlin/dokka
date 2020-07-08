@@ -1,4 +1,4 @@
-import org.jetbrains.invokeWhenEvaluated
+import org.jetbrains.dependsOnMavenLocalPublication
 
 dependencies {
     implementation(kotlin("stdlib"))
@@ -8,13 +8,7 @@ dependencies {
 
 tasks.integrationTest {
     inputs.dir(file("projects"))
-    rootProject.allprojects.forEach { otherProject ->
-        otherProject.invokeWhenEvaluated { evaluatedProject ->
-            evaluatedProject.tasks.findByName("publishToMavenLocal")?.let { publishingTask ->
-                this.dependsOn(publishingTask)
-            }
-        }
-    }
+    dependsOnMavenLocalPublication()
 }
 
 tasks.clean {

@@ -21,6 +21,7 @@ include("plugins:javadoc")
 include("integration-tests")
 include("integration-tests:gradle")
 include("integration-tests:cli")
+include("integration-tests:maven")
 
 pluginManagement {
     val kotlin_version: String by settings

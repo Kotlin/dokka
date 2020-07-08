@@ -12,10 +12,6 @@ evaluationDependsOn(":plugins:base")
 dependencies {
     implementation(kotlin("stdlib"))
     implementation(kotlin("test-junit"))
-
-    val coroutines_version: String by project
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version")
-
 }
 
 /* Create a fat base plugin jar for cli tests */
@@ -35,6 +31,7 @@ val basePluginShadowJar by tasks.register("basePluginShadowJar", ShadowJar::clas
 }
 
 tasks.integrationTest {
+    inputs.dir((file("projects")))
     val cliJar = tasks.getByPath(":runners:cli:shadowJar") as ShadowJar
     environment("CLI_JAR_PATH", cliJar.archiveFile.get())
     environment("BASE_PLUGIN_JAR_PATH", basePluginShadowJar.archiveFile.get())

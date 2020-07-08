@@ -1,5 +1,6 @@
-package org.jetbrains.dokka.it.cli
+package org.jetbrains.dokka.it.maven
 
+import org.jetbrains.dokka.it.AbstractIntegrationTest
 import org.jetbrains.dokka.it.awaitProcessResult
 import java.io.File
 import kotlin.test.BeforeTest
@@ -7,50 +8,28 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-class CliIntegrationTest : AbstractCliIntegrationTest() {
+class MavenIntegrationTest : AbstractIntegrationTest() {
+
+    val currentDokkaVersion: String = checkNotNull(System.getenv("DOKKA_VERSION"))
+
+    val mavenBinaryFile: File = File(checkNotNull(System.getenv("MVN_BINARY_PATH")))
 
     @BeforeTest
-    fun copyProject() {
-        val templateProjectDir = File("projects", "it-cli")
+    fun prepareProjectFiles() {
+        val templateProjectDir = File("projects", "it-maven")
         templateProjectDir.copyRecursively(projectDir)
+        val pomXml = File(projectDir, "pom.xml")
+        assertTrue(pomXml.isFile)
+        pomXml.apply {
+            writeText(readText().replace("\$dokka_version", currentDokkaVersion))
+        }
     }
 
     @Test
-    fun runHelp() {
-        val process = ProcessBuilder("java", "-jar", cliJarFile.path, "-h")
-            .redirectErrorStream(true)
-            .start()
+    fun run() {
+        val result = ProcessBuilder().directory(projectDir)
+            .command(mavenBinaryFile.absolutePath, "dokka:dokka", "-U", "-e").start().awaitProcessResult()
 
-        val result = process.awaitProcessResult()
-        assertEquals(0, result.exitCode, "Expected exitCode 0 (Success)")
-        assertTrue("Usage: " in result.output)
-    }
-
-    @Test
-    fun runCli() {
-        val dokkaOutputDir = File(projectDir, "output")
-        assertTrue(dokkaOutputDir.mkdirs())
-        val process = ProcessBuilder(
-            "java", "-jar", cliJarFile.path,
-            "-outputDir", dokkaOutputDir.path,
-            "-format", "html",
-            "-pluginsClasspath", basePluginJarFile.path,
-            "-sourceSet",
-            buildString {
-                append(" -moduleName it-cli")
-                append(" -moduleDisplayName CLI-Example")
-                append(" -sourceSetName cliMain")
-                append(" -src ${File(projectDir, "src").path}")
-                append(" -jdkVersion 8")
-                append(" -analysisPlatform jvm")
-                append(" -reportUndocumented")
-                append(" -skipDeprecated")
-            }
-        )
-            .redirectErrorStream(true)
-            .start()
-
-        val result = process.awaitProcessResult()
         assertEquals(0, result.exitCode, "Expected exitCode 0 (Success)")
 
         val extensionLoadedRegex = Regex("""Extension: org\.jetbrains\.dokka\.base\.DokkaBase""")
@@ -68,6 +47,14 @@ class CliIntegrationTest : AbstractCliIntegrationTest() {
             "Expected at least one report of undocumented code (found $amountOfUndocumentedReports)"
         )
 
+        val undocumentedJavaReportRegex = Regex("""Undocumented: it\.basic\.java""")
+        val amountOfUndocumentedJavaReports = undocumentedJavaReportRegex.findAll(result.output).count()
+        assertTrue(
+            amountOfUndocumentedJavaReports > 0,
+            "Expected at least one report of undocumented java code (found $amountOfUndocumentedJavaReports)"
+        )
+
+        val dokkaOutputDir = File(projectDir, "output")
         assertTrue(dokkaOutputDir.isDirectory, "Missing dokka output directory")
 
         val imagesDir = File(dokkaOutputDir, "images")
@@ -86,5 +73,6 @@ class CliIntegrationTest : AbstractCliIntegrationTest() {
             assertContainsNoErrorClass(file)
             assertNoUnresolvedLInks(file)
         }
+
     }
 }

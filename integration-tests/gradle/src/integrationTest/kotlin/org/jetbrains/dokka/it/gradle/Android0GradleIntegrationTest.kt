@@ -1,6 +1,8 @@
 package org.jetbrains.dokka.it.gradle
 
 import org.gradle.testkit.runner.TaskOutcome
+import org.jetbrains.dokka.it.isAndroidSdkInstalled
+import org.jetbrains.dokka.it.isCI
 import org.junit.Assume
 import org.junit.runners.Parameterized.Parameters
 import java.io.File
@@ -28,20 +30,10 @@ class Android0GradleIntegrationTest(override val versions: BuildVersions) : Abst
 
     @BeforeTest
     fun assumeAndroidInstallation() {
-        val isCI = System.getenv("CI") != null
         if (isCI) {
             return
         }
-
-        val androidSdkRoot = System.getenv("ANDROID_SDK_ROOT")
-        val androidHome = System.getenv("ANDROID_HOME")
-
-        val isAndroidSdkInstalled = androidSdkRoot != null || androidHome != null
-
-        Assume.assumeTrue(
-            "Missing ANDROID_SDK_ROOT",
-            isAndroidSdkInstalled
-        )
+        Assume.assumeTrue("Missing ANDROID_SDK_ROOT", isAndroidSdkInstalled)
     }
 
     @BeforeTest
