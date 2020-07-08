@@ -1,3 +1,4 @@
+import org.jetbrains.ValidatePublications
 import org.jetbrains.configureDokkaVersion
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -45,8 +46,6 @@ subprojects {
     }
 }
 
-println("Publication version: $dokka_version")
-
 // Workaround for https://github.com/bintray/gradle-bintray-plugin/issues/267
 //  Manually disable bintray tasks added to the root project
 tasks.whenTaskAdded {
@@ -54,3 +53,6 @@ tasks.whenTaskAdded {
         enabled = false
     }
 }
+
+println("Publication version: $dokka_version")
+tasks.register<ValidatePublications>("validatePublications")

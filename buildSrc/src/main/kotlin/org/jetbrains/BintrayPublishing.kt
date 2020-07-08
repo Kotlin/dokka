@@ -10,7 +10,8 @@ fun Project.configureBintrayPublication(vararg publications: String) {
     extensions.configure<BintrayExtension>("bintray") {
         user = System.getenv("BINTRAY_USER")
         key = System.getenv("BINTRAY_KEY")
-
+        dryRun = System.getenv("BINTRAY_DRY_RUN") == "true" ||
+                project.properties["bintray_dry_run"] == "true"
         pkg = PackageConfig().apply {
             repo = dokka_publication_channel
             name = "dokka"
@@ -25,3 +26,4 @@ fun Project.configureBintrayPublication(vararg publications: String) {
         setPublications(*publications)
     }
 }
+

@@ -81,4 +81,4 @@ pluginBundle {
     }
 }
 
-configureBintrayPublication("dokkaGradlePlugin", "dokkaGradlePluginPluginMarkerMaven")
+configureBintrayPublication("dokkaGradlePlugin", "pluginMaven", "dokkaGradlePluginPluginMarkerMaven")

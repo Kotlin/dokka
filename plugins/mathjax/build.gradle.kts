@@ -1,3 +1,5 @@
+import org.jetbrains.configureBintrayPublication
+
 publishing {
     publications {
         register<MavenPublication>("mathjaxPlugin") {
@@ -6,3 +8,5 @@ publishing {
         }
     }
 }
+
+configureBintrayPublication("mathjaxPlugin")

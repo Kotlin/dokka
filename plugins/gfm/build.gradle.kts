@@ -1,3 +1,5 @@
+import org.jetbrains.configureBintrayPublication
+
 publishing {
     publications {
         register<MavenPublication>("gfmPlugin") {
@@ -6,6 +8,8 @@ publishing {
         }
     }
 }
+
+configureBintrayPublication("gfmPlugin")
 
 dependencies {
     compileOnly(project(":plugins:base"))

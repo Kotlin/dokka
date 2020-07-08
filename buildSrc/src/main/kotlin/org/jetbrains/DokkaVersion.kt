@@ -21,3 +21,6 @@ private fun dokkaVersionFromBase(baseVersion: String): String {
     }
     return "$baseVersion-$buildNumber"
 }
+
+val Project.dokkaVersion: String
+    get() = configureDokkaVersion()
