@@ -2,6 +2,7 @@ package renderers.html
 
 import org.jetbrains.dokka.DokkaConfigurationImpl
 import org.jetbrains.dokka.base.DokkaBase
+import org.jetbrains.dokka.base.renderers.DefaultTabSortingStrategy
 import org.jetbrains.dokka.base.renderers.RootCreator
 import org.jetbrains.dokka.base.resolvers.external.DokkaExternalLocationProviderFactory
 import org.jetbrains.dokka.base.resolvers.external.JavadocExternalLocationProviderFactory
@@ -23,6 +24,7 @@ abstract class HtmlRenderingOnlyTestBase : RenderingOnlyTestBase<Element>() {
         DokkaBase().htmlPreprocessors to { _ -> RootCreator },
         DokkaBase().externalLocationProviderFactory to { ::JavadocExternalLocationProviderFactory },
         DokkaBase().externalLocationProviderFactory to { ::DokkaExternalLocationProviderFactory },
+        DokkaBase().tabSortingStrategy to { DefaultTabSortingStrategy() },
         testConfiguration = DokkaConfigurationImpl(
             "", null, false, emptyList(), emptyList(), emptyMap(), emptyList(), false
         )

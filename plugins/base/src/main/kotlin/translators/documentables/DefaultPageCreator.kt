@@ -315,7 +315,7 @@ open class DefaultPageCreator(
 
         fun DocumentableContentBuilder.contentForParams() {
             if (tags.isNotEmptyForTag<Param>()) {
-                header(2, "Parameters")
+                header(2, "Parameters", kind = ContentKind.Parameters)
                 group(
                     extra = mainExtra + SimpleAttr.header("Parameters"),
                     styles = setOf(ContentStyle.WithExtraAttributes)
@@ -356,7 +356,7 @@ open class DefaultPageCreator(
 
         fun DocumentableContentBuilder.contentForSeeAlso() {
             if (tags.isNotEmptyForTag<See>()) {
-                header(2, "See also")
+                header(2, "See also", kind = ContentKind.Comment)
                 group(
                     extra = mainExtra + SimpleAttr.header("See also"),
                     styles = setOf(ContentStyle.WithExtraAttributes)
@@ -393,7 +393,7 @@ open class DefaultPageCreator(
         fun DocumentableContentBuilder.contentForSamples() {
             val samples = tags.withTypeNamed<Sample>()
             if (samples.isNotEmpty()) {
-                header(2, "Samples")
+                header(2, "Samples", kind = ContentKind.Sample)
                 group(
                     extra = mainExtra + SimpleAttr.header("Samples"),
                     styles = emptySet()
@@ -476,7 +476,7 @@ open class DefaultPageCreator(
         extra: PropertyContainer<ContentNode> = mainExtra
     ) {
         if (collection.any()) {
-            header(2, name)
+            header(2, name, kind = kind)
             table(kind, extra = extra, styles = emptySet()) {
                 collection
                     .groupBy { it.name }
