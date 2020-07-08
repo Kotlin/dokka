@@ -9,12 +9,14 @@ import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.renderers.DefaultRenderer
+import org.jetbrains.dokka.base.renderers.TabSortingStrategy
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.query
+import org.jetbrains.dokka.plugability.querySingle
 import java.io.File
 import java.net.URI
 
@@ -26,10 +28,18 @@ open class HtmlRenderer(
         sourceSet to context.configuration.sourceSets.filter { sourceSet.dependentSourceSets.contains(it.sourceSetID) }
     }.toMap()
 
-
     private val pageList = mutableMapOf<String, Pair<String, String>>()
 
     override val preprocessors = context.plugin<DokkaBase>().query { htmlPreprocessors }
+
+    private val tabSortingStrategy = context.plugin<DokkaBase>().querySingle { tabSortingStrategy }
+
+    private fun <T: ContentNode> sortTabs(strategy: TabSortingStrategy, tabs: Collection<T>) : List<T> {
+        val sorted = strategy.sort(tabs)
+        if(sorted.size != tabs.size)
+            context.logger.warn("Tab sorting strategy has changed number of tabs from ${tabs.size} to ${sorted.size}")
+        return sorted;
+    }
 
     override fun FlowContent.wrapGroup(
         node: ContentGroup,
@@ -44,7 +54,7 @@ open class HtmlRenderer(
                 val firstLevel = node.children.filterIsInstance<ContentHeader>().flatMap { it.children }
                     .filterIsInstance<ContentText>()
 
-                val renderable = firstLevel.union(secondLevel)
+                val renderable = firstLevel.union(secondLevel).let { sortTabs(tabSortingStrategy, it) }
 
                 div(classes = "tabs-section") {
                     attributes["tabs-section"] = "tabs-section"

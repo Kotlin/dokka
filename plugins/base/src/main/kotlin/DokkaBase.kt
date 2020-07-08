@@ -41,6 +41,7 @@ class DokkaBase : DokkaPlugin() {
     val outputWriter by extensionPoint<OutputWriter>()
     val htmlPreprocessors by extensionPoint<PageTransformer>()
     val kotlinAnalysis by extensionPoint<KotlinAnalysis>()
+    val tabSortingStrategy by extensionPoint<TabSortingStrategy>()
 
 
     val descriptorToDocumentableTranslator by extending {
@@ -134,9 +135,14 @@ class DokkaBase : DokkaPlugin() {
         }
     }
 
+    val defaultTabSortingStrategy by extending {
+        tabSortingStrategy with DefaultTabSortingStrategy()
+    }
+
     val htmlRenderer by extending {
         CoreExtensions.renderer providing ::HtmlRenderer applyIf { format == "html" }
     }
+
 
     val defaultKotlinAnalysis by extending {
         kotlinAnalysis providing { ctx -> KotlinAnalysis(ctx) }

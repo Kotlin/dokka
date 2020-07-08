@@ -114,7 +114,7 @@ open class PageContentBuilder(
                     styles,
                     extra + SimpleAttr("anchor", text.replace("\\s".toRegex(), "").toLowerCase())
                 ) {
-                    text(text)
+                    text(text, kind = kind)
                     block()
                 }
             )
@@ -172,7 +172,7 @@ open class PageContentBuilder(
             operation: DocumentableContentBuilder.(T) -> Unit
         ) {
             if (renderWhenEmpty || elements.any()) {
-                header(level, name) { }
+                header(level, name, kind = kind) { }
                 contents += ContentTable(
                     headers ?: defaultHeaders,
                     elements
