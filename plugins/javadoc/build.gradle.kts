@@ -1,5 +1,4 @@
 import org.jetbrains.configureBintrayPublication
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 publishing {
     publications {

@@ -1,3 +1,5 @@
+import org.jetbrains.configureBintrayPublication
+
 publishing {
     publications {
         register<MavenPublication>("jekyllPlugin") {
@@ -6,6 +8,8 @@ publishing {
         }
     }
 }
+
+configureBintrayPublication("jekyllPlugin")
 
 dependencies {
     compileOnly(project(":plugins:base"))
