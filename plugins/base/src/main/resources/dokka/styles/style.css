@@ -212,6 +212,11 @@
     font-family: monospace;
 }
 
+.sample-container {
+    display: flex;
+    flex-direction: column;
+}
+
 code.paragraph {
     display: block;
 }
