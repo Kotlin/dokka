@@ -17,6 +17,7 @@ dependencies {
 
     val coroutines_version: String by project
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version")
+    testImplementation(project(":plugins:base:test-utils"))
 }
 
 configureBintrayPublication("javadocPlugin")

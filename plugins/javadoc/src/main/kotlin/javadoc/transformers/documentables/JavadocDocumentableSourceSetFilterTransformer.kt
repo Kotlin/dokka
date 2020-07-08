@@ -15,13 +15,12 @@ class JavadocDocumentableSourceSetFilterTransformer : PreMergeDocumentableTransf
         get() = flatMap { it.sourceSets }.filter { it.analysisPlatform == Platform.jvm }
 
     override fun invoke(modules: List<DModule>): List<DModule> =
-        modules.jvmSourceSets.firstOrNull()?.let {
-            jvm ->
-                val filter = DocumentableSourceSetFilter(jvm)
-                modules.map { filter.processModule(it) }
-        } ?: modules
+        modules.jvmSourceSets.firstOrNull()?.let { jvm ->
+            val filter = DocumentableSourceSetFilter(jvm)
+            modules.filter { it.sourceSets.contains(jvm) }.map { filter.processModule(it) }
+        }.orEmpty()
 
-    private inner class DocumentableSourceSetFilter(
+    private class DocumentableSourceSetFilter(
         val desiredSourceSet: DokkaConfiguration.DokkaSourceSet
     ): AbstractDocumentableFilterTransformer {
 
