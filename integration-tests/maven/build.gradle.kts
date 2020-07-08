@@ -1,3 +1,4 @@
+import org.jetbrains.SetupMaven
 import org.jetbrains.dependsOnMavenLocalPublication
 
 evaluationDependsOn(":runners:maven-plugin")
@@ -9,9 +10,11 @@ dependencies {
 
 tasks.integrationTest {
     dependsOnMavenLocalPublication()
-    dependsOn(":runners:maven-plugin:setupMaven")
+
+    val setupMavenTask = project(":runners:maven-plugin").tasks.withType<SetupMaven>().single()
+    dependsOn(setupMavenTask)
 
     val dokka_version: String by project
     environment("DOKKA_VERSION", dokka_version)
-    environment("MVN_BINARY_PATH", project(":runners:maven-plugin").extra["MVN_BINARY_PATH"].toString())
+    environment("MVN_BINARY_PATH", setupMavenTask.mvn.absolutePath)
 }
