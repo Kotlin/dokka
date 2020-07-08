@@ -65,14 +65,3 @@ private fun Any.accepts(n: Node) {
         else -> throw IllegalArgumentException("$this is not proper matcher")
     }
 }
-
-
-internal object EmptyCommentConverter : CommentsToContentConverter {
-    override fun buildContent(
-        docTag: DocTag,
-        dci: DCI,
-        sourceSets: Set<DokkaConfiguration.DokkaSourceSet>,
-        styles: Set<Style>,
-        extras: PropertyContainer<ContentNode>
-    ): List<ContentNode> = emptyList()
-}

@@ -1,21 +1,15 @@
 package renderers
 
-import org.jetbrains.dokka.base.signatures.KotlinSignatureProvider
-import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder
+import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.Documentable
-import org.jetbrains.dokka.pages.ContentNode
-import org.jetbrains.dokka.pages.ContentPage
-import org.jetbrains.dokka.pages.PageNode
-import org.jetbrains.dokka.pages.RootPageNode
-import org.jetbrains.dokka.testApi.context.MockContext
+import org.jetbrains.dokka.model.doc.DocTag
+import org.jetbrains.dokka.model.properties.PropertyContainer
+import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.utilities.DokkaConsoleLogger
-import renderers.html.EmptyCommentConverter
-
-abstract class RenderingOnlyTestBase<T> {
-    abstract val context: MockContext
-    abstract val renderedContent: T
-}
+import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder
+import org.jetbrains.dokka.base.signatures.KotlinSignatureProvider
+import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentConverter
 
 class TestPage(callback: PageContentBuilder.DocumentableContentBuilder.() -> Unit) : RootPageNode(), ContentPage {
     override val dri: Set<DRI> = setOf(DRI.topLevel)
@@ -45,4 +39,14 @@ class TestPage(callback: PageContentBuilder.DocumentableContentBuilder.() -> Uni
     ) = this
 
     override fun modified(name: String, children: List<PageNode>) = this
+}
+
+internal object EmptyCommentConverter : CommentsToContentConverter {
+    override fun buildContent(
+        docTag: DocTag,
+        dci: DCI,
+        sourceSets: Set<DokkaConfiguration.DokkaSourceSet>,
+        styles: Set<Style>,
+        extras: PropertyContainer<ContentNode>
+    ): List<ContentNode> = emptyList()
 }
