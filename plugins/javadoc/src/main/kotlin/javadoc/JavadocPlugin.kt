@@ -7,6 +7,7 @@ import javadoc.signatures.JavadocSignatureProvider
 import org.jetbrains.dokka.CoreExtensions
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.kotlinAsJava.KotlinAsJavaPlugin
+import org.jetbrains.dokka.kotlinAsJava.KotlinAsJavaPlugin.Companion.JAVADOC_FORMAT
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.plugability.querySingle
 
@@ -20,7 +21,7 @@ class JavadocPlugin : DokkaPlugin() {
     val dokkaJavadocPlugin by extending {
         (CoreExtensions.renderer
                 providing { ctx -> KorteJavadocRenderer(dokkaBasePlugin.querySingle { outputWriter }, ctx, "views") }
-                applyIf { format == javadocFormat }
+                applyIf { format == JAVADOC_FORMAT }
                 override dokkaBasePlugin.htmlRenderer)
     }
 
@@ -31,13 +32,13 @@ class JavadocPlugin : DokkaPlugin() {
                 dokkaBasePlugin.querySingle { signatureProvider },
                 context.logger
             )
-        } override dokkaBasePlugin.documentableToPageTranslator applyIf { format == javadocFormat }
+        } override dokkaBasePlugin.documentableToPageTranslator applyIf { format == JAVADOC_FORMAT }
     }
 
     val javadocLocationProviderFactory by extending {
         locationProviderFactory providing { context ->
             JavadocLocationProviderFactory(context)
-        } applyIf { format == javadocFormat }
+        } applyIf { format == JAVADOC_FORMAT }
     }
 
     val javadocSignatureProvider by extending {
@@ -48,11 +49,6 @@ class JavadocPlugin : DokkaPlugin() {
                     dokkaBasePlugin.commentsToContentConverter
                 ), ctx.logger
             )
-        } override kotinAsJavaPlugin.javaSignatureProvider applyIf { format == javadocFormat }
-    }
-
-    companion object {
-        private val javadocFormat = "javadoc"
+        } override kotinAsJavaPlugin.javaSignatureProvider applyIf { format == JAVADOC_FORMAT }
     }
 }
-
