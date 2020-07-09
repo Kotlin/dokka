@@ -10,6 +10,7 @@ class KotlinAsJavaPluginTest : AbstractCoreTest() {
     @Test
     fun topLevelTest() {
         val configuration = dokkaConfiguration {
+            format = "javadoc"
             sourceSets {
                 sourceSet {
                     sourceRoots = listOf("src/")
@@ -48,6 +49,7 @@ class KotlinAsJavaPluginTest : AbstractCoreTest() {
     @Test
     fun topLevelWithClassTest() {
         val configuration = dokkaConfiguration {
+            format = "javadoc"
             sourceSets {
                 sourceSet {
                     sourceRoots = listOf("src/")
@@ -89,6 +91,7 @@ class KotlinAsJavaPluginTest : AbstractCoreTest() {
     @Test
     fun kotlinAndJavaTest() {
         val configuration = dokkaConfiguration {
+            format = "javadoc"
             sourceSets {
                 sourceSet {
                     sourceRoots = listOf("src/")

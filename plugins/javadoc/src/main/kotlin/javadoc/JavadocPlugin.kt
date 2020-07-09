@@ -22,7 +22,7 @@ class JavadocPlugin : DokkaPlugin() {
         (CoreExtensions.renderer
                 providing { ctx -> KorteJavadocRenderer(dokkaBasePlugin.querySingle { outputWriter }, ctx, "views") }
                 applyIf { format == JAVADOC_FORMAT }
-                override dokkaBasePlugin.htmlRenderer)
+                override kotinAsJavaPlugin.htmlRenderer)
     }
 
     val pageTranslator by extending {
