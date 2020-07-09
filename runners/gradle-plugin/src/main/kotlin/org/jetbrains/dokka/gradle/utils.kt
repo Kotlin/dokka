@@ -10,9 +10,9 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
 internal fun Project.isAndroidProject() = try {
     project.extensions.getByName("android")
     true
-} catch(e: UnknownDomainObjectException) {
+} catch (e: UnknownDomainObjectException) {
     false
-} catch(e: ClassNotFoundException) {
+} catch (e: ClassNotFoundException) {
     false
 }
 
@@ -21,12 +21,22 @@ internal fun Project.isNotMultiplatformProject() = !isMultiplatformProject()
 internal fun Project.isMultiplatformProject() = try {
     project.extensions.getByType(KotlinMultiplatformExtension::class.java)
     true
-} catch(e: UnknownDomainObjectException) {
+} catch (e: UnknownDomainObjectException) {
     false
-} catch (e: NoClassDefFoundError){
+} catch (e: NoClassDefFoundError) {
     false
-} catch(e: ClassNotFoundException) {
+} catch (e: ClassNotFoundException) {
     false
 }
 
 internal fun KotlinTarget.isAndroidTarget() = this.platformType == KotlinPlatformType.androidJvm
+
+// TODO NOW: Test
+internal fun Project.allDescendentProjects(): Sequence<Project> {
+    return sequence {
+        yieldAll(subprojects)
+        subprojects.forEach { subproject ->
+            yieldAll(subproject.allDescendentProjects())
+        }
+    }
+}
