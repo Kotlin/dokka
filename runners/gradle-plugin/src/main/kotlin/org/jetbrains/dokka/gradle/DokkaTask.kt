@@ -16,9 +16,7 @@ import org.jetbrains.dokka.ReflectDsl.isNotInstance
 import org.jetbrains.dokka.gradle.ConfigurationExtractor.PlatformData
 import org.jetbrains.dokka.plugability.Configurable
 import java.io.File
-import java.net.URLClassLoader
 import java.util.concurrent.Callable
-import java.util.function.BiConsumer
 
 open class DokkaTask : DefaultTask(), Configurable {
     private val ANDROID_REFERENCE_URL = Builder("https://developer.android.com/reference/").build()
@@ -61,14 +59,14 @@ open class DokkaTask : DefaultTask(), Configurable {
     @Classpath
     val runtime = project.configurations.create("${name}Runtime").apply {
         defaultDependencies { dependencies ->
-            dependencies.add(project.dokkaDependencies.dokkaCore)
+            dependencies.add(project.dokkaArtifacts.dokkaCore)
         }
     }
 
     @Classpath
     val plugins: Configuration = project.configurations.create("${name}Plugin").apply {
         defaultDependencies { dependencies ->
-            dependencies.add(project.dokkaDependencies.dokkaBase)
+            dependencies.add(project.dokkaArtifacts.dokkaBase)
         }
         attributes.attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(Usage::class.java, "java-runtime"))
         isCanBeConsumed = false

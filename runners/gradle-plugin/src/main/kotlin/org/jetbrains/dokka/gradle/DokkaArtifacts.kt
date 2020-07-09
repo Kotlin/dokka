@@ -3,9 +3,9 @@ package org.jetbrains.dokka.gradle
 import org.gradle.api.Project
 import org.jetbrains.dokka.DokkaVersion
 
-internal val Project.dokkaDependencies get() = DokkaDependencies(this)
+internal val Project.dokkaArtifacts get() = DokkaArtifacts(this)
 
-internal class DokkaDependencies(private val project: Project) {
+internal class DokkaArtifacts(private val project: Project) {
     private fun fromModuleName(name: String) =
         project.dependencies.create("org.jetbrains.dokka:$name:${DokkaVersion.version}")
 

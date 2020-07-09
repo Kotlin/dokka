@@ -10,15 +10,15 @@ open class DokkaPlugin : Plugin<Project> {
         project.createDokkaTasks("dokka")
 
         project.createDokkaTasks("dokkaJavadoc") {
-            plugins.dependencies.add(project.dokkaDependencies.javadocPlugin)
+            plugins.dependencies.add(project.dokkaArtifacts.javadocPlugin)
         }
 
         project.createDokkaTasks("dokkaGfm") {
-            plugins.dependencies.add(project.dokkaDependencies.gfmPlugin)
+            plugins.dependencies.add(project.dokkaArtifacts.gfmPlugin)
         }
 
         project.createDokkaTasks("dokkaJekyll") {
-            plugins.dependencies.add(project.dokkaDependencies.jekyllPlugin)
+            plugins.dependencies.add(project.dokkaArtifacts.jekyllPlugin)
         }
     }
 
