@@ -164,6 +164,14 @@ object DocTagToContentConverter : CommentsToContentConverter {
                     styles
                 )
             )
+            is Index -> listOf(
+                ContentGroup(
+                    buildChildren(docTag, newStyles = styles + ContentStyle.InDocumentationAnchor),
+                    dci,
+                    sourceSets,
+                    styles
+                )
+            )
             else -> buildChildren(docTag)
         }
     }

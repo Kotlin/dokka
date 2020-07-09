@@ -9,6 +9,7 @@ import org.jetbrains.dokka.base.renderers.sourceSets
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.properties.PropertyContainer
+import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.descriptors.ClassKind
@@ -16,6 +17,11 @@ import org.jetbrains.kotlin.resolve.DescriptorUtils.getClassDescriptorForType
 import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstance
 
 interface JavadocPageNode : ContentPage
+
+interface WithJavadocExtra<T : Documentable> : WithExtraProperties<T> {
+    override fun withNewExtras(newExtras: PropertyContainer<T>): T =
+        throw IllegalStateException("Merging extras is not applicable for javadoc")
+}
 
 class JavadocModulePageNode(
     override val name: String,
@@ -85,23 +91,26 @@ data class JavadocEntryNode(
     override val dri: DRI,
     val name: String,
     val signature: JavadocSignatureContentNode,
-    val brief: List<ContentNode>
-): AnchorableJavadocNode(dri)
+    val brief: List<ContentNode>,
+    override val extra: PropertyContainer<DEnumEntry> = PropertyContainer.empty()
+): AnchorableJavadocNode(dri), WithJavadocExtra<DEnumEntry>
 
 data class JavadocParameterNode(
     override val dri: DRI,
     val name: String,
     val type: ContentNode,
     val description: List<ContentNode>,
-    val typeBound: Bound
-): AnchorableJavadocNode(dri)
+    val typeBound: Bound,
+    override val extra: PropertyContainer<DParameter> = PropertyContainer.empty()
+): AnchorableJavadocNode(dri), WithJavadocExtra<DParameter>
 
 data class JavadocPropertyNode(
     override val dri: DRI,
     val name: String,
     val signature: JavadocSignatureContentNode,
-    val brief: List<ContentNode>
-): AnchorableJavadocNode(dri)
+    val brief: List<ContentNode>,
+    override val extra: PropertyContainer<DProperty> = PropertyContainer.empty()
+): AnchorableJavadocNode(dri), WithJavadocExtra<DProperty>
 
 data class JavadocFunctionNode(
     val signature: JavadocSignatureContentNode,
@@ -109,8 +118,16 @@ data class JavadocFunctionNode(
     val parameters: List<JavadocParameterNode>,
     val name: String,
     override val dri: DRI,
-    val extras: PropertyContainer<DFunction> = PropertyContainer.empty()
-): AnchorableJavadocNode(dri)
+    override val extra: PropertyContainer<DFunction> = PropertyContainer.empty()
+): AnchorableJavadocNode(dri), WithJavadocExtra<DFunction> {
+    val isInherited: Boolean
+        get() {
+            val extra = extra[InheritedFunction]
+            return extra?.inheritedFrom?.keys?.firstOrNull { it.analysisPlatform == Platform.jvm }?.let { jvm ->
+                extra.isInherited(jvm)
+            } ?: false
+        }
+}
 
 class JavadocClasslikePageNode(
     override val name: String,
@@ -126,8 +143,8 @@ class JavadocClasslikePageNode(
     override val documentable: Documentable? = null,
     override val children: List<PageNode> = emptyList(),
     override val embeddedResources: List<String> = listOf(),
-    val extras: PropertyContainer<Documentable>,
-) : JavadocPageNode {
+    override val extra: PropertyContainer<DClasslike> = PropertyContainer.empty(),
+) : JavadocPageNode, WithJavadocExtra<DClasslike> {
 
     val kind: String? = documentable?.kind()
     val packageName = dri.first().packageName
@@ -149,7 +166,7 @@ class JavadocClasslikePageNode(
         documentable,
         children,
         embeddedResources,
-        extras
+        extra
     )
 
     override fun modified(
@@ -173,7 +190,7 @@ class JavadocClasslikePageNode(
             documentable,
             children,
             embeddedResources,
-            extras
+            extra
         )
 }
 

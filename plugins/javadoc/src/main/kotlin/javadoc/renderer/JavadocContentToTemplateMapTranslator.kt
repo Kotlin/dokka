@@ -129,16 +129,11 @@ internal class JavadocContentToTemplateMapTranslator(
             )
 
         private fun templateMapForImplementedInterfaces(node: JavadocClasslikePageNode) =
-            node.extras[ImplementedInterfaces]?.interfaces?.entries?.firstOrNull { it.key.analysisPlatform == Platform.jvm }?.value?.map { it.displayable() } // TODO: REMOVE HARDCODED JVM DEPENDENCY
+            node.extra[ImplementedInterfaces]?.interfaces?.entries?.firstOrNull { it.key.analysisPlatform == Platform.jvm }?.value?.map { it.displayable() } // TODO: REMOVE HARDCODED JVM DEPENDENCY
                 .orEmpty()
 
         private fun templateMapForClasslikeMethods(nodes: List<JavadocFunctionNode>): TemplateMap {
-            val (inherited, own) = nodes.partition {
-                val extra = it.extras[InheritedFunction]
-                extra?.inheritedFrom?.keys?.firstOrNull { it.analysisPlatform == Platform.jvm }?.let { jvm ->
-                    extra.isInherited(jvm)
-                } ?: false
-            }
+            val (inherited, own) = nodes.partition { it.isInherited }
             return mapOf(
                 "own" to own.map { templateMapForFunctionNode(it) },
                 "inherited" to inherited.map { templateMapForInheritedMethod(it) }
@@ -152,7 +147,7 @@ internal class JavadocContentToTemplateMapTranslator(
         }
 
         private fun templateMapForInheritedMethod(node: JavadocFunctionNode): TemplateMap {
-            val inheritedFrom = node.extras[InheritedFunction]?.inheritedFrom
+            val inheritedFrom = node.extra[InheritedFunction]?.inheritedFrom
             return mapOf(
                 "inheritedFrom" to inheritedFrom?.entries?.firstOrNull { it.key.analysisPlatform == Platform.jvm }?.value?.displayable() // TODO: REMOVE HARDCODED JVM DEPENDENCY
                     .orEmpty(),
@@ -219,7 +214,7 @@ internal class JavadocContentToTemplateMapTranslator(
             htmlTranslator.htmlForContentNode(node, relativeNode)
 
         private fun htmlForContentNodes(nodes: List<ContentNode>, relativeNode: PageNode) =
-            htmlTranslator.htmlForContentNodes(nodes, relativeNode)
+            htmlTranslator.htmlForContentNodes(nodes, emptySet(), relativeNode)
     }
 
     private fun DRI.displayable(): String = "${packageName}.${sureClassNames}"

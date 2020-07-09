@@ -4,11 +4,11 @@ import javadoc.pages.*
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.base.signatures.SignatureProvider
-import org.jetbrains.dokka.base.signatures.function
 import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentConverter
 import org.jetbrains.dokka.base.transformers.pages.comments.DocTagToContentConverter
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.doc.Description
+import org.jetbrains.dokka.model.doc.Index
 import org.jetbrains.dokka.model.doc.Param
 import org.jetbrains.dokka.model.doc.TagWrapper
 import org.jetbrains.dokka.model.properties.PropertyContainer
@@ -51,7 +51,8 @@ open class JavadocPageCreator(
                         it.dri,
                         it.name,
                         signatureForNode(it, jvm),
-                        it.descriptionToContentNodes(jvm)
+                        it.descriptionToContentNodes(jvm),
+                        PropertyContainer.withAll(it.indexesInDocumentation())
                     )
                 }.orEmpty(),
                 classlikes = c.classlikes.mapNotNull { pageForClasslike(it) },
@@ -60,11 +61,12 @@ open class JavadocPageCreator(
                         it.dri,
                         it.name,
                         signatureForNode(it, jvm),
-                        it.descriptionToContentNodes(jvm)
+                        it.descriptionToContentNodes(jvm),
+                        PropertyContainer.withAll(it.indexesInDocumentation())
                     )
                 },
                 documentable = c,
-                extras = (c as? WithExtraProperties<Documentable>)?.extra ?: PropertyContainer.empty()
+                extra = ((c as? WithExtraProperties<Documentable>)?.extra ?: PropertyContainer.empty()) + c.indexesInDocumentation()
             )
         }
 
@@ -148,11 +150,12 @@ open class JavadocPageCreator(
                         type = type,
                         description = it.brief(),
                         typeBound = it.type,
-                        dri = it.dri
+                        dri = it.dri,
+                        extra = PropertyContainer.withAll(it.indexesInDocumentation())
                     )
                 }
             },
-            extras = extra
+            extra = extra + indexesInDocumentation()
         )
     }
 
@@ -212,5 +215,24 @@ open class JavadocPageCreator(
 
     private fun signatureForNode(documentable: Documentable, sourceSet: DokkaSourceSet): JavadocSignatureContentNode =
         signatureProvider.signature(documentable).nodeForJvm(sourceSet).asJavadocNode()
+
+    private fun Documentable.indexesInDocumentation(): JavadocIndexExtra {
+        val indexes = documentation[highestJvmSourceSet]?.withDescendants()?.filterIsInstance<Index>()?.toList().orEmpty()
+        return JavadocIndexExtra(
+            indexes.map {
+                ContentGroup(
+                    children = DocTagToContentConverter.buildContent(
+                        it,
+                        DCI(setOf(dri), JavadocContentKind.OverviewSummary),
+                        sourceSets.toSet()
+                    ),
+                    dci = DCI(setOf(dri), JavadocContentKind.OverviewSummary),
+                    sourceSets = sourceSets.toSet(),
+                    style = emptySet(),
+                    extra = PropertyContainer.empty()
+                )
+            }
+        )
+    }
 }
 
