@@ -175,7 +175,7 @@ abstract class DefaultRenderer<T>(
         pageContext: ContentPage,
         beforeTransformer: (ContentDivergentInstance, ContentPage, DokkaSourceSet) -> String,
         afterTransformer: (ContentDivergentInstance, ContentPage, DokkaSourceSet) -> String
-    ): Map<SerializedInstanceWithSource, List<InstanceWithSource>> =
+    ): Map<SerializedBeforeAndAfter, List<InstanceWithSource>> =
         children.flatMap { instance ->
             instance.sourceSets.map { sourceSet ->
                 Pair(instance, sourceSet) to Pair(
@@ -184,12 +184,12 @@ abstract class DefaultRenderer<T>(
                 )
             }
         }.groupBy(
-            Pair<Pair<ContentDivergentInstance, DokkaSourceSet>, Pair<String, String>>::second,
-            Pair<Pair<ContentDivergentInstance, DokkaSourceSet>, Pair<String, String>>::first
+            Pair<InstanceWithSource, SerializedBeforeAndAfter>::second,
+            Pair<InstanceWithSource, SerializedBeforeAndAfter>::first
         )
 }
 
-internal typealias SerializedInstanceWithSource = Pair<String, String>
+internal typealias SerializedBeforeAndAfter = Pair<String, String>
 internal typealias InstanceWithSource = Pair<ContentDivergentInstance, DokkaSourceSet>
 
 fun ContentPage.sourceSets() = this.content.sourceSets

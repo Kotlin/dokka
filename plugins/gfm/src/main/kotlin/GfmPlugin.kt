@@ -98,7 +98,7 @@ open class CommonmarkRenderer(
                 buildList(it, pageContext)
             } else {
                 append("<li>")
-                it.build(this, pageContext)
+                append(buildString { it.build(this, pageContext, it.sourceSets) }.trim())
                 append("</li>")
             }
         }
@@ -138,7 +138,7 @@ open class CommonmarkRenderer(
         pageContext: ContentPage,
     ) {
         if (content is ContentGroup && content.children.firstOrNull { it is ContentTable } != null) {
-            buildContentNode(content, pageContext)
+            buildContentNode(content, pageContext, sourceSets)
         } else {
             val distinct = sourceSets.map {
                 it to buildString { buildContentNode(content, pageContext, setOf(it)) }
@@ -149,7 +149,7 @@ open class CommonmarkRenderer(
                     platforms.joinToString(
                         prefix = " [",
                         postfix = "] $text "
-                    ) { "${it.moduleDisplayName}/${it.displayName}" })
+                    ) { it.displayName })
                 buildNewLine()
             }
         }
@@ -166,7 +166,7 @@ open class CommonmarkRenderer(
     ) {
         if (node.dci.kind == ContentKind.Sample || node.dci.kind == ContentKind.Parameters) {
             node.sourceSets.forEach { sourcesetData ->
-                append("${sourcesetData.moduleDisplayName}/${sourcesetData.displayName}")
+                append(sourcesetData.displayName)
                 buildNewLine()
                 buildTable(
                     node.copy(
@@ -184,7 +184,7 @@ open class CommonmarkRenderer(
                 node.header.forEach {
                     it.children.forEach {
                         append(" ")
-                        it.build(this, pageContext)
+                        it.build(this, pageContext, it.sourceSets)
                     }
                     append("| ")
                 }
@@ -201,7 +201,7 @@ open class CommonmarkRenderer(
                 val builder = StringBuilder()
                 it.children.forEach {
                     builder.append("| ")
-                    it.build(builder, pageContext)
+                    builder.append(buildString { it.build(this, pageContext) }.replace(Regex("#+ "), "") )  // Workaround for headers inside tables
                 }
                 append(builder.toString().withEntersAsHtml())
                 append(" | ".repeat(size - it.children.size))
@@ -211,10 +211,14 @@ open class CommonmarkRenderer(
     }
 
     override fun StringBuilder.buildText(textNode: ContentText) {
-        val decorators = decorators(textNode.style)
-        append(decorators)
-        append(textNode.text)
-        append(decorators.reversed())
+        if(textNode.text.isNotBlank()) {
+            val decorators = decorators(textNode.style)
+            append(textNode.text.takeWhile { it == ' ' } )
+            append(decorators)
+            append(textNode.text.trim())
+            append(decorators.reversed())
+            append(textNode.text.takeLastWhile { it == ' ' })
+        }
     }
 
     override fun StringBuilder.buildNavigation(page: PageNode) {
@@ -251,33 +255,36 @@ open class CommonmarkRenderer(
         distinct.values.forEach { entry ->
             val (instance, sourceSets) = entry.getInstanceAndSourceSets()
 
-            append(sourceSets.joinToString(prefix = "#### [", postfix = "]") { "${it.moduleDisplayName}/${it.displayName}" })
+            append(sourceSets.joinToString(prefix = "[", postfix = "]") { it.displayName })
             buildNewLine()
             instance.before?.let {
-                append("##### Brief description")
+                append("Brief description")
                 buildNewLine()
-                buildContentNode(it, pageContext)
+                buildContentNode(it, pageContext, setOf(sourceSets.first())) // It's workaround to render content only once
                 buildNewLine()
             }
 
-            append("##### Content")
+            append("Content")
             buildNewLine()
             entry.groupBy { buildString { buildContentNode(it.first.divergent, pageContext, setOf(it.second)) } }
                 .values.forEach { innerEntry ->
                     val (innerInstance, innerSourceSets) = innerEntry.getInstanceAndSourceSets()
                     if(sourceSets.size > 1) {
-                        append(innerSourceSets.joinToString(prefix = "###### [", postfix = "]") { "${it.moduleDisplayName}/${it.displayName}" })
+                        append(innerSourceSets.joinToString(prefix = "[", postfix = "]") { it.displayName })
                         buildNewLine()
                     }
-                    innerInstance.divergent.build(this@buildDivergent, pageContext)
+                    innerInstance.divergent.build(this@buildDivergent, pageContext, setOf(innerSourceSets.first())) // It's workaround to render content only once
                     buildNewLine()
                 }
+
             instance.after?.let {
-                append("##### More info")
+                append("More info")
                 buildNewLine()
-                buildContentNode(it, pageContext)
+                buildContentNode(it, pageContext, setOf(sourceSets.first())) // It's workaround to render content only once
                 buildNewLine()
             }
+
+            buildParagraph()
         }
     }
 
