@@ -124,6 +124,9 @@ class MarkdownParser(
                             null
                         }
                     }
+                }.also {
+                    if (it == null)
+                        logger.warn("Couldn't resolve link for $mdLink")
                 }
 
         private fun referenceLinksHandler(node: ASTNode): DocTag {
