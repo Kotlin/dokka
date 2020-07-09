@@ -3,11 +3,13 @@ package org.jetbrains.dokka.gradle
 import com.google.gson.GsonBuilder
 import org.gradle.api.DefaultTask
 import org.gradle.api.artifacts.Configuration
+import org.gradle.api.attributes.Usage
 import org.gradle.api.tasks.Classpath
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 import org.jetbrains.dokka.DokkaBootstrap
+import org.jetbrains.dokka.DokkaVersion
 import org.jetbrains.dokka.plugability.Configurable
 import java.net.URLClassLoader
 import java.util.function.BiConsumer
@@ -23,13 +25,18 @@ open class DokkaMultimoduleTask : DefaultTask(), Configurable {
     @Input
     var outputDirectory: String = ""
 
-    @get:Classpath
-    lateinit var pluginsConfig: Configuration
-        internal set
+    @Classpath
+    val runtime = project.configurations.create("${name}Runtime").apply {
+        defaultDependencies { dependencies ->
+            dependencies.add(project.dependencies.create("org.jetbrains.dokka:dokka-core:${DokkaVersion.version}"))
+        }
+    }
 
-    @get:Classpath
-    lateinit var dokkaRuntime: Configuration
-        internal set
+    @Classpath
+    val plugins = project.configurations.create("${name}Plugin").apply {
+        attributes.attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(Usage::class.java, "java-runtime"))
+        isCanBeConsumed = false
+    }
 
     @Input
     override val pluginsConfiguration: Map<String, String> = mutableMapOf()
@@ -40,30 +47,19 @@ open class DokkaMultimoduleTask : DefaultTask(), Configurable {
         System.setProperty(DokkaTask.COLORS_ENABLED_PROPERTY, "false")
 
         try {
-            loadCore()
-            val bootstrapClass =
-                ClassloaderContainer.coreClassLoader!!.loadClass("org.jetbrains.dokka.DokkaMultimoduleBootstrapImpl")
-            val bootstrapInstance = bootstrapClass.constructors.first().newInstance()
-            val bootstrapProxy: DokkaBootstrap = automagicTypedProxy(
-                javaClass.classLoader,
-                bootstrapInstance
-            )
+            val bootstrap = DokkaBootstrap(runtime, "org.jetbrains.dokka.DokkaMultimoduleBootstrapImpl")
             val gson = GsonBuilder().setPrettyPrinting().create()
             val configuration = getConfiguration()
-            bootstrapProxy.configure(
-                BiConsumer { level, message ->
-                    when (level) {
-                        "debug" -> logger.debug(message)
-                        "info" -> logger.info(message)
-                        "progress" -> logger.lifecycle(message)
-                        "warn" -> logger.warn(message)
-                        "error" -> logger.error(message)
-                    }
-                },
-                gson.toJson(configuration)
-            )
-
-            bootstrapProxy.generate()
+            bootstrap.configure(gson.toJson(configuration)) { level, message ->
+                when (level) {
+                    "debug" -> logger.debug(message)
+                    "info" -> logger.info(message)
+                    "progress" -> logger.lifecycle(message)
+                    "warn" -> logger.warn(message)
+                    "error" -> logger.error(message)
+                }
+            }
+            bootstrap.generate()
         } finally {
             System.setProperty(DokkaTask.COLORS_ENABLED_PROPERTY, kotlinColorsEnabledBefore)
         }
@@ -74,30 +70,18 @@ open class DokkaMultimoduleTask : DefaultTask(), Configurable {
         GradleDokkaConfigurationImpl().apply {
             outputDir = project.file(outputDirectory).absolutePath
             format = outputFormat
-            pluginsClasspath = pluginsConfig.resolve().toList()
+            pluginsClasspath = plugins.resolve().toList()
             pluginsConfiguration = this@DokkaMultimoduleTask.pluginsConfiguration
             modules = project.subprojects
                 .mapNotNull { subproject ->
                     subproject.tasks.withType(DokkaTask::class.java).firstOrNull()?.let { dokkaTask ->
                         GradleDokkaModuleDescription().apply {
                             name = subproject.name
-                            path =
-                                subproject.projectDir.resolve(dokkaTask.outputDirectory).toRelativeString(
-                                    project.file(outputDirectory)
-                                )
+                            path = subproject.projectDir.resolve(dokkaTask.outputDirectory)
+                                .toRelativeString(project.file(outputDirectory))
                             docFile = subproject.projectDir.resolve(documentationFileName).absolutePath
                         }
                     }
                 }
         }
-
-    private fun loadCore() {
-        if (ClassloaderContainer.coreClassLoader == null) {
-            val jars = dokkaRuntime!!.resolve()
-            ClassloaderContainer.coreClassLoader = URLClassLoader(
-                jars.map { it.toURI().toURL() }.toTypedArray(),
-                ClassLoader.getSystemClassLoader().parent
-            )
-        }
-    }
 }

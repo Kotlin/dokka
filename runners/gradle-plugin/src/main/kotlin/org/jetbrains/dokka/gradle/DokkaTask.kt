@@ -3,6 +3,7 @@ package org.jetbrains.dokka.gradle
 import com.google.gson.GsonBuilder
 import org.gradle.api.*
 import org.gradle.api.artifacts.Configuration
+import org.gradle.api.attributes.Usage
 import org.gradle.api.file.FileCollection
 import org.gradle.api.internal.plugins.DslObject
 import org.gradle.api.plugins.JavaBasePlugin
@@ -50,9 +51,6 @@ open class DokkaTask : DefaultTask(), Configurable {
     @Input
     var outputDirectory: String = ""
 
-    @get:Classpath
-    lateinit var dokkaRuntime: Configuration
-        internal set
 
     @Input
     var subProjects: List<String> = emptyList()
@@ -64,17 +62,27 @@ open class DokkaTask : DefaultTask(), Configurable {
     @Input
     var cacheRoot: String? = null
 
-    @get:Classpath
-    lateinit var pluginsClasspathConfiguration: Configuration
-        internal set
+    @Classpath
+    val runtime = project.configurations.create("${name}Runtime").apply {
+        defaultDependencies { dependencies ->
+            dependencies.add(project.dependencies.create("org.jetbrains.dokka:dokka-core:${DokkaVersion.version}"))
+        }
+    }
+
+    @Classpath
+    val plugins: Configuration = project.configurations.create("${name}Plugin").apply {
+        attributes.attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(Usage::class.java, "java-runtime"))
+        isCanBeConsumed = false
+    }
 
     @get:Internal
     internal var config: GradleDokkaConfigurationImpl? = null
 
-    var dokkaSourceSets: NamedDomainObjectContainer<GradleDokkaSourceSet>
-        @Suppress("UNCHECKED_CAST")
-        @Nested get() = (DslObject(this).extensions.getByName(SOURCE_SETS_EXTENSION_NAME) as NamedDomainObjectContainer<GradleDokkaSourceSet>)
-        internal set(value) = DslObject(this).extensions.add(SOURCE_SETS_EXTENSION_NAME, value)
+    @get:Nested
+    val dokkaSourceSets: NamedDomainObjectContainer<GradleDokkaSourceSet> =
+        project.container(GradleDokkaSourceSet::class.java) { name -> GradleDokkaSourceSet(name, project) }
+            .also { container -> DslObject(this).extensions.add("dokkaSourceSets", container) }
+
 
     private val kotlinTasks: List<Task> by lazy {
         extractKotlinCompileTasks(
@@ -95,16 +103,6 @@ open class DokkaTask : DefaultTask(), Configurable {
 
     private var outputDiagnosticInfo: Boolean =
         false // Workaround for Gradle, which fires some methods (like collectConfigurations()) multiple times in its lifecycle
-
-    private fun loadCore() {
-        if (ClassloaderContainer.coreClassLoader == null) {
-            val jars = dokkaRuntime.resolve()
-            ClassloaderContainer.coreClassLoader = URLClassLoader(
-                jars.map { it.toURI().toURL() }.toTypedArray(),
-                ClassLoader.getSystemClassLoader().parent
-            )
-        }
-    }
 
     protected fun extractKotlinCompileTasks(collectTasks: List<Any?>?): List<Task> {
         val inputList = (collectTasks ?: emptyList()).filterNotNull()
@@ -152,29 +150,20 @@ open class DokkaTask : DefaultTask(), Configurable {
         val kotlinColorsEnabledBefore = System.getProperty(COLORS_ENABLED_PROPERTY) ?: "false"
         System.setProperty(COLORS_ENABLED_PROPERTY, "false")
         try {
-            loadCore()
+            val bootstrap = DokkaBootstrap(runtime, "org.jetbrains.dokka.DokkaBootstrapImpl")
 
-            val bootstrapClass =
-                ClassloaderContainer.coreClassLoader!!.loadClass("org.jetbrains.dokka.DokkaBootstrapImpl")
-            val bootstrapInstance = bootstrapClass.constructors.first().newInstance()
-            val bootstrapProxy: DokkaBootstrap =
-                automagicTypedProxy(javaClass.classLoader, bootstrapInstance)
-
-            bootstrapProxy.configure(
-                BiConsumer { level, message ->
-                    when (level) {
-                        "debug" -> logger.debug(message)
-                        "info" -> logger.info(message)
-                        "progress" -> logger.lifecycle(message)
-                        "warn" -> logger.warn(message)
-                        "error" -> logger.error(message)
-                    }
-                },
+            bootstrap.configure(
                 GsonBuilder().setPrettyPrinting().create().toJson(configuration)
-            )
-
-            bootstrapProxy.generate()
-
+            ) { level, message ->
+                when (level) {
+                    "debug" -> logger.debug(message)
+                    "info" -> logger.info(message)
+                    "progress" -> logger.lifecycle(message)
+                    "warn" -> logger.warn(message)
+                    "error" -> logger.error(message)
+                }
+            }
+            bootstrap.generate()
         } finally {
             System.setProperty(COLORS_ENABLED_PROPERTY, kotlinColorsEnabledBefore)
         }
@@ -199,7 +188,7 @@ open class DokkaTask : DefaultTask(), Configurable {
             cacheRoot = this@DokkaTask.cacheRoot
             offlineMode = this@DokkaTask.offlineMode
             sourceSets = defaultModulesConfiguration
-            pluginsClasspath = pluginsClasspathConfiguration.resolve().toList()
+            pluginsClasspath = plugins.resolve().toList()
             pluginsConfiguration = this@DokkaTask.pluginsConfiguration
             failOnWarning = this@DokkaTask.failOnWarning
         }
@@ -351,7 +340,8 @@ open class DokkaTask : DefaultTask(), Configurable {
 
     @Classpath
     fun getInputClasspath(): FileCollection =
-        project.files((configuredDokkaSourceSets.flatMap { it.classpath } as List<Any>).map { project.fileTree(File(it.toString())) })
+        project.files((configuredDokkaSourceSets.flatMap { it.classpath } as List<Any>)
+            .map { project.fileTree(File(it.toString())) })
 
     companion object {
         const val COLORS_ENABLED_PROPERTY = "kotlin.colors.enabled"

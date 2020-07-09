@@ -37,6 +37,10 @@ fun parsePerPackageOptions(args: List<String>): List<PackageOptions> = args.map 
 }
 
 
+/**
+ * Accessed with reflection
+ */
+@Suppress("unused")
 class DokkaBootstrapImpl : DokkaBootstrap {
 
     class DokkaProxyLogger(val consumer: BiConsumer<String, String>) : DokkaLogger {
@@ -95,20 +99,18 @@ class DokkaBootstrapImpl : DokkaBootstrap {
             return links
         }
 
-        val configurationWithLinks =
-            configuration.copy(
-                sourceSets =
-                sourceSets.map {
-                    val links: List<ExternalDocumentationLinkImpl> =
-                        it.externalDocumentationLinks + defaultLinks(it)
-                    it.copy(externalDocumentationLinks = links)
-                }
-            )
+        val configurationWithLinks = configuration.copy(
+            sourceSets = sourceSets.map {
+                val links: List<ExternalDocumentationLinkImpl> =
+                    it.externalDocumentationLinks + defaultLinks(it)
+                it.copy(externalDocumentationLinks = links)
+            }
+        )
 
         generator = DokkaGenerator(configurationWithLinks, logger)
     }
 
-    override fun configure(logger: BiConsumer<String, String>, serializedConfigurationJSON: String) = configure(
+    override fun configure(serializedConfigurationJSON: String, logger: BiConsumer<String, String>) = configure(
         DokkaProxyLogger(logger),
         DokkaConfigurationImpl(serializedConfigurationJSON)
     )
