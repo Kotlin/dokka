@@ -135,7 +135,7 @@ class DokkaBase : DokkaPlugin() {
     }
 
     val htmlRenderer by extending {
-        CoreExtensions.renderer providing ::HtmlRenderer applyIf { format == "html" }
+        CoreExtensions.renderer providing ::HtmlRenderer
     }
 
     val defaultKotlinAnalysis by extending {
@@ -159,7 +159,7 @@ class DokkaBase : DokkaPlugin() {
     }
 
     val rootCreator by extending {
-        htmlPreprocessors with RootCreator applyIf { format == "html" }
+        htmlPreprocessors with RootCreator
     }
 
     val defaultSamplesTransformer by extending {
@@ -182,19 +182,19 @@ class DokkaBase : DokkaPlugin() {
     }
 
     val navigationPageInstaller by extending {
-        htmlPreprocessors with NavigationPageInstaller order { after(rootCreator) } applyIf { format == "html" }
+        htmlPreprocessors with NavigationPageInstaller order { after(rootCreator) }
     }
 
     val searchPageInstaller by extending {
-        htmlPreprocessors with SearchPageInstaller order { after(rootCreator) } applyIf { format == "html" }
+        htmlPreprocessors with SearchPageInstaller order { after(rootCreator) }
     }
 
     val resourceInstaller by extending {
-        htmlPreprocessors with ResourceInstaller order { after(rootCreator) } applyIf { format == "html" }
+        htmlPreprocessors with ResourceInstaller order { after(rootCreator) }
     }
 
     val styleAndScriptsAppender by extending {
-        htmlPreprocessors with StyleAndScriptsAppender order { after(rootCreator) } applyIf { format == "html" }
+        htmlPreprocessors with StyleAndScriptsAppender order { after(rootCreator) }
     }
 
     val packageListCreator by extending {
@@ -204,7 +204,7 @@ class DokkaBase : DokkaPlugin() {
                 "html",
                 "html"
             )
-        } order { after(rootCreator) } applyIf { format == "html" }
+        } order { after(rootCreator) }
     }
 
     val sourcesetDependencyAppender by extending {

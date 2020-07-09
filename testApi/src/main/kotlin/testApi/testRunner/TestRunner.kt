@@ -164,7 +164,6 @@ abstract class AbstractCoreTest {
         private val sourceSets = mutableListOf<DokkaSourceSetImpl>()
         fun build() = DokkaConfigurationImpl(
             outputDir = outputDir,
-            format = format,
             cacheRoot = cacheRoot,
             offlineMode = offlineMode,
             sourceSets = sourceSets,

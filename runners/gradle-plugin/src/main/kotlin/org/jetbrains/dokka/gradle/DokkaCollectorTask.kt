@@ -37,8 +37,8 @@ open class DokkaCollectorTask : DefaultTask() {
 
         // TODO this certainly not the ideal solution
         configuration = configurations.fold(initial) { acc, it: GradleDokkaConfigurationImpl ->
-            if (acc.format != it.format || acc.cacheRoot != it.cacheRoot)
-                throw IllegalStateException("Dokka task configurations differ on core arguments (format, cacheRoot)")
+            if (acc.cacheRoot != it.cacheRoot)
+                throw IllegalStateException("Dokka task configurations differ on core argument cacheRoot")
             acc.sourceSets = acc.sourceSets + it.sourceSets
             acc.pluginsClasspath = (acc.pluginsClasspath + it.pluginsClasspath).distinct()
             acc

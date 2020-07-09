@@ -22,7 +22,7 @@ abstract class GfmRenderingOnlyTestBase : RenderingOnlyTestBase<String>() {
         GfmPlugin().gfmPreprocessors to { _ -> RootCreator },
 
         testConfiguration = DokkaConfigurationImpl(
-            "", "", null, false, emptyList(), emptyList(), emptyMap(), emptyList(), false
+            "", null, false, emptyList(), emptyList(), emptyMap(), emptyList(), false
         )
     )
 

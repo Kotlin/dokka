@@ -170,8 +170,6 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
 
     protected abstract fun getOutDir(): String
 
-    protected abstract fun getOutFormat(): String
-
     override fun execute() {
         if (skip) {
             log.info("Dokka skip parameter is true so no dokka output will be produced")
@@ -239,7 +237,6 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
 
         val configuration = DokkaConfigurationImpl(
             outputDir = getOutDir(),
-            format = getOutFormat(),
             offlineMode = offlineMode,
             cacheRoot = cacheRoot,
             sourceSets = listOf(sourceSet).also {
@@ -319,13 +316,9 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
     requiresProject = true
 )
 class DokkaMojo : AbstractDokkaMojo() {
-    @Parameter(required = true, defaultValue = "html")
-    var outputFormat: String = "html"
-
     @Parameter(required = true, defaultValue = "\${project.basedir}/target/dokka")
     var outputDir: String = ""
 
-    override fun getOutFormat() = outputFormat
     override fun getOutDir() = outputDir
 }
 
@@ -339,8 +332,6 @@ class DokkaMojo : AbstractDokkaMojo() {
 class DokkaJavadocMojo : AbstractDokkaMojo() {
     @Parameter(required = true, defaultValue = "\${project.basedir}/target/dokkaJavadoc")
     var outputDir: String = ""
-
-    override fun getOutFormat() = "javadoc"
     override fun getOutDir() = outputDir
 }
 
@@ -396,7 +387,6 @@ class DokkaJavadocJarMojo : AbstractDokkaMojo() {
     @Component(role = Archiver::class, hint = "jar")
     private var jarArchiver: JarArchiver? = null
 
-    override fun getOutFormat() = "javadoc"
     override fun getOutDir() = outputDir
 
     override fun execute() {

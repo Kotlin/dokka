@@ -13,10 +13,10 @@ class KotlinDslDokkaTaskConfigurationTest {
     fun `configure project using dokka extension function`() {
         val project = ProjectBuilder.builder().build()
         project.plugins.apply("org.jetbrains.dokka")
-        project.dokka { this.outputFormat = "test" }
+        project.dokka { this.outputDirectory = "test" }
 
         project.tasks.withType(DokkaTask::class.java).forEach { dokkaTask ->
-            assertEquals("test", dokkaTask.outputFormat)
+            assertEquals("test", dokkaTask.outputDirectory)
         }
     }
 

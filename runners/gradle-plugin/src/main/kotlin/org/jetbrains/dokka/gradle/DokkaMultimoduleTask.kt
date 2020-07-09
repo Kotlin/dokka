@@ -21,9 +21,6 @@ open class DokkaMultimoduleTask : DefaultTask(), Configurable {
     var documentationFileName: String = "README.md"
 
     @Input
-    var outputFormat: String = "html"
-
-    @Input
     var outputDirectory: String = ""
 
     @Input
@@ -73,7 +70,6 @@ open class DokkaMultimoduleTask : DefaultTask(), Configurable {
     internal fun getConfiguration(): GradleDokkaConfigurationImpl =
         GradleDokkaConfigurationImpl().apply {
             outputDir = project.file(outputDirectory).absolutePath
-            format = outputFormat
             pluginsClasspath = plugins.resolve().toList()
             pluginsConfiguration = this@DokkaMultimoduleTask.pluginsConfiguration
             modules = project.subprojects

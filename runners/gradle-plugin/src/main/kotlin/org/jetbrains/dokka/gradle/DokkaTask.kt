@@ -46,9 +46,6 @@ open class DokkaTask : DefaultTask(), Configurable {
     }
 
     @Input
-    var outputFormat: String = "html"
-
-    @Input
     var outputDirectory: String = ""
 
     @Input
@@ -186,7 +183,6 @@ open class DokkaTask : DefaultTask(), Configurable {
 
         return GradleDokkaConfigurationImpl().apply {
             outputDir = project.file(outputDirectory).absolutePath
-            format = outputFormat
             cacheRoot = this@DokkaTask.cacheRoot
             offlineMode = this@DokkaTask.offlineMode
             sourceSets = defaultModulesConfiguration

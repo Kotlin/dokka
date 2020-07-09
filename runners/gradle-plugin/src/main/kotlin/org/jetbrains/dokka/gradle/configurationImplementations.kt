@@ -225,7 +225,6 @@ class GradleDokkaModuleDescription : DokkaModuleDescription {
 
 class GradleDokkaConfigurationImpl : DokkaConfiguration {
     override var outputDir: String = ""
-    override var format: String = DokkaDefaults.format
     override var cacheRoot: String? = DokkaDefaults.cacheRoot
     override var offlineMode: Boolean = DokkaDefaults.offlineMode
     override var failOnWarning: Boolean = DokkaDefaults.failOnWarning

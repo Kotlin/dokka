@@ -7,7 +7,6 @@ import java.io.Serializable
 
 data class DokkaConfigurationImpl(
     override val outputDir: String,
-    override val format: String,
     override val cacheRoot: String?,
     override val offlineMode: Boolean,
     override val sourceSets: List<DokkaSourceSetImpl>,
