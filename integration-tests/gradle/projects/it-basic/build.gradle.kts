@@ -7,10 +7,13 @@ plugins {
 
 apply(from = "../template.root.gradle.kts")
 
-val customDokkaTask by tasks.register<DokkaTask>("customDokka")
-
 dependencies {
+    dokkaPlugin("my:plugin:version")
+    dokkaJavadocPlugin("my:plugin-extending-javadoc:version")
     implementation(kotlin("stdlib"))
 }
 
+tasks.dokkaGfm {
+    outputDirectory = File(buildDir, "gfm").absolutePath
+}
 
