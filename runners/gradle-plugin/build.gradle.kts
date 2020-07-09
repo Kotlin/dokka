@@ -1,7 +1,7 @@
 import org.jetbrains.configureBintrayPublication
+import org.jetbrains.dokkaVersion
 
 plugins {
-    id("com.gradle.plugin-publish")
     `java-gradle-plugin`
 }
 
@@ -35,13 +35,20 @@ val sourceJar by tasks.registering(Jar::class) {
     from(sourceSets["main"].allSource)
 }
 
-val gradlePluginImplementationClass = "org.jetbrains.dokka.gradle.DokkaPlugin"
+gradlePlugin {
+    plugins {
+        create("dokkaGradlePlugin") {
+            id = "org.jetbrains.dokka"
+            implementationClass = "org.jetbrains.dokka.gradle.DokkaPlugin"
+            version = dokkaVersion
+        }
+    }
+}
 
 publishing {
     publications {
-        register<MavenPublication>("dokkaGradlePlugin") {
+        maybeCreate<MavenPublication>("pluginMaven").apply {
             artifactId = "dokka-gradle-plugin"
-            from(components["java"])
             artifact(sourceJar.get())
         }
 
@@ -55,31 +62,4 @@ publishing {
 }
 
 
-gradlePlugin {
-    plugins {
-        create("dokkaGradlePlugin") {
-            id = "org.jetbrains.dokka"
-            implementationClass = gradlePluginImplementationClass
-        }
-    }
-}
-
-pluginBundle {
-    website = "https://www.kotlinlang.org/"
-    vcsUrl = "https://github.com/kotlin/dokka.git"
-    description = "Dokka, the Kotlin documentation tool"
-    tags = listOf("dokka", "kotlin", "kdoc", "android")
-
-    plugins {
-        getByName("dokkaGradlePlugin") {
-            displayName = "Dokka plugin"
-        }
-    }
-
-    mavenCoordinates {
-        groupId = "org.jetbrains.dokka"
-        artifactId = "dokka-gradle-plugin"
-    }
-}
-
-configureBintrayPublication("dokkaGradlePlugin", "pluginMaven", "dokkaGradlePluginPluginMarkerMaven")
+configureBintrayPublication("dokkaGradlePluginPluginMarkerMaven", "pluginMaven")
