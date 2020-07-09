@@ -15,6 +15,10 @@ import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.vfs.StandardFileSystems
 import com.intellij.psi.PsiElement
+import com.intellij.psi.impl.source.javadoc.JavadocManagerImpl
+import com.intellij.psi.javadoc.CustomJavadocTagProvider
+import com.intellij.psi.javadoc.JavadocManager
+import com.intellij.psi.javadoc.JavadocTagInfo
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.dokka.Platform
 import org.jetbrains.kotlin.analyzer.*
@@ -44,17 +48,28 @@ import org.jetbrains.kotlin.context.withModule
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor
 import org.jetbrains.kotlin.descriptors.impl.ModuleDescriptorImpl
+import org.jetbrains.kotlin.descriptors.konan.KlibModuleOrigin
+import org.jetbrains.kotlin.extensions.ApplicationExtensionDescriptor
+import org.jetbrains.kotlin.ide.konan.NativePlatformKindResolution
 import org.jetbrains.kotlin.ide.konan.analyzer.NativeResolverForModuleFactory
+import org.jetbrains.kotlin.idea.resolve.ResolutionFacade
 import org.jetbrains.kotlin.js.config.JSConfigurationKeys
 import org.jetbrains.kotlin.js.resolve.JsPlatformAnalyzerServices
 import org.jetbrains.kotlin.library.impl.createKotlinLibrary
 import org.jetbrains.kotlin.load.java.structure.impl.JavaClassImpl
+import org.jetbrains.kotlin.load.java.structure.impl.classFiles.BinaryJavaClass
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.platform.CommonPlatforms
+import org.jetbrains.kotlin.platform.IdePlatformKind
 import org.jetbrains.kotlin.platform.TargetPlatform
+import org.jetbrains.kotlin.platform.impl.CommonIdePlatformKind
+import org.jetbrains.kotlin.platform.impl.JsIdePlatformKind
+import org.jetbrains.kotlin.platform.impl.JvmIdePlatformKind
+import org.jetbrains.kotlin.platform.impl.NativeIdePlatformKind
 import org.jetbrains.kotlin.platform.js.JsPlatforms
 import org.jetbrains.kotlin.platform.jvm.JvmPlatforms
 import org.jetbrains.kotlin.platform.jvm.JvmPlatforms.unspecifiedJvmPlatform
+import org.jetbrains.kotlin.platform.konan.NativePlatforms
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.BindingTrace
@@ -65,22 +80,11 @@ import org.jetbrains.kotlin.resolve.jvm.JvmPlatformParameters
 import org.jetbrains.kotlin.resolve.jvm.JvmResolverForModuleFactory
 import org.jetbrains.kotlin.resolve.jvm.platform.JvmPlatformAnalyzerServices
 import org.jetbrains.kotlin.resolve.konan.platform.NativePlatformAnalyzerServices
+import org.jetbrains.kotlin.resolve.lazy.BodyResolveMode
 import org.jetbrains.kotlin.resolve.lazy.ResolveSession
 import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.util.slicedMap.ReadOnlySlice
 import org.jetbrains.kotlin.util.slicedMap.WritableSlice
-import org.jetbrains.kotlin.idea.resolve.ResolutionFacade
-import org.jetbrains.kotlin.resolve.lazy.BodyResolveMode
-import org.jetbrains.kotlin.descriptors.konan.KlibModuleOrigin
-import org.jetbrains.kotlin.extensions.ApplicationExtensionDescriptor
-import org.jetbrains.kotlin.ide.konan.NativePlatformKindResolution
-import org.jetbrains.kotlin.load.java.structure.impl.classFiles.BinaryJavaClass
-import org.jetbrains.kotlin.platform.IdePlatformKind
-import org.jetbrains.kotlin.platform.impl.CommonIdePlatformKind
-import org.jetbrains.kotlin.platform.impl.JsIdePlatformKind
-import org.jetbrains.kotlin.platform.impl.JvmIdePlatformKind
-import org.jetbrains.kotlin.platform.impl.NativeIdePlatformKind
-import org.jetbrains.kotlin.platform.konan.NativePlatforms
 import java.io.File
 
 const val JAR_SEPARATOR = "!/"
@@ -132,6 +136,16 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
             OrderEnumerationHandler.EP_NAME, OrderEnumerationHandler.Factory::class.java
         )
 
+        CoreApplicationEnvironment.registerExtensionPoint(
+            environment.project.extensionArea,
+            JavadocTagInfo.EP_NAME, JavadocTagInfo::class.java
+        )
+
+        CoreApplicationEnvironment.registerExtensionPoint(
+            Extensions.getRootArea(),
+            CustomJavadocTagProvider.EP_NAME, CustomJavadocTagProvider::class.java
+        )
+
         projectComponentManager.registerService(
             ProjectFileIndex::class.java,
             projectFileIndex
@@ -140,6 +154,16 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
         projectComponentManager.registerService(
             ProjectRootManager::class.java,
             CoreProjectRootManager(projectFileIndex)
+        )
+
+        projectComponentManager.registerService(
+            JavadocManager::class.java,
+            JavadocManagerImpl(environment.project)
+        )
+
+        projectComponentManager.registerService(
+            CustomJavadocTagProvider::class.java,
+            CustomJavadocTagProvider { emptyList() }
         )
 
         registerExtensionPoint(
