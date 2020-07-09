@@ -7,15 +7,19 @@ import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.query
-import java.lang.IllegalStateException
 import java.net.HttpURLConnection
 import java.net.URL
 import java.net.URLConnection
+import java.util.concurrent.locks.ReentrantReadWriteLock
+import kotlin.concurrent.read
+import kotlin.concurrent.write
 
 abstract class BaseLocationProvider(protected val dokkaContext: DokkaContext) : LocationProvider {
 
     protected val externalLocationProviderFactories =
         dokkaContext.plugin<DokkaBase>().query { externalLocationProviderFactory }
+    private val cache: MutableMap<URL, DefaultLocationProvider.LocationInfo> = mutableMapOf()
+    private val lock = ReentrantReadWriteLock()
 
     protected fun getExternalLocation(
         dri: DRI,
@@ -31,7 +35,7 @@ abstract class BaseLocationProvider(protected val dokkaContext: DokkaContext) : 
         val toResolve: MutableMap<Int, MutableList<DokkaConfiguration.ExternalDocumentationLink>> = mutableMapOf()
         for ((jdk, links) in jdkToExternalDocumentationLinks) {
             for (link in links) {
-                val info = cache[link.packageListUrl]
+                val info = lock.read { cache[link.packageListUrl] }
                 if (info == null) {
                     toResolve.getOrPut(jdk) { mutableListOf() }.add(link)
                 } else if (info.packages.contains(dri.packageName)) {
@@ -55,9 +59,6 @@ abstract class BaseLocationProvider(protected val dokkaContext: DokkaContext) : 
         return ""
     }
 
-    private val cache: MutableMap<URL, DefaultLocationProvider.LocationInfo> = mutableMapOf()
-
-
     private fun getLink(dri: DRI, locationInfo: DefaultLocationProvider.LocationInfo): String =
         locationInfo.locations[dri.packageName + "." + dri.classNames]
             ?: // Not sure if it can be here, previously it shadowed only kotlin/dokka related sources, here it shadows both dokka/javadoc, cause I cannot distinguish what LocationProvider has been hypothetically chosen
@@ -68,7 +69,7 @@ abstract class BaseLocationProvider(protected val dokkaContext: DokkaContext) : 
             else
                 throw IllegalStateException("Have not found any convenient ExternalLocationProvider for $dri DRI!")
 
-    private fun loadPackageList(jdk: Int, url: URL): DefaultLocationProvider.LocationInfo {
+    private fun loadPackageList(jdk: Int, url: URL): DefaultLocationProvider.LocationInfo = lock.write {
         val packageListStream = url.doOpenConnectionToReadContent().getInputStream()
         val (params, packages) =
             packageListStream
