@@ -21,7 +21,6 @@ class JekyllPlugin : DokkaPlugin() {
     val renderer by extending {
         (CoreExtensions.renderer
                 providing { JekyllRenderer(it) }
-                applyIf { format == "jekyll" }
                 override plugin<DokkaBase>().htmlRenderer)
     }
 

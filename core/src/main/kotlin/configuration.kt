@@ -66,7 +66,6 @@ fun DokkaConfiguration.toJson(): String {
 
 interface DokkaConfiguration {
     val outputDir: String
-    val format: String
     val cacheRoot: String?
     val offlineMode: Boolean
     val failOnWarning: Boolean

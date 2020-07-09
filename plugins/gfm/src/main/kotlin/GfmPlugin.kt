@@ -24,14 +24,12 @@ class GfmPlugin : DokkaPlugin() {
     val renderer by extending {
         (CoreExtensions.renderer
                 providing { CommonmarkRenderer(it) }
-                applyIf { format == "gfm" }
                 override dokkaBase.htmlRenderer)
     }
 
     val locationProvider by extending {
         (dokkaBase.locationProviderFactory
                 providing { MarkdownLocationProviderFactory(it) }
-                applyIf { format == "gfm" }
                 override dokkaBase.locationProvider)
     }
 

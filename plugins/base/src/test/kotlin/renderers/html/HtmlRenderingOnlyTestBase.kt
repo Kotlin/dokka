@@ -24,7 +24,7 @@ abstract class HtmlRenderingOnlyTestBase : RenderingOnlyTestBase<Element>() {
         DokkaBase().externalLocationProviderFactory to { ::JavadocExternalLocationProviderFactory },
         DokkaBase().externalLocationProviderFactory to { ::DokkaExternalLocationProviderFactory },
         testConfiguration = DokkaConfigurationImpl(
-            "", "", null, false, emptyList(), emptyList(), emptyMap(), emptyList(), false
+            "", null, false, emptyList(), emptyList(), emptyMap(), emptyList(), false
         )
     )
 

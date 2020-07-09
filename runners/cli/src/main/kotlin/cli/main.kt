@@ -20,11 +20,6 @@ class GlobalArguments(args: Array<String>) : DokkaConfiguration {
     override val outputDir by parser.option(ArgType.String, description = "Output directory path")
         .default(DokkaDefaults.outputDir)
 
-    override val format by parser.option(
-        ArgType.String,
-        description = "Output format (html, gfm, jekyll)"
-    ).default(DokkaDefaults.format)
-
     override val cacheRoot by parser.option(
         ArgType.String,
         description = "Path to cache folder, or 'default' to use ~/.cache/dokka, if not provided caching is disabled"
