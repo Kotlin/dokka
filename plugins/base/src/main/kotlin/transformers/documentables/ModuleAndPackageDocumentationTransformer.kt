@@ -8,6 +8,7 @@ import org.jetbrains.dokka.base.parsers.MarkdownParser
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.transformers.documentation.PreMergeDocumentableTransformer
 import org.jetbrains.kotlin.name.FqName
+import org.jetbrains.kotlin.name.Name
 import java.nio.file.Files
 import java.nio.file.Paths
 
@@ -60,7 +61,7 @@ internal class ModuleAndPackageDocumentationTransformer(
                         doc?.get("Module")?.get(module.name)?.run {
                             pd to MarkdownParser(
                                 facade,
-                                facade.moduleDescriptor,
+                                facade.moduleDescriptor.getPackage(FqName.topLevel(Name.identifier(""))),
                                 context.logger
                             ).parse(this)
                         }
