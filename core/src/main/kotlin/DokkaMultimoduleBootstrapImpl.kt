@@ -1,3 +1,8 @@
+/**
+ * Accessed with reflection
+ */
+@file:Suppress("unused")
+
 package org.jetbrains.dokka
 
 import org.jetbrains.dokka.DokkaBootstrapImpl.DokkaProxyLogger
@@ -12,7 +17,7 @@ class DokkaMultimoduleBootstrapImpl : DokkaBootstrap {
         generator = DokkaGenerator(configuration, logger)
     }
 
-    override fun configure(logger: BiConsumer<String, String>, serializedConfigurationJSON: String) = configure(
+    override fun configure(serializedConfigurationJSON: String, logger: BiConsumer<String, String>) = configure(
         DokkaProxyLogger(logger),
         DokkaConfigurationImpl(serializedConfigurationJSON)
     )
