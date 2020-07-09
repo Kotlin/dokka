@@ -5,7 +5,7 @@
 {% if type != "bottom" %}
 <ul class="navListSearch">
 <li><label for="search">SEARCH:</label>
-<input type="text" id="search" value="search" class="watermark ui-autocomplete-input" autocomplete="off">
+<input type="text" id="search" value="search" class="ui-autocomplete-input" autocomplete="off" placeholder="Search">
 <input type="reset" id="reset" value="reset">
 </li>
 </ul>

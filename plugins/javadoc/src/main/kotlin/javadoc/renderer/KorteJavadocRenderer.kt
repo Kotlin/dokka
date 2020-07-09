@@ -40,6 +40,7 @@ class KorteJavadocRenderer(private val outputWriter: OutputWriter, val context: 
         locationProvider = context.plugin<JavadocPlugin>().querySingle { locationProviderFactory }.getLocationProvider(newRoot)
         runBlocking(Dispatchers.IO) {
             renderModulePageNode(newRoot as JavadocModulePageNode)
+            SearchScriptsCreator(locationProvider).invoke(newRoot).forEach { renderSpecificPage(it, "") }
         }
     }
 
@@ -80,7 +81,7 @@ class KorteJavadocRenderer(private val outputWriter: OutputWriter, val context: 
     private fun CoroutineScope.renderSpecificPage(node: RendererSpecificPage, path: String) = launch {
         when (val strategy = node.strategy) {
             is RenderingStrategy.Copy -> outputWriter.writeResources(strategy.from, "")
-            is RenderingStrategy.Write -> outputWriter.writeHtml(path, strategy.text)
+            is RenderingStrategy.Write -> outputWriter.writeHtml(node.name, strategy.text)
             is RenderingStrategy.Callback -> outputWriter.writeResources(
                 path,
                 strategy.instructions(this@KorteJavadocRenderer, node)
@@ -94,7 +95,7 @@ class KorteJavadocRenderer(private val outputWriter: OutputWriter, val context: 
 
     private fun DRI.toLink(context: PageNode? = null) = locationProvider.resolve(this, emptySet(), context)
 
-    private suspend fun OutputWriter.writeHtml(path: String, text: String) = write(path, text, ".html")
+    private suspend fun OutputWriter.writeHtml(path: String, text: String) = write(path, text, "")
     private fun CoroutineScope.writeFromTemplate(
         writer: OutputWriter,
         path: String,
@@ -102,7 +103,7 @@ class KorteJavadocRenderer(private val outputWriter: OutputWriter, val context: 
         args: List<Pair<String, *>>
     ) = launch {
         val tmp = templateRenderer.render(template, *(args.toTypedArray()))
-        writer.writeHtml(path, tmp)
+        writer.writeHtml("$path.html", tmp)
     }
 
     private fun getTemplateConfig() = TemplateConfig().also { config ->
@@ -118,7 +119,7 @@ class KorteJavadocRenderer(private val outputWriter: OutputWriter, val context: 
                 (buildLink(
                     locationProvider.resolve(link, contextRoot),
                     link.name
-                ) to contentToHtmlTranslator.htmlForContentNodes(doc, contextRoot)).pairToTag().trim()
+                ) to contentToHtmlTranslator.htmlForContentNodes(doc, emptySet(), contextRoot)).pairToTag().trim()
             },
             TeFunction("createListRow") { args ->
                 val link = args.first() as LinkJavadocListEntry

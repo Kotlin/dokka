@@ -92,4 +92,5 @@ class DocumentationLink(val dri: DRI, children: List<DocTag> = emptyList(), para
     override fun hashCode(): Int = super.hashCode() + dri.hashCode()
 }
 object HorizontalRule                                                                                  : DocTag(emptyList(), emptyMap())
+class Index(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())            : DocTag(children, params)
 class CustomDocTag(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())     : DocTag(children, params)

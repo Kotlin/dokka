@@ -10,3 +10,6 @@ import java.net.URLEncoder
 fun String.htmlEscape(): String = replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
 fun String.urlEncoded(): String = URLEncoder.encode(this, "UTF-8")
+
+fun String.formatToEndWithHtml() =
+    if (endsWith(".html") || contains(Regex("\\.html#"))) this else "$this.html"
