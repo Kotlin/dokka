@@ -129,7 +129,7 @@ private fun parseSourceSet(args: Array<String>): DokkaConfiguration.DokkaSourceS
     val sourceSetDisplayName by parser.option(
         ArgType.String,
         description = "Displayed name of the source set"
-    ).default("JVM")
+    ).default(DokkaDefaults.displayName)
 
     val classpath by parser.option(
         ArgType.String,

@@ -3,12 +3,14 @@ import org.jetbrains.configureBintrayPublication
 plugins {
     `maven-publish`
     id("com.jfrog.bintray")
+    kotlin("plugin.serialization")
 }
 
 dependencies {
     api(project("dependencies", configuration = "shadow"))
 
     implementation(kotlin("reflect"))
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.20.0-1.4-M3")
     implementation("com.google.code.gson:gson:2.8.5")
     implementation("org.jsoup:jsoup:1.12.1")
 
