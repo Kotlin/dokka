@@ -2,38 +2,53 @@ package org.jetbrains.dokka.gradle
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.kotlin.dsl.register
-import org.jetbrains.dokka.DokkaVersion
+import org.gradle.kotlin.dsl.create
 import java.io.File
-
-internal const val DOKKA_TASK_NAME = "dokka"
-internal const val DOKKA_COLLECTOR_TASK_NAME = "dokkaCollector"
-internal const val DOKKA_MULTIMODULE_TASK_NAME = "dokkaMultimodule"
 
 open class DokkaPlugin : Plugin<Project> {
     override fun apply(project: Project) {
-        addDokkaTasks(project)
-        addDokkaCollectorTasks(project)
-        addDokkaMultimoduleTasks(project.rootProject)
-    }
+        project.createDokkaTasks("dokka")
 
-    private fun addDokkaTasks(project: Project) {
-        project.tasks.register<DokkaTask>(DOKKA_TASK_NAME) {
-            val dokkaBase = project.dependencies.create("org.jetbrains.dokka:dokka-base:${DokkaVersion.version}")
-            plugins.dependencies.add(dokkaBase)
-            outputDirectory = File(project.buildDir, DOKKA_TASK_NAME).absolutePath
+        project.createDokkaTasks("dokkaJavadoc") {
+            plugins.dependencies.add(project.dokkaDependencies.javadocPlugin)
+        }
+
+        project.createDokkaTasks("dokkaGfm") {
+            plugins.dependencies.add(project.dokkaDependencies.gfmPlugin)
+        }
+
+        project.createDokkaTasks("dokkaJekyll") {
+            plugins.dependencies.add(project.dokkaDependencies.jekyllPlugin)
         }
     }
 
-    private fun addDokkaCollectorTasks(project: Project) {
-        project.tasks.register<DokkaCollectorTask>(DOKKA_COLLECTOR_TASK_NAME) {
-            outputDirectory = File(project.buildDir, DOKKA_TASK_NAME).absolutePath
+    /**
+     * Creates [DokkaTask], [DokkaMultimoduleTask] and [DokkaCollectorTask] for the given
+     * name and configuration.
+     *
+     * The tasks are created, not registered to enable gradle's accessor generation like
+     * ```
+     * dependencies {
+     *     dokkaPlugin(":my-group:my-plugin:my-version)
+     * }
+     * ```
+     *
+     * There is no heavy processing done during configuration of those tasks (I promise).
+     */
+    private fun Project.createDokkaTasks(name: String, configuration: DokkaTask.() -> Unit = {}) {
+        project.tasks.create<DokkaTask>(name) {
+            outputDirectory = File(buildDir, name).absolutePath
+            configuration()
         }
-    }
 
-    private fun addDokkaMultimoduleTasks(project: Project) {
-        project.tasks.register<DokkaMultimoduleTask>(DOKKA_MULTIMODULE_TASK_NAME) {
-            outputDirectory = File(project.buildDir, DOKKA_TASK_NAME).absolutePath
+        project.tasks.create<DokkaCollectorTask>("${name}Collector") {
+            outputDirectory = File(buildDir, name).absolutePath
+            dokkaTaskNames.add(name)
+        }
+
+        project.tasks.create<DokkaMultimoduleTask>("${name}Multimodule") {
+            outputDirectory = File(buildDir, name).absolutePath
+            dokkaTaskNames.add(name)
         }
     }
 }

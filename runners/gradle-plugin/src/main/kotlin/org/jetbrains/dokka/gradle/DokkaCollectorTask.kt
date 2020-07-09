@@ -4,6 +4,7 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.UnknownTaskException
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 import java.lang.IllegalStateException
 
@@ -17,25 +18,26 @@ open class DokkaCollectorTask : DefaultTask() {
 
     private lateinit var configuration: GradleDokkaConfigurationImpl
 
+    @Input
+    val dokkaTaskNames: MutableSet<String> = mutableSetOf()
+
     @TaskAction
     fun collect() {
-        val sourceSets = getProjects(project).filter { it.name in modules }.flatMap {
-            val tasks = try {
-                it.tasks.withType(DokkaTask::class.java)
-            } catch (e: UnknownTaskException) {
-                throw IllegalStateException("No dokka task declared in module ${it.name}")
-            }
-            tasks.map { it.getConfigurationOrNull() }
-        }.filterNotNull()
+        val configurations = project.allDescendentProjects().toList()
+            .filter { subProject -> subProject.name in modules }
+            .flatMap { subProject -> dokkaTaskNames.mapNotNull(subProject.tasks::findByName) }
+            .filterIsInstance<DokkaTask>()
+            .mapNotNull { dokkaTask -> dokkaTask.getConfigurationOrNull() }
+
 
         val initial = GradleDokkaConfigurationImpl().apply {
             outputDir = outputDirectory
-            cacheRoot = sourceSets.first().cacheRoot
-            format = sourceSets.first().format
+            cacheRoot = configurations.first().cacheRoot
         }
 
-        configuration = sourceSets.fold(initial) { acc, it: GradleDokkaConfigurationImpl ->
-            if(acc.format != it.format || acc.cacheRoot != it.cacheRoot)
+        // TODO this certainly not the ideal solution
+        configuration = configurations.fold(initial) { acc, it: GradleDokkaConfigurationImpl ->
+            if (acc.format != it.format || acc.cacheRoot != it.cacheRoot)
                 throw IllegalStateException("Dokka task configurations differ on core arguments (format, cacheRoot)")
             acc.sourceSets = acc.sourceSets + it.sourceSets
             acc.pluginsClasspath = (acc.pluginsClasspath + it.pluginsClasspath).distinct()
@@ -45,10 +47,11 @@ open class DokkaCollectorTask : DefaultTask() {
     }
 
     init {
-        finalizedBy(project.tasks.getByName(DOKKA_TASK_NAME))
+        // TODO: This this certainly not the ideal solution
+        dokkaTaskNames.forEach { dokkaTaskName ->
+            finalizedBy(dokkaTaskName)
+        }
     }
 
-    private fun getProjects(project: Project): Set<Project> =
-        project.subprojects + project.subprojects.flatMap { getProjects(it) }
 
 }

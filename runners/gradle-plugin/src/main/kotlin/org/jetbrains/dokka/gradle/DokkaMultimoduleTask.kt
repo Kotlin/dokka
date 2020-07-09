@@ -4,6 +4,7 @@ import com.google.gson.GsonBuilder
 import org.gradle.api.DefaultTask
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.attributes.Usage
+import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.tasks.Classpath
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
@@ -24,6 +25,9 @@ open class DokkaMultimoduleTask : DefaultTask(), Configurable {
 
     @Input
     var outputDirectory: String = ""
+
+    @Input
+    val dokkaTaskNames: MutableSet<String> = mutableSetOf()
 
     @Classpath
     val runtime = project.configurations.create("${name}Runtime").apply {
@@ -73,14 +77,14 @@ open class DokkaMultimoduleTask : DefaultTask(), Configurable {
             pluginsClasspath = plugins.resolve().toList()
             pluginsConfiguration = this@DokkaMultimoduleTask.pluginsConfiguration
             modules = project.subprojects
-                .mapNotNull { subproject ->
-                    subproject.tasks.withType(DokkaTask::class.java).firstOrNull()?.let { dokkaTask ->
-                        GradleDokkaModuleDescription().apply {
-                            name = subproject.name
-                            path = subproject.projectDir.resolve(dokkaTask.outputDirectory)
-                                .toRelativeString(project.file(outputDirectory))
-                            docFile = subproject.projectDir.resolve(documentationFileName).absolutePath
-                        }
+                .flatMap { subProject -> dokkaTaskNames.mapNotNull(subProject.tasks::findByName) }
+                .filterIsInstance<DokkaTask>()
+                .map { dokkaTask ->
+                    GradleDokkaModuleDescription().apply {
+                        name = dokkaTask.project.name
+                        path = dokkaTask.project.projectDir.resolve(dokkaTask.outputDirectory)
+                            .toRelativeString(project.file(outputDirectory))
+                        docFile = dokkaTask.project.projectDir.resolve(documentationFileName).absolutePath
                     }
                 }
         }

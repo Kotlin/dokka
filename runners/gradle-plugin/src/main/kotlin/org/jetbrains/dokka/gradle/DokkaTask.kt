@@ -51,7 +51,6 @@ open class DokkaTask : DefaultTask(), Configurable {
     @Input
     var outputDirectory: String = ""
 
-
     @Input
     var subProjects: List<String> = emptyList()
 
@@ -65,12 +64,15 @@ open class DokkaTask : DefaultTask(), Configurable {
     @Classpath
     val runtime = project.configurations.create("${name}Runtime").apply {
         defaultDependencies { dependencies ->
-            dependencies.add(project.dependencies.create("org.jetbrains.dokka:dokka-core:${DokkaVersion.version}"))
+            dependencies.add(project.dokkaDependencies.dokkaCore)
         }
     }
 
     @Classpath
     val plugins: Configuration = project.configurations.create("${name}Plugin").apply {
+        defaultDependencies { dependencies ->
+            dependencies.add(project.dokkaDependencies.dokkaBase)
+        }
         attributes.attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(Usage::class.java, "java-runtime"))
         isCanBeConsumed = false
     }
