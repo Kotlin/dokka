@@ -4,6 +4,7 @@ import javadoc.location.JavadocLocationProvider
 import javadoc.pages.JavadocSignatureContentNode
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
+import org.jetbrains.dokka.utilities.formatToEndWithHtml
 import org.jetbrains.dokka.utilities.htmlEscape
 
 internal class JavadocContentToHtmlTranslator(
@@ -13,20 +14,29 @@ internal class JavadocContentToHtmlTranslator(
 
     fun htmlForContentNode(node: ContentNode, relative: PageNode?): String =
         when (node) {
-            is ContentGroup -> htmlForContentNodes(node.children, relative)
-            is ContentText -> node.text.htmlEscape()
+            is ContentGroup -> htmlForContentNodes(node.children, node.style, relative)
+            is ContentText -> buildText(node)
             is ContentDRILink -> buildLink(
                 locationProvider.resolve(node.address, node.sourceSets, relative),
-                htmlForContentNodes(node.children, relative)
+                htmlForContentNodes(node.children, node.style, relative)
             )
-            is ContentResolvedLink -> buildLink(node.address, htmlForContentNodes(node.children, relative))
+            is ContentResolvedLink -> buildLink(node.address, htmlForContentNodes(node.children, node.style, relative))
             is ContentCode -> htmlForCode(node.children)
             is JavadocSignatureContentNode -> htmlForSignature(node, relative)
             else -> ""
         }
 
-    fun htmlForContentNodes(list: List<ContentNode>, relative: PageNode?) =
+    fun htmlForContentNodes(list: List<ContentNode>, styles: Set<Style>, relative: PageNode?) =
         list.joinToString(separator = "") { htmlForContentNode(it, relative) }
+
+    private fun buildText(node: ContentText): String {
+        val escapedText = node.text.htmlEscape()
+        return if (node.style.contains(ContentStyle.InDocumentationAnchor)) {
+            """<em><a id="$escapedText" class="searchTagResult">${escapedText}</a></em>"""
+        } else {
+            escapedText
+        }
+    }
 
     private fun htmlForCode(code: List<ContentNode>): String = code.map { element ->
         when (element) {
@@ -49,7 +59,5 @@ internal class JavadocContentToHtmlTranslator(
         fun buildLink(address: String, content: String) =
             """<a href=${address.formatToEndWithHtml()}>$content</a>"""
 
-        private fun String.formatToEndWithHtml() =
-            if (endsWith(".html") || contains(Regex("\\.html#"))) this else "$this.html"
     }
 }

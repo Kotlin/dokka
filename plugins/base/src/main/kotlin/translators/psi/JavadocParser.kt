@@ -198,6 +198,7 @@ class JavadocParser(
         "code", "literal" -> {
             CodeInline(listOf(Text(tag.text)))
         }
+        "index" -> Index(tag.children.filterIsInstance<PsiDocTagValue>().map { Text(it.text) })
         else -> Text(tag.text)
     }
 

@@ -8,6 +8,7 @@ import org.jetbrains.dokka.javadoc.JavadocPlugin
 import org.jetbrains.dokka.model.withDescendants
 import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.DokkaContext
+import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
@@ -58,9 +59,10 @@ internal abstract class AbstractJavadocTemplateMapTest : AbstractCoreTest() {
     fun testTemplateMapInline(
         query: String,
         configuration: DokkaConfigurationImpl = config,
+        pluginsOverride: List<DokkaPlugin> = emptyList(),
         assertions: Result.() -> Unit
     ) {
-        testInline(query, configuration) {
+        testInline(query, configuration, pluginOverrides = pluginsOverride) {
             renderingStage = { rootPageNode, dokkaContext ->
                 val transformedRootPageNode = preprocessors.fold(rootPageNode) { acc, pageTransformer ->
                     pageTransformer(acc)
@@ -75,6 +77,7 @@ internal abstract class AbstractJavadocTemplateMapTest : AbstractCoreTest() {
         kotlin: String? = null,
         java: String? = null,
         configuration: DokkaConfigurationImpl = config,
+        pluginsOverride: List<DokkaPlugin> = emptyList(),
         assertions: Result.() -> Unit
     ) {
         val kotlinException = kotlin?.let {
@@ -82,6 +85,7 @@ internal abstract class AbstractJavadocTemplateMapTest : AbstractCoreTest() {
                 testTemplateMapInline(
                     query = kotlin,
                     configuration = configuration,
+                    pluginsOverride = pluginsOverride,
                     assertions = assertions
                 )
             }.exceptionOrNull()
@@ -92,6 +96,7 @@ internal abstract class AbstractJavadocTemplateMapTest : AbstractCoreTest() {
                 testTemplateMapInline(
                     query = java,
                     configuration = configuration,
+                    pluginsOverride = pluginsOverride,
                     assertions = assertions
                 )
             }.exceptionOrNull()
