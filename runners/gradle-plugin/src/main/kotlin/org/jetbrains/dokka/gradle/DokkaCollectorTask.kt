@@ -14,7 +14,7 @@ open class DokkaCollectorTask : DefaultTask() {
     var modules: List<String> = emptyList()
 
     @Input
-    var outputDirectory: String = ""
+    var outputDirectory: String = defaultDokkaOutputDirectory().absolutePath
 
     private lateinit var configuration: GradleDokkaConfigurationImpl
 

@@ -3,11 +3,11 @@ package org.jetbrains.dokka.gradle
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.create
-import java.io.File
 
 open class DokkaPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         project.createDokkaTasks("dokka") {
+            outputDirectory = defaultDokkaOutputDirectory(project.buildDir, "dokkaKdoc").absolutePath
             doFirst {
                 logger.warn(":dokka task is deprecated in favor of :dokkaKdoc")
             }
@@ -43,17 +43,14 @@ open class DokkaPlugin : Plugin<Project> {
      */
     private fun Project.createDokkaTasks(name: String, configuration: DokkaTask.() -> Unit = {}) {
         project.tasks.create<DokkaTask>(name) {
-            outputDirectory = File(buildDir, name).absolutePath
             configuration()
         }
 
         project.tasks.create<DokkaCollectorTask>("${name}Collector") {
-            outputDirectory = File(buildDir, name).absolutePath
             dokkaTaskNames.add(name)
         }
 
         project.tasks.create<DokkaMultimoduleTask>("${name}Multimodule") {
-            outputDirectory = File(buildDir, name).absolutePath
             dokkaTaskNames.add(name)
         }
     }

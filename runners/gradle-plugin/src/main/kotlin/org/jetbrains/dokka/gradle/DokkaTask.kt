@@ -44,7 +44,7 @@ open class DokkaTask : DefaultTask(), Configurable {
     }
 
     @Input
-    var outputDirectory: String = ""
+    var outputDirectory: String = defaultDokkaOutputDirectory().absolutePath
 
     @Input
     var subProjects: List<String> = emptyList()
