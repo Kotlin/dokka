@@ -29,21 +29,21 @@ class BasicGradleIntegrationTest(override val versions: BuildVersions) : Abstrac
 
     @Test
     fun execute() {
-        val result = createGradleRunner("dokkaKdoc", "dokkaJavadoc", "dokkaGfm", "dokkaJekyll", "--stacktrace").build()
+        val result = createGradleRunner("dokkaHtml", "dokkaJavadoc", "dokkaGfm", "dokkaJekyll", "--stacktrace").build()
 
-        assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":dokkaKdoc")).outcome)
+        assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":dokkaHtml")).outcome)
         assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":dokkaJavadoc")).outcome)
         assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":dokkaGfm")).outcome)
         assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":dokkaJekyll")).outcome)
 
-        File(projectDir, "build/dokka/kdoc").assertKdocOutputDir()
+        File(projectDir, "build/dokka/html").assertKdocOutputDir()
         File(projectDir, "build/dokka/javadoc").assertJavadocOutputDir()
         File(projectDir, "build/dokka/gfm").assertGfmOutputDir()
         File(projectDir, "build/dokka/jekyll").assertJekyllOutputDir()
     }
 
     private fun File.assertKdocOutputDir() {
-        assertTrue(isDirectory, "Missing dokka kdoc output directory")
+        assertTrue(isDirectory, "Missing dokka html output directory")
 
         val imagesDir = File(this, "images")
         assertTrue(imagesDir.isDirectory, "Missing images directory")

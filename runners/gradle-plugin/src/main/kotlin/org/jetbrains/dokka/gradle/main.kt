@@ -10,11 +10,11 @@ open class DokkaPlugin : Plugin<Project> {
         project.createDokkaTasks("dokka") {
             outputDirectory = defaultDokkaOutputDirectory(project.buildDir, "dokkaKdoc").absolutePath
             doFirst {
-                logger.warn(":dokka task is deprecated in favor of :dokkaKdoc")
+                logger.warn(":dokka task is deprecated in favor of :dokkaHtml")
             }
         }
 
-        project.createDokkaTasks("dokkaKdoc")
+        project.createDokkaTasks("dokkaHtml")
 
         project.createDokkaTasks("dokkaJavadoc") {
             plugins.dependencies.add(project.dokkaArtifacts.javadocPlugin)

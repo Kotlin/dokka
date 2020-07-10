@@ -9,8 +9,8 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib"
 }
 
-dokkaKdoc {
-    outputDirectory = "$buildDir/dokka/customKdoc"
+dokkaHtml {
+    outputDirectory = "$buildDir/dokka/customHtml"
 
     failOnWarning = false
     dokkaSourceSets {
