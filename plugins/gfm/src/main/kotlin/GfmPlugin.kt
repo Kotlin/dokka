@@ -145,11 +145,9 @@ open class CommonmarkRenderer(
             }.groupBy(Pair<DokkaSourceSet, String>::second, Pair<DokkaSourceSet, String>::first)
 
             distinct.filter { it.key.isNotBlank() }.forEach { (text, platforms) ->
-                append(
-                    platforms.joinToString(
-                        prefix = " [",
-                        postfix = "] $text "
-                    ) { it.displayName })
+                append(" ")
+                buildSourceSetTags(platforms.toSet())
+                append(" $text ")
                 buildNewLine()
             }
         }
@@ -255,7 +253,7 @@ open class CommonmarkRenderer(
         distinct.values.forEach { entry ->
             val (instance, sourceSets) = entry.getInstanceAndSourceSets()
 
-            append(sourceSets.joinToString(prefix = "[", postfix = "]") { it.displayName })
+            buildSourceSetTags(sourceSets)
             buildNewLine()
             instance.before?.let {
                 append("Brief description")
@@ -270,7 +268,7 @@ open class CommonmarkRenderer(
                 .values.forEach { innerEntry ->
                     val (innerInstance, innerSourceSets) = innerEntry.getInstanceAndSourceSets()
                     if(sourceSets.size > 1) {
-                        append(innerSourceSets.joinToString(prefix = "[", postfix = "]") { it.displayName })
+                        buildSourceSetTags(innerSourceSets)
                         buildNewLine()
                     }
                     innerInstance.divergent.build(this@buildDivergent, pageContext, setOf(innerSourceSets.first())) // It's workaround to render content only once
@@ -327,6 +325,9 @@ open class CommonmarkRenderer(
     private fun String.withEntersAsHtml(): String = replace("\n", "<br>")
 
     private fun List<Pair<ContentDivergentInstance, DokkaSourceSet>>.getInstanceAndSourceSets() = this.let { Pair(it.first().first, it.map { it.second }.toSet()) }
+
+    private fun StringBuilder.buildSourceSetTags(sourceSets: Set<DokkaSourceSet>) =
+        append(sourceSets.joinToString(prefix = "[", postfix = "]") { it.displayName })
 }
 
 class MarkdownLocationProviderFactory(val context: DokkaContext) : LocationProviderFactory {
