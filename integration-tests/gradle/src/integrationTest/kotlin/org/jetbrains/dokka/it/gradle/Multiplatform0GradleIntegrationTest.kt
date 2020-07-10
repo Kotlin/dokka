@@ -27,11 +27,11 @@ class Multiplatform0GradleIntegrationTest(override val versions: BuildVersions) 
 
     @Test
     fun execute() {
-        val result = createGradleRunner("dokkaKdoc", "--stacktrace").build()
+        val result = createGradleRunner("dokkaHtml", "--stacktrace").build()
 
-        assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":dokkaKdoc")).outcome)
+        assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":dokkaHtml")).outcome)
 
-        val dokkaOutputDir = File(projectDir, "build/dokka/kdoc")
+        val dokkaOutputDir = File(projectDir, "build/dokka/html")
         assertTrue(dokkaOutputDir.isDirectory, "Missing dokka output directory")
 
         dokkaOutputDir.allHtmlFiles().forEach { file ->

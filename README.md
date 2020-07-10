@@ -51,7 +51,7 @@ dokka {
 
 Kotlin
 ```kotlin
-tasks.dokkaKdoc {
+tasks.dokkaHtml {
     outputDirectory = "$buildDir/dokka"
 }
 ```
@@ -190,7 +190,7 @@ kotlin { // Kotlin Multiplatform plugin configuration
     js("customName") // Define a js platform named "customName" If you want to generate docs for it, you need to have this name in dokka configuration below 
 }
 
-dokkaKdoc {
+dokkaHtml {
     outputDirectory = "$buildDir/dokka"
 
     multiplatform {
@@ -220,7 +220,7 @@ kotlin {  // Kotlin Multiplatform plugin configuration
     js("customName")
 }
 
-dokkaKdoc {
+dokkaHtml {
         outputDirectory = "$buildDir/dokka"
 
         multiplatform { 
@@ -246,7 +246,7 @@ dokkaKdoc {
 For convenience, there is also a reserved block called `global`, which is a top-level configuration of `perPackageOptions`, `externalDocumentationLinks`, and `sourceLinks` shared by every platform. Eg.
 
 ```groovy
-dokkaKdoc {
+dokkaHtml {
     multiplatform {
         global { // perPackageOptions, sourceLinks and externalDocumentationLinks from here will be copied to every other platform (jvm and js in eg.)
             perPackageOption {

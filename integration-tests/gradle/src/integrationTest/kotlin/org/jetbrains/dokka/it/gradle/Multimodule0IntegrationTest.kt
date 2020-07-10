@@ -26,11 +26,11 @@ class Multimodule0IntegrationTest(override val versions: BuildVersions) : Abstra
 
     @Test
     fun execute() {
-        val result = createGradleRunner("dokkaKdoc", ":moduleA:dokkaKdocMultimodule", "--stacktrace").build()
+        val result = createGradleRunner("dokkaHtml", ":moduleA:dokkaHtmlMultimodule", "--stacktrace").build()
 
-        assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":moduleA:dokkaKdocMultimodule")).outcome)
+        assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":moduleA:dokkaHtmlMultimodule")).outcome)
 
-        val outputDir = File(projectDir, "moduleA/build/dokka/kdocMultimodule")
+        val outputDir = File(projectDir, "moduleA/build/dokka/htmlMultimodule")
         assertTrue(outputDir.isDirectory, "Missing dokka output directory")
 
         assertTrue(
