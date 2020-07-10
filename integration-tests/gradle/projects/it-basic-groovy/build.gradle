@@ -1,0 +1,37 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm'
+    id("org.jetbrains.dokka")
+}
+
+apply from: '../template.root.gradle.kts'
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib"
+}
+
+dokkaKdoc {
+    outputDirectory = "$buildDir/dokka/customKdoc"
+
+    failOnWarning = false
+    dokkaSourceSets {
+        customSourceSet {
+            sourceRoot { path = "$projectDir/src/main/java" }
+            sourceRoot { path = "$projectDir/src/main/kotlin" }
+            displayName = "custom"
+            reportUndocumented = true
+        }
+    }
+}
+
+dokkaJavadoc {
+    outputDirectory = "$buildDir/dokka/customJavadoc"
+}
+
+dokkaGfm {
+    outputDirectory = "$buildDir/dokka/customGfm"
+}
+
+dokkaJekyll {
+    outputDirectory = "$buildDir/dokka/customJekyll"
+}
+
