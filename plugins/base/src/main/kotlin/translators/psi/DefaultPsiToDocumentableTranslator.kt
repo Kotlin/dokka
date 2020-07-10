@@ -435,10 +435,10 @@ class DefaultPsiToDocumentableTranslator(
             is PsiAnnotation -> toAnnotation()?.let { AnnotationValue(it) }
             is PsiArrayInitializerMemberValue -> ArrayValue(initializers.mapNotNull { it.toValue() })
             is PsiReferenceExpression -> psiReference?.let { EnumValue(text ?: "", DRI.from(it)) }
-            is PsiClassObjectAccessExpression -> ClassValue(
-                text ?: "",
-                DRI.from(((type as PsiImmediateClassType).parameters.single() as PsiClassReferenceType).resolve()!!)
-            )
+            is PsiClassObjectAccessExpression -> {
+                val psiClass = ((type as PsiImmediateClassType).parameters.single() as PsiClassReferenceType).resolve()
+                psiClass?.let { ClassValue(text ?: "", DRI.from(psiClass)) }
+            }
             else -> StringValue(text ?: "")
         }
 
