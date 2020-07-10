@@ -36,6 +36,7 @@ class MultiModule0IntegrationTest(override val versions: BuildVersions) : Abstra
         dokkaOutputDir.allHtmlFiles().forEach { file ->
             assertContainsNoErrorClass(file)
             assertNoUnresolvedLInks(file)
+            assertNoHrefToMissingLocalFileOrDirectory(file)
         }
     }
 }

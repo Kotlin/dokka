@@ -1,7 +1,6 @@
 package org.jetbrains.dokka.it.gradle
 
 import org.gradle.testkit.runner.TaskOutcome
-import org.gradle.util.GradleVersion
 import org.junit.runners.Parameterized
 import java.io.File
 import kotlin.test.*
@@ -38,6 +37,7 @@ class Multiplatform0GradleIntegrationTest(override val versions: BuildVersions) 
         dokkaOutputDir.allHtmlFiles().forEach { file ->
             assertContainsNoErrorClass(file)
             assertNoUnresolvedLInks(file)
+            assertNoHrefToMissingLocalFileOrDirectory(file)
         }
     }
 }

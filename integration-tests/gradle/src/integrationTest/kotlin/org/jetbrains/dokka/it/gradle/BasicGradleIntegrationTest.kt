@@ -1,7 +1,6 @@
 package org.jetbrains.dokka.it.gradle
 
 import org.gradle.testkit.runner.TaskOutcome
-import org.junit.runners.Parameterized
 import org.junit.runners.Parameterized.Parameters
 import java.io.File
 import kotlin.test.*
@@ -76,6 +75,7 @@ class BasicGradleIntegrationTest(override val versions: BuildVersions) : Abstrac
         allHtmlFiles().forEach { file ->
             assertContainsNoErrorClass(file)
             assertNoUnresolvedLInks(file)
+            assertNoHrefToMissingLocalFileOrDirectory(file)
         }
     }
 

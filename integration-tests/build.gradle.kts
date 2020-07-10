@@ -38,4 +38,6 @@ dependencies {
     implementation(kotlin("stdlib"))
     implementation(kotlin("test-junit"))
     val coroutines_version: String by project
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version")}
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version")
+    implementation("org.jsoup:jsoup:1.12.1")
+}
