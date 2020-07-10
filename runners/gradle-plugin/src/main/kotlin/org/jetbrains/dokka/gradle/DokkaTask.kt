@@ -1,24 +1,24 @@
 package org.jetbrains.dokka.gradle
 
 import com.google.gson.GsonBuilder
-import org.gradle.api.*
-import org.gradle.api.artifacts.Configuration
-import org.gradle.api.attributes.Usage
+import org.gradle.api.NamedDomainObjectContainer
+import org.gradle.api.Project
+import org.gradle.api.Task
 import org.gradle.api.file.FileCollection
 import org.gradle.api.internal.plugins.DslObject
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.tasks.*
-import org.jetbrains.dokka.*
 import org.jetbrains.dokka.DokkaConfiguration.ExternalDocumentationLink.Builder
 import org.jetbrains.dokka.DokkaConfiguration.SourceRoot
+import org.jetbrains.dokka.DokkaException
+import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.ReflectDsl
 import org.jetbrains.dokka.ReflectDsl.isNotInstance
 import org.jetbrains.dokka.gradle.ConfigurationExtractor.PlatformData
-import org.jetbrains.dokka.plugability.Configurable
 import java.io.File
 import java.util.concurrent.Callable
 
-open class DokkaTask : DefaultTask(), Configurable {
+open class DokkaTask : AbstractDokkaTask() {
     private val ANDROID_REFERENCE_URL = Builder("https://developer.android.com/reference/").build()
     private val GLOBAL_CONFIGURATION_NAME = "global" // Used for copying perPackageOptions to other platforms
     private val configExtractor = ConfigurationExtractor(project)
@@ -44,33 +44,12 @@ open class DokkaTask : DefaultTask(), Configurable {
     }
 
     @Input
-    var outputDirectory: String = defaultDokkaOutputDirectory().absolutePath
-
-    @Input
     var subProjects: List<String> = emptyList()
-
-    @Input
-    override val pluginsConfiguration: Map<String, String> = mutableMapOf()
 
     @Optional
     @Input
     var cacheRoot: String? = null
 
-    @Classpath
-    val runtime = project.configurations.create("${name}Runtime").apply {
-        defaultDependencies { dependencies ->
-            dependencies.add(project.dokkaArtifacts.dokkaCore)
-        }
-    }
-
-    @Classpath
-    val plugins: Configuration = project.configurations.create("${name}Plugin").apply {
-        defaultDependencies { dependencies ->
-            dependencies.add(project.dokkaArtifacts.dokkaBase)
-        }
-        attributes.attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(Usage::class.java, "java-runtime"))
-        isCanBeConsumed = false
-    }
 
     @get:Internal
     internal var config: GradleDokkaConfigurationImpl? = null
@@ -140,31 +119,26 @@ open class DokkaTask : DefaultTask(), Configurable {
         }
 
     @TaskAction
-    fun generate() = config?.let { generate(it) } ?: generate(getConfigurationOrThrow())
+    override fun generate() = config?.let { generate(it) } ?: generate(getConfigurationOrThrow())
 
     protected open fun generate(configuration: GradleDokkaConfigurationImpl) {
         outputDiagnosticInfo = true
-        val kotlinColorsEnabledBefore = System.getProperty(COLORS_ENABLED_PROPERTY) ?: "false"
-        System.setProperty(COLORS_ENABLED_PROPERTY, "false")
-        try {
-            val bootstrap = DokkaBootstrap(runtime, "org.jetbrains.dokka.DokkaBootstrapImpl")
+        val bootstrap = DokkaBootstrap("org.jetbrains.dokka.DokkaBootstrapImpl")
 
-            bootstrap.configure(
-                GsonBuilder().setPrettyPrinting().create().toJson(configuration)
-            ) { level, message ->
-                when (level) {
-                    "debug" -> logger.debug(message)
-                    "info" -> logger.info(message)
-                    "progress" -> logger.lifecycle(message)
-                    "warn" -> logger.warn(message)
-                    "error" -> logger.error(message)
-                }
+        bootstrap.configure(
+            GsonBuilder().setPrettyPrinting().create().toJson(configuration)
+        ) { level, message ->
+            when (level) {
+                "debug" -> logger.debug(message)
+                "info" -> logger.info(message)
+                "progress" -> logger.lifecycle(message)
+                "warn" -> logger.warn(message)
+                "error" -> logger.error(message)
             }
-            bootstrap.generate()
-        } finally {
-            System.setProperty(COLORS_ENABLED_PROPERTY, kotlinColorsEnabledBefore)
         }
+        bootstrap.generate()
     }
+
 
     @Internal
     internal fun getConfigurationOrNull(): GradleDokkaConfigurationImpl? {

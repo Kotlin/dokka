@@ -15,55 +15,31 @@ import org.jetbrains.dokka.plugability.Configurable
 import java.net.URLClassLoader
 import java.util.function.BiConsumer
 
-open class DokkaMultimoduleTask : DefaultTask(), Configurable {
+open class DokkaMultimoduleTask : AbstractDokkaTask(), Configurable {
 
     @Input
     var documentationFileName: String = "README.md"
 
-    @Input
-    var outputDirectory: String = defaultDokkaOutputDirectory().absolutePath
 
     @Input
     val dokkaTaskNames: MutableSet<String> = mutableSetOf()
 
-    @Classpath
-    val runtime = project.configurations.create("${name}Runtime").apply {
-        defaultDependencies { dependencies ->
-            dependencies.add(project.dependencies.create("org.jetbrains.dokka:dokka-core:${DokkaVersion.version}"))
-        }
-    }
-
-    @Classpath
-    val plugins = project.configurations.create("${name}Plugin").apply {
-        attributes.attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(Usage::class.java, "java-runtime"))
-        isCanBeConsumed = false
-    }
-
-    @Input
-    override val pluginsConfiguration: Map<String, String> = mutableMapOf()
 
     @TaskAction
-    fun dokkaMultiplatform() {
-        val kotlinColorsEnabledBefore = System.getProperty(DokkaTask.COLORS_ENABLED_PROPERTY) ?: "false"
-        System.setProperty(DokkaTask.COLORS_ENABLED_PROPERTY, "false")
-
-        try {
-            val bootstrap = DokkaBootstrap(runtime, "org.jetbrains.dokka.DokkaMultimoduleBootstrapImpl")
-            val gson = GsonBuilder().setPrettyPrinting().create()
-            val configuration = getConfiguration()
-            bootstrap.configure(gson.toJson(configuration)) { level, message ->
-                when (level) {
-                    "debug" -> logger.debug(message)
-                    "info" -> logger.info(message)
-                    "progress" -> logger.lifecycle(message)
-                    "warn" -> logger.warn(message)
-                    "error" -> logger.error(message)
-                }
+    override fun generate() {
+        val bootstrap = DokkaBootstrap("org.jetbrains.dokka.DokkaMultimoduleBootstrapImpl")
+        val gson = GsonBuilder().setPrettyPrinting().create()
+        val configuration = getConfiguration()
+        bootstrap.configure(gson.toJson(configuration)) { level, message ->
+            when (level) {
+                "debug" -> logger.debug(message)
+                "info" -> logger.info(message)
+                "progress" -> logger.lifecycle(message)
+                "warn" -> logger.warn(message)
+                "error" -> logger.error(message)
             }
-            bootstrap.generate()
-        } finally {
-            System.setProperty(DokkaTask.COLORS_ENABLED_PROPERTY, kotlinColorsEnabledBefore)
         }
+        bootstrap.generate()
     }
 
     @Internal
