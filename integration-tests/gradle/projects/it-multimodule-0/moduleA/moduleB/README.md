@@ -1,2 +1,2 @@
 # Module moduleB
-Here is some description
+Here is some description for module B

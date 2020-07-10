@@ -1,2 +1,2 @@
 # Module moduleC
-Here is some description
+Here is some description for module C
