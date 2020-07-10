@@ -6,6 +6,7 @@ import org.gradle.kotlin.dsl.create
 
 open class DokkaPlugin : Plugin<Project> {
     override fun apply(project: Project) {
+
         project.createDokkaTasks("dokka") {
             outputDirectory = defaultDokkaOutputDirectory(project.buildDir, "dokkaKdoc").absolutePath
             doFirst {
