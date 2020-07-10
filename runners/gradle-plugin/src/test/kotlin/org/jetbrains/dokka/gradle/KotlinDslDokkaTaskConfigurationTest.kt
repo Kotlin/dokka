@@ -13,7 +13,9 @@ class KotlinDslDokkaTaskConfigurationTest {
     fun `configure project using dokka extension function`() {
         val project = ProjectBuilder.builder().build()
         project.plugins.apply("org.jetbrains.dokka")
-        project.dokka { this.outputDirectory = "test" }
+        project.tasks.withType(DokkaTask::class.java).forEach { dokkaTask ->
+            dokkaTask.outputDirectory = "test"
+        }
 
         project.tasks.withType(DokkaTask::class.java).forEach { dokkaTask ->
             assertEquals("test", dokkaTask.outputDirectory)
@@ -25,8 +27,8 @@ class KotlinDslDokkaTaskConfigurationTest {
         val project = ProjectBuilder.builder().build()
         project.plugins.apply("org.jetbrains.dokka")
 
-        project.dokka {
-            dokkaSourceSets.run {
+        project.tasks.withType(DokkaTask::class.java).forEach { dokkaTask ->
+            dokkaTask.dokkaSourceSets.run {
                 val commonMain = create("commonMain")
                 val jvmMain = create("jvmMain") {
                     it.dependsOn("commonMain")
@@ -59,7 +61,7 @@ class KotlinDslDokkaTaskConfigurationTest {
         val project = ProjectBuilder.builder().build()
         project.plugins.apply("org.jetbrains.dokka")
 
-        project.dokka {
+        project.tasks.withType(DokkaTask::class.java).first().run {
             dokkaSourceSets.run {
                 val commonMain = create("commonMain")
                 val jvmMain = create("jvmMain") {
@@ -81,7 +83,7 @@ class KotlinDslDokkaTaskConfigurationTest {
 
         val kotlin = project.extensions.getByName("kotlin") as KotlinJvmProjectExtension
 
-        project.dokka {
+        project.tasks.withType(DokkaTask::class.java).first().run {
             dokkaSourceSets.run {
                 val special = create("special") {
                     it.dependsOn(kotlin.sourceSets.getByName("main"))

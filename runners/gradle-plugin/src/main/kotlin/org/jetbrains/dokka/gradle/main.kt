@@ -41,16 +41,17 @@ open class DokkaPlugin : Plugin<Project> {
      *
      * There is no heavy processing done during configuration of those tasks (I promise).
      */
-    private fun Project.createDokkaTasks(name: String, configuration: DokkaTask.() -> Unit = {}) {
+    private fun Project.createDokkaTasks(name: String, configuration: AbstractDokkaTask.() -> Unit = {}) {
         project.tasks.create<DokkaTask>(name) {
             configuration()
         }
 
-        project.tasks.create<DokkaCollectorTask>("${name}Collector") {
+        project.tasks.create<DokkaMultimoduleTask>("${name}Multimodule") {
             dokkaTaskNames.add(name)
+            configuration()
         }
 
-        project.tasks.create<DokkaMultimoduleTask>("${name}Multimodule") {
+        project.tasks.create<DokkaCollectorTask>("${name}Collector") {
             dokkaTaskNames.add(name)
         }
     }
