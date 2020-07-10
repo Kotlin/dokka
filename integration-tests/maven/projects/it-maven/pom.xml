@@ -93,8 +93,6 @@
                     <!-- Default: ${project.artifactId} -->
                     <moduleDisplayName>Maven Integration Test Module</moduleDisplayName>
 
-                    <!-- See list of possible formats below -->
-                    <outputFormat>html</outputFormat>
                     <!-- Default: ${project.basedir}/target/dokka -->
                     <outputDir>${project.basedir}/output</outputDir>
 

@@ -5,7 +5,7 @@ import org.junit.runners.Parameterized
 import java.io.File
 import kotlin.test.*
 
-class MultiModule0IntegrationTest(override val versions: BuildVersions) : AbstractGradleIntegrationTest() {
+class Multimodule0IntegrationTest(override val versions: BuildVersions) : AbstractGradleIntegrationTest() {
     companion object {
         @get:JvmStatic
         @get:Parameterized.Parameters(name = "{0}")
@@ -30,13 +30,32 @@ class MultiModule0IntegrationTest(override val versions: BuildVersions) : Abstra
 
         assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":moduleA:dokkaKdocMultimodule")).outcome)
 
-        val dokkaOutputDir = File(projectDir, "moduleA/build/dokka/kdocMultimodule")
-        assertTrue(dokkaOutputDir.isDirectory, "Missing dokka output directory")
+        val outputDir = File(projectDir, "moduleA/build/dokka/kdocMultimodule")
+        assertTrue(outputDir.isDirectory, "Missing dokka output directory")
 
-        dokkaOutputDir.allHtmlFiles().forEach { file ->
+        assertTrue(
+            outputDir.allHtmlFiles().any(),
+            "Expected at least one html file being generated"
+        )
+
+        outputDir.allHtmlFiles().forEach { file ->
             assertContainsNoErrorClass(file)
             assertNoUnresolvedLInks(file)
             assertNoHrefToMissingLocalFileOrDirectory(file)
         }
+
+        val modulesFile = File(outputDir, "-modules.html")
+        assertTrue(modulesFile.isFile, "Missing -modules.html file")
+
+        val modulesFileText = modulesFile.readText()
+        assertTrue(
+            "moduleB" in modulesFileText,
+            "Expected moduleB being mentioned in -modules.html"
+        )
+        assertTrue(
+            "moduleC" in modulesFileText,
+            "Expected moduleC being mentioned in -modules.html"
+        )
+
     }
 }

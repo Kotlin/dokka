@@ -45,13 +45,17 @@ abstract class AbstractIntegrationTest {
         val fileText = file.readText()
         val html = Jsoup.parse(fileText)
         html.allElements.toList().forEach { element ->
-            val href = element.attr("href") ?: return@forEach
-
-            if (href.startsWith("#")) return@forEach
+            val href = (element.attr("href") ?: return@forEach)
             if (href.startsWith("https")) return@forEach
             if (href.startsWith("http")) return@forEach
 
-            val targetFile = File(file.parent, href)
+            val hrefWithoutAnchors = if (href.contains("#")) {
+                val hrefSplits = href.split("#")
+                if (hrefSplits.count() != 2) return@forEach
+                hrefSplits.first()
+            } else href
+
+            val targetFile = File(file.parent, hrefWithoutAnchors)
             if (targetFile.extension.isNotEmpty() && targetFile.extension !in fileExtensions) return@forEach
 
             if (
