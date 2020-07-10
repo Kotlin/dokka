@@ -8,7 +8,7 @@ import org.jetbrains.dokka.plugability.DokkaContext
 
 class MultimoduleLocationProvider(private val root: RootPageNode, context: DokkaContext) : LocationProvider {
 
-    val defaultLocationProvider = DefaultLocationProvider(root, context)
+    private val defaultLocationProvider = DefaultLocationProvider(root, context)
 
     val paths = context.configuration.modules.map {
         it.name to it.path
@@ -16,7 +16,7 @@ class MultimoduleLocationProvider(private val root: RootPageNode, context: Dokka
 
     override fun resolve(dri: DRI, sourceSets: Set<DokkaSourceSet>, context: PageNode?): String =
         dri.takeIf { it.packageName == MULTIMODULE_PACKAGE_PLACEHOLDER }?.classNames?.let { paths[it] }?.let {
-            "$it/${dri.classNames}/index.html"
+            "$it/${identifierToFilename(dri.classNames.orEmpty())}/index.html"
         } ?: defaultLocationProvider.resolve(dri, sourceSets, context)
 
     override fun resolve(node: PageNode, context: PageNode?, skipExtension: Boolean): String =
