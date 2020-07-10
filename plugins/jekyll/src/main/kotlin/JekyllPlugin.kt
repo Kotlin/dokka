@@ -5,6 +5,7 @@ import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.renderers.PackageListCreator
 import org.jetbrains.dokka.base.renderers.RootCreator
 import org.jetbrains.dokka.gfm.CommonmarkRenderer
+import org.jetbrains.dokka.gfm.GfmPlugin
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.DokkaPlugin
@@ -21,7 +22,8 @@ class JekyllPlugin : DokkaPlugin() {
     val renderer by extending {
         (CoreExtensions.renderer
                 providing { JekyllRenderer(it) }
-                override plugin<DokkaBase>().htmlRenderer)
+                // TODO NOW: Is this correct?
+                override plugin<GfmPlugin>().renderer)
     }
 
     val rootCreator by extending {

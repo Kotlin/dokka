@@ -12,7 +12,7 @@ publishing {
 configureBintrayPublication("gfmPlugin")
 
 dependencies {
-    compileOnly(project(":plugins:base"))
+    implementation(project(":plugins:base"))
     testImplementation(project(":plugins:base"))
     testImplementation(project(":plugins:base:test-utils"))
 }

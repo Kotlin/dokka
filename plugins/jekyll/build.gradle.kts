@@ -12,6 +12,6 @@ publishing {
 configureBintrayPublication("jekyllPlugin")
 
 dependencies {
-    compileOnly(project(":plugins:base"))
+    implementation(project(":plugins:base"))
     implementation(project(":plugins:gfm"))
 }
