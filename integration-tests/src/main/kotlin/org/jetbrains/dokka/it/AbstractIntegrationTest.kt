@@ -1,9 +1,11 @@
 package org.jetbrains.dokka.it
 
+import org.jsoup.Jsoup
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import java.io.File
 import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 abstract class AbstractIntegrationTest {
 
@@ -35,5 +37,31 @@ abstract class AbstractIntegrationTest {
             fileText.contains(regex),
             "Unexpected unresolved link in ${file.path}\n" + fileText
         )
+    }
+
+    protected fun assertNoHrefToMissingLocalFileOrDirectory(
+        file: File, fileExtensions: Set<String> = setOf("html")
+    ) {
+        val fileText = file.readText()
+        val html = Jsoup.parse(fileText)
+        html.allElements.toList().forEach { element ->
+            val href = element.attr("href") ?: return@forEach
+
+            if (href.startsWith("#")) return@forEach
+            if (href.startsWith("https")) return@forEach
+            if (href.startsWith("http")) return@forEach
+
+            val targetFile = File(file.parent, href)
+            if (targetFile.extension.isNotEmpty() && targetFile.extension !in fileExtensions) return@forEach
+
+            if (
+                targetFile.extension.isEmpty() || targetFile.extension == "html" && !href.startsWith("#")) {
+                assertTrue(
+                    targetFile.exists(),
+                    "${file.relativeTo(projectDir).path}: href=\"$href\"\n" +
+                            "file does not exist: ${targetFile.relativeTo(projectDir).path}"
+                )
+            }
+        }
     }
 }
