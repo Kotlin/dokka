@@ -49,7 +49,7 @@ jobs:
         run: |
           aws s3 --recursive rm s3://${{ env.bucket-name }}/${{ env.branch-name }}/coroutines/prev
           aws s3 --recursive mv s3://${{ env.bucket-name }}/${{ env.branch-name }}/coroutines/latest s3://${{ env.bucket-name }}/${{ env.branch-name }}/coroutines/prev
-          aws s3 sync ./coroutines/build/dokkaCollector s3://${{ env.bucket-name }}/${{ env.branch-name }}/coroutines/latest
+          aws s3 sync ./coroutines/build/dokka s3://${{ env.bucket-name }}/${{ env.branch-name }}/coroutines/latest
       - name: Print link
         run: echo http://dokka-snapshots.s3.eu-central-1.amazonaws.com/${{ env.branch-name }}/coroutines/latest/kotlinx-coroutines-/index.html
 
