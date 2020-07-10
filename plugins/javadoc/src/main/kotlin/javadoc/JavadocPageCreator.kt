@@ -9,13 +9,13 @@ import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentCon
 import org.jetbrains.dokka.base.transformers.pages.comments.DocTagToContentConverter
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.doc.Description
-import org.jetbrains.dokka.model.doc.NamedTagWrapper
 import org.jetbrains.dokka.model.doc.Param
 import org.jetbrains.dokka.model.doc.TagWrapper
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.utilities.DokkaLogger
+import kotlin.reflect.KClass
 
 open class JavadocPageCreator(
     commentsToContentConverter: CommentsToContentConverter,
@@ -71,12 +71,16 @@ open class JavadocPageCreator(
             m.jvmSourceSets.toSet()
         ) {
             title(m.name, m.brief(), "0.0.1", dri = setOf(m.dri), kind = ContentKind.Main)
-            list("Packages", "Package", setOf(m.dri), ContentKind.Packages, m.packages.sortedBy { it.name }.map { p ->
-                RowJavadocListEntry(
-                    LinkJavadocListEntry(p.name, setOf(p.dri), JavadocContentKind.PackageSummary, sourceSets),
-                    p.brief()
-                )
-            })
+            leafList(setOf(m.dri),
+                ContentKind.Packages, JavadocList(
+                    "Packages", "Package",
+                    m.packages.sortedBy { it.name }.map { p ->
+                        RowJavadocListEntry(
+                            LinkJavadocListEntry(p.name, setOf(p.dri), JavadocContentKind.PackageSummary, sourceSets),
+                            p.brief()
+                        )
+                    }
+                ))
         }
 
     private fun contentForPackage(p: DPackage): JavadocContentNode =
@@ -86,13 +90,29 @@ open class JavadocPageCreator(
             p.jvmSourceSets.toSet()
         ) {
             title(p.name, p.brief(), "0.0.1", dri = setOf(p.dri), kind = ContentKind.Packages)
-            list("Packages", "Package", setOf(p.dri), ContentKind.Packages, p.classlikes.sortedBy { it.name }.map { c ->
-                RowJavadocListEntry(
-                    LinkJavadocListEntry(c.name.orEmpty(), setOf(c.dri), JavadocContentKind.Class, sourceSets),
-                    c.brief()
-                )
-            })
+            val rootList = p.classlikes.groupBy { it::class }.map { (key, value) ->
+                JavadocList(key.tabTitle, key.colTitle, value.map { c ->
+                    RowJavadocListEntry(
+                        LinkJavadocListEntry(c.name ?: "", setOf(c.dri), JavadocContentKind.Class, sourceSets),
+                        c.brief()
+                    )
+                })
+            }
+            rootList(setOf(p.dri), JavadocContentKind.Class, rootList)
         }
+
+    private val KClass<out DClasslike>.colTitle: String
+        get() = when(this) {
+            DClass::class -> "Class"
+            DObject::class -> "Object"
+            DAnnotation::class -> "Annotation"
+            DEnum::class -> "Enum"
+            DInterface::class -> "Interface"
+            else -> ""
+        }
+
+    private val KClass<out DClasslike>.tabTitle: String
+        get() = colTitle + if(colTitle.last() != 's') "s" else "es"
 
     private fun contentForClasslike(c: DClasslike): JavadocContentNode =
         JavadocContentGroup(
@@ -181,7 +201,8 @@ open class JavadocPageCreator(
         briefFromContentNodes(paramsToContentNodes(sourceSet).dropWhile { it is ContentDRILink })
 
     private fun ContentNode.asJavadocNode(): JavadocSignatureContentNode =
-        (this as ContentGroup).firstChildOfTypeOrNull<JavadocSignatureContentNode>() ?: throw IllegalStateException("No content for javadoc signature found")
+        (this as ContentGroup).firstChildOfTypeOrNull<JavadocSignatureContentNode>()
+            ?: throw IllegalStateException("No content for javadoc signature found")
 
     private fun signatureForNode(documentable: Documentable, sourceSet: DokkaSourceSet): JavadocSignatureContentNode =
         signatureProvider.signature(documentable).nodeForJvm(sourceSet).asJavadocNode()

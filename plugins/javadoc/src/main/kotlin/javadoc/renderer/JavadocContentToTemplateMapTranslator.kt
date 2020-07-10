@@ -114,7 +114,8 @@ internal class JavadocContentToTemplateMapTranslator(
             when (node) {
                 is TitleNode -> templateMapForTitleNode(node)
                 is JavadocContentGroup -> templateMapForJavadocContentGroup(node)
-                is ListNode -> templateMapForListNode(node)
+                is LeafListNode -> templateMapForLeafListNode(node)
+                is RootListNode -> templateMapForRootListNode(node)
                 else -> emptyMap()
             }
 
@@ -195,11 +196,17 @@ internal class JavadocContentToTemplateMapTranslator(
             }
         }
 
-        private fun templateMapForListNode(node: ListNode): TemplateMap {
+        private fun templateMapForLeafListNode(node: LeafListNode): TemplateMap {
             return mapOf(
                 "tabTitle" to node.tabTitle,
                 "colTitle" to node.colTitle,
                 "list" to node.entries
+            )
+        }
+
+        private fun templateMapForRootListNode(node: RootListNode): TemplateMap {
+            return mapOf(
+                "lists" to node.entries.map { templateMapForLeafListNode(it) }
             )
         }
 

@@ -9,8 +9,22 @@
             <p>See: <a href="#overview_description">Description</a></p>
         </div>
     <div class="contentContainer">
-        <div class="overviewSummary">
-            {% include "components/indexTable.korte" %}
-        </div>
+        {% if lists %}
+            <ul class="blockList">
+                {% for item in lists%}
+                <li class="blockList">
+                    {% set list = item.list %}
+                    {% set colTitle = item.colTitle %}
+                    {% set tabTitle = item.tabTitle %}
+                    {% set isTypeSummary = "true" %}
+                    {% include "components/indexTable.korte" %}
+                </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <div class="overviewSummary">
+                {% include "components/indexTable.korte" %}
+            </div>
+        {% endif %}
     </div>
 </main>
