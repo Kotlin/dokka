@@ -350,9 +350,3 @@ open class DokkaTask : DefaultTask(), Configurable {
         }
     }
 }
-
-fun Project.dokka(configuration: DokkaTask.() -> Unit) {
-    tasks.withType(DokkaTask::class.java) { dokkaTask ->
-        dokkaTask.configuration()
-    }
-}
