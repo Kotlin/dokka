@@ -8,9 +8,14 @@ Second difference comes with the change with the subject of dokka pass. Previous
 
 ### Gradle
 
-With changing the approach from platform-based to sourceset-based, we replace `multiplatform` block with `dokkaSourceSets`. It's still a collection of dokka passes configuration, so the structure stays as it was.
+With changing the approach from platform-based to source-set-based, we replace both `configuration` and `multiplatform` blocks with `dokkaSourceSets`. It's still a collection of dokka passes configuration, so the structure stays as it was.
 
-#### Old
+* `moduleName` has changed to `moduleDisplayName`
+* `targets` has been dropped. Declaration merging is now done by the source set mechanism. Name customization can be done using `displayName` property
+ 
+
+#### Groovy
+##### Old
 ```groovy
     dokka {
         outputFormat = 'html'
@@ -35,9 +40,8 @@ With changing the approach from platform-based to sourceset-based, we replace `m
                 }
             }
     }
-}
 ```
-#### New
+##### New
 ```groovy
     dokka {
         outputFormat = 'html'
@@ -68,6 +72,71 @@ With changing the approach from platform-based to sourceset-based, we replace `m
     }
 ```
 
+#### Kotlin
+
+##### Old
+```kotlin
+kotlin {  // Kotlin Multiplatform plugin configuration
+    jvm()
+    js("customName")
+}
+
+val dokka by getting(DokkaTask::class) {
+    outputDirectory = "$buildDir/dokka"
+    outputFormat = "html"
+
+    multiplatform { 
+        val customName by creating { // The same name as in Kotlin Multiplatform plugin, so the sources are fetched automatically
+            includes = listOf("packages.md", "extra.md")
+            samples = listOf("samples/basic.kt", "samples/advanced.kt")
+        }
+
+        register("differentName") { // Different name, so source roots must be passed explicitly
+            targets = listOf("JVM")
+            platform = "jvm"
+            sourceRoot {
+                path = kotlin.sourceSets.getByName("jvmMain").kotlin.srcDirs.first().toString()
+            }
+            sourceRoot {
+                path = kotlin.sourceSets.getByName("commonMain").kotlin.srcDirs.first().toString()
+            }
+        }
+    }
+}
+
+```
+##### New
+```kotlin
+kotlin {  // Kotlin Multiplatform plugin configuration
+    jvm()
+    js("customName")
+}
+
+dokka {
+    outputDirectory = "$buildDir/dokka"
+    outputFormat = "html"
+
+    dokkaSourceSets { 
+        val customNameMain by creating { // The same source set name as in Kotlin Multiplatform plugin, so the sources are fetched automatically
+            includes = listOf("packages.md", "extra.md")
+            samples = listOf("samples/basic.kt", "samples/advanced.kt")
+        }
+        
+        val commonMain by creating {} // Document commonj source set
+
+        create("differentName") { // Different name, so source roots must be passed explicitly
+            sourceSetName = listOf("JVM")
+            platform = "jvm"
+            sourceRoot {
+                path = kotlin.sourceSets.getByName("jvmMain").kotlin.srcDirs.first().toString()
+            }
+            dependsOn(commonMain) // The jvm source set depends on the common source set 
+        }
+    }
+}
+
+```
+
 #### Multimodule page
 
 There is a new task, `dokkaMultimodule`, that creates an index page for all documented subprojects. It is available only for top-level project.
@@ -85,4 +154,14 @@ dokkaMultimodule {
 
 ### Maven
 
-There are no changes in maven configuration API for dokka, so all previous configurations should work without issues.
+There are no changes in maven configuration API for dokka, all previous configurations should work without issues.
+The default platform label is "JVM", `sourceSetName` can be used to change it.
+
+### Ant
+Support for the Ant plugin has been dropped, dokka should be used with CLI in Ant instead.  
+ 
+### Command Line 
+Dokka fajtar has been dropped, thus the command line interface has changed slightly.
+Most importantly, all plugins and their dependencies have to be provided in the `-pluginsClasspath` argument (paths are seperated with ';').
+A build tool like Gradle or Maven is recommended to resolve and download all required artifacts.
+Instead of creating a long configuration command, dokka can be configured with a JSON file. Please refer to the README.
