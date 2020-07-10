@@ -10,9 +10,9 @@ import kotlin.test.assertTrue
 
 class MavenIntegrationTest : AbstractIntegrationTest() {
 
-    val currentDokkaVersion: String = checkNotNull(System.getenv("DOKKA_VERSION"))
+    private val currentDokkaVersion: String = checkNotNull(System.getenv("DOKKA_VERSION"))
 
-    val mavenBinaryFile: File = File(checkNotNull(System.getenv("MVN_BINARY_PATH")))
+    private val mavenBinaryFile: File = File(checkNotNull(System.getenv("MVN_BINARY_PATH")))
 
     @BeforeTest
     fun prepareProjectFiles() {
