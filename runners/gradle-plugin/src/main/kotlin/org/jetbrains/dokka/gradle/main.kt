@@ -7,7 +7,13 @@ import java.io.File
 
 open class DokkaPlugin : Plugin<Project> {
     override fun apply(project: Project) {
-        project.createDokkaTasks("dokka")
+        project.createDokkaTasks("dokka") {
+            doFirst {
+                logger.warn(":dokka task is deprecated in favor of :dokkaKdoc")
+            }
+        }
+
+        project.createDokkaTasks("dokkaKdoc")
 
         project.createDokkaTasks("dokkaJavadoc") {
             plugins.dependencies.add(project.dokkaArtifacts.javadocPlugin)

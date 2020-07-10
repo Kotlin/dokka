@@ -33,7 +33,6 @@ class CliIntegrationTest : AbstractCliIntegrationTest() {
         val process = ProcessBuilder(
             "java", "-jar", cliJarFile.path,
             "-outputDir", dokkaOutputDir.path,
-            "-format", "html",
             "-pluginsClasspath", basePluginJarFile.path,
             "-sourceSet",
             buildString {
