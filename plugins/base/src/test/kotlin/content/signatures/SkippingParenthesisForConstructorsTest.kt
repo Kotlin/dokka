@@ -190,4 +190,65 @@ class ConstructorsSignaturesTest : AbstractCoreTest() {
             }
         }
     }
+
+    @Test
+    fun `class with explicitly documented constructor`() {
+        testInline(
+            """
+            |/src/main/kotlin/test/source.kt
+            |package test
+            |
+            | /**
+            |  * some comment
+            |  * @constructor ctor comment
+            | **/
+            |class SomeClass(a: String)
+        """.trimIndent(), testConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val page = module.children.single { it.name == "test" }
+                    .children.single { it.name == "SomeClass" } as ContentPage
+                page.content.assertNode {
+                    group {
+                        header(1) { +"SomeClass" }
+                        platformHinted {
+                            skipAllNotMatching()
+                            group {
+                                +"class"
+                                link { +"SomeClass" }
+                                +"(a:"
+                                group { link { +"String" } }
+                                +")"
+                            }
+                        }
+                    }
+                    group {
+                        header { +"Constructors" }
+                        table {
+                            group {
+                                link { +"<init>" }
+                                platformHinted {
+                                    group {
+                                        group {
+                                            +"ctor comment"
+                                        }
+                                    }
+                                    group {
+                                        +"fun"
+                                        link { +"<init>" }
+                                        +"(a:"
+                                        group {
+                                            link { +"String" }
+                                        }
+                                        +")"
+                                    }
+                                }
+                            }
+                        }
+                        skipAllNotMatching()
+                    }
+                }
+            }
+        }
+    }
 }
