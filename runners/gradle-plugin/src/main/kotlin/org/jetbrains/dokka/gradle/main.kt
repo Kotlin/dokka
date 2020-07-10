@@ -2,29 +2,22 @@ package org.jetbrains.dokka.gradle
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.kotlin.dsl.create
+import org.gradle.kotlin.dsl.register
 
 open class DokkaPlugin : Plugin<Project> {
     override fun apply(project: Project) {
 
-        project.createDokkaTasks("dokka") {
-            outputDirectory = defaultDokkaOutputDirectory(project.buildDir, "dokkaKdoc").absolutePath
-            doFirst {
-                logger.warn(":dokka task is deprecated in favor of :dokkaHtml")
-            }
-        }
+        project.setupDokkaTasks("dokkaHtml")
 
-        project.createDokkaTasks("dokkaHtml")
-
-        project.createDokkaTasks("dokkaJavadoc") {
+        project.setupDokkaTasks("dokkaJavadoc") {
             plugins.dependencies.add(project.dokkaArtifacts.javadocPlugin)
         }
 
-        project.createDokkaTasks("dokkaGfm") {
+        project.setupDokkaTasks("dokkaGfm") {
             plugins.dependencies.add(project.dokkaArtifacts.gfmPlugin)
         }
 
-        project.createDokkaTasks("dokkaJekyll") {
+        project.setupDokkaTasks("dokkaJekyll") {
             plugins.dependencies.add(project.dokkaArtifacts.jekyllPlugin)
         }
     }
@@ -32,27 +25,23 @@ open class DokkaPlugin : Plugin<Project> {
     /**
      * Creates [DokkaTask], [DokkaMultimoduleTask] and [DokkaCollectorTask] for the given
      * name and configuration.
-     *
-     * The tasks are created, not registered to enable gradle's accessor generation like
-     * ```
-     * dependencies {
-     *     dokkaPlugin(":my-group:my-plugin:my-version)
-     * }
-     * ```
-     *
-     * There is no heavy processing done during configuration of those tasks (I promise).
      */
-    private fun Project.createDokkaTasks(name: String, configuration: AbstractDokkaTask.() -> Unit = {}) {
-        project.tasks.create<DokkaTask>(name) {
+    private fun Project.setupDokkaTasks(name: String, configuration: AbstractDokkaTask.() -> Unit = {}) {
+        project.maybeCreateDokkaPluginConfiguration(name)
+        project.maybeCreateDokkaRuntimeConfiguration(name)
+        project.tasks.register<DokkaTask>(name) {
             configuration()
         }
 
-        project.tasks.create<DokkaMultimoduleTask>("${name}Multimodule") {
+        val multimoduleName = "${name}Multimodule"
+        project.maybeCreateDokkaPluginConfiguration(multimoduleName)
+        project.maybeCreateDokkaRuntimeConfiguration(multimoduleName)
+        project.tasks.register<DokkaMultimoduleTask>(multimoduleName) {
             dokkaTaskNames.add(name)
             configuration()
         }
 
-        project.tasks.create<DokkaCollectorTask>("${name}Collector") {
+        project.tasks.register<DokkaCollectorTask>("${name}Collector") {
             dokkaTaskNames.add(name)
         }
     }

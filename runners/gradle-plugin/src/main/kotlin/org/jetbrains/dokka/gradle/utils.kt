@@ -1,5 +1,6 @@
 package org.jetbrains.dokka.gradle
 
+import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
 import org.gradle.api.UnknownDomainObjectException
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
@@ -31,7 +32,6 @@ internal fun Project.isMultiplatformProject() = try {
 
 internal fun KotlinTarget.isAndroidTarget() = this.platformType == KotlinPlatformType.androidJvm
 
-// TODO NOW: Test
 internal fun Project.allDescendentProjects(): Sequence<Project> {
     return sequence {
         yieldAll(subprojects)
@@ -39,4 +39,8 @@ internal fun Project.allDescendentProjects(): Sequence<Project> {
             yieldAll(subproject.allDescendentProjects())
         }
     }
+}
+
+internal fun <T : Any> NamedDomainObjectContainer<T>.maybeCreate(name: String, configuration: T.() -> Unit): T {
+    return findByName(name) ?: create(name, configuration)
 }
