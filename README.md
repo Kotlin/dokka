@@ -45,15 +45,13 @@ Minimal dokka configuration:
 Groovy
 ```groovy
 dokka {
-    outputFormat = 'html' 
     outputDirectory = "$buildDir/dokka"
 }
 ```
 
 Kotlin
 ```kotlin
-dokka {
-    outputFormat = "html"
+tasks.dokkaKdoc {
     outputDirectory = "$buildDir/dokka"
 }
 ```
@@ -65,7 +63,6 @@ The available configuration options for single platform are shown below:
 
 ```groovy
 dokka {
-    outputFormat = 'html'
     outputDirectory = "$buildDir/javadoc"
     
     // In case of a Gradle multiproject build, you can include subprojects here to get merged documentation
@@ -193,9 +190,8 @@ kotlin { // Kotlin Multiplatform plugin configuration
     js("customName") // Define a js platform named "customName" If you want to generate docs for it, you need to have this name in dokka configuration below 
 }
 
-dokka {
+dokkaKdoc {
     outputDirectory = "$buildDir/dokka"
-    outputFormat = "html"
 
     multiplatform {
         customName { // The same name as in Kotlin Multiplatform plugin, so the sources are fetched automatically
@@ -224,9 +220,8 @@ kotlin {  // Kotlin Multiplatform plugin configuration
     js("customName")
 }
 
-dokka {
+dokkaKdoc {
         outputDirectory = "$buildDir/dokka"
-        outputFormat = "html"
 
         multiplatform { 
             val customName by creating { // The same name as in Kotlin Multiplatform plugin, so the sources are fetched automatically
@@ -251,7 +246,7 @@ dokka {
 For convenience, there is also a reserved block called `global`, which is a top-level configuration of `perPackageOptions`, `externalDocumentationLinks`, and `sourceLinks` shared by every platform. Eg.
 
 ```groovy
-dokka {
+dokkaKdoc {
     multiplatform {
         global { // perPackageOptions, sourceLinks and externalDocumentationLinks from here will be copied to every other platform (jvm and js in eg.)
             perPackageOption {
@@ -289,64 +284,8 @@ To generate the documentation, use the `dokka` Gradle task:
 ./gradlew dokka
 ```
 
-More dokka tasks can be added to a project like this:
-
-```groovy
-task dokkaMarkdown(type: org.jetbrains.dokka.gradle.DokkaTask) {
-    outputFormat = 'markdown'
-    outputDirectory = "$buildDir/markdown"
-}
-```
-
 Please see the [Dokka Gradle example project](https://github.com/JetBrains/kotlin-examples/tree/master/gradle/dokka-gradle-example) for an example.
 
-#### Dokka Runtime
-If you are using Gradle plugin and you want to use a custom version of dokka, you can do it by setting `dokkaRuntime` configuration:
-
-```groovy
-buildscript {
-    ...
-}
-
-apply plugin: 'org.jetbrains.dokka'
-
-repositories {
-    jcenter()
-}
-
-dependencies {
-    dokkaRuntime "org.jetbrains.dokka:dokka-fatjar:0.10.0"
-}
-
-dokka {
-    outputFormat = 'html'
-    outputDirectory = "$buildDir/dokkaHtml"
-}
-
-```
-To use your Fat Jar, just set the path to it:
-
- ```groovy
- buildscript {
-     ...
- }
- 
- apply plugin: 'org.jetbrains.dokka'
- 
- repositories {
-     jcenter()
- }
- 
- dependencies {
-     dokkaRuntime files("/path/to/fatjar/dokka-fatjar-0.10.0.jar")
- }
- 
- dokka {
-     outputFormat = 'html'
-     outputDirectory = "$buildDir/dokkaHtml"
- }
- 
- ```
 
 #### FAQ
 If you encounter any problems, please see the [FAQ](https://github.com/Kotlin/dokka/wiki/faq).
@@ -449,8 +388,7 @@ The available configuration options are shown below:
     
         <!-- Default: ${project.artifactId} -->
         <moduleName>data</moduleName>
-        <!-- See list of possible formats below -->
-        <outputFormat>html</outputFormat>
+
         <!-- Default: ${project.basedir}/target/dokka -->
         <outputDir>some/out/dir</outputDir>
         
@@ -543,45 +481,6 @@ The available configuration options are shown below:
 Please see the [Dokka Maven example project](https://github.com/JetBrains/kotlin-examples/tree/master/maven/dokka-maven-example) for an example.
 
 [Output formats](#output_formats)
-
-### Using the Ant task
-
-The Ant task definition is also contained in the dokka-fatjar.jar referenced above. Here's an example usage:
-
-```xml
-<project name="Dokka" default="document">
-  <typedef resource="dokka-antlib.xml" classpath="dokka-fatjar.jar"/>
-
-  <target name="document">
-    <dokka format="html" outputDir="doc"/>
-  </target>
-</project>
-```
-
-The Ant task supports the following attributes:
-
-  * `outputDir` - the output directory where the documentation is generated
-  * `format` - the output format (see the list of supported formats below)
-  * `cacheRoot` - Use `default` or set to custom path to cache directory to enable package-list caching. When set to `default`, caches stored in $USER_HOME/.cache/dokka
-
-Inside the `dokka` tag you can create another tags named `<passconfig/>` that support the following attributes: 
-
-  * `classpath` - list of directories or .jar files to include in the classpath (used for resolving references)
-  * `samples` - list of directories containing sample code (documentation for those directories is not generated but declarations from them can be referenced using the `@sample` tag)
-  * `moduleName` - the name of the module being documented (used as the root directory of the generated documentation)
-  * `include` - names of files containing the documentation for the module and individual packages
-  * `skipDeprecated` - if set, deprecated elements are not included in the generated documentation
-  * `jdkVersion` - version for linking to JDK
-  * `analysisPlatform="jvm"` - platform used for analysing sourceRoots, see the [platforms](#platforms) section
-  * `<sourceRoot path="src" />` - source root
-  * `<packageOptions prefix="kotlin" includeNonPublic="false" reportUndocumented="true" skipDeprecated="false"/>` - 
-    Per package options for package `kotlin` and sub-packages of it
-  * `noStdlibLink` - disable linking to online kotlin-stdlib documentation
-  * `noJdkLink` - disable linking to online JDK documentation
-  * `<externalDocumentationLink url="https://example.com/docs/" packageListUrl="file:///home/user/localdocs/package-list"/>` -
-    linking to external documentation, packageListUrl should be used if package-list located not in standard location
-  * `<target value="JVM"/>` - see the [platforms](#platforms) section 
-
 
 ### Using the Command Line
 
