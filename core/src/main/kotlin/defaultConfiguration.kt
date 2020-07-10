@@ -3,6 +3,7 @@ package org.jetbrains.dokka
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import java.io.File
 import java.net.URL
+import java.io.Serializable
 
 data class DokkaConfigurationImpl(
     override val outputDir: String,
@@ -80,4 +81,4 @@ data class PackageOptionsImpl(
 data class ExternalDocumentationLinkImpl(
     override val url: URL,
     override val packageListUrl: URL
-) : DokkaConfiguration.ExternalDocumentationLink
+) : DokkaConfiguration.ExternalDocumentationLink, Serializable
