@@ -1,4 +1,4 @@
-import org.jetbrains.dokka.gradle.dokka
+import org.jetbrains.dokka.gradle.DokkaTask
 
 plugins {
     kotlin("multiplatform")
@@ -14,7 +14,7 @@ kotlin {
     js()
 }
 
-dokka {
+tasks.withType<DokkaTask> {
     dokkaSourceSets {
         create("commonMain")
         create("jvmMain")
