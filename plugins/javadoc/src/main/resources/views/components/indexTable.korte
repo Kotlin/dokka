@@ -1,4 +1,8 @@
-<table>
+{% if isTypeSummary %}
+    <table class="typeSummary">
+{% else %}
+    <table>
+{% endif %}
 <caption><span>{{ tabTitle }}</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">{{ colTitle }}</th>

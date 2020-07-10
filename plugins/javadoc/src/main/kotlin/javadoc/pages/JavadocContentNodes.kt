@@ -20,6 +20,12 @@ abstract class JavadocContentNode(
     override fun withNewExtras(newExtras: PropertyContainer<ContentNode>): ContentNode = this
 }
 
+interface JavadocList {
+    val tabTitle: String
+    val colTitle: String
+    val children: List<JavadocListEntry>
+}
+
 interface JavadocListEntry {
     val stringTag: String
 }
@@ -86,7 +92,16 @@ fun JavaContentGroupBuilder.title(
     list.add(TitleNode(title, subtitle, version, parent, dri, kind, sourceSets))
 }
 
-class ListNode(
+class RootListNode(
+    val entries: List<LeafListNode>,
+    val dri: Set<DRI>,
+    val kind: Kind,
+    sourceSets: Set<DokkaSourceSet>,
+) : JavadocContentNode(dri, kind, sourceSets) {
+    override fun hasAnyContent(): Boolean = children.isNotEmpty()
+}
+
+class LeafListNode(
     val tabTitle: String,
     val colTitle: String,
     val entries: List<JavadocListEntry>,
@@ -97,16 +112,31 @@ class ListNode(
     override fun hasAnyContent(): Boolean = children.isNotEmpty()
 }
 
-fun JavaContentGroupBuilder.list(
-    tabTitle: String,
-    colTitle: String,
+
+fun JavaContentGroupBuilder.rootList(
     dri: Set<DRI>,
     kind: Kind,
-    children: List<JavadocListEntry>
+    rootList: List<JavadocList>
 ) {
-    list.add(ListNode(tabTitle, colTitle, children, dri, kind, sourceSets))
+    val children = rootList.map {
+        LeafListNode(it.tabTitle, it.colTitle, it.children, dri, kind, sourceSets)
+    }
+    list.add(RootListNode(children, dri, kind, sourceSets))
 }
 
+fun JavaContentGroupBuilder.leafList(
+    dri: Set<DRI>,
+    kind: Kind,
+    leafList: JavadocList
+) {
+    list.add(LeafListNode(leafList.tabTitle, leafList.colTitle, leafList.children, dri, kind, sourceSets))
+}
+
+fun JavadocList(tabTitle: String, colTitle: String, children: List<JavadocListEntry>) = object : JavadocList {
+    override val tabTitle = tabTitle
+    override val colTitle = colTitle
+    override val children = children
+}
 
 class LinkJavadocListEntry(
     val name: String,
