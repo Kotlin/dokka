@@ -21,7 +21,7 @@ open class DokkaMultimoduleTask : DefaultTask(), Configurable {
     var documentationFileName: String = "README.md"
 
     @Input
-    var outputDirectory: String = ""
+    var outputDirectory: String = defaultDokkaOutputDirectory().absolutePath
 
     @Input
     val dokkaTaskNames: MutableSet<String> = mutableSetOf()
