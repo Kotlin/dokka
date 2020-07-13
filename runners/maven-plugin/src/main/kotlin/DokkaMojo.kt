@@ -166,7 +166,7 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
     var failOnWarning: Boolean = DokkaDefaults.failOnWarning
 
     @Parameter
-    var dokkaPlugins: List<Dependency> = emptyList()
+    open var dokkaPlugins: List<Dependency> = emptyList()
 
     protected abstract fun getOutDir(): String
 
@@ -243,7 +243,7 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
                 if (sourceSet.moduleDisplayName.isEmpty()) logger.warn("Not specified module name. It can result in unexpected behaviour while including documentation for module")
             },
             pluginsClasspath = getArtifactByAether("org.jetbrains.dokka", "dokka-base", dokkaVersion) +
-                    dokkaPlugins.map { getArtifactByAether(it.groupId, it.artifactId, it.version) }.flatten(),
+                    dokkaPlugins.map { getArtifactByAether(it.groupId, it.artifactId, it.version ?: dokkaVersion) }.flatten(),
             pluginsConfiguration = mutableMapOf(), //TODO implement as it is in Gradle
             modules = emptyList(),
             failOnWarning = failOnWarning
@@ -332,6 +332,9 @@ class DokkaMojo : AbstractDokkaMojo() {
 class DokkaJavadocMojo : AbstractDokkaMojo() {
     @Parameter(required = true, defaultValue = "\${project.basedir}/target/dokkaJavadoc")
     var outputDir: String = ""
+
+    override var dokkaPlugins = super.dokkaPlugins + javadocDependency
+
     override fun getOutDir() = outputDir
 }
 
@@ -389,6 +392,8 @@ class DokkaJavadocJarMojo : AbstractDokkaMojo() {
 
     override fun getOutDir() = outputDir
 
+    override var dokkaPlugins = super.dokkaPlugins + javadocDependency
+
     override fun execute() {
         super.execute()
         if (!File(outputDir).exists()) {
@@ -414,4 +419,9 @@ class DokkaJavadocJarMojo : AbstractDokkaMojo() {
 
         return javadocJar
     }
+}
+
+private val javadocDependency = Dependency().apply {
+    groupId = "org.jetbrains.dokka"
+    artifactId = "javadoc-plugin"
 }
