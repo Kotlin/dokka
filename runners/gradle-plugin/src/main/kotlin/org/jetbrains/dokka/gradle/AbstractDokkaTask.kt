@@ -17,11 +17,6 @@ abstract class AbstractDokkaTask : DefaultTask(), Configurable {
     @Input
     var outputDirectory: String = defaultDokkaOutputDirectory().absolutePath
 
-    @Suppress("unused")
-    @Deprecated("This setting is a noop and will be removed")
-    @get:Internal
-    var outputFormat: String = ""
-
     @Input
     override val pluginsConfiguration: Map<String, String> = mutableMapOf()
 
