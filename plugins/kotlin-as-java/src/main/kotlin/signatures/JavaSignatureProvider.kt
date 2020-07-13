@@ -121,22 +121,19 @@ class JavaSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogge
                 val returnType = f.type
                 signatureForProjection(returnType)
                 text(nbsp.toString())
-                group {
-                    link(f.name, f.dri)
-                    list(f.generics, prefix = "<", suffix = ">") {
-                        +buildSignature(it)
-                    }
-                    text("(")
-                    list(f.parameters) {
-                        annotationsInline(it)
-                        text(it.modifiers()[it]?.toSignatureString() ?: "")
-                        signatureForProjection(it.type)
-                        text(nbsp.toString())
-                        link(it.name!!, it.dri)
-                    }
-                    text(")")
+                link(f.name, f.dri)
+                list(f.generics, prefix = "<", suffix = ">") {
+                    +buildSignature(it)
                 }
-
+                text("(")
+                list(f.parameters) {
+                    annotationsInline(it)
+                    text(it.modifiers()[it]?.toSignatureString() ?: "")
+                    signatureForProjection(it.type)
+                    text(nbsp.toString())
+                    link(it.name!!, it.dri)
+                }
+                text(")")
             }
         }
 
