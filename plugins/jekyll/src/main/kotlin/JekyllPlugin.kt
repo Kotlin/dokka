@@ -22,7 +22,6 @@ class JekyllPlugin : DokkaPlugin() {
     val renderer by extending {
         (CoreExtensions.renderer
                 providing { JekyllRenderer(it) }
-                // TODO NOW: Is this correct?
                 override plugin<GfmPlugin>().renderer)
     }
 
