@@ -24,8 +24,6 @@ open class DokkaMultimoduleTask : AbstractDokkaTask(), Configurable {
     @Input
     val dokkaTaskNames: MutableSet<String> = mutableSetOf()
 
-
-    @TaskAction
     override fun generate() {
         val bootstrap = DokkaBootstrap("org.jetbrains.dokka.DokkaMultimoduleBootstrapImpl")
         val gson = GsonBuilder().setPrettyPrinting().create()

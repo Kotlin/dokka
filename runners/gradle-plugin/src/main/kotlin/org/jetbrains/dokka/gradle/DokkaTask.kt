@@ -118,7 +118,6 @@ open class DokkaTask : AbstractDokkaTask() {
             emptyList()
         }
 
-    @TaskAction
     override fun generate() = enforcedConfiguration?.let { generate(it) } ?: generate(getConfigurationOrThrow())
 
     protected open fun generate(configuration: GradleDokkaConfigurationImpl) {
