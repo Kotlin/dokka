@@ -28,6 +28,10 @@ open class HtmlRenderer(
         sourceSet to context.configuration.sourceSets.filter { sourceSet.dependentSourceSets.contains(it.sourceSetID) }
     }.toMap()
 
+    private val isMultiplatform by lazy {
+        sourceSetDependencyMap.size > 1
+    }
+
     private val pageList = mutableMapOf<String, Pair<String, String>>()
 
     override val preprocessors = context.plugin<DokkaBase>().query { htmlPreprocessors }
@@ -99,19 +103,21 @@ open class HtmlRenderer(
     }
 
     private fun FlowContent.filterButtons(group: ContentGroup) {
-        div(classes = "filter-section") {
-            id = "filter-section"
-            group.sourceSets.forEach {
-                button(classes = "platform-tag platform-selector") {
-                    attributes["data-active"] = ""
-                    attributes["data-filter"] = it.sourceSetID.toString()
-                    when (it.analysisPlatform.key) {
-                        "common" -> classes = classes + "common-like"
-                        "native" -> classes = classes + "native-like"
-                        "jvm" -> classes = classes + "jvm-like"
-                        "js" -> classes = classes + "js-like"
+        if (isMultiplatform) {
+            div(classes = "filter-section") {
+                id = "filter-section"
+                group.sourceSets.forEach {
+                    button(classes = "platform-tag platform-selector") {
+                        attributes["data-active"] = ""
+                        attributes["data-filter"] = it.sourceSetID.toString()
+                        when (it.analysisPlatform.key) {
+                            "common" -> classes = classes + "common-like"
+                            "native" -> classes = classes + "native-like"
+                            "jvm" -> classes = classes + "jvm-like"
+                            "js" -> classes = classes + "js-like"
+                        }
+                        text(it.displayName)
                     }
-                    text(it.displayName)
                 }
             }
         }
@@ -182,9 +188,7 @@ open class HtmlRenderer(
                             attributes["data-filterable-set"] = pair.first.sourceSetID.toString()
                             if (index == 0) attributes["data-active"] = ""
                             attributes["data-toggle"] = pair.first.sourceSetID.toString()
-                            when (
-                                pair.first.analysisPlatform.key
-                                ) {
+                            when (pair.first.analysisPlatform.key) {
                                 "common" -> classes = classes + "common-like"
                                 "native" -> classes = classes + "native-like"
                                 "jvm" -> classes = classes + "jvm-like"
@@ -400,16 +404,18 @@ open class HtmlRenderer(
     }
 
     private fun FlowContent.createPlatformTagBubbles(sourceSets: List<DokkaSourceSet>) {
-        div("platform-tags") {
-            sourceSets.forEach {
-                div("platform-tag") {
-                    when (it.analysisPlatform.key) {
-                        "common" -> classes = classes + "common-like"
-                        "native" -> classes = classes + "native-like"
-                        "jvm" -> classes = classes + "jvm-like"
-                        "js" -> classes = classes + "js-like"
+        if (isMultiplatform) {
+            div("platform-tags") {
+                sourceSets.forEach {
+                    div("platform-tag") {
+                        when (it.analysisPlatform.key) {
+                            "common" -> classes = classes + "common-like"
+                            "native" -> classes = classes + "native-like"
+                            "jvm" -> classes = classes + "jvm-like"
+                            "js" -> classes = classes + "js-like"
+                        }
+                        text(it.displayName)
                     }
-                    text(it.displayName)
                 }
             }
         }
