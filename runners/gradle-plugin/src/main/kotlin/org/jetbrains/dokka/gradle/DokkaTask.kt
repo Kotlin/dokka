@@ -50,6 +50,9 @@ open class DokkaTask : AbstractDokkaTask() {
     var cacheRoot: String? = null
 
 
+    /**
+     * Hack used by DokkaCollector to enforce a different configuration to be used.
+     */
     @get:Internal
     internal var enforcedConfiguration: GradleDokkaConfigurationImpl? = null
 
