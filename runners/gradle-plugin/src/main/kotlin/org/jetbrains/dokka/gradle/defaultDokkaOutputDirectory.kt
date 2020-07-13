@@ -8,6 +8,9 @@ internal fun Task.defaultDokkaOutputDirectory(): File {
 }
 
 internal fun defaultDokkaOutputDirectory(buildDir: File, taskName: String): File {
-    val formatClassifier = taskName.removePrefix("dokka").decapitalize()
-    return File(buildDir, "dokka${File.separator}$formatClassifier")
+    return File(buildDir, "dokka${File.separator}${formatClassifier(taskName)}")
+}
+
+internal fun formatClassifier(dokkaTaskName: String): String {
+    return dokkaTaskName.removePrefix("dokka").decapitalize()
 }
