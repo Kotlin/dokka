@@ -212,7 +212,7 @@
     font-family: monospace;
 }
 
-.sample-container {
+.sample-container, .code-area {
     display: flex;
     flex-direction: column;
 }
