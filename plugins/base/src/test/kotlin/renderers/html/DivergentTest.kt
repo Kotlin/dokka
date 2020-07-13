@@ -12,28 +12,6 @@ import utils.Span
 import utils.match
 
 class DivergentTest : HtmlRenderingOnlyTestBase() {
-    private val js = defaultSourceSet.copy(
-        "root",
-        "JS",
-        defaultSourceSet.sourceSetID.copy(sourceSetName = "js"),
-        analysisPlatform = Platform.js,
-        sourceRoots = listOf(SourceRootImpl("pl1"))
-    )
-    private val jvm = defaultSourceSet.copy(
-        "root",
-        "JVM",
-        defaultSourceSet.sourceSetID.copy(sourceSetName = "jvm"),
-
-        analysisPlatform = Platform.jvm,
-        sourceRoots = listOf(SourceRootImpl("pl1"))
-    )
-    private val native = defaultSourceSet.copy(
-        "root",
-        "NATIVE",
-        defaultSourceSet.sourceSetID.copy(sourceSetName = "native"),
-        analysisPlatform = Platform.native,
-        sourceRoots = listOf(SourceRootImpl("pl1"))
-    )
 
     @Test
     fun simpleWrappingCase() {

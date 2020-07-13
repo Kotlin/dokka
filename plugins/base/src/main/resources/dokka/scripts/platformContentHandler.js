@@ -8,8 +8,11 @@ window.addEventListener('load', () => {
         .forEach(elem => elem.addEventListener('click', (event) => togglePlatformDependent(event,elem)))
     document.querySelectorAll("div[tabs-section]")
         .forEach(elem => elem.addEventListener('click', (event) => toggleSectionsEventHandler(event)))
-    document.getElementById('filter-section').addEventListener('click', (event) => filterButtonHandler(event))
-    initializeFiltering()
+    const filterSection = document.getElementById('filter-section')
+    if (filterSection) {
+        filterSection.addEventListener('click', (event) => filterButtonHandler(event))
+        initializeFiltering()
+    }
     initTabs()
     handleAnchor()
 })
