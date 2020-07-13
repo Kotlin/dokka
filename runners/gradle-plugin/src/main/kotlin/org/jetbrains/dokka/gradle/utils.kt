@@ -32,15 +32,6 @@ internal fun Project.isMultiplatformProject() = try {
 
 internal fun KotlinTarget.isAndroidTarget() = this.platformType == KotlinPlatformType.androidJvm
 
-internal fun Project.allDescendentProjects(): Sequence<Project> {
-    return sequence {
-        yieldAll(subprojects)
-        subprojects.forEach { subproject ->
-            yieldAll(subproject.allDescendentProjects())
-        }
-    }
-}
-
 internal fun <T : Any> NamedDomainObjectContainer<T>.maybeCreate(name: String, configuration: T.() -> Unit): T {
     return findByName(name) ?: create(name, configuration)
 }
