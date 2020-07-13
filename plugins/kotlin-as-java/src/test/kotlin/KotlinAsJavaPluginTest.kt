@@ -172,12 +172,10 @@ class KotlinAsJavaPluginTest : AbstractCoreTest() {
                                             +" String"
                                         }
                                     }
-                                    group {
-                                        link {
-                                            +"getPublicProperty"
-                                        }
-                                        +"()"
+                                    link {
+                                        +"getPublicProperty"
                                     }
+                                    +"()"
                                 }
                             }
                         }
