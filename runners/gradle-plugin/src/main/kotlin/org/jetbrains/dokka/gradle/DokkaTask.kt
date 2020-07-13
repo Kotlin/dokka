@@ -43,9 +43,6 @@ open class DokkaTask : AbstractDokkaTask() {
         dependsOn(Callable { kotlinTasks.map { it.taskDependencies } })
     }
 
-    @Input
-    var subProjects: List<String> = emptyList()
-
     @Optional
     @Input
     var cacheRoot: String? = null
@@ -202,7 +199,7 @@ open class DokkaTask : AbstractDokkaTask() {
 
         if (disableAutoconfiguration) return userConfig
 
-        val baseConfig = configExtractor.extractConfiguration(userConfig.name)
+        return configExtractor.extractConfiguration(userConfig.name)
             ?.let { mergeUserConfigurationAndPlatformData(userConfig, it) }
             ?: if (this.dokkaSourceSets.isNotEmpty()) {
                 if (outputDiagnosticInfo)
@@ -216,24 +213,6 @@ open class DokkaTask : AbstractDokkaTask() {
                     logger.warn("Could not find source set with name: ${userConfig.name} in Kotlin Gradle Plugin")
                 collectFromSinglePlatformOldPlugin(userConfig.name, userConfig)
             }
-
-        return if (subProjects.isNotEmpty()) {
-            try {
-                subProjects.toProjects().fold(baseConfig) { configAcc, subProject ->
-                    mergeUserConfigurationAndPlatformData(
-                        configAcc,
-                        ConfigurationExtractor(subProject).extractConfiguration(userConfig.name)!!
-                    )
-                }
-            } catch (e: NullPointerException) {
-                logger.warn(
-                    "Cannot extract sources from subProjects. Do you have the Kotlin plugin applied in the root project?"
-                )
-                baseConfig
-            }
-        } else {
-            baseConfig
-        }
     }
 
     private fun collectFromSinglePlatformOldPlugin(name: String, userConfig: GradleDokkaSourceSet) =
