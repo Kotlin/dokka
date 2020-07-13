@@ -9,10 +9,3 @@ dependencies {
     implementation(kotlin("stdlib"))
 }
 
-tasks.dokkaHtml {
-    dokkaSourceSets {
-        register("global") {
-            jdkVersion = 2
-        }
-    }
-}
