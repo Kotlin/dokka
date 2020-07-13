@@ -18,6 +18,7 @@ dependencies {
     compileOnly(gradleApi())
     compileOnly(gradleKotlinDsl())
     testImplementation(gradleApi())
+    testImplementation(gradleKotlinDsl())
     testImplementation(kotlin("test-junit"))
     testImplementation("org.jetbrains.kotlin:kotlin-gradle-plugin")
 

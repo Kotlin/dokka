@@ -1,6 +1,5 @@
 package org.jetbrains.dokka.gradle
 
-import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.testfixtures.ProjectBuilder
 import org.jetbrains.dokka.DokkaSourceSetID
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension

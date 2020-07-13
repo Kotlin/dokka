@@ -23,7 +23,7 @@ open class DokkaCollectorTask : DefaultTask() {
 
     @TaskAction
     fun collect() {
-        val configurations = project.allDescendentProjects().toList()
+        val configurations = project.subprojects
             .filter { subProject -> subProject.name in modules }
             .flatMap { subProject -> dokkaTaskNames.mapNotNull(subProject.tasks::findByName) }
             .filterIsInstance<DokkaTask>()
