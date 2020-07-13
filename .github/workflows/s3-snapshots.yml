@@ -35,7 +35,7 @@ jobs:
           path: coroutines
 
       - name: Document coroutines
-        run: ./gradlew clean dokka dokkaHtmlMultimodule -Pdokka_version=$DOKKA_VERSION --stacktrace
+        run: ./gradlew clean dokkaHtml dokkaHtmlMultimodule -Pdokka_version=$DOKKA_VERSION --stacktrace
         working-directory: ./coroutines
 
       - name: Configure AWS credentials for S3 access
