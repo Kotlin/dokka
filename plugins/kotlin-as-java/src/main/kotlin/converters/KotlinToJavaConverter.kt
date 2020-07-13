@@ -13,6 +13,7 @@ import org.jetbrains.kotlin.builtins.jvm.JavaToKotlinClassMap
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.resolve.jvm.JvmPrimitiveType
+import java.lang.IllegalStateException
 
 private fun <T : WithExpectActual> List<T>.groupedByLocation() =
     map { it.sources to it }
@@ -164,7 +165,7 @@ internal fun DClass.asJava(): DClass = copy(
     properties = properties.map { it.asJava() },
     classlikes = classlikes.map { it.asJava() },
     generics = generics.map { it.asJava() },
-    supertypes = supertypes.mapValues { it.value.map { it.copy(dri = it.dri.possiblyAsJava()) } },
+    supertypes = supertypes.mapValues { it.value.map { it.asJava() } },
     modifier = if (modifier.all { (_, v) -> v is KotlinModifier.Empty }) sourceSets.map { it to JavaModifier.Final }
         .toMap()
     else sourceSets.map { it to modifier.values.first() }.toMap()
@@ -192,7 +193,7 @@ internal fun DEnum.asJava(): DEnum = copy(
     },
     properties = properties.map { it.asJava() },
     classlikes = classlikes.map { it.asJava() },
-    supertypes = supertypes.mapValues { it.value.map { it.copy(dri = it.dri.possiblyAsJava()) } }
+    supertypes = supertypes.mapValues { it.value.map { it.asJava() } }
 //    , entries = entries.map { it.asJava() }
 )
 
@@ -222,7 +223,7 @@ internal fun DObject.asJava(): DObject = copy(
                 })
             ),
     classlikes = classlikes.map { it.asJava() },
-    supertypes = supertypes.mapValues { it.value.map { it.copy(dri = it.dri.possiblyAsJava()) } }
+    supertypes = supertypes.mapValues { it.value.map { it.asJava() } }
 )
 
 internal fun DInterface.asJava(): DInterface = copy(
@@ -232,7 +233,7 @@ internal fun DInterface.asJava(): DInterface = copy(
     properties = emptyList(),
     classlikes = classlikes.map { it.asJava() }, // TODO: public static final class DefaultImpls with impls for methods
     generics = generics.map { it.asJava() },
-    supertypes = supertypes.mapValues { it.value.map { it.copy(dri = it.dri.possiblyAsJava()) } }
+    supertypes = supertypes.mapValues { it.value.map { it.asJava() } }
 )
 
 internal fun DAnnotation.asJava(): DAnnotation = copy(
@@ -267,6 +268,25 @@ internal fun ClassId.toDRI(dri: DRI?): DRI = DRI(
     extra = null,
     target = PointingToDeclaration
 )
+
+internal fun DriWithKind.asJava(): DriWithKind =
+    DriWithKind(
+        dri = dri.possiblyAsJava(),
+        kind = kind.asJava()
+    )
+
+internal fun ClassKind.asJava(): ClassKind {
+    return when(this){
+        is JavaClassKindTypes -> this
+        KotlinClassKindTypes.CLASS -> JavaClassKindTypes.CLASS
+        KotlinClassKindTypes.INTERFACE -> JavaClassKindTypes.INTERFACE
+        KotlinClassKindTypes.ENUM_CLASS -> JavaClassKindTypes.ENUM_CLASS
+        KotlinClassKindTypes.ENUM_ENTRY -> JavaClassKindTypes.ENUM_ENTRY
+        KotlinClassKindTypes.ANNOTATION_CLASS -> JavaClassKindTypes.ANNOTATION_CLASS
+        KotlinClassKindTypes.OBJECT -> JavaClassKindTypes.CLASS
+        else -> throw IllegalStateException("Non exchaustive match while trying to convert $this to Java")
+    }
+}
 
 private fun PropertyContainer<out Documentable>.mergeAdditionalModifiers(second: SourceSetDependent<Set<ExtraModifiers>>) =
     this[AdditionalModifiers]?.squash(AdditionalModifiers(second)) ?: AdditionalModifiers(second)

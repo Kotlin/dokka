@@ -237,6 +237,58 @@ class KotlinAsJavaPluginTest : AbstractCoreTest() {
         }
     }
 
+    @Test
+    fun `koltin interfaces and classes should be split to extends and implements`(){
+        val configuration = dokkaConfiguration {
+            sourceSets {
+                sourceSet {
+                    sourceRoots = listOf("src/")
+                }
+            }
+        }
+        testInline(
+            """
+            |/src/main/kotlin/kotlinAsJavaPlugin/Test.kt
+            |package kotlinAsJavaPlugin
+            |
+            | open class A { }
+            | interface B
+            | class C : A(), B
+        """,
+            configuration,
+            cleanupOutput = true
+        ) {
+            pagesGenerationStage = { root ->
+                val testClass = root.dfs { it.name == "C" } as? ClasslikePageNode
+                assert(testClass != null)
+                testClass!!.content.assertNode {
+                    group {
+                        header(expectedLevel = 1) {
+                            +"C"
+                        }
+                        platformHinted {
+                            group {
+                                +"public final class"
+                                link {
+                                    +"C"
+                                }
+                                +" extends "
+                                link {
+                                    +"A"
+                                }
+                                +" implements "
+                                link {
+                                    +"B"
+                                }
+                            }
+                        }
+                    }
+                    skipAllNotMatching()
+                }
+            }
+        }
+    }
+
     private fun <T> Collection<T>.assertCount(n: Int, prefix: String = "") =
         assert(count() == n) { "${prefix}Expected $n, got ${count()}" }
 
