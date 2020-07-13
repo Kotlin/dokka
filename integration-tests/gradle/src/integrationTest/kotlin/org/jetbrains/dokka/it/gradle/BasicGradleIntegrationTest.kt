@@ -57,7 +57,7 @@ class BasicGradleIntegrationTest(override val versions: BuildVersions) : Abstrac
         val navigationHtml = File(this, "navigation.html")
         assertTrue(navigationHtml.isFile, "Missing navigation.html")
 
-        val moduleOutputDir = File(this, "it-basic")
+        val moduleOutputDir = File(this, "-basic -project")
         assertTrue(moduleOutputDir.isDirectory, "Missing module directory")
 
         val moduleIndexHtml = File(moduleOutputDir, "index.html")
@@ -77,6 +77,11 @@ class BasicGradleIntegrationTest(override val versions: BuildVersions) : Abstrac
             assertNoUnresolvedLInks(file)
             assertNoHrefToMissingLocalFileOrDirectory(file)
         }
+
+        assertTrue(
+            allHtmlFiles().any { file -> "Basic Project" in file.readText() },
+            "Expected configured moduleDisplayName to be present in html"
+        )
     }
 
     private fun File.assertJavadocOutputDir() {
