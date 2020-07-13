@@ -8,6 +8,7 @@ import org.gradle.api.file.FileCollection
 import org.gradle.api.internal.plugins.DslObject
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.tasks.*
+import org.gradle.kotlin.dsl.getValue
 import org.jetbrains.dokka.DokkaConfiguration.ExternalDocumentationLink.Builder
 import org.jetbrains.dokka.DokkaConfiguration.SourceRoot
 import org.jetbrains.dokka.DokkaException
@@ -147,7 +148,7 @@ open class DokkaTask : AbstractDokkaTask() {
         val defaultModulesConfiguration = configuredDokkaSourceSets
             .map { configureDefault(it) }.takeIf { it.isNotEmpty() }
             ?: listOf(
-                configureDefault(configureDokkaSourceSet(GradleDokkaSourceSet("main", project)))
+                configureDefault(configureDokkaSourceSet(dokkaSourceSets.create("main")))
             ).takeIf { project.isNotMultiplatformProject() } ?: emptyList()
 
         if (defaultModulesConfiguration.isEmpty()) {
