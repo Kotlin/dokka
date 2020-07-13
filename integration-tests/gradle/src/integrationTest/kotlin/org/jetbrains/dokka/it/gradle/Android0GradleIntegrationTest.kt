@@ -51,17 +51,25 @@ class Android0GradleIntegrationTest(override val versions: BuildVersions) : Abst
 
     @Test
     fun execute() {
-        val result = createGradleRunner("dokka", "--stacktrace").build()
-        assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":dokka")).outcome)
+        val result = createGradleRunner("dokkaHtml", "--stacktrace").build()
+        assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":dokkaHtml")).outcome)
 
-        projectDir.allHtmlFiles().forEach { file ->
+        val htmlOutputDir = File(projectDir, "build/dokka/html")
+        assertTrue(htmlOutputDir.isDirectory, "Missing html output directory")
+
+        assertTrue(
+            htmlOutputDir.allHtmlFiles().count() > 0,
+            "Expected html files in html output directory"
+        )
+
+        htmlOutputDir.allHtmlFiles().forEach { file ->
             assertContainsNoErrorClass(file)
             assertNoUnresolvedLInks(file)
             assertNoHrefToMissingLocalFileOrDirectory(file)
         }
 
         assertTrue(
-            projectDir.allHtmlFiles().any { file ->
+            htmlOutputDir.allHtmlFiles().any { file ->
                 "https://developer.android.com/reference/android/content/Context.html" in file.readText()
             }, "Expected link to developer.android.com"
         )
