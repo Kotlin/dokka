@@ -1,10 +1,7 @@
 package org.jetbrains.dokka.gradle
 
 import org.gradle.api.DefaultTask
-import org.gradle.api.Project
-import org.gradle.api.UnknownTaskException
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 import java.lang.IllegalStateException
 
@@ -43,7 +40,7 @@ open class DokkaCollectorTask : DefaultTask() {
             acc.pluginsClasspath = (acc.pluginsClasspath + it.pluginsClasspath).distinct()
             acc
         }
-        project.tasks.withType(DokkaTask::class.java).configureEach { it.config = configuration }
+        project.tasks.withType(DokkaTask::class.java).configureEach { it.enforcedConfiguration = configuration }
     }
 
     init {

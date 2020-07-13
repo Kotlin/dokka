@@ -20,7 +20,6 @@ import java.util.concurrent.Callable
 
 open class DokkaTask : AbstractDokkaTask() {
     private val ANDROID_REFERENCE_URL = Builder("https://developer.android.com/reference/").build()
-    private val GLOBAL_CONFIGURATION_NAME = "global" // Used for copying perPackageOptions to other platforms
     private val configExtractor = ConfigurationExtractor(project)
 
     @Suppress("MemberVisibilityCanBePrivate")
@@ -52,7 +51,7 @@ open class DokkaTask : AbstractDokkaTask() {
 
 
     @get:Internal
-    internal var config: GradleDokkaConfigurationImpl? = null
+    internal var enforcedConfiguration: GradleDokkaConfigurationImpl? = null
 
     @get:Nested
     val dokkaSourceSets: NamedDomainObjectContainer<GradleDokkaSourceSet> =
@@ -119,7 +118,7 @@ open class DokkaTask : AbstractDokkaTask() {
         }
 
     @TaskAction
-    override fun generate() = config?.let { generate(it) } ?: generate(getConfigurationOrThrow())
+    override fun generate() = enforcedConfiguration?.let { generate(it) } ?: generate(getConfigurationOrThrow())
 
     protected open fun generate(configuration: GradleDokkaConfigurationImpl) {
         outputDiagnosticInfo = true
@@ -142,11 +141,10 @@ open class DokkaTask : AbstractDokkaTask() {
 
     @Internal
     internal fun getConfigurationOrNull(): GradleDokkaConfigurationImpl? {
-        val globalConfig = dokkaSourceSets.toList().find { it.name.toLowerCase() == GLOBAL_CONFIGURATION_NAME }
         val defaultModulesConfiguration = configuredDokkaSourceSets
-            .map { configureDefault(it, globalConfig) }.takeIf { it.isNotEmpty() }
+            .map { configureDefault(it) }.takeIf { it.isNotEmpty() }
             ?: listOf(
-                configureDefault(configureDokkaSourceSet(GradleDokkaSourceSet("main", project)), null)
+                configureDefault(configureDokkaSourceSet(GradleDokkaSourceSet("main", project)))
             ).takeIf { project.isNotMultiplatformProject() } ?: emptyList()
 
         if (defaultModulesConfiguration.isEmpty()) {
@@ -185,11 +183,9 @@ open class DokkaTask : AbstractDokkaTask() {
 
     @get:Internal
     protected val configuredDokkaSourceSets: List<GradleDokkaSourceSet>
-        get() = dokkaSourceSets
-            .filterNot { it.name.toLowerCase() == GLOBAL_CONFIGURATION_NAME }
-            .map { configureDokkaSourceSet(it) }
+        get() = dokkaSourceSets.map { configureDokkaSourceSet(it) }
 
-    protected fun configureDokkaSourceSet(config: GradleDokkaSourceSet): GradleDokkaSourceSet {
+    private fun configureDokkaSourceSet(config: GradleDokkaSourceSet): GradleDokkaSourceSet {
         val userConfig = config
             .apply {
                 collectKotlinTasks?.let {
@@ -236,7 +232,7 @@ open class DokkaTask : AbstractDokkaTask() {
         }
     }
 
-    protected fun collectFromSinglePlatformOldPlugin(name: String, userConfig: GradleDokkaSourceSet) =
+    private fun collectFromSinglePlatformOldPlugin(name: String, userConfig: GradleDokkaSourceSet) =
         kotlinTasks.find { it.name == name }
             ?.let { configExtractor.extractFromKotlinTasks(listOf(it)) }
             ?.singleOrNull()
@@ -245,7 +241,7 @@ open class DokkaTask : AbstractDokkaTask() {
                 ?.let { mergeUserConfigurationAndPlatformData(userConfig, it) }
             ?: userConfig
 
-    protected fun mergeUserConfigurationAndPlatformData(
+    private fun mergeUserConfigurationAndPlatformData(
         userConfig: GradleDokkaSourceSet,
         autoConfig: PlatformData
     ) = userConfig.copy().apply {
@@ -257,10 +253,7 @@ open class DokkaTask : AbstractDokkaTask() {
             platform = autoConfig.platform
     }
 
-    protected fun configureDefault(
-        config: GradleDokkaSourceSet,
-        globalConfig: GradleDokkaSourceSet?
-    ): GradleDokkaSourceSet {
+    private fun configureDefault(config: GradleDokkaSourceSet): GradleDokkaSourceSet {
         if (config.moduleDisplayName.isBlank()) {
             config.moduleDisplayName = project.name
         }
@@ -268,25 +261,22 @@ open class DokkaTask : AbstractDokkaTask() {
         if (config.displayName.isBlank()) {
             config.displayName = config.name.substringBeforeLast("Main", config.platform.toString())
         }
-        config.classpath =
-            (config.classpath as List<Any>).map { it.toString() }.distinct() // Workaround for Groovy's GStringImpl
+
+        if (project.isAndroidProject() && !config.noAndroidSdkLink) {
+            config.externalDocumentationLinks.add(ANDROID_REFERENCE_URL)
+        }
+
+        if (config.platform?.isNotBlank() == true) {
+            config.analysisPlatform = dokkaPlatformFromString(config.platform.toString())
+        }
+
+        // Workaround for Groovy's GStringImpl
+        config.classpath = (config.classpath as List<Any>).map { it.toString() }.distinct()
         config.sourceRoots = config.sourceRoots.distinct().toMutableList()
         config.samples = config.samples.map { project.file(it).absolutePath }
         config.includes = config.includes.map { project.file(it).absolutePath }
         config.suppressedFiles += collectSuppressedFiles(config.sourceRoots)
-        if (project.isAndroidProject() && !config.noAndroidSdkLink) {
-            config.externalDocumentationLinks.add(ANDROID_REFERENCE_URL)
-        }
-        if (config.platform?.isNotBlank() == true) {
-            config.analysisPlatform = dokkaPlatformFromString(config.platform.toString())
-        }
-        globalConfig?.let {
-            config.perPackageOptions.addAll(globalConfig.perPackageOptions)
-            config.externalDocumentationLinks.addAll(globalConfig.externalDocumentationLinks)
-            config.sourceLinks.addAll(globalConfig.sourceLinks)
-            config.samples += globalConfig.samples.map { project.file(it).absolutePath }
-            config.includes += globalConfig.includes.map { project.file(it).absolutePath }
-        }
+
         return config
     }
 
