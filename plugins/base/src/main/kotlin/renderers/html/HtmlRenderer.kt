@@ -550,8 +550,8 @@ open class HtmlRenderer(
     override fun FlowContent.buildLink(address: String, content: FlowContent.() -> Unit) =
         a(href = address, block = content)
 
-    override fun FlowContent.buildCode(
-        code: ContentCode,
+    override fun FlowContent.buildCodeBlock(
+        code: ContentCodeBlock,
         pageContext: ContentPage
     ) {
         div("sample-container") {
@@ -559,6 +559,15 @@ open class HtmlRenderer(
                 attributes["theme"] = "idea"
                 code.children.forEach { buildContentNode(it, pageContext) }
             }
+        }
+    }
+
+    override fun FlowContent.buildCodeInline(
+        code: ContentCodeInline,
+        pageContext: ContentPage
+    ) {
+        code {
+            code.children.forEach { buildContentNode(it, pageContext) }
         }
     }
 

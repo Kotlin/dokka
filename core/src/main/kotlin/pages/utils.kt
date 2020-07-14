@@ -14,7 +14,8 @@ internal fun <T : ContentNode, R : ContentNode> R.mapTransform(type: KClass<T>, 
     val new = when (this) {
         is ContentGroup -> this.copy(children.map { it.mapTransform(type, operation) })
         is ContentHeader -> this.copy(children.map { it.mapTransform(type, operation) })
-        is ContentCode -> this.copy(children.map { it.mapTransform(type, operation) })
+        is ContentCodeBlock -> this.copy(children.map { it.mapTransform(type, operation) })
+        is ContentCodeInline -> this.copy(children.map { it.mapTransform(type, operation) })
         is ContentTable -> this.copy(children.map { it.mapTransform(type, operation) })
         is ContentList -> this.copy(children.map { it.mapTransform(type, operation) })
         is ContentDivergentGroup -> this.copy(children.map { it.mapTransform(type, operation) })

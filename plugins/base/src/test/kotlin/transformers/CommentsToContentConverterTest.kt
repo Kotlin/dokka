@@ -1,17 +1,13 @@
 package transformers
 
-import org.jetbrains.dokka.DokkaConfiguration
-import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.transformers.pages.comments.DocTagToContentConverter
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.doc.*
-import org.jetbrains.dokka.plugability.querySingle
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import matchers.content.*
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.kotlin.utils.addToStdlib.assertedCast
-import utils.assertIsInstance
 
 class CommentsToContentConverterTest {
     private val converter = DocTagToContentConverter
@@ -215,11 +211,11 @@ class CommentsToContentConverterTest {
             )
         )
         executeTest(docTag) {
-            node<ContentCode> {
+            node<ContentCodeBlock> {
                 +"Blockquotes are very handy in email to emulate reply text. This line is part of the same quote."
             }
             +"Quote break."
-            node<ContentCode> {
+            node<ContentCodeBlock> {
                 +"Quote"
             }
         }
@@ -249,15 +245,15 @@ class CommentsToContentConverterTest {
             )
         )
         executeTest(docTag) {
-            node<ContentCode> {
+            node<ContentCodeBlock> {
                 +"text 1 text 2"
-                node<ContentCode> {
+                node<ContentCodeBlock> {
                     +"text 3 text 4"
                 }
                 +"text 5"
             }
             +"Quote break."
-            node<ContentCode> {
+            node<ContentCodeBlock> {
                 +"Quote"
             }
         }
@@ -267,7 +263,7 @@ class CommentsToContentConverterTest {
     fun `multiline code`() {
         val docTag = P(
             listOf(
-                Code(
+                CodeBlock(
                     listOf(
                         Text("val x: Int = 0"), Br,
                         Text("val y: String = \"Text\""), Br, Br,
@@ -282,7 +278,7 @@ class CommentsToContentConverterTest {
             )
         )
         executeTest(docTag) {
-            node<ContentCode> {
+            node<ContentCodeBlock> {
                 +"val x: Int = 0"
                 node<ContentBreakLine>()
                 +"val y: String = \"Text\""

@@ -16,9 +16,9 @@ object DocTagsFromIElementFactory {
             MarkdownElementTypes.INLINE_LINK            -> if(dri == null) A(children, params) else DocumentationLink(dri, children, params)
             MarkdownElementTypes.STRONG                 -> B(children, params)
             MarkdownElementTypes.BLOCK_QUOTE            -> BlockQuote(children, params)
-            MarkdownElementTypes.CODE_SPAN,
+            MarkdownElementTypes.CODE_SPAN              -> CodeInline(children, params)
             MarkdownElementTypes.CODE_BLOCK,
-            MarkdownElementTypes.CODE_FENCE             -> Code(children, params)
+            MarkdownElementTypes.CODE_FENCE             -> CodeBlock(children, params)
             MarkdownElementTypes.ATX_1                  -> H1(children, params)
             MarkdownElementTypes.ATX_2                  -> H2(children, params)
             MarkdownElementTypes.ATX_3                  -> H3(children, params)
