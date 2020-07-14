@@ -1,19 +1,9 @@
 package org.jetbrains.dokka.gradle
 
 import com.google.gson.GsonBuilder
-import org.gradle.api.DefaultTask
-import org.gradle.api.artifacts.Configuration
-import org.gradle.api.attributes.Usage
-import org.gradle.api.plugins.JavaBasePlugin
-import org.gradle.api.tasks.Classpath
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
-import org.gradle.api.tasks.TaskAction
-import org.jetbrains.dokka.DokkaBootstrap
-import org.jetbrains.dokka.DokkaVersion
 import org.jetbrains.dokka.plugability.Configurable
-import java.net.URLClassLoader
-import java.util.function.BiConsumer
 
 open class DokkaMultimoduleTask : AbstractDokkaTask(), Configurable {
 

@@ -126,7 +126,7 @@ private fun parseSourceSet(args: Array<String>): DokkaConfiguration.DokkaSourceS
         description = "Name of the source set"
     ).default("main")
 
-    val sourceSetDisplayName by parser.option(
+    val displayName by parser.option(
         ArgType.String,
         description = "Displayed name of the source set"
     ).default("JVM")
@@ -142,14 +142,9 @@ private fun parseSourceSet(args: Array<String>): DokkaConfiguration.DokkaSourceS
         fullName = "src"
     ).delimiter(";")
 
-    val dependentSourceRoots by parser.option(
-        ArgType.String,
-        description = "Source file or directory (allows many paths separated by the semicolon `;`)"
-    ).delimiter(";")
-
     val dependentSourceSets by parser.option(
         ArgType.String,
-        description = "Names of dependent source sets (allows many paths separated by the semicolon `;`)"
+        description = "Names of dependent source sets in format \"moduleName/sourceSetName\" (allows many paths separated by the semicolon `;`)"
     ).delimiter(";")
 
     val samples by parser.option(
@@ -165,7 +160,7 @@ private fun parseSourceSet(args: Array<String>): DokkaConfiguration.DokkaSourceS
     val includeNonPublic: Boolean by parser.option(ArgType.Boolean, description = "Include non public")
         .default(DokkaDefaults.includeNonPublic)
 
-    val includeRootPackage by parser.option(ArgType.Boolean, description = "Include non public")
+    val includeRootPackage by parser.option(ArgType.Boolean, description = "Include root package")
         .default(DokkaDefaults.includeRootPackage)
 
     val reportUndocumented by parser.option(ArgType.Boolean, description = "Report undocumented members")
@@ -230,12 +225,12 @@ private fun parseSourceSet(args: Array<String>): DokkaConfiguration.DokkaSourceS
 
     return object : DokkaConfiguration.DokkaSourceSet {
         override val moduleDisplayName = moduleDisplayName ?: moduleName
-        override val displayName = sourceSetDisplayName
+        override val displayName = displayName
         override val sourceSetID = DokkaSourceSetID(moduleName, sourceSetName)
         override val classpath = classpath
         override val sourceRoots = sourceRoots.map { SourceRootImpl(it.toAbsolutePath()) }
         override val dependentSourceSets: Set<DokkaSourceSetID> = dependentSourceSets
-            .map { dependentSourceSetName -> DokkaSourceSetID(moduleName, dependentSourceSetName)  }
+            .map { dependentSourceSetName -> dependentSourceSetName.split('/').let { DokkaSourceSetID(it[0], it[1]) } }
             .toSet()
         override val samples = samples.map { it.toAbsolutePath() }
         override val includes = includes.map { it.toAbsolutePath() }
