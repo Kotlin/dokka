@@ -1,13 +1,4 @@
-import org.jetbrains.configureBintrayPublication
-
-publishing {
-    publications {
-        register<MavenPublication>("kotlinAsJavaPlugin") {
-            artifactId = "kotlin-as-java-plugin"
-            from(components["java"])
-        }
-    }
-}
+import org.jetbrains.configurePublication
 
 dependencies {
     implementation(project(":plugins:base"))
@@ -16,4 +7,4 @@ dependencies {
     testImplementation(project(":test-tools"))
 }
 
-configureBintrayPublication("kotlinAsJavaPlugin")
+configurePublication("kotlin-as-java-plugin")

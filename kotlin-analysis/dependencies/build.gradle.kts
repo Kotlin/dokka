@@ -1,5 +1,4 @@
-import org.jetbrains.configureBintrayPublication
-
+import org.jetbrains.configurePublication
 
 plugins {
     id("com.github.johnrengelman.shadow")
@@ -54,14 +53,4 @@ tasks {
     }
 }
 
-
-publishing {
-    publications {
-        register<MavenPublication>("kotlin-analysis-dependencies") {
-            artifactId = "kotlin-analysis-dependencies"
-            project.shadow.component(this)
-        }
-    }
-}
-
-configureBintrayPublication("kotlin-analysis-dependencies")
+configurePublication("kotlin-analysis-dependencies", useShadow = true)

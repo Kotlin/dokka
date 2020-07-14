@@ -1,4 +1,4 @@
-import org.jetbrains.configureBintrayPublication
+import org.jetbrains.configurePublication
 
 plugins {
     id("com.github.johnrengelman.shadow")
@@ -15,7 +15,6 @@ dependencies {
     implementation(kotlin("stdlib"))
 }
 
-
 tasks {
     shadowJar {
         val dokka_version: String by project
@@ -27,13 +26,5 @@ tasks {
     }
 }
 
-publishing {
-    publications {
-        register<MavenPublication>("dokkaCli") {
-            artifactId = "dokka-cli"
-            project.shadow.component(this)
-        }
-    }
-}
+configurePublication("dokka-cli", useShadow = true)
 
-configureBintrayPublication("dokkaCli")
