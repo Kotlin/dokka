@@ -11,6 +11,7 @@ class DokkaPublicationBuilder {
     enum class Component {
         Java, Shadow
     }
+
     var artifactId: String? = null
     var component: Component = Component.Java
 }
@@ -23,8 +24,10 @@ fun Project.registerDokkaArtifactPublication(publicationName: String, configure:
                 this.artifactId = builder.artifactId
                 when (builder.component) {
                     DokkaPublicationBuilder.Component.Java -> from(components["java"])
-                    DokkaPublicationBuilder.Component.Shadow ->
+                    DokkaPublicationBuilder.Component.Shadow -> run {
+                        artifact(tasks["sourcesJar"])
                         extensions.getByType(ShadowExtension::class.java).component(this)
+                    }
                 }
             }
         }
