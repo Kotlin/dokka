@@ -52,22 +52,24 @@
                                 <!--   -->
                             </a>
                                 <h3>Nested Class Summary</h3>
-                                <table class="memberSummary">
-                                    <caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
-                                    <tr>
-                                        <th class="colFirst" scope="col">Modifier and Type</th>
-                                        <th class="colSecond" scope="col">Class</th>
-                                        <th class="colLast" scope="col">Description</th>
-                                    </tr>
-                                    {% for classlike in classlikes %}
-                                    <tr class="{{ rowColor(loop.index0) }}">
-                                        <td class="colFirst"><code>{{ classlike.modifiers }}</code></td>
-                                        <th class="colSecond" scope="row"><code>{{ classlike.signature }}</span></code>
-                                        </th>
-                                        <td class="colLast">{{ classlike.description }}</td>
-                                    </tr>
-                                    {% endfor %}
-                                </table>
+                                <div class="memberSummary">
+                                    <table>
+                                        <caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
+                                        <tr>
+                                            <th class="colFirst" scope="col">Modifier and Type</th>
+                                            <th class="colSecond" scope="col">Class</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+                                        {% for classlike in classlikes %}
+                                        <tr class="{{ rowColor(loop.index0) }}">
+                                            <td class="colFirst"><code>{{ classlike.modifiers }}</code></td>
+                                            <th class="colSecond" scope="row"><code>{{ classlike.signature }}</span></code>
+                                            </th>
+                                            <td class="colLast">{{ classlike.description }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </table>
+                                </div>
                             </li>
                         </ul>
                     </section>
@@ -80,21 +82,23 @@
                                 <!--   -->
                             </a>
                                 <h3>Field Summary</h3>
-                                <table class="memberSummary">
-                                    <caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
-                                    <tr>
-                                        <th class="colFirst" scope="col">Modifier and Type</th>
-                                        <th class="colSecond" scope="col">Field</th>
-                                        <th class="colLast" scope="col">Description</th>
-                                    </tr>
-                                    {% for property in properties %}
-                                    <tr class="{{ rowColor(loop.index0) }}">
-                                        <td class="colFirst"><code>{{ property.modifiers|raw }}</code></td>
-                                        <th class="colSecond" scope="row"><code>{{ property.signature|raw }}</code></th>
-                                        <td class="colLast">{{ description|raw }}</td>
-                                    </tr>
-                                    {% endfor %}
-                                </table>
+                                <div class="memberSummary">
+                                    <table>
+                                        <caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+                                        <tr>
+                                            <th class="colFirst" scope="col">Modifier and Type</th>
+                                            <th class="colSecond" scope="col">Field</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+                                        {% for property in properties %}
+                                        <tr class="{{ rowColor(loop.index0) }}">
+                                            <td class="colFirst"><code>{{ property.modifiers|raw }}</code></td>
+                                            <th class="colSecond" scope="row"><code>{{ property.signature|raw }}</code></th>
+                                            <td class="colLast">{{ description|raw }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </table>
+                                </div>
                             </li>
                         </ul>
                     </section>
@@ -107,24 +111,26 @@
                                 <!--   -->
                             </a>
                                 <h3>Constructor Summary</h3>
-                                <table class="memberSummary">
-                                    <caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
-                                    <tbody>
-                                    <tr>
-                                        <th class="colFirst" scope="col">Constructor</th>
-                                        <th class="colLast" scope="col">Description</th>
-                                    </tr>
-
-                                    {% for constructor in constructors %}
-                                        <tr class="{{ rowColor(loop.index0) }}">
-                                            <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a
-                                                    href="#{{ constructor.anchorLink }}">{{ constructor.name }}</a></span>({{ constructor.inlineParameters|raw }})</code></th>
-                                            <td class="colLast">{{ constructor.brief|raw }}</td>
+                                <div class="memberSummary">
+                                    <table>
+                                        <caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+                                        <tbody>
+                                        <tr>
+                                            <th class="colFirst" scope="col">Constructor</th>
+                                            <th class="colLast" scope="col">Description</th>
                                         </tr>
-                                    {% endfor %}
 
-                                    </tbody>
-                                </table>
+                                        {% for constructor in constructors %}
+                                            <tr class="{{ rowColor(loop.index0) }}">
+                                                <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a
+                                                        href="#%3Cinit%3E({{ constructor.inlineParameters }})">{{ constructor.name }}</a></span>({{ constructor.inlineParameters|raw }})</code></th>
+                                                <td class="colLast">{{ constructor.brief|raw }}</td>
+                                            </tr>
+                                        {% endfor %}
+
+                                        </tbody>
+                                    </table>
+                                </div>
                             </li>
                         </ul>
                     </section>
@@ -163,29 +169,30 @@
                                 <!--   -->
                             </a>
                                 <h3>Method Summary</h3>
-                                <table class="memberSummary">
-                                    <caption><span id="t0" class="activeTableTab"><span>All Methods</span><span
-                                            class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a
-                                            href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span
-                                            id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span
-                                            class="tabEnd">&nbsp;</span></span></caption>
-                                    <tbody>
-                                    <tr>
-                                        <th class="colFirst" scope="col">Modifier and Type</th>
-                                        <th class="colSecond" scope="col">Method</th>
-                                        <th class="colLast" scope="col">Description</th>
-                                    </tr>
-                                    {% for method in methods.own %}
-                                    <tr id="i{{ loop.index0 }}" class="{{ rowColor(loop.index0) }}">
-                                        <td class="colFirst"><code>{{ method.signature.modifiers|raw }}</code>
-                                        </td>
-                                        <th class="colSecond" scope="row"><code>{{ method.signature.signatureWithoutModifiers|raw }} </code>
-                                        </th>
-                                        <td class="colLast">{{ method.brief|raw }}</td>
-                                    </tr>
-                                    {% endfor %}
-                                    </tbody>
-                                </table>
+                                <div class="memberSummary">
+                                    <div role="tablist" aria-orientation="horizontal">
+                                        <button role="tab" aria-selected="true" aria-controls="memberSummary_tabpanel" tabindex="0" onkeydown="switchTab(event)" id="t0" class="activeTableTab">All Methods</button>
+                                        <!-- TODO: Instance and Concrete Methods #1118 -->
+                                    </div>
+                                    <div id="memberSummary_tabpanel" role="tabpanel">
+                                    <table aria-labelledby="t0">
+                                        <tr>
+                                            <th class="colFirst" scope="col">Modifier and Type</th>
+                                            <th class="colSecond" scope="col">Method</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+                                        {% for method in methods.own %}
+                                        <tr id="i{{ loop.index0 }}" class="{{ rowColor(loop.index0) }}">
+                                            <td class="colFirst"><code>{{ method.signature.modifiers|raw }}</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code>{{ method.signature.signatureWithoutModifiers|raw }} </code>
+                                            </th>
+                                            <td class="colLast">{{ method.brief|raw }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
                                 <ul class="blockList">
                                 {% for method in methods.inherited %}
                                     <li class="blockList"><a id="methods.inherited.from.class.{{ method.inheritedFrom}}">
@@ -252,8 +259,14 @@
                             </a>
                                 <h3>Method Detail</h3>
                                 {% for method in methods.own %}
-                                <a name="{{ method.anchorLink }}"></a>
-                                <ul class="blockListLast">
+                                <a id="{{ method.anchorLink }}">
+                                    <!--   -->
+                                </a>
+                                <ul class={% if loop.last %}
+                                              "blockListLast"
+                                          {% else %}
+                                              "blockList"
+                                          {% endif %}>
                                     <li class="blockList">
                                         <h4>{{ method.name }}</h4>
                                         <pre class="methodSignature">{{ method.signature.annotations|raw }} {{ method.signature.modifiers|raw }} {{ method.signature.signatureWithoutModifiers|raw}}</pre>
