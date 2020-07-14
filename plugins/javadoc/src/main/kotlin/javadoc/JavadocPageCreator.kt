@@ -116,7 +116,7 @@ open class JavadocPageCreator(
         }
 
     private val KClass<out DClasslike>.tabTitle: String
-        get() = colTitle + if(colTitle.last() != 's') "s" else "es"
+        get() = "$colTitle Summary"
 
     private fun contentForClasslike(c: DClasslike): JavadocContentNode =
         JavadocContentGroup(

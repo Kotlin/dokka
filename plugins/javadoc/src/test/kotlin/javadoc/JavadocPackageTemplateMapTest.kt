@@ -28,7 +28,7 @@ internal class JavadocPackageTemplateMapTest : AbstractJavadocTemplateMapTest() 
             """
         ) {
             val map = singlePageOfType<JavadocPackagePageNode>().templateMap
-            assertEquals("Classes", ((map["lists"] as List<*>).first() as Map<String, *>)["tabTitle"])
+            assertEquals("Class Summary", ((map["lists"] as List<*>).first() as Map<String, *>)["tabTitle"])
             assertEquals("Class", ((map["lists"] as List<*>).first() as Map<String, *>)["colTitle"])
             assertEquals("com.test.package0", map["title"])
             assertEquals("", map["subtitle"])
@@ -69,7 +69,7 @@ internal class JavadocPackageTemplateMapTest : AbstractJavadocTemplateMapTest() 
             val packagePages = allPagesOfType<JavadocPackagePageNode>()
             packagePages.forEach { page ->
                 val map = page.templateMap
-                assertEquals("Classes", ((map["lists"] as List<*>).first() as Map<String, *>)["tabTitle"])
+                assertEquals("Class Summary", ((map["lists"] as List<*>).first() as Map<String, *>)["tabTitle"])
                 assertEquals("Class", ((map["lists"] as List<*>).first() as Map<String, *>)["colTitle"])
                 assertEquals("", map["subtitle"])
                 assertEquals("package", map["kind"])
