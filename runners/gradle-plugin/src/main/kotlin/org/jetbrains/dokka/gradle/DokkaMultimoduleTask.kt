@@ -12,7 +12,12 @@ open class DokkaMultimoduleTask : AbstractDokkaTask(), Configurable {
 
 
     @Input
-    val dokkaTaskNames: MutableSet<String> = mutableSetOf()
+    var dokkaTaskNames: Set<String> = setOf()
+        set(value) {
+            field = value.toSet()
+            setDependsOn(getSubprojectDokkaTasks(value))
+        }
+
 
     override fun generate() {
         val bootstrap = DokkaBootstrap("org.jetbrains.dokka.DokkaMultimoduleBootstrapImpl")
@@ -36,16 +41,22 @@ open class DokkaMultimoduleTask : AbstractDokkaTask(), Configurable {
             outputDir = project.file(outputDirectory).absolutePath
             pluginsClasspath = plugins.resolve().toList()
             pluginsConfiguration = this@DokkaMultimoduleTask.pluginsConfiguration
-            modules = project.subprojects
-                .flatMap { subProject -> dokkaTaskNames.mapNotNull(subProject.tasks::findByName) }
-                .filterIsInstance<DokkaTask>()
-                .map { dokkaTask ->
-                    GradleDokkaModuleDescription().apply {
-                        name = dokkaTask.project.name
-                        path = dokkaTask.project.projectDir.resolve(dokkaTask.outputDirectory)
-                            .toRelativeString(project.file(outputDirectory))
-                        docFile = dokkaTask.project.projectDir.resolve(documentationFileName).absolutePath
-                    }
+            modules = getSubprojectDokkaTasks(dokkaTaskNames).map { dokkaTask ->
+                GradleDokkaModuleDescription().apply {
+                    name = dokkaTask.project.name
+                    path = dokkaTask.project.projectDir.resolve(dokkaTask.outputDirectory)
+                        .toRelativeString(project.file(outputDirectory))
+                    docFile = dokkaTask.project.projectDir.resolve(documentationFileName).absolutePath
                 }
+            }
         }
+
+    private fun getSubprojectDokkaTasks(dokkaTaskName: String): List<DokkaTask> {
+        return project.subprojects
+            .mapNotNull { subproject -> subproject.tasks.findByName(dokkaTaskName) as? DokkaTask }
+    }
+
+    private fun getSubprojectDokkaTasks(dokkaTaskNames: Set<String>): List<DokkaTask> {
+        return dokkaTaskNames.flatMap { dokkaTaskName -> getSubprojectDokkaTasks(dokkaTaskName) }
+    }
 }

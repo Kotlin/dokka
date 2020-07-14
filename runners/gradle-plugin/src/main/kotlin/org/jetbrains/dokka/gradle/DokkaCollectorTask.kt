@@ -16,7 +16,7 @@ open class DokkaCollectorTask : DefaultTask() {
     private lateinit var configuration: GradleDokkaConfigurationImpl
 
     @Input
-    val dokkaTaskNames: MutableSet<String> = mutableSetOf()
+    var dokkaTaskNames: Set<String> = setOf()
 
     @TaskAction
     fun collect() {
