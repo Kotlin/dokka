@@ -158,7 +158,7 @@ class JavadocParser(
             "strong" -> Strong(children)
             "i" -> I(children)
             "em" -> Em(children)
-            "code" -> Code(children)
+            "code" -> CodeBlock(children)
             "pre" -> Pre(children)
             "ul" -> Ul(children)
             "ol" -> Ol(children)
@@ -196,7 +196,7 @@ class JavadocParser(
             tag.referenceElement()?.toDocumentationLink(tag.dataElements.firstIsInstanceOrNull<PsiDocToken>())
         }
         "code", "literal" -> {
-            Code(listOf(Text(tag.text)))
+            CodeInline(listOf(Text(tag.text)))
         }
         else -> Text(tag.text)
     }
