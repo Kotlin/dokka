@@ -74,7 +74,11 @@ abstract class DefaultRenderer<T>(
         nodes.forEach { it.build(this, pageContext, sourceSetRestriction) }
     }
 
-    open fun T.buildCode(code: ContentCode, pageContext: ContentPage) {
+    open fun T.buildCodeBlock(code: ContentCodeBlock, pageContext: ContentPage) {
+        code.children.forEach { it.build(this, pageContext) }
+    }
+
+    open fun T.buildCodeInline(code: ContentCodeInline, pageContext: ContentPage) {
         code.children.forEach { it.build(this, pageContext) }
     }
 
@@ -102,7 +106,8 @@ abstract class DefaultRenderer<T>(
             when (node) {
                 is ContentText -> buildText(node)
                 is ContentHeader -> buildHeader(node, pageContext, sourceSetRestriction)
-                is ContentCode -> buildCode(node, pageContext)
+                is ContentCodeBlock -> buildCodeBlock(node, pageContext)
+                is ContentCodeInline -> buildCodeInline(node, pageContext)
                 is ContentDRILink ->
                     buildLink(locationProvider.resolve(node.address, node.sourceSets, pageContext)) {
                         buildLinkText(node.children, pageContext, sourceSetRestriction)

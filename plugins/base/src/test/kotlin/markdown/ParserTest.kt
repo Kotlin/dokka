@@ -808,7 +808,7 @@ class ParserTest : KDocTest() {
                 Description(
                     P(
                         listOf(
-                            Code(listOf(Text("Some code"))),
+                            CodeInline(listOf(Text("Some code"))),
                             Text(" Sample text")
                         )
                     )
@@ -837,7 +837,7 @@ class ParserTest : KDocTest() {
                 Description(
                     P(
                         listOf(
-                            Code(
+                            CodeBlock(
                                 listOf(
                                     Text("val x: Int = 0"), Br,
                                     Text("val y: String = \"Text\""), Br, Br,

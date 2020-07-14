@@ -166,7 +166,7 @@ class LinkableContentTest : AbstractCoreTest() {
                         .cast<PlatformHintedContent>().children.single()
                         .cast<ContentGroup>().children.single()
                         .cast<ContentGroup>().children.single()
-                        .cast<ContentCode>().children.single().cast<ContentText>().text
+                        .cast<ContentCodeBlock>().children.single().cast<ContentText>().text
                     Assertions.assertEquals(
                         """|import p2.${name}Class
                                 |fun main() { 

@@ -13,7 +13,7 @@ object DocTagsFromStringFactory {
             "blockquote" -> BlockQuote(children, params)
             "br" -> Br
             "cite" -> Cite(children, params)
-            "code" -> Code(children, params)
+            "code" -> if(params.isEmpty()) CodeInline(children, params) else CodeBlock(children, params)
             "dd" -> Dd(children, params)
             "dfn" -> Dfn(children, params)
             "dir" -> Dir(children, params)

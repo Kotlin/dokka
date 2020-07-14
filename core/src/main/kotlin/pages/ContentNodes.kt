@@ -60,16 +60,29 @@ data class ContentHeader(
     override fun withNewExtras(newExtras: PropertyContainer<ContentNode>): ContentHeader = copy(extra = newExtras)
 }
 
+interface ContentCode : ContentComposite
+
 /** Code blocks */
-data class ContentCode(
+data class ContentCodeBlock(
     override val children: List<ContentNode>,
     val language: String,
     override val dci: DCI,
     override val sourceSets: Set<DokkaSourceSet>,
     override val style: Set<Style>,
     override val extra: PropertyContainer<ContentNode> = PropertyContainer.empty()
-) : ContentComposite {
-    override fun withNewExtras(newExtras: PropertyContainer<ContentNode>): ContentCode = copy(extra = newExtras)
+) : ContentCode {
+    override fun withNewExtras(newExtras: PropertyContainer<ContentNode>): ContentCodeBlock = copy(extra = newExtras)
+}
+
+data class ContentCodeInline(
+    override val children: List<ContentNode>,
+    val language: String,
+    override val dci: DCI,
+    override val sourceSets: Set<DokkaSourceSet>,
+    override val style: Set<Style>,
+    override val extra: PropertyContainer<ContentNode> = PropertyContainer.empty()
+) : ContentCode {
+    override fun withNewExtras(newExtras: PropertyContainer<ContentNode>): ContentCodeInline = copy(extra = newExtras)
 }
 
 /** Union type replacement */

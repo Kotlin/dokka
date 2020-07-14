@@ -86,7 +86,7 @@ abstract class SamplesTransformer(val context: DokkaContext) : PageTransformer {
             |   //sampleEnd
             |}""".trimMargin()
 
-    private fun ContentNode.dfs(fqName: String, node: ContentCode): ContentNode {
+    private fun ContentNode.dfs(fqName: String, node: ContentCodeBlock): ContentNode {
         return when (this) {
             is ContentHeader -> copy(children.map { it.dfs(fqName, node) })
             is ContentDivergentGroup -> @Suppress("UNCHECKED_CAST") copy(children.map {
@@ -96,7 +96,8 @@ abstract class SamplesTransformer(val context: DokkaContext) : PageTransformer {
                 before.let { it?.dfs(fqName, node) },
                 divergent.dfs(fqName, node),
                 after.let { it?.dfs(fqName, node) })
-            is ContentCode -> copy(children.map { it.dfs(fqName, node) })
+            is ContentCodeBlock -> copy(children.map { it.dfs(fqName, node) })
+            is ContentCodeInline -> copy(children.map { it.dfs(fqName, node) })
             is ContentDRILink -> copy(children.map { it.dfs(fqName, node) })
             is ContentResolvedLink -> copy(children.map { it.dfs(fqName, node) })
             is ContentEmbeddedResource -> copy(children.map { it.dfs(fqName, node) })
@@ -131,7 +132,7 @@ abstract class SamplesTransformer(val context: DokkaContext) : PageTransformer {
         styles: Set<Style> = emptySet(),
         extra: PropertyContainer<ContentNode> = PropertyContainer.empty()
     ) =
-        ContentCode(
+        ContentCodeBlock(
             children = listOf(
                 ContentText(
                     text = content,
