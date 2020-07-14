@@ -18,7 +18,10 @@ class JavadocLocationProvider(pageRoot: RootPageNode, dokkaContext: DokkaContext
 
     private val pathIndex = IdentityHashMap<PageNode, List<String>>().apply {
         fun registerPath(page: PageNode, prefix: List<String> = emptyList()) {
-            val newPrefix = prefix + page.takeIf { it is JavadocPackagePageNode }?.name.orEmpty()
+            val packagePath = page.takeIf { it is JavadocPackagePageNode }?.name.orEmpty()
+                .replace(".", "/")
+            val newPathPrefix = prefix + packagePath
+
             val path = (prefix + when (page) {
                 is AllClassesPage -> listOf("allclasses")
                 is TreeViewPage -> if (page.classes == null)
@@ -28,14 +31,14 @@ class JavadocLocationProvider(pageRoot: RootPageNode, dokkaContext: DokkaContext
                 is ContentPage -> if (page.dri.isNotEmpty() && page.dri.first().classNames != null)
                     listOfNotNull(page.dri.first().classNames)
                 else if (page is JavadocPackagePageNode)
-                    listOf(page.name, "package-summary")
+                    listOf(packagePath, "package-summary")
                 else
                     listOf("index")
                 else -> emptyList()
             }).filterNot { it.isEmpty() }
 
             put(page, path)
-            page.children.forEach { registerPath(it, newPrefix) }
+            page.children.forEach { registerPath(it, newPathPrefix) }
 
         }
         put(pageRoot, listOf("index"))

@@ -37,8 +37,8 @@ class JavadocTest : AbstractCoreTest() {
         }
         testInline(
             """
-            |/jvmSrc/javadoc/Test.kt
-            |package javadoc
+            |/jvmSrc/javadoc/test/Test.kt
+            |package javadoc.test
             |import java.io.Serializable
             |class Test<A>() : Serializable, Cloneable {
             |   fun test() {}
@@ -120,9 +120,27 @@ class JavadocTest : AbstractCoreTest() {
         }
     }
 
-    private fun htmlTranslator(rootPageNode: RootPageNode, dokkaContext: DokkaContext) = JavadocContentToHtmlTranslator(
-        dokkaContext.plugin<JavadocPlugin>().querySingle { locationProviderFactory }
-            .getLocationProvider(rootPageNode),
-        dokkaContext
-    )
+    @Test
+    fun `resolved package path`() {
+
+        locationTestInline { rootPageNode, dokkaContext ->
+            val locationProvider = dokkaContext.plugin<JavadocPlugin>().querySingle { locationProviderFactory }
+                .getLocationProvider(rootPageNode)
+            val packageNode = rootPageNode.firstChildOfType<JavadocPackagePageNode>()
+            val packagePath = locationProvider.resolve(packageNode)
+
+            assertEquals("javadoc/test/package-summary", packagePath)
+        }
+    }
+
+    private fun htmlTranslator(rootPageNode: RootPageNode, dokkaContext: DokkaContext): JavadocContentToHtmlTranslator {
+        val locationProvider = dokkaContext.plugin<JavadocPlugin>().querySingle { locationProviderFactory }
+            .getLocationProvider(rootPageNode)
+        return htmlTranslator(dokkaContext, locationProvider)
+    }
+
+    private fun htmlTranslator(
+        dokkaContext: DokkaContext,
+        locationProvider: JavadocLocationProvider
+    ) = JavadocContentToHtmlTranslator(locationProvider, dokkaContext)
 }
