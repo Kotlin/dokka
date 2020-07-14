@@ -7,211 +7,272 @@ and can generate documentation in multiple formats including standard Javadoc, H
 
 ## Using dokka
 
+### Plugins 
+Dokka can be customized with plugins. Each output format is internally a plugin.
+Additionally, `kotlin-as-java` plugin can be used to generate documentation as seen from Java perspective. 
+Currently maintained plugins are:
+* `dokka-base` - the main plugin needed to run dokka, contains html format
+* `gfm-plugin` - configures `GFM` output format
+* `jekyll-plugin` - configures `Jekyll` output format
+* `javadoc-plugin` - configures `Javadoc` output format, automatically applies `kotlin-as-java-plugin` 
+* `kotlin-as-java-plugin` - translates Kotlin definitions to Java 
+
+Please see the usage instructions below for how to add plugins to dokka. 
+
+### Source sets 
+Dokka generates documentation based on source sets. 
+
+For single-platform projects, there is almost always only one source set - `main`.
+
+For multi-platform projects, source sets are the same as in Kotlin plugin:
+
+ * One source set for each platform, eg. `jvmMain` or `jsMain`;
+ * One source set for each common source set, eg. the default `commonMain` and custom ones like `jsAndJvmMain`.
+
+When configuring multi-platform projects manually (eg. in the CLI or in Gradle without autoconfiguration)
+source sets must declare their dependent source sets. 
+Eg. in the following Kotlin plugin configuration:
+
+* `jsMain` and `jvmMain` both depend on `commonMain` (by default and transitively) and `jsAndJvmMain`;
+* `linuxX64Main` only depends on `commonMain`. 
+
+```kotlin
+kotlin { // Kotlin plugin configuration
+    jvm()
+    js()
+    linuxX64()
+
+    sourceSets {
+        val commonMain by getting {}
+        val jvmAndJsSecondCommonMain by creating { dependsOn(commonMain) }
+        val jvmMain by getting { dependsOn(jvmAndJsSecondCommonMain) }
+        val jsMain by getting { dependsOn(jvmAndJsSecondCommonMain) }
+        val linuxX64Main by getting { dependsOn(commonMain) }
+    }
+}
+```
+
 ### Using the Gradle plugin
 
-```groovy
+The preferred way is to use `plugins` block. Since Kotlin compiler used by dokka is still in EAP, 
+you not only need to add `dokka` to the `build.gradle.kts` file, but you also need to modify the `settings.gradle.kts` file: 
+ 
+build.gradle.kts:
+```kotlin
+plugins {
+    id("org.jetbrains.dokka") version "1.4-M3"
+}
+
+repositories {
+    jcenter() // or maven(url="https://dl.bintray.com/kotlin/dokka")
+    maven("https://dl.bintray.com/kotlin/kotlin-eap")
+}
+```
+
+settings.gradle.kts:
+```kotlin
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        maven("https://dl.bintray.com/kotlin/kotlin-eap")
+    }
+}
+```
+
+You can also use the legacy plugin application method with `buildscript` block.
+Note that by using the `buildscript` way type-safe accessors are not available in Gradle Kotlin DSL,
+eg. you'll have to use `named<DokkaTask>("dokkaHtml")` instead of `dokkaHtml`:
+
+```kotlin
 buildscript {
     repositories {
         jcenter()
     }
     dependencies {
-        classpath "org.jetbrains.dokka:dokka-gradle-plugin:${dokka_version}"
+        classpath("org.jetbrains.dokka:dokka-gradle-plugin:${dokka_version}")
     }
 }
 repositories {
-    jcenter() // or maven { url 'https://dl.bintray.com/kotlin/dokka' }
+    jcenter() // or maven(url="https://dl.bintray.com/kotlin/dokka")
+    maven("https://dl.bintray.com/kotlin/kotlin-eap")
 }
 
-apply plugin: 'org.jetbrains.dokka'
+apply(plugin="org.jetbrains.dokka")
 ```
 
-or using the plugins block:
+The plugin adds `dokkaHtml`, `dokkaJavadoc`, `dokkaGfm` and `dokkaJekyll` tasks to the project.
+ 
+Each task corresponds to one output format, so you should run `dokkaGfm` when you want to have a documentation in `GFM` format.
+Output formats are explained [there](#output_formats)
 
-```groovy
-plugins {
-    id 'org.jetbrains.dokka' version '0.10.0'
-}
-repositories {
-    jcenter() // or maven { url 'https://dl.bintray.com/kotlin/dokka' }
-}
-```
-
-The plugin adds a task named `dokka` to the project.
-
-If you encounter any problems when migrating from older versions of Dokka, please see the [FAQ](https://github.com/Kotlin/dokka/wiki/faq).
+If you encounter any problems when migrating from older versions of dokka, please see the [FAQ](https://github.com/Kotlin/dokka/wiki/faq).
 
 Minimal dokka configuration:
 
-Groovy
-```groovy
-dokka {
-    outputDirectory = "$buildDir/dokka"
-}
-```
-
 Kotlin
+(single-platform project)
 ```kotlin
 tasks.dokkaHtml {
     outputDirectory = "$buildDir/dokka"
 }
 ```
-You may need to add an `import org.jetbrains.dokka.gradle.dokka` to the top of `build.gradle.kts` in this case.
+(mutli-platform project)
+```kotlin
+tasks.dokkaHtml {
+    outputDirectory = "$buildDir/dokka"
+    dokkaSourceSets {
+        create("jvmMain")
+        create("jsMain") // or other names, identical to those in Kotlin-plugin
+    }
+}
+```
 
-[Output formats](#output_formats)
+Groovy
+(single-platform project)
+```kotlin
+dokkaHtml {
+    outputDirectory = "$buildDir/dokka"
+}
+```
+(mutli-platform project)
+```kotlin
+dokkaHtml {
+    outputDirectory = "$buildDir/dokka"
+    dokkaSourceSets {
+        create("jvmMain") {}
+        create("jsMain") {} // or other names, identical to those in Kotlin-plugin
+    }
+}
+```
 
-The available configuration options for single platform are shown below:
+Dokka documents single-platform as well as multi-platform projects. 
+Most of the configuration options are set per one source set.
+The available configuration options for are shown below:
 
-```groovy
-dokka {
-    outputDirectory = "$buildDir/javadoc"
-    
-    // In case of a Gradle multiproject build, you can include subprojects here to get merged documentation
-    // Note however, that you have to have the Kotlin plugin available in the root project and in the subprojects
-    subProjects = ["subproject1", "subproject2"]
-        
-    // Used for disabling auto extraction of sources and platforms in both multi-platform and single-platform modes
-    // When set to true, subProject and kotlinTasks are also omitted
-    disableAutoconfiguration = false 
+```kotlin
+dokkaHtml {
+    outputDirectory = "$buildDir/docs"
+
+    // Used for disabling auto extraction of sources and platforms
+    // When set to true kotlinTasks are also omitted
+    disableAutoconfiguration = false
 
     // Use default or set to custom path to cache directory
     // to enable package-list caching
     // When this is set to default, caches are stored in $USER_HOME/.cache/dokka
-    cacheRoot = 'default' 
-    
-    configuration {
-        moduleName = 'data'
+    cacheRoot = "default"
+    dokkaSourceSets {
+        configureEach { // Or source set name, for single-platform the default source sets are `main` and `test`
+            moduleDisplayName = "data"
 
-        // Use to include or exclude non public members.
-        includeNonPublic = false
-        
-        // Do not output deprecated members. Applies globally, can be overridden by packageOptions
-        skipDeprecated = false 
-       
-        // Emit warnings about not documented members. Applies globally, also can be overridden by packageOptions
-        reportUndocumented = true 
-        
-        // Do not create index pages for empty packages
-        skipEmptyPackages = true 
-     
-        // This is a list of platform names that will be shown in the final result. See the "Platforms" section of this readme
-        targets = ["JVM"]  
+            // Used when configuring source sets manually for declaring which source sets this one depends on
+            dependsOn("otherSourceSetName")
 
-        // Platform used for code analysis. See the "Platforms" section of this readme
-        platform = "JVM"  
-        
-        // Property used for manual addition of files to the classpath
-        // This property does not override the classpath collected automatically but appends to it
-        classpath = [new File("$buildDir/other.jar")]
-    
-        // By default, sourceRoots are taken from Kotlin Plugin, subProjects and kotlinTasks, following roots will be appended to them
-        sourceRoots = [files('src/main/kotlin')]
-        
-        // List of files with module and package documentation
-        // https://kotlinlang.org/docs/reference/kotlin-doc.html#module-and-package-documentation
-        includes = ['packages.md', 'extra.md']
-    
-        // List of files or directories containing sample code (referenced with @sample tags)
-        samples = ['samples/basic.kt', 'samples/advanced.kt']
-
-        // By default, sourceRoots are taken from Kotlin Plugin, subProjects and kotlinTasks, following roots will be appended to them
-        // Full form sourceRoot declaration
-        // Repeat for multiple sourceRoots
-        sourceRoot {
-            // Path to a source root
-            path = "src" 
-        }
-        
-        // These tasks will be used to determine source directories and classpath
-        kotlinTasks {
-            defaultKotlinTasks() + [':some:otherCompileKotlin', project("another").compileKotlin]
-        }
-
-        // Specifies the location of the project source code on the Web.
-        // If provided, Dokka generates "source" links for each declaration.
-        // Repeat for multiple mappings
-        sourceLink {
-            // Unix based directory relative path to the root of the project (where you execute gradle respectively). 
-            path = "src/main/kotlin" // or simply "./"
-             
-            // URL showing where the source code can be accessed through the web browser
-            url = "https://github.com/cy6erGn0m/vertx3-lang-kotlin/blob/master/src/main/kotlin" //remove src/main/kotlin if you use "./" above
-            
-            // Suffix which is used to append the line number to the URL. Use #L for GitHub
-            lineSuffix = "#L"
-        }
-
-        // Used for linking to JDK documentation
-        jdkVersion = 6 
-
-        // Disable linking to online kotlin-stdlib documentation
-        noStdlibLink = false
-        
-        // Disable linking to online JDK documentation
-        noJdkLink = false 
-        
-        // Allows linking to documentation of the project's dependencies (generated with Javadoc or Dokka)
-        // Repeat for multiple links
-        externalDocumentationLink {
-            // Root URL of the generated documentation to link with. The trailing slash is required!
-            url = new URL("https://example.com/docs/")
-            
-            // If package-list file is located in non-standard location
-            // packageListUrl = new URL("file:///home/user/localdocs/package-list") 
-        }
-        
-        // Allows to customize documentation generation options on a per-package basis
-        // Repeat for multiple packageOptions
-        perPackageOption {
-            prefix = "kotlin" // will match kotlin and all sub-packages of it
-            // All options are optional, default values are below:
-            skipDeprecated = false
-            reportUndocumented = true // Emit warnings about not documented members 
+            // Use to include or exclude non public members
             includeNonPublic = false
-        }
-        // Suppress a package
-        perPackageOption {
-            prefix = "kotlin.internal" // will match kotlin.internal and all sub-packages of it
-            suppress = true
+
+            // Do not output deprecated members. Applies globally, can be overridden by packageOptions
+            skipDeprecated = false
+
+            // Emit warnings about not documented members. Applies globally, also can be overridden by packageOptions
+            reportUndocumented = true
+
+            // Do not create index pages for empty packages
+            skipEmptyPackages = true
+
+            // This name will be shown in the final output
+            displayName = "JVM"
+
+            // Platform used for code analysis. See the "Platforms" section of this readme
+            platform = "JVM"
+
+            // Property used for manual addition of files to the classpath
+            // This property does not override the classpath collected automatically but appends to it
+            classpath = listOf("$buildDir/other.jar")
+
+            // List of files with module and package documentation
+            // https://kotlinlang.org/docs/reference/kotlin-doc.html#module-and-package-documentation
+            includes = listOf("packages.md", "extra.md")
+
+            // List of files or directories containing sample code (referenced with @sample tags)
+            samples = listOf("samples/basic.kt", "samples/advanced.kt")
+
+            // By default, sourceRoots are taken from Kotlin Plugin and kotlinTasks, following roots will be appended to them
+            // Repeat for multiple sourceRoots
+            sourceRoot {
+                // Path to a source root
+                path = "src"
+            }
+
+            // These tasks will be used to determine source directories and classpath
+            kotlinTasks {
+                defaultKotlinTasks() + listOf(
+                    ":some:otherCompileKotlin",
+                    project("another").tasks.getByName("compileKotlin")
+                )
+            }
+
+            // Specifies the location of the project source code on the Web.
+            // If provided, Dokka generates "source" links for each declaration.
+            // Repeat for multiple mappings
+            sourceLink {
+                // Unix based directory relative path to the root of the project (where you execute gradle respectively). 
+                path = "src/main/kotlin" // or simply "./"
+
+                // URL showing where the source code can be accessed through the web browser
+                url =
+                    "https://github.com/cy6erGn0m/vertx3-lang-kotlin/blob/master/src/main/kotlin" //remove src/main/kotlin if you use "./" above
+
+                // Suffix which is used to append the line number to the URL. Use #L for GitHub
+                lineSuffix = "#L"
+            }
+
+            // Used for linking to JDK documentation
+            jdkVersion = 8
+
+            // Disable linking to online kotlin-stdlib documentation
+            noStdlibLink = false
+
+            // Disable linking to online JDK documentation
+            noJdkLink = false
+
+            // Disable linking to online Android documentation (only applicable for Android projects)
+            noAndroidSdkLink = false
+
+            // Allows linking to documentation of the project"s dependencies (generated with Javadoc or Dokka)
+            // Repeat for multiple links
+            externalDocumentationLink {
+                // Root URL of the generated documentation to link with. The trailing slash is required!
+                url = URL("https://example.com/docs/")
+
+                // If package-list file is located in non-standard location
+                // packageListUrl = URL("file:///home/user/localdocs/package-list")
+            }
+
+            // Allows to customize documentation generation options on a per-package basis
+            // Repeat for multiple packageOptions
+            perPackageOption {
+                prefix = "kotlin" // will match kotlin and all sub-packages of it
+                // All options are optional, default values are below:
+                skipDeprecated = false
+                reportUndocumented = true // Emit warnings about not documented members 
+                includeNonPublic = false
+            }
+            // Suppress a package
+            perPackageOption {
+                prefix = "kotlin.internal" // will match kotlin.internal and all sub-packages of it
+                suppress = true
+            }
         }
     }
-}
 ```
 
 #### Multiplatform
-Since version 0.10.0 dokka supports multiplatform projects. For a general understanding how a multiplatform documentation is generated, please consult the [FAQ](https://github.com/Kotlin/dokka/wiki/faq).
-In the multiplatform mode, instead of using the `configuration` block, you should use a `multiplatform` block with inner blocks for each platform. 
-The `configuration` block's parameters belong to those inner blocks, which can be named arbitrarly, however if you want to use source roots and classpath provided by Kotlin Multiplatform plugin, 
-they must have the same names as in the Kotlin Multiplatform plugin. See an example below:
-
-Groovy
-```groovy
-kotlin { // Kotlin Multiplatform plugin configuration
-    jvm() 
-    js("customName") // Define a js platform named "customName" If you want to generate docs for it, you need to have this name in dokka configuration below 
-}
-
-dokkaHtml {
-    outputDirectory = "$buildDir/dokka"
-
-    multiplatform {
-        customName { // The same name as in Kotlin Multiplatform plugin, so the sources are fetched automatically
-            includes = ['packages.md', 'extra.md']
-            samples = ['samples/basic.kt', 'samples/advanced.kt']
-        } 
-        
-        differentName { // Different name, so source roots, classpath and platform must be passed explicitly.
-            targets = ["JVM"]
-            platform = "jvm"
-            sourceRoot {
-                path = kotlin.sourceSets.jvmMain.kotlin.srcDirs[0]
-            }
-            sourceRoot {
-                path = kotlin.sourceSets.commonMain.kotlin.srcDirs[0]
-            }
-        }
-    }
-}
-```
+Dokka supports single-platform and multi-platform projects using source sets abstraction. For most mutli-platform projects
+you should assume that dokka's source sets correspond to Kotlin plugin's source sets. 
+Source sets can be named arbitrarily, however in order for autoconfiguration (extraction of source roots and classpath from Kotlin plugin) to work, 
+they must have the same names as source sets in the Kotlin Multiplatform plugin.
+See an example below:
 
 Kotlin
 ```kotlin
@@ -223,14 +284,14 @@ kotlin {  // Kotlin Multiplatform plugin configuration
 dokkaHtml {
         outputDirectory = "$buildDir/dokka"
 
-        multiplatform { 
-            val customName by creating { // The same name as in Kotlin Multiplatform plugin, so the sources are fetched automatically
+        dokkaSourceSets { 
+            val customNameMain by creating { // The same name as in Kotlin Multiplatform plugin, so the sources are fetched automatically
                 includes = listOf("packages.md", "extra.md")
                 samples = listOf("samples/basic.kt", "samples/advanced.kt")
             }
 
             register("differentName") { // Different name, so source roots must be passed explicitly
-                targets = listOf("JVM")
+                displayName = "JVM"
                 platform = "jvm"
                 sourceRoot {
                     path = kotlin.sourceSets.getByName("jvmMain").kotlin.srcDirs.first().toString()
@@ -243,90 +304,138 @@ dokkaHtml {
     }
 ```
 
-For convenience, there is also a reserved block called `global`, which is a top-level configuration of `perPackageOptions`, `externalDocumentationLinks`, and `sourceLinks` shared by every platform. Eg.
-
+Groovy
 ```groovy
+kotlin { // Kotlin Multiplatform plugin configuration
+    jvm() 
+    js("customName") // Define a js platform named "customName" If you want to generate docs for it, you need to have this name followed by "Main" in the dokka configuration below 
+    
+    // Note: Kotlin plugin creates `main` and `test` source sets for the platforms above automatically, eg. in this project there will be:
+    // `jvmMain`, `jvmTest`, `customNameMain` and `customNameTest`  
+    // Those names can be used in the dokka tasks, as shown below:
+}
+
 dokkaHtml {
-    multiplatform {
-        global { // perPackageOptions, sourceLinks and externalDocumentationLinks from here will be copied to every other platform (jvm and js in eg.)
-            perPackageOption {
-                prefix = "com.somePackage"
-                suppress = true
+    outputDirectory = "$buildDir/dokka"
+
+    dokkaSourceSets {
+        customNameMain { // The same name as Kotlin Multiplatform plugin source set for `customName` platform, so the sources are fetched automatically
+            includes = ['packages.md', 'extra.md']
+            samples = ['samples/basic.kt', 'samples/advanced.kt']
+        } 
+        
+        differentName { // Different name, so source roots, classpath and platform must be passed explicitly.
+            displayName = "JVM"
+            platform = "jvm"
+            sourceRoot {
+                path = kotlin.sourceSets.jvmMain.kotlin.srcDirs[0]
             }
-            perPackageOption { // You can repeat this block for multiple perPackageOptions
-                prefix = "kotlin" 
-                skipDeprecated = false
-                reportUndocumented = true
-                includeNonPublic = false
+            sourceRoot {
+                path = kotlin.sourceSets.commonMain.kotlin.srcDirs[0]
             }
-            sourceLink {
-                path = "src/main/kotlin" 
-                url = "https://github.com/cy6erGn0m/vertx3-lang-kotlin/blob/master/src/main/kotlin" 
-                lineSuffix = "#L"
-            }
-            externalDocumentationLink {
-                url = new URL("https://example.com/docs/")
-            }
-       }
-       js {}
-       jvm {}
+        }
     }
 }
 ```
-The parameters from the `global` block are appended to all the other platform configurations (in the example - `js` and `jvm`) and cannot be overriden. 
 
+If you want to share the configuration between source sets, you can use Gradle's `configureEach`
 
-Note that `javadoc` output format cannot be used with multiplatform. 
+#### Applying plugins
+Dokka plugin creates Gradle configuration for each output format in the form of `dokka${format}Plugin`:
 
-To generate the documentation, use the `dokka` Gradle task:
+```kotlin
+dependencies {
+    dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:1.4-M3")
+}
+``` 
+
+You can also create a custom dokka task and add plugins directly inside:
+
+```kotlin
+val customDokkaTask by creating(DokkaTask::class) {
+    dependencies {
+        plugins("org.jetbrains.dokka:kotlin-as-java-plugin:1.4-M3")
+    }
+}
+```
+
+Please note that `dokkaJavadoc` task will properly document only single `jvm` source set
+
+To generate the documentation, use the appropriate `dokka${format}` Gradle task:
 
 ```bash
-./gradlew dokka
+./gradlew dokkaHtml
 ```
 
 Please see the [Dokka Gradle example project](https://github.com/JetBrains/kotlin-examples/tree/master/gradle/dokka-gradle-example) for an example.
-
 
 #### FAQ
 If you encounter any problems, please see the [FAQ](https://github.com/Kotlin/dokka/wiki/faq).
 
 #### Android
 
-Since version 0.10.0 the separate Android plugin is merged with the default one. 
-Just make sure you apply the plugin after
-`com.android.library` and `kotlin-android`.
+Make sure you apply dokka after `com.android.library` and `kotlin-android`.
 
-```groovy
+```kotlin
 buildscript {
     repositories {
         jcenter()
     }
     dependencies {
-        classpath "org.jetbrains.dokka:dokka-gradle-plugin:${dokka_version}"
+        classpath("org.jetbrains.dokka:dokka-gradle-plugin:${dokka_version}")
     }
 }
 repositories {
     jcenter()
 }
-apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
-apply plugin: 'org.jetbrains.dokka'
+apply(plugin= "com.android.library")
+apply(plugin= "kotlin-android")
+apply(plugin= "org.jetbrains.dokka")
 ```
 
-There is also a `noAndroidSdkLink` configuration parameter that works similar to `noJdkLink` and `noStdlibLink`
-By default the variant documented by dokka is the first release variant encountered. 
-You can override that by setting the `androidVariant` property inside the `configuration` (or specific platform) block:
-```groovy
-dokka {
-    configuration {
-        androidVariant = "debug"
+```kotlin
+dokkaHtml {
+    dokkaSourceSets {
+        create("main") {
+            noAndroidSdkLink = true
+        }   
     }
 }
 ```
 
+#### Multi-module projects
+For documenting Gradle multi-module projects, you can use `dokka${format}Collector` and `dokka${format}Multimodule` tasks.
+
+```kotlin
+tasks.dokkaHtmlMultimodule {
+    outputDirectory = "$buildDir/multimodule"
+    documentationFileName = "README.md"
+}
+
+tasks.dokkaGfmCollector {
+    outputDirectory = "$buildDir/collected"
+    modules = listOf("subA", "subB") // Gradle submodule names with dokka tasks 
+}
+```
+
+`DokkaCollector` creates a documentation for all submodules by taking source sets from all dokka tasks and creating a new 
+dokka run with them: 
+```
+For a root project and two subprojects (subA and subB) with JVM and JS source sets, dokkaCollector's source sets look like this:
+
+:dokkaHtmlCollector
+\--- :subA:jvmMain
+\--- :subA:jsMain
+\--- :subB:jvmMain
+\--- :subB:jsMain
+```
+
+`DokkaMultimodule` depends on all dokka tasks in the subprojects, runs them, and creates a toplevel page (based on the `documentationFile`)
+with links to all generated (sub)documentations
+
 ### Using the Maven plugin
 
-The Maven plugin does not support multiplatform projects.
+The Maven plugin does not support multi-platform projects.
 
 The Maven plugin is available in JCenter. You need to add the JCenter repository to the list of plugin repositories if it's not there:
 
@@ -362,9 +471,9 @@ By default files will be generated in `target/dokka`.
 
 The following goals are provided by the plugin:
 
-  * `dokka:dokka` - generate HTML documentation in Dokka format (showing declarations in Kotlin syntax);
-  * `dokka:javadoc` - generate HTML documentation in JavaDoc format (showing declarations in Java syntax);
-  * `dokka:javadocJar` - generate a .jar file with JavaDoc format documentation.
+  * `dokka:dokka` - generate HTML documentation in Dokka format (showing declarations in Kotlin syntax)
+  * `dokka:javadoc` - generate HTML documentation in Javadoc format (showing declarations in Java syntax)
+  * `dokka:javadocJar` - generate a .jar file with Javadoc format documentation
 
 The available configuration options are shown below:
 
@@ -387,7 +496,7 @@ The available configuration options are shown below:
         <skip>false</skip>
     
         <!-- Default: ${project.artifactId} -->
-        <moduleName>data</moduleName>
+        <moduleDisplayName>data</moduleDisplayName>
 
         <!-- Default: ${project.basedir}/target/dokka -->
         <outputDir>some/out/dir</outputDir>
@@ -474,66 +583,115 @@ The available configuration options are shown below:
                 <includeNonPublic>false</includeNonPublic>
             </packageOptions>
         </perPackageOptions>
+        
+        <!-- Allows to use any dokka plugin, eg. GFM format   -->
+        <dokkaPlugins>
+            <plugin>
+                <groupId>org.jetbrains.dokka</groupId>
+                <artifactId>gfm-plugin</artifactId>
+                <version>${dokka.version}</version>
+            </plugin>
+        </dokkaPlugins>
+    </configuration>
+</plugin>
+```
+
+#### Applying plugins
+You can add plugins inside the `dokkaPlugins` block:
+
+```xml
+<plugin>
+    <groupId>org.jetbrains.dokka</groupId>
+    <artifactId>dokka-maven-plugin</artifactId>
+    <version>${dokka.version}</version>
+    <executions>
+        <execution>
+            <phase>pre-site</phase>
+            <goals>
+                <goal>dokka</goal>
+            </goals>
+        </execution>
+    </executions>
+    <configuration>
+        <dokkaPlugins>
+            <plugin>
+                <groupId>org.jetbrains.dokka</groupId>
+                <artifactId>kotlin-as-java-plugin</artifactId>
+                <version>${dokka.version}</version>
+            </plugin>
+        </dokkaPlugins>
     </configuration>
 </plugin>
 ```
 
 Please see the [Dokka Maven example project](https://github.com/JetBrains/kotlin-examples/tree/master/maven/dokka-maven-example) for an example.
 
-[Output formats](#output_formats)
-
 ### Using the Command Line
 
-To run Dokka from the command line, download the [Dokka jar](https://github.com/Kotlin/dokka/releases/download/0.10.0/dokka-fatjar.jar).
+To run Dokka from the command line, download the [Dokka CLI runner](https://github.com/Kotlin/dokka/releases/download/1.4-M3/dokka-cli.jar).
 To generate documentation, run the following command:
-
-    java -jar dokka-fatjar.jar <arguments>
-
+```
+java -jar dokka-cli.jar <arguments>
+```
 Dokka supports the following command line arguments:
 
-  * `-output` - the output directory where the documentation is generated
-  * `-format` - the [output format](#output-formats):
-  * `-cacheRoot` - use `default` or set to custom path to cache directory to enable package-list caching. When set to `default`, caches stored in $USER_HOME/.cache/dokka
-  * `-pass` - (repeatable) - configuration for single analyser pass. Following this argument, you can pass other arguments:
-    * `-src` - (repeatable) - source file or directory (allows many paths separated by the system path separator)
-    * `-classpath` - (repeatable) - directory or .jar file to include in the classpath (used for resolving references)
-    * `-sample` - (repeatable) - directory containing a sample code (documentation for those directories is not generated but declarations from them can be referenced using the `@sample` tag)
-    * `-module` - the name of the module being documented (used as the root directory of the generated documentation)
-    * `-include` - (repeatable) - names of files containing the documentation for the module and individual packages
+  * `-outputDir` - the output directory where the documentation is generated
+  * `-cacheRoot` - cache directory to enable package-list caching
+  * `-pluginsClasspath` - artifacts with dokka plugins, separated by `;`. At least dokka base and all its dependencies must be added there 
+  * `-offlineMode` - do not resolve package-lists online
+  * `-failOnWarning` - throw an exception instead of a warning
+  * `-globalPackageOptions` - per package options added to all source sets
+  * `-globalLinks` - external documentation links added to all source sets
+  * `-globalSrcLink` - source links added to all source sets
+  * `-sourceSet` - (repeatable) - configuration for a single source set. Following this argument, you can pass other arguments:
+    * `-moduleName` - (required) - module name used as a part of source set ID when declaring dependent source sets
+    * `-moduleDisplayName` - displayed module name
+    * `-sourceSetName` - source set name as a part of source set ID when declaring dependent source sets
+    * `-displayName` - source set name displayed in the generated documentation
+    * `-src` - list of source files or directories separated by `;`
+    * `-classpath` - list of directories or .jar files to include in the classpath (used for resolving references) separated by `;`
+    * `-samples` - list of directories containing sample code (documentation for those directories is not generated but declarations from them can be referenced using the `@sample` tag) separated by `;`
+    * `-includes` - list of files containing the documentation for the module and individual packages separated by `;`
+    * `-includeNonPublic` - include protected and private code   
     * `-skipDeprecated` - if set, deprecated elements are not included in the generated documentation
     * `-reportUndocumented` - warn about undocumented members
     * `-skipEmptyPackages` - do not create index pages for empty packages
-    * `-packageOptions` - list of package options in format `prefix,-deprecated,-privateApi,+reportUndocumented;prefix, ...` 
-    * `-links` - external documentation links in format `url^packageListUrl^^url2...`
-    * `-srcLink` - (repeatable) - mapping between a source directory and a Web site for browsing the code in format `<path>=<url>[#lineSuffix]`
+    * `-packageOptions` - list of package options in format `prefix,-deprecated,-privateApi,+reportUndocumented;prefix, ...`, separated by `;`
+    * `-links` - list of external documentation links in format `url^packageListUrl^^url2...`, separated by `;`
+    * `-srcLink` - mapping between a source directory and a Web site for browsing the code in format `<path>=<url>[#lineSuffix]`
     * `-noStdlibLink` - disable linking to online kotlin-stdlib documentation
     * `-noJdkLink` - disable linking to online JDK documentation
     * `-jdkVersion` - version of JDK to use for linking to JDK JavaDoc
     * `-analysisPlatform` - platform used for analysis, see the [Platforms](#platforms) section
-    * `-target` - (repeatable) - generation target
+    * `-dependentSourceSets` - list of dependent source sets in format `moduleName/sourceSetName`, separated by `;`
 
+You can also use a JSON file with dokka configuration:
+ ```
+ java -jar <dokka_cli.jar> <path_to_config.json>
+ ```
 
 ### Output formats<a name="output_formats"></a>
+  Dokka documents Java classes as seen in Kotlin by default, with javadoc format being the only exception.
 
-  * `html` - minimalistic html format used by default, Java classes are translated to Kotlin
-  * `javadoc` - looks like normal Javadoc, Kotlin classes are translated to Java
-  * `html-as-java` - looks like `html`, but Kotlin classes are translated to Java
-  * `markdown` - markdown structured as `html`, Java classes are translated to Kotlin
-    * `gfm` - GitHub flavored markdown
-    * `jekyll` - Jekyll compatible markdown 
-  * `kotlin-website*` - internal format used for documentation on [kotlinlang.org](https://kotlinlang.org)
+  * `html` - HTML format used by default
+  * `javadoc` - looks like JDK's Javadoc, Kotlin classes are translated to Java
+  * `gfm` - GitHub flavored markdown
+  * `jekyll` - Jekyll compatible markdown
+
+If you want to generate the documentation as seen from Java perspective, you can add the `kotlin-as-java` plugin
+to the dokka plugins classpath, eg. in Gradle:
+
+```kotlin
+dependencies{
+    implementation("...")
+    dokkaGfmPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:${dokka-version}")
+}
+```
 
 ### Platforms<a name="platforms"></a>
 
-Dokka can annotate elements with special `platform` block with platform requirements 
-Example result and usage can be found on [kotlinlang.org](https://kotlinlang.org/api/latest/jvm/stdlib/)
-
-Each multiplatform closure has two properties: `platform` and `targets`. If you use autoconfiguration, those are filled automatically.
-
-`targets` property is a list of platform names that will be shown in the final result. Note that the value of this property 
-doesn't affect analysis of source code, it just changes the result. You can think of this as a `name` property
-
-`platform` property is used for the analysis of source roots. Available values are: 
+Each dokka source set is analyzed for a specific platform. The platform should be extracted automatically from the Kotlin plugin.
+In case of a manual source set configuration, you have to select one of the following:
   * `jvm`
   * `js`
   * `native`
