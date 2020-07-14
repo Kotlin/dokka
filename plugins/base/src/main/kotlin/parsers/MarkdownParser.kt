@@ -118,15 +118,13 @@ class MarkdownParser(
                                     declarationDescriptor,
                                     null,
                                     link.split('.')
-                                ).minBy { it is ClassDescriptor }?.let { DRI.from(it) }
+                                ).minByOrNull { it is ClassDescriptor }?.let { DRI.from(it) }
                             } else null
                         } catch (e1: IllegalArgumentException) {
+                            logger.warn("Couldn't resolve link for $mdLink")
                             null
                         }
                     }
-                }.also {
-                    if (it == null)
-                        logger.warn("Couldn't resolve link for $mdLink")
                 }
 
         private fun referenceLinksHandler(node: ASTNode): DocTag {
