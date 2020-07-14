@@ -52,7 +52,7 @@ class ExternalDocumentationLinkBuilder : DokkaConfiguration.ExternalDocumentatio
     override var packageListUrl: URL? = null
 }
 
-abstract class AbstractDokkaMojo : AbstractMojo() {
+abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependency>) : AbstractMojo() {
     class SourceRoot : DokkaConfiguration.SourceRoot {
         @Parameter(required = true)
         override var path: String = ""
@@ -166,7 +166,8 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
     var failOnWarning: Boolean = DokkaDefaults.failOnWarning
 
     @Parameter
-    open var dokkaPlugins: List<Dependency> = emptyList()
+    var dokkaPlugins: List<Dependency> = emptyList()
+        get() = field + defaultDokkaPlugins
 
     protected abstract fun getOutDir(): String
 
@@ -315,7 +316,7 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
     requiresDependencyResolution = ResolutionScope.COMPILE,
     requiresProject = true
 )
-class DokkaMojo : AbstractDokkaMojo() {
+class DokkaMojo : AbstractDokkaMojo(emptyList()) {
     @Parameter(required = true, defaultValue = "\${project.basedir}/target/dokka")
     var outputDir: String = ""
 
@@ -329,11 +330,9 @@ class DokkaMojo : AbstractDokkaMojo() {
     requiresDependencyResolution = ResolutionScope.COMPILE,
     requiresProject = true
 )
-class DokkaJavadocMojo : AbstractDokkaMojo() {
+class DokkaJavadocMojo : AbstractDokkaMojo(listOf(javadocDependency)) {
     @Parameter(required = true, defaultValue = "\${project.basedir}/target/dokkaJavadoc")
     var outputDir: String = ""
-
-    override var dokkaPlugins = super.dokkaPlugins + javadocDependency
 
     override fun getOutDir() = outputDir
 }
@@ -345,7 +344,7 @@ class DokkaJavadocMojo : AbstractDokkaMojo() {
     requiresDependencyResolution = ResolutionScope.COMPILE,
     requiresProject = true
 )
-class DokkaJavadocJarMojo : AbstractDokkaMojo() {
+class DokkaJavadocJarMojo : AbstractDokkaMojo(listOf(javadocDependency)) {
     @Parameter(required = true, defaultValue = "\${project.basedir}/target/dokkaJavadocJar")
     var outputDir: String = ""
 
@@ -391,8 +390,6 @@ class DokkaJavadocJarMojo : AbstractDokkaMojo() {
     private var jarArchiver: JarArchiver? = null
 
     override fun getOutDir() = outputDir
-
-    override var dokkaPlugins = super.dokkaPlugins + javadocDependency
 
     override fun execute() {
         super.execute()
