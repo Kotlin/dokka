@@ -37,12 +37,12 @@ open class DokkaPlugin : Plugin<Project> {
         project.maybeCreateDokkaPluginConfiguration(multimoduleName)
         project.maybeCreateDokkaRuntimeConfiguration(multimoduleName)
         project.tasks.register<DokkaMultimoduleTask>(multimoduleName) {
-            dokkaTaskNames.add(name)
+            dokkaTaskNames = dokkaTaskNames + name
             configuration()
         }
 
         project.tasks.register<DokkaCollectorTask>("${name}Collector") {
-            dokkaTaskNames.add(name)
+            dokkaTaskNames = dokkaTaskNames + name
         }
     }
 }
