@@ -1,4 +1,4 @@
-import org.jetbrains.configureBintrayPublication
+import org.jetbrains.configurePublication
 
 plugins {
     id("com.github.johnrengelman.shadow")
@@ -15,13 +15,4 @@ dependencies {
     api(project(":kotlin-analysis:dependencies", configuration = "shadow"))
 }
 
-publishing {
-    publications {
-        register<MavenPublication>("analysis") {
-            artifactId = "dokka-analysis"
-            from(components["java"])
-        }
-    }
-}
-
-configureBintrayPublication("analysis")
+configurePublication("dokka-analysis")

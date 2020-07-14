@@ -1,4 +1,4 @@
-import org.jetbrains.configureBintrayPublication
+import org.jetbrains.configurePublication
 
 plugins {
     `maven-publish`
@@ -16,11 +16,6 @@ dependencies {
     testImplementation(kotlin("test-junit"))
 }
 
-val sourceJar by tasks.registering(Jar::class) {
-    archiveClassifier.set("sources")
-    from(sourceSets["main"].allSource)
-}
-
 tasks {
     processResources {
         val dokka_version: String by project
@@ -34,14 +29,4 @@ tasks {
     }
 }
 
-publishing {
-    publications {
-        register<MavenPublication>("dokkaCore") {
-            artifactId = "dokka-core"
-            from(components["java"])
-            artifact(sourceJar.get())
-        }
-    }
-}
-
-configureBintrayPublication("dokkaCore")
+configurePublication("dokka-core")

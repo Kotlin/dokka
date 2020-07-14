@@ -1,4 +1,4 @@
-import org.jetbrains.configureBintrayPublication
+import org.jetbrains.configurePublication
 
 plugins {
     id("com.jfrog.bintray")
@@ -30,13 +30,4 @@ tasks {
     }
 }
 
-publishing {
-    publications {
-        register<MavenPublication>("basePlugin") {
-            artifactId = "dokka-base"
-            from(components["java"])
-        }
-    }
-}
-
-configureBintrayPublication("basePlugin")
+configurePublication("dokka-base")

@@ -1,12 +1,3 @@
-import org.jetbrains.configureBintrayPublication
+import org.jetbrains.configurePublication
 
-publishing {
-    publications {
-        register<MavenPublication>("mathjaxPlugin") {
-            artifactId = "mathjax-plugin"
-            from(components["java"])
-        }
-    }
-}
-
-configureBintrayPublication("mathjaxPlugin")
+configurePublication("mathjax-plugin")
