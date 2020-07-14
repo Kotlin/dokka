@@ -1,17 +1,8 @@
-import org.jetbrains.configureBintrayPublication
-
-publishing {
-    publications {
-        register<MavenPublication>("jekyllPlugin") {
-            artifactId = "jekyll-plugin"
-            from(components["java"])
-        }
-    }
-}
-
-configureBintrayPublication("jekyllPlugin")
+import org.jetbrains.configurePublication
 
 dependencies {
     implementation(project(":plugins:base"))
     implementation(project(":plugins:gfm"))
 }
+
+configurePublication("jekyll-plugin")

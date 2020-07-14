@@ -1,4 +1,4 @@
-import org.jetbrains.configureBintrayPublication
+import org.jetbrains.configurePublication
 
 plugins {
     `maven-publish`
@@ -13,19 +13,4 @@ dependencies {
     implementation(kotlin("reflect"))
 }
 
-val sourceJar by tasks.registering(Jar::class) {
-    archiveClassifier.set("sources")
-    from(sourceSets["main"].allSource)
-}
-
-publishing {
-    publications {
-        register<MavenPublication>("dokkaTestAPI") {
-            artifactId = "dokka-test-api"
-            from(components["java"])
-            artifact(sourceJar.get())
-        }
-    }
-}
-
-configureBintrayPublication("dokkaTestAPI")
+configurePublication("dokka-test-api")
