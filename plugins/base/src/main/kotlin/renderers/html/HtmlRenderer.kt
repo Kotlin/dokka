@@ -272,7 +272,11 @@ open class HtmlRenderer(
 
                     consumer.onTagContentUnsafe {
                         +createHTML().div("brief-with-platform-tags") {
-                            consumer.onTagContentUnsafe { +it.key.first }
+                            consumer.onTagContentUnsafe {
+                                +createHTML().div("inner-brief-with-platform-tags") {
+                                    consumer.onTagContentUnsafe { +it.key.first }
+                                }
+                            }
 
                             consumer.onTagContentUnsafe {
                                 +createHTML().span("pull-right") {

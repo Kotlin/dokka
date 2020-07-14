@@ -832,13 +832,13 @@ td.content {
     display: none
 }
 
-.brief-with-platform-tags {
+.inner-brief-with-platform-tags {
     display: inline-block;
     width: 100%;
 }
 
 .tabs-section-body .brief-with-platform-tags {
-    display: inline-flex;
+    display: flex;
 }
 
 .brief-with-platform-tags ~ .main-subrow {
