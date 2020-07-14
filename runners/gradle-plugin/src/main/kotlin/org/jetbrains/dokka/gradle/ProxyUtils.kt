@@ -1,9 +1,6 @@
 package org.jetbrains.dokka.gradle
 
-import java.lang.reflect.InvocationHandler
-import java.lang.reflect.InvocationTargetException
-import java.lang.reflect.Method
-import java.lang.reflect.Proxy
+import java.lang.reflect.*
 
 
 /**
@@ -14,7 +11,7 @@ import java.lang.reflect.Proxy
  */
 @Suppress("UNCHECKED_CAST")
 internal inline fun <reified T : Any> automagicTypedProxy(targetClassLoader: ClassLoader, delegate: Any): T =
-        automagicProxy(targetClassLoader, T::class.java, delegate) as T
+    automagicProxy(targetClassLoader, T::class.java, delegate) as T
 
 
 /**
@@ -25,11 +22,11 @@ internal inline fun <reified T : Any> automagicTypedProxy(targetClassLoader: Cla
  *
  */
 internal fun automagicProxy(targetClassLoader: ClassLoader, targetType: Class<*>, delegate: Any): Any =
-        Proxy.newProxyInstance(
-            targetClassLoader,
-            arrayOf(targetType),
-            DelegatedInvocationHandler(delegate)
-        )
+    Proxy.newProxyInstance(
+        targetClassLoader,
+        arrayOf(targetType),
+        DelegatedInvocationHandler(delegate)
+    )
 
 internal class DelegatedInvocationHandler(private val delegate: Any) : InvocationHandler {
 
