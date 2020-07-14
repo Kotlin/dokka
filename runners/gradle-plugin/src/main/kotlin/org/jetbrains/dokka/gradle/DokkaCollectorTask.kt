@@ -1,6 +1,8 @@
 package org.jetbrains.dokka.gradle
 
 import org.gradle.api.DefaultTask
+import org.gradle.api.plugins.JavaBasePlugin
+import org.gradle.api.plugins.JavaBasePlugin.DOCUMENTATION_GROUP
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 import java.lang.IllegalStateException
@@ -48,6 +50,8 @@ open class DokkaCollectorTask : DefaultTask() {
         dokkaTaskNames.forEach { dokkaTaskName ->
             finalizedBy(dokkaTaskName)
         }
+
+        group = DOCUMENTATION_GROUP
     }
 
 

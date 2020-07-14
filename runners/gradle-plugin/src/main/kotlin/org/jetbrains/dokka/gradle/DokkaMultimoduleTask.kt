@@ -1,6 +1,8 @@
 package org.jetbrains.dokka.gradle
 
 import com.google.gson.GsonBuilder
+import org.gradle.api.plugins.JavaBasePlugin
+import org.gradle.api.plugins.JavaBasePlugin.DOCUMENTATION_GROUP
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.jetbrains.dokka.plugability.Configurable
@@ -58,5 +60,9 @@ open class DokkaMultimoduleTask : AbstractDokkaTask(), Configurable {
 
     private fun getSubprojectDokkaTasks(dokkaTaskNames: Set<String>): List<DokkaTask> {
         return dokkaTaskNames.flatMap { dokkaTaskName -> getSubprojectDokkaTasks(dokkaTaskName) }
+    }
+
+    init {
+        group = DOCUMENTATION_GROUP
     }
 }
