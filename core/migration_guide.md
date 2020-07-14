@@ -4,72 +4,72 @@ There are two main changes between dokka 0.10.x and 0.11.0
 
 The first is the introduction of plugability - new documentation creating process is divided into several steps and each step provides extension points to be used. To learn more about new dokka pipeline and possible plugins, please read Developer's guide.
 
-Second difference comes with the change with the subject of dokka pass. Previously, separate dokka passes where set for every targeted platform, now every source set has its own pass.
+Second difference comes with the change with the subject of dokka pass. Previously, separate dokka passes where set for every targeted platform, now every source set has its own pass and the name itself changed to `sourceSet`.
 
 ### Gradle
 
 With changing the approach from platform-based to source-set-based, we replace both `configuration` and `multiplatform` blocks with `dokkaSourceSets`. It's still a collection of dokka passes configuration, so the structure stays as it was.
+Format selection is now done using plugins with dokka providing preconfigured tasks for different formats: `dokkaHtml`, `dokkaJavadoc`, `dokkaGfm` and `dokkaJekyll`.
 
 * `moduleName` has changed to `moduleDisplayName`
 * `targets` has been dropped. Declaration merging is now done by the source set mechanism. Name customization can be done using `displayName` property
- 
+* `outputFormat` has been dropped. Format can be selected with appropriate plugins, please refer to the README
 
 #### Groovy
 ##### Old
 ```groovy
-    dokka {
-        outputFormat = 'html'
-        outputDirectory = "$buildDir/dokka"
-        multiplatform {
-            js {
-                includes = ["src/jsMain/resources/doc.md"]
-                samples = ["src/jsMain/resources/Samples.kt"]
-                sourceLink {
-                    path = "src/jsMain/kotlin"
-                    url = "https:/dokka.documentation.com/jsMain/kotlin"
-                    lineSuffix = "#L"
-                }
+dokka {
+    outputFormat = 'html'
+    outputDirectory = "$buildDir/dokka"
+    multiplatform {
+        js {
+            includes = ["src/jsMain/resources/doc.md"]
+            samples = ["src/jsMain/resources/Samples.kt"]
+            sourceLink {
+                path = "src/jsMain/kotlin"
+                url = "https:/dokka.documentation.com/jsMain/kotlin"
+                lineSuffix = "#L"
             }
-            jvm {
-                includes = ["src/jvmMain/resources/doc.md"]
-                samples = ["src/jsMain/resources/Samples.kt"]
-                sourceLink {
-                    path = "src/jvmMain/kotlin"
-                    url = "https:/dokka.documentation.com/jvmMain/kotlin"
-                    lineSuffix = "#L"
-                }
+        }
+        jvm {
+            includes = ["src/jvmMain/resources/doc.md"]
+            samples = ["src/jsMain/resources/Samples.kt"]
+            sourceLink {
+                path = "src/jvmMain/kotlin"
+                url = "https:/dokka.documentation.com/jvmMain/kotlin"
+                lineSuffix = "#L"
             }
-    }
+        }
+}
 ```
 ##### New
 ```groovy
-    dokka {
-        outputFormat = 'html'
-        outputDirectory = "$buildDir/dokka"
+dokkaHtml { // or dokkaGfm, dokkaJekyll, ...
+    outputDirectory = "$buildDir/dokka"
 
-        dokkaSourceSets {
-            commonMain {}
-            jsMain {
-                includes = ["src/jsMain/resources/doc.md"]
-                samples = ["src/jsMain/resources/Samples.kt"]
-                sourceLink {
-                    path = "src/jsMain/kotlin"
-                    url = "https:/dokka.documentation.com/jsMain/kotlin"
-                    lineSuffix = "#L"
-                }
+    dokkaSourceSets {
+        commonMain {}
+        jsMain {
+            includes = ["src/jsMain/resources/doc.md"]
+            samples = ["src/jsMain/resources/Samples.kt"]
+            sourceLink {
+                path = "src/jsMain/kotlin"
+                url = "https:/dokka.documentation.com/jsMain/kotlin"
+                lineSuffix = "#L"
             }
+        }
 
-            val jvmMain by creating {
-                includes = ["src/jvmMain/resources/doc.md"]
-                samples = ["src/jsMain/resources/Samples.kt"]
-                sourceLink {
-                    path = "src/jvmMain/kotlin"
-                    url = "https:/dokka.documentation.com/jvmMain/kotlin"
-                    lineSuffix = "#L"
-                }
+        jvmMain {
+            includes = ["src/jvmMain/resources/doc.md"]
+            samples = ["src/jsMain/resources/Samples.kt"]
+            sourceLink {
+                path = "src/jvmMain/kotlin"
+                url = "https:/dokka.documentation.com/jvmMain/kotlin"
+                lineSuffix = "#L"
             }
         }
     }
+}
 ```
 
 #### Kotlin
@@ -103,8 +103,8 @@ val dokka by getting(DokkaTask::class) {
         }
     }
 }
-
 ```
+
 ##### New
 ```kotlin
 kotlin {  // Kotlin Multiplatform plugin configuration
@@ -112,9 +112,8 @@ kotlin {  // Kotlin Multiplatform plugin configuration
     js("customName")
 }
 
-dokka {
+dokkaHtml { // or dokkaGfm, dokkaJekyll, ...
     outputDirectory = "$buildDir/dokka"
-    outputFormat = "html"
 
     dokkaSourceSets { 
         val customNameMain by creating { // The same source set name as in Kotlin Multiplatform plugin, so the sources are fetched automatically
@@ -134,7 +133,6 @@ dokka {
         }
     }
 }
-
 ```
 
 #### Multimodule page
