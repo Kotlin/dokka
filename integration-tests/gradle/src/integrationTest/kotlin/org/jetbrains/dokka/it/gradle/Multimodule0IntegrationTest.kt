@@ -26,7 +26,7 @@ class Multimodule0IntegrationTest(override val versions: BuildVersions) : Abstra
 
     @Test
     fun execute() {
-        val result = createGradleRunner("dokkaHtml", ":moduleA:dokkaHtmlMultimodule", "--stacktrace").build()
+        val result = createGradleRunner(":moduleA:dokkaHtmlMultimodule", "--stacktrace").build()
 
         assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":moduleA:dokkaHtmlMultimodule")).outcome)
 
