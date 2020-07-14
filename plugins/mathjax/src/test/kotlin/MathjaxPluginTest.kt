@@ -1,5 +1,6 @@
 package mathjaxTest
 
+import org.jetbrains.dokka.mathjax.LIB_PATH
 import org.jetbrains.dokka.mathjax.MathjaxPlugin
 import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
 import org.jsoup.Jsoup
@@ -8,7 +9,7 @@ import utils.TestOutputWriterPlugin
 
 class MathjaxPluginTest : AbstractCoreTest() {
     @Test
-    fun basicMathjaxTest() {
+    fun noMathjaxTest() {
         val configuration = dokkaConfiguration {
             sourceSets {
                 sourceSet {
@@ -21,11 +22,9 @@ class MathjaxPluginTest : AbstractCoreTest() {
             |/src/main/kotlin/test/Test.kt
             |package example
             | /**
-            | * {@usesMathJax}
-            | *
-            | * <p>\(\alpha_{out} = \alpha_{dst}\)</p>
-            | * <p>\(C_{out} = C_{dst}\)</p>
+            | * Just a regular kdoc
             | */
+            | fun test(): String = ""
             """.trimIndent()
         val writerPlugin = TestOutputWriterPlugin()
         testInline(
@@ -35,19 +34,18 @@ class MathjaxPluginTest : AbstractCoreTest() {
         ) {
             renderingStage = {
                     _, _ -> Jsoup
-                .parse(writerPlugin.writer.contents["root/example.html"])
+                .parse(writerPlugin.writer.contents["root/example/test.html"])
                 .head()
                 .select("link, script")
                 .let {
-                    val link = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.6/MathJax.js?config=TeX-AMS_SVG&latest"
-                    assert(it.`is`("[href=$link], [src=$link]"))
+                    assert(!it.`is`("[href=$LIB_PATH], [src=$LIB_PATH]"))
                 }
             }
         }
     }
 
     @Test
-    fun basicNoMathjaxTest() {
+    fun usingMathjaxTest() {
         val configuration = dokkaConfiguration {
             sourceSets {
                 sourceSet {
@@ -60,9 +58,12 @@ class MathjaxPluginTest : AbstractCoreTest() {
             |/src/main/kotlin/test/Test.kt
             |package example
             | /**
-            | * <p>\(\alpha_{out} = \alpha_{dst}\)</p>
-            | * <p>\(C_{out} = C_{dst}\)</p>
+            | * @usesMathJax
+            | *
+            | * \(\alpha_{out} = \alpha_{dst}\)
+            | * \(C_{out} = C_{dst}\)
             | */
+            | fun test(): String = ""
             """.trimIndent()
         val writerPlugin = TestOutputWriterPlugin()
         testInline(
@@ -72,12 +73,11 @@ class MathjaxPluginTest : AbstractCoreTest() {
         ) {
             renderingStage = {
                     _, _ -> Jsoup
-                .parse(writerPlugin.writer.contents["root/example.html"])
+                .parse(writerPlugin.writer.contents["root/example/test.html"])
                 .head()
                 .select("link, script")
                 .let {
-                    val link = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.6/MathJax.js?config=TeX-AMS_SVG&latest"
-                    assert(!it.`is`("[href=$link], [src=$link]"))
+                    assert(it.`is`("[href=$LIB_PATH], [src=$LIB_PATH]"))
                 }
             }
         }
