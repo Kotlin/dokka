@@ -19,6 +19,7 @@ class SameMethodNamePageMergerStrategy(val logger: DokkaLogger) : PageMergerStra
             name = name,
             children = members.flatMap { it.children }.distinct(),
             content = squashDivergentInstances(members),
+            embeddedResources = members.flatMap { it.embeddedResources }.distinct(),
             documentable = null
         )
 
