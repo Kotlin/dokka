@@ -1,4 +1,4 @@
-import org.jetbrains.configurePublication
+import org.jetbrains.registerDokkaArtifactPublication
 
 plugins {
     id("com.jfrog.bintray")
@@ -30,4 +30,6 @@ tasks {
     }
 }
 
-configurePublication("dokka-base")
+registerDokkaArtifactPublication("dokkaBase") {
+    artifactId = "dokka-base"
+}

@@ -1,8 +1,10 @@
-import org.jetbrains.configurePublication
+import org.jetbrains.registerDokkaArtifactPublication
 
 dependencies {
     implementation(project(":plugins:base"))
     implementation(project(":plugins:gfm"))
 }
 
-configurePublication("jekyll-plugin")
+registerDokkaArtifactPublication("jekyllPlugin") {
+    artifactId = "jekyll-plugin"
+}

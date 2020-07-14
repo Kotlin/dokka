@@ -1,4 +1,4 @@
-import org.jetbrains.configurePublication
+import org.jetbrains.registerDokkaArtifactPublication
 
 dependencies {
     implementation("com.soywiz.korlibs.korte:korte-jvm:1.10.3")
@@ -10,4 +10,6 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version")
 }
 
-configurePublication("javadoc-plugin")
+registerDokkaArtifactPublication("javadocPlugin") {
+    artifactId = "javadoc-plugin"
+}
