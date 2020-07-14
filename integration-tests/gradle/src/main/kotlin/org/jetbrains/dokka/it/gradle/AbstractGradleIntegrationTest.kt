@@ -1,8 +1,13 @@
 package org.jetbrains.dokka.it.gradle
 
+import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.internal.DefaultGradleRunner
+import org.gradle.tooling.GradleConnectionException
 import org.jetbrains.dokka.it.AbstractIntegrationTest
+import org.junit.Assume
+import org.junit.Assume.assumeFalse
+import org.junit.AssumptionViolatedException
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 import java.io.File
@@ -40,5 +45,30 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
                 )
             ).run { this as DefaultGradleRunner }
             .withJvmArguments("-Xmx4G", "-XX:MaxMetaspaceSize=2G")
+    }
+
+    fun GradleRunner.buildRelaxed(): BuildResult {
+        return try {
+            build()
+        } catch (e: Throwable) {
+            val gradleConnectionException = e.withAllCauses().find { it is GradleConnectionException }
+            if (gradleConnectionException != null) {
+                gradleConnectionException.printStackTrace()
+                throw AssumptionViolatedException("Assumed Gradle connection", gradleConnectionException)
+
+            }
+            throw e
+        }
+    }
+}
+
+private fun Throwable.withAllCauses(): Sequence<Throwable> {
+    val root = this
+    return sequence {
+        yield(root)
+        val cause = root.cause
+        if (cause != null && cause != root) {
+            yieldAll(cause.withAllCauses())
+        }
     }
 }
