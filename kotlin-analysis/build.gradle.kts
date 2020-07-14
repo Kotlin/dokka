@@ -1,4 +1,4 @@
-import org.jetbrains.configurePublication
+import org.jetbrains.registerDokkaArtifactPublication
 
 plugins {
     id("com.github.johnrengelman.shadow")
@@ -15,4 +15,6 @@ dependencies {
     api(project(":kotlin-analysis:dependencies", configuration = "shadow"))
 }
 
-configurePublication("dokka-analysis")
+registerDokkaArtifactPublication("dokkaAnalysis") {
+    artifactId = "dokka-analysis"
+}

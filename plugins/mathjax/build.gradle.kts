@@ -1,3 +1,5 @@
-import org.jetbrains.configurePublication
+import org.jetbrains.registerDokkaArtifactPublication
 
-configurePublication("mathjax-plugin")
+registerDokkaArtifactPublication("mathjaxPlugin") {
+    artifactId = "mathjax-plugin"
+}

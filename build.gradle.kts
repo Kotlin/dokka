@@ -42,6 +42,8 @@ subprojects {
 
     // Gradle metadata
     java {
+        @Suppress("UnstableApiUsage")
+        withSourcesJar()
         targetCompatibility = JavaVersion.VERSION_1_8
     }
 }

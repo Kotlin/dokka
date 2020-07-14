@@ -1,4 +1,5 @@
-import org.jetbrains.configurePublication
+import org.jetbrains.DokkaPublicationBuilder.Component.Shadow
+import org.jetbrains.registerDokkaArtifactPublication
 
 plugins {
     id("com.github.johnrengelman.shadow")
@@ -28,4 +29,7 @@ tasks {
     }
 }
 
-configurePublication("dokka-core-dependencies", useShadow = true)
+registerDokkaArtifactPublication("dokkaCoreDependencies") {
+    artifactId = "dokka-core-dependencies"
+    component = Shadow
+}

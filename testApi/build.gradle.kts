@@ -1,4 +1,4 @@
-import org.jetbrains.configurePublication
+import org.jetbrains.registerDokkaArtifactPublication
 
 plugins {
     `maven-publish`
@@ -13,4 +13,6 @@ dependencies {
     implementation(kotlin("reflect"))
 }
 
-configurePublication("dokka-test-api")
+registerDokkaArtifactPublication("dokkaTestApi") {
+    artifactId = "dokka-test-api"
+}

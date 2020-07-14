@@ -1,6 +1,6 @@
 import org.jetbrains.CrossPlatformExec
 import org.jetbrains.SetupMaven
-import org.jetbrains.configurePublication
+import org.jetbrains.registerDokkaArtifactPublication
 
 val setupMaven by tasks.register<SetupMaven>("setupMaven")
 
@@ -45,7 +45,10 @@ val generatePom by tasks.registering(Copy::class) {
             line.replace("<version>dokka_version</version>", "<version>$dokka_version</version>")
         }
         filter { line ->
-            line.replace("<version>maven-plugin-plugin</version>", "<version>${setupMaven.mavenPluginToolsVersion}</version>")
+            line.replace(
+                "<version>maven-plugin-plugin</version>",
+                "<version>${setupMaven.mavenPluginToolsVersion}</version>"
+            )
         }
     }
 }
@@ -90,4 +93,6 @@ tasks.named<Jar>("jar") {
     }
 }
 
-configurePublication("dokka-maven-plugin")
+registerDokkaArtifactPublication("dokkaMavenPlugin") {
+    artifactId = "dokka-maven-plugin"
+}

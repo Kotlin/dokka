@@ -1,4 +1,4 @@
-import org.jetbrains.configurePublication
+import org.jetbrains.registerDokkaArtifactPublication
 
 plugins {
     `maven-publish`
@@ -29,4 +29,6 @@ tasks {
     }
 }
 
-configurePublication("dokka-core")
+registerDokkaArtifactPublication("dokkaCore") {
+    artifactId = "dokka-core"
+}
