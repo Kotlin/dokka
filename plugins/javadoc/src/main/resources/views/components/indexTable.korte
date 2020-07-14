@@ -1,8 +1,7 @@
 {% if isTypeSummary %}
-    <table class="typeSummary">
-{% else %}
-    <table>
+    <div class="typeSummary">
 {% endif %}
+<table>
 <caption><span>{{ tabTitle }}</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">{{ colTitle }}</th>
@@ -14,3 +13,6 @@
 {% end -%}
 </tbody>
 </table>
+{% if isTypeSummary %}
+    </div>
+{% endif %}
