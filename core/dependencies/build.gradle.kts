@@ -1,4 +1,4 @@
-import org.jetbrains.configureBintrayPublication
+import org.jetbrains.configurePublication
 
 plugins {
     id("com.github.johnrengelman.shadow")
@@ -28,13 +28,4 @@ tasks {
     }
 }
 
-publishing {
-    publications {
-        register<MavenPublication>("dokkaCoreDependencies") {
-            artifactId = "dokka-core-dependencies"
-            project.shadow.component(this)
-        }
-    }
-}
-
-configureBintrayPublication("dokkaCoreDependencies")
+configurePublication("dokka-core-dependencies", useShadow = true)

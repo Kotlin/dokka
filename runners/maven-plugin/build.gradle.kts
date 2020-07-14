@@ -1,7 +1,6 @@
-import org.jetbrains.configureBintrayPublication
 import org.jetbrains.CrossPlatformExec
 import org.jetbrains.SetupMaven
-
+import org.jetbrains.configurePublication
 
 val setupMaven by tasks.register<SetupMaven>("setupMaven")
 
@@ -91,14 +90,4 @@ tasks.named<Jar>("jar") {
     }
 }
 
-publishing {
-    publications {
-        register<MavenPublication>("dokkaMavenPlugin") {
-            artifactId = "dokka-maven-plugin"
-            from(components["java"])
-            artifact(sourceJar.get())
-        }
-    }
-}
-
-configureBintrayPublication("dokkaMavenPlugin")
+configurePublication("dokka-maven-plugin")

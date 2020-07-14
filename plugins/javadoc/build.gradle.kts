@@ -1,13 +1,4 @@
-import org.jetbrains.configureBintrayPublication
-
-publishing {
-    publications {
-        register<MavenPublication>("javadocPlugin") {
-            artifactId = "javadoc-plugin"
-            from(components["java"])
-        }
-    }
-}
+import org.jetbrains.configurePublication
 
 dependencies {
     implementation("com.soywiz.korlibs.korte:korte-jvm:1.10.3")
@@ -19,4 +10,4 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version")
 }
 
-configureBintrayPublication("javadocPlugin")
+configurePublication("javadoc-plugin")

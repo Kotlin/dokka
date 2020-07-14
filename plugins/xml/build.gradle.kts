@@ -1,8 +1,3 @@
-publishing {
-    publications {
-        register<MavenPublication>("xmlPlugin") {
-            artifactId = "xml-plugin"
-            from(components["java"])
-        }
-    }
-}
+import org.jetbrains.configurePublication
+
+configurePublication("xml-plugin")
