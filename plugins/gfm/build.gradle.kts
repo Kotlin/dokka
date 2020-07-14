@@ -1,4 +1,4 @@
-import org.jetbrains.configurePublication
+import org.jetbrains.registerDokkaArtifactPublication
 
 dependencies {
     implementation(project(":plugins:base"))
@@ -6,4 +6,6 @@ dependencies {
     testImplementation(project(":plugins:base:test-utils"))
 }
 
-configurePublication("gfm-plugin")
+registerDokkaArtifactPublication("gfmPlugin") {
+    artifactId = "gfm-plugin"
+}

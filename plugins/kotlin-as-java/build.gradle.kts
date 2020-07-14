@@ -1,4 +1,4 @@
-import org.jetbrains.configurePublication
+import org.jetbrains.registerDokkaArtifactPublication
 
 dependencies {
     implementation(project(":plugins:base"))
@@ -7,4 +7,6 @@ dependencies {
     testImplementation(project(":test-tools"))
 }
 
-configurePublication("kotlin-as-java-plugin")
+registerDokkaArtifactPublication("kotlinAsJavaPlugin") {
+    artifactId = "kotlin-as-java-plugin"
+}

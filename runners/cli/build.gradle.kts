@@ -1,4 +1,5 @@
-import org.jetbrains.configurePublication
+import org.jetbrains.DokkaPublicationBuilder.Component.Shadow
+import org.jetbrains.registerDokkaArtifactPublication
 
 plugins {
     id("com.github.johnrengelman.shadow")
@@ -26,5 +27,8 @@ tasks {
     }
 }
 
-configurePublication("dokka-cli", useShadow = true)
+registerDokkaArtifactPublication("dokkaCli"){
+    artifactId = "dokka-cli"
+    component = Shadow
+}
 

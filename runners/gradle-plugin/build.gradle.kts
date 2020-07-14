@@ -47,15 +47,13 @@ gradlePlugin {
 
 publishing {
     publications {
-        maybeCreate<MavenPublication>("pluginMaven").apply {
+        register<MavenPublication>("pluginMaven") {
             artifactId = "dokka-gradle-plugin"
-            artifact(sourceJar.get())
         }
 
         register<MavenPublication>("dokkaGradlePluginForIntegrationTests") {
             artifactId = "dokka-gradle-plugin"
             from(components["java"])
-            artifact(sourceJar.get())
             version = "for-integration-tests-SNAPSHOT"
         }
     }

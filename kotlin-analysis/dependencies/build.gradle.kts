@@ -1,4 +1,5 @@
-import org.jetbrains.configurePublication
+import org.jetbrains.DokkaPublicationBuilder.Component.Shadow
+import org.jetbrains.registerDokkaArtifactPublication
 
 plugins {
     id("com.github.johnrengelman.shadow")
@@ -53,4 +54,7 @@ tasks {
     }
 }
 
-configurePublication("kotlin-analysis-dependencies", useShadow = true)
+registerDokkaArtifactPublication("kotlinAnalysisDependencies"){
+    artifactId = "kotlin-analysis-dependencies"
+    component = Shadow
+}
