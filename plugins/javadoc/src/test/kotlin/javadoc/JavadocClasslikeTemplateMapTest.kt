@@ -94,7 +94,7 @@ internal class JavadocClasslikeTemplateMapTest : AbstractJavadocTemplateMapTest(
                 "Expected no parameters"
             )
             assertEquals("final <a href=.html>String</a>", method.modifiers())
-            assertEquals("<a href=TestClass.html#testFunction-->testFunction</a>()", method.signatureWithoutModifiers())
+            assertEquals("<a href=TestClass.html#testFunction()>testFunction</a>()", method.signatureWithoutModifiers())
         }
     }
 
@@ -312,7 +312,7 @@ internal class JavadocClasslikeTemplateMapTest : AbstractJavadocTemplateMapTest(
             val ownMethods = assertIsInstance<List<*>>(methods["own"]).first()
             val sampleFunction = assertIsInstance<Map<String, Any?>>(ownMethods)
 
-            assertEquals("final &lt;D extends <a href=Generic.html>T</a>&gt; <a href=Generic.html#sampleFunction-->D</a> <a href=Generic.html#sampleFunction-->sampleFunction</a>()", sampleFunction.signatureWithModifiers())
+            assertEquals("final &lt;D extends <a href=Generic.html>T</a>&gt; <a href=Generic.html#sampleFunction()>D</a> <a href=Generic.html#sampleFunction()>sampleFunction</a>()", sampleFunction.signatureWithModifiers())
         }
     }
 

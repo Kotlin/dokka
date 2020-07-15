@@ -75,7 +75,7 @@ class JavadocTest : AbstractCoreTest() {
                 .firstChildOfType<JavadocClasslikePageNode> { it.name == "Test" }
             val testFunctionNode = testClassNode.methods.first { it.name == "test" }
             assertEquals(
-                """<a href=Test.html#test-->test</a>()""",
+                """<a href=Test.html#test()>test</a>()""",
                 transformer.htmlForContentNode(
                     testFunctionNode.signature.signatureWithoutModifiers,
                     testClassNode
@@ -93,7 +93,7 @@ class JavadocTest : AbstractCoreTest() {
                 .firstChildOfType<JavadocClasslikePageNode> { it.name == "Test" }
             val testFunctionNode = testClassNode.methods.first { it.name == "test2" }
             assertEquals(
-                """<a href=Test.html#test2-String->test2</a>(<a href=https://docs.oracle.com/javase/8/docs/api/java/lang/String.html>String</a> s)""",
+                """<a href=Test.html#test2(String)>test2</a>(<a href=https://docs.oracle.com/javase/8/docs/api/java/lang/String.html>String</a> s)""",
                 transformer.htmlForContentNode(
                     testFunctionNode.signature.signatureWithoutModifiers,
                     testClassNode
@@ -111,7 +111,7 @@ class JavadocTest : AbstractCoreTest() {
                 .firstChildOfType<JavadocClasslikePageNode> { it.name == "Test" }
             val testFunctionNode = testClassNode.methods.first { it.name == "test3" }
             assertEquals(
-                """<a href=Test.html#test3-A,%20T->test3</a>(<a href=Test.html>A</a> a, <a href=Test.html#test3-A,%20T->T</a> t)""",
+                """<a href=Test.html#test3(A,T)>test3</a>(<a href=Test.html>A</a> a, <a href=Test.html#test3(A,T)>T</a> t)""",
                 transformer.htmlForContentNode(
                     testFunctionNode.signature.signatureWithoutModifiers,
                     testClassNode
