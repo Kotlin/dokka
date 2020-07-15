@@ -19,11 +19,17 @@ import java.io.File
 import java.io.Serializable
 
 class ConfigurationExtractor(private val project: Project) {
-
     fun extractConfiguration(sourceSetName: String): PlatformData? {
-        val projectExtension = project.extensions.getByType(KotlinProjectExtension::class.java)
-        val sourceSet = projectExtension.sourceSets.findByName(sourceSetName)
-            ?: run { project.logger.error("No source set with name '$sourceSetName' found"); return null }
+        val projectExtension = project.extensions.findByType(KotlinProjectExtension::class.java) ?: run {
+            project.logger.error("Missing kotlin project extension")
+            return null
+        }
+
+        val sourceSet = projectExtension.sourceSets.findByName(sourceSetName) ?: run {
+            project.logger.error("No source set with name '$sourceSetName' found")
+            return null
+        }
+
         val compilation = try {
             when (projectExtension) {
                 is KotlinMultiplatformExtension -> {
