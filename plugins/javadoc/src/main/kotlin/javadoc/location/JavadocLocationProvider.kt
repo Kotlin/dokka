@@ -76,7 +76,7 @@ class JavadocLocationProvider(pageRoot: RootPageNode, dokkaContext: DokkaContext
     }
 
     private fun JavadocFunctionNode.getAnchor(): String =
-        "$name-${parameters.joinToString("-") {
+        "$name(${parameters.joinToString(",") {
             when (val bound = if (it.typeBound is org.jetbrains.dokka.model.Nullable) it.typeBound.inner else it.typeBound) {
                 is TypeConstructor -> bound.dri.classNames.orEmpty()
                 is OtherParameter -> bound.name
@@ -85,15 +85,15 @@ class JavadocLocationProvider(pageRoot: RootPageNode, dokkaContext: DokkaContext
                 is JavaObject -> "Object"
                 else -> bound.toString()
             }
-        }}-"
+        }})"
 
     fun anchorForFunctionNode(node: JavadocFunctionNode) = node.getAnchor()
 
     private fun anchorForDri(dri: DRI): String =
         dri.callable?.let { callable ->
-            "${callable.name}-${callable.params.joinToString("-") {
+            "${callable.name}(${callable.params.joinToString(",") {
                 ((it as? Nullable)?.wrapped ?: it).toString()
-            }}-"
+            }})"
         } ?: dri.classNames.orEmpty()
 
     override fun resolve(node: PageNode, context: PageNode?, skipExtension: Boolean): String =
