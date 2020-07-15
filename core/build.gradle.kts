@@ -6,8 +6,7 @@ plugins {
 }
 
 dependencies {
-    api(project("dependencies", configuration = "shadow"))
-
+    api("org.jetbrains:markdown:0.1.45")
     implementation(kotlin("reflect"))
     implementation("com.google.code.gson:gson:2.8.5")
     implementation("org.jsoup:jsoup:1.12.1")

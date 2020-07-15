@@ -1,7 +1,6 @@
 rootProject.name = "dokka"
 
 include("core")
-include("core:dependencies")
 include("plugins:base:search-component")
 include("testApi")
 include("test-tools")
