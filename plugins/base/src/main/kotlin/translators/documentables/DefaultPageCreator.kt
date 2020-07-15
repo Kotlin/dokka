@@ -182,7 +182,13 @@ open class DefaultPageCreator(
     }
 
     protected open fun contentForClasslike(c: DClasslike) = contentBuilder.contentFor(c) {
-        group(kind = ContentKind.Cover) {
+        @Suppress("UNCHECKED_CAST")
+        val extensions = (c as WithExtraProperties<DClasslike>)
+            .extra[CallableExtensions]?.extensions
+            ?.filterIsInstance<Documentable>().orEmpty()
+        // Extensions are added to sourceSets since they can be placed outside the sourceSets from classlike
+        // Example would be an Interface in common and extension function in jvm
+        group(kind = ContentKind.Cover, sourceSets = mainSourcesetData + extensions.sourceSets) {
             cover(c.name.orEmpty())
             sourceSetDependentHint(c.dri, c.sourceSets) {
                 +contentForDescription(c)
@@ -190,7 +196,7 @@ open class DefaultPageCreator(
             }
         }
 
-        group(styles = setOf(ContentStyle.TabbedContent)) {
+        group(styles = setOf(ContentStyle.TabbedContent), sourceSets = mainSourcesetData + extensions.sourceSets) {
             +contentForComments(c)
             if (c is WithConstructors) {
                 block(
@@ -233,12 +239,7 @@ open class DefaultPageCreator(
             }
             +contentForScope(c, c.dri, c.sourceSets)
 
-            @Suppress("UNCHECKED_CAST")
-            val extensions = (c as WithExtraProperties<DClasslike>)
-                .extra[CallableExtensions]?.extensions
-                ?.filterIsInstance<Documentable>()
-
-            divergentBlock("Extensions", extensions.orEmpty(), ContentKind.Extensions, extra = mainExtra + SimpleAttr.header("Extensions"))
+            divergentBlock("Extensions", extensions, ContentKind.Extensions, extra = mainExtra + SimpleAttr.header("Extensions"))
         }
     }
 
@@ -518,4 +519,7 @@ open class DefaultPageCreator(
 
 
     protected open fun TagWrapper.toHeaderString() = this.javaClass.toGenericString().split('.').last()
+
+    private val List<Documentable>.sourceSets: Set<DokkaSourceSet>
+        get() = flatMap { it.sourceSets }.toSet()
 }
