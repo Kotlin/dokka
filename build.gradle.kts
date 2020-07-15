@@ -29,7 +29,6 @@ allprojects {
         jcenter()
         mavenCentral()
         mavenLocal()
-        maven(url = "https://dl.bintray.com/jetbrains/markdown/")
         maven(url = "https://dl.bintray.com/kotlin/kotlin-dev")
     }
 }

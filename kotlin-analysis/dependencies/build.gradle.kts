@@ -30,10 +30,6 @@ dependencies {
     val idea_version: String by project
     intellijCore("com.jetbrains.intellij.idea:intellij-core:$idea_version")
     implementation(intellijCoreAnalysis())
-
-    implementation("org.jetbrains:markdown:0.1.41") {
-        because("it's published only on bintray")
-    }
 }
 
 tasks {
