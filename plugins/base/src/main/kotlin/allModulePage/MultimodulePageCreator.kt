@@ -1,6 +1,8 @@
 package org.jetbrains.dokka.base.allModulePage
 
+import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
+import org.jetbrains.dokka.DokkaException
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.resolvers.local.MultimoduleLocationProvider.Companion.MULTIMODULE_PACKAGE_PLACEHOLDER
 import org.jetbrains.dokka.base.transformers.pages.comments.DocTagToContentConverter
@@ -24,6 +26,7 @@ class MultimodulePageCreator(
     override fun invoke(): RootPageNode {
         val parser = MarkdownParser(logger = logger)
         val modules = context.configuration.modules
+        modules.forEach(::throwOnMissingModuleDocFile)
 
         val commentsConverter = context.plugin(DokkaBase::class)?.querySingle { commentsToContentConverter }
         val signatureProvider = context.plugin(DokkaBase::class)?.querySingle { signatureProvider }
@@ -62,6 +65,15 @@ class MultimodulePageCreator(
             setOf(DRI(packageName = MULTIMODULE_PACKAGE_PLACEHOLDER, classNames = "allModules")),
             contentNode
         )
+    }
+
+    private fun throwOnMissingModuleDocFile(module: DokkaConfiguration.DokkaModuleDescription) {
+        val docFile = File(module.docFile)
+        if (!docFile.exists() || !docFile.isFile) {
+            throw DokkaException(
+                "Missing documentation file for module ${module.name}: ${docFile.absolutePath}"
+            )
+        }
     }
 
     private fun DocumentationNode.firstParagraph() =
