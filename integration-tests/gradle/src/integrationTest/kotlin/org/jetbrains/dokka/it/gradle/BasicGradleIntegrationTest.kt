@@ -29,7 +29,7 @@ class BasicGradleIntegrationTest(override val versions: BuildVersions) : Abstrac
 
     @Test
     fun execute() {
-        val result = createGradleRunner("dokkaHtml", "dokkaJavadoc", "dokkaGfm", "dokkaJekyll", "--stacktrace")
+        val result = createGradleRunner("dokkaHtml", "dokkaJavadoc", "dokkaGfm", "dokkaJekyll", "-i", "-s")
             .buildRelaxed()
 
         assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":dokkaHtml")).outcome)

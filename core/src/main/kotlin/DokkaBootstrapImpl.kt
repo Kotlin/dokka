@@ -66,19 +66,6 @@ class DokkaBootstrapImpl : DokkaBootstrap {
         override fun error(message: String) {
             consumer.accept("error", message).also { errorsCount++ }
         }
-
-        override fun report() {
-            if (warningsCount > 0 || errorsCount > 0) {
-                println(
-                    "Generation completed with $warningsCount warning" +
-                            (if (warningsCount == 1) "" else "s") +
-                            " and $errorsCount error" +
-                            if (errorsCount == 1) "" else "s"
-                )
-            } else {
-                println("generation completed successfully")
-            }
-        }
     }
 
     private lateinit var generator: DokkaGenerator

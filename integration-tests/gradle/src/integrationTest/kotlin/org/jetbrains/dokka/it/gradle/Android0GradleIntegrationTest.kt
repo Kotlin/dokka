@@ -51,7 +51,7 @@ class Android0GradleIntegrationTest(override val versions: BuildVersions) : Abst
 
     @Test
     fun execute() {
-        val result = createGradleRunner("dokkaHtml", "--stacktrace").buildRelaxed()
+        val result = createGradleRunner("dokkaHtml", "-i", "-s").buildRelaxed()
         assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":dokkaHtml")).outcome)
 
         val htmlOutputDir = File(projectDir, "build/dokka/html")

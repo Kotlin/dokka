@@ -6,6 +6,7 @@ import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.utilities.DokkaLogger
+import org.jetbrains.dokka.utilities.report
 
 
 /**
@@ -17,7 +18,7 @@ class DokkaGenerator(
     private val configuration: DokkaConfiguration,
     private val logger: DokkaLogger
 ) {
-    fun generate() = timed {
+    fun generate() = timed(logger) {
         report("Initializing plugins")
         val context = initializePlugins(configuration, logger)
 
@@ -115,7 +116,7 @@ class DokkaGenerator(
 
     fun reportAfterRendering(context: DokkaContext) {
         context.unusedPoints.takeIf { it.isNotEmpty() }?.also {
-            logger.warn("Unused extension points found: ${it.joinToString(", ")}")
+            logger.info("Unused extension points found: ${it.joinToString(", ")}")
         }
 
         logger.report()
@@ -142,12 +143,12 @@ private class Timer(startTime: Long, private val logger: DokkaLogger?) {
     }
 
     fun dump(prefix: String = "") {
-        println(prefix)
+        logger?.info(prefix)
         val namePad = steps.map { it.first.length }.max() ?: 0
         val timePad = steps.windowed(2).map { (p1, p2) -> p2.second - p1.second }.max()?.toString()?.length ?: 0
         steps.windowed(2).forEach { (p1, p2) ->
             if (p1.first.isNotBlank()) {
-                println("${p1.first.padStart(namePad)}: ${(p2.second - p1.second).toString().padStart(timePad)}")
+                logger?.info("${p1.first.padStart(namePad)}: ${(p2.second - p1.second).toString().padStart(timePad)}")
             }
         }
     }
