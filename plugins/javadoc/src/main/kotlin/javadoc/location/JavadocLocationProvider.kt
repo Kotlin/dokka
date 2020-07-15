@@ -6,10 +6,7 @@ import org.jetbrains.dokka.base.resolvers.local.BaseLocationProvider
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.Nullable
 import org.jetbrains.dokka.links.parent
-import org.jetbrains.dokka.model.OtherParameter
-import org.jetbrains.dokka.model.PrimitiveJavaType
-import org.jetbrains.dokka.model.TypeConstructor
-import org.jetbrains.dokka.model.UnresolvedBound
+import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.pages.ContentPage
 import org.jetbrains.dokka.pages.PageNode
 import org.jetbrains.dokka.pages.RootPageNode
@@ -79,12 +76,13 @@ class JavadocLocationProvider(pageRoot: RootPageNode, dokkaContext: DokkaContext
     }
 
     private fun JavadocFunctionNode.getAnchor(): String =
-        "$name-${parameters.joinToString(",%20") {
-            when (val bound = it.typeBound) {
+        "$name-${parameters.joinToString("-") {
+            when (val bound = if (it.typeBound is org.jetbrains.dokka.model.Nullable) it.typeBound.inner else it.typeBound) {
                 is TypeConstructor -> bound.dri.classNames.orEmpty()
                 is OtherParameter -> bound.name
                 is PrimitiveJavaType -> bound.name
                 is UnresolvedBound -> bound.name
+                is JavaObject -> "Object"
                 else -> bound.toString()
             }
         }}-"
@@ -93,7 +91,7 @@ class JavadocLocationProvider(pageRoot: RootPageNode, dokkaContext: DokkaContext
 
     private fun anchorForDri(dri: DRI): String =
         dri.callable?.let { callable ->
-            "${callable.name}-${callable.params.joinToString(",%20") {
+            "${callable.name}-${callable.params.joinToString("-") {
                 ((it as? Nullable)?.wrapped ?: it).toString()
             }}-"
         } ?: dri.classNames.orEmpty()
