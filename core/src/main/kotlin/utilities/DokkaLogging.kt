@@ -8,7 +8,18 @@ interface DokkaLogger {
     fun progress(message: String)
     fun warn(message: String)
     fun error(message: String)
-    fun report()
+}
+
+fun DokkaLogger.report() {
+    if (DokkaConsoleLogger.warningsCount > 0 || DokkaConsoleLogger.errorsCount > 0) {
+        info("Generation completed with ${DokkaConsoleLogger.warningsCount} warning" +
+                (if(DokkaConsoleLogger.warningsCount == 1) "" else "s") +
+                " and ${DokkaConsoleLogger.errorsCount} error" +
+                if(DokkaConsoleLogger.errorsCount == 1) "" else "s"
+        )
+    } else {
+        info("generation completed successfully")
+    }
 }
 
 object DokkaConsoleLogger : DokkaLogger {
@@ -24,16 +35,4 @@ object DokkaConsoleLogger : DokkaLogger {
     override fun warn(message: String) = println("WARN: $message").also { warningsCount++ }
 
     override fun error(message: String) = println("ERROR: $message").also { errorsCount++ }
-
-    override fun report() {
-        if (warningsCount > 0 || errorsCount > 0) {
-            println("Generation completed with $warningsCount warning" +
-                    (if(warningsCount == 1) "" else "s") +
-                    " and $errorsCount error" +
-                    if(errorsCount == 1) "" else "s"
-            )
-        } else {
-            println("generation completed successfully")
-        }
-    }
 }

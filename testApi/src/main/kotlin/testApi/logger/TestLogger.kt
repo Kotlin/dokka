@@ -45,9 +45,4 @@ class TestLogger(private val logger: DokkaLogger) : DokkaLogger {
         _errorMessages.add(message)
         logger.error(message)
     }
-
-    override fun report() {
-        logger.report()
-    }
-
 }

@@ -27,7 +27,7 @@ class Multiplatform0GradleIntegrationTest(override val versions: BuildVersions) 
 
     @Test
     fun execute() {
-        val result = createGradleRunner("dokkaHtml", "--stacktrace").buildRelaxed()
+        val result = createGradleRunner("dokkaHtml", "-i", "-s").buildRelaxed()
 
         assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":dokkaHtml")).outcome)
 
