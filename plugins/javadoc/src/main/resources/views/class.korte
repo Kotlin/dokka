@@ -118,7 +118,7 @@
                                     {% for constructor in constructors %}
                                         <tr class="{{ rowColor(loop.index0) }}">
                                             <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a
-                                                    href="#%3Cinit%3E({{ constructor.inlineParameters }})">{{ constructor.name }}</a></span>({{ constructor.inlineParameters|raw }})</code></th>
+                                                    href="#{{ constructor.anchorLink }}">{{ constructor.name }}</a></span>({{ constructor.inlineParameters|raw }})</code></th>
                                             <td class="colLast">{{ constructor.brief|raw }}</td>
                                         </tr>
                                     {% endfor %}
@@ -220,9 +220,7 @@
                             </a>
                                 <h3>Constructor Detail</h3>
                                 {% for constructor in constructors %}
-                                <a id="&lt;{{ constructor.name }}&gt;({{ constructor.inlineParameters }})">
-                                    <!--   -->
-                                </a>
+                                <a name="{{ constructor.anchorLink }}"></a>
                                 <ul class="blockList">
                                     <li class="blockList">
                                         <h4>{{ constructor.name }}</h4>
@@ -254,7 +252,7 @@
                             </a>
                                 <h3>Method Detail</h3>
                                 {% for method in methods.own %}
-                                <a name="{{ method.anchorLink }}">
+                                <a name="{{ method.anchorLink }}"></a>
                                 <ul class="blockListLast">
                                     <li class="blockList">
                                         <h4>{{ method.name }}</h4>
