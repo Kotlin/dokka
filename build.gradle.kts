@@ -28,7 +28,6 @@ allprojects {
     repositories {
         jcenter()
         mavenCentral()
-        mavenLocal()
         maven(url = "https://dl.bintray.com/kotlin/kotlin-dev")
     }
 }
