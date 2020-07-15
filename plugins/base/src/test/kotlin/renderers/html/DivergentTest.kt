@@ -211,7 +211,7 @@ class DivergentTest : HtmlRenderingOnlyTestBase() {
         renderedContent.match(
             Div(
                 Div(
-                    "ab-",
+                    Div("ab-"),
                     Span()
                 ),
                 Div(Div(Div("ab")))
@@ -283,7 +283,7 @@ class DivergentTest : HtmlRenderingOnlyTestBase() {
         HtmlRenderer(context).render(page)
         renderedContent.match(
             Div(
-                Div("ab-", Span()),
+                Div(Div("ab-"), Span()),
                 Div(Div(Div("ab"))),
                 "ab+"
             )
@@ -321,8 +321,8 @@ class DivergentTest : HtmlRenderingOnlyTestBase() {
 
         HtmlRenderer(context).render(page)
         renderedContent.match(
-            Div(Div("a-", Span()), Div(Div(Div("a"))), "ab+"),
-            Div(Div("b-", Span()), Div(Div(Div(("b")))), "ab+")
+            Div(Div(Div("a-"), Span()), Div(Div(Div("a"))), "ab+"),
+            Div(Div(Div("b-"), Span()), Div(Div(Div(("b")))), "ab+")
         )
     }
 }
