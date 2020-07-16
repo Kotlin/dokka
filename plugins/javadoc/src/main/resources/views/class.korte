@@ -123,7 +123,7 @@
                                         {% for constructor in constructors %}
                                             <tr class="{{ rowColor(loop.index0) }}">
                                                 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a
-                                                        href="#%3Cinit%3E({{ constructor.inlineParameters }})">{{ constructor.name }}</a></span>({{ constructor.inlineParameters|raw }})</code></th>
+                                                        href="#{{ constructor.anchorLink }}">{{ constructor.name }}</a></span>({{ constructor.inlineParameters|raw }})</code></th>
                                                 <td class="colLast">{{ constructor.brief|raw }}</td>
                                             </tr>
                                         {% endfor %}
