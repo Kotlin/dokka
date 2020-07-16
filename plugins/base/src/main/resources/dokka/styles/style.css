@@ -27,10 +27,6 @@
     color: var(--hover-link-color)
 }
 
-.tabs-section-body > *:not([data-active]) {
-    display: none;
-}
-
 .tabs-section > .section-tab:first-child {
     margin-left: 0;
 }
@@ -828,8 +824,12 @@ td.content {
     background: #F4F4F4;
 }
 
-.platform-hinted > .content:not([data-active]) {
-    display: none
+.platform-hinted > .content:not([data-active]),
+.tabs-section-body > *:not([data-active]) {
+    visibility: hidden;
+    height: 0;
+    position: fixed;
+    top: 0;
 }
 
 .inner-brief-with-platform-tags {
