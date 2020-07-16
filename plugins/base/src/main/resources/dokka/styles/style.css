@@ -833,7 +833,7 @@ td.content {
 }
 
 .inner-brief-with-platform-tags {
-    display: inline-block;
+    display: block;
 }
 
 .tabs-section-body .brief-with-platform-tags {
