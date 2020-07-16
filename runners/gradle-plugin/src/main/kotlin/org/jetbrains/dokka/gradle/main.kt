@@ -33,16 +33,18 @@ open class DokkaPlugin : Plugin<Project> {
             configuration()
         }
 
-        val multimoduleName = "${name}Multimodule"
-        project.maybeCreateDokkaPluginConfiguration(multimoduleName)
-        project.maybeCreateDokkaRuntimeConfiguration(multimoduleName)
-        project.tasks.register<DokkaMultimoduleTask>(multimoduleName) {
-            dokkaTaskNames = dokkaTaskNames + name
-            configuration()
-        }
+        if (project.subprojects.isNotEmpty()) {
+            val multimoduleName = "${name}Multimodule"
+            project.maybeCreateDokkaPluginConfiguration(multimoduleName)
+            project.maybeCreateDokkaRuntimeConfiguration(multimoduleName)
+            project.tasks.register<DokkaMultimoduleTask>(multimoduleName) {
+                dokkaTaskNames = dokkaTaskNames + name
+                configuration()
+            }
 
-        project.tasks.register<DokkaCollectorTask>("${name}Collector") {
-            dokkaTaskNames = dokkaTaskNames + name
+            project.tasks.register<DokkaCollectorTask>("${name}Collector") {
+                dokkaTaskNames = dokkaTaskNames + name
+            }
         }
     }
 }
