@@ -356,7 +356,7 @@ private class DokkaDescriptorVisitor(
             sources = actual,
             visibility = descriptor.visibility.toDokkaVisibility().toSourceSetDependent(),
             generics = descriptor.typeParameters.map { it.toTypeParameter() },
-            documentation = descriptor.resolveDescriptorData(),
+            documentation = descriptor.takeIf { it.kind != CallableMemberDescriptor.Kind.SYNTHESIZED }?.resolveDescriptorData() ?: emptyMap(),
             modifier = descriptor.modifier().toSourceSetDependent(),
             type = descriptor.returnType!!.toBound(),
             sourceSets = setOf(sourceSet),
