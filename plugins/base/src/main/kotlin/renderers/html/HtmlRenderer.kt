@@ -12,6 +12,7 @@ import org.jetbrains.dokka.base.renderers.DefaultRenderer
 import org.jetbrains.dokka.base.renderers.TabSortingStrategy
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.properties.PropertyContainer
+import org.jetbrains.dokka.model.withDescendants
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
@@ -38,9 +39,9 @@ open class HtmlRenderer(
 
     private val tabSortingStrategy = context.plugin<DokkaBase>().querySingle { tabSortingStrategy }
 
-    private fun <T: ContentNode> sortTabs(strategy: TabSortingStrategy, tabs: Collection<T>) : List<T> {
+    private fun <T : ContentNode> sortTabs(strategy: TabSortingStrategy, tabs: Collection<T>): List<T> {
         val sorted = strategy.sort(tabs)
-        if(sorted.size != tabs.size)
+        if (sorted.size != tabs.size)
             context.logger.warn("Tab sorting strategy has changed number of tabs from ${tabs.size} to ${sorted.size}")
         return sorted;
     }
@@ -93,7 +94,7 @@ open class HtmlRenderer(
             node.dci.kind == ContentKind.Symbol -> div("symbol $additionalClasses") { childrenCallback() }
             node.dci.kind == ContentKind.BriefComment -> div("brief $additionalClasses") { childrenCallback() }
             node.dci.kind == ContentKind.Cover -> div("cover $additionalClasses") {
-                filterButtons(node)
+                filterButtons(pageContext)
                 childrenCallback()
             }
             node.hasStyle(TextStyle.Paragraph) -> p(additionalClasses) { childrenCallback() }
@@ -102,11 +103,11 @@ open class HtmlRenderer(
         }
     }
 
-    private fun FlowContent.filterButtons(group: ContentGroup) {
+    private fun FlowContent.filterButtons(page: ContentPage) {
         if (isMultiplatform) {
             div(classes = "filter-section") {
                 id = "filter-section"
-                group.sourceSets.forEach {
+                page.content.withDescendants().flatMap { it.sourceSets }.distinct().forEach {
                     button(classes = "platform-tag platform-selector") {
                         attributes["data-active"] = ""
                         attributes["data-filter"] = it.sourceSetID.toString()
