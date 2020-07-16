@@ -141,16 +141,4 @@ class DefaultPsiToDocumentableTranslatorTest : AbstractCoreTest() {
             }
         }
     }
-
-    private fun DModule.documentationOf(className: String, functionName: String): String {
-        return (packages.single()
-            .classlikes.single { it.name == className }
-            .functions.single { it.name == functionName }
-            .documentation.values.single()
-            .children.singleOrNull()
-            .run { this as? Description }
-            ?.root?.children?.single() as? Text)
-            ?.body.orEmpty()
-    }
-
 }
