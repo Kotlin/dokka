@@ -18,7 +18,7 @@ abstract class AbstractDokkaTask : DefaultTask(), Configurable {
     var outputDirectory: String = defaultDokkaOutputDirectory().absolutePath
 
     @Input
-    override val pluginsConfiguration: Map<String, String> = mutableMapOf()
+    override val pluginsConfiguration: MutableMap<String, String> = mutableMapOf()
 
     @Classpath
     val plugins: Configuration = project.maybeCreateDokkaPluginConfiguration(name)

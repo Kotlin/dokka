@@ -1,6 +1,5 @@
 package org.jetbrains.dokka.gradle
 
-import com.google.gson.GsonBuilder
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -15,6 +14,7 @@ import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.ReflectDsl
 import org.jetbrains.dokka.ReflectDsl.isNotInstance
 import org.jetbrains.dokka.gradle.ConfigurationExtractor.PlatformData
+import org.jetbrains.dokka.toJsonString
 import java.io.File
 import java.util.concurrent.Callable
 
@@ -123,9 +123,7 @@ open class DokkaTask : AbstractDokkaTask() {
         outputDiagnosticInfo = true
         val bootstrap = DokkaBootstrap("org.jetbrains.dokka.DokkaBootstrapImpl")
 
-        bootstrap.configure(
-            GsonBuilder().setPrettyPrinting().create().toJson(configuration)
-        ) { level, message ->
+        bootstrap.configure(configuration.toJsonString()) { level, message ->
             when (level) {
                 "debug" -> logger.debug(message)
                 "info" -> logger.info(message)
