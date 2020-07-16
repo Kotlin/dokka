@@ -1,11 +1,10 @@
 package org.jetbrains.dokka.gradle
 
-import com.google.gson.GsonBuilder
-import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.plugins.JavaBasePlugin.DOCUMENTATION_GROUP
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.jetbrains.dokka.plugability.Configurable
+import org.jetbrains.dokka.toJsonString
 
 open class DokkaMultimoduleTask : AbstractDokkaTask(), Configurable {
 
@@ -23,9 +22,8 @@ open class DokkaMultimoduleTask : AbstractDokkaTask(), Configurable {
 
     override fun generate() {
         val bootstrap = DokkaBootstrap("org.jetbrains.dokka.DokkaMultimoduleBootstrapImpl")
-        val gson = GsonBuilder().setPrettyPrinting().create()
         val configuration = getConfiguration()
-        bootstrap.configure(gson.toJson(configuration)) { level, message ->
+        bootstrap.configure(configuration.toJsonString()) { level, message ->
             when (level) {
                 "debug" -> logger.debug(message)
                 "info" -> logger.info(message)
