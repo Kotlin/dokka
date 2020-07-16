@@ -62,9 +62,9 @@ open class DefaultPageCreator(
     open fun pageForTypeAlias(t: DTypeAlias) = MemberPageNode(t.name, contentForTypeAlias(t), setOf(t.dri), t)
 
     private val WithScope.filteredFunctions: List<DFunction>
-        get() = functions.flatMap { dFunction ->
-            dFunction.sourceSets.mapNotNull { sourceSetData ->
-                dFunction.takeIf { it.extra[InheritedFunction]?.isInherited(sourceSetData) != true }
+        get() = functions.mapNotNull { function ->
+            function.takeIf {
+                it.sourceSets.any { sourceSet -> it.extra[InheritedFunction]?.isInherited(sourceSet) != true }
             }
         }
 
