@@ -6,12 +6,13 @@
     --breadcrumb-font-color: #A6AFBA;
     --hover-link-color: #5B5DEF;
     --footer-height: 64px;
-    --horizontal-spacing-for-content: 42px
+    --footer-padding-top: 48px;
+    --horizontal-spacing-for-content: 42px;
 }
 
 #content {
     padding: 0 var(--horizontal-spacing-for-content);
-    height: calc(100% - var(--footer-height));
+    height: calc(100% - var(--footer-height) - var(--footer-padding-top));
 }
 
 .breadcrumbs {
@@ -374,6 +375,7 @@ body, table {
     font-size: 14px;
     line-height: 24px;
     margin: 0;
+    height: 100%;
     /*max-width: 1440px; TODO: This results in worse experience on ultrawide, but on 16:9/16:10 looks better.*/
 }
 
@@ -1000,7 +1002,7 @@ td.content {
     line-height: 16px;
     letter-spacing: 0.2px;
     color: var(--breadcrumb-font-color);
-    margin-top: 48px;
+    margin-top: var(--footer-padding-top);
 }
 
 .footer span.go-to-top-icon {
