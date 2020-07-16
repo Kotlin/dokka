@@ -834,9 +834,10 @@ td.content {
 
 .inner-brief-with-platform-tags {
     display: block;
+    width: 100%
 }
 
-.tabs-section-body .brief-with-platform-tags {
+.brief-with-platform-tags {
     display: flex;
 }
 
