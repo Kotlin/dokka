@@ -11,6 +11,7 @@ repositories {
 
 dependencies {
     implementation(project(":core"))
+    compileOnly("com.fasterxml.jackson.core:jackson-annotations:2.11.1")
     compileOnly("org.jetbrains.kotlin:kotlin-gradle-plugin")
     compileOnly("com.android.tools.build:gradle:3.0.0")
     compileOnly("com.android.tools.build:gradle-core:3.0.0")
