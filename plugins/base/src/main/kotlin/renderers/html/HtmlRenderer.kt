@@ -729,16 +729,18 @@ open class HtmlRenderer(
                             span { text("© 2020 Copyright") }
                             span { text("Privacy Policy") }
                             span("pull-right") {
-                                span { text("Sponsored and developed by Dokka") }
-                                span(classes = "padded-icon") {
-                                    unsafe {
-                                        raw(
-                                            """
+                                span { text("Sponsored and developed by dokka") }
+                                a(href= "https://github.com/Kotlin/dokka") {
+                                    span(classes = "padded-icon") {
+                                        unsafe {
+                                            raw(
+                                                """
                                     <svg width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M8 0H2.3949L4.84076 2.44586L0 7.28662L0.713376 8L5.55414 3.15924L8 5.6051V0Z" fill="black"/>
                                     </svg>
                                 """.trimIndent()
-                                        )
+                                            )
+                                        }
                                     }
                                 }
                             }
