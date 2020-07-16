@@ -3,6 +3,7 @@
 package org.jetbrains.dokka.gradle
 
 import com.android.build.gradle.api.AndroidSourceSet
+import com.fasterxml.jackson.annotation.JsonIgnore
 import groovy.lang.Closure
 import org.gradle.api.Action
 import org.gradle.api.Project
@@ -34,8 +35,8 @@ class GradleSourceRootImpl : SourceRoot, Serializable {
 }
 
 open class GradleDokkaSourceSet constructor(
-    @Transient @get:Input val name: String,
-    @Transient @get:Internal internal val project: Project
+    @get:JsonIgnore @Transient @get:Input val name: String,
+    @get:JsonIgnore @Transient @get:Internal internal val project: Project
 ) : DokkaSourceSet {
 
     @Input
@@ -117,6 +118,7 @@ open class GradleDokkaSourceSet constructor(
     @Optional
     var platform: String? = null
 
+    @JsonIgnore
     @Internal
     @Transient
     var collectKotlinTasks: (() -> List<Any?>?)? = null
