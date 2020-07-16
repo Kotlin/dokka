@@ -12,7 +12,7 @@ class BasicGradleIntegrationTest(override val versions: BuildVersions) : Abstrac
         @get:Parameters(name = "{0}")
         val versions = BuildVersions.permutations(
             gradleVersions = listOf("6.5.1", "6.4.1", "6.3", "6.2.2", "6.1.1", "6.0", "5.6.4"),
-            kotlinVersions = listOf("1.3.30", "1.3.72", "1.4-M2-eap-70")
+            kotlinVersions = listOf("1.3.30", "1.3.72", "1.4-M3")
         )
     }
 
