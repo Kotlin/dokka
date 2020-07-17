@@ -154,6 +154,10 @@
             <name>JCenter</name>
             <url>https://jcenter.bintray.com/</url>
         </pluginRepository>
+        <pluginRepository>
+            <id>kotlinx</id>
+            <url>https://dl.bintray.com/kotlin/kotlinx.html</url>
+        </pluginRepository>
     </pluginRepositories>
 
     <dependencies>

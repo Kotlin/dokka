@@ -1,6 +1,7 @@
 allprojects {
     repositories {
         maven("https://dl.bintray.com/kotlin/kotlin-dev/")
+        maven("https://dl.bintray.com/kotlin/kotlinx.html")
         jcenter()
         mavenLocal()
         mavenCentral()
