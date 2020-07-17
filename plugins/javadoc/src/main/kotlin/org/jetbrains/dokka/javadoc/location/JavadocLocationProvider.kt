@@ -66,7 +66,7 @@ class JavadocLocationProvider(pageRoot: RootPageNode, dokkaContext: DokkaContext
 
     override fun resolve(dri: DRI, sourceSets: Set<DokkaSourceSet>, context: PageNode?): String {
         return nodeIndex[dri]?.let { resolve(it, context) }
-            ?: nodeIndex[dri.parent]?.let {
+            ?: nodeIndex[dri.parent]?.takeIf { it is JavadocClasslikePageNode }?.let {
                 val anchor = when (val anchorElement = (it as? JavadocClasslikePageNode)?.findAnchorableByDRI(dri)) {
                     is JavadocFunctionNode -> anchorElement.getAnchor()
                     is JavadocEntryNode -> anchorElement.name
@@ -80,7 +80,8 @@ class JavadocLocationProvider(pageRoot: RootPageNode, dokkaContext: DokkaContext
 
     private fun JavadocFunctionNode.getAnchor(): String =
         "$name(${parameters.joinToString(",") {
-            when (val bound = if (it.typeBound is org.jetbrains.dokka.model.Nullable) it.typeBound.inner else it.typeBound) {
+            when (val bound =
+                if (it.typeBound is org.jetbrains.dokka.model.Nullable) it.typeBound.inner else it.typeBound) {
                 is TypeConstructor -> bound.dri.classNames.orEmpty()
                 is OtherParameter -> bound.name
                 is PrimitiveJavaType -> bound.name

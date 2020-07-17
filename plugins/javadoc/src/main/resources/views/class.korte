@@ -270,7 +270,7 @@
                                     <li class="blockList">
                                         <h4>{{ method.name }}</h4>
                                         <pre class="methodSignature">{{ method.signature.annotations|raw }} {{ method.signature.modifiers|raw }} {{ method.signature.signatureWithoutModifiers|raw}}</pre>
-                                        <div class="block">{{ method.brief|raw }}</div>
+                                        <div class="block">{{ method.description|raw }}</div>
                                         {% if method.parameters.size != 0 && hasAnyDescription(method.parameters) %}
                                         <dl>
                                             <dt><span class="paramLabel">Parameters:</span></dt>

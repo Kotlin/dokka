@@ -37,7 +37,7 @@ class CommentsToContentConverterTest {
     fun `simple text`() {
         val docTag = P(listOf(Text("This is simple test of string Next line")))
         executeTest(docTag) {
-            +"This is simple test of string Next line"
+            group { +"This is simple test of string Next line" }
         }
     }
 
@@ -51,9 +51,11 @@ class CommentsToContentConverterTest {
             )
         )
         executeTest(docTag) {
-            +"This is simple test of string"
-            node<ContentBreakLine>()
-            +"Next line"
+            group {
+                +"This is simple test of string"
+                node<ContentBreakLine>()
+                +"Next line"
+            }
         }
     }
 
@@ -66,10 +68,14 @@ class CommentsToContentConverterTest {
             )
         )
         executeTest(docTag) {
-            +"Paragraph number one"
-            +"Paragraph"
-            node<ContentBreakLine>()
-            +"number two"
+            group {
+                group { +"Paragraph number one" }
+                group {
+                    +"Paragraph"
+                    node<ContentBreakLine>()
+                    +"number two"
+                }
+            }
         }
     }
 
@@ -122,20 +128,22 @@ class CommentsToContentConverterTest {
             )
         )
         executeTest(docTag) {
-            node<ContentList> {
-                group { +"Outer first Outer next line" }
-                group { +"Outer second" }
+            group {
                 node<ContentList> {
-                    group { +"Middle first Middle next line" }
-                    group { +"Middle second" }
+                    group { +"Outer first Outer next line" }
+                    group { +"Outer second" }
                     node<ContentList> {
-                        group { +"Inner first Inner next line" }
+                        group { +"Middle first Middle next line" }
+                        group { +"Middle second" }
+                        node<ContentList> {
+                            group { +"Inner first Inner next line" }
+                        }
+                        group { +"Middle third" }
                     }
-                    group { +"Middle third" }
+                    group { +"Outer third" }
                 }
-                group { +"Outer third" }
+                group { +"New paragraph" }
             }
-            +"New paragraph"
         }
     }
 
@@ -149,9 +157,11 @@ class CommentsToContentConverterTest {
             )
         )
         executeTest(docTag) {
-            header(1) { +"Header 1" }
-            +"Following text"
-            +"New paragraph"
+            group {
+                header(1) { +"Header 1" }
+                group { +"Following text" }
+                group { +"New paragraph" }
+            }
         }
     }
 
@@ -174,18 +184,20 @@ class CommentsToContentConverterTest {
             )
         )
         executeTest(docTag) {
-            header(1) {+"Header 1"}
-            +"Text 1"
-            header(2) {+"Header 2"}
-            +"Text 2"
-            header(3) {+"Header 3"}
-            +"Text 3"
-            header(4) {+"Header 4"}
-            +"Text 4"
-            header(5) {+"Header 5"}
-            +"Text 5"
-            header(6) {+"Header 6"}
-            +"Text 6"
+            group {
+                header(1) { +"Header 1" }
+                group { +"Text 1" }
+                header(2) { +"Header 2" }
+                group { +"Text 2" }
+                header(3) { +"Header 3" }
+                group { +"Text 3" }
+                header(4) { +"Header 4" }
+                group { +"Text 4" }
+                header(5) { +"Header 5" }
+                group { +"Text 5" }
+                header(6) { +"Header 6" }
+                group { +"Text 6" }
+            }
         }
     }
 
@@ -211,12 +223,14 @@ class CommentsToContentConverterTest {
             )
         )
         executeTest(docTag) {
-            node<ContentCodeBlock> {
-                +"Blockquotes are very handy in email to emulate reply text. This line is part of the same quote."
-            }
-            +"Quote break."
-            node<ContentCodeBlock> {
-                +"Quote"
+            group {
+                node<ContentCodeBlock> {
+                    +"Blockquotes are very handy in email to emulate reply text. This line is part of the same quote."
+                }
+                group { +"Quote break." }
+                node<ContentCodeBlock> {
+                    +"Quote"
+                }
             }
         }
     }
@@ -245,16 +259,18 @@ class CommentsToContentConverterTest {
             )
         )
         executeTest(docTag) {
-            node<ContentCodeBlock> {
-                +"text 1 text 2"
+            group {
                 node<ContentCodeBlock> {
-                    +"text 3 text 4"
+                    +"text 1 text 2"
+                    node<ContentCodeBlock> {
+                        +"text 3 text 4"
+                    }
+                    +"text 5"
                 }
-                +"text 5"
-            }
-            +"Quote break."
-            node<ContentCodeBlock> {
-                +"Quote"
+                group { +"Quote break." }
+                node<ContentCodeBlock> {
+                    +"Quote"
+                }
             }
         }
     }
@@ -278,21 +294,23 @@ class CommentsToContentConverterTest {
             )
         )
         executeTest(docTag) {
-            node<ContentCodeBlock> {
-                +"val x: Int = 0"
-                node<ContentBreakLine>()
-                +"val y: String = \"Text\""
-                node<ContentBreakLine>()
-                node<ContentBreakLine>()
-                +"    val z: Boolean = true"
-                node<ContentBreakLine>()
-                +"for(i in 0..10) {"
-                node<ContentBreakLine>()
-                +"    println(i)"
-                node<ContentBreakLine>()
-                +"}"
+            group {
+                node<ContentCodeBlock> {
+                    +"val x: Int = 0"
+                    node<ContentBreakLine>()
+                    +"val y: String = \"Text\""
+                    node<ContentBreakLine>()
+                    node<ContentBreakLine>()
+                    +"    val z: Boolean = true"
+                    node<ContentBreakLine>()
+                    +"for(i in 0..10) {"
+                    node<ContentBreakLine>()
+                    +"    println(i)"
+                    node<ContentBreakLine>()
+                    +"}"
+                }
+                group { +"Sample text" }
             }
-            +"Sample text"
         }
     }
 
@@ -307,7 +325,7 @@ class CommentsToContentConverterTest {
             )
         )
         executeTest(docTag) {
-            link {
+            group { link {
                 +"I'm an inline-style link"
                 check {
                     assertEquals(
@@ -315,7 +333,7 @@ class CommentsToContentConverterTest {
                         "https://www.google.com"
                     )
                 }
-            }
+            } }
         }
     }
 
@@ -384,20 +402,24 @@ class CommentsToContentConverterTest {
             )
         )
         executeTest(docTag) {
-            node<ContentList> {
-                group { +"Outer first Outer next line" }
-                group { +"Outer second" }
+            group {
                 node<ContentList> {
-                    group { +"Middle first Middle next line" }
-                    group { +"Middle second" }
+                    group { +"Outer first Outer next line" }
+                    group { +"Outer second" }
                     node<ContentList> {
-                        +"Inner first Inner next line"
+                        group { +"Middle first Middle next line" }
+                        group { +"Middle second" }
+                        node<ContentList> {
+                            +"Inner first Inner next line"
+                        }
+                        group { +"Middle third" }
                     }
-                    group { +"Middle third" }
+                    group { +"Outer third" }
                 }
-                group { +"Outer third" }
+                group {
+                    +"New paragraph"
+                }
             }
-            +"New paragraph"
         }
     }
 }

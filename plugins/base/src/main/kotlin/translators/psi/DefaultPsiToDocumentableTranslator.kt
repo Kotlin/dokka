@@ -285,8 +285,7 @@ class DefaultPsiToDocumentableTranslator(
                         psiParameter.name,
                         DocumentationNode(
                             listOfNotNull(docs.firstChildOfTypeOrNull<Param> {
-                            it.firstChildOfTypeOrNull<DocumentationLink>()
-                                ?.firstChildOfTypeOrNull<Text>()?.body == psiParameter.name
+                            it.name == psiParameter.name
                         })).toSourceSetDependent(),
                         null,
                         getBound(psiParameter.type),

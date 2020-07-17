@@ -230,7 +230,7 @@ class ConstructorsSignaturesTest : AbstractCoreTest() {
                                 platformHinted {
                                     group {
                                         group {
-                                            +"ctor comment"
+                                            group { +"ctor comment" }
                                         }
                                     }
                                     group {

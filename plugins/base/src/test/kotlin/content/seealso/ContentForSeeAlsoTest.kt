@@ -89,7 +89,7 @@ class ContentForSeeAlsoTest : AbstractCoreTest() {
                                             group {
                                                 //DRI should be "test//abc/#/-1/"
                                                 link { +"abc" }
-                                                group { }
+                                                group { group { } }
                                             }
                                         }
                                     }
@@ -144,7 +144,9 @@ class ContentForSeeAlsoTest : AbstractCoreTest() {
                                             group {
                                                 //DRI should be "test//abc/#/-1/"
                                                 link { +"abc" }
-                                                group { +"Comment to abc" }
+                                                group {
+                                                    group { +"Comment to abc" }
+                                                }
                                             }
                                         }
                                     }
@@ -199,7 +201,9 @@ class ContentForSeeAlsoTest : AbstractCoreTest() {
                                             group {
                                                 //DRI should be "kotlin.collections/Collection////"
                                                 link { +"Collection" }
-                                                group { }
+                                                group {
+                                                    group { }
+                                                }
                                             }
                                         }
                                     }
@@ -254,7 +258,9 @@ class ContentForSeeAlsoTest : AbstractCoreTest() {
                                             group {
                                                 //DRI should be "test//abc/#/-1/"
                                                 link { +"Collection" }
-                                                group { +"Comment to stdliblink" }
+                                                group {
+                                                    group { +"Comment to stdliblink" }
+                                                }
                                             }
                                         }
                                     }
@@ -305,9 +311,9 @@ class ContentForSeeAlsoTest : AbstractCoreTest() {
                     divergentGroup {
                         divergentInstance {
                             before {
-                                pWrapped("random comment")
-                                unnamedTag("Author") { +"pikinier20" }
-                                unnamedTag("Since") { +"0.11" }
+                                group { group { group { +"random comment"} } }
+                                unnamedTag("Author") { group { +"pikinier20" } }
+                                unnamedTag("Since") { group { +"0.11" } }
 
                                 header(2) { +"See also" }
                                 group {
@@ -316,7 +322,9 @@ class ContentForSeeAlsoTest : AbstractCoreTest() {
                                             group {
                                                 //DRI should be "test//abc/#/-1/"
                                                 link { +"Collection" }
-                                                group { +"Comment to stdliblink" }
+                                                group {
+                                                    group { +"Comment to stdliblink" }
+                                                }
                                             }
                                         }
                                     }
@@ -372,7 +380,9 @@ class ContentForSeeAlsoTest : AbstractCoreTest() {
                                             group {
                                                 //DRI should be "test//abc/#/-1/"
                                                 link { +"abc" }
-                                                group { +"Comment to abc2" }
+                                                group {
+                                                    group { +"Comment to abc2" }
+                                                }
                                             }
                                         }
                                     }
@@ -428,12 +438,14 @@ class ContentForSeeAlsoTest : AbstractCoreTest() {
                                             group {
                                                 //DRI should be "test//abc/#/-1/"
                                                 link { +"abc" }
-                                                group { +"Comment to abc1" }
+                                                group {
+                                                    group { +"Comment to abc1" }
+                                                }
                                             }
                                             group {
                                                 //DRI should be "test//abc/#/-1/"
                                                 link { +"Collection" }
-                                                group { +"Comment to collection" }
+                                                group { group {  +"Comment to collection" } }
                                             }
                                         }
                                     }
