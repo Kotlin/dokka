@@ -146,6 +146,10 @@
 
     <pluginRepositories>
         <pluginRepository>
+            <id>kotlin-eap</id>
+            <url>https://dl.bintray.com/kotlin/kotlin-eap/</url>
+        </pluginRepository>
+        <pluginRepository>
             <id>kotlin-dev</id>
             <url>https://dl.bintray.com/kotlin/kotlin-dev/</url>
         </pluginRepository>
