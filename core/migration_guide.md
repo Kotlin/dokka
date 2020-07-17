@@ -1,6 +1,6 @@
-## Changes between 0.10.x and 0.11.0
+## Changes between 0.10.x and 1.4-M3
 
-There are two main changes between dokka 0.10.x and 0.11.0
+There are two main changes between dokka 0.10.x and 1.4-M3
 
 The first is the introduction of plugability - new documentation creating process is divided into several steps and each step provides extension points to be used. To learn more about new dokka pipeline and possible plugins, please read Developer's guide.
 
@@ -40,6 +40,7 @@ dokka {
                 lineSuffix = "#L"
             }
         }
+    }
 }
 ```
 ##### New
