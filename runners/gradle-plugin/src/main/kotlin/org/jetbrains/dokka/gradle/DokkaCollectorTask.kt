@@ -5,6 +5,7 @@ import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.plugins.JavaBasePlugin.DOCUMENTATION_GROUP
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.TaskDependency
 import java.lang.IllegalStateException
 
 open class DokkaCollectorTask : DefaultTask() {
@@ -15,19 +16,20 @@ open class DokkaCollectorTask : DefaultTask() {
     @Input
     var outputDirectory: String = defaultDokkaOutputDirectory().absolutePath
 
-    private lateinit var configuration: GradleDokkaConfigurationImpl
-
     @Input
     var dokkaTaskNames: Set<String> = setOf()
 
+    override fun getFinalizedBy(): TaskDependency {
+        val dokkaTasks = getSubprojectDokkaTasks(dokkaTaskNames)
+        dokkaTasks.forEach { dokkaTask -> finalizedBy(dokkaTask) }
+        dokkaTasks.zipWithNext().forEach { (first, second) -> first.mustRunAfter(second) }
+        return super.getFinalizedBy()
+    }
+
     @TaskAction
     fun collect() {
-        val configurations = project.subprojects
-            .filter { subProject -> subProject.name in modules }
-            .flatMap { subProject -> dokkaTaskNames.mapNotNull(subProject.tasks::findByName) }
-            .filterIsInstance<DokkaTask>()
+        val configurations = getSubprojectDokkaTasks(dokkaTaskNames)
             .mapNotNull { dokkaTask -> dokkaTask.getConfigurationOrNull() }
-
 
         val initial = GradleDokkaConfigurationImpl().apply {
             outputDir = outputDirectory
@@ -35,24 +37,27 @@ open class DokkaCollectorTask : DefaultTask() {
         }
 
         // TODO this certainly not the ideal solution
-        configuration = configurations.fold(initial) { acc, it: GradleDokkaConfigurationImpl ->
+        val configuration = configurations.fold(initial) { acc, it: GradleDokkaConfigurationImpl ->
             if (acc.cacheRoot != it.cacheRoot)
                 throw IllegalStateException("Dokka task configurations differ on core argument cacheRoot")
             acc.sourceSets = acc.sourceSets + it.sourceSets
             acc.pluginsClasspath = (acc.pluginsClasspath + it.pluginsClasspath).distinct()
             acc
         }
-        project.tasks.withType(DokkaTask::class.java).configureEach { it.enforcedConfiguration = configuration }
+        getSubprojectDokkaTasks(dokkaTaskNames).forEach { it.enforcedConfiguration = configuration }
+    }
+
+    private fun getSubprojectDokkaTasks(dokkaTaskName: String): List<DokkaTask> {
+        return project.subprojects
+            .filter { subproject -> subproject.name in modules }
+            .mapNotNull { subproject -> subproject.tasks.findByName(dokkaTaskName) as? DokkaTask }
+    }
+
+    private fun getSubprojectDokkaTasks(dokkaTaskNames: Set<String>): List<DokkaTask> {
+        return dokkaTaskNames.flatMap { dokkaTaskName -> getSubprojectDokkaTasks(dokkaTaskName) }
     }
 
     init {
-        // TODO: This this certainly not the ideal solution
-        dokkaTaskNames.forEach { dokkaTaskName ->
-            finalizedBy(dokkaTaskName)
-        }
-
         group = DOCUMENTATION_GROUP
     }
-
-
 }
