@@ -9,7 +9,11 @@ open class DokkaPlugin : Plugin<Project> {
 
         project.setupDokkaTasks("dokkaHtml")
 
-        project.setupDokkaTasks("dokkaJavadoc") {
+        project.setupDokkaTasks(
+            name = "dokkaJavadoc",
+            multimoduleTaskSupported = false,
+            collectorTaskSupported = false
+        ) {
             plugins.dependencies.add(project.dokkaArtifacts.javadocPlugin)
         }
 
@@ -26,7 +30,12 @@ open class DokkaPlugin : Plugin<Project> {
      * Creates [DokkaTask], [DokkaMultimoduleTask] and [DokkaCollectorTask] for the given
      * name and configuration.
      */
-    private fun Project.setupDokkaTasks(name: String, configuration: AbstractDokkaTask.() -> Unit = {}) {
+    private fun Project.setupDokkaTasks(
+        name: String,
+        multimoduleTaskSupported: Boolean = true,
+        collectorTaskSupported: Boolean = true,
+        configuration: AbstractDokkaTask.() -> Unit = {}
+    ) {
         project.maybeCreateDokkaPluginConfiguration(name)
         project.maybeCreateDokkaRuntimeConfiguration(name)
         project.tasks.register<DokkaTask>(name) {
@@ -34,16 +43,19 @@ open class DokkaPlugin : Plugin<Project> {
         }
 
         if (project.subprojects.isNotEmpty()) {
-            val multimoduleName = "${name}Multimodule"
-            project.maybeCreateDokkaPluginConfiguration(multimoduleName)
-            project.maybeCreateDokkaRuntimeConfiguration(multimoduleName)
-            project.tasks.register<DokkaMultimoduleTask>(multimoduleName) {
-                dokkaTaskNames = dokkaTaskNames + name
-                configuration()
+            if (multimoduleTaskSupported) {
+                val multimoduleName = "${name}Multimodule"
+                project.maybeCreateDokkaPluginConfiguration(multimoduleName)
+                project.maybeCreateDokkaRuntimeConfiguration(multimoduleName)
+                project.tasks.register<DokkaMultimoduleTask>(multimoduleName) {
+                    dokkaTaskNames = dokkaTaskNames + name
+                    configuration()
+                }
             }
-
-            project.tasks.register<DokkaCollectorTask>("${name}Collector") {
-                dokkaTaskNames = dokkaTaskNames + name
+            if (collectorTaskSupported) {
+                project.tasks.register<DokkaCollectorTask>("${name}Collector") {
+                    dokkaTaskNames = dokkaTaskNames + name
+                }
             }
         }
     }
