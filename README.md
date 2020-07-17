@@ -87,6 +87,7 @@ eg. you'll have to use `named<DokkaTask>("dokkaHtml")` instead of `dokkaHtml`:
 buildscript {
     repositories {
         jcenter()
+        maven("https://dl.bintray.com/kotlin/kotlin-eap")
     }
     dependencies {
         classpath("org.jetbrains.dokka:dokka-gradle-plugin:${dokka_version}")
@@ -380,13 +381,16 @@ Make sure you apply dokka after `com.android.library` and `kotlin-android`.
 buildscript {
     repositories {
         jcenter()
+        maven("https://dl.bintray.com/kotlin/kotlin-eap")
     }
     dependencies {
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlin_version}")
         classpath("org.jetbrains.dokka:dokka-gradle-plugin:${dokka_version}")
     }
 }
 repositories {
     jcenter()
+    maven("https://dl.bintray.com/kotlin/kotlin-eap")
 }
 apply(plugin= "com.android.library")
 apply(plugin= "kotlin-android")
@@ -404,30 +408,13 @@ dokkaHtml {
 ```
 
 #### Multi-module projects
-For documenting Gradle multi-module projects, you can use `dokka${format}Collector` and `dokka${format}Multimodule` tasks.
+For documenting Gradle multi-module projects, you can use `dokka${format}Multimodule` tasks.
 
 ```kotlin
 tasks.dokkaHtmlMultimodule {
     outputDirectory = "$buildDir/multimodule"
     documentationFileName = "README.md"
 }
-
-tasks.dokkaGfmCollector {
-    outputDirectory = "$buildDir/collected"
-    modules = listOf("subA", "subB") // Gradle submodule names with dokka tasks 
-}
-```
-
-`DokkaCollector` creates a documentation for all submodules by taking source sets from all dokka tasks and creating a new 
-dokka run with them: 
-```
-For a root project and two subprojects (subA and subB) with JVM and JS source sets, dokkaCollector's source sets look like this:
-
-:dokkaHtmlCollector
-\--- :subA:jvmMain
-\--- :subA:jsMain
-\--- :subB:jvmMain
-\--- :subB:jsMain
 ```
 
 `DokkaMultimodule` depends on all dokka tasks in the subprojects, runs them, and creates a toplevel page (based on the `documentationFile`)
@@ -445,6 +432,10 @@ The Maven plugin is available in JCenter. You need to add the JCenter repository
         <id>jcenter</id>
         <name>JCenter</name>
         <url>https://jcenter.bintray.com/</url>
+    </pluginRepository>
+    <pluginRepository>
+        <id>kotlin-eap</id>
+        <url>https://dl.bintray.com/kotlin/kotlin-eap/</url>
     </pluginRepository>
 </pluginRepositories>
 ```
