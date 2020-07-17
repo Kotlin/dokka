@@ -72,22 +72,21 @@ internal class JavadocContentToTemplateMapTranslator(
             )
         }
 
-        fun templateMapForPackagePageNode(node: JavadocPackagePageNode): TemplateMap {
-            return mapOf(
+        fun templateMapForPackagePageNode(node: JavadocPackagePageNode): TemplateMap =
+            mapOf(
                 "kind" to "package"
             ) + templateMapForJavadocContentNode(node.content)
-        }
 
-        fun templateMapForFunctionNode(node: JavadocFunctionNode): TemplateMap {
-            return mapOf(
+        fun templateMapForFunctionNode(node: JavadocFunctionNode): TemplateMap =
+            mapOf(
                 "brief" to htmlForContentNodes(node.brief, contextNode),
+                "description" to htmlForContentNodes(node.description, contextNode),
                 "parameters" to node.parameters.map { templateMapForParameterNode(it) },
                 "inlineParameters" to node.parameters.joinToString { renderInlineParameter(it) },
                 "anchorLink" to locationProvider.anchorForFunctionNode(node),
                 "signature" to templateMapForSignatureNode(node.signature),
                 "name" to node.name
             )
-        }
 
         fun templateMapForClasslikeNode(node: JavadocClasslikePageNode): TemplateMap =
             mapOf(
@@ -214,7 +213,7 @@ internal class JavadocContentToTemplateMapTranslator(
             htmlTranslator.htmlForContentNode(node, relativeNode)
 
         private fun htmlForContentNodes(nodes: List<ContentNode>, relativeNode: PageNode) =
-            htmlTranslator.htmlForContentNodes(nodes, emptySet(), relativeNode)
+            htmlTranslator.htmlForContentNodes(nodes, relativeNode)
     }
 
     private fun DRI.displayable(): String = "${packageName}.${sureClassNames}"

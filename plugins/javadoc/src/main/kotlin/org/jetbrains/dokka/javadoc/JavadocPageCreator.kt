@@ -66,7 +66,8 @@ open class JavadocPageCreator(
                     )
                 },
                 documentable = c,
-                extra = ((c as? WithExtraProperties<Documentable>)?.extra ?: PropertyContainer.empty()) + c.indexesInDocumentation()
+                extra = ((c as? WithExtraProperties<Documentable>)?.extra
+                    ?: PropertyContainer.empty()) + c.indexesInDocumentation()
             )
         }
 
@@ -142,6 +143,7 @@ open class JavadocPageCreator(
             dri = dri,
             signature = signatureForNode(this, jvm),
             brief = brief(jvm),
+            description = descriptionToContentNodes(jvm),
             parameters = parameters.mapNotNull {
                 val signature = signatureForNode(it, jvm)
                 signature.modifiers?.let { type ->
@@ -194,16 +196,21 @@ open class JavadocPageCreator(
         briefFromContentNodes(descriptionToContentNodes(sourceSet))
 
     private fun briefFromContentNodes(description: List<ContentNode>): List<ContentNode> {
-        val contents = mutableListOf<ContentNode>()
-        for (node in description) {
+        var sentenceFound = false
+        fun lookthrough(node: ContentNode): ContentNode =
             if (node is ContentText && firstSentenceRegex.containsMatchIn(node.text)) {
-                contents.add(node.copy(text = firstSentenceRegex.find(node.text)?.value.orEmpty()))
-                break
+                sentenceFound = true
+                node.copy(text = firstSentenceRegex.find(node.text)?.value.orEmpty())
+            } else if (node is ContentGroup) {
+                node.copy(children = node.children.mapNotNull {
+                    if (!sentenceFound) lookthrough(it) else null
+                }, style = node.style - TextStyle.Paragraph)
             } else {
-                contents.add(node)
+                node
             }
+        return description.mapNotNull {
+            if (!sentenceFound) lookthrough(it) else null
         }
-        return contents
     }
 
     private fun DParameter.brief(sourceSet: DokkaSourceSet? = highestJvmSourceSet): List<ContentNode> =

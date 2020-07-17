@@ -115,6 +115,7 @@ data class JavadocPropertyNode(
 data class JavadocFunctionNode(
     val signature: JavadocSignatureContentNode,
     val brief: List<ContentNode>,
+    val description: List<ContentNode>,
     val parameters: List<JavadocParameterNode>,
     val name: String,
     override val dri: DRI,

@@ -86,7 +86,7 @@ class ContentForParamsTest : AbstractCoreTest() {
                     divergentGroup {
                         divergentInstance {
                             before {
-                                pWrapped("comment to function")
+                                group { pWrapped("comment to function") }
                             }
                             divergent {
                                 bareSignature(
@@ -131,8 +131,8 @@ class ContentForParamsTest : AbstractCoreTest() {
                     divergentGroup {
                         divergentInstance {
                             before {
-                                unnamedTag("Author") { +"Kordyjan" }
-                                unnamedTag("Since") { +"0.11" }
+                                unnamedTag("Author") { group {  +"Kordyjan" } }
+                                unnamedTag("Since") { group {  +"0.11" } }
                             }
                             divergent {
                                 bareSignature(
@@ -178,9 +178,9 @@ class ContentForParamsTest : AbstractCoreTest() {
                     divergentGroup {
                         divergentInstance {
                             before {
-                                pWrapped("comment to function")
-                                unnamedTag("Author") { +"Kordyjan" }
-                                unnamedTag("Since") { +"0.11" }
+                                group { pWrapped("comment to function") }
+                                unnamedTag("Author") { group { +"Kordyjan" } }
+                                unnamedTag("Since") { group { +"0.11" } }
                             }
                             divergent {
                                 bareSignature(
@@ -225,14 +225,14 @@ class ContentForParamsTest : AbstractCoreTest() {
                     divergentGroup {
                         divergentInstance {
                             before {
-                                pWrapped("comment to function")
+                                group { pWrapped("comment to function") }
                                 header(2) { +"Parameters" }
                                 group {
                                     platformHinted {
                                         table {
                                             group {
                                                 +"abc"
-                                                group { +"comment to param" }
+                                                group { group { +"comment to param" } }
                                             }
                                         }
                                     }
@@ -283,22 +283,22 @@ class ContentForParamsTest : AbstractCoreTest() {
                     divergentGroup {
                         divergentInstance {
                             before {
-                                pWrapped("comment to function")
+                                group { group { group { +"comment to function" } } }
                                 header(2) { +"Parameters" }
                                 group {
                                     platformHinted {
                                         table {
                                             group {
                                                 +"first"
-                                                group { +"comment to first param" }
+                                                group { group {  +"comment to first param" } }
                                             }
                                             group {
                                                 +"second"
-                                                group { +"comment to second param" }
+                                                group { group {  +"comment to second param" } }
                                             }
                                             group {
                                                 +"third"
-                                                group { +"comment to third param" }
+                                                group { group {  +"comment to third param" } }
                                             }
                                         }
                                     }
@@ -351,15 +351,15 @@ class ContentForParamsTest : AbstractCoreTest() {
                                         table {
                                             group {
                                                 +"first"
-                                                group { +"comment to first param" }
+                                                group { group { +"comment to first param" } }
                                             }
                                             group {
                                                 +"second"
-                                                group { +"comment to second param" }
+                                                group { group { +"comment to second param" } }
                                             }
                                             group {
                                                 +"third"
-                                                group { +"comment to third param" }
+                                                group { group { +"comment to third param" } }
                                             }
                                         }
                                     }
@@ -406,18 +406,18 @@ class ContentForParamsTest : AbstractCoreTest() {
                     divergentGroup {
                         divergentInstance {
                             before {
-                                pWrapped("comment to function")
+                                group { pWrapped("comment to function") }
                                 header(2) { +"Parameters" }
                                 group {
                                     platformHinted {
                                         table {
                                             group {
                                                 +"<receiver>"
-                                                group { +"comment to receiver" }
+                                                group { group { +"comment to receiver" } }
                                             }
                                             group {
                                                 +"abc"
-                                                group { +"comment to param" }
+                                                group { group { +"comment to param" } }
                                             }
                                         }
                                     }
@@ -468,18 +468,18 @@ class ContentForParamsTest : AbstractCoreTest() {
                     divergentGroup {
                         divergentInstance {
                             before {
-                                pWrapped("comment to function")
+                                group { group { group { +"comment to function" } } }
                                 header(2) { +"Parameters" }
                                 group {
                                     platformHinted {
                                         table {
                                             group {
                                                 +"first"
-                                                group { +"comment to first param" }
+                                                group { group { +"comment to first param" } }
                                             }
                                             group {
                                                 +"third"
-                                                group { +"comment to third param" }
+                                                group { group { +"comment to third param" } }
                                             }
                                         }
                                     }
@@ -529,9 +529,9 @@ class ContentForParamsTest : AbstractCoreTest() {
                     divergentGroup {
                         divergentInstance {
                             before {
-                                pWrapped("comment to function")
-                                unnamedTag("Author") { +"Kordyjan" }
-                                unnamedTag("Since") { +"0.11" }
+                                group { pWrapped("comment to function") }
+                                unnamedTag("Author") { group {  +"Kordyjan" } }
+                                unnamedTag("Since") { group {  +"0.11" } }
                                 header(2) { +"Parameters" }
 
                                 group {
@@ -539,15 +539,15 @@ class ContentForParamsTest : AbstractCoreTest() {
                                         table {
                                             group {
                                                 +"first"
-                                                group { +"comment to first param" }
+                                                group { group { +"comment to first param" } }
                                             }
                                             group {
                                                 +"second"
-                                                group { +"comment to second param" }
+                                                group { group { +"comment to second param" } }
                                             }
                                             group {
                                                 +"third"
-                                                group { +"comment to third param" }
+                                                group { group { +"comment to third param" } }
                                             }
                                         }
                                     }

@@ -33,7 +33,7 @@ internal class JavadocClasslikeTemplateMapTest : AbstractJavadocTemplateMapTest(
             assertEquals("TestClass", map["name"])
             assertEquals("TestClass", map["title"])
             assertEquals("com.test.package0", map["packageName"])
-            assertEquals("Documentation for TestClass", map["classlikeDocumentation"])
+            assertEquals("<p>Documentation for TestClass</p>", map["classlikeDocumentation"])
             assertEquals("Documentation for TestClass", map["subtitle"])
             assertEquals("public final class <a href=TestClass.html>TestClass</a>", map.signatureWithModifiers())
         }
@@ -78,7 +78,7 @@ internal class JavadocClasslikeTemplateMapTest : AbstractJavadocTemplateMapTest(
             assertEquals("TestClass", map["name"])
             assertEquals("TestClass", map["title"])
             assertEquals("com.test.package0", map["packageName"])
-            assertEquals("Documentation for TestClass", map["classlikeDocumentation"])
+            assertEquals("<p>Documentation for TestClass</p>", map["classlikeDocumentation"])
             assertEquals("Documentation for TestClass", map["subtitle"])
             assertEquals("public final class", map.modifiers())
             assertEquals("<a href=TestClass.html>TestClass</a>", map.signatureWithoutModifiers())
@@ -200,8 +200,8 @@ internal class JavadocClasslikeTemplateMapTest : AbstractJavadocTemplateMapTest(
             assertEquals(2, entries.size)
 
             val (first, second) = entries
-            assertEquals("Sample docs for first", first["brief"])
-            assertEquals("Sample docs for second", second["brief"])
+            assertEquals("<p>Sample docs for first</p>", first["brief"])
+            assertEquals("<p>Sample docs for second</p>", second["brief"])
 
             assertEquals("<a href=ClockDays.html#FIRST>FIRST</a>", first.signatureWithoutModifiers())
             assertEquals("<a href=ClockDays.html#SECOND>SECOND</a>", second.signatureWithoutModifiers())
