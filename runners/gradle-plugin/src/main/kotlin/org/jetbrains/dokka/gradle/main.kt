@@ -2,57 +2,49 @@ package org.jetbrains.dokka.gradle
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.artifacts.Configuration
-import org.gradle.util.GradleVersion
-import java.io.File
-import java.io.InputStream
-import java.util.*
-
-internal const val CONFIGURATION_EXTENSION_NAME = "configuration"
-internal const val MULTIPLATFORM_EXTENSION_NAME = "multiplatform"
+import org.gradle.kotlin.dsl.register
 
 open class DokkaPlugin : Plugin<Project> {
-    private val taskName = "dokka"
-
     override fun apply(project: Project) {
-        loadDokkaVersion()
-        val dokkaRuntimeConfiguration = addConfiguration(project)
-        addTasks(project, dokkaRuntimeConfiguration, DokkaTask::class.java)
-    }
 
-    private fun loadDokkaVersion() = DokkaVersion.loadFrom(javaClass.getResourceAsStream("/META-INF/gradle-plugins/org.jetbrains.dokka.properties"))
+        project.setupDokkaTasks("dokkaHtml")
 
-    private fun addConfiguration(project: Project) =
-        project.configurations.create("dokkaRuntime").apply {
-            defaultDependencies{ dependencies -> dependencies.add(project.dependencies.create("org.jetbrains.dokka:dokka-fatjar:${DokkaVersion.version}")) }
+        project.setupDokkaTasks("dokkaJavadoc") {
+            plugins.dependencies.add(project.dokkaArtifacts.javadocPlugin)
         }
 
-    protected open fun addTasks(project: Project, runtimeConfiguration: Configuration, taskClass: Class<out DokkaTask>) {
-        if(GradleVersion.current() >= GradleVersion.version("4.10")) {
-            project.tasks.register(taskName, taskClass)
-        } else {
-            project.tasks.create(taskName, taskClass)
+        project.setupDokkaTasks("dokkaGfm") {
+            plugins.dependencies.add(project.dokkaArtifacts.gfmPlugin)
         }
-        project.tasks.withType(taskClass) { task ->
-            task.multiplatform = project.container(GradlePassConfigurationImpl::class.java)
-            task.configuration = GradlePassConfigurationImpl()
-            task.dokkaRuntime = runtimeConfiguration
-            task.outputDirectory = File(project.buildDir, taskName).absolutePath
+
+        project.setupDokkaTasks("dokkaJekyll") {
+            plugins.dependencies.add(project.dokkaArtifacts.jekyllPlugin)
         }
     }
-}
 
-object DokkaVersion {
-    var version: String? = null
+    /**
+     * Creates [DokkaTask], [DokkaMultimoduleTask] and [DokkaCollectorTask] for the given
+     * name and configuration.
+     */
+    private fun Project.setupDokkaTasks(name: String, configuration: AbstractDokkaTask.() -> Unit = {}) {
+        project.maybeCreateDokkaPluginConfiguration(name)
+        project.maybeCreateDokkaRuntimeConfiguration(name)
+        project.tasks.register<DokkaTask>(name) {
+            configuration()
+        }
 
-    fun loadFrom(stream: InputStream) {
-        version = Properties().apply {
-            load(stream)
-        }.getProperty("dokka-version")
+        if (project.subprojects.isNotEmpty()) {
+            val multimoduleName = "${name}Multimodule"
+            project.maybeCreateDokkaPluginConfiguration(multimoduleName)
+            project.maybeCreateDokkaRuntimeConfiguration(multimoduleName)
+            project.tasks.register<DokkaMultimoduleTask>(multimoduleName) {
+                dokkaTaskNames = dokkaTaskNames + name
+                configuration()
+            }
+
+            project.tasks.register<DokkaCollectorTask>("${name}Collector") {
+                dokkaTaskNames = dokkaTaskNames + name
+            }
+        }
     }
-}
-
-object ClassloaderContainer {
-    @JvmField
-    var fatJarClassLoader: ClassLoader? = null
 }

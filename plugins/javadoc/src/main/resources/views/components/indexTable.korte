@@ -1,0 +1,18 @@
+{% if isTypeSummary %}
+    <div class="typeSummary">
+{% endif %}
+<table>
+<caption><span>{{ tabTitle }}</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">{{ colTitle }}</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tbody>
+{% for item in list %}
+    <tr class="{{ rowColor(loop.index0) }}">{{ createTabRow(item, contextRoot)|raw }}</tr>
+{% end -%}
+</tbody>
+</table>
+{% if isTypeSummary %}
+    </div>
+{% endif %}

@@ -1,0 +1,13 @@
+<html lang="en">
+{% include "components/head.korte" -%}
+<body>
+<h1 class="bar">{{ title }}</h1>
+<main role="main" class="indexContainer">
+    <ul>
+        {% for item in list %}
+            <li>{{ createListRow(item, contextRoot)|raw }}</li>
+        {% end -%}
+    </ul>
+</main>
+</body>
+</html>

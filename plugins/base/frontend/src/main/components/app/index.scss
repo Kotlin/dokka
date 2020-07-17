@@ -1,0 +1,27 @@
+@import "src/main/scss/index.scss";
+
+html,
+.app-root {
+  height: 100%;
+}
+
+.search-root {
+  margin: 0;
+  padding: 0;
+
+  background: var(--ring-content-background-color);
+
+  font-family: var(--ring-font-family);
+  font-size: var(--ring-font-size);
+  line-height: var(--ring-line-height);
+}
+
+.search-content {
+  padding-top: 24px;
+  margin: 0 41px;
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 8;
+  background-color: #f4f4f4
+}
