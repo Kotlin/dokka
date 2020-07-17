@@ -10,9 +10,11 @@ dependencies {
 
     api(project(":kotlin-analysis"))
     implementation("org.jsoup:jsoup:1.12.1")
-    implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:0.6.10")
     testImplementation(project(":test-tools"))
     testImplementation(project(":plugins:base:test-utils"))
+
+    val kotlinx_html_version: String by project
+    implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:$kotlinx_html_version")
 }
 
 task("copy_frontend", Copy::class) {
