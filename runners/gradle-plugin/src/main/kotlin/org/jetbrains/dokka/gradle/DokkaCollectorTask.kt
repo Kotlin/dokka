@@ -1,33 +1,18 @@
 package org.jetbrains.dokka.gradle
 
-import org.gradle.api.DefaultTask
-import org.gradle.api.plugins.JavaBasePlugin
+import com.google.gson.GsonBuilder
 import org.gradle.api.plugins.JavaBasePlugin.DOCUMENTATION_GROUP
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.TaskAction
-import org.gradle.api.tasks.TaskDependency
-import java.lang.IllegalStateException
 
-open class DokkaCollectorTask : DefaultTask() {
+open class DokkaCollectorTask : AbstractDokkaTask() {
 
     @Input
     var modules: List<String> = emptyList()
 
     @Input
-    var outputDirectory: String = defaultDokkaOutputDirectory().absolutePath
-
-    @Input
     var dokkaTaskNames: Set<String> = setOf()
 
-    override fun getFinalizedBy(): TaskDependency {
-        val dokkaTasks = getSubprojectDokkaTasks(dokkaTaskNames)
-        dokkaTasks.forEach { dokkaTask -> finalizedBy(dokkaTask) }
-        dokkaTasks.zipWithNext().forEach { (first, second) -> first.mustRunAfter(second) }
-        return super.getFinalizedBy()
-    }
-
-    @TaskAction
-    fun collect() {
+    override fun generate() {
         val configurations = getSubprojectDokkaTasks(dokkaTaskNames)
             .mapNotNull { dokkaTask -> dokkaTask.getConfigurationOrNull() }
 
@@ -44,7 +29,20 @@ open class DokkaCollectorTask : DefaultTask() {
             acc.pluginsClasspath = (acc.pluginsClasspath + it.pluginsClasspath).distinct()
             acc
         }
-        getSubprojectDokkaTasks(dokkaTaskNames).forEach { it.enforcedConfiguration = configuration }
+
+        val bootstrap = DokkaBootstrap("org.jetbrains.dokka.DokkaBootstrapImpl")
+        bootstrap.configure(
+            GsonBuilder().setPrettyPrinting().create().toJson(configuration)
+        ) { level, message ->
+            when (level) {
+                "debug" -> logger.debug(message)
+                "info" -> logger.info(message)
+                "progress" -> logger.lifecycle(message)
+                "warn" -> logger.warn(message)
+                "error" -> logger.error(message)
+            }
+        }
+        bootstrap.generate()
     }
 
     private fun getSubprojectDokkaTasks(dokkaTaskName: String): List<DokkaTask> {
