@@ -210,7 +210,9 @@ class EnumsTest : AbstractCoreTest() {
                     platformHinted {
                         group {
                             group {
-                                + "Sample docs for E1"
+                                group {
+                                    +"Sample docs for E1"
+                                }
                             }
                         }
                         group {

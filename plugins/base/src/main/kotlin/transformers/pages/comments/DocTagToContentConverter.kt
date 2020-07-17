@@ -53,6 +53,9 @@ object DocTagToContentConverter : CommentsToContentConverter {
             )
         )
 
+        fun P.collapseParagraphs(): P =
+            if (children.size == 1 && children.first() is P) (children.first() as P).collapseParagraphs() else this
+
         return when (docTag) {
             is H1 -> buildHeader(1)
             is H2 -> buildHeader(2)
@@ -63,12 +66,14 @@ object DocTagToContentConverter : CommentsToContentConverter {
             is Ul -> buildList(false)
             is Ol -> buildList(true, docTag.params["start"]?.toInt() ?: 1)
             is Li -> listOf(
-                ContentGroup(children = buildChildren(docTag), dci, sourceSets, styles, extra)
+                ContentGroup(buildChildren(docTag), dci, sourceSets, styles, extra)
             )
             is Br -> buildNewLine()
             is B -> buildChildren(docTag, setOf(TextStyle.Strong))
             is I -> buildChildren(docTag, setOf(TextStyle.Italic))
-            is P -> buildChildren(docTag, newStyles = setOf(TextStyle.Paragraph))
+            is P -> listOf(
+                ContentGroup(buildChildren(docTag.collapseParagraphs()), dci, sourceSets, styles + setOf(TextStyle.Paragraph), extra)
+            )
             is A -> listOf(
                 ContentResolvedLink(
                     buildChildren(docTag),

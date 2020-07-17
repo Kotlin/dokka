@@ -119,7 +119,7 @@ class KorteJavadocRenderer(private val outputWriter: OutputWriter, val context: 
                 (buildLink(
                     locationProvider.resolve(link, contextRoot),
                     link.name
-                ) to contentToHtmlTranslator.htmlForContentNodes(doc, emptySet(), contextRoot)).pairToTag().trim()
+                ) to contentToHtmlTranslator.htmlForContentNodes(doc, contextRoot)).pairToTag().trim()
             },
             TeFunction("createListRow") { args ->
                 val link = args.first() as LinkJavadocListEntry
