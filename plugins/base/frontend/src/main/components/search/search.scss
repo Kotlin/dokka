@@ -1,0 +1,37 @@
+.search {
+  button {
+    border: none;
+    fill: #637282;
+    background: #F4F4F4;
+
+    &:focus {
+      outline: none;
+    }
+  }
+}
+
+.popup-wrapper {
+  min-width: calc(100% - 360px) !important;
+}
+
+.indented {
+  text-indent: 10px;
+}
+
+.disabled {
+  color: gray;
+}
+
+.template-wrapper {
+  display: grid;
+  grid-template-columns: auto auto;
+}
+
+.template-name {
+  justify-self: start;
+}
+
+.template-description {
+  color: gray;
+  justify-self: end;
+}

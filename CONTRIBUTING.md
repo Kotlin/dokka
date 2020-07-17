@@ -1,11 +1,3 @@
-## Branches
-
-As of late January 2020:
-
-* master is the latest released version (0.10.0).
-* dev-0.10.1 is the maintenance branch for 0.10.0. It will contain mostly bugfixes.
-* dev-0.11.0 is a big rewrite of dokka, it's changing fast and things may break but this is where new features should be developed.
-
 ## Building dokka
 
 Dokka is built with Gradle. To build it, use `./gradlew build`.

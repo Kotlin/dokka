@@ -1,3 +1,0 @@
-rootProject.name = "multiProjectRoot"
-
-include 'subA', 'subB'
