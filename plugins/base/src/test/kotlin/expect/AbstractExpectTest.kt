@@ -24,7 +24,7 @@ abstract class AbstractExpectTest(
 
         var result: Path? = null
         testFromData(config, cleanupOutput = false) {
-            renderingStage = { _, context -> result = Paths.get(context.configuration.outputDir) }
+            renderingStage = { _, context -> result = context.configuration.outputDir.toPath() }
         }
         return result
     }

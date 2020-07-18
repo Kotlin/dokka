@@ -1,6 +1,9 @@
 package org.jetbrains.dokka.gradle
 
-import java.lang.reflect.*
+import java.lang.reflect.InvocationHandler
+import java.lang.reflect.InvocationTargetException
+import java.lang.reflect.Method
+import java.lang.reflect.Proxy
 
 
 /**
@@ -21,14 +24,14 @@ internal inline fun <reified T : Any> automagicTypedProxy(targetClassLoader: Cla
  * to create access proxy for [delegate] into [targetClassLoader].
  *
  */
-internal fun automagicProxy(targetClassLoader: ClassLoader, targetType: Class<*>, delegate: Any): Any =
+private fun automagicProxy(targetClassLoader: ClassLoader, targetType: Class<*>, delegate: Any): Any =
     Proxy.newProxyInstance(
         targetClassLoader,
         arrayOf(targetType),
         DelegatedInvocationHandler(delegate)
     )
 
-internal class DelegatedInvocationHandler(private val delegate: Any) : InvocationHandler {
+private class DelegatedInvocationHandler(private val delegate: Any) : InvocationHandler {
 
     @Throws(Throwable::class)
     override fun invoke(proxy: Any, method: Method, args: Array<Any?>?): Any? {

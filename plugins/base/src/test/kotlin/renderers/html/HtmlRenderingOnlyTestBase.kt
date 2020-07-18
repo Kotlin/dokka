@@ -52,7 +52,7 @@ abstract class HtmlRenderingOnlyTestBase : RenderingOnlyTestBase<Element>() {
         DokkaBase().externalLocationProviderFactory to { ::DokkaExternalLocationProviderFactory },
         DokkaBase().tabSortingStrategy to { DefaultTabSortingStrategy() },
         testConfiguration = DokkaConfigurationImpl(
-            "", null, false, listOf(js, jvm, native), emptyList(), emptyMap(), emptyList(), false
+            sourceSets = listOf(js, jvm, native)
         )
     )
 

@@ -17,12 +17,12 @@ internal fun createEnvironmentAndFacade(
         if (analysisPlatform == Platform.jvm) {
             addClasspath(PathUtil.getJdkClassesRootsFromCurrentJre())
         }
-        sourceSet.classpath.forEach { addClasspath(File(it)) }
+        sourceSet.classpath.forEach(::addClasspath)
 
         addSources(
             (sourceSet.sourceRoots + configuration.sourceSets.filter { it.sourceSetID in sourceSet.dependentSourceSets }
                 .flatMap { it.sourceRoots })
-                .map { it.path }
+                .map { it.directory }
         )
 
         loadLanguageVersionSettings(sourceSet.languageVersion, sourceSet.apiVersion)

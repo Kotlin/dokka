@@ -36,6 +36,13 @@ class Multimodule0IntegrationTest(override val versions: BuildVersions) : Abstra
         assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":moduleA:dokkaHtmlMultimodule")).outcome)
         assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":moduleA:dokkaGfmMultimodule")).outcome)
         assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":moduleA:dokkaJekyllMultimodule")).outcome)
+        assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":moduleA:moduleB:dokkaHtml")).outcome)
+        assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":moduleA:moduleC:dokkaHtml")).outcome)
+        assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":moduleA:moduleB:dokkaGfm")).outcome)
+        assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":moduleA:moduleC:dokkaGfm")).outcome)
+        assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":moduleA:moduleB:dokkaJekyll")).outcome)
+        assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":moduleA:moduleC:dokkaJekyll")).outcome)
+
 
         val outputDir = File(projectDir, "moduleA/build/dokka/htmlMultimodule")
         assertTrue(outputDir.isDirectory, "Missing dokka output directory")

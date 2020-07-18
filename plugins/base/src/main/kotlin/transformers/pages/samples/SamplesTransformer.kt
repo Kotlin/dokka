@@ -43,16 +43,16 @@ abstract class SamplesTransformer(val context: DokkaContext) : PageTransformer {
         }
     }
 
-    private fun setUpAnalysis(context: DokkaContext) = context.configuration.sourceSets.map {
-        it to AnalysisEnvironment(DokkaMessageCollector(context.logger), it.analysisPlatform).run {
+    private fun setUpAnalysis(context: DokkaContext) = context.configuration.sourceSets.map { sourceSet ->
+        sourceSet to AnalysisEnvironment(DokkaMessageCollector(context.logger), sourceSet.analysisPlatform).run {
             if (analysisPlatform == Platform.jvm) {
                 addClasspath(PathUtil.getJdkClassesRootsFromCurrentJre())
             }
-            it.classpath.forEach { addClasspath(File(it)) }
+            sourceSet.classpath.forEach(::addClasspath)
 
-            addSources(it.samples.map { it })
+            addSources(sourceSet.samples.toList())
 
-            loadLanguageVersionSettings(it.languageVersion, it.apiVersion)
+            loadLanguageVersionSettings(sourceSet.languageVersion, sourceSet.apiVersion)
 
             val environment = createCoreEnvironment()
             val (facade, _) = createResolutionFacade(environment)

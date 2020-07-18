@@ -1,5 +1,3 @@
-import org.jetbrains.dokka.gradle.DokkaTask
-
 plugins {
     kotlin("multiplatform")
     id("org.jetbrains.dokka")
@@ -18,15 +16,5 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.8-1.4.0-rc")
             }
         }
-    }
-}
-
-tasks.withType<DokkaTask> {
-    dokkaSourceSets {
-        create("commonMain")
-        create("jvmMain")
-        create("linuxMain")
-        create("macosMain")
-        create("jsMain")
     }
 }

@@ -43,7 +43,7 @@ class MultimodulePageCreator(
             header(2, "All modules:")
             table(styles = setOf(MultimoduleTable)) {
                 modules.mapNotNull { module ->
-                    val paragraph = module.docFile.let(::File).readText().let { parser.parse(it).firstParagraph() }
+                    val paragraph = module.docFile.readText().let { parser.parse(it).firstParagraph() }
                     paragraph?.let {
                         val dri = DRI(packageName = MULTIMODULE_PACKAGE_PLACEHOLDER, classNames = module.name)
                         val dci = DCI(setOf(dri), ContentKind.Main)
@@ -68,10 +68,9 @@ class MultimodulePageCreator(
     }
 
     private fun throwOnMissingModuleDocFile(module: DokkaConfiguration.DokkaModuleDescription) {
-        val docFile = File(module.docFile)
-        if (!docFile.exists() || !docFile.isFile) {
+        if (!module.docFile.exists() || !module.docFile.isFile) {
             throw DokkaException(
-                "Missing documentation file for module ${module.name}: ${docFile.absolutePath}"
+                "Missing documentation file for module ${module.name}: ${module.docFile.absolutePath}"
             )
         }
     }

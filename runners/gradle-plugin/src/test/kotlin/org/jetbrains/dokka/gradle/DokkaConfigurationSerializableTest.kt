@@ -6,6 +6,7 @@ import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.toJsonString
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
+import java.io.File
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 import java.net.URL
@@ -28,8 +29,8 @@ class DokkaConfigurationSerializableTest {
         dokkaTask.apply {
             this.failOnWarning = true
             this.offlineMode = true
-            this.outputDirectory = "customOutputDir"
-            this.cacheRoot = "customCacheRoot"
+            this.outputDirectory = File("customOutputDir")
+            this.cacheRoot = File("customCacheRoot")
             this.pluginsConfiguration["0"] = "a"
             this.pluginsConfiguration["1"] = "b"
             this.dokkaSourceSets.create("main") { sourceSet ->
@@ -41,9 +42,6 @@ class DokkaConfigurationSerializableTest {
                     link.packageListUrl = URL("http://some.url")
                     link.url = URL("http://some.other.url")
                 }
-                sourceSet.collectKotlinTasks = {
-                    emptyList()
-                }
 
                 sourceSet.perPackageOption { packageOption ->
                     packageOption.includeNonPublic = true
@@ -53,7 +51,7 @@ class DokkaConfigurationSerializableTest {
             }
         }
 
-        val sourceConfiguration = dokkaTask.getConfigurationOrThrow()
+        val sourceConfiguration = dokkaTask.buildDokkaConfiguration()
         val configurationFile = temporaryFolder.root.resolve("config.bin")
         ObjectOutputStream(configurationFile.outputStream()).use { stream ->
             stream.writeObject(sourceConfiguration)
@@ -62,7 +60,6 @@ class DokkaConfigurationSerializableTest {
             stream.readObject() as DokkaConfiguration
         }
 
-        /* Abusing toJsonString, since there is no proper .equals on the gradle implementations yet */
-        assertEquals(sourceConfiguration.toJsonString(), parsedConfiguration.toJsonString())
+        assertEquals(sourceConfiguration, parsedConfiguration)
     }
 }

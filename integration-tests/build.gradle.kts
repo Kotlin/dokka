@@ -38,7 +38,6 @@ subprojects {
                 ?: System.getenv("DOKKA_INTEGRATION_TEST_IS_EXHAUSTIVE")?.toBoolean()
                 ?: false.toString()
         )
-
     }
 
     tasks.check {
