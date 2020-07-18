@@ -3,6 +3,7 @@ package org.jetbrains.dokka.gradle
 import org.gradle.kotlin.dsl.withType
 import org.gradle.testfixtures.ProjectBuilder
 import org.jetbrains.dokka.*
+import java.io.File
 import java.net.URL
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -20,8 +21,8 @@ class DokkaConfigurationJsonTest {
         dokkaTask.apply {
             this.failOnWarning = true
             this.offlineMode = true
-            this.outputDirectory = "customOutputDir"
-            this.cacheRoot = "customCacheRoot"
+            this.outputDirectory = File("customOutputDir")
+            this.cacheRoot = File("customCacheRoot")
             this.pluginsConfiguration["0"] = "a"
             this.pluginsConfiguration["1"] = "b"
             this.dokkaSourceSets.create("main") { sourceSet ->
@@ -33,12 +34,6 @@ class DokkaConfigurationJsonTest {
                     link.packageListUrl = URL("http://some.url")
                     link.url = URL("http://some.other.url")
                 }
-                sourceSet.collectKotlinTasks = {
-                    println(this@DokkaConfigurationJsonTest)
-                    println("This lambda is capturing the entire test")
-                    emptyList()
-                }
-
                 sourceSet.perPackageOption { packageOption ->
                     packageOption.includeNonPublic = true
                     packageOption.reportUndocumented = true
@@ -47,47 +42,11 @@ class DokkaConfigurationJsonTest {
             }
         }
 
-        val sourceConfiguration = dokkaTask.getConfigurationOrThrow()
+        val sourceConfiguration = dokkaTask.buildDokkaConfiguration()
         val configurationJson = sourceConfiguration.toJsonString()
         val parsedConfiguration = DokkaConfigurationImpl(configurationJson)
 
-        assertEquals(
-            DokkaConfigurationImpl(
-                failOnWarning = sourceConfiguration.failOnWarning,
-                offlineMode = sourceConfiguration.offlineMode,
-                outputDir = sourceConfiguration.outputDir,
-                cacheRoot = sourceConfiguration.cacheRoot,
-                pluginsClasspath = emptyList(),
-                pluginsConfiguration = sourceConfiguration.pluginsConfiguration.toMap(),
-                sourceSets = listOf(
-                    DokkaSourceSetImpl(
-                        moduleDisplayName = sourceConfiguration.sourceSets.single().moduleDisplayName,
-                        displayName = sourceConfiguration.sourceSets.single().displayName,
-                        reportUndocumented = sourceConfiguration.sourceSets.single().reportUndocumented,
-                        externalDocumentationLinks = sourceConfiguration.sourceSets.single().externalDocumentationLinks
-                            .map { link ->
-                                ExternalDocumentationLinkImpl(
-                                    url = link.url,
-                                    packageListUrl = link.packageListUrl
-                                )
-                            },
-                        perPackageOptions = sourceConfiguration.sourceSets.single().perPackageOptions.map { option ->
-                            PackageOptionsImpl(
-                                prefix = option.prefix,
-                                includeNonPublic = option.includeNonPublic,
-                                reportUndocumented = option.reportUndocumented,
-                                skipDeprecated = option.skipDeprecated,
-                                suppress = option.suppress
-                            )
-                        },
-                        sourceSetID = sourceConfiguration.sourceSets.single().sourceSetID,
-                        sourceRoots = sourceConfiguration.sourceSets.single().sourceRoots.map { sourceRoot ->
-                            SourceRootImpl(sourceRoot.path)
-                        }
-                    )
-                )
-            ), parsedConfiguration
-        )
+        assertEquals(sourceConfiguration, parsedConfiguration)
         println(parsedConfiguration)
     }
 }

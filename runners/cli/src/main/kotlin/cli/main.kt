@@ -17,11 +17,11 @@ class GlobalArguments(args: Array<String>) : DokkaConfiguration {
 
     val json: String? by parser.argument(ArgType.String, description = "Json file name").optional()
 
-    override val outputDir by parser.option(ArgType.String, description = "Output directory path")
+    override val outputDir by parser.option(ArgTypeFile, description = "Output directory path")
         .default(DokkaDefaults.outputDir)
 
     override val cacheRoot by parser.option(
-        ArgType.String,
+        ArgTypeFile,
         description = "Path to cache folder, or 'default' to use ~/.cache/dokka, if not provided caching is disabled"
     )
 
@@ -132,12 +132,12 @@ private fun parseSourceSet(args: Array<String>): DokkaConfiguration.DokkaSourceS
     ).default(DokkaDefaults.sourceSetDisplayName)
 
     val classpath by parser.option(
-        ArgType.String,
+        ArgTypeFile,
         description = "Classpath for symbol resolution (allows many paths separated by the semicolon `;`)"
     ).delimiter(";")
 
     val sourceRoots by parser.option(
-        ArgType.String,
+        ArgTypeFile,
         description = "Source file or directory (allows many paths separated by the semicolon `;`)",
         fullName = "src"
     ).delimiter(";")
@@ -148,12 +148,12 @@ private fun parseSourceSet(args: Array<String>): DokkaConfiguration.DokkaSourceS
     ).delimiter(";")
 
     val samples by parser.option(
-        ArgType.String,
+        ArgTypeFile,
         description = "Source root for samples (allows many paths separated by the semicolon `;`)"
     ).delimiter(";")
 
     val includes by parser.option(
-        ArgType.String,
+        ArgTypeFile,
         description = "Markdown files to load (allows many paths separated by the semicolon `;`)"
     ).delimiter(";")
 
@@ -196,7 +196,7 @@ private fun parseSourceSet(args: Array<String>): DokkaConfiguration.DokkaSourceS
         .default(DokkaDefaults.noJdkLink)
 
     val suppressedFiles by parser.option(
-        ArgType.String,
+        ArgTypeFile,
         description = "Paths to files to be suppressed (allows many paths separated by the semicolon `;`)"
     ).delimiter(";")
 
@@ -228,12 +228,12 @@ private fun parseSourceSet(args: Array<String>): DokkaConfiguration.DokkaSourceS
         override val displayName = displayName
         override val sourceSetID = DokkaSourceSetID(moduleName, sourceSetName)
         override val classpath = classpath
-        override val sourceRoots = sourceRoots.map { SourceRootImpl(it.toAbsolutePath()) }
+        override val sourceRoots = sourceRoots.map { SourceRootImpl(it) }
         override val dependentSourceSets: Set<DokkaSourceSetID> = dependentSourceSets
             .map { dependentSourceSetName -> dependentSourceSetName.split('/').let { DokkaSourceSetID(it[0], it[1]) } }
             .toSet()
-        override val samples = samples.map { it.toAbsolutePath() }
-        override val includes = includes.map { it.toAbsolutePath() }
+        override val samples = samples
+        override val includes = includes
         override val includeNonPublic = includeNonPublic
         override val includeRootPackage = includeRootPackage
         override val reportUndocumented = reportUndocumented

@@ -10,28 +10,29 @@ dependencies {
 }
 
 dokkaHtml {
-    outputDirectory = "$buildDir/dokka/customHtml"
+    outputDirectory = new File(buildDir, "/dokka/customHtml")
     pluginsConfiguration.put("pluginA", "configA")
     failOnWarning = false
     dokkaSourceSets {
         customSourceSet {
-            sourceRoot { path = "$projectDir/src/main/java" }
-            sourceRoot { path = "$projectDir/src/main/kotlin" }
+            sourceRoot { directory = file("src/main/java") }
+            sourceRoot { directory = file("src/main/kotlin") }
             displayName = "custom"
             reportUndocumented = true
         }
     }
+
 }
 
 dokkaJavadoc {
-    outputDirectory = "$buildDir/dokka/customJavadoc"
+    outputDirectory = new File(buildDir, "dokka/customJavadoc")
 }
 
 dokkaGfm {
-    outputDirectory = "$buildDir/dokka/customGfm"
+    outputDirectory = new File(buildDir, "dokka/customGfm")
 }
 
 dokkaJekyll {
-    outputDirectory = "$buildDir/dokka/customJekyll"
+    outputDirectory = new File(buildDir, "dokka/customJekyll")
 }
 

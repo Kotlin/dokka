@@ -21,10 +21,10 @@ class FileWriter(val context: DokkaContext): OutputWriter {
         createdFiles.add(path)
 
         try {
-            val dir = Paths.get(root, path.dropLastWhile { it != '/' }).toFile()
+            val dir = Paths.get(root.absolutePath, path.dropLastWhile { it != '/' }).toFile()
             withContext(Dispatchers.IO) {
                 dir.mkdirsOrFail()
-                Files.write(Paths.get(root, "$path$ext"), text.lines())
+                Files.write(Paths.get(root.absolutePath, "$path$ext"), text.lines())
             }
         } catch (e: Throwable) {
             context.logger.error("Failed to write $this. ${e.message}")
@@ -41,7 +41,7 @@ class FileWriter(val context: DokkaContext): OutputWriter {
 
 
     private suspend fun copyFromDirectory(pathFrom: String, pathTo: String) {
-        val dest = Paths.get(root, pathTo).toFile()
+        val dest = Paths.get(root.path, pathTo).toFile()
         val uri = javaClass.getResource(pathFrom).toURI()
         withContext(Dispatchers.IO) {
             File(uri).copyRecursively(dest, true)
@@ -51,7 +51,7 @@ class FileWriter(val context: DokkaContext): OutputWriter {
     private suspend fun copyFromJar(pathFrom: String, pathTo: String) {
         val rebase = fun(path: String) =
             "$pathTo/${path.removePrefix(pathFrom)}"
-        val dest = Paths.get(root, pathTo).toFile()
+        val dest = Paths.get(root.path, pathTo).toFile()
         dest.mkdirsOrFail()
         val uri = javaClass.getResource(pathFrom).toURI()
         val fs = getFileSystemForURI(uri)
@@ -60,12 +60,12 @@ class FileWriter(val context: DokkaContext): OutputWriter {
             if (Files.isDirectory(file)) {
                 val dirPath = file.toAbsolutePath().toString()
                 withContext(Dispatchers.IO) {
-                    Paths.get(root, rebase(dirPath)).toFile().mkdirsOrFail()
+                    Paths.get(root.path, rebase(dirPath)).toFile().mkdirsOrFail()
                 }
             } else {
                 val filePath = file.toAbsolutePath().toString()
                 withContext(Dispatchers.IO) {
-                    Paths.get(root, rebase(filePath)).toFile().writeBytes(
+                    Paths.get(root.path, rebase(filePath)).toFile().writeBytes(
                         this@FileWriter.javaClass.getResourceAsStream(filePath).readBytes()
                     )
                 }

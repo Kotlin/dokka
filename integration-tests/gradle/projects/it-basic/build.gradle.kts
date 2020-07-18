@@ -14,11 +14,11 @@ dependencies {
 tasks.withType<DokkaTask> {
     dokkaSourceSets {
         configureEach {
-            moduleDisplayName = "Basic Project"
-            suppressedFiles = listOf("src/main/kotlin/it/suppressedByPath")
+            moduleDisplayName.set("Basic Project")
+            suppressedFiles.from(file("src/main/kotlin/it/suppressedByPath"))
             perPackageOption {
-                prefix = "it.suppressedByPackage"
-                suppress = true
+                prefix.set("it.suppressedByPackage")
+                suppress.set(true)
             }
         }
     }

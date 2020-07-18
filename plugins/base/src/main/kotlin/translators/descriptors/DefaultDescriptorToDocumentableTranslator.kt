@@ -95,7 +95,7 @@ private class DokkaDescriptorVisitor(
     private fun Collection<DeclarationDescriptor>.filterDescriptorsInSourceSet() = filter {
         it.toSourceElement.containingFile.toString().let { path ->
             path.isNotBlank() && sourceSet.sourceRoots.any { root ->
-                Paths.get(path).startsWith(Paths.get(root.path))
+                Paths.get(path).startsWith(root.directory.toPath())
             }
         }
     }
@@ -356,7 +356,8 @@ private class DokkaDescriptorVisitor(
             sources = actual,
             visibility = descriptor.visibility.toDokkaVisibility().toSourceSetDependent(),
             generics = descriptor.typeParameters.map { it.toTypeParameter() },
-            documentation = descriptor.takeIf { it.kind != CallableMemberDescriptor.Kind.SYNTHESIZED }?.resolveDescriptorData() ?: emptyMap(),
+            documentation = descriptor.takeIf { it.kind != CallableMemberDescriptor.Kind.SYNTHESIZED }
+                ?.resolveDescriptorData() ?: emptyMap(),
             modifier = descriptor.modifier().toSourceSetDependent(),
             type = descriptor.returnType!!.toBound(),
             sourceSets = setOf(sourceSet),
@@ -749,11 +750,19 @@ private class DokkaDescriptorVisitor(
 
     private data class InheritanceLevel(val level: Int, val superclass: DRI?, val interfaces: List<DRI>)
 
-    private data class ClassInfo(val inheritance: List<InheritanceLevel>, val docs: SourceSetDependent<DocumentationNode>){
+    private data class ClassInfo(
+        val inheritance: List<InheritanceLevel>,
+        val docs: SourceSetDependent<DocumentationNode>
+    ) {
         val supertypes: List<DriWithKind>
             get() = inheritance.firstOrNull { it.level == 0 }?.let {
-                    listOfNotNull(it.superclass?.let { DriWithKind(it, KotlinClassKindTypes.CLASS) }) + it.interfaces.map { DriWithKind(it, KotlinClassKindTypes.INTERFACE) }
-                }.orEmpty()
+                listOfNotNull(it.superclass?.let {
+                    DriWithKind(
+                        it,
+                        KotlinClassKindTypes.CLASS
+                    )
+                }) + it.interfaces.map { DriWithKind(it, KotlinClassKindTypes.INTERFACE) }
+            }.orEmpty()
 
         val allImplementedInterfaces: List<DRI>
             get() = inheritance.flatMap { it.interfaces }.distinct()
