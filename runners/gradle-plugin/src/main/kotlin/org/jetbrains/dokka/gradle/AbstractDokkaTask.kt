@@ -1,21 +1,33 @@
 package org.jetbrains.dokka.gradle
 
 import org.gradle.api.DefaultTask
-import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
-import org.gradle.api.attributes.Usage
-import org.gradle.api.tasks.Classpath
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.Internal
-import org.gradle.api.tasks.TaskAction
-import org.gradle.kotlin.dsl.dependencies
+import org.gradle.api.plugins.JavaBasePlugin
+import org.gradle.api.tasks.*
 import org.jetbrains.dokka.DokkaBootstrap
+import org.jetbrains.dokka.DokkaConfigurationImpl
 import org.jetbrains.dokka.plugability.Configurable
+import org.jetbrains.dokka.toJsonString
+import java.io.File
+import java.util.function.BiConsumer
+import kotlin.reflect.KClass
 
+abstract class AbstractDokkaTask(
+    private val bootstrapClass: KClass<out DokkaBootstrap> = DokkaBootstrap::class
+) : DefaultTask(), Configurable {
 
-abstract class AbstractDokkaTask : DefaultTask(), Configurable {
+    @OutputDirectory
+    var outputDirectory: File = defaultDokkaOutputDirectory()
+
+    @Optional
+    @InputDirectory
+    var cacheRoot: File? = null
+
     @Input
-    var outputDirectory: String = defaultDokkaOutputDirectory().absolutePath
+    var failOnWarning: Boolean = false
+
+    @Input
+    var offlineMode: Boolean = false
 
     @Input
     override val pluginsConfiguration: MutableMap<String, String> = mutableMapOf()
@@ -27,19 +39,26 @@ abstract class AbstractDokkaTask : DefaultTask(), Configurable {
     val runtime: Configuration = project.maybeCreateDokkaRuntimeConfiguration(name)
 
     @TaskAction
-    protected fun run() {
-        val kotlinColorsEnabledBefore = System.getProperty(DokkaTask.COLORS_ENABLED_PROPERTY) ?: "false"
-        System.setProperty(DokkaTask.COLORS_ENABLED_PROPERTY, "false")
-        try {
+    protected open fun generateDocumentation() {
+        DokkaBootstrap(runtime, bootstrapClass).apply {
+            configure(buildDokkaConfiguration().toJsonString(), createProxyLogger())
             generate()
-        } finally {
-            System.setProperty(DokkaTask.COLORS_ENABLED_PROPERTY, kotlinColorsEnabledBefore)
         }
     }
 
-    protected abstract fun generate()
+    internal abstract fun buildDokkaConfiguration(): DokkaConfigurationImpl
 
-    protected fun DokkaBootstrap(bootstrapClassFQName: String): DokkaBootstrap {
-        return DokkaBootstrap(runtime, bootstrapClassFQName)
+    private fun createProxyLogger(): BiConsumer<String, String> = BiConsumer { level, message ->
+        when (level) {
+            "debug" -> logger.debug(message)
+            "info" -> logger.info(message)
+            "progress" -> logger.lifecycle(message)
+            "warn" -> logger.warn(message)
+            "error" -> logger.error(message)
+        }
+    }
+
+    init {
+        group = JavaBasePlugin.DOCUMENTATION_GROUP
     }
 }

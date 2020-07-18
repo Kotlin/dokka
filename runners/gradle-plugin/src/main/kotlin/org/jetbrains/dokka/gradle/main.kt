@@ -53,7 +53,6 @@ open class DokkaPlugin : Plugin<Project> {
             }
             if (collectorTaskSupported) {
                 project.tasks.register<DokkaCollectorTask>("${name}Collector") {
-                    modules = project.subprojects.map(Project::getName)
                     dokkaTaskNames = dokkaTaskNames + name
                 }
             }
