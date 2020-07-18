@@ -53,9 +53,12 @@ class ExternalDocumentationLinkBuilder : DokkaConfiguration.ExternalDocumentatio
 }
 
 abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependency>) : AbstractMojo() {
-    class SourceRoot : DokkaConfiguration.SourceRoot {
+    class SourceRoot : DokkaConfigurationBuilder<DokkaConfiguration.SourceRoot> {
         @Parameter(required = true)
-        override var path: String = ""
+        var path: String = ""
+        override fun build(): DokkaConfiguration.SourceRoot {
+            return SourceRootImpl(File(path))
+        }
     }
 
     @Parameter(defaultValue = "\${project}", readonly = true)
@@ -200,11 +203,11 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
             moduleDisplayName = moduleDisplayName.takeIf(String::isNotBlank) ?: moduleName,
             displayName = displayName,
             sourceSetID = DokkaSourceSetID(moduleName, sourceSetName),
-            classpath = classpath,
-            sourceRoots = sourceDirectories.map { SourceRootImpl(it) },
+            classpath = classpath.map(::File),
+            sourceRoots = sourceDirectories.map(::File).map(::SourceRootImpl),
             dependentSourceSets = emptySet(),
-            samples = samples,
-            includes = includes,
+            samples = samples.map(::File),
+            includes = includes.map(::File),
             includeNonPublic = includeNonPublic,
             includeRootPackage = includeRootPackage,
             reportUndocumented = reportUndocumented,
@@ -226,7 +229,7 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
             apiVersion = apiVersion,
             noStdlibLink = noStdlibLink,
             noJdkLink = noJdkLink,
-            suppressedFiles = suppressedFiles,
+            suppressedFiles = suppressedFiles.map(::File),
             analysisPlatform = if (platform.isNotEmpty()) Platform.fromString(platform) else Platform.DEFAULT
         ).let {
             it.copy(
@@ -237,9 +240,9 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
         val logger = MavenDokkaLogger(log)
 
         val configuration = DokkaConfigurationImpl(
-            outputDir = getOutDir(),
+            outputDir = File(getOutDir()),
             offlineMode = offlineMode,
-            cacheRoot = cacheRoot,
+            cacheRoot = cacheRoot?.let(::File),
             sourceSets = listOf(sourceSet).also {
                 if (sourceSet.moduleDisplayName.isEmpty()) logger.warn("Not specified module name. It can result in unexpected behaviour while including documentation for module")
             },

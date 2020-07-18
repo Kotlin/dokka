@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.jetbrains.dokka.testApi.utils.assertIsInstance
+import java.io.File
 
 internal class JavadocPackageTemplateMapTest : AbstractJavadocTemplateMapTest() {
 
@@ -109,7 +110,7 @@ internal class JavadocPackageTemplateMapTest : AbstractJavadocTemplateMapTest() 
             configuration = config.copy(
                 sourceSets = config.sourceSets.map { sourceSet ->
                     sourceSet.copy(
-                        includes = listOf("packages.md")
+                        includes = listOf(File("packages.md"))
                     )
                 }
             )

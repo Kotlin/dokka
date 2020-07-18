@@ -43,8 +43,8 @@ class DefaultPsiToDocumentableTranslator(
 
     override fun invoke(sourceSet: DokkaSourceSet, context: DokkaContext): DModule {
 
-        fun isFileInSourceRoots(file: File) : Boolean {
-            return sourceSet.sourceRoots.any { root -> file.path.startsWith(File(root.path).absolutePath) }
+        fun isFileInSourceRoots(file: File): Boolean {
+            return sourceSet.sourceRoots.any { root -> file.startsWith(root.directory) }
         }
 
         val (environment, _) = kotlinAnalysis[sourceSet]
@@ -133,7 +133,7 @@ class DefaultPsiToDocumentableTranslator(
             val superMethods = mutableListOf<Pair<PsiMethod, DRI>>()
             methods.forEach { superMethodsKeys.add(it.hash) }
             fun parseSupertypes(superTypes: Array<PsiClassType>, level: Int = 0) {
-                if(superTypes.isEmpty()) return
+                if (superTypes.isEmpty()) return
                 val parsedClasses = superTypes.filter { !it.shouldBeIgnored }.mapNotNull {
                     it.resolve()?.let {
                         when {
@@ -178,7 +178,8 @@ class DefaultPsiToDocumentableTranslator(
                 }) + it.interfaces.map { DriWithKind(dri = it, kind = JavaClassKindTypes.INTERFACE) }
             }.toSourceSetDependent()
             val modifiers = getModifier().toSourceSetDependent()
-            val implementedInterfacesExtra = ImplementedInterfaces(inheritanceTree.flatMap { it.interfaces }.distinct().toSourceSetDependent())
+            val implementedInterfacesExtra =
+                ImplementedInterfaces(inheritanceTree.flatMap { it.interfaces }.distinct().toSourceSetDependent())
             return when {
                 isAnnotationType ->
                     DAnnotation(
@@ -195,8 +196,11 @@ class DefaultPsiToDocumentableTranslator(
                         constructors.map { parseFunction(it, true) },
                         mapTypeParameters(dri),
                         setOf(sourceSetData),
-                        PropertyContainer.withAll(implementedInterfacesExtra, annotations.toList().toListOfAnnotations().toSourceSetDependent()
-                            .toAnnotations())
+                        PropertyContainer.withAll(
+                            implementedInterfacesExtra,
+                            annotations.toList().toListOfAnnotations().toSourceSetDependent()
+                                .toAnnotations()
+                        )
                     )
                 isEnum -> DEnum(
                     dri,
@@ -211,8 +215,11 @@ class DefaultPsiToDocumentableTranslator(
                             emptyList(),
                             emptyList(),
                             setOf(sourceSetData),
-                            PropertyContainer.withAll(implementedInterfacesExtra, annotations.toList().toListOfAnnotations().toSourceSetDependent()
-                                .toAnnotations())
+                            PropertyContainer.withAll(
+                                implementedInterfacesExtra,
+                                annotations.toList().toListOfAnnotations().toSourceSetDependent()
+                                    .toAnnotations()
+                            )
                         )
                     },
                     documentation,
@@ -226,8 +233,10 @@ class DefaultPsiToDocumentableTranslator(
                     constructors.map { parseFunction(it, true) },
                     ancestors,
                     setOf(sourceSetData),
-                    PropertyContainer.withAll(implementedInterfacesExtra, annotations.toList().toListOfAnnotations().toSourceSetDependent()
-                        .toAnnotations())
+                    PropertyContainer.withAll(
+                        implementedInterfacesExtra, annotations.toList().toListOfAnnotations().toSourceSetDependent()
+                            .toAnnotations()
+                    )
                 )
                 isInterface -> DInterface(
                     dri,
@@ -243,8 +252,10 @@ class DefaultPsiToDocumentableTranslator(
                     mapTypeParameters(dri),
                     ancestors,
                     setOf(sourceSetData),
-                    PropertyContainer.withAll(implementedInterfacesExtra, annotations.toList().toListOfAnnotations().toSourceSetDependent()
-                        .toAnnotations())
+                    PropertyContainer.withAll(
+                        implementedInterfacesExtra, annotations.toList().toListOfAnnotations().toSourceSetDependent()
+                            .toAnnotations()
+                    )
                 )
                 else -> DClass(
                     dri,
@@ -262,8 +273,10 @@ class DefaultPsiToDocumentableTranslator(
                     null,
                     modifiers,
                     setOf(sourceSetData),
-                    PropertyContainer.withAll(implementedInterfacesExtra, annotations.toList().toListOfAnnotations().toSourceSetDependent()
-                        .toAnnotations())
+                    PropertyContainer.withAll(
+                        implementedInterfacesExtra, annotations.toList().toListOfAnnotations().toSourceSetDependent()
+                            .toAnnotations()
+                    )
                 )
             }
         }
@@ -305,7 +318,8 @@ class DefaultPsiToDocumentableTranslator(
                     PropertyContainer.withAll(
                         InheritedFunction(inheritedFrom.toSourceSetDependent()),
                         it.toSourceSetDependent().toAdditionalModifiers(),
-                        (psi.annotations.toList().toListOfAnnotations() + it.toListOfAnnotations()).toSourceSetDependent()
+                        (psi.annotations.toList()
+                            .toListOfAnnotations() + it.toListOfAnnotations()).toSourceSetDependent()
                             .toAnnotations()
                     )
                 }
@@ -434,7 +448,8 @@ class DefaultPsiToDocumentableTranslator(
                 psi.additionalExtras().let {
                     PropertyContainer.withAll<DProperty>(
                         it.toSourceSetDependent().toAdditionalModifiers(),
-                        (psi.annotations.toList().toListOfAnnotations() + it.toListOfAnnotations()).toSourceSetDependent()
+                        (psi.annotations.toList()
+                            .toListOfAnnotations() + it.toListOfAnnotations()).toSourceSetDependent()
                             .toAnnotations()
                     )
                 }

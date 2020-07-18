@@ -3,10 +3,13 @@ package org.jetbrains.dokka.it
 import org.jsoup.Jsoup
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 import java.io.File
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
+@RunWith(JUnit4::class)
 abstract class AbstractIntegrationTest {
 
     @get:Rule

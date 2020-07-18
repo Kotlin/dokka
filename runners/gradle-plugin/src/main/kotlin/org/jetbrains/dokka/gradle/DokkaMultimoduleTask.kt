@@ -1,66 +1,40 @@
 package org.jetbrains.dokka.gradle
 
-import org.gradle.api.plugins.JavaBasePlugin.DOCUMENTATION_GROUP
+import org.gradle.api.internal.tasks.TaskDependencyInternal
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.Internal
+import org.jetbrains.dokka.DokkaConfigurationImpl
+import org.jetbrains.dokka.DokkaModuleDescriptionImpl
+import org.jetbrains.dokka.DokkaMultimoduleBootstrapImpl
 import org.jetbrains.dokka.plugability.Configurable
-import org.jetbrains.dokka.toJsonString
 
-open class DokkaMultimoduleTask : AbstractDokkaTask(), Configurable {
+open class DokkaMultimoduleTask : AbstractDokkaParentTask(DokkaMultimoduleBootstrapImpl::class), Configurable {
 
+    /**
+     * Name of the file containing all necessary module information.
+     * This file has to be placed inside the subrpojects root directory.
+     */
     @Input
     var documentationFileName: String = "README.md"
 
+    override fun getTaskDependencies(): TaskDependencyInternal {
+        return super.getTaskDependencies() + dokkaTasks
+    }
 
-    @Input
-    var dokkaTaskNames: Set<String> = setOf()
-        set(value) {
-            field = value.toSet()
-            setDependsOn(getSubprojectDokkaTasks(value))
-        }
-
-
-    override fun generate() {
-        val bootstrap = DokkaBootstrap("org.jetbrains.dokka.DokkaMultimoduleBootstrapImpl")
-        val configuration = getConfiguration()
-        bootstrap.configure(configuration.toJsonString()) { level, message ->
-            when (level) {
-                "debug" -> logger.debug(message)
-                "info" -> logger.info(message)
-                "progress" -> logger.lifecycle(message)
-                "warn" -> logger.warn(message)
-                "error" -> logger.error(message)
+    override fun buildDokkaConfiguration(): DokkaConfigurationImpl {
+        return DokkaConfigurationImpl(
+            outputDir = outputDirectory,
+            cacheRoot = cacheRoot,
+            pluginsConfiguration = pluginsConfiguration,
+            failOnWarning = failOnWarning,
+            offlineMode = offlineMode,
+            pluginsClasspath = plugins.resolve().toList(),
+            modules = dokkaTasks.map { dokkaTask ->
+                DokkaModuleDescriptionImpl(
+                    name = dokkaTask.project.name,
+                    path = dokkaTask.outputDirectory.relativeTo(outputDirectory),
+                    docFile = dokkaTask.project.projectDir.resolve(documentationFileName).absoluteFile
+                )
             }
-        }
-        bootstrap.generate()
-    }
-
-    @Internal
-    internal fun getConfiguration(): GradleDokkaConfigurationImpl =
-        GradleDokkaConfigurationImpl().apply {
-            outputDir = project.file(outputDirectory).absolutePath
-            pluginsClasspath = plugins.resolve().toList()
-            pluginsConfiguration = this@DokkaMultimoduleTask.pluginsConfiguration
-            modules = getSubprojectDokkaTasks(dokkaTaskNames).map { dokkaTask ->
-                GradleDokkaModuleDescription().apply {
-                    name = dokkaTask.project.name
-                    path = dokkaTask.project.projectDir.resolve(dokkaTask.outputDirectory)
-                        .toRelativeString(project.file(outputDirectory))
-                    docFile = dokkaTask.project.projectDir.resolve(documentationFileName).absolutePath
-                }
-            }
-        }
-
-    private fun getSubprojectDokkaTasks(dokkaTaskName: String): List<DokkaTask> {
-        return project.subprojects
-            .mapNotNull { subproject -> subproject.tasks.findByName(dokkaTaskName) as? DokkaTask }
-    }
-
-    private fun getSubprojectDokkaTasks(dokkaTaskNames: Set<String>): List<DokkaTask> {
-        return dokkaTaskNames.flatMap { dokkaTaskName -> getSubprojectDokkaTasks(dokkaTaskName) }
-    }
-
-    init {
-        group = DOCUMENTATION_GROUP
+        )
     }
 }

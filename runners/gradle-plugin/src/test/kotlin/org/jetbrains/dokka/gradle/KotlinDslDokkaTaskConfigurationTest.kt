@@ -3,6 +3,7 @@ package org.jetbrains.dokka.gradle
 import org.gradle.testfixtures.ProjectBuilder
 import org.jetbrains.dokka.DokkaSourceSetID
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
+import java.io.File
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -13,11 +14,11 @@ class KotlinDslDokkaTaskConfigurationTest {
         val project = ProjectBuilder.builder().build()
         project.plugins.apply("org.jetbrains.dokka")
         project.tasks.withType(DokkaTask::class.java).forEach { dokkaTask ->
-            dokkaTask.outputDirectory = "test"
+            dokkaTask.outputDirectory = File("test")
         }
 
         project.tasks.withType(DokkaTask::class.java).forEach { dokkaTask ->
-            assertEquals("test", dokkaTask.outputDirectory)
+            assertEquals(File("test"), dokkaTask.outputDirectory)
         }
     }
 
