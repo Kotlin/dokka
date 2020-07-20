@@ -64,7 +64,7 @@ class Android0GradleIntegrationTest(override val versions: BuildVersions) : Abst
 
         htmlOutputDir.allHtmlFiles().forEach { file ->
             assertContainsNoErrorClass(file)
-            assertNoUnresolvedLInks(file)
+            assertNoUnresolvedLinks(file)
             assertNoHrefToMissingLocalFileOrDirectory(file)
         }
 

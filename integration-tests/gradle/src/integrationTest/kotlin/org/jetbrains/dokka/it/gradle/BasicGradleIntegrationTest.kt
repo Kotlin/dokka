@@ -37,13 +37,13 @@ class BasicGradleIntegrationTest(override val versions: BuildVersions) : Abstrac
         assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":dokkaGfm")).outcome)
         assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":dokkaJekyll")).outcome)
 
-        File(projectDir, "build/dokka/html").assertKdocOutputDir()
+        File(projectDir, "build/dokka/html").assertHtmlOutputDir()
         File(projectDir, "build/dokka/javadoc").assertJavadocOutputDir()
         File(projectDir, "build/dokka/gfm").assertGfmOutputDir()
         File(projectDir, "build/dokka/jekyll").assertJekyllOutputDir()
     }
 
-    private fun File.assertKdocOutputDir() {
+    private fun File.assertHtmlOutputDir() {
         assertTrue(isDirectory, "Missing dokka html output directory")
 
         val imagesDir = File(this, "images")
@@ -75,7 +75,7 @@ class BasicGradleIntegrationTest(override val versions: BuildVersions) : Abstrac
 
         allHtmlFiles().forEach { file ->
             assertContainsNoErrorClass(file)
-            assertNoUnresolvedLInks(file)
+            assertNoUnresolvedLinks(file)
             assertNoHrefToMissingLocalFileOrDirectory(file)
         }
 
