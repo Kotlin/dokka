@@ -3,7 +3,6 @@ package org.jetbrains.dokka.gradle
 import com.google.gson.GsonBuilder
 import org.gradle.api.plugins.JavaBasePlugin.DOCUMENTATION_GROUP
 import org.gradle.api.tasks.Input
-import org.jetbrains.dokka.toJsonString
 
 open class DokkaCollectorTask : AbstractDokkaTask() {
 
@@ -31,7 +30,9 @@ open class DokkaCollectorTask : AbstractDokkaTask() {
         }
 
         val bootstrap = DokkaBootstrap("org.jetbrains.dokka.DokkaBootstrapImpl")
-        bootstrap.configure(configuration.toJsonString()) { level, message ->
+        bootstrap.configure(
+            GsonBuilder().setPrettyPrinting().create().toJson(configuration)
+        ) { level, message ->
             when (level) {
                 "debug" -> logger.debug(message)
                 "info" -> logger.info(message)
