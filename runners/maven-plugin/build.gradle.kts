@@ -89,9 +89,12 @@ tasks.named<Jar>("jar") {
         from("${setupMaven.mavenBuildDir}/classes/java/main/META-INF")
     }
     manifest {
-        attributes("Class-Path" to configurations.runtimeClasspath.get().files.joinToString(" ") { it.name })
+        attributes("Class-Path" to configurations.runtimeClasspath.map { configuration ->
+            configuration.resolve().joinToString(" ") { it.name }
+        })
     }
 }
+
 
 registerDokkaArtifactPublication("dokkaMavenPlugin") {
     artifactId = "dokka-maven-plugin"
