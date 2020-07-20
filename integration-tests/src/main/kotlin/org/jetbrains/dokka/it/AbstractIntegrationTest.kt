@@ -30,7 +30,7 @@ abstract class AbstractIntegrationTest {
         )
     }
 
-    protected fun assertNoUnresolvedLInks(file: File) {
+    protected fun assertNoUnresolvedLinks(file: File) {
         val regex = Regex("[\"']#[\"']")
         val fileText = file.readText()
         assertFalse(

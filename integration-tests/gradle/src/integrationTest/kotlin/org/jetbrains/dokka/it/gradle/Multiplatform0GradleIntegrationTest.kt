@@ -36,7 +36,7 @@ class Multiplatform0GradleIntegrationTest(override val versions: BuildVersions) 
 
         dokkaOutputDir.allHtmlFiles().forEach { file ->
             assertContainsNoErrorClass(file)
-            assertNoUnresolvedLInks(file)
+            assertNoUnresolvedLinks(file)
             assertNoHrefToMissingLocalFileOrDirectory(file)
         }
     }

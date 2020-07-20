@@ -50,7 +50,7 @@ class MavenIntegrationTest : AbstractIntegrationTest() {
 
         projectDir.allHtmlFiles().forEach { file ->
             assertContainsNoErrorClass(file)
-            assertNoUnresolvedLInks(file)
+            assertNoUnresolvedLinks(file)
         }
     }
 
@@ -72,7 +72,7 @@ class MavenIntegrationTest : AbstractIntegrationTest() {
 
         projectDir.allHtmlFiles().forEach { file ->
             assertContainsNoErrorClass(file)
-            assertNoUnresolvedLInks(file)
+            assertNoUnresolvedLinks(file)
         }
     }
 
@@ -100,7 +100,7 @@ class MavenIntegrationTest : AbstractIntegrationTest() {
 
         projectDir.allHtmlFiles().forEach { file ->
             assertContainsNoErrorClass(file)
-            assertNoUnresolvedLInks(file)
+            assertNoUnresolvedLinks(file)
         }
     }
 

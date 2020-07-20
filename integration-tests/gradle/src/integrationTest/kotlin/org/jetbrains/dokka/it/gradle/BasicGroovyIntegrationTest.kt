@@ -79,7 +79,7 @@ class BasicGroovyIntegrationTest(override val versions: BuildVersions) : Abstrac
 
         allHtmlFiles().forEach { file ->
             assertContainsNoErrorClass(file)
-            assertNoUnresolvedLInks(file)
+            assertNoUnresolvedLinks(file)
             assertNoHrefToMissingLocalFileOrDirectory(file)
         }
     }
