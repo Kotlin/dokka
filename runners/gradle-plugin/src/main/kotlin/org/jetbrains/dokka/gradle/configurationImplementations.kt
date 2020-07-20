@@ -17,7 +17,6 @@ import org.jetbrains.dokka.DokkaDefaults
 import org.jetbrains.dokka.DokkaSourceSetID
 import org.jetbrains.dokka.Platform
 import java.io.File
-import java.io.Serializable
 import java.net.URL
 import java.util.concurrent.Callable
 import kotlin.reflect.KMutableProperty
@@ -25,7 +24,7 @@ import kotlin.reflect.full.memberProperties
 import org.gradle.api.tasks.SourceSet as GradleSourceSet
 import org.jetbrains.kotlin.gradle.model.SourceSet as KotlinSourceSet
 
-class GradleSourceRootImpl : SourceRoot, Serializable {
+class GradleSourceRootImpl : SourceRoot {
     override var path: String = ""
         set(value) {
             field = File(value).absolutePath
@@ -208,13 +207,13 @@ fun GradleDokkaSourceSet.dependsOn(sourceSet: AndroidSourceSet) {
     dependsOn(DokkaSourceSetID(sourceSet.name))
 }
 
-class GradleSourceLinkDefinitionImpl : SourceLinkDefinition, Serializable {
+class GradleSourceLinkDefinitionImpl : SourceLinkDefinition {
     override var path: String = ""
     override var url: String = ""
     override var lineSuffix: String? = null
 }
 
-class GradleExternalDocumentationLinkImpl : ExternalDocumentationLink, Serializable {
+class GradleExternalDocumentationLinkImpl : ExternalDocumentationLink {
     override var url: URL = URL("http://")
     override var packageListUrl: URL = URL("http://")
 }
@@ -236,7 +235,7 @@ class GradleDokkaConfigurationImpl : DokkaConfiguration {
     override var modules: List<GradleDokkaModuleDescription> = emptyList()
 }
 
-class GradlePackageOptionsImpl : PackageOptions, Serializable {
+class GradlePackageOptionsImpl : PackageOptions {
     override var prefix: String = ""
     override var includeNonPublic: Boolean = DokkaDefaults.includeNonPublic
     override var reportUndocumented: Boolean = DokkaDefaults.reportUndocumented

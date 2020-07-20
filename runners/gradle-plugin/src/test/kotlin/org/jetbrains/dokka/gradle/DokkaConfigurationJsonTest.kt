@@ -1,6 +1,5 @@
 package org.jetbrains.dokka.gradle
 
-import org.gradle.api.artifacts.FileCollectionDependency
 import org.gradle.kotlin.dsl.withType
 import org.gradle.testfixtures.ProjectBuilder
 import org.jetbrains.dokka.*
@@ -8,7 +7,7 @@ import java.net.URL
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class GradleDokkaConfigurationJsonTest {
+class DokkaConfigurationJsonTest {
 
     @Test
     fun `DokkaTask configuration toJsonString then parseJson`() {
@@ -35,7 +34,7 @@ class GradleDokkaConfigurationJsonTest {
                     link.url = URL("http://some.other.url")
                 }
                 sourceSet.collectKotlinTasks = {
-                    println(this@GradleDokkaConfigurationJsonTest)
+                    println(this@DokkaConfigurationJsonTest)
                     println("This lambda is capturing the entire test")
                     emptyList()
                 }
