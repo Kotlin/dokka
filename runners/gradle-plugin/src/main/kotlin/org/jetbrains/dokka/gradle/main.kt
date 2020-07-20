@@ -11,7 +11,7 @@ open class DokkaPlugin : Plugin<Project> {
 
         project.setupDokkaTasks(
             name = "dokkaJavadoc",
-            multimoduleTaskSupported = false,
+            multimoduleTaskSupported = false
         ) {
             plugins.dependencies.add(project.dokkaArtifacts.javadocPlugin)
         }
@@ -32,6 +32,7 @@ open class DokkaPlugin : Plugin<Project> {
     private fun Project.setupDokkaTasks(
         name: String,
         multimoduleTaskSupported: Boolean = true,
+        collectorTaskSupported: Boolean = true,
         configuration: AbstractDokkaTask.() -> Unit = {}
     ) {
         project.maybeCreateDokkaPluginConfiguration(name)
@@ -48,6 +49,12 @@ open class DokkaPlugin : Plugin<Project> {
                 project.tasks.register<DokkaMultimoduleTask>(multimoduleName) {
                     dokkaTaskNames = dokkaTaskNames + name
                     configuration()
+                }
+            }
+            if (collectorTaskSupported) {
+                project.tasks.register<DokkaCollectorTask>("${name}Collector") {
+                    modules = project.subprojects.map(Project::getName)
+                    dokkaTaskNames = dokkaTaskNames + name
                 }
             }
         }

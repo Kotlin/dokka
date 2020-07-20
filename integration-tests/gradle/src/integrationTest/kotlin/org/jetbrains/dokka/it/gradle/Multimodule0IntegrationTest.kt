@@ -40,7 +40,7 @@ class Multimodule0IntegrationTest(override val versions: BuildVersions) : Abstra
 
         outputDir.allHtmlFiles().forEach { file ->
             assertContainsNoErrorClass(file)
-            assertNoUnresolvedLInks(file)
+            assertNoUnresolvedLinks(file)
             assertNoHrefToMissingLocalFileOrDirectory(file)
         }
 
