@@ -11,7 +11,7 @@ dependencies {
 
 dokkaHtml {
     outputDirectory = "$buildDir/dokka/customHtml"
-
+    pluginsConfiguration.put("pluginA", "configA")
     failOnWarning = false
     dokkaSourceSets {
         customSourceSet {
