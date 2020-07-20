@@ -3,6 +3,7 @@ package org.jetbrains.dokka.gradle
 import com.google.gson.GsonBuilder
 import org.gradle.api.plugins.JavaBasePlugin.DOCUMENTATION_GROUP
 import org.gradle.api.tasks.Input
+import org.jetbrains.dokka.toJsonString
 
 open class DokkaCollectorTask : AbstractDokkaTask() {
 
@@ -21,7 +22,6 @@ open class DokkaCollectorTask : AbstractDokkaTask() {
             cacheRoot = configurations.first().cacheRoot
         }
 
-        // TODO this certainly not the ideal solution
         val configuration = configurations.fold(initial) { acc, it: GradleDokkaConfigurationImpl ->
             if (acc.cacheRoot != it.cacheRoot)
                 throw IllegalStateException("Dokka task configurations differ on core argument cacheRoot")
@@ -31,9 +31,7 @@ open class DokkaCollectorTask : AbstractDokkaTask() {
         }
 
         val bootstrap = DokkaBootstrap("org.jetbrains.dokka.DokkaBootstrapImpl")
-        bootstrap.configure(
-            GsonBuilder().setPrettyPrinting().create().toJson(configuration)
-        ) { level, message ->
+        bootstrap.configure(configuration.toJsonString()) { level, message ->
             when (level) {
                 "debug" -> logger.debug(message)
                 "info" -> logger.info(message)
