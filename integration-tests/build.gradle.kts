@@ -26,6 +26,10 @@ subprojects {
         testClassesDirs = sourceSets["integrationTest"].output.classesDirs
         classpath = sourceSets["integrationTest"].runtimeClasspath
 
+        project.properties["dokka_integration_test_parallelism"]?.toString()?.toIntOrNull()?.let { parallelism ->
+            maxParallelForks = parallelism
+        }
+
         useJUnit()
     }
 
