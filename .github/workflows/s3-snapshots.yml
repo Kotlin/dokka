@@ -49,9 +49,24 @@ jobs:
         run: |
           aws s3 --recursive rm s3://${{ env.bucket-name }}/${{ env.branch-name }}/coroutines/prev
           aws s3 --recursive mv s3://${{ env.bucket-name }}/${{ env.branch-name }}/coroutines/latest s3://${{ env.bucket-name }}/${{ env.branch-name }}/coroutines/prev
-          aws s3 sync ./coroutines/build/dokka s3://${{ env.bucket-name }}/${{ env.branch-name }}/coroutines/latest
+          aws s3 sync ./coroutines/htmlMultimodule s3://${{ env.bucket-name }}/${{ env.branch-name }}/coroutines/latest/htmlMultimodule
+          aws s3 sync ./coroutines/ui/kotlinx-coroutines-android/build/dokka s3://${{ env.bucket-name }}/${{ env.branch-name }}/coroutines/latest/ui/kotlinx-coroutines-android/build/dokka
+          aws s3 sync ./coroutines/kotlinx-coroutines-core/build/dokka s3://${{ env.bucket-name }}/${{ env.branch-name }}/coroutines/latest/kotlinx-coroutines-core/build/dokka
+          aws s3 sync ./coroutines/kotlinx-coroutines-debug/build/dokka s3://${{ env.bucket-name }}/${{ env.branch-name }}/coroutines/latest/kotlinx-coroutines-debug/build/dokka
+          aws s3 sync ./coroutines/integration/kotlinx-coroutines-guava/build/dokka s3://${{ env.bucket-name }}/${{ env.branch-name }}/coroutines/latest/integration/kotlinx-coroutines-guava/build/dokka
+          aws s3 sync ./coroutines/ui/kotlinx-coroutines-javafx/build/dokka s3://${{ env.bucket-name }}/${{ env.branch-name }}/coroutines/latest/ui/kotlinx-coroutines-javafx/build/dokka
+          aws s3 sync ./coroutines/integration/kotlinx-coroutines-jdk8/build/dokka s3://${{ env.bucket-name }}/${{ env.branch-name }}/coroutines/latest/integration/kotlinx-coroutines-jdk8/build/dokka
+          aws s3 sync ./coroutines/reactive/kotlinx-coroutines-jdk9/build/dokka s3://${{ env.bucket-name }}/${{ env.branch-name }}/coroutines/latest/reactive/kotlinx-coroutines-jdk9/build/dokka
+          aws s3 sync ./coroutines/integration/kotlinx-coroutines-play-services/build/dokka s3://${{ env.bucket-name }}/${{ env.branch-name }}/coroutines/latest/integration/kotlinx-coroutines-play-services/build/dokka
+          aws s3 sync ./coroutines/reactive/kotlinx-coroutines-reactive/build/dokka s3://${{ env.bucket-name }}/${{ env.branch-name }}/coroutines/latest/reactive/kotlinx-coroutines-reactive/build/dokka
+          aws s3 sync ./coroutines/reactive/kotlinx-coroutines-reactor/build/dokka s3://${{ env.bucket-name }}/${{ env.branch-name }}/coroutines/latest/reactive/kotlinx-coroutines-reactor/build/dokka
+          aws s3 sync ./coroutines/reactive/kotlinx-coroutines-rx2/build/dokka s3://${{ env.bucket-name }}/${{ env.branch-name }}/coroutines/latest/reactive/kotlinx-coroutines-rx2/build/dokka
+          aws s3 sync ./coroutines/reactive/kotlinx-coroutines-rx3/build/dokka s3://${{ env.bucket-name }}/${{ env.branch-name }}/coroutines/latest/reactive/kotlinx-coroutines-rx3/build/dokka
+          aws s3 sync ./coroutines/integration/kotlinx-coroutines-slf4j/build/dokka s3://${{ env.bucket-name }}/${{ env.branch-name }}/coroutines/latest/integration/kotlinx-coroutines-slf4j/build/dokka
+          aws s3 sync ./coroutines/ui/kotlinx-coroutines-swing/build/dokka s3://${{ env.bucket-name }}/${{ env.branch-name }}/coroutines/latest/ui/kotlinx-coroutines-swing/build/dokka
+          aws s3 sync ./coroutines/kotlinx-coroutines-test/build/dokka s3://${{ env.bucket-name }}/${{ env.branch-name }}/coroutines/latest/kotlinx-coroutines-test/build/dokka
       - name: Print link
-        run: echo http://dokka-snapshots.s3.eu-central-1.amazonaws.com/${{ env.branch-name }}/coroutines/latest/kotlinx-coroutines-/index.html
+        run: echo http://dokka-snapshots.s3.eu-central-1.amazonaws.com/${{ env.branch-name }}/coroutines/latest/htmlMultimodule/-modules.html
 
   stdlib:
     runs-on: ubuntu-latest
