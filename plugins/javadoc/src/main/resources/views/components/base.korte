@@ -3,14 +3,7 @@
 <html lang="en">
 {%- include "components/head.korte" -%}
 <body>
-<script type="text/javascript"><!--
-try {
-    if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title = "adaptation (terrain-generator 0.0.1 API)";
-    }
-} catch (err) {
-}
-//-->
+<script type="text/javascript">
 var pathtoroot = "{{ pathToRoot }}";
 </script>
 <noscript>
