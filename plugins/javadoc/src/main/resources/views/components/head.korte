@@ -1,5 +1,5 @@
 <head>
-    <title>{{ title }} ({{ docName }} {{ version }})</title>
+    <title>{{ title }}</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="dc.created" content="2020-03-25">
     <link rel="stylesheet" type="text/css" href="{{ pathToRoot }}stylesheet.css" title="Style">
