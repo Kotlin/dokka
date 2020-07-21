@@ -17,6 +17,10 @@ window.addEventListener('load', () => {
     handleAnchor()
 })
 
+// Hash change is needed in order to allow for linking inside the same page with anchors
+// If this is not present user is forced to refresh the site in order to use an anchor
+window.onhashchange = handleAnchor
+
 function handleAnchor() {
     let searchForTab = function(element) {
         if(element && element.hasAttribute) {
