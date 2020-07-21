@@ -18,17 +18,9 @@
 <script type="text/javascript" src="{{ pathToRoot }}jquery/jquery-ui.js"></script>
 </head>
 <body>
-<script type="text/javascript"><!--
-    try {
-        if (location.href.indexOf('is-external=true') == -1) {
-            parent.document.title="{{ documentTitle }} ({{ title }} {{ version }} API)";
-        }
-    }
-    catch(err) {
-    }
-//-->
+<script type="text/javascript">
 var pathtoroot = "{{ pathToRoot }}";
-loadScripts(document, 'script');</script>
+</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
