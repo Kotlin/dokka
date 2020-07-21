@@ -12,7 +12,6 @@
 
 #content {
     padding: 0 var(--horizontal-spacing-for-content);
-    height: calc(100% - var(--footer-height) - var(--footer-padding-top));
 }
 
 .breadcrumbs {
@@ -156,6 +155,8 @@
 #main {
     width: 100%;
     max-width: calc(100% - 280px);
+    display: flex;
+    flex-direction: column;
 }
 
 #leftColumn {
@@ -1002,7 +1003,7 @@ td.content {
     line-height: 16px;
     letter-spacing: 0.2px;
     color: var(--breadcrumb-font-color);
-    margin-top: var(--footer-padding-top);
+    margin-top:auto;
 }
 
 .footer span.go-to-top-icon {
