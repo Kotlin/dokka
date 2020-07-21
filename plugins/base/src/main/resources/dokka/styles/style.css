@@ -210,7 +210,7 @@
     font-family: monospace;
 }
 
-.sample-container, .code-area {
+.sample-container, div.CodeMirror {
     display: flex;
     flex-direction: column;
 }
