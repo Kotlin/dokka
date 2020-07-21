@@ -32,10 +32,10 @@
                     </dl>
                     {% endif %}
                     <hr>
-                    <pre>
+                    <pre class="wrap-overflow">
 {% if signature.annotations != null %}{{ signature.annotations|raw }} {% endif %}
 {{ signature.modifiers }} <span class="typeNameLabel">{{ signature.signatureWithoutModifiers|raw }}</span>
-{% if signature.supertypes != null %}{{signature.supertypes|raw}} {% endif %}
+{% if signature.supertypes != null %}{{signature.supertypes|raw}}{% endif %}
                     </pre>
                     <div class="block">{{ classlikeDocumentation|raw }}</div>
                 </li>

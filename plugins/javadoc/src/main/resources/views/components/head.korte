@@ -3,6 +3,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="dc.created" content="2020-03-25">
     <link rel="stylesheet" type="text/css" href="{{ pathToRoot }}stylesheet.css" title="Style">
+    <link rel="stylesheet" type="text/css" href="{{ pathToRoot }}dokka-javadoc-stylesheet.css" title="Style">
     <link rel="stylesheet" type="text/css" href="{{ pathToRoot }}jquery/jquery-ui.css" title="Style">
     <script type="text/javascript" src="{{ pathToRoot }}jquery/jquery-3.3.1.js"></script>
     <script type="text/javascript" src="{{ pathToRoot }}jquery/jquery-migrate-3.0.1.js"></script>
