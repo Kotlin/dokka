@@ -1,25 +1,33 @@
 package org.jetbrains.dokka.gradle
 
+import org.gradle.api.Project
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.Optional
 import org.jetbrains.dokka.DokkaConfigurationBuilder
 import org.jetbrains.dokka.SourceLinkDefinitionImpl
 
-class GradleSourceLinkBuilder : DokkaConfigurationBuilder<SourceLinkDefinitionImpl> {
-    // TODO NOW: CHECK UP TO DATE
+class GradleSourceLinkBuilder(
+    @get:Internal internal val project: Project
+) : DokkaConfigurationBuilder<SourceLinkDefinitionImpl> {
     @Input
-    var path: String = ""
+    val path: Property<String> = project.objects.safeProperty<String>()
+        .safeConvention("")
 
     @Input
-    var url: String = ""
+    val url: Property<String> = project.objects.safeProperty<String>()
+        .safeConvention("")
 
+    @Optional
     @Input
-    var lineSuffix: String? = null
+    val lineSuffix: Property<String?> = project.objects.safeProperty()
 
     override fun build(): SourceLinkDefinitionImpl {
         return SourceLinkDefinitionImpl(
-            path = path,
-            url = url,
-            lineSuffix = lineSuffix
+            path = path.getSafe(),
+            url = url.getSafe(),
+            lineSuffix = lineSuffix.getSafe()
         )
     }
 }
