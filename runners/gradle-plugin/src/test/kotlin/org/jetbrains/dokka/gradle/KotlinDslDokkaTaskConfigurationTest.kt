@@ -36,17 +36,17 @@ class KotlinDslDokkaTaskConfigurationTest {
                 }
 
                 assertEquals(
-                    0, commonMain.dependentSourceSets.size,
+                    0, commonMain.dependentSourceSets.get().size,
                     "Expected no dependent source set in commonMain"
                 )
 
                 assertEquals(
-                    1, jvmMain.dependentSourceSets.size,
+                    1, jvmMain.dependentSourceSets.get().size,
                     "Expected only one dependent source set in jvmMain"
                 )
 
                 assertEquals(
-                    commonMain.sourceSetID, jvmMain.dependentSourceSets.single(),
+                    commonMain.sourceSetID, jvmMain.dependentSourceSets.get().single(),
                     "Expected jvmMain to depend on commonMain"
                 )
 
@@ -70,7 +70,7 @@ class KotlinDslDokkaTaskConfigurationTest {
                 }
 
                 assertEquals(
-                    commonMain.sourceSetID, jvmMain.dependentSourceSets.single()
+                    commonMain.sourceSetID, jvmMain.dependentSourceSets.get().single()
                 )
             }
         }
@@ -91,7 +91,7 @@ class KotlinDslDokkaTaskConfigurationTest {
                 }
 
                 assertEquals(
-                    DokkaSourceSetID(project, "main"), special.dependentSourceSets.single()
+                    DokkaSourceSetID(project, "main"), special.dependentSourceSets.get().single()
                 )
             }
         }

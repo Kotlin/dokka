@@ -3,21 +3,30 @@ package org.jetbrains.dokka.gradle
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
 import org.gradle.api.UnknownDomainObjectException
+import org.gradle.api.provider.Property
+import org.gradle.api.provider.Provider
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
 
-internal val Project.kotlinExtensionOrNull: KotlinProjectExtension?
+internal infix fun <T> Property<T>.by(value: T?) {
+    this.set(value)
+}
+
+internal infix fun <T> Property<T>.by(value: Provider<T>) {
+    this.set(value)
+}
+
+internal val Project.kotlinOrNull: KotlinProjectExtension?
     get() = try {
         project.extensions.findByType(KotlinProjectExtension::class.java)
     } catch (e: NoClassDefFoundError) {
         null
     }
 
-internal val Project.kotlinExtension: KotlinProjectExtension
+internal val Project.kotlin: KotlinProjectExtension
     get() = project.extensions.getByType(KotlinProjectExtension::class.java)
-
 
 internal fun Project.isAndroidProject() = try {
     project.extensions.getByName("android")
@@ -46,4 +55,3 @@ internal fun KotlinTarget.isAndroidTarget() = this.platformType == KotlinPlatfor
 internal fun <T : Any> NamedDomainObjectContainer<T>.maybeCreate(name: String, configuration: T.() -> Unit): T {
     return findByName(name) ?: create(name, configuration)
 }
-
