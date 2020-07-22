@@ -34,19 +34,19 @@ class DokkaConfigurationSerializableTest {
             this.pluginsConfiguration["0"] = "a"
             this.pluginsConfiguration["1"] = "b"
             this.dokkaSourceSets.create("main") { sourceSet ->
-                sourceSet.moduleDisplayName = "moduleDisplayName"
-                sourceSet.displayName = "customSourceSetDisplayName"
-                sourceSet.reportUndocumented = true
+                sourceSet.moduleDisplayName by "moduleDisplayName"
+                sourceSet.displayName by "customSourceSetDisplayName"
+                sourceSet.reportUndocumented by true
 
                 sourceSet.externalDocumentationLink { link ->
-                    link.packageListUrl = URL("http://some.url")
-                    link.url = URL("http://some.other.url")
+                    link.packageListUrl by URL("http://some.url")
+                    link.url by URL("http://some.other.url")
                 }
 
                 sourceSet.perPackageOption { packageOption ->
-                    packageOption.includeNonPublic = true
-                    packageOption.reportUndocumented = true
-                    packageOption.skipDeprecated = true
+                    packageOption.includeNonPublic by true
+                    packageOption.reportUndocumented by true
+                    packageOption.skipDeprecated by true
                 }
             }
         }
