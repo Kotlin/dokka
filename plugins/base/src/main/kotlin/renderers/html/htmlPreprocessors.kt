@@ -49,17 +49,14 @@ object NavigationPageInstaller : PageTransformer {
             page.navigableChildren()
         )
 
-    private fun ContentPage.navigableChildren(): List<NavigationNode> {
-        if (this !is ClasslikePageNode) {
-            return children.filterIsInstance<ContentPage>()
-                .map { visit(it) }
-        } else if (documentable is DEnum) {
-            return children.filter { it is ContentPage && it.documentable is DEnumEntry }
-                .map { visit(it as ContentPage) }
-        }
-
-        return emptyList()
-    }
+    private fun ContentPage.navigableChildren(): List<NavigationNode> =
+        when {
+            this !is ClasslikePageNode ->
+                children.filterIsInstance<ContentPage>().map { visit(it) }
+            documentable is DEnum ->
+                children.filter { it is ContentPage && it.documentable is DEnumEntry }.map { visit(it as ContentPage) }
+            else -> emptyList()
+        }.sortedBy { it.name.toLowerCase() }
 }
 
 object ResourceInstaller : PageTransformer {
