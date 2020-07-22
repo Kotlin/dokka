@@ -85,7 +85,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                 ?: emptySet()),
             sourceSets = setOf(sourceSet)
         ) {
-            text("actual typealias ")
+            text("typealias ")
             link(c.name.orEmpty(), c.dri)
             text(" = ")
             signatureForProjection(aliasedType)
