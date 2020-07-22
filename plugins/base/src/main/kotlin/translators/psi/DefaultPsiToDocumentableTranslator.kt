@@ -277,7 +277,7 @@ class DefaultPsiToDocumentableTranslator(
             val docs = javadocParser.parseDocumentation(psi)
             return DFunction(
                 dri,
-                if (isConstructor) "<init>" else psi.name,
+                psi.name,
                 isConstructor,
                 psi.parameterList.parameters.map { psiParameter ->
                     DParameter(

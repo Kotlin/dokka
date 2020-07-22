@@ -81,7 +81,7 @@ class KotlinAsJavaPluginTest : AbstractCoreTest() {
                     content.mainContents.first().cast<ContentGroup>().children
                         .filterIsInstance<ContentTable>()
                         .filter { it.children.isNotEmpty() }
-                }.filterNot { it.toString().contains("<init>") }
+                }
 
                 children.assertCount(4)
             }

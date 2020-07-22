@@ -375,7 +375,7 @@ private class DokkaDescriptorVisitor(
 
         return DFunction(
             dri = dri,
-            name = "<init>",
+            name = descriptor.constructedClass.name.toString(),
             isConstructor = true,
             receiver = descriptor.extensionReceiverParameter?.let {
                 visitReceiverParameterDescriptor(it, DRIWithPlatformInfo(dri, actual))

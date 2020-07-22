@@ -174,13 +174,13 @@ class ConstructorsSignaturesTest : AbstractCoreTest() {
                         header { +"Constructors" }
                         table {
                             group {
-                                link { +"<init>" }
+                                link { +"SomeClass" }
                                 functionSignature(
                                     annotations = emptyMap(),
                                     visibility = "",
                                     modifier = "",
                                     keywords = emptySet(),
-                                    name = "<init>"
+                                    name = "SomeClass"
                                 )
                             }
                         }
@@ -226,7 +226,7 @@ class ConstructorsSignaturesTest : AbstractCoreTest() {
                         header { +"Constructors" }
                         table {
                             group {
-                                link { +"<init>" }
+                                link { +"SomeClass" }
                                 platformHinted {
                                     group {
                                         group {
@@ -235,7 +235,7 @@ class ConstructorsSignaturesTest : AbstractCoreTest() {
                                     }
                                     group {
                                         +"fun"
-                                        link { +"<init>" }
+                                        link { +"SomeClass" }
                                         +"(a:"
                                         group {
                                             link { +"String" }
