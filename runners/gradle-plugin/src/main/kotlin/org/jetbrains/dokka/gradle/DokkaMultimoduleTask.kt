@@ -2,6 +2,7 @@ package org.jetbrains.dokka.gradle
 
 import org.gradle.api.internal.tasks.TaskDependencyInternal
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
 import org.jetbrains.dokka.DokkaConfigurationImpl
 import org.jetbrains.dokka.DokkaModuleDescriptionImpl
 import org.jetbrains.dokka.DokkaMultimoduleBootstrapImpl
@@ -16,6 +17,7 @@ open class DokkaMultimoduleTask : AbstractDokkaParentTask(DokkaMultimoduleBootst
     @Input
     var documentationFileName: String = "README.md"
 
+    @Internal
     override fun getTaskDependencies(): TaskDependencyInternal {
         return super.getTaskDependencies() + dokkaTasks
     }
@@ -27,7 +29,7 @@ open class DokkaMultimoduleTask : AbstractDokkaParentTask(DokkaMultimoduleBootst
             pluginsConfiguration = pluginsConfiguration,
             failOnWarning = failOnWarning,
             offlineMode = offlineMode,
-            pluginsClasspath = plugins.resolve().toList(),
+            pluginsClasspath = plugins.resolve().toSet(),
             modules = dokkaTasks.map { dokkaTask ->
                 DokkaModuleDescriptionImpl(
                     name = dokkaTask.project.name,

@@ -2,12 +2,12 @@ package renderers.gfm
 
 import org.jetbrains.dokka.DokkaSourceSetID
 import org.jetbrains.dokka.Platform
-import org.jetbrains.dokka.SourceRootImpl
 import org.jetbrains.dokka.gfm.CommonmarkRenderer
 import org.jetbrains.dokka.pages.TextStyle
 import org.junit.jupiter.api.Test
 import renderers.TestPage
 import renderers.defaultSourceSet
+import java.io.File
 
 class SourceSetDependentHintTest : GfmRenderingOnlyTestBase() {
 
@@ -16,21 +16,21 @@ class SourceSetDependentHintTest : GfmRenderingOnlyTestBase() {
         "pl1",
         DokkaSourceSetID("root", "pl1"),
         analysisPlatform = Platform.js,
-        sourceRoots = listOf(SourceRootImpl("pl1"))
+        sourceRoots = setOf(File("pl1"))
     )
     private val pl2 = defaultSourceSet.copy(
         "root",
         "pl2",
         DokkaSourceSetID("root", "pl2"),
         analysisPlatform = Platform.jvm,
-        sourceRoots = listOf(SourceRootImpl("pl1"))
+        sourceRoots = setOf(File("pl1"))
     )
     private val pl3 = defaultSourceSet.copy(
         "root",
         "pl3",
         DokkaSourceSetID("root", "pl3"),
         analysisPlatform = Platform.native,
-        sourceRoots = listOf(SourceRootImpl("pl1"))
+        sourceRoots = setOf(File("pl1"))
     )
 
     @Test

@@ -11,6 +11,7 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.io.File
 
+// TODO NOW: Test this all
 private typealias KotlinCompilation =
         org.jetbrains.kotlin.gradle.plugin.KotlinCompilation<KotlinCommonOptions>
 
