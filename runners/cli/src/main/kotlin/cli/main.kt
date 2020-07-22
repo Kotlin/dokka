@@ -36,11 +36,13 @@ class GlobalArguments(args: Array<String>) : DokkaConfiguration {
         description = "Configuration for plugins in format fqPluginName=json^^fqPluginName=json..."
     ).default(emptyMap())
 
-    override val pluginsClasspath by parser.option(
+    private val pluginsClasspathList by parser.option(
         ArgTypeFile,
+        fullName = "pluginsClasspath",
         description = "List of jars with dokka plugins (allows many paths separated by the semicolon `;`)"
     ).delimiter(";")
 
+    override val pluginsClasspath: Set<File> by lazy { pluginsClasspathList.toMutableSet() }
 
     override val offlineMode by parser.option(
         ArgType.Boolean,
@@ -77,19 +79,19 @@ class GlobalArguments(args: Array<String>) : DokkaConfiguration {
     init {
         parser.parse(args)
 
-        sourceSets.all {
+        sourceSets.forEach {
             it.perPackageOptions.cast<MutableList<DokkaConfiguration.PackageOptions>>()
                 .addAll(parsePerPackageOptions(globalPackageOptions))
         }
 
-        sourceSets.all {
-            it.externalDocumentationLinks.cast<MutableList<ExternalDocumentationLink>>().addAll(parseLinks(globalLinks))
+        sourceSets.forEach {
+            it.externalDocumentationLinks.cast<MutableSet<ExternalDocumentationLink>>().addAll(parseLinks(globalLinks))
         }
 
         globalSrcLink.forEach {
             if (it.isNotEmpty() && it.contains("="))
                 sourceSets.all { sourceSet ->
-                    sourceSet.sourceLinks.cast<MutableList<SourceLinkDefinitionImpl>>()
+                    sourceSet.sourceLinks.cast<MutableSet<SourceLinkDefinitionImpl>>()
                         .add(SourceLinkDefinitionImpl.parseSourceLinkDefinition(it))
                 }
             else {
@@ -98,10 +100,7 @@ class GlobalArguments(args: Array<String>) : DokkaConfiguration {
         }
 
         sourceSets.forEach {
-            it.externalDocumentationLinks.cast<MutableList<ExternalDocumentationLink>>().addAll(defaultLinks(it))
-            it.externalDocumentationLinks.cast<MutableList<ExternalDocumentationLink>>().replaceAll { link ->
-                ExternalDocumentationLink.Builder(link.url, link.packageListUrl).build()
-            }
+            it.externalDocumentationLinks.cast<MutableSet<ExternalDocumentationLink>>().addAll(defaultLinks(it))
         }
     }
 }
@@ -227,28 +226,28 @@ private fun parseSourceSet(args: Array<String>): DokkaConfiguration.DokkaSourceS
         override val moduleDisplayName = moduleDisplayName ?: moduleName
         override val displayName = displayName
         override val sourceSetID = DokkaSourceSetID(moduleName, sourceSetName)
-        override val classpath = classpath
-        override val sourceRoots = sourceRoots.map { SourceRootImpl(it) }
-        override val dependentSourceSets: Set<DokkaSourceSetID> = dependentSourceSets
+        override val classpath = classpath.toMutableSet()
+        override val sourceRoots = sourceRoots.toMutableSet()
+        override val dependentSourceSets = dependentSourceSets
             .map { dependentSourceSetName -> dependentSourceSetName.split('/').let { DokkaSourceSetID(it[0], it[1]) } }
-            .toSet()
-        override val samples = samples
-        override val includes = includes
+            .toMutableSet()
+        override val samples = samples.toMutableSet()
+        override val includes = includes.toMutableSet()
         override val includeNonPublic = includeNonPublic
         override val includeRootPackage = includeRootPackage
         override val reportUndocumented = reportUndocumented
         override val skipEmptyPackages = skipEmptyPackages
         override val skipDeprecated = skipDeprecated
         override val jdkVersion = jdkVersion
-        override val sourceLinks = sourceLinks
+        override val sourceLinks = sourceLinks.toMutableSet()
         override val analysisPlatform = analysisPlatform
         override val perPackageOptions = parsePerPackageOptions(perPackageOptions)
-        override val externalDocumentationLinks = parseLinks(externalDocumentationLinks)
+        override val externalDocumentationLinks = parseLinks(externalDocumentationLinks).toMutableSet()
         override val languageVersion = languageVersion
         override val apiVersion = apiVersion
         override val noStdlibLink = noStdlibLink
         override val noJdkLink = noJdkLink
-        override val suppressedFiles = suppressedFiles
+        override val suppressedFiles = suppressedFiles.toMutableSet()
     }
 }
 
@@ -307,13 +306,14 @@ object ArgTypeHelpSourceSet : ArgType<Any>(false) {
 fun defaultLinks(config: DokkaConfiguration.DokkaSourceSet): MutableList<ExternalDocumentationLink> =
     mutableListOf<ExternalDocumentationLink>().apply {
         if (!config.noJdkLink) {
+            // TODO NOW: Duplication
             val javadocLink =
                 if (config.jdkVersion < 11) "https://docs.oracle.com/javase/${config.jdkVersion}/docs/api/"
                 else "https://docs.oracle.com/en/java/javase/${config.jdkVersion}/docs/api/java.base/"
             val packageListLink =
                 if (config.jdkVersion < 11) "${javadocLink}/package-list"
                 else "https://docs.oracle.com/en/java/javase/${config.jdkVersion}/docs/api/element-list"
-            this += DokkaConfiguration.ExternalDocumentationLink
+            this += ExternalDocumentationLink
                 .Builder(javadocLink, packageListLink)
                 .build()
         }
@@ -324,7 +324,6 @@ fun defaultLinks(config: DokkaConfiguration.DokkaSourceSet): MutableList<Externa
                 .build()
     }
 
-private fun String.toAbsolutePath() = Paths.get(this).toAbsolutePath().toString()
 
 fun parseLinks(links: List<String>): List<ExternalDocumentationLink> {
     val (parsedLinks, parsedOfflineLinks) = links
@@ -355,3 +354,4 @@ fun main(args: Array<String>) {
         globalArguments
     DokkaGenerator(configuration, DokkaConsoleLogger).generate()
 }
+

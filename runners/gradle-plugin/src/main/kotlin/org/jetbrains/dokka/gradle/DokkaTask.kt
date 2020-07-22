@@ -29,7 +29,7 @@ open class DokkaTask : AbstractDokkaTask(DokkaBootstrapImpl::class) {
             failOnWarning = failOnWarning,
             sourceSets = dokkaSourceSets.build(),
             pluginsConfiguration = pluginsConfiguration,
-            pluginsClasspath = plugins.resolve().toList()
+            pluginsClasspath = plugins.resolve()
         )
     }
 }

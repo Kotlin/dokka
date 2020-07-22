@@ -110,7 +110,7 @@ internal class JavadocPackageTemplateMapTest : AbstractJavadocTemplateMapTest() 
             configuration = config.copy(
                 sourceSets = config.sourceSets.map { sourceSet ->
                     sourceSet.copy(
-                        includes = listOf(File("packages.md"))
+                        includes = setOf(File("packages.md"))
                     )
                 }
             )

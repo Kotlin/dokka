@@ -95,7 +95,7 @@ private class DokkaDescriptorVisitor(
     private fun Collection<DeclarationDescriptor>.filterDescriptorsInSourceSet() = filter {
         it.toSourceElement.containingFile.toString().let { path ->
             path.isNotBlank() && sourceSet.sourceRoots.any { root ->
-                Paths.get(path).startsWith(root.directory.toPath())
+                Paths.get(path).startsWith(root.toPath())
             }
         }
     }

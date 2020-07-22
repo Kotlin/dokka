@@ -1,7 +1,6 @@
 package renderers.html
 
 import org.jetbrains.dokka.Platform
-import org.jetbrains.dokka.SourceRootImpl
 import org.jetbrains.dokka.base.renderers.html.HtmlRenderer
 import org.jetbrains.dokka.pages.TextStyle
 import org.junit.jupiter.api.Test
@@ -10,6 +9,7 @@ import renderers.defaultSourceSet
 import renderers.RenderingOnlyTestBase
 import utils.Div
 import utils.match
+import java.io.File
 
 class SourceSetDependentHintTest : HtmlRenderingOnlyTestBase() {
 
@@ -18,21 +18,21 @@ class SourceSetDependentHintTest : HtmlRenderingOnlyTestBase() {
         "pl1",
         defaultSourceSet.sourceSetID.copy(sourceSetName =  "pl1"),
         analysisPlatform = Platform.js,
-        sourceRoots = listOf(SourceRootImpl("pl1"))
+        sourceRoots = setOf(File("pl1"))
     )
     private val pl2 = defaultSourceSet.copy(
         "root",
         "pl2",
         defaultSourceSet.sourceSetID.copy(sourceSetName =  "pl2"),
         analysisPlatform = Platform.jvm,
-        sourceRoots = listOf(SourceRootImpl("pl1"))
+        sourceRoots = setOf(File("pl1"))
     )
     private val pl3 = defaultSourceSet.copy(
         "root",
         "pl3",
         defaultSourceSet.sourceSetID.copy(sourceSetName =  "pl3"),
         analysisPlatform = Platform.native,
-        sourceRoots = listOf(SourceRootImpl("pl1"))
+        sourceRoots = setOf(File("pl1"))
     )
 
     @Test

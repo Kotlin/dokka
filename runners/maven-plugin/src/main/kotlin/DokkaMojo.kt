@@ -53,13 +53,6 @@ class ExternalDocumentationLinkBuilder : DokkaConfiguration.ExternalDocumentatio
 }
 
 abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependency>) : AbstractMojo() {
-    class SourceRoot : DokkaConfigurationBuilder<DokkaConfiguration.SourceRoot> {
-        @Parameter(required = true)
-        var path: String = ""
-        override fun build(): DokkaConfiguration.SourceRoot {
-            return SourceRootImpl(File(path))
-        }
-    }
 
     @Parameter(defaultValue = "\${project}", readonly = true)
     private var mavenProject: MavenProject? = null
@@ -185,17 +178,17 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
                 throw MojoExecutionException("Incorrect path property, only Unix based path allowed.")
             }
         }
-        fun defaultLinks(config: DokkaSourceSetImpl): List<ExternalDocumentationLinkImpl> {
-            val links = mutableListOf<ExternalDocumentationLinkImpl>()
+        fun defaultLinks(config: DokkaSourceSetImpl): Set<ExternalDocumentationLinkImpl> {
+            val links = mutableSetOf<ExternalDocumentationLinkImpl>()
             if (!config.noJdkLink)
                 links += DokkaConfiguration.ExternalDocumentationLink
                     .Builder("https://docs.oracle.com/javase/${config.jdkVersion}/docs/api/")
-                    .build() as ExternalDocumentationLinkImpl
+                    .build()
 
             if (!config.noStdlibLink)
                 links += DokkaConfiguration.ExternalDocumentationLink
                     .Builder("https://kotlinlang.org/api/latest/jvm/stdlib/")
-                    .build() as ExternalDocumentationLinkImpl
+                    .build()
             return links
         }
 
@@ -203,18 +196,18 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
             moduleDisplayName = moduleDisplayName.takeIf(String::isNotBlank) ?: moduleName,
             displayName = displayName,
             sourceSetID = DokkaSourceSetID(moduleName, sourceSetName),
-            classpath = classpath.map(::File),
-            sourceRoots = sourceDirectories.map(::File).map(::SourceRootImpl),
+            classpath = classpath.map(::File).toSet(),
+            sourceRoots = sourceDirectories.map(::File).toSet(),
             dependentSourceSets = emptySet(),
-            samples = samples.map(::File),
-            includes = includes.map(::File),
+            samples = samples.map(::File).toSet(),
+            includes = includes.map(::File).toSet(),
             includeNonPublic = includeNonPublic,
             includeRootPackage = includeRootPackage,
             reportUndocumented = reportUndocumented,
             skipEmptyPackages = skipEmptyPackages,
             skipDeprecated = skipDeprecated,
             jdkVersion = jdkVersion,
-            sourceLinks = sourceLinks.map { SourceLinkDefinitionImpl(it.path, it.url, it.lineSuffix) },
+            sourceLinks = sourceLinks.map { SourceLinkDefinitionImpl(it.path, it.url, it.lineSuffix) }.toSet(),
             perPackageOptions = perPackageOptions.map {
                 PackageOptionsImpl(
                     prefix = it.prefix,
@@ -224,12 +217,12 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
                     suppress = it.suppress
                 )
             },
-            externalDocumentationLinks = externalDocumentationLinks.map { it.build() as ExternalDocumentationLinkImpl },
+            externalDocumentationLinks = externalDocumentationLinks.map { it.build() }.toSet(),
             languageVersion = languageVersion,
             apiVersion = apiVersion,
             noStdlibLink = noStdlibLink,
             noJdkLink = noJdkLink,
-            suppressedFiles = suppressedFiles.map(::File),
+            suppressedFiles = suppressedFiles.map(::File).toSet(),
             analysisPlatform = if (platform.isNotEmpty()) Platform.fromString(platform) else Platform.DEFAULT
         ).let {
             it.copy(
@@ -278,7 +271,7 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
         groupId: String,
         artifactId: String,
         version: String
-    ): List<File> {
+    ): Set<File> {
         val repoSystem: RepositorySystem = newRepositorySystem()
         val session: RepositorySystemSession = newSession(repoSystem)
         val dependency =
@@ -303,7 +296,7 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
         repoSystem.resolveDependencies(session, dependencyRequest)
         val nlg = PreorderNodeListGenerator()
         node.accept(nlg)
-        return nlg.files
+        return nlg.files.toSet()
     }
 
     private val dokkaVersion: String by lazy {

@@ -2,7 +2,6 @@ package renderers.gfm
 
 import org.jetbrains.dokka.DokkaSourceSetID
 import org.jetbrains.dokka.Platform
-import org.jetbrains.dokka.SourceRootImpl
 import org.jetbrains.dokka.gfm.CommonmarkRenderer
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.pages.ContentDivergentGroup
@@ -17,21 +16,21 @@ class DivergentTest : GfmRenderingOnlyTestBase() {
         "js",
         DokkaSourceSetID("root", "js"),
         analysisPlatform = Platform.js,
-        sourceRoots = listOf(SourceRootImpl("pl1"))
+        sourceRoots = setOf(File("pl1"))
     )
     private val jvm = defaultSourceSet.copy(
         "root",
         "jvm",
         DokkaSourceSetID("root", "jvm"),
         analysisPlatform = Platform.jvm,
-        sourceRoots = listOf(SourceRootImpl("pl1"))
+        sourceRoots = setOf(File("pl1"))
     )
     private val native = defaultSourceSet.copy(
         "root",
         "native",
         DokkaSourceSetID("root", "native"),
         analysisPlatform = Platform.native,
-        sourceRoots = listOf(SourceRootImpl("pl1"))
+        sourceRoots = setOf(File("pl1"))
     )
 
     @Test

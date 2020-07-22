@@ -50,7 +50,6 @@ class DokkaCollectorTaskTest {
                     pluginsClasspath = task.dokkaTasks
                         .map { it.plugins.resolve() }
                         .reduce { acc, mutableSet -> acc + mutableSet }
-                        .toList()
                 ),
                 dokkaConfiguration
             )

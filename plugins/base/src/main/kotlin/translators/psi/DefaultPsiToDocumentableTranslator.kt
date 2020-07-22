@@ -44,7 +44,7 @@ class DefaultPsiToDocumentableTranslator(
     override fun invoke(sourceSet: DokkaSourceSet, context: DokkaContext): DModule {
 
         fun isFileInSourceRoots(file: File): Boolean {
-            return sourceSet.sourceRoots.any { root -> file.startsWith(root.directory) }
+            return sourceSet.sourceRoots.any { root -> file.startsWith(root) }
         }
 
         val (environment, _) = kotlinAnalysis[sourceSet]

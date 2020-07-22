@@ -15,8 +15,8 @@ dokkaHtml {
     failOnWarning = false
     dokkaSourceSets {
         customSourceSet {
-            sourceRoot { directory = file("src/main/java") }
-            sourceRoot { directory = file("src/main/kotlin") }
+            sourceRoot(file("src/main/java"))
+            sourceRoot(file("src/main/kotlin"))
             displayName = "custom"
             reportUndocumented = true
         }

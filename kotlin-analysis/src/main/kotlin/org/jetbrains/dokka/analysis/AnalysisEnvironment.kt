@@ -540,7 +540,7 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
      * Adds list of paths to source roots.
      * $list: collection of files to add
      */
-    fun addSources(sourceDirectories: List<File>) {
+    fun addSources(sourceDirectories: Iterable<File>) {
         sourceDirectories.forEach { directory ->
             configuration.addKotlinSourceRoot(directory.path)
             if (directory.isDirectory || directory.extension == ".java") {

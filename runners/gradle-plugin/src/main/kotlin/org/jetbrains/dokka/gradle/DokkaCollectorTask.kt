@@ -10,7 +10,7 @@ open class DokkaCollectorTask : AbstractDokkaParentTask() {
             cacheRoot = cacheRoot,
             failOnWarning = failOnWarning,
             offlineMode = offlineMode,
-            pluginsClasspath = plugins.resolve().toList(),
+            pluginsClasspath = plugins.resolve().toSet(),
         )
 
         val subprojectDokkaConfigurations = dokkaTasks.map { dokkaTask -> dokkaTask.buildDokkaConfiguration() }

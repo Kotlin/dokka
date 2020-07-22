@@ -22,7 +22,6 @@ internal fun createEnvironmentAndFacade(
         addSources(
             (sourceSet.sourceRoots + configuration.sourceSets.filter { it.sourceSetID in sourceSet.dependentSourceSets }
                 .flatMap { it.sourceRoots })
-                .map { it.directory }
         )
 
         loadLanguageVersionSettings(sourceSet.languageVersion, sourceSet.apiVersion)
