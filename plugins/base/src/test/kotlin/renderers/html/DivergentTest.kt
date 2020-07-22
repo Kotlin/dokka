@@ -1,12 +1,10 @@
 package renderers.html
 
-import org.jetbrains.dokka.Platform
-import org.jetbrains.dokka.SourceRootImpl
 import org.jetbrains.dokka.base.renderers.html.HtmlRenderer
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.pages.ContentDivergentGroup
 import org.junit.jupiter.api.Test
-import renderers.*
+import renderers.TestPage
 import utils.Div
 import utils.Span
 import utils.match

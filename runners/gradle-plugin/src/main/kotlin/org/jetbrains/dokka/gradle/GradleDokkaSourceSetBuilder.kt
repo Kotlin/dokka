@@ -27,7 +27,7 @@ open class GradleDokkaSourceSetBuilder constructor(
 
     @Classpath
     @Optional
-    var classpath: List<File> = emptyList()
+    val classpath: MutableSet<File> = mutableSetOf()
 
     @Input
     @Optional
@@ -41,18 +41,18 @@ open class GradleDokkaSourceSetBuilder constructor(
     val sourceSetID: DokkaSourceSetID = DokkaSourceSetID(project, name)
 
     @Nested
-    var sourceRoots: MutableList<GradleSourceRootBuilder> = mutableListOf()
+    val sourceRoots: MutableSet<File> = mutableSetOf()
 
     @Input
-    var dependentSourceSets: MutableSet<DokkaSourceSetID> = mutableSetOf()
+    val dependentSourceSets: MutableSet<DokkaSourceSetID> = mutableSetOf()
 
     @InputFiles
     @Optional
-    var samples: List<File> = emptyList()
+    val samples: MutableSet<File> = mutableSetOf()
 
     @InputFiles
     @Optional
-    var includes: List<File> = emptyList()
+    val includes: MutableSet<File> = mutableSetOf()
 
     @Input
     var includeNonPublic: Boolean = DokkaDefaults.includeNonPublic
@@ -73,13 +73,13 @@ open class GradleDokkaSourceSetBuilder constructor(
     var jdkVersion: Int = DokkaDefaults.jdkVersion
 
     @Nested
-    var sourceLinks: MutableList<GradleSourceLinkBuilder> = mutableListOf()
+    val sourceLinks: MutableSet<GradleSourceLinkBuilder> = mutableSetOf()
 
     @Nested
-    var perPackageOptions: MutableList<GradlePackageOptionsBuilder> = mutableListOf()
+    val perPackageOptions: MutableList<GradlePackageOptionsBuilder> = mutableListOf()
 
     @Nested
-    var externalDocumentationLinks: MutableList<GradleExternalDocumentationLinkBuilder> = mutableListOf()
+    val externalDocumentationLinks: MutableSet<GradleExternalDocumentationLinkBuilder> = mutableSetOf()
 
     @Input
     @Optional
@@ -99,7 +99,7 @@ open class GradleDokkaSourceSetBuilder constructor(
     var noAndroidSdkLink: Boolean = false
 
     @Input
-    var suppressedFiles: List<File> = emptyList()
+    val suppressedFiles: MutableSet<File> = mutableSetOf()
 
     @Input
     @Optional
@@ -134,15 +134,13 @@ open class GradleDokkaSourceSetBuilder constructor(
     }
 
     // TODO NOW: Cover with tests
-    fun sourceRoot(c: Closure<Unit>) {
-        val configured = ConfigureUtil.configure(c, GradleSourceRootBuilder())
-        sourceRoots.add(configured)
+
+    fun sourceRoot(file: File) {
+        sourceRoots.add(file)
     }
 
-    fun sourceRoot(action: Action<in GradleSourceRootBuilder>) {
-        val sourceRoot = GradleSourceRootBuilder()
-        action.execute(sourceRoot)
-        sourceRoots.add(sourceRoot)
+    fun sourceRoot(path: String) {
+        sourceRoots.add(project.file(path))
     }
 
     fun sourceLink(c: Closure<Unit>) {
@@ -241,33 +239,31 @@ open class GradleDokkaSourceSetBuilder constructor(
             else -> Platform.DEFAULT
         }
 
-        val sourceRoots = sourceRoots.build().distinct()
-
-        val suppressedFiles = suppressedFiles + project.collectSuppressedFiles(sourceRoots)
+        val suppressedFiles = suppressedFiles + project.collectSuppressedFiles(sourceRoots.toSet())
 
         return DokkaSourceSetImpl(
-            classpath = classpath.distinct().toList(),
+            classpath = classpath.toSet(),
             moduleDisplayName = moduleDisplayName,
             displayName = displayName,
             sourceSetID = sourceSetID,
-            sourceRoots = sourceRoots,
+            sourceRoots = sourceRoots.toSet(),
             dependentSourceSets = dependentSourceSets.toSet(),
-            samples = samples.toList(),
-            includes = includes.toList(),
+            samples = samples.toSet(),
+            includes = includes.toSet(),
             includeNonPublic = includeNonPublic,
             includeRootPackage = includeRootPackage,
             reportUndocumented = reportUndocumented,
             skipEmptyPackages = skipEmptyPackages,
             skipDeprecated = skipDeprecated,
             jdkVersion = jdkVersion,
-            sourceLinks = sourceLinks.build(),
+            sourceLinks = sourceLinks.build().toSet(),
             perPackageOptions = perPackageOptions.build(),
-            externalDocumentationLinks = externalDocumentationLinks,
+            externalDocumentationLinks = externalDocumentationLinks.toSet(),
             languageVersion = languageVersion,
             apiVersion = apiVersion,
             noStdlibLink = noStdlibLink,
             noJdkLink = noJdkLink,
-            suppressedFiles = suppressedFiles,
+            suppressedFiles = suppressedFiles.toSet(),
             analysisPlatform = analysisPlatform
         )
     }
@@ -286,13 +282,13 @@ fun GradleDokkaSourceSetBuilder.dependsOn(sourceSet: AndroidSourceSet) {
 }
 
 // TODO NOW: Test
-private fun Project.collectSuppressedFiles(sourceRoots: List<DokkaConfiguration.SourceRoot>): List<File> =
+private fun Project.collectSuppressedFiles(sourceRoots: Set<File>): Set<File> =
     if (project.isAndroidProject()) {
         val generatedRoot = project.buildDir.resolve("generated").absoluteFile
         sourceRoots
-            .map { it.directory }
             .filter { it.startsWith(generatedRoot) }
             .flatMap { it.walk().toList() }
+            .toSet()
     } else {
-        emptyList()
+        emptySet()
     }
