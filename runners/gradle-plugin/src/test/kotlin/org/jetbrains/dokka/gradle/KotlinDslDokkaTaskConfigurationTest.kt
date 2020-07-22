@@ -1,5 +1,6 @@
 package org.jetbrains.dokka.gradle
 
+import dokka
 import org.gradle.testfixtures.ProjectBuilder
 import org.jetbrains.dokka.DokkaSourceSetID
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
@@ -13,8 +14,8 @@ class KotlinDslDokkaTaskConfigurationTest {
     fun `configure project using dokka extension function`() {
         val project = ProjectBuilder.builder().build()
         project.plugins.apply("org.jetbrains.dokka")
-        project.tasks.withType(DokkaTask::class.java).forEach { dokkaTask ->
-            dokkaTask.outputDirectory = File("test")
+        project.dokka {
+            outputDirectory = File("test")
         }
 
         project.tasks.withType(DokkaTask::class.java).forEach { dokkaTask ->
