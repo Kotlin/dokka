@@ -69,7 +69,7 @@ class DokkaMultiModuleTaskTest {
                     outputDir = task.project.buildDir.resolve("customOutputDirectory"),
                     cacheRoot = File("customCacheRoot"),
                     pluginsConfiguration = mapOf("pluginA" to "configA"),
-                    pluginsClasspath = emptyList(),
+                    pluginsClasspath = emptySet(),
                     failOnWarning = true,
                     offlineMode = true,
                     modules = listOf(

@@ -2,7 +2,6 @@ package renderers.html
 
 import org.jetbrains.dokka.DokkaConfigurationImpl
 import org.jetbrains.dokka.Platform
-import org.jetbrains.dokka.SourceRootImpl
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.renderers.DefaultTabSortingStrategy
 import org.jetbrains.dokka.base.renderers.RootCreator
@@ -17,6 +16,7 @@ import org.jsoup.nodes.TextNode
 import renderers.RenderingOnlyTestBase
 import utils.TestOutputWriter
 import renderers.defaultSourceSet
+import java.io.File
 
 abstract class HtmlRenderingOnlyTestBase : RenderingOnlyTestBase<Element>() {
 
@@ -25,7 +25,7 @@ abstract class HtmlRenderingOnlyTestBase : RenderingOnlyTestBase<Element>() {
         "JS",
         defaultSourceSet.sourceSetID.copy(sourceSetName = "js"),
         analysisPlatform = Platform.js,
-        sourceRoots = listOf(SourceRootImpl("pl1"))
+        sourceRoots = setOf(File("pl1"))
     )
     protected val jvm = defaultSourceSet.copy(
         "root",
@@ -33,14 +33,14 @@ abstract class HtmlRenderingOnlyTestBase : RenderingOnlyTestBase<Element>() {
         defaultSourceSet.sourceSetID.copy(sourceSetName = "jvm"),
 
         analysisPlatform = Platform.jvm,
-        sourceRoots = listOf(SourceRootImpl("pl1"))
+        sourceRoots = setOf(File("pl1"))
     )
     protected val native = defaultSourceSet.copy(
         "root",
         "NATIVE",
         defaultSourceSet.sourceSetID.copy(sourceSetName = "native"),
         analysisPlatform = Platform.native,
-        sourceRoots = listOf(SourceRootImpl("pl1"))
+        sourceRoots = setOf(File("pl1"))
     )
 
     val files = TestOutputWriter()

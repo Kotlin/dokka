@@ -9,13 +9,12 @@ fun GradleDokkaSourceSetBuilder.configureWithKotlinSourceSet(sourceSet: KotlinSo
 }
 
 internal fun GradleDokkaSourceSetBuilder.configureWithKotlinSourceSetGist(sourceSet: KotlinSourceSetGist) {
-    sourceRoots.addAll(sourceRoots.union(sourceSet.sourceRoots.toSourceRoots()).distinct())
+    sourceRoots.addAll(sourceRoots.union(sourceSet.sourceRoots).distinct())
     dependentSourceSets.addAll(dependentSourceSets)
     dependentSourceSets.addAll(sourceSet.dependentSourceSets.map { DokkaSourceSetID(project, it) })
-    classpath = classpath.union(sourceSet.classpath).distinct()
+    classpath.addAll(sourceSet.classpath)
     if (platform == null && sourceSet.platform != "")
         platform = sourceSet.platform
 }
 
-private fun Iterable<File>.toSourceRoots(): List<GradleSourceRootBuilder> =
-    this.filter { it.exists() }.map { GradleSourceRootBuilder().apply { directory = it } }
+
