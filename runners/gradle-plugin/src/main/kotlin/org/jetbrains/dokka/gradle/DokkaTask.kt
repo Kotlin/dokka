@@ -6,6 +6,7 @@ import org.gradle.api.tasks.Nested
 import org.jetbrains.dokka.DokkaBootstrapImpl
 import org.jetbrains.dokka.DokkaConfigurationImpl
 import org.jetbrains.dokka.build
+import org.jetbrains.dokka.gradle.kotlin.isMainSourceSet
 
 open class DokkaTask : AbstractDokkaTask(DokkaBootstrapImpl::class) {
 
@@ -14,9 +15,11 @@ open class DokkaTask : AbstractDokkaTask(DokkaBootstrapImpl::class) {
         project.container(GradleDokkaSourceSetBuilder::class.java, GradleDokkaSourceSetBuilderFactory())
             .also { container ->
                 DslObject(this).extensions.add("dokkaSourceSets", container)
-                project.findKotlinSourceSets().orEmpty().forEach { kotlinSourceSet ->
-                    container.register(kotlinSourceSet.name) { dokkaSourceSet ->
-                        dokkaSourceSet.configureWithKotlinSourceSetGist(kotlinSourceSet)
+                project.kotlinOrNull?.sourceSets?.all { kotlinSourceSet ->
+                    if (project.isMainSourceSet(kotlinSourceSet)) {
+                        container.register(kotlinSourceSet.name) { dokkaSourceSet ->
+                            dokkaSourceSet.configureWithKotlinSourceSet(kotlinSourceSet)
+                        }
                     }
                 }
             }

@@ -2,35 +2,45 @@
 
 package org.jetbrains.dokka.gradle
 
+import org.gradle.api.Project
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
 import org.jetbrains.dokka.DokkaConfigurationBuilder
 import org.jetbrains.dokka.DokkaDefaults
 import org.jetbrains.dokka.PackageOptionsImpl
 
 
-class GradlePackageOptionsBuilder : DokkaConfigurationBuilder<PackageOptionsImpl> {
+class GradlePackageOptionsBuilder(
+    @get:Internal internal val project: Project
+) : DokkaConfigurationBuilder<PackageOptionsImpl> {
     @Input
-    var prefix: String = ""
+    val prefix: Property<String> = project.objects.safeProperty<String>()
+        .safeConvention("")
 
     @Input
-    var includeNonPublic: Boolean = DokkaDefaults.includeNonPublic
+    val includeNonPublic: Property<Boolean> = project.objects.safeProperty<Boolean>()
+        .safeConvention(DokkaDefaults.includeNonPublic)
 
     @Input
-    var reportUndocumented: Boolean = DokkaDefaults.reportUndocumented
+    val reportUndocumented: Property<Boolean> = project.objects.safeProperty<Boolean>()
+        .safeConvention(DokkaDefaults.reportUndocumented)
 
     @Input
-    var skipDeprecated: Boolean = DokkaDefaults.skipDeprecated
+    val skipDeprecated: Property<Boolean> = project.objects.safeProperty<Boolean>()
+        .safeConvention(DokkaDefaults.skipDeprecated)
 
     @Input
-    var suppress: Boolean = DokkaDefaults.suppress
+    val suppress: Property<Boolean> = project.objects.safeProperty<Boolean>()
+        .safeConvention(DokkaDefaults.suppress)
 
     override fun build(): PackageOptionsImpl {
         return PackageOptionsImpl(
-            prefix = prefix,
-            includeNonPublic = includeNonPublic,
-            reportUndocumented = reportUndocumented,
-            skipDeprecated = skipDeprecated,
-            suppress = suppress
+            prefix = checkNotNull(prefix.getSafe()) { "prefix not specified" },
+            includeNonPublic = includeNonPublic.getSafe(),
+            reportUndocumented = reportUndocumented.getSafe(),
+            skipDeprecated = skipDeprecated.getSafe(),
+            suppress = suppress.getSafe()
         )
     }
 }

@@ -159,9 +159,6 @@ private fun parseSourceSet(args: Array<String>): DokkaConfiguration.DokkaSourceS
     val includeNonPublic: Boolean by parser.option(ArgType.Boolean, description = "Include non public")
         .default(DokkaDefaults.includeNonPublic)
 
-    val includeRootPackage by parser.option(ArgType.Boolean, description = "Include root package")
-        .default(DokkaDefaults.includeRootPackage)
-
     val reportUndocumented by parser.option(ArgType.Boolean, description = "Report undocumented members")
         .default(DokkaDefaults.reportUndocumented)
 
@@ -234,7 +231,6 @@ private fun parseSourceSet(args: Array<String>): DokkaConfiguration.DokkaSourceS
         override val samples = samples.toMutableSet()
         override val includes = includes.toMutableSet()
         override val includeNonPublic = includeNonPublic
-        override val includeRootPackage = includeRootPackage
         override val reportUndocumented = reportUndocumented
         override val skipEmptyPackages = skipEmptyPackages
         override val skipDeprecated = skipDeprecated

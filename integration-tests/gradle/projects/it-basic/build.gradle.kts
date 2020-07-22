@@ -9,6 +9,7 @@ apply(from = "../template.root.gradle.kts")
 
 dependencies {
     implementation(kotlin("stdlib"))
+    testImplementation(kotlin("test-junit"))
 }
 
 tasks.withType<DokkaTask> {
@@ -21,5 +22,11 @@ tasks.withType<DokkaTask> {
                 suppress.set(true)
             }
         }
+
+        register("myTest") {
+            kotlinSourceSet(kotlin.sourceSets["test"])
+        }
     }
 }
+
+buildDir.resolve("")

@@ -1,22 +1,28 @@
 package org.jetbrains.dokka.gradle
 
+import org.gradle.api.Project
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
 import org.jetbrains.dokka.DokkaConfigurationBuilder
 import org.jetbrains.dokka.ExternalDocumentationLink
 import org.jetbrains.dokka.ExternalDocumentationLinkImpl
 import java.net.URL
 
-class GradleExternalDocumentationLinkBuilder : DokkaConfigurationBuilder<ExternalDocumentationLinkImpl> {
+class GradleExternalDocumentationLinkBuilder(
+    @get:Internal internal val project: Project
+) :
+    DokkaConfigurationBuilder<ExternalDocumentationLinkImpl> {
     @Input
-    var url: URL? = null
+    val url: Property<URL?> = project.objects.safeProperty()
 
     @Input
-    var packageListUrl: URL? = null
+    val packageListUrl: Property<URL?> = project.objects.safeProperty()
 
     override fun build(): ExternalDocumentationLinkImpl {
         return ExternalDocumentationLink(
-            url = checkNotNull(url) { "url not specified " },
-            packageListUrl = packageListUrl
+            url = checkNotNull(url.getSafe()) { "url not specified " },
+            packageListUrl = packageListUrl.getSafe()
         )
     }
 }

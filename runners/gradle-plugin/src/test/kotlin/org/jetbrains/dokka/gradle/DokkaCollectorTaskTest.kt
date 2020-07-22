@@ -23,6 +23,11 @@ class DokkaCollectorTaskTest {
             project.tasks.withType<AbstractDokkaTask>().configureEach { task ->
                 task.plugins.withDependencies { dependencies -> dependencies.clear() }
             }
+            project.tasks.withType<DokkaTask>().configureEach { task ->
+                task.dokkaSourceSets.configureEach { sourceSet ->
+                    sourceSet.classpath.setFrom()
+                }
+            }
         }
 
         val collectorTasks = rootProject.tasks.withType<DokkaCollectorTask>()

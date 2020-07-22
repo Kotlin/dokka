@@ -14,7 +14,6 @@ val defaultSourceSet = DokkaSourceSetImpl(
     samples = emptySet(),
     includes = emptySet(),
     includeNonPublic = false,
-    includeRootPackage = false,
     reportUndocumented = false,
     skipEmptyPackages = true,
     skipDeprecated = false,

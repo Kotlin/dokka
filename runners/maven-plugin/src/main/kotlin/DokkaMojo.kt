@@ -147,9 +147,6 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
     var apiVersion: String? = null
 
     @Parameter
-    var includeRootPackage: Boolean = DokkaDefaults.includeRootPackage
-
-    @Parameter
     var suppressedFiles: List<String> = emptyList()
 
     @Parameter
@@ -202,7 +199,6 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
             samples = samples.map(::File).toSet(),
             includes = includes.map(::File).toSet(),
             includeNonPublic = includeNonPublic,
-            includeRootPackage = includeRootPackage,
             reportUndocumented = reportUndocumented,
             skipEmptyPackages = skipEmptyPackages,
             skipDeprecated = skipDeprecated,
