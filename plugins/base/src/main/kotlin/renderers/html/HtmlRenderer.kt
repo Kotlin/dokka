@@ -618,12 +618,15 @@ open class HtmlRenderer(
         }
     }
 
-    override fun FlowContent.buildText(textNode: ContentText) {
+    override fun FlowContent.buildText(textNode: ContentText) =
         when {
-            textNode.hasStyle(TextStyle.Indented) -> consumer.onTagContentEntity(Entities.nbsp)
+            textNode.hasStyle(TextStyle.Indented) -> {
+                consumer.onTagContentEntity(Entities.nbsp)
+                text(textNode.text)
+            }
+            textNode.hasStyle(TextStyle.Cover) -> buildBreakableDotSeparatedHtml(textNode.text)
+            else -> text(textNode.text)
         }
-        text(textNode.text)
-    }
 
     private fun generatePagesList() =
         pageList.entries
