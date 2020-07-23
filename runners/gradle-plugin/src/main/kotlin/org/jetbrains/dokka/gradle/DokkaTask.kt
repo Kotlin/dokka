@@ -16,10 +16,17 @@ import org.jetbrains.dokka.ReflectDsl.isNotInstance
 import org.jetbrains.dokka.gradle.ConfigurationExtractor.PlatformData
 import org.jetbrains.dokka.toJsonString
 import java.io.File
+import java.net.URL
 import java.util.concurrent.Callable
 
 open class DokkaTask : AbstractDokkaTask() {
     private val ANDROID_REFERENCE_URL = Builder("https://developer.android.com/reference/").build()
+
+    private val ANDROIDX_REFERENCE_URL = Builder(
+        url = URL("https://developer.android.com/reference/kotlin/"),
+        packageListUrl = URL("https://developer.android.com/reference/androidx/package-list")
+    ).build()
+
     private val configExtractor = ConfigurationExtractor(project)
 
     @Suppress("MemberVisibilityCanBePrivate")
@@ -243,6 +250,7 @@ open class DokkaTask : AbstractDokkaTask() {
 
         if (project.isAndroidProject() && !config.noAndroidSdkLink) {
             config.externalDocumentationLinks.add(ANDROID_REFERENCE_URL)
+            config.externalDocumentationLinks.add(ANDROIDX_REFERENCE_URL)
         }
 
         if (config.platform?.isNotBlank() == true) {
