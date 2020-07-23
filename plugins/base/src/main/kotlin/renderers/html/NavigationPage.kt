@@ -25,9 +25,9 @@ class NavigationPage(val root: NavigationNode) : RendererSpecificPage {
                 id = navId
                 attributes["pageId"] = node.dri.toString()
                 div("overview") {
-                    buildLink(node.dri, node.sourceSets.toList()) { +node.name }
+                    buildLink(node.dri, node.sourceSets.toList()) { buildBreakableDotSeparatedHtml(node.name) }
                     if (node.children.isNotEmpty()) {
-                        span("navButton") {
+                        span("navButton pull-right") {
                             onClick = """document.getElementById("$navId").classList.toggle("hidden");"""
                             span("navButtonContent")
                         }
