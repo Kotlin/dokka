@@ -76,7 +76,7 @@ class JavadocLocationProvider(pageRoot: RootPageNode, dokkaContext: DokkaContext
                 "${resolve(it, context, skipExtension = true)}.html#$anchor"
             }
             ?: getExternalLocation(dri, sourceSets)
-    }
+
 
     private fun JavadocFunctionNode.getAnchor(): String =
         "$name(${parameters.joinToString(",") {
@@ -89,18 +89,20 @@ class JavadocLocationProvider(pageRoot: RootPageNode, dokkaContext: DokkaContext
                 is JavaObject -> "Object"
                 else -> bound.toString()
             }
-        }})"
+        })"
 
     fun anchorForFunctionNode(node: JavadocFunctionNode) = node.getAnchor()
 
     private fun anchorForDri(dri: DRI): String =
         dri.callable?.let { callable ->
-            "${callable.name}(${callable.params.joinToString(",") {
-                ((it as? Nullable)?.wrapped ?: it).toString()
-            }})"
+            "${callable.name}(${
+                callable.params.joinToString(",") {
+                    ((it as? Nullable)?.wrapped ?: it).toString()
+                }
+            })"
         } ?: dri.classNames.orEmpty()
 
-    override fun resolve(node: PageNode, context: PageNode?, skipExtension: Boolean): String =
+    override fun resolve(node: PageNode, context: PageNode?, skipExtension: Boolean) =
         pathIndex[node]?.relativeTo(pathIndex[context].orEmpty())?.let {
             if (skipExtension) it.removeSuffix(".html") else it
         } ?: run {

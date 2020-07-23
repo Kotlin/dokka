@@ -48,10 +48,10 @@ open class DefaultLocationProvider(
         pageGraphRoot.children.forEach { registerPath(it, emptyList()) }
     }
 
-    override fun resolve(node: PageNode, context: PageNode?, skipExtension: Boolean): String =
+    override fun resolve(node: PageNode, context: PageNode?, skipExtension: Boolean) =
         pathTo(node, context) + if (!skipExtension) extension else ""
 
-    override fun resolve(dri: DRI, sourceSets: Set<DisplaySourceSet>, context: PageNode?): String =
+    override fun resolve(dri: DRI, sourceSets: Set<DisplaySourceSet>, context: PageNode?) =
         pagesIndex[dri]?.let { resolve(it, context) }
             ?: anchorsIndex[dri]?.let { resolve(it, context) + "#$dri" }
         // Not found in PageGraph, that means it's an external link

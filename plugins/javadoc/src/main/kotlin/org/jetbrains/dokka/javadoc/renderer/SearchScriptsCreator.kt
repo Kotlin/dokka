@@ -103,7 +103,7 @@ class SearchScriptsCreator(private val locationProvider: JavadocLocationProvider
                     packageName = it.first.name,
                     classlikeName = it.second.name,
                     input = function,
-                    url = locationProvider.resolve(function.dri, it.first.sourceSets())
+                    url = locationProvider.resolve(function.dri, it.first.sourceSets())!!
                 )
             }
         }
@@ -114,7 +114,7 @@ class SearchScriptsCreator(private val locationProvider: JavadocLocationProvider
                     packageName = it.first.name,
                     classlikeName = it.second.name,
                     property,
-                    locationProvider.resolve(property.dri, it.first.sourceSets())
+                    locationProvider.resolve(property.dri, it.first.sourceSets())!!
                 )
             }
         }
@@ -125,7 +125,7 @@ class SearchScriptsCreator(private val locationProvider: JavadocLocationProvider
                     packageName = it.first.name,
                     classlikeName = it.second.name,
                     entry,
-                    locationProvider.resolve(entry.dri, it.first.sourceSets())
+                    locationProvider.resolve(entry.dri, it.first.sourceSets())!!
                 )
             }
         }
@@ -185,7 +185,7 @@ class SearchScriptsCreator(private val locationProvider: JavadocLocationProvider
         sourceSets: Set<DisplaySourceSet>,
         label: String
     ): String =
-        locationProvider.resolve(dri, sourceSets).formatToEndWithHtml() + "#" + label
+        locationProvider.resolve(dri, sourceSets)!!.formatToEndWithHtml() + "#" + label
 }
 
 private data class SearchRecord(
