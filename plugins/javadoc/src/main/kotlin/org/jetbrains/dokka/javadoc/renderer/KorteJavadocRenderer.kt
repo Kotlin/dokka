@@ -148,7 +148,7 @@ class KorteJavadocRenderer(private val outputWriter: OutputWriter, val context: 
                                 " implements " + it.joinToString(", ") { n ->
                                     listOfNotNull(
                                         n.packageName,
-                                        buildLink(n.toLink(), n.classNames.orEmpty())
+                                        n.toLink()?.let{ buildLink(it, n.classNames.orEmpty()) } ?: n
                                     ).joinToString(".")
                                 }
                             }.orEmpty()

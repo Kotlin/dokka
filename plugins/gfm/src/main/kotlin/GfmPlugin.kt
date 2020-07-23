@@ -318,12 +318,12 @@ open class CommonmarkRenderer(
         get() = this !is RendererSpecificPage || strategy != RenderingStrategy.DoNothing
 
     private fun StringBuilder.buildLink(to: PageNode, from: PageNode) =
-        buildLink(locationProvider.resolve(to, from)) {
+        buildLink(locationProvider.resolve(to, from)!!) {
             append(to.name)
         }
 
     override suspend fun renderPage(page: PageNode) {
-        val path by lazy { locationProvider.resolve(page, skipExtension = true) }
+        val path by lazy { locationProvider.resolve(page, skipExtension = true)!! }
         when (page) {
             is ContentPage -> outputWriter.write(path, buildPage(page) { c, p -> buildPageContent(c, p) }, ".md")
             is RendererSpecificPage -> when (val strategy = page.strategy) {

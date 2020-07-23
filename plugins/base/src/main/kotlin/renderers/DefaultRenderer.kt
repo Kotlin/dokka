@@ -66,7 +66,7 @@ abstract class DefaultRenderer<T>(
     open fun T.wrapGroup(node: ContentGroup, pageContext: ContentPage, childrenCallback: T.() -> Unit) =
         childrenCallback()
 
-    open fun T.buildLinkText(
+    open fun T.buildText(
         nodes: List<ContentNode>,
         pageContext: ContentPage,
         sourceSetRestriction: Set<DisplaySourceSet>? = null
@@ -109,11 +109,13 @@ abstract class DefaultRenderer<T>(
                 is ContentCodeBlock -> buildCodeBlock(node, pageContext)
                 is ContentCodeInline -> buildCodeInline(node, pageContext)
                 is ContentDRILink ->
-                    buildLink(locationProvider.resolve(node.address, node.sourceSets, pageContext)) {
-                        buildLinkText(node.children, pageContext, sourceSetRestriction)
-                    }
+                    locationProvider.resolve(node.address, node.sourceSets, pageContext)?.let { address ->
+                        buildLink(address) {
+                            buildText(node.children, pageContext, sourceSetRestriction)
+                        }
+                    } ?: buildText(node.children, pageContext, sourceSetRestriction)
                 is ContentResolvedLink -> buildLink(node.address) {
-                    buildLinkText(node.children, pageContext, sourceSetRestriction)
+                    buildText(node.children, pageContext, sourceSetRestriction)
                 }
                 is ContentEmbeddedResource -> buildResource(node, pageContext)
                 is ContentList -> buildList(node, pageContext, sourceSetRestriction)
@@ -140,7 +142,7 @@ abstract class DefaultRenderer<T>(
     }
 
     open suspend fun renderPage(page: PageNode) {
-        val path by lazy { locationProvider.resolve(page, skipExtension = true) }
+        val path by lazy { locationProvider.resolve(page, skipExtension = true)!! }
         when (page) {
             is ContentPage -> outputWriter.write(path, buildPage(page) { c, p -> buildPageContent(c, p) }, ".html")
             is RendererSpecificPage -> when (val strategy = page.strategy) {

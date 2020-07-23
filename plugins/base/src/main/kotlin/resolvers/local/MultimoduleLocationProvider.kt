@@ -14,12 +14,12 @@ class MultimoduleLocationProvider(private val root: RootPageNode, context: Dokka
         it.name to it.path
     }.toMap()
 
-    override fun resolve(dri: DRI, sourceSets: Set<DisplaySourceSet>, context: PageNode?): String =
+    override fun resolve(dri: DRI, sourceSets: Set<DisplaySourceSet>, context: PageNode?) =
         dri.takeIf { it.packageName == MULTIMODULE_PACKAGE_PLACEHOLDER }?.classNames?.let { paths[it] }?.let {
             "$it/${identifierToFilename(dri.classNames.orEmpty())}/index.html"
         } ?: defaultLocationProvider.resolve(dri, sourceSets, context)
 
-    override fun resolve(node: PageNode, context: PageNode?, skipExtension: Boolean): String =
+    override fun resolve(node: PageNode, context: PageNode?, skipExtension: Boolean) =
         defaultLocationProvider.resolve(node, context, skipExtension)
 
     override fun resolveRoot(node: PageNode): String = defaultLocationProvider.resolveRoot(node)

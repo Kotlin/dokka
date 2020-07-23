@@ -28,7 +28,8 @@ class PackageListService(val context: DokkaContext) {
             val contentPage = node.safeAs<ContentPage>()
             contentPage?.dri?.forEach {
                 if (parentDris.isNotEmpty() && it.parent !in parentDris) {
-                    nonStandardLocations[it.toString()] = locationProvider.resolve(node)
+                    locationProvider.resolve(node)
+                        ?.let { nodeLocation -> nonStandardLocations[it.toString()] = nodeLocation }
                 }
             }
 
