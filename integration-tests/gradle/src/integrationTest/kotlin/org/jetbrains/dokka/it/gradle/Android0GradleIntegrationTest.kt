@@ -73,5 +73,12 @@ class Android0GradleIntegrationTest(override val versions: BuildVersions) : Abst
                 "https://developer.android.com/reference/android/content/Context.html" in file.readText()
             }, "Expected link to developer.android.com"
         )
+
+        assertTrue(
+            htmlOutputDir.allHtmlFiles().any { file ->
+                "https://developer.android.com/reference/kotlin/androidx/appcompat/app/AppCompatActivity.html" in
+                        file.readText()
+            }, "Expected link to developer.android.com/.../androidx/"
+        )
     }
 }
