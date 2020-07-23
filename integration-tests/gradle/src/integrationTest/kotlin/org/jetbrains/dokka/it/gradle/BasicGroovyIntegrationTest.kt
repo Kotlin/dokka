@@ -16,7 +16,7 @@ class BasicGroovyIntegrationTest(override val versions: BuildVersions) : Abstrac
         @get:Parameterized.Parameters(name = "{0}")
         val versions = BuildVersions.permutations(
             gradleVersions = listOf("6.5.1", "5.6.4"),
-            kotlinVersions = listOf("1.4-M3")
+            kotlinVersions = listOf("1.4.0-rc")
         )
     }
 
