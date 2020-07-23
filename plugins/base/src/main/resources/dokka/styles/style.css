@@ -829,6 +829,13 @@ td.content {
 
 .platform-hinted > .content:not([data-active]),
 .tabs-section-body > *:not([data-active]) {
+    display: none;
+}
+
+/*Work around an issue: https://github.com/JetBrains/kotlin-playground/issues/91*/
+.platform-hinted[data-togglable="Samples"] > .content:not([data-active]),
+.tabs-section-body > *[data-togglable="Samples"]:not([data-active]) {
+    display: block !important;
     visibility: hidden;
     height: 0;
     position: fixed;
