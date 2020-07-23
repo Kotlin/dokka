@@ -301,17 +301,16 @@ code.paragraph {
 }
 
 .sideMenuPart > .overview {
-    height: 40px;
     display: flex;
     align-items: center;
     position: relative;
     user-select: none; /* there's a weird bug with text selection */
+    padding: 8px 0;
 }
 
 .sideMenuPart a {
-    display: flex;
+    display: block;
     align-items: center;
-    flex: 1;
     height: 100%;
     color: #637282;
     overflow: hidden;
@@ -454,6 +453,7 @@ h1.cover {
 
     margin-bottom: 0;
     padding-bottom: 32px;
+    display: block;
 }
 
 h2 {
