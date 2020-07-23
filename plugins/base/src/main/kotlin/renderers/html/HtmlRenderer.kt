@@ -522,7 +522,7 @@ open class HtmlRenderer(
         }
 
     private fun FlowContent.buildLink(to: PageNode, from: PageNode) =
-        buildLink(locationProvider.resolve(to, from)) {
+        buildLink(locationProvider.resolve(to, from)!!) {
             text(to.name)
         }
 
@@ -550,7 +550,7 @@ open class HtmlRenderer(
         platforms: List<DisplaySourceSet>,
         from: PageNode? = null,
         block: FlowContent.() -> Unit
-    ) = buildLink(locationProvider.resolve(to, platforms.toSet(), from), block)
+    ) = buildLink(locationProvider.resolve(to, platforms.toSet(), from).orEmpty(), block)
 
     override fun buildError(node: ContentNode) {
         context.logger.error("Unknown ContentNode type: $node")
