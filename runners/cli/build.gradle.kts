@@ -7,7 +7,15 @@ plugins {
 }
 
 repositories {
-    maven(url = "https://dl.bintray.com/kotlin/kotlinx")
+    val use_redirector_enabled = System.getenv("TEAMCITY_VERSION") != null || run {
+        val cache_redirector_enabled: String? by project
+        cache_redirector_enabled == "true"
+    }
+    if (use_redirector_enabled) {
+        maven(url = "https://cache-redirector.jetbrains.com/dl.bintray.com/kotlin/kotlinx")
+    } else {
+        maven(url = "https://dl.bintray.com/kotlin/kotlinx")
+    }
 }
 
 dependencies {

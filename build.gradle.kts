@@ -32,8 +32,20 @@ allprojects {
     repositories {
         jcenter()
         mavenCentral()
-        maven(url = "https://dl.bintray.com/kotlin/kotlin-eap")
-        maven(url = "https://dl.bintray.com/kotlin/kotlin-dev")
+
+        val use_redirector_enabled = System.getenv("TEAMCITY_VERSION") != null || run {
+            val cache_redirector_enabled: String? by project
+            cache_redirector_enabled == "true"
+        }
+
+        if (use_redirector_enabled) {
+            logger.info("CACHE REDIRECTOR ENABLED")
+            maven("https://cache-redirector.jetbrains.com/dl.bintray.com/kotlin/kotlin-eap/")
+            maven("https://cache-redirector.jetbrains.com/dl.bintray.com/kotlin/kotlin-dev/")
+        } else {
+            maven("https://dl.bintray.com/kotlin/kotlin-eap/")
+            maven("https://dl.bintray.com/kotlin/kotlin-dev/")
+        }
     }
 }
 
