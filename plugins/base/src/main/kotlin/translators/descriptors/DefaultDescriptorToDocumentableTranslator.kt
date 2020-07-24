@@ -369,13 +369,14 @@ private class DokkaDescriptorVisitor(
     }
 
     override fun visitConstructorDescriptor(descriptor: ConstructorDescriptor, parent: DRIWithPlatformInfo): DFunction {
-        val dri = parent.dri.copy(callable = Callable.from(descriptor))
+        val name = descriptor.constructedClass.name.toString()
+        val dri = parent.dri.copy(callable = Callable.from(descriptor, name))
         val actual = descriptor.createSources()
         val isExpect = descriptor.isExpect
 
         return DFunction(
             dri = dri,
-            name = descriptor.constructedClass.name.toString(),
+            name = name,
             isConstructor = true,
             receiver = descriptor.extensionReceiverParameter?.let {
                 visitReceiverParameterDescriptor(it, DRIWithPlatformInfo(dri, actual))
