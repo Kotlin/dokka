@@ -7,9 +7,9 @@ import org.jetbrains.dokka.links.JavaClassReference
 import org.jetbrains.dokka.links.TypeReference
 import org.jetbrains.kotlin.descriptors.CallableDescriptor
 
-fun Callable.Companion.from(descriptor: CallableDescriptor) = with(descriptor) {
+fun Callable.Companion.from(descriptor: CallableDescriptor, name: String? = null) = with(descriptor) {
     Callable(
-        name.asString(),
+        name ?: descriptor.name.asString(),
         extensionReceiverParameter?.let { TypeReference.from(it) },
         valueParameters.mapNotNull { TypeReference.from(it) }
     )
