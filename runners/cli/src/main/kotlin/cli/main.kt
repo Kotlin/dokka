@@ -306,10 +306,17 @@ object ArgTypeHelpSourceSet : ArgType<Any>(false) {
 
 fun defaultLinks(config: DokkaConfiguration.DokkaSourceSet): MutableList<ExternalDocumentationLink> =
     mutableListOf<ExternalDocumentationLink>().apply {
-        if (!config.noJdkLink)
+        if (!config.noJdkLink) {
+            val javadocLink =
+                if (config.jdkVersion < 11) "https://docs.oracle.com/javase/${config.jdkVersion}/docs/api/"
+                else "https://docs.oracle.com/en/java/javase/${config.jdkVersion}/docs/api/java.base/"
+            val packageListLink =
+                if (config.jdkVersion < 11) "${javadocLink}/package-list"
+                else "https://docs.oracle.com/en/java/javase/${config.jdkVersion}/docs/api/element-list"
             this += DokkaConfiguration.ExternalDocumentationLink
-                .Builder("https://docs.oracle.com/javase/${config.jdkVersion}/docs/api/")
+                .Builder(javadocLink, packageListLink)
                 .build()
+        }
 
         if (!config.noStdlibLink)
             this += ExternalDocumentationLink
