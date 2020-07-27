@@ -93,7 +93,7 @@ internal class JavadocClasslikeTemplateMapTest : AbstractJavadocTemplateMapTest(
                 0, assertIsInstance<List<*>>(method["parameters"]).size,
                 "Expected no parameters"
             )
-            assertEquals("final <a href=.html>String</a>", method.modifiers())
+            assertEquals("final String", method.modifiers())
             assertEquals("<a href=TestClass.html#testFunction()>testFunction</a>()", method.signatureWithoutModifiers())
         }
     }
@@ -257,19 +257,19 @@ internal class JavadocClasslikeTemplateMapTest : AbstractJavadocTemplateMapTest(
             assertParameterNode(
                 node = first,
                 expectedName = "simple",
-                expectedType = "<a href=.html>String</a>",
+                expectedType = "String",
                 expectedDescription = "simple String parameter"
             )
             assertParameterNode(
                 node = second,
                 expectedName = "parameters",
-                expectedType = "<a href=.html>Integer</a>",
+                expectedType = "Integer",
                 expectedDescription = "simple Integer parameter"
             )
             assertParameterNode(
                 node = third,
                 expectedName = "list",
-                expectedType = "<a href=.html>Boolean</a>",
+                expectedType = "Boolean",
                 expectedDescription = "simple Boolean parameter"
             )
         }
@@ -305,7 +305,7 @@ internal class JavadocClasslikeTemplateMapTest : AbstractJavadocTemplateMapTest(
             assertEquals("Generic", map["name"])
 
             assertEquals(
-                "public final class <a href=Generic.html>Generic</a>&lt;T extends <a href=.html>Serializable</a>&gt;",
+                "public final class <a href=Generic.html>Generic</a>&lt;T extends Serializable&gt;",
                 map.signatureWithModifiers()
             )
             val methods = assertIsInstance<Map<Any, Any?>>(map["methods"])
