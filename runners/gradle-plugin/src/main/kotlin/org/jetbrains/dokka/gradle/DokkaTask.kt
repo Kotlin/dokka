@@ -175,11 +175,13 @@ open class DokkaTask : AbstractDokkaTask() {
                 No source sets to document found. 
                 Make source to configure at least one source set e.g.
                 
-                dokka {
-                    dokkaSourceSets {
-                        create("commonMain") {
-                            displayName = "common"
-                            platform = "common"
+                tasks { 
+                    dokkaHtml {
+                        dokkaSourceSets {
+                            register("commonMain") {
+                                displayName = "common"
+                                platform = "common"
+                            }
                         }
                     }
                 }
