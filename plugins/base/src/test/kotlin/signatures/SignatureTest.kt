@@ -8,6 +8,15 @@ import org.junit.jupiter.api.Test
 import utils.*
 
 class SignatureTest : AbstractCoreTest() {
+    private val configuration = dokkaConfiguration {
+        sourceSets {
+            sourceSet {
+                sourceRoots = listOf("src/main/kotlin/test/Test.kt")
+                classpath = listOf(commonStdlibPath!!)
+                externalDocumentationLinks = listOf(stdlibExternalDocumentationLink)
+            }
+        }
+    }
 
     fun source(signature: String) =
         """
@@ -19,15 +28,6 @@ class SignatureTest : AbstractCoreTest() {
 
     @Test
     fun `fun`() {
-
-        val configuration = dokkaConfiguration {
-            sourceSets {
-                sourceSet {
-                    sourceRoots = listOf("src/main/kotlin/test/Test.kt")
-                }
-            }
-        }
-
         val source = source("fun simpleFun(): String = \"Celebrimbor\"")
         val writerPlugin = TestOutputWriterPlugin()
 
@@ -46,15 +46,6 @@ class SignatureTest : AbstractCoreTest() {
 
     @Test
     fun `open fun`() {
-
-        val configuration = dokkaConfiguration {
-            sourceSets {
-                sourceSet {
-                    sourceRoots = listOf("src/main/kotlin/test/Test.kt")
-                }
-            }
-        }
-
         val source = source("open fun simpleFun(): String = \"Celebrimbor\"")
         val writerPlugin = TestOutputWriterPlugin()
 
@@ -73,15 +64,6 @@ class SignatureTest : AbstractCoreTest() {
 
     @Test
     fun `open suspend fun`() {
-
-        val configuration = dokkaConfiguration {
-            sourceSets {
-                sourceSet {
-                    sourceRoots = listOf("src/main/kotlin/test/Test.kt")
-                }
-            }
-        }
-
         val source = source("open suspend fun simpleFun(): String = \"Celebrimbor\"")
         val writerPlugin = TestOutputWriterPlugin()
 
@@ -100,15 +82,6 @@ class SignatureTest : AbstractCoreTest() {
 
     @Test
     fun `fun with params`() {
-
-        val configuration = dokkaConfiguration {
-            sourceSets {
-                sourceSet {
-                    sourceRoots = listOf("src/main/kotlin/test/Test.kt")
-                }
-            }
-        }
-
         val source = source("fun simpleFun(a: Int, b: Boolean, c: Any): String = \"Celebrimbor\"")
         val writerPlugin = TestOutputWriterPlugin()
 
@@ -129,15 +102,6 @@ class SignatureTest : AbstractCoreTest() {
 
     @Test
     fun `fun with function param`() {
-
-        val configuration = dokkaConfiguration {
-            sourceSets {
-                sourceSet {
-                    sourceRoots = listOf("src/main/kotlin/test/Test.kt")
-                }
-            }
-        }
-
         val source = source("fun simpleFun(a: (Int) -> String): String = \"Celebrimbor\"")
         val writerPlugin = TestOutputWriterPlugin()
 
@@ -157,15 +121,6 @@ class SignatureTest : AbstractCoreTest() {
 
     @Test
     fun `fun with generic param`() {
-
-        val configuration = dokkaConfiguration {
-            sourceSets {
-                sourceSet {
-                    sourceRoots = listOf("src/main/kotlin/test/Test.kt")
-                }
-            }
-        }
-
         val source = source("fun <T> simpleFun(): T = \"Celebrimbor\" as T")
         val writerPlugin = TestOutputWriterPlugin()
 
@@ -185,15 +140,6 @@ class SignatureTest : AbstractCoreTest() {
 
     @Test
     fun `fun with generic bounded param`() {
-
-        val configuration = dokkaConfiguration {
-            sourceSets {
-                sourceSet {
-                    sourceRoots = listOf("src/main/kotlin/test/Test.kt")
-                }
-            }
-        }
-
         val source = source("fun <T : String> simpleFun(): T = \"Celebrimbor\" as T")
         val writerPlugin = TestOutputWriterPlugin()
 
@@ -213,15 +159,6 @@ class SignatureTest : AbstractCoreTest() {
 
     @Test
     fun `fun with keywords, params and generic bound`() {
-
-        val configuration = dokkaConfiguration {
-            sourceSets {
-                sourceSet {
-                    sourceRoots = listOf("src/main/kotlin/test/Test.kt")
-                }
-            }
-        }
-
         val source = source("inline suspend fun <T : String> simpleFun(a: Int, b: String): T = \"Celebrimbor\" as T")
         val writerPlugin = TestOutputWriterPlugin()
 
@@ -296,15 +233,6 @@ class SignatureTest : AbstractCoreTest() {
 
     @Test
     fun `fun with annotation`() {
-
-        val configuration = dokkaConfiguration {
-            sourceSets {
-                sourceSet {
-                    sourceRoots = listOf("src/main/kotlin/test/Test.kt")
-                }
-            }
-        }
-
         val source = """
             |/src/main/kotlin/test/Test.kt
             |package example
@@ -337,15 +265,6 @@ class SignatureTest : AbstractCoreTest() {
 
     @Test
     fun `fun with two annotations`() {
-
-        val configuration = dokkaConfiguration {
-            sourceSets {
-                sourceSet {
-                    sourceRoots = listOf("src/main/kotlin/test/Test.kt")
-                }
-            }
-        }
-
         val source = """
             |/src/main/kotlin/test/Test.kt
             |package example
@@ -386,15 +305,6 @@ class SignatureTest : AbstractCoreTest() {
 
     @Test
     fun `fun with annotation with array`() {
-
-        val configuration = dokkaConfiguration {
-            sourceSets {
-                sourceSet {
-                    sourceRoots = listOf("src/main/kotlin/test/Test.kt")
-                }
-            }
-        }
-
         val source = """
             |/src/main/kotlin/test/Test.kt
             |package example
