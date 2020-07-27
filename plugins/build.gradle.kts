@@ -1,3 +1,5 @@
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+
 subprojects {
     apply {
         plugin("maven-publish")
@@ -17,7 +19,8 @@ subprojects {
     tasks.test {
         useJUnitPlatform()
         testLogging {
-            events("passed", "skipped", "failed")
+            exceptionFormat = TestExceptionFormat.FULL
+            events( "skipped", "failed")
         }
     }
 }
