@@ -1,11 +1,11 @@
 allprojects {
     repositories {
-        maven("https://dl.bintray.com/kotlin/kotlin-eap/")
-        maven("https://dl.bintray.com/kotlin/kotlin-dev/")
         jcenter()
         mavenLocal()
         mavenCentral()
         google()
+        maven("https://dl.bintray.com/kotlin/kotlin-eap/")
+        maven("https://dl.bintray.com/kotlin/kotlin-dev/")
     }
 }
 

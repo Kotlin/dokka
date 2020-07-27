@@ -32,10 +32,16 @@ pluginManagement {
     }
 
     repositories {
-        maven("https://dl.bintray.com/kotlin/kotlin-eap/")
-        maven("https://dl.bintray.com/kotlin/kotlin-dev/")
         mavenCentral()
         jcenter()
         gradlePluginPortal()
+    }
+
+    resolutionStrategy {
+        eachPlugin {
+            if (requested.id.id == "org.jetbrains.kotlin.jvm") {
+                useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlin_version}")
+            }
+        }
     }
 }
