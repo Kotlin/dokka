@@ -3,8 +3,6 @@ export type Page = {
     kind: string;
     location: string;
     searchKey: string;
-    level: number;
-    index: string;
     description: string;
     disabled: boolean;
 }

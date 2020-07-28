@@ -26,7 +26,7 @@
     "@babel/core": "^7.8.3",
     "@jetbrains/babel-preset-jetbrains": "^2.1.4",
     "@jetbrains/logos": "1.1.5",
-    "@jetbrains/ring-ui": "2.1.16",
+    "@jetbrains/ring-ui": "3.0.47",
     "@types/node": "^12.12.36",
     "@types/react": "^16.9.0",
     "@types/react-dom": "^16.9.0",
