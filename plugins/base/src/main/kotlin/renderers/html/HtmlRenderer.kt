@@ -633,21 +633,11 @@ open class HtmlRenderer(
             .filter { !it.key.isNullOrEmpty() }
             .groupBy { it.key.substringAfterLast(".") }
             .entries
-            .mapIndexed { topLevelIndex, entry ->
-                if (entry.value.size > 1) {
-                    listOf(
-                        "{\'name\': \'${entry.key}\', \'index\': \'$topLevelIndex\', \'disabled\': true, \'searchKey\':\'${entry.key}\' }"
-                    ) + entry.value.mapIndexed { index, subentry ->
-                        "{\'name\': \'${subentry.value.first}\', \'level\': 1, \'index\': \'$topLevelIndex.$index\', \'description\':\'${subentry.key}\', \'location\':\'${subentry.value.second}\', 'searchKey':'${entry.key}'}"
-                    }
-                } else {
-                    val subentry = entry.value.single()
-                    listOf(
-                        "{\'name\': \'${subentry.value.first}\', \'index\': \'$topLevelIndex\', \'description\':\'${subentry.key}\', \'location\':\'${subentry.value.second}\', 'searchKey':'${entry.key}'}"
-                    )
+            .flatMapIndexed { topLevelIndex, entry ->
+                entry.value.mapIndexed { index, subentry ->
+                    "{\'name\': \'${subentry.value.first}\', \'description\':\'${subentry.key}\', \'location\':\'${subentry.value.second}\', 'searchKey':'${entry.key}'}"
                 }
             }
-            .flatten()
             .joinToString(prefix = "[", separator = ",\n", postfix = "]")
 
     override fun render(root: RootPageNode) {

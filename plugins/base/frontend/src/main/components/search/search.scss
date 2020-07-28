@@ -25,6 +25,10 @@
 .template-wrapper {
   display: grid;
   grid-template-columns: auto auto;
+
+  span.phraseHighlight {
+    font-weight: bold;
+  }
 }
 
 .template-name {
