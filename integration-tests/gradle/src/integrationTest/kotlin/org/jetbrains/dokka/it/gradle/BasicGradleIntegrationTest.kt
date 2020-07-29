@@ -78,6 +78,7 @@ class BasicGradleIntegrationTest(override val versions: BuildVersions) : Abstrac
             assertNoUnresolvedLinks(file)
             assertNoHrefToMissingLocalFileOrDirectory(file)
             assertNoSuppressedMarker(file)
+            assertNoEmptyLinks(file)
         }
 
         assertTrue(

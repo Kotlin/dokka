@@ -33,8 +33,17 @@ abstract class AbstractIntegrationTest {
         )
     }
 
-    protected fun assertNoUnresolvedLinks(file: File) {
+    protected fun assertNoEmptyLinks(file: File) {
         val regex = Regex("[\"']#[\"']")
+        val fileText = file.readText()
+        assertFalse(
+            fileText.contains(regex),
+            "Unexpected empty link in ${file.path}\n" + fileText
+        )
+    }
+
+    protected fun assertNoUnresolvedLinks(file: File) {
+        val regex = Regex("data-unresolved-link")
         val fileText = file.readText()
         assertFalse(
             fileText.contains(regex),
