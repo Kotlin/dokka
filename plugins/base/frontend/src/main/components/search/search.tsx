@@ -5,9 +5,14 @@ import '@jetbrains/ring-ui/components/input-size/input-size.scss';
 import './search.scss';
 import {IWindow, Option, Props, Page} from "./types";
 
+enum SearchRank {
+    SearchKeyMatch = 1,
+    NameMatch = 0
+}
 type OptionWithSearchResult = Option & {
     matched: boolean,
-    highlight: string
+    highlight: string,
+    rank: SearchRank
 }
 
 type OptionWithHighlightComponent = Option & {
@@ -15,17 +20,21 @@ type OptionWithHighlightComponent = Option & {
 }
 
 type SearchProps = {
-    page: Option,
-    label: string
+    searchResult: OptionWithSearchResult,
 }
 
 const orderRecords = (records: OptionWithSearchResult[], searchPhrase: string): OptionWithSearchResult[] => {
     return records.sort((a: OptionWithSearchResult, b: OptionWithSearchResult) => {
+        //Prefer higher rank
+        const byRank = b.rank - a.rank
+        if(byRank !== 0){
+            return byRank
+        }
         //Prefer exact matches
         const aIncludes = a.name.toLowerCase().includes(searchPhrase.toLowerCase()) ? 1 : 0
         const bIncludes = b.name.toLowerCase().includes(searchPhrase.toLowerCase()) ? 1 : 0
         const byIncludes = bIncludes - aIncludes
-        if(byIncludes != 0 && aIncludes == 1){
+        if(byIncludes != 0){
             return byIncludes
         }
 
@@ -38,15 +47,24 @@ const orderRecords = (records: OptionWithSearchResult[], searchPhrase: string): 
     })
 }
 
-const SearchResultRow: React.FC<SearchProps> = ({label, page}: SearchProps) => {
-    const withSignature = page.name.replace(page.searchKey, label)
+const SearchResultRow: React.FC<SearchProps> = ({searchResult}: SearchProps) => {
+    const signatureFromSearchResult = (searchResult: OptionWithSearchResult): string => {
+        if(searchResult.rank == SearchRank.SearchKeyMatch){
+            return searchResult.name.replace(searchResult.searchKey, searchResult.highlight)
+        }
+        return searchResult.highlight
+    }
+
+    const renderHighlightMarkersAsHtml = (record: string): string => {
+        return record.replace(/\*\*(.*?)\*\*/g, '<span class="phraseHighlight">$1</span>')
+    }
 
     return (
         <div className="template-wrapper">
             <span dangerouslySetInnerHTML={
-                {__html: withSignature.replace(/\*\*(.*?)\*\*/g, '<span class="phraseHighlight">$1</span>') }
+                {__html: renderHighlightMarkersAsHtml(signatureFromSearchResult(searchResult)) }
             }/>
-            <span className="template-description">{page.description}</span>
+            <span className="template-description">{searchResult.description}</span>
         </div>
     )
 }
@@ -56,7 +74,7 @@ const highlightMatchedPhrases = (records: OptionWithSearchResult[]): OptionWithH
     return records.map(record => {
         return {
             ...record,
-            template: <SearchResultRow label={record.highlight} page={record}/>
+            template: <SearchResultRow searchResult={record}/>
         }
     })
 }
@@ -65,9 +83,18 @@ class DokkaFuzzyFilterComponent extends Select {
     getListItems(rawFilterString: string, _: Option[]) {
         const matchedRecords = this.props.data
             .map((record: Option) => {
+                const bySearchKey = fuzzyHighlight(rawFilterString.trim(), record.searchKey, true)
+                if(bySearchKey.matched){
+                    return {
+                        ...bySearchKey,
+                        ...record,
+                        rank: SearchRank.SearchKeyMatch
+                    }
+                }
                 return {
-                    ...fuzzyHighlight(rawFilterString.trim(), record.searchKey),
-                    ...record
+                    ...fuzzyHighlight(rawFilterString.trim(), record.name),
+                    ...record,
+                    rank: SearchRank.NameMatch
                 }
             })
             .filter((record: OptionWithSearchResult) => record.matched)
