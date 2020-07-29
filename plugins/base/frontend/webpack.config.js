@@ -16,7 +16,7 @@ const webpackConfig = () => ({
   entry: `${componentsPath}/root.tsx`,
   resolve: {
     mainFields: ['module', 'browser', 'main'],
-    extensions: ['.tsx', '.ts', '.js'],
+    extensions: ['.tsx', '.ts', '.js', '.svg'],
     alias: {
       react: resolve('./node_modules/react'),
       'react-dom': resolve('./node_modules/react-dom'),
