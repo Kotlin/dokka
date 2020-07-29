@@ -20,6 +20,7 @@ import org.jetbrains.dokka.plugability.query
 import org.jetbrains.dokka.plugability.querySingle
 import java.io.File
 import java.net.URI
+import java.util.concurrent.ConcurrentHashMap
 
 open class HtmlRenderer(
     context: DokkaContext
@@ -33,7 +34,7 @@ open class HtmlRenderer(
         sourceSetDependencyMap.size > 1
     }
 
-    private val pageList = mutableMapOf<String, Pair<String, String>>()
+    private val pageList = ConcurrentHashMap<String, Pair<String, String>>()
 
     override val preprocessors = context.plugin<DokkaBase>().query { htmlPreprocessors }
 
