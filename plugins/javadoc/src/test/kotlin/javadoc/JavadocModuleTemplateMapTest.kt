@@ -5,7 +5,7 @@ import javadoc.pages.RowJavadocListEntry
 import org.jetbrains.dokka.links.DRI
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import testApi.utils.assertIsInstance
+import org.jetbrains.dokka.testApi.utils.assertIsInstance
 
 internal class JavadocModuleTemplateMapTest : AbstractJavadocTemplateMapTest() {
 
