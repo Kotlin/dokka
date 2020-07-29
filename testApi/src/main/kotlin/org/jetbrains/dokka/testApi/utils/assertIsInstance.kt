@@ -1,4 +1,4 @@
-package testApi.utils
+package org.jetbrains.dokka.testApi.utils
 
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
