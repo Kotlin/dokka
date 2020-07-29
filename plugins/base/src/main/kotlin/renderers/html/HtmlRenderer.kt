@@ -563,6 +563,20 @@ open class HtmlRenderer(
     override fun FlowContent.buildLink(address: String, content: FlowContent.() -> Unit) =
         a(href = address, block = content)
 
+
+    override fun FlowContent.buildDRILink(
+        node: ContentDRILink,
+        pageContext: ContentPage,
+        sourceSetRestriction: Set<DokkaSourceSet>?
+    ) = locationProvider.resolve(node.address, node.sourceSets, pageContext)?.let { address ->
+        buildLink(address) {
+            buildText(node.children, pageContext, sourceSetRestriction)
+        }
+    } ?: span {
+        attributes["data-unresolved-link"] = "true"
+        buildText(node.children, pageContext, sourceSetRestriction)
+    }
+
     override fun FlowContent.buildCodeBlock(
         code: ContentCodeBlock,
         pageContext: ContentPage
