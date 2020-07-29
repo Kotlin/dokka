@@ -108,15 +108,8 @@ abstract class DefaultRenderer<T>(
                 is ContentHeader -> buildHeader(node, pageContext, sourceSetRestriction)
                 is ContentCodeBlock -> buildCodeBlock(node, pageContext)
                 is ContentCodeInline -> buildCodeInline(node, pageContext)
-                is ContentDRILink ->
-                    locationProvider.resolve(node.address, node.sourceSets, pageContext)?.let { address ->
-                        buildLink(address) {
-                            buildText(node.children, pageContext, sourceSetRestriction)
-                        }
-                    } ?: buildText(node.children, pageContext, sourceSetRestriction)
-                is ContentResolvedLink -> buildLink(node.address) {
-                    buildText(node.children, pageContext, sourceSetRestriction)
-                }
+                is ContentDRILink -> buildDRILink(node, pageContext, sourceSetRestriction)
+                is ContentResolvedLink -> buildResolvedLink(node, pageContext, sourceSetRestriction)
                 is ContentEmbeddedResource -> buildResource(node, pageContext)
                 is ContentList -> buildList(node, pageContext, sourceSetRestriction)
                 is ContentTable -> buildTable(node, pageContext, sourceSetRestriction)
@@ -127,6 +120,28 @@ abstract class DefaultRenderer<T>(
                 is ContentDivergentInstance -> buildDivergentInstance(node, pageContext)
                 else -> buildError(node)
             }
+        }
+    }
+
+    open fun T.buildDRILink(
+        node: ContentDRILink,
+        pageContext: ContentPage,
+        sourceSetRestriction: Set<DokkaSourceSet>?
+    ) {
+        locationProvider.resolve(node.address, node.sourceSets, pageContext)?.let { address ->
+            buildLink(address) {
+                buildText(node.children, pageContext, sourceSetRestriction)
+            }
+        } ?: buildText(node.children, pageContext, sourceSetRestriction)
+    }
+
+    open fun T.buildResolvedLink(
+        node: ContentResolvedLink,
+        pageContext: ContentPage,
+        sourceSetRestriction: Set<DokkaSourceSet>?
+    ) {
+        buildLink(node.address) {
+            buildText(node.children, pageContext, sourceSetRestriction)
         }
     }
 
