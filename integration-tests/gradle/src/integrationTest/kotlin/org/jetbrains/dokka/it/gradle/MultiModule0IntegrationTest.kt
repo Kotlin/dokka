@@ -56,6 +56,7 @@ class MultiModule0IntegrationTest(override val versions: BuildVersions) : Abstra
             assertContainsNoErrorClass(file)
             assertNoUnresolvedLinks(file)
             assertNoHrefToMissingLocalFileOrDirectory(file)
+            assertNoEmptyLinks(file)
         }
 
         val modulesFile = File(outputDir, "-modules.html")
