@@ -84,6 +84,7 @@ class CliIntegrationTest : AbstractCliIntegrationTest() {
         projectDir.allHtmlFiles().forEach { file ->
             assertContainsNoErrorClass(file)
             assertNoUnresolvedLinks(file)
+            assertNoEmptyLinks(file)
         }
     }
 }
