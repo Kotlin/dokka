@@ -8,14 +8,13 @@ import org.jetbrains.dokka.model.SourceSetDependent
 import org.jetbrains.dokka.plugability.DokkaContext
 
 fun KotlinAnalysis(context: DokkaContext): KotlinAnalysis {
-    val environments = context.configuration.sourceSets
-        .associate { sourceSet ->
-            sourceSet to createEnvironmentAndFacade(
-                logger = context.logger,
-                configuration = context.configuration,
-                sourceSet = sourceSet
-            )
-        }
+    val environments = context.configuration.sourceSets.associateWith { sourceSet ->
+        createEnvironmentAndFacade(
+            logger = context.logger,
+            configuration = context.configuration,
+            sourceSet = sourceSet
+        )
+    }
 
     return KotlinAnalysisImpl(environments)
 }
