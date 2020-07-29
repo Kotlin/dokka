@@ -3,7 +3,7 @@ package javadoc
 import javadoc.pages.JavadocClasslikePageNode
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import testApi.utils.assertIsInstance
+import org.jetbrains.dokka.testApi.utils.assertIsInstance
 
 internal class JavadocClasslikeTemplateMapTest : AbstractJavadocTemplateMapTest() {
 
