@@ -46,6 +46,7 @@
     "@jetbrains/stylelint-config": "^2.0.0",
     "babel-eslint": "^10.0.3",
     "eslint": "^6.8.0",
+    "react-svg-loader": "^3.0.3",
     "sass": "^1.26.3",
     "sass-loader": "^8.0.2",
     "stylelint": "^13.3.2",

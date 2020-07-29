@@ -1,3 +1,5 @@
+import React from "react";
+
 export type Page = {
     name: string;
     kind: string;
@@ -23,7 +25,20 @@ export type Props = {
     data: Option[]
 };
 
+export enum SearchRank {
+    SearchKeyMatch = 1,
+    NameMatch = 0
+}
+export type OptionWithSearchResult = Option & {
+    matched: boolean,
+    highlight: string,
+    rank: SearchRank
+}
 
-export type State = {
-    selected: any
+export type OptionWithHighlightComponent = Option & {
+    name: React.FC<SearchProps>
+}
+
+export type SearchProps = {
+    searchResult: OptionWithSearchResult,
 }

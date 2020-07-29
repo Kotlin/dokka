@@ -1,0 +1,63 @@
+import {Select} from "@jetbrains/ring-ui";
+import {Option, OptionWithHighlightComponent, OptionWithSearchResult, SearchRank} from "./types";
+import fuzzyHighlight from '@jetbrains/ring-ui/components/global/fuzzy-highlight.js'
+import React from "react";
+import {SearchResultRow} from "./searchResultRow";
+
+const orderRecords = (records: OptionWithSearchResult[], searchPhrase: string): OptionWithSearchResult[] => {
+    return records.sort((a: OptionWithSearchResult, b: OptionWithSearchResult) => {
+        //Prefer higher rank
+        const byRank = b.rank - a.rank
+        if(byRank !== 0){
+            return byRank
+        }
+        //Prefer exact matches
+        const aIncludes = a.name.toLowerCase().includes(searchPhrase.toLowerCase()) ? 1 : 0
+        const bIncludes = b.name.toLowerCase().includes(searchPhrase.toLowerCase()) ? 1 : 0
+        const byIncludes = bIncludes - aIncludes
+        if(byIncludes != 0){
+            return byIncludes
+        }
+
+        //Prefer matches that are closer
+        const byFirstMatchedPosition = a.highlight.indexOf("**") - b.highlight.indexOf("**")
+        if(byFirstMatchedPosition == 0) {
+            return a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+        }
+        return byFirstMatchedPosition
+    })
+}
+
+const highlightMatchedPhrases = (records: OptionWithSearchResult[]): OptionWithHighlightComponent[] => {
+    // @ts-ignore
+    return records.map(record => {
+        return {
+            ...record,
+            template: <SearchResultRow searchResult={record}/>
+        }
+    })
+}
+
+export class DokkaFuzzyFilterComponent extends Select {
+    getListItems(rawFilterString: string, _: Option[]) {
+        const matchedRecords = this.props.data
+            .map((record: Option) => {
+                const bySearchKey = fuzzyHighlight(rawFilterString.trim(), record.searchKey, false)
+                if(bySearchKey.matched){
+                    return {
+                        ...bySearchKey,
+                        ...record,
+                        rank: SearchRank.SearchKeyMatch
+                    }
+                }
+                return {
+                    ...fuzzyHighlight(rawFilterString.trim(), record.name, false),
+                    ...record,
+                    rank: SearchRank.NameMatch
+                }
+            })
+            .filter((record: OptionWithSearchResult) => record.matched)
+
+        return highlightMatchedPhrases(orderRecords(matchedRecords, rawFilterString))
+    }
+}
