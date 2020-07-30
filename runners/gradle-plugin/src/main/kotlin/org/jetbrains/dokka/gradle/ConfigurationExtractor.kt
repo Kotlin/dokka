@@ -17,6 +17,8 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinCommonOptions
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinSingleTargetExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
+import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeCompilation
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
@@ -245,4 +247,8 @@ class ConfigurationExtractor(private val project: Project) {
         val sourceRoots: List<File>,
         val platform: String
     ) : Serializable
+
+    companion object {
+        private const val KOTLIN_NATIVE_HOME_PRIVATE_PROPERTY = "konanHome"
+    }
 }
