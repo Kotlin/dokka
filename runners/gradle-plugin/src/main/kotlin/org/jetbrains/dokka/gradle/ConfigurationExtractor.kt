@@ -14,6 +14,7 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinSingleTargetExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeCompilation
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.io.File
 import java.io.Serializable
@@ -161,12 +162,21 @@ class ConfigurationExtractor(private val project: Project) {
         .compileKotlinTask as? KotlinCompile)
         ?.classpath?.files?.toList() ?: getClasspathFromRegularTask(compilation)
 
-    private fun getClasspathFromRegularTask(compilation: KotlinCompilation<*>): List<File> =
-        compilation
-            .compileDependencyFiles
-            .files
-            .toList()
-            .filter { it.exists() }
+    private fun getClasspathFromRegularTask(compilation: KotlinCompilation<*>): List<File> {
+        // explicit dependencies of the compilation
+        val ownDependencyFiles: Set<File> = compilation.compileDependencyFiles.files
+
+        // the dependencies provided by the platform (e.g. Kotlin/Native platform libs)
+        val platformDependencyFiles: Set<File> = if (compilation is KotlinNativeCompilation) {
+            compilation.target.project.configurations
+                .findByName(compilation.defaultSourceSet.implementationMetadataConfigurationName)
+                ?.let { nativePlatformDependencyConfiguration ->
+                    nativePlatformDependencyConfiguration.files
+                } ?: emptySet()
+        } else emptySet()
+
+        return (ownDependencyFiles + platformDependencyFiles).toList().filter { it.exists() }
+    }
 
     data class PlatformData(
         val name: String?,
@@ -175,4 +185,8 @@ class ConfigurationExtractor(private val project: Project) {
         val dependentSourceSets: List<String>,
         val platform: String
     ) : Serializable
+
+    companion object {
+        private const val KOTLIN_NATIVE_HOME_PRIVATE_PROPERTY = "konanHome"
+    }
 }
