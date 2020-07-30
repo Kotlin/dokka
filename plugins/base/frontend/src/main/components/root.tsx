@@ -4,15 +4,24 @@ import RedBox from 'redbox-react';
 
 import App from "./app";
 import './app/index.scss';
+import { NavigationPaneSearch } from './navigationPaneSearch/navigationPaneSearch';
 
 const appEl = document.getElementById('searchBar');
 const rootEl = document.createElement('div');
+
+const renderNavigationPane = () => {
+  render(
+    <NavigationPaneSearch />,
+    document.getElementById('paneSearch')
+  )
+}
 
 let renderApp = () => {
   render(
       <App/>,
       rootEl
   );
+  renderNavigationPane();
 };
 
 // @ts-ignore

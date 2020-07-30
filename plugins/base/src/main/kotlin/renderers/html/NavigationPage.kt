@@ -38,7 +38,7 @@ class NavigationPage(val root: NavigationNode) : RendererSpecificPage {
         }
 }
 
-class NavigationNode(
+data class NavigationNode(
     val name: String,
     val dri: DRI,
     val sourceSets: Set<DisplaySourceSet>,

@@ -6,7 +6,6 @@ export type Page = {
     location: string;
     searchKey: string;
     description: string;
-    disabled: boolean;
 }
 
 export type Option = Page & {

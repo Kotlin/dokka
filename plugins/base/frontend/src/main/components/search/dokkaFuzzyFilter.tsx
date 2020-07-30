@@ -39,10 +39,20 @@ const highlightMatchedPhrases = (records: OptionWithSearchResult[]): OptionWithH
 }
 
 export class DokkaFuzzyFilterComponent extends Select {
+    componentDidUpdate(prevProps, prevState) {
+        super.componentDidUpdate(prevProps, prevState)
+        if(this.props.filter && this.state.filterValue != this.props.filter.value){
+            this.setState({
+                filterValue: this.props.filter.value,
+            })
+        }
+    }
+    
     getListItems(rawFilterString: string, _: Option[]) {
+        const filterPhrase = (rawFilterString ? rawFilterString : '').trim()
         const matchedRecords = this.props.data
             .map((record: Option) => {
-                const bySearchKey = fuzzyHighlight(rawFilterString.trim(), record.searchKey, false)
+                const bySearchKey = fuzzyHighlight(filterPhrase, record.searchKey, false)
                 if(bySearchKey.matched){
                     return {
                         ...bySearchKey,
@@ -51,13 +61,15 @@ export class DokkaFuzzyFilterComponent extends Select {
                     }
                 }
                 return {
-                    ...fuzzyHighlight(rawFilterString.trim(), record.name, false),
+                    ...fuzzyHighlight(filterPhrase, record.name, false),
                     ...record,
                     rank: SearchRank.NameMatch
                 }
             })
             .filter((record: OptionWithSearchResult) => record.matched)
 
-        return highlightMatchedPhrases(orderRecords(matchedRecords, rawFilterString))
+        this.props.onFilter(filterPhrase, matchedRecords)
+
+        return highlightMatchedPhrases(orderRecords(matchedRecords, filterPhrase))
     }
 }
