@@ -5,8 +5,6 @@ import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 import kotlin.collections.HashMap
 
-val preprocessors = listOf(ResourcesInstaller, TreeViewInstaller, AllClassesPageInstaller, IndexGenerator)
-
 object ResourcesInstaller : PageTransformer {
     override fun invoke(input: RootPageNode): RootPageNode = input.modified(
         children = input.children +
