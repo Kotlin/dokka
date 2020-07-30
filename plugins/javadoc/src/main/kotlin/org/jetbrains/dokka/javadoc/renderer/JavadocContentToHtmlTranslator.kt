@@ -1,6 +1,6 @@
 package org.jetbrains.dokka.javadoc.renderer
 
-import org.jetbrains.dokka.javadoc.location.JavadocLocationProvider
+import org.jetbrains.dokka.base.resolvers.local.LocationProvider
 import org.jetbrains.dokka.javadoc.pages.JavadocSignatureContentNode
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
@@ -8,7 +8,7 @@ import org.jetbrains.dokka.utilities.formatToEndWithHtml
 import org.jetbrains.dokka.utilities.htmlEscape
 
 internal class JavadocContentToHtmlTranslator(
-    private val locationProvider: JavadocLocationProvider,
+    private val locationProvider: LocationProvider,
     private val context: DokkaContext
 ) {
 

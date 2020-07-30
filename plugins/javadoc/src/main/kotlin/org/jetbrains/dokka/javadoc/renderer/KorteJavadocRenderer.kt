@@ -10,11 +10,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.dokka.base.renderers.OutputWriter
+import org.jetbrains.dokka.base.resolvers.local.LocationProvider
 import org.jetbrains.dokka.javadoc.JavadocPlugin
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
+import org.jetbrains.dokka.plugability.query
 import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.renderers.Renderer
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
@@ -25,6 +27,7 @@ typealias TemplateMap = Map<String, Any?>
 class KorteJavadocRenderer(private val outputWriter: OutputWriter, val context: DokkaContext, resourceDir: String) :
     Renderer {
     private lateinit var locationProvider: JavadocLocationProvider
+    private val registeredPreprocessors = context.plugin<JavadocPlugin>().query { javadocPreprocessors }
 
     private val contentToHtmlTranslator by lazy {
         JavadocContentToHtmlTranslator(locationProvider, context)
@@ -34,10 +37,10 @@ class KorteJavadocRenderer(private val outputWriter: OutputWriter, val context: 
         JavadocContentToTemplateMapTranslator(locationProvider, context)
     }
 
-    override fun render(root: RootPageNode) = root.let { preprocessors.fold(root) { r, t -> t.invoke(r) } }.let { newRoot ->
-        locationProvider = context.plugin<JavadocPlugin>().querySingle { locationProviderFactory }.getLocationProvider(newRoot)
+    override fun render(root: RootPageNode) = root.let { registeredPreprocessors.fold(root) { r, t -> t.invoke(r) } }.let { newRoot ->
+        locationProvider = context.plugin<JavadocPlugin>().querySingle { locationProviderFactory }.getLocationProvider(newRoot) as JavadocLocationProvider
         runBlocking(Dispatchers.IO) {
-            renderModulePageNode(newRoot as JavadocModulePageNode)
+            renderPage(newRoot)
             SearchScriptsCreator(locationProvider).invoke(newRoot).forEach { renderSpecificPage(it, "") }
         }
     }
@@ -52,11 +55,11 @@ class KorteJavadocRenderer(private val outputWriter: OutputWriter, val context: 
         else -> ""
     }
 
-    private fun CoroutineScope.renderNode(node: PageNode, path: String = "") {
-        if (node is JavadocPageNode) {
-            renderJavadocPageNode(node)
-        } else if (node is RendererSpecificPage) {
-            renderSpecificPage(node, path)
+    private fun CoroutineScope.renderPage(node: PageNode, path: String = "") {
+        when(node){
+            is JavadocModulePageNode -> renderModulePageNode(node)
+            is JavadocPageNode -> renderJavadocPageNode(node)
+            is RendererSpecificPage -> renderSpecificPage(node, path)
         }
     }
 
@@ -67,14 +70,14 @@ class KorteJavadocRenderer(private val outputWriter: OutputWriter, val context: 
         val contentMap = contentToTemplateMapTranslator.templateMapForPageNode(node)
 
         writeFromTemplate(outputWriter, "$link/$name".toNormalized(), "tabPage.korte", contentMap.toList())
-        node.children.forEach { renderNode(it, link) }
+        node.children.forEach { renderPage(it, link) }
     }
 
     private fun CoroutineScope.renderJavadocPageNode(node: JavadocPageNode) {
         val link = locationProvider.resolve(node, skipExtension = true)
         val contentMap = contentToTemplateMapTranslator.templateMapForPageNode(node)
         writeFromTemplate(outputWriter, link, templateForNode(node), contentMap.toList())
-        node.children.forEach { renderNode(it, link.toNormalized()) }
+        node.children.forEach { renderPage(it, link.toNormalized()) }
     }
 
     private fun CoroutineScope.renderSpecificPage(node: RendererSpecificPage, path: String) = launch {
@@ -87,6 +90,7 @@ class KorteJavadocRenderer(private val outputWriter: OutputWriter, val context: 
             )
             RenderingStrategy.DoNothing -> Unit
         }
+        node.children.forEach { renderPage(it, locationProvider.resolve(node, skipExtension = true).toNormalized()) }
     }
 
     private fun Pair<String, String>.pairToTag() =

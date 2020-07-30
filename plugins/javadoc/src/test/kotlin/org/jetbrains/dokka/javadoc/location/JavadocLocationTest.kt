@@ -16,7 +16,7 @@ import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.assertEquals
 
-class JavadocTest : AbstractCoreTest() {
+class JavadocLocationTest : AbstractCoreTest() {
 
     private fun locationTestInline(testHandler: (RootPageNode, DokkaContext) -> Unit) {
         fun externalLink(link: String) = ExternalDocumentationLink(link)
@@ -134,7 +134,7 @@ class JavadocTest : AbstractCoreTest() {
 
     private fun htmlTranslator(rootPageNode: RootPageNode, dokkaContext: DokkaContext): JavadocContentToHtmlTranslator {
         val locationProvider = dokkaContext.plugin<JavadocPlugin>().querySingle { locationProviderFactory }
-            .getLocationProvider(rootPageNode)
+            .getLocationProvider(rootPageNode) as JavadocLocationProvider
         return htmlTranslator(dokkaContext, locationProvider)
     }
 
