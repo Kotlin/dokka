@@ -147,16 +147,16 @@
     <pluginRepositories>
         <pluginRepository>
             <id>kotlin-eap</id>
-            <url>https://dl.bintray.com/kotlin/kotlin-eap/</url>
+            <url>https://cache-redirector.jetbrains.com/dl.bintray.com/kotlin/kotlin-eap/</url>
         </pluginRepository>
         <pluginRepository>
             <id>kotlin-dev</id>
-            <url>https://dl.bintray.com/kotlin/kotlin-dev/</url>
+            <url>https://cache-redirector.jetbrains.com/dl.bintray.com/kotlin/kotlin-dev/</url>
         </pluginRepository>
         <pluginRepository>
             <id>jcenter</id>
             <name>JCenter</name>
-            <url>https://jcenter.bintray.com/</url>
+            <url>https://cache-redirector.jetbrains.com/jcenter.bintray.com/</url>
         </pluginRepository>
     </pluginRepositories>
 
