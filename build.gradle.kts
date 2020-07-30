@@ -1,5 +1,4 @@
-import org.jetbrains.ValidatePublications
-import org.jetbrains.configureDokkaVersion
+import org.jetbrains.*
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -30,22 +29,10 @@ allprojects {
     }
 
     repositories {
-        jcenter()
+        cachedJcenter(project)
         mavenCentral()
-
-        val use_redirector_enabled = System.getenv("TEAMCITY_VERSION") != null || run {
-            val cache_redirector_enabled: String? by project
-            cache_redirector_enabled == "true"
-        }
-
-        if (use_redirector_enabled) {
-            logger.info("CACHE REDIRECTOR ENABLED")
-            maven("https://cache-redirector.jetbrains.com/dl.bintray.com/kotlin/kotlin-eap/")
-            maven("https://cache-redirector.jetbrains.com/dl.bintray.com/kotlin/kotlin-dev/")
-        } else {
-            maven("https://dl.bintray.com/kotlin/kotlin-eap/")
-            maven("https://dl.bintray.com/kotlin/kotlin-dev/")
-        }
+        cachedKotlinEap(project)
+        cachedKotlinDev(project)
     }
 }
 

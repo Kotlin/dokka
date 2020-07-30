@@ -1,3 +1,5 @@
+@file:Suppress("UnstableApiUsage", "LocalVariableName")
+
 rootProject.name = "dokka"
 
 include("core")
@@ -22,8 +24,13 @@ include("integration-tests:gradle")
 include("integration-tests:cli")
 include("integration-tests:maven")
 
+
 pluginManagement {
     val kotlin_version: String by settings
+    val dokka_jcenter_repository: String by settings
+    val dokka_kotlin_eap_repository: String by settings
+    val dokka_kotlin_dev_repository: String by settings
+
     plugins {
         id("org.jetbrains.kotlin.jvm") version kotlin_version
         id("com.github.johnrengelman.shadow") version "5.2.0"
@@ -32,22 +39,12 @@ pluginManagement {
     }
 
     repositories {
-        mavenCentral()
-        jcenter()
+        maven(dokka_jcenter_repository)
         gradlePluginPortal()
-
-        val use_redirector_enabled = System.getenv("TEAMCITY_VERSION") != null || run {
-            val cache_redirector_enabled: String? by settings
-            cache_redirector_enabled == "true"
-        }
-
-        if (use_redirector_enabled) {
-            logger.info("CACHE REDIRECTOR ENABLED")
-            maven("https://cache-redirector.jetbrains.com/dl.bintray.com/kotlin/kotlin-eap/")
-            maven("https://cache-redirector.jetbrains.com/dl.bintray.com/kotlin/kotlin-dev/")
-        } else {
-            maven("https://dl.bintray.com/kotlin/kotlin-eap/")
-            maven("https://dl.bintray.com/kotlin/kotlin-dev/")
-        }
+        mavenCentral()
+        maven(dokka_kotlin_eap_repository)
+        maven(dokka_kotlin_dev_repository)
     }
+
 }
+
