@@ -4,11 +4,17 @@ import kotlinx.html.h1
 import kotlinx.html.id
 import kotlinx.html.table
 import kotlinx.html.tbody
+import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.Platform
+import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.renderers.sourceSets
+import org.jetbrains.dokka.base.resolvers.local.LocationProvider
 import org.jetbrains.dokka.model.DEnum
 import org.jetbrains.dokka.model.DEnumEntry
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
+import org.jetbrains.dokka.plugability.plugin
+import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 
 
@@ -107,3 +113,5 @@ class SourcesetDependencyAppender(val context: DokkaContext) : PageTransformer {
         )
     }
 }
+
+
