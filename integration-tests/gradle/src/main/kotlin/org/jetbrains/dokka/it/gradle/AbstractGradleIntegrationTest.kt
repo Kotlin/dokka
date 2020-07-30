@@ -4,6 +4,7 @@ import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.internal.DefaultGradleRunner
 import org.gradle.tooling.GradleConnectionException
+import org.gradle.util.GradleVersion
 import org.jetbrains.dokka.it.AbstractIntegrationTest
 import org.junit.Assume
 import org.junit.Assume.assumeFalse
@@ -11,6 +12,7 @@ import org.junit.AssumptionViolatedException
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 import java.io.File
+import java.net.URI
 import kotlin.test.BeforeTest
 
 @RunWith(Parameterized::class)
@@ -31,8 +33,8 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
     ): GradleRunner {
         return GradleRunner.create()
             .withProjectDir(projectDir)
-            .withGradleVersion(versions.gradleVersion.version)
             .forwardOutput()
+            .withJetBrainsCachedGradleVersion(versions.gradleVersion)
             .withTestKitDir(File("build", "gradle-test-kit").absoluteFile)
             .withArguments(
                 listOfNotNull(
@@ -60,6 +62,16 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
             throw e
         }
     }
+}
+
+private fun GradleRunner.withJetBrainsCachedGradleVersion(version: GradleVersion): GradleRunner {
+    return withGradleDistribution(
+        URI.create(
+            "https://cache-redirector.jetbrains.com/" +
+                    "services.gradle.org/distributions/" +
+                    "gradle-${version.version}-bin.zip"
+        )
+    )
 }
 
 private fun Throwable.withAllCauses(): Sequence<Throwable> {

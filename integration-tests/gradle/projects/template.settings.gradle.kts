@@ -26,12 +26,12 @@ pluginManagement {
         }
     }
     repositories {
-        maven("https://dl.bintray.com/kotlin/kotlin-eap")
-        maven("https://dl.bintray.com/kotlin/kotlin-dev/")
         mavenLocal()
+        maven("https://cache-redirector.jetbrains.com/jcenter.bintray.com")
         mavenCentral()
-        jcenter()
         gradlePluginPortal()
         google()
+        maven("https://cache-redirector.jetbrains.com/dl.bintray.com/kotlin/kotlin-eap")
+        maven("https://cache-redirector.jetbrains.com/dl.bintray.com/kotlin/kotlin-dev")
     }
 }
