@@ -167,6 +167,8 @@ internal class JavadocContentToTemplateMapTranslator(
                 else -> emptyMap()
             }
 
+        fun templateMapForJavadocContentNode(node: ContentNode): TemplateMap = (node as? JavadocContentNode)?.let { templateMapForJavadocContentNode(it) } ?: emptyMap()
+
         private fun templateMapForParameterNode(node: JavadocParameterNode): TemplateMap =
             mapOf(
                 "description" to htmlForContentNodes(node.description, contextNode),
