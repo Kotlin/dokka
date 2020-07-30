@@ -1,5 +1,4 @@
-import org.jetbrains.ValidatePublications
-import org.jetbrains.configureDokkaVersion
+import org.jetbrains.*
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -30,10 +29,10 @@ allprojects {
     }
 
     repositories {
-        jcenter()
+        cachedJcenter(project)
         mavenCentral()
-        maven(url = "https://dl.bintray.com/kotlin/kotlin-eap")
-        maven(url = "https://dl.bintray.com/kotlin/kotlin-dev")
+        cachedKotlinEap(project)
+        cachedKotlinDev(project)
     }
 }
 

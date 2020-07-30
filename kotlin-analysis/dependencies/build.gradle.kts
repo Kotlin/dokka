@@ -1,4 +1,5 @@
 import org.jetbrains.DokkaPublicationBuilder.Component.Shadow
+import org.jetbrains.cachedKotlinPlugin
 import org.jetbrains.registerDokkaArtifactPublication
 
 plugins {
@@ -10,7 +11,7 @@ plugins {
 repositories {
     maven(url = "https://www.jetbrains.com/intellij-repository/snapshots")
     maven(url = "https://www.jetbrains.com/intellij-repository/releases")
-    maven(url = "https://kotlin.bintray.com/kotlin-plugin")
+    cachedKotlinPlugin(project)
 }
 
 val intellijCore: Configuration by configurations.creating

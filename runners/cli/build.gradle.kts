@@ -1,4 +1,5 @@
 import org.jetbrains.DokkaPublicationBuilder.Component.Shadow
+import org.jetbrains.cachedKotlinX
 import org.jetbrains.registerDokkaArtifactPublication
 
 plugins {
@@ -7,7 +8,7 @@ plugins {
 }
 
 repositories {
-    maven(url = "https://dl.bintray.com/kotlin/kotlinx")
+    cachedKotlinX(project)
 }
 
 dependencies {
