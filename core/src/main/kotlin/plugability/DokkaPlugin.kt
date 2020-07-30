@@ -49,7 +49,7 @@ interface WithUnsafeExtensionSuppression {
 }
 
 interface Configurable {
-    val pluginsConfiguration: Map<String, String>
+    var pluginsConfiguration: Map<String, String>
 }
 
 interface ConfigurableBlock
