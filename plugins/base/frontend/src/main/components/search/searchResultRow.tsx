@@ -1,5 +1,6 @@
 import React from "react";
 import {OptionWithSearchResult, SearchProps, SearchRank} from "./types";
+import Markdown from '@jetbrains/ring-ui/components/markdown/markdown';
 
 export const SearchResultRow: React.FC<SearchProps> = ({searchResult}: SearchProps) => {
     const signatureFromSearchResult = (searchResult: OptionWithSearchResult): string => {
@@ -9,15 +10,9 @@ export const SearchResultRow: React.FC<SearchProps> = ({searchResult}: SearchPro
         return searchResult.highlight
     }
 
-    const renderHighlightMarkersAsHtml = (record: string): string => {
-        return record.replace(/\*\*(.*?)\*\*/g, '<span class="phraseHighlight">$1</span>')
-    }
-
     return (
         <div className="template-wrapper">
-            <span dangerouslySetInnerHTML={
-                {__html: renderHighlightMarkersAsHtml(signatureFromSearchResult(searchResult)) }
-            }/>
+            <span><Markdown source={signatureFromSearchResult(searchResult)}/></span>
             <span className="template-description">{searchResult.description}</span>
         </div>
     )
