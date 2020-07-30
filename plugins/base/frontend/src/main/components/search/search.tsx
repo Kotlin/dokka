@@ -20,6 +20,7 @@ const WithFuzzySearchFilterComponent: React.FC<Props> = ({data}: Props) => {
         <div className="search-container">
             <div className="search">
                 <DokkaFuzzyFilterComponent
+                    id="pages-search"
                     selectedLabel="Search"
                     label="Please type page name"
                     filter={true}
