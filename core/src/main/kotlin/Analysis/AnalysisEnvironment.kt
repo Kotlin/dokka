@@ -25,7 +25,8 @@ import org.jetbrains.kotlin.analyzer.common.CommonResolverForModuleFactory
 import org.jetbrains.kotlin.builtins.DefaultBuiltIns
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.builtins.jvm.JvmBuiltIns
-import org.jetbrains.kotlin.caches.resolve.KotlinCacheService
+import org.jetbrains.kotlin.builtins.konan.KonanBuiltIns
+import org.jetbrains.kotlin.caches.resolve.*
 import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
 import org.jetbrains.kotlin.cli.common.config.ContentRoot
 import org.jetbrains.kotlin.cli.common.config.KotlinSourceRoot
@@ -38,21 +39,34 @@ import org.jetbrains.kotlin.cli.jvm.compiler.TopDownAnalyzerFacadeForJVM
 import org.jetbrains.kotlin.cli.jvm.config.*
 import org.jetbrains.kotlin.cli.jvm.index.JavaRoot
 import org.jetbrains.kotlin.config.*
+import org.jetbrains.kotlin.container.get
 import org.jetbrains.kotlin.container.getService
 import org.jetbrains.kotlin.container.tryGetService
+import org.jetbrains.kotlin.context.ModuleContext
 import org.jetbrains.kotlin.context.ProjectContext
 import org.jetbrains.kotlin.context.withModule
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor
+import org.jetbrains.kotlin.descriptors.impl.CompositePackageFragmentProvider
 import org.jetbrains.kotlin.descriptors.impl.ModuleDescriptorImpl
-import org.jetbrains.kotlin.ide.konan.NativeLibraryInfo
+import org.jetbrains.kotlin.descriptors.konan.DeserializedKlibModuleOrigin
+import org.jetbrains.kotlin.descriptors.konan.KlibModuleOrigin
+import org.jetbrains.kotlin.extensions.ApplicationExtensionDescriptor
+import org.jetbrains.kotlin.frontend.di.createContainerForLazyResolve
+import org.jetbrains.kotlin.ide.konan.NativeKlibLibraryInfo
+import org.jetbrains.kotlin.ide.konan.NativePlatformKindResolution
 import org.jetbrains.kotlin.ide.konan.analyzer.NativeResolverForModuleFactory
-import org.jetbrains.kotlin.ide.konan.decompiler.KotlinNativeLoadingMetadataCache
+import org.jetbrains.kotlin.idea.klib.KlibLoadingMetadataCache
+import org.jetbrains.kotlin.idea.klib.createKlibPackageFragmentProvider
+import org.jetbrains.kotlin.idea.klib.getCompatibilityInfo
+import org.jetbrains.kotlin.idea.klib.safeRead
 import org.jetbrains.kotlin.idea.resolve.ResolutionFacade
+import org.jetbrains.kotlin.incremental.components.LookupTracker
 import org.jetbrains.kotlin.js.config.JSConfigurationKeys
 import org.jetbrains.kotlin.js.resolve.JsPlatformAnalyzerServices
-import org.jetbrains.kotlin.js.resolve.JsResolverForModuleFactory
-import org.jetbrains.kotlin.library.impl.createKotlinLibrary
+import org.jetbrains.kotlin.konan.util.KlibMetadataFactories
+import org.jetbrains.kotlin.library.*
+import org.jetbrains.kotlin.library.metadata.NullFlexibleTypeDeserializer
 import org.jetbrains.kotlin.load.java.structure.impl.JavaClassImpl
 import org.jetbrains.kotlin.load.java.structure.impl.classFiles.BinaryJavaClass
 import org.jetbrains.kotlin.name.Name
@@ -63,10 +77,7 @@ import org.jetbrains.kotlin.platform.jvm.JvmPlatforms
 import org.jetbrains.kotlin.platform.jvm.JvmPlatforms.unspecifiedJvmPlatform
 import org.jetbrains.kotlin.platform.konan.KonanPlatforms
 import org.jetbrains.kotlin.psi.*
-import org.jetbrains.kotlin.resolve.BindingContext
-import org.jetbrains.kotlin.resolve.BindingTrace
-import org.jetbrains.kotlin.resolve.CompilerEnvironment
-import org.jetbrains.kotlin.resolve.PlatformDependentAnalyzerServices
+import org.jetbrains.kotlin.resolve.*
 import org.jetbrains.kotlin.resolve.diagnostics.Diagnostics
 import org.jetbrains.kotlin.resolve.jvm.JvmPlatformParameters
 import org.jetbrains.kotlin.resolve.jvm.JvmResolverForModuleFactory
@@ -74,13 +85,14 @@ import org.jetbrains.kotlin.resolve.jvm.platform.JvmPlatformAnalyzerServices
 import org.jetbrains.kotlin.resolve.konan.platform.NativePlatformAnalyzerServices
 import org.jetbrains.kotlin.resolve.lazy.BodyResolveMode
 import org.jetbrains.kotlin.resolve.lazy.ResolveSession
+import org.jetbrains.kotlin.resolve.lazy.declarations.DeclarationProviderFactoryService.Companion.createDeclarationProviderFactory
 import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.util.slicedMap.ReadOnlySlice
 import org.jetbrains.kotlin.util.slicedMap.WritableSlice
 import java.io.File
+import org.jetbrains.kotlin.konan.file.File as KFile
 
 const val JAR_SEPARATOR = "!/"
-const val KLIB_EXTENSION = "klib"
 
 /**
  * Kotlin as a service entry point
@@ -129,6 +141,23 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
             OrderEnumerationHandler.EP_NAME, OrderEnumerationHandler.Factory::class.java
         )
 
+        CoreApplicationEnvironment.registerExtensionPoint(
+            environment.project.extensionArea,
+            JavadocTagInfo.EP_NAME, JavadocTagInfo::class.java
+        )
+
+        CoreApplicationEnvironment.registerExtensionPoint(
+            Extensions.getRootArea(),
+            CustomJavadocTagProvider.EP_NAME, CustomJavadocTagProvider::class.java
+        )
+
+        // TODO: figure out why compilation fails with unresolved `CoreApplicationEnvironment.registerApplicationService(...)`
+        //  call, fix it appropriately
+        with (ApplicationManager.getApplication() as MockApplication) {
+            if (getService(KlibLoadingMetadataCache::class.java) == null)
+                registerService(KlibLoadingMetadataCache::class.java, KlibLoadingMetadataCache())
+        }
+
         projectComponentManager.registerService(
             ProjectFileIndex::class.java,
             projectFileIndex
@@ -159,7 +188,6 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
         val projectContext = ProjectContext(environment.project, "Dokka")
         val sourceFiles = environment.getSourceFiles()
 
-
         val targetPlatform = when (analysisPlatform) {
             Platform.js -> JsPlatforms.defaultJsPlatform
             Platform.common -> CommonPlatforms.defaultCommonPlatform
@@ -167,8 +195,7 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
             Platform.jvm -> JvmPlatforms.defaultJvmPlatform
         }
 
-        val nativeLibraries = classpath.filter { it.isNativeLibrary() }
-            .map { createNativeLibraryModuleInfo(it) }
+        val nativeLibraries: Map</* absolute path */String, LibraryModuleInfo> = loadNativeLibraries()
 
         val library = object : LibraryModuleInfo {
             override val analyzerServices: PlatformDependentAnalyzerServices =
@@ -176,8 +203,9 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
             override val name: Name = Name.special("<library>")
             override val platform: TargetPlatform = targetPlatform
             override fun dependencies(): List<ModuleInfo> = listOf(this)
-            override fun getLibraryRoots(): Collection<String> =
-                classpath.filterNot { it.isNativeLibrary() }.map { it.absolutePath }
+            override fun getLibraryRoots(): Collection<String> = classpath.mapNotNull { libraryFile ->
+                libraryFile.absolutePath.takeIf { it !in nativeLibraries }
+            }
         }
 
         val module = object : ModuleInfo {
@@ -185,7 +213,7 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
                 analysisPlatform.analyzerServices()
             override val name: Name = Name.special("<module>")
             override val platform: TargetPlatform = targetPlatform
-            override fun dependencies(): List<ModuleInfo> = listOf(this, library) + nativeLibraries
+            override fun dependencies(): List<ModuleInfo> = listOf(this, library) + nativeLibraries.values
         }
 
         val sourcesScope = createSourceModuleSearchScope(environment.project, sourceFiles)
@@ -193,9 +221,13 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
             when (it) {
                 library -> ModuleContent(it, emptyList(), GlobalSearchScope.notScope(sourcesScope))
                 module -> ModuleContent(it, emptyList(), GlobalSearchScope.allScope(environment.project))
-                in nativeLibraries -> ModuleContent(it, emptyList(), GlobalSearchScope.notScope(sourcesScope))
-                else -> throw IllegalArgumentException("Unexpected module info")
-            }
+                is DokkaNativeKlibLibraryInfo -> {
+                    if (it.libraryRoot in nativeLibraries)
+                        ModuleContent(it, emptyList(), GlobalSearchScope.notScope(sourcesScope))
+                    else null
+                }
+                else -> null
+            } ?: throw IllegalArgumentException("Unexpected module info")
         }
 
         var builtIns: JvmBuiltIns? = null
@@ -249,18 +281,29 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
         Platform.jvm -> JvmPlatformAnalyzerServices
     }
 
-    private fun createNativeLibraryModuleInfo(libraryFile: File): LibraryModuleInfo {
-        val kotlinLibrary = createKotlinLibrary(org.jetbrains.kotlin.konan.file.File(libraryFile.absolutePath), false)
-        return object : LibraryModuleInfo {
-            override val analyzerServices: PlatformDependentAnalyzerServices =
-                analysisPlatform.analyzerServices()
-            override val name: Name = Name.special("<klib>")
-            override val platform: TargetPlatform = KonanPlatforms.defaultKonanPlatform
-            override fun dependencies(): List<ModuleInfo> = listOf(this)
-            override fun getLibraryRoots(): Collection<String> = listOf(libraryFile.absolutePath)
-            override val capabilities: Map<ModuleDescriptor.Capability<*>, Any?>
-                get() = super.capabilities + (NativeLibraryInfo.NATIVE_LIBRARY_CAPABILITY to kotlinLibrary)
+    private fun loadNativeLibraries(): Map<String, LibraryModuleInfo> {
+        if (analysisPlatform != Platform.native) return emptyMap()
+
+        val dependencyResolver = DokkaNativeKlibLibraryDependencyResolver()
+        val analyzerServices = analysisPlatform.analyzerServices()
+
+        val result = mutableMapOf<String, LibraryModuleInfo>()
+
+        classpath.forEach { libraryFile ->
+            val libraryRoot = libraryFile.absolutePath
+
+            val kotlinLibrary: KotlinLibrary = resolveSingleFileKlib(
+                libraryFile = KFile(libraryRoot),
+                strategy = ToolingSingleFileKlibResolveStrategy
+            )
+
+            if (kotlinLibrary.getCompatibilityInfo().isCompatible) {
+                // exists, is KLIB, has compatible format
+                result[libraryRoot] = DokkaNativeKlibLibraryInfo(kotlinLibrary, analyzerServices, dependencyResolver)
+            }
         }
+
+        return result
     }
 
     private fun createCommonResolverForProject(
@@ -354,11 +397,7 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
                     KotlinNativeLoadingMetadataCache()
                 )
 
-                return NativeResolverForModuleFactory(
-                    PlatformAnalysisParameters.Empty,
-                    CompilerEnvironment,
-                    KonanPlatforms.defaultKonanPlatform
-                ).createResolverForModule(
+                return DokkaNativeResolverForModuleFactory(CompilerEnvironment).createResolverForModule(
                     descriptor as ModuleDescriptorImpl,
                     projectContext.withModule(descriptor),
                     modulesContent(moduleInfo),
@@ -503,6 +542,105 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
      */
     override fun dispose() {
         Disposer.dispose(this)
+    }
+}
+
+/** TODO: replace by [NativeKlibLibraryInfo] after fix of KT-40734 */
+internal class DokkaNativeKlibLibraryDependencyResolver {
+    private val cachedDependencies = mutableMapOf</* libraryName */String, DokkaNativeKlibLibraryInfo>()
+
+    fun registerLibrary(libraryInfo: DokkaNativeKlibLibraryInfo) {
+        cachedDependencies[libraryInfo.kotlinLibrary.uniqueName] = libraryInfo
+    }
+
+    fun resolveDependencies(libraryInfo: DokkaNativeKlibLibraryInfo): List<DokkaNativeKlibLibraryInfo> {
+        return libraryInfo.kotlinLibrary.unresolvedDependencies.mapNotNull { cachedDependencies[it.path] }
+    }
+}
+
+/** TODO: replace by [NativeKlibLibraryInfo] after fix of KT-40734 */
+internal class DokkaNativeKlibLibraryInfo(
+    val kotlinLibrary: KotlinLibrary,
+    override val analyzerServices: PlatformDependentAnalyzerServices,
+    private val dependencyResolver: DokkaNativeKlibLibraryDependencyResolver
+) : LibraryModuleInfo {
+    init {
+        dependencyResolver.registerLibrary(this)
+    }
+
+    internal val libraryRoot: String
+        get() = kotlinLibrary.libraryFile.path
+
+    override val name: Name by lazy {
+        val libraryName = kotlinLibrary.shortName ?: kotlinLibrary.uniqueName
+        Name.special("<$libraryName>")
+    }
+
+    override val platform: TargetPlatform = NativePlatforms.unspecifiedNativePlatform
+    override fun dependencies(): List<ModuleInfo> = listOf(this) + dependencyResolver.resolveDependencies(this)
+    override fun getLibraryRoots(): Collection<String> = listOf(libraryRoot)
+
+    override val capabilities: Map<ModuleDescriptor.Capability<*>, Any?>
+        get() {
+            val capabilities = super.capabilities.toMutableMap()
+            capabilities += KlibModuleOrigin.CAPABILITY to DeserializedKlibModuleOrigin(kotlinLibrary)
+            capabilities += ImplicitIntegerCoercion.MODULE_CAPABILITY to kotlinLibrary.safeRead(false) { isInterop }
+            return capabilities
+        }
+}
+
+/** TODO: replace by [NativeResolverForModuleFactory] after fix of KT-40734 */
+internal class DokkaNativeResolverForModuleFactory(
+    private val targetEnvironment: TargetEnvironment
+) : ResolverForModuleFactory() {
+    companion object {
+        private val metadataFactories = KlibMetadataFactories(::KonanBuiltIns, NullFlexibleTypeDeserializer)
+    }
+
+    override fun <M : ModuleInfo> createResolverForModule(
+        moduleDescriptor: ModuleDescriptorImpl,
+        moduleContext: ModuleContext,
+        moduleContent: ModuleContent<M>,
+        resolverForProject: ResolverForProject<M>,
+        languageVersionSettings: LanguageVersionSettings
+    ): ResolverForModule {
+
+        val declarationProviderFactory = createDeclarationProviderFactory(
+            moduleContext.project,
+            moduleContext.storageManager,
+            moduleContent.syntheticFiles,
+            moduleContent.moduleContentScope,
+            moduleContent.moduleInfo
+        )
+
+        val container = createContainerForLazyResolve(
+            moduleContext,
+            declarationProviderFactory,
+            CodeAnalyzerInitializer.getInstance(moduleContext.project).createTrace(),
+            moduleDescriptor.platform!!,
+            NativePlatformAnalyzerServices,
+            targetEnvironment,
+            languageVersionSettings
+        )
+
+        var packageFragmentProvider = container.get<ResolveSession>().packageFragmentProvider
+
+        val klibPackageFragmentProvider = (moduleContent.moduleInfo as? DokkaNativeKlibLibraryInfo)
+            ?.kotlinLibrary
+            ?.createKlibPackageFragmentProvider(
+                storageManager = moduleContext.storageManager,
+                metadataModuleDescriptorFactory = metadataFactories.DefaultDeserializedDescriptorFactory,
+                languageVersionSettings = languageVersionSettings,
+                moduleDescriptor = moduleDescriptor,
+                lookupTracker = LookupTracker.DO_NOTHING
+            )
+
+        if (klibPackageFragmentProvider != null) {
+            packageFragmentProvider =
+                CompositePackageFragmentProvider(listOf(packageFragmentProvider, klibPackageFragmentProvider))
+        }
+
+        return ResolverForModule(packageFragmentProvider, container)
     }
 }
 
