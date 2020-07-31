@@ -214,9 +214,9 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
             override val name: Name = Name.special("<library>")
             override val platform: TargetPlatform = targetPlatform
             override fun dependencies(): List<ModuleInfo> = listOf(this)
-            override fun getLibraryRoots(): Collection<String> = classpath.mapNotNull { libraryFile ->
-                libraryFile.absolutePath.takeIf { it !in nativeLibraries }
-            }
+            override fun getLibraryRoots(): Collection<String> = classpath
+                .map { libraryFile -> libraryFile.absolutePath }
+                .filter { path -> path !in nativeLibraries }
         }
 
         val module = object : ModuleInfo {
@@ -289,7 +289,8 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
             )
         val projectComponentManager = environment.project as MockComponentManager
         projectComponentManager.registerService(
-            KotlinCacheService::class.java,
+            KotlinCacheService::
+            class.java,
             CoreKotlinCacheService(created)
         )
 
