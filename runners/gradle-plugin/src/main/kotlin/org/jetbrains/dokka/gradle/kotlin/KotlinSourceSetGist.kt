@@ -6,8 +6,6 @@ import org.gradle.api.provider.Provider
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 
-// TODO NOW: Test this all
-
 internal data class KotlinSourceSetGist(
     val name: String,
     val platform: KotlinPlatformType,
@@ -22,7 +20,7 @@ internal fun Project.gistOf(sourceSet: KotlinSourceSet): KotlinSourceSetGist {
         name = sourceSet.name,
         platform = platformOf(sourceSet),
         isMain = isMainSourceSet(sourceSet),
-        classpath = classpathOf(sourceSet),
+        classpath = classpathOf(sourceSet).filter { it.exists() },
         // TODO: Needs to respect filters.
         //  We probably need to change from "sourceRoots" to support "sourceFiles"
         //  https://github.com/Kotlin/dokka/issues/1215
