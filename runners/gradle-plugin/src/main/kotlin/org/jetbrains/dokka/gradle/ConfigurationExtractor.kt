@@ -167,13 +167,10 @@ class ConfigurationExtractor(private val project: Project) {
         val ownDependencyFiles: Set<File> = compilation.compileDependencyFiles.files
 
         // the dependencies provided by the platform (e.g. Kotlin/Native platform libs)
-        val platformDependencyFiles: Set<File> = if (compilation is KotlinNativeCompilation) {
-            compilation.target.project.configurations
-                .findByName(compilation.defaultSourceSet.implementationMetadataConfigurationName)
-                ?.let { nativePlatformDependencyConfiguration ->
-                    nativePlatformDependencyConfiguration.files
-                } ?: emptySet()
-        } else emptySet()
+        val platformDependencyFiles: Set<File> = (compilation as? KotlinNativeCompilation)
+            ?.target?.project?.configurations
+            ?.findByName(compilation.defaultSourceSet.implementationMetadataConfigurationName)?.files
+            ?: emptySet()
 
         return (ownDependencyFiles + platformDependencyFiles).toList().filter { it.exists() }
     }
@@ -185,8 +182,4 @@ class ConfigurationExtractor(private val project: Project) {
         val dependentSourceSets: List<String>,
         val platform: String
     ) : Serializable
-
-    companion object {
-        private const val KOTLIN_NATIVE_HOME_PRIVATE_PROPERTY = "konanHome"
-    }
 }
