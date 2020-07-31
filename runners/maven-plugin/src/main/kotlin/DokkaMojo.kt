@@ -29,6 +29,7 @@ import org.eclipse.aether.transport.file.FileTransporterFactory
 import org.eclipse.aether.transport.http.HttpTransporterFactory
 import org.eclipse.aether.util.graph.visitor.PreorderNodeListGenerator
 import org.jetbrains.dokka.*
+import org.jetbrains.dokka.DokkaConfiguration.ExternalDocumentationLink
 import java.io.File
 import java.net.URL
 
@@ -43,13 +44,15 @@ class SourceLinkMapItem {
     var lineSuffix: String? = null
 }
 
-class ExternalDocumentationLinkBuilder : DokkaConfiguration.ExternalDocumentationLink.Builder() {
+class ExternalDocumentationLinkBuilder {
 
     @Parameter(name = "url", required = true)
-    override var url: URL? = null
+    var url: URL? = null
 
     @Parameter(name = "packageListUrl", required = true)
-    override var packageListUrl: URL? = null
+    var packageListUrl: URL? = null
+
+    fun build() = ExternalDocumentationLink(url, packageListUrl)
 }
 
 abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependency>) : AbstractMojo() {
@@ -175,17 +178,14 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
                 throw MojoExecutionException("Incorrect path property, only Unix based path allowed.")
             }
         }
+
         fun defaultLinks(config: DokkaSourceSetImpl): Set<ExternalDocumentationLinkImpl> {
             val links = mutableSetOf<ExternalDocumentationLinkImpl>()
             if (!config.noJdkLink)
-                links += DokkaConfiguration.ExternalDocumentationLink
-                    .Builder("https://docs.oracle.com/javase/${config.jdkVersion}/docs/api/")
-                    .build()
+                links += ExternalDocumentationLink.jdk(jdkVersion)
 
             if (!config.noStdlibLink)
-                links += DokkaConfiguration.ExternalDocumentationLink
-                    .Builder("https://kotlinlang.org/api/latest/jvm/stdlib/")
-                    .build()
+                links += ExternalDocumentationLink.kotlinStdlib()
             return links
         }
 
@@ -236,7 +236,8 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
                 if (sourceSet.moduleDisplayName.isEmpty()) logger.warn("Not specified module name. It can result in unexpected behaviour while including documentation for module")
             },
             pluginsClasspath = getArtifactByAether("org.jetbrains.dokka", "dokka-base", dokkaVersion) +
-                    dokkaPlugins.map { getArtifactByAether(it.groupId, it.artifactId, it.version ?: dokkaVersion) }.flatten(),
+                    dokkaPlugins.map { getArtifactByAether(it.groupId, it.artifactId, it.version ?: dokkaVersion) }
+                        .flatten(),
             pluginsConfiguration = mutableMapOf(), //TODO implement as it is in Gradle
             modules = emptyList(),
             failOnWarning = failOnWarning

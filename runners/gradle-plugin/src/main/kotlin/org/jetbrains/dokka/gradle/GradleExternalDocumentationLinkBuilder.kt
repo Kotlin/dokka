@@ -10,9 +10,8 @@ import org.jetbrains.dokka.ExternalDocumentationLinkImpl
 import java.net.URL
 
 class GradleExternalDocumentationLinkBuilder(
-    @get:Internal internal val project: Project
-) :
-    DokkaConfigurationBuilder<ExternalDocumentationLinkImpl> {
+    @Transient @get:Internal internal val project: Project
+) : DokkaConfigurationBuilder<ExternalDocumentationLinkImpl> {
     @Input
     val url: Property<URL?> = project.objects.safeProperty()
 
