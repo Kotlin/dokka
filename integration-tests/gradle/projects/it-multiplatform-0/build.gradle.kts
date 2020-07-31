@@ -11,7 +11,13 @@ kotlin {
     jvm()
     linuxX64("linux")
     macosX64("macos")
-    js()
+    sourceSets {
+        named("commonMain") {
+            dependencies {
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.8-1.4.0-rc")
+            }
+        }
+    }
 }
 
 tasks.withType<DokkaTask> {
@@ -20,6 +26,5 @@ tasks.withType<DokkaTask> {
         create("jvmMain")
         create("linuxMain")
         create("macosMain")
-        create("jsMain")
     }
 }

@@ -285,12 +285,11 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
             Platform.common -> createCommonResolverForProject(
                 projectContext,
                 module,
-                library,
                 modulesContent,
                 environment
             )
-            Platform.js -> createJsResolverForProject(projectContext, module, library, modulesContent)
-            Platform.native -> createNativeResolverForProject(projectContext, module, library, modulesContent)
+            Platform.js -> createJsResolverForProject(projectContext, module, modulesContent)
+            Platform.native -> createNativeResolverForProject(projectContext, module, modulesContent)
 
         }
         val libraryModuleDescriptor = resolverForProject.descriptorForModule(library)
@@ -355,14 +354,13 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
     private fun createCommonResolverForProject(
         projectContext: ProjectContext,
         module: ModuleInfo,
-        library: LibraryModuleInfo,
         modulesContent: (ModuleInfo) -> ModuleContent<ModuleInfo>,
         environment: KotlinCoreEnvironment
     ): ResolverForProject<ModuleInfo> {
         return object : AbstractResolverForProject<ModuleInfo>(
             "Dokka",
             projectContext,
-            modules = listOf(module, library)
+            modules = module.dependencies()
         ) {
             override fun sdkDependency(module: ModuleInfo): ModuleInfo? = null
 
@@ -394,13 +392,12 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
     private fun createJsResolverForProject(
         projectContext: ProjectContext,
         module: ModuleInfo,
-        library: LibraryModuleInfo,
         modulesContent: (ModuleInfo) -> ModuleContent<ModuleInfo>
     ): ResolverForProject<ModuleInfo> {
         return object : AbstractResolverForProject<ModuleInfo>(
             "Dokka",
             projectContext,
-            modules = listOf(module, library)
+            modules = module.dependencies()
         ) {
             override fun modulesContent(module: ModuleInfo): ModuleContent<ModuleInfo> = modulesContent(module)
             override fun createResolverForModule(
@@ -425,7 +422,6 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
     private fun createNativeResolverForProject(
         projectContext: ProjectContext,
         module: ModuleInfo,
-        library: LibraryModuleInfo,
         modulesContent: (ModuleInfo) -> ModuleContent<ModuleInfo>
     ): ResolverForProject<ModuleInfo> {
         return object : AbstractResolverForProject<ModuleInfo>(

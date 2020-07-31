@@ -1,7 +1,6 @@
 package org.jetbrains.dokka.analysis
 
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.components.BaseComponent
 import com.intellij.openapi.extensions.ExtensionPointName
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
@@ -54,6 +53,17 @@ class CoreProjectFileIndex(private val project: Project, contentRoots: List<Cont
         }
 
         override fun getName(): String = "<Dokka module>"
+        override fun isLoaded(): Boolean {
+            throw UnsupportedOperationException()
+        }
+
+        override fun setOption(p0: String, p1: String?) {
+            throw UnsupportedOperationException()
+        }
+
+        override fun getOptionValue(p0: String): String? {
+            throw UnsupportedOperationException()
+        }
 
         override fun getModuleWithLibrariesScope(): GlobalSearchScope {
             throw UnsupportedOperationException()
@@ -67,6 +77,14 @@ class CoreProjectFileIndex(private val project: Project, contentRoots: List<Cont
             throw UnsupportedOperationException()
         }
 
+        override fun getModuleContentScope(): GlobalSearchScope {
+            throw UnsupportedOperationException()
+        }
+
+        override fun getModuleContentWithDependenciesScope(): GlobalSearchScope {
+            throw UnsupportedOperationException()
+        }
+
         override fun getModuleWithDependenciesAndLibrariesScope(p0: Boolean): GlobalSearchScope {
             throw UnsupportedOperationException()
         }
@@ -76,6 +94,10 @@ class CoreProjectFileIndex(private val project: Project, contentRoots: List<Cont
         }
 
         override fun getModuleScope(): GlobalSearchScope {
+            throw UnsupportedOperationException()
+        }
+
+        override fun getModuleScope(p0: Boolean): GlobalSearchScope {
             throw UnsupportedOperationException()
         }
 
@@ -95,6 +117,18 @@ class CoreProjectFileIndex(private val project: Project, contentRoots: List<Cont
         }
 
         override fun getDisposed(): Condition<*> {
+            throw UnsupportedOperationException()
+        }
+
+        override fun getModuleFile(): VirtualFile? {
+            throw UnsupportedOperationException()
+        }
+
+        override fun getModuleFilePath(): String {
+            throw UnsupportedOperationException()
+        }
+
+        override fun getProject(): Project {
             throw UnsupportedOperationException()
         }
 
