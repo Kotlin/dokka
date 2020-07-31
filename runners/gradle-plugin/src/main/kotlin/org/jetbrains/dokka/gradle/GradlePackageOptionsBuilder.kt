@@ -12,7 +12,7 @@ import org.jetbrains.dokka.PackageOptionsImpl
 
 
 class GradlePackageOptionsBuilder(
-    @get:Internal internal val project: Project
+    @Transient @get:Internal internal val project: Project
 ) : DokkaConfigurationBuilder<PackageOptionsImpl> {
     @Input
     val prefix: Property<String> = project.objects.safeProperty<String>()
