@@ -299,26 +299,17 @@ object ArgTypeHelpSourceSet : ArgType<Any>(false) {
         get() = ""
 }
 
+@OptIn(ExperimentalStdlibApi::class)
 fun defaultLinks(config: DokkaConfiguration.DokkaSourceSet): MutableList<ExternalDocumentationLink> =
-    mutableListOf<ExternalDocumentationLink>().apply {
+    buildList<ExternalDocumentationLink> {
         if (!config.noJdkLink) {
-            // TODO NOW: Duplication
-            val javadocLink =
-                if (config.jdkVersion < 11) "https://docs.oracle.com/javase/${config.jdkVersion}/docs/api/"
-                else "https://docs.oracle.com/en/java/javase/${config.jdkVersion}/docs/api/java.base/"
-            val packageListLink =
-                if (config.jdkVersion < 11) "${javadocLink}/package-list"
-                else "https://docs.oracle.com/en/java/javase/${config.jdkVersion}/docs/api/element-list"
-            this += ExternalDocumentationLink
-                .Builder(javadocLink, packageListLink)
-                .build()
+            add(ExternalDocumentationLink.jdk(config.jdkVersion))
         }
 
-        if (!config.noStdlibLink)
-            this += ExternalDocumentationLink
-                .Builder("https://kotlinlang.org/api/latest/jvm/stdlib/")
-                .build()
-    }
+        if (!config.noStdlibLink) {
+            add(ExternalDocumentationLink.kotlinStdlib())
+        }
+    }.toMutableList()
 
 
 fun parseLinks(links: List<String>): List<ExternalDocumentationLink> {
@@ -327,7 +318,7 @@ fun parseLinks(links: List<String>): List<ExternalDocumentationLink> {
         .filter { it.isNotEmpty() }
         .partition { it.size == 1 }
 
-    return parsedLinks.map { (root) -> ExternalDocumentationLink.Builder(root).build() } +
+    return parsedLinks.map { (root) -> ExternalDocumentationLink(root) } +
             parsedOfflineLinks.map { (root, packageList) ->
                 val rootUrl = URL(root)
                 val packageListUrl =
@@ -336,7 +327,7 @@ fun parseLinks(links: List<String>): List<ExternalDocumentationLink> {
                     } catch (ex: MalformedURLException) {
                         File(packageList).toURI().toURL()
                     }
-                ExternalDocumentationLink.Builder(rootUrl, packageListUrl).build()
+                ExternalDocumentationLink(rootUrl, packageListUrl)
             }
 }
 

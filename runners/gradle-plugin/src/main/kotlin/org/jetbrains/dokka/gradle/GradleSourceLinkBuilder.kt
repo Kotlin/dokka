@@ -9,7 +9,7 @@ import org.jetbrains.dokka.DokkaConfigurationBuilder
 import org.jetbrains.dokka.SourceLinkDefinitionImpl
 
 class GradleSourceLinkBuilder(
-    @get:Internal internal val project: Project
+    @Transient @get:Internal internal val project: Project
 ) : DokkaConfigurationBuilder<SourceLinkDefinitionImpl> {
     @Input
     val path: Property<String> = project.objects.safeProperty<String>()

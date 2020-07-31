@@ -1,6 +1,7 @@
 package org.jetbrains.dokka.gradle
 
 import org.jetbrains.dokka.*
+import org.jetbrains.dokka.DokkaConfiguration.ExternalDocumentationLink
 import java.io.File
 import java.net.URL
 
@@ -44,31 +45,17 @@ private fun GradleDokkaSourceSetBuilder.externalDocumentationLinksWithDefaults()
     return externalDocumentationLinks.getSafe().build()
         .run {
             if (noJdkLink.get()) this
-            else this + ExternalDocumentationLink(
-                url =
-                if (jdkVersion.getSafe() < 11) "https://docs.oracle.com/javase/" +
-                        "${jdkVersion.getSafe()}/docs/api/"
-                else "https://docs.oracle.com/en/java/javase/" +
-                        "${jdkVersion.getSafe()}/docs/api/java.base/",
-                packageListUrl =
-                if (jdkVersion.getSafe() < 11) "https://docs.oracle.com/javase/" +
-                        "${jdkVersion.getSafe()}/docs/api/package-list"
-                else "https://docs.oracle.com/en/java/javase/" +
-                        "${jdkVersion.getSafe()}/docs/api/element-list"
-            )
+            else this + ExternalDocumentationLink.jdk(jdkVersion.getSafe())
         }
         .run {
             if (noStdlibLink.getSafe()) this
-            else this + ExternalDocumentationLink("https://kotlinlang.org/api/latest/jvm/stdlib/")
+            else this + ExternalDocumentationLink.kotlinStdlib()
         }
         .run {
             if (noAndroidSdkLink.getSafe() || !project.isAndroidProject()) this
             else this +
-                    ExternalDocumentationLink("https://developer.android.com/reference/") +
-                    ExternalDocumentationLink(
-                        url = URL("https://developer.android.com/reference/kotlin/"),
-                        packageListUrl = URL("https://developer.android.com/reference/androidx/package-list")
-                    )
+                    ExternalDocumentationLink.androidSdk() +
+                    ExternalDocumentationLink.androidX()
         }
         .toSet()
 }

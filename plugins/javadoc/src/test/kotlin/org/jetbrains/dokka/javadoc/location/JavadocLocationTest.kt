@@ -4,6 +4,7 @@ import org.jetbrains.dokka.javadoc.pages.JavadocClasslikePageNode
 import org.jetbrains.dokka.javadoc.pages.JavadocPackagePageNode
 import org.jetbrains.dokka.javadoc.renderer.JavadocContentToHtmlTranslator
 import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.ExternalDocumentationLink
 import org.jetbrains.dokka.ExternalDocumentationLinkImpl
 import org.jetbrains.dokka.javadoc.JavadocPlugin
 import org.jetbrains.dokka.model.firstChildOfType
@@ -18,9 +19,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 class JavadocTest : AbstractCoreTest() {
 
     private fun locationTestInline(testHandler: (RootPageNode, DokkaContext) -> Unit) {
-        fun externalLink(link: String) = DokkaConfiguration.ExternalDocumentationLink
-            .Builder(link)
-            .build() as ExternalDocumentationLinkImpl
+        fun externalLink(link: String) = ExternalDocumentationLink(link)
 
         val config = dokkaConfiguration {
             format = "javadoc"
