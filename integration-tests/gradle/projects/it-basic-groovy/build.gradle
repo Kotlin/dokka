@@ -17,8 +17,6 @@ dokkaHtml {
         customSourceSet {
             sourceRoot(file("src/main/java"))
             sourceRoot(file("src/main/kotlin"))
-
-            // TODO NOW: Can we get rid of this .set here?
             displayName.set("custom")
             reportUndocumented.set(true)
         }
