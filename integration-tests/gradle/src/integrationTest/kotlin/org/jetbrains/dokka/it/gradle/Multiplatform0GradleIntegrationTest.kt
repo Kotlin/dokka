@@ -12,7 +12,7 @@ class Multiplatform0GradleIntegrationTest(override val versions: BuildVersions) 
         @get:Parameterized.Parameters(name = "{0}")
         val versions = BuildVersions.permutations(
             gradleVersions = listOf("6.5.1", "6.1.1"),
-            kotlinVersions = listOf("1.3.30", "1.3.72", "1.4.0-rc")
+            kotlinVersions = listOf("1.4.0-rc")
         )
     }
 
