@@ -8,10 +8,8 @@ plugins {
 
 dependencies {
     compileOnly(project(":core"))
-
-    val kotlin_version: String by project
-    api("org.jetbrains.kotlin:kotlin-compiler:$kotlin_version")
-    api(project(":kotlin-analysis:dependencies", configuration = "shadow"))
+    api(project("intellij-dependency", configuration = "shadow"))
+    api(project("compiler-dependency", configuration = "shadow"))
 }
 
 registerDokkaArtifactPublication("dokkaAnalysis") {

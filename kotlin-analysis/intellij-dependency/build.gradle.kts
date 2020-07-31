@@ -30,12 +30,16 @@ dependencies {
     val idea_version: String by project
     intellijCore("com.jetbrains.intellij.idea:intellij-core:$idea_version")
     implementation(intellijCoreAnalysis())
+
+    val kotlin_version: String by project
+    api("org.jetbrains.kotlin:kotlin-compiler:$kotlin_version")
+
 }
 
 tasks {
     shadowJar {
         val dokka_version: String by project
-        archiveFileName.set("dokka-kotlin-analysis-dependencies-$dokka_version.jar")
+        archiveFileName.set("dokka-kotlin-analysis-intellij-$dokka_version.jar")
         archiveClassifier.set("")
 
         exclude("colorScheme/**")
@@ -50,7 +54,7 @@ tasks {
     }
 }
 
-registerDokkaArtifactPublication("kotlinAnalysisDependencies"){
-    artifactId = "kotlin-analysis-dependencies"
+registerDokkaArtifactPublication("kotlinAnalysisIntelliJ") {
+    artifactId = "kotlin-analysis-intellij"
     component = Shadow
 }
