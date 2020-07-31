@@ -11,6 +11,7 @@ kotlin {
     jvm()
     linuxX64("linux")
     macosX64("macos")
+    js()
     sourceSets {
         named("commonMain") {
             dependencies {
@@ -26,5 +27,6 @@ tasks.withType<DokkaTask> {
         create("jvmMain")
         create("linuxMain")
         create("macosMain")
+        create("jsMain")
     }
 }
