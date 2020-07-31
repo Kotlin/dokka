@@ -20,7 +20,6 @@ internal fun Project.allCompilationsOf(
     }
 }
 
-// TODO NOW: Better name, clarify distinction to allCompilationsOf
 internal fun Project.compilationsOf(sourceSet: KotlinSourceSet): List<KotlinCompilation> {
     return allCompilationsOf(sourceSet).filter { compilation -> sourceSet in compilation.kotlinSourceSets }
 }

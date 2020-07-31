@@ -23,6 +23,8 @@ dependencies {
     testImplementation(gradleKotlinDsl())
     testImplementation(kotlin("test-junit"))
     testImplementation("org.jetbrains.kotlin:kotlin-gradle-plugin")
+    testImplementation("com.android.tools.build:gradle:3.0.0")
+
 
     constraints {
         val kotlin_version: String by project
