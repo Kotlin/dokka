@@ -15,6 +15,8 @@ import org.jetbrains.dokka.pages.*
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.descriptors.ClassKind
 import org.jetbrains.kotlin.resolve.DescriptorUtils.getClassDescriptorForType
+import java.util.*
+import kotlin.collections.HashMap
 
 interface JavadocPageNode : ContentPage
 
@@ -24,7 +26,7 @@ interface WithJavadocExtra<T : Documentable> : WithExtraProperties<T> {
 }
 
 interface WithIndexables {
-    fun getAllIndexables(): List<IndexableJavadocNode>
+    fun getAllIndexables(): List<NavigableJavadocNode>
 }
 
 interface WithBrief {
@@ -35,15 +37,19 @@ class JavadocModulePageNode(
     override val name: String,
     override val content: JavadocContentNode,
     override val children: List<PageNode>,
-    override val dri: Set<DRI>
+    override val dri: Set<DRI>,
+    override val extra: PropertyContainer<DModule> = PropertyContainer.empty()
 ) :
     RootPageNode(),
-    JavadocPageNode, ModulePage {
+    WithJavadocExtra<DModule>,
+    NavigableJavadocNode,
+    JavadocPageNode,
+    ModulePage {
 
     override val documentable: Documentable? = null
     override val embeddedResources: List<String> = emptyList()
     override fun modified(name: String, children: List<PageNode>): RootPageNode =
-        JavadocModulePageNode(name, content, children, dri)
+        JavadocModulePageNode(name, content, children, dri, extra)
 
     override fun modified(
         name: String,
@@ -51,7 +57,11 @@ class JavadocModulePageNode(
         dri: Set<DRI>,
         embeddedResources: List<String>,
         children: List<PageNode>
-    ): ContentPage = JavadocModulePageNode(name, content as JavadocContentNode, children, dri)
+    ): ContentPage = JavadocModulePageNode(name, content as JavadocContentNode, children, dri, extra)
+
+    override fun getId(): String = name
+
+    override fun getDRI(): DRI = dri.first()
 }
 
 class JavadocPackagePageNode(
@@ -62,10 +72,13 @@ class JavadocPackagePageNode(
     override val documentable: Documentable? = null,
     override val children: List<PageNode> = emptyList(),
     override val embeddedResources: List<String> = listOf()
-) : JavadocPageNode, WithIndexables, IndexableJavadocNode, PackagePage {
+) : JavadocPageNode,
+    WithIndexables,
+    NavigableJavadocNode,
+    PackagePage {
 
-    override fun getAllIndexables(): List<IndexableJavadocNode> =
-        children.filterIsInstance<IndexableJavadocNode>().flatMap {
+    override fun getAllIndexables(): List<NavigableJavadocNode> =
+        children.filterIsInstance<NavigableJavadocNode>().flatMap {
             if (it is WithIndexables) it.getAllIndexables()
             else listOf(it)
         }
@@ -103,12 +116,12 @@ class JavadocPackagePageNode(
     override fun getDRI(): DRI = dri.first()
 }
 
-interface IndexableJavadocNode {
+interface NavigableJavadocNode {
     fun getId(): String
     fun getDRI(): DRI
 }
 
-sealed class AnchorableJavadocNode(open val name: String, open val dri: DRI) : IndexableJavadocNode {
+sealed class AnchorableJavadocNode(open val name: String, open val dri: DRI) : NavigableJavadocNode {
     override fun getId(): String = name
     override fun getDRI(): DRI = dri
 }
@@ -172,9 +185,9 @@ class JavadocClasslikePageNode(
     override val children: List<PageNode> = emptyList(),
     override val embeddedResources: List<String> = listOf(),
     override val extra: PropertyContainer<DClasslike> = PropertyContainer.empty(),
-) : JavadocPageNode, WithJavadocExtra<DClasslike>, IndexableJavadocNode, WithIndexables, WithBrief, ClasslikePage {
+) : JavadocPageNode, WithJavadocExtra<DClasslike>, NavigableJavadocNode, WithIndexables, WithBrief, ClasslikePage {
 
-    override fun getAllIndexables(): List<IndexableJavadocNode> =
+    override fun getAllIndexables(): List<NavigableJavadocNode> =
         methods + entries + classlikes.map { it.getAllIndexables() }.flatten() + this
 
     val kind: String? = documentable?.kind()
@@ -262,9 +275,59 @@ class AllClassesPage(val classes: List<JavadocClasslikePageNode>) : JavadocPageN
 
 }
 
+class DeprecatedPage(
+    val elements: Map<DeprecatedPageSection, Set<DeprecatedNode>>,
+    sourceSet: Set<DisplaySourceSet>
+) : JavadocPageNode {
+    override val name: String = "deprecated"
+    override val dri: Set<DRI> = setOf(DRI.topLevel)
+    override val documentable: Documentable? = null
+    override val children: List<PageNode> = emptyList()
+    override val embeddedResources: List<String> = listOf()
+
+    override val content: ContentNode = EmptyNode(
+        DRI.topLevel,
+        ContentKind.Main,
+        sourceSet
+    )
+
+    override fun modified(
+        name: String,
+        children: List<PageNode>
+    ): PageNode = this
+
+    override fun modified(
+        name: String,
+        content: ContentNode,
+        dri: Set<DRI>,
+        embeddedResources: List<String>,
+        children: List<PageNode>
+    ): ContentPage = this
+
+}
+
+class DeprecatedNode(val name: String, val address: DRI, val description: List<ContentNode>) {
+    override fun equals(other: Any?): Boolean =
+        (other as? DeprecatedNode)?.address == address
+
+    override fun hashCode(): Int = address.hashCode()
+}
+
+enum class DeprecatedPageSection(val id: String, val caption: String, val header: String, val priority: Int = 100) {
+    DeprecatedForRemoval("forRemoval", "For Removal", "Element", priority = 90),
+    DeprecatedModules("module", "Modules", "Module"),
+    DeprecatedInterfaces("interface", "Interfaces", "Interface"),
+    DeprecatedClasses("class", "Classes", "Class"),
+    DeprecatedEnums("enum", "Enums", "Enum"),
+    DeprecatedFields("field", "Fields", "Field"),
+    DeprecatedMethods("method", "Methods", "Method"),
+    DeprecatedConstructors("constructor", "Constructors", "Constructor"),
+    DeprecatedEnumConstants("enum.constant", "Enum Constants", "Enum Constant")
+}
+
 class IndexPage(
     val id: Int,
-    val elements: List<IndexableJavadocNode>,
+    val elements: List<NavigableJavadocNode>,
     val keys: List<Char>,
     sourceSet: Set<DisplaySourceSet>
 
@@ -285,8 +348,7 @@ class IndexPage(
     override fun modified(
         name: String,
         children: List<PageNode>
-    ): PageNode =
-        TODO()
+    ): PageNode = this
 
     override fun modified(
         name: String,
@@ -294,8 +356,7 @@ class IndexPage(
         dri: Set<DRI>,
         embeddedResources: List<String>,
         children: List<PageNode>
-    ): ContentPage =
-        TODO()
+    ): ContentPage = this
 
 }
 

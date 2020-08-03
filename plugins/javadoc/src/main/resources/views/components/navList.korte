@@ -21,7 +21,7 @@
     {% else %}
     <li><a href="package-tree.html">Tree</a></li>
     {% end %}
-    <li>Deprecated</li>
+    <li><a href="{{ pathToRoot }}deprecated.html">Deprecated</a></li>
     <li><a href="{{ pathToRoot }}index-files/index-1.html">Index</a></li>
     <li>Help</li>
 </ul>
