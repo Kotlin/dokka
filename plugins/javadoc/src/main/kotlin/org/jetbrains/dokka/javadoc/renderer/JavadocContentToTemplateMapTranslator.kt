@@ -37,6 +37,7 @@ internal class JavadocContentToTemplateMapTranslator(
             is TreeViewPage -> InnerTranslator(node).templateMapForTreeViewPage(node)
             is AllClassesPage -> InnerTranslator(node).templateMapForAllClassesPage(node)
             is IndexPage -> InnerTranslator(node).templateMapForIndexPage(node)
+            is DeprecatedPage -> InnerTranslator(node).templateMapForDeprecatedPage(node)
             else -> emptyMap()
         }
 
@@ -74,6 +75,33 @@ internal class JavadocContentToTemplateMapTranslator(
                 "elements" to node.elements.map { templateMapForIndexableNode(it) }
             )
 
+        fun templateMapForDeprecatedPage(node: DeprecatedPage): TemplateMap =
+            mapOf(
+                "id" to node.name,
+                "title" to "Deprecated",
+                "kind" to "deprecated",
+                "sections" to node.elements.toList().sortedBy { (section, _) -> section.priority }
+                    .map { (s, e) -> templateMapForDeprecatedPageSection(s, e) }
+            )
+
+        fun templateMapForDeprecatedPageSection(
+            section: DeprecatedPageSection,
+            elements: Set<DeprecatedNode>
+        ): TemplateMap =
+            mapOf(
+                "id" to section.id,
+                "header" to section.header,
+                "caption" to section.caption,
+                "elements" to elements.map { node ->
+                    mapOf(
+                        "name" to node.name,
+                        "address" to locationProvider.resolve(node.address, contextNode.sourceSets(), contextNode)
+                            ?.formatToEndWithHtml().orEmpty(),
+                        "description" to htmlForContentNodes(node.description, contextNode)
+                    )
+                }
+            )
+
         fun templateMapForTreeViewPage(node: TreeViewPage): TemplateMap =
             mapOf(
                 "title" to node.title,
@@ -93,7 +121,7 @@ internal class JavadocContentToTemplateMapTranslator(
             "description" to htmlForContentNodes(node.description,contextNode),
             "parameters" to node.parameters.map { templateMapForParameterNode(it) },
             "inlineParameters" to node.parameters.joinToString { renderInlineParameter(it) },
-            "anchorLink" to locationProvider.anchorForFunctionNode(node),
+            "anchorLink" to node.getAnchor(),
             "signature" to templateMapForSignatureNode(node.signature),
             "name" to node.name
         )
@@ -121,7 +149,7 @@ internal class JavadocContentToTemplateMapTranslator(
                 "supertypes" to node.supertypes?.let { htmlForContentNode(it, contextNode) }
             )
 
-        private fun IndexableJavadocNode.typeForIndexable() = when (this) {
+        private fun NavigableJavadocNode.typeForIndexable() = when (this) {
             is JavadocClasslikePageNode -> "class"
             is JavadocFunctionNode -> "function"
             is JavadocEntryNode -> "enum entry"
@@ -131,14 +159,14 @@ internal class JavadocContentToTemplateMapTranslator(
             else -> ""
         }
 
-        fun templateMapForIndexableNode(node: IndexableJavadocNode): TemplateMap {
+        fun templateMapForIndexableNode(node: NavigableJavadocNode): TemplateMap {
             val origin = node.getDRI().parent
             return mapOf(
                 "address" to locationProvider.resolve(node.getDRI(), contextNode.sourceSets(), contextNode)
                     ?.formatToEndWithHtml().orEmpty(),
                 "type" to node.typeForIndexable(),
                 "isMember" to (node !is JavadocPackagePageNode),
-                "name" to if (node is JavadocFunctionNode) locationProvider.anchorForFunctionNode(node) else node.getId(),
+                "name" to if (node is JavadocFunctionNode) node.getAnchor() else node.getId(),
                 "description" to ((node as? WithBrief)?.let {
                     htmlForContentNodes(
                         it.brief,

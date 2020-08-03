@@ -52,6 +52,7 @@ class KorteJavadocRenderer(private val outputWriter: OutputWriter, val context: 
         is AllClassesPage -> "listPage.korte"
         is TreeViewPage -> "treePage.korte"
         is IndexPage -> "indexPage.korte"
+        is DeprecatedPage -> "deprecated.korte"
         else -> ""
     }
 

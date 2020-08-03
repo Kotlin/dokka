@@ -1,6 +1,10 @@
 package org.jetbrains.dokka.javadoc.pages
 
 import org.jetbrains.dokka.base.renderers.sourceSets
+import org.jetbrains.dokka.base.transformers.documentables.deprecatedAnnotation
+import org.jetbrains.dokka.base.transformers.documentables.isDeprecated
+import org.jetbrains.dokka.model.Documentable
+import org.jetbrains.dokka.model.StringValue
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 import kotlin.collections.HashMap
@@ -67,12 +71,12 @@ object AllClassesPageInstaller : PageTransformer {
     }
 }
 
-object IndexGenerator: PageTransformer {
+object IndexGenerator : PageTransformer {
     override fun invoke(input: RootPageNode): RootPageNode {
-        val elements = HashMap<Char, MutableSet<IndexableJavadocNode>>()
+        val elements = HashMap<Char, MutableSet<NavigableJavadocNode>>()
         (input as JavadocModulePageNode).children.filterIsInstance<JavadocPackagePageNode>().forEach {
             it.getAllIndexables().forEach { d ->
-                val name = when(d) {
+                val name = when (d) {
                     is JavadocPageNode -> d.name
                     is AnchorableJavadocNode -> d.name
                     else -> null
@@ -87,5 +91,62 @@ object IndexGenerator: PageTransformer {
         return input.modified(children = input.children + elements.entries.mapIndexed { i, (_, set) ->
             IndexPage(i + 1, set.sortedBy { it.getId().toLowerCase() }, keys, input.sourceSets())
         })
+    }
+}
+
+object DeprecatedPageCreator : PageTransformer {
+    override fun invoke(input: RootPageNode): RootPageNode {
+        val elements = HashMap<DeprecatedPageSection, MutableSet<DeprecatedNode>>().apply {
+
+            fun <T> T.putAs(deprecatedPageSection: DeprecatedPageSection) where
+                    T : NavigableJavadocNode,
+                    T : WithJavadocExtra<out Documentable> {
+                val deprecatedNode = DeprecatedNode(
+                    listOfNotNull(
+                        getDRI().packageName?.takeUnless { it.isBlank() },
+                        if (this is JavadocFunctionNode) getAnchor() else getId()
+                    ).joinToString("."),
+                    getDRI(),
+                    (this as? WithBrief)?.brief.orEmpty()
+                )
+                getOrPut(deprecatedPageSection) { mutableSetOf() }.add(deprecatedNode)
+                if (deprecatedAnnotation?.params?.get("forRemoval") == StringValue("true")) {
+                    getOrPut(DeprecatedPageSection.DeprecatedForRemoval) { mutableSetOf() }.add(deprecatedNode)
+                }
+            }
+
+            fun verifyDeprecation(node: NavigableJavadocNode) {
+                when (node) {
+                    is JavadocModulePageNode -> {
+                        node.children.filterIsInstance<JavadocPackagePageNode>().forEach(::verifyDeprecation)
+                        node.takeIf { it.isDeprecated() }?.putAs(DeprecatedPageSection.DeprecatedModules)
+                    }
+                    is JavadocPackagePageNode ->
+                        node.children.filterIsInstance<NavigableJavadocNode>().forEach(::verifyDeprecation)
+                    is JavadocClasslikePageNode -> {
+                        node.classlikes.forEach(::verifyDeprecation)
+                        node.methods.forEach { it.takeIf { it.isDeprecated() }?.putAs(DeprecatedPageSection.DeprecatedMethods) }
+                        node.constructors.forEach { it.takeIf { it.isDeprecated() }?.putAs(DeprecatedPageSection.DeprecatedConstructors) }
+                        node.properties.forEach { it.takeIf { it.isDeprecated() }?.putAs(DeprecatedPageSection.DeprecatedFields) }
+                        node.entries.forEach { it.takeIf { it.isDeprecated() }?.putAs(DeprecatedPageSection.DeprecatedEnumConstants) }
+                        node.takeIf { it.isDeprecated() }?.putAs(
+                            when (node.kind) {
+                                "enum" -> DeprecatedPageSection.DeprecatedEnums
+                                "interface" -> DeprecatedPageSection.DeprecatedInterfaces
+                                else -> DeprecatedPageSection.DeprecatedClasses
+                            }
+                        )
+                    }
+                }
+            }
+
+            verifyDeprecation(input as JavadocModulePageNode)
+        }
+        return input.modified(
+            children = input.children + DeprecatedPage(
+                elements,
+                (input as JavadocModulePageNode).sourceSets()
+            )
+        )
     }
 }
