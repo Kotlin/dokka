@@ -8,10 +8,7 @@ import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.renderers.PackageListCreator
 import org.jetbrains.dokka.base.renderers.RootCreator
 import org.jetbrains.dokka.base.resolvers.shared.RecognizedLinkFormat
-import org.jetbrains.dokka.javadoc.pages.AllClassesPageInstaller
-import org.jetbrains.dokka.javadoc.pages.IndexGenerator
-import org.jetbrains.dokka.javadoc.pages.ResourcesInstaller
-import org.jetbrains.dokka.javadoc.pages.TreeViewInstaller
+import org.jetbrains.dokka.javadoc.pages.*
 import org.jetbrains.dokka.kotlinAsJava.KotlinAsJavaPlugin
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.plugability.querySingle
@@ -85,6 +82,10 @@ class JavadocPlugin : DokkaPlugin() {
 
     val indexGenerator by extending {
         javadocPreprocessors with IndexGenerator order { before(rootCreator) }
+    }
+
+    val deprecatedPageCreator by extending {
+        javadocPreprocessors with DeprecatedPageCreator order { before(rootCreator) }
     }
 }
 

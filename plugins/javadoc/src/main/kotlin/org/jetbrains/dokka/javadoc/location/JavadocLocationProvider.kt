@@ -34,6 +34,8 @@ class JavadocLocationProvider(pageRoot: RootPageNode, dokkaContext: DokkaContext
                     listOf(packagePath, "package-summary")
                 else if (page is IndexPage)
                     listOf("index-files", page.name)
+                else if (page is DeprecatedPage)
+                    listOf("deprecated")
                 else
                     listOf("index")
                 else -> emptyList()
@@ -84,22 +86,6 @@ class JavadocLocationProvider(pageRoot: RootPageNode, dokkaContext: DokkaContext
                 }
                 "${resolve(it, context, skipExtension = true)}.html#$anchor"
             }
-
-    private fun JavadocFunctionNode.getAnchor(): String =
-        "$name(" +
-                parameters.joinToString(",") {
-                    when (val bound =
-                        if (it.typeBound is org.jetbrains.dokka.model.Nullable) it.typeBound.inner else it.typeBound) {
-                        is TypeConstructor -> bound.dri.classNames.orEmpty()
-                        is TypeParameter -> bound.name
-                        is PrimitiveJavaType -> bound.name
-                        is UnresolvedBound -> bound.name
-                        is JavaObject -> "Object"
-                        else -> bound.toString()
-                    }
-                } + ")"
-
-    fun anchorForFunctionNode(node: JavadocFunctionNode) = node.getAnchor()
 
     private fun anchorForDri(dri: DRI): String =
         dri.callable?.let { callable ->
