@@ -4,13 +4,15 @@ import org.jetbrains.dokka.javadoc.location.JavadocLocationProvider
 import org.jetbrains.dokka.javadoc.pages.*
 import org.jetbrains.dokka.javadoc.toNormalized
 import org.jetbrains.dokka.Platform
-import org.jetbrains.dokka.base.resolvers.local.LocationProvider
+import org.jetbrains.dokka.base.renderers.sourceSets
 import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.links.parent
 import org.jetbrains.dokka.links.sureClassNames
 import org.jetbrains.dokka.model.ImplementedInterfaces
 import org.jetbrains.dokka.model.InheritedFunction
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
+import org.jetbrains.dokka.utilities.formatToEndWithHtml
 import java.nio.file.Paths
 
 internal class JavadocContentToTemplateMapTranslator(
@@ -34,11 +36,12 @@ internal class JavadocContentToTemplateMapTranslator(
             is JavadocPackagePageNode -> InnerTranslator(node).templateMapForPackagePageNode(node)
             is TreeViewPage -> InnerTranslator(node).templateMapForTreeViewPage(node)
             is AllClassesPage -> InnerTranslator(node).templateMapForAllClassesPage(node)
+            is IndexPage -> InnerTranslator(node).templateMapForIndexPage(node)
             else -> emptyMap()
         }
 
     private fun pathToRoot(node: JavadocPageNode): String {
-        return when(node){
+        return when (node) {
             is JavadocModulePageNode -> ""
             else -> run {
                 val link = locationProvider.resolve(node, skipExtension = true)
@@ -50,19 +53,29 @@ internal class JavadocContentToTemplateMapTranslator(
         }
     }
 
-    private inner class InnerTranslator(val contextNode: PageNode) {
+    private inner class InnerTranslator(val contextNode: JavadocPageNode) {
 
         private val htmlTranslator = JavadocContentToHtmlTranslator(locationProvider, context)
 
-        fun templateMapForAllClassesPage(node: AllClassesPage): TemplateMap {
-            return mapOf(
+        fun templateMapForAllClassesPage(node: AllClassesPage): TemplateMap =
+            mapOf(
                 "title" to "All Classes",
                 "list" to node.classEntries
             )
-        }
 
-        fun templateMapForTreeViewPage(node: TreeViewPage): TemplateMap {
-            return mapOf(
+        fun templateMapForIndexPage(node: IndexPage): TemplateMap =
+            mapOf(
+                "id" to node.id,
+                "title" to node.name,
+                "kind" to "indexPage",
+                "prevLetter" to if (node.id > 1) "index-${node.id - 1}" else "",
+                "nextLetter" to if (node.id < node.keys.size) "index-${node.id + 1}" else "",
+                "dictionary" to node.keys,
+                "elements" to node.elements.map { templateMapForIndexableNode(it) }
+            )
+
+        fun templateMapForTreeViewPage(node: TreeViewPage): TemplateMap =
+            mapOf(
                 "title" to node.title,
                 "name" to node.name,
                 "kind" to node.kind,
@@ -70,24 +83,19 @@ internal class JavadocContentToTemplateMapTranslator(
                 "classGraph" to node.classGraph,
                 "interfaceGraph" to node.interfaceGraph
             )
-        }
 
-        fun templateMapForPackagePageNode(node: JavadocPackagePageNode): TemplateMap {
-            return mapOf(
-                "kind" to "package"
-            ) + templateMapForJavadocContentNode(node.content)
-        }
+        fun templateMapForPackagePageNode(node: JavadocPackagePageNode): TemplateMap = mapOf(
+            "kind" to "package"
+        ) + templateMapForJavadocContentNode(node.content)
 
-        fun templateMapForFunctionNode(node: JavadocFunctionNode): TemplateMap {
-            return mapOf(
-                "brief" to htmlForContentNodes(node.brief, contextNode),
-                "parameters" to node.parameters.map { templateMapForParameterNode(it) },
-                "inlineParameters" to node.parameters.joinToString { renderInlineParameter(it) },
-                "anchorLink" to locationProvider.anchorForFunctionNode(node),
-                "signature" to templateMapForSignatureNode(node.signature),
-                "name" to node.name
-            )
-        }
+        fun templateMapForFunctionNode(node: JavadocFunctionNode): TemplateMap = mapOf(
+            "brief" to htmlForContentNodes(node.brief, contextNode),
+            "parameters" to node.parameters.map { templateMapForParameterNode(it) },
+            "inlineParameters" to node.parameters.joinToString { renderInlineParameter(it) },
+            "anchorLink" to locationProvider.anchorForFunctionNode(node),
+            "signature" to templateMapForSignatureNode(node.signature),
+            "name" to node.name
+        )
 
         fun templateMapForClasslikeNode(node: JavadocClasslikePageNode): TemplateMap =
             mapOf(
@@ -111,6 +119,41 @@ internal class JavadocContentToTemplateMapTranslator(
                 "modifiers" to node.modifiers?.let { htmlForContentNode(it, contextNode) },
                 "supertypes" to node.supertypes?.let { htmlForContentNode(it, contextNode) }
             )
+
+        private fun IndexableJavadocNode.typeForIndexable() = when (this) {
+            is JavadocClasslikePageNode -> "class"
+            is JavadocFunctionNode -> "function"
+            is JavadocEntryNode -> "enum entry"
+            is JavadocParameterNode -> "parameter"
+            is JavadocPropertyNode -> "property"
+            else -> ""
+        }
+
+        fun templateMapForIndexableNode(node: IndexableJavadocNode): TemplateMap {
+            val origin = node.getDRI().parent
+            return mapOf(
+                "address" to locationProvider.resolve(node.getDRI(), contextNode.sourceSets(), contextNode)
+                    .formatToEndWithHtml(),
+                "type" to node.typeForIndexable(),
+                "name" to if (node is JavadocFunctionNode) locationProvider.anchorForFunctionNode(node) else node.getId(),
+                "description" to ((node as? WithBrief)?.let {
+                    htmlForContentNodes(
+                        it.brief,
+                        contextNode
+                    ).takeIf { desc -> desc.isNotBlank() }
+                } ?: "&nbsp;"),
+                "origin" to origin.indexableOriginSignature(),
+            )
+        }
+
+        private fun DRI.indexableOriginSignature(): String {
+            val packageName = packageName?.takeIf { it.isNotBlank() }
+            val className = classNames?.let {
+                "<a href=${locationProvider.resolve(this, contextNode.sourceSets(), contextNode)
+                    .formatToEndWithHtml()}>$it</a>"
+            }
+            return listOfNotNull(packageName, className).joinToString(".")
+        }
 
         fun templateMapForJavadocContentNode(node: JavadocContentNode): TemplateMap =
             when (node) {

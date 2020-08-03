@@ -1,6 +1,7 @@
 package org.jetbrains.dokka.javadoc.pages
 
 import com.intellij.psi.PsiClass
+import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.analysis.DescriptorDocumentableSource
 import org.jetbrains.dokka.analysis.PsiDocumentableSource
@@ -14,13 +15,20 @@ import org.jetbrains.dokka.pages.*
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.descriptors.ClassKind
 import org.jetbrains.kotlin.resolve.DescriptorUtils.getClassDescriptorForType
-import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstance
 
 interface JavadocPageNode : ContentPage
 
 interface WithJavadocExtra<T : Documentable> : WithExtraProperties<T> {
     override fun withNewExtras(newExtras: PropertyContainer<T>): T =
         throw IllegalStateException("Merging extras is not applicable for javadoc")
+}
+
+interface WithIndexables {
+    fun getAllIndexables(): List<IndexableJavadocNode>
+}
+
+interface WithBrief {
+    val brief: List<ContentNode>
 }
 
 class JavadocModulePageNode(
@@ -54,7 +62,13 @@ class JavadocPackagePageNode(
     override val documentable: Documentable? = null,
     override val children: List<PageNode> = emptyList(),
     override val embeddedResources: List<String> = listOf()
-) : JavadocPageNode {
+) : JavadocPageNode, WithIndexables {
+
+    override fun getAllIndexables(): List<IndexableJavadocNode> =
+        children.filterIsInstance<IndexableJavadocNode>().flatMap {
+            if (it is WithIndexables) it.getAllIndexables()
+            else listOf(it)
+        }
 
     override fun modified(
         name: String,
@@ -85,41 +99,49 @@ class JavadocPackagePageNode(
         )
 }
 
-sealed class AnchorableJavadocNode(open val dri: DRI)
+interface IndexableJavadocNode {
+    fun getId(): String
+    fun getDRI(): DRI
+}
+
+sealed class AnchorableJavadocNode(open val name: String, open val dri: DRI) : IndexableJavadocNode {
+    override fun getId(): String = name
+    override fun getDRI(): DRI = dri
+}
 
 data class JavadocEntryNode(
     override val dri: DRI,
-    val name: String,
+    override val name: String,
     val signature: JavadocSignatureContentNode,
-    val brief: List<ContentNode>,
+    override val brief: List<ContentNode>,
     override val extra: PropertyContainer<DEnumEntry> = PropertyContainer.empty()
-): AnchorableJavadocNode(dri), WithJavadocExtra<DEnumEntry>
+) : AnchorableJavadocNode(name, dri), WithJavadocExtra<DEnumEntry>, WithBrief
 
 data class JavadocParameterNode(
     override val dri: DRI,
-    val name: String,
+    override val name: String,
     val type: ContentNode,
     val description: List<ContentNode>,
     val typeBound: Bound,
     override val extra: PropertyContainer<DParameter> = PropertyContainer.empty()
-): AnchorableJavadocNode(dri), WithJavadocExtra<DParameter>
+) : AnchorableJavadocNode(name, dri), WithJavadocExtra<DParameter>
 
 data class JavadocPropertyNode(
     override val dri: DRI,
-    val name: String,
+    override val name: String,
     val signature: JavadocSignatureContentNode,
-    val brief: List<ContentNode>,
+    override val brief: List<ContentNode>,
     override val extra: PropertyContainer<DProperty> = PropertyContainer.empty()
-): AnchorableJavadocNode(dri), WithJavadocExtra<DProperty>
+) : AnchorableJavadocNode(name, dri), WithJavadocExtra<DProperty>, WithBrief
 
 data class JavadocFunctionNode(
     val signature: JavadocSignatureContentNode,
-    val brief: List<ContentNode>,
+    override val brief: List<ContentNode>,
     val parameters: List<JavadocParameterNode>,
-    val name: String,
+    override val name: String,
     override val dri: DRI,
     override val extra: PropertyContainer<DFunction> = PropertyContainer.empty()
-): AnchorableJavadocNode(dri), WithJavadocExtra<DFunction> {
+) : AnchorableJavadocNode(name, dri), WithJavadocExtra<DFunction>, WithBrief {
     val isInherited: Boolean
         get() {
             val extra = extra[InheritedFunction]
@@ -140,14 +162,21 @@ class JavadocClasslikePageNode(
     val entries: List<JavadocEntryNode>,
     val classlikes: List<JavadocClasslikePageNode>,
     val properties: List<JavadocPropertyNode>,
+    override val brief: List<ContentNode>,
     override val documentable: Documentable? = null,
     override val children: List<PageNode> = emptyList(),
     override val embeddedResources: List<String> = listOf(),
     override val extra: PropertyContainer<DClasslike> = PropertyContainer.empty(),
-) : JavadocPageNode, WithJavadocExtra<DClasslike> {
+) : JavadocPageNode, WithJavadocExtra<DClasslike>, IndexableJavadocNode, WithIndexables, WithBrief {
+
+    override fun getAllIndexables(): List<IndexableJavadocNode> =
+        methods + entries + classlikes.map { it.getAllIndexables() }.flatten() + this
 
     val kind: String? = documentable?.kind()
     val packageName = dri.first().packageName
+
+    override fun getId(): String = name
+    override fun getDRI(): DRI = dri.first()
 
     override fun modified(
         name: String,
@@ -163,6 +192,7 @@ class JavadocClasslikePageNode(
         entries,
         classlikes,
         properties,
+        brief,
         documentable,
         children,
         embeddedResources,
@@ -187,6 +217,7 @@ class JavadocClasslikePageNode(
             entries,
             classlikes,
             properties,
+            brief,
             documentable,
             children,
             embeddedResources,
@@ -223,6 +254,42 @@ class AllClassesPage(val classes: List<JavadocClasslikePageNode>) : JavadocPageN
         TODO()
 
     override val children: List<PageNode> = emptyList()
+
+}
+
+class IndexPage(
+    val id: Int,
+    val elements: List<IndexableJavadocNode>,
+    val keys: List<Char>,
+    sourceSet: Set<DokkaConfiguration.DokkaSourceSet>
+
+) : JavadocPageNode {
+    override val name: String = "index-$id"
+    override val dri: Set<DRI> = setOf(DRI.topLevel)
+    override val documentable: Documentable? = null
+    override val children: List<PageNode> = emptyList()
+    override val embeddedResources: List<String> = listOf()
+
+    override val content: ContentNode = EmptyNode(
+        DRI.topLevel,
+        ContentKind.Classlikes,
+        sourceSet
+    )
+
+    override fun modified(
+        name: String,
+        children: List<PageNode>
+    ): PageNode =
+        TODO()
+
+    override fun modified(
+        name: String,
+        content: ContentNode,
+        dri: Set<DRI>,
+        embeddedResources: List<String>,
+        children: List<PageNode>
+    ): ContentPage =
+        TODO()
 
 }
 

@@ -50,6 +50,7 @@ class KorteJavadocRenderer(private val outputWriter: OutputWriter, val context: 
         is JavadocClasslikePageNode -> "class.korte"
         is AllClassesPage -> "listPage.korte"
         is TreeViewPage -> "treePage.korte"
+        is IndexPage -> "indexPage.korte"
         else -> ""
     }
 

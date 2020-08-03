@@ -1,9 +1,11 @@
 package org.jetbrains.dokka.javadoc.pages
 
+import org.jetbrains.dokka.base.renderers.sourceSets
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.transformers.pages.PageTransformer
+import kotlin.collections.HashMap
 
-val preprocessors = listOf(ResourcesInstaller, TreeViewInstaller, AllClassesPageInstaller)
+val preprocessors = listOf(ResourcesInstaller, TreeViewInstaller, AllClassesPageInstaller, IndexGenerator)
 
 object ResourcesInstaller : PageTransformer {
     override fun invoke(input: RootPageNode): RootPageNode = input.modified(
@@ -64,5 +66,27 @@ object AllClassesPageInstaller : PageTransformer {
         }
 
         return input.modified(children = input.children + AllClassesPage(classes))
+    }
+}
+
+object IndexGenerator: PageTransformer {
+    override fun invoke(input: RootPageNode): RootPageNode {
+        val elements = HashMap<Char, MutableSet<IndexableJavadocNode>>()
+        (input as JavadocModulePageNode).children.filterIsInstance<JavadocPackagePageNode>().forEach {
+            it.getAllIndexables().forEach { d ->
+                val name = when(d) {
+                    is JavadocPageNode -> d.name
+                    is AnchorableJavadocNode -> d.name
+                    else -> null
+                }
+                if (name != null && name.isNotBlank()) {
+                    elements.getOrPut(name[0].toUpperCase(), ::mutableSetOf).add(d)
+                }
+            }
+        }
+        val keys = elements.keys.sortedBy { it }
+        return input.modified(children = input.children + elements.entries.mapIndexed { i, (_, set) ->
+            IndexPage(i + 1, set.sortedBy { it.getId() }, keys, input.sourceSets())
+        })
     }
 }

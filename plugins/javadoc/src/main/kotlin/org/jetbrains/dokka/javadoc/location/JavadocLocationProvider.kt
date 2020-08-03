@@ -32,6 +32,8 @@ class JavadocLocationProvider(pageRoot: RootPageNode, dokkaContext: DokkaContext
                     listOfNotNull(page.dri.first().classNames)
                 else if (page is JavadocPackagePageNode)
                     listOf(packagePath, "package-summary")
+                else if (page is IndexPage)
+                    listOf("index-files", page.name)
                 else
                     listOf("index")
                 else -> emptyList()
@@ -115,6 +117,7 @@ class JavadocLocationProvider(pageRoot: RootPageNode, dokkaContext: DokkaContext
                 JavadocContentKind.AllClasses -> it.dropLast(1) + "allclasses"
                 JavadocContentKind.OverviewTree -> it.dropLast(1) + "overview-tree"
                 JavadocContentKind.PackageTree -> it.dropLast(1) + "package-tree"
+                JavadocContentKind.IndexPage -> it.dropLast(1) + "index-1"
                 else -> it
             }
         }?.relativeTo(pathIndex[contextRoot].orEmpty())?.let { if (skipExtension) "$it.html" else it }.orEmpty()
