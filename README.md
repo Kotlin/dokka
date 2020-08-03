@@ -65,7 +65,6 @@ plugins {
 
 repositories {
     jcenter() // or maven(url="https://dl.bintray.com/kotlin/dokka")
-    maven("https://dl.bintray.com/kotlin/kotlin-eap")
 }
 ```
 
@@ -74,7 +73,7 @@ settings.gradle.kts:
 pluginManagement {
     repositories {
         gradlePluginPortal()
-        maven("https://dl.bintray.com/kotlin/kotlin-eap")
+        jcenter()
     }
 }
 ```
@@ -87,7 +86,6 @@ eg. you'll have to use `named<DokkaTask>("dokkaHtml")` instead of `dokkaHtml`:
 buildscript {
     repositories {
         jcenter()
-        maven("https://dl.bintray.com/kotlin/kotlin-eap")
     }
     dependencies {
         classpath("org.jetbrains.dokka:dokka-gradle-plugin:${dokka_version}")
@@ -95,7 +93,6 @@ buildscript {
 }
 repositories {
     jcenter() // or maven(url="https://dl.bintray.com/kotlin/dokka")
-    maven("https://dl.bintray.com/kotlin/kotlin-eap")
 }
 
 apply(plugin="org.jetbrains.dokka")
@@ -381,7 +378,6 @@ Make sure you apply dokka after `com.android.library` and `kotlin-android`.
 buildscript {
     repositories {
         jcenter()
-        maven("https://dl.bintray.com/kotlin/kotlin-eap")
     }
     dependencies {
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlin_version}")
@@ -390,7 +386,6 @@ buildscript {
 }
 repositories {
     jcenter()
-    maven("https://dl.bintray.com/kotlin/kotlin-eap")
 }
 apply(plugin= "com.android.library")
 apply(plugin= "kotlin-android")
@@ -432,10 +427,6 @@ The Maven plugin is available in JCenter. You need to add the JCenter repository
         <id>jcenter</id>
         <name>JCenter</name>
         <url>https://jcenter.bintray.com/</url>
-    </pluginRepository>
-    <pluginRepository>
-        <id>kotlin-eap</id>
-        <url>https://dl.bintray.com/kotlin/kotlin-eap/</url>
     </pluginRepository>
 </pluginRepositories>
 ```
