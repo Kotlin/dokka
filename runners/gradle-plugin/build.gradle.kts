@@ -3,6 +3,7 @@ import org.jetbrains.dokkaVersion
 
 plugins {
     `java-gradle-plugin`
+    id("com.gradle.plugin-publish") version "0.10.1"
 }
 
 repositories {
@@ -43,6 +44,24 @@ gradlePlugin {
             implementationClass = "org.jetbrains.dokka.gradle.DokkaPlugin"
             version = dokkaVersion
         }
+    }
+}
+
+pluginBundle {
+    website = "https://www.kotlinlang.org/"
+    vcsUrl = "https://github.com/kotlin/dokka.git"
+    description = "Dokka, the Kotlin documentation tool"
+    tags = listOf("dokka", "kotlin", "kdoc", "android")
+
+    plugins {
+        getByName("dokkaGradlePlugin") {
+            displayName = "Dokka plugin"
+        }
+    }
+
+    mavenCoordinates {
+        groupId = "org.jetbrains.dokka"
+        artifactId = "dokka-gradle-plugin"
     }
 }
 
