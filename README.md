@@ -60,7 +60,7 @@ you not only need to add `dokka` to the `build.gradle.kts` file, but you also ne
 build.gradle.kts:
 ```kotlin
 plugins {
-    id("org.jetbrains.dokka") version "1.4-M3"
+    id("org.jetbrains.dokka") version "1.4.0-rc"
 }
 
 repositories {
@@ -346,7 +346,7 @@ Dokka plugin creates Gradle configuration for each output format in the form of 
 
 ```kotlin
 dependencies {
-    dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:1.4-M3")
+    dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:1.4.0-rc")
 }
 ``` 
 
@@ -355,7 +355,7 @@ You can also create a custom dokka task and add plugins directly inside:
 ```kotlin
 val customDokkaTask by creating(DokkaTask::class) {
     dependencies {
-        plugins("org.jetbrains.dokka:kotlin-as-java-plugin:1.4-M3")
+        plugins("org.jetbrains.dokka:kotlin-as-java-plugin:1.4.0-rc")
     }
 }
 ```
@@ -619,7 +619,7 @@ Please see the [Dokka Maven example project](https://github.com/JetBrains/kotlin
 
 ### Using the Command Line
 
-To run Dokka from the command line, download the [Dokka CLI runner](https://github.com/Kotlin/dokka/releases/download/1.4-M3/dokka-cli.jar).
+To run Dokka from the command line, download the [Dokka CLI runner](https://github.com/Kotlin/dokka/releases/download/1.4.0-rc/dokka-cli.jar).
 To generate documentation, run the following command:
 ```
 java -jar dokka-cli.jar <arguments>
