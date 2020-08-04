@@ -610,10 +610,10 @@ Please see the [Dokka Maven example project](https://github.com/JetBrains/kotlin
 
 ### Using the Command Line
 
-To run Dokka from the command line, download the [Dokka CLI runner](https://github.com/Kotlin/dokka/releases/download/1.4.0-rc/dokka-cli.jar).
+To run Dokka from the command line, download the [Dokka CLI runner](https://github.com/Kotlin/dokka/releases/download/1.4.0-rc/dokka-cli-1.4.0-rc.jar).
 To generate documentation, run the following command:
 ```
-java -jar dokka-cli.jar <arguments>
+java -jar dokka-cli-1.4.0-rc.jar <arguments>
 ```
 Dokka supports the following command line arguments:
 
