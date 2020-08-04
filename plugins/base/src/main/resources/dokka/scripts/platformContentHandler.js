@@ -3,6 +3,8 @@ filteringContext = {
     restrictedDependencies: [],
     activeFilters: []
 }
+let highlightedAnchor;
+
 window.addEventListener('load', () => {
     document.querySelectorAll("div[data-platform-hinted]")
         .forEach(elem => elem.addEventListener('click', (event) => togglePlatformDependent(event,elem)))
@@ -22,6 +24,11 @@ window.addEventListener('load', () => {
 window.onhashchange = handleAnchor
 
 function handleAnchor() {
+    if(highlightedAnchor){
+        highlightedAnchor.classList.remove('anchor-highlight')
+        highlightedAnchor = null;
+    }
+
     let searchForTab = function(element) {
         if(element && element.hasAttribute) {
             if(element.hasAttribute("data-togglable")) return element;
@@ -37,6 +44,11 @@ function handleAnchor() {
             if (tab) {
                 let found = document.querySelector('.tabs-section > .section-tab[data-togglable="' + tab.getAttribute("data-togglable") + '"]')
                 toggleSections(tab)
+                const content = element.nextElementSibling
+                if(content){
+                    content.classList.add('anchor-highlight')
+                    highlightedAnchor = content
+                }
                 element.scrollIntoView({behavior: "smooth"})
             }
         }
