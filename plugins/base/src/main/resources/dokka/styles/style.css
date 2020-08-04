@@ -1054,3 +1054,10 @@ td.content {
 div.runnablesample {
     height: fit-content;
 }
+
+.anchor-highlight {
+    border: 1px solid var(--hover-link-color) !important;
+    box-shadow: 0 0 0 0.2em #c8e1ff;
+    margin-top: 0.2em;
+    margin-bottom: 0.2em;
+}
