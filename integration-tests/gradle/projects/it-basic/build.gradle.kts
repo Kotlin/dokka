@@ -28,5 +28,3 @@ tasks.withType<DokkaTask> {
         }
     }
 }
-
-buildDir.resolve("")
