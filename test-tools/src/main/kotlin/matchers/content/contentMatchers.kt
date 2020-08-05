@@ -1,5 +1,6 @@
 package  org.jetbrains.dokka.test.tools.matchers.content
 
+import org.jetbrains.dokka.model.asPrintableTree
 import org.jetbrains.dokka.pages.ContentComposite
 import org.jetbrains.dokka.pages.ContentNode
 import org.jetbrains.dokka.pages.ContentText
@@ -20,9 +21,13 @@ open class NodeMatcher<T : ContentNode>(
             try {
                 assertions()
             } catch (e: AssertionError) {
-                throw MatcherError(e.message.orEmpty(), this@NodeMatcher, cause = e)
+                throw MatcherError(
+                    "${e.message.orEmpty()}\nin node:\n${node.debugRepresentation()}",
+                    this@NodeMatcher,
+                    cause = e
+                )
             }
-        } ?: throw MatcherError("Expected ${kclass.simpleName} but got: $node", this)
+        } ?: throw MatcherError("Expected ${kclass.simpleName} but got:\n${node.debugRepresentation()}", this)
     }
 }
 
@@ -63,7 +68,7 @@ private class TextMatcherState(
     val anchor: TextMatcher
 ) : MatchWalkerState() {
     override fun next(node: ContentNode): MatchWalkerState {
-        node as? ContentText ?: throw MatcherError("Expected text: \"$text\" but got $node", anchor)
+        node as? ContentText ?: throw MatcherError("Expected text: \"$text\" but got\n${node.debugRepresentation()}", anchor)
         val trimmed = node.text.trim()
         return when {
             text == trimmed -> rest.pop()
@@ -77,7 +82,7 @@ private class TextMatcherState(
 
 private class EmptyMatcherState(val parent: CompositeMatcher<*>) : MatchWalkerState() {
     override fun next(node: ContentNode): MatchWalkerState {
-        throw MatcherError("Unexpected $node", parent, anchorAfter = true)
+        throw MatcherError("Unexpected node:\n${node.debugRepresentation()}", parent, anchorAfter = true)
     }
 
     override fun finish() = Unit
@@ -121,7 +126,6 @@ private class FurtherSiblings(val list: List<MatcherElement>, val parent: Compos
 }
 
 
-
 internal fun MatcherElement.toDebugString(anchor: MatcherElement?, anchorAfter: Boolean): String {
     fun Appendable.append(element: MatcherElement, ownPrefix: String, childPrefix: String) {
         if (anchor != null) {
@@ -154,6 +158,18 @@ internal fun MatcherElement.toDebugString(anchor: MatcherElement?, anchorAfter: 
     }
 
     return buildString { append(this@toDebugString, "", "") }
+}
+
+private fun ContentNode.debugRepresentation() = asPrintableTree { element ->
+    append(if (element is ContentText) """"${element.text}"""" else element::class.simpleName)
+    append(
+        " { " +
+                "kind=${element.dci.kind}, " +
+                "dri=${element.dci.dri}, " +
+                "style=${element.style}, " +
+                "sourceSets=${element.sourceSets} " +
+                "}"
+    )
 }
 
 data class MatcherError(
