@@ -1,6 +1,6 @@
 package org.jetbrains.dokka.gradle
 
-import dokka
+import org.gradle.kotlin.dsl.withType
 import org.gradle.testfixtures.ProjectBuilder
 import org.jetbrains.dokka.DokkaSourceSetID
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
@@ -9,17 +9,16 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class KotlinDslDokkaTaskConfigurationTest {
-
     @Test
-    fun `configure project using dokka extension function`() {
+    fun `configure dokka task`() {
         val project = ProjectBuilder.builder().build()
         project.plugins.apply("org.jetbrains.dokka")
-        project.dokka {
-            outputDirectory = File("test")
+        project.tasks.withType<DokkaTask>().configureEach {
+            it.outputDirectory by File("test")
         }
 
         project.tasks.withType(DokkaTask::class.java).forEach { dokkaTask ->
-            assertEquals(File("test"), dokkaTask.outputDirectory)
+            assertEquals(File("test"), dokkaTask.outputDirectory.getSafe())
         }
     }
 

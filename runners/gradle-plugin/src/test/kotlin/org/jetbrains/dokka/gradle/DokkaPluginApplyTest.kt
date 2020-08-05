@@ -8,7 +8,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
-class DokkaTasksTest {
+class DokkaPluginApplyTest {
 
     @Test
     fun `one task per format is registered`() {
@@ -59,6 +59,25 @@ class DokkaTasksTest {
             assertEquals(
                 JavaBasePlugin.DOCUMENTATION_GROUP, dokkaTask.group,
                 "Expected task: ${dokkaTask.path} group to be ${JavaBasePlugin.DOCUMENTATION_GROUP}"
+            )
+        }
+    }
+
+    @Test
+    fun `parent dokka tasks have children configured`() {
+        val root = ProjectBuilder.builder().withName("root").build()
+        val child = ProjectBuilder.builder().withName("child").withParent(root).build()
+        root.plugins.apply("org.jetbrains.dokka")
+        child.plugins.apply("org.jetbrains.dokka")
+
+        val parentTasks = root.tasks.withType<AbstractDokkaParentTask>()
+        assertTrue(parentTasks.isNotEmpty(), "Expected at least one parent task being created")
+
+        parentTasks.toList().forEach { parentTask ->
+            assertEquals(1, parentTask.childDokkaTasks.size, "Expected one child dokka task")
+            assertEquals(
+                child, parentTask.childDokkaTasks.single().project,
+                "Expected child dokka task from child project"
             )
         }
     }

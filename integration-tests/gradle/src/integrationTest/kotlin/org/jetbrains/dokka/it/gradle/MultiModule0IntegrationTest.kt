@@ -5,7 +5,7 @@ import org.junit.runners.Parameterized
 import java.io.File
 import kotlin.test.*
 
-class Multimodule0IntegrationTest(override val versions: BuildVersions) : AbstractGradleIntegrationTest() {
+class MultiModule0IntegrationTest(override val versions: BuildVersions) : AbstractGradleIntegrationTest() {
     companion object {
         @get:JvmStatic
         @get:Parameterized.Parameters(name = "{0}")
@@ -27,15 +27,15 @@ class Multimodule0IntegrationTest(override val versions: BuildVersions) : Abstra
     @Test
     fun execute() {
         val result = createGradleRunner(
-            ":moduleA:dokkaHtmlMultimodule",
-            ":moduleA:dokkaGfmMultimodule",
-            ":moduleA:dokkaJekyllMultimodule",
+            ":moduleA:dokkaHtmlMultiModule",
+            ":moduleA:dokkaGfmMultiModule",
+            ":moduleA:dokkaJekyllMultiModule",
             "-i", "-s"
         ).buildRelaxed()
 
-        assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":moduleA:dokkaHtmlMultimodule")).outcome)
-        assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":moduleA:dokkaGfmMultimodule")).outcome)
-        assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":moduleA:dokkaJekyllMultimodule")).outcome)
+        assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":moduleA:dokkaHtmlMultiModule")).outcome)
+        assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":moduleA:dokkaGfmMultiModule")).outcome)
+        assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":moduleA:dokkaJekyllMultiModule")).outcome)
         assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":moduleA:moduleB:dokkaHtml")).outcome)
         assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":moduleA:moduleC:dokkaHtml")).outcome)
         assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":moduleA:moduleB:dokkaGfm")).outcome)
@@ -44,7 +44,7 @@ class Multimodule0IntegrationTest(override val versions: BuildVersions) : Abstra
         assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":moduleA:moduleC:dokkaJekyll")).outcome)
 
 
-        val outputDir = File(projectDir, "moduleA/build/dokka/htmlMultimodule")
+        val outputDir = File(projectDir, "moduleA/build/dokka/htmlMultiModule")
         assertTrue(outputDir.isDirectory, "Missing dokka output directory")
 
         assertTrue(
@@ -70,6 +70,5 @@ class Multimodule0IntegrationTest(override val versions: BuildVersions) : Abstra
             "moduleC" in modulesFileText,
             "Expected moduleC being mentioned in -modules.html"
         )
-
     }
 }

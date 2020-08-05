@@ -1,3 +1,5 @@
+@file:Suppress("UnstableApiUsage")
+
 package org.jetbrains.dokka.gradle
 
 import org.gradle.kotlin.dsl.withType
@@ -19,12 +21,12 @@ class DokkaConfigurationJsonTest {
             dependencies.clear()
         }
         dokkaTask.apply {
-            this.failOnWarning = true
-            this.offlineMode = true
-            this.outputDirectory = File("customOutputDir")
-            this.cacheRoot = File("customCacheRoot")
-            this.pluginsConfiguration["0"] = "a"
-            this.pluginsConfiguration["1"] = "b"
+            this.failOnWarning by true
+            this.offlineMode by true
+            this.outputDirectory by File("customOutputDir")
+            this.cacheRoot by File("customCacheRoot")
+            this.pluginsConfiguration.put("0", "a")
+            this.pluginsConfiguration.put("1", "b")
             this.dokkaSourceSets.create("main") { sourceSet ->
                 sourceSet.moduleDisplayName by "moduleDisplayName"
                 sourceSet.displayName by "customSourceSetDisplayName"

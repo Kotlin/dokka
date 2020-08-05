@@ -1,0 +1,69 @@
+package org.jetbrains.dokka.gradle
+
+import org.gradle.api.internal.tasks.TaskDependencyInternal
+import org.gradle.api.tasks.*
+import org.jetbrains.dokka.DokkaConfigurationImpl
+import org.jetbrains.dokka.DokkaModuleDescriptionImpl
+import org.jetbrains.dokka.DokkaMultimoduleBootstrapImpl
+import java.io.File
+
+@Suppress("unused") // Shall provide source compatibility if possible
+@Deprecated("Use 'DokkaMultimoduleTask' instead", ReplaceWith("DokkaMultimoduleTask"))
+typealias DokkaMultimoduleTask = DokkaMultiModuleTask
+
+
+open class DokkaMultiModuleTask : AbstractDokkaParentTask(DokkaMultimoduleBootstrapImpl::class) {
+
+    /**
+     * Name of the file containing all necessary module information.
+     * This file has to be placed inside the subproject root directory.
+     */
+    @Internal
+    var documentationFileName: String = "README.md"
+
+    @Internal
+    var fileLayout: DokkaMultiModuleFileLayout = DokkaMultiModuleFileLayout.CompactInParent
+
+    @get:InputFiles
+    internal val childDocumentationFiles: Iterable<File>
+        get() = childDokkaTasks.map { task -> task.project.projectDir.resolve(documentationFileName) }
+
+    @get:InputFiles
+    internal val sourceChildOutputDirectories: Iterable<File>
+        get() = childDokkaTasks.map { task -> task.outputDirectory.getSafe() }
+
+    @get:OutputDirectories
+    internal val targetChildOutputDirectories: Iterable<File>
+        get() = childDokkaTasks.map { task -> targetChildOutputDirectory(task) }
+
+    @Internal
+    override fun getTaskDependencies(): TaskDependencyInternal {
+        return super.getTaskDependencies() + childDokkaTasks
+    }
+
+    override fun generateDocumentation() {
+        checkChildDokkaTasksIsNotEmpty()
+        copyChildOutputDirectories()
+        super.generateDocumentation()
+    }
+
+    override fun buildDokkaConfiguration(): DokkaConfigurationImpl {
+        return DokkaConfigurationImpl(
+            outputDir = outputDirectory.getSafe(),
+            cacheRoot = cacheRoot.getSafe(),
+            pluginsConfiguration = pluginsConfiguration.getSafe(),
+            failOnWarning = failOnWarning.getSafe(),
+            offlineMode = offlineMode.getSafe(),
+            pluginsClasspath = plugins.resolve().toSet(),
+            modules = childDokkaTasks.map { dokkaTask ->
+                DokkaModuleDescriptionImpl(
+                    name = dokkaTask.project.name,
+                    path = targetChildOutputDirectory(dokkaTask).relativeTo(outputDirectory.getSafe()),
+                    docFile = dokkaTask.project.projectDir.resolve(documentationFileName).absoluteFile
+                )
+            }
+        )
+    }
+}
+
+

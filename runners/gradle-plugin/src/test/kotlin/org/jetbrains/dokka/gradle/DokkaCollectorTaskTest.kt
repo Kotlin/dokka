@@ -1,13 +1,14 @@
 package org.jetbrains.dokka.gradle
 
-import org.gradle.api.artifacts.Dependency
-import org.gradle.api.artifacts.FileCollectionDependency
+import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.withType
 import org.gradle.testfixtures.ProjectBuilder
 import org.jetbrains.dokka.DokkaConfigurationImpl
+import org.jetbrains.dokka.DokkaException
 import java.io.File
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 class DokkaCollectorTaskTest {
@@ -32,15 +33,15 @@ class DokkaCollectorTaskTest {
 
         val collectorTasks = rootProject.tasks.withType<DokkaCollectorTask>()
         collectorTasks.configureEach { task ->
-            task.outputDirectory = File("customOutputDirectory")
-            task.cacheRoot = File("customCacheRoot")
-            task.failOnWarning = true
-            task.offlineMode = true
+            task.outputDirectory by File("customOutputDirectory")
+            task.cacheRoot by File("customCacheRoot")
+            task.failOnWarning by true
+            task.offlineMode by true
         }
 
         assertTrue(collectorTasks.isNotEmpty(), "Expected at least one collector task")
 
-        collectorTasks.forEach { task ->
+        collectorTasks.toList().forEach { task ->
             val dokkaConfiguration = task.buildDokkaConfiguration()
             assertEquals(
                 DokkaConfigurationImpl(
@@ -48,17 +49,24 @@ class DokkaCollectorTaskTest {
                     cacheRoot = File("customCacheRoot"),
                     failOnWarning = true,
                     offlineMode = true,
-                    sourceSets = task.dokkaTasks
+                    sourceSets = task.childDokkaTasks
                         .map { it.buildDokkaConfiguration() }
                         .map { it.sourceSets }
                         .reduce { acc, list -> acc + list },
-                    pluginsClasspath = task.dokkaTasks
+                    pluginsClasspath = task.childDokkaTasks
                         .map { it.plugins.resolve() }
                         .reduce { acc, mutableSet -> acc + mutableSet }
                 ),
                 dokkaConfiguration
             )
         }
+    }
 
+    @Test
+    fun `with no child tasks throws DokkaException`() {
+        val project = ProjectBuilder.builder().build()
+        val collectorTask = project.tasks.create<DokkaCollectorTask>("collector")
+        project.configurations.all { configuration -> configuration.withDependencies { it.clear() } }
+        assertFailsWith<DokkaException> { collectorTask.generateDocumentation() }
     }
 }

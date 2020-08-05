@@ -13,6 +13,7 @@ import java.net.URL
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
+@Suppress("UnstableApiUsage")
 class DokkaConfigurationSerializableTest {
 
     @get:Rule
@@ -27,12 +28,12 @@ class DokkaConfigurationSerializableTest {
             dependencies.clear()
         }
         dokkaTask.apply {
-            this.failOnWarning = true
-            this.offlineMode = true
-            this.outputDirectory = File("customOutputDir")
-            this.cacheRoot = File("customCacheRoot")
-            this.pluginsConfiguration["0"] = "a"
-            this.pluginsConfiguration["1"] = "b"
+            this.failOnWarning by true
+            this.offlineMode by true
+            this.outputDirectory by File("customOutputDir")
+            this.cacheRoot by File("customCacheRoot")
+            this.pluginsConfiguration.put("0", "a")
+            this.pluginsConfiguration.put("1", "b")
             this.dokkaSourceSets.create("main") { sourceSet ->
                 sourceSet.moduleDisplayName by "moduleDisplayName"
                 sourceSet.displayName by "customSourceSetDisplayName"

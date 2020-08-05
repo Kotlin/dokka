@@ -63,7 +63,6 @@ private fun GradleDokkaSourceSetBuilder.externalDocumentationLinksWithDefaults()
         .toSet()
 }
 
-
 private fun GradleDokkaSourceSetBuilder.suppressedFilesWithDefaults(): Set<File> {
     val suppressedFilesForAndroid = if (project.isAndroidProject()) {
         val generatedRoot = project.buildDir.resolve("generated").absoluteFile
