@@ -30,12 +30,14 @@ class ContentMatcherBuilder<T : ContentComposite> @PublishedApi internal constru
     internal val children = mutableListOf<MatcherElement>()
     internal val assertions = mutableListOf<T.() -> Unit>()
 
-    fun build() = CompositeMatcher(kclass, children) { assertions.forEach { it() } }
+    fun build() = CompositeMatcher(kclass, childrenOrSkip()) { assertions.forEach { it() } }
 
     // part of DSL that cannot be defined as an extension
     operator fun String.unaryPlus() {
         children += TextMatcher(this)
     }
+
+    private fun childrenOrSkip() = if (children.isEmpty() && assertions.isNotEmpty()) listOf(Anything) else children
 }
 
 fun <T : ContentComposite> ContentMatcherBuilder<T>.check(assertion: T.() -> Unit) {
