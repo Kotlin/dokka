@@ -1,73 +1,86 @@
 package org.jetbrains.dokka.gradle
 
 import org.gradle.api.Project
-import org.gradle.api.tasks.Input
+import org.gradle.api.Task
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Nested
 import org.jetbrains.dokka.DokkaBootstrap
 import org.jetbrains.dokka.DokkaBootstrapImpl
 import kotlin.reflect.KClass
 
-// TODO NOW: Test UP-TO-DATE behaviour
 abstract class AbstractDokkaParentTask(
     bootstrapClass: KClass<out DokkaBootstrap> = DokkaBootstrapImpl::class
 ) : AbstractDokkaTask(bootstrapClass) {
 
-    @Input
-    open var dokkaTaskNames: Set<String> = setOf()
-
-    @Input
-    var subprojectPaths: Set<String> = project.subprojects.map { project -> project.path }.toSet()
-
     @get:Internal
-    val subprojects: List<Project>
-        get() = subprojectPaths.map { path -> project.project(path) }.distinct()
+    internal var childDokkaTaskPaths: Set<String> = emptySet()
+        private set
 
     @get:Nested
-    internal val dokkaTasks: List<AbstractDokkaTask>
-        get() = dokkaTaskNames.flatMap { dokkaTaskName -> findSubprojectDokkaTasks(dokkaTaskName) }
+    internal val childDokkaTasks: Set<AbstractDokkaTask>
+        get() = childDokkaTaskPaths
+            .mapNotNull { path -> project.tasks.findByPath(path) }
+            .map(::checkIsAbstractDokkaTask)
+            .toSet()
 
-
-    /**
-     * Will remove a single project from participating in this parent task.
-     * Note: This will not remove the [project]s subprojects.
-     *
-     * @see removeAllProjects
-     */
-    fun removeSubproject(project: Project) {
-        subprojectPaths = subprojectPaths - project.path
+    /* By task reference */
+    fun addChildTask(task: AbstractDokkaTask) {
+        childDokkaTaskPaths = childDokkaTaskPaths + task.path
     }
 
-    /**
-     * Will remove the [project] and all its subprojects from participating in this parent task.
-     * @see removeSubproject
-     */
-    fun removeAllProjects(project: Project) {
-        project.allprojects.forEach(::removeSubproject)
+    fun removeChildTask(task: AbstractDokkaTask) {
+        childDokkaTaskPaths = childDokkaTaskPaths - task.path
     }
 
-    /**
-     * Includes the [project] to participate in this parent task.
-     * Note: This will not include any of the [project]s subprojects.
-     * @see addAllProjects
-     */
-    fun addSubproject(project: Project) {
-        subprojectPaths = (subprojectPaths + project.path)
+    /* By path */
+    fun addChildTask(path: String) {
+        childDokkaTaskPaths = childDokkaTaskPaths + project.absoluteProjectPath(path)
     }
 
-    /**
-     * Includes the [project] and all its subprojects to participate in this parent task.
-     * @see addSubproject
-     */
-    fun addAllProjects(project: Project) {
-        project.allprojects.forEach(::addSubproject)
+    fun removeChildTask(path: String) {
+        childDokkaTaskPaths = childDokkaTaskPaths - project.absoluteProjectPath(path)
     }
 
-    protected fun findSubprojectDokkaTasks(dokkaTaskNames: Set<String>): List<AbstractDokkaTask> {
-        return dokkaTaskNames.flatMap { dokkaTaskName -> findSubprojectDokkaTasks(dokkaTaskName) }
+    /* By project reference and name */
+    fun addChildTasks(projects: Iterable<Project>, childTasksName: String) {
+        projects.forEach { project ->
+            addChildTask(project.absoluteProjectPath(childTasksName))
+        }
     }
 
-    private fun findSubprojectDokkaTasks(dokkaTaskName: String): List<AbstractDokkaTask> {
-        return subprojects.mapNotNull { subproject -> subproject.tasks.findByName(dokkaTaskName) as? DokkaTask }
+    fun removeChildTasks(projects: Iterable<Project>, childTasksName: String) {
+        projects.forEach { project ->
+            removeChildTask(project.absoluteProjectPath(childTasksName))
+        }
+    }
+
+    fun addSubprojectChildTasks(childTasksName: String) {
+        addChildTasks(project.subprojects, childTasksName)
+    }
+
+    fun removeSubprojectChildTasks(childTasksName: String) {
+        removeChildTasks(project.subprojects, childTasksName)
+    }
+
+    fun removeChildTasks(project: Project) {
+        childDokkaTaskPaths = childDokkaTaskPaths.filter { path ->
+            parsePath(path).parent != parsePath(project.path)
+        }.toSet()
+    }
+
+    fun removeChildTasks(projects: Iterable<Project>) {
+        projects.forEach { project -> removeChildTasks(project) }
+    }
+
+    private fun checkIsAbstractDokkaTask(task: Task): AbstractDokkaTask {
+        if (task is AbstractDokkaTask) {
+            return task
+        }
+        throw IllegalArgumentException(
+            "Only tasks of type ${AbstractDokkaTask::class.java.name} can be added as child for " +
+                    "${AbstractDokkaParentTask::class.java.name} tasks.\n" +
+                    "Found task ${task.path} of type ${task::class.java.name} added to $path"
+        )
     }
 }
+
