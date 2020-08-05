@@ -1,5 +1,6 @@
 package org.jetbrains.dokka.gradle
 
+import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.register
@@ -11,7 +12,7 @@ open class DokkaPlugin : Plugin<Project> {
 
         project.setupDokkaTasks(
             name = "dokkaJavadoc",
-            multimoduleTaskSupported = false
+            multiModuleTaskSupported = false
         ) {
             plugins.dependencies.add(project.dokkaArtifacts.javadocPlugin)
         }
@@ -26,12 +27,12 @@ open class DokkaPlugin : Plugin<Project> {
     }
 
     /**
-     * Creates [DokkaTask], [DokkaMultimoduleTask] for the given
+     * Creates [DokkaTask], [DokkaMultiModuleTask] for the given
      * name and configuration.
      */
     private fun Project.setupDokkaTasks(
         name: String,
-        multimoduleTaskSupported: Boolean = true,
+        multiModuleTaskSupported: Boolean = true,
         collectorTaskSupported: Boolean = true,
         configuration: AbstractDokkaTask.() -> Unit = {}
     ) {
@@ -42,18 +43,24 @@ open class DokkaPlugin : Plugin<Project> {
         }
 
         if (project.subprojects.isNotEmpty()) {
-            if (multimoduleTaskSupported) {
-                val multimoduleName = "${name}Multimodule"
-                project.maybeCreateDokkaPluginConfiguration(multimoduleName)
-                project.maybeCreateDokkaRuntimeConfiguration(multimoduleName)
-                project.tasks.register<DokkaMultimoduleTask>(multimoduleName) {
-                    dokkaTaskNames = dokkaTaskNames + name
+            if (multiModuleTaskSupported) {
+                val multiModuleName = "${name}MultiModule"
+                project.maybeCreateDokkaPluginConfiguration(multiModuleName)
+                project.maybeCreateDokkaRuntimeConfiguration(multiModuleName)
+                project.tasks.register<DokkaMultiModuleTask>(multiModuleName) {
+                    addSubprojectChildTasks(name)
                     configuration()
+                }
+                project.tasks.register<DefaultTask>("${name}Multimodule") {
+                    dependsOn(multiModuleName)
+                    doLast {
+                        logger.warn("'Multimodule' is deprecated. Use 'MultiModule' instead")
+                    }
                 }
             }
             if (collectorTaskSupported) {
                 project.tasks.register<DokkaCollectorTask>("${name}Collector") {
-                    dokkaTaskNames = dokkaTaskNames + name
+                    addSubprojectChildTasks(name)
                 }
             }
         }

@@ -26,12 +26,12 @@ open class DokkaTask : AbstractDokkaTask(DokkaBootstrapImpl::class) {
 
     override fun buildDokkaConfiguration(): DokkaConfigurationImpl {
         return DokkaConfigurationImpl(
-            outputDir = outputDirectory,
-            cacheRoot = cacheRoot,
-            offlineMode = offlineMode,
-            failOnWarning = failOnWarning,
+            outputDir = outputDirectory.getSafe(),
+            cacheRoot = cacheRoot.getSafe(),
+            offlineMode = offlineMode.getSafe(),
+            failOnWarning = failOnWarning.getSafe(),
             sourceSets = dokkaSourceSets.build(),
-            pluginsConfiguration = pluginsConfiguration,
+            pluginsConfiguration = pluginsConfiguration.getSafe(),
             pluginsClasspath = plugins.resolve()
         )
     }

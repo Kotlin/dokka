@@ -30,10 +30,6 @@ dependencies {
     val idea_version: String by project
     intellijCore("com.jetbrains.intellij.idea:intellij-core:$idea_version")
     implementation(intellijCoreAnalysis())
-
-    val kotlin_version: String by project
-    api("org.jetbrains.kotlin:kotlin-compiler:$kotlin_version")
-
 }
 
 tasks {
