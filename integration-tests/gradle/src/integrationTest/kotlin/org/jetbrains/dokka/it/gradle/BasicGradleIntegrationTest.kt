@@ -34,13 +34,24 @@ class BasicGradleIntegrationTest(override val versions: BuildVersions) : Abstrac
 
     @Test
     fun execute() {
-        val result = createGradleRunner("dokkaHtml", "dokkaJavadoc", "dokkaGfm", "dokkaJekyll", "-i", "-s")
-            .buildRelaxed()
+        runAndAssertOutcome(TaskOutcome.SUCCESS)
+        runAndAssertOutcome(TaskOutcome.UP_TO_DATE)
+    }
 
-        assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":dokkaHtml")).outcome)
-        assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":dokkaJavadoc")).outcome)
-        assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":dokkaGfm")).outcome)
-        assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":dokkaJekyll")).outcome)
+    private fun runAndAssertOutcome(expectedOutcome: TaskOutcome) {
+        val result = createGradleRunner(
+            "dokkaHtml",
+            "dokkaJavadoc",
+            "dokkaGfm",
+            "dokkaJekyll",
+            "-i",
+            "-s"
+        ).buildRelaxed()
+
+        assertEquals(expectedOutcome, assertNotNull(result.task(":dokkaHtml")).outcome)
+        assertEquals(expectedOutcome, assertNotNull(result.task(":dokkaJavadoc")).outcome)
+        assertEquals(expectedOutcome, assertNotNull(result.task(":dokkaGfm")).outcome)
+        assertEquals(expectedOutcome, assertNotNull(result.task(":dokkaJekyll")).outcome)
 
         File(projectDir, "build/dokka/html").assertHtmlOutputDir()
         File(projectDir, "build/dokka/javadoc").assertJavadocOutputDir()
