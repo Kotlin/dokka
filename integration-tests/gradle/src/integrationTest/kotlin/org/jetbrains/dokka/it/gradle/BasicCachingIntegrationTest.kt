@@ -5,13 +5,13 @@ import org.junit.runners.Parameterized.Parameters
 import java.io.File
 import kotlin.test.*
 
-class BasicGradleIntegrationTest(override val versions: BuildVersions) : AbstractGradleIntegrationTest() {
+class BasicCachingIntegrationTest(override val versions: BuildVersions) : AbstractGradleIntegrationTest() {
 
     companion object {
         @get:JvmStatic
         @get:Parameters(name = "{0}")
         val versions = BuildVersions.permutations(
-            gradleVersions = listOf("6.5.1", "6.4.1", "6.3", "6.2.2", "6.1.1", "6.0", "5.6.4"),
+            gradleVersions = listOf("6.5.1", "6.4.1", "6.3", "6.2.2", "6.1.1", "6.0"),
             kotlinVersions = listOf("1.3.30", "1.3.72", "1.4-M3")
         )
     }
@@ -25,22 +25,36 @@ class BasicGradleIntegrationTest(override val versions: BuildVersions) : Abstrac
             .forEach { topLevelFile -> topLevelFile.copyTo(File(projectDir, topLevelFile.name)) }
 
         File(templateProjectDir, "src").copyRecursively(File(projectDir, "src"))
+
+        // clean local cache for each test
+        projectDir.toPath().resolve("settings.gradle.kts").toFile().appendText(
+            """
+            buildCache {
+                local {
+                    // Set local build cache directory.
+                    directory = File("${projectDir.absolutePath}", "build-cache")
+                }
+            }
+        """.trimIndent()
+        )
     }
 
     @Test
     fun execute() {
         runAndAssertOutcome(TaskOutcome.SUCCESS)
-        runAndAssertOutcome(TaskOutcome.UP_TO_DATE)
+        runAndAssertOutcome(TaskOutcome.FROM_CACHE)
     }
 
     private fun runAndAssertOutcome(expectedOutcome: TaskOutcome) {
         val result = createGradleRunner(
+            "clean",
             "dokkaHtml",
             "dokkaJavadoc",
             "dokkaGfm",
             "dokkaJekyll",
             "-i",
-            "-s"
+            "-s",
+            "--build-cache"
         ).buildRelaxed()
 
         assertEquals(expectedOutcome, assertNotNull(result.task(":dokkaHtml")).outcome)

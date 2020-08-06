@@ -14,7 +14,7 @@ import org.jetbrains.dokka.plugability.Configurable
 
 
 abstract class AbstractDokkaTask : DefaultTask(), Configurable {
-    @Input
+    @Internal
     var outputDirectory: String = defaultDokkaOutputDirectory().absolutePath
 
     @Input

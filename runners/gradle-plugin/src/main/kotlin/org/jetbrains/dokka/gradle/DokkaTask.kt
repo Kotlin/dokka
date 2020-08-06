@@ -18,6 +18,7 @@ import org.jetbrains.dokka.gradle.ConfigurationExtractor.PlatformData
 import java.io.File
 import java.util.concurrent.Callable
 
+@CacheableTask
 open class DokkaTask : AbstractDokkaTask() {
     private val ANDROID_REFERENCE_URL = Builder("https://developer.android.com/reference/").build()
     private val configExtractor = ConfigurationExtractor(project)
@@ -165,9 +166,9 @@ open class DokkaTask : AbstractDokkaTask() {
     internal fun getConfigurationOrThrow(): GradleDokkaConfigurationImpl {
         return getConfigurationOrNull() ?: throw DokkaException(
             """
-                No source sets to document found. 
+                No source sets to document found.
                 Make source to configure at least one source set e.g.
-                
+
                 dokka {
                     dokkaSourceSets {
                         create("commonMain") {
@@ -273,6 +274,7 @@ open class DokkaTask : AbstractDokkaTask() {
 
     // Needed for Gradle incremental build
     @InputFiles
+    @PathSensitive(PathSensitivity.RELATIVE)
     fun getInputFiles(): FileCollection = configuredDokkaSourceSets.let { config ->
         project.files(config.flatMap { it.sourceRoots }.map { project.fileTree(File(it.path)) }) +
                 project.files(config.flatMap { it.includes }) +

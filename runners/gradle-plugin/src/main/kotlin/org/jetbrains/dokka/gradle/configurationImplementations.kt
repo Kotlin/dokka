@@ -6,6 +6,7 @@ import com.android.build.gradle.api.AndroidSourceSet
 import groovy.lang.Closure
 import org.gradle.api.Action
 import org.gradle.api.Project
+import org.gradle.api.tasks.Classpath
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
@@ -38,7 +39,7 @@ open class GradleDokkaSourceSet constructor(
     @Transient @get:Internal internal val project: Project
 ) : DokkaSourceSet {
 
-    @Input
+    @Classpath
     @Optional
     override var classpath: List<String> = emptyList()
 

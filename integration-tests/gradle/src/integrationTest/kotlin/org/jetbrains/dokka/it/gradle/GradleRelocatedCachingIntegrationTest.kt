@@ -5,54 +5,68 @@ import org.junit.runners.Parameterized.Parameters
 import java.io.File
 import kotlin.test.*
 
-class BasicGradleIntegrationTest(override val versions: BuildVersions) : AbstractGradleIntegrationTest() {
+class GradleRelocatedCachingIntegrationTest(override val versions: BuildVersions) : AbstractGradleIntegrationTest() {
 
     companion object {
         @get:JvmStatic
         @get:Parameters(name = "{0}")
         val versions = BuildVersions.permutations(
-            gradleVersions = listOf("6.5.1", "6.4.1", "6.3", "6.2.2", "6.1.1", "6.0", "5.6.4"),
+            gradleVersions = listOf("6.5.1", "6.4.1", "6.3", "6.2.2", "6.1.1", "6.0"),
             kotlinVersions = listOf("1.3.30", "1.3.72", "1.4-M3")
         )
     }
 
     @BeforeTest
     fun prepareProjectFiles() {
-        val templateProjectDir = File("projects", "it-basic")
-
-        templateProjectDir.listFiles().orEmpty()
-            .filter { it.isFile }
-            .forEach { topLevelFile -> topLevelFile.copyTo(File(projectDir, topLevelFile.name)) }
-
-        File(templateProjectDir, "src").copyRecursively(File(projectDir, "src"))
+        setupProject(projectFolder(1))
+        setupProject(projectFolder(2))
     }
 
     @Test
     fun execute() {
-        runAndAssertOutcome(TaskOutcome.SUCCESS)
-        runAndAssertOutcome(TaskOutcome.UP_TO_DATE)
+        runAndAssertOutcome(projectFolder(1), TaskOutcome.SUCCESS)
+        runAndAssertOutcome(projectFolder(2), TaskOutcome.FROM_CACHE)
     }
 
-    private fun runAndAssertOutcome(expectedOutcome: TaskOutcome) {
-        val result = createGradleRunner(
-            "dokkaHtml",
-            "dokkaJavadoc",
-            "dokkaGfm",
-            "dokkaJekyll",
-            "-i",
-            "-s"
-        ).buildRelaxed()
+    private fun setupProject(project: File) {
+        val templateDir = File("projects", "it-basic")
+        project.mkdir()
+        templateDir.listFiles().orEmpty()
+            .filter { it.isFile }
+            .forEach { topLevelFile -> topLevelFile.copyTo(File(project, topLevelFile.name)) }
+
+        File(templateDir, "src").copyRecursively(File(project, "src"))
+
+        // clean local cache for each test (shared among projects)
+        project.toPath().resolve("settings.gradle.kts").toFile().appendText(
+            """
+                buildCache {
+                    local {
+                        // Set local build cache directory.
+                        directory = File("${projectDir.absolutePath}", "build-cache")
+                    }
+                }
+            """.trimIndent()
+        )
+    }
+
+    private fun runAndAssertOutcome(project: File, expectedOutcome: TaskOutcome) {
+        val result = createGradleRunner("clean", "dokkaHtml", "dokkaJavadoc", "dokkaGfm", "dokkaJekyll", "-i", "-s", "--build-cache")
+            .withProjectDir(project)
+            .buildRelaxed()
 
         assertEquals(expectedOutcome, assertNotNull(result.task(":dokkaHtml")).outcome)
         assertEquals(expectedOutcome, assertNotNull(result.task(":dokkaJavadoc")).outcome)
         assertEquals(expectedOutcome, assertNotNull(result.task(":dokkaGfm")).outcome)
         assertEquals(expectedOutcome, assertNotNull(result.task(":dokkaJekyll")).outcome)
 
-        File(projectDir, "build/dokka/html").assertKdocOutputDir()
-        File(projectDir, "build/dokka/javadoc").assertJavadocOutputDir()
-        File(projectDir, "build/dokka/gfm").assertGfmOutputDir()
-        File(projectDir, "build/dokka/jekyll").assertJekyllOutputDir()
+        File(project, "build/dokka/html").assertKdocOutputDir()
+        File(project, "build/dokka/javadoc").assertJavadocOutputDir()
+        File(project, "build/dokka/gfm").assertGfmOutputDir()
+        File(project, "build/dokka/jekyll").assertJekyllOutputDir()
     }
+
+    private fun projectFolder(index: Int) = File(projectDir.absolutePath + index)
 
     private fun File.assertKdocOutputDir() {
         assertTrue(isDirectory, "Missing dokka html output directory")
