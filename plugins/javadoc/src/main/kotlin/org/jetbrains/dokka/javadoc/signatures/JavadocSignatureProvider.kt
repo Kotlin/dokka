@@ -59,7 +59,7 @@ class JavadocSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLo
                 }
             }
             signatureWithoutModifiers {
-                link(c.name!!, c.dri)
+                link(c.dri.classNames!!, c.dri)
                 if (c is WithGenerics) {
                     list(c.generics, prefix = "<", suffix = ">") {
                         +buildSignature(it)

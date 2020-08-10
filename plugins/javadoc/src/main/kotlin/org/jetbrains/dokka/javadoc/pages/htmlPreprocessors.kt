@@ -90,7 +90,8 @@ object IndexGenerator : PageTransformer {
             elements.getOrPut(it.name[0].toUpperCase(), ::mutableSetOf).add(it)
         }
         val keys = elements.keys.sortedBy { it }
-        return input.modified(children = input.children + elements.entries.mapIndexed { i, (_, set) ->
+        val sortedElements = elements.entries.sortedBy { (a, _) -> a }
+        return input.modified(children = input.children + sortedElements.mapIndexed { i, (_, set) ->
             IndexPage(i + 1, set.sortedBy { it.getId().toLowerCase() }, keys, input.sourceSets())
         })
     }
@@ -127,10 +128,18 @@ object DeprecatedPageCreator : PageTransformer {
                         node.children.filterIsInstance<NavigableJavadocNode>().forEach(::verifyDeprecation)
                     is JavadocClasslikePageNode -> {
                         node.classlikes.forEach(::verifyDeprecation)
-                        node.methods.forEach { it.takeIf { it.isDeprecated() }?.putAs(DeprecatedPageSection.DeprecatedMethods) }
-                        node.constructors.forEach { it.takeIf { it.isDeprecated() }?.putAs(DeprecatedPageSection.DeprecatedConstructors) }
-                        node.properties.forEach { it.takeIf { it.isDeprecated() }?.putAs(DeprecatedPageSection.DeprecatedFields) }
-                        node.entries.forEach { it.takeIf { it.isDeprecated() }?.putAs(DeprecatedPageSection.DeprecatedEnumConstants) }
+                        node.methods.forEach {
+                            it.takeIf { it.isDeprecated() }?.putAs(DeprecatedPageSection.DeprecatedMethods)
+                        }
+                        node.constructors.forEach {
+                            it.takeIf { it.isDeprecated() }?.putAs(DeprecatedPageSection.DeprecatedConstructors)
+                        }
+                        node.properties.forEach {
+                            it.takeIf { it.isDeprecated() }?.putAs(DeprecatedPageSection.DeprecatedFields)
+                        }
+                        node.entries.forEach {
+                            it.takeIf { it.isDeprecated() }?.putAs(DeprecatedPageSection.DeprecatedEnumConstants)
+                        }
                         node.takeIf { it.isDeprecated() }?.putAs(
                             if ((node.documentable as? WithSupertypes)?.isException == true) DeprecatedPageSection.DeprecatedExceptions
                             else when (node.kind) {

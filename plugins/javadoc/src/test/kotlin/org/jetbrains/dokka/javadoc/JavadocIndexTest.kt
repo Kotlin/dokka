@@ -10,7 +10,7 @@ internal class JavadocIndexTest : AbstractJavadocTemplateMapTest() {
     @Test
     fun `generates correct number of index pages`() {
         testIndexPages { indexPages ->
-            assertEquals(13, indexPages.size)
+            assertEquals(12, indexPages.size)
         }
     }
 
