@@ -37,13 +37,14 @@ open class JavadocPageCreator(
 
     fun pageForPackage(p: DPackage) =
         JavadocPackagePageNode(p.name, contentForPackage(p), setOf(p.dri), p,
-            p.classlikes.mapNotNull { pageForClasslike(it) } // TODO: nested classlikes
+            p.classlikes.mapNotNull { pageForClasslike(it) }
         )
 
     fun pageForClasslike(c: DClasslike): JavadocClasslikePageNode? =
         c.highestJvmSourceSet?.let { jvm ->
+            var children = c.classlikes.mapNotNull { pageForClasslike(it) }
             JavadocClasslikePageNode(
-                name = c.name.orEmpty(),
+                name = c.dri.classNames.orEmpty(),
                 content = contentForClasslike(c),
                 dri = setOf(c.dri),
                 brief = c.brief(),
@@ -60,7 +61,7 @@ open class JavadocPageCreator(
                         PropertyContainer.withAll(it.indexesInDocumentation())
                     )
                 }.orEmpty(),
-                classlikes = c.classlikes.mapNotNull { pageForClasslike(it) },
+                classlikes = children,
                 properties = c.properties.map {
                     JavadocPropertyNode(
                         it.dri,
@@ -71,6 +72,7 @@ open class JavadocPageCreator(
                     )
                 },
                 documentable = c,
+                children = children,
                 extra = ((c as? WithExtraProperties<Documentable>)?.extra
                     ?: PropertyContainer.empty()) + c.indexesInDocumentation()
             )
@@ -102,7 +104,8 @@ open class JavadocPageCreator(
             p.jvmSourceSets.toDisplaySourceSets()
         ) {
             title("Package ${p.name}", p.brief(), dri = setOf(p.dri), kind = ContentKind.Packages)
-            val rootList = p.classlikes.groupBy { it::class }.map { (key, value) ->
+            fun allClasslikes(c: DClasslike): List<DClasslike> = c.classlikes.flatMap { allClasslikes(it) } + c
+            val rootList = p.classlikes.map { allClasslikes(it) }.flatten().groupBy { it::class }.map { (key, value) ->
                 JavadocList(key.tabTitle, key.colTitle, value.map { c ->
                     RowJavadocListEntry(
                         LinkJavadocListEntry(c.name ?: "", setOf(c.dri), JavadocContentKind.Class, sourceSets),
