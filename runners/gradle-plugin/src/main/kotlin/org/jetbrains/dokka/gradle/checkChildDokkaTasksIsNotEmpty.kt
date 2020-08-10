@@ -2,7 +2,7 @@ package org.jetbrains.dokka.gradle
 
 import org.jetbrains.dokka.DokkaException
 
-fun AbstractDokkaParentTask.checkChildDokkaTasksIsNotEmpty() {
+internal fun AbstractDokkaParentTask.checkChildDokkaTasksIsNotEmpty() {
     if (childDokkaTaskPaths.isEmpty()) {
         throw DokkaException(
             """
