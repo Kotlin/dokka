@@ -2,11 +2,13 @@ package org.jetbrains.dokka.gradle
 
 import org.gradle.kotlin.dsl.create
 import org.gradle.testfixtures.ProjectBuilder
+import org.jetbrains.dokka.DokkaException
 import org.jetbrains.dokka.gradle.DokkaMultiModuleFileLayout.CompactInParent
 import org.jetbrains.dokka.gradle.DokkaMultiModuleFileLayout.NoCopy
 import java.io.File
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 class DokkaMultiModuleFileLayoutTest {
@@ -96,5 +98,27 @@ class DokkaMultiModuleFileLayoutTest {
             "other text", targetOtherFile.readText(),
             "Expected content to be written into 'other.file'"
         )
+    }
+
+    @Test
+    fun `copyChildOutputDirectory target output directory within itself throws DokkaException`() {
+        val project = ProjectBuilder.builder().build()
+        val childTask = project.tasks.create<DokkaTask>("child")
+        val parentTask = project.tasks.create<DokkaMultiModuleTask>("parent")
+        parentTask.fileLayout = object : DokkaMultiModuleFileLayout {
+            override fun targetChildOutputDirectory(parent: DokkaMultiModuleTask, child: AbstractDokkaTask): File {
+                return child.outputDirectory.getSafe().resolve("subfolder")
+            }
+        }
+        assertFailsWith<DokkaException> { parentTask.copyChildOutputDirectory(childTask) }
+    }
+
+    @Test
+    fun `copyChildOutputDirectory NoCopy`() {
+        val project = ProjectBuilder.builder().build()
+        val childTask = project.tasks.create<DokkaTask>("child")
+        val parentTask = project.tasks.create<DokkaMultiModuleTask>("parent")
+        parentTask.fileLayout = NoCopy
+        parentTask.copyChildOutputDirectory(childTask)
     }
 }
