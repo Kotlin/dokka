@@ -1,5 +1,6 @@
 package org.jetbrains.dokka.gradle
 
+import org.jetbrains.dokka.DokkaException
 import java.io.File
 
 /**
@@ -59,14 +60,25 @@ internal fun DokkaMultiModuleTask.copyChildOutputDirectory(child: AbstractDokkaT
     val targetChildOutputDirectory = project.file(fileLayout.targetChildOutputDirectory(this, child))
     val sourceChildOutputDirectory = child.outputDirectory.getSafe()
 
-    if (!sourceChildOutputDirectory.exists()) {
-        return
-    }
-
+    /* Pointing to the same directory -> No copy necessary */
     if (sourceChildOutputDirectory.absoluteFile == targetChildOutputDirectory.absoluteFile) {
         return
     }
 
-    sourceChildOutputDirectory.copyRecursively(targetChildOutputDirectory, overwrite = false)
+    /* Cannot target *inside* the original folder */
+    if (targetChildOutputDirectory.absoluteFile.startsWith(sourceChildOutputDirectory.absoluteFile)) {
+        throw DokkaException(
+            "Cannot re-locate output directory into itself.\n" +
+                    "sourceChildOutputDirectory=${sourceChildOutputDirectory.path}\n" +
+                    "targetChildOutputDirectory=${targetChildOutputDirectory.path}"
+        )
+    }
+
+    /* Source output directory is empty -> No copy necessary */
+    if (!sourceChildOutputDirectory.exists()) {
+        return
+    }
+
+    sourceChildOutputDirectory.copyRecursively(targetChildOutputDirectory, overwrite = true)
 }
 
