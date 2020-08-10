@@ -166,7 +166,7 @@ class DokkaMultiModuleTaskTest {
 
         parentTask.addChildTask(childTask)
         parentTask.fileLayout = object : DokkaMultiModuleFileLayout {
-            override fun targetChildOutputDirectory(parent: AbstractDokkaParentTask, child: AbstractDokkaTask): File {
+            override fun targetChildOutputDirectory(parent: DokkaMultiModuleTask, child: AbstractDokkaTask): File {
                 return parent.project.buildDir.resolve(child.name)
             }
         }
