@@ -12,6 +12,7 @@ import org.jetbrains.kotlin.cli.common.config.ContentRoot
 import org.jetbrains.kotlin.cli.common.config.KotlinSourceRoot
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageLocation
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity
+import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSourceLocation
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 import org.jetbrains.kotlin.cli.jvm.config.JavaSourceRoot
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
@@ -77,7 +78,7 @@ fun appendDocumentation(
 
         }
 
-        override fun report(severity: CompilerMessageSeverity, message: String, location: CompilerMessageLocation?) {
+        override fun report(severity: CompilerMessageSeverity, message: String, location: CompilerMessageSourceLocation?) {
             when (severity) {
                 CompilerMessageSeverity.STRONG_WARNING,
                 CompilerMessageSeverity.WARNING,

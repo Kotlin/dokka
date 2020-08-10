@@ -12,10 +12,7 @@ import org.jetbrains.dokka.Utilities.DokkaAnalysisModule
 import org.jetbrains.dokka.Utilities.DokkaOutputModule
 import org.jetbrains.dokka.Utilities.DokkaRunModule
 import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
-import org.jetbrains.kotlin.cli.common.messages.CompilerMessageLocation
-import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity
-import org.jetbrains.kotlin.cli.common.messages.MessageCollector
-import org.jetbrains.kotlin.cli.common.messages.MessageRenderer
+import org.jetbrains.kotlin.cli.common.messages.*
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
 import org.jetbrains.kotlin.cli.jvm.config.JavaSourceRoot
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
@@ -135,7 +132,7 @@ class DokkaMessageCollector(val logger: DokkaLogger) : MessageCollector {
 
     private var seenErrors = false
 
-    override fun report(severity: CompilerMessageSeverity, message: String, location: CompilerMessageLocation?) {
+    override fun report(severity: CompilerMessageSeverity, message: String, location: CompilerMessageSourceLocation?) {
         if (severity == CompilerMessageSeverity.ERROR) {
             seenErrors = true
         }

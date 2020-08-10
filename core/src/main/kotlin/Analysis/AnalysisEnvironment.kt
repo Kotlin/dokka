@@ -17,6 +17,8 @@ import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.vfs.StandardFileSystems
 import com.intellij.psi.PsiElement
+import com.intellij.psi.javadoc.CustomJavadocTagProvider
+import com.intellij.psi.javadoc.JavadocTagInfo
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.kotlin.analyzer.*
 import org.jetbrains.kotlin.analyzer.common.CommonAnalysisParameters
@@ -75,7 +77,7 @@ import org.jetbrains.kotlin.platform.TargetPlatform
 import org.jetbrains.kotlin.platform.js.JsPlatforms
 import org.jetbrains.kotlin.platform.jvm.JvmPlatforms
 import org.jetbrains.kotlin.platform.jvm.JvmPlatforms.unspecifiedJvmPlatform
-import org.jetbrains.kotlin.platform.konan.KonanPlatforms
+import org.jetbrains.kotlin.platform.konan.NativePlatforms
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.resolve.*
 import org.jetbrains.kotlin.resolve.diagnostics.Diagnostics
@@ -93,6 +95,7 @@ import java.io.File
 import org.jetbrains.kotlin.konan.file.File as KFile
 
 const val JAR_SEPARATOR = "!/"
+const val KLIB_EXTENSION = "klib"
 
 /**
  * Kotlin as a service entry point
@@ -191,7 +194,7 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
         val targetPlatform = when (analysisPlatform) {
             Platform.js -> JsPlatforms.defaultJsPlatform
             Platform.common -> CommonPlatforms.defaultCommonPlatform
-            Platform.native -> KonanPlatforms.defaultKonanPlatform
+            Platform.native -> NativePlatforms.unspecifiedNativePlatform
             Platform.jvm -> JvmPlatforms.defaultJvmPlatform
         }
 
@@ -255,8 +258,7 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
                 environment
             )
             Platform.js -> createJsResolverForProject(projectContext, module, library, modulesContent)
-            Platform.native -> createNativeResolverForProject(projectContext, module, library, modulesContent)
-
+            Platform.native -> createNativeResolverForProject(projectContext, module, modulesContent)
         }
         val libraryModuleDescriptor = resolverForProject.descriptorForModule(library)
         val moduleDescriptor = resolverForProject.descriptorForModule(module)
@@ -379,7 +381,6 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
     private fun createNativeResolverForProject(
         projectContext: ProjectContext,
         module: ModuleInfo,
-        library: LibraryModuleInfo,
         modulesContent: (ModuleInfo) -> ModuleContent<ModuleInfo>
     ): ResolverForProject<ModuleInfo> {
         return object : AbstractResolverForProject<ModuleInfo>(
@@ -392,10 +393,6 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
                 descriptor: ModuleDescriptor,
                 moduleInfo: ModuleInfo
             ): ResolverForModule {
-                (ApplicationManager.getApplication() as MockApplication).addComponent(
-                    KotlinNativeLoadingMetadataCache::class.java,
-                    KotlinNativeLoadingMetadataCache()
-                )
 
                 return DokkaNativeResolverForModuleFactory(CompilerEnvironment).createResolverForModule(
                     descriptor as ModuleDescriptorImpl,
@@ -463,7 +460,7 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
                         library
                 }),
                 CompilerEnvironment,
-                KonanPlatforms.defaultKonanPlatform
+                unspecifiedJvmPlatform
             ).createResolverForModule(
                 descriptor as ModuleDescriptorImpl,
                 projectContext.withModule(descriptor),
@@ -729,6 +726,10 @@ class DokkaResolutionFacade(
     }
 
     override fun <T : Any> getIdeService(serviceClass: Class<T>): T {
+        throw UnsupportedOperationException()
+    }
+
+    override fun getResolverForProject(): ResolverForProject<out ModuleInfo> {
         throw UnsupportedOperationException()
     }
 
