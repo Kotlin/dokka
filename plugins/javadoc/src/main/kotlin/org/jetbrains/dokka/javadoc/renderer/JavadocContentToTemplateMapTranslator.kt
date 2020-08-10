@@ -236,6 +236,10 @@ internal class JavadocContentToTemplateMapTranslator(
             return mapOf(
                 "modifiers" to node.signature.modifiers?.let { htmlForContentNode(it, contextNode) },
                 "signature" to node.name,
+                "address" to locationProvider.resolve(
+                    contextNode.children.first { (it as? JavadocClasslikePageNode)?.dri?.first() == node.dri.first() },
+                    contextNode
+                ).formatToEndWithHtml(),
                 "description" to htmlForContentNodes(node.description, node)
             )
         }

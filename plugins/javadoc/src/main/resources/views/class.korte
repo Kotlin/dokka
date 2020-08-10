@@ -63,7 +63,7 @@
                                         {% for classlike in classlikes %}
                                         <tr class="{{ rowColor(loop.index0) }}">
                                             <td class="colFirst"><code>{{ classlike.modifiers }}</code></td>
-                                            <th class="colSecond" scope="row"><code>{{ classlike.signature }}</span></code>
+                                            <th class="colSecond" scope="row"><code><a href="{{ classlike.address }}">{{ classlike.signature }}</a></span></code>
                                             </th>
                                             <td class="colLast">{{ classlike.description|raw }}</td>
                                         </tr>

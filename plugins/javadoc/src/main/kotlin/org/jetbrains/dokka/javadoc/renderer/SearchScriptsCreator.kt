@@ -72,8 +72,10 @@ class SearchScriptsCreator(private val locationProvider: LocationProvider) {
                 url = locationProvider.resolveOrThrow(it).formatToEndWithHtml()
             )
         } + SearchRecord.allPackages
+        fun allClasses(c: JavadocClasslikePageNode): List<JavadocClasslikePageNode> =
+            c.children.filterIsInstance<JavadocClasslikePageNode>().flatMap { allClasses(it) } + c
         val types = input.flatMap {
-            it.children.filterIsInstance<JavadocClasslikePageNode>().map { classlike -> it to classlike }
+            it.children.filterIsInstance<JavadocClasslikePageNode>().flatMap { allClasses(it) }.map { classlike -> it to classlike }
         }
         val updated = accumulator.copy(packageRecords = packages)
         return processTypes(types, updated)
