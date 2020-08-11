@@ -123,7 +123,7 @@ class SourceLinksTransformer(val context: DokkaContext, val builder: PageContent
 
 data class SourceLink(val path: String, val url: String, val lineSuffix: String?, val sourceSetData: DokkaSourceSet) {
     constructor(sourceLinkDefinition: DokkaConfiguration.SourceLinkDefinition, sourceSetData: DokkaSourceSet) : this(
-        sourceLinkDefinition.path, sourceLinkDefinition.url, sourceLinkDefinition.lineSuffix, sourceSetData
+        sourceLinkDefinition.localDirectory, sourceLinkDefinition.remoteUrl, sourceLinkDefinition.remoteLineSuffix, sourceSetData
     )
 }
 

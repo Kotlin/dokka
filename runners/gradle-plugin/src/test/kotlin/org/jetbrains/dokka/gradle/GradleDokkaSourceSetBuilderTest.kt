@@ -219,39 +219,39 @@ class GradleDokkaSourceSetBuilderTest {
 
         sourceSet.sourceLinks.add(
             GradleSourceLinkBuilder(project).apply {
-                this.lineSuffix by "ls1"
-                this.path by "p1"
-                this.url by "u1"
+                this.remoteLineSuffix by "ls1"
+                this.localDirectory by project.file("p1")
+                this.remoteUrl by "u1"
             })
 
         sourceSet.sourceLink {
-            it.lineSuffix by "ls2"
-            it.path by "p2"
-            it.url by "u2"
+            it.remoteLineSuffix by "ls2"
+            it.localDirectory by project.file("p2")
+            it.remoteUrl by "u2"
         }
 
         sourceSet.sourceLink(project.closureOf<GradleSourceLinkBuilder> {
-            this.lineSuffix by "ls3"
-            this.path by "p3"
-            this.url by "u3"
+            this.remoteLineSuffix by "ls3"
+            this.localDirectory by project.file("p3")
+            this.remoteUrl by "u3"
         })
 
         assertEquals(
             setOf(
                 SourceLinkDefinitionImpl(
-                    lineSuffix = "ls1",
-                    path = "p1",
-                    url = "u1"
+                    remoteLineSuffix = "ls1",
+                    localDirectory = project.file("p1").absolutePath,
+                    remoteUrl = "u1"
                 ),
                 SourceLinkDefinitionImpl(
-                    lineSuffix = "ls2",
-                    path = "p2",
-                    url = "u2"
+                    remoteLineSuffix = "ls2",
+                    localDirectory = project.file("p2").absolutePath,
+                    remoteUrl = "u2"
                 ),
                 SourceLinkDefinitionImpl(
-                    lineSuffix = "ls3",
-                    path = "p3",
-                    url = "u3"
+                    remoteLineSuffix = "ls3",
+                    localDirectory = project.file("p3").absolutePath,
+                    remoteUrl = "u3"
                 )
             ),
             sourceSet.build().sourceLinks,

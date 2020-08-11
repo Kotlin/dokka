@@ -7,27 +7,29 @@ import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 import org.jetbrains.dokka.DokkaConfigurationBuilder
 import org.jetbrains.dokka.SourceLinkDefinitionImpl
+import java.io.File
 
 class GradleSourceLinkBuilder(
     @Transient @get:Internal internal val project: Project
 ) : DokkaConfigurationBuilder<SourceLinkDefinitionImpl> {
-    @Input
-    val path: Property<String> = project.objects.safeProperty<String>()
-        .safeConvention("")
 
     @Input
-    val url: Property<String> = project.objects.safeProperty<String>()
+    val localDirectory: Property<File?> = project.objects.safeProperty()
+
+    @Input
+    val remoteUrl: Property<String> = project.objects.safeProperty<String>()
         .safeConvention("")
 
     @Optional
     @Input
-    val lineSuffix: Property<String?> = project.objects.safeProperty()
+    val remoteLineSuffix: Property<String> = project.objects.safeProperty<String>()
+        .safeConvention("#L")
 
     override fun build(): SourceLinkDefinitionImpl {
         return SourceLinkDefinitionImpl(
-            path = path.getSafe(),
-            url = url.getSafe(),
-            lineSuffix = lineSuffix.getSafe()
+            localDirectory = localDirectory.getSafe()?.absolutePath ?: project.projectDir.absolutePath,
+            remoteUrl = remoteUrl.getSafe(),
+            remoteLineSuffix = remoteLineSuffix.getSafe()
         )
     }
 }
