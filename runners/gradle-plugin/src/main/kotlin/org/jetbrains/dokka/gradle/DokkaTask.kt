@@ -265,6 +265,7 @@ open class DokkaTask : AbstractDokkaTask() {
         config.samples = config.samples.map { project.file(it).absolutePath }
         config.includes = config.includes.map { project.file(it).absolutePath }
         config.suppressedFiles += collectSuppressedFiles(config.sourceRoots)
+        config.suppressedFiles = config.suppressedFiles.map { project.file(it).absolutePath }
 
         return config
     }
