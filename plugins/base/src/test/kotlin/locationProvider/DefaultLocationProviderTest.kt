@@ -1,7 +1,7 @@
 package locationProvider
 
 import org.jetbrains.dokka.plugability.DokkaContext
-import org.jetbrains.dokka.base.resolvers.local.DefaultLocationProvider
+import org.jetbrains.dokka.base.resolvers.local.DokkaLocationProvider
 import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Test
@@ -33,7 +33,7 @@ class DefaultLocationProviderTest: AbstractCoreTest() {
             }
 
             pagesGenerationStage = { module ->
-                val lp = DefaultLocationProvider(module, context!!)
+                val lp = DokkaLocationProvider(module, context!!)
                 assertNotEquals(lp.resolve(module.children.single()).removePrefix("/"), lp.resolve(module))
             }
         }

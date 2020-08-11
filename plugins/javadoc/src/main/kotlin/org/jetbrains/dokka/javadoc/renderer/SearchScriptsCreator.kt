@@ -57,7 +57,7 @@ class SearchScriptsCreator(private val locationProvider: JavadocLocationProvider
         val modules = SearchData(moduleRecords = input.map {
             SearchRecord(
                 l = it.name,
-                url = locationProvider.resolve(it).formatToEndWithHtml()
+                url = locationProvider.resolve(it)?.formatToEndWithHtml()
             )
         })
         val processablePackages = input.flatMap { it.children.filterIsInstance<JavadocPackagePageNode>() }
@@ -68,7 +68,7 @@ class SearchScriptsCreator(private val locationProvider: JavadocLocationProvider
         val packages = input.map {
             SearchRecord(
                 l = it.name,
-                url = locationProvider.resolve(it).formatToEndWithHtml()
+                url = locationProvider.resolve(it)?.formatToEndWithHtml()
             )
         } + SearchRecord.allPackages
         val types = input.flatMap {
@@ -86,7 +86,7 @@ class SearchScriptsCreator(private val locationProvider: JavadocLocationProvider
             SearchRecord(
                 p = it.first.name,
                 l = it.second.name,
-                url = locationProvider.resolve(it.second).formatToEndWithHtml()
+                url = locationProvider.resolve(it.second)?.formatToEndWithHtml()
             )
         } + allTypes
         val updated = accumulator.copy(typeRecords = types)

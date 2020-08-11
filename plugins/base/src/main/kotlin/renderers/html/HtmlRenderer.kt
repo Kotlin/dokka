@@ -21,6 +21,7 @@ import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.query
 import org.jetbrains.dokka.plugability.querySingle
+import org.jetbrains.dokka.utilities.htmlEscape
 import java.io.File
 import java.net.URI
 
@@ -550,7 +551,7 @@ open class HtmlRenderer(
         platforms: List<DisplaySourceSet>,
         from: PageNode? = null,
         block: FlowContent.() -> Unit
-    ) = buildLink(locationProvider.resolve(to, platforms.toSet(), from).orEmpty(), block)
+    ) = buildLink(locationProvider.resolve(to, platforms.toSet(), from)!!, block)
 
     override fun buildError(node: ContentNode) {
         context.logger.error("Unknown ContentNode type: $node")
@@ -573,7 +574,7 @@ open class HtmlRenderer(
             buildText(node.children, pageContext, sourceSetRestriction)
         }
     } ?: span {
-        attributes["data-unresolved-link"] = "true"
+        attributes["data-unresolved-link"] = node.address.toString().htmlEscape()
         buildText(node.children, pageContext, sourceSetRestriction)
     }
 
@@ -625,7 +626,7 @@ open class HtmlRenderer(
         }
     }
 
-    private fun PageNode.root(path: String) = locationProvider.resolveRoot(this) + path
+    private fun PageNode.root(path: String) = locationProvider.pathToRoot(this) + path
 
     override fun buildPage(page: ContentPage, content: (FlowContent, ContentPage) -> Unit): String =
         buildHtml(page, page.embeddedResources) {
@@ -658,7 +659,7 @@ open class HtmlRenderer(
                         else -> unsafe { +it }
                     }
                 }
-                script { unsafe { +"""var pathToRoot = "${locationProvider.resolveRoot(page)}";""" } }
+                script { unsafe { +"""var pathToRoot = "${locationProvider.pathToRoot(page)}";""" } }
             }
             body {
                 div {
