@@ -1,5 +1,7 @@
 package org.jetbrains.dokka.base.resolvers.local
 
+import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
+import org.jetbrains.dokka.base.resolvers.local.DokkaLocationProvider.Companion.identifierToFilename
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.DisplaySourceSet
 import org.jetbrains.dokka.pages.PageNode
@@ -8,7 +10,7 @@ import org.jetbrains.dokka.plugability.DokkaContext
 
 class MultimoduleLocationProvider(private val root: RootPageNode, context: DokkaContext) : LocationProvider {
 
-    private val defaultLocationProvider = DefaultLocationProvider(root, context)
+    private val defaultLocationProvider = DokkaLocationProvider(root, context)
 
     val paths = context.configuration.modules.map {
         it.name to it.path
@@ -22,7 +24,7 @@ class MultimoduleLocationProvider(private val root: RootPageNode, context: Dokka
     override fun resolve(node: PageNode, context: PageNode?, skipExtension: Boolean) =
         defaultLocationProvider.resolve(node, context, skipExtension)
 
-    override fun resolveRoot(node: PageNode): String = defaultLocationProvider.resolveRoot(node)
+    override fun pathToRoot(from: PageNode): String = defaultLocationProvider.pathToRoot(from)
 
     override fun ancestors(node: PageNode): List<PageNode> = listOf(root)
 

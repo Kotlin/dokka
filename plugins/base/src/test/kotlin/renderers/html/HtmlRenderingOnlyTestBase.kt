@@ -5,9 +5,9 @@ import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.renderers.DefaultTabSortingStrategy
 import org.jetbrains.dokka.base.renderers.RootCreator
-import org.jetbrains.dokka.base.resolvers.external.DokkaExternalLocationProviderFactory
-import org.jetbrains.dokka.base.resolvers.external.JavadocExternalLocationProviderFactory
-import org.jetbrains.dokka.base.resolvers.local.DefaultLocationProviderFactory
+import org.jetbrains.dokka.base.resolvers.external.DefaultExternalLocationProviderFactory
+import org.jetbrains.dokka.base.resolvers.external.javadoc.JavadocExternalLocationProviderFactory
+import org.jetbrains.dokka.base.resolvers.local.DokkaLocationProviderFactory
 import org.jetbrains.dokka.testApi.context.MockContext
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
@@ -46,10 +46,10 @@ abstract class HtmlRenderingOnlyTestBase : RenderingOnlyTestBase<Element>() {
     val files = TestOutputWriter()
     override val context = MockContext(
         DokkaBase().outputWriter to { _ -> files },
-        DokkaBase().locationProviderFactory to ::DefaultLocationProviderFactory,
+        DokkaBase().locationProviderFactory to ::DokkaLocationProviderFactory,
         DokkaBase().htmlPreprocessors to { _ -> RootCreator },
         DokkaBase().externalLocationProviderFactory to { ::JavadocExternalLocationProviderFactory },
-        DokkaBase().externalLocationProviderFactory to { ::DokkaExternalLocationProviderFactory },
+        DokkaBase().externalLocationProviderFactory to { ::DefaultExternalLocationProviderFactory },
         DokkaBase().tabSortingStrategy to { DefaultTabSortingStrategy() },
         testConfiguration = DokkaConfigurationImpl(
             sourceSets = listOf(js, jvm, native)

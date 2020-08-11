@@ -39,9 +39,9 @@ class PackageListService(val context: DokkaContext) {
         visit(module, setOf())
 
         return buildString {
-            appendln("\$dokka.format:${format}")
-            appendln("\$dokka.linkExtension:${linkExtension}")
-            nonStandardLocations.map { (signature, location) -> "\$dokka.location:$signature\u001f$location" }
+            appendLine("$DOKKA_PARAM_PREFIX.format:${format}")
+            appendLine("$DOKKA_PARAM_PREFIX.linkExtension:${linkExtension}")
+            nonStandardLocations.map { (signature, location) -> "$DOKKA_PARAM_PREFIX.location:$signature\u001f$location" }
                 .sorted().joinTo(this, separator = "\n", postfix = "\n")
 
             packages.sorted().joinTo(this, separator = "\n", postfix = "\n")
@@ -49,4 +49,7 @@ class PackageListService(val context: DokkaContext) {
 
     }
 
+    companion object {
+        const val DOKKA_PARAM_PREFIX = "\$dokka"
+    }
 }

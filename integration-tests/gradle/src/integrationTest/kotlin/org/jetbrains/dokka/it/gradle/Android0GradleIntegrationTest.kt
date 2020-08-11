@@ -62,6 +62,13 @@ class Android0GradleIntegrationTest(override val versions: BuildVersions) : Abst
             "Expected html files in html output directory"
         )
 
+        htmlOutputDir.allHtmlFiles().forEach { file ->
+            assertContainsNoErrorClass(file)
+            assertNoUnresolvedLinksIgnoringKnown(file)
+            assertNoHrefToMissingLocalFileOrDirectory(file)
+            assertNoEmptyLinks(file)
+        }
+
         assertTrue(
             htmlOutputDir.allHtmlFiles().any { file ->
                 "https://developer.android.com/reference/android/content/Context.html" in file.readText()
@@ -80,5 +87,23 @@ class Android0GradleIntegrationTest(override val versions: BuildVersions) : Abst
             assertNoUnresolvedLinks(file)
             assertNoHrefToMissingLocalFileOrDirectory(file)
         }
+    }
+
+    // TODO: use [assertNoUnresolvedLinks] instead when https://github.com/Kotlin/dokka/issues/1306 is closed
+    private fun assertNoUnresolvedLinksIgnoringKnown(file: File) {
+        val knownUnresolvedDRIs = setOf(
+            "it.android/IntegrationTestActivity/findViewById/#kotlin.Int/PointingToGenericParameters(0)/",
+            "it.android/IntegrationTestActivity/getExtraData/#java.lang.Class[TypeParam(bounds=[androidx.core.app.ComponentActivity.ExtraData])]/PointingToGenericParameters(0)/",
+            "it.android/IntegrationTestActivity/getSystemService/#java.lang.Class[TypeParam(bounds=[kotlin.Any])]/PointingToGenericParameters(0)/",
+            "it.android/IntegrationTestActivity/requireViewById/#kotlin.Int/PointingToGenericParameters(0)/"
+        )
+        val fileText = file.readText()
+        val regex = Regex("""data-unresolved-link="\[(.+?(?=]"))""")
+        val match = regex.findAll(fileText).map { it.groups[1]!!.value }
+
+        assertTrue(
+            match.filterNot { it in knownUnresolvedDRIs }.toList().isEmpty(),
+            "Unexpected unresolved link in ${file.path}\n" + fileText
+        )
     }
 }
