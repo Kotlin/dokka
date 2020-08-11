@@ -1,7 +1,8 @@
 package org.jetbrains.dokka.javadoc.location
 
+import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
+import org.jetbrains.dokka.base.resolvers.local.DefaultLocationProvider
 import org.jetbrains.dokka.javadoc.pages.*
-import org.jetbrains.dokka.base.resolvers.local.BaseLocationProvider
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.Nullable
 import org.jetbrains.dokka.links.parent
@@ -14,7 +15,7 @@ import org.jetbrains.dokka.plugability.DokkaContext
 import java.util.*
 
 class JavadocLocationProvider(pageRoot: RootPageNode, dokkaContext: DokkaContext) :
-    BaseLocationProvider(dokkaContext) {
+    DefaultLocationProvider(pageRoot, dokkaContext, ".html") {
 
     private val pathIndex = IdentityHashMap<PageNode, List<String>>().apply {
         fun registerPath(page: PageNode, prefix: List<String> = emptyList()) {
@@ -64,8 +65,8 @@ class JavadocLocationProvider(pageRoot: RootPageNode, dokkaContext: DokkaContext
     private fun JavadocClasslikePageNode.findAnchorableByDRI(dri: DRI): AnchorableJavadocNode? =
         (constructors + methods + entries + properties).firstOrNull { it.dri == dri }
 
-    override fun resolve(dri: DRI, sourceSets: Set<DisplaySourceSet>, context: PageNode?): String {
-        return nodeIndex[dri]?.let { resolve(it, context) }
+    override fun resolve(dri: DRI, sourceSets: Set<DisplaySourceSet>, context: PageNode?) =
+        nodeIndex[dri]?.let { resolve(it, context) }
             ?: nodeIndex[dri.parent]?.takeIf { it is JavadocClasslikePageNode }?.let {
                 val anchor = when (val anchorElement = (it as? JavadocClasslikePageNode)?.findAnchorableByDRI(dri)) {
                     is JavadocFunctionNode -> anchorElement.getAnchor()
@@ -79,17 +80,18 @@ class JavadocLocationProvider(pageRoot: RootPageNode, dokkaContext: DokkaContext
 
 
     private fun JavadocFunctionNode.getAnchor(): String =
-        "$name(${parameters.joinToString(",") {
-            when (val bound =
-                if (it.typeBound is org.jetbrains.dokka.model.Nullable) it.typeBound.inner else it.typeBound) {
-                is TypeConstructor -> bound.dri.classNames.orEmpty()
-                is TypeParameter -> bound.name
-                is PrimitiveJavaType -> bound.name
-                is UnresolvedBound -> bound.name
-                is JavaObject -> "Object"
-                else -> bound.toString()
-            }
-        })"
+        "$name(" +
+                parameters.joinToString(",") {
+                    when (val bound =
+                        if (it.typeBound is org.jetbrains.dokka.model.Nullable) it.typeBound.inner else it.typeBound) {
+                        is TypeConstructor -> bound.dri.classNames.orEmpty()
+                        is TypeParameter -> bound.name
+                        is PrimitiveJavaType -> bound.name
+                        is UnresolvedBound -> bound.name
+                        is JavaObject -> "Object"
+                        else -> bound.toString()
+                    }
+                } + ")"
 
     fun anchorForFunctionNode(node: JavadocFunctionNode) = node.getAnchor()
 
@@ -122,7 +124,7 @@ class JavadocLocationProvider(pageRoot: RootPageNode, dokkaContext: DokkaContext
             }
         }?.relativeTo(pathIndex[contextRoot].orEmpty())?.let { if (skipExtension) "$it.html" else it }.orEmpty()
 
-    override fun resolveRoot(node: PageNode): String {
+    override fun pathToRoot(from: PageNode): String {
         TODO("Not yet implemented")
     }
 

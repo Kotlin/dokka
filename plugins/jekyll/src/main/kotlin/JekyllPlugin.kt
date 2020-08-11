@@ -4,6 +4,7 @@ import org.jetbrains.dokka.CoreExtensions
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.renderers.PackageListCreator
 import org.jetbrains.dokka.base.renderers.RootCreator
+import org.jetbrains.dokka.base.resolvers.shared.RecognizedLinkFormat
 import org.jetbrains.dokka.gfm.CommonmarkRenderer
 import org.jetbrains.dokka.gfm.GfmPlugin
 import org.jetbrains.dokka.pages.*
@@ -31,11 +32,7 @@ class JekyllPlugin : DokkaPlugin() {
 
     val packageListCreator by extending {
         jekyllPreprocessors providing {
-            PackageListCreator(
-                it,
-                "jekyll",
-                "md"
-            )
+            PackageListCreator(it, RecognizedLinkFormat.DokkaJekyll)
         } order { after(rootCreator) }
     }
 }
