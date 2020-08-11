@@ -84,6 +84,24 @@ class BasicGradleIntegrationTest(override val versions: BuildVersions) : Abstrac
             allHtmlFiles().any { file -> "Basic Project" in file.readText() },
             "Expected configured moduleDisplayName to be present in html"
         )
+
+        assertTrue(
+            allHtmlFiles().any { file ->
+                "https://github.com/Kotlin/dokka/tree/master/" +
+                        "integration-tests/gradle/projects/it-basic/" +
+                        "src/main/kotlin/it/basic/PublicClass.kt" in file.readText()
+            },
+            "Expected `PublicClass` source link to GitHub"
+        )
+
+        assertTrue(
+            allHtmlFiles().any { file ->
+                "https://github.com/Kotlin/dokka/tree/master/" +
+                        "integration-tests/gradle/projects/it-basic/" +
+                        "src/main/java/it/basic/java/SampleJavaClass.java" in file.readText()
+            },
+            "Expected `SampleJavaClass` source link to GitHub"
+        )
     }
 
     private fun File.assertJavadocOutputDir() {

@@ -21,6 +21,13 @@ tasks.withType<DokkaTask> {
                 prefix.set("it.suppressedByPackage")
                 suppress.set(true)
             }
+            sourceLink {
+                localDirectory.set(file("src/main"))
+                remoteUrl.set(
+                    "https://github.com/Kotlin/dokka/tree/master/" +
+                            "integration-tests/gradle/projects/it-basic/src/main"
+                )
+            }
         }
 
         register("myTest") {
