@@ -68,4 +68,12 @@ abstract class AbstractIntegrationTest {
             }
         }
     }
+
+    protected fun assertNoSuppressedMarker(file: File) {
+        val fileText = file.readText()
+        assertFalse(
+            fileText.contains("§SUPPRESSED§"),
+            "Unexpected `§SUPPRESSED§` in file ${file.path}"
+        )
+    }
 }
