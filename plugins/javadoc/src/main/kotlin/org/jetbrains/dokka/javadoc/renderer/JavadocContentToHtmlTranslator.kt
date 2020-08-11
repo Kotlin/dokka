@@ -69,10 +69,9 @@ internal class JavadocContentToHtmlTranslator(
         ).joinToString(separator = " ") { htmlForContentNode(it, relative) }
 
     private fun buildLinkFromNode(node: ContentDRILink, relative: PageNode?) =
-        buildLink(
-            locationProvider.resolve(node.address, node.sourceSets, relative),
-            htmlForContentNodes(node.children, relative)
-        )
+        locationProvider.resolve(node.address, node.sourceSets, relative)?.let {
+            buildLink(it, htmlForContentNodes(node.children, relative))
+        } ?: htmlForContentNodes(node.children, relative)
 
     private fun buildLinkFromNode(node: ContentResolvedLink, relative: PageNode?) =
         buildLink(node.address, htmlForContentNodes(node.children, relative))

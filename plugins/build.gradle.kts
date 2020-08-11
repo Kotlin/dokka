@@ -1,4 +1,5 @@
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.gradle.api.tasks.testing.logging.TestLogEvent
 
 subprojects {
     apply {
@@ -20,7 +21,10 @@ subprojects {
         useJUnitPlatform()
         testLogging {
             exceptionFormat = TestExceptionFormat.FULL
-            events( "skipped", "failed")
+            events(TestLogEvent.SKIPPED, TestLogEvent.FAILED)
+            showExceptions = true
+            showCauses = true
+            showStackTraces = true
         }
     }
 }

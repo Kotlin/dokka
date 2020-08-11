@@ -6,8 +6,8 @@ import org.jetbrains.dokka.gfm.MarkdownLocationProviderFactory
 import org.jetbrains.dokka.testApi.context.MockContext
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.renderers.RootCreator
-import org.jetbrains.dokka.base.resolvers.external.DokkaExternalLocationProviderFactory
-import org.jetbrains.dokka.base.resolvers.external.JavadocExternalLocationProviderFactory
+import org.jetbrains.dokka.base.resolvers.external.DefaultExternalLocationProviderFactory
+import org.jetbrains.dokka.base.resolvers.external.javadoc.JavadocExternalLocationProviderFactory
 import renderers.RenderingOnlyTestBase
 import utils.TestOutputWriter
 
@@ -18,7 +18,7 @@ abstract class GfmRenderingOnlyTestBase : RenderingOnlyTestBase<String>() {
         DokkaBase().outputWriter to { _ -> files },
         DokkaBase().locationProviderFactory to ::MarkdownLocationProviderFactory,
         DokkaBase().externalLocationProviderFactory to { ::JavadocExternalLocationProviderFactory },
-        DokkaBase().externalLocationProviderFactory to { ::DokkaExternalLocationProviderFactory },
+        DokkaBase().externalLocationProviderFactory to { ::DefaultExternalLocationProviderFactory },
         GfmPlugin().gfmPreprocessors to { _ -> RootCreator },
 
         testConfiguration = DokkaConfigurationImpl()
