@@ -11,7 +11,7 @@ internal fun GradleDokkaSourceSetBuilder.toDokkaSourceSetImpl(): DokkaSourceSetI
         displayName = displayNameOrDefault(),
         sourceSetID = sourceSetID,
         sourceRoots = sourceRoots.toSet(),
-        dependentSourceSets = dependentSourceSets.get().toSet(),
+        dependentSourceSets = dependentSourceSets.getSafe().toSet(),
         samples = samples.toSet(),
         includes = includes.toSet(),
         includeNonPublic = includeNonPublic.getSafe(),
@@ -47,7 +47,7 @@ private fun GradleDokkaSourceSetBuilder.displayNameOrDefault(): String {
 private fun GradleDokkaSourceSetBuilder.externalDocumentationLinksWithDefaults(): Set<ExternalDocumentationLinkImpl> {
     return externalDocumentationLinks.getSafe().build()
         .run {
-            if (noJdkLink.get()) this
+            if (noJdkLink.getSafe()) this
             else this + ExternalDocumentationLink.jdk(jdkVersion.getSafe())
         }
         .run {
