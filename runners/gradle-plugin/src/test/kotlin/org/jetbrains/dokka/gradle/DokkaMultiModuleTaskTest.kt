@@ -58,7 +58,7 @@ class DokkaMultiModuleTaskTest {
         assertTrue(multimoduleTasks.isNotEmpty(), "Expected at least one multimodule task")
 
         multimoduleTasks.configureEach { task ->
-            task.documentationFileName = "customDocumentationFileName.md"
+            task.documentationFileName by "customDocumentationFileName.md"
             task.outputDirectory by task.project.buildDir.resolve("customOutputDirectory")
             task.cacheRoot by File("customCacheRoot")
             task.pluginsConfiguration.put("pluginA", "configA")
@@ -131,7 +131,7 @@ class DokkaMultiModuleTaskTest {
         val childTask = child.tasks.create<DokkaTask>("child")
 
         parentTask.addChildTask(childTask)
-        parentTask.documentationFileName = "module.txt"
+        parentTask.documentationFileName by "module.txt"
 
         assertEquals(
             listOf(parent.file("child/module.txt")), parentTask.childDocumentationFiles,
@@ -165,7 +165,7 @@ class DokkaMultiModuleTaskTest {
         val childTask = child.tasks.create<DokkaTask>("child")
 
         parentTask.addChildTask(childTask)
-        parentTask.fileLayout = object : DokkaMultiModuleFileLayout {
+        parentTask.fileLayout by object : DokkaMultiModuleFileLayout {
             override fun targetChildOutputDirectory(parent: DokkaMultiModuleTask, child: AbstractDokkaTask): File {
                 return parent.project.buildDir.resolve(child.name)
             }

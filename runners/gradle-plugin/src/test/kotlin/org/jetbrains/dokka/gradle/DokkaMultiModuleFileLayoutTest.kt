@@ -57,7 +57,7 @@ class DokkaMultiModuleFileLayoutTest {
         subFolder.mkdirs()
         subFolder.resolve("other.file").writeText("other text")
 
-        parentTask.fileLayout = object : DokkaMultiModuleFileLayout {
+        parentTask.fileLayout by object : DokkaMultiModuleFileLayout {
             override fun targetChildOutputDirectory(parent: DokkaMultiModuleTask, child: AbstractDokkaTask): File {
                 return parent.project.file("target/output")
             }
@@ -105,7 +105,7 @@ class DokkaMultiModuleFileLayoutTest {
         val project = ProjectBuilder.builder().build()
         val childTask = project.tasks.create<DokkaTask>("child")
         val parentTask = project.tasks.create<DokkaMultiModuleTask>("parent")
-        parentTask.fileLayout = object : DokkaMultiModuleFileLayout {
+        parentTask.fileLayout by object : DokkaMultiModuleFileLayout {
             override fun targetChildOutputDirectory(parent: DokkaMultiModuleTask, child: AbstractDokkaTask): File {
                 return child.outputDirectory.getSafe().resolve("subfolder")
             }
@@ -118,7 +118,7 @@ class DokkaMultiModuleFileLayoutTest {
         val project = ProjectBuilder.builder().build()
         val childTask = project.tasks.create<DokkaTask>("child")
         val parentTask = project.tasks.create<DokkaMultiModuleTask>("parent")
-        parentTask.fileLayout = NoCopy
+        parentTask.fileLayout by NoCopy
         parentTask.copyChildOutputDirectory(childTask)
     }
 }
