@@ -1,6 +1,7 @@
 package org.jetbrains.dokka.gradle
 
 import org.gradle.api.internal.tasks.TaskDependencyInternal
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
 import org.jetbrains.dokka.DokkaConfigurationImpl
 import org.jetbrains.dokka.DokkaModuleDescriptionImpl
@@ -19,14 +20,16 @@ open class DokkaMultiModuleTask : AbstractDokkaParentTask(DokkaMultimoduleBootst
      * This file has to be placed inside the subproject root directory.
      */
     @Internal
-    var documentationFileName: String = "README.md"
+    val documentationFileName: Property<String> = project.objects.safeProperty<String>()
+        .safeConvention("README.md")
 
     @Internal
-    var fileLayout: DokkaMultiModuleFileLayout = DokkaMultiModuleFileLayout.CompactInParent
+    var fileLayout: Property<DokkaMultiModuleFileLayout> = project.objects.safeProperty<DokkaMultiModuleFileLayout>()
+        .safeConvention(DokkaMultiModuleFileLayout.CompactInParent)
 
     @get:InputFiles
     internal val childDocumentationFiles: Iterable<File>
-        get() = childDokkaTasks.map { task -> task.project.projectDir.resolve(documentationFileName) }
+        get() = childDokkaTasks.map { task -> task.project.projectDir.resolve(documentationFileName.getSafe()) }
 
     @get:InputFiles
     internal val sourceChildOutputDirectories: Iterable<File>
@@ -59,7 +62,7 @@ open class DokkaMultiModuleTask : AbstractDokkaParentTask(DokkaMultimoduleBootst
                 DokkaModuleDescriptionImpl(
                     name = dokkaTask.project.name,
                     path = targetChildOutputDirectory(dokkaTask).relativeTo(outputDirectory.getSafe()),
-                    docFile = dokkaTask.project.projectDir.resolve(documentationFileName).absoluteFile
+                    docFile = dokkaTask.project.projectDir.resolve(documentationFileName.get()).absoluteFile
                 )
             }
         )
