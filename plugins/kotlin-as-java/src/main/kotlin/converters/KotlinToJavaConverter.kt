@@ -257,6 +257,7 @@ internal fun String.getAsPrimitive(): JvmPrimitiveType? = org.jetbrains.kotlin.b
 
 private fun DRI.partialFqName() = packageName?.let { "$it." } + classNames
 private fun DRI.possiblyAsJava() = this.partialFqName().mapToJava()?.toDRI(this) ?: this
+private fun TypeConstructor.possiblyAsJava() = copy(dri = this.dri.possiblyAsJava())
 
 private fun String.mapToJava(): ClassId? =
     JavaToKotlinClassMap.mapKotlinToJava(FqName(this).toUnsafe())
@@ -269,9 +270,9 @@ internal fun ClassId.toDRI(dri: DRI?): DRI = DRI(
     target = PointingToDeclaration
 )
 
-internal fun DriWithKind.asJava(): DriWithKind =
-    DriWithKind(
-        dri = dri.possiblyAsJava(),
+internal fun TypeConstructorWithKind.asJava(): TypeConstructorWithKind =
+    TypeConstructorWithKind(
+        typeConstructor = typeConstructor.possiblyAsJava(),
         kind = kind.asJava()
     )
 

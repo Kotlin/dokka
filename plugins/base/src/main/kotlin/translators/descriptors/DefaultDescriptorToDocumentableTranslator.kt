@@ -11,6 +11,7 @@ import org.jetbrains.dokka.links.Callable
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.Nullable
 import org.jetbrains.dokka.model.TypeConstructor
+import org.jetbrains.dokka.model.Variance
 import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.plugability.DokkaContext
@@ -36,15 +37,13 @@ import org.jetbrains.kotlin.resolve.constants.ConstantValue
 import org.jetbrains.kotlin.resolve.constants.KClassValue.Value.LocalClass
 import org.jetbrains.kotlin.resolve.constants.KClassValue.Value.NormalClass
 import org.jetbrains.kotlin.resolve.descriptorUtil.annotationClass
-import org.jetbrains.kotlin.resolve.descriptorUtil.getSuperClassNotAny
-import org.jetbrains.kotlin.resolve.descriptorUtil.getSuperInterfaces
 import org.jetbrains.kotlin.resolve.scopes.DescriptorKindFilter
 import org.jetbrains.kotlin.resolve.scopes.MemberScope
 import org.jetbrains.kotlin.resolve.source.KotlinSourceElement
 import org.jetbrains.kotlin.resolve.source.PsiSourceElement
-import org.jetbrains.kotlin.types.DynamicType
-import org.jetbrains.kotlin.types.KotlinType
-import org.jetbrains.kotlin.types.TypeProjection
+import org.jetbrains.kotlin.types.*
+import org.jetbrains.kotlin.types.typeUtil.isAnyOrNullableAny
+import org.jetbrains.kotlin.types.typeUtil.supertypes
 import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 import java.nio.file.Paths
@@ -556,28 +555,34 @@ private class DokkaDescriptorVisitor(
         getDocumentation()?.toSourceSetDependent() ?: emptyMap()
 
     private fun ClassDescriptor.resolveClassDescriptionData(): ClassInfo {
-        tailrec fun buildInheritanceInformation(
-            inheritorClass: ClassDescriptor?,
-            interfaces: List<ClassDescriptor>,
-            level: Int = 0,
-            inheritanceInformation: Set<InheritanceLevel> = emptySet()
-        ): Set<InheritanceLevel> {
-            if (inheritorClass == null && interfaces.isEmpty()) return inheritanceInformation
 
-            val updated = inheritanceInformation + InheritanceLevel(
+        fun toTypeConstructor(kt: KotlinType) =
+            TypeConstructor(DRI.from(kt.constructor.declarationDescriptor as DeclarationDescriptor), kt.arguments.map { it.toProjection() })
+
+        tailrec fun buildAncestryInformation(
+            supertypes: Collection<KotlinType>,
+            level: Int = 0,
+            ancestryInformation: Set<AncestryLevel> = emptySet()
+        ): Set<AncestryLevel> {
+            if (supertypes.isEmpty()) return ancestryInformation
+
+            val (interfaces, superclass) = supertypes.partition {
+                (it.constructor.declarationDescriptor as ClassDescriptor).kind == ClassKind.INTERFACE
+            }
+
+            val updated = ancestryInformation + AncestryLevel(
                 level,
-                inheritorClass?.let { DRI.from(it) },
-                interfaces.map { DRI.from(it) })
-            val superInterfacesFromClass = inheritorClass?.getSuperInterfaces().orEmpty()
-            return buildInheritanceInformation(
-                inheritorClass = inheritorClass?.getSuperClassNotAny(),
-                interfaces = interfaces.flatMap { it.getSuperInterfaces() } + superInterfacesFromClass,
+                superclass.map(::toTypeConstructor).singleOrNull(),
+                interfaces.map(::toTypeConstructor)
+            )
+            return buildAncestryInformation(
+                supertypes = supertypes.flatMap { it.supertypes() },
                 level = level + 1,
-                inheritanceInformation = updated
+                ancestryInformation = updated
             )
         }
         return ClassInfo(
-            buildInheritanceInformation(getSuperClassNotAny(), getSuperInterfaces()).sortedBy { it.level },
+            buildAncestryInformation(this.typeConstructor.supertypes.filterNot { it.isAnyOrNullableAny() }).sortedBy { it.level },
             resolveDescriptorData()
         )
     }
@@ -596,7 +601,7 @@ private class DokkaDescriptorVisitor(
     private fun KotlinType.toBound(): Bound = when (this) {
         is DynamicType -> Dynamic
         else -> when (val ctor = constructor.declarationDescriptor) {
-            is TypeParameterDescriptor -> OtherParameter(
+            is TypeParameterDescriptor -> TypeParameter(
                 declarationDRI = DRI.from(ctor.containingDeclaration).withPackageFallbackTo(fallbackPackageName()),
                 name = ctor.name.asString()
             )
@@ -745,24 +750,16 @@ private class DokkaDescriptorVisitor(
 
     private fun ValueArgument.childrenAsText() = this.safeAs<KtValueArgument>()?.children?.map { it.text }.orEmpty()
 
-    private data class InheritanceLevel(val level: Int, val superclass: DRI?, val interfaces: List<DRI>)
+    private data class AncestryLevel(val level: Int, val superclass: TypeConstructor?, val interfaces: List<TypeConstructor>)
 
-    private data class ClassInfo(
-        val inheritance: List<InheritanceLevel>,
-        val docs: SourceSetDependent<DocumentationNode>
-    ) {
-        val supertypes: List<DriWithKind>
-            get() = inheritance.firstOrNull { it.level == 0 }?.let {
-                listOfNotNull(it.superclass?.let {
-                    DriWithKind(
-                        it,
-                        KotlinClassKindTypes.CLASS
-                    )
-                }) + it.interfaces.map { DriWithKind(it, KotlinClassKindTypes.INTERFACE) }
-            }.orEmpty()
+    private data class ClassInfo(val ancestry: List<AncestryLevel>, val docs: SourceSetDependent<DocumentationNode>){
+        val supertypes: List<TypeConstructorWithKind>
+            get() = ancestry.firstOrNull { it.level == 0 }?.let {
+                    listOfNotNull(it.superclass?.let { TypeConstructorWithKind(it, KotlinClassKindTypes.CLASS) }) + it.interfaces.map { TypeConstructorWithKind(it, KotlinClassKindTypes.INTERFACE) }
+                }.orEmpty()
 
-        val allImplementedInterfaces: List<DRI>
-            get() = inheritance.flatMap { it.interfaces }.distinct()
+        val allImplementedInterfaces: List<TypeConstructor>
+            get() = ancestry.flatMap { it.interfaces }.distinct()
     }
 
     private fun Visibility.toDokkaVisibility(): org.jetbrains.dokka.model.Visibility = when (this) {
