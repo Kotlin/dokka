@@ -71,10 +71,10 @@ class JavadocSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLo
                     c.supertypes.map { (p, dris) ->
                         val (classes, interfaces) = dris.partition { it.kind == JavaClassKindTypes.CLASS }
                         list(classes, prefix = "extends ", sourceSets = setOf(p)) {
-                            link(it.dri.sureClassNames, it.dri, sourceSets = setOf(p))
+                            link(it.typeConstructor.dri.sureClassNames, it.typeConstructor.dri, sourceSets = setOf(p))
                         }
                         list(interfaces, prefix = " implements ", sourceSets = setOf(p)){
-                            link(it.dri.sureClassNames, it.dri, sourceSets = setOf(p))
+                            link(it.typeConstructor.dri.sureClassNames, it.typeConstructor.dri, sourceSets = setOf(p))
                         }
                     }
                 }
@@ -178,7 +178,7 @@ class JavadocSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLo
         }
 
     private fun PageContentBuilder.DocumentableContentBuilder.signatureForProjection(p: Projection): Unit = when (p) {
-        is OtherParameter -> link(p.name, p.declarationDRI)
+        is TypeParameter -> link(p.name, p.declarationDRI)
         is TypeConstructor -> group {
             link(p.dri.classNames.orEmpty(), p.dri)
             list(p.projections, prefix = "<", suffix = ">") {

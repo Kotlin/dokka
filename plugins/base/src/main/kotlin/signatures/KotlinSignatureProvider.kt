@@ -15,6 +15,7 @@ import org.jetbrains.dokka.pages.ContentKind
 import org.jetbrains.dokka.pages.ContentNode
 import org.jetbrains.dokka.pages.TextStyle
 import org.jetbrains.dokka.utilities.DokkaLogger
+import java.lang.IllegalStateException
 import kotlin.text.Typography.nbsp
 
 class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogger) : SignatureProvider,
@@ -182,9 +183,14 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                 }
             }
             if (c is WithSupertypes) {
-                c.supertypes.filter { it.key == sourceSet }.map { (s, dris) ->
-                    list(dris, prefix = " : ", sourceSets = setOf(s)) {
-                        link(it.dri.sureClassNames, it.dri, sourceSets = setOf(s))
+                c.supertypes.filter { it.key == sourceSet }.map { (s, typeConstructors) ->
+                    list(typeConstructors, prefix = " : ", sourceSets = setOf(s)) {
+                        link(it.typeConstructor.dri.sureClassNames, it.typeConstructor.dri, sourceSets = setOf(s))
+                        if ( it.typeConstructor.projections.isNotEmpty() ) {
+                            list(it.typeConstructor.projections, prefix = "<", suffix = "> ") {
+                                signatureForProjection(it)
+                            }
+                        }
                     }
                 }
             }
@@ -313,7 +319,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
         p: Projection, showFullyQualifiedName: Boolean = false
     ): Unit =
         when (p) {
-            is OtherParameter -> link(p.name, p.declarationDRI)
+            is TypeParameter -> link(p.name, p.declarationDRI)
 
             is TypeConstructor -> if (p.function)
                 +funType(mainDRI.single(), mainSourcesetData, p)
