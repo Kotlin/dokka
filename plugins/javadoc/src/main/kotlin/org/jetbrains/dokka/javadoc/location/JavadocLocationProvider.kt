@@ -83,7 +83,7 @@ class JavadocLocationProvider(pageRoot: RootPageNode, dokkaContext: DokkaContext
             when (val bound =
                 if (it.typeBound is org.jetbrains.dokka.model.Nullable) it.typeBound.inner else it.typeBound) {
                 is TypeConstructor -> bound.dri.classNames.orEmpty()
-                is OtherParameter -> bound.name
+                is TypeParameter -> bound.name
                 is PrimitiveJavaType -> bound.name
                 is UnresolvedBound -> bound.name
                 is JavaObject -> "Object"

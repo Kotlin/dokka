@@ -128,7 +128,7 @@ internal class JavadocContentToTemplateMapTranslator(
             )
 
         private fun templateMapForImplementedInterfaces(node: JavadocClasslikePageNode) =
-            node.extra[ImplementedInterfaces]?.interfaces?.entries?.firstOrNull { it.key.analysisPlatform == Platform.jvm }?.value?.map { it.displayable() } // TODO: REMOVE HARDCODED JVM DEPENDENCY
+            node.extra[ImplementedInterfaces]?.interfaces?.entries?.firstOrNull { it.key.analysisPlatform == Platform.jvm }?.value?.map { it.dri.displayable() } // TODO: REMOVE HARDCODED JVM DEPENDENCY
                 .orEmpty()
 
         private fun templateMapForClasslikeMethods(nodes: List<JavadocFunctionNode>): TemplateMap {
