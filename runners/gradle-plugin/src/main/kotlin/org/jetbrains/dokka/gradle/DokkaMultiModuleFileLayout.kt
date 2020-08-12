@@ -47,7 +47,7 @@ interface DokkaMultiModuleFileLayout {
 internal fun DokkaMultiModuleTask.targetChildOutputDirectory(
     child: AbstractDokkaTask
 ): File {
-    return fileLayout.targetChildOutputDirectory(this, child)
+    return fileLayout.get().targetChildOutputDirectory(this, child)
 }
 
 internal fun DokkaMultiModuleTask.copyChildOutputDirectories() {
@@ -57,7 +57,7 @@ internal fun DokkaMultiModuleTask.copyChildOutputDirectories() {
 }
 
 internal fun DokkaMultiModuleTask.copyChildOutputDirectory(child: AbstractDokkaTask) {
-    val targetChildOutputDirectory = project.file(fileLayout.targetChildOutputDirectory(this, child))
+    val targetChildOutputDirectory = project.file(fileLayout.get().targetChildOutputDirectory(this, child))
     val sourceChildOutputDirectory = child.outputDirectory.getSafe()
 
     /* Pointing to the same directory -> No copy necessary */
