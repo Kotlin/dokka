@@ -17,6 +17,10 @@ abstract class JavadocContentNode(
     override val style: Set<Style> = emptySet()
     override val extra: PropertyContainer<ContentNode> = PropertyContainer.empty()
     override fun withNewExtras(newExtras: PropertyContainer<ContentNode>): ContentNode = this
+
+    // TODO: Support needed?
+    override fun withSourceSets(sourceSets: Set<ContentSourceSet>): JavadocContentNode = this
+
 }
 
 interface JavadocList {
@@ -40,6 +44,9 @@ class EmptyNode(
 
     override fun withNewExtras(newExtras: PropertyContainer<ContentNode>): ContentNode =
         EmptyNode(dci.dri.first(), dci.kind, sourceSets, newExtras)
+
+    override fun withSourceSets(sourceSets: Set<ContentSourceSet>): ContentNode =
+        EmptyNode(dci.dri.first(), dci.kind, sourceSets, extra)
 
     override fun hasAnyContent(): Boolean = false
 }

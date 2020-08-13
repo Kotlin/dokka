@@ -26,7 +26,6 @@ data class ContentSourceSet(
 }
 
 
-//TODO NOW: Test
 data class CompositeSourceSetID(
     private val children: Set<DokkaSourceSetID>
 ) {
