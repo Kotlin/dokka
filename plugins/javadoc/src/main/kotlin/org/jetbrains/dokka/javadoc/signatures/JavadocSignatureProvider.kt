@@ -72,9 +72,15 @@ class JavadocSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLo
                         val (classes, interfaces) = dris.partition { it.kind == JavaClassKindTypes.CLASS }
                         list(classes, prefix = "extends ", sourceSets = setOf(p)) {
                             link(it.typeConstructor.dri.sureClassNames, it.typeConstructor.dri, sourceSets = setOf(p))
+                            list(it.typeConstructor.projections, prefix = "<", suffix = ">", sourceSets = setOf(p)) {
+                                signatureForProjection(it)
+                            }
                         }
                         list(interfaces, prefix = " implements ", sourceSets = setOf(p)){
                             link(it.typeConstructor.dri.sureClassNames, it.typeConstructor.dri, sourceSets = setOf(p))
+                            list(it.typeConstructor.projections, prefix = "<", suffix = ">", sourceSets = setOf(p)) {
+                                signatureForProjection(it)
+                            }
                         }
                     }
                 }

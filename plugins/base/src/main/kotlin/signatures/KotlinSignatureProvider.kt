@@ -186,10 +186,8 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                 c.supertypes.filter { it.key == sourceSet }.map { (s, typeConstructors) ->
                     list(typeConstructors, prefix = " : ", sourceSets = setOf(s)) {
                         link(it.typeConstructor.dri.sureClassNames, it.typeConstructor.dri, sourceSets = setOf(s))
-                        if ( it.typeConstructor.projections.isNotEmpty() ) {
-                            list(it.typeConstructor.projections, prefix = "<", suffix = "> ") {
-                                signatureForProjection(it)
-                            }
+                        list(it.typeConstructor.projections, prefix = "<", suffix = "> ") {
+                            signatureForProjection(it)
                         }
                     }
                 }
