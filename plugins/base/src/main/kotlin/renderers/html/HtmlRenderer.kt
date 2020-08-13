@@ -5,6 +5,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.html.*
 import kotlinx.html.stream.createHTML
+import org.jetbrains.dokka.DokkaSourceSetID
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.renderers.DefaultRenderer
@@ -26,11 +27,14 @@ open class HtmlRenderer(
     context: DokkaContext
 ) : DefaultRenderer<FlowContent>(context) {
 
-    private val sourceSetDependencyMap = context.configuration.sourceSets.map { sourceSet ->
-        sourceSet to context.configuration.sourceSets.filter { sourceSet.dependentSourceSets.contains(it.sourceSetID) }
-    }.toMap()
+    private val sourceSetDependencyMap: Map<DokkaSourceSetID, List<DokkaSourceSetID>> =
+        context.configuration.sourceSets.map { sourceSet ->
+            sourceSet.sourceSetID to context.configuration.sourceSets
+                .map { it.sourceSetID }
+                .filter { it in sourceSet.dependentSourceSets }
+        }.toMap()
 
-    private val isMultiplatform by lazy {
+    private val shouldShowSourceSetBubbles by lazy {
         sourceSetDependencyMap.size > 1
     }
 
@@ -105,7 +109,7 @@ open class HtmlRenderer(
     }
 
     private fun FlowContent.filterButtons(page: ContentPage) {
-        if (isMultiplatform) {
+        if (shouldShowSourceSetBubbles) {
             div(classes = "filter-section") {
                 id = "filter-section"
                 page.content.withDescendants().flatMap { it.sourceSets }.distinct().forEach {
@@ -223,8 +227,9 @@ open class HtmlRenderer(
             Pair<ContentSourceSet, String>::second,
             Pair<ContentSourceSet, String>::first
         ).entries.flatMap { (html, sourceSets) ->
-            sourceSets.filterNot {
-                sourceSetDependencyMap[it].orEmpty().any { dependency -> sourceSets.contains(dependency) }
+            sourceSets.filterNot { sourceSet ->
+                sourceSet.sourceSetIDs.all.flatMap { sourceSetDependencyMap[it].orEmpty() }
+                    .any { sourceSetId -> sourceSetId in sourceSets.sourceSetIDs }
             }.map {
                 it to createHTML(prettyPrint = false).div(classes = "content sourceset-depenent-content") {
                     if (counter++ == 0) attributes["data-active"] = ""
@@ -410,7 +415,7 @@ open class HtmlRenderer(
     }
 
     private fun FlowContent.createPlatformTagBubbles(sourceSets: List<ContentSourceSet>) {
-        if (isMultiplatform) {
+        if (shouldShowSourceSetBubbles) {
             div("platform-tags") {
                 sourceSets.forEach {
                     div("platform-tag") {
