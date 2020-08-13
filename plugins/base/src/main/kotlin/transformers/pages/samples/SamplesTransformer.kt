@@ -144,7 +144,6 @@ abstract class SamplesTransformer(val context: DokkaContext) : PageTransformer {
             ),
             language = language,
             dci = DCI(dri, ContentKind.Sample),
-            sourceSets = sourceSets,
             style = styles + ContentStyle.RunnableSample + TextStyle.Monospace,
             extra = extra
         )

@@ -146,10 +146,10 @@ open class DefaultPageCreator(
             if (map.values.any()) {
                 header(2, "Inheritors") { }
                 +ContentTable(
-                    listOf(contentBuilder.contentFor(mainDRI, mainSourcesetData){
-                            text("Name")
+                    header = listOf(contentBuilder.contentFor(mainDRI, mainSourcesetData){
+                        text("Name")
                     }),
-                    map.entries.flatMap { entry -> entry.value.map { Pair(entry.key, it) } }
+                    children = map.entries.flatMap { entry -> entry.value.map { Pair(entry.key, it) } }
                         .groupBy({ it.second }, { it.first }).map { (classlike, platforms) ->
                             buildGroup(setOf(dri), platforms.toSet(), ContentKind.Inheritors) {
                                 link(
@@ -158,8 +158,7 @@ open class DefaultPageCreator(
                                 )
                             }
                         },
-                    DCI(setOf(dri), ContentKind.Inheritors),
-                    sourceSets.toContentSourceSets(),
+                    dci = DCI(setOf(dri), ContentKind.Inheritors),
                     style = emptySet(),
                     extra = mainExtra + SimpleAttr.header("Inheritors")
                 )

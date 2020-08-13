@@ -48,14 +48,13 @@ class MultimodulePageCreator(
                         val dri = DRI(packageName = MULTIMODULE_PACKAGE_PLACEHOLDER, classNames = module.name)
                         val dci = DCI(setOf(dri), ContentKind.Main)
                         val header =
-                            ContentHeader(listOf(linkNode(module.name, dri)), 2, dci, emptySet(), emptySet())
+                            ContentHeader(listOf(linkNode(module.name, dri)), 2, dci, emptySet())
                         val content = ContentGroup(
                             DocTagToContentConverter.buildContent(it, dci, emptySet()),
                             dci,
                             emptySet(),
-                            emptySet()
                         )
-                        ContentGroup(listOf(header, content), dci, emptySet(), emptySet())
+                        ContentGroup(listOf(header, content), dci, emptySet())
                     }
                 }
             }

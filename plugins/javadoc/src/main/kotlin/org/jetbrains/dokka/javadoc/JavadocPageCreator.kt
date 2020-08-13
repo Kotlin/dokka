@@ -235,7 +235,6 @@ open class JavadocPageCreator(
                         sourceSets.toSet()
                     ),
                     dci = DCI(setOf(dri), JavadocContentKind.OverviewSummary),
-                    sourceSets = sourceSets.toContentSourceSets(),
                     style = emptySet(),
                     extra = PropertyContainer.empty()
                 )

@@ -66,7 +66,6 @@ class SourceLinksTransformer(val context: DokkaContext, val builder: PageContent
                 }
             },
             DCI(node.dri, ContentKind.Source),
-            node.documentable!!.sourceSets.toContentSourceSets(),
             style = emptySet(),
             extra = mainExtra + SimpleAttr.header("Sources")
         )
@@ -108,7 +107,6 @@ class SourceLinksTransformer(val context: DokkaContext, val builder: PageContent
             else -> ContentGroup(
                 children = listOf(this, table),
                 extra = this.extra,
-                sourceSets = this.sourceSets,
                 dci = this.dci,
                 style = this.style
             )
