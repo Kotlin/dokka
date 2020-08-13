@@ -3,7 +3,7 @@ package org.jetbrains.dokka.base.renderers.html
 import kotlinx.html.*
 import kotlinx.html.stream.createHTML
 import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.pages.ContentSourceSet
+import org.jetbrains.dokka.model.ContentSourceSet
 import org.jetbrains.dokka.pages.PageNode
 import org.jetbrains.dokka.pages.RendererSpecificPage
 import org.jetbrains.dokka.pages.RenderingStrategy

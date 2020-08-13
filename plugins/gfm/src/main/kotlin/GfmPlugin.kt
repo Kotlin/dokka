@@ -7,6 +7,7 @@ import org.jetbrains.dokka.base.renderers.PackageListCreator
 import org.jetbrains.dokka.base.renderers.RootCreator
 import org.jetbrains.dokka.base.resolvers.local.DefaultLocationProvider
 import org.jetbrains.dokka.base.resolvers.local.LocationProviderFactory
+import org.jetbrains.dokka.model.ContentSourceSet
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.DokkaPlugin

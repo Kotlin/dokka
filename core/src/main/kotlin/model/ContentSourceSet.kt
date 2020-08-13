@@ -1,9 +1,8 @@
-package org.jetbrains.dokka.pages
+package org.jetbrains.dokka.model
 
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.DokkaSourceSetID
 import org.jetbrains.dokka.Platform
-
 
 data class ContentSourceSet(
     val sourceSetIDs: CompositeSourceSetID,
@@ -18,33 +17,6 @@ data class ContentSourceSet(
 
     operator fun contains(sourceSetID: DokkaSourceSetID): Boolean {
         return sourceSetID in sourceSetIDs
-    }
-
-    operator fun contains(sourceSet: DokkaSourceSet): Boolean {
-        return sourceSet.sourceSetID in this
-    }
-}
-
-
-data class CompositeSourceSetID(
-    private val children: Set<DokkaSourceSetID>
-) {
-    constructor(sourceSetIDs: Iterable<DokkaSourceSetID>) : this(sourceSetIDs.toSet())
-    constructor(sourceSetId: DokkaSourceSetID) : this(setOf(sourceSetId))
-
-    init {
-        require(children.isNotEmpty()) { "Expected at least one source set id" }
-    }
-
-    val merged = DokkaSourceSetID(
-        moduleName = children.map { it.moduleName }.reduce { acc, s -> "$acc+$s" },
-        sourceSetName = children.map { it.sourceSetName }.reduce { acc, s -> "$acc+$s" }
-    )
-
-    val all: List<DokkaSourceSetID> = listOf(merged, *children.toTypedArray())
-
-    operator fun contains(sourceSetId: DokkaSourceSetID): Boolean {
-        return sourceSetId in all
     }
 
     operator fun contains(sourceSet: DokkaSourceSet): Boolean {
