@@ -5,6 +5,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.html.*
 import kotlinx.html.stream.createHTML
+import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
+import org.jetbrains.dokka.DokkaSourceSetID
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.renderers.DefaultRenderer
@@ -26,10 +28,12 @@ open class HtmlRenderer(
     context: DokkaContext
 ) : DefaultRenderer<FlowContent>(context) {
 
-    private val sourceSetDependencyMap = context.configuration.sourceSets.map { sourceSet ->
-        sourceSet to context.configuration.sourceSets.filter { sourceSet.dependentSourceSets.contains(it.sourceSetID) }
-    }.toMap()
+    private val sourceSetDependencyMap: Map<DokkaSourceSetID, List<DokkaSourceSet>> =
+        context.configuration.sourceSets.map { sourceSet ->
+            sourceSet.sourceSetID to context.configuration.sourceSets.filter { sourceSet.dependentSourceSets.contains(it.sourceSetID) }
+        }.toMap()
 
+    // TODO NOW: Not really related to MPP, but rather merged ConentSourceSet
     private val isMultiplatform by lazy {
         sourceSetDependencyMap.size > 1
     }
@@ -223,8 +227,11 @@ open class HtmlRenderer(
             Pair<ContentSourceSet, String>::second,
             Pair<ContentSourceSet, String>::first
         ).entries.flatMap { (html, sourceSets) ->
-            sourceSets.filterNot {
-                sourceSetDependencyMap[it].orEmpty().any { dependency -> sourceSets.contains(dependency) }
+            sourceSets.filterNot { sourceSet ->
+                sourceSet.sourceSetIDs.all.flatMap { id -> sourceSetDependencyMap[id].orEmpty() }
+                    .any { dependency -> dependency.sourceSetID in sourceSets.sourceSetIDs }
+                //sourceSetDependencyMap[it.sourceSetIDs.merged].orEmpty().any { dependency -> sourceSets.sourceSetIDs.contains(dependency.sourceSetID) }
+                //sourceSetDependencyMap[it].orEmpty().any { dependency -> sourceSets.contains(dependency) }
             }.map {
                 it to createHTML(prettyPrint = false).div(classes = "content sourceset-depenent-content") {
                     if (counter++ == 0) attributes["data-active"] = ""
@@ -254,8 +261,8 @@ open class HtmlRenderer(
                 }.stripDiv()
             })
 
-        distinct.forEach {
-            val groupedDivergent = it.value.groupBy { it.second }
+        distinct.forEach { bucket ->
+            val groupedDivergent = bucket.value.groupBy { it.second }
 
             consumer.onTagContentUnsafe {
                 +createHTML().div("divergent-group") {
@@ -276,7 +283,7 @@ open class HtmlRenderer(
                         +createHTML().div("brief-with-platform-tags") {
                             consumer.onTagContentUnsafe {
                                 +createHTML().div("inner-brief-with-platform-tags") {
-                                    consumer.onTagContentUnsafe { +it.key.first }
+                                    consumer.onTagContentUnsafe { +bucket.key.first }
                                 }
                             }
 
@@ -295,12 +302,12 @@ open class HtmlRenderer(
                         if (node.implicitlySourceSetHinted) {
                             buildPlatformDependent(divergentForPlatformDependent, pageContext)
                         } else {
-                            it.value.forEach {
+                            bucket.value.forEach {
                                 buildContentNode(it.first.divergent, pageContext, setOf(it.second))
                             }
                         }
                     }
-                    consumer.onTagContentUnsafe { +it.key.second }
+                    consumer.onTagContentUnsafe { +bucket.key.second }
                 }
             }
         }

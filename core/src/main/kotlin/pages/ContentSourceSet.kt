@@ -41,7 +41,7 @@ data class CompositeSourceSetID(
         sourceSetName = children.map { it.sourceSetName }.reduce { acc, s -> "$acc+$s" }
     )
 
-    val all: List<DokkaSourceSetID> = listOf(merged, *children.toTypedArray())
+    val all: List<DokkaSourceSetID> = listOf(merged, *children.toTypedArray()).distinct()
 
     operator fun contains(sourceSetId: DokkaSourceSetID): Boolean {
         return sourceSetId in all
