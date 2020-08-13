@@ -83,7 +83,7 @@ open class DefaultPageCreator(
             }
         }
         +contentForComments(m)
-        block("Packages", 2, ContentKind.Packages, m.packages, m.sourceSets.toSet()) {
+        block("Packages", 2, ContentKind.Packages, m.packages) {
             link(it.name, it.dri)
         }
 //        text("Index\n") TODO
@@ -131,7 +131,6 @@ open class DefaultPageCreator(
             2,
             ContentKind.Properties,
             s.properties,
-            sourceSets.toSet(),
             needsAnchors = true,
             extra = mainExtra + SimpleAttr.header("Properties")
         ) {
@@ -203,7 +202,6 @@ open class DefaultPageCreator(
                     2,
                     ContentKind.Constructors,
                     c.constructors.filter { it.extra[PrimaryConstructorExtra] == null || it.documentation.isNotEmpty() },
-                    c.sourceSets,
                     extra = PropertyContainer.empty<ContentNode>() + SimpleAttr.header("Constructors")
                 ) {
                     link(it.name, it.dri, kind = ContentKind.Main)
@@ -224,7 +222,6 @@ open class DefaultPageCreator(
                     2,
                     ContentKind.Classlikes,
                     c.entries,
-                    c.sourceSets.toSet(),
                     needsSorting = false,
                     extra = mainExtra + SimpleAttr.header("Entries"),
                     styles = emptySet()

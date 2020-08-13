@@ -30,7 +30,7 @@ open class PageContentBuilder(
     ): ContentGroup =
         DocumentableContentBuilder(setOf(dri), sourceSets, styles, extra)
             .apply(block)
-            .build(sourceSets, kind, styles, extra)
+            .build(kind, styles, extra)
 
     fun contentFor(
         dri: Set<DRI>,
@@ -42,7 +42,7 @@ open class PageContentBuilder(
     ): ContentGroup =
         DocumentableContentBuilder(dri, sourceSets, styles, extra)
             .apply(block)
-            .build(sourceSets, kind, styles, extra)
+            .build( kind, styles, extra)
 
     fun contentFor(
         d: Documentable,
@@ -54,7 +54,7 @@ open class PageContentBuilder(
     ): ContentGroup =
         DocumentableContentBuilder(setOf(d.dri), sourceSets, styles, extra)
             .apply(block)
-            .build(sourceSets, kind, styles, extra)
+            .build(kind, styles, extra)
 
     @ContentBuilderMarker
     open inner class DocumentableContentBuilder(
@@ -66,7 +66,6 @@ open class PageContentBuilder(
         protected val contents = mutableListOf<ContentNode>()
 
         fun build(
-            sourceSets: Set<DokkaSourceSet>,
             kind: Kind,
             styles: Set<Style>,
             extra: PropertyContainer<ContentNode>
@@ -143,7 +142,6 @@ open class PageContentBuilder(
 
         fun table(
             kind: Kind = ContentKind.Main,
-            sourceSets: Set<DokkaSourceSet> = mainSourcesetData,
             styles: Set<Style> = mainStyles,
             extra: PropertyContainer<ContentNode> = mainExtra,
             operation: DocumentableContentBuilder.() -> List<ContentGroup>
@@ -161,7 +159,6 @@ open class PageContentBuilder(
             level: Int,
             kind: Kind = ContentKind.Main,
             elements: Iterable<T>,
-            sourceSets: Set<DokkaSourceSet> = mainSourcesetData,
             styles: Set<Style> = mainStyles,
             extra: PropertyContainer<ContentNode> = mainExtra,
             renderWhenEmpty: Boolean = false,
@@ -198,17 +195,16 @@ open class PageContentBuilder(
             prefix: String = "",
             suffix: String = "",
             separator: String = ", ",
-            sourceSets: Set<DokkaSourceSet> = mainSourcesetData, // TODO: children should be aware of this platform data
             operation: DocumentableContentBuilder.(T) -> Unit
         ) {
             if (elements.isNotEmpty()) {
-                if (prefix.isNotEmpty()) text(prefix, sourceSets = sourceSets)
+                if (prefix.isNotEmpty()) text(prefix)
                 elements.dropLast(1).forEach {
                     operation(it)
-                    text(separator, sourceSets = sourceSets)
+                    text(separator)
                 }
                 operation(elements.last())
-                if (suffix.isNotEmpty()) text(suffix, sourceSets = sourceSets)
+                if (suffix.isNotEmpty()) text(suffix)
             }
         }
 
@@ -452,7 +448,6 @@ open class PageContentBuilder(
 
         fun build(
             kind: Kind,
-            sourceSets: Set<DokkaSourceSet> = mainSourceSets,
             styles: Set<Style> = mainStyles,
             extra: PropertyContainer<ContentNode> = mainExtra
         ) =

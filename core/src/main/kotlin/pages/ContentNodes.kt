@@ -168,7 +168,7 @@ data class ContentTable(
     override fun withNewExtras(newExtras: PropertyContainer<ContentNode>): ContentTable = copy(extra = newExtras)
 
     override fun transformChildren(transformer: (ContentNode) -> ContentNode): ContentTable =
-        copy(children = children.map(transformer).filterIsInstance<ContentGroup>())
+        copy(children = children.map(transformer).map { it as ContentGroup })
 
 }
 
@@ -216,7 +216,7 @@ data class ContentDivergentGroup(
         copy(extra = newExtras)
 
     override fun transformChildren(transformer: (ContentNode) -> ContentNode): ContentDivergentGroup =
-        copy(children = children.map(transformer).filterIsInstance<ContentDivergentInstance>())
+        copy(children = children.map(transformer).map { it as ContentDivergentInstance })
 }
 
 /** Instance of a divergent content */

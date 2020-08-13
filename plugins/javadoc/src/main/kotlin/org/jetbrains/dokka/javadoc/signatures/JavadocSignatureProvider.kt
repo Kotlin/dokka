@@ -70,11 +70,11 @@ class JavadocSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLo
                 if (c is WithSupertypes) {
                     c.supertypes.map { (p, dris) ->
                         val (classes, interfaces) = dris.partition { it.kind == JavaClassKindTypes.CLASS }
-                        list(classes, prefix = "extends ", sourceSets = setOf(p)) {
-                            link(it.dri.sureClassNames, it.dri, sourceSets = setOf(p))
+                        list(classes, prefix = "extends ") {
+                            link(it.dri.sureClassNames, it.dri)
                         }
-                        list(interfaces, prefix = " implements ", sourceSets = setOf(p)){
-                            link(it.dri.sureClassNames, it.dri, sourceSets = setOf(p))
+                        list(interfaces, prefix = " implements "){
+                            link(it.dri.sureClassNames, it.dri)
                         }
                     }
                 }
