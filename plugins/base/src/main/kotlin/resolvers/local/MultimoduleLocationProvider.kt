@@ -1,7 +1,7 @@
 package org.jetbrains.dokka.base.resolvers.local
 
 import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
+import org.jetbrains.dokka.pages.ContentSourceSet
 import org.jetbrains.dokka.pages.PageNode
 import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.DokkaContext
@@ -14,7 +14,7 @@ class MultimoduleLocationProvider(private val root: RootPageNode, context: Dokka
         it.name to it.path
     }.toMap()
 
-    override fun resolve(dri: DRI, sourceSets: Set<DokkaSourceSet>, context: PageNode?): String =
+    override fun resolve(dri: DRI, sourceSets: Set<ContentSourceSet>, context: PageNode?): String =
         dri.takeIf { it.packageName == MULTIMODULE_PACKAGE_PLACEHOLDER }?.classNames?.let { paths[it] }?.let {
             "$it/${identifierToFilename(dri.classNames.orEmpty())}/index.html"
         } ?: defaultLocationProvider.resolve(dri, sourceSets, context)

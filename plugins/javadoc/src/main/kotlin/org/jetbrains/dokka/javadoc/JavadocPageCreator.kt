@@ -75,7 +75,7 @@ open class JavadocPageCreator(
         JavadocContentGroup(
             setOf(m.dri),
             JavadocContentKind.OverviewSummary,
-            m.jvmSourceSets.toSet()
+            m.jvmSourceSets.toContentSourceSets()
         ) {
             title(m.name, m.brief(), "0.0.1", dri = setOf(m.dri), kind = ContentKind.Main)
             leafList(setOf(m.dri),
@@ -94,7 +94,7 @@ open class JavadocPageCreator(
         JavadocContentGroup(
             setOf(p.dri),
             JavadocContentKind.PackageSummary,
-            p.jvmSourceSets.toSet()
+            p.jvmSourceSets.toContentSourceSets()
         ) {
             title(p.name, p.brief(), "0.0.1", dri = setOf(p.dri), kind = ContentKind.Packages)
             val rootList = p.classlikes.groupBy { it::class }.map { (key, value) ->
@@ -109,7 +109,7 @@ open class JavadocPageCreator(
         }
 
     private val KClass<out DClasslike>.colTitle: String
-        get() = when(this) {
+        get() = when (this) {
             DClass::class -> "Class"
             DObject::class -> "Object"
             DAnnotation::class -> "Annotation"
@@ -125,7 +125,7 @@ open class JavadocPageCreator(
         JavadocContentGroup(
             setOf(c.dri),
             JavadocContentKind.Class,
-            c.jvmSourceSets.toSet()
+            c.jvmSourceSets.toContentSourceSets()
         ) {
             title(
                 c.name.orEmpty(),
@@ -190,7 +190,7 @@ open class JavadocPageCreator(
         }.orEmpty()
 
     fun List<ContentNode>.nodeForJvm(jvm: DokkaSourceSet): ContentNode =
-        first { it.sourceSets.contains(jvm) }
+        first { jvm.sourceSetID in it.sourceSets.sourceSetIDs }
 
     private fun Documentable.brief(sourceSet: DokkaSourceSet? = highestJvmSourceSet): List<ContentNode> =
         briefFromContentNodes(descriptionToContentNodes(sourceSet))
@@ -224,7 +224,8 @@ open class JavadocPageCreator(
         signatureProvider.signature(documentable).nodeForJvm(sourceSet).asJavadocNode()
 
     private fun Documentable.indexesInDocumentation(): JavadocIndexExtra {
-        val indexes = documentation[highestJvmSourceSet]?.withDescendants()?.filterIsInstance<Index>()?.toList().orEmpty()
+        val indexes =
+            documentation[highestJvmSourceSet]?.withDescendants()?.filterIsInstance<Index>()?.toList().orEmpty()
         return JavadocIndexExtra(
             indexes.map {
                 ContentGroup(
@@ -234,7 +235,7 @@ open class JavadocPageCreator(
                         sourceSets.toSet()
                     ),
                     dci = DCI(setOf(dri), JavadocContentKind.OverviewSummary),
-                    sourceSets = sourceSets.toSet(),
+                    sourceSets = sourceSets.toContentSourceSets(),
                     style = emptySet(),
                     extra = PropertyContainer.empty()
                 )

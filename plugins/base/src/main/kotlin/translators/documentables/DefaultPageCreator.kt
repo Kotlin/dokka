@@ -159,7 +159,7 @@ open class DefaultPageCreator(
                             }
                         },
                     DCI(setOf(dri), ContentKind.Inheritors),
-                    sourceSets.toSet(),
+                    sourceSets.toContentSourceSets(),
                     style = emptySet(),
                     extra = mainExtra + SimpleAttr.header("Inheritors")
                 )
