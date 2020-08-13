@@ -9,6 +9,8 @@ import org.jetbrains.dokka.DokkaSourceSetID
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.renderers.DefaultRenderer
 import org.jetbrains.dokka.base.renderers.TabSortingStrategy
+import org.jetbrains.dokka.base.resolvers.anchors.SymbolAnchorHint
+import org.jetbrains.dokka.base.transformers.pages.sourcelinks.hasTabbedContent
 import org.jetbrains.dokka.base.renderers.isImage
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.DisplaySourceSet
@@ -103,6 +105,7 @@ open class HtmlRenderer(
             }
             node.hasStyle(TextStyle.Paragraph) -> p(additionalClasses) { childrenCallback() }
             node.hasStyle(TextStyle.Block) -> div(additionalClasses) { childrenCallback() }
+            node.isAnchorable -> buildAnchor(node.anchor, node.anchorLabel!!) { childrenCallback() }
             else -> childrenCallback()
         }
     }
@@ -376,14 +379,12 @@ open class HtmlRenderer(
         sourceSetRestriction: Set<DisplaySourceSet>?,
         style: Set<Style>
     ) {
-        val anchorName = contextNode.dci.dri.first().anchor
-        withAnchor(anchorName) {
-            div(classes = "table-row") {
-                div("main-subrow " + contextNode.style.joinToString(separator = " ")) {
-                    buildRowHeaderLink(toRender, pageContext, sourceSetRestriction, anchorName, "w-100")
-                    div {
-                        buildRowBriefSectionForDocs(toRender, pageContext, sourceSetRestriction)
-                    }
+        anchorFromNode(contextNode)
+        div(classes = "table-row") {
+            div("main-subrow " + contextNode.style.joinToString(separator = " ")) {
+                buildRowHeaderLink(toRender, pageContext, sourceSetRestriction, contextNode.anchor, "w-100")
+                div {
+                    buildRowBriefSectionForDocs(toRender, pageContext, sourceSetRestriction)
                 }
             }
         }
@@ -396,22 +397,20 @@ open class HtmlRenderer(
         sourceSetRestriction: Set<DisplaySourceSet>?,
         style: Set<Style>
     ) {
-        val anchorName = contextNode.dci.dri.first().anchor
-        withAnchor(anchorName) {
-            div(classes = "table-row") {
-                addSourceSetFilteringAttributes(contextNode)
-                div {
-                    div("main-subrow " + contextNode.style.joinToString(separator = " ")) {
-                        buildRowHeaderLink(toRender, pageContext, sourceSetRestriction, anchorName)
-                        div("pull-right") {
-                            if (ContentKind.shouldBePlatformTagged(contextNode.dci.kind)) {
-                                createPlatformTags(contextNode, cssClasses = "no-gutters")
-                            }
+        anchorFromNode(contextNode)
+        div(classes = "table-row") {
+            addSourceSetFilteringAttributes(contextNode)
+            div {
+                div("main-subrow " + contextNode.style.joinToString(separator = " ")) {
+                    buildRowHeaderLink(toRender, pageContext, sourceSetRestriction, contextNode.anchor)
+                    div("pull-right") {
+                        if (ContentKind.shouldBePlatformTagged(contextNode.dci.kind)) {
+                            createPlatformTags(contextNode, cssClasses = "no-gutters")
                         }
                     }
-                    div {
-                        buildRowBriefSectionForDocs(toRender, pageContext, sourceSetRestriction)
-                    }
+                }
+                div {
+                    buildRowBriefSectionForDocs(toRender, pageContext, sourceSetRestriction)
                 }
             }
         }
@@ -424,21 +423,20 @@ open class HtmlRenderer(
         sourceSetRestriction: Set<DisplaySourceSet>?,
         style: Set<Style>
     ) {
-        val anchorName = contextNode.dci.dri.first().anchor
-        withAnchor(anchorName) {
-            div(classes = "table-row") {
-                addSourceSetFilteringAttributes(contextNode)
-                div("main-subrow keyValue " + contextNode.style.joinToString(separator = " ")) {
-                    buildRowHeaderLink(toRender, pageContext, sourceSetRestriction, anchorName)
-                    div {
-                        toRender.filter { it !is ContentLink && !it.hasStyle(ContentStyle.RowTitle)}.takeIf { it.isNotEmpty() }?.let {
-                            if (ContentKind.shouldBePlatformTagged(contextNode.dci.kind) && contextNode.sourceSets.size == 1)
-                                createPlatformTags(contextNode)
+        anchorFromNode(contextNode)
+        div(classes = "table-row") {
+            addSourceSetFilteringAttributes(contextNode)
+            div("main-subrow keyValue " + contextNode.style.joinToString(separator = " ")) {
+                buildRowHeaderLink(toRender, pageContext, sourceSetRestriction, contextNode.anchor)
+                div {
+                    toRender.filter { it !is ContentLink && !it.hasStyle(ContentStyle.RowTitle) }
+                        .takeIf { it.isNotEmpty() }?.let {
+                        if (ContentKind.shouldBePlatformTagged(contextNode.dci.kind) && contextNode.sourceSets.size == 1)
+                            createPlatformTags(contextNode)
 
-                            div("title") {
-                                it.forEach {
-                                    it.build(this, pageContext, sourceSetRestriction)
-                                }
+                        div("title") {
+                            it.forEach {
+                                it.build(this, pageContext, sourceSetRestriction)
                             }
                         }
                     }
@@ -451,7 +449,7 @@ open class HtmlRenderer(
         toRender: List<ContentNode>,
         pageContext: ContentPage,
         sourceSetRestriction: Set<DisplaySourceSet>?,
-        anchorName: String,
+        anchorDestination: String,
         classes: String = ""
     ) {
         toRender.filter { it is ContentLink || it.hasStyle(ContentStyle.RowTitle) }.takeIf { it.isNotEmpty() }?.let {
@@ -460,7 +458,7 @@ open class HtmlRenderer(
                     .forEach {
                         span("inline-flex") {
                             it.build(this, pageContext, sourceSetRestriction)
-                            if(it is ContentLink) buildAnchor(anchorName)
+                            if(it is ContentLink) buildAnchorCopyButton(anchorDestination)
                         }
                     }
             }
@@ -572,23 +570,30 @@ open class HtmlRenderer(
 
 
     override fun FlowContent.buildHeader(level: Int, node: ContentHeader, content: FlowContent.() -> Unit) {
-        val anchor = node.extra[SimpleAttr.SimpleAttrKey("anchor")]?.extraValue?.urlEncoded()
         val classes = node.style.joinToString { it.toString() }.toLowerCase()
         when (level) {
-            1 -> h1(classes = classes) { withAnchor(anchor, content) }
-            2 -> h2(classes = classes) { withAnchor(anchor, content) }
-            3 -> h3(classes = classes) { withAnchor(anchor, content) }
-            4 -> h4(classes = classes) { withAnchor(anchor, content) }
-            5 -> h5(classes = classes) { withAnchor(anchor, content) }
-            else -> h6(classes = classes) { withAnchor(anchor, content) }
+            1 -> h1(classes = classes, content)
+            2 -> h2(classes = classes, content)
+            3 -> h3(classes = classes, content)
+            4 -> h4(classes = classes, content)
+            5 -> h5(classes = classes, content)
+            else -> h6(classes = classes, content)
         }
     }
 
-    private fun FlowContent.withAnchor(anchorName: String?, content: FlowContent.() -> Unit) {
+    private fun FlowContent.buildAnchor(anchor: String, anchorLabel: String, content: FlowContent.() -> Unit) {
         a {
-            anchorName?.let { attributes["data-name"] = it }
+            attributes["data-name"] = anchor
+            attributes["anchor-label"] = anchorLabel
         }
         content()
+    }
+
+    private fun FlowContent.buildAnchor(anchor: String, anchorLabel: String) =
+        buildAnchor(anchor, anchorLabel) {}
+
+    private fun FlowContent.anchorFromNode(node: ContentNode) {
+        node.anchorLabel?.let { label -> buildAnchor(node.anchor, label) }
     }
 
 
@@ -618,7 +623,7 @@ open class HtmlRenderer(
             text(to.name)
         }
 
-    fun FlowContent.buildAnchor(pointingTo: String) {
+    fun FlowContent.buildAnchorCopyButton(pointingTo: String) {
         span(classes = "anchor-wrapper") {
             span(classes = "anchor-icon") {
                 attributes["pointing-to"] = pointingTo
@@ -835,5 +840,11 @@ private val PageNode.isNavigable: Boolean
 
 fun PropertyContainer<ContentNode>.extraHtmlAttributes() = allOfType<SimpleAttr>()
 
-private val DRI.anchor: String
-    get() = toString().urlEncoded()
+val ContentNode.isAnchorable: Boolean
+    get() = anchorLabel != null
+
+val ContentNode.anchorLabel: String?
+    get() = extra[SymbolAnchorHint.SymbolAnchorHintKey]?.anchorName
+
+val ContentNode.anchor: String
+    get() = dci.dri.first().toString().urlEncoded()
