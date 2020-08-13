@@ -3,8 +3,8 @@ package org.jetbrains.dokka.base.resolvers.local
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.pages.ContentSourceSet
-import org.jetbrains.dokka.pages.sourceSetIDs
+import org.jetbrains.dokka.model.ContentSourceSet
+import org.jetbrains.dokka.model.sourceSetIDs
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.query
