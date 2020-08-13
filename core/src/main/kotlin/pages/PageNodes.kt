@@ -5,8 +5,9 @@ import org.jetbrains.dokka.model.Documentable
 import org.jetbrains.dokka.model.WithChildren
 import java.util.*
 
-interface PageNode: WithChildren<PageNode> {
+interface PageNode : WithChildren<PageNode> {
     val name: String
+    override val children: List<PageNode>
 
     fun modified(
         name: String = this.name,
@@ -14,7 +15,7 @@ interface PageNode: WithChildren<PageNode> {
     ): PageNode
 }
 
-interface ContentPage: PageNode {
+interface ContentPage : PageNode {
     val content: ContentNode
     val dri: Set<DRI>
     val documentable: Documentable?
@@ -29,11 +30,11 @@ interface ContentPage: PageNode {
     ): ContentPage
 }
 
-abstract class RootPageNode: PageNode {
+abstract class RootPageNode : PageNode {
     val parentMap: Map<PageNode, PageNode> by lazy {
         IdentityHashMap<PageNode, PageNode>().apply {
             fun process(parent: PageNode) {
-                parent.children.forEach {  child ->
+                parent.children.forEach { child ->
                     put(child, parent)
                     process(child)
                 }
@@ -171,11 +172,11 @@ class MultimoduleRootPageNode(
         embeddedResources: List<String>,
         children: List<PageNode>
     ) =
-    if (name == this.name && content === this.content && embeddedResources === this.embeddedResources && children shallowEq this.children) this
-    else MultimoduleRootPageNode(name, dri, content, embeddedResources)
+        if (name == this.name && content === this.content && embeddedResources === this.embeddedResources && children shallowEq this.children) this
+        else MultimoduleRootPageNode(name, dri, content, embeddedResources)
 }
 
-inline fun <reified T: PageNode> PageNode.children() = children.filterIsInstance<T>()
+inline fun <reified T : PageNode> PageNode.children() = children.filterIsInstance<T>()
 
 private infix fun <T> List<T>.shallowEq(other: List<T>) =
     this === other || (this.size == other.size && (this zip other).all { (a, b) -> a === b })

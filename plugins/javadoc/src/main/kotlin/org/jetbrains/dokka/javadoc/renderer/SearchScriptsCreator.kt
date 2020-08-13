@@ -7,12 +7,8 @@ import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.base.renderers.sourceSets
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.Documentable
-import org.jetbrains.dokka.model.InheritedFunction
-import org.jetbrains.dokka.model.doc.Index
-import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.utilities.formatToEndWithHtml
-import org.jetbrains.dokka.utilities.htmlEscape
 import java.lang.StringBuilder
 
 class SearchScriptsCreator(private val locationProvider: JavadocLocationProvider) {
@@ -58,13 +54,23 @@ class SearchScriptsCreator(private val locationProvider: JavadocLocationProvider
     }
 
     private fun processModules(input: List<JavadocModulePageNode>): SearchData {
-        val modules = SearchData(moduleRecords = input.map { SearchRecord(l = it.name, url = locationProvider.resolve(it).formatToEndWithHtml()) })
+        val modules = SearchData(moduleRecords = input.map {
+            SearchRecord(
+                l = it.name,
+                url = locationProvider.resolve(it).formatToEndWithHtml()
+            )
+        })
         val processablePackages = input.flatMap { it.children.filterIsInstance<JavadocPackagePageNode>() }
         return processPackages(processablePackages, modules)
     }
 
     private fun processPackages(input: List<JavadocPackagePageNode>, accumulator: SearchData): SearchData {
-        val packages = input.map { SearchRecord(l = it.name, url = locationProvider.resolve(it).formatToEndWithHtml()) } + SearchRecord.allPackages
+        val packages = input.map {
+            SearchRecord(
+                l = it.name,
+                url = locationProvider.resolve(it).formatToEndWithHtml()
+            )
+        } + SearchRecord.allPackages
         val types = input.flatMap {
             it.children.filterIsInstance<JavadocClasslikePageNode>().map { classlike -> it to classlike }
         }
@@ -148,32 +154,37 @@ class SearchScriptsCreator(private val locationProvider: JavadocLocationProvider
                     packageWithClasslike.second.methods.withoutInherited() +
                     packageWithClasslike.second.properties +
                     packageWithClasslike.second.entries
-            ).map { it to it.indexes() }
-            .flatMap { entryWithIndex ->
-                entryWithIndex.second.map {
-                    val label = renderNode(it)
-                    SearchRecord(
-                        p = packageWithClasslike.first.name,
-                        c = packageWithClasslike.second.name,
-                        l = label,
-                        url = resolveUrlForSearchIndex(
-                            entryWithIndex.first.dri,
-                            packageWithClasslike.second.sourceSets(),
-                            label
+                    ).map { it to it.indexes() }
+                .flatMap { entryWithIndex ->
+                    entryWithIndex.second.map {
+                        val label = renderNode(it)
+                        SearchRecord(
+                            p = packageWithClasslike.first.name,
+                            c = packageWithClasslike.second.name,
+                            l = label,
+                            url = resolveUrlForSearchIndex(
+                                entryWithIndex.first.dri,
+                                packageWithClasslike.second.sourceSets(),
+                                label
+                            )
                         )
-                    )
+                    }
                 }
-            }
         }
 
         return indexesForClasslike + indexesForMemberNodes
     }
 
-    private fun <T : Documentable> WithJavadocExtra<T>.indexes(): List<ContentNode> = extra[JavadocIndexExtra]?.index.orEmpty()
+    private fun <T : Documentable> WithJavadocExtra<T>.indexes(): List<ContentNode> =
+        extra[JavadocIndexExtra]?.index.orEmpty()
 
     private fun List<JavadocFunctionNode>.withoutInherited(): List<JavadocFunctionNode> = filter { !it.isInherited }
 
-    private fun resolveUrlForSearchIndex(dri: DRI, sourceSets: Set<DokkaConfiguration.DokkaSourceSet>, label: String): String =
+    private fun resolveUrlForSearchIndex(
+        dri: DRI,
+        sourceSets: Set<ContentSourceSet>,
+        label: String
+    ): String =
         locationProvider.resolve(dri, sourceSets).formatToEndWithHtml() + "#" + label
 }
 
