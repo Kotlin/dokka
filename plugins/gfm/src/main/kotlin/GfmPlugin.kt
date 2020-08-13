@@ -1,7 +1,6 @@
 package org.jetbrains.dokka.gfm
 
 import org.jetbrains.dokka.CoreExtensions
-import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.renderers.DefaultRenderer
 import org.jetbrains.dokka.base.renderers.PackageListCreator
@@ -85,7 +84,7 @@ open class CommonmarkRenderer(
     override fun StringBuilder.buildList(
         node: ContentList,
         pageContext: ContentPage,
-        sourceSetRestriction: Set<DokkaSourceSet>?
+        sourceSetRestriction: Set<ContentSourceSet>?
     ) {
         buildListLevel(node, pageContext)
     }
@@ -125,14 +124,14 @@ open class CommonmarkRenderer(
     override fun StringBuilder.buildPlatformDependent(
         content: PlatformHintedContent,
         pageContext: ContentPage,
-        sourceSetRestriction: Set<DokkaSourceSet>?
+        sourceSetRestriction: Set<ContentSourceSet>?
     ) {
         buildPlatformDependentItem(content.inner, content.sourceSets, pageContext)
     }
 
     private fun StringBuilder.buildPlatformDependentItem(
         content: ContentNode,
-        sourceSets: Set<DokkaSourceSet>,
+        sourceSets: Set<ContentSourceSet>,
         pageContext: ContentPage,
     ) {
         if (content is ContentGroup && content.children.firstOrNull { it is ContentTable } != null) {
@@ -140,7 +139,7 @@ open class CommonmarkRenderer(
         } else {
             val distinct = sourceSets.map {
                 it to buildString { buildContentNode(content, pageContext, setOf(it)) }
-            }.groupBy(Pair<DokkaSourceSet, String>::second, Pair<DokkaSourceSet, String>::first)
+            }.groupBy(Pair<ContentSourceSet, String>::second, Pair<ContentSourceSet, String>::first)
 
             distinct.filter { it.key.isNotBlank() }.forEach { (text, platforms) ->
                 append(" ")
@@ -158,7 +157,7 @@ open class CommonmarkRenderer(
     override fun StringBuilder.buildTable(
         node: ContentTable,
         pageContext: ContentPage,
-        sourceSetRestriction: Set<DokkaSourceSet>?
+        sourceSetRestriction: Set<ContentSourceSet>?
     ) {
         buildNewLine()
         if (node.dci.kind == ContentKind.Sample || node.dci.kind == ContentKind.Parameters) {
@@ -198,7 +197,12 @@ open class CommonmarkRenderer(
                 val builder = StringBuilder()
                 it.children.forEach {
                     builder.append("| ")
-                    builder.append(buildString { it.build(this, pageContext) }.replace(Regex("#+ "), "") )  // Workaround for headers inside tables
+                    builder.append(
+                        buildString { it.build(this, pageContext) }.replace(
+                            Regex("#+ "),
+                            ""
+                        )
+                    )  // Workaround for headers inside tables
                 }
                 append(builder.toString().withEntersAsHtml())
                 append(" | ".repeat(size - it.children.size))
@@ -208,9 +212,9 @@ open class CommonmarkRenderer(
     }
 
     override fun StringBuilder.buildText(textNode: ContentText) {
-        if(textNode.text.isNotBlank()) {
+        if (textNode.text.isNotBlank()) {
             val decorators = decorators(textNode.style)
-            append(textNode.text.takeWhile { it == ' ' } )
+            append(textNode.text.takeWhile { it == ' ' })
             append(decorators)
             append(textNode.text.trim())
             append(decorators.reversed())
@@ -257,7 +261,11 @@ open class CommonmarkRenderer(
             instance.before?.let {
                 append("Brief description")
                 buildNewLine()
-                buildContentNode(it, pageContext, setOf(sourceSets.first())) // It's workaround to render content only once
+                buildContentNode(
+                    it,
+                    pageContext,
+                    setOf(sourceSets.first())
+                ) // It's workaround to render content only once
                 buildNewLine()
             }
 
@@ -266,18 +274,26 @@ open class CommonmarkRenderer(
             entry.groupBy { buildString { buildContentNode(it.first.divergent, pageContext, setOf(it.second)) } }
                 .values.forEach { innerEntry ->
                     val (innerInstance, innerSourceSets) = innerEntry.getInstanceAndSourceSets()
-                    if(sourceSets.size > 1) {
+                    if (sourceSets.size > 1) {
                         buildSourceSetTags(innerSourceSets)
                         buildNewLine()
                     }
-                    innerInstance.divergent.build(this@buildDivergent, pageContext, setOf(innerSourceSets.first())) // It's workaround to render content only once
+                    innerInstance.divergent.build(
+                        this@buildDivergent,
+                        pageContext,
+                        setOf(innerSourceSets.first())
+                    ) // It's workaround to render content only once
                     buildNewLine()
                 }
 
             instance.after?.let {
                 append("More info")
                 buildNewLine()
-                buildContentNode(it, pageContext, setOf(sourceSets.first())) // It's workaround to render content only once
+                buildContentNode(
+                    it,
+                    pageContext,
+                    setOf(sourceSets.first())
+                ) // It's workaround to render content only once
                 buildNewLine()
             }
 
@@ -323,9 +339,10 @@ open class CommonmarkRenderer(
 
     private fun String.withEntersAsHtml(): String = replace("\n", "<br>")
 
-    private fun List<Pair<ContentDivergentInstance, DokkaSourceSet>>.getInstanceAndSourceSets() = this.let { Pair(it.first().first, it.map { it.second }.toSet()) }
+    private fun List<Pair<ContentDivergentInstance, ContentSourceSet>>.getInstanceAndSourceSets() =
+        this.let { Pair(it.first().first, it.map { it.second }.toSet()) }
 
-    private fun StringBuilder.buildSourceSetTags(sourceSets: Set<DokkaSourceSet>) =
+    private fun StringBuilder.buildSourceSetTags(sourceSets: Set<ContentSourceSet>) =
         append(sourceSets.joinToString(prefix = "[", postfix = "]") { it.displayName })
 }
 

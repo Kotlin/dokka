@@ -1,13 +1,13 @@
 package org.jetbrains.dokka.javadoc.location
 
 import org.jetbrains.dokka.javadoc.pages.*
-import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.base.resolvers.local.BaseLocationProvider
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.Nullable
 import org.jetbrains.dokka.links.parent
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.pages.ContentPage
+import org.jetbrains.dokka.pages.ContentSourceSet
 import org.jetbrains.dokka.pages.PageNode
 import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.DokkaContext
@@ -64,7 +64,7 @@ class JavadocLocationProvider(pageRoot: RootPageNode, dokkaContext: DokkaContext
     private fun JavadocClasslikePageNode.findAnchorableByDRI(dri: DRI): AnchorableJavadocNode? =
         (constructors + methods + entries + properties).firstOrNull { it.dri == dri }
 
-    override fun resolve(dri: DRI, sourceSets: Set<DokkaSourceSet>, context: PageNode?): String {
+    override fun resolve(dri: DRI, sourceSets: Set<ContentSourceSet>, context: PageNode?): String {
         return nodeIndex[dri]?.let { resolve(it, context) }
             ?: nodeIndex[dri.parent]?.takeIf { it is JavadocClasslikePageNode }?.let {
                 val anchor = when (val anchorElement = (it as? JavadocClasslikePageNode)?.findAnchorableByDRI(dri)) {

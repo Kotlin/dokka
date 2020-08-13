@@ -1,6 +1,7 @@
 package org.jetbrains.dokka.base.transformers.pages.samples
 
 import com.intellij.psi.PsiElement
+import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.analysis.AnalysisEnvironment
@@ -19,7 +20,6 @@ import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.DescriptorToSourceUtils
 import org.jetbrains.kotlin.utils.PathUtil
-import java.io.File
 
 abstract class SamplesTransformer(val context: DokkaContext) : PageTransformer {
 
@@ -125,7 +125,7 @@ abstract class SamplesTransformer(val context: DokkaContext) : PageTransformer {
     }
 
     private fun contentCode(
-        sourceSets: Set<DokkaSourceSet>,
+        sourceSets: Set<ContentSourceSet>,
         dri: Set<DRI>,
         content: String,
         language: String,

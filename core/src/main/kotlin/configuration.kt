@@ -86,6 +86,7 @@ interface DokkaConfiguration : Serializable {
     interface DokkaSourceSet : Serializable {
         val sourceSetID: DokkaSourceSetID
         val displayName: String
+        val analysisPlatform: Platform
         val moduleDisplayName: String
         val classpath: Set<File>
         val sourceRoots: Set<File>
@@ -105,7 +106,6 @@ interface DokkaConfiguration : Serializable {
         val noStdlibLink: Boolean
         val noJdkLink: Boolean
         val suppressedFiles: Set<File>
-        val analysisPlatform: Platform
     }
 
     interface SourceLinkDefinition : Serializable {
@@ -134,6 +134,8 @@ interface DokkaConfiguration : Serializable {
 
         companion object
     }
+
+
 }
 
 fun ExternalDocumentationLink(
