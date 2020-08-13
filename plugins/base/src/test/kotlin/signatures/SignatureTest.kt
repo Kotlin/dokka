@@ -239,6 +239,60 @@ class SignatureTest : AbstractCoreTest() {
         }
     }
 
+    @Test
+    fun `class with no supertype`() {
+
+        val configuration = dokkaConfiguration {
+            sourceSets {
+                sourceSet {
+                    sourceRoots = listOf("src/main/kotlin/test/Test.kt")
+                }
+            }
+        }
+
+        val source = source("class SimpleClass")
+        val writerPlugin = TestOutputWriterPlugin()
+
+        testInline(
+            source,
+            configuration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                writerPlugin.writer.renderedContent("root/example/-simple-class/index.html").firstSignature().match(
+                    "class ", A("SimpleClass"), Span()
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `class with generic supertype`() {
+
+        val configuration = dokkaConfiguration {
+            sourceSets {
+                sourceSet {
+                    sourceRoots = listOf("src/main/kotlin/test/Test.kt")
+                }
+            }
+        }
+
+        val source = source("class InheritingClassFromGenericType<T : Number, R : CharSequence> : Comparable<T>, Collection<R>")
+        val writerPlugin = TestOutputWriterPlugin()
+
+        testInline(
+            source,
+            configuration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                writerPlugin.writer.renderedContent("root/example/-inheriting-class-from-generic-type/index.html").firstSignature().match(
+                    "class ", A("InheritingClassFromGenericType"), " <", A("T"), " : ", A("Number"), ", ", A("R"), " : ", A("CharSequence"),
+                    "> : ", A("Comparable"), "<", A("T"), "> , ", A("Collection"), "<", A("R"), ">", Span()
+                )
+            }
+        }
+    }
 
     @Test
     fun `fun with annotation`() {
