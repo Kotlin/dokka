@@ -9,7 +9,6 @@ import org.jetbrains.dokka.model.doc.Param
 import org.jetbrains.dokka.model.doc.Text
 import org.jetbrains.dokka.pages.ContentPage
 import org.jetbrains.dokka.pages.MemberPageNode
-import org.jetbrains.dokka.pages.dfs
 import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
 import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
 import org.junit.jupiter.api.Test

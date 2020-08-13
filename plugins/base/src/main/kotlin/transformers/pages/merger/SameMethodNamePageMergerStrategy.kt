@@ -1,5 +1,6 @@
 package org.jetbrains.dokka.base.transformers.pages.merger
 
+import org.jetbrains.dokka.model.dfs
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.utilities.DokkaLogger
 

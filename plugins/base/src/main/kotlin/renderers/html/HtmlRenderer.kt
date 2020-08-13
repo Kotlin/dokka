@@ -10,6 +10,7 @@ import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.renderers.DefaultRenderer
 import org.jetbrains.dokka.base.renderers.TabSortingStrategy
 import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.model.dfs
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.model.withDescendants
 import org.jetbrains.dokka.pages.*
