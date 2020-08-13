@@ -66,7 +66,7 @@ class SourceLinksTransformer(val context: DokkaContext, val builder: PageContent
                 }
             },
             DCI(node.dri, ContentKind.Source),
-            node.documentable!!.sourceSets.toSet(),
+            node.documentable!!.sourceSets.toContentSourceSets(),
             style = emptySet(),
             extra = mainExtra + SimpleAttr.header("Sources")
         )

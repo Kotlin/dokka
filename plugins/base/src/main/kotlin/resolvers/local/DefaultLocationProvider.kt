@@ -1,7 +1,6 @@
 package org.jetbrains.dokka.base.resolvers.local
 
 import org.jetbrains.dokka.DokkaConfiguration
-import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.base.resolvers.anchors.SymbolAnchorHint
 import org.jetbrains.dokka.base.resolvers.external.ExternalLocationProvider
 import org.jetbrains.dokka.links.DRI
@@ -51,7 +50,7 @@ open class DefaultLocationProvider(
     override fun resolve(node: PageNode, context: PageNode?, skipExtension: Boolean): String =
         pathTo(node, context) + if (!skipExtension) extension else ""
 
-    override fun resolve(dri: DRI, sourceSets: Set<DokkaSourceSet>, context: PageNode?): String =
+    override fun resolve(dri: DRI, sourceSets: Set<ContentSourceSet>, context: PageNode?): String =
         pagesIndex[dri]?.let { resolve(it, context) }
             ?: anchorsIndex[dri]?.let { resolve(it, context) + "#$dri" }
         // Not found in PageGraph, that means it's an external link

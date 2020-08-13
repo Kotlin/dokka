@@ -1,9 +1,10 @@
 package org.jetbrains.dokka.base.resolvers.local
 
 import org.jetbrains.dokka.DokkaConfiguration
-import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.pages.ContentSourceSet
+import org.jetbrains.dokka.pages.sourceSetIDs
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.query
@@ -23,12 +24,10 @@ abstract class BaseLocationProvider(protected val dokkaContext: DokkaContext) : 
 
     protected fun getExternalLocation(
         dri: DRI,
-        sourceSets: Set<DokkaSourceSet>
+        sourceSets: Set<ContentSourceSet>
     ): String {
         val jdkToExternalDocumentationLinks = dokkaContext.configuration.sourceSets
-            .filter { sourceSet ->
-                sourceSets.contains(sourceSet)
-            }
+            .filter { sourceSet -> sourceSet.sourceSetID in sourceSets.sourceSetIDs }
             .groupBy({ it.jdkVersion }, { it.externalDocumentationLinks })
             .map { it.key to it.value.flatten().distinct() }.toMap()
 

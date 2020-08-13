@@ -5,7 +5,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.html.*
 import kotlinx.html.stream.createHTML
-import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.renderers.DefaultRenderer
@@ -111,7 +110,7 @@ open class HtmlRenderer(
                 page.content.withDescendants().flatMap { it.sourceSets }.distinct().forEach {
                     button(classes = "platform-tag platform-selector") {
                         attributes["data-active"] = ""
-                        attributes["data-filter"] = it.sourceSetID.toString()
+                        attributes["data-filter"] = it.sourceSetIDs.merged.toString()
                         when (it.analysisPlatform.key) {
                             "common" -> classes = classes + "common-like"
                             "native" -> classes = classes + "native-like"
@@ -157,7 +156,7 @@ open class HtmlRenderer(
     override fun FlowContent.buildPlatformDependent(
         content: PlatformHintedContent,
         pageContext: ContentPage,
-        sourceSetRestriction: Set<DokkaSourceSet>?
+        sourceSetRestriction: Set<ContentSourceSet>?
     ) =
         buildPlatformDependent(
             content.sourceSets.filter {
@@ -169,7 +168,7 @@ open class HtmlRenderer(
         )
 
     private fun FlowContent.buildPlatformDependent(
-        nodes: Map<DokkaSourceSet, Collection<ContentNode>>,
+        nodes: Map<ContentSourceSet, Collection<ContentNode>>,
         pageContext: ContentPage,
         extra: PropertyContainer<ContentNode> = PropertyContainer.empty(),
         styles: Set<Style> = emptySet()
@@ -186,17 +185,17 @@ open class HtmlRenderer(
                     attributes["data-toggle-list"] = "data-toggle-list"
                     contents.forEachIndexed { index, pair ->
                         button(classes = "platform-bookmark") {
-                            attributes["data-filterable-current"] = pair.first.sourceSetID.toString()
-                            attributes["data-filterable-set"] = pair.first.sourceSetID.toString()
+                            attributes["data-filterable-current"] = pair.first.sourceSetIDs.merged.toString()
+                            attributes["data-filterable-set"] = pair.first.sourceSetIDs.merged.toString()
                             if (index == 0) attributes["data-active"] = ""
-                            attributes["data-toggle"] = pair.first.sourceSetID.toString()
+                            attributes["data-toggle"] = pair.first.sourceSetIDs.merged.toString()
                             when (pair.first.analysisPlatform.key) {
                                 "common" -> classes = classes + "common-like"
                                 "native" -> classes = classes + "native-like"
                                 "jvm" -> classes = classes + "jvm-like"
                                 "js" -> classes = classes + "js-like"
                             }
-                            attributes["data-toggle"] = pair.first.sourceSetID.toString()
+                            attributes["data-toggle"] = pair.first.sourceSetIDs.merged.toString()
                             text(pair.first.displayName)
                         }
                     }
@@ -209,9 +208,9 @@ open class HtmlRenderer(
     }
 
     private fun contentsForSourceSetDependent(
-        nodes: Map<DokkaSourceSet, Collection<ContentNode>>,
+        nodes: Map<ContentSourceSet, Collection<ContentNode>>,
         pageContext: ContentPage,
-    ): List<Pair<DokkaSourceSet, String>> {
+    ): List<Pair<ContentSourceSet, String>> {
         var counter = 0
         return nodes.toList().map { (sourceSet, elements) ->
             sourceSet to createHTML(prettyPrint = false).div {
@@ -220,15 +219,15 @@ open class HtmlRenderer(
                 }
             }.stripDiv()
         }.groupBy(
-            Pair<DokkaSourceSet, String>::second,
-            Pair<DokkaSourceSet, String>::first
+            Pair<ContentSourceSet, String>::second,
+            Pair<ContentSourceSet, String>::first
         ).entries.flatMap { (html, sourceSets) ->
             sourceSets.filterNot {
                 sourceSetDependencyMap[it].orEmpty().any { dependency -> sourceSets.contains(dependency) }
             }.map {
                 it to createHTML(prettyPrint = false).div(classes = "content sourceset-depenent-content") {
                     if (counter++ == 0) attributes["data-active"] = ""
-                    attributes["data-togglable"] = it.sourceSetID.toString()
+                    attributes["data-togglable"] = it.sourceSetIDs.merged.toString()
                     unsafe {
                         +html
                     }
@@ -260,10 +259,10 @@ open class HtmlRenderer(
             consumer.onTagContentUnsafe {
                 +createHTML().div("divergent-group") {
                     attributes["data-filterable-current"] = groupedDivergent.keys.joinToString(" ") {
-                        it.sourceSetID.toString()
+                        it.sourceSetIDs.merged.toString()
                     }
                     attributes["data-filterable-set"] = groupedDivergent.keys.joinToString(" ") {
-                        it.sourceSetID.toString()
+                        it.sourceSetIDs.merged.toString()
                     }
 
                     val divergentForPlatformDependent = groupedDivergent.map { (sourceSet, elements) ->
@@ -309,14 +308,14 @@ open class HtmlRenderer(
     override fun FlowContent.buildList(
         node: ContentList,
         pageContext: ContentPage,
-        sourceSetRestriction: Set<DokkaSourceSet>?
+        sourceSetRestriction: Set<ContentSourceSet>?
     ) = if (node.ordered) ol { buildListItems(node.children, pageContext, sourceSetRestriction) }
     else ul { buildListItems(node.children, pageContext, sourceSetRestriction) }
 
     open fun OL.buildListItems(
         items: List<ContentNode>,
         pageContext: ContentPage,
-        sourceSetRestriction: Set<DokkaSourceSet>? = null
+        sourceSetRestriction: Set<ContentSourceSet>? = null
     ) {
         items.forEach {
             if (it is ContentList)
@@ -329,7 +328,7 @@ open class HtmlRenderer(
     open fun UL.buildListItems(
         items: List<ContentNode>,
         pageContext: ContentPage,
-        sourceSetRestriction: Set<DokkaSourceSet>? = null
+        sourceSetRestriction: Set<ContentSourceSet>? = null
     ) {
         items.forEach {
             if (it is ContentList)
@@ -356,7 +355,7 @@ open class HtmlRenderer(
     private fun FlowContent.buildRow(
         node: ContentGroup,
         pageContext: ContentPage,
-        sourceSetRestriction: Set<DokkaSourceSet>?,
+        sourceSetRestriction: Set<ContentSourceSet>?,
         style: Set<Style>
     ) {
         node.children
@@ -368,10 +367,10 @@ open class HtmlRenderer(
                     div(classes = "table-row") {
                         if (!style.contains(MultimoduleTable)) {
                             attributes["data-filterable-current"] = node.sourceSets.joinToString(" ") {
-                                it.sourceSetID.toString()
+                                it.sourceSetIDs.merged.toString()
                             }
                             attributes["data-filterable-set"] = node.sourceSets.joinToString(" ") {
-                                it.sourceSetID.toString()
+                                it.sourceSetIDs.merged.toString()
                             }
                         }
 
@@ -409,7 +408,7 @@ open class HtmlRenderer(
             }
     }
 
-    private fun FlowContent.createPlatformTagBubbles(sourceSets: List<DokkaSourceSet>) {
+    private fun FlowContent.createPlatformTagBubbles(sourceSets: List<ContentSourceSet>) {
         if (isMultiplatform) {
             div("platform-tags") {
                 sourceSets.forEach {
@@ -427,7 +426,10 @@ open class HtmlRenderer(
         }
     }
 
-    private fun FlowContent.createPlatformTags(node: ContentNode, sourceSetRestriction: Set<DokkaSourceSet>? = null) {
+    private fun FlowContent.createPlatformTags(
+        node: ContentNode,
+        sourceSetRestriction: Set<ContentSourceSet>? = null
+    ) {
         node.takeIf { sourceSetRestriction == null || it.sourceSets.any { s -> s in sourceSetRestriction } }?.let {
             createPlatformTagBubbles(node.sourceSets.filter {
                 sourceSetRestriction == null || it in sourceSetRestriction
@@ -438,7 +440,7 @@ open class HtmlRenderer(
     override fun FlowContent.buildTable(
         node: ContentTable,
         pageContext: ContentPage,
-        sourceSetRestriction: Set<DokkaSourceSet>?
+        sourceSetRestriction: Set<ContentSourceSet>?
     ) {
         when (node.dci.kind) {
             ContentKind.Comment -> buildDefaultTable(node, pageContext, sourceSetRestriction)
@@ -455,7 +457,7 @@ open class HtmlRenderer(
     fun FlowContent.buildDefaultTable(
         node: ContentTable,
         pageContext: ContentPage,
-        sourceSetRestriction: Set<DokkaSourceSet>?
+        sourceSetRestriction: Set<ContentSourceSet>?
     ) {
         table {
             thead {
@@ -540,7 +542,7 @@ open class HtmlRenderer(
 
     fun FlowContent.buildLink(
         to: DRI,
-        platforms: List<DokkaSourceSet>,
+        platforms: List<ContentSourceSet>,
         from: PageNode? = null,
         block: FlowContent.() -> Unit
     ) = buildLink(locationProvider.resolve(to, platforms.toSet(), from), block)
@@ -580,7 +582,7 @@ open class HtmlRenderer(
     private fun getSymbolSignature(page: ContentPage) = page.content.dfs { it.dci.kind == ContentKind.Symbol }
 
     private fun flattenToText(node: ContentNode): String {
-        fun getContentTextNodes(node: ContentNode, sourceSetRestriction: DokkaSourceSet): List<ContentText> =
+        fun getContentTextNodes(node: ContentNode, sourceSetRestriction: ContentSourceSet): List<ContentText> =
             when (node) {
                 is ContentText -> listOf(node)
                 is ContentComposite -> node.children
@@ -723,7 +725,7 @@ open class HtmlRenderer(
                             span { text("© 2020 Copyright") }
                             span("pull-right") {
                                 span { text("Sponsored and developed by dokka") }
-                                a(href= "https://github.com/Kotlin/dokka") {
+                                a(href = "https://github.com/Kotlin/dokka") {
                                     span(classes = "padded-icon") {
                                         unsafe {
                                             raw(

@@ -73,7 +73,7 @@ open class PageContentBuilder(
         ) = ContentGroup(
             contents.toList(),
             DCI(mainDRI, kind),
-            sourceSets,
+            sourceSets.toContentSourceSets(),
             styles,
             extra
         )
@@ -88,10 +88,10 @@ open class PageContentBuilder(
 
         private val defaultHeaders
             get() = listOf(
-                contentFor(mainDRI, mainSourcesetData){
+                contentFor(mainDRI, mainSourcesetData) {
                     text("Name")
                 },
-                contentFor(mainDRI, mainSourcesetData){
+                contentFor(mainDRI, mainSourcesetData) {
                     text("Summary")
                 }
             )
@@ -153,7 +153,7 @@ open class PageContentBuilder(
                 defaultHeaders,
                 operation(),
                 DCI(mainDRI, kind),
-                sourceSets, styles, extra
+                sourceSets.toContentSourceSets(), styles, extra
             )
         }
 
@@ -188,7 +188,7 @@ open class PageContentBuilder(
                             }
                         },
                     DCI(mainDRI, kind),
-                    sourceSets, styles, extra
+                    sourceSets.toContentSourceSets(), styles, extra
                 )
             }
         }
@@ -234,7 +234,7 @@ open class PageContentBuilder(
             listOf(createText(text, kind, sourceSets, styles, extra)),
             address,
             DCI(mainDRI, kind),
-            sourceSets
+            sourceSets.toContentSourceSets()
         )
 
         fun link(
@@ -250,7 +250,7 @@ open class PageContentBuilder(
                 address = address,
                 extra = PropertyContainer.empty(),
                 dci = DCI(mainDRI, kind),
-                sourceSets = sourceSets,
+                sourceSets = sourceSets.toContentSourceSets(),
                 style = emptySet()
             )
         }
@@ -267,7 +267,7 @@ open class PageContentBuilder(
                 contentFor(mainDRI, sourceSets, kind, styles, extra, block).children,
                 address,
                 DCI(mainDRI, kind),
-                sourceSets
+                sourceSets.toContentSourceSets()
             )
         }
 
@@ -283,7 +283,7 @@ open class PageContentBuilder(
                 DCI(mainDRI, kind),
                 sourceSets
             )
-            contents += ContentGroup(content, DCI(mainDRI, kind), sourceSets, styles, extra)
+            contents += ContentGroup(content, DCI(mainDRI, kind), sourceSets.toContentSourceSets(), styles, extra)
         }
 
         fun group(
@@ -331,7 +331,7 @@ open class PageContentBuilder(
         ) {
             contents += PlatformHintedContent(
                 buildGroup(dri, sourceSets, kind, styles, extra, block),
-                sourceSets
+                sourceSets.toContentSourceSets()
             )
         }
 
@@ -345,7 +345,7 @@ open class PageContentBuilder(
         ) {
             contents += PlatformHintedContent(
                 buildGroup(setOf(dri), sourcesetData, kind, styles, extra, block),
-                sourcesetData
+                sourcesetData.toContentSourceSets()
             )
         }
 
@@ -356,7 +356,7 @@ open class PageContentBuilder(
             styles: Set<Style>,
             extra: PropertyContainer<ContentNode>
         ) =
-            ContentText(text, DCI(mainDRI, kind), sourceSets, styles, extra)
+            ContentText(text, DCI(mainDRI, kind), sourceSets.toContentSourceSets(), styles, extra)
 
         fun <T> sourceSetDependentText(
             value: SourceSetDependent<T>,
@@ -466,7 +466,7 @@ open class PageContentBuilder(
                 divergent ?: throw IllegalStateException("Divergent block needs divergent part"),
                 after,
                 DCI(mainDRI, kind),
-                sourceSets,
+                sourceSets.toContentSourceSets(),
                 styles,
                 extra
             )

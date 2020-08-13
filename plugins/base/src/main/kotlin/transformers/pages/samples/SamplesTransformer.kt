@@ -125,7 +125,7 @@ abstract class SamplesTransformer(val context: DokkaContext) : PageTransformer {
     }
 
     private fun contentCode(
-        sourceSets: Set<DokkaSourceSet>,
+        sourceSets: Set<ContentSourceSet>,
         dri: Set<DRI>,
         content: String,
         language: String,
