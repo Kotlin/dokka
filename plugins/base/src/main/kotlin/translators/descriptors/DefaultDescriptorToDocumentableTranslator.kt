@@ -614,16 +614,13 @@ private class DokkaDescriptorVisitor(
     private fun TypeProjection.toProjection(): Projection =
         if (isStarProjection) Star else formPossiblyVariant()
 
-    private fun TypeProjection.formPossiblyVariant(): Projection = type.fromPossiblyNullable().let {
+    private fun TypeProjection.formPossiblyVariant(): Projection = type.toBound().let {
         when (projectionKind) {
             org.jetbrains.kotlin.types.Variance.INVARIANT -> it
             org.jetbrains.kotlin.types.Variance.IN_VARIANCE -> Variance(Variance.Kind.In, it)
             org.jetbrains.kotlin.types.Variance.OUT_VARIANCE -> Variance(Variance.Kind.Out, it)
         }
     }
-
-    private fun KotlinType.fromPossiblyNullable(): Bound =
-        toBound().let { if (isMarkedNullable) Nullable(it) else it }
 
     private fun DeclarationDescriptor.getDocumentation() = findKDoc().let {
         MarkdownParser(resolutionFacade, this, logger).parseFromKDocTag(it)
