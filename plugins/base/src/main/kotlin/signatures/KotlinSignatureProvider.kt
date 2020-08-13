@@ -155,7 +155,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
             }
             link(c.name!!, c.dri)
             if (c is WithGenerics) {
-                list(c.generics, prefix = "<", suffix = "> ") {
+                list(c.generics, prefix = "<", suffix = ">") {
                     +buildSignature(it)
                 }
             }
@@ -292,8 +292,8 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
         t.sourceSets.map {
             contentBuilder.contentFor(t, styles = t.stylesIfDeprecated(it), sourceSets = setOf(it)) {
                 link(t.name, t.dri.withTargetToDeclaration())
-                list(t.bounds, prefix = " : ") {
-                    signatureForProjection(it)
+                list(t.nontrivialBounds, prefix = " : ") { bound ->
+                    signatureForProjection(bound)
                 }
             }
         }
@@ -374,6 +374,9 @@ private fun PrimitiveJavaType.translateToKotlin() = TypeConstructor(
     dri = dri,
     projections = emptyList()
 )
+
+private val DTypeParameter.nontrivialBounds: List<Bound>
+    get() = bounds.filterNot { it is Nullable && it.inner.driOrNull == DriOfAny  }
 
 val TypeConstructor.function
     get() = modifier == FunctionModifiers.FUNCTION || modifier == FunctionModifiers.EXTENSION
