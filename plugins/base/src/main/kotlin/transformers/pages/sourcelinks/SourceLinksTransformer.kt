@@ -8,6 +8,7 @@ import org.jetbrains.dokka.model.DocumentableSource
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.analysis.DescriptorDocumentableSource
 import org.jetbrains.dokka.analysis.PsiDocumentableSource
+import org.jetbrains.dokka.base.resolvers.anchors.SymbolAnchorHint
 import org.jetbrains.dokka.model.WithSources
 import org.jetbrains.dokka.model.toDisplaySourceSets
 import org.jetbrains.dokka.pages.*
@@ -63,7 +64,7 @@ class SourceLinksTransformer(val context: DokkaContext, val builder: PageContent
         +ContentTable(
             emptyList(),
             sources.map {
-                buildGroup(node.dri, setOf(it.first), kind = ContentKind.Source) {
+                buildGroup(node.dri, setOf(it.first), kind = ContentKind.Source, extra = mainExtra + SymbolAnchorHint(it.second)) {
                     link("(source)", it.second)
                 }
             },

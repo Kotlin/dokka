@@ -13,6 +13,7 @@ import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.model.toDisplaySourceSets
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.utilities.DokkaLogger
+import org.jetbrains.dokka.model.properties.plus
 
 @DslMarker
 annotation class ContentBuilderMarker
@@ -114,7 +115,7 @@ open class PageContentBuilder(
                     sourceSets,
                     kind,
                     styles,
-                    extra + SimpleAttr("anchor", text.replace("\\s".toRegex(), "").toLowerCase())
+                    extra + SymbolAnchorHint(text.replace("\\s".toRegex(), "").toLowerCase())
                 ) {
                     text(text, kind = kind)
                     block()
@@ -184,7 +185,7 @@ open class PageContentBuilder(
                             else it
                         }
                         .map {
-                            val newExtra = if (needsAnchors) extra + SymbolAnchorHint else extra
+                            val newExtra = if (needsAnchors) extra + SymbolAnchorHint.from(it) else extra
                             buildGroup(setOf(it.dri), it.sourceSets.toSet(), kind, styles, newExtra) {
                                 operation(it)
                             }
@@ -236,7 +237,8 @@ open class PageContentBuilder(
             listOf(createText(text, kind, sourceSets, styles, extra)),
             address,
             DCI(mainDRI, kind),
-            sourceSets.toDisplaySourceSets()
+            sourceSets.toDisplaySourceSets(),
+            extra = extra
         )
 
         fun link(
@@ -269,7 +271,8 @@ open class PageContentBuilder(
                 contentFor(mainDRI, sourceSets, kind, styles, extra, block).children,
                 address,
                 DCI(mainDRI, kind),
-                sourceSets.toDisplaySourceSets()
+                sourceSets.toDisplaySourceSets(),
+                extra = extra
             )
         }
 
