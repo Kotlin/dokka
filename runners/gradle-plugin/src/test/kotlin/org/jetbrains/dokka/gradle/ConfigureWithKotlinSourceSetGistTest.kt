@@ -46,7 +46,7 @@ class ConfigureWithKotlinSourceSetGistTest {
         )
 
         assertEquals(
-            setOf(f1Jar, f2Jar), sourceSet.build().classpath,
+            listOf(f1Jar, f2Jar), sourceSet.build().classpath,
             "Expected classpath being present"
         )
 

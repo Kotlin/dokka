@@ -193,7 +193,7 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
             moduleDisplayName = moduleDisplayName.takeIf(String::isNotBlank) ?: moduleName,
             displayName = displayName,
             sourceSetID = DokkaSourceSetID(moduleName, sourceSetName),
-            classpath = classpath.map(::File).toSet(),
+            classpath = classpath.map(::File),
             sourceRoots = sourceDirectories.map(::File).toSet(),
             dependentSourceSets = emptySet(),
             samples = samples.map(::File).toSet(),
@@ -268,7 +268,7 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
         groupId: String,
         artifactId: String,
         version: String
-    ): Set<File> {
+    ): List<File> {
         val repoSystem: RepositorySystem = newRepositorySystem()
         val session: RepositorySystemSession = newSession(repoSystem)
         val dependency =
@@ -293,7 +293,7 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
         repoSystem.resolveDependencies(session, dependencyRequest)
         val nlg = PreorderNodeListGenerator()
         node.accept(nlg)
-        return nlg.files.toSet()
+        return nlg.files
     }
 
     private val dokkaVersion: String by lazy {

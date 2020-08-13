@@ -36,13 +36,11 @@ class GlobalArguments(args: Array<String>) : DokkaConfiguration {
         description = "Configuration for plugins in format fqPluginName=json^^fqPluginName=json..."
     ).default(emptyMap())
 
-    private val pluginsClasspathList by parser.option(
+    override val pluginsClasspath by parser.option(
         ArgTypeFile,
         fullName = "pluginsClasspath",
         description = "List of jars with dokka plugins (allows many paths separated by the semicolon `;`)"
     ).delimiter(";")
-
-    override val pluginsClasspath: Set<File> by lazy { pluginsClasspathList.toMutableSet() }
 
     override val offlineMode by parser.option(
         ArgType.Boolean,
@@ -223,7 +221,7 @@ private fun parseSourceSet(args: Array<String>): DokkaConfiguration.DokkaSourceS
         override val moduleDisplayName = moduleDisplayName ?: moduleName
         override val displayName = displayName
         override val sourceSetID = DokkaSourceSetID(moduleName, sourceSetName)
-        override val classpath = classpath.toMutableSet()
+        override val classpath = classpath.toMutableList()
         override val sourceRoots = sourceRoots.toMutableSet()
         override val dependentSourceSets = dependentSourceSets
             .map { dependentSourceSetName -> dependentSourceSetName.split('/').let { DokkaSourceSetID(it[0], it[1]) } }

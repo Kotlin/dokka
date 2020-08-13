@@ -6,7 +6,7 @@ import java.io.File
 
 internal fun GradleDokkaSourceSetBuilder.toDokkaSourceSetImpl(): DokkaSourceSetImpl {
     return DokkaSourceSetImpl(
-        classpath = classpath.toSet(),
+        classpath = classpath.toList(),
         moduleDisplayName = moduleNameOrDefault(),
         displayName = displayNameOrDefault(),
         sourceSetID = sourceSetID,
