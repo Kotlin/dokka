@@ -1,6 +1,8 @@
 package org.jetbrains.dokka.base.transformers.pages.merger
 
 import org.jetbrains.dokka.Platform
+import org.jetbrains.dokka.model.ContentSourceSet
+import org.jetbrains.dokka.model.toContentSourceSets
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.transformers.pages.PageTransformer

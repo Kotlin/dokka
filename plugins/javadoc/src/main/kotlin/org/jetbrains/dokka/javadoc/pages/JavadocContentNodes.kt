@@ -1,6 +1,7 @@
 package org.jetbrains.dokka.javadoc.pages
 
 import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.model.ContentSourceSet
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.pages.*
 

@@ -2,9 +2,9 @@ package model
 
 import org.jetbrains.dokka.DokkaSourceSetID
 import org.jetbrains.dokka.Platform
-import org.jetbrains.dokka.pages.CompositeSourceSetID
-import org.jetbrains.dokka.pages.ContentSourceSet
-import org.jetbrains.dokka.pages.sourceSetIDs
+import org.jetbrains.dokka.model.CompositeSourceSetID
+import org.jetbrains.dokka.model.ContentSourceSet
+import org.jetbrains.dokka.model.sourceSetIDs
 import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue

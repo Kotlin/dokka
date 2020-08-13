@@ -3,6 +3,7 @@ package org.jetbrains.dokka.base.transformers.pages.comments
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.model.properties.PropertyContainer
+import org.jetbrains.dokka.model.toContentSourceSets
 import org.jetbrains.dokka.pages.*
 
 object DocTagToContentConverter : CommentsToContentConverter {

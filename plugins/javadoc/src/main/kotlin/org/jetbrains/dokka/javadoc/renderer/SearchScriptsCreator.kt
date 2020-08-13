@@ -3,9 +3,9 @@ package org.jetbrains.dokka.javadoc.renderer
 import org.jetbrains.dokka.javadoc.location.JavadocLocationProvider
 import org.jetbrains.dokka.javadoc.pages.*
 import org.jetbrains.dokka.javadoc.renderer.SearchRecord.Companion.allTypes
-import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.base.renderers.sourceSets
 import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.model.ContentSourceSet
 import org.jetbrains.dokka.model.Documentable
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.utilities.formatToEndWithHtml

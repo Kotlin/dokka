@@ -7,7 +7,7 @@ import org.jetbrains.dokka.links.Nullable
 import org.jetbrains.dokka.links.parent
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.pages.ContentPage
-import org.jetbrains.dokka.pages.ContentSourceSet
+import org.jetbrains.dokka.model.ContentSourceSet
 import org.jetbrains.dokka.pages.PageNode
 import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.DokkaContext
