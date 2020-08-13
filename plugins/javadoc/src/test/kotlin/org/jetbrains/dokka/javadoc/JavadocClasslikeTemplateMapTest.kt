@@ -93,7 +93,7 @@ internal class JavadocClasslikeTemplateMapTest : AbstractJavadocTemplateMapTest(
                 0, assertIsInstance<List<*>>(method["parameters"]).size,
                 "Expected no parameters"
             )
-            assertEquals("final String", method.modifiers())
+            assertEquals("final <a href=https://docs.oracle.com/javase/8/docs/api/java/lang/String.html>String</a>", method.modifiers())
             assertEquals("<a href=TestClass.html#testFunction()>testFunction</a>()", method.signatureWithoutModifiers())
         }
     }
@@ -257,19 +257,19 @@ internal class JavadocClasslikeTemplateMapTest : AbstractJavadocTemplateMapTest(
             assertParameterNode(
                 node = first,
                 expectedName = "simple",
-                expectedType = "String",
+                expectedType = "<a href=https://docs.oracle.com/javase/8/docs/api/java/lang/String.html>String</a>",
                 expectedDescription = "simple String parameter"
             )
             assertParameterNode(
                 node = second,
                 expectedName = "parameters",
-                expectedType = "Integer",
+                expectedType = "<a href=https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html>Integer</a>",
                 expectedDescription = "simple Integer parameter"
             )
             assertParameterNode(
                 node = third,
                 expectedName = "list",
-                expectedType = "Boolean",
+                expectedType = "<a href=https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html>Boolean</a>",
                 expectedDescription = "simple Boolean parameter"
             )
         }
@@ -305,7 +305,7 @@ internal class JavadocClasslikeTemplateMapTest : AbstractJavadocTemplateMapTest(
             assertEquals("Generic", map["name"])
 
             assertEquals(
-                "public final class <a href=Generic.html>Generic</a>&lt;T extends Serializable&gt;",
+                "public final class <a href=Generic.html>Generic</a>&lt;T extends <a href=https://docs.oracle.com/javase/8/docs/api/java/io/Serializable.html>Serializable</a>&gt;",
                 map.signatureWithModifiers()
             )
             val methods = assertIsInstance<Map<Any, Any?>>(map["methods"])
