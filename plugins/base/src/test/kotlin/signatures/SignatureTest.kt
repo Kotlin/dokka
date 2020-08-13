@@ -425,6 +425,110 @@ class SignatureTest : AbstractCoreTest() {
         }
     }
 
+    @Test
+    fun `plain typealias of plain class`() {
+
+        val configuration = dokkaConfiguration {
+            sourceSets {
+                sourceSet {
+                    moduleName = "test"
+                    name = "common"
+                    sourceRoots = listOf("src/main/kotlin/common/Test.kt")
+                }
+            }
+        }
+
+        val writerPlugin = TestOutputWriterPlugin()
+
+        testInline(
+            """
+                |/src/main/kotlin/common/Test.kt
+                |package example
+                |
+                |typealias PlainTypealias = Int
+                |
+            """.trimMargin(),
+            configuration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                writerPlugin.writer.renderedContent("test/example.html").signature().first().match(
+                    "typealias ", A("PlainTypealias"), " = ", A("Int"), Span()
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `plain typealias of generic class`() {
+
+        val configuration = dokkaConfiguration {
+            sourceSets {
+                sourceSet {
+                    moduleName = "test"
+                    name = "common"
+                    sourceRoots = listOf("src/main/kotlin/common/Test.kt")
+                }
+            }
+        }
+
+        val writerPlugin = TestOutputWriterPlugin()
+
+        testInline(
+            """
+                |/src/main/kotlin/common/Test.kt
+                |package example
+                |
+                |typealias PlainTypealias = Comparable<Int>
+                |
+            """.trimMargin(),
+            configuration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                writerPlugin.writer.renderedContent("test/example.html").signature().first().match(
+                    "typealias ", A("PlainTypealias"), " = ", A("Comparable"),
+                    "<", A("Int"), ">", Span()
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `typealias with generics params`() {
+
+        val configuration = dokkaConfiguration {
+            sourceSets {
+                sourceSet {
+                    moduleName = "test"
+                    name = "common"
+                    sourceRoots = listOf("src/main/kotlin/common/Test.kt")
+                }
+            }
+        }
+
+        val writerPlugin = TestOutputWriterPlugin()
+
+        testInline(
+            """
+                |/src/main/kotlin/common/Test.kt
+                |package example
+                |
+                |typealias GenericTypealias<T> = Comparable<T>
+                |
+            """.trimMargin(),
+            configuration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                writerPlugin.writer.renderedContent("test/example.html").signature().first().match(
+                    "typealias ", A("GenericTypealias"), "<", A("T"), "> = ", A("Comparable"),
+                    "<", A("T"), ">", Span()
+                )
+            }
+        }
+    }
+
     private fun TestOutputWriter.renderedContent(path: String = "root/example.html") =
         contents.getValue(path).let { Jsoup.parse(it) }.select("#content")
             .single()
