@@ -34,9 +34,7 @@ open class HtmlRenderer(
                 .filter { it in sourceSet.dependentSourceSets }
         }.toMap()
 
-    private val shouldShowSourceSetBubbles by lazy {
-        sourceSetDependencyMap.size > 1
-    }
+    private var shouldRenderSourceSetBubbles: Boolean = false
 
     private val pageList = ConcurrentHashMap<String, Pair<String, String>>()
 
@@ -109,7 +107,7 @@ open class HtmlRenderer(
     }
 
     private fun FlowContent.filterButtons(page: ContentPage) {
-        if (shouldShowSourceSetBubbles) {
+        if (shouldRenderSourceSetBubbles) {
             div(classes = "filter-section") {
                 id = "filter-section"
                 page.content.withDescendants().flatMap { it.sourceSets }.distinct().forEach {
@@ -415,7 +413,7 @@ open class HtmlRenderer(
     }
 
     private fun FlowContent.createPlatformTagBubbles(sourceSets: List<ContentSourceSet>) {
-        if (shouldShowSourceSetBubbles) {
+        if (shouldRenderSourceSetBubbles) {
             div("platform-tags") {
                 sourceSets.forEach {
                     div("platform-tag") {
@@ -650,6 +648,7 @@ open class HtmlRenderer(
             .joinToString(prefix = "[", separator = ",\n", postfix = "]")
 
     override fun render(root: RootPageNode) {
+        shouldRenderSourceSetBubbles = shouldRenderSourceSetBubbles(root)
         super.render(root)
         runBlocking(Dispatchers.Default) {
             launch {
