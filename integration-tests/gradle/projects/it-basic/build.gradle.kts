@@ -1,4 +1,5 @@
 import org.jetbrains.dokka.gradle.DokkaTask
+import org.jetbrains.dokka.gradle.kotlinSourceSet
 import java.net.URL
 
 plugins {
