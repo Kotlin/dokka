@@ -26,7 +26,7 @@ class DokkaCollectorTaskTest {
             }
             project.tasks.withType<DokkaTask>().configureEach { task ->
                 task.dokkaSourceSets.configureEach { sourceSet ->
-                    sourceSet.classpath.setFrom()
+                    sourceSet.classpath.setFrom(emptyList<Any>())
                 }
             }
         }
