@@ -176,7 +176,7 @@ class SignatureTest : AbstractCoreTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/simple-fun.html").firstSignature().match(
-                    "fun <", A("T"), " : ", A("Any"), "?> ", A("simpleFun"), "(): ",
+                    "fun <", A("T"), "> ", A("simpleFun"), "(): ",
                     A("T"), Span()
                 )
             }
