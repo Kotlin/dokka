@@ -24,7 +24,7 @@ open class DokkaMultiModuleTask : AbstractDokkaParentTask(DokkaMultimoduleBootst
         .safeConvention("README.md")
 
     @Internal
-    var fileLayout: Property<DokkaMultiModuleFileLayout> = project.objects.safeProperty<DokkaMultiModuleFileLayout>()
+    val fileLayout: Property<DokkaMultiModuleFileLayout> = project.objects.safeProperty<DokkaMultiModuleFileLayout>()
         .safeConvention(DokkaMultiModuleFileLayout.CompactInParent)
 
     @get:InputFiles
