@@ -44,7 +44,7 @@ open class GradleDokkaSourceSetBuilder constructor(
     @Optional
     val displayName: Property<String?> = project.objects.safeProperty()
 
-    @Nested
+    @InputFiles
     val sourceRoots: ConfigurableFileCollection = project.files()
 
     @Input
