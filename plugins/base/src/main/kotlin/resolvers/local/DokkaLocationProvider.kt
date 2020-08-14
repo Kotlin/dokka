@@ -1,8 +1,8 @@
 package org.jetbrains.dokka.base.resolvers.local
 
-import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.base.resolvers.anchors.SymbolAnchorHint
 import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.model.DisplaySourceSet
 import org.jetbrains.dokka.model.withDescendants
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
@@ -44,7 +44,7 @@ open class DokkaLocationProvider(
     override fun resolve(node: PageNode, context: PageNode?, skipExtension: Boolean) =
         pathTo(node, context) + if (!skipExtension) extension else ""
 
-    override fun resolve(dri: DRI, sourceSets: Set<DokkaSourceSet>, context: PageNode?) =
+    override fun resolve(dri: DRI, sourceSets: Set<DisplaySourceSet>, context: PageNode?) =
         pagesIndex[dri]?.let { resolve(it, context) }
             ?: anchorsIndex[dri]?.let { resolve(it, context) + "#$dri" }
             // Not found in PageGraph, that means it's an external link
@@ -58,7 +58,7 @@ open class DokkaLocationProvider(
 
     protected open fun pathTo(node: PageNode, context: PageNode?): String {
         fun pathFor(page: PageNode) = pathsIndex[page] ?: throw AssertionError(
-            "${page::class.simpleName}(${page.name}) does not belong to current page graph so it is impossible to compute its path"
+            "${page::class.simpleName}(${page.name}) does not belong to the current page graph so it is impossible to compute its path"
         )
 
         val contextNode =

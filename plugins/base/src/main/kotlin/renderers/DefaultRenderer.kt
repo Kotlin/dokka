@@ -4,7 +4,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.DokkaException
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.resolvers.local.LocationProvider
@@ -128,7 +127,7 @@ abstract class DefaultRenderer<T>(
     open fun T.buildDRILink(
         node: ContentDRILink,
         pageContext: ContentPage,
-        sourceSetRestriction: Set<DokkaSourceSet>?
+        sourceSetRestriction: Set<DisplaySourceSet>?
     ) {
         locationProvider.resolve(node.address, node.sourceSets, pageContext)?.let { address ->
             buildLink(address) {
@@ -140,7 +139,7 @@ abstract class DefaultRenderer<T>(
     open fun T.buildResolvedLink(
         node: ContentResolvedLink,
         pageContext: ContentPage,
-        sourceSetRestriction: Set<DokkaSourceSet>?
+        sourceSetRestriction: Set<DisplaySourceSet>?
     ) {
         buildLink(node.address) {
             buildText(node.children, pageContext, sourceSetRestriction)

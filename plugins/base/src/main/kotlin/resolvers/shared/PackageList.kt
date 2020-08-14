@@ -11,8 +11,8 @@ data class PackageList(
     val url: URL
 ) {
     companion object {
-        fun load(url: URL, jdkVersion: Int, dokkaContext: DokkaContext): PackageList? {
-            if (dokkaContext.configuration.offlineMode && url.protocol.toLowerCase() != "file")
+        fun load(url: URL, jdkVersion: Int, offlineMode: Boolean = false): PackageList? {
+            if (offlineMode && url.protocol.toLowerCase() != "file")
                 return null
 
             val packageListStream = url.readContent()

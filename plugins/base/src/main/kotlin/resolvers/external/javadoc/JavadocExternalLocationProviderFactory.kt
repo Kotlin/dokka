@@ -14,10 +14,10 @@ class JavadocExternalLocationProviderFactory(val context: DokkaContext) :
                 when (doc.packageList.linkFormat) {
                     RecognizedLinkFormat.Javadoc1 ->
                         JavadocExternalLocationProvider(doc, "()", ", ", context) // Covers JDK 1 - 7
-                    RecognizedLinkFormat.Javadoc8,
-                    RecognizedLinkFormat.DokkaJavadoc ->
+                    RecognizedLinkFormat.Javadoc8 ->
                         JavadocExternalLocationProvider(doc, "--", "-", context) // Covers JDK 8 - 9
-                    RecognizedLinkFormat.Javadoc10 ->
+                    RecognizedLinkFormat.Javadoc10,
+                    RecognizedLinkFormat.DokkaJavadoc ->
                         JavadocExternalLocationProvider(doc, "()", ",", context) // Covers JDK 10
                     else -> null
                 }
