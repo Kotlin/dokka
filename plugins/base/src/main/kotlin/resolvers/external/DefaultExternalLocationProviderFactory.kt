@@ -10,7 +10,7 @@ class DefaultExternalLocationProviderFactory(val context: DokkaContext) :
             override fun getExternalLocationProvider(doc: ExternalDocumentation): ExternalLocationProvider? =
                 when (doc.packageList.linkFormat) {
                     RecognizedLinkFormat.KotlinWebsiteHtml,
-                    RecognizedLinkFormat.DokkaOldHtml,
+                    RecognizedLinkFormat.DokkaOldHtml -> Dokka010ExternalLocationProvider(doc, ".html", context)
                     RecognizedLinkFormat.DokkaHtml -> DefaultExternalLocationProvider(doc, ".html", context)
                     RecognizedLinkFormat.DokkaGFM,
                     RecognizedLinkFormat.DokkaJekyll -> DefaultExternalLocationProvider(doc, ".md", context)
