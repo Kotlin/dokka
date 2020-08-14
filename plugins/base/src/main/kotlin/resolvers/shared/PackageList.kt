@@ -15,7 +15,7 @@ data class PackageList(
             if (dokkaContext.configuration.offlineMode && url.protocol.toLowerCase() != "file")
                 return null
 
-            val packageListStream = url.doOpenConnectionToReadContent().getInputStream()
+            val packageListStream = url.readContent()
             val (params, packages) =
                 packageListStream
                     .bufferedReader()
