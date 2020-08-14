@@ -14,16 +14,16 @@ class Android0GradleIntegrationTest(override val versions: BuildVersions) : Abst
         @get:JvmStatic
         @get:Parameters(name = "{0}")
         val versions = BuildVersions.permutations(
-            gradleVersions = listOf("6.5.1", *ifExhaustive("5.6.4")),
-            kotlinVersions = listOf("1.4.0-rc", *ifExhaustive("1.3.72")),
+            gradleVersions = listOf("6.6", *ifExhaustive("5.6.4")),
+            kotlinVersions = listOf("1.4.0", *ifExhaustive("1.3.72")),
             androidGradlePluginVersions = listOf("3.5.3", *ifExhaustive("3.6.3"))
         ) + BuildVersions.permutations(
-            gradleVersions = listOf("6.5.1", *ifExhaustive("6.1.1")),
-            kotlinVersions = listOf("1.4.0-rc", *ifExhaustive("1.3.72")),
+            gradleVersions = listOf("6.6", *ifExhaustive("6.1.1")),
+            kotlinVersions = listOf("1.4.0", *ifExhaustive("1.3.72")),
             androidGradlePluginVersions = listOf("4.0.0")
         ) + BuildVersions.permutations(
-            gradleVersions = listOf("6.5.1"),
-            kotlinVersions = listOf("1.4.0-rc", *ifExhaustive("1.3.72")),
+            gradleVersions = listOf("6.6"),
+            kotlinVersions = listOf("1.4.0", *ifExhaustive("1.3.72")),
             androidGradlePluginVersions = listOf("4.1.0-beta02")
         )
     }
