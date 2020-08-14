@@ -8,6 +8,7 @@ import org.gradle.api.tasks.Optional
 import org.jetbrains.dokka.DokkaConfigurationBuilder
 import org.jetbrains.dokka.SourceLinkDefinitionImpl
 import java.io.File
+import java.net.URL
 
 class GradleSourceLinkBuilder(
     @Transient @get:Internal internal val project: Project
@@ -17,8 +18,7 @@ class GradleSourceLinkBuilder(
     val localDirectory: Property<File?> = project.objects.safeProperty()
 
     @Input
-    val remoteUrl: Property<String> = project.objects.safeProperty<String>()
-        .safeConvention("")
+    val remoteUrl: Property<URL?> = project.objects.safeProperty<URL>()
 
     @Optional
     @Input
@@ -28,7 +28,7 @@ class GradleSourceLinkBuilder(
     override fun build(): SourceLinkDefinitionImpl {
         return SourceLinkDefinitionImpl(
             localDirectory = localDirectory.getSafe()?.absolutePath ?: project.projectDir.absolutePath,
-            remoteUrl = remoteUrl.getSafe(),
+            remoteUrl = checkNotNull(remoteUrl.getSafe()) { "missing remoteUrl on source link" },
             remoteLineSuffix = remoteLineSuffix.getSafe()
         )
     }

@@ -1,4 +1,5 @@
 import org.jetbrains.dokka.gradle.DokkaTask
+import java.net.URL
 
 plugins {
     kotlin("jvm")
@@ -24,8 +25,10 @@ tasks.withType<DokkaTask> {
             sourceLink {
                 localDirectory.set(file("src/main"))
                 remoteUrl.set(
-                    "https://github.com/Kotlin/dokka/tree/master/" +
-                            "integration-tests/gradle/projects/it-basic/src/main"
+                    URL(
+                        "https://github.com/Kotlin/dokka/tree/master/" +
+                                "integration-tests/gradle/projects/it-basic/src/main"
+                    )
                 )
             }
         }

@@ -221,19 +221,19 @@ class GradleDokkaSourceSetBuilderTest {
             GradleSourceLinkBuilder(project).apply {
                 this.remoteLineSuffix by "ls1"
                 this.localDirectory by project.file("p1")
-                this.remoteUrl by "u1"
+                this.remoteUrl by URL("https://u1")
             })
 
         sourceSet.sourceLink {
             it.remoteLineSuffix by "ls2"
             it.localDirectory by project.file("p2")
-            it.remoteUrl by "u2"
+            it.remoteUrl by URL("https://u2")
         }
 
         sourceSet.sourceLink(project.closureOf<GradleSourceLinkBuilder> {
             this.remoteLineSuffix by "ls3"
             this.localDirectory by project.file("p3")
-            this.remoteUrl by "u3"
+            this.remoteUrl by URL("https://u3")
         })
 
         assertEquals(
@@ -241,17 +241,17 @@ class GradleDokkaSourceSetBuilderTest {
                 SourceLinkDefinitionImpl(
                     remoteLineSuffix = "ls1",
                     localDirectory = project.file("p1").absolutePath,
-                    remoteUrl = "u1"
+                    remoteUrl = URL("https://u1")
                 ),
                 SourceLinkDefinitionImpl(
                     remoteLineSuffix = "ls2",
                     localDirectory = project.file("p2").absolutePath,
-                    remoteUrl = "u2"
+                    remoteUrl = URL("https://u2")
                 ),
                 SourceLinkDefinitionImpl(
                     remoteLineSuffix = "ls3",
                     localDirectory = project.file("p3").absolutePath,
-                    remoteUrl = "u3"
+                    remoteUrl = URL("https://u3")
                 )
             ),
             sourceSet.build().sourceLinks,
