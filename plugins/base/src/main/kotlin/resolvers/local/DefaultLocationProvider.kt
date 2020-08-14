@@ -2,18 +2,15 @@ package org.jetbrains.dokka.base.resolvers.local
 
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.base.DokkaBase
-import org.jetbrains.dokka.base.resolvers.anchors.SymbolAnchorHint
 import org.jetbrains.dokka.base.resolvers.external.ExternalLocationProvider
-import org.jetbrains.dokka.base.resolvers.shared.ExternalDocumentationInfo
+import org.jetbrains.dokka.base.resolvers.shared.ExternalDocumentation
 import org.jetbrains.dokka.base.resolvers.shared.PackageList
 import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.model.DisplaySourceSet
-import org.jetbrains.dokka.model.withDescendants
-import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.query
-import java.util.*
 
 abstract class DefaultLocationProvider(
     protected val pageGraphRoot: RootPageNode,
@@ -29,7 +26,7 @@ abstract class DefaultLocationProvider(
         .flatMap { sourceSet ->
             sourceSet.externalDocumentationLinks.map {
                 PackageList.load(it.packageListUrl, sourceSet.jdkVersion, dokkaContext)
-                    ?.let { packageList -> ExternalDocumentationInfo(it.url, packageList) }
+                    ?.let { packageList -> ExternalDocumentation(it.url, packageList) }
             }
         }
         .filterNotNull()
