@@ -1,0 +1,7 @@
+$dokka.format:kotlin-website-html
+$dokka.linkExtension:html
+$dokka.location:kotlin.text.StringBuilderkotlin.relocated.text/-string-builder/index.html
+kotlin
+kotlin.text
+kotlin.reflect
+
