@@ -1,6 +1,8 @@
 package org.jetbrains.dokka.gfm
 
 import org.jetbrains.dokka.CoreExtensions
+import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
+import org.jetbrains.dokka.DokkaException
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.renderers.DefaultRenderer
 import org.jetbrains.dokka.base.renderers.PackageListCreator
@@ -324,7 +326,11 @@ open class CommonmarkRenderer(
         }
 
     override suspend fun renderPage(page: PageNode) {
-        val path by lazy { locationProvider.resolve(page, skipExtension = true)!! }
+        val path by lazy {
+            locationProvider.resolve(page, skipExtension = true)
+                ?: throw DokkaException("Cannot resolve path for ${page.name}")
+        }
+
         when (page) {
             is ContentPage -> outputWriter.write(path, buildPage(page) { c, p -> buildPageContent(c, p) }, ".md")
             is RendererSpecificPage -> when (val strategy = page.strategy) {
@@ -359,5 +365,5 @@ class MarkdownLocationProvider(
 ) : DokkaLocationProvider(
     pageGraphRoot,
     dokkaContext,
-".md"
+    ".md"
 )
