@@ -45,17 +45,6 @@ internal fun Project.isAndroidProject() = try {
     false
 }
 
-internal fun Project.isMultiplatformProject() = try {
-    project.extensions.getByType(KotlinMultiplatformExtension::class.java)
-    true
-} catch (e: UnknownDomainObjectException) {
-    false
-} catch (e: NoClassDefFoundError) {
-    false
-} catch (e: ClassNotFoundException) {
-    false
-}
-
 internal fun KotlinTarget.isAndroidTarget() = this.platformType == KotlinPlatformType.androidJvm
 
 internal fun <T : Any> NamedDomainObjectContainer<T>.maybeCreate(name: String, configuration: T.() -> Unit): T {
