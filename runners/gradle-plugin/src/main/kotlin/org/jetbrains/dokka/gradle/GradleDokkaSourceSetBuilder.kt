@@ -121,9 +121,9 @@ open class GradleDokkaSourceSetBuilder constructor(
     val platform: Property<Platform> = project.objects.safeProperty<Platform>()
         .safeConvention(Platform.DEFAULT)
 
-    fun DokkaSourceSetID(sourceSetName: String): DokkaSourceSetID {
-        return DokkaSourceSetID(project, sourceSetName)
-    }
+    fun DokkaSourceSetID(sourceSetName: String): DokkaSourceSetID =
+        DokkaSourceSetID(project, sourceSetName)
+
 
     fun dependsOn(sourceSet: SourceSet) {
         dependsOn(DokkaSourceSetID(sourceSet.name))
@@ -205,9 +205,7 @@ open class GradleDokkaSourceSetBuilder constructor(
         )
     }
 
-    override fun build(): DokkaSourceSetImpl {
-        return toDokkaSourceSetImpl()
-    }
+    override fun build(): DokkaSourceSetImpl = toDokkaSourceSetImpl()
 }
 
 

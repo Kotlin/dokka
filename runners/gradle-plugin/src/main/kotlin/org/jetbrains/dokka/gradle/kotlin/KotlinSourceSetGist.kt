@@ -15,16 +15,15 @@ internal data class KotlinSourceSetGist(
     val dependentSourceSetNames: Provider<Set<String>>,
 )
 
-internal fun Project.gistOf(sourceSet: KotlinSourceSet): KotlinSourceSetGist {
-    return KotlinSourceSetGist(
-        name = sourceSet.name,
-        platform = platformOf(sourceSet),
-        isMain = isMainSourceSet(sourceSet),
-        classpath = classpathOf(sourceSet).filter { it.exists() },
-        // TODO: Needs to respect filters.
-        //  We probably need to change from "sourceRoots" to support "sourceFiles"
-        //  https://github.com/Kotlin/dokka/issues/1215
-        sourceRoots = sourceSet.kotlin.sourceDirectories.filter { it.exists() },
-        dependentSourceSetNames = project.provider { sourceSet.dependsOn.map { it.name }.toSet() },
-    )
-}
+internal fun Project.gistOf(sourceSet: KotlinSourceSet): KotlinSourceSetGist = KotlinSourceSetGist(
+    name = sourceSet.name,
+    platform = platformOf(sourceSet),
+    isMain = isMainSourceSet(sourceSet),
+    classpath = classpathOf(sourceSet).filter { it.exists() },
+    // TODO: Needs to respect filters.
+    //  We probably need to change from "sourceRoots" to support "sourceFiles"
+    //  https://github.com/Kotlin/dokka/issues/1215
+    sourceRoots = sourceSet.kotlin.sourceDirectories.filter { it.exists() },
+    dependentSourceSetNames = project.provider { sourceSet.dependsOn.map { it.name }.toSet() },
+)
+

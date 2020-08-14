@@ -34,13 +34,11 @@ class GradlePackageOptionsBuilder(
     val suppress: Property<Boolean> = project.objects.safeProperty<Boolean>()
         .safeConvention(DokkaDefaults.suppress)
 
-    override fun build(): PackageOptionsImpl {
-        return PackageOptionsImpl(
-            prefix = checkNotNull(prefix.getSafe()) { "prefix not specified" },
-            includeNonPublic = includeNonPublic.getSafe(),
-            reportUndocumented = reportUndocumented.getSafe(),
-            skipDeprecated = skipDeprecated.getSafe(),
-            suppress = suppress.getSafe()
-        )
-    }
+    override fun build(): PackageOptionsImpl = PackageOptionsImpl(
+        prefix = checkNotNull(prefix.getSafe()) { "prefix not specified" },
+        includeNonPublic = includeNonPublic.getSafe(),
+        reportUndocumented = reportUndocumented.getSafe(),
+        skipDeprecated = skipDeprecated.getSafe(),
+        suppress = suppress.getSafe()
+    )
 }

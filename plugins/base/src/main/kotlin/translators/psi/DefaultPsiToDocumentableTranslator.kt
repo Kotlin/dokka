@@ -43,9 +43,9 @@ class DefaultPsiToDocumentableTranslator(
 
     override fun invoke(sourceSet: DokkaSourceSet, context: DokkaContext): DModule {
 
-        fun isFileInSourceRoots(file: File): Boolean {
-            return sourceSet.sourceRoots.any { root -> file.startsWith(root) }
-        }
+        fun isFileInSourceRoots(file: File): Boolean =
+            sourceSet.sourceRoots.any { root -> file.startsWith(root) }
+
 
         val (environment, _) = kotlinAnalysis[sourceSet]
 
@@ -298,8 +298,9 @@ class DefaultPsiToDocumentableTranslator(
                         psiParameter.name,
                         DocumentationNode(
                             listOfNotNull(docs.firstChildOfTypeOrNull<Param> {
-                            it.name == psiParameter.name
-                        })).toSourceSetDependent(),
+                                it.name == psiParameter.name
+                            })
+                        ).toSourceSetDependent(),
                         null,
                         getBound(psiParameter.type),
                         setOf(sourceSetData)

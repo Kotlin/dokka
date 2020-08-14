@@ -18,10 +18,8 @@ class GradleExternalDocumentationLinkBuilder(
     @Input
     val packageListUrl: Property<URL?> = project.objects.safeProperty()
 
-    override fun build(): ExternalDocumentationLinkImpl {
-        return ExternalDocumentationLink(
-            url = checkNotNull(url.getSafe()) { "url not specified " },
-            packageListUrl = packageListUrl.getSafe()
-        )
-    }
+    override fun build(): ExternalDocumentationLinkImpl = ExternalDocumentationLink(
+        url = checkNotNull(url.getSafe()) { "url not specified " },
+        packageListUrl = packageListUrl.getSafe()
+    )
 }

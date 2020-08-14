@@ -40,9 +40,9 @@ open class DokkaMultiModuleTask : AbstractDokkaParentTask(DokkaMultimoduleBootst
         get() = childDokkaTasks.map { task -> targetChildOutputDirectory(task) }
 
     @Internal
-    override fun getTaskDependencies(): TaskDependencyInternal {
-        return super.getTaskDependencies() + childDokkaTasks
-    }
+    override fun getTaskDependencies(): TaskDependencyInternal =
+        super.getTaskDependencies() + childDokkaTasks
+
 
     override fun generateDocumentation() {
         checkChildDokkaTasksIsNotEmpty()
@@ -50,23 +50,21 @@ open class DokkaMultiModuleTask : AbstractDokkaParentTask(DokkaMultimoduleBootst
         super.generateDocumentation()
     }
 
-    override fun buildDokkaConfiguration(): DokkaConfigurationImpl {
-        return DokkaConfigurationImpl(
-            outputDir = outputDirectory.getSafe(),
-            cacheRoot = cacheRoot.getSafe(),
-            pluginsConfiguration = pluginsConfiguration.getSafe(),
-            failOnWarning = failOnWarning.getSafe(),
-            offlineMode = offlineMode.getSafe(),
-            pluginsClasspath = plugins.resolve().toList(),
-            modules = childDokkaTasks.map { dokkaTask ->
-                DokkaModuleDescriptionImpl(
-                    name = dokkaTask.project.name,
-                    path = targetChildOutputDirectory(dokkaTask).relativeTo(outputDirectory.getSafe()),
-                    docFile = dokkaTask.project.projectDir.resolve(documentationFileName.get()).absoluteFile
-                )
-            }
-        )
-    }
+    override fun buildDokkaConfiguration(): DokkaConfigurationImpl = DokkaConfigurationImpl(
+        outputDir = outputDirectory.getSafe(),
+        cacheRoot = cacheRoot.getSafe(),
+        pluginsConfiguration = pluginsConfiguration.getSafe(),
+        failOnWarning = failOnWarning.getSafe(),
+        offlineMode = offlineMode.getSafe(),
+        pluginsClasspath = plugins.resolve().toList(),
+        modules = childDokkaTasks.map { dokkaTask ->
+            DokkaModuleDescriptionImpl(
+                name = dokkaTask.project.name,
+                path = targetChildOutputDirectory(dokkaTask).relativeTo(outputDirectory.getSafe()),
+                docFile = dokkaTask.project.projectDir.resolve(documentationFileName.get()).absoluteFile
+            )
+        }
+    )
 }
 
 

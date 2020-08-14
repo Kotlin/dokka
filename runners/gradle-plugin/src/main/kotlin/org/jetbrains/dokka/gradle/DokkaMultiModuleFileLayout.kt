@@ -22,9 +22,9 @@ interface DokkaMultiModuleFileLayout {
      * Will link to the original [AbstractDokkaTask.outputDirectory]. This requires no copying of the output files.
      */
     object NoCopy : DokkaMultiModuleFileLayout {
-        override fun targetChildOutputDirectory(parent: DokkaMultiModuleTask, child: AbstractDokkaTask): File {
-            return child.outputDirectory.getSafe()
-        }
+        override fun targetChildOutputDirectory(parent: DokkaMultiModuleTask, child: AbstractDokkaTask): File =
+            child.outputDirectory.getSafe()
+
     }
 
     /**
@@ -46,9 +46,8 @@ interface DokkaMultiModuleFileLayout {
 
 internal fun DokkaMultiModuleTask.targetChildOutputDirectory(
     child: AbstractDokkaTask
-): File {
-    return fileLayout.get().targetChildOutputDirectory(this, child)
-}
+): File = fileLayout.get().targetChildOutputDirectory(this, child)
+
 
 internal fun DokkaMultiModuleTask.copyChildOutputDirectories() {
     childDokkaTasks.forEach { child ->

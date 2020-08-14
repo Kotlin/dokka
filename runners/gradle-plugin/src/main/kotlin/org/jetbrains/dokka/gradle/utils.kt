@@ -24,9 +24,7 @@ internal infix fun <T> HasMultipleValues<in T>.by(values: Iterable<T>) {
     this.set(values)
 }
 
-internal fun parsePath(path: String): Path {
-    return Path.path(path)
-}
+internal fun parsePath(path: String): Path = Path.path(path)
 
 internal val Project.kotlinOrNull: KotlinProjectExtension?
     get() = try {
@@ -46,8 +44,6 @@ internal fun Project.isAndroidProject() = try {
 } catch (e: ClassNotFoundException) {
     false
 }
-
-internal fun Project.isNotMultiplatformProject() = !isMultiplatformProject()
 
 internal fun Project.isMultiplatformProject() = try {
     project.extensions.getByType(KotlinMultiplatformExtension::class.java)
