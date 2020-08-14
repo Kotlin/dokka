@@ -38,7 +38,7 @@ open class DokkaLocationProvider(
             if (first) page else throw AssertionError("Multiple pages associated with dri: $dri")
         }
 
-    protected open val anchorsIndex = pageGraphRoot.withDescendants().filterIsInstance<ContentPage>()
+    protected open val anchorsIndex: Map<DRI, ContentPage> = pageGraphRoot.withDescendants().filterIsInstance<ContentPage>()
         .flatMap { page ->
             page.content.withDescendants()
                 .filter { it.extra[SymbolAnchorHint] != null }
