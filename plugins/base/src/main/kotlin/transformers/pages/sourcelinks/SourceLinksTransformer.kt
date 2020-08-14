@@ -90,10 +90,10 @@ class SourceLinksTransformer(val context: DokkaContext, val builder: PageContent
     private fun ContentNode.addTable(table: ContentGroup): ContentNode =
         when (this) {
             is ContentGroup -> {
-                if(hasTabbedContent()){
+                if (hasTabbedContent()) {
                     copy(
                         children = children.map {
-                            if(it.hasStyle(ContentStyle.TabbedContent) && it is ContentGroup){
+                            if (it.hasStyle(ContentStyle.TabbedContent) && it is ContentGroup) {
                                 it.copy(children = it.children + table)
                             } else {
                                 it
@@ -123,7 +123,10 @@ class SourceLinksTransformer(val context: DokkaContext, val builder: PageContent
 
 data class SourceLink(val path: String, val url: String, val lineSuffix: String?, val sourceSetData: DokkaSourceSet) {
     constructor(sourceLinkDefinition: DokkaConfiguration.SourceLinkDefinition, sourceSetData: DokkaSourceSet) : this(
-        sourceLinkDefinition.localDirectory, sourceLinkDefinition.remoteUrl, sourceLinkDefinition.remoteLineSuffix, sourceSetData
+        sourceLinkDefinition.localDirectory,
+        sourceLinkDefinition.remoteUrl.toExternalForm(),
+        sourceLinkDefinition.remoteLineSuffix,
+        sourceSetData
     )
 }
 
