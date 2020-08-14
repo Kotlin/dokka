@@ -49,13 +49,9 @@ abstract class AbstractDokkaTask(
     @Classpath
     val runtime: Configuration = project.maybeCreateDokkaRuntimeConfiguration(name)
 
-    final override fun doFirst(action: Action<in Task>): Task {
-        return super.doFirst(action)
-    }
+    final override fun doFirst(action: Action<in Task>): Task = super.doFirst(action)
 
-    final override fun doFirst(action: Closure<*>): Task {
-        return super.doFirst(action)
-    }
+    final override fun doFirst(action: Closure<*>): Task = super.doFirst(action)
 
     @TaskAction
     internal open fun generateDocumentation() {
