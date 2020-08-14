@@ -3,6 +3,8 @@ package org.jetbrains.dokka.javadoc.renderer
 import org.jetbrains.dokka.javadoc.location.JavadocLocationProvider
 import org.jetbrains.dokka.javadoc.pages.*
 import org.jetbrains.dokka.javadoc.renderer.SearchRecord.Companion.allTypes
+import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.DokkaException
 import org.jetbrains.dokka.base.renderers.sourceSets
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.DisplaySourceSet
@@ -57,7 +59,7 @@ class SearchScriptsCreator(private val locationProvider: JavadocLocationProvider
         val modules = SearchData(moduleRecords = input.map {
             SearchRecord(
                 l = it.name,
-                url = locationProvider.resolve(it)?.formatToEndWithHtml()
+                url = locationProvider.resolve(it).formatToEndWithHtml()
             )
         })
         val processablePackages = input.flatMap { it.children.filterIsInstance<JavadocPackagePageNode>() }
@@ -68,7 +70,7 @@ class SearchScriptsCreator(private val locationProvider: JavadocLocationProvider
         val packages = input.map {
             SearchRecord(
                 l = it.name,
-                url = locationProvider.resolve(it)?.formatToEndWithHtml()
+                url = locationProvider.resolve(it).formatToEndWithHtml()
             )
         } + SearchRecord.allPackages
         val types = input.flatMap {
@@ -86,7 +88,7 @@ class SearchScriptsCreator(private val locationProvider: JavadocLocationProvider
             SearchRecord(
                 p = it.first.name,
                 l = it.second.name,
-                url = locationProvider.resolve(it.second)?.formatToEndWithHtml()
+                url = locationProvider.resolve(it.second).formatToEndWithHtml()
             )
         } + allTypes
         val updated = accumulator.copy(typeRecords = types)
@@ -103,7 +105,7 @@ class SearchScriptsCreator(private val locationProvider: JavadocLocationProvider
                     packageName = it.first.name,
                     classlikeName = it.second.name,
                     input = function,
-                    url = locationProvider.resolve(function.dri, it.first.sourceSets())!!
+                    url = locationProvider.resolve(function.dri, it.first.sourceSets()) ?: throw DokkaException("Cannot resolve path for ${function.dri}")
                 )
             }
         }
@@ -114,7 +116,7 @@ class SearchScriptsCreator(private val locationProvider: JavadocLocationProvider
                     packageName = it.first.name,
                     classlikeName = it.second.name,
                     property,
-                    locationProvider.resolve(property.dri, it.first.sourceSets())!!
+                    locationProvider.resolve(property.dri, it.first.sourceSets())?: throw DokkaException("Cannot resolve path for ${property.dri}")
                 )
             }
         }
@@ -125,7 +127,7 @@ class SearchScriptsCreator(private val locationProvider: JavadocLocationProvider
                     packageName = it.first.name,
                     classlikeName = it.second.name,
                     entry,
-                    locationProvider.resolve(entry.dri, it.first.sourceSets())!!
+                    locationProvider.resolve(entry.dri, it.first.sourceSets()) ?: throw DokkaException("Cannot resolve path for ${entry.dri}")
                 )
             }
         }

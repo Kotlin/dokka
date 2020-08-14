@@ -523,11 +523,16 @@ open class HtmlRenderer(
         }
 
     private fun FlowContent.buildLink(to: PageNode, from: PageNode) =
-        buildLink(locationProvider.resolve(to, from)!!) {
+        locationProvider.resolve(to, from)?.let { path ->
+            buildLink(path) {
+                text(to.name)
+            }
+        } ?: span {
+            attributes["data-unresolved-link"] = to.name.htmlEscape()
             text(to.name)
         }
 
-    private fun FlowContent.buildAnchor(pointingTo: String) {
+    fun FlowContent.buildAnchor(pointingTo: String) {
         span(classes = "anchor-wrapper") {
             span(classes = "anchor-icon") {
                 attributes["pointing-to"] = pointingTo
@@ -551,7 +556,8 @@ open class HtmlRenderer(
         platforms: List<DisplaySourceSet>,
         from: PageNode? = null,
         block: FlowContent.() -> Unit
-    ) = buildLink(locationProvider.resolve(to, platforms.toSet(), from)!!, block)
+    ) = locationProvider.resolve(to, platforms.toSet(), from)?.let { buildLink(it, block) }
+        ?: run { context.logger.error("Cannot resolve path for $to"); block() }
 
     override fun buildError(node: ContentNode) {
         context.logger.error("Unknown ContentNode type: $node")
@@ -603,7 +609,7 @@ open class HtmlRenderer(
     override suspend fun renderPage(page: PageNode) {
         super.renderPage(page)
         if (page is ContentPage && page !is ModulePageNode && page !is PackagePageNode)
-            searchbarDataInstaller.processPage(page, locationProvider.resolve(page))
+            searchbarDataInstaller.processPage(page, locationProvider.resolve(page) ?: context.logger.error("Cannot resolve path for ${page.dri}"))
     }
 
     override fun FlowContent.buildText(textNode: ContentText) =
