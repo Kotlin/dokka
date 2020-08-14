@@ -15,7 +15,7 @@ internal inline fun <reified T : Any> Property<T?>.safeConvention(value: T): Pro
 }
 
 @OptIn(ExperimentalStdlibApi::class)
-internal inline fun <reified T> Provider<T>.getSafe(): T {
-    return if (typeOf<T>().isMarkedNullable) orNull as T
+internal inline fun <reified T> Provider<T>.getSafe(): T =
+    if (typeOf<T>().isMarkedNullable) orNull as T
     else get()
-}
+

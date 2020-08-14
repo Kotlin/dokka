@@ -5,9 +5,8 @@ import org.gradle.api.internal.tasks.AbstractTaskDependency
 import org.gradle.api.internal.tasks.TaskDependencyInternal
 import org.gradle.api.internal.tasks.TaskDependencyResolveContext
 
-internal operator fun TaskDependencyInternal.plus(tasks: Iterable<Task>): TaskDependencyInternal {
-    return TaskDependencyInternalWithAdditions(this, tasks.toSet())
-}
+internal operator fun TaskDependencyInternal.plus(tasks: Iterable<Task>): TaskDependencyInternal =
+    TaskDependencyInternalWithAdditions(this, tasks.toSet())
 
 private class TaskDependencyInternalWithAdditions(
     private val dependency: TaskDependencyInternal,

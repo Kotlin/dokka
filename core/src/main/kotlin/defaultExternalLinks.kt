@@ -4,8 +4,8 @@ import org.jetbrains.dokka.DokkaConfiguration.ExternalDocumentationLink
 import java.net.URL
 
 
-fun ExternalDocumentationLink.Companion.jdk(jdkVersion: Int): ExternalDocumentationLinkImpl {
-    return ExternalDocumentationLink(
+fun ExternalDocumentationLink.Companion.jdk(jdkVersion: Int): ExternalDocumentationLinkImpl =
+    ExternalDocumentationLink(
         url =
         if (jdkVersion < 11) "https://docs.oracle.com/javase/${jdkVersion}/docs/api/"
         else "https://docs.oracle.com/en/java/javase/${jdkVersion}/docs/api/java.base/",
@@ -13,19 +13,18 @@ fun ExternalDocumentationLink.Companion.jdk(jdkVersion: Int): ExternalDocumentat
         if (jdkVersion < 11) "https://docs.oracle.com/javase/${jdkVersion}/docs/api/package-list"
         else "https://docs.oracle.com/en/java/javase/${jdkVersion}/docs/api/element-list"
     )
-}
 
-fun ExternalDocumentationLink.Companion.kotlinStdlib(): ExternalDocumentationLinkImpl {
-    return ExternalDocumentationLink("https://kotlinlang.org/api/latest/jvm/stdlib/")
-}
 
-fun ExternalDocumentationLink.Companion.androidSdk(): ExternalDocumentationLinkImpl {
-    return ExternalDocumentationLink("https://developer.android.com/reference/")
-}
+fun ExternalDocumentationLink.Companion.kotlinStdlib(): ExternalDocumentationLinkImpl =
+    ExternalDocumentationLink("https://kotlinlang.org/api/latest/jvm/stdlib/")
 
-fun ExternalDocumentationLink.Companion.androidX(): ExternalDocumentationLinkImpl {
-    return ExternalDocumentationLink(
-        url = URL("https://developer.android.com/reference/kotlin/"),
-        packageListUrl = URL("https://developer.android.com/reference/androidx/package-list")
-    )
-}
+
+fun ExternalDocumentationLink.Companion.androidSdk(): ExternalDocumentationLinkImpl =
+    ExternalDocumentationLink("https://developer.android.com/reference/")
+
+
+fun ExternalDocumentationLink.Companion.androidX(): ExternalDocumentationLinkImpl = ExternalDocumentationLink(
+    url = URL("https://developer.android.com/reference/kotlin/"),
+    packageListUrl = URL("https://developer.android.com/reference/androidx/package-list")
+)
+

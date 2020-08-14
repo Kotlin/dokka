@@ -4,32 +4,31 @@ import org.jetbrains.dokka.*
 import org.jetbrains.dokka.DokkaConfiguration.ExternalDocumentationLink
 import java.io.File
 
-internal fun GradleDokkaSourceSetBuilder.toDokkaSourceSetImpl(): DokkaSourceSetImpl {
-    return DokkaSourceSetImpl(
-        classpath = classpath.toList(),
-        moduleDisplayName = moduleNameOrDefault(),
-        displayName = displayNameOrDefault(),
-        sourceSetID = sourceSetID,
-        sourceRoots = sourceRoots.toSet(),
-        dependentSourceSets = dependentSourceSets.getSafe().toSet(),
-        samples = samples.toSet(),
-        includes = includes.toSet(),
-        includeNonPublic = includeNonPublic.getSafe(),
-        reportUndocumented = reportUndocumented.getSafe(),
-        skipEmptyPackages = skipEmptyPackages.getSafe(),
-        skipDeprecated = skipDeprecated.getSafe(),
-        jdkVersion = jdkVersion.getSafe(),
-        sourceLinks = sourceLinks.getSafe().build().toSet(),
-        perPackageOptions = perPackageOptions.getSafe().build(),
-        externalDocumentationLinks = externalDocumentationLinksWithDefaults(),
-        languageVersion = languageVersion.getSafe(),
-        apiVersion = apiVersion.getSafe(),
-        noStdlibLink = noStdlibLink.getSafe(),
-        noJdkLink = noJdkLink.getSafe(),
-        suppressedFiles = suppressedFilesWithDefaults(),
-        analysisPlatform = platform.getSafe()
-    )
-}
+internal fun GradleDokkaSourceSetBuilder.toDokkaSourceSetImpl(): DokkaSourceSetImpl = DokkaSourceSetImpl(
+    classpath = classpath.toList(),
+    moduleDisplayName = moduleNameOrDefault(),
+    displayName = displayNameOrDefault(),
+    sourceSetID = sourceSetID,
+    sourceRoots = sourceRoots.toSet(),
+    dependentSourceSets = dependentSourceSets.getSafe().toSet(),
+    samples = samples.toSet(),
+    includes = includes.toSet(),
+    includeNonPublic = includeNonPublic.getSafe(),
+    reportUndocumented = reportUndocumented.getSafe(),
+    skipEmptyPackages = skipEmptyPackages.getSafe(),
+    skipDeprecated = skipDeprecated.getSafe(),
+    jdkVersion = jdkVersion.getSafe(),
+    sourceLinks = sourceLinks.getSafe().build().toSet(),
+    perPackageOptions = perPackageOptions.getSafe().build(),
+    externalDocumentationLinks = externalDocumentationLinksWithDefaults(),
+    languageVersion = languageVersion.getSafe(),
+    apiVersion = apiVersion.getSafe(),
+    noStdlibLink = noStdlibLink.getSafe(),
+    noJdkLink = noJdkLink.getSafe(),
+    suppressedFiles = suppressedFilesWithDefaults(),
+    analysisPlatform = platform.getSafe()
+)
+
 
 private fun GradleDokkaSourceSetBuilder.moduleNameOrDefault(): String {
     return moduleDisplayName.getSafe() ?: project.name

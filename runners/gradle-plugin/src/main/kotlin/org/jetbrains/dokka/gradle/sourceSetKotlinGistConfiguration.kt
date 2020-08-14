@@ -1,5 +1,3 @@
-@file:Suppress("UnstableApiUsage")
-
 package org.jetbrains.dokka.gradle
 
 import org.jetbrains.dokka.Platform
