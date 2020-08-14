@@ -13,6 +13,6 @@ enum class RecognizedLinkFormat(override val formatName: String, override val li
 
     companion object {
         fun fromString(formatName: String) =
-            values().asSequence().filter { it.formatName == formatName }.firstOrNull()
+            values().firstOrNull { it.formatName == formatName }
     }
 }
