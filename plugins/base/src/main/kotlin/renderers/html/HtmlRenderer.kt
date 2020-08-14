@@ -6,13 +6,11 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.html.*
 import kotlinx.html.stream.createHTML
 import org.jetbrains.dokka.DokkaSourceSetID
-import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.renderers.DefaultRenderer
 import org.jetbrains.dokka.base.renderers.TabSortingStrategy
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.DisplaySourceSet
-import org.jetbrains.dokka.model.dfs
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.model.sourceSetIDs
 import org.jetbrains.dokka.model.withDescendants
@@ -557,7 +555,7 @@ open class HtmlRenderer(
         from: PageNode? = null,
         block: FlowContent.() -> Unit
     ) = locationProvider.resolve(to, platforms.toSet(), from)?.let { buildLink(it, block) }
-        ?: run { context.logger.error("Cannot resolve path for $to"); block() }
+        ?: run { context.logger.error("Cannot resolve path for `$to` from `$from`"); block() }
 
     override fun buildError(node: ContentNode) {
         context.logger.error("Unknown ContentNode type: $node")
@@ -574,7 +572,7 @@ open class HtmlRenderer(
     override fun FlowContent.buildDRILink(
         node: ContentDRILink,
         pageContext: ContentPage,
-        sourceSetRestriction: Set<DokkaSourceSet>?
+        sourceSetRestriction: Set<DisplaySourceSet>?
     ) = locationProvider.resolve(node.address, node.sourceSets, pageContext)?.let { address ->
         buildLink(address) {
             buildText(node.children, pageContext, sourceSetRestriction)
@@ -609,7 +607,7 @@ open class HtmlRenderer(
     override suspend fun renderPage(page: PageNode) {
         super.renderPage(page)
         if (page is ContentPage && page !is ModulePageNode && page !is PackagePageNode)
-            searchbarDataInstaller.processPage(page, locationProvider.resolve(page) ?: context.logger.error("Cannot resolve path for ${page.dri}"))
+            searchbarDataInstaller.processPage(page, locationProvider.resolve(page) ?: run { context.logger.error("Cannot resolve path for ${page.dri}"); ""})
     }
 
     override fun FlowContent.buildText(textNode: ContentText) =

@@ -15,6 +15,8 @@ class JavadocExternalLocationProvider(
 
     override fun resolve(dri: DRI): String? {
         val docURL = externalDocumentation.documentationURL.toString().removeSuffix("/") + "/"
+        externalDocumentation.packageList.locations[dri.toString()]?.let { path -> return "$docURL$path" }
+
         val packageLink = dri.packageName?.replace(".", "/")
         if (dri.classNames == null) {
             return "$docURL$packageLink/package-summary$extension".htmlEscape()
