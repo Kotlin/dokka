@@ -145,10 +145,6 @@ open class GradleDokkaSourceSetBuilder constructor(
         dependentSourceSets.add(sourceSetID)
     }
 
-    fun kotlinSourceSet(kotlinSourceSet: KotlinSourceSet) {
-        configureWithKotlinSourceSet(kotlinSourceSet)
-    }
-
     fun sourceRoot(file: File) {
         sourceRoots.from(file)
     }
@@ -215,4 +211,8 @@ fun GradleDokkaSourceSetBuilder.dependsOn(sourceSet: KotlinSourceSet) {
 
 fun GradleDokkaSourceSetBuilder.dependsOn(sourceSet: AndroidSourceSet) {
     dependsOn(DokkaSourceSetID(sourceSet.name))
+}
+
+fun GradleDokkaSourceSetBuilder.kotlinSourceSet(kotlinSourceSet: KotlinSourceSet) {
+    configureWithKotlinSourceSet(kotlinSourceSet)
 }
