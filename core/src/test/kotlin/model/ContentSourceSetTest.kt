@@ -19,17 +19,17 @@ class ContentSourceSetTest {
         )
 
         assertFalse(
-            DokkaSourceSetID("m3", "s3") in contentSourceSet,
+            DokkaSourceSetID("m3", "s3") in contentSourceSet.sourceSetIDs,
             "Expected source set id not being contained in content source set"
         )
 
         assertTrue(
-            DokkaSourceSetID("m1", "s1") in contentSourceSet,
+            DokkaSourceSetID("m1", "s1") in contentSourceSet.sourceSetIDs,
             "Expected source set id being contained in content source set"
         )
 
         assertTrue(
-            DokkaSourceSetID("m1+m2", "s1+s2") in contentSourceSet,
+            DokkaSourceSetID("m1+m2", "s1+s2") in contentSourceSet.sourceSetIDs,
             "Expected merged source set being contained in content source set"
         )
     }
