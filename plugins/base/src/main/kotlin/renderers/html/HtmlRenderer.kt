@@ -220,7 +220,7 @@ open class HtmlRenderer(
         return nodes.toList().map { (sourceSet, elements) ->
             sourceSet to createHTML(prettyPrint = false).div {
                 elements.forEach {
-                    buildContentNode(it, pageContext, setOf(sourceSet))
+                    buildContentNode(it, pageContext, sourceSet.toSet())
                 }
             }.stripDiv()
         }.groupBy(
@@ -248,13 +248,13 @@ open class HtmlRenderer(
             node.groupDivergentInstances(pageContext, { instance, contentPage, sourceSet ->
                 createHTML(prettyPrint = false).div {
                     instance.before?.let { before ->
-                        buildContentNode(before, pageContext, setOf(sourceSet))
+                        buildContentNode(before, pageContext, sourceSet)
                     }
                 }.stripDiv()
             }, { instance, contentPage, sourceSet ->
                 createHTML(prettyPrint = false).div {
                     instance.after?.let { after ->
-                        buildContentNode(after, pageContext, setOf(sourceSet))
+                        buildContentNode(after, pageContext, sourceSet)
                     }
                 }.stripDiv()
             })

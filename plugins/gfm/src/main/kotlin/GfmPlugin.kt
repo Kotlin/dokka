@@ -246,11 +246,11 @@ open class CommonmarkRenderer(
         val distinct =
             node.groupDivergentInstances(pageContext, { instance, contentPage, sourceSet ->
                 instance.before?.let { before ->
-                    buildString { buildContentNode(before, pageContext, setOf(sourceSet)) }
+                    buildString { buildContentNode(before, pageContext, sourceSet) }
                 } ?: ""
             }, { instance, contentPage, sourceSet ->
                 instance.after?.let { after ->
-                    buildString { buildContentNode(after, pageContext, setOf(sourceSet)) }
+                    buildString { buildContentNode(after, pageContext, sourceSet) }
                 } ?: ""
             })
 
@@ -265,7 +265,7 @@ open class CommonmarkRenderer(
                 buildContentNode(
                     it,
                     pageContext,
-                    setOf(sourceSets.first())
+                    sourceSets.first()
                 ) // It's workaround to render content only once
                 buildNewLine()
             }
@@ -293,7 +293,7 @@ open class CommonmarkRenderer(
                 buildContentNode(
                     it,
                     pageContext,
-                    setOf(sourceSets.first())
+                    sourceSets.first()
                 ) // It's workaround to render content only once
                 buildNewLine()
             }
