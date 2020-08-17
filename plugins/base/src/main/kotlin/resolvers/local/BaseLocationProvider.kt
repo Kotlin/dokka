@@ -3,7 +3,7 @@ package org.jetbrains.dokka.base.resolvers.local
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.model.ContentSourceSet
+import org.jetbrains.dokka.model.DisplaySourceSet
 import org.jetbrains.dokka.model.sourceSetIDs
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
@@ -24,7 +24,7 @@ abstract class BaseLocationProvider(protected val dokkaContext: DokkaContext) : 
 
     protected fun getExternalLocation(
         dri: DRI,
-        sourceSets: Set<ContentSourceSet>
+        sourceSets: Set<DisplaySourceSet>
     ): String {
         val jdkToExternalDocumentationLinks = dokkaContext.configuration.sourceSets
             .filter { sourceSet -> sourceSet.sourceSetID in sourceSets.sourceSetIDs }

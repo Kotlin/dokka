@@ -7,7 +7,7 @@ import org.jetbrains.dokka.base.renderers.PackageListCreator
 import org.jetbrains.dokka.base.renderers.RootCreator
 import org.jetbrains.dokka.base.resolvers.local.DefaultLocationProvider
 import org.jetbrains.dokka.base.resolvers.local.LocationProviderFactory
-import org.jetbrains.dokka.model.ContentSourceSet
+import org.jetbrains.dokka.model.DisplaySourceSet
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.DokkaPlugin
@@ -85,7 +85,7 @@ open class CommonmarkRenderer(
     override fun StringBuilder.buildList(
         node: ContentList,
         pageContext: ContentPage,
-        sourceSetRestriction: Set<ContentSourceSet>?
+        sourceSetRestriction: Set<DisplaySourceSet>?
     ) {
         buildListLevel(node, pageContext)
     }
@@ -125,14 +125,14 @@ open class CommonmarkRenderer(
     override fun StringBuilder.buildPlatformDependent(
         content: PlatformHintedContent,
         pageContext: ContentPage,
-        sourceSetRestriction: Set<ContentSourceSet>?
+        sourceSetRestriction: Set<DisplaySourceSet>?
     ) {
         buildPlatformDependentItem(content.inner, content.sourceSets, pageContext)
     }
 
     private fun StringBuilder.buildPlatformDependentItem(
         content: ContentNode,
-        sourceSets: Set<ContentSourceSet>,
+        sourceSets: Set<DisplaySourceSet>,
         pageContext: ContentPage,
     ) {
         if (content is ContentGroup && content.children.firstOrNull { it is ContentTable } != null) {
@@ -140,7 +140,7 @@ open class CommonmarkRenderer(
         } else {
             val distinct = sourceSets.map {
                 it to buildString { buildContentNode(content, pageContext, setOf(it)) }
-            }.groupBy(Pair<ContentSourceSet, String>::second, Pair<ContentSourceSet, String>::first)
+            }.groupBy(Pair<DisplaySourceSet, String>::second, Pair<DisplaySourceSet, String>::first)
 
             distinct.filter { it.key.isNotBlank() }.forEach { (text, platforms) ->
                 append(" ")
@@ -158,12 +158,12 @@ open class CommonmarkRenderer(
     override fun StringBuilder.buildTable(
         node: ContentTable,
         pageContext: ContentPage,
-        sourceSetRestriction: Set<ContentSourceSet>?
+        sourceSetRestriction: Set<DisplaySourceSet>?
     ) {
         buildNewLine()
         if (node.dci.kind == ContentKind.Sample || node.dci.kind == ContentKind.Parameters) {
             node.sourceSets.forEach { sourcesetData ->
-                append(sourcesetData.displayName)
+                append(sourcesetData.name)
                 buildNewLine()
                 buildTable(
                     node.copy(
@@ -340,11 +340,11 @@ open class CommonmarkRenderer(
 
     private fun String.withEntersAsHtml(): String = replace("\n", "<br>")
 
-    private fun List<Pair<ContentDivergentInstance, ContentSourceSet>>.getInstanceAndSourceSets() =
+    private fun List<Pair<ContentDivergentInstance, DisplaySourceSet>>.getInstanceAndSourceSets() =
         this.let { Pair(it.first().first, it.map { it.second }.toSet()) }
 
-    private fun StringBuilder.buildSourceSetTags(sourceSets: Set<ContentSourceSet>) =
-        append(sourceSets.joinToString(prefix = "[", postfix = "]") { it.displayName })
+    private fun StringBuilder.buildSourceSetTags(sourceSets: Set<DisplaySourceSet>) =
+        append(sourceSets.joinToString(prefix = "[", postfix = "]") { it.name })
 }
 
 class MarkdownLocationProviderFactory(val context: DokkaContext) : LocationProviderFactory {

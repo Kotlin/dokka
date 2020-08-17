@@ -1,7 +1,7 @@
 package org.jetbrains.dokka.pages
 
 import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.model.ContentSourceSet
+import org.jetbrains.dokka.model.DisplaySourceSet
 import org.jetbrains.dokka.model.WithChildren
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.model.properties.WithExtraProperties
@@ -12,12 +12,12 @@ data class DCI(val dri: Set<DRI>, val kind: Kind) {
 
 interface ContentNode : WithExtraProperties<ContentNode>, WithChildren<ContentNode> {
     val dci: DCI
-    val sourceSets: Set<ContentSourceSet>
+    val sourceSets: Set<DisplaySourceSet>
     val style: Set<Style>
 
     fun hasAnyContent(): Boolean
 
-    fun withSourceSets(sourceSets: Set<ContentSourceSet>): ContentNode
+    fun withSourceSets(sourceSets: Set<DisplaySourceSet>): ContentNode
 
     override val children: List<ContentNode>
         get() = emptyList()
@@ -27,24 +27,24 @@ interface ContentNode : WithExtraProperties<ContentNode>, WithChildren<ContentNo
 data class ContentText(
     val text: String,
     override val dci: DCI,
-    override val sourceSets: Set<ContentSourceSet>,
+    override val sourceSets: Set<DisplaySourceSet>,
     override val style: Set<Style> = emptySet(),
     override val extra: PropertyContainer<ContentNode> = PropertyContainer.empty()
 ) : ContentNode {
     override fun withNewExtras(newExtras: PropertyContainer<ContentNode>): ContentText = copy(extra = newExtras)
-    override fun withSourceSets(sourceSets: Set<ContentSourceSet>): ContentText = copy(sourceSets = sourceSets)
+    override fun withSourceSets(sourceSets: Set<DisplaySourceSet>): ContentText = copy(sourceSets = sourceSets)
     override fun hasAnyContent(): Boolean = !text.isBlank()
 }
 
 // TODO: Remove
 data class ContentBreakLine(
-    override val sourceSets: Set<ContentSourceSet>,
+    override val sourceSets: Set<DisplaySourceSet>,
     override val dci: DCI = DCI(emptySet(), ContentKind.Empty),
     override val style: Set<Style> = emptySet(),
     override val extra: PropertyContainer<ContentNode> = PropertyContainer.empty()
 ) : ContentNode {
     override fun withNewExtras(newExtras: PropertyContainer<ContentNode>): ContentBreakLine = copy(extra = newExtras)
-    override fun withSourceSets(sourceSets: Set<ContentSourceSet>): ContentBreakLine = copy(sourceSets = sourceSets)
+    override fun withSourceSets(sourceSets: Set<DisplaySourceSet>): ContentBreakLine = copy(sourceSets = sourceSets)
     override fun hasAnyContent(): Boolean = true
 }
 
@@ -53,7 +53,7 @@ data class ContentHeader(
     override val children: List<ContentNode>,
     val level: Int,
     override val dci: DCI,
-    override val sourceSets: Set<ContentSourceSet>,
+    override val sourceSets: Set<DisplaySourceSet>,
     override val style: Set<Style>,
     override val extra: PropertyContainer<ContentNode> = PropertyContainer.empty()
 ) : ContentComposite {
@@ -64,7 +64,7 @@ data class ContentHeader(
     override fun transformChildren(transformer: (ContentNode) -> ContentNode): ContentHeader =
         copy(children = children.map(transformer))
 
-    override fun withSourceSets(sourceSets: Set<ContentSourceSet>): ContentHeader =
+    override fun withSourceSets(sourceSets: Set<DisplaySourceSet>): ContentHeader =
         copy(sourceSets = sourceSets)
 }
 
@@ -75,7 +75,7 @@ data class ContentCodeBlock(
     override val children: List<ContentNode>,
     val language: String,
     override val dci: DCI,
-    override val sourceSets: Set<ContentSourceSet>,
+    override val sourceSets: Set<DisplaySourceSet>,
     override val style: Set<Style>,
     override val extra: PropertyContainer<ContentNode> = PropertyContainer.empty()
 ) : ContentCode {
@@ -84,7 +84,7 @@ data class ContentCodeBlock(
     override fun transformChildren(transformer: (ContentNode) -> ContentNode): ContentCodeBlock =
         copy(children = children.map(transformer))
 
-    override fun withSourceSets(sourceSets: Set<ContentSourceSet>): ContentCodeBlock =
+    override fun withSourceSets(sourceSets: Set<DisplaySourceSet>): ContentCodeBlock =
         copy(sourceSets = sourceSets)
 
 }
@@ -93,7 +93,7 @@ data class ContentCodeInline(
     override val children: List<ContentNode>,
     val language: String,
     override val dci: DCI,
-    override val sourceSets: Set<ContentSourceSet>,
+    override val sourceSets: Set<DisplaySourceSet>,
     override val style: Set<Style>,
     override val extra: PropertyContainer<ContentNode> = PropertyContainer.empty()
 ) : ContentCode {
@@ -102,7 +102,7 @@ data class ContentCodeInline(
     override fun transformChildren(transformer: (ContentNode) -> ContentNode): ContentCodeInline =
         copy(children = children.map(transformer))
 
-    override fun withSourceSets(sourceSets: Set<ContentSourceSet>): ContentCodeInline =
+    override fun withSourceSets(sourceSets: Set<DisplaySourceSet>): ContentCodeInline =
         copy(sourceSets = sourceSets)
 
 }
@@ -115,7 +115,7 @@ data class ContentDRILink(
     override val children: List<ContentNode>,
     val address: DRI,
     override val dci: DCI,
-    override val sourceSets: Set<ContentSourceSet>,
+    override val sourceSets: Set<DisplaySourceSet>,
     override val style: Set<Style> = emptySet(),
     override val extra: PropertyContainer<ContentNode> = PropertyContainer.empty()
 ) : ContentLink {
@@ -124,7 +124,7 @@ data class ContentDRILink(
     override fun transformChildren(transformer: (ContentNode) -> ContentNode): ContentDRILink =
         copy(children = children.map(transformer))
 
-    override fun withSourceSets(sourceSets: Set<ContentSourceSet>): ContentDRILink =
+    override fun withSourceSets(sourceSets: Set<DisplaySourceSet>): ContentDRILink =
         copy(sourceSets = sourceSets)
 
 }
@@ -134,7 +134,7 @@ data class ContentResolvedLink(
     override val children: List<ContentNode>,
     val address: String,
     override val dci: DCI,
-    override val sourceSets: Set<ContentSourceSet>,
+    override val sourceSets: Set<DisplaySourceSet>,
     override val style: Set<Style> = emptySet(),
     override val extra: PropertyContainer<ContentNode> = PropertyContainer.empty()
 ) : ContentLink {
@@ -144,7 +144,7 @@ data class ContentResolvedLink(
     override fun transformChildren(transformer: (ContentNode) -> ContentNode): ContentResolvedLink =
         copy(children = children.map(transformer))
 
-    override fun withSourceSets(sourceSets: Set<ContentSourceSet>): ContentResolvedLink =
+    override fun withSourceSets(sourceSets: Set<DisplaySourceSet>): ContentResolvedLink =
         copy(sourceSets = sourceSets)
 }
 
@@ -154,7 +154,7 @@ data class ContentEmbeddedResource(
     val address: String,
     val altText: String?,
     override val dci: DCI,
-    override val sourceSets: Set<ContentSourceSet>,
+    override val sourceSets: Set<DisplaySourceSet>,
     override val style: Set<Style> = emptySet(),
     override val extra: PropertyContainer<ContentNode> = PropertyContainer.empty()
 ) : ContentLink {
@@ -164,7 +164,7 @@ data class ContentEmbeddedResource(
     override fun transformChildren(transformer: (ContentNode) -> ContentNode): ContentEmbeddedResource =
         copy(children = children.map(transformer))
 
-    override fun withSourceSets(sourceSets: Set<ContentSourceSet>): ContentEmbeddedResource =
+    override fun withSourceSets(sourceSets: Set<DisplaySourceSet>): ContentEmbeddedResource =
         copy(sourceSets = sourceSets)
 }
 
@@ -172,7 +172,7 @@ data class ContentEmbeddedResource(
 interface ContentComposite : ContentNode {
     override val children: List<ContentNode> // overwrite to make it abstract once again
 
-    override val sourceSets: Set<ContentSourceSet> get() = children.flatMap { it.sourceSets }.toSet()
+    override val sourceSets: Set<DisplaySourceSet> get() = children.flatMap { it.sourceSets }.toSet()
 
     fun transformChildren(transformer: (ContentNode) -> ContentNode): ContentComposite
 
@@ -184,7 +184,7 @@ data class ContentTable(
     val header: List<ContentGroup>,
     override val children: List<ContentGroup>,
     override val dci: DCI,
-    override val sourceSets: Set<ContentSourceSet>,
+    override val sourceSets: Set<DisplaySourceSet>,
     override val style: Set<Style>,
     override val extra: PropertyContainer<ContentNode> = PropertyContainer.empty()
 ) : ContentComposite {
@@ -193,7 +193,7 @@ data class ContentTable(
     override fun transformChildren(transformer: (ContentNode) -> ContentNode): ContentTable =
         copy(children = children.map(transformer).map { it as ContentGroup })
 
-    override fun withSourceSets(sourceSets: Set<ContentSourceSet>): ContentTable =
+    override fun withSourceSets(sourceSets: Set<DisplaySourceSet>): ContentTable =
         copy(sourceSets = sourceSets)
 
 }
@@ -203,7 +203,7 @@ data class ContentList(
     override val children: List<ContentNode>,
     val ordered: Boolean,
     override val dci: DCI,
-    override val sourceSets: Set<ContentSourceSet>,
+    override val sourceSets: Set<DisplaySourceSet>,
     override val style: Set<Style>,
     override val extra: PropertyContainer<ContentNode> = PropertyContainer.empty()
 ) : ContentComposite {
@@ -212,7 +212,7 @@ data class ContentList(
     override fun transformChildren(transformer: (ContentNode) -> ContentNode): ContentList =
         copy(children = children.map(transformer))
 
-    override fun withSourceSets(sourceSets: Set<ContentSourceSet>): ContentList =
+    override fun withSourceSets(sourceSets: Set<DisplaySourceSet>): ContentList =
         copy(sourceSets = sourceSets)
 }
 
@@ -220,7 +220,7 @@ data class ContentList(
 data class ContentGroup(
     override val children: List<ContentNode>,
     override val dci: DCI,
-    override val sourceSets: Set<ContentSourceSet>,
+    override val sourceSets: Set<DisplaySourceSet>,
     override val style: Set<Style>,
     override val extra: PropertyContainer<ContentNode> = PropertyContainer.empty()
 ) : ContentComposite {
@@ -229,7 +229,7 @@ data class ContentGroup(
     override fun transformChildren(transformer: (ContentNode) -> ContentNode): ContentGroup =
         copy(children = children.map(transformer))
 
-    override fun withSourceSets(sourceSets: Set<ContentSourceSet>): ContentGroup =
+    override fun withSourceSets(sourceSets: Set<DisplaySourceSet>): ContentGroup =
         copy(sourceSets = sourceSets)
 }
 
@@ -246,7 +246,7 @@ data class ContentDivergentGroup(
 ) : ContentComposite {
     data class GroupID(val name: String)
 
-    override val sourceSets: Set<ContentSourceSet>
+    override val sourceSets: Set<DisplaySourceSet>
         get() = children.flatMap { it.sourceSets }.distinct().toSet()
 
     override fun withNewExtras(newExtras: PropertyContainer<ContentNode>): ContentDivergentGroup =
@@ -256,7 +256,7 @@ data class ContentDivergentGroup(
         copy(children = children.map(transformer).map { it as ContentDivergentInstance })
 
     // TODO NOW?
-    override fun withSourceSets(sourceSets: Set<ContentSourceSet>): ContentDivergentGroup = this
+    override fun withSourceSets(sourceSets: Set<DisplaySourceSet>): ContentDivergentGroup = this
 }
 
 /** Instance of a divergent content */
@@ -265,7 +265,7 @@ data class ContentDivergentInstance(
     val divergent: ContentNode,
     val after: ContentNode?,
     override val dci: DCI,
-    override val sourceSets: Set<ContentSourceSet>,
+    override val sourceSets: Set<DisplaySourceSet>,
     override val style: Set<Style>,
     override val extra: PropertyContainer<ContentNode> = PropertyContainer.empty()
 ) : ContentComposite {
@@ -282,14 +282,14 @@ data class ContentDivergentInstance(
             after = after?.let(transformer)
         )
 
-    override fun withSourceSets(sourceSets: Set<ContentSourceSet>): ContentDivergentInstance =
+    override fun withSourceSets(sourceSets: Set<DisplaySourceSet>): ContentDivergentInstance =
         copy(sourceSets = sourceSets)
 
 }
 
 data class PlatformHintedContent(
     val inner: ContentNode,
-    override val sourceSets: Set<ContentSourceSet>
+    override val sourceSets: Set<DisplaySourceSet>
 ) : ContentComposite {
     override val children = listOf(inner)
 
@@ -308,7 +308,7 @@ data class PlatformHintedContent(
     override fun transformChildren(transformer: (ContentNode) -> ContentNode): PlatformHintedContent =
         copy(inner = transformer(inner))
 
-    override fun withSourceSets(sourceSets: Set<ContentSourceSet>): PlatformHintedContent =
+    override fun withSourceSets(sourceSets: Set<DisplaySourceSet>): PlatformHintedContent =
         copy(sourceSets = sourceSets)
 
 }

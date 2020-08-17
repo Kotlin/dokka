@@ -1,7 +1,7 @@
 package org.jetbrains.dokka.javadoc.pages
 
 import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.model.ContentSourceSet
+import org.jetbrains.dokka.model.DisplaySourceSet
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.pages.*
 
@@ -12,7 +12,7 @@ enum class JavadocContentKind : Kind {
 abstract class JavadocContentNode(
     dri: Set<DRI>,
     kind: Kind,
-    override val sourceSets: Set<ContentSourceSet>
+    override val sourceSets: Set<DisplaySourceSet>
 ) : ContentNode {
     override val dci: DCI = DCI(dri, kind)
     override val style: Set<Style> = emptySet()
@@ -33,7 +33,7 @@ interface JavadocListEntry {
 data class EmptyNode(
     val dri: DRI,
     val kind: Kind,
-    override val sourceSets: Set<ContentSourceSet>,
+    override val sourceSets: Set<DisplaySourceSet>,
     override val extra: PropertyContainer<ContentNode> = PropertyContainer.empty()
 ) : ContentNode {
     override val dci: DCI = DCI(setOf(dri), kind)
@@ -41,7 +41,7 @@ data class EmptyNode(
 
     override fun withNewExtras(newExtras: PropertyContainer<ContentNode>): EmptyNode = copy(extra = newExtras)
 
-    override fun withSourceSets(sourceSets: Set<ContentSourceSet>): EmptyNode =
+    override fun withSourceSets(sourceSets: Set<DisplaySourceSet>): EmptyNode =
         copy(sourceSets = sourceSets)
 
     override fun hasAnyContent(): Boolean = false
@@ -50,7 +50,7 @@ data class EmptyNode(
 data class JavadocContentGroup(
     val dri: Set<DRI>,
     val kind: Kind,
-    override val sourceSets: Set<ContentSourceSet>,
+    override val sourceSets: Set<DisplaySourceSet>,
     override val children: List<JavadocContentNode>
 ) : JavadocContentNode(dri, kind, sourceSets) {
 
@@ -58,7 +58,7 @@ data class JavadocContentGroup(
         operator fun invoke(
             dri: Set<DRI>,
             kind: Kind,
-            sourceSets: Set<ContentSourceSet>,
+            sourceSets: Set<DisplaySourceSet>,
             block: JavaContentGroupBuilder.() -> Unit
         ): JavadocContentGroup =
             JavadocContentGroup(dri, kind, sourceSets, JavaContentGroupBuilder(sourceSets).apply(block).list)
@@ -68,11 +68,11 @@ data class JavadocContentGroup(
 
     override fun withNewExtras(newExtras: PropertyContainer<ContentNode>): JavadocContentGroup = this
 
-    override fun withSourceSets(sourceSets: Set<ContentSourceSet>): JavadocContentGroup =
+    override fun withSourceSets(sourceSets: Set<DisplaySourceSet>): JavadocContentGroup =
         copy(sourceSets = sourceSets)
 }
 
-class JavaContentGroupBuilder(val sourceSets: Set<ContentSourceSet>) {
+class JavaContentGroupBuilder(val sourceSets: Set<DisplaySourceSet>) {
     val list = mutableListOf<JavadocContentNode>()
 }
 
@@ -83,13 +83,13 @@ data class TitleNode(
     val parent: String?,
     val dri: Set<DRI>,
     val kind: Kind,
-    override val sourceSets: Set<ContentSourceSet>
+    override val sourceSets: Set<DisplaySourceSet>
 ) : JavadocContentNode(dri, kind, sourceSets) {
     override fun hasAnyContent(): Boolean = !title.isBlank() || !version.isBlank() || subtitle.isNotEmpty()
 
     override fun withNewExtras(newExtras: PropertyContainer<ContentNode>): TitleNode = this
 
-    override fun withSourceSets(sourceSets: Set<ContentSourceSet>): TitleNode =
+    override fun withSourceSets(sourceSets: Set<DisplaySourceSet>): TitleNode =
         copy(sourceSets = sourceSets)
 }
 
@@ -108,12 +108,12 @@ data class RootListNode(
     val entries: List<LeafListNode>,
     val dri: Set<DRI>,
     val kind: Kind,
-    override val sourceSets: Set<ContentSourceSet>,
+    override val sourceSets: Set<DisplaySourceSet>,
 ) : JavadocContentNode(dri, kind, sourceSets) {
     override fun hasAnyContent(): Boolean = children.isNotEmpty()
 
 
-    override fun withSourceSets(sourceSets: Set<ContentSourceSet>): RootListNode =
+    override fun withSourceSets(sourceSets: Set<DisplaySourceSet>): RootListNode =
         copy(sourceSets = sourceSets)
 }
 
@@ -123,11 +123,11 @@ data class LeafListNode(
     val entries: List<JavadocListEntry>,
     val dri: Set<DRI>,
     val kind: Kind,
-    override val sourceSets: Set<ContentSourceSet>
+    override val sourceSets: Set<DisplaySourceSet>
 ) : JavadocContentNode(dri, kind, sourceSets) {
     override fun hasAnyContent(): Boolean = children.isNotEmpty()
 
-    override fun withSourceSets(sourceSets: Set<ContentSourceSet>): LeafListNode = copy(sourceSets = sourceSets)
+    override fun withSourceSets(sourceSets: Set<DisplaySourceSet>): LeafListNode = copy(sourceSets = sourceSets)
 }
 
 
@@ -160,7 +160,7 @@ class LinkJavadocListEntry(
     val name: String,
     val dri: Set<DRI>,
     val kind: Kind = ContentKind.Symbol,
-    val sourceSets: Set<ContentSourceSet>
+    val sourceSets: Set<DisplaySourceSet>
 ) :
     JavadocListEntry {
     override val stringTag: String
@@ -170,7 +170,7 @@ class LinkJavadocListEntry(
 
     private var builtString: String? = null
 
-    fun build(body: (String, Set<DRI>, Kind, List<ContentSourceSet>) -> String) {
+    fun build(body: (String, Set<DRI>, Kind, List<DisplaySourceSet>) -> String) {
         builtString = body(name, dri, kind, sourceSets.toList())
     }
 }
@@ -189,7 +189,7 @@ data class JavadocSignatureContentNode(
 ) : JavadocContentNode(setOf(dri), kind, signatureWithoutModifiers.sourceSets) {
     override fun hasAnyContent(): Boolean = true
 
-    override fun withSourceSets(sourceSets: Set<ContentSourceSet>): JavadocSignatureContentNode {
+    override fun withSourceSets(sourceSets: Set<DisplaySourceSet>): JavadocSignatureContentNode {
         return copy(signatureWithoutModifiers = signatureWithoutModifiers.withSourceSets(sourceSets))
     }
 }

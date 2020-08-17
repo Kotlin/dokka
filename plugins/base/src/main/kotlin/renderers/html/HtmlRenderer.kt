@@ -11,7 +11,7 @@ import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.renderers.DefaultRenderer
 import org.jetbrains.dokka.base.renderers.TabSortingStrategy
 import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.model.ContentSourceSet
+import org.jetbrains.dokka.model.DisplaySourceSet
 import org.jetbrains.dokka.model.dfs
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.model.sourceSetIDs
@@ -116,13 +116,13 @@ open class HtmlRenderer(
                     button(classes = "platform-tag platform-selector") {
                         attributes["data-active"] = ""
                         attributes["data-filter"] = it.sourceSetIDs.merged.toString()
-                        when (it.analysisPlatform.key) {
+                        when (it.platform.key) {
                             "common" -> classes = classes + "common-like"
                             "native" -> classes = classes + "native-like"
                             "jvm" -> classes = classes + "jvm-like"
                             "js" -> classes = classes + "js-like"
                         }
-                        text(it.displayName)
+                        text(it.name)
                     }
                 }
             }
@@ -161,7 +161,7 @@ open class HtmlRenderer(
     override fun FlowContent.buildPlatformDependent(
         content: PlatformHintedContent,
         pageContext: ContentPage,
-        sourceSetRestriction: Set<ContentSourceSet>?
+        sourceSetRestriction: Set<DisplaySourceSet>?
     ) =
         buildPlatformDependent(
             content.sourceSets.filter {
@@ -173,7 +173,7 @@ open class HtmlRenderer(
         )
 
     private fun FlowContent.buildPlatformDependent(
-        nodes: Map<ContentSourceSet, Collection<ContentNode>>,
+        nodes: Map<DisplaySourceSet, Collection<ContentNode>>,
         pageContext: ContentPage,
         extra: PropertyContainer<ContentNode> = PropertyContainer.empty(),
         styles: Set<Style> = emptySet()
@@ -194,14 +194,14 @@ open class HtmlRenderer(
                             attributes["data-filterable-set"] = pair.first.sourceSetIDs.merged.toString()
                             if (index == 0) attributes["data-active"] = ""
                             attributes["data-toggle"] = pair.first.sourceSetIDs.merged.toString()
-                            when (pair.first.analysisPlatform.key) {
+                            when (pair.first.platform.key) {
                                 "common" -> classes = classes + "common-like"
                                 "native" -> classes = classes + "native-like"
                                 "jvm" -> classes = classes + "jvm-like"
                                 "js" -> classes = classes + "js-like"
                             }
                             attributes["data-toggle"] = pair.first.sourceSetIDs.merged.toString()
-                            text(pair.first.displayName)
+                            text(pair.first.name)
                         }
                     }
                 }
@@ -213,9 +213,9 @@ open class HtmlRenderer(
     }
 
     private fun contentsForSourceSetDependent(
-        nodes: Map<ContentSourceSet, Collection<ContentNode>>,
+        nodes: Map<DisplaySourceSet, Collection<ContentNode>>,
         pageContext: ContentPage,
-    ): List<Pair<ContentSourceSet, String>> {
+    ): List<Pair<DisplaySourceSet, String>> {
         var counter = 0
         return nodes.toList().map { (sourceSet, elements) ->
             sourceSet to createHTML(prettyPrint = false).div {
@@ -224,8 +224,8 @@ open class HtmlRenderer(
                 }
             }.stripDiv()
         }.groupBy(
-            Pair<ContentSourceSet, String>::second,
-            Pair<ContentSourceSet, String>::first
+            Pair<DisplaySourceSet, String>::second,
+            Pair<DisplaySourceSet, String>::first
         ).entries.flatMap { (html, sourceSets) ->
             sourceSets.filterNot { sourceSet ->
                 sourceSet.sourceSetIDs.all.flatMap { sourceSetDependencyMap[it].orEmpty() }
@@ -314,14 +314,14 @@ open class HtmlRenderer(
     override fun FlowContent.buildList(
         node: ContentList,
         pageContext: ContentPage,
-        sourceSetRestriction: Set<ContentSourceSet>?
+        sourceSetRestriction: Set<DisplaySourceSet>?
     ) = if (node.ordered) ol { buildListItems(node.children, pageContext, sourceSetRestriction) }
     else ul { buildListItems(node.children, pageContext, sourceSetRestriction) }
 
     open fun OL.buildListItems(
         items: List<ContentNode>,
         pageContext: ContentPage,
-        sourceSetRestriction: Set<ContentSourceSet>? = null
+        sourceSetRestriction: Set<DisplaySourceSet>? = null
     ) {
         items.forEach {
             if (it is ContentList)
@@ -334,7 +334,7 @@ open class HtmlRenderer(
     open fun UL.buildListItems(
         items: List<ContentNode>,
         pageContext: ContentPage,
-        sourceSetRestriction: Set<ContentSourceSet>? = null
+        sourceSetRestriction: Set<DisplaySourceSet>? = null
     ) {
         items.forEach {
             if (it is ContentList)
@@ -361,7 +361,7 @@ open class HtmlRenderer(
     private fun FlowContent.buildRow(
         node: ContentGroup,
         pageContext: ContentPage,
-        sourceSetRestriction: Set<ContentSourceSet>?,
+        sourceSetRestriction: Set<DisplaySourceSet>?,
         style: Set<Style>
     ) {
         node.children
@@ -414,18 +414,18 @@ open class HtmlRenderer(
             }
     }
 
-    private fun FlowContent.createPlatformTagBubbles(sourceSets: List<ContentSourceSet>) {
+    private fun FlowContent.createPlatformTagBubbles(sourceSets: List<DisplaySourceSet>) {
         if (shouldRenderSourceSetBubbles) {
             div("platform-tags") {
                 sourceSets.forEach {
                     div("platform-tag") {
-                        when (it.analysisPlatform.key) {
+                        when (it.platform.key) {
                             "common" -> classes = classes + "common-like"
                             "native" -> classes = classes + "native-like"
                             "jvm" -> classes = classes + "jvm-like"
                             "js" -> classes = classes + "js-like"
                         }
-                        text(it.displayName)
+                        text(it.name)
                     }
                 }
             }
@@ -434,7 +434,7 @@ open class HtmlRenderer(
 
     private fun FlowContent.createPlatformTags(
         node: ContentNode,
-        sourceSetRestriction: Set<ContentSourceSet>? = null
+        sourceSetRestriction: Set<DisplaySourceSet>? = null
     ) {
         node.takeIf { sourceSetRestriction == null || it.sourceSets.any { s -> s in sourceSetRestriction } }?.let {
             createPlatformTagBubbles(node.sourceSets.filter {
@@ -446,7 +446,7 @@ open class HtmlRenderer(
     override fun FlowContent.buildTable(
         node: ContentTable,
         pageContext: ContentPage,
-        sourceSetRestriction: Set<ContentSourceSet>?
+        sourceSetRestriction: Set<DisplaySourceSet>?
     ) {
         when (node.dci.kind) {
             ContentKind.Comment -> buildDefaultTable(node, pageContext, sourceSetRestriction)
@@ -463,7 +463,7 @@ open class HtmlRenderer(
     fun FlowContent.buildDefaultTable(
         node: ContentTable,
         pageContext: ContentPage,
-        sourceSetRestriction: Set<ContentSourceSet>?
+        sourceSetRestriction: Set<DisplaySourceSet>?
     ) {
         table {
             thead {
@@ -548,7 +548,7 @@ open class HtmlRenderer(
 
     fun FlowContent.buildLink(
         to: DRI,
-        platforms: List<ContentSourceSet>,
+        platforms: List<DisplaySourceSet>,
         from: PageNode? = null,
         block: FlowContent.() -> Unit
     ) = buildLink(locationProvider.resolve(to, platforms.toSet(), from), block)
@@ -588,7 +588,7 @@ open class HtmlRenderer(
     private fun getSymbolSignature(page: ContentPage) = page.content.dfs { it.dci.kind == ContentKind.Symbol }
 
     private fun flattenToText(node: ContentNode): String {
-        fun getContentTextNodes(node: ContentNode, sourceSetRestriction: ContentSourceSet): List<ContentText> =
+        fun getContentTextNodes(node: ContentNode, sourceSetRestriction: DisplaySourceSet): List<ContentText> =
             when (node) {
                 is ContentText -> listOf(node)
                 is ContentComposite -> node.children
@@ -600,7 +600,7 @@ open class HtmlRenderer(
             }
 
         val sourceSetRestriction =
-            node.sourceSets.find { it.analysisPlatform == Platform.common } ?: node.sourceSets.first()
+            node.sourceSets.find { it.platform == Platform.common } ?: node.sourceSets.first()
         return getContentTextNodes(node, sourceSetRestriction).joinToString("") { it.text }
     }
 

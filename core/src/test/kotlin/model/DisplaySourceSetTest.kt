@@ -3,19 +3,19 @@ package model
 import org.jetbrains.dokka.DokkaSourceSetID
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.model.CompositeSourceSetID
-import org.jetbrains.dokka.model.ContentSourceSet
+import org.jetbrains.dokka.model.DisplaySourceSet
 import org.jetbrains.dokka.model.sourceSetIDs
 import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-class ContentSourceSetTest {
+class DisplaySourceSetTest {
     @Test
     fun `contains sourceSetId`() {
-        val contentSourceSet = ContentSourceSet(
+        val contentSourceSet = DisplaySourceSet(
             sourceSetIDs = CompositeSourceSetID(listOf(DokkaSourceSetID("m1", "s1"), DokkaSourceSetID("m2", "s2"))),
-            displayName = "displayName",
-            analysisPlatform = Platform.common
+            name = "displayName",
+            platform = Platform.common
         )
 
         assertFalse(
@@ -37,10 +37,10 @@ class ContentSourceSetTest {
     @Test
     fun `Iterable contains sourceSetId`() {
 
-        val contentSourceSet = ContentSourceSet(
+        val contentSourceSet = DisplaySourceSet(
             sourceSetIDs = CompositeSourceSetID(listOf(DokkaSourceSetID("m1", "s1"), DokkaSourceSetID("m2", "s2"))),
-            displayName = "displayName",
-            analysisPlatform = Platform.common
+            name = "displayName",
+            platform = Platform.common
         )
 
         assertFalse(

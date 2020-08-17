@@ -75,7 +75,7 @@ open class JavadocPageCreator(
         JavadocContentGroup(
             setOf(m.dri),
             JavadocContentKind.OverviewSummary,
-            m.jvmSourceSets.toContentSourceSets()
+            m.jvmSourceSets.toDisplaySourceSets()
         ) {
             title(m.name, m.brief(), "0.0.1", dri = setOf(m.dri), kind = ContentKind.Main)
             leafList(setOf(m.dri),
@@ -94,7 +94,7 @@ open class JavadocPageCreator(
         JavadocContentGroup(
             setOf(p.dri),
             JavadocContentKind.PackageSummary,
-            p.jvmSourceSets.toContentSourceSets()
+            p.jvmSourceSets.toDisplaySourceSets()
         ) {
             title(p.name, p.brief(), "0.0.1", dri = setOf(p.dri), kind = ContentKind.Packages)
             val rootList = p.classlikes.groupBy { it::class }.map { (key, value) ->
@@ -125,7 +125,7 @@ open class JavadocPageCreator(
         JavadocContentGroup(
             setOf(c.dri),
             JavadocContentKind.Class,
-            c.jvmSourceSets.toContentSourceSets()
+            c.jvmSourceSets.toDisplaySourceSets()
         ) {
             title(
                 c.name.orEmpty(),
@@ -235,7 +235,7 @@ open class JavadocPageCreator(
                         sourceSets.toSet()
                     ),
                     dci = DCI(setOf(dri), JavadocContentKind.OverviewSummary),
-                    sourceSets = sourceSets.toContentSourceSets(),
+                    sourceSets = sourceSets.toDisplaySourceSets(),
                     style = emptySet(),
                     extra = PropertyContainer.empty()
                 )
