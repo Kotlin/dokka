@@ -9,7 +9,7 @@ import org.jetbrains.dokka.model.Documentable
 import org.jetbrains.dokka.model.SourceSetDependent
 import org.jetbrains.dokka.model.doc.DocTag
 import org.jetbrains.dokka.model.properties.PropertyContainer
-import org.jetbrains.dokka.model.toContentSourceSets
+import org.jetbrains.dokka.model.toDisplaySourceSets
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.utilities.DokkaLogger
 
@@ -74,7 +74,7 @@ open class PageContentBuilder(
         ) = ContentGroup(
             contents.toList(),
             DCI(mainDRI, kind),
-            sourceSets.toContentSourceSets(),
+            sourceSets.toDisplaySourceSets(),
             styles,
             extra
         )
@@ -154,7 +154,7 @@ open class PageContentBuilder(
                 defaultHeaders,
                 operation(),
                 DCI(mainDRI, kind),
-                sourceSets.toContentSourceSets(), styles, extra
+                sourceSets.toDisplaySourceSets(), styles, extra
             )
         }
 
@@ -189,7 +189,7 @@ open class PageContentBuilder(
                             }
                         },
                     DCI(mainDRI, kind),
-                    sourceSets.toContentSourceSets(), styles, extra
+                    sourceSets.toDisplaySourceSets(), styles, extra
                 )
             }
         }
@@ -235,7 +235,7 @@ open class PageContentBuilder(
             listOf(createText(text, kind, sourceSets, styles, extra)),
             address,
             DCI(mainDRI, kind),
-            sourceSets.toContentSourceSets()
+            sourceSets.toDisplaySourceSets()
         )
 
         fun link(
@@ -251,7 +251,7 @@ open class PageContentBuilder(
                 address = address,
                 extra = PropertyContainer.empty(),
                 dci = DCI(mainDRI, kind),
-                sourceSets = sourceSets.toContentSourceSets(),
+                sourceSets = sourceSets.toDisplaySourceSets(),
                 style = emptySet()
             )
         }
@@ -268,7 +268,7 @@ open class PageContentBuilder(
                 contentFor(mainDRI, sourceSets, kind, styles, extra, block).children,
                 address,
                 DCI(mainDRI, kind),
-                sourceSets.toContentSourceSets()
+                sourceSets.toDisplaySourceSets()
             )
         }
 
@@ -284,7 +284,7 @@ open class PageContentBuilder(
                 DCI(mainDRI, kind),
                 sourceSets
             )
-            contents += ContentGroup(content, DCI(mainDRI, kind), sourceSets.toContentSourceSets(), styles, extra)
+            contents += ContentGroup(content, DCI(mainDRI, kind), sourceSets.toDisplaySourceSets(), styles, extra)
         }
 
         fun group(
@@ -332,7 +332,7 @@ open class PageContentBuilder(
         ) {
             contents += PlatformHintedContent(
                 buildGroup(dri, sourceSets, kind, styles, extra, block),
-                sourceSets.toContentSourceSets()
+                sourceSets.toDisplaySourceSets()
             )
         }
 
@@ -346,7 +346,7 @@ open class PageContentBuilder(
         ) {
             contents += PlatformHintedContent(
                 buildGroup(setOf(dri), sourcesetData, kind, styles, extra, block),
-                sourcesetData.toContentSourceSets()
+                sourcesetData.toDisplaySourceSets()
             )
         }
 
@@ -357,7 +357,7 @@ open class PageContentBuilder(
             styles: Set<Style>,
             extra: PropertyContainer<ContentNode>
         ) =
-            ContentText(text, DCI(mainDRI, kind), sourceSets.toContentSourceSets(), styles, extra)
+            ContentText(text, DCI(mainDRI, kind), sourceSets.toDisplaySourceSets(), styles, extra)
 
         fun <T> sourceSetDependentText(
             value: SourceSetDependent<T>,
@@ -467,7 +467,7 @@ open class PageContentBuilder(
                 divergent ?: throw IllegalStateException("Divergent block needs divergent part"),
                 after,
                 DCI(mainDRI, kind),
-                sourceSets.toContentSourceSets(),
+                sourceSets.toDisplaySourceSets(),
                 styles,
                 extra
             )

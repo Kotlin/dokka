@@ -3,7 +3,7 @@ package org.jetbrains.dokka.base.transformers.pages.comments
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.model.properties.PropertyContainer
-import org.jetbrains.dokka.model.toContentSourceSets
+import org.jetbrains.dokka.model.toDisplaySourceSets
 import org.jetbrains.dokka.pages.*
 
 object DocTagToContentConverter : CommentsToContentConverter {
@@ -31,7 +31,7 @@ object DocTagToContentConverter : CommentsToContentConverter {
                     buildChildren(docTag),
                     level,
                     dci,
-                    sourceSets.toContentSourceSets(),
+                    sourceSets.toDisplaySourceSets(),
                     styles
                 )
             )
@@ -42,7 +42,7 @@ object DocTagToContentConverter : CommentsToContentConverter {
                     buildChildren(docTag),
                     ordered,
                     dci,
-                    sourceSets.toContentSourceSets(),
+                    sourceSets.toDisplaySourceSets(),
                     styles,
                     ((PropertyContainer.empty<ContentNode>()) + SimpleAttr("start", start.toString()))
                 )
@@ -50,7 +50,7 @@ object DocTagToContentConverter : CommentsToContentConverter {
 
         fun buildNewLine() = listOf(
             ContentBreakLine(
-                sourceSets.toContentSourceSets()
+                sourceSets.toDisplaySourceSets()
             )
         )
 
@@ -67,7 +67,7 @@ object DocTagToContentConverter : CommentsToContentConverter {
             is Ul -> buildList(false)
             is Ol -> buildList(true, docTag.params["start"]?.toInt() ?: 1)
             is Li -> listOf(
-                ContentGroup(buildChildren(docTag), dci, sourceSets.toContentSourceSets(), styles, extra)
+                ContentGroup(buildChildren(docTag), dci, sourceSets.toDisplaySourceSets(), styles, extra)
             )
             is Br -> buildNewLine()
             is B -> buildChildren(docTag, setOf(TextStyle.Strong))
@@ -76,7 +76,7 @@ object DocTagToContentConverter : CommentsToContentConverter {
                 ContentGroup(
                     buildChildren(docTag.collapseParagraphs()),
                     dci,
-                    sourceSets.toContentSourceSets(),
+                    sourceSets.toDisplaySourceSets(),
                     styles + setOf(TextStyle.Paragraph),
                     extra
                 )
@@ -86,7 +86,7 @@ object DocTagToContentConverter : CommentsToContentConverter {
                     buildChildren(docTag),
                     docTag.params.getValue("href"),
                     dci,
-                    sourceSets.toContentSourceSets(),
+                    sourceSets.toDisplaySourceSets(),
                     styles
                 )
             )
@@ -98,7 +98,7 @@ object DocTagToContentConverter : CommentsToContentConverter {
                         setOf(docTag.dri),
                         ContentKind.Main
                     ),
-                    sourceSets.toContentSourceSets(),
+                    sourceSets.toDisplaySourceSets(),
                     styles
                 )
             )
@@ -107,7 +107,7 @@ object DocTagToContentConverter : CommentsToContentConverter {
                     buildChildren(docTag),
                     "",
                     dci,
-                    sourceSets.toContentSourceSets(),
+                    sourceSets.toDisplaySourceSets(),
                     styles
                 )
             )
@@ -116,7 +116,7 @@ object DocTagToContentConverter : CommentsToContentConverter {
                     buildChildren(docTag),
                     "",
                     dci,
-                    sourceSets.toContentSourceSets(),
+                    sourceSets.toDisplaySourceSets(),
                     styles
                 )
             )
@@ -125,7 +125,7 @@ object DocTagToContentConverter : CommentsToContentConverter {
                     buildChildren(docTag),
                     "",
                     dci,
-                    sourceSets.toContentSourceSets(),
+                    sourceSets.toDisplaySourceSets(),
                     styles
                 )
             )
@@ -134,7 +134,7 @@ object DocTagToContentConverter : CommentsToContentConverter {
                     address = docTag.params["href"]!!,
                     altText = docTag.params["alt"],
                     dci = dci,
-                    sourceSets = sourceSets.toContentSourceSets(),
+                    sourceSets = sourceSets.toDisplaySourceSets(),
                     style = styles,
                     extra = extra
                 )
@@ -143,7 +143,7 @@ object DocTagToContentConverter : CommentsToContentConverter {
                 ContentText(
                     "",
                     dci,
-                    sourceSets.toContentSourceSets(),
+                    sourceSets.toDisplaySourceSets(),
                     setOf()
                 )
             )
@@ -151,7 +151,7 @@ object DocTagToContentConverter : CommentsToContentConverter {
                 ContentText(
                     docTag.body,
                     dci,
-                    sourceSets.toContentSourceSets(),
+                    sourceSets.toDisplaySourceSets(),
                     styles
                 )
             )
@@ -161,7 +161,7 @@ object DocTagToContentConverter : CommentsToContentConverter {
                     buildTableRows(docTag.children.filterIsInstance<Th>(), CommentTable),
                     buildTableRows(docTag.children.filterIsInstance<Tr>(), CommentTable),
                     dci,
-                    sourceSets.toContentSourceSets(),
+                    sourceSets.toDisplaySourceSets(),
                     styles + CommentTable
                 )
             )
@@ -169,10 +169,10 @@ object DocTagToContentConverter : CommentsToContentConverter {
             is Tr -> listOf(
                 ContentGroup(
                     docTag.children.map {
-                        ContentGroup(buildChildren(it), dci, sourceSets.toContentSourceSets(), styles, extra)
+                        ContentGroup(buildChildren(it), dci, sourceSets.toDisplaySourceSets(), styles, extra)
                     },
                     dci,
-                    sourceSets.toContentSourceSets(),
+                    sourceSets.toDisplaySourceSets(),
                     styles
                 )
             )
@@ -180,7 +180,7 @@ object DocTagToContentConverter : CommentsToContentConverter {
                 ContentGroup(
                     buildChildren(docTag, newStyles = styles + ContentStyle.InDocumentationAnchor),
                     dci,
-                    sourceSets.toContentSourceSets(),
+                    sourceSets.toDisplaySourceSets(),
                     styles
                 )
             )

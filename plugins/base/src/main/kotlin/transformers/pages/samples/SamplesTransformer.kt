@@ -9,7 +9,7 @@ import org.jetbrains.dokka.analysis.DokkaResolutionFacade
 import org.jetbrains.dokka.analysis.EnvironmentAndFacade
 import org.jetbrains.dokka.base.renderers.sourceSets
 import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.model.ContentSourceSet
+import org.jetbrains.dokka.model.DisplaySourceSet
 import org.jetbrains.dokka.model.doc.Sample
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.pages.*
@@ -20,7 +20,6 @@ import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.DescriptorToSourceUtils
 import org.jetbrains.kotlin.utils.PathUtil
-import java.io.File
 
 abstract class SamplesTransformer(val context: DokkaContext) : PageTransformer {
 
@@ -126,7 +125,7 @@ abstract class SamplesTransformer(val context: DokkaContext) : PageTransformer {
     }
 
     private fun contentCode(
-        sourceSets: Set<ContentSourceSet>,
+        sourceSets: Set<DisplaySourceSet>,
         dri: Set<DRI>,
         content: String,
         language: String,

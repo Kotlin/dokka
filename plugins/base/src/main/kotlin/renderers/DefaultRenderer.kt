@@ -6,7 +6,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.resolvers.local.LocationProvider
-import org.jetbrains.dokka.model.ContentSourceSet
+import org.jetbrains.dokka.model.DisplaySourceSet
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
@@ -30,7 +30,7 @@ abstract class DefaultRenderer<T>(
     abstract fun T.buildList(
         node: ContentList,
         pageContext: ContentPage,
-        sourceSetRestriction: Set<ContentSourceSet>? = null
+        sourceSetRestriction: Set<DisplaySourceSet>? = null
     )
 
     abstract fun T.buildNewLine()
@@ -38,7 +38,7 @@ abstract class DefaultRenderer<T>(
     abstract fun T.buildTable(
         node: ContentTable,
         pageContext: ContentPage,
-        sourceSetRestriction: Set<ContentSourceSet>? = null
+        sourceSetRestriction: Set<DisplaySourceSet>? = null
     )
 
     abstract fun T.buildText(textNode: ContentText)
@@ -50,13 +50,13 @@ abstract class DefaultRenderer<T>(
     open fun T.buildPlatformDependent(
         content: PlatformHintedContent,
         pageContext: ContentPage,
-        sourceSetRestriction: Set<ContentSourceSet>?
+        sourceSetRestriction: Set<DisplaySourceSet>?
     ) = buildContentNode(content.inner, pageContext)
 
     open fun T.buildGroup(
         node: ContentGroup,
         pageContext: ContentPage,
-        sourceSetRestriction: Set<ContentSourceSet>? = null
+        sourceSetRestriction: Set<DisplaySourceSet>? = null
     ) =
         wrapGroup(node, pageContext) { node.children.forEach { it.build(this, pageContext, sourceSetRestriction) } }
 
@@ -69,7 +69,7 @@ abstract class DefaultRenderer<T>(
     open fun T.buildLinkText(
         nodes: List<ContentNode>,
         pageContext: ContentPage,
-        sourceSetRestriction: Set<ContentSourceSet>? = null
+        sourceSetRestriction: Set<DisplaySourceSet>? = null
     ) {
         nodes.forEach { it.build(this, pageContext, sourceSetRestriction) }
     }
@@ -85,7 +85,7 @@ abstract class DefaultRenderer<T>(
     open fun T.buildHeader(
         node: ContentHeader,
         pageContext: ContentPage,
-        sourceSetRestriction: Set<ContentSourceSet>? = null
+        sourceSetRestriction: Set<DisplaySourceSet>? = null
     ) {
         buildHeader(node.level, node) { node.children.forEach { it.build(this, pageContext, sourceSetRestriction) } }
     }
@@ -93,14 +93,14 @@ abstract class DefaultRenderer<T>(
     open fun ContentNode.build(
         builder: T,
         pageContext: ContentPage,
-        sourceSetRestriction: Set<ContentSourceSet>? = null
+        sourceSetRestriction: Set<DisplaySourceSet>? = null
     ) =
         builder.buildContentNode(this, pageContext, sourceSetRestriction)
 
     open fun T.buildContentNode(
         node: ContentNode,
         pageContext: ContentPage,
-        sourceSetRestriction: Set<ContentSourceSet>? = null
+        sourceSetRestriction: Set<DisplaySourceSet>? = null
     ) {
         if (sourceSetRestriction == null || node.sourceSets.any { it in sourceSetRestriction }) {
             when (node) {
@@ -178,8 +178,8 @@ abstract class DefaultRenderer<T>(
 
     protected fun ContentDivergentGroup.groupDivergentInstances(
         pageContext: ContentPage,
-        beforeTransformer: (ContentDivergentInstance, ContentPage, ContentSourceSet) -> String,
-        afterTransformer: (ContentDivergentInstance, ContentPage, ContentSourceSet) -> String
+        beforeTransformer: (ContentDivergentInstance, ContentPage, DisplaySourceSet) -> String,
+        afterTransformer: (ContentDivergentInstance, ContentPage, DisplaySourceSet) -> String
     ): Map<SerializedBeforeAndAfter, List<InstanceWithSource>> =
         children.flatMap { instance ->
             instance.sourceSets.map { sourceSet ->
@@ -195,6 +195,6 @@ abstract class DefaultRenderer<T>(
 }
 
 internal typealias SerializedBeforeAndAfter = Pair<String, String>
-internal typealias InstanceWithSource = Pair<ContentDivergentInstance, ContentSourceSet>
+internal typealias InstanceWithSource = Pair<ContentDivergentInstance, DisplaySourceSet>
 
 fun ContentPage.sourceSets() = this.content.sourceSets
