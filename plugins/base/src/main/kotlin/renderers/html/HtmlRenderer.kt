@@ -23,7 +23,6 @@ import org.jetbrains.dokka.plugability.query
 import org.jetbrains.dokka.plugability.querySingle
 import java.io.File
 import java.net.URI
-import java.util.concurrent.ConcurrentHashMap
 
 open class HtmlRenderer(
     context: DokkaContext
@@ -38,9 +37,9 @@ open class HtmlRenderer(
 
     private var shouldRenderSourceSetBubbles: Boolean = false
 
-    private val pageList = ConcurrentHashMap<String, Pair<String, String>>()
-
     override val preprocessors = context.plugin<DokkaBase>().query { htmlPreprocessors }
+
+    val searchbarDataInstaller = SearchbarDataInstaller()
 
     private val tabSortingStrategy = context.plugin<DokkaBase>().querySingle { tabSortingStrategy }
 
@@ -585,46 +584,11 @@ open class HtmlRenderer(
         }
     }
 
-    private fun getSymbolSignature(page: ContentPage) = page.content.dfs { it.dci.kind == ContentKind.Symbol }
-
-    private fun flattenToText(node: ContentNode): String {
-        fun getContentTextNodes(node: ContentNode, sourceSetRestriction: DisplaySourceSet): List<ContentText> =
-            when (node) {
-                is ContentText -> listOf(node)
-                is ContentComposite -> node.children
-                    .filter { sourceSetRestriction in it.sourceSets }
-                    .flatMap { getContentTextNodes(it, sourceSetRestriction) }
-                    .takeIf { node.dci.kind != ContentKind.Annotations }
-                    .orEmpty()
-                else -> emptyList()
-            }
-
-        val sourceSetRestriction =
-            node.sourceSets.find { it.platform == Platform.common } ?: node.sourceSets.first()
-        return getContentTextNodes(node, sourceSetRestriction).joinToString("") { it.text }
-    }
 
     override suspend fun renderPage(page: PageNode) {
         super.renderPage(page)
-        if (page is ContentPage && page !is ModulePageNode && page !is PackagePageNode) {
-            val signature = getSymbolSignature(page)
-            val textNodes = signature?.let { flattenToText(it) }
-            val documentable = page.documentable
-            if (documentable != null) {
-                listOf(
-                    documentable.dri.packageName,
-                    documentable.dri.classNames,
-                    documentable.dri.callable?.name
-                )
-                    .filter { !it.isNullOrEmpty() }
-                    .takeIf { it.isNotEmpty() }
-                    ?.joinToString(".")
-                    ?.let {
-                        pageList.put(it, Pair(textNodes ?: page.name, locationProvider.resolve(page)))
-                    }
-
-            }
-        }
+        if (page is ContentPage && page !is ModulePageNode && page !is PackagePageNode)
+            searchbarDataInstaller.processPage(page, locationProvider.resolve(page))
     }
 
     override fun FlowContent.buildText(textNode: ContentText) =
@@ -637,24 +601,12 @@ open class HtmlRenderer(
             else -> text(textNode.text)
         }
 
-    private fun generatePagesList() =
-        pageList.entries
-            .filter { !it.key.isNullOrEmpty() }
-            .groupBy { it.key.substringAfterLast(".") }
-            .entries
-            .flatMapIndexed { topLevelIndex, entry ->
-                entry.value.mapIndexed { index, subentry ->
-                    "{\'name\': \'${subentry.value.first}\', \'description\':\'${subentry.key}\', \'location\':\'${subentry.value.second}\', 'searchKey':'${entry.key}'}"
-                }
-            }
-            .joinToString(prefix = "[", separator = ",\n", postfix = "]")
-
     override fun render(root: RootPageNode) {
         shouldRenderSourceSetBubbles = shouldRenderSourceSetBubbles(root)
         super.render(root)
         runBlocking(Dispatchers.Default) {
             launch {
-                outputWriter.write("scripts/pages", "var pages = ${generatePagesList()}", ".js")
+                outputWriter.write("scripts/pages", "var pages = ${searchbarDataInstaller.generatePagesList()}", ".js")
             }
         }
     }
