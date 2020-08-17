@@ -1,15 +1,15 @@
 package org.jetbrains.dokka.base.transformers.pages.merger
 
 import org.jetbrains.dokka.Platform
-import org.jetbrains.dokka.model.ContentSourceSet
-import org.jetbrains.dokka.model.toContentSourceSets
+import org.jetbrains.dokka.model.DisplaySourceSet
+import org.jetbrains.dokka.model.toDisplaySourceSets
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 
 class SourceSetMergingPageTransformer(context: DokkaContext) : PageTransformer {
 
-    private val mergedSourceSets = context.configuration.sourceSets.toContentSourceSets()
+    private val mergedSourceSets = context.configuration.sourceSets.toDisplaySourceSets()
         .associateBy { sourceSet -> sourceSet.key }
 
     override fun invoke(input: RootPageNode): RootPageNode {
@@ -33,6 +33,6 @@ class SourceSetMergingPageTransformer(context: DokkaContext) : PageTransformer {
     }
 }
 
-private val ContentSourceSet.key get() = SourceSetMergingKey(displayName, analysisPlatform)
+private val DisplaySourceSet.key get() = SourceSetMergingKey(name, platform)
 
 private data class SourceSetMergingKey(private val displayName: String, private val platform: Platform)

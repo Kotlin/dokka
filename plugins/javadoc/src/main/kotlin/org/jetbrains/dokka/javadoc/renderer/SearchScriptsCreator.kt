@@ -5,7 +5,7 @@ import org.jetbrains.dokka.javadoc.pages.*
 import org.jetbrains.dokka.javadoc.renderer.SearchRecord.Companion.allTypes
 import org.jetbrains.dokka.base.renderers.sourceSets
 import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.model.ContentSourceSet
+import org.jetbrains.dokka.model.DisplaySourceSet
 import org.jetbrains.dokka.model.Documentable
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.utilities.formatToEndWithHtml
@@ -182,7 +182,7 @@ class SearchScriptsCreator(private val locationProvider: JavadocLocationProvider
 
     private fun resolveUrlForSearchIndex(
         dri: DRI,
-        sourceSets: Set<ContentSourceSet>,
+        sourceSets: Set<DisplaySourceSet>,
         label: String
     ): String =
         locationProvider.resolve(dri, sourceSets).formatToEndWithHtml() + "#" + label
