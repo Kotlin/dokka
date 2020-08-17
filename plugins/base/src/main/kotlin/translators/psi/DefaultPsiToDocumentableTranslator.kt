@@ -132,16 +132,15 @@ class DefaultPsiToDocumentableTranslator(
             fun parseSupertypes(superTypes: Array<PsiClassType>, level: Int = 0) {
                 if (superTypes.isEmpty()) return
                 val parsedClasses = superTypes.filter { !it.shouldBeIgnored }.mapNotNull { psi ->
-                    psi.resolve()?.let {
-                        when {
-                            it.isInterface -> DRI.from(it) to JavaClassKindTypes.INTERFACE
-                            else -> DRI.from(it) to JavaClassKindTypes.CLASS
-                        }?.let {
-                            TypeConstructor(
-                                it.first,
-                                psi.parameters.map(::getProjection)
-                            ) to it.second
+                    psi.resolve()?.let { psiClass ->
+                        val (dri, javaClassKind) = when {
+                            psiClass.isInterface -> DRI.from(psiClass) to JavaClassKindTypes.INTERFACE
+                            else -> DRI.from(psiClass) to JavaClassKindTypes.CLASS
                         }
+                        TypeConstructor(
+                            dri,
+                            psi.parameters.map(::getProjection)
+                        ) to javaClassKind
                     }
                 }
                 val (classes, interfaces) = parsedClasses.partition { it.second == JavaClassKindTypes.CLASS }
