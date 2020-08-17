@@ -15,8 +15,7 @@ class SourceSetMergingPageTransformer(context: DokkaContext) : PageTransformer {
     override fun invoke(input: RootPageNode): RootPageNode {
         return input.transformContentPagesTree { contentPage ->
             val content: ContentNode = contentPage.content
-            val newContent = transformWithMergedSourceSets(content)
-            contentPage.modified(content = newContent)
+            contentPage.modified(content = transformWithMergedSourceSets(content))
         }
     }
 
