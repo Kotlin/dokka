@@ -603,11 +603,11 @@ private class DokkaDescriptorVisitor(
         is DynamicType -> Dynamic
         else -> when (val ctor = constructor.declarationDescriptor) {
             is TypeParameterDescriptor -> TypeParameter(
-                declarationDRI = DRI.from(ctor.containingDeclaration).withPackageFallbackTo(fallbackPackageName()),
+                dri = DRI.from(ctor).withPackageFallbackTo(fallbackPackageName()),
                 name = ctor.name.asString()
             )
             else -> TypeConstructor(
-                DRI.from(constructor.declarationDescriptor!!), // TODO: remove '!!'
+                DRI.from(ctor!!), // TODO: remove '!!'
                 arguments.map { it.toProjection() },
                 if (isExtensionFunctionType) FunctionModifiers.EXTENSION
                 else if (isFunctionType) FunctionModifiers.FUNCTION
