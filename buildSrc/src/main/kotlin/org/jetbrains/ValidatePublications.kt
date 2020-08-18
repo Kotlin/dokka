@@ -32,7 +32,9 @@ open class ValidatePublications : DefaultTask() {
                 .filterIsInstance<MavenPublication>()
                 .filter { it.version == project.dokkaVersion }
                 .forEach { publication ->
-                    checkPublicationIsConfiguredForBintray(subProject, publication)
+                    if (project.publicationChannel.isBintrayRepository) {
+                        checkPublicationIsConfiguredForBintray(subProject, publication)
+                    }
                     checkProjectDependenciesArePublished(subProject)
                 }
         }

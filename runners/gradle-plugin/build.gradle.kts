@@ -1,4 +1,6 @@
-import org.jetbrains.configureBintrayPublication
+import org.jetbrains.configureBintrayPublicationIfNecessary
+import org.jetbrains.configureSpacePublicationIfNecessary
+import org.jetbrains.createDokkaPublishTaskIfNecessary
 import org.jetbrains.dokkaVersion
 
 plugins {
@@ -82,4 +84,7 @@ publishing {
 }
 
 
-configureBintrayPublication("dokkaGradlePluginPluginMarkerMaven", "pluginMaven")
+configureSpacePublicationIfNecessary("dokkaGradlePluginPluginMarkerMaven", "pluginMaven")
+configureBintrayPublicationIfNecessary("dokkaGradlePluginPluginMarkerMaven", "pluginMaven")
+createDokkaPublishTaskIfNecessary()
+
