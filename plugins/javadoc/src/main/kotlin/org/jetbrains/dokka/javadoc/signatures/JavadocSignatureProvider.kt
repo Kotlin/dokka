@@ -95,7 +95,8 @@ class JavadocSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLo
             modifiers {
                 text(f.modifier[it]?.takeIf { it !in ignoredModifiers }?.name?.plus(" ") ?: "")
                 text(f.modifiers()[it]?.toSignatureString() ?: "")
-                list(f.generics, prefix = "<", suffix = "> ") {
+                val usedGenerics = f.generics.filter { f uses it }
+                list(usedGenerics, prefix = "<", suffix = "> ") {
                     +buildSignature(it)
                 }
                 signatureForProjection(f.type)
@@ -184,7 +185,7 @@ class JavadocSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLo
         }
 
     private fun PageContentBuilder.DocumentableContentBuilder.signatureForProjection(p: Projection): Unit = when (p) {
-        is TypeParameter -> link(p.name, p.declarationDRI)
+        is TypeParameter -> link(p.name, p.dri)
         is TypeConstructor -> group {
             link(p.dri.classNames.orEmpty(), p.dri)
             list(p.projections, prefix = "<", suffix = ">") {

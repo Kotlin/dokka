@@ -352,9 +352,9 @@ class DefaultPsiToDocumentableTranslator(
                             ?: return UnresolvedBound(type.presentableText)
                         when {
                             resolved.qualifiedName == "java.lang.Object" -> JavaObject
-                            resolved is PsiTypeParameter && resolved.owner != null ->
+                            resolved is PsiTypeParameter ->
                                 TypeParameter(
-                                    declarationDRI = DRI.from(resolved.owner!!),
+                                    dri = DRI.from(resolved),
                                     name = resolved.name.orEmpty()
                                 )
                             else ->
