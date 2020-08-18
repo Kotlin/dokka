@@ -1,3 +1,4 @@
+import org.jetbrains.dokkaVersion
 import org.jetbrains.registerDokkaArtifactPublication
 
 plugins {
@@ -17,11 +18,11 @@ dependencies {
 
 tasks {
     processResources {
-        val dokka_version: String by project
+        inputs.property("dokkaVersion", dokkaVersion)
         eachFile {
             if (name == "dokka-version.properties") {
                 filter { line ->
-                    line.replace("<dokka-version>", dokka_version)
+                    line.replace("<dokka-version>", dokkaVersion)
                 }
             }
         }
