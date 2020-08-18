@@ -15,7 +15,6 @@ import org.jetbrains.dokka.pages.ContentKind
 import org.jetbrains.dokka.pages.ContentNode
 import org.jetbrains.dokka.pages.TextStyle
 import org.jetbrains.dokka.utilities.DokkaLogger
-import java.lang.IllegalStateException
 import kotlin.text.Typography.nbsp
 
 class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogger) : SignatureProvider,
@@ -240,7 +239,8 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                 )
                 text(f.modifiers()[it]?.toSignatureString() ?: "")
                 text("fun ")
-                list(f.generics, prefix = "<", suffix = "> ") {
+                val usedGenerics = f.generics.filter { f uses it }
+                list(usedGenerics, prefix = "<", suffix = "> ") {
                     +buildSignature(it)
                 }
                 f.receiver?.also {
@@ -317,7 +317,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
         p: Projection, showFullyQualifiedName: Boolean = false
     ): Unit =
         when (p) {
-            is TypeParameter -> link(p.name, p.declarationDRI)
+            is TypeParameter -> link(p.name, p.dri)
 
             is TypeConstructor -> if (p.function)
                 +funType(mainDRI.single(), mainSourcesetData, p)

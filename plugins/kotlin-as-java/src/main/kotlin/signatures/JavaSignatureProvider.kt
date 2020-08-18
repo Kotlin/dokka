@@ -122,7 +122,8 @@ class JavaSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogge
                 signatureForProjection(returnType)
                 text(nbsp.toString())
                 link(f.name, f.dri)
-                list(f.generics, prefix = "<", suffix = ">") {
+                val usedGenerics = f.generics.filter { f uses it }
+                list(usedGenerics, prefix = "<", suffix = ">") {
                     +buildSignature(it)
                 }
                 text("(")
@@ -149,7 +150,7 @@ class JavaSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogge
         }
 
     private fun PageContentBuilder.DocumentableContentBuilder.signatureForProjection(p: Projection): Unit = when (p) {
-        is TypeParameter -> link(p.name, p.declarationDRI)
+        is TypeParameter -> link(p.name, p.dri)
 
         is TypeConstructor -> group(styles = emptySet()) {
             link(p.dri.classNames.orEmpty(), p.dri)
