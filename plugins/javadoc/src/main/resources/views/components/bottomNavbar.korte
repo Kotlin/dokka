@@ -13,7 +13,7 @@
         </div>
         <a id="skip.navbar.bottom">
             <!--   -->
-        </a></div>
+        </a>
         {% set type="bottom" %}{% include "components/subNav.korte" -%}
         <!-- ======== END OF BOTTOM NAVBAR ======= -->
     </nav>

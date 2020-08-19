@@ -42,6 +42,7 @@ open class JavadocPageCreator(
                 name = c.name.orEmpty(),
                 content = contentForClasslike(c),
                 dri = setOf(c.dri),
+                brief = c.brief(),
                 signature = signatureForNode(c, jvm),
                 description = c.descriptionToContentNodes(),
                 constructors = (c as? WithConstructors)?.constructors?.mapNotNull { it.toJavadocFunction() }.orEmpty(),

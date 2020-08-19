@@ -6,7 +6,7 @@ import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.pages.*
 
 enum class JavadocContentKind : Kind {
-    AllClasses, OverviewSummary, PackageSummary, Class, OverviewTree, PackageTree
+    AllClasses, OverviewSummary, PackageSummary, Class, OverviewTree, PackageTree, IndexPage
 }
 
 abstract class JavadocContentNode(
