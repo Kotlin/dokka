@@ -14,7 +14,8 @@ import org.junit.jupiter.api.Test
 import java.net.URL
 
 class Dokka010ExternalLocationProviderTest : AbstractCoreTest() {
-    private val testDataDir = getTestDataDir("locationProvider").toAbsolutePath()
+    private val testDataDir =
+        getTestDataDir("locationProvider").toAbsolutePath().toString().removePrefix("/").let { "/$it" }
     private val kotlinLang = "https://kotlinlang.org/api/latest/jvm/stdlib"
     private val packageListURL = URL("file://$testDataDir/old-package-list")
     private val configuration = dokkaConfiguration {
