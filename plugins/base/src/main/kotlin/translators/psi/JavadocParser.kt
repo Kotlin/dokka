@@ -151,7 +151,7 @@ class JavadocParser(
             is PsiInlineDocTag -> convertInlineDocTag(this)
             is PsiDocParamRef -> toDocumentationLinkString()
             is PsiDocTagValue,
-            is LeafPsiElement -> (if ((prevSibling as? PsiDocToken)?.isLeadingAsterisk() == true) text?.trim() else text)?.takeUnless { it.isBlank() }
+            is LeafPsiElement -> text
             else -> null
         }
 
@@ -190,8 +190,8 @@ class JavadocParser(
             }
         }
 
-        private fun createBlock(element: Element): DocTag? {
-            val children = element.childNodes().mapNotNull { convertHtmlNode(it) }
+        private fun createBlock(element: Element, insidePre: Boolean = false): DocTag? {
+            val children = element.childNodes().mapNotNull { convertHtmlNode(it, insidePre = insidePre || element.tagName() == "pre") }
             fun ifChildrenPresent(operation: () -> DocTag): DocTag? {
                 return if (children.isNotEmpty()) operation() else null
             }
@@ -203,11 +203,7 @@ class JavadocParser(
                 "index" -> Index(children)
                 "i" -> ifChildrenPresent { I(children) }
                 "em" -> Em(children)
-                "code" -> ifChildrenPresent {
-                    if (element.hasAttr("data-inline")) CodeInline(children) else CodeBlock(
-                        children
-                    )
-                }
+                "code" -> ifChildrenPresent { CodeInline(children) }
                 "pre" -> Pre(children)
                 "ul" -> ifChildrenPresent { Ul(children) }
                 "ol" -> ifChildrenPresent { Ol(children) }
@@ -224,7 +220,7 @@ class JavadocParser(
         }
 
         override fun invoke(elements: Iterable<PsiElement>, asParagraph: Boolean): List<DocTag> =
-            Jsoup.parseBodyFragment(elements.mapNotNull { it.stringify() }.joinToString(" ", prefix = if (asParagraph) "<p>" else ""))
+            Jsoup.parseBodyFragment(elements.mapNotNull { it.stringify() }.joinToString("\n", prefix = if (asParagraph) "<p>" else ""))
                 .body().childNodes().mapNotNull { convertHtmlNode(it) }
     }
 

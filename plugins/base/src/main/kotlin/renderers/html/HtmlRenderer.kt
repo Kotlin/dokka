@@ -589,7 +589,9 @@ open class HtmlRenderer(
         div("sample-container") {
             code(code.style.joinToString(" ") { it.toString().toLowerCase() }) {
                 attributes["theme"] = "idea"
-                code.children.forEach { buildContentNode(it, pageContext) }
+                pre {
+                    code.children.forEach { buildContentNode(it, pageContext) }
+                }
             }
         }
     }
