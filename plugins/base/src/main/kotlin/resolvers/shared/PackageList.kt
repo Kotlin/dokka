@@ -1,7 +1,6 @@
 package org.jetbrains.dokka.base.resolvers.shared
 
 import org.jetbrains.dokka.base.renderers.PackageListService
-import org.jetbrains.dokka.plugability.DokkaContext
 import java.net.URL
 
 data class PackageList(
