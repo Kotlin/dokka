@@ -173,13 +173,19 @@ class DefaultPsiToDocumentableTranslator(
             val ancestors = ancestryTree.filter { it.level == 0 }.flatMap {
                 listOfNotNull(it.superclass?.let {
                     TypeConstructorWithKind(
-                        typeConstructor = it ,
+                        typeConstructor = it,
                         kind = JavaClassKindTypes.CLASS
                     )
-                }) + it.interfaces.map { TypeConstructorWithKind(typeConstructor = it, kind = JavaClassKindTypes.INTERFACE) }
+                }) + it.interfaces.map {
+                    TypeConstructorWithKind(
+                        typeConstructor = it,
+                        kind = JavaClassKindTypes.INTERFACE
+                    )
+                }
             }.toSourceSetDependent()
             val modifiers = getModifier().toSourceSetDependent()
-            val implementedInterfacesExtra = ImplementedInterfaces(ancestryTree.flatMap { it.interfaces }.distinct().toSourceSetDependent())
+            val implementedInterfacesExtra =
+                ImplementedInterfaces(ancestryTree.flatMap { it.interfaces }.distinct().toSourceSetDependent())
             return when {
                 isAnnotationType ->
                     DAnnotation(
@@ -476,12 +482,14 @@ class DefaultPsiToDocumentableTranslator(
             else -> StringValue(text ?: "")
         }
 
-        private fun PsiAnnotation.toAnnotation() = psiReference?.let { psiElement ->
+        private fun PsiAnnotation.toAnnotation(): Annotations.Annotation? = psiReference?.let { psiElement ->
             Annotations.Annotation(
-                DRI.from(psiElement),
-                attributes.filter { it !is KtLightAbstractAnnotation }.mapNotNull { it.attributeName to it.toValue() }
+                dri = DRI.from(psiElement),
+                params = attributes
+                    .filter { it !is KtLightAbstractAnnotation }
+                    .mapNotNull { it.attributeName to it.toValue() }
                     .toMap(),
-                (psiElement as PsiClass).annotations.any {
+                mustBeDocumented = (psiElement as PsiClass).annotations.any {
                     it.hasQualifiedName("java.lang.annotation.Documented")
                 }
             )
@@ -491,5 +499,9 @@ class DefaultPsiToDocumentableTranslator(
             get() = getChildOfType<PsiJavaCodeReferenceElement>()?.resolve()
     }
 
-    private data class AncestryLevel(val level: Int, val superclass: TypeConstructor?, val interfaces: List<TypeConstructor>)
+    private data class AncestryLevel(
+        val level: Int,
+        val superclass: TypeConstructor?,
+        val interfaces: List<TypeConstructor>
+    )
 }
