@@ -26,7 +26,7 @@ class ConfigureWithKotlinSourceSetGistTest {
         val gist = KotlinSourceSetGist(
             name = "customName",
             platform = KotlinPlatformType.common,
-            isMain = true,
+            isMain = project.provider { true },
             classpath = project.files(f1Jar, f2Jar),
             sourceRoots = project.files(customSourceRoot),
             dependentSourceSetNames = project.provider { setOf("customRootSourceSet") }
@@ -68,7 +68,7 @@ class ConfigureWithKotlinSourceSetGistTest {
         val gist = KotlinSourceSetGist(
             name = "customMain",
             platform = KotlinPlatformType.common,
-            isMain = true,
+            isMain = project.provider { true },
             classpath = project.files(),
             sourceRoots = project.files(),
             dependentSourceSetNames = project.provider { emptySet() }

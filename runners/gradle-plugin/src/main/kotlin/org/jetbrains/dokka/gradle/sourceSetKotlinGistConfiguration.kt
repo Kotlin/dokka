@@ -14,13 +14,16 @@ internal fun GradleDokkaSourceSetBuilder.configureWithKotlinSourceSetGist(source
         sourceSetNames.map { sourceSetName -> DokkaSourceSetID(sourceSetName) }
     }
 
+    this.isDocumented by sourceSet.isMain
     this.sourceRoots.from(sourceSet.sourceRoots)
     this.classpath.from(sourceSet.classpath)
-    this.platform by Platform.fromString(sourceSet.platform.name)
-    this.dependentSourceSets.set(dependentSourceSetIds)
-    this.displayName by sourceSet.name.substringBeforeLast(
-        delimiter = "Main",
-        missingDelimiterValue = sourceSet.platform.name
-    )
+    this.platform by sourceSet.platform.map { Platform.fromString(it.name) }
+    this.dependentSourceSets by dependentSourceSetIds
+    this.displayName by sourceSet.platform.map { platform ->
+        sourceSet.name.substringBeforeLast(
+            delimiter = "Main",
+            missingDelimiterValue = platform.name
+        )
+    }
 }
 

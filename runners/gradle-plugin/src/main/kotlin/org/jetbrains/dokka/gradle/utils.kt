@@ -24,6 +24,10 @@ internal infix fun <T> HasMultipleValues<in T>.by(values: Iterable<T>) {
     this.set(values)
 }
 
+internal infix fun <T> HasMultipleValues<in T>.by(values: Provider<out Iterable<T>>) {
+    this.set(values)
+}
+
 internal fun parsePath(path: String): Path = Path.path(path)
 
 internal val Project.kotlinOrNull: KotlinProjectExtension?

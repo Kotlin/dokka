@@ -37,7 +37,7 @@ class KotlinSourceSetGistTest {
         )
 
         assertTrue(
-            mainSourceSetGist.isMain,
+            mainSourceSetGist.isMain.getSafe(),
             "Expected main sources to be marked as 'isMain'"
         )
 
@@ -57,7 +57,7 @@ class KotlinSourceSetGistTest {
         val testSourceSetGist = project.gistOf(testSourceSet)
 
         assertFalse(
-            testSourceSetGist.isMain,
+            testSourceSetGist.isMain.getSafe(),
             "Expected test source set not being marked as 'isMain'"
         )
 
@@ -204,32 +204,32 @@ class KotlinSourceSetGistTest {
         )
 
         assertTrue(
-            commonMainSourceSetGist.isMain,
+            commonMainSourceSetGist.isMain.getSafe(),
             "Expected commonMain to be marked with 'isMain'"
         )
 
         assertTrue(
-            jvmMainSourceSetGist.isMain,
+            jvmMainSourceSetGist.isMain.getSafe(),
             "Expected jvmMain to be marked with 'isMain'"
         )
 
         assertTrue(
-            macosMainSourceSetGist.isMain,
+            macosMainSourceSetGist.isMain.getSafe(),
             "Expected macosMain to be marked with 'isMain'"
         )
 
         assertFalse(
-            project.gistOf(kotlin.sourceSets["commonTest"]).isMain,
+            project.gistOf(kotlin.sourceSets["commonTest"]).isMain.getSafe(),
             "Expected commonTest not being marked with 'isMain'"
         )
 
         assertFalse(
-            project.gistOf(kotlin.sourceSets["jvmTest"]).isMain,
+            project.gistOf(kotlin.sourceSets["jvmTest"]).isMain.getSafe(),
             "Expected jvmTest not being marked with 'isMain'"
         )
 
         assertFalse(
-            project.gistOf(kotlin.sourceSets["macosTest"]).isMain,
+            project.gistOf(kotlin.sourceSets["macosTest"]).isMain.getSafe(),
             "Expected macosTest not being marked with 'isMain'"
         )
 

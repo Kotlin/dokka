@@ -32,6 +32,11 @@ open class GradleDokkaSourceSetBuilder constructor(
     @Internal
     val sourceSetID: DokkaSourceSetID = DokkaSourceSetID(project, name)
 
+    @Input
+    @get:JvmName("getIsDocumented")
+    val isDocumented: Property<Boolean> = project.objects.safeProperty<Boolean>()
+        .safeConvention(true)
+
     @Classpath
     @Optional
     val classpath: ConfigurableFileCollection = project.files()
