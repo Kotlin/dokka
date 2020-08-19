@@ -607,7 +607,8 @@ open class HtmlRenderer(
     override suspend fun renderPage(page: PageNode) {
         super.renderPage(page)
         if (page is ContentPage && page !is ModulePageNode && page !is PackagePageNode)
-            searchbarDataInstaller.processPage(page, locationProvider.resolve(page) ?: run { context.logger.error("Cannot resolve path for ${page.dri}"); ""})
+            searchbarDataInstaller.processPage(page, locationProvider.resolve(page)
+                ?: run { context.logger.error("Cannot resolve path for ${page.dri}"); "" })
     }
 
     override fun FlowContent.buildText(textNode: ContentText) =
