@@ -1,5 +1,3 @@
-@file:Suppress("UNUSED_VARIABLE")
-
 package org.jetbrains
 
 import com.github.jengelman.gradle.plugins.shadow.ShadowExtension
