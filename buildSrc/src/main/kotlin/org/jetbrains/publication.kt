@@ -61,11 +61,11 @@ fun Project.configureSpacePublicationIfNecessary(vararg publications: String) {
 
     whenEvaluated {
         tasks.withType<PublishToMavenRepository> {
-            val isSpaceRepository = this.repository.name == SpaceDokkaDev.name
-            if (!isSpaceRepository) return@withType
-            this.isEnabled = this.isEnabled && publication.name in publications
-            if (!this.isEnabled) {
-                this.group = "disabled"
+            if (this.repository.name == SpaceDokkaDev.name) {
+                this.isEnabled = this.isEnabled && publication.name in publications
+                if (!this.isEnabled) {
+                    this.group = "disabled"
+                }
             }
         }
     }
