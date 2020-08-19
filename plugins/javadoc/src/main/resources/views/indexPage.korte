@@ -1,0 +1,32 @@
+{% extends "components/base.korte" %}
+{% block content %}
+
+<main role="main">
+    <div class="contentContainer">
+        {% for key in dictionary %}
+            <a href="index-{{ loop.index }}.html">{{ key }}</a>&nbsp;
+        {% endfor %}
+        <h2 class="title">{{ dictionary[id - 1] }}</h2>
+        <dl>
+        {% for key in elements %}
+            <dt>
+                {% if key.isMember %}
+                <span class="memberNameLink">
+                {% endif %}
+                    <a href="{{ key.address }}">{{ key.name }}</a>
+                {% if key.isMember %}
+                </span> - {{ key.type }} in {{ key.origin|raw }}
+                {% else %}
+                 - {{ key.type }} {{ key.name }}
+                {% endif %}
+
+            </dt>
+            <dd>{{ key.description|raw }}</dd>
+
+        {% endfor %}
+        </dl>
+        {% for key in dictionary %}
+            <a href="index-{{ loop.index }}.html">{{ key }}</a>&nbsp;
+        {% endfor %}
+    </div>
+</main>
