@@ -1,5 +1,6 @@
 package locationProvider
 
+import org.jetbrains.dokka.ExternalDocumentationLink
 import org.jetbrains.dokka.base.resolvers.external.Dokka010ExternalLocationProvider
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.base.resolvers.shared.ExternalDocumentation
@@ -23,7 +24,7 @@ class Dokka010ExternalLocationProviderTest : AbstractCoreTest() {
             sourceSet {
                 sourceRoots = listOf("src/")
                 classpath += jvmStdlibPath!!
-                externalDocumentationLink(kotlinLang, packageListURL.toString())
+                ExternalDocumentationLink(kotlinLang, packageListURL.toString())
             }
         }
     }
