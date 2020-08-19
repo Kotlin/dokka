@@ -6,6 +6,7 @@ import org.jetbrains.dokka.gradle.kotlin.gistOf
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 
 fun GradleDokkaSourceSetBuilder.configureWithKotlinSourceSet(sourceSet: KotlinSourceSet) {
+    checkDokkaConfigurationTime(project)
     configureWithKotlinSourceSetGist(project.gistOf(sourceSet))
 }
 

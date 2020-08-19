@@ -16,6 +16,7 @@ open class DokkaTask : AbstractDokkaTask(DokkaBootstrapImpl::class) {
             .also { container ->
                 DslObject(this).extensions.add("dokkaSourceSets", container)
                 project.kotlinOrNull?.sourceSets?.all { kotlinSourceSet ->
+                    checkDokkaConfigurationTime(project)
                     if (project.isMainSourceSet(kotlinSourceSet)) {
                         container.register(kotlinSourceSet.name) { dokkaSourceSet ->
                             dokkaSourceSet.configureWithKotlinSourceSet(kotlinSourceSet)
