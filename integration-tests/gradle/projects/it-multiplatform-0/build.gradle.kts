@@ -22,7 +22,7 @@ kotlin {
     }
 }
 
-tasks.withType<DokkaTask> {
+tasks.withType<DokkaTask>().configureEach {
     dokkaSourceSets {
         configureEach {
             externalDocumentationLink {
