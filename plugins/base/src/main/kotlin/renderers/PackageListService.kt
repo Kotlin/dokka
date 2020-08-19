@@ -31,7 +31,8 @@ class PackageListService(val context: DokkaContext) {
             contentPage?.dri?.forEach {
                 if (parentDris.isNotEmpty() && it.parent !in parentDris) {
                     locationProvider.resolve(node)
-                        ?.let { nodeLocation -> nonStandardLocations[it.toString()] = nodeLocation } ?: context.logger.error("Cannot resolve path for ${node.name}!")
+                        ?.let { nodeLocation -> nonStandardLocations[it.toString()] = nodeLocation }
+                        ?: context.logger.error("Cannot resolve path for ${node.name}!")
                 }
             }
 
