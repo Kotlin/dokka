@@ -25,12 +25,14 @@ import org.jetbrains.kotlin.asJava.elements.KtLightAbstractAnnotation
 import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
 import org.jetbrains.kotlin.cli.jvm.config.JavaSourceRoot
 import org.jetbrains.kotlin.descriptors.Visibilities
+import org.jetbrains.kotlin.idea.refactoring.fqName.getKotlinFqName
 import org.jetbrains.kotlin.load.java.JvmAbi
 import org.jetbrains.kotlin.load.java.propertyNameByGetMethodName
 import org.jetbrains.kotlin.load.java.propertyNamesBySetMethodName
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.psiUtil.getChildOfType
 import org.jetbrains.kotlin.resolve.DescriptorUtils
+import org.jetbrains.kotlin.utils.KotlinExceptionWithAttachments
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 import java.io.File
 
@@ -482,17 +484,32 @@ class DefaultPsiToDocumentableTranslator(
             else -> StringValue(text ?: "")
         }
 
-        private fun PsiAnnotation.toAnnotation(): Annotations.Annotation? = psiReference?.let { psiElement ->
-            Annotations.Annotation(
-                dri = DRI.from(psiElement),
-                params = attributes
-                    .filter { it !is KtLightAbstractAnnotation }
-                    .mapNotNull { it.attributeName to it.toValue() }
-                    .toMap(),
-                mustBeDocumented = (psiElement as PsiClass).annotations.any {
-                    it.hasQualifiedName("java.lang.annotation.Documented")
+        private fun PsiAnnotation.toAnnotation(): Annotations.Annotation? {
+            // TODO Mitigating workaround for issue https://github.com/Kotlin/dokka/issues/1341
+            //  Tracking https://youtrack.jetbrains.com/issue/KT-41234
+            //  Needs to be removed once this issue is fixed in light classes
+            fun PsiElement.getAnnotationsOrNull(): Array<PsiAnnotation>? {
+                this as PsiClass
+                return try {
+                    this.annotations
+                } catch (e: KotlinExceptionWithAttachments) {
+                    logger.warn("Failed to get annotations from ${this.getKotlinFqName()}")
+                    null
                 }
-            )
+            }
+
+            return psiReference?.let { psiElement ->
+                Annotations.Annotation(
+                    dri = DRI.from(psiElement),
+                    params = attributes
+                        .filter { it !is KtLightAbstractAnnotation }
+                        .mapNotNull { it.attributeName to it.toValue() }
+                        .toMap(),
+                    mustBeDocumented = psiElement.getAnnotationsOrNull().orEmpty().any { annotation ->
+                        annotation.hasQualifiedName("java.lang.annotation.Documented")
+                    }
+                )
+            }
         }
 
         private val PsiElement.psiReference
