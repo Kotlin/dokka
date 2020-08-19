@@ -16,7 +16,8 @@ import org.junit.jupiter.api.Test
 import java.net.URL
 
 class DefaultExternalLocationProviderTest : AbstractCoreTest() {
-    private val testDataDir = getTestDataDir("locationProvider").toAbsolutePath()
+    private val testDataDir =
+        getTestDataDir("locationProvider").toAbsolutePath().toString().removePrefix("/").let { "/$it" }
     private val kotlinLang = "https://kotlinlang.org/api/latest/jvm/stdlib"
     private val packageListURL = URL("file://$testDataDir/stdlib-package-list")
     private val configuration = dokkaConfiguration {
@@ -54,8 +55,10 @@ class DefaultExternalLocationProviderTest : AbstractCoreTest() {
             Callable(
                 "longArray",
                 null,
-                listOf(TypeConstructor("kotlin.Int", emptyList()),
-                    TypeConstructor("kotlin.Any", emptyList()))
+                listOf(
+                    TypeConstructor("kotlin.Int", emptyList()),
+                    TypeConstructor("kotlin.Any", emptyList())
+                )
             )
         )
 
