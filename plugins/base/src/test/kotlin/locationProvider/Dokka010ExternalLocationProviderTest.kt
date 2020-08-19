@@ -6,6 +6,7 @@ import org.jetbrains.dokka.base.resolvers.shared.ExternalDocumentation
 import org.jetbrains.dokka.base.resolvers.shared.PackageList
 import org.jetbrains.dokka.links.Callable
 import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.links.TypeConstructor
 import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -48,5 +49,24 @@ class Dokka010ExternalLocationProviderTest : AbstractCoreTest() {
         val dri = DRI("kotlin.text", "StringBuilder")
 
         assertEquals("$kotlinLang/kotlin.relocated.text/-string-builder/index.html", locationProvider.resolve(dri))
+    }
+
+    @Test
+    fun `method relocation in package list`() {
+        val locationProvider = getTestLocationProvider()
+        val dri = DRI(
+            "kotlin",
+            "",
+            Callable(
+                "minus",
+                null,
+                listOf(
+                    TypeConstructor("java.math.BigDecimal", emptyList()),
+                    TypeConstructor("java.math.BigDecimal", emptyList())
+                )
+            )
+        )
+
+        assertEquals("$kotlinLang/kotlin/java.math.-big-decimal/minus.html", locationProvider.resolve(dri))
     }
 }
