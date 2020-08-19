@@ -1,0 +1,67 @@
+$dokka.format:html-v1
+$dokka.linkExtension:html
+$dokka.location://arrayWithFun/#kotlin.Int#kotlin.Function1[kotlin.Int,TypeParam(bounds=[kotlin.Any?])]/PointingToDeclaration/kotlin-stdlib/[JS root]/array-with-fun.html
+$dokka.location://booleanArray/#kotlin.Int#kotlin.Any/PointingToDeclaration/kotlin-stdlib/[JS root]/boolean-array.html
+$dokka.location://booleanArrayWithFun/#kotlin.Int#kotlin.Function1[kotlin.Int,kotlin.Boolean]/PointingToDeclaration/kotlin-stdlib/[JS root]/boolean-array-with-fun.html
+$dokka.location://charArray/#kotlin.Int#kotlin.Any/PointingToDeclaration/kotlin-stdlib/[JS root]/char-array.html
+$dokka.location://charArrayWithFun/#kotlin.Int#kotlin.Function1[kotlin.Int,kotlin.Char]/PointingToDeclaration/kotlin-stdlib/[JS root]/char-array-with-fun.html
+$dokka.location://fillArrayFun/#kotlin.Array[TypeParam(bounds=[kotlin.Any?])]#kotlin.Function1[kotlin.Int,TypeParam(bounds=[kotlin.Any?])]/PointingToDeclaration/kotlin-stdlib/[JS root]/fill-array-fun.html
+$dokka.location://longArray/#kotlin.Int#kotlin.Any/PointingToDeclaration/kotlin-stdlib/[JS root]/long-array.html
+$dokka.location://longArrayWithFun/#kotlin.Int#kotlin.Function1[kotlin.Int,kotlin.Long]/PointingToDeclaration/kotlin-stdlib/[JS root]/long-array-with-fun.html
+$dokka.location://newArray/#kotlin.Int#TypeParam(bounds=[kotlin.Any?])/PointingToDeclaration/kotlin-stdlib/[JS root]/new-array.html
+$dokka.location://untypedCharArrayWithFun/#kotlin.Int#kotlin.Function1[kotlin.Int,kotlin.Char]/PointingToDeclaration/kotlin-stdlib/[JS root]/untyped-char-array-with-fun.html
+kotlin
+kotlin.annotation
+kotlin.browser
+kotlin.collections
+kotlin.comparisons
+kotlin.concurrent
+kotlin.contracts
+kotlin.coroutines
+kotlin.coroutines.cancellation
+kotlin.coroutines.intrinsics
+kotlin.dom
+kotlin.experimental
+kotlin.io
+kotlin.js
+kotlin.jvm
+kotlin.math
+kotlin.native
+kotlin.native.concurrent
+kotlin.native.ref
+kotlin.properties
+kotlin.random
+kotlin.ranges
+kotlin.reflect
+kotlin.reflect.full
+kotlin.reflect.jvm
+kotlin.sequences
+kotlin.streams
+kotlin.system
+kotlin.text
+kotlin.time
+kotlinx.browser
+kotlinx.cinterop
+kotlinx.cinterop.internal
+kotlinx.dom
+kotlinx.wasm.jsinterop
+org.khronos.webgl
+org.w3c.css.masking
+org.w3c.dom
+org.w3c.dom.clipboard
+org.w3c.dom.css
+org.w3c.dom.encryptedmedia
+org.w3c.dom.events
+org.w3c.dom.mediacapture
+org.w3c.dom.mediasource
+org.w3c.dom.parsing
+org.w3c.dom.pointerevents
+org.w3c.dom.svg
+org.w3c.dom.url
+org.w3c.fetch
+org.w3c.files
+org.w3c.notifications
+org.w3c.performance
+org.w3c.workers
+org.w3c.xhr
+
