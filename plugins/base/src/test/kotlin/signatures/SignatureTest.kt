@@ -453,15 +453,6 @@ class SignatureTest : AbstractCoreTest() {
     @Test
     fun `generic constructor params`() {
 
-        val configuration = dokkaConfiguration {
-            sourceSets {
-                sourceSet {
-                    moduleName = "test"
-                    name = "common"
-                    sourceRoots = listOf("src/main/kotlin/common/Test.kt")
-                }
-            }
-        }
 
         val writerPlugin = TestOutputWriterPlugin()
 
@@ -469,8 +460,6 @@ class SignatureTest : AbstractCoreTest() {
             """
                 |/src/main/kotlin/common/Test.kt
                 |package example
-                |
-                |import java.util.*
                 |
                 |class GenericClass<T>(val x: Int) {
                 |    constructor(x: T) : this(1)
@@ -481,7 +470,7 @@ class SignatureTest : AbstractCoreTest() {
                 |
                 |    constructor(x: Boolean, y: Int, z: String) : this(1)
                 |
-                |    constructor(x: List<Comparable<ServiceLoader<T>>>?) : this(1)
+                |    constructor(x: List<Comparable<Lazy<T>>>?) : this(1)
                 |}
                 |
             """.trimMargin(),
@@ -489,16 +478,15 @@ class SignatureTest : AbstractCoreTest() {
             pluginOverrides = listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
-                writerPlugin.writer.renderedContent("test/example/-generic-class/-generic-class.html").signature().zip(
+                writerPlugin.writer.renderedContent("root/example/-generic-class/-generic-class.html").signature().zip(
                     listOf(
                         arrayOf("fun <", A("T"), "> ", A("GenericClass"), "(x: ", A("T"), ")", Span()),
                         arrayOf("fun ", A("GenericClass"), "(x: ", A("Int"), ", y: ", A("String"), ")", Span()),
                         arrayOf("fun <", A("T"), "> ", A("GenericClass"), "(x: ", A("Int"), ", y: ", A("List"), "<", A("T"), ">)", Span()),
                         arrayOf("fun ", A("GenericClass"), "(x: ", A("Boolean"), ", y: ", A("Int"), ", z:", A("String"), ")", Span()),
                         arrayOf("fun <", A("T"), "> ", A("GenericClass"), "(x: ", A("List"), "<", A("Comparable"),
-                            "<", A("ServiceLoader"), "<", A("T"), ">>>?)", Span()),
+                            "<", A("Lazy"), "<", A("T"), ">>>?)", Span()),
                         arrayOf("fun ", A("GenericClass"), "(x: ", A("Int"), ")", Span()),
-
                     )
                 ).forEach {
                     it.first.match(*it.second)
