@@ -1,10 +1,10 @@
 package org.jetbrains.dokka.javadoc.location
 
-import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.base.resolvers.local.DefaultLocationProvider
 import org.jetbrains.dokka.javadoc.pages.*
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.Nullable
+import org.jetbrains.dokka.links.PointingToDeclaration
 import org.jetbrains.dokka.links.parent
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.pages.ContentPage
@@ -65,7 +65,14 @@ class JavadocLocationProvider(pageRoot: RootPageNode, dokkaContext: DokkaContext
     private fun JavadocClasslikePageNode.findAnchorableByDRI(dri: DRI): AnchorableJavadocNode? =
         (constructors + methods + entries + properties).firstOrNull { it.dri == dri }
 
-    override fun resolve(dri: DRI, sourceSets: Set<DisplaySourceSet>, context: PageNode?) =
+    override fun resolve(dri: DRI, sourceSets: Set<DisplaySourceSet>, context: PageNode?): String? =
+        getLocalLocation(dri, context)
+            ?: getLocalLocation(dri.copy(target = PointingToDeclaration), context)
+            // Not found in PageGraph, that means it's an external link
+            ?: getExternalLocation(dri, sourceSets)
+            ?: getExternalLocation(dri.copy(target = PointingToDeclaration), sourceSets)
+
+    private fun getLocalLocation(dri: DRI, context: PageNode?): String? =
         nodeIndex[dri]?.let { resolve(it, context) }
             ?: nodeIndex[dri.parent]?.takeIf { it is JavadocClasslikePageNode }?.let {
                 val anchor = when (val anchorElement = (it as? JavadocClasslikePageNode)?.findAnchorableByDRI(dri)) {
@@ -76,8 +83,6 @@ class JavadocLocationProvider(pageRoot: RootPageNode, dokkaContext: DokkaContext
                 }
                 "${resolve(it, context, skipExtension = true)}.html#$anchor"
             }
-            ?: getExternalLocation(dri, sourceSets)
-
 
     private fun JavadocFunctionNode.getAnchor(): String =
         "$name(" +
