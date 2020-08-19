@@ -6,6 +6,7 @@ import org.jetbrains.dokka.javadoc.renderer.SearchRecord.Companion.allTypes
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.DokkaException
 import org.jetbrains.dokka.base.renderers.sourceSets
+import org.jetbrains.dokka.base.resolvers.local.resolveOrThrow
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.DisplaySourceSet
 import org.jetbrains.dokka.model.Documentable
@@ -105,7 +106,7 @@ class SearchScriptsCreator(private val locationProvider: JavadocLocationProvider
                     packageName = it.first.name,
                     classlikeName = it.second.name,
                     input = function,
-                    url = locationProvider.resolve(function.dri, it.first.sourceSets()) ?: throw DokkaException("Cannot resolve path for ${function.dri}")
+                    url = locationProvider.resolveOrThrow(function.dri, it.first.sourceSets())
                 )
             }
         }
@@ -116,7 +117,7 @@ class SearchScriptsCreator(private val locationProvider: JavadocLocationProvider
                     packageName = it.first.name,
                     classlikeName = it.second.name,
                     property,
-                    locationProvider.resolve(property.dri, it.first.sourceSets())?: throw DokkaException("Cannot resolve path for ${property.dri}")
+                    locationProvider.resolveOrThrow(property.dri, it.first.sourceSets())
                 )
             }
         }
@@ -127,7 +128,7 @@ class SearchScriptsCreator(private val locationProvider: JavadocLocationProvider
                     packageName = it.first.name,
                     classlikeName = it.second.name,
                     entry,
-                    locationProvider.resolve(entry.dri, it.first.sourceSets()) ?: throw DokkaException("Cannot resolve path for ${entry.dri}")
+                    locationProvider.resolveOrThrow(entry.dri, it.first.sourceSets())
                 )
             }
         }
@@ -187,7 +188,7 @@ class SearchScriptsCreator(private val locationProvider: JavadocLocationProvider
         sourceSets: Set<DisplaySourceSet>,
         label: String
     ): String =
-        locationProvider.resolve(dri, sourceSets)!!.formatToEndWithHtml() + "#" + label
+        locationProvider.resolveOrThrow(dri, sourceSets).formatToEndWithHtml() + "#" + label
 }
 
 private data class SearchRecord(
