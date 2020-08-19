@@ -20,7 +20,7 @@ internal class JavadocContentToHtmlTranslator(
             is ContentText -> htmlForText(node)
             is ContentDRILink -> buildLinkFromNode(node, relative)
             is ContentResolvedLink -> buildLinkFromNode(node, relative)
-            is ContentCode -> htmlForCode(node.children, relative)
+            is ContentCode -> htmlForCode(node, relative)
             is ContentList -> htmlForList(node.children, relative)
             is JavadocSignatureContentNode -> htmlForSignature(node, relative)
             is ContentBreakLine -> "<br>"
@@ -44,16 +44,17 @@ internal class JavadocContentToHtmlTranslator(
     private fun htmlForParagraph(nodes: List<ContentNode>, relative: PageNode?) =
         "<p>${htmlForContentNodes(nodes, relative)}</p>"
 
-    private fun htmlForCode(code: List<ContentNode>, relative: PageNode?): String {
-        fun nodeToText(node: ContentNode): String = when (node) {
-            is ContentText -> node.text
-            is ContentBreakLine -> ""
+    private fun htmlForCode(code: ContentCode, relative: PageNode?): String {
+        fun nodeToText(node: ContentNode, insidePre: Boolean = false): String = when (node) {
+            is ContentText -> node.text.htmlEscape()
+            is ContentBreakLine -> if(insidePre) "\n" else "<br>"
             is ContentDRILink -> buildLinkFromNode(node, relative)
             is ContentResolvedLink -> buildLinkFromNode(node, relative)
-            is ContentCode -> node.children.joinToString("") { nodeToText(it) }
+            is ContentCodeBlock -> "<pre><code>${node.children.joinToString("") { nodeToText(it, insidePre = true) }}</code></pre>"
+            is ContentCodeInline -> "<code>${node.children.joinToString("") { nodeToText(it) }}</code>"
             else -> run { context.logger.error("Cannot cast $node as ContentText!"); "" }
         }
-        return code.map(::nodeToText).joinToString("<br>", """<code>""", "</code>") { it }
+        return nodeToText(code)
     }
 
     private fun htmlForList(elements: List<ContentNode>, relative: PageNode?) =

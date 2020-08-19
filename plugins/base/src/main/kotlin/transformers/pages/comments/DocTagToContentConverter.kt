@@ -102,7 +102,7 @@ object DocTagToContentConverter : CommentsToContentConverter {
                     styles
                 )
             )
-            is BlockQuote -> listOf(
+            is BlockQuote, is Pre, is CodeBlock -> listOf(
                 ContentCodeBlock(
                     buildChildren(docTag),
                     "",
@@ -113,15 +113,6 @@ object DocTagToContentConverter : CommentsToContentConverter {
             )
             is CodeInline -> listOf(
                 ContentCodeInline(
-                    buildChildren(docTag),
-                    "",
-                    dci,
-                    sourceSets.toDisplaySourceSets(),
-                    styles
-                )
-            )
-            is CodeBlock -> listOf(
-                ContentCodeBlock(
                     buildChildren(docTag),
                     "",
                     dci,
