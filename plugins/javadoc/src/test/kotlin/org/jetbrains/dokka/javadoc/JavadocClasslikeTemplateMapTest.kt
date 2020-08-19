@@ -312,7 +312,7 @@ internal class JavadocClasslikeTemplateMapTest : AbstractJavadocTemplateMapTest(
             val ownMethods = assertIsInstance<List<*>>(methods["own"]).first()
             val sampleFunction = assertIsInstance<Map<String, Any?>>(ownMethods)
 
-            assertEquals("final &lt;D extends <a href=Generic.html>T</a>&gt; <a href=Generic.html#sampleFunction()>D</a> <a href=Generic.html#sampleFunction()>sampleFunction</a>()", sampleFunction.signatureWithModifiers())
+            assertEquals("final &lt;D extends <a href=Generic.html#Generic>T</a>&gt; <a href=Generic.html#sampleFunction()>D</a> <a href=Generic.html#sampleFunction()>sampleFunction</a>()", sampleFunction.signatureWithModifiers())
         }
     }
 

@@ -1,9 +1,6 @@
 package org.jetbrains.dokka.analysis
 
-import com.intellij.psi.PsiClass
-import com.intellij.psi.PsiElement
-import com.intellij.psi.PsiField
-import com.intellij.psi.PsiMethod
+import com.intellij.psi.*
 import org.jetbrains.dokka.links.Callable
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.DriTarget
@@ -28,7 +25,7 @@ fun DRI.Companion.from(descriptor: DeclarationDescriptor) = descriptor.parentsWi
 fun DRI.Companion.from(psi: PsiElement) = psi.parentsWithSelf.run {
     val psiMethod = firstIsInstanceOrNull<PsiMethod>()
     val psiField = firstIsInstanceOrNull<PsiField>()
-    val classes = filterIsInstance<PsiClass>().toList()
+    val classes = filterIsInstance<PsiClass>().filterNot { it is PsiTypeParameter }.toList() // We only want exact PsiClass types, not PsiTypeParameter subtype
     DRI(
         classes.lastOrNull()?.qualifiedName?.substringBeforeLast('.', ""),
         classes.toList().takeIf { it.isNotEmpty() }?.asReversed()?.mapNotNull { it.name }?.joinToString("."),
