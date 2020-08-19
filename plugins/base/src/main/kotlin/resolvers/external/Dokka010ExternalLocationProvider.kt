@@ -14,8 +14,10 @@ open class Dokka010ExternalLocationProvider(
     override fun resolve(dri: DRI): String? {
         val docURL = externalDocumentation.documentationURL.toString().removeSuffix("/") + "/"
 
+        val fqName = listOfNotNull(dri.packageName.takeIf { it?.isNotBlank() == true },
+            dri.classNames.takeIf { it?.isNotBlank() == true }).joinToString(".")
         val relocationId =
-            "${dri.packageName}.${dri.classNames}".let { if (dri.callable != null) it + "$" + dri.callable!!.toOldString() else it }
+            fqName.let { if (dri.callable != null) it + "$" + dri.callable!!.toOldString() else it }
         externalDocumentation.packageList.locations[relocationId]?.let { path -> return "$docURL$path" }
 
         val classNamesChecked = dri.classNames ?: return "$docURL${dri.packageName ?: ""}/index$extension"
@@ -26,5 +28,5 @@ open class Dokka010ExternalLocationProvider(
         return "$docURL$classLink/" + identifierToFilename(callableChecked.name) + extension
     }
 
-    private fun Callable.toOldString() = name + params.joinToString(", ", "(", ")") + receiver?.let { "#$it" }
+    private fun Callable.toOldString() = name + params.joinToString(", ", "(", ")") + (receiver?.let { "#$it" } ?: "")
 }
