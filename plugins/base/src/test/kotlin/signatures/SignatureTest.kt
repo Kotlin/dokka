@@ -11,7 +11,7 @@ class SignatureTest : AbstractCoreTest() {
     private val configuration = dokkaConfiguration {
         sourceSets {
             sourceSet {
-                sourceRoots = listOf("src/main/kotlin/test/Test.kt")
+                sourceRoots = listOf("src/")
                 classpath = listOf(commonStdlibPath!!)
                 externalDocumentationLinks = listOf(stdlibExternalDocumentationLink)
             }
@@ -178,15 +178,6 @@ class SignatureTest : AbstractCoreTest() {
 
     @Test
     fun `class with no supertype`() {
-
-        val configuration = dokkaConfiguration {
-            sourceSets {
-                sourceSet {
-                    sourceRoots = listOf("src/main/kotlin/test/Test.kt")
-                }
-            }
-        }
-
         val source = source("class SimpleClass")
         val writerPlugin = TestOutputWriterPlugin()
 
@@ -205,15 +196,6 @@ class SignatureTest : AbstractCoreTest() {
 
     @Test
     fun `class with generic supertype`() {
-
-        val configuration = dokkaConfiguration {
-            sourceSets {
-                sourceSet {
-                    sourceRoots = listOf("src/main/kotlin/test/Test.kt")
-                }
-            }
-        }
-
         val source = source("class InheritingClassFromGenericType<T : Number, R : CharSequence> : Comparable<T>, Collection<R>")
         val writerPlugin = TestOutputWriterPlugin()
 
@@ -352,12 +334,16 @@ class SignatureTest : AbstractCoreTest() {
                     moduleName = "test"
                     name = "common"
                     sourceRoots = listOf("src/main/kotlin/common/Test.kt")
+                    classpath = listOf(commonStdlibPath!!)
+                    externalDocumentationLinks = listOf(stdlibExternalDocumentationLink)
                 }
                 sourceSet {
                     moduleName = "test"
                     name = "jvm"
                     dependentSourceSets = setOf(DokkaSourceSetID("test", "common"))
                     sourceRoots = listOf("src/main/kotlin/jvm/Test.kt")
+                    classpath = listOf(commonStdlibPath!!)
+                    externalDocumentationLinks = listOf(stdlibExternalDocumentationLink)
                 }
             }
         }
@@ -392,16 +378,6 @@ class SignatureTest : AbstractCoreTest() {
     @Test
     fun `plain typealias of plain class`() {
 
-        val configuration = dokkaConfiguration {
-            sourceSets {
-                sourceSet {
-                    moduleName = "test"
-                    name = "common"
-                    sourceRoots = listOf("src/main/kotlin/common/Test.kt")
-                }
-            }
-        }
-
         val writerPlugin = TestOutputWriterPlugin()
 
         testInline(
@@ -416,8 +392,8 @@ class SignatureTest : AbstractCoreTest() {
             pluginOverrides = listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
-                writerPlugin.writer.renderedContent("test/example.html").signature().first().match(
-                    "typealias ", A("PlainTypealias"), " = ", A("Int"), Span()
+                writerPlugin.writer.renderedContent("root/example.html").signature().first().match(
+                    "typealias ", Span("PlainTypealias"), " = ", A("Int"), Span()
                 )
             }
         }
@@ -425,16 +401,6 @@ class SignatureTest : AbstractCoreTest() {
 
     @Test
     fun `plain typealias of generic class`() {
-
-        val configuration = dokkaConfiguration {
-            sourceSets {
-                sourceSet {
-                    moduleName = "test"
-                    name = "common"
-                    sourceRoots = listOf("src/main/kotlin/common/Test.kt")
-                }
-            }
-        }
 
         val writerPlugin = TestOutputWriterPlugin()
 
@@ -450,8 +416,8 @@ class SignatureTest : AbstractCoreTest() {
             pluginOverrides = listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
-                writerPlugin.writer.renderedContent("test/example.html").signature().first().match(
-                    "typealias ", A("PlainTypealias"), " = ", A("Comparable"),
+                writerPlugin.writer.renderedContent("root/example.html").signature().first().match(
+                    "typealias ", Span("PlainTypealias"), " = ", A("Comparable"),
                     "<", A("Int"), ">", Span()
                 )
             }
@@ -461,15 +427,6 @@ class SignatureTest : AbstractCoreTest() {
     @Test
     fun `typealias with generics params`() {
 
-        val configuration = dokkaConfiguration {
-            sourceSets {
-                sourceSet {
-                    moduleName = "test"
-                    name = "common"
-                    sourceRoots = listOf("src/main/kotlin/common/Test.kt")
-                }
-            }
-        }
 
         val writerPlugin = TestOutputWriterPlugin()
 
@@ -485,9 +442,9 @@ class SignatureTest : AbstractCoreTest() {
             pluginOverrides = listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
-                writerPlugin.writer.renderedContent("test/example.html").signature().first().match(
-                    "typealias ", A("GenericTypealias"), "<", A("T"), "> = ", A("Comparable"),
-                    "<", A("T"), ">", Span()
+                writerPlugin.writer.renderedContent("root/example.html").signature().first().match(
+                    "typealias ", Span("GenericTypealias"), "<", Span("T"), "> = ", A("Comparable"),
+                    "<", Span("T"), ">", Span()
                 )
             }
         }
