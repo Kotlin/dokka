@@ -239,7 +239,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                 )
                 text(f.modifiers()[it]?.toSignatureString() ?: "")
                 text("fun ")
-                val usedGenerics = f.generics.filter { f uses it }
+                val usedGenerics = if (f.isConstructor) f.generics.filter { f uses it } else f.generics
                 list(usedGenerics, prefix = "<", suffix = "> ") {
                     +buildSignature(it)
                 }

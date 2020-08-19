@@ -122,7 +122,7 @@ class JavaSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogge
                 signatureForProjection(returnType)
                 text(nbsp.toString())
                 link(f.name, f.dri)
-                val usedGenerics = f.generics.filter { f uses it }
+                val usedGenerics = if (f.isConstructor) f.generics.filter { f uses it } else f.generics
                 list(usedGenerics, prefix = "<", suffix = ">") {
                     +buildSignature(it)
                 }

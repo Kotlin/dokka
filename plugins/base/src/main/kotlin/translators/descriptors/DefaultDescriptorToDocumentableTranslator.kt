@@ -590,7 +590,7 @@ private class DokkaDescriptorVisitor(
 
     private fun TypeParameterDescriptor.toTypeParameter() =
         DTypeParameter(
-            DRI.from(this),
+            DRI.from(this).withPackageFallbackTo(fallbackPackageName()),
             name.identifier,
             resolveDescriptorData(),
             null,

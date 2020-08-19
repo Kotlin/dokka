@@ -95,7 +95,7 @@ class JavadocSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLo
             modifiers {
                 text(f.modifier[it]?.takeIf { it !in ignoredModifiers }?.name?.plus(" ") ?: "")
                 text(f.modifiers()[it]?.toSignatureString() ?: "")
-                val usedGenerics = f.generics.filter { f uses it }
+                val usedGenerics = if (f.isConstructor) f.generics.filter { f uses it } else f.generics
                 list(usedGenerics, prefix = "<", suffix = "> ") {
                     +buildSignature(it)
                 }
