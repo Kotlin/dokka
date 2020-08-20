@@ -386,23 +386,31 @@ open class HtmlRenderer(
                                             it.build(this, pageContext, sourceSetRestriction)
                                             buildAnchor(anchorName)
                                         }
-                                        if (ContentKind.shouldBePlatformTagged(node.dci.kind) && (node.sourceSets.size == 1))
+                                        if (ContentKind.shouldBePlatformTagged(node.dci.kind) && (node.sourceSets.size == 1 || pageContext is ModulePage))
                                             createPlatformTags(node)
                                     }
                             }
                         }
 
                         it.filter { it !is ContentLink }.takeIf { it.isNotEmpty() }?.let {
-                            div("platform-dependent-row keyValue") {
-                                val title = it.filter { it.style.contains(ContentStyle.RowTitle) }
-                                div {
-                                    title.forEach {
+                            if(pageContext is ModulePage){
+                                it.forEach {
+                                    span(classes = if(it.dci.kind == ContentKind.Comment) "brief-comment" else "") {
                                         it.build(this, pageContext, sourceSetRestriction)
                                     }
                                 }
-                                div("title") {
-                                    (it - title).forEach {
-                                        it.build(this, pageContext, sourceSetRestriction)
+                            } else {
+                                div("platform-dependent-row keyValue") {
+                                    val title = it.filter { it.style.contains(ContentStyle.RowTitle) }
+                                    div {
+                                        title.forEach {
+                                            it.build(this, pageContext, sourceSetRestriction)
+                                        }
+                                    }
+                                    div("title") {
+                                        (it - title).forEach {
+                                            it.build(this, pageContext, sourceSetRestriction)
+                                        }
                                     }
                                 }
                             }
@@ -513,12 +521,19 @@ open class HtmlRenderer(
 
     override fun FlowContent.buildNavigation(page: PageNode) =
         div(classes = "breadcrumbs") {
-            locationProvider.ancestors(page).asReversed().forEach { node ->
-                text("/")
-                if (node.isNavigable) buildLink(node, page)
-                else text(node.name)
+            val path = locationProvider.ancestors(page).filterNot { it is RendererSpecificPage }.asReversed()
+            if(path.isNotEmpty()){
+                buildNavigationElement(path.first(), page)
+                path.drop(1).forEach { node ->
+                    text("/")
+                    buildNavigationElement(node, page)
+                }
             }
         }
+
+    private fun FlowContent.buildNavigationElement(node: PageNode, page: PageNode) =
+        if (node.isNavigable) buildLink(node, page)
+        else text(node.name)
 
     private fun FlowContent.buildLink(to: PageNode, from: PageNode) =
         locationProvider.resolve(to, from)?.let { path ->

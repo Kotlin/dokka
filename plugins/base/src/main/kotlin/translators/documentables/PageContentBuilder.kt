@@ -7,6 +7,7 @@ import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentCon
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.Documentable
 import org.jetbrains.dokka.model.SourceSetDependent
+import org.jetbrains.dokka.model.doc.Description
 import org.jetbrains.dokka.model.doc.DocTag
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.model.toDisplaySourceSets
@@ -285,6 +286,22 @@ open class PageContentBuilder(
                 sourceSets
             )
             contents += ContentGroup(content, DCI(mainDRI, kind), sourceSets.toDisplaySourceSets(), styles, extra)
+        }
+
+        fun firstSentenceComment(
+            content: Description,
+            kind: Kind = ContentKind.Comment,
+            sourceSets: Set<DokkaSourceSet> = mainSourcesetData,
+            styles: Set<Style> = mainStyles,
+            extra: PropertyContainer<ContentNode> = mainExtra
+        ){
+            val builtDescription = commentsConverter.buildContent(
+                content.root,
+                DCI(mainDRI, kind),
+                sourceSets
+            )
+
+            contents += ContentGroup(briefFromContentNodes(builtDescription), DCI(mainDRI, kind), sourceSets.toDisplaySourceSets(), styles, extra)
         }
 
         fun group(
