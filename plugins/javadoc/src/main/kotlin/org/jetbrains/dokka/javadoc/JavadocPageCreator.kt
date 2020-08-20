@@ -6,6 +6,7 @@ import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.base.signatures.SignatureProvider
 import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentConverter
 import org.jetbrains.dokka.base.transformers.pages.comments.DocTagToContentConverter
+import org.jetbrains.dokka.base.translators.documentables.briefFromContentNodes
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.doc.Description
 import org.jetbrains.dokka.model.doc.Index
@@ -170,8 +171,6 @@ open class JavadocPageCreator(
             sources.firstOrNull { it != expectPresentInSet } ?: sources.firstOrNull()
         }
 
-    private val firstSentenceRegex = Regex("^((?:[^.?!]|[.!?](?!\\s))*[.!?])")
-
     private inline fun <reified T : TagWrapper> Documentable.findNodeInDocumentation(sourceSetData: DokkaSourceSet?): T? =
         documentation[sourceSetData]?.firstChildOfTypeOrNull<T>()
 
@@ -195,24 +194,6 @@ open class JavadocPageCreator(
 
     private fun Documentable.brief(sourceSet: DokkaSourceSet? = highestJvmSourceSet): List<ContentNode> =
         briefFromContentNodes(descriptionToContentNodes(sourceSet))
-
-    private fun briefFromContentNodes(description: List<ContentNode>): List<ContentNode> {
-        var sentenceFound = false
-        fun lookthrough(node: ContentNode): ContentNode =
-            if (node is ContentText && firstSentenceRegex.containsMatchIn(node.text)) {
-                sentenceFound = true
-                node.copy(text = firstSentenceRegex.find(node.text)?.value.orEmpty())
-            } else if (node is ContentGroup) {
-                node.copy(children = node.children.mapNotNull {
-                    if (!sentenceFound) lookthrough(it) else null
-                }, style = node.style - TextStyle.Paragraph)
-            } else {
-                node
-            }
-        return description.mapNotNull {
-            if (!sentenceFound) lookthrough(it) else null
-        }
-    }
 
     private fun DParameter.brief(sourceSet: DokkaSourceSet? = highestJvmSourceSet): List<ContentNode> =
         briefFromContentNodes(paramsToContentNodes(sourceSet).dropWhile { it is ContentDRILink })
