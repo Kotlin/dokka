@@ -8,21 +8,26 @@ import org.gradle.kotlin.dsl.register
 open class DokkaPlugin : Plugin<Project> {
     override fun apply(project: Project) {
 
-        project.setupDokkaTasks("dokkaHtml")
+        project.setupDokkaTasks("dokkaHtml") {
+            description = "Generates documentation in 'html' format"
+        }
 
         project.setupDokkaTasks(
             name = "dokkaJavadoc",
             multiModuleTaskSupported = false
         ) {
             plugins.dependencies.add(project.dokkaArtifacts.javadocPlugin)
+            description = "Generates documentation in 'javadoc' format"
         }
 
         project.setupDokkaTasks("dokkaGfm") {
             plugins.dependencies.add(project.dokkaArtifacts.gfmPlugin)
+            description = "Generates documentation in GitHub flavored markdown format"
         }
 
         project.setupDokkaTasks("dokkaJekyll") {
             plugins.dependencies.add(project.dokkaArtifacts.jekyllPlugin)
+            description = "Generates documentation in Jekyll flavored markdown format"
         }
     }
 
@@ -47,10 +52,13 @@ open class DokkaPlugin : Plugin<Project> {
                 val multiModuleName = "${name}MultiModule"
                 project.maybeCreateDokkaPluginConfiguration(multiModuleName)
                 project.maybeCreateDokkaRuntimeConfiguration(multiModuleName)
+
                 project.tasks.register<DokkaMultiModuleTask>(multiModuleName) {
                     addSubprojectChildTasks(name)
                     configuration()
+                    description = "Runs all subprojects '$name' tasks and generates module navigation page"
                 }
+
                 project.tasks.register<DefaultTask>("${name}Multimodule") {
                     dependsOn(multiModuleName)
                     doLast {
@@ -61,6 +69,8 @@ open class DokkaPlugin : Plugin<Project> {
             if (collectorTaskSupported) {
                 project.tasks.register<DokkaCollectorTask>("${name}Collector") {
                     addSubprojectChildTasks(name)
+                    description =
+                        "Generates documentation merging all subprojects '$name' tasks into one virtual module"
                 }
             }
         }
