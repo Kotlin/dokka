@@ -45,7 +45,7 @@ open class GradleDokkaSourceSetBuilder constructor(
     val displayName: Property<String?> = project.objects.safeProperty()
 
     @InputFiles
-    val sourceRoots: ConfigurableFileCollection = project.files()
+    val sourceRoots: ConfigurableFileCollection = project.objects.fileCollection()
 
     @Input
     val dependentSourceSets: SetProperty<DokkaSourceSetID> = project.objects.setProperty<DokkaSourceSetID>()
