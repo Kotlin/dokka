@@ -7,7 +7,12 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinJvmAndroidCompilation
 
 internal fun Project.isMainSourceSet(sourceSet: KotlinSourceSet): Boolean {
-    return allCompilationsOf(sourceSet).any { compilation -> isMainCompilation(compilation) }
+    return isMainSourceSet(allCompilationsOf(sourceSet))
+}
+
+internal fun isMainSourceSet(compilations: List<KotlinCompilation>): Boolean {
+    if (compilations.isEmpty()) return true
+    return compilations.any { compilation -> isMainCompilation(compilation) }
 }
 
 private fun isMainCompilation(compilation: KotlinCompilation): Boolean {
