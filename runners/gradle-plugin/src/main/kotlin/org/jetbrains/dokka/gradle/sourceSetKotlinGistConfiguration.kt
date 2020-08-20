@@ -14,7 +14,7 @@ internal fun GradleDokkaSourceSetBuilder.configureWithKotlinSourceSetGist(source
         sourceSetNames.map { sourceSetName -> DokkaSourceSetID(sourceSetName) }
     }
 
-    this.isDocumented by sourceSet.isMain
+    this.suppress by sourceSet.isMain.map { !it }
     this.sourceRoots.from(sourceSet.sourceRoots)
     this.classpath.from(sourceSet.classpath)
     this.platform by sourceSet.platform.map { Platform.fromString(it.name) }

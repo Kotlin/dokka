@@ -16,16 +16,14 @@ dependencies {
     implementation(project(":core"))
     compileOnly("com.fasterxml.jackson.core:jackson-annotations:2.11.1")
     compileOnly("org.jetbrains.kotlin:kotlin-gradle-plugin")
-    compileOnly("com.android.tools.build:gradle:3.0.0")
-    compileOnly("com.android.tools.build:gradle-core:3.0.0")
-    compileOnly("com.android.tools.build:builder-model:3.0.0")
+    compileOnly("com.android.tools.build:gradle:4.0.1")
     compileOnly(gradleApi())
     compileOnly(gradleKotlinDsl())
     testImplementation(gradleApi())
     testImplementation(gradleKotlinDsl())
     testImplementation(kotlin("test-junit"))
     testImplementation("org.jetbrains.kotlin:kotlin-gradle-plugin")
-    testImplementation("com.android.tools.build:gradle:3.0.0")
+    testImplementation("com.android.tools.build:gradle:4.0.1")
 
 
     constraints {

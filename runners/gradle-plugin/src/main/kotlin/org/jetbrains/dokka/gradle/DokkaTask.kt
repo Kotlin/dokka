@@ -22,18 +22,17 @@ open class DokkaTask : AbstractDokkaTask(DokkaBootstrapImpl::class) {
                 }
             }
 
-    // TODO NOW: Test
     /**
      * Only contains source sets that are marked with `isDocumented`.
      * Non documented source sets are not relevant for Gradle's UP-TO-DATE mechanism, as well
      * as task dependency graph.
      */
     @get:Nested
-    protected val documentedDokkaSourceSets: List<GradleDokkaSourceSetBuilder>
+    protected val unsuppressedSourceSets: List<GradleDokkaSourceSetBuilder>
         get() = dokkaSourceSets
             .toList()
             .also(::checkSourceSetDependencies)
-            .filter { it.isDocumented.getSafe() }
+            .filterNot { it.suppress.getSafe() }
 
     override fun buildDokkaConfiguration(): DokkaConfigurationImpl {
         return DokkaConfigurationImpl(
@@ -41,7 +40,7 @@ open class DokkaTask : AbstractDokkaTask(DokkaBootstrapImpl::class) {
             cacheRoot = cacheRoot.getSafe(),
             offlineMode = offlineMode.getSafe(),
             failOnWarning = failOnWarning.getSafe(),
-            sourceSets = documentedDokkaSourceSets.build(),
+            sourceSets = unsuppressedSourceSets.build(),
             pluginsConfiguration = pluginsConfiguration.getSafe(),
             pluginsClasspath = plugins.resolve().toList()
         )

@@ -33,9 +33,8 @@ open class GradleDokkaSourceSetBuilder constructor(
     val sourceSetID: DokkaSourceSetID = DokkaSourceSetID(project, name)
 
     @Input
-    @get:JvmName("getIsDocumented")
-    val isDocumented: Property<Boolean> = project.objects.safeProperty<Boolean>()
-        .safeConvention(true)
+    val suppress: Property<Boolean> = project.objects.safeProperty<Boolean>()
+        .safeConvention(false)
 
     @Classpath
     @Optional

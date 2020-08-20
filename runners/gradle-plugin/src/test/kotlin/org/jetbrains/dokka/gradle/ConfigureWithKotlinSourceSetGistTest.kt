@@ -1,7 +1,9 @@
 package org.jetbrains.dokka.gradle
 
 import org.gradle.api.artifacts.FileCollectionDependency
+import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.kotlin.dsl.get
+import org.gradle.kotlin.dsl.property
 import org.gradle.testfixtures.ProjectBuilder
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.gradle.kotlin.KotlinSourceSetGist
@@ -27,7 +29,6 @@ class ConfigureWithKotlinSourceSetGistTest {
             name = "customName",
             platform = project.provider { KotlinPlatformType.common },
             isMain = project.provider { true },
-            // TODO NOW: Test if it changes
             classpath = project.provider { project.files(f1Jar, f2Jar) },
             sourceRoots = project.files(customSourceRoot),
             dependentSourceSetNames = project.provider { setOf("customRootSourceSet") }
@@ -121,4 +122,45 @@ class ConfigureWithKotlinSourceSetGistTest {
             "Expected customRoot being added to source roots in dokkaSourceSet"
         )
     }
+
+    @Test
+    fun `changing classpath`() {
+        val project = ProjectBuilder.builder().build()
+        val dokkaSourceSet = GradleDokkaSourceSetBuilder("main", project)
+        var classpath = project.files()
+
+        dokkaSourceSet.configureWithKotlinSourceSetGist(
+            KotlinSourceSetGist(
+                name = "gist",
+                platform = project.provider { KotlinPlatformType.common },
+                isMain = project.provider { true },
+                dependentSourceSetNames = project.provider { emptySet() },
+                sourceRoots = project.files(),
+                classpath = project.provider { classpath }
+            )
+        )
+
+        dokkaSourceSet.classpath.from("base.jar")
+        classpath.from("f1.jar")
+        classpath.from("f2.jar")
+        assertEquals(
+            setOf(project.file("f1.jar"), project.file("f2.jar"), project.file("base.jar")),
+            dokkaSourceSet.classpath.files,
+            "Expected files from initial gist classpath and manually added file base.jar to be present in classpath"
+        )
+
+        /*
+        Swapping the original file collection in favour of a new one.
+        We expect that the base.jar is still present, as it was configured on the dokka source set.
+        We also expect, that the new files from the new file collection are replacing old ones
+         */
+        classpath = project.files("f3.jar", "f4.jar")
+        assertEquals(
+            setOf(project.file("f3.jar"), project.file("f4.jar"), project.file("base.jar")),
+            dokkaSourceSet.classpath.files,
+            "Expected files from changed gist classpath and manually added file base.jar to be present in classpath"
+        )
+    }
+
+
 }
