@@ -27,7 +27,7 @@ tasks.withType<DokkaTask>().configureEach {
         configureEach {
             externalDocumentationLink {
                 url.set(URL("https://kotlin.github.io/kotlinx.coroutines/kotlinx-coroutines-core/"))
-                packageListUrl.set(URL("https://kotlin.github.io/kotlinx.coroutines/kotlinx-coroutines-core/package-list"))
+                //packageListUrl.set(URL("https://kotlin.github.io/kotlinx.coroutines/kotlinx-coroutines-core/package-list"))
             }
         }
     }
