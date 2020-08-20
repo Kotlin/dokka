@@ -63,7 +63,7 @@ class JavadocPlugin : DokkaPlugin() {
             PackageListCreator(
                 context = it,
                 format = RecognizedLinkFormat.DokkaJavadoc,
-                fileName = "element-list"
+                outputFilesNames = listOf("package-list", "element-list")
             )
         } order { after(rootCreator) }
     }
