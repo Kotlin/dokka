@@ -4,6 +4,7 @@ import kotlinx.html.*
 import kotlinx.html.stream.createHTML
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.DisplaySourceSet
+import org.jetbrains.dokka.model.WithChildren
 import org.jetbrains.dokka.pages.PageNode
 import org.jetbrains.dokka.pages.RendererSpecificPage
 import org.jetbrains.dokka.pages.RenderingStrategy
@@ -42,8 +43,8 @@ data class NavigationNode(
     val name: String,
     val dri: DRI,
     val sourceSets: Set<DisplaySourceSet>,
-    val children: List<NavigationNode>
-)
+    override val children: List<NavigationNode>
+): WithChildren<NavigationNode>
 
 fun NavigationPage.transform(block: (NavigationNode) -> NavigationNode) = NavigationPage(root.transform(block))
 
