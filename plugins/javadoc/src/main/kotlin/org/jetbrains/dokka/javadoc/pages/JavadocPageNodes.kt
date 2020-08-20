@@ -38,7 +38,7 @@ class JavadocModulePageNode(
     override val dri: Set<DRI>
 ) :
     RootPageNode(),
-    JavadocPageNode {
+    JavadocPageNode, ModulePage {
 
     override val documentable: Documentable? = null
     override val embeddedResources: List<String> = emptyList()
@@ -62,7 +62,7 @@ class JavadocPackagePageNode(
     override val documentable: Documentable? = null,
     override val children: List<PageNode> = emptyList(),
     override val embeddedResources: List<String> = listOf()
-) : JavadocPageNode, WithIndexables, IndexableJavadocNode {
+) : JavadocPageNode, WithIndexables, IndexableJavadocNode, PackagePage {
 
     override fun getAllIndexables(): List<IndexableJavadocNode> =
         children.filterIsInstance<IndexableJavadocNode>().flatMap {
@@ -172,7 +172,7 @@ class JavadocClasslikePageNode(
     override val children: List<PageNode> = emptyList(),
     override val embeddedResources: List<String> = listOf(),
     override val extra: PropertyContainer<DClasslike> = PropertyContainer.empty(),
-) : JavadocPageNode, WithJavadocExtra<DClasslike>, IndexableJavadocNode, WithIndexables, WithBrief {
+) : JavadocPageNode, WithJavadocExtra<DClasslike>, IndexableJavadocNode, WithIndexables, WithBrief, ClasslikePage {
 
     override fun getAllIndexables(): List<IndexableJavadocNode> =
         methods + entries + classlikes.map { it.getAllIndexables() }.flatten() + this

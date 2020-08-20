@@ -26,13 +26,13 @@ internal class JavadocPackageListTest : AbstractJavadocTemplateMapTest() {
         ){
             val contents = writerPlugin.writer.contents
             val expected = """
-                ${'$'}dokka.format:dokkaJavadoc
+                ${'$'}dokka.format:javadoc-v1
                 ${'$'}dokka.linkExtension:html
                 
                 package0
                 package1
                 """.trimIndent()
-            assertEquals(expected, contents["/package-list"]?.trimIndent())
+            assertEquals(expected, contents["/element-list"]?.trimIndent())
         }
     }
 
@@ -61,14 +61,14 @@ internal class JavadocPackageListTest : AbstractJavadocTemplateMapTest() {
         ){
             val contents = writerPlugin.writer.contents
             val expected = """
-                ${'$'}dokka.format:dokkaJavadoc
+                ${'$'}dokka.format:javadoc-v1
                 ${'$'}dokka.linkExtension:html
                 
                 package0
                 package0.package0Inner
                 package1.package1Inner.package1InnerInner
                 """.trimIndent()
-            assertEquals(expected, contents["/package-list"]?.trimIndent())
+            assertEquals(expected, contents["/element-list"]?.trimIndent())
         }
     }
 }
