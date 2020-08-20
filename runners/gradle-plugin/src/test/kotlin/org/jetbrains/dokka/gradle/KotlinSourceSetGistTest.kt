@@ -3,12 +3,10 @@ package org.jetbrains.dokka.gradle
 import org.gradle.api.artifacts.FileCollectionDependency
 import org.gradle.kotlin.dsl.get
 import org.gradle.testfixtures.ProjectBuilder
-import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.gradle.kotlin.gistOf
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
-import org.jetbrains.kotlin.gradle.utils.`is`
 import java.io.File
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -32,7 +30,7 @@ class KotlinSourceSetGistTest {
         )
 
         assertEquals(
-            KotlinPlatformType.jvm, mainSourceSetGist.platform,
+            KotlinPlatformType.jvm, mainSourceSetGist.platform.getSafe(),
             "Expected correct platform"
         )
 
@@ -140,7 +138,7 @@ class KotlinSourceSetGistTest {
         }
 
         assertEquals(
-            emptySet(), mainSourceSetGist.classpath.files,
+            emptySet(), mainSourceSetGist.classpath.getSafe().files,
             "Expected no files on the classpath, since no file exists"
         )
 
@@ -151,7 +149,7 @@ class KotlinSourceSetGistTest {
         check(runtimeOnlyJar.createNewFile())
 
         assertEquals(
-            setOf(implementationJar, compileOnlyJar, apiJar), mainSourceSetGist.classpath.files,
+            setOf(implementationJar, compileOnlyJar, apiJar), mainSourceSetGist.classpath.getSafe().files,
             "Expected implementation, compileOnly and api dependencies on classpath"
         )
     }
@@ -189,17 +187,17 @@ class KotlinSourceSetGistTest {
         )
 
         assertEquals(
-            KotlinPlatformType.common, commonMainSourceSetGist.platform,
+            KotlinPlatformType.common, commonMainSourceSetGist.platform.getSafe(),
             "Expected common platform for commonMain source set"
         )
 
         assertEquals(
-            KotlinPlatformType.jvm, jvmMainSourceSetGist.platform,
+            KotlinPlatformType.jvm, jvmMainSourceSetGist.platform.getSafe(),
             "Expected jvm platform for jvmMain source set"
         )
 
         assertEquals(
-            KotlinPlatformType.native, macosMainSourceSetGist.platform,
+            KotlinPlatformType.native, macosMainSourceSetGist.platform.getSafe(),
             "Expected native platform for macosMain source set"
         )
 
