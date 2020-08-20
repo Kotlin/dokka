@@ -13,7 +13,7 @@ import java.io.File
 typealias DokkaMultimoduleTask = DokkaMultiModuleTask
 
 
-open class DokkaMultiModuleTask : AbstractDokkaParentTask(DokkaMultimoduleBootstrapImpl::class) {
+abstract class DokkaMultiModuleTask : AbstractDokkaParentTask(DokkaMultimoduleBootstrapImpl::class) {
 
     /**
      * Name of the file containing all necessary module information.
