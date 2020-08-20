@@ -2,13 +2,12 @@ package org.jetbrains.dokka.javadoc.location
 
 import org.jetbrains.dokka.base.resolvers.local.DefaultLocationProvider
 import org.jetbrains.dokka.javadoc.pages.*
-import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.links.*
 import org.jetbrains.dokka.links.Nullable
-import org.jetbrains.dokka.links.PointingToDeclaration
-import org.jetbrains.dokka.links.parent
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.pages.ContentPage
 import org.jetbrains.dokka.model.DisplaySourceSet
+import org.jetbrains.dokka.model.TypeConstructor
 import org.jetbrains.dokka.pages.PageNode
 import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.DokkaContext
@@ -76,7 +75,7 @@ class JavadocLocationProvider(pageRoot: RootPageNode, dokkaContext: DokkaContext
 
     private fun getLocalLocation(dri: DRI, context: PageNode?): String? =
         nodeIndex[dri]?.let { resolve(it, context) }
-            ?: nodeIndex[dri.parent]?.takeIf { it is JavadocClasslikePageNode }?.let {
+            ?: nodeIndex[dri.parent]?.takeIf { dri.target !is PointingToGenericParameters && it is JavadocClasslikePageNode }?.let {
                 val anchor = when (val anchorElement = (it as? JavadocClasslikePageNode)?.findAnchorableByDRI(dri)) {
                     is JavadocFunctionNode -> anchorElement.getAnchor()
                     is JavadocEntryNode -> anchorElement.name

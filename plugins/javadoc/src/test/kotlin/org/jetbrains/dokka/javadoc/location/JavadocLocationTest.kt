@@ -110,7 +110,7 @@ class JavadocTest : AbstractCoreTest() {
                 .firstChildOfType<JavadocClasslikePageNode> { it.name == "Test" }
             val testFunctionNode = testClassNode.methods.first { it.name == "test3" }
             assertEquals(
-                """<a href=Test.html#test3(A,T)>test3</a>(<a href=Test.html#Test>A</a> a, <a href=Test.html#test3(A,T)>T</a> t)""",
+                """<a href=Test.html#test3(A,T)>test3</a>(<a href=Test.html>A</a> a, <a href=Test.html#test3(A,T)>T</a> t)""",
                 transformer.htmlForContentNode(
                     testFunctionNode.signature.signatureWithoutModifiers,
                     testClassNode
