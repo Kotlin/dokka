@@ -33,6 +33,7 @@ internal class JavadocPackageListTest : AbstractJavadocTemplateMapTest() {
                 package1
                 """.trimIndent()
             assertEquals(expected, contents["/element-list"]?.trimIndent())
+            assertEquals(expected, contents["/package-list"]?.trimIndent())
         }
     }
 
@@ -69,6 +70,7 @@ internal class JavadocPackageListTest : AbstractJavadocTemplateMapTest() {
                 package1.package1Inner.package1InnerInner
                 """.trimIndent()
             assertEquals(expected, contents["/element-list"]?.trimIndent())
+            assertEquals(expected, contents["/package-list"]?.trimIndent())
         }
     }
 }

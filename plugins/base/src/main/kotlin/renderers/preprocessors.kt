@@ -11,7 +11,7 @@ object RootCreator : PageTransformer {
 }
 
 
-class PackageListCreator(val context: DokkaContext, val format: LinkFormat, val fileName: String = "package-list") : PageTransformer {
+class PackageListCreator(val context: DokkaContext, val format: LinkFormat, val outputFilesNames: List<String> = listOf("package-list")) : PageTransformer {
     override fun invoke(input: RootPageNode) =
         input.modified(children = input.children.map {
             it.takeUnless { it is ModulePage }
@@ -19,10 +19,14 @@ class PackageListCreator(val context: DokkaContext, val format: LinkFormat, val 
         })
 
 
-    private fun packageList(pageNode: RootPageNode) =
-        RendererSpecificResourcePage(
-            "${pageNode.name}/${fileName}",
-            emptyList(),
-            RenderingStrategy.Write(PackageListService(context).formatPackageList(pageNode, format.formatName, format.linkExtension))
-        )
+    private fun packageList(pageNode: RootPageNode): List<RendererSpecificPage> {
+        val content = PackageListService(context).formatPackageList(pageNode, format.formatName, format.linkExtension)
+        return outputFilesNames.map { fileName ->
+            RendererSpecificResourcePage(
+                "${pageNode.name}/${fileName}",
+                emptyList(),
+                RenderingStrategy.Write(content)
+            )
+        }
+    }
 }
