@@ -2,7 +2,7 @@ package org.jetbrains.dokka.gradle
 
 import org.jetbrains.dokka.DokkaConfigurationImpl
 
-open class DokkaCollectorTask : AbstractDokkaParentTask() {
+abstract class DokkaCollectorTask : AbstractDokkaParentTask() {
 
     override fun generateDocumentation() {
         checkChildDokkaTasksIsNotEmpty()

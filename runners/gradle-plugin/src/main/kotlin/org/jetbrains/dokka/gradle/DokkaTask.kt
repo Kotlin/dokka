@@ -8,7 +8,7 @@ import org.jetbrains.dokka.DokkaBootstrapImpl
 import org.jetbrains.dokka.DokkaConfigurationImpl
 import org.jetbrains.dokka.build
 
-open class DokkaTask : AbstractDokkaTask(DokkaBootstrapImpl::class) {
+abstract class DokkaTask : AbstractDokkaTask(DokkaBootstrapImpl::class) {
 
     @get:Internal
     val dokkaSourceSets: NamedDomainObjectContainer<GradleDokkaSourceSetBuilder> =
