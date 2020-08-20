@@ -11,6 +11,7 @@ import org.jetbrains.dokka.base.renderers.sourceSets
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.DEnum
 import org.jetbrains.dokka.model.DEnumEntry
+import org.jetbrains.dokka.model.withDescendants
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.transformers.pages.PageTransformer
@@ -61,9 +62,7 @@ object NavigationPageInstaller : PageTransformer {
             name = "scripts/navigation-pane.json",
             children = emptyList(),
             strategy = RenderingStrategy.LocationResolvableWrite { resolver ->
-                val flattened = flattenNavigationNodes(listOf(nodes))
-                val view = flattened.map { NavigationNodeView.from(it, resolver(it.dri, it.sourceSets)) }
-                mapper.writeValueAsString(view)
+                mapper.writeValueAsString(nodes.withDescendants().map { NavigationNodeView.from(it, resolver(it.dri, it.sourceSets)) })
             })
 
         return input.modified(
