@@ -9,6 +9,7 @@ import org.jetbrains.dokka.base.renderers.PackageListCreator
 import org.jetbrains.dokka.base.renderers.RootCreator
 import org.jetbrains.dokka.base.resolvers.shared.RecognizedLinkFormat
 import org.jetbrains.dokka.javadoc.pages.AllClassesPageInstaller
+import org.jetbrains.dokka.javadoc.pages.IndexGenerator
 import org.jetbrains.dokka.javadoc.pages.ResourcesInstaller
 import org.jetbrains.dokka.javadoc.pages.TreeViewInstaller
 import org.jetbrains.dokka.kotlinAsJava.KotlinAsJavaPlugin
@@ -63,8 +64,9 @@ class JavadocPlugin : DokkaPlugin() {
     val packageListCreator by extending {
         javadocPreprocessors providing {
             PackageListCreator(
-                it,
-                RecognizedLinkFormat.DokkaJavadoc
+                context = it,
+                format = RecognizedLinkFormat.DokkaJavadoc,
+                fileName = "element-list"
             )
         } order { after(rootCreator) }
     }
@@ -79,6 +81,10 @@ class JavadocPlugin : DokkaPlugin() {
 
     val allClassessPageInstaller by extending {
         javadocPreprocessors with AllClassesPageInstaller order { before(rootCreator) }
+    }
+
+    val indexGenerator by extending {
+        javadocPreprocessors with IndexGenerator order { before(rootCreator) }
     }
 }
 

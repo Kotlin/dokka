@@ -11,17 +11,17 @@ object RootCreator : PageTransformer {
 }
 
 
-class PackageListCreator(val context: DokkaContext, val format: LinkFormat) : PageTransformer {
+class PackageListCreator(val context: DokkaContext, val format: LinkFormat, val fileName: String = "package-list") : PageTransformer {
     override fun invoke(input: RootPageNode) =
         input.modified(children = input.children.map {
-            it.takeUnless { it is ModulePageNode }
+            it.takeUnless { it is ModulePage }
                 ?: it.modified(children = it.children + packageList(input)) // TODO packageList should take module as an input
         })
 
 
     private fun packageList(pageNode: RootPageNode) =
         RendererSpecificResourcePage(
-            "${pageNode.name}/package-list",
+            "${pageNode.name}/${fileName}",
             emptyList(),
             RenderingStrategy.Write(PackageListService(context).formatPackageList(pageNode, format.formatName, format.linkExtension))
         )
