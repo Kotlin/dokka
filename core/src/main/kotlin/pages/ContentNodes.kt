@@ -255,7 +255,6 @@ data class ContentDivergentGroup(
     override fun transformChildren(transformer: (ContentNode) -> ContentNode): ContentDivergentGroup =
         copy(children = children.map(transformer).map { it as ContentDivergentInstance })
 
-    // TODO NOW?
     override fun withSourceSets(sourceSets: Set<DisplaySourceSet>): ContentDivergentGroup = this
 }
 
