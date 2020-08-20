@@ -32,13 +32,18 @@ interface WithBrief {
 }
 
 class JavadocModulePageNode(
-    name: String,
-    content: JavadocContentNode,
-    children: List<PageNode>,
+    override val name: String,
+    override val content: JavadocContentNode,
+    override val children: List<PageNode>,
     override val dri: Set<DRI>
 ) :
-    ModulePageNode(name, content, null, children, emptyList()),
+    RootPageNode(),
     JavadocPageNode {
+
+    override val documentable: Documentable? = null
+    override val embeddedResources: List<String> = emptyList()
+    override fun modified(name: String, children: List<PageNode>): RootPageNode =
+        JavadocModulePageNode(name, content, children, dri)
 
     override fun modified(
         name: String,
@@ -46,18 +51,18 @@ class JavadocModulePageNode(
         dri: Set<DRI>,
         embeddedResources: List<String>,
         children: List<PageNode>
-    ): ModulePageNode = JavadocModulePageNode(name, content as JavadocContentNode, children, dri)
+    ): ContentPage = JavadocModulePageNode(name, content as JavadocContentNode, children, dri)
 }
 
 class JavadocPackagePageNode(
-    name: String,
-    content: JavadocContentNode,
-    dri: Set<DRI>,
+    override val name: String,
+    override val content: JavadocContentNode,
+    override val dri: Set<DRI>,
 
-    documentable: Documentable? = null,
-    children: List<PageNode> = emptyList(),
-    embeddedResources: List<String> = listOf()
-) : JavadocPageNode, WithIndexables, IndexableJavadocNode, PackagePageNode(name, content, dri, documentable, children, embeddedResources) {
+    override val documentable: Documentable? = null,
+    override val children: List<PageNode> = emptyList(),
+    override val embeddedResources: List<String> = listOf()
+) : JavadocPageNode, WithIndexables, IndexableJavadocNode {
 
     override fun getAllIndexables(): List<IndexableJavadocNode> =
         children.filterIsInstance<IndexableJavadocNode>().flatMap {
@@ -68,7 +73,7 @@ class JavadocPackagePageNode(
     override fun modified(
         name: String,
         children: List<PageNode>
-    ): PackagePageNode = JavadocPackagePageNode(
+    ): PageNode = JavadocPackagePageNode(
         name,
         content,
         dri,
@@ -83,7 +88,7 @@ class JavadocPackagePageNode(
         dri: Set<DRI>,
         embeddedResources: List<String>,
         children: List<PageNode>
-    ): PackagePageNode =
+    ): ContentPage =
         JavadocPackagePageNode(
             name,
             content as JavadocContentNode,
