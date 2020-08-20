@@ -64,6 +64,18 @@ class DokkaPluginApplyTest {
     }
 
     @Test
+    fun `all dokka tasks provide a task description`() {
+        val project = ProjectBuilder.builder().build()
+        project.plugins.apply("org.jetbrains.dokka")
+        project.tasks.filter { "dokka" in it.name.toLowerCase() }.forEach { dokkaTask ->
+            assertTrue(
+                dokkaTask.description.orEmpty().isNotEmpty(),
+                "Expected description for task ${dokkaTask.name}"
+            )
+        }
+    }
+
+    @Test
     fun `parent dokka tasks have children configured`() {
         val root = ProjectBuilder.builder().withName("root").build()
         val child = ProjectBuilder.builder().withName("child").withParent(root).build()
