@@ -4,6 +4,7 @@ import org.gradle.api.Project
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.Optional
 import org.jetbrains.dokka.DokkaConfigurationBuilder
 import org.jetbrains.dokka.ExternalDocumentationLink
 import org.jetbrains.dokka.ExternalDocumentationLinkImpl
@@ -15,6 +16,7 @@ class GradleExternalDocumentationLinkBuilder(
     @Input
     val url: Property<URL?> = project.objects.safeProperty()
 
+    @Optional
     @Input
     val packageListUrl: Property<URL?> = project.objects.safeProperty()
 
