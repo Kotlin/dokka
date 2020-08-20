@@ -61,12 +61,12 @@ abstract class RootPageNode : PageNode {
     ): RootPageNode
 }
 
-open class ModulePageNode(
-    final override val name: String,
-    final override val content: ContentNode,
-    final override val documentable: Documentable?,
-    final override val children: List<PageNode>,
-    final override val embeddedResources: List<String> = listOf()
+class ModulePageNode(
+    override val name: String,
+    override val content: ContentNode,
+    override val documentable: Documentable?,
+    override val children: List<PageNode>,
+    override val embeddedResources: List<String> = listOf()
 ) : RootPageNode(), ContentPage {
     override val dri: Set<DRI> = setOf(DRI.topLevel)
 
@@ -84,13 +84,13 @@ open class ModulePageNode(
         else ModulePageNode(name, content, documentable, children, embeddedResources)
 }
 
-open class PackagePageNode(
-    final override val name: String,
-    final override val content: ContentNode,
-    final override val dri: Set<DRI>,
-    final override val documentable: Documentable?,
-    final override val children: List<PageNode>,
-    final override val embeddedResources: List<String> = listOf()
+class PackagePageNode(
+    override val name: String,
+    override val content: ContentNode,
+    override val dri: Set<DRI>,
+    override val documentable: Documentable?,
+    override val children: List<PageNode>,
+    override val embeddedResources: List<String> = listOf()
 ) : ContentPage {
     override fun modified(name: String, children: List<PageNode>): PackagePageNode =
         modified(name = name, content = this.content, children = children)
@@ -106,13 +106,13 @@ open class PackagePageNode(
         else PackagePageNode(name, content, dri, documentable, children, embeddedResources)
 }
 
-open class ClasslikePageNode(
-    final override val name: String,
-    final override val content: ContentNode,
-    final override val dri: Set<DRI>,
-    final override val documentable: Documentable?,
-    final override val children: List<PageNode>,
-    final override val embeddedResources: List<String> = listOf()
+class ClasslikePageNode(
+    override val name: String,
+    override val content: ContentNode,
+    override val dri: Set<DRI>,
+    override val documentable: Documentable?,
+    override val children: List<PageNode>,
+    override val embeddedResources: List<String> = listOf()
 ) : ContentPage {
     override fun modified(name: String, children: List<PageNode>): ClasslikePageNode =
         modified(name = name, content = this.content, children = children)
@@ -128,13 +128,13 @@ open class ClasslikePageNode(
         else ClasslikePageNode(name, content, dri, documentable, children, embeddedResources)
 }
 
-open class MemberPageNode(
-    final override val name: String,
-    final override val content: ContentNode,
-    final override val dri: Set<DRI>,
-    final override val documentable: Documentable?,
-    final override val children: List<PageNode> = emptyList(),
-    final override val embeddedResources: List<String> = listOf()
+class MemberPageNode(
+    override val name: String,
+    override val content: ContentNode,
+    override val dri: Set<DRI>,
+    override val documentable: Documentable?,
+    override val children: List<PageNode> = emptyList(),
+    override val embeddedResources: List<String> = listOf()
 ) : ContentPage {
     override fun modified(name: String, children: List<PageNode>): MemberPageNode =
         modified(name = name, content = this.content, children = children) as MemberPageNode
@@ -151,11 +151,11 @@ open class MemberPageNode(
 }
 
 
-open class MultimoduleRootPageNode(
-    final override val name: String,
-    final override val dri: Set<DRI>,
-    final override val content: ContentNode,
-    final override val embeddedResources: List<String> = emptyList()
+class MultimoduleRootPageNode(
+    override val name: String,
+    override val dri: Set<DRI>,
+    override val content: ContentNode,
+    override val embeddedResources: List<String> = emptyList()
 ) : RootPageNode(), ContentPage {
 
     override val children: List<PageNode> = emptyList()
