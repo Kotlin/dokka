@@ -16,6 +16,7 @@ import org.jetbrains.dokka.transformers.pages.PageTransformer
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptorWithSource
 import org.jetbrains.kotlin.resolve.source.getPsi
 import org.jetbrains.kotlin.utils.addToStdlib.cast
+import java.io.File
 
 class SourceLinksTransformer(val context: DokkaContext, val builder: PageContentBuilder) : PageTransformer {
 
@@ -35,7 +36,7 @@ class SourceLinksTransformer(val context: DokkaContext, val builder: PageContent
 
     private fun resolveSources(documentable: WithExpectActual) = documentable.sources
         .mapNotNull { entry ->
-            getSourceLinks().find { entry.value.path.contains(it.path) && it.sourceSetData == entry.key }?.let {
+            getSourceLinks().find { File(entry.value.path).startsWith(it.path) && it.sourceSetData == entry.key }?.let {
                 Pair(
                     entry.key,
                     entry.value.toLink(it)
