@@ -1100,7 +1100,7 @@ fun KotlinType.signature(): String {
         visited.add(this)
 
         val declarationDescriptor = constructor.declarationDescriptor ?: return "<null>"
-        val typeName = DescriptorUtils.getFqName(declarationDescriptor).asString()
+        val typeName = DescriptorUtils.getFqName(declarationDescriptor).asString().let { if (isMarkedNullable) "$it?" else it }
         if (arguments.isEmpty()) {
             return typeName
         }
