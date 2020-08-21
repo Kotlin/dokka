@@ -6,11 +6,8 @@ import './navigationPaneSearch.scss';
 import ClearIcon from 'react-svg-loader!./clear.svg';
 
 export const NavigationPaneSearch = () => {
-    const defaultWidth = 300
-
     const [navigationList, setNavigationList] = useState<Option[]>([]);
     const [selected, onSelected] = useState<Option | null>(null);
-    const [minWidth, setMinWidth] = useState<number>(defaultWidth);
     const [filterValue, setFilterValue] = useState<string>('')
     
     const onChangeSelected = useCallback(
@@ -21,11 +18,7 @@ export const NavigationPaneSearch = () => {
         [selected]
     );
 
-    const onFilter = (filterValue: string, filteredRecords?: Option[]) => {
-        if(filteredRecords){
-            const requiredWidth = Math.max(...filteredRecords.map(e => e.label.length*9), defaultWidth)
-            setMinWidth(requiredWidth)
-        }
+    const onFilter = (filterValue: string) => {
         setFilterValue(filterValue)
     }
 
@@ -39,9 +32,10 @@ export const NavigationPaneSearch = () => {
         fetch(url)
             .then(response => response.json())
             .then((result) => {
-                setNavigationList(result.map((record: Option) => {
+                setNavigationList(result.map((record: Option, idx: number) => {
                     return {
                         ...record,
+                        key: idx,
                         rgItemType: List.ListProps.Type.CUSTOM
                     }
                 }))
@@ -66,7 +60,7 @@ export const NavigationPaneSearch = () => {
                     popupClassName={"navigation-pane-popup"}
                     onSelect={onChangeSelected}
                     onFilter={onFilter}
-                    minWidth={minWidth}
+                    renderOptimization={false}
                 />
                 <span className={"paneSearchInputClearIcon"} onClick={onClearClick}><ClearIcon /></span>
         </div>

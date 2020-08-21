@@ -86,11 +86,6 @@ object NavigationPageInstaller : PageTransformer {
                 children.filter { it is ContentPage && it.documentable is DEnumEntry }.map { visit(it as ContentPage) }
             else -> emptyList()
         }.sortedBy { it.name.toLowerCase() }
-
-    private tailrec fun flattenNavigationNodes(nodes: List<NavigationNode>, acc: List<NavigationNode> = emptyList()): List<NavigationNode> {
-        if(nodes.isEmpty()) return acc
-        return flattenNavigationNodes(nodes.flatMap { it.children }, nodes.map { it.copy(children = emptyList()) } + acc)
-    }
 }
 
 object ResourceInstaller : PageTransformer {
