@@ -16,6 +16,7 @@ import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
+import org.jetbrains.dokka.base.transformers.documentables.ClashingDriIdentifier
 
 private typealias GroupedTags = Map<KClass<out TagWrapper>, List<Pair<DokkaSourceSet?, TagWrapper>>>
 
@@ -34,14 +35,14 @@ open class DefaultPageCreator(
 
     open fun pageForPackage(p: DPackage): PackagePageNode = PackagePageNode(
         p.name, contentForPackage(p), setOf(p.dri), p,
-        p.classlikes.map(::pageForClasslike) +
+        p.classlikes.renameClashingClasslikes().map(::pageForClasslike) +
                 p.functions.map(::pageForFunction)
     )
 
     open fun pageForEnumEntry(e: DEnumEntry): ClasslikePageNode =
         ClasslikePageNode(
             e.name, contentForEnumEntry(e), setOf(e.dri), e,
-            e.classlikes.map(::pageForClasslike) +
+            e.classlikes.renameClashingClasslikes().map(::pageForClasslike) +
                     e.filteredFunctions.map(::pageForFunction)
         )
 
@@ -51,10 +52,23 @@ open class DefaultPageCreator(
         return ClasslikePageNode(
             c.name.orEmpty(), contentForClasslike(c), setOf(c.dri), c,
             constructors.map(::pageForFunction) +
-                    c.classlikes.map(::pageForClasslike) +
+                    c.classlikes.renameClashingClasslikes().map(::pageForClasslike) +
                     c.filteredFunctions.map(::pageForFunction) +
                     if (c is DEnum) c.entries.map(::pageForEnumEntry) else emptyList()
         )
+    }
+
+    private fun List<DClasslike>.renameClashingClasslikes(): List<DClasslike> = groupBy { it.dri }.values.flatMap { classlikes ->
+        if (classlikes.size == 1) classlikes else classlikes.map { classlike ->
+            fun ClashingDriIdentifier?.toName() = this?.value?.joinToString(", ", "(", ")") { it.displayName } ?: ""
+            when(classlike) {
+                is DClass -> classlike.copy(name = classlike.name + classlike.extra[ClashingDriIdentifier]?.toName())
+                is DObject -> classlike.copy(name = classlike.name.orEmpty() + classlike.extra[ClashingDriIdentifier]?.toName())
+                is DAnnotation -> classlike.copy(name = classlike.name + classlike.extra[ClashingDriIdentifier]?.toName())
+                is DInterface -> classlike.copy(name = classlike.name + classlike.extra[ClashingDriIdentifier]?.toName())
+                is DEnum -> classlike.copy(name = classlike.name + classlike.extra[ClashingDriIdentifier]?.toName())
+            }
+        }
     }
 
     open fun pageForFunction(f: DFunction) = MemberPageNode(f.name, contentForFunction(f), setOf(f.dri), f)
