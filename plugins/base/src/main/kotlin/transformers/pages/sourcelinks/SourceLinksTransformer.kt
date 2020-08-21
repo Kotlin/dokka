@@ -75,6 +75,9 @@ class SourceLinksTransformer(val context: DokkaContext, val builder: PageContent
     }
 
     private fun DocumentableSource.toLink(sourceLink: SourceLink): String {
+        val sourcePath = File(this.path).canonicalPath.replace("\\", "/")
+        val sourceLinkPath = File(sourceLink.path).canonicalPath.replace("\\", "/")
+
         val lineNumber = when (this) {
             is DescriptorDocumentableSource -> this.descriptor
                 .cast<DeclarationDescriptorWithSource>()
@@ -84,7 +87,7 @@ class SourceLinksTransformer(val context: DokkaContext, val builder: PageContent
             else -> null
         }
         return sourceLink.url +
-                this.path.split(sourceLink.path)[1] +
+                sourcePath.split(sourceLinkPath)[1] +
                 sourceLink.lineSuffix +
                 "${lineNumber ?: 1}"
     }
