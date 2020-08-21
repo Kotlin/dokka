@@ -68,7 +68,7 @@ export class DokkaFuzzyFilterComponent extends Select {
             })
             .filter((record: OptionWithSearchResult) => record.matched)
 
-        this.props.onFilter(filterPhrase, matchedRecords)
+        this.props.onFilter(filterPhrase)
 
         return highlightMatchedPhrases(orderRecords(matchedRecords, filterPhrase))
     }
