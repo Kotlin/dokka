@@ -319,6 +319,7 @@ enum class DeprecatedPageSection(val id: String, val caption: String, val header
     DeprecatedInterfaces("interface", "Interfaces", "Interface"),
     DeprecatedClasses("class", "Classes", "Class"),
     DeprecatedEnums("enum", "Enums", "Enum"),
+    DeprecatedExceptions("exception", "Exceptions", "Exceptions"),
     DeprecatedFields("field", "Fields", "Field"),
     DeprecatedMethods("method", "Methods", "Method"),
     DeprecatedConstructors("constructor", "Constructors", "Constructor"),
