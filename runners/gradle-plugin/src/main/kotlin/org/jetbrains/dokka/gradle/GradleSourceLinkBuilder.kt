@@ -27,7 +27,7 @@ class GradleSourceLinkBuilder(
 
     override fun build(): SourceLinkDefinitionImpl {
         return SourceLinkDefinitionImpl(
-            localDirectory = localDirectory.getSafe()?.absolutePath ?: project.projectDir.absolutePath,
+            localDirectory = localDirectory.getSafe()?.canonicalPath ?: project.projectDir.canonicalPath,
             remoteUrl = checkNotNull(remoteUrl.getSafe()) { "missing remoteUrl on source link" },
             remoteLineSuffix = remoteLineSuffix.getSafe()
         )
