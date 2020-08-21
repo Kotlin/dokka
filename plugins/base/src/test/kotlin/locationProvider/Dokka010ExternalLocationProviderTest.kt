@@ -71,4 +71,36 @@ class Dokka010ExternalLocationProviderTest : AbstractCoreTest() {
 
         assertEquals("$kotlinLang/kotlin/java.math.-big-decimal/minus.html", locationProvider.resolve(dri))
     }
+
+    @Test
+    fun `#1268 companion part should be stripped`() {
+        val locationProvider = getTestLocationProvider()
+        val dri = DRI(
+            "kotlin",
+            "Int.Companion",
+            Callable(
+                "MIN_VALUE",
+                null,
+                emptyList()
+            )
+        )
+
+        assertEquals("$kotlinLang/kotlin/-int/-m-i-n_-v-a-l-u-e.html", locationProvider.resolve(dri))
+    }
+
+    @Test
+    fun `companion part should be stripped in relocations`() {
+        val locationProvider = getTestLocationProvider()
+        val dri = DRI(
+            "kotlin",
+            "Int.Companion",
+            Callable(
+                "MAX_VALUE",
+                null,
+                emptyList()
+            )
+        )
+
+        assertEquals("$kotlinLang/kotlin/-int/max-value.html", locationProvider.resolve(dri))
+    }
 }
