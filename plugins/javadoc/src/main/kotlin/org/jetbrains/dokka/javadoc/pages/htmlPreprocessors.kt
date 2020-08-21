@@ -3,8 +3,10 @@ package org.jetbrains.dokka.javadoc.pages
 import org.jetbrains.dokka.base.renderers.sourceSets
 import org.jetbrains.dokka.base.transformers.documentables.deprecatedAnnotation
 import org.jetbrains.dokka.base.transformers.documentables.isDeprecated
+import org.jetbrains.dokka.base.transformers.documentables.isException
 import org.jetbrains.dokka.model.Documentable
 import org.jetbrains.dokka.model.StringValue
+import org.jetbrains.dokka.model.WithSupertypes
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 import kotlin.collections.HashMap
@@ -130,7 +132,8 @@ object DeprecatedPageCreator : PageTransformer {
                         node.properties.forEach { it.takeIf { it.isDeprecated() }?.putAs(DeprecatedPageSection.DeprecatedFields) }
                         node.entries.forEach { it.takeIf { it.isDeprecated() }?.putAs(DeprecatedPageSection.DeprecatedEnumConstants) }
                         node.takeIf { it.isDeprecated() }?.putAs(
-                            when (node.kind) {
+                            if ((node.documentable as? WithSupertypes)?.isException == true) DeprecatedPageSection.DeprecatedExceptions
+                            else when (node.kind) {
                                 "enum" -> DeprecatedPageSection.DeprecatedEnums
                                 "interface" -> DeprecatedPageSection.DeprecatedInterfaces
                                 else -> DeprecatedPageSection.DeprecatedClasses

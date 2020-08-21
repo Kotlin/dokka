@@ -10,7 +10,7 @@ internal class JavadocDeprecatedTest : AbstractJavadocTemplateMapTest() {
     @Test
     fun `generates correct number of sections`() {
         testDeprecatedPageTemplateMaps { templateMap ->
-            Assertions.assertEquals(5, (templateMap["sections"] as List<TemplateMap>).size)
+            Assertions.assertEquals(6, (templateMap["sections"] as List<TemplateMap>).size)
         }
     }
 
@@ -43,6 +43,14 @@ internal class JavadocDeprecatedTest : AbstractJavadocTemplateMapTest() {
         testDeprecatedPageTemplateMaps { templateMap ->
             val map = templateMap.section("Enums")
             Assertions.assertEquals(1, map.elements().size)
+        }
+    }
+
+    @Test
+    fun `finds correct number of deprecated exceptions`() {
+        testDeprecatedPageTemplateMaps { templateMap ->
+            val map = templateMap.section("Exceptions")
+            Assertions.assertEquals(2, map.elements().size)
         }
     }
 
@@ -133,6 +141,22 @@ internal class JavadocDeprecatedTest : AbstractJavadocTemplateMapTest() {
                 @Deprecated(forRemoval = true)
                 public void deprecatedMethod() {}
             }
+
+            /src/source5.java
+            package package1;
+            /**
+            * Documentation for ClassJavaException
+            */
+            @Deprecated
+            public class ClassJavaException extends Exception { }
+
+            /src/source6.kt
+            package package1
+            /**
+            * Documentation for ClassKotlinException
+            */
+            @Deprecated
+            class ClassKotlinException: Exception() {}
         """.trimIndent()
 
     private fun testDeprecatedPageTemplateMaps(operation: (TemplateMap) -> Unit) =
