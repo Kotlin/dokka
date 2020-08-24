@@ -1,9 +1,7 @@
 package org.jetbrains.dokka.it.gradle
 
 import org.gradle.testkit.runner.TaskOutcome
-import org.jetbrains.dokka.it.isAndroidSdkInstalled
-import org.jetbrains.dokka.it.isCI
-import org.junit.Assume
+import org.jetbrains.dokka.test.assumeAndroidSdkInstalled
 import org.junit.runners.Parameterized.Parameters
 import java.io.File
 import kotlin.test.*
@@ -28,16 +26,10 @@ class Android0GradleIntegrationTest(override val versions: BuildVersions) : Abst
         )
     }
 
-    @BeforeTest
-    fun assumeAndroidInstallation() {
-        if (isCI) {
-            return
-        }
-        Assume.assumeTrue("Missing ANDROID_SDK_ROOT", isAndroidSdkInstalled)
-    }
 
     @BeforeTest
     fun prepareProjectFiles() {
+        assumeAndroidSdkInstalled()
         val templateProjectDir = File("projects", "it-android-0")
 
         templateProjectDir.listFiles().orEmpty()
@@ -91,9 +83,9 @@ class Android0GradleIntegrationTest(override val versions: BuildVersions) : Abst
 
     // TODO: remove this list when https://github.com/Kotlin/dokka/issues/1306 is closed
     private val knownUnresolvedDRIs = setOf(
-            "it.android/IntegrationTestActivity/findViewById/#kotlin.Int/PointingToGenericParameters(0)/",
-            "it.android/IntegrationTestActivity/getExtraData/#java.lang.Class[TypeParam(bounds=[androidx.core.app.ComponentActivity.ExtraData])]/PointingToGenericParameters(0)/",
-            "it.android/IntegrationTestActivity/getSystemService/#java.lang.Class[TypeParam(bounds=[kotlin.Any])]/PointingToGenericParameters(0)/",
-            "it.android/IntegrationTestActivity/requireViewById/#kotlin.Int/PointingToGenericParameters(0)/"
-        )
+        "it.android/IntegrationTestActivity/findViewById/#kotlin.Int/PointingToGenericParameters(0)/",
+        "it.android/IntegrationTestActivity/getExtraData/#java.lang.Class[TypeParam(bounds=[androidx.core.app.ComponentActivity.ExtraData])]/PointingToGenericParameters(0)/",
+        "it.android/IntegrationTestActivity/getSystemService/#java.lang.Class[TypeParam(bounds=[kotlin.Any])]/PointingToGenericParameters(0)/",
+        "it.android/IntegrationTestActivity/requireViewById/#kotlin.Int/PointingToGenericParameters(0)/"
+    )
 }

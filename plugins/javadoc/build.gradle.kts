@@ -4,7 +4,7 @@ dependencies {
     implementation("com.soywiz.korlibs.korte:korte-jvm:1.10.3")
     implementation(project(":plugins:base"))
     implementation(project(":plugins:kotlin-as-java"))
-    testImplementation(project(":plugins:base:test-utils"))
+    testImplementation(project(":plugins:base:base-test-utils"))
 
     val kotlinx_html_version: String by project
     implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:$kotlinx_html_version")
