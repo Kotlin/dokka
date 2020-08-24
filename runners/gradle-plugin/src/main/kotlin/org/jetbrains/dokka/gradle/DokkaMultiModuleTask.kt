@@ -63,7 +63,8 @@ abstract class DokkaMultiModuleTask : AbstractDokkaParentTask(DokkaMultimoduleBo
                 path = targetChildOutputDirectory(dokkaTask).relativeTo(outputDirectory.getSafe()),
                 docFile = dokkaTask.project.projectDir.resolve(documentationFileName.get()).absoluteFile
             )
-        }
+        },
+        projectName = projectName.getSafe()
     )
 }
 

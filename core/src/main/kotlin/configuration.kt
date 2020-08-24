@@ -27,6 +27,7 @@ object DokkaDefaults {
 
     const val sourceSetDisplayName = "JVM"
     const val sourceSetName = "main"
+    const val projectName: String = "dokka"
 }
 
 enum class Platform(val key: String) {
@@ -80,6 +81,7 @@ interface DokkaConfiguration : Serializable {
     val modules: List<DokkaModuleDescription>
     val pluginsClasspath: List<File>
     val pluginsConfiguration: Map<String, String>
+    val projectName: String
 
     interface DokkaSourceSet : Serializable {
         val sourceSetID: DokkaSourceSetID

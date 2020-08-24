@@ -12,7 +12,8 @@ data class DokkaConfigurationImpl(
     override val pluginsClasspath: List<File> = emptyList(),
     override val pluginsConfiguration: Map<String, String> = emptyMap(),
     override val modules: List<DokkaModuleDescriptionImpl> = emptyList(),
-    override val failOnWarning: Boolean = DokkaDefaults.failOnWarning
+    override val failOnWarning: Boolean = DokkaDefaults.failOnWarning,
+    override val projectName: String = DokkaDefaults.projectName
 ) : DokkaConfiguration
 
 

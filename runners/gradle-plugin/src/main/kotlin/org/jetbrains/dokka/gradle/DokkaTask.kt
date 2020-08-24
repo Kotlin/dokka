@@ -42,7 +42,8 @@ abstract class DokkaTask : AbstractDokkaTask(DokkaBootstrapImpl::class) {
             failOnWarning = failOnWarning.getSafe(),
             sourceSets = unsuppressedSourceSets.build(),
             pluginsConfiguration = pluginsConfiguration.getSafe(),
-            pluginsClasspath = plugins.resolve().toList()
+            pluginsClasspath = plugins.resolve().toList(),
+            projectName = projectName.getSafe()
         )
     }
 }

@@ -16,6 +16,7 @@ abstract class DokkaCollectorTask : AbstractDokkaParentTask() {
             failOnWarning = failOnWarning.getSafe(),
             offlineMode = offlineMode.getSafe(),
             pluginsClasspath = plugins.resolve().toList(),
+            projectName = projectName.getSafe()
         )
 
         val subprojectDokkaConfigurations = childDokkaTasks.map { dokkaTask -> dokkaTask.buildDokkaConfiguration() }

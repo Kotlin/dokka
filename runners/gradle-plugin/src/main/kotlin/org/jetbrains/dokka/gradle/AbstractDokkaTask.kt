@@ -43,6 +43,10 @@ abstract class AbstractDokkaTask(
     @Input
     val pluginsConfiguration: MapProperty<String, String> = project.objects.mapProperty()
 
+    @Input
+    val projectName: Property<String> = project.objects.safeProperty<String>()
+        .safeConvention(project.name)
+
     @Classpath
     val plugins: Configuration = project.maybeCreateDokkaPluginConfiguration(name)
 

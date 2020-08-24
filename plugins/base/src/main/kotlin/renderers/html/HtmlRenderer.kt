@@ -34,6 +34,8 @@ open class HtmlRenderer(
                 .filter { it in sourceSet.dependentSourceSets }
         }.toMap()
 
+    private val projectName: String = context.configuration.projectName
+
     private var shouldRenderSourceSetBubbles: Boolean = false
 
     override val preprocessors = context.plugin<DokkaBase>().query { htmlPreprocessors }
@@ -522,7 +524,10 @@ open class HtmlRenderer(
     override fun FlowContent.buildNavigation(page: PageNode) =
         div(classes = "breadcrumbs") {
             val path = locationProvider.ancestors(page).filterNot { it is RendererSpecificPage }.asReversed()
-            if(path.isNotEmpty()){
+
+            text(projectName)
+            if (path.isNotEmpty()) {
+                text("/")
                 buildNavigationElement(path.first(), page)
                 path.drop(1).forEach { node ->
                     text("/")
@@ -534,6 +539,7 @@ open class HtmlRenderer(
     private fun FlowContent.buildNavigationElement(node: PageNode, page: PageNode) =
         if (node.isNavigable) buildLink(node, page)
         else text(node.name)
+
 
     private fun FlowContent.buildLink(to: PageNode, from: PageNode) =
         locationProvider.resolve(to, from)?.let { path ->
