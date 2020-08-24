@@ -4,9 +4,9 @@ import org.jetbrains.dokka.javadoc.pages.AllClassesPage
 import org.jetbrains.dokka.javadoc.pages.LinkJavadocListEntry
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.pages.ContentKind
+import org.jetbrains.dokka.test.assertIsInstance
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import org.jetbrains.dokka.testApi.utils.assertIsInstance
 
 internal class JavadocAllClassesTemplateMapTest : AbstractJavadocTemplateMapTest() {
     @Test

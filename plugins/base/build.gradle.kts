@@ -11,8 +11,8 @@ dependencies {
     api(project(":kotlin-analysis"))
     implementation("org.jsoup:jsoup:1.12.1")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.11.1")
-    testImplementation(project(":test-tools"))
-    testImplementation(project(":plugins:base:test-utils"))
+    testImplementation(project(":plugins:base:base-test-utils"))
+    testImplementation(project(":core:content-matcher-test-utils"))
 
     val kotlinx_html_version: String by project
     implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:$kotlinx_html_version")

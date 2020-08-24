@@ -7,7 +7,7 @@ import org.jetbrains.dokka.links.DRI
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
-import org.jetbrains.dokka.testApi.utils.assertIsInstance
+import org.jetbrains.dokka.test.assertIsInstance
 import java.io.File
 
 internal class JavadocPackageTemplateMapTest : AbstractJavadocTemplateMapTest() {

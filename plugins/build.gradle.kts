@@ -13,7 +13,8 @@ subprojects {
         implementation(kotlin("stdlib"))
         implementation(kotlin("reflect"))
 
-        testImplementation(project(":testApi"))
+        testImplementation(project(":test-utils"))
+        testImplementation(project(":core:test-api"))
         testImplementation("org.junit.jupiter:junit-jupiter:5.6.0")
     }
 
