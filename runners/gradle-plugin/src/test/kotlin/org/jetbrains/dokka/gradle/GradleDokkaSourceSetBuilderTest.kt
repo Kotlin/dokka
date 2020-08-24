@@ -411,7 +411,7 @@ class GradleDokkaSourceSetBuilderTest {
         project.plugins.apply("com.android.library")
 
         assertEquals(1, sourceSet.build().externalDocumentationLinks.count {
-            "https://developer.android.com/reference/package-list" in it.packageListUrl.toURI().toString()
+            "https://developer.android.com/reference/kotlin/package-list" in it.packageListUrl.toURI().toString()
         }, "Expected android sdk in external documentation links")
 
         assertEquals(1, sourceSet.build().externalDocumentationLinks.count {
