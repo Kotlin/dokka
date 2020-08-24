@@ -246,7 +246,7 @@ private fun parseSourceSet(args: Array<String>): DokkaConfiguration.DokkaSourceS
 }
 
 object ArgTypeFile : ArgType<File>(true) {
-    override fun convert(value: kotlin.String, name: kotlin.String): File = File(value)
+    override fun convert(value: kotlin.String, name: kotlin.String): File = Paths.get(value).toRealPath().toFile()
     override val description: kotlin.String
         get() = "{ String that points to file path }"
 }
