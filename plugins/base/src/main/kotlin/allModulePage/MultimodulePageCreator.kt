@@ -46,9 +46,8 @@ class MultimodulePageCreator(
                     val paragraph = module.docFile.readText().let { parser.parse(it).firstParagraph() }
                     paragraph?.let {
                         val dri = DRI(packageName = MULTIMODULE_PACKAGE_PLACEHOLDER, classNames = module.name)
-                        val dci = DCI(setOf(dri), ContentKind.Main)
-                        val header =
-                            ContentHeader(listOf(linkNode(module.name, dri)), 2, dci, emptySet(), emptySet())
+                        val dci = DCI(setOf(dri), ContentKind.Comment)
+                        val header = linkNode(module.name, dri)
                         val content = ContentGroup(
                             DocTagToContentConverter.buildContent(it, dci, emptySet()),
                             dci,
