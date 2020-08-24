@@ -71,7 +71,7 @@ class Android0GradleIntegrationTest(override val versions: BuildVersions) : Abst
 
         assertTrue(
             htmlOutputDir.allHtmlFiles().any { file ->
-                "https://developer.android.com/reference/android/content/Context.html" in file.readText()
+                "https://developer.android.com/reference/kotlin/android/content/Context.html" in file.readText()
             }, "Expected link to developer.android.com"
         )
 

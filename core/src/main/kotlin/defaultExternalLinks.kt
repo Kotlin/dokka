@@ -20,7 +20,7 @@ fun ExternalDocumentationLink.Companion.kotlinStdlib(): ExternalDocumentationLin
 
 
 fun ExternalDocumentationLink.Companion.androidSdk(): ExternalDocumentationLinkImpl =
-    ExternalDocumentationLink("https://developer.android.com/reference/")
+    ExternalDocumentationLink("https://developer.android.com/reference/kotlin/")
 
 
 fun ExternalDocumentationLink.Companion.androidX(): ExternalDocumentationLinkImpl = ExternalDocumentationLink(
