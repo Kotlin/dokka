@@ -225,6 +225,7 @@ code.paragraph {
     display: flex;
     justify-content: flex-end;
     padding-right: 24px;
+    cursor: pointer;
 }
 
 .strikethrough {
@@ -245,6 +246,10 @@ code.paragraph {
     font-weight: bold;
     position: relative;
     line-height: 24px;
+}
+
+.copy-icon {
+    cursor: pointer;
 }
 
 .symbol span.copy-icon path {
