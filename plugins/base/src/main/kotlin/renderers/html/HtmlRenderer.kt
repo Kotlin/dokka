@@ -395,7 +395,7 @@ open class HtmlRenderer(
                         }
 
                         it.filter { it !is ContentLink }.takeIf { it.isNotEmpty() }?.let {
-                            if(pageContext is ModulePage){
+                            if(pageContext is ModulePage || pageContext is MultimoduleRootPage){
                                 it.forEach {
                                     span(classes = if(it.dci.kind == ContentKind.Comment) "brief-comment" else "") {
                                         it.build(this, pageContext, sourceSetRestriction)
