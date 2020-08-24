@@ -29,6 +29,11 @@ open class DokkaPlugin : Plugin<Project> {
             plugins.dependencies.add(project.dokkaArtifacts.jekyllPlugin)
             description = "Generates documentation in Jekyll flavored markdown format"
         }
+
+        project.setupDokkaTasks("dokkaNewFrontend") {
+            plugins.dependencies.add(project.dokkaArtifacts.newFrontendPlugin)
+            description = "Demo for new fronted"
+        }
     }
 
     /**

@@ -121,5 +121,10 @@
       <option name="name" value="maven" />
       <option name="url" value="https://cache-redirector.jetbrains.com/jcenter.bintray.com" />
     </remote-repository>
+    <remote-repository>
+      <option name="id" value="maven3" />
+      <option name="name" value="maven3" />
+      <option name="url" value="https://kotlin.bintray.com/kotlin-js-wrappers/" />
+    </remote-repository>
   </component>
 </project>
