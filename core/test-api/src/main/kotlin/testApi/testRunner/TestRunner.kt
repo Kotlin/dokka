@@ -12,6 +12,7 @@ import org.jetbrains.dokka.utilities.DokkaConsoleLogger
 import org.jetbrains.dokka.utilities.DokkaLogger
 import org.junit.rules.TemporaryFolder
 import java.io.File
+import java.net.URI
 import java.net.URL
 import java.nio.charset.Charset
 import java.nio.file.Files
@@ -175,6 +176,7 @@ abstract class AbstractCoreTest(
         var pluginsClasspath: List<File> = emptyList()
         var pluginsConfigurations: Map<String, String> = emptyMap()
         var failOnWarning: Boolean = false
+        var homePage: URI? = null
         private val sourceSets = mutableListOf<DokkaSourceSetImpl>()
         fun build() = DokkaConfigurationImpl(
             outputDir = File(outputDir),
@@ -184,7 +186,8 @@ abstract class AbstractCoreTest(
             pluginsClasspath = pluginsClasspath,
             pluginsConfiguration = pluginsConfigurations,
             modules = emptyList(),
-            failOnWarning = failOnWarning
+            failOnWarning = failOnWarning,
+            homePage = homePage
         )
 
         fun sourceSets(block: SourceSetsBuilder.() -> Unit) {

@@ -203,6 +203,7 @@
     padding-left: 24px;
     padding-top: 24px;
     height: 48px;
+    display: block;
 }
 
 .monospace,

@@ -2,6 +2,7 @@ package org.jetbrains.dokka
 
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import java.io.File
+import java.net.URI
 import java.net.URL
 
 data class DokkaConfigurationImpl(
@@ -12,7 +13,8 @@ data class DokkaConfigurationImpl(
     override val pluginsClasspath: List<File> = emptyList(),
     override val pluginsConfiguration: Map<String, String> = emptyMap(),
     override val modules: List<DokkaModuleDescriptionImpl> = emptyList(),
-    override val failOnWarning: Boolean = DokkaDefaults.failOnWarning
+    override val failOnWarning: Boolean = DokkaDefaults.failOnWarning,
+    override val homePage: URI? = null
 ) : DokkaConfiguration
 
 

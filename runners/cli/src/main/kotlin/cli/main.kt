@@ -7,6 +7,7 @@ import org.jetbrains.dokka.utilities.DokkaConsoleLogger
 import org.jetbrains.dokka.utilities.cast
 import java.io.*
 import java.net.MalformedURLException
+import java.net.URI
 import java.net.URL
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -51,6 +52,11 @@ class GlobalArguments(args: Array<String>) : DokkaConfiguration {
         ArgType.Boolean,
         "Throw an exception if the generation exited with warnings"
     ).default(DokkaDefaults.failOnWarning)
+
+    override val homePage by parser.option(
+        ArgTypeURI,
+        description = "Path to the global main page for multimodule documentation"
+    )
 
     val globalPackageOptions by parser.option(
         ArgType.String,
@@ -249,6 +255,12 @@ object ArgTypeFile : ArgType<File>(true) {
     override fun convert(value: kotlin.String, name: kotlin.String): File = Paths.get(value).toRealPath().toFile()
     override val description: kotlin.String
         get() = "{ String that points to file path }"
+}
+
+object ArgTypeURI: ArgType<URI>(true) {
+    override fun convert(value: kotlin.String, name: kotlin.String): URI = URI(value)
+    override val description: kotlin.String
+        get() = "{ String representing URI }"
 }
 
 object ArgTypePlatform : ArgType<Platform>(true) {

@@ -17,6 +17,7 @@ import org.jetbrains.dokka.DokkaConfigurationImpl
 import org.jetbrains.dokka.DokkaDefaults
 import org.jetbrains.dokka.toJsonString
 import java.io.File
+import java.net.URI
 import java.util.function.BiConsumer
 import kotlin.reflect.KClass
 
@@ -35,6 +36,10 @@ abstract class AbstractDokkaTask(
     @Input
     val failOnWarning: Property<Boolean> = project.objects.safeProperty<Boolean>()
         .safeConvention(DokkaDefaults.failOnWarning)
+
+    @Optional
+    @Input
+    val homePage: Property<URI?> = project.objects.safeProperty()
 
     @Input
     val offlineMode: Property<Boolean> = project.objects.safeProperty<Boolean>()

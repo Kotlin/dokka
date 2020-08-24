@@ -15,10 +15,7 @@ import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.model.sourceSetIDs
 import org.jetbrains.dokka.model.withDescendants
 import org.jetbrains.dokka.pages.*
-import org.jetbrains.dokka.plugability.DokkaContext
-import org.jetbrains.dokka.plugability.plugin
-import org.jetbrains.dokka.plugability.query
-import org.jetbrains.dokka.plugability.querySingle
+import org.jetbrains.dokka.plugability.*
 import org.jetbrains.dokka.utilities.htmlEscape
 import java.io.File
 import java.net.URI
@@ -659,6 +656,12 @@ open class HtmlRenderer(
 
     private fun resolveLink(link: String, page: PageNode): String = if (URI(link).isAbsolute) link else page.root(link)
 
+    private fun pathToRootPage(currentPage: PageNode): String =
+        context.configuration.homePage?.toString()
+            ?: locationProvider.ancestors(currentPage).lastOrNull { it !is RendererSpecificPage }?.let {
+                locationProvider.resolve(it, currentPage)
+            }.orEmpty()
+
     open fun buildHtml(page: PageNode, resources: List<String>, content: FlowContent.() -> Unit) =
         createHTML().html {
             head {
@@ -686,8 +689,9 @@ open class HtmlRenderer(
                     id = "container"
                     div {
                         id = "leftColumn"
-                        div {
+                        a {
                             id = "logo"
+                            href = pathToRootPage(page)
                         }
                         div {
                             id = "paneSearch"

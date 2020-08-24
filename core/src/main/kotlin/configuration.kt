@@ -6,6 +6,7 @@ import org.jetbrains.dokka.utilities.parseJson
 import org.jetbrains.dokka.utilities.toJsonString
 import java.io.File
 import java.io.Serializable
+import java.net.URI
 import java.net.URL
 
 object DokkaDefaults {
@@ -80,6 +81,7 @@ interface DokkaConfiguration : Serializable {
     val modules: List<DokkaModuleDescription>
     val pluginsClasspath: List<File>
     val pluginsConfiguration: Map<String, String>
+    val homePage: URI?
 
     interface DokkaSourceSet : Serializable {
         val sourceSetID: DokkaSourceSetID
