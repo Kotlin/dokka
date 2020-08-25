@@ -1,11 +1,8 @@
 package parsers
 
-import org.jetbrains.dokka.base.parsers.IllegalModuleAndPackageDocumentation
-import org.jetbrains.dokka.base.parsers.ModuleAndPackageDocFragment
-import org.jetbrains.dokka.base.parsers.ModuleAndPackageDocFragment.Classifier.Module
-import org.jetbrains.dokka.base.parsers.ModuleAndPackageDocFragment.Classifier.Package
-import org.jetbrains.dokka.base.parsers.ModuleAndPackageDocumentationSource
-import org.jetbrains.dokka.base.parsers.parseModuleAndPackageDocFragments
+import org.jetbrains.dokka.base.parsers.moduleAndPackage.*
+import org.jetbrains.dokka.base.parsers.moduleAndPackage.ModuleAndPackageDocumentation.Classifier.Module
+import org.jetbrains.dokka.base.parsers.moduleAndPackage.ModuleAndPackageDocumentation.Classifier.Package
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -13,14 +10,13 @@ import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.io.TempDir
 import java.nio.file.Path
 
-class ParseModuleAndPackageDocFragmentsTest {
+class ParseModuleAndPackageDocumentationFragmentsTest {
 
     @Test
     fun `basic example`() {
 
-        val fragments = parseModuleAndPackageDocFragments(
-            source(
-                """
+        val source = source(
+            """
                 # Module kotlin-demo
                 Module description
         
@@ -32,25 +28,28 @@ class ParseModuleAndPackageDocFragmentsTest {
                 # Package org.jetbrains.kotlin.demo2
                 Package demo2 description
                 """.trimIndent()
-            )
         )
+        val fragments = parseModuleAndPackageDocumentationFragments(source)
 
         assertEquals(
             listOf(
-                ModuleAndPackageDocFragment(
+                ModuleAndPackageDocumentationFragment(
                     classifier = Module,
                     name = "kotlin-demo",
-                    documentation = "Module description"
+                    documentation = "Module description",
+                    source = source
                 ),
-                ModuleAndPackageDocFragment(
+                ModuleAndPackageDocumentationFragment(
                     classifier = Package,
                     name = "org.jetbrains.kotlin.demo",
-                    documentation = "Package demo description\n## Level 2 heading\nHeading 2"
+                    documentation = "Package demo description\n## Level 2 heading\nHeading 2",
+                    source = source
                 ),
-                ModuleAndPackageDocFragment(
+                ModuleAndPackageDocumentationFragment(
                     classifier = Package,
                     name = "org.jetbrains.kotlin.demo2",
-                    documentation = "Package demo2 description"
+                    documentation = "Package demo2 description",
+                    source = source
                 )
             ),
             fragments
@@ -60,7 +59,7 @@ class ParseModuleAndPackageDocFragmentsTest {
     @Test
     fun `no module name specified fails`() {
         val exception = assertThrows<IllegalModuleAndPackageDocumentation> {
-            parseModuleAndPackageDocFragments(
+            parseModuleAndPackageDocumentationFragments(
                 source(
                     """
                     # Module
@@ -79,7 +78,7 @@ class ParseModuleAndPackageDocFragmentsTest {
     @Test
     fun `no package name specified fails`() {
         val exception = assertThrows<IllegalModuleAndPackageDocumentation> {
-            parseModuleAndPackageDocFragments(
+            parseModuleAndPackageDocumentationFragments(
                 source(
                     """
                     # Package
@@ -98,7 +97,7 @@ class ParseModuleAndPackageDocFragmentsTest {
     @Test
     fun `white space in module name fails`() {
         val exception = assertThrows<IllegalModuleAndPackageDocumentation> {
-            parseModuleAndPackageDocFragments(
+            parseModuleAndPackageDocumentationFragments(
                 source(
                     """
                     # Module My Module
@@ -116,7 +115,7 @@ class ParseModuleAndPackageDocFragmentsTest {
     @Test
     fun `white space in package name fails`() {
         val exception = assertThrows<IllegalModuleAndPackageDocumentation> {
-            parseModuleAndPackageDocFragments(
+            parseModuleAndPackageDocumentationFragments(
                 source(
                     """
                     # Package my package
@@ -133,28 +132,29 @@ class ParseModuleAndPackageDocFragmentsTest {
 
     @Test
     fun `multiple whitespaces are supported in first line`() {
-        val fragments = parseModuleAndPackageDocFragments(
-            source(
-                """
-                    #    Module my-module
-                    My Module
-                    #   Package com.my.package
-                    My Package
+        val source = source(
+            """
+            #    Module my-module
+            My Module
+            #   Package com.my.package
+            My Package
                 """.trimIndent()
-            )
         )
+        val fragments = parseModuleAndPackageDocumentationFragments(source)
 
         assertEquals(
             listOf(
-                ModuleAndPackageDocFragment(
+                ModuleAndPackageDocumentationFragment(
                     classifier = Module,
                     name = "my-module",
-                    documentation = "My Module"
+                    documentation = "My Module",
+                    source = source
                 ),
-                ModuleAndPackageDocFragment(
+                ModuleAndPackageDocumentationFragment(
                     classifier = Package,
                     name = "com.my.package",
-                    documentation = "My Package"
+                    documentation = "My Package",
+                    source = source
                 )
             ),
             fragments
@@ -175,18 +175,20 @@ class ParseModuleAndPackageDocFragmentsTest {
 
         assertEquals(
             listOf(
-                ModuleAndPackageDocFragment(
+                ModuleAndPackageDocumentationFragment(
                     classifier = Module,
                     name = "MyModule",
-                    documentation = "D1"
+                    documentation = "D1",
+                    source = ModuleAndPackageDocumentationFile(file)
                 ),
-                ModuleAndPackageDocFragment(
+                ModuleAndPackageDocumentationFragment(
                     classifier = Package,
                     name = "com.sample",
-                    documentation = "D2"
+                    documentation = "D2",
+                    source = ModuleAndPackageDocumentationFile(file)
                 )
             ),
-            parseModuleAndPackageDocFragments(file)
+            parseModuleAndPackageDocumentationFragments(file)
         )
     }
 
