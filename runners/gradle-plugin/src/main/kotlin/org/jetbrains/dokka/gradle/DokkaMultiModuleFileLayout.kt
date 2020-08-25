@@ -79,5 +79,27 @@ internal fun DokkaMultiModuleTask.copyChildOutputDirectory(child: AbstractDokkaT
     }
 
     sourceChildOutputDirectory.copyRecursively(targetChildOutputDirectory, overwrite = true)
+    copyNavigationForMultiModule(sourceChildOutputDirectory, outputDirectory.getSafe(), child)
+}
+
+internal fun copyNavigationForMultiModule(
+    sourceChildOutputDirectory: File,
+    outputDirectory: File,
+    child: AbstractDokkaTask
+) {
+    val childProjectName = child.projectName.getSafe()
+    val currentToDesiredDestinationMapping = listOf(
+        "/scripts/navigation-pane.json" to "/scripts/navigation-pane-${childProjectName}.json",
+        "/navigation.html" to "/navigation-${childProjectName}.html"
+    )
+
+    currentToDesiredDestinationMapping.forEach { (currentLocation, desiredLocation) ->
+        run {
+            File(sourceChildOutputDirectory.absolutePath + currentLocation)
+                .copyRecursively(
+                    target = File(outputDirectory.absolutePath + desiredLocation),
+                ) { _, _ -> OnErrorAction.SKIP }
+        }
+    }
 }
 

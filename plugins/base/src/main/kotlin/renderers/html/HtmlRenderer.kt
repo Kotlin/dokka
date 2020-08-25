@@ -525,9 +525,8 @@ open class HtmlRenderer(
         div(classes = "breadcrumbs") {
             val path = locationProvider.ancestors(page).filterNot { it is RendererSpecificPage }.asReversed()
 
-            text(projectName)
+            if(page is MultimoduleRootPage) text(projectName)
             if (path.isNotEmpty()) {
-                text("/")
                 buildNavigationElement(path.first(), page)
                 path.drop(1).forEach { node ->
                     text("/")
@@ -686,6 +685,9 @@ open class HtmlRenderer(
                     }
                 }
                 script { unsafe { +"""var pathToRoot = "${locationProvider.pathToRoot(page)}";""" } }
+                if(page is MultimoduleRootPage){
+                    script { unsafe { + """var modules = ${context.configuration.modules.joinToString(prefix = "[", postfix = "]"){ "\"${it.path}\"" }}"""}}
+                }
             }
             body {
                 div {

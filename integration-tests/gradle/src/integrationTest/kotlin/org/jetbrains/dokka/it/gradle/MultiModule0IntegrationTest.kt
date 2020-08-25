@@ -55,7 +55,8 @@ class MultiModule0IntegrationTest(override val versions: BuildVersions) : Abstra
         outputDir.allHtmlFiles().forEach { file ->
             assertContainsNoErrorClass(file)
             assertNoUnresolvedLinks(file)
-            assertNoHrefToMissingLocalFileOrDirectory(file)
+            //Navigation file for multimodule will contain paths that are incorrect since they are resolved finally on frontend
+            if(!file.toString().contains("htmlMultiModule/navigation")) assertNoHrefToMissingLocalFileOrDirectory(file)
             assertNoEmptyLinks(file)
         }
 

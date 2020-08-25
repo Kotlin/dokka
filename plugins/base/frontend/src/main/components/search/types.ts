@@ -17,7 +17,8 @@ export type Option = Page & {
 
 export type IWindow = typeof window & {
     pathToRoot: string
-    pages: Page[]
+    pages: Page[],
+    modules?: string[]
 }
 
 export type Props = {

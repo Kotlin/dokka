@@ -11,6 +11,7 @@ import org.jetbrains.dokka.base.renderers.sourceSets
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.DEnum
 import org.jetbrains.dokka.model.DEnumEntry
+import org.jetbrains.dokka.model.dfs
 import org.jetbrains.dokka.model.withDescendants
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
@@ -66,7 +67,7 @@ object NavigationPageInstaller : PageTransformer {
             })
 
         return input.modified(
-            children = input.children + page + NavigationPage(nodes)
+            children = input.children + page + NavigationPage(nodes, input.moduleName())
         )
     }
 
@@ -86,6 +87,8 @@ object NavigationPageInstaller : PageTransformer {
                 children.filter { it is ContentPage && it.documentable is DEnumEntry }.map { visit(it as ContentPage) }
             else -> emptyList()
         }.sortedBy { it.name.toLowerCase() }
+
+    private fun RootPageNode.moduleName(): String = dfs { it is ModulePage }?.name ?: ""
 }
 
 object ResourceInstaller : PageTransformer {

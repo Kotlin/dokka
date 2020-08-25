@@ -5,7 +5,11 @@ import { IWindow, Option } from '../search/types';
 import './navigationPaneSearch.scss';
 import ClearIcon from 'react-svg-loader!./clear.svg';
 
-export const NavigationPaneSearch = () => {
+type NavigationPaneSearchProps = {
+    modules?: string[]
+}
+
+export const NavigationPaneSearch = ({modules}: NavigationPaneSearchProps) => {
     const [navigationList, setNavigationList] = useState<Option[]>([]);
     const [selected, onSelected] = useState<Option | null>(null);
     const [filterValue, setFilterValue] = useState<string>('')
@@ -26,24 +30,52 @@ export const NavigationPaneSearch = () => {
         setFilterValue('')
     }
 
-    useEffect(() => {
-        const pathToRoot = (window as IWindow).pathToRoot
-        const url = pathToRoot.endsWith('/') ? `${pathToRoot}scripts/navigation-pane.json` : `${pathToRoot}/scripts/navigation-pane.json`
-        fetch(url)
+    const fetchData = (url: string): Promise<Option[]> => {
+        return fetch(url)
             .then(response => response.json())
             .then((result) => {
-                setNavigationList(result.map((record: Option, idx: number) => {
-                    return {
-                        ...record,
-                        key: idx,
-                        rgItemType: List.ListProps.Type.CUSTOM
-                    }
-                }))
-            },
-            (error) => {
-                console.error('failed to fetch navigationPane data', error)
-                setNavigationList([])
+                    return result.map((record: Option, idx: number) => {
+                        return {
+                            ...record,
+                            key: idx,
+                            rgItemType: List.ListProps.Type.CUSTOM
+                        }
+                    })
+                },
+                (error) => {
+                    console.error('failed to fetch navigationPane data', error)
+                    setNavigationList([])
+                })
+    }
+
+    useEffect(() => {
+        const urlFrom = (prefix: string) => prefix.endsWith('/') ? `${prefix}scripts/navigation-pane.json` : `${prefix}/scripts/navigation-pane.json`
+        if(modules != null){
+            const requests = modules.map((moduleName: string) => {
+                const url = `scripts/navigation-pane-${moduleName}.json`
+                return fetchData(url).then((value: Option[]) =>
+                    value.map((element: Option) => {
+                        return {
+                            ...element,
+                            location: moduleName + '/' + element.location
+                        }
+                    })
+                )
             })
+            Promise.all(requests).then((values: Option[][]) => {
+                const flattended = values.flat(1).map((value, idx) => {
+                    return {
+                        ...value,
+                        key: idx
+                    }
+                })
+                setNavigationList(flattended)
+            })
+        } else {
+            const pathToRoot = (window as IWindow).pathToRoot
+            const url = urlFrom(pathToRoot)
+            fetchData(url).then((value: Option[]) => setNavigationList(value))
+        }
     }, [])
   
 

@@ -1,17 +1,32 @@
 window.addEventListener('load', () => {
-    fetch(pathToRoot + "navigation.html")
+    if(typeof modules !== 'undefined'){
+        modules.forEach(module => {
+            fetchNavigationForPage(module)
+        })
+    } else {
+        fetchNavigationForPage()
+    }
+})
+
+const fetchNavigationForPage = (moduleName) => {
+    const url = moduleName ? `navigation-${moduleName}.html` : "navigation.html"
+    fetch(pathToRoot + url)
         .then(response => response.text())
         .then(data => {
-            document.getElementById("sideMenu").innerHTML = data;
+            const element = document.createElement("div")
+            element.innerHTML = data
+            element.querySelectorAll(".overview > a").forEach(link => {
+                //Multimodule page does not have a pathToRoot
+                const withModuleName = moduleName ? moduleName + '/' + link.getAttribute("href") : pathToRoot + link.getAttribute("href")
+                link.setAttribute("href", withModuleName);
+            })
+            document.getElementById("sideMenu").appendChild(element)
+        })
+        .then(() => {
+            document.querySelectorAll(".sideMenuPart").forEach(nav => {
+                if (!nav.classList.contains("hidden")) nav.classList.add("hidden")
+            })
         }).then(() => {
-        document.querySelectorAll(".overview > a").forEach(link => {
-            link.setAttribute("href", pathToRoot + link.getAttribute("href"));
-        })
-    }).then(() => {
-        document.querySelectorAll(".sideMenuPart").forEach(nav => {
-            if (!nav.classList.contains("hidden")) nav.classList.add("hidden")
-        })
-    }).then(() => {
         revealNavigationForCurrentPage()
     })
 
@@ -25,7 +40,7 @@ window.addEventListener('load', () => {
             });
         });
     });
-})
+}
 
 revealNavigationForCurrentPage = () => {
     let pageId = document.getElementById("content").attributes["pageIds"].value.toString();

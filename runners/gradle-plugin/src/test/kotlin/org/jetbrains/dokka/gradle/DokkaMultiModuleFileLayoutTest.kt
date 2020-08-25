@@ -52,10 +52,10 @@ class DokkaMultiModuleFileLayoutTest {
 
         val sourceOutputDirectory = childTask.outputDirectory.getSafe()
         sourceOutputDirectory.mkdirs()
-        sourceOutputDirectory.resolve("some.file").writeText("some text")
-        val subFolder = sourceOutputDirectory.resolve("subFolder")
+        sourceOutputDirectory.resolve("navigation.html").writeText("some navigation")
+        val subFolder = sourceOutputDirectory.resolve("scripts")
         subFolder.mkdirs()
-        subFolder.resolve("other.file").writeText("other text")
+        subFolder.resolve("navigation-pane.json").writeText("some json content")
 
         parentTask.fileLayout by object : DokkaMultiModuleFileLayout {
             override fun targetChildOutputDirectory(parent: DokkaMultiModuleTask, child: AbstractDokkaTask): File {
@@ -71,31 +71,31 @@ class DokkaMultiModuleFileLayoutTest {
             "Expected target output directory ${targetOutputDirectory.path} to exist"
         )
 
-        val targetSomeFile = targetOutputDirectory.resolve("some.file")
+        val targetNavigationFile = targetOutputDirectory.resolve("navigation.html")
         assertTrue(
-            targetSomeFile.exists() && targetSomeFile.isFile,
+            targetNavigationFile.exists() && targetNavigationFile.isFile,
             "Expected sample file to exist in target output directory"
         )
 
         assertEquals(
-            "some text", targetSomeFile.readText(),
+            "some navigation", targetNavigationFile.readText(),
             "Expected content to be written into sample file"
         )
 
-        val targetSubFolder = targetOutputDirectory.resolve("subFolder")
+        val targetSubFolder = targetOutputDirectory.resolve("scripts")
         assertTrue(
             targetSubFolder.exists() && targetSubFolder.isDirectory,
             "Expected sub folder being present in target output directory"
         )
 
-        val targetOtherFile = targetSubFolder.resolve("other.file")
+        val targetJsonFile = targetSubFolder.resolve("navigation-pane.json")
         assertTrue(
-            targetOtherFile.exists() && targetOtherFile.isFile,
+            targetJsonFile.exists() && targetJsonFile.isFile,
             "Expected nested 'other.file' being copied into target"
         )
 
         assertEquals(
-            "other text", targetOtherFile.readText(),
+            "some json content", targetJsonFile.readText(),
             "Expected content to be written into 'other.file'"
         )
     }

@@ -37,6 +37,7 @@ class DokkaCollectorTaskTest {
             task.cacheRoot by File("customCacheRoot")
             task.failOnWarning by true
             task.offlineMode by true
+            task.projectName by "sample-project-name"
         }
 
         assertTrue(collectorTasks.isNotEmpty(), "Expected at least one collector task")
@@ -55,7 +56,8 @@ class DokkaCollectorTaskTest {
                         .reduce { acc, list -> acc + list },
                     pluginsClasspath = task.childDokkaTasks
                         .map { it.plugins.resolve().toList() }
-                        .reduce { acc, mutableSet -> acc + mutableSet }
+                        .reduce { acc, mutableSet -> acc + mutableSet },
+                    projectName = "sample-project-name"
                 ),
                 dokkaConfiguration
             )

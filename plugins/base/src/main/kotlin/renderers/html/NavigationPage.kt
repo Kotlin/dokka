@@ -9,7 +9,7 @@ import org.jetbrains.dokka.pages.PageNode
 import org.jetbrains.dokka.pages.RendererSpecificPage
 import org.jetbrains.dokka.pages.RenderingStrategy
 
-class NavigationPage(val root: NavigationNode) : RendererSpecificPage {
+class NavigationPage(val root: NavigationNode, val moduleName: String) : RendererSpecificPage {
     override val name = "navigation"
 
     override val children = emptyList<PageNode>()
@@ -17,7 +17,7 @@ class NavigationPage(val root: NavigationNode) : RendererSpecificPage {
     override fun modified(name: String, children: List<PageNode>) = this
 
     override val strategy = RenderingStrategy<HtmlRenderer> {
-        createHTML().visit(root, "nav-submenu", this)
+        createHTML().visit(root, "${moduleName}-nav-submenu", this)
     }
 
     private fun <R> TagConsumer<R>.visit(node: NavigationNode, navId: String, renderer: HtmlRenderer): R =
@@ -46,7 +46,7 @@ data class NavigationNode(
     override val children: List<NavigationNode>
 ): WithChildren<NavigationNode>
 
-fun NavigationPage.transform(block: (NavigationNode) -> NavigationNode) = NavigationPage(root.transform(block))
+fun NavigationPage.transform(block: (NavigationNode) -> NavigationNode) = NavigationPage(root.transform(block), moduleName)
 
 fun NavigationNode.transform(block: (NavigationNode) -> NavigationNode) =
     run(block).let { NavigationNode(it.name, it.dri, it.sourceSets, it.children.map(block)) }

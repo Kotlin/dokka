@@ -64,6 +64,7 @@ class DokkaMultiModuleTaskTest {
             task.pluginsConfiguration.put("pluginA", "configA")
             task.failOnWarning by true
             task.offlineMode by true
+            task.projectName by "example-project-name"
         }
 
         multimoduleTasks.forEach { task ->
@@ -82,7 +83,8 @@ class DokkaMultiModuleTaskTest {
                             path = File("child"),
                             docFile = childProject.projectDir.resolve("customDocumentationFileName.md")
                         )
-                    )
+                    ),
+                    projectName = "example-project-name"
                 ),
                 dokkaConfiguration
             )

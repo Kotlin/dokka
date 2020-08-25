@@ -5,13 +5,14 @@ import RedBox from 'redbox-react';
 import App from "./app";
 import './app/index.scss';
 import { NavigationPaneSearch } from './navigationPaneSearch/navigationPaneSearch';
+import {IWindow} from "./search/types";
 
 const appEl = document.getElementById('searchBar');
 const rootEl = document.createElement('div');
 
 const renderNavigationPane = () => {
   render(
-    <NavigationPaneSearch />,
+    <NavigationPaneSearch modules={(window as IWindow).modules}/>,
     document.getElementById('paneSearch')
   )
 }
