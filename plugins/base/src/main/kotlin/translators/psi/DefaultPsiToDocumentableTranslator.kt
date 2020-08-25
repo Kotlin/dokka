@@ -380,8 +380,8 @@ class DefaultPsiToDocumentableTranslator(
             }
 
         private fun getVariance(type: PsiWildcardType): Projection = when {
-            type.extendsBound != PsiType.NULL -> Variance(Variance.Kind.Out, getBound(type.extendsBound))
-            type.superBound != PsiType.NULL -> Variance(Variance.Kind.In, getBound(type.superBound))
+            type.extendsBound != PsiType.NULL -> Covariance(getBound(type.extendsBound))
+            type.superBound != PsiType.NULL -> Contravariance(getBound(type.superBound))
             else -> throw IllegalStateException("${type.presentableText} has incorrect bounds")
         }
 

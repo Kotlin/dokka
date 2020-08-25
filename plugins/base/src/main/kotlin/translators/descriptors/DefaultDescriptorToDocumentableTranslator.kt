@@ -11,7 +11,6 @@ import org.jetbrains.dokka.links.Callable
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.Nullable
 import org.jetbrains.dokka.model.TypeConstructor
-import org.jetbrains.dokka.model.Variance
 import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.plugability.DokkaContext
@@ -146,7 +145,7 @@ private class DokkaDescriptorVisitor(
             visibility = descriptor.visibility.toDokkaVisibility().toSourceSetDependent(),
             supertypes = info.supertypes.toSourceSetDependent(),
             documentation = info.docs,
-            generics = descriptor.declaredTypeParameters.map { it.toTypeParameter() },
+            generics = descriptor.declaredTypeParameters.map { it.toVariantTypeParameter() },
             companion = descriptor.companion(driWithPlatform),
             sourceSets = setOf(sourceSet),
             extra = PropertyContainer.withAll(
@@ -254,7 +253,7 @@ private class DokkaDescriptorVisitor(
             ),
             companion = descriptor.companionObjectDescriptor?.let { objectDescriptor(it, driWithPlatform) },
             visibility = descriptor.visibility.toDokkaVisibility().toSourceSetDependent(),
-            generics = descriptor.declaredTypeParameters.map { it.toTypeParameter() },
+            generics = descriptor.declaredTypeParameters.map { it.toVariantTypeParameter() },
             constructors = descriptor.constructors.map { visitConstructorDescriptor(it, driWithPlatform) },
             sources = descriptor.createSources()
         )
@@ -284,7 +283,7 @@ private class DokkaDescriptorVisitor(
             expectPresentInSet = sourceSet.takeIf { isExpect },
             visibility = descriptor.visibility.toDokkaVisibility().toSourceSetDependent(),
             supertypes = info.supertypes.toSourceSetDependent(),
-            generics = descriptor.declaredTypeParameters.map { it.toTypeParameter() },
+            generics = descriptor.declaredTypeParameters.map { it.toVariantTypeParameter() },
             documentation = info.docs,
             modifier = descriptor.modifier().toSourceSetDependent(),
             companion = descriptor.companion(driWithPlatform),
@@ -321,7 +320,7 @@ private class DokkaDescriptorVisitor(
             type = descriptor.returnType!!.toBound(),
             expectPresentInSet = sourceSet.takeIf { isExpect },
             sourceSets = setOf(sourceSet),
-            generics = descriptor.typeParameters.map { it.toTypeParameter() },
+            generics = descriptor.typeParameters.map { it.toVariantTypeParameter() },
             extra = PropertyContainer.withAll(
                 (descriptor.additionalExtras() + descriptor.getAnnotationsWithBackingField()
                     .toAdditionalExtras()).toSet().toSourceSetDependent().toAdditionalModifiers(),
@@ -354,7 +353,7 @@ private class DokkaDescriptorVisitor(
             expectPresentInSet = sourceSet.takeIf { isExpect },
             sources = actual,
             visibility = descriptor.visibility.toDokkaVisibility().toSourceSetDependent(),
-            generics = descriptor.typeParameters.map { it.toTypeParameter() },
+            generics = descriptor.typeParameters.map { it.toVariantTypeParameter() },
             documentation = descriptor.takeIf { it.kind != CallableMemberDescriptor.Kind.SYNTHESIZED }
                 ?.resolveDescriptorData() ?: emptyMap(),
             modifier = descriptor.modifier().toSourceSetDependent(),
@@ -402,7 +401,7 @@ private class DokkaDescriptorVisitor(
             },
             type = descriptor.returnType.toBound(),
             modifier = descriptor.modifier().toSourceSetDependent(),
-            generics = descriptor.typeParameters.map { it.toTypeParameter() },
+            generics = descriptor.typeParameters.map { it.toVariantTypeParameter() },
             sourceSets = setOf(sourceSet),
             extra = PropertyContainer.withAll<DFunction>(
                 descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
@@ -472,7 +471,7 @@ private class DokkaDescriptorVisitor(
             visibility = descriptor.visibility.toDokkaVisibility().toSourceSetDependent(),
             documentation = descriptor.resolveDescriptorData(),
             type = descriptor.returnType!!.toBound(),
-            generics = descriptor.typeParameters.map { it.toTypeParameter() },
+            generics = descriptor.typeParameters.map { it.toVariantTypeParameter() },
             modifier = descriptor.modifier().toSourceSetDependent(),
             expectPresentInSet = sourceSet.takeIf { isExpect },
             receiver = descriptor.extensionReceiverParameter?.let {
@@ -501,7 +500,7 @@ private class DokkaDescriptorVisitor(
                 visibility = visibility.toDokkaVisibility().toSourceSetDependent(),
                 documentation = resolveDescriptorData(),
                 sourceSets = setOf(sourceSet),
-                generics = descriptor.declaredTypeParameters.map { it.toTypeParameter() }
+                generics = descriptor.declaredTypeParameters.map { it.toVariantTypeParameter() }
             )
         }
 
@@ -588,10 +587,11 @@ private class DokkaDescriptorVisitor(
         )
     }
 
-    private fun TypeParameterDescriptor.toTypeParameter() =
+    private fun TypeParameterDescriptor.toVariantTypeParameter() =
         DTypeParameter(
-            DRI.from(this).withPackageFallbackTo(fallbackPackageName()),
-            name.identifier,
+            variantTypeParameter(
+                TypeParameter(DRI.from(this).withPackageFallbackTo(fallbackPackageName()), name.identifier)
+            ),
             resolveDescriptorData(),
             null,
             upperBounds.map { it.toBound() },
@@ -621,12 +621,14 @@ private class DokkaDescriptorVisitor(
     private fun TypeProjection.toProjection(): Projection =
         if (isStarProjection) Star else formPossiblyVariant()
 
-    private fun TypeProjection.formPossiblyVariant(): Projection = type.toBound().let {
-        when (projectionKind) {
-            org.jetbrains.kotlin.types.Variance.INVARIANT -> it
-            org.jetbrains.kotlin.types.Variance.IN_VARIANCE -> Variance(Variance.Kind.In, it)
-            org.jetbrains.kotlin.types.Variance.OUT_VARIANCE -> Variance(Variance.Kind.Out, it)
-        }
+    private fun TypeProjection.formPossiblyVariant(): Projection = type.toBound().wrapWithVariance(projectionKind)
+
+    private fun TypeParameterDescriptor.variantTypeParameter(type: TypeParameter) = type.wrapWithVariance(variance)
+
+    private fun <T : Bound> T.wrapWithVariance(variance: org.jetbrains.kotlin.types.Variance) = when (variance) {
+        org.jetbrains.kotlin.types.Variance.INVARIANT -> Invariance(this)
+        org.jetbrains.kotlin.types.Variance.IN_VARIANCE -> Contravariance(this)
+        org.jetbrains.kotlin.types.Variance.OUT_VARIANCE -> Covariance(this)
     }
 
     private fun DeclarationDescriptor.getDocumentation() = findKDoc().let {
