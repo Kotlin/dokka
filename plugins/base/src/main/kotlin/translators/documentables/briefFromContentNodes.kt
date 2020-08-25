@@ -6,7 +6,7 @@ import org.jetbrains.dokka.pages.ContentText
 import org.jetbrains.dokka.pages.TextStyle
 
 fun briefFromContentNodes(description: List<ContentNode>): List<ContentNode> {
-    val firstSentenceRegex = Regex("^((?:[^.?!]|[.!?](?!\\s))*[.!?])")
+    val firstSentenceRegex = """^((?:[^.?!]|[.!?](?!\s))*[.!?])""".toRegex()
 
     var sentenceFound = false
     fun lookthrough(node: ContentNode): ContentNode =
