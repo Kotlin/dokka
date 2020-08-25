@@ -150,7 +150,7 @@ class JavadocSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLo
                 annotationsBlock(t)
             }
             signatureWithoutModifiers {
-                text(t.name)
+                text(t.name) // Investigate if java classes can be somehow variant
             }
             supertypes {
                 list(t.bounds, prefix = "extends ") {
@@ -192,8 +192,8 @@ class JavadocSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLo
                 signatureForProjection(it)
             }
         }
-        is Variance -> group {
-            text(p.kind.toString() + " ")
+        is Variance<*> -> group {
+            text("$p ".takeIf { it.isNotBlank() } ?: "")
             signatureForProjection(p.inner)
         }
         is Star -> text("?")

@@ -141,7 +141,7 @@ class JavaSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogge
     private fun signature(t: DTypeParameter) =
         t.sourceSets.map {
             contentBuilder.contentFor(t, styles = t.stylesIfDeprecated(it), sourceSets = setOf(it)) {
-                text(t.name.substringAfterLast("."))
+                text(t.name.substringAfterLast(".")) // Investigate if java classes can be somehow variant
                 list(t.bounds, prefix = " extends ") {
                     signatureForProjection(it)
                 }
@@ -159,8 +159,8 @@ class JavaSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogge
             }
         }
 
-        is Variance -> group(styles = emptySet()) {
-            text(p.kind.toString() + " ") // TODO: "super" && "extends"
+        is Variance<*> -> group(styles = emptySet()) {
+            text("$p ".takeIf { it.isNotBlank() } ?: "") // TODO: "super" && "extends"
             signatureForProjection(p.inner)
         }
 
