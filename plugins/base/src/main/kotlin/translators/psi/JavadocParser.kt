@@ -151,7 +151,8 @@ class JavadocParser(
             is PsiInlineDocTag -> convertInlineDocTag(this)
             is PsiDocParamRef -> toDocumentationLinkString()
             is PsiDocTagValue,
-            is LeafPsiElement -> text
+            is LeafPsiElement -> (if ((prevSibling as? PsiDocToken)?.isLeadingAsterisk() == true) text?.drop(1) else text)
+                ?.takeUnless { it.isBlank() }
             else -> null
         }
 
@@ -214,7 +215,7 @@ class JavadocParser(
         }
 
         private fun convertHtmlNode(node: Node, insidePre: Boolean = false): DocTag? = when (node) {
-            is TextNode -> Text(body = if (insidePre) node.wholeText else node.text())
+            is TextNode -> (if (insidePre) node.wholeText else node.text().takeIf { it.isNotBlank() })?.let { Text(body = it) }
             is Element -> createBlock(node)
             else -> null
         }
