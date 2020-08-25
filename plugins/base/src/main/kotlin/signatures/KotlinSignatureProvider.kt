@@ -295,7 +295,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
     private fun signature(t: DTypeParameter) =
         t.sourceSets.map {
             contentBuilder.contentFor(t, styles = t.stylesIfDeprecated(it), sourceSets = setOf(it)) {
-                link(t.name, t.dri.withTargetToDeclaration())
+                signatureForProjection(t.variantTypeParameter.withNewDri(t.dri.withTargetToDeclaration()))
                 list(t.nontrivialBounds, prefix = " : ") { bound ->
                     signatureForProjection(bound)
                 }
@@ -333,8 +333,8 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                     }
                 }
 
-            is Variance -> group(styles = emptySet()) {
-                text(p.kind.toString() + " ")
+            is Variance<*> -> group(styles = emptySet()) {
+                text("$p ".takeIf { it.isNotBlank() } ?: "")
                 signatureForProjection(p.inner, showFullyQualifiedName)
             }
 
