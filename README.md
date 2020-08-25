@@ -51,6 +51,8 @@ kotlin { // Kotlin plugin configuration
 ```
 
 ### Using the Gradle plugin
+_Note: If you are upgrading from 0.10.x to a current release of dokka, please have a look at our 
+[migration guide](runners/gradle-plugin/MIGRATION.md)_
 
 The preferred way is to use `plugins` block. Since dokka is currently not published to the Gradle plugin portal, 
 you not only need to add `dokka` to the `build.gradle.kts` file, but you also need to modify the `settings.gradle.kts` file: 
