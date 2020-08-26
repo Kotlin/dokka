@@ -12,7 +12,7 @@ import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
 fun DRI.Companion.from(descriptor: DeclarationDescriptor) = descriptor.parentsWithSelf.run {
     val callable = firstIsInstanceOrNull<CallableDescriptor>()
     DRI(
-        firstIsInstanceOrNull<PackageFragmentDescriptor>()?.fqName?.asString(),
+        firstIsInstanceOrNull<PackageFragmentDescriptor>()?.fqName?.asString() ?: "",
         (filterIsInstance<ClassDescriptor>() + filterIsInstance<TypeAliasDescriptor>()).toList()
             .takeIf { it.isNotEmpty() }
             ?.asReversed()
@@ -27,7 +27,7 @@ fun DRI.Companion.from(psi: PsiElement) = psi.parentsWithSelf.run {
     val psiField = firstIsInstanceOrNull<PsiField>()
     val classes = filterIsInstance<PsiClass>().filterNot { it is PsiTypeParameter }.toList() // We only want exact PsiClass types, not PsiTypeParameter subtype
     DRI(
-        classes.lastOrNull()?.qualifiedName?.substringBeforeLast('.', ""),
+        classes.lastOrNull()?.qualifiedName?.substringBeforeLast('.', "") ?: "",
         classes.toList().takeIf { it.isNotEmpty() }?.asReversed()?.mapNotNull { it.name }?.joinToString("."),
         psiMethod?.let { Callable.from(it) } ?: psiField?.let { Callable.from(it) },
         DriTarget.from(psi)
