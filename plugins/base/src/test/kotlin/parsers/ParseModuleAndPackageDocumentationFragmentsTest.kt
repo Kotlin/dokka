@@ -76,21 +76,24 @@ class ParseModuleAndPackageDocumentationFragmentsTest {
     }
 
     @Test
-    fun `no package name specified fails`() {
-        val exception = assertThrows<IllegalModuleAndPackageDocumentation> {
-            parseModuleAndPackageDocumentationFragments(
-                source(
-                    """
-                    # Package
-                    No package name given
-                    """.trimIndent()
-                )
-            )
-        }
+    fun `no package name specified does not fail`() {
+        val source = source(
+            """
+            # Package
+            This is a root package
+            """.trimIndent()
+        )
+        val fragments = parseModuleAndPackageDocumentationFragments(source)
+        assertEquals(1, fragments.size, "Expected a single package fragment")
 
-        assertTrue(
-            "Missing Package name" in exception.message.orEmpty(),
-            "Expected 'Missing Package name' in error message"
+        assertEquals(
+            ModuleAndPackageDocumentationFragment(
+                name = "",
+                classifier = Package,
+                documentation = "This is a root package",
+                source = source
+            ),
+            fragments.single()
         )
     }
 

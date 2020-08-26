@@ -1,5 +1,6 @@
 package org.jetbrains.dokka.base.parsers.moduleAndPackage
 
+import org.jetbrains.dokka.base.parsers.moduleAndPackage.ModuleAndPackageDocumentation.Classifier.*
 import java.io.File
 
 
@@ -24,17 +25,18 @@ private fun parseModuleAndPackageDocFragment(
     val firstLine = firstLineAndDocumentation[0]
 
     val classifierAndName = firstLine.split(Regex("\\s+"), limit = 2)
-    if (classifierAndName.size != 2) {
-        throw IllegalModuleAndPackageDocumentation(source, "Missing ${classifierAndName.first()} name")
-    }
 
     val classifier = when (classifierAndName[0].trim()) {
-        "Module" -> ModuleAndPackageDocumentation.Classifier.Module
-        "Package" -> ModuleAndPackageDocumentation.Classifier.Package
+        "Module" -> Module
+        "Package" -> Package
         else -> throw IllegalStateException("Unexpected classifier ${classifierAndName[0]}")
     }
 
-    val name = classifierAndName[1].trim()
+    if (classifierAndName.size != 2 && classifier == Module) {
+        throw IllegalModuleAndPackageDocumentation(source, "Missing Module name")
+    }
+
+    val name = classifierAndName.getOrNull(1)?.trim().orEmpty()
     if (name.contains(Regex("\\s"))) {
         throw IllegalModuleAndPackageDocumentation(
             source, "Module/Package name cannot contain whitespace in '$firstLine'"

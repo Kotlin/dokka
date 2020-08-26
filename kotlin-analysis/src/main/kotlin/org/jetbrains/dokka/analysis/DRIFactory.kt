@@ -25,7 +25,8 @@ fun DRI.Companion.from(descriptor: DeclarationDescriptor) = descriptor.parentsWi
 fun DRI.Companion.from(psi: PsiElement) = psi.parentsWithSelf.run {
     val psiMethod = firstIsInstanceOrNull<PsiMethod>()
     val psiField = firstIsInstanceOrNull<PsiField>()
-    val classes = filterIsInstance<PsiClass>().filterNot { it is PsiTypeParameter }.toList() // We only want exact PsiClass types, not PsiTypeParameter subtype
+    val classes = filterIsInstance<PsiClass>().filterNot { it is PsiTypeParameter }
+        .toList() // We only want exact PsiClass types, not PsiTypeParameter subtype
     DRI(
         classes.lastOrNull()?.qualifiedName?.substringBeforeLast('.', "") ?: "",
         classes.toList().takeIf { it.isNotEmpty() }?.asReversed()?.mapNotNull { it.name }?.joinToString("."),
