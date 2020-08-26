@@ -21,7 +21,6 @@ internal interface ModuleAndPackageDocumentationReader {
     operator fun get(pkg: DPackage): SourceSetDependent<DocumentationNode>
 }
 
-// TODO NOW: Test
 internal fun ModuleAndPackageDocumentationReader(
     context: DokkaContext, kotlinAnalysis: KotlinAnalysis? = null
 ): ModuleAndPackageDocumentationReader = ContextModuleAndPackageDocumentationReader(context, kotlinAnalysis)
@@ -59,7 +58,11 @@ private class ContextModuleAndPackageDocumentationReader(
 
     override fun get(module: DModule): SourceSetDependent<DocumentationNode> {
         return findDocumentationNodes(module.sourceSets) { fragment ->
-            fragment.classifier == Classifier.Module && fragment.name == module.name
+            fragment.classifier == Classifier.Module && (
+                    /* Match fragment name against module name or distinct module displayName */
+                    fragment.name == module.name ||
+                            fragment.name == module.sourceSets.map { it.moduleDisplayName }.distinct().singleOrNull()
+                    )
         }
     }
 
