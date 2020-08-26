@@ -74,6 +74,10 @@ class JavadocPackagePageNode(
     NavigableJavadocNode,
     PackagePage {
 
+    init {
+        require(name.isNotBlank()) { "Empty name is not supported " }
+    }
+
     override fun getAllNavigables(): List<NavigableJavadocNode> =
         children.filterIsInstance<NavigableJavadocNode>().flatMap {
             if (it is WithNavigable) it.getAllNavigables()

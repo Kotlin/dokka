@@ -39,6 +39,7 @@ class Multiplatform0GradleIntegrationTest(override val versions: BuildVersions) 
             assertNoUnresolvedLinks(file)
             assertNoHrefToMissingLocalFileOrDirectory(file)
             assertNoEmptyLinks(file)
+            assertNoEmptySpans(file)
         }
     }
 }

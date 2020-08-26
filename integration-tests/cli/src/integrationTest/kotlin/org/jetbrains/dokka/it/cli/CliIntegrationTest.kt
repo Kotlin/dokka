@@ -85,6 +85,7 @@ class CliIntegrationTest : AbstractCliIntegrationTest() {
             assertContainsNoErrorClass(file)
             assertNoUnresolvedLinks(file)
             assertNoEmptyLinks(file)
+            assertNoEmptySpans(file)
         }
     }
 }

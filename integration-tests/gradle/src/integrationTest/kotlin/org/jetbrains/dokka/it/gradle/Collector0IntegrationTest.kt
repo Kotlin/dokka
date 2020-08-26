@@ -52,6 +52,7 @@ class Collector0IntegrationTest(override val versions: BuildVersions) : Abstract
             assertNoUnresolvedLinks(file)
             assertNoHrefToMissingLocalFileOrDirectory(file)
             assertNoEmptyLinks(file)
+            assertNoEmptySpans(file)
         }
 
         assertTrue(

@@ -82,6 +82,7 @@ class BasicGroovyIntegrationTest(override val versions: BuildVersions) : Abstrac
             assertNoUnresolvedLinks(file)
             assertNoHrefToMissingLocalFileOrDirectory(file)
             assertNoEmptyLinks(file)
+            assertNoEmptySpans(file)
         }
     }
 

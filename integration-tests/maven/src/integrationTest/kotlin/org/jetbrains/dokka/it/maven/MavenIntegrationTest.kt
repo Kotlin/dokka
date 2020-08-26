@@ -52,6 +52,7 @@ class MavenIntegrationTest : AbstractIntegrationTest() {
             assertContainsNoErrorClass(file)
             assertNoUnresolvedLinks(file)
             assertNoEmptyLinks(file)
+            assertNoEmptySpans(file)
         }
     }
 

@@ -90,4 +90,12 @@ abstract class AbstractIntegrationTest {
             "Unexpected `§SUPPRESSED§` in file ${file.path}"
         )
     }
+
+    protected fun assertNoEmptySpans(file: File) {
+        val fileText = file.readText()
+        assertFalse(
+            fileText.contains(Regex("""<span>\s*</span>""")),
+            "Unexpected empty <span></span> in file ${file.path}"
+        )
+    }
 }

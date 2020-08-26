@@ -89,10 +89,7 @@ open class DokkaLocationProvider(
     private fun PageNode.parent() = pageGraphRoot.parentMap[this]
 
     private val PageNode.pathName: String
-        get() = when (this) {
-            is PackagePageNode -> if (name.isBlank()) "[root]" else name
-            else -> identifierToFilename(name)
-        }
+        get() = if (this is PackagePageNode) name else identifierToFilename(name)
 
     companion object {
         internal val reservedFilenames = setOf("index", "con", "aux", "lst", "prn", "nul", "eof", "inp", "out")
