@@ -92,6 +92,11 @@ class PackagePageNode(
     override val children: List<PageNode>,
     override val embeddedResources: List<String> = listOf()
 ) : PackagePage {
+
+    init {
+        require(name.isNotBlank()) { "PackagePageNode.name cannot be blank" }
+    }
+
     override fun modified(name: String, children: List<PageNode>): PackagePageNode =
         modified(name = name, content = this.content, children = children)
 
