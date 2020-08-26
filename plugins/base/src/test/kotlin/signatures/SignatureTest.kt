@@ -494,11 +494,4 @@ class SignatureTest : AbstractCoreTest() {
             }
         }
     }
-
-    private fun TestOutputWriter.renderedContent(path: String = "root/example.html") =
-        contents.getValue(path).let { Jsoup.parse(it) }.select("#content")
-            .single()
-
-    private fun Element.signature() = select("div.symbol.monospace")
-    private fun Element.firstSignature() = signature().first()
 }
