@@ -84,7 +84,7 @@ open class JavadocPageCreator(
             leafList(setOf(m.dri),
                 ContentKind.Packages, JavadocList(
                     "Packages", "Package",
-                    m.packages.sortedBy { it.name }.map { p ->
+                    m.packages.sortedBy { it.packageName }.map { p ->
                         RowJavadocListEntry(
                             LinkJavadocListEntry(p.name, setOf(p.dri), JavadocContentKind.PackageSummary, sourceSets),
                             p.brief()

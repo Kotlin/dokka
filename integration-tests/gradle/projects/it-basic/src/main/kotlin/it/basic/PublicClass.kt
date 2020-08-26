@@ -2,6 +2,11 @@
 
 package it.basic
 
+import RootPackageClass
+
+/**
+ * This class, unlike [RootPackageClass] is located in a sub-package
+ */
 class PublicClass {
     /**
      * This function is public and documented

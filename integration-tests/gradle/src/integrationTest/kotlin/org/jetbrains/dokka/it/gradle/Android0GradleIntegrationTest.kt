@@ -59,6 +59,7 @@ class Android0GradleIntegrationTest(override val versions: BuildVersions) : Abst
             assertNoUnresolvedLinks(file, knownUnresolvedDRIs)
             assertNoHrefToMissingLocalFileOrDirectory(file)
             assertNoEmptyLinks(file)
+            assertNoEmptySpans(file)
         }
 
         assertTrue(
