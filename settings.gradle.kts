@@ -17,6 +17,12 @@ include("plugins:base:frontend")
 include("plugins:base:search-component")
 include("plugins:base:base-test-utils")
 
+include("plugins:kotlin-documentables")
+include("plugins:java-documentables")
+include("plugins:html")
+include("plugins:processing")
+include("plugins:all-module-page")
+
 include("plugins:mathjax")
 include("plugins:gfm")
 include("plugins:jekyll")
