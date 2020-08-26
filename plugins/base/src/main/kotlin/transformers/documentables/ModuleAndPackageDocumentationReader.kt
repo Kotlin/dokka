@@ -56,6 +56,13 @@ private class ContextModuleAndPackageDocumentationReader(
         }
     }
 
+    private val ModuleAndPackageDocumentationFragment.canonicalPackageName: String
+        get() {
+            check(classifier == Classifier.Package)
+            if (name == "[root]") return ""
+            return name
+        }
+
     override fun get(module: DModule): SourceSetDependent<DocumentationNode> {
         return findDocumentationNodes(module.sourceSets) { fragment ->
             fragment.classifier == Classifier.Module && (
@@ -68,8 +75,7 @@ private class ContextModuleAndPackageDocumentationReader(
 
     override fun get(pkg: DPackage): SourceSetDependent<DocumentationNode> {
         return findDocumentationNodes(pkg.sourceSets) { fragment ->
-            // TODO NOW: handle JS Root thing
-            fragment.classifier == Classifier.Package && fragment.name == pkg.dri.packageName
+            fragment.classifier == Classifier.Package && fragment.canonicalPackageName == pkg.dri.packageName
         }
     }
 }
