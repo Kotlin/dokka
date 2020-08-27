@@ -84,7 +84,7 @@ class BasicGradleIntegrationTest(override val versions: BuildVersions) : Abstrac
 
         assertTrue(
             allHtmlFiles().any { file -> "Basic Project" in file.readText() },
-            "Expected configured moduleDisplayName to be present in html"
+            "Expected configured moduleName to be present in html"
         )
 
         assertTrue(

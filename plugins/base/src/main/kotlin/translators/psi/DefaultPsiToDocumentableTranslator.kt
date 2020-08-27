@@ -68,7 +68,7 @@ class DefaultPsiToDocumentableTranslator(
                 context.logger
             )
         return DModule(
-            sourceSet.moduleDisplayName,
+            context.configuration.moduleName,
             psiFiles.mapNotNull { it.safeAs<PsiJavaFile>() }.groupBy { it.packageName }.map { (packageName, psiFiles) ->
                 val dri = DRI(packageName = packageName)
                 DPackage(

@@ -21,14 +21,12 @@ import java.io.File
 abstract class HtmlRenderingOnlyTestBase : RenderingOnlyTestBase<Element>() {
 
     protected val js = defaultSourceSet.copy(
-        "root",
         "JS",
         defaultSourceSet.sourceSetID.copy(sourceSetName = "js"),
         analysisPlatform = Platform.js,
         sourceRoots = setOf(File("pl1"))
     )
     protected val jvm = defaultSourceSet.copy(
-        "root",
         "JVM",
         defaultSourceSet.sourceSetID.copy(sourceSetName = "jvm"),
 
@@ -36,7 +34,6 @@ abstract class HtmlRenderingOnlyTestBase : RenderingOnlyTestBase<Element>() {
         sourceRoots = setOf(File("pl1"))
     )
     protected val native = defaultSourceSet.copy(
-        "root",
         "NATIVE",
         defaultSourceSet.sourceSetID.copy(sourceSetName = "native"),
         analysisPlatform = Platform.native,

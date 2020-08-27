@@ -91,7 +91,7 @@
                     <skip>false</skip>
 
                     <!-- Default: ${project.artifactId} -->
-                    <moduleDisplayName>Maven Integration Test Module</moduleDisplayName>
+                    <moduleName>Maven Integration Test Module</moduleName>
 
                     <!-- Default: ${project.basedir}/target/dokka -->
                     <outputDir>${project.basedir}/output</outputDir>

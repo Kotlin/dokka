@@ -1,6 +1,9 @@
+@file:Suppress("TestFunctionName")
+
 package org.jetbrains.dokka.gradle
 
 import com.android.build.gradle.internal.api.DefaultAndroidSourceSet
+import org.gradle.api.Project
 import org.gradle.kotlin.dsl.closureOf
 import org.gradle.testfixtures.ProjectBuilder
 import org.jetbrains.dokka.*
@@ -15,14 +18,14 @@ class GradleDokkaSourceSetBuilderTest {
 
     @Test
     fun sourceSetId() {
-        val sourceSet = GradleDokkaSourceSetBuilder("myName", project)
+        val sourceSet = GradleDokkaSourceSetBuilder("myName", project, "scopeId")
         assertEquals(
-            DokkaSourceSetID(project, "myName"), sourceSet.sourceSetID,
+            DokkaSourceSetID("scopeId", "myName"), sourceSet.sourceSetID,
             "Expected sourceSet.sourceSetID to match output of DokkaSourceSetID factory function"
         )
 
         assertEquals(
-            ":/myName", sourceSet.sourceSetID.toString(),
+            "scopeId/myName", sourceSet.sourceSetID.toString(),
             "Expected SourceSetId's string representation"
         )
     }
@@ -42,29 +45,6 @@ class GradleDokkaSourceSetBuilderTest {
             listOf(project.file("path/to/file.jar"), project.file("path/to/other.jar")),
             sourceSet.build().classpath.toList(),
             "Expected both file paths being present in built classpath"
-        )
-    }
-
-    @Test
-    fun moduleDisplayName() {
-        val sourceSet = GradleDokkaSourceSetBuilder("myName", project)
-
-        assertNull(
-            sourceSet.moduleDisplayName.getSafe(),
-            "Expected no ${GradleDokkaSourceSetBuilder::moduleDisplayName.name} being set by default"
-        )
-
-        assertEquals(
-            "root", sourceSet.build().moduleDisplayName,
-            "Expected project name being used for ${DokkaConfiguration.DokkaSourceSet::moduleDisplayName.name} " +
-                    "after building source set with no ${GradleDokkaSourceSetBuilder::moduleDisplayName.name} being set"
-        )
-
-        sourceSet.moduleDisplayName by "displayName"
-
-        assertEquals(
-            "displayName", sourceSet.build().moduleDisplayName,
-            "Expected previously set ${GradleDokkaSourceSetBuilder::displayName.name} to be present after build"
         )
     }
 
@@ -128,9 +108,9 @@ class GradleDokkaSourceSetBuilderTest {
         val sourceSet = GradleDokkaSourceSetBuilder("", project)
         assertEquals(emptySet(), sourceSet.build().dependentSourceSets, "Expected no dependent sourceSets by default")
 
-        sourceSet.dependentSourceSets.add(DokkaSourceSetID(project, "s1"))
+        sourceSet.dependentSourceSets.add(sourceSet.DokkaSourceSetID("s1"))
         sourceSet.dependsOn("s2")
-        sourceSet.dependsOn(DokkaSourceSetID(project, "s3"))
+        sourceSet.dependsOn(sourceSet.DokkaSourceSetID("s3"))
         sourceSet.dependsOn(GradleDokkaSourceSetBuilder("s4", project))
         sourceSet.dependsOn(GradleDokkaSourceSetBuilder("s5", project).build())
         sourceSet.dependsOn(DefaultKotlinSourceSet(project, "s6"))
@@ -456,3 +436,6 @@ class GradleDokkaSourceSetBuilderTest {
         )
     }
 }
+
+private fun GradleDokkaSourceSetBuilder(name: String, project: Project) =
+    GradleDokkaSourceSetBuilder(name, project, project.path)

@@ -6,7 +6,6 @@ import java.io.File
 
 internal fun GradleDokkaSourceSetBuilder.toDokkaSourceSetImpl(): DokkaSourceSetImpl = DokkaSourceSetImpl(
     classpath = classpath.toList(),
-    moduleDisplayName = moduleNameOrDefault(),
     displayName = displayNameOrDefault(),
     sourceSetID = sourceSetID,
     sourceRoots = sourceRoots.toSet(),
@@ -28,11 +27,6 @@ internal fun GradleDokkaSourceSetBuilder.toDokkaSourceSetImpl(): DokkaSourceSetI
     suppressedFiles = suppressedFilesWithDefaults(),
     analysisPlatform = platform.getSafe()
 )
-
-
-private fun GradleDokkaSourceSetBuilder.moduleNameOrDefault(): String {
-    return moduleDisplayName.getSafe() ?: project.name
-}
 
 private fun GradleDokkaSourceSetBuilder.displayNameOrDefault(): String {
     displayName.getSafe()?.let { return it }

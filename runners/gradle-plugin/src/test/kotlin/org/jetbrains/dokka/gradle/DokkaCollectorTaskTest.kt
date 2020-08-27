@@ -33,6 +33,7 @@ class DokkaCollectorTaskTest {
 
         val collectorTasks = rootProject.tasks.withType<DokkaCollectorTask>()
         collectorTasks.configureEach { task ->
+            task.moduleName by "custom Module Name"
             task.outputDirectory by File("customOutputDirectory")
             task.cacheRoot by File("customCacheRoot")
             task.failOnWarning by true
@@ -45,6 +46,7 @@ class DokkaCollectorTaskTest {
             val dokkaConfiguration = task.buildDokkaConfiguration()
             assertEquals(
                 DokkaConfigurationImpl(
+                    moduleName = "custom Module Name",
                     outputDir = File("customOutputDirectory"),
                     cacheRoot = File("customCacheRoot"),
                     failOnWarning = true,

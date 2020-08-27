@@ -98,20 +98,29 @@ class ParseModuleAndPackageDocumentationFragmentsTest {
     }
 
     @Test
-    fun `white space in module name fails`() {
-        val exception = assertThrows<IllegalModuleAndPackageDocumentation> {
-            parseModuleAndPackageDocumentationFragments(
-                source(
-                    """
-                    # Module My Module
-                    """.trimIndent()
-                )
+    fun `white space in module name is supported`() {
+        val fragment = parseModuleAndPackageDocumentationFragments(
+            source(
+                """
+                # Module My Module 
+                Documentation for my module
+                """.trimIndent()
             )
-        }
+        )
 
-        assertTrue(
-            "Module My Module" in exception.message.orEmpty(),
-            "Expected problematic statement in error message"
+        assertEquals(
+            Module, fragment.single().classifier,
+            "Expected module being parsec"
+        )
+
+        assertEquals(
+            "My Module", fragment.single().name,
+            "Expected module name with white spaces being parsed"
+        )
+
+        assertEquals(
+            "Documentation for my module", fragment.single().documentation,
+            "Expected documentation being available"
         )
     }
 

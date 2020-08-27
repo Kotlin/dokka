@@ -70,7 +70,15 @@ class DefaultDescriptorToDocumentableTranslator(
                     DRIWithPlatformInfo(DRI.topLevel, emptyMap())
                 )
             }
-        }.let { DModule(sourceSet.moduleDisplayName, it, emptyMap(), null, setOf(sourceSet)) }
+        }.let {
+            DModule(
+                name = context.configuration.moduleName,
+                packages = it,
+                documentation = emptyMap(),
+                expectPresentInSet = null,
+                sourceSets = setOf(sourceSet)
+            )
+        }
     }
 }
 
@@ -557,7 +565,9 @@ private class DokkaDescriptorVisitor(
     private fun ClassDescriptor.resolveClassDescriptionData(): ClassInfo {
 
         fun toTypeConstructor(kt: KotlinType) =
-            TypeConstructor(DRI.from(kt.constructor.declarationDescriptor as DeclarationDescriptor), kt.arguments.map { it.toProjection() })
+            TypeConstructor(
+                DRI.from(kt.constructor.declarationDescriptor as DeclarationDescriptor),
+                kt.arguments.map { it.toProjection() })
 
         tailrec fun buildAncestryInformation(
             supertypes: Collection<KotlinType>,
@@ -753,13 +763,22 @@ private class DokkaDescriptorVisitor(
 
     private fun ValueArgument.childrenAsText() = this.safeAs<KtValueArgument>()?.children?.map { it.text }.orEmpty()
 
-    private data class AncestryLevel(val level: Int, val superclass: TypeConstructor?, val interfaces: List<TypeConstructor>)
+    private data class AncestryLevel(
+        val level: Int,
+        val superclass: TypeConstructor?,
+        val interfaces: List<TypeConstructor>
+    )
 
-    private data class ClassInfo(val ancestry: List<AncestryLevel>, val docs: SourceSetDependent<DocumentationNode>){
+    private data class ClassInfo(val ancestry: List<AncestryLevel>, val docs: SourceSetDependent<DocumentationNode>) {
         val supertypes: List<TypeConstructorWithKind>
             get() = ancestry.firstOrNull { it.level == 0 }?.let {
-                    listOfNotNull(it.superclass?.let { TypeConstructorWithKind(it, KotlinClassKindTypes.CLASS) }) + it.interfaces.map { TypeConstructorWithKind(it, KotlinClassKindTypes.INTERFACE) }
-                }.orEmpty()
+                listOfNotNull(it.superclass?.let {
+                    TypeConstructorWithKind(
+                        it,
+                        KotlinClassKindTypes.CLASS
+                    )
+                }) + it.interfaces.map { TypeConstructorWithKind(it, KotlinClassKindTypes.INTERFACE) }
+            }.orEmpty()
 
         val allImplementedInterfaces: List<TypeConstructor>
             get() = ancestry.flatMap { it.interfaces }.distinct()

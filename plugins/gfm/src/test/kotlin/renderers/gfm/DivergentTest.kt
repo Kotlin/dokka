@@ -12,21 +12,18 @@ import java.io.File
 
 class DivergentTest : GfmRenderingOnlyTestBase() {
     private val js = defaultSourceSet.copy(
-        "root",
         "js",
         DokkaSourceSetID("root", "js"),
         analysisPlatform = Platform.js,
         sourceRoots = setOf(File("pl1"))
     )
     private val jvm = defaultSourceSet.copy(
-        "root",
         "jvm",
         DokkaSourceSetID("root", "jvm"),
         analysisPlatform = Platform.jvm,
         sourceRoots = setOf(File("pl1"))
     )
     private val native = defaultSourceSet.copy(
-        "root",
         "native",
         DokkaSourceSetID("root", "native"),
         analysisPlatform = Platform.native,

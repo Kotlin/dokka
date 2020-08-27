@@ -16,9 +16,9 @@ class DivergentSignatureTest : AbstractCoreTest() {
         val testDataDir = getTestDataDir("multiplatform/basicMultiplatformTest").toAbsolutePath()
 
         val configuration = dokkaConfiguration {
+            moduleName = "example"
             sourceSets {
                 sourceSet {
-                    moduleName = "example"
                     displayName = "js"
                     name = "js"
                     analysisPlatform = "js"
@@ -27,7 +27,6 @@ class DivergentSignatureTest : AbstractCoreTest() {
                     }
                 }
                 sourceSet {
-                    moduleName = "example"
                     displayName = "jvm"
                     name = "jvm"
                     analysisPlatform = "jvm"
@@ -36,7 +35,6 @@ class DivergentSignatureTest : AbstractCoreTest() {
                     }
                 }
                 sourceSet {
-                    moduleName = "example"
                     displayName = "common"
                     name = "common"
                     analysisPlatform = "common"
@@ -68,9 +66,9 @@ class DivergentSignatureTest : AbstractCoreTest() {
         val testDataDir = getTestDataDir("multiplatform/basicMultiplatformTest").toAbsolutePath()
 
         val configuration = dokkaConfiguration {
+            moduleName = "example"
             sourceSets {
                 sourceSet {
-                    moduleName = "example"
                     displayName = "js"
                     name = "js"
                     analysisPlatform = "js"
@@ -79,7 +77,6 @@ class DivergentSignatureTest : AbstractCoreTest() {
                     }
                 }
                 sourceSet {
-                    moduleName = "example"
                     displayName = "jvm"
                     name = "jvm"
                     analysisPlatform = "jvm"
@@ -88,7 +85,6 @@ class DivergentSignatureTest : AbstractCoreTest() {
                     }
                 }
                 sourceSet {
-                    moduleName = "example"
                     displayName = "common"
                     name = "common"
                     analysisPlatform = "common"
@@ -120,9 +116,9 @@ class DivergentSignatureTest : AbstractCoreTest() {
         val testDataDir = getTestDataDir("multiplatform/basicMultiplatformTest").toAbsolutePath()
 
         val configuration = dokkaConfiguration {
+            moduleName = "example"
             sourceSets {
                 sourceSet {
-                    moduleName = "example"
                     displayName = "js"
                     name = "js"
                     analysisPlatform = "js"
@@ -131,7 +127,6 @@ class DivergentSignatureTest : AbstractCoreTest() {
                     }
                 }
                 sourceSet {
-                    moduleName = "example"
                     displayName = "jvm"
                     name = "jvm"
                     analysisPlatform = "jvm"
@@ -140,7 +135,6 @@ class DivergentSignatureTest : AbstractCoreTest() {
                     }
                 }
                 sourceSet {
-                    moduleName = "example"
                     displayName = "common"
                     name = "common"
                     analysisPlatform = "common"

@@ -58,6 +58,7 @@ class DokkaMultiModuleTaskTest {
         assertTrue(multimoduleTasks.isNotEmpty(), "Expected at least one multimodule task")
 
         multimoduleTasks.configureEach { task ->
+            task.moduleName by "custom Module Name"
             task.documentationFileName by "customDocumentationFileName.md"
             task.outputDirectory by task.project.buildDir.resolve("customOutputDirectory")
             task.cacheRoot by File("customCacheRoot")
@@ -70,6 +71,7 @@ class DokkaMultiModuleTaskTest {
             val dokkaConfiguration = task.buildDokkaConfiguration()
             assertEquals(
                 DokkaConfigurationImpl(
+                    moduleName = "custom Module Name",
                     outputDir = task.project.buildDir.resolve("customOutputDirectory"),
                     cacheRoot = File("customCacheRoot"),
                     pluginsConfiguration = mapOf("pluginA" to "configA"),

@@ -14,21 +14,18 @@ import java.io.File
 class SourceSetDependentHintTest : HtmlRenderingOnlyTestBase() {
 
     private val pl1 = defaultSourceSet.copy(
-        "root",
         "pl1",
         defaultSourceSet.sourceSetID.copy(sourceSetName =  "pl1"),
         analysisPlatform = Platform.js,
         sourceRoots = setOf(File("pl1"))
     )
     private val pl2 = defaultSourceSet.copy(
-        "root",
         "pl2",
         defaultSourceSet.sourceSetID.copy(sourceSetName =  "pl2"),
         analysisPlatform = Platform.jvm,
         sourceRoots = setOf(File("pl1"))
     )
     private val pl3 = defaultSourceSet.copy(
-        "root",
         "pl3",
         defaultSourceSet.sourceSetID.copy(sourceSetName =  "pl3"),
         analysisPlatform = Platform.native,

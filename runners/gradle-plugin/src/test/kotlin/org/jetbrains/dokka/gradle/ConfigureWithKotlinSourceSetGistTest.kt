@@ -1,9 +1,7 @@
 package org.jetbrains.dokka.gradle
 
 import org.gradle.api.artifacts.FileCollectionDependency
-import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.kotlin.dsl.get
-import org.gradle.kotlin.dsl.property
 import org.gradle.testfixtures.ProjectBuilder
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.gradle.kotlin.KotlinSourceSetGist
