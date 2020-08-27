@@ -65,7 +65,7 @@
                                             <td class="colFirst"><code>{{ classlike.modifiers }}</code></td>
                                             <th class="colSecond" scope="row"><code>{{ classlike.signature }}</span></code>
                                             </th>
-                                            <td class="colLast">{{ classlike.description }}</td>
+                                            <td class="colLast">{{ classlike.description|raw }}</td>
                                         </tr>
                                         {% endfor %}
                                     </table>

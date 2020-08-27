@@ -77,7 +77,7 @@ object IndexGenerator : PageTransformer {
     override fun invoke(input: RootPageNode): RootPageNode {
         val elements = HashMap<Char, MutableSet<NavigableJavadocNode>>()
         (input as JavadocModulePageNode).children.filterIsInstance<JavadocPackagePageNode>().forEach {
-            it.getAllIndexables().forEach { d ->
+            it.getAllNavigables().forEach { d ->
                 val name = when (d) {
                     is JavadocPageNode -> d.name
                     is AnchorableJavadocNode -> d.name

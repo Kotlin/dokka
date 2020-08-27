@@ -49,9 +49,13 @@ class JavadocLocationProvider(pageRoot: RootPageNode, dokkaContext: DokkaContext
         pageRoot.children.forEach { registerPath(it) }
     }
 
+    private val parentPageIndex = HashMap<DRI, PageNode>()
     private val nodeIndex = HashMap<DRI, PageNode>().apply {
         fun registerNode(node: PageNode) {
             if (node is ContentPage) put(node.dri.first(), node)
+            (node as? JavadocClasslikePageNode)?.getAnchorables()?.forEach { navigableNode ->
+                parentPageIndex[navigableNode.getDRI()] = node
+            }
             node.children.forEach(::registerNode)
         }
         registerNode(pageRoot)
@@ -77,7 +81,7 @@ class JavadocLocationProvider(pageRoot: RootPageNode, dokkaContext: DokkaContext
 
     private fun getLocalLocation(dri: DRI, context: PageNode?): String? =
         nodeIndex[dri]?.let { resolve(it, context) }
-            ?: nodeIndex[dri.parent]?.takeIf { dri.target !is PointingToGenericParameters && it is JavadocClasslikePageNode }?.let {
+            ?: parentPageIndex[dri]?.let {
                 val anchor = when (val anchorElement = (it as? JavadocClasslikePageNode)?.findAnchorableByDRI(dri)) {
                     is JavadocFunctionNode -> anchorElement.getAnchor()
                     is JavadocEntryNode -> anchorElement.name
