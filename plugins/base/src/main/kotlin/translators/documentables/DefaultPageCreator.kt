@@ -88,10 +88,11 @@ open class DefaultPageCreator(
             val documentations = it.sourceSets.map { platform ->
                 it.descriptions[platform]?.also { it.root }
             }
-            val haveSameContent = documentations.all { it?.root == documentations.firstOrNull()?.root && it?.root != null }
+            val haveSameContent =
+                documentations.all { it?.root == documentations.firstOrNull()?.root && it?.root != null }
 
             link(it.name, it.dri)
-            if(it.sourceSets.size == 1 || (documentations.isNotEmpty() && haveSameContent)){
+            if (it.sourceSets.size == 1 || (documentations.isNotEmpty() && haveSameContent)) {
                 documentations.first()?.let { firstSentenceComment(kind = ContentKind.Comment, content = it) }
             }
         }
@@ -129,7 +130,7 @@ open class DefaultPageCreator(
         divergentBlock("Types", types, ContentKind.Classlikes, extra = mainExtra + SimpleAttr.header("Types"))
         divergentBlock(
             "Functions",
-            s.functions,
+            s.functions.sorted(),
             ContentKind.Functions,
             extra = mainExtra + SimpleAttr.header("Functions")
         )
@@ -153,8 +154,8 @@ open class DefaultPageCreator(
             if (map.values.any()) {
                 header(2, "Inheritors") { }
                 +ContentTable(
-                    listOf(contentBuilder.contentFor(mainDRI, mainSourcesetData){
-                            text("Name")
+                    listOf(contentBuilder.contentFor(mainDRI, mainSourcesetData) {
+                        text("Name")
                     }),
                     map.entries.flatMap { entry -> entry.value.map { Pair(entry.key, it) } }
                         .groupBy({ it.second }, { it.first }).map { (classlike, platforms) ->
@@ -173,6 +174,9 @@ open class DefaultPageCreator(
             }
         }
     }
+
+    private fun Iterable<DFunction>.sorted() =
+        sortedWith(compareBy({ it.name }, { it.parameters.size }, { it.dri.toString() }))
 
     protected open fun contentForEnumEntry(e: DEnumEntry) = contentBuilder.contentFor(e) {
         group(kind = ContentKind.Cover) {
@@ -246,7 +250,12 @@ open class DefaultPageCreator(
             }
             +contentForScope(c, c.dri, c.sourceSets)
 
-            divergentBlock("Extensions", extensions, ContentKind.Extensions, extra = mainExtra + SimpleAttr.header("Extensions"))
+            divergentBlock(
+                "Extensions",
+                extensions,
+                ContentKind.Extensions,
+                extra = mainExtra + SimpleAttr.header("Extensions")
+            )
         }
     }
 
@@ -484,36 +493,36 @@ open class DefaultPageCreator(
                     .groupBy { it.name }
                     // This hacks displaying actual typealias signatures along classlike ones
                     .mapValues { if (it.value.any { it is DClasslike }) it.value.filter { it !is DTypeAlias } else it.value }
-                    .toSortedMap(compareBy(nullsLast(String.CASE_INSENSITIVE_ORDER)){it})
+                    .toSortedMap(compareBy(nullsLast(String.CASE_INSENSITIVE_ORDER)) { it })
                     .map { (elementName, elements) -> // This groupBy should probably use LocationProvider
-                    buildGroup(
-                        dri = elements.map { it.dri }.toSet(),
-                        sourceSets = elements.flatMap { it.sourceSets }.toSet(),
-                        kind = kind,
-                        styles = emptySet()
-                    ) {
-                        link(elementName.orEmpty(), elements.first().dri, kind = kind)
-                        divergentGroup(
-                            ContentDivergentGroup.GroupID(name),
-                            elements.map { it.dri }.toSet(),
-                            kind = kind
+                        buildGroup(
+                            dri = elements.map { it.dri }.toSet(),
+                            sourceSets = elements.flatMap { it.sourceSets }.toSet(),
+                            kind = kind,
+                            styles = emptySet()
                         ) {
-                            elements.map {
-                                instance(setOf(it.dri), it.sourceSets.toSet()) {
-                                    before {
-                                        contentForBrief(it)
-                                        contentForSinceKotlin(it)
-                                    }
-                                    divergent {
-                                        group {
-                                            +buildSignature(it)
+                            link(elementName.orEmpty(), elements.first().dri, kind = kind)
+                            divergentGroup(
+                                ContentDivergentGroup.GroupID(name),
+                                elements.map { it.dri }.toSet(),
+                                kind = kind
+                            ) {
+                                elements.map {
+                                    instance(setOf(it.dri), it.sourceSets.toSet()) {
+                                        before {
+                                            contentForBrief(it)
+                                            contentForSinceKotlin(it)
+                                        }
+                                        divergent {
+                                            group {
+                                                +buildSignature(it)
+                                            }
                                         }
                                     }
                                 }
                             }
                         }
                     }
-                }
             }
         }
     }

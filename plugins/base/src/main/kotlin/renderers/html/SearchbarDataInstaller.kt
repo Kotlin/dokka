@@ -1,20 +1,20 @@
 package org.jetbrains.dokka.base.renderers.html
 
-import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.Platform
-import org.jetbrains.dokka.base.resolvers.local.LocationProvider
 import org.jetbrains.dokka.model.DisplaySourceSet
 import org.jetbrains.dokka.model.dfs
 import org.jetbrains.dokka.pages.*
+import java.util.concurrent.ConcurrentHashMap
 
-class SearchbarDataInstaller() {
-    private val pageList = mutableMapOf<String, Pair<String, String>>()
+class SearchbarDataInstaller {
+    private val pageList = ConcurrentHashMap<String, Pair<String, String>>()
 
-    private fun String.escaped(): String = this.replace("'","\\'")
+    private fun String.escaped(): String = this.replace("'", "\\'")
 
-    fun generatePagesList(): String {
-        return pageList.entries
+    fun generatePagesList(): String =
+        pageList.entries
             .filter { it.key.isNotEmpty() }
+            .sortedWith(compareBy({ it.key }, { it.value.first }, { it.value.second }))
             .groupBy { it.key.substringAfterLast(".") }
             .entries
             .flatMapIndexed { topLevelIndex, entry ->
@@ -23,7 +23,6 @@ class SearchbarDataInstaller() {
                 }
             }
             .joinToString(prefix = "[", separator = ",\n", postfix = "]")
-    }
 
 
     private fun getSymbolSignature(page: ContentPage) = page.content.dfs { it.dci.kind == ContentKind.Symbol }
@@ -54,16 +53,10 @@ class SearchbarDataInstaller() {
                 documentable.dri.packageName,
                 documentable.dri.classNames,
                 documentable.dri.callable?.name
-            )
-                .filter { !it.isNullOrEmpty() }
+            ).filter { !it.isNullOrEmpty() }
                 .takeIf { it.isNotEmpty() }
                 ?.joinToString(".")
-                ?.let {
-                    pageList.put(it, Pair(textNodes ?: page.name, link))
-                }
-
+                ?.let { id -> pageList.put(id, Pair(textNodes ?: page.name, link)) }
         }
     }
-
-
 }
