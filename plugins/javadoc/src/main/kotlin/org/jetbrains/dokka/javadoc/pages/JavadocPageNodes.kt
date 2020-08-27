@@ -1,7 +1,6 @@
 package org.jetbrains.dokka.javadoc.pages
 
 import com.intellij.psi.PsiClass
-import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.analysis.DescriptorDocumentableSource
 import org.jetbrains.dokka.analysis.PsiDocumentableSource
@@ -15,8 +14,6 @@ import org.jetbrains.dokka.pages.*
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.descriptors.ClassKind
 import org.jetbrains.kotlin.resolve.DescriptorUtils.getClassDescriptorForType
-import java.util.*
-import kotlin.collections.HashMap
 
 interface JavadocPageNode : ContentPage
 
@@ -25,8 +22,8 @@ interface WithJavadocExtra<T : Documentable> : WithExtraProperties<T> {
         throw IllegalStateException("Merging extras is not applicable for javadoc")
 }
 
-interface WithIndexables {
-    fun getAllIndexables(): List<NavigableJavadocNode>
+interface WithNavigable {
+    fun getAllNavigables(): List<NavigableJavadocNode>
 }
 
 interface WithBrief {
@@ -73,13 +70,13 @@ class JavadocPackagePageNode(
     override val children: List<PageNode> = emptyList(),
     override val embeddedResources: List<String> = listOf()
 ) : JavadocPageNode,
-    WithIndexables,
+    WithNavigable,
     NavigableJavadocNode,
     PackagePage {
 
-    override fun getAllIndexables(): List<NavigableJavadocNode> =
+    override fun getAllNavigables(): List<NavigableJavadocNode> =
         children.filterIsInstance<NavigableJavadocNode>().flatMap {
-            if (it is WithIndexables) it.getAllIndexables()
+            if (it is WithNavigable) it.getAllNavigables()
             else listOf(it)
         }
 
@@ -185,10 +182,13 @@ class JavadocClasslikePageNode(
     override val children: List<PageNode> = emptyList(),
     override val embeddedResources: List<String> = listOf(),
     override val extra: PropertyContainer<DClasslike> = PropertyContainer.empty(),
-) : JavadocPageNode, WithJavadocExtra<DClasslike>, NavigableJavadocNode, WithIndexables, WithBrief, ClasslikePage {
+) : JavadocPageNode, WithJavadocExtra<DClasslike>, NavigableJavadocNode, WithNavigable, WithBrief, ClasslikePage {
 
-    override fun getAllIndexables(): List<NavigableJavadocNode> =
-        methods + entries + classlikes.map { it.getAllIndexables() }.flatten() + this
+    override fun getAllNavigables(): List<NavigableJavadocNode> =
+        methods + entries + classlikes.map { it.getAllNavigables() }.flatten() + this
+
+    fun getAnchorables(): List<AnchorableJavadocNode> =
+        constructors + methods + entries + properties
 
     val kind: String? = documentable?.kind()
     val packageName = dri.first().packageName
