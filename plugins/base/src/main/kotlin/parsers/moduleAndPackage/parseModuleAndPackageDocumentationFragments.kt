@@ -37,9 +37,9 @@ private fun parseModuleAndPackageDocFragment(
     }
 
     val name = classifierAndName.getOrNull(1)?.trim().orEmpty()
-    if (name.contains(Regex("\\s"))) {
+    if (classifier == Package && name.contains(Regex("\\s"))) {
         throw IllegalModuleAndPackageDocumentation(
-            source, "Module/Package name cannot contain whitespace in '$firstLine'"
+            source, "Package name cannot contain whitespace in '$firstLine'"
         )
     }
 

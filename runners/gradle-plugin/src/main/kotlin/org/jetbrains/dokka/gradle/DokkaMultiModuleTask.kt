@@ -3,6 +3,8 @@ package org.jetbrains.dokka.gradle
 import org.gradle.api.internal.tasks.TaskDependencyInternal
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
+import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.DokkaConfigurationImpl
 import org.jetbrains.dokka.DokkaModuleDescriptionImpl
 import org.jetbrains.dokka.DokkaMultimoduleBootstrapImpl
@@ -51,6 +53,7 @@ abstract class DokkaMultiModuleTask : AbstractDokkaParentTask(DokkaMultimoduleBo
     }
 
     override fun buildDokkaConfiguration(): DokkaConfigurationImpl = DokkaConfigurationImpl(
+        moduleName = moduleName.getSafe(),
         outputDir = outputDirectory.getSafe(),
         cacheRoot = cacheRoot.getSafe(),
         pluginsConfiguration = pluginsConfiguration.getSafe(),
@@ -66,5 +69,4 @@ abstract class DokkaMultiModuleTask : AbstractDokkaParentTask(DokkaMultimoduleBo
         }
     )
 }
-
 

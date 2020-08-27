@@ -34,10 +34,9 @@ class CliIntegrationTest : AbstractCliIntegrationTest() {
             "java", "-jar", cliJarFile.path,
             "-outputDir", dokkaOutputDir.path,
             "-pluginsClasspath", basePluginJarFile.path,
+            "-moduleName", "Basic Project",
             "-sourceSet",
             buildString {
-                append(" -moduleName it-cli")
-                append(" -moduleDisplayName CLI-Example")
                 append(" -sourceSetName cliMain")
                 append(" -src ${File(projectDir, "src").path}")
                 append(" -jdkVersion 8")

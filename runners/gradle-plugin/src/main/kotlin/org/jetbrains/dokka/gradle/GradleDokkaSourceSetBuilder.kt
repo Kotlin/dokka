@@ -1,12 +1,10 @@
 @file:Suppress("FunctionName", "UnstableApiUsage")
+@file:JvmName("GradleDokkaSourceSetBuilderKt")
 
 package org.jetbrains.dokka.gradle
 
-import com.android.build.gradle.api.AndroidSourceSet
 import groovy.lang.Closure
-import org.gradle.api.Action
-import org.gradle.api.Project
-import org.gradle.api.Task
+import org.gradle.api.*
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
@@ -16,21 +14,17 @@ import org.gradle.kotlin.dsl.listProperty
 import org.gradle.kotlin.dsl.setProperty
 import org.gradle.util.ConfigureUtil
 import org.jetbrains.dokka.*
-import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import java.io.File
 import java.net.URL
 
-internal fun Task.GradleDokkaSourceSetBuilderFactory(): (name: String) -> GradleDokkaSourceSetBuilder =
-    { name -> GradleDokkaSourceSetBuilder(name, project) }
-
-
-open class GradleDokkaSourceSetBuilder constructor(
+open class GradleDokkaSourceSetBuilder(
     @Transient @get:Input val name: String,
-    @Transient @get:Internal internal val project: Project
+    @Transient @get:Internal internal val project: Project,
+    @Transient @get:Internal internal val sourceSetIdFactory: NamedDomainObjectFactory<DokkaSourceSetID>,
 ) : DokkaConfigurationBuilder<DokkaSourceSetImpl> {
 
-    @Internal
-    val sourceSetID: DokkaSourceSetID = DokkaSourceSetID(project, name)
+    @Input
+    val sourceSetID: DokkaSourceSetID = sourceSetIdFactory.create(name)
 
     @Input
     val suppress: Property<Boolean> = project.objects.safeProperty<Boolean>()
@@ -39,10 +33,6 @@ open class GradleDokkaSourceSetBuilder constructor(
     @Classpath
     @Optional
     val classpath: ConfigurableFileCollection = project.files()
-
-    @Input
-    @Optional
-    val moduleDisplayName: Property<String?> = project.objects.safeProperty()
 
     @Input
     @Optional
@@ -125,9 +115,7 @@ open class GradleDokkaSourceSetBuilder constructor(
     val platform: Property<Platform> = project.objects.safeProperty<Platform>()
         .safeConvention(Platform.DEFAULT)
 
-    fun DokkaSourceSetID(sourceSetName: String): DokkaSourceSetID =
-        DokkaSourceSetID(project, sourceSetName)
-
+    fun DokkaSourceSetID(sourceSetName: String): DokkaSourceSetID = sourceSetIdFactory.create(sourceSetName)
 
     fun dependsOn(sourceSet: SourceSet) {
         dependsOn(DokkaSourceSetID(sourceSet.name))
@@ -208,15 +196,3 @@ open class GradleDokkaSourceSetBuilder constructor(
     override fun build(): DokkaSourceSetImpl = toDokkaSourceSetImpl()
 }
 
-
-fun GradleDokkaSourceSetBuilder.dependsOn(sourceSet: KotlinSourceSet) {
-    dependsOn(DokkaSourceSetID(sourceSet.name))
-}
-
-fun GradleDokkaSourceSetBuilder.dependsOn(sourceSet: AndroidSourceSet) {
-    dependsOn(DokkaSourceSetID(sourceSet.name))
-}
-
-fun GradleDokkaSourceSetBuilder.kotlinSourceSet(kotlinSourceSet: KotlinSourceSet) {
-    configureWithKotlinSourceSet(kotlinSourceSet)
-}

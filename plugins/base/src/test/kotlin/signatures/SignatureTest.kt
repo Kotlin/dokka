@@ -329,16 +329,15 @@ class SignatureTest : AbstractCoreTest() {
     fun `type with an actual typealias`() {
 
         val configuration = dokkaConfiguration {
+            moduleName = "test"
             sourceSets {
                 sourceSet {
-                    moduleName = "test"
                     name = "common"
                     sourceRoots = listOf("src/main/kotlin/common/Test.kt")
                     classpath = listOf(commonStdlibPath!!)
                     externalDocumentationLinks = listOf(stdlibExternalDocumentationLink)
                 }
                 sourceSet {
-                    moduleName = "test"
                     name = "jvm"
                     dependentSourceSets = setOf(DokkaSourceSetID("test", "common"))
                     sourceRoots = listOf("src/main/kotlin/jvm/Test.kt")

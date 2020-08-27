@@ -12,7 +12,7 @@ abstract class DokkaTask : AbstractDokkaTask(DokkaBootstrapImpl::class) {
 
     @get:Internal
     val dokkaSourceSets: NamedDomainObjectContainer<GradleDokkaSourceSetBuilder> =
-        project.container(GradleDokkaSourceSetBuilder::class.java, GradleDokkaSourceSetBuilderFactory())
+        project.container(GradleDokkaSourceSetBuilder::class.java, gradleDokkaSourceSetBuilderFactory())
             .also { container ->
                 DslObject(this).extensions.add("dokkaSourceSets", container)
                 project.kotlinOrNull?.sourceSets?.all { kotlinSourceSet ->
@@ -36,6 +36,7 @@ abstract class DokkaTask : AbstractDokkaTask(DokkaBootstrapImpl::class) {
 
     override fun buildDokkaConfiguration(): DokkaConfigurationImpl {
         return DokkaConfigurationImpl(
+            moduleName = moduleName.getSafe(),
             outputDir = outputDirectory.getSafe(),
             cacheRoot = cacheRoot.getSafe(),
             offlineMode = offlineMode.getSafe(),

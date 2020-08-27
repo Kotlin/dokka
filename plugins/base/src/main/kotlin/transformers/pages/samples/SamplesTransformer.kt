@@ -62,12 +62,12 @@ abstract class SamplesTransformer(val context: DokkaContext) : PageTransformer {
 
     private fun ContentNode.addSample(
         contentPage: ContentPage,
-        platform: DokkaSourceSet,
+        sourceSet: DokkaSourceSet,
         fqName: String,
         analysis: Map<DokkaSourceSet, EnvironmentAndFacade>
     ): ContentNode {
-        val facade = analysis[platform]?.facade
-            ?: return this.also { context.logger.warn("Cannot resolve facade for platform ${platform.moduleDisplayName}") }
+        val facade = analysis[sourceSet]?.facade
+            ?: return this.also { context.logger.warn("Cannot resolve facade for platform ${sourceSet.sourceSetID}") }
         val psiElement = fqNameToPsiElement(facade, fqName)
             ?: return this.also { context.logger.warn("Cannot find PsiElement corresponding to $fqName") }
         val imports =
