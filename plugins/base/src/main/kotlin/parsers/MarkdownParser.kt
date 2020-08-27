@@ -19,6 +19,7 @@ import org.jetbrains.dokka.model.doc.Suppress
 import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
+import org.jetbrains.kotlin.descriptors.FunctionDescriptor
 import org.jetbrains.kotlin.idea.kdoc.resolveKDocLink
 import org.jetbrains.kotlin.kdoc.parser.KDocKnownTag
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocSection
@@ -109,7 +110,7 @@ class MarkdownParser(
                 .removeSuffix("]")
                 .let { link ->
                     try {
-                        java.net.URL(link)
+                        URL(link)
                         null
                     } catch (e: MalformedURLException) {
                         try {
@@ -120,7 +121,7 @@ class MarkdownParser(
                                     declarationDescriptor,
                                     null,
                                     link.split('.')
-                                ).minByOrNull { it is ClassDescriptor }?.let { DRI.from(it) }
+                                ).sorted().firstOrNull()?.let { DRI.from(it) }
                             } else null
                         } catch (e1: IllegalArgumentException) {
                             logger.warn("Couldn't resolve link for $mdLink")
@@ -128,6 +129,15 @@ class MarkdownParser(
                         }
                     }
                 }
+
+        private fun Collection<DeclarationDescriptor>.sorted() = sortedWith(
+            compareBy(
+                { it is ClassDescriptor },
+                { (it as? FunctionDescriptor)?.name },
+                { (it as? FunctionDescriptor)?.valueParameters?.size },
+                { (it as? FunctionDescriptor)?.valueParameters?.joinToString { it.type.toString() } }
+            )
+        )
 
         private fun referenceLinksHandler(node: ASTNode): DocTag {
             val linkLabel = node.children.find { it.type == MarkdownElementTypes.LINK_LABEL }
@@ -190,7 +200,7 @@ class MarkdownParser(
         private fun String.isRemoteLink() = try {
             URL(this)
             true
-        } catch(e: MalformedURLException){
+        } catch (e: MalformedURLException) {
             false
         }
 
