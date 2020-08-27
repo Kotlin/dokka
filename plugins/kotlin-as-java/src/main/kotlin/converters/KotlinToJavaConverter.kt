@@ -172,7 +172,7 @@ internal fun DClass.asJava(): DClass = copy(
 )
 
 private fun DTypeParameter.asJava(): DTypeParameter = copy(
-    variantTypeParameter = variantTypeParameter.withNewDri(dri.possiblyAsJava()),
+    variantTypeParameter = variantTypeParameter.withDri(dri.possiblyAsJava()),
     bounds = bounds.map { it.asJava() }
 )
 
