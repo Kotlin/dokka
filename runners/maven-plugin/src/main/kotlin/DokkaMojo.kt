@@ -101,9 +101,6 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
     @Parameter(required = true, defaultValue = "\${project.artifactId}")
     var moduleName: String = ""
 
-    @Parameter
-    var moduleDisplayName: String = ""
-
     @Parameter(required = false, defaultValue = "false")
     var skip: Boolean = false
 
@@ -190,7 +187,6 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
         }
 
         val sourceSet = DokkaSourceSetImpl(
-            moduleDisplayName = moduleDisplayName.takeIf(String::isNotBlank) ?: moduleName,
             displayName = displayName,
             sourceSetID = DokkaSourceSetID(moduleName, sourceSetName),
             classpath = classpath.map(::File),
@@ -229,12 +225,11 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
         val logger = MavenDokkaLogger(log)
 
         val configuration = DokkaConfigurationImpl(
+            moduleName = moduleName,
             outputDir = File(getOutDir()),
             offlineMode = offlineMode,
             cacheRoot = cacheRoot?.let(::File),
-            sourceSets = listOf(sourceSet).also {
-                if (sourceSet.moduleDisplayName.isEmpty()) logger.warn("Not specified module name. It can result in unexpected behaviour while including documentation for module")
-            },
+            sourceSets = listOf(sourceSet),
             pluginsClasspath = getArtifactByAether("org.jetbrains.dokka", "dokka-base", dokkaVersion) +
                     dokkaPlugins.map { getArtifactByAether(it.groupId, it.artifactId, it.version ?: dokkaVersion) }
                         .flatten(),

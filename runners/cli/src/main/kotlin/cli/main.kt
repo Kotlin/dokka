@@ -2,13 +2,11 @@ package org.jetbrains.dokka
 
 import kotlinx.cli.*
 import org.jetbrains.dokka.DokkaConfiguration.ExternalDocumentationLink
-import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet.*
 import org.jetbrains.dokka.utilities.DokkaConsoleLogger
 import org.jetbrains.dokka.utilities.cast
 import java.io.*
 import java.net.MalformedURLException
 import java.net.URL
-import java.nio.file.Files
 import java.nio.file.Paths
 
 class GlobalArguments(args: Array<String>) : DokkaConfiguration {
@@ -16,6 +14,14 @@ class GlobalArguments(args: Array<String>) : DokkaConfiguration {
     val parser = ArgParser("globalArguments", prefixStyle = ArgParser.OptionPrefixStyle.JVM)
 
     val json: String? by parser.argument(ArgType.String, description = "Json file name").optional()
+
+    private val _moduleName = parser.option(
+        ArgType.String,
+        description = "Name of the documentation module",
+        fullName = "moduleName"
+    ).required()
+
+    override val moduleName: String by _moduleName
 
     override val outputDir by parser.option(ArgTypeFile, description = "Output directory path")
         .default(DokkaDefaults.outputDir)
@@ -26,7 +32,7 @@ class GlobalArguments(args: Array<String>) : DokkaConfiguration {
     )
 
     override val sourceSets by parser.option(
-        ArgTypeArgument,
+        ArgTypeArgument(_moduleName),
         description = "Single dokka source set",
         fullName = "sourceSet"
     ).multiple()
@@ -68,7 +74,7 @@ class GlobalArguments(args: Array<String>) : DokkaConfiguration {
     ).delimiter(";")
 
     val helpSourceSet by parser.option(
-        ArgTypeHelpSourceSet,
+        ArgTypeHelpSourceSet(_moduleName),
         description = "Prints help for single -sourceSet"
     )
 
@@ -103,20 +109,9 @@ class GlobalArguments(args: Array<String>) : DokkaConfiguration {
     }
 }
 
-private fun parseSourceSet(args: Array<String>): DokkaConfiguration.DokkaSourceSet {
+private fun parseSourceSet(moduleName: String, args: Array<String>): DokkaConfiguration.DokkaSourceSet {
 
     val parser = ArgParser("sourceSet", prefixStyle = ArgParser.OptionPrefixStyle.JVM)
-
-    val moduleName by parser.option(
-        ArgType.String,
-        description = "Name of the documentation module",
-        fullName = "moduleName"
-    ).required()
-
-    val moduleDisplayName by parser.option(
-        ArgType.String,
-        description = "Name of the documentation module"
-    )
 
     val sourceSetName by parser.option(
         ArgType.String,
@@ -218,7 +213,6 @@ private fun parseSourceSet(args: Array<String>): DokkaConfiguration.DokkaSourceS
     parser.parse(args)
 
     return object : DokkaConfiguration.DokkaSourceSet {
-        override val moduleDisplayName = moduleDisplayName ?: moduleName
         override val displayName = displayName
         override val sourceSetID = DokkaSourceSetID(moduleName, sourceSetName)
         override val classpath = classpath.toMutableList()
@@ -281,17 +275,20 @@ object ArgTypeSourceLinkDefinition : ArgType<DokkaConfiguration.SourceLinkDefini
         get() = "{ String that represent source links }"
 }
 
-object ArgTypeArgument : ArgType<DokkaConfiguration.DokkaSourceSet>(true) {
+data class ArgTypeArgument(val moduleName: CLIEntity<kotlin.String>) :
+    ArgType<DokkaConfiguration.DokkaSourceSet>(true) {
     override fun convert(value: kotlin.String, name: kotlin.String): DokkaConfiguration.DokkaSourceSet =
-        parseSourceSet(value.split(" ").filter { it.isNotBlank() }.toTypedArray())
+        parseSourceSet(moduleName.value, value.split(" ").filter { it.isNotBlank() }.toTypedArray())
 
     override val description: kotlin.String
         get() = ""
 }
 
 // Workaround for printing nested parsers help
-object ArgTypeHelpSourceSet : ArgType<Any>(false) {
-    override fun convert(value: kotlin.String, name: kotlin.String): Any = Any().also { parseSourceSet(arrayOf("-h")) }
+data class ArgTypeHelpSourceSet(val moduleName: CLIEntity<kotlin.String>) : ArgType<Any>(false) {
+    override fun convert(value: kotlin.String, name: kotlin.String): Any = Any().also {
+        parseSourceSet(moduleName.value, arrayOf("-h"))
+    }
 
     override val description: kotlin.String
         get() = ""

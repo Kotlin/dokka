@@ -65,11 +65,7 @@ private class ContextModuleAndPackageDocumentationReader(
 
     override fun get(module: DModule): SourceSetDependent<DocumentationNode> {
         return findDocumentationNodes(module.sourceSets) { fragment ->
-            fragment.classifier == Classifier.Module && (
-                    /* Match fragment name against module name or distinct module displayName */
-                    fragment.name == module.name ||
-                            fragment.name == module.sourceSets.map { it.moduleDisplayName }.distinct().singleOrNull()
-                    )
+            fragment.classifier == Classifier.Module && (fragment.name == module.name)
         }
     }
 

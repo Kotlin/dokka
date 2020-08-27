@@ -12,21 +12,18 @@ import java.io.File
 class SourceSetDependentHintTest : GfmRenderingOnlyTestBase() {
 
     private val pl1 = defaultSourceSet.copy(
-        "root",
         "pl1",
         DokkaSourceSetID("root", "pl1"),
         analysisPlatform = Platform.js,
         sourceRoots = setOf(File("pl1"))
     )
     private val pl2 = defaultSourceSet.copy(
-        "root",
         "pl2",
         DokkaSourceSetID("root", "pl2"),
         analysisPlatform = Platform.jvm,
         sourceRoots = setOf(File("pl1"))
     )
     private val pl3 = defaultSourceSet.copy(
-        "root",
         "pl3",
         DokkaSourceSetID("root", "pl3"),
         analysisPlatform = Platform.native,

@@ -50,7 +50,7 @@ class KotlinDslDokkaTaskConfigurationTest {
                 )
 
                 assertEquals(
-                    DokkaSourceSetID(project.path, "commonMain"), commonMain.sourceSetID
+                    DokkaSourceSetID(dokkaTask, "commonMain"), commonMain.sourceSetID
                 )
             }
         }
@@ -83,14 +83,14 @@ class KotlinDslDokkaTaskConfigurationTest {
 
         val kotlin = project.extensions.getByName("kotlin") as KotlinJvmProjectExtension
 
-        project.tasks.withType(DokkaTask::class.java).first().run {
+        project.tasks.withType(DokkaTask::class.java).first().apply {
             dokkaSourceSets.run {
                 val special = create("special") {
                     it.dependsOn(kotlin.sourceSets.getByName("main"))
                 }
 
                 assertEquals(
-                    DokkaSourceSetID(project, "main"), special.dependentSourceSets.get().single()
+                    DokkaSourceSetID(this@apply, "main"), special.dependentSourceSets.get().single()
                 )
             }
         }

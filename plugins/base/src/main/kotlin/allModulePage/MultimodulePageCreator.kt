@@ -16,7 +16,6 @@ import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.transformers.pages.PageCreator
 import org.jetbrains.dokka.utilities.DokkaLogger
-import java.io.File
 
 class MultimodulePageCreator(
     val context: DokkaContext

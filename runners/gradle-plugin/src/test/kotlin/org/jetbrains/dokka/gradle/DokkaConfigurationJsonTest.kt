@@ -28,7 +28,6 @@ class DokkaConfigurationJsonTest {
             this.pluginsConfiguration.put("0", "a")
             this.pluginsConfiguration.put("1", "b")
             this.dokkaSourceSets.create("main") { sourceSet ->
-                sourceSet.moduleDisplayName by "moduleDisplayName"
                 sourceSet.displayName by "customSourceSetDisplayName"
                 sourceSet.reportUndocumented by true
 

@@ -24,6 +24,10 @@ abstract class AbstractDokkaTask(
     private val bootstrapClass: KClass<out DokkaBootstrap> = DokkaBootstrap::class
 ) : DefaultTask() {
 
+    @Input
+    val moduleName: Property<String> = project.objects.safeProperty<String>()
+        .safeConvention(project.name)
+
     @OutputDirectory
     val outputDirectory: Property<File> = project.objects.safeProperty<File>()
         .safeConvention(defaultDokkaOutputDirectory())

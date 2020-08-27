@@ -141,7 +141,6 @@ dokkaHtml {
     cacheRoot.set(file("default"))
     dokkaSourceSets {
         configureEach { // Or source set name, for single-platform the default source sets are `main` and `test`
-            moduleDisplayName.set("data")
 
             // Used when configuring source sets manually for declaring which source sets this one depends on
             dependsOn("otherSourceSetName")
@@ -407,7 +406,7 @@ The available configuration options are shown below:
         <skip>false</skip>
     
         <!-- Default: ${project.artifactId} -->
-        <moduleDisplayName>data</moduleDisplayName>
+        <moduleName>data</moduleName>
 
         <!-- Default: ${project.basedir}/target/dokka -->
         <outputDir>some/out/dir</outputDir>
@@ -556,7 +555,6 @@ Dokka supports the following command line arguments:
   * `-globalSrcLink` - source links added to all source sets
   * `-sourceSet` - (repeatable) - configuration for a single source set. Following this argument, you can pass other arguments:
     * `-moduleName` - (required) - module name used as a part of source set ID when declaring dependent source sets
-    * `-moduleDisplayName` - displayed module name
     * `-sourceSetName` - source set name as a part of source set ID when declaring dependent source sets
     * `-displayName` - source set name displayed in the generated documentation
     * `-src` - list of source files or directories separated by `;`
