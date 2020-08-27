@@ -141,7 +141,7 @@ class JavaSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogge
     private fun signature(t: DTypeParameter) =
         t.sourceSets.map {
             contentBuilder.contentFor(t, styles = t.stylesIfDeprecated(it), sourceSets = setOf(it)) {
-                text(t.name.substringAfterLast(".")) // Investigate if java classes can be somehow variant
+                text(t.name.substringAfterLast("."))
                 list(t.bounds, prefix = " extends ") {
                     signatureForProjection(it)
                 }

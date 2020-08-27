@@ -295,7 +295,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
     private fun signature(t: DTypeParameter) =
         t.sourceSets.map {
             contentBuilder.contentFor(t, styles = t.stylesIfDeprecated(it), sourceSets = setOf(it)) {
-                signatureForProjection(t.variantTypeParameter.withNewDri(t.dri.withTargetToDeclaration()))
+                signatureForProjection(t.variantTypeParameter.withDri(t.dri.withTargetToDeclaration()))
                 list(t.nontrivialBounds, prefix = " : ") { bound ->
                     signatureForProjection(bound)
                 }
