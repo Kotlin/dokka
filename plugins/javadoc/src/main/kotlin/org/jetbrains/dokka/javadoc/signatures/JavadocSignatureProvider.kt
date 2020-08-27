@@ -150,7 +150,7 @@ class JavadocSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLo
                 annotationsBlock(t)
             }
             signatureWithoutModifiers {
-                text(t.name) // Investigate if java classes can be somehow variant
+                text(t.name)
             }
             supertypes {
                 list(t.bounds, prefix = "extends ") {
