@@ -3,11 +3,6 @@ rootProject.name = "dokka"
 include("core")
 include("core:test-api")
 include("core:content-matcher-test-utils")
-
-include("kotlin-analysis")
-include("kotlin-analysis:intellij-dependency")
-include("kotlin-analysis:compiler-dependency")
-
 include("runners:gradle-plugin")
 include("runners:cli")
 include("runners:maven-plugin")
@@ -17,6 +12,11 @@ include("plugins:base:frontend")
 include("plugins:base:search-component")
 include("plugins:base:base-test-utils")
 
+include("plugins:kotlin-analysis")
+include("plugins:kotlin-analysis:intellij-dependency")
+include("plugins:kotlin-analysis:compiler-dependency")
+
+include("plugins:parsers")
 include("plugins:kotlin-documentables")
 include("plugins:java-documentables")
 include("plugins:html")

@@ -1,4 +1,4 @@
-package org.jetbrains.dokka.base.parsers
+package org.jetbrains.dokka.parsers
 
 import org.jetbrains.dokka.model.doc.*
 

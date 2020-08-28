@@ -1,4 +1,4 @@
-package org.jetbrains.dokka.base.parsers
+package org.jetbrains.dokka.parsers
 
 import com.intellij.psi.PsiElement
 import org.intellij.markdown.MarkdownElementTypes
@@ -12,10 +12,10 @@ import org.intellij.markdown.flavours.gfm.GFMFlavourDescriptor
 import org.intellij.markdown.flavours.gfm.GFMTokenTypes
 import org.jetbrains.dokka.analysis.DokkaResolutionFacade
 import org.jetbrains.dokka.analysis.from
-import org.jetbrains.dokka.base.parsers.factories.DocTagsFromIElementFactory
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.model.doc.Suppress
+import org.jetbrains.dokka.parsers.factories.DocTagsFromIElementFactory
 import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor

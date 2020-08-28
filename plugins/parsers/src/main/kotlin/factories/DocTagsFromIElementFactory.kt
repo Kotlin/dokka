@@ -1,4 +1,4 @@
-package org.jetbrains.dokka.base.parsers.factories
+package org.jetbrains.dokka.parsers.factories
 
 import org.jetbrains.dokka.model.doc.*
 import org.intellij.markdown.IElementType

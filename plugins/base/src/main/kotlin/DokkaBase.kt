@@ -3,7 +3,6 @@
 package org.jetbrains.dokka.base
 
 import org.jetbrains.dokka.CoreExtensions
-import org.jetbrains.dokka.analysis.KotlinAnalysis
 import org.jetbrains.dokka.base.allModulePage.MultimodulePageCreator
 import org.jetbrains.dokka.base.renderers.*
 import org.jetbrains.dokka.base.renderers.html.*
@@ -22,10 +21,8 @@ import org.jetbrains.dokka.base.transformers.pages.comments.DocTagToContentConve
 import org.jetbrains.dokka.base.transformers.pages.merger.*
 import org.jetbrains.dokka.base.transformers.pages.samples.DefaultSamplesTransformer
 import org.jetbrains.dokka.base.transformers.pages.sourcelinks.SourceLinksTransformer
-import org.jetbrains.dokka.base.translators.descriptors.DefaultDescriptorToDocumentableTranslator
 import org.jetbrains.dokka.base.translators.documentables.DefaultDocumentableToPageTranslator
 import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder
-import org.jetbrains.dokka.base.translators.psi.DefaultPsiToDocumentableTranslator
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 
@@ -37,21 +34,7 @@ class DokkaBase : DokkaPlugin() {
     val externalLocationProviderFactory by extensionPoint<ExternalLocationProviderFactory>()
     val outputWriter by extensionPoint<OutputWriter>()
     val htmlPreprocessors by extensionPoint<PageTransformer>()
-    val kotlinAnalysis by extensionPoint<KotlinAnalysis>()
     val tabSortingStrategy by extensionPoint<TabSortingStrategy>()
-
-
-    val descriptorToDocumentableTranslator by extending {
-        CoreExtensions.sourceToDocumentableTranslator providing { ctx ->
-            DefaultDescriptorToDocumentableTranslator(ctx.single(kotlinAnalysis))
-        }
-    }
-
-    val psiToDocumentableTranslator by extending {
-        CoreExtensions.sourceToDocumentableTranslator providing { ctx ->
-            DefaultPsiToDocumentableTranslator(ctx.single(kotlinAnalysis))
-        }
-    }
 
     val documentableMerger by extending {
         CoreExtensions.documentableMerger with DefaultDocumentableMerger
@@ -146,11 +129,6 @@ class DokkaBase : DokkaPlugin() {
 
     val htmlRenderer by extending {
         CoreExtensions.renderer providing ::HtmlRenderer
-    }
-
-
-    val defaultKotlinAnalysis by extending {
-        kotlinAnalysis providing { ctx -> KotlinAnalysis(ctx) }
     }
 
     val locationProvider by extending {

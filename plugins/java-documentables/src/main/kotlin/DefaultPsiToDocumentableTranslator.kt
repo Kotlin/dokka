@@ -1,4 +1,4 @@
-package org.jetbrains.dokka.base.translators.psi
+package org.jetbrains.dokka.java.documentables
 
 import com.intellij.lang.jvm.JvmModifier
 import com.intellij.lang.jvm.annotation.JvmAnnotationAttribute
