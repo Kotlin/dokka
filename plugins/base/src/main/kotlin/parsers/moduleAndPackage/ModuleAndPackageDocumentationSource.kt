@@ -5,10 +5,7 @@ import java.io.File
 internal abstract class ModuleAndPackageDocumentationSource {
     abstract val sourceDescription: String
     abstract val documentation: String
-
-    override fun toString(): String {
-        return sourceDescription
-    }
+    override fun toString(): String = sourceDescription
 }
 
 internal data class ModuleAndPackageDocumentationFile(private val file: File) : ModuleAndPackageDocumentationSource() {
