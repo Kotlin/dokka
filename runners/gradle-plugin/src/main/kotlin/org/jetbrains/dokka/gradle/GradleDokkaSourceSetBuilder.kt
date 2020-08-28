@@ -1,5 +1,4 @@
 @file:Suppress("FunctionName", "UnstableApiUsage")
-@file:JvmName("GradleDokkaSourceSetBuilderKt")
 
 package org.jetbrains.dokka.gradle
 
