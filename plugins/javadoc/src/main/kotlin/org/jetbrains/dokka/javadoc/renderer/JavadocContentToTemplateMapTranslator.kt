@@ -13,6 +13,7 @@ import org.jetbrains.dokka.model.InheritedFunction
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.utilities.formatToEndWithHtml
+import java.io.File
 import java.nio.file.Paths
 
 internal class JavadocContentToTemplateMapTranslator(
@@ -47,7 +48,7 @@ internal class JavadocContentToTemplateMapTranslator(
             else -> run {
                 val link = locationProvider.resolve(node, skipExtension = true)
                 val dir = Paths.get(link).parent?.toNormalized().orEmpty()
-                return dir.split("/").filter { it.isNotEmpty() }.joinToString("/") { ".." }.let {
+                return dir.split(File.separator).filter { it.isNotEmpty() }.joinToString("/") { ".." }.let {
                     if (it.isNotEmpty()) "$it/" else it
                 }
             }
