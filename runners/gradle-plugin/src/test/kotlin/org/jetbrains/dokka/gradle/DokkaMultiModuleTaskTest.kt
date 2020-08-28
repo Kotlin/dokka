@@ -2,8 +2,7 @@
 
 package org.jetbrains.dokka.gradle
 
-import org.gradle.kotlin.dsl.create
-import org.gradle.kotlin.dsl.withType
+import org.gradle.kotlin.dsl.*
 import org.gradle.testfixtures.ProjectBuilder
 import org.jetbrains.dokka.DokkaConfigurationImpl
 import org.jetbrains.dokka.DokkaException
@@ -25,10 +24,14 @@ class DokkaMultiModuleTaskTest {
         .withProjectDir(rootProject.projectDir.resolve("child"))
         .withParent(rootProject).build()
 
+    private val childDokkaTask = childProject.tasks.create<DokkaTask>("childDokkaTask")
+
+    private val multiModuleTask = rootProject.tasks.create<DokkaMultiModuleTask>("multiModuleTask").apply {
+        addChildTask(childDokkaTask)
+    }
+
     init {
         rootProject.allprojects { project ->
-            project.plugins.apply("org.jetbrains.kotlin.jvm")
-            project.plugins.apply("org.jetbrains.dokka")
             project.tasks.withType<AbstractDokkaTask>().configureEach { task ->
                 task.plugins.withDependencies { dependencies -> dependencies.clear() }
             }
@@ -50,70 +53,66 @@ class DokkaMultiModuleTaskTest {
 
     @Test
     fun buildDokkaConfiguration() {
-        childProject.tasks.withType<DokkaTask>().configureEach { task ->
-            task.outputDirectory by task.project.buildDir.resolve("output")
+        val include1 = childDokkaTask.project.file("include1.md")
+        val include2 = childDokkaTask.project.file("include2.md")
+
+        childDokkaTask.apply {
+            dokkaSourceSets.create("main")
+            dokkaSourceSets.create("test")
+            dokkaSourceSets.configureEach {
+                it.includes.from(include1, include2)
+            }
         }
 
-        val multimoduleTasks = rootProject.tasks.withType<DokkaMultiModuleTask>()
-        assertTrue(multimoduleTasks.isNotEmpty(), "Expected at least one multimodule task")
-
-        multimoduleTasks.configureEach { task ->
-            task.moduleName by "custom Module Name"
-            task.documentationFileName by "customDocumentationFileName.md"
-            task.outputDirectory by task.project.buildDir.resolve("customOutputDirectory")
-            task.cacheRoot by File("customCacheRoot")
-            task.pluginsConfiguration.put("pluginA", "configA")
-            task.failOnWarning by true
-            task.offlineMode by true
+        multiModuleTask.apply {
+            moduleName by "custom Module Name"
+            outputDirectory by project.buildDir.resolve("customOutputDirectory")
+            cacheRoot by File("customCacheRoot")
+            pluginsConfiguration.put("pluginA", "configA")
+            failOnWarning by true
+            offlineMode by true
         }
 
-        multimoduleTasks.forEach { task ->
-            val dokkaConfiguration = task.buildDokkaConfiguration()
-            assertEquals(
-                DokkaConfigurationImpl(
-                    moduleName = "custom Module Name",
-                    outputDir = task.project.buildDir.resolve("customOutputDirectory"),
-                    cacheRoot = File("customCacheRoot"),
-                    pluginsConfiguration = mapOf("pluginA" to "configA"),
-                    pluginsClasspath = emptyList(),
-                    failOnWarning = true,
-                    offlineMode = true,
-                    modules = listOf(
-                        DokkaModuleDescriptionImpl(
-                            name = "child",
-                            path = File("child"),
-                            docFile = childProject.projectDir.resolve("customDocumentationFileName.md")
-                        )
+        val dokkaConfiguration = multiModuleTask.buildDokkaConfiguration()
+        assertEquals(
+            DokkaConfigurationImpl(
+                moduleName = "custom Module Name",
+                outputDir = multiModuleTask.project.buildDir.resolve("customOutputDirectory"),
+                cacheRoot = File("customCacheRoot"),
+                pluginsConfiguration = mapOf("pluginA" to "configA"),
+                pluginsClasspath = emptyList(),
+                failOnWarning = true,
+                offlineMode = true,
+                modules = listOf(
+                    DokkaModuleDescriptionImpl(
+                        name = "child",
+                        relativePathToOutputDirectory = File("child"),
+                        includes = setOf(include1, include2)
                     )
-                ),
-                dokkaConfiguration
-            )
-        }
+                )
+            ),
+            dokkaConfiguration
+        )
     }
 
     @Test
     fun `setting dokkaTaskNames declares proper task dependencies`() {
-        val multimoduleTasks = rootProject.tasks.withType<DokkaMultiModuleTask>()
-        assertTrue(multimoduleTasks.isNotEmpty(), "Expected at least one multimodule task")
+        val dependenciesInitial = multiModuleTask.taskDependencies.getDependencies(multiModuleTask).toSet()
+        assertEquals(1, dependenciesInitial.size, "Expected one dependency")
+        val dependency = dependenciesInitial.single()
 
-        multimoduleTasks.toList().forEach { task ->
-            val dependencies = task.taskDependencies.getDependencies(task).toSet()
-            assertEquals(1, dependencies.size, "Expected one dependency")
-            val dependency = dependencies.single()
+        assertTrue(dependency is DokkaTask, "Expected dependency to be of Type ${DokkaTask::class.simpleName}")
+        assertEquals(childProject, dependency.project, "Expected dependency from child project")
 
-            assertTrue(dependency is DokkaTask, "Expected dependency to be of Type ${DokkaTask::class.simpleName}")
-            assertEquals(childProject, dependency.project, "Expected dependency from child project")
-        }
 
         val customDokkaTask = childProject.tasks.create<DokkaTask>("customDokkaTask")
 
-        multimoduleTasks.toList().forEach { task ->
-            task.addSubprojectChildTasks("customDokkaTask")
-            val dependencies = task.taskDependencies.getDependencies(task).toSet()
+        multiModuleTask.addSubprojectChildTasks("customDokkaTask")
+        val dependenciesAfter = multiModuleTask.taskDependencies.getDependencies(multiModuleTask).toSet()
 
-            assertEquals(2, dependencies.size, "Expected two dependencies")
-            assertTrue(customDokkaTask in dependencies, "Expected 'customDokkaTask' in dependencies")
-        }
+        assertEquals(2, dependenciesAfter.size, "Expected two dependencies")
+        assertTrue(customDokkaTask in dependenciesAfter, "Expected 'customDokkaTask' in dependencies")
+
     }
 
     @Test
@@ -125,19 +124,38 @@ class DokkaMultiModuleTaskTest {
     }
 
     @Test
-    fun childDocumentationFiles() {
-        val parent = ProjectBuilder.builder().build()
-        val child = ProjectBuilder.builder().withName("child").withParent(parent).build()
+    fun childDokkaTaskIncludes() {
+        val childDokkaTaskInclude1 = childProject.file("include1")
+        val childDokkaTaskInclude2 = childProject.file("include2")
+        val childDokkaTaskInclude3 = childProject.file("include3")
 
-        val parentTask = parent.tasks.create<DokkaMultiModuleTask>("parent")
-        val childTask = child.tasks.create<DokkaTask>("child")
+        childDokkaTask.apply {
+            dokkaSourceSets.create("main") {
+                it.includes.from(childDokkaTaskInclude1, childDokkaTaskInclude2)
+            }
+            dokkaSourceSets.create("main2") {
+                it.includes.from(childDokkaTaskInclude3)
+            }
+        }
 
-        parentTask.addChildTask(childTask)
-        parentTask.documentationFileName by "module.txt"
+        val secondChildDokkaTaskInclude = childProject.file("include4")
+        val secondChildDokkaTask = childProject.tasks.create<DokkaTask>("secondChildDokkaTask") {
+            dokkaSourceSets.create("main") {
+                it.includes.from(secondChildDokkaTaskInclude)
+            }
+        }
+        multiModuleTask.addChildTask(secondChildDokkaTask)
 
         assertEquals(
-            listOf(parent.file("child/module.txt")), parentTask.childDocumentationFiles,
-            "Expected child documentation file being present"
+            mapOf(
+                ":child:childDokkaTask" to setOf(
+                    childDokkaTaskInclude1,
+                    childDokkaTaskInclude2,
+                    childDokkaTaskInclude3
+                ),
+                ":child:secondChildDokkaTask" to setOf(secondChildDokkaTaskInclude)
+            ),
+            multiModuleTask.childDokkaTaskIncludes
         )
     }
 
@@ -177,6 +195,5 @@ class DokkaMultiModuleTaskTest {
             listOf(parent.project.buildDir.resolve("child")), parentTask.targetChildOutputDirectories,
             "Expected child target output directory being present"
         )
-
     }
 }

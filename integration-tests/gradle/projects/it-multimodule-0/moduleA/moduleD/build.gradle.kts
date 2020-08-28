@@ -8,10 +8,3 @@ plugins {
 dependencies {
     implementation(kotlin("stdlib"))
 }
-
-tasks.withType<DokkaTask>().configureEach {
-    moduleName.set("!Module B!")
-    dokkaSourceSets.configureEach {
-        includes.from("Module.md")
-    }
-}
