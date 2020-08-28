@@ -12,7 +12,7 @@ class MultimoduleLocationProvider(private val root: RootPageNode, context: Dokka
     private val defaultLocationProvider = DokkaLocationProvider(root, context)
 
     val paths = context.configuration.modules.map {
-        it.name to it.path
+        it.name to it.relativePathToOutputDirectory
     }.toMap()
 
     override fun resolve(dri: DRI, sourceSets: Set<DisplaySourceSet>, context: PageNode?) =
