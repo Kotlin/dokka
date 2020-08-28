@@ -691,8 +691,10 @@ open class HtmlRenderer(
                         div {
                             id = "logo"
                         }
-                        div {
-                            id = "paneSearch"
+                        if(page !is MultimoduleRootPage) {
+                            div {
+                                id = "paneSearch"
+                            }
                         }
                         div {
                             id = "sideMenu"

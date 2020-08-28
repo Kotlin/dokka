@@ -10,10 +10,13 @@ const appEl = document.getElementById('searchBar');
 const rootEl = document.createElement('div');
 
 const renderNavigationPane = () => {
-  render(
-    <NavigationPaneSearch />,
-    document.getElementById('paneSearch')
-  )
+  const element = document.getElementById('paneSearch')
+  if(element){
+    render(
+        <NavigationPaneSearch />,
+        document.getElementById('paneSearch')
+    )
+  }
 }
 
 let renderApp = () => {
