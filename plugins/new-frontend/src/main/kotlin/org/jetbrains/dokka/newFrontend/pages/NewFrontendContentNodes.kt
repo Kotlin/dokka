@@ -29,7 +29,8 @@ class MultiModulePageNode(
 
 class ModulePageNode(
     override val name: String,
-    override val children: List<PageNode> = emptyList(),
+    val description: ContentNode,
+    override val children: List<PackagePageNode> = emptyList(),
     override val content: ModuleContentNode,
     override val dri: Set<DRI> = emptySet(),
     override val documentable: Documentable? = null,
@@ -69,10 +70,12 @@ class PackagePageNode(
 ) : PackagePage, NewFrontendContentPage
 
 data class PackageContentNode(
+    val name: String,
+    val description: ContentNode,
     override val dci: DCI,
     override val sourceSets: Set<DisplaySourceSet>,
-    override val style: Set<Style>,
-    override val extra: PropertyContainer<ContentNode>
+    override val style: Set<Style> = emptySet(),
+    override val extra: PropertyContainer<ContentNode> = PropertyContainer.empty()
 ) : ContentNode {
     override fun hasAnyContent(): Boolean = true
 

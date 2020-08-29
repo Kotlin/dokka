@@ -26,8 +26,7 @@ class NewFrontendPageCreator(
     val logger: DokkaLogger
 ) {
     fun pageForModule(m: DModule) =
-        ModulePageNode(m.name.ifEmpty { "<root>" }, emptyList(), contentForModule(m), emptySet(), m)
-//        ModulePageNode(m.name.ifEmpty { "<root>" }, contentForModule(m), m, m.packages.map(::pageForPackage))
+        ModulePageNode(m.name.ifEmpty { "<root>" }, m.description(), m.packages.map(::pageForPackage), contentForModule(m), emptySet(), m)
 
     fun pageForPackage(p: DPackage): PackagePageNode = PackagePageNode(
         p.name, contentForPackage(p), setOf(p.dri), p,
@@ -63,7 +62,13 @@ class NewFrontendPageCreator(
         dci = DCI(setOf(m.dri), ContentKind.Main)
     )
 
-    private fun contentForPackage(p: DPackage): PackageContentNode = TODO()
+    private fun contentForPackage(p: DPackage): PackageContentNode =
+        PackageContentNode(
+            dci = DCI(setOf(p.dri), ContentKind.Main),
+            sourceSets = p.sourceSets.toDisplaySourceSets(),
+            name = p.name,
+            description = p.description()
+        )
 
     private fun contentForClasslike(c: DClasslike): ClasslikeContentNode = TODO()
 
@@ -71,17 +76,19 @@ class NewFrontendPageCreator(
 
     private fun contentForFunction(f: DFunction): MemberContentNode = TODO()
 
-    private fun DPackage.toModulePackageElement(): ModulePackageElement {
+    private fun DPackage.toModulePackageElement(): ModulePackageElement =
+        ModulePackageElement(
+            name = name,
+            dri = dri,
+            description = description()
+        )
+
+    private fun Documentable.description(): ContentNode {
         val descriptionNodes = documentation.entries.firstOrNull()?.let {entry ->
             entry.value.children.filterIsInstance<Description>().firstOrNull()
                 ?.let { commentsToContentConverter.buildContent(it.root, DCI(setOf(dri), ContentKind.Comment), sourceSets) }
         }.orEmpty()
-
-        return ModulePackageElement(
-            name = name,
-            dri = dri,
-            description = ContentGroup(descriptionNodes, DCI(setOf(dri), ContentKind.Comment), sourceSets.toDisplaySourceSets(), emptySet())
-        )
+        return ContentGroup(descriptionNodes, DCI(setOf(dri), ContentKind.Comment), sourceSets.toDisplaySourceSets(), emptySet())
     }
 
     private val WithScope.filteredFunctions: List<DFunction>
