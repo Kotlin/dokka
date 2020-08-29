@@ -117,8 +117,8 @@ tasks.dokkaHtml.configure {
 
 Groovy
 ```kotlin
-tasks.named("dokkaHtml") {
-    outputDirectory.set(buildDir.resolve("dokka"))
+tasks.dokkaHtml {
+    outputDirectory = "$buildDir/dokka"
 }
 ```
 
