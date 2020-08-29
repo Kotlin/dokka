@@ -126,5 +126,10 @@
       <option name="name" value="maven3" />
       <option name="url" value="https://kotlin.bintray.com/kotlin-js-wrappers/" />
     </remote-repository>
+    <remote-repository>
+      <option name="id" value="maven2" />
+      <option name="name" value="maven2" />
+      <option name="url" value="https://dl.bintray.com/kotlin/kotlin-js-wrappers" />
+    </remote-repository>
   </component>
 </project>

@@ -5,6 +5,7 @@ import org.jetbrains.dokka.CoreExtensions
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.newFrontend.pages.NewFrontendDocumentableToPageTranslator
 import org.jetbrains.dokka.newFrontend.renderer.NewFrontendRenderer
+import org.jetbrains.dokka.newFrontend.transformers.NewFrontendToViewTransformer
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.plugability.querySingle
 
@@ -19,6 +20,12 @@ class NewFrontendPlugin : DokkaPlugin() {
                 context.logger
             )
         } override dokkaBasePlugin.documentableToPageTranslator
+    }
+
+    val toViewTransformer by extending {
+        CoreExtensions.pageTransformer providing {
+            NewFrontendToViewTransformer()
+        }
     }
 
     @ExperimentalSerializationApi

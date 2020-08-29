@@ -25,11 +25,9 @@ class NewFrontendRenderer(context: DokkaContext): Renderer {
     override fun render(root: RootPageNode) {
         val page = root as ModulePageNode
         val bytes = Json.encodeToString(page)
-        println("works")
-        println(bytes)
         runBlocking(Dispatchers.Default) {
             launch {
-                outputWriter.write("/sample", bytes, ".json")
+                outputWriter.write("/module-page", bytes, ".json")
             }
         }
     }

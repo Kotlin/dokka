@@ -1,14 +1,9 @@
 package org.jetbrains.dokka.newFrontend.pages
 
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.Serializer
-import kotlinx.serialization.Transient
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.DisplaySourceSet
 import org.jetbrains.dokka.model.Documentable
-import org.jetbrains.dokka.model.SourceSetDependent
 import org.jetbrains.dokka.model.properties.PropertyContainer
-import org.jetbrains.dokka.newFrontend.renderer.ContentNodeSerializer
 import org.jetbrains.dokka.pages.*
 
 interface NewFrontendContentPage : PageNode, ContentPage {
@@ -32,26 +27,24 @@ class MultiModulePageNode(
     override val embeddedResources: List<String>
 ) : MultimoduleRootPage, NewFrontendContentPage
 
-@Serializable
 class ModulePageNode(
     override val name: String,
-    @Transient override val children: List<PageNode> = emptyList(),
+    override val children: List<PageNode> = emptyList(),
     override val content: ModuleContentNode,
-    @Transient override val dri: Set<DRI> = emptySet(),
-    @Transient override val documentable: Documentable? = null,
-    @Transient override val embeddedResources: List<String> = emptyList()
+    override val dri: Set<DRI> = emptySet(),
+    override val documentable: Documentable? = null,
+    override val embeddedResources: List<String> = emptyList()
 ) : RootPageNode(), ModulePage, NewFrontendContentPage {
     override fun modified(name: String, children: List<PageNode>): RootPageNode = this
 }
 
-@Serializable
 data class ModuleContentNode(
     val name: String,
     val packages: List<ModulePackageElement>,
-    @Transient override val dci: DCI = DCI(emptySet(), ContentKind.Main),
-    @Transient override val sourceSets: Set<DisplaySourceSet> = emptySet(),
+    override val dci: DCI = DCI(emptySet(), ContentKind.Main),
+    override val sourceSets: Set<DisplaySourceSet> = emptySet(),
     override val style: Set<Style> = emptySet(),
-    @Transient override val extra: PropertyContainer<ContentNode> = PropertyContainer.empty()
+    override val extra: PropertyContainer<ContentNode> = PropertyContainer.empty()
 ) : ContentNode {
     override fun hasAnyContent(): Boolean = true
 
@@ -60,11 +53,10 @@ data class ModuleContentNode(
     override fun withNewExtras(newExtras: PropertyContainer<ContentNode>): ContentNode = copy(extra = newExtras)
 }
 
-@Serializable
 data class ModulePackageElement(
     val name: String,
-    @Transient val dri: DRI = DRI.topLevel,
-    @Serializable(with = ContentNodeSerializer::class) val description: ContentNode
+    val dri: DRI = DRI.topLevel,
+    val description: ContentNode
 )
 
 class PackagePageNode(
