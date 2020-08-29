@@ -7,6 +7,7 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.jetbrains.dokka.base.DokkaBase
+import org.jetbrains.dokka.base.resolvers.local.LocationProvider
 import org.jetbrains.dokka.newFrontend.transformers.ModulePageNodeView
 import org.jetbrains.dokka.newFrontend.transformers.PackagePageNodeView
 import org.jetbrains.dokka.pages.RootPageNode
@@ -16,7 +17,7 @@ import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.renderers.Renderer
 
 @ExperimentalSerializationApi
-class NewFrontendRenderer(context: DokkaContext): Renderer {
+class NewFrontendRenderer(private val context: DokkaContext): Renderer {
     private val outputWriter = context.plugin<DokkaBase>().querySingle { outputWriter }
 
     override fun render(root: RootPageNode) {

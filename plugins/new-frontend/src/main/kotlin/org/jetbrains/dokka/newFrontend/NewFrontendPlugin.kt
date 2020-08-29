@@ -24,7 +24,7 @@ class NewFrontendPlugin : DokkaPlugin() {
 
     val toViewTransformer by extending {
         CoreExtensions.pageTransformer providing {
-            NewFrontendToViewTransformer()
+            NewFrontendToViewTransformer(it)
         }
     }
 

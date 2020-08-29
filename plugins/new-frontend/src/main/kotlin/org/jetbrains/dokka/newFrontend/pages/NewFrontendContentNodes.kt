@@ -56,7 +56,8 @@ data class ModuleContentNode(
 
 data class ModulePackageElement(
     val name: String,
-    val dri: DRI = DRI.topLevel,
+    val dri: DRI,
+    val sourceSets: Set<DisplaySourceSet>,
     val description: ContentNode
 )
 
