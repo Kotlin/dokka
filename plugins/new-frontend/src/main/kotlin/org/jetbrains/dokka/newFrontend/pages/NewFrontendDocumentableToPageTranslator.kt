@@ -35,10 +35,6 @@ class NewFrontendPageCreator(
         embeddedResources = emptyList()
     )
 
-    fun pageForEnumEntry(e: DEnumEntry): ClasslikePageNode = TODO()
-
-    fun pageForClasslike(c: DClasslike): ClasslikePageNode = TODO()
-
     private fun contentForModule(m: DModule): ModuleContentNode = ModuleContentNode(
         name = m.name,
         packages = m.packages.map { it.toModulePackageElement() },
@@ -53,12 +49,6 @@ class NewFrontendPageCreator(
             name = p.name,
             description = p.description()
         )
-
-    private fun contentForClasslike(c: DClasslike): ClasslikeContentNode = TODO()
-
-    private fun contentForEnumEntry(e: DEnumEntry): MemberContentNode = TODO()
-
-    private fun contentForFunction(f: DFunction): MemberContentNode = TODO()
 
     private fun DPackage.toModulePackageElement(): ModulePackageElement =
         ModulePackageElement(
@@ -75,11 +65,4 @@ class NewFrontendPageCreator(
         }.orEmpty()
         return ContentGroup(descriptionNodes, DCI(setOf(dri), ContentKind.Comment), sourceSets.toDisplaySourceSets(), emptySet())
     }
-
-    private val WithScope.filteredFunctions: List<DFunction>
-        get() = functions.mapNotNull { function ->
-            function.takeIf {
-                it.sourceSets.any { sourceSet -> it.extra[InheritedFunction]?.isInherited(sourceSet) != true }
-            }
-        }
 }
