@@ -393,9 +393,9 @@ open class HtmlRenderer(
                         }
 
                         it.filter { it !is ContentLink }.takeIf { it.isNotEmpty() }?.let {
-                            if(pageContext is ModulePage || pageContext is MultimoduleRootPage){
+                            if (pageContext is ModulePage || pageContext is MultimoduleRootPage) {
                                 it.forEach {
-                                    span(classes = if(it.dci.kind == ContentKind.Comment) "brief-comment" else "") {
+                                    span(classes = if (it.dci.kind == ContentKind.Comment) "brief-comment" else "") {
                                         it.build(this, pageContext, sourceSetRestriction)
                                     }
                                 }
@@ -522,7 +522,7 @@ open class HtmlRenderer(
     override fun FlowContent.buildNavigation(page: PageNode) =
         div(classes = "breadcrumbs") {
             val path = locationProvider.ancestors(page).filterNot { it is RendererSpecificPage }.asReversed()
-            if(path.isNotEmpty()){
+            if (path.isNotEmpty()) {
                 buildNavigationElement(path.first(), page)
                 path.drop(1).forEach { node ->
                     text("/")
@@ -666,6 +666,7 @@ open class HtmlRenderer(
             head {
                 meta(name = "viewport", content = "width=device-width, initial-scale=1", charset = "UTF-8")
                 title(page.name)
+                link(href = page.root("images/logo-icon.svg"), rel = "icon", type = "image/svg")
                 resources.forEach {
                     when {
                         it.substringBefore('?').substringAfterLast('.') == "css" -> link(
@@ -691,7 +692,7 @@ open class HtmlRenderer(
                         div {
                             id = "logo"
                         }
-                        if(page !is MultimoduleRootPage) {
+                        if (page !is MultimoduleRootPage) {
                             div {
                                 id = "paneSearch"
                             }
