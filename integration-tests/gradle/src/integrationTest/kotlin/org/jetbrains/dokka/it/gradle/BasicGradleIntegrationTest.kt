@@ -51,9 +51,13 @@ class BasicGradleIntegrationTest(override val versions: BuildVersions) : Abstrac
 
         val scriptsDir = File(this, "scripts")
         assertTrue(scriptsDir.isDirectory, "Missing scripts directory")
+        val reactFile = File(this, "scripts/main.js")
+        assertTrue(reactFile.isFile, "Missing main.js")
 
         val stylesDir = File(this, "styles")
         assertTrue(stylesDir.isDirectory, "Missing styles directory")
+        val reactStyles = File(this, "styles/main.css")
+        assertTrue(reactStyles.isFile, "Missing main.css")
 
         val navigationHtml = File(this, "navigation.html")
         assertTrue(navigationHtml.isFile, "Missing navigation.html")

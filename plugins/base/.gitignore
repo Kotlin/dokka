@@ -1,5 +1,7 @@
 src/main/resources/dokka/scripts/main.js
+src/main/resources/dokka/scripts/main.css
 src/main/resources/dokka/scripts/main.js.map
 src/main/resources/dokka/scripts/highlight-*
 src/main/resources/dokka/scripts/vendors~*
 search-component/dist/
+/src/main/resources/dokka/styles/main.css

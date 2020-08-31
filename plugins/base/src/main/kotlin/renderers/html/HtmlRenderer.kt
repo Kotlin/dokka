@@ -681,6 +681,7 @@ open class HtmlRenderer(
                         else -> unsafe { +it }
                     }
                 }
+                link(rel = LinkRel.stylesheet, href = page.root("styles/main.css")) {}
                 script { unsafe { +"""var pathToRoot = "${locationProvider.pathToRoot(page)}";""" } }
             }
             body {

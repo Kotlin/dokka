@@ -1,12 +1,12 @@
-import React, {useCallback, useState} from 'react';
-import {Select, List} from '@jetbrains/ring-ui';
+import React, { useCallback, useState } from 'react';
+import { Select, List } from '@jetbrains/ring-ui';
 import '@jetbrains/ring-ui/components/input-size/input-size.scss';
 import './search.scss';
-import {IWindow, Option, Props} from "./types";
-import {DokkaSearchAnchor} from "./dokkaSearchAnchor";
-import {DokkaFuzzyFilterComponent} from "./dokkaFuzzyFilter";
+import { IWindow, Option, Props } from "./types";
+import { DokkaSearchAnchor } from "./dokkaSearchAnchor";
+import { DokkaFuzzyFilterComponent } from "./dokkaFuzzyFilter";
 
-const WithFuzzySearchFilterComponent: React.FC<Props> = ({data}: Props) => {
+const WithFuzzySearchFilterComponent: React.FC<Props> = ({ data }: Props) => {
     const [selected, onSelected] = useState<Option>(data[0]);
     const onChangeSelected = useCallback(
         (option: Option) => {
@@ -31,12 +31,12 @@ const WithFuzzySearchFilterComponent: React.FC<Props> = ({data}: Props) => {
                     data={data}
                     popupClassName={"popup-wrapper"}
                     onSelect={onChangeSelected}
-                    customAnchor={({wrapperProps, buttonProps, popup}) =>
-                        <DokkaSearchAnchor wrapperProps={wrapperProps} buttonProps={buttonProps} popup={popup}/>
+                    customAnchor={({ wrapperProps, buttonProps, popup }) =>
+                        <DokkaSearchAnchor wrapperProps={wrapperProps} buttonProps={buttonProps} popup={popup} />
                     }
                 />
+            </div>
         </div>
-      </div>
     )
 }
 
@@ -53,5 +53,5 @@ export const WithFuzzySearchFilter = () => {
         }));
     }
 
-    return <WithFuzzySearchFilterComponent data={data}/>;
+    return <WithFuzzySearchFilterComponent data={data} />;
 };
