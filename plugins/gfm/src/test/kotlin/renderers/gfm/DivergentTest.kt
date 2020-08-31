@@ -6,8 +6,8 @@ import org.jetbrains.dokka.gfm.CommonmarkRenderer
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.pages.ContentDivergentGroup
 import org.junit.jupiter.api.Test
-import renderers.defaultSourceSet
 import renderers.TestPage
+import testApi.testRunner.defaultSourceSet
 import java.io.File
 
 class DivergentTest : GfmRenderingOnlyTestBase() {
