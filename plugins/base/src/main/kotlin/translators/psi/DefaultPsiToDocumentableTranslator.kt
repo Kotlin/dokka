@@ -204,6 +204,7 @@ class DefaultPsiToDocumentableTranslator(
                         constructors.map { parseFunction(it, true) },
                         mapTypeParameters(dri),
                         setOf(sourceSetData),
+                        false,
                         PropertyContainer.withAll(
                             implementedInterfacesExtra,
                             annotations.toList().toListOfAnnotations().toSourceSetDependent()
@@ -241,6 +242,7 @@ class DefaultPsiToDocumentableTranslator(
                     constructors.map { parseFunction(it, true) },
                     ancestors,
                     setOf(sourceSetData),
+                    false,
                     PropertyContainer.withAll(
                         implementedInterfacesExtra, annotations.toList().toListOfAnnotations().toSourceSetDependent()
                             .toAnnotations()
@@ -260,6 +262,7 @@ class DefaultPsiToDocumentableTranslator(
                     mapTypeParameters(dri),
                     ancestors,
                     setOf(sourceSetData),
+                    false,
                     PropertyContainer.withAll(
                         implementedInterfacesExtra, annotations.toList().toListOfAnnotations().toSourceSetDependent()
                             .toAnnotations()
@@ -281,6 +284,7 @@ class DefaultPsiToDocumentableTranslator(
                     null,
                     modifiers,
                     setOf(sourceSetData),
+                    false,
                     PropertyContainer.withAll(
                         implementedInterfacesExtra, annotations.toList().toListOfAnnotations().toSourceSetDependent()
                             .toAnnotations()
@@ -323,6 +327,7 @@ class DefaultPsiToDocumentableTranslator(
                 null,
                 psi.getModifier().toSourceSetDependent(),
                 setOf(sourceSetData),
+                false,
                 psi.additionalExtras().let {
                     PropertyContainer.withAll(
                         InheritedFunction(inheritedFrom.toSourceSetDependent()),
@@ -454,6 +459,7 @@ class DefaultPsiToDocumentableTranslator(
                 psi.getModifier().toSourceSetDependent(),
                 setOf(sourceSetData),
                 emptyList(),
+                false,
                 psi.additionalExtras().let {
                     PropertyContainer.withAll<DProperty>(
                         it.toSourceSetDependent().toAdditionalModifiers(),

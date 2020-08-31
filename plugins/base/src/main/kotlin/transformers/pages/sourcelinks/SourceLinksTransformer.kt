@@ -8,7 +8,7 @@ import org.jetbrains.dokka.model.DocumentableSource
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.analysis.DescriptorDocumentableSource
 import org.jetbrains.dokka.analysis.PsiDocumentableSource
-import org.jetbrains.dokka.model.WithExpectActual
+import org.jetbrains.dokka.model.WithSources
 import org.jetbrains.dokka.model.toDisplaySourceSets
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
@@ -23,7 +23,7 @@ class SourceLinksTransformer(val context: DokkaContext, val builder: PageContent
     override fun invoke(input: RootPageNode) =
         input.transformContentPagesTree { node ->
             when (val documentable = node.documentable) {
-                is WithExpectActual -> resolveSources(documentable)
+                is WithSources -> resolveSources(documentable)
                     .takeIf { it.isNotEmpty() }
                     ?.let { node.addSourcesContent(it) }
                     ?: node
@@ -34,7 +34,7 @@ class SourceLinksTransformer(val context: DokkaContext, val builder: PageContent
     private fun getSourceLinks() = context.configuration.sourceSets
         .flatMap { it.sourceLinks.map { sl -> SourceLink(sl, it) } }
 
-    private fun resolveSources(documentable: WithExpectActual) = documentable.sources
+    private fun resolveSources(documentable: WithSources) = documentable.sources
         .mapNotNull { entry ->
             getSourceLinks().find { File(entry.value.path).startsWith(it.path) && it.sourceSetData == entry.key }?.let {
                 Pair(
