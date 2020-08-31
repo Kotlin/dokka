@@ -546,6 +546,7 @@ java -jar dokka-cli.jar <arguments>
 Dokka supports the following command line arguments:
 
   * `-outputDir` - the output directory where the documentation is generated
+  * `-moduleName` - (required) - module name used as a part of source set ID when declaring dependent source sets
   * `-cacheRoot` - cache directory to enable package-list caching
   * `-pluginsClasspath` - artifacts with dokka plugins, separated by `;`. At least dokka base and all its dependencies must be added there 
   * `-offlineMode` - do not resolve package-lists online
@@ -554,7 +555,6 @@ Dokka supports the following command line arguments:
   * `-globalLinks` - external documentation links added to all source sets
   * `-globalSrcLink` - source links added to all source sets
   * `-sourceSet` - (repeatable) - configuration for a single source set. Following this argument, you can pass other arguments:
-    * `-moduleName` - (required) - module name used as a part of source set ID when declaring dependent source sets
     * `-sourceSetName` - source set name as a part of source set ID when declaring dependent source sets
     * `-displayName` - source set name displayed in the generated documentation
     * `-src` - list of source files or directories separated by `;`
