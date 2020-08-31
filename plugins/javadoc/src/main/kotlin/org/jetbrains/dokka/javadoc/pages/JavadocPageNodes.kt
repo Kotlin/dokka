@@ -473,7 +473,7 @@ class TreeViewPage(
             listOf(psi to l) + l.flatMap { gatherPsiClasses(it) }
         }
 
-        val psiInheritanceTree = documentables.flatMap { (_, v) -> (v as? WithExpectActual)?.sources?.values.orEmpty() }
+        val psiInheritanceTree = documentables.flatMap { (_, v) -> (v as? WithSources)?.sources?.values.orEmpty() }
             .filterIsInstance<PsiDocumentableSource>().mapNotNull { it.psi as? PsiClass }.flatMap(::gatherPsiClasses)
             .flatMap { entry -> entry.second.map { it to entry.first } }
             .let {
@@ -547,9 +547,9 @@ class TreeViewPage(
     }
 
     private fun Documentable?.descriptorForPlatform(platform: Platform = Platform.jvm) =
-        (this as? WithExpectActual).descriptorForPlatform(platform)
+        (this as? WithSources).descriptorForPlatform(platform)
 
-    private fun WithExpectActual?.descriptorForPlatform(platform: Platform = Platform.jvm) = this?.let {
+    private fun WithSources?.descriptorForPlatform(platform: Platform = Platform.jvm) = this?.let {
         it.sources.entries.find { it.key.analysisPlatform == platform }?.value?.let { it as? DescriptorDocumentableSource }?.descriptor as? ClassDescriptor
     }
 

@@ -15,7 +15,7 @@ import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.resolve.jvm.JvmPrimitiveType
 import java.lang.IllegalStateException
 
-private fun <T : WithExpectActual> List<T>.groupedByLocation() =
+private fun <T : WithSources> List<T>.groupedByLocation() =
     map { it.sources to it }
         .groupBy({ (location, _) ->
             location.let {
@@ -25,7 +25,7 @@ private fun <T : WithExpectActual> List<T>.groupedByLocation() =
 
 internal fun DPackage.asJava(): DPackage {
     @Suppress("UNCHECKED_CAST")
-    val syntheticClasses = ((properties + functions) as List<WithExpectActual>)
+    val syntheticClasses = ((properties + functions) as List<WithSources>)
         .groupedByLocation()
         .map { (syntheticClassName, nodes) ->
             DClass(
@@ -50,6 +50,7 @@ internal fun DPackage.asJava(): DPackage {
                 documentation = emptyMap(),
                 modifier = sourceSets.map { it to JavaModifier.Final }.toMap(),
                 sourceSets = sourceSets,
+                isExpectActual = false,
                 extra = PropertyContainer.empty()
             )
         }
@@ -218,6 +219,7 @@ internal fun DObject.asJava(): DObject = copy(
                 receiver = null,
                 generics = emptyList(),
                 expectPresentInSet = expectPresentInSet,
+                isExpectActual = false,
                 extra = PropertyContainer.withAll(sourceSets.map {
                     mapOf(it to setOf(ExtraModifiers.JavaOnlyModifiers.Static)).toAdditionalModifiers()
                 })

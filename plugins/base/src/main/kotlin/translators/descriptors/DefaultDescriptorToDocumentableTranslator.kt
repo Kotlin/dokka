@@ -158,11 +158,12 @@ private class DokkaDescriptorVisitor(
             generics = descriptor.declaredTypeParameters.map { it.toVariantTypeParameter() },
             companion = descriptor.companion(driWithPlatform),
             sourceSets = setOf(sourceSet),
-            extra = PropertyContainer.withAll<DInterface>(
+            isExpectActual = (isExpect || isActual),
+            extra = PropertyContainer.withAll(
                 descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
                 descriptor.getAnnotations().toSourceSetDependent().toAnnotations(),
                 ImplementedInterfaces(info.allImplementedInterfaces.toSourceSetDependent())
-            ).let { if (isExpect || isActual) it + IsExpectActual else it }
+            )
         )
     }
 
@@ -186,11 +187,12 @@ private class DokkaDescriptorVisitor(
             supertypes = info.supertypes.toSourceSetDependent(),
             documentation = info.docs,
             sourceSets = setOf(sourceSet),
-            extra = PropertyContainer.withAll<DObject>(
+            isExpectActual = (isExpect || isActual),
+            extra = PropertyContainer.withAll(
                 descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
                 descriptor.getAnnotations().toSourceSetDependent().toAnnotations(),
                 ImplementedInterfaces(info.allImplementedInterfaces.toSourceSetDependent())
-            ).let { if (isExpect || isActual) it + IsExpectActual else it }
+            )
         )
     }
 
@@ -216,11 +218,12 @@ private class DokkaDescriptorVisitor(
             documentation = info.docs,
             companion = descriptor.companion(driWithPlatform),
             sourceSets = setOf(sourceSet),
-            extra = PropertyContainer.withAll<DEnum>(
+            isExpectActual = (isExpect || isActual),
+            extra = PropertyContainer.withAll(
                 descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
                 descriptor.getAnnotations().toSourceSetDependent().toAnnotations(),
                 ImplementedInterfaces(info.allImplementedInterfaces.toSourceSetDependent())
-            ).let { if (isExpect || isActual) it + IsExpectActual else it }
+            )
         )
     }
 
@@ -261,10 +264,11 @@ private class DokkaDescriptorVisitor(
             properties = scope.properties(driWithPlatform),
             expectPresentInSet = sourceSet.takeIf { isExpect },
             sourceSets = setOf(sourceSet),
-            extra = PropertyContainer.withAll<DAnnotation>(
+            isExpectActual = (isExpect || isActual),
+            extra = PropertyContainer.withAll(
                 descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
                 descriptor.getAnnotations().toSourceSetDependent().toAnnotations()
-            ).let { if (isExpect || isActual) it + IsExpectActual else it },
+            ),
             companion = descriptor.companionObjectDescriptor?.let { objectDescriptor(it, driWithPlatform) },
             visibility = descriptor.visibility.toDokkaVisibility().toSourceSetDependent(),
             generics = descriptor.declaredTypeParameters.map { it.toVariantTypeParameter() },
@@ -303,11 +307,12 @@ private class DokkaDescriptorVisitor(
             modifier = descriptor.modifier().toSourceSetDependent(),
             companion = descriptor.companion(driWithPlatform),
             sourceSets = setOf(sourceSet),
+            isExpectActual = (isExpect || isActual),
             extra = PropertyContainer.withAll<DClass>(
                 descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
                 descriptor.getAnnotations().toSourceSetDependent().toAnnotations(),
                 ImplementedInterfaces(info.allImplementedInterfaces.toSourceSetDependent())
-            ).let { if (isExpect || isActual) it + IsExpectActual else it }
+            )
         )
     }
 
@@ -337,11 +342,12 @@ private class DokkaDescriptorVisitor(
             expectPresentInSet = sourceSet.takeIf { isExpect },
             sourceSets = setOf(sourceSet),
             generics = descriptor.typeParameters.map { it.toVariantTypeParameter() },
+            isExpectActual = (isExpect || isActual),
             extra = PropertyContainer.withAll(
                 (descriptor.additionalExtras() + descriptor.getAnnotationsWithBackingField()
                     .toAdditionalExtras()).toSet().toSourceSetDependent().toAdditionalModifiers(),
                 descriptor.getAnnotationsWithBackingField().toSourceSetDependent().toAnnotations()
-            ).let { if (isExpect || isActual) it + IsExpectActual else it }
+            )
         )
     }
 
@@ -376,11 +382,12 @@ private class DokkaDescriptorVisitor(
             modifier = descriptor.modifier().toSourceSetDependent(),
             type = descriptor.returnType!!.toBound(),
             sourceSets = setOf(sourceSet),
-            extra = PropertyContainer.withAll<DFunction>(
+            isExpectActual = (isExpect || isActual),
+            extra = PropertyContainer.withAll(
                 InheritedFunction(inheritedFrom.toSourceSetDependent()),
                 descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
                 descriptor.getAnnotations().toSourceSetDependent().toAnnotations()
-            ).let { if (isExpect || isActual) it + IsExpectActual else it }
+            )
         )
     }
 
@@ -421,6 +428,7 @@ private class DokkaDescriptorVisitor(
             modifier = descriptor.modifier().toSourceSetDependent(),
             generics = descriptor.typeParameters.map { it.toVariantTypeParameter() },
             sourceSets = setOf(sourceSet),
+            isExpectActual = (isExpect || isActual),
             extra = PropertyContainer.withAll<DFunction>(
                 descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
                 descriptor.getAnnotations().toSourceSetDependent().toAnnotations()
@@ -428,7 +436,7 @@ private class DokkaDescriptorVisitor(
                 if (descriptor.isPrimary) {
                     it + PrimaryConstructorExtra
                 } else it
-            }.let { if (isExpect || isActual) it + IsExpectActual else it }
+            }
         )
     }
 
@@ -501,10 +509,11 @@ private class DokkaDescriptorVisitor(
             },
             sources = descriptor.createSources(),
             sourceSets = setOf(sourceSet),
+            isExpectActual = (isExpect || isActual),
             extra = PropertyContainer.withAll<DFunction>(
                 descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
                 descriptor.getAnnotations().toSourceSetDependent().toAnnotations()
-            ).let { if (isExpect || isActual) it + IsExpectActual else it }
+            )
         )
     }
 
