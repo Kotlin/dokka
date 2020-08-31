@@ -665,6 +665,7 @@ open class HtmlRenderer(
             head {
                 meta(name = "viewport", content = "width=device-width, initial-scale=1", charset = "UTF-8")
                 title(page.name)
+                link(href = page.root("images/logo-icon.svg"), rel = "icon", type = "image/svg")
                 resources.forEach {
                     when {
                         it.substringBefore('?').substringAfterLast('.') == "css" -> link(
