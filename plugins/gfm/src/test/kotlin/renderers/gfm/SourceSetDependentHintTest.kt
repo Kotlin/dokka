@@ -6,7 +6,7 @@ import org.jetbrains.dokka.gfm.CommonmarkRenderer
 import org.jetbrains.dokka.pages.TextStyle
 import org.junit.jupiter.api.Test
 import renderers.TestPage
-import renderers.defaultSourceSet
+import testApi.testRunner.defaultSourceSet
 import java.io.File
 
 class SourceSetDependentHintTest : GfmRenderingOnlyTestBase() {

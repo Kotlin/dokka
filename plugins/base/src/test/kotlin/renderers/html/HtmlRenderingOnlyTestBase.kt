@@ -15,7 +15,7 @@ import org.jsoup.nodes.Node
 import org.jsoup.nodes.TextNode
 import renderers.RenderingOnlyTestBase
 import utils.TestOutputWriter
-import renderers.defaultSourceSet
+import testApi.testRunner.defaultSourceSet
 import java.io.File
 
 abstract class HtmlRenderingOnlyTestBase : RenderingOnlyTestBase<Element>() {
