@@ -33,5 +33,6 @@ private fun Project.compileClasspathOf(compilation: KotlinCompilation): FileColl
         ?.findByName(compilation.defaultSourceSet.implementationMetadataConfigurationName)
         ?: files()
 
-    return compilation.compileDependencyFiles + platformDependencyFiles
+    return compilation.compileDependencyFiles + platformDependencyFiles +
+            (compilation.compileKotlinTask.run { this as? KotlinCompile }?.classpath ?: files())
 }
