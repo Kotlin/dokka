@@ -1,0 +1,64 @@
+site_name: dokka
+
+# Meta tags (placed in header)
+site_description: Dokka is a documentation engine for Kotlin, performing the same function as javadoc for Java
+site_author: Jetbrains
+site_url: https://github.com/Kotlin/dokka
+
+# Repository (add link to repository on each page)
+repo_name: dokka
+repo_url: https://github.com/Kotlin/dokka
+#edit_uri: edit/master/src/doc/docs/
+
+# Copyright (shown at the footer)
+copyright: 'Copyright &copy; 2020 Jetbrains'
+
+# Material theme
+theme:
+  name: 'material'
+  favicon: favicon.svg
+  social:
+    - type: 'github'
+      link: 'https://github.com/Kotlin/dokka'
+
+# Extensions
+markdown_extensions:
+  - admonition
+  - codehilite:
+      guess_lang: false
+  - footnotes
+  - meta
+  - def_list
+  - toc:
+      permalink: true
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret
+  - pymdownx.inlinehilite
+  - pymdownx.magiclink
+  - pymdownx.smartsymbols
+  - pymdownx.superfences
+
+# Dev server binding
+#dev_addr: 127.0.0.1:3001
+
+nav:
+  - Home: index.md
+  - User guide:
+      - Introduction: user_guide/introduction.md
+      - Gradle: user_guide/gradle/usage.md
+      - Maven: user_guide/maven/usage.md
+      - Command line: user_guide/cli/usage.md
+  - Plugin development:
+      - Introduction: developer_guide/introduction.md
+      - Data model: developer_guide/data_model.md
+      - Extension points: developer_guide/extension_points.md
+  - About:
+      - FAQ: about/FAQ.md
+      - Slack channel: about/slack_channel.md
+
+extra_javascript:
+  - expand_navigation.js
+
+extra_css:
+  - dokka_colors.css
