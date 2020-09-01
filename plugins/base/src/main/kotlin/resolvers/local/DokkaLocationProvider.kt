@@ -44,7 +44,7 @@ open class DokkaLocationProvider(
         pageGraphRoot.withDescendants().filterIsInstance<ContentPage>()
             .flatMap { page ->
                 page.content.withDescendants()
-                    .filter { it.extra[SymbolAnchorHint] != null }
+                    .filter { it.extra[SymbolAnchorHint.SymbolAnchorHintKey] != null }
                     .mapNotNull { it.dci.dri.singleOrNull() }
                     .distinct()
                     .flatMap { dri ->
