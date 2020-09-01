@@ -20,7 +20,7 @@ abstract class DefaultLocationProvider(
     protected val externalLocationProviderFactories =
         dokkaContext.plugin<DokkaBase>().query { externalLocationProviderFactory }
 
-    protected val packagesIndex: Map<String, ExternalLocationProvider?> = dokkaContext
+    protected val externalLocationProviders: Map<ExternalDocumentation, ExternalLocationProvider?> = dokkaContext
         .configuration
         .sourceSets
         .flatMap { sourceSet ->
@@ -30,18 +30,32 @@ abstract class DefaultLocationProvider(
             }
         }
         .filterNotNull()
-        .flatMap { extDocInfo ->
-            extDocInfo.packageList.packages.map { packageName ->
-                val externalLocationProvider = (externalLocationProviderFactories.asSequence()
-                    .mapNotNull { it.getExternalLocationProvider(extDocInfo) }.firstOrNull()
-                    ?: run { dokkaContext.logger.error("No ExternalLocationProvider for '${extDocInfo.packageList.url}' found"); null })
-                packageName to externalLocationProvider
-            }
+        .map { extDocInfo ->
+            val externalLocationProvider = (externalLocationProviderFactories.asSequence()
+                .mapNotNull { it.getExternalLocationProvider(extDocInfo) }.firstOrNull()
+                ?: run { dokkaContext.logger.error("No ExternalLocationProvider for '${extDocInfo.packageList.url}' found"); null })
+            extDocInfo to externalLocationProvider
+        }
+        .toMap()
+
+    protected val packagesIndex: Map<String, ExternalLocationProvider?> = externalLocationProviders
+        .flatMap { (extDocInfo, externalLocationProvider) ->
+            extDocInfo.packageList.packages.map { packageName -> packageName to externalLocationProvider }
+        }
+        .toMap()
+        .filterKeys(String::isNotBlank)
+
+
+    protected val locationsIndex: Map<String, ExternalLocationProvider?> = externalLocationProviders
+        .flatMap { (extDocInfo, externalLocationProvider) ->
+            extDocInfo.packageList.locations.keys.map { relocatedDri -> relocatedDri to externalLocationProvider }
         }
         .toMap()
         .filterKeys(String::isNotBlank)
 
     protected open fun getExternalLocation(dri: DRI, sourceSets: Set<DisplaySourceSet>): String? =
         packagesIndex[dri.packageName]?.resolve(dri)
+            ?: locationsIndex[dri.toString()]?.resolve(dri)
+            ?: externalLocationProviders.values.mapNotNull { it?.resolve(dri) }.firstOrNull()
 
 }

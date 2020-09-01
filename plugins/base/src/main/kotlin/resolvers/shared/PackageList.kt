@@ -16,16 +16,15 @@ data class PackageList(
 
             val packageListStream = url.readContent()
 
-
             val (params, packages) = packageListStream
                 .bufferedReader()
                 .useLines { lines -> lines.partition { it.startsWith(PackageListService.DOKKA_PARAM_PREFIX) } }
 
             val paramsMap = splitParams(params)
             val format = linkFormat(paramsMap["format"]?.singleOrNull(), jdkVersion)
-            val locations = splitLocations(paramsMap["location"].orEmpty())
+            val locations = splitLocations(paramsMap["location"].orEmpty()).filterKeys(String::isNotEmpty)
 
-            return PackageList(format, packages.toSet(), locations, url)
+            return PackageList(format, packages.filter(String::isNotBlank).toSet(), locations, url)
         }
 
 
