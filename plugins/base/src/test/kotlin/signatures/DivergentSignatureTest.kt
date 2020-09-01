@@ -58,7 +58,7 @@ class DivergentSignatureTest : AbstractCoreTest() {
                 val content = writerPlugin.renderedContent("example/example/-clock/get-time.html")
 
                 assert(content.count() == 1)
-                assert(content.select("[data-filterable-current=example/common example/jvm example/js]").single().brief == "common")
+                assert(content.select("[data-filterable-current=example/common example/js example/jvm]").single().brief == "common")
             }
         }
     }
