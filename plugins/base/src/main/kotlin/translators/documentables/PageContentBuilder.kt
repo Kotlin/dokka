@@ -223,20 +223,20 @@ open class PageContentBuilder(
             styles: Set<Style> = mainStyles,
             extra: PropertyContainer<ContentNode> = mainExtra
         ) {
-            contents += linkNode(text, address, kind, sourceSets, styles, extra)
+            contents += linkNode(text, address, DCI(mainDRI, kind), sourceSets, styles, extra)
         }
 
         fun linkNode(
             text: String,
             address: DRI,
-            kind: Kind = ContentKind.Main,
+            dci: DCI = DCI(mainDRI, ContentKind.Main),
             sourceSets: Set<DokkaSourceSet> = mainSourcesetData,
             styles: Set<Style> = mainStyles,
             extra: PropertyContainer<ContentNode> = mainExtra
         ) = ContentDRILink(
-            listOf(createText(text, kind, sourceSets, styles, extra)),
+            listOf(createText(text, dci.kind, sourceSets, styles, extra)),
             address,
-            DCI(mainDRI, kind),
+            dci,
             sourceSets.toDisplaySourceSets(),
             extra = extra
         )
