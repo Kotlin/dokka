@@ -9,3 +9,9 @@ document.getElementById("navigationFilter").oninput = function (e) {
     	}
 	}
 }
+
+window.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("leftToggler").onclick = function() {
+        document.getElementById("leftColumn").classList.toggle("open");
+    }
+}

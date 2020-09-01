@@ -703,6 +703,10 @@ open class HtmlRenderer(
                     div {
                         id = "main"
                         div {
+                            id = "leftToggler"
+                            span("icon-toggler")
+                        }
+                        div {
                             id = "searchBar"
                         }
                         script(type = ScriptType.textJavaScript, src = page.root("scripts/pages.js")) {}

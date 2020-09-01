@@ -1075,3 +1075,47 @@ div.runnablesample {
     margin-top: 0.2em;
     margin-bottom: 0.2em;
 }
+
+@media screen and (max-width: 759px) {
+    #main {
+        max-width: 100%;
+    }
+    #leftColumn {
+        position: absolute;
+        margin-left: -280px;
+        transition: margin .2s ease-out;
+        z-index: 4;
+        background: white;
+    }
+    #leftColumn.open {
+        margin-left: 0;
+    }
+    #leftColumn.open ~ #main #searchBar {
+        display: none;
+    }
+     #leftToggler {
+        display: unset;
+        position: fixed;
+        top: 50%;
+        transform: translateY(-50%);
+        margin-left: 12px;
+        z-index: 5;
+        font-size: 30px;
+        transition: margin .2s ease-out;
+    }
+    #leftColumn.open ~ #main #leftToggler {
+        margin-left: 280px;;
+    }
+    .icon-toggler::before {
+        content: "\232A";
+    }
+    #leftColumn.open ~ #main .icon-toggler::before {
+        content: "\2329";
+    }
+    .sideMenuPart > .overview:before {
+        width: 100%;
+    }
+    .popup-wrapper {
+        width: 100%; !important
+    }
+}
