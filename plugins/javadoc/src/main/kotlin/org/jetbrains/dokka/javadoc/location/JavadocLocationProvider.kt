@@ -2,12 +2,11 @@ package org.jetbrains.dokka.javadoc.location
 
 import org.jetbrains.dokka.base.resolvers.local.DefaultLocationProvider
 import org.jetbrains.dokka.javadoc.pages.*
-import org.jetbrains.dokka.links.*
+import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.Nullable
-import org.jetbrains.dokka.model.*
-import org.jetbrains.dokka.pages.ContentPage
+import org.jetbrains.dokka.links.PointingToDeclaration
 import org.jetbrains.dokka.model.DisplaySourceSet
-import org.jetbrains.dokka.model.TypeConstructor
+import org.jetbrains.dokka.pages.ContentPage
 import org.jetbrains.dokka.pages.PageNode
 import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.DokkaContext
@@ -127,5 +126,14 @@ class JavadocLocationProvider(pageRoot: RootPageNode, dokkaContext: DokkaContext
 
     override fun ancestors(node: PageNode): List<PageNode> {
         TODO("Not yet implemented")
+    }
+
+    override fun expectedLocationForDri(dri: DRI): String {
+        if (dri.packageName?.isNotEmpty() == true && dri.classNames == null)
+            return (dri.packageName?.split(".").orEmpty() + "package-summary").joinToString("/")
+
+        return (dri.packageName?.split(".").orEmpty() +
+                dri.classNames?.split(".").orEmpty() // Top-level methods will always be relocated which is fine
+                ).joinToString("/")
     }
 }

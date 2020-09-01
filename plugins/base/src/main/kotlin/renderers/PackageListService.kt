@@ -2,25 +2,23 @@ package org.jetbrains.dokka.base.renderers
 
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.links.parent
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 
-class PackageListService(val context: DokkaContext) {
+class PackageListService(val context: DokkaContext, val rootPage: RootPageNode) {
 
-    fun formatPackageList(module: RootPageNode, format: String, linkExtension: String): String {
+    fun createPackageList(module: ModulePage, format: String, linkExtension: String): String {
 
         val packages = mutableSetOf<String>()
         val nonStandardLocations = mutableMapOf<String, String>()
 
         val locationProvider =
-            context.plugin<DokkaBase>().querySingle { locationProviderFactory }.getLocationProvider(module)
+            context.plugin<DokkaBase>().querySingle { locationProviderFactory }.getLocationProvider(rootPage)
 
-        fun visit(node: PageNode, parentDris: Set<DRI>) {
-
+        fun visit(node: PageNode) {
             if (node is PackagePage) {
                 node.name
                     .takeUnless { name -> name.startsWith("[") && name.endsWith("]") } // Do not include the package name for declarations without one
@@ -28,18 +26,19 @@ class PackageListService(val context: DokkaContext) {
             }
 
             val contentPage = node.safeAs<ContentPage>()
-            contentPage?.dri?.forEach {
-                if (parentDris.isNotEmpty() && it.parent !in parentDris) {
-                    locationProvider.resolve(node)
-                        ?.let { nodeLocation -> nonStandardLocations[it.toString()] = nodeLocation }
-                        ?: context.logger.error("Cannot resolve path for ${node.name}!")
+            contentPage?.dri?.forEach { dri ->
+                val nodeLocation = locationProvider.resolve(node, context = module, skipExtension = true)
+                    ?: run { context.logger.error("Cannot resolve path for ${node.name}!"); null }
+
+                if (dri != DRI.topLevel && locationProvider.expectedLocationForDri(dri) != nodeLocation) {
+                    nonStandardLocations[dri.toString()] = "$nodeLocation.$linkExtension"
                 }
             }
 
-            node.children.forEach { visit(it, contentPage?.dri ?: setOf()) }
+            node.children.forEach { visit(it) }
         }
 
-        visit(module, setOf())
+        visit(module)
 
         return buildString {
             appendLine("$DOKKA_PARAM_PREFIX.format:${format}")
