@@ -14,17 +14,14 @@ open class JavadocExternalLocationProvider(
     dokkaContext: DokkaContext
 ) : DefaultExternalLocationProvider(externalDocumentation, ".html", dokkaContext) {
 
-    override fun resolve(dri: DRI): String? {
-        val docURL = externalDocumentation.documentationURL.toString().removeSuffix("/") + "/"
-        externalDocumentation.packageList.locations[dri.toString()]?.let { path -> return "$docURL$path" }
-
-        val packageLink = dri.packageName?.replace(".", "/")
-        if (dri.classNames == null) {
+    override fun DRI.constructPath(): String {
+        val packageLink = packageName?.replace(".", "/")
+        if (classNames == null) {
             return "$docURL$packageLink/package-summary$extension".htmlEscape()
         }
         val classLink =
-            if (packageLink == null) "${dri.classNames}$extension" else "$packageLink/${dri.classNames}$extension"
-        val callableChecked = dri.callable ?: return "$docURL$classLink".htmlEscape()
+            if (packageLink == null) "${classNames}$extension" else "$packageLink/${classNames}$extension"
+        val callableChecked = callable ?: return "$docURL$classLink".htmlEscape()
 
         return ("$docURL$classLink#" + anchorPart(callableChecked)).htmlEscape()
     }
