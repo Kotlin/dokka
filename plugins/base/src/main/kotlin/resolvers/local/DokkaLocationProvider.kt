@@ -27,11 +27,11 @@ open class DokkaLocationProvider(
         pageGraphRoot.children.forEach { registerPath(it, emptyList()) }
     }
 
-    protected val pagesIndex: Map<Pair<DRI, DisplaySourceSet>, ContentPage> =
+    protected val pagesIndex: Map<Pair<DRI, DisplaySourceSet?>, ContentPage> =
         pageGraphRoot.withDescendants().filterIsInstance<ContentPage>()
             .flatMap { page ->
                 page.dri.flatMap { dri ->
-                    page.sourceSets().map { sourceSet -> (dri to sourceSet) to page }
+                    page.sourceSets().ifEmpty { setOf(null) }.map { sourceSet -> (dri to sourceSet) to page }
                 }
             }
             .groupingBy { it.first }
@@ -39,7 +39,7 @@ open class DokkaLocationProvider(
                 if (first) page else throw AssertionError("Multiple pages associated with key: ${key.first}/${key.second}")
             }
 
-    protected val anchorsIndex: Map<Pair<DRI, DisplaySourceSet>, ContentPage> =
+    protected val anchorsIndex: Map<Pair<DRI, DisplaySourceSet?>, ContentPage> =
         pageGraphRoot.withDescendants().filterIsInstance<ContentPage>()
             .flatMap { page ->
                 page.content.withDescendants()
@@ -47,7 +47,7 @@ open class DokkaLocationProvider(
                     .mapNotNull { it.dci.dri.singleOrNull() }
                     .distinct()
                     .flatMap { dri ->
-                        page.sourceSets().map { sourceSet ->
+                        page.sourceSets().ifEmpty { setOf(null) }.map { sourceSet ->
                             (dri to sourceSet) to page
                         }
                     }
@@ -57,7 +57,7 @@ open class DokkaLocationProvider(
         pathTo(node, context) + if (!skipExtension) extension else ""
 
     override fun resolve(dri: DRI, sourceSets: Set<DisplaySourceSet>, context: PageNode?): String? =
-        sourceSets.mapNotNull { sourceSet ->
+        sourceSets.ifEmpty { setOf(null) }.mapNotNull { sourceSet ->
             val driWithSourceSet = Pair(dri, sourceSet)
             getLocalLocation(driWithSourceSet, context)
                 ?: getLocalLocation(driWithSourceSet.copy(first = dri.copy(target = PointingToDeclaration)), context)
@@ -66,7 +66,7 @@ open class DokkaLocationProvider(
                 ?: getExternalLocation(dri.copy(target = PointingToDeclaration), sourceSets)
         }.distinct().singleOrNull()
 
-    private fun getLocalLocation(dri: Pair<DRI, DisplaySourceSet>, context: PageNode?): String? =
+    private fun getLocalLocation(dri: Pair<DRI, DisplaySourceSet?>, context: PageNode?): String? =
         pagesIndex[dri]?.let { resolve(it, context) }
             ?: anchorsIndex[dri]?.let { resolve(it, context) + "#$dri" }
 
