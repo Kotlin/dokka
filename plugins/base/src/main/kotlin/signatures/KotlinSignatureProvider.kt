@@ -171,7 +171,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                         pConstructor.parameters,
                         "(",
                         ")",
-                        ",",
+                        ", ",
                         pConstructor.sourceSets.toSet()
                     ) {
                         annotationsInline(it)
