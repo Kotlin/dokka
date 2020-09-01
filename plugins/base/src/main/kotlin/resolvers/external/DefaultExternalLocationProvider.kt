@@ -10,15 +10,23 @@ open class DefaultExternalLocationProvider(
     val extension: String,
     val dokkaContext: DokkaContext
 ) : ExternalLocationProvider {
+    val docURL = externalDocumentation.documentationURL.toString().removeSuffix("/") + "/"
+
     override fun resolve(dri: DRI): String? {
-        val docURL = externalDocumentation.documentationURL.toString().removeSuffix("/") + "/"
         externalDocumentation.packageList.locations[dri.toString()]?.let { path -> return "$docURL$path" }
 
-        val classNamesChecked = dri.classNames ?: return "$docURL${dri.packageName ?: ""}/index$extension"
-        val classLink = (listOfNotNull(dri.packageName) + classNamesChecked.split('.'))
+        if (dri.packageName !in externalDocumentation.packageList.packages)
+            return null
+
+        return dri.constructPath()
+    }
+
+    protected open fun DRI.constructPath(): String {
+        val classNamesChecked = classNames ?: return "$docURL${packageName ?: ""}/index$extension"
+        val classLink = (listOfNotNull(packageName) + classNamesChecked.split('.'))
             .joinToString("/", transform = ::identifierToFilename)
 
-        val callableChecked = dri.callable ?: return "$docURL$classLink/index$extension"
+        val callableChecked = callable ?: return "$docURL$classLink/index$extension"
         return "$docURL$classLink/" + identifierToFilename(callableChecked.name) + extension
     }
 }
