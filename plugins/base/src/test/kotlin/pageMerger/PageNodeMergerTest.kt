@@ -129,28 +129,26 @@ class PageNodeMergerTest : AbstractCoreTest() {
     fun `should not be merged`() {
 
         val configuration = dokkaConfiguration {
+            moduleName = "example"
             sourceSets {
                 val common = sourceSet {
-                    moduleName = "example"
                     name = "common"
                     displayName = "common"
                     analysisPlatform = "common"
                     sourceRoots = listOf("src/commonMain/kotlin/pageMerger/Test.kt")
                 }
                 val js = sourceSet {
-                    moduleName = "example"
                     name = "js"
                     displayName = "js"
                     analysisPlatform = "js"
-                    dependentSourceSets = setOf(common.sourceSetID)
+                    dependentSourceSets = setOf(common.value.sourceSetID)
                     sourceRoots = listOf("src/jsMain/kotlin/pageMerger/Test.kt")
                 }
                 val jvm = sourceSet {
-                    moduleName = "example"
                     name = "jvm"
                     displayName = "jvm"
                     analysisPlatform = "jvm"
-                    dependentSourceSets = setOf(common.sourceSetID)
+                    dependentSourceSets = setOf(common.value.sourceSetID)
                     sourceRoots = listOf("src/jvmMain/kotlin/pageMerger/Test.kt")
                 }
             }
