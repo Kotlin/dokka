@@ -9,6 +9,7 @@ import org.jetbrains.dokka.DokkaSourceSetID
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.renderers.DefaultRenderer
 import org.jetbrains.dokka.base.renderers.TabSortingStrategy
+import org.jetbrains.dokka.base.renderers.isImage
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.DisplaySourceSet
 import org.jetbrains.dokka.model.properties.PropertyContainer
@@ -346,8 +347,7 @@ open class HtmlRenderer(
         node: ContentEmbeddedResource,
         pageContext: ContentPage
     ) { // TODO: extension point there
-        val imageExtensions = setOf("png", "jpg", "jpeg", "gif", "bmp", "tif", "webp", "svg")
-        return if (File(node.address).extension.toLowerCase() in imageExtensions) {
+        return if (node.isImage()) {
             //TODO: add imgAttrs parsing
             val imgAttrs = node.extra.allOfType<SimpleAttr>().joinAttr()
             img(src = node.address, alt = node.altText)

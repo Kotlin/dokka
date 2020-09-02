@@ -15,6 +15,7 @@ import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.renderers.Renderer
 import org.jetbrains.dokka.transformers.pages.PageTransformer
+import java.io.File
 
 abstract class DefaultRenderer<T>(
     protected val context: DokkaContext
@@ -223,3 +224,8 @@ internal typealias SerializedBeforeAndAfter = Pair<String, String>
 internal typealias InstanceWithSource = Pair<ContentDivergentInstance, DisplaySourceSet>
 
 fun ContentPage.sourceSets() = this.content.sourceSets
+
+fun ContentEmbeddedResource.isImage(): Boolean {
+    val imageExtensions = setOf("png", "jpg", "jpeg", "gif", "bmp", "tif", "webp", "svg")
+    return File(address).extension.toLowerCase() in imageExtensions
+}
