@@ -1,7 +1,7 @@
 package org.jetbrains.dokka.javadoc.signatures
 
 import org.jetbrains.dokka.javadoc.translators.documentables.JavadocPageContentBuilder
-import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.DokkaModuleConfiguration
 import org.jetbrains.dokka.base.signatures.JvmSignatureUtils
 import org.jetbrains.dokka.base.signatures.SignatureProvider
 import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentConverter
@@ -172,7 +172,7 @@ class JavadocSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLo
     private fun javadocSignature(
         d: Documentable,
         extra: PropertyContainer<ContentNode> = PropertyContainer.empty(),
-        block: JavadocPageContentBuilder.JavadocContentBuilder.(DokkaConfiguration.DokkaSourceSet) -> Unit
+        block: JavadocPageContentBuilder.JavadocContentBuilder.(DokkaModuleConfiguration.DokkaSourceSet) -> Unit
     ): List<ContentNode> =
         d.sourceSets.map { sourceSet ->
             contentBuilder.contentFor(d, ContentKind.Main) {

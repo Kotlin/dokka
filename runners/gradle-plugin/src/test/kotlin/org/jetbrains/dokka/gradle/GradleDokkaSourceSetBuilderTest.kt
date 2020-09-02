@@ -58,7 +58,7 @@ class GradleDokkaSourceSetBuilderTest {
 
         assertEquals(
             "myName", sourceSet.build().displayName,
-            "Expected source set name being used for ${DokkaConfiguration.DokkaSourceSet::displayName.name} " +
+            "Expected source set name being used for ${DokkaModuleConfiguration.DokkaSourceSet::displayName.name} " +
                     "after building source set with no ${GradleDokkaSourceSetBuilder::displayName.name} being set"
         )
 

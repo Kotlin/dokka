@@ -16,11 +16,12 @@ import org.jetbrains.dokka.model.properties.ExtraProperty
 import org.jetbrains.dokka.model.properties.MergeStrategy
 import org.jetbrains.dokka.model.properties.plus
 import org.jetbrains.dokka.plugability.DokkaContext
+import org.jetbrains.dokka.plugability.DokkaModuleContext
 import org.jetbrains.dokka.transformers.documentation.DocumentableTransformer
 
 
-class ExtensionExtractorTransformer : DocumentableTransformer {
-    override fun invoke(original: DModule, context: DokkaContext): DModule = runBlocking(Dispatchers.Default) {
+object ExtensionExtractorTransformer : DocumentableTransformer {
+    override fun invoke(original: DModule, context: DokkaModuleContext): DModule = runBlocking(Dispatchers.Default) {
         val channel = Channel<Pair<DRI, Callable>>(10)
         launch {
             coroutineScope {

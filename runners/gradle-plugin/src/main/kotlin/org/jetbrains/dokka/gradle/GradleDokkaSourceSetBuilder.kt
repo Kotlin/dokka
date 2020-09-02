@@ -20,7 +20,7 @@ open class GradleDokkaSourceSetBuilder(
     @Transient @get:Input val name: String,
     @Transient @get:Internal internal val project: Project,
     @Transient @get:Internal internal val sourceSetIdFactory: NamedDomainObjectFactory<DokkaSourceSetID>,
-) : DokkaConfigurationBuilder<DokkaSourceSetImpl> {
+) : DokkaModuleConfigurationBuilder<DokkaSourceSetImpl> {
 
     @Input
     val sourceSetID: DokkaSourceSetID = sourceSetIdFactory.create(name)
@@ -124,7 +124,7 @@ open class GradleDokkaSourceSetBuilder(
         dependsOn(sourceSet.sourceSetID)
     }
 
-    fun dependsOn(sourceSet: DokkaConfiguration.DokkaSourceSet) {
+    fun dependsOn(sourceSet: DokkaSourceSet) {
         dependsOn(sourceSet.sourceSetID)
     }
 

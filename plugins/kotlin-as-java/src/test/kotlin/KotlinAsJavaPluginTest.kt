@@ -11,7 +11,7 @@ class KotlinAsJavaPluginTest : AbstractCoreTest() {
 
     @Test
     fun topLevelTest() {
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             sourceSets {
                 sourceSet {
                     sourceRoots = listOf("src/")
@@ -49,7 +49,7 @@ class KotlinAsJavaPluginTest : AbstractCoreTest() {
 
     @Test
     fun topLevelWithClassTest() {
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             sourceSets {
                 sourceSet {
                     sourceRoots = listOf("src/")
@@ -90,7 +90,7 @@ class KotlinAsJavaPluginTest : AbstractCoreTest() {
 
     @Test
     fun kotlinAndJavaTest() {
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             sourceSets {
                 sourceSet {
                     sourceRoots = listOf("src/")
@@ -134,7 +134,7 @@ class KotlinAsJavaPluginTest : AbstractCoreTest() {
 
     @Test
     fun `public kotlin properties should have a getter with same visibilities`(){
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             sourceSets {
                 sourceSet {
                     sourceRoots = listOf("src/")
@@ -187,7 +187,7 @@ class KotlinAsJavaPluginTest : AbstractCoreTest() {
 
     @Test
     fun `java properties should keep its modifiers`(){
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             sourceSets {
                 sourceSet {
                     sourceRoots = listOf("src/")
@@ -237,7 +237,7 @@ class KotlinAsJavaPluginTest : AbstractCoreTest() {
 
     @Test
     fun `koltin interfaces and classes should be split to extends and implements`(){
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             sourceSets {
                 sourceSet {
                     sourceRoots = listOf("src/")

@@ -5,11 +5,12 @@ import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.properties.ExtraProperty
 import org.jetbrains.dokka.model.properties.MergeStrategy
 import org.jetbrains.dokka.plugability.DokkaContext
-import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
+import org.jetbrains.dokka.DokkaSourceSet
+import org.jetbrains.dokka.plugability.DokkaModuleContext
 import org.jetbrains.dokka.transformers.documentation.DocumentableTransformer
 
-class InheritorsExtractorTransformer : DocumentableTransformer {
-    override fun invoke(original: DModule, context: DokkaContext): DModule =
+object InheritorsExtractorTransformer : DocumentableTransformer {
+    override fun invoke(original: DModule, context: DokkaModuleContext): DModule =
         original.generateInheritanceMap().let { inheritanceMap -> original.appendInheritors(inheritanceMap) as DModule }
 
     private fun <T : Documentable> T.appendInheritors(inheritanceMap: Map<DokkaSourceSet, Map<DRI, List<DRI>>>): Documentable =

@@ -1,10 +1,10 @@
 package org.jetbrains.dokka
 
-import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
+import org.jetbrains.dokka.DokkaSourceSet.*
 import java.io.File
 import java.net.URL
 
-data class DokkaConfigurationImpl(
+data class DokkaModuleConfigurationImpl(
     override val moduleName: String = DokkaDefaults.moduleName,
     override val outputDir: File = DokkaDefaults.outputDir,
     override val cacheRoot: File? = DokkaDefaults.cacheRoot,
@@ -12,10 +12,19 @@ data class DokkaConfigurationImpl(
     override val sourceSets: List<DokkaSourceSetImpl> = emptyList(),
     override val pluginsClasspath: List<File> = emptyList(),
     override val pluginsConfiguration: Map<String, String> = emptyMap(),
-    override val modules: List<DokkaModuleDescriptionImpl> = emptyList(),
     override val failOnWarning: Boolean = DokkaDefaults.failOnWarning
-) : DokkaConfiguration
+) : DokkaModuleConfiguration
 
+data class DokkaMultiModuleConfigurationImpl(
+    override val projectName: String = DokkaDefaults.projectName,
+    override val outputDir: File = DokkaDefaults.outputDir,
+    override val cacheRoot: File? = DokkaDefaults.cacheRoot,
+    override val offlineMode: Boolean = DokkaDefaults.offlineMode,
+    override val pluginsClasspath: List<File> = emptyList(),
+    override val pluginsConfiguration: Map<String, String> = emptyMap(),
+    override val failOnWarning: Boolean = DokkaDefaults.failOnWarning,
+    override val modules: List<DokkaModuleConfiguration> = emptyList()
+) : DokkaMultiModuleConfiguration
 
 data class DokkaSourceSetImpl(
     override val displayName: String = DokkaDefaults.sourceSetDisplayName,
@@ -41,17 +50,11 @@ data class DokkaSourceSetImpl(
     override val analysisPlatform: Platform = DokkaDefaults.analysisPlatform
 ) : DokkaSourceSet
 
-data class DokkaModuleDescriptionImpl(
-    override val name: String,
-    override val relativePathToOutputDirectory: File,
-    override val includes: Set<File>
-) : DokkaConfiguration.DokkaModuleDescription
-
 data class SourceLinkDefinitionImpl(
     override val localDirectory: String,
     override val remoteUrl: URL,
     override val remoteLineSuffix: String?
-) : DokkaConfiguration.SourceLinkDefinition {
+) : SourceLinkDefinition {
     companion object {
         fun parseSourceLinkDefinition(srcLink: String): SourceLinkDefinitionImpl {
             val (path, urlAndLine) = srcLink.split('=')
@@ -69,10 +72,10 @@ data class PackageOptionsImpl(
     override val reportUndocumented: Boolean?,
     override val skipDeprecated: Boolean,
     override val suppress: Boolean
-) : DokkaConfiguration.PackageOptions
+) : PackageOptions
 
 
 data class ExternalDocumentationLinkImpl(
     override val url: URL,
     override val packageListUrl: URL
-) : DokkaConfiguration.ExternalDocumentationLink
+) : ExternalDocumentationLink

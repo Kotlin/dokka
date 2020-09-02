@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test
 class DefaultLocationProviderTest: AbstractCoreTest() {
     @Test
     fun `#644 same directory for module and package`() {
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             sourceSets {
                 sourceSet {
                     sourceRoots = listOf("src/")

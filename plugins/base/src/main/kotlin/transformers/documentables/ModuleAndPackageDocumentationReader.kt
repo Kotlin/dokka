@@ -2,7 +2,7 @@
 
 package org.jetbrains.dokka.base.transformers.documentables
 
-import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.DokkaSourceSet
 import org.jetbrains.dokka.analysis.KotlinAnalysis
 import org.jetbrains.dokka.base.parsers.moduleAndPackage.ModuleAndPackageDocumentation.Classifier
 import org.jetbrains.dokka.base.parsers.moduleAndPackage.ModuleAndPackageDocumentationFragment
@@ -13,7 +13,7 @@ import org.jetbrains.dokka.model.DModule
 import org.jetbrains.dokka.model.DPackage
 import org.jetbrains.dokka.model.SourceSetDependent
 import org.jetbrains.dokka.model.doc.DocumentationNode
-import org.jetbrains.dokka.plugability.DokkaContext
+import org.jetbrains.dokka.plugability.DokkaModuleContext
 import org.jetbrains.dokka.utilities.associateWithNotNull
 
 internal interface ModuleAndPackageDocumentationReader {
@@ -22,11 +22,11 @@ internal interface ModuleAndPackageDocumentationReader {
 }
 
 internal fun ModuleAndPackageDocumentationReader(
-    context: DokkaContext, kotlinAnalysis: KotlinAnalysis? = null
-): ModuleAndPackageDocumentationReader = ContextModuleAndPackageDocumentationReader(context, kotlinAnalysis)
+     kotlinAnalysis: KotlinAnalysis? = null
+): ModuleAndPackageDocumentationReader = ContextModuleAndPackageDocumentationReader(kotlinAnalysis)
 
 private class ContextModuleAndPackageDocumentationReader(
-    private val context: DokkaContext,
+    private val context: DokkaModuleContext,
     private val kotlinAnalysis: KotlinAnalysis?
 ) : ModuleAndPackageDocumentationReader {
 
@@ -36,7 +36,7 @@ private class ContextModuleAndPackageDocumentationReader(
         }
 
     private fun findDocumentationNodes(
-        sourceSets: Set<DokkaConfiguration.DokkaSourceSet>,
+        sourceSets: Set<DokkaSourceSet>,
         predicate: (ModuleAndPackageDocumentationFragment) -> Boolean
     ): SourceSetDependent<DocumentationNode> {
         return sourceSets.associateWithNotNull { sourceSet ->

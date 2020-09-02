@@ -1,6 +1,6 @@
 package renderers.html
 
-import org.jetbrains.dokka.DokkaConfigurationImpl
+import org.jetbrains.dokka.DokkaModuleConfigurationImpl
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.renderers.DefaultTabSortingStrategy
@@ -48,7 +48,7 @@ abstract class HtmlRenderingOnlyTestBase : RenderingOnlyTestBase<Element>() {
         DokkaBase().externalLocationProviderFactory to { ::JavadocExternalLocationProviderFactory },
         DokkaBase().externalLocationProviderFactory to { ::DefaultExternalLocationProviderFactory },
         DokkaBase().tabSortingStrategy to { DefaultTabSortingStrategy() },
-        testConfiguration = DokkaConfigurationImpl(
+        testConfiguration = DokkaModuleConfigurationImpl(
             sourceSets = listOf(js, jvm, native)
         )
     )

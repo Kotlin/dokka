@@ -1,14 +1,12 @@
 package org.jetbrains.dokka.base.allModulePage
 
-import org.jetbrains.dokka.DokkaConfiguration.DokkaModuleDescription
-import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
+import org.jetbrains.dokka.DokkaSourceSet
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.parsers.MarkdownParser
 import org.jetbrains.dokka.base.parsers.moduleAndPackage.ModuleAndPackageDocumentation.Classifier.Module
 import org.jetbrains.dokka.base.parsers.moduleAndPackage.ModuleAndPackageDocumentationParsingContext
 import org.jetbrains.dokka.base.parsers.moduleAndPackage.parseModuleAndPackageDocumentation
 import org.jetbrains.dokka.base.parsers.moduleAndPackage.parseModuleAndPackageDocumentationFragments
-import org.jetbrains.dokka.base.resolvers.local.MultimoduleLocationProvider.Companion.MULTIMODULE_PACKAGE_PLACEHOLDER
 import org.jetbrains.dokka.base.transformers.pages.comments.DocTagToContentConverter
 import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder
 import org.jetbrains.dokka.links.DRI
@@ -27,6 +25,7 @@ class MultimodulePageCreator(
     private val logger: DokkaLogger = context.logger
 
     override fun invoke(): RootPageNode {
+        /* TODO NOW
         val parser = MarkdownParser(logger = logger)
         val modules = context.configuration.modules
 
@@ -68,9 +67,15 @@ class MultimodulePageCreator(
             setOf(DRI(packageName = MULTIMODULE_PACKAGE_PLACEHOLDER, classNames = "allModules")),
             contentNode
         )
+
+         */
+        TODO()
     }
 
+
+    /* TODO NOW
     private fun getDisplayedModuleDocumentation(module: DokkaModuleDescription): P? {
+
         val parsingContext = ModuleAndPackageDocumentationParsingContext(logger)
 
         val documentationFragment = module.includes
@@ -80,7 +85,11 @@ class MultimodulePageCreator(
 
         val moduleDocumentation = parseModuleAndPackageDocumentation(parsingContext, documentationFragment)
         return moduleDocumentation.documentation.firstParagraph()
+
+
     }
+
+     */
 
     private fun DocumentationNode.firstParagraph(): P? =
         this.children

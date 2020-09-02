@@ -4,6 +4,7 @@ import org.jetbrains.dokka.base.resolvers.external.DefaultExternalLocationProvid
 import org.jetbrains.dokka.base.resolvers.shared.ExternalDocumentation
 import org.jetbrains.dokka.links.Callable
 import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.plugability.DokkaBaseContext
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.utilities.htmlEscape
 
@@ -11,7 +12,7 @@ open class JavadocExternalLocationProvider(
     externalDocumentation: ExternalDocumentation,
     val brackets: String,
     val separator: String,
-    dokkaContext: DokkaContext
+    dokkaContext: DokkaBaseContext
 ) : DefaultExternalLocationProvider(externalDocumentation, ".html", dokkaContext) {
 
     override fun resolve(dri: DRI): String? {

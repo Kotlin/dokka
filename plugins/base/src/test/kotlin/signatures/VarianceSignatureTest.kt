@@ -8,7 +8,7 @@ import utils.TestOutputWriterPlugin
 import utils.match
 
 class VarianceSignatureTest : AbstractCoreTest() {
-    private val configuration = dokkaConfiguration {
+    private val configuration = DokkaModuleConfiguration {
         sourceSets {
             sourceSet {
                 sourceRoots = listOf("src/")

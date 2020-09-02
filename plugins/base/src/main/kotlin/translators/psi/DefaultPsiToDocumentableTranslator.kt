@@ -7,7 +7,7 @@ import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.psi.*
 import com.intellij.psi.impl.source.PsiClassReferenceType
 import com.intellij.psi.impl.source.PsiImmediateClassType
-import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
+import org.jetbrains.dokka.DokkaSourceSet
 import org.jetbrains.dokka.analysis.KotlinAnalysis
 import org.jetbrains.dokka.analysis.PsiDocumentableSource
 import org.jetbrains.dokka.analysis.from
@@ -18,7 +18,7 @@ import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.doc.DocumentationNode
 import org.jetbrains.dokka.model.doc.Param
 import org.jetbrains.dokka.model.properties.PropertyContainer
-import org.jetbrains.dokka.plugability.DokkaContext
+import org.jetbrains.dokka.plugability.DokkaModuleContext
 import org.jetbrains.dokka.transformers.sources.SourceToDocumentableTranslator
 import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.kotlin.asJava.elements.KtLightAbstractAnnotation
@@ -40,7 +40,7 @@ class DefaultPsiToDocumentableTranslator(
     private val kotlinAnalysis: KotlinAnalysis
 ) : SourceToDocumentableTranslator {
 
-    override fun invoke(sourceSet: DokkaSourceSet, context: DokkaContext): DModule {
+    override fun invoke(sourceSet: DokkaSourceSet, context: DokkaModuleContext): DModule {
 
         fun isFileInSourceRoots(file: File): Boolean =
             sourceSet.sourceRoots.any { root -> file.startsWith(root) }

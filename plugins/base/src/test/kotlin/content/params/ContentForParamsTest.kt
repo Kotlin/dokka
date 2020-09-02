@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test
 import utils.*
 
 class ContentForParamsTest : AbstractCoreTest() {
-    private val testConfiguration = dokkaConfiguration {
+    private val testConfiguration = DokkaModuleConfiguration {
         sourceSets {
             sourceSet {
                 sourceRoots = listOf("src/")

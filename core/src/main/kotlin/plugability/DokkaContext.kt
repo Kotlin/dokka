@@ -1,6 +1,10 @@
+@file:Suppress("FunctionName")
+
 package org.jetbrains.dokka.plugability
 
-import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.DokkaBaseConfiguration
+import org.jetbrains.dokka.DokkaModuleConfiguration
+import org.jetbrains.dokka.DokkaMultiModuleConfiguration
 import org.jetbrains.dokka.utilities.DokkaLogger
 import java.io.File
 import java.net.URLClassLoader
@@ -9,7 +13,7 @@ import kotlin.reflect.KClass
 import kotlin.reflect.full.createInstance
 
 
-interface DokkaContext {
+interface DokkaBaseContext {
     fun <T : DokkaPlugin> plugin(kclass: KClass<T>): T?
 
     operator fun <T, E> get(point: E): List<T>
@@ -18,27 +22,54 @@ interface DokkaContext {
     fun <T, E> single(point: E): T where T : Any, E : ExtensionPoint<T>
 
     val logger: DokkaLogger
-    val configuration: DokkaConfiguration
+    val configuration: DokkaBaseConfiguration
     val unusedPoints: Collection<ExtensionPoint<*>>
+}
+
+interface DokkaMultiModuleContext : DokkaBaseContext {
+    override val configuration: DokkaMultiModuleConfiguration
+}
+
+fun DokkaModuleContext(
+    configuration: DokkaModuleConfiguration,
+    logger: DokkaLogger,
+    pluginOverrides: List<DokkaPlugin>
+): DokkaModuleContext = DokkaModuleContextImpl(logger, configuration).apply { init(pluginOverrides) }
+
+fun DokkaMultiModuleContext(
+    configuration: DokkaMultiModuleConfiguration,
+    logger: DokkaLogger,
+    pluginOverrides: List<DokkaPlugin>
+): DokkaMultiModuleContext = DokkaMultiModuleContextImpl(logger, configuration).apply { init(pluginOverrides) }
+
+private fun DokkaBaseContextImpl.init(pluginOverrides: List<DokkaPlugin>) {
+    configuration.pluginsClasspath.map { File(it.path).toURI().toURL() }
+        .toTypedArray()
+        .let { URLClassLoader(it, this.javaClass.classLoader) }
+        .also { checkClasspath(it) }
+        .let { ServiceLoader.load(DokkaPlugin::class.java, it) }
+        .let { it + pluginOverrides }
+        .forEach { install(it) }
+    topologicallySortAndPrune()
+    logInitialisationInfo()
+}
 
 
+interface DokkaModuleContext : DokkaBaseContext {
+    override val configuration: DokkaModuleConfiguration
+}
+
+@Deprecated(
+    "Replace with DokkaModuleContext",
+    replaceWith = ReplaceWith("DokkaModuleContext", "org.jetbrains.dokka.plugability.DokkaModuleContext")
+)
+interface DokkaContext : DokkaModuleContext {
     companion object {
         fun create(
-            configuration: DokkaConfiguration,
+            configuration: DokkaModuleConfiguration,
             logger: DokkaLogger,
             pluginOverrides: List<DokkaPlugin>
-        ): DokkaContext =
-            DokkaContextConfigurationImpl(logger, configuration).apply {
-                // File(it.path) is a workaround for an incorrect filesystem in a File instance returned by Gradle.
-                configuration.pluginsClasspath.map { File(it.path).toURI().toURL() }
-                    .toTypedArray()
-                    .let { URLClassLoader(it, this.javaClass.classLoader) }
-                    .also { checkClasspath(it) }
-                    .let { ServiceLoader.load(DokkaPlugin::class.java, it) }
-                    .let { it + pluginOverrides }
-                    .forEach { install(it) }
-                topologicallySortAndPrune()
-            }.also { it.logInitialisationInfo() }
+        ): DokkaModuleContext = DokkaModuleContext(configuration, logger, pluginOverrides)
     }
 }
 
@@ -49,10 +80,17 @@ interface DokkaContextConfiguration {
     fun installExtension(extension: Extension<*, *, *>)
 }
 
-private class DokkaContextConfigurationImpl(
+private class DokkaModuleContextImpl(
     override val logger: DokkaLogger,
-    override val configuration: DokkaConfiguration
-) : DokkaContext, DokkaContextConfiguration {
+    override val configuration: DokkaModuleConfiguration
+) : DokkaModuleContext, DokkaBaseContextImpl()
+
+private class DokkaMultiModuleContextImpl(
+    override val logger: DokkaLogger,
+    override val configuration: DokkaMultiModuleConfiguration
+) : DokkaMultiModuleContext, DokkaBaseContextImpl()
+
+private abstract class DokkaBaseContextImpl : DokkaBaseContext, DokkaContextConfiguration {
     private val plugins = mutableMapOf<KClass<*>, DokkaPlugin>()
     private val pluginStubs = mutableMapOf<KClass<*>, DokkaPlugin>()
     val extensions = mutableMapOf<ExtensionPoint<*>, MutableList<Extension<*, *, *>>>()

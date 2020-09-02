@@ -10,7 +10,7 @@ import utils.pWrapped
 import utils.unnamedTag
 
 class ContentForSeeAlsoTest : AbstractCoreTest() {
-    private val testConfiguration = dokkaConfiguration {
+    private val testConfiguration = DokkaModuleConfiguration {
         sourceSets {
             sourceSet {
                 sourceRoots = listOf("src/")

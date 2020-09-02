@@ -33,7 +33,7 @@ class AndroidExternalLocationProviderTest : AbstractCoreTest() {
             URL("file://not-used")
         )
     )
-    private val configuration = dokkaConfiguration {
+    private val configuration = DokkaModuleConfiguration {
         sourceSets {
             sourceSet {
                 sourceRoots = listOf("src/")

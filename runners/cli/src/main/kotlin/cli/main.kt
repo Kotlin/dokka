@@ -1,7 +1,7 @@
 package org.jetbrains.dokka
 
 import kotlinx.cli.*
-import org.jetbrains.dokka.DokkaConfiguration.ExternalDocumentationLink
+import org.jetbrains.dokka.DokkaSourceSet.ExternalDocumentationLink
 import org.jetbrains.dokka.utilities.DokkaConsoleLogger
 import org.jetbrains.dokka.utilities.cast
 import java.io.*
@@ -9,7 +9,7 @@ import java.net.MalformedURLException
 import java.net.URL
 import java.nio.file.Paths
 
-class GlobalArguments(args: Array<String>) : DokkaConfiguration {
+class GlobalArguments(args: Array<String>) : DokkaModuleConfiguration {
 
     val parser = ArgParser("globalArguments", prefixStyle = ArgParser.OptionPrefixStyle.JVM)
 
@@ -78,13 +78,11 @@ class GlobalArguments(args: Array<String>) : DokkaConfiguration {
         description = "Prints help for single -sourceSet"
     )
 
-    override val modules: List<DokkaConfiguration.DokkaModuleDescription> = emptyList()
-
     init {
         parser.parse(args)
 
         sourceSets.forEach {
-            it.perPackageOptions.cast<MutableList<DokkaConfiguration.PackageOptions>>()
+            it.perPackageOptions.cast<MutableList<DokkaSourceSet.PackageOptions>>()
                 .addAll(parsePerPackageOptions(globalPackageOptions))
         }
 
@@ -109,7 +107,7 @@ class GlobalArguments(args: Array<String>) : DokkaConfiguration {
     }
 }
 
-private fun parseSourceSet(moduleName: String, args: Array<String>): DokkaConfiguration.DokkaSourceSet {
+private fun parseSourceSet(moduleName: String, args: Array<String>): DokkaSourceSet {
 
     val parser = ArgParser("sourceSet", prefixStyle = ArgParser.OptionPrefixStyle.JVM)
 
@@ -212,7 +210,7 @@ private fun parseSourceSet(moduleName: String, args: Array<String>): DokkaConfig
 
     parser.parse(args)
 
-    return object : DokkaConfiguration.DokkaSourceSet {
+    return object : DokkaSourceSet {
         override val displayName = displayName
         override val sourceSetID = DokkaSourceSetID(moduleName, sourceSetName)
         override val classpath = classpath.toMutableList()
@@ -263,8 +261,8 @@ object ArgTypePlugin : ArgType<Map<String, String>>(true) {
         get() = "{ String fqName=json, remember to escape `\"` inside json }"
 }
 
-object ArgTypeSourceLinkDefinition : ArgType<DokkaConfiguration.SourceLinkDefinition>(true) {
-    override fun convert(value: kotlin.String, name: kotlin.String): DokkaConfiguration.SourceLinkDefinition =
+object ArgTypeSourceLinkDefinition : ArgType<DokkaSourceSet.SourceLinkDefinition>(true) {
+    override fun convert(value: kotlin.String, name: kotlin.String): DokkaSourceSet.SourceLinkDefinition =
         if (value.isNotEmpty() && value.contains("="))
             SourceLinkDefinitionImpl.parseSourceLinkDefinition(value)
         else {
@@ -276,8 +274,8 @@ object ArgTypeSourceLinkDefinition : ArgType<DokkaConfiguration.SourceLinkDefini
 }
 
 data class ArgTypeArgument(val moduleName: CLIEntity<kotlin.String>) :
-    ArgType<DokkaConfiguration.DokkaSourceSet>(true) {
-    override fun convert(value: kotlin.String, name: kotlin.String): DokkaConfiguration.DokkaSourceSet =
+    ArgType<DokkaSourceSet>(true) {
+    override fun convert(value: kotlin.String, name: kotlin.String): DokkaSourceSet =
         parseSourceSet(moduleName.value, value.split(" ").filter { it.isNotBlank() }.toTypedArray())
 
     override val description: kotlin.String
@@ -295,7 +293,7 @@ data class ArgTypeHelpSourceSet(val moduleName: CLIEntity<kotlin.String>) : ArgT
 }
 
 @OptIn(ExperimentalStdlibApi::class)
-fun defaultLinks(config: DokkaConfiguration.DokkaSourceSet): MutableList<ExternalDocumentationLink> =
+fun defaultLinks(config: DokkaSourceSet): MutableList<ExternalDocumentationLink> =
     buildList<ExternalDocumentationLink> {
         if (!config.noJdkLink) {
             add(ExternalDocumentationLink.jdk(config.jdkVersion))
@@ -329,11 +327,11 @@ fun parseLinks(links: List<String>): List<ExternalDocumentationLink> {
 fun main(args: Array<String>) {
     val globalArguments = GlobalArguments(args)
     val configuration = if (globalArguments.json != null)
-        DokkaConfigurationImpl(
+        DokkaModuleConfigurationImpl(
             Paths.get(checkNotNull(globalArguments.json)).toFile().readText()
         )
     else
         globalArguments
-    DokkaGenerator(configuration, DokkaConsoleLogger).generate()
+    DokkaGenerator(DokkaConsoleLogger).generate(configuration)
 }
 

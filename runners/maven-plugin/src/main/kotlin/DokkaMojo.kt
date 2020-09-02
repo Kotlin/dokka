@@ -29,7 +29,7 @@ import org.eclipse.aether.transport.file.FileTransporterFactory
 import org.eclipse.aether.transport.http.HttpTransporterFactory
 import org.eclipse.aether.util.graph.visitor.PreorderNodeListGenerator
 import org.jetbrains.dokka.*
-import org.jetbrains.dokka.DokkaConfiguration.ExternalDocumentationLink
+import org.jetbrains.dokka.DokkaSourceSet.ExternalDocumentationLink
 import java.io.File
 import java.net.URL
 
@@ -63,7 +63,7 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
     @Parameter()
     private var session: RepositorySystemSession? = null
 
-    class PackageOptions : DokkaConfiguration.PackageOptions {
+    class PackageOptions : DokkaSourceSet.PackageOptions {
         @Parameter
         override var prefix: String = ""
 
@@ -224,7 +224,7 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
 
         val logger = MavenDokkaLogger(log)
 
-        val configuration = DokkaConfigurationImpl(
+        val configuration = DokkaModuleConfigurationImpl(
             moduleName = moduleName,
             outputDir = File(getOutDir()),
             offlineMode = offlineMode,
@@ -234,13 +234,11 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
                     dokkaPlugins.map { getArtifactByAether(it.groupId, it.artifactId, it.version ?: dokkaVersion) }
                         .flatten(),
             pluginsConfiguration = mutableMapOf(), //TODO implement as it is in Gradle
-            modules = emptyList(),
             failOnWarning = failOnWarning
         )
 
-        val gen = DokkaGenerator(configuration, logger)
-
-        gen.generate()
+        val gen = DokkaGenerator(logger)
+        gen.generate(configuration)
     }
 
     private fun newRepositorySystem(): RepositorySystem {

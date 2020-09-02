@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test
 class DRITest : AbstractCoreTest() {
     @Test
     fun issue634() {
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             sourceSets {
                 sourceSet {
                     sourceRoots = listOf("src/")
@@ -51,7 +51,7 @@ class DRITest : AbstractCoreTest() {
 
     @Test
     fun issue634WithImmediateNullableSelf() {
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             sourceSets {
                 sourceSet {
                     sourceRoots = listOf("src/")
@@ -81,7 +81,7 @@ class DRITest : AbstractCoreTest() {
 
     @Test
     fun issue634WithGenericNullableReceiver() {
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             sourceSets {
                 sourceSet {
                     sourceRoots = listOf("src/")
@@ -111,7 +111,7 @@ class DRITest : AbstractCoreTest() {
 
     @Test
     fun issue642WithStarAndAny() {
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             sourceSets {
                 sourceSet {
                     analysisPlatform = "js"
@@ -170,7 +170,7 @@ class DRITest : AbstractCoreTest() {
 
     @Test
     fun driForGenericClass(){
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             sourceSets {
                 sourceSet {
                     sourceRoots = listOf("src/")
@@ -200,7 +200,7 @@ class DRITest : AbstractCoreTest() {
 
     @Test
     fun driForGenericFunction(){
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             sourceSets {
                 sourceSet {
                     sourceRoots = listOf("src/")
@@ -242,7 +242,7 @@ class DRITest : AbstractCoreTest() {
 
     @Test
     fun driForFunctionNestedInsideInnerClass() {
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             sourceSets {
                 sourceSet {
                     sourceRoots = listOf("src/")
@@ -279,7 +279,7 @@ class DRITest : AbstractCoreTest() {
 
     @Test
     fun driForGenericExtensionFunction(){
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             sourceSets {
                 sourceSet {
                     sourceRoots = listOf("src/")
@@ -317,7 +317,7 @@ class DRITest : AbstractCoreTest() {
 
     @Test
     fun `deep recursive typebound #1342`() {
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             sourceSets {
                 sourceSet {
                     sourceRoots = listOf("src/")

@@ -2,7 +2,7 @@
 
 package org.jetbrains.dokka.analysis
 
-import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
+import org.jetbrains.dokka.DokkaSourceSet
 import org.jetbrains.dokka.DokkaSourceSetID
 import org.jetbrains.dokka.model.SourceSetDependent
 import org.jetbrains.dokka.plugability.DokkaContext

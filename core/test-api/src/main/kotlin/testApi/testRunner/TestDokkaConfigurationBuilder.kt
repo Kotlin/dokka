@@ -9,14 +9,14 @@ import org.jetbrains.dokka.model.doc.Text
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import java.io.File
 
-fun dokkaConfiguration(block: TestDokkaConfigurationBuilder.() -> Unit): DokkaConfigurationImpl =
-    TestDokkaConfigurationBuilder().apply(block).build()
+fun DokkaModuleConfiguration(block: TestDokkaModuleConfigurationBuilder.() -> Unit): DokkaModuleConfigurationImpl =
+    TestDokkaModuleConfigurationBuilder().apply(block).build()
 
 @DslMarker
-annotation class DokkaConfigurationDsl
+annotation class DokkaModuleConfigurationDsl
 
-@DokkaConfigurationDsl
-class TestDokkaConfigurationBuilder {
+@DokkaModuleConfigurationDsl
+class TestDokkaModuleConfigurationBuilder {
 
     var moduleName: String = "root"
         set(value) {
@@ -32,7 +32,7 @@ class TestDokkaConfigurationBuilder {
     var pluginsConfigurations: Map<String, String> = emptyMap()
     var failOnWarning: Boolean = false
     private val lazySourceSets = mutableListOf<Lazy<DokkaSourceSetImpl>>()
-    fun build() = DokkaConfigurationImpl(
+    fun build() = DokkaModuleConfigurationImpl(
         moduleName = moduleName,
         outputDir = File(outputDir),
         cacheRoot = cacheRoot?.let(::File),
@@ -40,7 +40,6 @@ class TestDokkaConfigurationBuilder {
         sourceSets = lazySourceSets.map { it.value }.toList(),
         pluginsClasspath = pluginsClasspath,
         pluginsConfiguration = pluginsConfigurations,
-        modules = emptyList(),
         failOnWarning = failOnWarning
     )
 
@@ -59,13 +58,13 @@ class TestDokkaConfigurationBuilder {
     }
 }
 
-@DokkaConfigurationDsl
+@DokkaModuleConfigurationDsl
 class SourceSetsBuilder(val moduleName: String) : ArrayList<Lazy<DokkaSourceSetImpl>>() {
-    fun sourceSet(block: DokkaSourceSetBuilder.() -> Unit): Lazy<DokkaConfiguration.DokkaSourceSet> =
+    fun sourceSet(block: DokkaSourceSetBuilder.() -> Unit): Lazy<DokkaSourceSet> =
         lazy { DokkaSourceSetBuilder(moduleName).apply(block).build() }.apply(::add)
 }
 
-@DokkaConfigurationDsl
+@DokkaModuleConfigurationDsl
 class DokkaSourceSetBuilder(
     private val moduleName: String,
     var name: String = "main",
@@ -139,7 +138,7 @@ val defaultSourceSet = DokkaSourceSetImpl(
     analysisPlatform = Platform.DEFAULT
 )
 
-fun sourceSet(name: String): DokkaConfiguration.DokkaSourceSet {
+fun sourceSet(name: String): DokkaSourceSet {
     return defaultSourceSet.copy(
         displayName = name,
         sourceSetID = defaultSourceSet.sourceSetID.copy(sourceSetName = name)
@@ -150,8 +149,8 @@ fun dModule(
     name: String,
     packages: List<DPackage> = emptyList(),
     documentation: SourceSetDependent<DocumentationNode> = emptyMap(),
-    expectPresentInSet: DokkaConfiguration.DokkaSourceSet? = null,
-    sourceSets: Set<DokkaConfiguration.DokkaSourceSet> = emptySet(),
+    expectPresentInSet: DokkaSourceSet? = null,
+    sourceSets: Set<DokkaSourceSet> = emptySet(),
     extra: PropertyContainer<DModule> = PropertyContainer.empty()
 ): DModule = DModule(
     name = name,
@@ -169,8 +168,8 @@ fun dPackage(
     classlikes: List<DClasslike> = emptyList(),
     typealiases: List<DTypeAlias> = emptyList(),
     documentation: SourceSetDependent<DocumentationNode> = emptyMap(),
-    expectPresentInSet: DokkaConfiguration.DokkaSourceSet? = null,
-    sourceSets: Set<DokkaConfiguration.DokkaSourceSet> = emptySet(),
+    expectPresentInSet: DokkaSourceSet? = null,
+    sourceSets: Set<DokkaSourceSet> = emptySet(),
     extra: PropertyContainer<DPackage> = PropertyContainer.empty()
 ): DPackage = DPackage(
     dri = dri,

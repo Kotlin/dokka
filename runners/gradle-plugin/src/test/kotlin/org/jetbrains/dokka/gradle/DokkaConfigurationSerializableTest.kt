@@ -2,7 +2,7 @@ package org.jetbrains.dokka.gradle
 
 import org.gradle.kotlin.dsl.withType
 import org.gradle.testfixtures.ProjectBuilder
-import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.DokkaModuleConfiguration
 import org.jetbrains.dokka.toJsonString
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
@@ -14,7 +14,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 @Suppress("UnstableApiUsage")
-class DokkaConfigurationSerializableTest {
+class DokkaModuleConfigurationSerializableTest {
 
     @get:Rule
     val temporaryFolder = TemporaryFolder()
@@ -51,13 +51,13 @@ class DokkaConfigurationSerializableTest {
             }
         }
 
-        val sourceConfiguration = dokkaTask.buildDokkaConfiguration()
+        val sourceConfiguration = dokkaTask.buildDokkaModuleConfiguration()
         val configurationFile = temporaryFolder.root.resolve("config.bin")
         ObjectOutputStream(configurationFile.outputStream()).use { stream ->
             stream.writeObject(sourceConfiguration)
         }
         val parsedConfiguration = ObjectInputStream(configurationFile.inputStream()).use { stream ->
-            stream.readObject() as DokkaConfiguration
+            stream.readObject() as DokkaModuleConfiguration
         }
 
         assertEquals(sourceConfiguration, parsedConfiguration)

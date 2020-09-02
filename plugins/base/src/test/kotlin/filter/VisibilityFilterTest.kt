@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
 class VisibilityFilterTest : AbstractCoreTest() {
     @Test
     fun `public function with false global includeNonPublic`() {
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             sourceSets {
                 sourceSet {
                     includeNonPublic = false
@@ -38,7 +38,7 @@ class VisibilityFilterTest : AbstractCoreTest() {
     }
     @Test
     fun `private function with false global includeNonPublic`() {
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             sourceSets {
                 sourceSet {
                     includeNonPublic = false
@@ -68,7 +68,7 @@ class VisibilityFilterTest : AbstractCoreTest() {
     }
     @Test
     fun `private function with true global includeNonPublic`() {
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             sourceSets {
                 sourceSet {
                     sourceRoots = listOf("src/main/kotlin/basic/Test.kt")
@@ -98,7 +98,7 @@ class VisibilityFilterTest : AbstractCoreTest() {
     }
     @Test
     fun `private function with false global true package includeNonPublic`() {
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             sourceSets {
                 sourceSet {
                     sourceRoots = listOf("src/main/kotlin/basic/Test.kt")
@@ -135,7 +135,7 @@ class VisibilityFilterTest : AbstractCoreTest() {
     }
     @Test
     fun `private function with true global false package includeNonPublic`() {
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             sourceSets {
                 sourceSet {
                     sourceRoots = listOf("src/main/kotlin/basic/Test.kt")

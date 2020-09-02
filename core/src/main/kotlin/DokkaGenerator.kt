@@ -3,10 +3,8 @@
 package org.jetbrains.dokka
 
 import org.jetbrains.dokka.model.DModule
-import org.jetbrains.dokka.DokkaConfiguration.*
 import org.jetbrains.dokka.pages.RootPageNode
-import org.jetbrains.dokka.plugability.DokkaContext
-import org.jetbrains.dokka.plugability.DokkaPlugin
+import org.jetbrains.dokka.plugability.*
 import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.dokka.utilities.report
 
@@ -17,10 +15,9 @@ import org.jetbrains.dokka.utilities.report
  * [generate] method has been split into submethods for test reasons
  */
 class DokkaGenerator(
-    private val configuration: DokkaConfiguration,
     private val logger: DokkaLogger
 ) {
-    fun generate() = timed(logger) {
+    fun generate(configuration: DokkaModuleConfiguration) = timed(logger) {
         printDokkaMaturityWarning(logger)
 
         report("Initializing plugins")
@@ -50,7 +47,7 @@ class DokkaGenerator(
         reportAfterRendering(context)
     }.dump("\n\n === TIME MEASUREMENT ===\n")
 
-    fun generateAllModulesPage() = timed {
+    fun generateAllModulesPage(configuration: DokkaMultiModuleConfiguration) = timed {
         report("Initializing plugins")
         val context = initializePlugins(configuration, logger)
 
@@ -66,60 +63,67 @@ class DokkaGenerator(
 
 
     fun initializePlugins(
-        configuration: DokkaConfiguration,
+        configuration: DokkaMultiModuleConfiguration,
         logger: DokkaLogger,
         additionalPlugins: List<DokkaPlugin> = emptyList()
-    ) = DokkaContext.create(configuration, logger, additionalPlugins)
+    ) = DokkaMultiModuleContext(configuration, logger, additionalPlugins)
+
+    fun initializePlugins(
+        configuration: DokkaModuleConfiguration,
+        logger: DokkaLogger,
+        additionalPlugins: List<DokkaPlugin> = emptyList()
+    ) = DokkaModuleContext(configuration, logger, additionalPlugins)
+
 
     fun createDocumentationModels(
-        context: DokkaContext
+        context: DokkaModuleContext
     ) = context.configuration.sourceSets
         .flatMap { sourceSet -> translateSources(sourceSet, context) }
         .also { modules -> if (modules.isEmpty()) exitGenerationGracefully("Nothing to document") }
 
     fun transformDocumentationModelBeforeMerge(
         modulesFromPlatforms: List<DModule>,
-        context: DokkaContext
-    ) = context[CoreExtensions.preMergeDocumentableTransformer].fold(modulesFromPlatforms) { acc, t -> t(acc) }
+        context: DokkaModuleContext
+    ) = context[CoreExtensions.preMergeDocumentableTransformer].fold(modulesFromPlatforms) { acc, t -> t(acc, context) }
 
     fun mergeDocumentationModels(
         modulesFromPlatforms: List<DModule>,
-        context: DokkaContext
+        context: DokkaModuleContext
     ) = context.single(CoreExtensions.documentableMerger).invoke(modulesFromPlatforms, context)
 
     fun transformDocumentationModelAfterMerge(
         documentationModel: DModule,
-        context: DokkaContext
+        context: DokkaModuleContext
     ) = context[CoreExtensions.documentableTransformer].fold(documentationModel) { acc, t -> t(acc, context) }
 
     fun createPages(
         transformedDocumentation: DModule,
-        context: DokkaContext
+        context: DokkaModuleContext
     ) = context.single(CoreExtensions.documentableToPageTranslator).invoke(transformedDocumentation)
 
     fun createAllModulePage(
-        context: DokkaContext
+        context: DokkaMultiModuleContext
     ) = context.single(CoreExtensions.allModulePageCreator).invoke()
 
     fun transformPages(
         pages: RootPageNode,
-        context: DokkaContext
-    ) = context[CoreExtensions.pageTransformer].fold(pages) { acc, t -> t(acc) }
+        context: DokkaModuleContext
+    ) = context[CoreExtensions.pageTransformer].fold(pages) { acc, t -> t(acc, context) }
 
     fun transformAllModulesPage(
         pages: RootPageNode,
-        context: DokkaContext
-    ) = context[CoreExtensions.allModulePageTransformer].fold(pages) { acc, t -> t(acc) }
+        context: DokkaMultiModuleContext
+    ) = context[CoreExtensions.allModulePageTransformer].fold(pages) { acc, t -> t(acc, context) }
 
     fun render(
         transformedPages: RootPageNode,
-        context: DokkaContext
+        context: DokkaBaseContext
     ) {
         val renderer = context.single(CoreExtensions.renderer)
         renderer.render(transformedPages)
     }
 
-    fun reportAfterRendering(context: DokkaContext) {
+    fun reportAfterRendering(context: DokkaModuleContext) {
         context.unusedPoints.takeIf { it.isNotEmpty() }?.also {
             logger.info("Unused extension points found: ${it.joinToString(", ")}")
         }
@@ -133,7 +137,7 @@ class DokkaGenerator(
         }
     }
 
-    private fun translateSources(sourceSet: DokkaSourceSet, context: DokkaContext) =
+    private fun translateSources(sourceSet: DokkaSourceSet, context: DokkaModuleContext) =
         context[CoreExtensions.sourceToDocumentableTranslator].map {
             it.invoke(sourceSet, context)
         }

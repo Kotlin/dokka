@@ -13,7 +13,7 @@ abstract class AbstractExpectTest(
 ) : AbstractCoreTest() {
 
     protected fun generateOutput(path: Path, outFormat: String): Path? {
-        val config = dokkaConfiguration {
+        val config = DokkaModuleConfiguration {
             format = outFormat
             sourceSets {
                 sourceSet {

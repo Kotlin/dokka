@@ -9,7 +9,8 @@ import java.io.Serializable
 import java.net.URL
 
 object DokkaDefaults {
-    val moduleName: String = "root"
+    const val projectName: String = "Project"
+    const val moduleName: String = "root"
     val outputDir = File("./dokka")
     const val format: String = "html"
     val cacheRoot: File? = null
@@ -53,11 +54,11 @@ enum class Platform(val key: String) {
     }
 }
 
-interface DokkaConfigurationBuilder<T : Any> {
+interface DokkaModuleConfigurationBuilder<T : Any> {
     fun build(): T
 }
 
-fun <T : Any> Iterable<DokkaConfigurationBuilder<T>>.build(): List<T> = this.map { it.build() }
+fun <T : Any> Iterable<DokkaModuleConfigurationBuilder<T>>.build(): List<T> = this.map { it.build() }
 
 
 data class DokkaSourceSetID(
@@ -77,55 +78,58 @@ data class DokkaSourceSetID(
     }
 }
 
-fun DokkaConfigurationImpl(json: String): DokkaConfigurationImpl = parseJson(json)
+fun DokkaModuleConfigurationImpl(json: String): DokkaModuleConfigurationImpl = parseJson(json)
 
-fun DokkaConfiguration.toJsonString(): String = toJsonString(this)
+fun DokkaMultiModuleConfigurationImpl(json: String): DokkaMultiModuleConfigurationImpl = parseJson(json)
 
-interface DokkaConfiguration : Serializable {
-    val moduleName: String
+fun DokkaModuleConfiguration.toJsonString(): String = toJsonString(this)
+
+interface DokkaBaseConfiguration : Serializable {
     val outputDir: File
     val cacheRoot: File?
     val offlineMode: Boolean
     val failOnWarning: Boolean
-    val sourceSets: List<DokkaSourceSet>
-    val modules: List<DokkaModuleDescription>
     val pluginsClasspath: List<File>
     val pluginsConfiguration: Map<String, String>
+}
 
-    interface DokkaSourceSet : Serializable {
-        val sourceSetID: DokkaSourceSetID
-        val displayName: String
-        val classpath: List<File>
-        val sourceRoots: Set<File>
-        val dependentSourceSets: Set<DokkaSourceSetID>
-        val samples: Set<File>
-        val includes: Set<File>
-        val includeNonPublic: Boolean
-        val reportUndocumented: Boolean
-        val skipEmptyPackages: Boolean
-        val skipDeprecated: Boolean
-        val jdkVersion: Int
-        val sourceLinks: Set<SourceLinkDefinition>
-        val perPackageOptions: List<PackageOptions>
-        val externalDocumentationLinks: Set<ExternalDocumentationLink>
-        val languageVersion: String?
-        val apiVersion: String?
-        val noStdlibLink: Boolean
-        val noJdkLink: Boolean
-        val suppressedFiles: Set<File>
-        val analysisPlatform: Platform
-    }
+interface DokkaMultiModuleConfiguration : DokkaBaseConfiguration {
+    val projectName: String
+    val modules: List<DokkaModuleConfiguration>
+}
+
+interface DokkaModuleConfiguration : DokkaBaseConfiguration {
+    val moduleName: String
+    val sourceSets: List<DokkaSourceSet>
+}
+
+interface DokkaSourceSet : Serializable {
+    val sourceSetID: DokkaSourceSetID
+    val displayName: String
+    val classpath: List<File>
+    val sourceRoots: Set<File>
+    val dependentSourceSets: Set<DokkaSourceSetID>
+    val samples: Set<File>
+    val includes: Set<File>
+    val includeNonPublic: Boolean
+    val reportUndocumented: Boolean
+    val skipEmptyPackages: Boolean
+    val skipDeprecated: Boolean
+    val jdkVersion: Int
+    val sourceLinks: Set<SourceLinkDefinition>
+    val perPackageOptions: List<PackageOptions>
+    val externalDocumentationLinks: Set<ExternalDocumentationLink>
+    val languageVersion: String?
+    val apiVersion: String?
+    val noStdlibLink: Boolean
+    val noJdkLink: Boolean
+    val suppressedFiles: Set<File>
+    val analysisPlatform: Platform
 
     interface SourceLinkDefinition : Serializable {
         val localDirectory: String
         val remoteUrl: URL
         val remoteLineSuffix: String?
-    }
-
-    interface DokkaModuleDescription : Serializable {
-        val name: String
-        val relativePathToOutputDirectory: File
-        val includes: Set<File>
     }
 
     interface PackageOptions : Serializable {
@@ -142,6 +146,26 @@ interface DokkaConfiguration : Serializable {
 
         companion object
     }
+}
+
+@Deprecated(
+    "Use DokkaModuleConfiguration instead",
+    replaceWith = ReplaceWith("DokkaModuleConfiguration", "org.jetbrains.dokka.DokkaMultiModuleConfiguration")
+)
+interface DokkaConfiguration : DokkaBaseConfiguration {
+    val moduleName: String
+
+    @Deprecated("Use org.jetbrains.dokka.DokkaSourceSet instead")
+    interface DokkaSourceSet : org.jetbrains.dokka.DokkaSourceSet
+
+    @Deprecated("Use org.jetbrains.dokka.DokkaSourceSet.SourceLinkDefinition instead")
+    interface SourceLinkDefinition : org.jetbrains.dokka.DokkaSourceSet.SourceLinkDefinition
+
+    @Deprecated("Use org.jetbrains.dokka.DokkaSourceSet.PackageOptions instead")
+    interface PackageOptions : org.jetbrains.dokka.DokkaSourceSet.PackageOptions
+
+    @Deprecated("Use org.jetbrains.dokka.DokkaSourceSet.SourceLinkDefinition instead")
+    interface ExternalDocumentationLink : org.jetbrains.dokka.DokkaSourceSet.ExternalDocumentationLink
 }
 
 fun ExternalDocumentationLink(

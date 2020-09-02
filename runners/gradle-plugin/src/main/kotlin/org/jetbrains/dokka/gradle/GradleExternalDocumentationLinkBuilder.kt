@@ -5,14 +5,14 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
-import org.jetbrains.dokka.DokkaConfigurationBuilder
+import org.jetbrains.dokka.DokkaModuleConfigurationBuilder
 import org.jetbrains.dokka.ExternalDocumentationLink
 import org.jetbrains.dokka.ExternalDocumentationLinkImpl
 import java.net.URL
 
 class GradleExternalDocumentationLinkBuilder(
     @Transient @get:Internal internal val project: Project
-) : DokkaConfigurationBuilder<ExternalDocumentationLinkImpl> {
+) : DokkaModuleConfigurationBuilder<ExternalDocumentationLinkImpl> {
     @Input
     val url: Property<URL?> = project.objects.safeProperty()
 

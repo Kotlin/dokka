@@ -11,7 +11,7 @@ class DefaultPsiToDocumentableTranslatorTest : AbstractCoreTest() {
 
     @Test
     fun `method overriding two documented classes picks closest class documentation`() {
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             sourceSets {
                 sourceSet {
                     sourceRoots = listOf("src/main/java")
@@ -56,7 +56,7 @@ class DefaultPsiToDocumentableTranslatorTest : AbstractCoreTest() {
 
     @Test
     fun `method overriding class and interface picks class documentation`() {
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             sourceSets {
                 sourceSet {
                     sourceRoots = listOf("src/main/java")
@@ -101,7 +101,7 @@ class DefaultPsiToDocumentableTranslatorTest : AbstractCoreTest() {
 
     @Test
     fun `method overriding two classes picks closest documented class documentation`() {
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             sourceSets {
                 sourceSet {
                     sourceRoots = listOf("src/main/java")

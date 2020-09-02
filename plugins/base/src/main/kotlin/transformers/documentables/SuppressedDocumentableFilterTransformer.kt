@@ -2,14 +2,15 @@ package org.jetbrains.dokka.base.transformers.documentables
 
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.plugability.DokkaContext
+import org.jetbrains.dokka.plugability.DokkaModuleContext
 import org.jetbrains.dokka.transformers.documentation.PreMergeDocumentableTransformer
 import org.jetbrains.dokka.transformers.documentation.perPackageOptions
 import org.jetbrains.dokka.transformers.documentation.source
 import org.jetbrains.dokka.transformers.documentation.sourceSet
 import java.io.File
 
-class SuppressedDocumentableFilterTransformer(val context: DokkaContext) : PreMergeDocumentableTransformer {
-    override fun invoke(modules: List<DModule>): List<DModule> {
+object SuppressedDocumentableFilterTransformer : PreMergeDocumentableTransformer {
+    override fun invoke(modules: List<DModule>, context: DokkaModuleContext): List<DModule> {
         return modules.mapNotNull(::filterModule)
     }
 

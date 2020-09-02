@@ -3,8 +3,7 @@ package org.jetbrains.dokka.gradle
 import org.gradle.api.internal.tasks.TaskDependencyInternal
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
-import org.jetbrains.dokka.DokkaConfigurationImpl
-import org.jetbrains.dokka.DokkaModuleDescriptionImpl
+import org.jetbrains.dokka.DokkaModuleConfigurationImpl
 import org.jetbrains.dokka.DokkaMultimoduleBootstrapImpl
 import java.io.File
 
@@ -45,7 +44,7 @@ abstract class DokkaMultiModuleTask : AbstractDokkaParentTask(DokkaMultimoduleBo
         super.generateDocumentation()
     }
 
-    override fun buildDokkaConfiguration(): DokkaConfigurationImpl = DokkaConfigurationImpl(
+    override fun buildDokkaModuleConfiguration(): DokkaModuleConfigurationImpl = TODO() /*DokkaModuleConfigurationImpl(
         moduleName = moduleName.getSafe(),
         outputDir = outputDirectory.getSafe(),
         cacheRoot = cacheRoot.getSafe(),
@@ -60,6 +59,6 @@ abstract class DokkaMultiModuleTask : AbstractDokkaParentTask(DokkaMultimoduleBo
                 includes = childDokkaTaskIncludes[dokkaTask.path].orEmpty()
             )
         }
-    )
+    )*/
 }
 

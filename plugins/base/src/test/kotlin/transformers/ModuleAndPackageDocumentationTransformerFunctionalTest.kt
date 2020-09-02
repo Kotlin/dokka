@@ -34,7 +34,7 @@ class ModuleAndPackageDocumentationTransformerFunctionalTest : AbstractCoreTest(
             This is the js package
             """.trimIndent()
         )
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             moduleName = "moduleA"
             sourceSets {
                 sourceSet {

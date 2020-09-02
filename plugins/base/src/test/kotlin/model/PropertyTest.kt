@@ -168,7 +168,7 @@ class PropertyTest : AbstractModelTest("/src/main/kotlin/property/Test.kt", "pro
             """
                 |@Strictfp var property = "test"
                 """,
-            configuration = dokkaConfiguration {
+            configuration = DokkaModuleConfiguration {
                 sourceSets {
                     sourceSet {
                         sourceRoots = listOf("src/")

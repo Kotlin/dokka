@@ -15,7 +15,7 @@ class DivergentSignatureTest : AbstractCoreTest() {
 
         val testDataDir = getTestDataDir("multiplatform/basicMultiplatformTest").toAbsolutePath()
 
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             moduleName = "example"
             sourceSets {
                 sourceSet {
@@ -65,7 +65,7 @@ class DivergentSignatureTest : AbstractCoreTest() {
 
         val testDataDir = getTestDataDir("multiplatform/basicMultiplatformTest").toAbsolutePath()
 
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             moduleName = "example"
             sourceSets {
                 sourceSet {
@@ -115,7 +115,7 @@ class DivergentSignatureTest : AbstractCoreTest() {
 
         val testDataDir = getTestDataDir("multiplatform/basicMultiplatformTest").toAbsolutePath()
 
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             moduleName = "example"
             sourceSets {
                 sourceSet {

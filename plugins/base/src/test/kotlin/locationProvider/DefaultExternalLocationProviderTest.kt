@@ -18,7 +18,7 @@ class DefaultExternalLocationProviderTest : AbstractCoreTest() {
         getTestDataDir("locationProvider").toAbsolutePath().toString().removePrefix("/").let { "/$it" }
     private val kotlinLang = "https://kotlinlang.org/api/latest/jvm/stdlib"
     private val packageListURL = URL("file://$testDataDir/stdlib-package-list")
-    private val configuration = dokkaConfiguration {
+    private val configuration = DokkaModuleConfiguration {
         sourceSets {
             sourceSet {
                 sourceRoots = listOf("src/")

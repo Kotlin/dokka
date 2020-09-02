@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
 class Bug1341 : AbstractCoreTest() {
     @Test
     fun `reproduce bug #1341`() {
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             sourceSets {
                 sourceSet {
                     sourceRoots = listOf("src")

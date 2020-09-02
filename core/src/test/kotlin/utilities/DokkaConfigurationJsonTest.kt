@@ -5,10 +5,10 @@ import java.io.File
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class DokkaConfigurationJsonTest {
+class DokkaModuleConfigurationJsonTest {
     @Test
     fun `simple configuration toJsonString then parseJson`() {
-        val configuration = DokkaConfigurationImpl(
+        val configuration = DokkaModuleConfigurationImpl(
             moduleName = "moduleName",
             outputDir = File("customOutputDir"),
             pluginsClasspath = listOf(File("plugins/customPlugin.jar")),
@@ -21,7 +21,7 @@ class DokkaConfigurationJsonTest {
         )
 
         val jsonString = configuration.toJsonString()
-        val parsedConfiguration = DokkaConfigurationImpl(jsonString)
+        val parsedConfiguration = DokkaModuleConfigurationImpl(jsonString)
         assertEquals(configuration, parsedConfiguration)
     }
 
@@ -45,9 +45,9 @@ class DokkaConfigurationJsonTest {
             }
         """.trimIndent()
 
-        val parsedConfiguration = DokkaConfigurationImpl(json)
+        val parsedConfiguration = DokkaModuleConfigurationImpl(json)
         assertEquals(
-            DokkaConfigurationImpl(
+            DokkaModuleConfigurationImpl(
                 moduleName = "moduleName",
                 outputDir = File("customOutputDir"),
                 pluginsClasspath = listOf(File("plugins/customPlugin.jar")),

@@ -3,7 +3,7 @@ package org.jetbrains.dokka.javadoc.location
 import org.jetbrains.dokka.javadoc.pages.JavadocClasslikePageNode
 import org.jetbrains.dokka.javadoc.pages.JavadocPackagePageNode
 import org.jetbrains.dokka.javadoc.renderer.JavadocContentToHtmlTranslator
-import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.DokkaModuleConfiguration
 import org.jetbrains.dokka.ExternalDocumentationLink
 import org.jetbrains.dokka.ExternalDocumentationLinkImpl
 import org.jetbrains.dokka.javadoc.JavadocPlugin
@@ -21,7 +21,7 @@ class JavadocLocationTest : AbstractCoreTest() {
     private fun locationTestInline(testHandler: (RootPageNode, DokkaContext) -> Unit) {
         fun externalLink(link: String) = ExternalDocumentationLink(link)
 
-        val config = dokkaConfiguration {
+        val config = DokkaModuleConfiguration {
             format = "javadoc"
             sourceSets {
                 sourceSet {

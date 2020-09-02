@@ -11,7 +11,7 @@ class SuppressedDocumentableFilterTransformerTest : AbstractCoreTest() {
 
     @Test
     fun `class filtered by package options`() {
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             sourceSets {
                 sourceSet {
                     sourceRoots = listOf("src")
@@ -52,7 +52,7 @@ class SuppressedDocumentableFilterTransformerTest : AbstractCoreTest() {
 
     @Test
     fun `class filtered by more specific package options`() {
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             sourceSets {
                 sourceSet {
                     sourceRoots = listOf("src")
@@ -100,7 +100,7 @@ class SuppressedDocumentableFilterTransformerTest : AbstractCoreTest() {
 
     @Test
     fun `class filtered by parent file path`() {
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             sourceSets {
                 sourceSet {
                     sourceRoots = listOf("src")
@@ -138,7 +138,7 @@ class SuppressedDocumentableFilterTransformerTest : AbstractCoreTest() {
 
     @Test
     fun `class filtered by exact file path`() {
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             sourceSets {
                 sourceSet {
                     sourceRoots = listOf("src")

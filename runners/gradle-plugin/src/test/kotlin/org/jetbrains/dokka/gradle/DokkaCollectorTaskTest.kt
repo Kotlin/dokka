@@ -3,7 +3,7 @@ package org.jetbrains.dokka.gradle
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.withType
 import org.gradle.testfixtures.ProjectBuilder
-import org.jetbrains.dokka.DokkaConfigurationImpl
+import org.jetbrains.dokka.DokkaModuleConfigurationImpl
 import org.jetbrains.dokka.DokkaException
 import java.io.File
 import kotlin.test.Test
@@ -14,7 +14,7 @@ import kotlin.test.assertTrue
 class DokkaCollectorTaskTest {
 
     @Test
-    fun buildDokkaConfiguration() {
+    fun buildDokkaModuleConfiguration() {
         val rootProject = ProjectBuilder.builder().build()
         val childProject = ProjectBuilder.builder().withParent(rootProject).build()
         childProject.plugins.apply("org.jetbrains.kotlin.jvm")
@@ -43,23 +43,23 @@ class DokkaCollectorTaskTest {
         assertTrue(collectorTasks.isNotEmpty(), "Expected at least one collector task")
 
         collectorTasks.toList().forEach { task ->
-            val dokkaConfiguration = task.buildDokkaConfiguration()
+            val DokkaModuleConfiguration = task.buildDokkaModuleConfiguration()
             assertEquals(
-                DokkaConfigurationImpl(
+                DokkaModuleConfigurationImpl(
                     moduleName = "custom Module Name",
                     outputDir = File("customOutputDirectory"),
                     cacheRoot = File("customCacheRoot"),
                     failOnWarning = true,
                     offlineMode = true,
                     sourceSets = task.childDokkaTasks
-                        .map { it.buildDokkaConfiguration() }
+                        .map { it.buildDokkaModuleConfiguration() }
                         .map { it.sourceSets }
                         .reduce { acc, list -> acc + list },
                     pluginsClasspath = task.childDokkaTasks
                         .map { it.plugins.resolve().toList() }
                         .reduce { acc, mutableSet -> acc + mutableSet }
                 ),
-                dokkaConfiguration
+                DokkaModuleConfiguration
             )
         }
     }

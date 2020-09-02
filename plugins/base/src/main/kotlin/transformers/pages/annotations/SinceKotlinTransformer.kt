@@ -6,12 +6,13 @@ import org.jetbrains.dokka.model.doc.CustomTagWrapper
 import org.jetbrains.dokka.model.doc.Text
 import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.jetbrains.dokka.plugability.DokkaContext
+import org.jetbrains.dokka.plugability.DokkaModuleContext
 import org.jetbrains.dokka.transformers.documentation.DocumentableTransformer
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 
-class SinceKotlinTransformer(val context: DokkaContext) : DocumentableTransformer {
+object SinceKotlinTransformer : DocumentableTransformer {
 
-    override fun invoke(original: DModule, context: DokkaContext) = original.transform() as DModule
+    override fun invoke(original: DModule, context: DokkaModuleContext) = original.transform() as DModule
 
     private fun <T : Documentable> T.transform(): Documentable =
         when (this) {

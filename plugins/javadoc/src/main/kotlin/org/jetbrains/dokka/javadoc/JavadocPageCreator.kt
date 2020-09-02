@@ -1,7 +1,7 @@
 package org.jetbrains.dokka.javadoc
 
 import org.jetbrains.dokka.javadoc.pages.*
-import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
+import org.jetbrains.dokka.DokkaSourceSet
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.base.signatures.SignatureProvider
 import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentConverter

@@ -43,7 +43,7 @@ class InheritorsTest : AbstractModelTest("/src/main/kotlin/inheritors/Test.kt", 
     @Disabled("reenable after fixing subtypes")
     @Test
     fun multiplatform() {
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             sourceSets {
                 sourceSet {
                     sourceRoots = listOf("common/src/", "jvm/src/")

@@ -7,9 +7,9 @@ import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.utilities.DokkaConsoleLogger
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import testApi.testRunner.TestDokkaConfigurationBuilder
+import testApi.testRunner.TestDokkaModuleConfigurationBuilder
 import testApi.testRunner.dPackage
-import testApi.testRunner.dokkaConfiguration
+import testApi.testRunner.DokkaModuleConfiguration
 import testApi.testRunner.sourceSet
 import kotlin.test.assertEquals
 
@@ -30,7 +30,7 @@ class ContextModuleAndPackageDocumentationReaderTest3 : AbstractContextModuleAnd
         )
     }
 
-    private val configurationBuilder = TestDokkaConfigurationBuilder()
+    private val configurationBuilder = TestDokkaModuleConfigurationBuilder()
 
     private val sourceSet by configurationBuilder.sourceSet {
         includes = listOf(include.canonicalPath)

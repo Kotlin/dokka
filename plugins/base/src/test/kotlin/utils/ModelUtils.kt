@@ -1,6 +1,6 @@
 package utils
 
-import org.jetbrains.dokka.DokkaConfigurationImpl
+import org.jetbrains.dokka.DokkaModuleConfigurationImpl
 import org.jetbrains.dokka.model.DModule
 import org.jetbrains.dokka.plugability.DokkaPlugin
 
@@ -12,10 +12,10 @@ abstract class AbstractModelTest(val path: String? = null, val pkg: String) : Mo
         prependPackage: Boolean = true,
         cleanupOutput: Boolean = true,
         pluginsOverrides: List<DokkaPlugin> = emptyList(),
-        configuration: DokkaConfigurationImpl? = null,
+        configuration: DokkaModuleConfigurationImpl? = null,
         block: DModule.() -> Unit
     ) {
-        val testConfiguration = configuration ?: dokkaConfiguration {
+        val testConfiguration = configuration ?: DokkaModuleConfiguration {
             sourceSets {
                 sourceSet {
                     sourceRoots = listOf("src/")

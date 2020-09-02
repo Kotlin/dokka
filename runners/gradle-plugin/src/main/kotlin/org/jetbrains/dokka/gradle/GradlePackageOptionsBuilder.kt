@@ -6,14 +6,14 @@ import org.gradle.api.Project
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
-import org.jetbrains.dokka.DokkaConfigurationBuilder
+import org.jetbrains.dokka.DokkaModuleConfigurationBuilder
 import org.jetbrains.dokka.DokkaDefaults
 import org.jetbrains.dokka.PackageOptionsImpl
 
 
 class GradlePackageOptionsBuilder(
     @Transient @get:Internal internal val project: Project
-) : DokkaConfigurationBuilder<PackageOptionsImpl> {
+) : DokkaModuleConfigurationBuilder<PackageOptionsImpl> {
     @Input
     val prefix: Property<String> = project.objects.safeProperty<String>()
         .safeConvention("")

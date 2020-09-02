@@ -24,7 +24,7 @@ class ObviousTypeSkippingTest : AbstractCoreTest(
             | $signature
             """.trimIndent()
 
-    private val configuration = dokkaConfiguration {
+    private val configuration = DokkaModuleConfiguration {
         sourceSets {
             sourceSet {
                 sourceRoots = listOf("src")

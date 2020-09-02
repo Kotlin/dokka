@@ -10,20 +10,12 @@ import org.jetbrains.dokka.utilities.DokkaLogger
 import java.util.function.BiConsumer
 
 class DokkaMultimoduleBootstrapImpl : DokkaBootstrap {
-
-    private lateinit var generator: DokkaGenerator
-
-    fun configure(logger: DokkaLogger, configuration: DokkaConfiguration) {
-        generator = DokkaGenerator(configuration, logger)
+    override fun generate(serializedConfigurationJSON: String, logger: BiConsumer<String, String>) {
+        val generator = DokkaGenerator(DokkaProxyLogger(logger))
+        val multiModuleConfiguration = DokkaMultiModuleConfigurationImpl(serializedConfigurationJSON)
+        for (moduleConfiguration in multiModuleConfiguration.modules) {
+            generator.generate(moduleConfiguration)
+        }
+        generator.generateAllModulesPage(multiModuleConfiguration)
     }
-
-    override fun configure(serializedConfigurationJSON: String, logger: BiConsumer<String, String>) = configure(
-        DokkaProxyLogger(logger),
-        DokkaConfigurationImpl(serializedConfigurationJSON)
-    )
-
-    override fun generate() {
-        generator.generateAllModulesPage()
-    }
-
 }

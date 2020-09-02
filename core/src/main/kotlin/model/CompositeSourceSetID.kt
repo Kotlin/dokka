@@ -1,6 +1,7 @@
 package org.jetbrains.dokka.model
 
-import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.DokkaModuleConfiguration
+import org.jetbrains.dokka.DokkaSourceSet
 import org.jetbrains.dokka.DokkaSourceSetID
 
 data class CompositeSourceSetID(
@@ -24,7 +25,7 @@ data class CompositeSourceSetID(
         return sourceSetId in all
     }
 
-    operator fun contains(sourceSet: DokkaConfiguration.DokkaSourceSet): Boolean {
+    operator fun contains(sourceSet: DokkaSourceSet): Boolean {
         return sourceSet.sourceSetID in this
     }
 

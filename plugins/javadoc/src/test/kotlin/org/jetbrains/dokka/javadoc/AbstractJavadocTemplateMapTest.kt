@@ -1,10 +1,9 @@
 package org.jetbrains.dokka.javadoc
 
-import org.jetbrains.dokka.DokkaConfigurationImpl
+import org.jetbrains.dokka.DokkaModuleConfigurationImpl
 import org.jetbrains.dokka.ExternalDocumentationLink
 import org.jetbrains.dokka.javadoc.pages.JavadocPageNode
 import org.jetbrains.dokka.javadoc.renderer.JavadocContentToTemplateMapTranslator
-import org.jetbrains.dokka.javadoc.JavadocPlugin
 import org.jetbrains.dokka.javadoc.location.JavadocLocationProvider
 import org.jetbrains.dokka.model.withDescendants
 import org.jetbrains.dokka.pages.RootPageNode
@@ -12,7 +11,7 @@ import org.jetbrains.dokka.plugability.*
 import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
 
 internal abstract class AbstractJavadocTemplateMapTest : AbstractCoreTest() {
-    protected var config: DokkaConfigurationImpl = dokkaConfiguration {
+    protected var config: DokkaModuleConfigurationImpl = DokkaModuleConfiguration {
         format = "javadoc"
         sourceSets {
             sourceSet {
@@ -60,7 +59,7 @@ internal abstract class AbstractJavadocTemplateMapTest : AbstractCoreTest() {
 
     fun testTemplateMapInline(
         query: String,
-        configuration: DokkaConfigurationImpl = config,
+        configuration: DokkaModuleConfigurationImpl = config,
         pluginsOverride: List<DokkaPlugin> = emptyList(),
         assertions: Result.() -> Unit
     ) {
@@ -79,7 +78,7 @@ internal abstract class AbstractJavadocTemplateMapTest : AbstractCoreTest() {
     fun dualTestTemplateMapInline(
         kotlin: String? = null,
         java: String? = null,
-        configuration: DokkaConfigurationImpl = config,
+        configuration: DokkaModuleConfigurationImpl = config,
         pluginsOverride: List<DokkaPlugin> = emptyList(),
         assertions: Result.() -> Unit
     ) {

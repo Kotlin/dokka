@@ -1,7 +1,7 @@
 package org.jetbrains.dokka.gradle
 
 import org.jetbrains.dokka.*
-import org.jetbrains.dokka.DokkaConfiguration.ExternalDocumentationLink
+import org.jetbrains.dokka.DokkaSourceSet.ExternalDocumentationLink
 import java.io.File
 
 internal fun GradleDokkaSourceSetBuilder.toDokkaSourceSetImpl(): DokkaSourceSetImpl = DokkaSourceSetImpl(

@@ -20,7 +20,7 @@ class DokkaTaskTest {
 
         assertEquals(
             listOf("main", "jvm").sorted(),
-            task.buildDokkaConfiguration().sourceSets.map { it.sourceSetID.sourceSetName }.sorted(),
+            task.buildDokkaModuleConfiguration().sourceSets.map { it.sourceSetID.sourceSetName }.sorted(),
             "Expected only unsuppressed source sets `main` and `test` to be present in built configuration"
         )
     }

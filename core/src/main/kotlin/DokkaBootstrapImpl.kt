@@ -1,6 +1,6 @@
 package org.jetbrains.dokka
 
-import org.jetbrains.dokka.DokkaConfiguration.PackageOptions
+import org.jetbrains.dokka.DokkaSourceSet.PackageOptions
 import org.jetbrains.dokka.utilities.DokkaLogger
 
 import java.util.function.BiConsumer
@@ -68,16 +68,8 @@ class DokkaBootstrapImpl : DokkaBootstrap {
         }
     }
 
-    private lateinit var generator: DokkaGenerator
-
-    fun configure(logger: DokkaLogger, configuration: DokkaConfigurationImpl) {
-        generator = DokkaGenerator(configuration, logger)
+    override fun generate(serializedConfigurationJSON: String, logger: BiConsumer<String, String>) {
+        val generator = DokkaGenerator(DokkaProxyLogger(logger))
+        generator.generate(DokkaModuleConfigurationImpl(serializedConfigurationJSON))
     }
-
-    override fun configure(serializedConfigurationJSON: String, logger: BiConsumer<String, String>) = configure(
-        DokkaProxyLogger(logger),
-        DokkaConfigurationImpl(serializedConfigurationJSON)
-    )
-
-    override fun generate() = generator.generate()
 }

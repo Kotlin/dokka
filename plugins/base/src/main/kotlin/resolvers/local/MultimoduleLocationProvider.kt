@@ -6,10 +6,30 @@ import org.jetbrains.dokka.model.DisplaySourceSet
 import org.jetbrains.dokka.pages.PageNode
 import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.DokkaContext
+import org.jetbrains.dokka.plugability.DokkaMultiModuleContext
 
-class MultimoduleLocationProvider(private val root: RootPageNode, context: DokkaContext) : LocationProvider {
+class MultimoduleLocationProvider(private val root: RootPageNode, context: DokkaMultiModuleContext) : LocationProvider {
+    override fun resolve(dri: DRI, sourceSets: Set<DisplaySourceSet>, context: PageNode?): String? {
+        TODO("Not yet implemented")
+    }
+
+    override fun resolve(node: PageNode, context: PageNode?, skipExtension: Boolean): String? {
+        TODO("Not yet implemented")
+    }
+
+    override fun pathToRoot(from: PageNode): String {
+        TODO("Not yet implemented")
+    }
+
+    override fun ancestors(node: PageNode): List<PageNode> {
+        TODO("Not yet implemented")
+    }
+
+
+    /* TODO NOW
 
     private val defaultLocationProvider = DokkaLocationProvider(root, context)
+
 
     val paths = context.configuration.modules.map {
         it.name to it.relativePathToOutputDirectory
@@ -30,4 +50,6 @@ class MultimoduleLocationProvider(private val root: RootPageNode, context: Dokka
     companion object {
         const val MULTIMODULE_PACKAGE_PLACEHOLDER = ".ext"
     }
+
+     */
 }

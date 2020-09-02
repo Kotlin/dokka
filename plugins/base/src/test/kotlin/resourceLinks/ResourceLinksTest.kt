@@ -25,7 +25,7 @@ class ResourceLinksTest : AbstractCoreTest() {
     }
     @Test
     fun resourceLinksTest() {
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             sourceSets {
                 sourceSet {
                     sourceRoots = listOf("src/main/kotlin/test/Test.kt")

@@ -1,11 +1,10 @@
 package org.jetbrains.dokka.gradle
 
 import org.gradle.api.Project
-import org.gradle.api.UnknownTaskException
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.getByName
 import org.gradle.testfixtures.ProjectBuilder
-import org.jetbrains.dokka.DokkaConfigurationImpl
+import org.jetbrains.dokka.DokkaModuleConfigurationImpl
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -190,7 +189,7 @@ class AbstractDokkaParentTaskTest {
 }
 
 internal open class TestDokkaParentTask : AbstractDokkaParentTask() {
-    override fun buildDokkaConfiguration(): DokkaConfigurationImpl {
+    override fun buildDokkaModuleConfiguration(): DokkaModuleConfigurationImpl {
         throw NotImplementedError()
     }
 }

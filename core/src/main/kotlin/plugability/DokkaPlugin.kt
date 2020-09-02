@@ -1,6 +1,7 @@
 package org.jetbrains.dokka.plugability
 
-import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.DokkaBaseConfiguration
+import org.jetbrains.dokka.DokkaModuleConfiguration
 import org.jetbrains.dokka.utilities.parseJson
 import org.jetbrains.dokka.utilities.toJsonString
 import kotlin.properties.ReadOnlyProperty
@@ -12,7 +13,7 @@ abstract class DokkaPlugin {
     private val extensionDelegates = mutableListOf<KProperty<*>>()
 
     @PublishedApi
-    internal var context: DokkaContext? = null
+    internal var context: DokkaBaseContext? = null
 
     protected inline fun <reified T : DokkaPlugin> plugin(): T = context?.plugin(T::class) ?: throwIllegalQuery()
 
@@ -36,7 +37,7 @@ abstract class DokkaPlugin {
         }.also { thisRef.extensionDelegates += property }
     }
 
-    internal fun internalInstall(ctx: DokkaContextConfiguration, configuration: DokkaConfiguration) {
+    internal fun internalInstall(ctx: DokkaContextConfiguration, configuration: DokkaBaseConfiguration) {
         extensionDelegates.asSequence()
             .filterIsInstance<KProperty1<DokkaPlugin, Extension<*, *, *>>>() // should be always true
             .map { it.get(this) }

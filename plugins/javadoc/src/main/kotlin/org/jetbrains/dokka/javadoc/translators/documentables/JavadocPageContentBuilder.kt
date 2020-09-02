@@ -1,7 +1,7 @@
 package org.jetbrains.dokka.javadoc.translators.documentables
 
 import org.jetbrains.dokka.javadoc.pages.JavadocSignatureContentNode
-import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.DokkaModuleConfiguration
 import org.jetbrains.dokka.base.signatures.SignatureProvider
 import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentConverter
 import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder
@@ -20,7 +20,7 @@ class JavadocPageContentBuilder(
 
     fun PageContentBuilder.DocumentableContentBuilder.javadocGroup(
         dri: DRI = mainDRI.first(),
-        sourceSets: Set<DokkaConfiguration.DokkaSourceSet> = mainSourcesetData,
+        sourceSets: Set<DokkaModuleConfiguration.DokkaSourceSet> = mainSourcesetData,
         extra: PropertyContainer<ContentNode> = mainExtra,
         block: JavadocContentBuilder.() -> Unit
     ) {
@@ -34,7 +34,7 @@ class JavadocPageContentBuilder(
     open inner class JavadocContentBuilder(
         private val mainDri: DRI,
         private val mainExtra: PropertyContainer<ContentNode>,
-        private val mainSourceSet: Set<DokkaConfiguration.DokkaSourceSet>,
+        private val mainSourceSet: Set<DokkaModuleConfiguration.DokkaSourceSet>,
     ) {
         var annotations: ContentNode? = null
         var modifiers: ContentNode? = null

@@ -4,7 +4,7 @@ package org.jetbrains.dokka.gradle
 
 import org.gradle.kotlin.dsl.*
 import org.gradle.testfixtures.ProjectBuilder
-import org.jetbrains.dokka.DokkaConfigurationImpl
+import org.jetbrains.dokka.DokkaModuleConfigurationImpl
 import org.jetbrains.dokka.DokkaException
 import org.jetbrains.dokka.DokkaModuleDescriptionImpl
 import java.io.File
@@ -52,7 +52,7 @@ class DokkaMultiModuleTaskTest {
     }
 
     @Test
-    fun buildDokkaConfiguration() {
+    fun buildDokkaModuleConfiguration() {
         val include1 = childDokkaTask.project.file("include1.md")
         val include2 = childDokkaTask.project.file("include2.md")
 
@@ -73,9 +73,9 @@ class DokkaMultiModuleTaskTest {
             offlineMode by true
         }
 
-        val dokkaConfiguration = multiModuleTask.buildDokkaConfiguration()
+        val DokkaModuleConfiguration = multiModuleTask.buildDokkaModuleConfiguration()
         assertEquals(
-            DokkaConfigurationImpl(
+            DokkaModuleConfigurationImpl(
                 moduleName = "custom Module Name",
                 outputDir = multiModuleTask.project.buildDir.resolve("customOutputDirectory"),
                 cacheRoot = File("customCacheRoot"),
@@ -91,7 +91,7 @@ class DokkaMultiModuleTaskTest {
                     )
                 )
             ),
-            dokkaConfiguration
+            DokkaModuleConfiguration
         )
     }
 

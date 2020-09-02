@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
 import utils.*
 
 class SignatureTest : AbstractCoreTest() {
-    private val configuration = dokkaConfiguration {
+    private val configuration = DokkaModuleConfiguration {
         sourceSets {
             sourceSet {
                 sourceRoots = listOf("src/")
@@ -328,7 +328,7 @@ class SignatureTest : AbstractCoreTest() {
     @Test
     fun `type with an actual typealias`() {
 
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             moduleName = "test"
             sourceSets {
                 sourceSet {

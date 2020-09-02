@@ -13,7 +13,7 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
 import org.gradle.kotlin.dsl.mapProperty
 import org.jetbrains.dokka.DokkaBootstrap
-import org.jetbrains.dokka.DokkaConfigurationImpl
+import org.jetbrains.dokka.DokkaModuleConfigurationImpl
 import org.jetbrains.dokka.DokkaDefaults
 import org.jetbrains.dokka.toJsonString
 import java.io.File
@@ -60,12 +60,11 @@ abstract class AbstractDokkaTask(
     @TaskAction
     internal open fun generateDocumentation() {
         DokkaBootstrap(runtime, bootstrapClass).apply {
-            configure(buildDokkaConfiguration().toJsonString(), createProxyLogger())
-            generate()
+            generate(buildDokkaModuleConfiguration().toJsonString(), createProxyLogger())
         }
     }
 
-    internal abstract fun buildDokkaConfiguration(): DokkaConfigurationImpl
+    internal abstract fun buildDokkaModuleConfiguration(): DokkaModuleConfigurationImpl
 
     private fun createProxyLogger(): BiConsumer<String, String> = BiConsumer { level, message ->
         when (level) {

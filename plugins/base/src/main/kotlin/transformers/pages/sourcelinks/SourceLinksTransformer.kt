@@ -2,10 +2,11 @@ package org.jetbrains.dokka.base.transformers.pages.sourcelinks
 
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiDocumentManager
-import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.DokkaModuleConfiguration
 import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder
 import org.jetbrains.dokka.model.DocumentableSource
-import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
+import org.jetbrains.dokka.DokkaSourceSet
+import org.jetbrains.dokka.DokkaSourceSet.SourceLinkDefinition
 import org.jetbrains.dokka.analysis.DescriptorDocumentableSource
 import org.jetbrains.dokka.analysis.PsiDocumentableSource
 import org.jetbrains.dokka.model.WithExpectActual
@@ -127,7 +128,7 @@ class SourceLinksTransformer(val context: DokkaContext, val builder: PageContent
 }
 
 data class SourceLink(val path: String, val url: String, val lineSuffix: String?, val sourceSetData: DokkaSourceSet) {
-    constructor(sourceLinkDefinition: DokkaConfiguration.SourceLinkDefinition, sourceSetData: DokkaSourceSet) : this(
+    constructor(sourceLinkDefinition: SourceLinkDefinition, sourceSetData: DokkaSourceSet) : this(
         sourceLinkDefinition.localDirectory,
         sourceLinkDefinition.remoteUrl.toExternalForm(),
         sourceLinkDefinition.remoteLineSuffix,

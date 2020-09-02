@@ -1,23 +1,24 @@
 package org.jetbrains.dokka.base.transformers.documentables
 
-import org.jetbrains.dokka.DokkaConfiguration
-import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
+import org.jetbrains.dokka.DokkaModuleConfiguration
+import org.jetbrains.dokka.DokkaSourceSet
 import org.jetbrains.dokka.analysis.DescriptorDocumentableSource
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.plugability.DokkaContext
+import org.jetbrains.dokka.plugability.DokkaModuleContext
 import org.jetbrains.dokka.transformers.documentation.DocumentableTransformer
 import org.jetbrains.kotlin.descriptors.CallableMemberDescriptor
 import org.jetbrains.kotlin.descriptors.CallableMemberDescriptor.Kind.FAKE_OVERRIDE
 import org.jetbrains.kotlin.descriptors.CallableMemberDescriptor.Kind.SYNTHESIZED
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 
-internal class ReportUndocumentedTransformer : DocumentableTransformer {
+internal object ReportUndocumentedTransformer : DocumentableTransformer {
 
-    override fun invoke(original: DModule, context: DokkaContext): DModule = original.apply {
+    override fun invoke(original: DModule, context: DokkaModuleContext): DModule = original.apply {
         withDescendants().forEach { documentable -> invoke(documentable, context) }
     }
 
-    private fun invoke(documentable: Documentable, context: DokkaContext) {
+    private fun invoke(documentable: Documentable, context: DokkaModuleContext) {
         documentable.sourceSets.forEach { sourceSet ->
             if (shouldBeReportedIfNotDocumented(documentable, sourceSet)) {
                 reportIfUndocumented(context, documentable, sourceSet)
@@ -58,7 +59,7 @@ internal class ReportUndocumentedTransformer : DocumentableTransformer {
     }
 
     private fun reportIfUndocumented(
-        context: DokkaContext,
+        context: DokkaModuleContext,
         documentable: Documentable,
         sourceSet: DokkaSourceSet
     ) {
@@ -155,7 +156,7 @@ internal class ReportUndocumentedTransformer : DocumentableTransformer {
     private fun packageOptionsOrNull(
         dokkaSourceSet: DokkaSourceSet,
         documentable: Documentable
-    ): DokkaConfiguration.PackageOptions? {
+    ): DokkaSourceSet.PackageOptions? {
         val packageName = documentable.dri.packageName ?: return null
         return dokkaSourceSet.perPackageOptions
             .filter { packageOptions -> packageName.startsWith(packageOptions.prefix) }

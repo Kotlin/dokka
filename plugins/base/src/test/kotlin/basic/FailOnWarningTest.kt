@@ -12,7 +12,7 @@ class FailOnWarningTest : AbstractCoreTest() {
 
     @Test
     fun `throws exception if one or more warnings were emitted`() {
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             failOnWarning = true
             sourceSets {
                 sourceSet {
@@ -37,7 +37,7 @@ class FailOnWarningTest : AbstractCoreTest() {
 
     @Test
     fun `throws exception if one or more error were emitted`() {
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             failOnWarning = true
             sourceSets {
                 sourceSet {
@@ -63,7 +63,7 @@ class FailOnWarningTest : AbstractCoreTest() {
     @Test
     fun `does not throw if now warning or error was emitted`() {
 
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             failOnWarning = true
             sourceSets {
                 sourceSet {
@@ -87,7 +87,7 @@ class FailOnWarningTest : AbstractCoreTest() {
 
     @Test
     fun `does not throw if disabled`() {
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             failOnWarning = false
             sourceSets {
                 sourceSet {

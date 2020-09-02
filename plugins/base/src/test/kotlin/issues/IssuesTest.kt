@@ -33,7 +33,7 @@ class IssuesTest : AbstractModelTest("/src/main/kotlin/issues/Test.kt", "issues"
             |    fun doSomething(): String = "Hello"
             |}
         """,
-            configuration = dokkaConfiguration {
+            configuration = DokkaModuleConfiguration {
                 sourceSets {
                     sourceSet {
                         sourceRoots = listOf("src/")

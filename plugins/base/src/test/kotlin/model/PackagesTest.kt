@@ -13,7 +13,7 @@ class PackagesTest : AbstractModelTest("/src/main/kotlin/packages/Test.kt", "pac
                 |
             """.trimIndent(),
             prependPackage = false,
-            configuration = dokkaConfiguration {
+            configuration = DokkaModuleConfiguration {
                 sourceSets {
                     sourceSet {
                         sourceRoots = listOf("src/main/kotlin")

@@ -5,6 +5,7 @@ import org.jetbrains.dokka.CoreExtensions
 import org.jetbrains.dokka.model.doc.CustomTagWrapper
 import org.jetbrains.dokka.pages.ContentPage
 import org.jetbrains.dokka.pages.RootPageNode
+import org.jetbrains.dokka.plugability.DokkaBaseContext
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 
@@ -18,7 +19,7 @@ private const val ANNOTATION = "usesMathJax"
 internal const val LIB_PATH = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.6/MathJax.js?config=TeX-AMS_SVG&latest"
 
 object MathjaxTransformer : PageTransformer {
-    override fun invoke(input: RootPageNode) = input.transformContentPagesTree {
+    override fun invoke(input: RootPageNode, context: DokkaBaseContext) = input.transformContentPagesTree {
         it.modified(
             embeddedResources = it.embeddedResources + if (it.isNeedingMathjax) listOf(LIB_PATH) else emptyList()
         )

@@ -58,19 +58,19 @@ class DokkaBase : DokkaPlugin() {
     }
 
     val deprecatedDocumentableFilter by extending {
-        CoreExtensions.preMergeDocumentableTransformer providing ::DeprecatedDocumentableFilterTransformer
+        CoreExtensions.preMergeDocumentableTransformer with DeprecatedDocumentableFilterTransformer
     }
 
     val suppressedDocumentableFilter by extending {
-        CoreExtensions.preMergeDocumentableTransformer providing ::SuppressedDocumentableFilterTransformer
+        CoreExtensions.preMergeDocumentableTransformer with SuppressedDocumentableFilterTransformer
     }
 
     val documentableVisbilityFilter by extending {
-        CoreExtensions.preMergeDocumentableTransformer providing ::DocumentableVisibilityFilterTransformer
+        CoreExtensions.preMergeDocumentableTransformer with DocumentableVisibilityFilterTransformer
     }
 
     val emptyPackagesFilter by extending {
-        CoreExtensions.preMergeDocumentableTransformer providing ::EmptyPackagesFilterTransformer order {
+        CoreExtensions.preMergeDocumentableTransformer with EmptyPackagesFilterTransformer order {
             after(deprecatedDocumentableFilter, suppressedDocumentableFilter, documentableVisbilityFilter)
         }
     }
@@ -94,20 +94,20 @@ class DokkaBase : DokkaPlugin() {
     }
 
     val sinceKotlinTransformer by extending {
-        CoreExtensions.documentableTransformer providing ::SinceKotlinTransformer
+        CoreExtensions.documentableTransformer with SinceKotlinTransformer
     }
 
     val inheritorsExtractor by extending {
-        CoreExtensions.documentableTransformer with InheritorsExtractorTransformer()
+        CoreExtensions.documentableTransformer with InheritorsExtractorTransformer
     }
 
 
     val undocumentedCodeReporter by extending {
-        CoreExtensions.documentableTransformer with ReportUndocumentedTransformer()
+        CoreExtensions.documentableTransformer with ReportUndocumentedTransformer
     }
 
     val extensionsExtractor by extending {
-        CoreExtensions.documentableTransformer with ExtensionExtractorTransformer()
+        CoreExtensions.documentableTransformer with ExtensionExtractorTransformer
     }
 
     val documentableToPageTranslator by extending {
@@ -147,7 +147,7 @@ class DokkaBase : DokkaPlugin() {
     }
 
     val htmlRenderer by extending {
-        CoreExtensions.renderer providing ::HtmlRenderer
+        CoreExtensions.renderer with HtmlRenderer
     }
 
 

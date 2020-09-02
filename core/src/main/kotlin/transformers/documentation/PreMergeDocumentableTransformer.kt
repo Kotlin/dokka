@@ -1,13 +1,14 @@
 package org.jetbrains.dokka.transformers.documentation
 
-import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
-import org.jetbrains.dokka.DokkaConfiguration.PackageOptions
+import org.jetbrains.dokka.DokkaSourceSet
+import org.jetbrains.dokka.DokkaSourceSet.PackageOptions
 import org.jetbrains.dokka.model.DModule
 import org.jetbrains.dokka.model.Documentable
 import org.jetbrains.dokka.model.WithExpectActual
+import org.jetbrains.dokka.plugability.DokkaModuleContext
 
 interface PreMergeDocumentableTransformer {
-    operator fun invoke(modules: List<DModule>): List<DModule>
+    operator fun invoke(modules: List<DModule>, context: DokkaModuleContext): List<DModule>
 }
 
 /* Utils */

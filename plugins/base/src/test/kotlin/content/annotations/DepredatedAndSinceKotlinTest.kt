@@ -11,7 +11,7 @@ import utils.bareSignature
 
 class DepredatedAndSinceKotlinTest : AbstractCoreTest() {
 
-    private val testConfiguration = dokkaConfiguration {
+    private val testConfiguration = DokkaModuleConfiguration {
         sourceSets {
             sourceSet {
                 sourceRoots = listOf("src/")

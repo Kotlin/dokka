@@ -5,7 +5,7 @@ import org.gradle.api.internal.plugins.DslObject
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Nested
 import org.jetbrains.dokka.DokkaBootstrapImpl
-import org.jetbrains.dokka.DokkaConfigurationImpl
+import org.jetbrains.dokka.DokkaModuleConfigurationImpl
 import org.jetbrains.dokka.build
 
 abstract class DokkaTask : AbstractDokkaTask(DokkaBootstrapImpl::class) {
@@ -34,8 +34,8 @@ abstract class DokkaTask : AbstractDokkaTask(DokkaBootstrapImpl::class) {
             .also(::checkSourceSetDependencies)
             .filterNot { it.suppress.getSafe() }
 
-    override fun buildDokkaConfiguration(): DokkaConfigurationImpl {
-        return DokkaConfigurationImpl(
+    override fun buildDokkaModuleConfiguration(): DokkaModuleConfigurationImpl {
+        return DokkaModuleConfigurationImpl(
             moduleName = moduleName.getSafe(),
             outputDir = outputDirectory.getSafe(),
             cacheRoot = cacheRoot.getSafe(),

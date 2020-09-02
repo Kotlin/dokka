@@ -1,6 +1,6 @@
 package renderers
 
-import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.DokkaModuleConfiguration
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.Documentable
 import org.jetbrains.dokka.model.doc.DocTag
@@ -45,7 +45,7 @@ internal object EmptyCommentConverter : CommentsToContentConverter {
     override fun buildContent(
         docTag: DocTag,
         dci: DCI,
-        sourceSets: Set<DokkaConfiguration.DokkaSourceSet>,
+        sourceSets: Set<DokkaModuleConfiguration.DokkaSourceSet>,
         styles: Set<Style>,
         extras: PropertyContainer<ContentNode>
     ): List<ContentNode> = emptyList()

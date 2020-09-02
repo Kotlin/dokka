@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test
 class ReportUndocumentedTransformerTest : AbstractCoreTest() {
     @Test
     fun `undocumented class gets reported`() {
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             sourceSets {
                 sourceSet {
                     reportUndocumented = true
@@ -38,7 +38,7 @@ class ReportUndocumentedTransformerTest : AbstractCoreTest() {
 
     @Test
     fun `undocumented non-public class does not get reported`() {
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             sourceSets {
                 sourceSet {
                     reportUndocumented = true
@@ -64,7 +64,7 @@ class ReportUndocumentedTransformerTest : AbstractCoreTest() {
 
     @Test
     fun `undocumented function gets reported`() {
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             sourceSets {
                 sourceSet {
                     reportUndocumented = true
@@ -94,7 +94,7 @@ class ReportUndocumentedTransformerTest : AbstractCoreTest() {
 
     @Test
     fun `undocumented property gets reported`() {
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             sourceSets {
                 sourceSet {
                     reportUndocumented = true
@@ -124,7 +124,7 @@ class ReportUndocumentedTransformerTest : AbstractCoreTest() {
 
     @Test
     fun `undocumented primary constructor does not get reported`() {
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             sourceSets {
                 sourceSet {
                     reportUndocumented = true
@@ -152,7 +152,7 @@ class ReportUndocumentedTransformerTest : AbstractCoreTest() {
 
     @Test
     fun `data class component functions do not get reported`() {
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             sourceSets {
                 sourceSet {
                     reportUndocumented = true
@@ -182,7 +182,7 @@ class ReportUndocumentedTransformerTest : AbstractCoreTest() {
     @Disabled
     @Test
     fun `undocumented secondary constructor gets reported`() {
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             sourceSets {
                 sourceSet {
                     reportUndocumented = true
@@ -212,7 +212,7 @@ class ReportUndocumentedTransformerTest : AbstractCoreTest() {
 
     @Test
     fun `undocumented inherited function does not get reported`() {
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             sourceSets {
                 sourceSet {
                     reportUndocumented = true
@@ -245,7 +245,7 @@ class ReportUndocumentedTransformerTest : AbstractCoreTest() {
 
     @Test
     fun `undocumented inherited property does not get reported`() {
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             sourceSets {
                 sourceSet {
                     reportUndocumented = true
@@ -278,7 +278,7 @@ class ReportUndocumentedTransformerTest : AbstractCoreTest() {
 
     @Test
     fun `overridden function does not get reported when super is documented`() {
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             sourceSets {
                 sourceSet {
                     reportUndocumented = true
@@ -314,7 +314,7 @@ class ReportUndocumentedTransformerTest : AbstractCoreTest() {
 
     @Test
     fun `overridden property does not get reported when super is documented`() {
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             sourceSets {
                 sourceSet {
                     reportUndocumented = true
@@ -350,7 +350,7 @@ class ReportUndocumentedTransformerTest : AbstractCoreTest() {
 
     @Test
     fun `report disabled by source set`() {
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             sourceSets {
                 sourceSet {
                     reportUndocumented = false
@@ -376,7 +376,7 @@ class ReportUndocumentedTransformerTest : AbstractCoreTest() {
 
     @Test
     fun `report enabled by package configuration`() {
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             sourceSets {
                 sourceSet {
                     perPackageOptions += packageOptions(
@@ -406,7 +406,7 @@ class ReportUndocumentedTransformerTest : AbstractCoreTest() {
 
     @Test
     fun `report enabled by more specific package configuration`() {
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             sourceSets {
                 sourceSet {
                     perPackageOptions += packageOptions(
@@ -444,7 +444,7 @@ class ReportUndocumentedTransformerTest : AbstractCoreTest() {
 
     @Test
     fun `report disabled by more specific package configuration`() {
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             sourceSets {
                 sourceSet {
                     perPackageOptions += packageOptions(
@@ -482,7 +482,7 @@ class ReportUndocumentedTransformerTest : AbstractCoreTest() {
 
     @Test
     fun `multiplatform undocumented class gets reported`() {
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             sourceSets {
                 val commonMain by sourceSet {
                     reportUndocumented = true
@@ -525,7 +525,7 @@ class ReportUndocumentedTransformerTest : AbstractCoreTest() {
 
     @Test
     fun `multiplatform undocumented class does not get reported if expect is documented`() {
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             sourceSets {
                 val commonMain by sourceSet {
                     reportUndocumented = true
@@ -567,7 +567,7 @@ class ReportUndocumentedTransformerTest : AbstractCoreTest() {
 
     @Test
     fun `multiplatform undocumented function gets reported`() {
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             sourceSets {
                 val commonMain by sourceSet {
                     reportUndocumented = true
@@ -624,7 +624,7 @@ class ReportUndocumentedTransformerTest : AbstractCoreTest() {
 
     @Test
     fun `java undocumented class gets reported`() {
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             sourceSets {
                 sourceSet {
                     reportUndocumented = true
@@ -651,7 +651,7 @@ class ReportUndocumentedTransformerTest : AbstractCoreTest() {
 
     @Test
     fun `java undocumented non-public class does not get reported`() {
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             sourceSets {
                 sourceSet {
                     reportUndocumented = true
@@ -676,7 +676,7 @@ class ReportUndocumentedTransformerTest : AbstractCoreTest() {
 
     @Test
     fun `java undocumented constructor does not get reported`() {
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             sourceSets {
                 sourceSet {
                     reportUndocumented = true
@@ -705,7 +705,7 @@ class ReportUndocumentedTransformerTest : AbstractCoreTest() {
 
     @Test
     fun `java undocumented method gets reported`() {
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             sourceSets {
                 sourceSet {
                     reportUndocumented = true
@@ -735,7 +735,7 @@ class ReportUndocumentedTransformerTest : AbstractCoreTest() {
 
     @Test
     fun `java undocumented property gets reported`() {
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             sourceSets {
                 sourceSet {
                     reportUndocumented = true
@@ -765,7 +765,7 @@ class ReportUndocumentedTransformerTest : AbstractCoreTest() {
 
     @Test
     fun `java undocumented inherited method gets reported`() {
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             sourceSets {
                 sourceSet {
                     reportUndocumented = true
@@ -804,7 +804,7 @@ class ReportUndocumentedTransformerTest : AbstractCoreTest() {
 
     @Test
     fun `java documented inherited method does not get reported`() {
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             sourceSets {
                 sourceSet {
                     reportUndocumented = true
@@ -841,7 +841,7 @@ class ReportUndocumentedTransformerTest : AbstractCoreTest() {
 
     @Test
     fun `java overridden function does not get reported when super is documented`() {
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             sourceSets {
                 sourceSet {
                     reportUndocumented = true

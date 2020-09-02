@@ -25,7 +25,7 @@ class LinkableContentTest : AbstractCoreTest() {
         val testDataDir = getTestDataDir("multiplatform/basicMultiplatformTest").toAbsolutePath()
         val includesDir = getTestDataDir("linkable/includes").toAbsolutePath()
 
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             moduleName = "example"
             sourceSets {
                 sourceSet {
@@ -63,7 +63,7 @@ class LinkableContentTest : AbstractCoreTest() {
 
         val testDataDir = getTestDataDir("linkable/sources").toAbsolutePath()
 
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             moduleName = "example"
 
             sourceSets {
@@ -128,7 +128,7 @@ class LinkableContentTest : AbstractCoreTest() {
 
         val testDataDir = getTestDataDir("linkable/samples").toAbsolutePath()
 
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             moduleName = "example"
             sourceSets {
                 sourceSet {
@@ -196,7 +196,7 @@ class LinkableContentTest : AbstractCoreTest() {
             |}
             |
         """.trimIndent(),
-            dokkaConfiguration {
+            DokkaModuleConfiguration {
                 sourceSets {
                     sourceSet {
                         sourceRoots = listOf("src/")

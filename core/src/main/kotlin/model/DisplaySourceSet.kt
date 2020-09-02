@@ -1,6 +1,6 @@
 package org.jetbrains.dokka.model
 
-import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
+import org.jetbrains.dokka.DokkaSourceSet
 import org.jetbrains.dokka.DokkaSourceSetID
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.utilities.SelfRepresentingSingletonSet

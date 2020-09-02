@@ -1,6 +1,7 @@
 package org.jetbrains.dokka.analysis
 
-import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.DokkaModuleConfiguration
+import org.jetbrains.dokka.DokkaSourceSet
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.kotlin.cli.common.messages.*
@@ -10,8 +11,8 @@ import java.io.File
 
 internal fun createEnvironmentAndFacade(
     logger: DokkaLogger,
-    configuration: DokkaConfiguration,
-    sourceSet: DokkaConfiguration.DokkaSourceSet
+    configuration: DokkaModuleConfiguration,
+    sourceSet: DokkaSourceSet
 ): EnvironmentAndFacade =
     AnalysisEnvironment(DokkaMessageCollector(logger), sourceSet.analysisPlatform).run {
         if (analysisPlatform == Platform.jvm) {

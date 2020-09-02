@@ -10,7 +10,7 @@ import utils.TestOutputWriterPlugin
 class MathjaxPluginTest : AbstractCoreTest() {
     @Test
     fun noMathjaxTest() {
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             sourceSets {
                 sourceSet {
                     sourceRoots = listOf("src/main/kotlin/test/Test.kt")
@@ -46,7 +46,7 @@ class MathjaxPluginTest : AbstractCoreTest() {
 
     @Test
     fun usingMathjaxTest() {
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             sourceSets {
                 sourceSet {
                     sourceRoots = listOf("src/main/kotlin/test/Test.kt")

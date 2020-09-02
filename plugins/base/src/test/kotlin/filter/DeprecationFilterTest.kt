@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
 class DeprecationFilterTest : AbstractCoreTest() {
     @Test
     fun `function with false global skipDeprecated`() {
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             sourceSets {
                 sourceSet {
                     skipDeprecated = false
@@ -38,7 +38,7 @@ class DeprecationFilterTest : AbstractCoreTest() {
     }
     @Test
     fun `deprecated function with false global skipDeprecated`() {
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             sourceSets {
                 sourceSet {
                     skipDeprecated = false
@@ -68,7 +68,7 @@ class DeprecationFilterTest : AbstractCoreTest() {
     }
     @Test
     fun `deprecated function with true global skipDeprecated`() {
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             sourceSets {
                 sourceSet {
                     sourceRoots = listOf("src/main/kotlin/basic/Test.kt")
@@ -98,7 +98,7 @@ class DeprecationFilterTest : AbstractCoreTest() {
     }
     @Test
     fun `deprecated function with false global true package skipDeprecated`() {
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             sourceSets {
                 sourceSet {
                     sourceRoots = listOf("src/main/kotlin/basic/Test.kt")
@@ -135,7 +135,7 @@ class DeprecationFilterTest : AbstractCoreTest() {
     }
     @Test
     fun `deprecated function with true global false package skipDeprecated`() {
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             sourceSets {
                 sourceSet {
                     sourceRoots = listOf("src/main/kotlin/basic/Test.kt")

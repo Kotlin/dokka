@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test
 class EmptyPackagesFilterTest : AbstractCoreTest() {
     @Test
     fun `empty package with false skipEmptyPackages`() {
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             sourceSets {
                 sourceSet {
                     skipEmptyPackages = false
@@ -35,7 +35,7 @@ class EmptyPackagesFilterTest : AbstractCoreTest() {
     }
     @Test
     fun `empty package with true skipEmptyPackages`() {
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             sourceSets {
                 sourceSet {
                     skipEmptyPackages = true

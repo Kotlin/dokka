@@ -1,6 +1,6 @@
 package org.jetbrains.dokka.testApi.context
 
-import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.DokkaModuleConfiguration
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.plugability.ExtensionPoint
@@ -12,7 +12,7 @@ import kotlin.reflect.full.memberProperties
 @Suppress("UNCHECKED_CAST") // It is only usable from tests so we do not care about safety
 class MockContext(
     vararg extensions: Pair<ExtensionPoint<*>, (DokkaContext) -> Any>,
-    private val testConfiguration: DokkaConfiguration? = null,
+    private val testConfiguration: DokkaModuleConfiguration? = null,
     private val unusedExtensionPoints: List<ExtensionPoint<*>>? = null
 ) : DokkaContext {
     private val extensionMap by lazy {
@@ -33,7 +33,7 @@ class MockContext(
 
     override val logger = DokkaConsoleLogger
 
-    override val configuration: DokkaConfiguration
+    override val configuration: DokkaModuleConfiguration
         get() = testConfiguration ?: throw IllegalStateException("This mock context doesn't provide configuration")
 
     override val unusedPoints: Collection<ExtensionPoint<*>>

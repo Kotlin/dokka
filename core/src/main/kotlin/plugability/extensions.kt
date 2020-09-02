@@ -1,6 +1,7 @@
 package org.jetbrains.dokka.plugability
 
-import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.DokkaBaseConfiguration
+import org.jetbrains.dokka.DokkaModuleConfiguration
 
 data class ExtensionPoint<T : Any> internal constructor(
     internal val pluginClass: String,
@@ -26,7 +27,7 @@ class Extension<T : Any, Ordering : OrderingKind, Override : OverrideKind> inter
     internal val action: LazyEvaluated<T>,
     internal val ordering: Ordering,
     internal val override: Override,
-    internal val conditions: List<DokkaConfiguration.() -> Boolean>
+    internal val conditions: List<DokkaBaseConfiguration.() -> Boolean>
 ) {
     override fun toString() = "Extension: $pluginClass/$extensionName"
 
@@ -36,7 +37,7 @@ class Extension<T : Any, Ordering : OrderingKind, Override : OverrideKind> inter
 
     override fun hashCode() = listOf(pluginClass, extensionName).hashCode()
 
-    val condition: DokkaConfiguration.() -> Boolean
+    val condition: DokkaBaseConfiguration.() -> Boolean
         get() = { conditions.all { it(this) } }
 }
 
@@ -56,7 +57,7 @@ class ExtendingDSL(private val pluginClass: String, private val extensionName: S
     infix fun <T : Any> ExtensionPoint<T>.with(action: T) =
         Extension(this, this@ExtendingDSL.pluginClass, extensionName, LazyEvaluated.fromInstance(action))
 
-    infix fun <T : Any> ExtensionPoint<T>.providing(action: (DokkaContext) -> T) =
+    infix fun <T : Any> ExtensionPoint<T>.providing(action: (DokkaBaseContext) -> T) =
         Extension(this, this@ExtendingDSL.pluginClass, extensionName, LazyEvaluated.fromRecipe(action))
 
     infix fun <T : Any, Override : OverrideKind> Extension<T, OrderingKind.None, Override>.order(
@@ -64,7 +65,7 @@ class ExtendingDSL(private val pluginClass: String, private val extensionName: S
     ) = Extension(extensionPoint, pluginClass, extensionName, action, OrderingKind.ByDsl(block), override, conditions)
 
     infix fun <T : Any, Override : OverrideKind, Ordering: OrderingKind> Extension<T, Ordering, Override>.applyIf(
-        condition: DokkaConfiguration.() -> Boolean
+        condition: DokkaBaseConfiguration.() -> Boolean
     ) = Extension(extensionPoint, pluginClass, extensionName, action, ordering, override, conditions + condition)
 
     infix fun <T : Any, Override : OverrideKind, Ordering: OrderingKind> Extension<T, Ordering, Override>.override(

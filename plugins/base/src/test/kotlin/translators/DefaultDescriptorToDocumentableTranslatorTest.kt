@@ -8,7 +8,7 @@ import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
 import org.junit.jupiter.api.Test
 
 class DefaultDescriptorToDocumentableTranslatorTest : AbstractCoreTest() {
-    val configuration = dokkaConfiguration {
+    val configuration = DokkaModuleConfiguration {
         sourceSets {
             sourceSet {
                 sourceRoots = listOf("src/main/kotlin")

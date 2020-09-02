@@ -1,6 +1,6 @@
 package transformers
 
-import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
+import org.jetbrains.dokka.DokkaSourceSet
 import org.jetbrains.dokka.base.transformers.documentables.ModuleAndPackageDocumentationReader
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.doc.DocumentationNode
@@ -10,7 +10,7 @@ import org.jetbrains.dokka.utilities.DokkaConsoleLogger
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import testApi.testRunner.TestDokkaConfigurationBuilder
+import testApi.testRunner.TestDokkaModuleConfigurationBuilder
 import testApi.testRunner.dModule
 import testApi.testRunner.dPackage
 
@@ -49,7 +49,7 @@ class ContextModuleAndPackageDocumentationReaderTest1 : AbstractContextModuleAnd
         )
     }
 
-    private val configurationBuilder = TestDokkaConfigurationBuilder().apply {
+    private val configurationBuilder = TestDokkaModuleConfigurationBuilder().apply {
         moduleName = "moduleA"
     }
 

@@ -1,6 +1,6 @@
 package renderers.gfm
 
-import org.jetbrains.dokka.DokkaConfigurationImpl
+import org.jetbrains.dokka.DokkaModuleConfigurationImpl
 import org.jetbrains.dokka.gfm.GfmPlugin
 import org.jetbrains.dokka.gfm.MarkdownLocationProviderFactory
 import org.jetbrains.dokka.testApi.context.MockContext
@@ -21,7 +21,7 @@ abstract class GfmRenderingOnlyTestBase : RenderingOnlyTestBase<String>() {
         DokkaBase().externalLocationProviderFactory to { ::DefaultExternalLocationProviderFactory },
         GfmPlugin().gfmPreprocessors to { _ -> RootCreator },
 
-        testConfiguration = DokkaConfigurationImpl(moduleName = "root")
+        testConfiguration = DokkaModuleConfigurationImpl(moduleName = "root")
     )
 
     override val renderedContent: String by lazy {

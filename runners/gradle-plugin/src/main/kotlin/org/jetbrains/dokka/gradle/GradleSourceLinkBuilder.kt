@@ -5,14 +5,14 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
-import org.jetbrains.dokka.DokkaConfigurationBuilder
+import org.jetbrains.dokka.DokkaModuleConfigurationBuilder
 import org.jetbrains.dokka.SourceLinkDefinitionImpl
 import java.io.File
 import java.net.URL
 
 class GradleSourceLinkBuilder(
     @Transient @get:Internal internal val project: Project
-) : DokkaConfigurationBuilder<SourceLinkDefinitionImpl> {
+) : DokkaModuleConfigurationBuilder<SourceLinkDefinitionImpl> {
 
     @Input
     val localDirectory: Property<File?> = project.objects.safeProperty()

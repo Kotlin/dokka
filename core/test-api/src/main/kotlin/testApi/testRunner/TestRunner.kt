@@ -3,15 +3,15 @@ package org.jetbrains.dokka.testApi.testRunner
 import com.intellij.openapi.application.PathManager
 import org.jetbrains.dokka.*
 import org.jetbrains.dokka.model.DModule
-import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.DokkaContext
+import org.jetbrains.dokka.plugability.DokkaModuleContext
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.testApi.logger.TestLogger
 import org.jetbrains.dokka.utilities.DokkaConsoleLogger
 import org.jetbrains.dokka.utilities.DokkaLogger
 import org.junit.rules.TemporaryFolder
-import testApi.testRunner.TestDokkaConfigurationBuilder
+import testApi.testRunner.TestDokkaModuleConfigurationBuilder
 import java.io.File
 import java.net.URL
 import java.nio.charset.Charset
@@ -29,7 +29,7 @@ abstract class AbstractCoreTest(
             ?: throw InvalidPathException(name, "Cannot be found")
 
     protected fun testFromData(
-        configuration: DokkaConfigurationImpl,
+        configuration: DokkaModuleConfigurationImpl,
         cleanupOutput: Boolean = true,
         pluginOverrides: List<DokkaPlugin> = emptyList(),
         block: TestBuilder.() -> Unit
@@ -52,7 +52,7 @@ abstract class AbstractCoreTest(
 
     protected fun testInline(
         query: String,
-        configuration: DokkaConfigurationImpl,
+        configuration: DokkaModuleConfigurationImpl,
         cleanupOutput: Boolean = true,
         pluginOverrides: List<DokkaPlugin> = emptyList(),
         loggerForTest: DokkaLogger = logger,
@@ -139,14 +139,14 @@ abstract class AbstractCoreTest(
     }
 
     protected class TestBuilder {
-        var pluginsSetupStage: (DokkaContext) -> Unit = {}
+        var pluginsSetupStage: (DokkaModuleContext) -> Unit = {}
         var documentablesCreationStage: (List<DModule>) -> Unit = {}
         var documentablesFirstTransformationStep: (List<DModule>) -> Unit = {}
         var documentablesMergingStage: (DModule) -> Unit = {}
         var documentablesTransformationStage: (DModule) -> Unit = {}
         var pagesGenerationStage: (RootPageNode) -> Unit = {}
         var pagesTransformationStage: (RootPageNode) -> Unit = {}
-        var renderingStage: (RootPageNode, DokkaContext) -> Unit = { a, b -> }
+        var renderingStage: (RootPageNode, DokkaModuleContext) -> Unit = { a, b -> }
 
         @PublishedApi
         internal fun build() = TestMethods(
@@ -161,8 +161,8 @@ abstract class AbstractCoreTest(
         )
     }
 
-    protected fun dokkaConfiguration(block: TestDokkaConfigurationBuilder.() -> Unit): DokkaConfigurationImpl =
-        testApi.testRunner.dokkaConfiguration(block)
+    protected fun DokkaModuleConfiguration(block: TestDokkaModuleConfigurationBuilder.() -> Unit): DokkaModuleConfigurationImpl =
+        testApi.testRunner.DokkaModuleConfiguration(block)
 
 
     protected val jvmStdlibPath: String? by lazy {
@@ -192,12 +192,12 @@ abstract class AbstractCoreTest(
 }
 
 data class TestMethods(
-    val pluginsSetupStage: (DokkaContext) -> Unit,
+    val pluginsSetupStage: (DokkaModuleContext) -> Unit,
     val documentablesCreationStage: (List<DModule>) -> Unit,
     val documentablesFirstTransformationStep: (List<DModule>) -> Unit,
     val documentablesMergingStage: (DModule) -> Unit,
     val documentablesTransformationStage: (DModule) -> Unit,
     val pagesGenerationStage: (RootPageNode) -> Unit,
     val pagesTransformationStage: (RootPageNode) -> Unit,
-    val renderingStage: (RootPageNode, DokkaContext) -> Unit
+    val renderingStage: (RootPageNode, DokkaModuleContext) -> Unit
 )

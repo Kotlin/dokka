@@ -10,7 +10,7 @@ import java.net.URL
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class DokkaConfigurationJsonTest {
+class DokkaModuleConfigurationJsonTest {
 
     @Test
     fun `DokkaTask configuration toJsonString then parseJson`() {
@@ -43,9 +43,9 @@ class DokkaConfigurationJsonTest {
             }
         }
 
-        val sourceConfiguration = dokkaTask.buildDokkaConfiguration()
+        val sourceConfiguration = dokkaTask.buildDokkaModuleConfiguration()
         val configurationJson = sourceConfiguration.toJsonString()
-        val parsedConfiguration = DokkaConfigurationImpl(configurationJson)
+        val parsedConfiguration = DokkaModuleConfigurationImpl(configurationJson)
 
         assertEquals(sourceConfiguration, parsedConfiguration)
         println(parsedConfiguration)

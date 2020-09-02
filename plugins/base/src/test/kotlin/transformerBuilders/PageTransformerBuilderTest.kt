@@ -20,7 +20,7 @@ class PageTransformerBuilderTest : AbstractCoreTest() {
 
     @Test
     fun scannerTest() {
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             sourceSets {
                 sourceSet {
                     sourceRoots = listOf("src/main/kotlin/transformerBuilder/Test.kt")
@@ -57,7 +57,7 @@ class PageTransformerBuilderTest : AbstractCoreTest() {
 
     @Test
     fun mapperTest() {
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             sourceSets {
                 sourceSet {
                     sourceRoots = listOf("src/main/kotlin/transformerBuilder/Test.kt")
@@ -97,7 +97,7 @@ class PageTransformerBuilderTest : AbstractCoreTest() {
 
     @Test
     fun structureTransformerTest() {
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             sourceSets {
                 sourceSet {
                     sourceRoots = listOf("src/main/kotlin/transformerBuilder/Test.kt")

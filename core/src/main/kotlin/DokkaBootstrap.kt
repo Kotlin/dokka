@@ -5,8 +5,5 @@ import kotlin.jvm.Throws
 
 interface DokkaBootstrap {
     @Throws(Throwable::class)
-    fun configure(serializedConfigurationJSON: String, logger: BiConsumer<String, String>)
-
-    @Throws(Throwable::class)
-    fun generate()
+    fun generate(serializedConfigurationJSON: String, logger: BiConsumer<String, String>)
 }

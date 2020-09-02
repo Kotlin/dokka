@@ -1,6 +1,6 @@
 package org.jetbrains.dokka.base.resolvers.external.javadoc
 
-import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.DokkaSourceSet
 import org.jetbrains.dokka.androidSdk
 import org.jetbrains.dokka.androidX
 import org.jetbrains.dokka.base.resolvers.external.ExternalLocationProvider
@@ -8,15 +8,16 @@ import org.jetbrains.dokka.base.resolvers.external.ExternalLocationProviderFacto
 import org.jetbrains.dokka.base.resolvers.external.ExternalLocationProviderFactoryWithCache
 import org.jetbrains.dokka.base.resolvers.shared.ExternalDocumentation
 import org.jetbrains.dokka.base.resolvers.shared.RecognizedLinkFormat
-import org.jetbrains.dokka.plugability.DokkaContext
+import org.jetbrains.dokka.plugability.DokkaModuleContext
+import org.jetbrains.dokka.DokkaSourceSet.ExternalDocumentationLink
 
-class JavadocExternalLocationProviderFactory(val context: DokkaContext) :
+class JavadocExternalLocationProviderFactory(val context: DokkaModuleContext) :
     ExternalLocationProviderFactory by ExternalLocationProviderFactoryWithCache(
         object : ExternalLocationProviderFactory {
             override fun getExternalLocationProvider(doc: ExternalDocumentation): ExternalLocationProvider? =
                 when (doc.packageList.url) {
-                    DokkaConfiguration.ExternalDocumentationLink.androidX().packageListUrl,
-                    DokkaConfiguration.ExternalDocumentationLink.androidSdk().packageListUrl ->
+                    ExternalDocumentationLink.androidX().packageListUrl,
+                    ExternalDocumentationLink.androidSdk().packageListUrl ->
                         AndroidExternalLocationProvider(doc, context)
                     else ->
                         when (doc.packageList.linkFormat) {

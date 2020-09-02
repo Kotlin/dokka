@@ -8,7 +8,7 @@ import kotlin.test.assertTrue
 class AbortGracefullyOnMissingDocumentablesTest: AbstractCoreTest() {
     @Test
     fun `Generation aborts Gracefully with no Documentables`() {
-        DokkaGenerator(dokkaConfiguration {  }, logger).generate()
+        DokkaGenerator(DokkaModuleConfiguration {  }, logger).generate()
 
         assertTrue(
             logger.progressMessages.any { message -> "Exiting Generation: Nothing to document" == message },

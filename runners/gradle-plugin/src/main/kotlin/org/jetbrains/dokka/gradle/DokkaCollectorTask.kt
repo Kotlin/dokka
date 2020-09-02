@@ -1,6 +1,6 @@
 package org.jetbrains.dokka.gradle
 
-import org.jetbrains.dokka.DokkaConfigurationImpl
+import org.jetbrains.dokka.DokkaModuleConfigurationImpl
 
 abstract class DokkaCollectorTask : AbstractDokkaParentTask() {
 
@@ -9,8 +9,8 @@ abstract class DokkaCollectorTask : AbstractDokkaParentTask() {
         super.generateDocumentation()
     }
 
-    override fun buildDokkaConfiguration(): DokkaConfigurationImpl {
-        val initialDokkaConfiguration = DokkaConfigurationImpl(
+    override fun buildDokkaModuleConfiguration(): DokkaModuleConfigurationImpl {
+        val initialDokkaModuleConfiguration = DokkaModuleConfigurationImpl(
             moduleName = moduleName.getSafe(),
             outputDir = outputDirectory.getSafe(),
             cacheRoot = cacheRoot.getSafe(),
@@ -19,8 +19,8 @@ abstract class DokkaCollectorTask : AbstractDokkaParentTask() {
             pluginsClasspath = plugins.resolve().toList(),
         )
 
-        val subprojectDokkaConfigurations = childDokkaTasks.map { dokkaTask -> dokkaTask.buildDokkaConfiguration() }
-        return subprojectDokkaConfigurations.fold(initialDokkaConfiguration) { acc, it: DokkaConfigurationImpl ->
+        val subprojectDokkaModuleConfigurations = childDokkaTasks.map { dokkaTask -> dokkaTask.buildDokkaModuleConfiguration() }
+        return subprojectDokkaModuleConfigurations.fold(initialDokkaModuleConfiguration) { acc, it: DokkaModuleConfigurationImpl ->
             acc.copy(
                 sourceSets = acc.sourceSets + it.sourceSets,
                 pluginsClasspath = acc.pluginsClasspath + it.pluginsClasspath

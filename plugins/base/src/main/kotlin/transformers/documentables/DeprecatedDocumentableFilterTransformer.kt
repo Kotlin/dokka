@@ -1,13 +1,14 @@
 package org.jetbrains.dokka.base.transformers.documentables
 
-import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.DokkaSourceSet
+import org.jetbrains.dokka.DokkaSourceSet.PackageOptions
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.properties.WithExtraProperties
-import org.jetbrains.dokka.plugability.DokkaContext
+import org.jetbrains.dokka.plugability.DokkaModuleContext
 import org.jetbrains.dokka.transformers.documentation.PreMergeDocumentableTransformer
 
-class DeprecatedDocumentableFilterTransformer(val context: DokkaContext) : PreMergeDocumentableTransformer {
-    override fun invoke(modules: List<DModule>) = modules.map { original ->
+object DeprecatedDocumentableFilterTransformer : PreMergeDocumentableTransformer {
+    override fun invoke(modules: List<DModule>, context: DokkaModuleContext) = modules.map { original ->
         val sourceSet = original.sourceSets.single()
         val packageOptions =
             sourceSet.perPackageOptions
@@ -17,8 +18,8 @@ class DeprecatedDocumentableFilterTransformer(val context: DokkaContext) : PreMe
     }
 
     private class DeprecatedDocumentableFilter(
-        val globalOptions: DokkaConfiguration.DokkaSourceSet,
-        val packageOptions: List<DokkaConfiguration.PackageOptions>
+        val globalOptions: DokkaSourceSet,
+        val packageOptions: List<PackageOptions>
     ) {
 
         fun <T> T.isAllowedInPackage(): Boolean where T : WithExtraProperties<T>, T : Documentable {

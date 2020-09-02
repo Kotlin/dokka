@@ -13,7 +13,7 @@ import utils.text
 class JavadocParserTest : AbstractCoreTest() {
 
     private fun performJavadocTest(testOperation: (DModule) -> Unit) {
-        val configuration = dokkaConfiguration {
+        val configuration = DokkaModuleConfiguration {
             sourceSets {
                 sourceSet {
                     sourceRoots = listOf("src/main/java")

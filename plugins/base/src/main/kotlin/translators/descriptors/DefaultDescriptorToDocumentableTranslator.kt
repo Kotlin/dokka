@@ -1,6 +1,6 @@
 package org.jetbrains.dokka.base.translators.descriptors
 
-import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
+import org.jetbrains.dokka.DokkaSourceSet
 import org.jetbrains.dokka.analysis.DescriptorDocumentableSource
 import org.jetbrains.dokka.analysis.DokkaResolutionFacade
 import org.jetbrains.dokka.analysis.KotlinAnalysis
@@ -13,7 +13,7 @@ import org.jetbrains.dokka.model.Nullable
 import org.jetbrains.dokka.model.TypeConstructor
 import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.model.properties.PropertyContainer
-import org.jetbrains.dokka.plugability.DokkaContext
+import org.jetbrains.dokka.plugability.DokkaModuleContext
 import org.jetbrains.dokka.transformers.sources.SourceToDocumentableTranslator
 import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.kotlin.builtins.isExtensionFunctionType
@@ -55,7 +55,7 @@ class DefaultDescriptorToDocumentableTranslator(
     private val kotlinAnalysis: KotlinAnalysis
 ) : SourceToDocumentableTranslator {
 
-    override fun invoke(sourceSet: DokkaSourceSet, context: DokkaContext): DModule {
+    override fun invoke(sourceSet: DokkaSourceSet, context: DokkaModuleContext): DModule {
         val (environment, facade) = kotlinAnalysis[sourceSet]
         val packageFragments = environment.getSourceFiles().asSequence()
             .map { it.packageFqName }

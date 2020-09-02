@@ -1,21 +1,23 @@
 package org.jetbrains.dokka.base.transformers.documentables
 
-import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.DokkaModuleConfiguration
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.transformers.documentation.PreMergeDocumentableTransformer
-import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
+import org.jetbrains.dokka.DokkaSourceSet
+import org.jetbrains.dokka.DokkaSourceSet.PackageOptions
+import org.jetbrains.dokka.plugability.DokkaModuleContext
 
-class DocumentableVisibilityFilterTransformer(val context: DokkaContext) : PreMergeDocumentableTransformer {
+object DocumentableVisibilityFilterTransformer : PreMergeDocumentableTransformer {
 
-    override fun invoke(modules: List<DModule>) = modules.map { original ->
+    override fun invoke(modules: List<DModule>, context: DokkaModuleContext) = modules.map { original ->
         val sourceSet = original.sourceSets.single()
         val packageOptions = sourceSet.perPackageOptions
         DocumentableVisibilityFilter(packageOptions, sourceSet).processModule(original)
     }
 
     private class DocumentableVisibilityFilter(
-        val packageOptions: List<DokkaConfiguration.PackageOptions>,
+        val packageOptions: List<PackageOptions>,
         val globalOptions: DokkaSourceSet
     ) {
         fun Visibility.isAllowedInPackage(packageName: String?) = when (this) {
