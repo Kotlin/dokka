@@ -7,6 +7,7 @@ import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.renderers.DefaultRenderer
 import org.jetbrains.dokka.base.renderers.PackageListCreator
 import org.jetbrains.dokka.base.renderers.RootCreator
+import org.jetbrains.dokka.base.renderers.isImage
 import org.jetbrains.dokka.base.resolvers.local.DokkaLocationProvider
 import org.jetbrains.dokka.base.resolvers.local.LocationProviderFactory
 import org.jetbrains.dokka.model.DisplaySourceSet
@@ -155,7 +156,10 @@ open class CommonmarkRenderer(
     }
 
     override fun StringBuilder.buildResource(node: ContentEmbeddedResource, pageContext: ContentPage) {
-        append("Resource")
+        if(node.isImage()){
+            append("!")
+        }
+        append("[${node.altText}](${node.address})")
     }
 
     override fun StringBuilder.buildTable(
