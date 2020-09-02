@@ -543,6 +543,10 @@ th {
     color: #444;
 }
 
+p.paragraph img {
+    display: block;
+}
+
 img {
     max-width: 100%;
 }
