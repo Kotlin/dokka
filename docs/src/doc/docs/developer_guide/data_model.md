@@ -1,6 +1,6 @@
 # Dokka Data Model
 
-There a four data models that dokka uses: Documentable Model, Documentation Model, Page Model and Content Model.
+There a four data models that Dokka uses: Documentable Model, Documentation Model, Page Model and Content Model.
 
 ## Documentable Model
 

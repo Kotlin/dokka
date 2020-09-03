@@ -1,20 +1,20 @@
-# dokka  [![official JetBrains project](https://jb.gg/badges/official.svg)](https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub) [![TeamCity (build status)](https://teamcity.jetbrains.com/app/rest/builds/buildType:(id:Kotlin_Dokka_DokkaAntMavenGradle)/statusIcon)](https://teamcity.jetbrains.com/viewType.html?buildTypeId=Kotlin_Dokka_DokkaAntMavenGradle&branch_KotlinTools_Dokka=%3Cdefault%3E&tab=buildTypeStatusDiv) 
+# Dokka  [![official JetBrains project](https://jb.gg/badges/official.svg)](https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub) [![TeamCity (build status)](https://teamcity.jetbrains.com/app/rest/builds/buildType:(id:Kotlin_Dokka_DokkaAntMavenGradle)/statusIcon)](https://teamcity.jetbrains.com/viewType.html?buildTypeId=Kotlin_Dokka_DokkaAntMavenGradle&branch_KotlinTools_Dokka=%3Cdefault%3E&tab=buildTypeStatusDiv) 
 
 Dokka is a documentation engine for Kotlin, performing the same function as javadoc for Java.
 Just like Kotlin itself, Dokka fully supports mixed-language Java/Kotlin projects. It understands
 standard Javadoc comments in Java files and [KDoc comments](https://kotlinlang.org/docs/reference/kotlin-doc.html) in Kotlin files,
 and can generate documentation in multiple formats including standard Javadoc, HTML and Markdown.
 
-## Using dokka
+## Using Dokka
 
 **Full documentation is available at [http://kotlin.github.io/dokka](http://kotlin.github.io/dokka)**
 
 ### Using the Gradle plugin
-_Note: If you are upgrading from 0.10.x to a current release of dokka, please have a look at our 
+_Note: If you are upgrading from 0.10.x to a current release of Dokka, please have a look at our 
 [migration guide](runners/gradle-plugin/MIGRATION.md)_
 
-The preferred way is to use `plugins` block. Since dokka is currently not published to the Gradle plugin portal, 
-you not only need to add `dokka` to the `build.gradle.kts` file, but you also need to modify the `settings.gradle.kts` file: 
+The preferred way is to use `plugins` block. Since Dokka is currently not published to the Gradle plugin portal, 
+you not only need to add `org.jetbrains.dokka` to the `build.gradle.kts` file, but you also need to modify the `settings.gradle.kts` file: 
  
 build.gradle.kts:
 ```kotlin
@@ -48,7 +48,7 @@ dependencies {
 }
 ``` 
 
-You can also create a custom dokka task and add plugins directly inside:
+You can also create a custom Dokka task and add plugins directly inside:
 
 ```kotlin
 val customDokkaTask by creating(DokkaTask::class) {
@@ -70,7 +70,7 @@ Please see the [Dokka Gradle example project](https://github.com/Kotlin/kotlin-e
 
 #### Android
 
-Make sure you apply dokka after `com.android.library` and `kotlin-android`.
+Make sure you apply Dokka after `com.android.library` and `kotlin-android`.
 
 ```kotlin
 buildscript {
@@ -110,7 +110,7 @@ tasks.dokkaHtmlMultiModule.configure {
 }
 ```
 
-`DokkaMultiModule` depends on all dokka tasks in the subprojects, runs them, and creates a toplevel page (based on the `documentationFile`)
+`DokkaMultiModule` depends on all Dokka tasks in the subprojects, runs them, and creates a toplevel page (based on the `documentationFile`)
 with links to all generated (sub)documentations
 
 ### Using the Maven plugin
@@ -189,7 +189,7 @@ You can also use a JSON file with dokka configuration:
   * `jekyll` - Jekyll compatible markdown
 
 If you want to generate the documentation as seen from Java perspective, you can add the `kotlin-as-java` plugin
-to the dokka plugins classpath, eg. in Gradle:
+to the Dokka plugins classpath, eg. in Gradle:
 
 ```kotlin
 dependencies{

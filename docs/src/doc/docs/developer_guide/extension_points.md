@@ -121,7 +121,7 @@ interface Renderer {
 }
 ```
 
-By default, only `HtmlRenderer`, that extends basic `DefaultRenderer`, is created, but it will be registered only if configuration parameter `format` is set to `html`. Using any other value without providing valid renderer will cause dokka to fail. 
+By default, only `HtmlRenderer`, that extends basic `DefaultRenderer`, is created, but it will be registered only if configuration parameter `format` is set to `html`. Using any other value without providing valid renderer will cause Dokka to fail. 
 
 ## Multimodule page generation endpoints
 
@@ -151,7 +151,7 @@ This step uses `CoreExtensions.allModulePageTransformer` entry point. All extens
 
 ## Default extensions' extension points
 
-Default core extension points already have an implementation for providing basic dokka functionality. All of them are declared in `DokkaBase` plugin. If you don't want this default extensions to load, all you need to do is not load dokka base and load your plugin instead.
+Default core extension points already have an implementation for providing basic Dokka functionality. All of them are declared in `DokkaBase` plugin. If you don't want this default extensions to load, all you need to do is not load Dokka base and load your plugin instead.
  
  ```kotlin
 val customPlugin by configurations.creating

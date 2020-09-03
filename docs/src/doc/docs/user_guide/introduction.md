@@ -5,13 +5,13 @@ Dokka can be customized with plugins. Each output format is internally a plugin.
 Additionally, `kotlin-as-java` plugin can be used to generate documentation as seen from Java perspective. 
 Currently maintained plugins are:
 
-* `dokka-base` - the main plugin needed to run dokka, contains html format
+* `dokka-base` - the main plugin needed to run Dokka, contains html format
 * `gfm-plugin` - configures `GFM` output format
 * `jekyll-plugin` - configures `Jekyll` output format
 * `javadoc-plugin` - configures `Javadoc` output format, automatically applies `kotlin-as-java-plugin` 
 * `kotlin-as-java-plugin` - translates Kotlin definitions to Java 
 
-Please see the usage instructions for each build system on how to add plugins to dokka. 
+Please see the usage instructions for each build system on how to add plugins to Dokka. 
 
 ## Source sets 
 Dokka generates documentation based on source sets. 
@@ -53,7 +53,7 @@ kotlin { // Kotlin plugin configuration
   * `jekyll` - Jekyll compatible markdown
 
 If you want to generate the documentation as seen from Java perspective, you can add the `kotlin-as-java` plugin
-to the dokka plugins classpath, eg. in Gradle:
+to the Dokka plugins classpath, eg. in Gradle:
 
 ```kotlin
 dependencies{
@@ -64,7 +64,7 @@ dependencies{
 
 ## Platforms
 
-Each dokka source set is analyzed for a specific platform. The platform should be extracted automatically from the Kotlin plugin.
+Each Dokka source set is analyzed for a specific platform. The platform should be extracted automatically from the Kotlin plugin.
 In case of a manual source set configuration, you have to select one of the following:
 
   * `jvm`

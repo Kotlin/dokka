@@ -1,4 +1,4 @@
-site_name: dokka
+site_name: Dokka
 
 # Meta tags (placed in header)
 site_description: Dokka is a documentation engine for Kotlin, performing the same function as javadoc for Java
