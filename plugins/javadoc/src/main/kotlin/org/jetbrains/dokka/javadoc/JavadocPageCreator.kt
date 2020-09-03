@@ -15,14 +15,16 @@ import org.jetbrains.dokka.model.doc.TagWrapper
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.jetbrains.dokka.pages.*
+import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.utilities.DokkaLogger
 import kotlin.reflect.KClass
 
 open class JavadocPageCreator(
-    commentsToContentConverter: CommentsToContentConverter,
+    context: DokkaContext,
     private val signatureProvider: SignatureProvider,
     val logger: DokkaLogger
 ) {
+    private val documentationVersion = context.configuration.moduleVersion
 
     fun pageForModule(m: DModule): JavadocModulePageNode =
         JavadocModulePageNode(
@@ -80,7 +82,7 @@ open class JavadocPageCreator(
             JavadocContentKind.OverviewSummary,
             m.jvmSourceSets.toDisplaySourceSets()
         ) {
-            title(m.name, m.brief(), "0.0.1", dri = setOf(m.dri), kind = ContentKind.Main)
+            title(m.name, m.brief(), documentationVersion, dri = setOf(m.dri), kind = ContentKind.Main)
             leafList(setOf(m.dri),
                 ContentKind.Packages, JavadocList(
                     "Packages", "Package",
@@ -99,7 +101,7 @@ open class JavadocPageCreator(
             JavadocContentKind.PackageSummary,
             p.jvmSourceSets.toDisplaySourceSets()
         ) {
-            title(p.name, p.brief(), "0.0.1", dri = setOf(p.dri), kind = ContentKind.Packages)
+            title("Package ${p.name}", p.brief(), dri = setOf(p.dri), kind = ContentKind.Packages)
             val rootList = p.classlikes.groupBy { it::class }.map { (key, value) ->
                 JavadocList(key.tabTitle, key.colTitle, value.map { c ->
                     RowJavadocListEntry(
@@ -133,7 +135,7 @@ open class JavadocPageCreator(
             title(
                 c.name.orEmpty(),
                 c.brief(),
-                "0.0.1",
+                documentationVersion,
                 parent = c.dri.packageName,
                 dri = setOf(c.dri),
                 kind = JavadocContentKind.Class

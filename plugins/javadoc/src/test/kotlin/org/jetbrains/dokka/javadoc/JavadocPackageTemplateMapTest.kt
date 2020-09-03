@@ -31,7 +31,7 @@ internal class JavadocPackageTemplateMapTest : AbstractJavadocTemplateMapTest() 
             val map = singlePageOfType<JavadocPackagePageNode>().templateMap
             assertEquals("Class Summary", ((map["lists"] as List<*>).first() as Map<String, *>)["tabTitle"])
             assertEquals("Class", ((map["lists"] as List<*>).first() as Map<String, *>)["colTitle"])
-            assertEquals("com.test.package0", map["title"])
+            assertEquals("Package com.test.package0", map["title"])
             assertEquals("", map["subtitle"])
             assertEquals("package", map["kind"])
 
