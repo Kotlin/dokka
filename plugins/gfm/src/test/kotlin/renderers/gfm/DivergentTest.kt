@@ -6,7 +6,7 @@ import org.jetbrains.dokka.gfm.CommonmarkRenderer
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.pages.ContentDivergentGroup
 import org.junit.jupiter.api.Test
-import renderers.TestPage
+import renderers.testPage
 import testApi.testRunner.defaultSourceSet
 import java.io.File
 
@@ -32,7 +32,7 @@ class DivergentTest : GfmRenderingOnlyTestBase() {
 
     @Test
     fun simpleWrappingCase() {
-        val page = TestPage {
+        val page = testPage {
             divergentGroup(ContentDivergentGroup.GroupID("test")) {
                 instance(setOf(DRI("test", "Test")), setOf(js)) {
                     divergent {
@@ -48,7 +48,7 @@ class DivergentTest : GfmRenderingOnlyTestBase() {
 
     @Test
     fun noPlatformHintCase() {
-        val page = TestPage {
+        val page = testPage {
             divergentGroup(ContentDivergentGroup.GroupID("test"), implicitlySourceSetHinted = false) {
                 instance(setOf(DRI("test", "Test")), setOf(js)) {
                     divergent {
@@ -64,7 +64,7 @@ class DivergentTest : GfmRenderingOnlyTestBase() {
 
     @Test
     fun divergentBetweenSourceSets() {
-        val page = TestPage {
+        val page = testPage {
             divergentGroup(ContentDivergentGroup.GroupID("test")) {
                 instance(setOf(DRI("test", "Test")), setOf(js)) {
                     divergent {
@@ -90,7 +90,7 @@ class DivergentTest : GfmRenderingOnlyTestBase() {
 
     @Test
     fun divergentInOneSourceSet() {
-        val page = TestPage {
+        val page = testPage {
             divergentGroup(ContentDivergentGroup.GroupID("test")) {
                 instance(setOf(DRI("test", "Test")), setOf(js)) {
                     divergent {
@@ -116,7 +116,7 @@ class DivergentTest : GfmRenderingOnlyTestBase() {
 
     @Test
     fun divergentInAndBetweenSourceSets() {
-        val page = TestPage {
+        val page = testPage {
             divergentGroup(ContentDivergentGroup.GroupID("test")) {
                 instance(setOf(DRI("test", "Test")), setOf(native)) {
                     divergent {
@@ -152,7 +152,7 @@ class DivergentTest : GfmRenderingOnlyTestBase() {
 
     @Test
     fun divergentInAndBetweenSourceSetsWithGrouping() {
-        val page = TestPage {
+        val page = testPage {
             divergentGroup(ContentDivergentGroup.GroupID("test")) {
                 instance(setOf(DRI("test", "Test")), setOf(native)) {
                     divergent {
@@ -200,7 +200,7 @@ class DivergentTest : GfmRenderingOnlyTestBase() {
 
     @Test
     fun divergentSameBefore() {
-        val page = TestPage {
+        val page = testPage {
             divergentGroup(ContentDivergentGroup.GroupID("test")) {
                 instance(setOf(DRI("test", "Test")), setOf(native)) {
                     before {
@@ -227,7 +227,7 @@ class DivergentTest : GfmRenderingOnlyTestBase() {
 
     @Test
     fun divergentSameAfter() {
-        val page = TestPage {
+        val page = testPage {
             divergentGroup(ContentDivergentGroup.GroupID("test")) {
                 instance(setOf(DRI("test", "Test")), setOf(native)) {
                     divergent {
@@ -254,7 +254,7 @@ class DivergentTest : GfmRenderingOnlyTestBase() {
 
     @Test
     fun divergentGroupedByBeforeAndAfter() {
-        val page = TestPage {
+        val page = testPage {
             divergentGroup(ContentDivergentGroup.GroupID("test")) {
                 instance(setOf(DRI("test", "Test")), setOf(native)) {
                     before {
@@ -287,7 +287,7 @@ class DivergentTest : GfmRenderingOnlyTestBase() {
 
     @Test
     fun divergentDifferentBeforeAndAfter() {
-        val page = TestPage {
+        val page = testPage {
             divergentGroup(ContentDivergentGroup.GroupID("test")) {
                 instance(setOf(DRI("test", "Test")), setOf(native)) {
                     before {
@@ -320,7 +320,7 @@ class DivergentTest : GfmRenderingOnlyTestBase() {
 
     @Test
     fun divergentInAndBetweenSourceSetsWithGroupingAncCommonParts() {
-        val page = TestPage {
+        val page = testPage {
             divergentGroup(ContentDivergentGroup.GroupID("test")) {
                 instance(setOf(DRI("test", "Test")), setOf(native)) {
                     divergent {

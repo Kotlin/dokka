@@ -5,7 +5,7 @@ import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.gfm.CommonmarkRenderer
 import org.jetbrains.dokka.pages.TextStyle
 import org.junit.jupiter.api.Test
-import renderers.TestPage
+import renderers.testPage
 import testApi.testRunner.defaultSourceSet
 import java.io.File
 
@@ -32,7 +32,7 @@ class SourceSetDependentHintTest : GfmRenderingOnlyTestBase() {
 
     @Test
     fun platformIndependentCase() {
-        val page = TestPage {
+        val page = testPage {
             sourceSetDependentHint(sourceSets = setOf(pl1, pl2, pl3), styles = setOf(TextStyle.Block)) {
                 text("a")
                 text("b")
@@ -46,7 +46,7 @@ class SourceSetDependentHintTest : GfmRenderingOnlyTestBase() {
 
     @Test
     fun completelyDivergentCase() {
-        val page = TestPage {
+        val page = testPage {
             sourceSetDependentHint(sourceSets = setOf(pl1, pl2, pl3), styles = setOf(TextStyle.Block)) {
                 text("a", sourceSets = setOf(pl1))
                 text("b", sourceSets = setOf(pl2))
@@ -60,7 +60,7 @@ class SourceSetDependentHintTest : GfmRenderingOnlyTestBase() {
 
     @Test
     fun overlappingCase() {
-        val page = TestPage {
+        val page = testPage {
             sourceSetDependentHint(sourceSets = setOf(pl1, pl2), styles = setOf(TextStyle.Block)) {
                 text("a", sourceSets = setOf(pl1))
                 text("b", sourceSets = setOf(pl1, pl2))
@@ -74,7 +74,7 @@ class SourceSetDependentHintTest : GfmRenderingOnlyTestBase() {
 
     @Test
     fun caseThatCanBeSimplified() {
-        val page = TestPage {
+        val page = testPage {
             sourceSetDependentHint(sourceSets = setOf(pl1, pl2), styles = setOf(TextStyle.Block)) {
                 text("a", sourceSets = setOf(pl1, pl2))
                 text("b", sourceSets = setOf(pl1))
@@ -88,7 +88,7 @@ class SourceSetDependentHintTest : GfmRenderingOnlyTestBase() {
 
     @Test
     fun caseWithGroupBreakingSimplification() {
-        val page = TestPage {
+        val page = testPage {
             sourceSetDependentHint(sourceSets = setOf(pl1, pl2), styles = setOf(TextStyle.Block)) {
                 group(styles = setOf(TextStyle.Block)) {
                     text("a", sourceSets = setOf(pl1, pl2))
@@ -104,7 +104,7 @@ class SourceSetDependentHintTest : GfmRenderingOnlyTestBase() {
 
     @Test
     fun caseWithGroupNotBreakingSimplification() {
-        val page = TestPage {
+        val page = testPage {
             sourceSetDependentHint(sourceSets = setOf(pl1, pl2)) {
                 group {
                     text("a", sourceSets = setOf(pl1, pl2))
@@ -120,7 +120,7 @@ class SourceSetDependentHintTest : GfmRenderingOnlyTestBase() {
 
     @Test
     fun partiallyUnifiedCase() {
-        val page = TestPage {
+        val page = testPage {
             sourceSetDependentHint(sourceSets = setOf(pl1, pl2, pl3), styles = setOf(TextStyle.Block)) {
                 text("a", sourceSets = setOf(pl1))
                 text("a", sourceSets = setOf(pl2))
