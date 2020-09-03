@@ -12,7 +12,7 @@ class GroupWrappingTest : HtmlRenderingOnlyTestBase() {
 
     @Test
     fun notWrapped() {
-        val page = TestPage {
+        val page = testPage {
             group {
                 text("a")
                 text("b")
@@ -27,7 +27,7 @@ class GroupWrappingTest : HtmlRenderingOnlyTestBase() {
 
     @Test
     fun paragraphWrapped() {
-        val page = TestPage {
+        val page = testPage {
             group(styles = setOf(TextStyle.Paragraph)) {
                 text("a")
                 text("b")
@@ -42,7 +42,7 @@ class GroupWrappingTest : HtmlRenderingOnlyTestBase() {
 
     @Test
     fun blockWrapped() {
-        val page = TestPage {
+        val page = testPage {
             group(styles = setOf(TextStyle.Block)) {
                 text("a")
                 text("b")
@@ -57,7 +57,7 @@ class GroupWrappingTest : HtmlRenderingOnlyTestBase() {
 
     @Test
     fun nested() {
-        val page = TestPage {
+        val page = testPage {
             group(styles = setOf(TextStyle.Block)) {
                 text("a")
                 group(styles = setOf(TextStyle.Block)) {
