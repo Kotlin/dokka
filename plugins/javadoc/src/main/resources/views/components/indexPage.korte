@@ -1,6 +1,6 @@
 <main role="main">
     <div class="header">
-        <h1 {{ h1Title(kind)|raw }}class="title">{{ title }}</h1>
+        <h1 {{ h1Title(kind)|raw }}class="title">{{ title }} {% if version != null %}{{ version }} API {% endif %}</h1>
     </div>
         <div class="header">
             <div class="subtitle">

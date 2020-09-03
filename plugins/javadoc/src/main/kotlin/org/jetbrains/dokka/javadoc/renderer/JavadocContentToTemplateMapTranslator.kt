@@ -22,7 +22,7 @@ internal class JavadocContentToTemplateMapTranslator(
 ) {
 
     fun templateMapForPageNode(node: JavadocPageNode): TemplateMap =
-        mapOf<String, Any?>(
+        mapOf(
             "docName" to "docName", // todo docname
             "pathToRoot" to pathToRoot(node),
             "contextRoot" to node,

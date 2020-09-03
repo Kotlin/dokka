@@ -23,6 +23,12 @@ class GlobalArguments(args: Array<String>) : DokkaConfiguration {
 
     override val moduleName: String by _moduleName
 
+    override val moduleVersion by parser.option(
+        ArgType.String,
+        description = "Documentation version",
+        fullName = "moduleVersion"
+    )
+
     override val outputDir by parser.option(ArgTypeFile, description = "Output directory path")
         .default(DokkaDefaults.outputDir)
 

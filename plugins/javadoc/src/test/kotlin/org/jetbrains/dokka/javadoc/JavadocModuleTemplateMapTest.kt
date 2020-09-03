@@ -64,9 +64,11 @@ internal class JavadocModuleTemplateMapTest : AbstractJavadocTemplateMapTest() {
             /src/com/test/package1/Test1.java
             package com.test.package1;
             public class Test1 {}
-            """
+            """,
+            configuration = config.copy(moduleVersion = "1.2.3-SNAPSHOT")
         ) {
             val moduleTemplateMap = singlePageOfType<JavadocModulePageNode>().templateMap
+            assertEquals("1.2.3-SNAPSHOT", moduleTemplateMap["version"])
             val list = assertIsInstance<List<*>>(moduleTemplateMap["list"])
             assertEquals(2, list.size, "Expected two entries in 'list'")
             assertEquals("com.test.package0", assertIsInstance<RowJavadocListEntry>(list[0]).link.name)
