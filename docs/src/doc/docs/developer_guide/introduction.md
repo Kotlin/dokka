@@ -1,9 +1,9 @@
 # Guide to Dokka Plugin development
 
-## Building dokka
+## Building Dokka
 
 Dokka is built with Gradle. To build it, use `./gradlew build`.
-Alternatively, open the project directory in IntelliJ IDEA and use the IDE to build and run dokka.
+Alternatively, open the project directory in IntelliJ IDEA and use the IDE to build and run Dokka.
 
 Here's how to import and configure Dokka in IntelliJ IDEA 2019.3:
 
@@ -42,7 +42,7 @@ tasks.withType<KotlinCompile> {
 
 ## Building sample plugin
 
-In order to load a plugin into dokka, your class must extend `DokkaPlugin` class. All instances are automatically loaded during dokka setup using `java.util.ServiceLoader`.
+In order to load a plugin into Dokka, your class must extend `DokkaPlugin` class. All instances are automatically loaded during Dokka setup using `java.util.ServiceLoader`.
 
 Dokka provides a set of entry points, for which user can create their own implementations. They must be delegated using `DokkaPlugin.extending(definition: ExtendingDSL.() -> Extension<T, *, *>)` function,that returns a delegate `ExtensionProvider` with supplied definition. 
 
