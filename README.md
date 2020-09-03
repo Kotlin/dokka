@@ -7,7 +7,7 @@ and can generate documentation in multiple formats including standard Javadoc, H
 
 ## Using Dokka
 
-**Full documentation is available at [http://kotlin.github.io/dokka](http://kotlin.github.io/dokka)**
+**Full documentation is available at [https://kotlin.github.io/dokka/1.4.0/](https://kotlin.github.io/dokka/1.4.0/)**
 
 ### Using the Gradle plugin
 _Note: If you are upgrading from 0.10.x to a current release of Dokka, please have a look at our 
