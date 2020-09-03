@@ -1,10 +1,10 @@
 # Using the Gradle plugin
 
 !!! important
-    If you are upgrading from 0.10.x to a current release of dokka, please have a look at our 
+    If you are upgrading from 0.10.x to a current release of Dokka, please have a look at our 
     [migration guide](https://github.com/Kotlin/dokka/blob/master/runners/gradle-plugin/MIGRATION.md)
 
-The preferred way is to use `plugins` block. Since dokka is currently not published to the Gradle plugin portal, 
+The preferred way is to use `plugins` block. Since Dokka is currently not published to the Gradle plugin portal, 
 you not only need to add `dokka` to the `build.gradle.kts` file, but you also need to modify the `settings.gradle.kts` file: 
  
 build.gradle.kts:
@@ -53,9 +53,9 @@ The plugin adds `dokkaHtml`, `dokkaJavadoc`, `dokkaGfm` and `dokkaJekyll` tasks 
 Each task corresponds to one output format, so you should run `dokkaGfm` when you want to have a documentation in `GFM` format.
 Output formats are explained in [the introduction](../introduction.md#output-formats)
 
-If you encounter any problems when migrating from older versions of dokka, please see the [FAQ](https://github.com/Kotlin/dokka/wiki/faq).
+If you encounter any problems when migrating from older versions of Dokka, please see the [FAQ](https://github.com/Kotlin/dokka/wiki/faq).
 
-Minimal dokka configuration (with only custom output directory)
+Minimal configuration (with custom output directory only):
 
 Kotlin
 ```kotlin
@@ -188,7 +188,7 @@ dokkaHtml {
 
 ## Multiplatform
 Dokka supports single-platform and multi-platform projects using source sets abstraction. For most mutli-platform projects
-you should assume that dokka's source sets correspond to Kotlin plugin's source sets. All source sets are by default registered
+you should assume that Dokka's source sets correspond to Kotlin plugin's source sets. All source sets are by default registered
 and configured automatically although test source sets are suppressed
 
 Kotlin
@@ -230,7 +230,7 @@ dependencies {
 }
 ``` 
 
-You can also create a custom dokka task and add plugins directly inside:
+You can also create a custom Dokka task and add plugins directly inside:
 
 ```kotlin
 val customDokkaTask by creating(DokkaTask::class) {
@@ -252,7 +252,7 @@ To generate the documentation, use the appropriate `dokka${format}` Gradle task:
 ## Android
 
 !!! important
-    Make sure you apply dokka after `com.android.library` and `kotlin-android`.
+    Make sure you apply Dokka after `com.android.library` and `kotlin-android`.
 
 ```kotlin
 buildscript {
@@ -292,7 +292,7 @@ tasks.dokkaHtmlMultiModule.configure {
 }
 ```
 
-`DokkaMultiModule` depends on all dokka tasks in the subprojects, runs them, and creates a toplevel page (based on the `documentationFile`)
+`DokkaMultiModule` depends on all Dokka tasks in the subprojects, runs them, and creates a toplevel page (based on the `documentationFile`)
 with links to all generated (sub)documentations
 
 ## Example project

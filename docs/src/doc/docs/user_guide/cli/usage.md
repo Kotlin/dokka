@@ -13,7 +13,7 @@ Dokka supports the following command line arguments:
   * `-outputDir` - the output directory where the documentation is generated
   * `-moduleName` - (required) - module name used as a part of source set ID when declaring dependent source sets
   * `-cacheRoot` - cache directory to enable package-list caching
-  * `-pluginsClasspath` - artifacts with dokka plugins, separated by `;`. At least dokka base and all its dependencies must be added there 
+  * `-pluginsClasspath` - artifacts with Dokka plugins, separated by `;`. At least `dokka-base` and all its dependencies must be added there 
   * `-offlineMode` - do not resolve package-lists online
   * `-failOnWarning` - throw an exception instead of a warning
   * `-globalPackageOptions` - per package options added to all source sets
@@ -39,10 +39,10 @@ Dokka supports the following command line arguments:
     * `-analysisPlatform` - platform used for analysis, see the [Platforms](#platforms) section
     * `-dependentSourceSets` - list of dependent source sets in format `moduleName/sourceSetName`, separated by `;`
 
-You can also use a JSON file with dokka configuration:
+You can also use a JSON file with Dokka configuration:
  ```
  java -jar <dokka_cli.jar> <path_to_config.json>
  ```
 
 ## Applying plugins
-To apply a dokka plugin you have to provide it and all its dependencies in the `pluginsClasspath` parameter
+To apply a Dokka plugin you have to provide it and all its dependencies in the `pluginsClasspath` parameter
