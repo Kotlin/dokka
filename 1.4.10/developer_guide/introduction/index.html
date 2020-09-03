@@ -42,7 +42,7 @@
     
     
       
-        <title>Introduction - dokka</title>
+        <title>Introduction - Dokka</title>
       
     
     
@@ -94,7 +94,7 @@
   <nav class="md-header-nav md-grid">
     <div class="md-flex">
       <div class="md-flex__cell md-flex__cell--shrink">
-        <a href="https://github.com/Kotlin/dokka/1.4.10" title="dokka" aria-label="dokka" class="md-header-nav__button md-logo">
+        <a href="https://github.com/Kotlin/dokka/1.4.10" title="Dokka" aria-label="Dokka" class="md-header-nav__button md-logo">
           
             <i class="md-icon"></i>
           
@@ -107,7 +107,7 @@
         <div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
           
             <span class="md-header-nav__topic">
-              dokka
+              Dokka
             </span>
             <span class="md-header-nav__topic">
               
@@ -186,12 +186,12 @@
                   <div class="md-sidebar__inner">
                     <nav class="md-nav md-nav--primary" data-md-level="0">
   <label class="md-nav__title md-nav__title--site" for="__drawer">
-    <a href="https://github.com/Kotlin/dokka/1.4.10" title="dokka" class="md-nav__button md-logo">
+    <a href="https://github.com/Kotlin/dokka/1.4.10" title="Dokka" class="md-nav__button md-logo">
       
         <i class="md-icon"></i>
       
     </a>
-    dokka
+    Dokka
   </label>
   
     <div class="md-nav__source">
@@ -355,7 +355,7 @@
       
         <li class="md-nav__item">
   <a href="#building-dokka" class="md-nav__link">
-    Building dokka
+    Building Dokka
   </a>
   
 </li>
@@ -504,7 +504,7 @@
       
         <li class="md-nav__item">
   <a href="#building-dokka" class="md-nav__link">
-    Building dokka
+    Building Dokka
   </a>
   
 </li>
@@ -563,9 +563,9 @@
                 
                 
                 <h1 id="guide-to-dokka-plugin-development">Guide to Dokka Plugin development<a class="headerlink" href="#guide-to-dokka-plugin-development" title="Permanent link">&para;</a></h1>
-<h2 id="building-dokka">Building dokka<a class="headerlink" href="#building-dokka" title="Permanent link">&para;</a></h2>
+<h2 id="building-dokka">Building Dokka<a class="headerlink" href="#building-dokka" title="Permanent link">&para;</a></h2>
 <p>Dokka is built with Gradle. To build it, use <code>./gradlew build</code>.
-Alternatively, open the project directory in IntelliJ IDEA and use the IDE to build and run dokka.</p>
+Alternatively, open the project directory in IntelliJ IDEA and use the IDE to build and run Dokka.</p>
 <p>Here's how to import and configure Dokka in IntelliJ IDEA 2019.3:</p>
 <ul>
 <li>Select "Open" from the IDEA welcome screen, or File &gt; Open if a project is
@@ -600,7 +600,7 @@ to ignore this as the next step will address this error</p>
 </code></pre></div>
 
 <h2 id="building-sample-plugin">Building sample plugin<a class="headerlink" href="#building-sample-plugin" title="Permanent link">&para;</a></h2>
-<p>In order to load a plugin into dokka, your class must extend <code>DokkaPlugin</code> class. All instances are automatically loaded during dokka setup using <code>java.util.ServiceLoader</code>.</p>
+<p>In order to load a plugin into Dokka, your class must extend <code>DokkaPlugin</code> class. All instances are automatically loaded during Dokka setup using <code>java.util.ServiceLoader</code>.</p>
 <p>Dokka provides a set of entry points, for which user can create their own implementations. They must be delegated using <code>DokkaPlugin.extending(definition: ExtendingDSL.() -&gt; Extension&lt;T, *, *&gt;)</code> function,that returns a delegate <code>ExtensionProvider</code> with supplied definition. </p>
 <p>To create a definition, you can use one of two infix functions<code>with(T)</code> or <code>providing( (DokkaContext) -&gt; T)</code> where <code>T</code> is the type of an extended endpoint. You can also use infix functions:</p>
 <ul>

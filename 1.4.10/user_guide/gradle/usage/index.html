@@ -42,7 +42,7 @@
     
     
       
-        <title>Gradle - dokka</title>
+        <title>Gradle - Dokka</title>
       
     
     
@@ -94,7 +94,7 @@
   <nav class="md-header-nav md-grid">
     <div class="md-flex">
       <div class="md-flex__cell md-flex__cell--shrink">
-        <a href="https://github.com/Kotlin/dokka/1.4.10" title="dokka" aria-label="dokka" class="md-header-nav__button md-logo">
+        <a href="https://github.com/Kotlin/dokka/1.4.10" title="Dokka" aria-label="Dokka" class="md-header-nav__button md-logo">
           
             <i class="md-icon"></i>
           
@@ -107,7 +107,7 @@
         <div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
           
             <span class="md-header-nav__topic">
-              dokka
+              Dokka
             </span>
             <span class="md-header-nav__topic">
               
@@ -186,12 +186,12 @@
                   <div class="md-sidebar__inner">
                     <nav class="md-nav md-nav--primary" data-md-level="0">
   <label class="md-nav__title md-nav__title--site" for="__drawer">
-    <a href="https://github.com/Kotlin/dokka/1.4.10" title="dokka" class="md-nav__button md-logo">
+    <a href="https://github.com/Kotlin/dokka/1.4.10" title="Dokka" class="md-nav__button md-logo">
       
         <i class="md-icon"></i>
       
     </a>
-    dokka
+    Dokka
   </label>
   
     <div class="md-nav__source">
@@ -567,10 +567,10 @@
                 <h1 id="using-the-gradle-plugin">Using the Gradle plugin<a class="headerlink" href="#using-the-gradle-plugin" title="Permanent link">&para;</a></h1>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
-<p>If you are upgrading from 0.10.x to a current release of dokka, please have a look at our 
+<p>If you are upgrading from 0.10.x to a current release of Dokka, please have a look at our 
 <a href="https://github.com/Kotlin/dokka/blob/master/runners/gradle-plugin/MIGRATION.md">migration guide</a></p>
 </div>
-<p>The preferred way is to use <code>plugins</code> block. Since dokka is currently not published to the Gradle plugin portal, 
+<p>The preferred way is to use <code>plugins</code> block. Since Dokka is currently not published to the Gradle plugin portal, 
 you not only need to add <code>dokka</code> to the <code>build.gradle.kts</code> file, but you also need to modify the <code>settings.gradle.kts</code> file: </p>
 <p>build.gradle.kts:
 <div class="codehilite"><pre><span></span><code><span class="n">plugins</span> <span class="p">{</span>
@@ -610,8 +610,8 @@ eg. you'll have to use <code>named&lt;DokkaTask&gt;("dokkaHtml")</code> instead 
 <p>The plugin adds <code>dokkaHtml</code>, <code>dokkaJavadoc</code>, <code>dokkaGfm</code> and <code>dokkaJekyll</code> tasks to the project.</p>
 <p>Each task corresponds to one output format, so you should run <code>dokkaGfm</code> when you want to have a documentation in <code>GFM</code> format.
 Output formats are explained in <a href="../../introduction/#output-formats">the introduction</a></p>
-<p>If you encounter any problems when migrating from older versions of dokka, please see the <a href="https://github.com/Kotlin/dokka/wiki/faq">FAQ</a>.</p>
-<p>Minimal dokka configuration (with only custom output directory)</p>
+<p>If you encounter any problems when migrating from older versions of Dokka, please see the <a href="https://github.com/Kotlin/dokka/wiki/faq">FAQ</a>.</p>
+<p>Minimal configuration (with custom output directory only):</p>
 <p>Kotlin
 <div class="codehilite"><pre><span></span><code><span class="n">tasks</span><span class="p">.</span><span class="n">dokkaHtml</span><span class="p">.</span><span class="n">configure</span> <span class="p">{</span>
     <span class="n">outputDirectory</span><span class="p">.</span><span class="k">set</span><span class="p">(</span><span class="n">buildDir</span><span class="p">.</span><span class="n">resolve</span><span class="p">(</span><span class="s">&quot;dokka&quot;</span><span class="p">))</span>
@@ -735,7 +735,7 @@ The available configuration options for are shown below:</p>
 
 <h2 id="multiplatform">Multiplatform<a class="headerlink" href="#multiplatform" title="Permanent link">&para;</a></h2>
 <p>Dokka supports single-platform and multi-platform projects using source sets abstraction. For most mutli-platform projects
-you should assume that dokka's source sets correspond to Kotlin plugin's source sets. All source sets are by default registered
+you should assume that Dokka's source sets correspond to Kotlin plugin's source sets. All source sets are by default registered
 and configured automatically although test source sets are suppressed</p>
 <p>Kotlin
 <div class="codehilite"><pre><span></span><code><span class="n">kotlin</span> <span class="p">{</span>  <span class="c1">// Kotlin Multiplatform plugin configuration</span>
@@ -773,7 +773,7 @@ and configured automatically although test source sets are suppressed</p>
 <span class="p">}</span>
 </code></pre></div>
 
-<p>You can also create a custom dokka task and add plugins directly inside:</p>
+<p>You can also create a custom Dokka task and add plugins directly inside:</p>
 <div class="codehilite"><pre><span></span><code><span class="k">val</span> <span class="py">customDokkaTask</span> <span class="k">by</span> <span class="n">creating</span><span class="p">(</span><span class="n">DokkaTask</span><span class="o">::</span><span class="k">class</span><span class="p">)</span> <span class="p">{</span>
     <span class="n">dependencies</span> <span class="p">{</span>
         <span class="n">plugins</span><span class="p">(</span><span class="s">&quot;org.jetbrains.dokka:kotlin-as-java-plugin:1.4.0-rc&quot;</span><span class="p">)</span>
@@ -792,7 +792,7 @@ and configured automatically although test source sets are suppressed</p>
 <h2 id="android">Android<a class="headerlink" href="#android" title="Permanent link">&para;</a></h2>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
-<p>Make sure you apply dokka after <code>com.android.library</code> and <code>kotlin-android</code>.</p>
+<p>Make sure you apply Dokka after <code>com.android.library</code> and <code>kotlin-android</code>.</p>
 </div>
 <div class="codehilite"><pre><span></span><code><span class="n">buildscript</span> <span class="p">{</span>
     <span class="n">repositories</span> <span class="p">{</span>
@@ -828,7 +828,7 @@ and configured automatically although test source sets are suppressed</p>
 <span class="p">}</span>
 </code></pre></div>
 
-<p><code>DokkaMultiModule</code> depends on all dokka tasks in the subprojects, runs them, and creates a toplevel page (based on the <code>documentationFile</code>)
+<p><code>DokkaMultiModule</code> depends on all Dokka tasks in the subprojects, runs them, and creates a toplevel page (based on the <code>documentationFile</code>)
 with links to all generated (sub)documentations</p>
 <h2 id="example-project">Example project<a class="headerlink" href="#example-project" title="Permanent link">&para;</a></h2>
 <p>Please see the <a href="https://github.com/Kotlin/kotlin-examples/tree/master/gradle/dokka/dokka-gradle-example">Dokka Gradle example project</a> for an example.</p>

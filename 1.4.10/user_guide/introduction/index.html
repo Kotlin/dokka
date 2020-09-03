@@ -42,7 +42,7 @@
     
     
       
-        <title>Introduction - dokka</title>
+        <title>Introduction - Dokka</title>
       
     
     
@@ -94,7 +94,7 @@
   <nav class="md-header-nav md-grid">
     <div class="md-flex">
       <div class="md-flex__cell md-flex__cell--shrink">
-        <a href="https://github.com/Kotlin/dokka/1.4.10" title="dokka" aria-label="dokka" class="md-header-nav__button md-logo">
+        <a href="https://github.com/Kotlin/dokka/1.4.10" title="Dokka" aria-label="Dokka" class="md-header-nav__button md-logo">
           
             <i class="md-icon"></i>
           
@@ -107,7 +107,7 @@
         <div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
           
             <span class="md-header-nav__topic">
-              dokka
+              Dokka
             </span>
             <span class="md-header-nav__topic">
               
@@ -186,12 +186,12 @@
                   <div class="md-sidebar__inner">
                     <nav class="md-nav md-nav--primary" data-md-level="0">
   <label class="md-nav__title md-nav__title--site" for="__drawer">
-    <a href="https://github.com/Kotlin/dokka/1.4.10" title="dokka" class="md-nav__button md-logo">
+    <a href="https://github.com/Kotlin/dokka/1.4.10" title="Dokka" class="md-nav__button md-logo">
       
         <i class="md-icon"></i>
       
     </a>
-    dokka
+    Dokka
   </label>
   
     <div class="md-nav__source">
@@ -542,13 +542,13 @@
 Additionally, <code>kotlin-as-java</code> plugin can be used to generate documentation as seen from Java perspective. 
 Currently maintained plugins are:</p>
 <ul>
-<li><code>dokka-base</code> - the main plugin needed to run dokka, contains html format</li>
+<li><code>dokka-base</code> - the main plugin needed to run Dokka, contains html format</li>
 <li><code>gfm-plugin</code> - configures <code>GFM</code> output format</li>
 <li><code>jekyll-plugin</code> - configures <code>Jekyll</code> output format</li>
 <li><code>javadoc-plugin</code> - configures <code>Javadoc</code> output format, automatically applies <code>kotlin-as-java-plugin</code> </li>
 <li><code>kotlin-as-java-plugin</code> - translates Kotlin definitions to Java </li>
 </ul>
-<p>Please see the usage instructions for each build system on how to add plugins to dokka. </p>
+<p>Please see the usage instructions for each build system on how to add plugins to Dokka. </p>
 <h2 id="source-sets">Source sets<a class="headerlink" href="#source-sets" title="Permanent link">&para;</a></h2>
 <p>Dokka generates documentation based on source sets. </p>
 <p>For single-platform &amp; multi-platform projects, source sets are the same as in Kotlin plugin:</p>
@@ -587,7 +587,7 @@ Eg. in the following Kotlin plugin configuration:</p>
 <li><code>jekyll</code> - Jekyll compatible markdown</li>
 </ul>
 <p>If you want to generate the documentation as seen from Java perspective, you can add the <code>kotlin-as-java</code> plugin
-to the dokka plugins classpath, eg. in Gradle:</p>
+to the Dokka plugins classpath, eg. in Gradle:</p>
 <div class="codehilite"><pre><span></span><code><span class="n">dependencies</span><span class="p">{</span>
     <span class="n">implementation</span><span class="p">(</span><span class="s">&quot;...&quot;</span><span class="p">)</span>
     <span class="n">dokkaGfmPlugin</span><span class="p">(</span><span class="s">&quot;org.jetbrains.dokka:kotlin-as-java-plugin:${dokka-version}&quot;</span><span class="p">)</span>
@@ -595,7 +595,7 @@ to the dokka plugins classpath, eg. in Gradle:</p>
 </code></pre></div>
 
 <h2 id="platforms">Platforms<a class="headerlink" href="#platforms" title="Permanent link">&para;</a></h2>
-<p>Each dokka source set is analyzed for a specific platform. The platform should be extracted automatically from the Kotlin plugin.
+<p>Each Dokka source set is analyzed for a specific platform. The platform should be extracted automatically from the Kotlin plugin.
 In case of a manual source set configuration, you have to select one of the following:</p>
 <ul>
 <li><code>jvm</code></li>
