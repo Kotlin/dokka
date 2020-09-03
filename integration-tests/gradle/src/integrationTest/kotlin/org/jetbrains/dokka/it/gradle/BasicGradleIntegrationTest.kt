@@ -108,6 +108,19 @@ class BasicGradleIntegrationTest(override val versions: BuildVersions) : Abstrac
 
     private fun File.assertJavadocOutputDir() {
         assertTrue(isDirectory, "Missing dokka javadoc output directory")
+
+        val indexFile = File(this, "index.html")
+        assertTrue(indexFile.isFile, "Missing index.html")
+        assertTrue(
+            """<title>Basic Project 1.5-SNAPSHOT API </title>""" in indexFile.readText(),
+            "Header with version number not present in index.html"
+        )
+
+        assertTrue {
+            allHtmlFiles().all {
+                "0.0.1" !in it.readText()
+            }
+        }
     }
 
     private fun File.assertGfmOutputDir() {

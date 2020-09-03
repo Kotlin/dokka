@@ -30,7 +30,7 @@ class JavadocPlugin : DokkaPlugin() {
     val pageTranslator by extending {
         CoreExtensions.documentableToPageTranslator providing { context ->
             JavadocDocumentableToPageTranslator(
-                dokkaBasePlugin.querySingle { commentsToContentConverter },
+                context,
                 dokkaBasePlugin.querySingle { signatureProvider },
                 context.logger
             )

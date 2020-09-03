@@ -79,13 +79,13 @@ class JavaContentGroupBuilder(val sourceSets: Set<DisplaySourceSet>) {
 data class TitleNode(
     val title: String,
     val subtitle: List<ContentNode>,
-    val version: String,
+    val version: String?,
     val parent: String?,
     val dri: Set<DRI>,
     val kind: Kind,
     override val sourceSets: Set<DisplaySourceSet>
 ) : JavadocContentNode(dri, kind, sourceSets) {
-    override fun hasAnyContent(): Boolean = !title.isBlank() || !version.isBlank() || subtitle.isNotEmpty()
+    override fun hasAnyContent(): Boolean = !title.isBlank() || !version.isNullOrBlank() || subtitle.isNotEmpty()
 
     override fun withNewExtras(newExtras: PropertyContainer<ContentNode>): TitleNode = this
 
@@ -96,7 +96,7 @@ data class TitleNode(
 fun JavaContentGroupBuilder.title(
     title: String,
     subtitle: List<ContentNode>,
-    version: String,
+    version: String? = null,
     parent: String? = null,
     dri: Set<DRI>,
     kind: Kind

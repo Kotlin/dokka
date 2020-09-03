@@ -28,6 +28,10 @@ abstract class AbstractDokkaTask(
     val moduleName: Property<String> = project.objects.safeProperty<String>()
         .safeConvention(project.name)
 
+    @Input
+    val moduleVersion: Property<String> = project.objects.safeProperty<String>()
+        .safeConvention(project.version.toString())
+
     @OutputDirectory
     val outputDirectory: Property<File> = project.objects.safeProperty<File>()
         .safeConvention(defaultDokkaOutputDirectory())

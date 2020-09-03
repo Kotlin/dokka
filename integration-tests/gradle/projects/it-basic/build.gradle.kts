@@ -7,6 +7,8 @@ plugins {
     id("org.jetbrains.dokka")
 }
 
+version = "1.5-SNAPSHOT"
+
 apply(from = "../template.root.gradle.kts")
 
 dependencies {
