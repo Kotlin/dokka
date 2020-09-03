@@ -1,6 +1,6 @@
 # Using command line
 
-To run Dokka from the command line, download the [Dokka CLI runner](https://github.com/Kotlin/dokka/releases/download/v1.4.0-rc/dokka-cli-1.4.0-rc.jar).
+To run Dokka from the command line, download the [Dokka CLI runner](https://github.com/Kotlin/dokka/releases/download/v1.4.0/dokka-cli-1.4.0.jar).
 To generate documentation, run the following command:
 ```
 java -jar dokka-cli.jar <arguments>
