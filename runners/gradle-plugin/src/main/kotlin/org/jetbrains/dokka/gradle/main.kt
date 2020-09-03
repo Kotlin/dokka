@@ -4,6 +4,7 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.register
+import org.jetbrains.dokka.Platform
 
 open class DokkaPlugin : Plugin<Project> {
     override fun apply(project: Project) {
@@ -18,6 +19,8 @@ open class DokkaPlugin : Plugin<Project> {
         ) {
             plugins.dependencies.add(project.dokkaArtifacts.javadocPlugin)
             description = "Generates documentation in 'javadoc' format"
+            preConfigureValidityCheck[{ checkIfJavadocConfigurationIsMultiplatform() }] =
+                "Dokka Javadoc plugin currently does not support generating documentation for multiplatform project. Please, adjust your configuration"
         }
 
         project.setupDokkaTasks("dokkaGfm") {
@@ -30,6 +33,14 @@ open class DokkaPlugin : Plugin<Project> {
             description = "Generates documentation in Jekyll flavored markdown format"
         }
     }
+
+    private fun AbstractDokkaTask.checkIfJavadocConfigurationIsMultiplatform(): Boolean =
+        if (this is DokkaTask) {
+            dokkaSourceSets.fold(true) { acc, sourceSet ->
+                val platform = sourceSet.platform.get()
+                acc && (platform == Platform.jvm || platform == Platform.common)
+            }
+        } else true
 
     /**
      * Creates [DokkaTask], [DokkaMultiModuleTask] for the given

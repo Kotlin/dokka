@@ -7,6 +7,7 @@ import org.gradle.api.tasks.Nested
 import org.jetbrains.dokka.DokkaBootstrapImpl
 import org.jetbrains.dokka.DokkaConfigurationImpl
 import org.jetbrains.dokka.build
+import java.lang.IllegalStateException
 
 abstract class DokkaTask : AbstractDokkaTask(DokkaBootstrapImpl::class) {
 
@@ -35,6 +36,9 @@ abstract class DokkaTask : AbstractDokkaTask(DokkaBootstrapImpl::class) {
             .filterNot { it.suppress.getSafe() }
 
     override fun buildDokkaConfiguration(): DokkaConfigurationImpl {
+        val validityIssues = preConfigureValidityCheck.mapNotNull { (check, message) -> message.takeUnless{ check() } }
+        if (validityIssues.isNotEmpty())
+            throw IllegalStateException(validityIssues.joinToString("; "))
         return DokkaConfigurationImpl(
             moduleName = moduleName.getSafe(),
             outputDir = outputDirectory.getSafe(),

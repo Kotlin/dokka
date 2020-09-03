@@ -53,6 +53,8 @@ abstract class AbstractDokkaTask(
     @Classpath
     val runtime: Configuration = project.maybeCreateDokkaRuntimeConfiguration(name)
 
+    internal val preConfigureValidityCheck = mutableMapOf<AbstractDokkaTask.() -> Boolean, String>()
+
     final override fun doFirst(action: Action<in Task>): Task = super.doFirst(action)
 
     final override fun doFirst(action: Closure<*>): Task = super.doFirst(action)
