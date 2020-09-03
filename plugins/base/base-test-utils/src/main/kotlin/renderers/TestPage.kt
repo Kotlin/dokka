@@ -11,16 +11,8 @@ import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder
 import org.jetbrains.dokka.base.signatures.KotlinSignatureProvider
 import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentConverter
 
-class TestPage(callback: PageContentBuilder.DocumentableContentBuilder.() -> Unit) : RootPageNode(), ContentPage {
-    override val dri: Set<DRI> = setOf(DRI.topLevel)
-    override val documentable: Documentable? = null
-    override val embeddedResources: List<String> = emptyList()
-    override val name: String
-        get() = "testPage"
-    override val children: List<PageNode>
-        get() = emptyList()
-
-    override val content: ContentNode = PageContentBuilder(
+fun testPage(callback: PageContentBuilder.DocumentableContentBuilder.() -> Unit): RawTestPage {
+    val content = PageContentBuilder(
         EmptyCommentConverter,
         KotlinSignatureProvider(EmptyCommentConverter, DokkaConsoleLogger),
         DokkaConsoleLogger
@@ -30,15 +22,27 @@ class TestPage(callback: PageContentBuilder.DocumentableContentBuilder.() -> Uni
         block = callback
     )
 
+    return RawTestPage(content)
+}
+
+class RawTestPage(
+    override val content: ContentNode,
+    override val name: String = "testPage",
+    override val dri: Set<DRI> = setOf(DRI.topLevel),
+    override val documentable: Documentable? = null,
+    override val embeddedResources: List<String> = emptyList(),
+    override val children: List<PageNode> = emptyList(),
+): RootPageNode(), ContentPage {
     override fun modified(
         name: String,
         content: ContentNode,
         dri: Set<DRI>,
         embeddedResources: List<String>,
         children: List<PageNode>
-    ) = this
+    ): ContentPage = this
 
-    override fun modified(name: String, children: List<PageNode>) = this
+    override fun modified(name: String, children: List<PageNode>): RootPageNode = this
+
 }
 
 internal object EmptyCommentConverter : CommentsToContentConverter {

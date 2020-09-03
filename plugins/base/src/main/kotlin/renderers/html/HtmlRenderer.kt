@@ -346,15 +346,14 @@ open class HtmlRenderer(
     override fun FlowContent.buildResource(
         node: ContentEmbeddedResource,
         pageContext: ContentPage
-    ) { // TODO: extension point there
-        return if (node.isImage()) {
+    ) = // TODO: extension point there
+        if (node.isImage()) {
             //TODO: add imgAttrs parsing
             val imgAttrs = node.extra.allOfType<SimpleAttr>().joinAttr()
             img(src = node.address, alt = node.altText)
         } else {
             println("Unrecognized resource type: $node")
         }
-    }
 
     private fun FlowContent.buildRow(
         node: ContentGroup,
@@ -393,9 +392,9 @@ open class HtmlRenderer(
                         }
 
                         it.filter { it !is ContentLink }.takeIf { it.isNotEmpty() }?.let {
-                            if(pageContext is ModulePage || pageContext is MultimoduleRootPage){
+                            if (pageContext is ModulePage || pageContext is MultimoduleRootPage) {
                                 it.forEach {
-                                    span(classes = if(it.dci.kind == ContentKind.Comment) "brief-comment" else "") {
+                                    span(classes = if (it.dci.kind == ContentKind.Comment) "brief-comment" else "") {
                                         it.build(this, pageContext, sourceSetRestriction)
                                     }
                                 }
@@ -522,7 +521,7 @@ open class HtmlRenderer(
     override fun FlowContent.buildNavigation(page: PageNode) =
         div(classes = "breadcrumbs") {
             val path = locationProvider.ancestors(page).filterNot { it is RendererSpecificPage }.asReversed()
-            if(path.isNotEmpty()){
+            if (path.isNotEmpty()) {
                 buildNavigationElement(path.first(), page)
                 path.drop(1).forEach { node ->
                     text("/")
@@ -691,7 +690,7 @@ open class HtmlRenderer(
                         div {
                             id = "logo"
                         }
-                        if(page !is MultimoduleRootPage) {
+                        if (page !is MultimoduleRootPage) {
                             div {
                                 id = "paneSearch"
                             }
