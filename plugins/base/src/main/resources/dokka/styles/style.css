@@ -659,7 +659,6 @@ footer {
 }
 
 .platform-tags {
-    flex: 0 0 auto;
     display: flex;
 }
 
@@ -696,6 +695,7 @@ footer {
     top: 20px;
     right: 88px;
     z-index: 0;
+    flex-wrap: wrap;
 }
 
 .platform-selector:hover {
@@ -724,6 +724,7 @@ td.content {
     flex-direction: row;
     padding: 0;
     justify-content: space-between;
+    flex-wrap: wrap;
 }
 
 .main-subrow > span {
@@ -1072,6 +1073,13 @@ div.runnablesample {
     margin-bottom: 0.2em;
 }
 
+@media screen and (max-width: 1119px) {
+    /* TODO this feels wrong as only is an aproximation of correct solution*/
+    .filter-section {
+        position: unset;
+    }
+}
+
 @media screen and (max-width: 759px) {
     #main {
         max-width: 100%;
@@ -1089,7 +1097,7 @@ div.runnablesample {
     #leftColumn.open ~ #main #searchBar {
         display: none;
     }
-     #leftToggler {
+    #leftToggler {
         display: unset;
         position: fixed;
         top: 50%;
@@ -1099,19 +1107,16 @@ div.runnablesample {
         font-size: 30px;
         transition: margin .2s ease-out;
     }
+    #leftToggler .icon-toggler:hover {
+        cursor: pointer;
+    }
     #leftColumn.open ~ #main #leftToggler {
-        margin-left: 280px;;
+        margin-left: 280px;
     }
     .icon-toggler::before {
         content: "\232A";
     }
     #leftColumn.open ~ #main .icon-toggler::before {
         content: "\2329";
-    }
-    .sideMenuPart > .overview:before {
-        width: 100%;
-    }
-    .popup-wrapper {
-        width: 100%; !important
     }
 }
