@@ -12,7 +12,13 @@
 }
 
 .popup-wrapper {
-  min-width: calc(100% - 360px) !important;
+    min-width: calc(100% - 360px) !important;
+}
+
+@media screen and (max-width: 759px){
+    .popup-wrapper {
+      min-width: 100% !important;
+    }
 }
 
 .template-wrapper {
@@ -22,6 +28,17 @@
   span {
     line-height: 32px;  
   }
+}
+
+@media screen and (max-width: 759px){
+    .template-wrapper {
+        display: flex;
+        height: auto;
+        flex-direction: column;
+        span {
+            line-height: unset;
+        }
+    }
 }
 
 .template-name {
