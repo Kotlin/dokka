@@ -42,7 +42,7 @@ fun Project.registerDokkaArtifactPublication(publicationName: String, configure:
 }
 
 fun Project.configureSpacePublicationIfNecessary(vararg publications: String) {
-    if (publicationChannel.isSpaceRepository) {
+    if (SpaceDokkaDev in this.publicationChannels) {
         configure<PublishingExtension> {
             repositories {
                 /* already registered */
@@ -73,17 +73,17 @@ fun Project.configureSpacePublicationIfNecessary(vararg publications: String) {
 
 fun Project.createDokkaPublishTaskIfNecessary() {
     tasks.maybeCreate("dokkaPublish").run {
-        if (publicationChannel.isSpaceRepository) {
+        if (publicationChannels.any { it.isSpaceRepository }) {
             dependsOn(tasks.named("publish"))
         }
-        if (publicationChannel.isBintrayRepository) {
+        if (publicationChannels.any { it.isBintrayRepository }) {
             dependsOn(tasks.named("bintrayUpload"))
         }
     }
 }
 
 fun Project.configureBintrayPublicationIfNecessary(vararg publications: String) {
-    if (publicationChannel.isBintrayRepository) {
+    if (publicationChannels.any { it.isBintrayRepository }) {
         configureBintrayPublication(*publications)
     }
 }
@@ -95,12 +95,20 @@ private fun Project.configureBintrayPublication(vararg publications: String) {
         dryRun = System.getenv("BINTRAY_DRY_RUN") == "true" ||
                 project.properties["bintray_dry_run"] == "true"
         pkg = PackageConfig().apply {
-            repo = when (publicationChannel) {
+            val bintrayPublicationChannels = publicationChannels.filter { it.isBintrayRepository }
+            if (bintrayPublicationChannels.size > 1) {
+                throw IllegalArgumentException(
+                    "Only a single bintray repository can be used for publishing at once. Found $publicationChannels"
+                )
+            }
+
+            repo = when (bintrayPublicationChannels.single()) {
                 SpaceDokkaDev -> throw IllegalStateException("$SpaceDokkaDev is not a bintray repository")
                 BintrayKotlinDev -> "kotlin-dev"
                 BintrayKotlinEap -> "kotlin-eap"
                 BintrayKotlinDokka -> "dokka"
             }
+
             name = "dokka"
             userOrg = "kotlin"
             desc = "Dokka, the Kotlin documentation tool"
