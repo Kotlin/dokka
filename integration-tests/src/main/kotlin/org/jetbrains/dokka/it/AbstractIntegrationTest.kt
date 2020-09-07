@@ -6,6 +6,7 @@ import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import java.io.File
+import java.net.URL
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
@@ -69,15 +70,19 @@ abstract class AbstractIntegrationTest {
                 hrefSplits.first()
             } else href
 
-            val targetFile = File(file.parent, hrefWithoutAnchors)
+            val targetFile = if (href.startsWith("file")) {
+                File(URL(hrefWithoutAnchors).path)
+            } else {
+                File(file.parent, hrefWithoutAnchors)
+            }
+
             if (targetFile.extension.isNotEmpty() && targetFile.extension !in fileExtensions) return@forEach
 
-            if (
-                targetFile.extension.isEmpty() || targetFile.extension == "html" && !href.startsWith("#")) {
+            if (targetFile.extension.isEmpty() || targetFile.extension == "html" && !href.startsWith("#")) {
                 assertTrue(
                     targetFile.exists(),
                     "${file.relativeTo(projectDir).path}: href=\"$href\"\n" +
-                            "file does not exist: ${targetFile.relativeTo(projectDir).path}"
+                            "file does not exist: ${targetFile.path}"
                 )
             }
         }
