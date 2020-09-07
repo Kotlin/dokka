@@ -1,15 +1,13 @@
 package locationProvider
 
-import org.jetbrains.dokka.ExternalDocumentationLink
 import org.jetbrains.dokka.base.resolvers.external.Dokka010ExternalLocationProvider
-import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.base.resolvers.shared.ExternalDocumentation
 import org.jetbrains.dokka.base.resolvers.shared.PackageList
 import org.jetbrains.dokka.links.Callable
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.TypeConstructor
+import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
-import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.net.URL
@@ -24,7 +22,6 @@ class Dokka010ExternalLocationProviderTest : AbstractCoreTest() {
             sourceSet {
                 sourceRoots = listOf("src/")
                 classpath += jvmStdlibPath!!
-                ExternalDocumentationLink(kotlinLang, packageListURL.toString())
             }
         }
     }
@@ -102,5 +99,21 @@ class Dokka010ExternalLocationProviderTest : AbstractCoreTest() {
         )
 
         assertEquals("$kotlinLang/kotlin/-int/max-value.html", locationProvider.resolve(dri))
+    }
+
+    @Test
+    fun `should return null for method not in list`() {
+        val locationProvider = getTestLocationProvider()
+        val dri = DRI(
+            "foo",
+            "Bar",
+            Callable(
+                "baz",
+                null,
+                emptyList()
+            )
+        )
+
+        assertEquals(null, locationProvider.resolve(dri))
     }
 }

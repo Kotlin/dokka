@@ -1,6 +1,5 @@
 package locationProvider
 
-import org.jetbrains.dokka.ExternalDocumentationLink
 import org.jetbrains.dokka.base.resolvers.external.DefaultExternalLocationProvider
 import org.jetbrains.dokka.base.resolvers.shared.ExternalDocumentation
 import org.jetbrains.dokka.base.resolvers.shared.PackageList
@@ -23,7 +22,6 @@ class DefaultExternalLocationProviderTest : AbstractCoreTest() {
             sourceSet {
                 sourceRoots = listOf("src/")
                 classpath += jvmStdlibPath!!
-                ExternalDocumentationLink(kotlinLang, packageListURL.toString())
             }
         }
     }
@@ -61,5 +59,16 @@ class DefaultExternalLocationProviderTest : AbstractCoreTest() {
         )
 
         assertEquals("$kotlinLang/kotlin-stdlib/[JS root]/long-array.html", locationProvider.resolve(dri))
+    }
+
+    @Test
+    fun `should return null for class not in list`() {
+        val locationProvider = getTestLocationProvider()
+        val dri = DRI(
+            "foo",
+            "Bar"
+        )
+
+        assertEquals(null, locationProvider.resolve(dri))
     }
 }
