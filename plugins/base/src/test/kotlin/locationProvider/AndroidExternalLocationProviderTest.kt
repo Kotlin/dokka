@@ -86,4 +86,20 @@ class AndroidExternalLocationProviderTest : AbstractCoreTest() {
             locationProvider.resolve(dri)
         )
     }
+
+    @Test
+    fun `should return null for method not in list`() {
+        val locationProvider = getTestLocationProvider(android)
+        val dri = DRI(
+            "foo",
+            "Bar",
+            Callable(
+                "baz",
+                null,
+                emptyList()
+            )
+        )
+
+        assertEquals(null, locationProvider.resolve(dri))
+    }
 }
