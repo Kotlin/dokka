@@ -9,6 +9,7 @@
     --footer-height: 64px;
     --footer-padding-top: 48px;
     --horizontal-spacing-for-content: 42px;
+    --mobile-horizontal-spacing-for-content: 8px;
 }
 
 #content {
@@ -993,10 +994,6 @@ td.content {
 }
 
 @media print, screen and (max-width: 480px) {
-    body {
-        padding-right: 15px;
-    }
-
     header ul {
         display: none;
     }
@@ -1118,5 +1115,8 @@ div.runnablesample {
     }
     #leftColumn.open ~ #main .icon-toggler::before {
         content: "\2329";
+    }
+    #content {
+        padding: 0 var(--mobile-horizontal-spacing-for-content);
     }
 }
