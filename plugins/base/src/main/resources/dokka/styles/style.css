@@ -143,6 +143,10 @@
     border-bottom: 2px solid white;
 }
 
+.title {
+    overflow-x: auto;
+}
+
 .title > .divergent-group:first-of-type {
     padding-top: 0;
 }
@@ -167,18 +171,8 @@
     flex: 0 0 auto;
 }
 
-@media screen and (max-width: 600px) {
-    #container {
-        flex-direction: column;
-    }
-
-    #leftColumn {
-        border-right: none;
-    }
-}
-
 #sideMenu {
-    max-height: calc(100% - 90px);
+    max-height: calc(100% - 140px);
     padding-top: 16px;
     position: relative;
 }
@@ -241,7 +235,7 @@ code.paragraph {
     background-color: #F4F4F4;
     align-items: center;
     display: block;
-    padding: 8px 8px 8px 16px;
+    padding: 8px 32px 8px 8px;
     box-sizing: border-box;
     white-space: pre-wrap;
     font-weight: bold;
@@ -454,7 +448,6 @@ h1.cover {
     margin-left: calc(-1 * var(--horizontal-spacing-for-content));
     margin-right: calc(-1 * var(--horizontal-spacing-for-content));
     padding-left: var(--horizontal-spacing-for-content);
-    padding-right: var(--horizontal-spacing-for-content);
     border-bottom: 1px solid #DADFE6;
 
     margin-bottom: 0;
@@ -661,6 +654,7 @@ footer {
 
 .platform-tags {
     display: flex;
+    flex-wrap: wrap;
 }
 
 .platform-tags > .platform-tag {
@@ -1082,11 +1076,12 @@ div.runnablesample {
         max-width: 100%;
     }
     #leftColumn {
-        position: absolute;
+        position: fixed;
         margin-left: -280px;
         transition: margin .2s ease-out;
         z-index: 4;
         background: white;
+        height: 100%;
     }
     #leftColumn.open {
         margin-left: 0;
@@ -1099,10 +1094,17 @@ div.runnablesample {
         position: fixed;
         top: 50%;
         transform: translateY(-50%);
-        margin-left: 12px;
         z-index: 5;
-        font-size: 30px;
+        font-size: 20px;
         transition: margin .2s ease-out;
+
+        color: var(--average-color);
+        border: 1px solid var(--average-color);
+        border-left: 0;
+        border-top-right-radius: 1em;
+        border-bottom-right-radius: 1em;
+        padding: 8px 4px 8px 8px;
+        background-color: white;
     }
     #leftToggler .icon-toggler:hover {
         cursor: pointer;
@@ -1115,8 +1117,14 @@ div.runnablesample {
     }
     #leftColumn.open ~ #main .icon-toggler::before {
         content: "\2329";
+        padding-right: 0.5em;
+        margin-left: -0.5em;
     }
     #content {
         padding: 0 var(--mobile-horizontal-spacing-for-content);
+    }
+    #sideMenu {
+        padding-bottom: 16px;
+        overflow: auto;
     }
 }
