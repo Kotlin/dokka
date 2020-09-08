@@ -68,7 +68,7 @@ open class DokkaLocationProvider(
 
     private fun getLocalLocation(dri: Pair<DRI, DisplaySourceSet?>, context: PageNode?): String? =
         pagesIndex[dri]?.let { resolve(it, context) }
-            ?: anchorsIndex[dri]?.let { resolve(it, context) + "#$dri" }
+            ?: anchorsIndex[dri]?.let { resolve(it, context) + "#${dri.first}" }
 
 
     override fun pathToRoot(from: PageNode): String =
