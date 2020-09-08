@@ -16,6 +16,7 @@ import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
+import org.jetbrains.dokka.base.resolvers.anchors.SymbolAnchorHint
 import org.jetbrains.dokka.base.transformers.documentables.ClashingDriIdentifier
 
 private typealias GroupedTags = Map<KClass<out TagWrapper>, List<Pair<DokkaSourceSet?, TagWrapper>>>
@@ -72,8 +73,6 @@ open class DefaultPageCreator(
     }
 
     open fun pageForFunction(f: DFunction) = MemberPageNode(f.name, contentForFunction(f), setOf(f.dri), f)
-
-    open fun pageForTypeAlias(t: DTypeAlias) = MemberPageNode(t.name, contentForTypeAlias(t), setOf(t.dri), t)
 
     private val WithScope.filteredFunctions: List<DFunction>
         get() = functions.mapNotNull { function ->
@@ -476,7 +475,7 @@ open class DefaultPageCreator(
     }
 
     protected open fun contentForFunction(f: DFunction) = contentForMember(f)
-    protected open fun contentForTypeAlias(t: DTypeAlias) = contentForMember(t)
+
     protected open fun contentForMember(d: Documentable) = contentBuilder.contentFor(d) {
         group(kind = ContentKind.Cover) {
             cover(d.name.orEmpty())
@@ -522,7 +521,7 @@ open class DefaultPageCreator(
                                 kind = kind
                             ) {
                                 elements.map {
-                                    instance(setOf(it.dri), it.sourceSets.toSet()) {
+                                    instance(setOf(it.dri), it.sourceSets.toSet(), extra = PropertyContainer.withAll(SymbolAnchorHint)) {
                                         before {
                                             contentForBrief(it)
                                             contentForSinceKotlin(it)
