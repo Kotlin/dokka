@@ -14,4 +14,5 @@ internal class DokkaArtifacts(private val project: Project) {
     val javadocPlugin get() = fromModuleName("javadoc-plugin")
     val gfmPlugin get() = fromModuleName("gfm-plugin")
     val jekyllPlugin get() = fromModuleName("jekyll-plugin")
+    val pagesSerializationPlugin get() = fromModuleName("pages-serialization-plugin")
 }

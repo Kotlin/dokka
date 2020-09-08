@@ -22,6 +22,7 @@ include("plugins:gfm")
 include("plugins:jekyll")
 include("plugins:kotlin-as-java")
 include("plugins:javadoc")
+include("plugins:pages-serialization")
 
 include("integration-tests")
 include("integration-tests:gradle")

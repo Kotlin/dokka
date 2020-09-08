@@ -10,7 +10,9 @@ dependencies {
     api("org.jetbrains:markdown:0.1.45")
     implementation(kotlin("reflect"))
     implementation("org.jsoup:jsoup:1.12.1")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.11.1")
+
+    val jackson_version: String by project
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jackson_version")
 
     testImplementation(project(":core:test-api"))
     testImplementation(kotlin("test-junit"))
