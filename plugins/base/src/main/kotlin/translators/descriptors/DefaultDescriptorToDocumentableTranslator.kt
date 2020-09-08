@@ -631,20 +631,26 @@ private class DokkaDescriptorVisitor(
 
     private fun KotlinType.toBound(): Bound = when (this) {
         is DynamicType -> Dynamic
-        else -> when (val ctor = constructor.declarationDescriptor) {
-            is TypeParameterDescriptor -> TypeParameter(
-                dri = DRI.from(ctor),
-                name = ctor.name.asString()
-            )
-            else -> TypeConstructor(
-                DRI.from(ctor!!), // TODO: remove '!!'
-                arguments.map { it.toProjection() },
-                if (isExtensionFunctionType) FunctionModifiers.EXTENSION
-                else if (isFunctionType) FunctionModifiers.FUNCTION
-                else FunctionModifiers.NONE
-            )
-        }.let {
-            if (isMarkedNullable) Nullable(it) else it
+        else -> {
+            val ctor = when (this) {
+                is AbbreviatedType -> abbreviation.constructor.declarationDescriptor
+                else -> constructor.declarationDescriptor
+            }
+            when (ctor) {
+                is TypeParameterDescriptor -> TypeParameter(
+                    dri = DRI.from(ctor),
+                    name = ctor.name.asString()
+                )
+                else -> TypeConstructor(
+                    DRI.from(ctor!!), // TODO: remove '!!'
+                    arguments.map { it.toProjection() },
+                    if (isExtensionFunctionType) FunctionModifiers.EXTENSION
+                    else if (isFunctionType) FunctionModifiers.FUNCTION
+                    else FunctionModifiers.NONE
+                )
+            }.let {
+                if (isMarkedNullable) Nullable(it) else it
+            }
         }
     }
 
