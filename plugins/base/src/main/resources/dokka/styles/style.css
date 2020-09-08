@@ -1114,11 +1114,10 @@ div.runnablesample {
     }
     .icon-toggler::before {
         content: "\232A";
+        padding-right: 0.5em;
     }
     #leftColumn.open ~ #main .icon-toggler::before {
         content: "\2329";
-        padding-right: 0.5em;
-        margin-left: -0.5em;
     }
     #content {
         padding: 0 var(--mobile-horizontal-spacing-for-content);

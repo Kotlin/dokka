@@ -30,6 +30,17 @@
   }
 }
 
+@media screen and (max-width: 759px){
+    .template-wrapper {
+        display: flex;
+        height: auto;
+        flex-direction: column;
+        span {
+            line-height: unset;
+        }
+    }
+}
+
 .template-name {
   justify-self: start;
 }

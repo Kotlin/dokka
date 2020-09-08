@@ -22,7 +22,7 @@ window.addEventListener('load', () => {
 
 const initHidingLeftNavigation = () => {
     document.getElementById("leftToggler").onclick = function(event) {
-        //Events need to be prevented from bubbling since they will trigger the handler on id="container"
+        //Events need to be prevented from bubbling since they will trigger next handler
         event.preventDefault();
         event.stopPropagation();
         event.stopImmediatePropagation();
