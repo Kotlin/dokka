@@ -346,7 +346,6 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
             }
 
             is TypeAliased -> signatureForProjection(p.typeAlias)
-
             is JavaObject -> link("Any", DriOfAny)
             is Void -> link("Unit", DriOfUnit)
             is PrimitiveJavaType -> signatureForProjection(p.translateToKotlin(), showFullyQualifiedName)

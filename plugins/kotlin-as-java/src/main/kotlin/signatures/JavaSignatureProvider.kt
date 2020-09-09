@@ -79,10 +79,10 @@ class JavaSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogge
                     c.supertypes.map { (p, dris) ->
                         val (classes, interfaces) = dris.partition { it.kind == JavaClassKindTypes.CLASS }
                         list(classes, prefix = " extends ", sourceSets = setOf(p)) {
-                            link(it.typeConstructor.dri.sureClassNames, it.typeConstructor.dri, sourceSets = setOf(p))
+                            signatureForProjection(it.typeConstructor)
                         }
-                        list(interfaces, prefix = " implements ", sourceSets = setOf(p)){
-                            link(it.typeConstructor.dri.sureClassNames, it.typeConstructor.dri, sourceSets = setOf(p))
+                        list(interfaces, prefix = " implements ", sourceSets = setOf(p)) {
+                            signatureForProjection(it.typeConstructor)
                         }
                     }
                 }
@@ -160,7 +160,12 @@ class JavaSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogge
         }
 
         is Variance<*> -> group(styles = emptySet()) {
-            text("$p ".takeIf { it.isNotBlank() } ?: "") // TODO: "super" && "extends"
+            val variance = when(p) {
+                is Covariance<*> -> "? extends "
+                is Contravariance<*> -> "? super "
+                is Invariance<*> -> ""
+            }
+            text(variance)
             signatureForProjection(p.inner)
         }
 
