@@ -442,8 +442,8 @@ class SignatureTest : AbstractCoreTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example.html").signature().first().match(
-                    "typealias ", A("GenericTypealias"), "<", Span("T"), "> = ", A("Comparable"),
-                    "<", Span("T"), ">", Span()
+                    "typealias ", A("GenericTypealias"), "<", A("T"), "> = ", A("Comparable"),
+                    "<", A("T"), ">", Span()
                 )
             }
         }
