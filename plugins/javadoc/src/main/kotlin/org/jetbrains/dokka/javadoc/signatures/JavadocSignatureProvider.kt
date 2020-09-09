@@ -202,6 +202,7 @@ class JavadocSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLo
         is Void -> text("void")
         is PrimitiveJavaType -> text(p.name)
         is UnresolvedBound -> text(p.name)
+        is TypeAliased -> signatureForProjection(p.inner)
     }
 
     private fun DRI.fqName(): String = "${packageName.orEmpty()}.${classNames.orEmpty()}"

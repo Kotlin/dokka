@@ -172,5 +172,6 @@ class JavaSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogge
         is Void -> text("void")
         is PrimitiveJavaType -> text(p.name)
         is UnresolvedBound -> text(p.name)
+        is TypeAliased -> signatureForProjection(p.inner)
     }
 }
