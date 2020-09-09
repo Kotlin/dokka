@@ -58,7 +58,8 @@ internal fun DPackage.asJava(): DPackage {
     return copy(
         functions = emptyList(),
         properties = emptyList(),
-        classlikes = classlikes.map { it.asJava() } + syntheticClasses
+        classlikes = classlikes.map { it.asJava() } + syntheticClasses,
+        typealiases = emptyList()
     )
 }
 
@@ -180,6 +181,9 @@ private fun DTypeParameter.asJava(): DTypeParameter = copy(
 private fun Bound.asJava(): Bound = when (this) {
     is TypeConstructor -> copy(
         dri = dri.possiblyAsJava()
+    )
+    is TypeAliased -> copy(
+        inner = inner.asJava()
     )
     is Nullable -> copy(
         inner = inner.asJava()

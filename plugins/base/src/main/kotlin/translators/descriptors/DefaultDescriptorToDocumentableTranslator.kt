@@ -631,12 +631,12 @@ private class DokkaDescriptorVisitor(
 
     private fun KotlinType.toBound(): Bound = when (this) {
         is DynamicType -> Dynamic
+        is AbbreviatedType -> TypeAliased(
+            abbreviation.toBound(),
+            expandedType.toBound()
+        )
         else -> {
-            val ctor = when (this) {
-                is AbbreviatedType -> abbreviation.constructor.declarationDescriptor
-                else -> constructor.declarationDescriptor
-            }
-            when (ctor) {
+            when (val ctor = constructor.declarationDescriptor) {
                 is TypeParameterDescriptor -> TypeParameter(
                     dri = DRI.from(ctor),
                     name = ctor.name.asString()
