@@ -307,9 +307,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
     ) {
         signatureForProjection(
             p = bound,
-            showFullyQualifiedName =
-            bound.driOrNull?.packageName != typeAlias.dri.packageName &&
-                    bound.driOrNull?.packageName != "kotlin"
+            showFullyQualifiedName = bound.driOrNull?.classNames == typeAlias.dri.classNames
         )
     }
 

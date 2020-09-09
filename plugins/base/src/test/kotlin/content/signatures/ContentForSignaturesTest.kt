@@ -448,7 +448,29 @@ class ContentForSignaturesTest : AbstractCoreTest() {
             pagesTransformationStage = { module ->
                 val page = module.children.single { it.name == "test" } as PackagePageNode
                 page.content.assertNode {
-                    typealiasSignature("Alias", "other.X")
+                    typealiasSignature("Alias", "X")
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `typealias to type in different package with same name`() {
+        testInline(
+            """
+            |/src/main/kotlin/test/source.kt
+            |package test
+            |typealias Alias = other.Alias
+            |
+            |/src/main/kotlin/test/source2.kt
+            |package other
+            |class Alias
+            """.trimIndent(), testConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val page = module.children.single { it.name == "test" } as PackagePageNode
+                page.content.assertNode {
+                    typealiasSignature("Alias", "other.Alias")
                 }
             }
         }
