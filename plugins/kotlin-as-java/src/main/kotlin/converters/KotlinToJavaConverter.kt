@@ -175,7 +175,7 @@ internal fun DClass.asJava(): DClass = copy(
 
 private fun DTypeParameter.asJava(): DTypeParameter = copy(
     variantTypeParameter = variantTypeParameter.withDri(dri.possiblyAsJava()),
-    bounds = bounds.map { it.asJava() as Bound }
+    bounds = bounds.map { it.asJava() }
 )
 
 private fun Projection.asJava(): Projection = when(this) {
