@@ -1,6 +1,8 @@
 package signatures
 
+import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.DokkaSourceSetID
+import org.jetbrains.dokka.jdk
 import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
@@ -444,6 +446,34 @@ class SignatureTest : AbstractCoreTest() {
                 writerPlugin.writer.renderedContent("root/example.html").signature().first().match(
                     "typealias ", A("GenericTypealias"), "<", A("T"), "> = ", A("Comparable"),
                     "<", A("T"), ">", Span()
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `typealias with generic params swapped`() {
+
+        val writerPlugin = TestOutputWriterPlugin()
+
+        testInline(
+            """
+            |/src/main/kotlin/kotlinAsJavaPlugin/Test.kt
+            |package kotlinAsJavaPlugin
+            |
+            |typealias XD<B, A> = Map<A, B>
+            |
+            |class ABC {
+            |    fun someFun(xd: XD<Int, String>) = 1
+            |}
+        """.trimMargin(),
+            configuration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                writerPlugin.writer.renderedContent("root/kotlinAsJavaPlugin/-a-b-c/some-fun.html").signature().first().match(
+                    "fun ", A("someFun"), "(xd: ", A("XD"), "<", A("Int"),
+                    ", ", A("String"), ">):", A("Int"), Span()
                 )
             }
         }

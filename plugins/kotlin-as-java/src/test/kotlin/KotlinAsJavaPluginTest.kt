@@ -6,6 +6,14 @@ import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
 import org.jetbrains.kotlin.utils.addToStdlib.cast
 import org.junit.jupiter.api.Test
 import matchers.content.*
+import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.jdk
+import signatures.renderedContent
+import signatures.signature
+import utils.A
+import utils.Span
+import utils.TestOutputWriterPlugin
+import utils.match
 
 class KotlinAsJavaPluginTest : AbstractCoreTest() {
 
@@ -31,7 +39,7 @@ class KotlinAsJavaPluginTest : AbstractCoreTest() {
             |fun testF3(to: TestObj) = to
             |fun <T : Char> testF4(t: T) = listOf(t)
             |val testV = 1
-        """,
+        """.trimMargin(),
             configuration,
             cleanupOutput = true
         ) {
@@ -68,7 +76,7 @@ class KotlinAsJavaPluginTest : AbstractCoreTest() {
             |
             |fun testF(i: Int) = i
             |val testV = 1
-        """,
+        """.trimMargin(),
             configuration,
             cleanupOutput = true
         ) {
@@ -109,7 +117,7 @@ class KotlinAsJavaPluginTest : AbstractCoreTest() {
             |class TestJ {
             |   int testF(int i) { return i; }
             |}
-        """,
+        """.trimMargin(),
             configuration,
             cleanupOutput = true
         ) {
@@ -149,7 +157,7 @@ class KotlinAsJavaPluginTest : AbstractCoreTest() {
             |class Test {
             |   public val publicProperty: String = ""
             |}
-        """,
+        """.trimMargin(),
             configuration,
             cleanupOutput = true
         ) {
@@ -202,7 +210,7 @@ class KotlinAsJavaPluginTest : AbstractCoreTest() {
             |class TestJ {
             |   public Int publicProperty = 1;
             |}
-        """,
+        """.trimMargin(),
             configuration,
             cleanupOutput = true
         ) {
@@ -252,7 +260,7 @@ class KotlinAsJavaPluginTest : AbstractCoreTest() {
             | open class A { }
             | interface B
             | class C : A(), B
-        """,
+        """.trimMargin(),
             configuration,
             cleanupOutput = true
         ) {
@@ -290,6 +298,76 @@ class KotlinAsJavaPluginTest : AbstractCoreTest() {
     private fun <T> Collection<T>.assertCount(n: Int, prefix: String = "") =
         assert(count() == n) { "${prefix}Expected $n, got ${count()}" }
 
+    @Test
+    fun `typealias`() {
+        val writerPlugin = TestOutputWriterPlugin()
+        val configuration = dokkaConfiguration {
+            sourceSets {
+                sourceSet {
+                    sourceRoots = listOf("src/")
+                    externalDocumentationLinks = listOf(DokkaConfiguration.ExternalDocumentationLink.jdk(8))
+                }
+            }
+        }
+        testInline(
+            """
+            |/src/main/kotlin/kotlinAsJavaPlugin/Test.kt
+            |package kotlinAsJavaPlugin
+            |
+            |typealias XD = Int
+            |class ABC {
+            |    fun someFun(xd: XD): Int = 1
+            |}
+        """.trimMargin(),
+            configuration,
+            pluginOverrides = listOf(writerPlugin),
+            cleanupOutput = true
+        ) {
+            renderingStage = { _, _ ->
+                writerPlugin.writer.renderedContent("root/kotlinAsJavaPlugin/-a-b-c/some-fun.html").signature().first().match(
+                    "final ", A("Integer"), A("someFun"), "(", A("Integer"), A("xd"), ")", Span()
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `typealias with generic`() {
+        val writerPlugin = TestOutputWriterPlugin()
+        val configuration = dokkaConfiguration {
+            sourceSets {
+                sourceSet {
+                    sourceRoots = listOf("src/")
+                    externalDocumentationLinks = listOf(
+                        DokkaConfiguration.ExternalDocumentationLink.jdk(8),
+                        stdlibExternalDocumentationLink
+                    )
+                }
+            }
+        }
+        testInline(
+            """
+            |/src/main/kotlin/kotlinAsJavaPlugin/Test.kt
+            |package kotlinAsJavaPlugin
+            |
+            |typealias XD<B, A> = Map<A, B>
+            |
+            |class ABC {
+            |    fun someFun(xd: XD<Int, String>) = 1
+            |}
+        """.trimMargin(),
+            configuration,
+            pluginOverrides = listOf(writerPlugin),
+            cleanupOutput = true
+        ) {
+            renderingStage = { _, _ ->
+                writerPlugin.writer.renderedContent("root/kotlinAsJavaPlugin/-a-b-c/some-fun.html").signature().first().match(
+                    "final ", A("Integer"), A("someFun"), "(", A("Map"), "<", A("String"),
+                    ", ", A("Integer"), ">", A("xd"), ")", Span()
+                )
+            }
+        }
+    }
 }
 
 private val ContentNode.mainContents: List<ContentNode>

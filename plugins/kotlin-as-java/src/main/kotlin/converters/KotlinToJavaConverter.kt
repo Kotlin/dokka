@@ -175,20 +175,33 @@ internal fun DClass.asJava(): DClass = copy(
 
 private fun DTypeParameter.asJava(): DTypeParameter = copy(
     variantTypeParameter = variantTypeParameter.withDri(dri.possiblyAsJava()),
-    bounds = bounds.map { it.asJava() }
+    bounds = bounds.map { it.asJava() as Bound }
 )
 
-private fun Bound.asJava(): Bound = when (this) {
+private fun Projection.asJava(): Projection = when(this) {
+    is Star -> Star
+    is Covariance<*> -> copy(inner.asJava())
+    is Contravariance<*> -> copy(inner.asJava())
+    is Invariance<*> -> copy(inner.asJava())
+    is Bound -> asJava()
+}
+
+private fun Bound.asJava(): Bound = when(this) {
+    is TypeParameter -> copy(dri.possiblyAsJava())
     is TypeConstructor -> copy(
-        dri = dri.possiblyAsJava()
+        dri = dri.possiblyAsJava(),
+        projections = projections.map { it.asJava() }
     )
     is TypeAliased -> copy(
+        typeAlias = typeAlias.asJava(),
         inner = inner.asJava()
     )
-    is Nullable -> copy(
-        inner = inner.asJava()
-    )
-    else -> this
+    is Nullable -> copy(inner.asJava())
+    is PrimitiveJavaType -> this
+    is Void -> this
+    is JavaObject -> this
+    is Dynamic -> this
+    is UnresolvedBound -> this
 }
 
 internal fun DEnum.asJava(): DEnum = copy(
