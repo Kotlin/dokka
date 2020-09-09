@@ -96,7 +96,7 @@ class DokkaGenerator(
 
     fun createAllModulePage(
         context: DokkaContext
-    ) = context.single(CoreExtensions.allModulePageCreator).invoke()
+    ) = context.single(CoreExtensions.allModulesPageCreator).invoke()
 
     fun transformPages(
         pages: RootPageNode,

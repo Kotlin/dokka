@@ -53,6 +53,6 @@ class PackageListService(val context: DokkaContext) {
     }
 
     companion object {
-        const val DOKKA_PARAM_PREFIX = "\$dokka"
+
     }
 }

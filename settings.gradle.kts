@@ -21,6 +21,7 @@ include("plugins:kotlin-documentables")
 include("plugins:java-documentables")
 include("plugins:html")
 include("plugins:processing")
+include("plugins:location")
 include("plugins:all-module-page")
 
 include("plugins:mathjax")

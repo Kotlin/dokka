@@ -17,7 +17,7 @@ object CoreExtensions {
     val documentableMerger by coreExtension<DocumentableMerger>()
     val documentableTransformer by coreExtension<DocumentableTransformer>()
     val documentableToPageTranslator by coreExtension<DocumentableToPageTranslator>()
-    val allModulePageCreator by coreExtension<PageCreator>()
+    val allModulesPageCreator by coreExtension<PageCreator>()
     val pageTransformer by coreExtension<PageTransformer>()
     val allModulePageTransformer by coreExtension<PageTransformer>()
     val renderer by coreExtension<Renderer>()

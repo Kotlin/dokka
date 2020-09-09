@@ -3,21 +3,10 @@
 package org.jetbrains.dokka.base
 
 import org.jetbrains.dokka.CoreExtensions
-import org.jetbrains.dokka.base.allModulePage.MultimodulePageCreator
 import org.jetbrains.dokka.base.renderers.*
 import org.jetbrains.dokka.base.renderers.html.*
-import org.jetbrains.dokka.base.resolvers.external.ExternalLocationProviderFactory
-import org.jetbrains.dokka.base.resolvers.external.DefaultExternalLocationProviderFactory
-import org.jetbrains.dokka.base.resolvers.external.javadoc.JavadocExternalLocationProviderFactory
-import org.jetbrains.dokka.base.resolvers.local.DokkaLocationProviderFactory
-import org.jetbrains.dokka.base.resolvers.local.LocationProviderFactory
-import org.jetbrains.dokka.base.resolvers.shared.RecognizedLinkFormat
-import org.jetbrains.dokka.base.signatures.KotlinSignatureProvider
-import org.jetbrains.dokka.base.signatures.SignatureProvider
 import org.jetbrains.dokka.base.transformers.documentables.*
 import org.jetbrains.dokka.base.transformers.pages.annotations.SinceKotlinTransformer
-import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentConverter
-import org.jetbrains.dokka.base.transformers.pages.comments.DocTagToContentConverter
 import org.jetbrains.dokka.base.transformers.pages.merger.*
 import org.jetbrains.dokka.base.transformers.pages.samples.DefaultSamplesTransformer
 import org.jetbrains.dokka.base.transformers.pages.sourcelinks.SourceLinksTransformer
@@ -28,10 +17,6 @@ import org.jetbrains.dokka.transformers.pages.PageTransformer
 
 class DokkaBase : DokkaPlugin() {
     val pageMergerStrategy by extensionPoint<PageMergerStrategy>()
-    val commentsToContentConverter by extensionPoint<CommentsToContentConverter>()
-    val signatureProvider by extensionPoint<SignatureProvider>()
-    val locationProviderFactory by extensionPoint<LocationProviderFactory>()
-    val externalLocationProviderFactory by extensionPoint<ExternalLocationProviderFactory>()
     val outputWriter by extensionPoint<OutputWriter>()
     val htmlPreprocessors by extensionPoint<PageTransformer>()
     val tabSortingStrategy by extensionPoint<TabSortingStrategy>()
@@ -68,18 +53,8 @@ class DokkaBase : DokkaPlugin() {
         }
     }
 
-    val kotlinSignatureProvider by extending {
-        signatureProvider providing { ctx ->
-            KotlinSignatureProvider(ctx.single(commentsToContentConverter), ctx.logger)
-        }
-    }
-
     val sinceKotlinTransformer by extending {
         CoreExtensions.documentableTransformer providing ::SinceKotlinTransformer
-    }
-
-    val inheritorsExtractor by extending {
-        CoreExtensions.documentableTransformer with InheritorsExtractorTransformer()
     }
 
 
@@ -87,23 +62,6 @@ class DokkaBase : DokkaPlugin() {
         CoreExtensions.documentableTransformer with ReportUndocumentedTransformer()
     }
 
-    val extensionsExtractor by extending {
-        CoreExtensions.documentableTransformer with ExtensionExtractorTransformer()
-    }
-
-    val documentableToPageTranslator by extending {
-        CoreExtensions.documentableToPageTranslator providing { ctx ->
-            DefaultDocumentableToPageTranslator(
-                ctx.single(commentsToContentConverter),
-                ctx.single(signatureProvider),
-                ctx.logger
-            )
-        }
-    }
-
-    val docTagToContentConverter by extending {
-        commentsToContentConverter with DocTagToContentConverter
-    }
 
     val pageMerger by extending {
         CoreExtensions.pageTransformer providing { ctx -> PageMerger(ctx[pageMergerStrategy]) }
@@ -131,18 +89,6 @@ class DokkaBase : DokkaPlugin() {
         CoreExtensions.renderer providing ::HtmlRenderer
     }
 
-    val locationProvider by extending {
-        locationProviderFactory providing ::DokkaLocationProviderFactory
-    }
-
-    val javadocLocationProvider by extending {
-        externalLocationProviderFactory providing ::JavadocExternalLocationProviderFactory
-    }
-
-    val dokkaLocationProvider by extending {
-        externalLocationProviderFactory providing ::DefaultExternalLocationProviderFactory
-    }
-
     val fileWriter by extending {
         outputWriter providing ::FileWriter
     }
@@ -162,7 +108,7 @@ class DokkaBase : DokkaPlugin() {
             SourceLinksTransformer(
                 it,
                 PageContentBuilder(
-                    it.single(commentsToContentConverter),
+                    it.single(commentsToContentTranslator),
                     it.single(signatureProvider),
                     it.logger
                 )
@@ -194,11 +140,5 @@ class DokkaBase : DokkaPlugin() {
 
     val sourcesetDependencyAppender by extending {
         htmlPreprocessors providing ::SourcesetDependencyAppender order { after(rootCreator) }
-    }
-
-    val allModulePageCreators by extending {
-        CoreExtensions.allModulePageCreator providing {
-            MultimodulePageCreator(it)
-        }
     }
 }
