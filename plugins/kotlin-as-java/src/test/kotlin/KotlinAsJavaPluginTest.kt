@@ -257,9 +257,9 @@ class KotlinAsJavaPluginTest : AbstractCoreTest() {
             |/src/main/kotlin/kotlinAsJavaPlugin/Test.kt
             |package kotlinAsJavaPlugin
             |
-            | open class A { }
-            | interface B
-            | class C : A(), B
+            |open class A { }
+            |interface B
+            |class C : A(), B
         """.trimMargin(),
             configuration,
             cleanupOutput = true
@@ -279,12 +279,16 @@ class KotlinAsJavaPluginTest : AbstractCoreTest() {
                                     +"C"
                                 }
                                 +" extends "
-                                link {
-                                    +"A"
+                                group {
+                                    link {
+                                        +"A"
+                                    }
                                 }
                                 +" implements "
-                                link {
-                                    +"B"
+                                group {
+                                    link {
+                                        +"B"
+                                    }
                                 }
                             }
                         }
