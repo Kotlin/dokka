@@ -392,7 +392,7 @@ class SignatureTest : AbstractCoreTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example.html").signature().first().match(
-                    "typealias ", Span("PlainTypealias"), " = ", A("Int"), Span()
+                    "typealias ", A("PlainTypealias"), " = ", A("Int"), Span()
                 )
             }
         }
@@ -416,7 +416,7 @@ class SignatureTest : AbstractCoreTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example.html").signature().first().match(
-                    "typealias ", Span("PlainTypealias"), " = ", A("Comparable"),
+                    "typealias ", A("PlainTypealias"), " = ", A("Comparable"),
                     "<", A("Int"), ">", Span()
                 )
             }
@@ -442,7 +442,7 @@ class SignatureTest : AbstractCoreTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example.html").signature().first().match(
-                    "typealias ", Span("GenericTypealias"), "<", Span("T"), "> = ", A("Comparable"),
+                    "typealias ", A("GenericTypealias"), "<", Span("T"), "> = ", A("Comparable"),
                     "<", Span("T"), ">", Span()
                 )
             }
