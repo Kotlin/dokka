@@ -1,8 +1,9 @@
-package org.jetbrains.dokka.base.renderers
+package org.jetbrains.dokka.rendering
 
-import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.parent
+import org.jetbrains.dokka.location.DOKKA_PARAM_PREFIX
+import org.jetbrains.dokka.location.Location
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
@@ -17,7 +18,7 @@ class PackageListService(val context: DokkaContext) {
         val nonStandardLocations = mutableMapOf<String, String>()
 
         val locationProvider =
-            context.plugin<DokkaBase>().querySingle { locationProviderFactory }.getLocationProvider(module)
+            context.plugin<Location>().querySingle { locationProviderFactory }.getLocationProvider(module)
 
         fun visit(node: PageNode, parentDris: Set<DRI>) {
 
@@ -49,10 +50,6 @@ class PackageListService(val context: DokkaContext) {
 
             packages.sorted().joinTo(this, separator = "\n", postfix = "\n")
         }
-
-    }
-
-    companion object {
 
     }
 }

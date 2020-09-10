@@ -1,4 +1,4 @@
-package org.jetbrains.dokka.base.renderers
+package org.jetbrains.dokka.rendering.output
 
 interface OutputWriter {
 

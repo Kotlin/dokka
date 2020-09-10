@@ -1,4 +1,4 @@
-package org.jetbrains.dokka.base.renderers
+package org.jetbrains.dokka.rendering.output
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

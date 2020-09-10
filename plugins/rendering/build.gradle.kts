@@ -5,7 +5,8 @@ registerDokkaArtifactPublication("dokkaAllModulesPage") {
 }
 
 dependencies {
-    api(project(":plugins:kotlin-analysis"))
+    api(project(":plugins:location"))
+
     val coroutines_version: String by project
-    api("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version")
 }

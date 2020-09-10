@@ -1,4 +1,4 @@
-package org.jetbrains.dokka.base.renderers
+package org.jetbrains.dokka.html.tabs
 
 import org.jetbrains.dokka.pages.ContentNode
 

@@ -1,4 +1,4 @@
-package org.jetbrains.dokka.base.renderers.html
+package org.jetbrains.dokka.html.renderer
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -6,9 +6,8 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.html.*
 import kotlinx.html.stream.createHTML
 import org.jetbrains.dokka.DokkaSourceSetID
-import org.jetbrains.dokka.base.DokkaBase
-import org.jetbrains.dokka.base.renderers.DefaultRenderer
-import org.jetbrains.dokka.base.renderers.TabSortingStrategy
+import org.jetbrains.dokka.html.Html
+import org.jetbrains.dokka.html.tabs.TabSortingStrategy
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.DisplaySourceSet
 import org.jetbrains.dokka.model.properties.PropertyContainer
@@ -19,6 +18,7 @@ import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.query
 import org.jetbrains.dokka.plugability.querySingle
+import org.jetbrains.dokka.rendering.DefaultRenderer
 import org.jetbrains.dokka.utilities.htmlEscape
 import java.io.File
 import java.net.URI
@@ -36,11 +36,11 @@ open class HtmlRenderer(
 
     private var shouldRenderSourceSetBubbles: Boolean = false
 
-    override val preprocessors = context.plugin<DokkaBase>().query { htmlPreprocessors }
+    override val preprocessors = context.plugin<Html>().query { htmlPreprocessors }
 
     val searchbarDataInstaller = SearchbarDataInstaller()
 
-    private val tabSortingStrategy = context.plugin<DokkaBase>().querySingle { tabSortingStrategy }
+    private val tabSortingStrategy = context.plugin<Html>().querySingle { tabSortingStrategy }
 
     private fun <T : ContentNode> sortTabs(strategy: TabSortingStrategy, tabs: Collection<T>): List<T> {
         val sorted = strategy.sort(tabs)

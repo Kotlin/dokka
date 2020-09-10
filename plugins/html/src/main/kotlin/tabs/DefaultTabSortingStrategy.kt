@@ -1,9 +1,8 @@
-package org.jetbrains.dokka.base.renderers
+package org.jetbrains.dokka.html.tabs
 
 import org.jetbrains.dokka.pages.ContentKind
 import org.jetbrains.dokka.pages.ContentNode
 import org.jetbrains.dokka.pages.Kind
-import org.jetbrains.dokka.utilities.DokkaLogger
 
 private val kindsOrder = listOf(
     ContentKind.Classlikes,

@@ -1,9 +1,8 @@
-package org.jetbrains.dokka.base.transformers.pages.sourcelinks
+package org.jetbrains.dokka.html
 
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiDocumentManager
 import org.jetbrains.dokka.DokkaConfiguration
-import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder
 import org.jetbrains.dokka.model.DocumentableSource
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.analysis.DescriptorDocumentableSource
@@ -12,6 +11,7 @@ import org.jetbrains.dokka.model.WithExpectActual
 import org.jetbrains.dokka.model.toDisplaySourceSets
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
+import org.jetbrains.dokka.processing.translators.documentables.PageContentBuilder
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptorWithSource
 import org.jetbrains.kotlin.resolve.source.getPsi

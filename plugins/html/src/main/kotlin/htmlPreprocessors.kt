@@ -1,4 +1,4 @@
-package org.jetbrains.dokka.base.renderers.html
+package org.jetbrains.dokka.html
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer
@@ -7,13 +7,14 @@ import kotlinx.html.h1
 import kotlinx.html.id
 import kotlinx.html.table
 import kotlinx.html.tbody
-import org.jetbrains.dokka.base.renderers.sourceSets
+import org.jetbrains.dokka.html.renderer.HtmlRenderer
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.DEnum
 import org.jetbrains.dokka.model.DEnumEntry
 import org.jetbrains.dokka.model.withDescendants
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
+import org.jetbrains.dokka.rendering.sourceSets
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 
 

@@ -1,13 +1,13 @@
-package org.jetbrains.dokka.base.renderers
+package org.jetbrains.dokka.rendering
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.dokka.DokkaException
-import org.jetbrains.dokka.base.DokkaBase
-import org.jetbrains.dokka.base.resolvers.local.LocationProvider
-import org.jetbrains.dokka.base.resolvers.local.resolveOrThrow
+import org.jetbrains.dokka.location.Location
+import org.jetbrains.dokka.location.LocationProvider
+import org.jetbrains.dokka.location.resolveOrThrow
 import org.jetbrains.dokka.model.DisplaySourceSet
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
@@ -20,7 +20,7 @@ abstract class DefaultRenderer<T>(
     protected val context: DokkaContext
 ) : Renderer {
 
-    protected val outputWriter = context.plugin<DokkaBase>().querySingle { outputWriter }
+    protected val outputWriter = context.plugin<Rendering>().querySingle { outputWriter }
 
     protected lateinit var locationProvider: LocationProvider
         private set
@@ -194,7 +194,7 @@ abstract class DefaultRenderer<T>(
         val newRoot = preprocessors.fold(root) { acc, t -> t(acc) }
 
         locationProvider =
-            context.plugin<DokkaBase>().querySingle { locationProviderFactory }.getLocationProvider(newRoot)
+            context.plugin<Location>().querySingle { locationProviderFactory }.getLocationProvider(newRoot)
 
         runBlocking(Dispatchers.Default) {
             renderPages(newRoot)

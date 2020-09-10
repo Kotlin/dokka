@@ -19,14 +19,16 @@ include("plugins:kotlin-analysis:compiler-dependency")
 include("plugins:parsers")
 include("plugins:kotlin-documentables")
 include("plugins:java-documentables")
-include("plugins:html")
 include("plugins:processing")
 include("plugins:location")
 include("plugins:all-module-page")
 
-include("plugins:mathjax")
+include("plugins:rendering")
+include("plugins:html")
 include("plugins:gfm")
 include("plugins:jekyll")
+
+include("plugins:mathjax")
 include("plugins:kotlin-as-java")
 include("plugins:javadoc")
 

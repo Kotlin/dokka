@@ -1,4 +1,4 @@
-package org.jetbrains.dokka.base.renderers.html
+package org.jetbrains.dokka.html.renderer
 
 import kotlinx.html.FlowContent
 import kotlinx.html.span

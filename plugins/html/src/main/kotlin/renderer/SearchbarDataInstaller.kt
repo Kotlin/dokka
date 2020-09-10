@@ -1,8 +1,6 @@
-package org.jetbrains.dokka.base.renderers.html
+package org.jetbrains.dokka.html.renderer
 
-import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.Platform
-import org.jetbrains.dokka.base.resolvers.local.LocationProvider
 import org.jetbrains.dokka.model.DisplaySourceSet
 import org.jetbrains.dokka.model.dfs
 import org.jetbrains.dokka.pages.*

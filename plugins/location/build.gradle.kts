@@ -1,7 +1,7 @@
 import org.jetbrains.registerDokkaArtifactPublication
 
-registerDokkaArtifactPublication("dokkaAllModulesPage") {
-    artifactId = "dokka-all-modules-page"
+registerDokkaArtifactPublication("dokkaRendering") {
+    artifactId = "dokka-rendering"
 }
 
 dependencies {

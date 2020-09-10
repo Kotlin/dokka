@@ -1,7 +1,9 @@
-package org.jetbrains.dokka.base.renderers.html
+package org.jetbrains.dokka.html
 
 import kotlinx.html.*
 import kotlinx.html.stream.createHTML
+import org.jetbrains.dokka.html.renderer.HtmlRenderer
+import org.jetbrains.dokka.html.renderer.buildBreakableDotSeparatedHtml
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.DisplaySourceSet
 import org.jetbrains.dokka.model.WithChildren

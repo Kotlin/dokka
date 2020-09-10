@@ -1,8 +1,9 @@
-package org.jetbrains.dokka.base.renderers
+package org.jetbrains.dokka.html
 
-import org.jetbrains.dokka.base.resolvers.shared.LinkFormat
+import org.jetbrains.dokka.location.shared.LinkFormat
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
+import org.jetbrains.dokka.rendering.PackageListService
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 
 object RootCreator : PageTransformer {
