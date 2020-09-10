@@ -1,12 +1,10 @@
 package org.jetbrains.dokka.javadoc
 
-import org.jetbrains.dokka.javadoc.pages.*
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
-import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.base.signatures.SignatureProvider
-import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentConverter
 import org.jetbrains.dokka.base.transformers.pages.comments.DocTagToContentConverter
 import org.jetbrains.dokka.base.translators.documentables.briefFromContentNodes
+import org.jetbrains.dokka.javadoc.pages.*
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.doc.Description
 import org.jetbrains.dokka.model.doc.Index
@@ -82,7 +80,7 @@ open class JavadocPageCreator(
         JavadocContentGroup(
             setOf(m.dri),
             JavadocContentKind.OverviewSummary,
-            m.jvmSourceSets.toDisplaySourceSets()
+            m.sourceSets.toDisplaySourceSets()
         ) {
             title(m.name, m.brief(), documentationVersion, dri = setOf(m.dri), kind = ContentKind.Main)
             leafList(setOf(m.dri),
@@ -101,7 +99,7 @@ open class JavadocPageCreator(
         JavadocContentGroup(
             setOf(p.dri),
             JavadocContentKind.PackageSummary,
-            p.jvmSourceSets.toDisplaySourceSets()
+            p.sourceSets.toDisplaySourceSets()
         ) {
             title("Package ${p.name}", p.brief(), dri = setOf(p.dri), kind = ContentKind.Packages)
             fun allClasslikes(c: DClasslike): List<DClasslike> = c.classlikes.flatMap { allClasslikes(it) } + c
@@ -133,7 +131,7 @@ open class JavadocPageCreator(
         JavadocContentGroup(
             setOf(c.dri),
             JavadocContentKind.Class,
-            c.jvmSourceSets.toDisplaySourceSets()
+            c.sourceSets.toDisplaySourceSets()
         ) {
             title(
                 c.name.orEmpty(),
@@ -169,11 +167,8 @@ open class JavadocPageCreator(
         )
     }
 
-    private val Documentable.jvmSourceSets
-        get() = sourceSets.filter { it.analysisPlatform == Platform.jvm }
-
     private val Documentable.highestJvmSourceSet
-        get() = jvmSourceSets.let { sources ->
+        get() = sourceSets.let { sources ->
             sources.firstOrNull { it != expectPresentInSet } ?: sources.firstOrNull()
         }
 

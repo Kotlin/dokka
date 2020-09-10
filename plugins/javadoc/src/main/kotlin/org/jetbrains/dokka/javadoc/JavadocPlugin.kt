@@ -9,6 +9,7 @@ import org.jetbrains.dokka.base.renderers.PackageListCreator
 import org.jetbrains.dokka.base.renderers.RootCreator
 import org.jetbrains.dokka.base.resolvers.shared.RecognizedLinkFormat
 import org.jetbrains.dokka.javadoc.pages.*
+import org.jetbrains.dokka.javadoc.transformers.documentables.JavadocDocumentableJVMSourceSetFilter
 import org.jetbrains.dokka.kotlinAsJava.KotlinAsJavaPlugin
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.plugability.querySingle
@@ -35,6 +36,10 @@ class JavadocPlugin : DokkaPlugin() {
                 context.logger
             )
         } override dokkaBasePlugin.documentableToPageTranslator
+    }
+
+    val documentableSourceSetFilter by extending {
+        CoreExtensions.preMergeDocumentableTransformer providing { context -> JavadocDocumentableJVMSourceSetFilter(context) }
     }
 
     val javadocLocationProviderFactory by extending {
