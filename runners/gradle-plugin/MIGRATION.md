@@ -68,7 +68,8 @@ tasks.dokkaHtml.configure {
 #### Properties
 ```kotlin
 /* 0.10.x */    moduleName = "myModule"
-/* 1.4.x */     /* Use AbstractDokkaTask#moduleName instead */
+/* 1.4.0 */     /* Use AbstractDokkaTask#moduleDisplayName instead */
+/* 1.4.10+ */   /* Use AbstractDokkaTask#moduleName instead */
 
 /* 0.10.x */    includeNonPublic = false
 /* 1.4.x */     includeNonPublic.set(false)
