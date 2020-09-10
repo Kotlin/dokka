@@ -2,6 +2,8 @@ package org.jetbrains.dokka.base.transformers.pages.comments
 
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.model.doc.*
+import org.jetbrains.dokka.model.doc.Table
+import org.jetbrains.dokka.model.doc.Text
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.model.toDisplaySourceSets
 import org.jetbrains.dokka.pages.*
