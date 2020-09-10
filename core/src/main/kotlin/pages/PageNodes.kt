@@ -67,7 +67,7 @@ class ModulePageNode(
     override val documentable: Documentable?,
     override val children: List<PageNode>,
     override val embeddedResources: List<String> = listOf()
-) : RootPageNode(), ModulePage {
+) : RootPageNode(), ModulePage, ContentPage {
     override val dri: Set<DRI> = setOf(DRI.topLevel)
 
     override fun modified(name: String, children: List<PageNode>): ModulePageNode =
@@ -91,7 +91,7 @@ class PackagePageNode(
     override val documentable: Documentable?,
     override val children: List<PageNode>,
     override val embeddedResources: List<String> = listOf()
-) : PackagePage {
+) : PackagePage, ContentPage {
 
     init {
         require(name.isNotBlank()) { "PackagePageNode.name cannot be blank" }
@@ -118,7 +118,7 @@ class ClasslikePageNode(
     override val documentable: Documentable?,
     override val children: List<PageNode>,
     override val embeddedResources: List<String> = listOf()
-) : ClasslikePage {
+) : ClasslikePage, ContentPage {
     override fun modified(name: String, children: List<PageNode>): ClasslikePageNode =
         modified(name = name, content = this.content, children = children)
 
@@ -140,7 +140,7 @@ class MemberPageNode(
     override val documentable: Documentable?,
     override val children: List<PageNode> = emptyList(),
     override val embeddedResources: List<String> = listOf()
-) : MemberPage {
+) : MemberPage, ContentPage {
     override fun modified(name: String, children: List<PageNode>): MemberPageNode =
         modified(name = name, content = this.content, children = children) as MemberPageNode
 
@@ -161,7 +161,7 @@ class MultimoduleRootPageNode(
     override val dri: Set<DRI>,
     override val content: ContentNode,
     override val embeddedResources: List<String> = emptyList()
-) : RootPageNode(), MultimoduleRootPage {
+) : RootPageNode(), MultimoduleRootPage, ContentPage {
 
     override val children: List<PageNode> = emptyList()
 

@@ -1,11 +1,11 @@
 package org.jetbrains.dokka.pages
 
-interface MultimoduleRootPage : ContentPage
+interface MultimoduleRootPage : PageNode
 
-interface ModulePage : ContentPage
+interface ModulePage : PageNode
 
-interface PackagePage : ContentPage
+interface PackagePage : PageNode
 
-interface ClasslikePage : ContentPage
+interface ClasslikePage : PageNode
 
-interface MemberPage : ContentPage
+interface MemberPage : PageNode

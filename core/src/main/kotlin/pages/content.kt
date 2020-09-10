@@ -1,6 +1,18 @@
 package org.jetbrains.dokka.pages
 
-interface Content : ContentNode
+import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.model.DisplaySourceSet
+import org.jetbrains.dokka.model.WithChildren
+import org.jetbrains.dokka.model.properties.WithExtraProperties
+
+interface Content : WithChildren<Content>, WithExtraProperties<Content> {
+    val dci: DCI
+    val sourceSets: Set<DisplaySourceSet>
+    val style: Set<Style>
+
+    override val children: List<Content>
+        get() = emptyList()
+}
 
 interface Text: Content {
     val text: String
@@ -8,23 +20,44 @@ interface Text: Content {
 
 interface BreakLine: Content
 
-interface Header: Content, ContentComposite {
+interface Header: Content {
     val level: Int
 }
 
-interface Code: Content, ContentComposite
+interface Code: Content {
+    val language: String
+}
 
-interface Link: Content, ContentComposite
+interface ResolvedLink: Content {
+    val address: String
+}
 
-interface Table: Content, ContentComposite
+interface UnresolvedLink: Content {
+    val address: DRI
+}
 
-interface ElementList: Content, ContentComposite
+interface Table: Content {
+    val header: List<Content>
+}
 
-interface Group: Content, ContentComposite
+interface ElementList: Content {
+    val ordered: Boolean
+}
 
-interface DivergentGroup: Content, ContentComposite
+interface Group: Content
 
-interface DivergentInstance: Content
+interface DivergentGroup: Content {
+    val groupID: ContentDivergentGroup.GroupID
+    val implicitlySourceSetHinted: Boolean
+}
 
-interface PlatformHinted: Content
+interface DivergentInstance: Content {
+    val before: Content?
+    val divergent: Content
+    val after: Content?
+}
+
+interface PlatformHinted: Content {
+    val inner: Content
+}
 
