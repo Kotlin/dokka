@@ -11,13 +11,15 @@ import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.jetbrains.dokka.pages.*
-import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.base.resolvers.anchors.SymbolAnchorHint
+import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.transformers.documentables.ClashingDriIdentifier
+import org.jetbrains.dokka.plugability.DokkaContext
+import org.jetbrains.dokka.plugability.plugin
 
 private typealias GroupedTags = Map<KClass<out TagWrapper>, List<Pair<DokkaSourceSet?, TagWrapper>>>
 
@@ -27,8 +29,10 @@ private val specialTags: Set<KClass<out TagWrapper>> =
 open class DefaultPageCreator(
     commentsToContentConverter: CommentsToContentConverter,
     signatureProvider: SignatureProvider,
-    val logger: DokkaLogger
+    val context: DokkaContext
 ) {
+    val logger by context::logger
+
     protected open val contentBuilder = PageContentBuilder(commentsToContentConverter, signatureProvider, logger)
 
     open fun pageForModule(m: DModule) =
@@ -238,7 +242,7 @@ open class DefaultPageCreator(
                     "Constructors",
                     2,
                     ContentKind.Constructors,
-                    c.constructors.filter { it.extra[PrimaryConstructorExtra] == null || it.documentation.isNotEmpty() },
+                    c.constructors.filter(context.single(context.plugin<DokkaBase>().documentableFilteringStrategies)::shouldConstructorBeInPage),
                     c.sourceSets,
                     extra = PropertyContainer.empty<ContentNode>() + SimpleAttr.header("Constructors")
                 ) {
