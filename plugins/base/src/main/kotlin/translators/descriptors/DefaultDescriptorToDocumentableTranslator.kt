@@ -388,12 +388,13 @@ private class DokkaDescriptorVisitor(
         }
     }
 
-    private suspend fun visitPropertyDescriptor(descriptor: PropertyDescriptor, parent: DRIWithPlatformInfo): DProperty {
-        val dri = parent.dri.copy(callable = Callable.from(descriptor))
+    private suspend fun visitPropertyDescriptor(originalDescriptor: PropertyDescriptor, parent: DRIWithPlatformInfo): DProperty {
+        val dri = parent.dri.copy(callable = Callable.from(originalDescriptor))
+        val descriptor = originalDescriptor.getConcreteDescriptor()
         val isExpect = descriptor.isExpect
         val isActual = descriptor.isActual
 
-        val actual = descriptor.createSources()
+        val actual = originalDescriptor.createSources()
 
         return coroutineScope {
             val generics = async { descriptor.typeParameters.parallelMap { it.toVariantTypeParameter() } }
@@ -435,12 +436,13 @@ private class DokkaDescriptorVisitor(
         else
             overriddenDescriptors.first().createDRI(DRI.from(this))
 
-    private suspend fun visitFunctionDescriptor(descriptor: FunctionDescriptor, parent: DRIWithPlatformInfo): DFunction {
-        val (dri, inheritedFrom) = descriptor.createDRI()
+    private suspend fun visitFunctionDescriptor(originalDescriptor: FunctionDescriptor, parent: DRIWithPlatformInfo): DFunction {
+        val (dri, inheritedFrom) = originalDescriptor.createDRI()
+        val descriptor = originalDescriptor.getConcreteDescriptor()
         val isExpect = descriptor.isExpect
         val isActual = descriptor.isActual
 
-        val actual = descriptor.createSources()
+        val actual = originalDescriptor.createSources()
         return coroutineScope {
             val generics = async { descriptor.typeParameters.parallelMap { it.toVariantTypeParameter() } }
 
@@ -920,7 +922,11 @@ private class DokkaDescriptorVisitor(
         }
     }
 
-    private suspend fun ValueParameterDescriptor.getDefaultValue(): String? =
+    private fun <T : CallableMemberDescriptor> T.getConcreteDescriptor(): T =
+        if (kind != CallableMemberDescriptor.Kind.FAKE_OVERRIDE) this
+        else overriddenDescriptors.first().getConcreteDescriptor() as T
+
+    private fun ValueParameterDescriptor.getDefaultValue(): String? =
         (source as? KotlinSourceElement)?.psi?.children?.find { it is KtExpression }?.text
 
     private suspend fun PropertyDescriptor.getDefaultValue(): String? =
