@@ -3,7 +3,6 @@ package org.jetbrains.dokka.base.allModulePage
 import org.jetbrains.dokka.DokkaConfiguration.DokkaModuleDescription
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.base.DokkaBase
-import org.jetbrains.dokka.base.parsers.MarkdownParser
 import org.jetbrains.dokka.base.parsers.moduleAndPackage.ModuleAndPackageDocumentation.Classifier.Module
 import org.jetbrains.dokka.base.parsers.moduleAndPackage.ModuleAndPackageDocumentationParsingContext
 import org.jetbrains.dokka.base.parsers.moduleAndPackage.parseModuleAndPackageDocumentation
@@ -27,7 +26,6 @@ class MultimodulePageCreator(
     private val logger: DokkaLogger = context.logger
 
     override fun invoke(): RootPageNode {
-        val parser = MarkdownParser(logger = logger)
         val modules = context.configuration.modules
 
         val commentsConverter = context.plugin(DokkaBase::class)?.querySingle { commentsToContentConverter }

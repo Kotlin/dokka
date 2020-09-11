@@ -12,7 +12,6 @@ import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.Nullable
 import org.jetbrains.dokka.model.TypeConstructor
 import org.jetbrains.dokka.model.doc.*
-import org.jetbrains.dokka.model.properties.ExtraProperty
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.transformers.sources.SourceToDocumentableTranslator
@@ -27,6 +26,7 @@ import org.jetbrains.kotlin.descriptors.annotations.Annotated
 import org.jetbrains.kotlin.descriptors.annotations.AnnotationDescriptor
 import org.jetbrains.kotlin.descriptors.impl.DeclarationDescriptorVisitorEmptyBodies
 import org.jetbrains.kotlin.idea.kdoc.findKDoc
+import org.jetbrains.kotlin.idea.kdoc.resolveKDocLink
 import org.jetbrains.kotlin.load.kotlin.toSourceElement
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.*
@@ -666,7 +666,23 @@ private class DokkaDescriptorVisitor(
     }
 
     private fun DeclarationDescriptor.getDocumentation() = findKDoc().let {
-        MarkdownParser(resolutionFacade, this, logger).parseFromKDocTag(it)
+        MarkdownParser.parseFromKDocTag(
+            kDocTag = it,
+            externalDri = { link: String ->
+                try {
+                    resolveKDocLink(
+                        context = resolutionFacade.resolveSession.bindingContext,
+                        resolutionFacade = resolutionFacade,
+                        fromDescriptor = this,
+                        fromSubjectOfTag = null,
+                        qualifiedName = link.split('.')
+                    ).firstOrNull()?.let { DRI.from(it) }
+                } catch (e1: IllegalArgumentException) {
+                    logger.warn("Couldn't resolve link for $link")
+                    null
+                }
+            }
+        )
     }.takeIf { it.children.isNotEmpty() }
 
     private fun ClassDescriptor.companion(dri: DRIWithPlatformInfo): DObject? = companionObjectDescriptor?.let {
