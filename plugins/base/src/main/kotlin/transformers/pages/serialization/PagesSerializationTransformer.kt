@@ -1,5 +1,6 @@
 package org.jetbrains.dokka.base.transformers.pages.serialization
 
+import org.jetbrains.dokka.base.resolvers.local.LocationProviderFactory
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.pages.PlatformHintedContent

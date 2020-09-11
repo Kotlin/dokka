@@ -29,6 +29,11 @@ open class DokkaPlugin : Plugin<Project> {
             plugins.dependencies.add(project.dokkaArtifacts.jekyllPlugin)
             description = "Generates documentation in Jekyll flavored markdown format"
         }
+
+        project.setupDokkaTasks("dokkaJson"){
+            plugins.dependencies.add(project.dokkaArtifacts.pagesSerializationPlugin)
+            description = "Generates documentation in Json format"
+        }
     }
 
     /**

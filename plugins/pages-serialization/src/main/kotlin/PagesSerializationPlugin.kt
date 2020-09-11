@@ -6,12 +6,16 @@ import org.jetbrains.dokka.pagesSerialization.renderers.PagesSerializationRender
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.plugability.querySingle
 
-class PagesSerializationPlugin: DokkaPlugin() {
+class PagesSerializationPlugin : DokkaPlugin() {
     val dokkaBasePlugin by lazy { plugin<DokkaBase>() }
 
     val pagesRenderer by extending {
         (CoreExtensions.renderer
-                providing { PagesSerializationRenderer(dokkaBasePlugin.querySingle { outputWriter }) }
+                providing {
+            PagesSerializationRenderer(
+                dokkaBasePlugin.querySingle { outputWriter },
+                dokkaBasePlugin.querySingle { locationProviderFactory })
+        }
                 override dokkaBasePlugin.htmlRenderer)
     }
 }

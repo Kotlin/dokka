@@ -32,11 +32,11 @@ fun Documentable.pretty(prefix: String = "", isLast: Boolean = true): String {
 //                ?.joinToString(prefix = "\n", separator = "")
 //                .orEmpty() + if (allChildren().isEmpty()) "\n" else ""
 //}
-private fun Any.stringify() = when(this) {
-    is ContentNode -> toString() + this.dci
-    is ContentPage -> this.name + this::class.simpleName
-    else -> toString()
-}
+//private fun Any.stringify() = when(this) {
+//    is ContentNode -> toString() + this.dci
+//    is ContentPage -> this.name + this::class.simpleName
+//    else -> toString()
+//}
 //private fun Any.allChildren() = when(this){
 //    is PageNode -> children + content
 //    is ContentBlock -> this.children
