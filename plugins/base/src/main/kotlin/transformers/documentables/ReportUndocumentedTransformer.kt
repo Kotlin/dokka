@@ -140,15 +140,10 @@ internal class ReportUndocumentedTransformer : DocumentableTransformer {
 
     private fun isPrivateOrInternalApi(documentable: Documentable, sourceSet: DokkaSourceSet): Boolean {
         return when (documentable.safeAs<WithVisibility>()?.visibility?.get(sourceSet)) {
-            KotlinVisibility.Public -> false
-            KotlinVisibility.Private -> true
-            KotlinVisibility.Protected -> true
-            KotlinVisibility.Internal -> true
-            JavaVisibility.Public -> false
-            JavaVisibility.Private -> true
-            JavaVisibility.Protected -> true
-            JavaVisibility.Default -> true
+            KotlinVisibility.Public, KotlinVisibility.Protected -> false
+            JavaVisibility.Public, JavaVisibility.Protected -> false
             null -> false
+            else -> true
         }
     }
 
