@@ -39,7 +39,7 @@ class DokkaBase : DokkaPlugin() {
     val htmlPreprocessors by extensionPoint<PageTransformer>()
     val kotlinAnalysis by extensionPoint<KotlinAnalysis>()
     val tabSortingStrategy by extensionPoint<TabSortingStrategy>()
-
+    val tabsAdder by extensionPoint<TabsAdder>()
 
     val descriptorToDocumentableTranslator by extending {
         CoreExtensions.sourceToDocumentableTranslator providing { ctx ->

@@ -9,6 +9,7 @@ open class DokkaPlugin : Plugin<Project> {
     override fun apply(project: Project) {
 
         project.setupDokkaTasks("dokkaHtml") {
+            plugins.dependencies.add(project.dokkaArtifacts.usagesPlugin)
             description = "Generates documentation in 'html' format"
         }
 

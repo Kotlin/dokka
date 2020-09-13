@@ -26,6 +26,7 @@ import org.jetbrains.kotlin.descriptors.Visibility
 import org.jetbrains.kotlin.descriptors.annotations.Annotated
 import org.jetbrains.kotlin.descriptors.annotations.AnnotationDescriptor
 import org.jetbrains.kotlin.descriptors.impl.DeclarationDescriptorVisitorEmptyBodies
+import org.jetbrains.kotlin.idea.findUsages.KotlinFindUsagesHandlerFactory
 import org.jetbrains.kotlin.idea.kdoc.findKDoc
 import org.jetbrains.kotlin.load.kotlin.toSourceElement
 import org.jetbrains.kotlin.name.FqName
@@ -361,6 +362,7 @@ private class DokkaDescriptorVisitor(
         val (dri, inheritedFrom) = descriptor.createDRI()
         val isExpect = descriptor.isExpect
         val isActual = descriptor.isActual
+//        val x = KotlinFindUsagesHandlerFactory(project)
 
         val actual = descriptor.createSources()
         return DFunction(

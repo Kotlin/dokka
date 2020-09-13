@@ -4,6 +4,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.html.*
+import kotlinx.html.dom.*
 import kotlinx.html.stream.createHTML
 import org.jetbrains.dokka.DokkaSourceSetID
 import org.jetbrains.dokka.base.DokkaBase
@@ -42,6 +43,7 @@ open class HtmlRenderer(
     val searchbarDataInstaller = SearchbarDataInstaller()
 
     private val tabSortingStrategy = context.plugin<DokkaBase>().querySingle { tabSortingStrategy }
+    private val additionalTabs = context.plugin<DokkaBase>().query { tabsAdder }
 
     private fun <T : ContentNode> sortTabs(strategy: TabSortingStrategy, tabs: Collection<T>): List<T> {
         val sorted = strategy.sort(tabs)
@@ -58,12 +60,16 @@ open class HtmlRenderer(
         val additionalClasses = node.style.joinToString(" ") { it.toString().toLowerCase() }
         return when {
             node.hasStyle(ContentStyle.TabbedContent) -> div(additionalClasses) {
+                //TODO super sad solution but i dont see anything better without traversing whole contents tree
                 val secondLevel = node.children.filterIsInstance<ContentComposite>().flatMap { it.children }
                     .filterIsInstance<ContentHeader>().flatMap { it.children }.filterIsInstance<ContentText>()
                 val firstLevel = node.children.filterIsInstance<ContentHeader>().flatMap { it.children }
                     .filterIsInstance<ContentText>()
 
-                val renderable = firstLevel.union(secondLevel).let { sortTabs(tabSortingStrategy, it) }
+                val additional = additionalTabs.flatMap { it.invoke(pageContext) }
+                val additionalHeaders = additional.map { it.header }.filterIsInstance<ContentText>()
+
+                val renderable = firstLevel.union(secondLevel).union(additionalHeaders).let { sortTabs(tabSortingStrategy, it) }
 
                 div(classes = "tabs-section") {
                     attributes["tabs-section"] = "tabs-section"
@@ -77,9 +83,10 @@ open class HtmlRenderer(
                 }
                 div(classes = "tabs-section-body") {
                     childrenCallback()
+                    additional.forEach { it.body.build(this, pageContext) }
                 }
             }
-            node.hasStyle(ContentStyle.WithExtraAttributes) -> div() {
+            node.hasStyle(ContentStyle.WithExtraAttributes) -> div {
                 node.extra.extraHtmlAttributes().forEach { attributes[it.extraKey] = it.extraValue }
                 childrenCallback()
             }

@@ -3,6 +3,8 @@ package org.jetbrains.dokka.pages
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.Documentable
 import org.jetbrains.dokka.model.WithChildren
+import org.jetbrains.dokka.model.properties.PropertyContainer
+import org.jetbrains.dokka.model.properties.WithExtraProperties
 import java.util.*
 
 interface PageNode : WithChildren<PageNode> {
@@ -66,12 +68,17 @@ class ModulePageNode(
     override val content: ContentNode,
     override val documentable: Documentable?,
     override val children: List<PageNode>,
-    override val embeddedResources: List<String> = listOf()
-) : RootPageNode(), ModulePage {
+    override val embeddedResources: List<String> = listOf(),
+    override val extra: PropertyContainer<ContentPage> = PropertyContainer.empty()
+) : RootPageNode(), ModulePage, WithExtraProperties<ContentPage> {
     override val dri: Set<DRI> = setOf(DRI.topLevel)
 
     override fun modified(name: String, children: List<PageNode>): ModulePageNode =
         modified(name = name, content = this.content, dri = dri, children = children)
+
+    //TODO same copy optimisation here?
+    override fun withNewExtras(newExtras: PropertyContainer<ContentPage>): ContentPage =
+        ModulePageNode(name, content, documentable, children, embeddedResources, newExtras)
 
     override fun modified(
         name: String,
@@ -81,7 +88,7 @@ class ModulePageNode(
         children: List<PageNode>
     ): ModulePageNode =
         if (name == this.name && content === this.content && embeddedResources === this.embeddedResources && children shallowEq this.children) this
-        else ModulePageNode(name, content, documentable, children, embeddedResources)
+        else ModulePageNode(name, content, documentable, children, embeddedResources, extra)
 }
 
 class PackagePageNode(
@@ -90,8 +97,9 @@ class PackagePageNode(
     override val dri: Set<DRI>,
     override val documentable: Documentable?,
     override val children: List<PageNode>,
-    override val embeddedResources: List<String> = listOf()
-) : PackagePage {
+    override val embeddedResources: List<String> = listOf(),
+    override val extra: PropertyContainer<ContentPage> = PropertyContainer.empty()
+) : PackagePage, WithExtraProperties<ContentPage> {
 
     init {
         require(name.isNotBlank()) { "PackagePageNode.name cannot be blank" }
@@ -99,6 +107,9 @@ class PackagePageNode(
 
     override fun modified(name: String, children: List<PageNode>): PackagePageNode =
         modified(name = name, content = this.content, children = children)
+
+    override fun withNewExtras(newExtras: PropertyContainer<ContentPage>): ContentPage =
+        PackagePageNode(name, content, dri, documentable, children, embeddedResources, newExtras)
 
     override fun modified(
         name: String,
@@ -108,7 +119,7 @@ class PackagePageNode(
         children: List<PageNode>
     ): PackagePageNode =
         if (name == this.name && content === this.content && embeddedResources === this.embeddedResources && children shallowEq this.children) this
-        else PackagePageNode(name, content, dri, documentable, children, embeddedResources)
+        else PackagePageNode(name, content, dri, documentable, children, embeddedResources, extra)
 }
 
 class ClasslikePageNode(
@@ -117,10 +128,14 @@ class ClasslikePageNode(
     override val dri: Set<DRI>,
     override val documentable: Documentable?,
     override val children: List<PageNode>,
-    override val embeddedResources: List<String> = listOf()
-) : ClasslikePage {
+    override val embeddedResources: List<String> = listOf(),
+    override val extra: PropertyContainer<ContentPage> = PropertyContainer.empty()
+) : ClasslikePage, WithExtraProperties<ContentPage> {
     override fun modified(name: String, children: List<PageNode>): ClasslikePageNode =
         modified(name = name, content = this.content, children = children)
+
+    override fun withNewExtras(newExtras: PropertyContainer<ContentPage>): ContentPage =
+        ClasslikePageNode(name, content, dri, documentable, children, embeddedResources, newExtras)
 
     override fun modified(
         name: String,
@@ -130,7 +145,7 @@ class ClasslikePageNode(
         children: List<PageNode>
     ): ClasslikePageNode =
         if (name == this.name && content === this.content && embeddedResources === this.embeddedResources && children shallowEq this.children) this
-        else ClasslikePageNode(name, content, dri, documentable, children, embeddedResources)
+        else ClasslikePageNode(name, content, dri, documentable, children, embeddedResources, extra)
 }
 
 class MemberPageNode(
@@ -139,10 +154,14 @@ class MemberPageNode(
     override val dri: Set<DRI>,
     override val documentable: Documentable?,
     override val children: List<PageNode> = emptyList(),
-    override val embeddedResources: List<String> = listOf()
-) : MemberPage {
+    override val embeddedResources: List<String> = listOf(),
+    override val extra: PropertyContainer<ContentPage> = PropertyContainer.empty()
+) : MemberPage, WithExtraProperties<ContentPage> {
     override fun modified(name: String, children: List<PageNode>): MemberPageNode =
-        modified(name = name, content = this.content, children = children) as MemberPageNode
+        modified(name = name, content = this.content, children = children)
+
+    override fun withNewExtras(newExtras: PropertyContainer<ContentPage>): ContentPage =
+        MemberPageNode(name, content, dri, documentable, children, embeddedResources, newExtras)
 
     override fun modified(
         name: String,
@@ -152,7 +171,7 @@ class MemberPageNode(
         children: List<PageNode>
     ): MemberPageNode =
         if (name == this.name && content === this.content && embeddedResources === this.embeddedResources && children shallowEq this.children) this
-        else MemberPageNode(name, content, dri, documentable, children, embeddedResources)
+        else MemberPageNode(name, content, dri, documentable, children, embeddedResources, extra)
 }
 
 
@@ -160,15 +179,19 @@ class MultimoduleRootPageNode(
     override val name: String,
     override val dri: Set<DRI>,
     override val content: ContentNode,
-    override val embeddedResources: List<String> = emptyList()
-) : RootPageNode(), MultimoduleRootPage {
+    override val embeddedResources: List<String> = emptyList(),
+    override val extra: PropertyContainer<ContentPage> = PropertyContainer.empty()
+) : RootPageNode(), MultimoduleRootPage, WithExtraProperties<ContentPage> {
 
     override val children: List<PageNode> = emptyList()
+
+    override fun withNewExtras(newExtras: PropertyContainer<ContentPage>): ContentPage =
+        MultimoduleRootPageNode(name, dri, content, embeddedResources, newExtras)
 
     override val documentable: Documentable? = null
 
     override fun modified(name: String, children: List<PageNode>): RootPageNode =
-        MultimoduleRootPageNode(name, dri, content, embeddedResources)
+        modified(name, content, dri, embeddedResources, children)
 
     override fun modified(
         name: String,
@@ -177,8 +200,8 @@ class MultimoduleRootPageNode(
         embeddedResources: List<String>,
         children: List<PageNode>
     ) =
-        if (name == this.name && content === this.content && embeddedResources === this.embeddedResources && children shallowEq this.children) this
-        else MultimoduleRootPageNode(name, dri, content, embeddedResources)
+        if (name == this.name && content === this.content && embeddedResources === this.embeddedResources) this
+        else MultimoduleRootPageNode(name, dri, content, embeddedResources, extra)
 }
 
 inline fun <reified T : PageNode> PageNode.children() = children.filterIsInstance<T>()
