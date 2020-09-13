@@ -1,5 +1,6 @@
 package org.jetbrains.dokka.pages
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.Documentable
 import org.jetbrains.dokka.model.WithChildren
@@ -31,6 +32,7 @@ interface ContentPage : PageNode {
 }
 
 abstract class RootPageNode : PageNode {
+    @get:JsonIgnore
     val parentMap: Map<PageNode, PageNode> by lazy {
         IdentityHashMap<PageNode, PageNode>().apply {
             fun process(parent: PageNode) {

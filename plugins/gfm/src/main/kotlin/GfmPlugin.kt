@@ -7,11 +7,13 @@ import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.renderers.DefaultRenderer
 import org.jetbrains.dokka.base.renderers.PackageListCreator
 import org.jetbrains.dokka.base.renderers.RootCreator
+import org.jetbrains.dokka.base.renderers.html.hasStyle
 import org.jetbrains.dokka.base.renderers.isImage
 import org.jetbrains.dokka.base.resolvers.local.DokkaLocationProvider
 import org.jetbrains.dokka.base.resolvers.local.LocationProviderFactory
 import org.jetbrains.dokka.model.DisplaySourceSet
 import org.jetbrains.dokka.base.resolvers.shared.RecognizedLinkFormat
+import org.jetbrains.dokka.base.transformers.pages.serialization.*
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.DokkaPlugin
@@ -55,8 +57,8 @@ open class CommonmarkRenderer(
     override val preprocessors = context.plugin<GfmPlugin>().query { gfmPreprocessors }
 
     override fun StringBuilder.wrapGroup(
-        node: ContentGroup,
-        pageContext: ContentPage,
+        node: GroupView,
+        pageContext: PagesSerializationView,
         childrenCallback: StringBuilder.() -> Unit
     ) {
         return when {
@@ -73,7 +75,7 @@ open class CommonmarkRenderer(
         }
     }
 
-    override fun StringBuilder.buildHeader(level: Int, node: ContentHeader, content: StringBuilder.() -> Unit) {
+    override fun StringBuilder.buildHeader(level: Int, node: HeaderView, content: StringBuilder.() -> Unit) {
         buildParagraph()
         append("#".repeat(level) + " ")
         content()
@@ -87,16 +89,16 @@ open class CommonmarkRenderer(
     }
 
     override fun StringBuilder.buildList(
-        node: ContentList,
-        pageContext: ContentPage,
+        node: ListView,
+        pageContext: PagesSerializationView,
         sourceSetRestriction: Set<DisplaySourceSet>?
     ) {
         buildListLevel(node, pageContext)
     }
 
-    private fun StringBuilder.buildListItem(items: List<ContentNode>, pageContext: ContentPage) {
+    private fun StringBuilder.buildListItem(items: List<Content>, pageContext: PagesSerializationView) {
         items.forEach {
-            if (it is ContentList) {
+            if (it is ListView) {
                 buildList(it, pageContext)
             } else {
                 append("<li>")
@@ -106,7 +108,7 @@ open class CommonmarkRenderer(
         }
     }
 
-    private fun StringBuilder.buildListLevel(node: ContentList, pageContext: ContentPage) {
+    private fun StringBuilder.buildListLevel(node: ListView, pageContext: PagesSerializationView) {
         if (node.ordered) {
             append("<ol>")
             buildListItem(node.children, pageContext)
@@ -127,19 +129,19 @@ open class CommonmarkRenderer(
     }
 
     override fun StringBuilder.buildPlatformDependent(
-        content: PlatformHintedContent,
-        pageContext: ContentPage,
+        content: PlatformHintedContentView,
+        pageContext: PagesSerializationView,
         sourceSetRestriction: Set<DisplaySourceSet>?
     ) {
         buildPlatformDependentItem(content.inner, content.sourceSets, pageContext)
     }
 
     private fun StringBuilder.buildPlatformDependentItem(
-        content: ContentNode,
+        content: Content,
         sourceSets: Set<DisplaySourceSet>,
-        pageContext: ContentPage,
+        pageContext: PagesSerializationView,
     ) {
-        if (content is ContentGroup && content.children.firstOrNull { it is ContentTable } != null) {
+        if (content is GroupView && content.children.firstOrNull { it is TableView } != null) {
             buildContentNode(content, pageContext, sourceSets)
         } else {
             val distinct = sourceSets.map {
@@ -155,7 +157,7 @@ open class CommonmarkRenderer(
         }
     }
 
-    override fun StringBuilder.buildResource(node: ContentEmbeddedResource, pageContext: ContentPage) {
+    override fun StringBuilder.buildResource(node: ContentEmbeddedResource, pageContext: PagesSerializationView) {
         if(node.isImage()){
             append("!")
         }
@@ -163,8 +165,8 @@ open class CommonmarkRenderer(
     }
 
     override fun StringBuilder.buildTable(
-        node: ContentTable,
-        pageContext: ContentPage,
+        node: TableView,
+        pageContext: PagesSerializationView,
         sourceSetRestriction: Set<DisplaySourceSet>?
     ) {
         buildNewLine()
@@ -219,7 +221,7 @@ open class CommonmarkRenderer(
         }
     }
 
-    override fun StringBuilder.buildText(textNode: ContentText) {
+    override fun StringBuilder.buildText(textNode: TextView) {
         if (textNode.text.isNotBlank()) {
             val decorators = decorators(textNode.style)
             append(textNode.text.takeWhile { it == ' ' })
@@ -239,23 +241,23 @@ open class CommonmarkRenderer(
         buildParagraph()
     }
 
-    override fun buildPage(page: ContentPage, content: (StringBuilder, ContentPage) -> Unit): String =
+    override fun buildPage(page: PagesSerializationView, content: (StringBuilder, PagesSerializationView) -> Unit): String =
         buildString {
             content(this, page)
         }
 
-    override fun buildError(node: ContentNode) {
+    override fun buildError(node: Content) {
         context.logger.warn("Markdown renderer has encountered problem. The unmatched node is $node")
     }
 
-    override fun StringBuilder.buildDivergent(node: ContentDivergentGroup, pageContext: ContentPage) {
+    override fun StringBuilder.buildDivergent(node: DivergentGroupView, pageContext: PagesSerializationView) {
 
         val distinct =
-            node.groupDivergentInstances(pageContext, { instance, contentPage, sourceSet ->
+            node.groupDivergentInstances(pageContext, { instance, PagesSerializationView, sourceSet ->
                 instance.before?.let { before ->
                     buildString { buildContentNode(before, pageContext, sourceSet) }
                 } ?: ""
-            }, { instance, contentPage, sourceSet ->
+            }, { instance, PagesSerializationView, sourceSet ->
                 instance.after?.let { after ->
                     buildString { buildContentNode(after, pageContext, sourceSet) }
                 } ?: ""
@@ -336,7 +338,7 @@ open class CommonmarkRenderer(
         }
 
         when (page) {
-            is ContentPage -> outputWriter.write(path, buildPage(page) { c, p -> buildPageContent(c, p) }, ".md")
+            is PagesSerializationView -> outputWriter.write(path, buildPage(page) { c, p -> buildPageContent(c, p) }, ".md")
             is RendererSpecificPage -> when (val strategy = page.strategy) {
                 is RenderingStrategy.Copy -> outputWriter.writeResources(strategy.from, path)
                 is RenderingStrategy.Write -> outputWriter.write(path, strategy.text, "")
@@ -351,7 +353,7 @@ open class CommonmarkRenderer(
 
     private fun String.withEntersAsHtml(): String = replace("\n", "<br>")
 
-    private fun List<Pair<ContentDivergentInstance, DisplaySourceSet>>.getInstanceAndSourceSets() =
+    private fun List<Pair<DivergentInstanceView, DisplaySourceSet>>.getInstanceAndSourceSets() =
         this.let { Pair(it.first().first, it.map { it.second }.toSet()) }
 
     private fun StringBuilder.buildSourceSetTags(sourceSets: Set<DisplaySourceSet>) =

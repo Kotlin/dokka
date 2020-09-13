@@ -10,6 +10,7 @@ import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.renderers.DefaultRenderer
 import org.jetbrains.dokka.base.renderers.TabSortingStrategy
 import org.jetbrains.dokka.base.renderers.isImage
+import org.jetbrains.dokka.base.transformers.pages.serialization.*
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.DisplaySourceSet
 import org.jetbrains.dokka.model.properties.PropertyContainer
@@ -21,7 +22,6 @@ import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.query
 import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.utilities.htmlEscape
-import java.io.File
 import java.net.URI
 
 open class HtmlRenderer(
@@ -43,7 +43,7 @@ open class HtmlRenderer(
 
     private val tabSortingStrategy = context.plugin<DokkaBase>().querySingle { tabSortingStrategy }
 
-    private fun <T : ContentNode> sortTabs(strategy: TabSortingStrategy, tabs: Collection<T>): List<T> {
+    private fun <T : Content> sortTabs(strategy: TabSortingStrategy, tabs: Collection<T>): List<T> {
         val sorted = strategy.sort(tabs)
         if (sorted.size != tabs.size)
             context.logger.warn("Tab sorting strategy has changed number of tabs from ${tabs.size} to ${sorted.size}")
@@ -51,17 +51,17 @@ open class HtmlRenderer(
     }
 
     override fun FlowContent.wrapGroup(
-        node: ContentGroup,
-        pageContext: ContentPage,
+        node: GroupView,
+        pageContext: PagesSerializationView,
         childrenCallback: FlowContent.() -> Unit
     ) {
         val additionalClasses = node.style.joinToString(" ") { it.toString().toLowerCase() }
         return when {
             node.hasStyle(ContentStyle.TabbedContent) -> div(additionalClasses) {
                 val secondLevel = node.children.filterIsInstance<ContentComposite>().flatMap { it.children }
-                    .filterIsInstance<ContentHeader>().flatMap { it.children }.filterIsInstance<ContentText>()
-                val firstLevel = node.children.filterIsInstance<ContentHeader>().flatMap { it.children }
-                    .filterIsInstance<ContentText>()
+                    .filterIsInstance<HeaderView>().flatMap { it.children }.filterIsInstance<TextView>()
+                val firstLevel = node.children.filterIsInstance<HeaderView>().flatMap { it.children }
+                    .filterIsInstance<TextView>()
 
                 val renderable = firstLevel.union(secondLevel).let { sortTabs(tabSortingStrategy, it) }
 
@@ -107,7 +107,7 @@ open class HtmlRenderer(
         }
     }
 
-    private fun FlowContent.filterButtons(page: ContentPage) {
+    private fun FlowContent.filterButtons(page: PagesSerializationView) {
         if (shouldRenderSourceSetBubbles) {
             div(classes = "filter-section") {
                 id = "filter-section"
@@ -158,8 +158,8 @@ open class HtmlRenderer(
         }
 
     override fun FlowContent.buildPlatformDependent(
-        content: PlatformHintedContent,
-        pageContext: ContentPage,
+        content: PlatformHintedContentView,
+        pageContext: PagesSerializationView,
         sourceSetRestriction: Set<DisplaySourceSet>?
     ) =
         buildPlatformDependent(
@@ -172,9 +172,9 @@ open class HtmlRenderer(
         )
 
     private fun FlowContent.buildPlatformDependent(
-        nodes: Map<DisplaySourceSet, Collection<ContentNode>>,
-        pageContext: ContentPage,
-        extra: PropertyContainer<ContentNode> = PropertyContainer.empty(),
+        nodes: Map<DisplaySourceSet, Collection<Content>>,
+        pageContext: PagesSerializationView,
+        extra: PropertyContainer<Content> = PropertyContainer.empty(),
         styles: Set<Style> = emptySet()
     ) {
         val contents = contentsForSourceSetDependent(nodes, pageContext)
@@ -212,8 +212,8 @@ open class HtmlRenderer(
     }
 
     private fun contentsForSourceSetDependent(
-        nodes: Map<DisplaySourceSet, Collection<ContentNode>>,
-        pageContext: ContentPage,
+        nodes: Map<DisplaySourceSet, Collection<Content>>,
+        pageContext: PagesSerializationView,
     ): List<Pair<DisplaySourceSet, String>> {
         var counter = 0
         return nodes.toList().map { (sourceSet, elements) ->
@@ -241,16 +241,16 @@ open class HtmlRenderer(
         }
     }
 
-    override fun FlowContent.buildDivergent(node: ContentDivergentGroup, pageContext: ContentPage) {
+    override fun FlowContent.buildDivergent(node: DivergentGroupView, pageContext: PagesSerializationView) {
 
         val distinct =
-            node.groupDivergentInstances(pageContext, { instance, contentPage, sourceSet ->
+            node.groupDivergentInstances(pageContext, { instance, PagesSerializationView, sourceSet ->
                 createHTML(prettyPrint = false).div {
                     instance.before?.let { before ->
                         buildContentNode(before, pageContext, sourceSet)
                     }
                 }.stripDiv()
-            }, { instance, contentPage, sourceSet ->
+            }, { instance, PagesSerializationView, sourceSet ->
                 createHTML(prettyPrint = false).div {
                     instance.after?.let { after ->
                         buildContentNode(after, pageContext, sourceSet)
@@ -311,19 +311,19 @@ open class HtmlRenderer(
     }
 
     override fun FlowContent.buildList(
-        node: ContentList,
-        pageContext: ContentPage,
+        node: ListView,
+        pageContext: PagesSerializationView,
         sourceSetRestriction: Set<DisplaySourceSet>?
     ) = if (node.ordered) ol { buildListItems(node.children, pageContext, sourceSetRestriction) }
     else ul { buildListItems(node.children, pageContext, sourceSetRestriction) }
 
     open fun OL.buildListItems(
-        items: List<ContentNode>,
-        pageContext: ContentPage,
+        items: List<Content>,
+        pageContext: PagesSerializationView,
         sourceSetRestriction: Set<DisplaySourceSet>? = null
     ) {
         items.forEach {
-            if (it is ContentList)
+            if (it is ListView)
                 buildList(it, pageContext)
             else
                 li { it.build(this, pageContext, sourceSetRestriction) }
@@ -331,12 +331,12 @@ open class HtmlRenderer(
     }
 
     open fun UL.buildListItems(
-        items: List<ContentNode>,
-        pageContext: ContentPage,
+        items: List<Content>,
+        pageContext: PagesSerializationView,
         sourceSetRestriction: Set<DisplaySourceSet>? = null
     ) {
         items.forEach {
-            if (it is ContentList)
+            if (it is ListView)
                 buildList(it, pageContext)
             else
                 li { it.build(this, pageContext) }
@@ -345,19 +345,18 @@ open class HtmlRenderer(
 
     override fun FlowContent.buildResource(
         node: ContentEmbeddedResource,
-        pageContext: ContentPage
+        pageContext: PagesSerializationView
     ) = // TODO: extension point there
         if (node.isImage()) {
             //TODO: add imgAttrs parsing
-            val imgAttrs = node.extra.allOfType<SimpleAttr>().joinAttr()
             img(src = node.address, alt = node.altText)
         } else {
             println("Unrecognized resource type: $node")
         }
 
     private fun FlowContent.buildRow(
-        node: ContentGroup,
-        pageContext: ContentPage,
+        node: GroupView,
+        pageContext: PagesSerializationView,
         sourceSetRestriction: Set<DisplaySourceSet>?,
         style: Set<Style>
     ) {
@@ -377,7 +376,7 @@ open class HtmlRenderer(
                             }
                         }
 
-                        it.filterIsInstance<ContentLink>().takeIf { it.isNotEmpty() }?.let {
+                        it.filterIsInstance<UnresolvedLinkView>().takeIf { it.isNotEmpty() }?.let {
                             div("main-subrow " + node.style.joinToString(" ")) {
                                 it.filter { sourceSetRestriction == null || it.sourceSets.any { s -> s in sourceSetRestriction } }
                                     .forEach {
@@ -391,7 +390,7 @@ open class HtmlRenderer(
                             }
                         }
 
-                        it.filter { it !is ContentLink }.takeIf { it.isNotEmpty() }?.let {
+                        it.filter { it !is UnresolvedLinkView }.takeIf { it.isNotEmpty() }?.let {
                             if (pageContext is ModulePage || pageContext is MultimoduleRootPage) {
                                 it.forEach {
                                     span(classes = if (it.dci.kind == ContentKind.Comment) "brief-comment" else "") {
@@ -438,7 +437,7 @@ open class HtmlRenderer(
     }
 
     private fun FlowContent.createPlatformTags(
-        node: ContentNode,
+        node: Content,
         sourceSetRestriction: Set<DisplaySourceSet>? = null
     ) {
         node.takeIf { sourceSetRestriction == null || it.sourceSets.any { s -> s in sourceSetRestriction } }?.let {
@@ -449,8 +448,8 @@ open class HtmlRenderer(
     }
 
     override fun FlowContent.buildTable(
-        node: ContentTable,
-        pageContext: ContentPage,
+        node: TableView,
+        pageContext: PagesSerializationView,
         sourceSetRestriction: Set<DisplaySourceSet>?
     ) {
         when (node.dci.kind) {
@@ -458,7 +457,7 @@ open class HtmlRenderer(
             else -> div(classes = "table") {
                 node.extra.extraHtmlAttributes().forEach { attributes[it.extraKey] = it.extraValue }
                 node.children.forEach {
-                    buildRow(it, pageContext, sourceSetRestriction, node.style)
+                    buildRow(it as GroupView, pageContext, sourceSetRestriction, node.style)
                 }
             }
         }
@@ -466,8 +465,8 @@ open class HtmlRenderer(
     }
 
     fun FlowContent.buildDefaultTable(
-        node: ContentTable,
-        pageContext: ContentPage,
+        node: TableView,
+        pageContext: PagesSerializationView,
         sourceSetRestriction: Set<DisplaySourceSet>?
     ) {
         table {
@@ -497,8 +496,8 @@ open class HtmlRenderer(
     }
 
 
-    override fun FlowContent.buildHeader(level: Int, node: ContentHeader, content: FlowContent.() -> Unit) {
-        val anchor = node.extra[SimpleAttr.SimpleAttrKey("anchor")]?.extraValue
+    override fun FlowContent.buildHeader(level: Int, node: HeaderView, content: FlowContent.() -> Unit) {
+        val anchor = node.extra[SimpleContentAttr.SimpleContentAttrKey("anchor")]?.extraValue
         val classes = node.style.joinToString { it.toString() }.toLowerCase()
         when (level) {
             1 -> h1(classes = classes) { withAnchor(anchor, content) }
@@ -571,8 +570,8 @@ open class HtmlRenderer(
     ) = locationProvider.resolve(to, platforms.toSet(), from)?.let { buildLink(it, block) }
         ?: run { context.logger.error("Cannot resolve path for `$to` from `$from`"); block() }
 
-    override fun buildError(node: ContentNode) {
-        context.logger.error("Unknown ContentNode type: $node")
+    override fun buildError(node: Content) {
+        context.logger.error("Unknown Content type: $node")
     }
 
     override fun FlowContent.buildNewLine() {
@@ -584,8 +583,8 @@ open class HtmlRenderer(
 
 
     override fun FlowContent.buildDRILink(
-        node: ContentDRILink,
-        pageContext: ContentPage,
+        node: UnresolvedLinkView,
+        pageContext: PagesSerializationView,
         sourceSetRestriction: Set<DisplaySourceSet>?
     ) = locationProvider.resolve(node.address, node.sourceSets, pageContext)?.let { address ->
         buildLink(address) {
@@ -597,8 +596,8 @@ open class HtmlRenderer(
     }
 
     override fun FlowContent.buildCodeBlock(
-        code: ContentCodeBlock,
-        pageContext: ContentPage
+        code: CodeView,
+        pageContext: PagesSerializationView
     ) {
         div("sample-container") {
             code(code.style.joinToString(" ") { it.toString().toLowerCase() }) {
@@ -611,8 +610,8 @@ open class HtmlRenderer(
     }
 
     override fun FlowContent.buildCodeInline(
-        code: ContentCodeInline,
-        pageContext: ContentPage
+        code: CodeView,
+        pageContext: PagesSerializationView
     ) {
         code {
             code.children.forEach { buildContentNode(it, pageContext) }
@@ -622,12 +621,12 @@ open class HtmlRenderer(
 
     override suspend fun renderPage(page: PageNode) {
         super.renderPage(page)
-        if (page is ContentPage && page !is ModulePageNode && page !is PackagePageNode)
-            searchbarDataInstaller.processPage(page, locationProvider.resolve(page)
-                ?: run { context.logger.error("Cannot resolve path for ${page.dri}"); "" })
+//        if (page is PagesSerializationView && page !is ModulePageNode && page !is PackagePageNode)
+//            searchbarDataInstaller.processPage(page, locationProvider.resolve(page)
+//                ?: run { context.logger.error("Cannot resolve path for ${page.dri}"); "" })
     }
 
-    override fun FlowContent.buildText(textNode: ContentText) =
+    override fun FlowContent.buildText(textNode: TextView) =
         when {
             textNode.hasStyle(TextStyle.Indented) -> {
                 consumer.onTagContentEntity(Entities.nbsp)
@@ -649,7 +648,7 @@ open class HtmlRenderer(
 
     private fun PageNode.root(path: String) = locationProvider.pathToRoot(this) + path
 
-    override fun buildPage(page: ContentPage, content: (FlowContent, ContentPage) -> Unit): String =
+    override fun buildPage(page: PagesSerializationView, content: (FlowContent, PagesSerializationView) -> Unit): String =
         buildHtml(page, page.embeddedResources) {
             div {
                 id = "content"
@@ -747,11 +746,13 @@ open class HtmlRenderer(
         }
 }
 
-fun List<SimpleAttr>.joinAttr() = joinToString(" ") { it.extraKey + "=" + it.extraValue }
+fun List<SimpleContentAttr>.joinAttr() = joinToString(" ") { it.extraKey + "=" + it.extraValue }
 
 private fun String.stripDiv() = drop(5).dropLast(6) // TODO: Find a way to do it without arbitrary trims
 
 private val PageNode.isNavigable: Boolean
     get() = this !is RendererSpecificPage || strategy != RenderingStrategy.DoNothing
 
-fun PropertyContainer<ContentNode>.extraHtmlAttributes() = allOfType<SimpleAttr>()
+fun PropertyContainer<Content>.extraHtmlAttributes() = allOfType<SimpleContentAttr>()
+
+fun Content.hasStyle(style: Style) = this.style.contains(style)

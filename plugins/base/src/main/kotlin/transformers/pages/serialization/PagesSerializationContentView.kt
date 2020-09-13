@@ -5,7 +5,9 @@ import org.jetbrains.dokka.model.DisplaySourceSet
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.pages.*
 
-interface PagesSerializationContentView : Content
+interface PagesSerializationContentView : Content {
+    fun withNewChildren(newContent: List<Content>): PagesSerializationContentView
+}
 
 data class TextView(
     override val text: String,
@@ -14,6 +16,8 @@ data class TextView(
     override val style: Set<Style>,
     override val extra: PropertyContainer<Content>
 ) : Text, PagesSerializationContentView {
+    override fun withNewChildren(newContent: List<Content>): PagesSerializationContentView = this
+
     override fun withNewExtras(newExtras: PropertyContainer<Content>): Content = copy(extra = newExtras)
 }
 
@@ -23,6 +27,8 @@ data class BreakLineView(
     override val style: Set<Style>,
     override val extra: PropertyContainer<Content>
 ) : BreakLine, PagesSerializationContentView {
+    override fun withNewChildren(newContent: List<Content>): PagesSerializationContentView = this
+
     override fun withNewExtras(newExtras: PropertyContainer<Content>): Content = copy(extra = newExtras)
 }
 
@@ -34,6 +40,9 @@ data class HeaderView(
     override val extra: PropertyContainer<Content>,
     override val children: List<Content>
 ) : Header, PagesSerializationContentView {
+    override fun withNewChildren(newContent: List<Content>): PagesSerializationContentView =
+        copy(children = newContent)
+
     override fun withNewExtras(newExtras: PropertyContainer<Content>): Content = copy(extra = newExtras)
 }
 
@@ -45,6 +54,9 @@ data class CodeView(
     override val sourceSets: Set<DisplaySourceSet>,
     override val extra: PropertyContainer<Content>,
 ) : Code, PagesSerializationContentView {
+    override fun withNewChildren(newContent: List<Content>): PagesSerializationContentView =
+        copy(children = newContent)
+
     override fun withNewExtras(newExtras: PropertyContainer<Content>): Content = copy(extra = newExtras)
 }
 
@@ -56,6 +68,9 @@ data class ResolvedLinkView(
     override val sourceSets: Set<DisplaySourceSet>,
     override val extra: PropertyContainer<Content>,
 ) : ResolvedLink, PagesSerializationContentView {
+    override fun withNewChildren(newContent: List<Content>): PagesSerializationContentView =
+        copy(children = newContent)
+
     override fun withNewExtras(newExtras: PropertyContainer<Content>): Content = copy(extra = newExtras)
 }
 
@@ -67,6 +82,9 @@ data class UnresolvedLinkView(
     override val sourceSets: Set<DisplaySourceSet>,
     override val extra: PropertyContainer<Content>,
 ) : UnresolvedLink, PagesSerializationContentView {
+    override fun withNewChildren(newContent: List<Content>): PagesSerializationContentView =
+        copy(children = newContent)
+
     override fun withNewExtras(newExtras: PropertyContainer<Content>): Content = copy(extra = newExtras)
 }
 
@@ -78,6 +96,9 @@ data class TableView(
     override val sourceSets: Set<DisplaySourceSet>,
     override val extra: PropertyContainer<Content>
 ) : Table, PagesSerializationContentView {
+    override fun withNewChildren(newContent: List<Content>): PagesSerializationContentView =
+        copy(children = newContent)
+
     override fun withNewExtras(newExtras: PropertyContainer<Content>): Content = copy(extra = newExtras)
 }
 
@@ -89,6 +110,9 @@ data class ListView(
     override val sourceSets: Set<DisplaySourceSet>,
     override val extra: PropertyContainer<Content>
 ) : ElementList, PagesSerializationContentView {
+    override fun withNewChildren(newContent: List<Content>): PagesSerializationContentView =
+        copy(children = newContent)
+
     override fun withNewExtras(newExtras: PropertyContainer<Content>): Content = copy(extra = newExtras)
 }
 
@@ -99,6 +123,9 @@ data class GroupView(
     override val sourceSets: Set<DisplaySourceSet>,
     override val extra: PropertyContainer<Content>
 ) : Group, PagesSerializationContentView {
+    override fun withNewChildren(newContent: List<Content>): PagesSerializationContentView =
+        copy(children = newContent)
+
     override fun withNewExtras(newExtras: PropertyContainer<Content>): Content = copy(extra = newExtras)
 }
 
@@ -108,10 +135,13 @@ data class DivergentGroupView(
     override val implicitlySourceSetHinted: Boolean,
     override val dci: DCI,
     override val style: Set<Style>,
-    override val children: List<Content>,
+    override val children: List<DivergentInstanceView>,
     override val extra: PropertyContainer<Content>,
     override val sourceSets: Set<DisplaySourceSet>
 ) : DivergentGroup, PagesSerializationContentView {
+    override fun withNewChildren(newContent: List<Content>): PagesSerializationContentView =
+        copy(children = newContent as List<DivergentInstanceView>)
+
     override fun withNewExtras(newExtras: PropertyContainer<Content>): Content = copy(extra = newExtras)
 }
 
@@ -126,6 +156,8 @@ data class DivergentInstanceView(
 ) : DivergentInstance, PagesSerializationContentView {
     override val children: List<Content>
         get() = listOfNotNull(before, divergent, after)
+
+    override fun withNewChildren(newContent: List<Content>): PagesSerializationContentView = this
 
     override fun withNewExtras(newExtras: PropertyContainer<Content>): Content = copy(extra = newExtras)
 }
@@ -143,6 +175,9 @@ data class PlatformHintedContentView(
 
     override val style: Set<Style>
         get() = inner.style
+
+    override fun withNewChildren(newContent: List<Content>): PagesSerializationContentView =
+        copy(inner = newContent.first())
 
     override fun withNewExtras(newExtras: PropertyContainer<Content>) =
         throw UnsupportedOperationException("This method should not be called on this PlatformHintedContent")

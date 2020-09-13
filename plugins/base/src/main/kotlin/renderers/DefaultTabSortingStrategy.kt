@@ -1,5 +1,6 @@
 package org.jetbrains.dokka.base.renderers
 
+import org.jetbrains.dokka.pages.Content
 import org.jetbrains.dokka.pages.ContentKind
 import org.jetbrains.dokka.pages.ContentNode
 import org.jetbrains.dokka.pages.Kind
@@ -19,7 +20,7 @@ private val kindsOrder = listOf(
 )
 
 class DefaultTabSortingStrategy : TabSortingStrategy {
-    override fun <T: ContentNode> sort(tabs: Collection<T>): List<T> {
+    override fun <T: Content> sort(tabs: Collection<T>): List<T> {
         val tabMap: Map<Kind, MutableList<T>> = kindsOrder.asSequence().map { it to mutableListOf<T>() }.toMap()
         val unrecognized: MutableList<T> = mutableListOf()
         tabs.forEach {

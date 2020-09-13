@@ -2,6 +2,7 @@ package org.jetbrains.dokka.base.resolvers.local
 
 import org.jetbrains.dokka.base.renderers.sourceSets
 import org.jetbrains.dokka.base.resolvers.anchors.SymbolAnchorHint
+import org.jetbrains.dokka.base.transformers.pages.serialization.PagesSerializationView
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.PointingToDeclaration
 import org.jetbrains.dokka.model.DisplaySourceSet
@@ -27,8 +28,8 @@ open class DokkaLocationProvider(
         pageGraphRoot.children.forEach { registerPath(it, emptyList()) }
     }
 
-    protected val pagesIndex: Map<Pair<DRI, DisplaySourceSet?>, ContentPage> =
-        pageGraphRoot.withDescendants().filterIsInstance<ContentPage>()
+    protected val pagesIndex: Map<Pair<DRI, DisplaySourceSet?>, PagesSerializationView> =
+        pageGraphRoot.withDescendants().filterIsInstance<PagesSerializationView>()
             .flatMap { page ->
                 page.dri.flatMap { dri ->
                     page.sourceSets().ifEmpty { setOf(null) }.map { sourceSet -> (dri to sourceSet) to page }
@@ -39,11 +40,11 @@ open class DokkaLocationProvider(
                 if (first) page else throw AssertionError("Multiple pages associated with key: ${key.first}/${key.second}")
             }
 
-    protected val anchorsIndex: Map<Pair<DRI, DisplaySourceSet?>, ContentPage> =
-        pageGraphRoot.withDescendants().filterIsInstance<ContentPage>()
+    protected val anchorsIndex: Map<Pair<DRI, DisplaySourceSet?>, PagesSerializationView> =
+        pageGraphRoot.withDescendants().filterIsInstance<PagesSerializationView>()
             .flatMap { page ->
                 page.content.withDescendants()
-                    .filter { it.extra[SymbolAnchorHint] != null }
+//                    .filter { it.extra[SymbolAnchorHint] != null }
                     .mapNotNull { it.dci.dri.singleOrNull() }
                     .distinct()
                     .flatMap { dri ->
@@ -83,7 +84,7 @@ open class DokkaLocationProvider(
         )
 
         val contextNode =
-            if (context !is ClasslikePageNode && context?.children?.isEmpty() == true && context.parent() != null) context.parent() else context
+            if (context !is ClasslikePage && context?.children?.isEmpty() == true && context.parent() != null) context.parent() else context
         val nodePath = pathFor(node)
         val contextPath = contextNode?.let { pathFor(it) }.orEmpty()
 

@@ -5,67 +5,82 @@ import org.jetbrains.dokka.pages.*
 
 interface PagesSerializationView: PageNode {
     val content: PagesSerializationContentView
+    val embeddedResources: List<String>
+    val dri: Set<DRI>
+
+    fun withNewContent(newContent: PagesSerializationContentView): PagesSerializationView
 }
 
 data class MultiModulePageView(
     override val name: String,
     override val children: List<PagesSerializationView>,
     override val content: PagesSerializationContentView,
-    val dri: Set<DRI>,
-    val embeddedResources: List<String>
+    override val dri: Set<DRI>,
+    override val embeddedResources: List<String>
 ) : MultimoduleRootPage, PagesSerializationView, RootPageNode() {
-    override fun modified(name: String, children: List<PageNode>): RootPageNode {
-        TODO("Not yet implemented")
-    }
+
+    override fun withNewContent(newContent: PagesSerializationContentView): PagesSerializationView =
+        copy(content = newContent)
+
+    override fun modified(name: String, children: List<PageNode>): RootPageNode =
+        copy(name = name, children = children as List<PagesSerializationView>)
 }
 
 data class ModulePageView(
     override val name: String,
     override val children: List<PagesSerializationView>,
     override val content: PagesSerializationContentView,
-    val embeddedResources: List<String>
+    override val embeddedResources: List<String>
 ) : ModulePage, PagesSerializationView, RootPageNode() {
-    val dri: Set<DRI> = setOf(DRI.topLevel)
 
-    override fun modified(name: String, children: List<PageNode>): RootPageNode {
-        TODO("Not yet implemented")
-    }
+    override val dri: Set<DRI> = setOf(DRI.topLevel)
+
+    override fun withNewContent(newContent: PagesSerializationContentView): PagesSerializationView =
+        copy(content = newContent)
+
+    override fun modified(name: String, children: List<PageNode>): RootPageNode =
+        copy(name = name, children = children as List<PagesSerializationView>)
 
 }
 
 data class PackagePageView(
     override val name: String,
     override val content: PagesSerializationContentView,
-    val dri: Set<DRI>,
+    override val dri: Set<DRI>,
     override val children: List<PagesSerializationView>,
-    val embeddedResources: List<String> = listOf()
+    override val embeddedResources: List<String> = listOf()
 ) : PackagePage, PagesSerializationView {
+    override fun withNewContent(newContent: PagesSerializationContentView): PagesSerializationView =
+        copy(content = newContent)
 
-    override fun modified(name: String, children: List<PageNode>): PageNode {
-        TODO("Not yet implemented")
-    }
+    override fun modified(name: String, children: List<PageNode>): PageNode =
+        copy(name = name, children = children as List<PagesSerializationView>)
 }
 
 data class ClasslikePageView(
     override val name: String,
     override val content: PagesSerializationContentView,
-    val dri: Set<DRI>,
+    override val dri: Set<DRI>,
     override val children: List<PagesSerializationView>,
-    val embeddedResources: List<String> = listOf()
+    override val embeddedResources: List<String> = listOf()
 ) : ClasslikePage, PagesSerializationView {
-    override fun modified(name: String, children: List<PageNode>): PageNode {
-        TODO("Not yet implemented")
-    }
+    override fun withNewContent(newContent: PagesSerializationContentView): PagesSerializationView =
+        copy(content = newContent)
+
+    override fun modified(name: String, children: List<PageNode>): PageNode =
+        copy(name = name, children = children as List<PagesSerializationView>)
 }
 
 data class MemberPageView(
     override val name: String,
     override val content: PagesSerializationContentView,
-    val dri: Set<DRI>,
+    override val dri: Set<DRI>,
     override val children: List<PagesSerializationView> = emptyList(),
-    val embeddedResources: List<String> = listOf()
+    override val embeddedResources: List<String> = listOf()
 ) : MemberPage, PagesSerializationView {
-    override fun modified(name: String, children: List<PageNode>): PageNode {
-        TODO("Not yet implemented")
-    }
+    override fun withNewContent(newContent: PagesSerializationContentView): PagesSerializationView =
+        copy(content = newContent)
+
+    override fun modified(name: String, children: List<PageNode>): PageNode =
+        copy(name = name, children = children as List<PagesSerializationView>)
 }

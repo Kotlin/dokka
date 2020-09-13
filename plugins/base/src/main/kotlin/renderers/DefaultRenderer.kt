@@ -8,6 +8,7 @@ import org.jetbrains.dokka.DokkaException
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.resolvers.local.LocationProvider
 import org.jetbrains.dokka.base.resolvers.local.resolveOrThrow
+import org.jetbrains.dokka.base.transformers.pages.serialization.*
 import org.jetbrains.dokka.model.DisplaySourceSet
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
@@ -28,107 +29,105 @@ abstract class DefaultRenderer<T>(
 
     protected open val preprocessors: Iterable<PageTransformer> = emptyList()
 
-    abstract fun T.buildHeader(level: Int, node: ContentHeader, content: T.() -> Unit)
+    abstract fun T.buildHeader(level: Int, node: HeaderView, content: T.() -> Unit)
     abstract fun T.buildLink(address: String, content: T.() -> Unit)
     abstract fun T.buildList(
-        node: ContentList,
-        pageContext: ContentPage,
+        node: ListView,
+        pageContext: PagesSerializationView,
         sourceSetRestriction: Set<DisplaySourceSet>? = null
     )
 
     abstract fun T.buildNewLine()
-    abstract fun T.buildResource(node: ContentEmbeddedResource, pageContext: ContentPage)
+    abstract fun T.buildResource(node: ContentEmbeddedResource, pageContext: PagesSerializationView)
     abstract fun T.buildTable(
-        node: ContentTable,
-        pageContext: ContentPage,
+        node: TableView,
+        pageContext: PagesSerializationView,
         sourceSetRestriction: Set<DisplaySourceSet>? = null
     )
 
-    abstract fun T.buildText(textNode: ContentText)
+    abstract fun T.buildText(textNode: TextView)
     abstract fun T.buildNavigation(page: PageNode)
 
-    abstract fun buildPage(page: ContentPage, content: (T, ContentPage) -> Unit): String
-    abstract fun buildError(node: ContentNode)
+    abstract fun buildPage(page: PagesSerializationView, content: (T, PagesSerializationView) -> Unit): String
+    abstract fun buildError(node: Content)
 
     open fun T.buildPlatformDependent(
-        content: PlatformHintedContent,
-        pageContext: ContentPage,
+        content: PlatformHintedContentView,
+        pageContext: PagesSerializationView,
         sourceSetRestriction: Set<DisplaySourceSet>?
     ) = buildContentNode(content.inner, pageContext)
 
     open fun T.buildGroup(
-        node: ContentGroup,
-        pageContext: ContentPage,
+        node: GroupView,
+        pageContext: PagesSerializationView,
         sourceSetRestriction: Set<DisplaySourceSet>? = null
     ) =
         wrapGroup(node, pageContext) { node.children.forEach { it.build(this, pageContext, sourceSetRestriction) } }
 
-    open fun T.buildDivergent(node: ContentDivergentGroup, pageContext: ContentPage) =
+    open fun T.buildDivergent(node: DivergentGroupView, pageContext: PagesSerializationView) =
         node.children.forEach { it.build(this, pageContext) }
 
-    open fun T.wrapGroup(node: ContentGroup, pageContext: ContentPage, childrenCallback: T.() -> Unit) =
+    open fun T.wrapGroup(node: GroupView, pageContext: PagesSerializationView, childrenCallback: T.() -> Unit) =
         childrenCallback()
 
     open fun T.buildText(
-        nodes: List<ContentNode>,
-        pageContext: ContentPage,
+        nodes: List<Content>,
+        pageContext: PagesSerializationView,
         sourceSetRestriction: Set<DisplaySourceSet>? = null
     ) {
         nodes.forEach { it.build(this, pageContext, sourceSetRestriction) }
     }
 
-    open fun T.buildCodeBlock(code: ContentCodeBlock, pageContext: ContentPage) {
+    open fun T.buildCodeBlock(code: CodeView, pageContext: PagesSerializationView) {
         code.children.forEach { it.build(this, pageContext) }
     }
 
-    open fun T.buildCodeInline(code: ContentCodeInline, pageContext: ContentPage) {
+    open fun T.buildCodeInline(code: CodeView, pageContext: PagesSerializationView) {
         code.children.forEach { it.build(this, pageContext) }
     }
 
     open fun T.buildHeader(
-        node: ContentHeader,
-        pageContext: ContentPage,
+        node: HeaderView,
+        pageContext: PagesSerializationView,
         sourceSetRestriction: Set<DisplaySourceSet>? = null
     ) {
         buildHeader(node.level, node) { node.children.forEach { it.build(this, pageContext, sourceSetRestriction) } }
     }
 
-    open fun ContentNode.build(
+    open fun Content.build(
         builder: T,
-        pageContext: ContentPage,
+        pageContext: PagesSerializationView,
         sourceSetRestriction: Set<DisplaySourceSet>? = null
     ) =
         builder.buildContentNode(this, pageContext, sourceSetRestriction)
 
     open fun T.buildContentNode(
-        node: ContentNode,
-        pageContext: ContentPage,
+        node: Content,
+        pageContext: PagesSerializationView,
         sourceSetRestriction: Set<DisplaySourceSet>? = null
     ) {
         if (sourceSetRestriction == null || node.sourceSets.any { it in sourceSetRestriction }) {
             when (node) {
-                is ContentText -> buildText(node)
-                is ContentHeader -> buildHeader(node, pageContext, sourceSetRestriction)
-                is ContentCodeBlock -> buildCodeBlock(node, pageContext)
-                is ContentCodeInline -> buildCodeInline(node, pageContext)
-                is ContentDRILink -> buildDRILink(node, pageContext, sourceSetRestriction)
-                is ContentResolvedLink -> buildResolvedLink(node, pageContext, sourceSetRestriction)
-                is ContentEmbeddedResource -> buildResource(node, pageContext)
-                is ContentList -> buildList(node, pageContext, sourceSetRestriction)
-                is ContentTable -> buildTable(node, pageContext, sourceSetRestriction)
-                is ContentGroup -> buildGroup(node, pageContext, sourceSetRestriction)
-                is ContentBreakLine -> buildNewLine()
-                is PlatformHintedContent -> buildPlatformDependent(node, pageContext, sourceSetRestriction)
-                is ContentDivergentGroup -> buildDivergent(node, pageContext)
-                is ContentDivergentInstance -> buildDivergentInstance(node, pageContext)
+                is TextView -> buildText(node)
+                is HeaderView -> buildHeader(node, pageContext, sourceSetRestriction)
+                is CodeView -> buildCodeBlock(node, pageContext)
+                is UnresolvedLinkView -> buildDRILink(node, pageContext, sourceSetRestriction)
+                is ResolvedLinkView -> buildResolvedLink(node, pageContext, sourceSetRestriction)
+                is ListView -> buildList(node, pageContext, sourceSetRestriction)
+                is TableView -> buildTable(node, pageContext, sourceSetRestriction)
+                is GroupView -> buildGroup(node, pageContext, sourceSetRestriction)
+                is BreakLineView -> buildNewLine()
+                is PlatformHintedContentView -> buildPlatformDependent(node, pageContext, sourceSetRestriction)
+                is DivergentGroupView -> buildDivergent(node, pageContext)
+                is DivergentInstanceView -> buildDivergentInstance(node, pageContext)
                 else -> buildError(node)
             }
         }
     }
 
     open fun T.buildDRILink(
-        node: ContentDRILink,
-        pageContext: ContentPage,
+        node: UnresolvedLinkView,
+        pageContext: PagesSerializationView,
         sourceSetRestriction: Set<DisplaySourceSet>?
     ) {
         locationProvider.resolve(node.address, node.sourceSets, pageContext)?.let { address ->
@@ -139,8 +138,8 @@ abstract class DefaultRenderer<T>(
     }
 
     open fun T.buildResolvedLink(
-        node: ContentResolvedLink,
-        pageContext: ContentPage,
+        node: ResolvedLinkView,
+        pageContext: PagesSerializationView,
         sourceSetRestriction: Set<DisplaySourceSet>?
     ) {
         buildLink(node.address) {
@@ -148,13 +147,13 @@ abstract class DefaultRenderer<T>(
         }
     }
 
-    open fun T.buildDivergentInstance(node: ContentDivergentInstance, pageContext: ContentPage) {
+    open fun T.buildDivergentInstance(node: DivergentInstanceView, pageContext: PagesSerializationView) {
         node.before?.build(this, pageContext)
         node.divergent.build(this, pageContext)
         node.after?.build(this, pageContext)
     }
 
-    open fun buildPageContent(context: T, page: ContentPage) {
+    open fun buildPageContent(context: T, page: PagesSerializationView) {
         context.buildNavigation(page)
         page.content.build(context, page)
     }
@@ -165,7 +164,7 @@ abstract class DefaultRenderer<T>(
                 ?: throw DokkaException("Cannot resolve path for ${page.name}")
         }
         when (page) {
-            is ContentPage -> outputWriter.write(path, buildPage(page) { c, p -> buildPageContent(c, p) }, ".html")
+            is PagesSerializationView -> outputWriter.write(path, buildPage(page) { c, p -> buildPageContent(c, p) }, ".html")
             is RendererSpecificPage -> when (val strategy = page.strategy) {
                 is RenderingStrategy.Copy -> outputWriter.writeResources(strategy.from, path)
                 is RenderingStrategy.Write -> outputWriter.write(path, strategy.text, "")
@@ -194,18 +193,19 @@ abstract class DefaultRenderer<T>(
     override fun render(root: RootPageNode) {
         val newRoot = preprocessors.fold(root) { acc, t -> t(acc) }
 
+        val serialized = PagesSerializationTransformer(ContentSerializationTransformer()).invoke(newRoot)
         locationProvider =
-            context.plugin<DokkaBase>().querySingle { locationProviderFactory }.getLocationProvider(newRoot)
+            context.plugin<DokkaBase>().querySingle { locationProviderFactory }.getLocationProvider(serialized)
 
         runBlocking(Dispatchers.Default) {
-            renderPages(newRoot)
+            renderPages(serialized)
         }
     }
 
-    protected fun ContentDivergentGroup.groupDivergentInstances(
-        pageContext: ContentPage,
-        beforeTransformer: (ContentDivergentInstance, ContentPage, DisplaySourceSet) -> String,
-        afterTransformer: (ContentDivergentInstance, ContentPage, DisplaySourceSet) -> String
+    protected fun DivergentGroupView.groupDivergentInstances(
+        pageContext: PagesSerializationView,
+        beforeTransformer: (DivergentInstanceView, PagesSerializationView, DisplaySourceSet) -> String,
+        afterTransformer: (DivergentInstanceView, PagesSerializationView, DisplaySourceSet) -> String
     ): Map<SerializedBeforeAndAfter, List<InstanceWithSource>> =
         children.flatMap { instance ->
             instance.sourceSets.map { sourceSet ->
@@ -221,8 +221,9 @@ abstract class DefaultRenderer<T>(
 }
 
 internal typealias SerializedBeforeAndAfter = Pair<String, String>
-internal typealias InstanceWithSource = Pair<ContentDivergentInstance, DisplaySourceSet>
+internal typealias InstanceWithSource = Pair<DivergentInstanceView, DisplaySourceSet>
 
+fun PagesSerializationView.sourceSets() = this.content.sourceSets
 fun ContentPage.sourceSets() = this.content.sourceSets
 
 fun ContentEmbeddedResource.isImage(): Boolean {

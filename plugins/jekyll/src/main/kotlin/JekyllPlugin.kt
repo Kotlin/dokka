@@ -5,6 +5,7 @@ import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.renderers.PackageListCreator
 import org.jetbrains.dokka.base.renderers.RootCreator
 import org.jetbrains.dokka.base.resolvers.shared.RecognizedLinkFormat
+import org.jetbrains.dokka.base.transformers.pages.serialization.PagesSerializationView
 import org.jetbrains.dokka.gfm.CommonmarkRenderer
 import org.jetbrains.dokka.gfm.GfmPlugin
 import org.jetbrains.dokka.pages.*
@@ -43,7 +44,7 @@ class JekyllRenderer(
 
     override val preprocessors = context.plugin<JekyllPlugin>().query { jekyllPreprocessors }
 
-    override fun buildPage(page: ContentPage, content: (StringBuilder, ContentPage) -> Unit): String {
+    override fun buildPage(page: PagesSerializationView, content: (StringBuilder, PagesSerializationView) -> Unit): String {
         val builder = StringBuilder()
         builder.append("---\n")
         builder.append("title: ${page.name} -\n")

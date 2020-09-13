@@ -1,6 +1,6 @@
 package org.jetbrains.dokka.base.transformers.pages.serialization
 
-import org.jetbrains.dokka.base.resolvers.local.LocationProviderFactory
+import org.jetbrains.dokka.model.properties.ExtraProperty
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.pages.PlatformHintedContent
@@ -245,7 +245,11 @@ open class ContentSerializationTransformer : (ContentNode) -> PagesSerialization
             )
         }
 
-    //TODO
     open fun convertExtra(extra: PropertyContainer<ContentNode>): PropertyContainer<Content> =
-        PropertyContainer.empty()
+        PropertyContainer.withAll(extra.allOfType<SimpleAttr>().map { SimpleContentAttr(it.extraKey, it.extraValue) })
+}
+
+class SimpleContentAttr(val extraKey: String, val extraValue: String) : ExtraProperty<Content> {
+    data class SimpleContentAttrKey(val key: String) : ExtraProperty.Key<Content, SimpleContentAttr>
+    override val key: ExtraProperty.Key<Content, SimpleContentAttr> = SimpleContentAttrKey(extraKey)
 }
