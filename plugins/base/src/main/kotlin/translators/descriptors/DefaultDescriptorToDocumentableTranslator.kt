@@ -26,8 +26,11 @@ import org.jetbrains.kotlin.descriptors.Visibility
 import org.jetbrains.kotlin.descriptors.annotations.Annotated
 import org.jetbrains.kotlin.descriptors.annotations.AnnotationDescriptor
 import org.jetbrains.kotlin.descriptors.impl.DeclarationDescriptorVisitorEmptyBodies
+import org.jetbrains.kotlin.idea.caches.project.NotUnderContentRootModuleInfo.project
 import org.jetbrains.kotlin.idea.findUsages.KotlinFindUsagesHandlerFactory
+import org.jetbrains.kotlin.idea.findUsages.processAllUsages
 import org.jetbrains.kotlin.idea.kdoc.findKDoc
+import org.jetbrains.kotlin.js.resolve.diagnostics.findPsi
 import org.jetbrains.kotlin.load.kotlin.toSourceElement
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.*
@@ -96,6 +99,8 @@ private class DokkaDescriptorVisitor(
     private val resolutionFacade: DokkaResolutionFacade,
     private val logger: DokkaLogger
 ) : DeclarationDescriptorVisitorEmptyBodies<Documentable, DRIWithPlatformInfo>() {
+    private val koltinUsagesFactory = KotlinFindUsagesHandlerFactory(resolutionFacade.project)
+
     override fun visitDeclarationDescriptor(descriptor: DeclarationDescriptor, parent: DRIWithPlatformInfo): Nothing {
         throw IllegalStateException("${javaClass.simpleName} should never enter ${descriptor.javaClass.simpleName}")
     }
@@ -362,7 +367,16 @@ private class DokkaDescriptorVisitor(
         val (dri, inheritedFrom) = descriptor.createDRI()
         val isExpect = descriptor.isExpect
         val isActual = descriptor.isActual
-//        val x = KotlinFindUsagesHandlerFactory(project)
+
+        val findUsagesHandler = koltinUsagesFactory.createFindUsagesHandler(descriptor.findPsi()!!, true)
+//        findUsagesHandler.processElementUsages(
+//            this,
+//            {
+//                processor(it)
+//                true
+//            },
+//            options
+//        )
 
         val actual = descriptor.createSources()
         return DFunction(
