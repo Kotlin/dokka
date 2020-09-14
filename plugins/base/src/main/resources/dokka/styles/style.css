@@ -10,10 +10,11 @@
     --footer-padding-top: 48px;
     --horizontal-spacing-for-content: 42px;
     --mobile-horizontal-spacing-for-content: 8px;
+    --bottom-spacing: 16px;
 }
 
 #content {
-    padding: 0 var(--horizontal-spacing-for-content);
+    padding: 0 var(--horizontal-spacing-for-content) var(--bottom-spacing) var(--horizontal-spacing-for-content);
 }
 
 .breadcrumbs {
@@ -58,12 +59,11 @@
 }
 
 .tabs-section-body {
-    margin: 12px 0;
     background-color: white;
 }
 
 .tabs-section-body > .table {
-    margin: 12px 0;
+    margin-top: 12px;
 }
 
 .tabs-section-body .with-platform-tabs > div {
@@ -85,19 +85,15 @@
 }
 
 .cover > .platform-hinted {
-    padding-top: 24px;
-    margin-top: 24px;
-    padding-bottom: 16px;
+    padding-top: 12px;
+    margin-top: 12px;
+    padding-bottom: 12px;
 }
 
 .cover {
     display: flex;
     flex-direction: column;
     width: 100%;
-}
-
-.tabbedcontent {
-    padding: 14px 0;
 }
 
 .cover .platform-hinted .sourceset-depenent-content > .symbol,
@@ -479,9 +475,18 @@ h3, h4, h5, h6 {
 }
 
 .UnderCoverText {
-    font-size: 18px;
+    font-size: 16px;
     line-height: 28px;
 }
+
+.UnderCoverText code {
+    font-size: inherit;
+}
+
+.UnderCoverText table {
+    margin: 8px 0 8px 0;
+}
+
 
 a {
     color: #5B5DEF;
