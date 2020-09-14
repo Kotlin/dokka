@@ -72,6 +72,6 @@ object DocTagsFromStringFactory {
             "var" -> Var(children, params)
             "documentationlink" -> DocumentationLink(dri ?: throw NullPointerException("DRI cannot be passed null while constructing documentation link!"), children, params)
             "hr" -> HorizontalRule
-            else -> CustomDocTag(children, params)
+            else -> CustomDocTag(children, params, name)
         }
 }

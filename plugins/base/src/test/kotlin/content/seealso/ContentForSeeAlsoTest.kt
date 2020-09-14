@@ -89,7 +89,7 @@ class ContentForSeeAlsoTest : AbstractCoreTest() {
                                             group {
                                                 //DRI should be "test//abc/#/-1/"
                                                 link { +"abc" }
-                                                group { group { } }
+                                                group { }
                                             }
                                         }
                                     }
@@ -201,9 +201,7 @@ class ContentForSeeAlsoTest : AbstractCoreTest() {
                                             group {
                                                 //DRI should be "kotlin.collections/Collection////"
                                                 link { +"Collection" }
-                                                group {
-                                                    group { }
-                                                }
+                                                group { }
                                             }
                                         }
                                     }

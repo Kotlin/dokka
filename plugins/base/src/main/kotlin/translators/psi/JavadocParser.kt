@@ -6,6 +6,7 @@ import com.intellij.psi.impl.source.tree.JavaDocElementType
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.javadoc.*
 import com.intellij.psi.util.PsiTreeUtil
+import org.intellij.markdown.MarkdownElementTypes
 import org.jetbrains.dokka.analysis.from
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.doc.*
@@ -55,8 +56,11 @@ class JavadocParser(
         return DocumentationNode(nodes)
     }
 
-    private fun wrapTagIfNecessary(list: List<DocTag>): DocTag =
-        if (list.size == 1) list.first() else P(list)
+    private fun wrapTagIfNecessary(list: List<DocTag>): CustomDocTag =
+        if (list.size == 1 && (list.first() as? CustomDocTag)?.name == MarkdownElementTypes.MARKDOWN_FILE.name)
+            list.first() as CustomDocTag
+        else
+            CustomDocTag(list, name = MarkdownElementTypes.MARKDOWN_FILE.name)
 
     private fun findClosestDocComment(element: PsiNamedElement): PsiDocComment? {
         (element as? PsiDocCommentOwner)?.docComment?.run { return this }
