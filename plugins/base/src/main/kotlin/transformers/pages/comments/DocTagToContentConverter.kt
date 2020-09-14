@@ -1,5 +1,6 @@
 package org.jetbrains.dokka.base.transformers.pages.comments
 
+import org.intellij.markdown.MarkdownElementTypes
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.model.properties.PropertyContainer
@@ -175,7 +176,24 @@ object DocTagToContentConverter : CommentsToContentConverter {
                     styles
                 )
             )
+
+            is CustomDocTag -> if (docTag.isNonemptyFile()) {
+                listOf(
+                    ContentGroup(
+                        buildChildren(docTag),
+                        dci,
+                        sourceSets.toDisplaySourceSets(),
+                        styles,
+                        extra = extra
+                    )
+                )
+            } else {
+                buildChildren(docTag)
+            }
+
             else -> buildChildren(docTag)
         }
     }
+
+    private fun CustomDocTag.isNonemptyFile() = name == MarkdownElementTypes.MARKDOWN_FILE.name && children.size > 1
 }

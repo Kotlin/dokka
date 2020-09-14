@@ -605,6 +605,6 @@ class ContentForParamsTest : AbstractCoreTest() {
     }
 
     private fun DocumentationNode.paramsDescription(): String =
-        children.firstIsInstanceOrNull<Param>()?.root?.children?.firstIsInstanceOrNull<Text>()?.body.orEmpty()
+        children.firstIsInstanceOrNull<Param>()?.root?.children?.first()?.children?.firstIsInstanceOrNull<Text>()?.body.orEmpty()
 
 }
