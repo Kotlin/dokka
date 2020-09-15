@@ -23,7 +23,27 @@ open class PagesSerializationTransformer(
                     else -> throw IllegalStateException("Attempting to convert unsupported page: ${pageNode.javaClass.canonicalName}")
                 }
             }
+            is RendererSpecificResourcePage -> convertRendererSpecificRootPage(pageNode)
+            is RendererSpecificRootPage -> RendererSpecificRootPageView(
+                name = pageNode.name,
+                children = pageNode.children.map { convert(it) },
+                strategy = convertRenderingStrategy(pageNode.strategy)
+            )
             else -> throw IllegalStateException("Attempting to convert unsupported page: ${pageNode.javaClass.canonicalName}")
+        }
+
+    open fun convertRendererSpecificRootPage(page: RendererSpecificResourcePage): RendererSpecificResourcePageView =
+        RendererSpecificResourcePageView(page.name, page.children.map { convert(it) }, convertRenderingStrategy(page.strategy))
+
+    open fun convertRenderingStrategy(strategy: RenderingStrategy): RenderingStrategyView =
+        when(strategy){
+            is RenderingStrategy.Write -> RenderingStrategyView.WriteView(strategy.text, emptyList())
+            is RenderingStrategy.Copy -> RenderingStrategyView.CopyView(strategy.from) //TODO absolute paths
+            is RenderingStrategy.Callback -> TODO()
+            is RenderingStrategy.LocationResolvableWrite -> RenderingStrategyView.WriteView(strategy.contentToResolve {
+                    dri, sourcesets -> """{{ "dri":"$dri" }} {{ "sourcesets":"$sourcesets" }}""" //TODO to troszke jeszcze nie zadziala
+            }, listOf("dri", "sourcesets"))
+            is RenderingStrategy.DoNothing -> RenderingStrategyView.DoNothingView
         }
 
     open fun <T> convert(modulePage: T): PagesSerializationView

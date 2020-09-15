@@ -84,3 +84,39 @@ data class MemberPageView(
     override fun modified(name: String, children: List<PageNode>): PageNode =
         copy(name = name, children = children as List<PagesSerializationView>)
 }
+
+interface RendererSpecificPageView: PagesSerializationView {
+    val strategy: RenderingStrategyView
+    override val content: PagesSerializationContentView
+        get() = TODO("Not yet implemented")
+    override val embeddedResources: List<String>
+        get() = emptyList()
+    override val dri: Set<DRI>
+        get() = emptySet()
+
+    override fun withNewContent(newContent: PagesSerializationContentView): PagesSerializationView = this
+}
+
+data class RendererSpecificRootPageView(
+    override val name: String,
+    override val children: List<PagesSerializationView>,
+    override val strategy: RenderingStrategyView
+) : RootPageNode(), RendererSpecificPageView {
+    override fun modified(name: String, children: List<PageNode>): RendererSpecificRootPageView =
+        RendererSpecificRootPageView(name, children as List<PagesSerializationView>, strategy)
+}
+
+data class RendererSpecificResourcePageView(
+    override val name: String,
+    override val children: List<PagesSerializationView>,
+    override val strategy: RenderingStrategyView
+): RendererSpecificPageView {
+    override fun modified(name: String, children: List<PageNode>): RendererSpecificResourcePageView =
+        RendererSpecificResourcePageView(name, children as List<PagesSerializationView>, strategy)
+}
+
+sealed class RenderingStrategyView {
+    data class CopyView(val from: String) : RenderingStrategyView()
+    data class WriteView(val text: String, val variables: List<String>) : RenderingStrategyView()
+    object DoNothingView: RenderingStrategyView()
+}
