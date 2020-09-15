@@ -19,6 +19,8 @@
 .breadcrumbs {
     padding: 24px 0;
     color: var(--breadcrumb-font-color);
+    max-width: calc(100% - 32px);
+    overflow-wrap: break-word;
 }
 
 .breadcrumbs a {
@@ -1073,6 +1075,11 @@ div.runnablesample {
     .filter-section {
         position: unset;
     }
+    h1.cover {
+        font-size: 48px;
+        line-height: 48px;
+        padding-bottom: 8px;
+    }
 }
 
 @media screen and (max-width: 759px) {
@@ -1130,5 +1137,9 @@ div.runnablesample {
     #sideMenu {
         padding-bottom: 16px;
         overflow: auto;
+    }
+    h1.cover {
+        font-size: 32px;
+        line-height: 32px;
     }
 }
