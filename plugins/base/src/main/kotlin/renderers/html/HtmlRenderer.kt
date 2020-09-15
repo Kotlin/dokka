@@ -633,7 +633,7 @@ open class HtmlRenderer(
                 consumer.onTagContentEntity(Entities.nbsp)
                 text(textNode.text)
             }
-            textNode.hasStyle(TextStyle.Cover) -> buildBreakableDotSeparatedHtml(textNode.text)
+            textNode.hasStyle(TextStyle.Cover) -> buildBreakableText(textNode.text)
             else -> text(textNode.text)
         }
 
