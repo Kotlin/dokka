@@ -27,6 +27,7 @@ const WithFuzzySearchFilterComponent: React.FC<Props> = ({data}: Props) => {
                     type={Select.Type.CUSTOM}
                     clear
                     renderOptimization
+                    disableScrollToActive
                     selected={selected}
                     data={data}
                     popupClassName={"popup-wrapper"}
