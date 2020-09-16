@@ -105,14 +105,23 @@ open class DokkaLocationProvider(
 
     companion object {
         internal val reservedFilenames = setOf("index", "con", "aux", "lst", "prn", "nul", "eof", "inp", "out")
+        //Taken from: https://stackoverflow.com/questions/1976007/what-characters-are-forbidden-in-windows-and-linux-directory-names
+        internal val reservedCharacters = setOf('|', '>', '<', '*', ':', '"', '?', '%')
 
         internal fun identifierToFilename(name: String): String {
             if (name.isEmpty()) return "--root--"
-            val escaped = name.replace("[<>]".toRegex(), "-")
-            val lowercase = escaped.replace("[A-Z]".toRegex()) { matchResult -> "-" + matchResult.value.toLowerCase() }
-            return if (lowercase in reservedFilenames) "--$lowercase--" else lowercase
+            return sanitizeFileName(name, reservedFilenames, reservedCharacters)
         }
     }
 }
 
+internal fun sanitizeFileName(name: String, reservedFileNames: Set<String>, reservedCharacters: Set<Char>): String {
+    val lowercase = name.replace("[A-Z]".toRegex()) { matchResult -> "-" + matchResult.value.toLowerCase() }
+    val withoutReservedFileNames = if (lowercase in reservedFileNames) "--$lowercase--" else lowercase
+    return reservedCharacters.fold(withoutReservedFileNames){
+        acc, character ->
+            if(character in acc) acc.replace(character.toString(), "[${character.toInt()}]")
+            else acc
+    }
+}
 
