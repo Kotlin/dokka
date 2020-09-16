@@ -10,14 +10,14 @@ const Highlighter: React.FC<HighlighterProps> = ({label}: HighlighterProps) => {
     return <strong>{label}</strong>
 }
 
-export const SearchResultRow: React.FC<SearchProps> = ({searchResult}: SearchProps) => {
-    const signatureFromSearchResult = (searchResult: OptionWithSearchResult): string => {
-        if(searchResult.rank == SearchRank.SearchKeyMatch){
-            return searchResult.name.replace(searchResult.searchKey, searchResult.highlight)
-        }
-        return searchResult.highlight
+export const signatureFromSearchResult = (searchResult: OptionWithSearchResult): string => {
+    if(searchResult.rank == SearchRank.SearchKeyMatch){
+        return searchResult.name.replace(searchResult.searchKey, searchResult.highlight)
     }
+    return searchResult.highlight
+}
 
+export const SearchResultRow: React.FC<SearchProps> = ({searchResult}: SearchProps) => {
     /*
     This is a work-around for an issue: https://youtrack.jetbrains.com/issue/RG-2108
     */
