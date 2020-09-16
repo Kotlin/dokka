@@ -1,0 +1,42 @@
+diff --git a/biojava-core/pom.xml b/biojava-core/pom.xml
+index 6cc9c6c9a..ef4f28225 100644
+--- a/biojava-core/pom.xml
++++ b/biojava-core/pom.xml
+@@ -22,9 +22,36 @@
+ 		</license>
+ 	</licenses>
+ 
++	<pluginRepositories>
++		<pluginRepository>
++			<id>kotlin-dev</id>
++			<url>https://dl.bintray.com/kotlin/kotlin-dev</url>
++		</pluginRepository>
++		<pluginRepository>
++			<id>kotlin-eap</id>
++			<url>https://dl.bintray.com/kotlin/kotlin-eap</url>
++		</pluginRepository>
++		<pluginRepository>
++			<id>jcenter</id>
++			<url>https://jcenter.bintray.com/</url>
++		</pluginRepository>
++	</pluginRepositories>
++
+ 	<build>
+ 		<plugins>
+-
++			<plugin>
++				<groupId>org.jetbrains.dokka</groupId>
++				<artifactId>dokka-maven-plugin</artifactId>
++				<version>${dokka_version}</version>
++				<executions>
++					<execution>
++						<phase>pre-site</phase>
++						<goals>
++							<goal>javadoc</goal>
++						</goals>
++					</execution>
++				</executions>
++			</plugin>
+ 			<!-- Excluding demo package is required for avoiding namespace clashes (demo package is in all modules) for signing the jar. See issue #387 -->
+             <plugin>
+                 <groupId>org.apache.maven.plugins</groupId>

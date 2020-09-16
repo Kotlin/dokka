@@ -1,4 +1,4 @@
-name: S3-snapshots
+name: Build example projects and publish them to s3
 
 on: push
 
@@ -13,30 +13,19 @@ jobs:
       - name: Checkout dokka
         uses: actions/checkout@v2
         with:
-          path: dokka
+          submodules: true
 
       - uses: actions/setup-java@v1
         with:
-          java-version: 11
+          java-version: 12
 
       - name: Publish dokka locally
-        run: ./gradlew clean publishToMavenLocal --stacktrace
-        working-directory: ./dokka
-
-      - name: Get current dokka version
-        run: echo "::set-env name=DOKKA_VERSION::`./gradlew :properties | grep '^version:.*' | cut -d ' ' -f 2`"
-        working-directory: ./dokka
-
-      - name: Checkout coroutines
-        uses: actions/checkout@v2
-        with:
-          repository: 'kamildoleglo/kotlinx.coroutines'
-          ref: 'aws'
-          path: coroutines
+        run: ./gradlew publishToMavenLocal --stacktrace
 
       - name: Document coroutines
-        run: ./gradlew clean dokkaHtml :dokkaHtmlMultimodule -Pdokka_version=$DOKKA_VERSION --stacktrace
-        working-directory: ./coroutines
+        run: ./gradlew :integration-tests:gradle:integrationTest --tests org.jetbrains.dokka.it.gradle.kotlin.CoroutinesGradleIntegrationTest --stacktrace --info
+        env:
+          DOKKA_IT_AWS_PATH: /home/runner/work/dokka/coroutines
 
       - name: Configure AWS credentials for S3 access
         uses: aws-actions/configure-aws-credentials@v1
@@ -46,27 +35,10 @@ jobs:
           aws-region: eu-central-1
 
       - name: Copy files to dokka's S3 bucket
-        run: |
-          aws s3 --recursive rm s3://${{ env.bucket-name }}/${{ env.branch-name }}/coroutines/prev
-          aws s3 --recursive mv s3://${{ env.bucket-name }}/${{ env.branch-name }}/coroutines/latest s3://${{ env.bucket-name }}/${{ env.branch-name }}/coroutines/prev
-          aws s3 sync ./coroutines/htmlMultimodule s3://${{ env.bucket-name }}/${{ env.branch-name }}/coroutines/latest/htmlMultimodule
-          aws s3 sync ./coroutines/ui/kotlinx-coroutines-android/build/dokka s3://${{ env.bucket-name }}/${{ env.branch-name }}/coroutines/latest/ui/kotlinx-coroutines-android/build/dokka
-          aws s3 sync ./coroutines/kotlinx-coroutines-core/build/dokka s3://${{ env.bucket-name }}/${{ env.branch-name }}/coroutines/latest/kotlinx-coroutines-core/build/dokka
-          aws s3 sync ./coroutines/kotlinx-coroutines-debug/build/dokka s3://${{ env.bucket-name }}/${{ env.branch-name }}/coroutines/latest/kotlinx-coroutines-debug/build/dokka
-          aws s3 sync ./coroutines/integration/kotlinx-coroutines-guava/build/dokka s3://${{ env.bucket-name }}/${{ env.branch-name }}/coroutines/latest/integration/kotlinx-coroutines-guava/build/dokka
-          aws s3 sync ./coroutines/ui/kotlinx-coroutines-javafx/build/dokka s3://${{ env.bucket-name }}/${{ env.branch-name }}/coroutines/latest/ui/kotlinx-coroutines-javafx/build/dokka
-          aws s3 sync ./coroutines/integration/kotlinx-coroutines-jdk8/build/dokka s3://${{ env.bucket-name }}/${{ env.branch-name }}/coroutines/latest/integration/kotlinx-coroutines-jdk8/build/dokka
-          aws s3 sync ./coroutines/reactive/kotlinx-coroutines-jdk9/build/dokka s3://${{ env.bucket-name }}/${{ env.branch-name }}/coroutines/latest/reactive/kotlinx-coroutines-jdk9/build/dokka
-          aws s3 sync ./coroutines/integration/kotlinx-coroutines-play-services/build/dokka s3://${{ env.bucket-name }}/${{ env.branch-name }}/coroutines/latest/integration/kotlinx-coroutines-play-services/build/dokka
-          aws s3 sync ./coroutines/reactive/kotlinx-coroutines-reactive/build/dokka s3://${{ env.bucket-name }}/${{ env.branch-name }}/coroutines/latest/reactive/kotlinx-coroutines-reactive/build/dokka
-          aws s3 sync ./coroutines/reactive/kotlinx-coroutines-reactor/build/dokka s3://${{ env.bucket-name }}/${{ env.branch-name }}/coroutines/latest/reactive/kotlinx-coroutines-reactor/build/dokka
-          aws s3 sync ./coroutines/reactive/kotlinx-coroutines-rx2/build/dokka s3://${{ env.bucket-name }}/${{ env.branch-name }}/coroutines/latest/reactive/kotlinx-coroutines-rx2/build/dokka
-          aws s3 sync ./coroutines/reactive/kotlinx-coroutines-rx3/build/dokka s3://${{ env.bucket-name }}/${{ env.branch-name }}/coroutines/latest/reactive/kotlinx-coroutines-rx3/build/dokka
-          aws s3 sync ./coroutines/integration/kotlinx-coroutines-slf4j/build/dokka s3://${{ env.bucket-name }}/${{ env.branch-name }}/coroutines/latest/integration/kotlinx-coroutines-slf4j/build/dokka
-          aws s3 sync ./coroutines/ui/kotlinx-coroutines-swing/build/dokka s3://${{ env.bucket-name }}/${{ env.branch-name }}/coroutines/latest/ui/kotlinx-coroutines-swing/build/dokka
-          aws s3 sync ./coroutines/kotlinx-coroutines-test/build/dokka s3://${{ env.bucket-name }}/${{ env.branch-name }}/coroutines/latest/kotlinx-coroutines-test/build/dokka
+        run: ./integration-tests/aws_sync.sh s3://${{ env.bucket-name }} coroutines ../coroutines
+
       - name: Print link
-        run: echo http://dokka-snapshots.s3.eu-central-1.amazonaws.com/${{ env.branch-name }}/coroutines/latest/htmlMultimodule/-modules.html
+        run: echo http://dokka-snapshots.s3.eu-central-1.amazonaws.com/${{ env.branch-name }}/coroutines/${GITHUB_SHA::7}/-modules.html
 
   stdlib:
     runs-on: ubuntu-latest
@@ -74,30 +46,19 @@ jobs:
       - name: Checkout dokka
         uses: actions/checkout@v2
         with:
-          path: dokka
+          submodules: true
 
       - uses: actions/setup-java@v1
         with:
-          java-version: 11
+          java-version: 12
 
       - name: Publish dokka locally
         run: ./gradlew clean publishToMavenLocal --stacktrace
-        working-directory: ./dokka
-
-      - name: Get current dokka version
-        run: echo "::set-env name=DOKKA_VERSION::`./gradlew :properties | grep '^version:.*' | cut -d ' ' -f 2`"
-        working-directory: ./dokka
-
-      - name: Checkout stdlib
-        uses: actions/checkout@v2
-        with:
-          repository: 'kamildoleglo/kotlin-dokka-stdlib'
-          ref: 'aws'
-          path: stdlib
 
       - name: Document stdlib
-        run: ./gradlew clean callDokka -Pdokka_version=$DOKKA_VERSION --stacktrace
-        working-directory: ./stdlib
+        run: ./gradlew :integration-tests:gradle:integrationTest --tests org.jetbrains.dokka.it.gradle.kotlin.StdlibGradleIntegrationTest --stacktrace --info
+        env:
+          DOKKA_IT_AWS_PATH: /home/runner/work/dokka/stdlib
 
       - name: Configure AWS credentials for S3 access
         uses: aws-actions/configure-aws-credentials@v1
@@ -107,13 +68,43 @@ jobs:
           aws-region: eu-central-1
 
       - name: Copy files to dokka's S3 bucket
-        run: |
-          aws s3 --recursive rm s3://${{ env.bucket-name }}/${{ env.branch-name }}/stdlib/prev
-          aws s3 --recursive mv s3://${{ env.bucket-name }}/${{ env.branch-name }}/stdlib/latest s3://${{ env.bucket-name }}/${{ env.branch-name }}/stdlib/prev
-          aws s3 sync ./stdlib/build/dokka s3://${{ env.bucket-name }}/${{ env.branch-name }}/stdlib/latest
+        run: ./integration-tests/aws_sync.sh s3://${{ env.bucket-name }} stdlib ../stdlib
 
       - name: Print link
-        run: echo http://dokka-snapshots.s3.eu-central-1.amazonaws.com/${{ env.branch-name }}/stdlib/latest/kotlin-stdlib/kotlin-stdlib/index.html
+        run: echo http://dokka-snapshots.s3.eu-central-1.amazonaws.com/${{ env.branch-name }}/stdlib/${GITHUB_SHA::7}/index.html
+
+  serialization:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout dokka
+        uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 12
+
+      - name: Publish dokka locally
+        run: ./gradlew clean publishToMavenLocal --stacktrace
+
+      - name: Document serialization
+        run: ./gradlew :integration-tests:gradle:integrationTest --tests org.jetbrains.dokka.it.gradle.kotlin.SerializationGradleIntegrationTest --stacktrace --info
+        env:
+          DOKKA_IT_AWS_PATH: /home/runner/work/dokka/serialization
+
+      - name: Configure AWS credentials for S3 access
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-central-1
+
+      - name: Copy files to dokka's S3 bucket
+        run: ./integration-tests/aws_sync.sh s3://${{ env.bucket-name }} serialization ../serialization
+
+      - name: Print link
+        run: echo http://dokka-snapshots.s3.eu-central-1.amazonaws.com/${{ env.branch-name }}/serialization/${GITHUB_SHA::7}/-modules.html
 
   biojava:
     runs-on: ubuntu-latest
@@ -121,30 +112,19 @@ jobs:
       - name: Checkout dokka
         uses: actions/checkout@v2
         with:
-          path: dokka
+          submodules: true
 
       - uses: actions/setup-java@v1
         with:
-          java-version: 11
+          java-version: 12
 
       - name: Publish dokka locally
         run: ./gradlew clean publishToMavenLocal --stacktrace
-        working-directory: ./dokka
-
-      - name: Get current dokka version
-        run: echo "::set-env name=DOKKA_VERSION::`./gradlew :properties | grep '^version:.*' | cut -d ' ' -f 2`"
-        working-directory: ./dokka
-
-      - name: Checkout biojava
-        uses: actions/checkout@v2
-        with:
-          repository: 'kamildoleglo/biojava'
-          ref: 'aws'
-          path: biojava
 
       - name: Document biojava-core
-        run: mvn site -pl biojava-core "-Ddokka-version=$DOKKA_VERSION"
-        working-directory: ./biojava
+        run: ./gradlew :integration-tests:maven:integrationTest --tests org.jetbrains.dokka.it.maven.BiojavaIntegrationTest --stacktrace --info
+        env:
+          DOKKA_IT_AWS_PATH: /home/runner/work/dokka/biojava
 
       - name: Configure AWS credentials for S3 access
         uses: aws-actions/configure-aws-credentials@v1
@@ -154,11 +134,7 @@ jobs:
           aws-region: eu-central-1
 
       - name: Copy files to dokka's S3 bucket
-        run: |
-          aws s3 --recursive rm s3://${{ env.bucket-name }}/${{ env.branch-name }}/biojava/prev
-          aws s3 --recursive mv s3://${{ env.bucket-name }}/${{ env.branch-name }}/biojava/latest s3://${{ env.bucket-name }}/${{ env.branch-name }}/biojava/prev
-          aws s3 sync ./biojava/biojava-core/target/dokkaJavadoc s3://${{ env.bucket-name }}/${{ env.branch-name }}/biojava/latest
+        run: ./integration-tests/aws_sync.sh s3://${{ env.bucket-name }} biojava ../biojava
 
       - name: Print link
-        run: echo http://dokka-snapshots.s3.eu-central-1.amazonaws.com/${{ env.branch-name }}/biojava/latest/index.html
-
+        run: echo http://dokka-snapshots.s3.eu-central-1.amazonaws.com/${{ env.branch-name }}/biojava/${GITHUB_SHA::7}/index.html

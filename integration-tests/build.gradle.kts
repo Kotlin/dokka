@@ -62,4 +62,5 @@ dependencies {
     val coroutines_version: String by project
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version")
     implementation("org.jsoup:jsoup:1.12.1")
+    implementation("org.eclipse.jgit:org.eclipse.jgit:5.9.0.202009080501-r")
 }

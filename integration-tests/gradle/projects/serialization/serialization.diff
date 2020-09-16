@@ -1,0 +1,48 @@
+diff --git a/build.gradle b/build.gradle
+index f1cd0012..d1d3b6c6 100644
+--- a/build.gradle
++++ b/build.gradle
+@@ -73,7 +73,6 @@ buildscript {
+     dependencies {
+         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+         classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlin_version"
+-        classpath "org.jetbrains.dokka:dokka-gradle-plugin:$dokka_version"
+         classpath "org.jetbrains.kotlinx:binary-compatibility-validator:$validator_version"
+         classpath "org.jetbrains.kotlinx:kotlinx-knit:$knit_version"
+ 
+@@ -86,6 +85,11 @@ buildscript {
+     }
+ }
+ 
++plugins {
++    id("org.jetbrains.dokka")
++}
++
++apply from: "../template.root.gradle.kts"
+ // To make it visible for compiler-version.gradle
+ ext.compilerVersion = org.jetbrains.kotlin.config.KotlinCompilerVersion.VERSION
+ apply plugin: 'binary-compatibility-validator'
+diff --git a/gradle.properties b/gradle.properties
+index c753aa76..ee9e725a 100644
+--- a/gradle.properties
++++ b/gradle.properties
+@@ -5,6 +5,7 @@
+ group=org.jetbrains.kotlinx
+ version=1.0.0
+ 
++dokka_it_kotlin_version=
+ kotlin.version=1.4.10
+ 
+ # This version take precedence if 'bootstrap' property passed to project
+diff --git a/settings.gradle b/settings.gradle
+index 88bcb942..848efd27 100644
+--- a/settings.gradle
++++ b/settings.gradle
+@@ -2,6 +2,7 @@
+  * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+  */
+ 
++apply from: "../template.settings.gradle.kts"
+ rootProject.name = 'kotlinx-serialization'
+ enableFeaturePreview('GRADLE_METADATA')
+ 
