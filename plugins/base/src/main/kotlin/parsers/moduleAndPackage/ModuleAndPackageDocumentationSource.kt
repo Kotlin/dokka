@@ -2,7 +2,7 @@ package org.jetbrains.dokka.base.parsers.moduleAndPackage
 
 import java.io.File
 
-internal abstract class ModuleAndPackageDocumentationSource {
+abstract class ModuleAndPackageDocumentationSource {
     abstract val sourceDescription: String
     abstract val documentation: String
     override fun toString(): String = sourceDescription
