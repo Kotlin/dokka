@@ -48,8 +48,7 @@ class MultimodulePageCreator(
                     val displayedModuleDocumentation = getDisplayedModuleDocumentation(module)
                     val dri = DRI(packageName = MULTIMODULE_PACKAGE_PLACEHOLDER, classNames = module.name)
                     val dci = DCI(setOf(dri), ContentKind.Comment)
-                    val header =
-                        ContentHeader(listOf(linkNode(module.name, dri)), 2, dci, emptySet(), emptySet())
+                    val header = linkNode(module.name, dri)
                     val content = ContentGroup(
                         children =
                         if (displayedModuleDocumentation != null)
