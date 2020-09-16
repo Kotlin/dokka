@@ -1,0 +1,588 @@
+diff --git a/build.gradle b/build.gradle
+index 79c7f355..d5209f10 100644
+--- a/build.gradle
++++ b/build.gradle
+@@ -4,18 +4,14 @@
+ import org.jetbrains.kotlin.konan.target.HostManager
+ import org.gradle.util.VersionNumber
+ 
+-apply plugin: 'jdk-convention'
+-apply from: rootProject.file("gradle/experimental.gradle")
+-
+-def rootModule = "kotlinx.coroutines"
+-def coreModule = "kotlinx-coroutines-core"
++buildscript {
++    def rootModule = "kotlinx.coroutines"
++    def coreModule = "kotlinx-coroutines-core"
+ // Not applicable for Kotlin plugin
+-def sourceless = ['kotlinx.coroutines', 'site', 'kotlinx-coroutines-bom', 'integration-testing']
+-def internal = ['kotlinx.coroutines', 'site', 'benchmarks', 'js-stub', 'stdlib-stubs', 'integration-testing']
++    def sourceless = ['kotlinx.coroutines', 'site', 'kotlinx-coroutines-bom', 'integration-testing']
++    def internal = ['kotlinx.coroutines', 'site', 'benchmarks', 'js-stub', 'stdlib-stubs', 'integration-testing']
+ // Not published
+-def unpublished = internal + ['example-frontend-js', 'android-unit-tests']
+-
+-buildscript {
++    def unpublished = internal + ['example-frontend-js', 'android-unit-tests']
+     /*
+      * These property group is used to build kotlinx.coroutines against Kotlin compiler snapshot.
+      * How does it work:
+@@ -74,7 +70,6 @@ buildscript {
+ 
+     dependencies {
+         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+-        classpath "org.jetbrains.dokka:dokka-gradle-plugin:$dokka_version"
+         classpath "org.jetbrains.kotlinx:atomicfu-gradle-plugin:$atomicfu_version"
+         classpath "org.jetbrains.kotlinx:kotlinx-knit:$knit_version"
+         classpath "com.moowork.gradle:gradle-node-plugin:$gradle_node_version"
+@@ -87,6 +82,21 @@ buildscript {
+     CacheRedirector.configureBuildScript(buildscript, rootProject)
+ }
+ 
++plugins {
++    id("org.jetbrains.dokka")
++}
++
++apply plugin: 'jdk-convention'
++apply from: rootProject.file("gradle/experimental.gradle")
++apply from: "../template.root.gradle.kts"
++
++def rootModule = "kotlinx.coroutines"
++def coreModule = "kotlinx-coroutines-core"
++def sourceless = ['kotlinx.coroutines', 'site', 'kotlinx-coroutines-bom', 'integration-testing']
++def internal = ['kotlinx.coroutines', 'site', 'benchmarks', 'js-stub', 'stdlib-stubs', 'integration-testing']
++def unpublished = internal + ['example-frontend-js', 'android-unit-tests']
++
++
+ import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+ 
+ // todo:KLUDGE: Hierarchical project structures are not fully supported in IDEA, enable only for a regular built
+@@ -271,7 +281,7 @@ configure(subprojects.findAll {
+ }
+ 
+ def core_docs_url = "https://kotlin.github.io/kotlinx.coroutines/$coreModule/"
+-def core_docs_file = "$projectDir/kotlinx-coroutines-core/build/dokka/kotlinx-coroutines-core/package-list"
++def core_docs_file = "$projectDir/kotlinx-coroutines-core/build/dokka/html/kotlinx-coroutines-core/package-list"
+ 
+ configure(subprojects.findAll { !unpublished.contains(it.name) }) {
+     if (it.name != 'kotlinx-coroutines-bom') {
+@@ -283,11 +293,15 @@ configure(subprojects.findAll { !unpublished.contains(it.name) }) {
+ configure(subprojects.findAll { !unpublished.contains(it.name) }) {
+     if (it.name != "kotlinx-coroutines-bom") {
+         if (it.name != coreModule) {
+-            dokka.dependsOn project(":$coreModule").dokka
+-            tasks.withType(dokka.getClass()) {
+-                externalDocumentationLink {
+-                    url = new URL(core_docs_url)
+-                    packageListUrl = new File(core_docs_file).toURI().toURL()
++            dokkaHtml.dependsOn project(":$coreModule").dokkaHtml
++            tasks.withType(dokkaHtml.getClass()) {
++                dokkaSourceSets {
++                    configureEach {
++                        externalDocumentationLink {
++                            url.set(new URL(core_docs_url))
++                            packageListUrl.set(new File(core_docs_file).toURI().toURL())
++                        }
++                    }
+                 }
+             }
+         }
+diff --git a/buildSrc/build.gradle.kts b/buildSrc/build.gradle.kts
+index 96b17a3d..caedbe8d 100644
+--- a/buildSrc/build.gradle.kts
++++ b/buildSrc/build.gradle.kts
+@@ -35,5 +35,4 @@ fun version(target: String): String =
+ 
+ dependencies {
+     implementation(kotlin("gradle-plugin", version("kotlin")))
+-    implementation("org.jetbrains.dokka:dokka-gradle-plugin:${version("dokka")}")
+ }
+diff --git a/buildSrc/src/main/kotlin/Dokka.kt b/buildSrc/src/main/kotlin/Dokka.kt
+deleted file mode 100644
+index dd5f1ea4..00000000
+--- a/buildSrc/src/main/kotlin/Dokka.kt
++++ /dev/null
+@@ -1,26 +0,0 @@
+-/*
+- * Copyright 2016-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+- */
+-
+-import org.gradle.api.Project
+-import org.gradle.kotlin.dsl.delegateClosureOf
+-import org.gradle.kotlin.dsl.withType
+-import org.jetbrains.dokka.DokkaConfiguration.ExternalDocumentationLink.Builder
+-import org.jetbrains.dokka.gradle.DokkaTask
+-import java.io.File
+-import java.net.URL
+-
+-/**
+- * Package-list by external URL for documentation generation.
+- */
+-fun Project.externalDocumentationLink(
+-    url: String,
+-    packageList: File = projectDir.resolve("package.list")
+-) {
+-    tasks.withType<DokkaTask>().configureEach {
+-        externalDocumentationLink(delegateClosureOf<Builder> {
+-            this.url = URL(url)
+-            packageListUrl = packageList.toPath().toUri().toURL()
+-        })
+-    }
+-}
+diff --git a/gradle.properties b/gradle.properties
+index 18b95166..36881b53 100644
+--- a/gradle.properties
++++ b/gradle.properties
+@@ -5,6 +5,7 @@
+ # Kotlin
+ version=1.4.0-M1-SNAPSHOT
+ group=org.jetbrains.kotlinx
++dokka_it_kotlin_version=
+ kotlin_version=1.4.0
+ 
+ # Dependencies
+diff --git a/gradle/dokka.gradle b/gradle/dokka.gradle
+index 559ec8b6..891e07b3 100644
+--- a/gradle/dokka.gradle
++++ b/gradle/dokka.gradle
+@@ -5,11 +5,10 @@
+ // Configures generation of JavaDoc & Dokka artifacts
+ 
+ def makeLinkMapping(dokka, projectDir) {
+-    dokka.linkMapping {
++    dokka.sourceLink {
+         def relPath = rootProject.projectDir.toPath().relativize(projectDir.toPath())
+-        dir = "$projectDir/src"
+-        url = "https://github.com/kotlin/kotlinx.coroutines/tree/master/$relPath/src"
+-        suffix = "#L"
++        localDirectory.set(project.file("src"))
++        remoteUrl.set(new URL("https://github.com/kotlin/kotlinx.coroutines/tree/master/$relPath/src"))
+     }
+ }
+ 
+@@ -20,9 +19,13 @@ configurations {
+ 
+ apply plugin: 'org.jetbrains.dokka'
+ 
+-tasks.withType(dokka.getClass()) {
+-    jdkVersion = 8
+-    includes = ['README.md']
++tasks.withType(dokkaHtml.getClass()) {
++    dokkaSourceSets {
++        configureEach {
++            jdkVersion.set(8)
++            includes.from('README.md')
++        }
++    }
+ }
+ 
+ dependencies {
+@@ -30,24 +33,64 @@ dependencies {
+ }
+ 
+ 
+-dokka {
+-    kotlinTasks { [] }
+-    outputFormat = 'kotlin-website'
++dokkaHtml {
+     dependsOn(project.configurations.dokkaStubs)
++    dokkaSourceSets {
++        if (project.name != "kotlinx-coroutines-core") {
++            configureEach {
++                externalDocumentationLink {
++                    packageListUrl.set(rootProject.projectDir.toPath().resolve("site/stdlib.package.list").toUri().toURL())
++                    url.set(new URL("https://kotlinlang.org/api/latest/jvm/stdlib/"))
++                }
++                noStdlibLink.set(true)
++            }
+ 
+-    noStdlibLink = true
+-    
+-    externalDocumentationLink {
+-        packageListUrl = rootProject.projectDir.toPath().resolve("site/stdlib.package.list").toUri().toURL()
+-        url = new URL("https://kotlinlang.org/api/latest/jvm/stdlib/")
+-    }
++        } else {
++            commonMain {
++                makeLinkMapping(it, project.file("common"))
++
++                includes.from('README.md')
++                externalDocumentationLink {
++                    packageListUrl.set(rootProject.projectDir.toPath().resolve("site/stdlib.package.list").toUri().toURL())
++                    url.set(new URL("https://kotlinlang.org/api/latest/jvm/stdlib/"))
++                }
++                noStdlibLink.set(true)
++            }
++            jvmMain {
++                makeLinkMapping(it, project.file("jvm"))
++
++                includes.from('README.md')
++                externalDocumentationLink {
++                    packageListUrl.set(rootProject.projectDir.toPath().resolve("site/stdlib.package.list").toUri().toURL())
++                    url.set(new URL("https://kotlinlang.org/api/latest/jvm/stdlib/"))
++                }
++                noStdlibLink.set(true)
++            }
++            jsMain {
++                makeLinkMapping(it, project.file("js"))
++
++                includes.from('README.md')
++                externalDocumentationLink {
++                    packageListUrl.set(rootProject.projectDir.toPath().resolve("site/stdlib.package.list").toUri().toURL())
++                    url.set(new URL("https://kotlinlang.org/api/latest/jvm/stdlib/"))
++                }
++                noStdlibLink.set(true)
++            }
++        }
+ 
++    }
+     if (project.name != "kotlinx-coroutines-core") {
+         dependsOn(project.configurations.compileClasspath)
+         dependsOn(project.sourceSets.main.output)
+         doFirst {
+             // resolve classpath only during execution
+-            classpath = project.configurations.dokkaStubs.files + project.configurations.compileClasspath.files + project.sourceSets.main.output.files
++            dokkaSourceSets {
++                configureEach {
++                    classpath.setFrom(project.configurations.dokkaStubs.files)
++                    classpath.from(project.configurations.compileClasspath.files)
++                    classpath.from(project.sourceSets.main.output.files)
++                }
++            }
+         }
+     }
+ }
+@@ -57,37 +100,17 @@ if (project.name == "kotlinx-coroutines-core") {
+     dependencies {
+         dokkaStubs project(":js-stub") // so that JS library reference can resolve properly
+         dokkaStubs project(":kotlinx-coroutines-core")
++        dokkaStubs project(":stdlib-stubs")
+     }
+-
+-    dokka {
+-        kotlinTasks { [] }
+-        suppressedModifiers = ['actual']
+-        makeLinkMapping(it, projectDir)
+-        makeLinkMapping(it, project.file("js"))
+-        makeLinkMapping(it, project.file("jvm"))
+-        makeLinkMapping(it, project.file("native"))
+-        makeLinkMapping(it, project.file("common"))
+-        // source roots
+-        impliedPlatforms = ['JVM', 'JS', 'Native']
+-        sourceRoot {
+-            path = rootProject.file("$project.name/common/src")
+-        }
+-        sourceRoot {
+-            path = rootProject.file("$project.name/jvm/src")
+-            platforms = ['JVM']
+-        }
+-        sourceRoot {
+-            path = rootProject.file("$project.name/js/src")
+-            platforms = ['JS']
+-        }
+-        sourceRoot {
+-            path = rootProject.file("$project.name/native/src")
+-            platforms = ['Native']
+-        }
++    dokkaHtml {
+         doFirst {
+-            classpath = project.configurations.dokkaStubs.files +
+-                    project.configurations.jvmCompileClasspath.files +
+-                    project.kotlin.targets.jvm.compilations.main.output.allOutputs
++            dokkaSourceSets {
++                configureEach {
++                    classpath.setFrom(project.configurations.dokkaStubs.files)
++                    classpath.from(project.configurations.jvmCompileClasspath.files)
++                    classpath.from(project.kotlin.targets.jvm.compilations.main.output.allOutputs)
++                }
++            }
+         }
+     }
+ }
+diff --git a/integration/kotlinx-coroutines-guava/build.gradle.kts b/integration/kotlinx-coroutines-guava/build.gradle.kts
+index 53e91add..810c730c 100644
+--- a/integration/kotlinx-coroutines-guava/build.gradle.kts
++++ b/integration/kotlinx-coroutines-guava/build.gradle.kts
+@@ -1,6 +1,7 @@
+ /*
+  * Copyright 2016-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+  */
++import java.net.URL
+ 
+ val guavaVersion = "28.0-jre"
+ 
+@@ -8,6 +9,15 @@ dependencies {
+     compile("com.google.guava:guava:$guavaVersion")
+ }
+ 
+-externalDocumentationLink(
+-    url = "https://google.github.io/guava/releases/$guavaVersion/api/docs/"
+-)
++tasks {
++    dokkaHtml {
++        dokkaSourceSets {
++            configureEach {
++                externalDocumentationLink {
++                    url.set(URL("https://google.github.io/guava/releases/$guavaVersion/api/docs/"))
++                    packageListUrl.set(projectDir.toPath().resolve("package.list").toUri().toURL())
++                }
++            }
++        }
++    }
++}
+diff --git a/integration/kotlinx-coroutines-play-services/build.gradle b/integration/kotlinx-coroutines-play-services/build.gradle
+index 29ce3d60..97f03e2e 100644
+--- a/integration/kotlinx-coroutines-play-services/build.gradle
++++ b/integration/kotlinx-coroutines-play-services/build.gradle
+@@ -36,10 +36,14 @@ dependencies {
+     }
+ }
+ 
+-tasks.withType(dokka.getClass()) {
+-    externalDocumentationLink {
+-        url = new URL("https://developers.google.com/android/reference/")
+-        // This is workaround for missing package list in Google API
+-        packageListUrl = projectDir.toPath().resolve("package.list").toUri().toURL()
++tasks.withType(dokkaHtml.getClass()) {
++    dokkaSourceSets{
++        configureEach{
++            externalDocumentationLink {
++                url.set(new URL("https://developers.google.com/android/reference/"))
++                // This is workaround for missing package list in Google API
++                packageListUrl.set(projectDir.toPath().resolve("package.list").toUri().toURL())
++            }
++        }
+     }
+ }
+diff --git a/integration/kotlinx-coroutines-slf4j/build.gradle.kts b/integration/kotlinx-coroutines-slf4j/build.gradle.kts
+index c7d0d82d..a8993dce 100644
+--- a/integration/kotlinx-coroutines-slf4j/build.gradle.kts
++++ b/integration/kotlinx-coroutines-slf4j/build.gradle.kts
+@@ -2,6 +2,8 @@
+  * Copyright 2016-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+  */
+ 
++import java.net.URL
++
+ dependencies {
+     compile("org.slf4j:slf4j-api:1.7.25")
+     testCompile("io.github.microutils:kotlin-logging:1.5.4")
+@@ -9,6 +11,15 @@ dependencies {
+     testRuntime("ch.qos.logback:logback-core:1.2.3")
+ }
+ 
+-externalDocumentationLink(
+-    url = "https://www.slf4j.org/apidocs/"
+-)
++tasks {
++    dokkaHtml {
++        dokkaSourceSets {
++            configureEach {
++                externalDocumentationLink {
++                    url.set(URL("https://www.slf4j.org/apidocs/"))
++                    packageListUrl.set(projectDir.toPath().resolve("package.list").toUri().toURL())
++                }
++            }
++        }
++    }
++}
+diff --git a/kotlinx-coroutines-core/build.gradle b/kotlinx-coroutines-core/build.gradle
+index f98f6a52..5f3cd967 100644
+--- a/kotlinx-coroutines-core/build.gradle
++++ b/kotlinx-coroutines-core/build.gradle
+@@ -158,13 +158,13 @@ kotlin.sourceSets {
+ 
+ task checkJdk16() {
+     // only fail w/o JDK_16 when actually trying to compile, not during project setup phase
+-    doLast {
+-        if (!System.env.JDK_16) {
+-            throw new GradleException("JDK_16 environment variable is not defined. " +
+-                    "Can't build against JDK 1.6 runtime and run JDK 1.6 compatibility tests. " +
+-                    "Please ensure JDK 1.6 is installed and that JDK_16 points to it.")
+-        }
+-    }
++//    doLast {
++//        if (!System.env.JDK_16) {
++//            throw new GradleException("JDK_16 environment variable is not defined. " +
++//                    "Can't build against JDK 1.6 runtime and run JDK 1.6 compatibility tests. " +
++//                    "Please ensure JDK 1.6 is installed and that JDK_16 points to it.")
++//        }
++//    }
+ }
+ 
+ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile) {
+diff --git a/reactive/kotlinx-coroutines-jdk9/build.gradle.kts b/reactive/kotlinx-coroutines-jdk9/build.gradle.kts
+index c721746f..d839c3ec 100644
+--- a/reactive/kotlinx-coroutines-jdk9/build.gradle.kts
++++ b/reactive/kotlinx-coroutines-jdk9/build.gradle.kts
+@@ -1,6 +1,7 @@
+ /*
+  * Copyright 2016-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+  */
++import java.net.URL
+ 
+ dependencies {
+     compile(project(":kotlinx-coroutines-reactive"))
+@@ -17,6 +18,15 @@ tasks {
+     }
+ }
+ 
+-externalDocumentationLink(
+-    url = "https://docs.oracle.com/javase/9/docs/api/java/util/concurrent/Flow.html"
+-)
++tasks {
++    dokkaHtml {
++        dokkaSourceSets {
++            configureEach {
++                externalDocumentationLink {
++                    url.set(URL("https://docs.oracle.com/javase/9/docs/api/java/util/concurrent/Flow.html"))
++                    packageListUrl.set(projectDir.toPath().resolve("package.list").toUri().toURL())
++                }
++            }
++        }
++    }
++}
+diff --git a/reactive/kotlinx-coroutines-reactive/build.gradle.kts b/reactive/kotlinx-coroutines-reactive/build.gradle.kts
+index 2ace4f9f..0641395e 100644
+--- a/reactive/kotlinx-coroutines-reactive/build.gradle.kts
++++ b/reactive/kotlinx-coroutines-reactive/build.gradle.kts
+@@ -1,6 +1,7 @@
+ /*
+  * Copyright 2016-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+  */
++import java.net.URL
+ 
+ val reactiveStreamsVersion = property("reactive_streams_version")
+ 
+@@ -31,6 +32,15 @@ tasks.check {
+     dependsOn(testNG)
+ }
+ 
+-externalDocumentationLink(
+-    url = "https://www.reactive-streams.org/reactive-streams-$reactiveStreamsVersion-javadoc/"
+-)
++tasks {
++    dokkaHtml {
++        dokkaSourceSets {
++            configureEach {
++                externalDocumentationLink {
++                    url.set(URL("https://www.reactive-streams.org/reactive-streams-$reactiveStreamsVersion-javadoc/"))
++                    packageListUrl.set(projectDir.toPath().resolve("package.list").toUri().toURL())
++                }
++            }
++        }
++    }
++}
+diff --git a/reactive/kotlinx-coroutines-reactor/build.gradle.kts b/reactive/kotlinx-coroutines-reactor/build.gradle.kts
+index d5fd208a..d0133a22 100644
+--- a/reactive/kotlinx-coroutines-reactor/build.gradle.kts
++++ b/reactive/kotlinx-coroutines-reactor/build.gradle.kts
+@@ -1,6 +1,7 @@
+ /*
+  * Copyright 2016-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+  */
++import java.net.URL
+ 
+ val reactorVersion = version("reactor")
+ 
+@@ -20,6 +21,15 @@ tasks {
+     }
+ }
+ 
+-externalDocumentationLink(
+-    url = "https://projectreactor.io/docs/core/$reactorVersion/api/"
+-)
++tasks {
++    dokkaHtml {
++        dokkaSourceSets {
++            configureEach {
++                externalDocumentationLink {
++                    url.set(URL("https://projectreactor.io/docs/core/$reactorVersion/api/"))
++                    packageListUrl.set(projectDir.toPath().resolve("package.list").toUri().toURL())
++                }
++            }
++        }
++    }
++}
+diff --git a/reactive/kotlinx-coroutines-rx2/build.gradle b/reactive/kotlinx-coroutines-rx2/build.gradle
+index 6d2c4abc..57cdac2a 100644
+--- a/reactive/kotlinx-coroutines-rx2/build.gradle
++++ b/reactive/kotlinx-coroutines-rx2/build.gradle
+@@ -9,10 +9,14 @@ dependencies {
+     compile "io.reactivex.rxjava2:rxjava:$rxjava2_version"
+ }
+ 
+-tasks.withType(dokka.getClass()) {
+-    externalDocumentationLink {
+-        url = new URL('http://reactivex.io/RxJava/2.x/javadoc/')
+-        packageListUrl = projectDir.toPath().resolve("package.list").toUri().toURL()
++tasks.withType(dokkaHtml.getClass()) {
++    dokkaSourceSets {
++        configureEach {
++            externalDocumentationLink {
++                url.set(new URL('http://reactivex.io/RxJava/2.x/javadoc/'))
++                packageListUrl.set(projectDir.toPath().resolve("package.list").toUri().toURL())
++            }
++        }
+     }
+ }
+ 
+diff --git a/reactive/kotlinx-coroutines-rx3/build.gradle b/reactive/kotlinx-coroutines-rx3/build.gradle
+index ced694ab..d5cd6319 100644
+--- a/reactive/kotlinx-coroutines-rx3/build.gradle
++++ b/reactive/kotlinx-coroutines-rx3/build.gradle
+@@ -18,10 +18,14 @@ compileKotlin {
+     kotlinOptions.jvmTarget = "1.8"
+ }
+ 
+-tasks.withType(dokka.getClass()) {
+-    externalDocumentationLink {
+-        url = new URL('http://reactivex.io/RxJava/3.x/javadoc/')
+-        packageListUrl = projectDir.toPath().resolve("package.list").toUri().toURL()
++tasks.withType(dokkaHtml.getClass()) {
++    dokkaSourceSets {
++        configureEach {
++            externalDocumentationLink {
++                url.set(new URL('http://reactivex.io/RxJava/3.x/javadoc/'))
++                packageListUrl.set(projectDir.toPath().resolve("package.list").toUri().toURL())
++            }
++        }
+     }
+ }
+ 
+diff --git a/settings.gradle b/settings.gradle
+index d22d65fd..497eebf1 100644
+--- a/settings.gradle
++++ b/settings.gradle
+@@ -11,7 +11,7 @@ pluginManagement {
+         id "me.champeau.gradle.jmh" version "0.5.0"
+     }
+ }
+-
++apply from: "../template.settings.gradle.kts"
+ rootProject.name = 'kotlinx.coroutines'
+ enableFeaturePreview('GRADLE_METADATA')
+ 
+diff --git a/ui/kotlinx-coroutines-android/build.gradle.kts b/ui/kotlinx-coroutines-android/build.gradle.kts
+index 4f247883..11dbabf0 100644
+--- a/ui/kotlinx-coroutines-android/build.gradle.kts
++++ b/ui/kotlinx-coroutines-android/build.gradle.kts
+@@ -57,6 +57,15 @@ tasks.test {
+     }
+ }
+ 
+-externalDocumentationLink(
+-    url = "https://developer.android.com/reference/"
+-)
++tasks {
++    dokkaHtml {
++        dokkaSourceSets {
++            configureEach {
++                externalDocumentationLink {
++                    url.set(URL("https://developer.android.com/reference/"))
++                    packageListUrl.set(projectDir.toPath().resolve("package.list").toUri().toURL())
++                }
++            }
++        }
++    }
++}
