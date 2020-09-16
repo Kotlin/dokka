@@ -12,9 +12,11 @@ import org.jetbrains.dokka.base.parsers.moduleAndPackage.parseModuleAndPackageDo
 import org.jetbrains.dokka.model.DModule
 import org.jetbrains.dokka.model.DPackage
 import org.jetbrains.dokka.model.SourceSetDependent
-import org.jetbrains.dokka.model.doc.DocumentationNode
+import org.jetbrains.dokka.model.doc.*
+import org.jetbrains.dokka.model.doc.Deprecated
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.utilities.associateWithNotNull
+import kotlin.reflect.KClass
 
 internal interface ModuleAndPackageDocumentationReader {
     operator fun get(module: DModule): SourceSetDependent<DocumentationNode>
@@ -51,7 +53,7 @@ private class ContextModuleAndPackageDocumentationReader(
             when (documentations.size) {
                 0 -> null
                 1 -> documentations.single().documentation
-                else -> DocumentationNode(documentations.flatMap { it.documentation.children })
+                else -> DocumentationNode(documentations.flatMap { it.documentation.children }.mergeDocumentationNodes())
             }
         }
     }
@@ -74,4 +76,28 @@ private class ContextModuleAndPackageDocumentationReader(
             fragment.classifier == Classifier.Package && fragment.canonicalPackageName == pkg.dri.packageName
         }
     }
+
+    private fun List<TagWrapper>.mergeDocumentationNodes(): List<TagWrapper> =
+        groupBy { it::class }.values.map {
+            it.reduce { acc, tagWrapper ->
+                val newRoot = RootDocTag(acc.children + tagWrapper.children)
+                when(acc) {
+                    is See -> acc.copy(newRoot)
+                    is Param -> acc.copy(newRoot)
+                    is Throws -> acc.copy(newRoot)
+                    is Sample -> acc.copy(newRoot)
+                    is Property -> acc.copy(newRoot)
+                    is CustomTagWrapper -> acc.copy(newRoot)
+                    is Description -> acc.copy(newRoot)
+                    is Author -> acc.copy(newRoot)
+                    is Version -> acc.copy(newRoot)
+                    is Since -> acc.copy(newRoot)
+                    is Return -> acc.copy(newRoot)
+                    is Receiver -> acc.copy(newRoot)
+                    is Constructor -> acc.copy(newRoot)
+                    is Deprecated -> acc.copy(newRoot)
+                    is org.jetbrains.dokka.model.doc.Suppress -> acc.copy(newRoot)
+                }
+            }
+        }
 }
