@@ -2,7 +2,8 @@ import {Select} from "@jetbrains/ring-ui";
 import {Option, OptionWithHighlightComponent, OptionWithSearchResult, SearchRank} from "./types";
 import fuzzyHighlight from '@jetbrains/ring-ui/components/global/fuzzy-highlight.js'
 import React from "react";
-import {SearchResultRow} from "./searchResultRow";
+import {SearchResultRow, signatureFromSearchResult} from "./searchResultRow";
+import _ from "lodash";
 
 const orderRecords = (records: OptionWithSearchResult[], searchPhrase: string): OptionWithSearchResult[] => {
     return records.sort((a: OptionWithSearchResult, b: OptionWithSearchResult) => {
@@ -38,6 +39,11 @@ const highlightMatchedPhrases = (records: OptionWithSearchResult[]): OptionWithH
     })
 }
 
+const hasAnyMatchedPhraseLongerThan = (searchResult: OptionWithSearchResult, length: number): boolean => {
+    const values = _.chunk(signatureFromSearchResult(searchResult).split("**"), 2).map(([txt, matched]) => matched ? matched.length >= length : null)
+    return values.reduce((acc, element) => acc || element)
+}
+
 export class DokkaFuzzyFilterComponent extends Select {
     componentDidUpdate(prevProps, prevState) {
         super.componentDidUpdate(prevProps, prevState)
@@ -66,7 +72,7 @@ export class DokkaFuzzyFilterComponent extends Select {
                     rank: SearchRank.NameMatch
                 }
             })
-            .filter((record: OptionWithSearchResult) => record.matched)
+            .filter((record: OptionWithSearchResult) => record.matched && (hasAnyMatchedPhraseLongerThan(record, 3) || filterPhrase.length < 3))
 
         this.props.onFilter(filterPhrase)
 
