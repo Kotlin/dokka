@@ -1,5 +1,7 @@
 package org.jetbrains.dokka
 
+import org.jetbrains.dokka.generation.Generation
+import org.jetbrains.dokka.generation.SingleModule
 import org.jetbrains.dokka.plugability.*
 import org.jetbrains.dokka.plugability.LazyEvaluated
 import org.jetbrains.dokka.renderers.Renderer
@@ -13,6 +15,7 @@ import org.jetbrains.dokka.transformers.sources.SourceToDocumentableTranslator
 import kotlin.reflect.KProperty
 
 object CoreExtensions {
+    val generation by coreExtensionPoint<Generation>()
     val sourceToDocumentableTranslator by coreExtensionPoint<SourceToDocumentableTranslator>()
     val preMergeDocumentableTransformer by coreExtensionPoint<PreMergeDocumentableTransformer>()
     val documentableMerger by coreExtensionPoint<DocumentableMerger>()
@@ -23,13 +26,15 @@ object CoreExtensions {
     val allModulePageTransformer by coreExtensionPoint<PageTransformer>()
     val renderer by coreExtensionPoint<Renderer>()
 
+    val singleGeneration by generation extendWith LazyEvaluated.fromRecipe(::SingleModule)
+
     private fun <T : Any> coreExtensionPoint() = object {
         operator fun provideDelegate(thisRef: CoreExtensions, property: KProperty<*>): Lazy<ExtensionPoint<T>> =
             lazy { ExtensionPoint<T>(thisRef::class.qualifiedName!!, property.name) }
     }
 
-    private fun <T: Any> coreExtension(extensionPoint: ExtensionPoint<T>, action: LazyEvaluated<T>) = object {
+    private infix fun <T: Any> ExtensionPoint<T>.extendWith(action: LazyEvaluated<T>) = object {
         operator fun provideDelegate(thisRef: CoreExtensions, property: KProperty<*>): Lazy<Extension<T, OrderingKind.None, OverrideKind.None>> =
-            lazy { Extension(extensionPoint, thisRef::class.qualifiedName!!, property.name, action) }
+            lazy { Extension(this@extendWith, thisRef::class.qualifiedName!!, property.name, action) }
     }
 }
