@@ -401,6 +401,40 @@ class SignatureTest : AbstractCoreTest() {
     }
 
     @Test
+    fun `plain typealias of plain class with annotation`() {
+
+        val writerPlugin = TestOutputWriterPlugin()
+
+        testInline(
+            """
+                |/src/main/kotlin/common/Test.kt
+                |package example
+                |
+                |@MustBeDocumented
+                |@Target(AnnotationTarget.TYPEALIAS)
+                |annotation class SomeAnnotation
+                |
+                |@SomeAnnotation
+                |typealias PlainTypealias = Int
+                |
+            """.trimMargin(),
+            configuration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                writerPlugin.writer.renderedContent("root/example/index.html").signature().first().match(
+                    Div(
+                        Div(
+                            "@", A("SomeAnnotation"), "()"
+                        )
+                    ),
+                    "typealias ", A("PlainTypealias"), " = ", A("Int"), Span()
+                )
+            }
+        }
+    }
+
+    @Test
     fun `plain typealias of generic class`() {
 
         val writerPlugin = TestOutputWriterPlugin()
