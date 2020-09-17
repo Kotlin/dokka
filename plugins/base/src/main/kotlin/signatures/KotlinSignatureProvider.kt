@@ -279,14 +279,15 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
 
     private fun signature(t: DTypeAlias) =
         t.sourceSets.map {
-            contentBuilder.contentFor(t, styles = t.stylesIfDeprecated(it), sourceSets = setOf(it)) {
+            contentBuilder.contentFor(t, sourceSets = setOf(it)) {
                 t.underlyingType.entries.groupBy({ it.value }, { it.key }).map { (type, platforms) ->
                     +contentBuilder.contentFor(
                         t,
                         ContentKind.Symbol,
-                        setOf(TextStyle.Monospace),
+                        setOf(TextStyle.Monospace) + t.stylesIfDeprecated(it),
                         sourceSets = platforms.toSet()
                     ) {
+                        annotationsBlock(t)
                         text(t.visibility[it]?.takeIf { it !in ignoredVisibilities }?.name?.let { "$it " } ?: "")
                         processExtraModifiers(t)
                         text("typealias ")
