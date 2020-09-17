@@ -10,7 +10,7 @@ import java.io.File
 
 internal fun createEnvironmentAndFacade(
     logger: DokkaLogger,
-    configuration: DokkaConfiguration,
+    sourceSets: List<DokkaConfiguration.DokkaSourceSet>,
     sourceSet: DokkaConfiguration.DokkaSourceSet
 ): EnvironmentAndFacade =
     AnalysisEnvironment(DokkaMessageCollector(logger), sourceSet.analysisPlatform).run {
@@ -20,7 +20,7 @@ internal fun createEnvironmentAndFacade(
         sourceSet.classpath.forEach(::addClasspath)
 
         addSources(
-            (sourceSet.sourceRoots + configuration.sourceSets.filter { it.sourceSetID in sourceSet.dependentSourceSets }
+            (sourceSet.sourceRoots + sourceSets.filter { it.sourceSetID in sourceSet.dependentSourceSets }
                 .flatMap { it.sourceRoots })
         )
 
