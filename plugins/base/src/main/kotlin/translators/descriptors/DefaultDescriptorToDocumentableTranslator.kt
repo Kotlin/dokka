@@ -510,7 +510,7 @@ private class DokkaDescriptorVisitor(
             sources = descriptor.createSources(),
             sourceSets = setOf(sourceSet),
             isExpectActual = (isExpect || isActual),
-            extra = PropertyContainer.withAll<DFunction>(
+            extra = PropertyContainer.withAll(
                 descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
                 descriptor.getAnnotations().toSourceSetDependent().toAnnotations()
             )
@@ -528,7 +528,10 @@ private class DokkaDescriptorVisitor(
                 visibility = visibility.toDokkaVisibility().toSourceSetDependent(),
                 documentation = resolveDescriptorData(),
                 sourceSets = setOf(sourceSet),
-                generics = descriptor.declaredTypeParameters.map { it.toVariantTypeParameter() }
+                generics = descriptor.declaredTypeParameters.map { it.toVariantTypeParameter() },
+                extra = PropertyContainer.withAll(
+                    descriptor.getAnnotations().toSourceSetDependent().toAnnotations()
+                )
             )
         }
 
