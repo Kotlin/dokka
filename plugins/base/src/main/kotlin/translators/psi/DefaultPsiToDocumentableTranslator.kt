@@ -22,9 +22,11 @@ import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.transformers.sources.SourceToDocumentableTranslator
 import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.kotlin.asJava.elements.KtLightAbstractAnnotation
+import org.jetbrains.kotlin.builtins.functions.FunctionClassDescriptor
 import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
 import org.jetbrains.kotlin.cli.jvm.config.JavaSourceRoot
 import org.jetbrains.kotlin.descriptors.Visibilities
+import org.jetbrains.kotlin.idea.caches.resolve.util.getJavaClassDescriptor
 import org.jetbrains.kotlin.idea.refactoring.fqName.getKotlinFqName
 import org.jetbrains.kotlin.load.java.JvmAbi
 import org.jetbrains.kotlin.load.java.propertyNameByGetMethodName
@@ -139,7 +141,7 @@ class DefaultPsiToDocumentableTranslator(
                             psiClass.isInterface -> DRI.from(psiClass) to JavaClassKindTypes.INTERFACE
                             else -> DRI.from(psiClass) to JavaClassKindTypes.CLASS
                         }
-                        TypeConstructor(
+                        GenericTypeConstructor(
                             dri,
                             psi.parameters.map(::getProjection)
                         ) to javaClassKind
@@ -370,11 +372,19 @@ class DefaultPsiToDocumentableTranslator(
                                     dri = DRI.from(resolved),
                                     name = resolved.name.orEmpty()
                                 )
-                            else ->
-                                TypeConstructor(DRI.from(resolved), type.parameters.map { getProjection(it) })
+                            Regex("kotlin\\.jvm\\.functions\\.Function.*").matches(resolved.qualifiedName ?: "") ||
+                                    Regex("java\\.util\\.function\\.Function.*").matches(
+                                        resolved.qualifiedName ?: ""
+                                    ) -> FunctionalTypeConstructor(
+                                DRI.from(resolved),
+                                type.parameters.map { getProjection(it) }
+                            )
+                            else -> GenericTypeConstructor(
+                                DRI.from(resolved),
+                                type.parameters.map { getProjection(it) })
                         }
                     }
-                    is PsiArrayType -> TypeConstructor(
+                    is PsiArrayType -> GenericTypeConstructor(
                         DRI("kotlin", "Array"),
                         listOf(getProjection(type.componentType))
                     )
@@ -411,6 +421,7 @@ class DefaultPsiToDocumentableTranslator(
                 DTypeParameter(
                     dri.copy(target = dri.target.nextTarget()),
                     type.name.orEmpty(),
+                    null,
                     javadocParser.parseDocumentation(type).toSourceSetDependent(),
                     null,
                     mapBounds(type.bounds),
