@@ -137,6 +137,17 @@
                             <includeNonPublic>false</includeNonPublic>
                         </packageOptions>
                     </perPackageOptions>
+                    <pluginsConfiguration>
+                        <org.jetbrains.dokka.base.DokkaBase>
+                            <customAssets>
+                                <customAsset>${project.basedir}/customResources/custom-resource.svg</customAsset>
+                            </customAssets>
+                            <customStyleSheets>
+                                <customStyleSheet>${project.basedir}/customResources/logo-styles.css</customStyleSheet>
+                                <customStyleSheet>${project.basedir}/customResources/custom-style-to-add.css</customStyleSheet>
+                            </customStyleSheets>
+                        </org.jetbrains.dokka.base.DokkaBase>
+                    </pluginsConfiguration>
                 </configuration>
             </plugin>
         </plugins>
