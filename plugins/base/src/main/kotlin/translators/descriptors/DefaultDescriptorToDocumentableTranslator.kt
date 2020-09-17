@@ -17,8 +17,11 @@ import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.transformers.sources.SourceToDocumentableTranslator
 import org.jetbrains.dokka.utilities.DokkaLogger
+import org.jetbrains.kotlin.builtins.functions.FunctionClassDescriptor
+import org.jetbrains.kotlin.builtins.isBuiltinExtensionFunctionalType
 import org.jetbrains.kotlin.builtins.isExtensionFunctionType
 import org.jetbrains.kotlin.builtins.isFunctionType
+import org.jetbrains.kotlin.builtins.isSuspendFunctionTypeOrSubtype
 import org.jetbrains.kotlin.codegen.isJvmStaticInObjectOrClassOrInterface
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.descriptors.ClassKind
@@ -585,7 +588,7 @@ private class DokkaDescriptorVisitor(
     private fun ClassDescriptor.resolveClassDescriptionData(): ClassInfo {
 
         fun toTypeConstructor(kt: KotlinType) =
-            TypeConstructor(
+            GenericTypeConstructor(
                 DRI.from(kt.constructor.declarationDescriptor as DeclarationDescriptor),
                 kt.arguments.map { it.toProjection() })
 
@@ -620,7 +623,7 @@ private class DokkaDescriptorVisitor(
     private fun TypeParameterDescriptor.toVariantTypeParameter() =
         DTypeParameter(
             variantTypeParameter(
-                TypeParameter(DRI.from(this), name.identifier)
+                TypeParameter(DRI.from(this), name.identifier, annotations.getPresentableName())
             ),
             resolveDescriptorData(),
             null,
@@ -628,6 +631,10 @@ private class DokkaDescriptorVisitor(
             setOf(sourceSet),
             extra = PropertyContainer.withAll(additionalExtras().toSourceSetDependent().toAdditionalModifiers())
         )
+
+    private fun org.jetbrains.kotlin.descriptors.annotations.Annotations.getPresentableName(): String? =
+        map { it.toAnnotation() }.singleOrNull { it.dri.classNames == "ParameterName" }?.params?.get("name")
+            .safeAs<StringValue>()?.value?.drop(1)?.dropLast(1) // Dropping enclosing doublequotes because we don't want to have it in our custom signature serializer
 
     private fun KotlinType.toBound(): Bound = when (this) {
         is DynamicType -> Dynamic
@@ -638,14 +645,20 @@ private class DokkaDescriptorVisitor(
         else -> when (val ctor = constructor.declarationDescriptor) {
             is TypeParameterDescriptor -> TypeParameter(
                 dri = DRI.from(ctor),
-                name = ctor.name.asString()
+                name = ctor.name.asString(),
+                presentableName = annotations.getPresentableName()
             )
-            else -> TypeConstructor(
+            is FunctionClassDescriptor -> FunctionalTypeConstructor(
+                DRI.from(ctor),
+                arguments.map { it.toProjection() },
+                isExtensionFunction = isExtensionFunctionType || isBuiltinExtensionFunctionalType,
+                isSuspendable = isSuspendFunctionTypeOrSubtype,
+                presentableName = annotations.getPresentableName()
+            )
+            else -> GenericTypeConstructor(
                 DRI.from(ctor!!), // TODO: remove '!!'
                 arguments.map { it.toProjection() },
-                if (isExtensionFunctionType) FunctionModifiers.EXTENSION
-                else if (isFunctionType) FunctionModifiers.FUNCTION
-                else FunctionModifiers.NONE
+                annotations.getPresentableName()
             )
         }.let {
             if (isMarkedNullable) Nullable(it) else it

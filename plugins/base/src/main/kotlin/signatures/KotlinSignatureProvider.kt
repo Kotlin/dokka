@@ -317,14 +317,15 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
         when (p) {
             is TypeParameter -> link(p.name, p.dri)
 
-            is TypeConstructor -> if (p.function)
+            is FunctionalTypeConstructor ->
                 +funType(mainDRI.single(), mainSourcesetData, p)
-            else
+
+            is GenericTypeConstructor ->
                 group(styles = emptySet()) {
                     val linkText = if (showFullyQualifiedName && p.dri.packageName != null) {
                         "${p.dri.packageName}.${p.dri.classNames.orEmpty()}"
                     } else p.dri.classNames.orEmpty()
-
+                    if (p.presentableName != null) text(p.presentableName + ": ")
                     link(linkText, p.dri)
                     list(p.projections, prefix = "<", suffix = ">") {
                         signatureForProjection(it, showFullyQualifiedName)
@@ -351,14 +352,18 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
             is UnresolvedBound -> text(p.name)
         }
 
-    private fun funType(dri: DRI, sourceSets: Set<DokkaSourceSet>, type: TypeConstructor) =
+    private fun funType(dri: DRI, sourceSets: Set<DokkaSourceSet>, type: FunctionalTypeConstructor) =
         contentBuilder.contentFor(dri, sourceSets, ContentKind.Main) {
-            if (type.extension) {
+
+            if (type.presentableName != null) text(type.presentableName + ": ")
+            if (type.isSuspendable) text("suspend ")
+
+            if (type.isExtensionFunction) {
                 signatureForProjection(type.projections.first())
                 text(".")
             }
 
-            val args = if (type.extension)
+            val args = if (type.isExtensionFunction)
                 type.projections.drop(1)
             else
                 type.projections
@@ -373,16 +378,11 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
         }
 }
 
-private fun PrimitiveJavaType.translateToKotlin() = TypeConstructor(
+private fun PrimitiveJavaType.translateToKotlin() = GenericTypeConstructor(
     dri = dri,
-    projections = emptyList()
+    projections = emptyList(),
+    presentableName = null
 )
 
 private val DTypeParameter.nontrivialBounds: List<Bound>
     get() = bounds.filterNot { it is Nullable && it.inner.driOrNull == DriOfAny  }
-
-val TypeConstructor.function
-    get() = modifier == FunctionModifiers.FUNCTION || modifier == FunctionModifiers.EXTENSION
-
-val TypeConstructor.extension
-    get() = modifier == FunctionModifiers.EXTENSION

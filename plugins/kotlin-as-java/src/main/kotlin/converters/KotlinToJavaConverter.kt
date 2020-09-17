@@ -188,7 +188,11 @@ private fun Projection.asJava(): Projection = when(this) {
 
 private fun Bound.asJava(): Bound = when(this) {
     is TypeParameter -> copy(dri.possiblyAsJava())
-    is TypeConstructor -> copy(
+    is GenericTypeConstructor -> copy(
+        dri = dri.possiblyAsJava(),
+        projections = projections.map { it.asJava() }
+    )
+    is FunctionalTypeConstructor -> copy(
         dri = dri.possiblyAsJava(),
         projections = projections.map { it.asJava() }
     )
@@ -229,7 +233,7 @@ internal fun DObject.asJava(): DObject = copy(
                 visibility = sourceSets.map {
                     it to JavaVisibility.Public
                 }.toMap(),
-                type = TypeConstructor(dri, emptyList()),
+                type = GenericTypeConstructor(dri, emptyList()),
                 setter = null,
                 getter = null,
                 sourceSets = sourceSets,
@@ -276,7 +280,10 @@ internal fun String.getAsPrimitive(): JvmPrimitiveType? = org.jetbrains.kotlin.b
 
 private fun DRI.partialFqName() = packageName?.let { "$it." } + classNames
 private fun DRI.possiblyAsJava() = this.partialFqName().mapToJava()?.toDRI(this) ?: this
-private fun TypeConstructor.possiblyAsJava() = copy(dri = this.dri.possiblyAsJava())
+private fun TypeConstructor.possiblyAsJava() = when(this) {
+    is GenericTypeConstructor -> copy(dri = this.dri.possiblyAsJava())
+    is FunctionalTypeConstructor -> copy(dri = this.dri.possiblyAsJava())
+}
 
 private fun String.mapToJava(): ClassId? =
     JavaToKotlinClassMap.mapKotlinToJava(FqName(this).toUnsafe())
