@@ -220,6 +220,9 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                 link(p.name, p.dri)
                 text(": ")
                 signatureForProjection(p.type)
+                p.extra[DefaultValue]?.run {
+                    text(" = $value")
+                }
             }
         }
 
@@ -255,6 +258,9 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                     text(it.name!!)
                     text(": ")
                     signatureForProjection(it.type)
+                    it.extra[DefaultValue]?.run {
+                        text(" = $value")
+                    }
                 }
                 text(")")
                 if (f.documentReturnType()) {

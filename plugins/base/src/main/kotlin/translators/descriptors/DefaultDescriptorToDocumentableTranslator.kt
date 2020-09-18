@@ -343,11 +343,12 @@ private class DokkaDescriptorVisitor(
             sourceSets = setOf(sourceSet),
             generics = descriptor.typeParameters.map { it.toVariantTypeParameter() },
             isExpectActual = (isExpect || isActual),
-            extra = PropertyContainer.withAll(
+            extra = PropertyContainer.withAll(listOfNotNull(
                 (descriptor.additionalExtras() + descriptor.getAnnotationsWithBackingField()
                     .toAdditionalExtras()).toSet().toSourceSetDependent().toAdditionalModifiers(),
-                descriptor.getAnnotationsWithBackingField().toSourceSetDependent().toAnnotations()
-            )
+                descriptor.getAnnotationsWithBackingField().toSourceSetDependent().toAnnotations(),
+                descriptor.getDefaultValue()?.let { DefaultValue(it) }
+            ))
         )
     }
 
@@ -770,9 +771,11 @@ private class DokkaDescriptorVisitor(
         }
     }
 
-
     private fun ValueParameterDescriptor.getDefaultValue(): String? =
         (source as? KotlinSourceElement)?.psi?.children?.find { it is KtExpression }?.text
+
+    private fun PropertyDescriptor.getDefaultValue(): String? =
+        (source as? KotlinSourceElement)?.psi?.children?.find { it is KtConstantExpression }?.text
 
     private fun ClassDescriptor.getAppliedConstructorParameters() =
         (source as PsiSourceElement).psi?.children?.flatMap {

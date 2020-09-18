@@ -523,4 +523,41 @@ class SignatureTest : AbstractCoreTest() {
             }
         }
     }
+
+    @Test
+    fun `fun with default values`() {
+        val source = source("fun simpleFun(int: Int = 1, string: String = \"string\"): String = \"\"")
+        val writerPlugin = TestOutputWriterPlugin()
+
+        testInline(
+            source,
+            configuration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                writerPlugin.writer.renderedContent("root/example/simple-fun.html").firstSignature().match(
+                    "fun", A("simpleFun"), "(int: ", A("Int"), " = 1, string: ", A("String"),
+                            " = \"string\"): ", A("String"), Span()
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `const val with default values`() {
+        val source = source("const val simpleVal = 1")
+        val writerPlugin = TestOutputWriterPlugin()
+
+        testInline(
+            source,
+            configuration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                writerPlugin.writer.renderedContent("root/example.html").firstSignature().match(
+                    "const val ", A("simpleVal"), ": ", A("Int"), " = 1", Span()
+                )
+            }
+        }
+    }
 }
