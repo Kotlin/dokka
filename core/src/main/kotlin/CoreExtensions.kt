@@ -1,7 +1,7 @@
 package org.jetbrains.dokka
 
 import org.jetbrains.dokka.generation.Generation
-import org.jetbrains.dokka.generation.SingleModule
+import org.jetbrains.dokka.generation.SingleModuleGeneration
 import org.jetbrains.dokka.plugability.*
 import org.jetbrains.dokka.plugability.LazyEvaluated
 import org.jetbrains.dokka.renderers.Renderer
@@ -13,8 +13,11 @@ import org.jetbrains.dokka.transformers.pages.PageCreator
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 import org.jetbrains.dokka.transformers.sources.SourceToDocumentableTranslator
 import kotlin.reflect.KProperty
+import kotlin.reflect.KProperty1
 
 object CoreExtensions {
+    private val extensionDelegates = mutableListOf<Lazy<Extension<*, *, *>>>()
+
     val generation by coreExtensionPoint<Generation>()
     val sourceToDocumentableTranslator by coreExtensionPoint<SourceToDocumentableTranslator>()
     val preMergeDocumentableTransformer by coreExtensionPoint<PreMergeDocumentableTransformer>()
@@ -26,7 +29,7 @@ object CoreExtensions {
     val allModulePageTransformer by coreExtensionPoint<PageTransformer>()
     val renderer by coreExtensionPoint<Renderer>()
 
-    val singleGeneration by generation extendWith LazyEvaluated.fromRecipe(::SingleModule)
+    val singleGeneration by generation extendWith LazyEvaluated.fromRecipe(::SingleModuleGeneration)
 
     private fun <T : Any> coreExtensionPoint() = object {
         operator fun provideDelegate(thisRef: CoreExtensions, property: KProperty<*>): Lazy<ExtensionPoint<T>> =
@@ -36,5 +39,12 @@ object CoreExtensions {
     private infix fun <T: Any> ExtensionPoint<T>.extendWith(action: LazyEvaluated<T>) = object {
         operator fun provideDelegate(thisRef: CoreExtensions, property: KProperty<*>): Lazy<Extension<T, OrderingKind.None, OverrideKind.None>> =
             lazy { Extension(this@extendWith, thisRef::class.qualifiedName!!, property.name, action) }
+                .also { extensionDelegates += it }
+    }
+
+    internal fun installTo(context: DokkaContextConfiguration) {
+        extensionDelegates.forEach {
+            context.installExtension(it.value)
+        }
     }
 }

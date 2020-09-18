@@ -105,11 +105,11 @@ open class DokkaLocationProvider(
         get() = if (this is PackagePageNode) name else identifierToFilename(name)
 
     companion object {
-        internal val reservedFilenames = setOf("index", "con", "aux", "lst", "prn", "nul", "eof", "inp", "out")
+        val reservedFilenames = setOf("index", "con", "aux", "lst", "prn", "nul", "eof", "inp", "out")
         //Taken from: https://stackoverflow.com/questions/1976007/what-characters-are-forbidden-in-windows-and-linux-directory-names
         internal val reservedCharacters = setOf('|', '>', '<', '*', ':', '"', '?', '%')
 
-        internal fun identifierToFilename(name: String): String {
+        fun identifierToFilename(name: String): String {
             if (name.isEmpty()) return "--root--"
             return sanitizeFileName(name, reservedFilenames, reservedCharacters)
         }

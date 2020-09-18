@@ -34,7 +34,6 @@ class DokkaGenerator(
         logger: DokkaLogger,
         additionalPlugins: List<DokkaPlugin> = emptyList()
     ) = DokkaContext.create(configuration, logger, additionalPlugins)
-
 }
 
 class Timer internal constructor(startTime: Long, private val logger: DokkaLogger?) {

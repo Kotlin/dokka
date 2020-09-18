@@ -4,11 +4,11 @@ import org.jetbrains.dokka.base.parsers.moduleAndPackage.ModuleAndPackageDocumen
 import java.io.File
 
 
-internal fun parseModuleAndPackageDocumentationFragments(source: File): List<ModuleAndPackageDocumentationFragment> {
+fun parseModuleAndPackageDocumentationFragments(source: File): List<ModuleAndPackageDocumentationFragment> {
     return parseModuleAndPackageDocumentationFragments(ModuleAndPackageDocumentationFile(source))
 }
 
-internal fun parseModuleAndPackageDocumentationFragments(
+fun parseModuleAndPackageDocumentationFragments(
     source: ModuleAndPackageDocumentationSource
 ): List<ModuleAndPackageDocumentationFragment> {
     val fragmentStrings = source.documentation.split(Regex("(|^)#\\s*(?=(Module|Package))"))

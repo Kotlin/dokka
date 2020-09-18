@@ -2,7 +2,7 @@
 
 package org.jetbrains.dokka.base.parsers.moduleAndPackage
 
-internal fun parseModuleAndPackageDocumentation(
+fun parseModuleAndPackageDocumentation(
     context: ModuleAndPackageDocumentationParsingContext,
     fragment: ModuleAndPackageDocumentationFragment
 ): ModuleAndPackageDocumentation {
