@@ -13,8 +13,8 @@ and can generate documentation in multiple formats including standard Javadoc, H
 _Note: If you are upgrading from 0.10.x to a current release of Dokka, please have a look at our 
 [migration guide](runners/gradle-plugin/MIGRATION.md)_
 
-The preferred way is to use `plugins` block. Since Dokka is currently not published to the Gradle plugin portal, 
-you not only need to add `org.jetbrains.dokka` to the `build.gradle.kts` file, but you also need to modify the `settings.gradle.kts` file: 
+The preferred way is to use the `plugins` block. Since Dokka is currently not published to the Gradle plugin portal, 
+along with adding `org.jetbrains.dokka` to the `build.gradle.kts` file, and you **also** need to modify the `settings.gradle.kts` file: 
  
 build.gradle.kts:
 ```kotlin
@@ -40,7 +40,7 @@ pluginManagement {
 The plugin adds `dokkaHtml`, `dokkaJavadoc`, `dokkaGfm` and `dokkaJekyll` tasks to the project.
  
 #### Applying plugins
-Dokka plugin creates Gradle configuration for each output format in the form of `dokka${format}Plugin`:
+The Dokka plugin creates a Gradle configuration for each output format in the form of `dokka${format}Plugin`:
 
 ```kotlin
 dependencies {
@@ -58,7 +58,7 @@ val customDokkaTask by creating(DokkaTask::class) {
 }
 ```
 
-Please note that `dokkaJavadoc` task will properly document only single `jvm` source set
+Please note that the `dokkaJavadoc` task will properly document only a single `jvm` source set.
 
 To generate the documentation, use the appropriate `dokka${format}` Gradle task:
 
@@ -110,8 +110,8 @@ tasks.dokkaHtmlMultiModule.configure {
 }
 ```
 
-`DokkaMultiModule` depends on all Dokka tasks in the subprojects, runs them, and creates a toplevel page (based on the `documentationFile`)
-with links to all generated (sub)documentations
+`DokkaMultiModule` depends on all Dokka tasks in the subprojects, runs them, and creates a top-level page (based on the `documentationFile`)
+with links to all generated (sub)documentations.
 
 ### Using the Maven plugin
 
@@ -169,26 +169,26 @@ Please see the [Dokka Maven example project](https://github.com/JetBrains/kotlin
 
 ### Using the Command Line
 
-To run Dokka from the command line, download the [Dokka CLI runner](https://github.com/Kotlin/dokka/releases/download/v1.4.0/dokka-cli-1.4.0.jar).
+To run Dokka from the command line, download the [Dokka CLI runner](https://github.com/Kotlin/dokka/releases/download/1.4.0/dokka-cli-1.4.0.jar).
 To generate documentation, run the following command:
 ```
 java -jar dokka-cli.jar <arguments>
 ```
 
-You can also use a JSON file with dokka configuration:
+You can also pass a JSON file to configure dokka:
  ```
  java -jar <dokka_cli.jar> <path_to_config.json>
  ```
 
 ### Output formats<a name="output_formats"></a>
-  Dokka documents Java classes as seen in Kotlin by default, with javadoc format being the only exception.
+  Dokka documents Java classes as seen in Kotlin by default, with the `javadoc` format being the only exception.
 
   * `html` - HTML format used by default
   * `javadoc` - looks like JDK's Javadoc, Kotlin classes are translated to Java
   * `gfm` - GitHub flavored markdown
   * `jekyll` - Jekyll compatible markdown
 
-If you want to generate the documentation as seen from Java perspective, you can add the `kotlin-as-java` plugin
+If you want to generate the documentation as seen from Java's perspective, you can add the `kotlin-as-java` plugin
 to the Dokka plugins classpath, eg. in Gradle:
 
 ```kotlin
