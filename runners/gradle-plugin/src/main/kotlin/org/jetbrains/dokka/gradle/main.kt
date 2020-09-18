@@ -57,6 +57,7 @@ open class DokkaPlugin : Plugin<Project> {
                     addSubprojectChildTasks(name)
                     configuration()
                     description = "Runs all subprojects '$name' tasks and generates module navigation page"
+                    plugins.dependencies.add(project.dokkaArtifacts.allModulesPage)
                 }
 
                 project.tasks.register<DefaultTask>("${name}Multimodule") {

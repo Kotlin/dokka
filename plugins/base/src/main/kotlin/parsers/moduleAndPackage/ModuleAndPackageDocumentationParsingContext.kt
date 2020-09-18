@@ -10,7 +10,7 @@ import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 
-internal fun interface ModuleAndPackageDocumentationParsingContext {
+fun interface ModuleAndPackageDocumentationParsingContext {
     fun markdownParserFor(fragment: ModuleAndPackageDocumentationFragment): MarkdownParser
 }
 
@@ -20,7 +20,7 @@ internal fun ModuleAndPackageDocumentationParsingContext.parse(
     return markdownParserFor(fragment).parse(fragment.documentation)
 }
 
-internal fun ModuleAndPackageDocumentationParsingContext(
+fun ModuleAndPackageDocumentationParsingContext(
     logger: DokkaLogger,
     facade: DokkaResolutionFacade? = null,
 ) = ModuleAndPackageDocumentationParsingContext { fragment ->

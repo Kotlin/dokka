@@ -39,21 +39,6 @@ class DokkaGenerator(
         logger: DokkaLogger,
         additionalPlugins: List<DokkaPlugin> = emptyList()
     ) = DokkaContext.create(configuration, logger, additionalPlugins)
-
-
-    fun generateAllModulesPage() = timed {
-        report("Initializing plugins")
-        val context = initializePlugins(configuration, logger)
-
-        report("Creating all modules page")
-        val pages = createAllModulePage(context)
-
-        report("Transforming pages")
-        val transformedPages = transformAllModulesPage(pages, context)
-
-        report("Rendering")
-        render(transformedPages, context)
-    }.dump("\n\n === TIME MEASUREMENT ===\n")
 }
 
 class Timer internal constructor(startTime: Long, private val logger: DokkaLogger?) {

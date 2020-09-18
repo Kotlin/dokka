@@ -104,9 +104,9 @@ open class DokkaLocationProvider(
         get() = if (this is PackagePageNode) name else identifierToFilename(name)
 
     companion object {
-        internal val reservedFilenames = setOf("index", "con", "aux", "lst", "prn", "nul", "eof", "inp", "out")
+        val reservedFilenames = setOf("index", "con", "aux", "lst", "prn", "nul", "eof", "inp", "out")
 
-        internal fun identifierToFilename(name: String): String {
+        fun identifierToFilename(name: String): String {
             if (name.isEmpty()) return "--root--"
             val escaped = name.replace("[<>]".toRegex(), "-")
             val lowercase = escaped.replace("[A-Z]".toRegex()) { matchResult -> "-" + matchResult.value.toLowerCase() }
