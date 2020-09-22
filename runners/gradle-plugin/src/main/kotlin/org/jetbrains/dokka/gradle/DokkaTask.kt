@@ -6,7 +6,7 @@ import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Nested
 import org.jetbrains.dokka.*
 
-abstract class DokkaTask : AbstractDokkaTask(DokkaBootstrapImpl::class) {
+abstract class DokkaTask : AbstractDokkaTask() {
 
     @get:Internal
     val dokkaSourceSets: NamedDomainObjectContainer<GradleDokkaSourceSetBuilder> =
