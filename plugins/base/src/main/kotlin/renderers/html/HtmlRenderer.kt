@@ -10,6 +10,7 @@ import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.renderers.DefaultRenderer
 import org.jetbrains.dokka.base.renderers.TabSortingStrategy
 import org.jetbrains.dokka.base.renderers.isImage
+import org.jetbrains.dokka.base.templating.ResolveLinkCommand
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.DisplaySourceSet
 import org.jetbrains.dokka.model.properties.PropertyContainer
@@ -592,8 +593,7 @@ open class HtmlRenderer(
         buildLink(address) {
             buildText(node.children, pageContext, sourceSetRestriction)
         }
-    } ?: span {
-        attributes["data-unresolved-link"] = node.address.toString().htmlEscape()
+    } ?: templateCommand(ResolveLinkCommand(node.address)) {
         buildText(node.children, pageContext, sourceSetRestriction)
     }
 
