@@ -8,9 +8,7 @@ import org.jetbrains.dokka.DokkaBootstrap
 import org.jetbrains.dokka.DokkaBootstrapImpl
 import kotlin.reflect.KClass
 
-abstract class AbstractDokkaParentTask(
-    bootstrapClass: KClass<out DokkaBootstrap> = DokkaBootstrapImpl::class
-) : AbstractDokkaTask(bootstrapClass) {
+abstract class AbstractDokkaParentTask : AbstractDokkaTask() {
 
     @get:Internal
     internal var childDokkaTaskPaths: Set<String> = emptySet()

@@ -22,9 +22,7 @@ import java.util.function.BiConsumer
 import kotlin.reflect.KClass
 import kotlin.reflect.full.createInstance
 
-abstract class AbstractDokkaTask(
-    private val bootstrapClass: KClass<out DokkaBootstrap> = DokkaBootstrap::class
-) : DefaultTask() {
+abstract class AbstractDokkaTask : DefaultTask() {
 
     @Input
     val moduleName: Property<String> = project.objects.safeProperty<String>()
@@ -81,7 +79,7 @@ abstract class AbstractDokkaTask(
 
     @TaskAction
     internal open fun generateDocumentation() {
-        DokkaBootstrap(runtime, bootstrapClass).apply {
+        DokkaBootstrap(runtime, DokkaBootstrapImpl::class).apply {
             configure(buildDokkaConfiguration().toJsonString(), createProxyLogger())
             generate()
         }
