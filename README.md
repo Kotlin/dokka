@@ -7,7 +7,7 @@ and can generate documentation in multiple formats including standard Javadoc, H
 
 ## Using Dokka
 
-**Full documentation is available at [https://kotlin.github.io/dokka/1.4.0/](https://kotlin.github.io/dokka/1.4.0/)**
+**Full documentation is available at [https://kotlin.github.io/dokka/1.4.10/](https://kotlin.github.io/dokka/1.4.10/)**
 
 ### Using the Gradle plugin
 _Note: If you are upgrading from 0.10.x to a current release of Dokka, please have a look at our 
@@ -19,7 +19,7 @@ you not only need to add `org.jetbrains.dokka` to the `build.gradle.kts` file, b
 build.gradle.kts:
 ```kotlin
 plugins {
-    id("org.jetbrains.dokka") version "1.4.0"
+    id("org.jetbrains.dokka") version "1.4.10"
 }
 
 repositories {
@@ -44,7 +44,7 @@ Dokka plugin creates Gradle configuration for each output format in the form of 
 
 ```kotlin
 dependencies {
-    dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:1.4.0")
+    dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:1.4.10")
 }
 ``` 
 
@@ -53,7 +53,7 @@ You can also create a custom Dokka task and add plugins directly inside:
 ```kotlin
 val customDokkaTask by creating(DokkaTask::class) {
     dependencies {
-        plugins("org.jetbrains.dokka:kotlin-as-java-plugin:1.4.0")
+        plugins("org.jetbrains.dokka:kotlin-as-java-plugin:1.4.10")
     }
 }
 ```
@@ -169,7 +169,7 @@ Please see the [Dokka Maven example project](https://github.com/JetBrains/kotlin
 
 ### Using the Command Line
 
-To run Dokka from the command line, download the [Dokka CLI runner](https://github.com/Kotlin/dokka/releases/download/v1.4.0/dokka-cli-1.4.0.jar).
+To run Dokka from the command line, download the [Dokka CLI runner](https://github.com/Kotlin/dokka/releases/download/v1.4.10/dokka-cli-1.4.10.jar).
 To generate documentation, run the following command:
 ```
 java -jar dokka-cli.jar <arguments>
