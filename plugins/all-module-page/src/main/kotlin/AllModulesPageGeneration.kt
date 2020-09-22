@@ -5,6 +5,8 @@ import org.jetbrains.dokka.Timer
 import org.jetbrains.dokka.generation.Generation
 import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.DokkaContext
+import org.jetbrains.dokka.plugability.plugin
+import org.jetbrains.dokka.plugability.querySingle
 
 class AllModulesPageGeneration(private val context: DokkaContext) : Generation {
     override fun Timer.generate() {
@@ -16,6 +18,9 @@ class AllModulesPageGeneration(private val context: DokkaContext) : Generation {
 
         report("Rendering")
         render(transformedPages)
+
+        report("Processing submodules")
+        context.plugin<AllModulesPagePlugin>().querySingle { templateProcessor }.process()
     }
 
     override val generationName = "index page for project"

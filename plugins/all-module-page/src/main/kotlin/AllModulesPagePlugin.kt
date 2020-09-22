@@ -1,10 +1,15 @@
 package org.jetbrains.dokka.allModulesPage
 
 import org.jetbrains.dokka.CoreExtensions
+import org.jetbrains.dokka.allModulesPage.templates.DefaultTemplateProcessor
+import org.jetbrains.dokka.allModulesPage.templates.DirectiveBasedTemplateProcessingStrategy
+import org.jetbrains.dokka.allModulesPage.templates.TemplateProcessor
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.plugability.DokkaPlugin
 
 class AllModulesPagePlugin : DokkaPlugin() {
+    val templateProcessor by extensionPoint<TemplateProcessor>()
+
     val allModulePageCreators by extending {
         (CoreExtensions.allModulePageCreator
                 providing ::MultimodulePageCreator)
@@ -21,5 +26,9 @@ class AllModulesPagePlugin : DokkaPlugin() {
         (CoreExtensions.generation
                 providing ::AllModulesPageGeneration
                 override CoreExtensions.singleGeneration)
+    }
+
+    val defaultTemplateProcessor by extending {
+        templateProcessor providing { DefaultTemplateProcessor(it, DirectiveBasedTemplateProcessingStrategy(it)) }
     }
 }
