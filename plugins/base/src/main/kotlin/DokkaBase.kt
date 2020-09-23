@@ -196,7 +196,7 @@ class DokkaBase : DokkaPlugin() {
     }
 
     val navigationPageInstaller by extending {
-        htmlPreprocessors with NavigationPageInstaller order { after(rootCreator) }
+        htmlPreprocessors providing ::NavigationPageInstaller order { after(rootCreator) }
     }
 
     val searchPageInstaller by extending {
