@@ -127,6 +127,7 @@ interface DokkaConfiguration : Serializable {
     interface DokkaModuleDescription : Serializable {
         val name: String
         val relativePathToOutputDirectory: File
+        val sourceOutputDirectory: File
         val includes: Set<File>
     }
 

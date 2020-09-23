@@ -2,7 +2,7 @@ package org.jetbrains.dokka.base.renderers.html
 
 import kotlinx.html.*
 import org.jetbrains.dokka.base.templating.Command
-import org.jetbrains.dokka.utilities.toJsonString
+import org.jetbrains.dokka.base.templating.toJsonString
 
 @HtmlTagMarker
 fun FlowOrPhrasingContent.wbr(classes: String? = null, block: WBR.() -> Unit = {}): Unit =

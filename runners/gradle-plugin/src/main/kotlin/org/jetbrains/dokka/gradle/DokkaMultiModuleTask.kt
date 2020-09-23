@@ -41,7 +41,7 @@ abstract class DokkaMultiModuleTask : AbstractDokkaParentTask() {
 
     override fun generateDocumentation() {
         checkChildDokkaTasksIsNotEmpty()
-        copyChildOutputDirectories()
+//        copyChildOutputDirectories()
         super.generateDocumentation()
     }
 
@@ -57,7 +57,8 @@ abstract class DokkaMultiModuleTask : AbstractDokkaParentTask() {
             DokkaModuleDescriptionImpl(
                 name = dokkaTask.moduleName.getSafe(),
                 relativePathToOutputDirectory = targetChildOutputDirectory(dokkaTask).relativeTo(outputDirectory.getSafe()),
-                includes = childDokkaTaskIncludes[dokkaTask.path].orEmpty()
+                includes = childDokkaTaskIncludes[dokkaTask.path].orEmpty(),
+                sourceOutputDirectory = dokkaTask.outputDirectory.getSafe()
             )
         }
     )
