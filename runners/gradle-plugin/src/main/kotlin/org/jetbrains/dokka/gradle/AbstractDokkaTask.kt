@@ -12,17 +12,11 @@ import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
 import org.gradle.kotlin.dsl.mapProperty
-import org.jetbrains.dokka.DokkaBootstrap
-import org.jetbrains.dokka.DokkaConfigurationImpl
-import org.jetbrains.dokka.DokkaDefaults
-import org.jetbrains.dokka.toJsonString
+import org.jetbrains.dokka.*
 import java.io.File
 import java.util.function.BiConsumer
-import kotlin.reflect.KClass
 
-abstract class AbstractDokkaTask(
-    private val bootstrapClass: KClass<out DokkaBootstrap> = DokkaBootstrap::class
-) : DefaultTask() {
+abstract class AbstractDokkaTask : DefaultTask() {
 
     @Input
     val moduleName: Property<String> = project.objects.safeProperty<String>()
@@ -63,7 +57,7 @@ abstract class AbstractDokkaTask(
 
     @TaskAction
     internal open fun generateDocumentation() {
-        DokkaBootstrap(runtime, bootstrapClass).apply {
+        DokkaBootstrap(runtime, DokkaBootstrapImpl::class).apply {
             configure(buildDokkaConfiguration().toJsonString(), createProxyLogger())
             generate()
         }

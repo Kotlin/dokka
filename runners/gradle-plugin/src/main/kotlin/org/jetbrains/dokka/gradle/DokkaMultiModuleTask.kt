@@ -14,7 +14,7 @@ typealias DokkaMultimoduleTask = DokkaMultiModuleTask
 
 private typealias TaskPath = String
 
-abstract class DokkaMultiModuleTask : AbstractDokkaParentTask(DokkaBootstrapImpl::class) {
+abstract class DokkaMultiModuleTask : AbstractDokkaParentTask() {
 
     @Internal
     val fileLayout: Property<DokkaMultiModuleFileLayout> = project.objects.safeProperty<DokkaMultiModuleFileLayout>()
