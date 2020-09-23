@@ -6,6 +6,7 @@ import org.jetbrains.dokka.model.DEnum
 import org.jetbrains.dokka.model.dfs
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
+import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstance
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
@@ -202,7 +203,7 @@ class EnumsTest : AbstractCoreTest() {
             configuration
         ) {
             pagesTransformationStage = { m ->
-                val entryNode = m.children.first { it.name == "enums" }.children.first { it.name == "Test" }.children.first() as ClasslikePageNode
+                val entryNode = m.children.first { it.name == "enums" }.children.first { it.name == "Test" }.children.firstIsInstance<ClasslikePageNode>()
                 val signature = (entryNode.content as ContentGroup).dfs { it is ContentGroup && it.dci.toString() == "[enums/Test.E1///PointingToDeclaration/][Cover]" } as ContentGroup
 
                 signature.assertNode {

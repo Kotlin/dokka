@@ -35,7 +35,7 @@ class JavadocPlugin : DokkaPlugin() {
                 dokkaBasePlugin.querySingle { signatureProvider },
                 context.logger
             )
-        } override dokkaBasePlugin.documentableToPageTranslator
+        } override kotinAsJavaPlugin.kotlinAsJavaDocumentableToPageTranslator
     }
 
     val documentableSourceSetFilter by extending {

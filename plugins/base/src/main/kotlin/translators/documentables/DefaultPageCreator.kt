@@ -37,7 +37,7 @@ open class DefaultPageCreator(
     open fun pageForPackage(p: DPackage): PackagePageNode = PackagePageNode(
         p.name, contentForPackage(p), setOf(p.dri), p,
         p.classlikes.renameClashingClasslikes().map(::pageForClasslike) +
-                p.functions.map(::pageForFunction)
+                p.functions.map(::pageForFunction) + p.properties.mapNotNull(::pageForProperty)
     )
 
     open fun pageForEnumEntry(e: DEnumEntry): ClasslikePageNode =
@@ -55,7 +55,9 @@ open class DefaultPageCreator(
             constructors.map(::pageForFunction) +
                     c.classlikes.renameClashingClasslikes().map(::pageForClasslike) +
                     c.filteredFunctions.map(::pageForFunction) +
+                    c.properties.mapNotNull(::pageForProperty) +
                     if (c is DEnum) c.entries.map(::pageForEnumEntry) else emptyList()
+
         )
     }
 
@@ -73,6 +75,8 @@ open class DefaultPageCreator(
     }
 
     open fun pageForFunction(f: DFunction) = MemberPageNode(f.name, contentForFunction(f), setOf(f.dri), f)
+
+    open fun pageForProperty(p: DProperty): MemberPageNode? = MemberPageNode(p.name, contentForProperty(p), setOf(p.dri), p)
 
     private val WithScope.filteredFunctions: List<DFunction>
         get() = functions.mapNotNull { function ->
@@ -475,6 +479,8 @@ open class DefaultPageCreator(
     }
 
     protected open fun contentForFunction(f: DFunction) = contentForMember(f)
+
+    protected open fun contentForProperty(p: DProperty) = contentForMember(p)
 
     protected open fun contentForMember(d: Documentable) = contentBuilder.contentFor(d) {
         group(kind = ContentKind.Cover) {
