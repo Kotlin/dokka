@@ -4,6 +4,7 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.jetbrains.dokka.base.templating.AddToNavigationCommand
 import org.jetbrains.dokka.base.templating.Command
 import org.jetbrains.dokka.base.templating.ResolveLinkCommand
 import org.jetbrains.dokka.base.templating.parseJson
@@ -14,8 +15,11 @@ import org.jsoup.nodes.Element
 import org.jsoup.parser.Tag
 import java.io.File
 import java.nio.file.Files
+import java.util.concurrent.ConcurrentHashMap
 
-class DirectiveBasedTemplateProcessingStrategy(context: DokkaContext) : TemplateProcessingStrategy {
+class DirectiveBasedTemplateProcessingStrategy(private val context: DokkaContext) : TemplateProcessingStrategy {
+    private val navigationFragments = ConcurrentHashMap<String, Element>()
+
     override suspend fun process(input: File, output: File): Unit = coroutineScope {
         if (input.extension == "html") {
             launch {
@@ -23,8 +27,10 @@ class DirectiveBasedTemplateProcessingStrategy(context: DokkaContext) : Template
                 document.outputSettings().indentAmount(0).prettyPrint(false)
                 document.select("dokka-template-command").forEach {
                     val command = parseJson<Command>(it.attr("data"))
-                    if (command is ResolveLinkCommand) {
-                        resolveLink(it, command)
+                    when (command) {
+                        is ResolveLinkCommand -> resolveLink(it, command)
+                        is AddToNavigationCommand -> navigationFragments[command.moduleName] = it
+                        else -> context.logger.warn("Unknown templating command $command")
                     }
                 }
                 withContext(IO) { Files.writeString(output.toPath(), document.outerHtml()) }
@@ -32,6 +38,40 @@ class DirectiveBasedTemplateProcessingStrategy(context: DokkaContext) : Template
         } else {
             launch(IO) {
                 Files.copy(input.toPath(), output.toPath())
+            }
+        }
+    }
+
+    override suspend fun finish(output: File) {
+        val attributes = Attributes().apply {
+            put("class", "sideMenu")
+        }
+        val node = Element(Tag.valueOf("div"), "", attributes)
+        navigationFragments.entries.sortedBy { it.key }.forEach { (moduleName, command) ->
+            command.select("a").forEach { a ->
+                a.attr("href")?.also { a.attr("href", "${moduleName}/${it}") }
+            }
+            command.childNodes().toList().forEachIndexed { index, child ->
+                if (index == 0) {
+                    child.attr("id", "$moduleName-nav-submenu")
+                }
+                node.appendChild(child)
+            }
+        }
+
+        withContext(IO) {
+            Files.writeString(output.resolve("navigation.html").toPath(), node.outerHtml())
+        }
+
+        node.select("a").forEach { a ->
+            a.attr("href")?.also { a.attr("href", "../${it}") }
+        }
+        navigationFragments.keys.forEach {
+            withContext(IO) {
+                Files.writeString(
+                    output.resolve(it).resolve("navigation.html").toPath(),
+                    node.outerHtml()
+                )
             }
         }
     }

@@ -178,4 +178,3 @@ class SourcesetDependencyAppender(val context: DokkaContext) : PageTransformer {
         ).transformContentPagesTree { it.modified(embeddedResources = it.embeddedResources + name) }
     }
 }
-
