@@ -2,12 +2,12 @@ package org.jetbrains.dokka.gradle
 
 import org.gradle.api.internal.tasks.TaskDependencyInternal
 import org.gradle.api.provider.Property
-import org.gradle.api.tasks.*
-import org.jetbrains.dokka.DokkaBootstrapImpl
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.OutputDirectories
 import org.jetbrains.dokka.DokkaConfigurationImpl
 import org.jetbrains.dokka.DokkaModuleDescriptionImpl
-import org.jetbrains.dokka.DokkaMultimoduleBootstrapImpl
-import org.jetbrains.dokka.PluginConfigurationImpl
 import java.io.File
 
 @Suppress("unused") // Shall provide source compatibility if possible
@@ -16,7 +16,7 @@ typealias DokkaMultimoduleTask = DokkaMultiModuleTask
 
 private typealias TaskPath = String
 
-abstract class DokkaMultiModuleTask : AbstractDokkaParentTask(DokkaBootstrapImpl::class) {
+abstract class DokkaMultiModuleTask : AbstractDokkaParentTask() {
 
     @Internal
     val fileLayout: Property<DokkaMultiModuleFileLayout> = project.objects.safeProperty<DokkaMultiModuleFileLayout>()
