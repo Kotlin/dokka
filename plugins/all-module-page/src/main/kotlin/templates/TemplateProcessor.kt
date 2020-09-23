@@ -12,6 +12,7 @@ interface TemplateProcessor {
 
 interface TemplateProcessingStrategy {
     suspend fun process(input: File, output: File)
+    suspend fun finish(output: File) {}
 }
 
 class DefaultTemplateProcessor(
@@ -24,6 +25,7 @@ class DefaultTemplateProcessor(
                 it.sourceOutputDirectory.visit(context.configuration.outputDir.resolve(it.relativePathToOutputDirectory))
             }
         }
+        strategy.finish(context.configuration.outputDir)
     }
 
     private suspend fun File.visit(target: File): Unit = coroutineScope {

@@ -654,7 +654,7 @@ open class HtmlRenderer(
         buildHtml(page, page.embeddedResources) {
             div {
                 id = "content"
-                attributes["pageIds"] = page.dri.first().toString()
+                attributes["pageIds"] = "${context.configuration.moduleName}::${page.dri.first()}"
                 content(this, page)
             }
         }

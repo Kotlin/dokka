@@ -20,7 +20,8 @@ import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.configuration
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 
-object NavigationPageInstaller : PageTransformer {
+
+class NavigationPageInstaller(private val context: DokkaContext) : PageTransformer {
     private val mapper = jacksonObjectMapper()
 
     private data class NavigationNodeView(
@@ -38,7 +39,7 @@ object NavigationPageInstaller : PageTransformer {
 
     override fun invoke(input: RootPageNode): RootPageNode {
         val nodes = input.children.filterIsInstance<ContentPage>().single()
-            .let(NavigationPageInstaller::visit)
+            .let { visit(it) }
 
         val page = RendererSpecificResourcePage(
             name = "scripts/navigation-pane.json",
@@ -49,7 +50,7 @@ object NavigationPageInstaller : PageTransformer {
             })
 
         return input.modified(
-            children = input.children + page + NavigationPage(nodes)
+            children = input.children + page + NavigationPage(nodes, context.configuration.moduleName)
         )
     }
 
