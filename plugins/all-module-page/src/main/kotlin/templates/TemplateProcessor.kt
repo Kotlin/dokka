@@ -1,7 +1,9 @@
 package org.jetbrains.dokka.allModulesPage.templates
 
 import kotlinx.coroutines.*
+import org.jetbrains.dokka.base.templating.Command
 import org.jetbrains.dokka.plugability.DokkaContext
+import org.jsoup.nodes.Element
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
@@ -44,3 +46,9 @@ class DefaultTemplateProcessor(
     }
 }
 
+data class TemplatingContext<out T: Command>(
+    val input: File,
+    val output: File,
+    val element: Element,
+    val command: T,
+)
