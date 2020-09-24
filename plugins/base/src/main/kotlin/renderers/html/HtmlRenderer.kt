@@ -13,6 +13,7 @@ import org.jetbrains.dokka.base.renderers.isImage
 import org.jetbrains.dokka.base.renderers.pageId
 import org.jetbrains.dokka.base.resolvers.anchors.SymbolAnchorHint
 import org.jetbrains.dokka.base.resolvers.local.DokkaBaseLocationProvider
+import org.jetbrains.dokka.base.templating.PathToRootSubstitutionCommand
 import org.jetbrains.dokka.base.templating.ResolveLinkCommand
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.DisplaySourceSet
@@ -736,7 +737,9 @@ open class HtmlRenderer(
                         else -> unsafe { +it }
                     }
                 }
-                script { unsafe { +"""var pathToRoot = "${locationProvider.pathToRoot(page)}";""" } }
+                templateCommand(PathToRootSubstitutionCommand("###")) {
+                    script { unsafe { +"""var pathToRoot = "###";""" } }
+                }
             }
             body {
                 div {

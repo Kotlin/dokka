@@ -1,6 +1,7 @@
 package org.jetbrains.dokka.base.resolvers.shared
 
 import org.jetbrains.dokka.base.renderers.PackageListService
+import java.io.File
 import java.net.URL
 
 data class PackageList(
@@ -12,6 +13,9 @@ data class PackageList(
     companion object {
         fun load(url: URL, jdkVersion: Int, offlineMode: Boolean = false): PackageList? {
             if (offlineMode && url.protocol.toLowerCase() != "file")
+                return null
+
+            if (!File(url.file).isFile)
                 return null
 
             val packageListStream = url.readContent()
