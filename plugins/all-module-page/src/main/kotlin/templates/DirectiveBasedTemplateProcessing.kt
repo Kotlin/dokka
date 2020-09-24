@@ -4,16 +4,22 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.jetbrains.dokka.base.DokkaBase
+import org.jetbrains.dokka.base.resolvers.shared.ExternalDocumentation
+import org.jetbrains.dokka.base.resolvers.shared.PackageList
 import org.jetbrains.dokka.base.templating.AddToNavigationCommand
 import org.jetbrains.dokka.base.templating.Command
 import org.jetbrains.dokka.base.templating.ResolveLinkCommand
 import org.jetbrains.dokka.base.templating.parseJson
 import org.jetbrains.dokka.plugability.DokkaContext
+import org.jetbrains.dokka.plugability.plugin
+import org.jetbrains.dokka.plugability.query
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Attributes
 import org.jsoup.nodes.Element
 import org.jsoup.parser.Tag
 import java.io.File
+import java.net.URL
 import java.nio.file.Files
 import java.util.concurrent.ConcurrentHashMap
 
@@ -28,7 +34,7 @@ class DirectiveBasedTemplateProcessingStrategy(private val context: DokkaContext
                 document.select("dokka-template-command").forEach {
                     val command = parseJson<Command>(it.attr("data"))
                     when (command) {
-                        is ResolveLinkCommand -> resolveLink(it, command)
+                        is ResolveLinkCommand -> resolveLink(it, command, output)
                         is AddToNavigationCommand -> navigationFragments[command.moduleName] = it
                         else -> context.logger.warn("Unknown templating command $command")
                     }
@@ -76,9 +82,57 @@ class DirectiveBasedTemplateProcessingStrategy(private val context: DokkaContext
         }
     }
 
-    private fun resolveLink(it: Element, command: ResolveLinkCommand) {
+    private fun resolveLink(it: Element, command: ResolveLinkCommand, fileContext: File) {
+        val elpFactory = context.plugin<DokkaBase>().query { externalLocationProviderFactory }
+
+        val packageLists =
+            context.configuration.modules.map { it.sourceOutputDirectory.resolve(it.relativePathToOutputDirectory) }
+                .map { module ->
+                    module to PackageList.load(
+                        URL("file:" + module.resolve("package-list").path),
+                        8,
+                        true
+                    )
+                }.toMap()
+
+        val externalDocumentations =
+            packageLists.map { (module, pckgList) ->
+                ExternalDocumentation(
+                    URL("file:/${module.name}/${module.name}"),
+                    pckgList!!
+                )
+            }
+
+        val elps = elpFactory
+            .flatMap { externalDocumentations.map { ed -> it.getExternalLocationProvider(ed) } }
+            .filterNotNull()
+
+        val absoluteLink = elps.mapNotNull { it.resolve(command.dri) }.firstOrNull()
+        if (absoluteLink == null) {
+            val children = it.childNodes().toList()
+            val attributes = Attributes().apply {
+                put("data-unresolved-link", command.dri.toString())
+            }
+            val element = Element(Tag.valueOf("span"), "", attributes).apply {
+                children.forEach { ch -> appendChild(ch) }
+            }
+            it.replaceWith(element)
+            return
+        }
+
+        val modulePath = context.configuration.outputDir.absolutePath.split("/")
+        val contextPath = fileContext.absolutePath.split("/")
+        val commonPathElements = modulePath.zip(contextPath)
+            .takeWhile { (a, b) -> a == b }.count()
+
+        // -1 here to not drop the last directory
+        val link =
+            (List(contextPath.size - commonPathElements - 1) { ".." } + modulePath.drop(commonPathElements)).joinToString(
+                "/"
+            ) + absoluteLink.removePrefix("file:")
+
         val attributes = Attributes().apply {
-            put("href", "") // TODO: resolve
+            put("href", link) // TODO: resolve
         }
         val children = it.childNodes().toList()
         val element = Element(Tag.valueOf("a"), "", attributes).apply {
