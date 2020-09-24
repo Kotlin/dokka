@@ -29,7 +29,7 @@ class DirectiveBasedTemplateProcessingStrategy(private val context: DokkaContext
                     val command = parseJson<Command>(it.attr("data"))
                     when (command) {
                         is ResolveLinkCommand -> resolveLink(it, command)
-                        is AddToNavigationCommand -> navigationFragments[command.moduleName] = it.children().single()
+                        is AddToNavigationCommand -> navigationFragments[command.moduleName] = it
                         else -> context.logger.warn("Unknown templating command $command")
                     }
                 }
@@ -43,7 +43,37 @@ class DirectiveBasedTemplateProcessingStrategy(private val context: DokkaContext
     }
 
     override suspend fun finish(output: File) {
-        
+        val attributes = Attributes().apply {
+            put("class", "sideMenu")
+        }
+        val node = Element(Tag.valueOf("div"), "", attributes)
+        navigationFragments.entries.sortedBy { it.key }.forEach { (moduleName, command) ->
+            command.select("a").forEach { a ->
+                a.attr("href")?.also { a.attr("href", "${moduleName}/${it}") }
+            }
+            command.childNodes().toList().forEachIndexed { index, child ->
+                if (index == 0) {
+                    child.attr("id", "$moduleName-nav-submenu")
+                }
+                node.appendChild(child)
+            }
+        }
+
+        withContext(IO) {
+            Files.writeString(output.resolve("navigation.html").toPath(), node.outerHtml())
+        }
+
+        node.select("a").forEach { a ->
+            a.attr("href")?.also { a.attr("href", "../${it}") }
+        }
+        navigationFragments.keys.forEach {
+            withContext(IO) {
+                Files.writeString(
+                    output.resolve(it).resolve("navigation.html").toPath(),
+                    node.outerHtml()
+                )
+            }
+        }
     }
 
     private fun resolveLink(it: Element, command: ResolveLinkCommand) {
