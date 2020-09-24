@@ -5,6 +5,7 @@ import org.jetbrains.dokka.plugability.DokkaContext
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
+import kotlin.coroutines.coroutineContext
 
 interface TemplateProcessor {
     fun process()
@@ -20,9 +21,11 @@ class DefaultTemplateProcessor(
     private val strategy: TemplateProcessingStrategy
 ): TemplateProcessor {
     override fun process() = runBlocking(Dispatchers.Default) {
-        context.configuration.modules.forEach {
-            launch {
-                it.sourceOutputDirectory.visit(context.configuration.outputDir.resolve(it.relativePathToOutputDirectory))
+        coroutineScope {
+            context.configuration.modules.forEach {
+                launch {
+                    it.sourceOutputDirectory.visit(context.configuration.outputDir.resolve(it.relativePathToOutputDirectory))
+                }
             }
         }
         strategy.finish(context.configuration.outputDir)
