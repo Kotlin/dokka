@@ -132,7 +132,7 @@ class ContentForAnnotationsTest : AbstractCoreTest() {
             pagesTransformationStage = { module ->
                 val page = module.children.single { it.name == "test" } as PackagePageNode
                 page.content.assertNode {
-                    propertySignature(emptyMap(), "", "", emptySet(), "val", "property", "Int")
+                    propertySignature(emptyMap(), "", "", emptySet(), "val", "property", "Int", "6")
                 }
             }
         }
@@ -155,7 +155,7 @@ class ContentForAnnotationsTest : AbstractCoreTest() {
             pagesTransformationStage = { module ->
                 val page = module.children.single { it.name == "test" } as PackagePageNode
                 page.content.assertNode {
-                    propertySignature(mapOf("Fancy" to emptySet()), "", "", emptySet(), "val", "property", "Int")
+                    propertySignature(mapOf("Fancy" to emptySet()), "", "", emptySet(), "val", "property", "Int", "6")
                 }
             }
         }
@@ -212,7 +212,7 @@ class ContentForAnnotationsTest : AbstractCoreTest() {
                                 "reportedBy",
                                 "showStopper"
                             )
-                        ), "", "", emptySet(), "val", "ltint", "Int"
+                        ), "", "", emptySet(), "val", "ltint", "Int", "5"
                     )
                 }
             }
