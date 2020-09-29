@@ -310,7 +310,7 @@ class ContentForSignaturesTest : AbstractCoreTest() {
             pagesTransformationStage = { module ->
                 val page = module.children.single { it.name == "test" } as PackagePageNode
                 page.content.assertNode {
-                    propertySignature(emptyMap(), "", "", emptySet(), "val", "property", "Int")
+                    propertySignature(emptyMap(), "", "", emptySet(), "val", "property", "Int", "6")
                 }
             }
         }
@@ -329,7 +329,7 @@ class ContentForSignaturesTest : AbstractCoreTest() {
             pagesTransformationStage = { module ->
                 val page = module.children.single { it.name == "test" } as PackagePageNode
                 page.content.assertNode {
-                    propertySignature(emptyMap(), "", "", setOf("const"), "val", "property", "Int")
+                    propertySignature(emptyMap(), "", "", setOf("const"), "val", "property", "Int", "6")
                 }
             }
         }
@@ -348,7 +348,7 @@ class ContentForSignaturesTest : AbstractCoreTest() {
             pagesTransformationStage = { module ->
                 val page = module.children.single { it.name == "test" } as PackagePageNode
                 page.content.assertNode {
-                    propertySignature(emptyMap(), "protected", "", emptySet(), "val", "property", "Int")
+                    propertySignature(emptyMap(), "protected", "", emptySet(), "val", "property", "Int", "6")
                 }
             }
         }
@@ -367,7 +367,7 @@ class ContentForSignaturesTest : AbstractCoreTest() {
             pagesTransformationStage = { module ->
                 val page = module.children.single { it.name == "test" } as PackagePageNode
                 page.content.assertNode {
-                    propertySignature(emptyMap(), "protected", "", setOf("lateinit"), "var", "property", "Int")
+                    propertySignature(emptyMap(), "protected", "", setOf("lateinit"), "var", "property", "Int", "6")
                 }
             }
         }
