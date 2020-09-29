@@ -129,7 +129,8 @@ fun ContentMatcherBuilder<*>.propertySignature(
     keywords: Set<String>,
     preposition: String,
     name: String,
-    type: String? = null
+    type: String? = null,
+    value: String? = null
 ) {
     group {
         header { +"Package test" }
@@ -158,6 +159,9 @@ fun ContentMatcherBuilder<*>.propertySignature(
                                         +(type)
                                     }
                                 }
+                            }
+                            if (type != null) {
+                                +(" = $value")
                             }
                         }
                     }
