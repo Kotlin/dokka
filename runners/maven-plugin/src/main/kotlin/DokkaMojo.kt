@@ -279,7 +279,7 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
                     "repo",
                     "default",
                     it.url
-                ).build()
+                ).setAuthentication( it.authentication ).build()
             )
         }
         val node: DependencyNode = repoSystem.collectDependencies(session, collectRequest).root
