@@ -5,6 +5,8 @@ import com.intellij.psi.impl.source.javadoc.PsiDocParamRef
 import com.intellij.psi.impl.source.tree.JavaDocElementType
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.javadoc.*
+import com.intellij.psi.tree.IElementType
+import com.intellij.psi.tree.java.IJavaDocElementType
 import com.intellij.psi.util.PsiTreeUtil
 import org.intellij.markdown.MarkdownElementTypes
 import org.jetbrains.dokka.analysis.from
@@ -41,7 +43,7 @@ class JavadocParser(
                 )
                 "throws" -> Throws(wrapTagIfNecessary(convertJavadocElements(tag.contentElements())), tag.text)
                 "return" -> Return(wrapTagIfNecessary(convertJavadocElements(tag.contentElements())))
-                "author" -> Author(wrapTagIfNecessary(convertJavadocElements(tag.contentElements())))
+                "author" -> Author(wrapTagIfNecessary(convertJavadocElements(tag.authorContentElements()))) // Workaround: PSI returns first word after @author tag as a `DOC_TAG_VALUE_ELEMENT`, then the rest as a `DOC_COMMENT_DATA`, so for `Name Surname` we get them parted
                 "see" -> getSeeTagElementContent(tag).let {
                     See(
                         wrapTagIfNecessary(it.first),
@@ -160,20 +162,19 @@ class JavadocParser(
         }
 
         private fun PsiElement.toDocumentationLinkString(
-            labelElement: PsiElement? = null
-        ): String? =
-            reference?.resolve()?.let {
-                if (it !is PsiParameter) {
-                    val dri = DRI.from(it)
-                    driMap[dri.toString()] = dri
-                    val label = labelElement ?: defaultLabel()
-                    """<a data-dri=$dri>${label.text}</a>"""
-                } else null
+            labelElement: List<PsiElement>? = null
+        ): String =
+            (reference?.resolve()?.takeIf { it !is PsiParameter }?.let {
+                val dri = DRI.from(it)
+                driMap[dri.toString()] = dri
+                Pair(labelElement ?: listOf(defaultLabel()), dri.toString())
+            } ?: Pair(listOf(defaultLabel()), "UNRESOLVED_PSI_ELEMENT")).let { (label, dri) ->
+                """<a data-dri=$dri>${label.joinToString(" ") { it.text }}</a>"""
             }
 
         private fun convertInlineDocTag(tag: PsiInlineDocTag) = when (tag.name) {
             "link", "linkplain" -> {
-                tag.referenceElement()?.toDocumentationLinkString(tag.dataElements.firstIsInstanceOrNull<PsiDocToken>())
+                tag.referenceElement()?.toDocumentationLinkString(tag.dataElements.filterIsInstance<PsiDocToken>())
             }
             "code", "literal" -> {
                 "<code data-inline>${tag.text}</code>"
@@ -190,7 +191,7 @@ class JavadocParser(
                     A(children, params = mapOf("href" to element.attr("href")))
                 element.hasAttr("data-dri") && driMap.containsKey(element.attr("data-dri")) ->
                     DocumentationLink(driMap[element.attr("data-dri")]!!, children)
-                else -> Text(children = children)
+                else -> Text(body = children.filterIsInstance<Text>().joinToString { it.body })
             }
         }
 
@@ -229,6 +230,9 @@ class JavadocParser(
     }
 
     private fun PsiDocTag.contentElements(): List<PsiElement> =
+        dataElements.mapNotNull { it.takeIf { it is PsiDocToken && it.text.isNotBlank() } }
+
+    private fun PsiDocTag.authorContentElements(): List<PsiElement> =
         dataElements.mapNotNull { it.takeIf { it.text.isNotBlank() } }
 
     private fun convertJavadocElements(elements: Iterable<PsiElement>, asParagraph: Boolean = true): List<DocTag> = Parse()(elements, asParagraph)
