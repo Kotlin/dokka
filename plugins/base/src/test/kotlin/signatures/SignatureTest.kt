@@ -179,6 +179,24 @@ class SignatureTest : AbstractCoreTest() {
     }
 
     @Test
+    fun `fun with vararg`() {
+        val source = source("fun simpleFun(vararg params: Int): Unit")
+        val writerPlugin = TestOutputWriterPlugin()
+
+        testInline(
+            source,
+            configuration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                writerPlugin.writer.renderedContent("root/example/simple-fun.html").firstSignature().match(
+                    "fun ", A("simpleFun"), "(vararg params: ", A("Int"), ")", Span()
+                )
+            }
+        }
+    }
+
+    @Test
     fun `class with no supertype`() {
         val source = source("class SimpleClass")
         val writerPlugin = TestOutputWriterPlugin()
