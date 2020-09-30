@@ -43,7 +43,7 @@ class FunctionalTypeConstructorsSignatureTest : AbstractCoreTest() {
             pluginOverrides = listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
-                writerPlugin.writer.renderedContent("root/example.html").firstSignature().match(
+                writerPlugin.writer.renderedContent("root/example/index.html").firstSignature().match(
                     "val ", A("nF"), ": (", A("Int"), ") -> ", A("String"), Span()
                 )
             }
@@ -61,7 +61,7 @@ class FunctionalTypeConstructorsSignatureTest : AbstractCoreTest() {
             pluginOverrides = listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
-                writerPlugin.writer.renderedContent("root/example.html").firstSignature().match(
+                writerPlugin.writer.renderedContent("root/example/index.html").firstSignature().match(
                     "val ", A("nF"), ": (", A("Int"), ") -> ", A("String"), Span()
                 )
             }
@@ -79,7 +79,7 @@ class FunctionalTypeConstructorsSignatureTest : AbstractCoreTest() {
             pluginOverrides = listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
-                writerPlugin.writer.renderedContent("root/example.html").firstSignature().match(
+                writerPlugin.writer.renderedContent("root/example/index.html").firstSignature().match(
                     "val ", A("nF"), ": ", A("Boolean"), ".(", A("Int"), ") -> ", A("String"), Span()
                 )
             }
@@ -97,7 +97,7 @@ class FunctionalTypeConstructorsSignatureTest : AbstractCoreTest() {
             pluginOverrides = listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
-                writerPlugin.writer.renderedContent("root/example.html").firstSignature().match(
+                writerPlugin.writer.renderedContent("root/example/index.html").firstSignature().match(
                     "val ", A("nF"), ": (param: ", A("Int"), ") -> ", A("String"), Span()
                 )
             }
@@ -116,7 +116,7 @@ class FunctionalTypeConstructorsSignatureTest : AbstractCoreTest() {
             pluginOverrides = listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
-                writerPlugin.writer.renderedContent("root/example.html").firstSignature().match(
+                writerPlugin.writer.renderedContent("root/example/index.html").firstSignature().match(
                     "val ", A("nF"), ": suspend (", A("Int"), ") -> ", A("String"), Span()
                 )
             }
@@ -134,7 +134,7 @@ class FunctionalTypeConstructorsSignatureTest : AbstractCoreTest() {
             pluginOverrides = listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
-                writerPlugin.writer.renderedContent("root/example.html").firstSignature().match(
+                writerPlugin.writer.renderedContent("root/example/index.html").firstSignature().match(
                     "val ", A("nF"), ": suspend (", A("Int"), ") -> ", A("String"), Span()
                 )
             }
@@ -152,7 +152,7 @@ class FunctionalTypeConstructorsSignatureTest : AbstractCoreTest() {
             pluginOverrides = listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
-                writerPlugin.writer.renderedContent("root/example.html").firstSignature().match(
+                writerPlugin.writer.renderedContent("root/example/index.html").firstSignature().match(
                     "val ", A("nF"), ": suspend ", A("Boolean"), ".(", A("Int"), ") -> ", A("String"), Span()
                 )
             }
@@ -170,7 +170,7 @@ class FunctionalTypeConstructorsSignatureTest : AbstractCoreTest() {
             pluginOverrides = listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
-                writerPlugin.writer.renderedContent("root/example.html").firstSignature().match(
+                writerPlugin.writer.renderedContent("root/example/index.html").firstSignature().match(
                     "val ", A("nF"), ": suspend (param: ", A("Int"), ") -> ", A("String"), Span()
                 )
             }
@@ -189,7 +189,7 @@ class FunctionalTypeConstructorsSignatureTest : AbstractCoreTest() {
             pluginOverrides = listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
-                writerPlugin.writer.renderedContent("root/example.html").firstSignature().match(
+                writerPlugin.writer.renderedContent("root/example/index.html").firstSignature().match(
                     "val ",
                     A("nF"),
                     ": suspend (param1: suspend",

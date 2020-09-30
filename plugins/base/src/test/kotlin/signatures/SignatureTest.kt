@@ -606,7 +606,7 @@ class SignatureTest : AbstractCoreTest() {
             pluginOverrides = listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
-                writerPlugin.writer.renderedContent("root/example.html").firstSignature().match(
+                writerPlugin.writer.renderedContent("root/example/index.html").firstSignature().match(
                     "const val ", A("simpleVal"), ": ", A("Int"), " = 1", Span()
                 )
             }

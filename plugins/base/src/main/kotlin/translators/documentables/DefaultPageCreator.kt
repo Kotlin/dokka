@@ -36,15 +36,15 @@ open class DefaultPageCreator(
 
     open fun pageForPackage(p: DPackage): PackagePageNode = PackagePageNode(
         p.name, contentForPackage(p), setOf(p.dri), p,
-        p.classlikes.renameClashingClasslikes().map(::pageForClasslike) +
-                p.functions.map(::pageForFunction) + p.properties.mapNotNull(::pageForProperty)
+        p.classlikes.renameClashingDocumentable().map(::pageForClasslike) +
+                p.functions.renameClashingDocumentable().map(::pageForFunction) + p.properties.mapNotNull(::pageForProperty)
     )
 
     open fun pageForEnumEntry(e: DEnumEntry): ClasslikePageNode =
         ClasslikePageNode(
             e.name, contentForEnumEntry(e), setOf(e.dri), e,
-            e.classlikes.renameClashingClasslikes().map(::pageForClasslike) +
-                    e.filteredFunctions.map(::pageForFunction)
+            e.classlikes.renameClashingDocumentable().map(::pageForClasslike) +
+                    e.filteredFunctions.renameClashingDocumentable().map(::pageForFunction)
         )
 
     open fun pageForClasslike(c: DClasslike): ClasslikePageNode {
@@ -53,24 +53,31 @@ open class DefaultPageCreator(
         return ClasslikePageNode(
             c.name.orEmpty(), contentForClasslike(c), setOf(c.dri), c,
             constructors.map(::pageForFunction) +
-                    c.classlikes.renameClashingClasslikes().map(::pageForClasslike) +
-                    c.filteredFunctions.map(::pageForFunction) +
-                    c.properties.mapNotNull(::pageForProperty) +
+                    c.classlikes.renameClashingDocumentable().map(::pageForClasslike) +
+                    c.filteredFunctions.renameClashingDocumentable().map(::pageForFunction) +
+                    c.properties.renameClashingDocumentable().mapNotNull(::pageForProperty) +
                     if (c is DEnum) c.entries.map(::pageForEnumEntry) else emptyList()
 
         )
     }
 
-    private fun List<DClasslike>.renameClashingClasslikes(): List<DClasslike> = groupBy { it.dri }.values.flatMap { classlikes ->
-        if (classlikes.size == 1) classlikes else classlikes.map { classlike ->
-            fun ClashingDriIdentifier?.toName() = this?.value?.joinToString(", ", "(", ")") { it.displayName } ?: ""
-            when(classlike) {
-                is DClass -> classlike.copy(name = classlike.name + classlike.extra[ClashingDriIdentifier]?.toName())
-                is DObject -> classlike.copy(name = classlike.name.orEmpty() + classlike.extra[ClashingDriIdentifier]?.toName())
-                is DAnnotation -> classlike.copy(name = classlike.name + classlike.extra[ClashingDriIdentifier]?.toName())
-                is DInterface -> classlike.copy(name = classlike.name + classlike.extra[ClashingDriIdentifier]?.toName())
-                is DEnum -> classlike.copy(name = classlike.name + classlike.extra[ClashingDriIdentifier]?.toName())
-            }
+    private fun <T> T.toClashedName() where T: Documentable, T: WithExtraProperties<T> =
+        name.orEmpty() + (extra[ClashingDriIdentifier]?.value?.joinToString(", ", "(", ")") { it.displayName } ?: "")
+
+    private fun <T> List<T>.renameClashingDocumentable(): List<T> where T: Documentable =
+        groupBy { it.dri }.values.flatMap { elements ->
+        if (elements.size == 1) elements else elements.mapNotNull { element ->
+            when(element) {
+                is DClass -> element.copy(name = element.toClashedName())
+                is DObject -> element.copy(name = element.toClashedName())
+                is DAnnotation -> element.copy(name = element.toClashedName())
+                is DInterface -> element.copy(name = element.toClashedName())
+                is DEnum -> element.copy(name = element.toClashedName())
+                is DFunction -> element.copy(name = element.toClashedName())
+                is DProperty -> element.copy(name = element.toClashedName())
+                is DTypeAlias -> element.copy(name = element.toClashedName())
+                else -> null
+            } as? T?
         }
     }
 
