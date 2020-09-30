@@ -1,0 +1,39 @@
+name: gh-pages-docs
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout dokka
+        uses: actions/checkout@v2
+        with:
+          path: dokka
+
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          working-directory: ./dokka
+          filters: |
+            docs_changed:
+              - 'docs/**'
+
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 11
+
+      - name: Get current dokka version
+        run: echo "::set-env name=DOKKA_VERSION::`./gradlew :properties | grep '^version:.*' | cut -d ' ' -f 2`"
+        if: steps.filter.outputs.docs_changed == 'true'
+        working-directory: ./dokka
+
+      - name: Publish docs to GH pages
+        run: ./gradlew mkdocsPublish -Pdokka_version=$DOKKA_VERSION --stacktrace
+        if: steps.filter.outputs.docs_changed == 'true'
+        working-directory: ./dokka
+        env:
+          GRGIT_USER: ${{ secrets.GITHUB_TOKEN }}
