@@ -211,15 +211,15 @@ class EnumsTest : AbstractCoreTest() {
                     platformHinted {
                         group {
                             group {
-                                group {
-                                    +"Sample docs for E1"
-                                }
+                                link { +"E1" }
+                                +"()"
                             }
                         }
                         group {
                             group {
-                                link { +"E1" }
-                                +"()"
+                                group {
+                                    +"Sample docs for E1"
+                                }
                             }
                         }
                     }

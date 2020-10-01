@@ -22,7 +22,6 @@ import org.jetbrains.dokka.plugability.query
 import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.utilities.htmlEscape
 import org.jetbrains.dokka.utilities.urlEncoded
-import java.io.File
 import java.net.URI
 
 open class HtmlRenderer(
@@ -278,12 +277,8 @@ open class HtmlRenderer(
                     val content = contentsForSourceSetDependent(divergentForPlatformDependent, pageContext)
 
                     consumer.onTagContentUnsafe {
-                        +createHTML().div("brief-with-platform-tags") {
-                            consumer.onTagContentUnsafe {
-                                +createHTML().div("inner-brief-with-platform-tags") {
-                                    consumer.onTagContentUnsafe { +it.key.first }
-                                }
-                            }
+                        +createHTML().div("with-platform-tags") {
+                            consumer.onTagContentUnsafe { +it.key.first }
 
                             consumer.onTagContentUnsafe {
                                 +createHTML().span("pull-right") {
@@ -296,7 +291,7 @@ open class HtmlRenderer(
                             }
                         }
                     }
-                    div("main-subrow") {
+                    div {
                         if (node.implicitlySourceSetHinted) {
                             buildPlatformDependent(divergentForPlatformDependent, pageContext)
                         } else {
@@ -366,64 +361,141 @@ open class HtmlRenderer(
             .filter { sourceSetRestriction == null || it.sourceSets.any { s -> s in sourceSetRestriction } }
             .takeIf { it.isNotEmpty() }
             ?.let {
-                val anchorName = node.dci.dri.first().anchor
-                withAnchor(anchorName) {
-                    div(classes = "table-row") {
-                        if (!style.contains(MultimoduleTable)) {
-                            attributes["data-filterable-current"] = node.sourceSets.joinToString(" ") {
-                                it.sourceSetIDs.merged.toString()
-                            }
-                            attributes["data-filterable-set"] = node.sourceSets.joinToString(" ") {
-                                it.sourceSetIDs.merged.toString()
+                when (pageContext) {
+                    is MultimoduleRootPage -> buildRowForMultiModule(node, it, pageContext, sourceSetRestriction, style)
+                    is ModulePage -> buildRowForModule(node, it, pageContext, sourceSetRestriction, style)
+                    else -> buildRowForContent(node, it, pageContext, sourceSetRestriction, style)
+                }
+            }
+    }
+
+    private fun FlowContent.buildRowForMultiModule(
+        contextNode: ContentGroup,
+        toRender: List<ContentNode>,
+        pageContext: ContentPage,
+        sourceSetRestriction: Set<DisplaySourceSet>?,
+        style: Set<Style>
+    ) {
+        val anchorName = contextNode.dci.dri.first().anchor
+        withAnchor(anchorName) {
+            div(classes = "table-row") {
+                div("main-subrow " + contextNode.style.joinToString(separator = " ")) {
+                    buildRowHeaderLink(toRender, pageContext, sourceSetRestriction, anchorName, "w-100")
+                    div {
+                        buildRowBriefSectionForDocs(toRender, pageContext, sourceSetRestriction)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun FlowContent.buildRowForModule(
+        contextNode: ContentGroup,
+        toRender: List<ContentNode>,
+        pageContext: ContentPage,
+        sourceSetRestriction: Set<DisplaySourceSet>?,
+        style: Set<Style>
+    ) {
+        val anchorName = contextNode.dci.dri.first().anchor
+        withAnchor(anchorName) {
+            div(classes = "table-row") {
+                addSourceSetFilteringAttributes(contextNode)
+                div {
+                    div("main-subrow " + contextNode.style.joinToString(separator = " ")) {
+                        buildRowHeaderLink(toRender, pageContext, sourceSetRestriction, anchorName)
+                        div("pull-right") {
+                            if (ContentKind.shouldBePlatformTagged(contextNode.dci.kind)) {
+                                createPlatformTags(contextNode, cssClasses = "no-gutters")
                             }
                         }
+                    }
+                    div {
+                        buildRowBriefSectionForDocs(toRender, pageContext, sourceSetRestriction)
+                    }
+                }
+            }
+        }
+    }
 
-                        it.filterIsInstance<ContentLink>().takeIf { it.isNotEmpty() }?.let {
-                            div("main-subrow " + node.style.joinToString(" ")) {
-                                it.filter { sourceSetRestriction == null || it.sourceSets.any { s -> s in sourceSetRestriction } }
-                                    .forEach {
-                                        span {
-                                            it.build(this, pageContext, sourceSetRestriction)
-                                            buildAnchor(anchorName)
-                                        }
-                                        if (ContentKind.shouldBePlatformTagged(node.dci.kind) && (node.sourceSets.size == 1 || pageContext is ModulePage))
-                                            createPlatformTags(node)
-                                    }
-                            }
-                        }
+    private fun FlowContent.buildRowForContent(
+        contextNode: ContentGroup,
+        toRender: List<ContentNode>,
+        pageContext: ContentPage,
+        sourceSetRestriction: Set<DisplaySourceSet>?,
+        style: Set<Style>
+    ) {
+        val anchorName = contextNode.dci.dri.first().anchor
+        withAnchor(anchorName) {
+            div(classes = "table-row") {
+                addSourceSetFilteringAttributes(contextNode)
+                div("main-subrow keyValue " + contextNode.style.joinToString(separator = " ")) {
+                    buildRowHeaderLink(toRender, pageContext, sourceSetRestriction, anchorName)
+                    div {
+                        toRender.filter { it !is ContentLink && !it.hasStyle(ContentStyle.RowTitle)}.takeIf { it.isNotEmpty() }?.let {
+                            if (ContentKind.shouldBePlatformTagged(contextNode.dci.kind) && contextNode.sourceSets.size == 1)
+                                createPlatformTags(contextNode)
 
-                        it.filter { it !is ContentLink }.takeIf { it.isNotEmpty() }?.let {
-                            if (pageContext is ModulePage || pageContext is MultimoduleRootPage) {
+                            div("title") {
                                 it.forEach {
-                                    span(classes = if (it.dci.kind == ContentKind.Comment) "brief-comment" else "") {
-                                        it.build(this, pageContext, sourceSetRestriction)
-                                    }
-                                }
-                            } else {
-                                div("platform-dependent-row keyValue") {
-                                    val title = it.filter { it.style.contains(ContentStyle.RowTitle) }
-                                    div {
-                                        title.forEach {
-                                            it.build(this, pageContext, sourceSetRestriction)
-                                        }
-                                    }
-                                    div("title") {
-                                        (it - title).forEach {
-                                            it.build(this, pageContext, sourceSetRestriction)
-                                        }
-                                    }
+                                    it.build(this, pageContext, sourceSetRestriction)
                                 }
                             }
                         }
                     }
                 }
             }
+        }
     }
 
-    private fun FlowContent.createPlatformTagBubbles(sourceSets: List<DisplaySourceSet>) {
+    private fun FlowContent.buildRowHeaderLink(
+        toRender: List<ContentNode>,
+        pageContext: ContentPage,
+        sourceSetRestriction: Set<DisplaySourceSet>?,
+        anchorName: String,
+        classes: String = ""
+    ) {
+        toRender.filter { it is ContentLink || it.hasStyle(ContentStyle.RowTitle) }.takeIf { it.isNotEmpty() }?.let {
+            div(classes) {
+                it.filter { sourceSetRestriction == null || it.sourceSets.any { s -> s in sourceSetRestriction } }
+                    .forEach {
+                        span("inline-flex") {
+                            it.build(this, pageContext, sourceSetRestriction)
+                            if(it is ContentLink) buildAnchor(anchorName)
+                        }
+                    }
+            }
+        }
+    }
+
+    private fun FlowContent.addSourceSetFilteringAttributes(
+        contextNode: ContentGroup,
+    ) {
+        attributes["data-filterable-current"] = contextNode.sourceSets.joinToString(" ") {
+            it.sourceSetIDs.merged.toString()
+        }
+        attributes["data-filterable-set"] = contextNode.sourceSets.joinToString(" ") {
+            it.sourceSetIDs.merged.toString()
+        }
+    }
+
+    private fun FlowContent.buildRowBriefSectionForDocs(
+        toRender: List<ContentNode>,
+        pageContext: ContentPage,
+        sourceSetRestriction: Set<DisplaySourceSet>?,
+    ){
+        toRender.filter { it !is ContentLink }.takeIf { it.isNotEmpty() }?.let {
+            it.forEach {
+                span(classes = if (it.dci.kind == ContentKind.Comment) "brief-comment" else "") {
+                    it.build(this, pageContext, sourceSetRestriction)
+                }
+            }
+        }
+    }
+
+    private fun FlowContent.createPlatformTagBubbles(sourceSets: List<DisplaySourceSet>, cssClasses: String = "") {
         if (shouldRenderSourceSetBubbles) {
-            div("platform-tags") {
-                sourceSets.forEach {
+            div("platform-tags " + cssClasses) {
+                sourceSets.sortedBy { it.name }.forEach {
                     div("platform-tag") {
                         when (it.platform.key) {
                             "common" -> classes = classes + "common-like"
@@ -440,12 +512,13 @@ open class HtmlRenderer(
 
     private fun FlowContent.createPlatformTags(
         node: ContentNode,
-        sourceSetRestriction: Set<DisplaySourceSet>? = null
+        sourceSetRestriction: Set<DisplaySourceSet>? = null,
+        cssClasses: String = ""
     ) {
         node.takeIf { sourceSetRestriction == null || it.sourceSets.any { s -> s in sourceSetRestriction } }?.let {
             createPlatformTagBubbles(node.sourceSets.filter {
                 sourceSetRestriction == null || it in sourceSetRestriction
-            })
+            }.sortedBy { it.name }, cssClasses)
         }
     }
 

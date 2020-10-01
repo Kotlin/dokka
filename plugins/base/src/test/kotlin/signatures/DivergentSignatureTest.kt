@@ -58,7 +58,7 @@ class DivergentSignatureTest : AbstractCoreTest() {
                 val content = writerPlugin.renderedContent("example/example/-clock/get-time.html")
 
                 assert(content.count() == 1)
-                assert(content.select("[data-filterable-current=example/common example/js example/jvm]").single().brief == "common")
+                assert(content.select("[data-filterable-current=example/common example/js example/jvm]").single().brief == "")
             }
         }
     }
@@ -75,8 +75,8 @@ class DivergentSignatureTest : AbstractCoreTest() {
             renderingStage = { _, _ ->
                 val content = writerPlugin.renderedContent("example/example/-clock/get-times-in-millis.html")
                 assert(content.count() == 2)
-                assert(content.select("[data-filterable-current=example/common example/jvm]").single().brief == "Time in minis common")
-                assert(content.select("[data-filterable-current=example/js]").single().brief == "JS implementation of getTimeInMillis js" )
+                assert(content.select("[data-filterable-current=example/common example/jvm]").single().brief == "Time in minis")
+                assert(content.select("[data-filterable-current=example/js]").single().brief == "JS implementation of getTimeInMillis" )
             }
         }
     }
@@ -93,9 +93,9 @@ class DivergentSignatureTest : AbstractCoreTest() {
             renderingStage = { _, _ ->
                 val content = writerPlugin.renderedContent("example/example/-clock/get-year.html")
                 assert(content.count() == 3)
-                assert(content.select("[data-filterable-current=example/jvm]").single().brief == "JVM custom kdoc jvm")
-                assert(content.select("[data-filterable-current=example/js]").single().brief == "JS custom kdoc js")
-                assert(content.select("[data-filterable-current=example/common]").single().brief == "common")
+                assert(content.select("[data-filterable-current=example/jvm]").single().brief == "JVM custom kdoc")
+                assert(content.select("[data-filterable-current=example/js]").single().brief == "JS custom kdoc")
+                assert(content.select("[data-filterable-current=example/common]").single().brief == "")
             }
         }
     }
@@ -104,5 +104,5 @@ class DivergentSignatureTest : AbstractCoreTest() {
             .let { Jsoup.parse(it) }.select("#content").single().select("div.divergent-group")
 
     private val Element.brief: String
-        get() = children().select(".brief-with-platform-tags").text()
+        get() = children().select("p").text()
 }
