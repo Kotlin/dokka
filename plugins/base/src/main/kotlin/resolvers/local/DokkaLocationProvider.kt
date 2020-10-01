@@ -8,6 +8,7 @@ import org.jetbrains.dokka.model.DisplaySourceSet
 import org.jetbrains.dokka.model.withDescendants
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
+import org.jetbrains.dokka.utilities.urlEncoded
 import java.util.*
 
 open class DokkaLocationProvider(
@@ -68,7 +69,7 @@ open class DokkaLocationProvider(
 
     private fun getLocalLocation(dri: Pair<DRI, DisplaySourceSet?>, context: PageNode?): String? =
         pagesIndex[dri]?.let { resolve(it, context) }
-            ?: anchorsIndex[dri]?.let { resolve(it, context) + "#${dri.first}" }
+            ?: anchorsIndex[dri]?.let { resolve(it, context) + "#${dri.first.toString().urlEncoded()}" }
 
 
     override fun pathToRoot(from: PageNode): String =
