@@ -21,6 +21,7 @@ import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.query
 import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.utilities.htmlEscape
+import org.jetbrains.dokka.utilities.urlEncoded
 import java.io.File
 import java.net.URI
 
@@ -365,7 +366,7 @@ open class HtmlRenderer(
             .filter { sourceSetRestriction == null || it.sourceSets.any { s -> s in sourceSetRestriction } }
             .takeIf { it.isNotEmpty() }
             ?.let {
-                val anchorName = node.dci.dri.first().toString()
+                val anchorName = node.dci.dri.first().anchor
                 withAnchor(anchorName) {
                     div(classes = "table-row") {
                         if (!style.contains(MultimoduleTable)) {
@@ -498,7 +499,7 @@ open class HtmlRenderer(
 
 
     override fun FlowContent.buildHeader(level: Int, node: ContentHeader, content: FlowContent.() -> Unit) {
-        val anchor = node.extra[SimpleAttr.SimpleAttrKey("anchor")]?.extraValue
+        val anchor = node.extra[SimpleAttr.SimpleAttrKey("anchor")]?.extraValue?.urlEncoded()
         val classes = node.style.joinToString { it.toString() }.toLowerCase()
         when (level) {
             1 -> h1(classes = classes) { withAnchor(anchor, content) }
@@ -759,3 +760,6 @@ private val PageNode.isNavigable: Boolean
     get() = this !is RendererSpecificPage || strategy != RenderingStrategy.DoNothing
 
 fun PropertyContainer<ContentNode>.extraHtmlAttributes() = allOfType<SimpleAttr>()
+
+private val DRI.anchor: String
+    get() = toString().urlEncoded()
