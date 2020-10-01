@@ -62,7 +62,7 @@ class PathSaver(val context: DokkaContext, val dokkaBasePlugin: DokkaBase) :
         val dris = DriExtractor.drisList.flatMap { dri -> sourceSets.map { sourceSet -> dri to sourceSet } }
             .map { (dri, sourceSet) ->
                 (dri to sourceSet) to locationProvider.resolve(dri, sourceSet)
-            }.toMap()
+            }.filterNot { it.second == null }.toMap()
 
         return RendererSpecificResourcePage(
             "pathsIndex.json",
