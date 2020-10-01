@@ -7,6 +7,7 @@ import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.psi.*
 import com.intellij.psi.impl.source.PsiClassReferenceType
 import com.intellij.psi.impl.source.PsiImmediateClassType
+import com.intellij.psi.javadoc.PsiDocComment
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.analysis.KotlinAnalysis
 import org.jetbrains.dokka.analysis.PsiDocumentableSource
@@ -35,6 +36,7 @@ import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.psiUtil.getChildOfType
 import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.utils.KotlinExceptionWithAttachments
+import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstance
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 import java.io.File
 
@@ -72,19 +74,7 @@ class DefaultPsiToDocumentableTranslator(
         return DModule(
             context.configuration.moduleName,
             psiFiles.mapNotNull { it.safeAs<PsiJavaFile>() }.groupBy { it.packageName }.map { (packageName, psiFiles) ->
-                val dri = DRI(packageName = packageName)
-                DPackage(
-                    dri,
-                    emptyList(),
-                    emptyList(),
-                    psiFiles.flatMap { psiFile ->
-                        psiFile.classes.map { docParser.parseClasslike(it, dri) }
-                    },
-                    emptyList(),
-                    emptyMap(),
-                    null,
-                    setOf(sourceSet)
-                )
+                docParser.parsePackage(packageName, psiFiles)
             },
             emptyMap(),
             null,
@@ -127,7 +117,28 @@ class DefaultPsiToDocumentableTranslator(
 
         private fun <T> T.toSourceSetDependent() = mapOf(sourceSetData to this)
 
-        fun parseClasslike(psi: PsiClass, parent: DRI): DClasslike = with(psi) {
+        fun parsePackage(packageName: String, psiFiles: List<PsiJavaFile>): DPackage {
+            val dri = DRI(packageName = packageName)
+            val documentation = psiFiles.firstOrNull { it.name == "package-info.java" }?.let {
+                javadocParser.parseDocumentation(it).toSourceSetDependent()
+            } ?: emptyMap()
+
+            return DPackage(
+                dri,
+                emptyList(),
+                emptyList(),
+                psiFiles.flatMap { psiFile ->
+                    psiFile.classes.map { parseClasslike(it, dri) }
+                },
+                emptyList(),
+                documentation,
+                null,
+                setOf(sourceSetData)
+            )
+        }
+
+
+        private fun parseClasslike(psi: PsiClass, parent: DRI): DClasslike = with(psi) {
             val dri = parent.withClass(name.toString())
             val ancestryTree = mutableListOf<AncestryLevel>()
             val superMethodsKeys = hashSetOf<Int>()

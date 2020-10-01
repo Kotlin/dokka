@@ -88,8 +88,7 @@ class JavadocParser(
             return if (indexOfSuperClass >= 0) superMethodDocumentation[indexOfSuperClass]
             else superMethodDocumentation.first()
         }
-
-        return null
+        return element.children.firstIsInstanceOrNull<PsiDocComment>()
     }
 
     /**
