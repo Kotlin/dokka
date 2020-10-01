@@ -84,9 +84,6 @@ class ContentForParamsTest : AbstractCoreTest() {
                     }
                     divergentGroup {
                         divergentInstance {
-                            before {
-                                group { pWrapped("comment to function") }
-                            }
                             divergent {
                                 bareSignature(
                                     emptyMap(),
@@ -97,6 +94,9 @@ class ContentForParamsTest : AbstractCoreTest() {
                                     null,
                                     "abc" to ParamAttributes(emptyMap(), emptySet(), "String")
                                 )
+                            }
+                            after {
+                                group { pWrapped("comment to function") }
                             }
                         }
                     }
@@ -129,10 +129,6 @@ class ContentForParamsTest : AbstractCoreTest() {
                     }
                     divergentGroup {
                         divergentInstance {
-                            before {
-                                unnamedTag("Author") { group {  +"Kordyjan" } }
-                                unnamedTag("Since") { group {  +"0.11" } }
-                            }
                             divergent {
                                 bareSignature(
                                     emptyMap(),
@@ -143,6 +139,10 @@ class ContentForParamsTest : AbstractCoreTest() {
                                     null,
                                     "abc" to ParamAttributes(emptyMap(), emptySet(), "String")
                                 )
+                            }
+                            after {
+                                unnamedTag("Author") { group {  +"Kordyjan" } }
+                                unnamedTag("Since") { group {  +"0.11" } }
                             }
                         }
                     }
@@ -176,11 +176,6 @@ class ContentForParamsTest : AbstractCoreTest() {
                     }
                     divergentGroup {
                         divergentInstance {
-                            before {
-                                group { pWrapped("comment to function") }
-                                unnamedTag("Author") { group { +"Kordyjan" } }
-                                unnamedTag("Since") { group { +"0.11" } }
-                            }
                             divergent {
                                 bareSignature(
                                     emptyMap(),
@@ -191,6 +186,11 @@ class ContentForParamsTest : AbstractCoreTest() {
                                     null,
                                     "abc" to ParamAttributes(emptyMap(), emptySet(), "String")
                                 )
+                            }
+                            after {
+                                group { pWrapped("comment to function") }
+                                unnamedTag("Author") { group { +"Kordyjan" } }
+                                unnamedTag("Since") { group { +"0.11" } }
                             }
                         }
                     }
@@ -223,7 +223,18 @@ class ContentForParamsTest : AbstractCoreTest() {
                     }
                     divergentGroup {
                         divergentInstance {
-                            before {
+                            divergent {
+                                bareSignature(
+                                    emptyMap(),
+                                    "",
+                                    "",
+                                    emptySet(),
+                                    "function",
+                                    null,
+                                    "abc" to ParamAttributes(emptyMap(), emptySet(), "String")
+                                )
+                            }
+                            after {
                                 group { pWrapped("comment to function") }
                                 header(2) { +"Parameters" }
                                 group {
@@ -236,17 +247,6 @@ class ContentForParamsTest : AbstractCoreTest() {
                                         }
                                     }
                                 }
-                            }
-                            divergent {
-                                bareSignature(
-                                    emptyMap(),
-                                    "",
-                                    "",
-                                    emptySet(),
-                                    "function",
-                                    null,
-                                    "abc" to ParamAttributes(emptyMap(), emptySet(), "String")
-                                )
                             }
                         }
                     }
@@ -281,28 +281,6 @@ class ContentForParamsTest : AbstractCoreTest() {
                     }
                     divergentGroup {
                         divergentInstance {
-                            before {
-                                group { group { group { +"comment to function" } } }
-                                header(2) { +"Parameters" }
-                                group {
-                                    platformHinted {
-                                        table {
-                                            group {
-                                                +"first"
-                                                group { group {  +"comment to first param" } }
-                                            }
-                                            group {
-                                                +"second"
-                                                group { group {  +"comment to second param" } }
-                                            }
-                                            group {
-                                                +"third"
-                                                group { group {  +"comment to third param" } }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
                             divergent {
                                 bareSignature(
                                     emptyMap(), "", "", emptySet(), "function", null,
@@ -310,6 +288,28 @@ class ContentForParamsTest : AbstractCoreTest() {
                                     "second" to ParamAttributes(emptyMap(), emptySet(), "Int"),
                                     "third" to ParamAttributes(emptyMap(), emptySet(), "Double")
                                 )
+                            }
+                            after {
+                                group { group { group { +"comment to function" } } }
+                                header(2) { +"Parameters" }
+                                group {
+                                    platformHinted {
+                                        table {
+                                            group {
+                                                +"first"
+                                                group { group { +"comment to first param" } }
+                                            }
+                                            group {
+                                                +"second"
+                                                group { group { +"comment to second param" } }
+                                            }
+                                            group {
+                                                +"third"
+                                                group { group { +"comment to third param" } }
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
@@ -343,7 +343,15 @@ class ContentForParamsTest : AbstractCoreTest() {
                     }
                     divergentGroup {
                         divergentInstance {
-                            before {
+                            divergent {
+                                bareSignature(
+                                    emptyMap(), "", "", emptySet(), "function", null,
+                                    "first" to ParamAttributes(emptyMap(), emptySet(), "String"),
+                                    "second" to ParamAttributes(emptyMap(), emptySet(), "Int"),
+                                    "third" to ParamAttributes(emptyMap(), emptySet(), "Double")
+                                )
+                            }
+                            after {
                                 header(2) { +"Parameters" }
                                 group {
                                     platformHinted {
@@ -363,14 +371,6 @@ class ContentForParamsTest : AbstractCoreTest() {
                                         }
                                     }
                                 }
-                            }
-                            divergent {
-                                bareSignature(
-                                    emptyMap(), "", "", emptySet(), "function", null,
-                                    "first" to ParamAttributes(emptyMap(), emptySet(), "String"),
-                                    "second" to ParamAttributes(emptyMap(), emptySet(), "Int"),
-                                    "third" to ParamAttributes(emptyMap(), emptySet(), "Double")
-                                )
                             }
                         }
                     }
@@ -404,7 +404,19 @@ class ContentForParamsTest : AbstractCoreTest() {
                     }
                     divergentGroup {
                         divergentInstance {
-                            before {
+                            divergent {
+                                bareSignatureWithReceiver(
+                                    emptyMap(),
+                                    "",
+                                    "",
+                                    emptySet(),
+                                    "String",
+                                    "function",
+                                    null,
+                                    "abc" to ParamAttributes(emptyMap(), emptySet(), "String")
+                                )
+                            }
+                            after {
                                 group { pWrapped("comment to function") }
                                 header(2) { +"Parameters" }
                                 group {
@@ -421,18 +433,6 @@ class ContentForParamsTest : AbstractCoreTest() {
                                         }
                                     }
                                 }
-                            }
-                            divergent {
-                                bareSignatureWithReceiver(
-                                    emptyMap(),
-                                    "",
-                                    "",
-                                    emptySet(),
-                                    "String",
-                                    "function",
-                                    null,
-                                    "abc" to ParamAttributes(emptyMap(), emptySet(), "String")
-                                )
                             }
                         }
                     }
@@ -466,7 +466,15 @@ class ContentForParamsTest : AbstractCoreTest() {
                     }
                     divergentGroup {
                         divergentInstance {
-                            before {
+                            divergent {
+                                bareSignature(
+                                    emptyMap(), "", "", emptySet(), "function", null,
+                                    "first" to ParamAttributes(emptyMap(), emptySet(), "String"),
+                                    "second" to ParamAttributes(emptyMap(), emptySet(), "Int"),
+                                    "third" to ParamAttributes(emptyMap(), emptySet(), "Double")
+                                )
+                            }
+                            after {
                                 group { group { group { +"comment to function" } } }
                                 header(2) { +"Parameters" }
                                 group {
@@ -483,14 +491,6 @@ class ContentForParamsTest : AbstractCoreTest() {
                                         }
                                     }
                                 }
-                            }
-                            divergent {
-                                bareSignature(
-                                    emptyMap(), "", "", emptySet(), "function", null,
-                                    "first" to ParamAttributes(emptyMap(), emptySet(), "String"),
-                                    "second" to ParamAttributes(emptyMap(), emptySet(), "Int"),
-                                    "third" to ParamAttributes(emptyMap(), emptySet(), "Double")
-                                )
                             }
                         }
                     }
@@ -527,7 +527,15 @@ class ContentForParamsTest : AbstractCoreTest() {
                     }
                     divergentGroup {
                         divergentInstance {
-                            before {
+                            divergent {
+                                bareSignature(
+                                    emptyMap(), "", "", emptySet(), "function", null,
+                                    "first" to ParamAttributes(emptyMap(), emptySet(), "String"),
+                                    "second" to ParamAttributes(emptyMap(), emptySet(), "Int"),
+                                    "third" to ParamAttributes(emptyMap(), emptySet(), "Double")
+                                )
+                            }
+                            after {
                                 group { pWrapped("comment to function") }
                                 unnamedTag("Author") { group {  +"Kordyjan" } }
                                 unnamedTag("Since") { group {  +"0.11" } }
@@ -551,14 +559,6 @@ class ContentForParamsTest : AbstractCoreTest() {
                                         }
                                     }
                                 }
-                            }
-                            divergent {
-                                bareSignature(
-                                    emptyMap(), "", "", emptySet(), "function", null,
-                                    "first" to ParamAttributes(emptyMap(), emptySet(), "String"),
-                                    "second" to ParamAttributes(emptyMap(), emptySet(), "Int"),
-                                    "third" to ParamAttributes(emptyMap(), emptySet(), "Double")
-                                )
                             }
                         }
                     }

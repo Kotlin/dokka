@@ -53,6 +53,22 @@ export class DokkaFuzzyFilterComponent extends Select {
             })
         }
     }
+
+    _showPopup(){
+        if(this.props.shouldShowPopup){
+            if (!this.node) {
+                return;
+            }
+    
+            const shownData = this.getListItems(this.filterValue());
+            this.setState({
+                showPopup: this.props.shouldShowPopup(this.filterValue()),
+                shownData
+            })
+        } else {
+            super._showPopup()
+        }
+    }
     
     getListItems(rawFilterString: string, _: Option[]) {
         const filterPhrase = (rawFilterString ? rawFilterString : '').trim()
