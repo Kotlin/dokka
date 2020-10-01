@@ -212,7 +212,6 @@ class ConstructorsSignaturesTest : AbstractCoreTest() {
                     group {
                         header(1) { +"SomeClass" }
                         platformHinted {
-                            skipAllNotMatching()
                             group {
                                 +"class"
                                 link { +"SomeClass" }
@@ -220,6 +219,7 @@ class ConstructorsSignaturesTest : AbstractCoreTest() {
                                 group { link { +"String" } }
                                 +")"
                             }
+                            skipAllNotMatching()
                         }
                     }
                     group {
@@ -229,11 +229,6 @@ class ConstructorsSignaturesTest : AbstractCoreTest() {
                                 link { +"SomeClass" }
                                 platformHinted {
                                     group {
-                                        group {
-                                            group { +"ctor comment" }
-                                        }
-                                    }
-                                    group {
                                         +"fun"
                                         link { +"SomeClass" }
                                         +"(a:"
@@ -241,6 +236,11 @@ class ConstructorsSignaturesTest : AbstractCoreTest() {
                                             link { +"String" }
                                         }
                                         +")"
+                                    }
+                                    group {
+                                        group {
+                                            group { +"ctor comment" }
+                                        }
                                     }
                                 }
                             }

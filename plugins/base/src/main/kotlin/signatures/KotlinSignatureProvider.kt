@@ -63,7 +63,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
             contentBuilder.contentFor(
                 e,
                 ContentKind.Symbol,
-                setOf(TextStyle.Monospace, TextStyle.Block) + e.stylesIfDeprecated(it),
+                setOf(TextStyle.Monospace) + e.stylesIfDeprecated(it),
                 sourceSets = setOf(it)
             ) {
                 group(styles = setOf(TextStyle.Block)) {

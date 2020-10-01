@@ -289,14 +289,14 @@ open class PageContentBuilder(
         }
 
         fun firstSentenceComment(
-            content: Description,
+            content: DocTag,
             kind: Kind = ContentKind.Comment,
             sourceSets: Set<DokkaSourceSet> = mainSourcesetData,
             styles: Set<Style> = mainStyles,
             extra: PropertyContainer<ContentNode> = mainExtra
         ){
             val builtDescription = commentsConverter.buildContent(
-                content.root,
+                content,
                 DCI(mainDRI, kind),
                 sourceSets
             )
