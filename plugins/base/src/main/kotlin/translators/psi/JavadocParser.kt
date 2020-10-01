@@ -14,6 +14,7 @@ import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.model.doc.Deprecated
 import org.jetbrains.dokka.utilities.DokkaLogger
+import org.jetbrains.kotlin.backend.common.onlyIf
 import org.jetbrains.kotlin.idea.refactoring.fqName.getKotlinFqName
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
@@ -142,7 +143,7 @@ class JavadocParser(
     }
 
     private fun PsiDocComment.getDescription(): Description? {
-        val nonEmptyDescriptionElements = descriptionElements.filter { it.text.isNotBlank() }
+        val nonEmptyDescriptionElements = descriptionElements.asIterable()
         return convertJavadocElements(nonEmptyDescriptionElements).takeIf { it.isNotEmpty() }?.let {
             Description(wrapTagIfNecessary(it))
         }
@@ -156,8 +157,11 @@ class JavadocParser(
             is PsiInlineDocTag -> convertInlineDocTag(this)
             is PsiDocParamRef -> toDocumentationLinkString()
             is PsiDocTagValue,
-            is LeafPsiElement -> (if ((prevSibling as? PsiDocToken)?.isLeadingAsterisk() == true) text?.drop(1) else text)
-                ?.takeUnless { it.isBlank() }
+            is LeafPsiElement -> text.let {
+                if ((prevSibling as? PsiDocToken)?.isLeadingAsterisk() == true) it?.drop(1) else it
+            }.let {
+                if ((nextSibling as? PsiDocToken)?.isLeadingAsterisk() == true) it?.dropLastWhile { it == ' ' } else it
+            }
             else -> null
         }
 
@@ -196,7 +200,9 @@ class JavadocParser(
         }
 
         private fun createBlock(element: Element, insidePre: Boolean = false): DocTag? {
-            val children = element.childNodes().mapNotNull { convertHtmlNode(it, insidePre = insidePre || element.tagName() == "pre") }
+            val children = element.childNodes()
+                .mapNotNull { convertHtmlNode(it, insidePre = insidePre || element.tagName() == "pre") }
+
             fun ifChildrenPresent(operation: () -> DocTag): DocTag? {
                 return if (children.isNotEmpty()) operation() else null
             }
@@ -219,23 +225,33 @@ class JavadocParser(
         }
 
         private fun convertHtmlNode(node: Node, insidePre: Boolean = false): DocTag? = when (node) {
-            is TextNode -> (if (insidePre) node.wholeText else node.text().takeIf { it.isNotBlank() })?.let { Text(body = it) }
+            is TextNode -> (if (insidePre) node.wholeText else node.text()
+                .takeIf { it.isNotBlank() })?.let { Text(body = it) }
             is Element -> createBlock(node)
             else -> null
         }
 
         override fun invoke(elements: Iterable<PsiElement>, asParagraph: Boolean): List<DocTag> =
-            Jsoup.parseBodyFragment(elements.mapNotNull { it.stringify() }.joinToString("\n", prefix = if (asParagraph) "<p>" else ""))
-                .body().childNodes().mapNotNull { convertHtmlNode(it) }
+            Jsoup.parseBodyFragment(elements.mapNotNull { it.stringify() }.dropWhile { it.isBlank() }
+                .dropLastWhile { it.isBlank() }.joinToString(
+                    "",
+                    prefix = if (asParagraph) "<p>" else "",
+                    postfix = if (asParagraph) "</p>" else ""
+                )
+            ).body().childNodes().mapNotNull { convertHtmlNode(it) }
     }
 
     private fun PsiDocTag.contentElements(): List<PsiElement> =
         dataElements.mapNotNull { it.takeIf { it is PsiDocToken && it.text.isNotBlank() } }
 
-    private fun PsiDocTag.authorContentElements(): List<PsiElement> =
-        dataElements.mapNotNull { it.takeIf { it.text.isNotBlank() } }
+    private fun PsiDocTag.authorContentElements(): List<PsiElement> = listOf(
+        dataElements[0],
+        dataElements[0].nextSibling,
+        *dataElements.drop(1).toTypedArray()
+    )
 
-    private fun convertJavadocElements(elements: Iterable<PsiElement>, asParagraph: Boolean = true): List<DocTag> = Parse()(elements, asParagraph)
+    private fun convertJavadocElements(elements: Iterable<PsiElement>, asParagraph: Boolean = true): List<DocTag> =
+        Parse()(elements, asParagraph)
 
     private fun PsiDocToken.isSharpToken() = tokenType.toString() == "DOC_TAG_VALUE_SHARP_TOKEN"
 
@@ -259,7 +275,7 @@ class JavadocParser(
 
     private fun PsiElement.defaultLabel() = children.firstOrNull {
         it is PsiDocToken && it.text.isNotBlank() && !it.isSharpToken()
-    }  ?: this
+    } ?: this
 
     private fun PsiDocTag.linkElement(): PsiElement? =
         valueElement ?: dataElements.firstOrNull { it !is PsiWhiteSpace }
