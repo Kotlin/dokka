@@ -1,6 +1,7 @@
 const {join, resolve} = require('path');
 
 const ringUiWebpackConfig = require('@jetbrains/ring-ui/webpack.config');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 const pkgConfig = require('./package.json').config;
 
@@ -35,7 +36,7 @@ const webpackConfig = () => ({
       {
         test: /\.s[ac]ss$/i,
         use: [
-          'style-loader',
+          MiniCssExtractPlugin.loader,
           'css-loader',
           'sass-loader',
         ],
@@ -55,7 +56,14 @@ const webpackConfig = () => ({
       }
     ]
   },
-  plugins: [],
+  plugins: [
+    new MiniCssExtractPlugin({
+      // Options similar to the same options in webpackOptions.output
+      // both options are optional
+      filename: '[name].css',
+      chunkFilename: '[id].css',
+    }),
+  ],
   output: {
     path: __dirname + '/dist/'
   }
