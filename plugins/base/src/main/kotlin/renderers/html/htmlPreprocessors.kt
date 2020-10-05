@@ -62,7 +62,8 @@ object NavigationPageInstaller : PageTransformer {
             name = "scripts/navigation-pane.json",
             children = emptyList(),
             strategy = RenderingStrategy.LocationResolvableWrite { resolver ->
-                mapper.writeValueAsString(nodes.withDescendants().map { NavigationNodeView.from(it, resolver(it.dri, it.sourceSets)) })
+                mapper.writeValueAsString(
+                    nodes.withDescendants().map { NavigationNodeView.from(it, resolver(it.dri, it.sourceSets)) })
             })
 
         return input.modified(
@@ -88,27 +89,53 @@ object NavigationPageInstaller : PageTransformer {
         }.sortedBy { it.name.toLowerCase() }
 }
 
-object ResourceInstaller : PageTransformer {
-    override fun invoke(input: RootPageNode) = input.modified(children = input.children + resourcePages)
-
-    private val resourcePages = listOf("styles", "scripts", "images").map {
-        RendererSpecificResourcePage(it, emptyList(), RenderingStrategy.Copy("/dokka/$it"))
+object ScriptsInstaller : PageTransformer {
+    override fun invoke(input: RootPageNode): RootPageNode {
+        return input.modified(
+            children = input.children + RendererSpecificResourcePage(
+                "scripts",
+                emptyList(),
+                RenderingStrategy.Copy("/dokka/scripts")
+            )
+        ).transformContentPagesTree {
+            it.modified(
+                embeddedResources = it.embeddedResources + listOf(
+                    "scripts/navigationLoader.js",
+                    "scripts/platformContentHandler.js",
+                    "scripts/sourceset_dependencies.js",
+                    "scripts/clipboard.js",
+                )
+            )
+        }
     }
 }
 
-object StyleAndScriptsAppender : PageTransformer {
-    override fun invoke(input: RootPageNode) = input.transformContentPagesTree {
-        it.modified(
-            embeddedResources = it.embeddedResources + listOf(
-                "styles/style.css",
-                "scripts/navigationLoader.js",
-                "scripts/platformContentHandler.js",
-                "scripts/sourceset_dependencies.js",
-                "scripts/clipboard.js",
-                "styles/jetbrains-mono.css"
+object StylesInstaller : PageTransformer {
+    override fun invoke(input: RootPageNode): RootPageNode =
+        input.modified(
+            children = input.children + RendererSpecificResourcePage(
+                "styles",
+                emptyList(),
+                RenderingStrategy.Copy("/dokka/styles")
             )
+        ).transformContentPagesTree {
+            it.modified(
+                embeddedResources = it.embeddedResources + listOf(
+                    "styles/style.css",
+                    "styles/jetbrains-mono.css"
+                )
+            )
+        }
+}
+
+object AssetsInstaller : PageTransformer {
+    override fun invoke(input: RootPageNode) = input.modified(
+        children = input.children + RendererSpecificResourcePage(
+            "images",
+            emptyList(),
+            RenderingStrategy.Copy("/dokka/images")
         )
-    }
+    )
 }
 
 class SourcesetDependencyAppender(val context: DokkaContext) : PageTransformer {
@@ -118,11 +145,13 @@ class SourcesetDependencyAppender(val context: DokkaContext) : PageTransformer {
         }.toMap()
 
         fun createDependenciesJson(): String = "sourceset_dependencies = '{${
-        dependenciesMap.entries.joinToString(", ") {
-            "\"${it.key}\": [${it.value.joinToString(",") {
-                "\"$it\""
-            }}]"
-        }
+            dependenciesMap.entries.joinToString(", ") {
+                "\"${it.key}\": [${
+                    it.value.joinToString(",") {
+                        "\"$it\""
+                    }
+                }]"
+            }
         }}'"
 
         val deps = RendererSpecificResourcePage(
