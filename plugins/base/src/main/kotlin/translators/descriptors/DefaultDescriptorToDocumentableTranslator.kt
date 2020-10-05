@@ -633,7 +633,7 @@ private class DokkaDescriptorVisitor(
         DParameter(
             dri = parent.dri.copy(target = PointingToCallableParameters(index)),
             name = descriptor.name.asString(),
-            type = descriptor.type.toBound(),
+            type = descriptor.varargElementType?.toBound() ?: descriptor.type.toBound(),
             expectPresentInSet = null,
             documentation = descriptor.resolveDescriptorData(),
             sourceSets = setOf(sourceSet),
