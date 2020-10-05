@@ -205,6 +205,7 @@ open class CommonmarkRenderer(
                 val builder = StringBuilder()
                 it.children.forEach {
                     builder.append("| ")
+                    builder.append("<a name=\"${it.dci.dri.first()}\"></a>")
                     builder.append(
                         buildString { it.build(this, pageContext) }.replace(
                             Regex("#+ "),
