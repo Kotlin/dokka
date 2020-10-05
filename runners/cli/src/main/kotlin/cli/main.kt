@@ -19,7 +19,7 @@ class GlobalArguments(args: Array<String>) : DokkaConfiguration {
         ArgType.String,
         description = "Name of the documentation module",
         fullName = "moduleName"
-    ).required()
+    ).default(DokkaDefaults.moduleName)
 
     override val moduleName: String by _moduleName
 
