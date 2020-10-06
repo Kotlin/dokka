@@ -367,7 +367,7 @@ class DefaultPsiToDocumentableTranslator(
                 false,
                 psi.additionalExtras().let {
                     PropertyContainer.withAll(
-                        InheritedFunction(inheritedFrom.toSourceSetDependent()),
+                        InheritedMember(inheritedFrom.toSourceSetDependent()),
                         it.toSourceSetDependent().toAdditionalModifiers(),
                         (psi.annotations.toList()
                             .toListOfAnnotations() + it.toListOfAnnotations()).toSourceSetDependent()

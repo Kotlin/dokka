@@ -163,7 +163,7 @@ data class JavadocFunctionNode(
 ) : AnchorableJavadocNode(name, dri), WithJavadocExtra<DFunction>, WithBrief {
     val isInherited: Boolean
         get() {
-            val extra = extra[InheritedFunction]
+            val extra = extra[InheritedMember]
             return extra?.inheritedFrom?.keys?.firstOrNull { it.analysisPlatform == Platform.jvm }?.let { jvm ->
                 extra.isInherited(jvm)
             } ?: false

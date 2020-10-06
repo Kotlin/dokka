@@ -16,6 +16,7 @@ import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
+import org.jetbrains.dokka.base.DokkaBaseConfiguration
 import org.jetbrains.dokka.base.resolvers.anchors.SymbolAnchorHint
 import org.jetbrains.dokka.base.transformers.documentables.ClashingDriIdentifier
 
@@ -25,11 +26,14 @@ private val specialTags: Set<KClass<out TagWrapper>> =
     setOf(Property::class, Description::class, Constructor::class, Receiver::class, Param::class, See::class)
 
 open class DefaultPageCreator(
+    configuration: DokkaBaseConfiguration?,
     commentsToContentConverter: CommentsToContentConverter,
     signatureProvider: SignatureProvider,
     val logger: DokkaLogger
 ) {
     protected open val contentBuilder = PageContentBuilder(commentsToContentConverter, signatureProvider, logger)
+
+    protected val separateInheritedMembers = configuration?.separateInheritedMembers ?: DokkaBaseConfiguration.separateInheritedMembersDefault
 
     open fun pageForModule(m: DModule) =
         ModulePageNode(m.name.ifEmpty { "<root>" }, contentForModule(m), m, m.packages.map(::pageForPackage))
@@ -56,7 +60,7 @@ open class DefaultPageCreator(
             constructors.map(::pageForFunction) +
                     c.classlikes.renameClashingDocumentable().map(::pageForClasslike) +
                     c.filteredFunctions.renameClashingDocumentable().map(::pageForFunction) +
-                    c.properties.renameClashingDocumentable().mapNotNull(::pageForProperty) +
+                    c.filteredProperties.renameClashingDocumentable().mapNotNull(::pageForProperty) +
                     if (c is DEnum) c.entries.map(::pageForEnumEntry) else emptyList()
 
         )
@@ -86,12 +90,17 @@ open class DefaultPageCreator(
 
     open fun pageForProperty(p: DProperty): MemberPageNode? = MemberPageNode(p.nameAfterClash(), contentForProperty(p), setOf(p.dri), p)
 
+    private fun <T> T.isInherited(): Boolean where T: Documentable, T: WithExtraProperties<T> =
+        sourceSets.all { sourceSet -> extra[InheritedMember]?.isInherited(sourceSet) == true }
+
     private val WithScope.filteredFunctions: List<DFunction>
-        get() = functions.mapNotNull { function ->
-            function.takeIf {
-                it.sourceSets.any { sourceSet -> it.extra[InheritedFunction]?.isInherited(sourceSet) != true }
-            }
-        }
+        get() = functions.filterNot { it.isInherited() }
+
+    private val WithScope.filteredProperties: List<DProperty>
+        get() = properties.filterNot { it.isInherited() }
+
+    private fun <T> Collection<T>.splitInherited(): Pair<List<T>, List<T>> where T: Documentable, T: WithExtraProperties<T> =
+        partition { it.isInherited() }
 
     protected open fun contentForModule(m: DModule) = contentBuilder.contentFor(m) {
         group(kind = ContentKind.Cover) {
@@ -153,26 +162,16 @@ open class DefaultPageCreator(
             (s as? DPackage)?.typealiases ?: emptyList()
         ).flatten()
         divergentBlock("Types", types, ContentKind.Classlikes, extra = mainExtra + SimpleAttr.header("Types"))
-        divergentBlock(
-            "Functions",
-            s.functions.sorted(),
-            ContentKind.Functions,
-            extra = mainExtra + SimpleAttr.header("Functions")
-        )
-        block(
-            "Properties",
-            2,
-            ContentKind.Properties,
-            s.properties,
-            sourceSets.toSet(),
-            needsAnchors = true,
-            extra = mainExtra + SimpleAttr.header("Properties")
-        ) {
-            link(it.name, it.dri, kind = ContentKind.Main)
-            sourceSetDependentHint(it.dri, it.sourceSets.toSet(), kind = ContentKind.SourceSetDependentHint, extra = PropertyContainer.empty()) {
-                +buildSignature(it)
-                contentForBrief(it)
-            }
+        if (separateInheritedMembers) {
+            val (inheritedFunctions, memberFunctions) = s.functions.splitInherited()
+            val (inheritedProperties, memberProperties) = s.properties.splitInherited()
+            propertiesBlock("Properties", memberProperties, sourceSets)
+            propertiesBlock("Inherited properties", inheritedProperties, sourceSets)
+            functionsBlock("Functions", memberFunctions)
+            functionsBlock("Inherited functions", inheritedFunctions)
+        } else {
+            functionsBlock("Functions", s.functions)
+            propertiesBlock("Properties", s.properties, sourceSets)
         }
         s.safeAs<WithExtraProperties<Documentable>>()?.let { it.extra[InheritorsInfo] }?.let { inheritors ->
             val map = inheritors.value.filter { it.value.isNotEmpty() }
@@ -533,6 +532,30 @@ open class DefaultPageCreator(
                     +contentForDescription(d)
                     +contentForComments(d)
                 }
+            }
+        }
+    }
+
+    private fun DocumentableContentBuilder.functionsBlock(name: String, list: Collection<DFunction>) = divergentBlock(
+        name,
+        list.sorted(),
+        ContentKind.Functions,
+        extra = mainExtra + SimpleAttr.header(name)
+    )
+    private fun DocumentableContentBuilder.propertiesBlock(name: String, list: Collection<DProperty>, sourceSets: Set<DokkaSourceSet>) {
+        block(
+            name,
+            2,
+            ContentKind.Properties,
+            list,
+            sourceSets,
+            needsAnchors = true,
+            extra = mainExtra + SimpleAttr.header(name)
+        ) {
+            link(it.name, it.dri, kind = ContentKind.Main)
+            sourceSetDependentHint(it.dri, it.sourceSets.toSet(), kind = ContentKind.SourceSetDependentHint) {
+                +buildSignature(it)
+                contentForBrief(it)
             }
         }
     }
