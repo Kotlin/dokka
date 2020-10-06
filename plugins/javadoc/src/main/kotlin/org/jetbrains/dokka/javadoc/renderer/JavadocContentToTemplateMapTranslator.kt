@@ -9,7 +9,7 @@ import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.parent
 import org.jetbrains.dokka.links.sureClassNames
 import org.jetbrains.dokka.model.ImplementedInterfaces
-import org.jetbrains.dokka.model.InheritedFunction
+import org.jetbrains.dokka.model.InheritedMember
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.utilities.formatToEndWithHtml
@@ -224,7 +224,7 @@ internal class JavadocContentToTemplateMapTranslator(
         }
 
         private fun templateMapForInheritedMethod(node: JavadocFunctionNode): TemplateMap {
-            val inheritedFrom = node.extra[InheritedFunction]?.inheritedFrom
+            val inheritedFrom = node.extra[InheritedMember]?.inheritedFrom
             return mapOf(
                 "inheritedFrom" to inheritedFrom?.entries?.firstOrNull { it.key.analysisPlatform == Platform.jvm }?.value?.displayable() // TODO: REMOVE HARDCODED JVM DEPENDENCY
                     .orEmpty(),
