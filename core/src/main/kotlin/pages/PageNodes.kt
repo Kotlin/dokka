@@ -30,7 +30,7 @@ interface ContentPage : PageNode {
     ): ContentPage
 }
 
-abstract class RootPageNode : PageNode {
+abstract class RootPageNode(val forceTopLevelName: Boolean = false) : PageNode {
     val parentMap: Map<PageNode, PageNode> by lazy {
         IdentityHashMap<PageNode, PageNode>().apply {
             fun process(parent: PageNode) {
@@ -157,18 +157,18 @@ class MemberPageNode(
 
 
 class MultimoduleRootPageNode(
-    override val name: String,
     override val dri: Set<DRI>,
     override val content: ContentNode,
     override val embeddedResources: List<String> = emptyList()
-) : RootPageNode(), MultimoduleRootPage {
+) : RootPageNode(forceTopLevelName = true), MultimoduleRootPage {
+    override val name = ""
 
     override val children: List<PageNode> = emptyList()
 
     override val documentable: Documentable? = null
 
     override fun modified(name: String, children: List<PageNode>): RootPageNode =
-        MultimoduleRootPageNode(name, dri, content, embeddedResources)
+        MultimoduleRootPageNode(dri, content, embeddedResources)
 
     override fun modified(
         name: String,
@@ -178,7 +178,7 @@ class MultimoduleRootPageNode(
         children: List<PageNode>
     ) =
         if (name == this.name && content === this.content && embeddedResources === this.embeddedResources && children shallowEq this.children) this
-        else MultimoduleRootPageNode(name, dri, content, embeddedResources)
+        else MultimoduleRootPageNode(dri, content, embeddedResources)
 }
 
 inline fun <reified T : PageNode> PageNode.children() = children.filterIsInstance<T>()

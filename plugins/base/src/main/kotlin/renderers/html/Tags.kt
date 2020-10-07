@@ -1,8 +1,12 @@
 package org.jetbrains.dokka.base.renderers.html
 
 import kotlinx.html.*
+import kotlinx.html.stream.createHTML
+import org.jetbrains.dokka.base.renderers.html.command.consumers.ImmediateResolutionTagConsumer
 import org.jetbrains.dokka.base.templating.Command
 import org.jetbrains.dokka.base.templating.toJsonString
+
+typealias TemplateBlock = TemplateCommand.() -> Unit
 
 @HtmlTagMarker
 fun FlowOrPhrasingContent.wbr(classes: String? = null, block: WBR.() -> Unit = {}): Unit =
@@ -13,11 +17,16 @@ open class WBR(initialAttributes: Map<String, String>, consumer: TagConsumer<*>)
     HTMLTag("wbr", consumer, initialAttributes, namespace = null, inlineTag = true, emptyTag = false),
     HtmlBlockInlineTag
 
-fun FlowOrPhrasingOrMetaDataContent.templateCommand(data: Command, block: TemplateCommand.() -> Unit = {}): Unit =
-    TemplateCommand(attributesMapOf("data", toJsonString(data)), consumer).visit(block)
+fun FlowOrPhrasingOrMetaDataContent.templateCommand(data: Command, block: TemplateBlock = {}): Unit =
+    (consumer as? ImmediateResolutionTagConsumer)?.processCommand(data, block)
+        ?: TemplateCommand(attributesMapOf("data", toJsonString(data)), consumer).visit(block)
 
-fun <T> TagConsumer<T>.templateCommand(data: Command, block: TemplateCommand.() -> Unit = {}): T =
-    TemplateCommand(attributesMapOf("data", toJsonString(data)), this).visitAndFinalize(this, block)
+fun <T> TagConsumer<T>.templateCommand(data: Command, block: TemplateBlock = {}): T =
+    (this as? ImmediateResolutionTagConsumer)?.processCommandAndFinalize(data, block)
+        ?: TemplateCommand(attributesMapOf("data", toJsonString(data)), this).visitAndFinalize(this, block)
+
+fun templateCommandFor(data: Command, consumer: TagConsumer<*>) =
+    TemplateCommand(attributesMapOf("data", toJsonString(data)), consumer)
 
 class TemplateCommand(initialAttributes: Map<String, String>, consumer: TagConsumer<*>) :
     HTMLTag(
@@ -29,3 +38,8 @@ class TemplateCommand(initialAttributes: Map<String, String>, consumer: TagConsu
         emptyTag = false
     ),
     CommonAttributeGroupFacadeFlowInteractivePhrasingContent
+
+// This hack is outrageous. I hate it but I cannot find any other way around `kotlinx.html` type system.
+fun TemplateBlock.buildAsInnerHtml(): String = createHTML(prettyPrint = false).run {
+    TemplateCommand(emptyMap, this).visitAndFinalize(this, this@buildAsInnerHtml).substringAfter(">").substringBeforeLast("<")
+}
