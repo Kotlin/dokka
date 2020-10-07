@@ -156,8 +156,8 @@ class DirectiveBasedTemplateProcessingStrategy(private val context: DokkaContext
             return
         }
 
-        val modulePath = context.configuration.outputDir.absolutePath.split("/")
-        val contextPath = fileContext.absolutePath.split("/")
+        val modulePath = context.configuration.outputDir.absolutePath.split(File.separator)
+        val contextPath = fileContext.absolutePath.split(File.separator)
         val commonPathElements = modulePath.zip(contextPath)
             .takeWhile { (a, b) -> a == b }.count()
 

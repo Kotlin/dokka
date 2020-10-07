@@ -418,7 +418,7 @@ code.paragraph {
     box-sizing: border-box;
 }
 
-.sideMenuPart .hidden > .overview .navButtonContent::before {
+.sideMenuPart.hidden > .overview .navButtonContent::before {
     transform: rotate(0deg);
 }
 

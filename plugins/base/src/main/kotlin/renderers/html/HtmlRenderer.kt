@@ -9,6 +9,7 @@ import org.jetbrains.dokka.DokkaSourceSetID
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.renderers.DefaultRenderer
 import org.jetbrains.dokka.base.renderers.TabSortingStrategy
+import org.jetbrains.dokka.base.renderers.html.command.consumers.ImmediateResolutionTagConsumer
 import org.jetbrains.dokka.base.renderers.isImage
 import org.jetbrains.dokka.base.renderers.pageId
 import org.jetbrains.dokka.base.resolvers.anchors.SymbolAnchorHint
@@ -44,6 +45,10 @@ open class HtmlRenderer(
     override val preprocessors = context.plugin<DokkaBase>().query { htmlPreprocessors }
 
     private val tabSortingStrategy = context.plugin<DokkaBase>().querySingle { tabSortingStrategy }
+
+    private fun <R> TagConsumer<R>.prepareForTemplates() =
+        if (context.configuration.delayTemplateSubstitution || this is ImmediateResolutionTagConsumer) this
+        else ImmediateResolutionTagConsumer(this, context)
 
     private fun <T : ContentNode> sortTabs(strategy: TabSortingStrategy, tabs: Collection<T>): List<T> {
         val sorted = strategy.sort(tabs)
@@ -208,7 +213,7 @@ open class HtmlRenderer(
     ): List<Pair<DisplaySourceSet, String>> {
         var counter = 0
         return nodes.toList().map { (sourceSet, elements) ->
-            sourceSet to createHTML(prettyPrint = false).div {
+            sourceSet to createHTML(prettyPrint = false).prepareForTemplates().div {
                 elements.forEach {
                     buildContentNode(it, pageContext, sourceSet.toSet())
                 }
@@ -221,7 +226,7 @@ open class HtmlRenderer(
                 sourceSet.sourceSetIDs.all.flatMap { sourceSetDependencyMap[it].orEmpty() }
                     .any { sourceSetId -> sourceSetId in sourceSets.sourceSetIDs }
             }.map {
-                it to createHTML(prettyPrint = false).div(classes = "content sourceset-depenent-content") {
+                it to createHTML(prettyPrint = false).prepareForTemplates().div(classes = "content sourceset-depenent-content") {
                     if (counter++ == 0) attributes["data-active"] = ""
                     attributes["data-togglable"] = it.sourceSetIDs.merged.toString()
                     unsafe {
@@ -236,13 +241,13 @@ open class HtmlRenderer(
 
         val distinct =
             node.groupDivergentInstances(pageContext, { instance, contentPage, sourceSet ->
-                createHTML(prettyPrint = false).div {
+                createHTML(prettyPrint = false).prepareForTemplates().div {
                     instance.before?.let { before ->
                         buildContentNode(before, pageContext, sourceSet)
                     }
                 }.stripDiv()
             }, { instance, contentPage, sourceSet ->
-                createHTML(prettyPrint = false).div {
+                createHTML(prettyPrint = false).prepareForTemplates().div {
                     instance.after?.let { after ->
                         buildContentNode(after, pageContext, sourceSet)
                     }
@@ -253,7 +258,7 @@ open class HtmlRenderer(
             val groupedDivergent = it.value.groupBy { it.second }
 
             consumer.onTagContentUnsafe {
-                +createHTML().div("divergent-group") {
+                +createHTML().prepareForTemplates().div("divergent-group") {
                     attributes["data-filterable-current"] = groupedDivergent.keys.joinToString(" ") {
                         it.sourceSetIDs.merged.toString()
                     }
@@ -268,11 +273,11 @@ open class HtmlRenderer(
                     val content = contentsForSourceSetDependent(divergentForPlatformDependent, pageContext)
 
                     consumer.onTagContentUnsafe {
-                        +createHTML().div("with-platform-tags") {
+                        +createHTML().prepareForTemplates().div("with-platform-tags") {
                             consumer.onTagContentUnsafe { +it.key.first }
 
                             consumer.onTagContentUnsafe {
-                                +createHTML().span("pull-right") {
+                                +createHTML().prepareForTemplates().span("pull-right") {
                                     if ((distinct.size > 1 && groupedDivergent.size == 1) || groupedDivergent.size == 1 || content.size == 1) {
                                         if (node.sourceSets.size != 1) {
                                             createPlatformTags(node, setOf(content.first().first))
@@ -716,7 +721,7 @@ open class HtmlRenderer(
     private fun resolveLink(link: String, page: PageNode): String = if (URI(link).isAbsolute) link else page.root(link)
 
     open fun buildHtml(page: PageNode, resources: List<String>, content: FlowContent.() -> Unit) =
-        createHTML().html {
+        createHTML().prepareForTemplates().html {
             head {
                 meta(name = "viewport", content = "width=device-width, initial-scale=1", charset = "UTF-8")
                 title(page.name)
@@ -737,7 +742,7 @@ open class HtmlRenderer(
                         else -> unsafe { +it }
                     }
                 }
-                templateCommand(PathToRootSubstitutionCommand("###")) {
+                templateCommand(PathToRootSubstitutionCommand("###", default = locationProvider.pathToRoot(page))) {
                     script { unsafe { +"""var pathToRoot = "###";""" } }
                 }
             }
