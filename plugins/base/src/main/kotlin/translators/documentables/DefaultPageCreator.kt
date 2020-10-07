@@ -186,7 +186,7 @@ open class DefaultPageCreator(
                         .groupBy({ it.second }, { it.first }).map { (classlike, platforms) ->
                             val label = classlike.classNames?.substringBeforeLast(".") ?: classlike.toString()
                                 .also { logger.warn("No class name found for DRI $classlike") }
-                            buildGroup(setOf(dri), platforms.toSet(), ContentKind.Inheritors, extra = mainExtra + SymbolAnchorHint(label)) {
+                            buildGroup(setOf(classlike), platforms.toSet(), ContentKind.Inheritors, extra = mainExtra + SymbolAnchorHint(label, ContentKind.Inheritors)) {
                                 link(label, classlike)
                             }
                         },
@@ -530,7 +530,7 @@ open class DefaultPageCreator(
                             sourceSets = elements.flatMap { it.sourceSets }.toSet(),
                             kind = kind,
                             styles = emptySet(),
-                            extra = elementName?.let { name -> extra + SymbolAnchorHint(name) } ?: extra
+                            extra = elementName?.let { name -> extra + SymbolAnchorHint(name, kind) } ?: extra
                     ) {
                         link(elementName.orEmpty(), elements.first().dri, kind = kind)
                         divergentGroup(
@@ -540,7 +540,7 @@ open class DefaultPageCreator(
                             extra = extra
                             ) {
                                 elements.map {
-                                    instance(setOf(it.dri), it.sourceSets.toSet(), extra = PropertyContainer.withAll(SymbolAnchorHint(it.name ?: ""))) {
+                                    instance(setOf(it.dri), it.sourceSets.toSet(), extra = PropertyContainer.withAll(SymbolAnchorHint(it.name ?: "", kind))) {
                                         divergent {
                                             group {
                                                 +buildSignature(it)
