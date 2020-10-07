@@ -64,6 +64,11 @@ class GlobalArguments(args: Array<String>) : DokkaConfiguration {
         "Throw an exception if the generation exited with warnings"
     ).default(DokkaDefaults.failOnWarning)
 
+    override val delayTemplateSubstitution by parser.option(
+        ArgType.Boolean,
+        description = "Delay substitution of some elements (usefull for incremental builds of multimoule projects)"
+    ).default(DokkaDefaults.delayTemplateSubstitution)
+
     val globalPackageOptions by parser.option(
         ArgType.String,
         description = "List of package source sets in format \"prefix,-deprecated,-privateApi,+warnUndocumented,+suppress;...\" "
