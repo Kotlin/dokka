@@ -222,7 +222,14 @@ fun ContentMatcherBuilder<*>.pWrapped(text: String) =
 fun ContentMatcherBuilder<*>.unnamedTag(tag: String, content: ContentMatcherBuilder<ContentGroup>.() -> Unit) =
     group {
         header(4) { +tag }
-        group { content() }
+        content()
+    }
+
+fun ContentMatcherBuilder<*>.comment(content: ContentMatcherBuilder<ContentGroup>.() -> Unit) =
+    group {
+        group {
+            content()
+        }
     }
 
 fun ContentMatcherBuilder<*>.unwrapAnnotation(elem: Map.Entry<String, Set<String>>) {

@@ -320,16 +320,18 @@ open class DefaultPageCreator(
                 }
             }
 
-            val unnamedTags: List<SourceSetDependent<TagWrapper>> =
-                tags.filterNot { (k, _) -> k.isSubclassOf(NamedTagWrapper::class) || k in specialTags }
-                    .map { (_, v) -> v.mapNotNull { (k, v) -> k?.let { it to v } }.toMap() }
+            val unnamedTags = tags.filterNot { (k, _) -> k.isSubclassOf(NamedTagWrapper::class) || k in specialTags }
+                .values.flatten().groupBy { it.first }.mapValues { it.value.map { it.second } }
             if (unnamedTags.isNotEmpty()) {
                 platforms.forEach { platform ->
-                    unnamedTags.forEach { pdTag ->
-                        pdTag[platform]?.also { tag ->
-                            group(sourceSets = setOf(platform), styles = emptySet()) {
-                                header(4, tag.toHeaderString())
-                                comment(tag.root)
+                    unnamedTags[platform]?.let { tags ->
+                        if(tags.isNotEmpty()){
+                            tags.groupBy { it::class }.forEach {
+                                (_, sameCategoryTags) ->
+                                    group(sourceSets = setOf(platform), styles = emptySet()) {
+                                        header(4, sameCategoryTags.first().toHeaderString())
+                                        sameCategoryTags.forEach { comment(it.root) }
+                                    }
                             }
                         }
                     }

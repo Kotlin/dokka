@@ -4,10 +4,7 @@ import matchers.content.*
 import org.jetbrains.dokka.pages.ContentPage
 import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
 import org.junit.jupiter.api.Test
-import utils.ParamAttributes
-import utils.bareSignature
-import utils.pWrapped
-import utils.unnamedTag
+import utils.*
 
 class ContentForSeeAlsoTest : AbstractCoreTest() {
     private val testConfiguration = dokkaConfiguration {
@@ -320,9 +317,9 @@ class ContentForSeeAlsoTest : AbstractCoreTest() {
                                 )
                             }
                             after {
-                                group { group { group { +"random comment"} } }
-                                unnamedTag("Author") { group { +"pikinier20" } }
-                                unnamedTag("Since") { group { +"0.11" } }
+                                group { comment { +"random comment"} }
+                                unnamedTag("Author") { comment { +"pikinier20" } }
+                                unnamedTag("Since") { comment { +"0.11" } }
 
                                 header(2) { +"See also" }
                                 group {
