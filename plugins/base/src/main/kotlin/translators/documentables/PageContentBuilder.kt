@@ -115,7 +115,7 @@ open class PageContentBuilder(
                     sourceSets,
                     kind,
                     styles,
-                    extra + SymbolAnchorHint(text.replace("\\s".toRegex(), "").toLowerCase())
+                    extra + SymbolAnchorHint(text.replace("\\s".toRegex(), "").toLowerCase(), kind)
                 ) {
                     text(text, kind = kind)
                     block()
@@ -185,7 +185,7 @@ open class PageContentBuilder(
                             else it
                         }
                         .map {
-                            val newExtra = if (needsAnchors) extra + SymbolAnchorHint.from(it) else extra
+                            val newExtra = if (needsAnchors) extra + SymbolAnchorHint.from(it, kind) else extra
                             buildGroup(setOf(it.dri), it.sourceSets.toSet(), kind, styles, newExtra) {
                                 operation(it)
                             }

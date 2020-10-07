@@ -111,7 +111,7 @@ class BasicGradleIntegrationTest(override val versions: BuildVersions) : Abstrac
             "Expected `SampleJavaClass` source link to GitHub"
         )
 
-        val anchorsShouldNotHaveHashes = "data-name=\".*#.*\"".toRegex()
+        val anchorsShouldNotHaveHashes = "<a data-name=\".*#.*\"\\sanchor-label=\"*.*\">".toRegex()
         assertTrue(
             allHtmlFiles().all { file ->
                 !anchorsShouldNotHaveHashes.containsMatchIn(file.readText())
