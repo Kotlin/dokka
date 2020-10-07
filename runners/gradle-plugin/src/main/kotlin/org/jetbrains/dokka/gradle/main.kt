@@ -47,6 +47,12 @@ open class DokkaPlugin : Plugin<Project> {
             configuration()
         }
 
+        if (project.parent != null) {
+            project.tasks.register<DokkaTaskPartial>("${name}Partial") {
+                configuration()
+            }
+        }
+
         if (project.subprojects.isNotEmpty()) {
             if (multiModuleTaskSupported) {
                 val multiModuleName = "${name}MultiModule"
@@ -54,7 +60,7 @@ open class DokkaPlugin : Plugin<Project> {
                 project.maybeCreateDokkaRuntimeConfiguration(multiModuleName)
 
                 project.tasks.register<DokkaMultiModuleTask>(multiModuleName) {
-                    addSubprojectChildTasks(name)
+                    addSubprojectChildTasks("${name}Partial")
                     configuration()
                     description = "Runs all subprojects '$name' tasks and generates module navigation page"
                     plugins.dependencies.add(project.dokkaArtifacts.allModulesPage)
