@@ -1,0 +1,1010 @@
+
+
+
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      <meta http-equiv="x-ua-compatible" content="ie=edge">
+      
+        <meta name="description" content="Dokka is a documentation engine for Kotlin, performing the same function as javadoc for Java">
+      
+      
+        <link rel="canonical" href="https://github.com/Kotlin/dokka/1.4.20/developer_guide/extension_points/">
+      
+      
+        <meta name="author" content="Jetbrains">
+      
+      
+        <meta name="lang:clipboard.copy" content="Copy to clipboard">
+      
+        <meta name="lang:clipboard.copied" content="Copied to clipboard">
+      
+        <meta name="lang:search.language" content="en">
+      
+        <meta name="lang:search.pipeline.stopwords" content="True">
+      
+        <meta name="lang:search.pipeline.trimmer" content="True">
+      
+        <meta name="lang:search.result.none" content="No matching documents">
+      
+        <meta name="lang:search.result.one" content="1 matching document">
+      
+        <meta name="lang:search.result.other" content="# matching documents">
+      
+        <meta name="lang:search.tokenizer" content="[\s\-]+">
+      
+      <link rel="shortcut icon" href="../../favicon.svg">
+      <meta name="generator" content="mkdocs-1.1, mkdocs-material-4.6.3">
+    
+    
+      
+        <title>Extension points - Dokka</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/application.adb8469c.css">
+      
+      
+    
+    
+      <script src="../../assets/javascripts/modernizr.86422ebf.js"></script>
+    
+    
+      
+        <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}</style>
+      
+    
+    <link rel="stylesheet" href="../../assets/fonts/material-icons.css">
+    
+    
+      <link rel="stylesheet" href="../../dokka_colors.css">
+    
+    
+      
+    
+    
+  </head>
+  
+    <body dir="ltr">
+  
+    <svg class="md-svg">
+      <defs>
+        
+        
+          <svg xmlns="http://www.w3.org/2000/svg" width="416" height="448" viewBox="0 0 416 448" id="__github"><path fill="currentColor" d="M160 304q0 10-3.125 20.5t-10.75 19T128 352t-18.125-8.5-10.75-19T96 304t3.125-20.5 10.75-19T128 256t18.125 8.5 10.75 19T160 304zm160 0q0 10-3.125 20.5t-10.75 19T288 352t-18.125-8.5-10.75-19T256 304t3.125-20.5 10.75-19T288 256t18.125 8.5 10.75 19T320 304zm40 0q0-30-17.25-51T296 232q-10.25 0-48.75 5.25Q229.5 240 208 240t-39.25-2.75Q130.75 232 120 232q-29.5 0-46.75 21T56 304q0 22 8 38.375t20.25 25.75 30.5 15 35 7.375 37.25 1.75h42q20.5 0 37.25-1.75t35-7.375 30.5-15 20.25-25.75T360 304zm56-44q0 51.75-15.25 82.75-9.5 19.25-26.375 33.25t-35.25 21.5-42.5 11.875-42.875 5.5T212 416q-19.5 0-35.5-.75t-36.875-3.125-38.125-7.5-34.25-12.875T37 371.5t-21.5-28.75Q0 312 0 260q0-59.25 34-99-6.75-20.5-6.75-42.5 0-29 12.75-54.5 27 0 47.5 9.875t47.25 30.875Q171.5 96 212 96q37 0 70 8 26.25-20.5 46.75-30.25T376 64q12.75 25.5 12.75 54.5 0 21.75-6.75 42 34 40 34 99.5z"/></svg>
+        
+      </defs>
+    </svg>
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
+    
+      <a href="#extension-points" tabindex="0" class="md-skip">
+        Skip to content
+      </a>
+    
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid">
+    <div class="md-flex">
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <a href="https://github.com/Kotlin/dokka/1.4.20" title="Dokka" aria-label="Dokka" class="md-header-nav__button md-logo">
+          
+            <i class="md-icon"></i>
+          
+        </a>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <label class="md-icon md-icon--menu md-header-nav__button" for="__drawer"></label>
+      </div>
+      <div class="md-flex__cell md-flex__cell--stretch">
+        <div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
+          
+            <span class="md-header-nav__topic">
+              Dokka
+            </span>
+            <span class="md-header-nav__topic">
+              
+                Extension points
+              
+            </span>
+          
+        </div>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        
+          <label class="md-icon md-icon--search md-header-nav__button" for="__search"></label>
+          
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" aria-label="search" name="query" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="query" data-md-state="active">
+      <label class="md-icon md-search__icon" for="__search"></label>
+      <button type="reset" class="md-icon md-search__icon" data-md-component="reset" tabindex="-1">
+        &#xE5CD;
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="result">
+          <div class="md-search-result__meta">
+            Type to start searching
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+        
+      </div>
+      
+        <div class="md-flex__cell md-flex__cell--shrink">
+          <div class="md-header-nav__source">
+            
+
+
+  
+
+<a href="https://github.com/Kotlin/dokka/" title="Go to repository" class="md-source" data-md-source="github">
+  
+    <div class="md-source__icon">
+      <svg viewBox="0 0 24 24" width="24" height="24">
+        <use xlink:href="#__github" width="24" height="24"></use>
+      </svg>
+    </div>
+  
+  <div class="md-source__repository">
+    dokka
+  </div>
+</a>
+          </div>
+        </div>
+      
+    </div>
+  </nav>
+</header>
+    
+    <div class="md-container">
+      
+        
+      
+      
+      <main class="md-main" role="main">
+        <div class="md-main__inner md-grid" data-md-component="container">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    <nav class="md-nav md-nav--primary" data-md-level="0">
+  <label class="md-nav__title md-nav__title--site" for="__drawer">
+    <a href="https://github.com/Kotlin/dokka/1.4.20" title="Dokka" class="md-nav__button md-logo">
+      
+        <i class="md-icon"></i>
+      
+    </a>
+    Dokka
+  </label>
+  
+    <div class="md-nav__source">
+      
+
+
+  
+
+<a href="https://github.com/Kotlin/dokka/" title="Go to repository" class="md-source" data-md-source="github">
+  
+    <div class="md-source__icon">
+      <svg viewBox="0 0 24 24" width="24" height="24">
+        <use xlink:href="#__github" width="24" height="24"></use>
+      </svg>
+    </div>
+  
+  <div class="md-source__repository">
+    dokka
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../.." title="Home" class="md-nav__link">
+      Home
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-2" type="checkbox" id="nav-2">
+    
+    <label class="md-nav__link" for="nav-2">
+      User guide
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-2">
+        User guide
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../user_guide/introduction/" title="Introduction" class="md-nav__link">
+      Introduction
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../user_guide/gradle/usage/" title="Gradle" class="md-nav__link">
+      Gradle
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../user_guide/maven/usage/" title="Maven" class="md-nav__link">
+      Maven
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../user_guide/cli/usage/" title="Command line" class="md-nav__link">
+      Command line
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-3" type="checkbox" id="nav-3" checked>
+    
+    <label class="md-nav__link" for="nav-3">
+      Plugin development
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-3">
+        Plugin development
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../introduction/" title="Introduction" class="md-nav__link">
+      Introduction
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../data_model/" title="Data model" class="md-nav__link">
+      Data model
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="__toc">
+        Extension points
+      </label>
+    
+    <a href="./" title="Extension points" class="md-nav__link md-nav__link--active">
+      Extension points
+    </a>
+    
+      
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#core-extension-points" class="md-nav__link">
+    Core extension points
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#setting-up-kotlin-and-java-analysis-process-and-initializing-plugins" class="md-nav__link">
+    Setting up Kotlin and Java analysis process and initializing plugins
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#creating-documentation-models" class="md-nav__link">
+    Creating documentation models
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pre-merge-documentation-transform" class="md-nav__link">
+    Pre-merge documentation transform
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#merging" class="md-nav__link">
+    Merging
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#merged-data-transformation" class="md-nav__link">
+    Merged data transformation
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#creating-page-models" class="md-nav__link">
+    Creating page models
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#transforming-page-models" class="md-nav__link">
+    Transforming page models
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rendering" class="md-nav__link">
+    Rendering
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#multimodule-page-generation-endpoints" class="md-nav__link">
+    Multimodule page generation endpoints
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#multimodule-page-creation" class="md-nav__link">
+    Multimodule page creation
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#multimodule-page-transformation" class="md-nav__link">
+    Multimodule page transformation
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#default-extensions-extension-points" class="md-nav__link">
+    Default extensions' extension points
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#following-extension-points-are-available-with-base-plugin" class="md-nav__link">
+    Following extension points are available with base plugin
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
+</nav>
+    
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-4" type="checkbox" id="nav-4">
+    
+    <label class="md-nav__link" for="nav-4">
+      About
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-4">
+        About
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../about/FAQ/" title="FAQ" class="md-nav__link">
+      FAQ
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../about/slack_channel/" title="Slack channel" class="md-nav__link">
+      Slack channel
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#core-extension-points" class="md-nav__link">
+    Core extension points
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#setting-up-kotlin-and-java-analysis-process-and-initializing-plugins" class="md-nav__link">
+    Setting up Kotlin and Java analysis process and initializing plugins
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#creating-documentation-models" class="md-nav__link">
+    Creating documentation models
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pre-merge-documentation-transform" class="md-nav__link">
+    Pre-merge documentation transform
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#merging" class="md-nav__link">
+    Merging
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#merged-data-transformation" class="md-nav__link">
+    Merged data transformation
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#creating-page-models" class="md-nav__link">
+    Creating page models
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#transforming-page-models" class="md-nav__link">
+    Transforming page models
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rendering" class="md-nav__link">
+    Rendering
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#multimodule-page-generation-endpoints" class="md-nav__link">
+    Multimodule page generation endpoints
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#multimodule-page-creation" class="md-nav__link">
+    Multimodule page creation
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#multimodule-page-transformation" class="md-nav__link">
+    Multimodule page transformation
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#default-extensions-extension-points" class="md-nav__link">
+    Default extensions' extension points
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#following-extension-points-are-available-with-base-plugin" class="md-nav__link">
+    Following extension points are available with base plugin
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/Kotlin/dokka/edit/master/docs/developer_guide/extension_points.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
+                
+                
+                <h1 id="extension-points">Extension points<a class="headerlink" href="#extension-points" title="Permanent link">&para;</a></h1>
+<h2 id="core-extension-points">Core extension points<a class="headerlink" href="#core-extension-points" title="Permanent link">&para;</a></h2>
+<p>We will discuss all base extension points along with the steps, that <code>DokkaGenerator</code> does to build a documentation.</p>
+<h3 id="setting-up-kotlin-and-java-analysis-process-and-initializing-plugins">Setting up Kotlin and Java analysis process and initializing plugins<a class="headerlink" href="#setting-up-kotlin-and-java-analysis-process-and-initializing-plugins" title="Permanent link">&para;</a></h3>
+<p>The provided Maven / CLI / Gradle configuration is read.Then, all the <code>DokkaPlugin</code> classes are loaded and the extensions are created.</p>
+<p>No entry points here.</p>
+<h3 id="creating-documentation-models">Creating documentation models<a class="headerlink" href="#creating-documentation-models" title="Permanent link">&para;</a></h3>
+<p>The documentation models are created.</p>
+<p>This step uses <code>DokkaCore.sourceToDocumentableTranslator</code> entry point. All extensions registered using this entry point will be invoked. Each of them is required to implement <code>SourceToDocumentableTranslator</code> interface:</p>
+<p><div class="codehilite"><pre><span></span><code><span class="k">interface</span> <span class="nc">SourceToDocumentableTranslator</span> <span class="p">{</span>
+    <span class="k">fun</span> <span class="nf">invoke</span><span class="p">(</span><span class="n">sourceSet</span><span class="p">:</span> <span class="n">SourceSetData</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">DokkaContext</span><span class="p">):</span> <span class="n">DModule</span>
+<span class="p">}</span>
+</code></pre></div>
+By default, two translators are created:</p>
+<ul>
+<li><code>DefaultDescriptorToDocumentableTranslator</code> that handles Kotlin files</li>
+<li><code>DefaultPsiToDocumentableTranslator</code> that handles Java files</li>
+</ul>
+<p>After this step, all data from different source sets and languages are kept separately.</p>
+<h3 id="pre-merge-documentation-transform">Pre-merge documentation transform<a class="headerlink" href="#pre-merge-documentation-transform" title="Permanent link">&para;</a></h3>
+<p>Here you can apply any transformation to model data before different source sets are merged.</p>
+<p>This step uses <code>DokkaCore.preMergeDocumentableTransformer</code> entry point. All extensions registered using this entry point will be invoked. Each of them is required to implement <code>PreMergeDocumentableTransformer</code> interface:</p>
+<p><div class="codehilite"><pre><span></span><code><span class="k">interface</span> <span class="nc">PreMergeDocumentableTransformer</span> <span class="p">{</span>
+    <span class="k">operator</span> <span class="k">fun</span> <span class="nf">invoke</span><span class="p">(</span><span class="n">modules</span><span class="p">:</span> <span class="n">List</span><span class="p">&lt;</span><span class="n">DModule</span><span class="p">&gt;,</span> <span class="n">context</span><span class="p">:</span> <span class="n">DokkaContext</span><span class="p">):</span> <span class="n">List</span><span class="p">&lt;</span><span class="n">DModule</span><span class="p">&gt;</span>
+<span class="p">}</span>
+</code></pre></div>
+By default, three transformers are created:</p>
+<ul>
+<li><code>DocumentableVisibilityFilter</code> that, depending on configuration, filters out all private members from declared packages</li>
+<li><code>ActualTypealiasAdder</code> that handles Kotlin typealiases</li>
+<li><code>ModuleAndPackageDocumentationTransformer</code> that creates documentation content for models and packages itself </li>
+</ul>
+<h3 id="merging">Merging<a class="headerlink" href="#merging" title="Permanent link">&para;</a></h3>
+<p>All <code>DModule</code> instances are merged into one.</p>
+<p>This step uses <code>DokkaCore.documentableMerger</code> entry point. It is required to have exactly one extension registered for this entry point. Having more will trigger an error, unless only one is not overridden.</p>
+<p>The extension is required to implement <code>DocumentableMerger</code> interface:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">interface</span> <span class="nc">DocumentableMerger</span> <span class="p">{</span>
+    <span class="k">operator</span> <span class="k">fun</span> <span class="nf">invoke</span><span class="p">(</span><span class="n">modules</span><span class="p">:</span> <span class="n">Collection</span><span class="p">&lt;</span><span class="n">DModule</span><span class="p">&gt;,</span> <span class="n">context</span><span class="p">:</span> <span class="n">DokkaContext</span><span class="p">):</span> <span class="n">DModule</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>By default, <code>DefaultDocumentableMerger</code> is created. This extension is treated as a fallback, so it can be overridden by a custom one.</p>
+<h3 id="merged-data-transformation">Merged data transformation<a class="headerlink" href="#merged-data-transformation" title="Permanent link">&para;</a></h3>
+<p>You can apply any transformation to already merged data</p>
+<p>This step uses <code>DokkaCore.documentableTransformer</code> entry point. All extensions registered using this entry point will be invoked. Each of them is required to implement <code>DocumentableTransformer</code> interface:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">interface</span> <span class="nc">DocumentableTransformer</span> <span class="p">{</span>
+    <span class="k">operator</span> <span class="k">fun</span> <span class="nf">invoke</span><span class="p">(</span><span class="n">original</span><span class="p">:</span> <span class="n">DModule</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">DokkaContext</span><span class="p">):</span> <span class="n">DModule</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>By default, <code>InheritorsExtractorTransformer</code> is created, that extracts inherited classes data across source sets and creates inheritance map.</p>
+<h3 id="creating-page-models">Creating page models<a class="headerlink" href="#creating-page-models" title="Permanent link">&para;</a></h3>
+<p>The documentable model is translated into page format, that aggregates all tha data that will be available for different pages of documentation.</p>
+<p>This step uses <code>DokkaCore.documentableToPageTranslator</code> entry point. It is required to have exactly one extension registered for this entry point. Having more will trigger an error, unless only one is not overridden.</p>
+<p>The extension is required to implement <code>DocumentableToPageTranslator</code> interface:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">interface</span> <span class="nc">DocumentableToPageTranslator</span> <span class="p">{</span>
+    <span class="k">operator</span> <span class="k">fun</span> <span class="nf">invoke</span><span class="p">(</span><span class="n">module</span><span class="p">:</span> <span class="n">DModule</span><span class="p">):</span> <span class="n">ModulePageNode</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>By default, <code>DefaultDocumentableToPageTranslator</code> is created.  This extension is treated as a fallback, so it can be overridden by a custom one.</p>
+<h3 id="transforming-page-models">Transforming page models<a class="headerlink" href="#transforming-page-models" title="Permanent link">&para;</a></h3>
+<p>You can apply any transformations to paged data.</p>
+<p>This step uses <code>DokkaCore.pageTransformer</code> entry point. All extensions registered using this entry point will be invoked. Each of them is required to implement <code>PageTransformer</code> interface:</p>
+<p><div class="codehilite"><pre><span></span><code><span class="k">interface</span> <span class="nc">PageTransformer</span> <span class="p">{</span>
+    <span class="k">operator</span> <span class="k">fun</span> <span class="nf">invoke</span><span class="p">(</span><span class="n">input</span><span class="p">:</span> <span class="n">RootPageNode</span><span class="p">):</span> <span class="n">RootPageNode</span>
+<span class="p">}</span>
+</code></pre></div>
+By default, two transformers are created:</p>
+<ul>
+<li><code>PageMerger</code> merges some pages depending on <code>MergeStrategy</code></li>
+<li><code>DeprecatedStrikethroughTransformer</code> marks all deprecated members on every page</li>
+</ul>
+<h3 id="rendering">Rendering<a class="headerlink" href="#rendering" title="Permanent link">&para;</a></h3>
+<p>All pages are rendered to desired format.</p>
+<p>This step uses <code>DokkaCore.renderer</code> entry point. It is required to have exactly one extension registered for this entry point. Having more will trigger an error, unless only one is not overridden.</p>
+<p>The extension is required to implement  <code>Renderer</code> interface:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">interface</span> <span class="nc">Renderer</span> <span class="p">{</span>
+    <span class="k">fun</span> <span class="nf">render</span><span class="p">(</span><span class="n">root</span><span class="p">:</span> <span class="n">RootPageNode</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>By default, only <code>HtmlRenderer</code>, that extends basic <code>DefaultRenderer</code>, is created, but it will be registered only if configuration parameter <code>format</code> is set to <code>html</code>. Using any other value without providing valid renderer will cause Dokka to fail. </p>
+<h2 id="multimodule-page-generation-endpoints">Multimodule page generation endpoints<a class="headerlink" href="#multimodule-page-generation-endpoints" title="Permanent link">&para;</a></h2>
+<p>Multimodule page generation is a separate process, that declares two additional entry points:</p>
+<h3 id="multimodule-page-creation">Multimodule page creation<a class="headerlink" href="#multimodule-page-creation" title="Permanent link">&para;</a></h3>
+<p>Generation of the page that points to all module for which we generates documentation.</p>
+<p>This step uses <code>CoreExtensions.allModulePageCreator</code> entry point. It is required to have exactly one extension registered for this entry point. Having more will trigger an error, unless only one is not overridden.</p>
+<p>The extension is required to implement  <code>PageCreator</code> interface:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">interface</span> <span class="nc">PageCreator</span> <span class="p">{</span>
+    <span class="k">operator</span> <span class="k">fun</span> <span class="nf">invoke</span><span class="p">():</span> <span class="n">RootPageNode</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>By default, <code>MultimodulePageCreator</code> is created.  This extension is treated as a fallback, so it can be replaced by a custom one. </p>
+<h3 id="multimodule-page-transformation">Multimodule page transformation<a class="headerlink" href="#multimodule-page-transformation" title="Permanent link">&para;</a></h3>
+<p>Additional transformation that we might apply for multimodule page.</p>
+<p>This step uses <code>CoreExtensions.allModulePageTransformer</code> entry point. All extensions registered using this entry point will be invoked.  Each of them is required to implement common <code>PageTransformer</code> interface.</p>
+<h2 id="default-extensions-extension-points">Default extensions' extension points<a class="headerlink" href="#default-extensions-extension-points" title="Permanent link">&para;</a></h2>
+<p>Default core extension points already have an implementation for providing basic Dokka functionality. All of them are declared in <code>DokkaBase</code> plugin. If you don't want this default extensions to load, all you need to do is not load Dokka base and load your plugin instead.</p>
+<p>```kotlin
+val customPlugin by configurations.creating</p>
+<p>dependencies {
+    customPlugin("[custom plugin load signature]")
+}
+tasks {
+    val dokka by getting(DokkaTask::class) {
+        pluginsConfig = alternativeAndIndependentPlugins
+        outputDirectory = dokkaOutputDir
+        outputFormat = "html"
+        [...]
+    }
+}
+<div class="codehilite"><pre><span></span><code> You will then need to implement extensions for all core extension points. 
+
+`DokkaBase` also register several new extension points, with which you can change default behaviour of `DokkaBase` extensions. In order to use them, you need to add `dokka-base` to you dependencies:
+
+```kotlin
+    compileOnly(&quot;org.jetbrains.dokka:dokka-base:&lt;dokka_version&gt;&quot;)
+</code></pre></div></p>
+<p>Then, you need to obtain <code>DokkaBase</code> instance using <code>plugin</code> function:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="nc">SamplePlugin</span> <span class="p">:</span> <span class="n">DokkaPlugin</span><span class="p">()</span> <span class="p">{</span>
+
+    <span class="k">val</span> <span class="py">dokkaBase</span> <span class="p">=</span> <span class="n">plugin</span><span class="p">&lt;</span><span class="n">DokkaBase</span><span class="p">&gt;()</span>
+
+    <span class="k">val</span> <span class="py">extension</span> <span class="k">by</span> <span class="n">extending</span> <span class="p">{</span>
+        <span class="n">dokkaBase</span><span class="p">.</span><span class="n">pageMergerStrategy</span> <span class="n">with</span> <span class="n">SamplePageMergerStrategy</span> <span class="n">order</span> <span class="p">{</span>
+           <span class="n">before</span><span class="p">(</span><span class="n">dokkaBase</span><span class="p">.</span><span class="n">fallbackMerger</span><span class="p">)</span>
+       <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">object</span> <span class="nc">SamplePageMergerStrategy</span><span class="p">:</span> <span class="n">PageMergerStrategy</span> <span class="p">{</span>
+    <span class="k">override</span> <span class="k">fun</span> <span class="nf">tryMerge</span><span class="p">(</span><span class="n">pages</span><span class="p">:</span> <span class="n">List</span><span class="p">&lt;</span><span class="n">PageNode</span><span class="p">&gt;,</span> <span class="n">path</span><span class="p">:</span> <span class="n">List</span><span class="p">&lt;</span><span class="n">String</span><span class="p">&gt;):</span> <span class="n">List</span><span class="p">&lt;</span><span class="n">PageNode</span><span class="p">&gt;</span> <span class="p">{</span>
+        <span class="p">...</span>
+    <span class="p">}</span>
+
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="following-extension-points-are-available-with-base-plugin">Following extension points are available with base plugin<a class="headerlink" href="#following-extension-points-are-available-with-base-plugin" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Entry point</th>
+<th align="left">Function</th>
+<th align="center">Required interface</th>
+<th align="center">Used by</th>
+<th align="center">Singular</th>
+<th align="center">Preregistered extensions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pageMergerStrategy</code></td>
+<td align="left">determines what kind of pages should be merged</td>
+<td align="center"><code>PageMergerStrategy</code></td>
+<td align="center"><code>PageMerger</code></td>
+<td align="center">false</td>
+<td align="center"><code>FallbackPageMergerStrategy</code> <code>SameMethodNamePageMergerStrategy</code></td>
+</tr>
+<tr>
+<td><code>commentsToContentConverter</code></td>
+<td align="left">transforms comment model into page content model</td>
+<td align="center"><code>CommentsToContentConverter</code></td>
+<td align="center"><code>DefaultDocumentableToPageTransformer</code> <code>SignatureProvider</code></td>
+<td align="center">true</td>
+<td align="center"><code>DocTagToContentConverter</code></td>
+</tr>
+<tr>
+<td><code>signatureProvider</code></td>
+<td align="left">provides representation of methods signatures</td>
+<td align="center"><code>SignatureProvider</code></td>
+<td align="center"><code>DefaultDocumentableToPageTransformer</code></td>
+<td align="center">true</td>
+<td align="center"><code>KotlinSignatureProvider</code></td>
+</tr>
+<tr>
+<td><code>locationProviderFactory</code></td>
+<td align="left">provides <code>LocationProvider</code> instance that returns paths for requested elements</td>
+<td align="center"><code>LocationProviderFactory</code></td>
+<td align="center"><code>DefaultRenderer</code> <code>HtmlRenderer</code> <code>PackageListService</code></td>
+<td align="center">true</td>
+<td align="center"><code>DefaultLocationProviderFactory</code> which returns <code>DefaultLocationProvider</code></td>
+</tr>
+<tr>
+<td><code>externalLocationProviderFactory</code></td>
+<td align="left">provides <code>ExternalLocationProvider</code> instance that returns paths for elements that are not part of generated documentation</td>
+<td align="center"><code>ExternalLocationProviderFactory</code></td>
+<td align="center"><code>DefaultLocationProvider</code></td>
+<td align="center">false</td>
+<td align="center"><code>JavadocExternalLocationProviderFactory</code> <code>DokkaExternalLocationProviderFactory</code></td>
+</tr>
+<tr>
+<td><code>outputWriter</code></td>
+<td align="left">writes rendered pages files</td>
+<td align="center"><code>OutputWriter</code></td>
+<td align="center"><code>DefaultRenderer</code> <code>HtmlRenderer</code></td>
+<td align="center">true</td>
+<td align="center"><code>FileWriter</code></td>
+</tr>
+<tr>
+<td><code>htmlPreprocessors</code></td>
+<td align="left">transforms page content before HTML rendering</td>
+<td align="center"><code>PageTransformer</code></td>
+<td align="center"><code>DefaultRenderer</code> <code>HtmlRenderer</code></td>
+<td align="center">false</td>
+<td align="center"><code>RootCreator</code> <code>SourceLinksTransformer</code> <code>NavigationPageInstaller</code> <code>SearchPageInstaller</code> <code>ResourceInstaller</code> <code>StyleAndScriptsAppender</code> <code>PackageListCreator</code></td>
+</tr>
+<tr>
+<td><code>samplesTransformer</code></td>
+<td align="left">transforms content for code samples for HTML rendering</td>
+<td align="center"><code>SamplesTransformer</code></td>
+<td align="center"><code>HtmlRenderer</code></td>
+<td align="center">true</td>
+<td align="center"><code>DefaultSamplesTransformer</code></td>
+</tr>
+</tbody>
+</table>
+                
+                  
+                
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid">
+        
+          <a href="../data_model/" title="Data model" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
+            </div>
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                Data model
+              </span>
+            </div>
+          </a>
+        
+        
+          <a href="../../about/FAQ/" title="FAQ" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                FAQ
+              </span>
+            </div>
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+          <div class="md-footer-copyright__highlight">
+            Copyright &copy; 2020 Jetbrains
+          </div>
+        
+        powered by
+        <a href="https://www.mkdocs.org" target="_blank" rel="noopener">MkDocs</a>
+        and
+        <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+          Material for MkDocs</a>
+      </div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="../../assets/javascripts/application.c33a9706.js"></script>
+      
+      <script>app.initialize({version:"1.1",url:{base:"../.."}})</script>
+      
+        <script src="../../expand_navigation.js"></script>
+      
+    
+  </body>
+</html>
