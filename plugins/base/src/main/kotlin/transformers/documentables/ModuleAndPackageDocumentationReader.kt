@@ -16,7 +16,6 @@ import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.model.doc.Deprecated
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.utilities.associateWithNotNull
-import kotlin.reflect.KClass
 
 internal interface ModuleAndPackageDocumentationReader {
     operator fun get(module: DModule): SourceSetDependent<DocumentationNode>
@@ -53,7 +52,8 @@ private class ContextModuleAndPackageDocumentationReader(
             when (documentations.size) {
                 0 -> null
                 1 -> documentations.single().documentation
-                else -> DocumentationNode(documentations.flatMap { it.documentation.children }.mergeDocumentationNodes())
+                else -> DocumentationNode(documentations.flatMap { it.documentation.children }
+                    .mergeDocumentationNodes())
             }
         }
     }
@@ -80,8 +80,11 @@ private class ContextModuleAndPackageDocumentationReader(
     private fun List<TagWrapper>.mergeDocumentationNodes(): List<TagWrapper> =
         groupBy { it::class }.values.map {
             it.reduce { acc, tagWrapper ->
-                val newRoot = RootDocTag(acc.children + tagWrapper.children)
-                when(acc) {
+                val newRoot = CustomDocTag(
+                    acc.children + tagWrapper.children,
+                    name = (tagWrapper as? NamedTagWrapper)?.name.orEmpty()
+                )
+                when (acc) {
                     is See -> acc.copy(newRoot)
                     is Param -> acc.copy(newRoot)
                     is Throws -> acc.copy(newRoot)
