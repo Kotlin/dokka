@@ -5,8 +5,6 @@ import com.intellij.psi.impl.source.javadoc.PsiDocParamRef
 import com.intellij.psi.impl.source.tree.JavaDocElementType
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.javadoc.*
-import com.intellij.psi.tree.IElementType
-import com.intellij.psi.tree.java.IJavaDocElementType
 import com.intellij.psi.util.PsiTreeUtil
 import org.intellij.markdown.MarkdownElementTypes
 import org.jetbrains.dokka.analysis.from
@@ -14,7 +12,6 @@ import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.model.doc.Deprecated
 import org.jetbrains.dokka.utilities.DokkaLogger
-import org.jetbrains.kotlin.backend.common.onlyIf
 import org.jetbrains.kotlin.idea.refactoring.fqName.getKotlinFqName
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
@@ -143,8 +140,7 @@ class JavadocParser(
     }
 
     private fun PsiDocComment.getDescription(): Description? {
-        val nonEmptyDescriptionElements = descriptionElements.asIterable()
-        return convertJavadocElements(nonEmptyDescriptionElements).takeIf { it.isNotEmpty() }?.let {
+        return convertJavadocElements(descriptionElements.asIterable()).takeIf { it.isNotEmpty() }?.let {
             Description(wrapTagIfNecessary(it))
         }
     }
@@ -172,17 +168,14 @@ class JavadocParser(
                 val dri = DRI.from(it)
                 driMap[dri.toString()] = dri
                 Pair(labelElement ?: listOf(defaultLabel()), dri.toString())
-            } ?: Pair(listOf(defaultLabel()), "UNRESOLVED_PSI_ELEMENT")).let { (label, dri) ->
+            } ?: Pair(listOf(defaultLabel()), UNRESOLVED_PSI_ELEMENT)).let { (label, dri) ->
                 """<a data-dri=$dri>${label.joinToString(" ") { it.text }}</a>"""
             }
 
         private fun convertInlineDocTag(tag: PsiInlineDocTag) = when (tag.name) {
-            "link", "linkplain" -> {
-                tag.referenceElement()?.toDocumentationLinkString(tag.dataElements.filterIsInstance<PsiDocToken>())
-            }
-            "code", "literal" -> {
-                "<code data-inline>${tag.text}</code>"
-            }
+            "link", "linkplain" -> tag.referenceElement()
+                ?.toDocumentationLinkString(tag.dataElements.filterIsInstance<PsiDocToken>())
+            "code", "literal" -> "<code data-inline>${tag.text}</code>"
             "index" -> "<index>${tag.children.filterIsInstance<PsiDocTagValue>().joinToString { it.text }}</index>"
             else -> tag.text
         }
@@ -279,4 +272,8 @@ class JavadocParser(
 
     private fun PsiDocTag.linkElement(): PsiElement? =
         valueElement ?: dataElements.firstOrNull { it !is PsiWhiteSpace }
+
+    companion object {
+        private const val UNRESOLVED_PSI_ELEMENT = "UNRESOLVED_PSI_ELEMENT"
+    }
 }

@@ -1,11 +1,9 @@
 package org.jetbrains.dokka.javadoc.location
 
+import org.jetbrains.dokka.*
 import org.jetbrains.dokka.javadoc.pages.JavadocClasslikePageNode
 import org.jetbrains.dokka.javadoc.pages.JavadocPackagePageNode
 import org.jetbrains.dokka.javadoc.renderer.JavadocContentToHtmlTranslator
-import org.jetbrains.dokka.DokkaConfiguration
-import org.jetbrains.dokka.ExternalDocumentationLink
-import org.jetbrains.dokka.ExternalDocumentationLinkImpl
 import org.jetbrains.dokka.javadoc.JavadocPlugin
 import org.jetbrains.dokka.model.firstChildOfType
 import org.jetbrains.dokka.pages.RootPageNode
@@ -19,16 +17,14 @@ import org.junit.jupiter.api.Assertions.assertEquals
 class JavadocLocationTest : AbstractCoreTest() {
 
     private fun locationTestInline(testHandler: (RootPageNode, DokkaContext) -> Unit) {
-        fun externalLink(link: String) = ExternalDocumentationLink(link)
-
         val config = dokkaConfiguration {
             format = "javadoc"
             sourceSets {
                 sourceSet {
                     sourceRoots = listOf("jvmSrc/")
                     externalDocumentationLinks = listOf(
-                        externalLink("https://docs.oracle.com/javase/8/docs/api/"),
-                        externalLink("https://kotlinlang.org/api/latest/jvm/stdlib/")
+                        DokkaConfiguration.ExternalDocumentationLink.jdk(8),
+                        DokkaConfiguration.ExternalDocumentationLink.kotlinStdlib()
                     )
                     analysisPlatform = "jvm"
                 }

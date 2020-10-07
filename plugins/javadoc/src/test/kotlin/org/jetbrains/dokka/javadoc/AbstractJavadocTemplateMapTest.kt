@@ -1,7 +1,6 @@
 package org.jetbrains.dokka.javadoc
 
-import org.jetbrains.dokka.DokkaConfigurationImpl
-import org.jetbrains.dokka.ExternalDocumentationLink
+import org.jetbrains.dokka.*
 import org.jetbrains.dokka.javadoc.pages.JavadocPageNode
 import org.jetbrains.dokka.javadoc.renderer.JavadocContentToTemplateMapTranslator
 import org.jetbrains.dokka.javadoc.JavadocPlugin
@@ -19,8 +18,8 @@ internal abstract class AbstractJavadocTemplateMapTest : AbstractCoreTest() {
                 sourceRoots = listOf("src")
                 analysisPlatform = "jvm"
                 externalDocumentationLinks = listOf(
-                    ExternalDocumentationLink("https://docs.oracle.com/javase/8/docs/api/"),
-                    ExternalDocumentationLink("https://kotlinlang.org/api/latest/jvm/stdlib/")
+                    DokkaConfiguration.ExternalDocumentationLink.jdk(8),
+                    DokkaConfiguration.ExternalDocumentationLink.kotlinStdlib()
                 )
             }
         }
