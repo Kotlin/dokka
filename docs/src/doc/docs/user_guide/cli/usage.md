@@ -1,6 +1,6 @@
 # Using command line
 
-To run Dokka from the command line, download the [Dokka CLI runner](https://github.com/Kotlin/dokka/releases/download/v1.4.10/dokka-cli-1.4.10.jar).
+To run Dokka from the command line, download the [Dokka CLI runner](https://mvnrepository.com/artifact/org.jetbrains.dokka/dokka-cli).
 To generate documentation, run the following command:
 ```
 java -jar dokka-cli.jar <arguments>
@@ -47,3 +47,21 @@ You can also use a JSON file with Dokka configuration:
 
 ## Applying plugins
 To apply a Dokka plugin you have to provide it and all its dependencies in the `pluginsClasspath` parameter
+
+## Base plugin
+
+Using CLI runner to generate default documentation requires providing all dependencies manually on classpath.
+For Base plugins these are:
+
+* [dokka-base.jar](https://mvnrepository.com/artifact/org.jetbrains.dokka/dokka-base)
+* [dokka-analysis.jar](https://mvnrepository.com/artifact/org.jetbrains.dokka/dokka-analysis)
+* [kotlin-analysis-compiler.jar](https://mvnrepository.com/artifact/org.jetbrains.dokka/kotlin-analysis-compiler)
+* [kotlin-analysis-intellij.jar](https://mvnrepository.com/artifact/org.jetbrains.dokka/kotlin-analysis-intellij)
+* [kotlinx-coroutines-core.jar](https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-core/1.3.9)
+* [kotlinx-html-jvm.jar](https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-html-jvm?repo=kotlinx)
+
+All of them are published on maven central.
+To get them on classpath one should add them via `pluginsClasspath` argument, e. g.
+```
+java -jar dokka-cli.jar -pluginsClasspath "dokka-base.jar;dokka-analysis.jar;kotlin-analysis-compiler.jar;kotlin-analysis-intellij.jar;kotlinx-coroutines-core.jar;kotlinx-html-jvm.jar" ...
+```

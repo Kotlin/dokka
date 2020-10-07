@@ -213,8 +213,8 @@ tasks.withType<DokkaTask>().configureEach {
             }
 
             register("differentName") { // Different name, so source roots must be passed explicitly
-                displayName = "JVM"
-                platform = "jvm"
+                displayName.set("JVM")
+                platform.set(org.jetbrains.dokka.Platform.jvm)
                 sourceRoots.from(kotlin.sourceSets.getByName("jvmMain").kotlin.srcDirs)
                 sourceRoots.from(kotlin.sourceSets.getByName("commonMain").kotlin.srcDirs)
             }

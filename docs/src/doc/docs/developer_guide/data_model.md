@@ -6,7 +6,7 @@ There a four data models that Dokka uses: Documentable Model, Documentation Mode
 
 Documentable model represents parsed data, returned by compiler analysis. It retains basic order structure of parsed `Psi` or `Descriptor` models.
 
-After creation, it is a collection of trees, each with `DModel` as a root. After the Merge step, all trees are folded into one. 
+After creation, it is a collection of trees, each with `DModule` as a root. After the Merge step, all trees are folded into one. 
 
 The main building block of this model is `Documentable` class, that is a base class for all more specific types that represents elements of parsed Kotlin and Java classes with pretty self-explanatory names: `DPackage`, `DFunction` and so on. `DClasslike` is a base for class-like elements, such as Classes, Enums, Interfaces and so on.
 

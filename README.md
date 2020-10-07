@@ -169,7 +169,7 @@ Please see the [Dokka Maven example project](https://github.com/JetBrains/kotlin
 
 ### Using the Command Line
 
-To run Dokka from the command line, download the [Dokka CLI runner](https://github.com/Kotlin/dokka/releases/download/v1.4.10/dokka-cli-1.4.10.jar).
+To run Dokka from the command line, download the [Dokka CLI runner](https://mvnrepository.com/artifact/org.jetbrains.dokka/dokka-cli).
 To generate documentation, run the following command:
 ```
 java -jar dokka-cli.jar <arguments>
