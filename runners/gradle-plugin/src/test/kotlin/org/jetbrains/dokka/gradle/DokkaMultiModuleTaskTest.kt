@@ -4,9 +4,7 @@ package org.jetbrains.dokka.gradle
 
 import org.gradle.kotlin.dsl.*
 import org.gradle.testfixtures.ProjectBuilder
-import org.jetbrains.dokka.DokkaConfigurationImpl
-import org.jetbrains.dokka.DokkaException
-import org.jetbrains.dokka.DokkaModuleDescriptionImpl
+import org.jetbrains.dokka.*
 import java.io.File
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -68,7 +66,7 @@ class DokkaMultiModuleTaskTest {
             moduleName by "custom Module Name"
             outputDirectory by project.buildDir.resolve("customOutputDirectory")
             cacheRoot by File("customCacheRoot")
-            pluginsConfiguration.put("pluginA", "configA")
+            pluginsConfiguration.add(PluginConfigurationImpl("pluginA", DokkaConfiguration.SerializationFormat.JSON, """ { "key" : "value2" } """))
             failOnWarning by true
             offlineMode by true
         }
@@ -79,7 +77,7 @@ class DokkaMultiModuleTaskTest {
                 moduleName = "custom Module Name",
                 outputDir = multiModuleTask.project.buildDir.resolve("customOutputDirectory"),
                 cacheRoot = File("customCacheRoot"),
-                pluginsConfiguration = mapOf("pluginA" to "configA"),
+                pluginsConfiguration = mutableListOf(PluginConfigurationImpl("pluginA", DokkaConfiguration.SerializationFormat.JSON, """ { "key" : "value2" } """)),
                 pluginsClasspath = emptyList(),
                 failOnWarning = true,
                 offlineMode = true,

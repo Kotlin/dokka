@@ -6,6 +6,7 @@ import org.gradle.api.tasks.*
 import org.jetbrains.dokka.DokkaConfigurationImpl
 import org.jetbrains.dokka.DokkaModuleDescriptionImpl
 import org.jetbrains.dokka.DokkaMultimoduleBootstrapImpl
+import org.jetbrains.dokka.PluginConfigurationImpl
 import java.io.File
 
 @Suppress("unused") // Shall provide source compatibility if possible
@@ -49,7 +50,7 @@ abstract class DokkaMultiModuleTask : AbstractDokkaParentTask(DokkaMultimoduleBo
         moduleName = moduleName.getSafe(),
         outputDir = outputDirectory.getSafe(),
         cacheRoot = cacheRoot.getSafe(),
-        pluginsConfiguration = pluginsConfiguration.getSafe(),
+        pluginsConfiguration = buildPluginsConfiguration(),
         failOnWarning = failOnWarning.getSafe(),
         offlineMode = offlineMode.getSafe(),
         pluginsClasspath = plugins.resolve().toList(),
