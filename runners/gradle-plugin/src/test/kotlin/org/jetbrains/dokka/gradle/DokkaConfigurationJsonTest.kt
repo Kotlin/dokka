@@ -25,8 +25,8 @@ class DokkaConfigurationJsonTest {
             this.offlineMode by true
             this.outputDirectory by File("customOutputDir")
             this.cacheRoot by File("customCacheRoot")
-            this.pluginsConfiguration.put("0", "a")
-            this.pluginsConfiguration.put("1", "b")
+            this.pluginsConfiguration.add(PluginConfigurationImpl("A", DokkaConfiguration.SerializationFormat.JSON, """ { "key" : "value1" } """))
+            this.pluginsConfiguration.add(PluginConfigurationImpl("B", DokkaConfiguration.SerializationFormat.JSON, """ { "key" : "value2" } """))
             this.dokkaSourceSets.create("main") { sourceSet ->
                 sourceSet.displayName by "customSourceSetDisplayName"
                 sourceSet.reportUndocumented by true

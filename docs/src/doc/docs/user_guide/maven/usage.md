@@ -160,6 +160,14 @@ The available configuration options are shown below:
                 <version>${dokka.version}</version>
             </plugin>
         </dokkaPlugins>
+        
+        <!-- Configures a plugin separately -->
+        <pluginsConfiguration>
+            <fullyQualifiedPluginName>
+                <!-- Configuration -->
+            </fullyQualifiedPluginName>
+        </pluginsConfiguration>
+
     </configuration>
 </plugin>
 ```
@@ -190,6 +198,21 @@ You can add plugins inside the `dokkaPlugins` block:
         </dokkaPlugins>
     </configuration>
 </plugin>
+```
+
+Some plugins can be configured separately using plugin's fully qualified name. For example:
+
+```xml
+<pluginsConfiguration>
+    <org.jetbrains.dokka.base.DokkaBase>
+        <customStyleSheets>
+            <customStyleSheet><!-- path to custom stylesheet --></customStyleSheet>
+        </customStyleSheets>
+        <customAssets>
+            <customAsset><!-- path to custom asset --></customAsset>
+        </customAssets>
+    </org.jetbrains.dokka.base.DokkaBase>
+</pluginsConfiguration>
 ```
 
 ## Example project

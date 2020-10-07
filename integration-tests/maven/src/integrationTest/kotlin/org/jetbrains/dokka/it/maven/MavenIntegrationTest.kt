@@ -24,6 +24,10 @@ class MavenIntegrationTest : AbstractIntegrationTest() {
         pomXml.apply {
             writeText(readText().replace("\$dokka_version", currentDokkaVersion))
         }
+        val customResourcesDir = File(templateProjectDir, "customResources")
+        if(customResourcesDir.exists() && customResourcesDir.isDirectory) {
+            customResourcesDir.copyRecursively(File(projectDir, "customResources"), overwrite = true)
+        }
     }
 
     @Test
@@ -54,6 +58,17 @@ class MavenIntegrationTest : AbstractIntegrationTest() {
             assertNoEmptyLinks(file)
             assertNoEmptySpans(file)
         }
+
+        assertEquals(
+            """#logo{background-image:url('https://upload.wikimedia.org/wikipedia/commons/9/9d/Ubuntu_logo.svg');}""",
+            stylesDir.resolve("logo-styles.css").readText().replace("\\s".toRegex(), ""),
+        )
+        assertTrue(stylesDir.resolve("custom-style-to-add.css").isFile)
+        projectDir.allHtmlFiles().forEach { file ->
+            if(file.name != "navigation.html") assertTrue("custom-style-to-add.css" in file.readText(), "custom styles not added to html file ${file.name}")
+        }
+        assertEquals("""/* custom stylesheet */""", stylesDir.resolve("custom-style-to-add.css").readText())
+        assertTrue(imagesDir.resolve("custom-resource.svg").isFile)
     }
 
     @Test

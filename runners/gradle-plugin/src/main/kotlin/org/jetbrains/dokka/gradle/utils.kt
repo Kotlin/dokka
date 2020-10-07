@@ -7,7 +7,6 @@ import org.gradle.api.provider.HasMultipleValues
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.util.Path
-import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.KotlinTarget

@@ -8,17 +8,19 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.Task
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.plugins.JavaBasePlugin
+import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
+import org.gradle.kotlin.dsl.listProperty
 import org.gradle.kotlin.dsl.mapProperty
-import org.jetbrains.dokka.DokkaBootstrap
-import org.jetbrains.dokka.DokkaConfigurationImpl
-import org.jetbrains.dokka.DokkaDefaults
-import org.jetbrains.dokka.toJsonString
+import org.jetbrains.dokka.*
+import org.jetbrains.dokka.plugability.ConfigurableBlock
+import org.jetbrains.dokka.plugability.DokkaPlugin
 import java.io.File
 import java.util.function.BiConsumer
 import kotlin.reflect.KClass
+import kotlin.reflect.full.createInstance
 
 abstract class AbstractDokkaTask(
     private val bootstrapClass: KClass<out DokkaBootstrap> = DokkaBootstrap::class
@@ -49,7 +51,23 @@ abstract class AbstractDokkaTask(
         .safeConvention(DokkaDefaults.offlineMode)
 
     @Input
-    val pluginsConfiguration: MapProperty<String, String> = project.objects.mapProperty()
+    val pluginsConfiguration: ListProperty<in DokkaConfiguration.PluginConfiguration> = project.objects.listProperty()
+
+    /**
+     * Used to keep compatibility with gradle using Kotlin lower than 1.3.50
+     */
+    @Input
+    val pluginsMapConfiguration: MapProperty<String, String> = project.objects.mapProperty()
+
+    inline fun <reified P : DokkaPlugin, reified T : ConfigurableBlock> pluginConfiguration(block: T.() -> Unit) {
+        val instance = T::class.createInstance().apply(block)
+        val pluginConfiguration = PluginConfigurationImpl(
+            fqPluginName = P::class.qualifiedName!!,
+            serializationFormat = DokkaConfiguration.SerializationFormat.JSON,
+            values = instance.toJsonString()
+        )
+        pluginsConfiguration.add(pluginConfiguration)
+    }
 
     @Classpath
     val plugins: Configuration = project.maybeCreateDokkaPluginConfiguration(name)
@@ -83,5 +101,16 @@ abstract class AbstractDokkaTask(
 
     init {
         group = JavaBasePlugin.DOCUMENTATION_GROUP
+    }
+
+    internal fun buildPluginsConfiguration(): List<PluginConfigurationImpl> {
+        val manuallyConfigured = pluginsMapConfiguration.getSafe().entries.map { entry ->
+            PluginConfigurationImpl(
+                entry.key,
+                DokkaConfiguration.SerializationFormat.JSON,
+                entry.value
+            )
+        }
+        return pluginsConfiguration.getSafe().mapNotNull { it as? PluginConfigurationImpl } + manuallyConfigured
     }
 }

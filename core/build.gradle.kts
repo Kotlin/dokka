@@ -11,6 +11,7 @@ dependencies {
     implementation(kotlin("reflect"))
     implementation("org.jsoup:jsoup:1.12.1")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.11.1")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.11.1")
 
     val coroutines_version: String by project
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version")

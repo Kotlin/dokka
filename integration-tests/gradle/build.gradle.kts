@@ -7,6 +7,8 @@ dependencies {
 }
 
 tasks.integrationTest {
+    val dokka_version: String by project
+    environment("DOKKA_VERSION", dokka_version)
     inputs.dir(file("projects"))
     dependsOnMavenLocalPublication()
 }

@@ -46,7 +46,7 @@ class GlobalArguments(args: Array<String>) : DokkaConfiguration {
     override val pluginsConfiguration by parser.option(
         ArgTypePlugin,
         description = "Configuration for plugins in format fqPluginName=json^^fqPluginName=json..."
-    ).default(emptyMap())
+    ).delimiter("^^")
 
     override val pluginsClasspath by parser.option(
         ArgTypeFile,
@@ -254,16 +254,22 @@ object ArgTypeFile : ArgType<File>(true) {
 object ArgTypePlatform : ArgType<Platform>(true) {
     override fun convert(value: kotlin.String, name: kotlin.String): Platform = Platform.fromString(value)
     override val description: kotlin.String
-        get() = "{ String thar represents paltform }"
+        get() = "{ String that represents platform }"
 }
 
-object ArgTypePlugin : ArgType<Map<String, String>>(true) {
-    override fun convert(value: kotlin.String, name: kotlin.String): Map<kotlin.String, kotlin.String> =
-        value.split("^^").map {
-            it.split("=").let {
-                it[0] to it[1]
-            }
-        }.toMap()
+object ArgTypePlugin : ArgType<DokkaConfiguration.PluginConfiguration>(true) {
+    override fun convert(
+        value: kotlin.String,
+        name: kotlin.String
+    ): DokkaConfiguration.PluginConfiguration {
+        return value.split("=").let {
+            PluginConfigurationImpl(
+                fqPluginName = it[0],
+                serializationFormat = DokkaConfiguration.SerializationFormat.JSON,
+                values = it[1]
+            )
+        }
+    }
 
     override val description: kotlin.String
         get() = "{ String fqName=json, remember to escape `\"` inside json }"
