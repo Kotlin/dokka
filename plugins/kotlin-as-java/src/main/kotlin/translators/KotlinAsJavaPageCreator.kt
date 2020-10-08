@@ -5,12 +5,12 @@ import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentCon
 import org.jetbrains.dokka.base.translators.documentables.DefaultPageCreator
 import org.jetbrains.dokka.model.DProperty
 import org.jetbrains.dokka.pages.MemberPageNode
-import org.jetbrains.dokka.utilities.DokkaLogger
+import org.jetbrains.dokka.plugability.DokkaContext
 
 class KotlinAsJavaPageCreator(
     commentsToContentConverter: CommentsToContentConverter,
     signatureProvider: SignatureProvider,
-    logger: DokkaLogger
-) : DefaultPageCreator(commentsToContentConverter, signatureProvider, logger) {
+    context: DokkaContext
+) : DefaultPageCreator(commentsToContentConverter, signatureProvider, context) {
     override fun pageForProperty(p: DProperty): MemberPageNode? = null
 }

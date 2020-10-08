@@ -1,9 +1,7 @@
 package transformerBuilders;
 
 import org.jetbrains.dokka.CoreExtensions
-import org.jetbrains.dokka.pages.PageNode
-import org.jetbrains.dokka.pages.RendererSpecificResourcePage
-import org.jetbrains.dokka.pages.RenderingStrategy
+import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
 import org.jetbrains.dokka.transformers.pages.PageTransformer
@@ -11,6 +9,7 @@ import org.jetbrains.dokka.transformers.pages.pageMapper
 import org.jetbrains.dokka.transformers.pages.pageScanner
 import org.jetbrains.dokka.transformers.pages.pageStructureTransformer
 import org.junit.jupiter.api.Test
+import kotlin.test.assertEquals
 
 class PageTransformerBuilderTest : AbstractCoreTest() {
 
@@ -132,6 +131,43 @@ class PageTransformerBuilderTest : AbstractCoreTest() {
             }
         }
     }
+
+    @Test
+    fun `kotlin constructors tab should not exist`() {
+        val configuration = dokkaConfiguration {
+            sourceSets {
+                sourceSet {
+                    sourceRoots = listOf("src/")
+                }
+            }
+        }
+        testInline(
+            """
+            |/src/main/kotlin/kotlinAsJavaPlugin/Test.kt
+            |package kotlinAsJavaPlugin
+            |
+            |class Test(val xd: Int)
+        """.trimMargin(),
+            configuration
+        ) {
+            pagesGenerationStage = { root ->
+                val content = root.children
+                    .flatMap { it.children<ContentPage>() }
+                    .map { it.content }.single().children
+                    .filterIsInstance<ContentGroup>()
+                    .single { it.dci.kind == ContentKind.Main }.children
+
+                val constructorTabsCount = content.filter { it is ContentHeader }.flatMap {
+                    it.children.filter { it is ContentText }
+                }.count {
+                    (it as? ContentText)?.text == "Constructors"
+                }
+
+                assertEquals(0, constructorTabsCount)
+            }
+        }
+    }
+
 
     private fun <T> Collection<T>.assertCount(n: Int, prefix: String = "") =
         assert(count() == n) { "${prefix}Expected $n, got ${count()}" }

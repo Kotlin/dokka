@@ -14,6 +14,7 @@ import utils.A
 import utils.Span
 import utils.TestOutputWriterPlugin
 import utils.match
+import kotlin.test.assertEquals
 
 class KotlinAsJavaPluginTest : AbstractCoreTest() {
 
@@ -86,7 +87,10 @@ class KotlinAsJavaPluginTest : AbstractCoreTest() {
                     .map { it.content }
 
                 val children = contentList.flatMap { content ->
-                    content.mainContents.first().cast<ContentGroup>().children
+                    content.mainContents.single { it is ContentGroup }.children // TODO: Fix nesting of groups in PageCreator,
+                        // becuase now there is different level of nesting constructors and properties/functions
+                        // `contentForScope` is called on same level as constructors are
+                        // best solution would be possibility to merge these groups
                         .filterIsInstance<ContentTable>()
                         .filter { it.children.isNotEmpty() }
                 }
@@ -369,6 +373,38 @@ class KotlinAsJavaPluginTest : AbstractCoreTest() {
                     "final ", A("Integer"), A("someFun"), "(", A("Map"), "<", A("String"),
                     ", ", A("Integer"), ">", A("xd"), ")", Span()
                 )
+            }
+        }
+    }
+
+    @Test
+    fun `kotlin as java constructor`() {
+        val configuration = dokkaConfiguration {
+            sourceSets {
+                sourceSet {
+                    sourceRoots = listOf("src/")
+                }
+            }
+        }
+        testInline(
+            """
+            |/src/main/kotlin/kotlinAsJavaPlugin/Test.kt
+            |package kotlinAsJavaPlugin
+            |
+            |class Test(val xd: Int)
+        """.trimMargin(),
+            configuration,
+            cleanupOutput = true
+        ) {
+            pagesGenerationStage = { root ->
+                val content = root.children
+                    .flatMap { it.children<ContentPage>() }
+                    .map { it.content }.single().mainContents
+
+                val text = content.single { it is ContentHeader }.children
+                        .single() as ContentText
+
+                assertEquals("Constructors", text.text)
             }
         }
     }
