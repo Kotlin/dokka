@@ -44,7 +44,8 @@ open class DefaultPageCreator(
         ClasslikePageNode(
             e.name, contentForEnumEntry(e), setOf(e.dri), e,
             e.classlikes.renameClashingDocumentable().map(::pageForClasslike) +
-                    e.filteredFunctions.renameClashingDocumentable().map(::pageForFunction)
+                    e.filteredFunctions.renameClashingDocumentable().map(::pageForFunction) +
+                    e.properties.renameClashingDocumentable().mapNotNull(::pageForProperty)
         )
 
     open fun pageForClasslike(c: DClasslike): ClasslikePageNode {
