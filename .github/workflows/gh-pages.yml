@@ -37,5 +37,6 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./docs/build/mkdocs
+          destination_dir: ../
           keep_files: true
           full_commit_message: Publish ${{ env.DOKKA_VERSION }} documentation
