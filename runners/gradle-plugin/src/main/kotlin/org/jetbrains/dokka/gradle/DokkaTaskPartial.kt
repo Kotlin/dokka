@@ -42,7 +42,7 @@ abstract class DokkaTaskPartial : AbstractDokkaTask() {
             offlineMode = offlineMode.getSafe(),
             failOnWarning = failOnWarning.getSafe(),
             sourceSets = unsuppressedSourceSets.build(),
-            pluginsConfiguration = pluginsConfiguration.getSafe(),
+            pluginsConfiguration = buildPluginsConfiguration(),
             pluginsClasspath = plugins.resolve().toList(),
             delayTemplateSubstitution = true
         )
