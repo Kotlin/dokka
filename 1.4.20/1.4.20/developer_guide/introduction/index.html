@@ -599,7 +599,8 @@ to ignore this as the next step will address this error</p>
 <span class="p">}</span>
 </code></pre></div>
 <h2 id="building-sample-plugin">Building sample plugin<a class="headerlink" href="#building-sample-plugin" title="Permanent link">&para;</a></h2>
-<p>In order to load a plugin into Dokka, your class must extend <code>DokkaPlugin</code> class. All instances are automatically loaded during Dokka setup using <code>java.util.ServiceLoader</code>.</p>
+<p>In order to load a plugin into Dokka, your class must extend <code>DokkaPlugin</code> class. A fully qualified name of that class must be placed in a file named <code>org.jetbrains.dokka.plugability.DokkaPlugin</code> under <code>resources/META-INF/services</code>.
+All instances are automatically loaded during Dokka setup using <code>java.util.ServiceLoader</code>.</p>
 <p>Dokka provides a set of entry points, for which user can create their own implementations. They must be delegated using <code>DokkaPlugin.extending(definition: ExtendingDSL.() -&gt; Extension&lt;T, *, *&gt;)</code> function,that returns a delegate <code>ExtensionProvider</code> with supplied definition. </p>
 <p>To create a definition, you can use one of two infix functions<code>with(T)</code> or <code>providing( (DokkaContext) -&gt; T)</code> where <code>T</code> is the type of an extended endpoint. You can also use infix functions:</p>
 <ul>
