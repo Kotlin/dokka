@@ -752,6 +752,7 @@ By default, three transformers are created:</p>
     <span class="k">operator</span> <span class="k">fun</span> <span class="nf">invoke</span><span class="p">(</span><span class="n">modules</span><span class="p">:</span> <span class="n">Collection</span><span class="p">&lt;</span><span class="n">DModule</span><span class="p">&gt;,</span> <span class="n">context</span><span class="p">:</span> <span class="n">DokkaContext</span><span class="p">):</span> <span class="n">DModule</span>
 <span class="p">}</span>
 </code></pre></div>
+
 <p>By default, <code>DefaultDocumentableMerger</code> is created. This extension is treated as a fallback, so it can be overridden by a custom one.</p>
 <h3 id="merged-data-transformation">Merged data transformation<a class="headerlink" href="#merged-data-transformation" title="Permanent link">&para;</a></h3>
 <p>You can apply any transformation to already merged data</p>
@@ -760,6 +761,7 @@ By default, three transformers are created:</p>
     <span class="k">operator</span> <span class="k">fun</span> <span class="nf">invoke</span><span class="p">(</span><span class="n">original</span><span class="p">:</span> <span class="n">DModule</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">DokkaContext</span><span class="p">):</span> <span class="n">DModule</span>
 <span class="p">}</span>
 </code></pre></div>
+
 <p>By default, <code>InheritorsExtractorTransformer</code> is created, that extracts inherited classes data across source sets and creates inheritance map.</p>
 <h3 id="creating-page-models">Creating page models<a class="headerlink" href="#creating-page-models" title="Permanent link">&para;</a></h3>
 <p>The documentable model is translated into page format, that aggregates all tha data that will be available for different pages of documentation.</p>
@@ -769,6 +771,7 @@ By default, three transformers are created:</p>
     <span class="k">operator</span> <span class="k">fun</span> <span class="nf">invoke</span><span class="p">(</span><span class="n">module</span><span class="p">:</span> <span class="n">DModule</span><span class="p">):</span> <span class="n">ModulePageNode</span>
 <span class="p">}</span>
 </code></pre></div>
+
 <p>By default, <code>DefaultDocumentableToPageTranslator</code> is created.  This extension is treated as a fallback, so it can be overridden by a custom one.</p>
 <h3 id="transforming-page-models">Transforming page models<a class="headerlink" href="#transforming-page-models" title="Permanent link">&para;</a></h3>
 <p>You can apply any transformations to paged data.</p>
@@ -790,6 +793,7 @@ By default, two transformers are created:</p>
     <span class="k">fun</span> <span class="nf">render</span><span class="p">(</span><span class="n">root</span><span class="p">:</span> <span class="n">RootPageNode</span><span class="p">)</span>
 <span class="p">}</span>
 </code></pre></div>
+
 <p>By default, only <code>HtmlRenderer</code>, that extends basic <code>DefaultRenderer</code>, is created, but it will be registered only if configuration parameter <code>format</code> is set to <code>html</code>. Using any other value without providing valid renderer will cause Dokka to fail. </p>
 <h2 id="multimodule-page-generation-endpoints">Multimodule page generation endpoints<a class="headerlink" href="#multimodule-page-generation-endpoints" title="Permanent link">&para;</a></h2>
 <p>Multimodule page generation is a separate process, that declares two additional entry points:</p>
@@ -801,6 +805,7 @@ By default, two transformers are created:</p>
     <span class="k">operator</span> <span class="k">fun</span> <span class="nf">invoke</span><span class="p">():</span> <span class="n">RootPageNode</span>
 <span class="p">}</span>
 </code></pre></div>
+
 <p>By default, <code>MultimodulePageCreator</code> is created.  This extension is treated as a fallback, so it can be replaced by a custom one. </p>
 <h3 id="multimodule-page-transformation">Multimodule page transformation<a class="headerlink" href="#multimodule-page-transformation" title="Permanent link">&para;</a></h3>
 <p>Additional transformation that we might apply for multimodule page.</p>
@@ -846,6 +851,7 @@ tasks {
 
 <span class="p">}</span>
 </code></pre></div>
+
 <h3 id="following-extension-points-are-available-with-base-plugin">Following extension points are available with base plugin<a class="headerlink" href="#following-extension-points-are-available-with-base-plugin" title="Permanent link">&para;</a></h3>
 <table>
 <thead>

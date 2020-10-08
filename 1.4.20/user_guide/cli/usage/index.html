@@ -331,6 +331,13 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#base-plugin" class="md-nav__link">
+    Base plugin
+  </a>
+  
+</li>
+      
       
       
       
@@ -489,6 +496,13 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#base-plugin" class="md-nav__link">
+    Base plugin
+  </a>
+  
+</li>
+      
       
       
       
@@ -509,7 +523,7 @@
                 
                 
                 <h1 id="using-command-line">Using command line<a class="headerlink" href="#using-command-line" title="Permanent link">&para;</a></h1>
-<p>To run Dokka from the command line, download the <a href="https://github.com/Kotlin/dokka/releases/download/v1.4.10/dokka-cli-1.4.10.jar">Dokka CLI runner</a>.
+<p>To run Dokka from the command line, download the <a href="https://mvnrepository.com/artifact/org.jetbrains.dokka/dokka-cli">Dokka CLI runner</a>.
 To generate documentation, run the following command:
 <div class="codehilite"><pre><span></span><code>java -jar dokka-cli.jar &lt;arguments&gt;
 </code></pre></div></p>
@@ -553,6 +567,21 @@ To generate documentation, run the following command:
 </code></pre></div></p>
 <h2 id="applying-plugins">Applying plugins<a class="headerlink" href="#applying-plugins" title="Permanent link">&para;</a></h2>
 <p>To apply a Dokka plugin you have to provide it and all its dependencies in the <code>pluginsClasspath</code> parameter</p>
+<h2 id="base-plugin">Base plugin<a class="headerlink" href="#base-plugin" title="Permanent link">&para;</a></h2>
+<p>Using CLI runner to generate default documentation requires providing all dependencies manually on classpath.
+For Base plugins these are:</p>
+<ul>
+<li><a href="https://mvnrepository.com/artifact/org.jetbrains.dokka/dokka-base">dokka-base.jar</a></li>
+<li><a href="https://mvnrepository.com/artifact/org.jetbrains.dokka/dokka-analysis">dokka-analysis.jar</a></li>
+<li><a href="https://mvnrepository.com/artifact/org.jetbrains.dokka/kotlin-analysis-compiler">kotlin-analysis-compiler.jar</a></li>
+<li><a href="https://mvnrepository.com/artifact/org.jetbrains.dokka/kotlin-analysis-intellij">kotlin-analysis-intellij.jar</a></li>
+<li><a href="https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-core/1.3.9">kotlinx-coroutines-core.jar</a></li>
+<li><a href="https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-html-jvm?repo=kotlinx">kotlinx-html-jvm.jar</a></li>
+</ul>
+<p>All of them are published on maven central.
+To get them on classpath one should add them via <code>pluginsClasspath</code> argument, e. g.
+<div class="codehilite"><pre><span></span><code>java -jar dokka-cli.jar -pluginsClasspath &quot;dokka-base.jar;dokka-analysis.jar;kotlin-analysis-compiler.jar;kotlin-analysis-intellij.jar;kotlinx-coroutines-core.jar;kotlinx-html-jvm.jar&quot; ...
+</code></pre></div></p>
                 
                   
                 
