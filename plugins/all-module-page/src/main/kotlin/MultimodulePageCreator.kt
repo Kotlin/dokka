@@ -61,7 +61,6 @@ class MultimodulePageCreator(
             }
         }
         return MultimoduleRootPageNode(
-            "Modules",
             setOf(DRI(packageName = MULTIMODULE_PACKAGE_PLACEHOLDER, classNames = "allModules")),
             contentNode
         )

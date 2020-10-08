@@ -20,9 +20,15 @@ open class DokkaLocationProvider(
 
     protected open val pathsIndex: Map<PageNode, List<String>> = IdentityHashMap<PageNode, List<String>>().apply {
         fun registerPath(page: PageNode, prefix: List<String>) {
-            val newPrefix = prefix + page.pathName
-            put(page, newPrefix)
-            page.children.forEach { registerPath(it, newPrefix) }
+            if (page is RootPageNode && page.forceTopLevelName) {
+                put(page, prefix + PAGE_WITH_CHILDREN_SUFFIX)
+                page.children.forEach { registerPath(it, prefix) }
+            } else {
+                val newPrefix = prefix + page.pathName
+                put(page, newPrefix)
+                page.children.forEach { registerPath(it, newPrefix) }
+            }
+
         }
         put(pageGraphRoot, emptyList())
         pageGraphRoot.children.forEach { registerPath(it, emptyList()) }
