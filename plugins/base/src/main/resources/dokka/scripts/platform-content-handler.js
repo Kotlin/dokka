@@ -114,6 +114,10 @@ function initializeFiltering() {
     let cached = window.localStorage.getItem('inactive-filters')
     if (cached) {
         let parsed = JSON.parse(cached)
+        //Events are used by react to get values in 'on this page'
+        const event = new CustomEvent('sourceset-filter-change', { detail: parsed });
+        window.dispatchEvent(event);
+
         filteringContext.activeFilters = filteringContext.restrictedDependencies
             .filter(q => parsed.indexOf(q) == -1 )
     } else {
@@ -215,6 +219,9 @@ function refreshFiltering() {
                 elem.setAttribute("data-filterable-current", platformList.join(' '))
             }
         )
+    const event = new CustomEvent('sourceset-filter-change', { detail: sourcesetList });
+    window.dispatchEvent(event);
+    
     refreshFilterButtons()
     refreshPlatformTabs()
 }

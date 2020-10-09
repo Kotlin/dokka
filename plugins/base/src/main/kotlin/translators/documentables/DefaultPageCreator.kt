@@ -544,7 +544,7 @@ open class DefaultPageCreator(
                             ) {
                                 elements.map {
                                     instance(setOf(it.dri), it.sourceSets.toSet(), extra = PropertyContainer.withAll(SymbolAnchorHint(it.name ?: "", kind))) {
-                                        divergent {
+                                        divergent(extra = PropertyContainer.empty()) {
                                             group {
                                                 +buildSignature(it)
                                             }

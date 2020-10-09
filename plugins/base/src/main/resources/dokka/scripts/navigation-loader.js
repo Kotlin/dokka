@@ -16,7 +16,7 @@ window.addEventListener('load', () => {
     })
 
     /* Smooth scrolling support for going to the top of the page */
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    document.querySelectorAll('.footer a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
             e.preventDefault();
 
