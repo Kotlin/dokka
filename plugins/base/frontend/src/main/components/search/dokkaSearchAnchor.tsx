@@ -1,5 +1,5 @@
 import React from "react";
-import SearchIcon from 'react-svg-loader!./searchIcon.svg';
+import SearchIcon from 'react-svg-loader!../assets/searchIcon.svg';
 
 export const DokkaSearchAnchor = ({wrapperProps, buttonProps, popup}: any) => {
     return (

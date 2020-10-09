@@ -13,6 +13,7 @@ import org.jetbrains.dokka.base.resolvers.anchors.SymbolAnchorHint
 import org.jetbrains.dokka.base.transformers.pages.sourcelinks.hasTabbedContent
 import org.jetbrains.dokka.base.renderers.isImage
 import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.model.CompositeSourceSetID
 import org.jetbrains.dokka.model.DisplaySourceSet
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.model.sourceSetIDs
@@ -105,7 +106,7 @@ open class HtmlRenderer(
             }
             node.hasStyle(TextStyle.Paragraph) -> p(additionalClasses) { childrenCallback() }
             node.hasStyle(TextStyle.Block) -> div(additionalClasses) { childrenCallback() }
-            node.isAnchorable -> buildAnchor(node.anchor, node.anchorLabel!!) { childrenCallback() }
+            node.isAnchorable -> buildAnchor(node.anchor!!, node.anchorLabel!!, node.sourceSetsFilters) { childrenCallback() }
             else -> childrenCallback()
         }
     }
@@ -379,7 +380,7 @@ open class HtmlRenderer(
         sourceSetRestriction: Set<DisplaySourceSet>?,
         style: Set<Style>
     ) {
-        anchorFromNode(contextNode)
+        buildAnchor(contextNode)
         div(classes = "table-row") {
             div("main-subrow " + contextNode.style.joinToString(separator = " ")) {
                 buildRowHeaderLink(toRender, pageContext, sourceSetRestriction, contextNode.anchor, "w-100")
@@ -397,7 +398,7 @@ open class HtmlRenderer(
         sourceSetRestriction: Set<DisplaySourceSet>?,
         style: Set<Style>
     ) {
-        anchorFromNode(contextNode)
+        buildAnchor(contextNode)
         div(classes = "table-row") {
             addSourceSetFilteringAttributes(contextNode)
             div {
@@ -423,7 +424,7 @@ open class HtmlRenderer(
         sourceSetRestriction: Set<DisplaySourceSet>?,
         style: Set<Style>
     ) {
-        anchorFromNode(contextNode)
+        buildAnchor(contextNode)
         div(classes = "table-row") {
             addSourceSetFilteringAttributes(contextNode)
             div("main-subrow keyValue " + contextNode.style.joinToString(separator = " ")) {
@@ -449,7 +450,7 @@ open class HtmlRenderer(
         toRender: List<ContentNode>,
         pageContext: ContentPage,
         sourceSetRestriction: Set<DisplaySourceSet>?,
-        anchorDestination: String,
+        anchorDestination: String?,
         classes: String = ""
     ) {
         toRender.filter { it is ContentLink || it.hasStyle(ContentStyle.RowTitle) }.takeIf { it.isNotEmpty() }?.let {
@@ -458,7 +459,7 @@ open class HtmlRenderer(
                     .forEach {
                         span("inline-flex") {
                             it.build(this, pageContext, sourceSetRestriction)
-                            if(it is ContentLink) buildAnchorCopyButton(anchorDestination)
+                            if(it is ContentLink && !anchorDestination.isNullOrBlank()) buildAnchorCopyButton(anchorDestination)
                         }
                     }
             }
@@ -581,19 +582,21 @@ open class HtmlRenderer(
         }
     }
 
-    private fun FlowContent.buildAnchor(anchor: String, anchorLabel: String, content: FlowContent.() -> Unit) {
+    private fun FlowContent.buildAnchor(anchor: String, anchorLabel: String, sourceSets: String, content: FlowContent.() -> Unit) {
         a {
             attributes["data-name"] = anchor
             attributes["anchor-label"] = anchorLabel
+            attributes["id"] = anchor
+            attributes["data-filterable-set"] = sourceSets
         }
         content()
     }
 
-    private fun FlowContent.buildAnchor(anchor: String, anchorLabel: String) =
-        buildAnchor(anchor, anchorLabel) {}
+    private fun FlowContent.buildAnchor(anchor: String, anchorLabel: String, sourceSets: String) =
+        buildAnchor(anchor, anchorLabel, sourceSets) {}
 
-    private fun FlowContent.anchorFromNode(node: ContentNode) {
-        node.anchorLabel?.let { label -> buildAnchor(node.anchor, label) }
+    private fun FlowContent.buildAnchor(node: ContentNode) {
+        node.anchorLabel?.let { label -> buildAnchor(node.anchor!!, label, node.sourceSetsFilters) }
     }
 
 
@@ -846,5 +849,8 @@ val ContentNode.isAnchorable: Boolean
 val ContentNode.anchorLabel: String?
     get() = extra[SymbolAnchorHint]?.anchorName
 
-val ContentNode.anchor: String
-    get() = (dci.dri.first().toString() + "/" + extra[SymbolAnchorHint]?.contentKind + "/" + sourceSets.joinToString { it.sourceSetIDs.all.joinToString() }).urlEncoded()
+val ContentNode.anchor: String?
+    get() = extra[SymbolAnchorHint]?.contentKind?.let { contentKind -> (dci.dri.first().toString() + "/" + contentKind + "/" + sourceSets.joinToString { it.sourceSetIDs.all.joinToString() }).urlEncoded() }
+
+val ContentNode.sourceSetsFilters: String
+    get() = sourceSets.sourceSetIDs.joinToString(" ") { it.toString() }
