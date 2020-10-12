@@ -849,8 +849,13 @@ val ContentNode.isAnchorable: Boolean
 val ContentNode.anchorLabel: String?
     get() = extra[SymbolAnchorHint]?.anchorName
 
+/**
+ * Anchors should be unique and should contain sourcesets, dri and contentKind.
+ * The idea is to make them as short as possible and just use a hashCode from sourcesets in order to match the
+ * 2040 characters limit
+ */
 val ContentNode.anchor: String?
-    get() = extra[SymbolAnchorHint]?.contentKind?.let { contentKind -> (dci.dri.first().toString() + "/" + contentKind + "/" + sourceSets.joinToString { it.sourceSetIDs.all.joinToString() }).urlEncoded() }
+    get() = extra[SymbolAnchorHint]?.contentKind?.let { contentKind -> (dci.dri.first().toString() + "/" + contentKind + "/" + sourceSets.hashCode()).urlEncoded() }
 
 val ContentNode.sourceSetsFilters: String
     get() = sourceSets.sourceSetIDs.joinToString(" ") { it.toString() }
