@@ -14,6 +14,7 @@ import org.jetbrains.dokka.base.renderers.sourceSets
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.DEnum
 import org.jetbrains.dokka.model.DEnumEntry
+import org.jetbrains.dokka.model.DFunction
 import org.jetbrains.dokka.model.withDescendants
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
@@ -55,7 +56,7 @@ object NavigationPageInstaller : PageTransformer {
 
     private fun visit(page: ContentPage): NavigationNode =
         NavigationNode(
-            name = page.name,
+            name = page.displayableName,
             dri = page.dri.first(),
             sourceSets = page.sourceSets(),
             children = page.navigableChildren()
@@ -69,6 +70,13 @@ object NavigationPageInstaller : PageTransformer {
                 children.filter { it is ContentPage && it.documentable is DEnumEntry }.map { visit(it as ContentPage) }
             else -> emptyList()
         }.sortedBy { it.name.toLowerCase() }
+
+    private val ContentPage.displayableName: String
+        get() = if(documentable is DFunction){
+            "$name()"
+        } else {
+            name
+        }
 }
 
 class CustomResourceInstaller(val dokkaContext: DokkaContext) : PageTransformer {
