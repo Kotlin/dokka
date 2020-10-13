@@ -174,14 +174,14 @@ class PageNodeMergerTest : AbstractCoreTest() {
             pagesTransformationStage = {
                 println(it)
                 val allChildren = it.childrenRec().filterIsInstance<ClasslikePageNode>()
-                val jvmClass = allChildren.filter { it.name == "DoNotMerge(jvm)" }
-                val jsClass = allChildren.filter { it.name == "DoNotMerge(js)" }
+                val jvmClass = allChildren.filter { it.name == "[jvm]DoNotMerge" }
+                val jsClass = allChildren.filter { it.name == "[js]DoNotMerge" }
                 val noClass = allChildren.filter { it.name == "DoNotMerge" }
                 assertTrue(jvmClass.size == 1) { "There can be only one DoNotMerge(jvm) page" }
-                assertTrue(jvmClass.first().documentable?.sourceSets?.single()?.analysisPlatform?.key == "jvm") { "DoNotMerge(jvm) should have only jvm sources" }
+                assertTrue(jvmClass.first().documentable?.sourceSets?.single()?.analysisPlatform?.key == "jvm") { "[jvm]DoNotMerge should have only jvm sources" }
 
                 assertTrue(jsClass.size == 1) { "There can be only one DoNotMerge(js) page" }
-                assertTrue(jsClass.first().documentable?.sourceSets?.single()?.analysisPlatform?.key == "js") { "DoNotMerge(js) should have only js sources" }
+                assertTrue(jsClass.first().documentable?.sourceSets?.single()?.analysisPlatform?.key == "js") { "[js]DoNotMerge should have only js sources" }
 
                 assertTrue(noClass.isEmpty()) { "There can't be any DoNotMerge page" }
             }
