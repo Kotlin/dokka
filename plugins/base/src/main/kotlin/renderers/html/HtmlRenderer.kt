@@ -12,6 +12,7 @@ import org.jetbrains.dokka.base.renderers.TabSortingStrategy
 import org.jetbrains.dokka.base.resolvers.anchors.SymbolAnchorHint
 import org.jetbrains.dokka.base.transformers.pages.sourcelinks.hasTabbedContent
 import org.jetbrains.dokka.base.renderers.isImage
+import org.jetbrains.dokka.base.renderers.pageId
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.CompositeSourceSetID
 import org.jetbrains.dokka.model.DisplaySourceSet
@@ -735,7 +736,7 @@ open class HtmlRenderer(
         buildHtml(page, page.embeddedResources) {
             div {
                 id = "content"
-                attributes["pageIds"] = page.dri.first().toString()
+                attributes["pageIds"] = page.pageId
                 content(this, page)
             }
         }

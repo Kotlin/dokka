@@ -64,7 +64,7 @@ open class DefaultPageCreator(
     }
 
     private fun <T> T.toClashedName() where T: Documentable, T: WithExtraProperties<T> =
-        name.orEmpty() + (extra[ClashingDriIdentifier]?.value?.joinToString(", ", "(", ")") { it.displayName } ?: "")
+        (extra[ClashingDriIdentifier]?.value?.joinToString(", ", "[", "]") { it.displayName } ?: "") + name.orEmpty()
 
     private fun <T> List<T>.renameClashingDocumentable(): List<T> where T: Documentable =
         groupBy { it.dri }.values.flatMap { elements ->
@@ -502,7 +502,7 @@ open class DefaultPageCreator(
         }
         divergentGroup(ContentDivergentGroup.GroupID("member")) {
             instance(setOf(d.dri), d.sourceSets.toSet()) {
-                divergent(kind = ContentKind.Symbol) {
+                divergent {
                     +buildSignature(d)
                 }
                 after {

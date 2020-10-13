@@ -2,6 +2,7 @@ package org.jetbrains.dokka.base.renderers.html
 
 import kotlinx.html.*
 import kotlinx.html.stream.createHTML
+import org.jetbrains.dokka.base.renderers.pageId
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.DisplaySourceSet
 import org.jetbrains.dokka.model.WithChildren
@@ -24,7 +25,7 @@ class NavigationPage(val root: NavigationNode) : RendererSpecificPage {
         with(renderer) {
             div("sideMenuPart") {
                 id = navId
-                attributes["pageId"] = node.dri.toString()
+                attributes["pageId"] = node.pageId
                 div("overview") {
                     buildLink(node.dri, node.sourceSets.toList()) { buildBreakableText(node.name) }
                     if (node.children.isNotEmpty()) {
