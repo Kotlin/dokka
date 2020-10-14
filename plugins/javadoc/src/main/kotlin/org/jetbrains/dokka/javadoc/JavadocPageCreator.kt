@@ -183,7 +183,7 @@ open class JavadocPageCreator(
 
     private inline fun <reified T : TagWrapper> Documentable.contentNodesFromType(sourceSet: DokkaSourceSet?) =
         findNodeInDocumentation<T>(sourceSet)?.let {
-            DocTagToContentConverter.buildContent(
+            DocTagToContentConverter().buildContent(
                 it.root,
                 DCI(setOf(dri), JavadocContentKind.OverviewSummary),
                 sourceSets.toSet()
@@ -213,7 +213,7 @@ open class JavadocPageCreator(
         return JavadocIndexExtra(
             indexes.map {
                 ContentGroup(
-                    children = DocTagToContentConverter.buildContent(
+                    children = DocTagToContentConverter().buildContent(
                         it,
                         DCI(setOf(dri), JavadocContentKind.OverviewSummary),
                         sourceSets.toSet()

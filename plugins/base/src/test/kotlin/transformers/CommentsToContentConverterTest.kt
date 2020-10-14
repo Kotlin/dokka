@@ -10,7 +10,7 @@ import org.jetbrains.dokka.pages.*
 import org.jetbrains.kotlin.utils.addToStdlib.assertedCast
 
 class CommentsToContentConverterTest {
-    private val converter = DocTagToContentConverter
+    private val converter = DocTagToContentConverter()
 
     private fun executeTest(
         docTag:DocTag,
