@@ -18,7 +18,6 @@ import kotlin.reflect.full.isSubclassOf
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.base.resolvers.anchors.SymbolAnchorHint
 import org.jetbrains.dokka.base.transformers.documentables.ClashingDriIdentifier
-import org.jetbrains.dokka.model.properties.plus
 
 private typealias GroupedTags = Map<KClass<out TagWrapper>, List<Pair<DokkaSourceSet?, TagWrapper>>>
 
@@ -43,7 +42,7 @@ open class DefaultPageCreator(
 
     open fun pageForEnumEntry(e: DEnumEntry): ClasslikePageNode =
         ClasslikePageNode(
-            e.name, contentForEnumEntry(e), setOf(e.dri), e,
+            e.nameAfterClash(), contentForEnumEntry(e), setOf(e.dri), e,
             e.classlikes.renameClashingDocumentable().map(::pageForClasslike) +
                     e.filteredFunctions.renameClashingDocumentable().map(::pageForFunction) +
                     e.properties.renameClashingDocumentable().mapNotNull(::pageForProperty)
@@ -53,7 +52,7 @@ open class DefaultPageCreator(
         val constructors = if (c is WithConstructors) c.constructors else emptyList()
 
         return ClasslikePageNode(
-            c.name.orEmpty(), contentForClasslike(c), setOf(c.dri), c,
+            c.nameAfterClash(), contentForClasslike(c), setOf(c.dri), c,
             constructors.map(::pageForFunction) +
                     c.classlikes.renameClashingDocumentable().map(::pageForClasslike) +
                     c.filteredFunctions.renameClashingDocumentable().map(::pageForFunction) +
@@ -70,22 +69,22 @@ open class DefaultPageCreator(
         groupBy { it.dri }.values.flatMap { elements ->
         if (elements.size == 1) elements else elements.mapNotNull { element ->
             when(element) {
-                is DClass -> element.copy(name = element.toClashedName())
-                is DObject -> element.copy(name = element.toClashedName())
-                is DAnnotation -> element.copy(name = element.toClashedName())
-                is DInterface -> element.copy(name = element.toClashedName())
-                is DEnum -> element.copy(name = element.toClashedName())
-                is DFunction -> element.copy(name = element.toClashedName())
-                is DProperty -> element.copy(name = element.toClashedName())
-                is DTypeAlias -> element.copy(name = element.toClashedName())
+                is DClass -> element.copy(extra = element.extra + DriClashAwareName(element.toClashedName()))
+                is DObject -> element.copy(extra = element.extra + DriClashAwareName(element.toClashedName()) )
+                is DAnnotation -> element.copy(extra = element.extra + DriClashAwareName(element.toClashedName()) )
+                is DInterface -> element.copy(extra = element.extra + DriClashAwareName(element.toClashedName()) )
+                is DEnum -> element.copy(extra = element.extra + DriClashAwareName(element.toClashedName()) )
+                is DFunction -> element.copy(extra = element.extra + DriClashAwareName(element.toClashedName()) )
+                is DProperty -> element.copy(extra = element.extra + DriClashAwareName(element.toClashedName()) )
+                is DTypeAlias -> element.copy(extra = element.extra + DriClashAwareName(element.toClashedName()) )
                 else -> null
             } as? T?
         }
     }
 
-    open fun pageForFunction(f: DFunction) = MemberPageNode(f.name, contentForFunction(f), setOf(f.dri), f)
+    open fun pageForFunction(f: DFunction) = MemberPageNode(f.nameAfterClash(), contentForFunction(f), setOf(f.dri), f)
 
-    open fun pageForProperty(p: DProperty): MemberPageNode? = MemberPageNode(p.name, contentForProperty(p), setOf(p.dri), p)
+    open fun pageForProperty(p: DProperty): MemberPageNode? = MemberPageNode(p.nameAfterClash(), contentForProperty(p), setOf(p.dri), p)
 
     private val WithScope.filteredFunctions: List<DFunction>
         get() = functions.mapNotNull { function ->
@@ -578,4 +577,7 @@ open class DefaultPageCreator(
 
     private val Documentable.hasSeparatePage: Boolean
         get() = this !is DTypeAlias
+
+    private fun <T: Documentable> T.nameAfterClash(): String =
+        ((this as? WithExtraProperties<out Documentable>)?.extra?.get(DriClashAwareName)?.value ?: name).orEmpty()
 }

@@ -72,7 +72,7 @@ object NavigationPageInstaller : PageTransformer {
         }.sortedBy { it.name.toLowerCase() }
 
     private val ContentPage.displayableName: String
-        get() = if(documentable is DFunction){
+        get() = if (documentable is DFunction) {
             "$name()"
         } else {
             name
