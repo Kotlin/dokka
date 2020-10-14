@@ -53,7 +53,7 @@ class MultimodulePageCreator(
                     val content = ContentGroup(
                         children =
                         if (displayedModuleDocumentation != null)
-                            DocTagToContentConverter.buildContent(displayedModuleDocumentation, dci, emptySet())
+                            DocTagToContentConverter().buildContent(displayedModuleDocumentation, dci, emptySet())
                         else emptyList(),
                         dci = dci,
                         sourceSets = emptySet(),
