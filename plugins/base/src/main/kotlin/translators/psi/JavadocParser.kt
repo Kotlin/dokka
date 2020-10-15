@@ -240,9 +240,9 @@ class JavadocParser(
     private fun PsiDocTag.contentElements(): List<PsiElement> =
         dataElements.mapNotNull { it.takeIf { it is PsiDocToken && it.text.isNotBlank() } }
 
-    private fun PsiDocTag.authorContentElements(): List<PsiElement> = listOf(
+    private fun PsiDocTag.authorContentElements(): List<PsiElement> = listOfNotNull(
         dataElements[0],
-        dataElements[0].nextSibling,
+        dataElements[0].nextSibling?.takeIf { it.text != dataElements.drop(1).firstOrNull()?.text },
         *dataElements.drop(1).toTypedArray()
     )
 

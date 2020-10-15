@@ -160,6 +160,92 @@ class ContentForParamsTest : AbstractCoreTest() {
     }
 
     @Test
+    fun `multiple authors`() {
+        testInline(
+            """
+            |/src/main/java/sample/DocGenProcessor.java
+            |package sample;
+            |/**
+            | * Annotation processor which visits all classes.
+            | *
+            | * @author googler1@google.com (Googler 1)
+            | * @author googler2@google.com (Googler 2)
+            | */
+            | public class DocGenProcessor { }
+            """.trimIndent(), testConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val classPage = module.children.single { it.name == "sample" }.children.single { it.name == "DocGenProcessor" } as ContentPage
+                classPage.content.assertNode {
+                    group {
+                        header { +"DocGenProcessor" }
+                        platformHinted {
+                            group {
+                                skipAllNotMatching() //Signature
+                            }
+                            group {
+                                group {
+                                    group {
+                                        +"Annotation processor which visits all classes."
+                                    }
+                                }
+                            }
+                            group {
+                                header(4) { +"Author" }
+                                comment { +"googler1@google.com (Googler 1)" }
+                                comment { +"googler2@google.com (Googler 2)" }
+                            }
+                        }
+                    }
+                    skipAllNotMatching()
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `author delimetered by space`() {
+        testInline(
+            """
+            |/src/main/java/sample/DocGenProcessor.java
+            |package sample;
+            |/**
+            | * Annotation processor which visits all classes.
+            | *
+            | * @author Marcin Aman Senior
+            | */
+            | public class DocGenProcessor { }
+            """.trimIndent(), testConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val classPage = module.children.single { it.name == "sample" }.children.single { it.name == "DocGenProcessor" } as ContentPage
+                classPage.content.assertNode {
+                    group {
+                        header { +"DocGenProcessor" }
+                        platformHinted {
+                            group {
+                                skipAllNotMatching() //Signature
+                            }
+                            group {
+                                group {
+                                    group {
+                                        +"Annotation processor which visits all classes."
+                                    }
+                                }
+                            }
+                            group {
+                                header(4) { +"Author" }
+                                comment { +"Marcin Aman Senior" }
+                            }
+                        }
+                    }
+                    skipAllNotMatching()
+                }
+            }
+        }
+    }
+
+    @Test
     fun `undocumented parameter and other tags`() {
         testInline(
             """
