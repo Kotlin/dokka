@@ -7,13 +7,13 @@ import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.psi.*
 import com.intellij.psi.impl.source.PsiClassReferenceType
 import com.intellij.psi.impl.source.PsiImmediateClassType
-import com.intellij.psi.javadoc.PsiDocComment
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.analysis.KotlinAnalysis
 import org.jetbrains.dokka.analysis.PsiDocumentableSource
 import org.jetbrains.dokka.analysis.from
+import org.jetbrains.dokka.base.translators.isDirectlyAnException
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.nextTarget
 import org.jetbrains.dokka.links.withClass
@@ -313,12 +313,17 @@ class DefaultPsiToDocumentableTranslator(
                         PropertyContainer.withAll(
                             implementedInterfacesExtra,
                             annotations.toList().toListOfAnnotations().toSourceSetDependent()
-                                .toAnnotations()
+                                .toAnnotations(),
+                            isExceptionExtra(ancestryTree),
                         )
                     )
                 }
             }
         }
+
+        private fun isExceptionExtra(ancestryTree: List<AncestryLevel>): ExceptionInSupertypes? =
+            ancestryTree.mapNotNull { it.superclass }.filter { it.dri.isDirectlyAnException() }
+                .takeIf { it.isNotEmpty() }?.let { ExceptionInSupertypes(it.toSourceSetDependent()) }
 
         private fun parseFunction(
             psi: PsiMethod,
