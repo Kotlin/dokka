@@ -241,7 +241,8 @@ private class DokkaDescriptorVisitor(
             val functions = async { descriptorsWithKind.functions.visitFunctions(driWithPlatform) }
             val properties = async { descriptorsWithKind.properties.visitProperties(driWithPlatform) }
             val classlikes = async { descriptorsWithKind.classlikes.visitClasslikes(driWithPlatform) }
-            val constructors = async { descriptor.constructors.parallelMap { visitConstructorDescriptor(it, driWithPlatform) } }
+            val constructors =
+                async { descriptor.constructors.parallelMap { visitConstructorDescriptor(it, driWithPlatform) } }
             val entries = async { descriptorsWithKind.enumEntries.visitEnumEntries(driWithPlatform) }
 
             DEnum(
@@ -312,7 +313,8 @@ private class DokkaDescriptorVisitor(
             val properties = async { descriptorsWithKind.properties.visitProperties(driWithPlatform) }
             val classlikes = async { descriptorsWithKind.classlikes.visitClasslikes(driWithPlatform) }
             val generics = async { descriptor.declaredTypeParameters.parallelMap { it.toVariantTypeParameter() } }
-            val constructors = async { descriptor.constructors.parallelMap { visitConstructorDescriptor(it, driWithPlatform) } }
+            val constructors =
+                async { descriptor.constructors.parallelMap { visitConstructorDescriptor(it, driWithPlatform) } }
 
             DAnnotation(
                 dri = driWithPlatform.dri,
@@ -391,7 +393,10 @@ private class DokkaDescriptorVisitor(
         }
     }
 
-    private suspend fun visitPropertyDescriptor(originalDescriptor: PropertyDescriptor, parent: DRIWithPlatformInfo): DProperty {
+    private suspend fun visitPropertyDescriptor(
+        originalDescriptor: PropertyDescriptor,
+        parent: DRIWithPlatformInfo
+    ): DProperty {
         val dri = parent.dri.copy(callable = Callable.from(originalDescriptor))
         val descriptor = originalDescriptor.getConcreteDescriptor()
         val isExpect = descriptor.isExpect
@@ -439,7 +444,10 @@ private class DokkaDescriptorVisitor(
         else
             overriddenDescriptors.first().createDRI(DRI.from(this))
 
-    private suspend fun visitFunctionDescriptor(originalDescriptor: FunctionDescriptor, parent: DRIWithPlatformInfo): DFunction {
+    private suspend fun visitFunctionDescriptor(
+        originalDescriptor: FunctionDescriptor,
+        parent: DRIWithPlatformInfo
+    ): DFunction {
         val (dri, inheritedFrom) = originalDescriptor.createDRI()
         val descriptor = originalDescriptor.getConcreteDescriptor()
         val isExpect = descriptor.isExpect
@@ -630,7 +638,8 @@ private class DokkaDescriptorVisitor(
                     generics = generics.await(),
                     extra = PropertyContainer.withAll(
                         descriptor.getAnnotations().toSourceSetDependent().toAnnotations(),
-                        info.exceptionsInSupertypes()?.takeIf { it.isNotEmpty() }?.let { ExceptionInSupertypes(it.toSourceSetDependent()) },
+                        info.exceptionsInSupertypes()?.takeIf { it.isNotEmpty() }
+                            ?.let { ExceptionInSupertypes(it.toSourceSetDependent()) },
                     )
                 )
             }
@@ -666,14 +675,16 @@ private class DokkaDescriptorVisitor(
 
         class EnumEntryDescriptor
 
-        val groupedDescriptors = descriptors.groupBy { when {
-            it is FunctionDescriptor -> FunctionDescriptor::class
-            it is PropertyDescriptor -> PropertyDescriptor::class
-            it is ClassDescriptor && it.kind != ClassKind.ENUM_ENTRY -> ClassDescriptor::class
-            it is TypeAliasDescriptor -> TypeAliasDescriptor::class
-            it is ClassDescriptor && it.kind == ClassKind.ENUM_ENTRY -> EnumEntryDescriptor::class
-            else -> IllegalStateException::class
-        } }
+        val groupedDescriptors = descriptors.groupBy {
+            when {
+                it is FunctionDescriptor -> FunctionDescriptor::class
+                it is PropertyDescriptor -> PropertyDescriptor::class
+                it is ClassDescriptor && it.kind != ClassKind.ENUM_ENTRY -> ClassDescriptor::class
+                it is TypeAliasDescriptor -> TypeAliasDescriptor::class
+                it is ClassDescriptor && it.kind == ClassKind.ENUM_ENTRY -> EnumEntryDescriptor::class
+                else -> IllegalStateException::class
+            }
+        }
 
         return DescriptorsWithKind(
             (groupedDescriptors[FunctionDescriptor::class] ?: emptyList()) as List<FunctionDescriptor>,
@@ -716,9 +727,13 @@ private class DokkaDescriptorVisitor(
     ): Set<AncestryLevel> {
         if (supertypes.isEmpty()) return ancestryInformation
 
-        val (interfaces, superclass) = supertypes.partition {
-            (it.constructor.declarationDescriptor as ClassDescriptor).kind == ClassKind.INTERFACE
-        }
+        val (interfaces, superclass) = supertypes
+            .partition {
+                val declaration = it.constructor.declarationDescriptor
+                val descriptor = declaration as? ClassDescriptor
+                    ?: (declaration as? TypeAliasDescriptor)?.underlyingType?.constructor?.declarationDescriptor as? ClassDescriptor
+                descriptor?.kind == ClassKind.INTERFACE
+            }
 
         val updated = coroutineScope {
             ancestryInformation + AncestryLevel(
@@ -758,7 +773,8 @@ private class DokkaDescriptorVisitor(
 
     private suspend fun org.jetbrains.kotlin.descriptors.annotations.Annotations.getPresentableName(): String? =
         map { it.toAnnotation() }.singleOrNull { it.dri.classNames == "ParameterName" }?.params?.get("name")
-            .safeAs<StringValue>()?.value?.drop(1)?.dropLast(1) // Dropping enclosing doublequotes because we don't want to have it in our custom signature serializer
+            .safeAs<StringValue>()?.value?.drop(1)
+            ?.dropLast(1) // Dropping enclosing doublequotes because we don't want to have it in our custom signature serializer
 
     private suspend fun KotlinType.toBound(): Bound = when (this) {
 
