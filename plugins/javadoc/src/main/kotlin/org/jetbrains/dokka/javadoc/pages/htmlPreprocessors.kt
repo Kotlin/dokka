@@ -141,7 +141,7 @@ object DeprecatedPageCreator : PageTransformer {
                             it.takeIf { it.isDeprecated() }?.putAs(DeprecatedPageSection.DeprecatedEnumConstants)
                         }
                         node.takeIf { it.isDeprecated() }?.putAs(
-                            if ((node.documentable as? WithSupertypes)?.isException == true) DeprecatedPageSection.DeprecatedExceptions
+                            if ((node as? WithJavadocExtra<out Documentable>)?.isException == true) DeprecatedPageSection.DeprecatedExceptions
                             else when (node.kind) {
                                 "enum" -> DeprecatedPageSection.DeprecatedEnums
                                 "interface" -> DeprecatedPageSection.DeprecatedInterfaces

@@ -1,15 +1,14 @@
 package org.jetbrains.dokka.base.translators.descriptors
 
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.withContext
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.analysis.DescriptorDocumentableSource
 import org.jetbrains.dokka.analysis.DokkaResolutionFacade
 import org.jetbrains.dokka.analysis.KotlinAnalysis
 import org.jetbrains.dokka.analysis.from
 import org.jetbrains.dokka.base.parsers.MarkdownParser
+import org.jetbrains.dokka.base.translators.isDirectlyAnException
 import org.jetbrains.dokka.links.*
 import org.jetbrains.dokka.links.Callable
 import org.jetbrains.dokka.model.*
@@ -48,8 +47,9 @@ import org.jetbrains.kotlin.resolve.scopes.MemberScope
 import org.jetbrains.kotlin.resolve.source.KotlinSourceElement
 import org.jetbrains.kotlin.resolve.source.PsiSourceElement
 import org.jetbrains.kotlin.types.*
+import org.jetbrains.kotlin.types.model.typeConstructor
+import org.jetbrains.kotlin.types.typeUtil.immediateSupertypes
 import org.jetbrains.kotlin.types.typeUtil.isAnyOrNullableAny
-import org.jetbrains.kotlin.types.typeUtil.supertypes
 import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 import java.lang.IllegalStateException
@@ -181,7 +181,8 @@ private class DokkaDescriptorVisitor(
                 extra = PropertyContainer.withAll(
                     descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
                     descriptor.getAnnotations().toSourceSetDependent().toAnnotations(),
-                    ImplementedInterfaces(info.allImplementedInterfaces.toSourceSetDependent())
+                    ImplementedInterfaces(info.allImplementedInterfaces.toSourceSetDependent()),
+                    info.exceptionsInSupertypes?.let { ExceptionInSupertypes(it.toSourceSetDependent()) },
                 )
             )
         }
@@ -218,7 +219,8 @@ private class DokkaDescriptorVisitor(
                 extra = PropertyContainer.withAll(
                     descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
                     descriptor.getAnnotations().toSourceSetDependent().toAnnotations(),
-                    ImplementedInterfaces(info.allImplementedInterfaces.toSourceSetDependent())
+                    ImplementedInterfaces(info.allImplementedInterfaces.toSourceSetDependent()),
+                    info.exceptionsInSupertypes?.let { ExceptionInSupertypes(it.toSourceSetDependent()) },
                 )
             )
         }
@@ -382,7 +384,8 @@ private class DokkaDescriptorVisitor(
                 extra = PropertyContainer.withAll<DClass>(
                     descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
                     descriptor.getAnnotations().toSourceSetDependent().toAnnotations(),
-                    ImplementedInterfaces(info.allImplementedInterfaces.toSourceSetDependent())
+                    ImplementedInterfaces(info.allImplementedInterfaces.toSourceSetDependent()),
+                    info.exceptionsInSupertypes?.let { ExceptionInSupertypes(it.toSourceSetDependent()) },
                 )
             )
         }
@@ -613,6 +616,7 @@ private class DokkaDescriptorVisitor(
         with(descriptor) {
             coroutineScope {
                 val generics = async { descriptor.declaredTypeParameters.parallelMap { it.toVariantTypeParameter() } }
+                val info = buildAncestryInformation(listOf(underlyingType)).sortedBy { it.level }
 
                 DTypeAlias(
                     dri = DRI.from(this@with),
@@ -625,7 +629,8 @@ private class DokkaDescriptorVisitor(
                     sourceSets = setOf(sourceSet),
                     generics = generics.await(),
                     extra = PropertyContainer.withAll(
-                        descriptor.getAnnotations().toSourceSetDependent().toAnnotations()
+                        descriptor.getAnnotations().toSourceSetDependent().toAnnotations(),
+                        info.exceptionsInSupertypes()?.takeIf { it.isNotEmpty() }?.let { ExceptionInSupertypes(it.toSourceSetDependent()) },
                     )
                 )
             }
@@ -724,7 +729,7 @@ private class DokkaDescriptorVisitor(
         }
 
         return buildAncestryInformation(
-            supertypes = supertypes.flatMap { it.supertypes() },
+            supertypes = supertypes.flatMap { it.immediateSupertypes() },
             level = level + 1,
             ancestryInformation = updated
         )
@@ -946,12 +951,6 @@ private class DokkaDescriptorVisitor(
     private fun ValueArgument.childrenAsText() =
         this.safeAs<KtValueArgument>()?.children?.map { it.text }.orEmpty()
 
-    private data class AncestryLevel(
-        val level: Int,
-        val superclass: TypeConstructor?,
-        val interfaces: List<TypeConstructor>
-    )
-
     private data class ClassInfo(val ancestry: List<AncestryLevel>, val docs: SourceSetDependent<DocumentationNode>) {
         val supertypes: List<TypeConstructorWithKind>
             get() = ancestry.firstOrNull { it.level == 0 }?.let {
@@ -965,6 +964,9 @@ private class DokkaDescriptorVisitor(
 
         val allImplementedInterfaces: List<TypeConstructor>
             get() = ancestry.flatMap { it.interfaces }.distinct()
+
+        val exceptionsInSupertypes: List<TypeConstructor>?
+            get() = ancestry.exceptionsInSupertypes()
     }
 
     private fun Visibility.toDokkaVisibility(): org.jetbrains.dokka.model.Visibility = when (this) {
@@ -978,3 +980,12 @@ private class DokkaDescriptorVisitor(
     private fun ConstantsEnumValue.fullEnumEntryName() =
         "${this.enumClassId.relativeClassName.asString()}.${this.enumEntryName.identifier}"
 }
+
+private data class AncestryLevel(
+    val level: Int,
+    val superclass: TypeConstructor?,
+    val interfaces: List<TypeConstructor>
+)
+
+private fun List<AncestryLevel>.exceptionsInSupertypes(): List<TypeConstructor>? =
+    mapNotNull { it.superclass }.filter { type -> type.dri.isDirectlyAnException() }.takeIf { it.isNotEmpty() }
