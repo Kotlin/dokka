@@ -163,14 +163,17 @@ class JavadocParser(
 
         private fun PsiElement.toDocumentationLinkString(
             labelElement: List<PsiElement>? = null
-        ): String =
-            (reference?.resolve()?.takeIf { it !is PsiParameter }?.let {
+        ): String {
+            val label = labelElement?.toList().takeUnless { it.isNullOrEmpty() } ?: listOf(defaultLabel())
+
+            val dri = reference?.resolve()?.takeIf { it !is PsiParameter }?.let {
                 val dri = DRI.from(it)
                 driMap[dri.toString()] = dri
-                Pair(labelElement ?: listOf(defaultLabel()), dri.toString())
-            } ?: Pair(listOf(defaultLabel()), UNRESOLVED_PSI_ELEMENT)).let { (label, dri) ->
-                """<a data-dri=$dri>${label.joinToString(" ") { it.text }}</a>"""
-            }
+                dri.toString()
+            } ?: UNRESOLVED_PSI_ELEMENT
+
+            return """<a data-dri=$dri>${label.joinToString(" ") { it.text }}</a>"""
+        }
 
         private fun convertInlineDocTag(tag: PsiInlineDocTag) = when (tag.name) {
             "link", "linkplain" -> tag.referenceElement()
