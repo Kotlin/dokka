@@ -47,7 +47,7 @@ export const WithFuzzySearchFilter = () => {
     if (pages) {
         data = pages.map((page, i) => ({
             ...page,
-            label: page.searchKey,
+            label: page.name,
             key: i + 1,
             type: page.kind,
             rgItemType: List.ListProps.Type.CUSTOM

@@ -4,7 +4,7 @@ export type Page = {
     name: string;
     kind: string;
     location: string;
-    searchKey: string;
+    searchKeys: string[];
     description: string;
 }
 
@@ -24,14 +24,10 @@ export type Props = {
     data: Option[]
 };
 
-export enum SearchRank {
-    SearchKeyMatch = 1,
-    NameMatch = 0
-}
 export type OptionWithSearchResult = Option & {
     matched: boolean,
     highlight: string,
-    rank: SearchRank
+    rank: number
 }
 
 export type OptionWithHighlightComponent = Option & {
