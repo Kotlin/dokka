@@ -53,6 +53,8 @@ nav:
       - Introduction: developer_guide/introduction.md
       - Data model: developer_guide/data_model.md
       - Extension points: developer_guide/extension_points.md
+  - Community:
+      - Community plugins: community/plugins-list.md
   - About:
       - FAQ: about/FAQ.md
       - Slack channel: about/slack_channel.md
