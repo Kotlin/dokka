@@ -527,8 +527,8 @@ open class HtmlRenderer(
         pageContext: ContentPage,
         sourceSetRestriction: Set<DisplaySourceSet>?
     ) {
-        when (node.dci.kind) {
-            ContentKind.Comment -> buildDefaultTable(node, pageContext, sourceSetRestriction)
+        when {
+            node.style.contains(CommentTable) -> buildDefaultTable(node, pageContext, sourceSetRestriction)
             else -> div(classes = "table") {
                 node.extra.extraHtmlAttributes().forEach { attributes[it.extraKey] = it.extraValue }
                 node.children.forEach {
