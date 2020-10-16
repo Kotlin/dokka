@@ -68,6 +68,8 @@ To generate the documentation, use the appropriate `dokka${format}` Gradle task:
 
 Please see the [Dokka Gradle example project](https://github.com/Kotlin/kotlin-examples/tree/master/gradle/dokka/dokka-gradle-example) for an example.
 
+We encourage users to create their own plugins and share them with the community on [official plugins list](docs/src/doc/docs/community/plugins-list.md).
+
 #### Android
 
 Make sure you apply Dokka after `com.android.library` and `kotlin-android`.
