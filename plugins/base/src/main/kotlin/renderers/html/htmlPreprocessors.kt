@@ -4,10 +4,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.DokkaBaseConfiguration
 import org.jetbrains.dokka.base.renderers.sourceSets
-import org.jetbrains.dokka.model.DEnum
-import org.jetbrains.dokka.model.DEnumEntry
-import org.jetbrains.dokka.model.DFunction
-import org.jetbrains.dokka.model.withDescendants
+import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.configuration
@@ -48,8 +45,8 @@ object NavigationPageInstaller : PageTransformer {
         when {
             this !is ClasslikePageNode ->
                 children.filterIsInstance<ContentPage>().map { visit(it) }
-            documentable is DEnum ->
-                children.filter { it is ContentPage && it.documentable is DEnumEntry }.map { visit(it as ContentPage) }
+            documentable is DClasslike ->
+                children.filter { it is ContentPage && (it.documentable is DEnumEntry || it.documentable is DClasslike) }.map { visit(it as ContentPage) }
             else -> emptyList()
         }.sortedBy { it.name.toLowerCase() }
 
