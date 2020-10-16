@@ -1,5 +1,5 @@
 import React from "react";
-import {OptionWithSearchResult, SearchProps, SearchRank} from "./types";
+import {OptionWithSearchResult, SearchProps} from "./types";
 import _ from "lodash";
 
 type HighlighterProps = {
@@ -11,10 +11,7 @@ const Highlighter: React.FC<HighlighterProps> = ({label}: HighlighterProps) => {
 }
 
 export const signatureFromSearchResult = (searchResult: OptionWithSearchResult): string => {
-    if(searchResult.rank == SearchRank.SearchKeyMatch){
-        return searchResult.name.replace(searchResult.searchKey, searchResult.highlight)
-    }
-    return searchResult.highlight
+    return searchResult.name.replace(searchResult.searchKeys[searchResult.rank], searchResult.highlight)
 }
 
 export const SearchResultRow: React.FC<SearchProps> = ({searchResult}: SearchProps) => {

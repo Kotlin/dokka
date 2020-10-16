@@ -1,28 +1,43 @@
 package org.jetbrains.dokka.base.renderers.html
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.model.DisplaySourceSet
 import org.jetbrains.dokka.model.dfs
 import org.jetbrains.dokka.pages.*
 import java.util.concurrent.ConcurrentHashMap
 
-class SearchbarDataInstaller {
+data class SearchRecord(val name: String, val description: String? = null, val location: String, val searchKeys: List<String> = listOf(name)) {
+    companion object { }
+}
+
+open class SearchbarDataInstaller {
+    private val mapper = jacksonObjectMapper()
+
     private val pageList = ConcurrentHashMap<String, Pair<String, String>>()
 
-    private fun String.escaped(): String = this.replace("'", "\\'")
-
-    fun generatePagesList(): String =
-        pageList.entries
+    open fun generatePagesList(): String {
+        val pages = pageList.entries
             .filter { it.key.isNotEmpty() }
             .sortedWith(compareBy({ it.key }, { it.value.first }, { it.value.second }))
             .groupBy { it.key.substringAfterLast(".") }
             .entries
-            .flatMapIndexed { topLevelIndex, entry ->
-                entry.value.mapIndexed { index, subentry ->
-                    "{\'name\': \'${subentry.value.first.escaped()}\', \'description\':\'${subentry.key.escaped()}\', \'location\':\'${subentry.value.second.escaped()}\', 'searchKey':'${entry.key.escaped()}'}"
+            .flatMap { entry ->
+                entry.value.map { subentry ->
+                    val name = subentry.value.first
+                    createSearchRecord(
+                        name = name,
+                        description = subentry.key,
+                        location = subentry.value.second,
+                        searchKeys = listOf(entry.key, name)
+                    )
                 }
             }
-            .joinToString(prefix = "[", separator = ",\n", postfix = "]")
+        return mapper.writeValueAsString(pages)
+    }
+
+    open fun createSearchRecord(name: String, description: String?, location: String, searchKeys: List<String>): SearchRecord =
+        SearchRecord(name, description, location, searchKeys)
 
 
     private fun getSymbolSignature(page: ContentPage) = page.content.dfs { it.dci.kind == ContentKind.Symbol }
@@ -44,7 +59,7 @@ class SearchbarDataInstaller {
         return getContentTextNodes(node, sourceSetRestriction).joinToString("") { it.text }
     }
 
-    fun processPage(page: ContentPage, link: String) {
+    open fun processPage(page: ContentPage, link: String) {
         val signature = getSymbolSignature(page)
         val textNodes = signature?.let { flattenToText(it) }
         val documentable = page.documentable

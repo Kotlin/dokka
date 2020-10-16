@@ -1,5 +1,5 @@
 import {Select} from "@jetbrains/ring-ui";
-import {Option, OptionWithHighlightComponent, OptionWithSearchResult, SearchRank} from "./types";
+import {Option, OptionWithHighlightComponent, OptionWithSearchResult} from "./types";
 import fuzzyHighlight from '@jetbrains/ring-ui/components/global/fuzzy-highlight.js'
 import React from "react";
 import {SearchResultRow, signatureFromSearchResult} from "./searchResultRow";
@@ -8,7 +8,7 @@ import _ from "lodash";
 const orderRecords = (records: OptionWithSearchResult[], searchPhrase: string): OptionWithSearchResult[] => {
     return records.sort((a: OptionWithSearchResult, b: OptionWithSearchResult) => {
         //Prefer higher rank
-        const byRank = b.rank - a.rank
+        const byRank = a.rank - b.rank
         if(byRank !== 0){
             return byRank
         }
@@ -70,23 +70,29 @@ export class DokkaFuzzyFilterComponent extends Select {
         }
     }
     
-    getListItems(rawFilterString: string, _: Option[]) {
+    getListItems(rawFilterString: string, e: Option[]) {
         const filterPhrase = (rawFilterString ? rawFilterString : '').trim()
         const matchedRecords = this.props.data
             .map((record: Option) => {
-                const bySearchKey = fuzzyHighlight(filterPhrase, record.searchKey, false)
-                if(bySearchKey.matched){
+                const searched = record.searchKeys.map((value, index) => {
                     return {
-                        ...bySearchKey,
+                        ...fuzzyHighlight(filterPhrase, value, false),
                         ...record,
-                        rank: SearchRank.SearchKeyMatch
+                        rank: index
                     }
+                }).filter((e) => e.matched)
+
+                const first = _.head(searched)
+
+                if(first){
+                    return first
                 }
+
                 return {
-                    ...fuzzyHighlight(filterPhrase, record.name, false),
+                    matched: false,
                     ...record,
-                    rank: SearchRank.NameMatch
                 }
+
             })
             .filter((record: OptionWithSearchResult) => record.matched && (hasAnyMatchedPhraseLongerThan(record, 3) || filterPhrase.length < 3))
 

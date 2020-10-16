@@ -1,17 +1,9 @@
 package org.jetbrains.dokka.base.renderers.html
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize
-import com.fasterxml.jackson.databind.ser.std.ToStringSerializer
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import kotlinx.html.h1
-import kotlinx.html.id
-import kotlinx.html.table
-import kotlinx.html.tbody
-import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.DokkaBaseConfiguration
 import org.jetbrains.dokka.base.renderers.sourceSets
-import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.DEnum
 import org.jetbrains.dokka.model.DEnumEntry
 import org.jetbrains.dokka.model.DFunction
@@ -24,18 +16,8 @@ import org.jetbrains.dokka.transformers.pages.PageTransformer
 object NavigationPageInstaller : PageTransformer {
     private val mapper = jacksonObjectMapper()
 
-    private data class NavigationNodeView(
-        val name: String,
-        val label: String = name,
-        val searchKey: String = name,
-        @get:JsonSerialize(using = ToStringSerializer::class) val dri: DRI,
-        val location: String
-    ) {
-        companion object {
-            fun from(node: NavigationNode, location: String): NavigationNodeView =
-                NavigationNodeView(name = node.name, dri = node.dri, location = location)
-        }
-    }
+    fun SearchRecord.Companion.from(node: NavigationNode, location: String): SearchRecord =
+        SearchRecord(name = node.name, location = location)
 
     override fun invoke(input: RootPageNode): RootPageNode {
         val nodes = input.children.filterIsInstance<ContentPage>().single()
@@ -46,7 +28,7 @@ object NavigationPageInstaller : PageTransformer {
             children = emptyList(),
             strategy = RenderingStrategy.LocationResolvableWrite { resolver ->
                 mapper.writeValueAsString(
-                    nodes.withDescendants().map { NavigationNodeView.from(it, resolver(it.dri, it.sourceSets)) })
+                    nodes.withDescendants().map { SearchRecord.from(it, resolver(it.dri, it.sourceSets)) })
             })
 
         return input.modified(
