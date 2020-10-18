@@ -1,6 +1,7 @@
 package org.jetbrains.dokka.javadoc
 
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
+import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.signatures.SignatureProvider
 import org.jetbrains.dokka.base.transformers.pages.comments.DocTagToContentConverter
 import org.jetbrains.dokka.base.translators.documentables.briefFromContentNodes
@@ -14,14 +15,12 @@ import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
-import org.jetbrains.dokka.utilities.DokkaLogger
+import org.jetbrains.dokka.plugability.plugin
+import org.jetbrains.dokka.plugability.querySingle
 import kotlin.reflect.KClass
 
-open class JavadocPageCreator(
-    context: DokkaContext,
-    private val signatureProvider: SignatureProvider,
-    val logger: DokkaLogger
-) {
+open class JavadocPageCreator(context: DokkaContext) {
+    private val signatureProvider: SignatureProvider = context.plugin<DokkaBase>().querySingle { signatureProvider }
     private val documentationVersion = context.configuration.moduleVersion
 
     fun pageForModule(m: DModule): JavadocModulePageNode =

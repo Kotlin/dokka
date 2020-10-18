@@ -13,6 +13,7 @@ import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.analysis.KotlinAnalysis
 import org.jetbrains.dokka.analysis.PsiDocumentableSource
 import org.jetbrains.dokka.analysis.from
+import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.translators.isDirectlyAnException
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.nextTarget
@@ -22,6 +23,8 @@ import org.jetbrains.dokka.model.doc.DocumentationNode
 import org.jetbrains.dokka.model.doc.Param
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.plugability.DokkaContext
+import org.jetbrains.dokka.plugability.plugin
+import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.transformers.sources.SourceToDocumentableTranslator
 import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.dokka.utilities.parallelForEach
@@ -46,8 +49,10 @@ import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 import java.io.File
 
 class DefaultPsiToDocumentableTranslator(
-    private val kotlinAnalysis: KotlinAnalysis
+    context: DokkaContext
 ) : SourceToDocumentableTranslator {
+
+    private val kotlinAnalysis: KotlinAnalysis = context.plugin<DokkaBase>().querySingle { kotlinAnalysis }
 
     override suspend fun invoke(sourceSet: DokkaSourceSet, context: DokkaContext): DModule {
         return coroutineScope {

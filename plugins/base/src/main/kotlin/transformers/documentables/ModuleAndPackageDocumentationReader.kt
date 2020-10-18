@@ -4,6 +4,7 @@ package org.jetbrains.dokka.base.transformers.documentables
 
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.analysis.KotlinAnalysis
+import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.parsers.moduleAndPackage.ModuleAndPackageDocumentation.Classifier
 import org.jetbrains.dokka.base.parsers.moduleAndPackage.ModuleAndPackageDocumentationFragment
 import org.jetbrains.dokka.base.parsers.moduleAndPackage.ModuleAndPackageDocumentationParsingContext
@@ -15,6 +16,8 @@ import org.jetbrains.dokka.model.SourceSetDependent
 import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.model.doc.Deprecated
 import org.jetbrains.dokka.plugability.DokkaContext
+import org.jetbrains.dokka.plugability.plugin
+import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.utilities.associateWithNotNull
 
 internal interface ModuleAndPackageDocumentationReader {
@@ -22,14 +25,14 @@ internal interface ModuleAndPackageDocumentationReader {
     operator fun get(pkg: DPackage): SourceSetDependent<DocumentationNode>
 }
 
-internal fun ModuleAndPackageDocumentationReader(
-    context: DokkaContext, kotlinAnalysis: KotlinAnalysis? = null
-): ModuleAndPackageDocumentationReader = ContextModuleAndPackageDocumentationReader(context, kotlinAnalysis)
+internal fun ModuleAndPackageDocumentationReader(context: DokkaContext): ModuleAndPackageDocumentationReader =
+    ContextModuleAndPackageDocumentationReader(context)
 
 private class ContextModuleAndPackageDocumentationReader(
-    private val context: DokkaContext,
-    private val kotlinAnalysis: KotlinAnalysis?
+    private val context: DokkaContext
 ) : ModuleAndPackageDocumentationReader {
+
+    private val kotlinAnalysis: KotlinAnalysis = context.plugin<DokkaBase>().querySingle { kotlinAnalysis }
 
     private val documentationFragments: SourceSetDependent<List<ModuleAndPackageDocumentationFragment>> =
         context.configuration.sourceSets.associateWith { sourceSet ->

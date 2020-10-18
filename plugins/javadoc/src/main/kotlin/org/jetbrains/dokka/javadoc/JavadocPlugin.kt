@@ -13,7 +13,6 @@ import org.jetbrains.dokka.javadoc.transformers.documentables.JavadocDocumentabl
 import org.jetbrains.dokka.javadoc.validity.MultiplatformConfiguredChecker
 import org.jetbrains.dokka.kotlinAsJava.KotlinAsJavaPlugin
 import org.jetbrains.dokka.plugability.DokkaPlugin
-import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 
 class JavadocPlugin : DokkaPlugin() {
@@ -24,46 +23,28 @@ class JavadocPlugin : DokkaPlugin() {
     val javadocPreprocessors by extensionPoint<PageTransformer>()
 
     val dokkaJavadocPlugin by extending {
-        (CoreExtensions.renderer
-                providing { ctx -> KorteJavadocRenderer(dokkaBasePlugin.querySingle { outputWriter }, ctx, "views") }
-                override dokkaBasePlugin.htmlRenderer)
+        CoreExtensions.renderer providing { ctx -> KorteJavadocRenderer(ctx, "views") } override dokkaBasePlugin.htmlRenderer
     }
 
     val javadocMultiplatformCheck by extending {
-        CoreExtensions.preGenerationCheck providing { context ->
-            MultiplatformConfiguredChecker(context)
-        }
+        CoreExtensions.preGenerationCheck providing ::MultiplatformConfiguredChecker
     }
 
     val pageTranslator by extending {
-        CoreExtensions.documentableToPageTranslator providing { context ->
-            JavadocDocumentableToPageTranslator(
-                context,
-                dokkaBasePlugin.querySingle { signatureProvider },
-                context.logger
-            )
-        } override kotinAsJavaPlugin.kotlinAsJavaDocumentableToPageTranslator
+        CoreExtensions.documentableToPageTranslator providing ::JavadocDocumentableToPageTranslator override
+                kotinAsJavaPlugin.kotlinAsJavaDocumentableToPageTranslator
     }
 
     val documentableSourceSetFilter by extending {
-        CoreExtensions.preMergeDocumentableTransformer providing { context -> JavadocDocumentableJVMSourceSetFilter(context) }
+        CoreExtensions.preMergeDocumentableTransformer providing ::JavadocDocumentableJVMSourceSetFilter
     }
 
     val javadocLocationProviderFactory by extending {
-        dokkaBasePlugin.locationProviderFactory providing { context ->
-            JavadocLocationProviderFactory(context)
-        } override dokkaBasePlugin.locationProvider
+        dokkaBasePlugin.locationProviderFactory providing ::JavadocLocationProviderFactory override dokkaBasePlugin.locationProvider
     }
 
     val javadocSignatureProvider by extending {
-        val dokkaBasePlugin = plugin<DokkaBase>()
-        dokkaBasePlugin.signatureProvider providing { ctx ->
-            JavadocSignatureProvider(
-                ctx.single(
-                    dokkaBasePlugin.commentsToContentConverter
-                ), ctx.logger
-            )
-        } override kotinAsJavaPlugin.javaSignatureProvider
+        dokkaBasePlugin.signatureProvider providing ::JavadocSignatureProvider override kotinAsJavaPlugin.javaSignatureProvider
     }
 
     val rootCreator by extending {

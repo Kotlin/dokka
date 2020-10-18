@@ -9,6 +9,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.renderers.OutputWriter
 import org.jetbrains.dokka.base.resolvers.local.LocationProvider
 import org.jetbrains.dokka.javadoc.JavadocPlugin
@@ -24,8 +25,9 @@ import java.time.LocalDate
 
 typealias TemplateMap = Map<String, Any?>
 
-class KorteJavadocRenderer(private val outputWriter: OutputWriter, val context: DokkaContext, resourceDir: String) :
+class KorteJavadocRenderer(val context: DokkaContext, resourceDir: String) :
     Renderer {
+    private val outputWriter: OutputWriter = context.plugin<DokkaBase>().querySingle { outputWriter }
     private lateinit var locationProvider: JavadocLocationProvider
     private val registeredPreprocessors = context.plugin<JavadocPlugin>().query { javadocPreprocessors }
 

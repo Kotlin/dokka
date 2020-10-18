@@ -12,19 +12,12 @@ class KotlinAsJavaPlugin : DokkaPlugin() {
         CoreExtensions.documentableTransformer with KotlinAsJavaDocumentableTransformer()
     }
     val javaSignatureProvider by extending {
-        val dokkaBasePlugin = plugin<DokkaBase>()
-        dokkaBasePlugin.signatureProvider providing { ctx ->
-            JavaSignatureProvider(ctx.single(dokkaBasePlugin.commentsToContentConverter), ctx.logger)
-        } override dokkaBasePlugin.kotlinSignatureProvider
+        with(plugin<DokkaBase>()) {
+            signatureProvider providing ::JavaSignatureProvider override kotlinSignatureProvider
+        }
     }
     val kotlinAsJavaDocumentableToPageTranslator by extending {
-        val dokkaBasePlugin = plugin<DokkaBase>()
-        CoreExtensions.documentableToPageTranslator providing { ctx ->
-            KotlinAsJavaDocumentableToPageTranslator(
-                ctx.single(dokkaBasePlugin.commentsToContentConverter),
-                ctx.single(dokkaBasePlugin.signatureProvider),
-                ctx.logger
-            )
-        } override dokkaBasePlugin.documentableToPageTranslator
+        CoreExtensions.documentableToPageTranslator providing ::KotlinAsJavaDocumentableToPageTranslator  override
+            plugin<DokkaBase>().documentableToPageTranslator
     }
 }
