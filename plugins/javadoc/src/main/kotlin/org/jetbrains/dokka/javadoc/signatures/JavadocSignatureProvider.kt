@@ -2,6 +2,7 @@ package org.jetbrains.dokka.javadoc.signatures
 
 import org.jetbrains.dokka.javadoc.translators.documentables.JavadocPageContentBuilder
 import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.signatures.JvmSignatureUtils
 import org.jetbrains.dokka.base.signatures.SignatureProvider
 import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentConverter
@@ -13,11 +14,17 @@ import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.pages.ContentKind
 import org.jetbrains.dokka.pages.ContentNode
+import org.jetbrains.dokka.plugability.DokkaContext
+import org.jetbrains.dokka.plugability.plugin
+import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.utilities.DokkaLogger
 
 class JavadocSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogger) : SignatureProvider,
     JvmSignatureUtils by JavaSignatureUtils {
-
+    constructor(context: DokkaContext) : this(
+        context.plugin<DokkaBase>().querySingle { commentsToContentConverter },
+        context.logger
+    )
     private val contentBuilder = JavadocPageContentBuilder(ctcc, this, logger)
 
     private val ignoredVisibilities = setOf(JavaVisibility.Default)

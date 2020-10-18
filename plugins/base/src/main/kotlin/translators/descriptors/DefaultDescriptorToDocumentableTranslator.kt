@@ -7,6 +7,7 @@ import org.jetbrains.dokka.analysis.DescriptorDocumentableSource
 import org.jetbrains.dokka.analysis.DokkaResolutionFacade
 import org.jetbrains.dokka.analysis.KotlinAnalysis
 import org.jetbrains.dokka.analysis.from
+import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.parsers.MarkdownParser
 import org.jetbrains.dokka.base.translators.isDirectlyAnException
 import org.jetbrains.dokka.links.*
@@ -17,6 +18,9 @@ import org.jetbrains.dokka.model.TypeConstructor
 import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.plugability.DokkaContext
+import org.jetbrains.dokka.plugability.plugin
+import org.jetbrains.dokka.plugability.query
+import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.transformers.sources.SourceToDocumentableTranslator
 import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.kotlin.builtins.functions.FunctionClassDescriptor
@@ -60,8 +64,10 @@ import org.jetbrains.kotlin.resolve.constants.EnumValue as ConstantsEnumValue
 import org.jetbrains.kotlin.resolve.constants.KClassValue as ConstantsKtClassValue
 
 class DefaultDescriptorToDocumentableTranslator(
-    private val kotlinAnalysis: KotlinAnalysis
+    context: DokkaContext
 ) : SourceToDocumentableTranslator {
+
+    private val kotlinAnalysis: KotlinAnalysis = context.plugin<DokkaBase>().querySingle { kotlinAnalysis }
 
     override suspend fun invoke(sourceSet: DokkaSourceSet, context: DokkaContext): DModule {
         val (environment, facade) = kotlinAnalysis[sourceSet]
