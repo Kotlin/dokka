@@ -33,7 +33,7 @@ Minimal Maven configuration is
 </plugin>
 ```
 
-By default files will be generated in `target/dokka`.
+By default, files will be generated in `target/dokka`.
 
 The following goals are provided by the plugin:
 
@@ -199,6 +199,18 @@ You can add plugins inside the `dokkaPlugins` block:
     </configuration>
 </plugin>
 ```
+
+Out of the box it comes with:
+
+| Plugin name    | artifactId                                         | Added tasks  |
+| :------------- | :------------------------------------------------- | :----------- |
+| base           | None, applied by default                           | dokka:dokka  |
+| gfm            | `gfm-plugin`                                       | None         |
+| jekyll         | `jekyll-plugin`                                    | None         |
+| javadoc        | None, applied by default                           | dokka:javadoc|
+| kotlin-as-java | `kotlin-as-java-plugin`                            | None         |
+
+After applying a plugin, the output format will be automatically changed, and the task will stay the same.
 
 Some plugins can be configured separately using plugin's fully qualified name. For example:
 
