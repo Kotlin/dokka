@@ -10,7 +10,7 @@ you not only need to add `dokka` to the `build.gradle.kts` file, but you also ne
 build.gradle.kts:
 ```kotlin
 plugins {
-    id("org.jetbrains.dokka") version "1.4.10"
+    id("org.jetbrains.dokka") version "1.4.10.2"
 }
 
 repositories {
@@ -230,7 +230,7 @@ Dokka plugin creates Gradle configuration for each output format in the form of 
 
 ```kotlin
 dependencies {
-    dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:1.4.10")
+    dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:1.4.10.2")
 }
 ``` 
 
@@ -239,7 +239,7 @@ You can also create a custom Dokka task and add plugins directly inside:
 ```kotlin
 val customDokkaTask by creating(DokkaTask::class) {
     dependencies {
-        plugins("org.jetbrains.dokka:kotlin-as-java-plugin:1.4.10")
+        plugins("org.jetbrains.dokka:kotlin-as-java-plugin:1.4.10.2")
     }
 }
 ```
