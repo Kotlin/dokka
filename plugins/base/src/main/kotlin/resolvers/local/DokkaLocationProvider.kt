@@ -5,17 +5,17 @@ import org.jetbrains.dokka.base.resolvers.anchors.SymbolAnchorHint
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.PointingToDeclaration
 import org.jetbrains.dokka.model.DisplaySourceSet
+import org.jetbrains.dokka.model.toDisplaySourceSet
 import org.jetbrains.dokka.model.withDescendants
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
-import org.jetbrains.dokka.utilities.urlEncoded
 import java.util.*
 
 open class DokkaLocationProvider(
     pageGraphRoot: RootPageNode,
     dokkaContext: DokkaContext,
     extension: String = ".html"
-) : DefaultLocationProvider(pageGraphRoot, dokkaContext, extension) {
+) : DokkaBaseLocationProvider(pageGraphRoot, dokkaContext, extension) {
     protected open val PAGE_WITH_CHILDREN_SUFFIX = "index"
 
     protected open val pathsIndex: Map<PageNode, List<String>> = IdentityHashMap<PageNode, List<String>>().apply {
@@ -28,28 +28,33 @@ open class DokkaLocationProvider(
         pageGraphRoot.children.forEach { registerPath(it, emptyList()) }
     }
 
-    protected val pagesIndex: Map<Pair<DRI, DisplaySourceSet?>, ContentPage> =
+    protected val pagesIndex: Map<DRIWithSourceSet, ContentPage> =
         pageGraphRoot.withDescendants().filterIsInstance<ContentPage>()
             .flatMap { page ->
                 page.dri.flatMap { dri ->
-                    page.sourceSets().ifEmpty { setOf(null) }.map { sourceSet -> (dri to sourceSet) to page }
+                    page.sourceSets().ifEmpty { setOf(null) }.map { sourceSet -> DRIWithSourceSet(dri,sourceSet) to page }
                 }
             }
             .groupingBy { it.first }
             .aggregate { key, _, (_, page), first ->
-                if (first) page else throw AssertionError("Multiple pages associated with key: ${key.first}/${key.second}")
+                if (first) page else throw AssertionError("Multiple pages associated with key: ${key.dri}/${key.sourceSet}")
             }
 
-    protected val anchorsIndex: Map<Pair<DRI, DisplaySourceSet?>, ContentPage> =
+    protected val anchorsIndex: Map<DRIWithSourceSet, PageWithKind> =
         pageGraphRoot.withDescendants().filterIsInstance<ContentPage>()
             .flatMap { page ->
                 page.content.withDescendants()
-                    .filter { it.extra[SymbolAnchorHint] != null }
-                    .mapNotNull { it.dci.dri.singleOrNull() }
+                    .filter { it.extra[SymbolAnchorHint] != null && it.dci.dri.any() }
+                    .flatMap { content ->
+                        content.dci.dri.map { dri ->
+                            (dri to content.sourceSets) to content.extra[SymbolAnchorHint]?.contentKind!!
+                        }
+                    }
                     .distinct()
-                    .flatMap { dri ->
-                        page.sourceSets().ifEmpty { setOf(null) }.map { sourceSet ->
-                            (dri to sourceSet) to page
+                    .flatMap { (pair, kind) ->
+                        val (dri, sourceSets) = pair
+                        sourceSets.ifEmpty { setOf(null) }.map { sourceSet ->
+                            DRIWithSourceSet(dri, sourceSet) to PageWithKind(page, kind)
                         }
                     }
             }.toMap()
@@ -59,18 +64,33 @@ open class DokkaLocationProvider(
 
     override fun resolve(dri: DRI, sourceSets: Set<DisplaySourceSet>, context: PageNode?): String? =
         sourceSets.ifEmpty { setOf(null) }.mapNotNull { sourceSet ->
-            val driWithSourceSet = Pair(dri, sourceSet)
+            val driWithSourceSet = DRIWithSourceSet(dri, sourceSet)
             getLocalLocation(driWithSourceSet, context)
-                ?: getLocalLocation(driWithSourceSet.copy(first = dri.copy(target = PointingToDeclaration)), context)
+                ?: getLocalLocation(driWithSourceSet.copy(dri = dri.copy(target = PointingToDeclaration)), context)
                 // Not found in PageGraph, that means it's an external link
                 ?: getExternalLocation(dri, sourceSets)
                 ?: getExternalLocation(dri.copy(target = PointingToDeclaration), sourceSets)
         }.distinct().singleOrNull()
 
-    private fun getLocalLocation(dri: Pair<DRI, DisplaySourceSet?>, context: PageNode?): String? =
-        pagesIndex[dri]?.let { resolve(it, context) }
-            ?: anchorsIndex[dri]?.let { resolve(it, context) + "#${dri.first.toString().urlEncoded()}" }
+    private fun getLocalLocation(driWithSourceSet: DRIWithSourceSet, context: PageNode?): String? {
+        val (dri, originalSourceSet) = driWithSourceSet
+        val allSourceSets =
+            listOf(originalSourceSet) + originalSourceSet?.let { oss ->
+                dokkaContext.configuration.sourceSets.filter { it.sourceSetID in oss.sourceSetIDs }
+                    .flatMap { it.dependentSourceSets }
+                    .mapNotNull { ssid ->
+                        dokkaContext.configuration.sourceSets.find { it.sourceSetID == ssid }?.toDisplaySourceSet()
+                    }
+            }.orEmpty()
 
+        return allSourceSets.asSequence().mapNotNull { displaySourceSet ->
+            pagesIndex[DRIWithSourceSet(dri, displaySourceSet)]?.let { page -> resolve(page, context) }
+                ?: anchorsIndex[driWithSourceSet]?.let { (page, kind) ->
+                    val dci = DCI(setOf(dri), kind)
+                    resolve(page, context) + "#" + anchorForDCI(dci, setOfNotNull(displaySourceSet))
+                }
+        }.firstOrNull()
+    }
 
     override fun pathToRoot(from: PageNode): String =
         pathTo(pageGraphRoot, from).removeSuffix(PAGE_WITH_CHILDREN_SUFFIX)
@@ -104,8 +124,13 @@ open class DokkaLocationProvider(
     private val PageNode.pathName: String
         get() = if (this is PackagePageNode) name else identifierToFilename(name)
 
+    protected data class DRIWithSourceSet(val dri: DRI, val sourceSet: DisplaySourceSet?)
+
+    protected data class PageWithKind(val page: ContentPage, val kind: Kind)
+
     companion object {
         internal val reservedFilenames = setOf("index", "con", "aux", "lst", "prn", "nul", "eof", "inp", "out")
+
         //Taken from: https://stackoverflow.com/questions/1976007/what-characters-are-forbidden-in-windows-and-linux-directory-names
         internal val reservedCharacters = setOf('|', '>', '<', '*', ':', '"', '?', '%')
 
@@ -119,10 +144,9 @@ open class DokkaLocationProvider(
 internal fun sanitizeFileName(name: String, reservedFileNames: Set<String>, reservedCharacters: Set<Char>): String {
     val lowercase = name.replace("[A-Z]".toRegex()) { matchResult -> "-" + matchResult.value.toLowerCase() }
     val withoutReservedFileNames = if (lowercase in reservedFileNames) "--$lowercase--" else lowercase
-    return reservedCharacters.fold(withoutReservedFileNames){
-        acc, character ->
-            if(character in acc) acc.replace(character.toString(), "[${character.toInt()}]")
-            else acc
+    return reservedCharacters.fold(withoutReservedFileNames) { acc, character ->
+        if (character in acc) acc.replace(character.toString(), "[${character.toInt()}]")
+        else acc
     }
 }
 
