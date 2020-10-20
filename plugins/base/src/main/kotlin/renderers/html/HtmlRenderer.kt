@@ -9,12 +9,11 @@ import org.jetbrains.dokka.DokkaSourceSetID
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.renderers.DefaultRenderer
 import org.jetbrains.dokka.base.renderers.TabSortingStrategy
-import org.jetbrains.dokka.base.resolvers.anchors.SymbolAnchorHint
-import org.jetbrains.dokka.base.transformers.pages.sourcelinks.hasTabbedContent
 import org.jetbrains.dokka.base.renderers.isImage
 import org.jetbrains.dokka.base.renderers.pageId
+import org.jetbrains.dokka.base.resolvers.anchors.SymbolAnchorHint
+import org.jetbrains.dokka.base.resolvers.local.DokkaBaseLocationProvider
 import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.model.CompositeSourceSetID
 import org.jetbrains.dokka.model.DisplaySourceSet
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.model.sourceSetIDs
@@ -25,7 +24,6 @@ import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.query
 import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.utilities.htmlEscape
-import org.jetbrains.dokka.utilities.urlEncoded
 import java.net.URI
 
 open class HtmlRenderer(
@@ -833,6 +831,18 @@ open class HtmlRenderer(
                 }
             }
         }
+
+    private val ContentNode.isAnchorable: Boolean
+        get() = anchorLabel != null
+
+    private val ContentNode.anchorLabel: String?
+        get() = extra[SymbolAnchorHint]?.anchorName
+
+    private val ContentNode.anchor: String?
+        get() = extra[SymbolAnchorHint]?.contentKind?.let { contentKind ->
+            (locationProvider as DokkaBaseLocationProvider).anchorForDCI(DCI(dci.dri, contentKind), sourceSets)
+        }
+
 }
 
 fun List<SimpleAttr>.joinAttr() = joinToString(" ") { it.extraKey + "=" + it.extraValue }
@@ -842,21 +852,7 @@ private fun String.stripDiv() = drop(5).dropLast(6) // TODO: Find a way to do it
 private val PageNode.isNavigable: Boolean
     get() = this !is RendererSpecificPage || strategy != RenderingStrategy.DoNothing
 
-fun PropertyContainer<ContentNode>.extraHtmlAttributes() = allOfType<SimpleAttr>()
+private fun PropertyContainer<ContentNode>.extraHtmlAttributes() = allOfType<SimpleAttr>()
 
-val ContentNode.isAnchorable: Boolean
-    get() = anchorLabel != null
-
-val ContentNode.anchorLabel: String?
-    get() = extra[SymbolAnchorHint]?.anchorName
-
-/**
- * Anchors should be unique and should contain sourcesets, dri and contentKind.
- * The idea is to make them as short as possible and just use a hashCode from sourcesets in order to match the
- * 2040 characters limit
- */
-val ContentNode.anchor: String?
-    get() = extra[SymbolAnchorHint]?.contentKind?.let { contentKind -> (dci.dri.first().toString() + "/" + contentKind + "/" + sourceSets.hashCode()).urlEncoded() }
-
-val ContentNode.sourceSetsFilters: String
+private val ContentNode.sourceSetsFilters: String
     get() = sourceSets.sourceSetIDs.joinToString(" ") { it.toString() }

@@ -7,11 +7,12 @@ import org.jetbrains.dokka.pages.PageNode
 import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.DokkaContext
 
-class MultimoduleLocationProvider(private val root: RootPageNode, context: DokkaContext) : LocationProvider {
+class MultimoduleLocationProvider(pageGraphRoot: RootPageNode, dokkaContext: DokkaContext) :
+    DokkaBaseLocationProvider(pageGraphRoot, dokkaContext, ".html") {
 
-    private val defaultLocationProvider = DokkaLocationProvider(root, context)
+    private val defaultLocationProvider = DokkaLocationProvider(pageGraphRoot, dokkaContext)
 
-    val paths = context.configuration.modules.map {
+    val paths = dokkaContext.configuration.modules.map {
         it.name to it.relativePathToOutputDirectory
     }.toMap()
 
@@ -25,7 +26,7 @@ class MultimoduleLocationProvider(private val root: RootPageNode, context: Dokka
 
     override fun pathToRoot(from: PageNode): String = defaultLocationProvider.pathToRoot(from)
 
-    override fun ancestors(node: PageNode): List<PageNode> = listOf(root)
+    override fun ancestors(node: PageNode): List<PageNode> = listOf(pageGraphRoot)
 
     companion object {
         const val MULTIMODULE_PACKAGE_PLACEHOLDER = ".ext"
