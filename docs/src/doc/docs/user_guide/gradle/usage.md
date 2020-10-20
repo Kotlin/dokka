@@ -228,7 +228,7 @@ tasks.withType<DokkaTask>().configureEach {
 ## Applying plugins
 Dokka allows users to create and use custom plugins. Out of the box it comes with:
 
-| Plugin name    | Dependency                                         | Added tasks  |
+| Plugin name    | Applied with                                       | Added tasks  |
 | :------------- | :------------------------------------------------- | :----------- |
 | base           | None, applied by default                           | dokkaHtml    |
 | gfm            | None, applied by default                           | dokkaGfm     |
@@ -238,7 +238,7 @@ Dokka allows users to create and use custom plugins. Out of the box it comes wit
 
 By default, you will get all the plugins except `kotlin-as-java`. There is no need to apply them manually.
 
-In order to apply a plugin add it in `dependencies` block:
+In order to apply a plugin add it in the `dependencies` block:
 
 ```kotlin
 dependencies {
@@ -265,7 +265,8 @@ To generate the documentation, use the appropriate `dokka${format}` Gradle task:
 ./gradlew dokkaHtml
 ```
 
-Keep in mind, that plugins developed by the community may not follow same convention. Always consult plugin's creator documentation.
+!!! important
+    Keep in mind that plugins developed by the community may not follow the same convention. Always consult the plugin's documentation.
 
 Some plugins can be configured separately using a plugin class and configuration class. For example:
 

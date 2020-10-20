@@ -15,7 +15,7 @@ Every file provided in those values will be applied to **every** page.
 Dokka uses 3 stylesheets:
 
  * `style.css` - main css file responsible for styling the page
- * `jetbrains-mono.css` - fonts used across dokka
+ * `jetbrains-mono.css` - fonts used across Dokka
  * `logo-styles.css` - logo styling
 
 User can choose to add or override those files. 
