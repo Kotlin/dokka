@@ -11,6 +11,8 @@ jobs:
     steps:
       - name: Checkout dokka
         uses: actions/checkout@v2
+        with:
+          path: dokka
 
       - uses: dorny/paths-filter@v2
         id: filter
@@ -18,25 +20,27 @@ jobs:
           filters: |
             docs_changed:
               - 'docs/**'
+          working-directory: ./dokka
 
       - uses: actions/setup-java@v1
         with:
           java-version: 11
 
       - name: Get current dokka version
-        run: echo "::set-env name=DOKKA_VERSION::`./gradlew :properties | grep '^version:.*' | cut -d ' ' -f 2 | cut -d '-' -f 1`"
+        run: echo "DOKKA_VERSION=`./gradlew :properties | grep '^version:.*' | cut -d ' ' -f 2 | cut -d '-' -f 1`" >> $GITHUB_ENV
         if: steps.filter.outputs.docs_changed == 'true'
+        working-directory: ./dokka
 
       - name: Build docs
         run: ./gradlew mkdocsBuild -Pdokka_version=$DOKKA_VERSION --info
         if: steps.filter.outputs.docs_changed == 'true'
+        working-directory: ./dokka
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         if: steps.filter.outputs.docs_changed == 'true'
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./docs/build/mkdocs
-          destination_dir: ../
+          publish_dir: ./dokka/docs/build/mkdocs
           keep_files: true
           full_commit_message: Publish ${{ env.DOKKA_VERSION }} documentation
