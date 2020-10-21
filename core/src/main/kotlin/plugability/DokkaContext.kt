@@ -179,6 +179,10 @@ private class DokkaContextConfigurationImpl(
     }
 
     override fun installExtension(extension: Extension<*, *, *>) {
+        rawExtensions.find {
+            it.extensionName == extension.extensionName && it.pluginClass == extension.pluginClass
+        }?.let { throw AssertionError("Duplicated extensions: $it and $extension") }
+
         rawExtensions += extension
 
         if (extension.ordering is OrderingKind.ByDsl) {
