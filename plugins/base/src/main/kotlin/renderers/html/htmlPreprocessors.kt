@@ -121,7 +121,12 @@ object AssetsInstaller : PageTransformer {
     private val imagesPages = listOf(
         "images/arrow_down.svg",
         "images/docs_logo.svg",
-        "images/logo-icon.svg"
+        "images/logo-icon.svg",
+        "images/go-to-top-icon.svg",
+        "images/footer-go-to-link.svg",
+        "images/anchor-copy-button.svg",
+        "images/copy-icon.svg",
+        "images/copy-successful-icon.svg",
     )
 
     override fun invoke(input: RootPageNode) = input.modified(

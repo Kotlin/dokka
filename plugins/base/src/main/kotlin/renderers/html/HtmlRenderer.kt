@@ -132,29 +132,13 @@ open class HtmlRenderer(
     }
 
     private fun FlowContent.copyButton() = span(classes = "top-right-position") {
-        span("copy-icon") {
-            unsafe {
-                raw(
-                    """<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path fill-rule="evenodd" clip-rule="evenodd" d="M5 4H15V16H5V4ZM17 7H19V18V20H17H8V18H17V7Z" fill="black"/>
-                       </svg>""".trimIndent()
-                )
-            }
-        }
+        span("copy-icon")
         copiedPopup("Content copied to clipboard", "popup-to-left")
     }
 
     private fun FlowContent.copiedPopup(notificationContent: String, additionalClasses: String = "") =
         div("copy-popup-wrapper $additionalClasses") {
-            unsafe {
-                raw(
-                    """
-                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M18 9C18 14 14 18 9 18C4 18 0 14 0 9C0 4 4 0 9 0C14 0 18 4 18 9ZM14.2 6.2L12.8 4.8L7.5 10.1L5.3 7.8L3.8 9.2L7.5 13L14.2 6.2Z" fill="#4DBB5F"/>
-                    </svg>
-                    """.trimIndent()
-                )
-            }
+            span("copy-popup-icon")
             span {
                 text(notificationContent)
             }
@@ -629,16 +613,6 @@ open class HtmlRenderer(
         span(classes = "anchor-wrapper") {
             span(classes = "anchor-icon") {
                 attributes["pointing-to"] = pointingTo
-                unsafe {
-                    raw(
-                        """
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M21.2496 5.3C20.3496 4.5 19.2496 4 18.0496 4C16.8496 4 15.6496 4.5 14.8496 5.3L10.3496 9.8L11.7496 11.2L16.2496 6.7C17.2496 5.7 18.8496 5.7 19.8496 6.7C20.8496 7.7 20.8496 9.3 19.8496 10.3L15.3496 14.8L16.7496 16.2L21.2496 11.7C22.1496 10.8 22.5496 9.7 22.5496 8.5C22.5496 7.3 22.1496 6.2 21.2496 5.3Z"/>
-                    <path d="M8.35 16.7998C7.35 17.7998 5.75 17.7998 4.75 16.7998C3.75 15.7998 3.75 14.1998 4.75 13.1998L9.25 8.6998L7.85 7.2998L3.35 11.7998C1.55 13.5998 1.55 16.3998 3.35 18.1998C4.25 19.0998 5.35 19.4998 6.55 19.4998C7.75 19.4998 8.85 19.0998 9.75 18.1998L14.25 13.6998L12.85 12.2998L8.35 16.7998Z"/>
-                </svg>
-            """.trimIndent()
-                    )
-                }
             }
             copiedPopup("Link copied to clipboard")
         }
@@ -796,34 +770,13 @@ open class HtmlRenderer(
                         content()
                         div(classes = "footer") {
                             span("go-to-top-icon") {
-                                a(href = "#container") {
-                                    unsafe {
-                                        raw(
-                                            """
-                                    <svg width="12" height="10" viewBox="0 0 12 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M11.3337 9.66683H0.666992L6.00033 3.66683L11.3337 9.66683Z" fill="black"/>
-                                        <path d="M0.666992 0.333496H11.3337V1.66683H0.666992V0.333496Z" fill="black"/>
-                                    </svg>
-                                """.trimIndent()
-                                        )
-                                    }
-                                }
+                                a(href = "#container")
                             }
                             span { text("© 2020 Copyright") }
                             span("pull-right") {
                                 span { text("Sponsored and developed by dokka") }
                                 a(href = "https://github.com/Kotlin/dokka") {
-                                    span(classes = "padded-icon") {
-                                        unsafe {
-                                            raw(
-                                                """
-                                    <svg width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M8 0H2.3949L4.84076 2.44586L0 7.28662L0.713376 8L5.55414 3.15924L8 5.6051V0Z" fill="black"/>
-                                    </svg>
-                                """.trimIndent()
-                                            )
-                                        }
-                                    }
+                                    span(classes = "padded-icon")
                                 }
                             }
                         }
