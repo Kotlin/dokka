@@ -2,11 +2,19 @@ package org.jetbrains.dokka.plugability
 
 import org.jetbrains.dokka.DokkaConfiguration
 
-class ExtensionBuilderStart internal constructor(){
-    fun <T: Any>  extensionPoint(ext: ExtensionPoint<T>): ProvidedExtension<T> = ProvidedExtension(ext)
+internal fun defaultExtensionName(ext: ExtensionPoint<*>) = "${ext.pointName}Impl"
+
+class ExtensionBuilderStart internal constructor(val plugin: DokkaJavaPlugin){
+    fun <T: Any>  extensionPoint(ext: ExtensionPoint<T>): ProvidedExtension<T> =
+        ProvidedExtension(ext, defaultExtensionName(ext), plugin)
 }
 
-class ProvidedExtension<T: Any> internal constructor(val ext: ExtensionPoint<T>){
+class ProvidedExtension<T: Any> internal constructor(
+    val ext: ExtensionPoint<T>,
+    val name: String,
+    val plugin: DokkaJavaPlugin){
+    fun name(name: String): ProvidedExtension<T> = ProvidedExtension(ext, name, plugin)
+
     fun fromInstance(inst: T): ExtensionBuilder<T> = createBuilder(
         LazyEvaluated.fromInstance(
             inst
@@ -15,54 +23,63 @@ class ProvidedExtension<T: Any> internal constructor(val ext: ExtensionPoint<T>)
     fun fromRecipe(recipe: (DokkaContext) -> T): ExtensionBuilder<T> = createBuilder(
         LazyEvaluated.fromRecipe(recipe)
     )
-
-    private val defaultName = "${ext.pointName}/in/${javaClass.simpleName}"
-
     private fun createBuilder(action: LazyEvaluated<T>) =
-        ExtensionBuilder(defaultName, ext, action,
-            OrderingKind.None,
-            OverrideKind.None, emptyList())
+        ExtensionBuilder(name, ext, action,
+            emptyList(), emptyList(),
+            OverrideKind.None, emptyList()).also { plugin.checkBuilder(it) }
 }
 
 data class ExtensionBuilder<T: Any> internal constructor(
-    private val name: String,
-    private val ext: ExtensionPoint<T>,
+    internal val name: String,
+    internal val ext: ExtensionPoint<T>,
     private val action: LazyEvaluated<T>,
-    private val ordering: OrderingKind = OrderingKind.None,
+    private val before: List<Extension<*, *, *>>,
+    private val after: List<Extension<*, *, *>>,
     private val override: OverrideKind = OverrideKind.None,
     private val conditions: List<(DokkaConfiguration) -> Boolean>
 ){
-    fun build(): Extension<T, *, *>  = Extension(
+    fun build(clazz: Class<*>): Extension<T, *, *>  = Extension(
         ext,
-        javaClass.name,
+        clazz.name,
         name,
         action,
-        ordering,
+        OrderingKind.ByDsl {
+            before(*before.toTypedArray())
+            after(*after.toTypedArray())
+        },
         override,
         conditions
     )
 
-    fun overrideExtension(extension: Extension<T, *, *>) = copy(override = OverrideKind.Present(extension))
+    fun overrideExtension(extension: Extension<T, *, *>): ExtensionBuilder<T> = copy(override = OverrideKind.Present(extension))
 
-    fun newOrdering(before: Array<Extension<*, *, *>>, after: Array<Extension<*, *, *>>) {
-        copy(ordering = OrderingKind.ByDsl {
-            before(*before)
-            after(*after)
-        })
-    }
+    fun before(vararg ext: Extension<*, *, *>): ExtensionBuilder<T> = copy(before = before + ext)
 
-    fun addCondition(c: (DokkaConfiguration) -> Boolean) = copy(conditions = conditions + c)
+    fun after(vararg ext: Extension<*, *, *>): ExtensionBuilder<T> = copy(after = after + ext)
 
-    fun name(name: String) = copy(name = name)
+    fun addCondition(c: (DokkaConfiguration) -> Boolean): ExtensionBuilder<T> = copy(conditions = conditions + c)
 }
 
 abstract class DokkaJavaPlugin: DokkaPlugin() {
+    private var declaredSoFar: Set<Pair<String, ExtensionPoint<*>>> = emptySet()
+
+    internal fun checkBuilder(builder: ExtensionBuilder<*>) {
+        val descr = Pair(builder.name, builder.ext)
+        if (declaredSoFar.contains(descr)) {
+            if (builder.name == defaultExtensionName(builder.ext))
+                throw AssertionError(
+                    "Duplicated extension for ${builder.ext} using default name (${builder.name}). " +
+                        "Use 'name(<newName>)' to fix this problem")
+            else throw AssertionError("Duplicated extension for ${builder.ext} named ${builder.name}")
+        }
+        declaredSoFar = declaredSoFar + descr
+    }
 
     fun <T: DokkaPlugin> plugin(clazz: Class<T>): T? =
         context?.plugin(clazz.kotlin) ?: throwIllegalQuery()
 
 
     fun <T: Any> extend(func: (ExtensionBuilderStart) -> ExtensionBuilder<T>): Lazy<Extension<T, *, *>> =
-        lazy { func(ExtensionBuilderStart()).build() }.also { unsafeInstall(it) }
+        lazy { func(ExtensionBuilderStart()).build(this.javaClass) }.also { unsafeInstall(it) }
 
 }
