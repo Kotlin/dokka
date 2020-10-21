@@ -85,7 +85,7 @@ object ScriptsInstaller : PageTransformer {
         "scripts/clipboard.js",
         "scripts/navigation-loader.js",
         "scripts/platform-content-handler.js",
-        "scripts/main.js"
+        "scripts/main.js",
     )
 
     override fun invoke(input: RootPageNode): RootPageNode {
