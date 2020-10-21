@@ -220,7 +220,8 @@ code.paragraph {
     align-items: center;
     display: flex;
     justify-content: flex-end;
-    padding-right: 24px;
+    padding: 10px;
+    margin-right: 14px;
     cursor: pointer;
 }
 
@@ -255,12 +256,21 @@ code.paragraph {
     cursor: pointer;
 }
 
-.symbol span.copy-icon path {
-    fill: var(--average-color);
+.symbol span.copy-icon::before {
+    width: 24px;
+    height: 24px;
+    display: inline-block;
+    content: '';
+    /* masks are required if you want to change color of the icon dynamically instead of using those provided with the SVG */
+    -webkit-mask: url("../images/copy-icon.svg") no-repeat 50% 50%;
+    mask: url("../images/copy-icon.svg") no-repeat 50% 50%;
+    -webkit-mask-size: cover;
+    mask-size: cover;
+    background-color: var(--average-color);
 }
 
-.symbol span.copy-icon:hover path {
-    fill: black;
+.symbol span.copy-icon:hover::before {
+    background-color: black;
 }
 
 .copy-popup-wrapper {
@@ -280,6 +290,16 @@ code.paragraph {
     border-radius: 3px;
 }
 
+.copy-popup-wrapper > .copy-popup-icon::before {
+    content: url("../images/copy-successful-icon.svg");
+    padding: 8px;
+}
+
+.copy-popup-wrapper > .copy-popup-icon {
+    position: relative;
+    top: 3px;
+}
+
 .copy-popup-wrapper.popup-to-left {
     /* since it is in position absolute we can just move it to the left to make it always appear on the left side of the icon */
     left: -15em;
@@ -291,10 +311,6 @@ code.paragraph {
 
 .copy-popup-wrapper:hover {
     font-weight: normal;
-}
-
-.copy-popup-wrapper svg {
-    padding: 8px;
 }
 
 .copy-popup-wrapper > span:last-child {
@@ -768,8 +784,8 @@ td.content {
     transition: 0.2s 0.5s;
 }
 
-.main-subrow .anchor-icon > svg path {
-    fill: var(--average-color);
+.main-subrow .anchor-icon::before {
+    content: url("../images/anchor-copy-button.svg");
 }
 
 .main-subrow .anchor-icon:hover {
@@ -1038,8 +1054,8 @@ td.content {
     background-color: white;
 }
 
-.footer span.go-to-top-icon path {
-    fill: var(--average-color);
+.footer span.go-to-top-icon > a::before {
+    content: url("../images/go-to-top-icon.svg");
 }
 
 .footer > span:first-child {
@@ -1060,9 +1076,8 @@ td.content {
     padding-left: 0.5em;
 }
 
-/*For svg*/
-.footer path {
-    fill: var(--breadcrumb-font-color);
+.footer .padded-icon::before {
+    content: url("../images/footer-go-to-link.svg");   
 }
 
 .pull-right {
