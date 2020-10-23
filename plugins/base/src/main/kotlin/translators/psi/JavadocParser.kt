@@ -41,7 +41,7 @@ class JavadocParser(
                 )
                 "throws" -> Throws(wrapTagIfNecessary(convertJavadocElements(tag.contentElements())), tag.text)
                 "return" -> Return(wrapTagIfNecessary(convertJavadocElements(tag.contentElements())))
-                "author" -> Author(wrapTagIfNecessary(convertJavadocElements(tag.authorContentElements()))) // Workaround: PSI returns first word after @author tag as a `DOC_TAG_VALUE_ELEMENT`, then the rest as a `DOC_COMMENT_DATA`, so for `Name Surname` we get them parted
+                "author" -> Author(wrapTagIfNecessary(convertJavadocElements(tag.contentElementsWithSiblingIfNeeded()))) // Workaround: PSI returns first word after @author tag as a `DOC_TAG_VALUE_ELEMENT`, then the rest as a `DOC_COMMENT_DATA`, so for `Name Surname` we get them parted
                 "see" -> getSeeTagElementContent(tag).let {
                     See(
                         wrapTagIfNecessary(it.first),
@@ -49,7 +49,7 @@ class JavadocParser(
                         it.second
                     )
                 }
-                "deprecated" -> Deprecated(wrapTagIfNecessary(convertJavadocElements(tag.dataElements.toList())))
+                "deprecated" -> Deprecated(wrapTagIfNecessary(convertJavadocElements(tag.contentElementsWithSiblingIfNeeded())))
                 else -> null
             }
         })
@@ -172,7 +172,7 @@ class JavadocParser(
                 dri.toString()
             } ?: UNRESOLVED_PSI_ELEMENT
 
-            return """<a data-dri=$dri>${label.joinToString(" ") { it.text }}</a>"""
+            return """<a data-dri="$dri">${label.joinToString(" ") { it.text }}</a>"""
         }
 
         private fun convertInlineDocTag(tag: PsiInlineDocTag) = when (tag.name) {
@@ -240,7 +240,7 @@ class JavadocParser(
     private fun PsiDocTag.contentElements(): List<PsiElement> =
         dataElements.mapNotNull { it.takeIf { it is PsiDocToken && it.text.isNotBlank() } }
 
-    private fun PsiDocTag.authorContentElements(): List<PsiElement> = listOfNotNull(
+    private fun PsiDocTag.contentElementsWithSiblingIfNeeded(): List<PsiElement> = listOfNotNull(
         dataElements[0],
         dataElements[0].nextSibling?.takeIf { it.text != dataElements.drop(1).firstOrNull()?.text },
         *dataElements.drop(1).toTypedArray()

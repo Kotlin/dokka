@@ -246,6 +246,64 @@ class ContentForParamsTest : AbstractCoreTest() {
     }
 
     @Test
+    fun `deprecated with multiple links inside`() {
+        testInline(
+            """
+            |/src/main/java/sample/DocGenProcessor.java
+            |package sample;
+            |/**
+            | * Return the target fragment set by {@link #setTargetFragment}.
+            | *
+            | * @deprecated Instead of using a target fragment to pass results, use
+            | * {@link java.util.HashMap#containsKey(java.lang.Object) FragmentManager#setFragmentResult(String, Bundle)} to deliver results to
+            | * {@link java.util.HashMap#containsKey(java.lang.Object) FragmentResultListener} instances registered by other fragments via
+            | * {@link java.util.HashMap#containsKey(java.lang.Object) FragmentManager#setFragmentResultListener(String, LifecycleOwner,
+            | * FragmentResultListener)}.
+            | */
+            | public class DocGenProcessor { 
+            |    public String setTargetFragment(){
+            |            return "";
+            |    }
+            |}
+            """.trimIndent(), testConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val classPage = module.children.single { it.name == "sample" }.children.single { it.name == "DocGenProcessor" } as ContentPage
+                classPage.content.assertNode {
+                    group {
+                        header { +"DocGenProcessor" }
+                        platformHinted {
+                            group {
+                                skipAllNotMatching() //Signature
+                            }
+                            group {
+                                comment {
+                                    +"Return the target fragment set by "
+                                    link { +"setTargetFragment" }
+                                    +"."
+                                }
+                            }
+                            group {
+                                header(4) { +"Deprecated" }
+                                comment {
+                                    +"Instead of using a target fragment to pass results, use "
+                                    link { +"FragmentManager#setFragmentResult(String, Bundle)" }
+                                    +" to deliver results to "
+                                    link { +"FragmentResultListener" }
+                                    +"instances registered by other fragments via "
+                                    link { +"FragmentManager#setFragmentResultListener(String, LifecycleOwner, FragmentResultListener)" }
+                                    +"."
+                                }
+                            }
+                        }
+                    }
+                    skipAllNotMatching()
+                }
+            }
+        }
+    }
+
+    @Test
     fun `undocumented parameter and other tags`() {
         testInline(
             """
