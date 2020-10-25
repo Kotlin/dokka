@@ -302,7 +302,7 @@ dokkaHtml.configure {
 ```
 
 ## Multi-module projects
-For documenting Gradle multi-module projects, you can use `dokka${format}Multimodule` tasks.
+For documenting Gradle multi-module projects, you can use `dokka${format}MultiModule` tasks.
 
 ```kotlin
 tasks.dokkaHtmlMultiModule.configure {
