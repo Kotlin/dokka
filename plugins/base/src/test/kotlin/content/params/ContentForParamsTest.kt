@@ -254,7 +254,8 @@ class ContentForParamsTest : AbstractCoreTest() {
             |/**
             | * Return the target fragment set by {@link #setTargetFragment}.
             | *
-            | * @deprecated Instead of using a target fragment to pass results, use
+            | * @deprecated Instead of using a target fragment to pass results, the fragment requesting a
+            | *              result should use
             | * {@link java.util.HashMap#containsKey(java.lang.Object) FragmentManager#setFragmentResult(String, Bundle)} to deliver results to
             | * {@link java.util.HashMap#containsKey(java.lang.Object) FragmentResultListener} instances registered by other fragments via
             | * {@link java.util.HashMap#containsKey(java.lang.Object) FragmentManager#setFragmentResultListener(String, LifecycleOwner,
@@ -286,7 +287,7 @@ class ContentForParamsTest : AbstractCoreTest() {
                             group {
                                 header(4) { +"Deprecated" }
                                 comment {
-                                    +"Instead of using a target fragment to pass results, use "
+                                    +"Instead of using a target fragment to pass results, the fragment requesting a result should use "
                                     link { +"FragmentManager#setFragmentResult(String, Bundle)" }
                                     +" to deliver results to "
                                     link { +"FragmentResultListener" }

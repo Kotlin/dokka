@@ -14,6 +14,9 @@ import org.jetbrains.dokka.model.doc.Deprecated
 import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.kotlin.idea.refactoring.fqName.getKotlinFqName
 import org.jetbrains.kotlin.name.FqName
+import org.jetbrains.kotlin.psi.psiUtil.getNextSiblingIgnoringWhitespace
+import org.jetbrains.kotlin.psi.psiUtil.getNextSiblingIgnoringWhitespaceAndComments
+import org.jetbrains.kotlin.psi.psiUtil.siblings
 import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 import org.jsoup.Jsoup
@@ -157,8 +160,31 @@ class JavadocParser(
                 if ((prevSibling as? PsiDocToken)?.isLeadingAsterisk() == true) it?.drop(1) else it
             }.let {
                 if ((nextSibling as? PsiDocToken)?.isLeadingAsterisk() == true) it?.dropLastWhile { it == ' ' } else it
+            }?.let {
+                if (shouldHaveSpaceAtTheEnd()) "$it " else it
             }
             else -> null
+        }
+
+        /**
+         * We would like to know if we need to have a space after a this tag
+         *
+         * The space is required when:
+         *  - tag spans multiple lines, between every line we would need a space
+         *
+         *  We wouldn't like to render a space if:
+         *  - tag is followed by an end of comment
+         *  - after a tag there is another tag (eg. multiple @author tags)
+         */
+        private fun PsiElement.shouldHaveSpaceAtTheEnd(): Boolean {
+            val siblings = siblings(withItself = false).toList().filterNot { it.text.trim() == "" }
+            val nextNotEmptySibling = (siblings.firstOrNull() as? PsiDocToken)
+            val furtherNotEmptySibling = (siblings.drop(1).firstOrNull() as? PsiDocToken)
+
+            return (nextSibling as? PsiWhiteSpace)?.text == "\n " &&
+                    (getNextSiblingIgnoringWhitespace() as? PsiDocToken)?.tokenType?.toString() != END_COMMENT_TYPE &&
+                    nextNotEmptySibling?.isLeadingAsterisk() == true &&
+                    furtherNotEmptySibling?.tokenType?.toString() == COMMENT_TYPE
         }
 
         private fun PsiElement.toDocumentationLinkString(
@@ -278,5 +304,7 @@ class JavadocParser(
 
     companion object {
         private const val UNRESOLVED_PSI_ELEMENT = "UNRESOLVED_PSI_ELEMENT"
+        private const val END_COMMENT_TYPE = "DOC_COMMENT_END"
+        private const val COMMENT_TYPE = "DOC_COMMENT_DATA"
     }
 }
