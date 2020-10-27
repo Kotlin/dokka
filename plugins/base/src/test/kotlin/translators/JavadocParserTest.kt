@@ -176,12 +176,12 @@ class JavadocParserTest : AbstractCoreTest() {
         performJavadocTest { module ->
             val dateDescription = module.descriptionOf("Date2")!!
             val preTagContent = dateDescription.firstChildOfType<Pre>().firstChildOfType<Text>()
-            val expectedText = """<androidx.fragment.app.FragmentContainerView 
-       xmlns:android="http://schemas.android.com/apk/res/android" 
-       xmlns:app="http://schemas.android.com/apk/res-auto" 
-       android:id="@+id/fragment_container_view" 
-       android:layout_width="match_parent" 
-       android:layout_height="match_parent"> 
+            val expectedText = """<androidx.fragment.app.FragmentContainerView
+       xmlns:android="http://schemas.android.com/apk/res/android"
+       xmlns:app="http://schemas.android.com/apk/res-auto"
+       android:id="@+id/fragment_container_view"
+       android:layout_width="match_parent"
+       android:layout_height="match_parent">
 </androidx.fragment.app.FragmentContainerView>""".trimIndent()
             assertEquals(expectedText.trim(), preTagContent.body.trim())
         }
@@ -192,10 +192,10 @@ class JavadocParserTest : AbstractCoreTest() {
         performJavadocTest { module ->
             val dateDescription = module.descriptionOf("Date2")!!
             val preTagContent = dateDescription.childrenOfType<Pre>()[1].firstChildOfType<Text>()
-            val expectedText = """class MyFragment extends Fragment { 
-  public MyFragment() { 
-    super(R.layout.fragment_main); 
-  } 
+            val expectedText = """class MyFragment extends Fragment {
+  public MyFragment() {
+    super(R.layout.fragment_main);
+  }
 }""".trimIndent()
             assertEquals(expectedText.trim(), preTagContent.body.trim())
         }

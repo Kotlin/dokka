@@ -291,7 +291,7 @@ class ContentForParamsTest : AbstractCoreTest() {
                                     link { +"FragmentManager#setFragmentResult(String, Bundle)" }
                                     +" to deliver results to "
                                     link { +"FragmentResultListener" }
-                                    +"instances registered by other fragments via "
+                                    +" instances registered by other fragments via "
                                     link { +"FragmentManager#setFragmentResultListener(String, LifecycleOwner, FragmentResultListener)" }
                                     +"."
                                 }
@@ -303,6 +303,110 @@ class ContentForParamsTest : AbstractCoreTest() {
             }
         }
     }
+
+    @Test
+    fun `deprecated with an html link in multiple lines`() {
+        testInline(
+            """
+            |/src/main/java/sample/DocGenProcessor.java
+            |package sample;
+            |/**
+            | * @deprecated Use
+            | * <a href="https://developer.android.com/guide/navigation/navigation-swipe-view ">
+            | *    TabLayout and ViewPager</a> instead.
+            | */
+            | public class DocGenProcessor { }
+            """.trimIndent(), testConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val classPage = module.children.single { it.name == "sample" }.children.single { it.name == "DocGenProcessor" } as ContentPage
+                classPage.content.assertNode {
+                    group {
+                        header { +"DocGenProcessor" }
+                        platformHinted {
+                            group {
+                                skipAllNotMatching() //Signature
+                            }
+                            group {
+                                header(4) { +"Deprecated" }
+                                comment {
+                                    +"Use "
+                                    link { +"TabLayout and ViewPager" }
+                                    +" instead."
+                                }
+                            }
+                        }
+                    }
+                    skipAllNotMatching()
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `deprecated with an multiple inline links`() {
+        testInline(
+            """
+            |/src/main/java/sample/DocGenProcessor.java
+            |package sample;
+            |/**
+            | * FragmentManagerNonConfig stores the retained instance fragments across
+            | * activity recreation events.
+            | *
+            | * <p>Apps should treat objects of this type as opaque, returned by
+            | * and passed to the state save and restore process for fragments in
+            | * {@link java.util.HashMap#containsKey(java.lang.Object) FragmentController#retainNestedNonConfig()} and
+            | * {@link java.util.HashMap#containsKey(java.lang.Object) FragmentController#restoreAllState(Parcelable, FragmentManagerNonConfig)}.</p>
+            | *
+            | * @deprecated Have your {@link java.util.HashMap FragmentHostCallback} implement
+            | * {@link java.util.HashMap } to automatically retain the Fragment's
+            | * non configuration state.
+            | */
+            | public class DocGenProcessor { }
+            """.trimIndent(), testConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val classPage = module.children.single { it.name == "sample" }.children.single { it.name == "DocGenProcessor" } as ContentPage
+                classPage.content.assertNode {
+                    group {
+                        header { +"DocGenProcessor" }
+                        platformHinted {
+                            group {
+                                skipAllNotMatching() //Signature
+                            }
+                            group {
+                                comment {
+                                    group {
+                                        +"FragmentManagerNonConfig stores the retained instance fragments across activity recreation events."
+                                    }
+                                    group {
+                                        +"Apps should treat objects of this type as opaque, returned by and passed to the state save and restore process for fragments in "
+                                        link { +"FragmentController#retainNestedNonConfig()" }
+                                        +" and "
+                                        link { +"FragmentController#restoreAllState(Parcelable, FragmentManagerNonConfig)"}
+                                        +"."
+                                    }
+                                }
+                            }
+                            group {
+                                header(4) { +"Deprecated" }
+                                comment {
+                                    +"Have your "
+                                    link { +"FragmentHostCallback" }
+                                    +" implement "
+                                    link { +"java.util.HashMap" }
+                                    +" to automatically retain the Fragment's non configuration state."
+                                }
+                            }
+                        }
+                    }
+                    skipAllNotMatching()
+                }
+            }
+        }
+    }
+
+
 
     @Test
     fun `undocumented parameter and other tags`() {

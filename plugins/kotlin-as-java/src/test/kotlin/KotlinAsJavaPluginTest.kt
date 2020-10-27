@@ -174,10 +174,10 @@ class KotlinAsJavaPluginTest : AbstractCoreTest() {
                         divergentInstance {
                             divergent {
                                 group {
-                                    +"final"
+                                    +"final "
                                     group {
                                         link {
-                                            +" String"
+                                            +"String"
                                         }
                                     }
                                     link {
@@ -274,7 +274,7 @@ class KotlinAsJavaPluginTest : AbstractCoreTest() {
                         }
                         platformHinted {
                             group {
-                                +"public final class"
+                                +"public final class "
                                 link {
                                     +"C"
                                 }

@@ -35,7 +35,7 @@ class ConstructorsSignaturesTest : AbstractCoreTest() {
                         header(1) { +"SomeClass" }
                         platformHinted {
                             group {
-                                +"class"
+                                +"class "
                                 link { +"SomeClass" }
                             }
                         }
@@ -65,7 +65,7 @@ class ConstructorsSignaturesTest : AbstractCoreTest() {
                         header(1) { +"SomeClass" }
                         platformHinted {
                             group {
-                                +"class"
+                                +"class "
                                 link { +"SomeClass" }
                             }
                         }
@@ -95,9 +95,9 @@ class ConstructorsSignaturesTest : AbstractCoreTest() {
                         header(1) { +"SomeClass" }
                         platformHinted {
                             group {
-                                +"class"
+                                +"class "
                                 link { +"SomeClass" }
-                                +"(a:"
+                                +"(a: "
                                 group { link { +"String" } }
                                 +")"
                             }
@@ -128,9 +128,9 @@ class ConstructorsSignaturesTest : AbstractCoreTest() {
                         header(1) { +"SomeClass" }
                         platformHinted {
                             group {
-                                +"class"
+                                +"class "
                                 link { +"SomeClass" }
-                                +"(a:" // TODO: Make sure if we still do not want to have "val" here
+                                +"(a: " // TODO: Make sure if we still do not want to have "val" here
                                 group { link { +"String" } }
                                 +")"
                             }
@@ -162,9 +162,9 @@ class ConstructorsSignaturesTest : AbstractCoreTest() {
                         header(1) { +"SomeClass" }
                         platformHinted {
                             group {
-                                +"class"
+                                +"class "
                                 link { +"SomeClass" }
-                                +"(a:"
+                                +"(a: "
                                 group { link { +"String" } }
                                 +")"
                             }
@@ -213,9 +213,9 @@ class ConstructorsSignaturesTest : AbstractCoreTest() {
                         header(1) { +"SomeClass" }
                         platformHinted {
                             group {
-                                +"class"
+                                +"class "
                                 link { +"SomeClass" }
-                                +"(a:"
+                                +"(a: "
                                 group { link { +"String" } }
                                 +")"
                             }
@@ -229,9 +229,9 @@ class ConstructorsSignaturesTest : AbstractCoreTest() {
                                 link { +"SomeClass" }
                                 platformHinted {
                                     group {
-                                        +"fun"
+                                        +"fun "
                                         link { +"SomeClass" }
-                                        +"(a:"
+                                        +"(a: "
                                         group {
                                             link { +"String" }
                                         }

@@ -3,7 +3,6 @@ package matchers.content
 import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.isEqualTo
-import assertk.assertions.matches
 import org.jetbrains.dokka.model.withDescendants
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.test.tools.matchers.content.*
@@ -50,12 +49,6 @@ private val ContentComposite.extractedText
 fun <T : ContentComposite> ContentMatcherBuilder<T>.hasExactText(expected: String) {
     assertions += {
         assertThat(this::extractedText).isEqualTo(expected)
-    }
-}
-
-fun <T : ContentComposite> ContentMatcherBuilder<T>.textMatches(pattern: Regex) {
-    assertions += {
-        assertThat(this::extractedText).matches(pattern)
     }
 }
 

@@ -69,10 +69,9 @@ private class TextMatcherState(
 ) : MatchWalkerState() {
     override fun next(node: ContentNode): MatchWalkerState {
         node as? ContentText ?: throw MatcherError("Expected text: \"$text\" but got\n${node.debugRepresentation()}", anchor)
-        val trimmed = node.text.trim()
         return when {
-            text == trimmed -> rest.pop()
-            text.startsWith(trimmed) -> TextMatcherState(text.removePrefix(node.text).trim(), rest, anchor)
+            text == node.text -> rest.pop()
+            text.startsWith(node.text) -> TextMatcherState(text.removePrefix(node.text), rest, anchor)
             else -> throw MatcherError("Expected text: \"$text\", but got: \"${node.text}\"", anchor)
         }
     }
@@ -111,7 +110,7 @@ private class SkippingMatcherState(
 
 private class FurtherSiblings(val list: List<MatcherElement>, val parent: CompositeMatcher<*>) {
     fun pop(): MatchWalkerState = when (val head = list.firstOrNull()) {
-        is TextMatcher -> TextMatcherState(head.text.trim(), drop(), head)
+        is TextMatcher -> TextMatcherState(head.text, drop(), head)
         is NodeMatcher<*> -> NodeMatcherState(head, drop())
         is Anything -> SkippingMatcherState(drop().pop())
         null -> EmptyMatcherState(parent)

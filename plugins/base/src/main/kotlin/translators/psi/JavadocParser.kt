@@ -1,5 +1,6 @@
 package org.jetbrains.dokka.base.translators.psi
 
+import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.*
 import com.intellij.psi.impl.source.javadoc.PsiDocParamRef
 import com.intellij.psi.impl.source.tree.JavaDocElementType
@@ -15,7 +16,6 @@ import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.kotlin.idea.refactoring.fqName.getKotlinFqName
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.psiUtil.getNextSiblingIgnoringWhitespace
-import org.jetbrains.kotlin.psi.psiUtil.getNextSiblingIgnoringWhitespaceAndComments
 import org.jetbrains.kotlin.psi.psiUtil.siblings
 import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
@@ -150,20 +150,44 @@ class JavadocParser(
 
     private inner class Parse : (Iterable<PsiElement>, Boolean) -> List<DocTag> {
         val driMap = mutableMapOf<String, DRI>()
+        val parsedDocumentation = StringBuilder()
 
-        private fun PsiElement.stringify(): String? = when (this) {
-            is PsiReference -> children.joinToString("") { it.stringify().orEmpty() }
-            is PsiInlineDocTag -> convertInlineDocTag(this)
-            is PsiDocParamRef -> toDocumentationLinkString()
-            is PsiDocTagValue,
-            is LeafPsiElement -> text.let {
-                if ((prevSibling as? PsiDocToken)?.isLeadingAsterisk() == true) it?.drop(1) else it
-            }.let {
-                if ((nextSibling as? PsiDocToken)?.isLeadingAsterisk() == true) it?.dropLastWhile { it == ' ' } else it
-            }?.let {
-                if (shouldHaveSpaceAtTheEnd()) "$it " else it
-            }
-            else -> null
+        private fun PsiElement.stringify(): String? {
+            val openPre = "<pre[^>]*>".toRegex().findAll(parsedDocumentation).toList().size
+            val closingPre = "</pre>".toRegex().findAll(parsedDocumentation).toList().size
+            val isInsidePre = openPre > closingPre
+            return when (this) {
+                is PsiReference -> children.joinToString("") { it.stringify().orEmpty() }
+                is PsiInlineDocTag -> convertInlineDocTag(this)
+                is PsiDocParamRef -> toDocumentationLinkString()
+                is PsiDocTagValue,
+                is LeafPsiElement -> {
+                    if(isInsidePre){
+                        /*
+                        For values in the <pre> tag we try to keep formatting, so only the leading space is trimmed,
+                        since it is there because it separates this line from the leading asterisk
+                         */
+                        text.let {
+                            if ((prevSibling as? PsiDocToken)?.isLeadingAsterisk() == true) it.drop(1) else it
+                        }.let {
+                            if((nextSibling as? PsiDocToken)?.isLeadingAsterisk() == true) it.dropLastWhile { it == ' ' } else it
+                        }
+                    } else {
+                        /*
+                        Outside of the <pre> we would like to trim everything from the start and end of a line since
+                        javadoc doesn't care about it.
+                         */
+                        text.let {
+                            if ((prevSibling as? PsiDocToken)?.isLeadingAsterisk() == true && text != " ") it?.trimStart() else it
+                        }?.let {
+                            if ((nextSibling as? PsiDocToken)?.isLeadingAsterisk() == true && text != " ") it.trimEnd() else it
+                        }?.let {
+                            if (shouldHaveSpaceAtTheEnd()) "$it " else it
+                        }
+                    }
+                }
+                else -> null
+            }.also { parsedDocumentation.append(it) }
         }
 
         /**
@@ -175,16 +199,19 @@ class JavadocParser(
          *  We wouldn't like to render a space if:
          *  - tag is followed by an end of comment
          *  - after a tag there is another tag (eg. multiple @author tags)
+         *  - they end with an html tag like: <a href="...">Something</a> since then the space will be displayed in the following text
          */
         private fun PsiElement.shouldHaveSpaceAtTheEnd(): Boolean {
             val siblings = siblings(withItself = false).toList().filterNot { it.text.trim() == "" }
             val nextNotEmptySibling = (siblings.firstOrNull() as? PsiDocToken)
             val furtherNotEmptySibling = (siblings.drop(1).firstOrNull() as? PsiDocToken)
+            val endsWithAnUnclosedTag = text.trim().endsWith(">") && text.contains("<")
 
             return (nextSibling as? PsiWhiteSpace)?.text == "\n " &&
                     (getNextSiblingIgnoringWhitespace() as? PsiDocToken)?.tokenType?.toString() != END_COMMENT_TYPE &&
                     nextNotEmptySibling?.isLeadingAsterisk() == true &&
-                    furtherNotEmptySibling?.tokenType?.toString() == COMMENT_TYPE
+                    furtherNotEmptySibling?.tokenType?.toString() == COMMENT_TYPE &&
+                    !endsWithAnUnclosedTag
         }
 
         private fun PsiElement.toDocumentationLinkString(
