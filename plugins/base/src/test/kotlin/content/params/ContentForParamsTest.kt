@@ -377,7 +377,7 @@ class ContentForParamsTest : AbstractCoreTest() {
                             group {
                                 comment {
                                     group {
-                                        +"FragmentManagerNonConfig stores the retained instance fragments across activity recreation events."
+                                        +"FragmentManagerNonConfig stores the retained instance fragments across activity recreation events. "
                                     }
                                     group {
                                         +"Apps should treat objects of this type as opaque, returned by and passed to the state save and restore process for fragments in "
@@ -407,6 +407,49 @@ class ContentForParamsTest : AbstractCoreTest() {
     }
 
 
+    @Test
+    fun `documentation splitted in 2 using enters`(){
+        testInline(
+            """
+            |/src/main/java/sample/DocGenProcessor.java
+            |package sample;
+            |/**
+            | * Listener for handling fragment results.
+            | *
+            | * This object should be passed to
+            | * {@link java.util.HashMap#containsKey(java.lang.Object) FragmentManager#setFragmentResultListener(String, LifecycleOwner, FragmentResultListener)}
+            | * and it will listen for results with the same key that are passed into
+            | * {@link java.util.HashMap#containsKey(java.lang.Object) FragmentManager#setFragmentResult(String, Bundle)}.
+            | *
+            | */
+            | public class DocGenProcessor { }
+            """.trimIndent(), testConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val classPage = module.children.single { it.name == "sample" }.children.single { it.name == "DocGenProcessor" } as ContentPage
+                classPage.content.assertNode {
+                    group {
+                        header { +"DocGenProcessor" }
+                        platformHinted {
+                            group {
+                                skipAllNotMatching() //Signature
+                            }
+                            group {
+                                comment {
+                                    +"Listener for handling fragment results. This object should be passed to "
+                                    link { +"FragmentManager#setFragmentResultListener(String, LifecycleOwner, FragmentResultListener)" }
+                                    +" and it will listen for results with the same key that are passed into "
+                                    link { +"FragmentManager#setFragmentResult(String, Bundle)"}
+                                    +"."
+                                }
+                            }
+                        }
+                    }
+                    skipAllNotMatching()
+                }
+            }
+        }
+    }
 
     @Test
     fun `undocumented parameter and other tags`() {

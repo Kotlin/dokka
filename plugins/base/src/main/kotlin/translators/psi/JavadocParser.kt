@@ -1,6 +1,5 @@
 package org.jetbrains.dokka.base.translators.psi
 
-import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.*
 import com.intellij.psi.impl.source.javadoc.PsiDocParamRef
 import com.intellij.psi.impl.source.tree.JavaDocElementType
@@ -14,6 +13,7 @@ import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.model.doc.Deprecated
 import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.kotlin.idea.refactoring.fqName.getKotlinFqName
+import org.jetbrains.kotlin.js.parser.parse
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.psiUtil.getNextSiblingIgnoringWhitespace
 import org.jetbrains.kotlin.psi.psiUtil.siblings
@@ -156,13 +156,15 @@ class JavadocParser(
             val openPre = "<pre[^>]*>".toRegex().findAll(parsedDocumentation).toList().size
             val closingPre = "</pre>".toRegex().findAll(parsedDocumentation).toList().size
             val isInsidePre = openPre > closingPre
+            val areAllTagsClosed = "<[^/].+?>".toRegex().findAll(parsedDocumentation).toList().size == "</.+?>".toRegex().findAll(parsedDocumentation).toList().size
+
             return when (this) {
                 is PsiReference -> children.joinToString("") { it.stringify().orEmpty() }
                 is PsiInlineDocTag -> convertInlineDocTag(this)
                 is PsiDocParamRef -> toDocumentationLinkString()
                 is PsiDocTagValue,
                 is LeafPsiElement -> {
-                    if(isInsidePre){
+                    if (isInsidePre) {
                         /*
                         For values in the <pre> tag we try to keep formatting, so only the leading space is trimmed,
                         since it is there because it separates this line from the leading asterisk
@@ -170,7 +172,7 @@ class JavadocParser(
                         text.let {
                             if ((prevSibling as? PsiDocToken)?.isLeadingAsterisk() == true) it.drop(1) else it
                         }.let {
-                            if((nextSibling as? PsiDocToken)?.isLeadingAsterisk() == true) it.dropLastWhile { it == ' ' } else it
+                            if ((nextSibling as? PsiDocToken)?.isLeadingAsterisk() == true) it.dropLastWhile { it == ' ' } else it
                         }
                     } else {
                         /*
@@ -178,7 +180,9 @@ class JavadocParser(
                         javadoc doesn't care about it.
                          */
                         text.let {
-                            if ((prevSibling as? PsiDocToken)?.isLeadingAsterisk() == true && text != " ") it?.trimStart() else it
+                            if ((prevSibling as? PsiDocToken)?.isLeadingAsterisk() == true
+                                && text != " " && (parsedDocumentation.lastOrNull() != '>' || !areAllTagsClosed)
+                            ) it?.trimStart() else it
                         }?.let {
                             if ((nextSibling as? PsiDocToken)?.isLeadingAsterisk() == true && text != " ") it.trimEnd() else it
                         }?.let {
@@ -200,11 +204,13 @@ class JavadocParser(
          *  - tag is followed by an end of comment
          *  - after a tag there is another tag (eg. multiple @author tags)
          *  - they end with an html tag like: <a href="...">Something</a> since then the space will be displayed in the following text
+         *  - next line starts with a <p> or <pre> token
          */
         private fun PsiElement.shouldHaveSpaceAtTheEnd(): Boolean {
             val siblings = siblings(withItself = false).toList().filterNot { it.text.trim() == "" }
             val nextNotEmptySibling = (siblings.firstOrNull() as? PsiDocToken)
-            val furtherNotEmptySibling = (siblings.drop(1).firstOrNull() as? PsiDocToken)
+            val furtherNotEmptySibling =
+                (siblings.drop(1).firstOrNull { it is PsiDocToken && !it.isLeadingAsterisk() } as? PsiDocToken)
             val endsWithAnUnclosedTag = text.trim().endsWith(">") && text.contains("<")
 
             return (nextSibling as? PsiWhiteSpace)?.text == "\n " &&
