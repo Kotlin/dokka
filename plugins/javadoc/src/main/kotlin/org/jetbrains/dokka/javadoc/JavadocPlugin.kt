@@ -36,7 +36,7 @@ class JavadocPlugin : DokkaPlugin() {
     }
 
     val documentableSourceSetFilter by extending {
-        CoreExtensions.preMergeDocumentableTransformer providing ::JavadocDocumentableJVMSourceSetFilter
+        dokkaBasePlugin.preMergeDocumentableTransformer providing ::JavadocDocumentableJVMSourceSetFilter
     }
 
     val javadocLocationProviderFactory by extending {
