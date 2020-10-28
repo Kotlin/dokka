@@ -6,9 +6,11 @@ import org.jetbrains.dokka.generation.Generation
 import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
+import org.jetbrains.dokka.plugability.query
 import org.jetbrains.dokka.plugability.querySingle
 
 class AllModulesPageGeneration(private val context: DokkaContext) : Generation {
+
     override fun Timer.generate() {
         report("Creating all modules page")
         val pages = createAllModulePage()
@@ -20,17 +22,19 @@ class AllModulesPageGeneration(private val context: DokkaContext) : Generation {
         render(transformedPages)
 
         report("Processing submodules")
-        context.plugin<AllModulesPagePlugin>().querySingle { templateProcessor }.process()
+        allModulesPagePlugin().querySingle { templateProcessor }.process()
     }
 
     override val generationName = "index page for project"
 
-    fun createAllModulePage() = context.single(CoreExtensions.allModulePageCreator).invoke()
+    fun createAllModulePage() = allModulesPagePlugin().querySingle { allModulePageCreator }.invoke()
 
     fun transformAllModulesPage(pages: RootPageNode) =
-        context[CoreExtensions.allModulePageTransformer].fold(pages) { acc, t -> t(acc) }
+        allModulesPagePlugin().query { allModulePageTransformer }.fold(pages) { acc, t -> t(acc) }
 
     fun render(transformedPages: RootPageNode) {
         context.single(CoreExtensions.renderer).render(transformedPages)
     }
+
+    private fun allModulesPagePlugin() = context.plugin<AllModulesPagePlugin>()
 }
