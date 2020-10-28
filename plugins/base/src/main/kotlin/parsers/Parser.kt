@@ -36,7 +36,8 @@ abstract class Parser {
                 "receiver" -> Receiver(parseStringToDocNode(it.second))
                 "throws", "exception" -> Throws(
                     parseStringToDocNode(it.second.substringAfter(' ')),
-                    it.second.substringBefore(' ')
+                    it.second.substringBefore(' '),
+                    null
                 )
                 "deprecated" -> Deprecated(parseStringToDocNode(it.second))
                 "sample" -> Sample(

@@ -429,6 +429,30 @@ open class DefaultPageCreator(
                 }
             }
         }
+        fun DocumentableContentBuilder.contentForThrows() {
+            val throws = tags.withTypeNamed<Throws>()
+            if (throws.isNotEmpty()) {
+                header(4, "Throws")
+                sourceSetDependentHint(sourceSets = platforms.toSet(), kind = ContentKind.SourceSetDependentHint) {
+                    platforms.forEach { sourceset ->
+                        table(kind = ContentKind.Main, sourceSets = setOf(sourceset)) {
+                            throws.entries.mapNotNull { entry ->
+                                entry.value[sourceset]?.let { throws ->
+                                    buildGroup(sourceSets = setOf(sourceset)) {
+                                        group(styles = mainStyles + ContentStyle.RowTitle) {
+                                            throws.exceptionAddress?.let {
+                                                link(text = entry.key, address = it)
+                                            } ?: text(entry.key)
+                                        }
+                                        comment(throws.root)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
         fun DocumentableContentBuilder.contentForSamples() {
             val samples = tags.withTypeNamed<Sample>()
@@ -461,6 +485,7 @@ open class DefaultPageCreator(
                 contentForSamples()
                 contentForSeeAlso()
                 contentForParams()
+                contentForThrows()
             }
         }.children
     }

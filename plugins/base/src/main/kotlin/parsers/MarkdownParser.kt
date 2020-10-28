@@ -424,22 +424,39 @@ open class MarkdownParser(
                 DocumentationNode(emptyList())
             } else {
                 fun parseStringToDocNode(text: String) = MarkdownParser(externalDri).parseStringToDocNode(text)
+
+                fun pointedLink(tag: KDocTag): DRI? = (parseStringToDocNode("[${tag.getSubjectName()}]")).let {
+                    val link = it.children[0].children[0]
+                    if (link is DocumentationLink) link.dri else null
+                }
+
+                //Horrible hack but since link resolution is passed as a function i am not able to resolve them otherwise
+                fun DRI.fqName(): String = "$packageName.$classNames"
+
                 DocumentationNode(
-                    (listOf(kDocTag) + getAllKDocTags(findParent(kDocTag))).map {
+                    (listOf(kDocTag) + getAllKDocTags(findParent(kDocTag))).map { it ->
                         when (it.knownTag) {
                             null -> if (it.name == null) Description(parseStringToDocNode(it.getContent())) else CustomTagWrapper(
                                 parseStringToDocNode(it.getContent()),
                                 it.name!!
                             )
                             KDocKnownTag.AUTHOR -> Author(parseStringToDocNode(it.getContent()))
-                            KDocKnownTag.THROWS -> Throws(
-                                parseStringToDocNode(it.getContent()),
-                                it.getSubjectName().orEmpty()
-                            )
-                            KDocKnownTag.EXCEPTION -> Throws(
-                                parseStringToDocNode(it.getContent()),
-                                it.getSubjectName().orEmpty()
-                            )
+                            KDocKnownTag.THROWS -> {
+                                val dri = pointedLink(it)
+                                Throws(
+                                    parseStringToDocNode(it.getContent()),
+                                    dri?.fqName() ?: it.getSubjectName().orEmpty(),
+                                    dri,
+                                )
+                            }
+                            KDocKnownTag.EXCEPTION -> {
+                                val dri = pointedLink(it)
+                                Throws(
+                                    parseStringToDocNode(it.getContent()),
+                                    dri?.fqName() ?: it.getSubjectName().orEmpty(),
+                                    dri
+                                )
+                            }
                             KDocKnownTag.PARAM -> Param(
                                 parseStringToDocNode(it.getContent()),
                                 it.getSubjectName().orEmpty()
@@ -449,12 +466,7 @@ open class MarkdownParser(
                             KDocKnownTag.SEE -> See(
                                 parseStringToDocNode(it.getContent()),
                                 it.getSubjectName().orEmpty(),
-                                (parseStringToDocNode("[${it.getSubjectName()}]"))
-                                    .let {
-                                        val link = it.children[0].children[0]
-                                        if (link is DocumentationLink) link.dri
-                                        else null
-                                    }
+                                pointedLink(it),
                             )
                             KDocKnownTag.SINCE -> Since(parseStringToDocNode(it.getContent()))
                             KDocKnownTag.CONSTRUCTOR -> Constructor(parseStringToDocNode(it.getContent()))

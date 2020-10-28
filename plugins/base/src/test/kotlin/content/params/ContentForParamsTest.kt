@@ -7,12 +7,14 @@ import org.jetbrains.dokka.model.dfs
 import org.jetbrains.dokka.model.doc.DocumentationNode
 import org.jetbrains.dokka.model.doc.Param
 import org.jetbrains.dokka.model.doc.Text
+import org.jetbrains.dokka.pages.ContentDRILink
 import org.jetbrains.dokka.pages.ContentPage
 import org.jetbrains.dokka.pages.MemberPageNode
 import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
 import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
 import org.junit.jupiter.api.Test
 import utils.*
+import kotlin.test.assertEquals
 
 class ContentForParamsTest : AbstractCoreTest() {
     private val testConfiguration = dokkaConfiguration {
@@ -150,7 +152,7 @@ class ContentForParamsTest : AbstractCoreTest() {
                                         +"Woolfy"
                                     }
                                 }
-                                unnamedTag("Since") { comment {  +"0.11" } }
+                                unnamedTag("Since") { comment { +"0.11" } }
                             }
                         }
                     }
@@ -175,7 +177,8 @@ class ContentForParamsTest : AbstractCoreTest() {
             """.trimIndent(), testConfiguration
         ) {
             pagesTransformationStage = { module ->
-                val classPage = module.children.single { it.name == "sample" }.children.single { it.name == "DocGenProcessor" } as ContentPage
+                val classPage =
+                    module.children.single { it.name == "sample" }.children.single { it.name == "DocGenProcessor" } as ContentPage
                 classPage.content.assertNode {
                     group {
                         header { +"DocGenProcessor" }
@@ -218,7 +221,8 @@ class ContentForParamsTest : AbstractCoreTest() {
             """.trimIndent(), testConfiguration
         ) {
             pagesTransformationStage = { module ->
-                val classPage = module.children.single { it.name == "sample" }.children.single { it.name == "DocGenProcessor" } as ContentPage
+                val classPage =
+                    module.children.single { it.name == "sample" }.children.single { it.name == "DocGenProcessor" } as ContentPage
                 classPage.content.assertNode {
                     group {
                         header { +"DocGenProcessor" }
@@ -269,7 +273,8 @@ class ContentForParamsTest : AbstractCoreTest() {
             """.trimIndent(), testConfiguration
         ) {
             pagesTransformationStage = { module ->
-                val classPage = module.children.single { it.name == "sample" }.children.single { it.name == "DocGenProcessor" } as ContentPage
+                val classPage =
+                    module.children.single { it.name == "sample" }.children.single { it.name == "DocGenProcessor" } as ContentPage
                 classPage.content.assertNode {
                     group {
                         header { +"DocGenProcessor" }
@@ -319,7 +324,8 @@ class ContentForParamsTest : AbstractCoreTest() {
             """.trimIndent(), testConfiguration
         ) {
             pagesTransformationStage = { module ->
-                val classPage = module.children.single { it.name == "sample" }.children.single { it.name == "DocGenProcessor" } as ContentPage
+                val classPage =
+                    module.children.single { it.name == "sample" }.children.single { it.name == "DocGenProcessor" } as ContentPage
                 classPage.content.assertNode {
                     group {
                         header { +"DocGenProcessor" }
@@ -366,7 +372,8 @@ class ContentForParamsTest : AbstractCoreTest() {
             """.trimIndent(), testConfiguration
         ) {
             pagesTransformationStage = { module ->
-                val classPage = module.children.single { it.name == "sample" }.children.single { it.name == "DocGenProcessor" } as ContentPage
+                val classPage =
+                    module.children.single { it.name == "sample" }.children.single { it.name == "DocGenProcessor" } as ContentPage
                 classPage.content.assertNode {
                     group {
                         header { +"DocGenProcessor" }
@@ -383,7 +390,7 @@ class ContentForParamsTest : AbstractCoreTest() {
                                         +"Apps should treat objects of this type as opaque, returned by and passed to the state save and restore process for fragments in "
                                         link { +"FragmentController#retainNestedNonConfig()" }
                                         +" and "
-                                        link { +"FragmentController#restoreAllState(Parcelable, FragmentManagerNonConfig)"}
+                                        link { +"FragmentController#restoreAllState(Parcelable, FragmentManagerNonConfig)" }
                                         +"."
                                     }
                                 }
@@ -406,9 +413,226 @@ class ContentForParamsTest : AbstractCoreTest() {
         }
     }
 
+    @Test
+    fun `multiline throws with comment`() {
+        testInline(
+            """
+            |/src/main/java/sample/DocGenProcessor.java
+            |package sample;
+            | public class DocGenProcessor {
+            | /**
+            | * a normal comment
+            | *
+            | * @throws java.lang.IllegalStateException if the Dialog has not yet been created (before
+            | * onCreateDialog) or has been destroyed (after onDestroyView).
+            | * @throws java.lang.RuntimeException when {@link java.util.HashMap#containsKey(java.lang.Object) Hash
+            | *      Map} doesn't contain value.
+            | */
+            | public static void sample(){ }
+            |}
+            """.trimIndent(), testConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val functionPage =
+                    module.children.single { it.name == "sample" }.children.single { it.name == "DocGenProcessor" }.children.single { it.name == "sample" } as ContentPage
+                functionPage.content.assertNode {
+                    group {
+                        header(1) { +"sample" }
+                    }
+                    divergentGroup {
+                        divergentInstance {
+                            divergent {
+                                skipAllNotMatching() //Signature
+                            }
+                            after {
+                                group { pWrapped("a normal comment") }
+                                header(4) { +"Throws" }
+                                platformHinted {
+                                    table {
+                                        group {
+                                            group {
+                                                link { +"java.lang.IllegalStateException" }
+                                            }
+                                            comment { +"if the Dialog has not yet been created (before onCreateDialog) or has been destroyed (after onDestroyView)." }
+                                        }
+                                        group {
+                                            group {
+                                                link { +"java.lang.RuntimeException" }
+                                            }
+                                            comment {
+                                                +"when "
+                                                link { +"Hash Map" }
+                                                +" doesn't contain value."
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     @Test
-    fun `documentation splitted in 2 using enters`(){
+    fun `multiline kotlin throws with comment`() {
+        testInline(
+            """
+            |/src/main/kotlin/sample/sample.kt
+            |package sample;
+            | /**
+            | * a normal comment
+            | *
+            | * @throws java.lang.IllegalStateException if the Dialog has not yet been created (before
+            | * onCreateDialog) or has been destroyed (after onDestroyView).
+            | * @exception RuntimeException when [Hash Map][java.util.HashMap.containsKey] doesn't contain value.
+            | */
+            | fun sample(){ }
+            """.trimIndent(), testConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val functionPage =
+                    module.children.single { it.name == "sample" }.children.single { it.name == "sample" } as ContentPage
+                functionPage.content.assertNode {
+                    group {
+                        header(1) { +"sample" }
+                    }
+                    divergentGroup {
+                        divergentInstance {
+                            divergent {
+                                skipAllNotMatching() //Signature
+                            }
+                            after {
+                                group { pWrapped("a normal comment") }
+                                header(4) { +"Throws" }
+                                platformHinted {
+                                    table {
+                                        group {
+                                            group {
+                                                link {
+                                                    check {
+                                                        assertEquals(
+                                                            "java.lang/IllegalStateException///PointingToDeclaration/",
+                                                            (this as ContentDRILink).address.toString()
+                                                        )
+                                                    }
+                                                    +"java.lang.IllegalStateException"
+                                                }
+                                            }
+                                            comment { +"if the Dialog has not yet been created (before onCreateDialog) or has been destroyed (after onDestroyView)." }
+                                        }
+                                        group {
+                                            group {
+                                                link {
+                                                    check {
+                                                        assertEquals(
+                                                            "java.lang/RuntimeException///PointingToDeclaration/",
+                                                            (this as ContentDRILink).address.toString()
+                                                        )
+                                                    }
+                                                    +"java.lang.RuntimeException"
+                                                }
+                                            }
+                                            comment {
+                                                +"when "
+                                                link { +"Hash Map" }
+                                                +" doesn't contain value."
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `multiline throws where exception is not in the same line as description`() {
+        testInline(
+            """
+            |/src/main/java/sample/DocGenProcessor.java
+            |package sample;
+            | public class DocGenProcessor {
+            | /**
+            | * a normal comment
+            | *
+            | * @throws java.lang.IllegalStateException if the Dialog has not yet been created (before
+            | * onCreateDialog) or has been destroyed (after onDestroyView).
+            | * @throws java.lang.RuntimeException when 
+            | * {@link java.util.HashMap#containsKey(java.lang.Object) Hash
+            | *      Map}
+            | * doesn't contain value.
+            | */
+            | public static void sample(){ }
+            |}
+            """.trimIndent(), testConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val functionPage =
+                    module.children.single { it.name == "sample" }.children.single { it.name == "DocGenProcessor" }.children.single { it.name == "sample" } as ContentPage
+                functionPage.content.assertNode {
+                    group {
+                        header(1) { +"sample" }
+                    }
+                    divergentGroup {
+                        divergentInstance {
+                            divergent {
+                                skipAllNotMatching() //Signature
+                            }
+                            after {
+                                group { pWrapped("a normal comment") }
+                                header(4) { +"Throws" }
+                                platformHinted {
+                                    table {
+                                        group {
+                                            group {
+                                                link {
+                                                    check {
+                                                        assertEquals(
+                                                            "java.lang/IllegalStateException///PointingToDeclaration/",
+                                                            (this as ContentDRILink).address.toString()
+                                                        )
+                                                    }
+                                                    +"java.lang.IllegalStateException"
+                                                }
+                                            }
+                                            comment { +"if the Dialog has not yet been created (before onCreateDialog) or has been destroyed (after onDestroyView)." }
+                                        }
+                                        group {
+                                            group {
+                                                link {
+                                                    check {
+                                                        assertEquals(
+                                                            "java.lang/RuntimeException///PointingToDeclaration/",
+                                                            (this as ContentDRILink).address.toString()
+                                                        )
+                                                    }
+                                                    +"java.lang.RuntimeException"
+                                                }
+                                            }
+                                            comment {
+                                                +"when "
+                                                link { +"Hash Map" }
+                                                +" doesn't contain value."
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+    @Test
+    fun `documentation splitted in 2 using enters`() {
         testInline(
             """
             |/src/main/java/sample/DocGenProcessor.java
@@ -426,7 +650,8 @@ class ContentForParamsTest : AbstractCoreTest() {
             """.trimIndent(), testConfiguration
         ) {
             pagesTransformationStage = { module ->
-                val classPage = module.children.single { it.name == "sample" }.children.single { it.name == "DocGenProcessor" } as ContentPage
+                val classPage =
+                    module.children.single { it.name == "sample" }.children.single { it.name == "DocGenProcessor" } as ContentPage
                 classPage.content.assertNode {
                     group {
                         header { +"DocGenProcessor" }
@@ -439,13 +664,127 @@ class ContentForParamsTest : AbstractCoreTest() {
                                     +"Listener for handling fragment results. This object should be passed to "
                                     link { +"FragmentManager#setFragmentResultListener(String, LifecycleOwner, FragmentResultListener)" }
                                     +" and it will listen for results with the same key that are passed into "
-                                    link { +"FragmentManager#setFragmentResult(String, Bundle)"}
+                                    link { +"FragmentManager#setFragmentResult(String, Bundle)" }
                                     +"."
                                 }
                             }
                         }
                     }
                     skipAllNotMatching()
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `multiline return tag with param`() {
+        testInline(
+            """
+            |/src/main/java/sample/DocGenProcessor.java
+            |package sample;
+            | public class DocGenProcessor {
+            | /**
+            | * a normal comment
+            | *
+            | * @param testParam Sample description for test param that has a type of {@link java.lang.String String}
+            | * @return empty string when 
+            | * {@link java.util.HashMap#containsKey(java.lang.Object) Hash
+            | *      Map}
+            | * doesn't contain value.
+            | */
+            | public static String sample(String testParam){
+            |   return "";
+            | }
+            |}
+            """.trimIndent(), testConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val functionPage =
+                    module.children.single { it.name == "sample" }.children.single { it.name == "DocGenProcessor" }.children.single { it.name == "sample" } as ContentPage
+                functionPage.content.assertNode {
+                    group {
+                        header(1) { +"sample" }
+                    }
+                    divergentGroup {
+                        divergentInstance {
+                            divergent {
+                                skipAllNotMatching() //Signature
+                            }
+                            after {
+                                group { pWrapped("a normal comment") }
+                                group {
+                                    header(4) { +"Return" }
+                                    comment {
+                                        +"empty string when "
+                                        link { +"Hash Map" }
+                                        +" doesn't contain value."
+                                    }
+                                }
+                                header(2) { +"Parameters" }
+                                group {
+                                    platformHinted {
+                                        table {
+                                            group {
+                                                +"testParam"
+                                                comment {
+                                                    +"Sample description for test param that has a type of "
+                                                    link { +"String" }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `return tag in kotlin`() {
+        testInline(
+            """
+            |/src/main/kotlin/sample/sample.kt
+            |package sample;
+            | /**
+            | * a normal comment
+            | *
+            | * @return empty string when [Hash Map](java.util.HashMap.containsKey) doesn't contain value.
+            | * 
+            | */
+            |fun sample(): String {
+            |   return ""
+            | }
+            |}
+            """.trimIndent(), testConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val functionPage =
+                    module.children.single { it.name == "sample" }.children.single { it.name == "sample" } as ContentPage
+                functionPage.content.assertNode {
+                    group {
+                        header(1) { +"sample" }
+                    }
+                    divergentGroup {
+                        divergentInstance {
+                            divergent {
+                                skipAllNotMatching() //Signature
+                            }
+                            after {
+                                group { pWrapped("a normal comment") }
+                                group {
+                                    header(4) { +"Return" }
+                                    comment {
+                                        +"empty string when "
+                                        link { +"Hash Map" }
+                                        +" doesn't contain value."
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -837,8 +1176,8 @@ class ContentForParamsTest : AbstractCoreTest() {
                             }
                             after {
                                 group { pWrapped("comment to function") }
-                                unnamedTag("Author") { comment {  +"Kordyjan" } }
-                                unnamedTag("Since") { comment {  +"0.11" } }
+                                unnamedTag("Author") { comment { +"Kordyjan" } }
+                                unnamedTag("Since") { comment { +"0.11" } }
                                 header(2) { +"Parameters" }
 
                                 group {
