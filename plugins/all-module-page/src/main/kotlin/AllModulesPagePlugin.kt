@@ -4,15 +4,19 @@ import org.jetbrains.dokka.CoreExtensions
 import org.jetbrains.dokka.allModulesPage.templates.*
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.plugability.DokkaPlugin
+import org.jetbrains.dokka.transformers.pages.PageCreator
+import org.jetbrains.dokka.transformers.pages.PageTransformer
 
 class AllModulesPagePlugin : DokkaPlugin() {
+
     val templateProcessor by extensionPoint<TemplateProcessor>()
+    val allModulePageCreator by extensionPoint<PageCreator>()
+    val allModulePageTransformer by extensionPoint<PageTransformer>()
 
     val substitutor by extensionPoint<Substitutor>()
 
     val allModulePageCreators by extending {
-        (CoreExtensions.allModulePageCreator
-                providing ::MultimodulePageCreator)
+        allModulePageCreator providing ::MultimodulePageCreator
     }
 
     val multimoduleLocationProvider by extending {
@@ -25,7 +29,7 @@ class AllModulesPagePlugin : DokkaPlugin() {
     val allModulesPageGeneration by extending {
         (CoreExtensions.generation
                 providing ::AllModulesPageGeneration
-                override CoreExtensions.singleGeneration)
+                override plugin<DokkaBase>().singleGeneration)
     }
 
     val defaultTemplateProcessor by extending {
