@@ -16,6 +16,7 @@ import org.jetbrains.kotlin.idea.refactoring.fqName.getKotlinFqName
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.psiUtil.getNextSiblingIgnoringWhitespace
 import org.jetbrains.kotlin.psi.psiUtil.siblings
+import org.jetbrains.kotlin.tools.projectWizard.core.ParsingState
 import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 import org.jsoup.Jsoup
@@ -164,19 +165,25 @@ class JavadocParser(
         }
     }
 
+    private data class ParserState(val previousElement: PsiElement? = null, val openPreTags: Int = 0, val closedPreTags: Int = 0)
+    private data class ParsingResult(val newState: ParserState = ParserState(), val parsedLine: String? = null) {
+        operator fun plus(other: ParsingResult): ParsingResult =
+            ParsingResult(
+                other.newState,
+                listOfNotNull(parsedLine, other.parsedLine).joinToString(separator = "")
+            )
+    }
+
     private inner class Parse : (Iterable<PsiElement>, Boolean) -> List<DocTag> {
         val driMap = mutableMapOf<String, DRI>()
-        var previousElement: PsiElement? = null
-        var openPre = 0
-        var closedPre = 0
 
-        private fun PsiElement.stringify(): String? {
-            openPre += "<pre[^>]*>".toRegex().findAll(text).toList().size
-            closedPre += "</pre>".toRegex().findAll(text).toList().size
+        private fun PsiElement.stringify(state: ParserState): ParsingResult {
+            val openPre = state.openPreTags + "<pre[^>]*>".toRegex().findAll(text).toList().size
+            val closedPre = state.closedPreTags + "</pre>".toRegex().findAll(text).toList().size
             val isInsidePre = openPre > closedPre
 
-            return when (this) {
-                is PsiReference -> children.joinToString("") { it.stringify().orEmpty() }
+            val parsed = when (this) {
+                is PsiReference -> children.fold(ParsingResult(state)) { acc, e -> acc + e.stringify(acc.newState) }.parsedLine
                 is PsiInlineDocTag -> convertInlineDocTag(this)
                 is PsiDocParamRef -> toDocumentationLinkString()
                 is PsiDocTagValue,
@@ -197,7 +204,7 @@ class JavadocParser(
                         javadoc doesn't care about it.
                          */
                         text.let {
-                            if ((prevSibling as? PsiDocToken)?.isLeadingAsterisk() == true && text != " " && previousElement !is PsiInlineDocTag) it?.trimStart() else it
+                            if ((prevSibling as? PsiDocToken)?.isLeadingAsterisk() == true && text != " " && state.previousElement !is PsiInlineDocTag) it?.trimStart() else it
                         }?.let {
                             if ((nextSibling as? PsiDocToken)?.isLeadingAsterisk() == true && text != " ") it.trimEnd() else it
                         }?.let {
@@ -207,6 +214,8 @@ class JavadocParser(
                 }
                 else -> null
             }
+            val previousElement = if(text.trim() == "") state.previousElement else this
+            return ParsingResult(state.copy(previousElement = previousElement, closedPreTags = closedPre, openPreTags = openPre), parsed)
         }
 
         /**
@@ -302,17 +311,13 @@ class JavadocParser(
         }
 
         override fun invoke(elements: Iterable<PsiElement>, asParagraph: Boolean): List<DocTag> =
-            Jsoup.parseBodyFragment(elements.mapNotNull {
-                val result = it.stringify()
-                if (it.text.trim() != "") previousElement = it
-                result
-            }.dropWhile { it.isBlank() }
-                .dropLastWhile { it.isBlank() }.joinToString(
-                    "",
-                    prefix = if (asParagraph) "<p>" else "",
-                    postfix = if (asParagraph) "</p>" else ""
-                )
-            ).body().childNodes().mapNotNull { convertHtmlNode(it) }
+            elements.fold(ParsingResult()) { acc, e ->
+                acc + e.stringify(acc.newState)
+            }.parsedLine?.let {
+                val trimmed = it.trim()
+                val toParse = if(asParagraph) "<p>$trimmed</p>" else trimmed
+                Jsoup.parseBodyFragment(toParse).body().childNodes().mapNotNull { convertHtmlNode(it) }
+            }.orEmpty()
     }
 
     private fun PsiDocTag.contentElementsWithSiblingIfNeeded(): List<PsiElement> = if (dataElements.isNotEmpty()) {
