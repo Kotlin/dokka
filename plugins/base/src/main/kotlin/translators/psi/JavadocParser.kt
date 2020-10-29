@@ -166,13 +166,14 @@ class JavadocParser(
 
     private inner class Parse : (Iterable<PsiElement>, Boolean) -> List<DocTag> {
         val driMap = mutableMapOf<String, DRI>()
-        val parsedDocumentation = StringBuilder()
         var previousElement: PsiElement? = null
+        var openPre = 0
+        var closedPre = 0
 
         private fun PsiElement.stringify(): String? {
-            val openPre = "<pre[^>]*>".toRegex().findAll(parsedDocumentation).toList().size
-            val closingPre = "</pre>".toRegex().findAll(parsedDocumentation).toList().size
-            val isInsidePre = openPre > closingPre
+            openPre += "<pre[^>]*>".toRegex().findAll(text).toList().size
+            closedPre += "</pre>".toRegex().findAll(text).toList().size
+            val isInsidePre = openPre > closedPre
 
             return when (this) {
                 is PsiReference -> children.joinToString("") { it.stringify().orEmpty() }
@@ -205,7 +206,7 @@ class JavadocParser(
                     }
                 }
                 else -> null
-            }.also { parsedDocumentation.append(it) }
+            }
         }
 
         /**
@@ -314,11 +315,15 @@ class JavadocParser(
             ).body().childNodes().mapNotNull { convertHtmlNode(it) }
     }
 
-    private fun PsiDocTag.contentElementsWithSiblingIfNeeded(): List<PsiElement> = listOfNotNull(
-        dataElements[0],
-        dataElements[0].nextSibling?.takeIf { it.text != dataElements.drop(1).firstOrNull()?.text },
-        *dataElements.drop(1).toTypedArray()
-    )
+    private fun PsiDocTag.contentElementsWithSiblingIfNeeded(): List<PsiElement> = if (dataElements.isNotEmpty()) {
+        listOfNotNull(
+            dataElements[0],
+            dataElements[0].nextSibling?.takeIf { it.text != dataElements.drop(1).firstOrNull()?.text },
+            *dataElements.drop(1).toTypedArray()
+        )
+    } else {
+        emptyList()
+    }
 
     private fun convertJavadocElements(elements: Iterable<PsiElement>, asParagraph: Boolean = true): List<DocTag> =
         Parse()(elements, asParagraph)

@@ -642,7 +642,7 @@ class ContentForParamsTest : AbstractCoreTest() {
             | *
             | * This object should be passed to
             | * {@link java.util.HashMap#containsKey(java.lang.Object) FragmentManager#setFragmentResultListener(String, LifecycleOwner, FragmentResultListener)}
-            | * and it will listen for results with the same key that are passed into
+            | *                  and it will listen for results with the same key that are passed into
             | * {@link java.util.HashMap#containsKey(java.lang.Object) FragmentManager#setFragmentResult(String, Bundle)}.
             | *
             | */
