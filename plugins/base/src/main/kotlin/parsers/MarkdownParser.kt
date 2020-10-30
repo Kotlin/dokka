@@ -38,6 +38,27 @@ open class MarkdownParser(
 
     override fun preparse(text: String) = text
 
+    override fun parseTagWithBody(tagName: String, content: String): TagWrapper =
+        when (tagName) {
+            "see" -> {
+                val referencedName = content.substringBefore(' ')
+                See(
+                    parseStringToDocNode(content.substringAfter(' ')),
+                    referencedName,
+                    externalDri(referencedName)
+                )
+            }
+            "throws", "exception" -> {
+                val dri = externalDri(content.substringBefore(' '))
+                Throws(
+                    parseStringToDocNode(content.substringAfter(' ')),
+                    dri?.fqName() ?: content.substringBefore(' '),
+                    dri
+                )
+            }
+            else -> super.parseTagWithBody(tagName, content)
+        }
+
     private fun headersHandler(node: ASTNode) =
         DocTagsFromIElementFactory.getInstance(
             node.type,
@@ -430,11 +451,8 @@ open class MarkdownParser(
                     if (link is DocumentationLink) link.dri else null
                 }
 
-                //Horrible hack but since link resolution is passed as a function i am not able to resolve them otherwise
-                fun DRI.fqName(): String = "$packageName.$classNames"
-
                 DocumentationNode(
-                    (listOf(kDocTag) + getAllKDocTags(findParent(kDocTag))).map { it ->
+                    (listOf(kDocTag) + getAllKDocTags(findParent(kDocTag))).map {
                         when (it.knownTag) {
                             null -> if (it.name == null) Description(parseStringToDocNode(it.getContent())) else CustomTagWrapper(
                                 parseStringToDocNode(it.getContent()),
@@ -484,6 +502,9 @@ open class MarkdownParser(
                 )
             }
         }
+
+        //Horrible hack but since link resolution is passed as a function i am not able to resolve them otherwise
+        fun DRI.fqName(): String = "$packageName.$classNames"
 
         private fun findParent(kDoc: PsiElement): PsiElement =
             if (kDoc is KDocSection) findParent(kDoc.parent) else kDoc

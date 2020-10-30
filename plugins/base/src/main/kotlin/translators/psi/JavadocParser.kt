@@ -54,7 +54,8 @@ class JavadocParser(
                         *
                         *  Only if dri search fails we should use the provided phrase (since then we are not able to get a fq name)
                         * */
-                        name = resolved?.getKotlinFqName()?.asString() ?: tag.dataElements.firstOrNull()?.text.orEmpty(),
+                        name = resolved?.getKotlinFqName()?.asString()
+                            ?: tag.dataElements.firstOrNull()?.text.orEmpty(),
                         exceptionAddress = dri
                     )
                 }
@@ -166,7 +167,12 @@ class JavadocParser(
         }
     }
 
-    private data class ParserState(val previousElement: PsiElement? = null, val openPreTags: Int = 0, val closedPreTags: Int = 0)
+    private data class ParserState(
+        val previousElement: PsiElement? = null,
+        val openPreTags: Int = 0,
+        val closedPreTags: Int = 0
+    )
+
     private data class ParsingResult(val newState: ParserState = ParserState(), val parsedLine: String? = null) {
         operator fun plus(other: ParsingResult): ParsingResult =
             ParsingResult(
@@ -185,10 +191,10 @@ class JavadocParser(
             }
 
         private fun PsiElement.stringifySimpleElement(state: ParserState): ParsingResult {
-            val openPre = state.openPreTags + "<pre[^>]*>".toRegex().findAll(text).toList().size
+            val openPre = state.openPreTags + "<pre(\\s+.*)?>".toRegex().findAll(text).toList().size
             val closedPre = state.closedPreTags + "</pre>".toRegex().findAll(text).toList().size
             val isInsidePre = openPre > closedPre
-            val parsed = when(this){
+            val parsed = when (this) {
                 is PsiInlineDocTag -> convertInlineDocTag(this)
                 is PsiDocParamRef -> toDocumentationLinkString()
                 is PsiDocTagValue,
@@ -199,7 +205,7 @@ class JavadocParser(
                         since it is there because it separates this line from the leading asterisk
                          */
                         text.let {
-                            if ((prevSibling as? PsiDocToken)?.isLeadingAsterisk() == true) it.drop(1) else it
+                            if ((prevSibling as? PsiDocToken)?.isLeadingAsterisk() == true && it.firstOrNull() == ' ') it.drop(1) else it
                         }.let {
                             if ((nextSibling as? PsiDocToken)?.isLeadingAsterisk() == true) it.dropLastWhile { it == ' ' } else it
                         }
@@ -219,8 +225,14 @@ class JavadocParser(
                 }
                 else -> null
             }
-            val previousElement = if(text.trim() == "") state.previousElement else this
-            return ParsingResult(state.copy(previousElement = previousElement, closedPreTags = closedPre, openPreTags = openPre), parsed)
+            val previousElement = if (text.trim() == "") state.previousElement else this
+            return ParsingResult(
+                state.copy(
+                    previousElement = previousElement,
+                    closedPreTags = closedPre,
+                    openPreTags = openPre
+                ), parsed
+            )
         }
 
         /**
@@ -240,7 +252,8 @@ class JavadocParser(
             val nextNotEmptySibling = (siblings.firstOrNull() as? PsiDocToken)
             val furtherNotEmptySibling =
                 (siblings.drop(1).firstOrNull { it is PsiDocToken && !it.isLeadingAsterisk() } as? PsiDocToken)
-            val endsWithAnUnclosedTag = text.trim().endsWith(">") && text.contains("<")
+            val lastHtmlTag = text.trim().substringAfterLast("<")
+            val endsWithAnUnclosedTag = lastHtmlTag.endsWith(">") && !lastHtmlTag.startsWith("</")
 
             return (nextSibling as? PsiWhiteSpace)?.text == "\n " &&
                     (getNextSiblingIgnoringWhitespace() as? PsiDocToken)?.tokenType?.toString() != END_COMMENT_TYPE &&
@@ -327,7 +340,7 @@ class JavadocParser(
                 acc + e.stringify(acc.newState)
             }.parsedLine?.let {
                 val trimmed = it.trim()
-                val toParse = if(asParagraph) "<p>$trimmed</p>" else trimmed
+                val toParse = if (asParagraph) "<p>$trimmed</p>" else trimmed
                 Jsoup.parseBodyFragment(toParse).body().childNodes().mapNotNull { convertHtmlNode(it) }
             }.orEmpty()
     }

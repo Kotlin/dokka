@@ -1,10 +1,12 @@
 package content.seealso
 
 import matchers.content.*
+import org.jetbrains.dokka.pages.ContentDRILink
 import org.jetbrains.dokka.pages.ContentPage
 import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
 import org.junit.jupiter.api.Test
 import utils.*
+import kotlin.test.assertEquals
 
 class ContentForSeeAlsoTest : AbstractCoreTest() {
     private val testConfiguration = dokkaConfiguration {
@@ -207,8 +209,12 @@ class ContentForSeeAlsoTest : AbstractCoreTest() {
                                     platformHinted {
                                         table {
                                             group {
-                                                //DRI should be "kotlin.collections/Collection////"
-                                                link { +"Collection" }
+                                                link {
+                                                    check {
+                                                        assertEquals("kotlin.collections/Collection///PointingToDeclaration/", (this as ContentDRILink).address.toString())
+                                                    }
+                                                    +"Collection"
+                                                }
                                                 group { }
                                             }
                                         }
