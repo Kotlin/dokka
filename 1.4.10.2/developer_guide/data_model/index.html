@@ -622,7 +622,6 @@
     <span class="k">val</span> <span class="py">key</span><span class="p">:</span> <span class="n">Key</span><span class="p">&lt;</span><span class="n">C</span><span class="p">,</span> <span class="p">*&gt;</span>
 <span class="p">}</span>
 </code></pre></div>
-
 <p>It is advised to use following pattern when declaring new extras:</p>
 <p><div class="codehilite"><pre><span></span><code><span class="k">data</span> <span class="k">class</span> <span class="nc">CustomExtra</span><span class="p">(</span> <span class="p">[</span><span class="n">any</span> <span class="n">values</span> <span class="n">relevant</span> <span class="n">to</span> <span class="n">your</span> <span class="n">extra</span> <span class="p">]</span> <span class="p">):</span> <span class="n">ExtraProperty</span><span class="p">&lt;</span><span class="n">Documentable</span><span class="p">&gt;</span> <span class="p">{</span>
     <span class="k">companion</span> <span class="k">object</span> <span class="p">:</span> <span class="n">CustomExtra</span><span class="p">.</span><span class="n">Key</span><span class="p">&lt;</span><span class="n">Documentable</span><span class="p">,</span> <span class="n">CustomExtra</span><span class="p">&gt;</span>
@@ -645,7 +644,6 @@ Merge strategy for extras is invoked only if merged objects have different value
 
 <span class="k">val</span> <span class="py">customExtraValue</span> <span class="p">:</span> <span class="n">String</span><span class="p">?</span> <span class="p">=</span> <span class="n">extra</span><span class="p">[</span><span class="n">CustomProperty</span><span class="p">]</span><span class="o">?.</span><span class="n">customExtraValue</span>
 </code></pre></div>
-
 <p>You can also use extras as markers, without storing any data in them:</p>
 <div class="codehilite"><pre><span></span><code><span class="k">object</span> <span class="nc">MarkerExtra</span> <span class="p">:</span> <span class="n">ExtraProperty</span><span class="p">&lt;</span><span class="n">Any</span><span class="p">&gt;,</span> <span class="n">ExtraProperty</span><span class="p">.</span><span class="n">Key</span><span class="p">&lt;</span><span class="n">Any</span><span class="p">,</span> <span class="n">MarkerExtra</span><span class="p">&gt;</span> <span class="p">{</span>
     <span class="k">override</span> <span class="k">val</span> <span class="py">key</span><span class="p">:</span> <span class="n">ExtraProperty</span><span class="p">.</span><span class="n">Key</span><span class="p">&lt;</span><span class="n">Any</span><span class="p">,</span> <span class="p">*&gt;</span> <span class="p">=</span> <span class="k">this</span>
@@ -655,7 +653,6 @@ Merge strategy for extras is invoked only if merged objects have different value
 
 <span class="k">val</span> <span class="py">isMarked</span> <span class="p">:</span> <span class="n">Boolean</span> <span class="p">=</span> <span class="n">extra</span><span class="p">[</span><span class="n">MarkerExtra</span><span class="p">]</span> <span class="p">!=</span> <span class="k">null</span>
 </code></pre></div>
-
 <h2 id="documentation-model">Documentation Model<a class="headerlink" href="#documentation-model" title="Permanent link">&para;</a></h2>
 <p>Documentation model is used along Documentable Model to store data obtained by parsing code commentaries.</p>
 <p>There are three important classes here:</p>

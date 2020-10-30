@@ -572,7 +572,6 @@
     <span class="nt">&lt;/pluginRepository&gt;</span>
 <span class="nt">&lt;/pluginRepositories&gt;</span>
 </code></pre></div>
-
 <p>Minimal Maven configuration is</p>
 <div class="codehilite"><pre><span></span><code><span class="nt">&lt;plugin&gt;</span>
     <span class="nt">&lt;groupId&gt;</span>org.jetbrains.dokka<span class="nt">&lt;/groupId&gt;</span>
@@ -588,7 +587,6 @@
     <span class="nt">&lt;/executions&gt;</span>
 <span class="nt">&lt;/plugin&gt;</span>
 </code></pre></div>
-
 <p>By default files will be generated in <code>target/dokka</code>.</p>
 <p>The following goals are provided by the plugin:</p>
 <ul>
@@ -723,7 +721,6 @@
     <span class="nt">&lt;/configuration&gt;</span>
 <span class="nt">&lt;/plugin&gt;</span>
 </code></pre></div>
-
 <h2 id="applying-plugins">Applying plugins<a class="headerlink" href="#applying-plugins" title="Permanent link">&para;</a></h2>
 <p>You can add plugins inside the <code>dokkaPlugins</code> block:</p>
 <div class="codehilite"><pre><span></span><code><span class="nt">&lt;plugin&gt;</span>
@@ -749,7 +746,6 @@
     <span class="nt">&lt;/configuration&gt;</span>
 <span class="nt">&lt;/plugin&gt;</span>
 </code></pre></div>
-
 <p>Some plugins can be configured separately using plugin's fully qualified name. For example:</p>
 <div class="codehilite"><pre><span></span><code><span class="nt">&lt;pluginsConfiguration&gt;</span>
     <span class="nt">&lt;org.jetbrains.dokka.base.DokkaBase&gt;</span>
@@ -762,7 +758,6 @@
     <span class="nt">&lt;/org.jetbrains.dokka.base.DokkaBase&gt;</span>
 <span class="nt">&lt;/pluginsConfiguration&gt;</span>
 </code></pre></div>
-
 <h2 id="example-project">Example project<a class="headerlink" href="#example-project" title="Permanent link">&para;</a></h2>
 <p>Please see the <a href="https://github.com/JetBrains/kotlin-examples/tree/master/maven/dokka-maven-example">Dokka Maven example project</a> for an example.</p>
                 
