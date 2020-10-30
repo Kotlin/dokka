@@ -27,5 +27,6 @@ subprojects {
             showCauses = true
             showStackTraces = true
         }
+        maxParallelForks = Runtime.getRuntime().availableProcessors()
     }
 }
