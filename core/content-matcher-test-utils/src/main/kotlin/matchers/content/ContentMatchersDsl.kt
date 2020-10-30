@@ -89,6 +89,13 @@ fun ContentMatcherBuilder<*>.table(block: ContentMatcherBuilder<ContentTable>.()
 fun ContentMatcherBuilder<*>.platformHinted(block: ContentMatcherBuilder<ContentGroup>.() -> Unit) =
     composite<PlatformHintedContent> { group(block) }
 
+fun ContentMatcherBuilder<*>.list(block: ContentMatcherBuilder<ContentList>.() -> Unit) = composite(block)
+
+fun ContentMatcherBuilder<*>.caption(block: ContentMatcherBuilder<ContentGroup>.() -> Unit) = composite<ContentGroup> {
+    block()
+    check { assertThat(this::style).contains(ContentStyle.Caption) }
+}
+
 fun ContentMatcherBuilder<*>.br() = node<ContentBreakLine>()
 
 fun ContentMatcherBuilder<*>.somewhere(block: ContentMatcherBuilder<*>.() -> Unit) {

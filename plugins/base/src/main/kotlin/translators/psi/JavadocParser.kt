@@ -8,6 +8,7 @@ import com.intellij.psi.javadoc.*
 import com.intellij.psi.util.PsiTreeUtil
 import org.intellij.markdown.MarkdownElementTypes
 import org.jetbrains.dokka.analysis.from
+import org.jetbrains.dokka.base.parsers.factories.DocTagsFromStringFactory
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.model.doc.Deprecated
@@ -177,13 +178,17 @@ class JavadocParser(
     private inner class Parse : (Iterable<PsiElement>, Boolean) -> List<DocTag> {
         val driMap = mutableMapOf<String, DRI>()
 
-        private fun PsiElement.stringify(state: ParserState): ParsingResult {
+        private fun PsiElement.stringify(state: ParserState): ParsingResult =
+            when (this) {
+                is PsiReference -> children.fold(ParsingResult(state)) { acc, e -> acc + e.stringify(acc.newState) }
+                else -> stringifySimpleElement(state)
+            }
+
+        private fun PsiElement.stringifySimpleElement(state: ParserState): ParsingResult {
             val openPre = state.openPreTags + "<pre[^>]*>".toRegex().findAll(text).toList().size
             val closedPre = state.closedPreTags + "</pre>".toRegex().findAll(text).toList().size
             val isInsidePre = openPre > closedPre
-
-            val parsed = when (this) {
-                is PsiReference -> children.fold(ParsingResult(state)) { acc, e -> acc + e.stringify(acc.newState) }.parsedLine
+            val parsed = when(this){
                 is PsiInlineDocTag -> convertInlineDocTag(this)
                 is PsiDocParamRef -> toDocumentationLinkString()
                 is PsiDocTagValue,
@@ -299,6 +304,13 @@ class JavadocParser(
                 "ol" -> ifChildrenPresent { Ol(children) }
                 "li" -> Li(children)
                 "a" -> createLink(element, children)
+                "table" -> ifChildrenPresent { Table(children) }
+                "tr" -> ifChildrenPresent { Tr(children) }
+                "td" -> Td(children)
+                "thead" -> THead(children)
+                "tbody" -> TBody(children)
+                "tfoot" -> TFoot(children)
+                "caption" -> ifChildrenPresent { Caption(children) }
                 else -> Text(body = element.ownText())
             }
         }

@@ -179,10 +179,10 @@ open class DefaultPageCreator(
             if (map.values.any()) {
                 header(2, "Inheritors") { }
                 +ContentTable(
-                    listOf(contentBuilder.contentFor(mainDRI, mainSourcesetData) {
+                    header = listOf(contentBuilder.contentFor(mainDRI, mainSourcesetData) {
                         text("Name")
                     }),
-                    map.entries.flatMap { entry -> entry.value.map { Pair(entry.key, it) } }
+                    children = map.entries.flatMap { entry -> entry.value.map { Pair(entry.key, it) } }
                         .groupBy({ it.second }, { it.first }).map { (classlike, platforms) ->
                             val label = classlike.classNames?.substringBeforeLast(".") ?: classlike.toString()
                                 .also { logger.warn("No class name found for DRI $classlike") }
@@ -190,8 +190,8 @@ open class DefaultPageCreator(
                                 link(label, classlike)
                             }
                         },
-                    DCI(setOf(dri), ContentKind.Inheritors),
-                    sourceSets.toDisplaySourceSets(),
+                    dci = DCI(setOf(dri), ContentKind.Inheritors),
+                    sourceSets = sourceSets.toDisplaySourceSets(),
                     style = emptySet(),
                     extra = mainExtra + SimpleAttr.header("Inheritors")
                 )

@@ -6,6 +6,7 @@ import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.model.toDisplaySourceSets
 import org.jetbrains.dokka.pages.*
+import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
 
 open class DocTagToContentConverter : CommentsToContentConverter {
     override fun buildContent(
@@ -148,15 +149,42 @@ open class DocTagToContentConverter : CommentsToContentConverter {
                 )
             )
             is Strikethrough -> buildChildren(docTag, setOf(TextStyle.Strikethrough))
-            is Table -> listOf(
-                ContentTable(
-                    buildTableRows(docTag.children.filterIsInstance<Th>(), CommentTable),
-                    buildTableRows(docTag.children.filterIsInstance<Tr>(), CommentTable),
-                    dci,
-                    sourceSets.toDisplaySourceSets(),
-                    styles + CommentTable
-                )
-            )
+            is Table -> {
+                //https://html.spec.whatwg.org/multipage/tables.html#the-caption-element
+                if (docTag.children.any { it is TBody }) {
+                    val head = docTag.children.filterIsInstance<THead>().flatMap { it.children }
+                    val body = docTag.children.filterIsInstance<TBody>().flatMap { it.children }
+                    listOf(
+                        ContentTable(
+                            header = buildTableRows(head.filterIsInstance<Th>(), CommentTable),
+                            caption = docTag.children.firstIsInstanceOrNull<Caption>()?.let {
+                                ContentGroup(
+                                    buildContent(it, dci, sourceSets),
+                                    dci,
+                                    sourceSets.toDisplaySourceSets(),
+                                    styles,
+                                    extra
+                                )
+                            },
+                            buildTableRows(body.filterIsInstance<Tr>(), CommentTable),
+                            dci,
+                            sourceSets.toDisplaySourceSets(),
+                            styles + CommentTable
+                        )
+                    )
+                } else {
+                    listOf(
+                        ContentTable(
+                            header = buildTableRows(docTag.children.filterIsInstance<Th>(), CommentTable),
+                            caption = null,
+                            buildTableRows(docTag.children.filterIsInstance<Tr>(), CommentTable),
+                            dci,
+                            sourceSets.toDisplaySourceSets(),
+                            styles + CommentTable
+                        )
+                    )
+                }
+            }
             is Th,
             is Tr -> listOf(
                 ContentGroup(
@@ -190,6 +218,15 @@ open class DocTagToContentConverter : CommentsToContentConverter {
             } else {
                 buildChildren(docTag)
             }
+            is Caption -> listOf(
+                ContentGroup(
+                    buildChildren(docTag),
+                    dci,
+                    sourceSets.toDisplaySourceSets(),
+                    styles + ContentStyle.Caption,
+                    extra = extra
+                )
+            )
 
             else -> buildChildren(docTag)
         }

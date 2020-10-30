@@ -791,6 +791,141 @@ class ContentForParamsTest : AbstractCoreTest() {
     }
 
     @Test
+    fun `list with links and description`() {
+        testInline(
+            """
+            |/src/main/java/sample/DocGenProcessor.java
+            |package sample;
+            |/**
+            | * Static library support version of the framework's {@link java.lang.String}.
+            | * Used to write apps that run on platforms prior to Android 3.0. When running
+            | * on Android 3.0 or above, this implementation is still used; it does not try
+            | * to switch to the framework's implementation. See the framework {@link java.lang.String}
+            | * documentation for a class overview.
+            | *
+            | * <p>The main differences when using this support version instead of the framework version are:
+            | * <ul>
+            | *  <li>Your activity must extend {@link java.lang.String FragmentActivity}
+            | *  <li>You must call {@link java.util.HashMap#containsKey(java.lang.Object) FragmentActivity#getSupportFragmentManager} to get the
+            | *  {@link java.util.HashMap FragmentManager}
+            | * </ul>
+            | *
+            | */
+            |public class DocGenProcessor { }
+            """.trimIndent(), testConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val classPage =
+                    module.children.single { it.name == "sample" }.children.single { it.name == "DocGenProcessor" } as ContentPage
+                classPage.content.assertNode {
+                    group {
+                        header { +"DocGenProcessor" }
+                        platformHinted {
+                            group {
+                                skipAllNotMatching() //Signature
+                            }
+                            group {
+                                comment {
+                                    group {
+                                        +"Static library support version of the framework's "
+                                        link { +"java.lang.String" }
+                                        +". Used to write apps that run on platforms prior to Android 3.0."
+                                        +" When running on Android 3.0 or above, this implementation is still used; it does not try to switch to the framework's implementation. See the framework "
+                                        link { +"java.lang.String" }
+                                        +" documentation for a class overview. " //TODO this probably shouldnt have a space but it is minor
+                                    }
+                                    group {
+                                        +"The main differences when using this support version instead of the framework version are: "
+                                    }
+                                    list {
+                                        group {
+                                            +"Your activity must extend "
+                                            link { +"FragmentActivity" }
+                                        }
+                                        group {
+                                            +"You must call "
+                                            link { +"FragmentActivity#getSupportFragmentManager" }
+                                            +" to get the "
+                                            link { +"FragmentManager" }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    skipAllNotMatching()
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `documentation with table`() {
+        testInline(
+            """
+            |/src/main/java/sample/DocGenProcessor.java
+            |package sample;
+            |/**
+            | * <table>
+            | *     <caption>List of supported types</caption>
+            | * <tr>
+            | *   <td>cell 11</td> <td>cell 21</td>
+            | * </tr>
+            | * <tr>
+            | *  <td>cell 12</td> <td>cell 22</td>
+            | * </tr>
+            | * </table>
+            | */ 
+            | public class DocGenProcessor { }
+            """.trimIndent(), testConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val classPage =
+                    module.children.single { it.name == "sample" }.children.single { it.name == "DocGenProcessor" } as ContentPage
+                classPage.content.assertNode {
+                    group {
+                        header { +"DocGenProcessor" }
+                        platformHinted {
+                            group {
+                                skipAllNotMatching() //Signature
+                            }
+                            comment {
+                                table {
+                                    check {
+                                        caption!!.assertNode {
+                                            caption {
+                                                +"List of supported types"
+                                            }
+                                        }
+                                    }
+                                    group {
+                                        group {
+                                            +"cell 11"
+                                        }
+                                        group {
+                                            +"cell 21"
+                                        }
+                                    }
+                                    group {
+                                        group {
+                                            +"cell 12"
+                                        }
+                                        group {
+                                            +"cell 22"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    skipAllNotMatching()
+                }
+            }
+        }
+    }
+
+
+    @Test
     fun `undocumented parameter and other tags`() {
         testInline(
             """
