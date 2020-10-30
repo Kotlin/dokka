@@ -154,6 +154,7 @@ open class PageContentBuilder(
         ) {
             contents += ContentTable(
                 defaultHeaders,
+                null,
                 operation(),
                 DCI(mainDRI, kind),
                 sourceSets.toDisplaySourceSets(), styles, extra
@@ -177,8 +178,8 @@ open class PageContentBuilder(
             if (renderWhenEmpty || elements.any()) {
                 header(level, name, kind = kind) { }
                 contents += ContentTable(
-                    headers ?: defaultHeaders,
-                    elements
+                    header = headers ?: defaultHeaders,
+                    children = elements
                         .let {
                             if (needsSorting)
                                 it.sortedWith(compareBy(nullsLast(String.CASE_INSENSITIVE_ORDER)) { it.name })
@@ -190,8 +191,10 @@ open class PageContentBuilder(
                                 operation(it)
                             }
                         },
-                    DCI(mainDRI, kind),
-                    sourceSets.toDisplaySourceSets(), styles, extra
+                    dci = DCI(mainDRI, kind),
+                    sourceSets = sourceSets.toDisplaySourceSets(),
+                    style = styles,
+                    extra = extra
                 )
             }
         }

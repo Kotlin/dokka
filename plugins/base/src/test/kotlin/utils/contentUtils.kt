@@ -33,7 +33,9 @@ fun ContentMatcherBuilder<*>.bareSignature(
             unwrapAnnotation(it)
         }
     }
-    +("$visibility $modifier ${keywords.joinToString("") { "$it " }} fun")
+    if (visibility.isNotBlank()) +"$visibility "
+    if (modifier.isNotBlank()) +"$modifier "
+    +("${keywords.joinToString("") { "$it " }}fun ")
     link { +name }
     +"("
     params.forEachIndexed { id, (n, t) ->
@@ -45,7 +47,7 @@ fun ContentMatcherBuilder<*>.bareSignature(
             +it
         }
 
-        +"$n:"
+        +"$n: "
         group { link { +(t.type) } }
         if (id != params.lastIndex)
             +", "
@@ -90,7 +92,9 @@ fun ContentMatcherBuilder<*>.bareSignatureWithReceiver(
             unwrapAnnotation(it)
         }
     }
-    +("$visibility $modifier ${keywords.joinToString("") { "$it " }} fun")
+    if (visibility != null && visibility.isNotBlank()) +"$visibility "
+    if (modifier != null && modifier.isNotBlank()) +"$modifier "
+    +("${keywords.joinToString("") { "$it " }}fun ")
     group {
         link { +receiver }
     }
@@ -106,7 +110,7 @@ fun ContentMatcherBuilder<*>.bareSignatureWithReceiver(
             +it
         }
 
-        +"$n:"
+        +"$n: "
         group { link { +(t.type) } }
         if (id != params.lastIndex)
             +", "
@@ -150,7 +154,9 @@ fun ContentMatcherBuilder<*>.propertySignature(
                                     unwrapAnnotation(it)
                                 }
                             }
-                            +("$visibility $modifier ${keywords.joinToString("") { "$it " }} $preposition")
+                            if (visibility.isNotBlank()) +"$visibility "
+                            if (modifier.isNotBlank()) +"$modifier "
+                            +("${keywords.joinToString("") { "$it " }}$preposition ")
                             link { +name }
                             if (type != null) {
                                 +(": ")

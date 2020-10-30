@@ -3,7 +3,6 @@ package matchers.content
 import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.isEqualTo
-import assertk.assertions.matches
 import org.jetbrains.dokka.model.withDescendants
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.test.tools.matchers.content.*
@@ -53,12 +52,6 @@ fun <T : ContentComposite> ContentMatcherBuilder<T>.hasExactText(expected: Strin
     }
 }
 
-fun <T : ContentComposite> ContentMatcherBuilder<T>.textMatches(pattern: Regex) {
-    assertions += {
-        assertThat(this::extractedText).matches(pattern)
-    }
-}
-
 inline fun <reified S : ContentComposite> ContentMatcherBuilder<*>.composite(
     block: ContentMatcherBuilder<S>.() -> Unit
 ) {
@@ -95,6 +88,13 @@ fun ContentMatcherBuilder<*>.table(block: ContentMatcherBuilder<ContentTable>.()
 
 fun ContentMatcherBuilder<*>.platformHinted(block: ContentMatcherBuilder<ContentGroup>.() -> Unit) =
     composite<PlatformHintedContent> { group(block) }
+
+fun ContentMatcherBuilder<*>.list(block: ContentMatcherBuilder<ContentList>.() -> Unit) = composite(block)
+
+fun ContentMatcherBuilder<*>.caption(block: ContentMatcherBuilder<ContentGroup>.() -> Unit) = composite<ContentGroup> {
+    block()
+    check { assertThat(this::style).contains(ContentStyle.Caption) }
+}
 
 fun ContentMatcherBuilder<*>.br() = node<ContentBreakLine>()
 

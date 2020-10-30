@@ -182,6 +182,7 @@ interface ContentComposite : ContentNode {
 /** Tables */
 data class ContentTable(
     val header: List<ContentGroup>,
+    val caption: ContentGroup? = null,
     override val children: List<ContentGroup>,
     override val dci: DCI,
     override val sourceSets: Set<DisplaySourceSet>,
@@ -343,7 +344,7 @@ enum class TextStyle : Style {
 }
 
 enum class ContentStyle : Style {
-    RowTitle, TabbedContent, WithExtraAttributes, RunnableSample, InDocumentationAnchor
+    RowTitle, TabbedContent, WithExtraAttributes, RunnableSample, InDocumentationAnchor, Caption
 }
 
 object CommentTable : Style
