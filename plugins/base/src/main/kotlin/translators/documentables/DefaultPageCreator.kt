@@ -179,10 +179,10 @@ open class DefaultPageCreator(
             if (map.values.any()) {
                 header(2, "Inheritors") { }
                 +ContentTable(
-                    listOf(contentBuilder.contentFor(mainDRI, mainSourcesetData) {
+                    header = listOf(contentBuilder.contentFor(mainDRI, mainSourcesetData) {
                         text("Name")
                     }),
-                    map.entries.flatMap { entry -> entry.value.map { Pair(entry.key, it) } }
+                    children = map.entries.flatMap { entry -> entry.value.map { Pair(entry.key, it) } }
                         .groupBy({ it.second }, { it.first }).map { (classlike, platforms) ->
                             val label = classlike.classNames?.substringBeforeLast(".") ?: classlike.toString()
                                 .also { logger.warn("No class name found for DRI $classlike") }
@@ -190,8 +190,8 @@ open class DefaultPageCreator(
                                 link(label, classlike)
                             }
                         },
-                    DCI(setOf(dri), ContentKind.Inheritors),
-                    sourceSets.toDisplaySourceSets(),
+                    dci = DCI(setOf(dri), ContentKind.Inheritors),
+                    sourceSets = sourceSets.toDisplaySourceSets(),
                     style = emptySet(),
                     extra = mainExtra + SimpleAttr.header("Inheritors")
                 )
@@ -429,6 +429,30 @@ open class DefaultPageCreator(
                 }
             }
         }
+        fun DocumentableContentBuilder.contentForThrows() {
+            val throws = tags.withTypeNamed<Throws>()
+            if (throws.isNotEmpty()) {
+                header(4, "Throws")
+                sourceSetDependentHint(sourceSets = platforms.toSet(), kind = ContentKind.SourceSetDependentHint) {
+                    platforms.forEach { sourceset ->
+                        table(kind = ContentKind.Main, sourceSets = setOf(sourceset)) {
+                            throws.entries.mapNotNull { entry ->
+                                entry.value[sourceset]?.let { throws ->
+                                    buildGroup(sourceSets = setOf(sourceset)) {
+                                        group(styles = mainStyles + ContentStyle.RowTitle) {
+                                            throws.exceptionAddress?.let {
+                                                link(text = entry.key, address = it)
+                                            } ?: text(entry.key)
+                                        }
+                                        comment(throws.root)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
         fun DocumentableContentBuilder.contentForSamples() {
             val samples = tags.withTypeNamed<Sample>()
@@ -461,6 +485,7 @@ open class DefaultPageCreator(
                 contentForSamples()
                 contentForSeeAlso()
                 contentForParams()
+                contentForThrows()
             }
         }.children
     }
