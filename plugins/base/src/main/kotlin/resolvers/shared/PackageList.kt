@@ -15,8 +15,8 @@ data class PackageList(
             if (offlineMode && url.protocol.toLowerCase() != "file")
                 return null
 
-            if (!File(url.file).isFile)
-                return null
+            /*if (!File(url.file).isFile)
+                return null*/
 
             val packageListStream = url.readContent()
 

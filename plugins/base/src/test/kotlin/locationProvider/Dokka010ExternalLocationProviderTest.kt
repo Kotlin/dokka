@@ -7,12 +7,12 @@ import org.jetbrains.dokka.links.Callable
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.TypeConstructor
 import org.jetbrains.dokka.plugability.DokkaContext
-import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
+import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.net.URL
 
-class Dokka010ExternalLocationProviderTest : AbstractCoreTest() {
+class Dokka010ExternalLocationProviderTest : BaseAbstractTest() {
     private val testDataDir =
         getTestDataDir("locationProvider").toAbsolutePath().toString().removePrefix("/").let { "/$it" }
     private val kotlinLang = "https://kotlinlang.org/api/latest/jvm/stdlib"

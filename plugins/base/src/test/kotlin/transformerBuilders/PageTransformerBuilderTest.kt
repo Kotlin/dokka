@@ -5,14 +5,14 @@ import org.jetbrains.dokka.pages.PageNode
 import org.jetbrains.dokka.pages.RendererSpecificResourcePage
 import org.jetbrains.dokka.pages.RenderingStrategy
 import org.jetbrains.dokka.plugability.DokkaPlugin
-import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
+import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 import org.jetbrains.dokka.transformers.pages.pageMapper
 import org.jetbrains.dokka.transformers.pages.pageScanner
 import org.jetbrains.dokka.transformers.pages.pageStructureTransformer
 import org.junit.jupiter.api.Test
 
-class PageTransformerBuilderTest : AbstractCoreTest() {
+class PageTransformerBuilderTest : BaseAbstractTest() {
 
     class ProxyPlugin(transformer: PageTransformer) : DokkaPlugin() {
         val pageTransformer by extending { CoreExtensions.pageTransformer with transformer }

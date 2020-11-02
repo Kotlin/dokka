@@ -10,11 +10,11 @@ import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.querySingle
-import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
+import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.assertEquals
 
-class JavadocLocationTest : AbstractCoreTest() {
+class JavadocLocationTest : BaseAbstractTest() {
 
     private fun locationTestInline(testHandler: (RootPageNode, DokkaContext) -> Unit) {
         val config = dokkaConfiguration {

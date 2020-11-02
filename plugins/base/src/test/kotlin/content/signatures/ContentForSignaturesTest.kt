@@ -4,14 +4,14 @@ import matchers.content.*
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.doc.Text
 import org.jetbrains.dokka.pages.*
-import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
+import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.junit.jupiter.api.Test
 import utils.ParamAttributes
 import utils.bareSignature
 import utils.propertySignature
 import utils.typealiasSignature
 
-class ContentForSignaturesTest : AbstractCoreTest() {
+class ContentForSignaturesTest : BaseAbstractTest() {
 
     private val testConfiguration = dokkaConfiguration {
         sourceSets {

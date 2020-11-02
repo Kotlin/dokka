@@ -1,6 +1,6 @@
 package signatures
 
-import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
+import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
 import java.nio.file.Paths
 import utils.TestOutputWriterPlugin
 
-class DivergentSignatureTest : AbstractCoreTest() {
+class DivergentSignatureTest : BaseAbstractTest() {
 
     val testDataDir = getTestDataDir("multiplatform/basicMultiplatformTest").toAbsolutePath()
 

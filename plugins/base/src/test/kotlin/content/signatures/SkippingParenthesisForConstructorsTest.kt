@@ -2,11 +2,11 @@ package content.signatures
 
 import matchers.content.*
 import org.jetbrains.dokka.pages.ContentPage
-import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
+import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.junit.jupiter.api.Test
 import utils.functionSignature
 
-class ConstructorsSignaturesTest : AbstractCoreTest() {
+class ConstructorsSignaturesTest : BaseAbstractTest() {
     private val testConfiguration = dokkaConfiguration {
         sourceSets {
             sourceSet {

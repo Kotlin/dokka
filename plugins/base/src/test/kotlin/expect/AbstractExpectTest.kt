@@ -1,6 +1,6 @@
 package expect
 
-import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
+import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.junit.jupiter.api.Assertions.assertTrue
 import java.nio.file.Files
 import java.nio.file.Path
@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit
 abstract class AbstractExpectTest(
     val testDir: Path? = Paths.get("src/test", "resources", "expect"),
     val formats: List<String> = listOf("html")
-) : AbstractCoreTest() {
+) : BaseAbstractTest() {
 
     protected fun generateOutput(path: Path, outFormat: String): Path? {
         val config = dokkaConfiguration {

@@ -3,14 +3,14 @@ package content.annotations
 import matchers.content.*
 import org.jetbrains.dokka.pages.ContentPage
 import org.jetbrains.dokka.pages.PackagePageNode
-import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
+import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.junit.jupiter.api.Test
 import utils.ParamAttributes
 import utils.bareSignature
 import utils.propertySignature
 
 
-class ContentForAnnotationsTest : AbstractCoreTest() {
+class ContentForAnnotationsTest : BaseAbstractTest() {
 
 
     private val testConfiguration = dokkaConfiguration {

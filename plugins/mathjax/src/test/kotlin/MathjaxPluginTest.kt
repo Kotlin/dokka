@@ -2,12 +2,12 @@ package mathjaxTest
 
 import org.jetbrains.dokka.mathjax.LIB_PATH
 import org.jetbrains.dokka.mathjax.MathjaxPlugin
-import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
+import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jsoup.Jsoup
 import org.junit.jupiter.api.Test
 import utils.TestOutputWriterPlugin
 
-class MathjaxPluginTest : AbstractCoreTest() {
+class MathjaxPluginTest : BaseAbstractTest() {
     @Test
     fun noMathjaxTest() {
         val configuration = dokkaConfiguration {

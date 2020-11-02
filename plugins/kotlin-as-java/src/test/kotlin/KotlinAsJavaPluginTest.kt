@@ -2,7 +2,7 @@ package kotlinAsJavaPlugin
 
 import org.jetbrains.dokka.model.dfs
 import org.jetbrains.dokka.pages.*
-import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
+import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.kotlin.utils.addToStdlib.cast
 import org.junit.jupiter.api.Test
 import matchers.content.*
@@ -15,7 +15,7 @@ import utils.Span
 import utils.TestOutputWriterPlugin
 import utils.match
 
-class KotlinAsJavaPluginTest : AbstractCoreTest() {
+class KotlinAsJavaPluginTest : BaseAbstractTest() {
 
     @Test
     fun topLevelTest() {

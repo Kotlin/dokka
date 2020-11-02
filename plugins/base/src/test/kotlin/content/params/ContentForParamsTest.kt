@@ -10,13 +10,13 @@ import org.jetbrains.dokka.model.doc.Text
 import org.jetbrains.dokka.pages.ContentDRILink
 import org.jetbrains.dokka.pages.ContentPage
 import org.jetbrains.dokka.pages.MemberPageNode
-import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
+import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
 import org.junit.jupiter.api.Test
 import utils.*
 import kotlin.test.assertEquals
 
-class ContentForParamsTest : AbstractCoreTest() {
+class ContentForParamsTest : BaseAbstractTest() {
     private val testConfiguration = dokkaConfiguration {
         sourceSets {
             sourceSet {

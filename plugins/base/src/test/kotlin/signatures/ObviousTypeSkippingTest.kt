@@ -6,13 +6,13 @@ import org.jetbrains.dokka.model.firstMemberOfType
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.testApi.logger.FilteringLogger
 import org.jetbrains.dokka.testApi.logger.TestLogger
-import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
+import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.utilities.DokkaConsoleLogger
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import kotlin.reflect.KClass
 
-class ObviousTypeSkippingTest : AbstractCoreTest(
+class ObviousTypeSkippingTest : BaseAbstractTest(
     logger = TestLogger(FilteringLogger(minLevel = FilteringLogger.Level.Warn, DokkaConsoleLogger))
 ) {
 

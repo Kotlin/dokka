@@ -9,12 +9,12 @@ import org.jetbrains.dokka.links.Callable
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.TypeConstructor
 import org.jetbrains.dokka.plugability.DokkaContext
-import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
+import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.net.URL
 
-class AndroidExternalLocationProviderTest : AbstractCoreTest() {
+class AndroidExternalLocationProviderTest : BaseAbstractTest() {
     private val android = ExternalDocumentation(
         URL("https://developer.android.com/reference/kotlin"),
         PackageList(
