@@ -2,7 +2,7 @@ package signatures
 
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.jdk
-import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
+import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import utils.A
@@ -10,7 +10,7 @@ import utils.Span
 import utils.TestOutputWriterPlugin
 import utils.match
 
-class FunctionalTypeConstructorsSignatureTest : AbstractCoreTest() {
+class FunctionalTypeConstructorsSignatureTest : BaseAbstractTest() {
     private val configuration = dokkaConfiguration {
         sourceSets {
             sourceSet {

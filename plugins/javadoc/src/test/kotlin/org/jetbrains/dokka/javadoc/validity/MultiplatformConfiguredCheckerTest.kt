@@ -3,12 +3,12 @@ package org.jetbrains.dokka.javadoc.validity
 import org.jetbrains.dokka.DokkaConfigurationImpl
 import org.jetbrains.dokka.DokkaException
 import org.jetbrains.dokka.ExternalDocumentationLink
-import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
+import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.junit.jupiter.api.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-class MultiplatformConfiguredCheckerTest : AbstractCoreTest() {
+class MultiplatformConfiguredCheckerTest : BaseAbstractTest() {
 
     val mppConfig: DokkaConfigurationImpl = dokkaConfiguration {
         format = "javadoc"
