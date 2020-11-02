@@ -22,7 +22,9 @@ window.addEventListener('load', () => {
     initHidingLeftNavigation()
 
     document.getElementById('main').addEventListener("scroll", (e) => {
-        document.getElementsByClassName("navigation-wrapper")[0].classList.toggle("sticky-navigation", e.target.scrollTop > scrollNavbarBreakPoint)
+        const element = document.getElementsByClassName("navigation-wrapper")[0]
+        const additionalOffset = element.classList.contains("sticky-navigation") ? 14 : 0
+        element.classList.toggle("sticky-navigation", e.target.scrollTop + additionalOffset > scrollNavbarBreakPoint)
     })
     topNavbarOffset = document.getElementById('navigation-wrapper')
 })
@@ -71,7 +73,24 @@ function handleAnchor() {
                 content.classList.add('anchor-highlight')
                 highlightedAnchor = content
             }
-            document.getElementById('main').scrollTo({ top: element.offsetTop - topNavbarOffset.offsetHeight, behavior: "smooth"})
+
+            const scrollToElement = () => document.getElementById('main').scrollTo({ top: element.offsetTop - topNavbarOffset.offsetHeight, behavior: "smooth"})
+
+            const waitAndScroll = () => {
+                setTimeout(() => {
+                    if(topNavbarOffset){
+                        scrollToElement()
+                    } else {
+                        waitForScroll()
+                    }
+                }, 100)
+            }
+
+            if(topNavbarOffset){
+                scrollToElement()
+            } else {
+                waitAndScroll()
+            }
         }
     }
 }
