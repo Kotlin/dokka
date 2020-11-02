@@ -1,13 +1,13 @@
 package signatures
 
-import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
+import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.junit.jupiter.api.Test
 import utils.A
 import utils.Span
 import utils.TestOutputWriterPlugin
 import utils.match
 
-class VarianceSignatureTest : AbstractCoreTest() {
+class VarianceSignatureTest : BaseAbstractTest() {
     private val configuration = dokkaConfiguration {
         sourceSets {
             sourceSet {

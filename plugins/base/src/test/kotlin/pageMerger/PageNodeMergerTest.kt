@@ -6,9 +6,9 @@ import org.jetbrains.dokka.pages.PageNode
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
-import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
+import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 
-class PageNodeMergerTest : AbstractCoreTest() {
+class PageNodeMergerTest : BaseAbstractTest() {
 
     /* object SameNameStrategy : DokkaPlugin() {
         val strategy by extending { CoreExtensions.pageMergerStrategy with SameMethodNamePageMergerStrategy }

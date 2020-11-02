@@ -3,13 +3,13 @@ package signatures
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.DokkaSourceSetID
 import org.jetbrains.dokka.jdk
-import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
+import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 import org.junit.jupiter.api.Test
 import utils.*
 
-class SignatureTest : AbstractCoreTest() {
+class SignatureTest : BaseAbstractTest() {
     private val configuration = dokkaConfiguration {
         sourceSets {
             sourceSet {

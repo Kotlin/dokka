@@ -8,9 +8,9 @@ import org.jetbrains.dokka.javadoc.location.JavadocLocationProvider
 import org.jetbrains.dokka.model.withDescendants
 import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.*
-import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
+import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 
-internal abstract class AbstractJavadocTemplateMapTest : AbstractCoreTest() {
+internal abstract class AbstractJavadocTemplateMapTest : BaseAbstractTest() {
     protected var config: DokkaConfigurationImpl = dokkaConfiguration {
         format = "javadoc"
         sourceSets {

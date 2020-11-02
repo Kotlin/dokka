@@ -3,13 +3,13 @@ package content.annotations
 
 import matchers.content.*
 import org.jetbrains.dokka.pages.ContentPage
-import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
+import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.junit.jupiter.api.Test
 import utils.ParamAttributes
 import utils.bareSignature
 
 
-class DepredatedAndSinceKotlinTest : AbstractCoreTest() {
+class DepredatedAndSinceKotlinTest : BaseAbstractTest() {
 
     private val testConfiguration = dokkaConfiguration {
         sourceSets {

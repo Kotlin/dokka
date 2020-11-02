@@ -31,15 +31,14 @@ class DirectiveBasedTemplateProcessingStrategy(private val context: DokkaContext
                 val document = withContext(IO) { Jsoup.parse(input, "UTF-8") }
                 document.outputSettings().indentAmount(0).prettyPrint(false)
                 document.select("dokka-template-command").forEach {
-                    val command = parseJson<Command>(it.attr("data"))
-                    when (command) {
+                    when (val command = parseJson<Command>(it.attr("data"))) {
                         is ResolveLinkCommand -> resolveLink(it, command, output)
                         is AddToNavigationCommand -> navigationFragments[command.moduleName] = it
                         is SubstitutionCommand -> substitute(it, TemplatingContext(input, output, it, command))
                         else -> context.logger.warn("Unknown templating command $command")
                     }
                 }
-                withContext(IO) { Files.writeString(output.toPath(), document.outerHtml()) }
+                withContext(IO) { Files.write(output.toPath(), listOf(document.outerHtml())) }
             }
         } else {
             launch(IO) {
@@ -102,7 +101,7 @@ class DirectiveBasedTemplateProcessingStrategy(private val context: DokkaContext
         }
 
         withContext(IO) {
-            Files.writeString(output.resolve("navigation.html").toPath(), node.outerHtml())
+            Files.write(output.resolve("navigation.html").toPath(), listOf(node.outerHtml()))
         }
 
         node.select("a").forEach { a ->
@@ -110,9 +109,9 @@ class DirectiveBasedTemplateProcessingStrategy(private val context: DokkaContext
         }
         navigationFragments.keys.forEach {
             withContext(IO) {
-                Files.writeString(
+                Files.write(
                     output.resolve(it).resolve("navigation.html").toPath(),
-                    node.outerHtml()
+                    listOf(node.outerHtml())
                 )
             }
         }
