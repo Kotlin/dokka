@@ -1,7 +1,6 @@
 package org.jetbrains.dokka.gfm
 
 import org.jetbrains.dokka.CoreExtensions
-import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.DokkaException
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.renderers.DefaultRenderer
@@ -308,6 +307,18 @@ open class CommonmarkRenderer(
 
             buildParagraph()
         }
+    }
+
+    override fun StringBuilder.buildCodeBlock(code: ContentCodeBlock, pageContext: ContentPage) {
+        append("```${if(code.language.isEmpty()) "kotlin" else code.language}\n")
+        code.children.forEach { buildContentNode(it, pageContext) }
+        append("\n```")
+    }
+
+    override fun StringBuilder.buildCodeInline(code: ContentCodeInline, pageContext: ContentPage) {
+        append('`')
+        code.children.forEach { buildContentNode(it, pageContext) }
+        append('`')
     }
 
     private fun decorators(styles: Set<Style>) = buildString {
