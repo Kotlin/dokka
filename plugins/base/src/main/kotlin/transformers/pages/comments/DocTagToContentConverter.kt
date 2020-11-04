@@ -104,10 +104,19 @@ open class DocTagToContentConverter : CommentsToContentConverter {
                     styles
                 )
             )
-            is BlockQuote, is Pre, is CodeBlock -> listOf(
+            is BlockQuote, is Pre -> listOf(
                 ContentCodeBlock(
                     buildChildren(docTag),
                     "",
+                    dci,
+                    sourceSets.toDisplaySourceSets(),
+                    styles
+                )
+            )
+            is CodeBlock -> listOf(
+                ContentCodeBlock(
+                    buildChildren(docTag),
+                    docTag.params.getOrDefault("lang",""),
                     dci,
                     sourceSets.toDisplaySourceSets(),
                     styles

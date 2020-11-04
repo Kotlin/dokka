@@ -310,7 +310,7 @@ open class CommonmarkRenderer(
     }
 
     override fun StringBuilder.buildCodeBlock(code: ContentCodeBlock, pageContext: ContentPage) {
-        append("```${if(code.language.isEmpty()) "kotlin" else code.language}\n")
+        append("```${code.language}\n")
         code.children.forEach { buildContentNode(it, pageContext) }
         append("\n```")
     }
