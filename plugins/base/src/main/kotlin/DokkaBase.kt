@@ -39,6 +39,7 @@ class DokkaBase : DokkaPlugin() {
     val htmlPreprocessors by extensionPoint<PageTransformer>()
     val kotlinAnalysis by extensionPoint<KotlinAnalysis>()
     val tabSortingStrategy by extensionPoint<TabSortingStrategy>()
+    val customContentNodeRenderers by extensionPoint<CustomContentNodeRenderer>()
 
 
     val descriptorToDocumentableTranslator by extending {
@@ -226,6 +227,18 @@ class DokkaBase : DokkaPlugin() {
 
     val sourcesetDependencyAppender by extending {
         htmlPreprocessors providing ::SourcesetDependencyAppender order { after(rootCreator) }
+    }
+
+    val tabbedContentTransformer by extending {
+        htmlPreprocessors providing ::TabbedContentTransformer order { after(rootCreator) }
+    }
+
+    val sourceSetFilteringButtonsAdder by extending {
+        htmlPreprocessors providing ::SourceSetFilteringButtonsAdder order { after(rootCreator) }
+    }
+
+    val signatureCopyButtonsAdder by extending {
+        htmlPreprocessors providing ::CopyButtonAdder order { after(rootCreator) }
     }
 
     val allModulePageCreators by extending {

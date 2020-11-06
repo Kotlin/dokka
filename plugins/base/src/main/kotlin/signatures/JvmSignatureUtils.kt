@@ -67,7 +67,7 @@ interface JvmSignatureUtils {
         link(a.dri.classNames!!, a.dri)
         text("(")
         a.params.entries.forEachIndexed { i, it ->
-            group(styles = setOf(TextStyle.BreakableAfter)) {
+            group(styles = setOf(TextStyle.BreakableAfter, ContentStyle.Inline)) {
                 text(it.key + " = ")
                 when (renderAtStrategy) {
                     is All -> All
@@ -91,7 +91,7 @@ interface JvmSignatureUtils {
         is ArrayValue -> {
             text(listBrackets.first.toString())
             a.value.forEachIndexed { i, it ->
-                group(styles = setOf(TextStyle.BreakableAfter)) {
+                group(styles = setOf(TextStyle.BreakableAfter, ContentStyle.Inline)) {
                     valueToSignature(it, renderAtStrategy, listBrackets, classExtension)
                     if (i != a.value.size - 1) text(", ")
                 }
@@ -100,7 +100,7 @@ interface JvmSignatureUtils {
         }
         is EnumValue -> link(a.enumName, a.enumDri)
         is ClassValue -> link(a.className + classExtension, a.classDRI)
-        is StringValue -> group(styles = setOf(TextStyle.Breakable)) { text(a.value) }
+        is StringValue -> group(styles = setOf(TextStyle.BreakableWord, ContentStyle.Inline)) { text(a.value) }
     }
 
     fun PageContentBuilder.DocumentableContentBuilder.annotationsBlockWithIgnored(
@@ -124,7 +124,7 @@ interface JvmSignatureUtils {
         listBrackets: Pair<Char, Char>,
         classExtension: String
     ) {
-        annotations(d, ignored, setOf(TextStyle.Span)) {
+        annotations(d, ignored, setOf(ContentStyle.Inline)) {
             toSignatureString(it, renderAtStrategy, listBrackets, classExtension)
             text(Typography.nbsp.toString())
         }

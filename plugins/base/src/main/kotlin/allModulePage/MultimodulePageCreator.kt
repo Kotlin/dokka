@@ -40,6 +40,7 @@ class MultimodulePageCreator(
         val contentNode = builder.contentFor(
             dri = DRI(MULTIMODULE_PACKAGE_PLACEHOLDER),
             kind = ContentKind.Cover,
+            styles = setOf(ContentClass.Cover),
             sourceSets = sourceSetData
         ) {
             header(2, "All modules:")

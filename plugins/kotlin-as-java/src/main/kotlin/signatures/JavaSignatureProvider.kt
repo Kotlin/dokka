@@ -8,6 +8,7 @@ import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.sureClassNames
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.properties.WithExtraProperties
+import org.jetbrains.dokka.pages.ContentClass
 import org.jetbrains.dokka.pages.ContentKind
 import org.jetbrains.dokka.pages.ContentNode
 import org.jetbrains.dokka.pages.TextStyle
@@ -39,7 +40,7 @@ class JavaSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogge
             contentBuilder.contentFor(
                 e,
                 ContentKind.Symbol,
-                setOf(TextStyle.Monospace) + e.stylesIfDeprecated(it),
+                setOf(ContentClass.Symbol, TextStyle.Monospace) + e.stylesIfDeprecated(it),
                 sourceSets = setOf(it)
             ) {
                 link(e.name, e.dri)
@@ -51,7 +52,7 @@ class JavaSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogge
             contentBuilder.contentFor(
                 c,
                 ContentKind.Symbol,
-                setOf(TextStyle.Monospace) + ((c as? WithExtraProperties<out Documentable>)?.stylesIfDeprecated(it)
+                setOf(ContentClass.Symbol, TextStyle.Monospace) + ((c as? WithExtraProperties<out Documentable>)?.stylesIfDeprecated(it)
                     ?: emptySet()),
                 sourceSets = setOf(it)
             ) {
@@ -94,7 +95,7 @@ class JavaSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogge
             contentBuilder.contentFor(
                 p,
                 ContentKind.Symbol,
-                setOf(TextStyle.Monospace, TextStyle.Block) + p.stylesIfDeprecated(it),
+                setOf(ContentClass.Symbol, TextStyle.Monospace, TextStyle.Block) + p.stylesIfDeprecated(it),
                 sourceSets = setOf(it)
             ) {
                 annotationsBlock(p)
@@ -112,7 +113,7 @@ class JavaSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogge
             contentBuilder.contentFor(
                 f,
                 ContentKind.Symbol,
-                setOf(TextStyle.Monospace, TextStyle.Block) + f.stylesIfDeprecated(it),
+                setOf(ContentClass.Symbol, TextStyle.Monospace, TextStyle.Block) + f.stylesIfDeprecated(it),
                 sourceSets = setOf(it)
             ) {
                 annotationsBlock(f)

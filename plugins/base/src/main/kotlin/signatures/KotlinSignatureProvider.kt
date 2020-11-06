@@ -11,9 +11,7 @@ import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.Nullable
 import org.jetbrains.dokka.model.TypeConstructor
 import org.jetbrains.dokka.model.properties.WithExtraProperties
-import org.jetbrains.dokka.pages.ContentKind
-import org.jetbrains.dokka.pages.ContentNode
-import org.jetbrains.dokka.pages.TextStyle
+import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.utilities.DokkaLogger
 import kotlin.text.Typography.nbsp
 
@@ -63,7 +61,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
             contentBuilder.contentFor(
                 e,
                 ContentKind.Symbol,
-                setOf(TextStyle.Monospace) + e.stylesIfDeprecated(it),
+                setOf(ContentClass.Symbol, TextStyle.Monospace) + e.stylesIfDeprecated(it),
                 sourceSets = setOf(it)
             ) {
                 group(styles = setOf(TextStyle.Block)) {
@@ -81,7 +79,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
         contentBuilder.contentFor(
             c,
             ContentKind.Symbol,
-            setOf(TextStyle.Monospace) + ((c as? WithExtraProperties<out Documentable>)?.stylesIfDeprecated(sourceSet)
+            setOf(ContentClass.Symbol, TextStyle.Monospace) + ((c as? WithExtraProperties<out Documentable>)?.stylesIfDeprecated(sourceSet)
                 ?: emptySet()),
             sourceSets = setOf(sourceSet)
         ) {
@@ -105,7 +103,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
         contentBuilder.contentFor(
             c,
             ContentKind.Symbol,
-            setOf(TextStyle.Monospace) + ((c as? WithExtraProperties<out Documentable>)?.stylesIfDeprecated(sourceSet)
+            setOf(ContentClass.Symbol, TextStyle.Monospace) + ((c as? WithExtraProperties<out Documentable>)?.stylesIfDeprecated(sourceSet)
                 ?: emptySet()),
             sourceSets = setOf(sourceSet)
         ) {
@@ -198,7 +196,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
             contentBuilder.contentFor(
                 p,
                 ContentKind.Symbol,
-                setOf(TextStyle.Monospace) + p.stylesIfDeprecated(it),
+                setOf(ContentClass.Symbol, TextStyle.Monospace) + p.stylesIfDeprecated(it),
                 sourceSets = setOf(it)
             ) {
                 annotationsBlock(p)
@@ -231,7 +229,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
             contentBuilder.contentFor(
                 f,
                 ContentKind.Symbol,
-                setOf(TextStyle.Monospace) + f.stylesIfDeprecated(it),
+                setOf(ContentClass.Symbol, TextStyle.Monospace) + f.stylesIfDeprecated(it),
                 sourceSets = setOf(it)
             ) {
                 annotationsBlock(f)
@@ -284,7 +282,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                     +contentBuilder.contentFor(
                         t,
                         ContentKind.Symbol,
-                        setOf(TextStyle.Monospace) + t.stylesIfDeprecated(it),
+                        setOf(ContentClass.Symbol, TextStyle.Monospace) + t.stylesIfDeprecated(it),
                         sourceSets = platforms.toSet()
                     ) {
                         annotationsBlock(t)
@@ -360,7 +358,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
         }
 
     private fun funType(dri: DRI, sourceSets: Set<DokkaSourceSet>, type: FunctionalTypeConstructor) =
-        contentBuilder.contentFor(dri, sourceSets, ContentKind.Main) {
+        contentBuilder.contentFor(dri, sourceSets, ContentKind.Symbol) {
 
             if (type.presentableName != null) text(type.presentableName + ": ")
             if (type.isSuspendable) text("suspend ")

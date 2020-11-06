@@ -94,7 +94,7 @@ open class DefaultPageCreator(
         }
 
     protected open fun contentForModule(m: DModule) = contentBuilder.contentFor(m) {
-        group(kind = ContentKind.Cover) {
+        group(kind = ContentKind.Cover, styles = setOf(ContentClass.Cover)) {
             cover(m.name)
             if (contentForDescription(m).isNotEmpty()) {
                 sourceSetDependentHint(
@@ -124,7 +124,7 @@ open class DefaultPageCreator(
     }
 
     protected open fun contentForPackage(p: DPackage) = contentBuilder.contentFor(p) {
-        group(kind = ContentKind.Cover) {
+        group(kind = ContentKind.Cover, styles = setOf(ContentClass.Cover)) {
             cover("Package ${p.name}")
             if (contentForDescription(p).isNotEmpty()) {
                 sourceSetDependentHint(
@@ -147,7 +147,7 @@ open class DefaultPageCreator(
         s: WithScope,
         dri: DRI,
         sourceSets: Set<DokkaSourceSet>
-    ) = contentBuilder.contentFor(s as Documentable) {
+    ): List<ContentNode> = contentBuilder.contentFor(s as Documentable) {
         val types = listOf(
             s.classlikes,
             (s as? DPackage)?.typealiases ?: emptyList()
@@ -197,13 +197,13 @@ open class DefaultPageCreator(
                 )
             }
         }
-    }
+    }.children
 
     private fun Iterable<DFunction>.sorted() =
         sortedWith(compareBy({ it.name }, { it.parameters.size }, { it.dri.toString() }))
 
     protected open fun contentForEnumEntry(e: DEnumEntry) = contentBuilder.contentFor(e) {
-        group(kind = ContentKind.Cover) {
+        group(kind = ContentKind.Cover, styles = setOf(ContentClass.Cover)) {
             cover(e.name)
             sourceSetDependentHint(e.dri, e.sourceSets.toSet()) {
                 +buildSignature(e)
@@ -223,9 +223,9 @@ open class DefaultPageCreator(
             ?.filterIsInstance<Documentable>().orEmpty()
         // Extensions are added to sourceSets since they can be placed outside the sourceSets from classlike
         // Example would be an Interface in common and extension function in jvm
-        group(kind = ContentKind.Cover, sourceSets = mainSourcesetData + extensions.sourceSets) {
+        group(kind = ContentKind.Cover, styles = setOf(ContentClass.Cover), sourceSets = mainSourcesetData + extensions.sourceSets) {
             cover(c.name.orEmpty())
-            sourceSetDependentHint(c.dri, c.sourceSets) {
+            sourceSetDependentHint(c.dri, c.sourceSets, styles = emptySet()) {
                 +buildSignature(c)
                 +contentForDescription(c)
             }
@@ -493,7 +493,7 @@ open class DefaultPageCreator(
     protected open fun DocumentableContentBuilder.contentForBrief(documentable: Documentable) {
         documentable.sourceSets.forEach { sourceSet ->
             documentable.documentation[sourceSet]?.children?.firstOrNull()?.root?.let {
-                group(sourceSets = setOf(sourceSet), kind = ContentKind.BriefComment) {
+                group(sourceSets = setOf(sourceSet), kind = ContentKind.BriefComment, styles = setOf(ContentClass.Brief)) {
                     if(documentable.hasSeparatePage) firstSentenceComment(it)
                     else comment(it)
                 }
@@ -521,7 +521,7 @@ open class DefaultPageCreator(
     protected open fun contentForProperty(p: DProperty) = contentForMember(p)
 
     protected open fun contentForMember(d: Documentable) = contentBuilder.contentFor(d) {
-        group(kind = ContentKind.Cover) {
+        group(kind = ContentKind.Cover, styles = setOf(ContentClass.Cover)) {
             cover(d.name.orEmpty())
         }
         divergentGroup(ContentDivergentGroup.GroupID("member")) {

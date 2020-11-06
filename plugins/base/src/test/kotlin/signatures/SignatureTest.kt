@@ -295,8 +295,8 @@ class SignatureTest : AbstractCoreTest() {
                     .firstSignature()
                     .match(
                         Div(
-                            Div("@", A("Marking"), "(", Span("msg = ", Span("\"Nenya\"")), Wbr, ")"),
-                            Div("@", A("Marking2"), "(", Span("int = ", Span("1")), Wbr, ")")
+                            Div("@", A("Marking"), "(", Span("msg = ", Span("\"Nenya\"")), ")"),
+                            Div("@", A("Marking2"), "(", Span("int = ", Span("1")), ")")
                         ),
                         "fun ", A("simpleFun"),
                         "(): ", A("String"), Span()
@@ -332,10 +332,10 @@ class SignatureTest : AbstractCoreTest() {
                         Div(
                             "@", A("Marking"), "(", Span(
                                 "msg = [",
-                                Span(Span("\"Nenya\""), ", "), Wbr,
-                                Span(Span("\"Vilya\""), ", "), Wbr,
-                                Span(Span("\"Narya\"")), Wbr, "]"
-                            ), Wbr, ")"
+                                Span(Span("\"Nenya\""), ", "),
+                                Span(Span("\"Vilya\""), ", "),
+                                Span(Span("\"Narya\"")),  "]"
+                            ), ")"
                         )
                     ),
                     "fun ", A("simpleFun"),

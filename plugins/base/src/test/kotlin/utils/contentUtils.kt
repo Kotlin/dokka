@@ -141,18 +141,16 @@ fun ContentMatcherBuilder<*>.propertySignature(
         skipAllNotMatching()
     }
     group {
-        group {
-            skipAllNotMatching()
-            header { +"Properties" }
-            table {
-                group {
-                    link { +name }
-                    platformHinted {
-                        group {
-                            annotations.entries.forEach {
-                                group {
-                                    unwrapAnnotation(it)
-                                }
+        skipAllNotMatching()
+        header { +"Properties" }
+        table {
+            group {
+                link { +name }
+                platformHinted {
+                    group {
+                        annotations.entries.forEach {
+                            group {
+                                unwrapAnnotation(it)
                             }
                             if (visibility.isNotBlank()) +"$visibility "
                             if (modifier.isNotBlank()) +"$modifier "
@@ -166,9 +164,9 @@ fun ContentMatcherBuilder<*>.propertySignature(
                                     }
                                 }
                             }
-                            if (type != null) {
-                                +(" = $value")
-                            }
+                        }
+                        if (type != null) {
+                            +(" = $value")
                         }
                     }
                 }
@@ -184,39 +182,37 @@ fun ContentMatcherBuilder<*>.typealiasSignature(name: String, expressionTarget: 
         skipAllNotMatching()
     }
     group {
-        group {
-            skipAllNotMatching()
-            header { +"Types" }
-            table {
-                group {
-                    link { +name }
-                    divergentGroup {
-                        divergentInstance {
+        skipAllNotMatching()
+        header { +"Types" }
+        table {
+            group {
+                link { +name }
+                divergentGroup {
+                    divergentInstance {
+                        group {
                             group {
                                 group {
                                     group {
+                                        +"typealias "
                                         group {
-                                            +"typealias "
-                                            group {
-                                                link { +name }
-                                                skipAllNotMatching()
-                                            }
-                                            +" = "
-                                            group {
-                                                link { +expressionTarget }
-                                            }
+                                            link { +name }
+                                            skipAllNotMatching()
+                                        }
+                                        +" = "
+                                        group {
+                                            link { +expressionTarget }
                                         }
                                     }
                                 }
                             }
                         }
-                        skipAllNotMatching()
                     }
+                    skipAllNotMatching()
                 }
-                skipAllNotMatching()
             }
             skipAllNotMatching()
         }
+        skipAllNotMatching()
     }
 }
 
