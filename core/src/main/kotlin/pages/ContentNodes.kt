@@ -313,7 +313,10 @@ data class PlatformHintedContent(
 
 }
 
-interface Style
+interface Style {
+    val printableName: String?
+}
+
 interface Kind
 
 enum class ContentKind : Kind {
@@ -339,16 +342,48 @@ enum class ContentKind : Kind {
     }
 }
 
-enum class TextStyle : Style {
-    Bold, Italic, Strong, Strikethrough, Paragraph, Block, Span, Monospace, Indented, Cover, UnderCoverText, BreakableAfter, Breakable
+enum class TextStyle(override val printableName: String? = null) : Style {
+    Bold("bold"),
+    Italic("italic"),
+    Strong("strong"),
+    Strikethrough("strikethrough"),
+    Paragraph("paragraph"),
+    Block("block"),
+    Monospace("monospace"),
+    Indented("indented"),
+    Cover("cover"),
+    UnderCoverText("undercovertext"),
+    BreakableAfter("breakableafter"),
+    BreakableWord("breakable-word")
 }
 
-enum class ContentStyle : Style {
-    RowTitle, TabbedContent, WithExtraAttributes, RunnableSample, InDocumentationAnchor, Caption
+enum class ContentStyle(override val printableName: String? = null) : Style {
+    RowTitle("rowtitle"),
+    TabbedContent("tabbedcontent"),
+    WithExtraAttributes,
+    RunnableSample("runnablesample"),
+    InDocumentationAnchor("indocumentationanchor"),
+    Inline("inline"),
+    Caption("caption")
 }
 
-object CommentTable : Style
+enum class ContentClass(override val printableName: String? = null) : Style {
+    Symbol("symbol"),
+    Brief("brief"),
+    TabsSectionBody("tabs-section-body"),
+    TabsSection("tabs-section"),
+    Cover("cover")
+}
 
-object MultimoduleTable : Style
+
+object CommentTable : Style {
+    override val printableName: String?
+        get() = "commenttable"
+}
+
+object MultimoduleTable : Style {
+    override val printableName: String?
+        get() = "multimoduletable"
+}
 
 fun ContentNode.hasStyle(style: Style) = this.style.contains(style)

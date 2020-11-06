@@ -12,6 +12,7 @@ import org.jetbrains.dokka.model.DisplaySourceSet
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
+import org.jetbrains.dokka.plugability.query
 import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.renderers.Renderer
 import org.jetbrains.dokka.transformers.pages.PageTransformer
@@ -21,6 +22,7 @@ abstract class DefaultRenderer<T>(
 ) : Renderer {
 
     protected val outputWriter = context.plugin<DokkaBase>().querySingle { outputWriter }
+    protected val customContentNodeRenderers = context.plugin<DokkaBase>().query { customContentNodeRenderers }
 
     protected lateinit var locationProvider: LocationProvider
         private set
@@ -104,22 +106,38 @@ abstract class DefaultRenderer<T>(
         pageContext: ContentPage,
         sourceSetRestriction: Set<DisplaySourceSet>? = null
     ) {
+        customContentNodeRenderers.find { it.canRender(node) }?.run {
+            render(this, node, pageContext, sourceSetRestriction)
+            return
+        } ?: buildContentNodeImpl(this, node, pageContext, sourceSetRestriction)
+    }
+
+    protected open fun buildContentNodeImpl(
+        builder: T,
+        node: ContentNode,
+        pageContext: ContentPage,
+        sourceSetRestriction: Set<DisplaySourceSet>? = null
+    ) {
         if (sourceSetRestriction == null || node.sourceSets.any { it in sourceSetRestriction }) {
+            customContentNodeRenderers.find { it.canRender(node) }?.run {
+                render(this, node, pageContext, sourceSetRestriction)
+                return
+            }
             when (node) {
-                is ContentText -> buildText(node)
-                is ContentHeader -> buildHeader(node, pageContext, sourceSetRestriction)
-                is ContentCodeBlock -> buildCodeBlock(node, pageContext)
-                is ContentCodeInline -> buildCodeInline(node, pageContext)
-                is ContentDRILink -> buildDRILink(node, pageContext, sourceSetRestriction)
-                is ContentResolvedLink -> buildResolvedLink(node, pageContext, sourceSetRestriction)
-                is ContentEmbeddedResource -> buildResource(node, pageContext)
-                is ContentList -> buildList(node, pageContext, sourceSetRestriction)
-                is ContentTable -> buildTable(node, pageContext, sourceSetRestriction)
-                is ContentGroup -> buildGroup(node, pageContext, sourceSetRestriction)
-                is ContentBreakLine -> buildNewLine()
-                is PlatformHintedContent -> buildPlatformDependent(node, pageContext, sourceSetRestriction)
-                is ContentDivergentGroup -> buildDivergent(node, pageContext)
-                is ContentDivergentInstance -> buildDivergentInstance(node, pageContext)
+                is ContentText -> builder.buildText(node)
+                is ContentHeader -> builder.buildHeader(node, pageContext, sourceSetRestriction)
+                is ContentCodeBlock -> builder.buildCodeBlock(node, pageContext)
+                is ContentCodeInline -> builder.buildCodeInline(node, pageContext)
+                is ContentDRILink -> builder.buildDRILink(node, pageContext, sourceSetRestriction)
+                is ContentResolvedLink -> builder.buildResolvedLink(node, pageContext, sourceSetRestriction)
+                is ContentEmbeddedResource -> builder.buildResource(node, pageContext)
+                is ContentList -> builder.buildList(node, pageContext, sourceSetRestriction)
+                is ContentTable -> builder.buildTable(node, pageContext, sourceSetRestriction)
+                is ContentGroup -> builder.buildGroup(node, pageContext, sourceSetRestriction)
+                is ContentBreakLine -> builder.buildNewLine()
+                is PlatformHintedContent -> builder.buildPlatformDependent(node, pageContext, sourceSetRestriction)
+                is ContentDivergentGroup -> builder.buildDivergent(node, pageContext)
+                is ContentDivergentInstance -> builder.buildDivergentInstance(node, pageContext)
                 else -> buildError(node)
             }
         }
@@ -169,9 +187,13 @@ abstract class DefaultRenderer<T>(
                 is RenderingStrategy.Copy -> outputWriter.writeResources(strategy.from, path)
                 is RenderingStrategy.Write -> outputWriter.write(path, strategy.text, "")
                 is RenderingStrategy.Callback -> outputWriter.write(path, strategy.instructions(this, page), ".html")
-                is RenderingStrategy.LocationResolvableWrite -> outputWriter.write(path, strategy.contentToResolve { dri, sourcesets ->
-                    locationProvider.resolveOrThrow(dri, sourcesets)
-                }, "")
+                is RenderingStrategy.LocationResolvableWrite -> outputWriter.write(
+                    path,
+                    strategy.contentToResolve { dri, sourcesets ->
+                        locationProvider.resolveOrThrow(dri, sourcesets)
+                    },
+                    ""
+                )
                 RenderingStrategy.DoNothing -> Unit
             }
             else -> throw AssertionError(

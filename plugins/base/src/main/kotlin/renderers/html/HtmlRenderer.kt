@@ -43,97 +43,56 @@ open class HtmlRenderer(
 
     val searchbarDataInstaller = SearchbarDataInstaller()
 
-    private val tabSortingStrategy = context.plugin<DokkaBase>().querySingle { tabSortingStrategy }
+    override fun FlowContent.buildContentNode(
+        node: ContentNode,
+        pageContext: ContentPage,
+        sourceSetRestriction: Set<DisplaySourceSet>?
+    ) {
+        if (sourceSetRestriction == null || node.sourceSets.any { it in sourceSetRestriction }) {
+            when (node) {
+                is ContentButton -> {
+                    buildButton(node)
+                    return
+                }
+            }
+        }
 
-    private fun <T : ContentNode> sortTabs(strategy: TabSortingStrategy, tabs: Collection<T>): List<T> {
-        val sorted = strategy.sort(tabs)
-        if (sorted.size != tabs.size)
-            context.logger.warn("Tab sorting strategy has changed number of tabs from ${tabs.size} to ${sorted.size}")
-        return sorted;
+        super.buildContentNodeImpl(this, node, pageContext, sourceSetRestriction)
     }
 
-    override fun FlowContent.wrapGroup(
+    protected open fun FlowContent.buildButton(node: ContentButton) = button(classes = node.additionalClasses) {
+        node.extra.extraHtmlAttributes().forEach { attributes[it.extraKey] = it.extraValue }
+        text(node.label)
+    }
+
+    override fun FlowContent.buildGroup(
         node: ContentGroup,
         pageContext: ContentPage,
-        childrenCallback: FlowContent.() -> Unit
+        sourceSetRestriction: Set<DisplaySourceSet>?
     ) {
-        val additionalClasses = node.style.joinToString(" ") { it.toString().toLowerCase() }
-        return when {
-            node.hasStyle(ContentStyle.TabbedContent) -> div(additionalClasses) {
-                val secondLevel = node.children.filterIsInstance<ContentComposite>().flatMap { it.children }
-                    .filterIsInstance<ContentHeader>().flatMap { it.children }.filterIsInstance<ContentText>()
-                val firstLevel = node.children.filterIsInstance<ContentHeader>().flatMap { it.children }
-                    .filterIsInstance<ContentText>()
-
-                val renderable = firstLevel.union(secondLevel).let { sortTabs(tabSortingStrategy, it) }
-
-                div(classes = "tabs-section") {
-                    attributes["tabs-section"] = "tabs-section"
-                    renderable.forEachIndexed { index, node ->
-                        button(classes = "section-tab") {
-                            if (index == 0) attributes["data-active"] = ""
-                            attributes["data-togglable"] = node.text
-                            text(node.text)
-                        }
-                    }
-                }
-                div(classes = "tabs-section-body") {
-                    childrenCallback()
+        if (node.isAnchorable) buildAnchor(node.anchor!!, node.anchorLabel!!, node.sourceSetsFilters)
+        when {
+            node.hasStyle(ContentStyle.Inline) -> {
+                span(node.additionalClasses) {
+                    node.extra.extraHtmlAttributes().forEach { attributes[it.extraKey] = it.extraValue }
+                    node.children.forEach { it.build(this, pageContext, sourceSetRestriction) }
                 }
             }
-            node.hasStyle(ContentStyle.WithExtraAttributes) -> div() {
-                node.extra.extraHtmlAttributes().forEach { attributes[it.extraKey] = it.extraValue }
-                childrenCallback()
-            }
-            node.dci.kind in setOf(ContentKind.Symbol) -> div("symbol $additionalClasses") {
-                childrenCallback()
-                if (node.hasStyle(TextStyle.Monospace)) copyButton()
-            }
-            node.hasStyle(TextStyle.BreakableAfter) -> {
-                span() { childrenCallback() }
-                wbr { }
-            }
-            node.hasStyle(TextStyle.Breakable) -> {
-                span("breakable-word") { childrenCallback() }
-            }
-            node.hasStyle(TextStyle.Span) -> span() { childrenCallback() }
-            node.dci.kind == ContentKind.Symbol -> div("symbol $additionalClasses") { childrenCallback() }
-            node.dci.kind == ContentKind.BriefComment -> div("brief $additionalClasses") { childrenCallback() }
-            node.dci.kind == ContentKind.Cover -> div("cover $additionalClasses") {
-                filterButtons(pageContext)
-                childrenCallback()
-            }
-            node.hasStyle(TextStyle.Paragraph) -> p(additionalClasses) { childrenCallback() }
-            node.hasStyle(TextStyle.Block) -> div(additionalClasses) { childrenCallback() }
-            node.isAnchorable -> buildAnchor(node.anchor!!, node.anchorLabel!!, node.sourceSetsFilters) { childrenCallback() }
-            else -> childrenCallback()
-        }
-    }
-
-    private fun FlowContent.filterButtons(page: ContentPage) {
-        if (shouldRenderSourceSetBubbles) {
-            div(classes = "filter-section") {
-                id = "filter-section"
-                page.content.withDescendants().flatMap { it.sourceSets }.distinct().forEach {
-                    button(classes = "platform-tag platform-selector") {
-                        attributes["data-active"] = ""
-                        attributes["data-filter"] = it.sourceSetIDs.merged.toString()
-                        when (it.platform.key) {
-                            "common" -> classes = classes + "common-like"
-                            "native" -> classes = classes + "native-like"
-                            "jvm" -> classes = classes + "jvm-like"
-                            "js" -> classes = classes + "js-like"
-                        }
-                        text(it.name)
-                    }
+            node.hasStyle(TextStyle.Paragraph) -> {
+                p(node.additionalClasses) {
+                    node.extra.extraHtmlAttributes().forEach { attributes[it.extraKey] = it.extraValue }
+                    node.children.forEach { it.build(this, pageContext, sourceSetRestriction) }
                 }
+            }
+            node.style.isNotEmpty() ->
+                div(node.additionalClasses) {
+                    node.extra.extraHtmlAttributes().forEach { attributes[it.extraKey] = it.extraValue }
+                    node.children.forEach { it.build(this, pageContext, sourceSetRestriction) }
+                }
+            else -> {
+                node.children.forEach { it.build(this, pageContext, sourceSetRestriction) }
             }
         }
-    }
-
-    private fun FlowContent.copyButton() = span(classes = "top-right-position") {
-        span("copy-icon")
-        copiedPopup("Content copied to clipboard", "popup-to-left")
     }
 
     private fun FlowContent.copiedPopup(notificationContent: String, additionalClasses: String = "") =
@@ -415,15 +374,15 @@ open class HtmlRenderer(
                 div {
                     toRender.filter { it !is ContentLink && !it.hasStyle(ContentStyle.RowTitle) }
                         .takeIf { it.isNotEmpty() }?.let {
-                        if (ContentKind.shouldBePlatformTagged(contextNode.dci.kind) && contextNode.sourceSets.size == 1)
-                            createPlatformTags(contextNode)
+                            if (ContentKind.shouldBePlatformTagged(contextNode.dci.kind) && contextNode.sourceSets.size == 1)
+                                createPlatformTags(contextNode)
 
-                        div("title") {
-                            it.forEach {
-                                it.build(this, pageContext, sourceSetRestriction)
+                            div("title") {
+                                it.forEach {
+                                    it.build(this, pageContext, sourceSetRestriction)
+                                }
                             }
                         }
-                    }
                 }
             }
         }
@@ -442,7 +401,9 @@ open class HtmlRenderer(
                     .forEach {
                         span("inline-flex") {
                             it.build(this, pageContext, sourceSetRestriction)
-                            if(it is ContentLink && !anchorDestination.isNullOrBlank()) buildAnchorCopyButton(anchorDestination)
+                            if (it is ContentLink && !anchorDestination.isNullOrBlank()) buildAnchorCopyButton(
+                                anchorDestination
+                            )
                         }
                     }
             }
@@ -464,7 +425,7 @@ open class HtmlRenderer(
         toRender: List<ContentNode>,
         pageContext: ContentPage,
         sourceSetRestriction: Set<DisplaySourceSet>?,
-    ){
+    ) {
         toRender.filter { it !is ContentLink }.takeIf { it.isNotEmpty() }?.let {
             it.forEach {
                 span(classes = if (it.dci.kind == ContentKind.Comment) "brief-comment" else "") {
@@ -476,7 +437,7 @@ open class HtmlRenderer(
 
     private fun FlowContent.createPlatformTagBubbles(sourceSets: List<DisplaySourceSet>, cssClasses: String = "") {
         if (shouldRenderSourceSetBubbles) {
-            div("platform-tags " + cssClasses) {
+            div("platform-tags $cssClasses") {
                 sourceSets.sortedBy { it.name }.forEach {
                     div("platform-tag") {
                         when (it.platform.key) {
@@ -554,29 +515,24 @@ open class HtmlRenderer(
 
 
     override fun FlowContent.buildHeader(level: Int, node: ContentHeader, content: FlowContent.() -> Unit) {
-        val classes = node.style.joinToString { it.toString() }.toLowerCase()
         when (level) {
-            1 -> h1(classes = classes, content)
-            2 -> h2(classes = classes, content)
-            3 -> h3(classes = classes, content)
-            4 -> h4(classes = classes, content)
-            5 -> h5(classes = classes, content)
-            else -> h6(classes = classes, content)
+            1 -> h1(classes = node.additionalClasses, content)
+            2 -> h2(classes = node.additionalClasses, content)
+            3 -> h3(classes = node.additionalClasses, content)
+            4 -> h4(classes = node.additionalClasses, content)
+            5 -> h5(classes = node.additionalClasses, content)
+            else -> h6(classes = node.additionalClasses, content)
         }
     }
 
-    private fun FlowContent.buildAnchor(anchor: String, anchorLabel: String, sourceSets: String, content: FlowContent.() -> Unit) {
+    private fun FlowContent.buildAnchor(anchor: String, anchorLabel: String, sourceSets: String) {
         a {
             attributes["data-name"] = anchor
             attributes["anchor-label"] = anchorLabel
             attributes["id"] = anchor
             attributes["data-filterable-set"] = sourceSets
         }
-        content()
     }
-
-    private fun FlowContent.buildAnchor(anchor: String, anchorLabel: String, sourceSets: String) =
-        buildAnchor(anchor, anchorLabel, sourceSets) {}
 
     private fun FlowContent.buildAnchor(node: ContentNode) {
         node.anchorLabel?.let { label -> buildAnchor(node.anchor!!, label, node.sourceSetsFilters) }
@@ -796,6 +752,8 @@ open class HtmlRenderer(
             (locationProvider as DokkaBaseLocationProvider).anchorForDCI(DCI(dci.dri, contentKind), sourceSets)
         }
 
+    private val ContentNode.additionalClasses: String?
+        get() = style.mapNotNull { it.printableName }.joinToString(" ").takeIf { it.isNotBlank() }
 }
 
 fun List<SimpleAttr>.joinAttr() = joinToString(" ") { it.extraKey + "=" + it.extraValue }
