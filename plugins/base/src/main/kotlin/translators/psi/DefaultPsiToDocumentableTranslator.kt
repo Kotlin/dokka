@@ -14,6 +14,8 @@ import org.jetbrains.dokka.analysis.KotlinAnalysis
 import org.jetbrains.dokka.analysis.PsiDocumentableSource
 import org.jetbrains.dokka.analysis.from
 import org.jetbrains.dokka.base.translators.isDirectlyAnException
+import org.jetbrains.dokka.base.translators.psi.parsers.JavaDocumentationParser
+import org.jetbrains.dokka.base.translators.psi.parsers.JavadocParser
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.nextTarget
 import org.jetbrains.dokka.links.withClass
