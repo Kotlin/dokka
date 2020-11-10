@@ -5,6 +5,8 @@ import Scrollspy from 'react-scrollspy'
 
 type PageSummaryProps = {
     entries: PageSummaryEntry[],
+    containerId: string, //Id of a container that has scroll enabled 
+    offsetComponentId: string, //Id of a top navbar component
 }
 
 type PageSummaryEntry = {
@@ -15,13 +17,12 @@ type PageSummaryEntry = {
 
 type SourceSetFilterKey = string
 
-export const PageSummary: React.FC<PageSummaryProps> = ({ entries }: PageSummaryProps) => {
+const getElementHeightFromDom = (elementId: string): number => document.getElementById(elementId).offsetHeight
+
+export const PageSummary: React.FC<PageSummaryProps> = ({ entries, containerId, offsetComponentId }: PageSummaryProps) => {
     const [hidden, setHidden] = useState<Boolean>(true);
     const [displayableEntries, setDisplayableEntries] = useState<PageSummaryEntry[]>(entries)
-
-    const handleMouseHover = () => {
-        setHidden(!hidden)
-    }
+    const topOffset = getElementHeightFromDom(offsetComponentId)
 
     useEffect(() => {
         const handeEvent = (event: CustomEvent<SourceSetFilterKey[]>) => {
@@ -32,6 +33,17 @@ export const PageSummary: React.FC<PageSummaryProps> = ({ entries }: PageSummary
         window.addEventListener('sourceset-filter-change', handeEvent)
         return () => window.removeEventListener('sourceset-filter-change', handeEvent)
     }, [entries])
+
+    const handleMouseHover = () => {
+        setHidden(!hidden)
+    }
+
+    const handleClick = (entry: PageSummaryEntry) => {
+        document.getElementById(containerId).scrollTo({
+            top: document.getElementById(entry.location).offsetTop - topOffset,
+            behavior: 'smooth'
+        })
+    }
 
     let classnames = "page-summary"
     if (hidden) classnames += " hidden"
@@ -45,7 +57,7 @@ export const PageSummary: React.FC<PageSummaryProps> = ({ entries }: PageSummary
             <div className={"content-wrapper"}>
                 <h4>On this page</h4>
                 {!hidden && <Scrollspy items={displayableEntries.map((e) => e.location)} currentClassName="selected">
-                    {displayableEntries.map((item) => <li><a href={'#' + item.location}>{item.label}</a></li>)}
+                    {displayableEntries.map((item) => <li><a onClick={() => handleClick(item)}>{item.label}</a></li>)}
                 </Scrollspy>}
             </div>
         </div>

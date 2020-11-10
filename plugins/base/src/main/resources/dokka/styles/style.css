@@ -11,16 +11,68 @@
     --horizontal-spacing-for-content: 42px;
     --mobile-horizontal-spacing-for-content: 8px;
     --bottom-spacing: 16px;
+    --color-scrollbar: rgba(39, 40, 44, 0.40);
+    --color-scrollbar-track: #f4f4f4;
 }
 
-#content {
-    padding: 0 var(--horizontal-spacing-for-content) var(--bottom-spacing) var(--horizontal-spacing-for-content);
+html {
+    height: 100%;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    scrollbar-color: rgba(39, 40, 44, 0.40) #F4F4F4;
+    scrollbar-color: var(--color-scrollbar) var(--color-scrollbar-track);
+}
+
+html ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+html ::-webkit-scrollbar-track {
+    background-color: var(--color-scrollbar-track);
+}
+
+html ::-webkit-scrollbar-thumb {
+    width: 8px;
+    border-radius: 6px;
+    background: rgba(39, 40, 44, 0.40);
+    background: var(--color-scrollbar);
+}
+    
+
+.main-content {
+    padding-bottom: var(--bottom-spacing);
+    z-index: 0;
+}
+
+.main-content>* {
+    margin-left: var(--horizontal-spacing-for-content);
+    margin-right: var(--horizontal-spacing-for-content);
+}
+
+.navigation-wrapper {
+    display: flex;
+    padding: 24px 0;
+    flex-wrap: wrap;
+}
+
+.navigation-wrapper.sticky-navigation {
+    position: sticky;
+    top: 0;
+    background-color: #f4f4f4;
+    border-bottom: 1px solid #DADFE6;
+    padding-top: 19px;
+    padding-bottom: 18px;
+    z-index: 8;
+
+    /* Reset margin and use padding for border */
+    margin-left: 0;
+    margin-right: 0;
+    padding-left: var(--horizontal-spacing-for-content);
+    padding-right: var(--horizontal-spacing-for-content);
 }
 
 .breadcrumbs {
-    padding: 24px 0;
     color: var(--breadcrumb-font-color);
-    max-width: calc(100% - 32px);
     overflow-wrap: break-word;
 }
 
@@ -93,7 +145,6 @@
 .cover {
     display: flex;
     flex-direction: column;
-    width: 100%;
 }
 
 .cover .platform-hinted .sourceset-depenent-content > .symbol,
@@ -145,10 +196,6 @@
     border-bottom: 2px solid white;
 }
 
-.title {
-    overflow-x: auto;
-}
-
 .title > .divergent-group:first-of-type {
     padding-top: 0;
 }
@@ -157,6 +204,7 @@
     display: flex;
     flex-direction: row;
     min-height: 100%;
+    height: 100%;
 }
 
 #main {
@@ -164,6 +212,8 @@
     max-width: calc(100% - 280px);
     display: flex;
     flex-direction: column;
+    height: auto;
+    overflow: auto;
 }
 
 #leftColumn {
@@ -177,6 +227,8 @@
     padding-top: 16px;
     position: relative;
     max-height: calc(100% - 140px);
+    height: 100%;
+    overflow-y: auto;
 }
 
 #sideMenu img {
@@ -185,10 +237,6 @@
 
 #sideMenu hr {
     background: #DADFE6;
-}
-
-#searchBar {
-    float: right;
 }
 
 #logo {
@@ -464,9 +512,6 @@ h1.cover {
     line-height: 64px;
     letter-spacing: -1.5px;
 
-    margin-left: calc(-1 * var(--horizontal-spacing-for-content));
-    margin-right: calc(-1 * var(--horizontal-spacing-for-content));
-    padding-left: var(--horizontal-spacing-for-content);
     border-bottom: 1px solid #DADFE6;
 
     margin-bottom: 0;
@@ -720,11 +765,7 @@ footer {
     flex-direction: row;
     align-self: flex-end;
     min-height: 30px;
-    position: absolute;
-    top: 20px;
-    right: 88px;
     z-index: 0;
-    flex-wrap: wrap;
 }
 
 .platform-selector:hover {
@@ -1039,7 +1080,7 @@ td.content {
     display: flex;
     align-items: center;
     position: relative;
-    height: var(--footer-height);
+    min-height: var(--footer-height);
     border-top: 1px solid #DADFE6;
     font-size: 12px;
     line-height: 16px;
@@ -1105,11 +1146,11 @@ div.runnablesample {
     padding: 0;
 }
 
+.d-flex {
+    display: flex;
+}
+
 @media screen and (max-width: 1119px) {
-    /* TODO this feels wrong as only is an aproximation of correct solution*/
-    .filter-section {
-        position: unset;
-    }
     h1.cover {
         font-size: 48px;
         line-height: 48px;
@@ -1166,10 +1207,16 @@ div.runnablesample {
         padding-right: 0.5em;
         margin-left: -0.5em;
     }
-    #content {
-        padding: var(--mobile-horizontal-spacing-for-content);
-        padding-top: 0;
+    .main-content > * {
+        margin-left: var(--mobile-horizontal-spacing-for-content);
+        margin-right: var(--mobile-horizontal-spacing-for-content);
     }
+
+    .navigation-wrapper.sticky-navigation {
+        padding-left: var(--mobile-horizontal-spacing-for-content);
+        padding-right: var(--mobile-horizontal-spacing-for-content);
+    }
+
     #sideMenu {
         padding-bottom: 16px;
         overflow: auto;
