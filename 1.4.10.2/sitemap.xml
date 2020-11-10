@@ -1,47 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url>
      <loc>https://github.com/Kotlin/dokka/1.4.10.2/</loc>
-     <lastmod>2020-10-30</lastmod>
+     <lastmod>2020-11-10</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://github.com/Kotlin/dokka/1.4.10.2/user_guide/introduction/</loc>
-     <lastmod>2020-10-30</lastmod>
+     <lastmod>2020-11-10</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://github.com/Kotlin/dokka/1.4.10.2/user_guide/gradle/usage/</loc>
-     <lastmod>2020-10-30</lastmod>
+     <lastmod>2020-11-10</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://github.com/Kotlin/dokka/1.4.10.2/user_guide/maven/usage/</loc>
-     <lastmod>2020-10-30</lastmod>
+     <lastmod>2020-11-10</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://github.com/Kotlin/dokka/1.4.10.2/user_guide/cli/usage/</loc>
-     <lastmod>2020-10-30</lastmod>
+     <lastmod>2020-11-10</lastmod>
+     <changefreq>daily</changefreq>
+    </url><url>
+     <loc>https://github.com/Kotlin/dokka/1.4.10.2/user_guide/base-specific/frontend/</loc>
+     <lastmod>2020-11-10</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://github.com/Kotlin/dokka/1.4.10.2/developer_guide/introduction/</loc>
-     <lastmod>2020-10-30</lastmod>
+     <lastmod>2020-11-10</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://github.com/Kotlin/dokka/1.4.10.2/developer_guide/data_model/</loc>
-     <lastmod>2020-10-30</lastmod>
+     <lastmod>2020-11-10</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://github.com/Kotlin/dokka/1.4.10.2/developer_guide/extension_points/</loc>
-     <lastmod>2020-10-30</lastmod>
+     <lastmod>2020-11-10</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://github.com/Kotlin/dokka/1.4.10.2/community/plugins-list/</loc>
-     <lastmod>2020-10-30</lastmod>
+     <lastmod>2020-11-10</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://github.com/Kotlin/dokka/1.4.10.2/about/FAQ/</loc>
-     <lastmod>2020-10-30</lastmod>
+     <lastmod>2020-11-10</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://github.com/Kotlin/dokka/1.4.10.2/about/slack_channel/</loc>
-     <lastmod>2020-10-30</lastmod>
+     <lastmod>2020-11-10</lastmod>
      <changefreq>daily</changefreq>
     </url>
 </urlset>
