@@ -99,8 +99,7 @@ open class HtmlRenderer(
             node.hasStyle(TextStyle.Span) -> span() { childrenCallback() }
             node.dci.kind == ContentKind.Symbol -> div("symbol $additionalClasses") { childrenCallback() }
             node.dci.kind == ContentKind.BriefComment -> div("brief $additionalClasses") { childrenCallback() }
-            node.dci.kind == ContentKind.Cover -> div("cover $additionalClasses") {
-                filterButtons(pageContext)
+            node.dci.kind == ContentKind.Cover -> div("cover $additionalClasses") { //TODO this can be removed
                 childrenCallback()
             }
             node.hasStyle(TextStyle.Paragraph) -> p(additionalClasses) { childrenCallback() }
@@ -110,8 +109,8 @@ open class HtmlRenderer(
         }
     }
 
-    private fun FlowContent.filterButtons(page: ContentPage) {
-        if (shouldRenderSourceSetBubbles) {
+    private fun FlowContent.filterButtons(page: PageNode) {
+        if (shouldRenderSourceSetBubbles && page is ContentPage) {
             div(classes = "filter-section") {
                 id = "filter-section"
                 page.content.withDescendants().flatMap { it.sourceSets }.distinct().forEach {
@@ -584,13 +583,22 @@ open class HtmlRenderer(
 
 
     override fun FlowContent.buildNavigation(page: PageNode) =
-        div(classes = "breadcrumbs") {
-            val path = locationProvider.ancestors(page).filterNot { it is RendererSpecificPage }.asReversed()
-            if (path.isNotEmpty()) {
-                buildNavigationElement(path.first(), page)
-                path.drop(1).forEach { node ->
-                    text("/")
-                    buildNavigationElement(node, page)
+        div("navigation-wrapper") {
+            id = "navigation-wrapper"
+            div(classes = "breadcrumbs") {
+                val path = locationProvider.ancestors(page).filterNot { it is RendererSpecificPage }.asReversed()
+                if (path.isNotEmpty()) {
+                    buildNavigationElement(path.first(), page)
+                    path.drop(1).forEach { node ->
+                        text("/")
+                        buildNavigationElement(node, page)
+                    }
+                }
+            }
+            div("pull-right d-flex") {
+                filterButtons(page)
+                div {
+                    id = "searchBar"
                 }
             }
         }
@@ -706,7 +714,7 @@ open class HtmlRenderer(
 
     override fun buildPage(page: ContentPage, content: (FlowContent, ContentPage) -> Unit): String =
         buildHtml(page, page.embeddedResources) {
-            div {
+            div("main-content") {
                 id = "content"
                 attributes["pageIds"] = page.pageId
                 content(this, page)
@@ -762,15 +770,12 @@ open class HtmlRenderer(
                             id = "leftToggler"
                             span("icon-toggler")
                         }
-                        div {
-                            id = "searchBar"
-                        }
                         script(type = ScriptType.textJavaScript, src = page.root("scripts/pages.js")) {}
                         script(type = ScriptType.textJavaScript, src = page.root("scripts/main.js")) {}
                         content()
                         div(classes = "footer") {
                             span("go-to-top-icon") {
-                                a(href = "#container")
+                                a(href = "#content")
                             }
                             span { text("© 2020 Copyright") }
                             span("pull-right") {
