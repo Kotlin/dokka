@@ -4,12 +4,14 @@
 
 It is possible to change static assets that are used to generate dokka's HTML. 
 Currently, user can modify:
+ 
  * customAssets
  * customStyleSheets
  
 Every file provided in those values will be applied to **every** page.
 
 Dokka uses 3 stylesheets:
+
 * `style.css` - main css file responsible for styling the page
 * `jetbrains-mono.css` - fonts used across dokka
 * `logo-styles.css` - logo styling
