@@ -49,6 +49,7 @@ nav:
       - Gradle: user_guide/gradle/usage.md
       - Maven: user_guide/maven/usage.md
       - Command line: user_guide/cli/usage.md
+      - Html frontend: user_guide/base-specific/frontend.md
   - Plugin development:
       - Introduction: developer_guide/introduction.md
       - Data model: developer_guide/data_model.md
