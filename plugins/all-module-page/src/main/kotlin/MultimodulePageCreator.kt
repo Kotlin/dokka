@@ -2,13 +2,13 @@ package org.jetbrains.dokka.allModulesPage
 
 import org.jetbrains.dokka.DokkaConfiguration.DokkaModuleDescription
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
+import org.jetbrains.dokka.allModulesPage.MultimoduleLocationProvider.Companion.MULTIMODULE_PACKAGE_PLACEHOLDER
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.parsers.moduleAndPackage.ModuleAndPackageDocumentation.Classifier.Module
 import org.jetbrains.dokka.base.parsers.moduleAndPackage.ModuleAndPackageDocumentationParsingContext
 import org.jetbrains.dokka.base.parsers.moduleAndPackage.parseModuleAndPackageDocumentation
 import org.jetbrains.dokka.base.parsers.moduleAndPackage.parseModuleAndPackageDocumentationFragments
 import org.jetbrains.dokka.base.resolvers.anchors.SymbolAnchorHint
-import org.jetbrains.dokka.base.resolvers.local.MultimoduleLocationProvider.Companion.MULTIMODULE_PACKAGE_PLACEHOLDER
 import org.jetbrains.dokka.base.transformers.pages.comments.DocTagToContentConverter
 import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder
 import org.jetbrains.dokka.links.DRI

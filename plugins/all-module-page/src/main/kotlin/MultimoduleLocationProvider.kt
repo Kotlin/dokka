@@ -1,8 +1,8 @@
 package org.jetbrains.dokka.allModulesPage
 
+import org.jetbrains.dokka.base.resolvers.local.DokkaBaseLocationProvider
 import org.jetbrains.dokka.base.resolvers.local.DokkaLocationProvider
 import org.jetbrains.dokka.base.resolvers.local.DokkaLocationProvider.Companion.identifierToFilename
-import org.jetbrains.dokka.base.resolvers.local.LocationProvider
 import org.jetbrains.dokka.base.resolvers.local.LocationProviderFactory
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.DisplaySourceSet
@@ -10,7 +10,7 @@ import org.jetbrains.dokka.pages.PageNode
 import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.DokkaContext
 
-class MultimoduleLocationProvider(private val root: RootPageNode, context: DokkaContext) : LocationProvider {
+class MultimoduleLocationProvider(private val root: RootPageNode, context: DokkaContext) : DokkaBaseLocationProvider(root, context, ".html") {
 
     private val defaultLocationProvider = DokkaLocationProvider(root, context)
 
