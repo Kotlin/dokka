@@ -7,8 +7,8 @@ import java.util.function.BiConsumer
 
 
 fun parsePerPackageOptions(args: List<String>): List<PackageOptions> = args.map { it.split(",") }.map {
-    val prefix = it.first()
-    if (prefix == "")
+    val matchingRegex = it.first()
+    if (matchingRegex == ".*")
         throw IllegalArgumentException(
             "Please do not register packageOptions with all match pattern, use global settings instead"
         )
@@ -28,7 +28,7 @@ fun parsePerPackageOptions(args: List<String>): List<PackageOptions> = args.map 
         ?: DokkaDefaults.suppress
 
     PackageOptionsImpl(
-        prefix,
+        matchingRegex,
         includeNonPublic = privateApi,
         reportUndocumented = reportUndocumented,
         skipDeprecated = !deprecated,

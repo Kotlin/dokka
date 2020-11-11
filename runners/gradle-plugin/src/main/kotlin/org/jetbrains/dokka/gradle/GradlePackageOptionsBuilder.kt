@@ -15,8 +15,8 @@ class GradlePackageOptionsBuilder(
     @Transient @get:Internal internal val project: Project
 ) : DokkaConfigurationBuilder<PackageOptionsImpl> {
     @Input
-    val prefix: Property<String> = project.objects.safeProperty<String>()
-        .safeConvention("")
+    val matchingRegex: Property<String> = project.objects.safeProperty<String>()
+        .safeConvention(".*")
 
     @Input
     val includeNonPublic: Property<Boolean> = project.objects.safeProperty<Boolean>()
@@ -35,7 +35,7 @@ class GradlePackageOptionsBuilder(
         .safeConvention(DokkaDefaults.suppress)
 
     override fun build(): PackageOptionsImpl = PackageOptionsImpl(
-        prefix = checkNotNull(prefix.getSafe()) { "prefix not specified" },
+        matchingRegex = checkNotNull(matchingRegex.getSafe()) { "prefix not specified" },
         includeNonPublic = includeNonPublic.getSafe(),
         reportUndocumented = reportUndocumented.getSafe(),
         skipDeprecated = skipDeprecated.getSafe(),

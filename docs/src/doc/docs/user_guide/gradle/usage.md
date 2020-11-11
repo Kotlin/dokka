@@ -170,7 +170,7 @@ dokkaHtml {
             // Allows to customize documentation generation options on a per-package basis
             // Repeat for multiple packageOptions
             perPackageOption {
-                prefix.set("kotlin") // will match kotlin and all sub-packages of it
+                matchingRegex.set("kotlin($|\\.).*") // will match kotlin and all sub-packages of it
                 // All options are optional, default values are below:
                 skipDeprecated.set(false)
                 reportUndocumented.set(true) // Emit warnings about not documented members 
@@ -178,7 +178,7 @@ dokkaHtml {
             }
             // Suppress a package
             perPackageOption {
-                prefix.set("kotlin.internal") // will match kotlin.internal and all sub-packages of it
+                matchingRegex.set(".*\.internal.*") // will match all .internal packages and sub-packages 
                 suppress.set(true)
             }
         }
