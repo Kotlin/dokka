@@ -13,22 +13,24 @@ import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.configuration
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 
-object NavigationPageInstaller : PageTransformer {
+open class NavigationPageInstaller : PageTransformer {
     private val mapper = jacksonObjectMapper()
 
-    fun SearchRecord.Companion.from(node: NavigationNode, location: String): SearchRecord =
+    open fun createSearchRecordFromNode(node: NavigationNode, location: String): SearchRecord =
         SearchRecord(name = node.name, location = location)
 
+    open fun navigableChildren(input: RootPageNode): NavigationNode =
+        input.children.filterIsInstance<ContentPage>().single().let { visit(it) }
+
     override fun invoke(input: RootPageNode): RootPageNode {
-        val nodes = input.children.filterIsInstance<ContentPage>().single()
-            .let(NavigationPageInstaller::visit)
+        val nodes = navigableChildren(input)
 
         val page = RendererSpecificResourcePage(
             name = "scripts/navigation-pane.json",
             children = emptyList(),
             strategy = RenderingStrategy.LocationResolvableWrite { resolver ->
                 mapper.writeValueAsString(
-                    nodes.withDescendants().map { SearchRecord.from(it, resolver(it.dri, it.sourceSets)) })
+                    nodes.withDescendants().map { createSearchRecordFromNode(it, resolver(it.dri, it.sourceSets)) })
             })
 
         return input.modified(

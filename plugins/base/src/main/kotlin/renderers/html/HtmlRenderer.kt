@@ -41,7 +41,7 @@ open class HtmlRenderer(
 
     override val preprocessors = context.plugin<DokkaBase>().query { htmlPreprocessors }
 
-    val searchbarDataInstaller = SearchbarDataInstaller()
+    val searchbarDataInstaller = context.plugin<DokkaBase>().querySingle { searchbarDataInstaller }
 
     private val tabSortingStrategy = context.plugin<DokkaBase>().querySingle { tabSortingStrategy }
 

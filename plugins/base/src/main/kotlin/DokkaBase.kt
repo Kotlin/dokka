@@ -38,6 +38,7 @@ class DokkaBase : DokkaPlugin() {
     val htmlPreprocessors by extensionPoint<PageTransformer>()
     val kotlinAnalysis by extensionPoint<KotlinAnalysis>()
     val tabSortingStrategy by extensionPoint<TabSortingStrategy>()
+    val searchbarDataInstaller by extensionPoint<SearchbarDataInstaller>()
 
 
     val descriptorToDocumentableTranslator by extending {
@@ -169,7 +170,7 @@ class DokkaBase : DokkaPlugin() {
     }
 
     val navigationPageInstaller by extending {
-        htmlPreprocessors with NavigationPageInstaller order { after(rootCreator) }
+        htmlPreprocessors with NavigationPageInstaller() order { after(rootCreator) }
     }
 
     val scriptsInstaller by extending {
@@ -206,5 +207,9 @@ class DokkaBase : DokkaPlugin() {
         CoreExtensions.allModulePageCreator providing {
             MultimodulePageCreator(it)
         }
+    }
+
+    val baseSearchbarDataInstaller by extending {
+        searchbarDataInstaller with DefaultSearchbarDataInstaller()
     }
 }
