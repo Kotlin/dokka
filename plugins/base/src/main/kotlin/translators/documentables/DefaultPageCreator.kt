@@ -292,9 +292,8 @@ open class DefaultPageCreator(
     @Suppress("UNCHECKED_CAST")
     private inline fun <reified T : NamedTagWrapper> GroupedTags.withTypeNamed(): Map<String, SourceSetDependent<T>> =
         (this[T::class] as List<Pair<DokkaSourceSet, T>>?)
-            ?.groupBy { it.second.name }
+            ?.groupByTo(linkedMapOf()) { it.second.name }
             ?.mapValues { (_, v) -> v.toMap() }
-            ?.toSortedMap(String.CASE_INSENSITIVE_ORDER)
             .orEmpty()
 
     private inline fun <reified T : TagWrapper> GroupedTags.isNotEmptyForTag(): Boolean =
