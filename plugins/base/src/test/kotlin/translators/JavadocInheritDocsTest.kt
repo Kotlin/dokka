@@ -20,7 +20,7 @@ class JavadocInheritDocsTest : AbstractCoreTest() {
     }
 
     @Test
-    fun `work when whole description is inherited`(){
+    fun `work when whole description is inherited`() {
         testInline(
             """
             |/src/main/java/sample/Superclass.java
@@ -37,7 +37,7 @@ class JavadocInheritDocsTest : AbstractCoreTest() {
             |*/
             |public class Subclass extends Superclass { }
             """.trimIndent(), configuration
-        ){
+        ) {
             documentablesMergingStage = { module ->
                 val subclass = module.findClasslike("sample", "Subclass")
                 val descriptionGot = subclass.documentation.values.first().children.first()
@@ -58,7 +58,7 @@ class JavadocInheritDocsTest : AbstractCoreTest() {
     }
 
     @Test
-    fun `work when inherited part is inside description`(){
+    fun `work when inherited part is inside description`() {
         testInline(
             """
             |/src/main/java/sample/Superclass.java
@@ -75,7 +75,7 @@ class JavadocInheritDocsTest : AbstractCoreTest() {
             |*/
             |public class Subclass extends Superclass { }
             """.trimIndent(), configuration
-        ){
+        ) {
             documentablesMergingStage = { module ->
                 val subclass = module.findClasslike("sample", "Subclass")
                 val descriptionGot = subclass.documentation.values.first().children.first()
@@ -96,7 +96,7 @@ class JavadocInheritDocsTest : AbstractCoreTest() {
     }
 
     @Test
-    fun `work when inherited part is empty`(){
+    fun `work when inherited part is empty`() {
         testInline(
             """
             |/src/main/java/sample/Superclass.java
@@ -110,7 +110,7 @@ class JavadocInheritDocsTest : AbstractCoreTest() {
             |*/
             |public class Subclass extends Superclass { }
             """.trimIndent(), configuration
-        ){
+        ) {
             documentablesMergingStage = { module ->
                 val subclass = module.findClasslike("sample", "Subclass")
                 val descriptionGot = subclass.documentation.values.first().children.first()
@@ -132,7 +132,7 @@ class JavadocInheritDocsTest : AbstractCoreTest() {
 
     @Test
     @Disabled("This should be enabled when we have proper tag inheritance in javadoc parser")
-    fun `work when inherited part is empty in supertype but present in its supertype`(){
+    fun `work when inherited part is empty in supertype but present in its supertype`() {
         testInline(
             """
             |/src/main/java/sample/SuperSuperclass.java
@@ -152,7 +152,7 @@ class JavadocInheritDocsTest : AbstractCoreTest() {
             |*/
             |public class Subclass extends Superclass { }
             """.trimIndent(), configuration
-        ){
+        ) {
             documentablesMergingStage = { module ->
                 val subclass = module.findClasslike("sample", "Subclass")
                 val descriptionGot = subclass.documentation.values.first().children.first()
@@ -174,7 +174,7 @@ class JavadocInheritDocsTest : AbstractCoreTest() {
 
     @Test
     //Original javadoc doesn't treat interfaces as valid candidates for inherit doc
-    fun `work with interfaces`(){
+    fun `work with interfaces`() {
         testInline(
             """
             |/src/main/java/sample/SuperInterface.java
@@ -191,7 +191,7 @@ class JavadocInheritDocsTest : AbstractCoreTest() {
             |*/
             |public interface Subclass extends SuperInterface { }
             """.trimIndent(), configuration
-        ){
+        ) {
             documentablesMergingStage = { module ->
                 val subclass = module.findClasslike("sample", "Subclass")
                 val descriptionGot = subclass.documentation.values.first().children.first()
@@ -213,7 +213,7 @@ class JavadocInheritDocsTest : AbstractCoreTest() {
 
 
     @Test
-    fun `work with multiple supertypes`(){
+    fun `work with multiple supertypes`() {
         testInline(
             """
             |/src/main/java/sample/SuperInterface.java
@@ -236,7 +236,7 @@ class JavadocInheritDocsTest : AbstractCoreTest() {
             |*/
             |public class Subclass extends Superclass implements SuperInterface { }
             """.trimIndent(), configuration
-        ){
+        ) {
             documentablesMergingStage = { module ->
                 val subclass = module.findClasslike("sample", "Subclass")
                 val descriptionGot = subclass.documentation.values.first().children.first()
@@ -257,7 +257,7 @@ class JavadocInheritDocsTest : AbstractCoreTest() {
     }
 
     @Test
-    fun `work with methods`(){
+    fun `work with methods`() {
         testInline(
             """
             |/src/main/java/sample/Superclass.java
@@ -287,7 +287,7 @@ class JavadocInheritDocsTest : AbstractCoreTest() {
             |    }
             |}
             """.trimIndent(), configuration
-        ){
+        ) {
             documentablesMergingStage = { module ->
                 val function = module.findFunction("sample", "Subclass", "test")
                 val descriptionGot = function.documentation.values.first().children.first()

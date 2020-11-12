@@ -107,7 +107,8 @@ class JavadocInheritedDocTagsTest : AbstractCoreTest() {
     fun `work with throws`() {
         performTagsTest { module ->
             val function = module.findFunction("sample", "Subclass", "test")
-            val renderedTag = function.documentation.values.first().children.first { it is DokkaThrowsTag && it.name == "java.lang.RuntimeException"}
+            val renderedTag =
+                function.documentation.values.first().children.first { it is DokkaThrowsTag && it.name == "java.lang.RuntimeException" }
             val expectedTag = DokkaThrowsTag(
                 CustomDocTag(
                     children = listOf(
@@ -129,7 +130,8 @@ class JavadocInheritedDocTagsTest : AbstractCoreTest() {
     fun `work with throws when exceptions are different`() {
         performTagsTest { module ->
             val function = module.findFunction("sample", "Subclass", "test")
-            val renderedTag = function.documentation.values.first().children.first { it is DokkaThrowsTag  && it.name == "java.lang.IllegalStateException" }
+            val renderedTag =
+                function.documentation.values.first().children.first { it is DokkaThrowsTag && it.name == "java.lang.IllegalStateException" }
             val expectedTag = DokkaThrowsTag(
                 CustomDocTag(
                     children = listOf(
@@ -210,10 +212,11 @@ class JavadocInheritedDocTagsTest : AbstractCoreTest() {
     }
 
     @Test
-    fun `work with params`(){
+    fun `work with params`() {
         performTagsTest { module ->
             val function = module.findFunction("sample", "Subclass", "test2")
-            val (asdTag, xdTag) = function.documentation.values.first().children.filterIsInstance<Param>().sortedBy { it.name }
+            val (asdTag, xdTag) = function.documentation.values.first().children.filterIsInstance<Param>()
+                .sortedBy { it.name }
 
             val expectedAsdTag = Param(
                 CustomDocTag(

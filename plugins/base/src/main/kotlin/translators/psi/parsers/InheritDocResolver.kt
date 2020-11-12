@@ -21,7 +21,7 @@ internal class InheritDocResolver(
 ) {
     internal fun resolveFromContext(context: CommentResolutionContext) =
         when (context.tag) {
-            JavadocTag.THROWS -> context.name?.let { name -> resolveThrowsTag(context.comment, name) }
+            JavadocTag.THROWS, JavadocTag.EXCEPTION -> context.name?.let { name -> resolveThrowsTag(context.tag, context.comment, name) }
             JavadocTag.PARAM -> context.parameterIndex?.let { paramIndex -> resolveParamTag(context.comment, paramIndex) }
             JavadocTag.DEPRECATED -> resolveGenericTag(context.comment, JavadocTag.DESCRIPTION)
             JavadocTag.SEE -> emptyList()
@@ -40,19 +40,25 @@ internal class InheritDocResolver(
             }
         }.orEmpty()
 
+    /**
+     * Main resolution point for exception like tags
+     *
+     * This should be used only with [JavadocTag.EXCEPTION] or [JavadocTag.THROWS] as their resolution path should be the same
+     */
     private fun resolveThrowsTag(
+        tag: JavadocTag,
         currentElement: PsiDocComment,
         exceptionFqName: String
     ): List<PsiElement> =
-        (currentElement.owner as? PsiMethod)?.let { method -> lowestMethodsWithTag(method, JavadocTag.THROWS) }
+        (currentElement.owner as? PsiMethod)?.let { method -> lowestMethodsWithTag(method, tag) }
             .orEmpty().firstOrNull {
-                findClosestDocComment(it, logger)?.hasThrowsTagWithExceptionOfType(exceptionFqName) == true
-            }?.docComment?.tagsByName(JavadocTag.THROWS)?.flatMap {
+                findClosestDocComment(it, logger)?.hasTagWithExceptionOfType(tag, exceptionFqName) == true
+            }?.docComment?.tagsByName(tag)?.flatMap {
                 when (it) {
                     is PsiDocTag -> it.contentElementsWithSiblingIfNeeded()
                     else -> listOf(it)
                 }
-            }?.drop(1).orEmpty()
+            }?.withoutReferenceLink().orEmpty()
 
     private fun resolveParamTag(
         currentElement: PsiDocComment,
@@ -73,14 +79,13 @@ internal class InheritDocResolver(
                             }.orEmpty()
                     }
                 }
-            }.drop(1)
+            }.withoutReferenceLink()
 
     //if we are in psi class javadoc only inherits docs from classes and not from interfaces
     private fun lowestClassWithTag(baseClass: PsiClass, javadocTag: JavadocTag): PsiDocComment? =
         baseClass.superClass?.let {
-            val tag = findClosestDocComment(it, logger)
-            return if (tag?.hasTag(javadocTag) == true) tag
-            else lowestClassWithTag(it, javadocTag)
+            findClosestDocComment(it, logger)?.takeIf { tag -> tag.hasTag(javadocTag) } ?:
+            lowestClassWithTag(it, javadocTag)
         }
 
     private fun lowestMethodWithTag(
@@ -92,8 +97,10 @@ internal class InheritDocResolver(
     private fun lowestMethodsWithTag(baseMethod: PsiMethod, javadocTag: JavadocTag) =
         baseMethod.findSuperMethods().filter { findClosestDocComment(it, logger)?.hasTag(javadocTag) == true }
 
-    private fun PsiDocComment.hasThrowsTagWithExceptionOfType(exceptionFqName: String): Boolean =
-        hasTag(JavadocTag.THROWS) && tagsByName(JavadocTag.THROWS).firstIsInstanceOrNull<PsiDocTag>()
+    private fun PsiDocComment.hasTagWithExceptionOfType(tag: JavadocTag, exceptionFqName: String): Boolean =
+        hasTag(tag) && tagsByName(tag).firstIsInstanceOrNull<PsiDocTag>()
             ?.resolveToElement()
             ?.getKotlinFqName()?.asString() == exceptionFqName
+
+    private fun List<PsiElement>.withoutReferenceLink(): List<PsiElement> = drop(1)
 }

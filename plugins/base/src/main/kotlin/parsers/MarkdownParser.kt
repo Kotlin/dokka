@@ -487,7 +487,7 @@ open class MarkdownParser(
                                 See(
                                     parseStringToDocNode(it.getContent()),
                                     dri?.fqName() ?: it.getSubjectName().orEmpty(),
-                                    pointedLink(it),
+                                    dri,
                                 )
                             }
                             KDocKnownTag.SINCE -> Since(parseStringToDocNode(it.getContent()))

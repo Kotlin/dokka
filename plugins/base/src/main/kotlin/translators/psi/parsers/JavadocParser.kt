@@ -41,7 +41,7 @@ class JavadocParser(
     }
 
     private fun parseDocTag(tag: PsiDocTag, docComment: PsiDocComment, analysedElement: PsiNamedElement): TagWrapper? =
-        enumValueOrNull<JavadocTag>(tag.name.toUpperCase())?.let { javadocTag ->
+        enumValueOrNull<JavadocTag>(tag.name)?.let { javadocTag ->
             val resolutionContext = CommentResolutionContext(comment = docComment, tag = javadocTag)
             when (resolutionContext.tag) {
                 JavadocTag.PARAM -> {
@@ -116,11 +116,7 @@ class JavadocParser(
                     )
                 )
                 else -> null
-                //TODO Missing tags: SERIAL,
-                //            SERIAL_DATA,
-                //            SERIAL_FIELD,
-                //            SINCE,
-                //            VERSION
+                //TODO https://github.com/Kotlin/dokka/issues/1618
             }
         }
 
@@ -174,10 +170,7 @@ class JavadocParser(
         private fun PsiElement.stringify(state: ParserState, context: CommentResolutionContext): ParsingResult =
             when (this) {
                 is PsiReference -> children.fold(ParsingResult(state)) { acc, e ->
-                    acc + e.stringify(
-                        acc.newState,
-                        context
-                    )
+                    acc + e.stringify(acc.newState, context)
                 }
                 else -> stringifySimpleElement(state, context)
             }
@@ -200,9 +193,8 @@ class JavadocParser(
                         since it is there because it separates this line from the leading asterisk
                          */
                         text.let {
-                            if ((prevSibling as? PsiDocToken)?.isLeadingAsterisk() == true && it.firstOrNull() == ' ') it.drop(
-                                1
-                            ) else it
+                            if ((prevSibling as? PsiDocToken)?.isLeadingAsterisk() == true && it.firstOrNull() == ' ')
+                                it.drop(1) else it
                         }.let {
                             if ((nextSibling as? PsiDocToken)?.isLeadingAsterisk() == true) it.dropLastWhile { it == ' ' } else it
                         }
@@ -285,10 +277,7 @@ class JavadocParser(
                 "index" -> "<index>${tag.children.filterIsInstance<PsiDocTagValue>().joinToString { it.text }}</index>"
                 "inheritDoc" -> inheritDocResolver.resolveFromContext(context)
                     ?.fold(ParsingResult(javadocTag)) { result, e ->
-                        result + e.stringify(
-                            result.newState,
-                            context
-                        )
+                        result + e.stringify(result.newState, context)
                     }?.parsedLine.orEmpty()
                 else -> tag.text
             }
@@ -373,12 +362,7 @@ class JavadocParser(
         resolveToGetDri()?.let {
             val dri = DRI.from(it)
             val label = labelElement ?: defaultLabel()
-            DocumentationLink(
-                dri, convertJavadocElements(
-                    listOfNotNull(label), asParagraph = false,
-                    context
-                )
-            )
+            DocumentationLink(dri, convertJavadocElements(listOfNotNull(label), asParagraph = false, context))
         }
 
     private fun PsiDocTag.referenceElement(): PsiElement? =
