@@ -1,25 +1,23 @@
-package org.jetbrains.dokka.base.translators.psi
+package org.jetbrains.dokka.base.translators.psi.parsers
 
+import com.intellij.lexer.JavaDocTokenTypes
 import com.intellij.psi.*
 import com.intellij.psi.impl.source.javadoc.PsiDocParamRef
 import com.intellij.psi.impl.source.tree.JavaDocElementType
+import com.intellij.psi.impl.source.tree.LazyParseablePsiElement
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.javadoc.*
-import com.intellij.psi.util.PsiTreeUtil
 import org.intellij.markdown.MarkdownElementTypes
 import org.jetbrains.dokka.analysis.from
-import org.jetbrains.dokka.base.parsers.factories.DocTagsFromStringFactory
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.model.doc.Deprecated
 import org.jetbrains.dokka.utilities.DokkaLogger
+import org.jetbrains.dokka.utilities.enumValueOrNull
 import org.jetbrains.kotlin.idea.refactoring.fqName.getKotlinFqName
-import org.jetbrains.kotlin.name.FqName
+import org.jetbrains.kotlin.idea.util.CommentSaver.Companion.tokenType
 import org.jetbrains.kotlin.psi.psiUtil.getNextSiblingIgnoringWhitespace
 import org.jetbrains.kotlin.psi.psiUtil.siblings
-import org.jetbrains.kotlin.tools.projectWizard.core.ParsingState
-import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
-import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 import org.jsoup.nodes.Node
@@ -30,53 +28,97 @@ interface JavaDocumentationParser {
 }
 
 class JavadocParser(
-    private val logger: DokkaLogger // TODO: Add logging
+    private val logger: DokkaLogger
 ) : JavaDocumentationParser {
+    private val inheritDocResolver = InheritDocResolver(logger)
 
     override fun parseDocumentation(element: PsiNamedElement): DocumentationNode {
-        val docComment = findClosestDocComment(element) ?: return DocumentationNode(emptyList())
-        val nodes = mutableListOf<TagWrapper>()
-        docComment.getDescription()?.let { nodes.add(it) }
-        nodes.addAll(docComment.tags.mapNotNull { tag ->
-            when (tag.name) {
-                "param" -> Param(
-                    wrapTagIfNecessary(convertJavadocElements(tag.contentElementsWithSiblingIfNeeded().drop(1))),
-                    tag.dataElements.firstOrNull()?.text.orEmpty()
-                )
-                "throws" -> {
-                    val resolved = tag.resolveException()
+        val docComment = findClosestDocComment(element, logger) ?: return DocumentationNode(emptyList())
+        val nodes = listOfNotNull(docComment.getDescription()) + docComment.tags.mapNotNull { tag ->
+            parseDocTag(tag, docComment, element)
+        }
+        return DocumentationNode(nodes)
+    }
+
+    private fun parseDocTag(tag: PsiDocTag, docComment: PsiDocComment, analysedElement: PsiNamedElement): TagWrapper? =
+        enumValueOrNull<JavadocTag>(tag.name)?.let { javadocTag ->
+            val resolutionContext = CommentResolutionContext(comment = docComment, tag = javadocTag)
+            when (resolutionContext.tag) {
+                JavadocTag.PARAM -> {
+                    val name = tag.dataElements.firstOrNull()?.text.orEmpty()
+                    val index =
+                        (analysedElement as? PsiMethod)?.parameterList?.parameters?.map { it.name }?.indexOf(name)
+                    Param(
+                        wrapTagIfNecessary(
+                            convertJavadocElements(
+                                tag.contentElementsWithSiblingIfNeeded().drop(1),
+                                context = resolutionContext.copy(name = name, parameterIndex = index)
+                            )
+                        ),
+                        name
+                    )
+                }
+                JavadocTag.THROWS, JavadocTag.EXCEPTION -> {
+                    val resolved = tag.resolveToElement()
                     val dri = resolved?.let { DRI.from(it) }
+                    val name = resolved?.getKotlinFqName()?.asString()
+                        ?: tag.dataElements.firstOrNull()?.text.orEmpty()
                     Throws(
-                        root = wrapTagIfNecessary(convertJavadocElements(tag.dataElements.drop(1))),
+                        root = wrapTagIfNecessary(
+                            convertJavadocElements(
+                                tag.dataElements.drop(1),
+                                context = resolutionContext.copy(name = name)
+                            )
+                        ),
                         /* we always would like to have a fully qualified name as name,
                         *  because it will be used as a display name later and we would like to have those unified
                         *  even if documentation states shortened version
                         *
                         *  Only if dri search fails we should use the provided phrase (since then we are not able to get a fq name)
                         * */
-                        name = resolved?.getKotlinFqName()?.asString()
-                            ?: tag.dataElements.firstOrNull()?.text.orEmpty(),
+                        name = name,
                         exceptionAddress = dri
                     )
                 }
-                "return" -> Return(wrapTagIfNecessary(convertJavadocElements(tag.contentElementsWithSiblingIfNeeded())))
-                "author" -> Author(wrapTagIfNecessary(convertJavadocElements(tag.contentElementsWithSiblingIfNeeded()))) // Workaround: PSI returns first word after @author tag as a `DOC_TAG_VALUE_ELEMENT`, then the rest as a `DOC_COMMENT_DATA`, so for `Name Surname` we get them parted
-                "see" -> getSeeTagElementContent(tag).let {
-                    See(
-                        wrapTagIfNecessary(it.first),
-                        tag.referenceElement()?.text.orEmpty(),
-                        it.second
+                JavadocTag.RETURN -> Return(
+                    wrapTagIfNecessary(
+                        convertJavadocElements(
+                            tag.contentElementsWithSiblingIfNeeded(),
+                            context = resolutionContext
+                        )
                     )
+                )
+                JavadocTag.AUTHOR -> Author(
+                    wrapTagIfNecessary(
+                        convertJavadocElements(
+                            tag.contentElementsWithSiblingIfNeeded(),
+                            context = resolutionContext
+                        )
+                    )
+                ) // Workaround: PSI returns first word after @author tag as a `DOC_TAG_VALUE_ELEMENT`, then the rest as a `DOC_COMMENT_DATA`, so for `Name Surname` we get them parted
+                JavadocTag.SEE -> {
+                    val name =
+                        tag.resolveToElement()?.getKotlinFqName()?.asString() ?: tag.referenceElement()?.text.orEmpty()
+                    getSeeTagElementContent(tag, resolutionContext.copy(name = name)).let {
+                        See(
+                            wrapTagIfNecessary(it.first),
+                            name,
+                            it.second
+                        )
+                    }
                 }
-                "deprecated" -> Deprecated(wrapTagIfNecessary(convertJavadocElements(tag.contentElementsWithSiblingIfNeeded())))
+                JavadocTag.DEPRECATED -> Deprecated(
+                    wrapTagIfNecessary(
+                        convertJavadocElements(
+                            tag.contentElementsWithSiblingIfNeeded(),
+                            context = resolutionContext
+                        )
+                    )
+                )
                 else -> null
+                //TODO https://github.com/Kotlin/dokka/issues/1618
             }
-        })
-        return DocumentationNode(nodes)
-    }
-
-    private fun PsiDocTag.resolveException(): PsiElement? =
-        dataElements.firstOrNull()?.firstChild?.referenceElementOrSelf()?.resolveToGetDri()
+        }
 
     private fun wrapTagIfNecessary(list: List<DocTag>): CustomDocTag =
         if (list.size == 1 && (list.first() as? CustomDocTag)?.name == MarkdownElementTypes.MARKDOWN_FILE.name)
@@ -84,96 +126,37 @@ class JavadocParser(
         else
             CustomDocTag(list, name = MarkdownElementTypes.MARKDOWN_FILE.name)
 
-    private fun findClosestDocComment(element: PsiNamedElement): PsiDocComment? {
-        (element as? PsiDocCommentOwner)?.docComment?.run { return this }
-        if (element is PsiMethod) {
-            val superMethods = element.findSuperMethodsOrEmptyArray()
-            if (superMethods.isEmpty()) return null
-
-            if (superMethods.size == 1) {
-                return findClosestDocComment(superMethods.single())
-            }
-
-            val superMethodDocumentation = superMethods.map(::findClosestDocComment)
-            if (superMethodDocumentation.size == 1) {
-                return superMethodDocumentation.single()
-            }
-
-            logger.warn(
-                "Conflicting documentation for ${DRI.from(element)}" +
-                        "${superMethods.map { DRI.from(it) }}"
-            )
-
-            /* Prioritize super class over interface */
-            val indexOfSuperClass = superMethods.indexOfFirst { method ->
-                val parent = method.parent
-                if (parent is PsiClass) !parent.isInterface
-                else false
-            }
-
-            return if (indexOfSuperClass >= 0) superMethodDocumentation[indexOfSuperClass]
-            else superMethodDocumentation.first()
-        }
-        return element.children.firstIsInstanceOrNull<PsiDocComment>()
-    }
-
-    /**
-     * Workaround for failing [PsiMethod.findSuperMethods].
-     * This might be resolved once ultra light classes are enabled for dokka
-     * See [KT-39518](https://youtrack.jetbrains.com/issue/KT-39518)
-     */
-    private fun PsiMethod.findSuperMethodsOrEmptyArray(): Array<PsiMethod> {
-        return try {
-            /*
-            We are not even attempting to call "findSuperMethods" on all methods called "getGetter" or "getSetter"
-            on any object implementing "kotlin.reflect.KProperty", since we know that those methods will fail
-            (KT-39518). Just catching the exception is not good enough, since "findSuperMethods" will
-            print the whole exception to stderr internally and then spoil the console.
-             */
-            val kPropertyFqName = FqName("kotlin.reflect.KProperty")
-            if (
-                this.parent?.safeAs<PsiClass>()?.implementsInterface(kPropertyFqName) == true &&
-                (this.name == "getSetter" || this.name == "getGetter")
-            ) {
-                logger.warn("Skipped lookup of super methods for ${getKotlinFqName()} (KT-39518)")
-                return emptyArray()
-            }
-            findSuperMethods()
-        } catch (exception: Throwable) {
-            logger.warn("Failed to lookup of super methods for ${getKotlinFqName()} (KT-39518)")
-            emptyArray()
-        }
-    }
-
-    private fun PsiClass.implementsInterface(fqName: FqName): Boolean {
-        return allInterfaces().any { it.getKotlinFqName() == fqName }
-    }
-
-    private fun PsiClass.allInterfaces(): Sequence<PsiClass> {
-        return sequence {
-            this.yieldAll(interfaces.toList())
-            interfaces.forEach { yieldAll(it.allInterfaces()) }
-        }
-    }
-
-    private fun getSeeTagElementContent(tag: PsiDocTag): Pair<List<DocumentationLink>, DRI?> {
-        val content = tag.referenceElement()?.toDocumentationLink()
-        return Pair(listOfNotNull(content), content?.dri)
+    private fun getSeeTagElementContent(
+        tag: PsiDocTag,
+        context: CommentResolutionContext
+    ): Pair<List<DocTag>, DRI?> {
+        val linkElement = tag.referenceElement()?.toDocumentationLink(context = context)
+        val content = convertJavadocElements(
+            tag.dataElements.dropWhile { it is PsiWhiteSpace || (it as? LazyParseablePsiElement)?.tokenType == JavaDocElementType.DOC_REFERENCE_HOLDER },
+            context = context
+        )
+        return Pair(content, linkElement?.dri)
     }
 
     private fun PsiDocComment.getDescription(): Description? {
-        return convertJavadocElements(descriptionElements.asIterable()).takeIf { it.isNotEmpty() }?.let {
+        return convertJavadocElements(
+            descriptionElements.asIterable(),
+            context = CommentResolutionContext(this, JavadocTag.DESCRIPTION)
+        ).takeIf { it.isNotEmpty() }?.let {
             Description(wrapTagIfNecessary(it))
         }
     }
 
     private data class ParserState(
+        val currentJavadocTag: JavadocTag,
         val previousElement: PsiElement? = null,
         val openPreTags: Int = 0,
         val closedPreTags: Int = 0
     )
 
-    private data class ParsingResult(val newState: ParserState = ParserState(), val parsedLine: String? = null) {
+    private data class ParsingResult(val newState: ParserState, val parsedLine: String? = null) {
+        constructor(tag: JavadocTag) : this(ParserState(tag))
+
         operator fun plus(other: ParsingResult): ParsingResult =
             ParsingResult(
                 other.newState,
@@ -181,21 +164,26 @@ class JavadocParser(
             )
     }
 
-    private inner class Parse : (Iterable<PsiElement>, Boolean) -> List<DocTag> {
+    private inner class Parse : (Iterable<PsiElement>, Boolean, CommentResolutionContext) -> List<DocTag> {
         val driMap = mutableMapOf<String, DRI>()
 
-        private fun PsiElement.stringify(state: ParserState): ParsingResult =
+        private fun PsiElement.stringify(state: ParserState, context: CommentResolutionContext): ParsingResult =
             when (this) {
-                is PsiReference -> children.fold(ParsingResult(state)) { acc, e -> acc + e.stringify(acc.newState) }
-                else -> stringifySimpleElement(state)
+                is PsiReference -> children.fold(ParsingResult(state)) { acc, e ->
+                    acc + e.stringify(acc.newState, context)
+                }
+                else -> stringifySimpleElement(state, context)
             }
 
-        private fun PsiElement.stringifySimpleElement(state: ParserState): ParsingResult {
+        private fun PsiElement.stringifySimpleElement(
+            state: ParserState,
+            context: CommentResolutionContext
+        ): ParsingResult {
             val openPre = state.openPreTags + "<pre(\\s+.*)?>".toRegex().findAll(text).toList().size
             val closedPre = state.closedPreTags + "</pre>".toRegex().findAll(text).toList().size
             val isInsidePre = openPre > closedPre
             val parsed = when (this) {
-                is PsiInlineDocTag -> convertInlineDocTag(this)
+                is PsiInlineDocTag -> convertInlineDocTag(this, state.currentJavadocTag, context)
                 is PsiDocParamRef -> toDocumentationLinkString()
                 is PsiDocTagValue,
                 is LeafPsiElement -> {
@@ -205,7 +193,8 @@ class JavadocParser(
                         since it is there because it separates this line from the leading asterisk
                          */
                         text.let {
-                            if ((prevSibling as? PsiDocToken)?.isLeadingAsterisk() == true && it.firstOrNull() == ' ') it.drop(1) else it
+                            if ((prevSibling as? PsiDocToken)?.isLeadingAsterisk() == true && it.firstOrNull() == ' ')
+                                it.drop(1) else it
                         }.let {
                             if ((nextSibling as? PsiDocToken)?.isLeadingAsterisk() == true) it.dropLastWhile { it == ' ' } else it
                         }
@@ -256,9 +245,9 @@ class JavadocParser(
             val endsWithAnUnclosedTag = lastHtmlTag.endsWith(">") && !lastHtmlTag.startsWith("</")
 
             return (nextSibling as? PsiWhiteSpace)?.text == "\n " &&
-                    (getNextSiblingIgnoringWhitespace() as? PsiDocToken)?.tokenType?.toString() != END_COMMENT_TYPE &&
+                    (getNextSiblingIgnoringWhitespace() as? PsiDocToken)?.tokenType != JavaDocTokenTypes.INSTANCE.commentEnd() &&
                     nextNotEmptySibling?.isLeadingAsterisk() == true &&
-                    furtherNotEmptySibling?.tokenType?.toString() == COMMENT_TYPE &&
+                    furtherNotEmptySibling?.tokenType == JavaDocTokenTypes.INSTANCE.commentData() &&
                     !endsWithAnUnclosedTag
         }
 
@@ -276,13 +265,22 @@ class JavadocParser(
             return """<a data-dri="$dri">${label.joinToString(" ") { it.text }}</a>"""
         }
 
-        private fun convertInlineDocTag(tag: PsiInlineDocTag) = when (tag.name) {
-            "link", "linkplain" -> tag.referenceElement()
-                ?.toDocumentationLinkString(tag.dataElements.filterIsInstance<PsiDocToken>())
-            "code", "literal" -> "<code data-inline>${tag.text}</code>"
-            "index" -> "<index>${tag.children.filterIsInstance<PsiDocTagValue>().joinToString { it.text }}</index>"
-            else -> tag.text
-        }
+        private fun convertInlineDocTag(
+            tag: PsiInlineDocTag,
+            javadocTag: JavadocTag,
+            context: CommentResolutionContext
+        ) =
+            when (tag.name) {
+                "link", "linkplain" -> tag.referenceElement()
+                    ?.toDocumentationLinkString(tag.dataElements.filterIsInstance<PsiDocToken>())
+                "code", "literal" -> "<code data-inline>${tag.text}</code>"
+                "index" -> "<index>${tag.children.filterIsInstance<PsiDocTagValue>().joinToString { it.text }}</index>"
+                "inheritDoc" -> inheritDocResolver.resolveFromContext(context)
+                    ?.fold(ParsingResult(javadocTag)) { result, e ->
+                        result + e.stringify(result.newState, context)
+                    }?.parsedLine.orEmpty()
+                else -> tag.text
+            }
 
         private fun createLink(element: Element, children: List<DocTag>): DocTag {
             return when {
@@ -335,9 +333,13 @@ class JavadocParser(
             else -> null
         }
 
-        override fun invoke(elements: Iterable<PsiElement>, asParagraph: Boolean): List<DocTag> =
-            elements.fold(ParsingResult()) { acc, e ->
-                acc + e.stringify(acc.newState)
+        override fun invoke(
+            elements: Iterable<PsiElement>,
+            asParagraph: Boolean,
+            context: CommentResolutionContext
+        ): List<DocTag> =
+            elements.fold(ParsingResult(context.tag)) { acc, e ->
+                acc + e.stringify(acc.newState, context)
             }.parsedLine?.let {
                 val trimmed = it.trim()
                 val toParse = if (asParagraph) "<p>$trimmed</p>" else trimmed
@@ -345,40 +347,26 @@ class JavadocParser(
             }.orEmpty()
     }
 
-    private fun PsiDocTag.contentElementsWithSiblingIfNeeded(): List<PsiElement> = if (dataElements.isNotEmpty()) {
-        listOfNotNull(
-            dataElements[0],
-            dataElements[0].nextSibling?.takeIf { it.text != dataElements.drop(1).firstOrNull()?.text },
-            *dataElements.drop(1).toTypedArray()
-        )
-    } else {
-        emptyList()
-    }
+    private fun convertJavadocElements(
+        elements: Iterable<PsiElement>,
+        asParagraph: Boolean = true,
+        context: CommentResolutionContext
+    ): List<DocTag> =
+        Parse()(elements, asParagraph, context)
 
-    private fun convertJavadocElements(elements: Iterable<PsiElement>, asParagraph: Boolean = true): List<DocTag> =
-        Parse()(elements, asParagraph)
+    private fun PsiDocToken.isSharpToken() = tokenType == JavaDocTokenType.DOC_TAG_VALUE_SHARP_TOKEN
 
-    private fun PsiDocToken.isSharpToken() = tokenType.toString() == "DOC_TAG_VALUE_SHARP_TOKEN"
+    private fun PsiDocToken.isLeadingAsterisk() = tokenType == JavaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS
 
-    private fun PsiDocToken.isLeadingAsterisk() = tokenType.toString() == "DOC_COMMENT_LEADING_ASTERISKS"
-
-    private fun PsiElement.toDocumentationLink(labelElement: PsiElement? = null) =
+    private fun PsiElement.toDocumentationLink(labelElement: PsiElement? = null, context: CommentResolutionContext) =
         resolveToGetDri()?.let {
             val dri = DRI.from(it)
             val label = labelElement ?: defaultLabel()
-            DocumentationLink(dri, convertJavadocElements(listOfNotNull(label), asParagraph = false))
+            DocumentationLink(dri, convertJavadocElements(listOfNotNull(label), asParagraph = false, context))
         }
-
-    private fun PsiElement.resolveToGetDri(): PsiElement? =
-        reference?.resolve()
 
     private fun PsiDocTag.referenceElement(): PsiElement? =
         linkElement()?.referenceElementOrSelf()
-
-    private fun PsiElement.referenceElementOrSelf(): PsiElement? =
-        if (node.elementType == JavaDocElementType.DOC_REFERENCE_HOLDER) {
-            PsiTreeUtil.findChildOfType(this, PsiJavaCodeReferenceElement::class.java)
-        } else this
 
     private fun PsiElement.defaultLabel() = children.firstOrNull {
         it is PsiDocToken && it.text.isNotBlank() && !it.isSharpToken()
@@ -389,7 +377,5 @@ class JavadocParser(
 
     companion object {
         private const val UNRESOLVED_PSI_ELEMENT = "UNRESOLVED_PSI_ELEMENT"
-        private const val END_COMMENT_TYPE = "DOC_COMMENT_END"
-        private const val COMMENT_TYPE = "DOC_COMMENT_DATA"
     }
 }
