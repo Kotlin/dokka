@@ -265,7 +265,7 @@ class ContentForParamsTest : AbstractCoreTest() {
             | * {@link java.util.HashMap#containsKey(java.lang.Object) FragmentManager#setFragmentResultListener(String, LifecycleOwner,
             | * FragmentResultListener)}.
             | */
-            | public class DocGenProcessor { 
+            | public class DocGenProcessor {
             |    public String setTargetFragment(){
             |            return "";
             |    }
@@ -562,7 +562,7 @@ class ContentForParamsTest : AbstractCoreTest() {
             | *
             | * @throws java.lang.IllegalStateException if the Dialog has not yet been created (before
             | * onCreateDialog) or has been destroyed (after onDestroyView).
-            | * @throws java.lang.RuntimeException when 
+            | * @throws java.lang.RuntimeException when
             | * {@link java.util.HashMap#containsKey(java.lang.Object) Hash
             | *      Map}
             | * doesn't contain value.
@@ -687,7 +687,7 @@ class ContentForParamsTest : AbstractCoreTest() {
             | * a normal comment
             | *
             | * @param testParam Sample description for test param that has a type of {@link java.lang.String String}
-            | * @return empty string when 
+            | * @return empty string when
             | * {@link java.util.HashMap#containsKey(java.lang.Object) Hash
             | *      Map}
             | * doesn't contain value.
@@ -752,7 +752,7 @@ class ContentForParamsTest : AbstractCoreTest() {
             | * a normal comment
             | *
             | * @return empty string when [Hash Map](java.util.HashMap.containsKey) doesn't contain value.
-            | * 
+            | *
             | */
             |fun sample(): String {
             |   return ""
@@ -875,7 +875,7 @@ class ContentForParamsTest : AbstractCoreTest() {
             | *  <td>cell 12</td> <td>cell 22</td>
             | * </tr>
             | * </table>
-            | */ 
+            | */
             | public class DocGenProcessor { }
             """.trimIndent(), testConfiguration
         ) {
@@ -1080,6 +1080,70 @@ class ContentForParamsTest : AbstractCoreTest() {
                                             group {
                                                 +"third"
                                                 group { group { +"comment to third param" } }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+    @Test
+    fun `multiple parameters with not natural order`() {
+        testInline(
+            """
+            |/src/main/kotlin/test/source.kt
+            |package test
+            | /**
+            |  * comment to function
+            |  * @param c comment to c param
+            |  * @param b comment to b param
+            |  * @param[a] comment to a param
+            |  */
+            |fun function(c: String, b: Int, a: Double) {
+            |    println(abc)
+            |}
+        """.trimIndent(), testConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val page = module.children.single { it.name == "test" }
+                    .children.single { it.name == "function" } as ContentPage
+                page.content.assertNode {
+                    group {
+                        header(1) { +"function" }
+                    }
+                    divergentGroup {
+                        divergentInstance {
+                            divergent {
+                                bareSignature(
+                                    emptyMap(), "", "", emptySet(), "function", null,
+                                    "c" to ParamAttributes(emptyMap(), emptySet(), "String"),
+                                    "b" to ParamAttributes(emptyMap(), emptySet(), "Int"),
+                                    "a" to ParamAttributes(emptyMap(), emptySet(), "Double")
+                                )
+                            }
+                            after {
+                                group { group { group { +"comment to function" } } }
+                                header(2) { +"Parameters" }
+                                group {
+                                    platformHinted {
+                                        table {
+                                            group {
+                                                +"c"
+                                                group { group { +"comment to c param" } }
+                                            }
+                                            group {
+                                                +"b"
+                                                group { group { +"comment to b param" } }
+                                            }
+                                            group {
+                                                +"a"
+                                                group { group { +"comment to a param" } }
                                             }
                                         }
                                     }
@@ -1355,7 +1419,7 @@ class ContentForParamsTest : AbstractCoreTest() {
             |  * @param second comment to second param
             |  */
             |   public void sample(String first, String second) {
-            |  
+            |
             |   }
             | }
         """.trimIndent(), testConfiguration
