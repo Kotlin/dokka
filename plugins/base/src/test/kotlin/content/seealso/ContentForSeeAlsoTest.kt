@@ -213,7 +213,7 @@ class ContentForSeeAlsoTest : AbstractCoreTest() {
                                                     check {
                                                         assertEquals("kotlin.collections/Collection///PointingToDeclaration/", (this as ContentDRILink).address.toString())
                                                     }
-                                                    +"Collection"
+                                                    +"kotlin.collections.Collection"
                                                 }
                                                 group { }
                                             }
@@ -269,7 +269,7 @@ class ContentForSeeAlsoTest : AbstractCoreTest() {
                                         table {
                                             group {
                                                 //DRI should be "test//abc/#/-1/"
-                                                link { +"Collection" }
+                                                link { +"kotlin.collections.Collection" }
                                                 group {
                                                     group { +"Comment to stdliblink" }
                                                 }
@@ -333,7 +333,7 @@ class ContentForSeeAlsoTest : AbstractCoreTest() {
                                         table {
                                             group {
                                                 //DRI should be "test//abc/#/-1/"
-                                                link { +"Collection" }
+                                                link { +"kotlin.collections.Collection" }
                                                 group {
                                                     group { +"Comment to stdliblink" }
                                                 }
@@ -456,7 +456,7 @@ class ContentForSeeAlsoTest : AbstractCoreTest() {
                                             }
                                             group {
                                                 //DRI should be "test//abc/#/-1/"
-                                                link { +"Collection" }
+                                                link { +"kotlin.collections.Collection" }
                                                 group { group {  +"Comment to collection" } }
                                             }
                                         }
