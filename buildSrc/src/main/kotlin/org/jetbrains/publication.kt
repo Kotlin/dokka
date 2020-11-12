@@ -3,6 +3,7 @@ package org.jetbrains
 import com.github.jengelman.gradle.plugins.shadow.ShadowExtension
 import com.jfrog.bintray.gradle.BintrayExtension
 import org.gradle.api.Project
+import org.gradle.api.provider.Provider
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.maven.tasks.PublishToMavenRepository
@@ -10,6 +11,7 @@ import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.get
 import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.withType
+import org.gradle.plugins.signing.SigningExtension
 import org.jetbrains.DokkaPublicationChannel.*
 import java.net.URI
 
@@ -26,9 +28,9 @@ class DokkaPublicationBuilder {
 fun Project.registerDokkaArtifactPublication(publicationName: String, configure: DokkaPublicationBuilder.() -> Unit) {
     configure<PublishingExtension> {
         publications {
-            register<MavenPublication>(publicationName) {
+            val publicationProvider = register<MavenPublication>(publicationName) {
                 val builder = DokkaPublicationBuilder().apply(configure)
-                this.artifactId = builder.artifactId
+                artifactId = builder.artifactId
                 when (builder.component) {
                     DokkaPublicationBuilder.Component.Java -> from(components["java"])
                     DokkaPublicationBuilder.Component.Shadow -> run {
@@ -36,9 +38,12 @@ fun Project.registerDokkaArtifactPublication(publicationName: String, configure:
                         extensions.getByType(ShadowExtension::class.java).component(this)
                     }
                 }
+                configurePom("Dokka ${project.name}")
             }
+            signPublicationIfKeyPresent(publicationProvider)
         }
     }
+
     configureBintrayPublicationIfNecessary(publicationName)
     configureSpacePublicationIfNecessary(publicationName)
     createDokkaPublishTaskIfNecessary()
@@ -126,4 +131,45 @@ private fun Project.configureBintrayPublication(vararg publications: String) {
 }
 
 
+private fun MavenPublication.configurePom(projectName: String) {
+    pom {
+        name.set(projectName)
+        description.set("Dokka is a documentation engine for Kotlin and Java, performing the same function as Javadoc for Java")
+        url.set("https://github.com/Kotlin/dokka")
 
+        licenses {
+            license {
+                name.set("The Apache Software License, Version 2.0")
+                url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+                distribution.set("repo")
+            }
+        }
+
+        developers {
+            developer {
+                id.set("JetBrains")
+                name.set("JetBrains Team")
+                organization.set("JetBrains")
+                organizationUrl.set("http://www.jetbrains.com")
+            }
+        }
+
+        scm {
+            connection.set("scm:git:git://github.com/Kotlin/dokka.git")
+            url.set("https://github.com/Kotlin/dokka/tree/master")
+        }
+    }
+}
+
+@Suppress("UnstableApiUsage")
+private fun Project.signPublicationIfKeyPresent(publicationProvider: Provider<MavenPublication>) {
+    val signingKey = System.getenv("SIGN_KEY")
+    val signingKeyPassphrase = System.getenv("SIGN_KEY_PASSPHRASE")
+
+    if (!signingKey.isNullOrBlank()) {
+        extensions.configure<SigningExtension>("signing") {
+            useInMemoryPgpKeys(signingKey, signingKeyPassphrase)
+            sign(publicationProvider.get())
+        }
+    }
+}
