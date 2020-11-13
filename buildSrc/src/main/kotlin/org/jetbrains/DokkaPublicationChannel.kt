@@ -2,10 +2,7 @@
 
 package org.jetbrains
 
-import org.gradle.api.GradleException
 import org.gradle.api.Project
-import org.gradle.kotlin.dsl.provideDelegate
-import org.jetbrains.DokkaPublicationChannel.*
 
 internal enum class DokkaPublicationChannel {
     SpaceDokkaDev,
