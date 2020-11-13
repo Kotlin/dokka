@@ -2,7 +2,7 @@ package renderers.gfm
 
 import org.jetbrains.dokka.DokkaConfigurationImpl
 import org.jetbrains.dokka.gfm.GfmPlugin
-import org.jetbrains.dokka.gfm.MarkdownLocationProviderFactory
+import org.jetbrains.dokka.gfm.location.MarkdownLocationProviderFactory
 import org.jetbrains.dokka.testApi.context.MockContext
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.renderers.RootCreator

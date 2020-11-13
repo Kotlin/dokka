@@ -1,52 +1,14 @@
-package org.jetbrains.dokka.gfm
+package org.jetbrains.dokka.gfm.renderer
 
-import org.jetbrains.dokka.CoreExtensions
-import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.DokkaException
-import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.renderers.DefaultRenderer
-import org.jetbrains.dokka.base.renderers.PackageListCreator
-import org.jetbrains.dokka.base.renderers.RootCreator
 import org.jetbrains.dokka.base.renderers.isImage
-import org.jetbrains.dokka.base.resolvers.local.DokkaLocationProvider
-import org.jetbrains.dokka.base.resolvers.local.LocationProviderFactory
+import org.jetbrains.dokka.gfm.GfmPlugin
 import org.jetbrains.dokka.model.DisplaySourceSet
-import org.jetbrains.dokka.base.resolvers.shared.RecognizedLinkFormat
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
-import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.query
-import org.jetbrains.dokka.transformers.pages.PageTransformer
-
-class GfmPlugin : DokkaPlugin() {
-
-    val gfmPreprocessors by extensionPoint<PageTransformer>()
-
-    private val dokkaBase by lazy { plugin<DokkaBase>() }
-
-    val renderer by extending {
-        (CoreExtensions.renderer
-                providing { CommonmarkRenderer(it) }
-                override dokkaBase.htmlRenderer)
-    }
-
-    val locationProvider by extending {
-        (dokkaBase.locationProviderFactory
-                providing { MarkdownLocationProviderFactory(it) }
-                override dokkaBase.locationProvider)
-    }
-
-    val rootCreator by extending {
-        gfmPreprocessors with RootCreator
-    }
-
-    val packageListCreator by extending {
-        (gfmPreprocessors
-                providing { PackageListCreator(it, RecognizedLinkFormat.DokkaGFM) }
-                order { after(rootCreator) })
-    }
-}
 
 open class CommonmarkRenderer(
     context: DokkaContext
@@ -358,13 +320,3 @@ open class CommonmarkRenderer(
     private fun StringBuilder.buildSourceSetTags(sourceSets: Set<DisplaySourceSet>) =
         append(sourceSets.joinToString(prefix = "[", postfix = "]") { it.name })
 }
-
-class MarkdownLocationProviderFactory(val context: DokkaContext) : LocationProviderFactory {
-
-    override fun getLocationProvider(pageNode: RootPageNode) = MarkdownLocationProvider(pageNode, context)
-}
-
-class MarkdownLocationProvider(
-    pageGraphRoot: RootPageNode,
-    dokkaContext: DokkaContext
-) : DokkaLocationProvider(pageGraphRoot, dokkaContext, ".md")

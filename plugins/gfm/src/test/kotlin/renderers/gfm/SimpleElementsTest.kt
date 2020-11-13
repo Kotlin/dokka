@@ -1,6 +1,6 @@
 package renderers.gfm
 
-import org.jetbrains.dokka.gfm.CommonmarkRenderer
+import org.jetbrains.dokka.gfm.renderer.CommonmarkRenderer
 import org.junit.jupiter.api.Test
 import renderers.testPage
 import org.jetbrains.dokka.links.DRI
