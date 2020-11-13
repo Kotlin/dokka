@@ -23,7 +23,8 @@ jobs:
         run: ./gradlew publishToMavenLocal --stacktrace
 
       - name: Document coroutines
-        run: ./gradlew :integration-tests:gradle:integrationTest --tests org.jetbrains.dokka.it.gradle.kotlin.CoroutinesGradleIntegrationTest --stacktrace --info
+        run: ./gradlew :integration-tests:gradle:integrationTest --tests org.jetbrains.dokka.it.gradle.kotlin.CoroutinesGradleIntegrationTest --stacktrace
+        timeout-minutes: 60
         env:
           DOKKA_IT_AWS_PATH: /home/runner/work/dokka/coroutines
 
@@ -56,7 +57,7 @@ jobs:
         run: ./gradlew clean publishToMavenLocal --stacktrace
 
       - name: Document stdlib
-        run: ./gradlew :integration-tests:gradle:integrationTest --tests org.jetbrains.dokka.it.gradle.kotlin.StdlibGradleIntegrationTest --stacktrace --info
+        run: ./gradlew :integration-tests:gradle:integrationTest --tests org.jetbrains.dokka.it.gradle.kotlin.StdlibGradleIntegrationTest --stacktrace
         env:
           DOKKA_IT_AWS_PATH: /home/runner/work/dokka/stdlib
 
@@ -89,7 +90,7 @@ jobs:
 #        run: ./gradlew clean publishToMavenLocal --stacktrace
 #
 #      - name: Document serialization
-#        run: ./gradlew :integration-tests:gradle:integrationTest --tests org.jetbrains.dokka.it.gradle.kotlin.SerializationGradleIntegrationTest --stacktrace --info
+#        run: ./gradlew :integration-tests:gradle:integrationTest --tests org.jetbrains.dokka.it.gradle.kotlin.SerializationGradleIntegrationTest --stacktrace
 #        env:
 #          DOKKA_IT_AWS_PATH: /home/runner/work/dokka/serialization
 #
@@ -122,7 +123,7 @@ jobs:
         run: ./gradlew clean publishToMavenLocal --stacktrace
 
       - name: Document biojava-core
-        run: ./gradlew :integration-tests:maven:integrationTest --tests org.jetbrains.dokka.it.maven.BiojavaIntegrationTest --stacktrace --info
+        run: ./gradlew :integration-tests:maven:integrationTest --tests org.jetbrains.dokka.it.maven.BiojavaIntegrationTest --stacktrace
         env:
           DOKKA_IT_AWS_PATH: /home/runner/work/dokka/biojava
 
