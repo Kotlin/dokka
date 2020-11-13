@@ -1,7 +1,9 @@
 package org.jetbrains.dokka.base.translators.descriptors
 
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.runBlocking
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.analysis.DescriptorDocumentableSource
 import org.jetbrains.dokka.analysis.DokkaResolutionFacade
@@ -19,14 +21,13 @@ import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
-import org.jetbrains.dokka.plugability.query
 import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.transformers.sources.SourceToDocumentableTranslator
 import org.jetbrains.dokka.utilities.DokkaLogger
-import org.jetbrains.kotlin.builtins.functions.FunctionClassDescriptor
-import org.jetbrains.kotlin.builtins.isBuiltinExtensionFunctionalType
 import org.jetbrains.dokka.utilities.parallelMap
 import org.jetbrains.dokka.utilities.parallelMapNotNull
+import org.jetbrains.kotlin.builtins.functions.FunctionClassDescriptor
+import org.jetbrains.kotlin.builtins.isBuiltinExtensionFunctionalType
 import org.jetbrains.kotlin.builtins.isExtensionFunctionType
 import org.jetbrains.kotlin.builtins.isSuspendFunctionTypeOrSubtype
 import org.jetbrains.kotlin.codegen.isJvmStaticInObjectOrClassOrInterface
@@ -50,13 +51,14 @@ import org.jetbrains.kotlin.resolve.descriptorUtil.annotationClass
 import org.jetbrains.kotlin.resolve.scopes.MemberScope
 import org.jetbrains.kotlin.resolve.source.KotlinSourceElement
 import org.jetbrains.kotlin.resolve.source.PsiSourceElement
-import org.jetbrains.kotlin.types.*
-import org.jetbrains.kotlin.types.model.typeConstructor
+import org.jetbrains.kotlin.types.AbbreviatedType
+import org.jetbrains.kotlin.types.DynamicType
+import org.jetbrains.kotlin.types.KotlinType
+import org.jetbrains.kotlin.types.TypeProjection
 import org.jetbrains.kotlin.types.typeUtil.immediateSupertypes
 import org.jetbrains.kotlin.types.typeUtil.isAnyOrNullableAny
 import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
-import java.lang.IllegalStateException
 import java.nio.file.Paths
 import org.jetbrains.kotlin.resolve.constants.AnnotationValue as ConstantsAnnotationValue
 import org.jetbrains.kotlin.resolve.constants.ArrayValue as ConstantsArrayValue
@@ -69,7 +71,7 @@ class DefaultDescriptorToDocumentableTranslator(
 
     private val kotlinAnalysis: KotlinAnalysis = context.plugin<DokkaBase>().querySingle { kotlinAnalysis }
 
-    override suspend fun invoke(sourceSet: DokkaSourceSet, context: DokkaContext): DModule {
+    override fun invoke(sourceSet: DokkaSourceSet, context: DokkaContext): DModule {
         val (environment, facade) = kotlinAnalysis[sourceSet]
         val packageFragments = environment.getSourceFiles().asSequence()
             .map { it.packageFqName }
@@ -77,21 +79,20 @@ class DefaultDescriptorToDocumentableTranslator(
             .mapNotNull { facade.resolveSession.getPackageFragment(it) }
             .toList()
 
-        return DokkaDescriptorVisitor(sourceSet, kotlinAnalysis[sourceSet].facade, context.logger).run {
-            packageFragments.mapNotNull { it.safeAs<PackageFragmentDescriptor>() }.parallelMap {
-                visitPackageFragmentDescriptor(
-                    it,
-                    DRIWithPlatformInfo(DRI.topLevel, emptyMap())
+        return runBlocking {
+            DokkaDescriptorVisitor(sourceSet, kotlinAnalysis[sourceSet].facade, context.logger).run {
+                packageFragments
+                    .mapNotNull { it.safeAs<PackageFragmentDescriptor>() }
+                    .parallelMap { visitPackageFragmentDescriptor(it, DRIWithPlatformInfo(DRI.topLevel, emptyMap())) }
+            }.let { packages ->
+                DModule(
+                    name = context.configuration.moduleName,
+                    packages = packages,
+                    documentation = emptyMap(),
+                    expectPresentInSet = null,
+                    sourceSets = setOf(sourceSet)
                 )
             }
-        }.let {
-            DModule(
-                name = context.configuration.moduleName,
-                packages = it,
-                documentation = emptyMap(),
-                expectPresentInSet = null,
-                sourceSets = setOf(sourceSet)
-            )
         }
     }
 }
@@ -435,13 +436,15 @@ private class DokkaDescriptorVisitor(
                 sourceSets = setOf(sourceSet),
                 generics = generics.await(),
                 isExpectActual = (isExpect || isActual),
-                extra = PropertyContainer.withAll(listOfNotNull(
-                    (descriptor.additionalExtras() + descriptor.getAnnotationsWithBackingField()
-                        .toAdditionalExtras()).toSet().toSourceSetDependent().toAdditionalModifiers(),
-                    descriptor.getAnnotationsWithBackingField().toSourceSetDependent().toAnnotations(),
-                    descriptor.getDefaultValue()?.let { DefaultValue(it) },
-                    InheritedMember(inheritedFrom.toSourceSetDependent()),
-                ))
+                extra = PropertyContainer.withAll(
+                    listOfNotNull(
+                        (descriptor.additionalExtras() + descriptor.getAnnotationsWithBackingField()
+                            .toAdditionalExtras()).toSet().toSourceSetDependent().toAdditionalModifiers(),
+                        descriptor.getAnnotationsWithBackingField().toSourceSetDependent().toAnnotations(),
+                        descriptor.getDefaultValue()?.let { DefaultValue(it) },
+                        InheritedMember(inheritedFrom.toSourceSetDependent()),
+                    )
+                )
             )
         }
     }

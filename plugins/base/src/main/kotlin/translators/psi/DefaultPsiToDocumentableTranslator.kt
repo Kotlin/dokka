@@ -7,8 +7,10 @@ import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.psi.*
 import com.intellij.psi.impl.source.PsiClassReferenceType
 import com.intellij.psi.impl.source.PsiImmediateClassType
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.runBlocking
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.analysis.KotlinAnalysis
 import org.jetbrains.dokka.analysis.PsiDocumentableSource
@@ -56,20 +58,18 @@ class DefaultPsiToDocumentableTranslator(
 
     private val kotlinAnalysis: KotlinAnalysis = context.plugin<DokkaBase>().querySingle { kotlinAnalysis }
 
-    override suspend fun invoke(sourceSet: DokkaSourceSet, context: DokkaContext): DModule {
-        return coroutineScope {
-            fun isFileInSourceRoots(file: File): Boolean =
-                sourceSet.sourceRoots.any { root -> file.startsWith(root) }
+    override fun invoke(sourceSet: DokkaSourceSet, context: DokkaContext): DModule {
+        fun isFileInSourceRoots(file: File): Boolean = sourceSet.sourceRoots.any { root -> file.startsWith(root) }
 
+        val (environment, _) = kotlinAnalysis[sourceSet]
 
-            val (environment, _) = kotlinAnalysis[sourceSet]
+        val sourceRoots = environment.configuration.get(CLIConfigurationKeys.CONTENT_ROOTS)
+            ?.filterIsInstance<JavaSourceRoot>()
+            ?.mapNotNull { it.file.takeIf(::isFileInSourceRoots) }
+            ?: listOf()
+        val localFileSystem = VirtualFileManager.getInstance().getFileSystem("file")
 
-            val sourceRoots = environment.configuration.get(CLIConfigurationKeys.CONTENT_ROOTS)
-                ?.filterIsInstance<JavaSourceRoot>()
-                ?.mapNotNull { it.file.takeIf(::isFileInSourceRoots) }
-                ?: listOf()
-            val localFileSystem = VirtualFileManager.getInstance().getFileSystem("file")
-
+        return runBlocking {
             val psiFiles = sourceRoots.parallelMap { sourceRoot ->
                 sourceRoot.absoluteFile.walkTopDown().mapNotNull {
                     localFileSystem.findFileByPath(it.path)?.let { vFile ->
@@ -78,11 +78,7 @@ class DefaultPsiToDocumentableTranslator(
                 }.toList()
             }.flatten()
 
-            val docParser =
-                DokkaPsiParser(
-                    sourceSet,
-                    context.logger
-                )
+            val docParser = DokkaPsiParser(sourceSet, context.logger)
 
             DModule(
                 context.configuration.moduleName,
@@ -197,8 +193,10 @@ class DefaultPsiToDocumentableTranslator(
                 parseSupertypes(superTypes)
                 val (regularFunctions, accessors) = splitFunctionsAndAccessors()
                 val documentation = javadocParser.parseDocumentation(this).toSourceSetDependent()
-                val allFunctions = async { regularFunctions.parallelMapNotNull { if (!it.isConstructor) parseFunction(it) else null } +
-                        superMethods.parallelMap { parseFunction(it.first, inheritedFrom = it.second) } }
+                val allFunctions = async {
+                    regularFunctions.parallelMapNotNull { if (!it.isConstructor) parseFunction(it) else null } +
+                            superMethods.parallelMap { parseFunction(it.first, inheritedFrom = it.second) }
+                }
                 val source = PsiDocumentableSource(this).toSourceSetDependent()
                 val classlikes = async { innerClasses.asIterable().parallelMap { parseClasslike(it, dri) } }
                 val visibility = getVisibility().toSourceSetDependent()
