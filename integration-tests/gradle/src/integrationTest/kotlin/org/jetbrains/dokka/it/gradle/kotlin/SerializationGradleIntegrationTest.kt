@@ -8,6 +8,7 @@ import org.junit.runners.Parameterized
 import java.io.File
 import kotlin.test.*
 
+@Ignore // TODO: reenable after https://github.com/Kotlin/kotlinx.serialization/issues/1193 is fixed
 class SerializationGradleIntegrationTest(override val versions: BuildVersions) : AbstractGradleIntegrationTest(),
     S3Project {
 
