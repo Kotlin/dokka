@@ -1,11 +1,10 @@
 package org.jetbrains.dokka.jekyll
 
 import org.jetbrains.dokka.CoreExtensions
-import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.renderers.PackageListCreator
 import org.jetbrains.dokka.base.renderers.RootCreator
 import org.jetbrains.dokka.base.resolvers.shared.RecognizedLinkFormat
-import org.jetbrains.dokka.gfm.CommonmarkRenderer
+import org.jetbrains.dokka.gfm.renderer.CommonmarkRenderer
 import org.jetbrains.dokka.gfm.GfmPlugin
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext

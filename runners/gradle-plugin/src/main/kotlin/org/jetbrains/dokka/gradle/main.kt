@@ -3,6 +3,7 @@ package org.jetbrains.dokka.gradle
 import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.artifacts.Dependency
 import org.gradle.kotlin.dsl.register
 
 open class DokkaPlugin : Plugin<Project> {
@@ -20,12 +21,12 @@ open class DokkaPlugin : Plugin<Project> {
             description = "Generates documentation in 'javadoc' format"
         }
 
-        project.setupDokkaTasks("dokkaGfm") {
+        project.setupDokkaTasks("dokkaGfm", allModulesPage = project.dokkaArtifacts.gfmAllModulesPagePlugin) {
             plugins.dependencies.add(project.dokkaArtifacts.gfmPlugin)
             description = "Generates documentation in GitHub flavored markdown format"
         }
 
-        project.setupDokkaTasks("dokkaJekyll") {
+        project.setupDokkaTasks("dokkaJekyll", allModulesPage = project.dokkaArtifacts.gfmAllModulesPagePlugin) {
             plugins.dependencies.add(project.dokkaArtifacts.jekyllPlugin)
             description = "Generates documentation in Jekyll flavored markdown format"
         }
@@ -38,6 +39,7 @@ open class DokkaPlugin : Plugin<Project> {
     private fun Project.setupDokkaTasks(
         name: String,
         multiModuleTaskSupported: Boolean = true,
+        allModulesPage: Dependency = project.dokkaArtifacts.allModulesPage,
         collectorTaskSupported: Boolean = true,
         configuration: AbstractDokkaTask.() -> Unit = {}
     ) {
@@ -63,7 +65,7 @@ open class DokkaPlugin : Plugin<Project> {
                     addSubprojectChildTasks("${name}Partial")
                     configuration()
                     description = "Runs all subprojects '$name' tasks and generates module navigation page"
-                    plugins.dependencies.add(project.dokkaArtifacts.allModulesPage)
+                    plugins.dependencies.add(allModulesPage)
                 }
 
                 project.tasks.register<DefaultTask>("${name}Multimodule") {
