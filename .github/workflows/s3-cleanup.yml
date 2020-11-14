@@ -3,7 +3,6 @@ name: S3-cleanup
 on: delete
 
 env:
-  branch-name: ${GITHUB_REF#refs/heads/}
   bucket-name: 'dokka-snapshots'
 
 jobs:
@@ -18,4 +17,4 @@ jobs:
           aws-region: eu-central-1
 
       - name: Delete branch from s3
-        run: aws s3 --recursive rm s3://${{ env.bucket-name }}/${{ env.branch-name }}
+        run: aws s3 --recursive rm s3://${{ env.bucket-name }}/${{ github.event.ref }}
