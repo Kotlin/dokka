@@ -1,8 +1,11 @@
 package org.jetbrains.dokka.allModulesPage.templates
 
 import kotlinx.coroutines.*
+import org.jetbrains.dokka.allModulesPage.AllModulesPagePlugin
 import org.jetbrains.dokka.base.templating.Command
 import org.jetbrains.dokka.plugability.DokkaContext
+import org.jetbrains.dokka.plugability.plugin
+import org.jetbrains.dokka.plugability.query
 import org.jsoup.nodes.Element
 import java.io.File
 import java.nio.file.Files
@@ -14,14 +17,16 @@ interface TemplateProcessor {
 }
 
 interface TemplateProcessingStrategy {
-    suspend fun process(input: File, output: File)
+    suspend fun process(input: File, output: File): Boolean
     suspend fun finish(output: File) {}
 }
 
 class DefaultTemplateProcessor(
     private val context: DokkaContext,
-    private val strategy: TemplateProcessingStrategy
 ): TemplateProcessor {
+
+    private val strategies: List<TemplateProcessingStrategy> = context.plugin<AllModulesPagePlugin>().query { templateProcessingStrategy }
+
     override fun process() = runBlocking(Dispatchers.Default) {
         coroutineScope {
             context.configuration.modules.forEach {
@@ -30,7 +35,8 @@ class DefaultTemplateProcessor(
                 }
             }
         }
-        strategy.finish(context.configuration.outputDir)
+        strategies.map { it.finish(context.configuration.outputDir) }
+        Unit
     }
 
     private suspend fun File.visit(target: File): Unit = coroutineScope {
@@ -41,7 +47,7 @@ class DefaultTemplateProcessor(
                launch { source.resolve(it).visit(target.resolve(it)) }
            }
         } else {
-            strategy.process(source, target)
+            strategies.asSequence().first { it.process(source, target) }
         }
     }
 }

@@ -104,7 +104,7 @@ abstract class DefaultRenderer<T>(
         pageContext: ContentPage,
         sourceSetRestriction: Set<DisplaySourceSet>? = null
     ) {
-        if (sourceSetRestriction == null || node.sourceSets.any { it in sourceSetRestriction }) {
+        if (sourceSetRestriction.isNullOrEmpty() || node.sourceSets.any { it in sourceSetRestriction }) {
             when (node) {
                 is ContentText -> buildText(node)
                 is ContentHeader -> buildHeader(node, pageContext, sourceSetRestriction)

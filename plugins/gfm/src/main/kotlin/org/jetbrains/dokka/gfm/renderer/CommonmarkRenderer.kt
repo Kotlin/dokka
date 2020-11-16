@@ -3,7 +3,9 @@ package org.jetbrains.dokka.gfm.renderer
 import org.jetbrains.dokka.DokkaException
 import org.jetbrains.dokka.base.renderers.DefaultRenderer
 import org.jetbrains.dokka.base.renderers.isImage
+import org.jetbrains.dokka.gfm.GfmCommand.Companion.templateCommand
 import org.jetbrains.dokka.gfm.GfmPlugin
+import org.jetbrains.dokka.gfm.ResolveLinkGfmCommand
 import org.jetbrains.dokka.model.DisplaySourceSet
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
@@ -80,6 +82,17 @@ open class CommonmarkRenderer(
         }
     }
 
+    override fun StringBuilder.buildDRILink(
+        node: ContentDRILink,
+        pageContext: ContentPage,
+        sourceSetRestriction: Set<DisplaySourceSet>?
+    ) {
+        val address = locationProvider.resolve(node.address, node.sourceSets, pageContext)
+        buildLink(address ?: templateCommand(ResolveLinkGfmCommand(node.address))) {
+            buildText(node.children, pageContext, sourceSetRestriction)
+        }
+    }
+
     override fun StringBuilder.buildNewLine() {
         append("  \n")
     }
@@ -118,7 +131,7 @@ open class CommonmarkRenderer(
     }
 
     override fun StringBuilder.buildResource(node: ContentEmbeddedResource, pageContext: ContentPage) {
-        if(node.isImage()){
+        if (node.isImage()) {
             append("!")
         }
         append("[${node.altText}](${node.address})")
