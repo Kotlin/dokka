@@ -10,17 +10,16 @@ import org.jetbrains.dokka.pages.PageNode
 import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.DokkaContext
 
-class MultimoduleLocationProvider(private val root: RootPageNode, context: DokkaContext) : DokkaBaseLocationProvider(root, context, ".html") {
+open class MultimoduleLocationProvider(private val root: RootPageNode, val context: DokkaContext, private val fileExtension: String = ".html") : DokkaBaseLocationProvider(root, context, fileExtension) {
 
-    private val defaultLocationProvider = DokkaLocationProvider(root, context)
-
+    protected open val defaultLocationProvider = DokkaLocationProvider(root, context)
     val paths = context.configuration.modules.map {
         it.name to it.relativePathToOutputDirectory
     }.toMap()
 
     override fun resolve(dri: DRI, sourceSets: Set<DisplaySourceSet>, context: PageNode?) =
         dri.takeIf { it.packageName == MULTIMODULE_PACKAGE_PLACEHOLDER }?.classNames?.let { paths[it] }?.let {
-            "$it/${identifierToFilename(dri.classNames.orEmpty())}/index.html"
+            "$it/${identifierToFilename(dri.classNames.orEmpty())}/index$fileExtension"
         } ?: defaultLocationProvider.resolve(dri, sourceSets, context)
 
     override fun resolve(node: PageNode, context: PageNode?, skipExtension: Boolean) =

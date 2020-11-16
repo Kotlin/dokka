@@ -10,6 +10,7 @@ import org.jetbrains.dokka.transformers.pages.PageTransformer
 class AllModulesPagePlugin : DokkaPlugin() {
 
     val templateProcessor by extensionPoint<TemplateProcessor>()
+    val templateProcessingStrategy by extensionPoint<TemplateProcessingStrategy>()
     val allModulePageCreator by extensionPoint<PageCreator>()
     val allModulePageTransformer by extensionPoint<PageTransformer>()
 
@@ -33,7 +34,17 @@ class AllModulesPagePlugin : DokkaPlugin() {
     }
 
     val defaultTemplateProcessor by extending {
-        templateProcessor providing { DefaultTemplateProcessor(it, DirectiveBasedTemplateProcessingStrategy(it)) }
+        templateProcessor providing ::DefaultTemplateProcessor
+    }
+
+    val directiveBasedHtmlTemplateProcessingStrategy by extending {
+        templateProcessingStrategy providing ::DirectiveBasedHtmlTemplateProcessingStrategy order {
+            before(fallbackProcessingStrategy)
+        }
+    }
+
+    val fallbackProcessingStrategy by extending {
+        templateProcessingStrategy providing ::FallbackTemplateProcessingStrategy
     }
 
     val pathToRootSubstitutor by extending {

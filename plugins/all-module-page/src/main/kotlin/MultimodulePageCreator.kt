@@ -18,6 +18,7 @@ import org.jetbrains.dokka.model.doc.P
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
+import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.transformers.pages.PageCreator
 import org.jetbrains.dokka.utilities.DokkaLogger
@@ -27,14 +28,11 @@ class MultimodulePageCreator(
 ) : PageCreator {
     private val logger: DokkaLogger = context.logger
 
+    private val commentsConverter by lazy { context.plugin<DokkaBase>().querySingle { commentsToContentConverter } }
+    private val signatureProvider by lazy { context.plugin<DokkaBase>().querySingle { signatureProvider } }
+
     override fun invoke(): RootPageNode {
         val modules = context.configuration.modules
-
-        val commentsConverter = context.plugin(DokkaBase::class)?.querySingle { commentsToContentConverter }
-        val signatureProvider = context.plugin(DokkaBase::class)?.querySingle { signatureProvider }
-        if (commentsConverter == null || signatureProvider == null)
-            throw IllegalStateException("Both comments converter and signature provider must not be null")
-
         val sourceSetData = emptySet<DokkaSourceSet>()
         val builder = PageContentBuilder(commentsConverter, signatureProvider, context.logger)
         val contentNode = builder.contentFor(
