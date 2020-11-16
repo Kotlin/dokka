@@ -8,10 +8,6 @@ import java.util.function.BiConsumer
 
 fun parsePerPackageOptions(args: List<String>): List<PackageOptions> = args.map { it.split(",") }.map {
     val matchingRegex = it.first()
-    if (matchingRegex == ".*")
-        throw IllegalArgumentException(
-            "Please do not register packageOptions with all match pattern, use global settings instead"
-        )
 
     val args = it.subList(1, it.size)
 
