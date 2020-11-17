@@ -5,7 +5,6 @@ filteringContext = {
 }
 let highlightedAnchor;
 let topNavbarOffset;
-var scrollNavbarBreakPoint = 300
 
 window.addEventListener('load', () => {
     document.querySelectorAll("div[data-platform-hinted]")
@@ -22,9 +21,7 @@ window.addEventListener('load', () => {
     initHidingLeftNavigation()
 
     document.getElementById('main').addEventListener("scroll", (e) => {
-        const element = document.getElementsByClassName("navigation-wrapper")[0]
-        const additionalOffset = element.classList.contains("sticky-navigation") ? 14 : 0
-        element.classList.toggle("sticky-navigation", e.target.scrollTop + additionalOffset > scrollNavbarBreakPoint)
+        document.getElementsByClassName("navigation-wrapper")[0].classList.toggle("sticky-navigation", e.target.scrollTop > 0)
     })
     topNavbarOffset = document.getElementById('navigation-wrapper')
 })
@@ -46,6 +43,27 @@ const initHidingLeftNavigation = () => {
 // Hash change is needed in order to allow for linking inside the same page with anchors
 // If this is not present user is forced to refresh the site in order to use an anchor
 window.onhashchange = handleAnchor
+
+function scrollToElementInContent(element){
+    const scrollToElement = () => document.getElementById('main').scrollTo({ top: element.offsetTop - topNavbarOffset.offsetHeight, behavior: "smooth"})
+
+    const waitAndScroll = () => {
+        setTimeout(() => {
+            if(topNavbarOffset){
+                scrollToElement()
+            } else {
+                waitForScroll()
+            }
+        }, 50)
+    }
+
+    if(topNavbarOffset){
+        scrollToElement()
+    } else {
+        waitAndScroll()
+    }
+}
+
 
 function handleAnchor() {
     if(highlightedAnchor){
@@ -74,23 +92,7 @@ function handleAnchor() {
                 highlightedAnchor = content
             }
 
-            const scrollToElement = () => document.getElementById('main').scrollTo({ top: element.offsetTop - topNavbarOffset.offsetHeight, behavior: "smooth"})
-
-            const waitAndScroll = () => {
-                setTimeout(() => {
-                    if(topNavbarOffset){
-                        scrollToElement()
-                    } else {
-                        waitForScroll()
-                    }
-                }, 100)
-            }
-
-            if(topNavbarOffset){
-                scrollToElement()
-            } else {
-                waitAndScroll()
-            }
+            scrollToElementInContent(element)
         }
     }
 }
@@ -286,4 +288,3 @@ function refreshFilterButtons() {
             }
         })
 }
-
