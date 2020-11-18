@@ -763,8 +763,9 @@ The available configuration options for are shown below:</p>
 
             <span class="c1">// Allows to customize documentation generation options on a per-package basis</span>
             <span class="c1">// Repeat for multiple packageOptions</span>
+            <span class="c1">// If multiple packages match the same matchingRegex, the longuest matchingRegex will be used</span>
             <span class="n">perPackageOption</span> <span class="p">{</span>
-                <span class="n">prefix</span><span class="p">.</span><span class="k">set</span><span class="p">(</span><span class="s">&quot;kotlin&quot;</span><span class="p">)</span> <span class="c1">// will match kotlin and all sub-packages of it</span>
+                <span class="n">matchingRegex</span><span class="p">.</span><span class="k">set</span><span class="p">(</span><span class="s">&quot;kotlin($|\\.).*&quot;</span><span class="p">)</span> <span class="c1">// will match kotlin and all sub-packages of it</span>
                 <span class="c1">// All options are optional, default values are below:</span>
                 <span class="n">skipDeprecated</span><span class="p">.</span><span class="k">set</span><span class="p">(</span><span class="k">false</span><span class="p">)</span>
                 <span class="n">reportUndocumented</span><span class="p">.</span><span class="k">set</span><span class="p">(</span><span class="k">true</span><span class="p">)</span> <span class="c1">// Emit warnings about not documented members </span>
@@ -772,7 +773,7 @@ The available configuration options for are shown below:</p>
             <span class="p">}</span>
             <span class="c1">// Suppress a package</span>
             <span class="n">perPackageOption</span> <span class="p">{</span>
-                <span class="n">prefix</span><span class="p">.</span><span class="k">set</span><span class="p">(</span><span class="s">&quot;kotlin.internal&quot;</span><span class="p">)</span> <span class="c1">// will match kotlin.internal and all sub-packages of it</span>
+                <span class="n">matchingRegex</span><span class="p">.</span><span class="k">set</span><span class="p">(</span><span class="s">&quot;.*\.internal.*&quot;</span><span class="p">)</span> <span class="c1">// will match all .internal packages and sub-packages </span>
                 <span class="n">suppress</span><span class="p">.</span><span class="k">set</span><span class="p">(</span><span class="k">true</span><span class="p">)</span>
             <span class="p">}</span>
         <span class="p">}</span>
