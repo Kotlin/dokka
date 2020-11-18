@@ -66,7 +66,7 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
 
     class PackageOptions : DokkaConfiguration.PackageOptions {
         @Parameter
-        override var prefix: String = ""
+        override var matchingRegex: String = ".*"
 
         @Parameter
         override var includeNonPublic: Boolean = DokkaDefaults.includeNonPublic
@@ -203,7 +203,7 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
             sourceLinks = sourceLinks.map { SourceLinkDefinitionImpl(it.path, URL(it.url), it.lineSuffix) }.toSet(),
             perPackageOptions = perPackageOptions.map {
                 PackageOptionsImpl(
-                    prefix = it.prefix,
+                    matchingRegex = it.matchingRegex,
                     includeNonPublic = it.includeNonPublic,
                     reportUndocumented = it.reportUndocumented,
                     skipDeprecated = it.skipDeprecated,

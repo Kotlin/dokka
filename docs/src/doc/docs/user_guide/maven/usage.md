@@ -142,7 +142,7 @@ The available configuration options are shown below:
         <perPackageOptions>
             <packageOptions>
                 <!-- Will match kotlin and all sub-packages of it -->
-                <prefix>kotlin</prefix>
+                <matchingRegex>kotlin($|\.).*</matchingRegex>
                 
                 <!-- All options are optional, default values are below: -->
                 <skipDeprecated>false</skipDeprecated>

@@ -245,21 +245,21 @@ class GradleDokkaSourceSetBuilderTest {
         assertEquals(emptyList(), sourceSet.build().perPackageOptions, "Expected no default per package options")
 
         sourceSet.perPackageOptions.add(GradlePackageOptionsBuilder(project).apply {
-            this.prefix by "p1"
+            this.matchingRegex by "p1.*"
         })
 
         sourceSet.perPackageOption {
-            it.prefix by "p2"
+            it.matchingRegex by "p2.*"
         }
 
         sourceSet.perPackageOption(project.closureOf<GradlePackageOptionsBuilder> {
-            this.prefix by "p3"
+            this.matchingRegex by "p3.*"
         })
 
         assertEquals(
-            listOf("p1", "p2", "p3").map { prefix ->
+            listOf("p1.*", "p2.*", "p3.*").map { matchingRegex ->
                 PackageOptionsImpl(
-                    prefix = prefix,
+                    matchingRegex = matchingRegex,
                     includeNonPublic = DokkaDefaults.includeNonPublic,
                     reportUndocumented = DokkaDefaults.reportUndocumented,
                     skipDeprecated = DokkaDefaults.skipDeprecated,
