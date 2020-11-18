@@ -200,23 +200,23 @@ index aa8f21b..dd6a2ae 100644
 +                sourceRoots.from("$kotlin_root/libraries/stdlib/jvm/runtime/kotlin/TypeAliases.kt")
 +                sourceRoots.from("$kotlin_root/libraries/stdlib/jvm/runtime/kotlin/text/TypeAliases.kt")
 +                perPackageOption {
-+                    prefix.set("kotlin.reflect.jvm.internal")
++                    matchingRegex.set("kotlin.reflect.jvm.internal(\$|\\.).*")
 +                    suppress.set(true)
 +                }
 +                perPackageOption {
-+                    prefix.set("kotlin.jvm.functions")
++                    matchingRegex.set("kotlin.jvm.functions(\$|\\.).*")
 +                    suppress.set(true)
 +                }
 +                perPackageOption {
-+                    prefix.set("kotlin.jvm.internal")
++                    matchingRegex.set("kotlin.jvm.internal(\$|\\.).*")
 +                    suppress.set(true)
 +                }
 +                perPackageOption {
-+                    prefix.set("kotlin.coroutines.jvm.internal")
++                    matchingRegex.set("kotlin.coroutines.jvm.internal(\$|\\.).*")
 +                    suppress.set(true)
 +                }
 +                perPackageOption {
-+                    prefix.set("kotlin.coroutines.experimental.migration")
++                    matchingRegex.set("kotlin.coroutines.experimental.migration(\$|\\.).*")
 +                    suppress.set(true)
 +                }
 +            }
@@ -237,23 +237,23 @@ index aa8f21b..dd6a2ae 100644
 +                dependsOn("kotlin-stdlib-common")
 +                sourceRoots.setFrom("$kotlin_sources/kotlin-stdlib-jdk8/")
 +                perPackageOption {
-+                    prefix.set("kotlin.reflect.jvm.internal")
++                    matchingRegex.set("kotlin.reflect.jvm.internal")
 +                    suppress.set(true)
 +                }
 +                perPackageOption {
-+                    prefix.set("kotlin.jvm.functions")
++                    matchingRegex.set("kotlin.jvm.functions(\$|\\.).*")
 +                    suppress.set(true)
 +                }
 +                perPackageOption {
-+                    prefix.set("kotlin.jvm.internal")
++                    matchingRegex.set("kotlin.jvm.internal(\$|\\.).*")
 +                    suppress.set(true)
 +                }
 +                perPackageOption {
-+                    prefix.set("kotlin.coroutines.jvm.internal")
++                    matchingRegex.set("kotlin.coroutines.jvm.internal(\$|\\.).*")
 +                    suppress.set(true)
 +                }
 +                perPackageOption {
-+                    prefix.set("kotlin.coroutines.experimental.migration")
++                    matchingRegex.set("kotlin.coroutines.experimental.migration(\$|\\.).*")
 +                    suppress.set(true)
 +                }
 +            }
@@ -274,23 +274,23 @@ index aa8f21b..dd6a2ae 100644
 +                dependsOn("kotlin-stdlib-common")
 +                sourceRoots.from("$kotlin_sources/kotlin-stdlib-jdk7")
 +                perPackageOption {
-+                    prefix.set("kotlin.reflect.jvm.internal")
++                    matchingRegex.set("kotlin.reflect.jvm.internal(\$|\\.).*")
 +                    suppress.set(true)
 +                }
 +                perPackageOption {
-+                    prefix.set("kotlin.jvm.functions")
++                    matchingRegex.set("kotlin.jvm.functions(\$|\\.).*")
 +                    suppress.set(true)
 +                }
 +                perPackageOption {
-+                    prefix.set("kotlin.jvm.internal")
++                    matchingRegex.set("kotlin.jvm.internal(\$|\\.).*")
 +                    suppress.set(true)
 +                }
 +                perPackageOption {
-+                    prefix.set("kotlin.coroutines.jvm.internal")
++                    matchingRegex.set("kotlin.coroutines.jvm.internal(\$|\\.).*")
 +                    suppress.set(true)
 +                }
 +                perPackageOption {
-+                    prefix.set("kotlin.coroutines.experimental.migration")
++                    matchingRegex.set("kotlin.coroutines.experimental.migration(\$|\\.).*")
 +                    suppress.set(true)
 +                }
 +            }
@@ -312,23 +312,23 @@ index aa8f21b..dd6a2ae 100644
 +
 +                sourceRoots.from("$kotlin_sources/kotlin-stdlib-js")
 +                perPackageOption {
-+                    prefix.set("org.w3c")
++                    matchingRegex.set("org.w3c(\$|\\.).*")
 +                    reportUndocumented.set(false)
 +                }
 +                perPackageOption {
-+                    prefix.set("org.khronos")
++                    matchingRegex.set("org.khronos(\$|\\.).*")
 +                    reportUndocumented.set(false)
 +                }
 +                perPackageOption {
-+                    prefix.set("jquery")
++                    matchingRegex.set("jquery(\$|\\.).*")
 +                    suppress.set(true)
 +                }
 +                perPackageOption {
-+                    prefix.set("kotlin.reflect.jvm.internal")
++                    matchingRegex.set("kotlin.reflect.jvm.internal(\$|\\.).*")
 +                    suppress.set(true)
 +                }
 +                perPackageOption {
-+                    prefix.set("kotlin.js.internal")
++                    matchingRegex.set("kotlin.js.internal(\$|\\.).*")
 +                    suppress.set(true)
 +                }
 +            }
@@ -352,11 +352,11 @@ index aa8f21b..dd6a2ae 100644
 +                sourceRoots.from("$kotlin_native_root/Interop/JsRuntime/src/main/kotlin")
 +                sourceRoots.from("$kotlin_native_root/runtime/src/main/kotlin")
 +                perPackageOption {
-+                    prefix.set("kotlin.native.internal")
++                    matchingRegex.set("kotlin.native.internal(\$|\\.).*")
 +                    suppress.set(true)
 +                }
 +                perPackageOption {
-+                    prefix.set("kotlin.test")
++                    matchingRegex.set("kotlin.test(\$|\\.).*")
 +                    suppress.set(true)
 +                }
 +            }
@@ -391,7 +391,7 @@ index aa8f21b..dd6a2ae 100644
 +                displayName.set("JVM")
 +                sourceRoots.from("$kotlin_root/libraries/kotlin.test/jvm/src/main/kotlin")
 +                perPackageOption {
-+                    prefix.set("org.junit")
++                    matchingRegex.set("org.junit(\$|\\.).*")
 +                    skipDeprecated.set(true)
 +                }
 +            }
@@ -467,7 +467,7 @@ index aa8f21b..dd6a2ae 100644
 +                displayName.set("JS")
 +                sourceRoots.from("$kotlin_root/libraries/kotlin.test/js/src/main/kotlin")
 +                perPackageOption {
-+                    prefix.set("org.junit")
++                    matchingRegex.set("org.junit(\$|\\.).*")
 +                    skipDeprecated.set(true)
 +                }
 +                externalDocumentationLink {

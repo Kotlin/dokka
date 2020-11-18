@@ -30,7 +30,7 @@ tasks.withType<DokkaTask> {
         configureEach {
             suppressedFiles.from(file("src/main/kotlin/it/suppressedByPath"))
             perPackageOption {
-                prefix.set("it.suppressedByPackage")
+                matchingRegex.set("it.suppressedByPackage.*")
                 suppress.set(true)
             }
             sourceLink {
