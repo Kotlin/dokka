@@ -31,7 +31,7 @@ Dokka supports the following command line arguments:
     * `-skipDeprecated` - if set, deprecated elements are not included in the generated documentation
     * `-reportUndocumented` - warn about undocumented members
     * `-skipEmptyPackages` - do not create index pages for empty packages
-    * `-packageOptions` - list of package options in format `prefix,-deprecated,-privateApi,+reportUndocumented;prefix, ...`, separated by `;`
+    * `-packageOptions` - list of package options in format `matchingRegex,-deprecated,-privateApi,+reportUndocumented;matchingRegex, ...`, separated by `;`
     * `-links` - list of external documentation links in format `url^packageListUrl^^url2...`, separated by `;`
     * `-srcLink` - mapping between a source directory and a Web site for browsing the code in format `<path>=<url>[#lineSuffix]`
     * `-noStdlibLink` - disable linking to online kotlin-stdlib documentation
