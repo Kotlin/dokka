@@ -4,16 +4,14 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.DokkaBaseConfiguration
 import org.jetbrains.dokka.base.renderers.sourceSets
-import org.jetbrains.dokka.model.DEnum
-import org.jetbrains.dokka.model.DEnumEntry
-import org.jetbrains.dokka.model.DFunction
-import org.jetbrains.dokka.model.withDescendants
+import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.configuration
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 
-open class NavigationPageInstaller : PageTransformer {
+open class NavigationPageInstaller(val context: DokkaContext) : PageTransformer {
     private val mapper = jacksonObjectMapper()
 
     open fun createSearchRecordFromNode(node: NavigationNode, location: String): SearchRecord =
@@ -28,9 +26,11 @@ open class NavigationPageInstaller : PageTransformer {
         val page = RendererSpecificResourcePage(
             name = "scripts/navigation-pane.json",
             children = emptyList(),
-            strategy = RenderingStrategy.LocationResolvableWrite { resolver ->
+            strategy = RenderingStrategy.DriLocationResolvableWrite { resolver ->
                 mapper.writeValueAsString(
-                    nodes.withDescendants().map { createSearchRecordFromNode(it, resolver(it.dri, it.sourceSets)) })
+                    nodes.withDescendants().map {
+                        createSearchRecordFromNode(it, resolveLocation(resolver, it.dri, it.sourceSets).orEmpty())
+                    })
             })
 
         return input.modified(
@@ -61,6 +61,11 @@ open class NavigationPageInstaller : PageTransformer {
         } else {
             name
         }
+
+    private fun resolveLocation(locationResolver: DriResolver, dri: DRI, sourceSets: Set<DisplaySourceSet>): String? =
+        locationResolver(dri, sourceSets).also { location ->
+            if (location.isNullOrBlank()) context.logger.warn("Cannot resolve path for $dri and sourceSets: ${sourceSets.joinToString { it.name }}")
+        }
 }
 
 class CustomResourceInstaller(val dokkaContext: DokkaContext) : PageTransformer {
@@ -76,7 +81,8 @@ class CustomResourceInstaller(val dokkaContext: DokkaContext) : PageTransformer 
 
     override fun invoke(input: RootPageNode): RootPageNode {
         val customResourcesPaths = (customAssets + customStylesheets).map { it.name }.toSet()
-        val withEmbeddedResources = input.transformContentPagesTree { it.modified(embeddedResources = it.embeddedResources + customResourcesPaths) }
+        val withEmbeddedResources =
+            input.transformContentPagesTree { it.modified(embeddedResources = it.embeddedResources + customResourcesPaths) }
         val (currentResources, otherPages) = withEmbeddedResources.children.partition { it is RendererSpecificResourcePage }
         return input.modified(children = otherPages + currentResources.filterNot { it.name in customResourcesPaths } + customAssets + customStylesheets)
     }
@@ -167,5 +173,4 @@ class SourcesetDependencyAppender(val context: DokkaContext) : PageTransformer {
         ).transformContentPagesTree { it.modified(embeddedResources = it.embeddedResources + name) }
     }
 }
-
 

@@ -41,8 +41,6 @@ open class HtmlRenderer(
 
     override val preprocessors = context.plugin<DokkaBase>().query { htmlPreprocessors }
 
-    val searchbarDataInstaller = context.plugin<DokkaBase>().querySingle { searchbarDataInstaller }
-
     private val tabSortingStrategy = context.plugin<DokkaBase>().querySingle { tabSortingStrategy }
 
     private fun <T : ContentNode> sortTabs(strategy: TabSortingStrategy, tabs: Collection<T>): List<T> {
@@ -682,14 +680,6 @@ open class HtmlRenderer(
         }
     }
 
-
-    override suspend fun renderPage(page: PageNode) {
-        super.renderPage(page)
-        if (page is ContentPage && page !is ModulePageNode && page !is PackagePageNode)
-            searchbarDataInstaller.processPage(page, locationProvider.resolve(page)
-                ?: run { context.logger.error("Cannot resolve path for ${page.dri}"); "" })
-    }
-
     override fun FlowContent.buildText(textNode: ContentText) =
         when {
             textNode.hasStyle(TextStyle.Indented) -> {
@@ -703,11 +693,6 @@ open class HtmlRenderer(
     override fun render(root: RootPageNode) {
         shouldRenderSourceSetBubbles = shouldRenderSourceSetBubbles(root)
         super.render(root)
-        runBlocking(Dispatchers.Default) {
-            launch {
-                outputWriter.write("scripts/pages", "var pages = ${searchbarDataInstaller.generatePagesList()}", ".js")
-            }
-        }
     }
 
     private fun PageNode.root(path: String) = locationProvider.pathToRoot(this) + path

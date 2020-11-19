@@ -5,7 +5,6 @@ import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.renderers.DefaultTabSortingStrategy
 import org.jetbrains.dokka.base.renderers.RootCreator
-import org.jetbrains.dokka.base.renderers.html.DefaultSearchbarDataInstaller
 import org.jetbrains.dokka.base.resolvers.external.DefaultExternalLocationProviderFactory
 import org.jetbrains.dokka.base.resolvers.external.javadoc.JavadocExternalLocationProviderFactory
 import org.jetbrains.dokka.base.resolvers.local.DokkaLocationProviderFactory
@@ -49,7 +48,6 @@ abstract class HtmlRenderingOnlyTestBase : RenderingOnlyTestBase<Element>() {
         DokkaBase().externalLocationProviderFactory to { ::JavadocExternalLocationProviderFactory },
         DokkaBase().externalLocationProviderFactory to { ::DefaultExternalLocationProviderFactory },
         DokkaBase().tabSortingStrategy to { DefaultTabSortingStrategy() },
-        DokkaBase().searchbarDataInstaller to { DefaultSearchbarDataInstaller() },
         testConfiguration = DokkaConfigurationImpl(
             sourceSets = listOf(js, jvm, native)
         )
