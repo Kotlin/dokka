@@ -66,7 +66,7 @@ class GlobalArguments(args: Array<String>) : DokkaConfiguration {
 
     override val delayTemplateSubstitution by parser.option(
         ArgType.Boolean,
-        description = "Delay substitution of some elements (usefull for incremental builds of multimoule projects)"
+        description = "Delay substitution of some elements (usefull for incremental builds of multimodule projects)"
     ).default(DokkaDefaults.delayTemplateSubstitution)
 
     val globalPackageOptions by parser.option(

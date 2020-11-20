@@ -13,7 +13,7 @@ import org.jetbrains.dokka.plugability.DokkaContext
 import java.util.*
 
 class JavadocLocationProvider(pageRoot: RootPageNode, dokkaContext: DokkaContext) :
-    DefaultLocationProvider(pageRoot, dokkaContext, ".html") {
+    DefaultLocationProvider(pageRoot, dokkaContext) {
 
     private val pathIndex = IdentityHashMap<PageNode, List<String>>().apply {
         fun registerPath(page: PageNode, prefix: List<String> = emptyList()) {

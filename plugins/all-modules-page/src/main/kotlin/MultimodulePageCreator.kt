@@ -2,7 +2,6 @@ package org.jetbrains.dokka.allModulesPage
 
 import org.jetbrains.dokka.DokkaConfiguration.DokkaModuleDescription
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
-import org.jetbrains.dokka.allModulesPage.MultimoduleLocationProvider.Companion.MULTIMODULE_PACKAGE_PLACEHOLDER
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.parsers.moduleAndPackage.ModuleAndPackageDocumentation.Classifier.Module
 import org.jetbrains.dokka.base.parsers.moduleAndPackage.ModuleAndPackageDocumentationParsingContext
@@ -62,7 +61,7 @@ class MultimodulePageCreator(
             }
         }
         return MultimoduleRootPageNode(
-            setOf(DRI(packageName = MULTIMODULE_PACKAGE_PLACEHOLDER, classNames = "allModules")),
+            setOf(MULTIMODULE_ROOT_DRI),
             contentNode
         )
     }
@@ -93,5 +92,10 @@ class MultimodulePageCreator(
         val firstChildParagraph = children.mapNotNull { it.firstParagraph() }.firstOrNull()
         return if (firstChildParagraph == null && this is P) this
         else firstChildParagraph
+    }
+
+    companion object {
+        const val MULTIMODULE_PACKAGE_PLACEHOLDER = ".ext"
+        val MULTIMODULE_ROOT_DRI = DRI(packageName = MULTIMODULE_PACKAGE_PLACEHOLDER, classNames = "allModules")
     }
 }

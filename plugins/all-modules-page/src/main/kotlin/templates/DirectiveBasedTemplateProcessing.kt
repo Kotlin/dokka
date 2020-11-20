@@ -9,6 +9,7 @@ import org.jetbrains.dokka.base.templating.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.query
+import org.jetbrains.dokka.plugability.querySingle
 import org.jsoup.Jsoup
 import org.jsoup.nodes.*
 import org.jsoup.parser.Tag
@@ -20,7 +21,7 @@ class DirectiveBasedHtmlTemplateProcessingStrategy(private val context: DokkaCon
     private val navigationFragments = ConcurrentHashMap<String, Element>()
 
     private val substitutors = context.plugin<AllModulesPagePlugin>().query { substitutor }
-    private val externalModuleLinkResolver = ExternalModuleLinkResolver(context)
+    private val externalModuleLinkResolver = context.plugin<AllModulesPagePlugin>().querySingle { externalModuleLinkResolver }
 
     override suspend fun process(input: File, output: File): Boolean = coroutineScope {
         if (input.extension == "html") {
@@ -78,35 +79,37 @@ class DirectiveBasedHtmlTemplateProcessingStrategy(private val context: DokkaCon
         substitutors.asSequence().mapNotNull { it.trySubstitute(commandContext, match) }.firstOrNull() ?: match.value
 
     override suspend fun finish(output: File) {
-        val attributes = Attributes().apply {
-            put("class", "sideMenu")
-        }
-        val node = Element(Tag.valueOf("div"), "", attributes)
-        navigationFragments.entries.sortedBy { it.key }.forEach { (moduleName, command) ->
-            command.select("a").forEach { a ->
-                a.attr("href")?.also { a.attr("href", "${moduleName}/${it}") }
+        if (navigationFragments.isNotEmpty()) {
+            val attributes = Attributes().apply {
+                put("class", "sideMenu")
             }
-            command.childNodes().toList().forEachIndexed { index, child ->
-                if (index == 0) {
-                    child.attr("id", "$moduleName-nav-submenu")
+            val node = Element(Tag.valueOf("div"), "", attributes)
+            navigationFragments.entries.sortedBy { it.key }.forEach { (moduleName, command) ->
+                command.select("a").forEach { a ->
+                    a.attr("href")?.also { a.attr("href", "${moduleName}/${it}") }
                 }
-                node.appendChild(child)
+                command.childNodes().toList().forEachIndexed { index, child ->
+                    if (index == 0) {
+                        child.attr("id", "$moduleName-nav-submenu")
+                    }
+                    node.appendChild(child)
+                }
             }
-        }
 
-        withContext(IO) {
-            Files.write(output.resolve("navigation.html").toPath(), listOf(node.outerHtml()))
-        }
-
-        node.select("a").forEach { a ->
-            a.attr("href")?.also { a.attr("href", "../${it}") }
-        }
-        navigationFragments.keys.forEach {
             withContext(IO) {
-                Files.write(
-                    output.resolve(it).resolve("navigation.html").toPath(),
-                    listOf(node.outerHtml())
-                )
+                Files.write(output.resolve("navigation.html").toPath(), listOf(node.outerHtml()))
+            }
+
+            node.select("a").forEach { a ->
+                a.attr("href")?.also { a.attr("href", "../${it}") }
+            }
+            navigationFragments.keys.forEach {
+                withContext(IO) {
+                    Files.write(
+                        output.resolve(it).resolve("navigation.html").toPath(),
+                        listOf(node.outerHtml())
+                    )
+                }
             }
         }
     }
@@ -127,7 +130,7 @@ class DirectiveBasedHtmlTemplateProcessingStrategy(private val context: DokkaCon
         }
 
         val attributes = Attributes().apply {
-            put("href", link) // TODO: resolve
+            put("href", link)
         }
         val children = it.childNodes().toList()
         val element = Element(Tag.valueOf("a"), "", attributes).apply {

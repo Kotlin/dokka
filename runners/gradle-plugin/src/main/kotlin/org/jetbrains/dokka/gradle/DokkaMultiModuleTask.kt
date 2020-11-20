@@ -43,7 +43,6 @@ abstract class DokkaMultiModuleTask : AbstractDokkaParentTask() {
 
     override fun generateDocumentation() {
         checkChildDokkaTasksIsNotEmpty()
-//        copyChildOutputDirectories()
         super.generateDocumentation()
     }
 
