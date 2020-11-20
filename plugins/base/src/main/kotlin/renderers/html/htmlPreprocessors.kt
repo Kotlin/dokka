@@ -11,34 +11,11 @@ import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.configuration
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 
-open class NavigationPageInstaller(val context: DokkaContext) : PageTransformer {
-    private val mapper = jacksonObjectMapper()
-
-    open fun createSearchRecordFromNode(node: NavigationNode, location: String): SearchRecord =
-        SearchRecord(name = node.name, location = location)
-
+abstract class NavigationDataProvider {
     open fun navigableChildren(input: RootPageNode): NavigationNode =
         input.children.filterIsInstance<ContentPage>().single().let { visit(it) }
 
-    override fun invoke(input: RootPageNode): RootPageNode {
-        val nodes = navigableChildren(input)
-
-        val page = RendererSpecificResourcePage(
-            name = "scripts/navigation-pane.json",
-            children = emptyList(),
-            strategy = RenderingStrategy.DriLocationResolvableWrite { resolver ->
-                mapper.writeValueAsString(
-                    nodes.withDescendants().map {
-                        createSearchRecordFromNode(it, resolveLocation(resolver, it.dri, it.sourceSets).orEmpty())
-                    })
-            })
-
-        return input.modified(
-            children = input.children + page + NavigationPage(nodes)
-        )
-    }
-
-    private fun visit(page: ContentPage): NavigationNode =
+    open fun visit(page: ContentPage): NavigationNode =
         NavigationNode(
             name = page.displayableName,
             dri = page.dri.first(),
@@ -61,11 +38,39 @@ open class NavigationPageInstaller(val context: DokkaContext) : PageTransformer 
         } else {
             name
         }
+}
+
+open class NavigationSearchInstaller(val context: DokkaContext) : NavigationDataProvider(), PageTransformer {
+    private val mapper = jacksonObjectMapper()
+
+    open fun createSearchRecordFromNode(node: NavigationNode, location: String): SearchRecord =
+        SearchRecord(name = node.name, location = location)
+
+    override fun invoke(input: RootPageNode): RootPageNode {
+        val page = RendererSpecificResourcePage(
+            name = "scripts/navigation-pane.json",
+            children = emptyList(),
+            strategy = RenderingStrategy.DriLocationResolvableWrite { resolver ->
+                mapper.writeValueAsString(
+                    navigableChildren(input).withDescendants().map {
+                        createSearchRecordFromNode(it, resolveLocation(resolver, it.dri, it.sourceSets).orEmpty())
+                    })
+            })
+
+        return input.modified(children = input.children + page)
+    }
 
     private fun resolveLocation(locationResolver: DriResolver, dri: DRI, sourceSets: Set<DisplaySourceSet>): String? =
         locationResolver(dri, sourceSets).also { location ->
             if (location.isNullOrBlank()) context.logger.warn("Cannot resolve path for $dri and sourceSets: ${sourceSets.joinToString { it.name }}")
         }
+
+}
+
+open class NavigationPageInstaller(val context: DokkaContext) : NavigationDataProvider(), PageTransformer {
+
+    override fun invoke(input: RootPageNode): RootPageNode =
+        input.modified(children = input.children + NavigationPage(navigableChildren(input)))
 }
 
 class CustomResourceInstaller(val dokkaContext: DokkaContext) : PageTransformer {
