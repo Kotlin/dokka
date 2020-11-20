@@ -4,7 +4,6 @@ import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.resolvers.external.ExternalLocationProvider
 import org.jetbrains.dokka.base.resolvers.shared.ExternalDocumentation
 import org.jetbrains.dokka.base.resolvers.shared.PackageList
-import org.jetbrains.dokka.base.resolvers.anchors.SymbolAnchorHint
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.DisplaySourceSet
 import org.jetbrains.dokka.pages.RootPageNode
@@ -14,8 +13,7 @@ import org.jetbrains.dokka.plugability.query
 
 abstract class DefaultLocationProvider(
     protected val pageGraphRoot: RootPageNode,
-    protected val dokkaContext: DokkaContext,
-    protected val extension: String
+    protected val dokkaContext: DokkaContext
 ) : LocationProvider {
     protected val externalLocationProviderFactories =
         dokkaContext.plugin<DokkaBase>().query { externalLocationProviderFactory }

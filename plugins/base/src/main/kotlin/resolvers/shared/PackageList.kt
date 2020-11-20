@@ -1,7 +1,6 @@
 package org.jetbrains.dokka.base.resolvers.shared
 
 import org.jetbrains.dokka.base.renderers.PackageListService
-import java.io.File
 import java.net.URL
 
 data class PackageList(
@@ -15,9 +14,6 @@ data class PackageList(
             if (offlineMode && url.protocol.toLowerCase() != "file")
                 return null
 
-            /*if (!File(url.file).isFile)
-                return null*/
-
             val packageListStream = url.readContent()
 
             val (params, packages) = packageListStream
@@ -30,7 +26,6 @@ data class PackageList(
 
             return PackageList(format, packages.filter(String::isNotBlank).toSet(), locations, url)
         }
-
 
         private fun splitParams(params: List<String>) = params.asSequence()
             .map { it.removePrefix("${PackageListService.DOKKA_PARAM_PREFIX}.").split(":", limit = 2) }

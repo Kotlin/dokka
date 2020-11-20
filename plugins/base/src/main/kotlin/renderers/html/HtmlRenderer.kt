@@ -712,7 +712,6 @@ open class HtmlRenderer(
         buildHtml(page, page.embeddedResources) {
             div("main-content") {
                 id = "content"
-                // TODO: Investigate possible problem
                 attributes["pageIds"] = "${context.configuration.moduleName}::${page.pageId}"
                 content(this, page)
             }

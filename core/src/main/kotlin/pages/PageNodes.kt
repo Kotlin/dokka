@@ -161,7 +161,7 @@ class MultimoduleRootPageNode(
     override val content: ContentNode,
     override val embeddedResources: List<String> = emptyList()
 ) : RootPageNode(forceTopLevelName = true), MultimoduleRootPage {
-    override val name = ""
+    override val name = "All modules"
 
     override val children: List<PageNode> = emptyList()
 

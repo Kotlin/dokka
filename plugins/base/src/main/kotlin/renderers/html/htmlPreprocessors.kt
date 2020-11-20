@@ -70,7 +70,8 @@ open class NavigationSearchInstaller(val context: DokkaContext) : NavigationData
 open class NavigationPageInstaller(val context: DokkaContext) : NavigationDataProvider(), PageTransformer {
 
     override fun invoke(input: RootPageNode): RootPageNode =
-        input.modified(children = input.children + NavigationPage(navigableChildren(input)))
+        input.modified(children = input.children + NavigationPage(navigableChildren(input),
+            (listOf(input) + input.children).firstOrNull { it is ContentPage && it.name.isNotBlank() }?.name.orEmpty()))
 }
 
 class CustomResourceInstaller(val dokkaContext: DokkaContext) : PageTransformer {
