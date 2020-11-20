@@ -11,9 +11,11 @@ import org.jetbrains.dokka.plugability.querySingle
 
 class AllModulesPageGeneration(private val context: DokkaContext) : Generation {
 
+    private val allModulesPagePlugin by lazy { context.plugin<AllModulesPagePlugin>() }
+
     override fun Timer.generate() {
         report("Creating all modules page")
-        val pages = createAllModulePage()
+        val pages = createAllModulesPage()
 
         report("Transforming pages")
         val transformedPages = transformAllModulesPage(pages)
@@ -22,19 +24,20 @@ class AllModulesPageGeneration(private val context: DokkaContext) : Generation {
         render(transformedPages)
 
         report("Processing submodules")
-        allModulesPagePlugin().querySingle { templateProcessor }.process()
+        processSubmodules()
     }
 
     override val generationName = "index page for project"
 
-    fun createAllModulePage() = allModulesPagePlugin().querySingle { allModulePageCreator }.invoke()
+    fun createAllModulesPage() = allModulesPagePlugin.querySingle { allModulesPageCreator }.invoke()
 
     fun transformAllModulesPage(pages: RootPageNode) =
-        allModulesPagePlugin().query { allModulePageTransformer }.fold(pages) { acc, t -> t(acc) }
+        allModulesPagePlugin.query { allModulesPageTransformer }.fold(pages) { acc, t -> t(acc) }
 
     fun render(transformedPages: RootPageNode) {
         context.single(CoreExtensions.renderer).render(transformedPages)
     }
 
-    private fun allModulesPagePlugin() = context.plugin<AllModulesPagePlugin>()
+    fun processSubmodules() =
+        allModulesPagePlugin.querySingle { templateProcessor }.process()
 }

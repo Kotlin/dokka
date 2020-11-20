@@ -8,9 +8,8 @@ import org.jetbrains.dokka.utilities.urlEncoded
 
 abstract class DokkaBaseLocationProvider(
     pageGraphRoot: RootPageNode,
-    dokkaContext: DokkaContext,
-    extension: String
-) : DefaultLocationProvider(pageGraphRoot, dokkaContext, extension) {
+    dokkaContext: DokkaContext
+) : DefaultLocationProvider(pageGraphRoot, dokkaContext) {
 
     /**
      * Anchors should be unique and should contain sourcesets, dri and contentKind.

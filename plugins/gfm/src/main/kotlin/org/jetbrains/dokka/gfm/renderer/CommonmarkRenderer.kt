@@ -18,6 +18,8 @@ open class CommonmarkRenderer(
 
     override val preprocessors = context.plugin<GfmPlugin>().query { gfmPreprocessors }
 
+    private val isPartial = context.configuration.delayTemplateSubstitution
+
     override fun StringBuilder.wrapGroup(
         node: ContentGroup,
         pageContext: ContentPage,
@@ -87,10 +89,15 @@ open class CommonmarkRenderer(
         pageContext: ContentPage,
         sourceSetRestriction: Set<DisplaySourceSet>?
     ) {
-        val address = locationProvider.resolve(node.address, node.sourceSets, pageContext)
-        buildLink(address ?: templateCommand(ResolveLinkGfmCommand(node.address))) {
-            buildText(node.children, pageContext, sourceSetRestriction)
-        }
+        locationProvider.resolve(node.address, node.sourceSets, pageContext)?.let {
+            buildLink(it) {
+                buildText(node.children, pageContext, sourceSetRestriction)
+            }
+        } ?: if (isPartial) {
+            templateCommand(ResolveLinkGfmCommand(node.address)) {
+                buildText(node.children, pageContext, sourceSetRestriction)
+            }
+        } else Unit
     }
 
     override fun StringBuilder.buildNewLine() {
