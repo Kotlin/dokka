@@ -12,7 +12,7 @@ The main building block of this model is `Documentable` class, that is a base cl
 
 There are three non-documentable classes important for the model: `DRI`, `SourceSetDependent` and `ExtraProperty`.
 
-* `DRI` (Dokka Resource Identifier) is an unique value that identifies specific `Documentable`. All references to other documentables different than direct ownership are described using DRIs. For example, `DFunction` with parameter of type `X` has only X's DRI, not the actual reference to X's Documentable object.
+* `DRI` (Dokka Resource Identifier) is a unique value that identifies specific `Documentable`. All references to other documentables different than direct ownership are described using DRIs. For example, `DFunction` with parameter of type `X` has only X's DRI, not the actual reference to X's Documentable object.
 * `SourceSetDependent` is a map that handles multiplatform data, by connecting platform-specific data, declared with either `expect` or `actual` modifier, to a particular Source Set
 * `ExtraProperty` is used to store any additional information that falls outside of regular model. It is highly recommended to use extras to provide any additional information when creating custom Dokka plugins. This element is a bit more complex, so you can read more about how to use it below.
 
