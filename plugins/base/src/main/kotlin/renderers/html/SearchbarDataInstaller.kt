@@ -59,19 +59,20 @@ open class SearchbarDataInstaller {
         return getContentTextNodes(node, sourceSetRestriction).joinToString("") { it.text }
     }
 
-    open fun processPage(page: ContentPage, link: String) {
-        val signature = getSymbolSignature(page)
-        val textNodes = signature?.let { flattenToText(it) }
-        val documentable = page.documentable
-        if (documentable != null) {
-            listOf(
-                documentable.dri.packageName,
-                documentable.dri.classNames,
-                documentable.dri.callable?.name
-            ).filter { !it.isNullOrEmpty() }
-                .takeIf { it.isNotEmpty() }
-                ?.joinToString(".")
-                ?.let { id -> pageList.put(id, Pair(textNodes ?: page.name, link)) }
+    open fun processPage(page: PageNode, link: String) {
+        if (page is ContentPage && page !is ModulePageNode && page !is PackagePageNode) {
+            val signature = getSymbolSignature(page)
+            val textNodes = signature?.let { flattenToText(it) }
+            val documentable = page.documentable
+            if (documentable != null) {
+                listOf(
+                    documentable.dri.packageName,
+                    documentable.dri.classNames,
+                    documentable.dri.callable?.name
+                ).filter { !it.isNullOrEmpty() }
+                    .takeIf { it.isNotEmpty() }
+                    ?.joinToString(".")
+                    ?.let { id -> pageList.put(id, Pair(textNodes ?: page.name, link)) }
+            }
         }
-    }
 }
