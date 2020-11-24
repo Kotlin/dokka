@@ -993,11 +993,11 @@ private class DokkaDescriptorVisitor(
             get() = ancestry.exceptionsInSupertypes()
     }
 
-    private fun Visibility.toDokkaVisibility(): org.jetbrains.dokka.model.Visibility = when (this) {
-        Visibilities.PUBLIC -> KotlinVisibility.Public
-        Visibilities.PROTECTED -> KotlinVisibility.Protected
-        Visibilities.INTERNAL -> KotlinVisibility.Internal
-        Visibilities.PRIVATE -> KotlinVisibility.Private
+    private fun DescriptorVisibility.toDokkaVisibility(): org.jetbrains.dokka.model.Visibility = when (this.delegate) {
+        Visibilities.Public -> KotlinVisibility.Public
+        Visibilities.Protected -> KotlinVisibility.Protected
+        Visibilities.Internal -> KotlinVisibility.Internal
+        Visibilities.Private -> KotlinVisibility.Private
         else -> KotlinVisibility.Public
     }
 

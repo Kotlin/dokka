@@ -16,13 +16,13 @@ repositories {
 val intellijCore: Configuration by configurations.creating
 
 fun intellijCoreAnalysis() = zipTree(intellijCore.singleFile).matching {
-    include("intellij-core-analysis.jar")
+    include("intellij-core-analysis-deprecated.jar")
 }
 
 dependencies {
     val kotlin_plugin_version: String by project
-    api("org.jetbrains.kotlin:ide-common-ij193:$kotlin_plugin_version")
-    api("org.jetbrains.kotlin:kotlin-plugin-ij193:$kotlin_plugin_version") {
+    api("org.jetbrains.kotlin:ide-common-ij201:$kotlin_plugin_version")
+    api("org.jetbrains.kotlin:kotlin-plugin-ij201:$kotlin_plugin_version") {
         //TODO: parametrize ij version after 1.3.70
         isTransitive = false
     }

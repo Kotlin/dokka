@@ -37,6 +37,7 @@ import org.jetbrains.kotlin.builtins.functions.FunctionClassDescriptor
 import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
 import org.jetbrains.kotlin.cli.jvm.config.JavaSourceRoot
 import org.jetbrains.kotlin.descriptors.Visibilities
+import org.jetbrains.kotlin.descriptors.java.JavaVisibilities
 import org.jetbrains.kotlin.idea.caches.resolve.util.getJavaClassDescriptor
 import org.jetbrains.kotlin.idea.refactoring.fqName.getKotlinFqName
 import org.jetbrains.kotlin.load.java.JvmAbi
@@ -184,7 +185,7 @@ class DefaultPsiToDocumentableTranslator(
                             it.methods.forEach { method ->
                                 val hash = method.hash
                                 if (!method.isConstructor && !superMethodsKeys.contains(hash) &&
-                                    method.getVisibility() != Visibilities.PRIVATE
+                                    method.getVisibility() != JavaVisibility.Private
                                 ) {
                                     superMethodsKeys.add(hash)
                                     superMethods.add(Pair(method, definedAt))
