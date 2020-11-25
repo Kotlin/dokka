@@ -5,7 +5,8 @@ import org.jetbrains.dokka.model.DisplaySourceSet
 import org.jetbrains.dokka.renderers.Renderer
 import kotlin.reflect.KClass
 
-typealias LocationResolver = (DRI, Set<DisplaySourceSet>) -> String
+fun interface DriResolver: (DRI, Set<DisplaySourceSet>) -> String?
+fun interface PageResolver: (PageNode, PageNode?) -> String?
 
 interface RendererSpecificPage : PageNode {
     val strategy: RenderingStrategy
@@ -33,7 +34,8 @@ sealed class RenderingStrategy {
     class Callback(val instructions: Renderer.(PageNode) -> String): RenderingStrategy()
     data class Copy(val from: String) : RenderingStrategy()
     data class Write(val text: String) : RenderingStrategy()
-    data class LocationResolvableWrite(val contentToResolve: (LocationResolver) -> String) : RenderingStrategy()
+    data class DriLocationResolvableWrite(val contentToResolve: (DriResolver) -> String) : RenderingStrategy()
+    data class PageLocationResolvableWrite(val contentToResolve: (PageResolver) -> String) : RenderingStrategy()
     object DoNothing : RenderingStrategy()
 
     companion object {

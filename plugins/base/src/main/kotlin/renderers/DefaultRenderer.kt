@@ -169,8 +169,11 @@ abstract class DefaultRenderer<T>(
                 is RenderingStrategy.Copy -> outputWriter.writeResources(strategy.from, path)
                 is RenderingStrategy.Write -> outputWriter.write(path, strategy.text, "")
                 is RenderingStrategy.Callback -> outputWriter.write(path, strategy.instructions(this, page), ".html")
-                is RenderingStrategy.LocationResolvableWrite -> outputWriter.write(path, strategy.contentToResolve { dri, sourcesets ->
-                    locationProvider.resolveOrThrow(dri, sourcesets)
+                is RenderingStrategy.DriLocationResolvableWrite -> outputWriter.write(path, strategy.contentToResolve { dri, sourcesets ->
+                    locationProvider.resolve(dri, sourcesets)
+                }, "")
+                is RenderingStrategy.PageLocationResolvableWrite -> outputWriter.write(path, strategy.contentToResolve { pageToLocate, context ->
+                    locationProvider.resolve(pageToLocate, context)
                 }, "")
                 RenderingStrategy.DoNothing -> Unit
             }

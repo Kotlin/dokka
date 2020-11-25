@@ -4,39 +4,18 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.DokkaBaseConfiguration
 import org.jetbrains.dokka.base.renderers.sourceSets
-import org.jetbrains.dokka.model.DEnum
-import org.jetbrains.dokka.model.DEnumEntry
-import org.jetbrains.dokka.model.DFunction
-import org.jetbrains.dokka.model.withDescendants
+import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.configuration
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 
-object NavigationPageInstaller : PageTransformer {
-    private val mapper = jacksonObjectMapper()
+abstract class NavigationDataProvider {
+    open fun navigableChildren(input: RootPageNode): NavigationNode =
+        input.children.filterIsInstance<ContentPage>().single().let { visit(it) }
 
-    fun SearchRecord.Companion.from(node: NavigationNode, location: String): SearchRecord =
-        SearchRecord(name = node.name, location = location)
-
-    override fun invoke(input: RootPageNode): RootPageNode {
-        val nodes = input.children.filterIsInstance<ContentPage>().single()
-            .let(NavigationPageInstaller::visit)
-
-        val page = RendererSpecificResourcePage(
-            name = "scripts/navigation-pane.json",
-            children = emptyList(),
-            strategy = RenderingStrategy.LocationResolvableWrite { resolver ->
-                mapper.writeValueAsString(
-                    nodes.withDescendants().map { SearchRecord.from(it, resolver(it.dri, it.sourceSets)) })
-            })
-
-        return input.modified(
-            children = input.children + page + NavigationPage(nodes)
-        )
-    }
-
-    private fun visit(page: ContentPage): NavigationNode =
+    open fun visit(page: ContentPage): NavigationNode =
         NavigationNode(
             name = page.displayableName,
             dri = page.dri.first(),
@@ -61,6 +40,39 @@ object NavigationPageInstaller : PageTransformer {
         }
 }
 
+open class NavigationSearchInstaller(val context: DokkaContext) : NavigationDataProvider(), PageTransformer {
+    private val mapper = jacksonObjectMapper()
+
+    open fun createSearchRecordFromNode(node: NavigationNode, location: String): SearchRecord =
+        SearchRecord(name = node.name, location = location)
+
+    override fun invoke(input: RootPageNode): RootPageNode {
+        val page = RendererSpecificResourcePage(
+            name = "scripts/navigation-pane.json",
+            children = emptyList(),
+            strategy = RenderingStrategy.DriLocationResolvableWrite { resolver ->
+                mapper.writeValueAsString(
+                    navigableChildren(input).withDescendants().map {
+                        createSearchRecordFromNode(it, resolveLocation(resolver, it.dri, it.sourceSets).orEmpty())
+                    })
+            })
+
+        return input.modified(children = input.children + page)
+    }
+
+    private fun resolveLocation(locationResolver: DriResolver, dri: DRI, sourceSets: Set<DisplaySourceSet>): String? =
+        locationResolver(dri, sourceSets).also { location ->
+            if (location.isNullOrBlank()) context.logger.warn("Cannot resolve path for $dri and sourceSets: ${sourceSets.joinToString { it.name }}")
+        }
+
+}
+
+open class NavigationPageInstaller(val context: DokkaContext) : NavigationDataProvider(), PageTransformer {
+
+    override fun invoke(input: RootPageNode): RootPageNode =
+        input.modified(children = input.children + NavigationPage(navigableChildren(input)))
+}
+
 class CustomResourceInstaller(val dokkaContext: DokkaContext) : PageTransformer {
     private val configuration = configuration<DokkaBase, DokkaBaseConfiguration>(dokkaContext)
 
@@ -74,7 +86,8 @@ class CustomResourceInstaller(val dokkaContext: DokkaContext) : PageTransformer 
 
     override fun invoke(input: RootPageNode): RootPageNode {
         val customResourcesPaths = (customAssets + customStylesheets).map { it.name }.toSet()
-        val withEmbeddedResources = input.transformContentPagesTree { it.modified(embeddedResources = it.embeddedResources + customResourcesPaths) }
+        val withEmbeddedResources =
+            input.transformContentPagesTree { it.modified(embeddedResources = it.embeddedResources + customResourcesPaths) }
         val (currentResources, otherPages) = withEmbeddedResources.children.partition { it is RendererSpecificResourcePage }
         return input.modified(children = otherPages + currentResources.filterNot { it.name in customResourcesPaths } + customAssets + customStylesheets)
     }
@@ -165,5 +178,4 @@ class SourcesetDependencyAppender(val context: DokkaContext) : PageTransformer {
         ).transformContentPagesTree { it.modified(embeddedResources = it.embeddedResources + name) }
     }
 }
-
 
