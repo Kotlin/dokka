@@ -779,6 +779,11 @@ By default, two translators are created:</p>
 <li><code>DefaultPsiToDocumentableTranslator</code> that handles Java files</li>
 </ul>
 <p>After this step, all data from different source sets and languages are kept separately.</p>
+<p>If you are using Kotlin it is recommended to make use of the asynchronous version, providing you implementation of <code>invokeSuspending</code>: </p>
+<div class="codehilite"><pre><span></span><code><span class="k">interface</span> <span class="nc">AsyncSourceToDocumentableTranslator</span> <span class="p">:</span> <span class="n">SourceToDocumentableTranslator</span> <span class="p">{</span>
+    <span class="n">suspend</span> <span class="k">fun</span> <span class="nf">invokeSuspending</span><span class="p">(</span><span class="n">sourceSet</span><span class="p">:</span> <span class="n">DokkaConfiguration</span><span class="p">.</span><span class="n">DokkaSourceSet</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">DokkaContext</span><span class="p">):</span> <span class="n">DModule</span>
+<span class="p">}</span>
+</code></pre></div>
 <h3 id="pre-merge-documentation-transform">Pre-merge documentation transform<a class="headerlink" href="#pre-merge-documentation-transform" title="Permanent link">&para;</a></h3>
 <p>Here you can apply any transformation to model data before different source sets are merged.</p>
 <p>This step uses <code>DokkaCore.preMergeDocumentableTransformer</code> entry point. All extensions registered using this entry point will be invoked. Each of them is required to implement <code>PreMergeDocumentableTransformer</code> interface:</p>
