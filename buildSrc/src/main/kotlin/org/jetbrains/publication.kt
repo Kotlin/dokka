@@ -163,12 +163,13 @@ private fun MavenPublication.configurePom(projectName: String) {
 
 @Suppress("UnstableApiUsage")
 private fun Project.signPublicationIfKeyPresent(publicationProvider: Provider<MavenPublication>) {
+    val signingKeyId = System.getenv("SIGN_KEY_ID")
     val signingKey = System.getenv("SIGN_KEY")
     val signingKeyPassphrase = System.getenv("SIGN_KEY_PASSPHRASE")
 
     if (!signingKey.isNullOrBlank()) {
         extensions.configure<SigningExtension>("signing") {
-            useInMemoryPgpKeys(signingKey, signingKeyPassphrase)
+            useInMemoryPgpKeys(signingKeyId, signingKey, signingKeyPassphrase)
             sign(publicationProvider.get())
         }
     }
