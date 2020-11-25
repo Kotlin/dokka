@@ -21,6 +21,7 @@ import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.query
 import org.jetbrains.dokka.plugability.querySingle
+import org.jetbrains.dokka.transformers.sources.AsyncSourceToDocumentableTranslator
 import org.jetbrains.dokka.transformers.sources.SourceToDocumentableTranslator
 import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.kotlin.builtins.functions.FunctionClassDescriptor
@@ -65,11 +66,11 @@ import org.jetbrains.kotlin.resolve.constants.KClassValue as ConstantsKtClassVal
 
 class DefaultDescriptorToDocumentableTranslator(
     context: DokkaContext
-) : SourceToDocumentableTranslator {
+) : AsyncSourceToDocumentableTranslator {
 
     private val kotlinAnalysis: KotlinAnalysis = context.plugin<DokkaBase>().querySingle { kotlinAnalysis }
 
-    override suspend fun invoke(sourceSet: DokkaSourceSet, context: DokkaContext): DModule {
+    override suspend fun invokeSuspending(sourceSet: DokkaSourceSet, context: DokkaContext): DModule {
         val (environment, facade) = kotlinAnalysis[sourceSet]
         val packageFragments = environment.getSourceFiles().asSequence()
             .map { it.packageFqName }

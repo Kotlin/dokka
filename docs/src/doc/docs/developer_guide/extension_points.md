@@ -28,6 +28,14 @@ By default, two translators are created:
 
 After this step, all data from different source sets and languages are kept separately.
 
+If you are using Kotlin it is recommended to make use of the asynchronous version, providing you implementation of `invokeSuspending`: 
+
+```kotlin
+interface AsyncSourceToDocumentableTranslator : SourceToDocumentableTranslator {
+    suspend fun invokeSuspending(sourceSet: DokkaConfiguration.DokkaSourceSet, context: DokkaContext): DModule
+}
+```
+
 ### Pre-merge documentation transform
 
 Here you can apply any transformation to model data before different source sets are merged.

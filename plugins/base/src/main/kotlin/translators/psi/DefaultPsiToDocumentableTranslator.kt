@@ -27,6 +27,7 @@ import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.querySingle
+import org.jetbrains.dokka.transformers.sources.AsyncSourceToDocumentableTranslator
 import org.jetbrains.dokka.transformers.sources.SourceToDocumentableTranslator
 import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.dokka.utilities.parallelForEach
@@ -52,11 +53,11 @@ import java.io.File
 
 class DefaultPsiToDocumentableTranslator(
     context: DokkaContext
-) : SourceToDocumentableTranslator {
+) : AsyncSourceToDocumentableTranslator {
 
     private val kotlinAnalysis: KotlinAnalysis = context.plugin<DokkaBase>().querySingle { kotlinAnalysis }
 
-    override suspend fun invoke(sourceSet: DokkaSourceSet, context: DokkaContext): DModule {
+    override suspend fun invokeSuspending(sourceSet: DokkaSourceSet, context: DokkaContext): DModule {
         return coroutineScope {
             fun isFileInSourceRoots(file: File): Boolean =
                 sourceSet.sourceRoots.any { root -> file.startsWith(root) }
