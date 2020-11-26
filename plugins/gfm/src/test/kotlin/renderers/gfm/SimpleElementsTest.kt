@@ -4,6 +4,7 @@ import org.jetbrains.dokka.gfm.CommonmarkRenderer
 import org.junit.jupiter.api.Test
 import renderers.testPage
 import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.pages.*
 import renderers.RawTestPage
 
@@ -80,6 +81,64 @@ class SimpleElementsTest : GfmRenderingOnlyTestBase() {
         )
         val page = RawTestPage(content = image)
         val expect = "//[testPage](test-page.md)\n\n![This is a google logo](https://www.google.pl/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png)"
+        CommonmarkRenderer(context).render(page)
+        assert(renderedContent == expect)
+    }
+
+    @Test
+    fun codeBlock() {
+        val codeBlock = ContentCodeBlock(
+            children = listOf(
+                ContentText(
+                    text = "println(\"Hello\")",
+                    dci = DCI(setOf(DRI.topLevel), ContentKind.Source),
+                    sourceSets = emptySet(),
+                    style = emptySet(),
+                    extra = PropertyContainer.empty()
+                )
+            ),
+            language = "kotlin",
+            dci = DCI(setOf(DRI.topLevel), ContentKind.Main),
+            sourceSets = emptySet(),
+            style = emptySet()
+        )
+        val page = RawTestPage(content = codeBlock)
+        val expect =
+            """
+            |//[testPage](test-page.md)
+            |
+            |```kotlin
+            |println("Hello")
+            |```
+            """.trimMargin()
+        CommonmarkRenderer(context).render(page)
+        assert(renderedContent == expect)
+    }
+
+    @Test
+    fun codeInline() {
+        val codeBlock = ContentCodeInline(
+            children = listOf(
+                ContentText(
+                    text = "println(\"Hello\")",
+                    dci = DCI(setOf(DRI.topLevel), ContentKind.Source),
+                    sourceSets = emptySet(),
+                    style = emptySet(),
+                    extra = PropertyContainer.empty()
+                )
+            ),
+            language = "kotlin",
+            dci = DCI(setOf(DRI.topLevel), ContentKind.Main),
+            sourceSets = emptySet(),
+            style = emptySet()
+        )
+        val page = RawTestPage(content = codeBlock)
+        val expect =
+            """
+            |//[testPage](test-page.md)
+            |
+            |`println("Hello")`
+            """.trimMargin()
         CommonmarkRenderer(context).render(page)
         assert(renderedContent == expect)
     }
