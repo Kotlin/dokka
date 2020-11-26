@@ -141,6 +141,11 @@ open class HtmlRenderer(
             }
         }
 
+    fun FlowContent.withHtml(content: String): Unit = when (this){
+        is HTMLTag -> unsafe { +content }
+        else -> div { unsafe { +content } }
+    }
+
     override fun FlowContent.buildPlatformDependent(
         content: PlatformHintedContent,
         pageContext: ContentPage,
