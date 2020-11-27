@@ -6,6 +6,7 @@ import org.apache.maven.artifact.DefaultArtifact
 import org.apache.maven.artifact.handler.DefaultArtifactHandler
 import org.apache.maven.artifact.resolver.ArtifactResolutionRequest
 import org.apache.maven.artifact.resolver.ArtifactResolutionResult
+import org.apache.maven.artifact.resolver.ResolutionErrorHandler
 import org.apache.maven.execution.MavenSession
 import org.apache.maven.model.Dependency
 import org.apache.maven.plugin.AbstractMojo
@@ -59,6 +60,9 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
 
     @Component
     private var repositorySystem: RepositorySystem? = null;
+
+    @Component
+    private var resolutionErrorHandler: ResolutionErrorHandler? = null;
 
     class PackageOptions : DokkaConfiguration.PackageOptions {
         @Parameter
@@ -237,8 +241,8 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
             offlineMode = offlineMode,
             cacheRoot = cacheRoot?.let(::File),
             sourceSets = listOf(sourceSet),
-            pluginsClasspath = getArtifactByAether("org.jetbrains.dokka", "dokka-base", dokkaVersion) +
-                    dokkaPlugins.map { getArtifactByAether(it.groupId, it.artifactId, it.version ?: dokkaVersion) }
+            pluginsClasspath = getArtifactByMaven("org.jetbrains.dokka", "dokka-base", dokkaVersion) +
+                    dokkaPlugins.map { getArtifactByMaven(it.groupId, it.artifactId, it.version ?: dokkaVersion) }
                         .flatten(),
             pluginsConfiguration = pluginsConfiguration.toMutableList(),
             modules = emptyList(),
@@ -250,13 +254,13 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
         gen.generate()
     }
 
-    private fun getArtifactByAether(
+    private fun getArtifactByMaven(
         groupId: String,
         artifactId: String,
         version: String
     ): List<File> {
 
-        val request: ArtifactResolutionRequest = ArtifactResolutionRequest()
+        val request = ArtifactResolutionRequest()
         request.isResolveRoot = true
         request.isResolveTransitively = true
         request.localRepository = session!!.localRepository
@@ -269,7 +273,10 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
         request.artifact = DefaultArtifact(groupId, artifactId, version, "compile", "jar", null,
                 DefaultArtifactHandler("jar"))
 
+        log.debug("Resolving $groupId:$artifactId:$version ...")
+
         val result: ArtifactResolutionResult = repositorySystem!!.resolve(request)
+        resolutionErrorHandler!!.throwErrors(request, result);
         return result.artifacts.stream().map { it.file }.collect(Collectors.toList())
     }
 
