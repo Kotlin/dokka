@@ -35,7 +35,7 @@ abstract class DokkaTask : AbstractDokkaTask() {
     override fun buildDokkaConfiguration(): DokkaConfigurationImpl =
         DokkaConfigurationImpl(
             moduleName = moduleName.getSafe(),
-            moduleVersion = moduleVersion.orNull,
+            moduleVersion = moduleVersion.orNull?.takeIf { it != "unspecified" },
             outputDir = outputDirectory.getSafe(),
             cacheRoot = cacheRoot.getSafe(),
             offlineMode = offlineMode.getSafe(),
