@@ -4,6 +4,7 @@ import org.gradle.kotlin.dsl.create
 import org.gradle.testfixtures.ProjectBuilder
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
 
 class DokkaTaskTest {
     @Test
@@ -23,5 +24,15 @@ class DokkaTaskTest {
             task.buildDokkaConfiguration().sourceSets.map { it.sourceSetID.sourceSetName }.sorted(),
             "Expected only unsuppressed source sets `main` and `test` to be present in built configuration"
         )
+    }
+
+    @Test
+    fun `module version is not present if not specified`(){
+        val project = ProjectBuilder.builder().build()
+        val task = project.tasks.create<DokkaTask>("dokkaTask")
+        project.configurations.all { configuration -> configuration.withDependencies { it.clear() } }
+
+        task.dokkaSourceSets.register("main")
+        assertNull(task.buildDokkaConfiguration().moduleVersion)
     }
 }
