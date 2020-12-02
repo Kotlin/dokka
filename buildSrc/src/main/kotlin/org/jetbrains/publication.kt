@@ -3,14 +3,10 @@ package org.jetbrains
 import com.github.jengelman.gradle.plugins.shadow.ShadowExtension
 import com.jfrog.bintray.gradle.BintrayExtension
 import org.gradle.api.Project
-import org.gradle.api.provider.Provider
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.maven.tasks.PublishToMavenRepository
-import org.gradle.kotlin.dsl.configure
-import org.gradle.kotlin.dsl.get
-import org.gradle.kotlin.dsl.register
-import org.gradle.kotlin.dsl.withType
+import org.gradle.kotlin.dsl.*
 import org.gradle.plugins.signing.SigningExtension
 import org.jetbrains.DokkaPublicationChannel.*
 import java.net.URI
@@ -28,24 +24,25 @@ class DokkaPublicationBuilder {
 fun Project.registerDokkaArtifactPublication(publicationName: String, configure: DokkaPublicationBuilder.() -> Unit) {
     configure<PublishingExtension> {
         publications {
-            val publicationProvider = register<MavenPublication>(publicationName) {
+            register<MavenPublication>(publicationName) {
                 val builder = DokkaPublicationBuilder().apply(configure)
                 artifactId = builder.artifactId
                 when (builder.component) {
                     DokkaPublicationBuilder.Component.Java -> from(components["java"])
                     DokkaPublicationBuilder.Component.Shadow -> run {
-                        artifact(tasks["sourcesJar"])
                         extensions.getByType(ShadowExtension::class.java).component(this)
+                        artifact(tasks["sourcesJar"])
                     }
                 }
+                artifact(tasks["javadocJar"])
                 configurePom("Dokka ${project.name}")
             }
-            signPublicationIfKeyPresent(publicationProvider)
         }
     }
 
     configureBintrayPublicationIfNecessary(publicationName)
     configureSpacePublicationIfNecessary(publicationName)
+    configureSonatypePublicationIfNecessary(publicationName)
     createDokkaPublishTaskIfNecessary()
 }
 
@@ -81,7 +78,7 @@ fun Project.configureSpacePublicationIfNecessary(vararg publications: String) {
 
 fun Project.createDokkaPublishTaskIfNecessary() {
     tasks.maybeCreate("dokkaPublish").run {
-        if (publicationChannels.any { it.isSpaceRepository }) {
+        if (publicationChannels.any { it.isSpaceRepository } || publicationChannels.any { it.isMavenRepository }) {
             dependsOn(tasks.named("publish"))
         }
         if (publicationChannels.any { it.isBintrayRepository }) {
@@ -111,7 +108,7 @@ private fun Project.configureBintrayPublication(vararg publications: String) {
             }
 
             repo = when (bintrayPublicationChannels.single()) {
-                SpaceDokkaDev -> throw IllegalStateException("$SpaceDokkaDev is not a bintray repository")
+                SpaceDokkaDev, MavenCentral, MavenCentralSnapshot -> throw IllegalStateException("${bintrayPublicationChannels.single()} is not a bintray repository")
                 BintrayKotlinDev -> "kotlin-dev"
                 BintrayKotlinEap -> "kotlin-eap"
                 BintrayKotlinDokka -> "dokka"
@@ -130,6 +127,30 @@ private fun Project.configureBintrayPublication(vararg publications: String) {
     }
 }
 
+fun Project.configureSonatypePublicationIfNecessary(vararg publications: String) {
+    if (publicationChannels.any { it.isMavenRepository }) {
+        configureSonatypePublication(*publications)
+        signPublicationsIfKeyPresent(*publications)
+    }
+}
+
+private fun Project.configureSonatypePublication(vararg publications: String) {
+    configure<PublishingExtension> {
+        repositories {
+            maven {
+                if (MavenCentral in publicationChannels) {
+                    url = URI("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
+                } else if (MavenCentralSnapshot in publicationChannels) {
+                    url = URI("https://oss.sonatype.org/content/repositories/snapshots/")
+                }
+                credentials {
+                    username = System.getenv("SONATYPE_USER")
+                    password = System.getenv("SONATYPE_PASSWORD")
+                }
+            }
+        }
+    }
+}
 
 private fun MavenPublication.configurePom(projectName: String) {
     pom {
@@ -162,14 +183,19 @@ private fun MavenPublication.configurePom(projectName: String) {
 }
 
 @Suppress("UnstableApiUsage")
-private fun Project.signPublicationIfKeyPresent(publicationProvider: Provider<MavenPublication>) {
+private fun Project.signPublicationsIfKeyPresent(vararg publications: String) {
+    val signingKeyId = System.getenv("SIGN_KEY_ID")
     val signingKey = System.getenv("SIGN_KEY")
     val signingKeyPassphrase = System.getenv("SIGN_KEY_PASSPHRASE")
 
     if (!signingKey.isNullOrBlank()) {
         extensions.configure<SigningExtension>("signing") {
-            useInMemoryPgpKeys(signingKey, signingKeyPassphrase)
-            sign(publicationProvider.get())
+            useInMemoryPgpKeys(signingKeyId, signingKey, signingKeyPassphrase)
+            publications.forEach { publicationName ->
+                extensions.findByType(PublishingExtension::class)!!.publications.findByName(publicationName)?.let {
+                    sign(it)
+                }
+            }
         }
     }
 }
