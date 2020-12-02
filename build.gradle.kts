@@ -66,12 +66,8 @@ subprojects {
             outputDirectory.set(file(dokkaOutputDir))
         }
 
-        val deleteDokkaOutputDir by registering(Delete::class) {
-            delete(dokkaOutputDir)
-        }
-
         register<Jar>("javadocJar") {
-            dependsOn(deleteDokkaOutputDir, dokkaHtml)
+            dependsOn(dokkaHtml)
             archiveClassifier.set("javadoc")
             from(dokkaOutputDir)
         }

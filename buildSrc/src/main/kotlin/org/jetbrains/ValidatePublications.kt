@@ -19,7 +19,7 @@ open class ValidatePublications : DefaultTask() {
     class UnpublishedProjectDependencyException(
         project: Project, dependencyProject: Project
     ) : GradleException(
-        "Published project ${project.path} cannot depend on unpublished projed ${dependencyProject.path}"
+        "Published project ${project.path} cannot depend on unpublished project ${dependencyProject.path}"
     )
 
 
