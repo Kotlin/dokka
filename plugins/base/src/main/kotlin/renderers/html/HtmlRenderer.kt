@@ -1,8 +1,5 @@
 package org.jetbrains.dokka.base.renderers.html
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.html.*
 import kotlinx.html.stream.createHTML
 import org.jetbrains.dokka.DokkaSourceSetID
@@ -14,6 +11,7 @@ import org.jetbrains.dokka.base.renderers.isImage
 import org.jetbrains.dokka.base.renderers.pageId
 import org.jetbrains.dokka.base.resolvers.anchors.SymbolAnchorHint
 import org.jetbrains.dokka.base.resolvers.local.DokkaBaseLocationProvider
+import org.jetbrains.dokka.base.templating.InsertTemplateExtra
 import org.jetbrains.dokka.base.templating.PathToRootSubstitutionCommand
 import org.jetbrains.dokka.base.templating.ResolveLinkCommand
 import org.jetbrains.dokka.links.DRI
@@ -110,6 +108,7 @@ open class HtmlRenderer(
             node.hasStyle(TextStyle.Paragraph) -> p(additionalClasses) { childrenCallback() }
             node.hasStyle(TextStyle.Block) -> div(additionalClasses) { childrenCallback() }
             node.isAnchorable -> buildAnchor(node.anchor!!, node.anchorLabel!!, node.sourceSetsFilters) { childrenCallback() }
+            node.extra[InsertTemplateExtra] != null -> node.extra[InsertTemplateExtra]?.let { templateCommand(it.command) } ?: Unit
             else -> childrenCallback()
         }
     }

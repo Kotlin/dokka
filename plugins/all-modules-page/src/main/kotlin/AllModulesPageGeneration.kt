@@ -8,14 +8,22 @@ import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.query
 import org.jetbrains.dokka.plugability.querySingle
+import org.jetbrains.dokka.templates.TemplatingPlugin
+import org.jetbrains.dokka.versioning.VersioningPlugin
 
 class AllModulesPageGeneration(private val context: DokkaContext) : Generation {
 
     private val allModulesPagePlugin by lazy { context.plugin<AllModulesPagePlugin>() }
+    private val templatingPlugin by lazy { context.plugin<TemplatingPlugin>() }
+    private val versioningPlugin by lazy { context.plugin<VersioningPlugin>() }
 
     override fun Timer.generate() {
+
         report("Creating all modules page")
         val pages = createAllModulesPage()
+
+        report("Copy previous documentation")
+        handlePreviousDocs()
 
         report("Transforming pages")
         val transformedPages = transformAllModulesPage(pages)
@@ -29,6 +37,8 @@ class AllModulesPageGeneration(private val context: DokkaContext) : Generation {
 
     override val generationName = "index page for project"
 
+    fun handlePreviousDocs() = versioningPlugin.querySingle { versioningHandler }.invoke()
+
     fun createAllModulesPage() = allModulesPagePlugin.querySingle { allModulesPageCreator }.invoke()
 
     fun transformAllModulesPage(pages: RootPageNode) =
@@ -39,5 +49,5 @@ class AllModulesPageGeneration(private val context: DokkaContext) : Generation {
     }
 
     fun processSubmodules() =
-        allModulesPagePlugin.querySingle { templateProcessor }.process()
+        templatingPlugin.querySingle { templateProcessor }.process()
 }

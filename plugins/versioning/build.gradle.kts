@@ -1,17 +1,12 @@
 import org.jetbrains.registerDokkaArtifactPublication
 
-registerDokkaArtifactPublication("dokkaAllModulesPage") {
-    artifactId = "all-modules-page-plugin"
+registerDokkaArtifactPublication("versioning-plugin") {
+    artifactId = "versioning-plugin"
 }
 
 dependencies {
     implementation(project(":plugins:base"))
     implementation(project(":plugins:templating"))
-    implementation(project(":plugins:versioning"))
-    testImplementation(project(":plugins:base"))
-    testImplementation(project(":plugins:base:base-test-utils"))
-    testImplementation(project(":plugins:gfm"))
-    testImplementation(project(":plugins:gfm:gfm-template-processing"))
 
     val coroutines_version: String by project
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version")
