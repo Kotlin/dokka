@@ -8,14 +8,22 @@ internal enum class DokkaPublicationChannel {
     SpaceDokkaDev,
     BintrayKotlinDev,
     BintrayKotlinEap,
-    BintrayKotlinDokka;
+    BintrayKotlinDokka,
+    MavenCentral,
+    MavenCentralSnapshot;
 
     val isSpaceRepository get() = this == SpaceDokkaDev
 
     val isBintrayRepository
         get() = when (this) {
-            SpaceDokkaDev -> false
             BintrayKotlinDev, BintrayKotlinEap, BintrayKotlinDokka -> true
+            else -> false
+        }
+
+    val isMavenRepository
+        get() = when (this) {
+            MavenCentral, MavenCentralSnapshot -> true
+            else -> false
         }
 
     companion object {
@@ -24,6 +32,8 @@ internal enum class DokkaPublicationChannel {
             "bintray-kotlin-dev" -> BintrayKotlinDev
             "bintray-kotlin-eap" -> BintrayKotlinEap
             "bintray-kotlin-dokka" -> BintrayKotlinDokka
+            "maven-central-release" -> MavenCentral
+            "maven-central-snapshot" -> MavenCentralSnapshot
             else -> throw IllegalArgumentException("Unknown dokka_publication_channel=$value")
         }
     }
