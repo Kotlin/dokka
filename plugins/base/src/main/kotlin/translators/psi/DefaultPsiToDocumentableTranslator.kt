@@ -199,7 +199,7 @@ class DefaultPsiToDocumentableTranslator(
                 parseSupertypes(superTypes)
                 val (regularFunctions, accessors) = splitFunctionsAndAccessors()
                 val documentation = javadocParser.parseDocumentation(this).toSourceSetDependent()
-                val allFunctions = async { regularFunctions.parallelMapNotNull { if (!it.isConstructor) parseFunction(it) else null } +
+                val allFunctions = async { regularFunctions.parallelMapNotNull { if (!it.isConstructor) parseFunction(it, parentDRI = dri) else null } +
                         superMethods.parallelMap { parseFunction(it.first, inheritedFrom = it.second) } }
                 val source = PsiDocumentableSource(this).toSourceSetDependent()
                 val classlikes = async { innerClasses.asIterable().parallelMap { parseClasslike(it, dri) } }
@@ -337,9 +337,12 @@ class DefaultPsiToDocumentableTranslator(
         private fun parseFunction(
             psi: PsiMethod,
             isConstructor: Boolean = false,
-            inheritedFrom: DRI? = null
+            inheritedFrom: DRI? = null,
+            parentDRI: DRI? = null
         ): DFunction {
-            val dri = DRI.from(psi)
+            val dri = parentDRI?.let { dri ->
+                DRI.from(psi).copy(packageName = dri.packageName, classNames = dri.classNames)
+            } ?: DRI.from(psi)
             val docs = javadocParser.parseDocumentation(psi)
             return DFunction(
                 dri,
