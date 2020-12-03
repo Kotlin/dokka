@@ -53,13 +53,9 @@ html ::-webkit-scrollbar-thumb {
     display: flex;
     padding: 24px 0;
     flex-wrap: wrap;
-}
-
-.navigation-wrapper.sticky-navigation {
     position: sticky;
     top: 0;
     background-color: #f4f4f4;
-    border-bottom: 1px solid #DADFE6;
     padding-top: 19px;
     padding-bottom: 18px;
     z-index: 8;
@@ -69,6 +65,10 @@ html ::-webkit-scrollbar-thumb {
     margin-right: 0;
     padding-left: var(--horizontal-spacing-for-content);
     padding-right: var(--horizontal-spacing-for-content);
+}
+
+.navigation-wrapper.sticky-navigation {
+    border-bottom: 1px solid #DADFE6;
 }
 
 .breadcrumbs {
@@ -264,7 +264,6 @@ code.paragraph {
 }
 
 .overview > .navButton {
-    height: 100%;
     align-items: center;
     display: flex;
     justify-content: flex-end;
@@ -383,7 +382,6 @@ code.paragraph {
 .sideMenuPart a {
     display: block;
     align-items: center;
-    height: 100%;
     color: var(--average-color);
     overflow: hidden;
 }
@@ -424,7 +422,6 @@ code.paragraph {
 
 .sideMenuPart > .overview .navButtonContent::before {
     content: url("../images/arrow_down.svg");
-    height: 100%;
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -453,8 +450,6 @@ body, table {
     font-size: 14px;
     line-height: 24px;
     margin: 0;
-    height: 100%;
-    /*max-width: 1440px; TODO: This results in worse experience on ultrawide, but on 16:9/16:10 looks better.*/
 }
 
 table {
@@ -551,6 +546,7 @@ h3, h4, h5, h6 {
 
 .UnderCoverText table {
     margin: 8px 0 8px 0;
+    word-break: break-word;
 }
 
 
@@ -1212,7 +1208,7 @@ div.runnablesample {
         margin-right: var(--mobile-horizontal-spacing-for-content);
     }
 
-    .navigation-wrapper.sticky-navigation {
+    .navigation-wrapper {
         padding-left: var(--mobile-horizontal-spacing-for-content);
         padding-right: var(--mobile-horizontal-spacing-for-content);
     }

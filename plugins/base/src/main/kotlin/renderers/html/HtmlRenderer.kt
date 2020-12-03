@@ -725,6 +725,9 @@ open class HtmlRenderer(
                 meta(name = "viewport", content = "width=device-width, initial-scale=1", charset = "UTF-8")
                 title(page.name)
                 link(href = page.root("images/logo-icon.svg"), rel = "icon", type = "image/svg")
+                templateCommand(PathToRootSubstitutionCommand("###", default = locationProvider.pathToRoot(page))) {
+                    script { unsafe { +"""var pathToRoot = "###";""" } }
+                }
                 resources.forEach {
                     when {
                         it.substringBefore('?').substringAfterLast('.') == "css" -> link(
@@ -740,9 +743,6 @@ open class HtmlRenderer(
                         it.isImage() -> link(href = page.root(it))
                         else -> unsafe { +it }
                     }
-                }
-                templateCommand(PathToRootSubstitutionCommand("###", default = locationProvider.pathToRoot(page))) {
-                    script { unsafe { +"""var pathToRoot = "###";""" } }
                 }
             }
             body {
