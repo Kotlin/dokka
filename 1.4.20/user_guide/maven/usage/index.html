@@ -349,6 +349,18 @@
   </li>
 
         
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../base-specific/frontend/" title="Html frontend" class="md-nav__link">
+      Html frontend
+    </a>
+  </li>
+
+        
       </ul>
     </nav>
   </li>
@@ -424,10 +436,46 @@
       <input class="md-toggle md-nav__toggle" data-md-toggle="nav-4" type="checkbox" id="nav-4">
     
     <label class="md-nav__link" for="nav-4">
-      About
+      Community
     </label>
     <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
       <label class="md-nav__title" for="nav-4">
+        Community
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../community/plugins-list/" title="Community plugins" class="md-nav__link">
+      Community plugins
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-5" type="checkbox" id="nav-5">
+    
+    <label class="md-nav__link" for="nav-5">
+      About
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-5">
         About
       </label>
       <ul class="md-nav__list" data-md-scrollfix>
@@ -536,7 +584,6 @@
     <span class="nt">&lt;/pluginRepository&gt;</span>
 <span class="nt">&lt;/pluginRepositories&gt;</span>
 </code></pre></div>
-
 <p>Minimal Maven configuration is</p>
 <div class="codehilite"><pre><span></span><code><span class="nt">&lt;plugin&gt;</span>
     <span class="nt">&lt;groupId&gt;</span>org.jetbrains.dokka<span class="nt">&lt;/groupId&gt;</span>
@@ -552,7 +599,6 @@
     <span class="nt">&lt;/executions&gt;</span>
 <span class="nt">&lt;/plugin&gt;</span>
 </code></pre></div>
-
 <p>By default files will be generated in <code>target/dokka</code>.</p>
 <p>The following goals are provided by the plugin:</p>
 <ul>
@@ -658,7 +704,7 @@
         <span class="nt">&lt;perPackageOptions&gt;</span>
             <span class="nt">&lt;packageOptions&gt;</span>
                 <span class="c">&lt;!-- Will match kotlin and all sub-packages of it --&gt;</span>
-                <span class="nt">&lt;prefix&gt;</span>kotlin<span class="nt">&lt;/prefix&gt;</span>
+                <span class="nt">&lt;matchingRegex&gt;</span>kotlin($|\.).*<span class="nt">&lt;/matchingRegex&gt;</span>
 
                 <span class="c">&lt;!-- All options are optional, default values are below: --&gt;</span>
                 <span class="nt">&lt;skipDeprecated&gt;</span>false<span class="nt">&lt;/skipDeprecated&gt;</span>
@@ -687,7 +733,6 @@
     <span class="nt">&lt;/configuration&gt;</span>
 <span class="nt">&lt;/plugin&gt;</span>
 </code></pre></div>
-
 <h2 id="applying-plugins">Applying plugins<a class="headerlink" href="#applying-plugins" title="Permanent link">&para;</a></h2>
 <p>You can add plugins inside the <code>dokkaPlugins</code> block:</p>
 <div class="codehilite"><pre><span></span><code><span class="nt">&lt;plugin&gt;</span>
@@ -713,7 +758,6 @@
     <span class="nt">&lt;/configuration&gt;</span>
 <span class="nt">&lt;/plugin&gt;</span>
 </code></pre></div>
-
 <p>Some plugins can be configured separately using plugin's fully qualified name. For example:</p>
 <div class="codehilite"><pre><span></span><code><span class="nt">&lt;pluginsConfiguration&gt;</span>
     <span class="nt">&lt;org.jetbrains.dokka.base.DokkaBase&gt;</span>
@@ -726,7 +770,6 @@
     <span class="nt">&lt;/org.jetbrains.dokka.base.DokkaBase&gt;</span>
 <span class="nt">&lt;/pluginsConfiguration&gt;</span>
 </code></pre></div>
-
 <h2 id="example-project">Example project<a class="headerlink" href="#example-project" title="Permanent link">&para;</a></h2>
 <p>Please see the <a href="https://github.com/JetBrains/kotlin-examples/tree/master/maven/dokka-maven-example">Dokka Maven example project</a> for an example.</p>
                 

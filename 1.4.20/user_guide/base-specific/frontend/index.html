@@ -42,7 +42,7 @@
     
     
       
-        <title>Configuration specific to HTML format - Dokka</title>
+        <title>Html frontend - Dokka</title>
       
     
     
@@ -111,7 +111,7 @@
             </span>
             <span class="md-header-nav__topic">
               
-                Configuration specific to HTML format
+                Html frontend
               
             </span>
           
@@ -232,10 +232,12 @@
       
       
 
+  
 
-  <li class="md-nav__item md-nav__item--nested">
+
+  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
     
-      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-2" type="checkbox" id="nav-2">
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-2" type="checkbox" id="nav-2" checked>
     
     <label class="md-nav__link" for="nav-2">
       User guide
@@ -292,6 +294,69 @@
     <a href="../../cli/usage/" title="Command line" class="md-nav__link">
       Command line
     </a>
+  </li>
+
+        
+          
+          
+          
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="__toc">
+        Html frontend
+      </label>
+    
+    <a href="./" title="Html frontend" class="md-nav__link md-nav__link--active">
+      Html frontend
+    </a>
+    
+      
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#modifying-assets" class="md-nav__link">
+    Modifying assets
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#examples" class="md-nav__link">
+    Examples
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
+</nav>
+    
   </li>
 
         
@@ -370,10 +435,46 @@
       <input class="md-toggle md-nav__toggle" data-md-toggle="nav-4" type="checkbox" id="nav-4">
     
     <label class="md-nav__link" for="nav-4">
-      About
+      Community
     </label>
     <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
       <label class="md-nav__title" for="nav-4">
+        Community
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../community/plugins-list/" title="Community plugins" class="md-nav__link">
+      Community plugins
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-5" type="checkbox" id="nav-5">
+    
+    <label class="md-nav__link" for="nav-5">
+      About
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-5">
         About
       </label>
       <ul class="md-nav__list" data-md-scrollfix>
@@ -470,14 +571,18 @@
                 <h1 id="configuration-specific-to-html-format">Configuration specific to HTML format<a class="headerlink" href="#configuration-specific-to-html-format" title="Permanent link">&para;</a></h1>
 <h2 id="modifying-assets">Modifying assets<a class="headerlink" href="#modifying-assets" title="Permanent link">&para;</a></h2>
 <p>It is possible to change static assets that are used to generate dokka's HTML. 
-Currently, user can modify:
- * customAssets
- * customStyleSheets</p>
+Currently, user can modify:</p>
+<ul>
+<li>customAssets</li>
+<li>customStyleSheets</li>
+</ul>
 <p>Every file provided in those values will be applied to <strong>every</strong> page.</p>
-<p>Dokka uses 3 stylesheets:
-* <code>style.css</code> - main css file responsible for styling the page
-* <code>jetbrains-mono.css</code> - fonts used across dokka
-* <code>logo-styles.css</code> - logo styling</p>
+<p>Dokka uses 3 stylesheets:</p>
+<ul>
+<li><code>style.css</code> - main css file responsible for styling the page</li>
+<li><code>jetbrains-mono.css</code> - fonts used across dokka</li>
+<li><code>logo-styles.css</code> - logo styling</li>
+</ul>
 <p>User can choose to add or override those files. 
 Resources will be overridden when in <code>pluginConfiguration</code> block there is a resource with the same name.</p>
 <h3 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h3>
@@ -505,6 +610,41 @@ Resources will be overridden when in <code>pluginConfiguration</code> block ther
       
         
 <footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid">
+        
+          <a href="../../cli/usage/" title="Command line" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
+            </div>
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                Command line
+              </span>
+            </div>
+          </a>
+        
+        
+          <a href="../../../developer_guide/introduction/" title="Introduction" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                Introduction
+              </span>
+            </div>
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
   
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
