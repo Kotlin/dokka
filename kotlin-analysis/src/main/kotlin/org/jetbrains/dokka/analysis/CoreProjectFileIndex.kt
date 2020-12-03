@@ -508,6 +508,10 @@ class CoreProjectRootManager(val projectFileIndex: CoreProjectFileIndex) : Proje
         throw UnsupportedOperationException()
     }
 
+    override fun setProjectSdkName(p0: String, p1: String) {
+        throw UnsupportedOperationException()
+    }
+
     override fun getModuleSourceRoots(p0: MutableSet<out JpsModuleSourceRootType<*>>): MutableList<VirtualFile> {
         throw UnsupportedOperationException()
     }
@@ -519,6 +523,10 @@ class CoreProjectRootManager(val projectFileIndex: CoreProjectFileIndex) : Proje
     override fun getFileIndex(): ProjectFileIndex = projectFileIndex
 
     override fun getProjectSdkName(): String? {
+        throw UnsupportedOperationException()
+    }
+
+    override fun getProjectSdkTypeName(): String? {
         throw UnsupportedOperationException()
     }
 

@@ -170,7 +170,8 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
                 JvmIdePlatformKind,
                 JsIdePlatformKind,
                 NativeIdePlatformKind
-            )
+            ),
+            this
         )
 
         registerExtensionPoint(
@@ -180,7 +181,8 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
                 JvmPlatformKindResolution(),
                 JsPlatformKindResolution(),
                 NativePlatformKindResolution()
-            )
+            ),
+            this
         )
 
         return environment
@@ -563,13 +565,14 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
     companion object {
         private fun <T : Any> registerExtensionPoint(
             appExtension: ApplicationExtensionDescriptor<T>,
-            instances: List<T>
+            instances: List<T>,
+            disposable: Disposable
         ) {
             if (Extensions.getRootArea().hasExtensionPoint(appExtension.extensionPointName))
                 return
 
             appExtension.registerExtensionPoint()
-            instances.forEach(appExtension::registerExtension)
+            instances.forEach { extension -> appExtension.registerExtension(extension, disposable) }
         }
     }
 }

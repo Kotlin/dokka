@@ -5,6 +5,7 @@ import org.jetbrains.kotlin.analyzer.ModuleInfo
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor
 import org.jetbrains.kotlin.descriptors.konan.DeserializedKlibModuleOrigin
 import org.jetbrains.kotlin.descriptors.konan.KlibModuleOrigin
+import org.jetbrains.kotlin.descriptors.ModuleCapability
 import org.jetbrains.kotlin.idea.klib.safeRead
 import org.jetbrains.kotlin.library.KotlinLibrary
 import org.jetbrains.kotlin.library.isInterop
@@ -38,11 +39,11 @@ internal class DokkaNativeKlibLibraryInfo(
     override fun dependencies(): List<ModuleInfo> = listOf(this) + dependencyResolver.resolveDependencies(this)
     override fun getLibraryRoots(): Collection<String> = listOf(libraryRoot)
 
-    override val capabilities: Map<ModuleDescriptor.Capability<*>, Any?>
+    override val capabilities: Map<ModuleCapability<*>, Any?>
         get() {
             val capabilities = super.capabilities.toMutableMap()
-            capabilities += KlibModuleOrigin.CAPABILITY to DeserializedKlibModuleOrigin(kotlinLibrary)
-            capabilities += ImplicitIntegerCoercion.MODULE_CAPABILITY to kotlinLibrary.safeRead(false) { isInterop }
+            capabilities[KlibModuleOrigin.CAPABILITY] = DeserializedKlibModuleOrigin(kotlinLibrary)
+            capabilities[ImplicitIntegerCoercion.MODULE_CAPABILITY] = kotlinLibrary.safeRead(false) { isInterop }
             return capabilities
         }
 }
