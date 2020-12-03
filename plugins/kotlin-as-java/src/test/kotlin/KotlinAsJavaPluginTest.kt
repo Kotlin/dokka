@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test
 import matchers.content.*
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.jdk
+import org.junit.Assert
 import signatures.renderedContent
 import signatures.signature
 import utils.A
@@ -369,6 +370,37 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
                     "final ", A("Integer"), A("someFun"), "(", A("Map"), "<", A("String"),
                     ", ", A("Integer"), ">", A("xd"), ")", Span()
                 )
+            }
+        }
+    }
+
+    @Test
+    fun `const in top level`() {
+        val writerPlugin = TestOutputWriterPlugin()
+        val configuration = dokkaConfiguration {
+            sourceSets {
+                sourceSet {
+                    sourceRoots = listOf("src/")
+                    externalDocumentationLinks = listOf(
+                        DokkaConfiguration.ExternalDocumentationLink.jdk(8),
+                        stdlibExternalDocumentationLink
+                    )
+                }
+            }
+        }
+        testInline(
+            """
+            |/src/main/kotlin/kotlinAsJavaPlugin/Test.kt
+            |package kotlinAsJavaPlugin
+            |
+            |const val FIRST = "String"
+        """.trimMargin(),
+            configuration,
+            pluginOverrides = listOf(writerPlugin),
+            cleanupOutput = true
+        ) {
+            renderingStage = { _, _ ->
+                Assert.assertNull(writerPlugin.writer.contents["root/kotlinAsJavaPlugin/-test-kt/get-f-i-r-s-t.html"])
             }
         }
     }

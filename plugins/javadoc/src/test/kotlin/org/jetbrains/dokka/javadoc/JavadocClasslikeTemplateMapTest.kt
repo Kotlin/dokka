@@ -316,6 +316,33 @@ internal class JavadocClasslikeTemplateMapTest : AbstractJavadocTemplateMapTest(
         }
     }
 
+    @Test
+    fun `class with top-level const`() {
+        dualTestTemplateMapInline(
+            kotlin =
+                """
+                /src/Test.kt
+                package com.test.package0
+                
+                const val TEST_VAL = "test"
+                """,
+            java =
+                """
+                /src/com/test/package0/TestKt.java
+                package com.test.package0;
+                
+                public final class TestKt {
+                    public static final String TEST_VAL = "test"; 
+                }
+                """
+        ) {
+            val map = singlePageOfType<JavadocClasslikePageNode>().templateMap
+            val properties = assertIsInstance<List<*>>(map["properties"])
+            val property = assertIsInstance<Map<String, Any?>>(properties.first())
+            assertEquals("public final static <a href=https://docs.oracle.com/javase/8/docs/api/java/lang/String.html>String</a> <a href=TestKt.html#TEST_VAL>TEST_VAL</a>", "${property["modifiers"]} ${property["signature"]}")
+        }
+    }
+
     private fun assertParameterNode(node: Map<String, Any?>, expectedName: String, expectedType: String, expectedDescription: String){
         assertEquals(expectedName, node["name"])
         assertEquals(expectedType, node["type"])

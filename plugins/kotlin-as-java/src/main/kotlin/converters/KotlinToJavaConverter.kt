@@ -23,6 +23,13 @@ private fun <T : WithSources> List<T>.groupedByLocation() =
             } // TODO: first() does not look reasonable
         }) { it.second }
 
+private val DProperty.isConst: Boolean
+    get() = extra[AdditionalModifiers]
+        ?.content
+        ?.any { (_, modifiers) ->
+            ExtraModifiers.KotlinOnlyModifiers.Const in modifiers
+        } == true
+
 internal fun DPackage.asJava(): DPackage {
     @Suppress("UNCHECKED_CAST")
     val syntheticClasses = ((properties + functions) as List<WithSources>)
@@ -31,10 +38,12 @@ internal fun DPackage.asJava(): DPackage {
             DClass(
                 dri = dri.withClass(syntheticClassName),
                 name = syntheticClassName,
-                properties = nodes.filterIsInstance<DProperty>().map { it.asJava() },
+                properties = nodes.filterIsInstance<DProperty>().map { it.asJava(true) },
                 constructors = emptyList(),
                 functions = (
-                        nodes.filterIsInstance<DProperty>()
+                        nodes
+                            .filterIsInstance<DProperty>()
+                            .filterNot { it.isConst }
                             .flatMap { it.javaAccessors() } +
                                 nodes.filterIsInstance<DFunction>()
                                     .map { it.asJava(syntheticClassName) }), // TODO: methods are static and receiver is a param
@@ -71,7 +80,13 @@ internal fun DProperty.asJava(isTopLevel: Boolean = false, relocateToClass: Stri
             dri.withClass(relocateToClass)
         },
         modifier = javaModifierFromSetter(),
-        visibility = visibility.mapValues { it.value.propertyVisibilityAsJava() },
+        visibility = visibility.mapValues {
+            if (isTopLevel && isConst) {
+                JavaVisibility.Public
+            } else {
+                it.value.propertyVisibilityAsJava()
+            }
+        },
         type = type.asJava(), // TODO: check
         setter = null,
         getter = null, // Removing getters and setters as they will be available as functions
