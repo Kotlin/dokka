@@ -147,6 +147,7 @@ externalDocumentationLink {
 perPackageOption {
     /* 0.10.x */    prefix = "kotlin"
     /* 1.4.x */     prefix.set("kotlin")
+    /* 1.4.20+ */   matchingRegex("kotlin($|\\.).*")
 
     /* 0.10.x */    skipDeprecated = false
     /* 1.4.x */     skipDeprecated.set(false)
