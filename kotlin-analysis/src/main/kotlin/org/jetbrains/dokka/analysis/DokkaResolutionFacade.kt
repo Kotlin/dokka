@@ -1,3 +1,5 @@
+@file:OptIn(FrontendInternals::class)
+
 package org.jetbrains.dokka.analysis
 
 import com.google.common.collect.ImmutableMap
@@ -11,6 +13,7 @@ import org.jetbrains.kotlin.container.getService
 import org.jetbrains.kotlin.container.tryGetService
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor
+import org.jetbrains.kotlin.idea.FrontendInternals
 import org.jetbrains.kotlin.idea.resolve.ResolutionFacade
 import org.jetbrains.kotlin.psi.KtDeclaration
 import org.jetbrains.kotlin.psi.KtElement
@@ -34,6 +37,7 @@ class DokkaResolutionFacade(
         throw UnsupportedOperationException()
     }
 
+    @OptIn(FrontendInternals::class)
     override fun <T : Any> tryGetFrontendService(element: PsiElement, serviceClass: Class<T>): T? {
         return resolverForModule.componentProvider.tryGetService(serviceClass)
     }
