@@ -40,15 +40,15 @@ class MultiplatformProjectTest : AbstractDokkaGradleTest() {
         checkNoUnresolvedLinks(docsOutput)
     }
 
-    @Test fun `test kotlin 1_3_30 and gradle 4_9`() {
-        doTest("4.9", "1.3.30")
+    @Test fun `test kotlin 1_4_20 and gradle 6_7_1`() {
+        doTest("6.7.1", "1.4.20")
     }
 
-    @Test fun `test kotlin 1_3_40 and gradle 4_10_3`() {
-        doTest("4.10.3", "1.3.40")
+    @Test fun `test kotlin 1_3_70 and gradle 6_0`() {
+        doTest("6.0", "1.3.70")
     }
 
-    @Test fun `test kotlin 1_3_40 and gradle 5_6_1`() {
-        doTest("5.6.1", "1.3.50")
+    @Test fun `test kotlin 1_4_0 and gradle 6_0`() {
+        doTest("6.0", "1.4.0")
     }
 }

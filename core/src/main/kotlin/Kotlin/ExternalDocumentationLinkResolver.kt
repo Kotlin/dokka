@@ -4,19 +4,22 @@ import com.google.inject.Inject
 import com.google.inject.Singleton
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiMethod
-import com.intellij.util.io.*
 import org.jetbrains.dokka.Formats.FileGeneratorBasedFormatDescriptor
 import org.jetbrains.dokka.Formats.FormatDescriptor
 import org.jetbrains.dokka.Utilities.ServiceLocator
 import org.jetbrains.dokka.Utilities.lookup
+import org.jetbrains.kotlin.builtins.jvm.JavaToKotlinClassMap
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.descriptors.impl.EnumEntrySyntheticClassDescriptor
+import org.jetbrains.kotlin.idea.refactoring.fqName.fqName
+import org.jetbrains.kotlin.js.descriptorUtils.nameIfStandardType
 import org.jetbrains.kotlin.load.java.descriptors.*
+import org.jetbrains.kotlin.load.java.structure.JavaPrimitiveType
+import org.jetbrains.kotlin.load.java.structure.impl.classFiles.BinaryJavaValueParameter
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
 import org.jetbrains.kotlin.resolve.descriptorUtil.parents
-import org.jetbrains.kotlin.resolve.source.PsiSourceElement
 import java.io.ByteArrayOutputStream
 import java.io.PrintWriter
 import java.net.HttpURLConnection
@@ -27,7 +30,6 @@ import java.nio.file.Paths
 import java.security.MessageDigest
 import javax.inject.Named
 import kotlin.reflect.full.findAnnotation
-import kotlin.reflect.jvm.internal.impl.load.java.sources.JavaSourceElement
 
 fun ByteArray.toHexString() = this.joinToString(separator = "") { "%02x".format(it) }
 
@@ -64,7 +66,6 @@ class PackageListProvider @Inject constructor(
 
         }
     }
-
 
 
     fun URL.doOpenConnectionToReadContent(timeout: Int = 10000, redirectsAllowed: Int = 16): URLConnection {
@@ -140,9 +141,9 @@ class PackageListProvider @Inject constructor(
         }
 
         val (params, packages) =
-                packageListStream
-                    .bufferedReader()
-                    .useLines { lines -> lines.partition { it.startsWith(ExternalDocumentationLinkResolver.DOKKA_PARAM_PREFIX) } }
+            packageListStream
+                .bufferedReader()
+                .useLines { lines -> lines.partition { it.startsWith(ExternalDocumentationLinkResolver.DOKKA_PARAM_PREFIX) } }
 
         val paramsMap = params.asSequence()
             .map { it.removePrefix(ExternalDocumentationLinkResolver.DOKKA_PARAM_PREFIX).split(":", limit = 2) }
@@ -158,10 +159,10 @@ class PackageListProvider @Inject constructor(
 
         val defaultResolverDesc = ExternalDocumentationLinkResolver.services.getValue("dokka-default")
         val resolverDesc = ExternalDocumentationLinkResolver.services[format]
-                ?: defaultResolverDesc.takeIf { format in formatsWithDefaultResolver }
-                ?: defaultResolverDesc.also {
-                    logger.warn("Couldn't find InboundExternalLinkResolutionService(format = `$format`) for $link, using Dokka default")
-                }
+            ?: defaultResolverDesc.takeIf { format in formatsWithDefaultResolver }
+            ?: defaultResolverDesc.also {
+                logger.warn("Couldn't find InboundExternalLinkResolutionService(format = `$format`) for $link, using Dokka default")
+            }
 
 
         val resolverClass = javaClass.classLoader.loadClass(resolverDesc.className).kotlin
@@ -169,7 +170,7 @@ class PackageListProvider @Inject constructor(
         val constructors = resolverClass.constructors
 
         val constructor = constructors.singleOrNull()
-                ?: constructors.first { it.findAnnotation<Inject>() != null }
+            ?: constructors.first { it.findAnnotation<Inject>() != null }
         val resolver = constructor.call(paramsMap) as InboundExternalLinkResolutionService
 
         val rootInfo = ExternalDocumentationRoot(link.url, resolver, locations)
@@ -178,14 +179,17 @@ class PackageListProvider @Inject constructor(
         storage[link] = packageFqNameToLocation
 
         val fqNames = packages.map { FqName(it) }
-        for(name in fqNames) {
+        for (name in fqNames) {
             packageFqNameToLocation[name] = rootInfo
         }
     }
 
 
-
-    class ExternalDocumentationRoot(val rootUrl: URL, val resolver: InboundExternalLinkResolutionService, val locations: Map<String, String>) {
+    class ExternalDocumentationRoot(
+        val rootUrl: URL,
+        val resolver: InboundExternalLinkResolutionService,
+        val locations: Map<String, String>
+    ) {
         override fun toString(): String = rootUrl.toString()
     }
 
@@ -204,11 +208,11 @@ class PackageListProvider @Inject constructor(
 }
 
 class ExternalDocumentationLinkResolver @Inject constructor(
-        val configuration: DokkaConfiguration,
-        val passConfiguration: DokkaConfiguration.PassConfiguration,
-        @Named("libraryResolutionFacade") val libraryResolutionFacade: DokkaResolutionFacade,
-        val logger: DokkaLogger,
-        val packageListProvider: PackageListProvider
+    val configuration: DokkaConfiguration,
+    val passConfiguration: DokkaConfiguration.PassConfiguration,
+    @Named("libraryResolutionFacade") val libraryResolutionFacade: DokkaResolutionFacade,
+    val logger: DokkaLogger,
+    val packageListProvider: PackageListProvider
 ) {
 
     val formats = mutableMapOf<String, InboundExternalLinkResolutionService>()
@@ -218,8 +222,8 @@ class ExternalDocumentationLinkResolver @Inject constructor(
         val fqNameToLocationMaps = passConfiguration.externalDocumentationLinks
             .mapNotNull { packageListProvider.storage[it] }
 
-        for(map in fqNameToLocationMaps) {
-           packageFqNameToLocation.putAll(map)
+        for (map in fqNameToLocationMaps) {
+            packageFqNameToLocation.putAll(map)
         }
     }
 
@@ -231,16 +235,17 @@ class ExternalDocumentationLinkResolver @Inject constructor(
 
     fun buildExternalDocumentationLink(symbol: DeclarationDescriptor): String? {
         val packageFqName: FqName =
-                when (symbol) {
-                    is PackageFragmentDescriptor -> symbol.fqName
-                    is DeclarationDescriptorNonRoot -> symbol.parents.firstOrNull { it is PackageFragmentDescriptor }?.fqNameSafe ?: return null
-                    else -> return null
-                }
+            when (symbol) {
+                is PackageFragmentDescriptor -> symbol.fqName
+                is DeclarationDescriptorNonRoot -> symbol.parents.firstOrNull { it is PackageFragmentDescriptor }?.fqNameSafe
+                    ?: return null
+                else -> return null
+            }
 
         val externalLocation = packageFqNameToLocation[packageFqName] ?: return null
 
-        val path = externalLocation.locations[symbol.signature()] ?:
-                externalLocation.resolver.getPath(symbol) ?: return null
+        val path =
+            externalLocation.locations[symbol.signature()] ?: externalLocation.resolver.getPath(symbol) ?: return null
 
         return URL(externalLocation.rootUrl, path).toExternalForm()
     }
@@ -270,6 +275,18 @@ interface InboundExternalLinkResolutionService {
                         if (psi != null) {
                             val params = psi.parameterList.parameters.joinToString { it.type.canonicalText }
                             return containingClassLink + "#" + symbol.name + "(" + params + ")"
+                        } else { // PSI can be null for JavaBinary classes eg. those from the JDK
+                            val params = symbol.valueParameters.joinToString {
+                                if (((it.source as? org.jetbrains.kotlin.load.java.sources.JavaSourceElement)?.javaElement as? BinaryJavaValueParameter)?.type is JavaPrimitiveType) { // This is actually a hack
+                                    it.type.nameIfStandardType?.asString()?.toLowerCase().orEmpty()
+                                } else {
+                                    it.type.fqName?.toUnsafe()?.let { fqNameUnsafe ->
+                                        JavaToKotlinClassMap.mapKotlinToJava(fqNameUnsafe)?.asString()
+                                            ?.replace("/", ".")
+                                    }.orEmpty()
+                                }
+                            }.replace(" ", "%20") // We can't use URI or URL here for escaping as we have no defined protocol
+                            return containingClassLink + "#" + symbol.name + "(" + params + ")"
                         }
                     } else if (symbol is JavaPropertyDescriptor) {
                         return "$containingClassLink#${symbol.name}"
@@ -282,7 +299,8 @@ interface InboundExternalLinkResolutionService {
     }
 
     class Dokka(val paramsMap: Map<String, List<String>>) : InboundExternalLinkResolutionService {
-        val extension = paramsMap["linkExtension"]?.singleOrNull() ?: error("linkExtension not provided for Dokka resolver")
+        val extension =
+            paramsMap["linkExtension"]?.singleOrNull() ?: error("linkExtension not provided for Dokka resolver")
 
         override fun getPath(symbol: DeclarationDescriptor): String? {
             val leafElement = when (symbol) {
