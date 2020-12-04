@@ -777,8 +777,9 @@ open class HtmlRenderer(
                             }
                             span { text("© 2020 Copyright") }
                             span("pull-right") {
-                                span { text("Sponsored and developed by dokka") }
+                                span { text("Sponsored and developed by ") }
                                 a(href = "https://github.com/Kotlin/dokka") {
+                                    span { text("dokka") }
                                     span(classes = "padded-icon")
                                 }
                             }
