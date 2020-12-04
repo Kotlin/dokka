@@ -26,6 +26,10 @@ abstract class AbstractIntegrationTest {
         return allDescendentsWithExtension("html")
     }
 
+    fun File.allGfmFiles(): Sequence<File>{
+        return allDescendentsWithExtension("md")
+    }
+
     protected fun assertContainsNoErrorClass(file: File) {
         val fileText = file.readText()
         assertFalse(
@@ -101,6 +105,14 @@ abstract class AbstractIntegrationTest {
         assertFalse(
             fileText.contains(Regex("""<span>\s*</span>""")),
             "Unexpected empty <span></span> in file ${file.path}"
+        )
+    }
+
+    protected fun assertNoUnsubstitutedTemplatesInHtml(file: File) {
+        val parsedFile = Jsoup.parse(file, "UTF-8")
+        assertTrue(
+            parsedFile.select("dokka-template-command").isEmpty(),
+            "Expected all templates to be substituted"
         )
     }
 }

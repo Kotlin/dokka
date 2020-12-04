@@ -20,7 +20,7 @@ import java.nio.file.Path
 import java.nio.file.Paths
 
 // TODO: take dokka configuration from file
-abstract class AbstractTest< M: TestMethods, T : TestBuilder<M>, D: DokkaTestGenerator<M> >(
+abstract class AbstractTest<M : TestMethods, T : TestBuilder<M>, D : DokkaTestGenerator<M>>(
     protected val testBuilder: () -> T,
     protected val dokkaTestGenerator: (DokkaConfiguration, DokkaLogger, M, List<DokkaPlugin>) -> D,
     protected val logger: TestLogger,
@@ -32,19 +32,22 @@ abstract class AbstractTest< M: TestMethods, T : TestBuilder<M>, D: DokkaTestGen
     protected fun testFromData(
         configuration: DokkaConfigurationImpl,
         cleanupOutput: Boolean = true,
+        preserveOutputDir: Boolean = false,
         pluginOverrides: List<DokkaPlugin> = emptyList(),
         block: T.() -> Unit
     ) {
         val testMethods = testBuilder().apply(block).build()
-        val tempDir = getTempDir(cleanupOutput)
-        if (!cleanupOutput)
-            logger.info("Output generated under: ${tempDir.root.absolutePath}")
-        val newConfiguration =
+        val configurationToUse = if (!preserveOutputDir) {
+            val tempDir = getTempDir(cleanupOutput)
+            if (!cleanupOutput)
+                logger.info("Output generated under: ${tempDir.root.absolutePath}")
             configuration.copy(
                 outputDir = tempDir.root
             )
+        } else configuration
+
         dokkaTestGenerator(
-            newConfiguration,
+            configurationToUse,
             logger,
             testMethods,
             pluginOverrides
@@ -169,7 +172,9 @@ abstract class AbstractTest< M: TestMethods, T : TestBuilder<M>, D: DokkaTestGen
     }
 }
 
-open class TestMethods(
+interface TestMethods
+
+open class CoreTestMethods(
     open val pluginsSetupStage: (DokkaContext) -> Unit,
     open val verificationStage: (() -> Unit) -> Unit,
     open val documentablesCreationStage: (List<DModule>) -> Unit,
@@ -178,13 +183,13 @@ open class TestMethods(
     open val pagesGenerationStage: (RootPageNode) -> Unit,
     open val pagesTransformationStage: (RootPageNode) -> Unit,
     open val renderingStage: (RootPageNode, DokkaContext) -> Unit
-)
+) : TestMethods
 
-abstract class TestBuilder<M: TestMethods> {
+abstract class TestBuilder<M : TestMethods> {
     abstract fun build(): M
 }
 
-abstract class DokkaTestGenerator<T: TestMethods>(
+abstract class DokkaTestGenerator<T : TestMethods>(
     protected val configuration: DokkaConfiguration,
     protected val logger: DokkaLogger,
     protected val testMethods: T,
