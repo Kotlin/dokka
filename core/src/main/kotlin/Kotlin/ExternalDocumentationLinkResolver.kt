@@ -276,7 +276,7 @@ interface InboundExternalLinkResolutionService {
                             val params = psi.parameterList.parameters.joinToString { it.type.canonicalText }
                             return containingClassLink + "#" + symbol.name + "(" + params + ")"
                         } else { // PSI can be null for JavaBinary classes eg. those from the JDK
-                            val params = symbol.valueParameters.joinToString {
+                            val params = symbol.valueParameters.joinToString("-") {
                                 if (((it.source as? org.jetbrains.kotlin.load.java.sources.JavaSourceElement)?.javaElement as? BinaryJavaValueParameter)?.type is JavaPrimitiveType) { // This is actually a hack
                                     it.type.nameIfStandardType?.asString()?.toLowerCase()
                                 } else {
@@ -285,8 +285,8 @@ interface InboundExternalLinkResolutionService {
                                             ?.replace("/", ".")
                                     }
                                 } ?: it.type.fqName?.asString().orEmpty()
-                            }.replace(" ", "%20") // We can't use URI or URL here for escaping as we have no defined protocol
-                            return containingClassLink + "#" + symbol.name + "(" + params + ")"
+                            }
+                            return containingClassLink + "#" + symbol.name + "-" + params + "-"
                         }
                     } else if (symbol is JavaPropertyDescriptor) {
                         return "$containingClassLink#${symbol.name}"
