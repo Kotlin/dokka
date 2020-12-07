@@ -278,13 +278,13 @@ interface InboundExternalLinkResolutionService {
                         } else { // PSI can be null for JavaBinary classes eg. those from the JDK
                             val params = symbol.valueParameters.joinToString {
                                 if (((it.source as? org.jetbrains.kotlin.load.java.sources.JavaSourceElement)?.javaElement as? BinaryJavaValueParameter)?.type is JavaPrimitiveType) { // This is actually a hack
-                                    it.type.nameIfStandardType?.asString()?.toLowerCase().orEmpty()
+                                    it.type.nameIfStandardType?.asString()?.toLowerCase()
                                 } else {
                                     it.type.fqName?.toUnsafe()?.let { fqNameUnsafe ->
                                         JavaToKotlinClassMap.mapKotlinToJava(fqNameUnsafe)?.asString()
                                             ?.replace("/", ".")
-                                    }.orEmpty()
-                                }
+                                    }
+                                } ?: it.type.fqName?.asString().orEmpty()
                             }.replace(" ", "%20") // We can't use URI or URL here for escaping as we have no defined protocol
                             return containingClassLink + "#" + symbol.name + "(" + params + ")"
                         }
