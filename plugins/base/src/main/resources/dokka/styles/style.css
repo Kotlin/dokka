@@ -1109,6 +1109,10 @@ td.content {
     padding: 0 16px;
 }
 
+.footer a {
+    color: var(--breadcrumb-font-color);
+}
+
 .footer .padded-icon {
     padding-left: 0.5em;
 }
