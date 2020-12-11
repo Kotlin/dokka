@@ -14,7 +14,10 @@ object JavaSignatureUtils : JvmSignatureUtils {
         Annotations.Annotation(DRI("kotlin.jvm", "Volatile"), emptyMap()),
         Annotations.Annotation(DRI("kotlin.jvm", "Transitive"), emptyMap()),
         Annotations.Annotation(DRI("kotlin.jvm", "Strictfp"), emptyMap()),
-        Annotations.Annotation(DRI("kotlin.jvm", "JvmStatic"), emptyMap())
+        Annotations.Annotation(DRI("kotlin.jvm", "JvmStatic"), emptyMap()),
+        Annotations.Annotation(DRI("kotlin.jvm", "JvmName"), emptyMap()),
+        Annotations.Annotation(DRI("kotlin.jvm", "JvmField"), emptyMap()),
+        Annotations.Annotation(DRI("kotlin.jvm", "JvmSynthetic"), emptyMap())
     )
 
     private val strategy = All

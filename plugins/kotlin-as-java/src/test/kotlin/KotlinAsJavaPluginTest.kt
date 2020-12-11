@@ -8,13 +8,18 @@ import org.junit.jupiter.api.Test
 import matchers.content.*
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.jdk
+import org.jetbrains.dokka.model.DClass
+import org.jetbrains.dokka.model.DEnum
+import org.jetbrains.dokka.model.DInterface
 import org.junit.Assert
+import signatures.firstSignature
 import signatures.renderedContent
 import signatures.signature
 import utils.A
 import utils.Span
 import utils.TestOutputWriterPlugin
 import utils.match
+import kotlin.test.assertEquals
 
 class KotlinAsJavaPluginTest : BaseAbstractTest() {
 
@@ -401,6 +406,132 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 Assert.assertNull(writerPlugin.writer.contents["root/kotlinAsJavaPlugin/-test-kt/get-f-i-r-s-t.html"])
+            }
+        }
+    }
+
+    @Test
+    fun `extract const val from companion object`() {
+        val writerPlugin = TestOutputWriterPlugin()
+        val configuration = dokkaConfiguration {
+            sourceSets {
+                sourceSet {
+                    sourceRoots = listOf("src/")
+                    externalDocumentationLinks = listOf(
+                        DokkaConfiguration.ExternalDocumentationLink.jdk(8),
+                        stdlibExternalDocumentationLink
+                    )
+                }
+            }
+        }
+        testInline(
+            """
+            |/src/main/kotlin/kotlinAsJavaPlugin/Test.kt
+            |package kotlinAsJavaPlugin
+            |
+            |class TestClass {
+            |   companion object {
+            |       const val someVal = 1
+            |   }
+            |}
+            |
+            |interface TestInterface {
+            |   companion object {
+            |       const val someVal = 1
+            |   }
+            |}
+            |
+            |enum class TestEnum {
+            |   companion object {
+            |       const val someVal = 1
+            |   }
+            |}
+        """.trimMargin(),
+            configuration,
+            pluginOverrides = listOf(writerPlugin),
+            cleanupOutput = true
+        ) {
+            documentablesTransformationStage = { module ->
+                val pkg = module.packages.first()
+                val clazz = pkg.children.first { it is DClass } as DClass
+                assertEquals("someVal", clazz.properties.first().name)
+                assertEquals(1, clazz.classlikes.first().properties.size)
+                val intf = pkg.children.first { it is DInterface } as DInterface
+                assertEquals("someVal", intf.properties.first().name)
+                assertEquals(1, intf.classlikes.first().properties.size)
+                val enum = pkg.children.first { it is DEnum } as DEnum
+                assertEquals("someVal", enum.properties.first().name)
+                assertEquals(1, enum.classlikes.first().properties.size)
+            }
+        }
+    }
+
+    @Test
+    fun testJvmName() {
+        val writerPlugin = TestOutputWriterPlugin()
+        val configuration = dokkaConfiguration {
+            sourceSets {
+                sourceSet {
+                    sourceRoots = listOf("src/")
+                    externalDocumentationLinks = listOf(
+                        DokkaConfiguration.ExternalDocumentationLink.jdk(8),
+                        stdlibExternalDocumentationLink
+                    )
+                    analysisPlatform = "jvm"
+                    classpath += listOfNotNull(jvmStdlibPath)
+                }
+            }
+        }
+        testInline(
+            """
+            |/src/main/kotlin/kotlinAsJavaPlugin/TestJvmName.kt
+            |@file:JvmName("TestJava")
+            |
+            |package kotlinAsJavaPlugin
+            |
+            |@JvmName("someFunInJava")
+            |fun someFun(a: Int) = 1
+            |
+            |@get:JvmName("findSomeVar")
+            |@set:JvmName("modifySomeVar")
+            |var someVar: Int = 1
+            |
+            |val otherVal: Int
+            |   @JvmName("findOtherVal") get() = 1
+        """.trimMargin(),
+            configuration,
+            pluginOverrides = listOf(writerPlugin),
+            cleanupOutput = true
+        ) {
+            renderingStage = { _, _ ->
+                writerPlugin
+                    .writer
+                    .renderedContent("root/kotlinAsJavaPlugin/-test-java/index.html")
+                    .firstSignature()
+                    .match(
+                        "public final class ", A("TestJava"), Span()
+                    )
+                writerPlugin
+                    .writer
+                    .renderedContent("root/kotlinAsJavaPlugin/-test-java/some-fun-in-java.html")
+                    .firstSignature()
+                    .match(
+                        "final static ", A("Integer"), A("someFunInJava"), "(", A("Integer"), A("a"), ")", Span()
+                    )
+                writerPlugin
+                    .writer
+                    .renderedContent("root/kotlinAsJavaPlugin/-test-java/find-some-var.html")
+                    .firstSignature()
+                    .match(
+                        "static ", A("Integer"), A("findSomeVar"), "()", Span()
+                    )
+                writerPlugin
+                    .writer
+                    .renderedContent("root/kotlinAsJavaPlugin/-test-java/modify-some-var.html")
+                    .firstSignature()
+                    .match(
+                        "static ", A("Unit"), A("modifySomeVar"), "(", A("Integer"), A("someVar"), ")", Span()
+                    )
             }
         }
     }

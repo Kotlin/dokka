@@ -656,4 +656,39 @@ class DefaultDescriptorToDocumentableTranslatorTest : BaseAbstractTest() {
             }
         }
     }
+
+    @Test
+    fun `file annotations`() {
+        val configuration = dokkaConfiguration {
+            sourceSets {
+                sourceSet {
+                    sourceRoots = listOf("src/main/kotlin")
+                    analysisPlatform = "jvm"
+                    classpath += listOfNotNull(jvmStdlibPath)
+                }
+            }
+        }
+
+        testInline(
+            """
+            |/src/main/kotlin/sample/XD.kt
+            |@file:JvmName("B")
+            |
+            |package sample
+            |
+            |fun a(): Int = 1
+            """.trimIndent(),
+            configuration
+        ) {
+            documentablesMergingStage = { module ->
+                val pkg = module.packages.single()
+                val fileAnnotations = pkg.extra[FileAnnotations]
+                Assert.assertNotNull(fileAnnotations)
+                val annotation = fileAnnotations!!.content.values.single().values().single()
+                Assert.assertEquals("JvmName", annotation.dri.classNames)
+                val value = annotation.params["name"] as StringValue
+                Assert.assertEquals("B", value.unquotedValue)
+            }
+        }
+    }
 }

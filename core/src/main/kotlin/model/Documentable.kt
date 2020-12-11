@@ -458,6 +458,8 @@ fun <T> SourceSetDependent<T>?.orEmpty(): SourceSetDependent<T> = this ?: emptyM
 
 interface DocumentableSource {
     val path: String
+
+    fun hasSamePath(other: DocumentableSource?) = path == other?.path
 }
 
 data class TypeConstructorWithKind(val typeConstructor: TypeConstructor, val kind: ClassKind)

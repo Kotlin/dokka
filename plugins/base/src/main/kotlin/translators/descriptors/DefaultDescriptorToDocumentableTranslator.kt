@@ -1,8 +1,11 @@
 package org.jetbrains.dokka.base.translators.descriptors
 
+import com.google.common.collect.ArrayListMultimap
+import com.google.common.collect.Multimap
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
+import org.jetbrains.dokka.analysis.AnnotationDescriptorDocumentableSource
 import org.jetbrains.dokka.analysis.DescriptorDocumentableSource
 import org.jetbrains.dokka.analysis.DokkaResolutionFacade
 import org.jetbrains.dokka.analysis.KotlinAnalysis
@@ -75,14 +78,22 @@ class DefaultDescriptorToDocumentableTranslator(
         val packageFragments = environment.getSourceFiles().asSequence()
             .map { it.packageFqName }
             .distinct()
+            .distinct()
             .mapNotNull { facade.resolveSession.getPackageFragment(it) }
             .toList()
+        val fileAnnotations = ArrayListMultimap.create<FqName, AnnotationDescriptor>()
+        environment
+            .getSourceFiles()
+            .forEach { sourceFile ->
+                fileAnnotations.putAll(sourceFile.packageFqName, facade.resolveSession.getFileAnnotations(sourceFile))
+            }
 
         return DokkaDescriptorVisitor(sourceSet, kotlinAnalysis[sourceSet].facade, context.logger).run {
             packageFragments.mapNotNull { it.safeAs<PackageFragmentDescriptor>() }.parallelMap {
                 visitPackageFragmentDescriptor(
                     it,
-                    DRIWithPlatformInfo(DRI.topLevel, emptyMap())
+                    DRIWithPlatformInfo(DRI.topLevel, emptyMap()),
+                    fileAnnotations[it.fqName]
                 )
             }
         }.let {
@@ -121,7 +132,8 @@ private class DokkaDescriptorVisitor(
 
     suspend fun visitPackageFragmentDescriptor(
         descriptor: PackageFragmentDescriptor,
-        parent: DRIWithPlatformInfo
+        parent: DRIWithPlatformInfo,
+        fileAnnotations: Collection<AnnotationDescriptor>
     ): DPackage {
         val name = descriptor.fqName.asString().takeUnless { it.isBlank() } ?: ""
         val driWithPlatform = DRI(packageName = name).withEmptyInfo()
@@ -141,7 +153,14 @@ private class DokkaDescriptorVisitor(
                 classlikes = classlikes.await(),
                 typealiases = typealiases.await(),
                 documentation = descriptor.resolveDescriptorData(),
-                sourceSets = setOf(sourceSet)
+                sourceSets = setOf(sourceSet),
+                extra = if (fileAnnotations.isEmpty()) {
+                    PropertyContainer.empty()
+                } else {
+                    PropertyContainer.withAll(
+                        fileAnnotations.toAnnotationsWithSource().toSourceSetDependent().toFileAnnotations()
+                    )
+                }
             )
         }
     }
@@ -782,8 +801,8 @@ private class DokkaDescriptorVisitor(
 
     private suspend fun org.jetbrains.kotlin.descriptors.annotations.Annotations.getPresentableName(): String? =
         map { it.toAnnotation() }.singleOrNull { it.dri.classNames == "ParameterName" }?.params?.get("name")
-            .safeAs<StringValue>()?.value?.drop(1)
-            ?.dropLast(1) // Dropping enclosing doublequotes because we don't want to have it in our custom signature serializer
+            // Dropping enclosing doublequotes because we don't want to have it in our custom signature serializer
+            .safeAs<StringValue>()?.unquotedValue
 
     private suspend fun KotlinType.toBound(): Bound = when (this) {
 
@@ -941,12 +960,29 @@ private class DokkaDescriptorVisitor(
         )
     }
 
+    private suspend fun Collection<AnnotationDescriptor>.toAnnotationsWithSource(): Multimap<DocumentableSource, Annotations.Annotation> {
+        val annotationsWithSource = parallelMap { annotationDescriptor ->
+            annotationDescriptor.toAnnotation() to AnnotationDescriptorDocumentableSource(annotationDescriptor)
+        }
+        return ArrayListMultimap.create<DocumentableSource, Annotations.Annotation>().apply {
+            annotationsWithSource.forEach { (annotation, source) ->
+                put(source, annotation)
+            }
+        }
+    }
+
     private suspend fun PropertyDescriptor.getAnnotationsWithBackingField(): List<Annotations.Annotation> =
         getAnnotations() + (backingField?.getAnnotations() ?: emptyList())
 
     private fun List<Annotations.Annotation>.toAdditionalExtras() = mapNotNull {
         try {
-            ExtraModifiers.valueOf(it.dri.classNames?.toLowerCase() ?: "")
+            val annotationClassName = it.dri.classNames
+            if (annotationClassName == "JvmStatic") {
+                // Handle JvmStatic case
+                ExtraModifiers.JavaOnlyModifiers.Static
+            } else {
+                ExtraModifiers.valueOf(annotationClassName?.toLowerCase() ?: "")
+            }
         } catch (e: IllegalArgumentException) {
             null
         }

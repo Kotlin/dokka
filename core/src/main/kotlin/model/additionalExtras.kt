@@ -1,8 +1,11 @@
 package org.jetbrains.dokka.model
 
+import com.google.common.collect.ArrayListMultimap
+import com.google.common.collect.Multimap
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.properties.ExtraProperty
 import org.jetbrains.dokka.model.properties.MergeStrategy
+import org.jetbrains.dokka.model.properties.WithExtraProperties
 
 class AdditionalModifiers(val content: SourceSetDependent<Set<ExtraModifiers>>) : ExtraProperty<Documentable> {
     companion object : ExtraProperty.Key<Documentable, AdditionalModifiers> {
@@ -20,6 +23,12 @@ class AdditionalModifiers(val content: SourceSetDependent<Set<ExtraModifiers>>) 
 }
 
 fun SourceSetDependent<Set<ExtraModifiers>>.toAdditionalModifiers() = AdditionalModifiers(this)
+
+fun WithExtraProperties<out Documentable>.hasAdditionalModifier(modifier: ExtraModifiers): SourceSetDependent<Boolean>? {
+    return extra[AdditionalModifiers]?.content?.mapValues { (_, modifiers) ->
+        modifier in modifiers
+    }
+}
 
 class Annotations(val content: SourceSetDependent<List<Annotation>>) : ExtraProperty<Documentable> {
     companion object : ExtraProperty.Key<Documentable, Annotations> {
@@ -41,12 +50,25 @@ class Annotations(val content: SourceSetDependent<List<Annotation>>) : ExtraProp
 
 fun SourceSetDependent<List<Annotations.Annotation>>.toAnnotations() = Annotations(this)
 
+fun WithExtraProperties<out Documentable>.hasAnnotation(name: String): SourceSetDependent<Boolean>? {
+    return extra[Annotations]?.content?.mapValues { (_, annotations) ->
+        annotations.any { annotation -> annotation.dri.classNames == name }
+    }
+}
+
 sealed class AnnotationParameterValue
 data class AnnotationValue(val annotation: Annotations.Annotation) : AnnotationParameterValue()
 data class ArrayValue(val value: List<AnnotationParameterValue>) : AnnotationParameterValue()
 data class EnumValue(val enumName: String, val enumDri: DRI) : AnnotationParameterValue()
 data class ClassValue(val className: String, val classDRI: DRI) : AnnotationParameterValue()
-data class StringValue(val value: String) : AnnotationParameterValue()
+data class StringValue(val value: String) : AnnotationParameterValue() {
+    val unquotedValue: String
+        get() = if (value.startsWith('"') && value.endsWith('"')) {
+            if (value.length == 2) "" else value.substring(1, value.lastIndex)
+        } else {
+            value
+        }
+}
 
 
 object PrimaryConstructorExtra : ExtraProperty<DFunction>, ExtraProperty.Key<DFunction, PrimaryConstructorExtra> {
@@ -72,4 +94,37 @@ data class ConstructorValues(val values: SourceSetDependent<List<String>>) : Ext
     }
 
     override val key: ExtraProperty.Key<DEnumEntry, ConstructorValues> = ConstructorValues
+}
+
+fun SourceSetDependent<Multimap<DocumentableSource, Annotations.Annotation>>.toFileAnnotations() =
+    FileAnnotations(this)
+
+data class FileAnnotations(val content: SourceSetDependent<Multimap<DocumentableSource, Annotations.Annotation>>) : ExtraProperty<DPackage> {
+    companion object : ExtraProperty.Key<DPackage, FileAnnotations> {
+        override fun mergeStrategyFor(left: FileAnnotations, right: FileAnnotations): MergeStrategy<DPackage> {
+            val content = left.content.toMutableMap()
+            right.content.forEach { (sourceSet, fileAnnotations) ->
+                val existing = content[sourceSet]
+                if (existing == null) {
+                    content[sourceSet] = fileAnnotations
+                } else {
+                    content[sourceSet] = existing + fileAnnotations
+                }
+            }
+            return MergeStrategy.Replace(FileAnnotations(content))
+        }
+    }
+
+    override val key: ExtraProperty.Key<DPackage, *> = FileAnnotations
+}
+
+private operator fun <K, V> Multimap<out K, V>.plus(multimap: Multimap<K, V>): Multimap<K, V> =
+    ArrayListMultimap.create(this).apply { putAll(multimap) }
+
+data class FromCompanionObject(val container: WithCompanion) : ExtraProperty<Documentable> {
+    companion object : ExtraProperty.Key<Documentable, FromCompanionObject> {
+        override fun mergeStrategyFor(left: FromCompanionObject,right: FromCompanionObject) = MergeStrategy.Remove
+    }
+
+    override val key: ExtraProperty.Key<Documentable, *> = FromCompanionObject
 }
