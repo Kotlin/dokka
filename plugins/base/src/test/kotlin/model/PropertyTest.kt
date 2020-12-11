@@ -150,7 +150,7 @@ class PropertyTest : AbstractModelTest("/src/main/kotlin/property/Test.kt", "pro
                 """
         ) {
             with((this / "property" / "prop").cast<DProperty>()) {
-                with(extra[Annotations]!!.content.entries.single().value.assertNotNull("Annotations")) {
+                with(extra[Annotations]!!.directAnnotations.entries.single().value.assertNotNull("Annotations")) {
                     this counts 1
                     with(first()) {
                         dri.classNames equals "SinceKotlin"
@@ -178,7 +178,7 @@ class PropertyTest : AbstractModelTest("/src/main/kotlin/property/Test.kt", "pro
             }
         ) {
             with((this / "property" / "property").cast<DProperty>()) {
-                with(extra[Annotations]!!.content.entries.single().value.assertNotNull("Annotations")) {
+                with(extra[Annotations]!!.directAnnotations.entries.single().value.assertNotNull("Annotations")) {
                     this counts 1
                     with(first()) {
                         dri.classNames equals "Strictfp"

@@ -19,10 +19,8 @@ import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
-import org.jetbrains.dokka.plugability.query
 import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.transformers.sources.AsyncSourceToDocumentableTranslator
-import org.jetbrains.dokka.transformers.sources.SourceToDocumentableTranslator
 import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.kotlin.builtins.functions.FunctionClassDescriptor
 import org.jetbrains.kotlin.builtins.isBuiltinExtensionFunctionalType
@@ -33,7 +31,6 @@ import org.jetbrains.kotlin.builtins.isSuspendFunctionTypeOrSubtype
 import org.jetbrains.kotlin.codegen.isJvmStaticInObjectOrClassOrInterface
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.descriptors.ClassKind
-import org.jetbrains.kotlin.descriptors.Visibility
 import org.jetbrains.kotlin.descriptors.annotations.Annotated
 import org.jetbrains.kotlin.descriptors.annotations.AnnotationDescriptor
 import org.jetbrains.kotlin.idea.kdoc.findKDoc
@@ -51,8 +48,8 @@ import org.jetbrains.kotlin.resolve.descriptorUtil.annotationClass
 import org.jetbrains.kotlin.resolve.scopes.MemberScope
 import org.jetbrains.kotlin.resolve.source.KotlinSourceElement
 import org.jetbrains.kotlin.resolve.source.PsiSourceElement
+import org.jetbrains.kotlin.resolve.source.PsiSourceFile
 import org.jetbrains.kotlin.types.*
-import org.jetbrains.kotlin.types.model.typeConstructor
 import org.jetbrains.kotlin.types.typeUtil.immediateSupertypes
 import org.jetbrains.kotlin.types.typeUtil.isAnyOrNullableAny
 import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
@@ -117,7 +114,7 @@ private class DokkaDescriptorVisitor(
         }
     }
 
-    private fun <T> T.toSourceSetDependent() = mapOf(sourceSet to this)
+    private fun <T> T.toSourceSetDependent() = if(this != null) mapOf(sourceSet to this) else emptyMap()
 
     suspend fun visitPackageFragmentDescriptor(
         descriptor: PackageFragmentDescriptor,
@@ -436,13 +433,16 @@ private class DokkaDescriptorVisitor(
                 sourceSets = setOf(sourceSet),
                 generics = generics.await(),
                 isExpectActual = (isExpect || isActual),
-                extra = PropertyContainer.withAll(listOfNotNull(
-                    (descriptor.additionalExtras() + descriptor.getAnnotationsWithBackingField()
-                        .toAdditionalExtras()).toSet().toSourceSetDependent().toAdditionalModifiers(),
-                    descriptor.getAnnotationsWithBackingField().toSourceSetDependent().toAnnotations(),
-                    descriptor.getDefaultValue()?.let { DefaultValue(it) },
-                    InheritedMember(inheritedFrom.toSourceSetDependent()),
-                ))
+                extra = PropertyContainer.withAll(
+                    listOfNotNull(
+                        (descriptor.additionalExtras() + descriptor.getAnnotationsWithBackingField()
+                            .toAdditionalExtras()).toSet().toSourceSetDependent().toAdditionalModifiers(),
+                        (descriptor.getAnnotationsWithBackingField() + descriptor.fileLevelAnnotations()).toSourceSetDependent()
+                            .toAnnotations(),
+                        descriptor.getDefaultValue()?.let { DefaultValue(it) },
+                        InheritedMember(inheritedFrom.toSourceSetDependent()),
+                    )
+                )
             )
         }
     }
@@ -489,7 +489,7 @@ private class DokkaDescriptorVisitor(
                 extra = PropertyContainer.withAll(
                     InheritedMember(inheritedFrom.toSourceSetDependent()),
                     descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
-                    descriptor.getAnnotations().toSourceSetDependent().toAnnotations()
+                    (descriptor.getAnnotations() + descriptor.fileLevelAnnotations()).toSourceSetDependent().toAnnotations(),
                 )
             )
         }
@@ -928,18 +928,30 @@ private class DokkaDescriptorVisitor(
                 )
             }
         }
-        else -> StringValue(toString())
+        else -> StringValue(unquotedValue(toString()))
     }
 
-    private suspend fun AnnotationDescriptor.toAnnotation(): Annotations.Annotation {
+    private fun unquotedValue(value: String): String = if (value.startsWith('"') && value.endsWith('"')) {
+        if (value.length == 2) "" else value.substring(1, value.lastIndex)
+    } else {
+        value
+    }
+
+    private suspend fun AnnotationDescriptor.toAnnotation(scope: AnnotationScope = AnnotationScope.DIRECT): Annotations.Annotation {
+        val dri = DRI.from(annotationClass as DeclarationDescriptor)
         return Annotations.Annotation(
             DRI.from(annotationClass as DeclarationDescriptor),
             allValueArguments.map { it.key.asString() to it.value.toValue() }.filter {
                 it.second != null
             }.toMap() as Map<String, AnnotationParameterValue>,
-            annotationClass!!.annotations.hasAnnotation(FqName("kotlin.annotation.MustBeDocumented"))
+            mustBeDocumented(dri),
+            scope
         )
     }
+
+    private fun AnnotationDescriptor.mustBeDocumented(dri: DRI): Boolean =
+        if (dri.isJvmName()) false
+        else annotationClass!!.annotations.hasAnnotation(FqName("kotlin.annotation.MustBeDocumented"))
 
     private suspend fun PropertyDescriptor.getAnnotationsWithBackingField(): List<Annotations.Annotation> =
         getAnnotations() + (backingField?.getAnnotations() ?: emptyList())
@@ -1004,6 +1016,14 @@ private class DokkaDescriptorVisitor(
 
     private fun ConstantsEnumValue.fullEnumEntryName() =
         "${this.enumClassId.relativeClassName.asString()}.${this.enumEntryName.identifier}"
+
+    private fun DeclarationDescriptorWithSource.ktFile(): KtFile? = (source.containingFile as? PsiSourceFile)?.psiFile as? KtFile
+
+    private suspend fun DeclarationDescriptorWithSource.fileLevelAnnotations() = ktFile()
+        ?.let { file -> resolutionFacade.resolveSession.getFileAnnotations(file) }
+        ?.toList()
+        .orEmpty()
+        .parallelMap { it.toAnnotation(scope = AnnotationScope.FILE) }
 }
 
 private data class AncestryLevel(

@@ -4,10 +4,17 @@ import matchers.content.*
 import org.jetbrains.dokka.pages.ContentPage
 import org.jetbrains.dokka.pages.PackagePageNode
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
+import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.model.AnnotationScope
+import org.jetbrains.dokka.model.Annotations
+import org.jetbrains.dokka.model.StringValue
+import org.jetbrains.kotlin.utils.addToStdlib.firstNotNullResult
 import org.junit.jupiter.api.Test
 import utils.ParamAttributes
 import utils.bareSignature
 import utils.propertySignature
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 
 
 class ContentForAnnotationsTest : BaseAbstractTest() {
@@ -18,6 +25,7 @@ class ContentForAnnotationsTest : BaseAbstractTest() {
             sourceSet {
                 sourceRoots = listOf("src/")
                 analysisPlatform = "jvm"
+                classpath += jvmStdlibPath!!
             }
         }
     }
@@ -215,6 +223,45 @@ class ContentForAnnotationsTest : BaseAbstractTest() {
                         ), "", "", emptySet(), "val", "ltint", "Int", "5"
                     )
                 }
+            }
+        }
+    }
+
+    @Test
+    fun `JvmName for property with setter and getter`(){
+        testInline(
+            """
+                |/src/main/kotlin/test/source.kt
+                |package test
+                |@get:JvmName("xd")
+                |@set:JvmName("asd")
+                |var property: String
+                |    get() = ""
+                |    set(value) {}
+            """.trimIndent(), testConfiguration) {
+            documentablesCreationStage = { modules ->
+                fun expectedAnnotation(name: String) = Annotations.Annotation(
+                    dri = DRI("kotlin.jvm", "JvmName"),
+                    params = mapOf("name" to StringValue(name)),
+                    scope = AnnotationScope.DIRECT,
+                    mustBeDocumented = false
+                )
+
+                val property = modules.flatMap { it.packages }.flatMap { it.properties }.first()
+                val getterAnnotation = property.getter?.extra?.get(Annotations)?.let {
+                    it.directAnnotations.entries.firstNotNullResult { (_, annotations) -> annotations.firstOrNull() }
+                }
+                val setterAnnotation = property.getter?.extra?.get(Annotations)?.let {
+                    it.directAnnotations.entries.firstNotNullResult { (_, annotations) -> annotations.firstOrNull() }
+                }
+
+                assertEquals(expectedAnnotation("xd"), getterAnnotation)
+                assertFalse(getterAnnotation?.mustBeDocumented!!)
+                assertEquals(AnnotationScope.DIRECT, getterAnnotation.scope)
+
+                assertEquals(expectedAnnotation("asd"), setterAnnotation)
+                assertFalse(setterAnnotation?.mustBeDocumented!!)
+                assertEquals(AnnotationScope.DIRECT, setterAnnotation.scope)
             }
         }
     }
