@@ -53,16 +53,16 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
 
     /**
      * The current build session instance. This is used for
-     * for dependency resolver API calls via repositorySystem.
+     * dependency resolver API calls via repositorySystem.
      */
     @Parameter(defaultValue = "\${session}", required = true, readonly = true)
     protected var session: MavenSession? = null
 
     @Component
-    private var repositorySystem: RepositorySystem? = null;
+    private var repositorySystem: RepositorySystem? = null
 
     @Component
-    private var resolutionErrorHandler: ResolutionErrorHandler? = null;
+    private var resolutionErrorHandler: ResolutionErrorHandler? = null
 
     class PackageOptions : DokkaConfiguration.PackageOptions {
         @Parameter
@@ -260,24 +260,25 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
         version: String
     ): List<File> {
 
-        val request = ArtifactResolutionRequest()
-        request.isResolveRoot = true
-        request.isResolveTransitively = true
-        request.localRepository = session!!.localRepository
-        request.remoteRepositories = mavenProject!!.pluginArtifactRepositories
-        request.isOffline = session!!.isOffline
-        request.isForceUpdate = session!!.request.isUpdateSnapshots
-        request.servers = session!!.request.servers
-        request.mirrors = session!!.request.mirrors
-        request.proxies = session!!.request.proxies
-        request.artifact = DefaultArtifact(groupId, artifactId, version, "compile", "jar", null,
-                DefaultArtifactHandler("jar"))
+        val request = ArtifactResolutionRequest().apply {
+            isResolveRoot = true
+            isResolveTransitively = true
+            localRepository = session!!.localRepository
+            remoteRepositories = mavenProject!!.pluginArtifactRepositories
+            isOffline = session!!.isOffline
+            isForceUpdate = session!!.request.isUpdateSnapshots
+            servers = session!!.request.servers
+            mirrors = session!!.request.mirrors
+            proxies = session!!.request.proxies
+            artifact = DefaultArtifact(groupId, artifactId, version, "compile", "jar", null,
+                    DefaultArtifactHandler("jar"))
+        }
 
         log.debug("Resolving $groupId:$artifactId:$version ...")
 
         val result: ArtifactResolutionResult = repositorySystem!!.resolve(request)
-        resolutionErrorHandler!!.throwErrors(request, result);
-        return result.artifacts.stream().map { it.file }.collect(Collectors.toList())
+        resolutionErrorHandler!!.throwErrors(request, result)
+        return result.artifacts.map { it.file }
     }
 
     private val dokkaVersion: String by lazy {
