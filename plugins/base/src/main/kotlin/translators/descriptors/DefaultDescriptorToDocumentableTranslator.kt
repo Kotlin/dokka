@@ -719,7 +719,7 @@ private class DokkaDescriptorVisitor(
     private suspend fun List<ClassDescriptor>.visitEnumEntries(parent: DRIWithPlatformInfo): List<DEnumEntry> =
         coroutineScope { parallelMap { visitEnumEntryDescriptor(it, parent) } }
 
-    private suspend fun DeclarationDescriptor.resolveDescriptorData(): SourceSetDependent<DocumentationNode> =
+    private fun DeclarationDescriptor.resolveDescriptorData(): SourceSetDependent<DocumentationNode> =
         getDocumentation()?.toSourceSetDependent() ?: emptyMap()
 
 
@@ -831,7 +831,7 @@ private class DokkaDescriptorVisitor(
             org.jetbrains.kotlin.types.Variance.OUT_VARIANCE -> Covariance(this)
         }
 
-    private suspend fun DeclarationDescriptor.getDocumentation() = findKDoc().let {
+    private fun DeclarationDescriptor.getDocumentation() = findKDoc().let {
         MarkdownParser.parseFromKDocTag(
             kDocTag = it,
             externalDri = { link: String ->
