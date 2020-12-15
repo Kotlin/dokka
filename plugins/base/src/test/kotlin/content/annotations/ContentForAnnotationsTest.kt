@@ -5,7 +5,6 @@ import org.jetbrains.dokka.pages.ContentPage
 import org.jetbrains.dokka.pages.PackagePageNode
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.model.AnnotationScope
 import org.jetbrains.dokka.model.Annotations
 import org.jetbrains.dokka.model.StringValue
 import org.jetbrains.kotlin.utils.addToStdlib.firstNotNullResult
@@ -243,7 +242,7 @@ class ContentForAnnotationsTest : BaseAbstractTest() {
                 fun expectedAnnotation(name: String) = Annotations.Annotation(
                     dri = DRI("kotlin.jvm", "JvmName"),
                     params = mapOf("name" to StringValue(name)),
-                    scope = AnnotationScope.DIRECT,
+                    scope = Annotations.AnnotationScope.DIRECT,
                     mustBeDocumented = false
                 )
 
@@ -257,11 +256,11 @@ class ContentForAnnotationsTest : BaseAbstractTest() {
 
                 assertEquals(expectedAnnotation("xd"), getterAnnotation)
                 assertFalse(getterAnnotation?.mustBeDocumented!!)
-                assertEquals(AnnotationScope.DIRECT, getterAnnotation.scope)
+                assertEquals(Annotations.AnnotationScope.DIRECT, getterAnnotation.scope)
 
                 assertEquals(expectedAnnotation("asd"), setterAnnotation)
                 assertFalse(setterAnnotation?.mustBeDocumented!!)
-                assertEquals(AnnotationScope.DIRECT, setterAnnotation.scope)
+                assertEquals(Annotations.AnnotationScope.DIRECT, setterAnnotation.scope)
             }
         }
     }

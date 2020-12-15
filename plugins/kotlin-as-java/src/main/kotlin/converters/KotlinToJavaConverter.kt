@@ -28,17 +28,17 @@ internal fun DPackage.asJava(): DPackage {
             .groupBy({ it.first }) { it.second }
             .map { (syntheticClassName, nodes) ->
                 DClass(
-                    dri = dri.withClass(syntheticClassName),
-                    name = syntheticClassName,
+                    dri = dri.withClass(syntheticClassName.name),
+                    name = syntheticClassName.name,
                     properties = nodes.filterIsInstance<DProperty>().map { it.asJava(true) },
                     constructors = emptyList(),
                     functions = (
                             nodes
                                 .filterIsInstance<DProperty>()
                                 .filterNot { it.isConst }
-                                .flatMap { it.javaAccessors(relocateToClass = syntheticClassName) } +
+                                .flatMap { it.javaAccessors(relocateToClass = syntheticClassName.name) } +
                                     nodes.filterIsInstance<DFunction>()
-                                        .map { it.asJava(syntheticClassName) }), // TODO: methods are static and receiver is a param
+                                        .map { it.asJava(syntheticClassName.name) }), // TODO: methods are static and receiver is a param
                     classlikes = emptyList(),
                     sources = emptyMap(),
                     expectPresentInSet = null,

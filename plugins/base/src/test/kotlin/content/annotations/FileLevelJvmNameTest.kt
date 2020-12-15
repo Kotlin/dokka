@@ -2,10 +2,8 @@ package content.annotations
 
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.model.AnnotationScope
 import org.jetbrains.dokka.model.Annotations
 import org.jetbrains.dokka.model.StringValue
-import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 import kotlin.test.assertEquals
@@ -67,14 +65,15 @@ class FileLevelJvmNameTest : BaseAbstractTest() {
 
     @ParameterizedTest
     @ValueSource(strings = [functionTest, extensionFunctionTest])
-    fun `jvm name should be included in functions extra`(query: String){
+    fun `jvm name should be included in functions extra`(query: String) {
         testInline(
-            query.trimIndent(), testConfiguration) {
+            query.trimIndent(), testConfiguration
+        ) {
             documentablesCreationStage = { modules ->
                 val expectedAnnotation = Annotations.Annotation(
                     dri = DRI("kotlin.jvm", "JvmName"),
                     params = mapOf("name" to StringValue("CustomJvmName")),
-                    scope = AnnotationScope.FILE,
+                    scope = Annotations.AnnotationScope.FILE,
                     mustBeDocumented = false
                 )
                 val function = modules.flatMap { it.packages }.first().functions.first()
@@ -89,14 +88,15 @@ class FileLevelJvmNameTest : BaseAbstractTest() {
 
     @ParameterizedTest
     @ValueSource(strings = [propertyTest, extensionPropertyTest])
-    fun `jvm name should be included in properties extra`(query: String){
+    fun `jvm name should be included in properties extra`(query: String) {
         testInline(
-            query.trimIndent(), testConfiguration) {
+            query.trimIndent(), testConfiguration
+        ) {
             documentablesCreationStage = { modules ->
                 val expectedAnnotation = Annotations.Annotation(
                     dri = DRI("kotlin.jvm", "JvmName"),
                     params = mapOf("name" to StringValue("CustomJvmName")),
-                    scope = AnnotationScope.FILE,
+                    scope = Annotations.AnnotationScope.FILE,
                     mustBeDocumented = false
                 )
                 val properties = modules.flatMap { it.packages }.first().properties.first()

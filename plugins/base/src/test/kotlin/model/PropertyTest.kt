@@ -155,7 +155,7 @@ class PropertyTest : AbstractModelTest("/src/main/kotlin/property/Test.kt", "pro
                     with(first()) {
                         dri.classNames equals "SinceKotlin"
                         params.entries counts 1
-                        (params["version"].assertNotNull("version") as StringValue).value equals "\"1.1\""
+                        (params["version"].assertNotNull("version") as StringValue).value equals "1.1"
                     }
                 }
             }
