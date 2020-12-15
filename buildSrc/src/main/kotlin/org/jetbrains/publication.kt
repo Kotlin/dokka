@@ -152,7 +152,7 @@ private fun Project.configureSonatypePublication(vararg publications: String) {
     }
 }
 
-private fun MavenPublication.configurePom(projectName: String) {
+fun MavenPublication.configurePom(projectName: String) {
     pom {
         name.set(projectName)
         description.set("Dokka is a documentation engine for Kotlin and Java, performing the same function as Javadoc for Java")
@@ -184,13 +184,17 @@ private fun MavenPublication.configurePom(projectName: String) {
 
 @Suppress("UnstableApiUsage")
 private fun Project.signPublicationsIfKeyPresent(vararg publications: String) {
-    val signingKeyId = System.getenv("SIGN_KEY_ID")
-    val signingKey = System.getenv("SIGN_KEY")
-    val signingKeyPassphrase = System.getenv("SIGN_KEY_PASSPHRASE")
+    val signingKeyId: String? = System.getenv("SIGN_KEY_ID")
+    val signingKey: String? = System.getenv("SIGN_KEY")
+    val signingKeyPassphrase: String? = System.getenv("SIGN_KEY_PASSPHRASE")
 
     if (!signingKey.isNullOrBlank()) {
         extensions.configure<SigningExtension>("signing") {
-            useInMemoryPgpKeys(signingKeyId, signingKey, signingKeyPassphrase)
+            if (signingKeyId?.isNotBlank() == true) {
+                useInMemoryPgpKeys(signingKeyId, signingKey, signingKeyPassphrase)
+            } else {
+                useInMemoryPgpKeys(signingKey, signingKeyPassphrase)
+            }
             publications.forEach { publicationName ->
                 extensions.findByType(PublishingExtension::class)!!.publications.findByName(publicationName)?.let {
                     sign(it)

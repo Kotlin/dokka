@@ -44,6 +44,7 @@ gradlePlugin {
             description = "Dokka, the Kotlin documentation tool"
             implementationClass = "org.jetbrains.dokka.gradle.DokkaPlugin"
             version = dokkaVersion
+            isAutomatedPublishing = false
         }
     }
 }
@@ -61,10 +62,6 @@ pluginBundle {
 
 publishing {
     publications {
-        register<MavenPublication>("pluginMaven") {
-            artifactId = "dokka-gradle-plugin"
-        }
-
         register<MavenPublication>("dokkaGradlePluginForIntegrationTests") {
             artifactId = "dokka-gradle-plugin"
             from(components["java"])
@@ -77,8 +74,6 @@ tasks.withType<PublishToMavenRepository>().configureEach {
     onlyIf { publication != publishing.publications["dokkaGradlePluginForIntegrationTests"] }
 }
 
-configureSpacePublicationIfNecessary("dokkaGradlePluginPluginMarkerMaven", "pluginMaven")
-configureBintrayPublicationIfNecessary("dokkaGradlePluginPluginMarkerMaven", "pluginMaven")
-configureSonatypePublicationIfNecessary("dokkaGradlePluginPluginMarkerMaven", "pluginMaven")
-createDokkaPublishTaskIfNecessary()
-
+registerDokkaArtifactPublication("dokkaGradleMavenPlugin") {
+    artifactId = "dokka-gradle-plugin"
+}
