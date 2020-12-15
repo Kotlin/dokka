@@ -4,7 +4,7 @@ package org.jetbrains
 
 import org.gradle.api.Project
 
-internal enum class DokkaPublicationChannel {
+enum class DokkaPublicationChannel {
     SpaceDokkaDev,
     BintrayKotlinDev,
     BintrayKotlinEap,
@@ -39,7 +39,7 @@ internal enum class DokkaPublicationChannel {
     }
 }
 
-internal val Project.publicationChannels: Set<DokkaPublicationChannel>
+val Project.publicationChannels: Set<DokkaPublicationChannel>
     get() {
         val publicationChannel = this.properties["dokka_publication_channel"]?.toString()
         val publicationChannels = this.properties["dokka_publication_channels"]?.toString()
