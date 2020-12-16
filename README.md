@@ -108,11 +108,10 @@ For documenting Gradle multi-module projects, you can use `dokka${format}Multimo
 ```kotlin
 tasks.dokkaHtmlMultiModule.configure {
     outputDirectory.set(buildDir.resolve("dokkaCustomMultiModuleOutput"))
-    documentationFileName.set("README.md")
 }
 ```
 
-`DokkaMultiModule` depends on all Dokka tasks in the subprojects, runs them, and creates a toplevel page (based on the `documentationFile`)
+`DokkaMultiModule` depends on all Dokka tasks in the subprojects, runs them, and creates a toplevel page
 with links to all generated (sub)documentations
 
 ### Using the Maven plugin
