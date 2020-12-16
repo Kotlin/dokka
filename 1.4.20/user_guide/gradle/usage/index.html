@@ -880,10 +880,9 @@ and configured automatically although test source sets are suppressed</p>
 <p>For documenting Gradle multi-module projects, you can use <code>dokka${format}MultiModule</code> tasks.</p>
 <div class="codehilite"><pre><span></span><code><span class="n">tasks</span><span class="p">.</span><span class="n">dokkaHtmlMultiModule</span><span class="p">.</span><span class="n">configure</span> <span class="p">{</span>
     <span class="n">outputDirectory</span><span class="p">.</span><span class="k">set</span><span class="p">(</span><span class="n">buildDir</span><span class="p">.</span><span class="n">resolve</span><span class="p">(</span><span class="s">&quot;dokkaCustomMultiModuleOutput&quot;</span><span class="p">))</span>
-    <span class="n">documentationFileName</span><span class="p">.</span><span class="k">set</span><span class="p">(</span><span class="s">&quot;README.md&quot;</span><span class="p">)</span>
 <span class="p">}</span>
 </code></pre></div>
-<p><code>DokkaMultiModule</code> depends on all Dokka tasks in the subprojects, runs them, and creates a toplevel page (based on the <code>documentationFile</code>)
+<p><code>DokkaMultiModule</code> depends on all Dokka tasks in the subprojects, runs them, and creates a toplevel page
 with links to all generated (sub)documentations</p>
 <h2 id="example-project">Example project<a class="headerlink" href="#example-project" title="Permanent link">&para;</a></h2>
 <p>Please see the <a href="https://github.com/Kotlin/kotlin-examples/tree/master/gradle/dokka/dokka-gradle-example">Dokka Gradle example project</a> for an example.</p>
