@@ -40,6 +40,13 @@ class JavadocLocationTest : BaseAbstractTest() {
             |   fun test2(s: String) {}
             |   fun <T> test3(a: A, t: T) {}
             |}
+            |
+            |/jvmSrc/another/javadoc/example/Referenced.kt
+            |package javadoc.example.another
+            |/**
+            |  * Referencing element from another package: [javadoc.test.Test]
+            | */
+            |class Referenced {}
         """.trimIndent(),
             config,
             cleanupOutput = false,
@@ -52,7 +59,7 @@ class JavadocLocationTest : BaseAbstractTest() {
 
         locationTestInline { rootPageNode, dokkaContext ->
             val transformer = htmlTranslator(rootPageNode, dokkaContext)
-            val testClass = rootPageNode.firstChildOfType<JavadocPackagePageNode>()
+            val testClass = rootPageNode.firstChildOfType<JavadocPackagePageNode> { it.name == "javadoc.test" }
                 .firstChildOfType<JavadocClasslikePageNode>()
             assertEquals(
                 " implements <a href=https://docs.oracle.com/javase/8/docs/api/java/io/Serializable.html>Serializable</a>, <a href=https://docs.oracle.com/javase/8/docs/api/java/lang/Cloneable.html>Cloneable</a>",
@@ -66,7 +73,7 @@ class JavadocLocationTest : BaseAbstractTest() {
 
         locationTestInline { rootPageNode, dokkaContext ->
             val transformer = htmlTranslator(rootPageNode, dokkaContext)
-            val testClassNode = rootPageNode.firstChildOfType<JavadocPackagePageNode>()
+            val testClassNode = rootPageNode.firstChildOfType<JavadocPackagePageNode> { it.name == "javadoc.test" }
                 .firstChildOfType<JavadocClasslikePageNode> { it.name == "Test" }
             val testFunctionNode = testClassNode.methods.first { it.name == "test" }
             assertEquals(
@@ -84,7 +91,7 @@ class JavadocLocationTest : BaseAbstractTest() {
 
         locationTestInline { rootPageNode, dokkaContext ->
             val transformer = htmlTranslator(rootPageNode, dokkaContext)
-            val testClassNode = rootPageNode.firstChildOfType<JavadocPackagePageNode>()
+            val testClassNode = rootPageNode.firstChildOfType<JavadocPackagePageNode> { it.name == "javadoc.test" }
                 .firstChildOfType<JavadocClasslikePageNode> { it.name == "Test" }
             val testFunctionNode = testClassNode.methods.first { it.name == "test2" }
             assertEquals(
@@ -102,7 +109,7 @@ class JavadocLocationTest : BaseAbstractTest() {
 
         locationTestInline { rootPageNode, dokkaContext ->
             val transformer = htmlTranslator(rootPageNode, dokkaContext)
-            val testClassNode = rootPageNode.firstChildOfType<JavadocPackagePageNode>()
+            val testClassNode = rootPageNode.firstChildOfType<JavadocPackagePageNode> { it.name == "javadoc.test" }
                 .firstChildOfType<JavadocClasslikePageNode> { it.name == "Test" }
             val testFunctionNode = testClassNode.methods.first { it.name == "test3" }
             assertEquals(
@@ -121,10 +128,26 @@ class JavadocLocationTest : BaseAbstractTest() {
         locationTestInline { rootPageNode, dokkaContext ->
             val locationProvider = dokkaContext.plugin<JavadocPlugin>().querySingle { locationProviderFactory }
                 .getLocationProvider(rootPageNode)
-            val packageNode = rootPageNode.firstChildOfType<JavadocPackagePageNode>()
+            val packageNode = rootPageNode.firstChildOfType<JavadocPackagePageNode>() { it.name == "javadoc.test" }
             val packagePath = locationProvider.resolve(packageNode)
 
             assertEquals("javadoc/test/package-summary", packagePath)
+        }
+    }
+
+    @Test
+    fun `resolve link from another package`(){
+        locationTestInline { rootPageNode, dokkaContext ->
+            val transformer = htmlTranslator(rootPageNode, dokkaContext)
+            val testClassNode = rootPageNode.firstChildOfType<JavadocPackagePageNode> { it.name == "javadoc.example.another" }
+                .firstChildOfType<JavadocClasslikePageNode> { it.name == "Referenced" }
+            assertEquals(
+                """<p>Referencing element from another package: <a href=../../test/Test.html>javadoc.test.Test</a></p>""",
+                transformer.htmlForContentNode(
+                    testClassNode.description.single(),
+                    testClassNode
+                )
+            )
         }
     }
 

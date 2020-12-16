@@ -63,9 +63,9 @@ class JavadocLocationProvider(pageRoot: RootPageNode, dokkaContext: DokkaContext
     private operator fun IdentityHashMap<PageNode, List<String>>.get(dri: DRI) = this[nodeIndex[dri]]
 
     private fun List<String>.relativeTo(context: List<String>): String {
-        val contextPath = context.dropLast(1)
-        val commonPathElements = zip(contextPath).takeWhile { (a, b) -> a == b }.count()
-        return (List(contextPath.size - commonPathElements) { ".." } + this.drop(commonPathElements)).joinToString("/")
+        val contextPath = context.dropLast(1).flatMap { it.split("/") }
+        val commonPathElements = flatMap { it.split("/") }.zip(contextPath).takeWhile { (a, b) -> a == b }.count()
+        return (List(contextPath.size - commonPathElements) { ".." } + this.flatMap { it.split("/") }.drop(commonPathElements)).joinToString("/")
     }
 
     private fun JavadocClasslikePageNode.findAnchorableByDRI(dri: DRI): AnchorableJavadocNode? =
