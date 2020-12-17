@@ -4,6 +4,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.DokkaBaseConfiguration
 import org.jetbrains.dokka.base.renderers.sourceSets
+import org.jetbrains.dokka.base.templating.AddToSearch
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.pages.*
@@ -51,10 +52,14 @@ open class NavigationSearchInstaller(val context: DokkaContext) : NavigationData
             name = "scripts/navigation-pane.json",
             children = emptyList(),
             strategy = RenderingStrategy.DriLocationResolvableWrite { resolver ->
-                mapper.writeValueAsString(
-                    navigableChildren(input).withDescendants().map {
-                        createSearchRecordFromNode(it, resolveLocation(resolver, it.dri, it.sourceSets).orEmpty())
-                    })
+                val content = navigableChildren(input).withDescendants().map {
+                    createSearchRecordFromNode(it, resolveLocation(resolver, it.dri, it.sourceSets).orEmpty())
+                }
+                if (context.configuration.delayTemplateSubstitution) {
+                    mapper.writeValueAsString(AddToSearch(context.configuration.moduleName, content.toList()))
+                } else {
+                    mapper.writeValueAsString(content)
+                }
             })
 
         return input.modified(children = input.children + page)
@@ -70,8 +75,13 @@ open class NavigationSearchInstaller(val context: DokkaContext) : NavigationData
 open class NavigationPageInstaller(val context: DokkaContext) : NavigationDataProvider(), PageTransformer {
 
     override fun invoke(input: RootPageNode): RootPageNode =
-        input.modified(children = input.children + NavigationPage(navigableChildren(input),
-            (listOf(input) + input.children).firstOrNull { it is ContentPage && it.name.isNotBlank() }?.name.orEmpty()))
+        input.modified(
+            children = input.children + NavigationPage(
+                root = navigableChildren(input),
+                moduleName = context.configuration.moduleName,
+                context = context
+            )
+        )
 }
 
 class CustomResourceInstaller(val dokkaContext: DokkaContext) : PageTransformer {

@@ -54,6 +54,18 @@ class AllModulesPagePlugin : DokkaPlugin() {
         templateProcessingStrategy providing ::FallbackTemplateProcessingStrategy
     }
 
+    val navigationSearchTemplateStrategy by extending {
+        templateProcessingStrategy providing ::NavigationSearchTemplateStrategy order {
+            before(fallbackProcessingStrategy)
+        }
+    }
+
+    val pagesSearchTemplateStrategy by extending {
+        templateProcessingStrategy providing ::PagesSearchTemplateStrategy order {
+            before(fallbackProcessingStrategy)
+        }
+    }
+
     val pathToRootSubstitutor by extending {
         substitutor providing ::PathToRootSubstitutor
     }

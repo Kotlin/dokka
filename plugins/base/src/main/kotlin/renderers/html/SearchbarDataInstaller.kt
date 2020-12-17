@@ -2,16 +2,15 @@ package org.jetbrains.dokka.base.renderers.html
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.jetbrains.dokka.Platform
+import org.jetbrains.dokka.base.templating.AddToSearch
 import org.jetbrains.dokka.model.DisplaySourceSet
 import org.jetbrains.dokka.model.dfs
 import org.jetbrains.dokka.model.withDescendants
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.transformers.pages.PageTransformer
-import java.util.concurrent.ConcurrentHashMap
 
 typealias PageId = String
-typealias Json = String
 
 data class SearchRecord(
     val name: String,
@@ -29,7 +28,7 @@ open class SearchbarDataInstaller(val context: DokkaContext) : PageTransformer {
 
     private val mapper = jacksonObjectMapper()
 
-    open fun generatePagesList(pages: Map<PageId, PageWithId>, locationResolver: PageResolver): Json =
+    open fun generatePagesList(pages: Map<PageId, PageWithId>, locationResolver: PageResolver): List<SearchRecord> =
         pages.entries
             .filter { it.key.isNotEmpty() }
             .sortedWith(compareBy({ it.key }, { it.value.displayableSignature }))
@@ -44,7 +43,7 @@ open class SearchbarDataInstaller(val context: DokkaContext) : PageTransformer {
                         searchKeys = listOf(entry.key, subentry.value.displayableSignature)
                     )
                 }
-            }.run { mapper.writeValueAsString(this) }
+            }
 
     open fun createSearchRecord(
         name: String,
@@ -76,13 +75,19 @@ open class SearchbarDataInstaller(val context: DokkaContext) : PageTransformer {
 
     override fun invoke(input: RootPageNode): RootPageNode {
         val page = RendererSpecificResourcePage(
-            name = "scripts/pages.js",
+            name = "scripts/pages.json",
             children = emptyList(),
             strategy = RenderingStrategy.PageLocationResolvableWrite { resolver ->
-                input.withDescendants().fold(emptyMap<PageId, PageWithId>()) { pageList, page ->
+                val content = input.withDescendants().fold(emptyMap<PageId, PageWithId>()) { pageList, page ->
                     processPage(page)?.let { pageList + Pair(it.id, it) } ?: pageList
                 }.run {
-                    """var pages = ${generatePagesList(this, resolver)}"""
+                    generatePagesList(this, resolver)
+                }
+
+                if (context.configuration.delayTemplateSubstitution) {
+                    mapper.writeValueAsString(AddToSearch(context.configuration.moduleName, content))
+                } else {
+                    mapper.writeValueAsString(content)
                 }
             })
 
