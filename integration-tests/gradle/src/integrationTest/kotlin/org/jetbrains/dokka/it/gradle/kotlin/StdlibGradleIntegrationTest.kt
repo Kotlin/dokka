@@ -45,6 +45,7 @@ class StdlibGradleIntegrationTest(override val versions: BuildVersions) : Abstra
 //            assertNoHrefToMissingLocalFileOrDirectory(file)
             assertNoEmptyLinks(file)
             assertNoEmptySpans(file)
+            assertNoUnsubstitutedTemplatesInHtml(file)
         }
     }
 }
