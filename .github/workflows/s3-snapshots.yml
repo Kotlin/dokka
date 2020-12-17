@@ -39,7 +39,7 @@ jobs:
         run: ./integration-tests/aws_sync.sh s3://${{ env.bucket-name }} coroutines ../coroutines
 
       - name: Print link
-        run: echo http://dokka-snapshots.s3.eu-central-1.amazonaws.com/${{ env.branch-name }}/coroutines/${GITHUB_SHA::7}/-modules.html
+        run: echo http://dokka-snapshots.s3.eu-central-1.amazonaws.com/${{ env.branch-name }}/coroutines/${GITHUB_SHA::7}/index.html
 
   stdlib:
     runs-on: ubuntu-latest
@@ -105,7 +105,7 @@ jobs:
 #        run: ./integration-tests/aws_sync.sh s3://${{ env.bucket-name }} serialization ../serialization
 #
 #      - name: Print link
-#        run: echo http://dokka-snapshots.s3.eu-central-1.amazonaws.com/${{ env.branch-name }}/serialization/${GITHUB_SHA::7}/-modules.html
+#        run: echo http://dokka-snapshots.s3.eu-central-1.amazonaws.com/${{ env.branch-name }}/serialization/${GITHUB_SHA::7}/index.html
 
   biojava:
     runs-on: ubuntu-latest
