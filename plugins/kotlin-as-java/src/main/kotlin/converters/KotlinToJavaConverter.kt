@@ -1,5 +1,6 @@
 package org.jetbrains.dokka.kotlinAsJava.converters
 
+import org.jetbrains.dokka.kotlinAsJava.jvmField
 import org.jetbrains.dokka.kotlinAsJava.transformers.JvmNameProvider
 import org.jetbrains.dokka.kotlinAsJava.transformers.withCallableName
 import org.jetbrains.dokka.links.Callable
@@ -22,6 +23,9 @@ private val DProperty.isConst: Boolean
             ExtraModifiers.KotlinOnlyModifiers.Const in modifiers
         } == true
 
+private val DProperty.isJvmField: Boolean
+    get() = jvmField() != null
+
 internal fun DPackage.asJava(): DPackage {
     val syntheticClasses =
         (properties.map { jvmNameProvider.nameForSyntheticClass(it) to it }
@@ -36,7 +40,7 @@ internal fun DPackage.asJava(): DPackage {
                     functions = (
                             nodes
                                 .filterIsInstance<DProperty>()
-                                .filterNot { it.isConst }
+                                .filterNot { it.isConst || it.isJvmField }
                                 .flatMap { it.javaAccessors(relocateToClass = syntheticClassName.name) } +
                                     nodes.filterIsInstance<DFunction>()
                                         .map { it.asJava(syntheticClassName.name) }), // TODO: methods are static and receiver is a param
@@ -76,6 +80,8 @@ internal fun DProperty.asJava(isTopLevel: Boolean = false, relocateToClass: Stri
         visibility = visibility.mapValues {
             if (isTopLevel && isConst) {
                 JavaVisibility.Public
+            } else if (jvmField() != null) {
+                it.value.asJava()
             } else {
                 it.value.propertyVisibilityAsJava()
             }
@@ -91,6 +97,14 @@ internal fun DProperty.asJava(isTopLevel: Boolean = false, relocateToClass: Stri
                 )
         else extra
     )
+
+internal fun Visibility.asJava() =
+    when (this) {
+        is JavaVisibility -> this
+        is KotlinVisibility.Public, KotlinVisibility.Internal -> JavaVisibility.Public
+        is KotlinVisibility.Private -> JavaVisibility.Private
+        is KotlinVisibility.Protected -> JavaVisibility.Protected
+    }
 
 internal fun DProperty.javaModifierFromSetter() =
     modifier.mapValues {
@@ -169,6 +183,7 @@ internal fun DFunction.asJava(containingClassName: String): DFunction {
             sourceSets.map { it to JavaModifier.Empty }.toMap()
         else sourceSets.map { it to modifier.values.first() }.toMap(),
         parameters = listOfNotNull(receiver?.asJava()) + parameters.map { it.asJava() },
+        visibility = visibility.map { (sourceSet, visibility) -> Pair(sourceSet, visibility.asJava()) }.toMap(),
         receiver = null
     ) // TODO static if toplevel
 }
@@ -184,9 +199,7 @@ internal fun DClasslike.asJava(): DClasslike = when (this) {
 
 internal fun DClass.asJava(): DClass = copy(
     constructors = constructors.map { it.asJava(name) },
-    functions = (functions + properties.map { it.getter } + properties.map { it.setter }).filterNotNull().map {
-        it.asJava(name)
-    },
+    functions = functionsInJava(),
     properties = properties.map { it.asJava() },
     classlikes = classlikes.map { it.asJava() },
     generics = generics.map { it.asJava() },
@@ -195,6 +208,12 @@ internal fun DClass.asJava(): DClass = copy(
         .toMap()
     else sourceSets.map { it to modifier.values.first() }.toMap()
 )
+
+internal fun DClass.functionsInJava(): List<DFunction> =
+    (properties.filter { it.jvmField() == null }
+        .flatMap { property -> listOfNotNull(property.getter, property.setter) } + functions).map {
+        it.asJava(name)
+    }
 
 private fun DTypeParameter.asJava(): DTypeParameter = copy(
     variantTypeParameter = variantTypeParameter.withDri(dri.possiblyAsJava()),
