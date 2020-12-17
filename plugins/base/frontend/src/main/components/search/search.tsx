@@ -1,10 +1,11 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Select, List } from '@jetbrains/ring-ui';
 import '@jetbrains/ring-ui/components/input-size/input-size.scss';
 import './search.scss';
 import { IWindow, Option, Props } from "./types";
 import { DokkaSearchAnchor } from "./dokkaSearchAnchor";
 import { DokkaFuzzyFilterComponent } from "./dokkaFuzzyFilter";
+import { relativizeUrlForRequest } from '../utils/requests';
 
 const WithFuzzySearchFilterComponent: React.FC<Props> = ({ data }: Props) => {
     const [selected, onSelected] = useState<Option>(data[0]);
@@ -42,17 +43,27 @@ const WithFuzzySearchFilterComponent: React.FC<Props> = ({ data }: Props) => {
 }
 
 export const WithFuzzySearchFilter = () => {
-    let data: Option[] = [];
-    const pages = (window as IWindow).pages;
-    if (pages) {
-        data = pages.map((page, i) => ({
-            ...page,
-            label: page.name,
-            key: i + 1,
-            type: page.kind,
-            rgItemType: List.ListProps.Type.CUSTOM
-        }));
-    }
+    const [navigationList, setNavigationList] = useState<Option[]>([]);
 
-    return <WithFuzzySearchFilterComponent data={data} />;
+    useEffect(() => {
+        fetch(relativizeUrlForRequest('scripts/pages.json'))
+            .then(response => response.json())
+            .then((result) => {
+                setNavigationList(result.map((record: Option, idx: number) => {
+                    return {
+                        ...record,
+                        label: record.name,
+                        key: idx,
+                        type: record.kind,
+                        rgItemType: List.ListProps.Type.CUSTOM
+                    }
+                }))
+            },
+            (error) => {
+                console.error('failed to fetch pages data', error)
+                setNavigationList([])
+            })
+    }, [])
+
+    return <WithFuzzySearchFilterComponent data={navigationList} />;
 };

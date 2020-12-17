@@ -719,13 +719,14 @@ open class HtmlRenderer(
 
     private fun resolveLink(link: String, page: PageNode): String = if (URI(link).isAbsolute) link else page.root(link)
 
-    open fun buildHtml(page: PageNode, resources: List<String>, content: FlowContent.() -> Unit) =
-        createHTML().prepareForTemplates().html {
+    open fun buildHtml(page: PageNode, resources: List<String>, content: FlowContent.() -> Unit): String {
+        val pathToRoot = locationProvider.pathToRoot(page)
+        return createHTML().prepareForTemplates().html {
             head {
                 meta(name = "viewport", content = "width=device-width, initial-scale=1", charset = "UTF-8")
                 title(page.name)
                 link(href = page.root("images/logo-icon.svg"), rel = "icon", type = "image/svg")
-                templateCommand(PathToRootSubstitutionCommand("###", default = locationProvider.pathToRoot(page))) {
+                templateCommand(PathToRootSubstitutionCommand("###", default = pathToRoot)) {
                     script { unsafe { +"""var pathToRoot = "###";""" } }
                 }
                 resources.forEach {
@@ -750,13 +751,9 @@ open class HtmlRenderer(
                     id = "container"
                     div {
                         id = "leftColumn"
+                        clickableLogo(page, pathToRoot)
                         div {
-                            id = "logo"
-                        }
-                        if (page !is MultimoduleRootPage) {
-                            div {
-                                id = "paneSearch"
-                            }
+                            id = "paneSearch"
                         }
                         div {
                             id = "sideMenu"
@@ -768,7 +765,6 @@ open class HtmlRenderer(
                             id = "leftToggler"
                             span("icon-toggler")
                         }
-                        script(type = ScriptType.textJavaScript, src = page.root("scripts/pages.js")) {}
                         script(type = ScriptType.textJavaScript, src = page.root("scripts/main.js")) {}
                         content()
                         div(classes = "footer") {
@@ -788,6 +784,33 @@ open class HtmlRenderer(
                 }
             }
         }
+    }
+
+    /**
+     * This is deliberately left open for plugins that have some other pages above ours and would like to link to them
+     * instead of ours when clicking the logo
+     */
+    open fun FlowContent.clickableLogo(page: PageNode, pathToRoot: String) {
+        if (context.configuration.delayTemplateSubstitution && page is ContentPage) {
+            templateCommand(PathToRootSubstitutionCommand(pattern = "###", default = pathToRoot)) {
+                a {
+                    href = "###index.html"
+                    div {
+                        id = "logo"
+                    }
+                }
+            }
+        } else a {
+            href = pathToRoot.split("/")
+                .filter { it.isNotBlank() }
+                .drop(1).takeIf { it.isNotEmpty() }
+                ?.joinToString(separator = "/", postfix = "/index.html")
+                ?: "index.html"
+            div {
+                id = "logo"
+            }
+        }
+    }
 
     private val ContentNode.isAnchorable: Boolean
         get() = anchorLabel != null
