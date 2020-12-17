@@ -7,7 +7,6 @@ import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.testApi.logger.TestLogger
-import org.jetbrains.dokka.utilities.DokkaConsoleLogger
 import org.jetbrains.dokka.utilities.DokkaLogger
 import org.junit.rules.TemporaryFolder
 import testApi.testRunner.TestDokkaConfigurationBuilder
@@ -32,12 +31,12 @@ abstract class AbstractTest<M : TestMethods, T : TestBuilder<M>, D : DokkaTestGe
     protected fun testFromData(
         configuration: DokkaConfigurationImpl,
         cleanupOutput: Boolean = true,
-        preserveOutputDir: Boolean = false,
+        preserveOutputLocation: Boolean = false,
         pluginOverrides: List<DokkaPlugin> = emptyList(),
         block: T.() -> Unit
     ) {
         val testMethods = testBuilder().apply(block).build()
-        val configurationToUse = if (!preserveOutputDir) {
+        val configurationToUse = if (!preserveOutputLocation) {
             val tempDir = getTempDir(cleanupOutput)
             if (!cleanupOutput)
                 logger.info("Output generated under: ${tempDir.root.absolutePath}")

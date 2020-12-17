@@ -18,17 +18,12 @@ abstract class AbstractIntegrationTest {
 
     val projectDir get() = File(temporaryTestFolder.root, "project")
 
-    fun File.allDescendentsWithExtension(extension: String): Sequence<File> {
-        return this.walkTopDown().filter { it.isFile && it.extension == extension }
-    }
+    fun File.allDescendentsWithExtension(extension: String): Sequence<File> =
+        this.walkTopDown().filter { it.isFile && it.extension == extension }
 
-    fun File.allHtmlFiles(): Sequence<File> {
-        return allDescendentsWithExtension("html")
-    }
+    fun File.allHtmlFiles(): Sequence<File> = allDescendentsWithExtension("html")
 
-    fun File.allGfmFiles(): Sequence<File>{
-        return allDescendentsWithExtension("md")
-    }
+    fun File.allGfmFiles(): Sequence<File> = allDescendentsWithExtension("md")
 
     protected fun assertContainsNoErrorClass(file: File) {
         val fileText = file.readText()

@@ -51,7 +51,7 @@ class SubstitutionCommandResolutionTest : MultiModuleAbstractTest() {
             this.outputDir = folder.root
         }
 
-        testFromData(configuration, preserveOutputDir = true){
+        testFromData(configuration, preserveOutputLocation = true){
             submoduleProcessingStage = {
                 assertHtmlEqualsIgnoringWhitespace(expected, testedFile.readText())
             }

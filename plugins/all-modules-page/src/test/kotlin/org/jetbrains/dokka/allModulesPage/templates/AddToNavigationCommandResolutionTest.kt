@@ -126,7 +126,7 @@ class AddToNavigationCommandResolutionTest : MultiModuleAbstractTest() {
         val module2Navigation = module2.resolve("navigation.html")
         module2Navigation.writeText(inputForModule("module2"))
 
-        testFromData(configuration, preserveOutputDir = true) {
+        testFromData(configuration, preserveOutputLocation = true) {
             submoduleProcessingStage = { ctx ->
                 test(ctx)
             }
