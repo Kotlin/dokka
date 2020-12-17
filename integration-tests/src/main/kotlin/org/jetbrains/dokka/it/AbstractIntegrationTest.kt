@@ -18,13 +18,12 @@ abstract class AbstractIntegrationTest {
 
     val projectDir get() = File(temporaryTestFolder.root, "project")
 
-    fun File.allDescendentsWithExtension(extension: String): Sequence<File> {
-        return this.walkTopDown().filter { it.isFile && it.extension == extension }
-    }
+    fun File.allDescendentsWithExtension(extension: String): Sequence<File> =
+        this.walkTopDown().filter { it.isFile && it.extension == extension }
 
-    fun File.allHtmlFiles(): Sequence<File> {
-        return allDescendentsWithExtension("html")
-    }
+    fun File.allHtmlFiles(): Sequence<File> = allDescendentsWithExtension("html")
+
+    fun File.allGfmFiles(): Sequence<File> = allDescendentsWithExtension("md")
 
     protected fun assertContainsNoErrorClass(file: File) {
         val fileText = file.readText()
@@ -101,6 +100,14 @@ abstract class AbstractIntegrationTest {
         assertFalse(
             fileText.contains(Regex("""<span>\s*</span>""")),
             "Unexpected empty <span></span> in file ${file.path}"
+        )
+    }
+
+    protected fun assertNoUnsubstitutedTemplatesInHtml(file: File) {
+        val parsedFile = Jsoup.parse(file, "UTF-8")
+        assertTrue(
+            parsedFile.select("dokka-template-command").isEmpty(),
+            "Expected all templates to be substituted"
         )
     }
 }

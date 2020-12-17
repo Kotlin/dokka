@@ -45,6 +45,7 @@ class CoroutinesGradleIntegrationTest(override val versions: BuildVersions) : Ab
 //            assertNoHrefToMissingLocalFileOrDirectory(file)
             assertNoEmptyLinks(file)
             assertNoEmptySpans(file)
+            assertNoUnsubstitutedTemplatesInHtml(file)
         }
     }
 }
