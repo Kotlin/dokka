@@ -1,12 +1,14 @@
 package org.jetbrains.dokka.it.maven
 
 import org.jetbrains.dokka.it.*
+import org.junit.experimental.categories.Category
 import java.io.File
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
+@Category(S3Test::class)
 class BiojavaIntegrationTest : AbstractIntegrationTest(), S3Project {
 
     private val currentDokkaVersion: String = checkNotNull(System.getenv("DOKKA_VERSION"))

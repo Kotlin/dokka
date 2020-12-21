@@ -2,13 +2,16 @@ package org.jetbrains.dokka.it.gradle.kotlin
 
 import org.gradle.testkit.runner.TaskOutcome
 import org.jetbrains.dokka.it.S3Project
+import org.jetbrains.dokka.it.S3Test
 import org.jetbrains.dokka.it.copyAndApplyGitDiff
 import org.jetbrains.dokka.it.gradle.*
+import org.junit.experimental.categories.Category
 import org.junit.runners.Parameterized
 import java.io.File
 import kotlin.test.*
 
 @Ignore // TODO: reenable after https://github.com/Kotlin/kotlinx.serialization/issues/1193 is fixed
+@Category(S3Test::class)
 class SerializationGradleIntegrationTest(override val versions: BuildVersions) : AbstractGradleIntegrationTest(),
     S3Project {
 

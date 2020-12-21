@@ -3,6 +3,8 @@ package org.jetbrains.dokka.it
 import org.junit.After
 import java.io.File
 
+public annotation class S3Test
+
 interface S3Project {
     val projectOutputLocation: File
 

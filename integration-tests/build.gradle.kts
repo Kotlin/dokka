@@ -1,5 +1,6 @@
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
+import org.jetbrains.kotlin.cli.common.toBooleanLenient
 
 subprojects {
     sourceSets {
@@ -25,7 +26,13 @@ subprojects {
         maxHeapSize = "2G"
         description = "Runs integration tests."
         group = "verification"
-        useJUnit()
+        useJUnit {
+            project.properties["exclude_s3_tests"]?.toString()?.toBooleanLenient()?.let { excludeS3Tests ->
+                if(excludeS3Tests){
+                    excludeCategories("org.jetbrains.dokka.it.S3Test")
+                }
+            }
+        }
 
 
         testClassesDirs = sourceSets["integrationTest"].output.classesDirs
