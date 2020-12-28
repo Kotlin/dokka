@@ -2,6 +2,11 @@ package org.jetbrains.dokka.maven
 
 import org.apache.maven.archiver.MavenArchiveConfiguration
 import org.apache.maven.archiver.MavenArchiver
+import org.apache.maven.artifact.DefaultArtifact
+import org.apache.maven.artifact.handler.DefaultArtifactHandler
+import org.apache.maven.artifact.resolver.ArtifactResolutionRequest
+import org.apache.maven.artifact.resolver.ArtifactResolutionResult
+import org.apache.maven.artifact.resolver.ResolutionErrorHandler
 import org.apache.maven.execution.MavenSession
 import org.apache.maven.model.Dependency
 import org.apache.maven.plugin.AbstractMojo
@@ -9,30 +14,15 @@ import org.apache.maven.plugin.MojoExecutionException
 import org.apache.maven.plugins.annotations.*
 import org.apache.maven.project.MavenProject
 import org.apache.maven.project.MavenProjectHelper
-import org.apache.maven.repository.internal.MavenRepositorySystemUtils
+import org.apache.maven.repository.RepositorySystem
 import org.codehaus.plexus.archiver.Archiver
 import org.codehaus.plexus.archiver.jar.JarArchiver
 import org.codehaus.plexus.util.xml.Xpp3Dom
-import org.eclipse.aether.DefaultRepositorySystemSession
-import org.eclipse.aether.RepositorySystem
-import org.eclipse.aether.RepositorySystemSession
-import org.eclipse.aether.artifact.DefaultArtifact
-import org.eclipse.aether.collection.CollectRequest
-import org.eclipse.aether.connector.basic.BasicRepositoryConnectorFactory
-import org.eclipse.aether.graph.DependencyNode
-import org.eclipse.aether.impl.DefaultServiceLocator
-import org.eclipse.aether.repository.LocalRepository
-import org.eclipse.aether.repository.RemoteRepository
-import org.eclipse.aether.resolution.DependencyRequest
-import org.eclipse.aether.spi.connector.RepositoryConnectorFactory
-import org.eclipse.aether.spi.connector.transport.TransporterFactory
-import org.eclipse.aether.transport.file.FileTransporterFactory
-import org.eclipse.aether.transport.http.HttpTransporterFactory
-import org.eclipse.aether.util.graph.visitor.PreorderNodeListGenerator
 import org.jetbrains.dokka.*
 import org.jetbrains.dokka.DokkaConfiguration.ExternalDocumentationLink
 import java.io.File
 import java.net.URL
+import java.util.stream.Collectors
 
 class SourceLinkMapItem {
     @Parameter(name = "path", required = true)
@@ -58,11 +48,21 @@ class ExternalDocumentationLinkBuilder {
 
 abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependency>) : AbstractMojo() {
 
-    @Parameter(defaultValue = "\${project}", readonly = true)
-    private var mavenProject: MavenProject? = null
+    @Parameter(defaultValue = "\${project}", readonly = true, required = true)
+    protected var mavenProject: MavenProject? = null
 
-    @Parameter()
-    private var session: RepositorySystemSession? = null
+    /**
+     * The current build session instance. This is used for
+     * dependency resolver API calls via repositorySystem.
+     */
+    @Parameter(defaultValue = "\${session}", required = true, readonly = true)
+    protected var session: MavenSession? = null
+
+    @Component
+    private var repositorySystem: RepositorySystem? = null
+
+    @Component
+    private var resolutionErrorHandler: ResolutionErrorHandler? = null
 
     class PackageOptions : DokkaConfiguration.PackageOptions {
         @Parameter
@@ -241,8 +241,8 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
             offlineMode = offlineMode,
             cacheRoot = cacheRoot?.let(::File),
             sourceSets = listOf(sourceSet),
-            pluginsClasspath = getArtifactByAether("org.jetbrains.dokka", "dokka-base", dokkaVersion) +
-                    dokkaPlugins.map { getArtifactByAether(it.groupId, it.artifactId, it.version ?: dokkaVersion) }
+            pluginsClasspath = getArtifactByMaven("org.jetbrains.dokka", "dokka-base", dokkaVersion) +
+                    dokkaPlugins.map { getArtifactByMaven(it.groupId, it.artifactId, it.version ?: dokkaVersion) }
                         .flatten(),
             pluginsConfiguration = pluginsConfiguration.toMutableList(),
             modules = emptyList(),
@@ -254,52 +254,31 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
         gen.generate()
     }
 
-    private fun newRepositorySystem(): RepositorySystem {
-        val locator: DefaultServiceLocator = MavenRepositorySystemUtils.newServiceLocator()
-        locator.addService(RepositoryConnectorFactory::class.java, BasicRepositoryConnectorFactory::class.java)
-        locator.addService(TransporterFactory::class.java, FileTransporterFactory::class.java)
-        locator.addService(TransporterFactory::class.java, HttpTransporterFactory::class.java)
-        return locator.getService(RepositorySystem::class.java)
-    }
-
-    private fun newSession(system: RepositorySystem): RepositorySystemSession {
-        val session: DefaultRepositorySystemSession =
-            MavenRepositorySystemUtils.newSession()
-        val localRepo = LocalRepository(System.getProperty("user.home") + "/.m2/repository")
-        session.localRepositoryManager = system.newLocalRepositoryManager(session, localRepo)
-        return session
-    }
-
-    private fun getArtifactByAether(
+    private fun getArtifactByMaven(
         groupId: String,
         artifactId: String,
         version: String
     ): List<File> {
-        val repoSystem: RepositorySystem = newRepositorySystem()
-        val session: RepositorySystemSession = newSession(repoSystem)
-        val dependency =
-            org.eclipse.aether.graph.Dependency(DefaultArtifact("$groupId:$artifactId:$version"), "compile")
-        val collectRequest = CollectRequest()
-        collectRequest.root = dependency
-        val repositories: List<RemoteRepository> =
-            (mavenProject?.remoteProjectRepositories?.plus(mavenProject?.remotePluginRepositories ?: emptyList())
-                ?: mavenProject?.remotePluginRepositories ?: emptyList())
-        repositories.forEach {
-            collectRequest.addRepository(
-                RemoteRepository.Builder(
-                    "repo",
-                    "default",
-                    it.url
-                ).setAuthentication( it.authentication ).build()
-            )
+
+        val request = ArtifactResolutionRequest().apply {
+            isResolveRoot = true
+            isResolveTransitively = true
+            localRepository = session!!.localRepository
+            remoteRepositories = mavenProject!!.pluginArtifactRepositories
+            isOffline = session!!.isOffline
+            isForceUpdate = session!!.request.isUpdateSnapshots
+            servers = session!!.request.servers
+            mirrors = session!!.request.mirrors
+            proxies = session!!.request.proxies
+            artifact = DefaultArtifact(groupId, artifactId, version, "compile", "jar", null,
+                    DefaultArtifactHandler("jar"))
         }
-        val node: DependencyNode = repoSystem.collectDependencies(session, collectRequest).root
-        val dependencyRequest = DependencyRequest()
-        dependencyRequest.root = node
-        repoSystem.resolveDependencies(session, dependencyRequest)
-        val nlg = PreorderNodeListGenerator()
-        node.accept(nlg)
-        return nlg.files
+
+        log.debug("Resolving $groupId:$artifactId:$version ...")
+
+        val result: ArtifactResolutionResult = repositorySystem!!.resolve(request)
+        resolutionErrorHandler!!.throwErrors(request, result)
+        return result.artifacts.map { it.file }
     }
 
     private val dokkaVersion: String by lazy {
@@ -376,12 +355,6 @@ class DokkaJavadocJarMojo : AbstractDokkaMojo(listOf(javadocDependency)) {
     @Parameter(property = "maven.javadoc.classifier", defaultValue = "javadoc", required = true)
     private var classifier: String? = null
 
-    @Parameter(defaultValue = "\${session}", readonly = true, required = true)
-    protected var session: MavenSession? = null
-
-    @Parameter(defaultValue = "\${project}", readonly = true, required = true)
-    protected var project: MavenProject? = null
-
     @Component
     private var projectHelper: MavenProjectHelper? = null
 
@@ -398,7 +371,7 @@ class DokkaJavadocJarMojo : AbstractDokkaMojo(listOf(javadocDependency)) {
         }
         val outputFile = generateArchive("$finalName-$classifier.jar")
         if (attach) {
-            projectHelper?.attachArtifact(project, "javadoc", classifier, outputFile)
+            projectHelper?.attachArtifact(mavenProject, "javadoc", classifier, outputFile)
         }
     }
 
@@ -411,7 +384,7 @@ class DokkaJavadocJarMojo : AbstractDokkaMojo(listOf(javadocDependency)) {
         archiver.archiver.addDirectory(File(outputDir), arrayOf("**/**"), arrayOf())
 
         archive.isAddMavenDescriptor = false
-        archiver.createArchive(session, project, archive)
+        archiver.createArchive(session, mavenProject, archive)
 
         return javadocJar
     }

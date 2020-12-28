@@ -17,9 +17,6 @@ open class SetupMaven : Sync() {
     @get:Input
     var mavenPluginToolsVersion = "3.5.2"
 
-    @get:Input
-    var aetherVersion = "1.1.0"
-
     @get:Internal
     val mavenBuildDir = "${project.buildDir}/maven"
 
