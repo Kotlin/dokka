@@ -12,7 +12,6 @@ typealias TemplateBlock = TemplateCommand.() -> Unit
 fun FlowOrPhrasingContent.wbr(classes: String? = null, block: WBR.() -> Unit = {}): Unit =
     WBR(attributesMapOf("class", classes), consumer).visit(block)
 
-@Suppress("unused")
 open class WBR(initialAttributes: Map<String, String>, consumer: TagConsumer<*>) :
     HTMLTag("wbr", consumer, initialAttributes, namespace = null, inlineTag = true, emptyTag = false),
     HtmlBlockInlineTag

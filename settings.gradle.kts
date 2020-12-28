@@ -27,6 +27,7 @@ include("plugins:gfm:gfm-template-processing")
 include("plugins:jekyll")
 include("plugins:kotlin-as-java")
 include("plugins:javadoc")
+include("plugins:webhelp")
 
 include("integration-tests")
 include("integration-tests:gradle")
