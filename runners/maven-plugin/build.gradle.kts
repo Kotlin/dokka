@@ -11,13 +11,6 @@ dependencies {
     implementation("org.apache.maven.plugin-tools:maven-plugin-annotations:${setupMaven.mavenPluginToolsVersion}")
     implementation("org.apache.maven:maven-archiver:2.5")
     implementation(kotlin("stdlib-jdk8"))
-    implementation("org.eclipse.aether:aether-api:${setupMaven.aetherVersion}")
-    implementation("org.eclipse.aether:aether-spi:${setupMaven.aetherVersion}")
-    implementation("org.eclipse.aether:aether-impl:${setupMaven.aetherVersion}")
-    implementation("org.eclipse.aether:aether-connector-basic:${setupMaven.aetherVersion}")
-    implementation("org.eclipse.aether:aether-transport-file:${setupMaven.aetherVersion}")
-    implementation("org.eclipse.aether:aether-transport-http:${setupMaven.aetherVersion}")
-    implementation("org.apache.maven:maven-aether-provider:3.3.3")
 }
 
 tasks.named<Delete>("clean") {
