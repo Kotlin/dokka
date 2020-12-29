@@ -1,6 +1,7 @@
 package org.jetbrains.dokka.kotlinAsJava.converters
 
 import org.jetbrains.dokka.kotlinAsJava.transformers.JvmNameProvider
+import org.jetbrains.dokka.kotlinAsJava.transformers.withCallableName
 import org.jetbrains.dokka.links.Callable
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.PointingToDeclaration
@@ -103,12 +104,14 @@ internal fun DProperty.javaModifierFromSetter() =
 internal fun DProperty.javaAccessors(isTopLevel: Boolean = false, relocateToClass: String? = null): List<DFunction> =
     listOfNotNull(
         getter?.let { getter ->
+            val name = "get" + name.capitalize()
             getter.copy(
                 dri = if (relocateToClass.isNullOrBlank()) {
                     getter.dri
                 } else {
                     getter.dri.withClass(relocateToClass)
-                },
+                }.withCallableName(name),
+                name = name,
                 modifier = javaModifierFromSetter(),
                 visibility = visibility.mapValues { JavaVisibility.Public },
                 type = getter.type.asJava(),
@@ -122,13 +125,15 @@ internal fun DProperty.javaAccessors(isTopLevel: Boolean = false, relocateToClas
             )
         },
         setter?.let { setter ->
-            val baseDRI = if (relocateToClass.isNullOrBlank()) {
+            val name = "set" + name.capitalize()
+            val baseDRI = (if (relocateToClass.isNullOrBlank()) {
                 setter.dri
             } else {
                 setter.dri.withClass(relocateToClass)
-            }
+            }).withCallableName(name)
             setter.copy(
                 dri = baseDRI,
+                name = name,
                 parameters = setter.parameters.map {
                     it.copy(
                         dri = baseDRI.copy(

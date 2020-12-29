@@ -25,11 +25,11 @@ class JvmNameProvider {
         return Name("${entry.dri.packageName}.$name")
     }
 
-    fun nameAsJavaGetter(entry: DProperty): String =
-        entry.getter?.directlyAnnotatedJvmName()?.jvmNameAsString() ?: "get" + entry.name.capitalize()
+    fun nameForGetter(entry: DProperty): String? =
+        entry.getter?.directlyAnnotatedJvmName()?.jvmNameAsString()
 
-    fun nameAsJavaSetter(entry: DProperty): String =
-        entry.setter?.directlyAnnotatedJvmName()?.jvmNameAsString() ?: "set" + entry.name.capitalize()
+    fun nameForSetter(entry: DProperty): String? =
+        entry.setter?.directlyAnnotatedJvmName()?.jvmNameAsString()
 
     private fun List<Annotations.Annotation>.jvmNameAnnotation(): Annotations.Annotation? =
         firstOrNull { it.isJvmName() }

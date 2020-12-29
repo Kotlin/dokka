@@ -17,7 +17,7 @@ class KotlinAsJavaPlugin : DokkaPlugin() {
 
     val jvmNameTransformer by extending {
         CoreExtensions.documentableTransformer with JvmNameDocumentableTransformer() order {
-            before(kotlinAsJavaDocumentableTransformer)
+            after(kotlinAsJavaDocumentableTransformer)
         }
     }
 

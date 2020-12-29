@@ -1,6 +1,5 @@
 package org.jetbrains.dokka.kotlinAsJava.transformers
 
-import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.transformers.documentation.DocumentableTransformer
@@ -14,7 +13,7 @@ class JvmNameDocumentableTransformer : DocumentableTransformer {
         return original.copy(packages = original.packages.map { transform(it) })
     }
 
-    fun <T : Documentable> transform(documentable: T): T =
+    private fun <T : Documentable> transform(documentable: T): T =
         with(documentable) {
             when (this) {
                 is DPackage -> copy(
@@ -25,7 +24,7 @@ class JvmNameDocumentableTransformer : DocumentableTransformer {
                 is DFunction -> {
                     val name = jvmNameProvider.nameFor(this)
                     copy(
-                        dri = transformCallable(documentable.dri, name),
+                        dri = documentable.dri.withCallableName(name),
                         name = name
                     )
                 }
@@ -43,7 +42,7 @@ class JvmNameDocumentableTransformer : DocumentableTransformer {
             }
         } as T
 
-    fun transformClassLike(documentable: DClasslike): DClasslike =
+    private fun transformClassLike(documentable: DClasslike): DClasslike =
         with(documentable) {
             when (this) {
                 is DClass -> copy(
@@ -74,27 +73,24 @@ class JvmNameDocumentableTransformer : DocumentableTransformer {
             }
         }
 
-    fun transformGetterAndSetter(entry: DProperty): DProperty =
+    private fun transformGetterAndSetter(entry: DProperty): DProperty =
         with(entry) {
             copy(
-                setter = setter?.let { setter ->
-                    val setterName = jvmNameProvider.nameAsJavaSetter(this)
-                    setter.copy(
-                        dri = transformCallable(setter.dri, setterName),
-                        name = setterName
-                    )
+                setter = jvmNameProvider.nameForSetter(this)?.let { setterName ->
+                    setter?.let { setter ->
+                        setter.copy(
+                            dri = setter.dri.withCallableName(setterName),
+                            name = setterName
+                        )
+                    }
                 },
-                getter = getter?.let { getter ->
-                    val getterName = jvmNameProvider.nameAsJavaGetter(this)
-                    getter.copy(
-                        dri = transformCallable(getter.dri, getterName),
-                        name = getterName
-                    )
+                getter = jvmNameProvider.nameForGetter(this)?.let { getterName ->
+                    getter?.let { getter ->
+                        getter.copy(
+                            dri = getter.dri.withCallableName(getterName),
+                            name = getterName
+                        )
+                    }
                 })
         }
-
-
-    fun transformCallable(dri: DRI, callableName: String): DRI =
-        dri.copy(callable = dri.callable?.copy(name = callableName))
-
 }
