@@ -330,7 +330,7 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/kotlinAsJavaPlugin/-a-b-c/some-fun.html").signature().first().match(
-                    "final ", A("Integer"), A("someFun"), "(", A("Integer"), A("xd"), ")", Span()
+                    "final ", A("Integer"), A("someFun"), "(", A("Integer"), "xd)", Span()
                 )
             }
         }
@@ -368,7 +368,7 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/kotlinAsJavaPlugin/-a-b-c/some-fun.html").signature().first().match(
                     "final ", A("Integer"), A("someFun"), "(", A("Map"), "<", A("String"),
-                    ", ", A("Integer"), ">", A("xd"), ")", Span()
+                    ", ", A("Integer"), "> xd)", Span()
                 )
             }
         }

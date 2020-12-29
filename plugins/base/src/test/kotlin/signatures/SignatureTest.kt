@@ -1,11 +1,7 @@
 package signatures
 
-import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.DokkaSourceSetID
-import org.jetbrains.dokka.jdk
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
-import org.jsoup.Jsoup
-import org.jsoup.nodes.Element
 import org.junit.jupiter.api.Test
 import utils.*
 
@@ -295,7 +291,7 @@ class SignatureTest : BaseAbstractTest() {
                     .firstSignature()
                     .match(
                         Div(
-                            Div("@", A("Marking"), "(", Span("msg = ", Span("\"Nenya\"")), Wbr, ")"),
+                            Div("@", A("Marking"), "(", Span("msg = ", Span("Nenya")), Wbr, ")"),
                             Div("@", A("Marking2"), "(", Span("int = ", Span("1")), Wbr, ")")
                         ),
                         "fun ", A("simpleFun"),
@@ -332,9 +328,9 @@ class SignatureTest : BaseAbstractTest() {
                         Div(
                             "@", A("Marking"), "(", Span(
                                 "msg = [",
-                                Span(Span("\"Nenya\""), ", "), Wbr,
-                                Span(Span("\"Vilya\""), ", "), Wbr,
-                                Span(Span("\"Narya\"")), Wbr, "]"
+                                Span(Span("Nenya"), ", "), Wbr,
+                                Span(Span("Vilya"), ", "), Wbr,
+                                Span(Span("Narya")), Wbr, "]"
                             ), Wbr, ")"
                         )
                     ),

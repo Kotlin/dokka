@@ -149,13 +149,13 @@ internal class JavadocClasslikeTemplateMapTest : AbstractJavadocTemplateMapTest(
             val map = allPagesOfType<JavadocClasslikePageNode>().first { it.name == "TestClass" }.templateMap
             assertEquals("TestClass", map["name"])
             val signature = assertIsInstance<Map<String, Any?>>(map["signature"])
-            assertEquals("@<a href=Author.html>Author</a>(name = \"Benjamin Franklin\")", signature["annotations"])
+            assertEquals("@<a href=Author.html>Author</a>(name = Benjamin Franklin)", signature["annotations"])
 
             val methods = assertIsInstance<Map<Any, Any?>>(map["methods"])
             val ownMethods = assertIsInstance<List<*>>(methods["own"])
             val method = assertIsInstance<Map<String, Any?>>(ownMethods.single())
             val methodSignature = assertIsInstance<Map<String, Any?>>(method["signature"])
-            assertEquals("@<a href=Author.html>Author</a>(name = \"Franklin D. Roosevelt\")", methodSignature["annotations"])
+            assertEquals("@<a href=Author.html>Author</a>(name = Franklin D. Roosevelt)", methodSignature["annotations"])
         }
     }
 

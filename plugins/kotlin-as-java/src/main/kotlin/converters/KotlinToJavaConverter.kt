@@ -1,27 +1,19 @@
 package org.jetbrains.dokka.kotlinAsJava.converters
 
-import org.jetbrains.dokka.links.*
+import org.jetbrains.dokka.kotlinAsJava.transformers.JvmNameProvider
+import org.jetbrains.dokka.kotlinAsJava.transformers.withCallableName
 import org.jetbrains.dokka.links.Callable
+import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.links.PointingToDeclaration
+import org.jetbrains.dokka.links.withClass
 import org.jetbrains.dokka.model.*
-import org.jetbrains.dokka.model.DAnnotation
-import org.jetbrains.dokka.model.DEnum
-import org.jetbrains.dokka.model.DFunction
-import org.jetbrains.dokka.model.Nullable
-import org.jetbrains.dokka.model.TypeConstructor
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.kotlin.builtins.jvm.JavaToKotlinClassMap
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.resolve.jvm.JvmPrimitiveType
-import java.lang.IllegalStateException
 
-private fun <T : WithSources> List<T>.groupedByLocation() =
-    map { it.sources to it }
-        .groupBy({ (location, _) ->
-            location.let {
-                it.entries.first().value.path.split("/").last().split(".").first() + "Kt"
-            } // TODO: first() does not look reasonable
-        }) { it.second }
+val jvmNameProvider = JvmNameProvider()
 
 private val DProperty.isConst: Boolean
     get() = extra[AdditionalModifiers]
@@ -31,38 +23,39 @@ private val DProperty.isConst: Boolean
         } == true
 
 internal fun DPackage.asJava(): DPackage {
-    @Suppress("UNCHECKED_CAST")
-    val syntheticClasses = ((properties + functions) as List<WithSources>)
-        .groupedByLocation()
-        .map { (syntheticClassName, nodes) ->
-            DClass(
-                dri = dri.withClass(syntheticClassName),
-                name = syntheticClassName,
-                properties = nodes.filterIsInstance<DProperty>().map { it.asJava(true) },
-                constructors = emptyList(),
-                functions = (
-                        nodes
-                            .filterIsInstance<DProperty>()
-                            .filterNot { it.isConst }
-                            .flatMap { it.javaAccessors() } +
-                                nodes.filterIsInstance<DFunction>()
-                                    .map { it.asJava(syntheticClassName) }), // TODO: methods are static and receiver is a param
-                classlikes = emptyList(),
-                sources = emptyMap(),
-                expectPresentInSet = null,
-                visibility = sourceSets.map {
-                    it to JavaVisibility.Public
-                }.toMap(),
-                companion = null,
-                generics = emptyList(),
-                supertypes = emptyMap(),
-                documentation = emptyMap(),
-                modifier = sourceSets.map { it to JavaModifier.Final }.toMap(),
-                sourceSets = sourceSets,
-                isExpectActual = false,
-                extra = PropertyContainer.empty()
-            )
-        }
+    val syntheticClasses =
+        (properties.map { jvmNameProvider.nameForSyntheticClass(it) to it }
+                + functions.map { jvmNameProvider.nameForSyntheticClass(it) to it })
+            .groupBy({ it.first }) { it.second }
+            .map { (syntheticClassName, nodes) ->
+                DClass(
+                    dri = dri.withClass(syntheticClassName.name),
+                    name = syntheticClassName.name,
+                    properties = nodes.filterIsInstance<DProperty>().map { it.asJava(true) },
+                    constructors = emptyList(),
+                    functions = (
+                            nodes
+                                .filterIsInstance<DProperty>()
+                                .filterNot { it.isConst }
+                                .flatMap { it.javaAccessors(relocateToClass = syntheticClassName.name) } +
+                                    nodes.filterIsInstance<DFunction>()
+                                        .map { it.asJava(syntheticClassName.name) }), // TODO: methods are static and receiver is a param
+                    classlikes = emptyList(),
+                    sources = emptyMap(),
+                    expectPresentInSet = null,
+                    visibility = sourceSets.map {
+                        it to JavaVisibility.Public
+                    }.toMap(),
+                    companion = null,
+                    generics = emptyList(),
+                    supertypes = emptyMap(),
+                    documentation = emptyMap(),
+                    modifier = sourceSets.map { it to JavaModifier.Final }.toMap(),
+                    sourceSets = sourceSets,
+                    isExpectActual = false,
+                    extra = PropertyContainer.empty()
+                )
+            }
 
     return copy(
         functions = emptyList(),
@@ -110,41 +103,56 @@ internal fun DProperty.javaModifierFromSetter() =
 
 internal fun DProperty.javaAccessors(isTopLevel: Boolean = false, relocateToClass: String? = null): List<DFunction> =
     listOfNotNull(
-        getter?.copy(
-            dri = if (relocateToClass.isNullOrBlank()) {
-                dri
-            } else {
-                dri.withClass(relocateToClass)
-            },
-            name = "get" + name.capitalize(),
-            modifier = javaModifierFromSetter(),
-            visibility = visibility.mapValues { JavaVisibility.Public },
-            type = type.asJava(), // TODO: check
-            extra = if (isTopLevel) getter!!.extra +
-                    getter!!.extra.mergeAdditionalModifiers(
-                        sourceSets.map {
-                            it to setOf(ExtraModifiers.JavaOnlyModifiers.Static)
-                        }.toMap()
-                    )
-            else getter!!.extra
-        ),
-        setter?.copy(
-            dri = if (relocateToClass.isNullOrBlank()) {
-                dri
-            } else {
-                dri.withClass(relocateToClass)
-            },
-            name = "set" + name.capitalize(),
-            modifier = javaModifierFromSetter(),
-            visibility = visibility.mapValues { JavaVisibility.Public },
-            type = type.asJava(), // TODO: check
-            extra = if (isTopLevel) setter!!.extra + setter!!.extra.mergeAdditionalModifiers(
-                sourceSets.map {
-                    it to setOf(ExtraModifiers.JavaOnlyModifiers.Static)
-                }.toMap()
+        getter?.let { getter ->
+            val name = "get" + name.capitalize()
+            getter.copy(
+                dri = if (relocateToClass.isNullOrBlank()) {
+                    getter.dri
+                } else {
+                    getter.dri.withClass(relocateToClass)
+                }.withCallableName(name),
+                name = name,
+                modifier = javaModifierFromSetter(),
+                visibility = visibility.mapValues { JavaVisibility.Public },
+                type = getter.type.asJava(),
+                extra = if (isTopLevel) getter.extra +
+                        getter.extra.mergeAdditionalModifiers(
+                            sourceSets.map {
+                                it to setOf(ExtraModifiers.JavaOnlyModifiers.Static)
+                            }.toMap()
+                        )
+                else getter.extra
             )
-            else setter!!.extra
-        )
+        },
+        setter?.let { setter ->
+            val name = "set" + name.capitalize()
+            val baseDRI = (if (relocateToClass.isNullOrBlank()) {
+                setter.dri
+            } else {
+                setter.dri.withClass(relocateToClass)
+            }).withCallableName(name)
+            setter.copy(
+                dri = baseDRI,
+                name = name,
+                parameters = setter.parameters.map {
+                    it.copy(
+                        dri = baseDRI.copy(
+                            target = it.dri.target,
+                            extra = it.dri.extra
+                        ), type = it.type.asJava()
+                    )
+                },
+                modifier = javaModifierFromSetter(),
+                visibility = visibility.mapValues { JavaVisibility.Public },
+                type = Void,
+                extra = if (isTopLevel) setter.extra + setter.extra.mergeAdditionalModifiers(
+                    sourceSets.map {
+                        it to setOf(ExtraModifiers.JavaOnlyModifiers.Static)
+                    }.toMap()
+                )
+                else setter.extra
+            )
+        }
     )
 
 
@@ -154,7 +162,7 @@ internal fun DFunction.asJava(containingClassName: String): DFunction {
         else -> name
     }
     return copy(
-//        dri = dri.copy(callable = dri.callable?.asJava()),
+        dri = dri.copy(classNames = containingClassName, callable = dri.callable?.copy(name = newName)),
         name = newName,
         type = type.asJava(),
         modifier = if (modifier.all { (_, v) -> v is KotlinModifier.Final } && isConstructor)
@@ -193,7 +201,7 @@ private fun DTypeParameter.asJava(): DTypeParameter = copy(
     bounds = bounds.map { it.asJava() }
 )
 
-private fun Projection.asJava(): Projection = when(this) {
+private fun Projection.asJava(): Projection = when (this) {
     is Star -> Star
     is Covariance<*> -> copy(inner.asJava())
     is Contravariance<*> -> copy(inner.asJava())
@@ -201,7 +209,7 @@ private fun Projection.asJava(): Projection = when(this) {
     is Bound -> asJava()
 }
 
-private fun Bound.asJava(): Bound = when(this) {
+private fun Bound.asJava(): Bound = when (this) {
     is TypeParameter -> copy(dri.possiblyAsJava())
     is GenericTypeConstructor -> copy(
         dri = dri.possiblyAsJava(),
@@ -286,7 +294,7 @@ internal fun DParameter.asJava(): DParameter = copy(
 )
 
 internal fun Visibility.propertyVisibilityAsJava(): Visibility =
-    if(this is JavaVisibility) this
+    if (this is JavaVisibility) this
     else JavaVisibility.Private
 
 internal fun String.getAsPrimitive(): JvmPrimitiveType? = org.jetbrains.kotlin.builtins.PrimitiveType.values()
@@ -295,7 +303,7 @@ internal fun String.getAsPrimitive(): JvmPrimitiveType? = org.jetbrains.kotlin.b
 
 private fun DRI.partialFqName() = packageName?.let { "$it." } + classNames
 private fun DRI.possiblyAsJava() = this.partialFqName().mapToJava()?.toDRI(this) ?: this
-private fun TypeConstructor.possiblyAsJava() = when(this) {
+private fun TypeConstructor.possiblyAsJava() = when (this) {
     is GenericTypeConstructor -> copy(dri = this.dri.possiblyAsJava())
     is FunctionalTypeConstructor -> copy(dri = this.dri.possiblyAsJava())
 }
@@ -318,7 +326,7 @@ internal fun TypeConstructorWithKind.asJava(): TypeConstructorWithKind =
     )
 
 internal fun ClassKind.asJava(): ClassKind {
-    return when(this){
+    return when (this) {
         is JavaClassKindTypes -> this
         KotlinClassKindTypes.CLASS -> JavaClassKindTypes.CLASS
         KotlinClassKindTypes.INTERFACE -> JavaClassKindTypes.INTERFACE
