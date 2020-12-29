@@ -30,12 +30,20 @@ class DefaultExternalModuleLinkResolver(val context: DokkaContext) : ExternalMod
             context.configuration.modules.map(::loadPackageListForModule).toMap()
         return packageLists.mapNotNull { (module, packageList) ->
             packageList?.let {
-                ExternalDocumentation(
-                    URL("file:/${module.name}/${module.name}"),
-                    packageList
-                )
+                context.configuration.modules.find { it.name == module.name }?.let { m ->
+                    ExternalDocumentation(
+                        URL("file:/${m.relativePathToOutputDirectory.toRelativeOutputDir()}"),
+                        packageList
+                    )
+                }
             }
         }
+    }
+
+    private fun File.toRelativeOutputDir(): File = if(isAbsolute) {
+        relativeToOrSelf(context.configuration.outputDir)
+    } else {
+        this
     }
 
     private fun loadPackageListForModule(module: DokkaConfiguration.DokkaModuleDescription) =

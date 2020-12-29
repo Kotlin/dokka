@@ -42,7 +42,7 @@ class TemplatingPlugin : DokkaPlugin() {
     }
 
     val addToNavigationCommandHandler by extending {
-        directiveBasedCommandHandlers with AddToNavigationCommandHandler()
+        directiveBasedCommandHandlers providing ::AddToNavigationCommandHandler
     }
     val substitutionCommandHandler by extending {
         directiveBasedCommandHandlers providing ::SubstitutionCommandHandler

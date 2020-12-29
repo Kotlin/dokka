@@ -19,7 +19,7 @@ class ResolveLinkCommandResolutionTest : MultiModuleAbstractTest() {
     @get:Rule
     val folder: TemporaryFolder = TemporaryFolder()
 
-    fun configuration() = dokkaConfiguration {
+    private fun configuration() = dokkaConfiguration {
         modules = listOf(
             DokkaModuleDescriptionImpl(
                 name = "module1",
@@ -50,7 +50,7 @@ class ResolveLinkCommandResolutionTest : MultiModuleAbstractTest() {
         }
 
         val expected = createHTML().a {
-            href = "../../module2/module2/package2/-sample/index.html"
+            href = "../../module2/package2/-sample/index.html"
             span {
                 +"Sample"
             }

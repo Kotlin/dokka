@@ -22,9 +22,12 @@ abstract class BaseJsonNavigationTemplateProcessingStrategy(val context: DokkaCo
         val canProcess = canProcess(input)
         if (canProcess) {
             runCatching { parseJson<AddToSearch>(input.readText()) }.getOrNull()?.let { command ->
-                fragments[command.moduleName] = command.elements
+                context.configuration.modules.find { it.name == command.moduleName }?.relativePathToOutputDirectory
+                    ?.relativeToOrSelf(context.configuration.outputDir)
+                    ?.let { key ->
+                        fragments[key.toString()] = command.elements
+                    }
             } ?: fallbackToCopy(input, output)
-
         }
         return canProcess
     }

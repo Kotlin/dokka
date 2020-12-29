@@ -2,6 +2,7 @@ package org.jetbrains.dokka.templates
 
 import org.jetbrains.dokka.base.templating.AddToNavigationCommand
 import org.jetbrains.dokka.base.templating.Command
+import org.jetbrains.dokka.plugability.DokkaContext
 import org.jsoup.nodes.Attributes
 import org.jsoup.nodes.Element
 import org.jsoup.parser.Tag
@@ -9,12 +10,15 @@ import java.io.File
 import java.nio.file.Files
 import java.util.concurrent.ConcurrentHashMap
 
-class AddToNavigationCommandHandler : CommandHandler {
+class AddToNavigationCommandHandler(val context: DokkaContext) : CommandHandler {
     private val navigationFragments = ConcurrentHashMap<String, Element>()
 
     override fun handleCommand(element: Element, command: Command, input: File, output: File) {
         command as AddToNavigationCommand
-        navigationFragments[command.moduleName] = element
+        context.configuration.modules.find { it.name == command.moduleName }
+            ?.relativePathToOutputDirectory
+            ?.relativeToOrSelf(context.configuration.outputDir)
+            ?.let { key -> navigationFragments[key.toString()] = element }
     }
 
     override fun canHandle(command: Command) = command is AddToNavigationCommand
@@ -37,6 +41,7 @@ class AddToNavigationCommandHandler : CommandHandler {
                 }
             }
 
+            Files.write(output.resolve("navigation.html").toPath(), listOf(node.outerHtml()))
             node.select("a").forEach { a ->
                 a.attr("href")?.also { a.attr("href", "../${it}") }
             }

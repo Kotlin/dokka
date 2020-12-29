@@ -18,7 +18,7 @@ class ResolveLinkGfmCommandResolutionTest : MultiModuleAbstractTest() {
     @get:Rule
     val folder: TemporaryFolder = TemporaryFolder()
 
-    fun configuration() = dokkaConfiguration {
+    private fun configuration() = dokkaConfiguration {
         modules = listOf(
             DokkaModuleDescriptionImpl(
                 name = "module1",
@@ -49,7 +49,7 @@ class ResolveLinkGfmCommandResolutionTest : MultiModuleAbstractTest() {
             }
         }.toString()
 
-        val expected = "[Sample text inside](../../module2/module2/package2/-sample/index.md)"
+        val expected = "[Sample text inside](../../module2/package2/-sample/index.md)"
 
         val content = setup(link)
         val configuration = configuration()
@@ -61,7 +61,7 @@ class ResolveLinkGfmCommandResolutionTest : MultiModuleAbstractTest() {
         }
     }
 
-    fun setup(content: String): File {
+    private fun setup(content: String): File {
         folder.create()
         val innerModule1 = folder.newFolder("module1", "module1")
         val innerModule2 = folder.newFolder("module2", "module2")
