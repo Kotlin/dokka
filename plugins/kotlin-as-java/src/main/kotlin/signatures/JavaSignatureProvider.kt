@@ -140,7 +140,7 @@ class JavaSignatureProvider internal constructor(ctcc: CommentsToContentConverte
                     text(it.modifiers()[it]?.toSignatureString() ?: "")
                     signatureForProjection(it.type)
                     text(nbsp.toString())
-                    link(it.name!!, it.dri)
+                    text(it.name!!)
                 }
                 text(")")
             }

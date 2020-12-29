@@ -17,6 +17,7 @@ import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.translators.isDirectlyAnException
 import org.jetbrains.dokka.base.translators.psi.parsers.JavaDocumentationParser
 import org.jetbrains.dokka.base.translators.psi.parsers.JavadocParser
+import org.jetbrains.dokka.base.translators.unquotedValue
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.nextTarget
 import org.jetbrains.dokka.links.withClass
@@ -530,6 +531,9 @@ class DefaultPsiToDocumentableTranslator(
         private fun JvmAnnotationAttribute.toValue(): AnnotationParameterValue = when (this) {
             is PsiNameValuePair -> value?.toValue() ?: StringValue("")
             else -> StringValue(this.attributeName)
+        }.let { annotationValue ->
+            if (annotationValue is StringValue) annotationValue.copy(unquotedValue(annotationValue.value))
+            else annotationValue
         }
 
         private fun PsiAnnotationMemberValue.toValue(): AnnotationParameterValue? = when (this) {
