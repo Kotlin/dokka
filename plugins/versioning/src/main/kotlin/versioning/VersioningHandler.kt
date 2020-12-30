@@ -2,6 +2,7 @@ package org.jetbrains.dokka.versioning
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import kotlinx.coroutines.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.configuration
@@ -10,75 +11,78 @@ import org.jetbrains.dokka.plugability.query
 import org.jetbrains.dokka.templates.TemplateProcessingStrategy
 import org.jetbrains.dokka.templates.TemplatingPlugin
 import java.io.File
-import java.nio.file.Path
 
 interface VersioningHandler : () -> Unit {
-    fun getVersions(): Map<String, Path>
-    fun currentVersion(): Path?
+    fun getVersions(): Map<VersionId, File>
+    fun currentVersion(): File?
 }
+
+typealias VersionId = String
 
 class DefaultVersioningHandler(val context: DokkaContext) : VersioningHandler {
 
     private val mapper = ObjectMapper()
 
-    private val processingStrategies: List<TemplateProcessingStrategy> = context.plugin<TemplatingPlugin>().query { templateProcessingStrategy }
+    private lateinit var versions: Map<VersionId, File>
 
-    private var versions = mutableMapOf<String, Path>()
+    private val processingStrategies: List<TemplateProcessingStrategy> =
+        context.plugin<TemplatingPlugin>().query { templateProcessingStrategy }
 
     private val configuration = configuration<VersioningPlugin, VersioningConfiguration>(context)
 
     override fun getVersions() = versions
 
     override fun currentVersion() = configuration?.let { versionsConfiguration ->
-        versions[versionsConfiguration.currentVersion]
+        versions[versionsConfiguration.versionFromConfigurationOrModule(context)]
     }
 
     override fun invoke() {
-        versions = mutableMapOf()
         configuration?.let { versionsConfiguration ->
-            val output = context.configuration.outputDir
-            val version = versionsConfiguration.currentVersion
-            addVersionDir(version, output)
-            versionsConfiguration.olderVersions?.let {
-                handlePreviousVersions(it, output)
+            versions =
+                mapOf(versionsConfiguration.versionFromConfigurationOrModule(context) to context.configuration.outputDir)
+            versionsConfiguration.olderVersionsDir?.let {
+                handlePreviousVersions(it, context.configuration.outputDir)
             }
-            mapper.writeValue(output.resolve(VERSIONS_FILE), Version(version, versions.keys - version))
+            mapper.writeValue(
+                context.configuration.outputDir.resolve(VERSIONS_FILE),
+                Version(versionsConfiguration.versionFromConfigurationOrModule(context))
+            )
         }
     }
 
-    private fun addVersionDir(version: String, dir: File) {
-        versions[version] = dir.resolve("index.html").toPath()
-    }
-
-    private fun handlePreviousVersions(olderVersionDir: File, output: File) {
+    private fun handlePreviousVersions(olderVersionDir: File, output: File): Map<String, File> {
         assert(olderVersionDir.isDirectory) { "Supplied previous version $olderVersionDir is not a directory!" }
-        val children = olderVersionDir.listFiles().orEmpty()
-        val oldVersion = children.first { it.name == VERSIONS_FILE }.let { file ->
-            mapper.readValue(file, Version::class.java)
+        return versionsWithOriginDir(olderVersionDir)
+            .also { fetched ->
+                versions = versions + fetched.map { (key, _) ->
+                    key to output.resolve(OLDER_VERSIONS_DIR).resolve(key)
+                }.toMap()
+            }
+            .onEach { (version, path) -> copyVersion(version, path, output) }.toMap()
+    }
+
+    private fun versionsWithOriginDir(olderVersionRootDir: File) =
+        olderVersionRootDir.listFiles().orEmpty().mapNotNull { versionDir ->
+            versionDir.listFiles { _, name -> name == VERSIONS_FILE }?.firstOrNull()?.let { file ->
+                val versionsContent = mapper.readValue<Version>(file)
+                Pair(versionsContent.version, versionDir)
+            }.also {
+                if (it == null) context.logger.warn("Failed to find versions file named $VERSIONS_FILE in $versionDir")
+            }
         }
-        val olderVersionsDir = output.resolve(OLDER_VERSIONS_DIR).apply { mkdir() }
-        val previousVersionDir = olderVersionsDir.resolve(oldVersion.current).apply { mkdir() }
-        addVersionDir(oldVersion.current, previousVersionDir)
-        oldVersion.previous.forEach { addVersionDir(it, olderVersionsDir.resolve(it).apply { mkdir() }) }
+
+    private fun copyVersion(version: VersionId, versionRoot: File, output: File) {
+        val targetParent = output.resolve(OLDER_VERSIONS_DIR).resolve(version).apply { mkdirs() }
         runBlocking(Dispatchers.Default) {
             coroutineScope {
-                suspend fun processAndCopy(file: File, targetParent: File) {
-                    if (file.isDirectory) file.copyRecursively(targetParent, overwrite = true)
-                    else processingStrategies.first {
-                        it.process(file, targetParent)
-                    }
-                }
-                children.forEach { file ->
+                versionRoot.listFiles().orEmpty().forEach { versionRootContent ->
                     launch {
-                        when (file.name) {
-                            OLDER_VERSIONS_DIR -> file.listFiles()?.forEach { historicalVersionDirName ->
-                                val targetDir = olderVersionsDir.resolve(historicalVersionDirName)
-                                val historicalVersionDir = file.resolve(historicalVersionDirName)
-                                historicalVersionDir.listFiles()?.forEach {
-                                    processAndCopy(historicalVersionDir.resolve(it), targetDir.resolve(it))
-                                }
-                            }
-                            else -> processAndCopy(file, previousVersionDir.resolve(file.name))
+                        if (versionRootContent.isDirectory) versionRootContent.copyRecursively(
+                            targetParent.resolve(versionRootContent.name),
+                            overwrite = true
+                        )
+                        else processingStrategies.first {
+                            it.process(versionRootContent, targetParent.resolve(versionRootContent.name))
                         }
                     }
                 }
@@ -87,8 +91,7 @@ class DefaultVersioningHandler(val context: DokkaContext) : VersioningHandler {
     }
 
     private data class Version(
-        @JsonProperty("current") val current: String,
-        @JsonProperty("previous") val previous: Collection<String>
+        @JsonProperty("version") val version: String,
     )
 
     companion object {

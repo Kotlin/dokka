@@ -16,7 +16,7 @@ class DirectiveBasedHtmlTemplateProcessingStrategy(private val context: DokkaCon
         context.plugin<TemplatingPlugin>().query { directiveBasedCommandHandlers }
 
     override fun process(input: File, output: File): Boolean =
-        if (input.extension == "html") {
+        if (input.isFile && input.extension == "html") {
             val document = Jsoup.parse(input, "UTF-8")
             document.outputSettings().indentAmount(0).prettyPrint(false)
             document.select("dokka-template-command").forEach {

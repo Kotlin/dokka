@@ -21,6 +21,6 @@ class ReplaceVersionCommandHandler(context: DokkaContext) : CommandHandler {
 
     override fun handleCommand(element: Element, command: Command, input: File, output: File) {
         element.empty()
-        element.append(versionsNavigationCreator(output.toPath()))
+        element.append(versionsNavigationCreator(output))
     }
 }

@@ -7,7 +7,7 @@ import java.nio.file.Files
 class FallbackTemplateProcessingStrategy(dokkaContext: DokkaContext) : TemplateProcessingStrategy {
 
     override fun process(input: File, output: File): Boolean {
-        Files.copy(input.toPath(), output.toPath())
+        if(input != output) input.copyTo(output, overwrite = true)
         return true
     }
 }

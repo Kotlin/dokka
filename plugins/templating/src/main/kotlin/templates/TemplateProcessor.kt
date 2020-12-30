@@ -43,7 +43,7 @@ class DefaultTemplateProcessor(
                launch { source.resolve(it).visit(target.resolve(it)) }
            }
         } else {
-            strategies.asSequence().first { it.process(source, target) }
+            strategies.first { it.process(source, target) }
         }
     }
 }
