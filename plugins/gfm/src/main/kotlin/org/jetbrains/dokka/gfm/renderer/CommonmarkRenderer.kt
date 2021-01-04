@@ -163,18 +163,18 @@ open class CommonmarkRenderer(
                 buildNewLine()
             }
         } else {
-            val size = node.header.size
+            val size = node.header.firstOrNull()?.children?.size ?: node.children.firstOrNull()?.children?.size ?: 0
 
             if (node.header.isNotEmpty()) {
-                append("| ")
                 node.header.forEach {
+                    append("| ")
                     it.children.forEach {
                         append(" ")
                         it.build(this, pageContext, it.sourceSets)
+                        append(" | ")
                     }
-                    append("| ")
+                    append("\n")
                 }
-                append("\n")
             } else {
                 append("| ".repeat(size))
                 if (size > 0) append("|\n")
@@ -196,7 +196,7 @@ open class CommonmarkRenderer(
                     )  // Workaround for headers inside tables
                 }
                 append(builder.toString().withEntersAsHtml())
-                append(" | ".repeat(size - it.children.size))
+                append("|".repeat(size + 1 - it.children.size))
                 append("\n")
             }
         }
