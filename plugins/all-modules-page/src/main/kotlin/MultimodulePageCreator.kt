@@ -41,22 +41,23 @@ class MultimodulePageCreator(
         ) {
             header(2, "All modules:")
             table(styles = setOf(MultimoduleTable)) {
-                modules.map { module ->
+                modules.forEach { module ->
                     val displayedModuleDocumentation = getDisplayedModuleDocumentation(module)
                     val dri = DRI(packageName = MULTIMODULE_PACKAGE_PLACEHOLDER, classNames = module.name)
                     val dci = DCI(setOf(dri), ContentKind.Comment)
                     val extraWithAnchor = PropertyContainer.withAll(SymbolAnchorHint(module.name, ContentKind.Main))
-                    val header = linkNode(module.name, dri, DCI(setOf(dri), ContentKind.Main), extra = extraWithAnchor)
-                    val content = ContentGroup(
-                        children =
-                        if (displayedModuleDocumentation != null)
-                            DocTagToContentConverter().buildContent(displayedModuleDocumentation, dci, emptySet())
-                        else emptyList(),
-                        dci = dci,
-                        sourceSets = emptySet(),
-                        style = emptySet()
-                    )
-                    ContentGroup(listOf(header, content), dci, emptySet(), emptySet(), extraWithAnchor)
+                    row(setOf(dri), emptySet(), styles = emptySet(), extra = extraWithAnchor) {
+                        linkNode(module.name, dri, DCI(setOf(dri), ContentKind.Main), extra = extraWithAnchor)
+                        +ContentGroup(
+                            children =
+                            if (displayedModuleDocumentation != null)
+                                DocTagToContentConverter().buildContent(displayedModuleDocumentation, dci, emptySet())
+                            else emptyList(),
+                            dci = dci,
+                            sourceSets = emptySet(),
+                            style = emptySet()
+                        )
+                    }
                 }
             }
         }

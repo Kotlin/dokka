@@ -33,7 +33,8 @@ open class DefaultPageCreator(
 ) {
     protected open val contentBuilder = PageContentBuilder(commentsToContentConverter, signatureProvider, logger)
 
-    protected val separateInheritedMembers = configuration?.separateInheritedMembers ?: DokkaBaseConfiguration.separateInheritedMembersDefault
+    protected val separateInheritedMembers =
+        configuration?.separateInheritedMembers ?: DokkaBaseConfiguration.separateInheritedMembersDefault
 
     open fun pageForModule(m: DModule) =
         ModulePageNode(m.name.ifEmpty { "<root>" }, contentForModule(m), m, m.packages.map(::pageForPackage))
@@ -41,7 +42,8 @@ open class DefaultPageCreator(
     open fun pageForPackage(p: DPackage): PackagePageNode = PackagePageNode(
         p.name, contentForPackage(p), setOf(p.dri), p,
         p.classlikes.renameClashingDocumentable().map(::pageForClasslike) +
-                p.functions.renameClashingDocumentable().map(::pageForFunction) + p.properties.mapNotNull(::pageForProperty)
+                p.functions.renameClashingDocumentable()
+                    .map(::pageForFunction) + p.properties.mapNotNull(::pageForProperty)
     )
 
     open fun pageForEnumEntry(e: DEnumEntry): ClasslikePageNode =
@@ -66,31 +68,32 @@ open class DefaultPageCreator(
         )
     }
 
-    private fun <T> T.toClashedName() where T: Documentable, T: WithExtraProperties<T> =
+    private fun <T> T.toClashedName() where T : Documentable, T : WithExtraProperties<T> =
         (extra[ClashingDriIdentifier]?.value?.joinToString(", ", "[", "]") { it.displayName } ?: "") + name.orEmpty()
 
-    private fun <T> List<T>.renameClashingDocumentable(): List<T> where T: Documentable =
+    private fun <T> List<T>.renameClashingDocumentable(): List<T> where T : Documentable =
         groupBy { it.dri }.values.flatMap { elements ->
-        if (elements.size == 1) elements else elements.mapNotNull { element ->
-            when(element) {
-                is DClass -> element.copy(extra = element.extra + DriClashAwareName(element.toClashedName()))
-                is DObject -> element.copy(extra = element.extra + DriClashAwareName(element.toClashedName()) )
-                is DAnnotation -> element.copy(extra = element.extra + DriClashAwareName(element.toClashedName()) )
-                is DInterface -> element.copy(extra = element.extra + DriClashAwareName(element.toClashedName()) )
-                is DEnum -> element.copy(extra = element.extra + DriClashAwareName(element.toClashedName()) )
-                is DFunction -> element.copy(extra = element.extra + DriClashAwareName(element.toClashedName()) )
-                is DProperty -> element.copy(extra = element.extra + DriClashAwareName(element.toClashedName()) )
-                is DTypeAlias -> element.copy(extra = element.extra + DriClashAwareName(element.toClashedName()) )
-                else -> null
-            } as? T?
+            if (elements.size == 1) elements else elements.mapNotNull { element ->
+                when (element) {
+                    is DClass -> element.copy(extra = element.extra + DriClashAwareName(element.toClashedName()))
+                    is DObject -> element.copy(extra = element.extra + DriClashAwareName(element.toClashedName()))
+                    is DAnnotation -> element.copy(extra = element.extra + DriClashAwareName(element.toClashedName()))
+                    is DInterface -> element.copy(extra = element.extra + DriClashAwareName(element.toClashedName()))
+                    is DEnum -> element.copy(extra = element.extra + DriClashAwareName(element.toClashedName()))
+                    is DFunction -> element.copy(extra = element.extra + DriClashAwareName(element.toClashedName()))
+                    is DProperty -> element.copy(extra = element.extra + DriClashAwareName(element.toClashedName()))
+                    is DTypeAlias -> element.copy(extra = element.extra + DriClashAwareName(element.toClashedName()))
+                    else -> null
+                } as? T?
+            }
         }
-    }
 
     open fun pageForFunction(f: DFunction) = MemberPageNode(f.nameAfterClash(), contentForFunction(f), setOf(f.dri), f)
 
-    open fun pageForProperty(p: DProperty): MemberPageNode? = MemberPageNode(p.nameAfterClash(), contentForProperty(p), setOf(p.dri), p)
+    open fun pageForProperty(p: DProperty): MemberPageNode? =
+        MemberPageNode(p.nameAfterClash(), contentForProperty(p), setOf(p.dri), p)
 
-    private fun <T> T.isInherited(): Boolean where T: Documentable, T: WithExtraProperties<T> =
+    private fun <T> T.isInherited(): Boolean where T : Documentable, T : WithExtraProperties<T> =
         sourceSets.all { sourceSet -> extra[InheritedMember]?.isInherited(sourceSet) == true }
 
     private val WithScope.filteredFunctions: List<DFunction>
@@ -99,7 +102,7 @@ open class DefaultPageCreator(
     private val WithScope.filteredProperties: List<DProperty>
         get() = properties.filterNot { it.isInherited() }
 
-    private fun <T> Collection<T>.splitInherited(): Pair<List<T>, List<T>> where T: Documentable, T: WithExtraProperties<T> =
+    private fun <T> Collection<T>.splitInherited(): Pair<List<T>, List<T>> where T : Documentable, T : WithExtraProperties<T> =
         partition { it.isInherited() }
 
     protected open fun contentForModule(m: DModule) = contentBuilder.contentFor(m) {
@@ -185,7 +188,12 @@ open class DefaultPageCreator(
                         .groupBy({ it.second }, { it.first }).map { (classlike, platforms) ->
                             val label = classlike.classNames?.substringBeforeLast(".") ?: classlike.toString()
                                 .also { logger.warn("No class name found for DRI $classlike") }
-                            buildGroup(setOf(classlike), platforms.toSet(), ContentKind.Inheritors, extra = mainExtra + SymbolAnchorHint(label, ContentKind.Inheritors)) {
+                            buildGroup(
+                                setOf(classlike),
+                                platforms.toSet(),
+                                ContentKind.Inheritors,
+                                extra = mainExtra + SymbolAnchorHint(label, ContentKind.Inheritors)
+                            ) {
                                 link(label, classlike)
                             }
                         },
@@ -268,7 +276,12 @@ open class DefaultPageCreator(
                     styles = emptySet()
                 ) {
                     link(it.name, it.dri)
-                    sourceSetDependentHint(it.dri, it.sourceSets.toSet(), kind = ContentKind.SourceSetDependentHint, extra = PropertyContainer.empty<ContentNode>()) {
+                    sourceSetDependentHint(
+                        it.dri,
+                        it.sourceSets.toSet(),
+                        kind = ContentKind.SourceSetDependentHint,
+                        extra = PropertyContainer.empty<ContentNode>()
+                    ) {
                         +buildSignature(it)
                         contentForBrief(it)
                     }
@@ -322,13 +335,12 @@ open class DefaultPageCreator(
             if (unnamedTags.isNotEmpty()) {
                 platforms.forEach { platform ->
                     unnamedTags[platform]?.let { tags ->
-                        if(tags.isNotEmpty()){
-                            tags.groupBy { it::class }.forEach {
-                                (_, sameCategoryTags) ->
-                                    group(sourceSets = setOf(platform), styles = emptySet()) {
-                                        header(4, sameCategoryTags.first().toHeaderString())
-                                        sameCategoryTags.forEach { comment(it.root) }
-                                    }
+                        if (tags.isNotEmpty()) {
+                            tags.groupBy { it::class }.forEach { (_, sameCategoryTags) ->
+                                group(sourceSets = setOf(platform), styles = emptySet()) {
+                                    header(4, sameCategoryTags.first().toHeaderString())
+                                    sameCategoryTags.forEach { comment(it.root) }
+                                }
                             }
                         }
                     }
@@ -362,18 +374,18 @@ open class DefaultPageCreator(
                         val receiver = tags.withTypeUnnamed<Receiver>()
                         val params = tags.withTypeNamed<Param>()
                         table(kind = ContentKind.Parameters) {
-                            platforms.flatMap { platform ->
+                            platforms.forEach { platform ->
                                 val possibleFallbacks = d.getPossibleFallbackSourcesets(platform)
-                                val receiverRow = (receiver[platform] ?: receiver.fallback(possibleFallbacks))?.let {
-                                    buildGroup(sourceSets = setOf(platform), kind = ContentKind.Parameters) {
+                                (receiver[platform] ?: receiver.fallback(possibleFallbacks))?.let {
+                                    row(sourceSets = setOf(platform), kind = ContentKind.Parameters) {
                                         text("<receiver>", styles = mainStyles + ContentStyle.RowTitle)
                                         comment(it.root)
                                     }
                                 }
 
-                                val paramRows = params.mapNotNull { (_, param) ->
+                                params.mapNotNull { (_, param) ->
                                     (param[platform] ?: param.fallback(possibleFallbacks))?.let {
-                                        buildGroup(sourceSets = setOf(platform), kind = ContentKind.Parameters) {
+                                        row(sourceSets = setOf(platform), kind = ContentKind.Parameters) {
                                             text(
                                                 it.name,
                                                 kind = ContentKind.Parameters,
@@ -383,8 +395,6 @@ open class DefaultPageCreator(
                                         }
                                     }
                                 }
-
-                                listOfNotNull(receiverRow) + paramRows
                             }
                         }
                     }
@@ -402,14 +412,14 @@ open class DefaultPageCreator(
                     sourceSetDependentHint(sourceSets = platforms.toSet(), kind = ContentKind.SourceSetDependentHint) {
                         val seeAlsoTags = tags.withTypeNamed<See>()
                         table(kind = ContentKind.Sample) {
-                            platforms.flatMap { platform ->
+                            platforms.forEach { platform ->
                                 val possibleFallbacks = d.getPossibleFallbackSourcesets(platform)
-                                seeAlsoTags.mapNotNull { (_, see) ->
+                                seeAlsoTags.forEach { (_, see) ->
                                     (see[platform] ?: see.fallback(possibleFallbacks))?.let {
-                                        buildGroup(
+                                        row(
                                             sourceSets = setOf(platform),
                                             kind = ContentKind.Comment,
-                                            styles = mainStyles + ContentStyle.RowTitle,
+                                            styles = this@sourceSetDependentHint.mainStyles + ContentStyle.RowTitle,
                                         ) {
                                             if (it.address != null) link(
                                                 it.name,
@@ -427,6 +437,7 @@ open class DefaultPageCreator(
                 }
             }
         }
+
         fun DocumentableContentBuilder.contentForThrows() {
             val throws = tags.withTypeNamed<Throws>()
             if (throws.isNotEmpty()) {
@@ -434,9 +445,9 @@ open class DefaultPageCreator(
                 sourceSetDependentHint(sourceSets = platforms.toSet(), kind = ContentKind.SourceSetDependentHint) {
                     platforms.forEach { sourceset ->
                         table(kind = ContentKind.Main, sourceSets = setOf(sourceset)) {
-                            throws.entries.mapNotNull { entry ->
+                            throws.entries.forEach { entry ->
                                 entry.value[sourceset]?.let { throws ->
-                                    buildGroup(sourceSets = setOf(sourceset)) {
+                                    row(sourceSets = setOf(sourceset)) {
                                         group(styles = mainStyles + ContentStyle.RowTitle) {
                                             throws.exceptionAddress?.let {
                                                 link(text = entry.key, address = it)
@@ -492,7 +503,7 @@ open class DefaultPageCreator(
         documentable.sourceSets.forEach { sourceSet ->
             documentable.documentation[sourceSet]?.children?.firstOrNull()?.root?.let {
                 group(sourceSets = setOf(sourceSet), kind = ContentKind.BriefComment) {
-                    if(documentable.hasSeparatePage) firstSentenceComment(it)
+                    if (documentable.hasSeparatePage) firstSentenceComment(it)
                     else comment(it)
                 }
             }
@@ -541,7 +552,12 @@ open class DefaultPageCreator(
         ContentKind.Functions,
         extra = mainExtra + SimpleAttr.header(name)
     )
-    private fun DocumentableContentBuilder.propertiesBlock(name: String, list: Collection<DProperty>, sourceSets: Set<DokkaSourceSet>) {
+
+    private fun DocumentableContentBuilder.propertiesBlock(
+        name: String,
+        list: Collection<DProperty>,
+        sourceSets: Set<DokkaSourceSet>
+    ) {
         block(
             name,
             2,
@@ -573,23 +589,27 @@ open class DefaultPageCreator(
                     // This hacks displaying actual typealias signatures along classlike ones
                     .mapValues { if (it.value.any { it is DClasslike }) it.value.filter { it !is DTypeAlias } else it.value }
                     .toSortedMap(compareBy(nullsLast(String.CASE_INSENSITIVE_ORDER)) { it })
-                    .map { (elementName, elements) -> // This groupBy should probably use LocationProvider
-                        buildGroup(
+                    .forEach { (elementName, elements) -> // This groupBy should probably use LocationProvider
+                        row(
                             dri = elements.map { it.dri }.toSet(),
                             sourceSets = elements.flatMap { it.sourceSets }.toSet(),
                             kind = kind,
                             styles = emptySet(),
                             extra = elementName?.let { name -> extra + SymbolAnchorHint(name, kind) } ?: extra
-                    ) {
-                        link(elementName.orEmpty(), elements.first().dri, kind = kind)
-                        divergentGroup(
-                            ContentDivergentGroup.GroupID(name),
-                            elements.map { it.dri }.toSet(),
-                            kind = kind,
-                            extra = extra
+                        ) {
+                            link(elementName.orEmpty(), elements.first().dri, kind = kind)
+                            divergentGroup(
+                                ContentDivergentGroup.GroupID(name),
+                                elements.map { it.dri }.toSet(),
+                                kind = kind,
+                                extra = extra
                             ) {
                                 elements.map {
-                                    instance(setOf(it.dri), it.sourceSets.toSet(), extra = PropertyContainer.withAll(SymbolAnchorHint(it.name ?: "", kind))) {
+                                    instance(
+                                        setOf(it.dri),
+                                        it.sourceSets.toSet(),
+                                        extra = PropertyContainer.withAll(SymbolAnchorHint(it.name ?: "", kind))
+                                    ) {
                                         divergent(extra = PropertyContainer.empty()) {
                                             group {
                                                 +buildSignature(it)
@@ -625,6 +645,6 @@ open class DefaultPageCreator(
     private val Documentable.hasSeparatePage: Boolean
         get() = this !is DTypeAlias
 
-    private fun <T: Documentable> T.nameAfterClash(): String =
+    private fun <T : Documentable> T.nameAfterClash(): String =
         ((this as? WithExtraProperties<out Documentable>)?.extra?.get(DriClashAwareName)?.value ?: name).orEmpty()
 }
