@@ -69,10 +69,12 @@ class AndroidAutoConfigurationTest {
 
         dokkaTasks.flatMap { it.dokkaSourceSets }.forEach { sourceSet ->
             /*
+
             There is no better way of checking for empty classpath at the moment (without resolving dependencies).
             We assume, that an empty classpath can be resolved
             We assume, that a non-empty classpath will not be able to resolve (no repositories defined)
              */
+
             assertFailsWith<ResolveException> { sourceSet.classpath.files }
         }
     }

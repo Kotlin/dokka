@@ -6,19 +6,21 @@ import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.gfm.GfmPlugin
 import org.jetbrains.dokka.gfm.location.MarkdownLocationProvider
 import org.jetbrains.dokka.plugability.DokkaPlugin
+import org.jetbrains.dokka.templates.TemplatingPlugin
 
 class GfmTemplateProcessingPlugin : DokkaPlugin() {
 
     private val allModulesPagePlugin by lazy { plugin<AllModulesPagePlugin>() }
+    private val templateProcessingPlugin by lazy { plugin<TemplatingPlugin>() }
 
     private val gfmPlugin by lazy { plugin<GfmPlugin>() }
 
     private val dokkaBase by lazy { plugin<DokkaBase>()}
 
     val gfmTemplateProcessingStrategy by extending {
-        (allModulesPagePlugin.templateProcessingStrategy
+        (templateProcessingPlugin.templateProcessingStrategy
                 providing ::GfmTemplateProcessingStrategy
-                order { before(allModulesPagePlugin.fallbackProcessingStrategy) })
+                order { before(templateProcessingPlugin.fallbackProcessingStrategy) })
     }
 
     val gfmLocationProvider by extending {

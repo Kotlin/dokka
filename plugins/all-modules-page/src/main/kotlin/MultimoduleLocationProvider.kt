@@ -1,7 +1,6 @@
 package org.jetbrains.dokka.allModulesPage
 
 import org.jetbrains.dokka.allModulesPage.MultimodulePageCreator.Companion.MULTIMODULE_PACKAGE_PLACEHOLDER
-import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.resolvers.local.DokkaBaseLocationProvider
 import org.jetbrains.dokka.base.resolvers.local.LocationProviderFactory
 import org.jetbrains.dokka.links.DRI
