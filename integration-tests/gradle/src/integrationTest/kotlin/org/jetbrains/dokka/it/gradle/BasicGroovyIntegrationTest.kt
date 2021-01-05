@@ -65,7 +65,7 @@ class BasicGroovyIntegrationTest(override val versions: BuildVersions) : Abstrac
         val moduleOutputDir = File(this, "it-basic-groovy")
         assertTrue(moduleOutputDir.isDirectory, "Missing module directory")
 
-        val moduleIndexHtml = File(moduleOutputDir, "index.html")
+        val moduleIndexHtml = File(this, "index.html")
         assertTrue(moduleIndexHtml.isFile, "Missing module index.html")
 
         val modulePackageDir = File(moduleOutputDir, "it.basic")

@@ -800,11 +800,7 @@ open class HtmlRenderer(
                 }
             }
         } else a {
-            href = pathToRoot.split("/")
-                .filter { it.isNotBlank() }
-                .drop(1).takeIf { it.isNotEmpty() }
-                ?.joinToString(separator = "/", postfix = "/index.html")
-                ?: "index.html"
+            href = pathToRoot + "index.html"
             div {
                 id = "logo"
             }
