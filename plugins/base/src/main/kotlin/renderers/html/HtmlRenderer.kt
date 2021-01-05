@@ -1,8 +1,5 @@
 package org.jetbrains.dokka.base.renderers.html
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.html.*
 import kotlinx.html.stream.createHTML
 import org.jetbrains.dokka.DokkaSourceSetID
@@ -644,17 +641,12 @@ open class HtmlRenderer(
     ) = locationProvider.resolve(to, platforms.toSet(), from)?.let { buildLink(it, block) }
         ?: run { context.logger.error("Cannot resolve path for `$to` from `$from`"); block() }
 
-    override fun buildError(node: ContentNode) {
-        context.logger.error("Unknown ContentNode type: $node")
-    }
+    override fun buildError(node: ContentNode) = context.logger.error("Unknown ContentNode type: $node")
 
-    override fun FlowContent.buildNewLine() {
-        br()
-    }
+    override fun FlowContent.buildNewLine() = br()
 
     override fun FlowContent.buildLink(address: String, content: FlowContent.() -> Unit) =
         a(href = address, block = content)
-
 
     override fun FlowContent.buildDRILink(
         node: ContentDRILink,
@@ -664,8 +656,15 @@ open class HtmlRenderer(
         buildLink(address) {
             buildText(node.children, pageContext, sourceSetRestriction)
         }
-    } ?: templateCommand(ResolveLinkCommand(node.address)) {
-        buildText(node.children, pageContext, sourceSetRestriction)
+    } ?: if (isPartial) {
+        templateCommand(ResolveLinkCommand(node.address)) {
+            buildText(node.children, pageContext, sourceSetRestriction)
+        }
+    } else {
+        span {
+            attributes["data-unresolved-link"] = node.address.toString().htmlEscape()
+            buildText(node.children, pageContext, sourceSetRestriction)
+        }
     }
 
     override fun FlowContent.buildCodeBlock(
@@ -823,6 +822,7 @@ open class HtmlRenderer(
             (locationProvider as DokkaBaseLocationProvider).anchorForDCI(DCI(dci.dri, contentKind), sourceSets)
         }
 
+    private val isPartial = context.configuration.delayTemplateSubstitution
 }
 
 fun List<SimpleAttr>.joinAttr() = joinToString(" ") { it.extraKey + "=" + it.extraValue }
