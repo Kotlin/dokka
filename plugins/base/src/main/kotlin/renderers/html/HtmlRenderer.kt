@@ -11,6 +11,7 @@ import org.jetbrains.dokka.base.renderers.isImage
 import org.jetbrains.dokka.base.renderers.pageId
 import org.jetbrains.dokka.base.resolvers.anchors.SymbolAnchorHint
 import org.jetbrains.dokka.base.resolvers.local.DokkaBaseLocationProvider
+import org.jetbrains.dokka.base.templating.InsertTemplateExtra
 import org.jetbrains.dokka.base.templating.PathToRootSubstitutionCommand
 import org.jetbrains.dokka.base.templating.ResolveLinkCommand
 import org.jetbrains.dokka.links.DRI
@@ -107,6 +108,7 @@ open class HtmlRenderer(
             node.hasStyle(TextStyle.Paragraph) -> p(additionalClasses) { childrenCallback() }
             node.hasStyle(TextStyle.Block) -> div(additionalClasses) { childrenCallback() }
             node.isAnchorable -> buildAnchor(node.anchor!!, node.anchorLabel!!, node.sourceSetsFilters) { childrenCallback() }
+            node.extra[InsertTemplateExtra] != null -> node.extra[InsertTemplateExtra]?.let { templateCommand(it.command) } ?: Unit
             else -> childrenCallback()
         }
     }
@@ -800,11 +802,7 @@ open class HtmlRenderer(
                 }
             }
         } else a {
-            href = pathToRoot.split("/")
-                .filter { it.isNotBlank() }
-                .drop(1).takeIf { it.isNotEmpty() }
-                ?.joinToString(separator = "/", postfix = "/index.html")
-                ?: "index.html"
+            href = pathToRoot + "index.html"
             div {
                 id = "logo"
             }

@@ -8,6 +8,7 @@ import org.jetbrains.dokka.base.parsers.moduleAndPackage.ModuleAndPackageDocumen
 import org.jetbrains.dokka.base.parsers.moduleAndPackage.parseModuleAndPackageDocumentation
 import org.jetbrains.dokka.base.parsers.moduleAndPackage.parseModuleAndPackageDocumentationFragments
 import org.jetbrains.dokka.base.resolvers.anchors.SymbolAnchorHint
+import org.jetbrains.dokka.base.templating.InsertTemplateExtra
 import org.jetbrains.dokka.base.transformers.pages.comments.DocTagToContentConverter
 import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder
 import org.jetbrains.dokka.links.DRI
@@ -17,10 +18,14 @@ import org.jetbrains.dokka.model.doc.P
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
+import org.jetbrains.dokka.plugability.configuration
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.transformers.pages.PageCreator
 import org.jetbrains.dokka.utilities.DokkaLogger
+import org.jetbrains.dokka.versioning.ReplaceVersionsCommand
+import org.jetbrains.dokka.versioning.VersioningConfiguration
+import org.jetbrains.dokka.versioning.VersioningPlugin
 
 class MultimodulePageCreator(
     private val context: DokkaContext,
@@ -39,6 +44,11 @@ class MultimodulePageCreator(
             kind = ContentKind.Cover,
             sourceSets = sourceSetData
         ) {
+            /* The line below checks if there is a provided configuration for versioning.
+             If not, we are skipping the template for inserting versions navigation */
+            configuration<VersioningPlugin, VersioningConfiguration>(context)?.let {
+                group(extra = PropertyContainer.withAll(InsertTemplateExtra(ReplaceVersionsCommand))) { }
+            }
             header(2, "All modules:")
             table(styles = setOf(MultimoduleTable)) {
                 modules.forEach { module ->

@@ -1,10 +1,6 @@
 package org.jetbrains.dokka.gfm.templateProcessing
 
-import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
 import org.jetbrains.dokka.allModulesPage.AllModulesPagePlugin
-import org.jetbrains.dokka.allModulesPage.templates.TemplateProcessingStrategy
 import org.jetbrains.dokka.base.templating.parseJson
 import org.jetbrains.dokka.gfm.GfmCommand
 import org.jetbrains.dokka.gfm.GfmCommand.Companion.command
@@ -15,6 +11,7 @@ import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.querySingle
+import org.jetbrains.dokka.templates.TemplateProcessingStrategy
 import java.io.BufferedWriter
 import java.io.File
 
@@ -23,33 +20,30 @@ class GfmTemplateProcessingStrategy(val context: DokkaContext) : TemplateProcess
     private val externalModuleLinkResolver =
         context.plugin<AllModulesPagePlugin>().querySingle { externalModuleLinkResolver }
 
-    override suspend fun process(input: File, output: File): Boolean = coroutineScope {
+    override fun process(input: File, output: File): Boolean =
         if (input.extension == "md") {
-            launch(IO) {
-                input.bufferedReader().use { reader ->
-                    //This should also work whenever we have a misconfigured dokka and output is pointing to the input
-                    //the same way that html processing does
-                    if (input.absolutePath == output.absolutePath) {
-                        context.logger.info("Attempting to process GFM templates in place for directory $input, this suggests miss configuration.")
-                        val lines = reader.readLines()
-                        output.bufferedWriter().use { writer ->
-                            lines.forEach { line ->
-                                writer.processAndWrite(line, output)
-                            }
-
+            input.bufferedReader().use { reader ->
+                //This should also work whenever we have a misconfigured dokka and output is pointing to the input
+                //the same way that html processing does
+                if (input.absolutePath == output.absolutePath) {
+                    context.logger.info("Attempting to process GFM templates in place for directory $input, this suggests miss configuration.")
+                    val lines = reader.readLines()
+                    output.bufferedWriter().use { writer ->
+                        lines.forEach { line ->
+                            writer.processAndWrite(line, output)
                         }
-                    } else {
-                        output.bufferedWriter().use { writer ->
-                            reader.lineSequence().forEach { line ->
-                                writer.processAndWrite(line, output)
-                            }
+
+                    }
+                } else {
+                    output.bufferedWriter().use { writer ->
+                        reader.lineSequence().forEach { line ->
+                            writer.processAndWrite(line, output)
                         }
                     }
                 }
             }
             true
         } else false
-    }
 
     private fun BufferedWriter.processAndWrite(line: String, output: File) =
         processLine(line, output).run {
