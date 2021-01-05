@@ -4,9 +4,6 @@ import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.plugability.configuration
 import org.jetbrains.dokka.templates.TemplatingPlugin
-import versioning.ByConfigurationVersionOrdering
-import versioning.SemVerVersionOrdering
-import versioning.VersionsOrdering
 
 class VersioningPlugin : DokkaPlugin() {
 
