@@ -36,7 +36,7 @@ internal fun findClosestDocComment(element: PsiNamedElement, logger: DokkaLogger
             return superMethodDocumentation.single()
         }
 
-        logger.warn(
+        logger.debug(
             "Conflicting documentation for ${DRI.from(element)}" +
                     "${superMethods.map { DRI.from(it) }}"
         )
