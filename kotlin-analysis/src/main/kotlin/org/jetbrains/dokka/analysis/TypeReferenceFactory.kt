@@ -9,6 +9,7 @@ import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
 import org.jetbrains.kotlin.resolve.scopes.receivers.ExtensionReceiver
 import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.TypeProjection
+import org.jetbrains.kotlin.types.UnresolvedType
 
 fun TypeReference.Companion.from(d: ReceiverParameterDescriptor): TypeReference? =
     when (d.value) {
@@ -33,8 +34,14 @@ private fun TypeReference.Companion.fromPossiblyRecursive(t: KotlinType, paramTr
         ?.let(::RecursiveType)
         ?: from(t, paramTrace)
 
-private fun TypeReference.Companion.from(t: KotlinType, paramTrace: List<KotlinType>): TypeReference =
-    when (val d = t.constructor.declarationDescriptor) {
+private fun TypeReference.Companion.from(t: KotlinType, paramTrace: List<KotlinType>): TypeReference {
+    if (t is UnresolvedType) {
+        println("Unresolved type with presentable name: ${t.presentableName}")
+        return TypeConstructor(
+            t.presentableName, t.arguments.map { fromProjection(it, paramTrace) }
+        )
+    }
+    return when (val d = t.constructor.declarationDescriptor) {
         is TypeParameterDescriptor -> TypeParam(
             d.upperBounds.map { fromPossiblyNullable(it, paramTrace + t) }
         )
@@ -43,6 +50,7 @@ private fun TypeReference.Companion.from(t: KotlinType, paramTrace: List<KotlinT
             t.arguments.map { fromProjection(it, paramTrace) }
         )
     }
+}
 
 private fun TypeReference.Companion.fromProjection(t: TypeProjection, paramTrace: List<KotlinType>): TypeReference =
     if (t.isStarProjection) {
