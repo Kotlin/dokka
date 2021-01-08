@@ -1,5 +1,9 @@
 # Configuration specific to HTML format
 
+!!! important
+    Concepts specified below apply only to configuration of the Base Plugin (that contains Html format) 
+    and needs to be applied via pluginsConfiguration and not on the root one.
+
 ## Modifying assets
 
 It is possible to change static assets that are used to generate dokka's HTML. 
@@ -18,6 +22,16 @@ Dokka uses 3 stylesheets:
 
 User can choose to add or override those files. 
 Resources will be overridden when in `pluginConfiguration` block there is a resource with the same name.
+
+## Modifying footer
+
+Dokka supports custom messages in the footer via `footerMessage` string property on base plugin configuration. 
+Keep in mind that this value will be pased exactly to the output html, so it has to be valid and escaped correctly.
+
+## Separating inherited members
+
+By setting a boolean property `separateInheritedMembers` dokka will split inherited members (like functions, properties etc.) 
+from ones declared in viewed class. Separated members will have it's own tabs on the page.
 
 ### Examples
 In order to override a logo and style it accordingly a simple css file named `logo-styles.css` is needed:
