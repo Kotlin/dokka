@@ -6,6 +6,7 @@ plugins {
     kotlin("jvm") apply false
     id("java")
     id("org.jetbrains.dokka") version "1.4.10.2"
+    id("org.jmailen.kotlinter") version "3.3.0"
 }
 
 val dokka_version: String by project
@@ -45,6 +46,7 @@ subprojects {
         plugin("java")
         plugin("signing")
         plugin("org.jetbrains.dokka")
+        plugin("org.jmailen.kotlinter")
     }
 
     // Gradle metadata
@@ -69,6 +71,13 @@ subprojects {
             dependsOn(deleteDokkaOutputDir, dokkaHtml)
             archiveClassifier.set("javadoc")
             from(dokkaOutputDir)
+        }
+
+        kotlinter {
+            ignoreFailures = true
+            reporters = arrayOf("checkstyle", "plain")
+            experimentalRules = true
+            disabledRules = arrayOf("no-wildcard-imports", "experimental:spacing-between-declarations-with-annotations")
         }
     }
 }
