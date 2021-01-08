@@ -57,7 +57,7 @@ class MultimodulePageCreator(
                     val dci = DCI(setOf(dri), ContentKind.Comment)
                     val extraWithAnchor = PropertyContainer.withAll(SymbolAnchorHint(module.name, ContentKind.Main))
                     row(setOf(dri), emptySet(), styles = emptySet(), extra = extraWithAnchor) {
-                        linkNode(module.name, dri, DCI(setOf(dri), ContentKind.Main), extra = extraWithAnchor)
+                        +linkNode(module.name, dri, DCI(setOf(dri), ContentKind.Main), extra = extraWithAnchor)
                         +ContentGroup(
                             children =
                             if (displayedModuleDocumentation != null)
