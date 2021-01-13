@@ -9,7 +9,7 @@ import org.jsoup.nodes.Element
 import java.io.File
 
 interface TemplateProcessor {
-    fun process()
+    fun process(): TemplatingResult
 }
 
 interface TemplateProcessingStrategy {
@@ -19,38 +19,50 @@ interface TemplateProcessingStrategy {
 
 class DefaultTemplateProcessor(
     private val context: DokkaContext,
-): TemplateProcessor {
+) : TemplateProcessor {
 
-    private val strategies: List<TemplateProcessingStrategy> = context.plugin<TemplatingPlugin>().query { templateProcessingStrategy }
+    private val strategies: List<TemplateProcessingStrategy> =
+        context.plugin<TemplatingPlugin>().query { templateProcessingStrategy }
 
     override fun process() = runBlocking(Dispatchers.Default) {
-        coroutineScope {
-            context.configuration.modules.forEach {
-                launch {
-                    it.sourceOutputDirectory.visit(context.configuration.outputDir.resolve(it.relativePathToOutputDirectory))
-                }
+        val templatingResult = coroutineScope {
+            context.configuration.modules.foldRight(TemplatingResult()) { module, acc ->
+                acc + module.sourceOutputDirectory.visit(context.configuration.outputDir.resolve(module.relativePathToOutputDirectory))
             }
         }
         strategies.map { it.finish(context.configuration.outputDir) }
-        Unit
+        templatingResult
     }
 
-    private suspend fun File.visit(target: File): Unit = coroutineScope {
-        val source = this@visit
-        if (source.isDirectory) {
-           target.mkdir()
-           source.list()?.forEach {
-               launch { source.resolve(it).visit(target.resolve(it)) }
-           }
-        } else {
-            strategies.first { it.process(source, target) }
+    private suspend fun File.visit(target: File, acc: TemplatingResult = TemplatingResult()): TemplatingResult =
+        coroutineScope {
+            val source = this@visit
+            if (source.isDirectory) {
+                target.mkdir()
+                val files = source.list().orEmpty()
+                val accWithSelf =
+                    if (files.contains("package-list") && files.size != 1) acc.copy(modules = acc.modules + source.name)
+                    else acc
+
+                files.foldRight(accWithSelf) { path, acc ->
+                    withContext(Dispatchers.Default) {
+                        source.resolve(path).visit(target.resolve(path), acc)
+                    }
+                }
+            } else {
+                strategies.first { it.process(source, target) }
+                acc
+            }
         }
-    }
 }
 
-data class TemplatingContext<out T: Command>(
+data class TemplatingContext<out T : Command>(
     val input: File,
     val output: File,
     val element: Element,
     val command: T,
 )
+
+data class TemplatingResult(val modules: List<String> = emptyList()) {
+    operator fun plus(lhs: TemplatingResult): TemplatingResult = TemplatingResult((modules + lhs.modules).distinct())
+}

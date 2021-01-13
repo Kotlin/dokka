@@ -9,6 +9,8 @@ import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.query
 import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.templates.TemplatingPlugin
+import org.jetbrains.dokka.templates.TemplatingResult
+import org.jetbrains.dokka.transformers.pages.CreationContext
 import org.jetbrains.dokka.versioning.VersioningPlugin
 
 class AllModulesPageGeneration(private val context: DokkaContext) : Generation {
@@ -18,9 +20,11 @@ class AllModulesPageGeneration(private val context: DokkaContext) : Generation {
     private val versioningPlugin by lazy { context.plugin<VersioningPlugin>() }
 
     override fun Timer.generate() {
+        report("Processing submodules")
+        val generationContext = processSubmodules()
 
         report("Creating all modules page")
-        val pages = createAllModulesPage()
+        val pages = createAllModulesPage(generationContext)
 
         report("Copy previous documentation")
         handlePreviousDocs()
@@ -30,16 +34,14 @@ class AllModulesPageGeneration(private val context: DokkaContext) : Generation {
 
         report("Rendering")
         render(transformedPages)
-
-        report("Processing submodules")
-        processSubmodules()
     }
 
     override val generationName = "index page for project"
 
     fun handlePreviousDocs() = versioningPlugin.querySingle { versioningHandler }.invoke()
 
-    fun createAllModulesPage() = allModulesPagePlugin.querySingle { allModulesPageCreator }.invoke()
+    fun createAllModulesPage(allModulesContext: DefaultAllModulesContext) =
+        allModulesPagePlugin.querySingle { allModulesPageCreator }.invoke(allModulesContext)
 
     fun transformAllModulesPage(pages: RootPageNode) =
         allModulesPagePlugin.query { allModulesPageTransformer }.fold(pages) { acc, t -> t(acc) }
@@ -49,5 +51,9 @@ class AllModulesPageGeneration(private val context: DokkaContext) : Generation {
     }
 
     fun processSubmodules() =
-        templatingPlugin.querySingle { templateProcessor }.process()
+        templatingPlugin.querySingle { templateProcessor }.process().let { DefaultAllModulesContext(it) }
+
+    data class DefaultAllModulesContext(val nonEmptyModules: List<String>) : CreationContext {
+        constructor(templating: TemplatingResult) : this(templating.modules)
+    }
 }
