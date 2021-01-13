@@ -50,7 +50,10 @@ open class DokkaPlugin : Plugin<Project> {
         }
 
         if (project.parent != null) {
-            project.tasks.register<DokkaTaskPartial>("${name}Partial") {
+            val partialName = "${name}Partial"
+            project.maybeCreateDokkaPluginConfiguration(partialName)
+            project.maybeCreateDokkaRuntimeConfiguration(partialName)
+            project.tasks.register<DokkaTaskPartial>(partialName) {
                 configuration()
             }
         }
