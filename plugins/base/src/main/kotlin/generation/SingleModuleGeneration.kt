@@ -34,16 +34,16 @@ class SingleModuleGeneration(private val context: DokkaContext) : Generation {
         val documentationModel = mergeDocumentationModels(transformedDocumentationBeforeMerge)
 
         report("Transforming documentation model after merging")
-        val transformedDocumentation = transformDocumentationModelAfterMerge(documentationModel)
+        val transformedDocumentation = documentationModel?.let { transformDocumentationModelAfterMerge(it) }
 
         report("Creating pages")
-        val pages = createPages(transformedDocumentation)
+        val pages = transformedDocumentation?.let { createPages(it) }
 
         report("Transforming pages")
-        val transformedPages = transformPages(pages)
+        val transformedPages = pages?.let { transformPages(it) }
 
         report("Rendering")
-        render(transformedPages)
+        transformedPages?.let { render(it) }
 
         reportAfterRendering()
     }

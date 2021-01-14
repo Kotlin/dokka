@@ -34,6 +34,12 @@ class AllModulesPageGeneration(private val context: DokkaContext) : Generation {
 
         report("Rendering")
         render(transformedPages)
+
+        report("Processing multimodule")
+        processMultiModule(transformedPages)
+
+        report("Finish submodule processing")
+        finishProcessingSubmodules()
     }
 
     override val generationName = "index page for project"
@@ -51,7 +57,15 @@ class AllModulesPageGeneration(private val context: DokkaContext) : Generation {
     }
 
     fun processSubmodules() =
-        templatingPlugin.querySingle { templateProcessor }.process().let { DefaultAllModulesContext(it) }
+        templatingPlugin.querySingle { submoduleTemplateProcessor }
+            .process(context.configuration.modules)
+            .let { DefaultAllModulesContext(it) }
+
+    fun processMultiModule(root: RootPageNode) =
+        templatingPlugin.querySingle { multimoduleTemplateProcessor }.process(root)
+
+    fun finishProcessingSubmodules() =
+        templatingPlugin.query { templateProcessingStrategy }.forEach { it.finish(context.configuration.outputDir) }
 
     data class DefaultAllModulesContext(val nonEmptyModules: List<String>) : CreationContext {
         constructor(templating: TemplatingResult) : this(templating.modules)
