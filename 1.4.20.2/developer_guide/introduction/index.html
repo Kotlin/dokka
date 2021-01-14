@@ -1,0 +1,793 @@
+
+
+
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      <meta http-equiv="x-ua-compatible" content="ie=edge">
+      
+        <meta name="description" content="Dokka is a documentation engine for Kotlin, performing the same function as javadoc for Java">
+      
+      
+        <link rel="canonical" href="https://github.com/Kotlin/dokka/1.4.20.2/developer_guide/introduction/">
+      
+      
+        <meta name="author" content="Jetbrains">
+      
+      
+        <meta name="lang:clipboard.copy" content="Copy to clipboard">
+      
+        <meta name="lang:clipboard.copied" content="Copied to clipboard">
+      
+        <meta name="lang:search.language" content="en">
+      
+        <meta name="lang:search.pipeline.stopwords" content="True">
+      
+        <meta name="lang:search.pipeline.trimmer" content="True">
+      
+        <meta name="lang:search.result.none" content="No matching documents">
+      
+        <meta name="lang:search.result.one" content="1 matching document">
+      
+        <meta name="lang:search.result.other" content="# matching documents">
+      
+        <meta name="lang:search.tokenizer" content="[\s\-]+">
+      
+      <link rel="shortcut icon" href="../../favicon.svg">
+      <meta name="generator" content="mkdocs-1.1, mkdocs-material-4.6.3">
+    
+    
+      
+        <title>Introduction - Dokka</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/application.adb8469c.css">
+      
+      
+    
+    
+      <script src="../../assets/javascripts/modernizr.86422ebf.js"></script>
+    
+    
+      
+        <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}</style>
+      
+    
+    <link rel="stylesheet" href="../../assets/fonts/material-icons.css">
+    
+    
+      <link rel="stylesheet" href="../../dokka_colors.css">
+    
+    
+      
+    
+    
+  </head>
+  
+    <body dir="ltr">
+  
+    <svg class="md-svg">
+      <defs>
+        
+        
+          <svg xmlns="http://www.w3.org/2000/svg" width="416" height="448" viewBox="0 0 416 448" id="__github"><path fill="currentColor" d="M160 304q0 10-3.125 20.5t-10.75 19T128 352t-18.125-8.5-10.75-19T96 304t3.125-20.5 10.75-19T128 256t18.125 8.5 10.75 19T160 304zm160 0q0 10-3.125 20.5t-10.75 19T288 352t-18.125-8.5-10.75-19T256 304t3.125-20.5 10.75-19T288 256t18.125 8.5 10.75 19T320 304zm40 0q0-30-17.25-51T296 232q-10.25 0-48.75 5.25Q229.5 240 208 240t-39.25-2.75Q130.75 232 120 232q-29.5 0-46.75 21T56 304q0 22 8 38.375t20.25 25.75 30.5 15 35 7.375 37.25 1.75h42q20.5 0 37.25-1.75t35-7.375 30.5-15 20.25-25.75T360 304zm56-44q0 51.75-15.25 82.75-9.5 19.25-26.375 33.25t-35.25 21.5-42.5 11.875-42.875 5.5T212 416q-19.5 0-35.5-.75t-36.875-3.125-38.125-7.5-34.25-12.875T37 371.5t-21.5-28.75Q0 312 0 260q0-59.25 34-99-6.75-20.5-6.75-42.5 0-29 12.75-54.5 27 0 47.5 9.875t47.25 30.875Q171.5 96 212 96q37 0 70 8 26.25-20.5 46.75-30.25T376 64q12.75 25.5 12.75 54.5 0 21.75-6.75 42 34 40 34 99.5z"/></svg>
+        
+      </defs>
+    </svg>
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
+    
+      <a href="#guide-to-dokka-plugin-development" tabindex="0" class="md-skip">
+        Skip to content
+      </a>
+    
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid">
+    <div class="md-flex">
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <a href="https://github.com/Kotlin/dokka/1.4.20.2" title="Dokka" aria-label="Dokka" class="md-header-nav__button md-logo">
+          
+            <i class="md-icon"></i>
+          
+        </a>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <label class="md-icon md-icon--menu md-header-nav__button" for="__drawer"></label>
+      </div>
+      <div class="md-flex__cell md-flex__cell--stretch">
+        <div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
+          
+            <span class="md-header-nav__topic">
+              Dokka
+            </span>
+            <span class="md-header-nav__topic">
+              
+                Introduction
+              
+            </span>
+          
+        </div>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        
+          <label class="md-icon md-icon--search md-header-nav__button" for="__search"></label>
+          
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" aria-label="search" name="query" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="query" data-md-state="active">
+      <label class="md-icon md-search__icon" for="__search"></label>
+      <button type="reset" class="md-icon md-search__icon" data-md-component="reset" tabindex="-1">
+        &#xE5CD;
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="result">
+          <div class="md-search-result__meta">
+            Type to start searching
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+        
+      </div>
+      
+        <div class="md-flex__cell md-flex__cell--shrink">
+          <div class="md-header-nav__source">
+            
+
+
+  
+
+<a href="https://github.com/Kotlin/dokka/" title="Go to repository" class="md-source" data-md-source="github">
+  
+    <div class="md-source__icon">
+      <svg viewBox="0 0 24 24" width="24" height="24">
+        <use xlink:href="#__github" width="24" height="24"></use>
+      </svg>
+    </div>
+  
+  <div class="md-source__repository">
+    dokka
+  </div>
+</a>
+          </div>
+        </div>
+      
+    </div>
+  </nav>
+</header>
+    
+    <div class="md-container">
+      
+        
+      
+      
+      <main class="md-main" role="main">
+        <div class="md-main__inner md-grid" data-md-component="container">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    <nav class="md-nav md-nav--primary" data-md-level="0">
+  <label class="md-nav__title md-nav__title--site" for="__drawer">
+    <a href="https://github.com/Kotlin/dokka/1.4.20.2" title="Dokka" class="md-nav__button md-logo">
+      
+        <i class="md-icon"></i>
+      
+    </a>
+    Dokka
+  </label>
+  
+    <div class="md-nav__source">
+      
+
+
+  
+
+<a href="https://github.com/Kotlin/dokka/" title="Go to repository" class="md-source" data-md-source="github">
+  
+    <div class="md-source__icon">
+      <svg viewBox="0 0 24 24" width="24" height="24">
+        <use xlink:href="#__github" width="24" height="24"></use>
+      </svg>
+    </div>
+  
+  <div class="md-source__repository">
+    dokka
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../.." title="Home" class="md-nav__link">
+      Home
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-2" type="checkbox" id="nav-2">
+    
+    <label class="md-nav__link" for="nav-2">
+      User guide
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-2">
+        User guide
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../user_guide/introduction/" title="Introduction" class="md-nav__link">
+      Introduction
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../user_guide/gradle/usage/" title="Gradle" class="md-nav__link">
+      Gradle
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../user_guide/maven/usage/" title="Maven" class="md-nav__link">
+      Maven
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../user_guide/cli/usage/" title="Command line" class="md-nav__link">
+      Command line
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../user_guide/base-specific/frontend/" title="Html frontend" class="md-nav__link">
+      Html frontend
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-3" type="checkbox" id="nav-3" checked>
+    
+    <label class="md-nav__link" for="nav-3">
+      Plugin development
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-3">
+        Plugin development
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="__toc">
+        Introduction
+      </label>
+    
+    <a href="./" title="Introduction" class="md-nav__link md-nav__link--active">
+      Introduction
+    </a>
+    
+      
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#building-dokka" class="md-nav__link">
+    Building Dokka
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    Configuration
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#building-sample-plugin" class="md-nav__link">
+    Building sample plugin
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#registering-extension-point" class="md-nav__link">
+    Registering extension point
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#obtaining-extension-instance" class="md-nav__link">
+    Obtaining extension instance
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
+</nav>
+    
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../data_model/" title="Data model" class="md-nav__link">
+      Data model
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../extension_points/" title="Extension points" class="md-nav__link">
+      Extension points
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-4" type="checkbox" id="nav-4">
+    
+    <label class="md-nav__link" for="nav-4">
+      Community
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-4">
+        Community
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../community/plugins-list/" title="Community plugins" class="md-nav__link">
+      Community plugins
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-5" type="checkbox" id="nav-5">
+    
+    <label class="md-nav__link" for="nav-5">
+      About
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-5">
+        About
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../about/FAQ/" title="FAQ" class="md-nav__link">
+      FAQ
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../about/slack_channel/" title="Slack channel" class="md-nav__link">
+      Slack channel
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#building-dokka" class="md-nav__link">
+    Building Dokka
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    Configuration
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#building-sample-plugin" class="md-nav__link">
+    Building sample plugin
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#registering-extension-point" class="md-nav__link">
+    Registering extension point
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#obtaining-extension-instance" class="md-nav__link">
+    Obtaining extension instance
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/Kotlin/dokka/edit/master/docs/developer_guide/introduction.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
+                
+                
+                <h1 id="guide-to-dokka-plugin-development">Guide to Dokka Plugin development<a class="headerlink" href="#guide-to-dokka-plugin-development" title="Permanent link">&para;</a></h1>
+<h2 id="building-dokka">Building Dokka<a class="headerlink" href="#building-dokka" title="Permanent link">&para;</a></h2>
+<p>Dokka is built with Gradle. To build it, use <code>./gradlew build</code>.
+Alternatively, open the project directory in IntelliJ IDEA and use the IDE to build and run Dokka.</p>
+<p>Here's how to import and configure Dokka in IntelliJ IDEA 2019.3:</p>
+<ul>
+<li>Select "Open" from the IDEA welcome screen, or File &gt; Open if a project is
+  already open</li>
+<li>Select the directory with your clone of Dokka</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>IDEA may have an error after the project is initally opened; it is OK
+to ignore this as the next step will address this error</p>
+</div>
+<ul>
+<li>After IDEA opens the project, select File &gt; New &gt; Module from existing sources
+  and select the <code>build.gradle.kts</code> file from the root directory of your Dokka clone</li>
+<li>After Dokka is loaded into IDEA, open the Gradle tool window (View &gt; Tool
+  Windows &gt; Gradle) and click on the top left "Refresh all Gradle projects"
+  button</li>
+</ul>
+<h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h2>
+<p>Dokka requires configured <code>Kotlin plugin</code> and <code>dokka-core</code> dependency. </p>
+<div class="codehilite"><pre><span></span><code><span class="n">plugins</span> <span class="p">{</span>
+    <span class="n">kotlin</span><span class="p">(</span><span class="s">&quot;jvm&quot;</span><span class="p">)</span> <span class="n">version</span> <span class="s">&quot;&lt;kotlin_version&gt;&quot;</span>
+<span class="p">}</span>
+
+<span class="n">dependencies</span> <span class="p">{</span>
+    <span class="n">compileOnly</span><span class="p">(</span><span class="s">&quot;org.jetbrains.dokka:dokka-core:&lt;dokka_version&gt;&quot;</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="n">tasks</span><span class="p">.</span><span class="n">withType</span><span class="p">&lt;</span><span class="n">KotlinCompile</span><span class="p">&gt;</span> <span class="p">{</span>
+    <span class="n">kotlinOptions</span><span class="p">.</span><span class="n">jvmTarget</span> <span class="p">=</span> <span class="s">&quot;1.8&quot;</span>
+<span class="p">}</span>
+</code></pre></div>
+<h2 id="building-sample-plugin">Building sample plugin<a class="headerlink" href="#building-sample-plugin" title="Permanent link">&para;</a></h2>
+<p>In order to load a plugin into Dokka, your class must extend <code>DokkaPlugin</code> class. A fully qualified name of that class must be placed in a file named <code>org.jetbrains.dokka.plugability.DokkaPlugin</code> under <code>resources/META-INF/services</code>.
+All instances are automatically loaded during Dokka setup using <code>java.util.ServiceLoader</code>.</p>
+<p>Dokka provides a set of entry points, for which user can create their own implementations. They must be delegated using <code>DokkaPlugin.extending(definition: ExtendingDSL.() -&gt; Extension&lt;T, *, *&gt;)</code> function,that returns a delegate <code>ExtensionProvider</code> with supplied definition. </p>
+<p>To create a definition, you can use one of two infix functions<code>with(T)</code> or <code>providing( (DokkaContext) -&gt; T)</code> where <code>T</code> is the type of an extended endpoint. You can also use infix functions:</p>
+<ul>
+<li><code>applyIf( () -&gt; Boolean )</code> to add additional condition specifying whether or not the extension should be used</li>
+<li><code>order((OrderDsl.() -&gt; Unit))</code> to determine if your extension should be used before or after another particular extension for the same endpoint</li>
+<li><code>override( Extension&lt;T, *, *&gt; )</code> to override other extension. Overridden extension won't be loaded and overridding one will inherit ordering from it.</li>
+</ul>
+<p>Following sample provides custom translator object as a <code>DokkaCore.sourceToDocumentableTranslator</code></p>
+<div class="codehilite"><pre><span></span><code><span class="k">package</span> <span class="nn">org.jetbrains.dokka.sample</span>
+
+<span class="k">import</span> <span class="nn">org.jetbrains.dokka.plugability.DokkaPlugin</span>
+
+<span class="k">class</span> <span class="nc">SamplePlugin</span> <span class="p">:</span> <span class="n">DokkaPlugin</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">extension</span> <span class="k">by</span> <span class="n">extending</span> <span class="p">{</span>
+        <span class="n">DokkaCore</span><span class="p">.</span><span class="n">sourceToDocumentableTranslator</span> <span class="n">with</span> <span class="n">CustomSourceToDocumentableTranslator</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">object</span> <span class="nc">CustomSourceToDocumentableTranslator</span><span class="p">:</span> <span class="n">SourceToDocumentableTranslator</span> <span class="p">{</span>
+    <span class="k">override</span> <span class="k">fun</span> <span class="nf">invoke</span><span class="p">(</span><span class="n">sourceSet</span><span class="p">:</span> <span class="n">SourceSetData</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">DokkaContext</span><span class="p">):</span> <span class="n">DModule</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="registering-extension-point">Registering extension point<a class="headerlink" href="#registering-extension-point" title="Permanent link">&para;</a></h3>
+<p>You can register your own extension point using <code>extensionPoint</code> function declared in <code>DokkaPlugin</code> class</p>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="nc">SamplePlugin</span> <span class="p">:</span> <span class="n">DokkaPlugin</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">val</span> <span class="py">extensionPoint</span> <span class="k">by</span> <span class="n">extensionPoint</span><span class="p">&lt;</span><span class="n">SampleExtensionPointInterface</span><span class="p">&gt;()</span>
+<span class="p">}</span>
+
+<span class="k">interface</span> <span class="nc">SampleExtensionPointInterface</span>
+</code></pre></div>
+<h3 id="obtaining-extension-instance">Obtaining extension instance<a class="headerlink" href="#obtaining-extension-instance" title="Permanent link">&para;</a></h3>
+<p>All registered plugins are accessible with <code>DokkaContext.plugin</code> function. All plugins that extends <code>DokkaPlugin</code> can use <code>DokkaPlugin.plugin</code> function, that uses underlying <code>DokkaContext</code> instance. If you want to pass context to your extension, you can obtain it using aforementioned <code>providing</code> infix function.</p>
+<p>With plugin instance obtained, you can browse extensions registered for this plugins' extension points using <code>querySingle</code> and <code>query</code> methods:</p>
+<div class="codehilite"><pre><span></span><code>    <span class="n">context</span><span class="p">.</span><span class="n">plugin</span><span class="p">&lt;</span><span class="n">DokkaBase</span><span class="p">&gt;().</span><span class="n">query</span> <span class="p">{</span> <span class="n">htmlPreprocessors</span> <span class="p">}</span>
+    <span class="n">context</span><span class="p">.</span><span class="n">plugin</span><span class="p">&lt;</span><span class="n">DokkaBase</span><span class="p">&gt;().</span><span class="n">querySingle</span> <span class="p">{</span> <span class="n">samplesTransformer</span> <span class="p">}</span>
+</code></pre></div>
+<p>You can also browse <code>DokkaContext</code> directly, using <code>single</code> and <code>get</code> methods:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="nc">SamplePlugin</span> <span class="p">:</span> <span class="n">DokkaPlugin</span><span class="p">()</span> <span class="p">{</span>
+
+    <span class="k">val</span> <span class="py">extensionPoint</span> <span class="k">by</span> <span class="n">extensionPoint</span><span class="p">&lt;</span><span class="n">SampleExtensionPointInterface</span><span class="p">&gt;()</span>
+    <span class="k">val</span> <span class="py">anotherExtensionPoint</span> <span class="k">by</span> <span class="n">extensionPoint</span><span class="p">&lt;</span><span class="n">AnotherSampleExtensionPointInterface</span><span class="p">&gt;()</span>
+
+    <span class="k">val</span> <span class="py">extension</span> <span class="k">by</span> <span class="n">extending</span> <span class="p">{</span>
+        <span class="n">extensionPoint</span> <span class="n">with</span> <span class="n">SampleExtension</span><span class="p">()</span>
+    <span class="p">}</span>
+
+    <span class="k">val</span> <span class="py">anotherExtension</span> <span class="k">by</span> <span class="n">extending</span> <span class="p">{</span> 
+        <span class="n">anotherExtensionPoint</span> <span class="n">providing</span> <span class="p">{</span> <span class="n">context</span> <span class="p">-&gt;</span>
+            <span class="n">AnotherSampleExtension</span><span class="p">(</span><span class="n">context</span><span class="p">.</span><span class="n">single</span><span class="p">(</span><span class="n">extensionPoint</span><span class="p">))</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">interface</span> <span class="nc">SampleExtensionPointInterface</span>
+<span class="k">interface</span> <span class="nc">AnotherSampleExtensionPointInterface</span>
+
+<span class="k">class</span> <span class="nc">SampleExtension</span><span class="p">:</span> <span class="n">SampleExtensionPointInterface</span>
+<span class="k">class</span> <span class="nc">AnotherSampleExtension</span><span class="p">(</span><span class="n">sampleExtension</span><span class="p">:</span> <span class="n">SampleExtensionPointInterface</span><span class="p">):</span> <span class="n">AnotherSampleExtensionPointInterface</span>
+</code></pre></div>
+                
+                  
+                
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid">
+        
+          <a href="../../user_guide/base-specific/frontend/" title="Html frontend" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
+            </div>
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                Html frontend
+              </span>
+            </div>
+          </a>
+        
+        
+          <a href="../data_model/" title="Data model" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                Data model
+              </span>
+            </div>
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+          <div class="md-footer-copyright__highlight">
+            Copyright &copy; 2020 Jetbrains
+          </div>
+        
+        powered by
+        <a href="https://www.mkdocs.org" target="_blank" rel="noopener">MkDocs</a>
+        and
+        <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+          Material for MkDocs</a>
+      </div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="../../assets/javascripts/application.c33a9706.js"></script>
+      
+      <script>app.initialize({version:"1.1",url:{base:"../.."}})</script>
+      
+        <script src="../../expand_navigation.js"></script>
+      
+    
+  </body>
+</html>
