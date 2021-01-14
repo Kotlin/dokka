@@ -227,7 +227,19 @@ tasks.withType<DokkaTask>().configureEach {
     If you want to share the configuration between source sets, you can use Gradle's `configureEach`
 
 ## Applying plugins
-Dokka plugin creates Gradle configuration for each output format in the form of `dokka${format}Plugin`:
+Dokka allows users to create and use custom plugins. Out of the box it comes with:
+
+| Plugin name    | Applied with                                       | Added tasks  |
+| :------------- | :------------------------------------------------- | :----------- |
+| base           | None, applied by default                           | dokkaHtml    |
+| gfm            | None, applied by default                           | dokkaGfm     |
+| jekyll         | None, applied by default                           | dokkaJekyll  |
+| javadoc        | None, applied by default                           | dokkaJavadoc |
+| kotlin-as-java | `org.jetbrains.dokka:kotlin-as-java-plugin:1.4.10` | None         |
+
+By default, you will get all the plugins except `kotlin-as-java`. There is no need to apply them manually.
+
+In order to apply a plugin add it in the `dependencies` block:
 
 ```kotlin
 dependencies {
@@ -253,6 +265,9 @@ To generate the documentation, use the appropriate `dokka${format}` Gradle task:
 ```bash
 ./gradlew dokkaHtml
 ```
+
+!!! important
+    Keep in mind that plugins developed by the community may not follow the same convention. Always consult the plugin's documentation.
 
 Some plugins can be configured separately using a plugin class and configuration class. For example:
 

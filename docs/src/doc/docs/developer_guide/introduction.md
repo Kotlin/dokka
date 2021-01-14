@@ -71,6 +71,9 @@ object CustomSourceToDocumentableTranslator: SourceToDocumentableTranslator {
 }
 ```
 
+!!! important
+    Keep in mind that Dokka plugins are not Gradle plugins.
+
 ### Registering extension point
 
 You can register your own extension point using `extensionPoint` function declared in `DokkaPlugin` class
@@ -119,4 +122,3 @@ interface AnotherSampleExtensionPointInterface
 class SampleExtension: SampleExtensionPointInterface
 class AnotherSampleExtension(sampleExtension: SampleExtensionPointInterface): AnotherSampleExtensionPointInterface
 ```
-
