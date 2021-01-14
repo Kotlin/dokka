@@ -4,6 +4,8 @@ import kotlinx.html.*
 import kotlinx.html.stream.createHTML
 import org.jetbrains.dokka.DokkaSourceSetID
 import org.jetbrains.dokka.base.DokkaBase
+import org.jetbrains.dokka.base.DokkaBaseConfiguration
+import org.jetbrains.dokka.base.DokkaBaseConfiguration.Companion.defaultFooterMessage
 import org.jetbrains.dokka.base.renderers.DefaultRenderer
 import org.jetbrains.dokka.base.renderers.TabSortingStrategy
 import org.jetbrains.dokka.base.renderers.html.command.consumers.ImmediateResolutionTagConsumer
@@ -20,16 +22,14 @@ import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.model.sourceSetIDs
 import org.jetbrains.dokka.model.withDescendants
 import org.jetbrains.dokka.pages.*
-import org.jetbrains.dokka.plugability.DokkaContext
-import org.jetbrains.dokka.plugability.plugin
-import org.jetbrains.dokka.plugability.query
-import org.jetbrains.dokka.plugability.querySingle
+import org.jetbrains.dokka.plugability.*
 import org.jetbrains.dokka.utilities.htmlEscape
 import java.net.URI
 
 open class HtmlRenderer(
     context: DokkaContext
 ) : DefaultRenderer<FlowContent>(context) {
+    private val configuration = configuration<DokkaBase, DokkaBaseConfiguration>(context)
 
     private val sourceSetDependencyMap: Map<DokkaSourceSetID, List<DokkaSourceSetID>> =
         context.configuration.sourceSets.map { sourceSet ->
@@ -107,8 +107,13 @@ open class HtmlRenderer(
             }
             node.hasStyle(TextStyle.Paragraph) -> p(additionalClasses) { childrenCallback() }
             node.hasStyle(TextStyle.Block) -> div(additionalClasses) { childrenCallback() }
-            node.isAnchorable -> buildAnchor(node.anchor!!, node.anchorLabel!!, node.sourceSetsFilters) { childrenCallback() }
-            node.extra[InsertTemplateExtra] != null -> node.extra[InsertTemplateExtra]?.let { templateCommand(it.command) } ?: Unit
+            node.isAnchorable -> buildAnchor(
+                node.anchor!!,
+                node.anchorLabel!!,
+                node.sourceSetsFilters
+            ) { childrenCallback() }
+            node.extra[InsertTemplateExtra] != null -> node.extra[InsertTemplateExtra]?.let { templateCommand(it.command) }
+                ?: Unit
             else -> childrenCallback()
         }
     }
@@ -147,7 +152,7 @@ open class HtmlRenderer(
             }
         }
 
-    fun FlowContent.withHtml(content: String): Unit = when (this){
+    fun FlowContent.withHtml(content: String): Unit = when (this) {
         is HTMLTag -> unsafe { +content }
         else -> div { unsafe { +content } }
     }
@@ -225,13 +230,14 @@ open class HtmlRenderer(
                 sourceSet.sourceSetIDs.all.flatMap { sourceSetDependencyMap[it].orEmpty() }
                     .any { sourceSetId -> sourceSetId in sourceSets.sourceSetIDs }
             }.map {
-                it to createHTML(prettyPrint = false).prepareForTemplates().div(classes = "content sourceset-depenent-content") {
-                    if (counter++ == 0) attributes["data-active"] = ""
-                    attributes["data-togglable"] = it.sourceSetIDs.merged.toString()
-                    unsafe {
-                        +html
+                it to createHTML(prettyPrint = false).prepareForTemplates()
+                    .div(classes = "content sourceset-depenent-content") {
+                        if (counter++ == 0) attributes["data-active"] = ""
+                        attributes["data-togglable"] = it.sourceSetIDs.merged.toString()
+                        unsafe {
+                            +html
+                        }
                     }
-                }
             }
         }
     }
@@ -423,15 +429,15 @@ open class HtmlRenderer(
                 div {
                     toRender.filter { it !is ContentLink && !it.hasStyle(ContentStyle.RowTitle) }
                         .takeIf { it.isNotEmpty() }?.let {
-                        if (ContentKind.shouldBePlatformTagged(contextNode.dci.kind) && contextNode.sourceSets.size == 1)
-                            createPlatformTags(contextNode)
+                            if (ContentKind.shouldBePlatformTagged(contextNode.dci.kind) && contextNode.sourceSets.size == 1)
+                                createPlatformTags(contextNode)
 
-                        div("title") {
-                            it.forEach {
-                                it.build(this, pageContext, sourceSetRestriction)
+                            div("title") {
+                                it.forEach {
+                                    it.build(this, pageContext, sourceSetRestriction)
+                                }
                             }
                         }
-                    }
                 }
             }
         }
@@ -450,7 +456,9 @@ open class HtmlRenderer(
                     .forEach {
                         span("inline-flex") {
                             it.build(this, pageContext, sourceSetRestriction)
-                            if(it is ContentLink && !anchorDestination.isNullOrBlank()) buildAnchorCopyButton(anchorDestination)
+                            if (it is ContentLink && !anchorDestination.isNullOrBlank()) buildAnchorCopyButton(
+                                anchorDestination
+                            )
                         }
                     }
             }
@@ -472,7 +480,7 @@ open class HtmlRenderer(
         toRender: List<ContentNode>,
         pageContext: ContentPage,
         sourceSetRestriction: Set<DisplaySourceSet>?,
-    ){
+    ) {
         toRender.filter { it !is ContentLink }.takeIf { it.isNotEmpty() }?.let {
             it.forEach {
                 span(classes = if (it.dci.kind == ContentKind.Comment) "brief-comment" else "") {
@@ -573,7 +581,12 @@ open class HtmlRenderer(
         }
     }
 
-    private fun FlowContent.buildAnchor(anchor: String, anchorLabel: String, sourceSets: String, content: FlowContent.() -> Unit) {
+    private fun FlowContent.buildAnchor(
+        anchor: String,
+        anchorLabel: String,
+        sourceSets: String,
+        content: FlowContent.() -> Unit
+    ) {
         a {
             attributes["data-name"] = anchor
             attributes["anchor-label"] = anchorLabel
@@ -772,9 +785,13 @@ open class HtmlRenderer(
                             span("go-to-top-icon") {
                                 a(href = "#content")
                             }
-                            span { text("© 2020 Copyright") }
+                            span {
+                                configuration?.footerMessage?.takeIf { it.isNotEmpty() }
+                                    ?.let { unsafe { raw(it) } }
+                                    ?: text(defaultFooterMessage)
+                            }
                             span("pull-right") {
-                                span { text("Sponsored and developed by ") }
+                                span { text("Generated by ") }
                                 a(href = "https://github.com/Kotlin/dokka") {
                                     span { text("dokka") }
                                     span(classes = "padded-icon")
