@@ -5,6 +5,7 @@ import org.jetbrains.dokka.base.resolvers.local.DokkaBaseLocationProvider
 import org.jetbrains.dokka.base.resolvers.local.LocationProviderFactory
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.DisplaySourceSet
+import org.jetbrains.dokka.pages.ContentPage
 import org.jetbrains.dokka.pages.PageNode
 import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.DokkaContext
@@ -22,7 +23,8 @@ open class MultimoduleLocationProvider(private val root: RootPageNode, dokkaCont
                         ?.let(externalModuleLinkResolver::resolveLinkToModuleIndex)
 
     override fun resolve(node: PageNode, context: PageNode?, skipExtension: Boolean) =
-            defaultLocationProvider.resolve(node, context, skipExtension)
+        if(node is ContentPage && MultimodulePageCreator.MULTIMODULE_ROOT_DRI in node.dri) pathToRoot(root)
+        else defaultLocationProvider.resolve(node, context, skipExtension)
 
     override fun pathToRoot(from: PageNode): String = defaultLocationProvider.pathToRoot(from)
 

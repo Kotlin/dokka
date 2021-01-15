@@ -55,7 +55,7 @@ class ResolveLinkGfmCommandResolutionTest : MultiModuleAbstractTest() {
         val configuration = configuration()
 
         testFromData(configuration, pluginOverrides = listOf(GfmTemplateProcessingPlugin(), GfmPlugin()), preserveOutputLocation = true) {
-            submoduleProcessingStage = {
+            finishProcessingSubmodules = {
                 assertEquals(expected, content.readText().trim())
             }
         }
