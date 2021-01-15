@@ -1,6 +1,7 @@
 package org.jetbrains.dokka.kotlinAsJava.transformers
 
 import org.jetbrains.dokka.model.*
+import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.transformers.documentation.DocumentableTransformer
 
@@ -25,7 +26,8 @@ class JvmNameDocumentableTransformer : DocumentableTransformer {
                     val name = jvmNameProvider.nameFor(this)
                     copy(
                         dri = documentable.dri.withCallableName(name),
-                        name = name
+                        name = name,
+                        extra = extra.withoutJvmName()
                     )
                 }
                 is DProperty -> transformGetterAndSetter(this)
@@ -41,6 +43,17 @@ class JvmNameDocumentableTransformer : DocumentableTransformer {
                 }
             }
         } as T
+
+    private fun PropertyContainer<DFunction>.withoutJvmName(): PropertyContainer<DFunction> {
+        val annotationsWithoutJvmName = get(Annotations)?.let { annotations ->
+            annotations.copy((annotations.directAnnotations + annotations.fileLevelAnnotations).map { (sourceset, annotations) ->
+                sourceset to annotations.filterNot { it.isJvmName() }
+            }.toMap())
+        }
+        val extraWithoutAnnotations: PropertyContainer<DFunction> = minus(Annotations)
+
+        return extraWithoutAnnotations.addAll(listOfNotNull(annotationsWithoutJvmName))
+    }
 
     private fun transformClassLike(documentable: DClasslike): DClasslike =
         with(documentable) {
@@ -80,7 +93,8 @@ class JvmNameDocumentableTransformer : DocumentableTransformer {
                     setter?.let { setter ->
                         setter.copy(
                             dri = setter.dri.withCallableName(setterName),
-                            name = setterName
+                            name = setterName,
+                            extra = setter.extra.withoutJvmName()
                         )
                     }
                 },
@@ -88,7 +102,8 @@ class JvmNameDocumentableTransformer : DocumentableTransformer {
                     getter?.let { getter ->
                         getter.copy(
                             dri = getter.dri.withCallableName(getterName),
-                            name = getterName
+                            name = getterName,
+                            extra = getter.extra.withoutJvmName()
                         )
                     }
                 })
