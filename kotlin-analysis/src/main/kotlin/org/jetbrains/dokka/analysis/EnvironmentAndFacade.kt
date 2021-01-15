@@ -17,12 +17,11 @@ internal fun createEnvironmentAndFacade(
         if (analysisPlatform == Platform.jvm) {
             addClasspath(PathUtil.getJdkClassesRootsFromCurrentJre())
         }
-        sourceSet.classpath.forEach(::addClasspath)
 
-        addSources(
-            (sourceSet.sourceRoots + sourceSets.filter { it.sourceSetID in sourceSet.dependentSourceSets }
-                .flatMap { it.sourceRoots })
-        )
+        val parentSourceSets = sourceSets.filter { it.sourceSetID in sourceSet.dependentSourceSets }
+        addClasspath(sourceSet.classpath + parentSourceSets.flatMap { it.classpath })
+
+        addSources(sourceSet.sourceRoots + parentSourceSets.flatMap { it.sourceRoots })
 
         loadLanguageVersionSettings(sourceSet.languageVersion, sourceSet.apiVersion)
 

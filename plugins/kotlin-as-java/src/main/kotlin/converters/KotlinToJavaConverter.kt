@@ -198,7 +198,7 @@ internal fun DClasslike.asJava(): DClasslike = when (this) {
 }
 
 internal fun DClass.asJava(): DClass = copy(
-    constructors = constructors.map { it.asJava(name) },
+    constructors = constructors.map { it.asJava(dri.classNames ?: name) }, // name may not always be valid here, however classNames should always be not null
     functions = functionsInJava(),
     properties = properties.map { it.asJava() },
     classlikes = classlikes.map { it.asJava() },
@@ -212,7 +212,7 @@ internal fun DClass.asJava(): DClass = copy(
 internal fun DClass.functionsInJava(): List<DFunction> =
     (properties.filter { it.jvmField() == null }
         .flatMap { property -> listOfNotNull(property.getter, property.setter) } + functions).map {
-        it.asJava(name)
+        it.asJava(dri.classNames ?: name)
     }
 
 private fun DTypeParameter.asJava(): DTypeParameter = copy(
@@ -251,9 +251,9 @@ private fun Bound.asJava(): Bound = when (this) {
 }
 
 internal fun DEnum.asJava(): DEnum = copy(
-    constructors = constructors.map { it.asJava(name) },
+    constructors = constructors.map { it.asJava(dri.classNames ?: name) },
     functions = (functions + properties.map { it.getter } + properties.map { it.setter }).filterNotNull().map {
-        it.asJava(name)
+        it.asJava(dri.classNames ?: name)
     },
     properties = properties.map { it.asJava() },
     classlikes = classlikes.map { it.asJava() },
@@ -264,7 +264,7 @@ internal fun DEnum.asJava(): DEnum = copy(
 internal fun DObject.asJava(): DObject = copy(
     functions = (functions + properties.map { it.getter } + properties.map { it.setter })
         .filterNotNull()
-        .map { it.asJava(name.orEmpty()) },
+        .map { it.asJava(dri.classNames ?: name.orEmpty()) },
     properties = properties.map { it.asJava() } +
             DProperty(
                 name = "INSTANCE",
@@ -294,7 +294,7 @@ internal fun DObject.asJava(): DObject = copy(
 internal fun DInterface.asJava(): DInterface = copy(
     functions = (functions + properties.map { it.getter } + properties.map { it.setter })
         .filterNotNull()
-        .map { it.asJava(name) },
+        .map { it.asJava(dri.classNames ?: name) },
     properties = emptyList(),
     classlikes = classlikes.map { it.asJava() }, // TODO: public static final class DefaultImpls with impls for methods
     generics = generics.map { it.asJava() },
