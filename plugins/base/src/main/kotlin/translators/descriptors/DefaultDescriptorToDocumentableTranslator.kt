@@ -12,8 +12,10 @@ import org.jetbrains.dokka.base.parsers.MarkdownParser
 import org.jetbrains.dokka.base.translators.isDirectlyAnException
 import org.jetbrains.dokka.base.translators.unquotedValue
 import org.jetbrains.dokka.links.*
+import org.jetbrains.dokka.links.Callable
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.Nullable
+import org.jetbrains.dokka.model.TypeConstructor
 import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.plugability.DokkaContext
@@ -939,7 +941,7 @@ private class DokkaDescriptorVisitor(
         )
 
     private fun AnnotationDescriptor.mustBeDocumented(): Boolean =
-        annotationClass!!.annotations.hasAnnotation(FqName("kotlin.annotation.MustBeDocumented"))
+        annotationClass?.annotations?.hasAnnotation(FqName("kotlin.annotation.MustBeDocumented")) ?: false
 
     private suspend fun PropertyDescriptor.getAnnotationsWithBackingField(): List<Annotations.Annotation> =
         getAnnotations() + (backingField?.getAnnotations() ?: emptyList())

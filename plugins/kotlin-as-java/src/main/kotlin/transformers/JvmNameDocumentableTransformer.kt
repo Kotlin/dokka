@@ -46,9 +46,9 @@ class JvmNameDocumentableTransformer : DocumentableTransformer {
 
     private fun PropertyContainer<DFunction>.withoutJvmName(): PropertyContainer<DFunction> {
         val annotationsWithoutJvmName = get(Annotations)?.let { annotations ->
-            annotations.copy((annotations.directAnnotations + annotations.fileLevelAnnotations).map { (sourceset, annotations) ->
+            annotations.copy((annotations.directAnnotations).map { (sourceset, annotations) ->
                 sourceset to annotations.filterNot { it.isJvmName() }
-            }.toMap())
+            }.toMap() + annotations.fileLevelAnnotations)
         }
         val extraWithoutAnnotations: PropertyContainer<DFunction> = minus(Annotations)
 
