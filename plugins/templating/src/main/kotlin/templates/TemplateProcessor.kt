@@ -35,10 +35,13 @@ class DefaultSubmoduleTemplateProcessor(
     private val strategies: List<TemplateProcessingStrategy> =
         context.plugin<TemplatingPlugin>().query { templateProcessingStrategy }
 
+    private val configuredModulesPaths =
+        context.configuration.modules.map { it.sourceOutputDirectory.absolutePath to it.name }.toMap()
+
     override fun process(modules: List<DokkaConfiguration.DokkaModuleDescription>) =
         runBlocking(Dispatchers.Default) {
             coroutineScope {
-                context.configuration.modules.fold(TemplatingResult()) { acc, module ->
+                modules.fold(TemplatingResult()) { acc, module ->
                     acc + module.sourceOutputDirectory.visit(context.configuration.outputDir.resolve(module.relativePathToOutputDirectory))
                 }
             }
@@ -50,9 +53,10 @@ class DefaultSubmoduleTemplateProcessor(
             if (source.isDirectory) {
                 target.mkdir()
                 val files = source.list().orEmpty()
-                val accWithSelf =
-                    if (files.contains("package-list") && files.size != 1) acc.copy(modules = acc.modules + source.name)
-                    else acc
+                val accWithSelf = configuredModulesPaths[source.absolutePath]
+                    ?.takeIf { files.firstOrNull { !it.startsWith(".") } != null }
+                    ?.let { acc.copy(modules = acc.modules + it) }
+                    ?: acc
 
                 files.fold(accWithSelf) { acc, path ->
                     source.resolve(path).visit(target.resolve(path), acc)
@@ -88,5 +92,5 @@ data class TemplatingContext<out T : Command>(
 )
 
 data class TemplatingResult(val modules: List<String> = emptyList()) {
-    operator fun plus(lhs: TemplatingResult): TemplatingResult = TemplatingResult((modules + lhs.modules).distinct())
+    operator fun plus(rhs: TemplatingResult): TemplatingResult = TemplatingResult((modules + rhs.modules).distinct())
 }
