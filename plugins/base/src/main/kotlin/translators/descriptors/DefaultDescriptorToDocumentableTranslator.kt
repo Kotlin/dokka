@@ -778,7 +778,10 @@ private class DokkaDescriptorVisitor(
             null,
             upperBounds.map { it.toBound() },
             setOf(sourceSet),
-            extra = PropertyContainer.withAll(additionalExtras().toSourceSetDependent().toAdditionalModifiers())
+            extra = PropertyContainer.withAll(
+                additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
+                getAnnotations().toSourceSetDependent().toAnnotations()
+            )
         )
 
     private suspend fun org.jetbrains.kotlin.descriptors.annotations.Annotations.getPresentableName(): String? =
