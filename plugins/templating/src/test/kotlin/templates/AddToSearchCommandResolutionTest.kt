@@ -56,7 +56,7 @@ class AddToSearchCommandResolutionTest : TemplatingAbstractTest() {
         }
 
         testFromData(configuration, preserveOutputLocation = true) {
-            submoduleProcessingStage = { _ ->
+            finishProcessingSubmodules = { _ ->
                 val expected = elements.map { it.copy(location = "module1/${it.location}") } +
                         elements.map { it.copy(location = "module2/${it.location}") }
 

@@ -127,7 +127,7 @@ class AddToNavigationCommandResolutionTest : TemplatingAbstractTest() {
         module2Navigation.writeText(inputForModule("module2"))
 
         testFromData(configuration, preserveOutputLocation = true) {
-            submoduleProcessingStage = { ctx ->
+            finishProcessingSubmodules = { ctx ->
                 test(ctx)
             }
         }
