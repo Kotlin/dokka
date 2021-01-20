@@ -360,7 +360,11 @@ class DefaultPsiToDocumentableTranslator(
                         ).toSourceSetDependent(),
                         null,
                         getBound(psiParameter.type),
-                        setOf(sourceSetData)
+                        setOf(sourceSetData),
+                        PropertyContainer.withAll(
+                            psiParameter.annotations.toList().toListOfAnnotations().toSourceSetDependent()
+                                .toAnnotations()
+                        )
                     )
                 },
                 docs.toSourceSetDependent(),
@@ -468,7 +472,11 @@ class DefaultPsiToDocumentableTranslator(
                     javadocParser.parseDocumentation(type).toSourceSetDependent(),
                     null,
                     mapBounds(type.bounds),
-                    setOf(sourceSetData)
+                    setOf(sourceSetData),
+                    PropertyContainer.withAll(
+                        type.annotations.toList().toListOfAnnotations().toSourceSetDependent()
+                            .toAnnotations()
+                    )
                 )
             }
         }
