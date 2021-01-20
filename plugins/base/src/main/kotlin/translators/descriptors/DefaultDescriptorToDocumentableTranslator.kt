@@ -23,10 +23,10 @@ import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.transformers.sources.AsyncSourceToDocumentableTranslator
 import org.jetbrains.dokka.utilities.DokkaLogger
-import org.jetbrains.kotlin.builtins.functions.FunctionClassDescriptor
-import org.jetbrains.kotlin.builtins.isBuiltinExtensionFunctionalType
 import org.jetbrains.dokka.utilities.parallelMap
 import org.jetbrains.dokka.utilities.parallelMapNotNull
+import org.jetbrains.kotlin.builtins.functions.FunctionClassDescriptor
+import org.jetbrains.kotlin.builtins.isBuiltinExtensionFunctionalType
 import org.jetbrains.kotlin.builtins.isExtensionFunctionType
 import org.jetbrains.kotlin.builtins.isSuspendFunctionTypeOrSubtype
 import org.jetbrains.kotlin.codegen.isJvmStaticInObjectOrClassOrInterface
@@ -55,7 +55,6 @@ import org.jetbrains.kotlin.types.typeUtil.immediateSupertypes
 import org.jetbrains.kotlin.types.typeUtil.isAnyOrNullableAny
 import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
-import java.lang.IllegalStateException
 import java.nio.file.Paths
 import org.jetbrains.kotlin.resolve.constants.AnnotationValue as ConstantsAnnotationValue
 import org.jetbrains.kotlin.resolve.constants.ArrayValue as ConstantsArrayValue
@@ -931,21 +930,18 @@ private class DokkaDescriptorVisitor(
         else -> StringValue(unquotedValue(toString()))
     }
 
-    private suspend fun AnnotationDescriptor.toAnnotation(scope: Annotations.AnnotationScope = Annotations.AnnotationScope.DIRECT): Annotations.Annotation {
-        val dri = DRI.from(annotationClass as DeclarationDescriptor)
-        return Annotations.Annotation(
+    private suspend fun AnnotationDescriptor.toAnnotation(scope: Annotations.AnnotationScope = Annotations.AnnotationScope.DIRECT): Annotations.Annotation =
+        Annotations.Annotation(
             DRI.from(annotationClass as DeclarationDescriptor),
             allValueArguments.map { it.key.asString() to it.value.toValue() }.filter {
                 it.second != null
             }.toMap() as Map<String, AnnotationParameterValue>,
-            mustBeDocumented(dri),
+            mustBeDocumented(),
             scope
         )
-    }
 
-    private fun AnnotationDescriptor.mustBeDocumented(dri: DRI): Boolean =
-        if (dri.isJvmName()) false
-        else annotationClass!!.annotations.hasAnnotation(FqName("kotlin.annotation.MustBeDocumented"))
+    private fun AnnotationDescriptor.mustBeDocumented(): Boolean =
+        annotationClass?.annotations?.hasAnnotation(FqName("kotlin.annotation.MustBeDocumented")) ?: false
 
     private suspend fun PropertyDescriptor.getAnnotationsWithBackingField(): List<Annotations.Annotation> =
         getAnnotations() + (backingField?.getAnnotations() ?: emptyList())

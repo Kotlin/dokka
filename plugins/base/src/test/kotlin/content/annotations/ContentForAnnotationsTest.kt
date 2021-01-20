@@ -1,19 +1,19 @@
 package content.annotations
 
 import matchers.content.*
-import org.jetbrains.dokka.pages.ContentPage
-import org.jetbrains.dokka.pages.PackagePageNode
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.Annotations
 import org.jetbrains.dokka.model.StringValue
+import org.jetbrains.dokka.pages.ContentPage
+import org.jetbrains.dokka.pages.PackagePageNode
 import org.jetbrains.kotlin.utils.addToStdlib.firstNotNullResult
 import org.junit.jupiter.api.Test
 import utils.ParamAttributes
 import utils.bareSignature
 import utils.propertySignature
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 
 class ContentForAnnotationsTest : BaseAbstractTest() {
@@ -243,7 +243,7 @@ class ContentForAnnotationsTest : BaseAbstractTest() {
                     dri = DRI("kotlin.jvm", "JvmName"),
                     params = mapOf("name" to StringValue(name)),
                     scope = Annotations.AnnotationScope.DIRECT,
-                    mustBeDocumented = false
+                    mustBeDocumented = true
                 )
 
                 val property = modules.flatMap { it.packages }.flatMap { it.properties }.first()
@@ -255,11 +255,11 @@ class ContentForAnnotationsTest : BaseAbstractTest() {
                 }
 
                 assertEquals(expectedAnnotation("xd"), getterAnnotation)
-                assertFalse(getterAnnotation?.mustBeDocumented!!)
+                assertTrue(getterAnnotation?.mustBeDocumented!!)
                 assertEquals(Annotations.AnnotationScope.DIRECT, getterAnnotation.scope)
 
                 assertEquals(expectedAnnotation("asd"), setterAnnotation)
-                assertFalse(setterAnnotation?.mustBeDocumented!!)
+                assertTrue(setterAnnotation?.mustBeDocumented!!)
                 assertEquals(Annotations.AnnotationScope.DIRECT, setterAnnotation.scope)
             }
         }
