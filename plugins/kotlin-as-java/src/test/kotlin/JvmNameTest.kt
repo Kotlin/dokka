@@ -4,8 +4,12 @@ import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.links.Callable
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.TypeConstructor
+import org.jetbrains.dokka.model.Annotations
+import org.jetbrains.dokka.model.DClass
+import org.jetbrains.dokka.model.isJvmName
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
 
 class JvmNameTest : BaseAbstractTest() {
     val configuration = dokkaConfiguration {
@@ -95,7 +99,8 @@ class JvmNameTest : BaseAbstractTest() {
                         params = listOf(TypeConstructor("kotlin.String", emptyList()))
                     )
                 )
-                val function = module.packages.flatMap { it.classlikes }.flatMap { it.functions }.first { it.name == "asd"}
+                val function =
+                    module.packages.flatMap { it.classlikes }.flatMap { it.functions }.first { it.name == "asd" }
                 assertEquals(expectedSetterDri, function.dri)
                 assertEquals("asd", function.name)
             }
@@ -127,7 +132,8 @@ class JvmNameTest : BaseAbstractTest() {
                         params = emptyList()
                     )
                 )
-                val function = module.packages.flatMap { it.classlikes }.flatMap { it.functions }.first { it.name == "xd"}
+                val function =
+                    module.packages.flatMap { it.classlikes }.flatMap { it.functions }.first { it.name == "xd" }
                 assertEquals(expectedGetterDri, function.dri)
                 assertEquals("xd", function.name)
             }
@@ -152,6 +158,28 @@ class JvmNameTest : BaseAbstractTest() {
                 val classLike = module.packages.flatMap { it.classlikes }.first()
                 assertEquals(expectedClassLikeDri, classLike.dri)
                 assertEquals("SampleKt", classLike.name)
+            }
+        }
+    }
+
+    @Test
+    fun `jvmName extra should be removed after the name swap`() {
+        testInline(
+            """
+            |/src/main/kotlin/kotlinAsJavaPlugin/sample.kt
+            |package kotlinAsJavaPlugin
+            |@JvmName("CustomJvmName")
+            |fun sample(): String = ""
+        """.trimMargin(),
+            configuration,
+        ) {
+            documentablesTransformationStage = { module ->
+                val classLike = module.packages.flatMap { it.classlikes }.first() as DClass
+                assertNull(
+                    classLike.extra[Annotations]?.directAnnotations?.flatMap { it.value }
+                        ?.map { it.dri }
+                        ?.firstOrNull { it.isJvmName() }
+                )
             }
         }
     }
