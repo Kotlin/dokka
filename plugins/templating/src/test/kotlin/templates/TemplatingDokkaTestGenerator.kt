@@ -36,6 +36,9 @@ class TemplatingDokkaTestGenerator(
 
         generation.processSubmodules()
         submoduleProcessingStage(context)
+
+        generation.finishProcessing()
+        finishProcessingSubmodules(context)
     }
 
 }
@@ -43,15 +46,18 @@ class TemplatingDokkaTestGenerator(
 open class TemplatingTestMethods(
     open val pluginsSetupStage: (DokkaContext) -> Unit,
     open val submoduleProcessingStage: (DokkaContext) -> Unit,
+    open val finishProcessingSubmodules: (DokkaContext) -> Unit,
 ) : TestMethods
 
 class TemplatingTestBuilder : TestBuilder<TemplatingTestMethods>() {
     var pluginsSetupStage: (DokkaContext) -> Unit = {}
     var submoduleProcessingStage: (DokkaContext) -> Unit = {}
+    var finishProcessingSubmodules: (DokkaContext) -> Unit = {}
 
     override fun build() = TemplatingTestMethods(
         pluginsSetupStage,
         submoduleProcessingStage,
+        finishProcessingSubmodules,
     )
 }
 

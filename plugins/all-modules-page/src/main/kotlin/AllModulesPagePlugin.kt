@@ -12,7 +12,7 @@ import org.jetbrains.dokka.transformers.pages.PageTransformer
 class AllModulesPagePlugin : DokkaPlugin() {
 
     val partialLocationProviderFactory by extensionPoint<LocationProviderFactory>()
-    val allModulesPageCreator by extensionPoint<PageCreator>()
+    val allModulesPageCreator by extensionPoint<PageCreator<AllModulesPageGeneration.DefaultAllModulesContext>>()
     val allModulesPageTransformer by extensionPoint<PageTransformer>()
     val externalModuleLinkResolver by extensionPoint<ExternalModuleLinkResolver>()
 

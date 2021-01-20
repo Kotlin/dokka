@@ -52,7 +52,7 @@ class SubstitutionCommandResolutionTest : TemplatingAbstractTest() {
         }
 
         testFromData(configuration, preserveOutputLocation = true){
-            submoduleProcessingStage = {
+            finishProcessingSubmodules = {
                 assertHtmlEqualsIgnoringWhitespace(expected, testedFile.readText())
             }
         }

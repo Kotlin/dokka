@@ -29,13 +29,13 @@ import org.jetbrains.dokka.versioning.VersioningPlugin
 
 class MultimodulePageCreator(
     private val context: DokkaContext,
-) : PageCreator {
+) : PageCreator<AllModulesPageGeneration.DefaultAllModulesContext> {
     private val logger: DokkaLogger = context.logger
 
     private val commentsConverter by lazy { context.plugin<DokkaBase>().querySingle { commentsToContentConverter } }
     private val signatureProvider by lazy { context.plugin<DokkaBase>().querySingle { signatureProvider } }
 
-    override fun invoke(): RootPageNode {
+    override fun invoke(creationContext: AllModulesPageGeneration.DefaultAllModulesContext): RootPageNode {
         val modules = context.configuration.modules
         val sourceSetData = emptySet<DokkaSourceSet>()
         val builder = PageContentBuilder(commentsConverter, signatureProvider, context.logger)
@@ -51,24 +51,29 @@ class MultimodulePageCreator(
             }
             header(2, "All modules:")
             table(styles = setOf(MultimoduleTable)) {
-                modules.forEach { module ->
-                    val displayedModuleDocumentation = getDisplayedModuleDocumentation(module)
-                    val dri = DRI(packageName = MULTIMODULE_PACKAGE_PLACEHOLDER, classNames = module.name)
-                    val dci = DCI(setOf(dri), ContentKind.Comment)
-                    val extraWithAnchor = PropertyContainer.withAll(SymbolAnchorHint(module.name, ContentKind.Main))
-                    row(setOf(dri), emptySet(), styles = emptySet(), extra = extraWithAnchor) {
-                        +linkNode(module.name, dri, DCI(setOf(dri), ContentKind.Main), extra = extraWithAnchor)
-                        +ContentGroup(
-                            children =
-                            if (displayedModuleDocumentation != null)
-                                DocTagToContentConverter().buildContent(displayedModuleDocumentation, dci, emptySet())
-                            else emptyList(),
-                            dci = dci,
-                            sourceSets = emptySet(),
-                            style = emptySet()
-                        )
+                modules.filter { it.name in creationContext.nonEmptyModules }.sortedByDescending { it.name }
+                    .forEach { module ->
+                        val displayedModuleDocumentation = getDisplayedModuleDocumentation(module)
+                        val dri = DRI(packageName = MULTIMODULE_PACKAGE_PLACEHOLDER, classNames = module.name)
+                        val dci = DCI(setOf(dri), ContentKind.Comment)
+                        val extraWithAnchor = PropertyContainer.withAll(SymbolAnchorHint(module.name, ContentKind.Main))
+                        row(setOf(dri), emptySet(), styles = emptySet(), extra = extraWithAnchor) {
+                            +linkNode(module.name, dri, DCI(setOf(dri), ContentKind.Main), extra = extraWithAnchor)
+                            +ContentGroup(
+                                children =
+                                if (displayedModuleDocumentation != null)
+                                    DocTagToContentConverter().buildContent(
+                                        displayedModuleDocumentation,
+                                        dci,
+                                        emptySet()
+                                    )
+                                else emptyList(),
+                                dci = dci,
+                                sourceSets = emptySet(),
+                                style = emptySet()
+                            )
+                        }
                     }
-                }
             }
         }
         return MultimoduleRootPageNode(

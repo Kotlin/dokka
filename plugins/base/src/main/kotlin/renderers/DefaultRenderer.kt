@@ -7,7 +7,6 @@ import kotlinx.coroutines.runBlocking
 import org.jetbrains.dokka.DokkaException
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.resolvers.local.LocationProvider
-import org.jetbrains.dokka.base.resolvers.local.resolveOrThrow
 import org.jetbrains.dokka.model.DisplaySourceSet
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
@@ -169,12 +168,20 @@ abstract class DefaultRenderer<T>(
                 is RenderingStrategy.Copy -> outputWriter.writeResources(strategy.from, path)
                 is RenderingStrategy.Write -> outputWriter.write(path, strategy.text, "")
                 is RenderingStrategy.Callback -> outputWriter.write(path, strategy.instructions(this, page), ".html")
-                is RenderingStrategy.DriLocationResolvableWrite -> outputWriter.write(path, strategy.contentToResolve { dri, sourcesets ->
-                    locationProvider.resolve(dri, sourcesets)
-                }, "")
-                is RenderingStrategy.PageLocationResolvableWrite -> outputWriter.write(path, strategy.contentToResolve { pageToLocate, context ->
-                    locationProvider.resolve(pageToLocate, context)
-                }, "")
+                is RenderingStrategy.DriLocationResolvableWrite -> outputWriter.write(
+                    path,
+                    strategy.contentToResolve { dri, sourcesets ->
+                        locationProvider.resolve(dri, sourcesets)
+                    },
+                    ""
+                )
+                is RenderingStrategy.PageLocationResolvableWrite -> outputWriter.write(
+                    path,
+                    strategy.contentToResolve { pageToLocate, context ->
+                        locationProvider.resolve(pageToLocate, context)
+                    },
+                    ""
+                )
                 RenderingStrategy.DoNothing -> Unit
             }
             else -> throw AssertionError(

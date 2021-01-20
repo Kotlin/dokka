@@ -48,7 +48,12 @@ class MultiplatformConfiguredCheckerTest : BaseAbstractTest() {
 
     @Test
     fun `mpp config should fail for javadoc`() {
-        testInline("", mppConfig) {
+        testInline(
+            """
+            |/src/main/kotlin/example/Test.kt
+            |class Test 
+            """.trimMargin(), mppConfig
+        ) {
             verificationStage = { verification ->
                 var mppDetected = false
                 try {
@@ -64,7 +69,12 @@ class MultiplatformConfiguredCheckerTest : BaseAbstractTest() {
 
     @Test
     fun `spp config should not fail for javadoc`() {
-        testInline("", sppConfig) {
+        testInline(
+            """
+            |/src/main/kotlin/example/Test.kt
+            |class Test 
+            """.trimMargin(), sppConfig
+        ) {
             verificationStage = { verification ->
                 var mppDetected = false
                 try {

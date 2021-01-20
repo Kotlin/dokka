@@ -34,7 +34,10 @@ class MultiModuleDokkaTestGenerator(
 
         val generation = context.single(CoreExtensions.generation) as AllModulesPageGeneration
 
-        val allModulesPage = generation.createAllModulesPage()
+        val generationContext = generation.processSubmodules()
+        submoduleProcessingStage(context)
+
+        val allModulesPage = generation.createAllModulesPage(generationContext)
         allModulesPageCreationStage(allModulesPage)
 
         val transformedPages = generation.transformAllModulesPage(allModulesPage)
@@ -43,8 +46,11 @@ class MultiModuleDokkaTestGenerator(
         generation.render(transformedPages)
         renderingStage(transformedPages, context)
 
-        generation.processSubmodules()
-        submoduleProcessingStage(context)
+        generation.processMultiModule(transformedPages)
+        processMultiModule(transformedPages)
+
+        generation.finishProcessingSubmodules()
+        finishProcessingSubmodules(context)
     }
 
 }
@@ -55,6 +61,8 @@ open class MultiModuleTestMethods(
     open val pagesTransformationStage: (RootPageNode) -> Unit,
     open val renderingStage: (RootPageNode, DokkaContext) -> Unit,
     open val submoduleProcessingStage: (DokkaContext) -> Unit,
+    open val processMultiModule: (RootPageNode) -> Unit,
+    open val finishProcessingSubmodules: (DokkaContext) -> Unit,
 ) : TestMethods
 
 class MultiModuleTestBuilder : TestBuilder<MultiModuleTestMethods>() {
@@ -63,6 +71,8 @@ class MultiModuleTestBuilder : TestBuilder<MultiModuleTestMethods>() {
     var pagesTransformationStage: (RootPageNode) -> Unit = {}
     var renderingStage: (RootPageNode, DokkaContext) -> Unit = { _, _ -> }
     var submoduleProcessingStage: (DokkaContext) -> Unit = {}
+    var processMultiModule: (RootPageNode) -> Unit = {}
+    var finishProcessingSubmodules: (DokkaContext) -> Unit = {}
 
     override fun build() = MultiModuleTestMethods(
         pluginsSetupStage,
@@ -70,6 +80,8 @@ class MultiModuleTestBuilder : TestBuilder<MultiModuleTestMethods>() {
         pagesTransformationStage,
         renderingStage,
         submoduleProcessingStage,
+        processMultiModule,
+        finishProcessingSubmodules
     )
 }
 

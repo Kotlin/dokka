@@ -60,7 +60,7 @@ class ResolveLinkCommandResolutionTest : MultiModuleAbstractTest() {
         val configuration = configuration()
 
         testFromData(configuration, preserveOutputLocation = true) {
-            submoduleProcessingStage = {
+            finishProcessingSubmodules = {
                 assertHtmlEqualsIgnoringWhitespace(expected, contentFile.readText())
             }
         }
@@ -89,7 +89,7 @@ class ResolveLinkCommandResolutionTest : MultiModuleAbstractTest() {
         val configuration = configuration()
 
         testFromData(configuration, preserveOutputLocation = true) {
-            submoduleProcessingStage = {
+            finishProcessingSubmodules = {
                 assertHtmlEqualsIgnoringWhitespace(expected, contentFile.readText())
             }
         }

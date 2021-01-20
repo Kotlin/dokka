@@ -6,14 +6,19 @@ import org.jetbrains.dokka.plugability.DokkaPlugin
 
 class TemplatingPlugin : DokkaPlugin() {
 
-    val templateProcessor by extensionPoint<TemplateProcessor>()
+    val submoduleTemplateProcessor by extensionPoint<SubmoduleTemplateProcessor>()
+    val multimoduleTemplateProcessor by extensionPoint<MultiModuleTemplateProcessor>()
     val templateProcessingStrategy by extensionPoint<TemplateProcessingStrategy>()
     val directiveBasedCommandHandlers by extensionPoint<CommandHandler>()
 
     val substitutor by extensionPoint<Substitutor>()
 
-    val defaultTemplateProcessor by extending {
-        templateProcessor providing ::DefaultTemplateProcessor
+    val defaultSubmoduleTemplateProcessor by extending {
+        submoduleTemplateProcessor providing ::DefaultSubmoduleTemplateProcessor
+    }
+
+    val defaultMultiModuleTemplateProcessor by extending {
+        multimoduleTemplateProcessor providing ::DefaultMultiModuleTemplateProcessor
     }
 
     val directiveBasedHtmlTemplateProcessingStrategy by extending {

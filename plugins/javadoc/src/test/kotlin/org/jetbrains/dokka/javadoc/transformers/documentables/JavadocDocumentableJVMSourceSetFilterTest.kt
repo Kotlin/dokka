@@ -83,7 +83,7 @@ class JavadocDocumentableJVMSourceSetFilterTest: BaseAbstractTest() {
     fun `non-jvm and not dependent common source sets are ommited`() {
         testInline(query, config) {
             documentablesFirstTransformationStep = { modules ->
-                assertEquals(4, modules.size)
+                assertEquals(2, modules.size)
             }
         }
     }

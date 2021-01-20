@@ -37,6 +37,7 @@ abstract class BaseJsonNavigationTemplateProcessingStrategy(val context: DokkaCo
             val content = toJsonString(fragments.entries.flatMap { (moduleName, navigation) ->
                 navigation.map { it.withResolvedLocation(moduleName) }
             })
+            output.resolve(path).mkdirs()
             output.resolve("$path/$navigationFileNameWithoutExtension.json").writeText(content)
 
             fragments.keys.forEach {
