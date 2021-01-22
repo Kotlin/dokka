@@ -33,7 +33,7 @@ class CoroutinesGradleIntegrationTest(override val versions: BuildVersions) : Ab
 
     @Test
     fun execute() {
-        val result = createGradleRunner(":dokkaHtmlMultiModule", "-i", "-s").buildRelaxed()
+        val result = createGradleRunner("assemble", ":dokkaHtmlMultiModule", "-i", "-s").buildRelaxed()
 
         assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":dokkaHtmlMultiModule")).outcome)
 
