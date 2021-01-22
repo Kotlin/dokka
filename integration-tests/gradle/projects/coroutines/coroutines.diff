@@ -1,5 +1,5 @@
 diff --git a/build.gradle b/build.gradle
-index 79c7f355..d5209f10 100644
+index 938d42e7..65062bdd 100644
 --- a/build.gradle
 +++ b/build.gradle
 @@ -4,18 +4,14 @@
@@ -27,7 +27,7 @@ index 79c7f355..d5209f10 100644
      /*
       * These property group is used to build kotlinx.coroutines against Kotlin compiler snapshot.
       * How does it work:
-@@ -74,7 +70,6 @@ buildscript {
+@@ -78,7 +74,6 @@ buildscript {
  
      dependencies {
          classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
@@ -35,7 +35,7 @@ index 79c7f355..d5209f10 100644
          classpath "org.jetbrains.kotlinx:atomicfu-gradle-plugin:$atomicfu_version"
          classpath "org.jetbrains.kotlinx:kotlinx-knit:$knit_version"
          classpath "com.moowork.gradle:gradle-node-plugin:$gradle_node_version"
-@@ -87,6 +82,21 @@ buildscript {
+@@ -91,6 +86,21 @@ buildscript {
      CacheRedirector.configureBuildScript(buildscript, rootProject)
  }
  
@@ -57,7 +57,7 @@ index 79c7f355..d5209f10 100644
  import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
  
  // todo:KLUDGE: Hierarchical project structures are not fully supported in IDEA, enable only for a regular built
-@@ -271,7 +281,7 @@ configure(subprojects.findAll {
+@@ -275,7 +285,7 @@ configure(subprojects.findAll {
  }
  
  def core_docs_url = "https://kotlin.github.io/kotlinx.coroutines/$coreModule/"
@@ -66,7 +66,7 @@ index 79c7f355..d5209f10 100644
  
  configure(subprojects.findAll { !unpublished.contains(it.name) }) {
      if (it.name != 'kotlinx-coroutines-bom') {
-@@ -283,11 +293,15 @@ configure(subprojects.findAll { !unpublished.contains(it.name) }) {
+@@ -287,11 +297,15 @@ configure(subprojects.findAll { !unpublished.contains(it.name) }) {
  configure(subprojects.findAll { !unpublished.contains(it.name) }) {
      if (it.name != "kotlinx-coroutines-bom") {
          if (it.name != coreModule) {
@@ -88,10 +88,10 @@ index 79c7f355..d5209f10 100644
              }
          }
 diff --git a/buildSrc/build.gradle.kts b/buildSrc/build.gradle.kts
-index 96b17a3d..caedbe8d 100644
+index adcbd90f..66a68754 100644
 --- a/buildSrc/build.gradle.kts
 +++ b/buildSrc/build.gradle.kts
-@@ -35,5 +35,4 @@ fun version(target: String): String =
+@@ -46,5 +46,4 @@ fun version(target: String): String {
  
  dependencies {
      implementation(kotlin("gradle-plugin", version("kotlin")))
@@ -130,17 +130,34 @@ index dd5f1ea4..00000000
 -    }
 -}
 diff --git a/gradle.properties b/gradle.properties
-index 18b95166..36881b53 100644
+index 9163cf5a..251d9a27 100644
 --- a/gradle.properties
 +++ b/gradle.properties
 @@ -5,6 +5,7 @@
  # Kotlin
- version=1.4.0-M1-SNAPSHOT
+ version=1.4.2-SNAPSHOT
  group=org.jetbrains.kotlinx
-+dokka_it_kotlin_version=
++dokka_it_kotlin_version=1.4.0
  kotlin_version=1.4.0
  
  # Dependencies
+@@ -13,7 +14,6 @@ atomicfu_version=0.14.4
+ knit_version=0.2.2
+ html_version=0.6.8
+ lincheck_version=2.7.1
+-dokka_version=0.9.16-rdev-2-mpp-hacks
+ byte_buddy_version=1.10.9
+ reactor_version=3.2.5.RELEASE
+ reactive_streams_version=1.0.2
+@@ -52,7 +52,7 @@ jekyll_version=4.0
+ 
+ # JS IR backend sometimes crashes with out-of-memory
+ # TODO: Remove once KT-37187 is fixed
+-org.gradle.jvmargs=-Xmx2g
++org.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=1g
+ 
+ # Workaround for Bintray treating .sha512 files as artifacts
+ # https://github.com/gradle/gradle/issues/11412
 diff --git a/gradle/dokka.gradle b/gradle/dokka.gradle
 index 559ec8b6..891e07b3 100644
 --- a/gradle/dokka.gradle
@@ -387,10 +404,10 @@ index c7d0d82d..a8993dce 100644
 +    }
 +}
 diff --git a/kotlinx-coroutines-core/build.gradle b/kotlinx-coroutines-core/build.gradle
-index f98f6a52..5f3cd967 100644
+index 314eea35..fc79511c 100644
 --- a/kotlinx-coroutines-core/build.gradle
 +++ b/kotlinx-coroutines-core/build.gradle
-@@ -158,13 +158,13 @@ kotlin.sourceSets {
+@@ -165,13 +165,13 @@ kotlin.sourceSets {
  
  task checkJdk16() {
      // only fail w/o JDK_16 when actually trying to compile, not during project setup phase
@@ -551,11 +568,11 @@ index ced694ab..d5cd6319 100644
  }
  
 diff --git a/settings.gradle b/settings.gradle
-index d22d65fd..497eebf1 100644
+index 3a078917..472ced4f 100644
 --- a/settings.gradle
 +++ b/settings.gradle
 @@ -11,7 +11,7 @@ pluginManagement {
-         id "me.champeau.gradle.jmh" version "0.5.0"
+         id "me.champeau.gradle.jmh" version "0.5.2"
      }
  }
 -
