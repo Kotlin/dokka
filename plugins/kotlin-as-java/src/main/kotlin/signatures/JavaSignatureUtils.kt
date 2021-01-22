@@ -21,10 +21,10 @@ object JavaSignatureUtils : JvmSignatureUtils {
     private val listBrackets = Pair('{', '}')
     private val classExtension = ".class"
 
-    override fun PageContentBuilder.DocumentableContentBuilder.annotationsBlock(d: Documentable) =
+    override fun PageContentBuilder.DocumentableContentBuilder.annotationsBlock(d: Annotatable) =
         annotationsBlockWithIgnored(d, ignoredAnnotations, strategy, listBrackets, classExtension)
 
-    override fun PageContentBuilder.DocumentableContentBuilder.annotationsInline(d: Documentable) =
+    override fun PageContentBuilder.DocumentableContentBuilder.annotationsInline(d: Annotatable) =
         annotationsInlineWithIgnored(d, ignoredAnnotations, strategy, listBrackets, classExtension)
 
     override fun <T : Documentable> WithExtraProperties<T>.modifiers() =

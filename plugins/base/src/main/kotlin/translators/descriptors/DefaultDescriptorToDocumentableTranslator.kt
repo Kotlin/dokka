@@ -784,36 +784,45 @@ private class DokkaDescriptorVisitor(
         )
 
     private suspend fun org.jetbrains.kotlin.descriptors.annotations.Annotations.getPresentableName(): String? =
-        map { it.toAnnotation() }.singleOrNull { it.dri.classNames == "ParameterName" }?.params?.get("name")
+        mapNotNull { it.toAnnotation() }.singleOrNull { it.dri.classNames == "ParameterName" }?.params?.get("name")
             .safeAs<StringValue>()?.value?.let { unquotedValue(it) }
 
-    private suspend fun KotlinType.toBound(): Bound = when (this) {
+    private suspend fun KotlinType.toBound(): Bound {
+        suspend fun <T : Annotatable> annotations(): PropertyContainer<T> =
+            getAnnotations().takeIf { it.isNotEmpty() }?.let { annotations ->
+                PropertyContainer.withAll(annotations.toSourceSetDependent().toAnnotations())
+            } ?: PropertyContainer.empty()
 
-        is DynamicType -> Dynamic
-        is AbbreviatedType -> TypeAliased(
-            abbreviation.toBound(),
-            expandedType.toBound()
-        )
-        else -> when (val ctor = constructor.declarationDescriptor) {
-            is TypeParameterDescriptor -> TypeParameter(
-                dri = DRI.from(ctor),
-                name = ctor.name.asString(),
-                presentableName = annotations.getPresentableName()
+        return when (this) {
+            is DynamicType -> Dynamic
+            is AbbreviatedType -> TypeAliased(
+                abbreviation.toBound(),
+                expandedType.toBound()
             )
-            is FunctionClassDescriptor -> FunctionalTypeConstructor(
-                DRI.from(ctor),
-                arguments.map { it.toProjection() },
-                isExtensionFunction = isExtensionFunctionType || isBuiltinExtensionFunctionalType,
-                isSuspendable = isSuspendFunctionTypeOrSubtype,
-                presentableName = annotations.getPresentableName()
-            )
-            else -> GenericTypeConstructor(
-                DRI.from(ctor!!), // TODO: remove '!!'
-                arguments.map { it.toProjection() },
-                annotations.getPresentableName()
-            )
-        }.let {
-            if (isMarkedNullable) Nullable(it) else it
+            else -> when (val ctor = constructor.declarationDescriptor) {
+                is TypeParameterDescriptor -> TypeParameter(
+                    dri = DRI.from(ctor),
+                    name = ctor.name.asString(),
+                    presentableName = annotations.getPresentableName(),
+                    extra = annotations()
+                )
+                is FunctionClassDescriptor -> FunctionalTypeConstructor(
+                    DRI.from(ctor),
+                    arguments.map { it.toProjection() },
+                    isExtensionFunction = isExtensionFunctionType || isBuiltinExtensionFunctionalType,
+                    isSuspendable = isSuspendFunctionTypeOrSubtype,
+                    presentableName = annotations.getPresentableName(),
+                    extra = annotations()
+                )
+                else -> GenericTypeConstructor(
+                    DRI.from(ctor!!), // TODO: remove '!!'
+                    arguments.map { it.toProjection() },
+                    annotations.getPresentableName(),
+                    extra = annotations()
+                )
+            }.let {
+                if (isMarkedNullable) Nullable(it) else it
+            }
         }
     }
 
@@ -909,7 +918,7 @@ private class DokkaDescriptorVisitor(
 
     private suspend fun Annotated.getAnnotations() = annotations.parallelMapNotNull { it.toAnnotation() }
 
-    private suspend fun ConstantValue<*>.toValue(): AnnotationParameterValue? = when (this) {
+    private fun ConstantValue<*>.toValue(): AnnotationParameterValue? = when (this) {
         is ConstantsAnnotationValue -> value.toAnnotation()?.let { AnnotationValue(it) }
         is ConstantsArrayValue -> ArrayValue(value.mapNotNull { it.toValue() })
         is ConstantsEnumValue -> EnumValue(
@@ -933,7 +942,7 @@ private class DokkaDescriptorVisitor(
         else -> StringValue(unquotedValue(toString()))
     }
 
-    private suspend fun AnnotationDescriptor.toAnnotation(scope: Annotations.AnnotationScope = Annotations.AnnotationScope.DIRECT): Annotations.Annotation =
+    private fun AnnotationDescriptor.toAnnotation(scope: Annotations.AnnotationScope = Annotations.AnnotationScope.DIRECT): Annotations.Annotation? =
         Annotations.Annotation(
             DRI.from(annotationClass as DeclarationDescriptor),
             allValueArguments.map { it.key.asString() to it.value.toValue() }.filter {
@@ -944,7 +953,8 @@ private class DokkaDescriptorVisitor(
         )
 
     private fun AnnotationDescriptor.mustBeDocumented(): Boolean =
-        annotationClass?.annotations?.hasAnnotation(FqName("kotlin.annotation.MustBeDocumented")) ?: false
+        if (source.toString() == "NO_SOURCE") false
+        else annotationClass?.annotations?.hasAnnotation(FqName("kotlin.annotation.MustBeDocumented")) ?: false
 
     private suspend fun PropertyDescriptor.getAnnotationsWithBackingField(): List<Annotations.Annotation> =
         getAnnotations() + (backingField?.getAnnotations() ?: emptyList())
@@ -1015,8 +1025,8 @@ private class DokkaDescriptorVisitor(
     private suspend fun DeclarationDescriptorWithSource.fileLevelAnnotations() = ktFile()
         ?.let { file -> resolutionFacade.resolveSession.getFileAnnotations(file) }
         ?.toList()
+        ?.parallelMapNotNull { it.toAnnotation(scope = Annotations.AnnotationScope.FILE) }
         .orEmpty()
-        .parallelMap { it.toAnnotation(scope = Annotations.AnnotationScope.FILE) }
 }
 
 private data class AncestryLevel(
