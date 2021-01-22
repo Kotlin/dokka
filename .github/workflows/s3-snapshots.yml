@@ -72,7 +72,7 @@ jobs:
         run: ./integration-tests/aws_sync.sh s3://${{ env.bucket-name }} stdlib ../stdlib
 
       - name: Print link
-        run: echo http://dokka-snapshots.s3.eu-central-1.amazonaws.com/${{ env.branch-name }}/stdlib/${GITHUB_SHA::7}/kotlin-stdlib/index.html
+        run: echo http://dokka-snapshots.s3.eu-central-1.amazonaws.com/${{ env.branch-name }}/stdlib/${GITHUB_SHA::7}/index.html
 
 #  serialization:
 #    runs-on: ubuntu-latest
