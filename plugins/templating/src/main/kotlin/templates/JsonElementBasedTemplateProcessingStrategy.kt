@@ -39,10 +39,6 @@ abstract class BaseJsonNavigationTemplateProcessingStrategy(val context: DokkaCo
             })
             output.resolve(path).mkdirs()
             output.resolve("$path/$navigationFileNameWithoutExtension.json").writeText(content)
-
-            fragments.keys.forEach {
-                output.resolve(it).resolve("$path/$navigationFileNameWithoutExtension.json").writeText(content)
-            }
         }
     }
 
