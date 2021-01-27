@@ -1,6 +1,8 @@
 package org.jetbrains.dokka.kotlinAsJava.converters
 
 import org.jetbrains.dokka.kotlinAsJava.jvmField
+import org.jetbrains.dokka.kotlinAsJava.jvmOverloads
+import org.jetbrains.dokka.kotlinAsJava.removeLastIf
 import org.jetbrains.dokka.kotlinAsJava.transformers.JvmNameProvider
 import org.jetbrains.dokka.kotlinAsJava.transformers.withCallableName
 import org.jetbrains.dokka.links.Callable
@@ -43,7 +45,7 @@ internal fun DPackage.asJava(): DPackage {
                                 .filterNot { it.isConst || it.isJvmField }
                                 .flatMap { it.javaAccessors(relocateToClass = syntheticClassName.name) } +
                                     nodes.filterIsInstance<DFunction>()
-                                        .map { it.asJava(syntheticClassName.name) }), // TODO: methods are static and receiver is a param
+                                        .flatMap { it.asJava(syntheticClassName.name, true) }), // TODO: methods are static and receiver is a param
                     classlikes = emptyList(),
                     sources = emptyMap(),
                     expectPresentInSet = null,
@@ -169,12 +171,11 @@ internal fun DProperty.javaAccessors(isTopLevel: Boolean = false, relocateToClas
         }
     )
 
-
-internal fun DFunction.asJava(containingClassName: String): DFunction {
-    val newName = when {
-        isConstructor -> containingClassName
-        else -> name
-    }
+private fun DFunction.asJava(
+    containingClassName: String,
+    newName: String, parameters: List<DParameter>,
+    isTopLevel: Boolean = false
+): DFunction {
     return copy(
         dri = dri.copy(classNames = containingClassName, callable = dri.callable?.copy(name = newName)),
         name = newName,
@@ -184,8 +185,36 @@ internal fun DFunction.asJava(containingClassName: String): DFunction {
         else sourceSets.map { it to modifier.values.first() }.toMap(),
         parameters = listOfNotNull(receiver?.asJava()) + parameters.map { it.asJava() },
         visibility = visibility.map { (sourceSet, visibility) -> Pair(sourceSet, visibility.asJava()) }.toMap(),
-        receiver = null
-    ) // TODO static if toplevel
+        receiver = null,
+        extra = if (isTopLevel) {
+            extra + extra.mergeAdditionalModifiers(
+                sourceSets.map {
+                    it to setOf(ExtraModifiers.JavaOnlyModifiers.Static)
+                }.toMap()
+            )
+        } else {
+            extra
+        }
+    )
+}
+
+
+internal fun DFunction.asJava(containingClassName: String, isTopLevel: Boolean = false): List<DFunction> {
+    val newName = when {
+        isConstructor -> containingClassName
+        else -> name
+    }
+    val baseFunction = asJava(containingClassName, newName, parameters, isTopLevel)
+    return if (jvmOverloads() == null) {
+        listOf(baseFunction)
+    } else {
+        val functions = mutableListOf(baseFunction)
+        val parameters = this.parameters.toMutableList()
+        while (parameters.removeLastIf { it.extra[DefaultValue] != null }) {
+            functions.add(asJava(containingClassName, newName, parameters, isTopLevel))
+        }
+        functions
+    }
 }
 
 internal fun DClasslike.asJava(): DClasslike = when (this) {
@@ -198,7 +227,7 @@ internal fun DClasslike.asJava(): DClasslike = when (this) {
 }
 
 internal fun DClass.asJava(): DClass = copy(
-    constructors = constructors.map { it.asJava(dri.classNames ?: name) }, // name may not always be valid here, however classNames should always be not null
+    constructors = constructors.flatMap { it.asJava(dri.classNames ?: name) }, // name may not always be valid here, however classNames should always be not null
     functions = functionsInJava(),
     properties = properties.map { it.asJava() },
     classlikes = classlikes.map { it.asJava() },
@@ -211,9 +240,10 @@ internal fun DClass.asJava(): DClass = copy(
 
 internal fun DClass.functionsInJava(): List<DFunction> =
     (properties.filter { it.jvmField() == null }
-        .flatMap { property -> listOfNotNull(property.getter, property.setter) } + functions).map {
-        it.asJava(dri.classNames ?: name)
-    }
+        .flatMap { property -> listOfNotNull(property.getter, property.setter) } + functions)
+        .flatMap {
+            it.asJava(dri.classNames ?: name)
+        }
 
 private fun DTypeParameter.asJava(): DTypeParameter = copy(
     variantTypeParameter = variantTypeParameter.withDri(dri.possiblyAsJava()),
@@ -251,8 +281,8 @@ private fun Bound.asJava(): Bound = when (this) {
 }
 
 internal fun DEnum.asJava(): DEnum = copy(
-    constructors = constructors.map { it.asJava(dri.classNames ?: name) },
-    functions = (functions + properties.map { it.getter } + properties.map { it.setter }).filterNotNull().map {
+    constructors = constructors.flatMap { it.asJava(dri.classNames ?: name) },
+    functions = (functions + properties.map { it.getter } + properties.map { it.setter }).filterNotNull().flatMap {
         it.asJava(dri.classNames ?: name)
     },
     properties = properties.map { it.asJava() },
@@ -264,7 +294,7 @@ internal fun DEnum.asJava(): DEnum = copy(
 internal fun DObject.asJava(): DObject = copy(
     functions = (functions + properties.map { it.getter } + properties.map { it.setter })
         .filterNotNull()
-        .map { it.asJava(dri.classNames ?: name.orEmpty()) },
+        .flatMap { it.asJava(dri.classNames ?: name.orEmpty()) },
     properties = properties.map { it.asJava() } +
             DProperty(
                 name = "INSTANCE",
@@ -294,7 +324,7 @@ internal fun DObject.asJava(): DObject = copy(
 internal fun DInterface.asJava(): DInterface = copy(
     functions = (functions + properties.map { it.getter } + properties.map { it.setter })
         .filterNotNull()
-        .map { it.asJava(dri.classNames ?: name) },
+        .flatMap { it.asJava(dri.classNames ?: name) },
     properties = emptyList(),
     classlikes = classlikes.map { it.asJava() }, // TODO: public static final class DefaultImpls with impls for methods
     generics = generics.map { it.asJava() },
