@@ -21,8 +21,8 @@ fun intellijCoreAnalysis() = zipTree(intellijCore.singleFile).matching {
 
 dependencies {
     val kotlin_plugin_version: String by project
-    api("org.jetbrains.kotlin:ide-common-ij201:$kotlin_plugin_version")
-    api("org.jetbrains.kotlin:kotlin-plugin-ij201:$kotlin_plugin_version") {
+    api("org.jetbrains.kotlin:ide-common-ij202:$kotlin_plugin_version")
+    api("org.jetbrains.kotlin:kotlin-plugin-ij202:$kotlin_plugin_version") {
         //TODO: parametrize ij version after 1.3.70
         isTransitive = false
     }
