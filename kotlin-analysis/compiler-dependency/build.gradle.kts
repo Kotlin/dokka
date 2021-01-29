@@ -19,6 +19,8 @@ tasks {
         archiveFileName.set("dokka-kotlin-analysis-compiler-$dokka_version.jar")
         archiveClassifier.set("")
         exclude("**/intellij**")
+        exclude("**/*.kotlin_metadata")
+        exclude("**/*.kotlin_builtins")
     }
 }
 
