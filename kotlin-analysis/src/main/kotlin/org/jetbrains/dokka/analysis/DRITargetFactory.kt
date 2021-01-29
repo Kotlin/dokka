@@ -8,10 +8,7 @@ import org.jetbrains.dokka.links.DriTarget
 import org.jetbrains.dokka.links.PointingToCallableParameters
 import org.jetbrains.dokka.links.PointingToDeclaration
 import org.jetbrains.dokka.links.PointingToGenericParameters
-import org.jetbrains.kotlin.descriptors.CallableDescriptor
-import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
-import org.jetbrains.kotlin.descriptors.ParameterDescriptor
-import org.jetbrains.kotlin.descriptors.TypeParameterDescriptor
+import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.psi.psiUtil.parentsWithSelf
 import org.jetbrains.kotlin.resolve.descriptorUtil.parentsWithSelf
 import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
@@ -19,6 +16,7 @@ import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
 fun DriTarget.Companion.from(descriptor: DeclarationDescriptor): DriTarget = descriptor.parentsWithSelf.run {
     return when (descriptor) {
         is TypeParameterDescriptor -> PointingToGenericParameters(descriptor.index)
+        is ValueParameterDescriptor -> PointingToCallableParameters(descriptor.index)
         else -> {
             val callable = firstIsInstanceOrNull<CallableDescriptor>()
             val params =
