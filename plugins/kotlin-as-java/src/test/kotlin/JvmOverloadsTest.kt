@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
 class JvmOverloadsTest : BaseAbstractTest() {
-    val configuration = dokkaConfiguration {
+    private val configuration = dokkaConfiguration {
         sourceSets {
             sourceSet {
                 sourceRoots = listOf("src/")

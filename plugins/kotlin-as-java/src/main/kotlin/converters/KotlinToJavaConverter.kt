@@ -1,15 +1,14 @@
 package org.jetbrains.dokka.kotlinAsJava.converters
 
+import org.jetbrains.dokka.kotlinAsJava.hasJvmOverloads
 import org.jetbrains.dokka.kotlinAsJava.jvmField
-import org.jetbrains.dokka.kotlinAsJava.jvmOverloads
-import org.jetbrains.dokka.kotlinAsJava.removeLastIf
 import org.jetbrains.dokka.kotlinAsJava.transformers.JvmNameProvider
 import org.jetbrains.dokka.kotlinAsJava.transformers.withCallableName
+import org.jetbrains.dokka.links.*
 import org.jetbrains.dokka.links.Callable
-import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.links.PointingToDeclaration
-import org.jetbrains.dokka.links.withClass
 import org.jetbrains.dokka.model.*
+import org.jetbrains.dokka.model.Nullable
+import org.jetbrains.dokka.model.TypeConstructor
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.kotlin.builtins.jvm.JavaToKotlinClassMap
 import org.jetbrains.kotlin.name.ClassId
@@ -173,7 +172,8 @@ internal fun DProperty.javaAccessors(isTopLevel: Boolean = false, relocateToClas
 
 private fun DFunction.asJava(
     containingClassName: String,
-    newName: String, parameters: List<DParameter>,
+    newName: String,
+    parameters: List<DParameter>,
     isTopLevel: Boolean = false
 ): DFunction {
     return copy(
@@ -198,6 +198,29 @@ private fun DFunction.asJava(
     )
 }
 
+private fun DFunction.withJvmOverloads(
+    containingClassName: String,
+    newName: String,
+    isTopLevel: Boolean = false
+): List<DFunction>? {
+    val (paramsWithDefaults, paramsWithoutDefaults) = parameters
+        .withIndex()
+        .partition { (_, p) -> p.extra[DefaultValue] != null }
+    return paramsWithDefaults
+        .runningFold(paramsWithoutDefaults) { acc, param -> (acc + param) }
+        .map { params ->
+            asJava(
+                containingClassName,
+                newName,
+                params
+                    .sortedBy(IndexedValue<DParameter>::index)
+                    .map { it.value },
+                isTopLevel
+            )
+        }
+        .reversed()
+        .takeIf { it.isNotEmpty() }
+}
 
 internal fun DFunction.asJava(containingClassName: String, isTopLevel: Boolean = false): List<DFunction> {
     val newName = when {
@@ -205,15 +228,10 @@ internal fun DFunction.asJava(containingClassName: String, isTopLevel: Boolean =
         else -> name
     }
     val baseFunction = asJava(containingClassName, newName, parameters, isTopLevel)
-    return if (jvmOverloads() == null) {
-        listOf(baseFunction)
+    return if (hasJvmOverloads()) {
+        withJvmOverloads(containingClassName, newName, isTopLevel) ?: listOf(baseFunction)
     } else {
-        val functions = mutableListOf(baseFunction)
-        val parameters = this.parameters.toMutableList()
-        while (parameters.removeLastIf { it.extra[DefaultValue] != null }) {
-            functions.add(asJava(containingClassName, newName, parameters, isTopLevel))
-        }
-        functions
+        listOf(baseFunction)
     }
 }
 
