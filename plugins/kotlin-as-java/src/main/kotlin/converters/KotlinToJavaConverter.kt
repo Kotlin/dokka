@@ -4,11 +4,11 @@ import org.jetbrains.dokka.kotlinAsJava.hasJvmOverloads
 import org.jetbrains.dokka.kotlinAsJava.jvmField
 import org.jetbrains.dokka.kotlinAsJava.transformers.JvmNameProvider
 import org.jetbrains.dokka.kotlinAsJava.transformers.withCallableName
-import org.jetbrains.dokka.links.*
 import org.jetbrains.dokka.links.Callable
+import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.links.PointingToDeclaration
+import org.jetbrains.dokka.links.withClass
 import org.jetbrains.dokka.model.*
-import org.jetbrains.dokka.model.Nullable
-import org.jetbrains.dokka.model.TypeConstructor
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.kotlin.builtins.jvm.JavaToKotlinClassMap
 import org.jetbrains.kotlin.name.ClassId
