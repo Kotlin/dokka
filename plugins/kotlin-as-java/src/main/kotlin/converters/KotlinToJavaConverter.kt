@@ -1,6 +1,7 @@
 package org.jetbrains.dokka.kotlinAsJava.converters
 
 import org.jetbrains.dokka.kotlinAsJava.hasJvmOverloads
+import org.jetbrains.dokka.kotlinAsJava.hasJvmSynthetic
 import org.jetbrains.dokka.kotlinAsJava.jvmField
 import org.jetbrains.dokka.kotlinAsJava.transformers.JvmNameProvider
 import org.jetbrains.dokka.kotlinAsJava.transformers.withCallableName
@@ -36,15 +37,20 @@ internal fun DPackage.asJava(): DPackage {
                 DClass(
                     dri = dri.withClass(syntheticClassName.name),
                     name = syntheticClassName.name,
-                    properties = nodes.filterIsInstance<DProperty>().map { it.asJava(true) },
+                    properties = nodes
+                        .filterIsInstance<DProperty>()
+                        .filterNot { it.hasJvmSynthetic() }
+                        .map { it.asJava(true) },
                     constructors = emptyList(),
                     functions = (
                             nodes
                                 .filterIsInstance<DProperty>()
-                                .filterNot { it.isConst || it.isJvmField }
+                                .filterNot { it.isConst || it.isJvmField || it.hasJvmSynthetic() }
                                 .flatMap { it.javaAccessors(relocateToClass = syntheticClassName.name) } +
-                                    nodes.filterIsInstance<DFunction>()
-                                        .flatMap { it.asJava(syntheticClassName.name, true) }), // TODO: methods are static and receiver is a param
+                                    nodes
+                                        .filterIsInstance<DFunction>()
+                                        .flatMap { it.asJava(syntheticClassName.name, true) })
+                        .filterNot { it.hasJvmSynthetic() },
                     classlikes = emptyList(),
                     sources = emptyMap(),
                     expectPresentInSet = null,
@@ -245,9 +251,13 @@ internal fun DClasslike.asJava(): DClasslike = when (this) {
 }
 
 internal fun DClass.asJava(): DClass = copy(
-    constructors = constructors.flatMap { it.asJava(dri.classNames ?: name) }, // name may not always be valid here, however classNames should always be not null
+    constructors = constructors
+        .filterNot { it.hasJvmSynthetic() }
+        .flatMap { it.asJava(dri.classNames ?: name) }, // name may not always be valid here, however classNames should always be not null
     functions = functionsInJava(),
-    properties = properties.map { it.asJava() },
+    properties = properties
+        .filterNot { it.hasJvmSynthetic() }
+        .map { it.asJava() },
     classlikes = classlikes.map { it.asJava() },
     generics = generics.map { it.asJava() },
     supertypes = supertypes.mapValues { it.value.map { it.asJava() } },
@@ -257,11 +267,12 @@ internal fun DClass.asJava(): DClass = copy(
 )
 
 internal fun DClass.functionsInJava(): List<DFunction> =
-    (properties.filter { it.jvmField() == null }
-        .flatMap { property -> listOfNotNull(property.getter, property.setter) } + functions)
-        .flatMap {
-            it.asJava(dri.classNames ?: name)
-        }
+    properties
+        .filter { it.jvmField() == null && !it.hasJvmSynthetic() }
+        .flatMap { property -> listOfNotNull(property.getter, property.setter) }
+        .plus(functions)
+        .filterNot { it.hasJvmSynthetic() }
+        .flatMap { it.asJava(dri.classNames ?: name) }
 
 private fun DTypeParameter.asJava(): DTypeParameter = copy(
     variantTypeParameter = variantTypeParameter.withDri(dri.possiblyAsJava()),
@@ -300,20 +311,36 @@ private fun Bound.asJava(): Bound = when (this) {
 
 internal fun DEnum.asJava(): DEnum = copy(
     constructors = constructors.flatMap { it.asJava(dri.classNames ?: name) },
-    functions = (functions + properties.map { it.getter } + properties.map { it.setter }).filterNotNull().flatMap {
-        it.asJava(dri.classNames ?: name)
-    },
-    properties = properties.map { it.asJava() },
+    functions = functions
+        .plus(
+            properties
+                .filterNot { it.hasJvmSynthetic() }
+                .flatMap { listOf(it.getter, it.setter) }
+        )
+        .filterNotNull()
+        .filterNot { it.hasJvmSynthetic() }
+        .flatMap { it.asJava(dri.classNames ?: name) },
+    properties = properties
+        .filterNot { it.hasJvmSynthetic() }
+        .map { it.asJava() },
     classlikes = classlikes.map { it.asJava() },
     supertypes = supertypes.mapValues { it.value.map { it.asJava() } }
 //    , entries = entries.map { it.asJava() }
 )
 
 internal fun DObject.asJava(): DObject = copy(
-    functions = (functions + properties.map { it.getter } + properties.map { it.setter })
+    functions = functions
+        .plus(
+            properties
+                .filterNot { it.hasJvmSynthetic() }
+                .flatMap { listOf(it.getter, it.setter) }
+        )
         .filterNotNull()
+        .filterNot { it.hasJvmSynthetic() }
         .flatMap { it.asJava(dri.classNames ?: name.orEmpty()) },
-    properties = properties.map { it.asJava() } +
+    properties = properties
+        .filterNot { it.hasJvmSynthetic() }
+        .map { it.asJava() } +
             DProperty(
                 name = "INSTANCE",
                 modifier = sourceSets.map { it to JavaModifier.Final }.toMap(),
@@ -340,8 +367,14 @@ internal fun DObject.asJava(): DObject = copy(
 )
 
 internal fun DInterface.asJava(): DInterface = copy(
-    functions = (functions + properties.map { it.getter } + properties.map { it.setter })
+    functions = functions
+        .plus(
+            properties
+                .filterNot { it.hasJvmSynthetic() }
+                .flatMap { listOf(it.getter, it.setter) }
+        )
         .filterNotNull()
+        .filterNot { it.hasJvmSynthetic() }
         .flatMap { it.asJava(dri.classNames ?: name) },
     properties = emptyList(),
     classlikes = classlikes.map { it.asJava() }, // TODO: public static final class DefaultImpls with impls for methods
