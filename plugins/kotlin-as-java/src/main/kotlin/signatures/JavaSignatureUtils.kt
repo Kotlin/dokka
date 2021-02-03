@@ -5,6 +5,7 @@ import org.jetbrains.dokka.base.signatures.JvmSignatureUtils
 import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.*
+import org.jetbrains.dokka.model.AnnotationTarget
 import org.jetbrains.dokka.model.properties.WithExtraProperties
 
 object JavaSignatureUtils : JvmSignatureUtils {
@@ -21,10 +22,10 @@ object JavaSignatureUtils : JvmSignatureUtils {
     private val listBrackets = Pair('{', '}')
     private val classExtension = ".class"
 
-    override fun PageContentBuilder.DocumentableContentBuilder.annotationsBlock(d: Annotatable) =
+    override fun PageContentBuilder.DocumentableContentBuilder.annotationsBlock(d: AnnotationTarget) =
         annotationsBlockWithIgnored(d, ignoredAnnotations, strategy, listBrackets, classExtension)
 
-    override fun PageContentBuilder.DocumentableContentBuilder.annotationsInline(d: Annotatable) =
+    override fun PageContentBuilder.DocumentableContentBuilder.annotationsInline(d: AnnotationTarget) =
         annotationsInlineWithIgnored(d, ignoredAnnotations, strategy, listBrackets, classExtension)
 
     override fun <T : Documentable> WithExtraProperties<T>.modifiers() =

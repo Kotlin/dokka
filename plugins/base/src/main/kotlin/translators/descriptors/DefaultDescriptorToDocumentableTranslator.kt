@@ -14,6 +14,7 @@ import org.jetbrains.dokka.base.translators.unquotedValue
 import org.jetbrains.dokka.links.*
 import org.jetbrains.dokka.links.Callable
 import org.jetbrains.dokka.model.*
+import org.jetbrains.dokka.model.AnnotationTarget
 import org.jetbrains.dokka.model.Nullable
 import org.jetbrains.dokka.model.TypeConstructor
 import org.jetbrains.dokka.model.doc.*
@@ -114,7 +115,7 @@ private class DokkaDescriptorVisitor(
         }
     }
 
-    private fun <T> T.toSourceSetDependent() = if(this != null) mapOf(sourceSet to this) else emptyMap()
+    private fun <T> T.toSourceSetDependent() = if (this != null) mapOf(sourceSet to this) else emptyMap()
 
     suspend fun visitPackageFragmentDescriptor(
         descriptor: PackageFragmentDescriptor,
@@ -489,7 +490,8 @@ private class DokkaDescriptorVisitor(
                 extra = PropertyContainer.withAll(
                     InheritedMember(inheritedFrom.toSourceSetDependent()),
                     descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
-                    (descriptor.getAnnotations() + descriptor.fileLevelAnnotations()).toSourceSetDependent().toAnnotations(),
+                    (descriptor.getAnnotations() + descriptor.fileLevelAnnotations()).toSourceSetDependent()
+                        .toAnnotations(),
                 )
             )
         }
@@ -788,7 +790,7 @@ private class DokkaDescriptorVisitor(
             .safeAs<StringValue>()?.value?.let { unquotedValue(it) }
 
     private suspend fun KotlinType.toBound(): Bound {
-        suspend fun <T : Annotatable> annotations(): PropertyContainer<T> =
+        suspend fun <T : AnnotationTarget> annotations(): PropertyContainer<T> =
             getAnnotations().takeIf { it.isNotEmpty() }?.let { annotations ->
                 PropertyContainer.withAll(annotations.toSourceSetDependent().toAnnotations())
             } ?: PropertyContainer.empty()
@@ -832,7 +834,7 @@ private class DokkaDescriptorVisitor(
     private suspend fun TypeProjection.formPossiblyVariant(): Projection =
         type.toBound().wrapWithVariance(projectionKind)
 
-    private suspend fun TypeParameterDescriptor.variantTypeParameter(type: TypeParameter) =
+    private fun TypeParameterDescriptor.variantTypeParameter(type: TypeParameter) =
         type.wrapWithVariance(variance)
 
     private fun <T : Bound> T.wrapWithVariance(variance: org.jetbrains.kotlin.types.Variance) =
@@ -942,7 +944,7 @@ private class DokkaDescriptorVisitor(
         else -> StringValue(unquotedValue(toString()))
     }
 
-    private fun AnnotationDescriptor.toAnnotation(scope: Annotations.AnnotationScope = Annotations.AnnotationScope.DIRECT): Annotations.Annotation? =
+    private fun AnnotationDescriptor.toAnnotation(scope: Annotations.AnnotationScope = Annotations.AnnotationScope.DIRECT): Annotations.Annotation =
         Annotations.Annotation(
             DRI.from(annotationClass as DeclarationDescriptor),
             allValueArguments.map { it.key.asString() to it.value.toValue() }.filter {
@@ -1020,12 +1022,13 @@ private class DokkaDescriptorVisitor(
     private fun ConstantsEnumValue.fullEnumEntryName() =
         "${this.enumClassId.relativeClassName.asString()}.${this.enumEntryName.identifier}"
 
-    private fun DeclarationDescriptorWithSource.ktFile(): KtFile? = (source.containingFile as? PsiSourceFile)?.psiFile as? KtFile
+    private fun DeclarationDescriptorWithSource.ktFile(): KtFile? =
+        (source.containingFile as? PsiSourceFile)?.psiFile as? KtFile
 
     private suspend fun DeclarationDescriptorWithSource.fileLevelAnnotations() = ktFile()
         ?.let { file -> resolutionFacade.resolveSession.getFileAnnotations(file) }
         ?.toList()
-        ?.parallelMapNotNull { it.toAnnotation(scope = Annotations.AnnotationScope.FILE) }
+        ?.parallelMap { it.toAnnotation(scope = Annotations.AnnotationScope.FILE) }
         .orEmpty()
 }
 

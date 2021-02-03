@@ -6,9 +6,10 @@ import org.jetbrains.dokka.model.doc.DocumentationNode
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.model.properties.WithExtraProperties
 
-interface Annotatable
+interface AnnotationTarget
 
-abstract class Documentable : WithChildren<Documentable>, Annotatable {
+abstract class Documentable : WithChildren<Documentable>,
+    AnnotationTarget {
     abstract val name: String?
     abstract val dri: DRI
     abstract val documentation: SourceSetDependent<DocumentationNode>
@@ -384,7 +385,7 @@ data class DTypeAlias(
 }
 
 sealed class Projection
-sealed class Bound : Projection(), Annotatable
+sealed class Bound : Projection(), AnnotationTarget
 data class TypeParameter(
     val dri: DRI,
     val name: String,
@@ -444,9 +445,7 @@ data class Invariance<out T : Bound>(override val inner: T) : Variance<T>() {
 }
 
 data class TypeAliased(val typeAlias: Bound, val inner: Bound) : Bound()
-data class PrimitiveJavaType(
-    val name: String,
-) : Bound()
+data class PrimitiveJavaType(val name: String) : Bound()
 
 object Void : Bound()
 
