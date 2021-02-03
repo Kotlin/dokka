@@ -1,8 +1,8 @@
 diff --git a/build.gradle b/build.gradle
-index f1cd0012..d1d3b6c6 100644
+index 83346e98..1871cc2a 100644
 --- a/build.gradle
 +++ b/build.gradle
-@@ -73,7 +73,6 @@ buildscript {
+@@ -76,7 +76,6 @@ buildscript {
      dependencies {
          classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
          classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlin_version"
@@ -10,7 +10,7 @@ index f1cd0012..d1d3b6c6 100644
          classpath "org.jetbrains.kotlinx:binary-compatibility-validator:$validator_version"
          classpath "org.jetbrains.kotlinx:kotlinx-knit:$knit_version"
  
-@@ -86,6 +85,11 @@ buildscript {
+@@ -89,6 +88,11 @@ buildscript {
      }
  }
  
@@ -23,19 +23,20 @@ index f1cd0012..d1d3b6c6 100644
  ext.compilerVersion = org.jetbrains.kotlin.config.KotlinCompilerVersion.VERSION
  apply plugin: 'binary-compatibility-validator'
 diff --git a/gradle.properties b/gradle.properties
-index c753aa76..ee9e725a 100644
+index 9e7c8e3b..085875da 100644
 --- a/gradle.properties
 +++ b/gradle.properties
-@@ -5,6 +5,7 @@
- group=org.jetbrains.kotlinx
- version=1.0.0
+@@ -13,7 +13,7 @@ kotlin.version.snapshot=1.4.255-SNAPSHOT
  
-+dokka_it_kotlin_version=
- kotlin.version=1.4.10
- 
- # This version take precedence if 'bootstrap' property passed to project
+ junit_version=4.12
+ jackson_version=2.10.0.pr1
+-dokka_version=1.4.20-multimodule-dev-7
++dokka_version=1.4.20
+ native.deploy=
+ validator_version=0.2.3
+ knit_version=0.2.2
 diff --git a/settings.gradle b/settings.gradle
-index 88bcb942..848efd27 100644
+index 88bcb942..99055d64 100644
 --- a/settings.gradle
 +++ b/settings.gradle
 @@ -2,6 +2,7 @@
