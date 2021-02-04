@@ -404,6 +404,39 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
             }
         }
     }
+
+    @Test
+    fun `function in top level`() {
+        val writerPlugin = TestOutputWriterPlugin()
+        val configuration = dokkaConfiguration {
+            sourceSets {
+                sourceSet {
+                    sourceRoots = listOf("src/")
+                    externalDocumentationLinks = listOf(
+                        DokkaConfiguration.ExternalDocumentationLink.jdk(8),
+                        stdlibExternalDocumentationLink
+                    )
+                }
+            }
+        }
+        testInline(
+            """
+            |/src/main/kotlin/kotlinAsJavaPlugin/Test.kt
+            |package kotlinAsJavaPlugin
+            |
+            |fun sample(a: Int) = ""
+        """.trimMargin(),
+            configuration,
+            pluginOverrides = listOf(writerPlugin),
+            cleanupOutput = true
+        ) {
+            renderingStage = { _, _ ->
+                writerPlugin.writer.renderedContent("root/kotlinAsJavaPlugin/-test-kt/sample.html").signature().first().match(
+                    "final static ", A("String"), A("sample"), "(", A("Integer"), "a)", Span()
+                )
+            }
+        }
+    }
 }
 
 private val ContentNode.mainContents: List<ContentNode>
