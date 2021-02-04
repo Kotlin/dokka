@@ -137,5 +137,11 @@ jobs:
       - name: Copy files to dokka's S3 bucket
         run: ./integration-tests/aws_sync.sh s3://${{ env.bucket-name }} biojava ../biojava
 
+      - name: Copy files to GitHub Actions Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: biojava
+          path: ../biojava
+
       - name: Print link
         run: echo http://dokka-snapshots.s3.eu-central-1.amazonaws.com/${{ env.branch-name }}/biojava/${GITHUB_SHA::7}/index.html
