@@ -63,12 +63,6 @@ class AddToSearchCommandResolutionTest : TemplatingAbstractTest() {
                 val output =
                     parseJson<List<SearchRecord>>(outputDir.resolve("scripts/${fileName}").readText())
                 assertEquals(expected, output.sortedBy { it.location })
-
-                val outputFromModule1 = parseJson<List<SearchRecord>>(module1Navigation.readText())
-                assertEquals(expected, outputFromModule1.sortedBy { it.location })
-
-                val outputFromModule2 = parseJson<List<SearchRecord>>(module2Navigation.readText())
-                assertEquals(expected, outputFromModule2.sortedBy { it.location })
             }
         }
     }

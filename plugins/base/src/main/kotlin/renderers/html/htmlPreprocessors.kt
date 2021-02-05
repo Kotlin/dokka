@@ -104,7 +104,7 @@ class CustomResourceInstaller(val dokkaContext: DokkaContext) : PageTransformer 
     }
 }
 
-object ScriptsInstaller : PageTransformer {
+class ScriptsInstaller(private val dokkaContext: DokkaContext) : PageTransformer {
     private val scriptsPages = listOf(
         "scripts/clipboard.js",
         "scripts/navigation-loader.js",
@@ -112,18 +112,18 @@ object ScriptsInstaller : PageTransformer {
         "scripts/main.js",
     )
 
-    override fun invoke(input: RootPageNode): RootPageNode {
-        return input.modified(
-            children = input.children + scriptsPages.toRenderSpecificResourcePage()
-        ).transformContentPagesTree {
+    override fun invoke(input: RootPageNode): RootPageNode =
+        input.let { root ->
+            if (dokkaContext.configuration.delayTemplateSubstitution) root
+            else root.modified(children = input.children + scriptsPages.toRenderSpecificResourcePage())
+        }.transformContentPagesTree {
             it.modified(
                 embeddedResources = it.embeddedResources + scriptsPages
             )
         }
-    }
 }
 
-object StylesInstaller : PageTransformer {
+class StylesInstaller(private val dokkaContext: DokkaContext) : PageTransformer {
     private val stylesPages = listOf(
         "styles/style.css",
         "styles/logo-styles.css",
@@ -132,9 +132,10 @@ object StylesInstaller : PageTransformer {
     )
 
     override fun invoke(input: RootPageNode): RootPageNode =
-        input.modified(
-            children = input.children + stylesPages.toRenderSpecificResourcePage()
-        ).transformContentPagesTree {
+        input.let { root ->
+            if (dokkaContext.configuration.delayTemplateSubstitution) root
+            else root.modified(children = input.children + stylesPages.toRenderSpecificResourcePage())
+        }.transformContentPagesTree {
             it.modified(
                 embeddedResources = it.embeddedResources + stylesPages
             )
