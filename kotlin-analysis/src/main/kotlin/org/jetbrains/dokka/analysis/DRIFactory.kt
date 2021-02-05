@@ -10,7 +10,9 @@ import org.jetbrains.kotlin.resolve.descriptorUtil.parentsWithSelf
 import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
 
 fun DRI.Companion.from(descriptor: DeclarationDescriptor) = descriptor.parentsWithSelf.run {
-    val callable = firstIsInstanceOrNull<CallableDescriptor>()
+    val parameter = firstIsInstanceOrNull<ValueParameterDescriptor>()
+    val callable = parameter?.containingDeclaration ?: firstIsInstanceOrNull<CallableDescriptor>()
+
     DRI(
         firstIsInstanceOrNull<PackageFragmentDescriptor>()?.fqName?.asString() ?: "",
         (filterIsInstance<ClassDescriptor>() + filterIsInstance<TypeAliasDescriptor>()).toList()
@@ -18,7 +20,7 @@ fun DRI.Companion.from(descriptor: DeclarationDescriptor) = descriptor.parentsWi
             ?.asReversed()
             ?.joinToString(separator = ".") { it.name.asString() },
         callable?.let { Callable.from(it) },
-        DriTarget.from(descriptor)
+        DriTarget.from(parameter ?: descriptor)
     )
 }
 
