@@ -403,7 +403,7 @@ internal fun String.getAsPrimitive(): JvmPrimitiveType? = org.jetbrains.kotlin.b
 
 private fun DRI.partialFqName() = packageName?.let { "$it." } + classNames
 private fun DRI.possiblyAsJava() = this.partialFqName().mapToJava()?.toDRI(this) ?: this
-private fun TypeConstructor.possiblyAsJava() = when (this) {
+private fun TypeConstructor.possiblyAsJava(): TypeConstructor = when (this) {
     is GenericTypeConstructor -> copy(dri = this.dri.possiblyAsJava())
     is FunctionalTypeConstructor -> copy(dri = this.dri.possiblyAsJava())
 }

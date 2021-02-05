@@ -164,6 +164,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
             link(c.name!!, c.dri)
             if (c is WithGenerics) {
                 list(c.generics, prefix = "<", suffix = ">") {
+                    annotationsInline(it)
                     +buildSignature(it)
                 }
             }
@@ -219,6 +220,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                 text(p.modifiers()[it]?.toSignatureString() ?: "")
                 p.setter?.let { text("var ") } ?: text("val ")
                 list(p.generics, prefix = "<", suffix = "> ") {
+                    annotationsInline(it)
                     +buildSignature(it)
                 }
                 p.receiver?.also {
@@ -252,6 +254,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                 text("fun ")
                 val usedGenerics = if (f.isConstructor) f.generics.filter { f uses it } else f.generics
                 list(usedGenerics, prefix = "<", suffix = "> ") {
+                    annotationsInline(it)
                     +buildSignature(it)
                 }
                 f.receiver?.also {
@@ -328,19 +331,23 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
 
     private fun PageContentBuilder.DocumentableContentBuilder.signatureForProjection(
         p: Projection, showFullyQualifiedName: Boolean = false
-    ): Unit =
-        when (p) {
-            is TypeParameter -> link(p.name, p.dri)
-
-            is FunctionalTypeConstructor ->
+    ): Unit {
+        return when (p) {
+            is TypeParameter -> {
+                annotationsInline(p)
+                link(p.name, p.dri)
+            }
+            is FunctionalTypeConstructor -> {
+                annotationsInline(p)
                 +funType(mainDRI.single(), mainSourcesetData, p)
-
+            }
             is GenericTypeConstructor ->
                 group(styles = emptySet()) {
                     val linkText = if (showFullyQualifiedName && p.dri.packageName != null) {
                         "${p.dri.packageName}.${p.dri.classNames.orEmpty()}"
                     } else p.dri.classNames.orEmpty()
                     if (p.presentableName != null) text(p.presentableName + ": ")
+                    annotationsInline(p)
                     link(linkText, p.dri)
                     list(p.projections, prefix = "<", suffix = ">") {
                         signatureForProjection(it, showFullyQualifiedName)
@@ -360,12 +367,16 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
             }
 
             is TypeAliased -> signatureForProjection(p.typeAlias)
-            is JavaObject -> link("Any", DriOfAny)
+            is JavaObject -> {
+                annotationsInline(p)
+                link("Any", DriOfAny)
+            }
             is Void -> link("Unit", DriOfUnit)
             is PrimitiveJavaType -> signatureForProjection(p.translateToKotlin(), showFullyQualifiedName)
             is Dynamic -> text("dynamic")
             is UnresolvedBound -> text(p.name)
         }
+    }
 
     private fun funType(dri: DRI, sourceSets: Set<DokkaSourceSet>, type: FunctionalTypeConstructor) =
         contentBuilder.contentFor(dri, sourceSets, ContentKind.Main) {
