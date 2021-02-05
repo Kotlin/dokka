@@ -5,11 +5,15 @@ import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.Annotations
 import org.jetbrains.dokka.model.StringValue
+import org.jetbrains.dokka.model.dfs
 import org.jetbrains.dokka.pages.ContentPage
+import org.jetbrains.dokka.pages.ContentText
+import org.jetbrains.dokka.pages.MemberPageNode
 import org.jetbrains.dokka.pages.PackagePageNode
 import org.jetbrains.kotlin.utils.addToStdlib.firstNotNullResult
 import org.junit.jupiter.api.Test
 import utils.ParamAttributes
+import utils.assertNotNull
 import utils.bareSignature
 import utils.propertySignature
 import kotlin.test.assertEquals
@@ -227,7 +231,7 @@ class ContentForAnnotationsTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `JvmName for property with setter and getter`(){
+    fun `JvmName for property with setter and getter`() {
         testInline(
             """
                 |/src/main/kotlin/test/source.kt
@@ -237,7 +241,8 @@ class ContentForAnnotationsTest : BaseAbstractTest() {
                 |var property: String
                 |    get() = ""
                 |    set(value) {}
-            """.trimIndent(), testConfiguration) {
+            """.trimIndent(), testConfiguration
+        ) {
             documentablesCreationStage = { modules ->
                 fun expectedAnnotation(name: String) = Annotations.Annotation(
                     dri = DRI("kotlin.jvm", "JvmName"),
@@ -261,6 +266,51 @@ class ContentForAnnotationsTest : BaseAbstractTest() {
                 assertEquals(expectedAnnotation("asd"), setterAnnotation)
                 assertTrue(setterAnnotation?.mustBeDocumented!!)
                 assertEquals(Annotations.AnnotationScope.DIRECT, setterAnnotation.scope)
+            }
+        }
+    }
+
+    @Test
+    fun `annotated bounds in Kotlin`() {
+        testInline(
+            """
+             |/src/main/kotlin/test/source.kt
+             |@MustBeDocumented
+             |@Target(AnnotationTarget.TYPE_PARAMETER)
+             |annotation class Hello(val bar: String)
+             |fun <T: @Hello("abc") String> foo(arg: String): List<T> = TODO()
+            """.trimIndent(), testConfiguration
+        ) {
+            pagesTransformationStage = { root ->
+                val fooPage = root.dfs { it.name == "foo" } as MemberPageNode
+                fooPage.content.dfs { it is ContentText && it.text == "Hello" }.assertNotNull()
+            }
+        }
+    }
+
+    @Test
+    fun `annotated bounds in Java`() {
+        testInline(
+            """
+             |/src/main/java/demo/AnnotationTest.java
+             |package demo;
+             |import java.lang.annotation.*;
+             |import java.util.List;
+             |@Documented
+             |@Target({ElementType.TYPE_USE, ElementType.TYPE})
+             |@interface Hello {
+             |   public String bar() default "";
+             |}
+             |public class AnnotationTest {
+             |    public <T extends @Hello(bar = "baz") String> List<T> foo() {
+             |        return null;
+             |    }
+             |}
+            """.trimIndent(), testConfiguration
+        ) {
+            pagesTransformationStage = { root ->
+                val fooPage = root.dfs { it.name == "foo" } as MemberPageNode
+                fooPage.content.dfs { it is ContentText && it.text == "Hello" }.assertNotNull()
             }
         }
     }

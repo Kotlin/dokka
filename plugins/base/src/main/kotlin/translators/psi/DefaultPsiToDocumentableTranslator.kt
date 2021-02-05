@@ -22,9 +22,11 @@ import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.nextTarget
 import org.jetbrains.dokka.links.withClass
 import org.jetbrains.dokka.model.*
+import org.jetbrains.dokka.model.AnnotationTarget
 import org.jetbrains.dokka.model.doc.DocumentationNode
 import org.jetbrains.dokka.model.doc.Param
 import org.jetbrains.dokka.model.properties.PropertyContainer
+import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.querySingle
@@ -200,8 +202,15 @@ class DefaultPsiToDocumentableTranslator(
                 parseSupertypes(superTypes)
                 val (regularFunctions, accessors) = splitFunctionsAndAccessors()
                 val documentation = javadocParser.parseDocumentation(this).toSourceSetDependent()
-                val allFunctions = async { regularFunctions.parallelMapNotNull { if (!it.isConstructor) parseFunction(it, parentDRI = dri) else null } +
-                        superMethods.parallelMap { parseFunction(it.first, inheritedFrom = it.second) } }
+                val allFunctions = async {
+                    regularFunctions.parallelMapNotNull {
+                        if (!it.isConstructor) parseFunction(
+                            it,
+                            parentDRI = dri
+                        ) else null
+                    } +
+                            superMethods.parallelMap { parseFunction(it.first, inheritedFrom = it.second) }
+                }
                 val source = PsiDocumentableSource(this).toSourceSetDependent()
                 val classlikes = async { innerClasses.asIterable().parallelMap { parseClasslike(it, dri) } }
                 val visibility = getVisibility().toSourceSetDependent()
@@ -406,40 +415,61 @@ class DefaultPsiToDocumentableTranslator(
                 Annotations.Annotation(DRI("kotlin.jvm", "JvmStatic"), emptyMap())
         }
 
-        private fun getBound(type: PsiType): Bound =
-            cachedBounds.getOrPut(type.canonicalText) {
-                when (type) {
-                    is PsiClassReferenceType -> {
-                        val resolved: PsiClass = type.resolve()
-                            ?: return UnresolvedBound(type.presentableText)
+        private fun getBound(type: PsiType): Bound {
+            fun annotationsFromType(): List<Annotations.Annotation> = type.annotations.toList().toListOfAnnotations()
+
+            fun <T : AnnotationTarget> annotations(): PropertyContainer<T> =
+                annotationsFromType().takeIf { it.isNotEmpty() }?.let { annotations ->
+                    PropertyContainer.withAll(annotations.toSourceSetDependent().toAnnotations())
+                } ?: PropertyContainer.empty()
+
+            fun bound() = when (type) {
+                is PsiClassReferenceType ->
+                    type.resolve()?.let { resolved ->
                         when {
-                            resolved.qualifiedName == "java.lang.Object" -> JavaObject
+                            resolved.qualifiedName == "java.lang.Object" -> JavaObject(annotations())
                             resolved is PsiTypeParameter ->
                                 TypeParameter(
                                     dri = DRI.from(resolved),
-                                    name = resolved.name.orEmpty()
+                                    name = resolved.name.orEmpty(),
+                                    extra = annotations()
                                 )
                             Regex("kotlin\\.jvm\\.functions\\.Function.*").matches(resolved.qualifiedName ?: "") ||
                                     Regex("java\\.util\\.function\\.Function.*").matches(
                                         resolved.qualifiedName ?: ""
                                     ) -> FunctionalTypeConstructor(
                                 DRI.from(resolved),
-                                type.parameters.map { getProjection(it) }
+                                type.parameters.map { getProjection(it) },
+                                extra = annotations()
                             )
                             else -> GenericTypeConstructor(
                                 DRI.from(resolved),
-                                type.parameters.map { getProjection(it) })
+                                type.parameters.map { getProjection(it) },
+                                extra = annotations()
+                            )
                         }
-                    }
-                    is PsiArrayType -> GenericTypeConstructor(
-                        DRI("kotlin", "Array"),
-                        listOf(getProjection(type.componentType))
-                    )
-                    is PsiPrimitiveType -> if (type.name == "void") Void else PrimitiveJavaType(type.name)
-                    is PsiImmediateClassType -> JavaObject
-                    else -> throw IllegalStateException("${type.presentableText} is not supported by PSI parser")
-                }
+                    } ?: UnresolvedBound(type.presentableText)
+                is PsiArrayType -> GenericTypeConstructor(
+                    DRI("kotlin", "Array"),
+                    listOf(getProjection(type.componentType)),
+                    extra = annotations()
+                )
+                is PsiPrimitiveType -> if (type.name == "void") Void else PrimitiveJavaType(type.name)
+                is PsiImmediateClassType -> JavaObject(annotations())
+                else -> throw IllegalStateException("${type.presentableText} is not supported by PSI parser")
             }
+
+            //We would like to cache most of the bounds since it is not common to annotate them,
+            //but if this is the case, we treat them as 'one of'
+            return if (annotationsFromType().isEmpty()) {
+                cachedBounds.getOrPut(type.canonicalText) {
+                    bound()
+                }
+            } else {
+                bound()
+            }
+        }
+
 
         private fun getVariance(type: PsiWildcardType): Projection = when {
             type.extendsBound != PsiType.NULL -> Covariance(getBound(type.extendsBound))
