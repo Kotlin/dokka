@@ -731,7 +731,8 @@ open class HtmlRenderer(
             }
         }
 
-    private fun resolveLink(link: String, page: PageNode): String = if (URI(link).isAbsolute) link else page.root(link)
+    private val String.isAbsolute: Boolean
+        get() = URI(this).isAbsolute
 
     open fun buildHtml(page: PageNode, resources: List<String>, content: FlowContent.() -> Unit): String {
         val pathToRoot = locationProvider.pathToRoot(page)
@@ -739,23 +740,43 @@ open class HtmlRenderer(
             head {
                 meta(name = "viewport", content = "width=device-width, initial-scale=1", charset = "UTF-8")
                 title(page.name)
-                link(href = page.root("images/logo-icon.svg"), rel = "icon", type = "image/svg")
+                templateCommand(PathToRootSubstitutionCommand("###", default = pathToRoot)) {
+                    link(href = page.root("###images/logo-icon.svg"), rel = "icon", type = "image/svg")
+                }
                 templateCommand(PathToRootSubstitutionCommand("###", default = pathToRoot)) {
                     script { unsafe { +"""var pathToRoot = "###";""" } }
                 }
                 resources.forEach {
                     when {
-                        it.substringBefore('?').substringAfterLast('.') == "css" -> link(
-                            rel = LinkRel.stylesheet,
-                            href = resolveLink(it, page)
-                        )
-                        it.substringBefore('?').substringAfterLast('.') == "js" -> script(
-                            type = ScriptType.textJavaScript,
-                            src = resolveLink(it, page)
-                        ) {
-                            async = true
+                        it.substringBefore('?').substringAfterLast('.') == "css" ->
+                            if (it.isAbsolute) link(
+                                rel = LinkRel.stylesheet,
+                                href = it
+                            )
+                            else templateCommand(PathToRootSubstitutionCommand("###", default = pathToRoot)) {
+                                link(
+                                    rel = LinkRel.stylesheet,
+                                    href = "###$it"
+                                )
+                            }
+                        it.substringBefore('?').substringAfterLast('.') == "js" ->
+                            if (it.isAbsolute) script(
+                                type = ScriptType.textJavaScript,
+                                src = it
+                            ) {
+                                async = true
+                            } else templateCommand(PathToRootSubstitutionCommand("###", default = pathToRoot)) {
+                                script(
+                                    type = ScriptType.textJavaScript,
+                                    src = "###$it"
+                                ) {
+                                    async = true
+                                }
+                            }
+                        it.isImage() -> if (it.isAbsolute) link(href = it)
+                        else templateCommand(PathToRootSubstitutionCommand("###", default = pathToRoot)) {
+                            link(href = "###$it")
                         }
-                        it.isImage() -> link(href = page.root(it))
                         else -> unsafe { +it }
                     }
                 }
@@ -779,7 +800,9 @@ open class HtmlRenderer(
                             id = "leftToggler"
                             span("icon-toggler")
                         }
-                        script(type = ScriptType.textJavaScript, src = page.root("scripts/main.js")) {}
+                        templateCommand(PathToRootSubstitutionCommand("###", default = pathToRoot)) {
+                            script(type = ScriptType.textJavaScript, src = "###scripts/main.js") {}
+                        }
                         content()
                         div(classes = "footer") {
                             span("go-to-top-icon") {
