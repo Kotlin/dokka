@@ -15,7 +15,8 @@ data class PackageList(
                 return null
 
             val packageListStream = kotlin.runCatching { url.readContent() }.onFailure {
-                println("Failed to download package-list from $url")
+                println("Failed to download package-list from $url, this might suggest that remote resource is not available," +
+                        " module is empty or dokka output got corrupted")
                 return null
             }.getOrThrow()
 
