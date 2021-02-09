@@ -12,12 +12,12 @@ internal class JavadocIndexSearchTest : AbstractJavadocTemplateMapTest() {
         dualTestTemplateMapInline(
             java = """
             /src/ClassA.java
-            package package0
+            package package0;
             /** 
             * Documentation for ClassA 
             * Defines the implementation of the system Java compiler and its command line equivalent, {@index javac}, as well as javah.
             */
-            class ClassA {
+            public class ClassA {
             
             }
             """,
@@ -35,8 +35,8 @@ internal class JavadocIndexSearchTest : AbstractJavadocTemplateMapTest() {
         dualTestTemplateMapInline(
             java = """
             /src/ClassA.java
-            package package0
-            class ClassA {
+            package package0;
+            public class ClassA {
                 public String propertyOfClassA = "Sample";
                 
                 public void sampleFunction(){
