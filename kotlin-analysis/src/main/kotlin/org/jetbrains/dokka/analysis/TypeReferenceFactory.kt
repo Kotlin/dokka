@@ -36,7 +36,6 @@ private fun TypeReference.Companion.fromPossiblyRecursive(t: KotlinType, paramTr
 
 private fun TypeReference.Companion.from(t: KotlinType, paramTrace: List<KotlinType>): TypeReference {
     if (t is UnresolvedType) {
-        println("Unresolved type with presentable name: ${t.presentableName}")
         return TypeConstructor(
             t.presentableName, t.arguments.map { fromProjection(it, paramTrace) }
         )

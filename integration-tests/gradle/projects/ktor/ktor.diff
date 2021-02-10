@@ -1,0 +1,136 @@
+diff --git a/build.gradle b/build.gradle
+index bc59f85d5..91d7d5d51 100644
+--- a/build.gradle
++++ b/build.gradle
+@@ -60,7 +60,6 @@ buildscript {
+     dependencies {
+         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+         classpath "org.jetbrains.kotlin:kotlin-allopen:$kotlin_version"
+-        classpath "org.jetbrains.dokka:dokka-gradle-plugin:$dokka_version"
+         classpath "org.jetbrains.kotlinx:atomicfu-gradle-plugin:$atomicfu_version"
+         classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlin_version"
+         classpath "me.champeau.gradle:jmh-gradle-plugin:$jmh_plugin_version"
+@@ -73,6 +72,9 @@ buildscript {
+     CacheRedirector.configureBuildScript(buildscript, rootProject)
+ }
+ 
++plugins {
++    id 'org.jetbrains.dokka'
++}
+ 
+ ext.configuredVersion = project.hasProperty("releaseVersion") ? project.releaseVersion : project.version
+ ext.globalM2 = "$buildDir/m2"
+@@ -193,7 +195,7 @@ allprojects {
+     configurations { testOutput }
+ 
+     kotlin {
+-        if (!disabledExplicitApiModeProjects.contains(project.name)){
++        if (!disabledExplicitApiModeProjects.contains(project.name)) {
+             explicitApi()
+         }
+ 
+@@ -295,15 +297,6 @@ afterEvaluate {
+     configure(allCompileKotlinTasks) {
+         kotlinOptions.freeCompilerArgs += ["-XXLanguage:+InlineClasses"]
+     }
+-
+-    task dokkaWebsite(type: dokka.getClass()) {
+-        outputFormat = 'kotlin-website'
+-        outputDirectory = "${rootProject.projectDir}/apidoc"
+-
+-        kotlinTasks { allCompileKotlinTasks }
+-
+-        reportUndocumented = false
+-    }
+ }
+ 
+ if (project.hasProperty("enable-coverage")) {
+@@ -320,3 +313,10 @@ if (jvm_ir_enabled) {
+         }
+     }
+ }
++tasks {
++    dokkaHtmlMultiModule {
++        pluginsMapConfiguration.set(["org.jetbrains.dokka.base.DokkaBase": """{ "customStyleSheets": ["${file("dokka/logo-styles.css")}"] }"""])
++    }
++}
++
++apply from: "../template.root.gradle.kts"
+diff --git a/dokka/logo-styles.css b/dokka/logo-styles.css
+new file mode 100644
+index 000000000..177f275e3
+--- /dev/null
++++ b/dokka/logo-styles.css
+@@ -0,0 +1,6 @@
++#logo {
++    background-image: url('https://repository-images.githubusercontent.com/40136600/f3f5fd00-c59e-11e9-8284-cb297d193133');
++    background-size: 125px 50px;
++    padding-top: 12px;
++    height: 65px;
++}
+diff --git a/gradle.properties b/gradle.properties
+index 8d05c76d6..06c22df29 100644
+--- a/gradle.properties
++++ b/gradle.properties
+@@ -21,6 +21,7 @@ org.gradle.jvmargs=-Xmx4g -XX:MaxPermSize=4g -XX:+HeapDumpOnOutOfMemoryError -Df
+ 
+ # kotlin
+ kotlin_version=1.4.21
++dokka_it_kotlin_version=1.4.21
+ kotlin.native.ignoreDisabledTargets=true
+ kotlin.mpp.stability.nowarn=true
+ 
+@@ -42,7 +43,6 @@ jetty_alpn_api_version=1.1.3.v20160715
+ # utility
+ logback_version=1.2.3
+ junit_version=4.12
+-dokka_version=0.9.17
+ jmh_version=1.21
+ jmh_plugin_version=0.4.5
+ nodejs_version=10.15.1
+diff --git a/gradle/dokka.gradle b/gradle/dokka.gradle
+index 1d9d4c468..8387dcc3f 100644
+--- a/gradle/dokka.gradle
++++ b/gradle/dokka.gradle
+@@ -1,21 +1,19 @@
+ apply plugin: 'org.jetbrains.dokka'
+ 
+-dokka {
+-    outputFormat = 'html'
+-    outputDirectory = "$buildDir/kdoc"
+-
+-    kotlinTasks {
+-        defaultKotlinTasks().findAll { it.name.contains("Jvm") }
++try {
++    tasks.named("dokkaHtmlPartial") {
++        dokkaSourceSets {
++            configureEach {
++                if (it.platform.get().toString() == "js") {
++                    suppress = true
++                }
++            }
++        }
+     }
+-
+-    reportUndocumented = false
++} catch (UnknownTaskException ignored) {
+ }
+ 
+ task dokkaJar(type: Jar, dependsOn: 'dokka') {
+     classifier 'kdoc'
+     from fileTree(new File(project.buildDir, 'kdoc'))
+ }
+-
+-task dokkaJavadoc {
+-    // do nothing
+-}
+diff --git a/settings.gradle b/settings.gradle
+index d3c25a83f..4c092f6ed 100644
+--- a/settings.gradle
++++ b/settings.gradle
+@@ -104,3 +104,5 @@ include ':ktor-network:ktor-network-tls'
+ include ':ktor-network:ktor-network-tls:ktor-network-tls-certificates'
+ include ':ktor-bom'
+ include ':ktor-test-dispatcher'
++
++apply from: "../template.settings.gradle.kts"
