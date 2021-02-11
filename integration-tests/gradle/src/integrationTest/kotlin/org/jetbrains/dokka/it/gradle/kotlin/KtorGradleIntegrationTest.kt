@@ -18,7 +18,7 @@ class KtorGradleIntegrationTest(override val versions: BuildVersions) : Abstract
         @get:JvmStatic
         @get:Parameterized.Parameters(name = "{0}")
         val versions = BuildVersions.permutations(
-            gradleVersions = listOf("6.7.1"),
+            gradleVersions = listOf("6.8.2"),
             kotlinVersions = listOf("1.4.21")
         )
     }
