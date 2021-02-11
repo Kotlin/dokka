@@ -12,6 +12,7 @@ import org.jetbrains.dokka.analysis.from
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.model.doc.Deprecated
+import org.jetbrains.dokka.model.doc.Suppress
 import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.dokka.utilities.enumValueOrNull
 import org.jetbrains.kotlin.idea.refactoring.fqName.getKotlinFqName
@@ -108,6 +109,14 @@ class JavadocParser(
                     }
                 }
                 JavadocTag.DEPRECATED -> Deprecated(
+                    wrapTagIfNecessary(
+                        convertJavadocElements(
+                            tag.contentElementsWithSiblingIfNeeded(),
+                            context = resolutionContext
+                        )
+                    )
+                )
+                JavadocTag.HIDE -> Hide(
                     wrapTagIfNecessary(
                         convertJavadocElements(
                             tag.contentElementsWithSiblingIfNeeded(),

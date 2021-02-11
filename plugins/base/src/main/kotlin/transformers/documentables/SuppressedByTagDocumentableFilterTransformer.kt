@@ -1,6 +1,7 @@
 package org.jetbrains.dokka.base.transformers.documentables
 
 import org.jetbrains.dokka.model.*
+import org.jetbrains.dokka.model.doc.Hide
 import org.jetbrains.dokka.model.doc.Suppress
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.transformers.documentation.PreMergeDocumentableTransformer
@@ -108,5 +109,5 @@ class SuppressedByTagDocumentableFilterTransformer(val context: DokkaContext) : 
     }
 
     private val Documentable.hasSuppressingTag: Boolean
-        get() = documentation.any { (_, docs) -> docs.dfs { it is Suppress } != null }
+        get() = documentation.any { (_, docs) -> docs.dfs { it is Suppress || it is Hide } != null }
 }

@@ -1,6 +1,7 @@
 package transformers
 
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
+import org.jetbrains.dokka.model.DClass
 import org.jetbrains.dokka.model.DEnum
 import org.jetbrains.dokka.model.WithCompanion
 import org.junit.jupiter.api.Test
@@ -181,6 +182,28 @@ class SuppressTagFilterTest : BaseAbstractTest() {
             documentablesFirstTransformationStep = { modules ->
                 val testingClass = modules.flatMap { it.packages }.flatMap { it.classlikes }.single() as DEnum
                 assertEquals(listOf("NOT_SUPPRESSED"), testingClass.entries.map { it.name })
+            }
+        }
+    }
+
+    @Test
+    fun `should work as hide in java`(){
+        testInline(
+            """
+            |/src/suppressed/Testing.java
+            |package testing;
+            |
+            |public class Testing {
+            |   /**
+            |    * @hide
+            |    */
+            |   public void shouldNotBeVisible() { }
+            |}
+            """.trimIndent(), configuration
+        ) {
+            documentablesFirstTransformationStep = { modules ->
+                val testingClass = modules.flatMap { it.packages }.flatMap { it.classlikes }.single() as DClass
+                assertEquals(0, testingClass.functions.size)
             }
         }
     }

@@ -103,6 +103,7 @@ private class ContextModuleAndPackageDocumentationReader(
                     is Constructor -> acc.copy(newRoot)
                     is Deprecated -> acc.copy(newRoot)
                     is org.jetbrains.dokka.model.doc.Suppress -> acc.copy(newRoot)
+                    is Hide -> acc.copy(newRoot)
                 }
             }
         }
