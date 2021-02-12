@@ -116,18 +116,18 @@ class JavadocParser(
                         )
                     )
                 )
-                JavadocTag.HIDE -> Hide(
-                    wrapTagIfNecessary(
-                        convertJavadocElements(
-                            tag.contentElementsWithSiblingIfNeeded(),
-                            context = resolutionContext
-                        )
-                    )
-                )
                 else -> null
                 //TODO https://github.com/Kotlin/dokka/issues/1618
             }
-        }
+        } ?: CustomTagWrapper(
+            wrapTagIfNecessary(
+                convertJavadocElements(
+                    tag.contentElementsWithSiblingIfNeeded(),
+                    context = CommentResolutionContext(docComment, null)
+                )
+            ),
+            tag.name
+        )
 
     private fun wrapTagIfNecessary(list: List<DocTag>): CustomDocTag =
         if (list.size == 1 && (list.first() as? CustomDocTag)?.name == MarkdownElementTypes.MARKDOWN_FILE.name)
@@ -157,14 +157,14 @@ class JavadocParser(
     }
 
     private data class ParserState(
-        val currentJavadocTag: JavadocTag,
+        val currentJavadocTag: JavadocTag?,
         val previousElement: PsiElement? = null,
         val openPreTags: Int = 0,
         val closedPreTags: Int = 0
     )
 
     private data class ParsingResult(val newState: ParserState, val parsedLine: String? = null) {
-        constructor(tag: JavadocTag) : this(ParserState(tag))
+        constructor(tag: JavadocTag?) : this(ParserState(tag))
 
         operator fun plus(other: ParsingResult): ParsingResult =
             ParsingResult(
@@ -276,7 +276,7 @@ class JavadocParser(
 
         private fun convertInlineDocTag(
             tag: PsiInlineDocTag,
-            javadocTag: JavadocTag,
+            javadocTag: JavadocTag?,
             context: CommentResolutionContext
         ) =
             when (tag.name) {

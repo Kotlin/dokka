@@ -11,7 +11,7 @@ import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
 
 internal data class CommentResolutionContext(
     val comment: PsiDocComment,
-    val tag: JavadocTag,
+    val tag: JavadocTag?,
     val name: String? = null,
     val parameterIndex: Int? = null,
 )
@@ -25,7 +25,7 @@ internal class InheritDocResolver(
             JavadocTag.PARAM -> context.parameterIndex?.let { paramIndex -> resolveParamTag(context.comment, paramIndex) }
             JavadocTag.DEPRECATED -> resolveGenericTag(context.comment, JavadocTag.DESCRIPTION)
             JavadocTag.SEE -> emptyList()
-            else -> resolveGenericTag(context.comment, context.tag)
+            else -> context.tag?.let { tag -> resolveGenericTag(context.comment, tag) }
         }
 
     private fun resolveGenericTag(currentElement: PsiDocComment, tag: JavadocTag): List<PsiElement> =

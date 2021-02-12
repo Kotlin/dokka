@@ -1,17 +1,17 @@
 package org.jetbrains.dokka.base.transformers.documentables
 
 import org.jetbrains.dokka.model.*
-import org.jetbrains.dokka.model.doc.Hide
-import org.jetbrains.dokka.model.doc.Suppress
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.transformers.documentation.PreMergeDocumentableTransformer
 
-class SuppressedByTagDocumentableFilterTransformer(val context: DokkaContext) : PreMergeDocumentableTransformer {
+abstract class SuppressedByTagDocumentableFilterTransformer(val context: DokkaContext) : PreMergeDocumentableTransformer {
     override fun invoke(modules: List<DModule>): List<DModule> =
         modules.map { module ->
             val (documentable, wasChanged) = processModule(module)
             documentable.takeIf { wasChanged } ?: module
         }
+
+    abstract fun shouldBeSuppressed(d: Documentable): Boolean
 
     private fun processModule(module: DModule): DocumentableWithChanges<DModule> {
         val afterProcessing = module.packages.map { processPackage(it) }
@@ -36,7 +36,7 @@ class SuppressedByTagDocumentableFilterTransformer(val context: DokkaContext) : 
     }
 
     private fun processClassLike(classlike: DClasslike): DocumentableWithChanges<DClasslike> {
-        if (classlike.hasSuppressingTag) return DocumentableWithChanges.filteredDocumentable()
+        if (shouldBeSuppressed(classlike)) return DocumentableWithChanges.filteredDocumentable()
 
         val functions = classlike.functions.map { processMember(it) }
         val classlikes = classlike.classlikes.map { processClassLike(it) }
@@ -98,7 +98,7 @@ class SuppressedByTagDocumentableFilterTransformer(val context: DokkaContext) : 
     }
 
     private fun <T : Documentable> processMember(member: T): DocumentableWithChanges<T> =
-        if (member.hasSuppressingTag) DocumentableWithChanges.filteredDocumentable()
+        if (shouldBeSuppressed(member)) DocumentableWithChanges.filteredDocumentable()
         else DocumentableWithChanges(member, false)
 
     private data class DocumentableWithChanges<T : Documentable>(val documentable: T?, val changed: Boolean = false) {
@@ -107,7 +107,4 @@ class SuppressedByTagDocumentableFilterTransformer(val context: DokkaContext) : 
                 DocumentableWithChanges(null, true)
         }
     }
-
-    private val Documentable.hasSuppressingTag: Boolean
-        get() = documentation.any { (_, docs) -> docs.dfs { it is Suppress || it is Hide } != null }
 }

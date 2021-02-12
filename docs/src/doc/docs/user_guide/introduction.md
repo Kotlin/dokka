@@ -10,6 +10,7 @@ Currently maintained plugins are:
 * `jekyll-plugin` - configures `Jekyll` output format
 * `javadoc-plugin` - configures `Javadoc` output format, automatically applies `kotlin-as-java-plugin` 
 * `kotlin-as-java-plugin` - translates Kotlin definitions to Java 
+* `android-documentation-plugin` - provides android specific enhancements like `@hide` support
 
 Please see the usage instructions for each build system on how to add plugins to Dokka. 
 

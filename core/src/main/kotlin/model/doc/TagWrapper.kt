@@ -28,5 +28,4 @@ data class Sample(override val root: DocTag, override val name: String) : NamedT
 data class Deprecated(override val root: DocTag) : TagWrapper()
 data class Property(override val root: DocTag, override val name: String) : NamedTagWrapper()
 data class Suppress(override val root: DocTag) : TagWrapper()
-data class Hide(override val root: DocTag): TagWrapper()
 data class CustomTagWrapper(override val root: DocTag, override val name: String) : NamedTagWrapper()

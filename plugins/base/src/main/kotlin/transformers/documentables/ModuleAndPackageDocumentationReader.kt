@@ -45,7 +45,7 @@ private class ContextModuleAndPackageDocumentationReader(
     ): SourceSetDependent<DocumentationNode> {
         return sourceSets.associateWithNotNull { sourceSet ->
             val fragments = documentationFragments[sourceSet].orEmpty().filter(predicate)
-            val resolutionFacade = kotlinAnalysis?.get(sourceSet)?.facade
+            val resolutionFacade = kotlinAnalysis[sourceSet].facade
             val documentations = fragments.map { fragment ->
                 parseModuleAndPackageDocumentation(
                     context = ModuleAndPackageDocumentationParsingContext(context.logger, resolutionFacade),
@@ -103,7 +103,6 @@ private class ContextModuleAndPackageDocumentationReader(
                     is Constructor -> acc.copy(newRoot)
                     is Deprecated -> acc.copy(newRoot)
                     is org.jetbrains.dokka.model.doc.Suppress -> acc.copy(newRoot)
-                    is Hide -> acc.copy(newRoot)
                 }
             }
         }
