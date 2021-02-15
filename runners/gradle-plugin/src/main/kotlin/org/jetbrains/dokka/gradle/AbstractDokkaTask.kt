@@ -17,6 +17,7 @@ import org.gradle.kotlin.dsl.mapProperty
 import org.jetbrains.dokka.*
 import org.jetbrains.dokka.plugability.ConfigurableBlock
 import org.jetbrains.dokka.plugability.DokkaPlugin
+import org.jetbrains.dokka.utilities.DokkaConsoleLogger
 import java.io.File
 import java.util.function.BiConsumer
 import kotlin.reflect.KClass
@@ -77,9 +78,17 @@ abstract class AbstractDokkaTask : DefaultTask() {
 
     final override fun doFirst(action: Closure<*>): Task = super.doFirst(action)
 
+    private val dokkaBootstrap: DokkaBootstrap by lazy {
+        DokkaBootstrap(runtime, DokkaBootstrapImpl::class)
+    }
+
     @TaskAction
     internal open fun generateDocumentation() {
-        DokkaBootstrap(runtime, DokkaBootstrapImpl::class).apply {
+//        DokkaBootstrap(runtime, DokkaBootstrapImpl::class).apply {
+//            configure(buildDokkaConfiguration().toJsonString(), createProxyLogger())
+//            generate()
+//        }
+        dokkaBootstrap.apply {
             configure(buildDokkaConfiguration().toJsonString(), createProxyLogger())
             generate()
         }
