@@ -181,7 +181,7 @@ internal class JavadocClasslikeTemplateMapTest : AbstractJavadocTemplateMapTest(
             """
             /src/com/test/package0/TestClass.java
             package com.test.package0;
-            enum ClockDays {
+            public enum ClockDays {
                 /**
                  * Sample docs for first
                  */

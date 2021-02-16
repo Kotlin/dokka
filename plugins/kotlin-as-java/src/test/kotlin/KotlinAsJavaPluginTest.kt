@@ -113,10 +113,10 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
             |
             |fun testF(i: Int) = i
             |/src/main/kotlin/kotlinAsJavaPlugin/TestJ.java
-            |package kotlinAsJavaPlugin
+            |package kotlinAsJavaPlugin;
             |
-            |class TestJ {
-            |   int testF(int i) { return i; }
+            |public class TestJ {
+            |   public int testF(int i) { return i; }
             |}
         """.trimMargin(),
             configuration,
@@ -206,9 +206,9 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
         testInline(
             """
             |/src/main/kotlin/kotlinAsJavaPlugin/TestJ.java
-            |package kotlinAsJavaPlugin
+            |package kotlinAsJavaPlugin;
             |
-            |class TestJ {
+            |public class TestJ {
             |   public Int publicProperty = 1;
             |}
         """.trimMargin(),
