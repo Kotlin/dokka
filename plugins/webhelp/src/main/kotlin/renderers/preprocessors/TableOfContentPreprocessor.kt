@@ -32,7 +32,9 @@ class TableOfContentPreprocessor : PageTransformer, NavigationDataProvider() {
                     name = root.name,
                     startPage = resolver(root.dri, root.sourceSets)!!
                 ) {
-                    renderChildren(root, resolver)
+                    tocElement(id = resolver(root.dri, root.sourceSets)!!) {
+                        renderChildren(root, resolver)
+                    }
                 }.let { content ->
                     """<?xml version="1.0" encoding="UTF-8"?>
                         <!DOCTYPE product-profile

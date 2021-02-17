@@ -159,7 +159,7 @@ open class WebhelpRenderer(dokkaContext: DokkaContext) : DefaultRenderer<FlowCon
     private val ContentPage.id: String?
         get() = locationProvider.resolve(this)?.replace(
             File.separator, "."
-        )?.substringBeforeLast(".")
+        )?.substringBeforeLast(".")?.substringAfter(".")
 
     private fun String.stripDiv() = drop(5).dropLast(6) // TODO: Find a way to do it without arbitrary trims
 

@@ -32,6 +32,6 @@ class WebhelpLocationProvider(
         val location = super.resolve(dri, sourceSets, context)
         return super.resolve(dri, sourceSets, context)
             ?.runCatching { URL(this) }?.map { location }
-            ?.getOrDefault(location?.replace(File.separator, "."))
+            ?.getOrDefault(location?.replace(File.separator, ".")?.substringAfter("."))
     }
 }
