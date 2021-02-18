@@ -20,6 +20,11 @@ class WebhelpLocationProvider(
     pageGraphRoot: RootPageNode,
     dokkaContext: DokkaContext
 ) : DokkaLocationProvider(pageGraphRoot, dokkaContext, ".xml") {
+    /**
+     * We need to choose something different than `index` since webhelp overrides it
+     */
+    override val PAGE_WITH_CHILDREN_SUFFIX: String = "webhelp_index"
+
     override fun resolve(node: PageNode, context: PageNode?, skipExtension: Boolean): String =
         when (node) {
             is RendererSpecificPage -> super.resolve(node, context, skipExtension)
@@ -30,8 +35,7 @@ class WebhelpLocationProvider(
 
     override fun resolve(dri: DRI, sourceSets: Set<DisplaySourceSet>, context: PageNode?): String? {
         val location = super.resolve(dri, sourceSets, context)
-        return super.resolve(dri, sourceSets, context)
-            ?.runCatching { URL(this) }?.map { location }
-            ?.getOrDefault(location?.replace(File.separator, ".")?.substringAfter("."))
+        return location?.runCatching { URL(this) }?.map { location }
+            ?.getOrDefault(location.replace(File.separator, ".").substringAfter("."))
     }
 }

@@ -12,7 +12,7 @@ object ConfigurationAppender : PageTransformer {
                     SYSTEM "https://resources.jetbrains.com/stardust/build-script.dtd">
             <root>
                 <builds>
-                    <product id="s" master="project.ihp" family="idea">
+                    <product id="t" master="project.ihp" family="idea">
                         <artifact type="web2" name="webHelpS2.zip" platform="primary" local-update="true"/>
                     </product>
                 </builds>
@@ -60,14 +60,27 @@ object ConfigurationAppender : PageTransformer {
                     <views toc="true" search="true" index="true" fav="true"/>
                     <xsl>topic.web.new.xsl</xsl>
                 </layout>
-                <build-profile product="s"/>
+                <build-profile product="t"/>
             </buildprofiles>
+        """.trimIndent()
+
+    private val platforms =
+        """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <platforms>
+                <platform id="primary">
+                    <delimiter>+</delimiter>
+                    <mappings>ctrl:Ctrl;control:Ctrl;alt:Alt;shift:Shift;command:⌘;meta:⌘</mappings>
+                    <directory-separator>\</directory-separator>
+                </platform>
+            </platforms>
         """.trimIndent()
 
     override fun invoke(input: RootPageNode): RootPageNode =
         listOf(
             "cfg/build-script.xml" to buildScript,
-            "cfg/buildprofiles.xml" to buildProfiles
+            "cfg/buildprofiles.xml" to buildProfiles,
+            "cfg/platforms.xml" to platforms
         ).map { (path, content) ->
             RendererSpecificResourcePage(
                 name = path,
