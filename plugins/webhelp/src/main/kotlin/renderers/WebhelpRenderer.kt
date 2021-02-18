@@ -28,7 +28,13 @@ open class WebhelpRenderer(dokkaContext: DokkaContext) : DefaultRenderer<FlowCon
         pageContext: ContentPage,
         childrenCallback: FlowContent.() -> Unit
     ) {
-        childrenCallback()
+        when {
+            node.dci.kind in setOf(ContentKind.Symbol) -> code {
+                childrenCallback()
+            }
+            node.hasStyle(TextStyle.Paragraph) || node.hasStyle(TextStyle.Block) -> p { childrenCallback() }
+            else -> childrenCallback()
+        }
     }
 
     override fun FlowContent.buildLink(address: String, content: FlowContent.() -> Unit) =
@@ -110,7 +116,7 @@ open class WebhelpRenderer(dokkaContext: DokkaContext) : DefaultRenderer<FlowCon
             sourceSetRestriction == null || it in sourceSetRestriction
         }.map { it to setOf(content.inner) }.forEach { (sourceset, nodes) ->
             p {
-                attributes["section"] = sourceset.sourceSetIDs.all.joinToString { it.sourceSetName }
+//                attributes["section"] = sourceset.sourceSetIDs.all.joinToString { it.sourceSetName }
                 nodes.forEach { node -> node.build(this, pageContext) }
             }
         }
@@ -154,7 +160,7 @@ open class WebhelpRenderer(dokkaContext: DokkaContext) : DefaultRenderer<FlowCon
                $topic
                </topic>
             """.trimIndent()
-        }
+        }.replace("&quot;", "\"")
 
     private val ContentPage.id: String?
         get() = locationProvider.resolve(this)?.replace(
@@ -164,7 +170,8 @@ open class WebhelpRenderer(dokkaContext: DokkaContext) : DefaultRenderer<FlowCon
     private fun String.stripDiv() = drop(5).dropLast(6) // TODO: Find a way to do it without arbitrary trims
 
     override fun FlowContent.buildHeader(level: Int, node: ContentHeader, content: FlowContent.() -> Unit) {
-        val classes = node.style.joinToString { it.toString() }.toLowerCase()
+//        val classes = node.style.joinToString { it.toString() }.toLowerCase()
+        val classes = null
         when (level) {
             1 -> h1(classes = classes, content)
             2 -> h2(classes = classes, content)
