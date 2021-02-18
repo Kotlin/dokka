@@ -4,15 +4,21 @@ import kotlinx.html.FlowContent
 import kotlinx.html.stream.createHTML
 import org.jetbrains.dokka.base.renderers.html.NavigationDataProvider
 import org.jetbrains.dokka.base.renderers.html.NavigationNode
-import org.jetbrains.dokka.pages.DriResolver
-import org.jetbrains.dokka.pages.RendererSpecificResourcePage
-import org.jetbrains.dokka.pages.RenderingStrategy
-import org.jetbrains.dokka.pages.RootPageNode
+import org.jetbrains.dokka.base.renderers.sourceSets
+import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 import org.jetbrains.dokka.webhelp.renderers.tags.productProfile
 import org.jetbrains.dokka.webhelp.renderers.tags.tocElement
 
 class TableOfContentPreprocessor : PageTransformer, NavigationDataProvider() {
+    override fun visit(page: ContentPage): NavigationNode =
+        NavigationNode(
+            name = page.name,
+            dri = page.dri.first(),
+            sourceSets = page.sourceSets(),
+            children = page.children.filterIsInstance<ContentPage>().map { visit(it) }
+        )
+
     private fun FlowContent.renderChildren(navigationNode: NavigationNode, resolver: DriResolver) {
         navigationNode.children.forEach { child ->
             tocElement(id = resolver(child.dri, child.sourceSets)!!) {
