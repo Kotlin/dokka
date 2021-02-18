@@ -9,6 +9,7 @@ enum class RecognizedLinkFormat(override val formatName: String, override val li
     Javadoc8("javadoc8", "html"),
     Javadoc10("javadoc10", "html"),
     DokkaOldHtml("html", "html"),
+    KotlinWebsite("kotlin-website", "html"),
     KotlinWebsiteHtml("kotlin-website-html", "html");
 
     companion object {
