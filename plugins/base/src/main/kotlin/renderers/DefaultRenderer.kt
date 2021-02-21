@@ -23,7 +23,6 @@ abstract class DefaultRenderer<T>(
     protected val outputWriter = context.plugin<DokkaBase>().querySingle { outputWriter }
 
     protected lateinit var locationProvider: LocationProvider
-        private set
 
     protected open val preprocessors: Iterable<PageTransformer> = emptyList()
 

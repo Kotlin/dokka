@@ -4,9 +4,9 @@ import kotlinx.html.*
 import kotlinx.html.stream.createHTML
 import org.jetbrains.dokka.base.renderers.DefaultRenderer
 import org.jetbrains.dokka.base.renderers.RootCreator
-import org.jetbrains.dokka.base.renderers.html.HtmlRenderer
+import org.jetbrains.dokka.base.resolvers.anchors.SymbolAnchorHint
+import org.jetbrains.dokka.base.resolvers.local.DokkaBaseLocationProvider
 import org.jetbrains.dokka.model.DisplaySourceSet
-import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.transformers.pages.PageTransformer
@@ -16,7 +16,7 @@ import org.jetbrains.dokka.webhelp.renderers.preprocessors.TableOfContentPreproc
 import org.jetbrains.dokka.webhelp.renderers.tags.*
 import java.io.File
 
-open class WebhelpRenderer(dokkaContext: DokkaContext) : DefaultRenderer<FlowContent>(dokkaContext) {
+open class WebhelpRenderer(private val dokkaContext: DokkaContext) : DefaultRenderer<FlowContent>(dokkaContext) {
     override val extension: String
         get() = ".xml"
 
@@ -29,11 +29,29 @@ open class WebhelpRenderer(dokkaContext: DokkaContext) : DefaultRenderer<FlowCon
         childrenCallback: FlowContent.() -> Unit
     ) {
         when {
-            node.dci.kind in setOf(ContentKind.Symbol) -> code {
+            node.isAnchorable -> {
+                anchor(node.anchor!!) { }
                 childrenCallback()
             }
             node.hasStyle(TextStyle.Paragraph) || node.hasStyle(TextStyle.Block) -> p { childrenCallback() }
             else -> childrenCallback()
+        }
+    }
+
+    override fun FlowContent.buildGroup(
+        node: ContentGroup,
+        pageContext: ContentPage,
+        sourceSetRestriction: Set<DisplaySourceSet>?
+    ) {
+        if (node.dci.kind in setOf(ContentKind.Symbol)) {
+            code {
+                attributes["style"] = "block"
+                attributes["lang"] = "kotlin"
+                val renderer = WebhelpCodeRenderer(dokkaContext)
+                +node.children.joinToString(separator = "") { renderer.buildContentNode(it, pageContext) }
+            }
+        } else {
+            wrapGroup(node, pageContext) { node.children.forEach { it.build(this, pageContext, sourceSetRestriction) } }
         }
     }
 
@@ -89,12 +107,12 @@ open class WebhelpRenderer(dokkaContext: DokkaContext) : DefaultRenderer<FlowCon
     }
 
     override fun FlowContent.buildCodeBlock(code: ContentCodeBlock, pageContext: ContentPage) =
-        code(CodeStyle.BLOCK, code.language) {
+        code {
             code.children.forEach { buildContentNode(it, pageContext) }
         }
 
     override fun FlowContent.buildCodeInline(code: ContentCodeInline, pageContext: ContentPage) =
-        code(lang = code.language) {
+        code {
             code.children.forEach { buildContentNode(it, pageContext) }
         }
 
@@ -170,15 +188,13 @@ open class WebhelpRenderer(dokkaContext: DokkaContext) : DefaultRenderer<FlowCon
     private fun String.stripDiv() = drop(5).dropLast(6) // TODO: Find a way to do it without arbitrary trims
 
     override fun FlowContent.buildHeader(level: Int, node: ContentHeader, content: FlowContent.() -> Unit) {
-//        val classes = node.style.joinToString { it.toString() }.toLowerCase()
-        val classes = null
         when (level) {
-            1 -> h1(classes = classes, content)
-            2 -> h2(classes = classes, content)
-            3 -> h3(classes = classes, content)
-            4 -> h4(classes = classes, content)
-            5 -> h5(classes = classes, content)
-            else -> h6(classes = classes, content)
+            1 -> h1(classes = null, content)
+            2 -> h2(classes = null, content)
+            3 -> h3(classes = null, content)
+            4 -> h4(classes = null, content)
+            5 -> h5(classes = null, content)
+            else -> h6(classes = null, content)
         }
     }
 
@@ -193,4 +209,89 @@ open class WebhelpRenderer(dokkaContext: DokkaContext) : DefaultRenderer<FlowCon
     override fun buildError(node: ContentNode) {
         TODO("Not yet implemented")
     }
+
+    private inner class WebhelpCodeRenderer(dokkaContext: DokkaContext) : DefaultRenderer<StringBuilder>(dokkaContext) {
+        override fun StringBuilder.wrapGroup(
+            node: ContentGroup,
+            pageContext: ContentPage,
+            childrenCallback: StringBuilder.() -> Unit
+        ) {
+            when {
+                node.hasStyle(TextStyle.Paragraph) || node.hasStyle(TextStyle.Block) -> {
+                    if (lastOrNull() != '\n') append("\n")
+                    childrenCallback()
+                    if (lastOrNull() != '\n') append("\n")
+                }
+                else -> childrenCallback()
+            }
+        }
+
+        fun buildContentNode(node: ContentNode, pageContext: ContentPage): String {
+            locationProvider = this@WebhelpRenderer.locationProvider
+            return StringBuilder().also { it.buildContentNode(node, pageContext) }.toString()
+        }
+
+        override fun StringBuilder.buildHeader(level: Int, node: ContentHeader, content: StringBuilder.() -> Unit) {
+            append("<h$level>")
+            content()
+            append("</h$level>")
+        }
+
+        override fun StringBuilder.buildLink(address: String, content: StringBuilder.() -> Unit) {
+            append("[[[")
+            content()
+            append("|https://docs.oracle.com/javase/tutorial/java/nutsandbolts/datatypes.html]]]")
+//            append("|$address]]]")
+        }
+
+        override fun StringBuilder.buildList(
+            node: ContentList,
+            pageContext: ContentPage,
+            sourceSetRestriction: Set<DisplaySourceSet>?
+        ) {
+            TODO("Not yet implemented")
+        }
+
+        override fun StringBuilder.buildNewLine() {
+            append("\n")
+        }
+
+        override fun StringBuilder.buildResource(node: ContentEmbeddedResource, pageContext: ContentPage) {
+            TODO("Not yet implemented")
+        }
+
+        override fun StringBuilder.buildTable(
+            node: ContentTable,
+            pageContext: ContentPage,
+            sourceSetRestriction: Set<DisplaySourceSet>?
+        ) {
+            TODO("Not yet implemented")
+        }
+
+        override fun StringBuilder.buildText(textNode: ContentText) {
+            append(textNode.text)
+        }
+
+        override fun StringBuilder.buildNavigation(page: PageNode) {
+            TODO("Not yet implemented")
+        }
+
+        override fun buildPage(page: ContentPage, content: (StringBuilder, ContentPage) -> Unit): String =
+            StringBuilder().also { content(it, page) }.toString()
+
+        override fun buildError(node: ContentNode) {
+            TODO("Not yet implemented")
+        }
+    }
+
+    private val ContentNode.isAnchorable: Boolean
+        get() = anchorLabel != null
+
+    private val ContentNode.anchorLabel: String?
+        get() = extra[SymbolAnchorHint]?.anchorName
+
+    private val ContentNode.anchor: String?
+        get() = extra[SymbolAnchorHint]?.contentKind?.let { contentKind ->
+            (locationProvider as DokkaBaseLocationProvider).anchorForDCI(DCI(dci.dri, contentKind), sourceSets)
+        }
 }
