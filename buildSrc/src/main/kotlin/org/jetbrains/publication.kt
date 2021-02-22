@@ -41,6 +41,7 @@ fun Project.registerDokkaArtifactPublication(publicationName: String, configure:
         }
     }
 
+    assertPublicationVersion()
     configureBintrayPublicationIfNecessary(publicationName)
     configureSpacePublicationIfNecessary(publicationName)
     configureSonatypePublicationIfNecessary(publicationName)
@@ -152,6 +153,17 @@ private fun Project.configureSonatypePublication(vararg publications: String) {
             }
         }
     }
+}
+
+private fun Project.assertPublicationVersion() {
+    if (System.getenv("SKIP_VERSION_CHECK")?.contains("true", ignoreCase = true) == true)
+        return
+
+    if (!publicationChannels.all { publicationChannel ->
+            publicationChannel.acceptedDokkaVersionTypes.any { acceptedVersionType ->
+                acceptedVersionType == dokkaVersionType
+            }
+        }) { throw AssertionError("Wrong version $dokkaVersion for configured publication channels $publicationChannels") }
 }
 
 fun MavenPublication.configurePom(projectName: String) {
