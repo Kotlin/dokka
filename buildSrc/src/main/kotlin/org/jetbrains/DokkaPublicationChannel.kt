@@ -26,6 +26,16 @@ enum class DokkaPublicationChannel {
             else -> false
         }
 
+    val acceptedDokkaVersionTypes: List<DokkaVersionType>
+        get() = when(this) {
+            MavenCentral -> listOf(DokkaVersionType.Release)
+            MavenCentralSnapshot -> listOf(DokkaVersionType.Snapshot)
+            SpaceDokkaDev -> listOf(DokkaVersionType.Release, DokkaVersionType.Dev, DokkaVersionType.MC, DokkaVersionType.Snapshot)
+            BintrayKotlinDev -> listOf(DokkaVersionType.Dev, DokkaVersionType.MC, DokkaVersionType.Snapshot)
+            BintrayKotlinEap -> listOf(DokkaVersionType.MC)
+            BintrayKotlinDokka -> listOf(DokkaVersionType.Release)
+        }
+
     companion object {
         fun fromPropertyString(value: String): DokkaPublicationChannel = when (value) {
             "space-dokka-dev" -> SpaceDokkaDev
