@@ -240,8 +240,8 @@ open class WebhelpRenderer(private val dokkaContext: DokkaContext) : DefaultRend
         override fun StringBuilder.buildLink(address: String, content: StringBuilder.() -> Unit) {
             append("[[[")
             content()
-            append("|https://docs.oracle.com/javase/tutorial/java/nutsandbolts/datatypes.html]]]")
-//            append("|$address]]]")
+//            append("|https://docs.oracle.com/javase/tutorial/java/nutsandbolts/datatypes.html]]]")
+            append("|$address]]]")
         }
 
         override fun StringBuilder.buildList(

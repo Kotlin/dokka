@@ -38,7 +38,8 @@ open class DokkaLocationProvider(
         pageGraphRoot.withDescendants().filterIsInstance<ContentPage>()
             .flatMap { page ->
                 page.dri.flatMap { dri ->
-                    page.sourceSets().ifEmpty { setOf(null) }.map { sourceSet -> DRIWithSourceSet(dri,sourceSet) to page }
+                    page.sourceSets().ifEmpty { setOf(null) }
+                        .map { sourceSet -> DRIWithSourceSet(dri, sourceSet) to page }
                 }
             }
             .groupingBy { it.first }
@@ -52,8 +53,11 @@ open class DokkaLocationProvider(
                 page.content.withDescendants()
                     .filter { it.extra[SymbolAnchorHint] != null && it.dci.dri.any() }
                     .flatMap { content ->
-                        content.dci.dri.map { dri ->
-                            (dri to content.sourceSets) to content.extra[SymbolAnchorHint]?.contentKind!!
+                        content.dci.dri.mapNotNull {
+                            it.takeIf { it.packageName != "kotlin" && it.packageName?.startsWith("java.lang") == false }
+                                ?.let { dri ->
+                                    (dri to content.sourceSets) to content.extra[SymbolAnchorHint]?.contentKind!!
+                                }
                         }
                     }
                     .distinct()
