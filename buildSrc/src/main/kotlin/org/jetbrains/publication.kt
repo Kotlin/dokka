@@ -9,6 +9,7 @@ import org.gradle.api.publish.maven.tasks.PublishToMavenRepository
 import org.gradle.kotlin.dsl.*
 import org.gradle.plugins.signing.SigningExtension
 import org.jetbrains.DokkaPublicationChannel.*
+import io.github.gradlenexus.publishplugin.NexusPublishExtension
 import java.net.URI
 
 class DokkaPublicationBuilder {
@@ -79,9 +80,14 @@ fun Project.configureSpacePublicationIfNecessary(vararg publications: String) {
 
 fun Project.createDokkaPublishTaskIfNecessary() {
     tasks.maybeCreate("dokkaPublish").run {
-        if (publicationChannels.any { it.isSpaceRepository } || publicationChannels.any { it.isMavenRepository }) {
+        if (publicationChannels.any { it.isSpaceRepository }) {
             dependsOn(tasks.named("publish"))
         }
+
+        if (publicationChannels.any { it.isMavenRepository }) {
+            dependsOn(tasks.named("publishToSonatype"))
+        }
+
         if (publicationChannels.any { it.isBintrayRepository }) {
             dependsOn(tasks.named("bintrayUpload"))
         }
@@ -130,26 +136,7 @@ private fun Project.configureBintrayPublication(vararg publications: String) {
 
 fun Project.configureSonatypePublicationIfNecessary(vararg publications: String) {
     if (publicationChannels.any { it.isMavenRepository }) {
-        configureSonatypePublication(*publications)
         signPublicationsIfKeyPresent(*publications)
-    }
-}
-
-private fun Project.configureSonatypePublication(vararg publications: String) {
-    configure<PublishingExtension> {
-        repositories {
-            maven {
-                if (MavenCentral in publicationChannels) {
-                    url = URI("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
-                } else if (MavenCentralSnapshot in publicationChannels) {
-                    url = URI("https://oss.sonatype.org/content/repositories/snapshots/")
-                }
-                credentials {
-                    username = System.getenv("SONATYPE_USER")
-                    password = System.getenv("SONATYPE_PASSWORD")
-                }
-            }
-        }
     }
 }
 
@@ -161,7 +148,9 @@ private fun Project.assertPublicationVersion() {
             publicationChannel.acceptedDokkaVersionTypes.any { acceptedVersionType ->
                 acceptedVersionType == dokkaVersionType
             }
-        }) { throw AssertionError("Wrong version $dokkaVersion for configured publication channels $publicationChannels") }
+        }) {
+        throw AssertionError("Wrong version $dokkaVersion for configured publication channels $publicationChannels")
+    }
 }
 
 fun MavenPublication.configurePom(projectName: String) {

@@ -1,11 +1,13 @@
 import org.jetbrains.ValidatePublications
 import org.jetbrains.configureDokkaVersion
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.publicationChannels
 
 plugins {
     kotlin("jvm") apply false
     id("java")
     id("org.jetbrains.dokka") version "1.4.20"
+    id("io.github.gradle-nexus.publish-plugin")
 }
 
 val dokka_version: String by project
@@ -79,3 +81,16 @@ tasks.whenTaskAdded {
 
 println("Publication version: $dokka_version")
 tasks.register<ValidatePublications>("validatePublications")
+
+nexusPublishing {
+    repositories {
+        sonatype {
+            username.set(System.getenv("SONATYPE_USER"))
+            password.set(System.getenv("SONATYPE_PASSWORD"))
+        }
+    }
+}
+
+tasks.maybeCreate("dokkaPublish").run {
+    finalizedBy(tasks.named("closeAndReleaseSonatypeStagingRepository"))
+}
