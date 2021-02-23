@@ -2,10 +2,7 @@ package org.jetbrains.dokka.it.cli
 
 import org.jetbrains.dokka.it.awaitProcessResult
 import java.io.File
-import kotlin.test.BeforeTest
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
+import kotlin.test.*
 
 class CliIntegrationTest : AbstractCliIntegrationTest() {
 
@@ -86,5 +83,68 @@ class CliIntegrationTest : AbstractCliIntegrationTest() {
             assertNoEmptyLinks(file)
             assertNoEmptySpans(file)
         }
+
+        assertFalse(
+            projectDir.resolve("output").resolve("index.html").readText().contains("emptypackagetest"),
+            "Expected not to render empty packages"
+        )
+    }
+
+    @Test
+    fun failCli() {
+        val dokkaOutputDir = File(projectDir, "output")
+        assertTrue(dokkaOutputDir.mkdirs())
+        val process = ProcessBuilder(
+            "java", "-jar", cliJarFile.path,
+            "-outputDir", dokkaOutputDir.path,
+            "-pluginsClasspath", basePluginJarFile.path,
+            "-moduleName", "Basic Project",
+            "-failOnWarning",
+            "-sourceSet",
+            buildString {
+                append(" -sourceSetName cliMain")
+                append(" -src ${File(projectDir, "src").path}")
+                append(" -jdkVersion 8")
+                append(" -analysisPlatform jvm")
+                append(" -reportUndocumented")
+            }
+        )
+            .redirectErrorStream(true)
+            .start()
+
+        val result = process.awaitProcessResult()
+        assertEquals(1, result.exitCode, "Expected exitCode 1 (Fail)")
+
+        assertTrue(result.output.contains("Exception in thread \"main\" org.jetbrains.dokka.DokkaException: Failed with warningCount"))
+    }
+
+    @Test
+    fun emptyPackagesTest() {
+        val dokkaOutputDir = File(projectDir, "output")
+        assertTrue(dokkaOutputDir.mkdirs())
+        val process = ProcessBuilder(
+            "java", "-jar", cliJarFile.path,
+            "-outputDir", dokkaOutputDir.path,
+            "-pluginsClasspath", basePluginJarFile.path,
+            "-moduleName", "Basic Project",
+            "-sourceSet",
+            buildString {
+                append(" -sourceSetName cliMain")
+                append(" -src ${File(projectDir, "src").path}")
+                append(" -jdkVersion 8")
+                append(" -analysisPlatform jvm")
+                append(" -noSkipEmptyPackages")
+            }
+        )
+            .redirectErrorStream(true)
+            .start()
+
+        val result = process.awaitProcessResult()
+        assertEquals(0, result.exitCode, "Expected exitCode 0 (Success)")
+
+        assertTrue(
+            projectDir.resolve("output").resolve("index.html").readText().contains("emptypackagetest"),
+            "Expected to render empty packages"
+        )
     }
 }
