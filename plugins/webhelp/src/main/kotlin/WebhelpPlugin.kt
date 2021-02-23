@@ -5,6 +5,7 @@ import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.webhelp.location.WebhelpLocationProviderFactory
 import org.jetbrains.dokka.webhelp.renderers.WebhelpRenderer
+import org.jetbrains.dokka.webhelp.translators.documentables.WebhelpDocumentableToPageTranslator
 
 class WebhelpPlugin : DokkaPlugin() {
     val dokkaBasePlugin by lazy { plugin<DokkaBase>() }
@@ -15,5 +16,9 @@ class WebhelpPlugin : DokkaPlugin() {
 
     val webhelpLocationProviderFactory by extending {
         dokkaBasePlugin.locationProviderFactory providing ::WebhelpLocationProviderFactory override dokkaBasePlugin.locationProvider
+    }
+
+    val webhelpDocumentableToPageTranslator by extending {
+        CoreExtensions.documentableToPageTranslator providing ::WebhelpDocumentableToPageTranslator override dokkaBasePlugin.documentableToPageTranslator
     }
 }

@@ -54,7 +54,11 @@ open class DokkaLocationProvider(
                     .filter { it.extra[SymbolAnchorHint] != null && it.dci.dri.any() }
                     .flatMap { content ->
                         content.dci.dri.mapNotNull {
-                            it.takeIf { it.packageName != "kotlin" && it.packageName?.startsWith("java.lang") == false }
+                            it.takeIf {
+                                it.packageName != "kotlin" && it.packageName?.startsWith("kotlin.") == false && it.packageName?.startsWith(
+                                    "java.lang"
+                                ) == false
+                            }
                                 ?.let { dri ->
                                     (dri to content.sourceSets) to content.extra[SymbolAnchorHint]?.contentKind!!
                                 }

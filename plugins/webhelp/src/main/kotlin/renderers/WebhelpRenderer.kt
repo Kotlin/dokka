@@ -29,10 +29,6 @@ open class WebhelpRenderer(private val dokkaContext: DokkaContext) : DefaultRend
         childrenCallback: FlowContent.() -> Unit
     ) {
         when {
-            node.isAnchorable -> {
-                anchor(node.anchor!!) { }
-                childrenCallback()
-            }
             node.hasStyle(TextStyle.Paragraph) || node.hasStyle(TextStyle.Block) -> p { childrenCallback() }
             else -> childrenCallback()
         }
@@ -97,6 +93,9 @@ open class WebhelpRenderer(private val dokkaContext: DokkaContext) : DefaultRend
 
         node.children.forEach { row ->
             tr {
+                if(row.isAnchorable){
+                    attributes["id"] = row.anchor!!
+                }
                 row.children.forEach {
                     td {
                         it.build(this@table, pageContext, sourceSetRestriction)
