@@ -26,5 +26,5 @@ val Project.dokkaVersion: String
     get() = configureDokkaVersion()
 
 val Project.dokkaVersionType: DokkaVersionType
-    get() = DokkaVersionType.values().find { it.suffix.matches(dokkaVersion.substringAfter("-")) }
+    get() = DokkaVersionType.values().find { it.suffix.matches(dokkaVersion.substringAfter("-", "")) }
         ?: throw IllegalStateException("Unrecognized version type: $dokkaVersion")
