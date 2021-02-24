@@ -56,12 +56,12 @@ class GlobalArguments(args: Array<String>) : DokkaConfiguration {
 
     override val offlineMode by parser.option(
         ArgType.Boolean,
-        "Offline mode (do not download package lists from the Internet)"
+        description = "Offline mode (do not download package lists from the Internet)"
     ).default(DokkaDefaults.offlineMode)
 
     override val failOnWarning by parser.option(
         ArgType.Boolean,
-        "Throw an exception if the generation exited with warnings"
+        description = "Throw an exception if the generation exited with warnings"
     ).default(DokkaDefaults.failOnWarning)
 
     override val delayTemplateSubstitution by parser.option(
@@ -166,10 +166,12 @@ private fun parseSourceSet(moduleName: String, args: Array<String>): DokkaConfig
     val reportUndocumented by parser.option(ArgType.Boolean, description = "Report undocumented members")
         .default(DokkaDefaults.reportUndocumented)
 
-    val skipEmptyPackages by parser.option(
+    val noSkipEmptyPackages by parser.option(
         ArgType.Boolean,
-        description = "Do not create index pages for empty packages"
-    ).default(DokkaDefaults.skipEmptyPackages)
+        description = "Create index pages for empty packages"
+    ).default(!DokkaDefaults.skipEmptyPackages)
+
+    val skipEmptyPackages by lazy { !noSkipEmptyPackages }
 
     val skipDeprecated by parser.option(ArgType.Boolean, description = "Do not output deprecated members")
         .default(DokkaDefaults.skipDeprecated)
