@@ -11,7 +11,7 @@ repositories {
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlinx:kotlinx-cli-jvm:0.2.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-cli-jvm:0.3.1")
     implementation(project(":core"))
     implementation(kotlin("stdlib"))
 }
