@@ -36,19 +36,19 @@ class KtorGradleIntegrationTest(override val versions: BuildVersions) : Abstract
         val assembleResult = createGradleRunner("assemble").buildRelaxed()
         assertEquals(TaskOutcome.SUCCESS, assertNotNull(assembleResult.task(":assemble")).outcome)
 
-        val result = createGradleRunner("assemble", ":dokkaHtmlMultiModule", "-i", "-s", "--parallel", "--max-workers=3").buildRelaxed()
-
-        assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":dokkaHtmlMultiModule")).outcome)
-
-        assertTrue(projectOutputLocation.isDirectory, "Missing dokka output directory")
-
-        projectOutputLocation.allHtmlFiles().forEach { file ->
-            assertContainsNoErrorClass(file)
-            assertNoUnresolvedLinks(file)
-            assertNoHrefToMissingLocalFileOrDirectory(file)
-            assertNoEmptyLinks(file)
-            assertNoEmptySpans(file)
-            assertNoUnsubstitutedTemplatesInHtml(file)
-        }
+//        val result = createGradleRunner("assemble", ":dokkaHtmlMultiModule", "-i", "-s", "--parallel", "--max-workers=3").buildRelaxed()
+//
+//        assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":dokkaHtmlMultiModule")).outcome)
+//
+//        assertTrue(projectOutputLocation.isDirectory, "Missing dokka output directory")
+//
+//        projectOutputLocation.allHtmlFiles().forEach { file ->
+//            assertContainsNoErrorClass(file)
+//            assertNoUnresolvedLinks(file)
+//            assertNoHrefToMissingLocalFileOrDirectory(file)
+//            assertNoEmptyLinks(file)
+//            assertNoEmptySpans(file)
+//            assertNoUnsubstitutedTemplatesInHtml(file)
+//        }
     }
 }
