@@ -46,7 +46,7 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
                     * arguments
                 )
             ).run { this as DefaultGradleRunner }
-            .withJvmArguments("-Xmx4G", "-XX:MaxMetaspaceSize=2G")
+            .withJvmArguments("-Xmx8G", "-XX:MaxMetaspaceSize=4G")
     }
 
     fun GradleRunner.buildRelaxed(): BuildResult {

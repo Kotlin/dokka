@@ -10,3 +10,6 @@
 [submodule "integration-tests/maven/projects/biojava/biojava"]
 	path = integration-tests/maven/projects/biojava/biojava
 	url = https://github.com/biojava/biojava
+[submodule "integration-tests/gradle/projects/ktor/ktor"]
+	path = integration-tests/gradle/projects/ktor/ktor
+	url = https://github.com/ktorio/ktor.git
