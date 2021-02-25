@@ -150,7 +150,7 @@ jobs:
 
       - uses: actions/setup-java@v1
         with:
-          java-version: 12
+          java-version: 8
 
       - name: Publish dokka locally
         run: ./gradlew clean publishToMavenLocal --stacktrace
