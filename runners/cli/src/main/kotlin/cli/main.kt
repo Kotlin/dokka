@@ -69,6 +69,13 @@ class GlobalArguments(args: Array<String>) : DokkaConfiguration {
         description = "Delay substitution of some elements (usefull for incremental builds of multimodule projects)"
     ).default(DokkaDefaults.delayTemplateSubstitution)
 
+    val noSuppressObviousFunctions: Boolean by parser.option(
+        ArgType.Boolean,
+        description = "Document generated or obvious functions like default `toString` or `equals`"
+    ).default(!DokkaDefaults.suppressObviousFunctions)
+
+    override val suppressObviousFunctions: Boolean by lazy{ !noSuppressObviousFunctions }
+
     val globalPackageOptions by parser.option(
         ArgType.String,
         description = "List of package source sets in format \"prefix,-deprecated,-privateApi,+warnUndocumented,+suppress;...\" "

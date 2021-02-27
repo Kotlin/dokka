@@ -126,6 +126,9 @@ class DefaultPsiToDocumentableTranslator(
         private val PsiClassType.shouldBeIgnored: Boolean
             get() = isClass("java.lang.Enum") || isClass("java.lang.Object")
 
+        private val DRI.isObvious: Boolean
+            get() = packageName == "java.lang" && (classNames == "Object" || classNames == "Enum")
+
         private fun PsiClassType.isClass(qName: String): Boolean {
             val shortName = qName.substringAfterLast('.')
             if (className == shortName) {
@@ -184,7 +187,7 @@ class DefaultPsiToDocumentableTranslator(
                     ancestryTree.add(AncestryLevel(level, classes.firstOrNull()?.first, interfaces.map { it.first }))
 
                     superTypes.forEach { type ->
-                        (type as? PsiClassType)?.takeUnless { type.shouldBeIgnored }?.resolve()?.let {
+                        (type as? PsiClassType)?.resolve()?.let {
                             val definedAt = DRI.from(it)
                             it.methods.forEach { method ->
                                 val hash = method.hash
@@ -392,7 +395,8 @@ class DefaultPsiToDocumentableTranslator(
                         it.toSourceSetDependent().toAdditionalModifiers(),
                         (psi.annotations.toList()
                             .toListOfAnnotations() + it.toListOfAnnotations()).toSourceSetDependent()
-                            .toAnnotations()
+                            .toAnnotations(),
+                        ObviousMember.takeIf { inheritedFrom != null && inheritedFrom.isObvious }
                     )
                 }
             )

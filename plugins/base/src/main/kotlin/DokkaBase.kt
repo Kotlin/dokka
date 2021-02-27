@@ -78,13 +78,18 @@ class DokkaBase : DokkaPlugin() {
         preMergeDocumentableTransformer providing ::DocumentableVisibilityFilterTransformer
     }
 
+    val fakeFunctionsVisbilityFilter by extending {
+        preMergeDocumentableTransformer providing ::ObviousFunctionsDocumentableFilterTransformer
+    }
+
     val emptyPackagesFilter by extending {
         preMergeDocumentableTransformer providing ::EmptyPackagesFilterTransformer order {
             after(
                 deprecatedDocumentableFilter,
                 suppressedDocumentableFilter,
                 documentableVisbilityFilter,
-                suppressedBySuppressTagDocumentableFilter
+                suppressedBySuppressTagDocumentableFilter,
+                fakeFunctionsVisbilityFilter
             )
         }
     }
