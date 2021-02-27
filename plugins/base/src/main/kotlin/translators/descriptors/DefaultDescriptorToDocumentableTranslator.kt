@@ -47,6 +47,7 @@ import org.jetbrains.kotlin.resolve.constants.ConstantValue
 import org.jetbrains.kotlin.resolve.constants.KClassValue.Value.LocalClass
 import org.jetbrains.kotlin.resolve.constants.KClassValue.Value.NormalClass
 import org.jetbrains.kotlin.resolve.descriptorUtil.annotationClass
+import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameOrNull
 import org.jetbrains.kotlin.resolve.scopes.MemberScope
 import org.jetbrains.kotlin.resolve.source.KotlinSourceElement
 import org.jetbrains.kotlin.resolve.source.PsiSourceElement
@@ -860,6 +861,11 @@ private class DokkaDescriptorVisitor(
                     logger.warn("Couldn't resolve link for $link")
                     null
                 }
+            },
+            kdocLocation = toSourceElement?.containingFile?.name?.let {
+                val fqName = fqNameOrNull()?.asString()
+                if (fqName != null) "$it/$fqName"
+                else it
             }
         )
     }.takeIf { it.children.isNotEmpty() }
