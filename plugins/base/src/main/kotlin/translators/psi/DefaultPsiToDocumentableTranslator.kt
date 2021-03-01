@@ -111,11 +111,12 @@ class DefaultPsiToDocumentableTranslator(
 
         private val cachedBounds = hashMapOf<String, Bound>()
 
-        private fun PsiModifierListOwner.getVisibility() = modifierList?.children?.toList()?.let { ml ->
+        private fun PsiModifierListOwner.getVisibility() = modifierList?.let {
+            val ml = it.children.toList()
             when {
-                ml.any { it.text == PsiKeyword.PUBLIC } -> JavaVisibility.Public
-                ml.any { it.text == PsiKeyword.PROTECTED } -> JavaVisibility.Protected
-                ml.any { it.text == PsiKeyword.PRIVATE } -> JavaVisibility.Private
+                ml.any { it.text == PsiKeyword.PUBLIC } || it.hasModifierProperty("public") -> JavaVisibility.Public
+                ml.any { it.text == PsiKeyword.PROTECTED } || it.hasModifierProperty("protected") -> JavaVisibility.Protected
+                ml.any { it.text == PsiKeyword.PRIVATE } || it.hasModifierProperty("private") -> JavaVisibility.Private
                 else -> JavaVisibility.Default
             }
         } ?: JavaVisibility.Default

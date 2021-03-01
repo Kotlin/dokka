@@ -32,7 +32,7 @@ class ObviousFunctionsDocumentableFilterTest : BaseAbstractTest() {
             """.trimIndent(),
             suppressingConfiguration
         ) {
-            documentablesFirstTransformationStep = { modules ->
+            preMergeDocumentablesTransformationStage = { modules ->
                 val functions = modules.flatMap { it.packages }.flatMap { it.classlikes }.flatMap { it.functions }
                 assertEquals(0, functions.size)
             }
@@ -50,7 +50,7 @@ class ObviousFunctionsDocumentableFilterTest : BaseAbstractTest() {
             """.trimIndent(),
             suppressingConfiguration
         ) {
-            documentablesFirstTransformationStep = { modules ->
+            preMergeDocumentablesTransformationStage = { modules ->
                 val functions = modules.flatMap { it.packages }.flatMap { it.classlikes }.flatMap { it.functions }
                 assertEquals(0, functions.size)
             }
@@ -71,7 +71,7 @@ class ObviousFunctionsDocumentableFilterTest : BaseAbstractTest() {
             """.trimIndent(),
             suppressingConfiguration
         ) {
-            documentablesFirstTransformationStep = { modules ->
+            preMergeDocumentablesTransformationStage = { modules ->
                 val functions = modules.flatMap { it.packages }.flatMap { it.classlikes }.flatMap { it.functions }
                 assertEquals(listOf("toString"), functions.map { it.name })
             }
@@ -84,7 +84,7 @@ class ObviousFunctionsDocumentableFilterTest : BaseAbstractTest() {
             """
             /src/suppressed/Suppressed.java
             package suppressed;
-            class Suppressed {
+            public class Suppressed {
                 @Override
                 public String toString() {
                     return "";
@@ -93,7 +93,7 @@ class ObviousFunctionsDocumentableFilterTest : BaseAbstractTest() {
             """.trimIndent(),
             suppressingConfiguration
         ) {
-            documentablesFirstTransformationStep = { modules ->
+            preMergeDocumentablesTransformationStage = { modules ->
                 val functions = modules.flatMap { it.packages }.flatMap { it.classlikes }.flatMap { it.functions }
                 assertEquals(listOf("toString"), functions.map { it.name })
             }
@@ -110,7 +110,7 @@ class ObviousFunctionsDocumentableFilterTest : BaseAbstractTest() {
             """.trimIndent(),
             nonSuppressingConfiguration
         ) {
-            documentablesFirstTransformationStep = { modules ->
+            preMergeDocumentablesTransformationStage = { modules ->
                 val functions = modules.flatMap { it.packages }.flatMap { it.classlikes }.flatMap { it.functions }
                 assertEquals(
                     listOf("copy", "equals", "toString", "component1", "hashCode").sorted(),
@@ -131,12 +131,12 @@ class ObviousFunctionsDocumentableFilterTest : BaseAbstractTest() {
             """.trimIndent(),
             nonSuppressingConfiguration
         ) {
-            documentablesFirstTransformationStep = { modules ->
+            preMergeDocumentablesTransformationStage = { modules ->
                 val functions = modules.flatMap { it.packages }.flatMap { it.classlikes }.flatMap { it.functions }
                 //I would normally just assert names but this would make it JDK dependent, so this is better
                 assertEquals(
                     5,
-                    setOf("clone", "equals", "hashCode", "toString", "notify").intersect(functions.map { it.name }).size
+                    setOf("equals", "hashCode", "toString", "notify", "notifyAll").intersect(functions.map { it.name }).size
                 )
             }
         }
