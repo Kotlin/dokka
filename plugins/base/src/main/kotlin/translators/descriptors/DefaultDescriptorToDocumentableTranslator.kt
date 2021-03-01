@@ -493,6 +493,7 @@ private class DokkaDescriptorVisitor(
                     descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
                     (descriptor.getAnnotations() + descriptor.fileLevelAnnotations()).toSourceSetDependent()
                         .toAnnotations(),
+                    ObviousMember.takeIf { descriptor.isFake },
                 )
             )
         }
@@ -1036,6 +1037,9 @@ private class DokkaDescriptorVisitor(
         ?.toList()
         ?.parallelMap { it.toAnnotation(scope = Annotations.AnnotationScope.FILE) }
         .orEmpty()
+
+    private val FunctionDescriptor.isFake: Boolean
+        get() = kind == CallableMemberDescriptor.Kind.FAKE_OVERRIDE || kind == CallableMemberDescriptor.Kind.SYNTHESIZED
 }
 
 private data class AncestryLevel(
