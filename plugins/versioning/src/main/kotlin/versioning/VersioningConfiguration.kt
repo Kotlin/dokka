@@ -9,7 +9,7 @@ data class VersioningConfiguration(
     var versionsOrdering: List<String>? = defaultVersionsOrdering,
     var version: String? = defaultVersion,
 ) : ConfigurableBlock {
-    fun versionFromConfigurationOrModule(dokkaContext: DokkaContext): String =
+    internal fun versionFromConfigurationOrModule(dokkaContext: DokkaContext): String =
         version ?: dokkaContext.configuration.moduleVersion ?: "1.0"
 
     companion object {
