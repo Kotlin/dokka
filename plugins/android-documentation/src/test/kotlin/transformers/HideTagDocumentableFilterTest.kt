@@ -30,7 +30,7 @@ class HideTagDocumentableFilterTest : BaseAbstractTest() {
             |}
             """.trimIndent(), configuration
         ) {
-            documentablesFirstTransformationStep = { modules ->
+            preMergeDocumentablesTransformationStage = { modules ->
                 val testingClass = modules.flatMap { it.packages }.flatMap { it.classlikes }.single() as DClass
                 assertEquals(0, testingClass.functions.size)
             }
@@ -60,7 +60,7 @@ class HideTagDocumentableFilterTest : BaseAbstractTest() {
             |}
             """.trimIndent(), configuration
         ) {
-            documentablesFirstTransformationStep = { modules ->
+            preMergeDocumentablesTransformationStage = { modules ->
                 val classes = modules.flatMap { it.packages }.flatMap { it.classlikes }.map { it.name }
                 assertEquals(listOf("Visible"), classes)
             }

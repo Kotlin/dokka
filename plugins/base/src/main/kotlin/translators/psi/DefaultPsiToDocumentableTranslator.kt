@@ -111,11 +111,12 @@ class DefaultPsiToDocumentableTranslator(
 
         private val cachedBounds = hashMapOf<String, Bound>()
 
-        private fun PsiModifierListOwner.getVisibility() = modifierList?.children?.toList()?.let { ml ->
+        private fun PsiModifierListOwner.getVisibility() = modifierList?.let {
+            val ml = it.children.toList()
             when {
-                ml.any { it.text == PsiKeyword.PUBLIC } -> JavaVisibility.Public
-                ml.any { it.text == PsiKeyword.PROTECTED } -> JavaVisibility.Protected
-                ml.any { it.text == PsiKeyword.PRIVATE } -> JavaVisibility.Private
+                ml.any { it.text == PsiKeyword.PUBLIC } || it.hasModifierProperty("public") -> JavaVisibility.Public
+                ml.any { it.text == PsiKeyword.PROTECTED } || it.hasModifierProperty("protected") -> JavaVisibility.Protected
+                ml.any { it.text == PsiKeyword.PRIVATE } || it.hasModifierProperty("private") -> JavaVisibility.Private
                 else -> JavaVisibility.Default
             }
         } ?: JavaVisibility.Default
@@ -125,6 +126,9 @@ class DefaultPsiToDocumentableTranslator(
 
         private val PsiClassType.shouldBeIgnored: Boolean
             get() = isClass("java.lang.Enum") || isClass("java.lang.Object")
+
+        private val DRI.isObvious: Boolean
+            get() = packageName == "java.lang" && (classNames == "Object" || classNames == "Enum")
 
         private fun PsiClassType.isClass(qName: String): Boolean {
             val shortName = qName.substringAfterLast('.')
@@ -184,7 +188,7 @@ class DefaultPsiToDocumentableTranslator(
                     ancestryTree.add(AncestryLevel(level, classes.firstOrNull()?.first, interfaces.map { it.first }))
 
                     superTypes.forEach { type ->
-                        (type as? PsiClassType)?.takeUnless { type.shouldBeIgnored }?.resolve()?.let {
+                        (type as? PsiClassType)?.resolve()?.let {
                             val definedAt = DRI.from(it)
                             it.methods.forEach { method ->
                                 val hash = method.hash
@@ -392,7 +396,8 @@ class DefaultPsiToDocumentableTranslator(
                         it.toSourceSetDependent().toAdditionalModifiers(),
                         (psi.annotations.toList()
                             .toListOfAnnotations() + it.toListOfAnnotations()).toSourceSetDependent()
-                            .toAnnotations()
+                            .toAnnotations(),
+                        ObviousMember.takeIf { inheritedFrom != null && inheritedFrom.isObvious }
                     )
                 }
             )
