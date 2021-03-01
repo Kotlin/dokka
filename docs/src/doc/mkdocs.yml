@@ -50,6 +50,7 @@ nav:
       - Maven: user_guide/maven/usage.md
       - Command line: user_guide/cli/usage.md
       - Html frontend: user_guide/base-specific/frontend.md
+      - Android plugin: user_guide/android-plugin/android-plugin.md
   - Plugin development:
       - Introduction: developer_guide/introduction.md
       - Data model: developer_guide/data_model.md
