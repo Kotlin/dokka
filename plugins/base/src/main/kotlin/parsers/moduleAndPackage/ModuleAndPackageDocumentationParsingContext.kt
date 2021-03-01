@@ -18,19 +18,19 @@ import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 
 fun interface ModuleAndPackageDocumentationParsingContext {
-    fun markdownParserFor(fragment: ModuleAndPackageDocumentationFragment): MarkdownParser
+    fun markdownParserFor(fragment: ModuleAndPackageDocumentationFragment, location: String): MarkdownParser
 }
 
 internal fun ModuleAndPackageDocumentationParsingContext.parse(
     fragment: ModuleAndPackageDocumentationFragment
 ): DocumentationNode {
-    return markdownParserFor(fragment).parse(fragment.documentation)
+    return markdownParserFor(fragment, fragment.source.sourceDescription).parse(fragment.documentation)
 }
 
 fun ModuleAndPackageDocumentationParsingContext(
     logger: DokkaLogger,
     facade: DokkaResolutionFacade? = null
-) = ModuleAndPackageDocumentationParsingContext { fragment ->
+) = ModuleAndPackageDocumentationParsingContext { fragment, sourceLocation ->
     val descriptor = when (fragment.classifier) {
         Module -> facade?.moduleDescriptor?.getPackage(FqName.topLevel(Name.identifier("")))
         Package -> facade?.moduleDescriptor?.getPackage(FqName(fragment.name))
@@ -53,7 +53,7 @@ fun ModuleAndPackageDocumentationParsingContext(
         }
     }
 
-    MarkdownParser(externalDri = externalDri)
+    MarkdownParser(externalDri = externalDri, sourceLocation)
 }
 
 private fun Collection<DeclarationDescriptor>.sorted() = sortedWith(

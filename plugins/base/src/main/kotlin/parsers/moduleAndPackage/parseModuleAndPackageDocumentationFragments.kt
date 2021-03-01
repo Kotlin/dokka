@@ -30,7 +30,7 @@ private fun parseModuleAndPackageDocFragment(
         "Module" -> Module
         "Package" -> Package
         else -> throw IllegalStateException(
-            """Unexpected classifier ${classifierAndName[0]}, expected either "Module" or "Package". 
+            """Unexpected classifier: "${classifierAndName[0]}", expected either "Module" or "Package". 
             |For more information consult the specification: https://kotlinlang.org/docs/reference/kotlin-doc.html#module-and-package-documentation""".trimMargin()
         )
     }
