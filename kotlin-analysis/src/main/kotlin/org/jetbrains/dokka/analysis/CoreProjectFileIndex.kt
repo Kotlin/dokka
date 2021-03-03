@@ -9,7 +9,7 @@ import com.intellij.openapi.projectRoots.SdkAdditionalData
 import com.intellij.openapi.projectRoots.SdkModificator
 import com.intellij.openapi.projectRoots.SdkTypeId
 import com.intellij.openapi.roots.*
-import com.intellij.openapi.roots.impl.ProjectOrderEnumerator
+import com.intellij.openapi.roots.impl.ProjectRootManagerImpl
 import com.intellij.openapi.util.Condition
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.UserDataHolderBase
@@ -31,7 +31,8 @@ import java.io.File
  * Workaround for the lack of ability to create a ProjectFileIndex implementation using only
  * classes from projectModel-{api,impl}.
  */
-class CoreProjectFileIndex(private val project: Project, contentRoots: List<ContentRoot>) : ProjectFileIndex, ModuleFileIndex {
+class CoreProjectFileIndex(private val project: Project, contentRoots: List<ContentRoot>) : ProjectFileIndex,
+    ModuleFileIndex {
     override fun iterateContent(p0: ContentIterator, p1: VirtualFileFilter?): Boolean {
         throw UnsupportedOperationException()
     }
@@ -147,8 +148,8 @@ class CoreProjectFileIndex(private val project: Project, contentRoots: List<Cont
 
     private val sdk: Sdk = object : Sdk, RootProvider {
         override fun getFiles(rootType: OrderRootType): Array<out VirtualFile> = classpathRoots
-                .mapNotNull { StandardFileSystems.local().findFileByPath(it.file.path) }
-                .toTypedArray()
+            .mapNotNull { StandardFileSystems.local().findFileByPath(it.file.path) }
+            .toTypedArray()
 
         override fun addRootSetChangedListener(p0: RootProvider.RootSetChangedListener) {
             throw UnsupportedOperationException()
@@ -334,11 +335,11 @@ class CoreProjectFileIndex(private val project: Project, contentRoots: List<Cont
         }
 
         override fun orderEntries(): OrderEnumerator =
-                ProjectOrderEnumerator(project, null).using(object : RootModelProvider {
-                    override fun getModules(): Array<out Module> = arrayOf(module)
+            ProjectRootManagerImpl(project).orderEntries().using(object : RootModelProvider {
+                override fun getModules(): Array<out Module> = arrayOf(module)
 
-                    override fun getRootModel(p0: Module): ModuleRootModel = this@MyModuleRootManager
-                })
+                override fun getRootModel(p0: Module): ModuleRootModel = this@MyModuleRootManager
+            })
 
         override fun <T : Any?> getModuleExtension(p0: Class<T>): T {
             throw UnsupportedOperationException()
@@ -418,7 +419,8 @@ class CoreProjectFileIndex(private val project: Project, contentRoots: List<Cont
     override fun isInLibrarySource(file: VirtualFile): Boolean = false
 
     override fun getClassRootForFile(file: VirtualFile): VirtualFile? =
-        classpathRoots.firstOrNull { it.contains(file) }?.let { StandardFileSystems.local().findFileByPath(it.file.path) }
+        classpathRoots.firstOrNull { it.contains(file) }
+            ?.let { StandardFileSystems.local().findFileByPath(it.file.path) }
 
     override fun getOrderEntriesForFile(file: VirtualFile): List<OrderEntry> =
         if (classpathRoots.contains(file)) listOf(sdkOrderEntry) else emptyList()
@@ -442,7 +444,7 @@ class CoreProjectFileIndex(private val project: Project, contentRoots: List<Cont
     }
 
     override fun getModuleForFile(file: VirtualFile): Module? =
-            if (sourceRoots.contains(file)) module else null
+        if (sourceRoots.contains(file)) module else null
 
     private fun List<ContentRoot>.contains(file: VirtualFile): Boolean = any { it.contains(file) }
 
