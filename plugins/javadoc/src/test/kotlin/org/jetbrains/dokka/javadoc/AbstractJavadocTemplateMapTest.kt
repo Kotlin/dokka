@@ -13,6 +13,7 @@ import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 internal abstract class AbstractJavadocTemplateMapTest : BaseAbstractTest() {
     protected var config: DokkaConfigurationImpl = dokkaConfiguration {
         format = "javadoc"
+        suppressObviousFunctions = false
         sourceSets {
             sourceSet {
                 sourceRoots = listOf("src")
