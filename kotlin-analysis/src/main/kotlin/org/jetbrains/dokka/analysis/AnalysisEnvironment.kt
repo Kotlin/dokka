@@ -13,6 +13,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.OrderEnumerationHandler
 import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.roots.ProjectRootManager
+import com.intellij.openapi.roots.impl.ProjectRootManagerImpl
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.vfs.StandardFileSystems
 import com.intellij.psi.impl.source.javadoc.JavadocManagerImpl
@@ -342,8 +343,6 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
             projectContext,
             modules = module.dependencies()
         ) {
-            override fun sdkDependency(module: ModuleInfo): ModuleInfo? = null
-
             override fun modulesContent(module: ModuleInfo): ModuleContent<ModuleInfo> = modulesContent(module)
 
             override fun builtInsForModule(module: ModuleInfo): KotlinBuiltIns = DefaultBuiltIns.Instance
@@ -366,6 +365,9 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
                     this,
                     LanguageVersionSettingsImpl.DEFAULT
                 )
+
+            override fun sdkDependency(module: ModuleInfo, ownerModuleDescriptor: ModuleDescriptorImpl?): ModuleInfo? =
+                null
         }
     }
 
@@ -395,7 +397,8 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
 
             override fun builtInsForModule(module: ModuleInfo): KotlinBuiltIns = DefaultBuiltIns.Instance
 
-            override fun sdkDependency(module: ModuleInfo): ModuleInfo? = null
+            override fun sdkDependency(module: ModuleInfo, ownerModuleDescriptor: ModuleDescriptorImpl?): ModuleInfo? =
+                null
         }
     }
 
@@ -426,7 +429,8 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
 
             override fun builtInsForModule(module: ModuleInfo): KotlinBuiltIns = DefaultBuiltIns.Instance
 
-            override fun sdkDependency(module: ModuleInfo): ModuleInfo? = null
+            override fun sdkDependency(module: ModuleInfo, ownerModuleDescriptor: ModuleDescriptorImpl?): ModuleInfo? =
+                null
         }
     }
 
@@ -491,7 +495,8 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
                 LanguageVersionSettingsImpl.DEFAULT
             )
 
-            override fun sdkDependency(module: ModuleInfo): ModuleInfo? = null
+            override fun sdkDependency(module: ModuleInfo, ownerModuleDescriptor: ModuleDescriptorImpl?): ModuleInfo? =
+                null
         }
     }
 

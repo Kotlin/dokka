@@ -13,6 +13,7 @@ import org.jetbrains.kotlin.incremental.components.LookupTracker
 import org.jetbrains.kotlin.konan.util.KlibMetadataFactories
 import org.jetbrains.kotlin.library.metadata.NullFlexibleTypeDeserializer
 import org.jetbrains.kotlin.resolve.CodeAnalyzerInitializer
+import org.jetbrains.kotlin.resolve.SealedClassInheritorsProvider
 import org.jetbrains.kotlin.resolve.TargetEnvironment
 import org.jetbrains.kotlin.resolve.konan.platform.NativePlatformAnalyzerServices
 import org.jetbrains.kotlin.resolve.lazy.ResolveSession
@@ -31,7 +32,8 @@ internal class DokkaNativeResolverForModuleFactory(
         moduleContext: ModuleContext,
         moduleContent: ModuleContent<M>,
         resolverForProject: ResolverForProject<M>,
-        languageVersionSettings: LanguageVersionSettings
+        languageVersionSettings: LanguageVersionSettings,
+        sealedInheritorsProvider: SealedClassInheritorsProvider
     ): ResolverForModule {
 
         val declarationProviderFactory = DeclarationProviderFactoryService.createDeclarationProviderFactory(

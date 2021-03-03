@@ -8,9 +8,12 @@ plugins {
 }
 
 repositories {
+    mavenCentral()
     maven(url = "https://www.jetbrains.com/intellij-repository/snapshots")
     maven(url = "https://www.jetbrains.com/intellij-repository/releases")
-    maven(url = "https://kotlin.bintray.com/kotlin-plugin")
+    maven("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/kotlin-ide")
+    maven("https://kotlin.bintray.com/kotlin-ide-plugin-dependencies")
+    maven("https://jetbrains.bintray.com/intellij-third-party-dependencies")
 }
 
 val intellijCore: Configuration by configurations.creating
@@ -21,11 +24,12 @@ fun intellijCoreAnalysis() = zipTree(intellijCore.singleFile).matching {
 
 dependencies {
     val kotlin_plugin_version: String by project
-    api("org.jetbrains.kotlin:ide-common-ij201:$kotlin_plugin_version")
-    api("org.jetbrains.kotlin:kotlin-plugin-ij201:$kotlin_plugin_version") {
-        //TODO: parametrize ij version after 1.3.70
+    api("org.jetbrains.kotlin:common:$kotlin_plugin_version")
+    api("org.jetbrains.kotlin:idea:$kotlin_plugin_version") {
         isTransitive = false
     }
+    api("org.jetbrains.kotlin:core:$kotlin_plugin_version")
+    api("org.jetbrains.kotlin:native:$kotlin_plugin_version")
 
     val idea_version: String by project
     intellijCore("com.jetbrains.intellij.idea:intellij-core:$idea_version")
