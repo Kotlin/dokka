@@ -46,6 +46,7 @@ class DivisionSwitchTest : BaseAbstractTest() {
                 sourceRoots = listOf("src/")
             }
         }
+        suppressObviousFunctions = false
         pluginsConfigurations.addIfNotNull(
             PluginConfigurationImpl(
                 DokkaBase::class.qualifiedName!!,

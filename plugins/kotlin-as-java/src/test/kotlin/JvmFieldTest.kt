@@ -30,7 +30,7 @@ class JvmFieldTest : BaseAbstractTest() {
                 val classLike = module.packages.flatMap { it.classlikes }.first()
                 assertNotNull(classLike.properties.firstOrNull { it.name == "property" })
                 assertEquals(
-                    listOf("getOtherProperty", "equals", "hashCode", "toString"),
+                    listOf("getOtherProperty"),
                     classLike.functions.map { it.name })
             }
         }

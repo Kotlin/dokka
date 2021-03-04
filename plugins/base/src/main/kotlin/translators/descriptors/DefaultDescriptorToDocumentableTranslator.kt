@@ -493,7 +493,7 @@ private class DokkaDescriptorVisitor(
                     descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
                     (descriptor.getAnnotations() + descriptor.fileLevelAnnotations()).toSourceSetDependent()
                         .toAnnotations(),
-                    ObviousMember.takeIf { descriptor.isFake },
+                    ObviousMember.takeIf { descriptor.isObvious },
                 )
             )
         }
@@ -1038,8 +1038,11 @@ private class DokkaDescriptorVisitor(
         ?.parallelMap { it.toAnnotation(scope = Annotations.AnnotationScope.FILE) }
         .orEmpty()
 
-    private val FunctionDescriptor.isFake: Boolean
-        get() = kind == CallableMemberDescriptor.Kind.FAKE_OVERRIDE || kind == CallableMemberDescriptor.Kind.SYNTHESIZED
+    private val FunctionDescriptor.isObvious: Boolean
+        get() = kind == CallableMemberDescriptor.Kind.FAKE_OVERRIDE ||
+                kind == CallableMemberDescriptor.Kind.SYNTHESIZED ||
+                containingDeclaration.fqNameOrNull()?.asString()
+                    ?.let { it == "kotlin.Any" || it == "kotlin.Enum" } == true
 }
 
 private data class AncestryLevel(
