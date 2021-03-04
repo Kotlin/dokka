@@ -46,24 +46,26 @@ class DokkaGenerator(
     ) = DokkaContext.create(configuration, logger, additionalPlugins)
 
     private fun finalizeCoroutines() {
-        Dispatchers.Default.closeExecutor()
+        runCatching {
+            Dispatchers.Default.closeExecutor()
 
-        Dispatchers.IO.let { dispatcher ->
-            dispatcher::class.memberProperties.find {
-                it.name == "dispatcher"
-            }?.also {
-                it.isAccessible = true
-            }?.call(dispatcher)
-        }?.closeExecutor()
+            Dispatchers.IO.let { dispatcher ->
+                dispatcher::class.memberProperties.find {
+                    it.name == "dispatcher"
+                }?.also {
+                    it.isAccessible = true
+                }?.call(dispatcher)
+            }?.closeExecutor()
+        }
     }
 
     @OptIn(InternalCoroutinesApi::class)
     private fun Any.closeExecutor() = (this as ExperimentalCoroutineDispatcher).also {
         it.executor::class.members
-                .find { it.name == "close" }
-                ?.also {
-                    it.isAccessible = true
-                }?.call(it.executor)
+            .find { it.name == "close" }
+            ?.also {
+                it.isAccessible = true
+            }?.call(it.executor)
     }
 }
 
