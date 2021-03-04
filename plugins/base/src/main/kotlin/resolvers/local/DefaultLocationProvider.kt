@@ -1,7 +1,11 @@
 package org.jetbrains.dokka.base.resolvers.local
 
 import org.jetbrains.dokka.base.DokkaBase
+import org.jetbrains.dokka.base.resolvers.external.DefaultExternalLocationProvider
+import org.jetbrains.dokka.base.resolvers.external.Dokka010ExternalLocationProvider
 import org.jetbrains.dokka.base.resolvers.external.ExternalLocationProvider
+import org.jetbrains.dokka.base.resolvers.external.javadoc.AndroidExternalLocationProvider
+import org.jetbrains.dokka.base.resolvers.external.javadoc.JavadocExternalLocationProvider
 import org.jetbrains.dokka.base.resolvers.shared.ExternalDocumentation
 import org.jetbrains.dokka.base.resolvers.shared.PackageList
 import org.jetbrains.dokka.links.DRI
@@ -36,12 +40,16 @@ abstract class DefaultLocationProvider(
         }
         .toMap()
 
-    protected val packagesIndex: Map<String, ExternalLocationProvider?> = externalLocationProviders
-        .flatMap { (extDocInfo, externalLocationProvider) ->
-            extDocInfo.packageList.packages.map { packageName -> packageName to externalLocationProvider }
-        }
-        .toMap()
-        .filterKeys(String::isNotBlank)
+    protected val packagesIndex: Map<String, ExternalLocationProvider?> =
+        externalLocationProviders
+            .flatMap { (extDocInfo, externalLocationProvider) ->
+                extDocInfo.packageList.packages.map { packageName -> packageName to externalLocationProvider }
+            }.groupBy { it.first }.mapValues { (_, lst) ->
+                lst.map { it.second }
+                    .sortedWith(compareBy(nullsLast(ExternalLocationProviderOrdering)) { it })
+                    .firstOrNull()
+            }
+            .filterKeys(String::isNotBlank)
 
 
     protected val locationsIndex: Map<String, ExternalLocationProvider?> = externalLocationProviders
@@ -55,5 +63,17 @@ abstract class DefaultLocationProvider(
         packagesIndex[dri.packageName]?.resolve(dri)
             ?: locationsIndex[dri.toString()]?.resolve(dri)
             ?: externalLocationProviders.values.mapNotNull { it?.resolve(dri) }.firstOrNull()
+
+    private object ExternalLocationProviderOrdering : Comparator<ExternalLocationProvider> {
+        private val desiredOrdering = listOf(
+            DefaultExternalLocationProvider::class,
+            Dokka010ExternalLocationProvider::class,
+            AndroidExternalLocationProvider::class,
+            JavadocExternalLocationProvider::class
+        )
+
+        override fun compare(o1: ExternalLocationProvider, o2: ExternalLocationProvider): Int =
+            desiredOrdering.indexOf(o1::class).compareTo(desiredOrdering.indexOf(o2::class))
+    }
 
 }

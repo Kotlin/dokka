@@ -3,6 +3,7 @@ package org.jetbrains.dokka.base.renderers.html
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.base.templating.AddToSearch
+import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.DisplaySourceSet
 import org.jetbrains.dokka.model.dfs
 import org.jetbrains.dokka.model.withDescendants
@@ -22,28 +23,31 @@ data class SearchRecord(
 }
 
 open class SearchbarDataInstaller(val context: DokkaContext) : PageTransformer {
-    data class PageWithId(val id: PageId, val page: ContentPage) {
-        val displayableSignature = getSymbolSignature(page)?.let { flattenToText(it) } ?: page.name
+    data class PageWithId(val dri: DRI, val page: ContentPage) {
+        val displayableSignature = getSymbolSignature(page, dri)?.let { flattenToText(it) } ?: page.name
+        val id: String
+            get() = listOfNotNull(
+                dri.packageName,
+                dri.classNames,
+                dri.callable?.name
+            ).joinToString(".")
     }
 
     private val mapper = jacksonObjectMapper()
 
-    open fun generatePagesList(pages: Map<PageId, PageWithId>, locationResolver: PageResolver): List<SearchRecord> =
-        pages.entries
-            .filter { it.key.isNotEmpty() }
-            .sortedWith(compareBy({ it.key }, { it.value.displayableSignature }))
-            .groupBy { it.key.substringAfterLast(".") }
-            .entries
-            .flatMap { entry ->
-                entry.value.map { subentry ->
-                    createSearchRecord(
-                        name = subentry.value.displayableSignature,
-                        description = subentry.key,
-                        location = resolveLocation(locationResolver, subentry.value.page).orEmpty(),
-                        searchKeys = listOf(entry.key, subentry.value.displayableSignature)
-                    )
-                }
-            }
+    open fun generatePagesList(pages: List<PageWithId>, locationResolver: PageResolver): List<SearchRecord> =
+        pages.map { pageWithId ->
+            createSearchRecord(
+                name = pageWithId.displayableSignature,
+                description = pageWithId.id,
+                location = resolveLocation(locationResolver, pageWithId.page).orEmpty(),
+                searchKeys = listOf(
+                    pageWithId.id.substringAfterLast("."),
+                    pageWithId.displayableSignature,
+                    pageWithId.id,
+                )
+            )
+        }.sortedWith(compareBy({ it.name }, { it.description }))
 
     open fun createSearchRecord(
         name: String,
@@ -53,19 +57,11 @@ open class SearchbarDataInstaller(val context: DokkaContext) : PageTransformer {
     ): SearchRecord =
         SearchRecord(name, description, location, searchKeys)
 
-    open fun processPage(page: PageNode): PageWithId? =
+    open fun processPage(page: PageNode): List<PageWithId> =
         when (page) {
-            is ContentPage -> page.takeIf { page !is ModulePageNode && page !is PackagePageNode }?.documentable
-                ?.let { documentable ->
-                    listOfNotNull(
-                        documentable.dri.packageName,
-                        documentable.dri.classNames,
-                        documentable.dri.callable?.name
-                    ).takeIf { it.isNotEmpty() }?.joinToString(".")
-                }?.let { id ->
-                    PageWithId(id, page)
-                }
-            else -> null
+            is ContentPage -> page.takeIf { page !is ModulePageNode && page !is PackagePageNode }?.dri
+                ?.map { dri -> PageWithId(dri, page) }.orEmpty()
+            else -> emptyList()
         }
 
     private fun resolveLocation(locationResolver: PageResolver, page: ContentPage): String? =
@@ -78,8 +74,8 @@ open class SearchbarDataInstaller(val context: DokkaContext) : PageTransformer {
             name = "scripts/pages.json",
             children = emptyList(),
             strategy = RenderingStrategy.PageLocationResolvableWrite { resolver ->
-                val content = input.withDescendants().fold(emptyMap<PageId, PageWithId>()) { pageList, page ->
-                    processPage(page)?.let { pageList + Pair(it.id, it) } ?: pageList
+                val content = input.withDescendants().fold(emptyList<PageWithId>()) { pageList, page ->
+                    pageList + processPage(page)
                 }.run {
                     generatePagesList(this, resolver)
                 }
@@ -95,7 +91,8 @@ open class SearchbarDataInstaller(val context: DokkaContext) : PageTransformer {
     }
 }
 
-private fun getSymbolSignature(page: ContentPage) = page.content.dfs { it.dci.kind == ContentKind.Symbol }
+private fun getSymbolSignature(page: ContentPage, dri: DRI) =
+    page.content.dfs { it.dci.kind == ContentKind.Symbol && it.dci.dri.contains(dri) }
 
 private fun flattenToText(node: ContentNode): String {
     fun getContentTextNodes(node: ContentNode, sourceSetRestriction: DisplaySourceSet): List<ContentText> =
