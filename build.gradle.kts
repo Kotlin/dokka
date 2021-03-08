@@ -1,7 +1,5 @@
-import org.jetbrains.ValidatePublications
-import org.jetbrains.configureDokkaVersion
+import org.jetbrains.*
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import org.jetbrains.publicationChannels
 
 plugins {
     kotlin("jvm") apply false
@@ -69,9 +67,11 @@ subprojects {
         }
 
         register<Jar>("javadocJar") {
-            dependsOn(dokkaHtml)
             archiveClassifier.set("javadoc")
-            from(dokkaOutputDir)
+            if (isLocalPublication) {
+                dependsOn(dokkaHtml)
+                from(dokkaOutputDir)
+            }
         }
     }
 }
