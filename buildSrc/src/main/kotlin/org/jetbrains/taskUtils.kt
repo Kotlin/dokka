@@ -1,5 +1,6 @@
 package org.jetbrains
 
+import org.gradle.api.Project
 import org.gradle.api.Task
 
 fun Task.dependsOnMavenLocalPublication() {
@@ -11,3 +12,6 @@ fun Task.dependsOnMavenLocalPublication() {
         }
     }
 }
+
+val Project.isLocalPublication: Boolean
+    get() = gradle.startParameter.taskNames.contains("publishToMavenLocal")
