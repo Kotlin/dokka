@@ -19,9 +19,6 @@ jobs:
         with:
           java-version: 12
 
-      - name: Publish dokka locally
-        run: ./gradlew publishToMavenLocal --stacktrace
-
       - name: Document coroutines
         run: ./gradlew :integration-tests:gradle:integrationTest --tests org.jetbrains.dokka.it.gradle.kotlin.CoroutinesGradleIntegrationTest --stacktrace
         timeout-minutes: 60
@@ -53,9 +50,6 @@ jobs:
         with:
           java-version: 12
 
-      - name: Publish dokka locally
-        run: ./gradlew clean publishToMavenLocal --stacktrace
-
       - name: Document stdlib
         run: ./gradlew :integration-tests:gradle:integrationTest --tests org.jetbrains.dokka.it.gradle.kotlin.StdlibGradleIntegrationTest --stacktrace
         env:
@@ -86,9 +80,6 @@ jobs:
         with:
           java-version: 12
 
-      - name: Publish dokka locally
-        run: ./gradlew clean publishToMavenLocal --stacktrace
-
       - name: Document serialization
         run: ./gradlew :integration-tests:gradle:integrationTest --tests org.jetbrains.dokka.it.gradle.kotlin.SerializationGradleIntegrationTest --stacktrace
         env:
@@ -118,9 +109,6 @@ jobs:
       - uses: actions/setup-java@v1
         with:
           java-version: 12
-
-      - name: Publish dokka locally
-        run: ./gradlew clean publishToMavenLocal --stacktrace
 
       - name: Document biojava-core
         run: ./gradlew :integration-tests:maven:integrationTest --tests org.jetbrains.dokka.it.maven.BiojavaIntegrationTest --stacktrace
