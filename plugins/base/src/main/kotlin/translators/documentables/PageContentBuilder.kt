@@ -146,6 +146,10 @@ open class PageContentBuilder(
             }.build()
         }
 
+        internal fun headers(vararg label: String) = contentFor(mainDRI, mainSourcesetData) {
+            label.forEach { text(it) }
+        }
+
         fun <T : Documentable> block(
             name: String,
             level: Int,
