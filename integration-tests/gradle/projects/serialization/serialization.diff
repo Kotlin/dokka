@@ -4,7 +4,7 @@ index 683a698b..b28354af 100644
 +++ b/build.gradle
 @@ -47,7 +47,6 @@ buildscript {
      ext.jvm_ir_api_check_enabled = rootProject.properties['enable_jvm_ir_api_check'] != null
-
+ 
      repositories {
 -        mavenLocal()
          // Future replacement for kotlin-dev, with cache redirector
@@ -16,7 +16,7 @@ index 683a698b..b28354af 100644
          gradlePluginPortal()
 +        mavenLocal()
      }
-
+ 
      configurations.classpath {
 @@ -76,7 +76,6 @@ buildscript {
      dependencies {
@@ -25,11 +25,11 @@ index 683a698b..b28354af 100644
 -        classpath "org.jetbrains.dokka:dokka-gradle-plugin:$dokka_version"
          classpath "org.jetbrains.kotlinx:binary-compatibility-validator:$validator_version"
          classpath "org.jetbrains.kotlinx:kotlinx-knit:$knit_version"
-
+ 
 @@ -89,6 +88,10 @@ buildscript {
      }
  }
-
+ 
 +plugins {
 +    id("org.jetbrains.dokka")
 +}
@@ -49,7 +49,7 @@ index 3949d1ba..808bdfc7 100644
 --- a/gradle.properties
 +++ b/gradle.properties
 @@ -13,7 +13,7 @@ kotlin.version.snapshot=1.4.255-SNAPSHOT
-
+ 
  junit_version=4.12
  jackson_version=2.10.0.pr1
 -dokka_version=1.4.20-multimodule-dev-7
@@ -71,21 +71,21 @@ index 5b8c66a8..cb697c92 100644
          dokkaSourceSets {
              configureEach {
                  includes.from(rootProject.file('dokka/moduledoc.md').path)
-
+ 
                  perPackageOption {
 -                    prefix.set("kotlinx.serialization")
 +                    matchingRegex.set("kotlinx.serialization(\$|\\.).*")
                      reportUndocumented.set(true)
                      skipDeprecated.set(true)
                  }
-
+ 
                  // Internal API
                  perPackageOption {
 -                    prefix.set("kotlinx.serialization.internal")
 +                    matchingRegex.set("kotlinx.serialization.internal(\$|\\.).*")
                      suppress.set(true)
                  }
-
+ 
                  // Workaround for typealias
                  perPackageOption {
 -                    prefix.set("kotlinx.serialization.protobuf.internal")
@@ -93,7 +93,7 @@ index 5b8c66a8..cb697c92 100644
                      suppress.set(true)
                      reportUndocumented.set(false)
                  }
-
+ 
                  // Deprecated migrations
                  perPackageOption {
 -                    prefix.set("kotlinx.protobuf")
@@ -101,7 +101,7 @@ index 5b8c66a8..cb697c92 100644
                      reportUndocumented.set(true)
                      skipDeprecated.set(true)
                  }
-
+ 
                  // Deprecated migrations
                  perPackageOption {
 -                    prefix.set("org.jetbrains.kotlinx.serialization.config")
@@ -114,7 +114,7 @@ index e66b0d6e..8396ab36 100644
 --- a/gradle/wrapper/gradle-wrapper.properties
 +++ b/gradle/wrapper/gradle-wrapper.properties
 @@ -4,6 +4,6 @@
-
+ 
  distributionBase=GRADLE_USER_HOME
  distributionPath=wrapper/dists
 -distributionUrl=https\://services.gradle.org/distributions/gradle-6.7.1-all.zip
@@ -126,7 +126,7 @@ index 88bcb942..171f2eb4 100644
 --- a/settings.gradle
 +++ b/settings.gradle
 @@ -28,3 +28,5 @@ project(':benchmark').projectDir = file('./benchmark')
-
+ 
  include ':guide'
  project(':guide').projectDir = file('./guide')
 +
