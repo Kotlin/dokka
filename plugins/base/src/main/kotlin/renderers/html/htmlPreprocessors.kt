@@ -5,6 +5,8 @@ import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.DokkaBaseConfiguration
 import org.jetbrains.dokka.base.renderers.sourceSets
 import org.jetbrains.dokka.base.templating.AddToSearch
+import org.jetbrains.dokka.base.templating.AddToSourcesetDependencies
+import org.jetbrains.dokka.base.templating.toJsonString
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.pages.*
@@ -169,15 +171,15 @@ class SourcesetDependencyAppender(val context: DokkaContext) : PageTransformer {
             it.sourceSetID to it.dependentSourceSets
         }.toMap()
 
-        fun createDependenciesJson(): String = "sourceset_dependencies = '{${
-            dependenciesMap.entries.joinToString(", ") {
-                "\"${it.key}\": [${
-                    it.value.joinToString(",") {
-                        "\"$it\""
+        fun createDependenciesJson(): String =
+            dependenciesMap.map { (key, values) -> key.toString() to values.map { it.toString() } }.toMap()
+                .let { content ->
+                    if (context.configuration.delayTemplateSubstitution) {
+                        toJsonString(AddToSourcesetDependencies(context.configuration.moduleName, content))
+                    } else {
+                        "sourceset_dependencies='${toJsonString(content)}'"
                     }
-                }]"
-            }
-        }}'"
+                }
 
         val deps = RendererSpecificResourcePage(
             name = name,

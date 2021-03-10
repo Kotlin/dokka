@@ -3,6 +3,7 @@ package org.jetbrains.dokka.templates
 import org.jetbrains.dokka.allModulesPage.templates.NavigationSearchTemplateStrategy
 import org.jetbrains.dokka.allModulesPage.templates.PagesSearchTemplateStrategy
 import org.jetbrains.dokka.plugability.DokkaPlugin
+import templates.SourcesetDependencyProcessingStrategy
 
 class TemplatingPlugin : DokkaPlugin() {
 
@@ -28,6 +29,12 @@ class TemplatingPlugin : DokkaPlugin() {
     }
     val navigationSearchTemplateStrategy by extending {
         templateProcessingStrategy providing ::NavigationSearchTemplateStrategy order {
+            before(fallbackProcessingStrategy)
+        }
+    }
+
+    val sourcesetDependencyProcessingStrategy by extending {
+        templateProcessingStrategy providing ::SourcesetDependencyProcessingStrategy order {
             before(fallbackProcessingStrategy)
         }
     }
