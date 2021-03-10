@@ -51,6 +51,7 @@ class MultimodulePageCreator(
             }
             header(2, "All modules:")
             table(styles = setOf(MultimoduleTable)) {
+                header { group { text("Name") } }
                 modules.filter { it.name in creationContext.nonEmptyModules }.sortedByDescending { it.name }
                     .forEach { module ->
                         val displayedModuleDocumentation = getDisplayedModuleDocumentation(module)
