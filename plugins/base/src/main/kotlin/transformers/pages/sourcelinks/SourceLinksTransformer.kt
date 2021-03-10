@@ -74,7 +74,7 @@ class SourceLinksTransformer(val context: DokkaContext) : PageTransformer {
             header = emptyList(),
             children = sources.map {
                 buildGroup(node.dri, setOf(it.first), kind = ContentKind.Source, extra = mainExtra + SymbolAnchorHint(it.second, ContentKind.Source)) {
-                    link("(source)", it.second)
+                    link("${it.first.displayName} source", it.second)
                 }
             },
             dci = DCI(node.dri, ContentKind.Source),
