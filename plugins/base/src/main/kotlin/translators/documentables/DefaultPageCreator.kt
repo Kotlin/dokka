@@ -121,7 +121,17 @@ open class DefaultPageCreator(
         }
         +contentForComments(m)
 
-        block("Packages", 2, ContentKind.Packages, m.packages, m.sourceSets.toSet(), needsAnchors = true) {
+        block(
+            "Packages",
+            2,
+            ContentKind.Packages,
+            m.packages,
+            m.sourceSets.toSet(),
+            needsAnchors = true,
+            headers = listOf(
+                headers("Name")
+            )
+        ) {
             val documentations = it.sourceSets.map { platform ->
                 it.descriptions[platform]?.also { it.root }
             }
@@ -565,7 +575,10 @@ open class DefaultPageCreator(
             list,
             sourceSets,
             needsAnchors = true,
-            extra = mainExtra + SimpleAttr.header(name)
+            extra = mainExtra + SimpleAttr.header(name),
+            headers = listOf(
+                headers("Name", "Summary")
+            )
         ) {
             link(it.name, it.dri, kind = ContentKind.Main)
             sourceSetDependentHint(it.dri, it.sourceSets.toSet(), kind = ContentKind.SourceSetDependentHint) {
@@ -584,6 +597,10 @@ open class DefaultPageCreator(
         if (collection.any()) {
             header(2, name, kind = kind)
             table(kind, extra = extra, styles = emptySet()) {
+                header {
+                    group { text("Name") }
+                    group { text("Summary") }
+                }
                 collection
                     .groupBy { it.name } // This groupBy should probably use LocationProvider
                     // This hacks displaying actual typealias signatures along classlike ones
