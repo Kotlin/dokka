@@ -1,0 +1,84 @@
+public final class org/jetbrains/dokka/ArgTypeArgument : kotlinx/cli/ArgType {
+	public fun <init> (Lkotlinx/cli/CLIEntity;)V
+	public final fun component1 ()Lkotlinx/cli/CLIEntity;
+	public synthetic fun convert (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/Object;
+	public fun convert (Ljava/lang/String;Ljava/lang/String;)Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;
+	public final fun copy (Lkotlinx/cli/CLIEntity;)Lorg/jetbrains/dokka/ArgTypeArgument;
+	public static synthetic fun copy$default (Lorg/jetbrains/dokka/ArgTypeArgument;Lkotlinx/cli/CLIEntity;ILjava/lang/Object;)Lorg/jetbrains/dokka/ArgTypeArgument;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getDescription ()Ljava/lang/String;
+	public final fun getModuleName ()Lkotlinx/cli/CLIEntity;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/jetbrains/dokka/ArgTypeFile : kotlinx/cli/ArgType {
+	public static final field INSTANCE Lorg/jetbrains/dokka/ArgTypeFile;
+	public fun convert (Ljava/lang/String;Ljava/lang/String;)Ljava/io/File;
+	public synthetic fun convert (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/Object;
+	public fun getDescription ()Ljava/lang/String;
+}
+
+public final class org/jetbrains/dokka/ArgTypeHelpSourceSet : kotlinx/cli/ArgType {
+	public fun <init> (Lkotlinx/cli/CLIEntity;)V
+	public final fun component1 ()Lkotlinx/cli/CLIEntity;
+	public fun convert (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/Object;
+	public final fun copy (Lkotlinx/cli/CLIEntity;)Lorg/jetbrains/dokka/ArgTypeHelpSourceSet;
+	public static synthetic fun copy$default (Lorg/jetbrains/dokka/ArgTypeHelpSourceSet;Lkotlinx/cli/CLIEntity;ILjava/lang/Object;)Lorg/jetbrains/dokka/ArgTypeHelpSourceSet;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getDescription ()Ljava/lang/String;
+	public final fun getModuleName ()Lkotlinx/cli/CLIEntity;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/jetbrains/dokka/ArgTypePlatform : kotlinx/cli/ArgType {
+	public static final field INSTANCE Lorg/jetbrains/dokka/ArgTypePlatform;
+	public synthetic fun convert (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/Object;
+	public fun convert (Ljava/lang/String;Ljava/lang/String;)Lorg/jetbrains/dokka/Platform;
+	public fun getDescription ()Ljava/lang/String;
+}
+
+public final class org/jetbrains/dokka/ArgTypePlugin : kotlinx/cli/ArgType {
+	public static final field INSTANCE Lorg/jetbrains/dokka/ArgTypePlugin;
+	public synthetic fun convert (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/Object;
+	public fun convert (Ljava/lang/String;Ljava/lang/String;)Lorg/jetbrains/dokka/DokkaConfiguration$PluginConfiguration;
+	public fun getDescription ()Ljava/lang/String;
+}
+
+public final class org/jetbrains/dokka/ArgTypeSourceLinkDefinition : kotlinx/cli/ArgType {
+	public static final field INSTANCE Lorg/jetbrains/dokka/ArgTypeSourceLinkDefinition;
+	public synthetic fun convert (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/Object;
+	public fun convert (Ljava/lang/String;Ljava/lang/String;)Lorg/jetbrains/dokka/DokkaConfiguration$SourceLinkDefinition;
+	public fun getDescription ()Ljava/lang/String;
+}
+
+public final class org/jetbrains/dokka/GlobalArguments : org/jetbrains/dokka/DokkaConfiguration {
+	public fun <init> ([Ljava/lang/String;)V
+	public fun getCacheRoot ()Ljava/io/File;
+	public fun getDelayTemplateSubstitution ()Z
+	public fun getFailOnWarning ()Z
+	public final fun getGlobalLinks ()Ljava/util/List;
+	public final fun getGlobalPackageOptions ()Ljava/util/List;
+	public final fun getGlobalSrcLink ()Ljava/util/List;
+	public final fun getHelpSourceSet ()Ljava/lang/Object;
+	public final fun getJson ()Ljava/lang/String;
+	public fun getModuleName ()Ljava/lang/String;
+	public fun getModuleVersion ()Ljava/lang/String;
+	public fun getModules ()Ljava/util/List;
+	public final fun getNoSuppressObviousFunctions ()Z
+	public fun getOfflineMode ()Z
+	public fun getOutputDir ()Ljava/io/File;
+	public final fun getParser ()Lkotlinx/cli/ArgParser;
+	public fun getPluginsClasspath ()Ljava/util/List;
+	public fun getPluginsConfiguration ()Ljava/util/List;
+	public fun getSourceSets ()Ljava/util/List;
+	public fun getSuppressObviousFunctions ()Z
+}
+
+public final class org/jetbrains/dokka/MainKt {
+	public static final fun defaultLinks (Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;)Ljava/util/List;
+	public static final fun main ([Ljava/lang/String;)V
+	public static final fun parseLinks (Ljava/util/List;)Ljava/util/List;
+}
+

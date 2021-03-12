@@ -1,0 +1,130 @@
+public abstract class org/jetbrains/dokka/maven/AbstractDokkaMojo : org/apache/maven/plugin/AbstractMojo {
+	public fun <init> (Ljava/util/List;)V
+	public fun execute ()V
+	public final fun getApiVersion ()Ljava/lang/String;
+	public final fun getCacheRoot ()Ljava/lang/String;
+	public final fun getClasspath ()Ljava/util/List;
+	public final fun getDisplayName ()Ljava/lang/String;
+	public final fun getDokkaPlugins ()Ljava/util/List;
+	public final fun getExternalDocumentationLinks ()Ljava/util/List;
+	public final fun getFailOnWarning ()Z
+	public final fun getImpliedPlatforms ()Ljava/util/List;
+	public final fun getIncludeNonPublic ()Z
+	public final fun getIncludes ()Ljava/util/List;
+	public final fun getJdkVersion ()I
+	public final fun getLanguageVersion ()Ljava/lang/String;
+	protected final fun getMavenProject ()Lorg/apache/maven/project/MavenProject;
+	public final fun getModuleName ()Ljava/lang/String;
+	public final fun getNoJdkLink ()Z
+	public final fun getNoStdlibLink ()Z
+	public final fun getOfflineMode ()Z
+	protected abstract fun getOutDir ()Ljava/lang/String;
+	public final fun getPerPackageOptions ()Ljava/util/List;
+	public final fun getPlatform ()Ljava/lang/String;
+	public final fun getReportUndocumented ()Z
+	public final fun getSamples ()Ljava/util/List;
+	protected final fun getSession ()Lorg/apache/maven/execution/MavenSession;
+	public final fun getSkip ()Z
+	public final fun getSkipDeprecated ()Z
+	public final fun getSkipEmptyPackages ()Z
+	public final fun getSourceDirectories ()Ljava/util/List;
+	public final fun getSourceLinks ()Ljava/util/List;
+	public final fun getSourceSetName ()Ljava/lang/String;
+	public final fun getSuppressedFiles ()Ljava/util/List;
+	public final fun setApiVersion (Ljava/lang/String;)V
+	public final fun setCacheRoot (Ljava/lang/String;)V
+	public final fun setClasspath (Ljava/util/List;)V
+	public final fun setDisplayName (Ljava/lang/String;)V
+	public final fun setDokkaPlugins (Ljava/util/List;)V
+	public final fun setExternalDocumentationLinks (Ljava/util/List;)V
+	public final fun setFailOnWarning (Z)V
+	public final fun setImpliedPlatforms (Ljava/util/List;)V
+	public final fun setIncludeNonPublic (Z)V
+	public final fun setIncludes (Ljava/util/List;)V
+	public final fun setJdkVersion (I)V
+	public final fun setLanguageVersion (Ljava/lang/String;)V
+	protected final fun setMavenProject (Lorg/apache/maven/project/MavenProject;)V
+	public final fun setModuleName (Ljava/lang/String;)V
+	public final fun setNoJdkLink (Z)V
+	public final fun setNoStdlibLink (Z)V
+	public final fun setOfflineMode (Z)V
+	public final fun setPerPackageOptions (Ljava/util/List;)V
+	public final fun setPlatform (Ljava/lang/String;)V
+	public final fun setReportUndocumented (Z)V
+	public final fun setSamples (Ljava/util/List;)V
+	protected final fun setSession (Lorg/apache/maven/execution/MavenSession;)V
+	public final fun setSkip (Z)V
+	public final fun setSkipDeprecated (Z)V
+	public final fun setSkipEmptyPackages (Z)V
+	public final fun setSourceDirectories (Ljava/util/List;)V
+	public final fun setSourceLinks (Ljava/util/List;)V
+	public final fun setSourceSetName (Ljava/lang/String;)V
+	public final fun setSuppressedFiles (Ljava/util/List;)V
+}
+
+public final class org/jetbrains/dokka/maven/AbstractDokkaMojo$PackageOptions : org/jetbrains/dokka/DokkaConfiguration$PackageOptions {
+	public fun <init> ()V
+	public fun getIncludeNonPublic ()Z
+	public fun getMatchingRegex ()Ljava/lang/String;
+	public fun getReportUndocumented ()Ljava/lang/Boolean;
+	public fun getSkipDeprecated ()Z
+	public fun getSuppress ()Z
+	public fun setIncludeNonPublic (Z)V
+	public fun setMatchingRegex (Ljava/lang/String;)V
+	public fun setReportUndocumented (Z)V
+	public fun setSkipDeprecated (Z)V
+	public fun setSuppress (Z)V
+}
+
+public final class org/jetbrains/dokka/maven/DokkaJavadocJarMojo : org/jetbrains/dokka/maven/AbstractDokkaMojo {
+	public fun <init> ()V
+	public fun execute ()V
+	public final fun getOutputDir ()Ljava/lang/String;
+	public final fun setOutputDir (Ljava/lang/String;)V
+}
+
+public final class org/jetbrains/dokka/maven/DokkaJavadocMojo : org/jetbrains/dokka/maven/AbstractDokkaMojo {
+	public fun <init> ()V
+	public final fun getOutputDir ()Ljava/lang/String;
+	public final fun setOutputDir (Ljava/lang/String;)V
+}
+
+public final class org/jetbrains/dokka/maven/DokkaMojo : org/jetbrains/dokka/maven/AbstractDokkaMojo {
+	public fun <init> ()V
+	public final fun getOutputDir ()Ljava/lang/String;
+	public final fun setOutputDir (Ljava/lang/String;)V
+}
+
+public final class org/jetbrains/dokka/maven/ExternalDocumentationLinkBuilder {
+	public fun <init> ()V
+	public final fun build ()Lorg/jetbrains/dokka/ExternalDocumentationLinkImpl;
+	public final fun getPackageListUrl ()Ljava/net/URL;
+	public final fun getUrl ()Ljava/net/URL;
+	public final fun setPackageListUrl (Ljava/net/URL;)V
+	public final fun setUrl (Ljava/net/URL;)V
+}
+
+public final class org/jetbrains/dokka/maven/MavenDokkaLogger : org/jetbrains/dokka/utilities/DokkaLogger {
+	public fun <init> (Lorg/apache/maven/plugin/logging/Log;)V
+	public fun debug (Ljava/lang/String;)V
+	public fun error (Ljava/lang/String;)V
+	public fun getErrorsCount ()I
+	public final fun getLog ()Lorg/apache/maven/plugin/logging/Log;
+	public fun getWarningsCount ()I
+	public fun info (Ljava/lang/String;)V
+	public fun progress (Ljava/lang/String;)V
+	public fun setErrorsCount (I)V
+	public fun setWarningsCount (I)V
+	public fun warn (Ljava/lang/String;)V
+}
+
+public final class org/jetbrains/dokka/maven/SourceLinkMapItem {
+	public fun <init> ()V
+	public final fun getLineSuffix ()Ljava/lang/String;
+	public final fun getPath ()Ljava/lang/String;
+	public final fun getUrl ()Ljava/lang/String;
+	public final fun setLineSuffix (Ljava/lang/String;)V
+	public final fun setPath (Ljava/lang/String;)V
+	public final fun setUrl (Ljava/lang/String;)V
+}
+

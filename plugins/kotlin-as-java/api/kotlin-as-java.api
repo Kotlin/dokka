@@ -1,0 +1,82 @@
+public final class org/jetbrains/dokka/kotlinAsJava/KotlinAsJavaPlugin : org/jetbrains/dokka/plugability/DokkaPlugin {
+	public fun <init> ()V
+	public final fun getJavaSignatureProvider ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getJvmNameTransformer ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getKotlinAsJavaDocumentableToPageTranslator ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getKotlinAsJavaDocumentableTransformer ()Lorg/jetbrains/dokka/plugability/Extension;
+}
+
+public final class org/jetbrains/dokka/kotlinAsJava/converters/KotlinToJavaConverterKt {
+	public static final fun getJvmNameProvider ()Lorg/jetbrains/dokka/kotlinAsJava/transformers/JvmNameProvider;
+}
+
+public final class org/jetbrains/dokka/kotlinAsJava/signatures/JavaSignatureProvider : org/jetbrains/dokka/base/signatures/JvmSignatureUtils, org/jetbrains/dokka/base/signatures/SignatureProvider {
+	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
+	public fun annotations (Lorg/jetbrains/dokka/model/properties/WithExtraProperties;)Ljava/util/Map;
+	public fun annotationsBlock (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Lorg/jetbrains/dokka/model/AnnotationTarget;)V
+	public fun annotationsBlockWithIgnored (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Lorg/jetbrains/dokka/model/AnnotationTarget;Ljava/util/Set;Lorg/jetbrains/dokka/base/signatures/AtStrategy;Lkotlin/Pair;Ljava/lang/String;)V
+	public fun annotationsInline (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Lorg/jetbrains/dokka/model/AnnotationTarget;)V
+	public fun annotationsInlineWithIgnored (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Lorg/jetbrains/dokka/model/AnnotationTarget;Ljava/util/Set;Lorg/jetbrains/dokka/base/signatures/AtStrategy;Lkotlin/Pair;Ljava/lang/String;)V
+	public fun modifiers (Lorg/jetbrains/dokka/model/properties/WithExtraProperties;)Ljava/util/Map;
+	public fun signature (Lorg/jetbrains/dokka/model/Documentable;)Ljava/util/List;
+	public fun stylesIfDeprecated (Lorg/jetbrains/dokka/model/properties/WithExtraProperties;Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;)Ljava/util/Set;
+	public fun toSignatureString (Ljava/util/Collection;)Ljava/lang/String;
+	public fun toSignatureString (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Lorg/jetbrains/dokka/model/Annotations$Annotation;Lorg/jetbrains/dokka/base/signatures/AtStrategy;Lkotlin/Pair;Ljava/lang/String;)V
+	public fun uses (Lorg/jetbrains/dokka/model/DFunction;Lorg/jetbrains/dokka/model/DTypeParameter;)Z
+}
+
+public final class org/jetbrains/dokka/kotlinAsJava/signatures/JavaSignatureUtils : org/jetbrains/dokka/base/signatures/JvmSignatureUtils {
+	public static final field INSTANCE Lorg/jetbrains/dokka/kotlinAsJava/signatures/JavaSignatureUtils;
+	public fun annotations (Lorg/jetbrains/dokka/model/properties/WithExtraProperties;)Ljava/util/Map;
+	public fun annotationsBlock (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Lorg/jetbrains/dokka/model/AnnotationTarget;)V
+	public fun annotationsBlockWithIgnored (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Lorg/jetbrains/dokka/model/AnnotationTarget;Ljava/util/Set;Lorg/jetbrains/dokka/base/signatures/AtStrategy;Lkotlin/Pair;Ljava/lang/String;)V
+	public fun annotationsInline (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Lorg/jetbrains/dokka/model/AnnotationTarget;)V
+	public fun annotationsInlineWithIgnored (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Lorg/jetbrains/dokka/model/AnnotationTarget;Ljava/util/Set;Lorg/jetbrains/dokka/base/signatures/AtStrategy;Lkotlin/Pair;Ljava/lang/String;)V
+	public fun modifiers (Lorg/jetbrains/dokka/model/properties/WithExtraProperties;)Ljava/util/Map;
+	public fun stylesIfDeprecated (Lorg/jetbrains/dokka/model/properties/WithExtraProperties;Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;)Ljava/util/Set;
+	public fun toSignatureString (Ljava/util/Collection;)Ljava/lang/String;
+	public fun toSignatureString (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Lorg/jetbrains/dokka/model/Annotations$Annotation;Lorg/jetbrains/dokka/base/signatures/AtStrategy;Lkotlin/Pair;Ljava/lang/String;)V
+	public fun uses (Lorg/jetbrains/dokka/model/DFunction;Lorg/jetbrains/dokka/model/DTypeParameter;)Z
+}
+
+public final class org/jetbrains/dokka/kotlinAsJava/transformers/JvmNameDocumentableTransformer : org/jetbrains/dokka/transformers/documentation/DocumentableTransformer {
+	public fun <init> ()V
+	public fun invoke (Lorg/jetbrains/dokka/model/DModule;Lorg/jetbrains/dokka/plugability/DokkaContext;)Lorg/jetbrains/dokka/model/DModule;
+}
+
+public final class org/jetbrains/dokka/kotlinAsJava/transformers/JvmNameProvider {
+	public fun <init> ()V
+	public final fun nameFor (Lorg/jetbrains/dokka/model/Documentable;)Ljava/lang/String;
+	public final fun nameForGetter (Lorg/jetbrains/dokka/model/DProperty;)Ljava/lang/String;
+	public final fun nameForSetter (Lorg/jetbrains/dokka/model/DProperty;)Ljava/lang/String;
+	public final fun nameForSyntheticClass (Lorg/jetbrains/dokka/model/Documentable;)Lorg/jetbrains/dokka/kotlinAsJava/transformers/Name;
+}
+
+public final class org/jetbrains/dokka/kotlinAsJava/transformers/KotlinAsJavaDocumentableTransformer : org/jetbrains/dokka/transformers/documentation/DocumentableTransformer {
+	public fun <init> ()V
+	public fun invoke (Lorg/jetbrains/dokka/model/DModule;Lorg/jetbrains/dokka/plugability/DokkaContext;)Lorg/jetbrains/dokka/model/DModule;
+}
+
+public final class org/jetbrains/dokka/kotlinAsJava/transformers/Name {
+	public fun <init> (Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;)Lorg/jetbrains/dokka/kotlinAsJava/transformers/Name;
+	public static synthetic fun copy$default (Lorg/jetbrains/dokka/kotlinAsJava/transformers/Name;Ljava/lang/String;ILjava/lang/Object;)Lorg/jetbrains/dokka/kotlinAsJava/transformers/Name;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getFqName ()Ljava/lang/String;
+	public final fun getName ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/jetbrains/dokka/kotlinAsJava/translators/KotlinAsJavaDocumentableToPageTranslator : org/jetbrains/dokka/transformers/documentation/DocumentableToPageTranslator {
+	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
+	public fun invoke (Lorg/jetbrains/dokka/model/DModule;)Lorg/jetbrains/dokka/pages/ModulePageNode;
+	public synthetic fun invoke (Lorg/jetbrains/dokka/model/DModule;)Lorg/jetbrains/dokka/pages/RootPageNode;
+}
+
+public final class org/jetbrains/dokka/kotlinAsJava/translators/KotlinAsJavaPageCreator : org/jetbrains/dokka/base/translators/documentables/DefaultPageCreator {
+	public fun <init> (Lorg/jetbrains/dokka/base/DokkaBaseConfiguration;Lorg/jetbrains/dokka/base/transformers/pages/comments/CommentsToContentConverter;Lorg/jetbrains/dokka/base/signatures/SignatureProvider;Lorg/jetbrains/dokka/utilities/DokkaLogger;)V
+	public fun pageForProperty (Lorg/jetbrains/dokka/model/DProperty;)Lorg/jetbrains/dokka/pages/MemberPageNode;
+}
+
