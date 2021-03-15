@@ -25,22 +25,18 @@ class DefaultExternalModuleLinkResolver(val context: DokkaContext) : ExternalMod
         elpFactory.flatMap { externalDocumentations.map { ed -> it.getExternalLocationProvider(ed) } }.filterNotNull()
     }
 
-    private fun setupExternalDocumentations(): List<ExternalDocumentation> {
-        val packageLists =
-            context.configuration.modules.map(::loadPackageListForModule).toMap()
-        return packageLists.mapNotNull { (module, packageList) ->
-            packageList?.let {
-                context.configuration.modules.find { it.name == module.name }?.let { m ->
-                    ExternalDocumentation(
-                        URL("file:/${m.relativePathToOutputDirectory.toRelativeOutputDir()}"),
-                        packageList
-                    )
-                }
+    private fun setupExternalDocumentations(): List<ExternalDocumentation> =
+        context.configuration.modules.mapNotNull { module ->
+            loadPackageListForModule(module)?.let { packageList ->
+                ExternalDocumentation(
+                    URL("file:/${module.relativePathToOutputDirectory.toRelativeOutputDir()}"),
+                    packageList
+                )
             }
         }
-    }
 
-    private fun File.toRelativeOutputDir(): File = if(isAbsolute) {
+
+    private fun File.toRelativeOutputDir(): File = if (isAbsolute) {
         relativeToOrSelf(context.configuration.outputDir)
     } else {
         this
@@ -48,7 +44,7 @@ class DefaultExternalModuleLinkResolver(val context: DokkaContext) : ExternalMod
 
     private fun loadPackageListForModule(module: DokkaConfiguration.DokkaModuleDescription) =
         module.sourceOutputDirectory.resolve(File(identifierToFilename(module.name))).let {
-            it to PackageList.load(
+            PackageList.load(
                 URL("file:" + it.resolve("package-list").path),
                 8,
                 true
@@ -70,7 +66,7 @@ class DefaultExternalModuleLinkResolver(val context: DokkaContext) : ExternalMod
     override fun resolveLinkToModuleIndex(moduleName: String): String? =
         context.configuration.modules.firstOrNull { it.name == moduleName }
             ?.let { module ->
-                val (_, packageList) = loadPackageListForModule(module)
+                val packageList = loadPackageListForModule(module)
                 val extension = when (packageList?.linkFormat) {
                     RecognizedLinkFormat.KotlinWebsiteHtml,
                     RecognizedLinkFormat.DokkaOldHtml,
