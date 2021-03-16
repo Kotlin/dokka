@@ -44,7 +44,6 @@ gradlePlugin {
             description = "Dokka, the Kotlin documentation tool"
             implementationClass = "org.jetbrains.dokka.gradle.DokkaPlugin"
             version = dokkaVersion
-            isAutomatedPublishing = false // This will probably have to be fixed for Gradle Plugin Portal release
         }
     }
 }
