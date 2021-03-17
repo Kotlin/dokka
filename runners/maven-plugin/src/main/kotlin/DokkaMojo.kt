@@ -118,9 +118,6 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
     var reportUndocumented: Boolean = DokkaDefaults.reportUndocumented
 
     @Parameter
-    var impliedPlatforms: List<String> = emptyList()
-
-    @Parameter
     var perPackageOptions: List<PackageOptions> = emptyList()
 
     @Parameter
@@ -158,6 +155,9 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
 
     @Parameter
     var failOnWarning: Boolean = DokkaDefaults.failOnWarning
+
+    @Parameter
+    var suppressObviousFunctions: Boolean = DokkaDefaults.suppressObviousFunctions
 
     @Parameter
     var dokkaPlugins: List<Dependency> = emptyList()
@@ -216,7 +216,7 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
             noStdlibLink = noStdlibLink,
             noJdkLink = noJdkLink,
             suppressedFiles = suppressedFiles.map(::File).toSet(),
-            analysisPlatform = if (platform.isNotEmpty()) Platform.fromString(platform) else Platform.DEFAULT
+            analysisPlatform = if (platform.isNotEmpty()) Platform.fromString(platform) else Platform.DEFAULT,
         ).let {
             it.copy(
                 externalDocumentationLinks = defaultLinks(it) + it.externalDocumentationLinks
@@ -247,6 +247,7 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
             pluginsConfiguration = pluginsConfiguration.toMutableList(),
             modules = emptyList(),
             failOnWarning = failOnWarning,
+            suppressObviousFunctions = suppressObviousFunctions,
         )
 
         val gen = DokkaGenerator(configuration, logger)
@@ -270,8 +271,10 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
             servers = session!!.request.servers
             mirrors = session!!.request.mirrors
             proxies = session!!.request.proxies
-            artifact = DefaultArtifact(groupId, artifactId, version, "compile", "jar", null,
-                    DefaultArtifactHandler("jar"))
+            artifact = DefaultArtifact(
+                groupId, artifactId, version, "compile", "jar", null,
+                DefaultArtifactHandler("jar")
+            )
         }
 
         log.debug("Resolving $groupId:$artifactId:$version ...")

@@ -48,5 +48,7 @@ tasks.withType<DokkaTask> {
             kotlinSourceSet(kotlin.sourceSets["test"])
         }
     }
+    suppressObviousFunctions.set(false)
+
     pluginsMapConfiguration.set(mapOf(DokkaBase::class.qualifiedName to """{ "customStyleSheets": ["${file("customResources/logo-styles.css")}", "${file("customResources/custom-style-to-add.css")}"], "customAssets" : ["${file("customResources/custom-resource.svg")}"] }"""))
 }
