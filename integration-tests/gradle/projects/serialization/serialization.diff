@@ -1,7 +1,23 @@
 diff --git a/build.gradle b/build.gradle
-index 83346e98..1871cc2a 100644
+index 683a698b..b28354af 100644
 --- a/build.gradle
 +++ b/build.gradle
+@@ -47,7 +47,6 @@ buildscript {
+     ext.jvm_ir_api_check_enabled = rootProject.properties['enable_jvm_ir_api_check'] != null
+ 
+     repositories {
+-        mavenLocal()
+         // Future replacement for kotlin-dev, with cache redirector
+         maven { url "https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/kotlin/p/kotlin/dev" }
+         maven {
+@@ -63,6 +62,7 @@ buildscript {
+         maven { url 'https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev' }
+         mavenCentral()
+         gradlePluginPortal()
++        mavenLocal()
+     }
+ 
+     configurations.classpath {
 @@ -76,7 +76,6 @@ buildscript {
      dependencies {
          classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
@@ -10,7 +26,7 @@ index 83346e98..1871cc2a 100644
          classpath "org.jetbrains.kotlinx:binary-compatibility-validator:$validator_version"
          classpath "org.jetbrains.kotlinx:kotlinx-knit:$knit_version"
  
-@@ -89,6 +88,11 @@ buildscript {
+@@ -89,6 +88,10 @@ buildscript {
      }
  }
  
@@ -18,12 +34,18 @@ index 83346e98..1871cc2a 100644
 +    id("org.jetbrains.dokka")
 +}
 +
-+apply from: "../template.root.gradle.kts"
  // To make it visible for compiler-version.gradle
  ext.compilerVersion = org.jetbrains.kotlin.config.KotlinCompilerVersion.VERSION
- apply plugin: 'binary-compatibility-validator'
+ ext.nativeDebugBuild = org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType.DEBUG
+@@ -187,3 +190,5 @@ if (jvm_ir_enabled) {
+         }
+     }
+ }
++
++apply from: "../template.root.gradle.kts"
+\ No newline at end of file
 diff --git a/gradle.properties b/gradle.properties
-index 9e7c8e3b..085875da 100644
+index 3949d1ba..808bdfc7 100644
 --- a/gradle.properties
 +++ b/gradle.properties
 @@ -13,7 +13,7 @@ kotlin.version.snapshot=1.4.255-SNAPSHOT
@@ -31,19 +53,81 @@ index 9e7c8e3b..085875da 100644
  junit_version=4.12
  jackson_version=2.10.0.pr1
 -dokka_version=1.4.20-multimodule-dev-7
-+dokka_version=1.4.20
++dokka_version=1.4.30-SNAPSHOT
  native.deploy=
  validator_version=0.2.3
  knit_version=0.2.2
+diff --git a/gradle/dokka.gradle b/gradle/dokka.gradle
+index 5b8c66a8..cb697c92 100644
+--- a/gradle/dokka.gradle
++++ b/gradle/dokka.gradle
+@@ -14,41 +14,41 @@ def documentedSubprojects = ["kotlinx-serialization-core",
+ subprojects {
+     if (!(name in documentedSubprojects)) return
+     apply plugin: 'org.jetbrains.dokka'
+-    tasks.named('dokkaHtml') {
++    tasks.named('dokkaHtmlPartial') {
+         outputDirectory = file("build/dokka")
+         dokkaSourceSets {
+             configureEach {
+                 includes.from(rootProject.file('dokka/moduledoc.md').path)
+ 
+                 perPackageOption {
+-                    prefix.set("kotlinx.serialization")
++                    matchingRegex.set("kotlinx.serialization(\$|\\.).*")
+                     reportUndocumented.set(true)
+                     skipDeprecated.set(true)
+                 }
+ 
+                 // Internal API
+                 perPackageOption {
+-                    prefix.set("kotlinx.serialization.internal")
++                    matchingRegex.set("kotlinx.serialization.internal(\$|\\.).*")
+                     suppress.set(true)
+                 }
+ 
+                 // Workaround for typealias
+                 perPackageOption {
+-                    prefix.set("kotlinx.serialization.protobuf.internal")
++                    matchingRegex.set("kotlinx.serialization.protobuf.internal(\$|\\.).*")
+                     suppress.set(true)
+                     reportUndocumented.set(false)
+                 }
+ 
+                 // Deprecated migrations
+                 perPackageOption {
+-                    prefix.set("kotlinx.protobuf")
++                    matchingRegex.set("kotlinx.protobuf(\$|\\.).*")
+                     reportUndocumented.set(true)
+                     skipDeprecated.set(true)
+                 }
+ 
+                 // Deprecated migrations
+                 perPackageOption {
+-                    prefix.set("org.jetbrains.kotlinx.serialization.config")
++                    matchingRegex.set("org.jetbrains.kotlinx.serialization.config(\$|\\.).*")
+                     reportUndocumented.set(false)
+                     skipDeprecated.set(true)
+                 }
+diff --git a/gradle/wrapper/gradle-wrapper.properties b/gradle/wrapper/gradle-wrapper.properties
+index e66b0d6e..8396ab36 100644
+--- a/gradle/wrapper/gradle-wrapper.properties
++++ b/gradle/wrapper/gradle-wrapper.properties
+@@ -4,6 +4,6 @@
+ 
+ distributionBase=GRADLE_USER_HOME
+ distributionPath=wrapper/dists
+-distributionUrl=https\://services.gradle.org/distributions/gradle-6.7.1-all.zip
++distributionUrl=https\://services.gradle.org/distributions/gradle-6.8.3-all.zip
+ zipStoreBase=GRADLE_USER_HOME
+ zipStorePath=wrapper/dists
 diff --git a/settings.gradle b/settings.gradle
-index 88bcb942..99055d64 100644
+index 88bcb942..171f2eb4 100644
 --- a/settings.gradle
 +++ b/settings.gradle
-@@ -2,6 +2,7 @@
-  * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
-  */
+@@ -28,3 +28,5 @@ project(':benchmark').projectDir = file('./benchmark')
  
+ include ':guide'
+ project(':guide').projectDir = file('./guide')
++
 +apply from: "../template.settings.gradle.kts"
- rootProject.name = 'kotlinx-serialization'
- enableFeaturePreview('GRADLE_METADATA')
- 
