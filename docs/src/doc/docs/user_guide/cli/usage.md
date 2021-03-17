@@ -20,6 +20,7 @@ Dokka supports the following command line arguments:
   * `-globalPackageOptions` - per package options added to all source sets
   * `-globalLinks` - external documentation links added to all source sets
   * `-globalSrcLink` - source links added to all source sets
+  * `-noSuppressObviousFunctions` - don't suppress obvious functions like default `toString` or `equals`
   * `-sourceSet` - (repeatable) - configuration for a single source set. Following this argument, you can pass other arguments:
     * `-sourceSetName` - source set name as a part of source set ID when declaring dependent source sets
     * `-displayName` - source set name displayed in the generated documentation

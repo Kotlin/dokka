@@ -156,7 +156,7 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
     @Parameter
     var failOnWarning: Boolean = DokkaDefaults.failOnWarning
 
-    @Parameter
+    @Parameter(defaultValue = "${DokkaDefaults.suppressObviousFunctions}")
     var suppressObviousFunctions: Boolean = DokkaDefaults.suppressObviousFunctions
 
     @Parameter

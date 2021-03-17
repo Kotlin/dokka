@@ -89,6 +89,10 @@ dokkaHtml {
     // to enable package-list caching
     // When this is set to default, caches are stored in $USER_HOME/.cache/dokka
     cacheRoot.set(file("default"))
+
+    // Suppress obvious functions like default toString or equals. Defaults to true
+    suppressObviousFunctions.set(false)
+    
     dokkaSourceSets {
         configureEach { // Or source set name, for single-platform the default source sets are `main` and `test`
 

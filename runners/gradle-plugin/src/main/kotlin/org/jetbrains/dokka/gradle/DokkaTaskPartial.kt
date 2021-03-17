@@ -44,7 +44,8 @@ abstract class DokkaTaskPartial : AbstractDokkaTask() {
             sourceSets = unsuppressedSourceSets.build(),
             pluginsConfiguration = buildPluginsConfiguration(),
             pluginsClasspath = plugins.resolve().toList(),
-            delayTemplateSubstitution = true
+            delayTemplateSubstitution = true,
+            suppressObviousFunctions = suppressObviousFunctions.getSafe(),
         )
     }
 }
