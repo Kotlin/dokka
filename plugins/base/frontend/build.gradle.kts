@@ -3,8 +3,8 @@ plugins {
 }
 
 node {
-    version = "12.18.2"
-    download = true
+    version.set("12.18.2")
+    download.set(true)
 }
 
 val npmRunBuild = tasks.getByName("npm_run_build") {
