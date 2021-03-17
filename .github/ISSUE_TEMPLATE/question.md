@@ -15,8 +15,8 @@ If applicable, add screenshots to help explain your problem
 
 **Installation**
 - Operating system: macOS/Windows/Linux
-- Build tool: Gradle v5.6.0/Maven/Cli/3rd party plugin 
-- Dokka version: 0.10.0
+- Build tool: Gradle v6.8.0/Maven/Cli/3rd party plugin
+- Dokka version: 1.4.30
 
 **Additional context**
 Add any other context about the problem here
