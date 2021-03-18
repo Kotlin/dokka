@@ -36,6 +36,7 @@ open class ValidatePublications : DefaultTask() {
                         checkPublicationIsConfiguredForBintray(subProject, publication)
                     }
                     checkProjectDependenciesArePublished(subProject)
+                    subProject.assertPublicationVersion()
                 }
         }
     }
@@ -70,6 +71,19 @@ open class ValidatePublications : DefaultTask() {
                     throw UnpublishedProjectDependencyException(project, projectDependency.dependencyProject)
                 }
             }
+    }
+
+    private fun Project.assertPublicationVersion() {
+        if (System.getenv("SKIP_VERSION_CHECK")?.contains("true", ignoreCase = true) == true)
+            return
+
+        if (!publicationChannels.all { publicationChannel ->
+                publicationChannel.acceptedDokkaVersionTypes.any { acceptedVersionType ->
+                    acceptedVersionType == dokkaVersionType
+                }
+            }) {
+            throw AssertionError("Wrong version $dokkaVersion for configured publication channels $publicationChannels")
+        }
     }
 
     init {
