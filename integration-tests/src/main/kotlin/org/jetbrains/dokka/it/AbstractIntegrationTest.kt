@@ -16,7 +16,7 @@ abstract class AbstractIntegrationTest {
     @get:Rule
     val temporaryTestFolder = TemporaryFolder()
 
-    val projectDir get() = File(temporaryTestFolder.root, "project")
+    open val projectDir get() = File(temporaryTestFolder.root, "project")
 
     fun File.allDescendentsWithExtension(extension: String): Sequence<File> =
         this.walkTopDown().filter { it.isFile && it.extension == extension }

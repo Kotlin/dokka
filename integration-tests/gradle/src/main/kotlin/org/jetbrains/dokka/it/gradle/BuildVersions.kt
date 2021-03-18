@@ -6,6 +6,7 @@ data class BuildVersions(
     val gradleVersion: GradleVersion,
     val kotlinVersion: String,
     val androidGradlePluginVersion: String? = null,
+    val dokkaVersion: String = "for-integration-tests-SNAPSHOT",
 ) {
     constructor(
         gradleVersion: String,

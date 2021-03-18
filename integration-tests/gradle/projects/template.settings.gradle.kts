@@ -13,7 +13,7 @@ pluginManagement {
     resolutionStrategy {
         eachPlugin {
             if (requested.id.id == "org.jetbrains.dokka") {
-                useModule("org.jetbrains.dokka:dokka-gradle-plugin:for-integration-tests-SNAPSHOT")
+                useModule("org.jetbrains.dokka:dokka-gradle-plugin:${System.getenv("DOKKA_VERSION") ?: "for-integration-tests-SNAPSHOT"}")
             }
 
             if (requested.id.id == "com.android.library") {
