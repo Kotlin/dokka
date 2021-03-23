@@ -63,6 +63,7 @@ publishing {
                 classifier "sources"
             }
 
+            artifact javadocJar
             CorrectShadowPublishing.configure(publication, project)
         }
     }
@@ -97,5 +98,20 @@ pluginBundle {
     mavenCoordinates {
         groupId = "org.jetbrains.dokka"
         artifactId = "dokka-android-gradle-plugin"
+    }
+}
+
+signing {
+    def signingKeyId = System.getenv("SIGN_KEY_ID")
+    def signingKey = System.getenv("SIGN_KEY")
+    def signingKeyPassphrase = System.getenv("SIGN_KEY_PASSPHRASE")
+
+    if (signingKey != null && signingKey != "") {
+        if (signingKeyId != null) {
+            useInMemoryPgpKeys(signingKeyId, signingKey, signingKeyPassphrase)
+        } else {
+            useInMemoryPgpKeys(signingKey, signingKeyPassphrase)
+        }
+        sign publishing.publications.dokkaAndroidGradlePlugin
     }
 }

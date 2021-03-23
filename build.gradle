@@ -1,14 +1,62 @@
 import org.jetbrains.DependenciesVersionGetter
 
+buildscript {
+    repositories {
+        mavenCentral()
+        maven { url "https://dl.bintray.com/kotlin/kotlin-eap" }
+        maven { url "https://dl.bintray.com/kotlin/kotlin-dev" }
+        maven { url "https://plugins.gradle.org/m2/" }
+        ivy({
+            artifactPattern("https://teamcity.jetbrains.com/guestAuth/repository/download/Kotlin_dev_CompilerAllPlugins/[revision]/internal/[module](.[ext])")
+            artifactPattern("https://teamcity.jetbrains.com/guestAuth/repository/download/Kotlin_dev_CompilerAllPlugins/[revision]/[module](.[ext])")
+            artifactPattern("https://teamcity.jetbrains.com/guestAuth/repository/download/IntelliJMarkdownParser_Build/[revision]/([module]_[ext]/)[module](.[ext])")
+            metadataSources {
+                artifact()
+            }
+        })
+    }
+    dependencies {
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4'
+        classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.4'
+
+        classpath "com.gradle.publish:plugin-publish-plugin:0.13.0"
+    }
+}
+
+plugins {
+    id "io.github.gradle-nexus.publish-plugin" version "1.0.0"
+    id 'signing'
+}
+
+repositories {
+    jcenter()
+    mavenCentral()
+    mavenLocal()
+    maven { url 'https://kotlin.bintray.com/kotlin-plugin' }
+    maven { url 'https://www.jetbrains.com/intellij-repository/releases' }
+    maven { url "https://dl.bintray.com/jetbrains/markdown" }
+    maven { url "https://dl.bintray.com/kotlin/kotlin-eap" }
+    maven { url "https://dl.bintray.com/kotlin/kotlin-dev" }
+    maven { url "https://teamcity.jetbrains.com/guestAuth/repository/download/Kotlin_dev_CompilerAllPlugins/$bundled_kotlin_compiler_version/maven" }
+    ivy({
+        artifactPattern("https://teamcity.jetbrains.com/guestAuth/repository/download/Kotlin_dev_CompilerAllPlugins/[revision]/internal/[module](.[ext])")
+        artifactPattern("https://teamcity.jetbrains.com/guestAuth/repository/download/Kotlin_dev_CompilerAllPlugins/[revision]/[module](.[ext])")
+        artifactPattern("https://teamcity.jetbrains.com/guestAuth/repository/download/IntelliJMarkdownParser_Build/[revision]/([module]_[ext]/)[module](.[ext])")
+        metadataSources {
+            artifact()
+        }
+    })
+    maven { url "https://kotlin.bintray.com/kotlinx" }
+    maven { url "https://dl.bintray.com/kotlin/kotlinx" }
+    maven { url "https://dl.bintray.com/orangy/maven" } // TODO: remove this repository when kotlinx.cli is available in maven
+}
+
 allprojects {
     group 'org.jetbrains.dokka'
     version dokka_version
+}
 
-    def repo = {
-        artifactPattern("https://teamcity.jetbrains.com/guestAuth/repository/download/Kotlin_dev_CompilerAllPlugins/[revision]/internal/[module](.[ext])")
-        artifactPattern("https://teamcity.jetbrains.com/guestAuth/repository/download/IntelliJMarkdownParser_Build/[revision]/([module]_[ext]/)[module](.[ext])")
-    }
-
+subprojects {
     buildscript {
         repositories {
             mavenCentral()
@@ -16,13 +64,20 @@ allprojects {
             maven { url "https://dl.bintray.com/kotlin/kotlin-eap" }
             maven { url "https://dl.bintray.com/kotlin/kotlin-dev" }
             maven { url "https://plugins.gradle.org/m2/" }
-            ivy(repo)
+            ivy({
+                artifactPattern("https://teamcity.jetbrains.com/guestAuth/repository/download/Kotlin_dev_CompilerAllPlugins/[revision]/internal/[module](.[ext])")
+                artifactPattern("https://teamcity.jetbrains.com/guestAuth/repository/download/Kotlin_dev_CompilerAllPlugins/[revision]/[module](.[ext])")
+                artifactPattern("https://teamcity.jetbrains.com/guestAuth/repository/download/IntelliJMarkdownParser_Build/[revision]/([module]_[ext]/)[module](.[ext])")
+                metadataSources {
+                    artifact()
+                }
+            })
         }
         dependencies {
             classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7'
-            classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.1'
+            classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.4'
 
-            classpath "com.gradle.publish:plugin-publish-plugin:0.9.10"
+            classpath "com.gradle.publish:plugin-publish-plugin:0.13.0"
         }
     }
 
@@ -34,8 +89,17 @@ allprojects {
         maven { url "https://dl.bintray.com/kotlin/kotlin-dev" }
         maven { url 'https://jitpack.io' }
         maven { url "https://teamcity.jetbrains.com/guestAuth/repository/download/Kotlin_dev_CompilerAllPlugins/$bundled_kotlin_compiler_version/maven" }
-        ivy(repo)
-        maven { url "https://dl.bintray.com/kotlin/kotlinx.html" }
+        ivy({
+            artifactPattern("https://teamcity.jetbrains.com/guestAuth/repository/download/Kotlin_dev_CompilerAllPlugins/[revision]/internal/[module](.[ext])")
+            artifactPattern("https://teamcity.jetbrains.com/guestAuth/repository/download/Kotlin_dev_CompilerAllPlugins/[revision]/[module](.[ext])")
+            artifactPattern("https://teamcity.jetbrains.com/guestAuth/repository/download/IntelliJMarkdownParser_Build/[revision]/([module]_[ext]/)[module](.[ext])")
+            metadataSources {
+                artifact()
+            }
+        })
+        maven { url "https://kotlin.bintray.com/kotlinx" }
+        maven { url "https://dl.bintray.com/kotlin/kotlinx" }
+        maven { url "https://dl.bintray.com/orangy/maven" } // TODO: remove this repository when kotlinx.cli is available in maven
     }
 }
 
@@ -63,11 +127,6 @@ def bintrayPublication(project, List<String> _publications) {
             publications = _publications
         }
     })
-}
-
-task wrapper(type: Wrapper) {
-    gradleVersion = '4.2.1'
-    distributionUrl = "https://services.gradle.org/distributions/gradle-$gradleVersion-all.zip"
 }
 
 def versions = DependenciesVersionGetter.getVersions(project, bundled_kotlin_compiler_version)
@@ -105,7 +164,6 @@ def ideaRT() {
 def repoLocation = uri(file("$buildDir/dist-maven"))
 
 allprojects {
-
     task publishToDistMaven {
         group "publishing"
         description "Publishes all Maven publications to Maven repository 'distMaven'."
@@ -114,8 +172,43 @@ allprojects {
         }
     }
 
+    task javadocJar(type: Jar) {
+        classifier "javadoc"
+    }
+
     plugins.withType(MavenPublishPlugin) {
         publishing {
+            publications {
+                configureEach {
+                    pom {
+                        name.set(project.name)
+                        description.set("Dokka is a documentation engine for Kotlin and Java, performing the same function as Javadoc for Java")
+                        url.set("https://github.com/Kotlin/dokka")
+
+                        licenses {
+                            license {
+                                name.set("The Apache Software License, Version 2.0")
+                                url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+                                distribution.set("repo")
+                            }
+                        }
+
+                        developers {
+                            developer {
+                                id.set("JetBrains")
+                                name.set("JetBrains Team")
+                                organization.set("JetBrains")
+                                organizationUrl.set("http://www.jetbrains.com")
+                            }
+                        }
+
+                        scm {
+                            connection.set("scm:git:git://github.com/Kotlin/dokka.git")
+                            url.set("https://github.com/Kotlin/dokka/tree/master")
+                        }
+                    }
+                }
+            }
             repositories {
                 maven {
                     name 'distMaven'
@@ -123,6 +216,14 @@ allprojects {
                 }
             }
         }
+    }
+}
 
+nexusPublishing {
+    repositories {
+        sonatype {
+            username.set(System.getenv("SONATYPE_USER"))
+            password.set(System.getenv("SONATYPE_PASSWORD"))
+        }
     }
 }
