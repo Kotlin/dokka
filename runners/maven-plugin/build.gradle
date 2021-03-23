@@ -6,6 +6,7 @@ import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 
 apply plugin: 'kotlin'
+apply plugin: 'signing'
 apply plugin: 'com.github.johnrengelman.shadow'
 
 sourceCompatibility = 1.8
@@ -45,7 +46,7 @@ tasks.clean.doLast {
 }
 
 task setupMaven(type: Sync) {
-    from configurations.maven.collect{ zipTree(it) }
+    from configurations.maven.collect { zipTree(it) }
     into "$buildDir/maven-bin"
 }
 
@@ -86,11 +87,10 @@ task generatePom() {
 //}
 
 
-
 task syncKotlinClasses(type: Sync, dependsOn: compileKotlin) {
     from "$buildDir/classes/kotlin"
     into "$mavenBuildDir/classes/java"
-    
+
     preserve {
         include '**/*.class'
     }
@@ -153,8 +153,25 @@ publishing {
                 classifier "sources"
             }
 
+            artifact javadocJar
+
             CorrectShadowPublishing.configure(publication, project)
         }
+    }
+}
+
+signing {
+    def signingKeyId = System.getenv("SIGN_KEY_ID")
+    def signingKey = System.getenv("SIGN_KEY")
+    def signingKeyPassphrase = System.getenv("SIGN_KEY_PASSPHRASE")
+
+    if (signingKey != null && signingKey != "") {
+        if (signingKeyId != null) {
+            useInMemoryPgpKeys(signingKeyId, signingKey, signingKeyPassphrase)
+        } else {
+            useInMemoryPgpKeys(signingKey, signingKeyPassphrase)
+        }
+        sign publishing.publications.dokkaMavenPlugin
     }
 }
 

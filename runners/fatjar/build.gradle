@@ -1,6 +1,10 @@
 import com.github.jengelman.gradle.plugins.shadow.transformers.ServiceFileTransformer
 import org.jetbrains.PluginXmlTransformer
 
+plugins {
+    id "signing"
+}
+
 apply plugin: 'java'
 apply plugin: 'com.github.johnrengelman.shadow'
 
@@ -38,12 +42,37 @@ shadowJar {
 
 apply plugin: 'maven-publish'
 
+task sourceJar(type: Jar) {
+    from project(":runners:cli").sourceSets.main.allSource
+    from project(":core").sourceSets.main.allSource
+}
+
 publishing {
     publications {
         dokkaFatJar(MavenPublication) { publication ->
             artifactId = 'dokka-fatjar'
             project.shadow.component(publication)
+            artifact sourceJar {
+                classifier "sources"
+            }
+
+            artifact javadocJar
         }
+    }
+}
+
+signing {
+    def signingKeyId = System.getenv("SIGN_KEY_ID")
+    def signingKey = System.getenv("SIGN_KEY")
+    def signingKeyPassphrase = System.getenv("SIGN_KEY_PASSPHRASE")
+
+    if (signingKey != null && signingKey != "") {
+        if (signingKeyId != null) {
+            useInMemoryPgpKeys(signingKeyId, signingKey, signingKeyPassphrase)
+        } else {
+            useInMemoryPgpKeys(signingKey, signingKeyPassphrase)
+        }
+        sign publishing.publications.dokkaFatJar
     }
 }
 
