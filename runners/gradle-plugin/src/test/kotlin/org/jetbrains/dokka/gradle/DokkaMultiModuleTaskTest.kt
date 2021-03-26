@@ -22,7 +22,7 @@ class DokkaMultiModuleTaskTest {
         .withProjectDir(rootProject.projectDir.resolve("child"))
         .withParent(rootProject).build()
 
-    private val childDokkaTask = childProject.tasks.create<DokkaTask>("childDokkaTask")
+    private val childDokkaTask = childProject.tasks.create<DokkaTaskPartial>("childDokkaTask")
 
     private val multiModuleTask = rootProject.tasks.create<DokkaMultiModuleTask>("multiModuleTask").apply {
         addChildTask(childDokkaTask)
@@ -53,6 +53,7 @@ class DokkaMultiModuleTaskTest {
     fun buildDokkaConfiguration() {
         val include1 = childDokkaTask.project.file("include1.md")
         val include2 = childDokkaTask.project.file("include2.md")
+        val topLevelInclude = multiModuleTask.project.file("README.md")
 
         childDokkaTask.apply {
             dokkaSourceSets.create("main")
@@ -69,6 +70,7 @@ class DokkaMultiModuleTaskTest {
             pluginsConfiguration.add(PluginConfigurationImpl("pluginA", DokkaConfiguration.SerializationFormat.JSON, """ { "key" : "value2" } """))
             failOnWarning by true
             offlineMode by true
+            includes.from(listOf(topLevelInclude))
         }
 
         val dokkaConfiguration = multiModuleTask.buildDokkaConfiguration()
@@ -81,6 +83,7 @@ class DokkaMultiModuleTaskTest {
                 pluginsClasspath = emptyList(),
                 failOnWarning = true,
                 offlineMode = true,
+                includes = setOf(topLevelInclude),
                 modules = listOf(
                     DokkaModuleDescriptionImpl(
                         name = "child",
@@ -100,7 +103,7 @@ class DokkaMultiModuleTaskTest {
         assertEquals(1, dependenciesInitial.size, "Expected one dependency")
         val dependency = dependenciesInitial.single()
 
-        assertTrue(dependency is DokkaTask, "Expected dependency to be of Type ${DokkaTask::class.simpleName}")
+        assertTrue(dependency is DokkaTaskPartial, "Expected dependency to be of Type ${DokkaTaskPartial::class.simpleName}")
         assertEquals(childProject, dependency.project, "Expected dependency from child project")
 
 
@@ -138,7 +141,7 @@ class DokkaMultiModuleTaskTest {
         }
 
         val secondChildDokkaTaskInclude = childProject.file("include4")
-        val secondChildDokkaTask = childProject.tasks.create<DokkaTask>("secondChildDokkaTask") {
+        val secondChildDokkaTask = childProject.tasks.create<DokkaTaskPartial>("secondChildDokkaTask") {
             dokkaSourceSets.create("main") {
                 it.includes.from(secondChildDokkaTaskInclude)
             }

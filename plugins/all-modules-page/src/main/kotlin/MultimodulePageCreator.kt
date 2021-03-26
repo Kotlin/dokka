@@ -3,6 +3,7 @@ package org.jetbrains.dokka.allModulesPage
 import org.jetbrains.dokka.DokkaConfiguration.DokkaModuleDescription
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.base.DokkaBase
+import org.jetbrains.dokka.base.parsers.MarkdownParser
 import org.jetbrains.dokka.base.parsers.moduleAndPackage.ModuleAndPackageDocumentation.Classifier.Module
 import org.jetbrains.dokka.base.parsers.moduleAndPackage.ModuleAndPackageDocumentationParsingContext
 import org.jetbrains.dokka.base.parsers.moduleAndPackage.parseModuleAndPackageDocumentation
@@ -26,6 +27,7 @@ import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.dokka.versioning.ReplaceVersionsCommand
 import org.jetbrains.dokka.versioning.VersioningConfiguration
 import org.jetbrains.dokka.versioning.VersioningPlugin
+import java.io.File
 
 class MultimodulePageCreator(
     private val context: DokkaContext,
@@ -48,6 +50,15 @@ class MultimodulePageCreator(
              If not, we are skipping the template for inserting versions navigation */
             configuration<VersioningPlugin, VersioningConfiguration>(context)?.let {
                 group(extra = PropertyContainer.withAll(InsertTemplateExtra(ReplaceVersionsCommand))) { }
+            }
+            getMultiModuleDocumentation(context.configuration.includes).takeIf { it.isNotEmpty() }?.let { nodes ->
+                group(kind = ContentKind.Cover) {
+                    nodes.forEach { node ->
+                        group {
+                            node.children.forEach { comment(it.root) }
+                        }
+                    }
+                }
             }
             header(2, "All modules:")
             table(styles = setOf(MultimoduleTable)) {
@@ -82,6 +93,9 @@ class MultimodulePageCreator(
             contentNode
         )
     }
+
+    private fun getMultiModuleDocumentation(files: Set<File>): List<DocumentationNode> =
+        files.map { MarkdownParser({ null }, it.absolutePath).parse(it.readText()) }
 
     private fun getDisplayedModuleDocumentation(module: DokkaModuleDescription): P? {
         val parsingContext = ModuleAndPackageDocumentationParsingContext(logger)

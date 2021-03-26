@@ -1,11 +1,9 @@
 package org.jetbrains.dokka.gradle
 
+import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.internal.tasks.TaskDependencyInternal
 import org.gradle.api.provider.Property
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputFiles
-import org.gradle.api.tasks.Internal
-import org.gradle.api.tasks.OutputDirectories
+import org.gradle.api.tasks.*
 import org.jetbrains.dokka.DokkaConfigurationImpl
 import org.jetbrains.dokka.DokkaModuleDescriptionImpl
 import java.io.File
@@ -17,6 +15,9 @@ typealias DokkaMultimoduleTask = DokkaMultiModuleTask
 private typealias TaskPath = String
 
 abstract class DokkaMultiModuleTask : AbstractDokkaParentTask() {
+    @InputFiles
+    @Optional
+    val includes: ConfigurableFileCollection = project.files()
 
     @Internal
     val fileLayout: Property<DokkaMultiModuleFileLayout> = project.objects.safeProperty<DokkaMultiModuleFileLayout>()
@@ -32,7 +33,7 @@ abstract class DokkaMultiModuleTask : AbstractDokkaParentTask() {
 
     @get:Input
     internal val childDokkaTaskIncludes: Map<TaskPath, Set<File>>
-        get() = childDokkaTasks.filterIsInstance<DokkaTask>().associate { task ->
+        get() = childDokkaTasks.filterIsInstance<DokkaTaskPartial>().associate { task ->
             task.path to task.dokkaSourceSets.flatMap { it.includes }.toSet()
         }
 
@@ -61,7 +62,8 @@ abstract class DokkaMultiModuleTask : AbstractDokkaParentTask() {
                 includes = childDokkaTaskIncludes[dokkaTask.path].orEmpty(),
                 sourceOutputDirectory = dokkaTask.outputDirectory.getSafe()
             )
-        }
+        },
+        includes = includes.toSet(),
     )
 }
 
