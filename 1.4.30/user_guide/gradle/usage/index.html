@@ -707,6 +707,10 @@ The available configuration options for are shown below:</p>
     <span class="c1">// to enable package-list caching</span>
     <span class="c1">// When this is set to default, caches are stored in $USER_HOME/.cache/dokka</span>
     <span class="n">cacheRoot</span><span class="p">.</span><span class="k">set</span><span class="p">(</span><span class="n">file</span><span class="p">(</span><span class="s">&quot;default&quot;</span><span class="p">))</span>
+
+    <span class="c1">// Suppress obvious functions like default toString or equals. Defaults to true</span>
+    <span class="n">suppressObviousFunctions</span><span class="p">.</span><span class="k">set</span><span class="p">(</span><span class="k">false</span><span class="p">)</span>
+
     <span class="n">dokkaSourceSets</span> <span class="p">{</span>
         <span class="n">configureEach</span> <span class="p">{</span> <span class="c1">// Or source set name, for single-platform the default source sets are `main` and `test`</span>
 
