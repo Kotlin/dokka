@@ -42,6 +42,7 @@ abstract class DokkaTask : AbstractDokkaTask() {
             failOnWarning = failOnWarning.getSafe(),
             sourceSets = unsuppressedSourceSets.build(),
             pluginsConfiguration = buildPluginsConfiguration(),
-            pluginsClasspath = plugins.resolve().toList()
+            pluginsClasspath = plugins.resolve().toList(),
+            suppressObviousFunctions = suppressObviousFunctions.getSafe(),
         )
 }

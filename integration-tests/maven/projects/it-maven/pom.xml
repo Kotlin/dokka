@@ -124,6 +124,8 @@
                     <!-- Disable linking to online JDK documentation -->
                     <noJdkLink>false</noJdkLink>
 
+                    <suppressObviousFunctions>false</suppressObviousFunctions>
+
                     <!-- Allows to customize documentation generation options on a per-package basis -->
                     <perPackageOptions>
                         <packageOptions>

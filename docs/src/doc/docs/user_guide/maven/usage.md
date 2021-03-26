@@ -84,7 +84,10 @@ The available configuration options are shown below:
         <samples>
             <dir>src/test/samples</dir>
         </samples>
-        
+
+        <!-- Suppress obvious functions like default toString or equals. Defaults to true -->
+        <suppressObviousFunctions>false</suppressObviousFunctions>
+
         <!-- Used for linking to JDK, default: 6 -->
         <jdkVersion>6</jdkVersion>
 
