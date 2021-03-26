@@ -19,7 +19,6 @@ import org.jetbrains.dokka.plugability.ConfigurableBlock
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import java.io.File
 import java.util.function.BiConsumer
-import kotlin.reflect.KClass
 import kotlin.reflect.full.createInstance
 
 abstract class AbstractDokkaTask : DefaultTask() {

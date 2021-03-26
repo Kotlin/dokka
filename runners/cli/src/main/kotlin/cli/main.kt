@@ -76,6 +76,13 @@ class GlobalArguments(args: Array<String>) : DokkaConfiguration {
 
     override val suppressObviousFunctions: Boolean by lazy{ !noSuppressObviousFunctions }
 
+    private val _includes by parser.option(
+        ArgTypeFile,
+        description = "Markdown files that would be displayed in multi-module page separated by the semicolon `;`)"
+    ).delimiter(";")
+
+    override val includes: Set<File> by lazy { _includes.toSet() }
+
     val globalPackageOptions by parser.option(
         ArgType.String,
         description = "List of package source sets in format \"prefix,-deprecated,-privateApi,+warnUndocumented,+suppress;...\" "
