@@ -14,7 +14,7 @@ plugins {
 }
 
 repositories {
-    jcenter() // or maven(url="https://dl.bintray.com/kotlin/dokka")
+    mavenCentral()
 }
 ```
 
@@ -23,7 +23,7 @@ settings.gradle.kts:
 pluginManagement {
     repositories {
         gradlePluginPortal()
-        jcenter()
+        mavenCentral()
     }
 }
 ```
