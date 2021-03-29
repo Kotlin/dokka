@@ -30,12 +30,12 @@ open class CrossPlatformExec : AbstractExecTask<CrossPlatformExec>(CrossPlatform
     }
 
     private fun findCommand(command: String): String {
-        val command = normalizeCommandPaths(command)
+        val normalizedCommand = normalizeCommandPaths(command)
         val extensions = if (isWindows) windowsExtensions else unixExtensions
 
         return extensions.map { extension ->
-            resolveCommandFromFile(Paths.get("$command$extension"))
-        }.firstOrNull { it.isNotBlank() } ?: command
+            resolveCommandFromFile(Paths.get("$normalizedCommand$extension"))
+        }.firstOrNull { it.isNotBlank() } ?: normalizedCommand
     }
 
     private fun resolveCommandFromFile(commandFile: Path) =
