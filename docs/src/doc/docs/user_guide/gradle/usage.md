@@ -92,6 +92,11 @@ dokkaHtml {
 
     // Suppress obvious functions like default toString or equals. Defaults to true
     suppressObviousFunctions.set(false)
+
+    // Suppress all inherited members that were not overriden in a given class. 
+    // Eg. using it you can suppress toString or equals functions but you can't suppress componentN or copy on data class. To do that use with suppressObviousFunctions
+    // Defaults to false
+    suppressInheritedMembers.set(true)
     
     dokkaSourceSets {
         configureEach { // Or source set name, for single-platform the default source sets are `main` and `test`

@@ -48,6 +48,10 @@ abstract class AbstractDokkaTask : DefaultTask() {
         .safeConvention(DokkaDefaults.suppressObviousFunctions)
 
     @Input
+    val suppressInheritedMembers: Property<Boolean> = project.objects.safeProperty<Boolean>()
+        .safeConvention(DokkaDefaults.suppressInheritedMembers)
+
+    @Input
     val offlineMode: Property<Boolean> = project.objects.safeProperty<Boolean>()
         .safeConvention(DokkaDefaults.offlineMode)
 
