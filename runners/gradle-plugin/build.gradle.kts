@@ -5,7 +5,7 @@ import org.jetbrains.dokkaVersion
 
 plugins {
     `java-gradle-plugin`
-    id("com.gradle.plugin-publish") version "0.10.1"
+    id("com.gradle.plugin-publish") version "0.14.0"
 }
 
 repositories {
