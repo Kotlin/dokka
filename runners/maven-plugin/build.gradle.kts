@@ -9,7 +9,7 @@ dependencies {
     implementation("org.apache.maven:maven-core:${setupMaven.mavenVersion}")
     implementation("org.apache.maven:maven-plugin-api:${setupMaven.mavenVersion}")
     implementation("org.apache.maven.plugin-tools:maven-plugin-annotations:${setupMaven.mavenPluginToolsVersion}")
-    implementation("org.apache.maven:maven-archiver:2.5")
+    implementation("org.apache.maven:maven-archiver:3.5.1")
     implementation(kotlin("stdlib-jdk8"))
 }
 
