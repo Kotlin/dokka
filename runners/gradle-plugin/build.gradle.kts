@@ -14,7 +14,7 @@ repositories {
 
 dependencies {
     api(project(":core"))
-    compileOnly("com.fasterxml.jackson.core:jackson-annotations:2.11.1")
+    compileOnly("com.fasterxml.jackson.core:jackson-annotations:2.12.2")
     compileOnly("org.jetbrains.kotlin:kotlin-gradle-plugin")
     compileOnly("com.android.tools.build:gradle:4.0.1")
     compileOnly(gradleApi())
