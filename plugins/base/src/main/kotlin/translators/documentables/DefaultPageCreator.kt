@@ -71,7 +71,8 @@ open class DefaultPageCreator(
     private fun <T> T.toClashedName() where T : Documentable, T : WithExtraProperties<T> =
         (extra[ClashingDriIdentifier]?.value?.joinToString(", ", "[", "]") { it.displayName } ?: "") + name.orEmpty()
 
-    private fun <T> List<T>.renameClashingDocumentable(): List<T> where T : Documentable =
+    @Suppress("UNCHECKED_CAST")
+    private fun <T : Documentable> List<T>.renameClashingDocumentable(): List<T> =
         groupBy { it.dri }.values.flatMap { elements ->
             if (elements.size == 1) elements else elements.mapNotNull { element ->
                 when (element) {

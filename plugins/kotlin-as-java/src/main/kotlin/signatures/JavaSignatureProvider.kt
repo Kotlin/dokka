@@ -116,16 +116,16 @@ class JavaSignatureProvider internal constructor(ctcc: CommentsToContentConverte
         }
 
     private fun signature(f: DFunction) =
-        f.sourceSets.map {
+        f.sourceSets.map { sourceSet ->
             contentBuilder.contentFor(
                 f,
                 ContentKind.Symbol,
-                setOf(TextStyle.Monospace, TextStyle.Block) + f.stylesIfDeprecated(it),
-                sourceSets = setOf(it)
+                setOf(TextStyle.Monospace, TextStyle.Block) + f.stylesIfDeprecated(sourceSet),
+                sourceSets = setOf(sourceSet)
             ) {
                 annotationsBlock(f)
-                text(f.modifier[it]?.takeIf { it !in ignoredModifiers }?.name?.plus(" ") ?: "")
-                text(f.modifiers()[it]?.toSignatureString() ?: "")
+                text(f.modifier[sourceSet]?.takeIf { it !in ignoredModifiers }?.name?.plus(" ") ?: "")
+                text(f.modifiers()[sourceSet]?.toSignatureString() ?: "")
                 val returnType = f.type
                 signatureForProjection(returnType)
                 text(nbsp.toString())

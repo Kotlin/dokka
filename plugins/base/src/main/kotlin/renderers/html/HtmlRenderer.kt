@@ -52,7 +52,7 @@ open class HtmlRenderer(
         val sorted = strategy.sort(tabs)
         if (sorted.size != tabs.size)
             context.logger.warn("Tab sorting strategy has changed number of tabs from ${tabs.size} to ${sorted.size}")
-        return sorted;
+        return sorted
     }
 
     override fun FlowContent.wrapGroup(
@@ -68,7 +68,7 @@ open class HtmlRenderer(
                 val firstLevel = node.children.filterIsInstance<ContentHeader>().flatMap { it.children }
                     .filterIsInstance<ContentText>()
 
-                val renderable = firstLevel.union(secondLevel).let { sortTabs(tabSortingStrategy, it) }
+                val renderable = sortTabs(tabSortingStrategy, firstLevel.union(secondLevel))
 
                 div(classes = "tabs-section") {
                     attributes["tabs-section"] = "tabs-section"
@@ -84,7 +84,7 @@ open class HtmlRenderer(
                     childrenCallback()
                 }
             }
-            node.hasStyle(ContentStyle.WithExtraAttributes) -> div() {
+            node.hasStyle(ContentStyle.WithExtraAttributes) -> div {
                 node.extra.extraHtmlAttributes().forEach { attributes[it.extraKey] = it.extraValue }
                 childrenCallback()
             }
@@ -93,13 +93,13 @@ open class HtmlRenderer(
                 if (node.hasStyle(TextStyle.Monospace)) copyButton()
             }
             node.hasStyle(TextStyle.BreakableAfter) -> {
-                span() { childrenCallback() }
+                span { childrenCallback() }
                 wbr { }
             }
             node.hasStyle(TextStyle.Breakable) -> {
                 span("breakable-word") { childrenCallback() }
             }
-            node.hasStyle(TextStyle.Span) -> span() { childrenCallback() }
+            node.hasStyle(TextStyle.Span) -> span { childrenCallback() }
             node.dci.kind == ContentKind.Symbol -> div("symbol $additionalClasses") { childrenCallback() }
             node.dci.kind == ContentKind.BriefComment -> div("brief $additionalClasses") { childrenCallback() }
             node.dci.kind == ContentKind.Cover -> div("cover $additionalClasses") { //TODO this can be removed
@@ -151,11 +151,6 @@ open class HtmlRenderer(
                 text(notificationContent)
             }
         }
-
-    fun FlowContent.withHtml(content: String): Unit = when (this) {
-        is HTMLTag -> unsafe { +content }
-        else -> div { unsafe { +content } }
-    }
 
     override fun FlowContent.buildPlatformDependent(
         content: PlatformHintedContent,
@@ -245,22 +240,24 @@ open class HtmlRenderer(
     override fun FlowContent.buildDivergent(node: ContentDivergentGroup, pageContext: ContentPage) {
 
         val distinct =
-            node.groupDivergentInstances(pageContext, { instance, contentPage, sourceSet ->
-                createHTML(prettyPrint = false).prepareForTemplates().div {
-                    instance.before?.let { before ->
-                        buildContentNode(before, pageContext, sourceSet)
-                    }
-                }.stripDiv()
-            }, { instance, contentPage, sourceSet ->
-                createHTML(prettyPrint = false).prepareForTemplates().div {
-                    instance.after?.let { after ->
-                        buildContentNode(after, pageContext, sourceSet)
-                    }
-                }.stripDiv()
-            })
+            node.groupDivergentInstances(pageContext,
+                beforeTransformer = { instance, _, sourceSet ->
+                    createHTML(prettyPrint = false).prepareForTemplates().div {
+                        instance.before?.let { before ->
+                            buildContentNode(before, pageContext, sourceSet)
+                        }
+                    }.stripDiv()
+                },
+                afterTransformer = { instance, _, sourceSet ->
+                    createHTML(prettyPrint = false).prepareForTemplates().div {
+                        instance.after?.let { after ->
+                            buildContentNode(after, pageContext, sourceSet)
+                        }
+                    }.stripDiv()
+                })
 
-        distinct.forEach {
-            val groupedDivergent = it.value.groupBy { it.second }
+        distinct.forEach { distinctInstances ->
+            val groupedDivergent = distinctInstances.value.groupBy { it.second }
 
             consumer.onTagContentUnsafe {
                 +createHTML().prepareForTemplates().div("divergent-group") {
@@ -279,7 +276,7 @@ open class HtmlRenderer(
 
                     consumer.onTagContentUnsafe {
                         +createHTML().prepareForTemplates().div("with-platform-tags") {
-                            consumer.onTagContentUnsafe { +it.key.first }
+                            consumer.onTagContentUnsafe { +distinctInstances.key.first }
 
                             consumer.onTagContentUnsafe {
                                 +createHTML().prepareForTemplates().span("pull-right") {
@@ -296,12 +293,12 @@ open class HtmlRenderer(
                         if (node.implicitlySourceSetHinted) {
                             buildPlatformDependent(divergentForPlatformDependent, pageContext)
                         } else {
-                            it.value.forEach {
+                            distinctInstances.value.forEach {
                                 buildContentNode(it.first.divergent, pageContext, setOf(it.second))
                             }
                         }
                     }
-                    consumer.onTagContentUnsafe { +it.key.second }
+                    consumer.onTagContentUnsafe { +distinctInstances.key.second }
                 }
             }
         }
@@ -492,7 +489,7 @@ open class HtmlRenderer(
 
     private fun FlowContent.createPlatformTagBubbles(sourceSets: List<DisplaySourceSet>, cssClasses: String = "") {
         if (shouldRenderSourceSetBubbles) {
-            div("platform-tags " + cssClasses) {
+            div("platform-tags $cssClasses") {
                 sourceSets.sortedBy { it.name }.forEach {
                     div("platform-tag") {
                         when (it.platform.key) {
