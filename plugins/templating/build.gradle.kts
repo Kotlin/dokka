@@ -13,6 +13,6 @@ dependencies {
     val kotlinx_html_version: String by project
     implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:$kotlinx_html_version")
 
-    implementation("org.jsoup:jsoup:1.12.1")
+    implementation("org.jsoup:jsoup:1.13.1")
     testImplementation(project(":plugins:base:base-test-utils"))
 }
