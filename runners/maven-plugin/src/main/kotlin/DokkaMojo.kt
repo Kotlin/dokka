@@ -159,6 +159,9 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
     @Parameter(defaultValue = "${DokkaDefaults.suppressObviousFunctions}")
     var suppressObviousFunctions: Boolean = DokkaDefaults.suppressObviousFunctions
 
+    @Parameter(defaultValue = "${DokkaDefaults.suppressInheritedMembers}")
+    var suppressInheritedMembers: Boolean = DokkaDefaults.suppressInheritedMembers
+
     @Parameter
     var dokkaPlugins: List<Dependency> = emptyList()
         get() = field + defaultDokkaPlugins
@@ -248,6 +251,7 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
             modules = emptyList(),
             failOnWarning = failOnWarning,
             suppressObviousFunctions = suppressObviousFunctions,
+            suppressInheritedMembers = suppressInheritedMembers,
         )
 
         val gen = DokkaGenerator(configuration, logger)

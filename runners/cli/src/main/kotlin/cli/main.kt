@@ -83,6 +83,11 @@ class GlobalArguments(args: Array<String>) : DokkaConfiguration {
 
     override val includes: Set<File> by lazy { _includes.toSet() }
 
+    override val suppressInheritedMembers: Boolean by parser.option(
+        ArgType.Boolean,
+        description = "Suppress members inherited from other classes"
+    ).default(DokkaDefaults.suppressInheritedMembers)
+
     val globalPackageOptions by parser.option(
         ArgType.String,
         description = "List of package source sets in format \"prefix,-deprecated,-privateApi,+warnUndocumented,+suppress;...\" "
