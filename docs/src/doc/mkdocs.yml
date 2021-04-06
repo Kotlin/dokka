@@ -8,7 +8,7 @@ site_url: https://github.com/Kotlin/dokka
 # Repository (add link to repository on each page)
 repo_name: dokka
 repo_url: https://github.com/Kotlin/dokka
-#edit_uri: edit/master/src/doc/docs/
+edit_uri: edit/master/docs/src/doc/docs/
 
 # Copyright (shown at the footer)
 copyright: 'Copyright &copy; 2020 Jetbrains'
