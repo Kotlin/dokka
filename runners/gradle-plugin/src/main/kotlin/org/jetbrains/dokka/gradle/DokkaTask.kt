@@ -44,5 +44,6 @@ abstract class DokkaTask : AbstractDokkaTask() {
             pluginsConfiguration = buildPluginsConfiguration(),
             pluginsClasspath = plugins.resolve().toList(),
             suppressObviousFunctions = suppressObviousFunctions.getSafe(),
+            suppressInheritedMembers = suppressInheritedMembers.getSafe(),
         )
 }

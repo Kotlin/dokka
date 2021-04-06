@@ -88,6 +88,11 @@ The available configuration options are shown below:
         <!-- Suppress obvious functions like default toString or equals. Defaults to true -->
         <suppressObviousFunctions>false</suppressObviousFunctions>
 
+        <!-- Suppress all inherited members that were not overriden in a given class. -->
+        <!-- Eg. using it you can suppress toString or equals functions but you can't suppress componentN or copy on data class. To do that use with suppressObviousFunctions -->
+        <!-- Defaults to false -->
+        <suppressInheritedMembers>true</suppressInheritedMembers>
+
         <!-- Used for linking to JDK, default: 6 -->
         <jdkVersion>6</jdkVersion>
 
