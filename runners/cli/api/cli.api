@@ -62,6 +62,7 @@ public final class org/jetbrains/dokka/GlobalArguments : org/jetbrains/dokka/Dok
 	public final fun getGlobalPackageOptions ()Ljava/util/List;
 	public final fun getGlobalSrcLink ()Ljava/util/List;
 	public final fun getHelpSourceSet ()Ljava/lang/Object;
+	public fun getIncludes ()Ljava/util/Set;
 	public final fun getJson ()Ljava/lang/String;
 	public fun getModuleName ()Ljava/lang/String;
 	public fun getModuleVersion ()Ljava/lang/String;
@@ -73,6 +74,7 @@ public final class org/jetbrains/dokka/GlobalArguments : org/jetbrains/dokka/Dok
 	public fun getPluginsClasspath ()Ljava/util/List;
 	public fun getPluginsConfiguration ()Ljava/util/List;
 	public fun getSourceSets ()Ljava/util/List;
+	public fun getSuppressInheritedMembers ()Z
 	public fun getSuppressObviousFunctions ()Z
 }
 

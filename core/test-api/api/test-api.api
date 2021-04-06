@@ -177,6 +177,7 @@ public final class testApi/testRunner/TestDokkaConfigurationBuilder {
 	public final fun getCacheRoot ()Ljava/lang/String;
 	public final fun getFailOnWarning ()Z
 	public final fun getFormat ()Ljava/lang/String;
+	public final fun getIncludes ()Ljava/util/List;
 	public final fun getModuleName ()Ljava/lang/String;
 	public final fun getModuleVersion ()Ljava/lang/String;
 	public final fun getModules ()Ljava/util/List;
@@ -184,10 +185,12 @@ public final class testApi/testRunner/TestDokkaConfigurationBuilder {
 	public final fun getOutputDir ()Ljava/io/File;
 	public final fun getPluginsClasspath ()Ljava/util/List;
 	public final fun getPluginsConfigurations ()Ljava/util/List;
+	public final fun getSuppressInheritedMembers ()Z
 	public final fun getSuppressObviousFunctions ()Z
 	public final fun setCacheRoot (Ljava/lang/String;)V
 	public final fun setFailOnWarning (Z)V
 	public final fun setFormat (Ljava/lang/String;)V
+	public final fun setIncludes (Ljava/util/List;)V
 	public final fun setModuleName (Ljava/lang/String;)V
 	public final fun setModuleVersion (Ljava/lang/String;)V
 	public final fun setModules (Ljava/util/List;)V
@@ -195,6 +198,7 @@ public final class testApi/testRunner/TestDokkaConfigurationBuilder {
 	public final fun setOutputDir (Ljava/io/File;)V
 	public final fun setPluginsClasspath (Ljava/util/List;)V
 	public final fun setPluginsConfigurations (Ljava/util/List;)V
+	public final fun setSuppressInheritedMembers (Z)V
 	public final fun setSuppressObviousFunctions (Z)V
 	public final fun sourceSet (Lkotlin/jvm/functions/Function1;)Lkotlin/Lazy;
 	public final fun sourceSets (Lkotlin/jvm/functions/Function1;)V

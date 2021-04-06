@@ -24,6 +24,7 @@ public final class org/jetbrains/dokka/base/DokkaBase : org/jetbrains/dokka/plug
 	public final fun getHtmlPreprocessors ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
 	public final fun getHtmlRenderer ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getImmediateHtmlCommandConsumer ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
+	public final fun getInheritedEntriesVisbilityFilter ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getInheritorsExtractor ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getJavadocLocationProvider ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getKotlinAnalysis ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
@@ -366,7 +367,6 @@ public class org/jetbrains/dokka/base/renderers/html/HtmlRenderer : org/jetbrain
 	public synthetic fun getPreprocessors ()Ljava/lang/Iterable;
 	protected fun getPreprocessors ()Ljava/util/List;
 	public fun render (Lorg/jetbrains/dokka/pages/RootPageNode;)V
-	public final fun withHtml (Lkotlinx/html/FlowContent;Ljava/lang/String;)V
 	public synthetic fun wrapGroup (Ljava/lang/Object;Lorg/jetbrains/dokka/pages/ContentGroup;Lorg/jetbrains/dokka/pages/ContentPage;Lkotlin/jvm/functions/Function1;)V
 	public fun wrapGroup (Lkotlinx/html/FlowContent;Lorg/jetbrains/dokka/pages/ContentGroup;Lorg/jetbrains/dokka/pages/ContentPage;Lkotlin/jvm/functions/Function1;)V
 }
@@ -493,9 +493,9 @@ public final class org/jetbrains/dokka/base/renderers/html/StylesInstaller : org
 
 public final class org/jetbrains/dokka/base/renderers/html/TagsKt {
 	public static final fun buildAsInnerHtml (Lkotlin/jvm/functions/Function1;)Ljava/lang/String;
-	public static final fun templateCommand (Lkotlinx/html/FlowOrPhrasingOrMetaDataContent;Lorg/jetbrains/dokka/base/templating/Command;Lkotlin/jvm/functions/Function1;)V
+	public static final fun templateCommand (Lkotlinx/html/FlowOrMetaDataContent;Lorg/jetbrains/dokka/base/templating/Command;Lkotlin/jvm/functions/Function1;)V
 	public static final fun templateCommand (Lkotlinx/html/TagConsumer;Lorg/jetbrains/dokka/base/templating/Command;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
-	public static synthetic fun templateCommand$default (Lkotlinx/html/FlowOrPhrasingOrMetaDataContent;Lorg/jetbrains/dokka/base/templating/Command;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
+	public static synthetic fun templateCommand$default (Lkotlinx/html/FlowOrMetaDataContent;Lorg/jetbrains/dokka/base/templating/Command;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
 	public static synthetic fun templateCommand$default (Lkotlinx/html/TagConsumer;Lorg/jetbrains/dokka/base/templating/Command;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Ljava/lang/Object;
 	public static final fun templateCommandFor (Lorg/jetbrains/dokka/base/templating/Command;Lkotlinx/html/TagConsumer;)Lorg/jetbrains/dokka/base/renderers/html/TemplateCommand;
 	public static final fun wbr (Lkotlinx/html/FlowOrPhrasingContent;Ljava/lang/String;Lkotlin/jvm/functions/Function1;)V
@@ -1017,6 +1017,11 @@ public final class org/jetbrains/dokka/base/transformers/documentables/Extension
 
 public final class org/jetbrains/dokka/base/transformers/documentables/ExtensionExtractorTransformerKt {
 	public static final fun consumeAsFlow (Lkotlinx/coroutines/channels/ReceiveChannel;)Lkotlinx/coroutines/flow/Flow;
+}
+
+public final class org/jetbrains/dokka/base/transformers/documentables/InheritedEntriesDocumentableFilterTransformer : org/jetbrains/dokka/base/transformers/documentables/SuppressedByConditionDocumentableFilterTransformer {
+	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
+	public fun shouldBeSuppressed (Lorg/jetbrains/dokka/model/Documentable;)Z
 }
 
 public final class org/jetbrains/dokka/base/transformers/documentables/InheritorsExtractorTransformer : org/jetbrains/dokka/transformers/documentation/DocumentableTransformer {

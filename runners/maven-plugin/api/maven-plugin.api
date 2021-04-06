@@ -8,7 +8,6 @@ public abstract class org/jetbrains/dokka/maven/AbstractDokkaMojo : org/apache/m
 	public final fun getDokkaPlugins ()Ljava/util/List;
 	public final fun getExternalDocumentationLinks ()Ljava/util/List;
 	public final fun getFailOnWarning ()Z
-	public final fun getImpliedPlatforms ()Ljava/util/List;
 	public final fun getIncludeNonPublic ()Z
 	public final fun getIncludes ()Ljava/util/List;
 	public final fun getJdkVersion ()I
@@ -30,6 +29,8 @@ public abstract class org/jetbrains/dokka/maven/AbstractDokkaMojo : org/apache/m
 	public final fun getSourceDirectories ()Ljava/util/List;
 	public final fun getSourceLinks ()Ljava/util/List;
 	public final fun getSourceSetName ()Ljava/lang/String;
+	public final fun getSuppressInheritedMembers ()Z
+	public final fun getSuppressObviousFunctions ()Z
 	public final fun getSuppressedFiles ()Ljava/util/List;
 	public final fun setApiVersion (Ljava/lang/String;)V
 	public final fun setCacheRoot (Ljava/lang/String;)V
@@ -38,7 +39,6 @@ public abstract class org/jetbrains/dokka/maven/AbstractDokkaMojo : org/apache/m
 	public final fun setDokkaPlugins (Ljava/util/List;)V
 	public final fun setExternalDocumentationLinks (Ljava/util/List;)V
 	public final fun setFailOnWarning (Z)V
-	public final fun setImpliedPlatforms (Ljava/util/List;)V
 	public final fun setIncludeNonPublic (Z)V
 	public final fun setIncludes (Ljava/util/List;)V
 	public final fun setJdkVersion (I)V
@@ -59,6 +59,8 @@ public abstract class org/jetbrains/dokka/maven/AbstractDokkaMojo : org/apache/m
 	public final fun setSourceDirectories (Ljava/util/List;)V
 	public final fun setSourceLinks (Ljava/util/List;)V
 	public final fun setSourceSetName (Ljava/lang/String;)V
+	public final fun setSuppressInheritedMembers (Z)V
+	public final fun setSuppressObviousFunctions (Z)V
 	public final fun setSuppressedFiles (Ljava/util/List;)V
 }
 
