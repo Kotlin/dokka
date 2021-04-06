@@ -12,8 +12,8 @@ repositories {
     maven(url = "https://www.jetbrains.com/intellij-repository/snapshots")
     maven(url = "https://www.jetbrains.com/intellij-repository/releases")
     maven("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/kotlin-ide")
-    maven("https://kotlin.bintray.com/kotlin-ide-plugin-dependencies")
-    maven("https://jetbrains.bintray.com/intellij-third-party-dependencies")
+    maven("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/kotlin-ide-plugin-dependencies")
+    maven("https://cache-redirector.jetbrains.com/intellij-dependencies")
 }
 
 val intellijCore: Configuration by configurations.creating
