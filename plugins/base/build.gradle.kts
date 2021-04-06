@@ -10,7 +10,7 @@ dependencies {
 
     api(project(":kotlin-analysis"))
     implementation("org.jsoup:jsoup:1.13.1")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.11.1")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.12.2")
     testImplementation(project(":plugins:base:base-test-utils"))
     testImplementation(project(":core:content-matcher-test-utils"))
 
