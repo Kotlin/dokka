@@ -199,7 +199,7 @@ internal class JavadocClasslikeTemplateMapTest : AbstractJavadocTemplateMapTest(
             val entries = assertIsInstance<List<Map<String, Any?>>>(map["entries"])
             assertEquals(2, entries.size)
 
-            val (first, second) = entries
+            val (first, second) = entries.sortedBy { it["brief"] as String }
             assertEquals("<p>Sample docs for first</p>", first["brief"])
             assertEquals("<p>Sample docs for second</p>", second["brief"])
 
