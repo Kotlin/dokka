@@ -17,7 +17,7 @@ open class WBR(initialAttributes: Map<String, String>, consumer: TagConsumer<*>)
     HTMLTag("wbr", consumer, initialAttributes, namespace = null, inlineTag = true, emptyTag = false),
     HtmlBlockInlineTag
 
-fun FlowOrPhrasingOrMetaDataContent.templateCommand(data: Command, block: TemplateBlock = {}): Unit =
+fun FlowOrMetaDataContent.templateCommand(data: Command, block: TemplateBlock = {}): Unit =
     (consumer as? ImmediateResolutionTagConsumer)?.processCommand(data, block)
         ?: TemplateCommand(attributesMapOf("data", toJsonString(data)), consumer).visit(block)
 

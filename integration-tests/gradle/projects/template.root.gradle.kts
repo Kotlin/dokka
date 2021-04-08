@@ -6,6 +6,11 @@ allprojects {
         google()
         maven("https://cache-redirector.jetbrains.com/dl.bintray.com/kotlin/kotlin-eap")
         maven("https://cache-redirector.jetbrains.com/dl.bintray.com/kotlin/kotlin-dev")
+        maven("https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven") {
+            content {
+                includeGroup("org.jetbrains.kotlinx")
+            }
+        }
     }
 }
 
