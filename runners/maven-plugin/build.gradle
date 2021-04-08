@@ -20,7 +20,13 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
     }
 }
 
+configurations {
+    maven
+}
+
 dependencies {
+    maven group: "org.apache.maven", name: 'apache-maven', version: maven_version, classifier: 'bin', ext: 'zip'
+
     shadow project(":runners:fatjar")
     shadow "org.apache.maven:maven-core:$maven_version"
     shadow "org.apache.maven:maven-model:$maven_version"
@@ -32,50 +38,95 @@ dependencies {
     shadow "com.github.olivergondza:maven-jdk-tools-wrapper:0.1"
 }
 
+final File mavenHome = new File(buildDir, "maven-bin")
+final File mvn = new File(mavenHome, "apache-maven-$maven_version/bin/mvn")
+
+tasks.clean.doLast {
+    delete mavenHome
+}
+
+task setupMaven(type: Sync) {
+    from configurations.maven.collect { zipTree(it) }
+    into "$buildDir/maven-bin"
+}
+
+def mavenBuildDir = "$buildDir/maven"
+
+
+sourceSets.main.resources {
+    srcDirs += "$mavenBuildDir/classes/java/main"
+    exclude "**/*.class"
+}
+
 task generatePom() {
     inputs.file(new File(projectDir, "pom.tpl.xml"))
-    outputs.file(new File(buildDir, "pom.xml"))
+    outputs.file(new File(mavenBuildDir, "pom.xml"))
     doLast {
         final pomTemplate = new File(projectDir, "pom.tpl.xml")
-        final pom = new File(buildDir, "pom.xml")
+        final pom = new File(mavenBuildDir, "pom.xml")
+        pom.parentFile.mkdirs()
         pom.text = pomTemplate.text.replace("<version>dokka_version</version>", "<version>$dokka_version</version>")
                 .replace("<maven.version></maven.version>", "<maven.version>$maven_version</maven.version>")
                 .replace("<version>maven-plugin-plugin</version>", "<version>$maven_plugin_tools_version</version>")
     }
 }
+//
+//task mergeClassOutputs doLast {
+//    def sourceDir = new File(buildDir, "classes/kotlin")
+//    def targetDir = new File(buildDir, "classes/java")
+//
+//    sourceDir.eachFileRecurse FileType.ANY, {
+//        def filePath = it.toPath()
+//        def targetFilePath = targetDir.toPath().resolve(sourceDir.toPath().relativize(filePath))
+//        if (it.isFile()) {
+//            Files.move(filePath, targetFilePath, StandardCopyOption.REPLACE_EXISTING)
+//        } else if (it.isDirectory()) {
+//            targetFilePath.toFile().mkdirs()
+//        }
+//    }
+//}
 
-task mergeClassOutputs doLast {
-    def sourceDir = new File(buildDir, "classes/kotlin")
-    def targetDir = new File(buildDir, "classes/java")
 
-    sourceDir.eachFileRecurse FileType.ANY, {
-        def filePath = it.toPath()
-        def targetFilePath = targetDir.toPath().resolve(sourceDir.toPath().relativize(filePath))
-        if (it.isFile()) {
-            Files.move(filePath, targetFilePath, StandardCopyOption.REPLACE_EXISTING)
-        } else if (it.isDirectory()) {
-            targetFilePath.toFile().mkdirs()
-        }
+task syncKotlinClasses(type: Sync, dependsOn: compileKotlin) {
+    from "$buildDir/classes/kotlin"
+    into "$mavenBuildDir/classes/java"
+
+    preserve {
+        include '**/*.class'
     }
 }
 
-task pluginDescriptor(type: CrossPlatformExec) {
-    workingDir buildDir
-    commandLine mvn, '-e', '-B', 'org.apache.maven.plugins:maven-plugin-plugin:descriptor'
+task syncJavaClasses(type: Sync, dependsOn: compileJava) {
+    from "$buildDir/classes/java"
+    into "$mavenBuildDir/classes/java"
 
-    dependsOn mergeClassOutputs
+    preserve {
+        include '**/*.class'
+    }
 }
 
-task helpMojo(type: CrossPlatformExec) {
-    workingDir buildDir
+task helpMojo(type: CrossPlatformExec, dependsOn: setupMaven) {
+    workingDir mavenBuildDir
     commandLine mvn, '-e', '-B', 'org.apache.maven.plugins:maven-plugin-plugin:helpmojo'
 
-    dependsOn mergeClassOutputs
+    dependsOn syncKotlinClasses
 }
 
+
+task pluginDescriptor(type: CrossPlatformExec, dependsOn: setupMaven) {
+    workingDir mavenBuildDir
+    commandLine mvn, '-e', '-B', 'org.apache.maven.plugins:maven-plugin-plugin:descriptor'
+
+    dependsOn syncJavaClasses
+}
+
+
+//mergeClassOutputs.dependsOn compileKotlin
+//helpMojo.dependsOn mergeClassOutputs
 helpMojo.dependsOn generatePom
-sourceSets.main.java.srcDir("$buildDir/generated-sources/plugin")
+sourceSets.main.java.srcDir("$buildDir/maven/generated-sources/plugin")
 compileJava.dependsOn helpMojo
+processResources.dependsOn pluginDescriptor
 
 pluginDescriptor.dependsOn generatePom
 
