@@ -141,7 +141,7 @@ dokkaHtml {
 
             // By default, sourceRoots are taken from Kotlin Plugin and kotlinTasks, following roots will be appended to them
             // Repeat for multiple sourceRoots
-            sourceRoot.from(file("src"))
+            sourceRoots.from(file("src"))
 
             // Specifies the location of the project source code on the Web.
             // If provided, Dokka generates "source" links for each declaration.
@@ -173,7 +173,7 @@ dokkaHtml {
             // Repeat for multiple links
             externalDocumentationLink {
                 // Root URL of the generated documentation to link with. The trailing slash is required!
-                url = URL("https://example.com/docs/")
+                url.set(URL("https://example.com/docs/"))
 
                 // If package-list file is located in non-standard location
                 // packageListUrl = URL("file:///home/user/localdocs/package-list")
@@ -191,7 +191,7 @@ dokkaHtml {
             }
             // Suppress a package
             perPackageOption {
-                matchingRegex.set(".*\.internal.*") // will match all .internal packages and sub-packages 
+                matchingRegex.set(""".*\.internal.*""") // will match all .internal packages and sub-packages 
                 suppress.set(true)
             }
         }
@@ -216,26 +216,26 @@ kotlin {  // Kotlin Multiplatform plugin configuration
 }
 
 tasks.withType<DokkaTask>().configureEach {
-        // custom output directory
-        outputDirectory.set(buildDir.resolve("dokka"))
-    
-        // path to project documentation to display on all modules page
-        includes.from(listOf(file("project_description.md")))
+    // custom output directory
+    outputDirectory.set(buildDir.resolve("dokka"))
 
-        dokkaSourceSets { 
-             named("customNameMain") { // The same name as in Kotlin Multiplatform plugin, so the sources are fetched automatically
-                includes.from("packages.md", "extra.md")
-                samples.from("samples/basic.kt", "samples/advanced.kt")
-            }
+    // path to project documentation to display on all modules page
+    includes.from(listOf(file("project_description.md")))
 
-            register("differentName") { // Different name, so source roots must be passed explicitly
-                displayName.set("JVM")
-                platform.set(org.jetbrains.dokka.Platform.jvm)
-                sourceRoots.from(kotlin.sourceSets.getByName("jvmMain").kotlin.srcDirs)
-                sourceRoots.from(kotlin.sourceSets.getByName("commonMain").kotlin.srcDirs)
-            }
+    dokkaSourceSets { 
+         named("customNameMain") { // The same name as in Kotlin Multiplatform plugin, so the sources are fetched automatically
+            includes.from("packages.md", "extra.md")
+            samples.from("samples/basic.kt", "samples/advanced.kt")
+        }
+
+        register("differentName") { // Different name, so source roots must be passed explicitly
+            displayName.set("JVM")
+            platform.set(org.jetbrains.dokka.Platform.jvm)
+            sourceRoots.from(kotlin.sourceSets.getByName("jvmMain").kotlin.srcDirs)
+            sourceRoots.from(kotlin.sourceSets.getByName("commonMain").kotlin.srcDirs)
         }
     }
+}
 ```
 
 !!! note
