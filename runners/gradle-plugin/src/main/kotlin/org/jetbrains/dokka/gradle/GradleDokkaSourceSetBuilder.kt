@@ -69,6 +69,10 @@ open class GradleDokkaSourceSetBuilder(
         .safeConvention(DokkaDefaults.skipDeprecated)
 
     @Input
+    val suppressGeneratedFiles: Property<Boolean> = project.objects.safeProperty<Boolean>()
+        .safeConvention(true)
+
+    @Input
     val jdkVersion: Property<Int> = project.objects.safeProperty<Int>()
         .safeConvention(DokkaDefaults.jdkVersion)
 
