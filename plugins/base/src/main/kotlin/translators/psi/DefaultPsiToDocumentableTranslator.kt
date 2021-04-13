@@ -2,6 +2,8 @@ package org.jetbrains.dokka.base.translators.psi
 
 import com.intellij.lang.jvm.JvmModifier
 import com.intellij.lang.jvm.annotation.JvmAnnotationAttribute
+import com.intellij.lang.jvm.annotation.JvmAnnotationAttributeValue
+import com.intellij.lang.jvm.annotation.JvmAnnotationEnumFieldValue
 import com.intellij.lang.jvm.types.JvmReferenceType
 import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.psi.*
@@ -572,11 +574,20 @@ class DefaultPsiToDocumentableTranslator(
             filter { it !is KtLightAbstractAnnotation }.mapNotNull { it.toAnnotation() }
 
         private fun JvmAnnotationAttribute.toValue(): AnnotationParameterValue = when (this) {
-            is PsiNameValuePair -> value?.toValue() ?: StringValue("")
+            is PsiNameValuePair -> value?.toValue() ?: attributeValue?.toValue() ?: StringValue("")
             else -> StringValue(this.attributeName)
         }.let { annotationValue ->
             if (annotationValue is StringValue) annotationValue.copy(unquotedValue(annotationValue.value))
             else annotationValue
+        }
+
+        /**
+         * This is a workaround for static imports from JDK like RetentionPolicy
+         * For some reason they are not represented in the same way than using normal import
+         */
+        private fun JvmAnnotationAttributeValue.toValue(): AnnotationParameterValue? = when (this) {
+            is JvmAnnotationEnumFieldValue -> (field as? PsiElement)?.let { EnumValue(fieldName ?: "", DRI.from(it)) }
+            else -> null
         }
 
         private fun PsiAnnotationMemberValue.toValue(): AnnotationParameterValue? = when (this) {
