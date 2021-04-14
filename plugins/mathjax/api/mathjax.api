@@ -1,0 +1,10 @@
+public final class org/jetbrains/dokka/mathjax/MathjaxPlugin : org/jetbrains/dokka/plugability/DokkaPlugin {
+	public fun <init> ()V
+	public final fun getTransformer ()Lorg/jetbrains/dokka/plugability/Extension;
+}
+
+public final class org/jetbrains/dokka/mathjax/MathjaxTransformer : org/jetbrains/dokka/transformers/pages/PageTransformer {
+	public static final field INSTANCE Lorg/jetbrains/dokka/mathjax/MathjaxTransformer;
+	public fun invoke (Lorg/jetbrains/dokka/pages/RootPageNode;)Lorg/jetbrains/dokka/pages/RootPageNode;
+}
+

@@ -1,0 +1,85 @@
+public final class org/jetbrains/dokka/allModulesPage/AllModulesPageGeneration : org/jetbrains/dokka/generation/Generation {
+	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
+	public final fun createAllModulesPage (Lorg/jetbrains/dokka/allModulesPage/AllModulesPageGeneration$DefaultAllModulesContext;)Lorg/jetbrains/dokka/pages/RootPageNode;
+	public final fun finishProcessingSubmodules ()V
+	public fun generate (Lorg/jetbrains/dokka/Timer;)V
+	public fun getGenerationName ()Ljava/lang/String;
+	public final fun handlePreviousDocs ()V
+	public final fun processMultiModule (Lorg/jetbrains/dokka/pages/RootPageNode;)V
+	public final fun processSubmodules ()Lorg/jetbrains/dokka/allModulesPage/AllModulesPageGeneration$DefaultAllModulesContext;
+	public final fun render (Lorg/jetbrains/dokka/pages/RootPageNode;)V
+	public final fun transformAllModulesPage (Lorg/jetbrains/dokka/pages/RootPageNode;)Lorg/jetbrains/dokka/pages/RootPageNode;
+}
+
+public final class org/jetbrains/dokka/allModulesPage/AllModulesPageGeneration$DefaultAllModulesContext : org/jetbrains/dokka/transformers/pages/CreationContext {
+	public fun <init> (Ljava/util/List;)V
+	public fun <init> (Lorg/jetbrains/dokka/templates/TemplatingResult;)V
+	public final fun component1 ()Ljava/util/List;
+	public final fun copy (Ljava/util/List;)Lorg/jetbrains/dokka/allModulesPage/AllModulesPageGeneration$DefaultAllModulesContext;
+	public static synthetic fun copy$default (Lorg/jetbrains/dokka/allModulesPage/AllModulesPageGeneration$DefaultAllModulesContext;Ljava/util/List;ILjava/lang/Object;)Lorg/jetbrains/dokka/allModulesPage/AllModulesPageGeneration$DefaultAllModulesContext;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getNonEmptyModules ()Ljava/util/List;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/jetbrains/dokka/allModulesPage/AllModulesPagePlugin : org/jetbrains/dokka/plugability/DokkaPlugin {
+	public fun <init> ()V
+	public final fun getAllModulesPageCreator ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
+	public final fun getAllModulesPageCreators ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getAllModulesPageGeneration ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getAllModulesPageTransformer ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
+	public final fun getBaseLocationProviderFactory ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getDokkaBase ()Lorg/jetbrains/dokka/base/DokkaBase;
+	public final fun getExternalModuleLinkResolver ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
+	public final fun getMultiModuleLinkResolver ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getMultimoduleLocationProvider ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getPartialLocationProviderFactory ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
+	public final fun getResolveLinkCommandHandler ()Lorg/jetbrains/dokka/plugability/Extension;
+}
+
+public final class org/jetbrains/dokka/allModulesPage/DefaultExternalModuleLinkResolver : org/jetbrains/dokka/allModulesPage/ExternalModuleLinkResolver {
+	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
+	public final fun getContext ()Lorg/jetbrains/dokka/plugability/DokkaContext;
+	public fun resolve (Lorg/jetbrains/dokka/links/DRI;Ljava/io/File;)Ljava/lang/String;
+	public fun resolveLinkToModuleIndex (Ljava/lang/String;)Ljava/lang/String;
+}
+
+public abstract interface class org/jetbrains/dokka/allModulesPage/ExternalModuleLinkResolver {
+	public abstract fun resolve (Lorg/jetbrains/dokka/links/DRI;Ljava/io/File;)Ljava/lang/String;
+	public abstract fun resolveLinkToModuleIndex (Ljava/lang/String;)Ljava/lang/String;
+}
+
+public class org/jetbrains/dokka/allModulesPage/MultimoduleLocationProvider : org/jetbrains/dokka/base/resolvers/local/DokkaBaseLocationProvider {
+	public fun <init> (Lorg/jetbrains/dokka/pages/RootPageNode;Lorg/jetbrains/dokka/plugability/DokkaContext;)V
+	public fun ancestors (Lorg/jetbrains/dokka/pages/PageNode;)Ljava/util/List;
+	public fun pathToRoot (Lorg/jetbrains/dokka/pages/PageNode;)Ljava/lang/String;
+	public fun resolve (Lorg/jetbrains/dokka/links/DRI;Ljava/util/Set;Lorg/jetbrains/dokka/pages/PageNode;)Ljava/lang/String;
+	public fun resolve (Lorg/jetbrains/dokka/pages/PageNode;Lorg/jetbrains/dokka/pages/PageNode;Z)Ljava/lang/String;
+}
+
+public final class org/jetbrains/dokka/allModulesPage/MultimoduleLocationProvider$Factory : org/jetbrains/dokka/base/resolvers/local/LocationProviderFactory {
+	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
+	public fun getLocationProvider (Lorg/jetbrains/dokka/pages/RootPageNode;)Lorg/jetbrains/dokka/allModulesPage/MultimoduleLocationProvider;
+	public synthetic fun getLocationProvider (Lorg/jetbrains/dokka/pages/RootPageNode;)Lorg/jetbrains/dokka/base/resolvers/local/LocationProvider;
+}
+
+public final class org/jetbrains/dokka/allModulesPage/MultimodulePageCreator : org/jetbrains/dokka/transformers/pages/PageCreator {
+	public static final field Companion Lorg/jetbrains/dokka/allModulesPage/MultimodulePageCreator$Companion;
+	public static final field MULTIMODULE_PACKAGE_PLACEHOLDER Ljava/lang/String;
+	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
+	public fun invoke (Lorg/jetbrains/dokka/allModulesPage/AllModulesPageGeneration$DefaultAllModulesContext;)Lorg/jetbrains/dokka/pages/RootPageNode;
+	public synthetic fun invoke (Lorg/jetbrains/dokka/transformers/pages/CreationContext;)Lorg/jetbrains/dokka/pages/RootPageNode;
+}
+
+public final class org/jetbrains/dokka/allModulesPage/MultimodulePageCreator$Companion {
+	public final fun getMULTIMODULE_ROOT_DRI ()Lorg/jetbrains/dokka/links/DRI;
+}
+
+public final class org/jetbrains/dokka/allModulesPage/ResolveLinkCommandHandler : org/jetbrains/dokka/templates/CommandHandler {
+	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
+	public fun canHandle (Lorg/jetbrains/dokka/base/templating/Command;)Z
+	public fun finish (Ljava/io/File;)V
+	public fun handleCommand (Lorg/jsoup/nodes/Element;Lorg/jetbrains/dokka/base/templating/Command;Ljava/io/File;Ljava/io/File;)V
+}
+
