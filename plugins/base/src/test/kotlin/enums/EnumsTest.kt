@@ -115,7 +115,7 @@ class EnumsTest : BaseAbstractTest() {
                 m.packages.let { p ->
                     p.first().classlikes.let { c ->
                         val enum = c.first() as DEnum
-                        val (first, second) = enum.entries
+                        val (first, second) = enum.entries.sortedBy { it.name }
 
                         assertEquals(1, first.extra.allOfType<ConstructorValues>().size)
                         assertEquals(1, second.extra.allOfType<ConstructorValues>().size)
