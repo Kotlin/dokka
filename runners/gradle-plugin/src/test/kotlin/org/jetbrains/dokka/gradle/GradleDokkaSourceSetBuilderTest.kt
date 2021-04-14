@@ -425,6 +425,34 @@ class GradleDokkaSourceSetBuilderTest {
     }
 
     @Test
+    fun suppressedFilesByDefault() {
+        val sourceSet = GradleDokkaSourceSetBuilder("", project)
+        assertTrue(sourceSet.build().suppressedFiles.isEmpty(), "Expected no suppressed files by default")
+
+        val file = project.buildDir.resolve("generated").also { it.mkdirs() }
+        file.resolve("suppressed.kt").writeText("class A")
+
+        sourceSet.sourceRoots.from(project.buildDir.resolve("generated"))
+
+        val suppressedConfiguration = sourceSet.build()
+        sourceSet.suppressGeneratedFiles.set(false)
+        val unsuppressedConfiguration = sourceSet.build()
+
+        assertEquals(
+            setOf(
+                project.buildDir.resolve("generated"),
+                project.buildDir.resolve("generated").resolve("suppressed.kt")
+            ), suppressedConfiguration.suppressedFiles,
+            "Expected all suppressed files to be present after build"
+        )
+
+        assertTrue(
+            unsuppressedConfiguration.suppressedFiles.isEmpty(),
+            "Expected no files to be suppressed by default"
+        )
+    }
+
+    @Test
     fun platform() {
         val sourceSet = GradleDokkaSourceSetBuilder("", project)
         assertEquals(Platform.DEFAULT, sourceSet.build().analysisPlatform, "Expected default platform if not specified")
