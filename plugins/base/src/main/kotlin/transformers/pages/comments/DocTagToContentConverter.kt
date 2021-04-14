@@ -7,6 +7,7 @@ import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.model.toDisplaySourceSets
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
+import org.jetbrains.dokka.model.properties.plus
 
 open class DocTagToContentConverter : CommentsToContentConverter {
     override fun buildContent(
@@ -145,7 +146,8 @@ open class DocTagToContentConverter : CommentsToContentConverter {
                     docTag.body,
                     dci,
                     sourceSets.toDisplaySourceSets(),
-                    styles
+                    styles,
+                    extra + HtmlContent.takeIf { docTag.params["content-type"] == "html" }
                 )
             )
             is Strikethrough -> buildChildren(docTag, setOf(TextStyle.Strikethrough))
@@ -204,7 +206,6 @@ open class DocTagToContentConverter : CommentsToContentConverter {
                     styles
                 )
             )
-
             is CustomDocTag -> if (docTag.isNonemptyFile()) {
                 listOf(
                     ContentGroup(

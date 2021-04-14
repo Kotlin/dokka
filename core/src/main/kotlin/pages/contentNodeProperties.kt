@@ -10,3 +10,7 @@ class SimpleAttr(val extraKey: String, val extraValue: String) : ExtraProperty<C
         fun header(value: String) = SimpleAttr("data-togglable", value)
     }
 }
+
+object HtmlContent : ExtraProperty<ContentNode>, ExtraProperty.Key<ContentNode, HtmlContent> {
+    override val key: ExtraProperty.Key<ContentNode, *> = this
+}

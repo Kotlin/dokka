@@ -22,6 +22,7 @@ import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.model.sourceSetIDs
 import org.jetbrains.dokka.model.withDescendants
 import org.jetbrains.dokka.pages.*
+import org.jetbrains.dokka.pages.HtmlContent
 import org.jetbrains.dokka.plugability.*
 import org.jetbrains.dokka.utilities.htmlEscape
 import java.net.URI
@@ -704,6 +705,9 @@ open class HtmlRenderer(
 
     override fun FlowContent.buildText(textNode: ContentText) =
         when {
+            textNode.extra[HtmlContent] != null -> {
+                consumer.onTagContentUnsafe { raw(textNode.text) }
+            }
             textNode.hasStyle(TextStyle.Indented) -> {
                 consumer.onTagContentEntity(Entities.nbsp)
                 text(textNode.text)
