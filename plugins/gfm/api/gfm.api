@@ -1,0 +1,68 @@
+public abstract class org/jetbrains/dokka/gfm/GfmCommand {
+	public static final field Companion Lorg/jetbrains/dokka/gfm/GfmCommand$Companion;
+}
+
+public final class org/jetbrains/dokka/gfm/GfmCommand$Companion {
+	public final fun getCommand (Lkotlin/text/MatchResult;)Ljava/lang/String;
+	public final fun getLabel (Lkotlin/text/MatchResult;)Ljava/lang/String;
+	public final fun getTemplateCommandRegex ()Lkotlin/text/Regex;
+	public final fun templateCommand (Ljava/lang/Appendable;Lorg/jetbrains/dokka/gfm/GfmCommand;Lkotlin/jvm/functions/Function1;)V
+}
+
+public final class org/jetbrains/dokka/gfm/GfmPlugin : org/jetbrains/dokka/plugability/DokkaPlugin {
+	public fun <init> ()V
+	public final fun getGfmPreprocessors ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
+	public final fun getLocationProvider ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getPackageListCreator ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getRenderer ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getRootCreator ()Lorg/jetbrains/dokka/plugability/Extension;
+}
+
+public final class org/jetbrains/dokka/gfm/ResolveLinkGfmCommand : org/jetbrains/dokka/gfm/GfmCommand {
+	public fun <init> (Lorg/jetbrains/dokka/links/DRI;)V
+	public final fun getDri ()Lorg/jetbrains/dokka/links/DRI;
+}
+
+public final class org/jetbrains/dokka/gfm/location/MarkdownLocationProvider : org/jetbrains/dokka/base/resolvers/local/DokkaLocationProvider {
+	public fun <init> (Lorg/jetbrains/dokka/pages/RootPageNode;Lorg/jetbrains/dokka/plugability/DokkaContext;)V
+}
+
+public final class org/jetbrains/dokka/gfm/location/MarkdownLocationProvider$Factory : org/jetbrains/dokka/base/resolvers/local/LocationProviderFactory {
+	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
+	public synthetic fun getLocationProvider (Lorg/jetbrains/dokka/pages/RootPageNode;)Lorg/jetbrains/dokka/base/resolvers/local/LocationProvider;
+	public fun getLocationProvider (Lorg/jetbrains/dokka/pages/RootPageNode;)Lorg/jetbrains/dokka/gfm/location/MarkdownLocationProvider;
+}
+
+public class org/jetbrains/dokka/gfm/renderer/CommonmarkRenderer : org/jetbrains/dokka/base/renderers/DefaultRenderer {
+	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
+	public synthetic fun buildDRILink (Ljava/lang/Object;Lorg/jetbrains/dokka/pages/ContentDRILink;Lorg/jetbrains/dokka/pages/ContentPage;Ljava/util/Set;)V
+	public fun buildDRILink (Ljava/lang/StringBuilder;Lorg/jetbrains/dokka/pages/ContentDRILink;Lorg/jetbrains/dokka/pages/ContentPage;Ljava/util/Set;)V
+	public synthetic fun buildDivergent (Ljava/lang/Object;Lorg/jetbrains/dokka/pages/ContentDivergentGroup;Lorg/jetbrains/dokka/pages/ContentPage;)V
+	public fun buildDivergent (Ljava/lang/StringBuilder;Lorg/jetbrains/dokka/pages/ContentDivergentGroup;Lorg/jetbrains/dokka/pages/ContentPage;)V
+	public fun buildError (Lorg/jetbrains/dokka/pages/ContentNode;)V
+	public synthetic fun buildHeader (Ljava/lang/Object;ILorg/jetbrains/dokka/pages/ContentHeader;Lkotlin/jvm/functions/Function1;)V
+	public fun buildHeader (Ljava/lang/StringBuilder;ILorg/jetbrains/dokka/pages/ContentHeader;Lkotlin/jvm/functions/Function1;)V
+	public synthetic fun buildLink (Ljava/lang/Object;Ljava/lang/String;Lkotlin/jvm/functions/Function1;)V
+	public fun buildLink (Ljava/lang/StringBuilder;Ljava/lang/String;Lkotlin/jvm/functions/Function1;)V
+	public synthetic fun buildList (Ljava/lang/Object;Lorg/jetbrains/dokka/pages/ContentList;Lorg/jetbrains/dokka/pages/ContentPage;Ljava/util/Set;)V
+	public fun buildList (Ljava/lang/StringBuilder;Lorg/jetbrains/dokka/pages/ContentList;Lorg/jetbrains/dokka/pages/ContentPage;Ljava/util/Set;)V
+	public synthetic fun buildNavigation (Ljava/lang/Object;Lorg/jetbrains/dokka/pages/PageNode;)V
+	public fun buildNavigation (Ljava/lang/StringBuilder;Lorg/jetbrains/dokka/pages/PageNode;)V
+	public synthetic fun buildNewLine (Ljava/lang/Object;)V
+	public fun buildNewLine (Ljava/lang/StringBuilder;)V
+	public fun buildPage (Lorg/jetbrains/dokka/pages/ContentPage;Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public synthetic fun buildPlatformDependent (Ljava/lang/Object;Lorg/jetbrains/dokka/pages/PlatformHintedContent;Lorg/jetbrains/dokka/pages/ContentPage;Ljava/util/Set;)V
+	public fun buildPlatformDependent (Ljava/lang/StringBuilder;Lorg/jetbrains/dokka/pages/PlatformHintedContent;Lorg/jetbrains/dokka/pages/ContentPage;Ljava/util/Set;)V
+	public synthetic fun buildResource (Ljava/lang/Object;Lorg/jetbrains/dokka/pages/ContentEmbeddedResource;Lorg/jetbrains/dokka/pages/ContentPage;)V
+	public fun buildResource (Ljava/lang/StringBuilder;Lorg/jetbrains/dokka/pages/ContentEmbeddedResource;Lorg/jetbrains/dokka/pages/ContentPage;)V
+	public synthetic fun buildTable (Ljava/lang/Object;Lorg/jetbrains/dokka/pages/ContentTable;Lorg/jetbrains/dokka/pages/ContentPage;Ljava/util/Set;)V
+	public fun buildTable (Ljava/lang/StringBuilder;Lorg/jetbrains/dokka/pages/ContentTable;Lorg/jetbrains/dokka/pages/ContentPage;Ljava/util/Set;)V
+	public synthetic fun buildText (Ljava/lang/Object;Lorg/jetbrains/dokka/pages/ContentText;)V
+	public fun buildText (Ljava/lang/StringBuilder;Lorg/jetbrains/dokka/pages/ContentText;)V
+	public synthetic fun getPreprocessors ()Ljava/lang/Iterable;
+	protected fun getPreprocessors ()Ljava/util/List;
+	public fun renderPage (Lorg/jetbrains/dokka/pages/PageNode;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public synthetic fun wrapGroup (Ljava/lang/Object;Lorg/jetbrains/dokka/pages/ContentGroup;Lorg/jetbrains/dokka/pages/ContentPage;Lkotlin/jvm/functions/Function1;)V
+	public fun wrapGroup (Ljava/lang/StringBuilder;Lorg/jetbrains/dokka/pages/ContentGroup;Lorg/jetbrains/dokka/pages/ContentPage;Lkotlin/jvm/functions/Function1;)V
+}
+

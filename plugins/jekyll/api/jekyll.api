@@ -1,0 +1,14 @@
+public final class org/jetbrains/dokka/jekyll/JekyllPlugin : org/jetbrains/dokka/plugability/DokkaPlugin {
+	public fun <init> ()V
+	public final fun getJekyllPreprocessors ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
+	public final fun getPackageListCreator ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getRenderer ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getRootCreator ()Lorg/jetbrains/dokka/plugability/Extension;
+}
+
+public final class org/jetbrains/dokka/jekyll/JekyllRenderer : org/jetbrains/dokka/gfm/renderer/CommonmarkRenderer {
+	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
+	public fun buildPage (Lorg/jetbrains/dokka/pages/ContentPage;Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public synthetic fun getPreprocessors ()Ljava/lang/Iterable;
+}
+

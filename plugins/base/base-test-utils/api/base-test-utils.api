@@ -1,0 +1,145 @@
+public abstract class org/jetbrains/dokka/base/testApi/testRunner/BaseAbstractTest : org/jetbrains/dokka/testApi/testRunner/AbstractTest {
+	public fun <init> ()V
+	public fun <init> (Lorg/jetbrains/dokka/testApi/logger/TestLogger;)V
+	public synthetic fun <init> (Lorg/jetbrains/dokka/testApi/logger/TestLogger;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+}
+
+public final class org/jetbrains/dokka/base/testApi/testRunner/BaseDokkaTestGenerator : org/jetbrains/dokka/testApi/testRunner/DokkaTestGenerator {
+	public fun <init> (Lorg/jetbrains/dokka/DokkaConfiguration;Lorg/jetbrains/dokka/utilities/DokkaLogger;Lorg/jetbrains/dokka/base/testApi/testRunner/BaseTestMethods;Ljava/util/List;)V
+	public synthetic fun <init> (Lorg/jetbrains/dokka/DokkaConfiguration;Lorg/jetbrains/dokka/utilities/DokkaLogger;Lorg/jetbrains/dokka/base/testApi/testRunner/BaseTestMethods;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun generate ()V
+}
+
+public final class org/jetbrains/dokka/base/testApi/testRunner/BaseTestBuilder : org/jetbrains/dokka/testApi/testRunner/TestBuilder {
+	public fun <init> ()V
+	public fun build ()Lorg/jetbrains/dokka/base/testApi/testRunner/BaseTestMethods;
+	public synthetic fun build ()Lorg/jetbrains/dokka/testApi/testRunner/TestMethods;
+	public final fun getDocumentablesCreationStage ()Lkotlin/jvm/functions/Function1;
+	public final fun getDocumentablesMergingStage ()Lkotlin/jvm/functions/Function1;
+	public final fun getDocumentablesTransformationStage ()Lkotlin/jvm/functions/Function1;
+	public final fun getPagesGenerationStage ()Lkotlin/jvm/functions/Function1;
+	public final fun getPagesTransformationStage ()Lkotlin/jvm/functions/Function1;
+	public final fun getPluginsSetupStage ()Lkotlin/jvm/functions/Function1;
+	public final fun getPreMergeDocumentablesTransformationStage ()Lkotlin/jvm/functions/Function1;
+	public final fun getRenderingStage ()Lkotlin/jvm/functions/Function2;
+	public final fun getVerificationStage ()Lkotlin/jvm/functions/Function1;
+	public final fun setDocumentablesCreationStage (Lkotlin/jvm/functions/Function1;)V
+	public final fun setDocumentablesMergingStage (Lkotlin/jvm/functions/Function1;)V
+	public final fun setDocumentablesTransformationStage (Lkotlin/jvm/functions/Function1;)V
+	public final fun setPagesGenerationStage (Lkotlin/jvm/functions/Function1;)V
+	public final fun setPagesTransformationStage (Lkotlin/jvm/functions/Function1;)V
+	public final fun setPluginsSetupStage (Lkotlin/jvm/functions/Function1;)V
+	public final fun setPreMergeDocumentablesTransformationStage (Lkotlin/jvm/functions/Function1;)V
+	public final fun setRenderingStage (Lkotlin/jvm/functions/Function2;)V
+	public final fun setVerificationStage (Lkotlin/jvm/functions/Function1;)V
+}
+
+public final class org/jetbrains/dokka/base/testApi/testRunner/BaseTestMethods : org/jetbrains/dokka/testApi/testRunner/CoreTestMethods {
+	public fun <init> (Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;)V
+	public final fun component1 ()Lkotlin/jvm/functions/Function1;
+	public final fun component2 ()Lkotlin/jvm/functions/Function1;
+	public final fun component3 ()Lkotlin/jvm/functions/Function1;
+	public final fun component4 ()Lkotlin/jvm/functions/Function1;
+	public final fun component5 ()Lkotlin/jvm/functions/Function1;
+	public final fun component6 ()Lkotlin/jvm/functions/Function1;
+	public final fun component7 ()Lkotlin/jvm/functions/Function1;
+	public final fun component8 ()Lkotlin/jvm/functions/Function1;
+	public final fun component9 ()Lkotlin/jvm/functions/Function2;
+	public final fun copy (Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;)Lorg/jetbrains/dokka/base/testApi/testRunner/BaseTestMethods;
+	public static synthetic fun copy$default (Lorg/jetbrains/dokka/base/testApi/testRunner/BaseTestMethods;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;ILjava/lang/Object;)Lorg/jetbrains/dokka/base/testApi/testRunner/BaseTestMethods;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getDocumentablesCreationStage ()Lkotlin/jvm/functions/Function1;
+	public final fun getDocumentablesFirstTransformationStep ()Lkotlin/jvm/functions/Function1;
+	public fun getDocumentablesMergingStage ()Lkotlin/jvm/functions/Function1;
+	public fun getDocumentablesTransformationStage ()Lkotlin/jvm/functions/Function1;
+	public fun getPagesGenerationStage ()Lkotlin/jvm/functions/Function1;
+	public fun getPagesTransformationStage ()Lkotlin/jvm/functions/Function1;
+	public fun getPluginsSetupStage ()Lkotlin/jvm/functions/Function1;
+	public fun getRenderingStage ()Lkotlin/jvm/functions/Function2;
+	public fun getVerificationStage ()Lkotlin/jvm/functions/Function1;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class renderers/RawTestPage : org/jetbrains/dokka/pages/RootPageNode, org/jetbrains/dokka/pages/ContentPage {
+	public fun <init> (Lorg/jetbrains/dokka/pages/ContentNode;Ljava/lang/String;Ljava/util/Set;Lorg/jetbrains/dokka/model/Documentable;Ljava/util/List;Ljava/util/List;)V
+	public synthetic fun <init> (Lorg/jetbrains/dokka/pages/ContentNode;Ljava/lang/String;Ljava/util/Set;Lorg/jetbrains/dokka/model/Documentable;Ljava/util/List;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun getChildren ()Ljava/util/List;
+	public fun getContent ()Lorg/jetbrains/dokka/pages/ContentNode;
+	public fun getDocumentable ()Lorg/jetbrains/dokka/model/Documentable;
+	public fun getDri ()Ljava/util/Set;
+	public fun getEmbeddedResources ()Ljava/util/List;
+	public fun getName ()Ljava/lang/String;
+	public synthetic fun modified (Ljava/lang/String;Ljava/util/List;)Lorg/jetbrains/dokka/pages/PageNode;
+	public fun modified (Ljava/lang/String;Ljava/util/List;)Lorg/jetbrains/dokka/pages/RootPageNode;
+	public fun modified (Ljava/lang/String;Lorg/jetbrains/dokka/pages/ContentNode;Ljava/util/Set;Ljava/util/List;Ljava/util/List;)Lorg/jetbrains/dokka/pages/ContentPage;
+}
+
+public abstract class renderers/RenderingOnlyTestBase {
+	public fun <init> ()V
+	public abstract fun getContext ()Lorg/jetbrains/dokka/testApi/context/MockContext;
+	public abstract fun getRenderedContent ()Ljava/lang/Object;
+}
+
+public final class renderers/TestPageKt {
+	public static final fun testPage (Lkotlin/jvm/functions/Function1;)Lrenderers/RawTestPage;
+}
+
+public final class signatures/SignatureUtilsKt {
+	public static final fun firstSignature (Lorg/jsoup/nodes/Element;)Lorg/jsoup/nodes/Element;
+	public static final fun renderedContent (Lutils/TestOutputWriter;Ljava/lang/String;)Lorg/jsoup/nodes/Element;
+	public static synthetic fun renderedContent$default (Lutils/TestOutputWriter;Ljava/lang/String;ILjava/lang/Object;)Lorg/jsoup/nodes/Element;
+	public static final fun signature (Lorg/jsoup/nodes/Element;)Lorg/jsoup/select/Elements;
+}
+
+public final class utils/A : utils/Tag {
+	public fun <init> ([Ljava/lang/Object;)V
+}
+
+public final class utils/AssertHtmlEqualsIgnoringWhitespaceKt {
+	public static final fun assertHtmlEqualsIgnoringWhitespace (Ljava/lang/String;Ljava/lang/String;)V
+}
+
+public final class utils/Div : utils/Tag {
+	public fun <init> ([Ljava/lang/Object;)V
+}
+
+public final class utils/JsoupUtilsKt {
+	public static final fun match (Lorg/jsoup/nodes/Element;[Ljava/lang/Object;)V
+}
+
+public final class utils/P : utils/Tag {
+	public fun <init> ([Ljava/lang/Object;)V
+}
+
+public final class utils/Span : utils/Tag {
+	public fun <init> ([Ljava/lang/Object;)V
+}
+
+public class utils/Tag {
+	public fun <init> (Ljava/lang/String;[Ljava/lang/Object;)V
+	public final fun getMatchers ()[Ljava/lang/Object;
+	public final fun getName ()Ljava/lang/String;
+}
+
+public final class utils/TestOutputWriter : org/jetbrains/dokka/base/renderers/OutputWriter {
+	public fun <init> ()V
+	public fun <init> (Z)V
+	public synthetic fun <init> (ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getContents ()Ljava/util/Map;
+	public fun write (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun writeResources (Ljava/lang/String;Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class utils/TestOutputWriterPlugin : org/jetbrains/dokka/plugability/DokkaPlugin {
+	public fun <init> ()V
+	public fun <init> (Z)V
+	public synthetic fun <init> (ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getTestWriter ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getWriter ()Lutils/TestOutputWriter;
+}
+
+public final class utils/Wbr : utils/Tag {
+	public static final field INSTANCE Lutils/Wbr;
+}
+

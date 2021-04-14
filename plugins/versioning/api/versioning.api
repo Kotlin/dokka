@@ -1,0 +1,109 @@
+public final class org/jetbrains/dokka/versioning/ByConfigurationVersionOrdering : org/jetbrains/dokka/versioning/VersionsOrdering {
+	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
+	public final fun getDokkaContext ()Lorg/jetbrains/dokka/plugability/DokkaContext;
+	public fun order (Ljava/util/List;)Ljava/util/List;
+}
+
+public final class org/jetbrains/dokka/versioning/DefaultVersioningHandler : org/jetbrains/dokka/versioning/VersioningHandler {
+	public static final field Companion Lorg/jetbrains/dokka/versioning/DefaultVersioningHandler$Companion;
+	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
+	public fun currentVersion ()Ljava/io/File;
+	public final fun getContext ()Lorg/jetbrains/dokka/plugability/DokkaContext;
+	public fun getVersions ()Ljava/util/Map;
+	public synthetic fun invoke ()Ljava/lang/Object;
+	public fun invoke ()V
+}
+
+public final class org/jetbrains/dokka/versioning/DefaultVersioningHandler$Companion {
+}
+
+public final class org/jetbrains/dokka/versioning/HtmlVersionsNavigationCreator : org/jetbrains/dokka/versioning/VersionsNavigationCreator {
+	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
+	public final fun getContext ()Lorg/jetbrains/dokka/plugability/DokkaContext;
+	public fun invoke ()Ljava/lang/String;
+	public fun invoke (Ljava/io/File;)Ljava/lang/String;
+}
+
+public final class org/jetbrains/dokka/versioning/MultiModuleStylesInstaller : org/jetbrains/dokka/transformers/pages/PageTransformer {
+	public static final field INSTANCE Lorg/jetbrains/dokka/versioning/MultiModuleStylesInstaller;
+	public fun invoke (Lorg/jetbrains/dokka/pages/RootPageNode;)Lorg/jetbrains/dokka/pages/RootPageNode;
+}
+
+public final class org/jetbrains/dokka/versioning/ReplaceVersionCommandConsumer : org/jetbrains/dokka/base/templating/ImmediateHtmlCommandConsumer {
+	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
+	public fun canProcess (Lorg/jetbrains/dokka/base/templating/Command;)Z
+	public fun processCommand (Lorg/jetbrains/dokka/base/templating/Command;Lkotlin/jvm/functions/Function1;Lorg/jetbrains/dokka/base/renderers/html/command/consumers/ImmediateResolutionTagConsumer;)V
+	public fun processCommandAndFinalize (Lorg/jetbrains/dokka/base/templating/Command;Lkotlin/jvm/functions/Function1;Lorg/jetbrains/dokka/base/renderers/html/command/consumers/ImmediateResolutionTagConsumer;)Ljava/lang/Object;
+}
+
+public final class org/jetbrains/dokka/versioning/ReplaceVersionCommandHandler : org/jetbrains/dokka/templates/CommandHandler {
+	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
+	public fun canHandle (Lorg/jetbrains/dokka/base/templating/Command;)Z
+	public fun finish (Ljava/io/File;)V
+	public final fun getVersionsNavigationCreator ()Lorg/jetbrains/dokka/versioning/VersionsNavigationCreator;
+	public fun handleCommand (Lorg/jsoup/nodes/Element;Lorg/jetbrains/dokka/base/templating/Command;Ljava/io/File;Ljava/io/File;)V
+}
+
+public final class org/jetbrains/dokka/versioning/ReplaceVersionsCommand : org/jetbrains/dokka/base/templating/Command {
+	public static final field INSTANCE Lorg/jetbrains/dokka/versioning/ReplaceVersionsCommand;
+}
+
+public final class org/jetbrains/dokka/versioning/SemVerVersionOrdering : org/jetbrains/dokka/versioning/VersionsOrdering {
+	public fun <init> ()V
+	public fun order (Ljava/util/List;)Ljava/util/List;
+}
+
+public final class org/jetbrains/dokka/versioning/VersioningConfiguration : org/jetbrains/dokka/plugability/ConfigurableBlock {
+	public static final field Companion Lorg/jetbrains/dokka/versioning/VersioningConfiguration$Companion;
+	public fun <init> ()V
+	public fun <init> (Ljava/io/File;Ljava/util/List;Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/io/File;Ljava/util/List;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/io/File;
+	public final fun component2 ()Ljava/util/List;
+	public final fun component3 ()Ljava/lang/String;
+	public final fun copy (Ljava/io/File;Ljava/util/List;Ljava/lang/String;)Lorg/jetbrains/dokka/versioning/VersioningConfiguration;
+	public static synthetic fun copy$default (Lorg/jetbrains/dokka/versioning/VersioningConfiguration;Ljava/io/File;Ljava/util/List;Ljava/lang/String;ILjava/lang/Object;)Lorg/jetbrains/dokka/versioning/VersioningConfiguration;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getOlderVersionsDir ()Ljava/io/File;
+	public final fun getVersion ()Ljava/lang/String;
+	public final fun getVersionsOrdering ()Ljava/util/List;
+	public fun hashCode ()I
+	public final fun setOlderVersionsDir (Ljava/io/File;)V
+	public final fun setVersion (Ljava/lang/String;)V
+	public final fun setVersionsOrdering (Ljava/util/List;)V
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/jetbrains/dokka/versioning/VersioningConfiguration$Companion {
+	public final fun getDefaultOlderVersionsDir ()Ljava/io/File;
+	public final fun getDefaultVersion ()Ljava/lang/Void;
+	public final fun getDefaultVersionsOrdering ()Ljava/util/List;
+}
+
+public abstract interface class org/jetbrains/dokka/versioning/VersioningHandler : kotlin/jvm/functions/Function0 {
+	public abstract fun currentVersion ()Ljava/io/File;
+	public abstract fun getVersions ()Ljava/util/Map;
+}
+
+public final class org/jetbrains/dokka/versioning/VersioningPlugin : org/jetbrains/dokka/plugability/DokkaPlugin {
+	public fun <init> ()V
+	public final fun getCssStyleInstaller ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getDefaultVersioningHandler ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getDefaultVersioningNavigationCreator ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getReplaceVersionCommandHandler ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getResolveLinkConsumer ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getVersioningHandler ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
+	public final fun getVersionsDefaultOrdering ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getVersionsNavigationCreator ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
+	public final fun getVersionsOrdering ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
+}
+
+public abstract interface class org/jetbrains/dokka/versioning/VersionsNavigationCreator {
+	public abstract fun invoke ()Ljava/lang/String;
+	public abstract fun invoke (Ljava/io/File;)Ljava/lang/String;
+}
+
+public abstract interface class org/jetbrains/dokka/versioning/VersionsOrdering {
+	public abstract fun order (Ljava/util/List;)Ljava/util/List;
+}
+

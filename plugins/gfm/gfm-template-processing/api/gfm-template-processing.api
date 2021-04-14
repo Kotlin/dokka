@@ -1,0 +1,14 @@
+public final class org/jetbrains/dokka/gfm/templateProcessing/GfmTemplateProcessingPlugin : org/jetbrains/dokka/plugability/DokkaPlugin {
+	public fun <init> ()V
+	public final fun getGfmLocationProvider ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getGfmPartialLocationProvider ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getGfmTemplateProcessingStrategy ()Lorg/jetbrains/dokka/plugability/Extension;
+}
+
+public final class org/jetbrains/dokka/gfm/templateProcessing/GfmTemplateProcessingStrategy : org/jetbrains/dokka/templates/TemplateProcessingStrategy {
+	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
+	public fun finish (Ljava/io/File;)V
+	public final fun getContext ()Lorg/jetbrains/dokka/plugability/DokkaContext;
+	public fun process (Ljava/io/File;Ljava/io/File;)Z
+}
+

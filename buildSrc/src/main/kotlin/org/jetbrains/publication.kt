@@ -2,15 +2,13 @@ package org.jetbrains
 
 import com.github.jengelman.gradle.plugins.shadow.ShadowExtension
 import com.jfrog.bintray.gradle.BintrayExtension
+import kotlinx.validation.ApiValidationExtension
 import org.gradle.api.Project
 import org.gradle.api.provider.Provider
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.maven.tasks.PublishToMavenRepository
-import org.gradle.kotlin.dsl.configure
-import org.gradle.kotlin.dsl.get
-import org.gradle.kotlin.dsl.register
-import org.gradle.kotlin.dsl.withType
+import org.gradle.kotlin.dsl.*
 import org.gradle.plugins.signing.SigningExtension
 import org.jetbrains.DokkaPublicationChannel.*
 import java.net.URI
@@ -47,6 +45,7 @@ fun Project.registerDokkaArtifactPublication(publicationName: String, configure:
     configureBintrayPublicationIfNecessary(publicationName)
     configureSpacePublicationIfNecessary(publicationName)
     createDokkaPublishTaskIfNecessary()
+    registerBinaryCompatibilityCheck(publicationName)
 }
 
 fun Project.configureSpacePublicationIfNecessary(vararg publications: String) {
