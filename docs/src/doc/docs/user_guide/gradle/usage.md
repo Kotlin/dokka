@@ -14,17 +14,16 @@ plugins {
 }
 
 repositories {
-    jcenter() // or maven(url="https://dl.bintray.com/kotlin/dokka")
-}
-```
-
-settings.gradle.kts:
-```kotlin
-pluginManagement {
-    repositories {
-        gradlePluginPortal()
-        jcenter()
+    jcenter()
+    /*
+    Or:
+    mavenCentral()
+    maven("https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven") {
+        content {
+            includeGroup("org.jetbrains.kotlinx")
+        }
     }
+     */
 }
 ```
 
@@ -42,7 +41,16 @@ buildscript {
     }
 }
 repositories {
-    jcenter() // or maven(url="https://dl.bintray.com/kotlin/dokka")
+    jcenter()
+    /*
+    Or:
+    mavenCentral()
+    maven("https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven") {
+        content {
+            includeGroup("org.jetbrains.kotlinx")
+        }
+    }
+     */
 }
 
 apply(plugin="org.jetbrains.dokka")
@@ -326,9 +334,14 @@ tasks.dokkaHtmlMultiModule.configure {
 }
 ```
 
-`DokkaMultiModule` depends on all Dokka tasks in the subprojects, runs them, and creates a toplevel page
-with links to all generated (sub)documentations
+`DokkaMultiModule` depends on all Dokka tasks in the subprojects named `dokka${format}Partial`, runs them, and creates a toplevel page
+with links to all generated (sub)documentations. It is possible to configure each of them:
+```kotlin
+tasks.dokkaHtmlPartial.configure {
+    failOnWarning.set(true)
+}
+```
 
-## Example project
+## Example projects
 
-Please see the [Dokka Gradle example project](https://github.com/Kotlin/kotlin-examples/tree/master/gradle/dokka/dokka-gradle-example) for an example.
+Please see the [Dokka Gradle single module example project](https://github.com/Kotlin/kotlin-examples/tree/master/gradle/dokka/dokka-gradle-example) or [multimodule](https://github.com/Kotlin/kotlin-examples/tree/master/gradle/dokka/dokka-multimodule-example) for an example.
