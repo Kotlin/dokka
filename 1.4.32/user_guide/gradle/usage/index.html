@@ -319,8 +319,8 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#example-project" class="md-nav__link">
-    Example project
+  <a href="#example-projects" class="md-nav__link">
+    Example projects
   </a>
   
 </li>
@@ -621,8 +621,8 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#example-project" class="md-nav__link">
-    Example project
+  <a href="#example-projects" class="md-nav__link">
+    Example projects
   </a>
   
 </li>
@@ -658,15 +658,16 @@ you not only need to add <code>dokka</code> to the <code>build.gradle.kts</code>
 <span class="p">}</span>
 
 <span class="n">repositories</span> <span class="p">{</span>
-    <span class="n">jcenter</span><span class="p">()</span> <span class="c1">// or maven(url=&quot;https://dl.bintray.com/kotlin/dokka&quot;)</span>
-<span class="p">}</span>
-</code></pre></div></p>
-<p>settings.gradle.kts:
-<div class="highlight"><pre><span></span><code><span class="n">pluginManagement</span> <span class="p">{</span>
-    <span class="n">repositories</span> <span class="p">{</span>
-        <span class="n">gradlePluginPortal</span><span class="p">()</span>
-        <span class="n">jcenter</span><span class="p">()</span>
-    <span class="p">}</span>
+    <span class="n">jcenter</span><span class="p">()</span>
+    <span class="cm">/*</span>
+<span class="cm">    Or:</span>
+<span class="cm">    mavenCentral()</span>
+<span class="cm">    maven(&quot;https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven&quot;) {</span>
+<span class="cm">        content {</span>
+<span class="cm">            includeGroup(&quot;org.jetbrains.kotlinx&quot;)</span>
+<span class="cm">        }</span>
+<span class="cm">    }</span>
+<span class="cm">     */</span>
 <span class="p">}</span>
 </code></pre></div></p>
 <p>You can also use the legacy plugin application method with <code>buildscript</code> block.
@@ -681,7 +682,16 @@ eg. you'll have to use <code>named&lt;DokkaTask&gt;("dokkaHtml")</code> instead 
     <span class="p">}</span>
 <span class="p">}</span>
 <span class="n">repositories</span> <span class="p">{</span>
-    <span class="n">jcenter</span><span class="p">()</span> <span class="c1">// or maven(url=&quot;https://dl.bintray.com/kotlin/dokka&quot;)</span>
+    <span class="n">jcenter</span><span class="p">()</span>
+    <span class="cm">/*</span>
+<span class="cm">    Or:</span>
+<span class="cm">    mavenCentral()</span>
+<span class="cm">    maven(&quot;https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven&quot;) {</span>
+<span class="cm">        content {</span>
+<span class="cm">            includeGroup(&quot;org.jetbrains.kotlinx&quot;)</span>
+<span class="cm">        }</span>
+<span class="cm">    }</span>
+<span class="cm">     */</span>
 <span class="p">}</span>
 
 <span class="n">apply</span><span class="p">(</span><span class="n">plugin</span><span class="o">=</span><span class="s">&quot;org.jetbrains.dokka&quot;</span><span class="p">)</span>
@@ -929,10 +939,14 @@ and configured automatically although test source sets are suppressed</p>
     <span class="n">outputDirectory</span><span class="p">.</span><span class="na">set</span><span class="p">(</span><span class="n">buildDir</span><span class="p">.</span><span class="na">resolve</span><span class="p">(</span><span class="s">&quot;dokkaCustomMultiModuleOutput&quot;</span><span class="p">))</span>
 <span class="p">}</span>
 </code></pre></div>
-<p><code>DokkaMultiModule</code> depends on all Dokka tasks in the subprojects, runs them, and creates a toplevel page
-with links to all generated (sub)documentations</p>
-<h2 id="example-project">Example project<a class="headerlink" href="#example-project" title="Permanent link">&para;</a></h2>
-<p>Please see the <a href="https://github.com/Kotlin/kotlin-examples/tree/master/gradle/dokka/dokka-gradle-example">Dokka Gradle example project</a> for an example.</p>
+<p><code>DokkaMultiModule</code> depends on all Dokka tasks in the subprojects named <code>dokka${format}Partial</code>, runs them, and creates a toplevel page
+with links to all generated (sub)documentations. It is possible to configure each of them:
+<div class="highlight"><pre><span></span><code><span class="n">tasks</span><span class="p">.</span><span class="na">dokkaHtmlPartial</span><span class="p">.</span><span class="na">configure</span> <span class="p">{</span>
+    <span class="n">failOnWarning</span><span class="p">.</span><span class="na">set</span><span class="p">(</span><span class="kc">true</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div></p>
+<h2 id="example-projects">Example projects<a class="headerlink" href="#example-projects" title="Permanent link">&para;</a></h2>
+<p>Please see the <a href="https://github.com/Kotlin/kotlin-examples/tree/master/gradle/dokka/dokka-gradle-example">Dokka Gradle single module example project</a> or <a href="https://github.com/Kotlin/kotlin-examples/tree/master/gradle/dokka/dokka-multimodule-example">multimodule</a> for an example.</p>
                 
               
               
