@@ -97,7 +97,7 @@ open class CommonmarkRenderer(
             templateCommand(ResolveLinkGfmCommand(node.address)) {
                 buildText(node.children, pageContext, sourceSetRestriction)
             }
-        } else Unit
+        } else buildText(node.children, pageContext, sourceSetRestriction)
     }
 
     override fun StringBuilder.buildNewLine() {
