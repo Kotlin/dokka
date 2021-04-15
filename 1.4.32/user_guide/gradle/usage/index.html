@@ -777,7 +777,7 @@ The available configuration options for are shown below:</p>
 
             <span class="c1">// By default, sourceRoots are taken from Kotlin Plugin and kotlinTasks, following roots will be appended to them</span>
             <span class="c1">// Repeat for multiple sourceRoots</span>
-            <span class="n">sourceRoot</span><span class="p">.</span><span class="na">from</span><span class="p">(</span><span class="n">file</span><span class="p">(</span><span class="s">&quot;src&quot;</span><span class="p">))</span>
+            <span class="n">sourceRoots</span><span class="p">.</span><span class="na">from</span><span class="p">(</span><span class="n">file</span><span class="p">(</span><span class="s">&quot;src&quot;</span><span class="p">))</span>
 
             <span class="c1">// Specifies the location of the project source code on the Web.</span>
             <span class="c1">// If provided, Dokka generates &quot;source&quot; links for each declaration.</span>
@@ -809,7 +809,7 @@ The available configuration options for are shown below:</p>
             <span class="c1">// Repeat for multiple links</span>
             <span class="n">externalDocumentationLink</span> <span class="p">{</span>
                 <span class="c1">// Root URL of the generated documentation to link with. The trailing slash is required!</span>
-                <span class="n">url</span> <span class="o">=</span> <span class="n">URL</span><span class="p">(</span><span class="s">&quot;https://example.com/docs/&quot;</span><span class="p">)</span>
+                <span class="n">url</span><span class="p">.</span><span class="na">set</span><span class="p">(</span><span class="n">URL</span><span class="p">(</span><span class="s">&quot;https://example.com/docs/&quot;</span><span class="p">))</span>
 
                 <span class="c1">// If package-list file is located in non-standard location</span>
                 <span class="c1">// packageListUrl = URL(&quot;file:///home/user/localdocs/package-list&quot;)</span>
@@ -827,7 +827,7 @@ The available configuration options for are shown below:</p>
             <span class="p">}</span>
             <span class="c1">// Suppress a package</span>
             <span class="n">perPackageOption</span> <span class="p">{</span>
-                <span class="n">matchingRegex</span><span class="p">.</span><span class="na">set</span><span class="p">(</span><span class="s">&quot;.*\.internal.*&quot;</span><span class="p">)</span> <span class="c1">// will match all .internal packages and sub-packages </span>
+                <span class="n">matchingRegex</span><span class="p">.</span><span class="na">set</span><span class="p">(</span><span class="s">&quot;&quot;&quot;.*\.internal.*&quot;&quot;&quot;</span><span class="p">)</span> <span class="c1">// will match all .internal packages and sub-packages </span>
                 <span class="n">suppress</span><span class="p">.</span><span class="na">set</span><span class="p">(</span><span class="kc">true</span><span class="p">)</span>
             <span class="p">}</span>
         <span class="p">}</span>
@@ -849,26 +849,26 @@ and configured automatically although test source sets are suppressed</p>
 <span class="p">}</span>
 
 <span class="n">tasks</span><span class="p">.</span><span class="na">withType</span><span class="o">&lt;</span><span class="n">DokkaTask</span><span class="o">&gt;</span><span class="p">().</span><span class="na">configureEach</span> <span class="p">{</span>
-        <span class="c1">// custom output directory</span>
-        <span class="n">outputDirectory</span><span class="p">.</span><span class="na">set</span><span class="p">(</span><span class="n">buildDir</span><span class="p">.</span><span class="na">resolve</span><span class="p">(</span><span class="s">&quot;dokka&quot;</span><span class="p">))</span>
+    <span class="c1">// custom output directory</span>
+    <span class="n">outputDirectory</span><span class="p">.</span><span class="na">set</span><span class="p">(</span><span class="n">buildDir</span><span class="p">.</span><span class="na">resolve</span><span class="p">(</span><span class="s">&quot;dokka&quot;</span><span class="p">))</span>
 
-        <span class="c1">// path to project documentation to display on all modules page</span>
-        <span class="n">includes</span><span class="p">.</span><span class="na">from</span><span class="p">(</span><span class="n">listOf</span><span class="p">(</span><span class="n">file</span><span class="p">(</span><span class="s">&quot;project_description.md&quot;</span><span class="p">)))</span>
+    <span class="c1">// path to project documentation to display on all modules page</span>
+    <span class="n">includes</span><span class="p">.</span><span class="na">from</span><span class="p">(</span><span class="n">listOf</span><span class="p">(</span><span class="n">file</span><span class="p">(</span><span class="s">&quot;project_description.md&quot;</span><span class="p">)))</span>
 
-        <span class="n">dokkaSourceSets</span> <span class="p">{</span> 
-             <span class="n">named</span><span class="p">(</span><span class="s">&quot;customNameMain&quot;</span><span class="p">)</span> <span class="p">{</span> <span class="c1">// The same name as in Kotlin Multiplatform plugin, so the sources are fetched automatically</span>
-                <span class="n">includes</span><span class="p">.</span><span class="na">from</span><span class="p">(</span><span class="s">&quot;packages.md&quot;</span><span class="p">,</span> <span class="s">&quot;extra.md&quot;</span><span class="p">)</span>
-                <span class="n">samples</span><span class="p">.</span><span class="na">from</span><span class="p">(</span><span class="s">&quot;samples/basic.kt&quot;</span><span class="p">,</span> <span class="s">&quot;samples/advanced.kt&quot;</span><span class="p">)</span>
-            <span class="p">}</span>
+    <span class="n">dokkaSourceSets</span> <span class="p">{</span> 
+         <span class="n">named</span><span class="p">(</span><span class="s">&quot;customNameMain&quot;</span><span class="p">)</span> <span class="p">{</span> <span class="c1">// The same name as in Kotlin Multiplatform plugin, so the sources are fetched automatically</span>
+            <span class="n">includes</span><span class="p">.</span><span class="na">from</span><span class="p">(</span><span class="s">&quot;packages.md&quot;</span><span class="p">,</span> <span class="s">&quot;extra.md&quot;</span><span class="p">)</span>
+            <span class="n">samples</span><span class="p">.</span><span class="na">from</span><span class="p">(</span><span class="s">&quot;samples/basic.kt&quot;</span><span class="p">,</span> <span class="s">&quot;samples/advanced.kt&quot;</span><span class="p">)</span>
+        <span class="p">}</span>
 
-            <span class="n">register</span><span class="p">(</span><span class="s">&quot;differentName&quot;</span><span class="p">)</span> <span class="p">{</span> <span class="c1">// Different name, so source roots must be passed explicitly</span>
-                <span class="n">displayName</span><span class="p">.</span><span class="na">set</span><span class="p">(</span><span class="s">&quot;JVM&quot;</span><span class="p">)</span>
-                <span class="n">platform</span><span class="p">.</span><span class="na">set</span><span class="p">(</span><span class="n">org</span><span class="p">.</span><span class="na">jetbrains</span><span class="p">.</span><span class="na">dokka</span><span class="p">.</span><span class="na">Platform</span><span class="p">.</span><span class="na">jvm</span><span class="p">)</span>
-                <span class="n">sourceRoots</span><span class="p">.</span><span class="na">from</span><span class="p">(</span><span class="n">kotlin</span><span class="p">.</span><span class="na">sourceSets</span><span class="p">.</span><span class="na">getByName</span><span class="p">(</span><span class="s">&quot;jvmMain&quot;</span><span class="p">).</span><span class="na">kotlin</span><span class="p">.</span><span class="na">srcDirs</span><span class="p">)</span>
-                <span class="n">sourceRoots</span><span class="p">.</span><span class="na">from</span><span class="p">(</span><span class="n">kotlin</span><span class="p">.</span><span class="na">sourceSets</span><span class="p">.</span><span class="na">getByName</span><span class="p">(</span><span class="s">&quot;commonMain&quot;</span><span class="p">).</span><span class="na">kotlin</span><span class="p">.</span><span class="na">srcDirs</span><span class="p">)</span>
-            <span class="p">}</span>
+        <span class="n">register</span><span class="p">(</span><span class="s">&quot;differentName&quot;</span><span class="p">)</span> <span class="p">{</span> <span class="c1">// Different name, so source roots must be passed explicitly</span>
+            <span class="n">displayName</span><span class="p">.</span><span class="na">set</span><span class="p">(</span><span class="s">&quot;JVM&quot;</span><span class="p">)</span>
+            <span class="n">platform</span><span class="p">.</span><span class="na">set</span><span class="p">(</span><span class="n">org</span><span class="p">.</span><span class="na">jetbrains</span><span class="p">.</span><span class="na">dokka</span><span class="p">.</span><span class="na">Platform</span><span class="p">.</span><span class="na">jvm</span><span class="p">)</span>
+            <span class="n">sourceRoots</span><span class="p">.</span><span class="na">from</span><span class="p">(</span><span class="n">kotlin</span><span class="p">.</span><span class="na">sourceSets</span><span class="p">.</span><span class="na">getByName</span><span class="p">(</span><span class="s">&quot;jvmMain&quot;</span><span class="p">).</span><span class="na">kotlin</span><span class="p">.</span><span class="na">srcDirs</span><span class="p">)</span>
+            <span class="n">sourceRoots</span><span class="p">.</span><span class="na">from</span><span class="p">(</span><span class="n">kotlin</span><span class="p">.</span><span class="na">sourceSets</span><span class="p">.</span><span class="na">getByName</span><span class="p">(</span><span class="s">&quot;commonMain&quot;</span><span class="p">).</span><span class="na">kotlin</span><span class="p">.</span><span class="na">srcDirs</span><span class="p">)</span>
         <span class="p">}</span>
     <span class="p">}</span>
+<span class="p">}</span>
 </code></pre></div></p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
