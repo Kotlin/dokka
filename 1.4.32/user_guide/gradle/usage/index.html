@@ -830,6 +830,10 @@ The available configuration options for are shown below:</p>
                 <span class="n">matchingRegex</span><span class="p">.</span><span class="na">set</span><span class="p">(</span><span class="s">&quot;&quot;&quot;.*\.internal.*&quot;&quot;&quot;</span><span class="p">)</span> <span class="c1">// will match all .internal packages and sub-packages </span>
                 <span class="n">suppress</span><span class="p">.</span><span class="na">set</span><span class="p">(</span><span class="kc">true</span><span class="p">)</span>
             <span class="p">}</span>
+
+            <span class="c1">// Include generated files in documentation</span>
+            <span class="c1">// By default Dokka will omit all files in folder named generated that is a child of buildDir</span>
+            <span class="n">suppressGeneratedFiles</span><span class="p">.</span><span class="na">set</span><span class="p">(</span><span class="kc">false</span><span class="p">)</span>
         <span class="p">}</span>
         <span class="c1">// Configures a plugin separately from the global configuration</span>
         <span class="n">pluginConfiguration</span><span class="o">&lt;</span><span class="n">PluginClass</span><span class="p">,</span> <span class="n">ConfigurationClass</span><span class="o">&gt;</span><span class="p">{</span>
