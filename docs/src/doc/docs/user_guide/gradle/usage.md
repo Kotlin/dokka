@@ -202,6 +202,10 @@ dokkaHtml {
                 matchingRegex.set(""".*\.internal.*""") // will match all .internal packages and sub-packages 
                 suppress.set(true)
             }
+
+            // Include generated files in documentation
+            // By default Dokka will omit all files in folder named generated that is a child of buildDir
+            suppressGeneratedFiles.set(false)
         }
         // Configures a plugin separately from the global configuration
         pluginConfiguration<PluginClass, ConfigurationClass>{
