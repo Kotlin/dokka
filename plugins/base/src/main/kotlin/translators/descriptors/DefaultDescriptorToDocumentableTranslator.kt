@@ -35,6 +35,7 @@ import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.descriptors.ClassKind
 import org.jetbrains.kotlin.descriptors.annotations.Annotated
 import org.jetbrains.kotlin.descriptors.annotations.AnnotationDescriptor
+import org.jetbrains.kotlin.idea.core.getDirectlyOverriddenDeclarations
 import org.jetbrains.kotlin.idea.kdoc.findKDoc
 import org.jetbrains.kotlin.idea.kdoc.resolveKDocLink
 import org.jetbrains.kotlin.load.kotlin.toSourceElement
@@ -48,6 +49,7 @@ import org.jetbrains.kotlin.resolve.constants.KClassValue.Value.LocalClass
 import org.jetbrains.kotlin.resolve.constants.KClassValue.Value.NormalClass
 import org.jetbrains.kotlin.resolve.descriptorUtil.annotationClass
 import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameOrNull
+import org.jetbrains.kotlin.resolve.descriptorUtil.overriddenTreeUniqueAsSequence
 import org.jetbrains.kotlin.resolve.scopes.MemberScope
 import org.jetbrains.kotlin.resolve.source.KotlinSourceElement
 import org.jetbrains.kotlin.resolve.source.PsiSourceElement
@@ -1042,7 +1044,7 @@ private class DokkaDescriptorVisitor(
         get() = kind == CallableMemberDescriptor.Kind.FAKE_OVERRIDE ||
                 kind == CallableMemberDescriptor.Kind.SYNTHESIZED ||
                 containingDeclaration.fqNameOrNull()?.asString()
-                    ?.let { it == "kotlin.Any" || it == "kotlin.Enum" } == true
+                    ?.let { it == "kotlin.Any" || it == "kotlin.Enum" || it == "java.lang.Enum" || it == "java.lang.Object" } == true
 }
 
 private data class AncestryLevel(
