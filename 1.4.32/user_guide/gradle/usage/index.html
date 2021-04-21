@@ -650,48 +650,36 @@
 <p>If you are upgrading from 0.10.x to a current release of Dokka, please have a look at our 
 <a href="https://github.com/Kotlin/dokka/blob/master/runners/gradle-plugin/MIGRATION.md">migration guide</a></p>
 </div>
-<p>The preferred way is to use <code>plugins</code> block. Since Dokka is currently not published to the Gradle plugin portal, 
-you not only need to add <code>dokka</code> to the <code>build.gradle.kts</code> file, but you also need to modify the <code>settings.gradle.kts</code> file: </p>
+<p>The preferred way is to use <code>plugins</code> block. One dependency (<code>kotlinx.html</code>) is not yet published to MavenCentral, 
+so in order to properly resolve it, you have to add JetBrains's Space repository to your project's repositories:</p>
 <p>build.gradle.kts:
 <div class="highlight"><pre><span></span><code><span class="n">plugins</span> <span class="p">{</span>
-    <span class="n">id</span><span class="p">(</span><span class="s">&quot;org.jetbrains.dokka&quot;</span><span class="p">)</span> <span class="n">version</span> <span class="s">&quot;1.4.30&quot;</span>
+    <span class="n">id</span><span class="p">(</span><span class="s">&quot;org.jetbrains.dokka&quot;</span><span class="p">)</span> <span class="n">version</span> <span class="s">&quot;1.4.32&quot;</span>
 <span class="p">}</span>
 
 <span class="n">repositories</span> <span class="p">{</span>
-    <span class="n">jcenter</span><span class="p">()</span>
-    <span class="cm">/*</span>
-<span class="cm">    Or:</span>
-<span class="cm">    mavenCentral()</span>
-<span class="cm">    maven(&quot;https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven&quot;) {</span>
-<span class="cm">        content {</span>
-<span class="cm">            includeGroup(&quot;org.jetbrains.kotlinx&quot;)</span>
-<span class="cm">        }</span>
-<span class="cm">    }</span>
-<span class="cm">     */</span>
+    <span class="n">mavenCentral</span><span class="p">()</span>
+    <span class="n">maven</span><span class="p">(</span><span class="s">&quot;https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven&quot;</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">content</span> <span class="p">{</span>
+            <span class="n">includeGroup</span><span class="p">(</span><span class="s">&quot;org.jetbrains.kotlinx&quot;</span><span class="p">)</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div></p>
 <p>You can also use the legacy plugin application method with <code>buildscript</code> block.
 Note that by using the <code>buildscript</code> way type-safe accessors are not available in Gradle Kotlin DSL,
 eg. you'll have to use <code>named&lt;DokkaTask&gt;("dokkaHtml")</code> instead of <code>dokkaHtml</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="n">buildscript</span> <span class="p">{</span>
-    <span class="n">repositories</span> <span class="p">{</span>
-        <span class="n">jcenter</span><span class="p">()</span>
-    <span class="p">}</span>
     <span class="n">dependencies</span> <span class="p">{</span>
         <span class="n">classpath</span><span class="p">(</span><span class="s">&quot;org.jetbrains.dokka:dokka-gradle-plugin:</span><span class="si">${</span><span class="n">dokka_version</span><span class="si">}</span><span class="s">&quot;</span><span class="p">)</span>
     <span class="p">}</span>
 <span class="p">}</span>
 <span class="n">repositories</span> <span class="p">{</span>
-    <span class="n">jcenter</span><span class="p">()</span>
-    <span class="cm">/*</span>
-<span class="cm">    Or:</span>
-<span class="cm">    mavenCentral()</span>
-<span class="cm">    maven(&quot;https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven&quot;) {</span>
-<span class="cm">        content {</span>
-<span class="cm">            includeGroup(&quot;org.jetbrains.kotlinx&quot;)</span>
-<span class="cm">        }</span>
-<span class="cm">    }</span>
-<span class="cm">     */</span>
+    <span class="n">maven</span><span class="p">(</span><span class="s">&quot;https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven&quot;</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">content</span> <span class="p">{</span>
+            <span class="n">includeGroup</span><span class="p">(</span><span class="s">&quot;org.jetbrains.kotlinx&quot;</span><span class="p">)</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
 <span class="p">}</span>
 
 <span class="n">apply</span><span class="p">(</span><span class="n">plugin</span><span class="o">=</span><span class="s">&quot;org.jetbrains.dokka&quot;</span><span class="p">)</span>
@@ -734,6 +722,9 @@ The available configuration options for are shown below:</p>
     <span class="c1">// Defaults to false</span>
     <span class="n">suppressInheritedMembers</span><span class="p">.</span><span class="na">set</span><span class="p">(</span><span class="kc">true</span><span class="p">)</span>
 
+    <span class="c1">// Used to prevent resolving package-lists online. When this option is set to true, only local files are resolved  </span>
+    <span class="n">offlineMode</span><span class="p">.</span><span class="na">set</span><span class="p">(</span><span class="kc">false</span><span class="p">)</span>
+
     <span class="n">dokkaSourceSets</span> <span class="p">{</span>
         <span class="n">configureEach</span> <span class="p">{</span> <span class="c1">// Or source set name, for single-platform the default source sets are `main` and `test`</span>
 
@@ -742,9 +733,6 @@ The available configuration options for are shown below:</p>
 
             <span class="c1">// Used to remove a source set from documentation, test source sets are suppressed by default  </span>
             <span class="n">suppress</span><span class="p">.</span><span class="na">set</span><span class="p">(</span><span class="kc">false</span><span class="p">)</span>
-
-            <span class="c1">// Used to prevent resolving package-lists online. When this option is set to true, only local files are resolved  </span>
-            <span class="n">offlineMode</span><span class="p">.</span><span class="na">set</span><span class="p">(</span><span class="kc">false</span><span class="p">)</span>
 
             <span class="c1">// Use to include or exclude non public members</span>
             <span class="n">includeNonPublic</span><span class="p">.</span><span class="na">set</span><span class="p">(</span><span class="kc">false</span><span class="p">)</span>
@@ -879,15 +867,15 @@ and configured automatically although test source sets are suppressed</p>
 <p>If you want to share the configuration between source sets, you can use Gradle's <code>configureEach</code></p>
 </div>
 <h2 id="applying-plugins">Applying plugins<a class="headerlink" href="#applying-plugins" title="Permanent link">&para;</a></h2>
-<p>Dokka plugin creates Gradle configuration for each output format in the form of <code>dokka${format}Plugin</code>:</p>
+<p>Dokka plugin creates Gradle configuration for each output format in the form of <code>dokka${format}Plugin</code> (or <code>dokka${format}PartialPlugin</code> for multi-module tasks) :</p>
 <div class="highlight"><pre><span></span><code><span class="n">dependencies</span> <span class="p">{</span>
-    <span class="n">dokkaHtmlPlugin</span><span class="p">(</span><span class="s">&quot;org.jetbrains.dokka:kotlin-as-java-plugin:1.4.30&quot;</span><span class="p">)</span>
+    <span class="n">dokkaHtmlPlugin</span><span class="p">(</span><span class="s">&quot;org.jetbrains.dokka:kotlin-as-java-plugin:1.4.32&quot;</span><span class="p">)</span>
 <span class="p">}</span>
 </code></pre></div>
 <p>You can also create a custom Dokka task and add plugins directly inside:</p>
 <div class="highlight"><pre><span></span><code><span class="kd">val</span> <span class="nv">customDokkaTask</span> <span class="k">by</span> <span class="n">creating</span><span class="p">(</span><span class="n">DokkaTask</span><span class="o">::</span><span class="n">class</span><span class="p">)</span> <span class="p">{</span>
     <span class="n">dependencies</span> <span class="p">{</span>
-        <span class="n">plugins</span><span class="p">(</span><span class="s">&quot;org.jetbrains.dokka:kotlin-as-java-plugin:1.4.30&quot;</span><span class="p">)</span>
+        <span class="n">plugins</span><span class="p">(</span><span class="s">&quot;org.jetbrains.dokka:kotlin-as-java-plugin:1.4.32&quot;</span><span class="p">)</span>
     <span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
@@ -914,16 +902,18 @@ and configured automatically although test source sets are suppressed</p>
 <p>Make sure you apply Dokka after <code>com.android.library</code> and <code>kotlin-android</code>.</p>
 </div>
 <div class="highlight"><pre><span></span><code><span class="n">buildscript</span> <span class="p">{</span>
-    <span class="n">repositories</span> <span class="p">{</span>
-        <span class="n">jcenter</span><span class="p">()</span>
-    <span class="p">}</span>
     <span class="n">dependencies</span> <span class="p">{</span>
         <span class="n">classpath</span><span class="p">(</span><span class="s">&quot;org.jetbrains.kotlin:kotlin-gradle-plugin:</span><span class="si">${</span><span class="n">kotlin_version</span><span class="si">}</span><span class="s">&quot;</span><span class="p">)</span>
         <span class="n">classpath</span><span class="p">(</span><span class="s">&quot;org.jetbrains.dokka:dokka-gradle-plugin:</span><span class="si">${</span><span class="n">dokka_version</span><span class="si">}</span><span class="s">&quot;</span><span class="p">)</span>
     <span class="p">}</span>
 <span class="p">}</span>
 <span class="n">repositories</span> <span class="p">{</span>
-    <span class="n">jcenter</span><span class="p">()</span>
+    <span class="n">mavenCentral</span><span class="p">()</span>
+    <span class="n">maven</span><span class="p">(</span><span class="s">&quot;https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven&quot;</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">content</span> <span class="p">{</span>
+            <span class="n">includeGroup</span><span class="p">(</span><span class="s">&quot;org.jetbrains.kotlinx&quot;</span><span class="p">)</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
 <span class="p">}</span>
 <span class="n">apply</span><span class="p">(</span><span class="n">plugin</span><span class="o">=</span> <span class="s">&quot;com.android.library&quot;</span><span class="p">)</span>
 <span class="n">apply</span><span class="p">(</span><span class="n">plugin</span><span class="o">=</span> <span class="s">&quot;kotlin-android&quot;</span><span class="p">)</span>
@@ -938,12 +928,17 @@ and configured automatically although test source sets are suppressed</p>
 <span class="p">}</span>
 </code></pre></div>
 <h2 id="multi-module-projects">Multi-module projects<a class="headerlink" href="#multi-module-projects" title="Permanent link">&para;</a></h2>
-<p>For documenting Gradle multi-module projects, you can use <code>dokka${format}MultiModule</code> tasks.</p>
+<p>For documenting Gradle multi-module projects, you can use <code>dokka${format}MultiModule</code> tasks.
+Dokka plugin adds <code>dokkaHtmlMultiModule</code>, <code>dokkaGfmMultiModule</code> and <code>dokkaJekyllMultiModule</code> tasks to
+all Gradle parent projects (all projects that have some child projects) as well as
+<code>dokkaHtmlPartial</code>, <code>dokkaGfmPartial</code> and <code>dokkaJekyllPartial</code> to all projects that have a parent.
+If you want eg. to add an external link to some dependency you should do so in respective <code>dokka${format}Partial</code> tasks,
+or configure them all at once using the <code>subprojects</code> block and <code>configureEach</code> method.</p>
 <div class="highlight"><pre><span></span><code><span class="n">tasks</span><span class="p">.</span><span class="na">dokkaHtmlMultiModule</span><span class="p">.</span><span class="na">configure</span> <span class="p">{</span>
     <span class="n">outputDirectory</span><span class="p">.</span><span class="na">set</span><span class="p">(</span><span class="n">buildDir</span><span class="p">.</span><span class="na">resolve</span><span class="p">(</span><span class="s">&quot;dokkaCustomMultiModuleOutput&quot;</span><span class="p">))</span>
 <span class="p">}</span>
 </code></pre></div>
-<p><code>DokkaMultiModule</code> depends on all Dokka tasks in the subprojects named <code>dokka${format}Partial</code>, runs them, and creates a toplevel page
+<p><code>DokkaMultiModule</code> depends on all Dokka tasks in the subprojects named <code>dokka${format}Partial</code>, runs them, and creates a top-level page
 with links to all generated (sub)documentations. It is possible to configure each of them:
 <div class="highlight"><pre><span></span><code><span class="n">tasks</span><span class="p">.</span><span class="na">dokkaHtmlPartial</span><span class="p">.</span><span class="na">configure</span> <span class="p">{</span>
     <span class="n">failOnWarning</span><span class="p">.</span><span class="na">set</span><span class="p">(</span><span class="kc">true</span><span class="p">)</span>

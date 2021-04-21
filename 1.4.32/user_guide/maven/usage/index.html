@@ -607,12 +607,13 @@
 <p class="admonition-title">Note</p>
 <p>Dokka Maven plugin does not support multi-platform projects.</p>
 </div>
-<p>The Maven plugin is available in JCenter. You need to add the JCenter repository to the list of plugin repositories if it's not there:</p>
+<p>The Maven plugin does not support multi-platform projects. One dependency (<code>kotlinx.html</code>) is not yet published to MavenCentral,
+so in order to properly resolve it, you have to add JetBrains's Space repository to your project's <code>pluginRepositories</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">&lt;pluginRepositories&gt;</span>
     <span class="nt">&lt;pluginRepository&gt;</span>
-        <span class="nt">&lt;id&gt;</span>jcenter<span class="nt">&lt;/id&gt;</span>
-        <span class="nt">&lt;name&gt;</span>JCenter<span class="nt">&lt;/name&gt;</span>
-        <span class="nt">&lt;url&gt;</span>https://jcenter.bintray.com/<span class="nt">&lt;/url&gt;</span>
+        <span class="nt">&lt;id&gt;</span>kotlinx-html<span class="nt">&lt;/id&gt;</span>
+        <span class="nt">&lt;name&gt;</span>KotlinxHtmlSpace<span class="nt">&lt;/name&gt;</span>
+        <span class="nt">&lt;url&gt;</span>https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven/<span class="nt">&lt;/url&gt;</span>
     <span class="nt">&lt;/pluginRepository&gt;</span>
 <span class="nt">&lt;/pluginRepositories&gt;</span>
 </code></pre></div>
@@ -666,6 +667,10 @@
         <span class="c">&lt;!-- Use default or set to custom path to cache directory to enable package-list caching. --&gt;</span>
         <span class="c">&lt;!-- When set to default, caches stored in $USER_HOME/.cache/dokka --&gt;</span>
         <span class="nt">&lt;cacheRoot&gt;</span>default<span class="nt">&lt;/cacheRoot&gt;</span>
+
+        <span class="c">&lt;!-- Set to true to to prevent resolving package-lists online. --&gt;</span>
+        <span class="c">&lt;!-- When this option is set to true, only local files are resolved, default: false --&gt;</span>
+        <span class="nt">&lt;offlineMode&gt;</span>false<span class="nt">&lt;/offlineMode&gt;</span>
 
         <span class="c">&lt;!-- List of &#39;.md&#39; files with package and module docs --&gt;</span>
         <span class="c">&lt;!-- https://kotlinlang.org/docs/reference/kotlin-doc.html#module-and-package-documentation --&gt;</span>
