@@ -4,26 +4,22 @@
     If you are upgrading from 0.10.x to a current release of Dokka, please have a look at our 
     [migration guide](https://github.com/Kotlin/dokka/blob/master/runners/gradle-plugin/MIGRATION.md)
 
-The preferred way is to use `plugins` block. Since Dokka is currently not published to the Gradle plugin portal, 
-you not only need to add `dokka` to the `build.gradle.kts` file, but you also need to modify the `settings.gradle.kts` file: 
+The preferred way is to use `plugins` block. One dependency (`kotlinx.html`) is not yet published to MavenCentral, 
+so in order to properly resolve it, you have to add JetBrains's Space repository to your project's repositories:
  
 build.gradle.kts:
 ```kotlin
 plugins {
-    id("org.jetbrains.dokka") version "1.4.30"
+    id("org.jetbrains.dokka") version "1.4.32"
 }
 
 repositories {
-    jcenter()
-    /*
-    Or:
     mavenCentral()
     maven("https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven") {
         content {
             includeGroup("org.jetbrains.kotlinx")
         }
     }
-     */
 }
 ```
 
@@ -33,24 +29,16 @@ eg. you'll have to use `named<DokkaTask>("dokkaHtml")` instead of `dokkaHtml`:
 
 ```kotlin
 buildscript {
-    repositories {
-        jcenter()
-    }
     dependencies {
         classpath("org.jetbrains.dokka:dokka-gradle-plugin:${dokka_version}")
     }
 }
 repositories {
-    jcenter()
-    /*
-    Or:
-    mavenCentral()
     maven("https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven") {
         content {
             includeGroup("org.jetbrains.kotlinx")
         }
     }
-     */
 }
 
 apply(plugin="org.jetbrains.dokka")
@@ -105,6 +93,9 @@ dokkaHtml {
     // Eg. using it you can suppress toString or equals functions but you can't suppress componentN or copy on data class. To do that use with suppressObviousFunctions
     // Defaults to false
     suppressInheritedMembers.set(true)
+
+    // Used to prevent resolving package-lists online. When this option is set to true, only local files are resolved  
+    offlineMode.set(false)
     
     dokkaSourceSets {
         configureEach { // Or source set name, for single-platform the default source sets are `main` and `test`
@@ -114,9 +105,6 @@ dokkaHtml {
         
             // Used to remove a source set from documentation, test source sets are suppressed by default  
             suppress.set(false)
-            
-            // Used to prevent resolving package-lists online. When this option is set to true, only local files are resolved  
-            offlineMode.set(false)
 
             // Use to include or exclude non public members
             includeNonPublic.set(false)
@@ -254,11 +242,11 @@ tasks.withType<DokkaTask>().configureEach {
     If you want to share the configuration between source sets, you can use Gradle's `configureEach`
 
 ## Applying plugins
-Dokka plugin creates Gradle configuration for each output format in the form of `dokka${format}Plugin`:
+Dokka plugin creates Gradle configuration for each output format in the form of `dokka${format}Plugin` (or `dokka${format}PartialPlugin` for multi-module tasks) :
 
 ```kotlin
 dependencies {
-    dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:1.4.30")
+    dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:1.4.32")
 }
 ``` 
 
@@ -267,7 +255,7 @@ You can also create a custom Dokka task and add plugins directly inside:
 ```kotlin
 val customDokkaTask by creating(DokkaTask::class) {
     dependencies {
-        plugins("org.jetbrains.dokka:kotlin-as-java-plugin:1.4.30")
+        plugins("org.jetbrains.dokka:kotlin-as-java-plugin:1.4.32")
     }
 }
 ```
@@ -303,16 +291,18 @@ pluginsMapConfiguration.set(mapOf("<fully qualified plugin's name>" to """<json 
 
 ```kotlin
 buildscript {
-    repositories {
-        jcenter()
-    }
     dependencies {
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlin_version}")
         classpath("org.jetbrains.dokka:dokka-gradle-plugin:${dokka_version}")
     }
 }
 repositories {
-    jcenter()
+    mavenCentral()
+    maven("https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven") {
+        content {
+            includeGroup("org.jetbrains.kotlinx")
+        }
+    }
 }
 apply(plugin= "com.android.library")
 apply(plugin= "kotlin-android")
@@ -331,6 +321,11 @@ dokkaHtml.configure {
 
 ## Multi-module projects
 For documenting Gradle multi-module projects, you can use `dokka${format}MultiModule` tasks.
+Dokka plugin adds `dokkaHtmlMultiModule`, `dokkaGfmMultiModule` and `dokkaJekyllMultiModule` tasks to
+all Gradle parent projects (all projects that have some child projects) as well as
+`dokkaHtmlPartial`, `dokkaGfmPartial` and `dokkaJekyllPartial` to all projects that have a parent.
+If you want eg. to add an external link to some dependency you should do so in respective `dokka${format}Partial` tasks,
+or configure them all at once using the `subprojects` block and `configureEach` method.
 
 ```kotlin
 tasks.dokkaHtmlMultiModule.configure {
@@ -338,7 +333,7 @@ tasks.dokkaHtmlMultiModule.configure {
 }
 ```
 
-`DokkaMultiModule` depends on all Dokka tasks in the subprojects named `dokka${format}Partial`, runs them, and creates a toplevel page
+`DokkaMultiModule` depends on all Dokka tasks in the subprojects named `dokka${format}Partial`, runs them, and creates a top-level page
 with links to all generated (sub)documentations. It is possible to configure each of them:
 ```kotlin
 tasks.dokkaHtmlPartial.configure {

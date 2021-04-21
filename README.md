@@ -7,32 +7,27 @@ and can generate documentation in multiple formats including standard Javadoc, H
 
 ## Using Dokka
 
-**Full documentation is available at [https://kotlin.github.io/dokka/1.4.30/](https://kotlin.github.io/dokka/1.4.30/)**
+**Full documentation is available at [https://kotlin.github.io/dokka/1.4.32/](https://kotlin.github.io/dokka/1.4.32/)**
 
 ### Using the Gradle plugin
 _Note: If you are upgrading from 0.10.x to a current release of Dokka, please have a look at our 
 [migration guide](runners/gradle-plugin/MIGRATION.md)_
 
-The preferred way is to use `plugins` block. Since Dokka is currently not published to the Gradle plugin portal, 
-you not only need to add `org.jetbrains.dokka` to the `build.gradle.kts` file, but you also need to modify the `settings.gradle.kts` file: 
+The preferred way is to use `plugins` block. One dependency (`kotlinx.html`) is not yet published to MavenCentral,
+so in order to properly resolve it, you have to add JetBrains's Space repository to your project's repositories:
  
 build.gradle.kts:
 ```kotlin
 plugins {
-    id("org.jetbrains.dokka") version "1.4.30"
+    id("org.jetbrains.dokka") version "1.4.32"
 }
 
 repositories {
-    jcenter() // or maven(url="https://dl.bintray.com/kotlin/dokka")
-}
-```
-
-settings.gradle.kts:
-```kotlin
-pluginManagement {
-    repositories {
-        gradlePluginPortal()
-        jcenter()
+    mavenCentral()
+    maven("https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven") { 
+        content {
+            includeGroup("org.jetbrains.kotlinx")
+        }
     }
 }
 ```
@@ -53,7 +48,7 @@ You can also create a custom Dokka task and add plugins directly inside:
 ```kotlin
 val customDokkaTask by creating(DokkaTask::class) {
     dependencies {
-        plugins("org.jetbrains.dokka:kotlin-as-java-plugin:1.4.30")
+        plugins("org.jetbrains.dokka:kotlin-as-java-plugin:1.4.32")
     }
 }
 ```
@@ -76,16 +71,18 @@ Make sure you apply Dokka after `com.android.library` and `kotlin-android`.
 
 ```kotlin
 buildscript {
-    repositories {
-        jcenter()
-    }
     dependencies {
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlin_version}")
         classpath("org.jetbrains.dokka:dokka-gradle-plugin:${dokka_version}")
     }
 }
 repositories {
-    jcenter()
+    mavenCentral()
+    maven("https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven") {
+        content {
+            includeGroup("org.jetbrains.kotlinx")
+        }
+    }
 }
 apply(plugin= "com.android.library")
 apply(plugin= "kotlin-android")
@@ -116,16 +113,15 @@ with links to all generated (sub)documentations
 
 ### Using the Maven plugin
 
-The Maven plugin does not support multi-platform projects.
-
-The Maven plugin is available in JCenter. You need to add the JCenter repository to the list of plugin repositories if it's not there:
+The Maven plugin does not support multi-platform projects. One dependency (`kotlinx.html`) is not yet published to MavenCentral,
+so in order to properly resolve it, you have to add JetBrains's Space repository to your project's `pluginRepositories`:
 
 ```xml
 <pluginRepositories>
     <pluginRepository>
-        <id>jcenter</id>
-        <name>JCenter</name>
-        <url>https://jcenter.bintray.com/</url>
+        <id>kotlinx-html</id>
+        <name>KotlinxHtmlSpace</name>
+        <url>https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven/</url>
     </pluginRepository>
 </pluginRepositories>
 ```

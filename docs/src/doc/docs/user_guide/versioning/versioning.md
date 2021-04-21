@@ -67,4 +67,4 @@ Alternatively, without adding plugin to classpath:
 pluginsMapConfiguration.set(mapOf("org.jetbrains.dokka.versioning.VersioningPlugin" to """{ "version": "1.0" }"""))
 ```
 
-Please consult [gradle documentation](../gradle/usage.md#applying-plugins) for more information about configuring Dokka with this build tool.
+Please consult the [Gradle documentation](../gradle/usage.md#applying-plugins) for more information about configuring Dokka with this build tool.
