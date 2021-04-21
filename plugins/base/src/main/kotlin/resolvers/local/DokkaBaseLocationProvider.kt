@@ -1,5 +1,6 @@
 package org.jetbrains.dokka.base.resolvers.local
 
+import org.jetbrains.dokka.base.renderers.shortenToUrl
 import org.jetbrains.dokka.model.DisplaySourceSet
 import org.jetbrains.dokka.pages.DCI
 import org.jetbrains.dokka.pages.RootPageNode
@@ -17,6 +18,6 @@ abstract class DokkaBaseLocationProvider(
      * 2040 characters limit
      */
     open fun anchorForDCI(dci: DCI, sourceSets: Set<DisplaySourceSet>): String =
-        (dci.dri.toString() + "/" + dci.kind + "/" + sourceSets.hashCode()).urlEncoded()
+        (dci.dri.shortenToUrl().toString() + "/" + dci.kind + "/" + sourceSets.shortenToUrl()).urlEncoded()
 
 }
