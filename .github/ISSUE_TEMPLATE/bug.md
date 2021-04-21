@@ -33,3 +33,6 @@ Configuration of dokka used to reproduce the bug
 
 **Additional context**
 Add any other context about the problem here
+
+**Are you willing to provide a PR?**
+Providing a PR can drastically speed up the process of fixing this bug
