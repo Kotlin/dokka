@@ -97,7 +97,7 @@ nexusPublishing {
 }
 
 tasks.maybeCreate("dokkaPublish").run {
-    if (publicationChannels.any { it.isMavenRepository }) {
-        finalizedBy(tasks.named("closeAndReleaseSonatypeStagingRepository"))
-    }
+//    if (publicationChannels.any { it.isMavenRepository }) {
+//        finalizedBy(tasks.named("closeAndReleaseSonatypeStagingRepository"))
+//    }
 }
