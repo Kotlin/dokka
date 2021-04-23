@@ -4,7 +4,7 @@ import kotlinx.cli.*
 import org.jetbrains.dokka.DokkaConfiguration.ExternalDocumentationLink
 import org.jetbrains.dokka.utilities.DokkaConsoleLogger
 import org.jetbrains.dokka.utilities.cast
-import java.io.*
+import java.io.File
 import java.net.MalformedURLException
 import java.net.URL
 import java.nio.file.Paths
@@ -74,7 +74,7 @@ class GlobalArguments(args: Array<String>) : DokkaConfiguration {
         description = "Document generated or obvious functions like default `toString` or `equals`"
     ).default(!DokkaDefaults.suppressObviousFunctions)
 
-    override val suppressObviousFunctions: Boolean by lazy{ !noSuppressObviousFunctions }
+    override val suppressObviousFunctions: Boolean by lazy { !noSuppressObviousFunctions }
 
     private val _includes by parser.option(
         ArgTypeFile,
@@ -221,6 +221,11 @@ private fun parseSourceSet(moduleName: String, args: Array<String>): DokkaConfig
         description = "Paths to files to be suppressed (allows many paths separated by the semicolon `;`)"
     ).delimiter(";")
 
+    val suppressedAnnotations by parser.option(
+        ArgType.String,
+        description = "Fully qualified names of annotations to suppress (allows many names separated by the semicolon `;`)"
+    ).delimiter(";")
+
     val analysisPlatform: Platform by parser.option(
         ArgTypePlatform,
         description = "Platform for analysis"
@@ -268,6 +273,7 @@ private fun parseSourceSet(moduleName: String, args: Array<String>): DokkaConfig
         override val noStdlibLink = noStdlibLink
         override val noJdkLink = noJdkLink
         override val suppressedFiles = suppressedFiles.toMutableSet()
+        override val suppressedAnnotations: Set<String> = suppressedAnnotations.toSet()
     }
 }
 

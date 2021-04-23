@@ -425,6 +425,19 @@ class GradleDokkaSourceSetBuilderTest {
     }
 
     @Test
+    fun suppressedAnnotations() {
+        val sourceSet = GradleDokkaSourceSetBuilder("", project)
+        assertTrue(sourceSet.build().suppressedAnnotations.isEmpty(), "Expected no suppressed annotations by default")
+
+        sourceSet.suppressedAnnotations.set(setOf("kotlin.ExperimentalStdlibApi"))
+
+        assertEquals(
+            setOf("kotlin.ExperimentalStdlibApi"), sourceSet.build().suppressedAnnotations,
+            "Expected all suppressed annotations to be present after build"
+        )
+    }
+
+    @Test
     fun suppressedFilesByDefault() {
         val sourceSet = GradleDokkaSourceSetBuilder("", project)
         assertTrue(sourceSet.build().suppressedFiles.isEmpty(), "Expected no suppressed files by default")

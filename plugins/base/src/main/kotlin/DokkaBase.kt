@@ -4,12 +4,13 @@ package org.jetbrains.dokka.base
 
 import org.jetbrains.dokka.CoreExtensions
 import org.jetbrains.dokka.analysis.KotlinAnalysis
+import org.jetbrains.dokka.base.generation.SingleModuleGeneration
 import org.jetbrains.dokka.base.renderers.*
 import org.jetbrains.dokka.base.renderers.html.*
 import org.jetbrains.dokka.base.renderers.html.command.consumers.PathToRootConsumer
 import org.jetbrains.dokka.base.renderers.html.command.consumers.ResolveLinkConsumer
-import org.jetbrains.dokka.base.resolvers.external.ExternalLocationProviderFactory
 import org.jetbrains.dokka.base.resolvers.external.DefaultExternalLocationProviderFactory
+import org.jetbrains.dokka.base.resolvers.external.ExternalLocationProviderFactory
 import org.jetbrains.dokka.base.resolvers.external.javadoc.JavadocExternalLocationProviderFactory
 import org.jetbrains.dokka.base.resolvers.local.DokkaLocationProviderFactory
 import org.jetbrains.dokka.base.resolvers.local.LocationProviderFactory
@@ -27,7 +28,6 @@ import org.jetbrains.dokka.base.transformers.pages.sourcelinks.SourceLinksTransf
 import org.jetbrains.dokka.base.translators.descriptors.DefaultDescriptorToDocumentableTranslator
 import org.jetbrains.dokka.base.translators.documentables.DefaultDocumentableToPageTranslator
 import org.jetbrains.dokka.base.translators.psi.DefaultPsiToDocumentableTranslator
-import org.jetbrains.dokka.base.generation.SingleModuleGeneration
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.transformers.documentation.PreMergeDocumentableTransformer
 import org.jetbrains.dokka.transformers.pages.PageTransformer
@@ -82,6 +82,10 @@ class DokkaBase : DokkaPlugin() {
         preMergeDocumentableTransformer providing ::ObviousFunctionsDocumentableFilterTransformer
     }
 
+    val suppressedAnnotationsVisibilityFilter by extending {
+        preMergeDocumentableTransformer providing ::SuppressedAnnotationsDocumentaryFilterTransformer
+    }
+
     val inheritedEntriesVisbilityFilter by extending {
         preMergeDocumentableTransformer providing ::InheritedEntriesDocumentableFilterTransformer
     }
@@ -95,6 +99,7 @@ class DokkaBase : DokkaPlugin() {
                 suppressedBySuppressTagDocumentableFilter,
                 obviousFunctionsVisbilityFilter,
                 inheritedEntriesVisbilityFilter,
+                suppressedAnnotationsVisibilityFilter
             )
         }
     }

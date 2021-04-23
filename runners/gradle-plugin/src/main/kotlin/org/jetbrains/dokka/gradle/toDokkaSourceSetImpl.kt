@@ -25,6 +25,7 @@ internal fun GradleDokkaSourceSetBuilder.toDokkaSourceSetImpl(): DokkaSourceSetI
     noStdlibLink = noStdlibLink.getSafe(),
     noJdkLink = noJdkLink.getSafe(),
     suppressedFiles = suppressedFilesWithDefaults(),
+    suppressedAnnotations = suppressedAnnotations.getSafe(),
     analysisPlatform = platform.getSafe()
 )
 

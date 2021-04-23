@@ -3,7 +3,9 @@
 package org.jetbrains.dokka.gradle
 
 import groovy.lang.Closure
-import org.gradle.api.*
+import org.gradle.api.Action
+import org.gradle.api.NamedDomainObjectFactory
+import org.gradle.api.Project
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
@@ -112,6 +114,10 @@ open class GradleDokkaSourceSetBuilder(
 
     @InputFiles
     val suppressedFiles: ConfigurableFileCollection = project.files()
+
+    @Input
+    val suppressedAnnotations: SetProperty<String> = project.objects.setProperty<String>()
+        .convention(emptySet())
 
     @Input
     @Optional

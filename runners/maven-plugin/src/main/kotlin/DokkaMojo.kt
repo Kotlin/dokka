@@ -22,7 +22,6 @@ import org.jetbrains.dokka.*
 import org.jetbrains.dokka.DokkaConfiguration.ExternalDocumentationLink
 import java.io.File
 import java.net.URL
-import java.util.stream.Collectors
 
 class SourceLinkMapItem {
     @Parameter(name = "path", required = true)
@@ -148,6 +147,9 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
     var suppressedFiles: List<String> = emptyList()
 
     @Parameter
+    var suppressedAnnotations: List<String> = emptyList()
+
+    @Parameter
     var platform: String = ""
 
     @Parameter
@@ -219,6 +221,7 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
             noStdlibLink = noStdlibLink,
             noJdkLink = noJdkLink,
             suppressedFiles = suppressedFiles.map(::File).toSet(),
+            suppressedAnnotations = suppressedAnnotations.toSet(),
             analysisPlatform = if (platform.isNotEmpty()) Platform.fromString(platform) else Platform.DEFAULT,
         ).let {
             it.copy(
