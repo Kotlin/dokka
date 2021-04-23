@@ -12,9 +12,7 @@ import java.nio.file.Path
 
 class ParseModuleAndPackageDocumentationFragmentsTest {
 
-    @Test
-    fun `basic example`() {
-
+    private fun testBasicExample(lineSeperator: String = "\n") {
         val source = source(
             """
                 # Module kotlin-demo
@@ -27,7 +25,7 @@ class ParseModuleAndPackageDocumentationFragmentsTest {
         
                 # Package org.jetbrains.kotlin.demo2
                 Package demo2 description
-                """.trimIndent()
+                """.trimIndent().replace("\n", lineSeperator)
         )
         val fragments = parseModuleAndPackageDocumentationFragments(source)
 
@@ -54,6 +52,16 @@ class ParseModuleAndPackageDocumentationFragmentsTest {
             ),
             fragments
         )
+    }
+
+    @Test
+    fun `basic example`() {
+        testBasicExample()
+    }
+
+    @Test
+    fun `CRLF line seperators`() {
+        testBasicExample("\r\n")
     }
 
     @Test

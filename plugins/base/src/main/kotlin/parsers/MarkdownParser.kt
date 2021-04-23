@@ -37,7 +37,7 @@ open class MarkdownParser(
         return visitNode(markdownAstRoot)
     }
 
-    override fun preparse(text: String) = text
+    override fun preparse(text: String) = text.replace("\r\n", "\n")
 
     override fun parseTagWithBody(tagName: String, content: String): TagWrapper =
         when (tagName) {
