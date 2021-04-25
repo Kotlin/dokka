@@ -3,7 +3,10 @@ package org.jetbrains.dokka.versioning
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.configuration
 import org.jetbrains.dokka.plugability.plugin
@@ -40,7 +43,7 @@ class DefaultVersioningHandler(val context: DokkaContext) : VersioningHandler {
         configuration?.let { versionsConfiguration ->
             versions =
                 mapOf(versionsConfiguration.versionFromConfigurationOrModule(context) to context.configuration.outputDir)
-            versionsConfiguration.olderVersionsDir?.let {
+            versionsConfiguration.olderVersions?.let {
                 handlePreviousVersions(it, context.configuration.outputDir)
             }
             mapper.writeValue(
@@ -50,9 +53,8 @@ class DefaultVersioningHandler(val context: DokkaContext) : VersioningHandler {
         }
     }
 
-    private fun handlePreviousVersions(olderVersionDir: File, output: File): Map<String, File> {
-        assert(olderVersionDir.isDirectory) { "Supplied previous version $olderVersionDir is not a directory!" }
-        return versionsWithOriginDir(olderVersionDir)
+    private fun handlePreviousVersions(olderVersions: List<File>, output: File): Map<String, File> {
+        return checkVersions(olderVersions)
             .also { fetched ->
                 versions = versions + fetched.map { (key, _) ->
                     key to output.resolve(OLDER_VERSIONS_DIR).resolve(key)
@@ -61,8 +63,8 @@ class DefaultVersioningHandler(val context: DokkaContext) : VersioningHandler {
             .onEach { (version, path) -> copyVersion(version, path, output) }.toMap()
     }
 
-    private fun versionsWithOriginDir(olderVersionRootDir: File) =
-        olderVersionRootDir.listFiles().orEmpty().mapNotNull { versionDir ->
+    private fun checkVersions(olderVersions: List<File>) =
+        olderVersions.mapNotNull { versionDir ->
             versionDir.listFiles { _, name -> name == VERSIONS_FILE }?.firstOrNull()?.let { file ->
                 val versionsContent = mapper.readValue<Version>(file)
                 Pair(versionsContent.version, versionDir)
