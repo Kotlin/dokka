@@ -7,10 +7,10 @@ import org.gradle.api.tasks.Nested
 import org.jetbrains.dokka.DokkaConfigurationImpl
 import org.jetbrains.dokka.build
 
-abstract class DokkaTaskPartial : AbstractDokkaTask() {
+abstract class DokkaTaskPartial : AbstractDokkaLeafTask() {
 
     @get:Internal
-    val dokkaSourceSets: NamedDomainObjectContainer<GradleDokkaSourceSetBuilder> =
+    override val dokkaSourceSets: NamedDomainObjectContainer<GradleDokkaSourceSetBuilder> =
         project.container(GradleDokkaSourceSetBuilder::class.java, gradleDokkaSourceSetBuilderFactory())
             .also { container ->
                 DslObject(this).extensions.add("dokkaSourceSets", container)
