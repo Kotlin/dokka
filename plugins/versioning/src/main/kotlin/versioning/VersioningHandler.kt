@@ -43,9 +43,7 @@ class DefaultVersioningHandler(val context: DokkaContext) : VersioningHandler {
         configuration?.let { versionsConfiguration ->
             versions =
                 mapOf(versionsConfiguration.versionFromConfigurationOrModule(context) to context.configuration.outputDir)
-            versionsConfiguration.allOlderVersions().let {
-                handlePreviousVersions(it, context.configuration.outputDir)
-            }
+            handlePreviousVersions(versionsConfiguration.allOlderVersions(), context.configuration.outputDir)
             mapper.writeValue(
                 context.configuration.outputDir.resolve(VERSIONS_FILE),
                 Version(versionsConfiguration.versionFromConfigurationOrModule(context))
@@ -54,7 +52,7 @@ class DefaultVersioningHandler(val context: DokkaContext) : VersioningHandler {
     }
 
     private fun handlePreviousVersions(olderVersions: List<File>, output: File): Map<String, File> {
-        return checkVersions(olderVersions)
+        return versionsFrom(olderVersions)
             .also { fetched ->
                 versions = versions + fetched.map { (key, _) ->
                     key to output.resolve(OLDER_VERSIONS_DIR).resolve(key)
@@ -63,7 +61,7 @@ class DefaultVersioningHandler(val context: DokkaContext) : VersioningHandler {
             .onEach { (version, path) -> copyVersion(version, path, output) }.toMap()
     }
 
-    private fun checkVersions(olderVersions: List<File>) =
+    private fun versionsFrom(olderVersions: List<File>) =
         olderVersions.mapNotNull { versionDir ->
             versionDir.listFiles { _, name -> name == VERSIONS_FILE }?.firstOrNull()?.let { file ->
                 val versionsContent = mapper.readValue<Version>(file)
