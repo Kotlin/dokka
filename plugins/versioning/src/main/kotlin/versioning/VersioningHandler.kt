@@ -43,7 +43,7 @@ class DefaultVersioningHandler(val context: DokkaContext) : VersioningHandler {
         configuration?.let { versionsConfiguration ->
             versions =
                 mapOf(versionsConfiguration.versionFromConfigurationOrModule(context) to context.configuration.outputDir)
-            versionsConfiguration.olderVersions?.let {
+            versionsConfiguration.allOlderVersions().let {
                 handlePreviousVersions(it, context.configuration.outputDir)
             }
             mapper.writeValue(
