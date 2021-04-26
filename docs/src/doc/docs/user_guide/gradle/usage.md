@@ -4,9 +4,8 @@
     If you are upgrading from 0.10.x to a current release of Dokka, please have a look at our 
     [migration guide](https://github.com/Kotlin/dokka/blob/master/runners/gradle-plugin/MIGRATION.md)
 
-The preferred way is to use `plugins` block. One dependency (`kotlinx.html`) is not yet published to MavenCentral, 
-so in order to properly resolve it, you have to add JetBrains's Space repository to your project's repositories:
- 
+The preferred way is to use `plugins` block. 
+
 build.gradle.kts:
 ```kotlin
 plugins {
@@ -15,11 +14,6 @@ plugins {
 
 repositories {
     mavenCentral()
-    maven("https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven") {
-        content {
-            includeGroup("org.jetbrains.kotlinx")
-        }
-    }
 }
 ```
 
@@ -31,13 +25,6 @@ eg. you'll have to use `named<DokkaTask>("dokkaHtml")` instead of `dokkaHtml`:
 buildscript {
     dependencies {
         classpath("org.jetbrains.dokka:dokka-gradle-plugin:${dokka_version}")
-    }
-}
-repositories {
-    maven("https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven") {
-        content {
-            includeGroup("org.jetbrains.kotlinx")
-        }
     }
 }
 
@@ -298,11 +285,6 @@ buildscript {
 }
 repositories {
     mavenCentral()
-    maven("https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven") {
-        content {
-            includeGroup("org.jetbrains.kotlinx")
-        }
-    }
 }
 apply(plugin= "com.android.library")
 apply(plugin= "kotlin-android")

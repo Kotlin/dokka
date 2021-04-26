@@ -3,18 +3,7 @@
 !!! note 
     Dokka Maven plugin does not support multi-platform projects.
 
-The Maven plugin does not support multi-platform projects. One dependency (`kotlinx.html`) is not yet published to MavenCentral,
-so in order to properly resolve it, you have to add JetBrains's Space repository to your project's `pluginRepositories`:
-
-```xml
-<pluginRepositories>
-    <pluginRepository>
-        <id>kotlinx-html</id>
-        <name>KotlinxHtmlSpace</name>
-        <url>https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven/</url>
-    </pluginRepository>
-</pluginRepositories>
-```
+The Maven plugin does not support multi-platform projects.
 
 Minimal Maven configuration is
 
