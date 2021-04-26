@@ -13,8 +13,7 @@ and can generate documentation in multiple formats including standard Javadoc, H
 _Note: If you are upgrading from 0.10.x to a current release of Dokka, please have a look at our 
 [migration guide](runners/gradle-plugin/MIGRATION.md)_
 
-The preferred way is to use `plugins` block. One dependency (`kotlinx.html`) is not yet published to MavenCentral,
-so in order to properly resolve it, you have to add JetBrains's Space repository to your project's repositories:
+The preferred way is to use `plugins` block.
  
 build.gradle.kts:
 ```kotlin
@@ -24,11 +23,6 @@ plugins {
 
 repositories {
     mavenCentral()
-    maven("https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven") { 
-        content {
-            includeGroup("org.jetbrains.kotlinx")
-        }
-    }
 }
 ```
 
@@ -78,11 +72,6 @@ buildscript {
 }
 repositories {
     mavenCentral()
-    maven("https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven") {
-        content {
-            includeGroup("org.jetbrains.kotlinx")
-        }
-    }
 }
 apply(plugin= "com.android.library")
 apply(plugin= "kotlin-android")
@@ -113,18 +102,7 @@ with links to all generated (sub)documentations
 
 ### Using the Maven plugin
 
-The Maven plugin does not support multi-platform projects. One dependency (`kotlinx.html`) is not yet published to MavenCentral,
-so in order to properly resolve it, you have to add JetBrains's Space repository to your project's `pluginRepositories`:
-
-```xml
-<pluginRepositories>
-    <pluginRepository>
-        <id>kotlinx-html</id>
-        <name>KotlinxHtmlSpace</name>
-        <url>https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven/</url>
-    </pluginRepository>
-</pluginRepositories>
-```
+The Maven plugin does not support multi-platform projects. 
 
 Documentation is by default generated in `target/dokka`.
 
