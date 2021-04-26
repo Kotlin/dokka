@@ -1,0 +1,796 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Dokka is a documentation engine for Kotlin, performing the same function as javadoc for Java">
+      
+      
+      
+        <meta name="author" content="Jetbrains">
+      
+      
+        <link rel="canonical" href="https://github.com/Kotlin/dokka/1.5/developer_guide/data_model/">
+      
+      <link rel="icon" href="../../favicon.svg">
+      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-7.0.6">
+    
+    
+      
+        <title>Data model - Dokka</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.2c0c5eaf.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.7fa14f5b.min.css">
+        
+      
+    
+    
+    
+      
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>:root{--md-text-font-family:"Roboto";--md-code-font-family:"Roboto Mono"}</style>
+      
+    
+    
+    
+      <link rel="stylesheet" href="../../dokka_colors.css">
+    
+    
+      
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="none" data-md-color-accent="none">
+      
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#dokka-data-model" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Dokka" class="md-header__button md-logo" aria-label="Dokka" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Dokka
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Data model
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    <div class="md-header__options">
+      
+    </div>
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" data-md-state="active" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        
+<a href="https://github.com/Kotlin/dokka/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    dokka
+  </div>
+</a>
+      </div>
+    
+  </nav>
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Dokka" class="md-nav__button md-logo" aria-label="Dokka" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    Dokka
+  </label>
+  
+    <div class="md-nav__source">
+      
+<a href="https://github.com/Kotlin/dokka/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    dokka
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        Home
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2" type="checkbox" id="__nav_2" >
+      
+      <label class="md-nav__link" for="__nav_2">
+        User guide
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="User guide" data-md-level="1">
+        <label class="md-nav__title" for="__nav_2">
+          <span class="md-nav__icon md-icon"></span>
+          User guide
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user_guide/introduction/" class="md-nav__link">
+        Introduction
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user_guide/gradle/usage/" class="md-nav__link">
+        Gradle
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user_guide/maven/usage/" class="md-nav__link">
+        Maven
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user_guide/cli/usage/" class="md-nav__link">
+        Command line
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user_guide/base-specific/frontend/" class="md-nav__link">
+        Html frontend
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user_guide/versioning/versioning/" class="md-nav__link">
+        Versioning
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user_guide/android-plugin/android-plugin/" class="md-nav__link">
+        Android plugin
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3" type="checkbox" id="__nav_3" checked>
+      
+      <label class="md-nav__link" for="__nav_3">
+        Plugin development
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Plugin development" data-md-level="1">
+        <label class="md-nav__title" for="__nav_3">
+          <span class="md-nav__icon md-icon"></span>
+          Plugin development
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../introduction/" class="md-nav__link">
+        Introduction
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Data model
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Data model
+      </a>
+      
+        
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#documentable-model" class="md-nav__link">
+    Documentable Model
+  </a>
+  
+    <nav class="md-nav" aria-label="Documentable Model">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#extraproperty-class-usage" class="md-nav__link">
+    ExtraProperty class usage
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#documentation-model" class="md-nav__link">
+    Documentation Model
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#page-model" class="md-nav__link">
+    Page Model
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#content-model" class="md-nav__link">
+    Content Model
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../extension_points/" class="md-nav__link">
+        Extension points
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4" type="checkbox" id="__nav_4" >
+      
+      <label class="md-nav__link" for="__nav_4">
+        Community
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Community" data-md-level="1">
+        <label class="md-nav__title" for="__nav_4">
+          <span class="md-nav__icon md-icon"></span>
+          Community
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../community/plugins-list/" class="md-nav__link">
+        Community plugins
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5" type="checkbox" id="__nav_5" >
+      
+      <label class="md-nav__link" for="__nav_5">
+        About
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="About" data-md-level="1">
+        <label class="md-nav__title" for="__nav_5">
+          <span class="md-nav__icon md-icon"></span>
+          About
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../about/FAQ/" class="md-nav__link">
+        FAQ
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../about/slack_channel/" class="md-nav__link">
+        Slack channel
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#documentable-model" class="md-nav__link">
+    Documentable Model
+  </a>
+  
+    <nav class="md-nav" aria-label="Documentable Model">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#extraproperty-class-usage" class="md-nav__link">
+    ExtraProperty class usage
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#documentation-model" class="md-nav__link">
+    Documentation Model
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#page-model" class="md-nav__link">
+    Page Model
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#content-model" class="md-nav__link">
+    Content Model
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/Kotlin/dokka/edit/master/docs/src/doc/docs/developer_guide/data_model.md" title="Edit this page" class="md-content__button md-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
+                  </a>
+                
+                
+                <h1 id="dokka-data-model">Dokka Data Model<a class="headerlink" href="#dokka-data-model" title="Permanent link">&para;</a></h1>
+<p>There a four data models that Dokka uses: Documentable Model, Documentation Model, Page Model and Content Model.</p>
+<h2 id="documentable-model">Documentable Model<a class="headerlink" href="#documentable-model" title="Permanent link">&para;</a></h2>
+<p>Documentable model represents parsed data, returned by compiler analysis. It retains basic order structure of parsed <code>Psi</code> or <code>Descriptor</code> models.</p>
+<p>After creation, it is a collection of trees, each with <code>DModule</code> as a root. After the Merge step, all trees are folded into one. </p>
+<p>The main building block of this model is <code>Documentable</code> class, that is a base class for all more specific types that represents elements of parsed Kotlin and Java classes with pretty self-explanatory names: <code>DPackage</code>, <code>DFunction</code> and so on. <code>DClasslike</code> is a base for class-like elements, such as Classes, Enums, Interfaces and so on.</p>
+<p>There are three non-documentable classes important for the model: <code>DRI</code>, <code>SourceSetDependent</code> and <code>ExtraProperty</code>.</p>
+<ul>
+<li><code>DRI</code> (Dokka Resource Identifier) is a unique value that identifies specific <code>Documentable</code>. All references to other documentables different than direct ownership are described using DRIs. For example, <code>DFunction</code> with parameter of type <code>X</code> has only X's DRI, not the actual reference to X's Documentable object.</li>
+<li><code>SourceSetDependent</code> is a map that handles multiplatform data, by connecting platform-specific data, declared with either <code>expect</code> or <code>actual</code> modifier, to a particular Source Set</li>
+<li><code>ExtraProperty</code> is used to store any additional information that falls outside of regular model. It is highly recommended to use extras to provide any additional information when creating custom Dokka plugins. This element is a bit more complex, so you can read more about how to use it below.</li>
+</ul>
+<h3 id="extraproperty-class-usage"><code>ExtraProperty</code> class usage<a class="headerlink" href="#extraproperty-class-usage" title="Permanent link">&para;</a></h3>
+<p><code>ExtraProperty</code> classes are used both by Documentable and Content models. To declare a new extra, you need to implement <code>ExtraProperty</code> interface.</p>
+<div class="highlight"><pre><span></span><code><span class="kd">interface</span> <span class="nc">ExtraProperty</span><span class="o">&lt;</span><span class="k">in</span> <span class="n">C</span> <span class="p">:</span> <span class="kt">Any</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="kd">interface</span> <span class="nc">Key</span><span class="o">&lt;</span><span class="k">in</span> <span class="n">C</span> <span class="p">:</span> <span class="kt">Any</span><span class="p">,</span> <span class="n">T</span> <span class="p">:</span> <span class="kt">Any</span><span class="o">&gt;</span> <span class="p">{</span>
+        <span class="kd">fun</span> <span class="nf">mergeStrategyFor</span><span class="p">(</span><span class="n">left</span><span class="p">:</span> <span class="n">T</span><span class="p">,</span> <span class="n">right</span><span class="p">:</span> <span class="n">T</span><span class="p">):</span> <span class="n">MergeStrategy</span><span class="o">&lt;</span><span class="n">C</span><span class="o">&gt;</span> <span class="o">=</span> <span class="n">MergeStrategy</span><span class="p">.</span><span class="na">Fail</span> <span class="p">{</span>
+            <span class="k">throw</span> <span class="n">NotImplementedError</span><span class="p">(</span><span class="s">&quot;Property merging for </span><span class="si">$</span><span class="n">this</span><span class="s"> is not implemented&quot;</span><span class="p">)</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="kd">val</span> <span class="nv">key</span><span class="p">:</span> <span class="n">Key</span><span class="o">&lt;</span><span class="n">C</span><span class="p">,</span> <span class="o">*&gt;</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>It is advised to use following pattern when declaring new extras:</p>
+<p><div class="highlight"><pre><span></span><code><span class="kd">data</span> <span class="kd">class</span> <span class="nc">CustomExtra</span><span class="p">(</span> <span class="o">[</span><span class="n">any</span> <span class="n">values</span> <span class="n">relevant</span> <span class="n">to</span> <span class="n">your</span> <span class="n">extra</span> <span class="o">]</span> <span class="p">):</span> <span class="n">ExtraProperty</span><span class="o">&lt;</span><span class="n">Documentable</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="kd">companion</span> <span class="kd">object</span> <span class="err">: </span><span class="nc">CustomExtra</span><span class="p">.</span><span class="na">Key</span><span class="o">&lt;</span><span class="n">Documentable</span><span class="p">,</span> <span class="n">CustomExtra</span><span class="o">&gt;</span>
+    <span class="kd">override</span> <span class="kd">val</span> <span class="nv">key</span><span class="p">:</span> <span class="n">CustomExtra</span><span class="p">.</span><span class="na">Key</span><span class="o">&lt;</span><span class="n">Documentable</span><span class="p">,</span> <span class="o">*&gt;</span> <span class="o">=</span> <span class="n">CustomExtra</span>
+<span class="p">}</span>
+</code></pre></div>
+Merge strategy for extras is invoked only if merged objects have different values for same Extra. If you don't expect it to happen, you can omit implementing <code>mergeStrategyFor</code> function.</p>
+<p>All extras for <code>ContentNode</code> and <code>Documentable</code> classes are stored in <code>PropertyContainer&lt;C : Any&gt;</code> class instances. The <code>C</code> generic class parameter limits the type of properties, that can be stored in the container -  it must match generic <code>C</code> class parameter from <code>ExtraProperty</code> interface. For example, if you would create <code>DFunction</code>-only <code>ExtraProperty</code>, it will be limited to be added only to <code>PropertyContainer&lt;DFunction&gt;</code>. </p>
+<p>In following example we will create <code>Documentable</code>-only property, store it in the container and then retrieve its value:</p>
+<div class="highlight"><pre><span></span><code><span class="kd">data</span> <span class="kd">class</span> <span class="nc">CustomExtra</span><span class="p">(</span><span class="kd">val</span> <span class="nv">customExtraValue</span><span class="p">:</span> <span class="kt">String</span><span class="p">)</span> <span class="p">:</span> <span class="n">ExtraProperty</span><span class="o">&lt;</span><span class="n">Documentable</span><span class="o">&gt;</span> <span class="p">{</span>
+
+    <span class="n">companion</span> <span class="n">object</span><span class="p">:</span> <span class="n">ExtraProperty</span><span class="p">.</span><span class="na">Key</span><span class="o">&lt;</span><span class="n">Documentable</span><span class="p">,</span> <span class="n">CustomExtra</span><span class="o">&gt;</span>
+
+    <span class="kd">override</span> <span class="kd">val</span> <span class="nv">key</span><span class="p">:</span> <span class="n">ExtraProperty</span><span class="p">.</span><span class="na">Key</span><span class="o">&lt;</span><span class="n">Documentable</span><span class="p">,</span> <span class="o">*&gt;</span> <span class="o">=</span> <span class="n">CustomExtra</span>
+<span class="p">}</span>
+
+<span class="kd">val</span> <span class="nv">extra</span> <span class="p">:</span> <span class="n">PropertyContainer</span><span class="o">&lt;</span><span class="n">DFunction</span><span class="o">&gt;</span> <span class="o">=</span> <span class="n">PropertyContainer</span><span class="p">.</span><span class="na">withAll</span><span class="p">(</span>
+    <span class="n">CustomExtra</span><span class="p">(</span><span class="s">&quot;our value&quot;</span><span class="p">)</span>
+<span class="p">)</span>
+
+<span class="kd">val</span> <span class="nv">customExtraValue</span> <span class="p">:</span> <span class="kt">String?</span> <span class="o">=</span> <span class="n">extra</span><span class="o">[</span><span class="n">CustomProperty</span><span class="o">]?.</span><span class="na">customExtraValue</span>
+</code></pre></div>
+<p>You can also use extras as markers, without storing any data in them:</p>
+<div class="highlight"><pre><span></span><code><span class="kd">object</span> <span class="nc">MarkerExtra</span> <span class="p">:</span> <span class="n">ExtraProperty</span><span class="o">&lt;</span><span class="kt">Any</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">ExtraProperty</span><span class="p">.</span><span class="na">Key</span><span class="o">&lt;</span><span class="kt">Any</span><span class="p">,</span> <span class="n">MarkerExtra</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="kd">override</span> <span class="kd">val</span> <span class="nv">key</span><span class="p">:</span> <span class="n">ExtraProperty</span><span class="p">.</span><span class="na">Key</span><span class="o">&lt;</span><span class="kt">Any</span><span class="p">,</span> <span class="o">*&gt;</span> <span class="o">=</span> <span class="k">this</span>
+<span class="p">}</span>
+
+<span class="kd">val</span> <span class="nv">extra</span> <span class="p">:</span> <span class="n">PropertyContainer</span><span class="o">&lt;</span><span class="kt">Any</span><span class="o">&gt;</span> <span class="o">=</span> <span class="n">PropertyContainer</span><span class="p">.</span><span class="na">withAll</span><span class="p">(</span><span class="n">MarkerExtra</span><span class="p">)</span>
+
+<span class="kd">val</span> <span class="nv">isMarked</span> <span class="p">:</span> <span class="kt">Boolean</span> <span class="o">=</span> <span class="n">extra</span><span class="o">[</span><span class="n">MarkerExtra</span><span class="o">]</span> <span class="o">!=</span> <span class="kc">null</span>
+</code></pre></div>
+<h2 id="documentation-model">Documentation Model<a class="headerlink" href="#documentation-model" title="Permanent link">&para;</a></h2>
+<p>Documentation model is used along Documentable Model to store data obtained by parsing code commentaries.</p>
+<p>There are three important classes here:</p>
+<ul>
+<li><code>DocTag</code> describes a specific documentation syntax element, for example: header, footer, list, link, raw text, paragraph, etc.</li>
+<li><code>TagWrapper</code> described a whole comment description or a specific comment tag, for example: @See, @Returns, @Author; and holds consisting <code>DocTag</code> elements </li>
+<li><code>DocumentationNode</code> acts as a container for <code>TagWrappers</code> for a specific <code>Documentable</code></li>
+</ul>
+<p>DocumentationNodes are references by a specific <code>Documentable</code></p>
+<h2 id="page-model">Page Model<a class="headerlink" href="#page-model" title="Permanent link">&para;</a></h2>
+<p>Page Model represents the structure of future generated documentation pages and is independent of the final output format, which each node corresponding to exactly one output file. <code>Renderer</code> is processing each page separately.Subclasses of <code>PageNode</code> represents different kinds of rendered pages for Modules, Packages, Classes etc.</p>
+<p>The Page Model is a tree structure, with <code>RootPageNode</code> being the root. </p>
+<h2 id="content-model">Content Model<a class="headerlink" href="#content-model" title="Permanent link">&para;</a></h2>
+<p>Content Model describes how the actual page content is presented. It organizes it's structure into groups, tables, links, etc. Each node is identified by unique <code>DCI</code> (Dokka Content Identifier) and all references to other nodes different than direct ownership are described using DCIs.</p>
+<p><code>DCI</code> aggregates <code>DRI</code>s of all <code>Documentables</code> that make up specific <code>ContentNode</code>. </p>
+<p>Also, all <code>ExtraProperty</code> info from consisting <code>Documentable</code>s is propagated into Content Model and available for <code>Renderer</code>.</p>
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <nav class="md-footer__inner md-grid" aria-label="Footer">
+      
+        <a href="../introduction/" class="md-footer__link md-footer__link--prev" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              Introduction
+            </div>
+          </div>
+        </a>
+      
+      
+        <a href="../extension_points/" class="md-footer__link md-footer__link--next" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              Extension points
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+          <div class="md-footer-copyright__highlight">
+            Copyright &copy; 2020 Jetbrains
+          </div>
+        
+        Made with
+        <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+          Material for MkDocs
+        </a>
+        
+      </div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}, "search": "../../assets/javascripts/workers/search.fb4a9340.min.js", "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.a1c7c35e.min.js"></script>
+      
+        <script src="../../expand_navigation.js"></script>
+      
+    
+  </body>
+</html>
