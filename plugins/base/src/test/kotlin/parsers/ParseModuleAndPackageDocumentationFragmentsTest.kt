@@ -1,8 +1,12 @@
 package parsers
 
-import org.jetbrains.dokka.base.parsers.moduleAndPackage.*
+import org.jetbrains.dokka.base.parsers.moduleAndPackage.IllegalModuleAndPackageDocumentation
 import org.jetbrains.dokka.base.parsers.moduleAndPackage.ModuleAndPackageDocumentation.Classifier.Module
 import org.jetbrains.dokka.base.parsers.moduleAndPackage.ModuleAndPackageDocumentation.Classifier.Package
+import org.jetbrains.dokka.base.parsers.moduleAndPackage.ModuleAndPackageDocumentationFile
+import org.jetbrains.dokka.base.parsers.moduleAndPackage.ModuleAndPackageDocumentationFragment
+import org.jetbrains.dokka.base.parsers.moduleAndPackage.ModuleAndPackageDocumentationSource
+import org.jetbrains.dokka.base.parsers.moduleAndPackage.parseModuleAndPackageDocumentationFragments
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -40,7 +44,7 @@ class ParseModuleAndPackageDocumentationFragmentsTest {
                 ModuleAndPackageDocumentationFragment(
                     classifier = Package,
                     name = "org.jetbrains.kotlin.demo",
-                    documentation = "Package demo description\n## Level 2 heading\nHeading 2",
+                    documentation = "Package demo description${lineSeperator}## Level 2 heading${lineSeperator}Heading 2",
                     source = source
                 ),
                 ModuleAndPackageDocumentationFragment(
