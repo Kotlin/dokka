@@ -19,7 +19,7 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
 }
 
 repositories {
-    jcenter()
+    mavenCentral()
     google()
 }
 
