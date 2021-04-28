@@ -650,8 +650,7 @@
 <p>If you are upgrading from 0.10.x to a current release of Dokka, please have a look at our 
 <a href="https://github.com/Kotlin/dokka/blob/master/runners/gradle-plugin/MIGRATION.md">migration guide</a></p>
 </div>
-<p>The preferred way is to use <code>plugins</code> block. One dependency (<code>kotlinx.html</code>) is not yet published to MavenCentral, 
-so in order to properly resolve it, you have to add JetBrains's Space repository to your project's repositories:</p>
+<p>The preferred way is to use <code>plugins</code> block. </p>
 <p>build.gradle.kts:
 <div class="highlight"><pre><span></span><code><span class="n">plugins</span> <span class="p">{</span>
     <span class="n">id</span><span class="p">(</span><span class="s">&quot;org.jetbrains.dokka&quot;</span><span class="p">)</span> <span class="n">version</span> <span class="s">&quot;1.4.32&quot;</span>
@@ -659,11 +658,6 @@ so in order to properly resolve it, you have to add JetBrains's Space repository
 
 <span class="n">repositories</span> <span class="p">{</span>
     <span class="n">mavenCentral</span><span class="p">()</span>
-    <span class="n">maven</span><span class="p">(</span><span class="s">&quot;https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven&quot;</span><span class="p">)</span> <span class="p">{</span>
-        <span class="n">content</span> <span class="p">{</span>
-            <span class="n">includeGroup</span><span class="p">(</span><span class="s">&quot;org.jetbrains.kotlinx&quot;</span><span class="p">)</span>
-        <span class="p">}</span>
-    <span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div></p>
 <p>You can also use the legacy plugin application method with <code>buildscript</code> block.
@@ -672,13 +666,6 @@ eg. you'll have to use <code>named&lt;DokkaTask&gt;("dokkaHtml")</code> instead 
 <div class="highlight"><pre><span></span><code><span class="n">buildscript</span> <span class="p">{</span>
     <span class="n">dependencies</span> <span class="p">{</span>
         <span class="n">classpath</span><span class="p">(</span><span class="s">&quot;org.jetbrains.dokka:dokka-gradle-plugin:</span><span class="si">${</span><span class="n">dokka_version</span><span class="si">}</span><span class="s">&quot;</span><span class="p">)</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-<span class="n">repositories</span> <span class="p">{</span>
-    <span class="n">maven</span><span class="p">(</span><span class="s">&quot;https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven&quot;</span><span class="p">)</span> <span class="p">{</span>
-        <span class="n">content</span> <span class="p">{</span>
-            <span class="n">includeGroup</span><span class="p">(</span><span class="s">&quot;org.jetbrains.kotlinx&quot;</span><span class="p">)</span>
-        <span class="p">}</span>
     <span class="p">}</span>
 <span class="p">}</span>
 
@@ -909,11 +896,6 @@ and configured automatically although test source sets are suppressed</p>
 <span class="p">}</span>
 <span class="n">repositories</span> <span class="p">{</span>
     <span class="n">mavenCentral</span><span class="p">()</span>
-    <span class="n">maven</span><span class="p">(</span><span class="s">&quot;https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven&quot;</span><span class="p">)</span> <span class="p">{</span>
-        <span class="n">content</span> <span class="p">{</span>
-            <span class="n">includeGroup</span><span class="p">(</span><span class="s">&quot;org.jetbrains.kotlinx&quot;</span><span class="p">)</span>
-        <span class="p">}</span>
-    <span class="p">}</span>
 <span class="p">}</span>
 <span class="n">apply</span><span class="p">(</span><span class="n">plugin</span><span class="o">=</span> <span class="s">&quot;com.android.library&quot;</span><span class="p">)</span>
 <span class="n">apply</span><span class="p">(</span><span class="n">plugin</span><span class="o">=</span> <span class="s">&quot;kotlin-android&quot;</span><span class="p">)</span>
