@@ -6,10 +6,6 @@ plugins {
     id("com.jfrog.bintray")
 }
 
-repositories {
-    maven(url = "https://dl.bintray.com/kotlin/kotlinx")
-}
-
 dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-cli-jvm:0.3.2")
     implementation(project(":core"))
