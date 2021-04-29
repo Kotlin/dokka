@@ -147,4 +147,38 @@ class CliIntegrationTest : AbstractCliIntegrationTest() {
             "Expected to render empty packages"
         )
     }
+
+    @Test
+    fun `module name should be optional`() {
+        val dokkaOutputDir = File(projectDir, "output")
+        assertTrue(dokkaOutputDir.mkdirs())
+        val process = ProcessBuilder(
+            "java", "-jar", cliJarFile.path,
+            "-outputDir", dokkaOutputDir.path,
+            "-pluginsClasspath", basePluginJarFile.path,
+            "-sourceSet",
+            buildString {
+                append(" -src ${File(projectDir, "src").path}")
+            }
+        )
+            .redirectErrorStream(true)
+            .start()
+
+        val result = process.awaitProcessResult()
+        assertEquals(0, result.exitCode, "Expected exitCode 0 (Success)")
+
+        assertTrue(dokkaOutputDir.isDirectory, "Missing dokka output directory")
+
+        val imagesDir = File(dokkaOutputDir, "images")
+        assertTrue(imagesDir.isDirectory, "Missing images directory")
+
+        val scriptsDir = File(dokkaOutputDir, "scripts")
+        assertTrue(scriptsDir.isDirectory, "Missing scripts directory")
+
+        val stylesDir = File(dokkaOutputDir, "styles")
+        assertTrue(stylesDir.isDirectory, "Missing styles directory")
+
+        val navigationHtml = File(dokkaOutputDir, "navigation.html")
+        assertTrue(navigationHtml.isFile, "Missing navigation.html")
+    }
 }
