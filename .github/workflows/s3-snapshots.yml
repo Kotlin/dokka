@@ -7,40 +7,6 @@ env:
   bucket-name: 'dokka-snapshots'
 
 jobs:
-  coroutines:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout dokka
-        uses: actions/checkout@v2
-        with:
-          submodules: true
-
-      - uses: actions/setup-java@v1
-        with:
-          java-version: 12
-
-      - name: Publish dokka locally
-        run: ./gradlew publishToMavenLocal --stacktrace
-
-      - name: Document coroutines
-        run: ./gradlew :integration-tests:gradle:integrationTest --tests org.jetbrains.dokka.it.gradle.kotlin.CoroutinesGradleIntegrationTest --stacktrace
-        timeout-minutes: 60
-        env:
-          DOKKA_IT_AWS_PATH: /home/runner/work/dokka/coroutines
-
-      - name: Configure AWS credentials for S3 access
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: eu-central-1
-
-      - name: Copy files to dokka's S3 bucket
-        run: ./integration-tests/aws_sync.sh s3://${{ env.bucket-name }} coroutines ../coroutines
-
-      - name: Print link
-        run: echo http://dokka-snapshots.s3.eu-central-1.amazonaws.com/${{ env.branch-name }}/coroutines/${GITHUB_SHA::7}/index.html
-
   stdlib:
     runs-on: ubuntu-latest
     steps:
