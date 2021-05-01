@@ -56,18 +56,21 @@ public final class org/jetbrains/dokka/versioning/SemVerVersionOrdering : org/je
 public final class org/jetbrains/dokka/versioning/VersioningConfiguration : org/jetbrains/dokka/plugability/ConfigurableBlock {
 	public static final field Companion Lorg/jetbrains/dokka/versioning/VersioningConfiguration$Companion;
 	public fun <init> ()V
-	public fun <init> (Ljava/io/File;Ljava/util/List;Ljava/lang/String;)V
-	public synthetic fun <init> (Ljava/io/File;Ljava/util/List;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Ljava/io/File;Ljava/util/List;Ljava/util/List;Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/io/File;Ljava/util/List;Ljava/util/List;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/io/File;
 	public final fun component2 ()Ljava/util/List;
-	public final fun component3 ()Ljava/lang/String;
-	public final fun copy (Ljava/io/File;Ljava/util/List;Ljava/lang/String;)Lorg/jetbrains/dokka/versioning/VersioningConfiguration;
-	public static synthetic fun copy$default (Lorg/jetbrains/dokka/versioning/VersioningConfiguration;Ljava/io/File;Ljava/util/List;Ljava/lang/String;ILjava/lang/Object;)Lorg/jetbrains/dokka/versioning/VersioningConfiguration;
+	public final fun component3 ()Ljava/util/List;
+	public final fun component4 ()Ljava/lang/String;
+	public final fun copy (Ljava/io/File;Ljava/util/List;Ljava/util/List;Ljava/lang/String;)Lorg/jetbrains/dokka/versioning/VersioningConfiguration;
+	public static synthetic fun copy$default (Lorg/jetbrains/dokka/versioning/VersioningConfiguration;Ljava/io/File;Ljava/util/List;Ljava/util/List;Ljava/lang/String;ILjava/lang/Object;)Lorg/jetbrains/dokka/versioning/VersioningConfiguration;
 	public fun equals (Ljava/lang/Object;)Z
+	public final fun getOlderVersions ()Ljava/util/List;
 	public final fun getOlderVersionsDir ()Ljava/io/File;
 	public final fun getVersion ()Ljava/lang/String;
 	public final fun getVersionsOrdering ()Ljava/util/List;
 	public fun hashCode ()I
+	public final fun setOlderVersions (Ljava/util/List;)V
 	public final fun setOlderVersionsDir (Ljava/io/File;)V
 	public final fun setVersion (Ljava/lang/String;)V
 	public final fun setVersionsOrdering (Ljava/util/List;)V
@@ -75,6 +78,7 @@ public final class org/jetbrains/dokka/versioning/VersioningConfiguration : org/
 }
 
 public final class org/jetbrains/dokka/versioning/VersioningConfiguration$Companion {
+	public final fun getDefaultOlderVersions ()Ljava/util/List;
 	public final fun getDefaultOlderVersionsDir ()Ljava/io/File;
 	public final fun getDefaultVersion ()Ljava/lang/Void;
 	public final fun getDefaultVersionsOrdering ()Ljava/util/List;
