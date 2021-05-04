@@ -7,19 +7,7 @@ import org.gradle.api.tasks.Nested
 import org.jetbrains.dokka.DokkaConfigurationImpl
 import org.jetbrains.dokka.build
 
-abstract class DokkaTaskPartial : AbstractDokkaTask() {
-
-    @get:Internal
-    val dokkaSourceSets: NamedDomainObjectContainer<GradleDokkaSourceSetBuilder> =
-        project.container(GradleDokkaSourceSetBuilder::class.java, gradleDokkaSourceSetBuilderFactory())
-            .also { container ->
-                DslObject(this).extensions.add("dokkaSourceSets", container)
-                project.kotlinOrNull?.sourceSets?.all { kotlinSourceSet ->
-                    container.register(kotlinSourceSet.name) { dokkaSourceSet ->
-                        dokkaSourceSet.configureWithKotlinSourceSet(kotlinSourceSet)
-                    }
-                }
-            }
+abstract class DokkaTaskPartial : AbstractDokkaLeafTask() {
 
     /**
      * Only contains source sets that are marked with `isDocumented`.

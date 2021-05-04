@@ -4,9 +4,6 @@ import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Nested
-import org.jetbrains.dokka.DokkaBootstrap
-import org.jetbrains.dokka.DokkaBootstrapImpl
-import kotlin.reflect.KClass
 
 abstract class AbstractDokkaParentTask : AbstractDokkaTask() {
 
