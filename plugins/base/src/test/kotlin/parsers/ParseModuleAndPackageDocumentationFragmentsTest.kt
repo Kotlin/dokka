@@ -25,7 +25,7 @@ class ParseModuleAndPackageDocumentationFragmentsTest {
                 # Package org.jetbrains.kotlin.demo
                 Package demo description
                 ## Level 2 heading
-                Heading 2
+                Heading 2\r\n
         
                 # Package org.jetbrains.kotlin.demo2
                 Package demo2 description
@@ -44,7 +44,7 @@ class ParseModuleAndPackageDocumentationFragmentsTest {
                 ModuleAndPackageDocumentationFragment(
                     classifier = Package,
                     name = "org.jetbrains.kotlin.demo",
-                    documentation = "Package demo description${lineSeperator}## Level 2 heading${lineSeperator}Heading 2",
+                    documentation = "Package demo description${lineSeperator}## Level 2 heading${lineSeperator}Heading 2\\r\\n",
                     source = source
                 ),
                 ModuleAndPackageDocumentationFragment(

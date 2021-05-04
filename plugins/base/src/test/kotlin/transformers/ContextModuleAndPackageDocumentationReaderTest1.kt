@@ -29,7 +29,7 @@ class ContextModuleAndPackageDocumentationReaderTest1 : AbstractContextModuleAnd
             This is moduleA
             
             # Package sample.a
-            This is package sample.a
+            This is package sample.a\r\n
             
             # Package noise.b
             This will just add some noise
@@ -141,7 +141,7 @@ class ContextModuleAndPackageDocumentationReaderTest1 : AbstractContextModuleAnd
         val documentation = reader[dPackage(DRI("sample.a"), sourceSets = setOf(sourceSetA))]
         assertEquals(1, documentation.keys.size, "Expected only one entry from sourceSetA")
         assertEquals(sourceSetA, documentation.keys.single(), "Expected only one entry from sourceSetA")
-        assertEquals("This is package sample.a", documentation.texts.single())
+        assertEquals("This is package sample.a\\r\\n", documentation.texts.single())
     }
 
     @Test
