@@ -9,6 +9,9 @@ Versioning can be configured using:
 
 * version - a string value representing a version that should be displayed in the dropdown.
 * olderVersionsDir - an optional file that represents the parent directory containing folders with previous Dokka outputs.
+* olderVersions - an optional list of directories, each containing a previous Dokka output.  Used after the contents of 
+  `olderVersionsDir` 
+  (if it's specified).
 * versionsOrdering - an optional list of strings representing the ordering of versions that should be visible. 
   By default, Dokka will try to use semantic versioning to create such ordering.
   
@@ -21,7 +24,7 @@ Configuration object is named `org.jetbrains.dokka.versioning.VersioningConfigur
 
 ### Directory structure required
 
-Versioning plugins requires documentation authors to keep previous outputs in a set structure:
+If you pass previous versions using `olderVersionsDir`, a particular directory structure is required:
 
 ```
 .
@@ -34,6 +37,12 @@ Versioning plugins requires documentation authors to keep previous outputs in a 
 ```
 
 As can be seen on the diagram, `olderVersionsDir` should be a parent directory of previous output directories.
+
+This can be avoided by manually specifying each past output directory with `olderVersions`, or they can be used 
+together.
+
+`olderVersions` directories need to contain a past Dokka output.  For the above example, you would pass 
+`older_versions_dir/1.4.10, older_versions_dir/1.4.20`.
 
 ### Example
 
