@@ -14,9 +14,11 @@ typealias DokkaMultimoduleTask = DokkaMultiModuleTask
 
 private typealias TaskPath = String
 
+@CacheableTask
 abstract class DokkaMultiModuleTask : AbstractDokkaParentTask() {
     @InputFiles
     @Optional
+    @PathSensitive(PathSensitivity.RELATIVE)
     val includes: ConfigurableFileCollection = project.files()
 
     @Internal
@@ -24,6 +26,7 @@ abstract class DokkaMultiModuleTask : AbstractDokkaParentTask() {
         .safeConvention(DokkaMultiModuleFileLayout.CompactInParent)
 
     @get:InputFiles
+    @get:PathSensitive(PathSensitivity.RELATIVE)
     internal val sourceChildOutputDirectories: Iterable<File>
         get() = childDokkaTasks.map { task -> task.outputDirectory.getSafe() }
 

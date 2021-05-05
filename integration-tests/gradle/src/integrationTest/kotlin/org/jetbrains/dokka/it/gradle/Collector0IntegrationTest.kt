@@ -11,7 +11,7 @@ class Collector0IntegrationTest(override val versions: BuildVersions) : Abstract
         @get:Parameterized.Parameters(name = "{0}")
         val versions = BuildVersions.permutations(
             gradleVersions = listOf("7.0", "6.6", "6.1.1"),
-            kotlinVersions = listOf("1.5.0-RC", "1.4.0")
+            kotlinVersions = listOf("1.5.0", "1.4.0")
         )
     }
 

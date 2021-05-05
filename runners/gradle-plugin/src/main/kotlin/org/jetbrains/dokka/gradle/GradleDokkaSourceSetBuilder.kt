@@ -38,6 +38,7 @@ open class GradleDokkaSourceSetBuilder(
     val displayName: Property<String?> = project.objects.safeProperty()
 
     @InputFiles
+    @PathSensitive(PathSensitivity.RELATIVE)
     val sourceRoots: ConfigurableFileCollection = project.objects.fileCollection()
 
     @Input
@@ -46,10 +47,12 @@ open class GradleDokkaSourceSetBuilder(
 
     @InputFiles
     @Optional
+    @PathSensitive(PathSensitivity.RELATIVE)
     val samples: ConfigurableFileCollection = project.files()
 
     @InputFiles
     @Optional
+    @PathSensitive(PathSensitivity.RELATIVE)
     val includes: ConfigurableFileCollection = project.files()
 
     @Input
@@ -111,6 +114,7 @@ open class GradleDokkaSourceSetBuilder(
         .safeConvention(false)
 
     @InputFiles
+    @PathSensitive(PathSensitivity.RELATIVE)
     val suppressedFiles: ConfigurableFileCollection = project.files()
 
     @Input

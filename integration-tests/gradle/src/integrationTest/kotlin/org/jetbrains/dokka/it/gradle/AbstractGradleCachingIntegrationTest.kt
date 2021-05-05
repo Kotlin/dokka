@@ -1,71 +1,53 @@
 package org.jetbrains.dokka.it.gradle
 
-import org.gradle.testkit.runner.TaskOutcome
-import org.junit.runners.Parameterized.Parameters
 import java.io.File
 import kotlin.test.*
 
-class BasicGradleIntegrationTest(override val versions: BuildVersions) : AbstractGradleIntegrationTest() {
-
-    companion object {
-        @get:JvmStatic
-        @get:Parameters(name = "{0}")
-        val versions = BuildVersions.permutations(
-            gradleVersions = listOf("7.0", *ifExhaustive("6.6", "6.4.1", "6.3", "6.2.2", "6.1.1")),
-            kotlinVersions = listOf("1.3.30", *ifExhaustive("1.3.72", "1.4.32"), "1.5.0")
-        ) + BuildVersions.permutations(
-            gradleVersions = listOf("5.6.4", "6.0"),
-            kotlinVersions = listOf("1.3.30", *ifExhaustive("1.3.72", "1.4.32"))
-        )
-    }
-
-    @BeforeTest
-    fun prepareProjectFiles() {
+abstract class AbstractGradleCachingIntegrationTest(override val versions: BuildVersions): AbstractGradleIntegrationTest() {
+    fun setupProject(project: File) {
         val templateProjectDir = File("projects", "it-basic")
-
+        project.mkdirs()
         templateProjectDir.listFiles().orEmpty()
             .filter { it.isFile }
-            .forEach { topLevelFile -> topLevelFile.copyTo(File(projectDir, topLevelFile.name)) }
+            .forEach { topLevelFile -> topLevelFile.copyTo(File(project, topLevelFile.name)) }
 
-        File(templateProjectDir, "src").copyRecursively(File(projectDir, "src"))
+        File(templateProjectDir, "src").copyRecursively(File(project, "src"))
         val customResourcesDir = File(templateProjectDir, "customResources")
-
-        if (customResourcesDir.exists() && customResourcesDir.isDirectory) {
-            val destination = File(projectDir.parentFile, "customResources")
+        if(customResourcesDir.exists() && customResourcesDir.isDirectory) {
+            val destination = File(project.parentFile, "customResources")
             destination.mkdirs()
             destination.deleteRecursively()
             customResourcesDir.copyRecursively(destination)
         }
+
+        // clean local cache for each test
+        if (versions.gradleVersion.version == "7.0") {
+            //Gradle 7.0 removed the old syntax
+            project.toPath().resolve("settings.gradle.kts").toFile().appendText(
+                """
+                buildCache {
+                    local {
+                        // Set local build cache directory.
+                        directory = File("${projectDir.absolutePath}", "build-cache")
+                    }
+                }
+            """.trimIndent()
+            )
+        } else {
+            project.toPath().resolve("settings.gradle.kts").toFile().appendText(
+                """
+                buildCache {
+                    local<DirectoryBuildCache> {
+                        // Set local build cache directory.
+                        directory = File("${projectDir.absolutePath}", "build-cache")
+                    }
+                }
+            """.trimIndent()
+            )
+        }
     }
 
-    @Test
-    fun execute() {
-        runAndAssertOutcome(TaskOutcome.SUCCESS)
-        runAndAssertOutcome(TaskOutcome.UP_TO_DATE)
-    }
-
-    private fun runAndAssertOutcome(expectedOutcome: TaskOutcome) {
-        val result = createGradleRunner(
-            "dokkaHtml",
-            "dokkaJavadoc",
-            "dokkaGfm",
-            "dokkaJekyll",
-            "-i",
-            "-s"
-        ).buildRelaxed()
-
-        assertEquals(expectedOutcome, assertNotNull(result.task(":dokkaHtml")).outcome)
-        assertEquals(expectedOutcome, assertNotNull(result.task(":dokkaJavadoc")).outcome)
-        assertEquals(expectedOutcome, assertNotNull(result.task(":dokkaGfm")).outcome)
-        assertEquals(expectedOutcome, assertNotNull(result.task(":dokkaJekyll")).outcome)
-
-        File(projectDir, "build/dokka/html").assertHtmlOutputDir()
-        File(projectDir, "build/dokka/javadoc").assertJavadocOutputDir()
-        File(projectDir, "build/dokka/gfm").assertGfmOutputDir()
-        File(projectDir, "build/dokka/jekyll").assertJekyllOutputDir()
-    }
-
-    private fun File.assertHtmlOutputDir() {
+    fun File.assertHtmlOutputDir() {
         assertTrue(isDirectory, "Missing dokka html output directory")
 
         val imagesDir = File(this, "images")
@@ -146,36 +128,8 @@ class BasicGradleIntegrationTest(override val versions: BuildVersions) : Abstrac
         assertTrue(stylesDir.resolve("custom-style-to-add.css").isFile)
         assertEquals("""/* custom stylesheet */""", stylesDir.resolve("custom-style-to-add.css").readText())
         allHtmlFiles().forEach { file ->
-            if (file.name != "navigation.html") assertTrue(
-                "custom-style-to-add.css" in file.readText(),
-                "custom styles not added to html file ${file.name}"
-            )
+            if(file.name != "navigation.html") assertTrue("custom-style-to-add.css" in file.readText(), "custom styles not added to html file ${file.name}")
         }
         assertTrue(imagesDir.resolve("custom-resource.svg").isFile)
-    }
-
-    private fun File.assertJavadocOutputDir() {
-        assertTrue(isDirectory, "Missing dokka javadoc output directory")
-
-        val indexFile = File(this, "index.html")
-        assertTrue(indexFile.isFile, "Missing index.html")
-        assertTrue(
-            """<title>Basic Project 1.5-SNAPSHOT API </title>""" in indexFile.readText(),
-            "Header with version number not present in index.html"
-        )
-
-        assertTrue {
-            allHtmlFiles().all {
-                "0.0.1" !in it.readText()
-            }
-        }
-    }
-
-    private fun File.assertGfmOutputDir() {
-        assertTrue(isDirectory, "Missing dokka gfm output directory")
-    }
-
-    private fun File.assertJekyllOutputDir() {
-        assertTrue(isDirectory, "Missing dokka jekyll output directory")
     }
 }

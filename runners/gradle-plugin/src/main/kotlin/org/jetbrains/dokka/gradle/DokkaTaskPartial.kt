@@ -2,11 +2,11 @@ package org.jetbrains.dokka.gradle
 
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.internal.plugins.DslObject
-import org.gradle.api.tasks.Internal
-import org.gradle.api.tasks.Nested
+import org.gradle.api.tasks.*
 import org.jetbrains.dokka.DokkaConfigurationImpl
 import org.jetbrains.dokka.build
 
+@CacheableTask
 abstract class DokkaTaskPartial : AbstractDokkaLeafTask() {
 
     /**
