@@ -596,6 +596,9 @@ Therefore, users of the documentation can view different versions of the documen
 <ul>
 <li>version - a string value representing a version that should be displayed in the dropdown.</li>
 <li>olderVersionsDir - an optional file that represents the parent directory containing folders with previous Dokka outputs.</li>
+<li>olderVersions - an optional list of directories, each containing a previous Dokka output.  Used after the contents of 
+  <code>olderVersionsDir</code> 
+  (if it's specified).</li>
 <li>versionsOrdering - an optional list of strings representing the ordering of versions that should be visible. 
   By default, Dokka will try to use semantic versioning to create such ordering.</li>
 </ul>
@@ -606,7 +609,7 @@ Configuration object is named <code>org.jetbrains.dokka.versioning.VersioningCon
 <p>In the current release versioning is available only for the multimodule. Supporting single module is scheduled for next release</p>
 </div>
 <h3 id="directory-structure-required">Directory structure required<a class="headerlink" href="#directory-structure-required" title="Permanent link">&para;</a></h3>
-<p>Versioning plugins requires documentation authors to keep previous outputs in a set structure:</p>
+<p>If you pass previous versions using <code>olderVersionsDir</code>, a particular directory structure is required:</p>
 <div class="highlight"><pre><span></span><code>.
 └── older_versions_dir
     └── 1.4.10
@@ -616,6 +619,10 @@ Configuration object is named <code>org.jetbrains.dokka.versioning.VersioningCon
     ...
 </code></pre></div>
 <p>As can be seen on the diagram, <code>olderVersionsDir</code> should be a parent directory of previous output directories.</p>
+<p>This can be avoided by manually specifying each past output directory with <code>olderVersions</code>, or they can be used 
+together.</p>
+<p><code>olderVersions</code> directories need to contain a past Dokka output.  For the above example, you would pass 
+<code>older_versions_dir/1.4.10, older_versions_dir/1.4.20</code>.</p>
 <h3 id="example">Example<a class="headerlink" href="#example" title="Permanent link">&para;</a></h3>
 <p>Versioning plugin in gradle can be configured in 2 ways: </p>
 <ul>
