@@ -1470,6 +1470,10 @@ public final class org/jetbrains/dokka/model/ExtraModifiers$KotlinOnlyModifiers$
 	public static final field INSTANCE Lorg/jetbrains/dokka/model/ExtraModifiers$KotlinOnlyModifiers$TailRec;
 }
 
+public final class org/jetbrains/dokka/model/ExtraModifiers$KotlinOnlyModifiers$Value : org/jetbrains/dokka/model/ExtraModifiers$KotlinOnlyModifiers {
+	public static final field INSTANCE Lorg/jetbrains/dokka/model/ExtraModifiers$KotlinOnlyModifiers$Value;
+}
+
 public final class org/jetbrains/dokka/model/ExtraModifiers$KotlinOnlyModifiers$VarArg : org/jetbrains/dokka/model/ExtraModifiers$KotlinOnlyModifiers {
 	public static final field INSTANCE Lorg/jetbrains/dokka/model/ExtraModifiers$KotlinOnlyModifiers$VarArg;
 }

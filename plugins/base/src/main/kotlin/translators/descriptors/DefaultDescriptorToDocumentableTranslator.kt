@@ -901,10 +901,11 @@ private class DokkaDescriptorVisitor(
 
     private fun ClassDescriptor.additionalExtras() = listOfNotNull(
         ExtraModifiers.KotlinOnlyModifiers.Inline.takeIf { isInline },
+        ExtraModifiers.KotlinOnlyModifiers.Value.takeIf { isValue },
         ExtraModifiers.KotlinOnlyModifiers.External.takeIf { isExternal },
         ExtraModifiers.KotlinOnlyModifiers.Inner.takeIf { isInner },
         ExtraModifiers.KotlinOnlyModifiers.Data.takeIf { isData },
-        ExtraModifiers.KotlinOnlyModifiers.Fun.takeIf { isFun }
+        ExtraModifiers.KotlinOnlyModifiers.Fun.takeIf { isFun },
     ).toSet()
 
     private fun ValueParameterDescriptor.additionalExtras() = listOfNotNull(
