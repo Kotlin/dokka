@@ -2,13 +2,18 @@ package org.jetbrains.dokka.webhelp.renderers
 
 import kotlinx.html.*
 import kotlinx.html.stream.createHTML
+import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.renderers.DefaultRenderer
 import org.jetbrains.dokka.base.renderers.RootCreator
+import org.jetbrains.dokka.base.renderers.TabSortingStrategy
 import org.jetbrains.dokka.base.resolvers.anchors.SymbolAnchorHint
 import org.jetbrains.dokka.base.resolvers.local.DokkaBaseLocationProvider
 import org.jetbrains.dokka.model.DisplaySourceSet
+import org.jetbrains.dokka.model.dfs
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
+import org.jetbrains.dokka.plugability.plugin
+import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 import org.jetbrains.dokka.webhelp.renderers.preprocessors.ConfigurationAppender
 import org.jetbrains.dokka.webhelp.renderers.preprocessors.ProjectDefinitionAppender
@@ -23,12 +28,36 @@ open class WebhelpRenderer(private val dokkaContext: DokkaContext) : DefaultRend
     override val preprocessors: List<PageTransformer> =
         listOf(RootCreator, TableOfContentPreprocessor(), ProjectDefinitionAppender, ConfigurationAppender)
 
+    private val tabSortingStrategy = context.plugin<DokkaBase>().querySingle { tabSortingStrategy }
+
+    private fun <T : ContentNode> sortTabs(strategy: TabSortingStrategy, tabs: Collection<T>): List<T> {
+        val sorted = strategy.sort(tabs)
+        if (sorted.size != tabs.size)
+            context.logger.warn("Tab sorting strategy has changed number of tabs from ${tabs.size} to ${sorted.size}")
+        return sorted
+    }
+
     override fun FlowContent.wrapGroup(
         node: ContentGroup,
         pageContext: ContentPage,
         childrenCallback: FlowContent.() -> Unit
     ) {
         when {
+            node.hasStyle(ContentStyle.TabbedContent) && node.children.isNotEmpty() -> tabs {
+                val secondLevel = node.children.filterIsInstance<ContentComposite>().flatMap { it.children }
+                    .filterIsInstance<ContentHeader>().flatMap { it.children }.filterIsInstance<ContentText>()
+                val firstLevel = node.children.filterIsInstance<ContentHeader>().flatMap { it.children }
+                    .filterIsInstance<ContentText>()
+
+                sortTabs(tabSortingStrategy, firstLevel.union(secondLevel)).forEach { element ->
+                    tab(title = element.text) {
+                        node.dfs {
+                            it.extra.allOfType<SimpleAttr>()
+                                .any { it.extraKey == "data-togglable" && it.extraValue == element.text }
+                        }?.build(this, pageContext)
+                    }
+                }
+            }
             node.hasStyle(TextStyle.Paragraph) || node.hasStyle(TextStyle.Block) -> p { childrenCallback() }
             else -> childrenCallback()
         }
@@ -93,7 +122,7 @@ open class WebhelpRenderer(private val dokkaContext: DokkaContext) : DefaultRend
 
         node.children.forEach { row ->
             tr {
-                if(row.isAnchorable){
+                if (row.isAnchorable) {
                     attributes["id"] = row.anchor!!
                 }
                 row.children.forEach {
