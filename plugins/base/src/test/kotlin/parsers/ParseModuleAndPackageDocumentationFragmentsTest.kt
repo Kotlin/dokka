@@ -1,8 +1,12 @@
 package parsers
 
-import org.jetbrains.dokka.base.parsers.moduleAndPackage.*
+import org.jetbrains.dokka.base.parsers.moduleAndPackage.IllegalModuleAndPackageDocumentation
 import org.jetbrains.dokka.base.parsers.moduleAndPackage.ModuleAndPackageDocumentation.Classifier.Module
 import org.jetbrains.dokka.base.parsers.moduleAndPackage.ModuleAndPackageDocumentation.Classifier.Package
+import org.jetbrains.dokka.base.parsers.moduleAndPackage.ModuleAndPackageDocumentationFile
+import org.jetbrains.dokka.base.parsers.moduleAndPackage.ModuleAndPackageDocumentationFragment
+import org.jetbrains.dokka.base.parsers.moduleAndPackage.ModuleAndPackageDocumentationSource
+import org.jetbrains.dokka.base.parsers.moduleAndPackage.parseModuleAndPackageDocumentationFragments
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -12,9 +16,7 @@ import java.nio.file.Path
 
 class ParseModuleAndPackageDocumentationFragmentsTest {
 
-    @Test
-    fun `basic example`() {
-
+    private fun testBasicExample(lineSeperator: String = "\n") {
         val source = source(
             """
                 # Module kotlin-demo
@@ -23,11 +25,11 @@ class ParseModuleAndPackageDocumentationFragmentsTest {
                 # Package org.jetbrains.kotlin.demo
                 Package demo description
                 ## Level 2 heading
-                Heading 2
+                Heading 2\r\n
         
                 # Package org.jetbrains.kotlin.demo2
                 Package demo2 description
-                """.trimIndent()
+                """.trimIndent().replace("\n", lineSeperator)
         )
         val fragments = parseModuleAndPackageDocumentationFragments(source)
 
@@ -42,7 +44,7 @@ class ParseModuleAndPackageDocumentationFragmentsTest {
                 ModuleAndPackageDocumentationFragment(
                     classifier = Package,
                     name = "org.jetbrains.kotlin.demo",
-                    documentation = "Package demo description\n## Level 2 heading\nHeading 2",
+                    documentation = "Package demo description${lineSeperator}## Level 2 heading${lineSeperator}Heading 2\\r\\n",
                     source = source
                 ),
                 ModuleAndPackageDocumentationFragment(
@@ -54,6 +56,16 @@ class ParseModuleAndPackageDocumentationFragmentsTest {
             ),
             fragments
         )
+    }
+
+    @Test
+    fun `basic example`() {
+        testBasicExample()
+    }
+
+    @Test
+    fun `CRLF line seperators`() {
+        testBasicExample("\r\n")
     }
 
     @Test
