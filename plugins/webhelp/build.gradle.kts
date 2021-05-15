@@ -9,6 +9,8 @@ dependencies {
 
     val coroutines_version: String by project
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version")
+
+    implementation("org.jsoup:jsoup:1.13.1")
 }
 
 registerDokkaArtifactPublication("webhelpPlugin") {

@@ -10,6 +10,7 @@ import org.jetbrains.dokka.base.resolvers.anchors.SymbolAnchorHint
 import org.jetbrains.dokka.base.resolvers.local.DokkaBaseLocationProvider
 import org.jetbrains.dokka.model.DisplaySourceSet
 import org.jetbrains.dokka.model.dfs
+import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
@@ -19,6 +20,7 @@ import org.jetbrains.dokka.webhelp.renderers.preprocessors.ConfigurationAppender
 import org.jetbrains.dokka.webhelp.renderers.preprocessors.ProjectDefinitionAppender
 import org.jetbrains.dokka.webhelp.renderers.preprocessors.TableOfContentPreprocessor
 import org.jetbrains.dokka.webhelp.renderers.tags.*
+import org.jsoup.Jsoup
 import java.io.File
 
 open class WebhelpRenderer(private val dokkaContext: DokkaContext) : DefaultRenderer<FlowContent>(dokkaContext) {
@@ -122,17 +124,44 @@ open class WebhelpRenderer(private val dokkaContext: DokkaContext) : DefaultRend
 
         node.children.forEach { row ->
             tr {
+                attributes["section"] = row.sourceSets.joinToString(",") { it.name }
                 if (row.isAnchorable) {
                     attributes["id"] = row.anchor!!
                 }
-                row.children.forEach {
-                    td {
-                        it.build(this@table, pageContext, sourceSetRestriction)
-                    }
+                row.children.forEach { cell ->
+//                    cell.sourceSets.forEach { cellSourceset ->
+                        td {
+                            attributes["section"] = cell.sourceSets.joinToString(",") { it.name }
+                            cell.build(this@table, pageContext, sourceSetRestriction)
+                        }
+//                    }
                 }
             }
+//            tr {
+//                if (row.isAnchorable) {
+//                    attributes["id"] = row.anchor!!
+//                }
+//                row.children.forEach {
+//                    td {
+//                        it.build(this, pageContext, sourceSetRestriction)
+//                    }
+//                }
+//            }
         }
     }
+
+//    private fun HTMLTag.buildWithSourcesetInformation(sourceset: DisplaySourceSet, block: FlowContent.() -> Unit) {
+//        createHTML().div {
+//            visit(block)
+////            block()
+//        }.let {
+//            val document = Jsoup.parse(it, "UTF-8")
+//            document.allElements.map { it.attr("section", sourceset.name) }
+//            unsafe {
+//                +document.select("div").last().html()
+//            }
+//        }
+//    }
 
     override fun FlowContent.buildCodeBlock(code: ContentCodeBlock, pageContext: ContentPage) =
         code {
@@ -158,12 +187,51 @@ open class WebhelpRenderer(private val dokkaContext: DokkaContext) : DefaultRend
         pageContext: ContentPage,
         sourceSetRestriction: Set<DisplaySourceSet>?
     ) {
-        content.sourceSets.filter {
-            sourceSetRestriction == null || it in sourceSetRestriction
-        }.map { it to setOf(content.inner) }.forEach { (sourceset, nodes) ->
-            p {
-//                attributes["section"] = sourceset.sourceSetIDs.all.joinToString { it.sourceSetName }
-                nodes.forEach { node -> node.build(this, pageContext) }
+        buildPlatformDependent(
+            content.sourceSets.filter {
+                sourceSetRestriction == null || it in sourceSetRestriction
+            }.map { it to setOf(content.inner) }.toMap(),
+            pageContext,
+            content.extra,
+            content.style
+        )
+    }
+
+    fun FlowContent.buildPlatformDependent(
+        nodes: Map<DisplaySourceSet, Collection<ContentNode>>,
+        pageContext: ContentPage,
+        extra: PropertyContainer<ContentNode> = PropertyContainer.empty(),
+        styles: Set<Style> = emptySet()
+    ) {
+        val contents = contentsForSourceSetDependent(nodes, pageContext)
+        contents.forEach {
+            consumer.onTagContentUnsafe { +it.second }
+        }
+    }
+
+    private fun contentsForSourceSetDependent(
+        nodes: Map<DisplaySourceSet, Collection<ContentNode>>,
+        pageContext: ContentPage,
+    ): List<Pair<DisplaySourceSet, String>> {
+        return nodes.toList().map { (sourceSet, elements) ->
+            sourceSet to createHTML(prettyPrint = false).div {
+                elements.forEach {
+                    buildContentNode(it, pageContext, sourceSet.toSet())
+                }
+            }
+        }.groupBy(
+            Pair<DisplaySourceSet, String>::second,
+            Pair<DisplaySourceSet, String>::first
+        ).entries.flatMap { (html, sourceSets) ->
+            sourceSets.map { displaySourceSet ->
+                displaySourceSet to createHTML(prettyPrint = false)
+                    .div {
+                        val document = Jsoup.parse(html, "UTF-8")
+                        document.allElements.map { it.attr("section", displaySourceSet.name) }
+                        unsafe {
+                            +document.select("div").last().html()
+                        }
+                    }.stripDiv()
             }
         }
     }
@@ -182,13 +250,93 @@ open class WebhelpRenderer(private val dokkaContext: DokkaContext) : DefaultRend
     }
 
     override fun FlowContent.buildDivergent(node: ContentDivergentGroup, pageContext: ContentPage) {
-        node.children.forEach { it.build(this, pageContext) }
+        val distinct =
+            node.groupDivergentInstances(pageContext,
+                beforeTransformer = { instance, _, sourceSet ->
+                    createHTML(prettyPrint = false).div {
+                        instance.before?.let { before ->
+                            buildContentNode(before, pageContext, sourceSet)
+                        }
+                    }.stripDiv()
+                },
+                afterTransformer = { instance, _, sourceSet ->
+                    createHTML(prettyPrint = false).div {
+                        instance.after?.let { after ->
+                            buildContentNode(after, pageContext, sourceSet)
+                        }
+                    }.stripDiv()
+                })
+
+        distinct.forEach { distinctInstances ->
+            val groupedDivergent = distinctInstances.value.groupBy { it.second }
+
+            consumer.onTagContentUnsafe {
+                +createHTML().p {
+                    attributes["section"] = groupedDivergent.keys.joinToString(",") {
+                        it.name
+                    }
+
+                    val divergentForPlatformDependent = groupedDivergent.map { (sourceSet, elements) ->
+                        sourceSet to elements.map { e -> e.first.divergent }
+                    }.toMap()
+
+                    consumer.onTagContentUnsafe {
+                        +createHTML().p {
+                            consumer.onTagContentUnsafe { +distinctInstances.key.first }
+                        } //tu sie wywala
+                    }
+//                    p {
+                        if (node.implicitlySourceSetHinted) {
+                            buildPlatformDependent(divergentForPlatformDependent, pageContext)
+                        } else {
+                            distinctInstances.value.forEach {
+                                buildContentNode(it.first.divergent, pageContext, setOf(it.second))
+                            }
+                        }
+//                    }
+                    consumer.onTagContentUnsafe { +distinctInstances.key.second }
+                }
+            }
+        }
+//        node.sourceSets.forEach { sourceset ->
+//            node.children.filter { sourceset in it.sourceSets }.forEach { toBuild ->
+//                p {
+//                    attributes["section"] = sourceset.name
+//                    toBuild.build(this, pageContext)
+//                }
+//            }
+//        }
+//        node.children.forEach { it.build(this, pageContext) }
+//        node.children.forEach {
+//            p {
+//
+//                attributes["section"] = "divergent"
+//                it.build(this, pageContext)
+//            }
+//        }
     }
 
     override fun FlowContent.buildDivergentInstance(node: ContentDivergentInstance, pageContext: ContentPage) {
-        node.before?.let { p { it.build(this, pageContext) } }
-        node.divergent.let { p { it.build(this, pageContext) } }
-        node.after?.let { p { it.build(this, pageContext) } }
+        node.sourceSets.forEach { sourceset ->
+            node.before?.takeIf { sourceset in it.sourceSets }?.let {
+                p {
+                    attributes["section"] = sourceset.name
+                    it.build(this, pageContext)
+                }
+            }
+            node.divergent.takeIf { sourceset in it.sourceSets }?.let {
+                p {
+                    attributes["section"] = sourceset.name
+                    it.build(this, pageContext)
+                }
+            }
+            node.after?.takeIf { sourceset in it.sourceSets }?.let {
+                p {
+                    attributes["section"] = sourceset.name
+                    it.build(this, pageContext)
+                }
+            }
+        }
     }
 
     override fun FlowContent.buildText(textNode: ContentText) = text(textNode.text)
