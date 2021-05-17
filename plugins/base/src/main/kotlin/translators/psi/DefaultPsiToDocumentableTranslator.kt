@@ -264,7 +264,7 @@ class DefaultPsiToDocumentableTranslator(
                         name.orEmpty(),
                         fields.filterIsInstance<PsiEnumConstant>().map { entry ->
                             DEnumEntry(
-                                dri.withClass("${entry.name}"),
+                                dri.withClass(entry.name),
                                 entry.name,
                                 javadocParser.parseDocumentation(entry).toSourceSetDependent(),
                                 null,
