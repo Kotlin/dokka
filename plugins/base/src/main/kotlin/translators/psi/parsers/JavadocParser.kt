@@ -213,9 +213,9 @@ class JavadocParser(
                         javadoc doesn't care about it.
                          */
                         text.let {
-                            if ((prevSibling as? PsiDocToken)?.isLeadingAsterisk() == true && text != " " && state.previousElement !is PsiInlineDocTag) it?.trimStart() else it
+                            if ((prevSibling as? PsiDocToken)?.isLeadingAsterisk() == true && text.isNotBlank() && state.previousElement !is PsiInlineDocTag) it?.trimStart() else it
                         }?.let {
-                            if ((nextSibling as? PsiDocToken)?.isLeadingAsterisk() == true && text != " ") it.trimEnd() else it
+                            if ((nextSibling as? PsiDocToken)?.isLeadingAsterisk() == true && text.isNotBlank()) it.trimEnd() else it
                         }?.let {
                             if (shouldHaveSpaceAtTheEnd()) "$it " else it
                         }
@@ -253,7 +253,7 @@ class JavadocParser(
             val lastHtmlTag = text.trim().substringAfterLast("<")
             val endsWithAnUnclosedTag = lastHtmlTag.endsWith(">") && !lastHtmlTag.startsWith("</")
 
-            return (nextSibling as? PsiWhiteSpace)?.text == "\n " &&
+            return (nextSibling as? PsiWhiteSpace)?.text?.startsWith("\n ") == true &&
                     (getNextSiblingIgnoringWhitespace() as? PsiDocToken)?.tokenType != JavaDocTokenTypes.INSTANCE.commentEnd() &&
                     nextNotEmptySibling?.isLeadingAsterisk() == true &&
                     furtherNotEmptySibling?.tokenType == JavaDocTokenTypes.INSTANCE.commentData() &&
