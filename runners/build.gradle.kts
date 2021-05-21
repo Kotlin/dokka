@@ -3,4 +3,8 @@ subprojects {
         plugin("maven-publish")
         plugin("com.jfrog.bintray")
     }
+
+    tasks.processResources {
+        duplicatesStrategy = DuplicatesStrategy.WARN
+    }
 }
