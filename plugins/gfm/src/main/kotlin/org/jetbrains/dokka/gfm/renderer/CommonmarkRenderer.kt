@@ -344,7 +344,10 @@ open class CommonmarkRenderer(
         }
     }
 
-    private fun String.withEntersAsHtml(): String = replace("[\n]+".toRegex(), "<br>")
+    private fun String.withEntersAsHtml(): String = this
+        .replace("\\\n", "\n\n")
+        .replace("\n[\n]+".toRegex(), "<br>")
+        .replace("\n", " ")
 
     private fun List<Pair<ContentDivergentInstance, DisplaySourceSet>>.getInstanceAndSourceSets() =
         this.let { Pair(it.first().first, it.map { it.second }.toSet()) }
