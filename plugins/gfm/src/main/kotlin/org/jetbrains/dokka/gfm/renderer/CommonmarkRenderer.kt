@@ -318,12 +318,26 @@ open class CommonmarkRenderer(
                 ?: throw DokkaException("Cannot resolve path for ${page.name}")
         }
 
-        when (page) {
+        return when (page) {
             is ContentPage -> outputWriter.write(path, buildPage(page) { c, p -> buildPageContent(c, p) }, ".md")
             is RendererSpecificPage -> when (val strategy = page.strategy) {
                 is RenderingStrategy.Copy -> outputWriter.writeResources(strategy.from, path)
                 is RenderingStrategy.Write -> outputWriter.write(path, strategy.text, "")
                 is RenderingStrategy.Callback -> outputWriter.write(path, strategy.instructions(this, page), ".md")
+                is RenderingStrategy.DriLocationResolvableWrite -> outputWriter.write(
+                        path,
+                        strategy.contentToResolve { dri, sourcesets ->
+                            locationProvider.resolve(dri, sourcesets)
+                        },
+                        ""
+                )
+                is RenderingStrategy.PageLocationResolvableWrite -> outputWriter.write(
+                        path,
+                        strategy.contentToResolve { pageToLocate, context ->
+                            locationProvider.resolve(pageToLocate, context)
+                        },
+                        ""
+                )
                 RenderingStrategy.DoNothing -> Unit
             }
             else -> throw AssertionError(
