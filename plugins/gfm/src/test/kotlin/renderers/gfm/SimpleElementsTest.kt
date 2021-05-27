@@ -15,7 +15,7 @@ class SimpleElementsTest : GfmRenderingOnlyTestBase() {
         val page = testPage {
             header(1, "The Hobbit or There and Back Again")
         }
-        val expect = "//[testPage](test-page.md)\n\n\n\n# The Hobbit or There and Back Again  \n"
+        val expect = "//[testPage](test-page.md)\n\n# The Hobbit or There and Back Again"
         CommonmarkRenderer(context).render(page)
         assertEquals(expect, renderedContent)
     }
@@ -123,12 +123,10 @@ class SimpleElementsTest : GfmRenderingOnlyTestBase() {
 
         val expect = """\//[testPage](test-page.md)
             \
-            \  
             \|  Col1 |  Col2 |  Col3 | 
             \|---|---|---|
             \| <a name="////PointingToDeclaration/"></a>Text1| <a name="////PointingToDeclaration/"></a>Text2| <a name="////PointingToDeclaration/"></a>Text3|
-            \| <a name="////PointingToDeclaration/"></a>Text4| <a name="////PointingToDeclaration/"></a>Text5| <a name="////PointingToDeclaration/"></a>Text6|
-            \""".trimMargin("\\")
+            \| <a name="////PointingToDeclaration/"></a>Text4| <a name="////PointingToDeclaration/"></a>Text5| <a name="////PointingToDeclaration/"></a>Text6|""".trimMargin("\\")
 
         CommonmarkRenderer(context).render(page)
         assertEquals(expect, renderedContent)
@@ -153,12 +151,10 @@ class SimpleElementsTest : GfmRenderingOnlyTestBase() {
 
         val expect = """\//[testPage](test-page.md)
             \
-            \  
             \| | | |
             \|---|---|---|
             \| <a name="////PointingToDeclaration/"></a>Text1| <a name="////PointingToDeclaration/"></a>Text2| <a name="////PointingToDeclaration/"></a>Text3|
-            \| <a name="////PointingToDeclaration/"></a>Text4| <a name="////PointingToDeclaration/"></a>Text5| <a name="////PointingToDeclaration/"></a>Text6|
-            \""".trimMargin("\\")
+            \| <a name="////PointingToDeclaration/"></a>Text4| <a name="////PointingToDeclaration/"></a>Text5| <a name="////PointingToDeclaration/"></a>Text6|""".trimMargin("\\")
 
         CommonmarkRenderer(context).render(page)
         assertEquals(expect, renderedContent)
