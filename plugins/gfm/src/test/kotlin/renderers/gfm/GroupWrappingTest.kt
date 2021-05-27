@@ -34,7 +34,7 @@ class GroupWrappingTest : GfmRenderingOnlyTestBase() {
 
         CommonmarkRenderer(context).render(page)
 
-        assert(renderedContent == "//[testPage](test-page.md)\n\n\n\nab\n\nc")
+        assert(renderedContent == "//[testPage](test-page.md)\n\nab\n\nc")
     }
 
     @Test
@@ -48,8 +48,7 @@ class GroupWrappingTest : GfmRenderingOnlyTestBase() {
         }
 
         CommonmarkRenderer(context).render(page)
-
-        assert(renderedContent == "//[testPage](test-page.md)\n\nab  \nc")
+        assert(renderedContent == "//[testPage](test-page.md)\n\nab\n\nc")
     }
 
     @Test
@@ -70,7 +69,7 @@ class GroupWrappingTest : GfmRenderingOnlyTestBase() {
         CommonmarkRenderer(context).render(page)
 
 //        renderedContent.match(Div("a", Div(Div("bc")), "d"))
-        assert(renderedContent == "//[testPage](test-page.md)\n\nabc  \n  \nd  \n")
+        assert(renderedContent == "//[testPage](test-page.md)\n\nabc\n\nd")
     }
 
 }
