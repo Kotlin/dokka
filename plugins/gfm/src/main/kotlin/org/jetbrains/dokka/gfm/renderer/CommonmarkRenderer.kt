@@ -27,6 +27,7 @@ open class CommonmarkRenderer(
     ) {
         return when {
             node.hasStyle(TextStyle.Block) -> {
+                buildParagraph()
                 childrenCallback()
                 buildParagraph()
             }
@@ -43,7 +44,7 @@ open class CommonmarkRenderer(
         buildParagraph()
         append("#".repeat(level) + " ")
         content()
-        appendNewLine()
+        buildParagraph()
     }
 
     override fun StringBuilder.buildLink(address: String, content: StringBuilder.() -> Unit) {
@@ -57,7 +58,9 @@ open class CommonmarkRenderer(
         pageContext: ContentPage,
         sourceSetRestriction: Set<DisplaySourceSet>?
     ) {
+        buildParagraph()
         buildListLevel(node, pageContext)
+        buildParagraph()
     }
 
     private fun StringBuilder.buildListItem(items: List<ContentNode>, pageContext: ContentPage) {
@@ -135,10 +138,11 @@ open class CommonmarkRenderer(
             }.groupBy(Pair<DisplaySourceSet, String>::second, Pair<DisplaySourceSet, String>::first)
 
             distinct.filter { it.key.isNotBlank() }.forEach { (text, platforms) ->
-                append(" ")
+                buildParagraph()
                 buildSourceSetTags(platforms.toSet())
-                append(" $text")
-                appendNewLine()
+                buildNewLine()
+                append(text.trim())
+                buildParagraph()
             }
         }
     }
@@ -259,25 +263,26 @@ open class CommonmarkRenderer(
         distinct.values.forEach { entry ->
             val (instance, sourceSets) = entry.getInstanceAndSourceSets()
 
+            buildParagraph()
             buildSourceSetTags(sourceSets)
+            buildNewLine()
 
             instance.before?.let {
-                buildNewLine()
-                append("Brief description")
-                buildNewLine()
+                ///append("Brief description")
+                ///buildNewLine()
                 buildContentNode(
                     it,
                     pageContext,
                     sourceSets.first()
                 ) // It's workaround to render content only once
+                buildParagraph()
             }
 
-            buildNewLine()
-            append("Content")
+            ///append("Content")
+            ///buildNewLine()
             entry.groupBy { buildString { buildContentNode(it.first.divergent, pageContext, setOf(it.second)) } }
                 .values.forEach { innerEntry ->
                     val (innerInstance, innerSourceSets) = innerEntry.getInstanceAndSourceSets()
-                    buildNewLine()
                     if (sourceSets.size > 1) {
                         buildSourceSetTags(innerSourceSets)
                         buildNewLine()
@@ -287,12 +292,12 @@ open class CommonmarkRenderer(
                         pageContext,
                         setOf(innerSourceSets.first())
                     ) // It's workaround to render content only once
+                    buildParagraph()
                 }
 
             instance.after?.let {
-                buildNewLine()
-                append("More info")
-                buildNewLine()
+                ///append("More info")
+                ///buildNewLine()
                 buildContentNode(
                     it,
                     pageContext,
