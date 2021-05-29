@@ -36,6 +36,11 @@ open class CommonmarkRenderer(
                 childrenCallback()
                 buildParagraph()
             }
+            node.dci.kind == ContentKind.BriefComment -> {
+                buildParagraph()
+                childrenCallback()
+                buildParagraph()
+            }
             else -> childrenCallback()
         }
     }
@@ -174,46 +179,40 @@ open class CommonmarkRenderer(
             }
         } else {
             val size = node.header.firstOrNull()?.children?.size ?: node.children.firstOrNull()?.children?.size ?: 0
+            if (size <= 0) return
 
             if (node.header.isNotEmpty()) {
                 node.header.forEach {
-                    append("| ")
                     it.children.forEach {
-                        append(" ")
+                        append("| ")
                         it.build(this, pageContext, it.sourceSets)
-                        append(" | ")
+                        append(" ")
                     }
-                    append("\n")
                 }
             } else {
                 append("| ".repeat(size))
-                if (size > 0) {
-                    append("|")
-                    appendNewLine()
-                }
             }
+            append("|")
+            appendNewLine()
 
             append("|---".repeat(size))
-            if (size > 0) {
+            append("|")
+            appendNewLine()
+
+            node.children.forEach { row ->
+                row.children.forEach { cell ->
+                    append("| ")
+                    append(buildString { cell.build(this, pageContext) }
+                        .trim()
+                        .replace("#+ ".toRegex(), "") // Workaround for headers inside tables
+                        .replace("\\\n", "\n\n")
+                        .replace("\n[\n]+".toRegex(), "<br>")
+                        .replace("\n", " ")
+                    )
+                    append(" ")
+                }
                 append("|")
                 appendNewLine()
-            }
-
-            node.children.forEach {
-                val builder = StringBuilder()
-                it.children.forEach {
-                    builder.append("| ")
-                    builder.append("<a name=\"${it.dci.dri.first()}\"></a>")
-                    builder.append(
-                        buildString { it.build(this, pageContext) }.replace(
-                            Regex("#+ "),
-                            ""
-                        )
-                    )  // Workaround for headers inside tables
-                }
-                append(builder.toString().withEntersAsHtml())
-                append("|".repeat(size + 1 - it.children.size))
-                append("\n")
             }
         }
     }
@@ -362,11 +361,6 @@ open class CommonmarkRenderer(
             )
         }
     }
-
-    private fun String.withEntersAsHtml(): String = this
-        .replace("\\\n", "\n\n")
-        .replace("\n[\n]+".toRegex(), "<br>")
-        .replace("\n", " ")
 
     private fun List<Pair<ContentDivergentInstance, DisplaySourceSet>>.getInstanceAndSourceSets() =
         this.let { Pair(it.first().first, it.map { it.second }.toSet()) }

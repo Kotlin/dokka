@@ -120,13 +120,12 @@ class SimpleElementsTest : GfmRenderingOnlyTestBase() {
                 }
             }
         }
-
-        val expect = """\//[testPage](test-page.md)
-            \
-            \|  Col1 |  Col2 |  Col3 | 
-            \|---|---|---|
-            \| <a name="////PointingToDeclaration/"></a>Text1| <a name="////PointingToDeclaration/"></a>Text2| <a name="////PointingToDeclaration/"></a>Text3|
-            \| <a name="////PointingToDeclaration/"></a>Text4| <a name="////PointingToDeclaration/"></a>Text5| <a name="////PointingToDeclaration/"></a>Text6|""".trimMargin("\\")
+        val expect = """|//[testPage](test-page.md)
+                        |
+                        || Col1 | Col2 | Col3 |
+                        ||---|---|---|
+                        || Text1 | Text2 | Text3 |
+                        || Text4 | Text5 | Text6 |""".trimMargin()
 
         CommonmarkRenderer(context).render(page)
         assertEquals(expect, renderedContent)
@@ -148,13 +147,12 @@ class SimpleElementsTest : GfmRenderingOnlyTestBase() {
                 }
             }
         }
-
-        val expect = """\//[testPage](test-page.md)
-            \
-            \| | | |
-            \|---|---|---|
-            \| <a name="////PointingToDeclaration/"></a>Text1| <a name="////PointingToDeclaration/"></a>Text2| <a name="////PointingToDeclaration/"></a>Text3|
-            \| <a name="////PointingToDeclaration/"></a>Text4| <a name="////PointingToDeclaration/"></a>Text5| <a name="////PointingToDeclaration/"></a>Text6|""".trimMargin("\\")
+        val expect = """|//[testPage](test-page.md)
+                        |
+                        || | | |
+                        ||---|---|---|
+                        || Text1 | Text2 | Text3 |
+                        || Text4 | Text5 | Text6 |""".trimMargin()
 
         CommonmarkRenderer(context).render(page)
         assertEquals(expect, renderedContent)
