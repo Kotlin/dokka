@@ -1,16 +1,20 @@
 package org.jetbrains.dokka.base.translators.documentables
 
-import org.jetbrains.dokka.pages.ContentGroup
-import org.jetbrains.dokka.pages.ContentNode
-import org.jetbrains.dokka.pages.ContentText
-import org.jetbrains.dokka.pages.TextStyle
+import org.jetbrains.dokka.model.withDescendants
+import org.jetbrains.dokka.pages.*
+import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 
 fun briefFromContentNodes(description: List<ContentNode>): List<ContentNode> {
     val firstSentenceRegex = """^((?:[^.?!]|[.!?](?!\s))*[.!?])""".toRegex()
 
+    //Description that is entirely based on html content. In html it is hard to define a brief so we render all of it
+    if(description.all { it.withDescendants().all { it is ContentGroup || it.safeAs<ContentText>()?.isHtml == true } }){
+        return description
+    }
+
     var sentenceFound = false
     fun lookthrough(node: ContentNode): ContentNode =
-        if (node is ContentText && firstSentenceRegex.containsMatchIn(node.text)) {
+        if (node is ContentText && !node.isHtml && firstSentenceRegex.containsMatchIn(node.text)) {
             sentenceFound = true
             node.copy(text = firstSentenceRegex.find(node.text)?.value.orEmpty())
         } else if (node is ContentGroup) {
@@ -24,3 +28,6 @@ fun briefFromContentNodes(description: List<ContentNode>): List<ContentNode> {
         if (!sentenceFound) lookthrough(it) else null
     }
 }
+
+private val ContentText.isHtml
+    get() = extra[HtmlContent] != null
