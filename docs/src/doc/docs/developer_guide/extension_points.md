@@ -161,7 +161,7 @@ This step uses `CoreExtensions.allModulePageTransformer` entry point. All extens
 
 Default core extension points already have an implementation for providing basic Dokka functionality. All of them are declared in `DokkaBase` plugin. If you don't want this default extensions to load, all you need to do is not load Dokka base and load your plugin instead.
  
- ```kotlin
+```kotlin
 val customPlugin by configurations.creating
 
 dependencies {
@@ -182,7 +182,7 @@ tasks {
 `DokkaBase` also register several new extension points, with which you can change default behaviour of `DokkaBase` extensions. In order to use them, you need to add `dokka-base` to you dependencies:
 
 ```kotlin
-    compileOnly("org.jetbrains.dokka:dokka-base:<dokka_version>")
+compileOnly("org.jetbrains.dokka:dokka-base:<dokka_version>")
 ```
 
 Then, you need to obtain `DokkaBase` instance using `plugin` function:
