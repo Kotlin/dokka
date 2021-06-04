@@ -8,13 +8,15 @@ import com.intellij.psi.impl.source.tree.LazyParseablePsiElement
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.javadoc.*
 import org.intellij.markdown.MarkdownElementTypes
+import org.jetbrains.dokka.analysis.DokkaResolutionFacade
 import org.jetbrains.dokka.analysis.from
+import org.jetbrains.dokka.base.parsers.MarkdownParser
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.model.doc.Deprecated
-import org.jetbrains.dokka.model.doc.Suppress
 import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.dokka.utilities.enumValueOrNull
+import org.jetbrains.kotlin.idea.kdoc.resolveKDocLink
 import org.jetbrains.kotlin.idea.refactoring.fqName.getKotlinFqName
 import org.jetbrains.kotlin.idea.util.CommentSaver.Companion.tokenType
 import org.jetbrains.kotlin.psi.psiUtil.getNextSiblingIgnoringWhitespace
@@ -29,17 +31,48 @@ interface JavaDocumentationParser {
 }
 
 class JavadocParser(
-    private val logger: DokkaLogger
+    private val logger: DokkaLogger,
+    private val resolutionFacade: DokkaResolutionFacade,
 ) : JavaDocumentationParser {
     private val inheritDocResolver = InheritDocResolver(logger)
+    private var inheritDocSection: DocumentationNode? = null
 
     override fun parseDocumentation(element: PsiNamedElement): DocumentationNode {
-        val docComment = findClosestDocComment(element, logger) ?: return DocumentationNode(emptyList())
+        return when(val comment = findClosestDocComment(element, logger)){
+            is JavaDocComment -> parseDocumentation(comment, element)
+            is KotlinDocComment -> parseDocumentation(comment)
+            else -> DocumentationNode(emptyList())
+        }
+    }
+
+    private fun parseDocumentation(element: JavaDocComment, context: PsiNamedElement): DocumentationNode {
+        val docComment = element.comment
         val nodes = listOfNotNull(docComment.getDescription()) + docComment.tags.mapNotNull { tag ->
-            parseDocTag(tag, docComment, element)
+            parseDocTag(tag, docComment, context)
         }
         return DocumentationNode(nodes)
     }
+
+    private fun parseDocumentation(element: KotlinDocComment, parseWithChildren: Boolean = true): DocumentationNode =
+        MarkdownParser.parseFromKDocTag(
+            kDocTag = element.comment,
+            externalDri = { link: String ->
+                try {
+                    resolveKDocLink(
+                        context = resolutionFacade.resolveSession.bindingContext,
+                        resolutionFacade = resolutionFacade,
+                        fromDescriptor = element.descriptor,
+                        fromSubjectOfTag = null,
+                        qualifiedName = link.split('.')
+                    ).firstOrNull()?.let { DRI.from(it) }
+                } catch (e1: IllegalArgumentException) {
+                    logger.warn("Couldn't resolve link for $link")
+                    null
+                }
+            },
+            kdocLocation = null,
+            parseWithChildren = parseWithChildren
+        )
 
     private fun parseDocTag(tag: PsiDocTag, docComment: PsiDocComment, analysedElement: PsiNamedElement): TagWrapper? =
         enumValueOrNull<JavadocTag>(tag.name)?.let { javadocTag ->
@@ -184,6 +217,16 @@ class JavadocParser(
                 else -> stringifySimpleElement(state, context)
             }
 
+        private fun DocumentationContent.stringify(state: ParserState, context: CommentResolutionContext): ParsingResult =
+            when(this){
+                is PsiDocumentationContent -> psiElement.stringify(state, context)
+                is DescriptorDocumentationContent -> {
+                    inheritDocSection = parseDocumentation(KotlinDocComment(element, descriptor), parseWithChildren = false)
+                    ParsingResult(state, "<inheritdoc />")
+                }
+                else -> throw IllegalStateException("Unrecognised documentation content: $this")
+            }
+
         private fun PsiElement.stringifySimpleElement(
             state: ParserState,
             context: CommentResolutionContext
@@ -303,43 +346,57 @@ class JavadocParser(
             }
         }
 
-        private fun createBlock(element: Element, insidePre: Boolean = false): DocTag? {
+        private fun createBlock(element: Element, insidePre: Boolean = false): List<DocTag> {
             val children = element.childNodes()
-                .mapNotNull { convertHtmlNode(it, insidePre = insidePre || element.tagName() == "pre") }
+                .flatMap { convertHtmlNode(it, insidePre = insidePre || element.tagName() == "pre") }
 
-            fun ifChildrenPresent(operation: () -> DocTag): DocTag? {
-                return if (children.isNotEmpty()) operation() else null
+            fun ifChildrenPresent(operation: () -> DocTag): List<DocTag> {
+                return if (children.isNotEmpty()) listOf(operation()) else emptyList()
             }
             return when (element.tagName()) {
                 "blockquote" -> ifChildrenPresent { BlockQuote(children) }
                 "p" -> ifChildrenPresent { P(children) }
                 "b" -> ifChildrenPresent { B(children) }
                 "strong" -> ifChildrenPresent { Strong(children) }
-                "index" -> Index(children)
+                "index" -> listOf(Index(children))
                 "i" -> ifChildrenPresent { I(children) }
-                "em" -> Em(children)
-                "code" -> ifChildrenPresent { CodeInline(children) }
-                "pre" -> Pre(children)
+                "em" -> listOf(Em(children))
+                "code" -> ifChildrenPresent { if(insidePre) CodeBlock(children) else CodeInline(children) }
+                "pre" -> if(children.size == 1 && children.first() is CodeInline) {
+                    listOf(CodeBlock(children.first().children))
+                } else {
+                    listOf(Pre(children))
+                }
                 "ul" -> ifChildrenPresent { Ul(children) }
                 "ol" -> ifChildrenPresent { Ol(children) }
-                "li" -> Li(children)
-                "a" -> createLink(element, children)
+                "li" -> listOf(Li(children))
+                "a" -> listOf(createLink(element, children))
                 "table" -> ifChildrenPresent { Table(children) }
                 "tr" -> ifChildrenPresent { Tr(children) }
-                "td" -> Td(children)
-                "thead" -> THead(children)
-                "tbody" -> TBody(children)
-                "tfoot" -> TFoot(children)
+                "td" -> listOf(Td(children))
+                "thead" -> listOf(THead(children))
+                "tbody" -> listOf(TBody(children))
+                "tfoot" -> listOf(TFoot(children))
                 "caption" -> ifChildrenPresent { Caption(children) }
-                else -> Text(body = element.ownText())
+                "inheritdoc" -> {
+                    val section = inheritDocSection
+                    inheritDocSection = null
+                    val parsed = section?.children?.flatMap { it.root.children }.orEmpty()
+                    if(parsed.size == 1 && parsed.first() is P){
+                        parsed.first().children
+                    } else {
+                        parsed
+                    }
+                }
+                else -> listOf(Text(body = element.ownText()))
             }
         }
 
-        private fun convertHtmlNode(node: Node, insidePre: Boolean = false): DocTag? = when (node) {
+        private fun convertHtmlNode(node: Node, insidePre: Boolean = false): List<DocTag> = when (node) {
             is TextNode -> (if (insidePre) node.wholeText else node.text()
-                .takeIf { it.isNotBlank() })?.let { Text(body = it) }
+                .takeIf { it.isNotBlank() })?.let { listOf(Text(body = it)) }.orEmpty()
             is Element -> createBlock(node)
-            else -> null
+            else -> emptyList()
         }
 
         override fun invoke(
@@ -352,7 +409,7 @@ class JavadocParser(
             }.parsedLine?.let {
                 val trimmed = it.trim()
                 val toParse = if (asParagraph) "<p>$trimmed</p>" else trimmed
-                Jsoup.parseBodyFragment(toParse).body().childNodes().mapNotNull { convertHtmlNode(it) }
+                Jsoup.parseBodyFragment(toParse).body().childNodes().flatMap { convertHtmlNode(it) }
             }.orEmpty()
     }
 

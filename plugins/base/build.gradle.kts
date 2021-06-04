@@ -1,8 +1,5 @@
 import org.jetbrains.registerDokkaArtifactPublication
 
-plugins {
-    id("com.jfrog.bintray")
-}
 
 dependencies {
     val coroutines_version: String by project
