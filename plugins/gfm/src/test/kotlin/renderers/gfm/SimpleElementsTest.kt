@@ -157,4 +157,51 @@ class SimpleElementsTest : GfmRenderingOnlyTestBase() {
         CommonmarkRenderer(context).render(page)
         assertEquals(expect, renderedContent)
     }
+
+    @Test
+    fun `table with extra cell in row`() {
+        val page = testPage {
+            table {
+                header {
+                    text("Col1")
+                }
+                row {
+                    text("Text1")
+                    text("Text2")
+                }
+            }
+        }
+        val expect = """|//[testPage](test-page.md)
+                        |
+                        || Col1 |
+                        ||---|
+                        || Text1 | Text2 |""".trimMargin()
+
+        CommonmarkRenderer(context).render(page)
+        assertEquals(expect, renderedContent)
+    }
+
+    @Test
+    fun `table with extra cell in header`() {
+        val page = testPage {
+            table {
+                header {
+                    text("Col1")
+                    text("Col2")
+                }
+                row {
+                    text("Text1")
+                }
+            }
+        }
+        val expect = """|//[testPage](test-page.md)
+                        |
+                        || Col1 | Col2 |
+                        ||---|---|
+                        || Text1 |""".trimMargin()
+
+        CommonmarkRenderer(context).render(page)
+        assertEquals(expect, renderedContent)
+    }
+
 }
