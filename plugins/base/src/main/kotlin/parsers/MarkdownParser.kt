@@ -484,9 +484,8 @@ open class MarkdownParser(
     }
 
     private fun String.transform() = this
-        .replace(Regex("\n\n+"), "")        // Squashing new lines between paragraphs
-        .replace(Regex("\n"), " ")
-        .replace(Regex(" >+ +"), " ")      // Replacement used in blockquotes, get rid of garbage
+        .replace(Regex("\n>+ +"), "\n")     // Replacement used in blockquotes, get rid of garbage
+        .replace(Regex("\n\n+"), "\n")      // Squashing new lines between paragraphs
 
     private fun detailedException(baseMessage: String, node: ASTNode) =
         IllegalStateException(

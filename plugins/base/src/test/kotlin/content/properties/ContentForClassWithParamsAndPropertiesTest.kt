@@ -187,7 +187,7 @@ class ContentForClassWithParamsAndPropertiesTest : BaseAbstractTest() {
             listOf(
                 P(
                     children = listOf(
-                        Text("Defines whether placeholders are enabled, and whether the loaded total count will be ignored.")
+                        Text("Defines whether placeholders are enabled, and whether the\nloaded total count will be ignored.")
                     )
                 )
             ), emptyMap(), "MARKDOWN_FILE"
@@ -200,7 +200,7 @@ class ContentForClassWithParamsAndPropertiesTest : BaseAbstractTest() {
             listOf(
                 P(
                     children = listOf(
-                        Text("Load items around this key, or at the beginning of the data set if "),
+                        Text("Load items around this key, or at the beginning of the data set\nif "),
                         CodeInline(
                             listOf(
                                 Text("null")
@@ -212,7 +212,7 @@ class ContentForClassWithParamsAndPropertiesTest : BaseAbstractTest() {
                 ),
                 P(
                     children = listOf(
-                        Text("Note that this key is generally a hint, and may be ignored if you want to always load from the beginning.")
+                        Text("Note that this key is generally a hint, and may be ignored if you want to always load from\nthe beginning.")
                     )
                 )
             ), emptyMap(), "MARKDOWN_FILE"

@@ -135,7 +135,7 @@ abstract class SamplesTransformer(val context: DokkaContext) : PageTransformer {
         ContentCodeBlock(
             children = listOf(
                 ContentText(
-                    text = content,
+                    wholeText = content,
                     dci = DCI(dri, ContentKind.Sample),
                     sourceSets = sourceSets,
                     style = emptySet(),

@@ -33,7 +33,7 @@ object DocTagsFromIElementFactory {
             MarkdownElementTypes.ORDERED_LIST           -> Ol(children, params)
             MarkdownElementTypes.UNORDERED_LIST         -> Ul(children, params)
             MarkdownElementTypes.PARAGRAPH              -> P(children, params)
-            MarkdownTokenTypes.TEXT                     -> Text(body ?: throw NullPointerException("Text body should be at least empty string passed to DocNodes factory!"), children, params )
+            MarkdownTokenTypes.TEXT                     -> Text(body.orEmpty(), children, params)
             MarkdownTokenTypes.HORIZONTAL_RULE          -> HorizontalRule
             MarkdownTokenTypes.HARD_LINE_BREAK          -> Br
             GFMElementTypes.STRIKETHROUGH               -> Strikethrough(children, params)

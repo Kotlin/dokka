@@ -25,12 +25,13 @@ interface ContentNode : WithExtraProperties<ContentNode>, WithChildren<ContentNo
 
 /** Simple text */
 data class ContentText(
-    val text: String,
+    val wholeText: String,
     override val dci: DCI,
     override val sourceSets: Set<DisplaySourceSet>,
     override val style: Set<Style> = emptySet(),
     override val extra: PropertyContainer<ContentNode> = PropertyContainer.empty()
 ) : ContentNode {
+    val text: String get() = wholeText.replace('\n', ' ')
     override fun withNewExtras(newExtras: PropertyContainer<ContentNode>): ContentText = copy(extra = newExtras)
     override fun withSourceSets(sourceSets: Set<DisplaySourceSet>): ContentText = copy(sourceSets = sourceSets)
     override fun hasAnyContent(): Boolean = !text.isBlank()

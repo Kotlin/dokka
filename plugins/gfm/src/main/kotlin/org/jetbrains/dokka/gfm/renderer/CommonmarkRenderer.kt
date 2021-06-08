@@ -215,13 +215,13 @@ open class CommonmarkRenderer(
     }
 
     override fun StringBuilder.buildText(textNode: ContentText) {
-        if (textNode.text.isNotBlank()) {
+        if (textNode.wholeText.isNotBlank()) {
             val decorators = decorators(textNode.style)
-            append(textNode.text.takeWhile { it == ' ' })
+            append(textNode.wholeText.takeWhile { it == ' ' || it == '\n' })
             append(decorators)
-            append(textNode.text.trim())
+            append(textNode.wholeText.trim())
             append(decorators.reversed())
-            append(textNode.text.takeLastWhile { it == ' ' })
+            append(textNode.wholeText.takeLastWhile { it == ' ' || it == '\n' })
         }
     }
 

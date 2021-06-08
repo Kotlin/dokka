@@ -3697,6 +3697,7 @@ public final class org/jetbrains/dokka/pages/ContentText : org/jetbrains/dokka/p
 	public fun getSourceSets ()Ljava/util/Set;
 	public fun getStyle ()Ljava/util/Set;
 	public final fun getText ()Ljava/lang/String;
+	public final fun getWholeText ()Ljava/lang/String;
 	public fun hasAnyContent ()Z
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
