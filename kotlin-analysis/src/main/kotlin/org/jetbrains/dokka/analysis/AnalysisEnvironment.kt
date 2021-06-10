@@ -367,8 +367,7 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
                     LanguageVersionSettingsImpl.DEFAULT
                 )
 
-            override fun sdkDependency(module: ModuleInfo, ownerModuleDescriptor: ModuleDescriptorImpl?): ModuleInfo? =
-                null
+            override fun sdkDependency(module: ModuleInfo): ModuleInfo? = null
         }
     }
 
@@ -398,8 +397,7 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
 
             override fun builtInsForModule(module: ModuleInfo): KotlinBuiltIns = DefaultBuiltIns.Instance
 
-            override fun sdkDependency(module: ModuleInfo, ownerModuleDescriptor: ModuleDescriptorImpl?): ModuleInfo? =
-                null
+            override fun sdkDependency(module: ModuleInfo): ModuleInfo? = null
         }
     }
 
@@ -430,8 +428,7 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
 
             override fun builtInsForModule(module: ModuleInfo): KotlinBuiltIns = DefaultBuiltIns.Instance
 
-            override fun sdkDependency(module: ModuleInfo, ownerModuleDescriptor: ModuleDescriptorImpl?): ModuleInfo? =
-                null
+            override fun sdkDependency(module: ModuleInfo): ModuleInfo? = null
         }
     }
 
@@ -470,7 +467,7 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
                 descriptor: ModuleDescriptor,
                 moduleInfo: ModuleInfo
             ): ResolverForModule = JvmResolverForModuleFactory(
-                JvmPlatformParameters({ content ->
+                JvmPlatformParameters(packagePartProviderFactory = { content ->
                     JvmPackagePartProvider(
                         configuration.languageVersionSettings,
                         content.moduleContentScope
@@ -478,14 +475,15 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
                         .apply {
                             addRoots(javaRoots, messageCollector)
                         }
-                }, {
+                }, moduleByJavaClass = {
                     val file =
                         (it as? BinaryJavaClass)?.virtualFile ?: (it as JavaClassImpl).psi.containingFile.virtualFile
                     if (file in sourcesScope)
                         module
                     else
                         library
-                }),
+                }, resolverForReferencedModule = null,
+                    useBuiltinsProviderForModule = { false }),
                 CompilerEnvironment,
                 unspecifiedJvmPlatform
             ).createResolverForModule(
@@ -496,8 +494,7 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
                 LanguageVersionSettingsImpl.DEFAULT
             )
 
-            override fun sdkDependency(module: ModuleInfo, ownerModuleDescriptor: ModuleDescriptorImpl?): ModuleInfo? =
-                null
+            override fun sdkDependency(module: ModuleInfo): ModuleInfo? = null
         }
     }
 

@@ -86,6 +86,7 @@ tasks.named<Jar>("jar") {
             configuration.resolve().joinToString(" ") { it.name }
         })
     }
+    duplicatesStrategy = DuplicatesStrategy.WARN
 }
 
 
