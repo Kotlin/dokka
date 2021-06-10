@@ -277,12 +277,11 @@ public abstract interface class org/jetbrains/dokka/base/renderers/OutputWriter 
 }
 
 public final class org/jetbrains/dokka/base/renderers/PackageListCreator : org/jetbrains/dokka/transformers/pages/PageTransformer {
-	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;Lorg/jetbrains/dokka/base/resolvers/shared/LinkFormat;Ljava/util/List;Z)V
-	public synthetic fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;Lorg/jetbrains/dokka/base/resolvers/shared/LinkFormat;Ljava/util/List;ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;Lorg/jetbrains/dokka/base/resolvers/shared/LinkFormat;Ljava/util/List;)V
+	public synthetic fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;Lorg/jetbrains/dokka/base/resolvers/shared/LinkFormat;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun getContext ()Lorg/jetbrains/dokka/plugability/DokkaContext;
 	public final fun getFormat ()Lorg/jetbrains/dokka/base/resolvers/shared/LinkFormat;
 	public final fun getOutputFilesNames ()Ljava/util/List;
-	public final fun getRemoveModulePrefix ()Z
 	public fun invoke (Lorg/jetbrains/dokka/pages/RootPageNode;)Lorg/jetbrains/dokka/pages/RootPageNode;
 }
 
@@ -601,6 +600,16 @@ public final class org/jetbrains/dokka/base/resolvers/external/ExternalLocationP
 	public fun getExternalLocationProvider (Lorg/jetbrains/dokka/base/resolvers/shared/ExternalDocumentation;)Lorg/jetbrains/dokka/base/resolvers/external/ExternalLocationProvider;
 }
 
+public class org/jetbrains/dokka/base/resolvers/external/MultiModuleExternalLocationProvider : org/jetbrains/dokka/base/resolvers/external/ExternalLocationProvider {
+	public fun <init> (Lorg/jetbrains/dokka/base/resolvers/shared/ExternalDocumentation;Ljava/lang/String;Lorg/jetbrains/dokka/plugability/DokkaContext;)V
+	protected fun constructPath (Lorg/jetbrains/dokka/links/DRI;)Ljava/lang/String;
+	protected final fun getDocURL ()Ljava/lang/String;
+	public final fun getDokkaContext ()Lorg/jetbrains/dokka/plugability/DokkaContext;
+	public final fun getExtension ()Ljava/lang/String;
+	public final fun getExternalDocumentation ()Lorg/jetbrains/dokka/base/resolvers/shared/ExternalDocumentation;
+	public fun resolve (Lorg/jetbrains/dokka/links/DRI;)Ljava/lang/String;
+}
+
 public class org/jetbrains/dokka/base/resolvers/external/javadoc/AndroidExternalLocationProvider : org/jetbrains/dokka/base/resolvers/external/javadoc/JavadocExternalLocationProvider {
 	public fun <init> (Lorg/jetbrains/dokka/base/resolvers/shared/ExternalDocumentation;Lorg/jetbrains/dokka/plugability/DokkaContext;)V
 	protected fun anchorPart (Lorg/jetbrains/dokka/links/Callable;)Ljava/lang/String;
@@ -734,19 +743,22 @@ public abstract interface class org/jetbrains/dokka/base/resolvers/shared/LinkFo
 
 public final class org/jetbrains/dokka/base/resolvers/shared/PackageList {
 	public static final field Companion Lorg/jetbrains/dokka/base/resolvers/shared/PackageList$Companion;
-	public fun <init> (Lorg/jetbrains/dokka/base/resolvers/shared/RecognizedLinkFormat;Ljava/util/Set;Ljava/util/Map;Ljava/net/URL;)V
+	public static final field MODULE_DELIMITER Ljava/lang/String;
+	public fun <init> (Lorg/jetbrains/dokka/base/resolvers/shared/RecognizedLinkFormat;Ljava/util/Map;Ljava/util/Map;Ljava/net/URL;)V
 	public final fun component1 ()Lorg/jetbrains/dokka/base/resolvers/shared/RecognizedLinkFormat;
-	public final fun component2 ()Ljava/util/Set;
+	public final fun component2 ()Ljava/util/Map;
 	public final fun component3 ()Ljava/util/Map;
 	public final fun component4 ()Ljava/net/URL;
-	public final fun copy (Lorg/jetbrains/dokka/base/resolvers/shared/RecognizedLinkFormat;Ljava/util/Set;Ljava/util/Map;Ljava/net/URL;)Lorg/jetbrains/dokka/base/resolvers/shared/PackageList;
-	public static synthetic fun copy$default (Lorg/jetbrains/dokka/base/resolvers/shared/PackageList;Lorg/jetbrains/dokka/base/resolvers/shared/RecognizedLinkFormat;Ljava/util/Set;Ljava/util/Map;Ljava/net/URL;ILjava/lang/Object;)Lorg/jetbrains/dokka/base/resolvers/shared/PackageList;
+	public final fun copy (Lorg/jetbrains/dokka/base/resolvers/shared/RecognizedLinkFormat;Ljava/util/Map;Ljava/util/Map;Ljava/net/URL;)Lorg/jetbrains/dokka/base/resolvers/shared/PackageList;
+	public static synthetic fun copy$default (Lorg/jetbrains/dokka/base/resolvers/shared/PackageList;Lorg/jetbrains/dokka/base/resolvers/shared/RecognizedLinkFormat;Ljava/util/Map;Ljava/util/Map;Ljava/net/URL;ILjava/lang/Object;)Lorg/jetbrains/dokka/base/resolvers/shared/PackageList;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getLinkFormat ()Lorg/jetbrains/dokka/base/resolvers/shared/RecognizedLinkFormat;
 	public final fun getLocations ()Ljava/util/Map;
+	public final fun getModules ()Ljava/util/Map;
 	public final fun getPackages ()Ljava/util/Set;
 	public final fun getUrl ()Ljava/net/URL;
 	public fun hashCode ()I
+	public final fun moduleFor (Ljava/lang/String;)Ljava/lang/String;
 	public fun toString ()Ljava/lang/String;
 }
 

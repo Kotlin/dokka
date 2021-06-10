@@ -167,9 +167,9 @@ private fun List<String>.toRenderSpecificResourcePage(): List<RendererSpecificRe
 class SourcesetDependencyAppender(val context: DokkaContext) : PageTransformer {
     private val name = "scripts/sourceset_dependencies.js"
     override fun invoke(input: RootPageNode): RootPageNode {
-        val dependenciesMap = context.configuration.sourceSets.map {
+        val dependenciesMap = context.configuration.sourceSets.associate {
             it.sourceSetID to it.dependentSourceSets
-        }.toMap()
+        }
 
         fun createDependenciesJson(): String =
             dependenciesMap.map { (key, values) -> key.toString() to values.map { it.toString() } }.toMap()

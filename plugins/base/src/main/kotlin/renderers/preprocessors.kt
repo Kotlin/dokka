@@ -13,8 +13,7 @@ object RootCreator : PageTransformer {
 class PackageListCreator(
     val context: DokkaContext,
     val format: LinkFormat,
-    val outputFilesNames: List<String> = listOf("package-list"),
-    val removeModulePrefix: Boolean = true
+    val outputFilesNames: List<String> = listOf("package-list")
 ) : PageTransformer {
     override fun invoke(input: RootPageNode) =
         input.modified(children = input.children.map {
