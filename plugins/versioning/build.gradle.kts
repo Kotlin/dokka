@@ -14,6 +14,7 @@ dependencies {
     val kotlinx_html_version: String by project
     implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:$kotlinx_html_version")
 
-    implementation("org.jsoup:jsoup:1.13.1")
+    val jsoup_version: String by project
+    implementation("org.jsoup:jsoup:$jsoup_version")
     implementation("org.apache.maven:maven-artifact:3.6.3")
 }
