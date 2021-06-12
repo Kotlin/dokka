@@ -14,11 +14,21 @@ import org.jetbrains.dokka.plugability.query
 
 open class CommonmarkRenderer(
     context: DokkaContext
-) : DefaultRenderer<StringBuilder>(context) {
+) : CommonmarkDivirgentsRenderer(context) {
 
-    override val preprocessors = context.plugin<GfmPlugin>().query { gfmPreprocessors }
+    override fun StringBuilder.buildNewLine() {
+        append("\n")
+    }
 
-    private val isPartial = context.configuration.delayTemplateSubstitution
+    override fun StringBuilder.buildLineBreak() {
+        append("\\")
+        buildNewLine()
+    }
+
+    override fun StringBuilder.buildParagraph() {
+        buildNewLine()
+        buildNewLine()
+    }
 
     override fun StringBuilder.wrapGroup(
         node: ContentGroup,
@@ -40,12 +50,6 @@ open class CommonmarkRenderer(
         append("#".repeat(level) + " ")
         content()
         buildParagraph()
-    }
-
-    override fun StringBuilder.buildLink(address: String, content: StringBuilder.() -> Unit) {
-        append("[")
-        content()
-        append("]($address)")
     }
 
     override fun StringBuilder.buildList(
@@ -80,73 +84,6 @@ open class CommonmarkRenderer(
             buildListItem(node.children, pageContext)
             append("</ul>")
         }
-    }
-
-    override fun StringBuilder.buildDRILink(
-        node: ContentDRILink,
-        pageContext: ContentPage,
-        sourceSetRestriction: Set<DisplaySourceSet>?
-    ) {
-        locationProvider.resolve(node.address, node.sourceSets, pageContext)?.let {
-            buildLink(it) {
-                buildText(node.children, pageContext, sourceSetRestriction)
-            }
-        } ?: if (isPartial) {
-            templateCommand(ResolveLinkGfmCommand(node.address)) {
-                buildText(node.children, pageContext, sourceSetRestriction)
-            }
-        } else buildText(node.children, pageContext, sourceSetRestriction)
-    }
-
-    override fun StringBuilder.buildLineBreak() {
-        append("\\")
-        buildNewLine()
-    }
-
-    private fun StringBuilder.buildNewLine() {
-        append("\n")
-    }
-
-    private fun StringBuilder.buildParagraph() {
-        buildNewLine()
-        buildNewLine()
-    }
-
-    override fun StringBuilder.buildPlatformDependent(
-        content: PlatformHintedContent,
-        pageContext: ContentPage,
-        sourceSetRestriction: Set<DisplaySourceSet>?
-    ) {
-        buildPlatformDependentItem(content.inner, content.sourceSets, pageContext)
-    }
-
-    private fun StringBuilder.buildPlatformDependentItem(
-        content: ContentNode,
-        sourceSets: Set<DisplaySourceSet>,
-        pageContext: ContentPage,
-    ) {
-        if (content is ContentGroup && content.children.firstOrNull { it is ContentTable } != null) {
-            buildContentNode(content, pageContext, sourceSets)
-        } else {
-            val distinct = sourceSets.map {
-                it to buildString { buildContentNode(content, pageContext, setOf(it)) }
-            }.groupBy(Pair<DisplaySourceSet, String>::second, Pair<DisplaySourceSet, String>::first)
-
-            distinct.filter { it.key.isNotBlank() }.forEach { (text, platforms) ->
-                buildParagraph()
-                buildSourceSetTags(platforms.toSet())
-                buildLineBreak()
-                append(text.trim())
-                buildParagraph()
-            }
-        }
-    }
-
-    override fun StringBuilder.buildResource(node: ContentEmbeddedResource, pageContext: ContentPage) {
-        if (node.isImage()) {
-            append("!")
-        }
-        append("[${node.altText}](${node.address})")
     }
 
     override fun StringBuilder.buildTable(
@@ -207,19 +144,6 @@ open class CommonmarkRenderer(
         }
     }
 
-    override fun StringBuilder.buildText(textNode: ContentText) {
-        if (textNode.extra[HtmlContent] != null) {
-            append(textNode.text)
-        } else if (textNode.text.isNotBlank()) {
-            val decorators = decorators(textNode.style)
-            append(textNode.text.takeWhile { it == ' ' })
-            append(decorators)
-            append(textNode.text.trim())
-            append(decorators.reversed())
-            append(textNode.text.takeLastWhile { it == ' ' })
-        }
-    }
-
     override fun StringBuilder.buildNavigation(page: PageNode) {
         locationProvider.ancestors(page).asReversed().forEach { node ->
             append("/")
@@ -236,74 +160,6 @@ open class CommonmarkRenderer(
 
     override fun buildError(node: ContentNode) {
         context.logger.warn("Markdown renderer has encountered problem. The unmatched node is $node")
-    }
-
-    override fun StringBuilder.buildDivergent(node: ContentDivergentGroup, pageContext: ContentPage) {
-
-        val distinct =
-            node.groupDivergentInstances(pageContext, { instance, contentPage, sourceSet ->
-                instance.before?.let { before ->
-                    buildString { buildContentNode(before, pageContext, sourceSet) }
-                } ?: ""
-            }, { instance, contentPage, sourceSet ->
-                instance.after?.let { after ->
-                    buildString { buildContentNode(after, pageContext, sourceSet) }
-                } ?: ""
-            })
-
-        distinct.values.forEach { entry ->
-            val (instance, sourceSets) = entry.getInstanceAndSourceSets()
-
-            buildParagraph()
-            buildSourceSetTags(sourceSets)
-            buildLineBreak()
-
-            instance.before?.let {
-                buildContentNode(
-                    it,
-                    pageContext,
-                    sourceSets.first()
-                ) // It's workaround to render content only once
-                buildParagraph()
-            }
-
-            entry.groupBy { buildString { buildContentNode(it.first.divergent, pageContext, setOf(it.second)) } }
-                .values.forEach { innerEntry ->
-                    val (innerInstance, innerSourceSets) = innerEntry.getInstanceAndSourceSets()
-                    if (sourceSets.size > 1) {
-                        buildSourceSetTags(innerSourceSets)
-                        buildLineBreak()
-                    }
-                    innerInstance.divergent.build(
-                        this@buildDivergent,
-                        pageContext,
-                        setOf(innerSourceSets.first())
-                    ) // It's workaround to render content only once
-                    buildParagraph()
-                }
-
-            instance.after?.let {
-                buildContentNode(
-                    it,
-                    pageContext,
-                    sourceSets.first()
-                ) // It's workaround to render content only once
-            }
-
-            buildParagraph()
-        }
-    }
-
-    private fun decorators(styles: Set<Style>) = buildString {
-        styles.forEach {
-            when (it) {
-                TextStyle.Bold -> append("**")
-                TextStyle.Italic -> append("*")
-                TextStyle.Strong -> append("**")
-                TextStyle.Strikethrough -> append("~~")
-                else -> Unit
-            }
-        }
     }
 
     private val PageNode.isNavigable: Boolean
@@ -347,10 +203,4 @@ open class CommonmarkRenderer(
             )
         }
     }
-
-    private fun List<Pair<ContentDivergentInstance, DisplaySourceSet>>.getInstanceAndSourceSets() =
-        this.let { Pair(it.first().first, it.map { it.second }.toSet()) }
-
-    private fun StringBuilder.buildSourceSetTags(sourceSets: Set<DisplaySourceSet>) =
-        append(sourceSets.joinToString(prefix = "[", postfix = "]") { it.name })
 }
