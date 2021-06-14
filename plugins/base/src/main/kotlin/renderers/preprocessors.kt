@@ -25,8 +25,7 @@ class PackageListCreator(
     private fun packageList(rootPageNode: RootPageNode, module: ModulePage): List<RendererSpecificPage> {
         val content = PackageListService(context, rootPageNode).createPackageList(
             module,
-            format.formatName,
-            format.linkExtension
+            format
         )
         return outputFilesNames.map { fileName ->
             RendererSpecificResourcePage(

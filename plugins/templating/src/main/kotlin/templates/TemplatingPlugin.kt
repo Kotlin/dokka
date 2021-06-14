@@ -1,6 +1,7 @@
 package org.jetbrains.dokka.templates
 
 import org.jetbrains.dokka.allModulesPage.templates.NavigationSearchTemplateStrategy
+import org.jetbrains.dokka.allModulesPage.templates.PackageListProcessingStrategy
 import org.jetbrains.dokka.allModulesPage.templates.PagesSearchTemplateStrategy
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import templates.SourcesetDependencyProcessingStrategy
@@ -45,8 +46,14 @@ class TemplatingPlugin : DokkaPlugin() {
         }
     }
 
+    val packageListProcessingStrategy by extending {
+        templateProcessingStrategy providing ::PackageListProcessingStrategy order {
+            before(fallbackProcessingStrategy)
+        }
+    }
+
     val fallbackProcessingStrategy by extending {
-        templateProcessingStrategy providing ::FallbackTemplateProcessingStrategy
+        templateProcessingStrategy with FallbackTemplateProcessingStrategy()
     }
 
     val pathToRootSubstitutor by extending {
