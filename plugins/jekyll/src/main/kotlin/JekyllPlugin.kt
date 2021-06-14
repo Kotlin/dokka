@@ -45,7 +45,7 @@ class JekyllRenderer(
     override fun buildPage(page: ContentPage, content: (StringBuilder, ContentPage) -> Unit): String {
         val builder = StringBuilder()
         builder.append("---\n")
-        builder.append("title: ${page.name} -\n")
+        builder.append("title: ${page.name}\n")
         builder.append("---\n")
         content(builder, page)
         return builder.toString()
