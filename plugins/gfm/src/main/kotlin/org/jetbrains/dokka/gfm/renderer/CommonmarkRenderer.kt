@@ -267,8 +267,6 @@ open class CommonmarkRenderer(
             buildNewLine()
 
             instance.before?.let {
-                ///append("Brief description")
-                ///buildNewLine()
                 buildContentNode(
                     it,
                     pageContext,
@@ -277,8 +275,6 @@ open class CommonmarkRenderer(
                 buildParagraph()
             }
 
-            ///append("Content")
-            ///buildNewLine()
             entry.groupBy { buildString { buildContentNode(it.first.divergent, pageContext, setOf(it.second)) } }
                 .values.forEach { innerEntry ->
                     val (innerInstance, innerSourceSets) = innerEntry.getInstanceAndSourceSets()
@@ -295,8 +291,6 @@ open class CommonmarkRenderer(
                 }
 
             instance.after?.let {
-                ///append("More info")
-                ///buildNewLine()
                 buildContentNode(
                     it,
                     pageContext,
