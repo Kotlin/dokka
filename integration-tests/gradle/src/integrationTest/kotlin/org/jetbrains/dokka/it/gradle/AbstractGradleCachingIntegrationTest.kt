@@ -1,5 +1,6 @@
 package org.jetbrains.dokka.it.gradle
 
+import org.gradle.util.GradleVersion
 import java.io.File
 import kotlin.test.*
 
@@ -21,7 +22,7 @@ abstract class AbstractGradleCachingIntegrationTest(override val versions: Build
         }
 
         // clean local cache for each test
-        if (versions.gradleVersion.version == "7.0") {
+        if (versions.gradleVersion >= GradleVersion.version("7.0")) {
             //Gradle 7.0 removed the old syntax
             project.toPath().resolve("settings.gradle.kts").toFile().appendText(
                 """
