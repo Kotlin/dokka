@@ -179,6 +179,33 @@ open class KotlinWebsiteHtmlOutputBuilder(
         }
     }
 
+    override fun appendSourceLinks(platforms: PlatformsData, appendSourceLink: DocumentationNode.(platform: String?) -> Unit) {
+        // For each platform find a source url.
+        // If several platforms use the same source url, use the source url only for the first platform.
+        // If only one platform has a source url, drop platform information.
+        val usedSourceUrls = mutableSetOf<String>()
+        val platformToSourceUrl = mutableMapOf<String, DocumentationNode>()
+
+        val nonJRE6 = platforms.filterNot { it.key.isJREVersion() && it.key.endsWith("6") }
+        nonJRE6.forEach { (platform, nodes) ->
+            nodes.firstOrNull { node ->
+                node.details(NodeKind.SourceUrl).firstOrNull()?.takeUnless { usedSourceUrls.contains(it.name) }?.also {
+                    usedSourceUrls.add(it.name)
+                } != null
+            }?.let { nodeWithUnusedSourceUrl ->
+                platformToSourceUrl[platform] = nodeWithUnusedSourceUrl
+            }
+        }
+
+        platformToSourceUrl.forEach { (platform, node) ->
+            if (platformToSourceUrl.size == 1) {
+                node.appendSourceLink(null)
+            } else {
+                node.appendSourceLink(platform)
+            }
+        }
+    }
+
     override fun appendAsNodeDescription(platforms: PlatformsData, block: () -> Unit) {
         div(to, "node-page-main", otherAttributes = " ${calculateDataAttributes(platforms)}") {
             block()
