@@ -73,19 +73,22 @@ class DefaultVersioningHandler(val context: DokkaContext) : VersioningHandler {
 
     private fun copyVersion(version: VersionId, versionRoot: File, output: File) {
         val targetParent = output.resolve(OLDER_VERSIONS_DIR).resolve(version).apply { mkdirs() }
+        val olderDirs = versionRoot.resolve(OLDER_VERSIONS_DIR)
         runBlocking(Dispatchers.Default) {
             coroutineScope {
-                versionRoot.listFiles().orEmpty().forEach { versionRootContent ->
-                    launch {
-                        if (versionRootContent.isDirectory) versionRootContent.copyRecursively(
-                            targetParent.resolve(versionRootContent.name),
-                            overwrite = true
-                        )
-                        else processingStrategies.first {
-                            it.process(versionRootContent, targetParent.resolve(versionRootContent.name))
+                versionRoot.listFiles().orEmpty()
+                    .filter { it.absolutePath != olderDirs.absolutePath }
+                    .forEach { versionRootContent ->
+                        launch {
+                            if (versionRootContent.isDirectory) versionRootContent.copyRecursively(
+                                targetParent.resolve(versionRootContent.name),
+                                overwrite = true
+                            )
+                            else processingStrategies.first {
+                                it.process(versionRootContent, targetParent.resolve(versionRootContent.name))
+                            }
                         }
                     }
-                }
             }
         }
     }

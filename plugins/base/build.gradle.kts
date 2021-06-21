@@ -9,7 +9,8 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version")
 
     api(project(":kotlin-analysis"))
-    implementation("org.jsoup:jsoup:1.13.1")
+    val jsoup_version: String by project
+    implementation("org.jsoup:jsoup:$jsoup_version")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.11.1")
     testImplementation(project(":plugins:base:base-test-utils"))
     testImplementation(project(":core:content-matcher-test-utils"))

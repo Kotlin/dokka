@@ -9,7 +9,9 @@ plugins {
 dependencies {
     api("org.jetbrains:markdown:0.2.1")
     implementation(kotlin("reflect"))
-    implementation("org.jsoup:jsoup:1.13.1")
+
+    val jsoup_version: String by project
+    implementation("org.jsoup:jsoup:$jsoup_version")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.11.1")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.11.1")
 
