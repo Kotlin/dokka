@@ -63,7 +63,7 @@ class MultimodulePageCreator(
             header(2, "All modules:")
             table(styles = setOf(MultimoduleTable)) {
                 header { group { text("Name") } }
-                modules.filter { it.name in creationContext.nonEmptyModules }.sortedByDescending { it.name }
+                modules.filter { it.name in creationContext.nonEmptyModules }.sortedBy { it.name }
                     .forEach { module ->
                         val displayedModuleDocumentation = getDisplayedModuleDocumentation(module)
                         val dri = DRI(packageName = MULTIMODULE_PACKAGE_PLACEHOLDER, classNames = module.name)
