@@ -292,6 +292,12 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
         }
     }
 
+    protected open fun appendSourceLinks(platforms: PlatformsData, appendSourceLink: DocumentationNode.(platform: String?) -> Unit) {
+        platforms.forEach { (platform, nodes) ->
+            nodes.first().appendSourceLink(platform)
+        }
+    }
+
     protected open fun appendBreadcrumbs(path: Iterable<FormatLink>) {
         for ((index, item) in path.withIndex()) {
             if (index > 0) {
@@ -471,6 +477,7 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
 
                     appendAsSignature(sign) {
                         appendCode { appendContent(sign) }
+                        appendSourceLinks(platforms) { this.appendSourceLink(it) }
                     }
                     first.appendOverrides()
                     first.appendDeprecation()
@@ -479,11 +486,12 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
             }
         }
 
-        private fun DocumentationNode.appendSourceLink() {
+        private fun DocumentationNode.appendSourceLink(platform: String? = null) {
             val sourceUrl = details(NodeKind.SourceUrl).firstOrNull()
             if (sourceUrl != null) {
                 to.append(" ")
-                appendLink(sourceUrl.name) { to.append("(source)") }
+                val text = if (platform == null) "(source)" else "($platform source)"
+                appendLink(sourceUrl.name) { to.append(text) }
             }
         }
 
