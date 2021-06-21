@@ -37,6 +37,7 @@ abstract class AbstractDokkaTask : DefaultTask() {
 
     @Optional
     @InputDirectory
+    @PathSensitive(PathSensitivity.RELATIVE)
     val cacheRoot: Property<File?> = project.objects.safeProperty()
 
     @Input

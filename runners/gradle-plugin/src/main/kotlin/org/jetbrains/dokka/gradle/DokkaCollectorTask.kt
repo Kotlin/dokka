@@ -1,7 +1,9 @@
 package org.jetbrains.dokka.gradle
 
+import org.gradle.api.tasks.CacheableTask
 import org.jetbrains.dokka.DokkaConfigurationImpl
 
+@CacheableTask
 abstract class DokkaCollectorTask : AbstractDokkaParentTask() {
 
     override fun generateDocumentation() {
