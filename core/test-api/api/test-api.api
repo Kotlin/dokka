@@ -10,29 +10,6 @@ public final class org/jetbrains/dokka/testApi/context/MockContext : org/jetbrai
 	public fun single (Lorg/jetbrains/dokka/plugability/ExtensionPoint;)Ljava/lang/Object;
 }
 
-public final class org/jetbrains/dokka/testApi/logger/FilteringLogger : org/jetbrains/dokka/utilities/DokkaLogger {
-	public fun <init> (Lorg/jetbrains/dokka/testApi/logger/FilteringLogger$Level;Lorg/jetbrains/dokka/utilities/DokkaLogger;)V
-	public fun debug (Ljava/lang/String;)V
-	public fun error (Ljava/lang/String;)V
-	public fun getErrorsCount ()I
-	public fun getWarningsCount ()I
-	public fun info (Ljava/lang/String;)V
-	public fun progress (Ljava/lang/String;)V
-	public fun setErrorsCount (I)V
-	public fun setWarningsCount (I)V
-	public fun warn (Ljava/lang/String;)V
-}
-
-public final class org/jetbrains/dokka/testApi/logger/FilteringLogger$Level : java/lang/Enum {
-	public static final field Debug Lorg/jetbrains/dokka/testApi/logger/FilteringLogger$Level;
-	public static final field Error Lorg/jetbrains/dokka/testApi/logger/FilteringLogger$Level;
-	public static final field Info Lorg/jetbrains/dokka/testApi/logger/FilteringLogger$Level;
-	public static final field Progress Lorg/jetbrains/dokka/testApi/logger/FilteringLogger$Level;
-	public static final field Warn Lorg/jetbrains/dokka/testApi/logger/FilteringLogger$Level;
-	public static fun valueOf (Ljava/lang/String;)Lorg/jetbrains/dokka/testApi/logger/FilteringLogger$Level;
-	public static fun values ()[Lorg/jetbrains/dokka/testApi/logger/FilteringLogger$Level;
-}
-
 public final class org/jetbrains/dokka/testApi/logger/TestLogger : org/jetbrains/dokka/utilities/DokkaLogger {
 	public fun <init> (Lorg/jetbrains/dokka/utilities/DokkaLogger;)V
 	public fun debug (Ljava/lang/String;)V

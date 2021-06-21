@@ -41,6 +41,8 @@ Dokka supports the following command line arguments:
     * `-jdkVersion` - version of JDK to use for linking to JDK JavaDoc
     * `-analysisPlatform` - platform used for analysis, see the [Platforms](#platforms) section
     * `-dependentSourceSets` - list of dependent source sets in format `moduleName/sourceSetName`, separated by `;`
+  * `-loggingLevel` - one of `DEBUG`, `PROGRESS`, `INFO`, `WARN`, `ERROR`. Defaults to `DEBUG`. Please note that this argument can't be passed in JSON.
+
 
 You can also use a JSON file with Dokka configuration:
  ```

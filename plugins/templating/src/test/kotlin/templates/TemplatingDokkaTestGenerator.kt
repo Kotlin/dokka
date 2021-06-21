@@ -61,7 +61,7 @@ class TemplatingTestBuilder : TestBuilder<TemplatingTestMethods>() {
     )
 }
 
-abstract class TemplatingAbstractTest(logger: TestLogger = TestLogger(DokkaConsoleLogger)) :
+abstract class TemplatingAbstractTest(logger: TestLogger = TestLogger(DokkaConsoleLogger())) :
     AbstractTest<TemplatingTestMethods, TemplatingTestBuilder, TemplatingDokkaTestGenerator>(
         ::TemplatingTestBuilder,
         ::TemplatingDokkaTestGenerator,
