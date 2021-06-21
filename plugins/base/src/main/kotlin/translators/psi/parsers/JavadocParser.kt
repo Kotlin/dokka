@@ -25,6 +25,7 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 import org.jsoup.nodes.Node
 import org.jsoup.nodes.TextNode
+import java.util.*
 
 interface JavaDocumentationParser {
     fun parseDocumentation(element: PsiNamedElement): DocumentationNode
@@ -35,7 +36,14 @@ class JavadocParser(
     private val resolutionFacade: DokkaResolutionFacade,
 ) : JavaDocumentationParser {
     private val inheritDocResolver = InheritDocResolver(logger)
-    private var inheritDocSection: DocumentationNode? = null
+
+    /**
+     * Cache created to make storing entries from kotlin easier.
+     *
+     * It has to be mutable to allow for adding entries when @inheritDoc resolves to kotlin code,
+     * from which we get a DocTags not descriptors.
+     */
+    private var inheritDocSections: MutableMap<UUID, DocumentationNode> = mutableMapOf()
 
     override fun parseDocumentation(element: PsiNamedElement): DocumentationNode {
         return when(val comment = findClosestDocComment(element, logger)){
@@ -221,8 +229,9 @@ class JavadocParser(
             when(this){
                 is PsiDocumentationContent -> psiElement.stringify(state, context)
                 is DescriptorDocumentationContent -> {
-                    inheritDocSection = parseDocumentation(KotlinDocComment(element, descriptor), parseWithChildren = false)
-                    ParsingResult(state, "<inheritdoc />")
+                    val id = UUID.randomUUID()
+                    inheritDocSections[id] = parseDocumentation(KotlinDocComment(element, descriptor), parseWithChildren = false)
+                    ParsingResult(state, """<inheritdoc id="$id"/>""")
                 }
                 else -> throw IllegalStateException("Unrecognised documentation content: $this")
             }
@@ -379,8 +388,8 @@ class JavadocParser(
                 "tfoot" -> listOf(TFoot(children))
                 "caption" -> ifChildrenPresent { Caption(children) }
                 "inheritdoc" -> {
-                    val section = inheritDocSection
-                    inheritDocSection = null
+                    val id = UUID.fromString(element.attr("id"))
+                    val section = inheritDocSections[id]
                     val parsed = section?.children?.flatMap { it.root.children }.orEmpty()
                     if(parsed.size == 1 && parsed.first() is P){
                         parsed.first().children
