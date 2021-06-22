@@ -1,6 +1,5 @@
 package org.jetbrains.dokka.base.resolvers.shared
 
-import org.jetbrains.dokka.base.renderers.PackageListService
 import java.net.URL
 
 typealias Module = String
@@ -16,10 +15,12 @@ data class PackageList(
 
     fun moduleFor(packageName: String) = modules.asSequence()
             .filter { it.value.contains(packageName) }
-            .first().key
+            .firstOrNull()?.key
 
     companion object {
+        const val PACKAGE_LIST_NAME = "package-list"
         const val MODULE_DELIMITER = "module:"
+        const val DOKKA_PARAM_PREFIX = "\$dokka"
 
         fun load(url: URL, jdkVersion: Int, offlineMode: Boolean = false): PackageList? {
             if (offlineMode && url.protocol.toLowerCase() != "file")
@@ -33,7 +34,7 @@ data class PackageList(
 
             val (params, packages) = packageListStream
                 .bufferedReader()
-                .useLines { lines -> lines.partition { it.startsWith(PackageListService.DOKKA_PARAM_PREFIX) } }
+                .useLines { lines -> lines.partition { it.startsWith(DOKKA_PARAM_PREFIX) } }
 
             val paramsMap = splitParams(params)
             val format = linkFormat(paramsMap["format"]?.singleOrNull(), jdkVersion)
@@ -44,12 +45,11 @@ data class PackageList(
         }
 
         private fun splitParams(params: List<String>) = params.asSequence()
-            .map { it.removePrefix("${PackageListService.DOKKA_PARAM_PREFIX}.").split(":", limit = 2) }
+            .map { it.removePrefix("$DOKKA_PARAM_PREFIX.").split(":", limit = 2) }
             .groupBy({ (key, _) -> key }, { (_, value) -> value })
 
         private fun splitLocations(locations: List<String>) = locations.map { it.split("\u001f", limit = 2) }
-            .map { (key, value) -> key to value }
-            .toMap()
+                .associate { (key, value) -> key to value }
 
         private fun splitPackages(packages: List<String>): Map<Module, Set<String>> {
             var lastModule: Module = ""

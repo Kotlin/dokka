@@ -1,8 +1,10 @@
 package org.jetbrains.dokka.allModulesPage.templates
 
-import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.DokkaConfiguration.DokkaModuleDescription
 import org.jetbrains.dokka.base.renderers.PackageListService
+import org.jetbrains.dokka.base.resolvers.local.DokkaLocationProvider
 import org.jetbrains.dokka.base.resolvers.shared.PackageList
+import org.jetbrains.dokka.base.resolvers.shared.PackageList.Companion.PACKAGE_LIST_NAME
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.templates.TemplateProcessingStrategy
 import java.io.File
@@ -10,16 +12,19 @@ import java.io.File
 class PackageListProcessingStrategy(val context: DokkaContext) : TemplateProcessingStrategy {
     private val fragments = mutableSetOf<PackageList>()
 
-    private fun canProcess(file: File): Boolean =
-            file.extension.isBlank() && file.nameWithoutExtension == PACKAGE_LIST_NAME
+    private fun canProcess(file: File, moduleContext: DokkaModuleDescription?): Boolean =
+            file.extension.isBlank() && file.nameWithoutExtension == PACKAGE_LIST_NAME && moduleContext != null
 
-    override fun process(input: File, output: File, moduleContext: DokkaConfiguration.DokkaModuleDescription?): Boolean {
-        if (canProcess(input)) {
+    override fun process(input: File, output: File, moduleContext: DokkaModuleDescription?): Boolean {
+        if (canProcess(input, moduleContext)) {
             val packageList = PackageList.load(input.toURI().toURL(), 8, true)
-            packageList?.copy(modules = mapOf(moduleContext?.name.orEmpty() to packageList.modules.getOrDefault("", emptySet())))
-                    ?.let { fragments.add(it) } ?: fallbackToCopy(input, output)
+            val moduleFilename = moduleContext?.name?.let { "$it/" }
+            packageList?.copy(
+                    modules = mapOf(moduleContext?.name.orEmpty() to packageList.modules.getOrDefault("", emptySet())),
+                    locations = packageList.locations.entries.associate { it.key to "$moduleFilename${it.value}" }
+            )?.let { fragments.add(it) } ?: fallbackToCopy(input, output)
         }
-        return canProcess(input)
+        return canProcess(input, moduleContext)
     }
 
     override fun finish(output: File) {
@@ -41,9 +46,5 @@ class PackageListProcessingStrategy(val context: DokkaContext) : TemplateProcess
     private fun fallbackToCopy(input: File, output: File) {
         context.logger.warn("Falling back to just copying ${input.name} file even though it should have been processed")
         input.copyTo(output)
-    }
-
-    companion object {
-        const val PACKAGE_LIST_NAME = "package-list"
     }
 }

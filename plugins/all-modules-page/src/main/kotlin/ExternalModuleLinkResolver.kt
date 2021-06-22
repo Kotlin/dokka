@@ -1,10 +1,10 @@
 package org.jetbrains.dokka.allModulesPage
 
-import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.DokkaConfiguration.DokkaModuleDescription
 import org.jetbrains.dokka.base.DokkaBase
-import org.jetbrains.dokka.base.resolvers.local.DokkaLocationProvider.Companion.identifierToFilename
 import org.jetbrains.dokka.base.resolvers.shared.ExternalDocumentation
 import org.jetbrains.dokka.base.resolvers.shared.PackageList
+import org.jetbrains.dokka.base.resolvers.shared.PackageList.Companion.PACKAGE_LIST_NAME
 import org.jetbrains.dokka.base.resolvers.shared.RecognizedLinkFormat
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.plugability.DokkaContext
@@ -42,10 +42,10 @@ class DefaultExternalModuleLinkResolver(val context: DokkaContext) : ExternalMod
         this
     }
 
-    private fun loadPackageListForModule(module: DokkaConfiguration.DokkaModuleDescription) =
-        module.sourceOutputDirectory.resolve(File(identifierToFilename(module.name))).let {
+    private fun loadPackageListForModule(module: DokkaModuleDescription) =
+        module.sourceOutputDirectory.walkTopDown().maxDepth(3).firstOrNull { it.name == PACKAGE_LIST_NAME }?.let {
             PackageList.load(
-                URL("file:" + it.resolve("package-list").path),
+                URL("file:" + it.path),
                 8,
                 true
             )

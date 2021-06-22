@@ -287,14 +287,14 @@ public final class org/jetbrains/dokka/base/renderers/PackageListCreator : org/j
 
 public final class org/jetbrains/dokka/base/renderers/PackageListService {
 	public static final field Companion Lorg/jetbrains/dokka/base/renderers/PackageListService$Companion;
-	public static final field DOKKA_PARAM_PREFIX Ljava/lang/String;
 	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;Lorg/jetbrains/dokka/pages/RootPageNode;)V
-	public final fun createPackageList (Lorg/jetbrains/dokka/pages/ModulePage;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+	public final fun createPackageList (Lorg/jetbrains/dokka/pages/ModulePage;Lorg/jetbrains/dokka/base/resolvers/shared/LinkFormat;)Ljava/lang/String;
 	public final fun getContext ()Lorg/jetbrains/dokka/plugability/DokkaContext;
 	public final fun getRootPage ()Lorg/jetbrains/dokka/pages/RootPageNode;
 }
 
 public final class org/jetbrains/dokka/base/renderers/PackageListService$Companion {
+	public final fun renderPackageList (Ljava/util/Map;Ljava/util/Map;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 }
 
 public final class org/jetbrains/dokka/base/renderers/RootCreator : org/jetbrains/dokka/transformers/pages/PageTransformer {
@@ -600,16 +600,6 @@ public final class org/jetbrains/dokka/base/resolvers/external/ExternalLocationP
 	public fun getExternalLocationProvider (Lorg/jetbrains/dokka/base/resolvers/shared/ExternalDocumentation;)Lorg/jetbrains/dokka/base/resolvers/external/ExternalLocationProvider;
 }
 
-public class org/jetbrains/dokka/base/resolvers/external/MultiModuleExternalLocationProvider : org/jetbrains/dokka/base/resolvers/external/ExternalLocationProvider {
-	public fun <init> (Lorg/jetbrains/dokka/base/resolvers/shared/ExternalDocumentation;Ljava/lang/String;Lorg/jetbrains/dokka/plugability/DokkaContext;)V
-	protected fun constructPath (Lorg/jetbrains/dokka/links/DRI;)Ljava/lang/String;
-	protected final fun getDocURL ()Ljava/lang/String;
-	public final fun getDokkaContext ()Lorg/jetbrains/dokka/plugability/DokkaContext;
-	public final fun getExtension ()Ljava/lang/String;
-	public final fun getExternalDocumentation ()Lorg/jetbrains/dokka/base/resolvers/shared/ExternalDocumentation;
-	public fun resolve (Lorg/jetbrains/dokka/links/DRI;)Ljava/lang/String;
-}
-
 public class org/jetbrains/dokka/base/resolvers/external/javadoc/AndroidExternalLocationProvider : org/jetbrains/dokka/base/resolvers/external/javadoc/JavadocExternalLocationProvider {
 	public fun <init> (Lorg/jetbrains/dokka/base/resolvers/shared/ExternalDocumentation;Lorg/jetbrains/dokka/plugability/DokkaContext;)V
 	protected fun anchorPart (Lorg/jetbrains/dokka/links/Callable;)Ljava/lang/String;
@@ -743,7 +733,9 @@ public abstract interface class org/jetbrains/dokka/base/resolvers/shared/LinkFo
 
 public final class org/jetbrains/dokka/base/resolvers/shared/PackageList {
 	public static final field Companion Lorg/jetbrains/dokka/base/resolvers/shared/PackageList$Companion;
+	public static final field DOKKA_PARAM_PREFIX Ljava/lang/String;
 	public static final field MODULE_DELIMITER Ljava/lang/String;
+	public static final field PACKAGE_LIST_NAME Ljava/lang/String;
 	public fun <init> (Lorg/jetbrains/dokka/base/resolvers/shared/RecognizedLinkFormat;Ljava/util/Map;Ljava/util/Map;Ljava/net/URL;)V
 	public final fun component1 ()Lorg/jetbrains/dokka/base/resolvers/shared/RecognizedLinkFormat;
 	public final fun component2 ()Ljava/util/Map;

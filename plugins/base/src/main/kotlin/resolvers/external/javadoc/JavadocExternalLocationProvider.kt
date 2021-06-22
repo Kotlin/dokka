@@ -17,7 +17,7 @@ open class JavadocExternalLocationProvider(
     override fun DRI.constructPath(): String {
         val packageLink = packageName?.replace(".", "/")
         val modulePart = packageName?.let { packageName ->
-            externalDocumentation.packageList.moduleFor(packageName).let {
+            externalDocumentation.packageList.moduleFor(packageName)?.let {
                 if (it.isNotBlank())
                     "$it/"
                 else

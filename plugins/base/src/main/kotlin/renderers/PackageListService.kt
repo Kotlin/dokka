@@ -2,7 +2,8 @@ package org.jetbrains.dokka.base.renderers
 
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.resolvers.shared.LinkFormat
-import org.jetbrains.dokka.base.resolvers.shared.PackageList
+import org.jetbrains.dokka.base.resolvers.shared.PackageList.Companion.DOKKA_PARAM_PREFIX
+import org.jetbrains.dokka.base.resolvers.shared.PackageList.Companion.MODULE_DELIMITER
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
@@ -45,8 +46,6 @@ class PackageListService(val context: DokkaContext, val rootPage: RootPageNode) 
     }
 
     companion object {
-        const val DOKKA_PARAM_PREFIX = "\$dokka"
-
         fun renderPackageList(nonStandardLocations: Map<String, String>, modules: Map<String, Set<String>>, format: String, linkExtension: String): String = buildString {
             appendLine("$DOKKA_PARAM_PREFIX.format:${format}")
             appendLine("$DOKKA_PARAM_PREFIX.linkExtension:${linkExtension}")
@@ -54,7 +53,7 @@ class PackageListService(val context: DokkaContext, val rootPage: RootPageNode) 
                     .sorted().joinTo(this, separator = "\n", postfix = "\n")
 
             modules.map { (module, packages) ->
-                "module:$module\n".takeIf { module.isNotBlank() }.orEmpty() + packages.filter(String::isNotBlank).sorted().joinToString(separator = "\n")
+                "$MODULE_DELIMITER$module\n".takeIf { module.isNotBlank() }.orEmpty() + packages.filter(String::isNotBlank).sorted().joinToString(separator = "\n")
             }.joinTo(this, separator = "\n", postfix = "\n")
         }
     }

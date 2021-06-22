@@ -9,6 +9,6 @@ public final class org/jetbrains/dokka/gfm/templateProcessing/GfmTemplateProcess
 	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
 	public fun finish (Ljava/io/File;)V
 	public final fun getContext ()Lorg/jetbrains/dokka/plugability/DokkaContext;
-	public fun process (Ljava/io/File;Ljava/io/File;)Z
+	public fun process (Ljava/io/File;Ljava/io/File;Lorg/jetbrains/dokka/DokkaConfiguration$DokkaModuleDescription;)Z
 }
 

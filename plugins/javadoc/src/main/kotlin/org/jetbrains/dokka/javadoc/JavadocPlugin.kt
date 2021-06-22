@@ -7,6 +7,7 @@ import org.jetbrains.dokka.CoreExtensions
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.renderers.PackageListCreator
 import org.jetbrains.dokka.base.renderers.RootCreator
+import org.jetbrains.dokka.base.resolvers.shared.PackageList.Companion.PACKAGE_LIST_NAME
 import org.jetbrains.dokka.base.resolvers.shared.RecognizedLinkFormat
 import org.jetbrains.dokka.javadoc.pages.*
 import org.jetbrains.dokka.javadoc.transformers.documentables.JavadocDocumentableJVMSourceSetFilter
@@ -56,7 +57,7 @@ class JavadocPlugin : DokkaPlugin() {
             PackageListCreator(
                 context = it,
                 format = RecognizedLinkFormat.DokkaJavadoc,
-                outputFilesNames = listOf("package-list", "element-list")
+                outputFilesNames = listOf(PACKAGE_LIST_NAME, "element-list")
             )
         } order { after(rootCreator) }
     }

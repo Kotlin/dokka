@@ -15,8 +15,8 @@ import org.jetbrains.dokka.plugability.configuration
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 
 abstract class NavigationDataProvider {
-    open fun navigableChildren(input: RootPageNode): NavigationNode =
-        input.children.filterIsInstance<ContentPage>().single().let { visit(it) }
+    open fun navigableChildren(input: RootPageNode): NavigationNode = input.withDescendants()
+            .first { it is ModulePage || it is MultimoduleRootPage }.let { visit(it as ContentPage) }
 
     open fun visit(page: ContentPage): NavigationNode =
         NavigationNode(
