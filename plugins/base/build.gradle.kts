@@ -44,6 +44,10 @@ tasks {
         dependsOn(copyFrontend)
     }
 
+    sourcesJar {
+        dependsOn(processResources)
+    }
+
     test {
         maxHeapSize = "4G"
     }
