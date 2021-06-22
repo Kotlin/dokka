@@ -98,7 +98,7 @@ open class CommonmarkRenderer(
         } else buildText(node.children, pageContext, sourceSetRestriction)
     }
 
-    override fun StringBuilder.buildNewLine() {
+    override fun StringBuilder.buildLineBreak() {
         append("\\")
         appendNewLine()
     }
@@ -135,7 +135,7 @@ open class CommonmarkRenderer(
             distinct.filter { it.key.isNotBlank() }.forEach { (text, platforms) ->
                 buildParagraph()
                 buildSourceSetTags(platforms.toSet())
-                buildNewLine()
+                buildLineBreak()
                 append(text.trim())
                 buildParagraph()
             }
@@ -254,7 +254,7 @@ open class CommonmarkRenderer(
 
             buildParagraph()
             buildSourceSetTags(sourceSets)
-            buildNewLine()
+            buildLineBreak()
 
             instance.before?.let {
                 buildContentNode(
@@ -270,7 +270,7 @@ open class CommonmarkRenderer(
                     val (innerInstance, innerSourceSets) = innerEntry.getInstanceAndSourceSets()
                     if (sourceSets.size > 1) {
                         buildSourceSetTags(innerSourceSets)
-                        buildNewLine()
+                        buildLineBreak()
                     }
                     innerInstance.divergent.build(
                         this@buildDivergent,

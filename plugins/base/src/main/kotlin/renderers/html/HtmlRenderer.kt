@@ -656,7 +656,7 @@ open class HtmlRenderer(
 
     override fun buildError(node: ContentNode) = context.logger.error("Unknown ContentNode type: $node")
 
-    override fun FlowContent.buildNewLine() = br()
+    override fun FlowContent.buildLineBreak() = br()
 
     override fun FlowContent.buildLink(address: String, content: FlowContent.() -> Unit) =
         a(href = address, block = content)
