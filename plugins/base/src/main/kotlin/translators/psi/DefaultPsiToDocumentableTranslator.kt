@@ -12,6 +12,7 @@ import com.intellij.psi.impl.source.PsiImmediateClassType
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
+import org.jetbrains.dokka.analysis.DokkaResolutionFacade
 import org.jetbrains.dokka.analysis.KotlinAnalysis
 import org.jetbrains.dokka.analysis.PsiDocumentableSource
 import org.jetbrains.dokka.analysis.from
@@ -46,6 +47,7 @@ import org.jetbrains.kotlin.descriptors.Visibilities
 import org.jetbrains.kotlin.descriptors.java.JavaVisibilities
 import org.jetbrains.kotlin.idea.caches.resolve.util.getJavaClassDescriptor
 import org.jetbrains.kotlin.idea.refactoring.fqName.getKotlinFqName
+import org.jetbrains.kotlin.idea.resolve.ResolutionFacade
 import org.jetbrains.kotlin.load.java.JvmAbi
 import org.jetbrains.kotlin.load.java.propertyNameByGetMethodName
 import org.jetbrains.kotlin.load.java.propertyNamesBySetMethodName
@@ -69,7 +71,7 @@ class DefaultPsiToDocumentableTranslator(
                 sourceSet.sourceRoots.any { root -> file.startsWith(root) }
 
 
-            val (environment, _) = kotlinAnalysis[sourceSet]
+            val (environment, facade) = kotlinAnalysis[sourceSet]
 
             val sourceRoots = environment.configuration.get(CLIConfigurationKeys.CONTENT_ROOTS)
                 ?.filterIsInstance<JavaSourceRoot>()
@@ -88,6 +90,7 @@ class DefaultPsiToDocumentableTranslator(
             val docParser =
                 DokkaPsiParser(
                     sourceSet,
+                    facade,
                     context.logger
                 )
 
@@ -106,10 +109,11 @@ class DefaultPsiToDocumentableTranslator(
 
     class DokkaPsiParser(
         private val sourceSetData: DokkaSourceSet,
+        facade: DokkaResolutionFacade,
         private val logger: DokkaLogger
     ) {
 
-        private val javadocParser: JavaDocumentationParser = JavadocParser(logger)
+        private val javadocParser: JavaDocumentationParser = JavadocParser(logger, facade)
 
         private val cachedBounds = hashMapOf<String, Bound>()
 
@@ -207,6 +211,7 @@ class DefaultPsiToDocumentableTranslator(
                 }
                 parseSupertypes(superTypes)
                 val (regularFunctions, accessors) = splitFunctionsAndAccessors()
+                val overriden = regularFunctions.flatMap { it.findSuperMethods().toList() }
                 val documentation = javadocParser.parseDocumentation(this).toSourceSetDependent()
                 val allFunctions = async {
                     regularFunctions.parallelMapNotNull {
@@ -214,8 +219,7 @@ class DefaultPsiToDocumentableTranslator(
                             it,
                             parentDRI = dri
                         ) else null
-                    } +
-                            superMethods.parallelMap { parseFunction(it.first, inheritedFrom = it.second) }
+                    } + superMethods.filter { it.first !in overriden }.parallelMap { parseFunction(it.first, inheritedFrom = it.second) }
                 }
                 val source = PsiDocumentableSource(this).toSourceSetDependent()
                 val classlikes = async { innerClasses.asIterable().parallelMap { parseClasslike(it, dri) } }

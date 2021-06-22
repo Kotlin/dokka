@@ -115,7 +115,8 @@ public class org/jetbrains/dokka/base/parsers/MarkdownParser : org/jetbrains/dok
 
 public final class org/jetbrains/dokka/base/parsers/MarkdownParser$Companion {
 	public final fun fqName (Lorg/jetbrains/dokka/links/DRI;)Ljava/lang/String;
-	public final fun parseFromKDocTag (Lorg/jetbrains/kotlin/kdoc/psi/impl/KDocTag;Lkotlin/jvm/functions/Function1;Ljava/lang/String;)Lorg/jetbrains/dokka/model/doc/DocumentationNode;
+	public final fun parseFromKDocTag (Lorg/jetbrains/kotlin/kdoc/psi/impl/KDocTag;Lkotlin/jvm/functions/Function1;Ljava/lang/String;Z)Lorg/jetbrains/dokka/model/doc/DocumentationNode;
+	public static synthetic fun parseFromKDocTag$default (Lorg/jetbrains/dokka/base/parsers/MarkdownParser$Companion;Lorg/jetbrains/kotlin/kdoc/psi/impl/KDocTag;Lkotlin/jvm/functions/Function1;Ljava/lang/String;ZILjava/lang/Object;)Lorg/jetbrains/dokka/model/doc/DocumentationNode;
 }
 
 public abstract class org/jetbrains/dokka/base/parsers/Parser {
@@ -1349,7 +1350,7 @@ public final class org/jetbrains/dokka/base/translators/psi/DefaultPsiToDocument
 }
 
 public final class org/jetbrains/dokka/base/translators/psi/DefaultPsiToDocumentableTranslator$DokkaPsiParser {
-	public fun <init> (Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Lorg/jetbrains/dokka/utilities/DokkaLogger;)V
+	public fun <init> (Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Lorg/jetbrains/dokka/analysis/DokkaResolutionFacade;Lorg/jetbrains/dokka/utilities/DokkaLogger;)V
 	public final fun parsePackage (Ljava/lang/String;Ljava/util/List;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
@@ -1359,7 +1360,7 @@ public abstract interface class org/jetbrains/dokka/base/translators/psi/parsers
 
 public final class org/jetbrains/dokka/base/translators/psi/parsers/JavadocParser : org/jetbrains/dokka/base/translators/psi/parsers/JavaDocumentationParser {
 	public static final field Companion Lorg/jetbrains/dokka/base/translators/psi/parsers/JavadocParser$Companion;
-	public fun <init> (Lorg/jetbrains/dokka/utilities/DokkaLogger;)V
+	public fun <init> (Lorg/jetbrains/dokka/utilities/DokkaLogger;Lorg/jetbrains/dokka/analysis/DokkaResolutionFacade;)V
 	public fun parseDocumentation (Lcom/intellij/psi/PsiNamedElement;)Lorg/jetbrains/dokka/model/doc/DocumentationNode;
 }
 

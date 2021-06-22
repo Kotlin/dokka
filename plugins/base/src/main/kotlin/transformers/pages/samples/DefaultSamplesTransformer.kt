@@ -13,7 +13,7 @@ class DefaultSamplesTransformer(context: DokkaContext) : SamplesTransformer(cont
     override fun processBody(psiElement: PsiElement): String {
         val text = processSampleBody(psiElement).trim { it == '\n' || it == '\r' }.trimEnd()
         val lines = text.split("\n")
-        val indent = lines.filter(String::isNotBlank).map { it.takeWhile(Char::isWhitespace).count() }.min() ?: 0
+        val indent = lines.filter(String::isNotBlank).map { it.takeWhile(Char::isWhitespace).count() }.minOrNull() ?: 0
         return lines.joinToString("\n") { it.drop(indent) }
     }
 
