@@ -85,7 +85,7 @@ class MultiModuleTestBuilder : TestBuilder<MultiModuleTestMethods>() {
     )
 }
 
-abstract class MultiModuleAbstractTest(logger: TestLogger = TestLogger(DokkaConsoleLogger)) :
+abstract class MultiModuleAbstractTest(logger: TestLogger = TestLogger(DokkaConsoleLogger())) :
     AbstractTest<MultiModuleTestMethods, MultiModuleTestBuilder, MultiModuleDokkaTestGenerator>(
         ::MultiModuleTestBuilder,
         ::MultiModuleDokkaTestGenerator,
