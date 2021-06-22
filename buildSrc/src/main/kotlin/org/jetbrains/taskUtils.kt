@@ -14,4 +14,9 @@ fun Task.dependsOnMavenLocalPublication() {
 }
 
 val Project.isLocalPublication: Boolean
-    get() = gradle.startParameter.taskNames.contains("publishToMavenLocal")
+    get() = gradle.startParameter.taskNames.any {
+        it.endsWith("publishToMavenLocal", ignoreCase = true) ||
+                it.endsWith("integrationTest", ignoreCase = true) ||
+                it.endsWith("check", ignoreCase = true) ||
+                it.endsWith("test", ignoreCase = true)
+    }

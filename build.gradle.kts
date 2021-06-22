@@ -55,15 +55,14 @@ subprojects {
         val dokkaOutputDir = "$buildDir/dokka"
 
         dokkaHtml {
+            onlyIf { !isLocalPublication }
             outputDirectory.set(file(dokkaOutputDir))
         }
 
         register<Jar>("javadocJar") {
             archiveClassifier.set("javadoc")
-            if (!isLocalPublication) {
-                dependsOn(dokkaHtml)
-                from(dokkaOutputDir)
-            }
+            dependsOn(dokkaHtml)
+            from(dokkaOutputDir)
         }
     }
 }
