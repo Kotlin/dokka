@@ -189,9 +189,7 @@ open class KotlinWebsiteHtmlOutputBuilder(
         val nonJRE6 = platforms.filterNot { it.key.isJREVersion() && it.key.endsWith("6") }
         nonJRE6.forEach { (platform, nodes) ->
             nodes.firstOrNull { node ->
-                node.details(NodeKind.SourceUrl).firstOrNull()?.takeUnless { usedSourceUrls.contains(it.name) }?.also {
-                    usedSourceUrls.add(it.name)
-                } != null
+                node.details(NodeKind.SourceUrl).firstOrNull()?.takeIf { usedSourceUrls.add(it.name) } != null
             }?.let { nodeWithUnusedSourceUrl ->
                 platformToSourceUrl[platform] = nodeWithUnusedSourceUrl
             }
