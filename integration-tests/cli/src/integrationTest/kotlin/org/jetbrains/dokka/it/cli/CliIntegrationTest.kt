@@ -155,6 +155,7 @@ class CliIntegrationTest : AbstractCliIntegrationTest() {
         val process = ProcessBuilder(
             "java", "-jar", cliJarFile.path,
             "-outputDir", dokkaOutputDir.path,
+            "-loggingLevel", "DEBUG",
             "-pluginsClasspath", basePluginJarFile.path,
             "-sourceSet",
             buildString {
@@ -166,6 +167,7 @@ class CliIntegrationTest : AbstractCliIntegrationTest() {
 
         val result = process.awaitProcessResult()
         assertEquals(0, result.exitCode, "Expected exitCode 0 (Success)")
+        assertTrue(result.output.contains("Loaded plugins: "), "Expected output to not contain info logs")
 
         assertTrue(dokkaOutputDir.isDirectory, "Missing dokka output directory")
 
@@ -180,5 +182,27 @@ class CliIntegrationTest : AbstractCliIntegrationTest() {
 
         val navigationHtml = File(dokkaOutputDir, "navigation.html")
         assertTrue(navigationHtml.isFile, "Missing navigation.html")
+    }
+
+    @Test
+    fun `logging level should be respected`(){
+        val dokkaOutputDir = File(projectDir, "output")
+        assertTrue(dokkaOutputDir.mkdirs())
+        val process = ProcessBuilder(
+            "java", "-jar", cliJarFile.path,
+            "-outputDir", dokkaOutputDir.path,
+            "-loggingLevel", "WARN",
+            "-pluginsClasspath", basePluginJarFile.path,
+            "-sourceSet",
+            buildString {
+                append(" -src ${File(projectDir, "src").path}")
+            }
+        )
+            .redirectErrorStream(true)
+            .start()
+
+        val result = process.awaitProcessResult()
+        assertEquals(0, result.exitCode, "Expected exitCode 0 (Success)")
+        assertFalse(result.output.contains("Loaded plugins: "), "Expected output to not contain info logs")
     }
 }

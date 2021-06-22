@@ -4197,10 +4197,13 @@ public final class org/jetbrains/dokka/utilities/AssociateWithNotNullKt {
 }
 
 public final class org/jetbrains/dokka/utilities/DokkaConsoleLogger : org/jetbrains/dokka/utilities/DokkaLogger {
-	public static final field INSTANCE Lorg/jetbrains/dokka/utilities/DokkaConsoleLogger;
+	public fun <init> ()V
+	public fun <init> (Lorg/jetbrains/dokka/utilities/LoggingLevel;Lorg/jetbrains/dokka/utilities/MessageEmitter;)V
+	public synthetic fun <init> (Lorg/jetbrains/dokka/utilities/LoggingLevel;Lorg/jetbrains/dokka/utilities/MessageEmitter;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun debug (Ljava/lang/String;)V
 	public fun error (Ljava/lang/String;)V
 	public fun getErrorsCount ()I
+	public final fun getMinLevel ()Lorg/jetbrains/dokka/utilities/LoggingLevel;
 	public fun getWarningsCount ()I
 	public fun info (Ljava/lang/String;)V
 	public fun progress (Ljava/lang/String;)V
@@ -4234,6 +4237,25 @@ public final class org/jetbrains/dokka/utilities/HtmlKt {
 public final class org/jetbrains/dokka/utilities/JsonKt {
 	public static final fun parseJson (Ljava/lang/String;Lorg/jetbrains/dokka/utilities/TypeReference;)Ljava/lang/Object;
 	public static final fun toJsonString (Ljava/lang/Object;)Ljava/lang/String;
+}
+
+public final class org/jetbrains/dokka/utilities/LoggingLevel : java/lang/Enum {
+	public static final field DEBUG Lorg/jetbrains/dokka/utilities/LoggingLevel;
+	public static final field ERROR Lorg/jetbrains/dokka/utilities/LoggingLevel;
+	public static final field INFO Lorg/jetbrains/dokka/utilities/LoggingLevel;
+	public static final field PROGRESS Lorg/jetbrains/dokka/utilities/LoggingLevel;
+	public static final field WARN Lorg/jetbrains/dokka/utilities/LoggingLevel;
+	public final fun getIndex ()I
+	public static fun valueOf (Ljava/lang/String;)Lorg/jetbrains/dokka/utilities/LoggingLevel;
+	public static fun values ()[Lorg/jetbrains/dokka/utilities/LoggingLevel;
+}
+
+public abstract interface class org/jetbrains/dokka/utilities/MessageEmitter : kotlin/jvm/functions/Function1 {
+	public static final field Companion Lorg/jetbrains/dokka/utilities/MessageEmitter$Companion;
+}
+
+public final class org/jetbrains/dokka/utilities/MessageEmitter$Companion {
+	public final fun getConsoleEmitter ()Lorg/jetbrains/dokka/utilities/MessageEmitter;
 }
 
 public final class org/jetbrains/dokka/utilities/ParallelCollectionOperationsKt {

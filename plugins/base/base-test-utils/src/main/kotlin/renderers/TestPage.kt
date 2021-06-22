@@ -14,8 +14,8 @@ import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentCon
 fun testPage(callback: PageContentBuilder.DocumentableContentBuilder.() -> Unit): RawTestPage {
     val content = PageContentBuilder(
         EmptyCommentConverter,
-        KotlinSignatureProvider(EmptyCommentConverter, DokkaConsoleLogger),
-        DokkaConsoleLogger
+        KotlinSignatureProvider(EmptyCommentConverter, DokkaConsoleLogger()),
+        DokkaConsoleLogger()
     ).contentFor(
         DRI.topLevel,
         emptySet(),
