@@ -114,13 +114,17 @@ open class KotlinWebsiteHtmlOutputBuilder(
 
     override fun appendSoftLineBreak() {
         if (needHardLineBreaks)
-            to.append("<br/>")
+            appendHardLineBreak()
     }
 
     override fun appendIndentedSoftLineBreak() {
         if (needHardLineBreaks) {
             to.append("<br/>&nbsp;&nbsp;&nbsp;&nbsp;")
         }
+    }
+
+    override fun appendHardLineBreak() {
+        to.append("<br/>")
     }
 
     private fun identifierClassName(kind: IdentifierKind) = when (kind) {
