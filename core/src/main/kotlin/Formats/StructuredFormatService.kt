@@ -178,6 +178,9 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
     open fun appendIndentedSoftLineBreak() {
     }
 
+    open fun appendHardLineBreak() {
+    }
+
     fun appendContent(content: List<ContentNode>) {
         for (contentNode in content) {
             appendContent(contentNode)
@@ -450,7 +453,7 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                 }
                 appendAsSignature(rendered) {
                     appendCode { appendContent(rendered) }
-                    item.appendSourceLink()
+                    item.appendSourceLink(appendLineBreak = true)
                 }
                 item.appendOverrides()
                 item.appendDeprecation()
@@ -477,7 +480,12 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
 
                     appendAsSignature(sign) {
                         appendCode { appendContent(sign) }
-                        appendSourceLinks(platforms) { this.appendSourceLink(it) }
+
+                        var appendLineBreak = true
+                        appendSourceLinks(platforms) {
+                            this.appendSourceLink(appendLineBreak, it)
+                            appendLineBreak = false
+                        }
                     }
                     first.appendOverrides()
                     first.appendDeprecation()
@@ -486,10 +494,16 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
             }
         }
 
-        private fun DocumentationNode.appendSourceLink(platform: String? = null) {
+        private fun DocumentationNode.appendSourceLink(appendLineBreak: Boolean, platform: String? = null) {
             val sourceUrl = details(NodeKind.SourceUrl).firstOrNull()
             if (sourceUrl != null) {
-                to.append(" ")
+
+                if (appendLineBreak) {
+                    appendHardLineBreak()
+                } else {
+                    to.append(" ")
+                }
+
                 val text = if (platform == null) "(source)" else "($platform source)"
                 appendLink(sourceUrl.name) { to.append(text) }
             }
