@@ -1,7 +1,9 @@
 package org.jetbrains.dokka.base.translators.descriptors
 
+import com.intellij.psi.PsiNamedElement
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.runBlocking
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.analysis.DescriptorDocumentableSource
 import org.jetbrains.dokka.analysis.DokkaResolutionFacade
@@ -10,6 +12,7 @@ import org.jetbrains.dokka.analysis.from
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.parsers.MarkdownParser
 import org.jetbrains.dokka.base.translators.isDirectlyAnException
+import org.jetbrains.dokka.base.translators.psi.parsers.JavadocParser
 import org.jetbrains.dokka.base.translators.unquotedValue
 import org.jetbrains.dokka.links.*
 import org.jetbrains.dokka.links.Callable
@@ -38,6 +41,7 @@ import org.jetbrains.kotlin.descriptors.annotations.AnnotationDescriptor
 import org.jetbrains.kotlin.idea.core.getDirectlyOverriddenDeclarations
 import org.jetbrains.kotlin.idea.kdoc.findKDoc
 import org.jetbrains.kotlin.idea.kdoc.resolveKDocLink
+import org.jetbrains.kotlin.js.resolve.diagnostics.findPsi
 import org.jetbrains.kotlin.load.kotlin.toSourceElement
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.*
@@ -58,6 +62,7 @@ import org.jetbrains.kotlin.types.*
 import org.jetbrains.kotlin.types.typeUtil.immediateSupertypes
 import org.jetbrains.kotlin.types.typeUtil.isAnyOrNullableAny
 import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
+import org.jetbrains.kotlin.utils.addToStdlib.firstNotNullResult
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 import java.nio.file.Paths
 import org.jetbrains.kotlin.resolve.constants.AnnotationValue as ConstantsAnnotationValue
@@ -110,6 +115,8 @@ private class DokkaDescriptorVisitor(
     private val resolutionFacade: DokkaResolutionFacade,
     private val logger: DokkaLogger
 ) {
+    private val javadocParser = JavadocParser(logger, resolutionFacade)
+
     private fun Collection<DeclarationDescriptor>.filterDescriptorsInSourceSet() = filter {
         it.toSourceElement.containingFile.toString().let { path ->
             path.isNotBlank() && sourceSet.sourceRoots.any { root ->
@@ -848,7 +855,7 @@ private class DokkaDescriptorVisitor(
             org.jetbrains.kotlin.types.Variance.OUT_VARIANCE -> Covariance(this)
         }
 
-    private fun DeclarationDescriptor.getDocumentation() = findKDoc().let {
+    private fun DeclarationDescriptor.getDocumentation() = (findKDoc()?.let {
         MarkdownParser.parseFromKDocTag(
             kDocTag = it,
             externalDri = { link: String ->
@@ -871,7 +878,12 @@ private class DokkaDescriptorVisitor(
                 else it
             }
         )
-    }.takeIf { it.children.isNotEmpty() }
+    } ?: getJavaDocs())?.takeIf { it.children.isNotEmpty() }
+
+    private fun DeclarationDescriptor.getJavaDocs() = (this as? CallableDescriptor)
+        ?.overriddenDescriptors
+        ?.mapNotNull { it.findPsi() as? PsiNamedElement }
+        ?.firstNotNullResult { javadocParser.parseDocumentation(it) }
 
     private suspend fun ClassDescriptor.companion(dri: DRIWithPlatformInfo): DObject? = companionObjectDescriptor?.let {
         objectDescriptor(it, dri)
