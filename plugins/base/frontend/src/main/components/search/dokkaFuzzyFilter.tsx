@@ -38,12 +38,6 @@ const highlightMatchedPhrases = (records: OptionWithSearchResult[]): OptionWithH
         }
     })
 }
-
-const hasAnyMatchedPhraseLongerThan = (searchResult: OptionWithSearchResult, length: number): boolean => {
-    const values = _.chunk(signatureFromSearchResult(searchResult).split("**"), 2).map(([txt, matched]) => matched ? matched.length >= length : null)
-    return values.reduce((acc, element) => acc || element)
-}
-
 export class DokkaFuzzyFilterComponent extends Select {
     componentDidUpdate(prevProps, prevState) {
         super.componentDidUpdate(prevProps, prevState)
@@ -94,7 +88,7 @@ export class DokkaFuzzyFilterComponent extends Select {
                 }
 
             })
-            .filter((record: OptionWithSearchResult) => record.matched && (hasAnyMatchedPhraseLongerThan(record, 3) || filterPhrase.length < 3))
+            .filter((record: OptionWithSearchResult) => record.matched)
 
         this.props.onFilter(filterPhrase)
 
