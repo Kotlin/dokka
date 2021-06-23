@@ -4,18 +4,36 @@ package org.jetbrains
 
 import org.gradle.api.Project
 
-internal enum class DokkaPublicationChannel {
+enum class DokkaPublicationChannel {
     SpaceDokkaDev,
     BintrayKotlinDev,
     BintrayKotlinEap,
-    BintrayKotlinDokka;
+    BintrayKotlinDokka,
+    MavenCentral,
+    MavenCentralSnapshot;
 
     val isSpaceRepository get() = this == SpaceDokkaDev
 
     val isBintrayRepository
         get() = when (this) {
-            SpaceDokkaDev -> false
             BintrayKotlinDev, BintrayKotlinEap, BintrayKotlinDokka -> true
+            else -> false
+        }
+
+    val isMavenRepository
+        get() = when (this) {
+            MavenCentral, MavenCentralSnapshot -> true
+            else -> false
+        }
+
+    val acceptedDokkaVersionTypes: List<DokkaVersionType>
+        get() = when(this) {
+            MavenCentral -> listOf(DokkaVersionType.Release)
+            MavenCentralSnapshot -> listOf(DokkaVersionType.Snapshot)
+            SpaceDokkaDev -> listOf(DokkaVersionType.Release, DokkaVersionType.Dev, DokkaVersionType.MC, DokkaVersionType.Snapshot)
+            BintrayKotlinDev -> listOf(DokkaVersionType.Dev, DokkaVersionType.MC, DokkaVersionType.Snapshot)
+            BintrayKotlinEap -> listOf(DokkaVersionType.MC)
+            BintrayKotlinDokka -> listOf(DokkaVersionType.Release)
         }
 
     companion object {
@@ -24,12 +42,14 @@ internal enum class DokkaPublicationChannel {
             "bintray-kotlin-dev" -> BintrayKotlinDev
             "bintray-kotlin-eap" -> BintrayKotlinEap
             "bintray-kotlin-dokka" -> BintrayKotlinDokka
+            "maven-central-release" -> MavenCentral
+            "maven-central-snapshot" -> MavenCentralSnapshot
             else -> throw IllegalArgumentException("Unknown dokka_publication_channel=$value")
         }
     }
 }
 
-internal val Project.publicationChannels: Set<DokkaPublicationChannel>
+val Project.publicationChannels: Set<DokkaPublicationChannel>
     get() {
         val publicationChannel = this.properties["dokka_publication_channel"]?.toString()
         val publicationChannels = this.properties["dokka_publication_channels"]?.toString()

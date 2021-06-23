@@ -19,6 +19,7 @@ jobs:
     strategy:
       matrix:
         version: [ 11, 15, 16 ]
+      fail-fast: false
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2

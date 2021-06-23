@@ -22,7 +22,6 @@ import org.jetbrains.dokka.*
 import org.jetbrains.dokka.DokkaConfiguration.ExternalDocumentationLink
 import java.io.File
 import java.net.URL
-import java.util.stream.Collectors
 
 class SourceLinkMapItem {
     @Parameter(name = "path", required = true)

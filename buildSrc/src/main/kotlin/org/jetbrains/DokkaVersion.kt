@@ -24,3 +24,6 @@ private fun dokkaVersionFromBase(baseVersion: String): String {
 
 val Project.dokkaVersion: String
     get() = configureDokkaVersion()
+
+val Project.dokkaVersionType: DokkaVersionType?
+    get() = DokkaVersionType.values().find { it.suffix.matches(dokkaVersion.substringAfter("-", "")) }
