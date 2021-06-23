@@ -1,11 +1,8 @@
-import org.jetbrains.configureBintrayPublicationIfNecessary
-import org.jetbrains.configureSpacePublicationIfNecessary
-import org.jetbrains.createDokkaPublishTaskIfNecessary
-import org.jetbrains.dokkaVersion
+import org.jetbrains.*
 
 plugins {
     `java-gradle-plugin`
-    id("com.gradle.plugin-publish") version "0.10.1"
+    id("com.gradle.plugin-publish") version "0.15.0"
 }
 
 repositories {
@@ -43,8 +40,11 @@ gradlePlugin {
     plugins {
         create("dokkaGradlePlugin") {
             id = "org.jetbrains.dokka"
+            displayName = "Dokka plugin"
+            description = "Dokka, the Kotlin documentation tool"
             implementationClass = "org.jetbrains.dokka.gradle.DokkaPlugin"
             version = dokkaVersion
+            isAutomatedPublishing = true
         }
     }
 }
@@ -52,14 +52,7 @@ gradlePlugin {
 pluginBundle {
     website = "https://www.kotlinlang.org/"
     vcsUrl = "https://github.com/kotlin/dokka.git"
-    description = "Dokka, the Kotlin documentation tool"
-    tags = listOf("dokka", "kotlin", "kdoc", "android")
-
-    plugins {
-        getByName("dokkaGradlePlugin") {
-            displayName = "Dokka plugin"
-        }
-    }
+    tags = listOf("dokka", "kotlin", "kdoc", "android", "documentation")
 
     mavenCoordinates {
         groupId = "org.jetbrains.dokka"
@@ -69,20 +62,26 @@ pluginBundle {
 
 publishing {
     publications {
-        register<MavenPublication>("pluginMaven") {
-            artifactId = "dokka-gradle-plugin"
-        }
-
         register<MavenPublication>("dokkaGradlePluginForIntegrationTests") {
             artifactId = "dokka-gradle-plugin"
             from(components["java"])
             version = "for-integration-tests-SNAPSHOT"
         }
+
+        register<MavenPublication>("pluginMaven") {
+            configurePom("Dokka ${project.name}")
+            artifactId = "dokka-gradle-plugin"
+        }
     }
 }
 
+tasks.withType<PublishToMavenRepository>().configureEach {
+    onlyIf { publication != publishing.publications["dokkaGradlePluginForIntegrationTests"] }
+}
 
-configureSpacePublicationIfNecessary("dokkaGradlePluginPluginMarkerMaven", "pluginMaven")
-configureBintrayPublicationIfNecessary("dokkaGradlePluginPluginMarkerMaven", "pluginMaven")
-createDokkaPublishTaskIfNecessary()
-
+afterEvaluate { // Workaround for interesting design choice https://github.com/gradle/gradle/blob/c4f935f77377f1783f70ec05381c8182b3ade3ea/subprojects/plugin-development/src/main/java/org/gradle/plugin/devel/plugins/MavenPluginPublishPlugin.java#L49
+    configureBintrayPublicationIfNecessary("pluginMaven", "dokkaGradlePluginPluginMarkerMaven")
+    configureSpacePublicationIfNecessary("pluginMaven", "dokkaGradlePluginPluginMarkerMaven")
+    configureSonatypePublicationIfNecessary("pluginMaven", "dokkaGradlePluginPluginMarkerMaven")
+    createDokkaPublishTaskIfNecessary()
+}

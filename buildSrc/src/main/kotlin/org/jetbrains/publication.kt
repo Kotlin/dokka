@@ -4,13 +4,13 @@ import com.github.jengelman.gradle.plugins.shadow.ShadowExtension
 import com.jfrog.bintray.gradle.BintrayExtension
 import kotlinx.validation.ApiValidationExtension
 import org.gradle.api.Project
-import org.gradle.api.provider.Provider
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.maven.tasks.PublishToMavenRepository
 import org.gradle.kotlin.dsl.*
 import org.gradle.plugins.signing.SigningExtension
 import org.jetbrains.DokkaPublicationChannel.*
+import io.github.gradlenexus.publishplugin.NexusPublishExtension
 import java.net.URI
 
 class DokkaPublicationBuilder {
@@ -26,24 +26,25 @@ class DokkaPublicationBuilder {
 fun Project.registerDokkaArtifactPublication(publicationName: String, configure: DokkaPublicationBuilder.() -> Unit) {
     configure<PublishingExtension> {
         publications {
-            val publicationProvider = register<MavenPublication>(publicationName) {
+            register<MavenPublication>(publicationName) {
                 val builder = DokkaPublicationBuilder().apply(configure)
                 artifactId = builder.artifactId
                 when (builder.component) {
                     DokkaPublicationBuilder.Component.Java -> from(components["java"])
                     DokkaPublicationBuilder.Component.Shadow -> run {
-                        artifact(tasks["sourcesJar"])
                         extensions.getByType(ShadowExtension::class.java).component(this)
+                        artifact(tasks["sourcesJar"])
                     }
                 }
+                artifact(tasks["javadocJar"])
                 configurePom("Dokka ${project.name}")
             }
-            signPublicationIfKeyPresent(publicationProvider)
         }
     }
 
     configureBintrayPublicationIfNecessary(publicationName)
     configureSpacePublicationIfNecessary(publicationName)
+    configureSonatypePublicationIfNecessary(publicationName)
     createDokkaPublishTaskIfNecessary()
     registerBinaryCompatibilityCheck(publicationName)
 }
@@ -83,6 +84,11 @@ fun Project.createDokkaPublishTaskIfNecessary() {
         if (publicationChannels.any { it.isSpaceRepository }) {
             dependsOn(tasks.named("publish"))
         }
+
+        if (publicationChannels.any { it.isMavenRepository }) {
+            dependsOn(tasks.named("publishToSonatype"))
+        }
+
         if (publicationChannels.any { it.isBintrayRepository }) {
             dependsOn(tasks.named("bintrayUpload"))
         }
@@ -110,7 +116,7 @@ private fun Project.configureBintrayPublication(vararg publications: String) {
             }
 
             repo = when (bintrayPublicationChannels.single()) {
-                SpaceDokkaDev -> throw IllegalStateException("$SpaceDokkaDev is not a bintray repository")
+                SpaceDokkaDev, MavenCentral, MavenCentralSnapshot -> throw IllegalStateException("${bintrayPublicationChannels.single()} is not a bintray repository")
                 BintrayKotlinDev -> "kotlin-dev"
                 BintrayKotlinEap -> "kotlin-eap"
                 BintrayKotlinDokka -> "dokka"
@@ -129,8 +135,13 @@ private fun Project.configureBintrayPublication(vararg publications: String) {
     }
 }
 
+fun Project.configureSonatypePublicationIfNecessary(vararg publications: String) {
+    if (publicationChannels.any { it.isMavenRepository }) {
+        signPublicationsIfKeyPresent(*publications)
+    }
+}
 
-private fun MavenPublication.configurePom(projectName: String) {
+fun MavenPublication.configurePom(projectName: String) {
     pom {
         name.set(projectName)
         description.set("Dokka is a documentation engine for Kotlin and Java, performing the same function as Javadoc for Java")
@@ -161,14 +172,23 @@ private fun MavenPublication.configurePom(projectName: String) {
 }
 
 @Suppress("UnstableApiUsage")
-private fun Project.signPublicationIfKeyPresent(publicationProvider: Provider<MavenPublication>) {
-    val signingKey = System.getenv("SIGN_KEY")
-    val signingKeyPassphrase = System.getenv("SIGN_KEY_PASSPHRASE")
+private fun Project.signPublicationsIfKeyPresent(vararg publications: String) {
+    val signingKeyId: String? = System.getenv("SIGN_KEY_ID")
+    val signingKey: String? = System.getenv("SIGN_KEY")
+    val signingKeyPassphrase: String? = System.getenv("SIGN_KEY_PASSPHRASE")
 
     if (!signingKey.isNullOrBlank()) {
         extensions.configure<SigningExtension>("signing") {
-            useInMemoryPgpKeys(signingKey, signingKeyPassphrase)
-            sign(publicationProvider.get())
+            if (signingKeyId?.isNotBlank() == true) {
+                useInMemoryPgpKeys(signingKeyId, signingKey, signingKeyPassphrase)
+            } else {
+                useInMemoryPgpKeys(signingKey, signingKeyPassphrase)
+            }
+            publications.forEach { publicationName ->
+                extensions.findByType(PublishingExtension::class)!!.publications.findByName(publicationName)?.let {
+                    sign(it)
+                }
+            }
         }
     }
 }
