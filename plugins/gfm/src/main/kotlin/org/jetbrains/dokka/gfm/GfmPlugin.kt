@@ -6,6 +6,7 @@ import org.jetbrains.dokka.base.renderers.PackageListCreator
 import org.jetbrains.dokka.base.renderers.RootCreator
 import org.jetbrains.dokka.base.resolvers.shared.RecognizedLinkFormat
 import org.jetbrains.dokka.gfm.location.MarkdownLocationProvider
+import org.jetbrains.dokka.gfm.renderer.BriefCommentPreprocessor
 import org.jetbrains.dokka.gfm.renderer.CommonmarkRenderer
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.transformers.pages.PageTransformer
@@ -26,6 +27,10 @@ class GfmPlugin : DokkaPlugin() {
 
     val rootCreator by extending {
         gfmPreprocessors with RootCreator
+    }
+
+    val briefCommentPreprocessor by extending {
+        gfmPreprocessors with BriefCommentPreprocessor()
     }
 
     val packageListCreator by extending {

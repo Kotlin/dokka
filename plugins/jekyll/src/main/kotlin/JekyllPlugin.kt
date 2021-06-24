@@ -4,16 +4,15 @@ import org.jetbrains.dokka.CoreExtensions
 import org.jetbrains.dokka.base.renderers.PackageListCreator
 import org.jetbrains.dokka.base.renderers.RootCreator
 import org.jetbrains.dokka.base.resolvers.shared.RecognizedLinkFormat
-import org.jetbrains.dokka.gfm.renderer.CommonmarkRenderer
 import org.jetbrains.dokka.gfm.GfmPlugin
-import org.jetbrains.dokka.pages.*
+import org.jetbrains.dokka.gfm.renderer.BriefCommentPreprocessor
+import org.jetbrains.dokka.gfm.renderer.CommonmarkRenderer
+import org.jetbrains.dokka.pages.ContentPage
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.query
 import org.jetbrains.dokka.transformers.pages.PageTransformer
-import java.lang.StringBuilder
-
 
 class JekyllPlugin : DokkaPlugin() {
 
@@ -27,6 +26,10 @@ class JekyllPlugin : DokkaPlugin() {
 
     val rootCreator by extending {
         jekyllPreprocessors with RootCreator
+    }
+
+    val briefCommentPreprocessor by extending {
+        jekyllPreprocessors with BriefCommentPreprocessor()
     }
 
     val packageListCreator by extending {

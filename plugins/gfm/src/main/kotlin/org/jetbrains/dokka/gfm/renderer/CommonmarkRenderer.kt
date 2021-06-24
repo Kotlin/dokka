@@ -26,17 +26,7 @@ open class CommonmarkRenderer(
         childrenCallback: StringBuilder.() -> Unit
     ) {
         return when {
-            node.hasStyle(TextStyle.Block) -> {
-                buildParagraph()
-                childrenCallback()
-                buildParagraph()
-            }
-            node.hasStyle(TextStyle.Paragraph) -> {
-                buildParagraph()
-                childrenCallback()
-                buildParagraph()
-            }
-            node.dci.kind == ContentKind.BriefComment -> {
+            node.hasStyle(TextStyle.Block) || node.hasStyle(TextStyle.Paragraph) -> {
                 buildParagraph()
                 childrenCallback()
                 buildParagraph()
