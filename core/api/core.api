@@ -3988,6 +3988,7 @@ public final class org/jetbrains/dokka/pages/TextStyle : java/lang/Enum, org/jet
 
 public final class org/jetbrains/dokka/pages/UtilsKt {
 	public static final fun mapTransform (Lorg/jetbrains/dokka/pages/ContentNode;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/dokka/pages/ContentNode;
+	public static final fun recursiveMapTransform (Lorg/jetbrains/dokka/pages/ContentNode;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/dokka/pages/ContentNode;
 }
 
 public final class org/jetbrains/dokka/pages/WrongRendererTypeException : java/lang/Exception {
