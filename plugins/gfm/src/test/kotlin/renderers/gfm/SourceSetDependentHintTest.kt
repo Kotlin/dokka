@@ -39,9 +39,13 @@ class SourceSetDependentHintTest : GfmRenderingOnlyTestBase() {
                 text("c")
             }
         }
+        val expect = """|//[testPage](test-page.md)
+                        |
+                        |[pl1, pl2, pl3]\
+                        |abc""".trimMargin()
 
         CommonmarkRenderer(context).render(page)
-        assert(renderedContent == "//[testPage](test-page.md)\n\n [pl1, pl2, pl3] abc")
+        assert(renderedContent == expect)
     }
 
     @Test
@@ -53,9 +57,19 @@ class SourceSetDependentHintTest : GfmRenderingOnlyTestBase() {
                 text("c", sourceSets = setOf(pl3))
             }
         }
+        val expect = """|//[testPage](test-page.md)
+                        |
+                        |[pl1]\
+                        |a
+                        |
+                        |[pl2]\
+                        |b
+                        |
+                        |[pl3]\
+                        |c""".trimMargin()
 
         CommonmarkRenderer(context).render(page)
-        assert(renderedContent == "//[testPage](test-page.md)\n\n [pl1] a\n\n [pl2] b\n\n [pl3] c")
+        assert(renderedContent == expect)
     }
 
     @Test
@@ -67,9 +81,16 @@ class SourceSetDependentHintTest : GfmRenderingOnlyTestBase() {
                 text("c", sourceSets = setOf(pl2))
             }
         }
+        val expect = """|//[testPage](test-page.md)
+                        |
+                        |[pl1]\
+                        |ab
+                        |
+                        |[pl2]\
+                        |bc""".trimMargin()
 
         CommonmarkRenderer(context).render(page)
-        assert(renderedContent == "//[testPage](test-page.md)\n\n [pl1] ab\n\n [pl2] bc")
+        assert(renderedContent == expect)
     }
 
     @Test
@@ -81,9 +102,13 @@ class SourceSetDependentHintTest : GfmRenderingOnlyTestBase() {
                 text("b", sourceSets = setOf(pl2))
             }
         }
+        val expect = """|//[testPage](test-page.md)
+                        |
+                        |[pl1, pl2]\
+                        |ab""".trimMargin()
 
         CommonmarkRenderer(context).render(page)
-        assert(renderedContent == "//[testPage](test-page.md)\n\n [pl1, pl2] ab")
+        assert(renderedContent == expect)
     }
 
     @Test
@@ -97,9 +122,18 @@ class SourceSetDependentHintTest : GfmRenderingOnlyTestBase() {
                 text("b", sourceSets = setOf(pl2))
             }
         }
+        val expect = """|//[testPage](test-page.md)
+                        |
+                        |[pl1]\
+                        |ab
+                        |
+                        |[pl2]\
+                        |a
+                        |
+                        |b""".trimMargin()
 
         CommonmarkRenderer(context).render(page)
-        assert(renderedContent == "//[testPage](test-page.md)\n\n [pl1] ab\n\n [pl2] a\n\nb")
+        assert(renderedContent == expect)
     }
 
     @Test
@@ -113,9 +147,13 @@ class SourceSetDependentHintTest : GfmRenderingOnlyTestBase() {
                 text("b", sourceSets = setOf(pl2))
             }
         }
+        val expect = """|//[testPage](test-page.md)
+                        |
+                        |[pl1, pl2]\
+                        |ab""".trimMargin()
 
         CommonmarkRenderer(context).render(page)
-        assert(renderedContent == "//[testPage](test-page.md)\n\n [pl1, pl2] ab")
+        assert(renderedContent == expect)
     }
 
     @Test
@@ -127,8 +165,15 @@ class SourceSetDependentHintTest : GfmRenderingOnlyTestBase() {
                 text("b", sourceSets = setOf(pl3))
             }
         }
+        val expect = """|//[testPage](test-page.md)
+                        |
+                        |[pl1, pl2]\
+                        |a
+                        |
+                        |[pl3]\
+                        |b""".trimMargin()
 
         CommonmarkRenderer(context).render(page)
-        assert(renderedContent == "//[testPage](test-page.md)\n\n [pl1, pl2] a\n\n [pl3] b")
+        assert(renderedContent == expect)
     }
 }
