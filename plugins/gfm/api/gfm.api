@@ -85,3 +85,22 @@ public class org/jetbrains/dokka/gfm/renderer/CommonmarkRenderer : org/jetbrains
 	public fun wrapGroup (Ljava/lang/StringBuilder;Lorg/jetbrains/dokka/pages/ContentGroup;Lorg/jetbrains/dokka/pages/ContentPage;Lkotlin/jvm/functions/Function1;)V
 }
 
+public class org/jetbrains/dokka/gfm/renderer/GfmTableCellRenderer : org/jetbrains/dokka/gfm/renderer/CommonmarkDivirgentsRenderer {
+	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
+	public synthetic fun buildHeader (Ljava/lang/Object;ILorg/jetbrains/dokka/pages/ContentHeader;Lkotlin/jvm/functions/Function1;)V
+	public fun buildHeader (Ljava/lang/StringBuilder;ILorg/jetbrains/dokka/pages/ContentHeader;Lkotlin/jvm/functions/Function1;)V
+	public synthetic fun buildLineBreak (Ljava/lang/Object;)V
+	public fun buildLineBreak (Ljava/lang/StringBuilder;)V
+	public synthetic fun buildList (Ljava/lang/Object;Lorg/jetbrains/dokka/pages/ContentList;Lorg/jetbrains/dokka/pages/ContentPage;Ljava/util/Set;)V
+	public fun buildList (Ljava/lang/StringBuilder;Lorg/jetbrains/dokka/pages/ContentList;Lorg/jetbrains/dokka/pages/ContentPage;Ljava/util/Set;)V
+	public synthetic fun buildNavigation (Ljava/lang/Object;Lorg/jetbrains/dokka/pages/PageNode;)V
+	public fun buildNavigation (Ljava/lang/StringBuilder;Lorg/jetbrains/dokka/pages/PageNode;)V
+	public fun buildNewLine (Ljava/lang/StringBuilder;)V
+	public fun buildPage (Lorg/jetbrains/dokka/pages/ContentPage;Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public fun buildParagraph (Ljava/lang/StringBuilder;)V
+	public synthetic fun buildTable (Ljava/lang/Object;Lorg/jetbrains/dokka/pages/ContentTable;Lorg/jetbrains/dokka/pages/ContentPage;Ljava/util/Set;)V
+	public fun buildTable (Ljava/lang/StringBuilder;Lorg/jetbrains/dokka/pages/ContentTable;Lorg/jetbrains/dokka/pages/ContentPage;Ljava/util/Set;)V
+	public synthetic fun wrapGroup (Ljava/lang/Object;Lorg/jetbrains/dokka/pages/ContentGroup;Lorg/jetbrains/dokka/pages/ContentPage;Lkotlin/jvm/functions/Function1;)V
+	public fun wrapGroup (Ljava/lang/StringBuilder;Lorg/jetbrains/dokka/pages/ContentGroup;Lorg/jetbrains/dokka/pages/ContentPage;Lkotlin/jvm/functions/Function1;)V
+}
+

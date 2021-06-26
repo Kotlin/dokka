@@ -129,13 +129,12 @@ open class CommonmarkRenderer(
             node.children.forEach { row ->
                 row.children.forEach { cell ->
                     append("| ")
-                    append(buildString { cell.build(this, pageContext) }
-                        .trim()
-                        .replace("#+ ".toRegex(), "") // Workaround for headers inside tables
-                        .replace("\\\n", "\n\n")
-                        .replace("\n[\n]+".toRegex(), "<br>")
-                        .replace("\n", " ")
-                    )
+                    with(GfmTableCellRenderer(context)) {
+                        val text = buildPage(pageContext) { builder, page ->
+                            cell.build(builder, page)
+                        }
+                        append(text)
+                    }
                     append(" ")
                 }
                 append("|")
