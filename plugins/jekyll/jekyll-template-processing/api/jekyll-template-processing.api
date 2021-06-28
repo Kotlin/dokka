@@ -1,0 +1,6 @@
+public final class org/jetbrains/dokka/gfm/templateProcessing/JekyllTemplateProcessingPlugin : org/jetbrains/dokka/plugability/DokkaPlugin {
+	public fun <init> ()V
+	public final fun getJekyllLocationProvider ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getJekyllPartialLocationProvider ()Lorg/jetbrains/dokka/plugability/Extension;
+}
+

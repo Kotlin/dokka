@@ -1,8 +1,10 @@
 package org.jetbrains.dokka.jekyll
 
 import org.jetbrains.dokka.CoreExtensions
+import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.renderers.PackageListCreator
 import org.jetbrains.dokka.base.renderers.RootCreator
+import org.jetbrains.dokka.base.resolvers.local.DokkaLocationProviderFactory
 import org.jetbrains.dokka.base.resolvers.shared.RecognizedLinkFormat
 import org.jetbrains.dokka.gfm.GfmPlugin
 import org.jetbrains.dokka.gfm.renderer.BriefCommentPreprocessor
@@ -17,6 +19,10 @@ import org.jetbrains.dokka.transformers.pages.PageTransformer
 class JekyllPlugin : DokkaPlugin() {
 
     val jekyllPreprocessors by extensionPoint<PageTransformer>()
+
+    private val dokkaBase by lazy { plugin<DokkaBase>() }
+
+    private val gfmPlugin by lazy { plugin<GfmPlugin>() }
 
     val renderer by extending {
         (CoreExtensions.renderer
@@ -36,6 +42,10 @@ class JekyllPlugin : DokkaPlugin() {
         jekyllPreprocessors providing {
             PackageListCreator(it, RecognizedLinkFormat.DokkaJekyll)
         } order { after(rootCreator) }
+    }
+
+    val locationProvider by extending {
+        dokkaBase.locationProviderFactory providing ::DokkaLocationProviderFactory override listOf(gfmPlugin.locationProvider)
     }
 }
 
