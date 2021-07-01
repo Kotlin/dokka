@@ -6,6 +6,7 @@ import App from "./app";
 import './app/index.scss';
 import { NavigationPaneSearch } from './navigationPaneSearch/navigationPaneSearch';
 import { PageSummary } from './pageSummary/pageSummary';
+import { Navigation } from './navigation/navigation';
 
 const renderNavigationPane = () => {
   render(
@@ -36,10 +37,16 @@ const renderMainSearch = () => {
   render(<App />, document.getElementById('searchBar'));
 }
 
+const renderNavigation = () => {
+  render(<Navigation records={navigation} currentPageId={document.getElementById("content").attributes["pageIds"].value}
+                     tabsIncludedInNavigation={["Properties", "Functions", "Types"]}></Navigation>, document.getElementById("sideMenu"));
+}
+
 let renderApp = () => {
   renderMainSearch();
   renderNavigationPane();
   renderOnThisPage();
+  renderNavigation();
 
   document.removeEventListener('DOMContentLoaded', renderApp);
 };

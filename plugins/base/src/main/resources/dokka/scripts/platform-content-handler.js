@@ -6,9 +6,21 @@ filteringContext = {
 let highlightedAnchor;
 let topNavbarOffset;
 
+const addSmoothScrollToFooter = () => {
+    document.querySelectorAll('.footer a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            document.querySelector(this.getAttribute('href')).scrollIntoView({
+                behavior: 'smooth'
+            });
+        });
+    });
+}
+
 window.addEventListener('load', () => {
+    addSmoothScrollToFooter()
     document.querySelectorAll("div[data-platform-hinted]")
-        .forEach(elem => elem.addEventListener('click', (event) => togglePlatformDependent(event,elem)))
+        .forEach(elem => elem.addEventListener('click', (event) => togglePlatformDependent(event, elem)))
     document.querySelectorAll("div[tabs-section]")
         .forEach(elem => elem.addEventListener('click', (event) => toggleSectionsEventHandler(event)))
     const filterSection = document.getElementById('filter-section')
@@ -26,8 +38,23 @@ window.addEventListener('load', () => {
     topNavbarOffset = document.getElementById('navigation-wrapper')
 })
 
+window.addEventListener('popstate', () => changeTabByCurrentUrl())
+
+const changeTabByCurrentUrl = () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const activeTabFromUrl = urlParams.get('active-tab');
+    if (activeTabFromUrl) {
+        let tab = document.querySelector('div[tabs-section] > button[data-togglable="' + activeTabFromUrl + '"]')
+        if (tab) {
+            toggleSections(tab)
+            return true
+        }
+    }
+    return false
+}
+
 const initHidingLeftNavigation = () => {
-    document.getElementById("leftToggler").onclick = function(event) {
+    document.getElementById("leftToggler").onclick = function (event) {
         //Events need to be prevented from bubbling since they will trigger next handler
         event.preventDefault();
         event.stopPropagation();
@@ -44,12 +71,15 @@ const initHidingLeftNavigation = () => {
 // If this is not present user is forced to refresh the site in order to use an anchor
 window.onhashchange = handleAnchor
 
-function scrollToElementInContent(element){
-    const scrollToElement = () => document.getElementById('main').scrollTo({ top: element.offsetTop - topNavbarOffset.offsetHeight, behavior: "smooth"})
+function scrollToElementInContent(element) {
+    const scrollToElement = () => document.getElementById('main').scrollTo({
+        top: element.offsetTop - topNavbarOffset.offsetHeight,
+        behavior: "smooth"
+    })
 
     const waitAndScroll = () => {
         setTimeout(() => {
-            if(topNavbarOffset){
+            if (topNavbarOffset) {
                 scrollToElement()
             } else {
                 waitForScroll()
@@ -57,7 +87,7 @@ function scrollToElementInContent(element){
         }, 50)
     }
 
-    if(topNavbarOffset){
+    if (topNavbarOffset) {
         scrollToElement()
     } else {
         waitAndScroll()
@@ -66,28 +96,28 @@ function scrollToElementInContent(element){
 
 
 function handleAnchor() {
-    if(highlightedAnchor){
+    if (highlightedAnchor) {
         highlightedAnchor.classList.remove('anchor-highlight')
         highlightedAnchor = null;
     }
 
-    let searchForTab = function(element) {
-        if(element && element.hasAttribute) {
-            if(element.hasAttribute("data-togglable")) return element;
+    let searchForTab = function (element) {
+        if (element && element.hasAttribute) {
+            if (element.hasAttribute("data-togglable")) return element;
             else return searchForTab(element.parentNode)
         } else return null
     }
     let anchor = window.location.hash
     if (anchor != "") {
         anchor = anchor.substring(1)
-        let element = document.querySelector('a[data-name="' + anchor+'"]')
+        let element = document.querySelector('a[data-name="' + anchor + '"]')
         if (element) {
             let tab = searchForTab(element)
             if (tab) {
                 toggleSections(tab)
             }
             const content = element.nextElementSibling
-            if(content){
+            if (content) {
                 content.classList.add('anchor-highlight')
                 highlightedAnchor = content
             }
@@ -97,23 +127,27 @@ function handleAnchor() {
     }
 }
 
-function initTabs(){
+function initTabs() {
     document.querySelectorAll("div[tabs-section]")
         .forEach(element => {
             showCorrespondingTabBody(element)
             element.addEventListener('click', (event) => toggleSectionsEventHandler(event))
         })
+    if(changeTabByCurrentUrl()) {
+        return
+    }
+
     let cached = localStorage.getItem("active-tab")
     if (cached) {
         let parsed = JSON.parse(cached)
         let tab = document.querySelector('div[tabs-section] > button[data-togglable="' + parsed + '"]')
-        if(tab) {
+        if (tab) {
             toggleSections(tab)
         }
     }
 }
 
-function showCorrespondingTabBody(element){
+function showCorrespondingTabBody(element) {
     const key = element.querySelector("button[data-active]").getAttribute("data-togglable")
     document.querySelector(".tabs-section-body")
         .querySelector("div[data-togglable='" + key + "']")
@@ -121,14 +155,14 @@ function showCorrespondingTabBody(element){
 }
 
 function filterButtonHandler(event) {
-        if(event.target.tagName == "BUTTON" && event.target.hasAttribute("data-filter")) {
-            let sourceset = event.target.getAttribute("data-filter")
-            if(filteringContext.activeFilters.indexOf(sourceset) != -1) {
-                filterSourceset(sourceset)
-            } else {
-                unfilterSourceset(sourceset)
-            }
+    if (event.target.tagName == "BUTTON" && event.target.hasAttribute("data-filter")) {
+        let sourceset = event.target.getAttribute("data-filter")
+        if (filteringContext.activeFilters.indexOf(sourceset) != -1) {
+            filterSourceset(sourceset)
+        } else {
+            unfilterSourceset(sourceset)
         }
+    }
 }
 
 function initializeFiltering() {
@@ -143,11 +177,11 @@ function initializeFiltering() {
     if (cached) {
         let parsed = JSON.parse(cached)
         //Events are used by react to get values in 'on this page'
-        const event = new CustomEvent('sourceset-filter-change', { detail: parsed });
+        const event = new CustomEvent('sourceset-filter-change', {detail: parsed});
         window.dispatchEvent(event);
 
         filteringContext.activeFilters = filteringContext.restrictedDependencies
-            .filter(q => parsed.indexOf(q) == -1 )
+            .filter(q => parsed.indexOf(q) == -1)
     } else {
         filteringContext.activeFilters = filteringContext.restrictedDependencies
     }
@@ -161,7 +195,7 @@ function filterSourceset(sourceset) {
 }
 
 function unfilterSourceset(sourceset) {
-    if(filteringContext.activeFilters.length == 0) {
+    if (filteringContext.activeFilters.length == 0) {
         filteringContext.activeFilters = filteringContext.dependencies[sourceset].concat([sourceset])
         refreshFiltering()
         filteringContext.dependencies[sourceset].concat([sourceset]).forEach(p => removeSourcesetFilterFromCache(p))
@@ -191,12 +225,24 @@ function removeSourcesetFilterFromCache(sourceset) {
     }
 }
 
+function insertUrlParam(key, value) {
+    if (history.pushState) {
+        let searchParams = new URLSearchParams(window.location.search);
+        searchParams.set(key, value);
+        let newurl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?' + searchParams.toString();
+        if(!window.history.state || window.history.state.path !== newurl){
+            window.history.pushState({path: newurl}, '', newurl);
+        }
+    }
+}
+
 function toggleSections(target) {
     localStorage.setItem('active-tab', JSON.stringify(target.getAttribute("data-togglable")))
+    insertUrlParam("active-tab", target.getAttribute("data-togglable"))
     const activateTabs = (containerClass) => {
-        for(const element of document.getElementsByClassName(containerClass)){
-            for(const child of element.children){
-                if(child.getAttribute("data-togglable") === target.getAttribute("data-togglable")){
+        for (const element of document.getElementsByClassName(containerClass)) {
+            for (const child of element.children) {
+                if (child.getAttribute("data-togglable") === target.getAttribute("data-togglable")) {
                     child.setAttribute("data-active", "")
                 } else {
                     child.removeAttribute("data-active")
@@ -209,8 +255,8 @@ function toggleSections(target) {
     activateTabs("tabs-section-body")
 }
 
-function toggleSectionsEventHandler(evt){
-    if(!evt.target.getAttribute("data-togglable")) return
+function toggleSectionsEventHandler(evt) {
+    if (!evt.target.getAttribute("data-togglable")) return
     toggleSections(evt.target)
 }
 
@@ -219,20 +265,18 @@ function togglePlatformDependent(e, container) {
     if (target.tagName != 'BUTTON') return;
     let index = target.getAttribute('data-toggle')
 
-    for(let child of container.children){
-        if(child.hasAttribute('data-toggle-list')){
-            for(let bm of child.children){
-                if(bm == target){
-                    bm.setAttribute('data-active',"")
-                } else if(bm != target) {
+    for (let child of container.children) {
+        if (child.hasAttribute('data-toggle-list')) {
+            for (let bm of child.children) {
+                if (bm == target) {
+                    bm.setAttribute('data-active', "")
+                } else if (bm != target) {
                     bm.removeAttribute('data-active')
                 }
             }
-        }
-        else if(child.getAttribute('data-togglable') == index) {
-           child.setAttribute('data-active',"")
-        }
-        else {
+        } else if (child.getAttribute('data-togglable') == index) {
+            child.setAttribute('data-active', "")
+        } else {
             child.removeAttribute('data-active')
         }
     }
@@ -247,9 +291,9 @@ function refreshFiltering() {
                 elem.setAttribute("data-filterable-current", platformList.join(' '))
             }
         )
-    const event = new CustomEvent('sourceset-filter-change', { detail: sourcesetList });
+    const event = new CustomEvent('sourceset-filter-change', {detail: sourcesetList});
     window.dispatchEvent(event);
-    
+
     refreshFilterButtons()
     refreshPlatformTabs()
 }
@@ -261,17 +305,17 @@ function refreshPlatformTabs() {
             let firstAvailable = null
             p.childNodes.forEach(
                 element => {
-                    if(element.getAttribute("data-filterable-current") != ''){
-                        if( firstAvailable == null) {
+                    if (element.getAttribute("data-filterable-current") != '') {
+                        if (firstAvailable == null) {
                             firstAvailable = element
                         }
-                        if(element.hasAttribute("data-active")) {
+                        if (element.hasAttribute("data-active")) {
                             active = true;
                         }
                     }
                 }
             )
-            if( active == false && firstAvailable) {
+            if (active == false && firstAvailable) {
                 firstAvailable.click()
             }
         }
@@ -281,8 +325,8 @@ function refreshPlatformTabs() {
 function refreshFilterButtons() {
     document.querySelectorAll("#filter-section > button")
         .forEach(f => {
-            if(filteringContext.activeFilters.indexOf(f.getAttribute("data-filter")) != -1){
-                f.setAttribute("data-active","")
+            if (filteringContext.activeFilters.indexOf(f.getAttribute("data-filter")) != -1) {
+                f.setAttribute("data-active", "")
             } else {
                 f.removeAttribute("data-active")
             }

@@ -3,8 +3,8 @@ package org.jetbrains.dokka.base.renderers.html
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.DokkaBaseConfiguration
+import org.jetbrains.dokka.base.renderers.pageId
 import org.jetbrains.dokka.base.renderers.sourceSets
-import org.jetbrains.dokka.base.templating.AddToSearch
 import org.jetbrains.dokka.base.templating.AddToSourcesetDependencies
 import org.jetbrains.dokka.base.templating.toJsonString
 import org.jetbrains.dokka.links.DRI
@@ -15,32 +15,61 @@ import org.jetbrains.dokka.plugability.configuration
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 
 abstract class NavigationDataProvider {
-    open fun navigableChildren(input: RootPageNode): NavigationNode =
-        input.children.filterIsInstance<ContentPage>().single().let { visit(it) }
+    open fun navigableChildren(input: RootPageNode, moduleName: String, locationResolver: DriResolver): NavigationNode =
+        input.children.filterIsInstance<ContentPage>().single()
+            .let { NavigationDataVisitor(locationResolver, moduleName).visit(it) }
 
-    open fun visit(page: ContentPage): NavigationNode =
-        NavigationNode(
-            name = page.displayableName,
-            dri = page.dri.first(),
-            sourceSets = page.sourceSets(),
-            children = page.navigableChildren()
-        )
+    private class NavigationDataVisitor(val locationResolver: DriResolver, val moduleName: String) {
+        fun visit(page: ContentPage): NavigationNode =
+            NavigationNode(
+                id = page.pageId.formatWithModuleName(),
+                name = page.displayableName,
+                location = locationResolver(page.dri.first(), page.sourceSets()),
+                children = page.navigableChildren()
+            )
 
-    private fun ContentPage.navigableChildren(): List<NavigationNode> =
-        when {
-            this !is ClasslikePageNode ->
-                children.filterIsInstance<ContentPage>().map { visit(it) }
-            documentable is DEnum ->
-                children.filter { it is ContentPage && it.documentable is DEnumEntry }.map { visit(it as ContentPage) }
-            else -> emptyList()
-        }.sortedBy { it.name.toLowerCase() }
+        private fun ContentPage.navigableChildren(): List<NavigationNode> =
+            when (documentable) {
+                is DModule -> children.filterIsInstance<ContentPage>().map { visit(it) }
+                    .sortedBy { it.name.toLowerCase() }
+                is DPackage -> listOfNotNull(
+                    NavigationNode(
+                        "$pageId/types".formatWithModuleName(),
+                        "Types",
+                        locationResolver(dri.first(), sourceSets()),
+                        childrenOfType<ClasslikePageNode>().map { visit(it) }.sortedBy { it.name.toLowerCase() }
+                    ).takeIf { it.children.isNotEmpty() },
+                    NavigationNode(
+                        "$pageId/properties".formatWithModuleName(),
+                        "Properties",
+                        locationResolver(dri.first(), sourceSets()),
+                        children.filterIsInstance<ContentPage>().filter { it.documentable is DProperty }
+                            .map { visit(it) }
+                            .sortedBy { it.name.toLowerCase() })
+                        .takeIf { it.children.isNotEmpty() },
+                    NavigationNode(
+                        "$pageId/functions".formatWithModuleName(),
+                        "Functions",
+                        locationResolver(dri.first(), sourceSets()),
+                        children.filterIsInstance<ContentPage>().filter { it.documentable is DFunction }
+                            .map { visit(it) }
+                            .sortedBy { it.name.toLowerCase() })
+                        .takeIf { it.children.isNotEmpty() },
+                ).map { it.copy(location = "${it.location}?active-tab=${it.name}") }
+                is DClasslike -> children.filterIsInstance<ClasslikePageNode>()
+                    .map { visit(it) }.sortedBy { it.name.toLowerCase() }
+                else -> emptyList()
+            }
 
-    private val ContentPage.displayableName: String
-        get() = if (documentable is DFunction) {
-            "$name()"
-        } else {
-            name
-        }
+        private val ContentPage.displayableName: String
+            get() = if (documentable is DFunction) {
+                "$name()"
+            } else {
+                name
+            }
+
+        private fun String.formatWithModuleName(): String = "$moduleName::$this"
+    }
 }
 
 open class NavigationSearchInstaller(val context: DokkaContext) : NavigationDataProvider(), PageTransformer {
@@ -50,40 +79,46 @@ open class NavigationSearchInstaller(val context: DokkaContext) : NavigationData
         SearchRecord(name = node.name, location = location)
 
     override fun invoke(input: RootPageNode): RootPageNode {
-        val page = RendererSpecificResourcePage(
-            name = "scripts/navigation-pane.json",
-            children = emptyList(),
-            strategy = RenderingStrategy.DriLocationResolvableWrite { resolver ->
-                val content = navigableChildren(input).withDescendants().map {
-                    createSearchRecordFromNode(it, resolveLocation(resolver, it.dri, it.sourceSets).orEmpty())
-                }
-                if (context.configuration.delayTemplateSubstitution) {
-                    mapper.writeValueAsString(AddToSearch(context.configuration.moduleName, content.toList()))
-                } else {
-                    mapper.writeValueAsString(content)
-                }
-            })
+//        val page = RendererSpecificResourcePage(
+//            name = "scripts/navigation-pane.js",
+//            children = emptyList(),
+//            strategy = RenderingStrategy.DriLocationResolvableWrite { resolver ->
+//                val content = navigableChildren(input, context.configuration.moduleName).withDescendants().map {
+//                    createSearchRecordFromNode(it, resolveLocation(resolver, it.dri, it.sourceSets).orEmpty())
+//                }
+//                if (context.configuration.delayTemplateSubstitution) {
+//                    mapper.writeValueAsString(AddToSearch(context.configuration.moduleName, content.toList()))
+//                } else {
+//                    "var navigationPane = " + mapper.writeValueAsString(content)
+//                }
+//            })
 
-        return input.modified(children = input.children + page)
+//        return input.modified(children = input.children + page)
+        return input
     }
 
     private fun resolveLocation(locationResolver: DriResolver, dri: DRI, sourceSets: Set<DisplaySourceSet>): String? =
         locationResolver(dri, sourceSets).also { location ->
             if (location.isNullOrBlank()) context.logger.warn("Cannot resolve path for $dri and sourceSets: ${sourceSets.joinToString { it.name }}")
         }
-
 }
 
 open class NavigationPageInstaller(val context: DokkaContext) : NavigationDataProvider(), PageTransformer {
+    private val mapper = jacksonObjectMapper()
 
-    override fun invoke(input: RootPageNode): RootPageNode =
-        input.modified(
-            children = input.children + NavigationPage(
-                root = navigableChildren(input),
-                moduleName = context.configuration.moduleName,
-                context = context
-            )
-        )
+    override fun invoke(input: RootPageNode): RootPageNode {
+        val page = RendererSpecificResourcePage(
+            name = "scripts/navigation.js",
+            children = emptyList(),
+            strategy = RenderingStrategy.DriLocationResolvableWrite { resolver ->
+                val content = navigableChildren(input, context.configuration.moduleName, resolver)
+                "var navigation = " + mapper.writeValueAsString(listOf(content))
+            })
+
+        return input
+            .modified(children = input.children + page)
+            .transformContentPagesTree { it.modified(embeddedResources = listOf(page.name) + it.embeddedResources) }
+    }
 }
 
 class CustomResourceInstaller(val dokkaContext: DokkaContext) : PageTransformer {
@@ -109,7 +144,6 @@ class CustomResourceInstaller(val dokkaContext: DokkaContext) : PageTransformer 
 class ScriptsInstaller(private val dokkaContext: DokkaContext) : PageTransformer {
     private val scriptsPages = listOf(
         "scripts/clipboard.js",
-        "scripts/navigation-loader.js",
         "scripts/platform-content-handler.js",
         "scripts/main.js",
     )

@@ -11,8 +11,6 @@ import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 
-typealias PageId = String
-
 data class SearchRecord(
     val name: String,
     val description: String? = null,
@@ -34,6 +32,7 @@ open class SearchbarDataInstaller(val context: DokkaContext) : PageTransformer {
     }
 
     private val mapper = jacksonObjectMapper()
+    private val jsSerializer = JsSerializer()
 
     open fun generatePagesList(pages: List<PageWithId>, locationResolver: PageResolver): List<SearchRecord> =
         pages.map { pageWithId ->
@@ -71,7 +70,7 @@ open class SearchbarDataInstaller(val context: DokkaContext) : PageTransformer {
 
     override fun invoke(input: RootPageNode): RootPageNode {
         val page = RendererSpecificResourcePage(
-            name = "scripts/pages.json",
+            name = "scripts/pages.js",
             children = emptyList(),
             strategy = RenderingStrategy.PageLocationResolvableWrite { resolver ->
                 val content = input.withDescendants().fold(emptyList<PageWithId>()) { pageList, page ->
@@ -83,7 +82,7 @@ open class SearchbarDataInstaller(val context: DokkaContext) : PageTransformer {
                 if (context.configuration.delayTemplateSubstitution) {
                     mapper.writeValueAsString(AddToSearch(context.configuration.moduleName, content))
                 } else {
-                    mapper.writeValueAsString(content)
+                    "var pages = " + mapper.writeValueAsString(content)
                 }
             })
 

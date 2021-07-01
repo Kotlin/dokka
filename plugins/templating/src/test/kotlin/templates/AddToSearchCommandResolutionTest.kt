@@ -1,6 +1,7 @@
 package org.jetbrains.dokka.templates
 
 import org.jetbrains.dokka.DokkaModuleDescriptionImpl
+import org.jetbrains.dokka.base.renderers.html.JsSerializer
 import org.jetbrains.dokka.base.renderers.html.SearchRecord
 import org.jetbrains.dokka.base.templating.AddToSearch
 import org.jetbrains.dokka.base.templating.parseJson
@@ -32,7 +33,7 @@ class AddToSearchCommandResolutionTest : TemplatingAbstractTest() {
     val folder: TemporaryFolder = TemporaryFolder()
 
     @ParameterizedTest
-    @ValueSource(strings = ["navigation-pane.json", "pages.json"])
+    @ValueSource(strings = ["navigation-pane.js", "pages.js"])
     fun `should merge navigation templates`(fileName: String) {
         val (module1Navigation, module2Navigation) = setupTestDirectoriesWithContent(fileName)
 
@@ -60,9 +61,8 @@ class AddToSearchCommandResolutionTest : TemplatingAbstractTest() {
                 val expected = elements.map { it.copy(location = "module1/${it.location}") } +
                         elements.map { it.copy(location = "module2/${it.location}") }
 
-                val output =
-                    parseJson<List<SearchRecord>>(outputDir.resolve("scripts/${fileName}").readText())
-                assertEquals(expected, output.sortedBy { it.location })
+                val output = outputDir.resolve("scripts/${fileName}").readText()
+                assertEquals(JsSerializer().serialize(expected), output)
             }
         }
     }

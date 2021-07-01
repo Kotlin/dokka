@@ -1,5 +1,6 @@
 package org.jetbrains.dokka.allModulesPage.templates
 
+import org.jetbrains.dokka.base.renderers.html.JsSerializer
 import org.jetbrains.dokka.base.renderers.html.SearchRecord
 import org.jetbrains.dokka.base.templating.AddToSearch
 import org.jetbrains.dokka.base.templating.parseJson
@@ -9,15 +10,22 @@ import org.jetbrains.dokka.templates.TemplateProcessingStrategy
 import java.io.File
 import java.util.concurrent.ConcurrentHashMap
 
-abstract class BaseJsonNavigationTemplateProcessingStrategy(val context: DokkaContext) : TemplateProcessingStrategy {
+abstract class BaseJsNavigationTemplateProcessingStrategy(val context: DokkaContext) : TemplateProcessingStrategy {
     abstract val navigationFileNameWithoutExtension: String
     abstract val path: String
 
     private val fragments = ConcurrentHashMap<String, List<SearchRecord>>()
+    private val extension = "js"
 
     open fun canProcess(file: File): Boolean =
-        file.extension == "json" && file.nameWithoutExtension == navigationFileNameWithoutExtension
+        file.extension == extension && file.nameWithoutExtension == navigationFileNameWithoutExtension
 
+    /**
+     * Entry point for processing data
+     *
+     * For sake of convenience data is formatted as json and then read in type-safe way.
+     * After that it is saved to desired format, in this case js files, using [finish] method
+     */
     override fun process(input: File, output: File): Boolean {
         val canProcess = canProcess(input)
         if (canProcess) {
@@ -34,11 +42,11 @@ abstract class BaseJsonNavigationTemplateProcessingStrategy(val context: DokkaCo
 
     override fun finish(output: File) {
         if (fragments.isNotEmpty()) {
-            val content = toJsonString(fragments.entries.flatMap { (moduleName, navigation) ->
+            val content = JsSerializer().serialize(fragments.entries.flatMap { (moduleName, navigation) ->
                 navigation.map { it.withResolvedLocation(moduleName) }
             })
             output.resolve(path).mkdirs()
-            output.resolve("$path/$navigationFileNameWithoutExtension.json").writeText(content)
+            output.resolve("$path/$navigationFileNameWithoutExtension.$extension").writeText(content)
         }
     }
 
@@ -53,13 +61,13 @@ abstract class BaseJsonNavigationTemplateProcessingStrategy(val context: DokkaCo
 }
 
 class NavigationSearchTemplateStrategy(val dokkaContext: DokkaContext) :
-    BaseJsonNavigationTemplateProcessingStrategy(dokkaContext) {
+    BaseJsNavigationTemplateProcessingStrategy(dokkaContext) {
     override val navigationFileNameWithoutExtension: String = "navigation-pane"
     override val path: String = "scripts"
 }
 
 class PagesSearchTemplateStrategy(val dokkaContext: DokkaContext) :
-    BaseJsonNavigationTemplateProcessingStrategy(dokkaContext) {
+    BaseJsNavigationTemplateProcessingStrategy(dokkaContext) {
     override val navigationFileNameWithoutExtension: String = "pages"
     override val path: String = "scripts"
 }

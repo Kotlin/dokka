@@ -4,7 +4,6 @@ import { DokkaFuzzyFilterComponent } from '../search/dokkaFuzzyFilter';
 import { IWindow, Option } from '../search/types';
 import './navigationPaneSearch.scss';
 import ClearIcon from 'react-svg-loader!./clear.svg';
-import { relativizeUrlForRequest } from '../utils/requests';
 
 export const NavigationPaneSearch = () => {
     const [navigationList, setNavigationList] = useState<Option[]>([]);
@@ -32,21 +31,15 @@ export const NavigationPaneSearch = () => {
     }
 
     useEffect(() => {
-        fetch(relativizeUrlForRequest('scripts/navigation-pane.json'))
-            .then(response => response.json())
-            .then((result) => {
-                setNavigationList(result.map((record: Option, idx: number) => {
-                    return {
-                        ...record,
-                        key: idx,
-                        rgItemType: List.ListProps.Type.CUSTOM
-                    }
-                }))
-            },
-            (error) => {
-                console.error('failed to fetch navigationPane data', error)
-                setNavigationList([])
-            })
+        // if(navigationPane){
+        //     setNavigationList(navigationPane.map((record: Option, idx: number) => {
+        //         return {
+        //             ...record,
+        //             key: idx,
+        //             rgItemType: List.ListProps.Type.CUSTOM
+        //         }
+        //     }))
+        // }
     }, [])
   
 
