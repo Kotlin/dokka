@@ -1,5 +1,6 @@
 package org.jetbrains.dokka.templates
 
+import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.base.templating.Command
 import org.jetbrains.dokka.base.templating.parseJson
 import org.jetbrains.dokka.plugability.DokkaContext
@@ -15,7 +16,7 @@ class DirectiveBasedHtmlTemplateProcessingStrategy(private val context: DokkaCon
     private val directiveBasedCommandHandlers =
         context.plugin<TemplatingPlugin>().query { directiveBasedCommandHandlers }
 
-    override fun process(input: File, output: File): Boolean =
+    override fun process(input: File, output: File, moduleContext: DokkaConfiguration.DokkaModuleDescription?): Boolean =
         if (input.isFile && input.extension == "html") {
             val document = Jsoup.parse(input, "UTF-8")
             document.outputSettings().indentAmount(0).prettyPrint(false)

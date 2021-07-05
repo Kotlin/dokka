@@ -22,11 +22,21 @@ open class DefaultExternalLocationProvider(
     }
 
     protected open fun DRI.constructPath(): String {
-        val classNamesChecked = classNames ?: return "$docURL${packageName ?: ""}/index$extension"
+        val modulePart = packageName?.let { packageName ->
+            externalDocumentation.packageList.moduleFor(packageName)?.let {
+                if (it.isNotBlank())
+                    "$it/"
+                else
+                    ""
+            }
+        }.orEmpty()
+
+        val docWithModule = docURL + modulePart
+        val classNamesChecked = classNames ?: return "$docWithModule${packageName ?: ""}/index$extension"
         val classLink = (listOfNotNull(packageName) + classNamesChecked.split('.'))
             .joinToString("/", transform = ::identifierToFilename)
 
         val fileName = callable?.let { identifierToFilename(it.name) } ?: "index"
-        return "$docURL$classLink/$fileName$extension"
+        return "$docWithModule$classLink/$fileName$extension"
     }
 }

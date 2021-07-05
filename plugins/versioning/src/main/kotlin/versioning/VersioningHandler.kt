@@ -85,7 +85,7 @@ class DefaultVersioningHandler(val context: DokkaContext) : VersioningHandler {
                                 overwrite = true
                             )
                             else processingStrategies.first {
-                                it.process(versionRootContent, targetParent.resolve(versionRootContent.name))
+                                it.process(versionRootContent, targetParent.resolve(versionRootContent.name), null)
                             }
                         }
                     }

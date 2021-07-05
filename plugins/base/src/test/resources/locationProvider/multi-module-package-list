@@ -1,0 +1,8 @@
+$dokka.format:html-v1
+$dokka.linkExtension:html
+$dokka.location:/NoPackageClass///PointingToDeclaration/moduleB/[root]/-no-package-class/index.html
+module:moduleA
+foo
+bar
+module:moduleB
+baz
