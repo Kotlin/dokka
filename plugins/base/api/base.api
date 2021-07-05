@@ -736,6 +736,7 @@ public final class org/jetbrains/dokka/base/resolvers/shared/PackageList {
 	public static final field DOKKA_PARAM_PREFIX Ljava/lang/String;
 	public static final field MODULE_DELIMITER Ljava/lang/String;
 	public static final field PACKAGE_LIST_NAME Ljava/lang/String;
+	public static final field SINGLE_MODULE_NAME Ljava/lang/String;
 	public fun <init> (Lorg/jetbrains/dokka/base/resolvers/shared/RecognizedLinkFormat;Ljava/util/Map;Ljava/util/Map;Ljava/net/URL;)V
 	public final fun component1 ()Lorg/jetbrains/dokka/base/resolvers/shared/RecognizedLinkFormat;
 	public final fun component2 ()Ljava/util/Map;

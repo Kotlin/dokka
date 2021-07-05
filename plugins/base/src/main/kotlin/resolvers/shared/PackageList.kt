@@ -21,6 +21,7 @@ data class PackageList(
         const val PACKAGE_LIST_NAME = "package-list"
         const val MODULE_DELIMITER = "module:"
         const val DOKKA_PARAM_PREFIX = "\$dokka"
+        const val SINGLE_MODULE_NAME = ""
 
         fun load(url: URL, jdkVersion: Int, offlineMode: Boolean = false): PackageList? {
             if (offlineMode && url.protocol.toLowerCase() != "file")
@@ -51,18 +52,19 @@ data class PackageList(
         private fun splitLocations(locations: List<String>) = locations.map { it.split("\u001f", limit = 2) }
                 .associate { (key, value) -> key to value }
 
-        private fun splitPackages(packages: List<String>): Map<Module, Set<String>> {
-            var lastModule: Module = ""
-
-            return packages.fold(mutableMapOf()) { acc, el ->
-                if (el.startsWith(MODULE_DELIMITER)) {
-                    lastModule = el.substringAfter(MODULE_DELIMITER)
-                } else if(el.isNotBlank()) {
-                    acc[lastModule] = acc.getOrDefault(lastModule, emptySet()) + el
-                }
-                acc
-            }
-        }
+        private fun splitPackages(packages: List<String>): Map<Module, Set<String>> =
+                packages.fold(("" to mutableMapOf<Module, Set<String>>())) { (lastModule, acc), el ->
+                    val currentModule : String
+                    when {
+                        el.startsWith(MODULE_DELIMITER) -> currentModule = el.substringAfter(MODULE_DELIMITER)
+                        el.isNotBlank() -> {
+                            currentModule = lastModule
+                            acc[currentModule] = acc.getOrDefault(lastModule, emptySet()) + el
+                        }
+                        else -> currentModule = lastModule
+                    }
+                    currentModule to acc
+                }.second
 
         private fun linkFormat(formatName: String?, jdkVersion: Int) =
             formatName?.let { RecognizedLinkFormat.fromString(it) }

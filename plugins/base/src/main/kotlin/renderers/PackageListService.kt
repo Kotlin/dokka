@@ -3,6 +3,7 @@ package org.jetbrains.dokka.base.renderers
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.resolvers.shared.LinkFormat
 import org.jetbrains.dokka.base.resolvers.shared.PackageList.Companion.DOKKA_PARAM_PREFIX
+import org.jetbrains.dokka.base.resolvers.shared.PackageList.Companion.SINGLE_MODULE_NAME
 import org.jetbrains.dokka.base.resolvers.shared.PackageList.Companion.MODULE_DELIMITER
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.pages.*
@@ -42,18 +43,21 @@ class PackageListService(val context: DokkaContext, val rootPage: RootPageNode) 
         }
 
         visit(module)
-        return renderPackageList(nonStandardLocations, mapOf("" to packages), format.formatName, format.linkExtension)
+        return renderPackageList(nonStandardLocations, mapOf(SINGLE_MODULE_NAME to packages), format.formatName, format.linkExtension)
     }
 
     companion object {
         fun renderPackageList(nonStandardLocations: Map<String, String>, modules: Map<String, Set<String>>, format: String, linkExtension: String): String = buildString {
             appendLine("$DOKKA_PARAM_PREFIX.format:${format}")
             appendLine("$DOKKA_PARAM_PREFIX.linkExtension:${linkExtension}")
-            nonStandardLocations.map { (signature, location) -> "$DOKKA_PARAM_PREFIX.location:$signature\u001f$location" }
-                    .sorted().joinTo(this, separator = "\n", postfix = "\n")
+            nonStandardLocations.map { (signature, location) ->
+                "$DOKKA_PARAM_PREFIX.location:$signature\u001f$location"
+            }.sorted().joinTo(this, separator = "\n", postfix = "\n")
 
-            modules.map { (module, packages) ->
-                "$MODULE_DELIMITER$module\n".takeIf { module.isNotBlank() }.orEmpty() + packages.filter(String::isNotBlank).sorted().joinToString(separator = "\n")
+            modules.mapNotNull { (module, packages) ->
+                ("$MODULE_DELIMITER$module\n".takeIf { module != SINGLE_MODULE_NAME }.orEmpty() +
+                        packages.filter(String::isNotBlank).sorted().joinToString(separator = "\n"))
+                        .takeIf { packages.isNotEmpty() }
             }.joinTo(this, separator = "\n", postfix = "\n")
         }
     }

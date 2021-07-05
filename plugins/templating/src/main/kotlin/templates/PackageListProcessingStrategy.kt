@@ -16,15 +16,16 @@ class PackageListProcessingStrategy(val context: DokkaContext) : TemplateProcess
             file.extension.isBlank() && file.nameWithoutExtension == PACKAGE_LIST_NAME && moduleContext != null
 
     override fun process(input: File, output: File, moduleContext: DokkaModuleDescription?): Boolean {
-        if (canProcess(input, moduleContext)) {
+        val canProcess = canProcess(input, moduleContext)
+        if (canProcess) {
             val packageList = PackageList.load(input.toURI().toURL(), 8, true)
             val moduleFilename = moduleContext?.name?.let { "$it/" }
             packageList?.copy(
-                    modules = mapOf(moduleContext?.name.orEmpty() to packageList.modules.getOrDefault("", emptySet())),
+                    modules = mapOf(moduleContext?.name.orEmpty() to packageList.modules.getOrDefault(PackageList.SINGLE_MODULE_NAME, emptySet())),
                     locations = packageList.locations.entries.associate { it.key to "$moduleFilename${it.value}" }
             )?.let { fragments.add(it) } ?: fallbackToCopy(input, output)
         }
-        return canProcess(input, moduleContext)
+        return canProcess
     }
 
     override fun finish(output: File) {
@@ -32,7 +33,7 @@ class PackageListProcessingStrategy(val context: DokkaContext) : TemplateProcess
             val linkFormat = fragments.first().linkFormat
 
             if (!fragments.all { it.linkFormat == linkFormat }) {
-                context.logger.error("Link format is inconsistent between modules")
+                context.logger.error("Link format is inconsistent between modules: " + fragments.joinToString { it.linkFormat.formatName } )
             }
 
             val locations: Map<String, String> = fragments.map { it.locations }.fold(emptyMap()) { acc, el -> acc + el }
