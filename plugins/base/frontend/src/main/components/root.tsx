@@ -37,9 +37,10 @@ const renderMainSearch = () => {
   render(<App />, document.getElementById('searchBar'));
 }
 
+
 const renderNavigation = () => {
   render(<Navigation records={navigation} currentPageId={document.getElementById("content").attributes["pageIds"].value}
-                     tabsIncludedInNavigation={["Properties", "Functions", "Types"]}></Navigation>, document.getElementById("sideMenu"));
+    tabsIncludedInNavigation={["Properties", "Functions", "Types"]}/>, document.getElementById("sideMenu"));
 }
 
 let renderApp = () => {

@@ -232,6 +232,8 @@ function insertUrlParam(key, value) {
         let newurl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?' + searchParams.toString();
         if(!window.history.state || window.history.state.path !== newurl){
             window.history.pushState({path: newurl}, '', newurl);
+            const event = new CustomEvent('tab-changed', {detail: value});
+            window.dispatchEvent(event);
         }
     }
 }
