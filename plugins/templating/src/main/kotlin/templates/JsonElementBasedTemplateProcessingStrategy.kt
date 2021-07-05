@@ -1,5 +1,6 @@
 package org.jetbrains.dokka.allModulesPage.templates
 
+import org.jetbrains.dokka.DokkaConfiguration.DokkaModuleDescription
 import org.jetbrains.dokka.base.renderers.html.SearchRecord
 import org.jetbrains.dokka.base.templating.AddToSearch
 import org.jetbrains.dokka.base.templating.parseJson
@@ -18,11 +19,11 @@ abstract class BaseJsonNavigationTemplateProcessingStrategy(val context: DokkaCo
     open fun canProcess(file: File): Boolean =
         file.extension == "json" && file.nameWithoutExtension == navigationFileNameWithoutExtension
 
-    override fun process(input: File, output: File): Boolean {
+    override fun process(input: File, output: File, moduleContext: DokkaModuleDescription?): Boolean {
         val canProcess = canProcess(input)
         if (canProcess) {
             runCatching { parseJson<AddToSearch>(input.readText()) }.getOrNull()?.let { command ->
-                context.configuration.modules.find { it.name == command.moduleName }?.relativePathToOutputDirectory
+                moduleContext?.relativePathToOutputDirectory
                     ?.relativeToOrSelf(context.configuration.outputDir)
                     ?.let { key ->
                         fragments[key.toString()] = command.elements
@@ -43,7 +44,7 @@ abstract class BaseJsonNavigationTemplateProcessingStrategy(val context: DokkaCo
     }
 
     private fun fallbackToCopy(input: File, output: File) {
-        context.logger.warn("Falling back to just copying file for ${input.name} even thought it should process it")
+        context.logger.warn("Falling back to just copying ${input.name} file even though it should have been processed")
         input.copyTo(output)
     }
 

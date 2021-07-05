@@ -33,7 +33,7 @@ class ResolveLinkGfmCommandResolutionTest : MultiModuleAbstractTest() {
                 sourceOutputDirectory = folder.root.resolve("module2"),
             )
         )
-        this.outputDir = folder.root
+        outputDir = folder.root
     }
 
     @Test
@@ -49,7 +49,7 @@ class ResolveLinkGfmCommandResolutionTest : MultiModuleAbstractTest() {
             }
         }.toString()
 
-        val expected = "[Sample text inside](../../module2/package2/-sample/index.md)"
+        val expected = "[Sample text inside](../module2/package2/-sample/index.md)"
 
         val content = setup(link)
         val configuration = configuration()
@@ -63,8 +63,8 @@ class ResolveLinkGfmCommandResolutionTest : MultiModuleAbstractTest() {
 
     private fun setup(content: String): File {
         folder.create()
-        val innerModule1 = folder.newFolder("module1", "module1")
-        val innerModule2 = folder.newFolder("module2", "module2")
+        val innerModule1 = folder.newFolder( "module1")
+        val innerModule2 = folder.newFolder( "module2")
         val packageList = innerModule2.resolve("package-list")
         packageList.writeText(mockedPackageListForPackages(RecognizedLinkFormat.DokkaGFM, "package2"))
         val contentFile = innerModule1.resolve("index.md")

@@ -270,10 +270,10 @@ class AllClassesPage(val classes: List<JavadocClasslikePageNode>) : JavadocPageN
         dri: Set<DRI>,
         embeddedResources: List<String>,
         children: List<PageNode>
-    ): ContentPage = TODO()
+    ): ContentPage = this
 
     override fun modified(name: String, children: List<PageNode>): PageNode =
-        TODO()
+        this
 
     override val children: List<PageNode> = emptyList()
 

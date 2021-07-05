@@ -1,5 +1,6 @@
 package org.jetbrains.dokka.gfm.templateProcessing
 
+import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.allModulesPage.AllModulesPagePlugin
 import org.jetbrains.dokka.base.templating.parseJson
 import org.jetbrains.dokka.gfm.GfmCommand
@@ -20,7 +21,7 @@ class GfmTemplateProcessingStrategy(val context: DokkaContext) : TemplateProcess
     private val externalModuleLinkResolver =
         context.plugin<AllModulesPagePlugin>().querySingle { externalModuleLinkResolver }
 
-    override fun process(input: File, output: File): Boolean =
+    override fun process(input: File, output: File, moduleContext: DokkaConfiguration.DokkaModuleDescription?): Boolean =
         if (input.extension == "md") {
             input.bufferedReader().use { reader ->
                 //This should also work whenever we have a misconfigured dokka and output is pointing to the input

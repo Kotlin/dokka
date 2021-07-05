@@ -8,22 +8,33 @@ import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.utilities.htmlEscape
 
 open class JavadocExternalLocationProvider(
-    externalDocumentation: ExternalDocumentation,
-    val brackets: String,
-    val separator: String,
-    dokkaContext: DokkaContext
+        externalDocumentation: ExternalDocumentation,
+        val brackets: String,
+        val separator: String,
+        dokkaContext: DokkaContext
 ) : DefaultExternalLocationProvider(externalDocumentation, ".html", dokkaContext) {
 
     override fun DRI.constructPath(): String {
         val packageLink = packageName?.replace(".", "/")
+        val modulePart = packageName?.let { packageName ->
+            externalDocumentation.packageList.moduleFor(packageName)?.let {
+                if (it.isNotBlank())
+                    "$it/"
+                else
+                    ""
+            }
+        }.orEmpty()
+
+        val docWithModule = docURL + modulePart
+
         if (classNames == null) {
-            return "$docURL$packageLink/package-summary$extension".htmlEscape()
+            return "$docWithModule$packageLink/package-summary$extension".htmlEscape()
         }
         val classLink =
-            if (packageLink == null) "${classNames}$extension" else "$packageLink/${classNames}$extension"
-        val callableChecked = callable ?: return "$docURL$classLink".htmlEscape()
+                if (packageLink == null) "${classNames}$extension" else "$packageLink/${classNames}$extension"
+        val callableChecked = callable ?: return "$docWithModule$classLink".htmlEscape()
 
-        return ("$docURL$classLink#" + anchorPart(callableChecked)).htmlEscape()
+        return ("$docWithModule$classLink#" + anchorPart(callableChecked)).htmlEscape()
     }
 
     protected open fun anchorPart(callable: Callable) = callable.name +

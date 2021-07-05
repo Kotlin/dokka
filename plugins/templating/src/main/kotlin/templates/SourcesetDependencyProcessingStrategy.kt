@@ -1,5 +1,6 @@
 package templates
 
+import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.base.templating.AddToSourcesetDependencies
 import org.jetbrains.dokka.base.templating.parseJson
 import org.jetbrains.dokka.base.templating.toJsonString
@@ -23,7 +24,7 @@ class SourcesetDependencyProcessingStrategy(val context: DokkaContext) : Templat
         }
     }
 
-    override fun process(input: File, output: File): Boolean =
+    override fun process(input: File, output: File, moduleContext: DokkaConfiguration.DokkaModuleDescription?): Boolean =
         input.takeIf { it.name == fileName }
             ?.runCatching { parseJson<AddToSourcesetDependencies>(input.readText()) }
             ?.getOrNull()

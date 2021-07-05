@@ -26,4 +26,3 @@ internal fun GradleDokkaSourceSetBuilder.configureWithKotlinSourceSetGist(source
         )
     }
 }
-

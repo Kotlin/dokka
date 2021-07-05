@@ -23,22 +23,20 @@ abstract class DefaultLocationProvider(
         dokkaContext.plugin<DokkaBase>().query { externalLocationProviderFactory }
 
     protected val externalLocationProviders: Map<ExternalDocumentation, ExternalLocationProvider?> = dokkaContext
-        .configuration
-        .sourceSets
-        .flatMap { sourceSet ->
-            sourceSet.externalDocumentationLinks.map {
-                PackageList.load(it.packageListUrl, sourceSet.jdkVersion, dokkaContext.configuration.offlineMode)
-                    ?.let { packageList -> ExternalDocumentation(it.url, packageList) }
+            .configuration
+            .sourceSets
+            .flatMap { sourceSet ->
+                sourceSet.externalDocumentationLinks.map {
+                    PackageList.load(it.packageListUrl, sourceSet.jdkVersion, dokkaContext.configuration.offlineMode)
+                            ?.let { packageList -> ExternalDocumentation(it.url, packageList) }
+                }
             }
-        }
-        .filterNotNull()
-        .map { extDocInfo ->
-            val externalLocationProvider = (externalLocationProviderFactories.asSequence()
-                .mapNotNull { it.getExternalLocationProvider(extDocInfo) }.firstOrNull()
-                ?: run { dokkaContext.logger.error("No ExternalLocationProvider for '${extDocInfo.packageList.url}' found"); null })
-            extDocInfo to externalLocationProvider
-        }
-        .toMap()
+            .filterNotNull().associateWith { extDocInfo ->
+                externalLocationProviderFactories
+                    .mapNotNull { it.getExternalLocationProvider(extDocInfo) }
+                    .firstOrNull()
+                    ?: run { dokkaContext.logger.error("No ExternalLocationProvider for '${extDocInfo.packageList.url}' found"); null }
+            }
 
     protected val packagesIndex: Map<String, ExternalLocationProvider?> =
         externalLocationProviders

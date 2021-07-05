@@ -1,7 +1,9 @@
 package org.jetbrains.dokka.templates
 
-import kotlinx.coroutines.*
-import org.jetbrains.dokka.DokkaConfiguration
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.runBlocking
+import org.jetbrains.dokka.DokkaConfiguration.DokkaModuleDescription
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.templating.Command
 import org.jetbrains.dokka.model.withDescendants
@@ -16,7 +18,7 @@ import java.io.File
 interface TemplateProcessor
 
 interface SubmoduleTemplateProcessor : TemplateProcessor {
-    fun process(modules: List<DokkaConfiguration.DokkaModuleDescription>): TemplatingResult
+    fun process(modules: List<DokkaModuleDescription>): TemplatingResult
 }
 
 interface MultiModuleTemplateProcessor : TemplateProcessor {
@@ -24,7 +26,7 @@ interface MultiModuleTemplateProcessor : TemplateProcessor {
 }
 
 interface TemplateProcessingStrategy {
-    fun process(input: File, output: File): Boolean
+    fun process(input: File, output: File, moduleContext: DokkaModuleDescription?): Boolean
     fun finish(output: File) {}
 }
 
@@ -36,18 +38,18 @@ class DefaultSubmoduleTemplateProcessor(
         context.plugin<TemplatingPlugin>().query { templateProcessingStrategy }
 
     private val configuredModulesPaths =
-        context.configuration.modules.map { it.sourceOutputDirectory.absolutePath to it.name }.toMap()
+            context.configuration.modules.associate { it.sourceOutputDirectory.absolutePath to it.name }
 
-    override fun process(modules: List<DokkaConfiguration.DokkaModuleDescription>) =
+    override fun process(modules: List<DokkaModuleDescription>) =
         runBlocking(Dispatchers.Default) {
             coroutineScope {
                 modules.fold(TemplatingResult()) { acc, module ->
-                    acc + module.sourceOutputDirectory.visit(context.configuration.outputDir.resolve(module.relativePathToOutputDirectory))
+                    acc + module.sourceOutputDirectory.visit(context.configuration.outputDir.resolve(module.relativePathToOutputDirectory), module)
                 }
             }
         }
 
-    private suspend fun File.visit(target: File, acc: TemplatingResult = TemplatingResult()): TemplatingResult =
+    private suspend fun File.visit(target: File, module: DokkaModuleDescription, acc: TemplatingResult = TemplatingResult()): TemplatingResult =
         coroutineScope {
             val source = this@visit
             if (source.isDirectory) {
@@ -59,17 +61,17 @@ class DefaultSubmoduleTemplateProcessor(
                     ?: acc
 
                 files.fold(accWithSelf) { acc, path ->
-                    source.resolve(path).visit(target.resolve(path), acc)
+                    source.resolve(path).visit(target.resolve(path), module, acc)
                 }
             } else {
-                strategies.first { it.process(source, target) }
+                strategies.first { it.process(source, target, module) }
                 acc
             }
         }
 }
 
 class DefaultMultiModuleTemplateProcessor(
-    context: DokkaContext,
+    val context: DokkaContext,
 ) : MultiModuleTemplateProcessor {
     private val strategies: List<TemplateProcessingStrategy> =
         context.plugin<TemplatingPlugin>().query { templateProcessingStrategy }
@@ -78,10 +80,9 @@ class DefaultMultiModuleTemplateProcessor(
 
     override fun process(generatedPagesTree: RootPageNode) {
         val locationProvider = locationProviderFactory.getLocationProvider(generatedPagesTree)
-        generatedPagesTree.withDescendants().mapNotNull { locationProvider.resolve(it)?.let { File(it) } }
-            .forEach { location -> strategies.first { it.process(location, location) } }
+        generatedPagesTree.withDescendants().mapNotNull { pageNode -> locationProvider.resolve(pageNode)?.let { File(it) } }
+            .forEach { location -> strategies.first { it.process(location, location, null) } }
     }
-
 }
 
 data class TemplatingContext<out T : Command>(

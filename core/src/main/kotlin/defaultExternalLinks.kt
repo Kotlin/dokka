@@ -8,7 +8,7 @@ fun ExternalDocumentationLink.Companion.jdk(jdkVersion: Int): ExternalDocumentat
     ExternalDocumentationLink(
         url =
         if (jdkVersion < 11) "https://docs.oracle.com/javase/${jdkVersion}/docs/api/"
-        else "https://docs.oracle.com/en/java/javase/${jdkVersion}/docs/api/java.base/",
+        else "https://docs.oracle.com/en/java/javase/${jdkVersion}/docs/api/",
         packageListUrl =
         if (jdkVersion < 11) "https://docs.oracle.com/javase/${jdkVersion}/docs/api/package-list"
         else "https://docs.oracle.com/en/java/javase/${jdkVersion}/docs/api/element-list"

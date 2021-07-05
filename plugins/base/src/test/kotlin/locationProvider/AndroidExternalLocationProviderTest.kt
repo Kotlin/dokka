@@ -19,7 +19,7 @@ class AndroidExternalLocationProviderTest : BaseAbstractTest() {
         URL("https://developer.android.com/reference/kotlin"),
         PackageList(
             RecognizedLinkFormat.DokkaHtml,
-            setOf("android.content", "android.net"),
+            mapOf("" to setOf("android.content", "android.net")),
             emptyMap(),
             URL("file://not-used")
         )
@@ -28,7 +28,7 @@ class AndroidExternalLocationProviderTest : BaseAbstractTest() {
         URL("https://developer.android.com/reference/kotlin"),
         PackageList(
             RecognizedLinkFormat.DokkaHtml,
-            setOf("androidx.appcompat.app"),
+            mapOf("" to setOf("androidx.appcompat.app")),
             emptyMap(),
             URL("file://not-used")
         )
