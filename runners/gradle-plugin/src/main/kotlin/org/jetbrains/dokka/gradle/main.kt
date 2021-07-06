@@ -26,7 +26,7 @@ open class DokkaPlugin : Plugin<Project> {
             description = "Generates documentation in GitHub flavored markdown format"
         }
 
-        project.setupDokkaTasks("dokkaJekyll", allModulesPageAndTemplateProcessing = project.dokkaArtifacts.gfmTemplateProcessing) {
+        project.setupDokkaTasks("dokkaJekyll", allModulesPageAndTemplateProcessing = project.dokkaArtifacts.jekyllTemplateProcessing) {
             plugins.dependencies.add(project.dokkaArtifacts.jekyllPlugin)
             description = "Generates documentation in Jekyll flavored markdown format"
         }
