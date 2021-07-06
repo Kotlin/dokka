@@ -41,22 +41,24 @@ const WithFuzzySearchFilterComponent: React.FC<Props> = ({ data }: Props) => {
     )
 }
 
+if(typeof pages === 'undefined'){
+    var pages = [];
+}
+
 export const WithFuzzySearchFilter = () => {
     const [navigationList, setNavigationList] = useState<Option[]>([]);
 
     useEffect(() => {
-        // if(pages){
-        //     setNavigationList(pages.map((record: Option, idx: number) => {
-        //         return {
-        //             ...record,
-        //             label: record.name,
-        //             key: idx,
-        //             type: record.kind,
-        //             rgItemType: List.ListProps.Type.CUSTOM
-        //         }
-        //     }))
-        // }
-    }, [])
+        setNavigationList(pages.map((record: Option, idx: number) => {
+            return {
+                ...record,
+                label: record.name,
+                key: idx,
+                type: record.kind,
+                rgItemType: List.ListProps.Type.CUSTOM
+            }
+        }))
+    }, [pages])
 
     return <WithFuzzySearchFilterComponent data={navigationList} />;
 };

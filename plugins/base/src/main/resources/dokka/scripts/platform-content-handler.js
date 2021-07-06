@@ -47,6 +47,8 @@ const changeTabByCurrentUrl = () => {
         let tab = document.querySelector('div[tabs-section] > button[data-togglable="' + activeTabFromUrl + '"]')
         if (tab) {
             toggleSections(tab)
+            const event = new CustomEvent('tab-changed', {detail: activeTabFromUrl});
+            window.dispatchEvent(event);
             return true
         }
     }

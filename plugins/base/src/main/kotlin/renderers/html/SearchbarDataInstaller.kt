@@ -2,6 +2,7 @@ package org.jetbrains.dokka.base.renderers.html
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.jetbrains.dokka.Platform
+import org.jetbrains.dokka.base.renderers.sourceSets
 import org.jetbrains.dokka.base.templating.AddToSearch
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.DisplaySourceSet
@@ -34,7 +35,7 @@ open class SearchbarDataInstaller(val context: DokkaContext) : PageTransformer {
     private val mapper = jacksonObjectMapper()
     private val jsSerializer = JsSerializer()
 
-    open fun generatePagesList(pages: List<PageWithId>, locationResolver: PageResolver): List<SearchRecord> =
+    open fun generatePagesList(pages: List<PageWithId>, locationResolver: DriResolver): List<SearchRecord> =
         pages.map { pageWithId ->
             createSearchRecord(
                 name = pageWithId.displayableSignature,
@@ -63,8 +64,8 @@ open class SearchbarDataInstaller(val context: DokkaContext) : PageTransformer {
             else -> emptyList()
         }
 
-    private fun resolveLocation(locationResolver: PageResolver, page: ContentPage): String? =
-        locationResolver(page, null).also { location ->
+    private fun resolveLocation(locationResolver: DriResolver, page: ContentPage): String? =
+        locationResolver(page.dri.first(), page.sourceSets()).also { location ->
             if (location.isNullOrBlank()) context.logger.warn("Cannot resolve path for ${page.dri}")
         }
 
@@ -72,7 +73,7 @@ open class SearchbarDataInstaller(val context: DokkaContext) : PageTransformer {
         val page = RendererSpecificResourcePage(
             name = "scripts/pages.js",
             children = emptyList(),
-            strategy = RenderingStrategy.PageLocationResolvableWrite { resolver ->
+            strategy = RenderingStrategy.DriLocationResolvableWrite { resolver ->
                 val content = input.withDescendants().fold(emptyList<PageWithId>()) { pageList, page ->
                     pageList + processPage(page)
                 }.run {
@@ -86,7 +87,9 @@ open class SearchbarDataInstaller(val context: DokkaContext) : PageTransformer {
                 }
             })
 
-        return input.modified(children = input.children + page)
+        return input
+            .modified(children = input.children + page)
+            .transformContentPagesTree { it.modified(embeddedResources = listOf(page.name) + it.embeddedResources) }
     }
 }
 

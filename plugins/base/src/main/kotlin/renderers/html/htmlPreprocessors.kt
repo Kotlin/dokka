@@ -72,37 +72,6 @@ abstract class NavigationDataProvider {
     }
 }
 
-open class NavigationSearchInstaller(val context: DokkaContext) : NavigationDataProvider(), PageTransformer {
-    private val mapper = jacksonObjectMapper()
-
-    open fun createSearchRecordFromNode(node: NavigationNode, location: String): SearchRecord =
-        SearchRecord(name = node.name, location = location)
-
-    override fun invoke(input: RootPageNode): RootPageNode {
-//        val page = RendererSpecificResourcePage(
-//            name = "scripts/navigation-pane.js",
-//            children = emptyList(),
-//            strategy = RenderingStrategy.DriLocationResolvableWrite { resolver ->
-//                val content = navigableChildren(input, context.configuration.moduleName).withDescendants().map {
-//                    createSearchRecordFromNode(it, resolveLocation(resolver, it.dri, it.sourceSets).orEmpty())
-//                }
-//                if (context.configuration.delayTemplateSubstitution) {
-//                    mapper.writeValueAsString(AddToSearch(context.configuration.moduleName, content.toList()))
-//                } else {
-//                    "var navigationPane = " + mapper.writeValueAsString(content)
-//                }
-//            })
-
-//        return input.modified(children = input.children + page)
-        return input
-    }
-
-    private fun resolveLocation(locationResolver: DriResolver, dri: DRI, sourceSets: Set<DisplaySourceSet>): String? =
-        locationResolver(dri, sourceSets).also { location ->
-            if (location.isNullOrBlank()) context.logger.warn("Cannot resolve path for $dri and sourceSets: ${sourceSets.joinToString { it.name }}")
-        }
-}
-
 open class NavigationPageInstaller(val context: DokkaContext) : NavigationDataProvider(), PageTransformer {
     private val mapper = jacksonObjectMapper()
 
