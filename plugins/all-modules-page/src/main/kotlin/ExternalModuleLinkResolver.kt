@@ -67,14 +67,7 @@ class DefaultExternalModuleLinkResolver(val context: DokkaContext) : ExternalMod
         context.configuration.modules.firstOrNull { it.name == moduleName }
             ?.let { module ->
                 val packageList = loadPackageListForModule(module)
-                val extension = when (packageList?.linkFormat) {
-                    RecognizedLinkFormat.KotlinWebsiteHtml,
-                    RecognizedLinkFormat.DokkaOldHtml,
-                    RecognizedLinkFormat.DokkaHtml -> ".html"
-                    RecognizedLinkFormat.DokkaGFM,
-                    RecognizedLinkFormat.DokkaJekyll -> ".md"
-                    else -> ""
-                }
+                val extension = packageList?.linkFormat?.linkExtension?.let { ".$it" }.orEmpty()
                 "${module.relativePathToOutputDirectory}/index$extension"
             }
 
