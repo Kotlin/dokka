@@ -2,6 +2,7 @@ package org.jetbrains.dokka.gradle
 
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
+import org.gradle.api.artifacts.Dependency
 import org.gradle.api.attributes.Usage
 
 internal fun Project.maybeCreateDokkaDefaultPluginConfiguration(): Configuration {
@@ -18,14 +19,13 @@ internal fun Project.maybeCreateDokkaDefaultRuntimeConfiguration(): Configuratio
     }
 }
 
-internal fun Project.maybeCreateDokkaPluginConfiguration(dokkaTaskName: String): Configuration {
+internal fun Project.maybeCreateDokkaPluginConfiguration(dokkaTaskName: String, additionalDependencies: Collection<Dependency> = emptySet()): Configuration {
     return project.configurations.maybeCreate("${dokkaTaskName}Plugin") {
         extendsFrom(maybeCreateDokkaDefaultPluginConfiguration())
         attributes.attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(Usage::class.java, "java-runtime"))
         isCanBeConsumed = false
-        defaultDependencies { dependencies ->
-            dependencies.add(project.dokkaArtifacts.dokkaBase)
-        }
+        dependencies.add(project.dokkaArtifacts.dokkaBase)
+        dependencies.addAll(additionalDependencies)
     }
 }
 
