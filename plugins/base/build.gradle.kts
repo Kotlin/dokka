@@ -8,7 +8,7 @@ dependencies {
     api(project(":kotlin-analysis"))
     val jsoup_version: String by project
     implementation("org.jsoup:jsoup:$jsoup_version")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.11.1")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.12.4")
     testImplementation(project(":plugins:base:base-test-utils"))
     testImplementation(project(":core:content-matcher-test-utils"))
 
