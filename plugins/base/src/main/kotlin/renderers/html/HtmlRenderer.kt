@@ -703,18 +703,37 @@ open class HtmlRenderer(
         }
     }
 
-    override fun FlowContent.buildText(textNode: ContentText) =
+    override fun FlowContent.buildText(textNode: ContentText) = buildText(textNode, textNode.style)
+
+    private fun FlowContent.buildText(textNode: ContentText, unappliedStyles: Set<Style>) {
         when {
             textNode.extra[HtmlContent] != null -> {
                 consumer.onTagContentUnsafe { raw(textNode.text) }
             }
-            textNode.hasStyle(TextStyle.Indented) -> {
+            unappliedStyles.contains(TextStyle.Indented) -> {
                 consumer.onTagContentEntity(Entities.nbsp)
-                text(textNode.text)
+                buildText(textNode, unappliedStyles - TextStyle.Indented)
             }
-            textNode.hasStyle(TextStyle.Cover) -> buildBreakableText(textNode.text)
+            unappliedStyles.size == 1 && unappliedStyles.contains(TextStyle.Cover) -> buildBreakableText(textNode.text)
+            unappliedStyles.isNotEmpty() -> {
+                val styleToApply = unappliedStyles.first()
+                applyStyle(styleToApply){
+                    buildText(textNode, unappliedStyles - styleToApply)
+                }
+            }
             else -> text(textNode.text)
         }
+    }
+
+    private inline fun FlowContent.applyStyle(styleToApply: Style, crossinline body: FlowContent.() -> Unit){
+        when(styleToApply){
+            TextStyle.Bold -> b { body() }
+            TextStyle.Italic -> i { body() }
+            TextStyle.Strikethrough -> strike { body() }
+            TextStyle.Strong -> strong { body() }
+            else -> body()
+        }
+    }
 
     override fun render(root: RootPageNode) {
         shouldRenderSourceSetBubbles = shouldRenderSourceSetBubbles(root)
