@@ -71,6 +71,13 @@ publishing {
         register<MavenPublication>("pluginMaven") {
             configurePom("Dokka ${project.name}")
             artifactId = "dokka-gradle-plugin"
+            artifact(tasks["javadocJar"])
+        }
+
+        afterEvaluate {
+            named<MavenPublication>("dokkaGradlePluginPluginMarkerMaven") {
+                configurePom("Dokka plugin")
+            }
         }
     }
 }
@@ -79,7 +86,7 @@ tasks.withType<PublishToMavenRepository>().configureEach {
     onlyIf { publication != publishing.publications["dokkaGradlePluginForIntegrationTests"] }
 }
 
-afterEvaluate { // Workaround for interesting design choice https://github.com/gradle/gradle/blob/c4f935f77377f1783f70ec05381c8182b3ade3ea/subprojects/plugin-development/src/main/java/org/gradle/plugin/devel/plugins/MavenPluginPublishPlugin.java#L49
+afterEvaluate { // Workaround for an interesting design choice https://github.com/gradle/gradle/blob/c4f935f77377f1783f70ec05381c8182b3ade3ea/subprojects/plugin-development/src/main/java/org/gradle/plugin/devel/plugins/MavenPluginPublishPlugin.java#L49
     configureBintrayPublicationIfNecessary("pluginMaven", "dokkaGradlePluginPluginMarkerMaven")
     configureSpacePublicationIfNecessary("pluginMaven", "dokkaGradlePluginPluginMarkerMaven")
     configureSonatypePublicationIfNecessary("pluginMaven", "dokkaGradlePluginPluginMarkerMaven")
