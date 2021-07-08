@@ -28,6 +28,7 @@ include("plugins:jekyll")
 include("plugins:jekyll:jekyll-template-processing")
 include("plugins:kotlin-as-java")
 include("plugins:javadoc")
+include("plugins:sitemap")
 
 include("integration-tests")
 include("integration-tests:gradle")

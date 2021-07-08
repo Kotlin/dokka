@@ -7,4 +7,5 @@ plugins {
 
 dependencies {
     implementation(kotlin("stdlib"))
+    dokkaPlugin("org.jetbrains.dokka:sitemap-plugin:${System.getenv("DOKKA_VERSION")}")
 }

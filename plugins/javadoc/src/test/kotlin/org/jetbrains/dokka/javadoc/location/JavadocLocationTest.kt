@@ -127,7 +127,7 @@ class JavadocLocationTest : BaseAbstractTest() {
 
         locationTestInline { rootPageNode, dokkaContext ->
             val locationProvider = dokkaContext.plugin<JavadocPlugin>().querySingle { locationProviderFactory }
-                .getLocationProvider(rootPageNode)
+                .getLocationProvider(rootPageNode, "html")
             val packageNode = rootPageNode.firstChildOfType<JavadocPackagePageNode>() { it.name == "javadoc.test" }
             val packagePath = locationProvider.resolve(packageNode)
 
@@ -153,7 +153,7 @@ class JavadocLocationTest : BaseAbstractTest() {
 
     private fun htmlTranslator(rootPageNode: RootPageNode, dokkaContext: DokkaContext): JavadocContentToHtmlTranslator {
         val locationProvider = dokkaContext.plugin<JavadocPlugin>().querySingle { locationProviderFactory }
-            .getLocationProvider(rootPageNode) as JavadocLocationProvider
+            .getLocationProvider(rootPageNode, "html") as JavadocLocationProvider
         return htmlTranslator(dokkaContext, locationProvider)
     }
 

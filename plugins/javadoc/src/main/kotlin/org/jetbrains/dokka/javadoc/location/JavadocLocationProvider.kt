@@ -7,12 +7,13 @@ import org.jetbrains.dokka.links.Nullable
 import org.jetbrains.dokka.links.PointingToDeclaration
 import org.jetbrains.dokka.model.DisplaySourceSet
 import org.jetbrains.dokka.pages.ContentPage
+import org.jetbrains.dokka.pages.OutputExtension
 import org.jetbrains.dokka.pages.PageNode
 import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.DokkaContext
 import java.util.*
 
-class JavadocLocationProvider(pageRoot: RootPageNode, dokkaContext: DokkaContext) :
+class JavadocLocationProvider(pageRoot: RootPageNode, dokkaContext: DokkaContext, outputExtension: OutputExtension) :
     DefaultLocationProvider(pageRoot, dokkaContext) {
 
     private val pathIndex = IdentityHashMap<PageNode, List<String>>().apply {

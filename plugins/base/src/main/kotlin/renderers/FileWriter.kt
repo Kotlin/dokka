@@ -3,6 +3,7 @@ package org.jetbrains.dokka.base.renderers
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.jetbrains.dokka.plugability.DokkaContext
+import org.jetbrains.kotlin.utils.fileUtils.withReplacedExtensionOrNull
 import java.io.File
 import java.io.IOException
 import java.net.URI
@@ -24,7 +25,16 @@ class FileWriter(val context: DokkaContext): OutputWriter {
             val dir = Paths.get(root.absolutePath, path.dropLastWhile { it != '/' }).toFile()
             withContext(Dispatchers.IO) {
                 dir.mkdirsOrFail()
-                Files.write(Paths.get(root.absolutePath, "$path$ext"), text.lines())
+
+                // File writer should work when user passed path that already contains extension.
+                if (File(path).extension.isEmpty()) {
+                    Files.write(Paths.get(root.absolutePath, "$path$ext"), text.lines())
+                } else if (ext.isNotEmpty()) {
+                    val file = File(path)
+                    Files.write(Paths.get(root.absolutePath, "${file.withReplacedExtensionOrNull("." + file.extension, ext)}"), text.lines())
+                } else {
+                    Files.write(Paths.get(root.absolutePath, path), text.lines())
+                }
             }
         } catch (e: Throwable) {
             context.logger.error("Failed to write $this. ${e.message}")

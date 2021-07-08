@@ -29,6 +29,7 @@ import org.jetbrains.dokka.base.translators.documentables.DefaultDocumentableToP
 import org.jetbrains.dokka.base.translators.psi.DefaultPsiToDocumentableTranslator
 import org.jetbrains.dokka.base.generation.SingleModuleGeneration
 import org.jetbrains.dokka.plugability.DokkaPlugin
+import org.jetbrains.dokka.plugability.Extensionable
 import org.jetbrains.dokka.transformers.documentation.PreMergeDocumentableTransformer
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 
@@ -42,6 +43,7 @@ class DokkaBase : DokkaPlugin() {
     val externalLocationProviderFactory by extensionPoint<ExternalLocationProviderFactory>()
     val outputWriter by extensionPoint<OutputWriter>()
     val htmlPreprocessors by extensionPoint<PageTransformer>()
+    val doLastTransformers by extensionPoint<PageTransformer>()
     val kotlinAnalysis by extensionPoint<KotlinAnalysis>()
     val tabSortingStrategy by extensionPoint<TabSortingStrategy>()
     val immediateHtmlCommandConsumer by extensionPoint<ImmediateHtmlCommandConsumer>()

@@ -3,6 +3,7 @@ package org.jetbrains.dokka.templates
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.runBlocking
+import org.jetbrains.dokka.CoreExtensions
 import org.jetbrains.dokka.DokkaConfiguration.DokkaModuleDescription
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.templating.Command
@@ -77,10 +78,11 @@ class DefaultMultiModuleTemplateProcessor(
         context.plugin<TemplatingPlugin>().query { templateProcessingStrategy }
 
     private val locationProviderFactory = context.plugin<DokkaBase>().querySingle { locationProviderFactory }
+    private val extension = context.plugin<DokkaBase>().querySingle { CoreExtensions.renderer }.outputExtension
 
     override fun process(generatedPagesTree: RootPageNode) {
-        val locationProvider = locationProviderFactory.getLocationProvider(generatedPagesTree)
-        generatedPagesTree.withDescendants().mapNotNull { pageNode -> locationProvider.resolve(pageNode)?.let { File(it) } }
+        val locationProvider = locationProviderFactory.getLocationProvider(generatedPagesTree, extension)
+        generatedPagesTree.withDescendants().mapNotNull { pageNode -> locationProvider.resolve(pageNode)?.let { File(context.configuration.outputDir, it) } }
             .forEach { location -> strategies.first { it.process(location, location, null) } }
     }
 }

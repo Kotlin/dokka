@@ -30,6 +30,8 @@ import java.net.URI
 open class HtmlRenderer(
     context: DokkaContext
 ) : DefaultRenderer<FlowContent>(context) {
+    override val outputExtension: String = "html"
+
     private val configuration = configuration<DokkaBase, DokkaBaseConfiguration>(context)
 
     private val sourceSetDependencyMap: Map<DokkaSourceSetID, List<DokkaSourceSetID>> =
@@ -41,7 +43,7 @@ open class HtmlRenderer(
 
     private var shouldRenderSourceSetBubbles: Boolean = false
 
-    override val preprocessors = context.plugin<DokkaBase>().query { htmlPreprocessors }
+    override val preprocessors = context.plugin<DokkaBase>().query { htmlPreprocessors } + context.plugin<DokkaBase>().query { doLastTransformers }
 
     private val tabSortingStrategy = context.plugin<DokkaBase>().querySingle { tabSortingStrategy }
 

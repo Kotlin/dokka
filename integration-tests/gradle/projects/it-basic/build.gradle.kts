@@ -22,6 +22,7 @@ apply(from = "../template.root.gradle.kts")
 dependencies {
     implementation(kotlin("stdlib"))
     testImplementation(kotlin("test-junit"))
+    dokkaPlugin("org.jetbrains.dokka:sitemap-plugin:${System.getenv("DOKKA_VERSION")}")
 }
 
 tasks.withType<DokkaTask> {

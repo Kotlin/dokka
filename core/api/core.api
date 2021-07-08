@@ -189,7 +189,6 @@ public final class org/jetbrains/dokka/DokkaDefaults {
 	public static final field INSTANCE Lorg/jetbrains/dokka/DokkaDefaults;
 	public static final field delayTemplateSubstitution Z
 	public static final field failOnWarning Z
-	public static final field format Ljava/lang/String;
 	public static final field includeNonPublic Z
 	public static final field jdkVersion I
 	public static final field noJdkLink Z
@@ -3827,8 +3826,8 @@ public abstract interface class org/jetbrains/dokka/pages/MultimoduleRootPage : 
 }
 
 public final class org/jetbrains/dokka/pages/MultimoduleRootPageNode : org/jetbrains/dokka/pages/RootPageNode, org/jetbrains/dokka/pages/MultimoduleRootPage {
-	public fun <init> (Ljava/util/Set;Lorg/jetbrains/dokka/pages/ContentNode;Ljava/util/List;)V
-	public synthetic fun <init> (Ljava/util/Set;Lorg/jetbrains/dokka/pages/ContentNode;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Ljava/util/Set;Lorg/jetbrains/dokka/pages/ContentNode;Ljava/util/List;Ljava/util/List;)V
+	public synthetic fun <init> (Ljava/util/Set;Lorg/jetbrains/dokka/pages/ContentNode;Ljava/util/List;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun getChildren ()Ljava/util/List;
 	public fun getContent ()Lorg/jetbrains/dokka/pages/ContentNode;
 	public fun getDocumentable ()Lorg/jetbrains/dokka/model/Documentable;
@@ -4100,15 +4099,15 @@ public final class org/jetbrains/dokka/plugability/DokkaPluginKt {
 
 public final class org/jetbrains/dokka/plugability/ExtendingDSL {
 	public fun <init> (Ljava/lang/String;Ljava/lang/String;)V
-	public final fun applyIf (Lorg/jetbrains/dokka/plugability/Extension;Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/dokka/plugability/Extension;
-	public final fun order (Lorg/jetbrains/dokka/plugability/Extension;Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/dokka/plugability/Extension;
-	public final fun override (Lorg/jetbrains/dokka/plugability/Extension;Ljava/util/List;)Lorg/jetbrains/dokka/plugability/Extension;
-	public final fun override (Lorg/jetbrains/dokka/plugability/Extension;Lorg/jetbrains/dokka/plugability/Extension;)Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun applyIf (Lorg/jetbrains/dokka/plugability/Extensionable;Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/dokka/plugability/Extensionable;
+	public final fun order (Lorg/jetbrains/dokka/plugability/Extensionable;Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/dokka/plugability/Extensionable;
+	public final fun override (Lorg/jetbrains/dokka/plugability/Extensionable;Ljava/util/List;)Lorg/jetbrains/dokka/plugability/Extensionable;
+	public final fun override (Lorg/jetbrains/dokka/plugability/Extensionable;Lorg/jetbrains/dokka/plugability/Extensionable;)Lorg/jetbrains/dokka/plugability/Extensionable;
 	public final fun providing (Lorg/jetbrains/dokka/plugability/ExtensionPoint;Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/dokka/plugability/Extension;
-	public final fun with (Lorg/jetbrains/dokka/plugability/ExtensionPoint;Ljava/lang/Object;)Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun with (Lorg/jetbrains/dokka/plugability/ExtensionPoint;Ljava/lang/Object;)Lorg/jetbrains/dokka/plugability/Extensionable;
 }
 
-public final class org/jetbrains/dokka/plugability/Extension {
+public final class org/jetbrains/dokka/plugability/Extension : org/jetbrains/dokka/plugability/Extensionable {
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getCondition ()Lkotlin/jvm/functions/Function1;
 	public fun hashCode ()I
@@ -4142,13 +4141,16 @@ public final class org/jetbrains/dokka/plugability/ExtensionPoint {
 	public fun toString ()Ljava/lang/String;
 }
 
+public abstract class org/jetbrains/dokka/plugability/Extensionable {
+}
+
 public abstract interface annotation class org/jetbrains/dokka/plugability/ExtensionsDsl : java/lang/annotation/Annotation {
 }
 
 public final class org/jetbrains/dokka/plugability/OrderDsl {
 	public fun <init> ()V
-	public final fun after ([Lorg/jetbrains/dokka/plugability/Extension;)V
-	public final fun before ([Lorg/jetbrains/dokka/plugability/Extension;)V
+	public final fun after ([Lorg/jetbrains/dokka/plugability/Extensionable;)V
+	public final fun before ([Lorg/jetbrains/dokka/plugability/Extensionable;)V
 }
 
 public abstract class org/jetbrains/dokka/plugability/OrderingKind {
@@ -4181,11 +4183,16 @@ public final class org/jetbrains/dokka/plugability/ProvidedExtension {
 	public final fun getExt ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
 }
 
+public final class org/jetbrains/dokka/plugability/UnregisteredExtension : org/jetbrains/dokka/plugability/Extensionable {
+	public fun <init> ()V
+}
+
 public abstract interface class org/jetbrains/dokka/plugability/WithUnsafeExtensionSuppression {
 	public abstract fun getExtensionsSuppressed ()Ljava/util/List;
 }
 
 public abstract interface class org/jetbrains/dokka/renderers/Renderer {
+	public abstract fun getOutputExtension ()Ljava/lang/String;
 	public abstract fun render (Lorg/jetbrains/dokka/pages/RootPageNode;)V
 }
 
