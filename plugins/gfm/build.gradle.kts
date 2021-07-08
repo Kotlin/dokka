@@ -4,7 +4,8 @@ dependencies {
     implementation(project(":plugins:base"))
     testImplementation(project(":plugins:base"))
     testImplementation(project(":plugins:base:base-test-utils"))
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.11.1")
+    val jackson_version: String by project
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jackson_version")
 }
 
 registerDokkaArtifactPublication("gfmPlugin") {
