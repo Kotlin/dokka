@@ -5,9 +5,13 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Dependency
 import org.gradle.kotlin.dsl.register
+import org.gradle.util.GradleVersion
 
 open class DokkaPlugin : Plugin<Project> {
     override fun apply(project: Project) {
+        if (GradleVersion.version(project.gradle.gradleVersion) < GradleVersion.version("5.6")) {
+            project.logger.warn("Dokka: Build is using unsupported gradle version, expected at least 5.6 but got ${project.gradle.gradleVersion}. This may result in strange errors")
+        }
 
         project.setupDokkaTasks("dokkaHtml") {
             description = "Generates documentation in 'html' format"
