@@ -100,7 +100,15 @@ public final class utils/AssertHtmlEqualsIgnoringWhitespaceKt {
 	public static final fun assertHtmlEqualsIgnoringWhitespace (Ljava/lang/String;Ljava/lang/String;)V
 }
 
+public final class utils/B : utils/Tag {
+	public fun <init> ([Ljava/lang/Object;)V
+}
+
 public final class utils/Div : utils/Tag {
+	public fun <init> ([Ljava/lang/Object;)V
+}
+
+public final class utils/I : utils/Tag {
 	public fun <init> ([Ljava/lang/Object;)V
 }
 
@@ -109,6 +117,10 @@ public final class utils/JsoupUtilsKt {
 }
 
 public final class utils/P : utils/Tag {
+	public fun <init> ([Ljava/lang/Object;)V
+}
+
+public final class utils/STRIKE : utils/Tag {
 	public fun <init> ([Ljava/lang/Object;)V
 }
 
