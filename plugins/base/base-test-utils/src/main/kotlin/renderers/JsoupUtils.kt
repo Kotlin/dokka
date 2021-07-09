@@ -16,6 +16,9 @@ class Div(vararg matchers: Any) : Tag("div", *matchers)
 class P(vararg matchers: Any) : Tag("p", *matchers)
 class Span(vararg matchers: Any) : Tag("span", *matchers)
 class A(vararg matchers: Any) : Tag("a", *matchers)
+class B(vararg matchers: Any) : Tag("b", *matchers)
+class I(vararg matchers: Any) : Tag("i", *matchers)
+class STRIKE(vararg matchers: Any) : Tag("strike", *matchers)
 object Wbr : Tag("wbr")
 private fun Any.accepts(n: Node) {
     when (this) {
