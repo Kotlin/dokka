@@ -125,7 +125,7 @@ class DefaultDescriptorToDocumentableTranslatorTest : BaseAbstractTest() {
                 val description = module.descriptionOf("TestForCodeInDocs")
                 val expected = listOf(
                     P(
-                        children = listOf(Text("Utility for building a String that represents an XML document. The XmlBlob object is immutable and the passed values are copied where it makes sense."))
+                        children = listOf(Text("Utility for building a String that represents an XML document.\nThe XmlBlob object is immutable and the passed values are copied where it makes sense."))
                     ),
                     P(
                         children = listOf(Text("Note the XML Declaration is not output as part of the XmlBlob"))

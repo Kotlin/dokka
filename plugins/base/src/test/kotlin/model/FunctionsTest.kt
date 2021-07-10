@@ -118,7 +118,7 @@ class FunctionTest : AbstractModelTest("/src/main/kotlin/function/Test.kt", "fun
         """
         ) {
             with((this / "function" / "function").cast<DFunction>()) {
-                comments() equals "Multiline\nFunction Documentation\n"
+                comments() equals "Multiline\nFunction\nDocumentation\n"
 
                 name equals "function"
                 parameters counts 1

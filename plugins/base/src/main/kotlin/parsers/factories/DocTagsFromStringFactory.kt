@@ -58,7 +58,7 @@ object DocTagsFromStringFactory {
             "sub" -> Sub(children, params)
             "sup" -> Sup(children, params)
             "table" -> Table(children, params)
-            "#text" -> Text(body ?: throw NullPointerException("Text body should be at least empty string passed to DocNodes factory!"), children, params)
+            "#text" -> Text(body.orEmpty(), children, params)
             "tBody" -> TBody(children, params)
             "td" -> Td(children, params)
             "tFoot" -> TFoot(children, params)

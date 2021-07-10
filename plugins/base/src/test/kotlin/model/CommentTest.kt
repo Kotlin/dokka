@@ -93,7 +93,7 @@ class CommentTest : AbstractModelTest("/src/main/kotlin/comment/Test.kt", "comme
         """
         ) {
             with((this / "comment" / "property").cast<DProperty>()) {
-                comments() equals "doc1\ndoc2 doc3\n"
+                comments() equals "doc1\ndoc2\ndoc3\n"
             }
         }
     }
@@ -113,7 +113,7 @@ class CommentTest : AbstractModelTest("/src/main/kotlin/comment/Test.kt", "comme
         """
         ) {
             with((this / "comment" / "property").cast<DProperty>()) {
-                comments() equals "doc1\ndoc2 doc3\n"
+                comments() equals "doc1\ndoc2\ndoc3\n"
             }
         }
     }
@@ -250,7 +250,7 @@ class CommentTest : AbstractModelTest("/src/main/kotlin/comment/Test.kt", "comme
         """
         ) {
             with((this / "comment" / "property").cast<DProperty>()) {
-                comments() equals "Summary\n\none: [line one line two\n]"
+                comments() equals "Summary\n\none: [line one\nline two\n]"
             }
         }
     }

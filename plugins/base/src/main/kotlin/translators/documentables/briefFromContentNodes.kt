@@ -16,7 +16,7 @@ fun briefFromContentNodes(description: List<ContentNode>): List<ContentNode> {
     fun lookthrough(node: ContentNode): ContentNode =
         if (node is ContentText && !node.isHtml && firstSentenceRegex.containsMatchIn(node.text)) {
             sentenceFound = true
-            node.copy(text = firstSentenceRegex.find(node.text)?.value.orEmpty())
+            node.copy(wholeText = firstSentenceRegex.find(node.text)?.value.orEmpty())
         } else if (node is ContentGroup) {
             node.copy(children = node.children.mapNotNull {
                 if (!sentenceFound) lookthrough(it) else null

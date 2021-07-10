@@ -22,7 +22,7 @@ class ParserTest : KDocTest() {
             listOf(
                 Description(
                     CustomDocTag(
-                        listOf(P(listOf(Text("This is simple test of string Next line")))),
+                        listOf(P(listOf(Text("This is simple test of string\nNext line")))),
                         name = MarkdownElementTypes.MARKDOWN_FILE.name
                     )
                 )
@@ -75,7 +75,7 @@ class ParserTest : KDocTest() {
                                     B(listOf(Text("simple"))),
                                     Text(" test of "),
                                     I(listOf(Text("string"))),
-                                    Text(" Next "),
+                                    Text("\nNext "),
                                     B(listOf(I(listOf(Text("line")))))
                                 )
                             )
@@ -116,7 +116,7 @@ class ParserTest : KDocTest() {
             listOf(
                 Description(
                     CustomDocTag(
-                        listOf(P(listOf(Text("Text and String")))),
+                        listOf(P(listOf(Text("Text\nand\nString")))),
                         name = MarkdownElementTypes.MARKDOWN_FILE.name
                     )
                 )
@@ -139,7 +139,7 @@ class ParserTest : KDocTest() {
                 Description(
                     CustomDocTag(
                         listOf(
-                            P(listOf(Text("Paragraph number one"))),
+                            P(listOf(Text("Paragraph number\none"))),
                             P(listOf(Text("Paragraph"), Br, Text("number two")))
                         ), name = MarkdownElementTypes.MARKDOWN_FILE.name
                     )
@@ -210,8 +210,8 @@ class ParserTest : KDocTest() {
                             P(
                                 listOf(
                                     Text(
-                                        "The abstract syntax tree node for a multiplying expression.  A multiplying " +
-                                                "expression is a binary expression where the operator is a multiplying operator " +
+                                        "The abstract syntax tree node for a multiplying expression.  A multiplying\n" +
+                                                "expression is a binary expression where the operator is a multiplying operator\n" +
                                                 "such as \""
                                     ),
                                     I(listOf(Text("\", \"/\", or \"mod\".  A simple example would be \"5"))),
@@ -239,8 +239,8 @@ class ParserTest : KDocTest() {
                             P(
                                 listOf(
                                     Text(
-                                        "The abstract syntax tree node for a multiplying expression.  A multiplying " +
-                                                "expression is a binary expression where the operator is a multiplying operator " +
+                                        "The abstract syntax tree node for a multiplying expression.  A multiplying\n" +
+                                                "expression is a binary expression where the operator is a multiplying operator\n" +
                                                 "such as \""
                                     ),
                                     B(listOf(Text("\", \"/\", or \"mod\".  A simple example would be \"5"))),
@@ -313,7 +313,7 @@ class ParserTest : KDocTest() {
                         listOf(
                             Ul(
                                 listOf(
-                                    Li(listOf(P(listOf(Text("list item 1 continue 1"))))),
+                                    Li(listOf(P(listOf(Text("list item 1\ncontinue 1"))))),
                                     Li(listOf(P(listOf(Text("list item 2"), Br, Text("continue 2")))))
                                 )
                             )
@@ -346,7 +346,7 @@ class ParserTest : KDocTest() {
                                                 listOf(
                                                     Text("list "),
                                                     B(listOf(Text("item"))),
-                                                    Text(" 1 continue 1")
+                                                    Text(" 1\ncontinue 1")
                                                 )
                                             )
                                         )
@@ -357,7 +357,7 @@ class ParserTest : KDocTest() {
                                                 listOf(
                                                     Text("list "),
                                                     B(listOf(Text("item"))),
-                                                    Text(" 2 continue 2")
+                                                    Text(" 2\ncontinue 2")
                                                 )
                                             )
                                         )
@@ -394,15 +394,15 @@ class ParserTest : KDocTest() {
                         listOf(
                             Ul(
                                 listOf(
-                                    Li(listOf(P(listOf(Text("Outer first Outer next line"))))),
+                                    Li(listOf(P(listOf(Text("Outer first\nOuter next line"))))),
                                     Li(listOf(P(listOf(Text("Outer second"))))),
                                     Ul(
                                         listOf(
-                                            Li(listOf(P(listOf(Text("Middle first Middle next line"))))),
+                                            Li(listOf(P(listOf(Text("Middle first\nMiddle next line"))))),
                                             Li(listOf(P(listOf(Text("Middle second"))))),
                                             Ul(
                                                 listOf(
-                                                    Li(listOf(P(listOf(Text("Inner first Inner next line")))))
+                                                    Li(listOf(P(listOf(Text("Inner first\nInner next line")))))
                                                 )
                                             ),
                                             Li(listOf(P(listOf(Text("Middle third")))))
@@ -488,8 +488,8 @@ class ParserTest : KDocTest() {
                         listOf(
                             Ol(
                                 listOf(
-                                    Li(listOf(P(listOf(Text("list item 1 continue 1"))))),
-                                    Li(listOf(P(listOf(Text("list item 2 continue 2")))))
+                                    Li(listOf(P(listOf(Text("list item 1\ncontinue 1"))))),
+                                    Li(listOf(P(listOf(Text("list item 2\ncontinue 2")))))
                                 ),
                                 mapOf("start" to "2")
                             )
@@ -522,7 +522,7 @@ class ParserTest : KDocTest() {
                                                 listOf(
                                                     Text("list "),
                                                     B(listOf(Text("item"))),
-                                                    Text(" 1 continue 1")
+                                                    Text(" 1\ncontinue 1")
                                                 )
                                             )
                                         )
@@ -533,7 +533,7 @@ class ParserTest : KDocTest() {
                                                 listOf(
                                                     Text("list "),
                                                     B(listOf(Text("item"))),
-                                                    Text(" 2 continue 2")
+                                                    Text(" 2\ncontinue 2")
                                                 )
                                             )
                                         )
@@ -571,15 +571,15 @@ class ParserTest : KDocTest() {
                         listOf(
                             Ol(
                                 listOf(
-                                    Li(listOf(P(listOf(Text("Outer first Outer next line"))))),
+                                    Li(listOf(P(listOf(Text("Outer first\nOuter next line"))))),
                                     Li(listOf(P(listOf(Text("Outer second"))))),
                                     Ol(
                                         listOf(
-                                            Li(listOf(P(listOf(Text("Middle first Middle next line"))))),
+                                            Li(listOf(P(listOf(Text("Middle first\nMiddle next line"))))),
                                             Li(listOf(P(listOf(Text("Middle second"))))),
                                             Ol(
                                                 listOf(
-                                                    Li(listOf(P(listOf(Text("Inner first Inner next line")))))
+                                                    Li(listOf(P(listOf(Text("Inner first\nInner next line")))))
                                                 ),
                                                 mapOf("start" to "1")
                                             ),
@@ -622,15 +622,15 @@ class ParserTest : KDocTest() {
                         listOf(
                             Ol(
                                 listOf(
-                                    Li(listOf(P(listOf(Text("Outer first Outer next line"))))),
+                                    Li(listOf(P(listOf(Text("Outer first\nOuter next line"))))),
                                     Li(listOf(P(listOf(Text("Outer second"))))),
                                     Ul(
                                         listOf(
-                                            Li(listOf(P(listOf(Text("Middle first Middle next line"))))),
+                                            Li(listOf(P(listOf(Text("Middle first\nMiddle next line"))))),
                                             Li(listOf(P(listOf(Text("Middle second"))))),
                                             Ol(
                                                 listOf(
-                                                    Li(listOf(P(listOf(Text("Inner first Inner next line")))))
+                                                    Li(listOf(P(listOf(Text("Inner first\nInner next line")))))
                                                 ),
                                                 mapOf("start" to "1")
                                             ),
@@ -796,7 +796,7 @@ class ParserTest : KDocTest() {
                                 listOf(
                                     P(
                                         listOf(
-                                            Text("Blockquotes are very handy in email to emulate reply text. This line is part of the same quote.")
+                                            Text("Blockquotes are very handy in email to emulate reply text.\nThis line is part of the same quote.")
                                         )
                                     )
                                 )
@@ -837,10 +837,10 @@ class ParserTest : KDocTest() {
                         listOf(
                             BlockQuote(
                                 listOf(
-                                    P(listOf(Text("text 1 text 2"))),
+                                    P(listOf(Text("text 1\ntext 2"))),
                                     BlockQuote(
                                         listOf(
-                                            P(listOf(Text("text 3 text 4")))
+                                            P(listOf(Text("text 3\ntext 4")))
                                         )
                                     ),
                                     P(listOf(Text("text 5")))
@@ -936,7 +936,7 @@ class ParserTest : KDocTest() {
                             P(
                                 listOf(
                                     CodeInline(listOf(Text("Some code"))),
-                                    Text(" Sample text")
+                                    Text("\nSample text")
                                 )
                             )
                         ), name = MarkdownElementTypes.MARKDOWN_FILE.name
@@ -1139,12 +1139,12 @@ class ParserTest : KDocTest() {
                         listOf(
                             P(
                                 listOf(
-                                    Text("URLs and URLs in angle brackets will automatically get turned into links. http://www.example.com or "),
+                                    Text("URLs and URLs in angle brackets will automatically get turned into links.\nhttp://www.example.com or "),
                                     A(
                                         listOf(Text("http://www.example.com")),
                                         mapOf("href" to "http://www.example.com")
                                     ),
-                                    Text(" and sometimes example.com (but not on Github, for example).")
+                                    Text(" and sometimes\nexample.com (but not on Github, for example).")
                                 )
                             )
                         ), name = MarkdownElementTypes.MARKDOWN_FILE.name
@@ -1227,12 +1227,12 @@ class ParserTest : KDocTest() {
                             ),
                             P(
                                 listOf(
-                                    Text("URLs and URLs in angle brackets will automatically get turned into links. http://www.example.com or "),
+                                    Text("URLs and URLs in angle brackets will automatically get turned into links.\nhttp://www.example.com or "),
                                     A(
                                         listOf(Text("http://www.example.com")),
                                         mapOf("href" to "http://www.example.com")
                                     ),
-                                    Text(" and sometimes example.com (but not on Github, for example).")
+                                    Text(" and sometimes\nexample.com (but not on Github, for example).")
                                 )
                             ),
                             P(listOf(Text("Some text to show that the reference links can follow later.")))
@@ -1254,7 +1254,7 @@ class ParserTest : KDocTest() {
                         listOf(
                             P(
                                 listOf(
-                                    Text("text text")
+                                    Text("text\ntext")
                                 )
                             )
                         ), name = MarkdownElementTypes.MARKDOWN_FILE.name
@@ -1307,7 +1307,7 @@ class ParserTest : KDocTest() {
                                     B(listOf(Text("bold"))),
                                     Text(" and other words "),
                                     I(listOf(Text("italic"))),
-                                    Text(" with Markdown. You can even "),
+                                    Text(" with Markdown.\nYou can even "),
                                     A(listOf(Text("link to Google!")), mapOf("href" to "http://google.com"))
                                 )
                             )
