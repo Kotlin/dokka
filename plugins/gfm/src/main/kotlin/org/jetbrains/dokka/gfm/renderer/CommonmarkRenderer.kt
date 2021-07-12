@@ -208,7 +208,9 @@ open class CommonmarkRenderer(
     }
 
     override fun StringBuilder.buildText(textNode: ContentText) {
-        if (textNode.text.isNotBlank()) {
+        if (textNode.extra[HtmlContent] != null) {
+            append(textNode.text)
+        } else if (textNode.text.isNotBlank()) {
             val decorators = decorators(textNode.style)
             append(textNode.text.takeWhile { it == ' ' })
             append(decorators)
