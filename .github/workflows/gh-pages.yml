@@ -37,7 +37,7 @@ jobs:
         working-directory: ./dokka
 
       - name: Deploy
-        uses: peaceiris/actions-gh-pages@v3
+        uses: peaceiris/actions-gh-pages@v3.8.0
         if: steps.filter.outputs.docs_changed == 'true'
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
