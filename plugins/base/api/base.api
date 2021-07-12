@@ -129,8 +129,8 @@ public abstract class org/jetbrains/dokka/base/parsers/Parser {
 
 public final class org/jetbrains/dokka/base/parsers/factories/DocTagsFromIElementFactory {
 	public static final field INSTANCE Lorg/jetbrains/dokka/base/parsers/factories/DocTagsFromIElementFactory;
-	public final fun getInstance (Lorg/intellij/markdown/IElementType;Ljava/util/List;Ljava/util/Map;Ljava/lang/String;Lorg/jetbrains/dokka/links/DRI;)Lorg/jetbrains/dokka/model/doc/DocTag;
-	public static synthetic fun getInstance$default (Lorg/jetbrains/dokka/base/parsers/factories/DocTagsFromIElementFactory;Lorg/intellij/markdown/IElementType;Ljava/util/List;Ljava/util/Map;Ljava/lang/String;Lorg/jetbrains/dokka/links/DRI;ILjava/lang/Object;)Lorg/jetbrains/dokka/model/doc/DocTag;
+	public final fun getInstance (Lorg/intellij/markdown/IElementType;Ljava/util/List;Ljava/util/Map;Ljava/lang/String;Lorg/jetbrains/dokka/links/DRI;Z)Ljava/util/List;
+	public static synthetic fun getInstance$default (Lorg/jetbrains/dokka/base/parsers/factories/DocTagsFromIElementFactory;Lorg/intellij/markdown/IElementType;Ljava/util/List;Ljava/util/Map;Ljava/lang/String;Lorg/jetbrains/dokka/links/DRI;ZILjava/lang/Object;)Ljava/util/List;
 }
 
 public final class org/jetbrains/dokka/base/parsers/factories/DocTagsFromStringFactory {

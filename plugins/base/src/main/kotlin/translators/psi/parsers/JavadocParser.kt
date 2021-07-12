@@ -8,12 +8,14 @@ import com.intellij.psi.impl.source.tree.LazyParseablePsiElement
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.javadoc.*
 import org.intellij.markdown.MarkdownElementTypes
+import org.intellij.markdown.lexer.Compat.forEachCodePoint
 import org.jetbrains.dokka.analysis.DokkaResolutionFacade
 import org.jetbrains.dokka.analysis.from
 import org.jetbrains.dokka.base.parsers.MarkdownParser
+import org.jetbrains.dokka.base.translators.parseHtmlEncodedWithNormalisedSpaces
+import org.jetbrains.dokka.base.translators.parseWithNormalisedSpaces
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.doc.*
-import org.jetbrains.dokka.model.doc.Deprecated
 import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.dokka.utilities.enumValueOrNull
 import org.jetbrains.kotlin.idea.kdoc.resolveKDocLink
@@ -22,7 +24,9 @@ import org.jetbrains.kotlin.idea.util.CommentSaver.Companion.tokenType
 import org.jetbrains.kotlin.psi.psiUtil.getNextSiblingIgnoringWhitespace
 import org.jetbrains.kotlin.psi.psiUtil.siblings
 import org.jsoup.Jsoup
+import org.jsoup.internal.StringUtil
 import org.jsoup.nodes.Element
+import org.jsoup.nodes.Entities
 import org.jsoup.nodes.Node
 import org.jsoup.nodes.TextNode
 import java.util.*
@@ -402,8 +406,11 @@ class JavadocParser(
         }
 
         private fun convertHtmlNode(node: Node, insidePre: Boolean = false): List<DocTag> = when (node) {
-            is TextNode -> (if (insidePre) node.wholeText else node.text()
-                .takeIf { it.isNotBlank() })?.let { listOf(Text(body = it)) }.orEmpty()
+            is TextNode -> (if (insidePre) {
+                node.wholeText.takeIf { it.isNotBlank() }?.let { listOf(Text(body = it)) }
+            } else {
+                node.wholeText.parseHtmlEncodedWithNormalisedSpaces(renderWhiteCharactersAsSpaces = true)
+            }).orEmpty()
             is Element -> createBlock(node)
             else -> emptyList()
         }

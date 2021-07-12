@@ -7,7 +7,7 @@ plugins {
 }
 
 dependencies {
-    api("org.jetbrains:markdown:0.2.1")
+    api("org.jetbrains:markdown:0.2.4")
     implementation(kotlin("reflect"))
 
     val jsoup_version: String by project

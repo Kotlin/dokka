@@ -7,6 +7,7 @@ import org.jetbrains.dokka.pages.ContentKind
 import org.jetbrains.dokka.pages.ContentResolvedLink
 import org.jetbrains.dokka.pages.MultimoduleRootPageNode
 import org.junit.Rule
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.rules.TemporaryFolder
@@ -25,6 +26,11 @@ class MultiModuleDocumentationTest : MultiModuleAbstractTest() {
     fun setup() {
         folder.create()
         folder.root.resolve("README.md").writeText(documentationContent)
+    }
+
+    @AfterEach
+    fun teardown(){
+        folder.root.resolve("README.md").delete()
     }
 
     @Test
