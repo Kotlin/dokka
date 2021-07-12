@@ -25,7 +25,7 @@ jobs:
           DOKKA_IT_AWS_PATH: /home/runner/work/dokka/stdlib
 
       - name: Configure AWS credentials for S3 access
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v1.5.9
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -55,7 +55,7 @@ jobs:
           DOKKA_IT_AWS_PATH: /home/runner/work/dokka/serialization
 
       - name: Configure AWS credentials for S3 access
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v1.5.9
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -85,7 +85,7 @@ jobs:
           DOKKA_IT_AWS_PATH: /home/runner/work/dokka/biojava
 
       - name: Configure AWS credentials for S3 access
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v1.5.9
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
