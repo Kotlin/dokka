@@ -3,7 +3,7 @@
 ## Prerequisites
 
 Dokka's Html format requires a web server to view documentation correctly.
-This can be achieved by using the one that is build in Intellij or providing your own.
+This can be achieved by using the one that is build in IntelliJ or providing your own.
 If this requisite is not fulfilled Dokka with fail to load navigation pane and search bars.
 
 !!! important
