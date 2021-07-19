@@ -48,14 +48,14 @@ public class org/jetbrains/dokka/gfm/renderer/CommonmarkRenderer : org/jetbrains
 	public fun buildError (Lorg/jetbrains/dokka/pages/ContentNode;)V
 	public synthetic fun buildHeader (Ljava/lang/Object;ILorg/jetbrains/dokka/pages/ContentHeader;Lkotlin/jvm/functions/Function1;)V
 	public fun buildHeader (Ljava/lang/StringBuilder;ILorg/jetbrains/dokka/pages/ContentHeader;Lkotlin/jvm/functions/Function1;)V
+	public synthetic fun buildLineBreak (Ljava/lang/Object;)V
+	public fun buildLineBreak (Ljava/lang/StringBuilder;)V
 	public synthetic fun buildLink (Ljava/lang/Object;Ljava/lang/String;Lkotlin/jvm/functions/Function1;)V
 	public fun buildLink (Ljava/lang/StringBuilder;Ljava/lang/String;Lkotlin/jvm/functions/Function1;)V
 	public synthetic fun buildList (Ljava/lang/Object;Lorg/jetbrains/dokka/pages/ContentList;Lorg/jetbrains/dokka/pages/ContentPage;Ljava/util/Set;)V
 	public fun buildList (Ljava/lang/StringBuilder;Lorg/jetbrains/dokka/pages/ContentList;Lorg/jetbrains/dokka/pages/ContentPage;Ljava/util/Set;)V
 	public synthetic fun buildNavigation (Ljava/lang/Object;Lorg/jetbrains/dokka/pages/PageNode;)V
 	public fun buildNavigation (Ljava/lang/StringBuilder;Lorg/jetbrains/dokka/pages/PageNode;)V
-	public synthetic fun buildNewLine (Ljava/lang/Object;)V
-	public fun buildNewLine (Ljava/lang/StringBuilder;)V
 	public fun buildPage (Lorg/jetbrains/dokka/pages/ContentPage;Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
 	public synthetic fun buildPlatformDependent (Ljava/lang/Object;Lorg/jetbrains/dokka/pages/PlatformHintedContent;Lorg/jetbrains/dokka/pages/ContentPage;Ljava/util/Set;)V
 	public fun buildPlatformDependent (Ljava/lang/StringBuilder;Lorg/jetbrains/dokka/pages/PlatformHintedContent;Lorg/jetbrains/dokka/pages/ContentPage;Ljava/util/Set;)V

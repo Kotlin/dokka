@@ -225,11 +225,11 @@ public abstract class org/jetbrains/dokka/base/renderers/DefaultRenderer : org/j
 	public abstract fun buildHeader (Ljava/lang/Object;ILorg/jetbrains/dokka/pages/ContentHeader;Lkotlin/jvm/functions/Function1;)V
 	public fun buildHeader (Ljava/lang/Object;Lorg/jetbrains/dokka/pages/ContentHeader;Lorg/jetbrains/dokka/pages/ContentPage;Ljava/util/Set;)V
 	public static synthetic fun buildHeader$default (Lorg/jetbrains/dokka/base/renderers/DefaultRenderer;Ljava/lang/Object;Lorg/jetbrains/dokka/pages/ContentHeader;Lorg/jetbrains/dokka/pages/ContentPage;Ljava/util/Set;ILjava/lang/Object;)V
+	public abstract fun buildLineBreak (Ljava/lang/Object;)V
 	public abstract fun buildLink (Ljava/lang/Object;Ljava/lang/String;Lkotlin/jvm/functions/Function1;)V
 	public abstract fun buildList (Ljava/lang/Object;Lorg/jetbrains/dokka/pages/ContentList;Lorg/jetbrains/dokka/pages/ContentPage;Ljava/util/Set;)V
 	public static synthetic fun buildList$default (Lorg/jetbrains/dokka/base/renderers/DefaultRenderer;Ljava/lang/Object;Lorg/jetbrains/dokka/pages/ContentList;Lorg/jetbrains/dokka/pages/ContentPage;Ljava/util/Set;ILjava/lang/Object;)V
 	public abstract fun buildNavigation (Ljava/lang/Object;Lorg/jetbrains/dokka/pages/PageNode;)V
-	public abstract fun buildNewLine (Ljava/lang/Object;)V
 	public abstract fun buildPage (Lorg/jetbrains/dokka/pages/ContentPage;Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
 	public fun buildPageContent (Ljava/lang/Object;Lorg/jetbrains/dokka/pages/ContentPage;)V
 	public fun buildPlatformDependent (Ljava/lang/Object;Lorg/jetbrains/dokka/pages/PlatformHintedContent;Lorg/jetbrains/dokka/pages/ContentPage;Ljava/util/Set;)V
@@ -340,6 +340,8 @@ public class org/jetbrains/dokka/base/renderers/html/HtmlRenderer : org/jetbrain
 	public synthetic fun buildHeader (Ljava/lang/Object;ILorg/jetbrains/dokka/pages/ContentHeader;Lkotlin/jvm/functions/Function1;)V
 	public fun buildHeader (Lkotlinx/html/FlowContent;ILorg/jetbrains/dokka/pages/ContentHeader;Lkotlin/jvm/functions/Function1;)V
 	public fun buildHtml (Lorg/jetbrains/dokka/pages/PageNode;Ljava/util/List;Lkotlin/jvm/functions/Function1;)Ljava/lang/String;
+	public synthetic fun buildLineBreak (Ljava/lang/Object;)V
+	public fun buildLineBreak (Lkotlinx/html/FlowContent;)V
 	public synthetic fun buildLink (Ljava/lang/Object;Ljava/lang/String;Lkotlin/jvm/functions/Function1;)V
 	public fun buildLink (Lkotlinx/html/FlowContent;Ljava/lang/String;Lkotlin/jvm/functions/Function1;)V
 	public final fun buildLink (Lkotlinx/html/FlowContent;Lorg/jetbrains/dokka/links/DRI;Ljava/util/List;Lorg/jetbrains/dokka/pages/PageNode;Lkotlin/jvm/functions/Function1;)V
@@ -352,8 +354,6 @@ public class org/jetbrains/dokka/base/renderers/html/HtmlRenderer : org/jetbrain
 	public static synthetic fun buildListItems$default (Lorg/jetbrains/dokka/base/renderers/html/HtmlRenderer;Lkotlinx/html/UL;Ljava/util/List;Lorg/jetbrains/dokka/pages/ContentPage;Ljava/util/Set;ILjava/lang/Object;)V
 	public synthetic fun buildNavigation (Ljava/lang/Object;Lorg/jetbrains/dokka/pages/PageNode;)V
 	public fun buildNavigation (Lkotlinx/html/FlowContent;Lorg/jetbrains/dokka/pages/PageNode;)V
-	public synthetic fun buildNewLine (Ljava/lang/Object;)V
-	public fun buildNewLine (Lkotlinx/html/FlowContent;)V
 	public fun buildPage (Lorg/jetbrains/dokka/pages/ContentPage;Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
 	public synthetic fun buildPlatformDependent (Ljava/lang/Object;Lorg/jetbrains/dokka/pages/PlatformHintedContent;Lorg/jetbrains/dokka/pages/ContentPage;Ljava/util/Set;)V
 	public fun buildPlatformDependent (Lkotlinx/html/FlowContent;Lorg/jetbrains/dokka/pages/PlatformHintedContent;Lorg/jetbrains/dokka/pages/ContentPage;Ljava/util/Set;)V

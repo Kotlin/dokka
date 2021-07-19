@@ -34,7 +34,7 @@ abstract class DefaultRenderer<T>(
         sourceSetRestriction: Set<DisplaySourceSet>? = null
     )
 
-    abstract fun T.buildNewLine()
+    abstract fun T.buildLineBreak()
     abstract fun T.buildResource(node: ContentEmbeddedResource, pageContext: ContentPage)
     abstract fun T.buildTable(
         node: ContentTable,
@@ -115,7 +115,7 @@ abstract class DefaultRenderer<T>(
                 is ContentList -> buildList(node, pageContext, sourceSetRestriction)
                 is ContentTable -> buildTable(node, pageContext, sourceSetRestriction)
                 is ContentGroup -> buildGroup(node, pageContext, sourceSetRestriction)
-                is ContentBreakLine -> buildNewLine()
+                is ContentBreakLine -> buildLineBreak()
                 is PlatformHintedContent -> buildPlatformDependent(node, pageContext, sourceSetRestriction)
                 is ContentDivergentGroup -> buildDivergent(node, pageContext)
                 is ContentDivergentInstance -> buildDivergentInstance(node, pageContext)
