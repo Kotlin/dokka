@@ -134,8 +134,10 @@ open class CommonmarkRenderer(
 
             distinct.filter { it.key.isNotBlank() }.forEach { (text, platforms) ->
                 buildParagraph()
-                buildSourceSetTags(platforms.toSet())
-                buildLineBreak()
+                if (content.sourceSets.size > 1) {
+                    buildSourceSetTags(platforms.toSet())
+                    buildLineBreak()
+                }
                 append(text.trim())
                 buildParagraph()
             }
@@ -157,8 +159,10 @@ open class CommonmarkRenderer(
         buildNewLine()
         if (node.dci.kind == ContentKind.Sample || node.dci.kind == ContentKind.Parameters) {
             node.sourceSets.forEach { sourcesetData ->
-                append(sourcesetData.name)
-                buildNewLine()
+                if (node.sourceSets.size > 1) {
+                    append("[${sourcesetData.name}]")
+                    buildNewLine()
+                }
                 buildTable(
                     node.copy(
                         children = node.children.filter { it.sourceSets.contains(sourcesetData) },
@@ -255,8 +259,10 @@ open class CommonmarkRenderer(
             val (instance, sourceSets) = entry.getInstanceAndSourceSets()
 
             buildParagraph()
-            buildSourceSetTags(sourceSets)
-            buildLineBreak()
+            if (node.sourceSets.size > 1) {
+                buildSourceSetTags(sourceSets)
+                buildLineBreak()
+            }
 
             instance.before?.let {
                 buildContentNode(
