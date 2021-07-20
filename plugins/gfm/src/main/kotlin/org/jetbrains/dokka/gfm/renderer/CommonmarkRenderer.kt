@@ -26,6 +26,11 @@ open class CommonmarkRenderer(
         childrenCallback: StringBuilder.() -> Unit
     ) {
         return when {
+            node.hasStyle(TextStyle.Monospace) -> {
+                buildParagraph()
+                inlineCodeBlock(node, pageContext)
+                buildParagraph()
+            }
             node.hasStyle(TextStyle.Block) || node.hasStyle(TextStyle.Paragraph) -> {
                 buildParagraph()
                 childrenCallback()
@@ -292,6 +297,90 @@ open class CommonmarkRenderer(
 
             buildParagraph()
         }
+    }
+
+    override fun StringBuilder.buildCodeBlock(
+        code: ContentCodeBlock,
+        pageContext: ContentPage
+    ) {
+        fun buildGroup(group: ContentNode, pageContext: ContentPage) {
+            group.children.forEach { node ->
+                when (node) {
+                    is ContentText -> append(node.text)
+                    is ContentBreakLine -> buildNewLine()
+                    else -> buildGroup(node, pageContext)
+                }
+            }
+        }
+        append("```${code.language}")
+        buildNewLine()
+        buildGroup(code, pageContext)
+        buildNewLine()
+        append("```")
+    }
+
+    override fun StringBuilder.buildCodeInline(code: ContentCodeInline, pageContext: ContentPage) {
+        inlineCodeBlock(code, pageContext)
+    }
+
+    private fun StringBuilder.inlineCodeBlock(
+        node: ContentNode,
+        pageContext: ContentPage
+    ) {
+        val code = StringBuilder()
+
+        fun buildCode() {
+            if (code.isNotEmpty()) {
+                val decorators = "`".repeat(code.count { it == '`' } + 1) +
+                    if (code.first() == '`' || code.last() == '`' ||
+                        (code.first() == ' ' && code.last() == ' ')
+                    ) " " else ""
+                append(decorators)
+                append(code)
+                append(decorators.reversed())
+                code.clear()
+            }
+        }
+
+        fun buildGroup(
+            group: ContentNode,
+            pageContext: ContentPage
+        ): Unit = group.children.forEach { node ->
+            when (node) {
+                is ContentText -> if (!node.text.contains('\n')) {
+                    code.append(node.text)
+                } else {
+                    val chunks = node.text.split('\n')
+                    chunks.dropLast(1).forEach {
+                        code.append(it)
+                        buildCode()
+                        buildLineBreak()
+                    }
+                    chunks.last().apply {
+                        code.append(node)
+                    }
+                }
+                is ContentBreakLine -> {
+                    buildCode()
+                    buildLineBreak()
+                }
+                is ContentDRILink -> {
+                    val link = locationProvider.resolve(node.address, node.sourceSets, pageContext)
+                    if (link.isNullOrEmpty()) {
+                        buildGroup(node, pageContext)
+                    } else {
+                        buildCode()
+                        append("[")
+                        buildGroup(node, pageContext)
+                        buildCode()
+                        append("]($link)")
+                    }
+                }
+                else -> buildGroup(node, pageContext)
+            }
+        }
+        buildGroup(node, pageContext)
+        buildCode()
     }
 
     private fun decorators(styles: Set<Style>) = buildString {
