@@ -95,13 +95,13 @@ class JavadocSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLo
         }
 
     private fun signature(f: DFunction): List<ContentNode> =
-        javadocSignature(f) {
+        javadocSignature(f) { sourceSet ->
             annotations {
                 annotationsBlock(f)
             }
             modifiers {
-                text(f.modifier[it]?.takeIf { it !in ignoredModifiers }?.name?.plus(" ") ?: "")
-                text(f.modifiers()[it]?.toSignatureString() ?: "")
+                text(f.modifier[sourceSet]?.takeIf { it !in ignoredModifiers }?.name?.plus(" ") ?: "")
+                text(f.modifiers()[sourceSet]?.toSignatureString() ?: "")
                 val usedGenerics = if (f.isConstructor) f.generics.filter { f uses it } else f.generics
                 list(usedGenerics, prefix = "<", suffix = "> ") {
                     +buildSignature(it)
@@ -113,7 +113,7 @@ class JavadocSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLo
                 text("(")
                 list(f.parameters) {
                     annotationsInline(it)
-                    text(it.modifiers()[it]?.toSignatureString().orEmpty())
+                    text(it.modifiers()[sourceSet]?.toSignatureString().orEmpty())
                     signatureForProjection(it.type)
                     text(Typography.nbsp.toString())
                     text(it.name.orEmpty())
