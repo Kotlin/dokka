@@ -1,0 +1,86 @@
+name: CI
+
+on: pull_request
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        projects: [
+            examples/gradle/dokka-gradle-example,
+            examples/gradle/dokka-kotlinAsJava-example,
+            examples/gradle/dokka-library-publishing-example,
+            examples/gradle/dokka-multimodule-example,
+            examples/gradle/dokka-multiplatform-example,
+            examples/gradle/dokka-customFormat-example
+        ]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 11
+      - run: ./gradlew build --no-daemon --stacktrace
+        working-directory: ${{ matrix.projects }}
+
+  run-dokka-html:
+    strategy:
+      matrix:
+        projects: [
+            examples/gradle/dokka-gradle-example,
+            examples/gradle/dokka-kotlinAsJava-example,
+            examples/gradle/dokka-library-publishing-example,
+            examples/gradle/dokka-multiplatform-example,
+            examples/gradle/dokka-customFormat-example
+        ]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 11
+      - run: ./gradlew dokkaHtml --no-daemon --stacktrace
+        working-directory: ${{ matrix.projects }}
+
+  run-dokka-multimodule:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 11
+      - run: ./gradlew dokkaHtmlMultiModule --no-daemon --stacktrace
+        working-directory: examples/gradle/dokka-multimodule-example
+
+  run-dokka-publishing:
+    strategy:
+      matrix:
+        tasks: [dokkaJavadocJar, dokkaHtmlJar]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 11
+      - run: ./gradlew ${{ matrix.tasks }} --no-daemon --stacktrace
+        working-directory: examples/gradle/dokka-library-publishing-example
+
+  run-dokka-custom-format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 11
+      - run: ./gradlew dokkaCustomFormat --no-daemon --stacktrace
+        working-directory: examples/gradle/dokka-customFormat-example
+
+  run-dokka-maven-example:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 11
+      - run: mvn compile dokka:dokka
+        working-directory: examples/maven

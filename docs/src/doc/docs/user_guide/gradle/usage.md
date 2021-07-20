@@ -330,4 +330,4 @@ tasks.dokkaHtmlPartial.configure {
 
 ## Example projects
 
-Please see the [Dokka Gradle single module example project](https://github.com/Kotlin/kotlin-examples/tree/master/gradle/dokka/dokka-gradle-example) or [multimodule](https://github.com/Kotlin/kotlin-examples/tree/master/gradle/dokka/dokka-multimodule-example) for an example.
+Please see the [Dokka Gradle single module example project](https://github.com/Kotlin/dokka/tree/master/examples/gradle/dokka-gradle-example) or [multimodule](https://github.com/Kotlin/dokka/tree/master/examples/gradle/dokka-multimodule-example) for an example.
