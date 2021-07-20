@@ -452,7 +452,7 @@ open class DefaultPageCreator(
         fun DocumentableContentBuilder.contentForThrows() {
             val throws = tags.withTypeNamed<Throws>()
             if (throws.isNotEmpty()) {
-                header(4, "Throws")
+                header(2, "Throws")
                 sourceSetDependentHint(sourceSets = platforms.toSet(), kind = ContentKind.SourceSetDependentHint) {
                     platforms.forEach { sourceset ->
                         table(kind = ContentKind.Main, sourceSets = setOf(sourceset)) {
@@ -615,7 +615,7 @@ open class DefaultPageCreator(
                             styles = emptySet(),
                             extra = elementName?.let { name -> extra + SymbolAnchorHint(name, kind) } ?: extra
                         ) {
-                            link(elementName.orEmpty(), elements.first().dri, kind = kind)
+                            link(elementName.orEmpty(), elements.first().dri, kind = kind, styles = setOf(ContentStyle.RowTitle))
                             divergentGroup(
                                 ContentDivergentGroup.GroupID(name),
                                 elements.map { it.dri }.toSet(),

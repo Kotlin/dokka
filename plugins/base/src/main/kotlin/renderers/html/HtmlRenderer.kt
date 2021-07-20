@@ -714,13 +714,14 @@ open class HtmlRenderer(
                 consumer.onTagContentEntity(Entities.nbsp)
                 buildText(textNode, unappliedStyles - TextStyle.Indented)
             }
-            unappliedStyles.size == 1 && unappliedStyles.contains(TextStyle.Cover) -> buildBreakableText(textNode.text)
             unappliedStyles.isNotEmpty() -> {
                 val styleToApply = unappliedStyles.first()
                 applyStyle(styleToApply){
                     buildText(textNode, unappliedStyles - styleToApply)
                 }
             }
+            textNode.hasStyle(ContentStyle.RowTitle) || textNode.hasStyle(TextStyle.Cover) ->
+                buildBreakableText(textNode.text)
             else -> text(textNode.text)
         }
     }

@@ -446,7 +446,7 @@ class ContentForParamsTest : BaseAbstractTest() {
                             }
                             after {
                                 group { pWrapped("a normal comment") }
-                                header(4) { +"Throws" }
+                                header(2) { +"Throws" }
                                 platformHinted {
                                     table {
                                         group {
@@ -505,7 +505,7 @@ class ContentForParamsTest : BaseAbstractTest() {
                             }
                             after {
                                 group { pWrapped("a normal comment") }
-                                header(4) { +"Throws" }
+                                header(2) { +"Throws" }
                                 platformHinted {
                                     table {
                                         group {
@@ -585,7 +585,7 @@ class ContentForParamsTest : BaseAbstractTest() {
                             }
                             after {
                                 group { pWrapped("a normal comment") }
-                                header(4) { +"Throws" }
+                                header(2) { +"Throws" }
                                 platformHinted {
                                     table {
                                         group {
