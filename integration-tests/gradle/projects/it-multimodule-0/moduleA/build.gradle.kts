@@ -4,3 +4,7 @@ plugins {
     kotlin("jvm")
     id("org.jetbrains.dokka")
 }
+
+dependencies {
+    dokkaPlugin("org.jetbrains.dokka:sitemap-plugin:${System.getenv("DOKKA_VERSION")}")
+}

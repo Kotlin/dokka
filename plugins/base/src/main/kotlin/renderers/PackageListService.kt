@@ -20,7 +20,7 @@ class PackageListService(val context: DokkaContext, val rootPage: RootPageNode) 
         val nonStandardLocations = mutableMapOf<String, String>()
 
         val locationProvider =
-            context.plugin<DokkaBase>().querySingle { locationProviderFactory }.getLocationProvider(rootPage)
+            context.plugin<DokkaBase>().querySingle { locationProviderFactory }.getLocationProvider(rootPage, format.linkExtension)
 
         fun visit(node: PageNode) {
             if (node is PackagePage) {

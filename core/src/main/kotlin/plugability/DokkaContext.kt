@@ -189,10 +189,10 @@ private class DokkaContextConfigurationImpl(
         }
 
         if (extension.override is OverrideKind.Present) {
-            fun root(ext: Extension<*, *, *>): List<Extension<*, *, *>> = if (ext.override is OverrideKind.Present) ext.override.overriden.flatMap(::root) else listOf(ext)
+            fun root(ext: Extension<*, *, *>): List<Extension<*, *, *>> = if (ext.override is OverrideKind.Present) ext.override.overriden.filterIsInstance<Extension<*,*,*>>().flatMap(::root) else listOf(ext)
             if (extension.override.overriden.size > 1 && root(extension).distinct().size > 1)
                 throw IllegalStateException("Extension $extension overrides extensions without common root")
-            extension.override.overriden.forEach { overriden ->
+            extension.override.overriden.filterIsInstance<Extension<*,*,*>>().forEach { overriden ->
                 suppressedExtensions.listFor(overriden) += Suppression.ByExtension(extension)
             }
         }

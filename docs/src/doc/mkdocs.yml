@@ -52,6 +52,7 @@ nav:
       - Html frontend: user_guide/base-specific/frontend.md
       - Versioning: user_guide/versioning/versioning.md
       - Android plugin: user_guide/android-plugin/android-plugin.md
+      - Sitemap plugin: user_guide/sitemap-plugin/sitemap-plugin.md
   - Plugin development:
       - Introduction: developer_guide/introduction.md
       - Data model: developer_guide/data_model.md

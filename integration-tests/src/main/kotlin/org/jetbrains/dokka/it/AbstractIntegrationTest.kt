@@ -7,6 +7,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import java.io.File
 import java.net.URL
+import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
@@ -109,5 +110,14 @@ abstract class AbstractIntegrationTest {
             parsedFile.select("dokka-template-command").isEmpty(),
             "Expected all templates to be substituted"
         )
+    }
+
+    protected fun File.assertSitemapContent(root: File = this){
+        val sitemap = File(this, "sitemap.txt")
+        assertTrue(sitemap.isFile, "Missing sitemap file")
+        val allHtmlFiles = root.allHtmlFiles().toList().filter { it.name != "navigation.html" }
+        val sitemapContent = sitemap.readLines()
+        assertTrue(sitemapContent.isNotEmpty())
+        assertEquals(allHtmlFiles.map { it.absolutePath.removePrefix(root.absolutePath).removePrefix("/") }.sorted(), sitemapContent.sorted())
     }
 }

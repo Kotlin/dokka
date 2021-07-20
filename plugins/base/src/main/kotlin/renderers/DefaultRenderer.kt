@@ -162,12 +162,21 @@ abstract class DefaultRenderer<T>(
             locationProvider.resolve(page, skipExtension = true)
                 ?: throw DokkaException("Cannot resolve path for ${page.name}")
         }
+        val outputExtensionWithDot = "." + outputExtension.removePrefix(".")
         when (page) {
-            is ContentPage -> outputWriter.write(path, buildPage(page) { c, p -> buildPageContent(c, p) }, ".html")
+            is ContentPage -> outputWriter.write(
+                path,
+                buildPage(page) { c, p -> buildPageContent(c, p) },
+                outputExtensionWithDot
+            )
             is RendererSpecificPage -> when (val strategy = page.strategy) {
                 is RenderingStrategy.Copy -> outputWriter.writeResources(strategy.from, path)
                 is RenderingStrategy.Write -> outputWriter.write(path, strategy.text, "")
-                is RenderingStrategy.Callback -> outputWriter.write(path, strategy.instructions(this, page), ".html")
+                is RenderingStrategy.Callback -> outputWriter.write(
+                    path,
+                    strategy.instructions(this, page),
+                    outputExtensionWithDot
+                )
                 is RenderingStrategy.DriLocationResolvableWrite -> outputWriter.write(
                     path,
                     strategy.contentToResolve { dri, sourcesets ->
@@ -204,7 +213,8 @@ abstract class DefaultRenderer<T>(
         val newRoot = preprocessors.fold(root) { acc, t -> t(acc) }
 
         locationProvider =
-            context.plugin<DokkaBase>().querySingle { locationProviderFactory }.getLocationProvider(newRoot)
+            context.plugin<DokkaBase>().querySingle { locationProviderFactory }
+                .getLocationProvider(newRoot, outputExtension)
 
         runBlocking(Dispatchers.Default) {
             renderPages(newRoot)

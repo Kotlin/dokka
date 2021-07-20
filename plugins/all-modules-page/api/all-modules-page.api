@@ -26,16 +26,16 @@ public final class org/jetbrains/dokka/allModulesPage/AllModulesPageGeneration$D
 public final class org/jetbrains/dokka/allModulesPage/AllModulesPagePlugin : org/jetbrains/dokka/plugability/DokkaPlugin {
 	public fun <init> ()V
 	public final fun getAllModulesPageCreator ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
-	public final fun getAllModulesPageCreators ()Lorg/jetbrains/dokka/plugability/Extension;
-	public final fun getAllModulesPageGeneration ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getAllModulesPageCreators ()Lorg/jetbrains/dokka/plugability/Extensionable;
+	public final fun getAllModulesPageGeneration ()Lorg/jetbrains/dokka/plugability/Extensionable;
 	public final fun getAllModulesPageTransformer ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
-	public final fun getBaseLocationProviderFactory ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getBaseLocationProviderFactory ()Lorg/jetbrains/dokka/plugability/Extensionable;
 	public final fun getDokkaBase ()Lorg/jetbrains/dokka/base/DokkaBase;
 	public final fun getExternalModuleLinkResolver ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
-	public final fun getMultiModuleLinkResolver ()Lorg/jetbrains/dokka/plugability/Extension;
-	public final fun getMultimoduleLocationProvider ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getMultiModuleLinkResolver ()Lorg/jetbrains/dokka/plugability/Extensionable;
+	public final fun getMultimoduleLocationProvider ()Lorg/jetbrains/dokka/plugability/Extensionable;
 	public final fun getPartialLocationProviderFactory ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
-	public final fun getResolveLinkCommandHandler ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getResolveLinkCommandHandler ()Lorg/jetbrains/dokka/plugability/Extensionable;
 }
 
 public final class org/jetbrains/dokka/allModulesPage/DefaultExternalModuleLinkResolver : org/jetbrains/dokka/allModulesPage/ExternalModuleLinkResolver {
@@ -51,7 +51,7 @@ public abstract interface class org/jetbrains/dokka/allModulesPage/ExternalModul
 }
 
 public class org/jetbrains/dokka/allModulesPage/MultimoduleLocationProvider : org/jetbrains/dokka/base/resolvers/local/DokkaBaseLocationProvider {
-	public fun <init> (Lorg/jetbrains/dokka/pages/RootPageNode;Lorg/jetbrains/dokka/plugability/DokkaContext;)V
+	public fun <init> (Lorg/jetbrains/dokka/pages/RootPageNode;Lorg/jetbrains/dokka/plugability/DokkaContext;Ljava/lang/String;)V
 	public fun ancestors (Lorg/jetbrains/dokka/pages/PageNode;)Ljava/util/List;
 	public fun pathToRoot (Lorg/jetbrains/dokka/pages/PageNode;)Ljava/lang/String;
 	public fun resolve (Lorg/jetbrains/dokka/links/DRI;Ljava/util/Set;Lorg/jetbrains/dokka/pages/PageNode;)Ljava/lang/String;
@@ -60,8 +60,8 @@ public class org/jetbrains/dokka/allModulesPage/MultimoduleLocationProvider : or
 
 public final class org/jetbrains/dokka/allModulesPage/MultimoduleLocationProvider$Factory : org/jetbrains/dokka/base/resolvers/local/LocationProviderFactory {
 	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
-	public fun getLocationProvider (Lorg/jetbrains/dokka/pages/RootPageNode;)Lorg/jetbrains/dokka/allModulesPage/MultimoduleLocationProvider;
-	public synthetic fun getLocationProvider (Lorg/jetbrains/dokka/pages/RootPageNode;)Lorg/jetbrains/dokka/base/resolvers/local/LocationProvider;
+	public fun getLocationProvider (Lorg/jetbrains/dokka/pages/RootPageNode;Ljava/lang/String;)Lorg/jetbrains/dokka/allModulesPage/MultimoduleLocationProvider;
+	public synthetic fun getLocationProvider (Lorg/jetbrains/dokka/pages/RootPageNode;Ljava/lang/String;)Lorg/jetbrains/dokka/base/resolvers/local/LocationProvider;
 }
 
 public final class org/jetbrains/dokka/allModulesPage/MultimodulePageCreator : org/jetbrains/dokka/transformers/pages/PageCreator {

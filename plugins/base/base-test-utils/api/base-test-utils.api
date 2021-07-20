@@ -147,7 +147,7 @@ public final class utils/TestOutputWriterPlugin : org/jetbrains/dokka/plugabilit
 	public fun <init> ()V
 	public fun <init> (Z)V
 	public synthetic fun <init> (ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun getTestWriter ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getTestWriter ()Lorg/jetbrains/dokka/plugability/Extensionable;
 	public final fun getWriter ()Lutils/TestOutputWriter;
 }
 

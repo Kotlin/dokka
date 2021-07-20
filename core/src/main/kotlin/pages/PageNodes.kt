@@ -159,16 +159,15 @@ class MemberPageNode(
 class MultimoduleRootPageNode(
     override val dri: Set<DRI>,
     override val content: ContentNode,
-    override val embeddedResources: List<String> = emptyList()
+    override val embeddedResources: List<String> = emptyList(),
+    override val children: List<PageNode> = emptyList()
 ) : RootPageNode(forceTopLevelName = true), MultimoduleRootPage {
     override val name = "All modules"
-
-    override val children: List<PageNode> = emptyList()
 
     override val documentable: Documentable? = null
 
     override fun modified(name: String, children: List<PageNode>): RootPageNode =
-        MultimoduleRootPageNode(dri, content, embeddedResources)
+        MultimoduleRootPageNode(dri, content, embeddedResources, children)
 
     override fun modified(
         name: String,
@@ -178,7 +177,7 @@ class MultimoduleRootPageNode(
         children: List<PageNode>
     ) =
         if (name == this.name && content === this.content && embeddedResources === this.embeddedResources && children shallowEq this.children) this
-        else MultimoduleRootPageNode(dri, content, embeddedResources)
+        else MultimoduleRootPageNode(dri, content, embeddedResources, children)
 }
 
 inline fun <reified T : PageNode> PageNode.children() = children.filterIsInstance<T>()

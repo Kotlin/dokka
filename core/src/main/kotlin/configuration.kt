@@ -12,7 +12,6 @@ import java.net.URL
 object DokkaDefaults {
     val moduleName: String = "root"
     val outputDir = File("./dokka")
-    const val format: String = "html"
     val cacheRoot: File? = null
     const val offlineMode: Boolean = false
     const val failOnWarning: Boolean = false

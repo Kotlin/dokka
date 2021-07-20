@@ -126,20 +126,20 @@ public final class org/jetbrains/dokka/templates/TemplatingContext {
 
 public final class org/jetbrains/dokka/templates/TemplatingPlugin : org/jetbrains/dokka/plugability/DokkaPlugin {
 	public fun <init> ()V
-	public final fun getAddToNavigationCommandHandler ()Lorg/jetbrains/dokka/plugability/Extension;
-	public final fun getDefaultMultiModuleTemplateProcessor ()Lorg/jetbrains/dokka/plugability/Extension;
-	public final fun getDefaultSubmoduleTemplateProcessor ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getAddToNavigationCommandHandler ()Lorg/jetbrains/dokka/plugability/Extensionable;
+	public final fun getDefaultMultiModuleTemplateProcessor ()Lorg/jetbrains/dokka/plugability/Extensionable;
+	public final fun getDefaultSubmoduleTemplateProcessor ()Lorg/jetbrains/dokka/plugability/Extensionable;
 	public final fun getDirectiveBasedCommandHandlers ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
-	public final fun getDirectiveBasedHtmlTemplateProcessingStrategy ()Lorg/jetbrains/dokka/plugability/Extension;
-	public final fun getFallbackProcessingStrategy ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getDirectiveBasedHtmlTemplateProcessingStrategy ()Lorg/jetbrains/dokka/plugability/Extensionable;
+	public final fun getFallbackProcessingStrategy ()Lorg/jetbrains/dokka/plugability/Extensionable;
 	public final fun getMultimoduleTemplateProcessor ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
-	public final fun getNavigationSearchTemplateStrategy ()Lorg/jetbrains/dokka/plugability/Extension;
-	public final fun getPackageListProcessingStrategy ()Lorg/jetbrains/dokka/plugability/Extension;
-	public final fun getPagesSearchTemplateStrategy ()Lorg/jetbrains/dokka/plugability/Extension;
-	public final fun getPathToRootSubstitutor ()Lorg/jetbrains/dokka/plugability/Extension;
-	public final fun getSourcesetDependencyProcessingStrategy ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getNavigationSearchTemplateStrategy ()Lorg/jetbrains/dokka/plugability/Extensionable;
+	public final fun getPackageListProcessingStrategy ()Lorg/jetbrains/dokka/plugability/Extensionable;
+	public final fun getPagesSearchTemplateStrategy ()Lorg/jetbrains/dokka/plugability/Extensionable;
+	public final fun getPathToRootSubstitutor ()Lorg/jetbrains/dokka/plugability/Extensionable;
+	public final fun getSourcesetDependencyProcessingStrategy ()Lorg/jetbrains/dokka/plugability/Extensionable;
 	public final fun getSubmoduleTemplateProcessor ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
-	public final fun getSubstitutionCommandHandler ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getSubstitutionCommandHandler ()Lorg/jetbrains/dokka/plugability/Extensionable;
 	public final fun getSubstitutor ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
 	public final fun getTemplateProcessingStrategy ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
 }

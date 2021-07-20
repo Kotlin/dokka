@@ -129,8 +129,6 @@ interface Renderer {
 }
 ```
 
-By default, only `HtmlRenderer`, that extends basic `DefaultRenderer`, is created, but it will be registered only if configuration parameter `format` is set to `html`. Using any other value without providing valid renderer will cause Dokka to fail. 
-
 ## Multimodule page generation endpoints
 
 Multimodule page generation is a separate process, that declares two additional entry points:
@@ -157,6 +155,10 @@ Additional transformation that we might apply for multimodule page.
 
 This step uses `CoreExtensions.allModulePageTransformer` entry point. All extensions registered using this entry point will be invoked.  Each of them is required to implement common `PageTransformer` interface.
 
+It is possible to have one plugin work on single module and multimodule generation. 
+The caveat is that when your plugin needs to add `AllModulesPagePlugin` as a dependency,
+make it `compileOnly`. Adding it as implementation will also add dependent plugins with is undesired.
+
 ## Default extensions' extension points
 
 Default core extension points already have an implementation for providing basic Dokka functionality. All of them are declared in `DokkaBase` plugin. If you don't want this default extensions to load, all you need to do is not load Dokka base and load your plugin instead.
@@ -171,7 +173,6 @@ tasks {
     val dokka by getting(DokkaTask::class) {
         pluginsConfig = alternativeAndIndependentPlugins
         outputDirectory = dokkaOutputDir
-        outputFormat = "html"
         [...]
     }
 }
@@ -218,6 +219,7 @@ object SamplePageMergerStrategy: PageMergerStrategy {
 | `externalLocationProviderFactory` | provides `ExternalLocationProvider` instance that returns paths for elements that are not part of generated documentation | `ExternalLocationProviderFactory` | `DefaultLocationProvider` | false | `JavadocExternalLocationProviderFactory` `DokkaExternalLocationProviderFactory` |
 | `outputWriter` | writes rendered pages files | `OutputWriter` | `DefaultRenderer` `HtmlRenderer` | true | `FileWriter`|
 | `htmlPreprocessors` | transforms page content before HTML rendering | `PageTransformer`| `DefaultRenderer` `HtmlRenderer` | false | `RootCreator` `SourceLinksTransformer` `NavigationPageInstaller` `SearchPageInstaller` `ResourceInstaller` `StyleAndScriptsAppender` `PackageListCreator` |
+| `doLastTransformers` | transforms page content. Made to provide an extension point that has knowledge about whole pages tree. By convention should not modify pages tree in any other form apart from adding a `RendererSpecificPage` that should not rely on pages added by other plugins in this extension point. | `PageTransformer`| `DefaultRenderer` `HtmlRenderer` | false | None |
 | `samplesTransformer` | transforms content for code samples for HTML rendering | `SamplesTransformer` | `HtmlRenderer` | true | `DefaultSamplesTransformer` |
 
 

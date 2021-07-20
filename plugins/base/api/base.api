@@ -1,62 +1,63 @@
 public final class org/jetbrains/dokka/base/DokkaBase : org/jetbrains/dokka/plugability/DokkaPlugin {
 	public fun <init> ()V
-	public final fun getActualTypealiasAdder ()Lorg/jetbrains/dokka/plugability/Extension;
-	public final fun getAssetsInstaller ()Lorg/jetbrains/dokka/plugability/Extension;
-	public final fun getBaseSearchbarDataInstaller ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getActualTypealiasAdder ()Lorg/jetbrains/dokka/plugability/Extensionable;
+	public final fun getAssetsInstaller ()Lorg/jetbrains/dokka/plugability/Extensionable;
+	public final fun getBaseSearchbarDataInstaller ()Lorg/jetbrains/dokka/plugability/Extensionable;
 	public final fun getCommentsToContentConverter ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
-	public final fun getCustomResourceInstaller ()Lorg/jetbrains/dokka/plugability/Extension;
-	public final fun getDefaultKotlinAnalysis ()Lorg/jetbrains/dokka/plugability/Extension;
-	public final fun getDefaultSamplesTransformer ()Lorg/jetbrains/dokka/plugability/Extension;
-	public final fun getDefaultTabSortingStrategy ()Lorg/jetbrains/dokka/plugability/Extension;
-	public final fun getDeprecatedDocumentableFilter ()Lorg/jetbrains/dokka/plugability/Extension;
-	public final fun getDescriptorToDocumentableTranslator ()Lorg/jetbrains/dokka/plugability/Extension;
-	public final fun getDocTagToContentConverter ()Lorg/jetbrains/dokka/plugability/Extension;
-	public final fun getDocumentableMerger ()Lorg/jetbrains/dokka/plugability/Extension;
-	public final fun getDocumentableToPageTranslator ()Lorg/jetbrains/dokka/plugability/Extension;
-	public final fun getDocumentableVisibilityFilter ()Lorg/jetbrains/dokka/plugability/Extension;
-	public final fun getDokkaLocationProvider ()Lorg/jetbrains/dokka/plugability/Extension;
-	public final fun getEmptyModulesFilter ()Lorg/jetbrains/dokka/plugability/Extension;
-	public final fun getEmptyPackagesFilter ()Lorg/jetbrains/dokka/plugability/Extension;
-	public final fun getExtensionsExtractor ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getCustomResourceInstaller ()Lorg/jetbrains/dokka/plugability/Extensionable;
+	public final fun getDefaultKotlinAnalysis ()Lorg/jetbrains/dokka/plugability/Extensionable;
+	public final fun getDefaultSamplesTransformer ()Lorg/jetbrains/dokka/plugability/Extensionable;
+	public final fun getDefaultTabSortingStrategy ()Lorg/jetbrains/dokka/plugability/Extensionable;
+	public final fun getDeprecatedDocumentableFilter ()Lorg/jetbrains/dokka/plugability/Extensionable;
+	public final fun getDescriptorToDocumentableTranslator ()Lorg/jetbrains/dokka/plugability/Extensionable;
+	public final fun getDoLastTransformers ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
+	public final fun getDocTagToContentConverter ()Lorg/jetbrains/dokka/plugability/Extensionable;
+	public final fun getDocumentableMerger ()Lorg/jetbrains/dokka/plugability/Extensionable;
+	public final fun getDocumentableToPageTranslator ()Lorg/jetbrains/dokka/plugability/Extensionable;
+	public final fun getDocumentableVisibilityFilter ()Lorg/jetbrains/dokka/plugability/Extensionable;
+	public final fun getDokkaLocationProvider ()Lorg/jetbrains/dokka/plugability/Extensionable;
+	public final fun getEmptyModulesFilter ()Lorg/jetbrains/dokka/plugability/Extensionable;
+	public final fun getEmptyPackagesFilter ()Lorg/jetbrains/dokka/plugability/Extensionable;
+	public final fun getExtensionsExtractor ()Lorg/jetbrains/dokka/plugability/Extensionable;
 	public final fun getExternalLocationProviderFactory ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
-	public final fun getFallbackMerger ()Lorg/jetbrains/dokka/plugability/Extension;
-	public final fun getFileWriter ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getFallbackMerger ()Lorg/jetbrains/dokka/plugability/Extensionable;
+	public final fun getFileWriter ()Lorg/jetbrains/dokka/plugability/Extensionable;
 	public final fun getHtmlPreprocessors ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
-	public final fun getHtmlRenderer ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getHtmlRenderer ()Lorg/jetbrains/dokka/plugability/Extensionable;
 	public final fun getImmediateHtmlCommandConsumer ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
-	public final fun getInheritedEntriesVisbilityFilter ()Lorg/jetbrains/dokka/plugability/Extension;
-	public final fun getInheritorsExtractor ()Lorg/jetbrains/dokka/plugability/Extension;
-	public final fun getJavadocLocationProvider ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getInheritedEntriesVisbilityFilter ()Lorg/jetbrains/dokka/plugability/Extensionable;
+	public final fun getInheritorsExtractor ()Lorg/jetbrains/dokka/plugability/Extensionable;
+	public final fun getJavadocLocationProvider ()Lorg/jetbrains/dokka/plugability/Extensionable;
 	public final fun getKotlinAnalysis ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
-	public final fun getKotlinSignatureProvider ()Lorg/jetbrains/dokka/plugability/Extension;
-	public final fun getLocationProvider ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getKotlinSignatureProvider ()Lorg/jetbrains/dokka/plugability/Extensionable;
+	public final fun getLocationProvider ()Lorg/jetbrains/dokka/plugability/Extensionable;
 	public final fun getLocationProviderFactory ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
-	public final fun getModulesAndPackagesDocumentation ()Lorg/jetbrains/dokka/plugability/Extension;
-	public final fun getNavigationPageInstaller ()Lorg/jetbrains/dokka/plugability/Extension;
-	public final fun getNavigationSearchInstaller ()Lorg/jetbrains/dokka/plugability/Extension;
-	public final fun getObviousFunctionsVisbilityFilter ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getModulesAndPackagesDocumentation ()Lorg/jetbrains/dokka/plugability/Extensionable;
+	public final fun getNavigationPageInstaller ()Lorg/jetbrains/dokka/plugability/Extensionable;
+	public final fun getNavigationSearchInstaller ()Lorg/jetbrains/dokka/plugability/Extensionable;
+	public final fun getObviousFunctionsVisbilityFilter ()Lorg/jetbrains/dokka/plugability/Extensionable;
 	public final fun getOutputWriter ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
-	public final fun getPackageListCreator ()Lorg/jetbrains/dokka/plugability/Extension;
-	public final fun getPageMerger ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getPackageListCreator ()Lorg/jetbrains/dokka/plugability/Extensionable;
+	public final fun getPageMerger ()Lorg/jetbrains/dokka/plugability/Extensionable;
 	public final fun getPageMergerStrategy ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
-	public final fun getPathToRootConsumer ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getPathToRootConsumer ()Lorg/jetbrains/dokka/plugability/Extensionable;
 	public final fun getPreMergeDocumentableTransformer ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
-	public final fun getPsiToDocumentableTranslator ()Lorg/jetbrains/dokka/plugability/Extension;
-	public final fun getResolveLinkConsumer ()Lorg/jetbrains/dokka/plugability/Extension;
-	public final fun getRootCreator ()Lorg/jetbrains/dokka/plugability/Extension;
-	public final fun getSameMethodNameMerger ()Lorg/jetbrains/dokka/plugability/Extension;
-	public final fun getScriptsInstaller ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getPsiToDocumentableTranslator ()Lorg/jetbrains/dokka/plugability/Extensionable;
+	public final fun getResolveLinkConsumer ()Lorg/jetbrains/dokka/plugability/Extensionable;
+	public final fun getRootCreator ()Lorg/jetbrains/dokka/plugability/Extensionable;
+	public final fun getSameMethodNameMerger ()Lorg/jetbrains/dokka/plugability/Extensionable;
+	public final fun getScriptsInstaller ()Lorg/jetbrains/dokka/plugability/Extensionable;
 	public final fun getSignatureProvider ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
-	public final fun getSinceKotlinTransformer ()Lorg/jetbrains/dokka/plugability/Extension;
-	public final fun getSingleGeneration ()Lorg/jetbrains/dokka/plugability/Extension;
-	public final fun getSourceLinksTransformer ()Lorg/jetbrains/dokka/plugability/Extension;
-	public final fun getSourceSetMerger ()Lorg/jetbrains/dokka/plugability/Extension;
-	public final fun getSourcesetDependencyAppender ()Lorg/jetbrains/dokka/plugability/Extension;
-	public final fun getStylesInstaller ()Lorg/jetbrains/dokka/plugability/Extension;
-	public final fun getSuppressedBySuppressTagDocumentableFilter ()Lorg/jetbrains/dokka/plugability/Extension;
-	public final fun getSuppressedDocumentableFilter ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getSinceKotlinTransformer ()Lorg/jetbrains/dokka/plugability/Extensionable;
+	public final fun getSingleGeneration ()Lorg/jetbrains/dokka/plugability/Extensionable;
+	public final fun getSourceLinksTransformer ()Lorg/jetbrains/dokka/plugability/Extensionable;
+	public final fun getSourceSetMerger ()Lorg/jetbrains/dokka/plugability/Extensionable;
+	public final fun getSourcesetDependencyAppender ()Lorg/jetbrains/dokka/plugability/Extensionable;
+	public final fun getStylesInstaller ()Lorg/jetbrains/dokka/plugability/Extensionable;
+	public final fun getSuppressedBySuppressTagDocumentableFilter ()Lorg/jetbrains/dokka/plugability/Extensionable;
+	public final fun getSuppressedDocumentableFilter ()Lorg/jetbrains/dokka/plugability/Extensionable;
 	public final fun getTabSortingStrategy ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
-	public final fun getUndocumentedCodeReporter ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getUndocumentedCodeReporter ()Lorg/jetbrains/dokka/plugability/Extensionable;
 }
 
 public final class org/jetbrains/dokka/base/DokkaBaseConfiguration : org/jetbrains/dokka/plugability/ConfigurableBlock {
@@ -364,6 +365,7 @@ public class org/jetbrains/dokka/base/renderers/html/HtmlRenderer : org/jetbrain
 	public synthetic fun buildText (Ljava/lang/Object;Lorg/jetbrains/dokka/pages/ContentText;)V
 	public fun buildText (Lkotlinx/html/FlowContent;Lorg/jetbrains/dokka/pages/ContentText;)V
 	public fun clickableLogo (Lkotlinx/html/FlowContent;Lorg/jetbrains/dokka/pages/PageNode;Ljava/lang/String;)V
+	public fun getOutputExtension ()Ljava/lang/String;
 	public synthetic fun getPreprocessors ()Ljava/lang/Iterable;
 	protected fun getPreprocessors ()Ljava/util/List;
 	public fun render (Lorg/jetbrains/dokka/pages/RootPageNode;)V
@@ -464,7 +466,7 @@ public final class org/jetbrains/dokka/base/renderers/html/SearchRecord$Companio
 public class org/jetbrains/dokka/base/renderers/html/SearchbarDataInstaller : org/jetbrains/dokka/transformers/pages/PageTransformer {
 	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
 	public fun createSearchRecord (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;)Lorg/jetbrains/dokka/base/renderers/html/SearchRecord;
-	public fun generatePagesList (Ljava/util/List;Lorg/jetbrains/dokka/pages/PageResolver;)Ljava/util/List;
+	public fun generatePagesList (Ljava/util/List;Lorg/jetbrains/dokka/pages/DriResolver;)Ljava/util/List;
 	public final fun getContext ()Lorg/jetbrains/dokka/plugability/DokkaContext;
 	public fun invoke (Lorg/jetbrains/dokka/pages/RootPageNode;)Lorg/jetbrains/dokka/pages/RootPageNode;
 	public fun processPage (Lorg/jetbrains/dokka/pages/PageNode;)Ljava/util/List;
@@ -646,7 +648,6 @@ public abstract class org/jetbrains/dokka/base/resolvers/local/DokkaBaseLocation
 public class org/jetbrains/dokka/base/resolvers/local/DokkaLocationProvider : org/jetbrains/dokka/base/resolvers/local/DokkaBaseLocationProvider {
 	public static final field Companion Lorg/jetbrains/dokka/base/resolvers/local/DokkaLocationProvider$Companion;
 	public fun <init> (Lorg/jetbrains/dokka/pages/RootPageNode;Lorg/jetbrains/dokka/plugability/DokkaContext;Ljava/lang/String;)V
-	public synthetic fun <init> (Lorg/jetbrains/dokka/pages/RootPageNode;Lorg/jetbrains/dokka/plugability/DokkaContext;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun ancestors (Lorg/jetbrains/dokka/pages/PageNode;)Ljava/util/List;
 	protected final fun getAnchorsIndex ()Ljava/util/Map;
 	public final fun getExtension ()Ljava/lang/String;
@@ -692,7 +693,7 @@ protected final class org/jetbrains/dokka/base/resolvers/local/DokkaLocationProv
 
 public final class org/jetbrains/dokka/base/resolvers/local/DokkaLocationProviderFactory : org/jetbrains/dokka/base/resolvers/local/LocationProviderFactory {
 	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
-	public fun getLocationProvider (Lorg/jetbrains/dokka/pages/RootPageNode;)Lorg/jetbrains/dokka/base/resolvers/local/LocationProvider;
+	public fun getLocationProvider (Lorg/jetbrains/dokka/pages/RootPageNode;Ljava/lang/String;)Lorg/jetbrains/dokka/base/resolvers/local/LocationProvider;
 }
 
 public abstract interface class org/jetbrains/dokka/base/resolvers/local/LocationProvider {
@@ -710,7 +711,7 @@ public final class org/jetbrains/dokka/base/resolvers/local/LocationProvider$Def
 }
 
 public abstract interface class org/jetbrains/dokka/base/resolvers/local/LocationProviderFactory {
-	public abstract fun getLocationProvider (Lorg/jetbrains/dokka/pages/RootPageNode;)Lorg/jetbrains/dokka/base/resolvers/local/LocationProvider;
+	public abstract fun getLocationProvider (Lorg/jetbrains/dokka/pages/RootPageNode;Ljava/lang/String;)Lorg/jetbrains/dokka/base/resolvers/local/LocationProvider;
 }
 
 public final class org/jetbrains/dokka/base/resolvers/local/LocationProviderKt {

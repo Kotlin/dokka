@@ -25,24 +25,24 @@ abstract class DokkaPlugin {
         )
     }
 
-    protected fun <T : Any> extending(definition: ExtendingDSL.() -> Extension<T, *, *>) = ExtensionProvider(definition)
+    protected fun <T : Any> extending(definition: ExtendingDSL.() -> Extensionable<T, *, *>) = ExtensionProvider(definition)
 
     protected class ExtensionProvider<T : Any> internal constructor(
-        private val definition: ExtendingDSL.() -> Extension<T, *, *>
+        private val definition: ExtendingDSL.() -> Extensionable<T, *, *>
     ) {
         operator fun provideDelegate(thisRef: DokkaPlugin, property: KProperty<*>) = lazy {
             ExtendingDSL(
                 thisRef::class.qualifiedName ?: throw AssertionError("Plugin must be named class"),
                 property.name
-            ).definition()
+            ).runCatching { definition() }.getOrNull() ?: UnregisteredExtension<T, OrderingKind.None, OverrideKind.None>()
         }.also { thisRef.extensionDelegates += property }
     }
 
     internal fun internalInstall(ctx: DokkaContextConfiguration, configuration: DokkaConfiguration) {
         val extensionsToInstall = extensionDelegates.asSequence()
-            .filterIsInstance<KProperty1<DokkaPlugin, Extension<*, *, *>>>() // should be always true
+            .filterIsInstance<KProperty1<DokkaPlugin, Extensionable<*, *, *>>>() // should be always true
             .map { it.get(this) } + unsafePlugins.map { it.value }
-        extensionsToInstall.forEach { if (configuration.(it.condition)()) ctx.installExtension(it) }
+        extensionsToInstall.forEach { if ( it is Extension<*, *, *> && configuration.(it.condition)()) ctx.installExtension(it) }
     }
 
     protected fun <T : Any> unsafeInstall(ext: Lazy<Extension<T, *, *>>) {

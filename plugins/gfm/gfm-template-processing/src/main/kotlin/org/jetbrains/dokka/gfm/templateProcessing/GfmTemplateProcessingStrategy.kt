@@ -27,7 +27,6 @@ class GfmTemplateProcessingStrategy(val context: DokkaContext) : TemplateProcess
                 //This should also work whenever we have a misconfigured dokka and output is pointing to the input
                 //the same way that html processing does
                 if (input.absolutePath == output.absolutePath) {
-                    context.logger.info("Attempting to process GFM templates in place for directory $input, this suggests miss configuration.")
                     val lines = reader.readLines()
                     output.bufferedWriter().use { writer ->
                         lines.forEach { line ->

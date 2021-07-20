@@ -1,4 +1,4 @@
-# Android documentationn plugin
+# Android documentation plugin
 
 Android documentation plugin aims to improve the documentation on android platform.
 
