@@ -796,6 +796,9 @@ td.content {
 .main-subrow > div > span {
     display: flex;
     position: relative;
+    line-break: anywhere;
+    overflow: auto;
+    padding-right: .25rem;
 }
 
 .main-subrow > div > span > a, 
