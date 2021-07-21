@@ -23,7 +23,7 @@ import org.jetbrains.dokka.base.transformers.documentables.ClashingDriIdentifier
 private typealias GroupedTags = Map<KClass<out TagWrapper>, List<Pair<DokkaSourceSet?, TagWrapper>>>
 
 private val specialTags: Set<KClass<out TagWrapper>> =
-    setOf(Property::class, Description::class, Constructor::class, Receiver::class, Param::class, See::class)
+    setOf(Property::class, Description::class, Constructor::class, Param::class, See::class)
 
 open class DefaultPageCreator(
     configuration: DokkaBaseConfiguration?,
@@ -382,18 +382,10 @@ open class DefaultPageCreator(
                     styles = setOf(ContentStyle.WithExtraAttributes)
                 ) {
                     sourceSetDependentHint(sourceSets = platforms.toSet(), kind = ContentKind.SourceSetDependentHint) {
-                        val receiver = tags.withTypeUnnamed<Receiver>()
                         val params = tags.withTypeNamed<Param>()
                         table(kind = ContentKind.Parameters) {
                             platforms.forEach { platform ->
                                 val possibleFallbacks = d.getPossibleFallbackSourcesets(platform)
-                                (receiver[platform] ?: receiver.fallback(possibleFallbacks))?.let {
-                                    row(sourceSets = setOf(platform), kind = ContentKind.Parameters) {
-                                        text("<receiver>", styles = mainStyles + ContentStyle.RowTitle)
-                                        comment(it.root)
-                                    }
-                                }
-
                                 params.mapNotNull { (_, param) ->
                                     (param[platform] ?: param.fallback(possibleFallbacks))?.let {
                                         row(sourceSets = setOf(platform), kind = ContentKind.Parameters) {
