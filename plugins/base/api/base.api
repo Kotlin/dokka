@@ -485,15 +485,6 @@ public final class org/jetbrains/dokka/base/renderers/html/SearchbarDataInstalle
 	public fun toString ()Ljava/lang/String;
 }
 
-public final class org/jetbrains/dokka/base/renderers/html/SearchbarDataInstallerKt$sam$i$org_jetbrains_dokka_pages_PageResolver$0 : kotlin/jvm/internal/FunctionAdapter, org/jetbrains/dokka/pages/PageResolver {
-	public fun <init> (Lkotlin/jvm/functions/Function2;)V
-	public final fun equals (Ljava/lang/Object;)Z
-	public final fun getFunctionDelegate ()Lkotlin/Function;
-	public final fun hashCode ()I
-	public synthetic fun invoke (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
-	public final synthetic fun invoke (Lorg/jetbrains/dokka/pages/PageNode;Lorg/jetbrains/dokka/pages/PageNode;)Ljava/lang/String;
-}
-
 public final class org/jetbrains/dokka/base/renderers/html/SourcesetDependencyAppender : org/jetbrains/dokka/transformers/pages/PageTransformer {
 	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
 	public final fun getContext ()Lorg/jetbrains/dokka/plugability/DokkaContext;
