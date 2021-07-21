@@ -229,14 +229,168 @@ class GfmSpecTest : KDocTest() {
         )
     )
 
-    /* TODO: 360 .. 673 */
+    /* TODO: 360 .. 653 */
 
-    private fun testInlines(markdown: String, expected: List<DocTag>) {
+    /**
+     * 6.12 Hard line breaks
+     *
+     * A line break (not in a code span or HTML tag) that is preceded by two or more
+     * spaces and does not occur at the end of a block is parsed as a hard line break
+     * (rendered in HTML as a <br /> tag): */
+    @Test
+    fun testHardLineBreaks_Example654() = testInlines(
+        markdown = "foo  \nbaz",
+        expected = listOf(Text("foo baz")) /// Text("foo"), Br, Text("baz")
+    )
+
+    @Test /** For a more visible alternative, a backslash before the line ending
+           * may be used instead of two spaces: */
+    fun testHardLineBreaks_Example655() = testInlines(
+        markdown = "foo\\\nbaz",
+        expected = listOf(Text("foo"), Br, Text("baz"))
+    )
+
+    @Test /** More than two spaces can be used: */
+    fun testHardLineBreaks_Example656() = testInlines(
+        markdown = "foo       \nbaz",
+        expected = listOf(Text("foo baz")) /// Text("foo"), Br, Text("baz")
+    )
+
+    @Test /** Leading spaces at the beginning of the next line are ignored: */
+    fun testHardLineBreaks_Example657() = testInlines(
+        markdown = "foo  \n     bar",
+        expected = listOf(Text("foo     bar")) /// Text("foo"), Br, Text("bar")
+    )
+
+    @Test
+    fun testHardLineBreaks_Example658() = testInlines(
+        markdown = "foo\\\n     bar",
+        expected = listOf(Text("foo"), Br, Text("    bar")) /// "bar"
+    )
+
+    @Test /** Line breaks can occur inside emphasis, links, and other constructs
+           * that allow inline content: */
+    fun testHardLineBreaks_Example659() = testInlines(
+        markdown = "*foo  \nbar*",
+        expected = listOf(Text("foo bar*")) /// Em(listOf(Text("foo"), Br, Text("bar"))))
+    )
+
+    @Test
+    fun testHardLineBreaks_Example660() = testInlines(
+        markdown = "*foo\\\nbar*",
+        expected = listOf(Text("foo"), Br, Text("bar*")) /// Em(listOf(Text("foo"), Br, Text("bar"))))
+    )
+
+    @Test /** Line breaks do not occur inside code spans */
+    fun testHardLineBreaks_Example661() = testInlines(
+        markdown = "`code  \nspan`",
+        expected = listOf(CodeInline(listOf(Text("code span")))), /// "code   span"
+    )
+
+    @Test
+    fun testHardLineBreaks_Example662() = testInlines(
+        markdown = "`code\\\nspan`",
+        expected = listOf(CodeInline(listOf(Text("code\\ span")))),
+    )
+
+    @Test /** or HTML tags: */
+    fun testHardLineBreaks_Example663() = testInlines(
+        markdown = "<a href=\"foo  \nbar\">",
+        expected = listOf(),
+        /// "<a href=\"foo  \nbar\">"
+    )
+
+    @Test
+    fun testHardLineBreaks_Example664() = testInlines(
+        markdown = "<a href=\"foo\\\nbar\">",
+        expected = listOf(Br, Text("bar\""), Text(">", params = mapOf("content-type" to "html"))),
+        /// "<a href=\"foo\\\nbar\">"
+    )
+
+    @Test /** Hard line breaks are for separating inline content within a block.
+           * Neither syntax for hard line breaks works at the end of a paragraph
+           * or other block element: */
+    fun testHardLineBreaks_Example665() = testInlines(
+        markdown = "foo\\",
+        expected = listOf(Text("foo\\"))
+    )
+
+    @Test
+    fun testHardLineBreaks_Example666() = testInlines(
+        markdown = "foo  ",
+        expected = listOf(Text("foo"))
+    )
+
+    @Test
+    fun testHardLineBreaks_Example667() = testBlocks(
+        markdown = "### foo\\",
+        expected = listOf(H3(listOf(Text(" foo\\")))), /// "foo\\"
+    )
+
+    @Test
+    fun testHardLineBreaks_Example668() = testBlocks(
+        markdown = "### foo  ",
+        expected = listOf(H3(listOf(Text(" foo")))), /// "foo"
+    )
+
+    /**
+     * 6.13 Soft line breaks
+     *
+     * A regular line break (not in a code span or HTML tag) that is not preceded
+     * by two or more spaces or a backslash is parsed as a softbreak.
+     * (A softbreak may be rendered in HTML either as a line ending or as a space.
+     * The result will be the same in browsers.
+     * In the examples here, a line ending will be used.) */
+
+    @Test
+    fun testSoftLineBreaks_Example669() = testInlines(
+        markdown = "foo\nbaz",
+        expected = listOf(Text("foo baz")) /// "foo\nbaz"
+    )
+
+    @Test /** Spaces at the end of the line and beginning of the next line are removed: */
+    fun testSoftLineBreaks_Example670() = testInlines(
+        markdown = "foo \n baz",
+        expected = listOf(Text("foo baz")) /// "foo\nbaz"
+    )
+
+    /**
+     * A conforming parser may render a soft line break in HTML either as a line break
+     * or as a space.
+     *
+     * A renderer may also provide an option to render soft line breaks as hard line breaks.
+     *
+     *
+     * 6.14 Textual content
+     *
+     * Any characters not given an interpretation by the above rules will be parsed as
+     * plain textual content. */
+
+    @Test
+    fun testTextualContent_Example671() = testInlines(
+        markdown = "hello \$.;'there",
+        expected = listOf(Text("hello \$.;'there"))
+    )
+
+    @Test
+    fun testTextualContent_Example672() = testInlines(
+        markdown = "Foo χρῆν",
+        expected = listOf(Text("Foo χρῆν"))
+    )
+
+    @Test /** Internal spaces are preserved verbatim: */
+    fun testTextualContent_Example673() = testInlines(
+        markdown = "Multiple     spaces",
+        expected = listOf(Text("Multiple     spaces"))
+    )
+
+
+    private fun testBlocks(markdown: String, expected: List<DocTag>) {
         val expectedDocumentationNode = DocumentationNode(
             listOf(
                 Description(
                     CustomDocTag(
-                        listOf(P(expected)),
+                        expected,
                         name = MarkdownElementTypes.MARKDOWN_FILE.name
                     )
                 )
@@ -244,4 +398,7 @@ class GfmSpecTest : KDocTest() {
         )
         executeTest(markdown, expectedDocumentationNode)
     }
+
+    private fun testInlines(markdown: String, expected: List<DocTag>) =
+        testBlocks(markdown, listOf(P(expected)))
 }
