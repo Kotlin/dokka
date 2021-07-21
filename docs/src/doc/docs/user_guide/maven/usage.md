@@ -219,4 +219,4 @@ Some plugins can be configured separately using plugin's fully qualified name. F
 
 ## Example project
 
-Please see the [Dokka Maven example project](https://github.com/JetBrains/kotlin-examples/tree/master/maven/dokka-maven-example) for an example.
+Please see the [Dokka Maven example project](https://github.com/Kotlin/dokka/tree/master/examples/maven) for an example.
