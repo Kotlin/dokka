@@ -13,7 +13,7 @@ fun FlowContent.buildTextBreakableAfterCapitalLetters(name: String) {
         buildBreakableText(withOutSpaces.last())
     } else {
         val content = name.replace(Regex("(?!^)([A-Z])"), " $1").split(" ")
-        joinToHtml(content){
+        joinToHtml(content) {
             it
         }
     }
@@ -21,20 +21,36 @@ fun FlowContent.buildTextBreakableAfterCapitalLetters(name: String) {
 
 fun FlowContent.buildBreakableDotSeparatedHtml(name: String) {
     val phrases = name.split(".")
-    joinToHtml(phrases){
-        "$it."
+    phrases.forEachIndexed { i, e ->
+        if (e.length > 10) {
+            buildBreakableText(e)
+        } else {
+            val elementWithOptionalDot =
+                if (i != phrases.lastIndex) {
+                    "$e."
+                } else {
+                    e
+                }
+            buildBreakableHtmlElement(elementWithOptionalDot)
+        }
     }
 }
 
 private fun FlowContent.joinToHtml(elements: List<String>, onEach: (String) -> String) {
     elements.dropLast(1).forEach {
-        span {
-            +onEach(it)
-        }
-        wbr { }
+        buildBreakableHtmlElement(onEach(it))
     }
     span {
-        +elements.last()
+        buildBreakableHtmlElement(elements.last(), last = true)
+    }
+}
+
+private fun FlowContent.buildBreakableHtmlElement(element: String, last: Boolean = false) {
+    span {
+        +element
+    }
+    if (!last) {
+        wbr { }
     }
 }
 
