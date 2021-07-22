@@ -6,12 +6,12 @@ import org.junit.jupiter.api.Test
 
 class CommonmarkSpecTest : KDocTest() {
 
-    private fun testInlines(markdown: String, expected: List<DocTag>) {
+    private fun testBlocks(markdown: String, expected: List<DocTag>) {
         val expectedDocumentationNode = DocumentationNode(
             listOf(
                 Description(
                     CustomDocTag(
-                        listOf(P(expected)),
+                        expected,
                         name = MarkdownElementTypes.MARKDOWN_FILE.name
                     )
                 )
@@ -19,6 +19,9 @@ class CommonmarkSpecTest : KDocTest() {
         )
         executeTest(markdown, expectedDocumentationNode)
     }
+
+    private fun testInlines(markdown: String, expected: List<DocTag>) =
+        testBlocks(markdown, listOf(P(expected)))
 
 
     /**
@@ -242,4 +245,180 @@ class CommonmarkSpecTest : KDocTest() {
         expected = listOf(Text("`foo"), CodeInline(listOf(Text("`bar`"))))
     /// expected = listOf(Text("`foo"), CodeInline(listOf(Text("bar"))))
     )
+
+    /**
+     * ## Hard line breaks
+     *
+     * A line ending (not in a code span or HTML tag) that is preceded
+     * by two or more spaces and does not occur at the end of a block
+     * is parsed as a [hard line break](@) (rendered
+     * in HTML as a `<br />` tag):
+     */
+    @Test fun hardLineBreaks_Example1() = testInlines(
+        markdown = "foo  \nbaz",
+        expected = listOf(Text("foo baz"))
+    /// expected = listOf(Text("foo"), Br, Text("baz"))
+    )
+
+    /**
+     * For a more visible alternative, a backslash before the
+     * [line ending] may be used instead of two or more spaces:
+     */
+    @Test fun hardLineBreaks_Example2() = testInlines(
+        markdown = "foo\\\nbaz",
+        expected = listOf(Text("foo"), Br, Text("baz"))
+    )
+
+    /**
+     * More than two spaces can be used:
+     */
+    @Test fun hardLineBreaks_Example3() = testInlines(
+        markdown = "foo       \nbaz",
+        expected = listOf(Text("foo baz"))
+    /// expected = listOf(Text("foo"), Br, Text("baz"))
+    )
+
+    /**
+     * Leading spaces at the beginning of the next line are ignored:
+     */
+    @Test fun hardLineBreaks_Example4() = testInlines(
+        markdown = "foo  \n     bar",
+        expected = listOf(Text("foo     bar"))
+    /// expected = listOf(Text("foo"), Br, Text("bar"))
+    )
+
+    @Test fun hardLineBreaks_Example5() = testInlines(
+        markdown = "foo\\\n     bar",
+        expected = listOf(Text("foo"), Br, Text("    bar"))
+    /// expected = listOf(Text("foo"), Br, Text("bar"))
+    )
+
+    /**
+     * Hard line breaks can occur inside emphasis, links, and other constructs
+     * that allow inline content:
+     */
+    @Test fun hardLineBreaks_Example6() = testInlines(
+        markdown = "*foo  \nbar*",
+        expected = listOf(Text("foo bar*"))
+    /// expected = listOf(Em(listOf(Text("foo"), Br, Text("bar"))))
+    )
+
+    @Test fun hardLineBreaks_Example7() = testInlines(
+        markdown = "*foo\\\nbar*",
+        expected = listOf(Text("foo"), Br, Text("bar*"))
+    /// expected = listOf(Em(listOf(Text("foo"), Br, Text("bar"))))
+    )
+
+    /**
+     * Hard line breaks do not occur inside code spans
+     */
+    @Test fun hardLineBreaks_Example8() = testInlines(
+        markdown = "`code  \nspan`",
+        expected = listOf(CodeInline(listOf(Text("code span"))))
+    /// expected = listOf(CodeInline(listOf(Text("code   span"))))
+    )
+
+    @Test fun hardLineBreaks_Example9() = testInlines(
+        markdown = "`code\\\nspan`",
+        expected = listOf(CodeInline(listOf(Text("code\\ span")))),
+    )
+
+    /**
+     * or HTML tags:
+     */
+    @Test fun hardLineBreaks_Example10() = testInlines(
+        markdown = "<a href=\"foo  \nbar\">",
+        expected = listOf()
+    /// "<a href=\"foo  \nbar\">"
+    )
+
+    @Test fun hardLineBreaks_Example11() = testInlines(
+        markdown = "<a href=\"foo\\\nbar\">",
+        expected = listOf(Br, Text("bar\""), Text(">", params = mapOf("content-type" to "html"))),
+    /// "<a href=\"foo\\\nbar\">"
+    )
+
+    /**
+     * Hard line breaks are for separating inline content within a block.
+     * Neither syntax for hard line breaks works at the end of a paragraph or
+     * other block element:
+     */
+    @Test fun hardLineBreaks_Example12() = testInlines(
+        markdown = "foo\\",
+        expected = listOf(Text("foo\\"))
+    )
+
+    @Test fun hardLineBreaks_Example13() = testInlines(
+        markdown = "foo  ",
+        expected = listOf(Text("foo"))
+    )
+
+    @Test fun hardLineBreaks_Example14() = testBlocks(
+        markdown = "### foo\\",
+        expected = listOf(H3(listOf(Text(" foo\\"))))
+    /// expected = listOf(H3(listOf(Text("foo\\"))))
+    )
+
+    @Test fun hardLineBreaks_Example15() = testBlocks(
+        markdown = "### foo  ",
+        expected = listOf(H3(listOf(Text(" foo"))))
+    /// expected = listOf(H3(listOf(Text("foo"))))
+    )
+
+    /**
+     * ## Soft line breaks
+     *
+     * A regular line ending (not in a code span or HTML tag) that is not
+     * preceded by two or more spaces or a backslash is parsed as a
+     * [softbreak](@).  (A soft line break may be rendered in HTML either as a
+     * [line ending] or as a space. The result will be the same in
+     * browsers. In the examples here, a [line ending] will be used.)
+     */
+    @Test fun softLineBreaks_Example1() = testInlines(
+        markdown = "foo\nbaz",
+        expected = listOf(Text("foo baz"))
+    /// expected = listOf(Text("foo\nbaz"))
+    )
+
+    /**
+     * Spaces at the end of the line and beginning of the next line are
+     * removed:
+     */
+    @Test fun softLineBreaks_Example2() = testInlines(
+        markdown = "foo \n baz",
+        expected = listOf(Text("foo baz"))
+    /// expected = listOf(Text("foo\nbaz"))
+    )
+
+    /**
+     * A conforming parser may render a soft line break in HTML either as a
+     * line ending or as a space.
+     *
+     * A renderer may also provide an option to render soft line breaks
+     * as hard line breaks.
+     *
+     *
+     * ## Textual content
+     *
+     * Any characters not given an interpretation by the above rules will
+     * be parsed as plain textual content.
+     */
+    @Test fun textualContent_Example1() = testInlines(
+        markdown = "hello \$.;'there",
+        expected = listOf(Text("hello \$.;'there"))
+    )
+
+    @Test fun textualContent_Example2() = testInlines(
+        markdown = "Foo χρῆν",
+        expected = listOf(Text("Foo χρῆν"))
+    )
+
+    /**
+     * Internal spaces are preserved verbatim:
+     */
+    @Test fun textualContent_Example3() = testInlines(
+        markdown = "Multiple     spaces",
+        expected = listOf(Text("Multiple     spaces"))
+    )
+
 }
