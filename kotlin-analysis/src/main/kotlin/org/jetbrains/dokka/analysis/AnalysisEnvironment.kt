@@ -69,6 +69,7 @@ import org.jetbrains.kotlin.platform.jvm.JvmPlatforms
 import org.jetbrains.kotlin.platform.jvm.JvmPlatforms.unspecifiedJvmPlatform
 import org.jetbrains.kotlin.platform.konan.NativePlatforms
 import org.jetbrains.kotlin.psi.KtFile
+import org.jetbrains.kotlin.resolve.CliSealedClassInheritorsProvider
 import org.jetbrains.kotlin.resolve.CompilerEnvironment
 import org.jetbrains.kotlin.resolve.PlatformDependentAnalyzerServices
 import org.jetbrains.kotlin.resolve.jvm.JvmPlatformParameters
@@ -364,7 +365,8 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
                     projectContext.withModule(descriptor),
                     modulesContent(moduleInfo),
                     this,
-                    LanguageVersionSettingsImpl.DEFAULT
+                    LanguageVersionSettingsImpl.DEFAULT,
+                    CliSealedClassInheritorsProvider,
                 )
 
             override fun sdkDependency(module: ModuleInfo): ModuleInfo? = null
@@ -392,7 +394,8 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
                 projectContext.withModule(descriptor),
                 modulesContent(moduleInfo),
                 this,
-                LanguageVersionSettingsImpl.DEFAULT
+                LanguageVersionSettingsImpl.DEFAULT,
+                CliSealedClassInheritorsProvider,
             )
 
             override fun builtInsForModule(module: ModuleInfo): KotlinBuiltIns = DefaultBuiltIns.Instance
@@ -422,7 +425,8 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
                     projectContext.withModule(descriptor),
                     modulesContent(moduleInfo),
                     this,
-                    LanguageVersionSettingsImpl.DEFAULT
+                    LanguageVersionSettingsImpl.DEFAULT,
+                    CliSealedClassInheritorsProvider,
                 )
             }
 
@@ -491,7 +495,8 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
                 projectContext.withModule(descriptor),
                 modulesContent(moduleInfo),
                 this,
-                LanguageVersionSettingsImpl.DEFAULT
+                LanguageVersionSettingsImpl.DEFAULT,
+                CliSealedClassInheritorsProvider,
             )
 
             override fun sdkDependency(module: ModuleInfo): ModuleInfo? = null

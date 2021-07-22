@@ -1,5 +1,6 @@
 package org.jetbrains.dokka.kotlinAsJava.signatures
 
+import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.signatures.JvmSignatureUtils
 import org.jetbrains.dokka.base.signatures.SignatureProvider
@@ -137,7 +138,7 @@ class JavaSignatureProvider internal constructor(ctcc: CommentsToContentConverte
                 text("(")
                 list(f.parameters) {
                     annotationsInline(it)
-                    text(it.modifiers()[it]?.toSignatureString() ?: "")
+                    text(it.modifiers()[sourceSet]?.toSignatureString() ?: "")
                     signatureForProjection(it.type)
                     text(nbsp.toString())
                     text(it.name!!)
