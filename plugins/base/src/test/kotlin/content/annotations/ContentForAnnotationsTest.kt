@@ -3,9 +3,7 @@ package content.annotations
 import matchers.content.*
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.model.Annotations
-import org.jetbrains.dokka.model.StringValue
-import org.jetbrains.dokka.model.dfs
+import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.pages.ContentPage
 import org.jetbrains.dokka.pages.ContentText
 import org.jetbrains.dokka.pages.MemberPageNode
@@ -196,20 +194,47 @@ class ContentForAnnotationsTest : BaseAbstractTest() {
             |    }
             |    class ABC
             |}
-            |annotation class Reference(val value: Int)
-            |
+            |annotation class Reference(val value: Long)
+            |annotation class ReferenceReal(val value: Double)
+            | 
             |
             |@BugReport(
             |    assignedTo = "me",
             |    testCase = BugReport.ABC::class,
             |    status = BugReport.Status.FIXED,
-            |    ref = Reference(value = 2),
-            |    reportedBy = [Reference(value = 2), Reference(value = 4)],
+            |    ref = Reference(value = 2u),
+            |    reportedBy = [Reference(value = 2UL), Reference(value = 4L), 
+            |                  ReferenceReal(value = 4.9), ReferenceReal(value = 2f)],
             |    showStopper = true
             |)
             |val ltint: Int = 5
         """.trimIndent(), testConfiguration
         ) {
+            documentablesCreationStage = { modules ->
+
+                fun expectedAnnotationValue(name: String, value: AnnotationParameterValue) = AnnotationValue(Annotations.Annotation(
+                    dri = DRI("test", name),
+                    params = mapOf("value" to value),
+                    scope = Annotations.AnnotationScope.DIRECT,
+                    mustBeDocumented = false
+                ))
+                val property = modules.flatMap { it.packages }.flatMap { it.properties }.first()
+                val annotation = property.extra?.get(Annotations)?.let {
+                    it.directAnnotations.entries.firstNotNullResult { (_, annotations) -> annotations.firstOrNull() }
+                }
+                val annotationParams = annotation?.params ?: emptyMap()
+
+                assertEquals(expectedAnnotationValue("Reference", IntValue(2)), annotationParams["ref"])
+
+                val reportedByParam = ArrayValue(listOf(
+                    expectedAnnotationValue("Reference", LongValue(2)),
+                    expectedAnnotationValue("Reference", LongValue(4)),
+                    expectedAnnotationValue("ReferenceReal", DoubleValue(4.9)),
+                    expectedAnnotationValue("ReferenceReal", FloatValue(2f))
+                ))
+                assertEquals(reportedByParam, annotationParams["reportedBy"])
+            }
+
             pagesTransformationStage = { module ->
                 val page = module.children.single { it.name == "test" } as PackagePageNode
                 page.content.assertNode {

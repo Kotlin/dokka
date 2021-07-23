@@ -602,6 +602,15 @@ class DefaultPsiToDocumentableTranslator(
                 val psiClass = ((type as PsiImmediateClassType).parameters.single() as PsiClassReferenceType).resolve()
                 psiClass?.let { ClassValue(text ?: "", DRI.from(psiClass)) }
             }
+            is PsiLiteralExpression -> toValue()
+            else -> StringValue(text ?: "")
+        }
+
+        private fun PsiLiteralExpression.toValue(): AnnotationParameterValue? = when (type) {
+            PsiType.INT -> (value as? Int)?.let { IntValue(it) }
+            PsiType.LONG -> (value as? Long)?.let { LongValue(it) }
+            PsiType.FLOAT -> (value as? Float)?.let { FloatValue(it) }
+            PsiType.DOUBLE -> (value as? Double)?.let { DoubleValue(it) }
             else -> StringValue(text ?: "")
         }
 
