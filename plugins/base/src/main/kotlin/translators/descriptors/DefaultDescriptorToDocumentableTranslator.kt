@@ -69,6 +69,12 @@ import org.jetbrains.kotlin.resolve.constants.AnnotationValue as ConstantsAnnota
 import org.jetbrains.kotlin.resolve.constants.ArrayValue as ConstantsArrayValue
 import org.jetbrains.kotlin.resolve.constants.EnumValue as ConstantsEnumValue
 import org.jetbrains.kotlin.resolve.constants.KClassValue as ConstantsKtClassValue
+import org.jetbrains.kotlin.resolve.constants.DoubleValue as ConstantsDoubleValue
+import org.jetbrains.kotlin.resolve.constants.FloatValue as ConstantsFloatValue
+import org.jetbrains.kotlin.resolve.constants.IntValue as ConstantsIntValue
+import org.jetbrains.kotlin.resolve.constants.LongValue as ConstantsLongValue
+import org.jetbrains.kotlin.resolve.constants.UIntValue as ConstantsUIntValue
+import org.jetbrains.kotlin.resolve.constants.ULongValue as ConstantsULongValue
 
 class DefaultDescriptorToDocumentableTranslator(
     context: DokkaContext
@@ -963,6 +969,12 @@ private class DokkaDescriptorVisitor(
                 )
             }
         }
+        is ConstantsFloatValue -> FloatValue(value)
+        is ConstantsDoubleValue -> DoubleValue(value)
+        is ConstantsUIntValue -> IntValue(value)
+        is ConstantsULongValue -> LongValue(value)
+        is ConstantsIntValue -> IntValue(value)
+        is ConstantsLongValue -> LongValue(value)
         else -> StringValue(unquotedValue(toString()))
     }
 

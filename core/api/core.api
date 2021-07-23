@@ -1329,6 +1329,18 @@ public final class org/jetbrains/dokka/model/DocumentableUtilsKt {
 	public static final fun filtered (Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Ljava/util/Set;)Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;
 }
 
+public final class org/jetbrains/dokka/model/DoubleValue : org/jetbrains/dokka/model/LiteralValue {
+	public fun <init> (D)V
+	public final fun component1 ()D
+	public final fun copy (D)Lorg/jetbrains/dokka/model/DoubleValue;
+	public static synthetic fun copy$default (Lorg/jetbrains/dokka/model/DoubleValue;DILjava/lang/Object;)Lorg/jetbrains/dokka/model/DoubleValue;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getValue ()D
+	public fun hashCode ()I
+	public fun text ()Ljava/lang/String;
+	public fun toString ()Ljava/lang/String;
+}
+
 public final class org/jetbrains/dokka/model/Dynamic : org/jetbrains/dokka/model/Bound {
 	public static final field INSTANCE Lorg/jetbrains/dokka/model/Dynamic;
 }
@@ -1478,6 +1490,18 @@ public final class org/jetbrains/dokka/model/ExtraModifiers$KotlinOnlyModifiers$
 	public static final field INSTANCE Lorg/jetbrains/dokka/model/ExtraModifiers$KotlinOnlyModifiers$VarArg;
 }
 
+public final class org/jetbrains/dokka/model/FloatValue : org/jetbrains/dokka/model/LiteralValue {
+	public fun <init> (F)V
+	public final fun component1 ()F
+	public final fun copy (F)Lorg/jetbrains/dokka/model/FloatValue;
+	public static synthetic fun copy$default (Lorg/jetbrains/dokka/model/FloatValue;FILjava/lang/Object;)Lorg/jetbrains/dokka/model/FloatValue;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getValue ()F
+	public fun hashCode ()I
+	public fun text ()Ljava/lang/String;
+	public fun toString ()Ljava/lang/String;
+}
+
 public final class org/jetbrains/dokka/model/FunctionalTypeConstructor : org/jetbrains/dokka/model/TypeConstructor, org/jetbrains/dokka/model/properties/WithExtraProperties {
 	public fun <init> (Lorg/jetbrains/dokka/links/DRI;Ljava/util/List;ZZLjava/lang/String;Lorg/jetbrains/dokka/model/properties/PropertyContainer;)V
 	public synthetic fun <init> (Lorg/jetbrains/dokka/links/DRI;Ljava/util/List;ZZLjava/lang/String;Lorg/jetbrains/dokka/model/properties/PropertyContainer;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
@@ -1557,6 +1581,18 @@ public final class org/jetbrains/dokka/model/InheritedMember : org/jetbrains/dok
 public final class org/jetbrains/dokka/model/InheritedMember$Companion : org/jetbrains/dokka/model/properties/ExtraProperty$Key {
 	public synthetic fun mergeStrategyFor (Ljava/lang/Object;Ljava/lang/Object;)Lorg/jetbrains/dokka/model/properties/MergeStrategy;
 	public fun mergeStrategyFor (Lorg/jetbrains/dokka/model/InheritedMember;Lorg/jetbrains/dokka/model/InheritedMember;)Lorg/jetbrains/dokka/model/properties/MergeStrategy$Replace;
+}
+
+public final class org/jetbrains/dokka/model/IntValue : org/jetbrains/dokka/model/LiteralValue {
+	public fun <init> (I)V
+	public final fun component1 ()I
+	public final fun copy (I)Lorg/jetbrains/dokka/model/IntValue;
+	public static synthetic fun copy$default (Lorg/jetbrains/dokka/model/IntValue;IILjava/lang/Object;)Lorg/jetbrains/dokka/model/IntValue;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getValue ()I
+	public fun hashCode ()I
+	public fun text ()Ljava/lang/String;
+	public fun toString ()Ljava/lang/String;
 }
 
 public final class org/jetbrains/dokka/model/Invariance : org/jetbrains/dokka/model/Variance {
@@ -1691,6 +1727,23 @@ public final class org/jetbrains/dokka/model/KotlinVisibility$Public : org/jetbr
 	public static final field INSTANCE Lorg/jetbrains/dokka/model/KotlinVisibility$Public;
 }
 
+public abstract class org/jetbrains/dokka/model/LiteralValue : org/jetbrains/dokka/model/AnnotationParameterValue {
+	public fun <init> ()V
+	public abstract fun text ()Ljava/lang/String;
+}
+
+public final class org/jetbrains/dokka/model/LongValue : org/jetbrains/dokka/model/LiteralValue {
+	public fun <init> (J)V
+	public final fun component1 ()J
+	public final fun copy (J)Lorg/jetbrains/dokka/model/LongValue;
+	public static synthetic fun copy$default (Lorg/jetbrains/dokka/model/LongValue;JILjava/lang/Object;)Lorg/jetbrains/dokka/model/LongValue;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getValue ()J
+	public fun hashCode ()I
+	public fun text ()Ljava/lang/String;
+	public fun toString ()Ljava/lang/String;
+}
+
 public abstract class org/jetbrains/dokka/model/Modifier {
 	public synthetic fun <init> (Ljava/lang/String;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun getName ()Ljava/lang/String;
@@ -1739,7 +1792,7 @@ public final class org/jetbrains/dokka/model/Star : org/jetbrains/dokka/model/Pr
 	public static final field INSTANCE Lorg/jetbrains/dokka/model/Star;
 }
 
-public final class org/jetbrains/dokka/model/StringValue : org/jetbrains/dokka/model/AnnotationParameterValue {
+public final class org/jetbrains/dokka/model/StringValue : org/jetbrains/dokka/model/LiteralValue {
 	public fun <init> (Ljava/lang/String;)V
 	public final fun component1 ()Ljava/lang/String;
 	public final fun copy (Ljava/lang/String;)Lorg/jetbrains/dokka/model/StringValue;
@@ -1747,6 +1800,7 @@ public final class org/jetbrains/dokka/model/StringValue : org/jetbrains/dokka/m
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getValue ()Ljava/lang/String;
 	public fun hashCode ()I
+	public fun text ()Ljava/lang/String;
 	public fun toString ()Ljava/lang/String;
 }
 
