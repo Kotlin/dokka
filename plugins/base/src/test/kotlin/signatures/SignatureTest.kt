@@ -230,6 +230,24 @@ class SignatureTest : BaseAbstractTest() {
     }
 
     @Test
+    fun `functional interface`() {
+        val source = source("fun interface KRunnable")
+        val writerPlugin = TestOutputWriterPlugin()
+
+        testInline(
+            source,
+            configuration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                writerPlugin.writer.renderedContent("root/example/-k-runnable/index.html").firstSignature().match(
+                    "fun interface ", A("KRunnable"), Span()
+                )
+            }
+        }
+    }
+
+    @Test
     fun `fun with annotation`() {
         val source = """
             |/src/main/kotlin/test/Test.kt
