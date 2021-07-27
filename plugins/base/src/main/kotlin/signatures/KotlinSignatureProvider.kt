@@ -131,14 +131,6 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                         ""
                 )
             }
-            if (c is DInterface) {
-                c.extra[AdditionalModifiers]?.content?.let { additionalModifiers ->
-                    sourceSetDependentText(additionalModifiers, setOf(sourceSet)) { extraModifiers ->
-                        if (ExtraModifiers.KotlinOnlyModifiers.Fun in extraModifiers) "fun "
-                        else ""
-                    }
-                }
-            }
             when (c) {
                 is DClass -> {
                     processExtraModifiers(c)
