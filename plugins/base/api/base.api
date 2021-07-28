@@ -664,12 +664,12 @@ public final class org/jetbrains/dokka/base/resolvers/local/DokkaLocationProvide
 	public final fun identifierToFilename (Ljava/lang/String;)Ljava/lang/String;
 }
 
-protected final class org/jetbrains/dokka/base/resolvers/local/DokkaLocationProvider$DRIWithSourceSet {
+protected final class org/jetbrains/dokka/base/resolvers/local/DokkaLocationProvider$DRIWithSourceSets {
 	public fun <init> (Lorg/jetbrains/dokka/links/DRI;Ljava/util/Set;)V
 	public final fun component1 ()Lorg/jetbrains/dokka/links/DRI;
 	public final fun component2 ()Ljava/util/Set;
-	public final fun copy (Lorg/jetbrains/dokka/links/DRI;Ljava/util/Set;)Lorg/jetbrains/dokka/base/resolvers/local/DokkaLocationProvider$DRIWithSourceSet;
-	public static synthetic fun copy$default (Lorg/jetbrains/dokka/base/resolvers/local/DokkaLocationProvider$DRIWithSourceSet;Lorg/jetbrains/dokka/links/DRI;Ljava/util/Set;ILjava/lang/Object;)Lorg/jetbrains/dokka/base/resolvers/local/DokkaLocationProvider$DRIWithSourceSet;
+	public final fun copy (Lorg/jetbrains/dokka/links/DRI;Ljava/util/Set;)Lorg/jetbrains/dokka/base/resolvers/local/DokkaLocationProvider$DRIWithSourceSets;
+	public static synthetic fun copy$default (Lorg/jetbrains/dokka/base/resolvers/local/DokkaLocationProvider$DRIWithSourceSets;Lorg/jetbrains/dokka/links/DRI;Ljava/util/Set;ILjava/lang/Object;)Lorg/jetbrains/dokka/base/resolvers/local/DokkaLocationProvider$DRIWithSourceSets;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getDri ()Lorg/jetbrains/dokka/links/DRI;
 	public final fun getSourceSet ()Ljava/util/Set;

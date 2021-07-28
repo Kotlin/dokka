@@ -35,15 +35,15 @@ open class DokkaLocationProvider(
         pageGraphRoot.children.forEach { registerPath(it, emptyList()) }
     }
 
-    protected val pagesIndex: Map<DRIWithSourceSet, ContentPage> =
+    protected val pagesIndex: Map<DRIWithSourceSets, ContentPage> =
         pageGraphRoot.withDescendants().filterIsInstance<ContentPage>()
             .flatMap { page ->
                 page.dri.flatMap { dri ->
                     page.sourceSets().ifEmpty { setOf(null) }
-                        .map { sourceSet -> DRIWithSourceSet(dri, setOfNotNull(sourceSet)) to page }
+                        .map { sourceSet -> DRIWithSourceSets(dri, setOfNotNull(sourceSet)) to page }
                         .let {
                             if (it.size > 1) {
-                                it + (DRIWithSourceSet(dri, page.sourceSets()) to page)
+                                it + (DRIWithSourceSets(dri, page.sourceSets()) to page)
                             } else {
                                 it
                             }
@@ -55,7 +55,7 @@ open class DokkaLocationProvider(
                 if (first) page else throw AssertionError("Multiple pages associated with key: ${key.dri}/${key.sourceSet}")
             }
 
-    protected val anchorsIndex: Map<DRIWithSourceSet, PageWithKind> =
+    protected val anchorsIndex: Map<DRIWithSourceSets, PageWithKind> =
         pageGraphRoot.withDescendants().filterIsInstance<ContentPage>()
             .flatMap { page ->
                 page.content.withDescendants()
@@ -69,7 +69,7 @@ open class DokkaLocationProvider(
                     .flatMap { (pair, kind) ->
                         val (dri, sourceSets) = pair
                         sourceSets.ifEmpty { setOf(null) }.map { sourceSet ->
-                            DRIWithSourceSet(dri, setOfNotNull(sourceSet)) to PageWithKind(page, kind)
+                            DRIWithSourceSets(dri, setOfNotNull(sourceSet)) to PageWithKind(page, kind)
                         }
                     }
             }.toMap()
@@ -79,16 +79,16 @@ open class DokkaLocationProvider(
 
     override fun resolve(dri: DRI, sourceSets: Set<DisplaySourceSet>, context: PageNode?): String? =
         sourceSets.ifEmpty { setOf(null) }.mapNotNull { sourceSet ->
-            val driWithSourceSet = DRIWithSourceSet(dri, setOfNotNull(sourceSet))
-            getLocalLocation(driWithSourceSet, context)
-                ?: getLocalLocation(driWithSourceSet.copy(dri = dri.copy(target = PointingToDeclaration)), context)
+            val driWithSourceSets = DRIWithSourceSets(dri, setOfNotNull(sourceSet))
+            getLocalLocation(driWithSourceSets, context)
+                ?: getLocalLocation(driWithSourceSets.copy(dri = dri.copy(target = PointingToDeclaration)), context)
                 // Not found in PageGraph, that means it's an external link
                 ?: getExternalLocation(dri, sourceSets)
                 ?: getExternalLocation(dri.copy(target = PointingToDeclaration), sourceSets)
         }.distinct().singleOrNull()
 
-    private fun getLocalLocation(driWithSourceSet: DRIWithSourceSet, context: PageNode?): String? {
-        val (dri, originalSourceSet) = driWithSourceSet
+    private fun getLocalLocation(driWithSourceSets: DRIWithSourceSets, context: PageNode?): String? {
+        val (dri, originalSourceSet) = driWithSourceSets
         val allSourceSets =
             listOf(originalSourceSet) + originalSourceSet.let { oss ->
                 dokkaContext.configuration.sourceSets.filter { it.sourceSetID in oss.sourceSetIDs }
@@ -99,8 +99,8 @@ open class DokkaLocationProvider(
             }.orEmpty()
 
         return allSourceSets.asSequence().mapNotNull { displaySourceSet ->
-            pagesIndex[DRIWithSourceSet(dri, displaySourceSet)]?.let { page -> resolve(page, context) }
-                ?: anchorsIndex[driWithSourceSet]?.let { (page, kind) ->
+            pagesIndex[DRIWithSourceSets(dri, displaySourceSet)]?.let { page -> resolve(page, context) }
+                ?: anchorsIndex[driWithSourceSets]?.let { (page, kind) ->
                     val dci = DCI(setOf(dri), kind)
                     resolve(page, context) + "#" + anchorForDCI(dci, displaySourceSet)
                 }
@@ -139,7 +139,7 @@ open class DokkaLocationProvider(
     private val PageNode.pathName: String
         get() = if (this is PackagePageNode) name else identifierToFilename(name)
 
-    protected data class DRIWithSourceSet(val dri: DRI, val sourceSet: Set<DisplaySourceSet>)
+    protected data class DRIWithSourceSets(val dri: DRI, val sourceSet: Set<DisplaySourceSet>)
 
     protected data class PageWithKind(val page: ContentPage, val kind: Kind)
 
