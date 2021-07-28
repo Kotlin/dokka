@@ -607,7 +607,13 @@ open class DefaultPageCreator(
                             styles = emptySet(),
                             extra = elementName?.let { name -> extra + SymbolAnchorHint(name, kind) } ?: extra
                         ) {
-                            link(elementName.orEmpty(), elements.first().dri, kind = kind, styles = setOf(ContentStyle.RowTitle))
+                            link(
+                                text = elementName.orEmpty(),
+                                address = elements.first().dri,
+                                kind = kind,
+                                styles = setOf(ContentStyle.RowTitle),
+                                sourceSets = elements.sourceSets.toSet(),
+                            )
                             divergentGroup(
                                 ContentDivergentGroup.GroupID(name),
                                 elements.map { it.dri }.toSet(),
