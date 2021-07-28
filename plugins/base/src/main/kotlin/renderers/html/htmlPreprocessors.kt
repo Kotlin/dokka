@@ -16,7 +16,7 @@ import org.jetbrains.dokka.transformers.pages.PageTransformer
 
 abstract class NavigationDataProvider {
     open fun navigableChildren(input: RootPageNode): NavigationNode = input.withDescendants()
-            .first { it is ModulePage || it is MultimoduleRootPage }.let { visit(it as ContentPage) }
+        .first { it is ModulePage || it is MultimoduleRootPage }.let { visit(it as ContentPage) }
 
     open fun visit(page: ContentPage): NavigationNode =
         NavigationNode(
@@ -35,8 +35,14 @@ abstract class NavigationDataProvider {
             else -> emptyList()
         }.sortedBy { it.name.toLowerCase() }
 
+    /**
+     * Parenthesis is applied in 2 cases:
+     *  - page only contains functions (therefore documentable from this page is [DFunction])
+     *  - page merges only functions (documentable is null because [SameMethodNamePageMergerStrategy][org.jetbrains.dokka.base.transformers.pages.merger.SameMethodNamePageMergerStrategy]
+     *      removes it from page)
+     */
     private val ContentPage.displayableName: String
-        get() = if (documentable is DFunction) {
+        get() = if (documentable is DFunction || (documentable == null && dri.all { it.callable != null })) {
             "$name()"
         } else {
             name
