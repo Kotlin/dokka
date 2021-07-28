@@ -242,14 +242,16 @@ fun ContentMatcherBuilder<*>.unwrapAnnotation(elem: Map.Entry<String, Set<String
     group {
         +"@"
         link { +elem.key }
-        +"("
-        elem.value.forEach {
-            group {
-                +("$it = ")
-                skipAllNotMatching()
+        if(elem.value.isNotEmpty()) {
+            +"("
+            elem.value.forEach {
+                group {
+                    +("$it = ")
+                    skipAllNotMatching()
+                }
             }
+            +")"
         }
-        +")"
     }
 }
 
