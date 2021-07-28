@@ -26,7 +26,7 @@ jobs:
             examples_changed:
               - 'examples/gradle/${{ matrix.projects }}/**'
 
-      - uses: actions/setup-java@v1
+      - uses: actions/setup-java@v2.1.0
         with:
           java-version: 11
 
