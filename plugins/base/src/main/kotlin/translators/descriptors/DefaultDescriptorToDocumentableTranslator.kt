@@ -75,6 +75,8 @@ import org.jetbrains.kotlin.resolve.constants.IntValue as ConstantsIntValue
 import org.jetbrains.kotlin.resolve.constants.LongValue as ConstantsLongValue
 import org.jetbrains.kotlin.resolve.constants.UIntValue as ConstantsUIntValue
 import org.jetbrains.kotlin.resolve.constants.ULongValue as ConstantsULongValue
+import org.jetbrains.kotlin.resolve.constants.BooleanValue as ConstantsBooleanValue
+import org.jetbrains.kotlin.resolve.constants.NullValue as ConstantsNullValue
 
 class DefaultDescriptorToDocumentableTranslator(
     context: DokkaContext
@@ -975,6 +977,8 @@ private class DokkaDescriptorVisitor(
         is ConstantsULongValue -> LongValue(value)
         is ConstantsIntValue -> IntValue(value)
         is ConstantsLongValue -> LongValue(value)
+        is ConstantsBooleanValue -> BooleanValue(value)
+        is ConstantsNullValue -> NullValue
         else -> StringValue(unquotedValue(toString()))
     }
 

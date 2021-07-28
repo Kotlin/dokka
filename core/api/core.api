@@ -681,6 +681,18 @@ public final class org/jetbrains/dokka/model/ArrayValue : org/jetbrains/dokka/mo
 	public fun toString ()Ljava/lang/String;
 }
 
+public final class org/jetbrains/dokka/model/BooleanValue : org/jetbrains/dokka/model/LiteralValue {
+	public fun <init> (Z)V
+	public final fun component1 ()Z
+	public final fun copy (Z)Lorg/jetbrains/dokka/model/BooleanValue;
+	public static synthetic fun copy$default (Lorg/jetbrains/dokka/model/BooleanValue;ZILjava/lang/Object;)Lorg/jetbrains/dokka/model/BooleanValue;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getValue ()Z
+	public fun hashCode ()I
+	public fun text ()Ljava/lang/String;
+	public fun toString ()Ljava/lang/String;
+}
+
 public abstract class org/jetbrains/dokka/model/Bound : org/jetbrains/dokka/model/Projection, org/jetbrains/dokka/model/AnnotationTarget {
 }
 
@@ -1747,6 +1759,11 @@ public final class org/jetbrains/dokka/model/LongValue : org/jetbrains/dokka/mod
 public abstract class org/jetbrains/dokka/model/Modifier {
 	public synthetic fun <init> (Ljava/lang/String;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun getName ()Ljava/lang/String;
+}
+
+public final class org/jetbrains/dokka/model/NullValue : org/jetbrains/dokka/model/LiteralValue {
+	public static final field INSTANCE Lorg/jetbrains/dokka/model/NullValue;
+	public fun text ()Ljava/lang/String;
 }
 
 public final class org/jetbrains/dokka/model/Nullable : org/jetbrains/dokka/model/Bound {

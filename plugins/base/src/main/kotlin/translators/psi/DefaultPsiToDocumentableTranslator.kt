@@ -611,6 +611,8 @@ class DefaultPsiToDocumentableTranslator(
             PsiType.LONG -> (value as? Long)?.let { LongValue(it) }
             PsiType.FLOAT -> (value as? Float)?.let { FloatValue(it) }
             PsiType.DOUBLE -> (value as? Double)?.let { DoubleValue(it) }
+            PsiType.BOOLEAN -> (value as? Boolean)?.let { BooleanValue(it) }
+            PsiType.NULL -> NullValue
             else -> StringValue(text ?: "")
         }
 
