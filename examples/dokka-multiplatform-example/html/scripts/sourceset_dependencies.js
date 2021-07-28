@@ -1,0 +1,1 @@
+sourceset_dependencies='{":dokkaHtml/commonMain":[],":dokkaHtml/customSourceSet":[],":dokkaHtml/jsMain":[":dokkaHtml/commonMain"],":dokkaHtml/jvmMain":[":dokkaHtml/commonMain"],":dokkaHtml/linuxMain":[":dokkaHtml/commonMain"],":dokkaHtml/macosMain":[":dokkaHtml/commonMain"]}'
