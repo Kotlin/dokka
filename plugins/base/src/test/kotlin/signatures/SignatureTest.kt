@@ -270,7 +270,7 @@ class SignatureTest : BaseAbstractTest() {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/simple-fun.html").firstSignature().match(
                     Div(
-                        Div("@", A("Marking"), "()")
+                        Div("@", A("Marking"))
                     ),
                     "fun ", A("simpleFun"),
                     "(): ", A("String"), Span()
@@ -309,8 +309,8 @@ class SignatureTest : BaseAbstractTest() {
                     .firstSignature()
                     .match(
                         Div(
-                            Div("@", A("Marking"), "(", Span("msg = ", Span("Nenya")), Wbr, ")"),
-                            Div("@", A("Marking2"), "(", Span("int = ", Span("1")), Wbr, ")")
+                           Div("@", A("Marking"), "(", Span("msg = ", Span("\"Nenya\"")), Wbr, ")"),
+                           Div("@", A("Marking2"), "(", Span("int = ", Span("1")), Wbr, ")")
                         ),
                         "fun ", A("simpleFun"),
                         "(): ", A("String"), Span()
@@ -346,9 +346,9 @@ class SignatureTest : BaseAbstractTest() {
                         Div(
                             "@", A("Marking"), "(", Span(
                                 "msg = [",
-                                Span(Span("Nenya"), ", "), Wbr,
-                                Span(Span("Vilya"), ", "), Wbr,
-                                Span(Span("Narya")), Wbr, "]"
+                                Span(Span("\"Nenya\""), ", "), Wbr,
+                                Span(Span("\"Vilya\""), ", "), Wbr,
+                                Span(Span("\"Narya\"")), Wbr, "]"
                             ), Wbr, ")"
                         )
                     ),
@@ -457,7 +457,7 @@ class SignatureTest : BaseAbstractTest() {
                 writerPlugin.writer.renderedContent("root/example/index.html").signature().first().match(
                     Div(
                         Div(
-                            "@", A("SomeAnnotation"), "()"
+                            "@", A("SomeAnnotation")
                         )
                     ),
                     "typealias ", A("PlainTypealias"), " = ", A("Int"), Span()
