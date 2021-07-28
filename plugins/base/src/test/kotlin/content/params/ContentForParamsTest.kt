@@ -1256,14 +1256,14 @@ class ContentForParamsTest : BaseAbstractTest() {
                             }
                             after {
                                 group { pWrapped("comment to function") }
+                                group {
+                                    header(4){ +"Receiver" }
+                                    pWrapped("comment to receiver")
+                                }
                                 header(2) { +"Parameters" }
                                 group {
                                     platformHinted {
                                         table {
-                                            group {
-                                                +"<receiver>"
-                                                group { group { +"comment to receiver" } }
-                                            }
                                             group {
                                                 +"abc"
                                                 group { group { +"comment to param" } }
