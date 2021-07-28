@@ -188,6 +188,7 @@ class ContentForAnnotationsTest : BaseAbstractTest() {
             |    val ref: Reference = Reference(value = 1),
             |    val reportedBy: Array<Reference>,
             |    val showStopper: Boolean = false
+            |    val previousReport: BugReport?
             |) {
             |    enum class Status {
             |        UNCONFIRMED, CONFIRMED, FIXED, NOTABUG
@@ -205,7 +206,8 @@ class ContentForAnnotationsTest : BaseAbstractTest() {
             |    ref = Reference(value = 2u),
             |    reportedBy = [Reference(value = 2UL), Reference(value = 4L), 
             |                  ReferenceReal(value = 4.9), ReferenceReal(value = 2f)],
-            |    showStopper = true
+            |    showStopper = true,
+            |    previousReport = null
             |)
             |val ltint: Int = 5
         """.trimIndent(), testConfiguration
@@ -233,6 +235,8 @@ class ContentForAnnotationsTest : BaseAbstractTest() {
                     expectedAnnotationValue("ReferenceReal", FloatValue(2f))
                 ))
                 assertEquals(reportedByParam, annotationParams["reportedBy"])
+                assertEquals(BooleanValue(true), annotationParams["showStopper"])
+                assertEquals(NullValue, annotationParams["previousReport"])
             }
 
             pagesTransformationStage = { module ->
@@ -246,7 +250,8 @@ class ContentForAnnotationsTest : BaseAbstractTest() {
                                 "status",
                                 "ref",
                                 "reportedBy",
-                                "showStopper"
+                                "showStopper",
+                                "previousReport"
                             )
                         ), "", "", emptySet(), "val", "ltint", "Int", "5"
                     )
