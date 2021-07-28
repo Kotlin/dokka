@@ -55,7 +55,7 @@ To generate the documentation, use the appropriate `dokka${format}` Gradle task:
 ./gradlew dokkaHtml
 ```
 
-Please see the [Dokka Gradle example project](https://github.com/Kotlin/kotlin-examples/tree/master/gradle/dokka/dokka-gradle-example) for an example.
+Please see the [Dokka Gradle example project](https://github.com/Kotlin/dokka/tree/master/examples/gradle/dokka-gradle-example) for an example.
 
 We encourage users to create their own plugins and share them with the community on [official plugins list](docs/src/doc/docs/community/plugins-list.md).
 
@@ -140,7 +140,7 @@ You can add plugins inside the `dokkaPlugins` block:
 </plugin>
 ```
 
-Please see the [Dokka Maven example project](https://github.com/JetBrains/kotlin-examples/tree/master/maven/dokka-maven-example) for an example.
+Please see the [Dokka Maven example project](https://github.com/Kotlin/dokka/tree/master/examples/maven) for an example.
 
 ### Using the Command Line
 
