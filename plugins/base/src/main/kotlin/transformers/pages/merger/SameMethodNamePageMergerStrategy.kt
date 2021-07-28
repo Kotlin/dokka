@@ -1,5 +1,7 @@
 package org.jetbrains.dokka.base.transformers.pages.merger
 
+import org.jetbrains.dokka.base.renderers.sourceSets
+import org.jetbrains.dokka.model.DisplaySourceSet
 import org.jetbrains.dokka.model.dfs
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.utilities.DokkaLogger
@@ -19,13 +21,16 @@ class SameMethodNamePageMergerStrategy(val logger: DokkaLogger) : PageMergerStra
             dri = dri,
             name = name,
             children = members.flatMap { it.children }.distinct(),
-            content = squashDivergentInstances(members),
+            content = squashDivergentInstances(members).withSourceSets(members.allSourceSets()),
             embeddedResources = members.flatMap { it.embeddedResources }.distinct(),
             documentable = null
         )
 
         return (pages - members) + listOf(merged)
     }
+
+    private fun List<MemberPageNode>.allSourceSets(): Set<DisplaySourceSet> =
+        fold(emptySet()) { acc, e -> acc + e.sourceSets() }
 
     private fun squashDivergentInstances(nodes: List<MemberPageNode>): ContentNode =
         nodes.map { it.content }
