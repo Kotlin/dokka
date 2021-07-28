@@ -18,11 +18,11 @@ import org.jetbrains.dokka.transformers.pages.PageTransformer
 abstract class DefaultRenderer<T>(
     protected val context: DokkaContext
 ) : Renderer {
+    open val extension: String = ".html"
 
     protected val outputWriter = context.plugin<DokkaBase>().querySingle { outputWriter }
 
     protected lateinit var locationProvider: LocationProvider
-        private set
 
     protected open val preprocessors: Iterable<PageTransformer> = emptyList()
 
@@ -163,11 +163,11 @@ abstract class DefaultRenderer<T>(
                 ?: throw DokkaException("Cannot resolve path for ${page.name}")
         }
         when (page) {
-            is ContentPage -> outputWriter.write(path, buildPage(page) { c, p -> buildPageContent(c, p) }, ".html")
+            is ContentPage -> outputWriter.write(path, buildPage(page) { c, p -> buildPageContent(c, p) }, extension)
             is RendererSpecificPage -> when (val strategy = page.strategy) {
                 is RenderingStrategy.Copy -> outputWriter.writeResources(strategy.from, path)
                 is RenderingStrategy.Write -> outputWriter.write(path, strategy.text, "")
-                is RenderingStrategy.Callback -> outputWriter.write(path, strategy.instructions(this, page), ".html")
+                is RenderingStrategy.Callback -> outputWriter.write(path, strategy.instructions(this, page), extension)
                 is RenderingStrategy.DriLocationResolvableWrite -> outputWriter.write(
                     path,
                     strategy.contentToResolve { dri, sourcesets ->

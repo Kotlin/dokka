@@ -103,7 +103,7 @@ open class DefaultPageCreator(
     private val WithScope.filteredProperties: List<DProperty>
         get() = properties.filterNot { it.isInherited() }
 
-    private fun <T> Collection<T>.splitInherited(): Pair<List<T>, List<T>> where T : Documentable, T : WithExtraProperties<T> =
+    protected fun <T> Collection<T>.splitInherited(): Pair<List<T>, List<T>> where T : Documentable, T : WithExtraProperties<T> =
         partition { it.isInherited() }
 
     protected open fun contentForModule(m: DModule) = contentBuilder.contentFor(m) {
@@ -557,14 +557,14 @@ open class DefaultPageCreator(
         }
     }
 
-    private fun DocumentableContentBuilder.functionsBlock(name: String, list: Collection<DFunction>) = divergentBlock(
+    protected fun DocumentableContentBuilder.functionsBlock(name: String, list: Collection<DFunction>) = divergentBlock(
         name,
         list.sorted(),
         ContentKind.Functions,
         extra = mainExtra + SimpleAttr.header(name)
     )
 
-    private fun DocumentableContentBuilder.propertiesBlock(
+    protected fun DocumentableContentBuilder.propertiesBlock(
         name: String,
         list: Collection<DProperty>,
         sourceSets: Set<DokkaSourceSet>
