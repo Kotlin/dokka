@@ -5,7 +5,7 @@ import org.jetbrains.dokka.base.transformers.documentables.deprecatedAnnotation
 import org.jetbrains.dokka.base.transformers.documentables.isDeprecated
 import org.jetbrains.dokka.base.transformers.documentables.isException
 import org.jetbrains.dokka.model.Documentable
-import org.jetbrains.dokka.model.StringValue
+import org.jetbrains.dokka.model.BooleanValue
 import org.jetbrains.dokka.model.WithSupertypes
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.transformers.pages.PageTransformer
@@ -113,7 +113,7 @@ object DeprecatedPageCreator : PageTransformer {
                     (this as? WithBrief)?.brief.orEmpty()
                 )
                 getOrPut(deprecatedPageSection) { mutableSetOf() }.add(deprecatedNode)
-                if (deprecatedAnnotation?.params?.get("forRemoval") == StringValue("true")) {
+                if (deprecatedAnnotation?.params?.get("forRemoval") == BooleanValue(true)) {
                     getOrPut(DeprecatedPageSection.DeprecatedForRemoval) { mutableSetOf() }.add(deprecatedNode)
                 }
             }
