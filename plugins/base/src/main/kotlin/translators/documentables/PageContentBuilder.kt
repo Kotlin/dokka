@@ -283,13 +283,37 @@ open class PageContentBuilder(
             contents += ContentGroup(content, DCI(mainDRI, kind), sourceSets.toDisplaySourceSets(), styles, extra)
         }
 
-        fun firstSentenceComment(
+        fun firstParagraphComment(
             content: DocTag,
             kind: Kind = ContentKind.Comment,
             sourceSets: Set<DokkaSourceSet> = mainSourcesetData,
             styles: Set<Style> = mainStyles,
             extra: PropertyContainer<ContentNode> = mainExtra
         ) {
+            firstParagraphBrief(content)?.let { brief ->
+                val builtDescription = commentsConverter.buildContent(
+                    brief,
+                    DCI(mainDRI, kind),
+                    sourceSets
+                )
+
+                contents += ContentGroup(
+                    builtDescription,
+                    DCI(mainDRI, kind),
+                    sourceSets.toDisplaySourceSets(),
+                    styles,
+                    extra
+                )
+            }
+        }
+
+        fun firstSentenceComment(
+            content: DocTag,
+            kind: Kind = ContentKind.Comment,
+            sourceSets: Set<DokkaSourceSet> = mainSourcesetData,
+            styles: Set<Style> = mainStyles,
+            extra: PropertyContainer<ContentNode> = mainExtra
+        ){
             val builtDescription = commentsConverter.buildContent(
                 content,
                 DCI(mainDRI, kind),
@@ -297,7 +321,7 @@ open class PageContentBuilder(
             )
 
             contents += ContentGroup(
-                briefFromContentNodes(builtDescription),
+                firstSentenceBriefFromContentNodes(builtDescription),
                 DCI(mainDRI, kind),
                 sourceSets.toDisplaySourceSets(),
                 styles,

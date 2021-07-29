@@ -1249,7 +1249,8 @@ public final class org/jetbrains/dokka/base/translators/descriptors/DefaultDescr
 }
 
 public final class org/jetbrains/dokka/base/translators/documentables/BriefFromContentNodesKt {
-	public static final fun briefFromContentNodes (Ljava/util/List;)Ljava/util/List;
+	public static final fun firstParagraphBrief (Lorg/jetbrains/dokka/model/doc/DocTag;)Lorg/jetbrains/dokka/model/doc/DocTag;
+	public static final fun firstSentenceBriefFromContentNodes (Ljava/util/List;)Ljava/util/List;
 }
 
 public abstract interface annotation class org/jetbrains/dokka/base/translators/documentables/ContentBuilderMarker : java/lang/annotation/Annotation {
@@ -1355,6 +1356,8 @@ public class org/jetbrains/dokka/base/translators/documentables/PageContentBuild
 	protected final fun createText (Ljava/lang/String;Lorg/jetbrains/dokka/pages/Kind;Ljava/util/Set;Ljava/util/Set;Lorg/jetbrains/dokka/model/properties/PropertyContainer;)Lorg/jetbrains/dokka/pages/ContentText;
 	public final fun divergentGroup (Lorg/jetbrains/dokka/pages/ContentDivergentGroup$GroupID;Ljava/util/Set;Lorg/jetbrains/dokka/pages/Kind;Ljava/util/Set;Lorg/jetbrains/dokka/model/properties/PropertyContainer;ZLkotlin/jvm/functions/Function1;)V
 	public static synthetic fun divergentGroup$default (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Lorg/jetbrains/dokka/pages/ContentDivergentGroup$GroupID;Ljava/util/Set;Lorg/jetbrains/dokka/pages/Kind;Ljava/util/Set;Lorg/jetbrains/dokka/model/properties/PropertyContainer;ZLkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
+	public final fun firstParagraphComment (Lorg/jetbrains/dokka/model/doc/DocTag;Lorg/jetbrains/dokka/pages/Kind;Ljava/util/Set;Ljava/util/Set;Lorg/jetbrains/dokka/model/properties/PropertyContainer;)V
+	public static synthetic fun firstParagraphComment$default (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Lorg/jetbrains/dokka/model/doc/DocTag;Lorg/jetbrains/dokka/pages/Kind;Ljava/util/Set;Ljava/util/Set;Lorg/jetbrains/dokka/model/properties/PropertyContainer;ILjava/lang/Object;)V
 	public final fun firstSentenceComment (Lorg/jetbrains/dokka/model/doc/DocTag;Lorg/jetbrains/dokka/pages/Kind;Ljava/util/Set;Ljava/util/Set;Lorg/jetbrains/dokka/model/properties/PropertyContainer;)V
 	public static synthetic fun firstSentenceComment$default (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Lorg/jetbrains/dokka/model/doc/DocTag;Lorg/jetbrains/dokka/pages/Kind;Ljava/util/Set;Ljava/util/Set;Lorg/jetbrains/dokka/model/properties/PropertyContainer;ILjava/lang/Object;)V
 	protected final fun getContents ()Ljava/util/List;

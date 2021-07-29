@@ -141,7 +141,7 @@ open class DefaultPageCreator(
 
             link(it.name, it.dri)
             if (it.sourceSets.size == 1 || (documentations.isNotEmpty() && haveSameContent)) {
-                documentations.first()?.let { firstSentenceComment(kind = ContentKind.Comment, content = it.root) }
+                documentations.first()?.let { firstParagraphComment(kind = ContentKind.Comment, content = it.root) }
             }
         }
     }
@@ -375,7 +375,7 @@ open class DefaultPageCreator(
         val platforms = d.sourceSets
 
         fun DocumentableContentBuilder.contentForParams() {
-            if (tags.isNotEmptyForTag<Param>()) {
+            if (tags.isNotEmptyForTag<Param>() && d !is DProperty) {
                 header(2, "Parameters", kind = ContentKind.Parameters)
                 group(
                     extra = mainExtra + SimpleAttr.header("Parameters"),
@@ -504,13 +504,31 @@ open class DefaultPageCreator(
 
     protected open fun DocumentableContentBuilder.contentForBrief(documentable: Documentable) {
         documentable.sourceSets.forEach { sourceSet ->
-            documentable.documentation[sourceSet]?.children?.firstOrNull()?.root?.let {
+            documentable.documentation[sourceSet]?.let {
+                /*
+                    Get description or a tag that holds documentation.
+                    This tag can be either property or constructor but constructor tags are handled already in analysis so we
+                    only need to keep an eye on property
+
+                    We purposefully ignore all other tags as they should not be visible in brief
+                 */
+                it.firstMemberOfTypeOrNull<Description>() ?: it.firstMemberOfTypeOrNull<Property>().takeIf { documentable is DProperty }
+            }?.let {
                 group(sourceSets = setOf(sourceSet), kind = ContentKind.BriefComment) {
-                    if (documentable.hasSeparatePage) firstSentenceComment(it)
-                    else comment(it)
+                    if (documentable.hasSeparatePage) createBriefComment(documentable, sourceSet, it)
+                    else comment(it.root)
                 }
             }
         }
+    }
+
+    private fun DocumentableContentBuilder.createBriefComment(documentable: Documentable, sourceSet: DokkaSourceSet, tag: TagWrapper){
+        (documentable as? WithSources)?.documentableLanguage(sourceSet)?.let {
+            when(it){
+                DocumentableLanguage.KOTLIN -> firstParagraphComment(tag.root)
+                DocumentableLanguage.JAVA -> firstSentenceComment(tag.root)
+            }
+        } ?: firstParagraphComment(tag.root)
     }
 
     protected open fun DocumentableContentBuilder.contentForSinceKotlin(documentable: Documentable) {
