@@ -1,28 +1,6 @@
 # Guide to Dokka Plugin development
-
-## Building Dokka
-
-Dokka is built with Gradle. To build it, use `./gradlew build`.
-Alternatively, open the project directory in IntelliJ IDEA and use the IDE to build and run Dokka.
-
-Here's how to import and configure Dokka in IntelliJ IDEA 2019.3:
-
-* Select "Open" from the IDEA welcome screen, or File > Open if a project is
-  already open
-* Select the directory with your clone of Dokka
   
-!!! note
-    IDEA may have an error after the project is initally opened; it is OK
-    to ignore this as the next step will address this error
-
-* After IDEA opens the project, select File > New > Module from existing sources
-  and select the `build.gradle.kts` file from the root directory of your Dokka clone
-* After Dokka is loaded into IDEA, open the Gradle tool window (View > Tool
-  Windows > Gradle) and click on the top left "Refresh all Gradle projects"
-  button
-  
-  
-## Configuration
+## Plugin setup
 
 tldr: you can use a convenient [plugin template](https://github.com/Kotlin/dokka-plugin-template) to speed up the setup.
 
@@ -47,11 +25,14 @@ tasks.withType<KotlinCompile> {
 In order to load a plugin into Dokka, your class must extend `DokkaPlugin` class. A fully qualified name of that class must be placed in a file named `org.jetbrains.dokka.plugability.DokkaPlugin` under `resources/META-INF/services`.
 All instances are automatically loaded during Dokka setup using `java.util.ServiceLoader`.
 
-Dokka provides a set of entry points, for which user can create their own implementations. They must be delegated using `DokkaPlugin.extending(definition: ExtendingDSL.() -> Extension<T, *, *>)` function,that returns a delegate `ExtensionProvider` with supplied definition. 
+Dokka provides a set of entry points, for which user can create their own implementations. 
+Those entry points are called `extension points` and are made in order to provide plugability and customizable behaviour.
+They allow plugin creators to insert their implementations or new functionalities into existing framework, adjusting the documentation to their needs.
+All extension points must be delegated using `DokkaPlugin.extending(definition: ExtendingDSL.() -> Extension<T, *, *>)` function,that returns a delegate `ExtensionProvider` with supplied definition. 
 
 To create a definition, you can use one of two infix functions`with(T)` or `providing( (DokkaContext) -> T)` where `T` is the type of an extended endpoint. You can also use infix functions:
 
-* `applyIf( () -> Boolean )` to add additional condition specifying whether or not the extension should be used
+* `applyIf( () -> Boolean )` to add additional condition specifying whether the extension should be used
 * `order((OrderDsl.() -> Unit))` to determine if your extension should be used before or after another particular extension for the same endpoint
 * `override( Extension<T, *, *> )` to override other extension. Overridden extension won't be loaded and overridding one will inherit ordering from it.
 
@@ -121,4 +102,42 @@ interface AnotherSampleExtensionPointInterface
 class SampleExtension: SampleExtensionPointInterface
 class AnotherSampleExtension(sampleExtension: SampleExtensionPointInterface): AnotherSampleExtensionPointInterface
 ```
+
+### Composing multiple plugins
+
+It is reasonable to assume that the end user will apply multiple different plugins to theirs documentation. 
+What is more, this is happening at every Dokka run, since most of the default implementations are contained within separate plugins that are automatically applied.
+
+Plugins can depend on other plugins and customise their behaviour. 
+For example, `GfmPlugin` creates its own implementation of the `Renderer` interface:
+```kotlin
+class GfmPlugin : DokkaPlugin() {
+    val renderer by extending {
+        CoreExtensions.renderer providing ::CommonmarkRenderer
+    }
+}
+```
+
+One might want to create a slightly different implementation but still based around the same concept. 
+To do that we can depend on `GfmPlugin` to create a `JekyllPlugin` with different renderer.
+In order to make it happen we add a dependency on `GfmPlugin` in our build tool of choice and create a plugin that overrides previous behaviour:
+
+```kotlin
+class JekyllPlugin : DokkaPlugin() {
+    val renderer by extending {
+        (CoreExtensions.renderer
+                providing { JekyllRenderer(it) }
+                override plugin<GfmPlugin>().renderer)
+    }
+}
+```
+
+While designing a plugin one should consider a number of things:
+
+* Is my plugin specific to only my / my company's workflow?
+* Can other users combine it with other plugins?
+* Can other people use it as a basis of their plugins?
+
+In the ideal world a plugin, just like a good library, should provide a decent API to use it as a basis of other plugins, 
+provide a logic that has enough customisation to be applicable for other use-cases and be composable with other plugins.
 
