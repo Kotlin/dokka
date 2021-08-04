@@ -321,7 +321,8 @@ public final class org/jetbrains/dokka/base/renderers/html/CustomResourceInstall
 public final class org/jetbrains/dokka/base/renderers/html/HtmlFormatingUtilsKt {
 	public static final fun buildBreakableDotSeparatedHtml (Lkotlinx/html/FlowContent;Ljava/lang/String;)V
 	public static final fun buildBreakableText (Lkotlinx/html/FlowContent;Ljava/lang/String;)V
-	public static final fun buildTextBreakableAfterCapitalLetters (Lkotlinx/html/FlowContent;Ljava/lang/String;)V
+	public static final fun buildTextBreakableAfterCapitalLetters (Lkotlinx/html/FlowContent;Ljava/lang/String;Z)V
+	public static synthetic fun buildTextBreakableAfterCapitalLetters$default (Lkotlinx/html/FlowContent;Ljava/lang/String;ZILjava/lang/Object;)V
 }
 
 public class org/jetbrains/dokka/base/renderers/html/HtmlRenderer : org/jetbrains/dokka/base/renderers/DefaultRenderer {
@@ -941,6 +942,19 @@ public final class org/jetbrains/dokka/base/templating/PathToRootSubstitutionCom
 	public final fun component2 ()Ljava/lang/String;
 	public final fun copy (Ljava/lang/String;Ljava/lang/String;)Lorg/jetbrains/dokka/base/templating/PathToRootSubstitutionCommand;
 	public static synthetic fun copy$default (Lorg/jetbrains/dokka/base/templating/PathToRootSubstitutionCommand;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lorg/jetbrains/dokka/base/templating/PathToRootSubstitutionCommand;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDefault ()Ljava/lang/String;
+	public fun getPattern ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/jetbrains/dokka/base/templating/ProjectNameSubstitutionCommand : org/jetbrains/dokka/base/templating/SubstitutionCommand {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;)Lorg/jetbrains/dokka/base/templating/ProjectNameSubstitutionCommand;
+	public static synthetic fun copy$default (Lorg/jetbrains/dokka/base/templating/ProjectNameSubstitutionCommand;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lorg/jetbrains/dokka/base/templating/ProjectNameSubstitutionCommand;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getDefault ()Ljava/lang/String;
 	public fun getPattern ()Ljava/lang/String;

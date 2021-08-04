@@ -18,10 +18,9 @@ html,
 
 .search-content {
   z-index: 8;
-  background-color: #f4f4f4;
 }
 
-@media screen and (max-width: 759px){
-    .search-content {
-    }
+@media screen and (max-width: 759px) {
+  .search-content {
+  }
 }

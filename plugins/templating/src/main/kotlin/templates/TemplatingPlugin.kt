@@ -4,6 +4,7 @@ import org.jetbrains.dokka.allModulesPage.templates.NavigationSearchTemplateStra
 import org.jetbrains.dokka.allModulesPage.templates.PackageListProcessingStrategy
 import org.jetbrains.dokka.allModulesPage.templates.PagesSearchTemplateStrategy
 import org.jetbrains.dokka.plugability.DokkaPlugin
+import templates.ProjectNameSubstitutor
 import templates.SourcesetDependencyProcessingStrategy
 
 class TemplatingPlugin : DokkaPlugin() {
@@ -58,6 +59,10 @@ class TemplatingPlugin : DokkaPlugin() {
 
     val pathToRootSubstitutor by extending {
         substitutor providing ::PathToRootSubstitutor
+    }
+
+    val projectNameSubstitutor by extending {
+        substitutor providing ::ProjectNameSubstitutor
     }
 
     val addToNavigationCommandHandler by extending {

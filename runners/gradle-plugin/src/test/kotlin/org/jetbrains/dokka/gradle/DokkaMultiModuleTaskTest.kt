@@ -64,6 +64,7 @@ class DokkaMultiModuleTaskTest {
         }
 
         multiModuleTask.apply {
+            moduleVersion by "1.5.0"
             moduleName by "custom Module Name"
             outputDirectory by project.buildDir.resolve("customOutputDirectory")
             cacheRoot by File("customCacheRoot")
@@ -77,6 +78,7 @@ class DokkaMultiModuleTaskTest {
         assertEquals(
             DokkaConfigurationImpl(
                 moduleName = "custom Module Name",
+                moduleVersion = "1.5.0",
                 outputDir = multiModuleTask.project.buildDir.resolve("customOutputDirectory"),
                 cacheRoot = File("customCacheRoot"),
                 pluginsConfiguration = mutableListOf(PluginConfigurationImpl("pluginA", DokkaConfiguration.SerializationFormat.JSON, """ { "key" : "value2" } """)),

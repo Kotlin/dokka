@@ -137,6 +137,7 @@ public final class org/jetbrains/dokka/templates/TemplatingPlugin : org/jetbrain
 	public final fun getPackageListProcessingStrategy ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getPagesSearchTemplateStrategy ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getPathToRootSubstitutor ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getProjectNameSubstitutor ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getSourcesetDependencyProcessingStrategy ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getSubmoduleTemplateProcessor ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
 	public final fun getSubstitutionCommandHandler ()Lorg/jetbrains/dokka/plugability/Extension;
@@ -156,6 +157,11 @@ public final class org/jetbrains/dokka/templates/TemplatingResult {
 	public fun hashCode ()I
 	public final fun plus (Lorg/jetbrains/dokka/templates/TemplatingResult;)Lorg/jetbrains/dokka/templates/TemplatingResult;
 	public fun toString ()Ljava/lang/String;
+}
+
+public final class templates/ProjectNameSubstitutor : org/jetbrains/dokka/templates/Substitutor {
+	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
+	public fun trySubstitute (Lorg/jetbrains/dokka/templates/TemplatingContext;Lkotlin/text/MatchResult;)Ljava/lang/String;
 }
 
 public final class templates/SourcesetDependencyProcessingStrategy : org/jetbrains/dokka/templates/TemplateProcessingStrategy {

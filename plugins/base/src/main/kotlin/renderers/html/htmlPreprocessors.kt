@@ -153,6 +153,7 @@ class StylesInstaller(private val dokkaContext: DokkaContext) : PageTransformer 
 object AssetsInstaller : PageTransformer {
     private val imagesPages = listOf(
         "images/arrow_down.svg",
+        "images/arrow_down_white.svg",
         "images/docs_logo.svg",
         "images/logo-icon.svg",
         "images/go-to-top-icon.svg",

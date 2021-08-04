@@ -1,10 +1,15 @@
+$font-color: hsla(0, 0%, 100%, 0.8);
+$secondary-font-color: hsla(0, 0%, 100%, 0.6);
+
 .search {
   button {
-    border: none;
-    fill: #637282;
-    background: #F4F4F4;
-    cursor: pointer;
     margin-top: 3px;
+
+    cursor: pointer;
+
+    border: none;
+    background: var(--color-dark);
+    fill: var(--background-color);
 
     &:focus {
       outline: none;
@@ -13,40 +18,81 @@
 }
 
 .popup-wrapper {
-    min-width: calc(100% - 360px) !important;
-}
+  min-width: calc(100% - 322px) !important;
 
-@media screen and (max-width: 759px){
-    .popup-wrapper {
-      min-width: 100% !important;
-    }
-}
+  border: 1px solid hsla(0, 0%, 100%, 0.2) !important;
 
-.template-wrapper {
-  height: 32px;
-  display: grid;
-  grid-template-columns: auto auto;
-  span {
-    line-height: 32px;  
+  background-color: #27282c !important;
+
+  [class^="filterWrapper"] {
+    border-bottom: 1px solid hsla(0, 0%, 100%, 0.2);
+  }
+
+  input {
+    color: $font-color !important;
+
+    font-weight: normal !important;
+  }
+
+  span[data-test-custom="ring-select-popup-filter-icon"] {
+    color: #fff;
+  }
+
+  button[data-test="ring-input-clear"] {
+    color: #fff !important;
   }
 }
 
-@media screen and (max-width: 759px){
-    .template-wrapper {
-        display: flex;
-        height: auto;
-        flex-direction: column;
-        span {
-            line-height: unset;
-        }
+@media screen and (max-width: 759px) {
+  .popup-wrapper {
+    min-width: 100% !important;
+  }
+}
+
+.template-wrapper {
+  display: grid;
+
+  height: 32px;
+  grid-template-columns: auto auto;
+
+  strong {
+    color: $font-color;
+  }
+
+  span {
+    color: $font-color;
+
+    line-height: 32px;
+
+    &.template-description {
+      color: $secondary-font-color;
+      justify-self: end;
     }
+  }
+}
+
+@media screen and (max-width: 759px) {
+  .template-wrapper {
+    display: flex;
+    flex-direction: column;
+
+    height: auto;
+
+    span {
+      line-height: unset;
+    }
+  }
 }
 
 .template-name {
   justify-self: start;
 }
 
-.template-description {
-  color: gray;
-  justify-self: end;
+/* remove fade at the bottom */
+[class^="fade"] {
+  display: none;
+}
+
+[class*="hover"] {
+  background-color: hsla(0, 0%, 100%, 0.1) !important;
 }

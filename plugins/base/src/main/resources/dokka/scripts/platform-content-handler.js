@@ -19,10 +19,6 @@ window.addEventListener('load', () => {
     initTabs()
     handleAnchor()
     initHidingLeftNavigation()
-
-    document.getElementById('main').addEventListener("scroll", (e) => {
-        document.getElementsByClassName("navigation-wrapper")[0].classList.toggle("sticky-navigation", e.target.scrollTop > 0)
-    })
     topNavbarOffset = document.getElementById('navigation-wrapper')
 })
 

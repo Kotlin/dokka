@@ -40,13 +40,13 @@ class NavigationPage(val root: NavigationNode, val moduleName: String, val conte
                 id = navId
                 attributes["pageId"] = "${moduleName}::${node.pageId}"
                 div("overview") {
-                    buildLink(node.dri, node.sourceSets.toList()) { buildBreakableText(node.name) }
                     if (node.children.isNotEmpty()) {
-                        span("navButton pull-right") {
+                        span("navButton") {
                             onClick = """document.getElementById("$navId").classList.toggle("hidden");"""
                             span("navButtonContent")
                         }
                     }
+                    buildLink(node.dri, node.sourceSets.toList()) { buildBreakableText(node.name) }
                 }
                 node.children.withIndex().forEach { (n, p) -> visit(p, "$navId-$n", renderer) }
             }

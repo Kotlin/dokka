@@ -15,6 +15,7 @@ import org.jetbrains.dokka.base.resolvers.anchors.SymbolAnchorHint
 import org.jetbrains.dokka.base.resolvers.local.DokkaBaseLocationProvider
 import org.jetbrains.dokka.base.templating.InsertTemplateExtra
 import org.jetbrains.dokka.base.templating.PathToRootSubstitutionCommand
+import org.jetbrains.dokka.base.templating.ProjectNameSubstitutionCommand
 import org.jetbrains.dokka.base.templating.ResolveLinkCommand
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.DisplaySourceSet
@@ -603,22 +604,13 @@ open class HtmlRenderer(
 
 
     override fun FlowContent.buildNavigation(page: PageNode) =
-        div("navigation-wrapper") {
-            id = "navigation-wrapper"
-            div(classes = "breadcrumbs") {
-                val path = locationProvider.ancestors(page).filterNot { it is RendererSpecificPage }.asReversed()
-                if (path.isNotEmpty()) {
-                    buildNavigationElement(path.first(), page)
-                    path.drop(1).forEach { node ->
-                        text("/")
-                        buildNavigationElement(node, page)
-                    }
-                }
-            }
-            div("pull-right d-flex") {
-                filterButtons(page)
-                div {
-                    id = "searchBar"
+        div(classes = "breadcrumbs") {
+            val path = locationProvider.ancestors(page).filterNot { it is RendererSpecificPage }.asReversed()
+            if (path.size > 1) {
+                buildNavigationElement(path.first(), page)
+                path.drop(1).forEach { node ->
+                    text("/")
+                    buildNavigationElement(node, page)
                 }
             }
         }
@@ -685,7 +677,8 @@ open class HtmlRenderer(
         pageContext: ContentPage
     ) {
         div("sample-container") {
-            code(code.style.joinToString(" ") { it.toString().toLowerCase() }) {
+            val stylesWithBlock = code.style + TextStyle.Block
+            code(stylesWithBlock.joinToString(" ") { it.toString().toLowerCase() }) {
                 attributes["theme"] = "idea"
                 pre {
                     code.children.forEach { buildContentNode(it, pageContext) }
@@ -716,7 +709,7 @@ open class HtmlRenderer(
             }
             unappliedStyles.isNotEmpty() -> {
                 val styleToApply = unappliedStyles.first()
-                applyStyle(styleToApply){
+                applyStyle(styleToApply) {
                     buildText(textNode, unappliedStyles - styleToApply)
                 }
             }
@@ -726,8 +719,8 @@ open class HtmlRenderer(
         }
     }
 
-    private inline fun FlowContent.applyStyle(styleToApply: Style, crossinline body: FlowContent.() -> Unit){
-        when(styleToApply){
+    private inline fun FlowContent.applyStyle(styleToApply: Style, crossinline body: FlowContent.() -> Unit) {
+        when (styleToApply) {
             TextStyle.Bold -> b { body() }
             TextStyle.Italic -> i { body() }
             TextStyle.Strikethrough -> strike { body() }
@@ -803,14 +796,25 @@ open class HtmlRenderer(
                 }
             }
             body {
+                div("navigation-wrapper") {
+                    id = "navigation-wrapper"
+                    div("library-name") {
+                        clickableLogo(page, pathToRoot)
+                    }
+                    context.configuration.moduleVersion?.let { moduleVersion ->
+                        div { text(moduleVersion) }
+                    }
+                    div("pull-right d-flex") {
+                        filterButtons(page)
+                        div {
+                            id = "searchBar"
+                        }
+                    }
+                }
                 div {
                     id = "container"
                     div {
                         id = "leftColumn"
-                        clickableLogo(page, pathToRoot)
-                        div {
-                            id = "paneSearch"
-                        }
                         div {
                             id = "sideMenu"
                         }
@@ -857,15 +861,17 @@ open class HtmlRenderer(
             templateCommand(PathToRootSubstitutionCommand(pattern = "###", default = pathToRoot)) {
                 a {
                     href = "###index.html"
-                    div {
-                        id = "logo"
+                    templateCommand(ProjectNameSubstitutionCommand(pattern = "@@@", default = context.configuration.moduleName)) {
+                        span {
+                            text("@@@")
+                        }
                     }
                 }
             }
-        } else a {
-            href = pathToRoot + "index.html"
-            div {
-                id = "logo"
+        } else {
+            a {
+                href = pathToRoot + "index.html"
+                text(context.configuration.moduleName)
             }
         }
     }
