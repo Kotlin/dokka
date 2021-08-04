@@ -280,6 +280,40 @@ class SignatureTest : BaseAbstractTest() {
     }
 
     @Test
+    fun `property with annotation`() {
+        val source = """
+            |/src/main/kotlin/test/Test.kt
+            |package example
+            |
+            | @MustBeDocumented()
+            | @Target(AnnotationTarget.FUNCTION)
+            | annotation class Marking
+            |
+            | @get:Marking()
+            | @set:Marking()
+            | var str: String
+            """.trimIndent()
+        val writerPlugin = TestOutputWriterPlugin()
+
+        testInline(
+            source,
+            configuration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                writerPlugin.writer.renderedContent("root/example/str.html").firstSignature().match(
+                    Div(
+                        Div("@get:", A("Marking")),
+                        Div("@set:", A("Marking"))
+                    ),
+                    "var ", A("str"),
+                    ": ", A("String"), Span()
+                )
+            }
+        }
+    }
+
+    @Test
     fun `fun with two annotations`() {
         val source = """
             |/src/main/kotlin/test/Test.kt
