@@ -56,8 +56,8 @@ html ::-webkit-scrollbar-thumb {
     position: sticky;
     top: 0;
     background-color: #f4f4f4;
-    padding-top: 19px;
-    padding-bottom: 18px;
+    padding-top: 21px;
+    padding-bottom: 21px;
     z-index: 8;
 
     /* Reset margin and use padding for border */
