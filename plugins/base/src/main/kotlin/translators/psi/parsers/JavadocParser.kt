@@ -8,12 +8,10 @@ import com.intellij.psi.impl.source.tree.LazyParseablePsiElement
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.javadoc.*
 import org.intellij.markdown.MarkdownElementTypes
-import org.intellij.markdown.lexer.Compat.forEachCodePoint
 import org.jetbrains.dokka.analysis.DokkaResolutionFacade
 import org.jetbrains.dokka.analysis.from
 import org.jetbrains.dokka.base.parsers.MarkdownParser
 import org.jetbrains.dokka.base.translators.parseHtmlEncodedWithNormalisedSpaces
-import org.jetbrains.dokka.base.translators.parseWithNormalisedSpaces
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.utilities.DokkaLogger
@@ -24,12 +22,11 @@ import org.jetbrains.kotlin.idea.util.CommentSaver.Companion.tokenType
 import org.jetbrains.kotlin.psi.psiUtil.getNextSiblingIgnoringWhitespace
 import org.jetbrains.kotlin.psi.psiUtil.siblings
 import org.jsoup.Jsoup
-import org.jsoup.internal.StringUtil
 import org.jsoup.nodes.Element
-import org.jsoup.nodes.Entities
 import org.jsoup.nodes.Node
 import org.jsoup.nodes.TextNode
 import java.util.*
+import org.jetbrains.dokka.utilities.htmlEscape
 
 interface JavaDocumentationParser {
     fun parseDocumentation(element: PsiNamedElement): DocumentationNode
@@ -251,32 +248,7 @@ class JavadocParser(
                 is PsiInlineDocTag -> convertInlineDocTag(this, state.currentJavadocTag, context)
                 is PsiDocParamRef -> toDocumentationLinkString()
                 is PsiDocTagValue,
-                is LeafPsiElement -> {
-                    if (isInsidePre) {
-                        /*
-                        For values in the <pre> tag we try to keep formatting, so only the leading space is trimmed,
-                        since it is there because it separates this line from the leading asterisk
-                         */
-                        text.let {
-                            if ((prevSibling as? PsiDocToken)?.isLeadingAsterisk() == true && it.firstOrNull() == ' ')
-                                it.drop(1) else it
-                        }.let {
-                            if ((nextSibling as? PsiDocToken)?.isLeadingAsterisk() == true) it.dropLastWhile { it == ' ' } else it
-                        }
-                    } else {
-                        /*
-                        Outside of the <pre> we would like to trim everything from the start and end of a line since
-                        javadoc doesn't care about it.
-                         */
-                        text.let {
-                            if ((prevSibling as? PsiDocToken)?.isLeadingAsterisk() == true && text.isNotBlank() && state.previousElement !is PsiInlineDocTag) it?.trimStart() else it
-                        }?.let {
-                            if ((nextSibling as? PsiDocToken)?.isLeadingAsterisk() == true && text.isNotBlank()) it.trimEnd() else it
-                        }?.let {
-                            if (shouldHaveSpaceAtTheEnd()) "$it " else it
-                        }
-                    }
-                }
+                is LeafPsiElement -> stringifyElementAsText(isInsidePre, state.previousElement)
                 else -> null
             }
             val previousElement = if (text.trim() == "") state.previousElement else this
@@ -287,6 +259,31 @@ class JavadocParser(
                     openPreTags = openPre
                 ), parsed
             )
+        }
+
+        private fun PsiElement.stringifyElementAsText(keepFormatting: Boolean, previousElement: PsiElement? = null) =  if (keepFormatting) {
+            /*
+            For values in the <pre> tag we try to keep formatting, so only the leading space is trimmed,
+            since it is there because it separates this line from the leading asterisk
+             */
+            text.let {
+                if (((prevSibling as? PsiDocToken)?.isLeadingAsterisk() == true || (prevSibling as? PsiDocToken)?.isTagName() == true ) && it.firstOrNull() == ' ')
+                    it.drop(1) else it
+            }.let {
+                if ((nextSibling as? PsiDocToken)?.isLeadingAsterisk() == true) it.dropLastWhile { it == ' ' } else it
+            }
+        } else {
+            /*
+            Outside of the <pre> we would like to trim everything from the start and end of a line since
+            javadoc doesn't care about it.
+             */
+            text.let {
+                if ((prevSibling as? PsiDocToken)?.isLeadingAsterisk() == true && text.isNotBlank() && previousElement !is PsiInlineDocTag) it?.trimStart() else it
+            }?.let {
+                if ((nextSibling as? PsiDocToken)?.isLeadingAsterisk() == true && text.isNotBlank()) it.trimEnd() else it
+            }?.let {
+                if (shouldHaveSpaceAtTheEnd()) "$it " else it
+            }
         }
 
         /**
@@ -338,7 +335,8 @@ class JavadocParser(
             when (tag.name) {
                 "link", "linkplain" -> tag.referenceElement()
                     ?.toDocumentationLinkString(tag.dataElements.filterIsInstance<PsiDocToken>())
-                "code", "literal" -> "<code data-inline>${tag.text}</code>"
+                "code", "literal" -> "<code data-inline>${tag.dataElements.joinToString("") { it.stringifyElementAsText(keepFormatting = true)
+                    .toString() }.htmlEscape()}</code>"
                 "index" -> "<index>${tag.children.filterIsInstance<PsiDocTagValue>().joinToString { it.text }}</index>"
                 "inheritDoc" -> inheritDocResolver.resolveFromContext(context)
                     ?.fold(ParsingResult(javadocTag)) { result, e ->
@@ -359,14 +357,15 @@ class JavadocParser(
             }
         }
 
-        private fun createBlock(element: Element, insidePre: Boolean = false): List<DocTag> {
+        private fun createBlock(element: Element, keepFormatting: Boolean = false): List<DocTag> {
+            val tagName = element.tagName()
             val children = element.childNodes()
-                .flatMap { convertHtmlNode(it, insidePre = insidePre || element.tagName() == "pre") }
+                .flatMap { convertHtmlNode(it, keepFormatting = keepFormatting || tagName == "pre" || tagName == "code") }
 
             fun ifChildrenPresent(operation: () -> DocTag): List<DocTag> {
                 return if (children.isNotEmpty()) listOf(operation()) else emptyList()
             }
-            return when (element.tagName()) {
+            return when (tagName) {
                 "blockquote" -> ifChildrenPresent { BlockQuote(children) }
                 "p" -> ifChildrenPresent { P(children) }
                 "b" -> ifChildrenPresent { B(children) }
@@ -374,9 +373,13 @@ class JavadocParser(
                 "index" -> listOf(Index(children))
                 "i" -> ifChildrenPresent { I(children) }
                 "em" -> listOf(Em(children))
-                "code" -> ifChildrenPresent { if(insidePre) CodeBlock(children) else CodeInline(children) }
-                "pre" -> if(children.size == 1 && children.first() is CodeInline) {
-                    listOf(CodeBlock(children.first().children))
+                "code" -> ifChildrenPresent { if(keepFormatting) CodeBlock(children) else CodeInline(children) }
+                "pre" -> if(children.size == 1) {
+                    when(children.first()) {
+                        is CodeInline -> listOf(CodeBlock(children.first().children))
+                        is CodeBlock -> listOf(children.first())
+                        else -> listOf(Pre(children))
+                    }
                 } else {
                     listOf(Pre(children))
                 }
@@ -405,13 +408,13 @@ class JavadocParser(
             }
         }
 
-        private fun convertHtmlNode(node: Node, insidePre: Boolean = false): List<DocTag> = when (node) {
-            is TextNode -> (if (insidePre) {
+        private fun convertHtmlNode(node: Node, keepFormatting: Boolean = false): List<DocTag> = when (node) {
+            is TextNode -> (if (keepFormatting) {
                 node.wholeText.takeIf { it.isNotBlank() }?.let { listOf(Text(body = it)) }
             } else {
                 node.wholeText.parseHtmlEncodedWithNormalisedSpaces(renderWhiteCharactersAsSpaces = true)
             }).orEmpty()
-            is Element -> createBlock(node)
+            is Element -> createBlock(node, keepFormatting)
             else -> emptyList()
         }
 
@@ -437,6 +440,8 @@ class JavadocParser(
         Parse()(elements, asParagraph, context)
 
     private fun PsiDocToken.isSharpToken() = tokenType == JavaDocTokenType.DOC_TAG_VALUE_SHARP_TOKEN
+
+    private fun PsiDocToken.isTagName() = tokenType == JavaDocTokenType.DOC_TAG_NAME
 
     private fun PsiDocToken.isLeadingAsterisk() = tokenType == JavaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS
 
