@@ -2,10 +2,7 @@ package content
 
 import junit.framework.Assert.assertEquals
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
-import org.jetbrains.dokka.model.doc.CustomDocTag
-import org.jetbrains.dokka.model.doc.Description
-import org.jetbrains.dokka.model.doc.P
-import org.jetbrains.dokka.model.doc.Text
+import org.jetbrains.dokka.model.doc.*
 import org.junit.jupiter.api.Test
 import kotlin.test.assertTrue
 
@@ -107,6 +104,34 @@ class ContentInDescriptionTest : BaseAbstractTest() {
                 val kotlin = module.packages.flatMap { it.classlikes }.first { it.name == "ParentKt" }
 
                 assertEquals(java.documentation.values.first(), kotlin.documentation.values.first())
+            }
+        }
+    }
+
+    @Test
+    fun `text surrounded by angle brackets is not removed`() {
+        testInline(
+            """
+        |/src/main/kotlin/sample/Foo.kt
+        |package sample
+        |/**
+        | * My example `CodeInline<Bar>`
+        | * ``` 
+        | *  CodeBlock<Bar>
+        | * ```         
+        | */
+        |class Foo {
+        |}
+        """.trimIndent(),
+            configuration
+        ) {
+            documentablesMergingStage = { module ->
+                val cls = module.packages.flatMap { it.classlikes }.first { it.name == "Foo" }
+                val documentation = cls.documentation.values.first()
+                val docTags = documentation.children.single().root.children
+
+                assertEquals("CodeInline<Bar>", ((docTags[0].children[1] as CodeInline).children.first() as Text).body)
+                assertEquals("CodeBlock<Bar>", ((docTags[1] as CodeBlock).children.first() as Text).body)
             }
         }
     }
