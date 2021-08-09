@@ -797,12 +797,14 @@ public abstract class org/jetbrains/dokka/base/signatures/AtStrategy {
 }
 
 public abstract interface class org/jetbrains/dokka/base/signatures/JvmSignatureUtils {
+	public abstract fun annotations (Lorg/jetbrains/dokka/model/DProperty;)Ljava/util/Map;
 	public abstract fun annotations (Lorg/jetbrains/dokka/model/properties/WithExtraProperties;)Ljava/util/Map;
 	public abstract fun annotationsBlock (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Lorg/jetbrains/dokka/model/AnnotationTarget;)V
 	public abstract fun annotationsBlockWithIgnored (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Lorg/jetbrains/dokka/model/AnnotationTarget;Ljava/util/Set;Lorg/jetbrains/dokka/base/signatures/AtStrategy;Lkotlin/Pair;Ljava/lang/String;)V
 	public abstract fun annotationsInline (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Lorg/jetbrains/dokka/model/AnnotationTarget;)V
 	public abstract fun annotationsInlineWithIgnored (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Lorg/jetbrains/dokka/model/AnnotationTarget;Ljava/util/Set;Lorg/jetbrains/dokka/base/signatures/AtStrategy;Lkotlin/Pair;Ljava/lang/String;)V
 	public abstract fun modifiers (Lorg/jetbrains/dokka/model/properties/WithExtraProperties;)Ljava/util/Map;
+	public abstract fun plus (Ljava/util/Map;Ljava/util/Map;)Ljava/util/Map;
 	public abstract fun stylesIfDeprecated (Lorg/jetbrains/dokka/model/properties/WithExtraProperties;Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;)Ljava/util/Set;
 	public abstract fun toSignatureString (Ljava/util/Collection;)Ljava/lang/String;
 	public abstract fun toSignatureString (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Lorg/jetbrains/dokka/model/Annotations$Annotation;Lorg/jetbrains/dokka/base/signatures/AtStrategy;Lkotlin/Pair;Ljava/lang/String;)V
@@ -810,9 +812,11 @@ public abstract interface class org/jetbrains/dokka/base/signatures/JvmSignature
 }
 
 public final class org/jetbrains/dokka/base/signatures/JvmSignatureUtils$DefaultImpls {
+	public static fun annotations (Lorg/jetbrains/dokka/base/signatures/JvmSignatureUtils;Lorg/jetbrains/dokka/model/DProperty;)Ljava/util/Map;
 	public static fun annotations (Lorg/jetbrains/dokka/base/signatures/JvmSignatureUtils;Lorg/jetbrains/dokka/model/properties/WithExtraProperties;)Ljava/util/Map;
 	public static fun annotationsBlockWithIgnored (Lorg/jetbrains/dokka/base/signatures/JvmSignatureUtils;Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Lorg/jetbrains/dokka/model/AnnotationTarget;Ljava/util/Set;Lorg/jetbrains/dokka/base/signatures/AtStrategy;Lkotlin/Pair;Ljava/lang/String;)V
 	public static fun annotationsInlineWithIgnored (Lorg/jetbrains/dokka/base/signatures/JvmSignatureUtils;Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Lorg/jetbrains/dokka/model/AnnotationTarget;Ljava/util/Set;Lorg/jetbrains/dokka/base/signatures/AtStrategy;Lkotlin/Pair;Ljava/lang/String;)V
+	public static fun plus (Lorg/jetbrains/dokka/base/signatures/JvmSignatureUtils;Ljava/util/Map;Ljava/util/Map;)Ljava/util/Map;
 	public static fun stylesIfDeprecated (Lorg/jetbrains/dokka/base/signatures/JvmSignatureUtils;Lorg/jetbrains/dokka/model/properties/WithExtraProperties;Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;)Ljava/util/Set;
 	public static fun toSignatureString (Lorg/jetbrains/dokka/base/signatures/JvmSignatureUtils;Ljava/util/Collection;)Ljava/lang/String;
 	public static fun toSignatureString (Lorg/jetbrains/dokka/base/signatures/JvmSignatureUtils;Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Lorg/jetbrains/dokka/model/Annotations$Annotation;Lorg/jetbrains/dokka/base/signatures/AtStrategy;Lkotlin/Pair;Ljava/lang/String;)V
@@ -822,12 +826,14 @@ public final class org/jetbrains/dokka/base/signatures/JvmSignatureUtils$Default
 public final class org/jetbrains/dokka/base/signatures/KotlinSignatureProvider : org/jetbrains/dokka/base/signatures/JvmSignatureUtils, org/jetbrains/dokka/base/signatures/SignatureProvider {
 	public fun <init> (Lorg/jetbrains/dokka/base/transformers/pages/comments/CommentsToContentConverter;Lorg/jetbrains/dokka/utilities/DokkaLogger;)V
 	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
+	public fun annotations (Lorg/jetbrains/dokka/model/DProperty;)Ljava/util/Map;
 	public fun annotations (Lorg/jetbrains/dokka/model/properties/WithExtraProperties;)Ljava/util/Map;
 	public fun annotationsBlock (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Lorg/jetbrains/dokka/model/AnnotationTarget;)V
 	public fun annotationsBlockWithIgnored (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Lorg/jetbrains/dokka/model/AnnotationTarget;Ljava/util/Set;Lorg/jetbrains/dokka/base/signatures/AtStrategy;Lkotlin/Pair;Ljava/lang/String;)V
 	public fun annotationsInline (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Lorg/jetbrains/dokka/model/AnnotationTarget;)V
 	public fun annotationsInlineWithIgnored (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Lorg/jetbrains/dokka/model/AnnotationTarget;Ljava/util/Set;Lorg/jetbrains/dokka/base/signatures/AtStrategy;Lkotlin/Pair;Ljava/lang/String;)V
 	public fun modifiers (Lorg/jetbrains/dokka/model/properties/WithExtraProperties;)Ljava/util/Map;
+	public fun plus (Ljava/util/Map;Ljava/util/Map;)Ljava/util/Map;
 	public fun signature (Lorg/jetbrains/dokka/model/Documentable;)Ljava/util/List;
 	public fun stylesIfDeprecated (Lorg/jetbrains/dokka/model/properties/WithExtraProperties;Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;)Ljava/util/Set;
 	public fun toSignatureString (Ljava/util/Collection;)Ljava/lang/String;
@@ -837,6 +843,7 @@ public final class org/jetbrains/dokka/base/signatures/KotlinSignatureProvider :
 
 public final class org/jetbrains/dokka/base/signatures/KotlinSignatureUtils : org/jetbrains/dokka/base/signatures/JvmSignatureUtils {
 	public static final field INSTANCE Lorg/jetbrains/dokka/base/signatures/KotlinSignatureUtils;
+	public fun annotations (Lorg/jetbrains/dokka/model/DProperty;)Ljava/util/Map;
 	public fun annotations (Lorg/jetbrains/dokka/model/properties/WithExtraProperties;)Ljava/util/Map;
 	public fun annotationsBlock (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Lorg/jetbrains/dokka/model/AnnotationTarget;)V
 	public fun annotationsBlockWithIgnored (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Lorg/jetbrains/dokka/model/AnnotationTarget;Ljava/util/Set;Lorg/jetbrains/dokka/base/signatures/AtStrategy;Lkotlin/Pair;Ljava/lang/String;)V
@@ -846,6 +853,7 @@ public final class org/jetbrains/dokka/base/signatures/KotlinSignatureUtils : or
 	public final fun getDriOrNull (Lorg/jetbrains/dokka/model/Bound;)Lorg/jetbrains/dokka/links/DRI;
 	public final fun getDrisOfAllNestedBounds (Lorg/jetbrains/dokka/model/Projection;)Ljava/util/List;
 	public fun modifiers (Lorg/jetbrains/dokka/model/properties/WithExtraProperties;)Ljava/util/Map;
+	public fun plus (Ljava/util/Map;Ljava/util/Map;)Ljava/util/Map;
 	public fun stylesIfDeprecated (Lorg/jetbrains/dokka/model/properties/WithExtraProperties;Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;)Ljava/util/Set;
 	public fun toSignatureString (Ljava/util/Collection;)Ljava/lang/String;
 	public fun toSignatureString (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Lorg/jetbrains/dokka/model/Annotations$Annotation;Lorg/jetbrains/dokka/base/signatures/AtStrategy;Lkotlin/Pair;Ljava/lang/String;)V

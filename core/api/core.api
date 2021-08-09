@@ -661,6 +661,8 @@ public final class org/jetbrains/dokka/model/Annotations$Annotation {
 public final class org/jetbrains/dokka/model/Annotations$AnnotationScope : java/lang/Enum {
 	public static final field DIRECT Lorg/jetbrains/dokka/model/Annotations$AnnotationScope;
 	public static final field FILE Lorg/jetbrains/dokka/model/Annotations$AnnotationScope;
+	public static final field GETTER Lorg/jetbrains/dokka/model/Annotations$AnnotationScope;
+	public static final field SETTER Lorg/jetbrains/dokka/model/Annotations$AnnotationScope;
 	public static fun valueOf (Ljava/lang/String;)Lorg/jetbrains/dokka/model/Annotations$AnnotationScope;
 	public static fun values ()[Lorg/jetbrains/dokka/model/Annotations$AnnotationScope;
 }
