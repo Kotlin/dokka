@@ -5,6 +5,7 @@ import org.jetbrains.dokka.model.DisplaySourceSet
 import org.jetbrains.dokka.renderers.Renderer
 import kotlin.reflect.KClass
 
+typealias OutputExtension = String
 fun interface DriResolver: (DRI, Set<DisplaySourceSet>) -> String?
 fun interface PageResolver: (PageNode, PageNode?) -> String?
 

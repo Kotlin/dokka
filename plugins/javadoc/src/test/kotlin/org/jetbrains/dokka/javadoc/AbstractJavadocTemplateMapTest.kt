@@ -34,7 +34,7 @@ internal abstract class AbstractJavadocTemplateMapTest : BaseAbstractTest() {
         val translator: JavadocContentToTemplateMapTranslator by lazy {
             val locationProvider = context.plugin<JavadocPlugin>()
                 .querySingle { locationProviderFactory }
-                .getLocationProvider(rootPageNode) as JavadocLocationProvider
+                .getLocationProvider(rootPageNode, "html") as JavadocLocationProvider
 
             JavadocContentToTemplateMapTranslator(locationProvider, context)
         }

@@ -15,6 +15,7 @@ import org.jetbrains.dokka.plugability.query
 open class CommonmarkRenderer(
     context: DokkaContext
 ) : DefaultRenderer<StringBuilder>(context) {
+    override val outputExtension: String = "md"
 
     override val preprocessors = context.plugin<GfmPlugin>().query { gfmPreprocessors }
 
@@ -313,40 +314,6 @@ open class CommonmarkRenderer(
         buildLink(locationProvider.resolve(to, from)!!) {
             append(to.name)
         }
-
-    override suspend fun renderPage(page: PageNode) {
-        val path by lazy {
-            locationProvider.resolve(page, skipExtension = true)
-                ?: throw DokkaException("Cannot resolve path for ${page.name}")
-        }
-
-        return when (page) {
-            is ContentPage -> outputWriter.write(path, buildPage(page) { c, p -> buildPageContent(c, p) }, ".md")
-            is RendererSpecificPage -> when (val strategy = page.strategy) {
-                is RenderingStrategy.Copy -> outputWriter.writeResources(strategy.from, path)
-                is RenderingStrategy.Write -> outputWriter.write(path, strategy.text, "")
-                is RenderingStrategy.Callback -> outputWriter.write(path, strategy.instructions(this, page), ".md")
-                is RenderingStrategy.DriLocationResolvableWrite -> outputWriter.write(
-                        path,
-                        strategy.contentToResolve { dri, sourcesets ->
-                            locationProvider.resolve(dri, sourcesets)
-                        },
-                        ""
-                )
-                is RenderingStrategy.PageLocationResolvableWrite -> outputWriter.write(
-                        path,
-                        strategy.contentToResolve { pageToLocate, context ->
-                            locationProvider.resolve(pageToLocate, context)
-                        },
-                        ""
-                )
-                RenderingStrategy.DoNothing -> Unit
-            }
-            else -> throw AssertionError(
-                "Page ${page.name} cannot be rendered by renderer as it is not renderer specific nor contains content"
-            )
-        }
-    }
 
     private fun List<Pair<ContentDivergentInstance, DisplaySourceSet>>.getInstanceAndSourceSets() =
         this.let { Pair(it.first().first, it.map { it.second }.toSet()) }

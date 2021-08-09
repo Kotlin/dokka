@@ -38,9 +38,10 @@ class KorteJavadocRenderer(val context: DokkaContext, resourceDir: String) :
     private val contentToTemplateMapTranslator by lazy {
         JavadocContentToTemplateMapTranslator(locationProvider, context)
     }
+    override val outputExtension: String = "html"
 
     override fun render(root: RootPageNode) = root.let { registeredPreprocessors.fold(root) { r, t -> t.invoke(r) } }.let { newRoot ->
-        locationProvider = context.plugin<JavadocPlugin>().querySingle { locationProviderFactory }.getLocationProvider(newRoot) as JavadocLocationProvider
+        locationProvider = context.plugin<JavadocPlugin>().querySingle { locationProviderFactory }.getLocationProvider(newRoot, outputExtension) as JavadocLocationProvider
         runBlocking(Dispatchers.IO) {
             renderPage(newRoot)
             SearchScriptsCreator(locationProvider).invoke(newRoot).forEach { renderSpecificPage(it, "") }

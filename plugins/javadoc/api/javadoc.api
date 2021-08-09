@@ -13,27 +13,27 @@ public class org/jetbrains/dokka/javadoc/JavadocPageCreator {
 
 public final class org/jetbrains/dokka/javadoc/JavadocPlugin : org/jetbrains/dokka/plugability/DokkaPlugin {
 	public fun <init> ()V
-	public final fun getAllClassessPageInstaller ()Lorg/jetbrains/dokka/plugability/Extension;
-	public final fun getDeprecatedPageCreator ()Lorg/jetbrains/dokka/plugability/Extension;
-	public final fun getDocumentableSourceSetFilter ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getAllClassessPageInstaller ()Lorg/jetbrains/dokka/plugability/Extensionable;
+	public final fun getDeprecatedPageCreator ()Lorg/jetbrains/dokka/plugability/Extensionable;
+	public final fun getDocumentableSourceSetFilter ()Lorg/jetbrains/dokka/plugability/Extensionable;
 	public final fun getDokkaBasePlugin ()Lorg/jetbrains/dokka/base/DokkaBase;
-	public final fun getDokkaJavadocPlugin ()Lorg/jetbrains/dokka/plugability/Extension;
-	public final fun getIndexGenerator ()Lorg/jetbrains/dokka/plugability/Extension;
-	public final fun getJavadocLocationProviderFactory ()Lorg/jetbrains/dokka/plugability/Extension;
-	public final fun getJavadocMultiplatformCheck ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getDokkaJavadocPlugin ()Lorg/jetbrains/dokka/plugability/Extensionable;
+	public final fun getIndexGenerator ()Lorg/jetbrains/dokka/plugability/Extensionable;
+	public final fun getJavadocLocationProviderFactory ()Lorg/jetbrains/dokka/plugability/Extensionable;
+	public final fun getJavadocMultiplatformCheck ()Lorg/jetbrains/dokka/plugability/Extensionable;
 	public final fun getJavadocPreprocessors ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
-	public final fun getJavadocSignatureProvider ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getJavadocSignatureProvider ()Lorg/jetbrains/dokka/plugability/Extensionable;
 	public final fun getKotinAsJavaPlugin ()Lorg/jetbrains/dokka/kotlinAsJava/KotlinAsJavaPlugin;
 	public final fun getLocationProviderFactory ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
-	public final fun getPackageListCreator ()Lorg/jetbrains/dokka/plugability/Extension;
-	public final fun getPageTranslator ()Lorg/jetbrains/dokka/plugability/Extension;
-	public final fun getResourcesInstaller ()Lorg/jetbrains/dokka/plugability/Extension;
-	public final fun getRootCreator ()Lorg/jetbrains/dokka/plugability/Extension;
-	public final fun getTreeViewInstaller ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getPackageListCreator ()Lorg/jetbrains/dokka/plugability/Extensionable;
+	public final fun getPageTranslator ()Lorg/jetbrains/dokka/plugability/Extensionable;
+	public final fun getResourcesInstaller ()Lorg/jetbrains/dokka/plugability/Extensionable;
+	public final fun getRootCreator ()Lorg/jetbrains/dokka/plugability/Extensionable;
+	public final fun getTreeViewInstaller ()Lorg/jetbrains/dokka/plugability/Extensionable;
 }
 
 public final class org/jetbrains/dokka/javadoc/location/JavadocLocationProvider : org/jetbrains/dokka/base/resolvers/local/DefaultLocationProvider {
-	public fun <init> (Lorg/jetbrains/dokka/pages/RootPageNode;Lorg/jetbrains/dokka/plugability/DokkaContext;)V
+	public fun <init> (Lorg/jetbrains/dokka/pages/RootPageNode;Lorg/jetbrains/dokka/plugability/DokkaContext;Ljava/lang/String;)V
 	public fun ancestors (Lorg/jetbrains/dokka/pages/PageNode;)Ljava/util/List;
 	public fun expectedLocationForDri (Lorg/jetbrains/dokka/links/DRI;)Ljava/lang/String;
 	public fun pathToRoot (Lorg/jetbrains/dokka/pages/PageNode;)Ljava/lang/String;
@@ -45,8 +45,7 @@ public final class org/jetbrains/dokka/javadoc/location/JavadocLocationProvider 
 
 public final class org/jetbrains/dokka/javadoc/location/JavadocLocationProviderFactory : org/jetbrains/dokka/base/resolvers/local/LocationProviderFactory {
 	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
-	public synthetic fun getLocationProvider (Lorg/jetbrains/dokka/pages/RootPageNode;)Lorg/jetbrains/dokka/base/resolvers/local/LocationProvider;
-	public fun getLocationProvider (Lorg/jetbrains/dokka/pages/RootPageNode;)Lorg/jetbrains/dokka/javadoc/location/JavadocLocationProvider;
+	public fun getLocationProvider (Lorg/jetbrains/dokka/pages/RootPageNode;Ljava/lang/String;)Lorg/jetbrains/dokka/base/resolvers/local/LocationProvider;
 }
 
 public final class org/jetbrains/dokka/javadoc/pages/AllClassesPage : org/jetbrains/dokka/javadoc/pages/JavadocPageNode {
@@ -626,6 +625,7 @@ public abstract interface class org/jetbrains/dokka/javadoc/pages/WithNavigable 
 public final class org/jetbrains/dokka/javadoc/renderer/KorteJavadocRenderer : org/jetbrains/dokka/renderers/Renderer {
 	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;Ljava/lang/String;)V
 	public final fun getContext ()Lorg/jetbrains/dokka/plugability/DokkaContext;
+	public fun getOutputExtension ()Ljava/lang/String;
 	public fun render (Lorg/jetbrains/dokka/pages/RootPageNode;)V
 }
 

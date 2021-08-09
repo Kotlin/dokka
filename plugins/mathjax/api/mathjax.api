@@ -1,6 +1,6 @@
 public final class org/jetbrains/dokka/mathjax/MathjaxPlugin : org/jetbrains/dokka/plugability/DokkaPlugin {
 	public fun <init> ()V
-	public final fun getTransformer ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getTransformer ()Lorg/jetbrains/dokka/plugability/Extensionable;
 }
 
 public final class org/jetbrains/dokka/mathjax/MathjaxTransformer : org/jetbrains/dokka/transformers/pages/PageTransformer {

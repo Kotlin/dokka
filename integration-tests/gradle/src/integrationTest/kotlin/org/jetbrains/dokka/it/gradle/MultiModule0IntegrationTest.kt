@@ -74,6 +74,8 @@ class MultiModule0IntegrationTest(override val versions: BuildVersions) : Abstra
             "Expected moduleC being mentioned in -modules.html"
         )
 
+        outputDir.assertSitemapContent()
+
         val gfmOutputDir = File(projectDir, "moduleA/build/dokka/gfmMultiModule")
         assertTrue(gfmOutputDir.isDirectory, "Missing dokka GFM output directory")
 

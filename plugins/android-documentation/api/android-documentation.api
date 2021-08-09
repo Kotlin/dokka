@@ -1,6 +1,6 @@
 public final class org/jetbrains/dokka/android/AndroidDocumentationPlugin : org/jetbrains/dokka/plugability/DokkaPlugin {
 	public fun <init> ()V
-	public final fun getSuppressedByHideTagDocumentableFilter ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getSuppressedByHideTagDocumentableFilter ()Lorg/jetbrains/dokka/plugability/Extensionable;
 }
 
 public final class org/jetbrains/dokka/android/transformers/HideTagDocumentableFilter : org/jetbrains/dokka/base/transformers/documentables/SuppressedByConditionDocumentableFilterTransformer {

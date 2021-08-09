@@ -15,7 +15,7 @@ import java.util.*
 open class DokkaLocationProvider(
     pageGraphRoot: RootPageNode,
     dokkaContext: DokkaContext,
-    val extension: String = ".html"
+    val extension: String
 ) : DokkaBaseLocationProvider(pageGraphRoot, dokkaContext) {
     protected open val PAGE_WITH_CHILDREN_SUFFIX = "index"
 
@@ -75,7 +75,7 @@ open class DokkaLocationProvider(
             }.toMap()
 
     override fun resolve(node: PageNode, context: PageNode?, skipExtension: Boolean) =
-        pathTo(node, context) + if (!skipExtension) extension else ""
+        pathTo(node, context) + if (!skipExtension && node is ContentPage) extension else ""
 
     override fun resolve(dri: DRI, sourceSets: Set<DisplaySourceSet>, context: PageNode?): String? =
         sourceSets.ifEmpty { setOf(null) }.mapNotNull { sourceSet ->

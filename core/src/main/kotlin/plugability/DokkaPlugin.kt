@@ -25,24 +25,30 @@ abstract class DokkaPlugin {
         )
     }
 
-    protected fun <T : Any> extending(definition: ExtendingDSL.() -> Extension<T, *, *>) = ExtensionProvider(definition)
+    protected fun <T : Any> extending(definition: ExtendingDSL.() -> Extensionable<T, *, *>) = ExtensionProvider(definition)
 
-    protected class ExtensionProvider<T : Any> internal constructor(
-        private val definition: ExtendingDSL.() -> Extension<T, *, *>
+    protected inner class ExtensionProvider<T : Any> internal constructor(
+        private val definition: ExtendingDSL.() -> Extensionable<T, *, *>
     ) {
         operator fun provideDelegate(thisRef: DokkaPlugin, property: KProperty<*>) = lazy {
             ExtendingDSL(
                 thisRef::class.qualifiedName ?: throw AssertionError("Plugin must be named class"),
                 property.name
-            ).definition()
+            ).runCatching { definition() }
+                .onFailure {
+                    context?.logger?.debug(
+                        "Dokka plugin failed to load plugin ${thisRef::class.java.name}." +
+                            " This is an expected behaviour when a plugin is made both for single and multi module projects and run on single module")
+                }
+                .getOrNull() ?: UnregisteredExtension<T, OrderingKind.None, OverrideKind.None>()
         }.also { thisRef.extensionDelegates += property }
     }
 
     internal fun internalInstall(ctx: DokkaContextConfiguration, configuration: DokkaConfiguration) {
         val extensionsToInstall = extensionDelegates.asSequence()
-            .filterIsInstance<KProperty1<DokkaPlugin, Extension<*, *, *>>>() // should be always true
+            .filterIsInstance<KProperty1<DokkaPlugin, Extensionable<*, *, *>>>() // should be always true
             .map { it.get(this) } + unsafePlugins.map { it.value }
-        extensionsToInstall.forEach { if (configuration.(it.condition)()) ctx.installExtension(it) }
+        extensionsToInstall.forEach { if ( it is Extension<*, *, *> && configuration.(it.condition)()) ctx.installExtension(it) }
     }
 
     protected fun <T : Any> unsafeInstall(ext: Lazy<Extension<T, *, *>>) {
