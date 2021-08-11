@@ -24,7 +24,8 @@ fun firstSentenceBriefFromContentNodes(description: List<ContentNode>): List<Con
 
     var sentenceFound = false
     fun lookthrough(node: ContentNode, neighbours: List<ContentNode>, currentIndex: Int): ContentNode =
-        if (node is ContentText && !node.isHtml && firstSentenceRegex.containsMatchIn(node.text) && (currentIndex == neighbours.lastIndex || !neighbours[currentIndex + 1].isHtml)) {
+        if (node.finishesWithSentenceNotFollowedByHtml(firstSentenceRegex, neighbours, currentIndex) || node.containsSentenceFinish(firstSentenceRegex)) {
+            node as ContentText
             sentenceFound = true
             node.copy(text = firstSentenceRegex.find(node.text)?.value.orEmpty())
         } else if (node is ContentGroup) {
@@ -38,6 +39,18 @@ fun firstSentenceBriefFromContentNodes(description: List<ContentNode>): List<Con
         if (!sentenceFound) lookthrough(element, description, i) else null
     }
 }
+
+private fun ContentNode.finishesWithSentenceNotFollowedByHtml(firstSentenceRegex: Regex, neighbours: List<ContentNode>, currentIndex: Int): Boolean =
+    this is ContentText && !isHtml && matchContainsEnd(this, firstSentenceRegex) && !neighbours.nextElementIsHtml(currentIndex)
+
+private fun ContentNode.containsSentenceFinish(firstSentenceRegex: Regex): Boolean =
+    this is ContentText && !isHtml && firstSentenceRegex.containsMatchIn(text) && !matchContainsEnd(this, firstSentenceRegex)
+
+private fun matchContainsEnd(node: ContentText, regex: Regex): Boolean =
+    regex.find(node.text)?.let { node.text.endsWith(it.value) } ?: false
+
+private fun List<ContentNode>.nextElementIsHtml(currentElementIndex: Int): Boolean =
+    currentElementIndex != lastIndex && get(currentElementIndex + 1).isHtml
 
 private val ContentNode.isHtml
     get() = extra[HtmlContent] != null

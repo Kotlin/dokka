@@ -290,6 +290,34 @@ class ContentForBriefTest : BaseAbstractTest() {
         }
     }
 
+    @Test
+    fun `brief for functions should work with html comment at the end for Java`() {
+        testInline(
+            """
+            |/src/main/java/test/Example.java
+            |package test;
+            |
+            |public class Example {
+            |   /**
+            |    * This is a simulation of Prof.<!-- --> Knuth's MIX computer. This is definitely not a brief in java <!-- -->
+            |    */
+            |   public static String test() {
+            |       return "TODO";
+            |   }
+            |}
+        """.trimIndent(),
+            testConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val functionBriefDocs = module.singleFunctionDescription("Example")
+
+                assertEquals(
+                    "This is a simulation of Prof.<!-- --> Knuth's MIX computer.",
+                    functionBriefDocs.children.joinToString("") { (it as ContentText).text })
+            }
+        }
+    }
+
     private fun RootPageNode.singleFunctionDescription(className: String): ContentGroup {
         val classPage = dfs { it.name == className && (it as ContentPage).documentable is DClass } as ContentPage
         val functionsTable =
