@@ -28,6 +28,7 @@ public final class org/jetbrains/dokka/base/DokkaBase : org/jetbrains/dokka/plug
 	public final fun getInheritorsExtractor ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getJavadocLocationProvider ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getKotlinAnalysis ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
+	public final fun getKotlinArrayDocumentableReplacer ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getKotlinSignatureProvider ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getLocationProvider ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getLocationProviderFactory ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
@@ -1014,6 +1015,40 @@ public final class org/jetbrains/dokka/base/transformers/documentables/Deprecate
 	public fun invoke (Ljava/util/List;)Ljava/util/List;
 }
 
+public abstract class org/jetbrains/dokka/base/transformers/documentables/DocumentableReplacerTransformer : org/jetbrains/dokka/transformers/documentation/PreMergeDocumentableTransformer {
+	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
+	public final fun getContext ()Lorg/jetbrains/dokka/plugability/DokkaContext;
+	public fun invoke (Ljava/util/List;)Ljava/util/List;
+	protected fun processBound (Lorg/jetbrains/dokka/model/Bound;)Lorg/jetbrains/dokka/base/transformers/documentables/DocumentableReplacerTransformer$AnyWithChanges;
+	protected fun processClassLike (Lorg/jetbrains/dokka/model/DClasslike;)Lorg/jetbrains/dokka/base/transformers/documentables/DocumentableReplacerTransformer$AnyWithChanges;
+	protected fun processEnumEntry (Lorg/jetbrains/dokka/model/DEnumEntry;)Lorg/jetbrains/dokka/base/transformers/documentables/DocumentableReplacerTransformer$AnyWithChanges;
+	protected final fun processFunction (Lorg/jetbrains/dokka/model/DFunction;)Lorg/jetbrains/dokka/base/transformers/documentables/DocumentableReplacerTransformer$AnyWithChanges;
+	protected fun processFunctionalTypeConstructor (Lorg/jetbrains/dokka/model/FunctionalTypeConstructor;)Lorg/jetbrains/dokka/base/transformers/documentables/DocumentableReplacerTransformer$AnyWithChanges;
+	protected fun processGenericTypeConstructor (Lorg/jetbrains/dokka/model/GenericTypeConstructor;)Lorg/jetbrains/dokka/base/transformers/documentables/DocumentableReplacerTransformer$AnyWithChanges;
+	protected fun processModule (Lorg/jetbrains/dokka/model/DModule;)Lorg/jetbrains/dokka/base/transformers/documentables/DocumentableReplacerTransformer$AnyWithChanges;
+	protected fun processPackage (Lorg/jetbrains/dokka/model/DPackage;)Lorg/jetbrains/dokka/base/transformers/documentables/DocumentableReplacerTransformer$AnyWithChanges;
+	protected fun processParameter (Lorg/jetbrains/dokka/model/DParameter;)Lorg/jetbrains/dokka/base/transformers/documentables/DocumentableReplacerTransformer$AnyWithChanges;
+	protected fun processProjection (Lorg/jetbrains/dokka/model/Projection;)Lorg/jetbrains/dokka/base/transformers/documentables/DocumentableReplacerTransformer$AnyWithChanges;
+	protected fun processProperty (Lorg/jetbrains/dokka/model/DProperty;)Lorg/jetbrains/dokka/base/transformers/documentables/DocumentableReplacerTransformer$AnyWithChanges;
+	protected fun processTypeAlias (Lorg/jetbrains/dokka/model/DTypeAlias;)Lorg/jetbrains/dokka/base/transformers/documentables/DocumentableReplacerTransformer$AnyWithChanges;
+	protected fun processTypeParameter (Lorg/jetbrains/dokka/model/DTypeParameter;)Lorg/jetbrains/dokka/base/transformers/documentables/DocumentableReplacerTransformer$AnyWithChanges;
+	protected fun processVariance (Lorg/jetbrains/dokka/model/Variance;)Lorg/jetbrains/dokka/base/transformers/documentables/DocumentableReplacerTransformer$AnyWithChanges;
+}
+
+protected final class org/jetbrains/dokka/base/transformers/documentables/DocumentableReplacerTransformer$AnyWithChanges {
+	public fun <init> (Ljava/lang/Object;Z)V
+	public synthetic fun <init> (Ljava/lang/Object;ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/Object;
+	public final fun component2 ()Z
+	public final fun copy (Ljava/lang/Object;Z)Lorg/jetbrains/dokka/base/transformers/documentables/DocumentableReplacerTransformer$AnyWithChanges;
+	public static synthetic fun copy$default (Lorg/jetbrains/dokka/base/transformers/documentables/DocumentableReplacerTransformer$AnyWithChanges;Ljava/lang/Object;ZILjava/lang/Object;)Lorg/jetbrains/dokka/base/transformers/documentables/DocumentableReplacerTransformer$AnyWithChanges;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getChanged ()Z
+	public final fun getTarget ()Ljava/lang/Object;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
 public final class org/jetbrains/dokka/base/transformers/documentables/DocumentableVisibilityFilterTransformer : org/jetbrains/dokka/transformers/documentation/PreMergeDocumentableTransformer {
 	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
 	public final fun getContext ()Lorg/jetbrains/dokka/plugability/DokkaContext;
@@ -1060,6 +1095,10 @@ public final class org/jetbrains/dokka/base/transformers/documentables/Inheritor
 public final class org/jetbrains/dokka/base/transformers/documentables/InheritorsInfo$Companion : org/jetbrains/dokka/model/properties/ExtraProperty$Key {
 	public synthetic fun mergeStrategyFor (Ljava/lang/Object;Ljava/lang/Object;)Lorg/jetbrains/dokka/model/properties/MergeStrategy;
 	public fun mergeStrategyFor (Lorg/jetbrains/dokka/base/transformers/documentables/InheritorsInfo;Lorg/jetbrains/dokka/base/transformers/documentables/InheritorsInfo;)Lorg/jetbrains/dokka/model/properties/MergeStrategy;
+}
+
+public final class org/jetbrains/dokka/base/transformers/documentables/KotlinArrayDocumentableReplacerTransformer : org/jetbrains/dokka/base/transformers/documentables/DocumentableReplacerTransformer {
+	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
 }
 
 public final class org/jetbrains/dokka/base/transformers/documentables/ObviousFunctionsDocumentableFilterTransformer : org/jetbrains/dokka/base/transformers/documentables/SuppressedByConditionDocumentableFilterTransformer {
