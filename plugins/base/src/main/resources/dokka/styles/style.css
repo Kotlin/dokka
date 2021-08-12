@@ -7,7 +7,6 @@
     --breadcrumb-font-color: #637282;
     --breadcrumb-margin: 24px;
     --hover-link-color: #5B5DEF;
-    /*--average-color: #637282;*/
     --footer-height: 64px;
     --footer-padding-top: 48px;
     --footer-background: var(--default-gray);
@@ -27,6 +26,7 @@
     --code-background: rgba(39, 40, 44, .05);
     --border-color: rgba(39, 40, 44, .2);
     --top-navigation-height: 67px;
+    --max-width: 1160px;
 }
 
 html {
@@ -58,6 +58,10 @@ html ::-webkit-scrollbar-thumb {
 .main-content {
     padding-bottom: var(--bottom-spacing);
     z-index: 0;
+    max-width: var(--max-width);
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .main-content > * {
@@ -158,15 +162,6 @@ html ::-webkit-scrollbar-thumb {
     display: flex;
     flex-direction: column;
 }
-
-/*.cover .platform-hinted .sourceset-depenent-content > .symbol,*/
-/*.cover > .symbol {*/
-/*    background-color: white;*/
-/*}*/
-
-/*.cover .platform-hinted.with-platform-tabs .sourceset-depenent-content > .symbol {*/
-/*    background-color: var(--background-color);*/
-/*}*/
 
 .cover .platform-hinted.with-platform-tabs .sourceset-depenent-content > .block ~ .symbol {
     padding-top: 16px;
