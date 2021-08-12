@@ -694,6 +694,7 @@ small {
     align-self: flex-end;
     min-height: 30px;
     z-index: 0;
+    flex-wrap: wrap;
 }
 
 .platform-selector:hover {
@@ -1110,21 +1111,12 @@ div.runnablesample {
     }
 
     #leftToggler {
-        display: unset;
-        position: fixed;
-        top: 50%;
-        transform: translateY(-50%);
         z-index: 5;
         font-size: 20px;
         transition: margin .2s ease-out;
+        margin-right: 16px;
 
-        color: var(--average-color);
-        border: 1px solid var(--average-color);
-        border-left: 0;
-        border-top-right-radius: 1em;
-        border-bottom-right-radius: 1em;
-        padding: 8px 4px 8px 8px;
-        background-color: white;
+        color: var(--background-color);
     }
 
     #leftToggler .icon-toggler:hover {
@@ -1136,11 +1128,11 @@ div.runnablesample {
     }
 
     .icon-toggler::before {
-        content: "\232A";
+        content: "\2630";
     }
 
     #leftColumn.open ~ #main .icon-toggler::before {
-        content: "\2329";
+        content: "\2630";
         padding-right: 0.5em;
         margin-left: -0.5em;
     }

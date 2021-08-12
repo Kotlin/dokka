@@ -134,7 +134,6 @@ class ScriptsInstaller(private val dokkaContext: DokkaContext) : PageTransformer
 class StylesInstaller(private val dokkaContext: DokkaContext) : PageTransformer {
     private val stylesPages = listOf(
         "styles/style.css",
-        "styles/logo-styles.css",
         "styles/jetbrains-mono.css",
         "styles/main.css"
     )
@@ -154,7 +153,6 @@ object AssetsInstaller : PageTransformer {
     private val imagesPages = listOf(
         "images/arrow_down.svg",
         "images/arrow_down_white.svg",
-        "images/docs_logo.svg",
         "images/logo-icon.svg",
         "images/go-to-top-icon.svg",
         "images/footer-go-to-link.svg",

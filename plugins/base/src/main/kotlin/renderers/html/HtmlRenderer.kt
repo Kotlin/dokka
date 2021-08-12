@@ -798,6 +798,10 @@ open class HtmlRenderer(
             body {
                 div("navigation-wrapper") {
                     id = "navigation-wrapper"
+                    div {
+                        id = "leftToggler"
+                        span("icon-toggler")
+                    }
                     div("library-name") {
                         clickableLogo(page, pathToRoot)
                     }
@@ -821,10 +825,6 @@ open class HtmlRenderer(
                     }
                     div {
                         id = "main"
-                        div {
-                            id = "leftToggler"
-                            span("icon-toggler")
-                        }
                         templateCommand(PathToRootSubstitutionCommand("###", default = pathToRoot)) {
                             script(type = ScriptType.textJavaScript, src = "###scripts/main.js") {}
                         }
