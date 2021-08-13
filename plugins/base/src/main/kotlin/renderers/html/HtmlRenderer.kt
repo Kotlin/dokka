@@ -686,6 +686,7 @@ open class HtmlRenderer(
                     code.children.forEach { buildContentNode(it, pageContext) }
                 }
             }
+            copyButton()
         }
     }
 

@@ -248,6 +248,7 @@ html ::-webkit-scrollbar-thumb {
 .sample-container, div.CodeMirror {
     display: flex;
     flex-direction: column;
+    position: relative;
 }
 
 code.paragraph {
@@ -365,7 +366,7 @@ code.paragraph {
     padding-right: 14px;
 }
 
-.symbol .top-right-position {
+.symbol .top-right-position, .sample-container .top-right-position {
     /* it is important for a parent to have a position: relative */
     position: absolute;
     top: 8px;
