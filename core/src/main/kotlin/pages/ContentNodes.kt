@@ -339,6 +339,12 @@ enum class ContentKind : Kind {
     }
 }
 
+enum class CodeStyle(val cssClass: String) : Style {
+    Kotlin("language-kt"), Java("language-java");
+
+    override fun toString() = cssClass
+}
+
 enum class TextStyle : Style {
     Bold, Italic, Strong, Strikethrough, Paragraph, Block, Span, Monospace, Indented, Cover, UnderCoverText, BreakableAfter, Breakable
 }

@@ -271,11 +271,10 @@ code.paragraph {
     padding: 0;
 }
 
-.symbol, code {
+.symbol, code.block, code.span {
     background-color: var(--code-background);
     align-items: center;
     box-sizing: border-box;
-    white-space: pre-wrap;
     font-family: var(--default-monospace-font-family);
     font-size: var(--default-font-size);
 }
@@ -285,6 +284,8 @@ code.paragraph {
     padding: 12px 32px 12px 12px;
     border-radius: 8px;
     line-height: 24px;
+    white-space: pre-wrap;
+    position: relative;
 }
 
 .symbol > a {

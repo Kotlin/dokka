@@ -3291,6 +3291,15 @@ public final class org/jetbrains/dokka/pages/ClasslikePageNode : org/jetbrains/d
 	public synthetic fun modified (Ljava/lang/String;Lorg/jetbrains/dokka/pages/ContentNode;Ljava/util/Set;Ljava/util/List;Ljava/util/List;)Lorg/jetbrains/dokka/pages/ContentPage;
 }
 
+public final class org/jetbrains/dokka/pages/CodeStyle : java/lang/Enum, org/jetbrains/dokka/pages/Style {
+	public static final field Java Lorg/jetbrains/dokka/pages/CodeStyle;
+	public static final field Kotlin Lorg/jetbrains/dokka/pages/CodeStyle;
+	public final fun getCssClass ()Ljava/lang/String;
+	public fun toString ()Ljava/lang/String;
+	public static fun valueOf (Ljava/lang/String;)Lorg/jetbrains/dokka/pages/CodeStyle;
+	public static fun values ()[Lorg/jetbrains/dokka/pages/CodeStyle;
+}
+
 public final class org/jetbrains/dokka/pages/CommentTable : org/jetbrains/dokka/pages/Style {
 	public static final field INSTANCE Lorg/jetbrains/dokka/pages/CommentTable;
 }

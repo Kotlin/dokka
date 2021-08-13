@@ -118,6 +118,7 @@ class ScriptsInstaller(private val dokkaContext: DokkaContext) : PageTransformer
         "scripts/navigation-loader.js",
         "scripts/platform-content-handler.js",
         "scripts/main.js",
+        "scripts/prism.js"
     )
 
     override fun invoke(input: RootPageNode): RootPageNode =
@@ -135,7 +136,8 @@ class StylesInstaller(private val dokkaContext: DokkaContext) : PageTransformer 
     private val stylesPages = listOf(
         "styles/style.css",
         "styles/jetbrains-mono.css",
-        "styles/main.css"
+        "styles/main.css",
+        "styles/prism.css"
     )
 
     override fun invoke(input: RootPageNode): RootPageNode =
