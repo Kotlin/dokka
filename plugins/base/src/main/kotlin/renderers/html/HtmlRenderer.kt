@@ -810,6 +810,12 @@ open class HtmlRenderer(
                     }
                     div("pull-right d-flex") {
                         filterButtons(page)
+                        button {
+                            id = "theme-toggle-button"
+                            span {
+                                id = "theme-toggle"
+                            }
+                        }
                         div {
                             id = "searchBar"
                         }

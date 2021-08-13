@@ -27,6 +27,7 @@
     --border-color: rgba(39, 40, 44, .2);
     --top-navigation-height: 67px;
     --max-width: 1160px;
+    --white-10: hsla(0,0%,100%,.1);
 }
 
 html {
@@ -79,6 +80,7 @@ html ::-webkit-scrollbar-thumb {
     color: #fff;
     font-family: var(--default-font-family);
     letter-spacing: -0.1px;
+    align-items: center;
 
     /* Reset margin and use padding for border */
     margin-left: 0;
@@ -97,6 +99,11 @@ html ::-webkit-scrollbar-thumb {
 
 #searchBar {
     margin-left: 16px;
+    display: inline-flex;
+    align-content: center;
+    align-items: center;
+    width: 36px;
+    height: 36px;
 }
 
 .breadcrumbs, .breadcrumbs a, .breadcrumbs a:hover {
@@ -692,9 +699,10 @@ small {
     display: flex;
     flex-direction: row;
     align-self: flex-end;
-    min-height: 30px;
+    min-height: 36px;
     z-index: 0;
     flex-wrap: wrap;
+    align-items: center;
 }
 
 .platform-selector:hover {
@@ -1080,6 +1088,27 @@ div.runnablesample {
     display: flex;
 }
 
+#theme-toggle {
+    content: url("../images/theme-toggle.svg");
+}
+
+#theme-toggle-button {
+    width: 36px;
+    height: 36px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 24px;
+    margin-left: 16px;
+    background-color: inherit;
+    border: none;
+    cursor: pointer;
+}
+
+#theme-toggle-button:hover {
+    background: var(--white-10);
+}
+
 @media screen and (max-width: 1119px) {
     h1.cover {
         font-size: 48px;
@@ -1155,5 +1184,9 @@ div.runnablesample {
     h1.cover {
         font-size: 32px;
         line-height: 32px;
+    }
+
+    #theme-toggle-button {
+        display: none;
     }
 }

@@ -159,6 +159,7 @@ object AssetsInstaller : PageTransformer {
         "images/anchor-copy-button.svg",
         "images/copy-icon.svg",
         "images/copy-successful-icon.svg",
+        "images/theme-toggle.svg",
     )
 
     override fun invoke(input: RootPageNode) = input.modified(
