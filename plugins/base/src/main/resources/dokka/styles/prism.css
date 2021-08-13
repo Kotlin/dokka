@@ -1,3 +1,7 @@
+code .token {
+    white-space: pre-line;
+}
+
 /* PrismJS 1.24.1
 https://prismjs.com/download.html#themes=prism&languages=clike+java+javadoclike+kotlin&plugins=keep-markup */
 /**
