@@ -140,7 +140,7 @@ You can add plugins inside the `dokkaPlugins` block:
 </plugin>
 ```
 
-Please see the [Dokka Maven example project](https://github.com/Kotlin/dokka/tree/master/examples/maven) for an example.
+Please see the [Dokka Maven example project](https://github.com/Kotlin/dokka/tree/master/examples/maven/dokka-maven-example) for an example.
 
 ### Using the Command Line
 

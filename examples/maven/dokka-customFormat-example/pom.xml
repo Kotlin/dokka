@@ -68,6 +68,17 @@
                             <lineSuffix>#L</lineSuffix>
                         </link>
                     </sourceLinks>
+                    <!-- Configures a plugin separately -->
+                    <pluginsConfiguration>
+                        <org.jetbrains.dokka.base.DokkaBase>
+                            <customStyleSheets>
+                                <customStyleSheet>logo-styles.css</customStyleSheet>
+                            </customStyleSheets>
+                            <customAssets>
+                                <customAsset>ktor-logo.png</customAsset>
+                            </customAssets>
+                        </org.jetbrains.dokka.base.DokkaBase>
+                    </pluginsConfiguration>
                 </configuration>
             </plugin>
         </plugins>

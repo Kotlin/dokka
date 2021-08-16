@@ -101,6 +101,12 @@ jobs:
         if: steps.filter.outputs.examples_changed == 'true'
 
   run-dokka-maven-example:
+    strategy:
+      matrix:
+        projects: [
+            examples/maven/dokka-maven-example,
+            examples/maven//dokka-customFormat-example
+        ]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -109,11 +115,10 @@ jobs:
         with:
           filters: |
             examples_changed:
-              - 'examples/maven/**'
-          working-directory: examples/maven
+              - '${{ matrix.projects }}/**'
       - uses: actions/setup-java@v1
         with:
           java-version: 11
       - run: mvn compile dokka:dokka
-        working-directory: examples/maven
+        working-directory: ${{ matrix.projects }}
         if: steps.filter.outputs.examples_changed == 'true'
