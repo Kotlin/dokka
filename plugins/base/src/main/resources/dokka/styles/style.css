@@ -285,6 +285,7 @@ code.paragraph {
     padding: 12px 32px 12px 12px;
     border-radius: 8px;
     line-height: 24px;
+    position: relative;
 }
 
 .symbol > a {

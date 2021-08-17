@@ -725,6 +725,7 @@ open class HtmlRenderer(
             TextStyle.Italic -> i { body() }
             TextStyle.Strikethrough -> strike { body() }
             TextStyle.Strong -> strong { body() }
+            is TokenStyle -> span("token " + styleToApply.toString().toLowerCase()) { body() }
             else -> body()
         }
     }

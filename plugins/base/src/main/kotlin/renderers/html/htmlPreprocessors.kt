@@ -135,7 +135,8 @@ class StylesInstaller(private val dokkaContext: DokkaContext) : PageTransformer 
     private val stylesPages = listOf(
         "styles/style.css",
         "styles/jetbrains-mono.css",
-        "styles/main.css"
+        "styles/main.css",
+        "styles/prism.css"
     )
 
     override fun invoke(input: RootPageNode): RootPageNode =

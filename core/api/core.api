@@ -4059,6 +4059,21 @@ public final class org/jetbrains/dokka/pages/TextStyle : java/lang/Enum, org/jet
 	public static fun values ()[Lorg/jetbrains/dokka/pages/TextStyle;
 }
 
+public final class org/jetbrains/dokka/pages/TokenStyle : java/lang/Enum, org/jetbrains/dokka/pages/Style {
+	public static final field Annotation Lorg/jetbrains/dokka/pages/TokenStyle;
+	public static final field Boolean Lorg/jetbrains/dokka/pages/TokenStyle;
+	public static final field Builtin Lorg/jetbrains/dokka/pages/TokenStyle;
+	public static final field Constant Lorg/jetbrains/dokka/pages/TokenStyle;
+	public static final field Function Lorg/jetbrains/dokka/pages/TokenStyle;
+	public static final field Keyword Lorg/jetbrains/dokka/pages/TokenStyle;
+	public static final field Number Lorg/jetbrains/dokka/pages/TokenStyle;
+	public static final field Operator Lorg/jetbrains/dokka/pages/TokenStyle;
+	public static final field Punctuation Lorg/jetbrains/dokka/pages/TokenStyle;
+	public static final field String Lorg/jetbrains/dokka/pages/TokenStyle;
+	public static fun valueOf (Ljava/lang/String;)Lorg/jetbrains/dokka/pages/TokenStyle;
+	public static fun values ()[Lorg/jetbrains/dokka/pages/TokenStyle;
+}
+
 public final class org/jetbrains/dokka/pages/UtilsKt {
 	public static final fun mapTransform (Lorg/jetbrains/dokka/pages/ContentNode;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/dokka/pages/ContentNode;
 	public static final fun recursiveMapTransform (Lorg/jetbrains/dokka/pages/ContentNode;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/dokka/pages/ContentNode;

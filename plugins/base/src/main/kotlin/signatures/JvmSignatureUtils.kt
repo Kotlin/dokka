@@ -80,21 +80,22 @@ interface JvmSignatureUtils {
 
         when (renderAtStrategy) {
             is All, is OnlyOnce -> {
-                text("@")
                 when(a.scope) {
-                    Annotations.AnnotationScope.GETTER -> text("get:")
-                    Annotations.AnnotationScope.SETTER -> text("set:")
+                    Annotations.AnnotationScope.GETTER -> text("@get:", styles = mainStyles + TokenStyle.Annotation)
+                    Annotations.AnnotationScope.SETTER -> text("@set:", styles = mainStyles + TokenStyle.Annotation)
+                    else -> text("@", styles = mainStyles + TokenStyle.Annotation)
                 }
+                link(a.dri.classNames!!, a.dri, styles = mainStyles + TokenStyle.Annotation)
             }
-            is Never -> Unit
+            is Never -> link(a.dri.classNames!!, a.dri)
         }
-        link(a.dri.classNames!!, a.dri)
         val isNoWrappedBrackets = a.params.entries.isEmpty() && renderAtStrategy is OnlyOnce
         listParams(
             a.params.entries,
             if (isNoWrappedBrackets) null else Pair('(', ')')
         ) {
-            text(it.key + " = ")
+            text(it.key)
+            text(" = ", styles = mainStyles + TokenStyle.Operator)
             when (renderAtStrategy) {
                 is All -> All
                 is Never, is OnlyOnce -> Never
@@ -116,8 +117,8 @@ interface JvmSignatureUtils {
         }
         is EnumValue -> link(a.enumName, a.enumDri)
         is ClassValue -> link(a.className + classExtension, a.classDRI)
-        is StringValue -> group(styles = setOf(TextStyle.Breakable)) { text( "\"${a.text()}\"") }
-        is LiteralValue -> group(styles = setOf(TextStyle.Breakable)) { text(a.text()) }
+        is StringValue -> group(styles = setOf(TextStyle.Breakable)) { text( "\"${a.text()}\"", styles = mainStyles + TokenStyle.String) }
+        is LiteralValue -> group(styles = setOf(TextStyle.Breakable)) { text(a.text(), styles = mainStyles + TokenStyle.Constant) }
     }
 
     private fun<T> PageContentBuilder.DocumentableContentBuilder.listParams(
@@ -125,14 +126,14 @@ interface JvmSignatureUtils {
         listBrackets: Pair<Char, Char>?,
         outFn: PageContentBuilder.DocumentableContentBuilder.(T) -> Unit
     ) {
-        listBrackets?.let{ text(it.first.toString()) }
+        listBrackets?.let{ text(it.first.toString(), styles = mainStyles + TokenStyle.Punctuation) }
         params.forEachIndexed { i, it ->
             group(styles = setOf(TextStyle.BreakableAfter)) {
                 this.outFn(it)
-                if (i != params.size - 1) text(", ")
+                if (i != params.size - 1) text(", ", styles = mainStyles + TokenStyle.Punctuation)
             }
         }
-        listBrackets?.let{ text(it.second.toString()) }
+        listBrackets?.let{ text(it.second.toString(), styles = mainStyles + TokenStyle.Punctuation) }
     }
 
     fun PageContentBuilder.DocumentableContentBuilder.annotationsBlockWithIgnored(

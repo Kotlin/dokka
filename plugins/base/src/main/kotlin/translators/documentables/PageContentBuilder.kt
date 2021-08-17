@@ -194,16 +194,18 @@ open class PageContentBuilder(
             suffix: String = "",
             separator: String = ", ",
             sourceSets: Set<DokkaSourceSet> = mainSourcesetData, // TODO: children should be aware of this platform data
+            borderStyles: Set<Style> = mainStyles,
+            separatorStyles: Set<Style> = mainStyles,
             operation: DocumentableContentBuilder.(T) -> Unit
         ) {
             if (elements.isNotEmpty()) {
-                if (prefix.isNotEmpty()) text(prefix, sourceSets = sourceSets)
+                if (prefix.isNotEmpty()) text(prefix, sourceSets = sourceSets, styles = borderStyles)
                 elements.dropLast(1).forEach {
                     operation(it)
-                    text(separator, sourceSets = sourceSets)
+                    text(separator, sourceSets = sourceSets, styles = separatorStyles)
                 }
                 operation(elements.last())
-                if (suffix.isNotEmpty()) text(suffix, sourceSets = sourceSets)
+                if (suffix.isNotEmpty()) text(suffix, sourceSets = sourceSets, styles = borderStyles)
             }
         }
 
@@ -380,11 +382,12 @@ open class PageContentBuilder(
         fun <T> sourceSetDependentText(
             value: SourceSetDependent<T>,
             sourceSets: Set<DokkaSourceSet> = value.keys,
+            styles: Set<Style> = mainStyles,
             transform: (T) -> String
         ) = value.entries.filter { it.key in sourceSets }.mapNotNull { (p, v) ->
             transform(v).takeIf { it.isNotBlank() }?.let { it to p }
         }.groupBy({ it.first }) { it.second }.forEach {
-            text(it.key, sourceSets = it.value.toSet())
+            text(it.key, sourceSets = it.value.toSet(), styles = styles)
         }
     }
 

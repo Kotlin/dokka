@@ -15,6 +15,7 @@ import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.jetbrains.dokka.pages.ContentKind
 import org.jetbrains.dokka.pages.ContentNode
 import org.jetbrains.dokka.pages.TextStyle
+import org.jetbrains.dokka.pages.TokenStyle
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.querySingle
@@ -60,7 +61,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                         it !in ignoredExtraModifiers || entry.key.analysisPlatform in (platformSpecificModifiers[it]
                             ?: emptySet())
                     }
-                }
+                }, styles = mainStyles + TokenStyle.Keyword
         ) {
             it.toSignatureString()
         }
@@ -93,9 +94,9 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                 ?: emptySet()),
             sourceSets = setOf(sourceSet)
         ) {
-            text("typealias ")
+            text("typealias ", styles = mainStyles + TokenStyle.Keyword)
             link(c.name.orEmpty(), c.dri)
-            text(" = ")
+            text(" = ", styles = mainStyles + TokenStyle.Operator)
             signatureForProjection(aliasedType)
         }
 
@@ -118,7 +119,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
             sourceSets = setOf(sourceSet)
         ) {
             annotationsBlock(c)
-            text(c.visibility[sourceSet]?.takeIf { it !in ignoredVisibilities }?.name?.let { "$it " } ?: "")
+            text(c.visibility[sourceSet]?.takeIf { it !in ignoredVisibilities }?.name?.let { "$it " } ?: "", styles = mainStyles + TokenStyle.Keyword)
             if (c is DClass) {
                 text(
                     if (c.modifier[sourceSet] !in ignoredModifiers)
@@ -128,34 +129,36 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                             else -> c.modifier[sourceSet]?.name?.let { "$it " } ?: ""
                         }
                     else
-                        ""
+                        "", styles = mainStyles + TokenStyle.Keyword
                 )
             }
             when (c) {
                 is DClass -> {
                     processExtraModifiers(c)
-                    text("class ")
+                    text("class ", styles = mainStyles + TokenStyle.Keyword)
                 }
                 is DInterface -> {
                     processExtraModifiers(c)
-                    text("interface ")
+                    text("interface ", styles = mainStyles + TokenStyle.Keyword)
                 }
                 is DEnum -> {
                     processExtraModifiers(c)
-                    text("enum ")
+                    text("enum ", styles = mainStyles + TokenStyle.Keyword)
                 }
                 is DObject -> {
                     processExtraModifiers(c)
-                    text("object ")
+                    text("object ", styles = mainStyles + TokenStyle.Keyword)
                 }
                 is DAnnotation -> {
                     processExtraModifiers(c)
-                    text("annotation class ")
+                    text("annotation class ", styles = mainStyles + TokenStyle.Keyword)
                 }
             }
             link(c.name!!, c.dri)
             if (c is WithGenerics) {
-                list(c.generics, prefix = "<", suffix = ">") {
+                list(c.generics, prefix = "<", suffix = ">",
+                    separatorStyles = mainStyles + TokenStyle.Punctuation,
+                    borderStyles = mainStyles + TokenStyle.Operator) {
                     annotationsInline(it)
                     +buildSignature(it)
                 }
@@ -166,18 +169,20 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                     if (pConstructor.annotations().values.any { it.isNotEmpty() }) {
                         text(nbsp.toString())
                         annotationsInline(pConstructor)
-                        text("constructor")
+                        text("constructor", styles = mainStyles + TokenStyle.Keyword)
                     }
                     list(
-                        pConstructor.parameters,
-                        "(",
-                        ")",
-                        ", ",
-                        pConstructor.sourceSets.toSet()
+                        elements = pConstructor.parameters,
+                        prefix = "(",
+                        suffix = ")",
+                        separator = ", ",
+                        separatorStyles = mainStyles + TokenStyle.Punctuation,
+                        borderStyles = mainStyles + TokenStyle.Punctuation,
+                        sourceSets = pConstructor.sourceSets.toSet()
                     ) {
                         annotationsInline(it)
                         text(it.name ?: "")
-                        text(": ")
+                        text(": ", styles = mainStyles + TokenStyle.Operator)
                         signatureForProjection(it.type)
                     }
                 }
@@ -186,7 +191,9 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                 c.supertypes.filter { it.key == sourceSet }.map { (s, typeConstructors) ->
                     list(typeConstructors, prefix = " : ", sourceSets = setOf(s)) {
                         link(it.typeConstructor.dri.sureClassNames, it.typeConstructor.dri, sourceSets = setOf(s))
-                        list(it.typeConstructor.projections, prefix = "<", suffix = "> ") {
+                        list(it.typeConstructor.projections, prefix = "<", suffix = "> ",
+                            separatorStyles = mainStyles + TokenStyle.Punctuation,
+                            borderStyles = mainStyles + TokenStyle.Operator) {
                             signatureForProjection(it)
                         }
                     }
@@ -203,15 +210,17 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                 sourceSets = setOf(it)
             ) {
                 annotationsBlock(p)
-                text(p.visibility[it].takeIf { it !in ignoredVisibilities }?.name?.let { "$it " } ?: "")
+                text(p.visibility[it].takeIf { it !in ignoredVisibilities }?.name?.let { "$it " } ?: "", styles = mainStyles + TokenStyle.Keyword)
                 text(
                     p.modifier[it].takeIf { it !in ignoredModifiers }?.let {
                         if (it is JavaModifier.Empty) KotlinModifier.Open else it
-                    }?.name?.let { "$it " } ?: ""
-                )
-                text(p.modifiers()[it]?.toSignatureString() ?: "")
-                p.setter?.let { text("var ") } ?: text("val ")
-                list(p.generics, prefix = "<", suffix = "> ") {
+                    }?.name?.let { "$it " } ?: "" ,
+                styles = mainStyles + TokenStyle.Keyword)
+                text(p.modifiers()[it]?.toSignatureString() ?: "", styles = mainStyles + TokenStyle.Keyword)
+                p.setter?.let { text("var ", styles = mainStyles + TokenStyle.Keyword) } ?: text("val ", styles = mainStyles + TokenStyle.Keyword)
+                list(p.generics, prefix = "<", suffix = "> ",
+                    separatorStyles = mainStyles + TokenStyle.Punctuation,
+                    borderStyles = mainStyles + TokenStyle.Operator) {
                     annotationsInline(it)
                     +buildSignature(it)
                 }
@@ -220,13 +229,22 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                     text(".")
                 }
                 link(p.name, p.dri)
-                text(": ")
+                text(": ", styles = mainStyles + TokenStyle.Operator)
                 signatureForProjection(p.type)
                 p.extra[DefaultValue]?.run {
-                    text(" = $value")
+                    text(" = ", styles = mainStyles + TokenStyle.Operator)
+                    highlightValue(value)
                 }
             }
         }
+
+    private fun PageContentBuilder.DocumentableContentBuilder.highlightValue(v: String) {
+        if(v.matches(HighlightingRegex.isNumber)) text(v, styles = mainStyles + TokenStyle.Number)
+        else if(v.matches(HighlightingRegex.isString)) text(v, styles = mainStyles + TokenStyle.String)
+        else if (v == "null") text(v, styles = mainStyles + TokenStyle.Constant)
+        else if (v == "true" || v == "false") text(v, styles = mainStyles + TokenStyle.Boolean)
+        else text(v)
+    }
 
     private fun functionSignature(f: DFunction) =
         f.sourceSets.map {
@@ -237,15 +255,17 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                 sourceSets = setOf(it)
             ) {
                 annotationsBlock(f)
-                text(f.visibility[it]?.takeIf { it !in ignoredVisibilities }?.name?.let { "$it " } ?: "")
+                text(f.visibility[it]?.takeIf { it !in ignoredVisibilities }?.name?.let { "$it " } ?: "", styles = mainStyles + TokenStyle.Keyword)
                 text(f.modifier[it]?.takeIf { it !in ignoredModifiers }?.let {
                     if (it is JavaModifier.Empty) KotlinModifier.Open else it
-                }?.name?.let { "$it " } ?: ""
-                )
-                text(f.modifiers()[it]?.toSignatureString() ?: "")
-                text("fun ")
+                }?.name?.let { "$it " } ?: "",
+                styles = mainStyles + TokenStyle.Keyword)
+                text(f.modifiers()[it]?.toSignatureString() ?: "", styles = mainStyles + TokenStyle.Keyword)
+                text("fun ", styles = mainStyles + TokenStyle.Keyword)
                 val usedGenerics = if (f.isConstructor) f.generics.filter { f uses it } else f.generics
-                list(usedGenerics, prefix = "<", suffix = "> ") {
+                list(usedGenerics, prefix = "<", suffix = "> ",
+                    separatorStyles = mainStyles + TokenStyle.Punctuation,
+                    borderStyles = mainStyles + TokenStyle.Operator) {
                     annotationsInline(it)
                     +buildSignature(it)
                 }
@@ -253,21 +273,23 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                     signatureForProjection(it.type)
                     text(".")
                 }
-                link(f.name, f.dri)
-                text("(")
-                list(f.parameters) {
+                link(f.name, f.dri, styles = mainStyles + TokenStyle.Function)
+                text("(", styles = mainStyles + TokenStyle.Punctuation)
+                list(f.parameters,
+                    separatorStyles = mainStyles + TokenStyle.Punctuation) {
                     annotationsInline(it)
                     processExtraModifiers(it)
                     text(it.name!!)
-                    text(": ")
+                    text(": ", styles = mainStyles + TokenStyle.Operator)
                     signatureForProjection(it.type)
                     it.extra[DefaultValue]?.run {
-                        text(" = $value")
+                        text(" = ", styles = mainStyles + TokenStyle.Operator)
+                        highlightValue(value)
                     }
                 }
-                text(")")
+                text(")", styles = mainStyles + TokenStyle.Punctuation)
                 if (f.documentReturnType()) {
-                    text(": ")
+                    text(": ", styles = mainStyles + TokenStyle.Operator)
                     signatureForProjection(f.type)
                 }
             }
@@ -291,11 +313,12 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                         sourceSets = platforms.toSet()
                     ) {
                         annotationsBlock(t)
-                        text(t.visibility[it]?.takeIf { it !in ignoredVisibilities }?.name?.let { "$it " } ?: "")
+                        text(t.visibility[it]?.takeIf { it !in ignoredVisibilities }?.name?.let { "$it " } ?: "",
+                            styles = mainStyles + TokenStyle.Keyword)
                         processExtraModifiers(t)
-                        text("typealias ")
+                        text("typealias ", styles = mainStyles + TokenStyle.Keyword)
                         signatureForProjection(t.type)
-                        text(" = ")
+                        text(" = ", styles = mainStyles + TokenStyle.Operator)
                         signatureForTypealiasTarget(t, type)
                     }
                 }
@@ -306,7 +329,8 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
         t.sourceSets.map {
             contentBuilder.contentFor(t, styles = t.stylesIfDeprecated(it), sourceSets = setOf(it)) {
                 signatureForProjection(t.variantTypeParameter.withDri(t.dri.withTargetToDeclaration()))
-                list(t.nontrivialBounds, prefix = " : ") { bound ->
+                list(t.nontrivialBounds, prefix = " : ",
+                borderStyles = mainStyles + TokenStyle.Operator) { bound ->
                     signatureForProjection(bound)
                 }
             }
@@ -338,16 +362,21 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                     val linkText = if (showFullyQualifiedName && p.dri.packageName != null) {
                         "${p.dri.packageName}.${p.dri.classNames.orEmpty()}"
                     } else p.dri.classNames.orEmpty()
-                    if (p.presentableName != null) text(p.presentableName + ": ")
+                    if (p.presentableName != null) {
+                        text(p.presentableName!!)
+                        text(": ", styles = mainStyles + TokenStyle.Operator)
+                    }
                     annotationsInline(p)
                     link(linkText, p.dri)
-                    list(p.projections, prefix = "<", suffix = ">") {
+                    list(p.projections, prefix = "<", suffix = ">",
+                        separatorStyles = mainStyles + TokenStyle.Punctuation,
+                        borderStyles = mainStyles + TokenStyle.Operator) {
                         signatureForProjection(it, showFullyQualifiedName)
                     }
                 }
 
             is Variance<*> -> group(styles = emptySet()) {
-                text("$p ".takeIf { it.isNotBlank() } ?: "")
+                text("$p ".takeIf { it.isNotBlank() } ?: "", styles = mainStyles + TokenStyle.Keyword)
                 signatureForProjection(p.inner, showFullyQualifiedName)
             }
 
@@ -355,7 +384,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
 
             is Nullable -> group(styles = emptySet()) {
                 signatureForProjection(p.inner, showFullyQualifiedName)
-                text("?")
+                text("?", styles =  mainStyles + TokenStyle.Operator)
             }
 
             is TypeAliased -> signatureForProjection(p.typeAlias)
@@ -373,8 +402,11 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
     private fun funType(dri: DRI, sourceSets: Set<DokkaSourceSet>, type: FunctionalTypeConstructor) =
         contentBuilder.contentFor(dri, sourceSets, ContentKind.Main) {
 
-            if (type.presentableName != null) text(type.presentableName + ": ")
-            if (type.isSuspendable) text("suspend ")
+            if (type.presentableName != null) {
+                text(type.presentableName!!)
+                text(": ", styles = mainStyles + TokenStyle.Operator)
+            }
+            if (type.isSuspendable) text("suspend ", styles = mainStyles + TokenStyle.Keyword)
 
             if (type.isExtensionFunction) {
                 signatureForProjection(type.projections.first())
@@ -386,14 +418,20 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
             else
                 type.projections
 
-            text("(")
+            text("(", styles = mainStyles + TokenStyle.Punctuation)
             args.subList(0, args.size - 1).forEachIndexed { i, arg ->
                 signatureForProjection(arg)
-                if (i < args.size - 2) text(", ")
+                if (i < args.size - 2) text(", ", styles = mainStyles + TokenStyle.Punctuation)
             }
-            text(") -> ")
+            text(")", styles = mainStyles + TokenStyle.Punctuation)
+            text(" -> ", styles = mainStyles + TokenStyle.Operator)
             signatureForProjection(args.last())
         }
+}
+
+object HighlightingRegex{
+    val isNumber = Regex("""\b(?:(?:0[xX](?:[\dA-Fa-f](?:_[\dA-Fa-f])?)+|0[bB](?:[01](?:_[01])?)+|0[oO](?:[0-7](?:_[0-7])?)+)n?|(?:\d(?:_\d)?)+n|NaN|Infinity)\b|(?:\b(?:\d(?:_\d)?)+\.?(?:\d(?:_\d)?)*|\B\.(?:\d(?:_\d)?)+)(?:[Ee][+-]?(?:\d(?:_\d)?)+)?${'$'}""")
+    val isString = Regex("""(["'])(?:\\(?:\r\n|[\s\S])|(?!\1)[^\\\r\n])*\1""")
 }
 
 private fun PrimitiveJavaType.translateToKotlin() = GenericTypeConstructor(
