@@ -91,7 +91,8 @@ open class HtmlRenderer(
                 childrenCallback()
             }
             node.dci.kind in setOf(ContentKind.Symbol) -> div("symbol $additionalClasses") {
-                childrenCallback()
+                code("language-kt") { childrenCallback() }
+
                 if (node.hasStyle(TextStyle.Monospace)) copyButton()
             }
             node.hasStyle(TextStyle.BreakableAfter) -> {
@@ -677,13 +678,15 @@ open class HtmlRenderer(
         pageContext: ContentPage
     ) {
         div("sample-container") {
-            val stylesWithBlock = code.style + TextStyle.Block
-            code(stylesWithBlock.joinToString(" ") { it.toString().toLowerCase() }) {
-                attributes["theme"] = "idea"
-                pre {
+            val stylesWithBlock = code.style + TextStyle.Block + CodeStyle.Kotlin
+            pre {
+                code(stylesWithBlock.joinToString(" ") { it.toString().toLowerCase() }) {
+                    attributes["theme"] = "idea"
+
                     code.children.forEach { buildContentNode(it, pageContext) }
                 }
             }
+            copyButton()
         }
     }
 
@@ -691,7 +694,8 @@ open class HtmlRenderer(
         code: ContentCodeInline,
         pageContext: ContentPage
     ) {
-        code {
+        val stylesWithBlock = code.style + TextStyle.Span + CodeStyle.Kotlin
+        code(stylesWithBlock.joinToString(" ") { it.toString().toLowerCase() }) {
             code.children.forEach { buildContentNode(it, pageContext) }
         }
     }
