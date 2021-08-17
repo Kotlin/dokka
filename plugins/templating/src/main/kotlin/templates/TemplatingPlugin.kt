@@ -1,6 +1,5 @@
 package org.jetbrains.dokka.templates
 
-import org.jetbrains.dokka.allModulesPage.templates.NavigationSearchTemplateStrategy
 import org.jetbrains.dokka.allModulesPage.templates.PackageListProcessingStrategy
 import org.jetbrains.dokka.allModulesPage.templates.PagesSearchTemplateStrategy
 import org.jetbrains.dokka.plugability.DokkaPlugin
@@ -26,11 +25,6 @@ class TemplatingPlugin : DokkaPlugin() {
 
     val directiveBasedHtmlTemplateProcessingStrategy by extending {
         templateProcessingStrategy providing ::DirectiveBasedHtmlTemplateProcessingStrategy order {
-            before(fallbackProcessingStrategy)
-        }
-    }
-    val navigationSearchTemplateStrategy by extending {
-        templateProcessingStrategy providing ::NavigationSearchTemplateStrategy order {
             before(fallbackProcessingStrategy)
         }
     }
