@@ -677,10 +677,11 @@ open class HtmlRenderer(
         pageContext: ContentPage
     ) {
         div("sample-container") {
-            val stylesWithBlock = code.style + TextStyle.Block
-            code(stylesWithBlock.joinToString(" ") { it.toString().toLowerCase() }) {
-                attributes["theme"] = "idea"
-                pre {
+            val codeLang = "lang-"+code.language.ifEmpty { "kotlin" }
+            val stylesWithBlock = code.style + TextStyle.Block + codeLang
+            pre {
+                code(stylesWithBlock.joinToString(" ") { it.toString().toLowerCase() }) {
+                    attributes["theme"] = "idea"
                     code.children.forEach { buildContentNode(it, pageContext) }
                 }
             }
@@ -691,7 +692,9 @@ open class HtmlRenderer(
         code: ContentCodeInline,
         pageContext: ContentPage
     ) {
-        code {
+        val codeLang = "lang-"+code.language.ifEmpty { "kotlin" }
+        val stylesWithBlock = code.style + codeLang
+        code(stylesWithBlock.joinToString(" ") { it.toString().toLowerCase() }) {
             code.children.forEach { buildContentNode(it, pageContext) }
         }
     }

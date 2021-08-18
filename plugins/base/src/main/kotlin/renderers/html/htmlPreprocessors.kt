@@ -118,6 +118,7 @@ class ScriptsInstaller(private val dokkaContext: DokkaContext) : PageTransformer
         "scripts/navigation-loader.js",
         "scripts/platform-content-handler.js",
         "scripts/main.js",
+        "scripts/prism.js"
     )
 
     override fun invoke(input: RootPageNode): RootPageNode =
