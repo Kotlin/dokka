@@ -36,7 +36,8 @@ class SignatureTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/simple-fun.html").firstSignature().match(
-                    "fun ", A("simpleFun"), "(): ", A("String"), Span()
+                    "fun ", A("simpleFun"), "(): ", A("String"), Span(),
+                        ignoreSpan = true
                 )
             }
         }
@@ -54,7 +55,8 @@ class SignatureTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/simple-fun.html").firstSignature().match(
-                    "open fun ", A("simpleFun"), "(): ", A("String"), Span()
+                    "open fun ", A("simpleFun"), "(): ", A("String"), Span(),
+                        ignoreSpan = true
                 )
             }
         }
@@ -72,7 +74,8 @@ class SignatureTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/simple-fun.html").firstSignature().match(
-                    "open suspend fun ", A("simpleFun"), "(): ", A("String"), Span()
+                    "open suspend fun ", A("simpleFun"), "(): ", A("String"), Span(),
+                        ignoreSpan = true
                 )
             }
         }
@@ -92,7 +95,8 @@ class SignatureTest : BaseAbstractTest() {
                 writerPlugin.writer.renderedContent("root/example/simple-fun.html").firstSignature().match(
                     "fun ", A("simpleFun"), "(a: ", A("Int"),
                     ", b: ", A("Boolean"), ", c: ", A("Any"),
-                    "): ", A("String"), Span()
+                    "): ", A("String"), Span(),
+                        ignoreSpan = true
                 )
             }
         }
@@ -111,7 +115,8 @@ class SignatureTest : BaseAbstractTest() {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/simple-fun.html").firstSignature().match(
                     "fun ", A("simpleFun"), "(a: (", A("Int"),
-                    ") -> ", A("String"), "): ", A("String"), Span()
+                    ") -> ", A("String"), "): ", A("String"), Span(),
+                        ignoreSpan = true
                 )
             }
         }
@@ -130,7 +135,8 @@ class SignatureTest : BaseAbstractTest() {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/simple-fun.html").firstSignature().match(
                     "fun <", A("T"), "> ", A("simpleFun"), "(): ",
-                    A("T"), Span()
+                    A("T"), Span(),
+                        ignoreSpan = true
                 )
             }
         }
@@ -149,7 +155,8 @@ class SignatureTest : BaseAbstractTest() {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/simple-fun.html").firstSignature().match(
                     "fun <", A("T"), " : ", A("String"), "> ", A("simpleFun"),
-                    "(): ", A("T"), Span()
+                    "(): ", A("T"), Span(),
+                        ignoreSpan = true
                 )
             }
         }
@@ -168,7 +175,8 @@ class SignatureTest : BaseAbstractTest() {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/simple-fun.html").firstSignature().match(
                     "inline suspend fun <", A("T"), " : ", A("String"), "> ", A("simpleFun"),
-                    "(a: ", A("Int"), ", b: ", A("String"), "): ", A("T"), Span()
+                    "(a: ", A("Int"), ", b: ", A("String"), "): ", A("T"), Span(),
+                        ignoreSpan = true
                 )
             }
         }
@@ -186,7 +194,8 @@ class SignatureTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/simple-fun.html").firstSignature().match(
-                    "fun ", A("simpleFun"), "(vararg params: ", A("Int"), ")", Span()
+                    "fun ", A("simpleFun"), "(vararg params: ", A("Int"), ")", Span(),
+                        ignoreSpan = true
                 )
             }
         }
@@ -204,7 +213,8 @@ class SignatureTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/-simple-class/index.html").firstSignature().match(
-                    "class ", A("SimpleClass"), Span()
+                    "class ", A("SimpleClass"), Span(),
+                        ignoreSpan = true
                 )
             }
         }
@@ -223,7 +233,8 @@ class SignatureTest : BaseAbstractTest() {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/-inheriting-class-from-generic-type/index.html").firstSignature().match(
                     "class ", A("InheritingClassFromGenericType"), " <", A("T"), " : ", A("Number"), ", ", A("R"), " : ", A("CharSequence"),
-                    "> : ", A("Comparable"), "<", A("T"), "> , ", A("Collection"), "<", A("R"), ">", Span()
+                    "> : ", A("Comparable"), "<", A("T"), "> , ", A("Collection"), "<", A("R"), ">", Span(),
+                        ignoreSpan = true
                 )
             }
         }
@@ -241,7 +252,8 @@ class SignatureTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/-k-runnable/index.html").firstSignature().match(
-                    "fun interface ", A("KRunnable"), Span()
+                    "fun interface ", A("KRunnable"), Span(),
+                        ignoreSpan = true
                 )
             }
         }
@@ -273,7 +285,8 @@ class SignatureTest : BaseAbstractTest() {
                         Div("@", A("Marking"))
                     ),
                     "fun ", A("simpleFun"),
-                    "(): ", A("String"), Span()
+                    "(): ", A("String"), Span(),
+                    ignoreSpan = true
                 )
             }
         }
@@ -307,7 +320,8 @@ class SignatureTest : BaseAbstractTest() {
                         Div("@set:", A("Marking"))
                     ),
                     "var ", A("str"),
-                    ": ", A("String"), Span()
+                    ": ", A("String"), Span(),
+                    ignoreSpan = true
                 )
             }
         }
@@ -347,7 +361,8 @@ class SignatureTest : BaseAbstractTest() {
                            Div("@", A("Marking2"), "(", Span("int = ", Span("1")), Wbr, ")")
                         ),
                         "fun ", A("simpleFun"),
-                        "(): ", A("String"), Span()
+                        "(): ", A("String"), Span(),
+                        ignoreSpan = true
                     )
             }
         }
@@ -387,7 +402,8 @@ class SignatureTest : BaseAbstractTest() {
                         )
                     ),
                     "fun ", A("simpleFun"),
-                    "(): ", A("String"), Span()
+                    "(): ", A("String"), Span(),
+                        ignoreSpan = true
                 )
             }
         }
@@ -436,7 +452,8 @@ class SignatureTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("test/example/-foo/index.html").signature().toList()[1].match(
-                    "typealias ", A("Foo"), " = ", A("Bar"), Span()
+                    "typealias ", A("Foo"), " = ", A("Bar"), Span(),
+                        ignoreSpan = true
                 )
             }
         }
@@ -460,7 +477,8 @@ class SignatureTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example.html").signature().first().match(
-                    "typealias ", A("PlainTypealias"), " = ", A("Int"), Span()
+                    "typealias ", A("PlainTypealias"), " = ", A("Int"), Span(),
+                        ignoreSpan = true
                 )
             }
         }
@@ -494,7 +512,8 @@ class SignatureTest : BaseAbstractTest() {
                             "@", A("SomeAnnotation")
                         )
                     ),
-                    "typealias ", A("PlainTypealias"), " = ", A("Int"), Span()
+                    "typealias ", A("PlainTypealias"), " = ", A("Int"), Span(),
+                        ignoreSpan = true
                 )
             }
         }
@@ -519,7 +538,8 @@ class SignatureTest : BaseAbstractTest() {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example.html").signature().first().match(
                     "typealias ", A("PlainTypealias"), " = ", A("Comparable"),
-                    "<", A("Int"), ">", Span()
+                    "<", A("Int"), ">", Span(),
+                        ignoreSpan = true
                 )
             }
         }
@@ -545,7 +565,8 @@ class SignatureTest : BaseAbstractTest() {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example.html").signature().first().match(
                     "typealias ", A("GenericTypealias"), "<", A("T"), "> = ", A("Comparable"),
-                    "<", A("T"), ">", Span()
+                    "<", A("T"), ">", Span(),
+                        ignoreSpan = true
                 )
             }
         }
@@ -573,7 +594,8 @@ class SignatureTest : BaseAbstractTest() {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/kotlinAsJavaPlugin/-a-b-c/some-fun.html").signature().first().match(
                     "fun ", A("someFun"), "(xd: ", A("XD"), "<", A("Int"),
-                    ", ", A("String"), ">):", A("Int"), Span()
+                    ", ", A("String"), ">):", A("Int"), Span(),
+                        ignoreSpan = true
                 )
             }
         }
@@ -618,7 +640,7 @@ class SignatureTest : BaseAbstractTest() {
                         arrayOf("fun ", A("GenericClass"), "(x: ", A("Int"), ")", Span()),
                     )
                 ).forEach {
-                    it.first.match(*it.second)
+                    it.first.match(*it.second, ignoreSpan = true)
                 }
             }
         }
@@ -637,7 +659,8 @@ class SignatureTest : BaseAbstractTest() {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/simple-fun.html").firstSignature().match(
                     "fun", A("simpleFun"), "(int: ", A("Int"), " = 1, string: ", A("String"),
-                            " = \"string\"): ", A("String"), Span()
+                            " = \"string\"): ", A("String"), Span(),
+                        ignoreSpan = true
                 )
             }
         }
@@ -655,7 +678,8 @@ class SignatureTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/index.html").firstSignature().match(
-                    "const val ", A("simpleVal"), ": ", A("Int"), " = 1", Span()
+                    "const val ", A("simpleVal"), ": ", A("Int"), " = 1", Span(),
+                        ignoreSpan = true
                 )
             }
         }
