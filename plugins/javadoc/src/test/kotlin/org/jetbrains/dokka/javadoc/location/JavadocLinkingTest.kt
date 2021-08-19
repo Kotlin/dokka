@@ -45,7 +45,7 @@ class JavadocLinkingTest : BaseAbstractTest() {
             | * Here comes some comment
             | *
             | * {@link example.SomeClass#someFun(int) someName(ads,
-            | * dsa)}
+            | *  dsa)}
             | *
             | * longer comment
             | */
