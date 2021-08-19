@@ -1331,6 +1331,7 @@ public class org/jetbrains/dokka/base/translators/documentables/PageContentBuild
 	public final fun buildSignature (Lorg/jetbrains/dokka/model/Documentable;)Ljava/util/List;
 	public final fun comment (Lorg/jetbrains/dokka/model/doc/DocTag;Lorg/jetbrains/dokka/pages/Kind;Ljava/util/Set;Ljava/util/Set;Lorg/jetbrains/dokka/model/properties/PropertyContainer;)V
 	public static synthetic fun comment$default (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Lorg/jetbrains/dokka/model/doc/DocTag;Lorg/jetbrains/dokka/pages/Kind;Ljava/util/Set;Ljava/util/Set;Lorg/jetbrains/dokka/model/properties/PropertyContainer;ILjava/lang/Object;)V
+	public final fun constant (Ljava/lang/String;)V
 	public final fun cover (Ljava/lang/String;Ljava/util/Set;Ljava/util/Set;Lorg/jetbrains/dokka/model/properties/PropertyContainer;Lkotlin/jvm/functions/Function1;)V
 	public static synthetic fun cover$default (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Ljava/lang/String;Ljava/util/Set;Ljava/util/Set;Lorg/jetbrains/dokka/model/properties/PropertyContainer;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
 	protected final fun createText (Ljava/lang/String;Lorg/jetbrains/dokka/pages/Kind;Ljava/util/Set;Ljava/util/Set;Lorg/jetbrains/dokka/model/properties/PropertyContainer;)Lorg/jetbrains/dokka/pages/ContentText;
@@ -1347,6 +1348,7 @@ public class org/jetbrains/dokka/base/translators/documentables/PageContentBuild
 	public static synthetic fun group$default (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Ljava/util/Set;Ljava/util/Set;Lorg/jetbrains/dokka/pages/Kind;Ljava/util/Set;Lorg/jetbrains/dokka/model/properties/PropertyContainer;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
 	public final fun header (ILjava/lang/String;Lorg/jetbrains/dokka/pages/Kind;Ljava/util/Set;Ljava/util/Set;Lorg/jetbrains/dokka/model/properties/PropertyContainer;Lkotlin/jvm/functions/Function1;)V
 	public static synthetic fun header$default (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;ILjava/lang/String;Lorg/jetbrains/dokka/pages/Kind;Ljava/util/Set;Ljava/util/Set;Lorg/jetbrains/dokka/model/properties/PropertyContainer;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
+	public final fun keyword (Ljava/lang/String;)V
 	public final fun link (Ljava/lang/String;Ljava/lang/String;Lorg/jetbrains/dokka/pages/Kind;Ljava/util/Set;Ljava/util/Set;Lorg/jetbrains/dokka/model/properties/PropertyContainer;)V
 	public final fun link (Ljava/lang/String;Lorg/jetbrains/dokka/links/DRI;Lorg/jetbrains/dokka/pages/Kind;Ljava/util/Set;Ljava/util/Set;Lorg/jetbrains/dokka/model/properties/PropertyContainer;)V
 	public final fun link (Lorg/jetbrains/dokka/links/DRI;Lorg/jetbrains/dokka/pages/Kind;Ljava/util/Set;Ljava/util/Set;Lorg/jetbrains/dokka/model/properties/PropertyContainer;Lkotlin/jvm/functions/Function1;)V
@@ -1357,12 +1359,15 @@ public class org/jetbrains/dokka/base/translators/documentables/PageContentBuild
 	public static synthetic fun linkNode$default (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Ljava/lang/String;Lorg/jetbrains/dokka/links/DRI;Lorg/jetbrains/dokka/pages/DCI;Ljava/util/Set;Ljava/util/Set;Lorg/jetbrains/dokka/model/properties/PropertyContainer;ILjava/lang/Object;)Lorg/jetbrains/dokka/pages/ContentDRILink;
 	public final fun list (Ljava/util/List;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/Set;Ljava/util/Set;Ljava/util/Set;Lkotlin/jvm/functions/Function2;)V
 	public static synthetic fun list$default (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Ljava/util/List;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/Set;Ljava/util/Set;Ljava/util/Set;Lkotlin/jvm/functions/Function2;ILjava/lang/Object;)V
+	public final fun operator (Ljava/lang/String;)V
+	public final fun punctuation (Ljava/lang/String;)V
 	public final fun sourceSetDependentHint (Ljava/util/Set;Ljava/util/Set;Lorg/jetbrains/dokka/pages/Kind;Ljava/util/Set;Lorg/jetbrains/dokka/model/properties/PropertyContainer;Lkotlin/jvm/functions/Function1;)V
 	public final fun sourceSetDependentHint (Lorg/jetbrains/dokka/links/DRI;Ljava/util/Set;Lorg/jetbrains/dokka/pages/Kind;Ljava/util/Set;Lorg/jetbrains/dokka/model/properties/PropertyContainer;Lkotlin/jvm/functions/Function1;)V
 	public static synthetic fun sourceSetDependentHint$default (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Ljava/util/Set;Ljava/util/Set;Lorg/jetbrains/dokka/pages/Kind;Ljava/util/Set;Lorg/jetbrains/dokka/model/properties/PropertyContainer;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
 	public static synthetic fun sourceSetDependentHint$default (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Lorg/jetbrains/dokka/links/DRI;Ljava/util/Set;Lorg/jetbrains/dokka/pages/Kind;Ljava/util/Set;Lorg/jetbrains/dokka/model/properties/PropertyContainer;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
 	public final fun sourceSetDependentText (Ljava/util/Map;Ljava/util/Set;Ljava/util/Set;Lkotlin/jvm/functions/Function1;)V
 	public static synthetic fun sourceSetDependentText$default (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Ljava/util/Map;Ljava/util/Set;Ljava/util/Set;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
+	public final fun stringLiteral (Ljava/lang/String;)V
 	public final fun table (Lorg/jetbrains/dokka/pages/Kind;Ljava/util/Set;Ljava/util/Set;Lorg/jetbrains/dokka/model/properties/PropertyContainer;Lkotlin/jvm/functions/Function1;)V
 	public static synthetic fun table$default (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Lorg/jetbrains/dokka/pages/Kind;Ljava/util/Set;Ljava/util/Set;Lorg/jetbrains/dokka/model/properties/PropertyContainer;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
 	public final fun text (Ljava/lang/String;Lorg/jetbrains/dokka/pages/Kind;Ljava/util/Set;Ljava/util/Set;Lorg/jetbrains/dokka/model/properties/PropertyContainer;)V

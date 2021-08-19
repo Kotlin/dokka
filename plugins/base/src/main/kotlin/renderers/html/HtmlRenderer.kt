@@ -677,7 +677,7 @@ open class HtmlRenderer(
         pageContext: ContentPage
     ) {
         div("sample-container") {
-            val codeLang = "lang-"+code.language.ifEmpty { "kotlin" }
+            val codeLang = "lang-" + code.language.ifEmpty { "kotlin" }
             val stylesWithBlock = code.style + TextStyle.Block + codeLang
             pre {
                 code(stylesWithBlock.joinToString(" ") { it.toString().toLowerCase() }) {
@@ -693,7 +693,7 @@ open class HtmlRenderer(
         code: ContentCodeInline,
         pageContext: ContentPage
     ) {
-        val codeLang = "lang-"+code.language.ifEmpty { "kotlin" }
+        val codeLang = "lang-" + code.language.ifEmpty { "kotlin" }
         val stylesWithBlock = code.style + codeLang
         code(stylesWithBlock.joinToString(" ") { it.toString().toLowerCase() }) {
             code.children.forEach { buildContentNode(it, pageContext) }

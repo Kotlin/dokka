@@ -4,10 +4,10 @@ import org.jsoup.nodes.Element
 import org.jsoup.nodes.Node
 import org.jsoup.nodes.TextNode
 
-fun Element.match(vararg matchers: Any, ignoreSpan:Boolean = false): Unit =
+fun Element.match(vararg matchers: Any, ignoreSpanWithTokenStyle:Boolean = false): Unit =
     childNodes()
         .let { list ->
-            if(ignoreSpan) {
+            if(ignoreSpanWithTokenStyle) {
                 list
                     .filterNot { it is Element && it.tagName() == "span" && it.attr("class").startsWith("token ") &&  it.childNodeSize() == 0}
                     .map { if(it is Element && it.tagName() == "span"
@@ -19,7 +19,7 @@ fun Element.match(vararg matchers: Any, ignoreSpan:Boolean = false): Unit =
         .filter { (it !is TextNode || it.text().isNotBlank())}
         .let { it.drop(it.size - matchers.size) }
         .zip(matchers)
-        .forEach { (n, m) -> m.accepts(n, ignoreSpan = ignoreSpan) }
+        .forEach { (n, m) -> m.accepts(n, ignoreSpan = ignoreSpanWithTokenStyle) }
 
 open class Tag(val name: String, vararg val matchers: Any)
 class Div(vararg matchers: Any) : Tag("div", *matchers)
@@ -35,7 +35,7 @@ private fun Any.accepts(n: Node, ignoreSpan:Boolean = true) {
         is String -> assert(n is TextNode && n.text().trim() == this.trim()) { "\"$this\" expected but found: $n" }
         is Tag -> {
             assert(n is Element && n.tagName() == name) { "Tag $name expected but found: $n" }
-            if (n is Element && matchers.isNotEmpty()) n.match(*matchers, ignoreSpan = ignoreSpan)
+            if (n is Element && matchers.isNotEmpty()) n.match(*matchers, ignoreSpanWithTokenStyle = ignoreSpan)
         }
         else -> throw IllegalArgumentException("$this is not proper matcher")
     }

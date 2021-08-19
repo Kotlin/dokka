@@ -330,7 +330,7 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/kotlinAsJavaPlugin/-a-b-c/some-fun.html").signature().first().match(
-                    "final ", A("Integer"), A("someFun"), "(", A("Integer"), "xd)", Span(), ignoreSpan = true
+                    "final ", A("Integer"), A("someFun"), "(", A("Integer"), "xd)", Span(), ignoreSpanWithTokenStyle = true
                 )
             }
         }
@@ -368,7 +368,7 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/kotlinAsJavaPlugin/-a-b-c/some-fun.html").signature().first().match(
                     "final ", A("Integer"), A("someFun"), "(", A("Map"), "<", A("String"),
-                    ", ", A("Integer"), "> xd)", Span(), ignoreSpan = true
+                    ", ", A("Integer"), "> xd)", Span(), ignoreSpanWithTokenStyle = true
                 )
             }
         }
@@ -432,7 +432,7 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/kotlinAsJavaPlugin/-test-kt/sample.html").signature().first().match(
-                    "final static ", A("String"), A("sample"), "(", A("Integer"), "a)", Span(), ignoreSpan = true
+                    "final static ", A("String"), A("sample"), "(", A("Integer"), "a)", Span(), ignoreSpanWithTokenStyle = true
                 )
             }
         }

@@ -8,7 +8,6 @@ import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.base.signatures.KotlinSignatureUtils.drisOfAllNestedBounds
 import org.jetbrains.dokka.model.AnnotationTarget
-import org.jetbrains.dokka.model.doc.DocumentationNode
 
 interface JvmSignatureUtils {
 
@@ -117,8 +116,8 @@ interface JvmSignatureUtils {
         }
         is EnumValue -> link(a.enumName, a.enumDri)
         is ClassValue -> link(a.className + classExtension, a.classDRI)
-        is StringValue -> group(styles = setOf(TextStyle.Breakable)) { text( "\"${a.text()}\"", styles = mainStyles + TokenStyle.String) }
-        is LiteralValue -> group(styles = setOf(TextStyle.Breakable)) { text(a.text(), styles = mainStyles + TokenStyle.Constant) }
+        is StringValue -> group(styles = setOf(TextStyle.Breakable)) { stringLiteral( "\"${a.text()}\"") }
+        is LiteralValue -> group(styles = setOf(TextStyle.Breakable)) { constant(a.text()) }
     }
 
     private fun<T> PageContentBuilder.DocumentableContentBuilder.listParams(
@@ -126,14 +125,14 @@ interface JvmSignatureUtils {
         listBrackets: Pair<Char, Char>?,
         outFn: PageContentBuilder.DocumentableContentBuilder.(T) -> Unit
     ) {
-        listBrackets?.let{ text(it.first.toString(), styles = mainStyles + TokenStyle.Punctuation) }
+        listBrackets?.let{ punctuation(it.first.toString()) }
         params.forEachIndexed { i, it ->
             group(styles = setOf(TextStyle.BreakableAfter)) {
                 this.outFn(it)
-                if (i != params.size - 1) text(", ", styles = mainStyles + TokenStyle.Punctuation)
+                if (i != params.size - 1) punctuation(", ")
             }
         }
-        listBrackets?.let{ text(it.second.toString(), styles = mainStyles + TokenStyle.Punctuation) }
+        listBrackets?.let{ punctuation(it.second.toString()) }
     }
 
     fun PageContentBuilder.DocumentableContentBuilder.annotationsBlockWithIgnored(
