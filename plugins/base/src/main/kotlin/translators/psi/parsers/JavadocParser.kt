@@ -22,9 +22,7 @@ import org.jetbrains.kotlin.idea.util.CommentSaver.Companion.tokenType
 import org.jetbrains.kotlin.psi.psiUtil.getNextSiblingIgnoringWhitespace
 import org.jetbrains.kotlin.psi.psiUtil.siblings
 import org.jsoup.Jsoup
-import org.jsoup.nodes.Element
-import org.jsoup.nodes.Node
-import org.jsoup.nodes.TextNode
+import org.jsoup.nodes.*
 import java.util.*
 import org.jetbrains.dokka.utilities.htmlEscape
 
@@ -414,6 +412,7 @@ class JavadocParser(
             } else {
                 node.wholeText.parseHtmlEncodedWithNormalisedSpaces(renderWhiteCharactersAsSpaces = true)
             }).orEmpty()
+            is Comment -> listOf(Text(body = node.outerHtml(), params = DocTag.contentTypeParam("html")))
             is Element -> createBlock(node, keepFormatting)
             else -> emptyList()
         }

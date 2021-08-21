@@ -4,7 +4,7 @@ import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.signatures.SignatureProvider
 import org.jetbrains.dokka.base.transformers.pages.comments.DocTagToContentConverter
-import org.jetbrains.dokka.base.translators.documentables.briefFromContentNodes
+import org.jetbrains.dokka.base.translators.documentables.firstSentenceBriefFromContentNodes
 import org.jetbrains.dokka.javadoc.pages.*
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.doc.Description
@@ -194,10 +194,10 @@ open class JavadocPageCreator(context: DokkaContext) {
             ?: throw IllegalStateException("No source set found for ${jvm.sourceSetID} ")
 
     private fun Documentable.brief(sourceSet: DokkaSourceSet? = highestJvmSourceSet): List<ContentNode> =
-        briefFromContentNodes(descriptionToContentNodes(sourceSet))
+        firstSentenceBriefFromContentNodes(descriptionToContentNodes(sourceSet))
 
     private fun DParameter.brief(sourceSet: DokkaSourceSet? = highestJvmSourceSet): List<ContentNode> =
-        briefFromContentNodes(paramsToContentNodes(sourceSet).dropWhile { it is ContentDRILink })
+        firstSentenceBriefFromContentNodes(paramsToContentNodes(sourceSet).dropWhile { it is ContentDRILink })
 
     private fun ContentNode.asJavadocNode(): JavadocSignatureContentNode =
         (this as ContentGroup).firstChildOfTypeOrNull<JavadocSignatureContentNode>()
