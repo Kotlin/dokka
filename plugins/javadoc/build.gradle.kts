@@ -1,7 +1,7 @@
 import org.jetbrains.registerDokkaArtifactPublication
 
 dependencies {
-    implementation("com.soywiz.korlibs.korte:korte-jvm:2.3.1")
+    implementation("com.soywiz.korlibs.korte:korte-jvm:2.3.3")
     implementation(project(":plugins:base"))
     implementation(project(":plugins:kotlin-as-java"))
     testImplementation(project(":plugins:base:base-test-utils"))
