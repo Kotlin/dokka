@@ -176,7 +176,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                         pConstructor.sourceSets.toSet()
                     ) {
                         annotationsInline(it)
-                        text(it.name ?: "", styles = mainStyles.plus(TextStyle.Bold))
+                        text(it.name.orEmpty())
                         text(": ")
                         signatureForProjection(it.type)
                     }

@@ -3,7 +3,7 @@ package org.jetbrains.dokka.base.renderers.html
 import kotlinx.html.FlowContent
 import kotlinx.html.span
 
-fun FlowContent.buildTextBreakableAfterCapitalLetters(name: String) {
+fun FlowContent.buildTextBreakableAfterCapitalLetters(name: String, hasLastElement: Boolean = false) {
     if (name.contains(" ")) {
         val withOutSpaces = name.split(" ")
         withOutSpaces.dropLast(1).forEach {
@@ -13,7 +13,7 @@ fun FlowContent.buildTextBreakableAfterCapitalLetters(name: String) {
         buildBreakableText(withOutSpaces.last())
     } else {
         val content = name.replace(Regex("(?!^)([A-Z])"), " $1").split(" ")
-        joinToHtml(content) {
+        joinToHtml(content, hasLastElement) {
             it
         }
     }
@@ -22,16 +22,11 @@ fun FlowContent.buildTextBreakableAfterCapitalLetters(name: String) {
 fun FlowContent.buildBreakableDotSeparatedHtml(name: String) {
     val phrases = name.split(".")
     phrases.forEachIndexed { i, e ->
+        val elementWithOptionalDot = e.takeIf { i == phrases.lastIndex } ?: "$e."
         if (e.length > 10) {
-            buildBreakableText(e)
+            buildTextBreakableAfterCapitalLetters(elementWithOptionalDot, hasLastElement = i == phrases.lastIndex)
         } else {
-            val elementWithOptionalDot =
-                if (i != phrases.lastIndex) {
-                    "$e."
-                } else {
-                    e
-                }
-            buildBreakableHtmlElement(elementWithOptionalDot)
+            buildBreakableHtmlElement(elementWithOptionalDot, i == phrases.lastIndex)
         }
     }
 }

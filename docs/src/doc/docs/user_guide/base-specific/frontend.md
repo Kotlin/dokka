@@ -32,7 +32,7 @@ Resources will be overridden when in `pluginConfiguration` block there is a reso
 ## Modifying footer
 
 Dokka supports custom messages in the footer via `footerMessage` string property on base plugin configuration. 
-Keep in mind that this value will be pased exactly to the output html, so it has to be valid and escaped correctly.
+Keep in mind that this value will be passed exactly to the output html, so it has to be valid and escaped correctly.
 
 ## Separating inherited members
 

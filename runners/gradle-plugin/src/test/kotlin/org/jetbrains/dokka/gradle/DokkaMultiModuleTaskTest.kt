@@ -6,10 +6,7 @@ import org.gradle.kotlin.dsl.*
 import org.gradle.testfixtures.ProjectBuilder
 import org.jetbrains.dokka.*
 import java.io.File
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
-import kotlin.test.assertTrue
+import kotlin.test.*
 
 class DokkaMultiModuleTaskTest {
 
@@ -95,6 +92,21 @@ class DokkaMultiModuleTaskTest {
             ),
             dokkaConfiguration
         )
+    }
+
+    @Test
+    fun `multimodule task should not include unspecified version`(){
+        childDokkaTask.apply {
+            dokkaSourceSets.create("main")
+            dokkaSourceSets.create("test")
+        }
+
+        multiModuleTask.apply {
+            moduleVersion by "unspecified"
+        }
+
+        val dokkaConfiguration = multiModuleTask.buildDokkaConfiguration()
+        assertNull(dokkaConfiguration.moduleVersion)
     }
 
     @Test
