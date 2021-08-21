@@ -862,9 +862,6 @@ and configured automatically although test source sets are suppressed</p>
     <span class="c1">// custom output directory</span>
     <span class="n">outputDirectory</span><span class="p">.</span><span class="na">set</span><span class="p">(</span><span class="n">buildDir</span><span class="p">.</span><span class="na">resolve</span><span class="p">(</span><span class="s">&quot;dokka&quot;</span><span class="p">))</span>
 
-    <span class="c1">// path to project documentation to display on all modules page</span>
-    <span class="n">includes</span><span class="p">.</span><span class="na">from</span><span class="p">(</span><span class="n">listOf</span><span class="p">(</span><span class="n">file</span><span class="p">(</span><span class="s">&quot;project_description.md&quot;</span><span class="p">)))</span>
-
     <span class="n">dokkaSourceSets</span> <span class="p">{</span> 
          <span class="n">named</span><span class="p">(</span><span class="s">&quot;customNameMain&quot;</span><span class="p">)</span> <span class="p">{</span> <span class="c1">// The same name as in Kotlin Multiplatform plugin, so the sources are fetched automatically</span>
             <span class="n">includes</span><span class="p">.</span><span class="na">from</span><span class="p">(</span><span class="s">&quot;packages.md&quot;</span><span class="p">,</span> <span class="s">&quot;extra.md&quot;</span><span class="p">)</span>
