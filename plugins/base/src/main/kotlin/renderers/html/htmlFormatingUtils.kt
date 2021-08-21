@@ -22,13 +22,7 @@ fun FlowContent.buildTextBreakableAfterCapitalLetters(name: String, hasLastEleme
 fun FlowContent.buildBreakableDotSeparatedHtml(name: String) {
     val phrases = name.split(".")
     phrases.forEachIndexed { i, e ->
-        val elementWithOptionalDot =
-            if (i != phrases.lastIndex) {
-                "$e."
-            } else {
-                e
-            }
-
+        val elementWithOptionalDot = e.takeIf { i == phrases.lastIndex } ?: "$e."
         if (e.length > 10) {
             buildTextBreakableAfterCapitalLetters(elementWithOptionalDot, hasLastElement = i == phrases.lastIndex)
         } else {

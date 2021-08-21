@@ -31,9 +31,12 @@ Resources will be overridden when in `pluginConfiguration` block there is a reso
 ## Modifying footer
 
 Dokka supports custom messages in the footer via `footerMessage` string property on base plugin configuration. 
-Keep in mind that this value will be pased exactly to the output html, so it has to be valid and escaped correctly.
+Keep in mind that this value will be passed exactly to the output html, so it has to be valid and escaped correctly.
 
 ## Separating inherited members
 
 By setting a boolean property `separateInheritedMembers` dokka will split inherited members (like functions, properties etc.) 
 from ones declared in viewed class. Separated members will have it's own tabs on the page.
+
+
+For build system specific instructions please visit dedicated pages: [gradle](../gradle/usage.md#Applying plugins), [maven](../maven/usage.md#Applying plugins) and [cli](../cli/usage.md#Configuration options)
