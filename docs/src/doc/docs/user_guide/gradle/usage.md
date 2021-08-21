@@ -211,9 +211,6 @@ tasks.withType<DokkaTask>().configureEach {
     // custom output directory
     outputDirectory.set(buildDir.resolve("dokka"))
 
-    // path to project documentation to display on all modules page
-    includes.from(listOf(file("project_description.md")))
-
     dokkaSourceSets { 
          named("customNameMain") { // The same name as in Kotlin Multiplatform plugin, so the sources are fetched automatically
             includes.from("packages.md", "extra.md")
