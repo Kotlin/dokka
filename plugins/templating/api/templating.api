@@ -8,13 +8,6 @@ public abstract class org/jetbrains/dokka/allModulesPage/templates/BaseJsonNavig
 	public fun process (Ljava/io/File;Ljava/io/File;Lorg/jetbrains/dokka/DokkaConfiguration$DokkaModuleDescription;)Z
 }
 
-public final class org/jetbrains/dokka/allModulesPage/templates/NavigationSearchTemplateStrategy : org/jetbrains/dokka/allModulesPage/templates/BaseJsonNavigationTemplateProcessingStrategy {
-	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
-	public final fun getDokkaContext ()Lorg/jetbrains/dokka/plugability/DokkaContext;
-	public fun getNavigationFileNameWithoutExtension ()Ljava/lang/String;
-	public fun getPath ()Ljava/lang/String;
-}
-
 public final class org/jetbrains/dokka/allModulesPage/templates/PackageListProcessingStrategy : org/jetbrains/dokka/templates/TemplateProcessingStrategy {
 	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
 	public fun finish (Ljava/io/File;)V
@@ -133,7 +126,6 @@ public final class org/jetbrains/dokka/templates/TemplatingPlugin : org/jetbrain
 	public final fun getDirectiveBasedHtmlTemplateProcessingStrategy ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getFallbackProcessingStrategy ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getMultimoduleTemplateProcessor ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
-	public final fun getNavigationSearchTemplateStrategy ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getPackageListProcessingStrategy ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getPagesSearchTemplateStrategy ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getPathToRootSubstitutor ()Lorg/jetbrains/dokka/plugability/Extension;
