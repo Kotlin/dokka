@@ -1,20 +1,13 @@
-navigationPageText = fetch(pathToRoot + "navigation.html").then(response => response.text())
-
 displayNavigationFromPage = () => {
-    navigationPageText.then(data => {
-        document.getElementById("sideMenu").innerHTML = data;
-    }).then(() => {
-        document.querySelectorAll(".overview > a").forEach(link => {
-            link.setAttribute("href", pathToRoot + link.getAttribute("href"));
-        })
-    }).then(() => {
-        document.querySelectorAll(".sideMenuPart").forEach(nav => {
-            if (!nav.classList.contains("hidden"))
-                nav.classList.add("hidden")
-        })
-    }).then(() => {
-        revealNavigationForCurrentPage()
+    document.getElementById("sideMenu").innerHTML = navigation;
+    document.querySelectorAll(".overview > a").forEach(link => {
+        link.setAttribute("href", pathToRoot + link.getAttribute("href"));
     })
+    document.querySelectorAll(".sideMenuPart").forEach(nav => {
+        if (!nav.classList.contains("hidden"))
+            nav.classList.add("hidden")
+    })
+    revealNavigationForCurrentPage()
     document.querySelectorAll('.footer a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
             e.preventDefault();

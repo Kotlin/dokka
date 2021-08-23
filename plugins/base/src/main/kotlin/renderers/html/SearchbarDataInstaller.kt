@@ -71,7 +71,7 @@ open class SearchbarDataInstaller(val context: DokkaContext) : PageTransformer {
 
     override fun invoke(input: RootPageNode): RootPageNode {
         val page = RendererSpecificResourcePage(
-            name = "scripts/pages.json",
+            name = "scripts/pages.js",
             children = emptyList(),
             strategy = RenderingStrategy.PageLocationResolvableWrite { resolver ->
                 val content = input.withDescendants().fold(emptyList<PageWithId>()) { pageList, page ->
@@ -83,11 +83,13 @@ open class SearchbarDataInstaller(val context: DokkaContext) : PageTransformer {
                 if (context.configuration.delayTemplateSubstitution) {
                     mapper.writeValueAsString(AddToSearch(context.configuration.moduleName, content))
                 } else {
-                    mapper.writeValueAsString(content)
+                    "var pages " + mapper.writeValueAsString(content)
                 }
             })
 
-        return input.modified(children = input.children + page)
+        return input.modified(children = input.children + page).transformContentPagesTree {
+            it.modified(embeddedResources = it.embeddedResources + page.name)
+        }
     }
 }
 

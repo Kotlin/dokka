@@ -1,14 +1,14 @@
 package org.jetbrains.dokka.base.renderers.html
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.DokkaBaseConfiguration
 import org.jetbrains.dokka.base.renderers.sourceSets
-import org.jetbrains.dokka.base.templating.AddToSearch
 import org.jetbrains.dokka.base.templating.AddToSourcesetDependencies
 import org.jetbrains.dokka.base.templating.toJsonString
-import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.model.*
+import org.jetbrains.dokka.model.DEnum
+import org.jetbrains.dokka.model.DEnumEntry
+import org.jetbrains.dokka.model.DFunction
+import org.jetbrains.dokka.model.withDescendants
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.configuration
@@ -50,15 +50,31 @@ abstract class NavigationDataProvider {
 }
 
 open class NavigationPageInstaller(val context: DokkaContext) : NavigationDataProvider(), PageTransformer {
+    private val baseFile by lazy {
+        Thread.currentThread().contextClassLoader?.getResource("dokka/scripts/navigation-loader.js")?.readText()
+    }
 
-    override fun invoke(input: RootPageNode): RootPageNode =
-        input.modified(
-            children = input.children + NavigationPage(
-                root = navigableChildren(input),
-                moduleName = context.configuration.moduleName,
-                context = context
-            )
-        )
+    override fun invoke(input: RootPageNode): RootPageNode {
+        val scriptPage = RendererSpecificResourcePage(
+            name = "scripts/navigation-loader.js",
+            children = emptyList(),
+            strategy = RenderingStrategy.DriLocationResolvableWrite { resolver ->
+                val content = NavigationPage(
+                    root = navigableChildren(input),
+                    moduleName = context.configuration.moduleName,
+                    context = context,
+                    resolver = resolver
+                ).invoke()
+                "var navigation = `$content` \n $baseFile"
+            })
+
+        return input.modified(
+            children = input.children + scriptPage
+        ).transformContentPagesTree {
+            it.modified(embeddedResources = it.embeddedResources + scriptPage.name)
+        }
+    }
+
 }
 
 class CustomResourceInstaller(val dokkaContext: DokkaContext) : PageTransformer {
@@ -84,7 +100,6 @@ class CustomResourceInstaller(val dokkaContext: DokkaContext) : PageTransformer 
 class ScriptsInstaller(private val dokkaContext: DokkaContext) : PageTransformer {
     private val scriptsPages = listOf(
         "scripts/clipboard.js",
-        "scripts/navigation-loader.js",
         "scripts/platform-content-handler.js",
         "scripts/main.js",
     )

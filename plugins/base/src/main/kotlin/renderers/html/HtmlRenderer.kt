@@ -262,7 +262,7 @@ open class HtmlRenderer(
             val groupedDivergent = distinctInstances.value.groupBy { it.second }
 
             consumer.onTagContentUnsafe {
-                +createHTML().prepareForTemplates().div("divergent-group") {
+                +createHTML(prettyPrint = false).prepareForTemplates().div("divergent-group") {
                     attributes["data-filterable-current"] = groupedDivergent.keys.joinToString(" ") {
                         it.sourceSetIDs.merged.toString()
                     }
@@ -277,11 +277,11 @@ open class HtmlRenderer(
                     val content = contentsForSourceSetDependent(divergentForPlatformDependent, pageContext)
 
                     consumer.onTagContentUnsafe {
-                        +createHTML().prepareForTemplates().div("with-platform-tags") {
+                        +createHTML(prettyPrint = false).prepareForTemplates().div("with-platform-tags") {
                             consumer.onTagContentUnsafe { +distinctInstances.key.first }
 
                             consumer.onTagContentUnsafe {
-                                +createHTML().prepareForTemplates().span("pull-right") {
+                                +createHTML(prettyPrint = false).prepareForTemplates().span("pull-right") {
                                     if ((distinct.size > 1 && groupedDivergent.size == 1) || groupedDivergent.size == 1 || content.size == 1) {
                                         if (node.sourceSets.size != 1) {
                                             createPlatformTags(node, setOf(content.first().first))
@@ -750,7 +750,7 @@ open class HtmlRenderer(
 
     open fun buildHtml(page: PageNode, resources: List<String>, content: FlowContent.() -> Unit): String {
         val pathToRoot = locationProvider.pathToRoot(page)
-        return createHTML().prepareForTemplates().html {
+        return createHTML(prettyPrint = false).prepareForTemplates().html {
             head {
                 meta(name = "viewport", content = "width=device-width, initial-scale=1", charset = "UTF-8")
                 title(page.name)
