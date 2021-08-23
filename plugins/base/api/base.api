@@ -797,12 +797,6 @@ public final class org/jetbrains/dokka/base/signatures/All : org/jetbrains/dokka
 public abstract class org/jetbrains/dokka/base/signatures/AtStrategy {
 }
 
-public final class org/jetbrains/dokka/base/signatures/HighlightingRegex {
-	public static final field INSTANCE Lorg/jetbrains/dokka/base/signatures/HighlightingRegex;
-	public final fun isNumber ()Lkotlin/text/Regex;
-	public final fun isString ()Lkotlin/text/Regex;
-}
-
 public abstract interface class org/jetbrains/dokka/base/signatures/JvmSignatureUtils {
 	public abstract fun annotations (Lorg/jetbrains/dokka/model/DProperty;)Ljava/util/Map;
 	public abstract fun annotations (Lorg/jetbrains/dokka/model/properties/WithExtraProperties;)Ljava/util/Map;
@@ -1325,6 +1319,7 @@ public class org/jetbrains/dokka/base/translators/documentables/PageContentBuild
 	public fun <init> (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder;Ljava/util/Set;Ljava/util/Set;Ljava/util/Set;Lorg/jetbrains/dokka/model/properties/PropertyContainer;)V
 	public final fun block (Ljava/lang/String;ILorg/jetbrains/dokka/pages/Kind;Ljava/lang/Iterable;Ljava/util/Set;Ljava/util/Set;Lorg/jetbrains/dokka/model/properties/PropertyContainer;ZZLjava/util/List;ZLkotlin/jvm/functions/Function2;)V
 	public static synthetic fun block$default (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Ljava/lang/String;ILorg/jetbrains/dokka/pages/Kind;Ljava/lang/Iterable;Ljava/util/Set;Ljava/util/Set;Lorg/jetbrains/dokka/model/properties/PropertyContainer;ZZLjava/util/List;ZLkotlin/jvm/functions/Function2;ILjava/lang/Object;)V
+	public final fun booleanLiteral (Z)V
 	public final fun build (Ljava/util/Set;Lorg/jetbrains/dokka/pages/Kind;Ljava/util/Set;Lorg/jetbrains/dokka/model/properties/PropertyContainer;)Lorg/jetbrains/dokka/pages/ContentGroup;
 	public final fun buildGroup (Ljava/util/Set;Ljava/util/Set;Lorg/jetbrains/dokka/pages/Kind;Ljava/util/Set;Lorg/jetbrains/dokka/model/properties/PropertyContainer;Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/dokka/pages/ContentGroup;
 	public static synthetic fun buildGroup$default (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Ljava/util/Set;Ljava/util/Set;Lorg/jetbrains/dokka/pages/Kind;Ljava/util/Set;Lorg/jetbrains/dokka/model/properties/PropertyContainer;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lorg/jetbrains/dokka/pages/ContentGroup;

@@ -242,12 +242,14 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
             }
         }
 
-    private fun PageContentBuilder.DocumentableContentBuilder.highlightValue(v: String) {
-        if(v.matches(HighlightingRegex.isNumber)) text(v, styles = mainStyles + TokenStyle.Number)
-        else if(v.matches(HighlightingRegex.isString)) text(v, styles = mainStyles + TokenStyle.String)
-        else if (v == "null") constant(v)
-        else if (v == "true" || v == "false") text(v, styles = mainStyles + TokenStyle.Boolean)
-        else text(v)
+    private fun PageContentBuilder.DocumentableContentBuilder.highlightValue(expr: Expression) = when (expr) {
+        is IntegerConstant -> constant(expr.value.toString())
+        is FloatConstant -> constant(expr.value.toString() + "f")
+        is DoubleConstant -> constant(expr.value.toString())
+        is BooleanConstant -> booleanLiteral(expr.value)
+        is StringConstant -> stringLiteral("\"${expr.value}\"")
+        is ComplexExpression -> text(expr.value)
+        else ->  Unit
     }
 
     private fun functionSignature(f: DFunction) =
@@ -429,11 +431,6 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
             operator(" -> ")
             signatureForProjection(args.last())
         }
-}
-
-object HighlightingRegex{
-    val isNumber = Regex("""\b(?:(?:0[xX](?:[\dA-Fa-f](?:_[\dA-Fa-f])?)+|0[bB](?:[01](?:_[01])?)+|0[oO](?:[0-7](?:_[0-7])?)+)n?|(?:\d(?:_\d)?)+n|NaN|Infinity)\b|(?:\b(?:\d(?:_\d)?)+\.?(?:\d(?:_\d)?)*|\B\.(?:\d(?:_\d)?)+)(?:[Ee][+-]?(?:\d(?:_\d)?)+)?${'$'}""")
-    val isString = Regex("""(["'])(?:\\(?:\r\n|[\s\S])|(?!\1)[^\\\r\n])*\1""")
 }
 
 private fun PrimitiveJavaType.translateToKotlin() = GenericTypeConstructor(

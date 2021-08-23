@@ -117,6 +117,7 @@ interface JvmSignatureUtils {
         is EnumValue -> link(a.enumName, a.enumDri)
         is ClassValue -> link(a.className + classExtension, a.classDRI)
         is StringValue -> group(styles = setOf(TextStyle.Breakable)) { stringLiteral( "\"${a.text()}\"") }
+        is BooleanValue -> group(styles = setOf(TextStyle.Breakable)) { booleanLiteral(a.value) }
         is LiteralValue -> group(styles = setOf(TextStyle.Breakable)) { constant(a.text()) }
     }
 

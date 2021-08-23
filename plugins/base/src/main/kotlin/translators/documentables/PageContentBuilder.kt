@@ -125,6 +125,7 @@ open class PageContentBuilder(
         fun constant(text: String) = text(text, styles = mainStyles + TokenStyle.Constant)
         fun keyword(text: String) = text(text, styles = mainStyles + TokenStyle.Keyword)
         fun stringLiteral(text: String) = text(text, styles = mainStyles + TokenStyle.String)
+        fun booleanLiteral(value: Boolean) = text(value.toString(), styles = mainStyles + TokenStyle.Boolean)
         fun punctuation(text: String) = text(text, styles = mainStyles + TokenStyle.Punctuation)
         fun operator(text: String) = text(text, styles = mainStyles + TokenStyle.Operator)
 
