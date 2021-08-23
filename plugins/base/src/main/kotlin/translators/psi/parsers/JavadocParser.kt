@@ -333,8 +333,8 @@ class JavadocParser(
             when (tag.name) {
                 "link", "linkplain" -> tag.referenceElement()
                     ?.toDocumentationLinkString(tag.dataElements.filterIsInstance<PsiDocToken>())
-                "code", "literal" -> "<code data-inline>${tag.dataElements.joinToString("") { it.stringifyElementAsText(keepFormatting = true)
-                    .toString() }.htmlEscape()}</code>"
+                "code" -> "<code data-inline>${dataElementsAsText(tag)}</code>"
+                "literal" -> dataElementsAsText(tag)
                 "index" -> "<index>${tag.children.filterIsInstance<PsiDocTagValue>().joinToString { it.text }}</index>"
                 "inheritDoc" -> inheritDocResolver.resolveFromContext(context)
                     ?.fold(ParsingResult(javadocTag)) { result, e ->
@@ -342,6 +342,11 @@ class JavadocParser(
                     }?.parsedLine.orEmpty()
                 else -> tag.text
             }
+
+        private fun dataElementsAsText(tag: PsiInlineDocTag) =
+            tag.dataElements.joinToString("") {
+                it.stringifyElementAsText(keepFormatting = true).toString()
+            }.htmlEscape()
 
         private fun createLink(element: Element, children: List<DocTag>): DocTag {
             return when {
