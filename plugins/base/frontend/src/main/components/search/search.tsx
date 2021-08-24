@@ -5,7 +5,6 @@ import './search.scss';
 import { IWindow, Option, Props } from "./types";
 import { DokkaSearchAnchor } from "./dokkaSearchAnchor";
 import { DokkaFuzzyFilterComponent } from "./dokkaFuzzyFilter";
-import { relativizeUrlForRequest } from '../utils/requests';
 
 const WithFuzzySearchFilterComponent: React.FC<Props> = ({ data }: Props) => {
     const [selected, onSelected] = useState<Option>(data[0]);
@@ -46,24 +45,17 @@ export const WithFuzzySearchFilter = () => {
     const [navigationList, setNavigationList] = useState<Option[]>([]);
 
     useEffect(() => {
-        fetch(relativizeUrlForRequest('scripts/pages.json'))
-            .then(response => response.json())
-            .then((result) => {
-                setNavigationList(result.map((record: Option, idx: number) => {
-                    return {
-                        ...record,
-                        label: record.name,
-                        key: idx,
-                        type: record.kind,
-                        rgItemType: List.ListProps.Type.CUSTOM
-                    }
-                }))
-            },
-            (error) => {
-                console.error('failed to fetch pages data', error)
-                setNavigationList([])
-            })
-    }, [])
+        const pagesOrEmpty = pages ? pages : []
+        setNavigationList(pagesOrEmpty.map((record: Option, idx: number) => {
+            return {
+                ...record,
+                label: record.name,
+                key: idx,
+                type: record.kind,
+                rgItemType: List.ListProps.Type.CUSTOM
+            }
+        }))
+    }, [pages])
 
     return <WithFuzzySearchFilterComponent data={navigationList} />;
 };

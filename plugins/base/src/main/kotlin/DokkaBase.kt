@@ -243,6 +243,9 @@ class DokkaBase : DokkaPlugin() {
         immediateHtmlCommandConsumer with PathToRootConsumer
     }
     val baseSearchbarDataInstaller by extending {
-        htmlPreprocessors providing ::SearchbarDataInstaller order { after(sourceLinksTransformer) }
+        htmlPreprocessors providing ::SearchbarDataInstaller order {
+            after(sourceLinksTransformer)
+            after(scriptsInstaller)
+        }
     }
 }
