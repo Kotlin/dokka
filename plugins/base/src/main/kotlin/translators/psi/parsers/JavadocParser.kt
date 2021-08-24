@@ -334,7 +334,7 @@ class JavadocParser(
                 "link", "linkplain" -> tag.referenceElement()
                     ?.toDocumentationLinkString(tag.dataElements.filterIsInstance<PsiDocToken>())
                 "code" -> "<code data-inline>${dataElementsAsText(tag)}</code>"
-                "literal" -> dataElementsAsText(tag)
+                "literal" -> "<literal>${dataElementsAsText(tag)}</literal>"
                 "index" -> "<index>${tag.children.filterIsInstance<PsiDocTagValue>().joinToString { it.text }}</index>"
                 "inheritDoc" -> inheritDocResolver.resolveFromContext(context)
                     ?.fold(ParsingResult(javadocTag)) { result, e ->

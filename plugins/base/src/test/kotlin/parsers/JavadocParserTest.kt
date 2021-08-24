@@ -132,13 +132,16 @@ class JavadocParserTest : BaseAbstractTest() {
                 val root = docs.children.first().root
 
                 kotlin.test.assertEquals(
-                    Text(body = "An example of using the literal tag @Entity public class User {}"),
-                    root.children[0].children.first()
+                    listOf(
+                        Text(body = "An example of using the literal tag "),
+                        Text(body = "@"),
+                        Text(body = "Entity public class User {}"),
+                    ),
+                    root.children.first().children
                 )
             }
         }
     }
-
 
     @Test
     fun `literal tag nested under pre tag`() {
@@ -166,7 +169,45 @@ class JavadocParserTest : BaseAbstractTest() {
                 kotlin.test.assertEquals(
                     listOf(
                         P(children = listOf(Text(body = "An example of using the literal tag "))),
-                        Pre(children = listOf(Text(body = "@Entity\npublic class User {}\n")))
+                        Pre(children =
+                            listOf(
+                                Text(body = "@"),
+                                Text(body = "Entity\npublic class User {}\n")
+                            )
+                        )
+                    ),
+                    root.children
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `literal tag containing angle brackets`() {
+        val source = """
+            |/src/main/kotlin/test/Test.java
+            |package example
+            |
+            | /**
+            | * An example of using the literal tag
+            | * {@literal a<B>c}
+            | */
+            | public class Test  {}
+            """.trimIndent()
+        testInline(
+            source,
+            configuration,
+        ) {
+            documentablesCreationStage = { modules ->
+                val docs = modules.first().packages.first().classlikes.single().documentation.first().value
+                val root = docs.children.first().root
+
+                kotlin.test.assertEquals(
+                    listOf(
+                        P(children = listOf(
+                            Text(body = "An example of using the literal tag "),
+                            Text(body = "a<B>c")
+                        )),
                     ),
                     root.children
                 )
