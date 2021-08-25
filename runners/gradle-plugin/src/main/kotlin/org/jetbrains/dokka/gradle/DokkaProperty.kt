@@ -19,3 +19,5 @@ internal inline fun <reified T> Provider<T>.getSafe(): T =
     if (typeOf<T>().isMarkedNullable) orNull as T
     else get()
 
+internal fun Provider<String>.getValidVersionOrNull() = orNull?.takeIf { it != "unspecified" }
+

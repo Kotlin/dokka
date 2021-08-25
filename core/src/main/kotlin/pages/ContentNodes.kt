@@ -338,6 +338,9 @@ enum class ContentKind : Kind {
         fun shouldBePlatformTagged(kind: Kind): Boolean = kind in platformTagged
     }
 }
+enum class TokenStyle : Style {
+    Keyword, Punctuation, Function, Operator, Annotation, Number, String, Boolean, Constant, Builtin
+}
 
 enum class TextStyle : Style {
     Bold, Italic, Strong, Strikethrough, Paragraph, Block, Span, Monospace, Indented, Cover, UnderCoverText, BreakableAfter, Breakable

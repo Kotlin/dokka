@@ -53,12 +53,6 @@ abstract class BaseJsonNavigationTemplateProcessingStrategy(val context: DokkaCo
 
 }
 
-class NavigationSearchTemplateStrategy(val dokkaContext: DokkaContext) :
-    BaseJsonNavigationTemplateProcessingStrategy(dokkaContext) {
-    override val navigationFileNameWithoutExtension: String = "navigation-pane"
-    override val path: String = "scripts"
-}
-
 class PagesSearchTemplateStrategy(val dokkaContext: DokkaContext) :
     BaseJsonNavigationTemplateProcessingStrategy(dokkaContext) {
     override val navigationFileNameWithoutExtension: String = "pages"

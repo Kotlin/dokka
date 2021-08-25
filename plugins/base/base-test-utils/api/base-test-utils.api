@@ -113,7 +113,8 @@ public final class utils/I : utils/Tag {
 }
 
 public final class utils/JsoupUtilsKt {
-	public static final fun match (Lorg/jsoup/nodes/Element;[Ljava/lang/Object;)V
+	public static final fun match (Lorg/jsoup/nodes/Element;[Ljava/lang/Object;Z)V
+	public static synthetic fun match$default (Lorg/jsoup/nodes/Element;[Ljava/lang/Object;ZILjava/lang/Object;)V
 }
 
 public final class utils/P : utils/Tag {

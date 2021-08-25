@@ -1,6 +1,7 @@
 package org.jetbrains.dokka.base.translators.descriptors
 
 import com.intellij.psi.PsiNamedElement
+import com.intellij.psi.util.PsiLiteralUtil.*
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.runBlocking
@@ -29,6 +30,8 @@ import org.jetbrains.dokka.transformers.sources.AsyncSourceToDocumentableTransla
 import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.dokka.utilities.parallelMap
 import org.jetbrains.dokka.utilities.parallelMapNotNull
+import org.jetbrains.kotlin.KtNodeTypes
+import org.jetbrains.dokka.model.BooleanConstant
 import org.jetbrains.kotlin.builtins.functions.FunctionClassDescriptor
 import org.jetbrains.kotlin.builtins.isBuiltinExtensionFunctionalType
 import org.jetbrains.kotlin.builtins.isExtensionFunctionType
@@ -38,7 +41,6 @@ import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.descriptors.ClassKind
 import org.jetbrains.kotlin.descriptors.annotations.Annotated
 import org.jetbrains.kotlin.descriptors.annotations.AnnotationDescriptor
-import org.jetbrains.kotlin.idea.core.getDirectlyOverriddenDeclarations
 import org.jetbrains.kotlin.idea.kdoc.findKDoc
 import org.jetbrains.kotlin.idea.kdoc.resolveKDocLink
 import org.jetbrains.kotlin.js.resolve.diagnostics.findPsi
@@ -53,7 +55,6 @@ import org.jetbrains.kotlin.resolve.constants.KClassValue.Value.LocalClass
 import org.jetbrains.kotlin.resolve.constants.KClassValue.Value.NormalClass
 import org.jetbrains.kotlin.resolve.descriptorUtil.annotationClass
 import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameOrNull
-import org.jetbrains.kotlin.resolve.descriptorUtil.overriddenTreeUniqueAsSequence
 import org.jetbrains.kotlin.resolve.scopes.MemberScope
 import org.jetbrains.kotlin.resolve.source.KotlinSourceElement
 import org.jetbrains.kotlin.resolve.source.PsiSourceElement
@@ -1011,25 +1012,33 @@ private class DokkaDescriptorVisitor(
         if (kind != CallableMemberDescriptor.Kind.FAKE_OVERRIDE) this
         else overriddenDescriptors.first().getConcreteDescriptor() as T
 
-    private fun ValueParameterDescriptor.getDefaultValue(): String? =
-        (source as? KotlinSourceElement)?.psi?.children?.find { it is KtExpression }?.text
+    private fun ValueParameterDescriptor.getDefaultValue(): Expression? =
+        ((source as? KotlinSourceElement)?.psi as? KtParameter)?.defaultValue?.toDefaultValueExpression()
 
-    private suspend fun PropertyDescriptor.getDefaultValue(): String? =
-        (source as? KotlinSourceElement)?.psi?.children?.find { it is KtConstantExpression }?.text
+    private suspend fun PropertyDescriptor.getDefaultValue(): Expression? =
+        (source as? KotlinSourceElement)?.psi?.children?.filterIsInstance<KtConstantExpression>()?.firstOrNull()
+            ?.toDefaultValueExpression()
 
     private suspend fun ClassDescriptor.getAppliedConstructorParameters() =
         (source as PsiSourceElement).psi?.children?.flatMap {
-            it.safeAs<KtInitializerList>()?.initializersAsText().orEmpty()
+            it.safeAs<KtInitializerList>()?.initializersAsExpression().orEmpty()
         }.orEmpty()
 
-    private suspend fun KtInitializerList.initializersAsText() =
+    private suspend fun KtInitializerList.initializersAsExpression() =
         initializers.firstIsInstanceOrNull<KtCallElement>()
             ?.getValueArgumentsInParentheses()
-            ?.flatMap { it.childrenAsText() }
+            ?.map { it.getArgumentExpression()?.toDefaultValueExpression() ?: ComplexExpression("") }
             .orEmpty()
 
-    private fun ValueArgument.childrenAsText() =
-        this.safeAs<KtValueArgument>()?.children?.map { it.text }.orEmpty()
+    private fun KtExpression.toDefaultValueExpression(): Expression? = when (node?.elementType) {
+        KtNodeTypes.INTEGER_CONSTANT -> parseLong(node?.text)?.let { IntegerConstant(it) }
+        KtNodeTypes.FLOAT_CONSTANT -> if (node?.text?.toLowerCase()?.endsWith('f') == true)
+            parseFloat(node?.text)?.let { FloatConstant(it) }
+        else parseDouble(node?.text)?.let { DoubleConstant(it) }
+        KtNodeTypes.BOOLEAN_CONSTANT -> BooleanConstant(node?.text == "true")
+        KtNodeTypes.STRING_TEMPLATE -> StringConstant(node.findChildByType(KtNodeTypes.LITERAL_STRING_TEMPLATE_ENTRY)?.text.orEmpty())
+        else -> node?.text?.let { ComplexExpression(it) }
+    }
 
     private data class ClassInfo(val ancestry: List<AncestryLevel>, val docs: SourceSetDependent<DocumentationNode>) {
         val supertypes: List<TypeConstructorWithKind>

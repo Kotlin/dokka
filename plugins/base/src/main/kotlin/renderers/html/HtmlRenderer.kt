@@ -15,6 +15,7 @@ import org.jetbrains.dokka.base.resolvers.anchors.SymbolAnchorHint
 import org.jetbrains.dokka.base.resolvers.local.DokkaBaseLocationProvider
 import org.jetbrains.dokka.base.templating.InsertTemplateExtra
 import org.jetbrains.dokka.base.templating.PathToRootSubstitutionCommand
+import org.jetbrains.dokka.base.templating.ProjectNameSubstitutionCommand
 import org.jetbrains.dokka.base.templating.ResolveLinkCommand
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.DisplaySourceSet
@@ -603,22 +604,13 @@ open class HtmlRenderer(
 
 
     override fun FlowContent.buildNavigation(page: PageNode) =
-        div("navigation-wrapper") {
-            id = "navigation-wrapper"
-            div(classes = "breadcrumbs") {
-                val path = locationProvider.ancestors(page).filterNot { it is RendererSpecificPage }.asReversed()
-                if (path.isNotEmpty()) {
-                    buildNavigationElement(path.first(), page)
-                    path.drop(1).forEach { node ->
-                        text("/")
-                        buildNavigationElement(node, page)
-                    }
-                }
-            }
-            div("pull-right d-flex") {
-                filterButtons(page)
-                div {
-                    id = "searchBar"
+        div(classes = "breadcrumbs") {
+            val path = locationProvider.ancestors(page).filterNot { it is RendererSpecificPage }.asReversed()
+            if (path.size > 1) {
+                buildNavigationElement(path.first(), page)
+                path.drop(1).forEach { node ->
+                    text("/")
+                    buildNavigationElement(node, page)
                 }
             }
         }
@@ -685,12 +677,15 @@ open class HtmlRenderer(
         pageContext: ContentPage
     ) {
         div("sample-container") {
-            code(code.style.joinToString(" ") { it.toString().toLowerCase() }) {
-                attributes["theme"] = "idea"
-                pre {
+            val codeLang = "lang-" + code.language.ifEmpty { "kotlin" }
+            val stylesWithBlock = code.style + TextStyle.Block + codeLang
+            pre {
+                code(stylesWithBlock.joinToString(" ") { it.toString().toLowerCase() }) {
+                    attributes["theme"] = "idea"
                     code.children.forEach { buildContentNode(it, pageContext) }
                 }
             }
+            copyButton()
         }
     }
 
@@ -698,7 +693,9 @@ open class HtmlRenderer(
         code: ContentCodeInline,
         pageContext: ContentPage
     ) {
-        code {
+        val codeLang = "lang-" + code.language.ifEmpty { "kotlin" }
+        val stylesWithBlock = code.style + codeLang
+        code(stylesWithBlock.joinToString(" ") { it.toString().toLowerCase() }) {
             code.children.forEach { buildContentNode(it, pageContext) }
         }
     }
@@ -716,7 +713,7 @@ open class HtmlRenderer(
             }
             unappliedStyles.isNotEmpty() -> {
                 val styleToApply = unappliedStyles.first()
-                applyStyle(styleToApply){
+                applyStyle(styleToApply) {
                     buildText(textNode, unappliedStyles - styleToApply)
                 }
             }
@@ -726,12 +723,13 @@ open class HtmlRenderer(
         }
     }
 
-    private inline fun FlowContent.applyStyle(styleToApply: Style, crossinline body: FlowContent.() -> Unit){
-        when(styleToApply){
+    private inline fun FlowContent.applyStyle(styleToApply: Style, crossinline body: FlowContent.() -> Unit) {
+        when (styleToApply) {
             TextStyle.Bold -> b { body() }
             TextStyle.Italic -> i { body() }
             TextStyle.Strikethrough -> strike { body() }
             TextStyle.Strong -> strong { body() }
+            is TokenStyle -> span("token " + styleToApply.toString().toLowerCase()) { body() }
             else -> body()
         }
     }
@@ -740,8 +738,6 @@ open class HtmlRenderer(
         shouldRenderSourceSetBubbles = shouldRenderSourceSetBubbles(root)
         super.render(root)
     }
-
-    private fun PageNode.root(path: String) = locationProvider.pathToRoot(this) + path
 
     override fun buildPage(page: ContentPage, content: (FlowContent, ContentPage) -> Unit): String =
         buildHtml(page, page.embeddedResources) {
@@ -762,11 +758,19 @@ open class HtmlRenderer(
                 meta(name = "viewport", content = "width=device-width, initial-scale=1", charset = "UTF-8")
                 title(page.name)
                 templateCommand(PathToRootSubstitutionCommand("###", default = pathToRoot)) {
-                    link(href = page.root("###images/logo-icon.svg"), rel = "icon", type = "image/svg")
+                    link(href = "###images/logo-icon.svg", rel = "icon", type = "image/svg")
                 }
                 templateCommand(PathToRootSubstitutionCommand("###", default = pathToRoot)) {
                     script { unsafe { +"""var pathToRoot = "###";""" } }
                 }
+                // This script doesn't need to be there but it is nice to have since app in dark mode doesn't 'blink' (class is added before it is rendered)
+                script { unsafe { +"""
+                    const storage = localStorage.getItem("dokka-dark-mode")
+                    const savedDarkMode = storage ? JSON.parse(storage) : false
+                    if(savedDarkMode === true){
+                        document.getElementsByTagName("html")[0].classList.add("theme-dark")
+                    }
+                """.trimIndent() } }
                 resources.forEach {
                     when {
                         it.substringBefore('?').substringAfterLast('.') == "css" ->
@@ -803,24 +807,41 @@ open class HtmlRenderer(
                 }
             }
             body {
+                div("navigation-wrapper") {
+                    id = "navigation-wrapper"
+                    div {
+                        id = "leftToggler"
+                        span("icon-toggler")
+                    }
+                    div("library-name") {
+                        clickableLogo(page, pathToRoot)
+                    }
+                    context.configuration.moduleVersion?.let { moduleVersion ->
+                        div { text(moduleVersion) }
+                    }
+                    div("pull-right d-flex") {
+                        filterButtons(page)
+                        button {
+                            id = "theme-toggle-button"
+                            span {
+                                id = "theme-toggle"
+                            }
+                        }
+                        div {
+                            id = "searchBar"
+                        }
+                    }
+                }
                 div {
                     id = "container"
                     div {
                         id = "leftColumn"
-                        clickableLogo(page, pathToRoot)
-                        div {
-                            id = "paneSearch"
-                        }
                         div {
                             id = "sideMenu"
                         }
                     }
                     div {
                         id = "main"
-                        div {
-                            id = "leftToggler"
-                            span("icon-toggler")
-                        }
                         templateCommand(PathToRootSubstitutionCommand("###", default = pathToRoot)) {
                             script(type = ScriptType.textJavaScript, src = "###scripts/main.js") {}
                         }
@@ -857,15 +878,17 @@ open class HtmlRenderer(
             templateCommand(PathToRootSubstitutionCommand(pattern = "###", default = pathToRoot)) {
                 a {
                     href = "###index.html"
-                    div {
-                        id = "logo"
+                    templateCommand(ProjectNameSubstitutionCommand(pattern = "@@@", default = context.configuration.moduleName)) {
+                        span {
+                            text("@@@")
+                        }
                     }
                 }
             }
-        } else a {
-            href = pathToRoot + "index.html"
-            div {
-                id = "logo"
+        } else {
+            a {
+                href = pathToRoot + "index.html"
+                text(context.configuration.moduleName)
             }
         }
     }

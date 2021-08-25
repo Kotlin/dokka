@@ -32,7 +32,7 @@ class AddToSearchCommandResolutionTest : TemplatingAbstractTest() {
     val folder: TemporaryFolder = TemporaryFolder()
 
     @ParameterizedTest
-    @ValueSource(strings = ["navigation-pane.json", "pages.json"])
+    @ValueSource(strings = ["pages.json"])
     fun `should merge navigation templates`(fileName: String) {
         val (module1Navigation, module2Navigation) = setupTestDirectoriesWithContent(fileName)
 

@@ -3,7 +3,7 @@ package org.jetbrains.dokka.base.renderers.html
 import kotlinx.html.FlowContent
 import kotlinx.html.span
 
-fun FlowContent.buildTextBreakableAfterCapitalLetters(name: String) {
+fun FlowContent.buildTextBreakableAfterCapitalLetters(name: String, hasLastElement: Boolean = false) {
     if (name.contains(" ")) {
         val withOutSpaces = name.split(" ")
         withOutSpaces.dropLast(1).forEach {
@@ -12,8 +12,8 @@ fun FlowContent.buildTextBreakableAfterCapitalLetters(name: String) {
         }
         buildBreakableText(withOutSpaces.last())
     } else {
-        val content = name.replace(Regex("(?!^)([A-Z])"), " $1").split(" ")
-        joinToHtml(content) {
+        val content = name.replace(Regex("(?<=[a-z])([A-Z])"), " $1").split(" ")
+        joinToHtml(content, hasLastElement) {
             it
         }
     }
@@ -22,32 +22,35 @@ fun FlowContent.buildTextBreakableAfterCapitalLetters(name: String) {
 fun FlowContent.buildBreakableDotSeparatedHtml(name: String) {
     val phrases = name.split(".")
     phrases.forEachIndexed { i, e ->
+        val elementWithOptionalDot = e.takeIf { i == phrases.lastIndex } ?: "$e."
         if (e.length > 10) {
-            buildBreakableText(e)
+            buildTextBreakableAfterCapitalLetters(elementWithOptionalDot, hasLastElement = i == phrases.lastIndex)
         } else {
-            val elementWithOptionalDot =
-                if (i != phrases.lastIndex) {
-                    "$e."
-                } else {
-                    e
-                }
-            buildBreakableHtmlElement(elementWithOptionalDot)
+            buildBreakableHtmlElement(elementWithOptionalDot, i == phrases.lastIndex)
         }
     }
 }
 
-private fun FlowContent.joinToHtml(elements: List<String>, onEach: (String) -> String) {
+private fun FlowContent.joinToHtml(elements: List<String>, hasLastElement: Boolean = true, onEach: (String) -> String) {
     elements.dropLast(1).forEach {
         buildBreakableHtmlElement(onEach(it))
     }
-    span {
-        buildBreakableHtmlElement(elements.last(), last = true)
+    elements.takeIf { it.isNotEmpty() && it.last().isNotEmpty() }?.let {
+        if (hasLastElement) {
+            span {
+                buildBreakableHtmlElement(it.last(), last = true)
+            }
+        } else {
+            buildBreakableHtmlElement(it.last(), last = false)
+        }
     }
 }
 
 private fun FlowContent.buildBreakableHtmlElement(element: String, last: Boolean = false) {
-    span {
-        +element
+    element.takeIf { it.isNotBlank() }?.let {
+        span {
+            +it
+        }
     }
     if (!last) {
         wbr { }
@@ -56,4 +59,4 @@ private fun FlowContent.buildBreakableHtmlElement(element: String, last: Boolean
 
 fun FlowContent.buildBreakableText(name: String) =
     if (name.contains(".")) buildBreakableDotSeparatedHtml(name)
-    else buildTextBreakableAfterCapitalLetters(name)
+    else buildTextBreakableAfterCapitalLetters(name, hasLastElement = true)
