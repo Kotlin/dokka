@@ -6,10 +6,7 @@ import org.gradle.kotlin.dsl.*
 import org.gradle.testfixtures.ProjectBuilder
 import org.jetbrains.dokka.*
 import java.io.File
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
-import kotlin.test.assertTrue
+import kotlin.test.*
 
 class DokkaMultiModuleTaskTest {
 
@@ -64,6 +61,7 @@ class DokkaMultiModuleTaskTest {
         }
 
         multiModuleTask.apply {
+            moduleVersion by "1.5.0"
             moduleName by "custom Module Name"
             outputDirectory by project.buildDir.resolve("customOutputDirectory")
             cacheRoot by File("customCacheRoot")
@@ -77,6 +75,7 @@ class DokkaMultiModuleTaskTest {
         assertEquals(
             DokkaConfigurationImpl(
                 moduleName = "custom Module Name",
+                moduleVersion = "1.5.0",
                 outputDir = multiModuleTask.project.buildDir.resolve("customOutputDirectory"),
                 cacheRoot = File("customCacheRoot"),
                 pluginsConfiguration = mutableListOf(PluginConfigurationImpl("pluginA", DokkaConfiguration.SerializationFormat.JSON, """ { "key" : "value2" } """)),
@@ -95,6 +94,21 @@ class DokkaMultiModuleTaskTest {
             ),
             dokkaConfiguration
         )
+    }
+
+    @Test
+    fun `multimodule task should not include unspecified version`(){
+        childDokkaTask.apply {
+            dokkaSourceSets.create("main")
+            dokkaSourceSets.create("test")
+        }
+
+        multiModuleTask.apply {
+            moduleVersion by "unspecified"
+        }
+
+        val dokkaConfiguration = multiModuleTask.buildDokkaConfiguration()
+        assertNull(dokkaConfiguration.moduleVersion)
     }
 
     @Test

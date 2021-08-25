@@ -1,11 +1,9 @@
 package enums
 
 import matchers.content.*
-import org.jetbrains.dokka.model.ConstructorValues
-import org.jetbrains.dokka.model.DEnum
-import org.jetbrains.dokka.model.dfs
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
+import org.jetbrains.dokka.model.*
 import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstance
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
@@ -119,8 +117,8 @@ class EnumsTest : BaseAbstractTest() {
 
                         assertEquals(1, first.extra.allOfType<ConstructorValues>().size)
                         assertEquals(1, second.extra.allOfType<ConstructorValues>().size)
-                        assertEquals(listOf("\"e1\"", "1", "true"), first.extra.allOfType<ConstructorValues>().first().values.values.first())
-                        assertEquals(listOf("\"e2\"", "2", "false"), second.extra.allOfType<ConstructorValues>().first().values.values.first())
+                        assertEquals(listOf(StringConstant("e1"), IntegerConstant(1), BooleanConstant(true)), first.extra.allOfType<ConstructorValues>().first().values.values.first())
+                        assertEquals(listOf(StringConstant("e2"), IntegerConstant(2), BooleanConstant(false)), second.extra.allOfType<ConstructorValues>().first().values.values.first())
                     }
                 }
             }

@@ -1,9 +1,9 @@
 package org.jetbrains.dokka.templates
 
-import org.jetbrains.dokka.allModulesPage.templates.NavigationSearchTemplateStrategy
 import org.jetbrains.dokka.allModulesPage.templates.PackageListProcessingStrategy
 import org.jetbrains.dokka.allModulesPage.templates.PagesSearchTemplateStrategy
 import org.jetbrains.dokka.plugability.DokkaPlugin
+import templates.ProjectNameSubstitutor
 import templates.SourcesetDependencyProcessingStrategy
 
 class TemplatingPlugin : DokkaPlugin() {
@@ -25,11 +25,6 @@ class TemplatingPlugin : DokkaPlugin() {
 
     val directiveBasedHtmlTemplateProcessingStrategy by extending {
         templateProcessingStrategy providing ::DirectiveBasedHtmlTemplateProcessingStrategy order {
-            before(fallbackProcessingStrategy)
-        }
-    }
-    val navigationSearchTemplateStrategy by extending {
-        templateProcessingStrategy providing ::NavigationSearchTemplateStrategy order {
             before(fallbackProcessingStrategy)
         }
     }
@@ -58,6 +53,10 @@ class TemplatingPlugin : DokkaPlugin() {
 
     val pathToRootSubstitutor by extending {
         substitutor providing ::PathToRootSubstitutor
+    }
+
+    val projectNameSubstitutor by extending {
+        substitutor providing ::ProjectNameSubstitutor
     }
 
     val addToNavigationCommandHandler by extending {

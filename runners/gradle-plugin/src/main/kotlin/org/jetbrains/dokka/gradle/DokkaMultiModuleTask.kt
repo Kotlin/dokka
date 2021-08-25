@@ -52,6 +52,7 @@ abstract class DokkaMultiModuleTask : AbstractDokkaParentTask() {
 
     override fun buildDokkaConfiguration(): DokkaConfigurationImpl = DokkaConfigurationImpl(
         moduleName = moduleName.getSafe(),
+        moduleVersion = moduleVersion.getValidVersionOrNull(),
         outputDir = outputDirectory.getSafe(),
         cacheRoot = cacheRoot.getSafe(),
         pluginsConfiguration = buildPluginsConfiguration(),

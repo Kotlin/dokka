@@ -49,37 +49,6 @@ abstract class NavigationDataProvider {
         }
 }
 
-open class NavigationSearchInstaller(val context: DokkaContext) : NavigationDataProvider(), PageTransformer {
-    private val mapper = jacksonObjectMapper()
-
-    open fun createSearchRecordFromNode(node: NavigationNode, location: String): SearchRecord =
-        SearchRecord(name = node.name, location = location)
-
-    override fun invoke(input: RootPageNode): RootPageNode {
-        val page = RendererSpecificResourcePage(
-            name = "scripts/navigation-pane.json",
-            children = emptyList(),
-            strategy = RenderingStrategy.DriLocationResolvableWrite { resolver ->
-                val content = navigableChildren(input).withDescendants().map {
-                    createSearchRecordFromNode(it, resolveLocation(resolver, it.dri, it.sourceSets).orEmpty())
-                }
-                if (context.configuration.delayTemplateSubstitution) {
-                    mapper.writeValueAsString(AddToSearch(context.configuration.moduleName, content.toList()))
-                } else {
-                    mapper.writeValueAsString(content)
-                }
-            })
-
-        return input.modified(children = input.children + page)
-    }
-
-    private fun resolveLocation(locationResolver: DriResolver, dri: DRI, sourceSets: Set<DisplaySourceSet>): String? =
-        locationResolver(dri, sourceSets).also { location ->
-            if (location.isNullOrBlank()) context.logger.warn("Cannot resolve path for $dri and sourceSets: ${sourceSets.joinToString { it.name }}")
-        }
-
-}
-
 open class NavigationPageInstaller(val context: DokkaContext) : NavigationDataProvider(), PageTransformer {
 
     override fun invoke(input: RootPageNode): RootPageNode =
@@ -118,6 +87,7 @@ class ScriptsInstaller(private val dokkaContext: DokkaContext) : PageTransformer
         "scripts/navigation-loader.js",
         "scripts/platform-content-handler.js",
         "scripts/main.js",
+        "scripts/prism.js"
     )
 
     override fun invoke(input: RootPageNode): RootPageNode =
@@ -134,9 +104,9 @@ class ScriptsInstaller(private val dokkaContext: DokkaContext) : PageTransformer
 class StylesInstaller(private val dokkaContext: DokkaContext) : PageTransformer {
     private val stylesPages = listOf(
         "styles/style.css",
-        "styles/logo-styles.css",
         "styles/jetbrains-mono.css",
-        "styles/main.css"
+        "styles/main.css",
+        "styles/prism.css"
     )
 
     override fun invoke(input: RootPageNode): RootPageNode =
@@ -153,13 +123,13 @@ class StylesInstaller(private val dokkaContext: DokkaContext) : PageTransformer 
 object AssetsInstaller : PageTransformer {
     private val imagesPages = listOf(
         "images/arrow_down.svg",
-        "images/docs_logo.svg",
         "images/logo-icon.svg",
         "images/go-to-top-icon.svg",
         "images/footer-go-to-link.svg",
         "images/anchor-copy-button.svg",
         "images/copy-icon.svg",
         "images/copy-successful-icon.svg",
+        "images/theme-toggle.svg",
     )
 
     override fun invoke(input: RootPageNode) = input.modified(
