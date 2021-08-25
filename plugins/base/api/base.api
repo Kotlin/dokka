@@ -33,7 +33,6 @@ public final class org/jetbrains/dokka/base/DokkaBase : org/jetbrains/dokka/plug
 	public final fun getLocationProviderFactory ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
 	public final fun getModulesAndPackagesDocumentation ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getNavigationPageInstaller ()Lorg/jetbrains/dokka/plugability/Extension;
-	public final fun getNavigationSearchInstaller ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getObviousFunctionsVisbilityFilter ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getOutputWriter ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
 	public final fun getPackageListCreator ()Lorg/jetbrains/dokka/plugability/Extension;
@@ -421,13 +420,6 @@ public class org/jetbrains/dokka/base/renderers/html/NavigationPageInstaller : o
 public final class org/jetbrains/dokka/base/renderers/html/NavigationPageKt {
 	public static final fun transform (Lorg/jetbrains/dokka/base/renderers/html/NavigationNode;Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/dokka/base/renderers/html/NavigationNode;
 	public static final fun transform (Lorg/jetbrains/dokka/base/renderers/html/NavigationPage;Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/dokka/base/renderers/html/NavigationPage;
-}
-
-public class org/jetbrains/dokka/base/renderers/html/NavigationSearchInstaller : org/jetbrains/dokka/base/renderers/html/NavigationDataProvider, org/jetbrains/dokka/transformers/pages/PageTransformer {
-	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
-	public fun createSearchRecordFromNode (Lorg/jetbrains/dokka/base/renderers/html/NavigationNode;Ljava/lang/String;)Lorg/jetbrains/dokka/base/renderers/html/SearchRecord;
-	public final fun getContext ()Lorg/jetbrains/dokka/plugability/DokkaContext;
-	public fun invoke (Lorg/jetbrains/dokka/pages/RootPageNode;)Lorg/jetbrains/dokka/pages/RootPageNode;
 }
 
 public class org/jetbrains/dokka/base/renderers/html/STRIKE : kotlinx/html/HTMLTag, kotlinx/html/HtmlBlockInlineTag {

@@ -758,6 +758,14 @@ open class HtmlRenderer(
                 templateCommand(PathToRootSubstitutionCommand("###", default = pathToRoot)) {
                     script { unsafe { +"""var pathToRoot = "###";""" } }
                 }
+                // This script doesn't need to be there but it is nice to have since app in dark mode doesn't 'blink' (class is added before it is rendered)
+                script { unsafe { +"""
+                    const storage = localStorage.getItem("dokka-dark-mode")
+                    const savedDarkMode = storage ? JSON.parse(storage) : false
+                    if(savedDarkMode === true){
+                        document.getElementsByTagName("html")[0].classList.add("theme-dark")
+                    }
+                """.trimIndent() } }
                 resources.forEach {
                     when {
                         it.substringBefore('?').substringAfterLast('.') == "css" ->
@@ -808,6 +816,12 @@ open class HtmlRenderer(
                     }
                     div("pull-right d-flex") {
                         filterButtons(page)
+                        button {
+                            id = "theme-toggle-button"
+                            span {
+                                id = "theme-toggle"
+                            }
+                        }
                         div {
                             id = "searchBar"
                         }

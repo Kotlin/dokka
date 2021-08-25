@@ -20,7 +20,20 @@ window.addEventListener('load', () => {
     handleAnchor()
     initHidingLeftNavigation()
     topNavbarOffset = document.getElementById('navigation-wrapper')
+    darkModeSwitch()
 })
+
+const darkModeSwitch = () => {
+    const localStorageKey = "dokka-dark-mode"
+    const storage = localStorage.getItem(localStorageKey)
+    const savedDarkMode = storage ? JSON.parse(storage) : false
+    const element = document.getElementById("theme-toggle-button")
+
+    element.addEventListener('click', () => {
+        document.getElementsByTagName("html")[0].classList.toggle("theme-dark")
+        localStorage.setItem(localStorageKey, JSON.stringify(!savedDarkMode))
+    })
+}
 
 const initHidingLeftNavigation = () => {
     document.getElementById("leftToggler").onclick = function(event) {
