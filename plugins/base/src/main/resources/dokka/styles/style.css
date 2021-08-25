@@ -440,8 +440,7 @@ code.paragraph {
 }
 
 .sideMenuPart.hidden > .sideMenuPart {
-    height: 0;
-    visibility: hidden;
+    display: none;
 }
 
 .filtered > a, .filtered > .navButton {
