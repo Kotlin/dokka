@@ -12,7 +12,7 @@ fun FlowContent.buildTextBreakableAfterCapitalLetters(name: String, hasLastEleme
         }
         buildBreakableText(withOutSpaces.last())
     } else {
-        val content = name.replace(Regex("(?!^)([A-Z])"), " $1").split(" ")
+        val content = name.replace(Regex("(?<=[a-z])([A-Z])"), " $1").split(" ")
         joinToHtml(content, hasLastElement) {
             it
         }
@@ -31,18 +31,26 @@ fun FlowContent.buildBreakableDotSeparatedHtml(name: String) {
     }
 }
 
-private fun FlowContent.joinToHtml(elements: List<String>, onEach: (String) -> String) {
+private fun FlowContent.joinToHtml(elements: List<String>, hasLastElement: Boolean = true, onEach: (String) -> String) {
     elements.dropLast(1).forEach {
         buildBreakableHtmlElement(onEach(it))
     }
-    span {
-        buildBreakableHtmlElement(elements.last(), last = true)
+    elements.takeIf { it.isNotEmpty() && it.last().isNotEmpty() }?.let {
+        if (hasLastElement) {
+            span {
+                buildBreakableHtmlElement(it.last(), last = true)
+            }
+        } else {
+            buildBreakableHtmlElement(it.last(), last = false)
+        }
     }
 }
 
 private fun FlowContent.buildBreakableHtmlElement(element: String, last: Boolean = false) {
-    span {
-        +element
+    element.takeIf { it.isNotBlank() }?.let {
+        span {
+            +it
+        }
     }
     if (!last) {
         wbr { }
@@ -51,4 +59,4 @@ private fun FlowContent.buildBreakableHtmlElement(element: String, last: Boolean
 
 fun FlowContent.buildBreakableText(name: String) =
     if (name.contains(".")) buildBreakableDotSeparatedHtml(name)
-    else buildTextBreakableAfterCapitalLetters(name)
+    else buildTextBreakableAfterCapitalLetters(name, hasLastElement = true)
