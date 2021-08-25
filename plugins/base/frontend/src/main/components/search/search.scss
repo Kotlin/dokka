@@ -9,7 +9,8 @@ $secondary-font-color: hsla(0, 0%, 100%, 0.6);
 
     border: none;
     background: var(--color-dark);
-    fill: var(--background-color);
+    fill: #fff;
+    fill: var(--dark-mode-and-search-icon-color);
 
     &:focus {
       outline: none;

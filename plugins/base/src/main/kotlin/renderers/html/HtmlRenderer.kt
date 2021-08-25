@@ -739,8 +739,6 @@ open class HtmlRenderer(
         super.render(root)
     }
 
-    private fun PageNode.root(path: String) = locationProvider.pathToRoot(this) + path
-
     override fun buildPage(page: ContentPage, content: (FlowContent, ContentPage) -> Unit): String =
         buildHtml(page, page.embeddedResources) {
             div("main-content") {
@@ -760,11 +758,19 @@ open class HtmlRenderer(
                 meta(name = "viewport", content = "width=device-width, initial-scale=1", charset = "UTF-8")
                 title(page.name)
                 templateCommand(PathToRootSubstitutionCommand("###", default = pathToRoot)) {
-                    link(href = page.root("###images/logo-icon.svg"), rel = "icon", type = "image/svg")
+                    link(href = "###images/logo-icon.svg", rel = "icon", type = "image/svg")
                 }
                 templateCommand(PathToRootSubstitutionCommand("###", default = pathToRoot)) {
                     script { unsafe { +"""var pathToRoot = "###";""" } }
                 }
+                // This script doesn't need to be there but it is nice to have since app in dark mode doesn't 'blink' (class is added before it is rendered)
+                script { unsafe { +"""
+                    const storage = localStorage.getItem("dokka-dark-mode")
+                    const savedDarkMode = storage ? JSON.parse(storage) : false
+                    if(savedDarkMode === true){
+                        document.getElementsByTagName("html")[0].classList.add("theme-dark")
+                    }
+                """.trimIndent() } }
                 resources.forEach {
                     when {
                         it.substringBefore('?').substringAfterLast('.') == "css" ->
@@ -815,6 +821,12 @@ open class HtmlRenderer(
                     }
                     div("pull-right d-flex") {
                         filterButtons(page)
+                        button {
+                            id = "theme-toggle-button"
+                            span {
+                                id = "theme-toggle"
+                            }
+                        }
                         div {
                             id = "searchBar"
                         }

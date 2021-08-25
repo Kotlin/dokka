@@ -12,7 +12,7 @@ fun FlowContent.buildTextBreakableAfterCapitalLetters(name: String, hasLastEleme
         }
         buildBreakableText(withOutSpaces.last())
     } else {
-        val content = name.replace(Regex("(?!^)([A-Z])"), " $1").split(" ")
+        val content = name.replace(Regex("(?<=[a-z])([A-Z])"), " $1").split(" ")
         joinToHtml(content, hasLastElement) {
             it
         }
@@ -22,13 +22,7 @@ fun FlowContent.buildTextBreakableAfterCapitalLetters(name: String, hasLastEleme
 fun FlowContent.buildBreakableDotSeparatedHtml(name: String) {
     val phrases = name.split(".")
     phrases.forEachIndexed { i, e ->
-        val elementWithOptionalDot =
-            if (i != phrases.lastIndex) {
-                "$e."
-            } else {
-                e
-            }
-
+        val elementWithOptionalDot = e.takeIf { i == phrases.lastIndex } ?: "$e."
         if (e.length > 10) {
             buildTextBreakableAfterCapitalLetters(elementWithOptionalDot, hasLastElement = i == phrases.lastIndex)
         } else {
@@ -41,13 +35,13 @@ private fun FlowContent.joinToHtml(elements: List<String>, hasLastElement: Boole
     elements.dropLast(1).forEach {
         buildBreakableHtmlElement(onEach(it))
     }
-    elements.last().takeIf { it.isNotBlank() }?.let {
+    elements.takeIf { it.isNotEmpty() && it.last().isNotEmpty() }?.let {
         if (hasLastElement) {
             span {
-                buildBreakableHtmlElement(it, last = true)
+                buildBreakableHtmlElement(it.last(), last = true)
             }
         } else {
-            buildBreakableHtmlElement(it, last = false)
+            buildBreakableHtmlElement(it.last(), last = false)
         }
     }
 }
@@ -65,4 +59,4 @@ private fun FlowContent.buildBreakableHtmlElement(element: String, last: Boolean
 
 fun FlowContent.buildBreakableText(name: String) =
     if (name.contains(".")) buildBreakableDotSeparatedHtml(name)
-    else buildTextBreakableAfterCapitalLetters(name)
+    else buildTextBreakableAfterCapitalLetters(name, hasLastElement = true)
