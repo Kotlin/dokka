@@ -2,14 +2,13 @@ package renderers.html
 
 import org.jetbrains.dokka.base.renderers.html.HtmlRenderer
 import org.jetbrains.dokka.pages.TextStyle
+import org.jetbrains.dokka.pages.TokenStyle
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 import org.junit.jupiter.api.Test
 import renderers.testPage
-import utils.B
-import utils.I
-import utils.STRIKE
-import utils.match
+import utils.*
+import kotlin.test.assertEquals
 
 class TextStylesTest : HtmlRenderingOnlyTestBase() {
     @Test
@@ -37,6 +36,16 @@ class TextStylesTest : HtmlRenderingOnlyTestBase() {
         }
         HtmlRenderer(context).render(page)
         renderedContent.match(STRIKE("strike text"))
+    }
+
+    @Test
+    fun `should include token styles`(){
+        val page = testPage {
+            text("keyword", styles = setOf(TokenStyle.Keyword))
+        }
+        HtmlRenderer(context).render(page)
+        renderedContent.match(Span("keyword"))
+        assertEquals(renderedContent.children().last().attr("class"), "token keyword")
     }
 
     @Test

@@ -276,6 +276,7 @@ html ::-webkit-scrollbar-thumb {
 }
 
 .sample-container, div.CodeMirror {
+    position: relative;
     display: flex;
     flex-direction: column;
 }
@@ -315,6 +316,7 @@ code.paragraph {
     padding: 12px 32px 12px 12px;
     border-radius: 8px;
     line-height: 24px;
+    position: relative;
 }
 
 .symbol > a {
@@ -325,15 +327,15 @@ code.paragraph {
     cursor: pointer;
 }
 
-.symbol span.copy-icon {
+.symbol span.copy-icon, .sample-container span.copy-icon {
     display: none;
 }
 
-.symbol:hover span.copy-icon {
+.symbol:hover span.copy-icon, .sample-container:hover span.copy-icon {
     display: inline-block;
 }
 
-.symbol span.copy-icon::before {
+.symbol span.copy-icon::before, .sample-container span.copy-icon::before {
     width: 24px;
     height: 24px;
     display: inline-block;
@@ -346,7 +348,7 @@ code.paragraph {
     background-color: var(--secondary-text-color);
 }
 
-.symbol span.copy-icon:hover::before {
+.symbol span.copy-icon:hover::before, .sample-container span.copy-icon:hover::before {
     background-color: var(--color-dark);
 }
 
@@ -394,7 +396,7 @@ code.paragraph {
     padding-right: 14px;
 }
 
-.symbol .top-right-position {
+.symbol .top-right-position, .sample-container .top-right-position {
     /* it is important for a parent to have a position: relative */
     position: absolute;
     top: 8px;

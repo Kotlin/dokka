@@ -122,6 +122,13 @@ open class PageContentBuilder(
             header(1, text, sourceSets = sourceSets, styles = styles, extra = extra, block = block)
         }
 
+        fun constant(text: String) = text(text, styles = mainStyles + TokenStyle.Constant)
+        fun keyword(text: String) = text(text, styles = mainStyles + TokenStyle.Keyword)
+        fun stringLiteral(text: String) = text(text, styles = mainStyles + TokenStyle.String)
+        fun booleanLiteral(value: Boolean) = text(value.toString(), styles = mainStyles + TokenStyle.Boolean)
+        fun punctuation(text: String) = text(text, styles = mainStyles + TokenStyle.Punctuation)
+        fun operator(text: String) = text(text, styles = mainStyles + TokenStyle.Operator)
+
         fun text(
             text: String,
             kind: Kind = ContentKind.Main,
@@ -194,16 +201,18 @@ open class PageContentBuilder(
             suffix: String = "",
             separator: String = ", ",
             sourceSets: Set<DokkaSourceSet> = mainSourcesetData, // TODO: children should be aware of this platform data
+            surroundingCharactersStyle: Set<Style> = mainStyles,
+            separatorStyles: Set<Style> = mainStyles,
             operation: DocumentableContentBuilder.(T) -> Unit
         ) {
             if (elements.isNotEmpty()) {
-                if (prefix.isNotEmpty()) text(prefix, sourceSets = sourceSets)
+                if (prefix.isNotEmpty()) text(prefix, sourceSets = sourceSets, styles = surroundingCharactersStyle)
                 elements.dropLast(1).forEach {
                     operation(it)
-                    text(separator, sourceSets = sourceSets)
+                    text(separator, sourceSets = sourceSets, styles = separatorStyles)
                 }
                 operation(elements.last())
-                if (suffix.isNotEmpty()) text(suffix, sourceSets = sourceSets)
+                if (suffix.isNotEmpty()) text(suffix, sourceSets = sourceSets, styles = surroundingCharactersStyle)
             }
         }
 
@@ -380,11 +389,12 @@ open class PageContentBuilder(
         fun <T> sourceSetDependentText(
             value: SourceSetDependent<T>,
             sourceSets: Set<DokkaSourceSet> = value.keys,
+            styles: Set<Style> = mainStyles,
             transform: (T) -> String
         ) = value.entries.filter { it.key in sourceSets }.mapNotNull { (p, v) ->
             transform(v).takeIf { it.isNotBlank() }?.let { it to p }
         }.groupBy({ it.first }) { it.second }.forEach {
-            text(it.key, sourceSets = it.value.toSet())
+            text(it.key, sourceSets = it.value.toSet(), styles = styles)
         }
     }
 
