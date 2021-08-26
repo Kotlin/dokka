@@ -68,7 +68,7 @@ internal class DokkaNativeResolverForModuleFactory(
 
         if (klibPackageFragmentProvider != null) {
             packageFragmentProvider =
-                CompositePackageFragmentProvider(listOf(packageFragmentProvider, klibPackageFragmentProvider))
+                CompositePackageFragmentProvider(listOf(packageFragmentProvider, klibPackageFragmentProvider), "DokkaCompositePackageFragmentProvider")
         }
 
         return ResolverForModule(packageFragmentProvider, container)
