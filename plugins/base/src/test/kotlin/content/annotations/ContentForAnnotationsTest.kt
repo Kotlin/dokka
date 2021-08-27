@@ -1,6 +1,7 @@
 package content.annotations
 
 import matchers.content.*
+import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.*
@@ -8,7 +9,7 @@ import org.jetbrains.dokka.pages.ContentPage
 import org.jetbrains.dokka.pages.ContentText
 import org.jetbrains.dokka.pages.MemberPageNode
 import org.jetbrains.dokka.pages.PackagePageNode
-import org.jetbrains.kotlin.utils.addToStdlib.firstNotNullResult
+import org.jetbrains.kotlin.util.firstNotNullResult
 import org.junit.jupiter.api.Test
 import utils.ParamAttributes
 import utils.assertNotNull
@@ -221,7 +222,7 @@ class ContentForAnnotationsTest : BaseAbstractTest() {
                     mustBeDocumented = false
                 ))
                 val property = modules.flatMap { it.packages }.flatMap { it.properties }.first()
-                val annotation = property.extra?.get(Annotations)?.let {
+                val annotation = property.extra[Annotations]?.let {
                     it.directAnnotations.entries.firstNotNullResult { (_, annotations) -> annotations.firstOrNull() }
                 }
                 val annotationParams = annotation?.params ?: emptyMap()
