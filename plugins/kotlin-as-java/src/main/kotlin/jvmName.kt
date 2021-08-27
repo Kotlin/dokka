@@ -5,12 +5,13 @@ import org.jetbrains.dokka.model.Documentable
 import org.jetbrains.dokka.model.StringValue
 import org.jetbrains.dokka.model.isJvmName
 import org.jetbrains.dokka.model.properties.WithExtraProperties
+import org.jetbrains.kotlin.util.firstNotNullResult
 
 internal fun WithExtraProperties<out Documentable>.directlyAnnotatedJvmName(): Annotations.Annotation? =
-    extra[Annotations]?.directAnnotations?.entries?.firstNotNullOfOrNull { (_, annotations)-> annotations.jvmNameAnnotation() }
+    extra[Annotations]?.directAnnotations?.entries?.firstNotNullResult { (_, annotations)-> annotations.jvmNameAnnotation() }
 
 internal fun WithExtraProperties<out Documentable>.fileLevelJvmName(): Annotations.Annotation? =
-    extra[Annotations]?.fileLevelAnnotations?.entries?.firstNotNullOfOrNull { (_, annotations) -> annotations.jvmNameAnnotation() }
+    extra[Annotations]?.fileLevelAnnotations?.entries?.firstNotNullResult { (_, annotations) -> annotations.jvmNameAnnotation() }
 
 internal fun List<Annotations.Annotation>.jvmNameAnnotation(): Annotations.Annotation? =
     firstOrNull { it.isJvmName() }

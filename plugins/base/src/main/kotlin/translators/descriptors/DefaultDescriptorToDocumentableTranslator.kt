@@ -61,6 +61,7 @@ import org.jetbrains.kotlin.resolve.source.PsiSourceFile
 import org.jetbrains.kotlin.types.*
 import org.jetbrains.kotlin.types.typeUtil.immediateSupertypes
 import org.jetbrains.kotlin.types.typeUtil.isAnyOrNullableAny
+import org.jetbrains.kotlin.util.firstNotNullResult
 import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 import java.nio.file.Paths
@@ -890,7 +891,8 @@ private class DokkaDescriptorVisitor(
     private fun DeclarationDescriptor.getJavaDocs() = (this as? CallableDescriptor)
         ?.overriddenDescriptors
         ?.mapNotNull { it.findPsi() as? PsiNamedElement }
-        ?.firstNotNullOfOrNull { javadocParser.parseDocumentation(it) }
+        ?.firstOrNull()
+        ?.let { javadocParser.parseDocumentation(it) }
 
     private suspend fun ClassDescriptor.companion(dri: DRIWithPlatformInfo): DObject? = companionObjectDescriptor?.let {
         objectDescriptor(it, dri)
