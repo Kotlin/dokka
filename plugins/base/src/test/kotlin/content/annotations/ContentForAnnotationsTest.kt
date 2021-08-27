@@ -223,7 +223,7 @@ class ContentForAnnotationsTest : BaseAbstractTest() {
                 ))
                 val property = modules.flatMap { it.packages }.flatMap { it.properties }.first()
                 val annotation = property.extra[Annotations]?.let {
-                    it.directAnnotations.entries.firstNotNullResult { (_, annotations): Map.Entry<DokkaConfiguration.DokkaSourceSet, List<Annotations.Annotation>> -> annotations.firstOrNull() }
+                    it.directAnnotations.entries.firstNotNullResult { (_, annotations) -> annotations.firstOrNull() }
                 }
                 val annotationParams = annotation?.params ?: emptyMap()
 
