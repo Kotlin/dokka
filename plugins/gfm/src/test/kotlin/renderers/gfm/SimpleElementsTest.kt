@@ -1,12 +1,15 @@
 package renderers.gfm
 
-import junit.framework.Assert.assertEquals
 import org.jetbrains.dokka.gfm.renderer.CommonmarkRenderer
-import org.junit.jupiter.api.Test
-import renderers.testPage
 import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.pages.*
+import org.jetbrains.dokka.pages.ContentEmbeddedResource
+import org.jetbrains.dokka.pages.ContentKind
+import org.jetbrains.dokka.pages.DCI
+import org.jetbrains.dokka.pages.TextStyle
+import org.junit.Assert.assertEquals
+import org.junit.jupiter.api.Test
 import renderers.RawTestPage
+import renderers.testPage
 
 class SimpleElementsTest : GfmRenderingOnlyTestBase() {
 
@@ -217,4 +220,170 @@ class SimpleElementsTest : GfmRenderingOnlyTestBase() {
         assertEquals(expect, renderedContent)
     }
 
+    @Test
+    fun `unordered list with two items`() {
+        val page = testPage {
+            unorderedList {
+                item { text("Item 1") }
+                item { text("Item 2") }
+            }
+        }
+
+        val expect = """|//[testPage](test-page.md)
+                        |
+                        |- Item 1
+                        |- Item 2""".trimMargin()
+
+        CommonmarkRenderer(context).render(page)
+        assertEquals(expect, renderedContent)
+    }
+
+    @Test
+    fun `unordered list with styled text`() {
+        val page = testPage {
+            unorderedList {
+                item {
+                    text("Nobody", styles = setOf(TextStyle.Italic))
+                    text(" tosses a Dwarf!")
+                }
+            }
+        }
+
+        val expect = "//[testPage](test-page.md)\n\n- *Nobody* tosses a Dwarf!"
+
+        CommonmarkRenderer(context).render(page)
+        assertEquals(expect, renderedContent)
+    }
+
+    @Test
+    fun `ordered list with two items`() {
+        val page = testPage {
+            orderedList {
+                item { text("Item 1") }
+                item { text("Item 2") }
+            }
+        }
+
+        val expect = """|//[testPage](test-page.md)
+                        |
+                        |1. Item 1
+                        |2. Item 2""".trimMargin()
+
+        CommonmarkRenderer(context).render(page)
+        assertEquals(expect, renderedContent)
+    }
+
+    @Test
+    fun `ordered list with nested unordered list`() {
+        val page = testPage {
+            orderedList {
+                item {
+                    text("And another list:")
+                    unorderedList {
+                        item { text("Item 1") }
+                        item { text("Item 2") }
+                    }
+                }
+                item { text("Following item") }
+            }
+        }
+
+        val expect = """|//[testPage](test-page.md)
+                        |
+                        |1. And another list:
+                        |   
+                        |   - Item 1
+                        |   - Item 2
+                        |2. Following item""".trimMargin()
+
+        CommonmarkRenderer(context).render(page)
+        assertEquals(expect, renderedContent)
+    }
+
+    @Test
+    fun `ordered list with nested table`() {
+        val page = testPage {
+            orderedList {
+                item {
+                    text("The following table is nested in a list:")
+                    table {
+                        header {
+                            text("Col1")
+                            text("Col2")
+                        }
+                        row {
+                            text("Text1")
+                            text("Text2")
+                        }
+                    }
+                }
+            }
+        }
+
+        val expect = """|//[testPage](test-page.md)
+                        |
+                        |1. The following table is nested in a list:
+                        |   | Col1 | Col2 |
+                        |   |---|---|
+                        |   | Text1 | Text2 |""".trimMargin()
+
+        CommonmarkRenderer(context).render(page)
+        assertEquals(expect, renderedContent)
+    }
+
+    @Test
+    fun `three levels of list`() {
+        val page = testPage {
+            unorderedList {
+                item {
+                    text("Level 1")
+                    unorderedList {
+                        item {
+                            text("Level 2")
+                            unorderedList {
+                                item {
+                                    text("Level 3")
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Extra newlines are not pretty but do not impact formatting
+        val expect = """|//[testPage](test-page.md)
+                        |
+                        |- Level 1
+                        |   
+                        |   - Level 2
+                        |      
+                        |      - Level 3""".trimMargin()
+
+        CommonmarkRenderer(context).render(page)
+        assertEquals(expect, renderedContent)
+    }
+
+    @Test
+    fun `nested list with no text preceding it`() {
+        val page = testPage {
+            unorderedList {
+                item {
+                    unorderedList {
+                        item {
+                            text("Nested")
+                        }
+                    }
+                }
+            }
+        }
+
+        val expect = """|//[testPage](test-page.md)
+                        |
+                        |- 
+                        |   - Nested""".trimMargin()
+
+        CommonmarkRenderer(context).render(page)
+        assertEquals(expect, renderedContent)
+    }
 }
