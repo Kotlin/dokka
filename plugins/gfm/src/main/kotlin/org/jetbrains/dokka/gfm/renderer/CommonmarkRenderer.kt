@@ -11,6 +11,7 @@ import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.query
+import org.jetbrains.dokka.utilities.htmlEscape
 
 open class CommonmarkRenderer(
     context: DokkaContext
@@ -214,7 +215,7 @@ open class CommonmarkRenderer(
             val decorators = decorators(textNode.style)
             append(textNode.text.takeWhile { it == ' ' })
             append(decorators)
-            append(textNode.text.trim())
+            append(textNode.text.trim().htmlEscape())
             append(decorators.reversed())
             append(textNode.text.takeLastWhile { it == ' ' })
         }
