@@ -224,7 +224,7 @@ html ::-webkit-scrollbar-thumb {
 
 .divergent-group {
     background-color: var(--background-color);
-    padding: 8px 0 8px 0;
+    padding: 16px 0 8px 0;
     margin-bottom: 2px;
 }
 
@@ -359,7 +359,7 @@ code.paragraph {
     z-index: 1000;
     background: white;
     font-weight: normal;
-    font-family: 'Inter', "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-family: var(--default-font-family);
     width: max-content;
     font-size: var(--default-font-size);
     cursor: default;
@@ -487,7 +487,7 @@ code.paragraph {
 }
 
 body, table {
-    font-family: 'Inter', "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-family: var(--default-font-family);
     background: var(--background-color);
     font-style: normal;
     font-weight: normal;
