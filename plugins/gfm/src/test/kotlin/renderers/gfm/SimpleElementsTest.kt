@@ -204,4 +204,17 @@ class SimpleElementsTest : GfmRenderingOnlyTestBase() {
         assertEquals(expect, renderedContent)
     }
 
+    @Test
+    fun escapeText() {
+        val page = testPage {
+            text(
+                "<b>a</b>",
+            )
+        }
+        val expect =
+            "//[testPage](test-page.md)\n\n&lt;b&gt;a&lt;/b&gt;"
+        CommonmarkRenderer(context).render(page)
+        assertEquals(expect, renderedContent)
+    }
+
 }
