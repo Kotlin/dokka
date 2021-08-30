@@ -99,6 +99,5 @@ https://prismjs.com/download.html#themes=prism&languages=clike+java+javadoclike+
 
 .annotation,.control,.field,.filename,.keyword,.menupath,.property,.string,.value {
 	color: #27282c;
-	/*color: var(--wh-color-text-bold);*/
 	font-weight: 700;
 }
