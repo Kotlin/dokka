@@ -367,6 +367,7 @@ code.paragraph {
     box-sizing: border-box;
     box-shadow: 0px 5px 10px var(--ring-popup-shadow-color);
     border-radius: 3px;
+    color: initial;
 }
 
 .copy-popup-wrapper > .copy-popup-icon::before {
