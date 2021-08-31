@@ -8,6 +8,7 @@ import org.jetbrains.dokka.base.renderers.html.command.consumers.ImmediateResolu
 import org.jetbrains.dokka.base.renderers.html.templateCommandFor
 import org.jetbrains.dokka.base.templating.Command
 import org.jetbrains.dokka.base.templating.ImmediateHtmlCommandConsumer
+import org.jetbrains.dokka.base.templating.ReplaceVersionsCommand
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.querySingle
@@ -16,6 +17,8 @@ class ReplaceVersionCommandConsumer(context: DokkaContext) : ImmediateHtmlComman
 
     private val versionsNavigationCreator =
         context.plugin<VersioningPlugin>().querySingle { versionsNavigationCreator }
+    private val versioningStorage =
+        context.plugin<VersioningPlugin>().querySingle { versioningStorage }
 
     override fun canProcess(command: Command) = command is ReplaceVersionsCommand
 
@@ -27,7 +30,7 @@ class ReplaceVersionCommandConsumer(context: DokkaContext) : ImmediateHtmlComman
         command as ReplaceVersionsCommand
         templateCommandFor(command, tagConsumer).visit {
             unsafe {
-                +versionsNavigationCreator()
+                +versionsNavigationCreator(versioningStorage.currentVersion.dir.resolve(command.location))
             }
         }
     }
@@ -36,10 +39,12 @@ class ReplaceVersionCommandConsumer(context: DokkaContext) : ImmediateHtmlComman
         command: Command,
         block: TemplateBlock,
         tagConsumer: ImmediateResolutionTagConsumer<R>
-    ): R =
-        templateCommandFor(command, tagConsumer).visitAndFinalize(tagConsumer) {
+    ): R {
+        command as ReplaceVersionsCommand
+        return templateCommandFor(command, tagConsumer).visitAndFinalize(tagConsumer) {
             unsafe {
-                +versionsNavigationCreator()
+                +versionsNavigationCreator(versioningStorage.currentVersion.dir.resolve(command.location))
             }
         }
+    }
 }

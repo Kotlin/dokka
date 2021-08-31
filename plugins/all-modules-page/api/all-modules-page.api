@@ -4,10 +4,10 @@ public final class org/jetbrains/dokka/allModulesPage/AllModulesPageGeneration :
 	public final fun finishProcessingSubmodules ()V
 	public fun generate (Lorg/jetbrains/dokka/Timer;)V
 	public fun getGenerationName ()Ljava/lang/String;
-	public final fun handlePreviousDocs ()V
 	public final fun processMultiModule (Lorg/jetbrains/dokka/pages/RootPageNode;)V
 	public final fun processSubmodules ()Lorg/jetbrains/dokka/allModulesPage/AllModulesPageGeneration$DefaultAllModulesContext;
 	public final fun render (Lorg/jetbrains/dokka/pages/RootPageNode;)V
+	public final fun runPostActions ()V
 	public final fun transformAllModulesPage (Lorg/jetbrains/dokka/pages/RootPageNode;)Lorg/jetbrains/dokka/pages/RootPageNode;
 }
 
@@ -51,8 +51,10 @@ public abstract interface class org/jetbrains/dokka/allModulesPage/ExternalModul
 }
 
 public class org/jetbrains/dokka/allModulesPage/MultimoduleLocationProvider : org/jetbrains/dokka/base/resolvers/local/DokkaBaseLocationProvider {
-	public fun <init> (Lorg/jetbrains/dokka/pages/RootPageNode;Lorg/jetbrains/dokka/plugability/DokkaContext;)V
+	public fun <init> (Lorg/jetbrains/dokka/pages/RootPageNode;Lorg/jetbrains/dokka/plugability/DokkaContext;Ljava/lang/String;)V
+	public synthetic fun <init> (Lorg/jetbrains/dokka/pages/RootPageNode;Lorg/jetbrains/dokka/plugability/DokkaContext;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun ancestors (Lorg/jetbrains/dokka/pages/PageNode;)Ljava/util/List;
+	public final fun getExtension ()Ljava/lang/String;
 	public fun pathToRoot (Lorg/jetbrains/dokka/pages/PageNode;)Ljava/lang/String;
 	public fun resolve (Lorg/jetbrains/dokka/links/DRI;Ljava/util/Set;Lorg/jetbrains/dokka/pages/PageNode;)Ljava/lang/String;
 	public fun resolve (Lorg/jetbrains/dokka/pages/PageNode;Lorg/jetbrains/dokka/pages/PageNode;Z)Ljava/lang/String;

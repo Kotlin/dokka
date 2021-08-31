@@ -42,6 +42,7 @@ public final class org/jetbrains/dokka/base/DokkaBase : org/jetbrains/dokka/plug
 	public final fun getPathToRootConsumer ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getPreMergeDocumentableTransformer ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
 	public final fun getPsiToDocumentableTranslator ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getReplaceVersionConsumer ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getResolveLinkConsumer ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getRootCreator ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getSameMethodNameMerger ()Lorg/jetbrains/dokka/plugability/Extension;
@@ -99,6 +100,7 @@ public final class org/jetbrains/dokka/base/generation/SingleModuleGeneration : 
 	public final fun mergeDocumentationModels (Ljava/util/List;)Lorg/jetbrains/dokka/model/DModule;
 	public final fun render (Lorg/jetbrains/dokka/pages/RootPageNode;)V
 	public final fun reportAfterRendering ()V
+	public final fun runPostActions ()V
 	public final fun transformDocumentationModelAfterMerge (Lorg/jetbrains/dokka/model/DModule;)Lorg/jetbrains/dokka/model/DModule;
 	public final fun transformDocumentationModelBeforeMerge (Ljava/util/List;)Ljava/util/List;
 	public final fun transformPages (Lorg/jetbrains/dokka/pages/RootPageNode;)Lorg/jetbrains/dokka/pages/RootPageNode;
@@ -534,6 +536,13 @@ public final class org/jetbrains/dokka/base/renderers/html/command/consumers/Pat
 	public fun processCommandAndFinalize (Lorg/jetbrains/dokka/base/templating/Command;Lkotlin/jvm/functions/Function1;Lorg/jetbrains/dokka/base/renderers/html/command/consumers/ImmediateResolutionTagConsumer;)Ljava/lang/Object;
 }
 
+public final class org/jetbrains/dokka/base/renderers/html/command/consumers/ReplaceVersionsConsumer : org/jetbrains/dokka/base/templating/ImmediateHtmlCommandConsumer {
+	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
+	public fun canProcess (Lorg/jetbrains/dokka/base/templating/Command;)Z
+	public fun processCommand (Lorg/jetbrains/dokka/base/templating/Command;Lkotlin/jvm/functions/Function1;Lorg/jetbrains/dokka/base/renderers/html/command/consumers/ImmediateResolutionTagConsumer;)V
+	public fun processCommandAndFinalize (Lorg/jetbrains/dokka/base/templating/Command;Lkotlin/jvm/functions/Function1;Lorg/jetbrains/dokka/base/renderers/html/command/consumers/ImmediateResolutionTagConsumer;)Ljava/lang/Object;
+}
+
 public final class org/jetbrains/dokka/base/renderers/html/command/consumers/ResolveLinkConsumer : org/jetbrains/dokka/base/templating/ImmediateHtmlCommandConsumer {
 	public static final field INSTANCE Lorg/jetbrains/dokka/base/renderers/html/command/consumers/ResolveLinkConsumer;
 	public fun canProcess (Lorg/jetbrains/dokka/base/templating/Command;)Z
@@ -951,6 +960,19 @@ public final class org/jetbrains/dokka/base/templating/ProjectNameSubstitutionCo
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getDefault ()Ljava/lang/String;
 	public fun getPattern ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/jetbrains/dokka/base/templating/ReplaceVersionsCommand : org/jetbrains/dokka/base/templating/Command {
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;)Lorg/jetbrains/dokka/base/templating/ReplaceVersionsCommand;
+	public static synthetic fun copy$default (Lorg/jetbrains/dokka/base/templating/ReplaceVersionsCommand;Ljava/lang/String;ILjava/lang/Object;)Lorg/jetbrains/dokka/base/templating/ReplaceVersionsCommand;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getLocation ()Ljava/lang/String;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }

@@ -12,7 +12,8 @@ import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.querySingle
 
-open class MultimoduleLocationProvider(private val root: RootPageNode, dokkaContext: DokkaContext) :
+open class MultimoduleLocationProvider(private val root: RootPageNode, dokkaContext: DokkaContext,
+                                       val extension: String = ".html") :
     DokkaBaseLocationProvider(root, dokkaContext) {
 
     private val defaultLocationProvider =
@@ -27,7 +28,7 @@ open class MultimoduleLocationProvider(private val root: RootPageNode, dokkaCont
             ?.let(externalModuleLinkResolver::resolveLinkToModuleIndex)
 
     override fun resolve(node: PageNode, context: PageNode?, skipExtension: Boolean) =
-        if (node is ContentPage && MultimodulePageCreator.MULTIMODULE_ROOT_DRI in node.dri) pathToRoot(root) + "index"
+        if (node is ContentPage && MultimodulePageCreator.MULTIMODULE_ROOT_DRI in node.dri) pathToRoot(root) + "index" + if (!skipExtension) extension else ""
         else defaultLocationProvider.resolve(node, context, skipExtension)
 
     override fun pathToRoot(from: PageNode): String = defaultLocationProvider.pathToRoot(from)

@@ -16,6 +16,7 @@ public final class org/jetbrains/dokka/CoreExtensions {
 	public final fun getDocumentableTransformer ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
 	public final fun getGeneration ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
 	public final fun getPageTransformer ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
+	public final fun getPostActions ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
 	public final fun getPreGenerationCheck ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
 	public final fun getRenderer ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
 	public final fun getSourceToDocumentableTranslator ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
@@ -4286,6 +4287,9 @@ public final class org/jetbrains/dokka/plugability/ProvidedExtension {
 
 public abstract interface class org/jetbrains/dokka/plugability/WithUnsafeExtensionSuppression {
 	public abstract fun getExtensionsSuppressed ()Ljava/util/List;
+}
+
+public abstract interface class org/jetbrains/dokka/renderers/PostAction : kotlin/jvm/functions/Function0 {
 }
 
 public abstract interface class org/jetbrains/dokka/renderers/Renderer {
