@@ -3,8 +3,6 @@
 Versioning plugin aims to provide users with ability to create a versioned documentation.
 Therefore, users of the documentation can view different versions of the documentation by going to the main page and change versions.
 
-Versioning plugin is applied by default but not enabled in Dokka so there is no need to apply it manually.
-
 Versioning can be configured using:
 
 * version - a string value representing a version that should be displayed in the dropdown.
@@ -14,13 +12,15 @@ Versioning can be configured using:
   (if it's specified).
 * versionsOrdering - an optional list of strings representing the ordering of versions that should be visible. 
   By default, Dokka will try to use semantic versioning to create such ordering.
-  
+* renderVersionsNavigationOnAllPages - a bool value.
+  By default, Dokka renders a versions navigation on all pages.
+
+!!! note
+  You should enable the plugin in all submodules to render a versions navigation on all pages.
+
 Above configuration should be placed under the `pluginsConfiguration` block specific for your build tool.
 Configuration object is named `org.jetbrains.dokka.versioning.VersioningConfiguration`.
 
-
-!!! note
-    In the current release versioning is available only for the multimodule. Supporting single module is scheduled for next release
 
 ### Directory structure required
 

@@ -130,6 +130,7 @@ public final class org/jetbrains/dokka/templates/TemplatingPlugin : org/jetbrain
 	public final fun getPagesSearchTemplateStrategy ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getPathToRootSubstitutor ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getProjectNameSubstitutor ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getReplaceVersionCommandHandler ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getSourcesetDependencyProcessingStrategy ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getSubmoduleTemplateProcessor ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
 	public final fun getSubstitutionCommandHandler ()Lorg/jetbrains/dokka/plugability/Extension;
@@ -154,6 +155,13 @@ public final class org/jetbrains/dokka/templates/TemplatingResult {
 public final class templates/ProjectNameSubstitutor : org/jetbrains/dokka/templates/Substitutor {
 	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
 	public fun trySubstitute (Lorg/jetbrains/dokka/templates/TemplatingContext;Lkotlin/text/MatchResult;)Ljava/lang/String;
+}
+
+public final class templates/ReplaceVersionCommandHandler : org/jetbrains/dokka/templates/CommandHandler {
+	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
+	public fun canHandle (Lorg/jetbrains/dokka/base/templating/Command;)Z
+	public fun finish (Ljava/io/File;)V
+	public fun handleCommand (Lorg/jsoup/nodes/Element;Lorg/jetbrains/dokka/base/templating/Command;Ljava/io/File;Ljava/io/File;)V
 }
 
 public final class templates/SourcesetDependencyProcessingStrategy : org/jetbrains/dokka/templates/TemplateProcessingStrategy {

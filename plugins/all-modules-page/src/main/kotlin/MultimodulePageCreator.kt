@@ -19,14 +19,10 @@ import org.jetbrains.dokka.model.doc.P
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
-import org.jetbrains.dokka.plugability.configuration
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.transformers.pages.PageCreator
 import org.jetbrains.dokka.utilities.DokkaLogger
-import org.jetbrains.dokka.versioning.ReplaceVersionsCommand
-import org.jetbrains.dokka.versioning.VersioningConfiguration
-import org.jetbrains.dokka.versioning.VersioningPlugin
 import java.io.File
 
 class MultimodulePageCreator(
@@ -46,11 +42,6 @@ class MultimodulePageCreator(
             kind = ContentKind.Cover,
             sourceSets = sourceSetData
         ) {
-            /* The line below checks if there is a provided configuration for versioning.
-             If not, we are skipping the template for inserting versions navigation */
-            configuration<VersioningPlugin, VersioningConfiguration>(context)?.let {
-                group(extra = PropertyContainer.withAll(InsertTemplateExtra(ReplaceVersionsCommand))) { }
-            }
             getMultiModuleDocumentation(context.configuration.includes).takeIf { it.isNotEmpty() }?.let { nodes ->
                 group(kind = ContentKind.Cover) {
                     nodes.forEach { node ->

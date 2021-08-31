@@ -7,7 +7,6 @@ registerDokkaArtifactPublication("dokkaAllModulesPage") {
 dependencies {
     implementation(project(":plugins:base"))
     implementation(project(":plugins:templating"))
-    implementation(project(":plugins:versioning"))
     testImplementation(project(":plugins:base"))
     testImplementation(project(":plugins:base:base-test-utils"))
     testImplementation(project(":plugins:gfm"))

@@ -4,6 +4,7 @@ import org.jetbrains.dokka.allModulesPage.templates.PackageListProcessingStrateg
 import org.jetbrains.dokka.allModulesPage.templates.PagesSearchTemplateStrategy
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import templates.ProjectNameSubstitutor
+import templates.ReplaceVersionCommandHandler
 import templates.SourcesetDependencyProcessingStrategy
 
 class TemplatingPlugin : DokkaPlugin() {
@@ -64,5 +65,8 @@ class TemplatingPlugin : DokkaPlugin() {
     }
     val substitutionCommandHandler by extending {
         directiveBasedCommandHandlers providing ::SubstitutionCommandHandler
+    }
+    val replaceVersionCommandHandler by extending {
+        directiveBasedCommandHandlers providing ::ReplaceVersionCommandHandler
     }
 }
