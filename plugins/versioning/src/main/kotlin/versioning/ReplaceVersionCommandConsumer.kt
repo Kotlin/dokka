@@ -27,7 +27,7 @@ class ReplaceVersionCommandConsumer(context: DokkaContext) : ImmediateHtmlComman
         command as ReplaceVersionsCommand
         templateCommandFor(command, tagConsumer).visit {
             unsafe {
-                +versionsNavigationCreator()
+                +versionsNavigationCreator(command.location)
             }
         }
     }
@@ -36,10 +36,12 @@ class ReplaceVersionCommandConsumer(context: DokkaContext) : ImmediateHtmlComman
         command: Command,
         block: TemplateBlock,
         tagConsumer: ImmediateResolutionTagConsumer<R>
-    ): R =
-        templateCommandFor(command, tagConsumer).visitAndFinalize(tagConsumer) {
+    ): R {
+        command as ReplaceVersionsCommand
+        return templateCommandFor(command, tagConsumer).visitAndFinalize(tagConsumer) {
             unsafe {
-                +versionsNavigationCreator()
+                +versionsNavigationCreator(command.location)
             }
         }
+    }
 }

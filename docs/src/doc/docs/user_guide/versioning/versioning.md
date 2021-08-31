@@ -19,9 +19,6 @@ Above configuration should be placed under the `pluginsConfiguration` block spec
 Configuration object is named `org.jetbrains.dokka.versioning.VersioningConfiguration`.
 
 
-!!! note
-    In the current release versioning is available only for the multimodule. Supporting single module is scheduled for next release
-
 ### Directory structure required
 
 If you pass previous versions using `olderVersionsDir`, a particular directory structure is required:

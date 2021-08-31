@@ -4,7 +4,6 @@ public final class org/jetbrains/dokka/allModulesPage/AllModulesPageGeneration :
 	public final fun finishProcessingSubmodules ()V
 	public fun generate (Lorg/jetbrains/dokka/Timer;)V
 	public fun getGenerationName ()Ljava/lang/String;
-	public final fun handlePreviousDocs ()V
 	public final fun processMultiModule (Lorg/jetbrains/dokka/pages/RootPageNode;)V
 	public final fun processSubmodules ()Lorg/jetbrains/dokka/allModulesPage/AllModulesPageGeneration$DefaultAllModulesContext;
 	public final fun render (Lorg/jetbrains/dokka/pages/RootPageNode;)V

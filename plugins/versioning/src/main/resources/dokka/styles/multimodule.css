@@ -6,6 +6,23 @@
   border: none;
   cursor: pointer;
   padding: 5px;
+  color: black;
+}
+
+.versions-dropdown-button::after {
+    content: '';
+    -webkit-mask: url("../images/arrow_down.svg") no-repeat 50% 50%;
+    mask: url("../images/arrow_down.svg") no-repeat 50% 50%;
+        mask-size: auto;
+    -webkit-mask-size: cover;
+    mask-size: cover;
+    background-color: black;
+    display: inline-block;
+    position: relative;
+    top: 2px;
+    transform: rotate(90deg);
+    width: 16px;
+    height: 16px;
 }
 
 .versions-dropdown-button:hover,
@@ -23,9 +40,10 @@
 
 .versions-dropdown-data a {
   padding: 5px;
+  padding-right: 18px;
   text-decoration: none;
   display: block;
-  color: black;
+  color: black !important;
 }
 
 .versions-dropdown-data a:hover {

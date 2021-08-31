@@ -27,7 +27,7 @@ open class MultimoduleLocationProvider(private val root: RootPageNode, dokkaCont
             ?.let(externalModuleLinkResolver::resolveLinkToModuleIndex)
 
     override fun resolve(node: PageNode, context: PageNode?, skipExtension: Boolean) =
-        if (node is ContentPage && MultimodulePageCreator.MULTIMODULE_ROOT_DRI in node.dri) pathToRoot(root) + "index"
+        if (node is ContentPage && MultimodulePageCreator.MULTIMODULE_ROOT_DRI in node.dri) pathToRoot(root) + "index${if(skipExtension)"" else ".html"}"
         else defaultLocationProvider.resolve(node, context, skipExtension)
 
     override fun pathToRoot(from: PageNode): String = defaultLocationProvider.pathToRoot(from)

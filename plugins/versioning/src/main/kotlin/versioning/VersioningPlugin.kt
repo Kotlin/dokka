@@ -4,6 +4,8 @@ import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.plugability.configuration
 import org.jetbrains.dokka.templates.TemplatingPlugin
+import versioning.DefaultPreviousDocumentationCopier
+import versioning.VersionsNavigationAdder
 
 class VersioningPlugin : DokkaPlugin() {
 
@@ -27,7 +29,10 @@ class VersioningPlugin : DokkaPlugin() {
         dokkaBase.immediateHtmlCommandConsumer providing ::ReplaceVersionCommandConsumer
     }
     val cssStyleInstaller by extending {
-        dokkaBase.htmlPreprocessors with MultiModuleStylesInstaller order { after(dokkaBase.assetsInstaller) }
+        dokkaBase.htmlPreprocessors providing ::MultiModuleStylesInstaller order {
+            after(dokkaBase.assetsInstaller)
+            before(dokkaBase.baseSearchbarDataInstaller)
+        }
     }
     val versionsDefaultOrdering by extending {
         versionsOrdering providing { ctx ->
@@ -36,4 +41,12 @@ class VersioningPlugin : DokkaPlugin() {
             } ?: SemVerVersionOrdering()
         }
     }
+ val previousDocumentationCopier by extending {
+     dokkaBase.postActions providing ::DefaultPreviousDocumentationCopier applyIf { !delayTemplateSubstitution }
+  }
+  val defaultVersionsNavigationAdder by extending {
+      dokkaBase.htmlPreprocessors providing ::VersionsNavigationAdder order {
+          after(dokkaBase.assetsInstaller)
+      }
+  }
 }

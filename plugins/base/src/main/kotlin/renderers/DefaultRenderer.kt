@@ -25,6 +25,7 @@ abstract class DefaultRenderer<T>(
         private set
 
     protected open val preprocessors: Iterable<PageTransformer> = emptyList()
+    protected open val postActions: Iterable<PostAction> = emptyList()
 
     abstract fun T.buildHeader(level: Int, node: ContentHeader, content: T.() -> Unit)
     abstract fun T.buildLink(address: String, content: T.() -> Unit)
@@ -209,6 +210,8 @@ abstract class DefaultRenderer<T>(
         runBlocking(Dispatchers.Default) {
             renderPages(newRoot)
         }
+
+        postActions.forEach { it() }
     }
 
     protected fun ContentDivergentGroup.groupDivergentInstances(

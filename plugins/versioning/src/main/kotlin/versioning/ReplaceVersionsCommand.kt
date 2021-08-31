@@ -9,7 +9,7 @@ import org.jetbrains.dokka.templates.CommandHandler
 import org.jsoup.nodes.Element
 import java.io.File
 
-object ReplaceVersionsCommand : Command
+data class ReplaceVersionsCommand(var location: String = ""): Command
 
 class ReplaceVersionCommandHandler(context: DokkaContext) : CommandHandler {
 
