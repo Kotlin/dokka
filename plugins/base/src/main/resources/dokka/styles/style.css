@@ -34,6 +34,7 @@
     --secondary-text-color: rgba(39, 40, 44, .7);
     --code-background: rgba(39, 40, 44, .05);
     --border-color: rgba(39, 40, 44, .2);
+    --navigation-highlight-color: rgba(39, 40, 44, 0.05);
     --top-navigation-height: 73px;
     --max-width: 1160px;
     --white-10: hsla(0,0%,100%,.1);
@@ -53,6 +54,7 @@
 
     --active-tab-border-color: var(--default-font-color);
     --inactive-tab-border-color: var(--border-color);
+    --navigation-highlight-color: rgba(255, 255, 255, 0.05);
     --footer-background: hsla(0,0%,100%,0.05);
     --footer-font-color: hsla(0,0%,100%,0.6);
     --footer-go-to-top-color: var(--footer-font-color);
@@ -437,7 +439,7 @@ code.paragraph {
 }
 
 .overview:hover:before {
-    background-color: rgba(39, 40, 44, 0.05);
+    background-color: var(--navigation-highlight-color);
 }
 
 #nav-submenu {
