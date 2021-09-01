@@ -5,7 +5,6 @@ import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.plugability.configuration
 import org.jetbrains.dokka.templates.TemplatingPlugin
 import versioning.DefaultPreviousDocumentationCopier
-import versioning.VersionsNavigationAdder
 
 class VersioningPlugin : DokkaPlugin() {
 
@@ -23,10 +22,10 @@ class VersioningPlugin : DokkaPlugin() {
         versionsNavigationCreator providing ::HtmlVersionsNavigationCreator
     }
     val replaceVersionCommandHandler by extending {
-        templatingPlugin.directiveBasedCommandHandlers providing ::ReplaceVersionCommandHandler
+        templatingPlugin.directiveBasedCommandHandlers providing ::ReplaceVersionCommandHandler override templatingPlugin.replaceVersionCommandHandler
     }
     val resolveLinkConsumer by extending {
-        dokkaBase.immediateHtmlCommandConsumer providing ::ReplaceVersionCommandConsumer
+        dokkaBase.immediateHtmlCommandConsumer providing ::ReplaceVersionCommandConsumer override dokkaBase.replaceVersionConsumer
     }
     val cssStyleInstaller by extending {
         dokkaBase.htmlPreprocessors providing ::MultiModuleStylesInstaller order {
@@ -43,10 +42,5 @@ class VersioningPlugin : DokkaPlugin() {
     }
  val previousDocumentationCopier by extending {
      dokkaBase.postActions providing ::DefaultPreviousDocumentationCopier applyIf { !delayTemplateSubstitution }
-  }
-  val defaultVersionsNavigationAdder by extending {
-      dokkaBase.htmlPreprocessors providing ::VersionsNavigationAdder order {
-          after(dokkaBase.assetsInstaller)
-      }
   }
 }

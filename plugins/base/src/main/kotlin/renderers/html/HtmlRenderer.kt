@@ -13,10 +13,7 @@ import org.jetbrains.dokka.base.renderers.isImage
 import org.jetbrains.dokka.base.renderers.pageId
 import org.jetbrains.dokka.base.resolvers.anchors.SymbolAnchorHint
 import org.jetbrains.dokka.base.resolvers.local.DokkaBaseLocationProvider
-import org.jetbrains.dokka.base.templating.InsertTemplateExtra
-import org.jetbrains.dokka.base.templating.PathToRootSubstitutionCommand
-import org.jetbrains.dokka.base.templating.ProjectNameSubstitutionCommand
-import org.jetbrains.dokka.base.templating.ResolveLinkCommand
+import org.jetbrains.dokka.base.templating.*
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.DisplaySourceSet
 import org.jetbrains.dokka.model.properties.PropertyContainer
@@ -753,6 +750,7 @@ open class HtmlRenderer(
         get() = URI(this).isAbsolute
 
     open fun buildHtml(page: PageNode, resources: List<String>, content: FlowContent.() -> Unit): String {
+        val path = locationProvider.resolve(page)
         val pathToRoot = locationProvider.pathToRoot(page)
         return createHTML().prepareForTemplates().html {
             head {
@@ -817,9 +815,7 @@ open class HtmlRenderer(
                     div("library-name") {
                         clickableLogo(page, pathToRoot)
                     }
-                    context.configuration.moduleVersion?.let { moduleVersion ->
-                        div { text(moduleVersion) }
-                    }
+                    div { templateCommand(ReplaceVersionsCommand(path.orEmpty())) }
                     div("pull-right d-flex") {
                         filterButtons(page)
                         button {

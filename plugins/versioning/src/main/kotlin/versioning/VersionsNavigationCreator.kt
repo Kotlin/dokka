@@ -1,34 +1,41 @@
 package org.jetbrains.dokka.versioning
 
+import com.jetbrains.rd.util.first
 import kotlinx.html.a
-import kotlinx.html.button
 import kotlinx.html.div
-import kotlinx.html.i
 import kotlinx.html.stream.appendHTML
 import org.jetbrains.dokka.base.renderers.html.strike
 import org.jetbrains.dokka.plugability.DokkaContext
+import org.jetbrains.dokka.plugability.configuration
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.querySingle
 import java.io.File
-import java.nio.file.Files.isDirectory
-import java.nio.file.Path
 
 interface VersionsNavigationCreator {
     operator fun invoke(location: String): String
     operator fun invoke(output: File): String
 }
 
-class HtmlVersionsNavigationCreator(val context: DokkaContext) : VersionsNavigationCreator {
+class HtmlVersionsNavigationCreator(private val context: DokkaContext) : VersionsNavigationCreator {
 
     private val versioningHandler by lazy { context.plugin<VersioningPlugin>().querySingle { versioningHandler } }
 
     private val versionsOrdering by lazy { context.plugin<VersioningPlugin>().querySingle { versionsOrdering } }
 
+    private val isOnlyOnRootPage =
+        configuration<VersioningPlugin, VersioningConfiguration>(context)?.isOnlyOnRootPage != false
+
     override fun invoke(location: String): String =
         versioningHandler.currentVersion()?.let { invoke(it.resolve(location)) }.orEmpty()
 
     override fun invoke(output: File): String {
+        if (versioningHandler.versions.size == 1) {
+            return versioningHandler.versions.first().key
+        }
         val position = output.takeIf { it.isDirectory } ?: output.parentFile
+        if(isOnlyOnRootPage ) {
+            fromCurrentVersion(position)?.takeIf { position != it.value }?.also { return@invoke it.key }
+        }
         return versioningHandler.versions
             .let { versions -> versionsOrdering.order(versions.keys.toList()).map { it to versions[it] } }
             .takeIf { it.isNotEmpty() }
@@ -36,7 +43,7 @@ class HtmlVersionsNavigationCreator(val context: DokkaContext) : VersionsNavigat
                 StringBuilder().appendHTML().div(classes = "versions-dropdown") {
                     var relativePosition: String? = null
                     var activeVersion = ""
-                    button(classes = "versions-dropdown-button") {
+                    div(classes = "versions-dropdown-button") {
                         versions.minByOrNull { (_, versionLocation) ->
                             versionLocation?.let { position.toRelativeString(it).length } ?: 0xffffff
                         }?.let { (version, versionRoot) ->
@@ -71,4 +78,9 @@ class HtmlVersionsNavigationCreator(val context: DokkaContext) : VersionsNavigat
                 }.toString()
             }.orEmpty()
     }
+
+    private fun fromCurrentVersion(position: File) =
+        versioningHandler.versions.minByOrNull { (_, versionLocation) ->
+            versionLocation.let { position.toRelativeString(it).length }
+        }.takeIf { it?.value == versioningHandler.currentVersion() }
 }

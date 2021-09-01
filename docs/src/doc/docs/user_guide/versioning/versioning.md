@@ -3,8 +3,6 @@
 Versioning plugin aims to provide users with ability to create a versioned documentation.
 Therefore, users of the documentation can view different versions of the documentation by going to the main page and change versions.
 
-Versioning plugin is applied by default but not enabled in Dokka so there is no need to apply it manually.
-
 Versioning can be configured using:
 
 * version - a string value representing a version that should be displayed in the dropdown.

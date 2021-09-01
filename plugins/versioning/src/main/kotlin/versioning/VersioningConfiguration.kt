@@ -9,7 +9,7 @@ data class VersioningConfiguration(
     var olderVersions: List<File>? = defaultOlderVersions,
     var versionsOrdering: List<String>? = defaultVersionsOrdering,
     var version: String? = defaultVersion,
-    var onEachPage: Boolean? = defaultOnEachPage
+    var isOnlyOnRootPage: Boolean? = defaultIsOnlyOnRootPage
 ) : ConfigurableBlock {
     internal fun versionFromConfigurationOrModule(dokkaContext: DokkaContext): String =
         version ?: dokkaContext.configuration.moduleVersion ?: "1.0"
@@ -26,7 +26,7 @@ data class VersioningConfiguration(
         val defaultOlderVersions: List<File>? = null
         val defaultVersionsOrdering: List<String>? = null
         val defaultVersion = null
-        val defaultOnEachPage = true
+        val defaultIsOnlyOnRootPage = true
 
         const val OLDER_VERSIONS_DIR = "older"
         const val VERSIONS_FILE = "version.json"

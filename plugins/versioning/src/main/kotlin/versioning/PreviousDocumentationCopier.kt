@@ -15,7 +15,7 @@ import org.jetbrains.dokka.versioning.VersioningConfiguration
 import org.jetbrains.dokka.versioning.VersioningPlugin
 import java.io.File
 
-class DefaultPreviousDocumentationCopier(val context: DokkaContext) : PostAction {
+class DefaultPreviousDocumentationCopier(private val context: DokkaContext) : PostAction {
     private val versioningHandler by lazy { context.plugin<VersioningPlugin>().querySingle { versioningHandler } }
     private val processingStrategies: List<TemplateProcessingStrategy> =
         context.plugin<TemplatingPlugin>().query { templateProcessingStrategy }
@@ -47,7 +47,7 @@ class DefaultPreviousDocumentationCopier(val context: DokkaContext) : PostAction
             versionRootContent.listFiles()?.forEach {
                 processRecursively(it, target)
             }
-        } else if(versionRootContent.extension == "html") processingStrategies.first {
+        } else if (versionRootContent.extension == "html") processingStrategies.first {
             it.process(versionRootContent, targetParent.resolve(versionRootContent.name), null)
         } else {
             versionRootContent.copyTo(targetParent.resolve(versionRootContent.name), overwrite = true)

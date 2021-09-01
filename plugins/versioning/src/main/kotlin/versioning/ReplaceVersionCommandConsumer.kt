@@ -8,6 +8,7 @@ import org.jetbrains.dokka.base.renderers.html.command.consumers.ImmediateResolu
 import org.jetbrains.dokka.base.renderers.html.templateCommandFor
 import org.jetbrains.dokka.base.templating.Command
 import org.jetbrains.dokka.base.templating.ImmediateHtmlCommandConsumer
+import org.jetbrains.dokka.base.templating.ReplaceVersionsCommand
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.querySingle
