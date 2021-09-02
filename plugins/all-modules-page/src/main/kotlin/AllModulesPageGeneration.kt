@@ -35,6 +35,9 @@ class AllModulesPageGeneration(private val context: DokkaContext) : Generation {
 
         report("Finish submodule processing")
         finishProcessingSubmodules()
+
+        report("Running post-actions")
+        runPostActions()
     }
 
     override val generationName = "index page for project"
@@ -47,6 +50,10 @@ class AllModulesPageGeneration(private val context: DokkaContext) : Generation {
 
     fun render(transformedPages: RootPageNode) {
         context.single(CoreExtensions.renderer).render(transformedPages)
+    }
+
+    fun runPostActions() {
+        context[CoreExtensions.postActions].forEach { it() }
     }
 
     fun processSubmodules() =

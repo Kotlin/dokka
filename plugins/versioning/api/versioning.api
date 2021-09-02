@@ -4,18 +4,36 @@ public final class org/jetbrains/dokka/versioning/ByConfigurationVersionOrdering
 	public fun order (Ljava/util/List;)Ljava/util/List;
 }
 
-public final class org/jetbrains/dokka/versioning/DefaultVersioningHandler : org/jetbrains/dokka/versioning/VersioningHandler {
+public final class org/jetbrains/dokka/versioning/CurrentVersion {
+	public fun <init> (Ljava/lang/String;Ljava/io/File;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/io/File;
+	public final fun copy (Ljava/lang/String;Ljava/io/File;)Lorg/jetbrains/dokka/versioning/CurrentVersion;
+	public static synthetic fun copy$default (Lorg/jetbrains/dokka/versioning/CurrentVersion;Ljava/lang/String;Ljava/io/File;ILjava/lang/Object;)Lorg/jetbrains/dokka/versioning/CurrentVersion;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDir ()Ljava/io/File;
+	public final fun getName ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/jetbrains/dokka/versioning/DefaultPreviousDocumentationCopyPostAction : org/jetbrains/dokka/renderers/PostAction {
 	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
-	public fun currentVersion ()Ljava/io/File;
+	public synthetic fun invoke ()Ljava/lang/Object;
+	public fun invoke ()V
+}
+
+public final class org/jetbrains/dokka/versioning/DefaultVersioningStorage : org/jetbrains/dokka/versioning/VersioningStorage {
+	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
+	public fun createVersionFile ()V
 	public final fun getContext ()Lorg/jetbrains/dokka/plugability/DokkaContext;
+	public fun getCurrentVersion ()Lorg/jetbrains/dokka/versioning/CurrentVersion;
 	public fun getPreviousVersions ()Ljava/util/Map;
-	public fun getVersions ()Ljava/util/Map;
 }
 
 public final class org/jetbrains/dokka/versioning/HtmlVersionsNavigationCreator : org/jetbrains/dokka/versioning/VersionsNavigationCreator {
 	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
 	public fun invoke (Ljava/io/File;)Ljava/lang/String;
-	public fun invoke (Ljava/lang/String;)Ljava/lang/String;
 }
 
 public final class org/jetbrains/dokka/versioning/MultiModuleStylesInstaller : org/jetbrains/dokka/transformers/pages/PageTransformer {
@@ -73,58 +91,51 @@ public final class org/jetbrains/dokka/versioning/VersioningConfiguration : org/
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getOlderVersions ()Ljava/util/List;
 	public final fun getOlderVersionsDir ()Ljava/io/File;
+	public final fun getRenderVersionsNavigationOnAllPages ()Ljava/lang/Boolean;
 	public final fun getVersion ()Ljava/lang/String;
 	public final fun getVersionsOrdering ()Ljava/util/List;
 	public fun hashCode ()I
-	public final fun isOnlyOnRootPage ()Ljava/lang/Boolean;
 	public final fun setOlderVersions (Ljava/util/List;)V
 	public final fun setOlderVersionsDir (Ljava/io/File;)V
-	public final fun setOnlyOnRootPage (Ljava/lang/Boolean;)V
+	public final fun setRenderVersionsNavigationOnAllPages (Ljava/lang/Boolean;)V
 	public final fun setVersion (Ljava/lang/String;)V
 	public final fun setVersionsOrdering (Ljava/util/List;)V
 	public fun toString ()Ljava/lang/String;
 }
 
 public final class org/jetbrains/dokka/versioning/VersioningConfiguration$Companion {
-	public final fun getDefaultIsOnlyOnRootPage ()Z
 	public final fun getDefaultOlderVersions ()Ljava/util/List;
 	public final fun getDefaultOlderVersionsDir ()Ljava/io/File;
+	public final fun getDefaultRenderVersionsNavigationOnAllPages ()Z
 	public final fun getDefaultVersion ()Ljava/lang/Void;
 	public final fun getDefaultVersionsOrdering ()Ljava/util/List;
-}
-
-public abstract interface class org/jetbrains/dokka/versioning/VersioningHandler {
-	public abstract fun currentVersion ()Ljava/io/File;
-	public abstract fun getPreviousVersions ()Ljava/util/Map;
-	public abstract fun getVersions ()Ljava/util/Map;
 }
 
 public final class org/jetbrains/dokka/versioning/VersioningPlugin : org/jetbrains/dokka/plugability/DokkaPlugin {
 	public fun <init> ()V
 	public final fun getCssStyleInstaller ()Lorg/jetbrains/dokka/plugability/Extension;
-	public final fun getDefaultVersioningHandler ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getDefaultVersioningNavigationCreator ()Lorg/jetbrains/dokka/plugability/Extension;
-	public final fun getPreviousDocumentationCopier ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getDefaultVersioningStorage ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getPreviousDocumentationCopyPostAction ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getReplaceVersionCommandHandler ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getResolveLinkConsumer ()Lorg/jetbrains/dokka/plugability/Extension;
-	public final fun getVersioningHandler ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
+	public final fun getVersioningStorage ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
 	public final fun getVersionsDefaultOrdering ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getVersionsNavigationCreator ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
 	public final fun getVersionsOrdering ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
 }
 
+public abstract interface class org/jetbrains/dokka/versioning/VersioningStorage {
+	public abstract fun createVersionFile ()V
+	public abstract fun getCurrentVersion ()Lorg/jetbrains/dokka/versioning/CurrentVersion;
+	public abstract fun getPreviousVersions ()Ljava/util/Map;
+}
+
 public abstract interface class org/jetbrains/dokka/versioning/VersionsNavigationCreator {
 	public abstract fun invoke (Ljava/io/File;)Ljava/lang/String;
-	public abstract fun invoke (Ljava/lang/String;)Ljava/lang/String;
 }
 
 public abstract interface class org/jetbrains/dokka/versioning/VersionsOrdering {
 	public abstract fun order (Ljava/util/List;)Ljava/util/List;
-}
-
-public final class versioning/DefaultPreviousDocumentationCopier : org/jetbrains/dokka/base/renderers/PostAction {
-	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
-	public synthetic fun invoke ()Ljava/lang/Object;
-	public fun invoke ()V
 }
 

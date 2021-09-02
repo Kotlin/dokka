@@ -16,7 +16,7 @@ class ReplaceVersionCommandHandler(private val context: DokkaContext) : CommandH
         val position = element.elementSiblingIndex()
         val parent = element.parent()
         element.remove()
-
-        parent.insertChildren(position, TextNode(context.configuration.moduleVersion.orEmpty()))
+        context.configuration.moduleVersion?.takeIf { it.isNotEmpty() }
+            ?.let { parent.insertChildren(position, TextNode(it)) }
     }
 }

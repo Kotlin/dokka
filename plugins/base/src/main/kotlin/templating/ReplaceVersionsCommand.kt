@@ -1,3 +1,3 @@
 package org.jetbrains.dokka.base.templating
 
-data class ReplaceVersionsCommand(var location: String = ""): Command
+data class ReplaceVersionsCommand(val location: String = ""): Command

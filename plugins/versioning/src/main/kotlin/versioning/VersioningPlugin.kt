@@ -1,22 +1,22 @@
 package org.jetbrains.dokka.versioning
 
+import org.jetbrains.dokka.CoreExtensions.postActions
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.plugability.configuration
 import org.jetbrains.dokka.templates.TemplatingPlugin
-import versioning.DefaultPreviousDocumentationCopier
 
 class VersioningPlugin : DokkaPlugin() {
 
-    val versioningHandler by extensionPoint<VersioningHandler>()
+    val versioningStorage by extensionPoint<VersioningStorage>()
     val versionsNavigationCreator by extensionPoint<VersionsNavigationCreator>()
     val versionsOrdering by extensionPoint<VersionsOrdering>()
 
     private val dokkaBase by lazy { plugin<DokkaBase>() }
     private val templatingPlugin by lazy { plugin<TemplatingPlugin>() }
 
-    val defaultVersioningHandler by extending {
-        versioningHandler providing ::DefaultVersioningHandler
+    val defaultVersioningStorage by extending {
+        versioningStorage providing ::DefaultVersioningStorage
     }
     val defaultVersioningNavigationCreator by extending {
         versionsNavigationCreator providing ::HtmlVersionsNavigationCreator
@@ -40,7 +40,7 @@ class VersioningPlugin : DokkaPlugin() {
             } ?: SemVerVersionOrdering()
         }
     }
- val previousDocumentationCopier by extending {
-     dokkaBase.postActions providing ::DefaultPreviousDocumentationCopier applyIf { !delayTemplateSubstitution }
-  }
+    val previousDocumentationCopyPostAction by extending {
+        postActions providing ::DefaultPreviousDocumentationCopyPostAction applyIf { !delayTemplateSubstitution }
+    }
 }

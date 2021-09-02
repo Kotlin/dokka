@@ -1,28 +1,26 @@
-package versioning
+package org.jetbrains.dokka.versioning
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import org.jetbrains.dokka.base.renderers.PostAction
+import org.jetbrains.dokka.renderers.PostAction
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.query
 import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.templates.TemplateProcessingStrategy
 import org.jetbrains.dokka.templates.TemplatingPlugin
-import org.jetbrains.dokka.versioning.VersioningConfiguration
-import org.jetbrains.dokka.versioning.VersioningPlugin
 import java.io.File
 
-class DefaultPreviousDocumentationCopier(private val context: DokkaContext) : PostAction {
-    private val versioningHandler by lazy { context.plugin<VersioningPlugin>().querySingle { versioningHandler } }
+class DefaultPreviousDocumentationCopyPostAction(private val context: DokkaContext) : PostAction {
+    private val versioningStorage by lazy { context.plugin<VersioningPlugin>().querySingle { versioningStorage } }
     private val processingStrategies: List<TemplateProcessingStrategy> =
         context.plugin<TemplatingPlugin>().query { templateProcessingStrategy }
 
     override fun invoke() {
-        versioningHandler.previousVersions.onEach { (_, dirs) -> copyVersion(dirs.src, dirs.dst) }
-            .toMap()
+        versioningStorage.createVersionFile()
+        versioningStorage.previousVersions.forEach { (_, dirs) -> copyVersion(dirs.src, dirs.dst) }
     }
 
     private fun copyVersion(versionRoot: File, targetParent: File) {

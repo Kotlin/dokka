@@ -17,6 +17,8 @@ class ReplaceVersionCommandConsumer(context: DokkaContext) : ImmediateHtmlComman
 
     private val versionsNavigationCreator =
         context.plugin<VersioningPlugin>().querySingle { versionsNavigationCreator }
+    private val versioningStorage =
+        context.plugin<VersioningPlugin>().querySingle { versioningStorage }
 
     override fun canProcess(command: Command) = command is ReplaceVersionsCommand
 
@@ -28,7 +30,7 @@ class ReplaceVersionCommandConsumer(context: DokkaContext) : ImmediateHtmlComman
         command as ReplaceVersionsCommand
         templateCommandFor(command, tagConsumer).visit {
             unsafe {
-                +versionsNavigationCreator(command.location)
+                +versionsNavigationCreator(versioningStorage.currentVersion.dir.resolve(command.location))
             }
         }
     }
@@ -41,7 +43,7 @@ class ReplaceVersionCommandConsumer(context: DokkaContext) : ImmediateHtmlComman
         command as ReplaceVersionsCommand
         return templateCommandFor(command, tagConsumer).visitAndFinalize(tagConsumer) {
             unsafe {
-                +versionsNavigationCreator(command.location)
+                +versionsNavigationCreator(versioningStorage.currentVersion.dir.resolve(command.location))
             }
         }
     }

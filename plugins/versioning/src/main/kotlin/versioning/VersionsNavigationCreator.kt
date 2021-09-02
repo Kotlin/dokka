@@ -1,6 +1,5 @@
 package org.jetbrains.dokka.versioning
 
-import com.jetbrains.rd.util.first
 import kotlinx.html.a
 import kotlinx.html.div
 import kotlinx.html.stream.appendHTML
@@ -12,62 +11,61 @@ import org.jetbrains.dokka.plugability.querySingle
 import java.io.File
 
 interface VersionsNavigationCreator {
-    operator fun invoke(location: String): String
     operator fun invoke(output: File): String
 }
 
 class HtmlVersionsNavigationCreator(private val context: DokkaContext) : VersionsNavigationCreator {
 
-    private val versioningHandler by lazy { context.plugin<VersioningPlugin>().querySingle { versioningHandler } }
+    private val versioningStorage by lazy { context.plugin<VersioningPlugin>().querySingle { versioningStorage } }
 
     private val versionsOrdering by lazy { context.plugin<VersioningPlugin>().querySingle { versionsOrdering } }
 
     private val isOnlyOnRootPage =
-        configuration<VersioningPlugin, VersioningConfiguration>(context)?.isOnlyOnRootPage != false
+        configuration<VersioningPlugin, VersioningConfiguration>(context)?.renderVersionsNavigationOnAllPages == false
 
-    override fun invoke(location: String): String =
-        versioningHandler.currentVersion()?.let { invoke(it.resolve(location)) }.orEmpty()
+    private val versions: Map<VersionId, File> by lazy {
+        versioningStorage.previousVersions.map { (k, v) -> k to v.dst }.toMap() +
+                (versioningStorage.currentVersion.name to versioningStorage.currentVersion.dir)
+    }
 
     override fun invoke(output: File): String {
-        if (versioningHandler.versions.size == 1) {
-            return versioningHandler.versions.first().key
+        if (versions.size == 1) {
+            return versioningStorage.currentVersion.name
         }
         val position = output.takeIf { it.isDirectory } ?: output.parentFile
-        if(isOnlyOnRootPage ) {
-            fromCurrentVersion(position)?.takeIf { position != it.value }?.also { return@invoke it.key }
+        if (isOnlyOnRootPage) {
+            getActiveVersion(position)?.takeIf {
+                it.value == versioningStorage.currentVersion.dir
+                        && it.value != position
+            }?.also { return@invoke it.key }
         }
-        return versioningHandler.versions
+        return versions
             .let { versions -> versionsOrdering.order(versions.keys.toList()).map { it to versions[it] } }
             .takeIf { it.isNotEmpty() }
-            ?.let { versions ->
+            ?.let { orderedVersions ->
                 StringBuilder().appendHTML().div(classes = "versions-dropdown") {
-                    var relativePosition: String? = null
-                    var activeVersion = ""
+                    val activeVersion = getActiveVersion(position)
+                    val relativePosition: String  = activeVersion?.value?.let { output.toRelativeString(it) } ?: "index.html"
                     div(classes = "versions-dropdown-button") {
-                        versions.minByOrNull { (_, versionLocation) ->
-                            versionLocation?.let { position.toRelativeString(it).length } ?: 0xffffff
-                        }?.let { (version, versionRoot) ->
-                            relativePosition = versionRoot?.let { output.toRelativeString(it) }
-                            activeVersion = version
-                            text(version)
-                        }
+                        activeVersion?.key?.let { text(it) }
                     }
                     div(classes = "versions-dropdown-data") {
-                        versions.forEach { (version, path) ->
-                            if (version == activeVersion) {
+                        orderedVersions.forEach { (version, path) ->
+                            if (version == activeVersion?.key) {
                                 a(href = output.name) { text(version) }
                             } else {
-                                var exist = false
-                                val absolutePath = path?.resolve(relativePosition ?: "index.html")?.takeIf {
-                                    it.exists() ||
-                                            versioningHandler.previousVersions[version]?.src?.resolve(
-                                                relativePosition ?: "index.html"
-                                            )?.exists() == true
-                                }?.also { exist = true }
-                                    ?: path?.resolve("index.html")
+                                val isExistsFile =
+                                    if (version == versioningStorage.currentVersion.name)
+                                        path?.resolve(relativePosition)?.exists() == true
+                                    else
+                                        versioningStorage.previousVersions[version]?.src?.resolve(relativePosition)
+                                            ?.exists() == true
+
+                                val absolutePath =
+                                    if(isExistsFile) path?.resolve(relativePosition) else path?.resolve("index.html")
 
                                 a(href = absolutePath?.toRelativeString(position)) {
-                                    if(exist)
+                                    if (isExistsFile)
                                         text(version)
                                     else
                                         strike { text(version) }
@@ -79,8 +77,8 @@ class HtmlVersionsNavigationCreator(private val context: DokkaContext) : Version
             }.orEmpty()
     }
 
-    private fun fromCurrentVersion(position: File) =
-        versioningHandler.versions.minByOrNull { (_, versionLocation) ->
+    private fun getActiveVersion(position: File) =
+        versions.minByOrNull { (_, versionLocation) ->
             versionLocation.let { position.toRelativeString(it).length }
-        }.takeIf { it?.value == versioningHandler.currentVersion() }
+        }
 }
