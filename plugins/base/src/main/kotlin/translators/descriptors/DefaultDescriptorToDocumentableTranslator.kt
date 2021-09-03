@@ -420,9 +420,8 @@ private class DokkaDescriptorVisitor(
         originalDescriptor: PropertyDescriptor,
         parent: DRIWithPlatformInfo
     ): DProperty {
-        val dri = parent.dri.copy(callable = Callable.from(originalDescriptor))
+        val (dri, inheritedFrom) = originalDescriptor.createDRI()
         val descriptor = originalDescriptor.getConcreteDescriptor()
-        val inheritedFrom = descriptor.createDRI().let { (originalDri, _) -> originalDri.takeIf { it != dri } }
         val isExpect = descriptor.isExpect
         val isActual = descriptor.isActual
 
