@@ -29,7 +29,7 @@ abstract class SamplesTransformer(val context: DokkaContext) : PageTransformer {
     final override fun invoke(input: RootPageNode): RootPageNode {
         val analysis = setUpAnalysis(context)
         val kotlinPlaygroundScript =
-            "<script src=\"https://unpkg.com/kotlin-playground@1\" data-selector=\"code.runnablesample\"></script>"
+            "<script src=\"https://unpkg.com/kotlin-playground@1\"></script>"
 
         return input.transformContentPagesTree { page ->
             page.documentable?.documentation?.entries?.fold(page) { acc, entry ->
