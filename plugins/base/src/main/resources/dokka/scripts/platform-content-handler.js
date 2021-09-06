@@ -51,6 +51,7 @@ const darkModeSwitch = () => {
 }
 
 const initPlayground = (theme) => {
+    if(!samplesAreEnabled()) return
     instances.forEach(instance => instance.destroy())
     instances = []
 
@@ -65,6 +66,17 @@ const initPlayground = (theme) => {
         },
         theme: theme
     });
+}
+
+// We check if type is accessible from the current scope to determine if samples script is present
+// As an alternative we could extract this samples-specific script to new js file but then we would handle dark mode in 2 separate files which is not ideal
+const samplesAreEnabled = () => {
+    try {
+        KotlinPlayground
+        return true
+    } catch (e) {
+        return false
+    }
 }
 
 
