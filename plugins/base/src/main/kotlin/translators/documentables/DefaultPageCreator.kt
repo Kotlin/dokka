@@ -631,6 +631,7 @@ open class DefaultPageCreator(
                                 kind = kind,
                                 styles = setOf(ContentStyle.RowTitle),
                                 sourceSets = elements.sourceSets.toSet(),
+                                extra = extra
                             )
                             divergentGroup(
                                 ContentDivergentGroup.GroupID(name),
@@ -649,7 +650,7 @@ open class DefaultPageCreator(
                                                 +buildSignature(it)
                                             }
                                         }
-                                        after {
+                                        after(extra = PropertyContainer.empty()) {
                                             contentForBrief(it)
                                             contentForSinceKotlin(it)
                                         }
