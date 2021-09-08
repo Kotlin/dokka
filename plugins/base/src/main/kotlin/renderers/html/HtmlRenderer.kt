@@ -853,7 +853,9 @@ open class HtmlRenderer(
                         content()
                         div(classes = "footer") {
                             span("go-to-top-icon") {
-                                a(href = "#content")
+                                a(href = "#content"){
+                                    id = "go-to-top-link"
+                                }
                             }
                             span {
                                 configuration?.footerMessage?.takeIf { it.isNotEmpty() }

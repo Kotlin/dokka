@@ -497,6 +497,7 @@ body, table {
     font-size: var(--default-font-size);
     line-height: 24px;
     margin: 0;
+    height: 100%;
 }
 
 table {
@@ -1001,6 +1002,11 @@ td.content {
 
 .footer a {
     color: var(--breadcrumb-font-color);
+}
+
+.footer span.go-to-top-icon > #go-to-top-link {
+    padding: 0;
+    border: none;
 }
 
 .footer .padded-icon {
