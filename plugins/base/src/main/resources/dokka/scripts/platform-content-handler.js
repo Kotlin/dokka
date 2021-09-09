@@ -42,8 +42,7 @@ const darkModeSwitch = () => {
         const darkModeEnabled = enabledClasses.contains("theme-dark")
         if (darkModeEnabled) {
             initPlayground(samplesDarkThemeName)
-        }
-        else {
+        } else {
             initPlayground(samplesLightThemeName)
         }
         localStorage.setItem(localStorageKey, JSON.stringify(darkModeEnabled))
@@ -51,7 +50,7 @@ const darkModeSwitch = () => {
 }
 
 const initPlayground = (theme) => {
-    if(!samplesAreEnabled()) return
+    if (!samplesAreEnabled()) return
     instances.forEach(instance => instance.destroy())
     instances = []
 
@@ -171,10 +170,13 @@ function initTabs() {
 }
 
 function showCorrespondingTabBody(element) {
-    const key = element.querySelector("button[data-active]").getAttribute("data-togglable")
-    document.querySelector(".tabs-section-body")
-        .querySelector("div[data-togglable='" + key + "']")
-        .setAttribute("data-active", "")
+    const buttonWithKey = element.querySelector("button[data-active]")
+    if (buttonWithKey) {
+        const key = buttonWithKey.getAttribute("data-togglable")
+        document.querySelector(".tabs-section-body")
+            .querySelector("div[data-togglable='" + key + "']")
+            .setAttribute("data-active", "")
+    }
 }
 
 function filterButtonHandler(event) {
