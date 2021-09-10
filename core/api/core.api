@@ -459,6 +459,13 @@ public final class org/jetbrains/dokka/links/DRI$Companion {
 	public final fun getTopLevel ()Lorg/jetbrains/dokka/links/DRI;
 }
 
+public final class org/jetbrains/dokka/links/DRIExtra : java/lang/Enum {
+	public static final field EnumEntry Lorg/jetbrains/dokka/links/DRIExtra;
+	public final fun getValue ()Ljava/lang/String;
+	public static fun valueOf (Ljava/lang/String;)Lorg/jetbrains/dokka/links/DRIExtra;
+	public static fun values ()[Lorg/jetbrains/dokka/links/DRIExtra;
+}
+
 public final class org/jetbrains/dokka/links/DRIKt {
 	public static final fun getDriOfAny ()Lorg/jetbrains/dokka/links/DRI;
 	public static final fun getDriOfUnit ()Lorg/jetbrains/dokka/links/DRI;

@@ -23,6 +23,10 @@ data class DRI(
     }
 }
 
+enum class DRIExtra(val value: String) {
+    EnumEntry("EnumEntry")
+}
+
 val DriOfUnit = DRI("kotlin", "Unit")
 val DriOfAny = DRI("kotlin", "Any")
 
