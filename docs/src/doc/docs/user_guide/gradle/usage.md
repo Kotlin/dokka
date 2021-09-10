@@ -67,7 +67,9 @@ Most of the configuration options are set per one source set.
 The available configuration options for are shown below:
 
 ```kotlin
-dokkaHtml {
+import org.jetbrains.dokka.gradle.DokkaTask
+
+val dokkaHtml by getting(DokkaTask::class) {
     outputDirectory.set(buildDir.resolve("dokka"))
 
     // Set module name displayed in the final output
@@ -261,6 +263,9 @@ To generate the documentation, use the appropriate `dokka${format}` Gradle task:
 Some plugins can be configured separately using a plugin class and configuration class. For example:
 
 ```kotlin
+import org.jetbrains.dokka.base.DokkaBase
+import org.jetbrains.dokka.base.DokkaBaseConfiguration
+
 pluginConfiguration<DokkaBase, DokkaBaseConfiguration> {
     customAssets = listOf(file("<path to asset>"))
     customStyleSheets = listOf(file("<path to custom stylesheet>"))
@@ -268,6 +273,16 @@ pluginConfiguration<DokkaBase, DokkaBaseConfiguration> {
 ```
 
 Keep in mind, that this only works when using a buildscript (with the configured plugin on classpath) since it is not possible to import plugin's class without it.
+For example, you can add `DokkaBase` to gain access to aforementioned configuration:
+
+```kotlin
+buildscript {
+    dependencies {
+        // classpath("<plugin coordinates>:<plugin version>")
+        classpath("org.jetbrains.dokka:dokka-base:1.5.0")
+    }
+}
+```
 
 If you don't want to use a buildscript or use Kotlin version lower than 1.3.50 you can achieve the same behaviour manually:
 ```kotlin
