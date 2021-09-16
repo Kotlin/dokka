@@ -24,6 +24,7 @@ Dokka uses 3 stylesheets:
 
 * `style.css` - main css file responsible for styling the page
 * `jetbrains-mono.css` - fonts used across dokka
+* `logo-styles.css` - logo styling
 
 User can choose to add or override those files. 
 Resources will be overridden when in `pluginConfiguration` block there is a resource with the same name.
@@ -37,6 +38,28 @@ Keep in mind that this value will be passed exactly to the output html, so it ha
 
 By setting a boolean property `separateInheritedMembers` dokka will split inherited members (like functions, properties etc.) 
 from ones declared in viewed class. Separated members will have it's own tabs on the page.
+
+### Examples
+In order to override a logo and style it accordingly a css file named `logo-styles.css` is needed:
+```css
+.library-name a {
+    position: relative;
+    --logo-width: 100px;
+    margin-left: calc(var(--logo-width) + 5px);
+}
+
+.library-name a::before {
+    content: '';
+    background: url("https://upload.wikimedia.org/wikipedia/commons/9/9d/Ubuntu_logo.svg") center no-repeat;
+    background-size: contain;
+    position: absolute;
+    width: var(--logo-width);
+    height: 50px;
+    top: -18px;
+    left: calc(-1 * var(--logo-width) - 5px);
+    /* other styles required to make your page pretty */
+}
+```
 
 
 For build system specific instructions please visit dedicated pages: [gradle](../gradle/usage.md#Applying plugins), [maven](../maven/usage.md#Applying plugins) and [cli](../cli/usage.md#Configuration options)
