@@ -14,6 +14,8 @@ Versioning can be configured using:
   By default, Dokka will try to use semantic versioning to create such ordering.
 * renderVersionsNavigationOnAllPages - a bool value.
   By default, Dokka renders a versions navigation on all pages.
+
+!!! note
   You should enable the plugin in all submodules to render a versions navigation on all pages.
 
 Above configuration should be placed under the `pluginsConfiguration` block specific for your build tool.

@@ -41,6 +41,11 @@ public final class org/jetbrains/dokka/versioning/MultiModuleStylesInstaller : o
 	public fun invoke (Lorg/jetbrains/dokka/pages/RootPageNode;)Lorg/jetbrains/dokka/pages/RootPageNode;
 }
 
+public final class org/jetbrains/dokka/versioning/NotFoundPageInstaller : org/jetbrains/dokka/transformers/pages/PageTransformer {
+	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
+	public fun invoke (Lorg/jetbrains/dokka/pages/RootPageNode;)Lorg/jetbrains/dokka/pages/RootPageNode;
+}
+
 public final class org/jetbrains/dokka/versioning/ReplaceVersionCommandConsumer : org/jetbrains/dokka/base/templating/ImmediateHtmlCommandConsumer {
 	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
 	public fun canProcess (Lorg/jetbrains/dokka/base/templating/Command;)Z
@@ -116,6 +121,7 @@ public final class org/jetbrains/dokka/versioning/VersioningPlugin : org/jetbrai
 	public final fun getCssStyleInstaller ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getDefaultVersioningNavigationCreator ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getDefaultVersioningStorage ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getNotFoundPageInstaller ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getPreviousDocumentationCopyPostAction ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getReplaceVersionCommandHandler ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getResolveLinkConsumer ()Lorg/jetbrains/dokka/plugability/Extension;

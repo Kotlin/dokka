@@ -30,8 +30,14 @@ class VersioningPlugin : DokkaPlugin() {
     val cssStyleInstaller by extending {
         dokkaBase.htmlPreprocessors providing ::MultiModuleStylesInstaller order {
             after(dokkaBase.assetsInstaller)
-            before(dokkaBase.baseSearchbarDataInstaller)
+            before(dokkaBase.customResourceInstaller)
         }
+    }
+    val notFoundPageInstaller by extending {
+        dokkaBase.htmlPreprocessors providing ::NotFoundPageInstaller order {
+            after(dokkaBase.assetsInstaller)
+            before(dokkaBase.customResourceInstaller)
+        } applyIf { !delayTemplateSubstitution }
     }
     val versionsDefaultOrdering by extending {
         versionsOrdering providing { ctx ->

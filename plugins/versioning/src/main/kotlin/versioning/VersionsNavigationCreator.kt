@@ -8,6 +8,7 @@ import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.configuration
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.querySingle
+import org.jetbrains.dokka.utilities.urlEncoded
 import java.io.File
 
 interface VersionsNavigationCreator {
@@ -62,13 +63,14 @@ class HtmlVersionsNavigationCreator(private val context: DokkaContext) : Version
                                             ?.exists() == true
 
                                 val absolutePath =
-                                    if(isExistsFile) path?.resolve(relativePosition) else path?.resolve("index.html")
-
-                                a(href = absolutePath?.toRelativeString(position)) {
                                     if (isExistsFile)
-                                        text(version)
+                                        path?.resolve(relativePosition)
                                     else
-                                        strike { text(version) }
+                                        versioningStorage.currentVersion.dir.resolve("not-found-version.html")
+
+                                a(href = absolutePath?.toRelativeString(position) +
+                                        if (!isExistsFile) "?v=" + version.urlEncoded() else "") {
+                                        text(version)
                                 }
                             }
                         }

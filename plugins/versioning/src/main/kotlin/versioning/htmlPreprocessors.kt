@@ -22,5 +22,17 @@ class MultiModuleStylesInstaller(private val dokkaContext: DokkaContext) : PageT
         }
 }
 
+class NotFoundPageInstaller(private val dokkaContext: DokkaContext) : PageTransformer {
+    private val notFoundPage = listOf(
+        "not-found-version.html",
+    )
+
+    override fun invoke(input: RootPageNode): RootPageNode =
+        input.let { root ->
+            if (dokkaContext.configuration.delayTemplateSubstitution) root
+            else root.modified(children = input.children + notFoundPage.toRenderSpecificResourcePage())
+        }
+}
+
 private fun List<String>.toRenderSpecificResourcePage(): List<RendererSpecificResourcePage> =
     map { RendererSpecificResourcePage(it, emptyList(), RenderingStrategy.Copy("/dokka/$it")) }
