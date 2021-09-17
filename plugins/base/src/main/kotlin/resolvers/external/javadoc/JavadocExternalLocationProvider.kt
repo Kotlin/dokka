@@ -2,9 +2,7 @@ package org.jetbrains.dokka.base.resolvers.external.javadoc
 
 import org.jetbrains.dokka.base.resolvers.external.DefaultExternalLocationProvider
 import org.jetbrains.dokka.base.resolvers.shared.ExternalDocumentation
-import org.jetbrains.dokka.links.Callable
-import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.links.DRIExtra
+import org.jetbrains.dokka.links.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.utilities.htmlEscape
 
@@ -33,7 +31,7 @@ open class JavadocExternalLocationProvider(
         }
 
         // in Kotlin DRI of enum entry is not callable
-        if (extra == DRIExtra.EnumEntry.value) {
+        if (DRIExtraContainer(extra)[EnumEntryDRIExtra] != null) {
             val (classSplit, enumEntityAnchor) = if (callable == null) {
                 val lastIndex = classNames?.lastIndexOf(".") ?: 0
                 classNames?.substring(0, lastIndex) to classNames?.substring(lastIndex + 1)

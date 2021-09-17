@@ -23,8 +23,35 @@ data class DRI(
     }
 }
 
-enum class DRIExtra(val value: String) {
-    EnumEntry("EnumEntry")
+object EnumEntryDRIExtra: DRIExtraProperty<EnumEntryDRIExtra> {
+    override fun decode(value: String?) = EnumEntryDRIExtra
+    override fun encode(value: EnumEntryDRIExtra) = ""
+    override val key = "EnumEntry"
+}
+
+interface DRIExtraProperty<T> {
+    fun decode(value: String?): T
+    fun encode(value: T): String?
+    val key: String
+}
+
+class DRIExtraContainer(val data:String? = null) {
+    val map: MutableMap<String, String> = mutableMapOf()
+    init {
+        data?.split(SEPARATOR)?.let {
+            it.forEachIndexed { index, s -> if (index % 2 == 0) map[s] = it[index + 1] }
+        }
+    }
+
+    inline operator fun <reified T> get(provider: DRIExtraProperty<T>): T? =
+        map[provider.key]?.let { provider.decode(it) }
+    inline operator fun <reified T> set(provider: DRIExtraProperty<T>, value: T) =
+        provider.encode(value)?.let { map[provider.key] = it }
+    fun encode() = map.asIterable().joinToString(SEPARATOR) { it.key + SEPARATOR + it.value }
+
+    companion object {
+        private const val SEPARATOR = "/"
+    }
 }
 
 val DriOfUnit = DRI("kotlin", "Unit")

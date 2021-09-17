@@ -1,10 +1,7 @@
 package org.jetbrains.dokka.analysis
 
 import com.intellij.psi.*
-import org.jetbrains.dokka.links.Callable
-import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.links.DRIExtra
-import org.jetbrains.dokka.links.DriTarget
+import org.jetbrains.dokka.links.*
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.descriptors.impl.EnumEntrySyntheticClassDescriptor
 import org.jetbrains.kotlin.psi.psiUtil.parentsWithSelf
@@ -24,7 +21,7 @@ fun DRI.Companion.from(descriptor: DeclarationDescriptor) = descriptor.parentsWi
         callable = callable?.let { Callable.from(it) },
         target = DriTarget.from(parameter ?: descriptor),
         extra = if (descriptor is EnumEntrySyntheticClassDescriptor)
-            DRIExtra.EnumEntry.value
+            DRIExtraContainer().also { it[EnumEntryDRIExtra] = EnumEntryDRIExtra }.encode()
         else null
     )
 }
@@ -41,7 +38,7 @@ fun DRI.Companion.from(psi: PsiElement) = psi.parentsWithSelf.run {
         callable = psiMethod?.let { Callable.from(it) } ?: psiField?.let { Callable.from(it) },
         target = DriTarget.from(psi),
         extra = if (psi is PsiEnumConstant)
-            DRIExtra.EnumEntry.value
+            DRIExtraContainer().also { it[EnumEntryDRIExtra] = EnumEntryDRIExtra }.encode()
         else null
     )
 }

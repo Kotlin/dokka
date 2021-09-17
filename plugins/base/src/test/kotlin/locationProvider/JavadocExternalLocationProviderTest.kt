@@ -4,12 +4,9 @@ import org.jetbrains.dokka.base.resolvers.external.DefaultExternalLocationProvid
 import org.jetbrains.dokka.base.resolvers.external.javadoc.JavadocExternalLocationProvider
 import org.jetbrains.dokka.base.resolvers.shared.ExternalDocumentation
 import org.jetbrains.dokka.base.resolvers.shared.PackageList
-import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
-import org.jetbrains.dokka.links.Callable
-import org.jetbrains.dokka.links.DRIExtra
-import org.jetbrains.dokka.links.PointingToDeclaration
+import org.jetbrains.dokka.links.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.net.URL
@@ -44,14 +41,14 @@ class JavadocExternalLocationProviderTest : BaseAbstractTest() {
         val ktDri = DRI(
             "java.nio.file",
             "StandardOpenOption.CREATE",
-            extra = DRIExtra.EnumEntry.value
+            extra = DRIExtraContainer().also { it[EnumEntryDRIExtra] = EnumEntryDRIExtra }.encode()
         )
         val javaDri = DRI(
             "java.nio.file",
             "StandardOpenOption",
             Callable("CREATE", null, emptyList()),
             PointingToDeclaration,
-            DRIExtra.EnumEntry.value
+            DRIExtraContainer().also { it[EnumEntryDRIExtra] = EnumEntryDRIExtra }.encode()
         )
 
         assertEquals(

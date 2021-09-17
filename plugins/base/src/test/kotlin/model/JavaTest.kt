@@ -367,7 +367,7 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
                         "RetentionPolicy",
                         DRICallable("RUNTIME", null, emptyList()),
                         PointingToDeclaration,
-                        DRIExtra.EnumEntry.value
+                        DRIExtraContainer().also { it[EnumEntryDRIExtra] = EnumEntryDRIExtra }.encode()
                     )
                 )
 
