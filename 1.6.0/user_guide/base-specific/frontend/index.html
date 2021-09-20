@@ -345,6 +345,19 @@
     Separating inherited members
   </a>
   
+    <nav class="md-nav" aria-label="Separating inherited members">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#examples" class="md-nav__link">
+    Examples
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -597,6 +610,19 @@
     Separating inherited members
   </a>
   
+    <nav class="md-nav" aria-label="Separating inherited members">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#examples" class="md-nav__link">
+    Examples
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -638,6 +664,7 @@ Currently, user can modify:</p>
 <ul>
 <li><code>style.css</code> - main css file responsible for styling the page</li>
 <li><code>jetbrains-mono.css</code> - fonts used across dokka</li>
+<li><code>logo-styles.css</code> - logo styling</li>
 </ul>
 <p>User can choose to add or override those files. 
 Resources will be overridden when in <code>pluginConfiguration</code> block there is a resource with the same name.</p>
@@ -647,6 +674,26 @@ Keep in mind that this value will be passed exactly to the output html, so it ha
 <h2 id="separating-inherited-members">Separating inherited members<a class="headerlink" href="#separating-inherited-members" title="Permanent link">&para;</a></h2>
 <p>By setting a boolean property <code>separateInheritedMembers</code> dokka will split inherited members (like functions, properties etc.) 
 from ones declared in viewed class. Separated members will have it's own tabs on the page.</p>
+<h3 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h3>
+<p>In order to override a logo and style it accordingly a css file named <code>logo-styles.css</code> is needed:
+<div class="highlight"><pre><span></span><code><span class="p">.</span><span class="nc">library-name</span> <span class="nt">a</span> <span class="p">{</span>
+    <span class="k">position</span><span class="p">:</span> <span class="kc">relative</span><span class="p">;</span>
+    <span class="nv">--logo-width</span><span class="p">:</span> <span class="mi">100</span><span class="kt">px</span><span class="p">;</span>
+    <span class="k">margin-left</span><span class="p">:</span> <span class="nb">calc</span><span class="p">(</span><span class="nf">var</span><span class="p">(</span><span class="nv">--logo-width</span><span class="p">)</span> <span class="o">+</span> <span class="mi">5</span><span class="kt">px</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="p">.</span><span class="nc">library-name</span> <span class="nt">a</span><span class="p">::</span><span class="nd">before</span> <span class="p">{</span>
+    <span class="k">content</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">;</span>
+    <span class="k">background</span><span class="p">:</span> <span class="nb">url</span><span class="p">(</span><span class="s2">&quot;https://upload.wikimedia.org/wikipedia/commons/9/9d/Ubuntu_logo.svg&quot;</span><span class="p">)</span> <span class="kc">center</span> <span class="kc">no-repeat</span><span class="p">;</span>
+    <span class="k">background-size</span><span class="p">:</span> <span class="kc">contain</span><span class="p">;</span>
+    <span class="k">position</span><span class="p">:</span> <span class="kc">absolute</span><span class="p">;</span>
+    <span class="k">width</span><span class="p">:</span> <span class="nf">var</span><span class="p">(</span><span class="nv">--logo-width</span><span class="p">);</span>
+    <span class="k">height</span><span class="p">:</span> <span class="mi">50</span><span class="kt">px</span><span class="p">;</span>
+    <span class="k">top</span><span class="p">:</span> <span class="mi">-18</span><span class="kt">px</span><span class="p">;</span>
+    <span class="k">left</span><span class="p">:</span> <span class="nb">calc</span><span class="p">(</span><span class="nv">-1</span> <span class="o">*</span> <span class="nf">var</span><span class="p">(</span><span class="nv">--logo-width</span><span class="p">)</span> <span class="o">-</span> <span class="mi">5</span><span class="kt">px</span><span class="p">);</span>
+    <span class="c">/* other styles required to make your page pretty */</span>
+<span class="p">}</span>
+</code></pre></div></p>
 <p>For build system specific instructions please visit dedicated pages: <a href="../../gradle/usage/#Applying plugins">gradle</a>, <a href="../../maven/usage/#Applying plugins">maven</a> and <a href="../../cli/usage/#Configuration options">cli</a></p>
                 
               
