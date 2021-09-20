@@ -460,7 +460,6 @@ public final class org/jetbrains/dokka/links/DRI$Companion {
 }
 
 public final class org/jetbrains/dokka/links/DRIExtraContainer {
-	public static final field Companion Lorg/jetbrains/dokka/links/DRIExtraContainer$Companion;
 	public fun <init> ()V
 	public fun <init> (Ljava/lang/String;)V
 	public synthetic fun <init> (Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
@@ -469,13 +468,9 @@ public final class org/jetbrains/dokka/links/DRIExtraContainer {
 	public final fun getMap ()Ljava/util/Map;
 }
 
-public final class org/jetbrains/dokka/links/DRIExtraContainer$Companion {
-}
-
-public abstract interface class org/jetbrains/dokka/links/DRIExtraProperty {
-	public abstract fun decode (Ljava/lang/String;)Ljava/lang/Object;
-	public abstract fun encode (Ljava/lang/Object;)Ljava/lang/String;
-	public abstract fun getKey ()Ljava/lang/String;
+public abstract class org/jetbrains/dokka/links/DRIExtraProperty {
+	public fun <init> ()V
+	public final fun getKey ()Ljava/lang/String;
 }
 
 public final class org/jetbrains/dokka/links/DRIKt {
@@ -498,11 +493,6 @@ public final class org/jetbrains/dokka/links/DriTarget$Companion {
 
 public final class org/jetbrains/dokka/links/EnumEntryDRIExtra : org/jetbrains/dokka/links/DRIExtraProperty {
 	public static final field INSTANCE Lorg/jetbrains/dokka/links/EnumEntryDRIExtra;
-	public synthetic fun decode (Ljava/lang/String;)Ljava/lang/Object;
-	public fun decode (Ljava/lang/String;)Lorg/jetbrains/dokka/links/EnumEntryDRIExtra;
-	public synthetic fun encode (Ljava/lang/Object;)Ljava/lang/String;
-	public fun encode (Lorg/jetbrains/dokka/links/EnumEntryDRIExtra;)Ljava/lang/String;
-	public fun getKey ()Ljava/lang/String;
 }
 
 public final class org/jetbrains/dokka/links/JavaClassReference : org/jetbrains/dokka/links/TypeReference {

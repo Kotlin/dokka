@@ -1,7 +1,10 @@
 package org.jetbrains.dokka.links
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id.CLASS
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 
 /**
  * [DRI] stands for DokkaResourceIdentifier
@@ -23,35 +26,22 @@ data class DRI(
     }
 }
 
-object EnumEntryDRIExtra: DRIExtraProperty<EnumEntryDRIExtra> {
-    override fun decode(value: String?) = EnumEntryDRIExtra
-    override fun encode(value: EnumEntryDRIExtra) = ""
-    override val key = "EnumEntry"
+object EnumEntryDRIExtra: DRIExtraProperty<EnumEntryDRIExtra>()
+
+abstract class DRIExtraProperty<T> {
+    val key: String = this::class.qualifiedName
+        ?: (this.javaClass.let { it.`package`.name + "." + it.simpleName.ifEmpty { "anonymous" } })
 }
 
-interface DRIExtraProperty<T> {
-    fun decode(value: String?): T
-    fun encode(value: T): String?
-    val key: String
-}
+class DRIExtraContainer(val data: String? = null) {
+    val map: MutableMap<String, Any> = if (data != null) ObjectMapper().readValue(data) else mutableMapOf()
+    inline operator fun <reified T> get(prop: DRIExtraProperty<T>): T? =
+        map[prop.key]?.let { prop as? T }
 
-class DRIExtraContainer(val data:String? = null) {
-    val map: MutableMap<String, String> = mutableMapOf()
-    init {
-        data?.split(SEPARATOR)?.let {
-            it.forEachIndexed { index, s -> if (index % 2 == 0) map[s] = it[index + 1] }
-        }
-    }
+    inline operator fun <reified T> set(prop: DRIExtraProperty<T>, value: T) =
+        value.also { map[prop.key] = it as Any }
 
-    inline operator fun <reified T> get(provider: DRIExtraProperty<T>): T? =
-        map[provider.key]?.let { provider.decode(it) }
-    inline operator fun <reified T> set(provider: DRIExtraProperty<T>, value: T) =
-        provider.encode(value)?.let { map[provider.key] = it }
-    fun encode() = map.asIterable().joinToString(SEPARATOR) { it.key + SEPARATOR + it.value }
-
-    companion object {
-        private const val SEPARATOR = "/"
-    }
+    fun encode(): String = ObjectMapper().writeValueAsString(map)
 }
 
 val DriOfUnit = DRI("kotlin", "Unit")
