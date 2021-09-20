@@ -139,7 +139,7 @@ class JavadocParser(
                 ) // Workaround: PSI returns first word after @author tag as a `DOC_TAG_VALUE_ELEMENT`, then the rest as a `DOC_COMMENT_DATA`, so for `Name Surname` we get them parted
                 JavadocTag.SEE -> {
                     val name =
-                        tag.resolveToElement()?.getKotlinFqName()?.asString() ?: tag.referenceElement()?.text.orEmpty()
+                        tag.resolveToElement()?.getKotlinFqName()?.asString() ?: tag.referenceElement()?.text.orEmpty().removePrefix("#")
                     getSeeTagElementContent(tag, resolutionContext.copy(name = name)).let {
                         See(
                             wrapTagIfNecessary(it.first),
@@ -179,9 +179,10 @@ class JavadocParser(
         tag: PsiDocTag,
         context: CommentResolutionContext
     ): Pair<List<DocTag>, DRI?> {
-        val linkElement = tag.referenceElement()?.toDocumentationLink(context = context)
+        val referenceElement = tag.referenceElement()
+        val linkElement = referenceElement?.toDocumentationLink(context = context)
         val content = convertJavadocElements(
-            tag.dataElements.dropWhile { it is PsiWhiteSpace || (it as? LazyParseablePsiElement)?.tokenType == JavaDocElementType.DOC_REFERENCE_HOLDER },
+            tag.dataElements.dropWhile { it is PsiWhiteSpace || (it as? LazyParseablePsiElement)?.tokenType == JavaDocElementType.DOC_REFERENCE_HOLDER || it == referenceElement },
             context = context
         )
         return Pair(content, linkElement?.dri)
