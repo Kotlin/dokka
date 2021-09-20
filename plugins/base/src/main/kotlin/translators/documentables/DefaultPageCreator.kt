@@ -422,7 +422,7 @@ open class DefaultPageCreator(
                                         row(
                                             sourceSets = setOf(platform),
                                             kind = ContentKind.Comment,
-                                            styles = this@sourceSetDependentHint.mainStyles + ContentStyle.RowTitle,
+                                            styles = this@sourceSetDependentHint.mainStyles,
                                         ) {
                                             if (it.address != null) link(
                                                 it.name,
