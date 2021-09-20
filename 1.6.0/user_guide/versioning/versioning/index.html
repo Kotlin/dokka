@@ -591,7 +591,6 @@
                 <h1 id="versioning-plugin">Versioning plugin<a class="headerlink" href="#versioning-plugin" title="Permanent link">&para;</a></h1>
 <p>Versioning plugin aims to provide users with ability to create a versioned documentation.
 Therefore, users of the documentation can view different versions of the documentation by going to the main page and change versions.</p>
-<p>Versioning plugin is applied by default but not enabled in Dokka so there is no need to apply it manually.</p>
 <p>Versioning can be configured using:</p>
 <ul>
 <li>version - a string value representing a version that should be displayed in the dropdown.</li>
@@ -601,13 +600,15 @@ Therefore, users of the documentation can view different versions of the documen
   (if it's specified).</li>
 <li>versionsOrdering - an optional list of strings representing the ordering of versions that should be visible. 
   By default, Dokka will try to use semantic versioning to create such ordering.</li>
+<li>renderVersionsNavigationOnAllPages - a bool value.
+  By default, Dokka renders a versions navigation on all pages.</li>
 </ul>
-<p>Above configuration should be placed under the <code>pluginsConfiguration</code> block specific for your build tool.
-Configuration object is named <code>org.jetbrains.dokka.versioning.VersioningConfiguration</code>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>In the current release versioning is available only for the multimodule. Supporting single module is scheduled for next release</p>
 </div>
+<p>You should enable the plugin in all submodules to render a versions navigation on all pages.</p>
+<p>Above configuration should be placed under the <code>pluginsConfiguration</code> block specific for your build tool.
+Configuration object is named <code>org.jetbrains.dokka.versioning.VersioningConfiguration</code>.</p>
 <h3 id="directory-structure-required">Directory structure required<a class="headerlink" href="#directory-structure-required" title="Permanent link">&para;</a></h3>
 <p>If you pass previous versions using <code>olderVersionsDir</code>, a particular directory structure is required:</p>
 <div class="highlight"><pre><span></span><code>.
