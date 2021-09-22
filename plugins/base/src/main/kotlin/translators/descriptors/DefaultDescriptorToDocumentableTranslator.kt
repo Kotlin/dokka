@@ -987,7 +987,7 @@ private class DokkaDescriptorVisitor(
             DRI.from(annotationClass as DeclarationDescriptor),
             allValueArguments.map { it.key.asString() to it.value.toValue() }.filter {
                 it.second != null
-            }.toMap() as Map<String, AnnotationParameterValue>,
+            }.toMap(),
             mustBeDocumented(),
             scope
         )
@@ -1018,7 +1018,7 @@ private class DokkaDescriptorVisitor(
         (source as? KotlinSourceElement)?.psi?.children?.filterIsInstance<KtConstantExpression>()?.firstOrNull()
             ?.toDefaultValueExpression()
 
-    private suspend fun ClassDescriptor.getAppliedConstructorParameters() =
+    private fun ClassDescriptor.getAppliedConstructorParameters() =
         (source as PsiSourceElement).psi?.children?.flatMap {
             it.safeAs<KtInitializerList>()?.initializersAsExpression().orEmpty()
         }.orEmpty()
