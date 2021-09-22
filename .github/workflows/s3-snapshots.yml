@@ -15,8 +15,9 @@ jobs:
         with:
           submodules: true
 
-      - uses: actions/setup-java@v1
+      - uses: actions/setup-java@v2
         with:
+          distribution: 'zulu'
           java-version: 12
 
       - name: Document stdlib
@@ -45,8 +46,9 @@ jobs:
         with:
           submodules: true
 
-      - uses: actions/setup-java@v1
+      - uses: actions/setup-java@v2
         with:
+          distribution: 'zulu'
           java-version: 12
 
       - name: Document serialization
@@ -75,8 +77,9 @@ jobs:
         with:
           submodules: true
 
-      - uses: actions/setup-java@v1
+      - uses: actions/setup-java@v2
         with:
+          distribution: 'zulu'
           java-version: 12
 
       - name: Document biojava-core
