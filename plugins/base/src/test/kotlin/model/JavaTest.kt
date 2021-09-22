@@ -46,7 +46,10 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
                 with((this / "fn").cast<DFunction>()) {
                     name equals "fn"
                     val params = parameters.map { it.documentation.values.first().children.first() as Param }
-                    params.mapNotNull { it.firstMemberOfType<Text>()?.body } equals listOf("is String parameter", "is int parameter")
+                    params.map { it.firstMemberOfType<Text>().body } equals listOf(
+                        "is String parameter",
+                        "is int parameter"
+                    )
                 }
             }
         }

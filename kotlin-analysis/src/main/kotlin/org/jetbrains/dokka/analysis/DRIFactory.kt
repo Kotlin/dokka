@@ -10,7 +10,7 @@ import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
 
 fun DRI.Companion.from(descriptor: DeclarationDescriptor) = descriptor.parentsWithSelf.run {
     val parameter = firstIsInstanceOrNull<ValueParameterDescriptor>()
-    val callable = parameter?.containingDeclaration ?: firstIsInstanceOrNull<CallableDescriptor>()
+    val callable = parameter?.containingDeclaration ?: firstIsInstanceOrNull()
 
     DRI(
         packageName = firstIsInstanceOrNull<PackageFragmentDescriptor>()?.fqName?.asString() ?: "",

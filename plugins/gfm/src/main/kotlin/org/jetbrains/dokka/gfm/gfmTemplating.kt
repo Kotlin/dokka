@@ -15,7 +15,7 @@ sealed class GfmCommand {
             get() = groupValues[1]
         val MatchResult.label
             get() = groupValues[2]
-        fun Appendable.templateCommand(command: GfmCommand, content: Appendable.() -> Unit): Unit {
+        fun Appendable.templateCommand(command: GfmCommand, content: Appendable.() -> Unit) {
             append("<!---$delimiter GfmCommand ${toJsonString(command)}$delimiter--->")
             content()
             append("<!---$delimiter--->")

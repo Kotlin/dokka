@@ -3,11 +3,13 @@ package signatures
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
+import org.jsoup.select.Elements
 import utils.TestOutputWriterPlugin
+import java.nio.file.Path
 import java.nio.file.Paths
 
 abstract class AbstractRenderingTest : BaseAbstractTest() {
-    val testDataDir = getTestDataDir("multiplatform/basicMultiplatformTest").toAbsolutePath()
+    val testDataDir: Path = getTestDataDir("multiplatform/basicMultiplatformTest").toAbsolutePath()
 
     val configuration = dokkaConfiguration {
         moduleName = "example"
@@ -42,10 +44,11 @@ abstract class AbstractRenderingTest : BaseAbstractTest() {
         }
     }
 
-    fun TestOutputWriterPlugin.renderedContent(path: String) = writer.contents.getValue(path)
+    fun TestOutputWriterPlugin.renderedContent(path: String): Element = writer.contents.getValue(path)
         .let { Jsoup.parse(it) }.select("#content").single()
 
-    fun TestOutputWriterPlugin.renderedDivergentContent(path: String) = renderedContent(path).select("div.divergent-group")
+    fun TestOutputWriterPlugin.renderedDivergentContent(path: String): Elements =
+        renderedContent(path).select("div.divergent-group")
 
     val Element.brief: String
         get() = children().select("p").text()

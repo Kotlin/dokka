@@ -33,7 +33,7 @@ data class ContentText(
 ) : ContentNode {
     override fun withNewExtras(newExtras: PropertyContainer<ContentNode>): ContentText = copy(extra = newExtras)
     override fun withSourceSets(sourceSets: Set<DisplaySourceSet>): ContentText = copy(sourceSets = sourceSets)
-    override fun hasAnyContent(): Boolean = !text.isBlank()
+    override fun hasAnyContent(): Boolean = text.isNotBlank()
 }
 
 // TODO: Remove

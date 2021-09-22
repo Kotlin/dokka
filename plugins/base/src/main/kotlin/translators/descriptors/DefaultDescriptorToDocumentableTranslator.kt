@@ -406,7 +406,7 @@ private class DokkaDescriptorVisitor(
                 companion = descriptor.companion(driWithPlatform),
                 sourceSets = setOf(sourceSet),
                 isExpectActual = (isExpect || isActual),
-                extra = PropertyContainer.withAll<DClass>(
+                extra = PropertyContainer.withAll(
                     descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
                     descriptor.getAnnotations().toSourceSetDependent().toAnnotations(),
                     ImplementedInterfaces(info.allImplementedInterfaces.toSourceSetDependent()),
@@ -641,7 +641,7 @@ private class DokkaDescriptorVisitor(
                 sources = descriptor.createSources(),
                 sourceSets = setOf(sourceSet),
                 isExpectActual = (isExpect || isActual),
-                extra = PropertyContainer.withAll<DFunction>(
+                extra = PropertyContainer.withAll(
                     descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
                     descriptor.getAnnotations().toSourceSetDependent().toAnnotations()
                 )
@@ -697,7 +697,7 @@ private class DokkaDescriptorVisitor(
         val enumEntries: List<ClassDescriptor>
     )
 
-    private suspend fun MemberScope.getDescriptorsWithKind(shouldFilter: Boolean = false): DescriptorsWithKind {
+    private fun MemberScope.getDescriptorsWithKind(shouldFilter: Boolean = false): DescriptorsWithKind {
         val descriptors = getContributedDescriptors { true }.let {
             if (shouldFilter) it.filterDescriptorsInSourceSet() else it
         }
@@ -803,7 +803,7 @@ private class DokkaDescriptorVisitor(
             )
         )
 
-    private suspend fun org.jetbrains.kotlin.descriptors.annotations.Annotations.getPresentableName(): String? =
+    private fun org.jetbrains.kotlin.descriptors.annotations.Annotations.getPresentableName(): String? =
         mapNotNull { it.toAnnotation() }.singleOrNull { it.dri.classNames == "ParameterName" }?.params?.get("name")
             .safeAs<StringValue>()?.value?.let { unquotedValue(it) }
 
@@ -879,7 +879,7 @@ private class DokkaDescriptorVisitor(
                     null
                 }
             },
-            kdocLocation = toSourceElement?.containingFile?.name?.let {
+            kdocLocation = toSourceElement.containingFile.name?.let {
                 val fqName = fqNameOrNull()?.asString()
                 if (fqName != null) "$it/$fqName"
                 else it
@@ -950,8 +950,8 @@ private class DokkaDescriptorVisitor(
 
     private suspend fun Annotated.getAnnotations() = annotations.parallelMapNotNull { it.toAnnotation() }
 
-    private fun ConstantValue<*>.toValue(): AnnotationParameterValue? = when (this) {
-        is ConstantsAnnotationValue -> value.toAnnotation()?.let { AnnotationValue(it) }
+    private fun ConstantValue<*>.toValue(): AnnotationParameterValue = when (this) {
+        is ConstantsAnnotationValue -> AnnotationValue(value.toAnnotation())
         is ConstantsArrayValue -> ArrayValue(value.mapNotNull { it.toValue() })
         is ConstantsEnumValue -> EnumValue(
             fullEnumEntryName(),
@@ -1014,7 +1014,7 @@ private class DokkaDescriptorVisitor(
     private fun ValueParameterDescriptor.getDefaultValue(): Expression? =
         ((source as? KotlinSourceElement)?.psi as? KtParameter)?.defaultValue?.toDefaultValueExpression()
 
-    private suspend fun PropertyDescriptor.getDefaultValue(): Expression? =
+    private fun PropertyDescriptor.getDefaultValue(): Expression? =
         (source as? KotlinSourceElement)?.psi?.children?.filterIsInstance<KtConstantExpression>()?.firstOrNull()
             ?.toDefaultValueExpression()
 
@@ -1023,7 +1023,7 @@ private class DokkaDescriptorVisitor(
             it.safeAs<KtInitializerList>()?.initializersAsExpression().orEmpty()
         }.orEmpty()
 
-    private suspend fun KtInitializerList.initializersAsExpression() =
+    private fun KtInitializerList.initializersAsExpression() =
         initializers.firstIsInstanceOrNull<KtCallElement>()
             ?.getValueArgumentsInParentheses()
             ?.map { it.getArgumentExpression()?.toDefaultValueExpression() ?: ComplexExpression("") }

@@ -445,7 +445,7 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
         builtIns: KotlinBuiltIns
     ): ResolverForProject<ModuleInfo> {
         val javaRoots = classpath
-            .mapNotNull {
+            .mapNotNull { it ->
                 val rootFile = when (it.extension) {
                     "jar" -> StandardFileSystems.jar().findFileByPath("${it.absolutePath}$JAR_SEPARATOR")
                     else -> StandardFileSystems.local().findFileByPath(it.absolutePath)

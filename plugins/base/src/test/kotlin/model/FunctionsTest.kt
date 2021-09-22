@@ -228,7 +228,7 @@ class FunctionTest : AbstractModelTest("/src/main/kotlin/function/Test.kt", "fun
             with((this / "function" / "Fancy").cast<DAnnotation>()) {
                 with(extra[Annotations]!!.directAnnotations.entries.single().value.assertNotNull("Annotations")) {
                     this counts 3
-                    with(map { it.dri.classNames to it }.toMap()) {
+                    with(associate { it.dri.classNames to it }) {
                         with(this["Target"].assertNotNull("Target")) {
                             (params["allowedTargets"].assertNotNull("allowedTargets") as ArrayValue).value equals listOf(
                                 EnumValue(
@@ -298,7 +298,7 @@ class FunctionTest : AbstractModelTest("/src/main/kotlin/function/Test.kt", "fun
 
                 with(extra[Annotations]!!.directAnnotations.entries.single().value.assertNotNull("Annotations")) {
                     this counts 3
-                    with(map { it.dri.classNames to it }.toMap()) {
+                    with(associate { it.dri.classNames to it }) {
                         with(this["Target"].assertNotNull("Target")) {
                             (params["allowedTargets"].assertNotNull("allowedTargets") as ArrayValue).value equals listOf(
                                 EnumValue(

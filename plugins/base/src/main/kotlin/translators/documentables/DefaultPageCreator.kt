@@ -267,7 +267,7 @@ open class DefaultPageCreator(
                         it.sourceSets.toSet(),
                         kind = ContentKind.SourceSetDependentHint,
                         styles = emptySet(),
-                        extra = PropertyContainer.empty<ContentNode>()
+                        extra = PropertyContainer.empty()
                     ) {
                         +buildSignature(it)
                         contentForBrief(it)
@@ -291,7 +291,7 @@ open class DefaultPageCreator(
                         it.dri,
                         it.sourceSets.toSet(),
                         kind = ContentKind.SourceSetDependentHint,
-                        extra = PropertyContainer.empty<ContentNode>()
+                        extra = PropertyContainer.empty()
                     ) {
                         +buildSignature(it)
                         contentForBrief(it)
@@ -675,7 +675,7 @@ open class DefaultPageCreator(
         }.groupBy { it.second::class }
 
     private val Documentable.descriptions: SourceSetDependent<Description>
-        get() = groupedTags.withTypeUnnamed<Description>()
+        get() = groupedTags.withTypeUnnamed()
 
     private val Documentable.hasSeparatePage: Boolean
         get() = this !is DTypeAlias

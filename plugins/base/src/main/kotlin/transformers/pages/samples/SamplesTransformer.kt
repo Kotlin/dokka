@@ -43,8 +43,8 @@ abstract class SamplesTransformer(val context: DokkaContext) : PageTransformer {
         }
     }
 
-    private fun setUpAnalysis(context: DokkaContext) = context.configuration.sourceSets.map { sourceSet ->
-        sourceSet to AnalysisEnvironment(DokkaMessageCollector(context.logger), sourceSet.analysisPlatform).run {
+    private fun setUpAnalysis(context: DokkaContext) = context.configuration.sourceSets.associateWith { sourceSet ->
+        AnalysisEnvironment(DokkaMessageCollector(context.logger), sourceSet.analysisPlatform).run {
             if (analysisPlatform == Platform.jvm) {
                 addClasspath(PathUtil.getJdkClassesRootsFromCurrentJre())
             }
@@ -58,7 +58,7 @@ abstract class SamplesTransformer(val context: DokkaContext) : PageTransformer {
             val (facade, _) = createResolutionFacade(environment)
             EnvironmentAndFacade(environment, facade)
         }
-    }.toMap()
+    }
 
     private fun ContentNode.addSample(
         contentPage: ContentPage,

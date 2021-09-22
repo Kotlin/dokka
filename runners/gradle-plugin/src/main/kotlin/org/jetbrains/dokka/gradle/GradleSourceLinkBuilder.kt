@@ -17,7 +17,7 @@ class GradleSourceLinkBuilder(
     val localDirectory: Property<File?> = project.objects.safeProperty()
 
     @Input
-    val remoteUrl: Property<URL?> = project.objects.safeProperty<URL>()
+    val remoteUrl: Property<URL?> = project.objects.safeProperty()
 
     @Optional
     @Input

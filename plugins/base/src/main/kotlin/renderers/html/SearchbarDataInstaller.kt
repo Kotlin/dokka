@@ -19,7 +19,7 @@ data class SearchRecord(
     val location: String,
     val searchKeys: List<String> = listOf(name)
 ) {
-    companion object {}
+    companion object
 }
 
 open class SearchbarDataInstaller(val context: DokkaContext) : PageTransformer {
