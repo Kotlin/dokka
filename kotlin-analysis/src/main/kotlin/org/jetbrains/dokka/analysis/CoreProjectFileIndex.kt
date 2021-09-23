@@ -2,6 +2,8 @@ package org.jetbrains.dokka.analysis
 
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.extensions.ExtensionPointName
+import com.intellij.openapi.extensions.PluginDescriptor
+import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.Sdk
@@ -26,6 +28,8 @@ import org.jetbrains.kotlin.cli.jvm.config.JvmClasspathRoot
 import org.jetbrains.kotlin.cli.jvm.config.JvmContentRoot
 import org.picocontainer.PicoContainer
 import java.io.File
+import java.lang.RuntimeException
+import java.nio.file.Path
 
 /**
  * Workaround for the lack of ability to create a ProjectFileIndex implementation using only
@@ -121,12 +125,32 @@ class CoreProjectFileIndex(private val project: Project, contentRoots: List<Cont
             throw UnsupportedOperationException()
         }
 
+        override fun createError(p0: Throwable, p1: PluginId): RuntimeException {
+            TODO("Not yet implemented")
+        }
+
+        override fun createError(p0: String, p1: PluginId): RuntimeException {
+            TODO("Not yet implemented")
+        }
+
+        override fun createError(p0: String, p1: PluginId, p2: MutableMap<String, String>?): RuntimeException {
+            TODO("Not yet implemented")
+        }
+
+        override fun <T : Any> loadClass(p0: String, p1: PluginDescriptor): Class<T> {
+            TODO("Not yet implemented")
+        }
+
         override fun getModuleFile(): VirtualFile? {
             throw UnsupportedOperationException()
         }
 
         override fun getModuleFilePath(): String {
             throw UnsupportedOperationException()
+        }
+
+        override fun getModuleNioFile(): Path {
+            TODO("Not yet implemented")
         }
 
         override fun getProject(): Project {
