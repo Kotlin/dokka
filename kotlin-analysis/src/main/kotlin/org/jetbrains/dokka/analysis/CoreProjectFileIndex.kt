@@ -126,19 +126,19 @@ class CoreProjectFileIndex(private val project: Project, contentRoots: List<Cont
         }
 
         override fun createError(p0: Throwable, p1: PluginId): RuntimeException {
-            TODO("Not yet implemented")
+            throw UnsupportedOperationException()
         }
 
         override fun createError(p0: String, p1: PluginId): RuntimeException {
-            TODO("Not yet implemented")
+            throw UnsupportedOperationException()
         }
 
         override fun createError(p0: String, p1: PluginId, p2: MutableMap<String, String>?): RuntimeException {
-            TODO("Not yet implemented")
+            throw UnsupportedOperationException()
         }
 
         override fun <T : Any> loadClass(p0: String, p1: PluginDescriptor): Class<T> {
-            TODO("Not yet implemented")
+            throw UnsupportedOperationException()
         }
 
         override fun getModuleFile(): VirtualFile? {
@@ -150,7 +150,7 @@ class CoreProjectFileIndex(private val project: Project, contentRoots: List<Cont
         }
 
         override fun getModuleNioFile(): Path {
-            TODO("Not yet implemented")
+            throw UnsupportedOperationException()
         }
 
         override fun getProject(): Project {
