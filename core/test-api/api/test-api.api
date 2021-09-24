@@ -152,6 +152,7 @@ public final class testApi/testRunner/TestDokkaConfigurationBuilder {
 	public fun <init> ()V
 	public final fun build ()Lorg/jetbrains/dokka/DokkaConfigurationImpl;
 	public final fun getCacheRoot ()Ljava/lang/String;
+	public final fun getDelayTemplateSubstitution ()Z
 	public final fun getFailOnWarning ()Z
 	public final fun getFormat ()Ljava/lang/String;
 	public final fun getIncludes ()Ljava/util/List;
@@ -165,6 +166,7 @@ public final class testApi/testRunner/TestDokkaConfigurationBuilder {
 	public final fun getSuppressInheritedMembers ()Z
 	public final fun getSuppressObviousFunctions ()Z
 	public final fun setCacheRoot (Ljava/lang/String;)V
+	public final fun setDelayTemplateSubstitution (Z)V
 	public final fun setFailOnWarning (Z)V
 	public final fun setFormat (Ljava/lang/String;)V
 	public final fun setIncludes (Ljava/util/List;)V

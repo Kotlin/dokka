@@ -1,28 +1,38 @@
 package resourceLinks
 
+import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.PluginConfigurationImpl
 import org.jetbrains.dokka.base.DokkaBase
+import org.jetbrains.dokka.base.DokkaBaseConfiguration
+import org.jetbrains.dokka.base.templating.toJsonString
 import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 import org.jsoup.Jsoup
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 import utils.TestOutputWriterPlugin
+import java.io.File
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 
 class ResourceLinksTest : BaseAbstractTest() {
     class TestResourcesAppenderPlugin(val resources: List<String>) : DokkaPlugin() {
         class TestResourcesAppender(val resources: List<String>) : PageTransformer {
             override fun invoke(input: RootPageNode) = input.transformContentPagesTree {
-                    it.modified(
-                        embeddedResources = it.embeddedResources + resources
-                    )
-                }
+                it.modified(
+                    embeddedResources = it.embeddedResources + resources
+                )
+            }
         }
 
         val appender by extending {
             plugin<DokkaBase>().htmlPreprocessors with TestResourcesAppender(resources)
         }
     }
+
     @Test
     fun resourceLinksTest() {
         val configuration = dokkaConfiguration {
@@ -52,18 +62,138 @@ class ResourceLinksTest : BaseAbstractTest() {
             configuration,
             pluginOverrides = listOf(TestResourcesAppenderPlugin(absoluteResources + relativeResources), writerPlugin)
         ) {
-            renderingStage = {
-                root, context -> Jsoup
-                .parse(writerPlugin.writer.contents["root/example.html"])
-                .head()
-                .select("link, script")
-                .let {
-                    absoluteResources.forEach {
-                        r -> assert(it.`is`("[href=$r], [src=$r]"))
+            renderingStage = { root, context ->
+                Jsoup
+                    .parse(writerPlugin.writer.contents["root/example.html"])
+                    .head()
+                    .select("link, script")
+                    .let {
+                        absoluteResources.forEach { r ->
+                            assert(it.`is`("[href=$r], [src=$r]"))
+                        }
+                        relativeResources.forEach { r ->
+                            assert(it.`is`("[href=../$r] , [src=../$r]"))
+                        }
                     }
-                    relativeResources.forEach {
-                        r -> assert(it.`is`("[href=../$r] , [src=../$r]"))
+            }
+        }
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = [true, false])
+    fun resourceCustomPreprocessorTest(isMultiModule: Boolean) {
+        val configuration = dokkaConfiguration {
+            sourceSets {
+                sourceSet {
+                    sourceRoots = listOf("src/main/kotlin/test/Test.kt")
+                }
+            }
+            delayTemplateSubstitution = isMultiModule
+            pluginsConfigurations = mutableListOf(
+                PluginConfigurationImpl(
+                    DokkaBase::class.java.canonicalName,
+                    DokkaConfiguration.SerializationFormat.JSON,
+                    toJsonString(
+                        DokkaBaseConfiguration(
+                            customStyleSheets = listOf(File("test/customStyle.css")),
+                            customAssets = listOf(File("test/customImage.svg"))
+                        )
+                    )
+                )
+            )
+        }
+        val source =
+            """
+            |/src/main/kotlin/test/Test.kt
+            |package example
+            """.trimIndent()
+        val writerPlugin = TestOutputWriterPlugin()
+        testInline(
+            source,
+            configuration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { root, context ->
+                run {
+                    if (isMultiModule) {
+                        assertNull(writerPlugin.writer.contents["images/customImage.svg"])
+                        assertNull(writerPlugin.writer.contents["styles/customStyle.css"])
+                    } else {
+                        assertNotNull(writerPlugin.writer.contents["images/customImage.svg"])
+                        assertNotNull(writerPlugin.writer.contents["styles/customStyle.css"])
                     }
+                    if (isMultiModule) {
+                        Jsoup
+                            .parse(writerPlugin.writer.contents["example.html"])
+                            .body()
+                            .select("link, script")
+                            .let {
+                                listOf("styles/customStyle.css").forEach { r ->
+                                    assert(it.`is`("[href=###$r]"))
+                                }
+                            }
+                    } else {
+                        Jsoup
+                            .parse(writerPlugin.writer.contents["root/example.html"])
+                            .head()
+                            .select("link, script")
+                            .let {
+                                listOf("styles/customStyle.css").forEach { r ->
+                                    assert(it.`is`("[href=../$r], [src=../$r]"))
+                                }
+                            }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun resourceMultiModuleLinksTest() {
+        val configuration = dokkaConfiguration {
+            sourceSets {
+                sourceSet {
+                    sourceRoots = listOf("src/main/kotlin/test/Test.kt")
+                }
+            }
+            delayTemplateSubstitution = false
+        }
+        val absoluteResources = listOf(
+            "https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css",
+            "https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"
+        )
+        val relativeResources = listOf(
+            "test/relativePath.js",
+            "test/relativePath.css"
+        )
+
+        val source =
+            """
+            |/src/main/kotlin/test/Test.kt
+            |package example
+            """.trimIndent()
+        val writerPlugin = TestOutputWriterPlugin()
+        testInline(
+            source,
+            configuration,
+            pluginOverrides = listOf(TestResourcesAppenderPlugin(absoluteResources + relativeResources), writerPlugin)
+        ) {
+            renderingStage = { root, context ->
+                run {
+                    assertNull(writerPlugin.writer.contents["scripts/relativePath.js"])
+                    assertNull(writerPlugin.writer.contents["styles/relativePath.js"])
+                    Jsoup
+                        .parse(writerPlugin.writer.contents["root/example.html"])
+                        .head()
+                        .select("link, script")
+                        .let {
+                            absoluteResources.forEach { r ->
+                                assert(it.`is`("[href=$r], [src=$r]"))
+                            }
+                            relativeResources.forEach { r ->
+                                assert(it.`is`("[href=../$r] , [src=../$r]"))
+                            }
+                        }
                 }
             }
         }
