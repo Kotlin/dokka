@@ -331,8 +331,8 @@ class JavadocParser(
         ) =
             when (tag.name) {
                 "link", "linkplain" -> tag.referenceElement()
-                    ?.toDocumentationLinkString(tag.dataElements.filterIsInstance<PsiDocToken>().joinToString("") {
-                        it.stringifyElementAsText(keepFormatting = true).orEmpty()
+                    ?.toDocumentationLinkString(tag.dataElements.filterIsInstance<PsiDocToken>().joinToString(" ") {
+                        it.stringifyElementAsText(keepFormatting = false).orEmpty()
                     })
                 "code" -> "<code data-inline>${dataElementsAsText(tag)}</code>"
                 "literal" -> "<literal>${dataElementsAsText(tag)}</literal>"
