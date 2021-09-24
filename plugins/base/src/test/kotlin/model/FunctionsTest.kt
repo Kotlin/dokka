@@ -44,7 +44,7 @@ class FunctionTest : AbstractModelTest("/src/main/kotlin/function/Test.kt", "fun
         ) {
             with((this / "function").cast<DPackage>()) {
                 val fn1 = functions.find {
-                    it.name == "fn" && it.parameters.isNullOrEmpty()
+                    it.name == "fn" && it.parameters.isEmpty()
                 }.assertNotNull("fn()")
                 val fn2 = functions.find {
                     it.name == "fn" && it.parameters.isNotEmpty()
@@ -81,7 +81,7 @@ class FunctionTest : AbstractModelTest("/src/main/kotlin/function/Test.kt", "fun
         ) {
             with((this / "function").cast<DPackage>()) {
                 val fn1 = functions.find {
-                    it.name == "fn" && it.parameters.isNullOrEmpty()
+                    it.name == "fn" && it.parameters.isEmpty()
                 }.assertNotNull("fn()")
                 val fn2 = functions.find {
                     it.name == "fn" && it.parameters.count() == 1

@@ -157,7 +157,7 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
 
                 constructors counts 2
                 constructors.forEach { it.name equals "Test" }
-                constructors.find { it.parameters.isNullOrEmpty() }.assertNotNull("Test()")
+                constructors.find { it.parameters.isEmpty() }.assertNotNull("Test()")
 
                 with(constructors.find { it.parameters.isNotEmpty() }.assertNotNull("Test(String)")) {
                     parameters.firstOrNull()?.type?.name equals "String"
