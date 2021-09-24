@@ -140,7 +140,7 @@ open class DokkaLocationProvider(
     private fun PageNode.parent() = pageGraphRoot.parentMap[this]
 
     private val PageNode.pathName: String
-        get() = if (this is PackagePageNode) name else identifierToFilename(name)
+        get() = if (this is PackagePageNode || this is RendererSpecificResourcePage) name else identifierToFilename(name)
 
     protected data class DRIWithSourceSets(val dri: DRI, val sourceSet: Set<DisplaySourceSet>)
 
