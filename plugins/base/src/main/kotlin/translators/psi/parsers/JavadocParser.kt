@@ -377,6 +377,11 @@ class JavadocParser(
                 "strong" -> ifChildrenPresent { Strong(children) }
                 "index" -> listOf(Index(children))
                 "i" -> ifChildrenPresent { I(children) }
+                "img" -> listOf(
+                    Img(
+                        children,
+                        element.attributes().associate { (if (it.key == "src") "href" else it.key) to it.value })
+                )
                 "em" -> listOf(Em(children))
                 "code" -> ifChildrenPresent { if(keepFormatting) CodeBlock(children) else CodeInline(children) }
                 "pre" -> if(children.size == 1) {
