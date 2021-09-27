@@ -11,7 +11,7 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.OrderEnumerationHandler
-import com.intellij.openapi.roots.ProjectFileIndex
+//import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.vfs.StandardFileSystems
@@ -151,10 +151,10 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
                 registerService(KlibLoadingMetadataCache::class.java, KlibLoadingMetadataCache())
         }
 
-        projectComponentManager.registerService(
-            ProjectFileIndex::class.java,
-            projectFileIndex
-        )
+//        projectComponentManager.registerService(
+//            ProjectFileIndex::class.java,
+//            projectFileIndex
+//        )
 
         projectComponentManager.registerService(
             ProjectRootManager::class.java,
