@@ -15,6 +15,8 @@ import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.vfs.StandardFileSystems
+import com.intellij.psi.PsiNameHelper
+import com.intellij.psi.impl.PsiNameHelperImpl
 import com.intellij.psi.impl.source.javadoc.JavadocManagerImpl
 import com.intellij.psi.javadoc.CustomJavadocTagProvider
 import com.intellij.psi.javadoc.JavadocManager
@@ -162,6 +164,11 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
         projectComponentManager.registerService(
             JavadocManager::class.java,
             JavadocManagerImpl(environment.project)
+        )
+
+        projectComponentManager.registerService(
+            PsiNameHelper::class.java,
+            PsiNameHelperImpl(environment.project)
         )
 
         projectComponentManager.registerService(
