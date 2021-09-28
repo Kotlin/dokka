@@ -1,18 +1,12 @@
 package org.jetbrains.dokka.analysis
 
 import com.intellij.core.CoreApplicationEnvironment
-import com.intellij.core.CoreModuleManager
 import com.intellij.mock.MockApplication
 import com.intellij.mock.MockComponentManager
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.extensions.Extensions
-import com.intellij.openapi.module.Module
-import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.OrderEnumerationHandler
-//import com.intellij.openapi.roots.ProjectFileIndex
-import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.vfs.StandardFileSystems
 import com.intellij.psi.PsiNameHelper
@@ -41,10 +35,7 @@ import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles
 import org.jetbrains.kotlin.cli.jvm.compiler.JvmPackagePartProvider
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
 import org.jetbrains.kotlin.cli.jvm.compiler.TopDownAnalyzerFacadeForJVM
-import org.jetbrains.kotlin.cli.jvm.config.addJavaSourceRoot
-import org.jetbrains.kotlin.cli.jvm.config.addJvmClasspathRoot
-import org.jetbrains.kotlin.cli.jvm.config.addJvmClasspathRoots
-import org.jetbrains.kotlin.cli.jvm.config.jvmClasspathRoots
+import org.jetbrains.kotlin.cli.jvm.config.*
 import org.jetbrains.kotlin.cli.jvm.index.JavaRoot
 import org.jetbrains.kotlin.config.*
 import org.jetbrains.kotlin.context.ProjectContext
@@ -115,25 +106,6 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
         val environment = KotlinCoreEnvironment.createForProduction(this, configuration, configFiles)
         val projectComponentManager = environment.project as MockComponentManager
 
-        val projectFileIndex = CoreProjectFileIndex(
-            environment.project,
-            environment.configuration.getList(CLIConfigurationKeys.CONTENT_ROOTS)
-        )
-
-        val moduleManager = object : CoreModuleManager(environment.project, this) {
-            override fun getModules(): Array<out Module> = arrayOf(projectFileIndex.module)
-        }
-
-        CoreApplicationEnvironment.registerComponentInstance(
-            projectComponentManager.picoContainer,
-            ModuleManager::class.java, moduleManager
-        )
-
-        CoreApplicationEnvironment.registerExtensionPoint(
-            Extensions.getRootArea(),
-            OrderEnumerationHandler.EP_NAME, OrderEnumerationHandler.Factory::class.java
-        )
-
         CoreApplicationEnvironment.registerExtensionPoint(
             environment.project.extensionArea,
             JavadocTagInfo.EP_NAME, JavadocTagInfo::class.java
@@ -150,16 +122,6 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
             if (getService(KlibLoadingMetadataCache::class.java) == null)
                 registerService(KlibLoadingMetadataCache::class.java, KlibLoadingMetadataCache())
         }
-
-//        projectComponentManager.registerService(
-//            ProjectFileIndex::class.java,
-//            projectFileIndex
-//        )
-
-        projectComponentManager.registerService(
-            ProjectRootManager::class.java,
-            CoreProjectRootManager(projectFileIndex)
-        )
 
         projectComponentManager.registerService(
             JavadocManager::class.java,
