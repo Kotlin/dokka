@@ -1071,6 +1071,12 @@ div.runnablesample {
     background: var(--white-10);
 }
 
+.filtered-message {
+    margin: 25px;
+    font-size: 20px;
+    font-weight: bolder;
+}
+
 @media screen and (max-width: 1119px) {
     h1.cover {
         font-size: 48px;

@@ -6,6 +6,7 @@ filteringContext = {
 let highlightedAnchor;
 let topNavbarOffset;
 let instances = [];
+let sourcesetNotification;
 
 const samplesDarkThemeName = 'darcula'
 const samplesLightThemeName = 'idea'
@@ -201,10 +202,6 @@ function initializeFiltering() {
     let cached = window.localStorage.getItem('inactive-filters')
     if (cached) {
         let parsed = JSON.parse(cached)
-        //Events are used by react to get values in 'on this page'
-        const event = new CustomEvent('sourceset-filter-change', {detail: parsed});
-        window.dispatchEvent(event);
-
         filteringContext.activeFilters = filteringContext.restrictedDependencies
             .filter(q => parsed.indexOf(q) == -1)
     } else {
@@ -304,11 +301,25 @@ function refreshFiltering() {
                 elem.setAttribute("data-filterable-current", platformList.join(' '))
             }
         )
-    const event = new CustomEvent('sourceset-filter-change', {detail: sourcesetList});
-    window.dispatchEvent(event);
-
     refreshFilterButtons()
     refreshPlatformTabs()
+    refreshNoContentNotification()
+}
+
+function refreshNoContentNotification() {
+    const element = document.getElementsByClassName("main-content")[0]
+    if(filteringContext.activeFilters.length === 0){
+        element.style.display = "none";
+
+        const appended = document.createElement("div")
+        appended.className = "filtered-message"
+        appended.innerText = "All documentation is filtered, please adjust your source set filters in top-right corner of the screen"
+        sourcesetNotification = appended
+        element.parentNode.prepend(appended)
+    } else {
+        if(sourcesetNotification) sourcesetNotification.remove()
+        element.style.display = "block"
+    }
 }
 
 function refreshPlatformTabs() {
