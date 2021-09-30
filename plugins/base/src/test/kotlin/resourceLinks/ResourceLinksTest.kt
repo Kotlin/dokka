@@ -62,7 +62,7 @@ class ResourceLinksTest : BaseAbstractTest() {
                         r -> assert(it.`is`("[href=$r], [src=$r]"))
                     }
                     relativeResources.forEach {
-                        r -> assert(it.`is`("[href=$r] , [src=$r]"))
+                        r -> assert(it.`is`("[href=../$r] , [src=../$r]"))
                     }
                 }
             }
