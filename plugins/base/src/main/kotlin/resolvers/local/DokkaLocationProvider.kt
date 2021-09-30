@@ -118,21 +118,24 @@ open class DokkaLocationProvider(
             "${page::class.simpleName}(${page.name}) does not belong to the current page graph so it is impossible to compute its path"
         )
 
-        val contextNode =
-            if (context !is ClasslikePageNode && context?.children?.isEmpty() == true && context.parent() != null) context.parent() else context
         val nodePath = pathFor(node)
-        val contextPath = contextNode?.let { pathFor(it) }.orEmpty()
+        val contextPath = context?.let { pathFor(it) }.orEmpty()
+        val endedContextPath = if (context?.isIndexPage() == false)
+            contextPath.toMutableList().also { it.removeLastOrNull() }
+        else contextPath
 
-        val commonPathElements = nodePath.asSequence().zip(contextPath.asSequence())
+        val commonPathElements = nodePath.asSequence().zip(endedContextPath.asSequence())
             .takeWhile { (a, b) -> a == b }.count()
 
-        return (List(contextPath.size - commonPathElements) { ".." } + nodePath.drop(commonPathElements) +
-                if (node is ClasslikePageNode || node.children.isNotEmpty())
+        return (List(endedContextPath.size - commonPathElements) { ".." } + nodePath.drop(commonPathElements) +
+                if (node.isIndexPage())
                     listOf(PAGE_WITH_CHILDREN_SUFFIX)
                 else
                     emptyList()
                 ).joinToString("/")
     }
+
+    private fun PageNode.isIndexPage() = this is ClasslikePageNode || children.isNotEmpty()
 
     private fun PageNode.parent() = pageGraphRoot.parentMap[this]
 
