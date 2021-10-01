@@ -1,6 +1,5 @@
-package org.jetbrains.dokka.analysis
+package org.jetbrains.dokka.analysis.resolve
 
-import org.jetbrains.kotlin.analyzer.LibraryModuleInfo
 import org.jetbrains.kotlin.analyzer.ModuleInfo
 import org.jetbrains.kotlin.descriptors.ModuleCapability
 import org.jetbrains.kotlin.descriptors.konan.DeserializedKlibModuleOrigin
@@ -18,16 +17,13 @@ import org.jetbrains.kotlin.resolve.PlatformDependentAnalyzerServices
 
 /** TODO: replace by [NativeKlibLibraryInfo] after fix of KT-40734 */
 internal class DokkaNativeKlibLibraryInfo(
-    val kotlinLibrary: KotlinLibrary,
+    override val kotlinLibrary: KotlinLibrary,
     override val analyzerServices: PlatformDependentAnalyzerServices,
-    private val dependencyResolver: DokkaNativeKlibLibraryDependencyResolver
-) : LibraryModuleInfo {
+    private val dependencyResolver: DokkaKlibLibraryDependencyResolver
+) : DokkaKlibLibraryInfo() {
     init {
         dependencyResolver.registerLibrary(this)
     }
-
-    internal val libraryRoot: String
-        get() = kotlinLibrary.libraryFile.path
 
     override val name: Name by lazy {
         val libraryName = kotlinLibrary.shortName ?: kotlinLibrary.uniqueName

@@ -4,8 +4,8 @@ import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.dokka.Platform
 
 plugins {
-    kotlin("multiplatform") version "1.4.32"
-    id("org.jetbrains.dokka") version "1.4.32"
+    kotlin("multiplatform") version "1.5.30"
+    id("org.jetbrains.dokka") version "1.5.30"
 }
 
 repositories {
@@ -24,7 +24,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation(kotlin("stdlib-common"))
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.1")
             }
         }
     }

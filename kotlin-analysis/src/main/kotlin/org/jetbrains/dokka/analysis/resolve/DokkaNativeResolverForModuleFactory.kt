@@ -1,4 +1,4 @@
-package org.jetbrains.dokka.analysis
+package org.jetbrains.dokka.analysis.resolve
 
 import org.jetbrains.kotlin.analyzer.*
 import org.jetbrains.kotlin.builtins.konan.KonanBuiltIns

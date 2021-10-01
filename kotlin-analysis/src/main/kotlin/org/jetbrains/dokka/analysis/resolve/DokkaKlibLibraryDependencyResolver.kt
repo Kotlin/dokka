@@ -1,17 +1,17 @@
-package org.jetbrains.dokka.analysis
+package org.jetbrains.dokka.analysis.resolve
 
 import org.jetbrains.kotlin.library.uniqueName
 import org.jetbrains.kotlin.library.unresolvedDependencies
 
 /** TODO: replace by [NativeKlibLibraryInfo] after fix of KT-40734 */
-internal class DokkaNativeKlibLibraryDependencyResolver {
-    private val cachedDependencies = mutableMapOf</* libraryName */String, DokkaNativeKlibLibraryInfo>()
+internal class DokkaKlibLibraryDependencyResolver {
+    private val cachedDependencies = mutableMapOf</* libraryName */String, DokkaKlibLibraryInfo>()
 
-    fun registerLibrary(libraryInfo: DokkaNativeKlibLibraryInfo) {
+    fun registerLibrary(libraryInfo: DokkaKlibLibraryInfo) {
         cachedDependencies[libraryInfo.kotlinLibrary.uniqueName] = libraryInfo
     }
 
-    fun resolveDependencies(libraryInfo: DokkaNativeKlibLibraryInfo): List<DokkaNativeKlibLibraryInfo> {
+    fun resolveDependencies(libraryInfo: DokkaKlibLibraryInfo): List<DokkaKlibLibraryInfo> {
         return libraryInfo.kotlinLibrary.unresolvedDependencies.mapNotNull { cachedDependencies[it.path] }
     }
 }

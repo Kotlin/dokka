@@ -332,8 +332,8 @@ class JavadocParser(
         ) =
             when (tag.name) {
                 "link", "linkplain" -> tag.referenceElement()
-                    ?.toDocumentationLinkString(tag.dataElements.filterIsInstance<PsiDocToken>().joinToString("") {
-                        it.stringifyElementAsText(keepFormatting = true).orEmpty()
+                    ?.toDocumentationLinkString(tag.dataElements.filterIsInstance<PsiDocToken>().joinToString(" ") {
+                        it.stringifyElementAsText(keepFormatting = false).orEmpty()
                     })
                 "code" -> "<code data-inline>${dataElementsAsText(tag)}</code>"
                 "literal" -> "<literal>${dataElementsAsText(tag)}</literal>"
@@ -377,6 +377,11 @@ class JavadocParser(
                 "strong" -> ifChildrenPresent { Strong(children) }
                 "index" -> listOf(Index(children))
                 "i" -> ifChildrenPresent { I(children) }
+                "img" -> listOf(
+                    Img(
+                        children,
+                        element.attributes().associate { (if (it.key == "src") "href" else it.key) to it.value })
+                )
                 "em" -> listOf(Em(children))
                 "code" -> ifChildrenPresent { if(keepFormatting) CodeBlock(children) else CodeInline(children) }
                 "pre" -> if(children.size == 1) {
