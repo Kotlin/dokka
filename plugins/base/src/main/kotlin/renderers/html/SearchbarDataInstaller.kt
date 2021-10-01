@@ -2,6 +2,7 @@ package org.jetbrains.dokka.base.renderers.html
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.jetbrains.dokka.Platform
+import org.jetbrains.dokka.base.renderers.sourceSets
 import org.jetbrains.dokka.base.templating.AddToSearch
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.DisplaySourceSet
@@ -10,8 +11,6 @@ import org.jetbrains.dokka.model.withDescendants
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.transformers.pages.PageTransformer
-
-typealias PageId = String
 
 data class SearchRecord(
     val name: String,
@@ -23,24 +22,29 @@ data class SearchRecord(
 }
 
 open class SearchbarDataInstaller(val context: DokkaContext) : PageTransformer {
-    data class PageWithId(val dri: DRI, val page: ContentPage) {
-        val displayableSignature = getSymbolSignature(page, dri)?.let { flattenToText(it) } ?: page.name
+    data class DRIWithSourceSets(val dri: DRI, val sourceSet: Set<DisplaySourceSet>)
+    data class SignatureWithId(val driWithSourceSets: DRIWithSourceSets, val displayableSignature: String) {
+        constructor(dri: DRI, page: ContentPage) : this( DRIWithSourceSets(dri, page.sourceSets()),
+            getSymbolSignature(page, dri)?.let { flattenToText(it) } ?: page.name)
+
         val id: String
-            get() = listOfNotNull(
-                dri.packageName,
-                dri.classNames,
-                dri.callable?.name
-            ).joinToString(".")
+            get() = with(driWithSourceSets.dri) {
+                listOfNotNull(
+                    packageName,
+                    classNames,
+                    callable?.name
+                ).joinToString(".")
+            }
     }
 
     private val mapper = jacksonObjectMapper()
 
-    open fun generatePagesList(pages: List<PageWithId>, locationResolver: PageResolver): List<SearchRecord> =
+    open fun generatePagesList(pages: List<SignatureWithId>, locationResolver: DriResolver): List<SearchRecord> =
         pages.map { pageWithId ->
             createSearchRecord(
                 name = pageWithId.displayableSignature,
                 description = pageWithId.id,
-                location = resolveLocation(locationResolver, pageWithId.page).orEmpty(),
+                location = resolveLocation(locationResolver, pageWithId.driWithSourceSets).orEmpty(),
                 searchKeys = listOf(
                     pageWithId.id.substringAfterLast("."),
                     pageWithId.displayableSignature,
@@ -57,26 +61,27 @@ open class SearchbarDataInstaller(val context: DokkaContext) : PageTransformer {
     ): SearchRecord =
         SearchRecord(name, description, location, searchKeys)
 
-    open fun processPage(page: PageNode): List<PageWithId> =
+    open fun processPage(page: PageNode): List<SignatureWithId> =
         when (page) {
             is ContentPage -> page.takeIf { page !is ModulePageNode && page !is PackagePageNode }?.dri
-                ?.map { dri -> PageWithId(dri, page) }.orEmpty()
+                ?.map { dri -> SignatureWithId(dri, page) }.orEmpty()
             else -> emptyList()
         }
 
-    private fun resolveLocation(locationResolver: PageResolver, page: ContentPage): String? =
-        locationResolver(page, null).also { location ->
-            if (location.isNullOrBlank()) context.logger.warn("Cannot resolve path for ${page.dri}")
+    private fun resolveLocation(locationResolver: DriResolver, driWithSourceSets: DRIWithSourceSets): String? =
+        locationResolver(driWithSourceSets.dri, driWithSourceSets.sourceSet).also { location ->
+            if (location.isNullOrBlank()) context.logger.warn("Cannot resolve path for ${driWithSourceSets.dri}")
         }
 
     override fun invoke(input: RootPageNode): RootPageNode {
+        val signatureWithIds = input.withDescendants().fold(emptyList<SignatureWithId>()) { pageList, page ->
+            pageList + processPage(page)
+        }
         val page = RendererSpecificResourcePage(
             name = "scripts/pages.json",
             children = emptyList(),
-            strategy = RenderingStrategy.PageLocationResolvableWrite { resolver ->
-                val content = input.withDescendants().fold(emptyList<PageWithId>()) { pageList, page ->
-                    pageList + processPage(page)
-                }.run {
+            strategy = RenderingStrategy.DriLocationResolvableWrite { resolver ->
+                val content = signatureWithIds.run {
                     generatePagesList(this, resolver)
                 }
 

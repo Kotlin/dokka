@@ -460,23 +460,36 @@ public final class org/jetbrains/dokka/base/renderers/html/SearchRecord$Companio
 public class org/jetbrains/dokka/base/renderers/html/SearchbarDataInstaller : org/jetbrains/dokka/transformers/pages/PageTransformer {
 	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
 	public fun createSearchRecord (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;)Lorg/jetbrains/dokka/base/renderers/html/SearchRecord;
-	public fun generatePagesList (Ljava/util/List;Lorg/jetbrains/dokka/pages/PageResolver;)Ljava/util/List;
+	public fun generatePagesList (Ljava/util/List;Lorg/jetbrains/dokka/pages/DriResolver;)Ljava/util/List;
 	public final fun getContext ()Lorg/jetbrains/dokka/plugability/DokkaContext;
 	public fun invoke (Lorg/jetbrains/dokka/pages/RootPageNode;)Lorg/jetbrains/dokka/pages/RootPageNode;
 	public fun processPage (Lorg/jetbrains/dokka/pages/PageNode;)Ljava/util/List;
 }
 
-public final class org/jetbrains/dokka/base/renderers/html/SearchbarDataInstaller$PageWithId {
-	public fun <init> (Lorg/jetbrains/dokka/links/DRI;Lorg/jetbrains/dokka/pages/ContentPage;)V
+public final class org/jetbrains/dokka/base/renderers/html/SearchbarDataInstaller$DRIWithSourceSets {
+	public fun <init> (Lorg/jetbrains/dokka/links/DRI;Ljava/util/Set;)V
 	public final fun component1 ()Lorg/jetbrains/dokka/links/DRI;
-	public final fun component2 ()Lorg/jetbrains/dokka/pages/ContentPage;
-	public final fun copy (Lorg/jetbrains/dokka/links/DRI;Lorg/jetbrains/dokka/pages/ContentPage;)Lorg/jetbrains/dokka/base/renderers/html/SearchbarDataInstaller$PageWithId;
-	public static synthetic fun copy$default (Lorg/jetbrains/dokka/base/renderers/html/SearchbarDataInstaller$PageWithId;Lorg/jetbrains/dokka/links/DRI;Lorg/jetbrains/dokka/pages/ContentPage;ILjava/lang/Object;)Lorg/jetbrains/dokka/base/renderers/html/SearchbarDataInstaller$PageWithId;
+	public final fun component2 ()Ljava/util/Set;
+	public final fun copy (Lorg/jetbrains/dokka/links/DRI;Ljava/util/Set;)Lorg/jetbrains/dokka/base/renderers/html/SearchbarDataInstaller$DRIWithSourceSets;
+	public static synthetic fun copy$default (Lorg/jetbrains/dokka/base/renderers/html/SearchbarDataInstaller$DRIWithSourceSets;Lorg/jetbrains/dokka/links/DRI;Ljava/util/Set;ILjava/lang/Object;)Lorg/jetbrains/dokka/base/renderers/html/SearchbarDataInstaller$DRIWithSourceSets;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDri ()Lorg/jetbrains/dokka/links/DRI;
+	public final fun getSourceSet ()Ljava/util/Set;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/jetbrains/dokka/base/renderers/html/SearchbarDataInstaller$SignatureWithId {
+	public fun <init> (Lorg/jetbrains/dokka/base/renderers/html/SearchbarDataInstaller$DRIWithSourceSets;Ljava/lang/String;)V
+	public fun <init> (Lorg/jetbrains/dokka/links/DRI;Lorg/jetbrains/dokka/pages/ContentPage;)V
+	public final fun component1 ()Lorg/jetbrains/dokka/base/renderers/html/SearchbarDataInstaller$DRIWithSourceSets;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun copy (Lorg/jetbrains/dokka/base/renderers/html/SearchbarDataInstaller$DRIWithSourceSets;Ljava/lang/String;)Lorg/jetbrains/dokka/base/renderers/html/SearchbarDataInstaller$SignatureWithId;
+	public static synthetic fun copy$default (Lorg/jetbrains/dokka/base/renderers/html/SearchbarDataInstaller$SignatureWithId;Lorg/jetbrains/dokka/base/renderers/html/SearchbarDataInstaller$DRIWithSourceSets;Ljava/lang/String;ILjava/lang/Object;)Lorg/jetbrains/dokka/base/renderers/html/SearchbarDataInstaller$SignatureWithId;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getDisplayableSignature ()Ljava/lang/String;
-	public final fun getDri ()Lorg/jetbrains/dokka/links/DRI;
+	public final fun getDriWithSourceSets ()Lorg/jetbrains/dokka/base/renderers/html/SearchbarDataInstaller$DRIWithSourceSets;
 	public final fun getId ()Ljava/lang/String;
-	public final fun getPage ()Lorg/jetbrains/dokka/pages/ContentPage;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
