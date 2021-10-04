@@ -6,7 +6,7 @@ jobs:
   test-ubuntu:
     strategy:
       matrix:
-        version: [ 8, 11, 15, 16 ]
+        version: [ 8, 11, 17 ]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -19,7 +19,7 @@ jobs:
   test-windows:
     strategy:
       matrix:
-        version: [ 11, 15, 16 ]
+        version: [ 11, 15, 17 ]
       fail-fast: false
     runs-on: windows-latest
     steps:
