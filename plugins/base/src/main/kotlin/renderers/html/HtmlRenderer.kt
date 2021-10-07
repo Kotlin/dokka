@@ -227,19 +227,58 @@ open class HtmlRenderer(
     }
 
     override fun FlowContent.buildDivergent(node: ContentDivergentGroup, pageContext: ContentPage) {
+        fun groupDivergentInstancesWithSourceSet(
+            instances: List<ContentDivergentInstance>,
+            sourceSet: DisplaySourceSet,
+            pageContext: ContentPage,
+            beforeTransformer: (ContentDivergentInstance, ContentPage, DisplaySourceSet) -> String,
+            afterTransformer: (ContentDivergentInstance, ContentPage, DisplaySourceSet) -> String
+        ): Map<SerializedBeforeAndAfter, List<ContentDivergentInstance>> =
+            instances.map { instance ->
+                instance to Pair(
+                    beforeTransformer(instance, pageContext, sourceSet),
+                    afterTransformer(instance, pageContext, sourceSet)
+                )
+            }.groupBy(
+                Pair<ContentDivergentInstance, SerializedBeforeAndAfter>::second,
+                Pair<ContentDivergentInstance, SerializedBeforeAndAfter>::first
+            )
 
         if (node.implicitlySourceSetHinted) {
             val groupedInstancesBySourceSet = node.children.flatMap { instance ->
                 instance.sourceSets.map { sourceSet -> instance to sourceSet }
-            }.groupBy(Pair<ContentDivergentInstance, DisplaySourceSet>::second,
-                Pair<ContentDivergentInstance, DisplaySourceSet>::first)
+            }.groupBy(
+                Pair<ContentDivergentInstance, DisplaySourceSet>::second,
+                Pair<ContentDivergentInstance, DisplaySourceSet>::first
+            )
+
             val nodes = groupedInstancesBySourceSet.mapValues {
-                it.value.fold(mutableListOf<ContentNode>()) { acc, el ->
-                    acc.addIfNotNull(el.before)
-                    acc.add(el.divergent)
-                    acc.addIfNotNull(el.after)
-                    acc
+                val distinct =
+                    groupDivergentInstancesWithSourceSet(it.value, it.key, pageContext,
+                        beforeTransformer = { instance, _, sourceSet ->
+                            createHTML(prettyPrint = false).prepareForTemplates().div {
+                                instance.before?.let { before ->
+                                    buildContentNode(before, pageContext, sourceSet)
+                                }
+                            }.stripDiv()
+                        },
+                        afterTransformer = { instance, _, sourceSet ->
+                            createHTML(prettyPrint = false).prepareForTemplates().div {
+                                instance.after?.let { after ->
+                                    buildContentNode(after, pageContext, sourceSet)
+                                }
+                            }.stripDiv()
+                        })
+                val contentOfSourceSet = mutableListOf<ContentNode>()
+                distinct.onEachIndexed{ i, (_, distinctInstances) ->
+                    contentOfSourceSet.addIfNotNull(distinctInstances.firstOrNull()?.before)
+                    contentOfSourceSet.addAll(distinctInstances.map { it.divergent })
+                    contentOfSourceSet.addIfNotNull(
+                        distinctInstances.firstOrNull()?.after
+                            ?: if (i != distinct.size - 1) ContentBreakLine(it.key) else null
+                    )
                 }
+                contentOfSourceSet
             }
             buildPlatformDependent(nodes, pageContext)
         } else {
@@ -630,7 +669,7 @@ open class HtmlRenderer(
              - it is useless
              - it overflows with playground's run button
              */
-            if(!code.style.contains(ContentStyle.RunnableSample)) copyButton()
+            if (!code.style.contains(ContentStyle.RunnableSample)) copyButton()
         }
     }
 
@@ -710,13 +749,17 @@ open class HtmlRenderer(
                     script { unsafe { +"""var pathToRoot = "###";""" } }
                 }
                 // This script doesn't need to be there but it is nice to have since app in dark mode doesn't 'blink' (class is added before it is rendered)
-                script { unsafe { +"""
+                script {
+                    unsafe {
+                        +"""
                     const storage = localStorage.getItem("dokka-dark-mode")
                     const savedDarkMode = storage ? JSON.parse(storage) : false
                     if(savedDarkMode === true){
                         document.getElementsByTagName("html")[0].classList.add("theme-dark")
                     }
-                """.trimIndent() } }
+                """.trimIndent()
+                    }
+                }
                 resources.forEach {
                     when {
                         it.substringBefore('?').substringAfterLast('.') == "css" ->
@@ -792,7 +835,7 @@ open class HtmlRenderer(
                         content()
                         div(classes = "footer") {
                             span("go-to-top-icon") {
-                                a(href = "#content"){
+                                a(href = "#content") {
                                     id = "go-to-top-link"
                                 }
                             }
@@ -824,7 +867,12 @@ open class HtmlRenderer(
             templateCommand(PathToRootSubstitutionCommand(pattern = "###", default = pathToRoot)) {
                 a {
                     href = "###index.html"
-                    templateCommand(ProjectNameSubstitutionCommand(pattern = "@@@", default = context.configuration.moduleName)) {
+                    templateCommand(
+                        ProjectNameSubstitutionCommand(
+                            pattern = "@@@",
+                            default = context.configuration.moduleName
+                        )
+                    ) {
                         span {
                             text("@@@")
                         }
