@@ -9,6 +9,7 @@ env:
 jobs:
   stdlib:
     runs-on: ubuntu-latest
+    if: github.repository == 'Kotlin/dokka'
     steps:
       - name: Checkout dokka
         uses: actions/checkout@v2
@@ -40,6 +41,7 @@ jobs:
 
   serialization:
     runs-on: ubuntu-latest
+    if: github.repository == 'Kotlin/dokka'
     steps:
       - name: Checkout dokka
         uses: actions/checkout@v2
@@ -71,6 +73,7 @@ jobs:
 
   biojava:
     runs-on: ubuntu-latest
+    if: github.repository == 'Kotlin/dokka'
     steps:
       - name: Checkout dokka
         uses: actions/checkout@v2
