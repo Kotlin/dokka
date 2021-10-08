@@ -78,7 +78,7 @@ class SimpleElementsTest : GfmRenderingOnlyTestBase() {
             )
         }
         val expect =
-            "//[testPage](test-page.md)\n\n~~A day may come when the courage of men fails… but it is not THIS day~~"
+            "//[testPage](test-page.md)\n\n<s>A day may come when the courage of men fails… but it is not THIS day</s>"
         CommonmarkRenderer(context).render(page)
         assertEquals(expect, renderedContent)
     }

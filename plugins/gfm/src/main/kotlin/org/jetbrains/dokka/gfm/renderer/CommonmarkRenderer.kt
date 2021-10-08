@@ -213,10 +213,11 @@ open class CommonmarkRenderer(
             append(textNode.text)
         } else if (textNode.text.isNotBlank()) {
             val decorators = decorators(textNode.style)
+            val containsStrikethrough = textNode.style.contains(TextStyle.Strikethrough)
             append(textNode.text.takeWhile { it == ' ' })
-            append(decorators)
+            if (containsStrikethrough) append("<s>") else append(decorators)
             append(textNode.text.trim().htmlEscape())
-            append(decorators.reversed())
+            if (containsStrikethrough) append("</s>") else append(decorators.reversed())
             append(textNode.text.takeLastWhile { it == ' ' })
         }
     }
