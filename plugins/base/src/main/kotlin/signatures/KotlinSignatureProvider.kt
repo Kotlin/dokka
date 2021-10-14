@@ -101,6 +101,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                 ?: emptySet()),
             sourceSets = setOf(sourceSet)
         ) {
+            keyword("actual ")
             keyword("typealias ")
             link(c.name.orEmpty(), c.dri)
             operator(" = ")
@@ -127,6 +128,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
         ) {
             annotationsBlock(c)
             c.visibility[sourceSet]?.takeIf { it !in ignoredVisibilities }?.name?.let { keyword("$it ") }
+            if (c.isExpectActual) keyword(if (sourceSet == c.expectPresentInSet) "expect " else "actual ")
             if (c is DClass) {
                val modifier = if (c.modifier[sourceSet] !in ignoredModifiers)
                         when {
@@ -217,6 +219,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
             ) {
                 annotationsBlock(p)
                 p.visibility[it].takeIf { it !in ignoredVisibilities }?.name?.let { keyword("$it ") }
+                if (p.isExpectActual) keyword(if (it == p.expectPresentInSet) "expect " else "actual ")
                 p.modifier[it].takeIf { it !in ignoredModifiers }?.let {
                         if (it is JavaModifier.Empty) KotlinModifier.Open else it
                     }?.name?.let { keyword("$it ") }
@@ -262,6 +265,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
             ) {
                 annotationsBlock(f)
                 f.visibility[it]?.takeIf { it !in ignoredVisibilities }?.name?.let { keyword("$it ") }
+                if (f.isExpectActual) keyword(if (it == f.expectPresentInSet) "expect " else "actual ")
                 f.modifier[it]?.takeIf { it !in ignoredModifiers }?.let {
                     if (it is JavaModifier.Empty) KotlinModifier.Open else it
                 }?.name?.let { keyword("$it ") }

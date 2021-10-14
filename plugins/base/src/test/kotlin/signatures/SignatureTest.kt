@@ -410,6 +410,63 @@ class SignatureTest : BaseAbstractTest() {
     }
 
     @Test
+    fun `actual fun`() {
+
+        val configuration = dokkaConfiguration {
+            moduleName = "test"
+            sourceSets {
+                sourceSet {
+                    name = "common"
+                    sourceRoots = listOf("src/main/kotlin/common/Test.kt")
+                    classpath = listOf(commonStdlibPath!!)
+                    externalDocumentationLinks = listOf(stdlibExternalDocumentationLink)
+                }
+                sourceSet {
+                    name = "jvm"
+                    dependentSourceSets = setOf(DokkaSourceSetID("test", "common"))
+                    sourceRoots = listOf("src/main/kotlin/jvm/Test.kt")
+                    classpath = listOf(commonStdlibPath!!)
+                    externalDocumentationLinks = listOf(stdlibExternalDocumentationLink)
+                }
+            }
+        }
+
+        val writerPlugin = TestOutputWriterPlugin()
+
+        testInline(
+            """
+                |/src/main/kotlin/common/Test.kt
+                |package example
+                |
+                |expect fun simpleFun(): String
+                |
+                |/src/main/kotlin/jvm/Test.kt
+                |package example
+                |
+                |actual fun simpleFun(): String = "Celebrimbor"
+                |
+            """.trimMargin(),
+            configuration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                val signatures = writerPlugin.writer.renderedContent("test/example/simple-fun.html").signature().toList()
+
+                signatures[0].match(
+                    "expect fun ", A("simpleFun"),
+                    "(): ", A("String"), Span(),
+                    ignoreSpanWithTokenStyle = true
+                )
+                signatures[1].match(
+                    "actual fun ", A("simpleFun"),
+                    "(): ", A("String"), Span(),
+                    ignoreSpanWithTokenStyle = true
+                )
+            }
+        }
+    }
+
+    @Test
     fun `type with an actual typealias`() {
 
         val configuration = dokkaConfiguration {
@@ -451,8 +508,14 @@ class SignatureTest : BaseAbstractTest() {
             pluginOverrides = listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
-                writerPlugin.writer.renderedContent("test/example/-foo/index.html").signature().toList()[1].match(
-                    "typealias ", A("Foo"), " = ", A("Bar"), Span(),
+                val signatures = writerPlugin.writer.renderedContent("test/example/-foo/index.html").signature().toList()
+
+                signatures[0].match(
+                    "expect class ", A("Foo"), Span(),
+                    ignoreSpanWithTokenStyle = true
+                )
+                signatures[1].match(
+                    "actual typealias ", A("Foo"), " = ", A("Bar"), Span(),
                         ignoreSpanWithTokenStyle = true
                 )
             }
