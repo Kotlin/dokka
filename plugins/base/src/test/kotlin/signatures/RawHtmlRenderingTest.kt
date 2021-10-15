@@ -16,9 +16,9 @@ class RawHtmlRenderingTest: AbstractRenderingTest() {
             pluginOverrides = listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
-                val content = writerPlugin.renderedDivergentContent("example/example/-html-test/test.html")
+                val content = writerPlugin.renderedSourceDepenentContent("example/example/-html-test/test.html")
                 assert(content.count() == 1)
-                assertEquals(content.select("[data-filterable-current=example/jvm]").single().rawBrief,"This is an example <!-- not visible --> of html")
+                assertEquals(content.select("[data-togglable=example/jvm]").single().rawBrief,"This is an example <!-- not visible --> of html")
 
                 val indexContent = writerPlugin.writer.contents.getValue("example/example/-html-test/index.html")
                     .let { Jsoup.parse(it) }
@@ -53,9 +53,9 @@ class RawHtmlRenderingTest: AbstractRenderingTest() {
             pluginOverrides = listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
-                val content = writerPlugin.renderedDivergentContent("example/example/-html-test/test-p.html")
+                val content = writerPlugin.renderedSourceDepenentContent("example/example/-html-test/test-p.html")
                 assert(content.count() == 1)
-                assertEquals(content.select("[data-filterable-current=example/jvm]").single().rawBrief, "This is an <b> documentation </b>")
+                assertEquals(content.select("[data-togglable=example/jvm]").single().rawBrief, "This is an <b> documentation </b>")
 
                 val indexContent = writerPlugin.writer.contents.getValue("example/example/-html-test/index.html")
                     .let { Jsoup.parse(it) }
