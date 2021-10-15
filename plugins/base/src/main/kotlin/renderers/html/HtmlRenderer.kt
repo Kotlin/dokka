@@ -211,29 +211,20 @@ open class HtmlRenderer(
     ): List<Pair<DisplaySourceSet, String>> {
         var counter = 0
         return nodes.toList().map { (sourceSet, elements) ->
-            sourceSet to createHTML(prettyPrint = false).prepareForTemplates().div {
+            val htmlContent = createHTML(prettyPrint = false).prepareForTemplates().div {
                 elements.forEach {
                     buildContentNode(it, pageContext, sourceSet.toSet())
                 }
             }.stripDiv()
-        }.groupBy(
-            Pair<DisplaySourceSet, String>::second,
-            Pair<DisplaySourceSet, String>::first
-        ).entries.flatMap { (html, sourceSets) ->
-            sourceSets.filterNot { sourceSet ->
-                sourceSet.sourceSetIDs.all.flatMap { sourceSetDependencyMap[it].orEmpty() }
-                    .any { sourceSetId -> sourceSetId in sourceSets.sourceSetIDs }
-            }.map {
-                it to createHTML(prettyPrint = false).prepareForTemplates()
-                    .div(classes = "content sourceset-depenent-content") {
-                        if (counter++ == 0) attributes["data-active"] = ""
-                        attributes["data-togglable"] = it.sourceSetIDs.merged.toString()
-                        unsafe {
-                            +html
-                        }
+            sourceSet to createHTML(prettyPrint = false).prepareForTemplates()
+                .div(classes = "content sourceset-depenent-content") {
+                    if (counter++ == 0) attributes["data-active"] = ""
+                    attributes["data-togglable"] = sourceSet.sourceSetIDs.merged.toString()
+                    unsafe {
+                        +htmlContent
                     }
-            }
-        }
+                }
+        }.sortedBy { it.first.sourceSetIDs.merged.let { it.scopeId + it.sourceSetName } }
     }
 
     override fun FlowContent.buildDivergent(node: ContentDivergentGroup, pageContext: ContentPage) {
