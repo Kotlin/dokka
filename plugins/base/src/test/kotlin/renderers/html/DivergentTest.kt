@@ -126,7 +126,7 @@ class DivergentTest : HtmlRenderingOnlyTestBase() {
         }
 
         HtmlRenderer(context).render(page)
-        renderedContent.match(Div(Div(Div(Div("ae"), Div("bd"), Div("c")))))
+        renderedContent.match(Div(Div(Div(Div("bd"), Div("c"), Div("ae")))))
     }
 
     @Test
