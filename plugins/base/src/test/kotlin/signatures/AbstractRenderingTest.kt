@@ -46,6 +46,7 @@ abstract class AbstractRenderingTest : BaseAbstractTest() {
         .let { Jsoup.parse(it) }.select("#content").single()
 
     fun TestOutputWriterPlugin.renderedDivergentContent(path: String) = renderedContent(path).select("div.divergent-group")
+    fun TestOutputWriterPlugin.renderedSourceDepenentContent(path: String) = renderedContent(path).select("div.sourceset-depenent-content")
 
     val Element.brief: String
         get() = children().select("p").text()

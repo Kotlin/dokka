@@ -6,10 +6,8 @@ import org.jetbrains.dokka.DokkaSourceSetID
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.DokkaBaseConfiguration
 import org.jetbrains.dokka.base.DokkaBaseConfiguration.Companion.defaultFooterMessage
-import org.jetbrains.dokka.base.renderers.DefaultRenderer
-import org.jetbrains.dokka.base.renderers.TabSortingStrategy
+import org.jetbrains.dokka.base.renderers.*
 import org.jetbrains.dokka.base.renderers.html.command.consumers.ImmediateResolutionTagConsumer
-import org.jetbrains.dokka.base.renderers.isImage
 import org.jetbrains.dokka.base.renderers.pageId
 import org.jetbrains.dokka.base.resolvers.anchors.SymbolAnchorHint
 import org.jetbrains.dokka.base.resolvers.local.DokkaBaseLocationProvider
@@ -23,6 +21,7 @@ import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.pages.HtmlContent
 import org.jetbrains.dokka.plugability.*
 import org.jetbrains.dokka.utilities.htmlEscape
+import org.jetbrains.kotlin.utils.addIfNotNull
 import java.net.URI
 
 open class HtmlRenderer(
@@ -169,13 +168,13 @@ open class HtmlRenderer(
         nodes: Map<DisplaySourceSet, Collection<ContentNode>>,
         pageContext: ContentPage,
         extra: PropertyContainer<ContentNode> = PropertyContainer.empty(),
-        styles: Set<Style> = emptySet()
+        styles: Set<Style> = emptySet(),
+        shouldHaveTabs: Boolean = true
     ) {
         val contents = contentsForSourceSetDependent(nodes, pageContext)
-        val shouldHaveTabs = contents.size != 1
 
-        val styles = "platform-hinted ${styles.joinToString()}" + if (shouldHaveTabs) " with-platform-tabs" else ""
-        div(styles) {
+        val divStyles = "platform-hinted ${styles.joinToString()}" + if (shouldHaveTabs) " with-platform-tabs" else ""
+        div(divStyles) {
             attributes["data-platform-hinted"] = "data-platform-hinted"
             extra.extraHtmlAttributes().forEach { attributes[it.extraKey] = it.extraValue }
             if (shouldHaveTabs) {
@@ -228,68 +227,63 @@ open class HtmlRenderer(
     }
 
     override fun FlowContent.buildDivergent(node: ContentDivergentGroup, pageContext: ContentPage) {
+        fun groupDivergentInstancesWithSourceSet(
+            instances: List<ContentDivergentInstance>,
+            sourceSet: DisplaySourceSet,
+            pageContext: ContentPage,
+            beforeTransformer: (ContentDivergentInstance, ContentPage, DisplaySourceSet) -> String,
+            afterTransformer: (ContentDivergentInstance, ContentPage, DisplaySourceSet) -> String
+        ): Map<SerializedBeforeAndAfter, List<ContentDivergentInstance>> =
+            instances.map { instance ->
+                instance to Pair(
+                    beforeTransformer(instance, pageContext, sourceSet),
+                    afterTransformer(instance, pageContext, sourceSet)
+                )
+            }.groupBy(
+                Pair<ContentDivergentInstance, SerializedBeforeAndAfter>::second,
+                Pair<ContentDivergentInstance, SerializedBeforeAndAfter>::first
+            )
 
-        val distinct =
-            node.groupDivergentInstances(pageContext,
-                beforeTransformer = { instance, _, sourceSet ->
-                    createHTML(prettyPrint = false).prepareForTemplates().div {
-                        instance.before?.let { before ->
-                            buildContentNode(before, pageContext, sourceSet)
-                        }
-                    }.stripDiv()
-                },
-                afterTransformer = { instance, _, sourceSet ->
-                    createHTML(prettyPrint = false).prepareForTemplates().div {
-                        instance.after?.let { after ->
-                            buildContentNode(after, pageContext, sourceSet)
-                        }
-                    }.stripDiv()
-                })
+        if (node.implicitlySourceSetHinted) {
+            val groupedInstancesBySourceSet = node.children.flatMap { instance ->
+                instance.sourceSets.map { sourceSet -> instance to sourceSet }
+            }.groupBy(
+                Pair<ContentDivergentInstance, DisplaySourceSet>::second,
+                Pair<ContentDivergentInstance, DisplaySourceSet>::first
+            )
 
-        distinct.forEach { distinctInstances ->
-            val groupedDivergent = distinctInstances.value.groupBy { it.second }
-
-            consumer.onTagContentUnsafe {
-                +createHTML().prepareForTemplates().div("divergent-group") {
-                    attributes["data-filterable-current"] = groupedDivergent.keys.joinToString(" ") {
-                        it.sourceSetIDs.merged.toString()
-                    }
-                    attributes["data-filterable-set"] = groupedDivergent.keys.joinToString(" ") {
-                        it.sourceSetIDs.merged.toString()
-                    }
-
-                    val divergentForPlatformDependent = groupedDivergent.map { (sourceSet, elements) ->
-                        sourceSet to elements.map { e -> e.first.divergent }
-                    }.toMap()
-
-                    val content = contentsForSourceSetDependent(divergentForPlatformDependent, pageContext)
-
-                    consumer.onTagContentUnsafe {
-                        +createHTML().prepareForTemplates().div("with-platform-tags") {
-                            consumer.onTagContentUnsafe { +distinctInstances.key.first }
-
-                            consumer.onTagContentUnsafe {
-                                +createHTML().prepareForTemplates().span("pull-right") {
-                                    if ((distinct.size > 1 && groupedDivergent.size == 1) || groupedDivergent.size == 1 || content.size == 1) {
-                                        if (node.sourceSets.size != 1) {
-                                            createPlatformTags(node, setOf(content.first().first))
-                                        }
-                                    }
+            val nodes = groupedInstancesBySourceSet.mapValues {
+                val distinct =
+                    groupDivergentInstancesWithSourceSet(it.value, it.key, pageContext,
+                        beforeTransformer = { instance, _, sourceSet ->
+                            createHTML(prettyPrint = false).prepareForTemplates().div {
+                                instance.before?.let { before ->
+                                    buildContentNode(before, pageContext, sourceSet)
                                 }
-                            }
-                        }
-                    }
-                    div {
-                        if (node.implicitlySourceSetHinted) {
-                            buildPlatformDependent(divergentForPlatformDependent, pageContext)
-                        } else {
-                            distinctInstances.value.forEach {
-                                buildContentNode(it.first.divergent, pageContext, setOf(it.second))
-                            }
-                        }
-                    }
-                    consumer.onTagContentUnsafe { +distinctInstances.key.second }
+                            }.stripDiv()
+                        },
+                        afterTransformer = { instance, _, sourceSet ->
+                            createHTML(prettyPrint = false).prepareForTemplates().div {
+                                instance.after?.let { after ->
+                                    buildContentNode(after, pageContext, sourceSet)
+                                }
+                            }.stripDiv()
+                        })
+                val contentOfSourceSet = mutableListOf<ContentNode>()
+                distinct.onEachIndexed{ i, (_, distinctInstances) ->
+                    contentOfSourceSet.addIfNotNull(distinctInstances.firstOrNull()?.before)
+                    contentOfSourceSet.addAll(distinctInstances.map { it.divergent })
+                    contentOfSourceSet.addIfNotNull(
+                        distinctInstances.firstOrNull()?.after
+                            ?: if (i != distinct.size - 1) ContentBreakLine(it.key) else null
+                    )
                 }
+                contentOfSourceSet
+            }
+            buildPlatformDependent(nodes, pageContext)
+        } else {
+            node.children.forEach {
+                buildContentNode(it.divergent, pageContext, it.sourceSets)
             }
         }
     }
@@ -416,9 +410,6 @@ open class HtmlRenderer(
                 div {
                     toRender.filter { it !is ContentLink && !it.hasStyle(ContentStyle.RowTitle) }
                         .takeIf { it.isNotEmpty() }?.let {
-                            if (ContentKind.shouldBePlatformTagged(contextNode.dci.kind) && contextNode.sourceSets.size == 1)
-                                createPlatformTags(contextNode)
-
                             div("title") {
                                 it.forEach {
                                     it.build(this, pageContext, sourceSetRestriction)
@@ -678,7 +669,7 @@ open class HtmlRenderer(
              - it is useless
              - it overflows with playground's run button
              */
-            if(!code.style.contains(ContentStyle.RunnableSample)) copyButton()
+            if (!code.style.contains(ContentStyle.RunnableSample)) copyButton()
         }
     }
 
@@ -758,13 +749,17 @@ open class HtmlRenderer(
                     script { unsafe { +"""var pathToRoot = "###";""" } }
                 }
                 // This script doesn't need to be there but it is nice to have since app in dark mode doesn't 'blink' (class is added before it is rendered)
-                script { unsafe { +"""
+                script {
+                    unsafe {
+                        +"""
                     const storage = localStorage.getItem("dokka-dark-mode")
                     const savedDarkMode = storage ? JSON.parse(storage) : false
                     if(savedDarkMode === true){
                         document.getElementsByTagName("html")[0].classList.add("theme-dark")
                     }
-                """.trimIndent() } }
+                """.trimIndent()
+                    }
+                }
                 resources.forEach {
                     when {
                         it.substringBefore('?').substringAfterLast('.') == "css" ->
@@ -840,7 +835,7 @@ open class HtmlRenderer(
                         content()
                         div(classes = "footer") {
                             span("go-to-top-icon") {
-                                a(href = "#content"){
+                                a(href = "#content") {
                                     id = "go-to-top-link"
                                 }
                             }
@@ -872,7 +867,12 @@ open class HtmlRenderer(
             templateCommand(PathToRootSubstitutionCommand(pattern = "###", default = pathToRoot)) {
                 a {
                     href = "###index.html"
-                    templateCommand(ProjectNameSubstitutionCommand(pattern = "@@@", default = context.configuration.moduleName)) {
+                    templateCommand(
+                        ProjectNameSubstitutionCommand(
+                            pattern = "@@@",
+                            default = context.configuration.moduleName
+                        )
+                    ) {
                         span {
                             text("@@@")
                         }
