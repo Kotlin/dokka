@@ -223,7 +223,12 @@ html ::-webkit-scrollbar-thumb {
     width: 100%;
 }
 
-.cover p.paragraph {
+.brief p.paragraph {
+    margin-top: 0;
+}
+
+.main-content p.paragraph,
+.sample-container {
     margin-top: 8px;
 }
 
@@ -307,7 +312,7 @@ code.paragraph {
     padding: 0;
 }
 
-.symbol, code {
+.symbol:not(.token), code {
     background-color: var(--code-background);
     align-items: center;
     box-sizing: border-box;
@@ -316,7 +321,7 @@ code.paragraph {
     font-size: var(--default-font-size);
 }
 
-.symbol, code.block {
+.symbol:not(.token), code.block {
     display: block;
     padding: 12px 32px 12px 12px;
     border-radius: 8px;
