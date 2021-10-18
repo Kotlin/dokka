@@ -6,9 +6,9 @@ Dokka's Html format requires a web server to view documentation correctly.
 This can be achieved by using the one that is build in IntelliJ or providing your own.
 If this requisite is not fulfilled Dokka with fail to load navigation pane and search bars.
 
-!!! important
-    Concepts specified below apply only to configuration of the Base Plugin (that contains Html format) 
-    and needs to be applied via pluginsConfiguration and not on the root one.
+### Important
+> Concepts specified below apply only to configuration of the Base Plugin (that contains Html format) 
+> and needs to be applied via pluginsConfiguration and not on the root one.
 
 ## Modifying assets
 
@@ -62,4 +62,4 @@ In order to override a logo and style it accordingly a css file named `logo-styl
 ```
 
 
-For build system specific instructions please visit dedicated pages: [gradle](../gradle/usage.md#Applying plugins), [maven](../maven/usage.md#Applying plugins) and [cli](../cli/usage.md#Configuration options)
+For build system specific instructions please visit dedicated pages: [gradle](../gradle/usage.md#applying-plugins), [maven](../maven/usage.md#applying-plugins) and [cli](../cli/usage.md#configuration-options)
