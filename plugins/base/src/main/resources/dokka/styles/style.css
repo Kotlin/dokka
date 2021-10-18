@@ -498,6 +498,10 @@ code.paragraph {
     display: none;
 }
 
+body {
+    height: 100%;
+}
+
 body, table {
     font-family: var(--default-font-family);
     background: var(--background-color);
@@ -506,7 +510,6 @@ body, table {
     font-size: var(--default-font-size);
     line-height: 24px;
     margin: 0;
-    height: 100%;
 }
 
 table {
