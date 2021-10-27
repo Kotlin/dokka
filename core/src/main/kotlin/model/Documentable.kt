@@ -445,7 +445,11 @@ data class Invariance<out T : Bound>(override val inner: T) : Variance<T>() {
 }
 
 data class TypeAliased(val typeAlias: Bound, val inner: Bound) : Bound()
-data class PrimitiveJavaType(val name: String) : Bound()
+
+data class PrimitiveJavaType(val name: String, override val extra: PropertyContainer<PrimitiveJavaType> = PropertyContainer.empty()) : Bound(), WithExtraProperties<PrimitiveJavaType> {
+    override fun withNewExtras(newExtras: PropertyContainer<PrimitiveJavaType>): PrimitiveJavaType =
+        copy(extra = newExtras)
+}
 
 object Void : Bound()
 
