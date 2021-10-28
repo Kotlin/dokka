@@ -197,7 +197,7 @@ open class DefaultPageCreator(
                     }),
                     children = map.entries.flatMap { entry -> entry.value.map { Pair(entry.key, it) } }
                         .groupBy({ it.second }, { it.first }).map { (classlike, platforms) ->
-                            val label = classlike.classNames?.substringBeforeLast(".") ?: classlike.toString()
+                            val label = classlike.classNames?.substringAfterLast(".") ?: classlike.toString()
                                 .also { logger.warn("No class name found for DRI $classlike") }
                             buildGroup(
                                 setOf(classlike),
