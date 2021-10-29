@@ -62,4 +62,4 @@ In order to override a logo and style it accordingly a css file named `logo-styl
 ```
 
 
-For build system specific instructions please visit dedicated pages: [gradle](../gradle/usage.md#Applying plugins), [maven](../maven/usage.md#Applying plugins) and [cli](../cli/usage.md#Configuration options)
+For build system specific instructions please visit dedicated pages: [gradle](../gradle/usage.md#applying-plugins), [maven](../maven/usage.md#applying-plugins) and [cli](../cli/usage.md#configuration-options)
