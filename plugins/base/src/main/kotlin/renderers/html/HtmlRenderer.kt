@@ -169,7 +169,7 @@ open class HtmlRenderer(
         pageContext: ContentPage,
         extra: PropertyContainer<ContentNode> = PropertyContainer.empty(),
         styles: Set<Style> = emptySet(),
-        shouldHaveTabs: Boolean = true
+        shouldHaveTabs: Boolean = shouldRenderSourceSetBubbles
     ) {
         val contents = contentsForSourceSetDependent(nodes, pageContext)
 
