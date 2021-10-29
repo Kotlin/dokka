@@ -55,31 +55,42 @@ open class CommonmarkRenderer(
         sourceSetRestriction: Set<DisplaySourceSet>?
     ) {
         buildParagraph()
-        buildListLevel(node, pageContext)
+        buildList(node, pageContext)
         buildParagraph()
     }
 
-    private fun StringBuilder.buildListItem(items: List<ContentNode>, pageContext: ContentPage) {
-        items.forEach {
-            if (it is ContentList) {
-                buildList(it, pageContext)
+    private fun StringBuilder.buildList(
+        node: ContentList,
+        pageContext: ContentPage
+    ) {
+        node.children.forEachIndexed { i, it ->
+            if (node.ordered) {
+                // number is irrelevant, but a nice touch
+                // period is more widely compatible
+                append("${i + 1}. ")
             } else {
-                append("<li>")
-                append(buildString { it.build(this, pageContext, it.sourceSets) }.trim())
-                append("</li>")
+                append("- ")
             }
-        }
-    }
 
-    private fun StringBuilder.buildListLevel(node: ContentList, pageContext: ContentPage) {
-        if (node.ordered) {
-            append("<ol>")
-            buildListItem(node.children, pageContext)
-            append("</ol>")
-        } else {
-            append("<ul>")
-            buildListItem(node.children, pageContext)
-            append("</ul>")
+            /*
+            Handle case when list item transitions to another complex node with no preceding text.
+            For example, the equivalent of:
+            <li>
+               <ul><li><ul>Item</ul></li></ul>
+            </li>
+
+            Would be:
+            -
+               - Item
+             */
+            if (it is ContentGroup && it.children.firstOrNull()?.let { it !is ContentText } == true) {
+                append("\n   ")
+            }
+
+            buildString { it.build(this, pageContext, it.sourceSets) }
+                .replace("\n", "\n   ") // apply indent
+                .trim().let { append(it) }
+            buildNewLine()
         }
     }
 
@@ -328,18 +339,18 @@ open class CommonmarkRenderer(
                 is RenderingStrategy.Write -> outputWriter.write(path, strategy.text, "")
                 is RenderingStrategy.Callback -> outputWriter.write(path, strategy.instructions(this, page), ".md")
                 is RenderingStrategy.DriLocationResolvableWrite -> outputWriter.write(
-                        path,
-                        strategy.contentToResolve { dri, sourcesets ->
-                            locationProvider.resolve(dri, sourcesets)
-                        },
-                        ""
+                    path,
+                    strategy.contentToResolve { dri, sourcesets ->
+                        locationProvider.resolve(dri, sourcesets)
+                    },
+                    ""
                 )
                 is RenderingStrategy.PageLocationResolvableWrite -> outputWriter.write(
-                        path,
-                        strategy.contentToResolve { pageToLocate, context ->
-                            locationProvider.resolve(pageToLocate, context)
-                        },
-                        ""
+                    path,
+                    strategy.contentToResolve { pageToLocate, context ->
+                        locationProvider.resolve(pageToLocate, context)
+                    },
+                    ""
                 )
                 RenderingStrategy.DoNothing -> Unit
             }
