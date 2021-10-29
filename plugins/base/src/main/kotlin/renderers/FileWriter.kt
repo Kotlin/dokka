@@ -1,6 +1,8 @@
 package org.jetbrains.dokka.base.renderers
 
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import org.jetbrains.dokka.plugability.DokkaContext
 import java.io.File
@@ -10,15 +12,12 @@ import java.nio.file.*
 
 class FileWriter(val context: DokkaContext): OutputWriter {
     private val createdFiles: MutableSet<String> = mutableSetOf()
+    private val createdFilesMutex = Mutex()
     private val jarUriPrefix = "jar:file:"
     private val root = context.configuration.outputDir
 
     override suspend fun write(path: String, text: String, ext: String) {
-        if (createdFiles.contains(path)) {
-            context.logger.error("An attempt to write ${root}/$path several times!")
-            return
-        }
-        createdFiles.add(path)
+        if (checkFileCreated(path)) return
 
         try {
             val dir = Paths.get(root.absolutePath, path.dropLastWhile { it != '/' }).toFile()
@@ -30,6 +29,15 @@ class FileWriter(val context: DokkaContext): OutputWriter {
             context.logger.error("Failed to write $this. ${e.message}")
             e.printStackTrace()
         }
+    }
+
+    private suspend fun checkFileCreated(path: String): Boolean = createdFilesMutex.withLock {
+        if (createdFiles.contains(path)) {
+            context.logger.error("An attempt to write ${root}/$path several times!")
+            return true
+        }
+        createdFiles.add(path)
+        return false
     }
 
     override suspend fun writeResources(pathFrom: String, pathTo: String) =
