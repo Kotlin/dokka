@@ -223,13 +223,13 @@ html ::-webkit-scrollbar-thumb {
     width: 100%;
 }
 
-.brief p.paragraph {
-    margin-top: 0;
-}
-
 .main-content p.paragraph,
 .sample-container {
     margin-top: 8px;
+}
+
+.brief p.paragraph {
+    margin-top: 0;
 }
 
 .divergent-group {
