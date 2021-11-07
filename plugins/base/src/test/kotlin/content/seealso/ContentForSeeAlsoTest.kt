@@ -99,13 +99,11 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
                             after {
                                 header(2) { +"See also" }
                                 group {
-                                    platformHinted {
-                                        table {
-                                            group {
-                                                //DRI should be "test//abc/#/-1/"
-                                                link { +"abc" }
-                                                group { }
-                                            }
+                                    table {
+                                        group {
+                                            //DRI should be "test//abc/#/-1/"
+                                            link { +"abc" }
+                                            group { }
                                         }
                                     }
                                 }
@@ -154,14 +152,12 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
                             after {
                                 header(2) { +"See also" }
                                 group {
-                                    platformHinted {
-                                        table {
+                                    table {
+                                        group {
+                                            //DRI should be "test//abc/#/-1/"
+                                            link { +"abc" }
                                             group {
-                                                //DRI should be "test//abc/#/-1/"
-                                                link { +"abc" }
-                                                group {
-                                                    group { +"Comment to abc" }
-                                                }
+                                                group { +"Comment to abc" }
                                             }
                                         }
                                     }
@@ -211,17 +207,18 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
                             after {
                                 header(2) { +"See also" }
                                 group {
-                                    platformHinted {
-                                        table {
-                                            group {
-                                                link {
-                                                    check {
-                                                        assertEquals("kotlin.collections/Collection///PointingToDeclaration/", (this as ContentDRILink).address.toString())
-                                                    }
-                                                    +"kotlin.collections.Collection"
+                                    table {
+                                        group {
+                                            link {
+                                                check {
+                                                    assertEquals(
+                                                        "kotlin.collections/Collection///PointingToDeclaration/",
+                                                        (this as ContentDRILink).address.toString()
+                                                    )
                                                 }
-                                                group { }
+                                                +"kotlin.collections.Collection"
                                             }
+                                            group { }
                                         }
                                     }
                                 }
@@ -270,14 +267,12 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
                             after {
                                 header(2) { +"See also" }
                                 group {
-                                    platformHinted {
-                                        table {
+                                    table {
+                                        group {
+                                            //DRI should be "test//abc/#/-1/"
+                                            link { +"kotlin.collections.Collection" }
                                             group {
-                                                //DRI should be "test//abc/#/-1/"
-                                                link { +"kotlin.collections.Collection" }
-                                                group {
-                                                    group { +"Comment to stdliblink" }
-                                                }
+                                                group { +"Comment to stdliblink" }
                                             }
                                         }
                                     }
@@ -328,20 +323,18 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
                                 )
                             }
                             after {
-                                group { comment { +"random comment"} }
+                                group { comment { +"random comment" } }
                                 unnamedTag("Author") { comment { +"pikinier20" } }
                                 unnamedTag("Since") { comment { +"0.11" } }
 
                                 header(2) { +"See also" }
                                 group {
-                                    platformHinted {
-                                        table {
+                                    table {
+                                        group {
+                                            //DRI should be "test//abc/#/-1/"
+                                            link { +"kotlin.collections.Collection" }
                                             group {
-                                                //DRI should be "test//abc/#/-1/"
-                                                link { +"kotlin.collections.Collection" }
-                                                group {
-                                                    group { +"Comment to stdliblink" }
-                                                }
+                                                group { +"Comment to stdliblink" }
                                             }
                                         }
                                     }
@@ -392,14 +385,12 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
                             after {
                                 header(2) { +"See also" }
                                 group {
-                                    platformHinted {
-                                        table {
+                                    table {
+                                        group {
+                                            //DRI should be "test//abc/#/-1/"
+                                            link { +"abc" }
                                             group {
-                                                //DRI should be "test//abc/#/-1/"
-                                                link { +"abc" }
-                                                group {
-                                                    group { +"Comment to abc2" }
-                                                }
+                                                group { +"Comment to abc2" }
                                             }
                                         }
                                     }
@@ -450,20 +441,18 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
                             after {
                                 header(2) { +"See also" }
                                 group {
-                                    platformHinted {
-                                        table {
+                                    table {
+                                        group {
+                                            //DRI should be "test//abc/#/-1/"
+                                            link { +"abc" }
                                             group {
-                                                //DRI should be "test//abc/#/-1/"
-                                                link { +"abc" }
-                                                group {
-                                                    group { +"Comment to abc1" }
-                                                }
+                                                group { +"Comment to abc1" }
                                             }
-                                            group {
-                                                //DRI should be "test//abc/#/-1/"
-                                                link { +"kotlin.collections.Collection" }
-                                                group { group {  +"Comment to collection" } }
-                                            }
+                                        }
+                                        group {
+                                            //DRI should be "test//abc/#/-1/"
+                                            link { +"kotlin.collections.Collection" }
+                                            group { group { +"Comment to collection" } }
                                         }
                                     }
                                 }

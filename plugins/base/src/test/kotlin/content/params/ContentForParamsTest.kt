@@ -451,23 +451,21 @@ class ContentForParamsTest : BaseAbstractTest() {
                             after {
                                 group { pWrapped("a normal comment") }
                                 header(2) { +"Throws" }
-                                platformHinted {
-                                    table {
+                                table {
+                                    group {
                                         group {
-                                            group {
-                                                link { +"java.lang.IllegalStateException" }
-                                            }
-                                            comment { +"if the Dialog has not yet been created (before onCreateDialog) or has been destroyed (after onDestroyView)." }
+                                            link { +"java.lang.IllegalStateException" }
                                         }
+                                        comment { +"if the Dialog has not yet been created (before onCreateDialog) or has been destroyed (after onDestroyView)." }
+                                    }
+                                    group {
                                         group {
-                                            group {
-                                                link { +"java.lang.RuntimeException" }
-                                            }
-                                            comment {
-                                                +"when "
-                                                link { +"Hash Map" }
-                                                +" doesn't contain value."
-                                            }
+                                            link { +"java.lang.RuntimeException" }
+                                        }
+                                        comment {
+                                            +"when "
+                                            link { +"Hash Map" }
+                                            +" doesn't contain value."
                                         }
                                     }
                                 }
@@ -510,39 +508,37 @@ class ContentForParamsTest : BaseAbstractTest() {
                             after {
                                 group { pWrapped("a normal comment") }
                                 header(2) { +"Throws" }
-                                platformHinted {
-                                    table {
+                                table {
+                                    group {
                                         group {
-                                            group {
-                                                link {
-                                                    check {
-                                                        assertEquals(
-                                                            "java.lang/IllegalStateException///PointingToDeclaration/",
-                                                            (this as ContentDRILink).address.toString()
-                                                        )
-                                                    }
-                                                    +"java.lang.IllegalStateException"
+                                            link {
+                                                check {
+                                                    assertEquals(
+                                                        "java.lang/IllegalStateException///PointingToDeclaration/",
+                                                        (this as ContentDRILink).address.toString()
+                                                    )
                                                 }
+                                                +"java.lang.IllegalStateException"
                                             }
-                                            comment { +"if the Dialog has not yet been created (before onCreateDialog) or has been destroyed (after onDestroyView)." }
                                         }
+                                        comment { +"if the Dialog has not yet been created (before onCreateDialog) or has been destroyed (after onDestroyView)." }
+                                    }
+                                    group {
                                         group {
-                                            group {
-                                                link {
-                                                    check {
-                                                        assertEquals(
-                                                            "java.lang/RuntimeException///PointingToDeclaration/",
-                                                            (this as ContentDRILink).address.toString()
-                                                        )
-                                                    }
-                                                    +"java.lang.RuntimeException"
+                                            link {
+                                                check {
+                                                    assertEquals(
+                                                        "java.lang/RuntimeException///PointingToDeclaration/",
+                                                        (this as ContentDRILink).address.toString()
+                                                    )
                                                 }
+                                                +"java.lang.RuntimeException"
                                             }
-                                            comment {
-                                                +"when "
-                                                link { +"Hash Map" }
-                                                +" doesn't contain value."
-                                            }
+                                        }
+                                        comment {
+                                            +"when "
+                                            link { +"Hash Map" }
+                                            +" doesn't contain value."
                                         }
                                     }
                                 }
@@ -590,44 +586,43 @@ class ContentForParamsTest : BaseAbstractTest() {
                             after {
                                 group { pWrapped("a normal comment") }
                                 header(2) { +"Throws" }
-                                platformHinted {
-                                    table {
+                                table {
+                                    group {
                                         group {
-                                            group {
-                                                link {
-                                                    check {
-                                                        assertEquals(
-                                                            "java.lang/IllegalStateException///PointingToDeclaration/",
-                                                            (this as ContentDRILink).address.toString()
-                                                        )
-                                                    }
-                                                    +"java.lang.IllegalStateException"
+                                            link {
+                                                check {
+                                                    assertEquals(
+                                                        "java.lang/IllegalStateException///PointingToDeclaration/",
+                                                        (this as ContentDRILink).address.toString()
+                                                    )
                                                 }
+                                                +"java.lang.IllegalStateException"
                                             }
-                                            comment { +"if the Dialog has not yet been created (before onCreateDialog) or has been destroyed (after onDestroyView)." }
                                         }
+                                        comment { +"if the Dialog has not yet been created (before onCreateDialog) or has been destroyed (after onDestroyView)." }
+                                    }
+                                    group {
                                         group {
-                                            group {
-                                                link {
-                                                    check {
-                                                        assertEquals(
-                                                            "java.lang/RuntimeException///PointingToDeclaration/",
-                                                            (this as ContentDRILink).address.toString()
-                                                        )
-                                                    }
-                                                    +"java.lang.RuntimeException"
+                                            link {
+                                                check {
+                                                    assertEquals(
+                                                        "java.lang/RuntimeException///PointingToDeclaration/",
+                                                        (this as ContentDRILink).address.toString()
+                                                    )
                                                 }
+                                                +"java.lang.RuntimeException"
                                             }
-                                            comment {
-                                                +"when "
-                                                link { +"Hash Map" }
-                                                +" doesn't contain value."
-                                            }
+                                        }
+                                        comment {
+                                            +"when "
+                                            link { +"Hash Map" }
+                                            +" doesn't contain value."
                                         }
                                     }
                                 }
                             }
                         }
+
                     }
                 }
             }
@@ -726,14 +721,12 @@ class ContentForParamsTest : BaseAbstractTest() {
                                 }
                                 header(2) { +"Parameters" }
                                 group {
-                                    platformHinted {
-                                        table {
-                                            group {
-                                                +"testParam"
-                                                comment {
-                                                    +"Sample description for test param that has a type of "
-                                                    link { +"String" }
-                                                }
+                                    table {
+                                        group {
+                                            +"testParam"
+                                            comment {
+                                                +"Sample description for test param that has a type of "
+                                                link { +"String" }
                                             }
                                         }
                                     }
@@ -1016,12 +1009,10 @@ class ContentForParamsTest : BaseAbstractTest() {
                                 group { pWrapped("comment to function") }
                                 header(2) { +"Parameters" }
                                 group {
-                                    platformHinted {
-                                        table {
-                                            group {
-                                                +"abc"
-                                                group { group { +"comment to param" } }
-                                            }
+                                    table {
+                                        group {
+                                            +"abc"
+                                            group { group { +"comment to param" } }
                                         }
                                     }
                                 }
@@ -1071,20 +1062,18 @@ class ContentForParamsTest : BaseAbstractTest() {
                                 group { group { group { +"comment to function" } } }
                                 header(2) { +"Parameters" }
                                 group {
-                                    platformHinted {
-                                        table {
-                                            group {
-                                                +"first"
-                                                group { group { +"comment to first param" } }
-                                            }
-                                            group {
-                                                +"second"
-                                                group { group { +"comment to second param" } }
-                                            }
-                                            group {
-                                                +"third"
-                                                group { group { +"comment to third param" } }
-                                            }
+                                    table {
+                                        group {
+                                            +"first"
+                                            group { group { +"comment to first param" } }
+                                        }
+                                        group {
+                                            +"second"
+                                            group { group { +"comment to second param" } }
+                                        }
+                                        group {
+                                            +"third"
+                                            group { group { +"comment to third param" } }
                                         }
                                     }
                                 }
@@ -1135,20 +1124,18 @@ class ContentForParamsTest : BaseAbstractTest() {
                                 group { group { group { +"comment to function" } } }
                                 header(2) { +"Parameters" }
                                 group {
-                                    platformHinted {
-                                        table {
-                                            group {
-                                                +"c"
-                                                group { group { +"comment to c param" } }
-                                            }
-                                            group {
-                                                +"b"
-                                                group { group { +"comment to b param" } }
-                                            }
-                                            group {
-                                                +"a"
-                                                group { group { +"comment to a param" } }
-                                            }
+                                    table {
+                                        group {
+                                            +"c"
+                                            group { group { +"comment to c param" } }
+                                        }
+                                        group {
+                                            +"b"
+                                            group { group { +"comment to b param" } }
+                                        }
+                                        group {
+                                            +"a"
+                                            group { group { +"comment to a param" } }
                                         }
                                     }
                                 }
@@ -1196,20 +1183,18 @@ class ContentForParamsTest : BaseAbstractTest() {
                             after {
                                 header(2) { +"Parameters" }
                                 group {
-                                    platformHinted {
-                                        table {
-                                            group {
-                                                +"first"
-                                                group { group { +"comment to first param" } }
-                                            }
-                                            group {
-                                                +"second"
-                                                group { group { +"comment to second param" } }
-                                            }
-                                            group {
-                                                +"third"
-                                                group { group { +"comment to third param" } }
-                                            }
+                                    table {
+                                        group {
+                                            +"first"
+                                            group { group { +"comment to first param" } }
+                                        }
+                                        group {
+                                            +"second"
+                                            group { group { +"comment to second param" } }
+                                        }
+                                        group {
+                                            +"third"
+                                            group { group { +"comment to third param" } }
                                         }
                                     }
                                 }
@@ -1261,17 +1246,15 @@ class ContentForParamsTest : BaseAbstractTest() {
                             after {
                                 group { pWrapped("comment to function") }
                                 group {
-                                    header(4){ +"Receiver" }
+                                    header(4) { +"Receiver" }
                                     pWrapped("comment to receiver")
                                 }
                                 header(2) { +"Parameters" }
                                 group {
-                                    platformHinted {
-                                        table {
-                                            group {
-                                                +"abc"
-                                                group { group { +"comment to param" } }
-                                            }
+                                    table {
+                                        group {
+                                            +"abc"
+                                            group { group { +"comment to param" } }
                                         }
                                     }
                                 }
@@ -1320,16 +1303,14 @@ class ContentForParamsTest : BaseAbstractTest() {
                                 group { group { group { +"comment to function" } } }
                                 header(2) { +"Parameters" }
                                 group {
-                                    platformHinted {
-                                        table {
-                                            group {
-                                                +"first"
-                                                group { group { +"comment to first param" } }
-                                            }
-                                            group {
-                                                +"third"
-                                                group { group { +"comment to third param" } }
-                                            }
+                                    table {
+                                        group {
+                                            +"first"
+                                            group { group { +"comment to first param" } }
+                                        }
+                                        group {
+                                            +"third"
+                                            group { group { +"comment to third param" } }
                                         }
                                     }
                                 }
@@ -1384,20 +1365,18 @@ class ContentForParamsTest : BaseAbstractTest() {
                                 header(2) { +"Parameters" }
 
                                 group {
-                                    platformHinted {
-                                        table {
-                                            group {
-                                                +"first"
-                                                group { group { +"comment to first param" } }
-                                            }
-                                            group {
-                                                +"second"
-                                                group { group { +"comment to second param" } }
-                                            }
-                                            group {
-                                                +"third"
-                                                group { group { +"comment to third param" } }
-                                            }
+                                    table {
+                                        group {
+                                            +"first"
+                                            group { group { +"comment to first param" } }
+                                        }
+                                        group {
+                                            +"second"
+                                            group { group { +"comment to second param" } }
+                                        }
+                                        group {
+                                            +"third"
+                                            group { group { +"comment to third param" } }
                                         }
                                     }
                                 }
