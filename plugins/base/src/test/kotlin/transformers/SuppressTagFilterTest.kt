@@ -2,6 +2,7 @@ package transformers
 
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.model.DEnum
+import org.jetbrains.dokka.model.DProperty
 import org.jetbrains.dokka.model.WithCompanion
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -84,6 +85,26 @@ class SuppressTagFilterTest : BaseAbstractTest() {
             preMergeDocumentablesTransformationStage = { modules ->
                 assertNull(modules.flatMap { it.packages }.flatMap { it.functions }
                     .firstOrNull { it.name == "suppressedFun" })
+            }
+        }
+    }
+
+    @Test
+    fun `should filter setter`() {
+        testInline(
+            """
+            |/src/suppressed/Suppressed.kt
+            |var property: Int
+            |/** @suppress */
+            |private set
+            """.trimIndent(), configuration
+        ) {
+            preMergeDocumentablesTransformationStage = { modules ->
+                val prop = modules.flatMap { it.packages }.flatMap { it.properties }
+                    .firstOrNull { it.name == "property" } as? DProperty
+                assertNotNull(prop)
+                assertNotNull(prop.getter)
+                assertNull(prop.setter)
             }
         }
     }

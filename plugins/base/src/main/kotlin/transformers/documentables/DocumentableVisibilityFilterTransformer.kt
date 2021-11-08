@@ -83,6 +83,7 @@ class DocumentableVisibilityFilterTransformer(val context: DokkaContext) : PreMe
 
         private fun <T : WithVisibility> alwaysTrue(a: T, p: DokkaSourceSet) = true
         private fun <T : WithVisibility> alwaysFalse(a: T, p: DokkaSourceSet) = false
+        private fun <T> alwaysNoModify(a: T, sourceSets: Set<DokkaSourceSet>) = Pair(false, a)
 
         private fun WithVisibility.visibilityForPlatform(data: DokkaSourceSet): Visibility? = visibility[data]
 
@@ -99,13 +100,18 @@ class DocumentableVisibilityFilterTransformer(val context: DokkaContext) : PreMe
         private fun <T> List<T>.transform(
             additionalCondition: (T, DokkaSourceSet) -> Boolean = ::alwaysTrue,
             alternativeCondition: (T, DokkaSourceSet) -> Boolean = ::alwaysFalse,
-            recreate: (T, Set<DokkaSourceSet>) -> T
+            modify: (T, Set<DokkaSourceSet>) -> Pair<Boolean, T> = ::alwaysNoModify,
+            recreate: (T, Set<DokkaSourceSet>) -> T,
         ): Pair<Boolean, List<T>> where T : Documentable, T : WithVisibility {
             var changed = false
             val values = mapNotNull { t ->
                 val filteredPlatforms = t.filterPlatforms(additionalCondition, alternativeCondition)
                 when (filteredPlatforms.size) {
-                    t.visibility.size -> t
+                    t.visibility.size -> {
+                        val (wasChanged, element) = modify(t, filteredPlatforms)
+                        changed = changed || wasChanged
+                        element
+                    }
                     0 -> {
                         changed = true
                         null
@@ -142,9 +148,37 @@ class DocumentableVisibilityFilterTransformer(val context: DokkaContext) : PreMe
 
         private fun filterProperties(
             properties: List<DProperty>,
-            additionalCondition: (DProperty, DokkaSourceSet) -> Boolean = ::alwaysTrue
-        ): Pair<Boolean, List<DProperty>> =
-            properties.transform(additionalCondition, ::hasVisibleAccessorsForPlatform) { original, filteredPlatforms ->
+            additionalCondition: (DProperty, DokkaSourceSet) -> Boolean = ::alwaysTrue,
+            additionalConditionAccessors: (DFunction, DokkaSourceSet) -> Boolean = ::alwaysTrue
+        ): Pair<Boolean, List<DProperty>> {
+
+            val modifier: (DProperty, Set<DokkaSourceSet>) -> Pair<Boolean, DProperty> =
+                { original, filteredPlatforms ->
+                    val setter = original.setter?.let { filterFunctions(listOf(it), additionalConditionAccessors) }
+                    val getter = original.getter?.let { filterFunctions(listOf(it), additionalConditionAccessors) }
+
+                    val modified = setter?.first == true || getter?.first == true
+
+                    Pair(modified,
+                        if (modified)
+                            with(original) {
+                                copy(
+                                    setter = setter?.second?.firstOrNull(),
+                                    getter = getter?.second?.firstOrNull()
+                                )
+                            }
+                        else original
+                    )
+                }
+
+            return properties.transform(
+                additionalCondition,
+                ::hasVisibleAccessorsForPlatform,
+                modifier
+            ) { original, filteredPlatforms ->
+                val setter = original.setter?.let { filterFunctions(listOf(it), additionalConditionAccessors) }
+                val getter = original.getter?.let { filterFunctions(listOf(it), additionalConditionAccessors) }
+
                 with(original) {
                     copy(
                         documentation = documentation.filtered(filteredPlatforms),
@@ -153,9 +187,12 @@ class DocumentableVisibilityFilterTransformer(val context: DokkaContext) : PreMe
                         visibility = visibility.filtered(filteredPlatforms),
                         sourceSets = filteredPlatforms,
                         generics = generics.mapNotNull { it.filter(filteredPlatforms) },
+                        setter = setter?.second?.firstOrNull(),
+                        getter = getter?.second?.firstOrNull()
                     )
                 }
             }
+        }
 
         private fun filterEnumEntries(entries: List<DEnumEntry>, filteredPlatforms: Set<DokkaSourceSet>): Pair<Boolean, List<DEnumEntry>> =
             entries.foldRight(Pair(false, emptyList())) { entry, acc ->
