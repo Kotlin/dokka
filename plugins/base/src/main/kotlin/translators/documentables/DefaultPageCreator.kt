@@ -369,22 +369,37 @@ open class DefaultPageCreator(
         sourceSets.firstOrNull { it in this.keys }.let { this[it] }
 
     protected open fun contentForComments(
-        d: Documentable
+        d: Documentable,
+        isPlatformHintedContent: Boolean = true
     ): List<ContentNode> {
         val tags = d.groupedTags
-        val platforms = d.sourceSets
+
+        fun DocumentableContentBuilder.buildContent(
+            platforms: Set<DokkaSourceSet>,
+            contentBuilder: DocumentableContentBuilder.() -> Unit
+        ) = if (isPlatformHintedContent)
+            sourceSetDependentHint(
+                sourceSets = platforms,
+                kind = ContentKind.SourceSetDependentHint,
+                block = contentBuilder
+            )
+        else
+            contentBuilder()
 
         fun DocumentableContentBuilder.contentForParams() {
-            if (tags.isNotEmptyForTag<Param>() && d !is DProperty) {
-                header(2, "Parameters", kind = ContentKind.Parameters)
+            if (tags.isNotEmptyForTag<Param>()) {
+                val params = tags.withTypeNamed<Param>()
+                val availablePlatforms = params.values.flatMap { it.keys }.toSet()
+
+                header(2, "Parameters", kind = ContentKind.Parameters, sourceSets = availablePlatforms)
                 group(
                     extra = mainExtra + SimpleAttr.header("Parameters"),
-                    styles = setOf(ContentStyle.WithExtraAttributes)
+                    styles = setOf(ContentStyle.WithExtraAttributes),
+                    sourceSets = availablePlatforms
                 ) {
-                    sourceSetDependentHint(sourceSets = platforms.toSet(), kind = ContentKind.SourceSetDependentHint) {
-                        val params = tags.withTypeNamed<Param>()
-                        table(kind = ContentKind.Parameters) {
-                            platforms.forEach { platform ->
+                    buildContent(availablePlatforms) {
+                        table(kind = ContentKind.Parameters, sourceSets = availablePlatforms) {
+                            availablePlatforms.forEach { platform ->
                                 val possibleFallbacks = d.getPossibleFallbackSourcesets(platform)
                                 params.mapNotNull { (_, param) ->
                                     (param[platform] ?: param.fallback(possibleFallbacks))?.let {
@@ -407,22 +422,25 @@ open class DefaultPageCreator(
 
         fun DocumentableContentBuilder.contentForSeeAlso() {
             if (tags.isNotEmptyForTag<See>()) {
-                header(2, "See also", kind = ContentKind.Comment)
+                val seeAlsoTags = tags.withTypeNamed<See>()
+                val availablePlatforms = seeAlsoTags.values.flatMap { it.keys }.toSet()
+
+                header(2, "See also", kind = ContentKind.Comment, sourceSets = availablePlatforms)
                 group(
                     extra = mainExtra + SimpleAttr.header("See also"),
-                    styles = setOf(ContentStyle.WithExtraAttributes)
+                    styles = setOf(ContentStyle.WithExtraAttributes),
+                    sourceSets = availablePlatforms
                 ) {
-                    sourceSetDependentHint(sourceSets = platforms.toSet(), kind = ContentKind.SourceSetDependentHint) {
-                        val seeAlsoTags = tags.withTypeNamed<See>()
+                    buildContent(availablePlatforms) {
                         table(kind = ContentKind.Sample) {
-                            platforms.forEach { platform ->
+                            availablePlatforms.forEach { platform ->
                                 val possibleFallbacks = d.getPossibleFallbackSourcesets(platform)
                                 seeAlsoTags.forEach { (_, see) ->
                                     (see[platform] ?: see.fallback(possibleFallbacks))?.let {
                                         row(
                                             sourceSets = setOf(platform),
                                             kind = ContentKind.Comment,
-                                            styles = this@sourceSetDependentHint.mainStyles,
+                                            styles = this@group.mainStyles,
                                         ) {
                                             if (it.address != null) link(
                                                 it.name,
@@ -444,9 +462,11 @@ open class DefaultPageCreator(
         fun DocumentableContentBuilder.contentForThrows() {
             val throws = tags.withTypeNamed<Throws>()
             if (throws.isNotEmpty()) {
-                header(2, "Throws")
-                sourceSetDependentHint(sourceSets = platforms.toSet(), kind = ContentKind.SourceSetDependentHint) {
-                    platforms.forEach { sourceset ->
+                val availablePlatforms = throws.values.flatMap { it.keys }.toSet()
+
+                header(2, "Throws", sourceSets = availablePlatforms)
+                buildContent(availablePlatforms) {
+                    availablePlatforms.forEach { sourceset ->
                         table(kind = ContentKind.Main, sourceSets = setOf(sourceset)) {
                             throws.entries.forEach { entry ->
                                 entry.value[sourceset]?.let { throws ->
@@ -469,13 +489,15 @@ open class DefaultPageCreator(
         fun DocumentableContentBuilder.contentForSamples() {
             val samples = tags.withTypeNamed<Sample>()
             if (samples.isNotEmpty()) {
-                header(2, "Samples", kind = ContentKind.Sample)
+                val availablePlatforms = samples.values.flatMap { it.keys }.toSet()
+                header(2, "Samples", kind = ContentKind.Sample, sourceSets = availablePlatforms)
                 group(
                     extra = mainExtra + SimpleAttr.header("Samples"),
-                    styles = emptySet()
+                    styles = emptySet(),
+                    sourceSets = availablePlatforms
                 ) {
-                    sourceSetDependentHint(sourceSets = platforms.toSet(), kind = ContentKind.SourceSetDependentHint) {
-                        platforms.map { platformData ->
+                    buildContent(availablePlatforms) {
+                        availablePlatforms.map { platformData ->
                             val content = samples.filter { it.value.isEmpty() || platformData in it.value }
                             group(
                                 sourceSets = setOf(platformData),
@@ -496,7 +518,8 @@ open class DefaultPageCreator(
             if (tags.isNotEmpty()) {
                 contentForSamples()
                 contentForSeeAlso()
-                contentForParams()
+                if (d !is DProperty)
+                    contentForParams()
                 contentForThrows()
             }
         }.children
@@ -561,7 +584,7 @@ open class DefaultPageCreator(
                 }
                 after {
                     +contentForDescription(d)
-                    +contentForComments(d)
+                    +contentForComments(d, isPlatformHintedContent = false)
                 }
             }
         }
