@@ -56,6 +56,7 @@ import org.jetbrains.kotlin.psi.psiUtil.getChildOfType
 import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.utils.KotlinExceptionWithAttachments
 import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstance
+import org.jetbrains.kotlin.utils.addToStdlib.ifNotEmpty
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 import java.io.File
 
@@ -403,11 +404,15 @@ class DefaultPsiToDocumentableTranslator(
                         (psi.annotations.toList()
                             .toListOfAnnotations() + it.toListOfAnnotations()).toSourceSetDependent()
                             .toAnnotations(),
-                        ObviousMember.takeIf { inheritedFrom != null && inheritedFrom.isObvious }
+                        ObviousMember.takeIf { inheritedFrom != null && inheritedFrom.isObvious },
+                        psi.throwsList.toDriList().takeIf { it.isNotEmpty() }
+                            ?.let { CheckedExceptions(it.toSourceSetDependent()) }
                     )
                 }
             )
         }
+
+        private fun PsiReferenceList.toDriList() = referenceElements.mapNotNull { it?.resolve()?.let { DRI.from(it) } }
 
         private fun PsiModifierListOwner.additionalExtras() = listOfNotNull(
             ExtraModifiers.JavaOnlyModifiers.Static.takeIf { hasModifier(JvmModifier.STATIC) },

@@ -732,6 +732,26 @@ public abstract interface class org/jetbrains/dokka/model/Callable : org/jetbrai
 	public abstract fun getReceiver ()Lorg/jetbrains/dokka/model/DParameter;
 }
 
+public final class org/jetbrains/dokka/model/CheckedExceptions : org/jetbrains/dokka/model/properties/ExtraProperty, org/jetbrains/dokka/model/properties/ExtraProperty$Key {
+	public static final field Companion Lorg/jetbrains/dokka/model/CheckedExceptions$Companion;
+	public fun <init> (Ljava/util/Map;)V
+	public final fun component1 ()Ljava/util/Map;
+	public final fun copy (Ljava/util/Map;)Lorg/jetbrains/dokka/model/CheckedExceptions;
+	public static synthetic fun copy$default (Lorg/jetbrains/dokka/model/CheckedExceptions;Ljava/util/Map;ILjava/lang/Object;)Lorg/jetbrains/dokka/model/CheckedExceptions;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getExceptions ()Ljava/util/Map;
+	public fun getKey ()Lorg/jetbrains/dokka/model/properties/ExtraProperty$Key;
+	public fun hashCode ()I
+	public synthetic fun mergeStrategyFor (Ljava/lang/Object;Ljava/lang/Object;)Lorg/jetbrains/dokka/model/properties/MergeStrategy;
+	public fun mergeStrategyFor (Lorg/jetbrains/dokka/model/ObviousMember;Lorg/jetbrains/dokka/model/ObviousMember;)Lorg/jetbrains/dokka/model/properties/MergeStrategy;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/jetbrains/dokka/model/CheckedExceptions$Companion : org/jetbrains/dokka/model/properties/ExtraProperty$Key {
+	public synthetic fun mergeStrategyFor (Ljava/lang/Object;Ljava/lang/Object;)Lorg/jetbrains/dokka/model/properties/MergeStrategy;
+	public fun mergeStrategyFor (Lorg/jetbrains/dokka/model/CheckedExceptions;Lorg/jetbrains/dokka/model/CheckedExceptions;)Lorg/jetbrains/dokka/model/properties/MergeStrategy$Replace;
+}
+
 public abstract interface class org/jetbrains/dokka/model/ClassKind {
 }
 
