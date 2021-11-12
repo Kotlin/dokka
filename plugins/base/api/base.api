@@ -1307,7 +1307,8 @@ public class org/jetbrains/dokka/base/translators/documentables/DefaultPageCreat
 	public fun <init> (Lorg/jetbrains/dokka/base/DokkaBaseConfiguration;Lorg/jetbrains/dokka/base/transformers/pages/comments/CommentsToContentConverter;Lorg/jetbrains/dokka/base/signatures/SignatureProvider;Lorg/jetbrains/dokka/utilities/DokkaLogger;)V
 	protected fun contentForBrief (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Lorg/jetbrains/dokka/model/Documentable;)V
 	protected fun contentForClasslike (Lorg/jetbrains/dokka/model/DClasslike;)Lorg/jetbrains/dokka/pages/ContentGroup;
-	protected fun contentForComments (Lorg/jetbrains/dokka/model/Documentable;)Ljava/util/List;
+	protected fun contentForComments (Lorg/jetbrains/dokka/model/Documentable;Z)Ljava/util/List;
+	public static synthetic fun contentForComments$default (Lorg/jetbrains/dokka/base/translators/documentables/DefaultPageCreator;Lorg/jetbrains/dokka/model/Documentable;ZILjava/lang/Object;)Ljava/util/List;
 	protected fun contentForDescription (Lorg/jetbrains/dokka/model/Documentable;)Ljava/util/List;
 	protected fun contentForEnumEntry (Lorg/jetbrains/dokka/model/DEnumEntry;)Lorg/jetbrains/dokka/pages/ContentGroup;
 	protected fun contentForFunction (Lorg/jetbrains/dokka/model/DFunction;)Lorg/jetbrains/dokka/pages/ContentGroup;
