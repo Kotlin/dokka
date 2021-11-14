@@ -120,19 +120,20 @@ open class HtmlRenderer(
         if (shouldRenderSourceSetBubbles && page is ContentPage) {
             div(classes = "filter-section") {
                 id = "filter-section"
-                page.content.withDescendants().flatMap { it.sourceSets }.distinct().forEach {
-                    button(classes = "platform-tag platform-selector") {
-                        attributes["data-active"] = ""
-                        attributes["data-filter"] = it.sourceSetIDs.merged.toString()
-                        when (it.platform.key) {
-                            "common" -> classes = classes + "common-like"
-                            "native" -> classes = classes + "native-like"
-                            "jvm" -> classes = classes + "jvm-like"
-                            "js" -> classes = classes + "js-like"
+                page.content.withDescendants().flatMap { it.sourceSets }.distinct()
+                    .sortedBy { it.comparableKey }.forEach {
+                        button(classes = "platform-tag platform-selector") {
+                            attributes["data-active"] = ""
+                            attributes["data-filter"] = it.sourceSetIDs.merged.toString()
+                            when (it.platform.key) {
+                                "common" -> classes = classes + "common-like"
+                                "native" -> classes = classes + "native-like"
+                                "jvm" -> classes = classes + "jvm-like"
+                                "js" -> classes = classes + "js-like"
+                            }
+                            text(it.name)
                         }
-                        text(it.name)
                     }
-                }
             }
         }
     }
@@ -223,7 +224,7 @@ open class HtmlRenderer(
                         +htmlContent
                     }
                 }
-        }.sortedBy { it.first.sourceSetIDs.merged.let { it.scopeId + it.sourceSetName } }
+        }.sortedBy { it.first.comparableKey }
     }
 
     override fun FlowContent.buildDivergent(node: ContentDivergentGroup, pageContext: ContentPage) {
@@ -912,3 +913,6 @@ private fun PropertyContainer<ContentNode>.extraHtmlAttributes() = allOfType<Sim
 
 private val ContentNode.sourceSetsFilters: String
     get() = sourceSets.sourceSetIDs.joinToString(" ") { it.toString() }
+
+private val DisplaySourceSet.comparableKey
+        get() = sourceSetIDs.merged.let { it.scopeId + it.sourceSetName }
