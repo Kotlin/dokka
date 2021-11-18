@@ -13,8 +13,8 @@ class MultiModule1IntegrationTest(override val versions: BuildVersions) : Abstra
         @get:JvmStatic
         @get:Parameterized.Parameters(name = "{0}")
         val versions = BuildVersions.permutations(
-            gradleVersions = listOf("6.6", "6.1.1"),
-            kotlinVersions = listOf("1.4.0")
+            gradleVersions = listOf("6.6", "6.6", "6.1.1"),
+            kotlinVersions = listOf("1.6.0", "1.4.0")
         )
     }
 
