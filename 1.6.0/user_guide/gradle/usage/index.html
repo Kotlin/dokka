@@ -684,7 +684,7 @@
 <p>The preferred way is to use <code>plugins</code> block. </p>
 <p>build.gradle.kts:
 <div class="highlight"><pre><span></span><code><span class="n">plugins</span> <span class="p">{</span>
-    <span class="n">id</span><span class="p">(</span><span class="s">&quot;org.jetbrains.dokka&quot;</span><span class="p">)</span> <span class="n">version</span> <span class="s">&quot;1.5.30&quot;</span>
+    <span class="n">id</span><span class="p">(</span><span class="s">&quot;org.jetbrains.dokka&quot;</span><span class="p">)</span> <span class="n">version</span> <span class="s">&quot;1.6.0&quot;</span>
 <span class="p">}</span>
 
 <span class="n">repositories</span> <span class="p">{</span>
@@ -886,13 +886,13 @@ and configured automatically although test source sets are suppressed</p>
 <h2 id="applying-plugins">Applying plugins<a class="headerlink" href="#applying-plugins" title="Permanent link">&para;</a></h2>
 <p>Dokka plugin creates Gradle configuration for each output format in the form of <code>dokka${format}Plugin</code> (or <code>dokka${format}PartialPlugin</code> for multi-module tasks) :</p>
 <div class="highlight"><pre><span></span><code><span class="n">dependencies</span> <span class="p">{</span>
-    <span class="n">dokkaHtmlPlugin</span><span class="p">(</span><span class="s">&quot;org.jetbrains.dokka:kotlin-as-java-plugin:1.5.30&quot;</span><span class="p">)</span>
+    <span class="n">dokkaHtmlPlugin</span><span class="p">(</span><span class="s">&quot;org.jetbrains.dokka:kotlin-as-java-plugin:1.6.0&quot;</span><span class="p">)</span>
 <span class="p">}</span>
 </code></pre></div>
 <p>You can also create a custom Dokka task and add plugins directly inside:</p>
 <div class="highlight"><pre><span></span><code><span class="kd">val</span> <span class="nv">customDokkaTask</span> <span class="k">by</span> <span class="n">creating</span><span class="p">(</span><span class="n">DokkaTask</span><span class="o">::</span><span class="n">class</span><span class="p">)</span> <span class="p">{</span>
     <span class="n">dependencies</span> <span class="p">{</span>
-        <span class="n">plugins</span><span class="p">(</span><span class="s">&quot;org.jetbrains.dokka:kotlin-as-java-plugin:1.5.30&quot;</span><span class="p">)</span>
+        <span class="n">plugins</span><span class="p">(</span><span class="s">&quot;org.jetbrains.dokka:kotlin-as-java-plugin:1.6.0&quot;</span><span class="p">)</span>
     <span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
@@ -917,7 +917,7 @@ For example, you can add <code>DokkaBase</code> to gain access to aforementioned
 <div class="highlight"><pre><span></span><code><span class="n">buildscript</span> <span class="p">{</span>
     <span class="n">dependencies</span> <span class="p">{</span>
         <span class="c1">// classpath(&quot;&lt;plugin coordinates&gt;:&lt;plugin version&gt;&quot;)</span>
-        <span class="n">classpath</span><span class="p">(</span><span class="s">&quot;org.jetbrains.dokka:dokka-base:1.5.30&quot;</span><span class="p">)</span>
+        <span class="n">classpath</span><span class="p">(</span><span class="s">&quot;org.jetbrains.dokka:dokka-base:1.6.0&quot;</span><span class="p">)</span>
     <span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
