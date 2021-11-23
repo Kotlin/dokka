@@ -5,6 +5,7 @@ import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.pages.ContentDivergentGroup
 import org.junit.jupiter.api.Test
 import renderers.testPage
+import utils.Br
 import utils.match
 import kotlin.test.assertEquals
 
@@ -184,7 +185,7 @@ class DivergentTest : HtmlRenderingOnlyTestBase() {
 
         HtmlRenderer(context).render(page)
         val content = renderedContent
-        content.select("[data-togglable=DEFAULT/native]").single().match("aa+ee+")
+        content.select("[data-togglable=DEFAULT/native]").single().match("aa+", Br, "ee+")
         content.select("[data-togglable=DEFAULT/js]").single().match("bdbd+")
         content.select("[data-togglable=DEFAULT/jvm]").single().match("c")
     }
@@ -306,6 +307,6 @@ class DivergentTest : HtmlRenderingOnlyTestBase() {
         }
 
         HtmlRenderer(context).render(page)
-        renderedContent.select("[data-togglable=DEFAULT/native]").single().match("a-aab+b-bab+")
+        renderedContent.select("[data-togglable=DEFAULT/native]").single().match("a-aab+", Br, "b-bab+")
     }
 }
