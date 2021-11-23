@@ -605,8 +605,8 @@ Therefore, users of the documentation can view different versions of the documen
 </ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-</div>
 <p>You should enable the plugin in all submodules to render a versions navigation on all pages.</p>
+</div>
 <p>Above configuration should be placed under the <code>pluginsConfiguration</code> block specific for your build tool.
 Configuration object is named <code>org.jetbrains.dokka.versioning.VersioningConfiguration</code>.</p>
 <h3 id="directory-structure-required">Directory structure required<a class="headerlink" href="#directory-structure-required" title="Permanent link">&para;</a></h3>
@@ -624,6 +624,10 @@ Configuration object is named <code>org.jetbrains.dokka.versioning.VersioningCon
 together.</p>
 <p><code>olderVersions</code> directories need to contain a past Dokka output.  For the above example, you would pass 
 <code>older_versions_dir/1.4.10, older_versions_dir/1.4.20</code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The previously documentations should be generated with the versioning plugin.</p>
+</div>
 <h3 id="example">Example<a class="headerlink" href="#example" title="Permanent link">&para;</a></h3>
 <p>Versioning plugin in gradle can be configured in 2 ways: </p>
 <ul>
@@ -652,6 +656,7 @@ together.</p>
 <div class="highlight"><pre><span></span><code><span class="n">pluginsMapConfiguration</span><span class="p">.</span><span class="na">set</span><span class="p">(</span><span class="n">mapOf</span><span class="p">(</span><span class="s">&quot;org.jetbrains.dokka.versioning.VersioningPlugin&quot;</span> <span class="n">to</span> <span class="s">&quot;&quot;&quot;{ &quot;version&quot;: &quot;1.0&quot; }&quot;&quot;&quot;</span><span class="p">))</span>
 </code></pre></div>
 <p>Please consult the <a href="../../gradle/usage/#applying-plugins">Gradle documentation</a> for more information about configuring Dokka with this build tool.</p>
+<p>Please see the <a href="https://github.com/Kotlin/dokka/tree/master/examples/gradle/dokka-versioning-multimodule-example">Dokka Gradle versioning multi modules example project</a>.</p>
                 
               
               
