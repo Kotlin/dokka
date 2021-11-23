@@ -16,7 +16,7 @@ Versioning can be configured using:
   By default, Dokka renders a versions navigation on all pages.
 
 !!! note
-  You should enable the plugin in all submodules to render a versions navigation on all pages.
+    You should enable the plugin in all submodules to render a versions navigation on all pages.
 
 Above configuration should be placed under the `pluginsConfiguration` block specific for your build tool.
 Configuration object is named `org.jetbrains.dokka.versioning.VersioningConfiguration`.
@@ -43,6 +43,9 @@ together.
 
 `olderVersions` directories need to contain a past Dokka output.  For the above example, you would pass 
 `older_versions_dir/1.4.10, older_versions_dir/1.4.20`.
+
+!!! note
+    The previously documentations should be generated with the versioning plugin.
 
 ### Example
 
@@ -77,3 +80,5 @@ pluginsMapConfiguration.set(mapOf("org.jetbrains.dokka.versioning.VersioningPlug
 ```
 
 Please consult the [Gradle documentation](../gradle/usage.md#applying-plugins) for more information about configuring Dokka with this build tool.
+
+Please see the [Dokka Gradle versioning multi modules example project](https://github.com/Kotlin/dokka/tree/master/examples/gradle/dokka-versioning-multimodule-example).
