@@ -30,6 +30,7 @@ class B(vararg matchers: Any) : Tag("b", *matchers)
 class I(vararg matchers: Any) : Tag("i", *matchers)
 class STRIKE(vararg matchers: Any) : Tag("strike", *matchers)
 object Wbr : Tag("wbr")
+object Br : Tag("br")
 private fun Any.accepts(n: Node, ignoreSpan:Boolean = true) {
     when (this) {
         is String -> assert(n is TextNode && n.text().trim() == this.trim()) { "\"$this\" expected but found: $n" }

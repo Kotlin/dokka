@@ -278,6 +278,8 @@ open class HtmlRenderer(
                         distinctInstances.firstOrNull()?.after
                             ?: if (i != distinct.size - 1) ContentBreakLine(it.key) else null
                     )
+                    if(node.dci.kind == ContentKind.Main && i != distinct.size - 1)
+                        contentOfSourceSet.add(ContentBreakLine(it.key))
                 }
                 contentOfSourceSet
             }
