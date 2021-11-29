@@ -2,16 +2,11 @@ const {join, resolve} = require('path');
 
 const ringUiWebpackConfig = require('@jetbrains/ring-ui/webpack.config');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const TerserPlugin = require("terser-webpack-plugin");
 
 const pkgConfig = require('./package.json').config;
 
 const componentsPath = join(__dirname, pkgConfig.components);
-
-// Patch @jetbrains/ring-ui svg-sprite-loader config
-ringUiWebpackConfig.loaders.svgInlineLoader.include.push(
-  require('@jetbrains/logos'),
-  require('@jetbrains/icons')
-);
 
 const webpackConfig = () => ({
   entry: `${componentsPath}/root.tsx`,
@@ -53,6 +48,12 @@ const webpackConfig = () => ({
             }
           }
         ]
+      },
+      {
+        test: /\.svg$/,
+        loader: require.resolve('svg-inline-loader'),
+        options: {removeSVGTagAttrs: false},
+        include: [require('@jetbrains/icons')]
       }
     ]
   },
@@ -64,6 +65,12 @@ const webpackConfig = () => ({
       chunkFilename: '[id].css',
     }),
   ],
+  optimization: {
+      minimize: true,
+      minimizer: [new TerserPlugin({
+        extractComments: false,
+      })],
+  },
   output: {
     path: __dirname + '/dist/'
   }

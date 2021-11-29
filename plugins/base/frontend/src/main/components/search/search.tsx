@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Select, List } from '@jetbrains/ring-ui';
-import '@jetbrains/ring-ui/components/input-size/input-size.scss';
+import List from '@jetbrains/ring-ui/components/list/list';
+import Select from '@jetbrains/ring-ui/components/select/select';
+import '@jetbrains/ring-ui/components/input-size/input-size.css';
 import './search.scss';
 import { IWindow, Option, Props } from "./types";
 import { DokkaSearchAnchor } from "./dokkaSearchAnchor";

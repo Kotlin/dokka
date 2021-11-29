@@ -1,4 +1,4 @@
-import {Select} from "@jetbrains/ring-ui";
+import Select from '@jetbrains/ring-ui/components/select/select';
 import {Option, OptionWithHighlightComponent, OptionWithSearchResult} from "./types";
 import fuzzyHighlight from '@jetbrains/ring-ui/components/global/fuzzy-highlight.js'
 import React from "react";
