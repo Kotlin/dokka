@@ -787,7 +787,10 @@ open class HtmlRenderer(
                                     type = ScriptType.textJavaScript,
                                     src = "###$it"
                                 ) {
-                                    async = true
+                                    if (it == "scripts/main.js")
+                                        defer = true
+                                    else
+                                        async = true
                                 }
                             }
                         it.isImage() -> if (it.isAbsolute) link(href = it)
@@ -832,9 +835,6 @@ open class HtmlRenderer(
                     }
                     div {
                         id = "main"
-                        templateCommand(PathToRootSubstitutionCommand("###", default = pathToRoot)) {
-                            script(type = ScriptType.textJavaScript, src = "###scripts/main.js") {}
-                        }
                         content()
                         div(classes = "footer") {
                             span("go-to-top-icon") {
