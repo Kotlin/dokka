@@ -311,7 +311,7 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
                                 else DokkaJsKlibLibraryInfo(kotlinLibrary, analyzerServices, dependencyResolver)
                             )
                         }
-                    } catch (e: kotlin.Throwable) {
+                    } catch (e: Throwable) {
                         configuration.getNotNull(CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY)
                             .report(CompilerMessageSeverity.WARNING, "Can not resolve KLIB. " + e.message)
                     }
@@ -497,7 +497,8 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
      * Classpath for this environment.
      */
     val classpath: List<File>
-        get() = configuration.jvmClasspathRoots
+        get() = configuration.jvmClasspathRoots + configuration.getList(JSConfigurationKeys.LIBRARIES)
+            .mapNotNull { File(it) }
 
     /**
      * Adds list of paths to classpath.
@@ -506,8 +507,9 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
     fun addClasspath(paths: List<File>) {
         if (analysisPlatform == Platform.js) {
             configuration.addAll(JSConfigurationKeys.LIBRARIES, paths.map { it.absolutePath })
+        } else {
+            configuration.addJvmClasspathRoots(paths)
         }
-        configuration.addJvmClasspathRoots(paths)
     }
 
     /**
@@ -517,8 +519,9 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
     fun addClasspath(path: File) {
         if (analysisPlatform == Platform.js) {
             configuration.add(JSConfigurationKeys.LIBRARIES, path.absolutePath)
+        } else {
+            configuration.addJvmClasspathRoot(path)
         }
-        configuration.addJvmClasspathRoot(path)
     }
 
     /**
