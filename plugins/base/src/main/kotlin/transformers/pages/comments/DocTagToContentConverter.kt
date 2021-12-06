@@ -4,10 +4,10 @@ import org.intellij.markdown.MarkdownElementTypes
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.model.properties.PropertyContainer
+import org.jetbrains.dokka.model.properties.plus
 import org.jetbrains.dokka.model.toDisplaySourceSets
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
-import org.jetbrains.dokka.model.properties.plus
 
 open class DocTagToContentConverter : CommentsToContentConverter {
     override fun buildContent(
@@ -39,14 +39,14 @@ open class DocTagToContentConverter : CommentsToContentConverter {
                 )
             )
 
-        fun buildList(ordered: Boolean, start: Int = 1) =
+        fun buildList(ordered: Boolean, newStyles: Set<Style> = emptySet(), start: Int = 1) =
             listOf(
                 ContentList(
                     buildChildren(docTag),
                     ordered,
                     dci,
                     sourceSets.toDisplaySourceSets(),
-                    styles,
+                    if (newStyles.isEmpty()) styles else styles + newStyles,
                     ((PropertyContainer.empty<ContentNode>()) + SimpleAttr("start", start.toString()))
                 )
             )
@@ -68,9 +68,26 @@ open class DocTagToContentConverter : CommentsToContentConverter {
             is H5 -> buildHeader(5)
             is H6 -> buildHeader(6)
             is Ul -> buildList(false)
-            is Ol -> buildList(true, docTag.params["start"]?.toInt() ?: 1)
+            is Ol -> buildList(true, start = docTag.params["start"]?.toInt() ?: 1)
             is Li -> listOf(
                 ContentGroup(buildChildren(docTag), dci, sourceSets.toDisplaySourceSets(), styles, extra)
+            )
+            is Dl -> buildList(false, newStyles = setOf(ListStyle.DescriptionList))
+            is Dt -> listOf(
+                ContentGroup(
+                    buildChildren(docTag),
+                    dci,
+                    sourceSets.toDisplaySourceSets(),
+                    styles + ListStyle.DescriptionTerm
+                )
+            )
+            is Dd -> listOf(
+                ContentGroup(
+                    buildChildren(docTag),
+                    dci,
+                    sourceSets.toDisplaySourceSets(),
+                    styles + ListStyle.DescriptionDetails
+                )
             )
             is Br -> buildNewLine()
             is B -> buildChildren(docTag, setOf(TextStyle.Strong))

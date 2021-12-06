@@ -3918,6 +3918,14 @@ public final class org/jetbrains/dokka/pages/HtmlContent : org/jetbrains/dokka/m
 public abstract interface class org/jetbrains/dokka/pages/Kind {
 }
 
+public final class org/jetbrains/dokka/pages/ListStyle : java/lang/Enum, org/jetbrains/dokka/pages/Style {
+	public static final field DescriptionDetails Lorg/jetbrains/dokka/pages/ListStyle;
+	public static final field DescriptionList Lorg/jetbrains/dokka/pages/ListStyle;
+	public static final field DescriptionTerm Lorg/jetbrains/dokka/pages/ListStyle;
+	public static fun valueOf (Ljava/lang/String;)Lorg/jetbrains/dokka/pages/ListStyle;
+	public static fun values ()[Lorg/jetbrains/dokka/pages/ListStyle;
+}
+
 public abstract interface class org/jetbrains/dokka/pages/MemberPage : org/jetbrains/dokka/pages/ContentPage {
 }
 

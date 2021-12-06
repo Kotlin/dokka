@@ -8,7 +8,6 @@ import org.jetbrains.dokka.base.DokkaBaseConfiguration
 import org.jetbrains.dokka.base.DokkaBaseConfiguration.Companion.defaultFooterMessage
 import org.jetbrains.dokka.base.renderers.*
 import org.jetbrains.dokka.base.renderers.html.command.consumers.ImmediateResolutionTagConsumer
-import org.jetbrains.dokka.base.renderers.pageId
 import org.jetbrains.dokka.base.resolvers.anchors.SymbolAnchorHint
 import org.jetbrains.dokka.base.resolvers.local.DokkaBaseLocationProvider
 import org.jetbrains.dokka.base.templating.*
@@ -295,8 +294,31 @@ open class HtmlRenderer(
         node: ContentList,
         pageContext: ContentPage,
         sourceSetRestriction: Set<DisplaySourceSet>?
-    ) = if (node.ordered) ol { buildListItems(node.children, pageContext, sourceSetRestriction) }
-    else ul { buildListItems(node.children, pageContext, sourceSetRestriction) }
+    ) = if (node.ordered) {
+        ol { buildListItems(node.children, pageContext, sourceSetRestriction) }
+    } else if (node.hasStyle(ListStyle.DescriptionList)) {
+        dl { buildListItems(node.children, pageContext, sourceSetRestriction) }
+    } else {
+        ul { buildListItems(node.children, pageContext, sourceSetRestriction) }
+    }
+
+    open fun DL.buildListItems(
+        items: List<ContentNode>,
+        pageContext: ContentPage,
+        sourceSetRestriction: Set<DisplaySourceSet>? = null
+    ) {
+        items.forEach {
+            when {
+                it.hasStyle(ListStyle.DescriptionTerm) -> dt {
+                    it.build(this@buildListItems, pageContext, sourceSetRestriction)
+                }
+                it.hasStyle(ListStyle.DescriptionDetails) -> dd {
+                    it.build(this@buildListItems, pageContext, sourceSetRestriction)
+                }
+                else -> it.build(this, pageContext, sourceSetRestriction)
+            }
+        }
+    }
 
     open fun OL.buildListItems(
         items: List<ContentNode>,

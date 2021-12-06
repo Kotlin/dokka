@@ -108,7 +108,19 @@ public final class utils/Br : utils/Tag {
 	public static final field INSTANCE Lutils/Br;
 }
 
+public final class utils/Dd : utils/Tag {
+	public fun <init> ([Ljava/lang/Object;)V
+}
+
 public final class utils/Div : utils/Tag {
+	public fun <init> ([Ljava/lang/Object;)V
+}
+
+public final class utils/Dl : utils/Tag {
+	public fun <init> ([Ljava/lang/Object;)V
+}
+
+public final class utils/Dt : utils/Tag {
 	public fun <init> ([Ljava/lang/Object;)V
 }
 
