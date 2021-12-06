@@ -14,17 +14,21 @@ import org.jetbrains.dokka.base.parsers.MarkdownParser
 import org.jetbrains.dokka.base.translators.parseHtmlEncodedWithNormalisedSpaces
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.doc.*
+import org.jetbrains.dokka.model.doc.Deprecated
 import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.dokka.utilities.enumValueOrNull
+import org.jetbrains.dokka.utilities.htmlEscape
 import org.jetbrains.kotlin.idea.kdoc.resolveKDocLink
 import org.jetbrains.kotlin.idea.refactoring.fqName.getKotlinFqName
 import org.jetbrains.kotlin.idea.util.CommentSaver.Companion.tokenType
 import org.jetbrains.kotlin.psi.psiUtil.getNextSiblingIgnoringWhitespace
 import org.jetbrains.kotlin.psi.psiUtil.siblings
 import org.jsoup.Jsoup
-import org.jsoup.nodes.*
+import org.jsoup.nodes.Comment
+import org.jsoup.nodes.Element
+import org.jsoup.nodes.Node
+import org.jsoup.nodes.TextNode
 import java.util.*
-import org.jetbrains.dokka.utilities.htmlEscape
 
 interface JavaDocumentationParser {
     fun parseDocumentation(element: PsiNamedElement): DocumentationNode
@@ -396,6 +400,9 @@ class JavadocParser(
                 "ul" -> ifChildrenPresent { Ul(children) }
                 "ol" -> ifChildrenPresent { Ol(children) }
                 "li" -> listOf(Li(children))
+                "dl" -> ifChildrenPresent { Dl(children) }
+                "dt" -> listOf(Dt(children))
+                "dd" -> listOf(Dd(children))
                 "a" -> listOf(createLink(element, children))
                 "table" -> ifChildrenPresent { Table(children) }
                 "tr" -> ifChildrenPresent { Tr(children) }
