@@ -672,12 +672,11 @@ For Base plugins these are:</p>
 <li><a href="https://mvnrepository.com/artifact/org.jetbrains.dokka/dokka-analysis">dokka-analysis.jar</a></li>
 <li><a href="https://mvnrepository.com/artifact/org.jetbrains.dokka/kotlin-analysis-compiler">kotlin-analysis-compiler.jar</a></li>
 <li><a href="https://mvnrepository.com/artifact/org.jetbrains.dokka/kotlin-analysis-intellij">kotlin-analysis-intellij.jar</a></li>
-<li><a href="https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-core/1.3.9">kotlinx-coroutines-core.jar</a></li>
 <li><a href="https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-html-jvm?repo=kotlinx">kotlinx-html-jvm.jar</a></li>
 </ul>
-<p>All of them are published on maven central.
+<p>All of them are published on maven central. Another dependencies of Base plugin (e.g. <code>kotlinx-coroutines-core</code> and so on) are already included in <code>dokka-cli.jar</code>.
 To get them on classpath one should add them via <code>pluginsClasspath</code> argument, e. g.
-<div class="highlight"><pre><span></span><code>java -jar dokka-cli.jar -pluginsClasspath &quot;dokka-base.jar;dokka-analysis.jar;kotlin-analysis-compiler.jar;kotlin-analysis-intellij.jar;kotlinx-coroutines-core.jar;kotlinx-html-jvm.jar&quot; ...
+<div class="highlight"><pre><span></span><code>java -jar dokka-cli.jar -pluginsClasspath &quot;dokka-base.jar;dokka-analysis.jar;kotlin-analysis-compiler.jar;kotlin-analysis-intellij.jar;kotlinx-html-jvm.jar&quot; ...
 </code></pre></div></p>
 <h2 id="example-using-json">Example using JSON<a class="headerlink" href="#example-using-json" title="Permanent link">&para;</a></h2>
 <p>To run Dokka with JSON configuration:
@@ -743,7 +742,6 @@ The content of JSON file <code>dokkaConfiguration.json</code>:
     <span class="s2">&quot;plugins/dokka-base-1.6.0.jar&quot;</span><span class="p">,</span>
     <span class="s2">&quot;libs/kotlinx-html-jvm-0.7.3.jar&quot;</span><span class="p">,</span>
     <span class="s2">&quot;libs/dokka-analysis-1.6.0.jar&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;libs/kotlinx-coroutines-core-jvm-1.5.1.jar&quot;</span><span class="p">,</span>
     <span class="s2">&quot;libs/kotlin-analysis-intellij-1.6.0.jar&quot;</span><span class="p">,</span>
     <span class="s2">&quot;libs/kotlin-analysis-compiler-1.6.0.jar&quot;</span>
   <span class="p">],</span>
