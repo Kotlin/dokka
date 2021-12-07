@@ -111,6 +111,12 @@ open class HtmlRenderer(
             ) { childrenCallback() }
             node.extra[InsertTemplateExtra] != null -> node.extra[InsertTemplateExtra]?.let { templateCommand(it.command) }
                 ?: Unit
+            node.hasStyle(ListStyle.DescriptionTerm) -> DT(emptyMap(), consumer).visit {
+                this@wrapGroup.childrenCallback()
+            }
+            node.hasStyle(ListStyle.DescriptionDetails) -> DD(emptyMap(), consumer).visit {
+                this@wrapGroup.childrenCallback()
+            }
             else -> childrenCallback()
         }
     }
@@ -294,12 +300,16 @@ open class HtmlRenderer(
         node: ContentList,
         pageContext: ContentPage,
         sourceSetRestriction: Set<DisplaySourceSet>?
-    ) = if (node.ordered) {
-        ol { buildListItems(node.children, pageContext, sourceSetRestriction) }
-    } else if (node.hasStyle(ListStyle.DescriptionList)) {
-        dl { buildListItems(node.children, pageContext, sourceSetRestriction) }
-    } else {
-        ul { buildListItems(node.children, pageContext, sourceSetRestriction) }
+    ) = when {
+        node.ordered -> {
+            ol { buildListItems(node.children, pageContext, sourceSetRestriction) }
+        }
+        node.hasStyle(ListStyle.DescriptionList) -> {
+            dl { buildListItems(node.children, pageContext, sourceSetRestriction) }
+        }
+        else -> {
+            ul { buildListItems(node.children, pageContext, sourceSetRestriction) }
+        }
     }
 
     open fun DL.buildListItems(
