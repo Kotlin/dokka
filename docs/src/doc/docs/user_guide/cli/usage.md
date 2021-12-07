@@ -61,11 +61,96 @@ For Base plugins these are:
 * [dokka-analysis.jar](https://mvnrepository.com/artifact/org.jetbrains.dokka/dokka-analysis)
 * [kotlin-analysis-compiler.jar](https://mvnrepository.com/artifact/org.jetbrains.dokka/kotlin-analysis-compiler)
 * [kotlin-analysis-intellij.jar](https://mvnrepository.com/artifact/org.jetbrains.dokka/kotlin-analysis-intellij)
-* [kotlinx-coroutines-core.jar](https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-core/1.3.9)
 * [kotlinx-html-jvm.jar](https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-html-jvm?repo=kotlinx)
 
-All of them are published on maven central.
+All of them are published on maven central. Another dependencies of Base plugin (e.g. `kotlinx-coroutines-core` and so on) are already included in `dokka-cli.jar`.
 To get them on classpath one should add them via `pluginsClasspath` argument, e. g.
 ```
-java -jar dokka-cli.jar -pluginsClasspath "dokka-base.jar;dokka-analysis.jar;kotlin-analysis-compiler.jar;kotlin-analysis-intellij.jar;kotlinx-coroutines-core.jar;kotlinx-html-jvm.jar" ...
+java -jar dokka-cli.jar -pluginsClasspath "dokka-base.jar;dokka-analysis.jar;kotlin-analysis-compiler.jar;kotlin-analysis-intellij.jar;kotlinx-html-jvm.jar" ...
+```
+
+## Example using JSON
+
+To run Dokka with JSON configuration:
+```
+java -jar dokka-cli.jar dokkaConfiguration.json
+```
+Option values of JSON correspond to [Gradle ones](../../gradle/usage#configuration-options).
+The content of JSON file ```dokkaConfiguration.json```:
+```json
+{
+  "moduleName": "Dokka Example",
+  "moduleVersion": null,
+  "outputDir": "build/dokka/html",
+  "cacheRoot": null,
+  "offlineMode": false,
+  "sourceSets": [
+    {
+      "displayName": "jvm",
+      "sourceSetID": {
+        "scopeId": ":dokkaHtml",
+        "sourceSetName": "main"
+      },
+      "classpath": [
+        "libs/kotlin-stdlib-1.6.0.jar",
+        "libs/kotlin-stdlib-common-1.6.0.jar"
+      ],
+      "sourceRoots": [
+        "/home/Vadim.Mishenev/dokka/examples/cli/src/main/kotlin"
+      ],
+      "dependentSourceSets": [],
+      "samples": [],
+      "includes": [
+        "Module.md"
+      ],
+      "includeNonPublic": false,
+      "reportUndocumented": false,
+      "skipEmptyPackages": true,
+      "skipDeprecated": false,
+      "jdkVersion": 8,
+      "sourceLinks": [
+        {
+          "localDirectory": "/home/Vadim.Mishenev/dokka/examples/cli/src/main/kotlin",
+          "remoteUrl": "https://github.com/Kotlin/dokka/tree/master/examples/gradle/dokka-gradle-example/src/main/kotlin",
+          "remoteLineSuffix": "#L"
+        }
+      ],
+      "perPackageOptions": [],
+      "externalDocumentationLinks": [
+        {
+          "url": "https://docs.oracle.com/javase/8/docs/api/",
+          "packageListUrl": "https://docs.oracle.com/javase/8/docs/api/package-list"
+        },
+        {
+          "url": "https://kotlinlang.org/api/latest/jvm/stdlib/",
+          "packageListUrl": "https://kotlinlang.org/api/latest/jvm/stdlib/package-list"
+        }
+      ],
+      "noStdlibLink": false,
+      "noJdkLink": false,
+      "suppressedFiles": [],
+      "analysisPlatform": "jvm"
+    }
+  ],
+  "pluginsClasspath": [
+    "plugins/dokka-base-1.6.0.jar",
+    "libs/kotlinx-html-jvm-0.7.3.jar",
+    "libs/dokka-analysis-1.6.0.jar",
+    "libs/kotlin-analysis-intellij-1.6.0.jar",
+    "libs/kotlin-analysis-compiler-1.6.0.jar"
+  ],
+  "pluginsConfiguration": [
+    {
+      "fqPluginName": "org.jetbrains.dokka.base.DokkaBase",
+      "serializationFormat": "JSON",
+      "values": "{\"separateInheritedMembers\":false,\"footerMessage\":\"© 2021 Copyright\"}"
+    }
+  ],
+  "modules": [],
+  "failOnWarning": false,
+  "delayTemplateSubstitution": false,
+  "suppressObviousFunctions": true,
+  "includes": [],
+  "suppressInheritedMembers": false
+}
 ```
