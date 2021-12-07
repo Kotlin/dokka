@@ -305,28 +305,10 @@ open class HtmlRenderer(
             ol { buildListItems(node.children, pageContext, sourceSetRestriction) }
         }
         node.hasStyle(ListStyle.DescriptionList) -> {
-            dl { buildListItems(node.children, pageContext, sourceSetRestriction) }
+            dl { node.children.forEach { it.build(this, pageContext, sourceSetRestriction) } }
         }
         else -> {
             ul { buildListItems(node.children, pageContext, sourceSetRestriction) }
-        }
-    }
-
-    open fun DL.buildListItems(
-        items: List<ContentNode>,
-        pageContext: ContentPage,
-        sourceSetRestriction: Set<DisplaySourceSet>? = null
-    ) {
-        items.forEach {
-            when {
-                it.hasStyle(ListStyle.DescriptionTerm) -> dt {
-                    it.build(this@buildListItems, pageContext, sourceSetRestriction)
-                }
-                it.hasStyle(ListStyle.DescriptionDetails) -> dd {
-                    it.build(this@buildListItems, pageContext, sourceSetRestriction)
-                }
-                else -> it.build(this, pageContext, sourceSetRestriction)
-            }
         }
     }
 
