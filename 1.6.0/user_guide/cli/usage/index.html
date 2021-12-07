@@ -328,6 +328,13 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#example-using-json" class="md-nav__link">
+    Example using JSON
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -585,6 +592,13 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#example-using-json" class="md-nav__link">
+    Example using JSON
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -664,6 +678,101 @@ For Base plugins these are:</p>
 <p>All of them are published on maven central.
 To get them on classpath one should add them via <code>pluginsClasspath</code> argument, e. g.
 <div class="highlight"><pre><span></span><code>java -jar dokka-cli.jar -pluginsClasspath &quot;dokka-base.jar;dokka-analysis.jar;kotlin-analysis-compiler.jar;kotlin-analysis-intellij.jar;kotlinx-coroutines-core.jar;kotlinx-html-jvm.jar&quot; ...
+</code></pre></div></p>
+<h2 id="example-using-json">Example using JSON<a class="headerlink" href="#example-using-json" title="Permanent link">&para;</a></h2>
+<p>To run Dokka with JSON configuration:
+<div class="highlight"><pre><span></span><code>java -jar dokka-cli.jar dokkaConfiguration.json
+</code></pre></div>
+Option values of JSON correspond to <a href="../gradle/usage#configuration-options">Gradle ones</a>.
+The content of JSON file <code>dokkaConfiguration.json</code>:
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+  <span class="nt">&quot;moduleName&quot;</span><span class="p">:</span> <span class="s2">&quot;Dokka Example&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;moduleVersion&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+  <span class="nt">&quot;outputDir&quot;</span><span class="p">:</span> <span class="s2">&quot;build/dokka/html&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;cacheRoot&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+  <span class="nt">&quot;offlineMode&quot;</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+  <span class="nt">&quot;sourceSets&quot;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+      <span class="nt">&quot;displayName&quot;</span><span class="p">:</span> <span class="s2">&quot;jvm&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;sourceSetID&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;scopeId&quot;</span><span class="p">:</span> <span class="s2">&quot;:dokkaHtml&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;sourceSetName&quot;</span><span class="p">:</span> <span class="s2">&quot;main&quot;</span>
+      <span class="p">},</span>
+      <span class="nt">&quot;classpath&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;libs/kotlin-stdlib-1.6.0.jar&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;libs/annotations-13.0.jar&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;libs/kotlin-stdlib-common-1.6.0.jar&quot;</span>
+      <span class="p">],</span>
+      <span class="nt">&quot;sourceRoots&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;/home/Vadim.Mishenev/dokka/examples/cli/src/main/kotlin&quot;</span>
+      <span class="p">],</span>
+      <span class="nt">&quot;dependentSourceSets&quot;</span><span class="p">:</span> <span class="p">[],</span>
+      <span class="nt">&quot;samples&quot;</span><span class="p">:</span> <span class="p">[],</span>
+      <span class="nt">&quot;includes&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;Module.md&quot;</span>
+      <span class="p">],</span>
+      <span class="nt">&quot;includeNonPublic&quot;</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+      <span class="nt">&quot;reportUndocumented&quot;</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+      <span class="nt">&quot;skipEmptyPackages&quot;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+      <span class="nt">&quot;skipDeprecated&quot;</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+      <span class="nt">&quot;jdkVersion&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+      <span class="nt">&quot;sourceLinks&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+          <span class="nt">&quot;localDirectory&quot;</span><span class="p">:</span> <span class="s2">&quot;src/main/kotlin&quot;</span><span class="p">,</span>
+          <span class="nt">&quot;remoteUrl&quot;</span><span class="p">:</span> <span class="s2">&quot;https://github.com/Kotlin/dokka/tree/master/examples/gradle/dokka-gradle-example/src/main/kotlin&quot;</span><span class="p">,</span>
+          <span class="nt">&quot;remoteLineSuffix&quot;</span><span class="p">:</span> <span class="s2">&quot;#L&quot;</span>
+        <span class="p">}</span>
+      <span class="p">],</span>
+      <span class="nt">&quot;perPackageOptions&quot;</span><span class="p">:</span> <span class="p">[],</span>
+      <span class="nt">&quot;externalDocumentationLinks&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+          <span class="nt">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://docs.oracle.com/javase/8/docs/api/&quot;</span><span class="p">,</span>
+          <span class="nt">&quot;packageListUrl&quot;</span><span class="p">:</span> <span class="s2">&quot;https://docs.oracle.com/javase/8/docs/api/package-list&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+          <span class="nt">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://kotlinlang.org/api/latest/jvm/stdlib/&quot;</span><span class="p">,</span>
+          <span class="nt">&quot;packageListUrl&quot;</span><span class="p">:</span> <span class="s2">&quot;https://kotlinlang.org/api/latest/jvm/stdlib/package-list&quot;</span>
+        <span class="p">}</span>
+      <span class="p">],</span>
+      <span class="nt">&quot;noStdlibLink&quot;</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+      <span class="nt">&quot;noJdkLink&quot;</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+      <span class="nt">&quot;suppressedFiles&quot;</span><span class="p">:</span> <span class="p">[],</span>
+      <span class="nt">&quot;analysisPlatform&quot;</span><span class="p">:</span> <span class="s2">&quot;jvm&quot;</span>
+    <span class="p">}</span>
+  <span class="p">],</span>
+  <span class="nt">&quot;pluginsClasspath&quot;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="s2">&quot;plugins/dokka-base-1.6.0.jar&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;libs/kotlinx-html-jvm-0.7.3.jar&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;libs/dokka-analysis-1.6.0.jar&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;libs/kotlinx-coroutines-core-jvm-1.5.1.jar&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;libs/kotlin-stdlib-jdk8-1.6.0.jar&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;libs/jackson-databind-2.12.4.jar&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;libs/jackson-annotations-2.12.4.jar&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;libs/jackson-core-2.12.4.jar&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;libs/jackson-module-kotlin-2.12.4.jar&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;libs/kotlin-reflect-1.6.0.jar&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;libs/kotlin-stdlib-jdk7-1.6.0.jar&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;libs/kotlin-stdlib-1.6.0.jar&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;libs/jsoup-1.13.1.jar&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;libs/annotations-13.0.jar&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;libs/kotlin-stdlib-common-1.6.0.jar&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;libs/kotlin-analysis-intellij-1.6.0.jar&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;libs/kotlin-analysis-compiler-1.6.0.jar&quot;</span>
+  <span class="p">],</span>
+  <span class="nt">&quot;pluginsConfiguration&quot;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+      <span class="nt">&quot;fqPluginName&quot;</span><span class="p">:</span> <span class="s2">&quot;org.jetbrains.dokka.base.DokkaBase&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;serializationFormat&quot;</span><span class="p">:</span> <span class="s2">&quot;JSON&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;values&quot;</span><span class="p">:</span> <span class="s2">&quot;{\&quot;separateInheritedMembers\&quot;:false,\&quot;footerMessage\&quot;:\&quot;© 2021 Copyright\&quot;}&quot;</span>
+    <span class="p">}</span>
+  <span class="p">],</span>
+  <span class="nt">&quot;modules&quot;</span><span class="p">:</span> <span class="p">[],</span>
+  <span class="nt">&quot;failOnWarning&quot;</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+  <span class="nt">&quot;delayTemplateSubstitution&quot;</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+  <span class="nt">&quot;suppressObviousFunctions&quot;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+  <span class="nt">&quot;includes&quot;</span><span class="p">:</span> <span class="p">[],</span>
+  <span class="nt">&quot;suppressInheritedMembers&quot;</span><span class="p">:</span> <span class="kc">false</span>
+<span class="p">}</span>
 </code></pre></div></p>
                 
               
