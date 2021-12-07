@@ -351,10 +351,8 @@ public class org/jetbrains/dokka/base/renderers/html/HtmlRenderer : org/jetbrain
 	public static synthetic fun buildLink$default (Lorg/jetbrains/dokka/base/renderers/html/HtmlRenderer;Lkotlinx/html/FlowContent;Lorg/jetbrains/dokka/links/DRI;Ljava/util/List;Lorg/jetbrains/dokka/pages/PageNode;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
 	public synthetic fun buildList (Ljava/lang/Object;Lorg/jetbrains/dokka/pages/ContentList;Lorg/jetbrains/dokka/pages/ContentPage;Ljava/util/Set;)V
 	public fun buildList (Lkotlinx/html/FlowContent;Lorg/jetbrains/dokka/pages/ContentList;Lorg/jetbrains/dokka/pages/ContentPage;Ljava/util/Set;)V
-	public fun buildListItems (Lkotlinx/html/DL;Ljava/util/List;Lorg/jetbrains/dokka/pages/ContentPage;Ljava/util/Set;)V
 	public fun buildListItems (Lkotlinx/html/OL;Ljava/util/List;Lorg/jetbrains/dokka/pages/ContentPage;Ljava/util/Set;)V
 	public fun buildListItems (Lkotlinx/html/UL;Ljava/util/List;Lorg/jetbrains/dokka/pages/ContentPage;Ljava/util/Set;)V
-	public static synthetic fun buildListItems$default (Lorg/jetbrains/dokka/base/renderers/html/HtmlRenderer;Lkotlinx/html/DL;Ljava/util/List;Lorg/jetbrains/dokka/pages/ContentPage;Ljava/util/Set;ILjava/lang/Object;)V
 	public static synthetic fun buildListItems$default (Lorg/jetbrains/dokka/base/renderers/html/HtmlRenderer;Lkotlinx/html/OL;Ljava/util/List;Lorg/jetbrains/dokka/pages/ContentPage;Ljava/util/Set;ILjava/lang/Object;)V
 	public static synthetic fun buildListItems$default (Lorg/jetbrains/dokka/base/renderers/html/HtmlRenderer;Lkotlinx/html/UL;Ljava/util/List;Lorg/jetbrains/dokka/pages/ContentPage;Ljava/util/Set;ILjava/lang/Object;)V
 	public synthetic fun buildNavigation (Ljava/lang/Object;Lorg/jetbrains/dokka/pages/PageNode;)V
