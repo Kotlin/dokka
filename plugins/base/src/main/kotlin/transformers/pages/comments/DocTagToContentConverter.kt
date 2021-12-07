@@ -46,7 +46,7 @@ open class DocTagToContentConverter : CommentsToContentConverter {
                     ordered,
                     dci,
                     sourceSets.toDisplaySourceSets(),
-                    if (newStyles.isEmpty()) styles else styles + newStyles,
+                    styles + newStyles,
                     ((PropertyContainer.empty<ContentNode>()) + SimpleAttr("start", start.toString()))
                 )
             )
