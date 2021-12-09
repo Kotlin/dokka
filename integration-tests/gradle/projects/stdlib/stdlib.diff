@@ -542,7 +542,7 @@ diff --git a/settings.gradle b/settings.gradle
 index 5209245..bd38b18 100644
 --- a/settings.gradle
 +++ b/settings.gradle
-@@ -1,5 +1,21 @@
+@@ -1,5 +1,18 @@
 +pluginManagement {
 +    resolutionStrategy {
 +        eachPlugin {
@@ -553,9 +553,6 @@ index 5209245..bd38b18 100644
 +    }
 +    repositories {
 +        mavenLocal()
-+        maven {
-+            url "https://dl.bintray.com/kotlin/kotlin-dev"
-+        }
 +        gradlePluginPortal()
 +    }
 +}
