@@ -442,12 +442,15 @@ open class DefaultPageCreator(
                                             kind = ContentKind.Comment,
                                             styles = this@group.mainStyles,
                                         ) {
-                                            if (it.address != null) link(
-                                                it.name,
-                                                it.address!!,
-                                                kind = ContentKind.Comment
-                                            )
-                                            else text(it.name, kind = ContentKind.Comment)
+                                            group(styles = mainStyles + ContentStyle.RowTitle) {
+                                                it.address?.let { dri ->
+                                                    link(
+                                                        it.name,
+                                                        dri,
+                                                        kind = ContentKind.Comment
+                                                    )
+                                                } ?: text(it.name, kind = ContentKind.Comment)
+                                            }
                                             comment(it.root)
                                         }
                                     }
