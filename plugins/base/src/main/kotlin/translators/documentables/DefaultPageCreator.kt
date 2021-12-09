@@ -442,15 +442,18 @@ open class DefaultPageCreator(
                                             kind = ContentKind.Comment,
                                             styles = this@group.mainStyles,
                                         ) {
-                                            group(styles = mainStyles + ContentStyle.RowTitle) {
-                                                it.address?.let { dri ->
-                                                    link(
-                                                        it.name,
-                                                        dri,
-                                                        kind = ContentKind.Comment
-                                                    )
-                                                } ?: text(it.name, kind = ContentKind.Comment)
-                                            }
+                                            it.address?.let { dri ->
+                                                link(
+                                                    it.name,
+                                                    dri,
+                                                    kind = ContentKind.Comment,
+                                                    styles = mainStyles + ContentStyle.RowTitle
+                                                )
+                                            } ?: text(
+                                                it.name,
+                                                kind = ContentKind.Comment,
+                                                styles = mainStyles + ContentStyle.RowTitle
+                                            )
                                             comment(it.root)
                                         }
                                     }
