@@ -43,7 +43,7 @@ index aa8f21b..dd6a2ae 100644
  plugins {
 -  id "de.undercouch.download" version "3.4.3"
 -  id 'com.github.jk1.tcdeps' version '0.17'
-+    id "de.undercouch.download" version "3.4.3"
++    id "de.undercouch.download" version "4.1.2"
 +    id 'com.github.jk1.tcdeps' version '0.17'
 +    id "java"
 +    id "org.jetbrains.dokka"
