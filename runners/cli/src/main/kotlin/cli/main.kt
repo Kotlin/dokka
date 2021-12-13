@@ -204,6 +204,11 @@ private fun parseSourceSet(moduleName: String, args: Array<String>): DokkaConfig
     val includeNonPublic: Boolean by parser.option(ArgType.Boolean, description = "Include non public")
         .default(DokkaDefaults.includeNonPublic)
 
+    val documentedVisibilities by parser.option(
+        ArgTypeVisibility,
+        description = "Visibilities to be documented (allows multiple values separated by the semicolon `;`)"
+    ).delimiter(";")
+
     val reportUndocumented by parser.option(ArgType.Boolean, description = "Report undocumented members")
         .default(DokkaDefaults.reportUndocumented)
 
@@ -290,6 +295,7 @@ private fun parseSourceSet(moduleName: String, args: Array<String>): DokkaConfig
         override val noStdlibLink = noStdlibLink
         override val noJdkLink = noJdkLink
         override val suppressedFiles = suppressedFiles.toMutableSet()
+        override val documentedVisibilities: Set<DokkaConfiguration.Visibility> = documentedVisibilities.toSet()
     }
 }
 
@@ -303,6 +309,13 @@ object ArgTypePlatform : ArgType<Platform>(true) {
     override fun convert(value: kotlin.String, name: kotlin.String): Platform = Platform.fromString(value)
     override val description: kotlin.String
         get() = "{ String that represents platform }"
+}
+
+object ArgTypeVisibility : ArgType<DokkaConfiguration.Visibility>(true) {
+    override fun convert(value: kotlin.String, name: kotlin.String) = DokkaConfiguration.Visibility.fromString(value)
+    override val description: kotlin.String
+        get() = "{ String that represents a visibility modifier. " +
+                "Possible values: ${DokkaConfiguration.Visibility.values().joinToString(separator = ", ")} }"
 }
 
 object ArgTypePlugin : ArgType<DokkaConfiguration.PluginConfiguration>(true) {

@@ -181,6 +181,7 @@ class SuppressedByConfigurationDocumentableFilterTransformerTest : BaseAbstractT
         matchingRegex = matchingRegex,
         suppress = suppress,
         includeNonPublic = true,
+        documentedVisibilities = emptySet(),
         reportUndocumented = false,
         skipDeprecated = false
     )

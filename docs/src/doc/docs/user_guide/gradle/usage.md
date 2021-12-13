@@ -100,8 +100,19 @@ val dokkaHtml by getting(DokkaTask::class) {
             // Used to remove a source set from documentation, test source sets are suppressed by default  
             suppress.set(false)
 
-            // Use to include or exclude non public members
+            // Deprecated. Prefer using documentedVisibilities.
             includeNonPublic.set(false)
+
+            // A set of visibility modifiers that should be documented
+            documentedVisibilities.set(
+                setOf(
+                    Visibility.PUBLIC, // Included by default, can be omitted
+                    Visibility.PRIVATE, // Same for both Kotlin and Java
+                    Visibility.PROTECTED, // Same for both Kotlin and Java
+                    Visibility.INTERNAL, // Kotlin-specific internal modifier
+                    Visibility.PACKAGE, // Java-specific package-private visibility
+                )
+            )
 
             // Do not output deprecated members. Applies globally, can be overridden by packageOptions
             skipDeprecated.set(false)
@@ -173,11 +184,22 @@ val dokkaHtml by getting(DokkaTask::class) {
             // Repeat for multiple packageOptions
             // If multiple packages match the same matchingRegex, the longuest matchingRegex will be used
             perPackageOption {
-                matchingRegex.set("kotlin($|\\.).*") // will match kotlin and all sub-packages of it
-                // All options are optional, default values are below:
+                // will match kotlin and all sub-packages of it
+                matchingRegex.set("kotlin($|\\.).*") 
+                
+                // All options are optional
                 skipDeprecated.set(false)
                 reportUndocumented.set(true) // Emit warnings about not documented members 
-                includeNonPublic.set(false)
+                includeNonPublic.set(false) // Deprecated, prefer using documentedVisibilities
+                documentedVisibilities.set( // Visibilities that should be included in the documentation
+                    setOf(
+                        Visibility.PUBLIC, // Included by default, can be omitted
+                        Visibility.PRIVATE, // Same for both Kotlin and Java
+                        Visibility.PROTECTED, // Same for both Kotlin and Java
+                        Visibility.INTERNAL, // Kotlin-specific internal modifier
+                        Visibility.PACKAGE, // Java-specific package-private visibility
+                    )
+                )
             }
             // Suppress a package
             perPackageOption {

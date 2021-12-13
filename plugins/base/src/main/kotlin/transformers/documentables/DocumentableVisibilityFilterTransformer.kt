@@ -21,9 +21,25 @@ class DocumentableVisibilityFilterTransformer(val context: DokkaContext) : PreMe
         fun Visibility.isAllowedInPackage(packageName: String?) = when (this) {
             is JavaVisibility.Public,
             is KotlinVisibility.Public -> true
-            else -> packageName != null
-                    && packageOptions.firstOrNull { Regex(it.matchingRegex).matches(packageName) }?.includeNonPublic
-                    ?: globalOptions.includeNonPublic
+            is JavaVisibility.Private,
+            is KotlinVisibility.Private -> isAllowedInPackage(packageName, DokkaConfiguration.Visibility.PRIVATE)
+            is JavaVisibility.Protected,
+            is KotlinVisibility.Protected -> isAllowedInPackage(packageName, DokkaConfiguration.Visibility.PROTECTED)
+            is KotlinVisibility.Internal -> isAllowedInPackage(packageName, DokkaConfiguration.Visibility.INTERNAL)
+            is JavaVisibility.Default -> isAllowedInPackage(packageName, DokkaConfiguration.Visibility.PACKAGE)
+        }
+
+        private fun isAllowedInPackage(packageName: String?, visibility: DokkaConfiguration.Visibility): Boolean {
+            val packageOpts = packageName.takeIf { it != null }?.let { name ->
+                packageOptions.firstOrNull { Regex(it.matchingRegex).matches(name) }
+            }
+
+            val (documentedVisibilities, includeNonPublic) = when {
+                packageOpts != null -> packageOpts.documentedVisibilities to packageOpts.includeNonPublic
+                else -> globalOptions.documentedVisibilities to globalOptions.includeNonPublic
+            }
+
+            return documentedVisibilities.takeIf { it.isNotEmpty() }?.contains(visibility) ?: includeNonPublic
         }
 
         fun processModule(original: DModule) =

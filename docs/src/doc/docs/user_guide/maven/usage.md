@@ -73,6 +73,15 @@ The available configuration options are shown below:
             <include>packages.md</include>
             <include>extra.md</include>
         </includes>
+
+        <!-- A list of visibility modifiers that should be documented -->
+        <documentedVisibilities>
+            <visibility>PUBLIC</visibility> <!-- Default, can be omitted -->
+            <visibility>PRIVATE</visibility> <!-- Same for both kotlin and java -->
+            <visibility>PROTECTED</visibility> <!-- Same for both kotlin and java -->
+            <visibility>INTERNAL</visibility> <!-- Kotlin-specific internal modifier -->
+            <visibility>PACKAGE</visibility> <!-- Java-specific package-private visibility (default) -->
+        </documentedVisibilities>
         
         <!-- List of sample roots -->
         <samples>
@@ -148,9 +157,21 @@ The available configuration options are shown below:
                 
                 <!-- All options are optional, default values are below: -->
                 <skipDeprecated>false</skipDeprecated>
+                
                 <!-- Emit warnings about not documented members  -->
                 <reportUndocumented>true</reportUndocumented>
+                
+                <!-- Deprecated. Prefer using documentedVisibilities -->
                 <includeNonPublic>false</includeNonPublic>
+
+                <!-- A list of visibility modifiers that should be documented -->
+                <documentedVisibilities>
+                    <visibility>PUBLIC</visibility> <!-- Included by default, can be omitted -->
+                    <visibility>PRIVATE</visibility> <!-- Same for both kotlin and java -->
+                    <visibility>PROTECTED</visibility> <!-- Same for both kotlin and java -->
+                    <visibility>INTERNAL</visibility> <!-- Kotlin-specific internal modifier -->
+                    <visibility>PACKAGE</visibility> <!-- Java-specific package-private visibility (default) -->
+                </documentedVisibilities>
             </packageOptions>
         </perPackageOptions>
         

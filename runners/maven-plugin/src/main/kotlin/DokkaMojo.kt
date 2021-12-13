@@ -78,6 +78,9 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
 
         @Parameter
         override var suppress: Boolean = DokkaDefaults.suppress
+
+        @Parameter(property = "visibility")
+        override var documentedVisibilities: Set<DokkaConfiguration.Visibility> = DokkaDefaults.documentedVisibilities
     }
 
     @Parameter
@@ -152,6 +155,9 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
     @Parameter
     var includeNonPublic: Boolean = DokkaDefaults.includeNonPublic
 
+    @Parameter(property = "visibility")
+    var documentedVisibilities: Set<DokkaConfiguration.Visibility> = DokkaDefaults.documentedVisibilities
+
     @Parameter
     var failOnWarning: Boolean = DokkaDefaults.failOnWarning
 
@@ -198,6 +204,7 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
             samples = samples.map(::File).toSet(),
             includes = includes.map(::File).toSet(),
             includeNonPublic = includeNonPublic,
+            documentedVisibilities = documentedVisibilities,
             reportUndocumented = reportUndocumented,
             skipEmptyPackages = skipEmptyPackages,
             skipDeprecated = skipDeprecated,
@@ -207,6 +214,7 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
                 PackageOptionsImpl(
                     matchingRegex = it.matchingRegex,
                     includeNonPublic = it.includeNonPublic,
+                    documentedVisibilities = it.documentedVisibilities,
                     reportUndocumented = it.reportUndocumented,
                     skipDeprecated = it.skipDeprecated,
                     suppress = it.suppress

@@ -109,7 +109,8 @@ class DeprecationFilterTest : BaseAbstractTest() {
                             true,
                             false,
                             true,
-                            false
+                            false,
+                            emptySet()
                         )
                     )
                 }
@@ -147,7 +148,9 @@ class DeprecationFilterTest : BaseAbstractTest() {
                             false,
                             false,
                             false,
-                            false)
+                            false,
+                            emptySet()
+                        )
                     )
                 }
             }
