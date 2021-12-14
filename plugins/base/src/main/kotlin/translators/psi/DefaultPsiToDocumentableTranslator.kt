@@ -39,6 +39,7 @@ import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.dokka.utilities.parallelForEach
 import org.jetbrains.dokka.utilities.parallelMap
 import org.jetbrains.dokka.utilities.parallelMapNotNull
+import org.jetbrains.kotlin.asJava.classes.KtUltraLightClass
 import org.jetbrains.kotlin.asJava.elements.KtLightAbstractAnnotation
 import org.jetbrains.kotlin.builtins.functions.FunctionClassDescriptor
 import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
@@ -46,14 +47,19 @@ import org.jetbrains.kotlin.cli.jvm.config.JavaSourceRoot
 import org.jetbrains.kotlin.descriptors.Visibilities
 import org.jetbrains.kotlin.descriptors.java.JavaVisibilities
 import org.jetbrains.kotlin.idea.caches.resolve.util.getJavaClassDescriptor
+import org.jetbrains.kotlin.idea.caches.resolve.util.javaResolutionFacade
+import org.jetbrains.kotlin.idea.caches.resolve.util.resolveToDescriptor
+import org.jetbrains.kotlin.idea.j2k.IdeaResolverForConverter.resolveToDescriptor
 import org.jetbrains.kotlin.idea.refactoring.fqName.getKotlinFqName
 import org.jetbrains.kotlin.idea.resolve.ResolutionFacade
+import org.jetbrains.kotlin.j2k.EmptyResolverForConverter.resolveToDescriptor
 import org.jetbrains.kotlin.load.java.JvmAbi
 import org.jetbrains.kotlin.load.java.propertyNameByGetMethodName
 import org.jetbrains.kotlin.load.java.propertyNamesBySetMethodName
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.psiUtil.getChildOfType
 import org.jetbrains.kotlin.resolve.DescriptorUtils
+import org.jetbrains.kotlin.resolve.lazy.descriptors.LazyClassDescriptor
 import org.jetbrains.kotlin.utils.KotlinExceptionWithAttachments
 import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstance
 import org.jetbrains.kotlin.utils.addToStdlib.ifNotEmpty
@@ -170,6 +176,13 @@ class DefaultPsiToDocumentableTranslator(
             )
         }
 
+        private fun resolveLazyUltraLightClassContentIfNeeded(psi: PsiClass) {
+            val lightClass = psi as? KtUltraLightClass ?: return
+            val resolutionFacade = psi.javaResolutionFacade() ?: return
+            val descriptor = lightClass.resolveToDescriptor(resolutionFacade) as? LazyClassDescriptor ?: return
+            descriptor.forceResolveAllContents()
+        }
+
         private suspend fun parseClasslike(psi: PsiClass, parent: DRI): DClasslike = coroutineScope {
             with(psi) {
                 val dri = parent.withClass(name.toString())
@@ -196,6 +209,7 @@ class DefaultPsiToDocumentableTranslator(
 
                     superTypes.forEach { type ->
                         (type as? PsiClassType)?.resolve()?.let {
+                            resolveLazyUltraLightClassContentIfNeeded(it)
                             val definedAt = DRI.from(it)
                             it.methods.forEach { method ->
                                 val hash = method.hash

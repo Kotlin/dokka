@@ -1,11 +1,15 @@
 package translators
 
+import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.model.doc.Text
 import org.jetbrains.dokka.model.firstMemberOfType
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
+import org.jetbrains.dokka.model.TypeConstructor
+import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import utils.assertNotNull
 
 class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
     val configuration = dokkaConfiguration {
@@ -162,6 +166,63 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
                     .firstMemberOfType<Text>().body
                 assertEquals(
                     "Here comes description from package-info", documentationOfPackage
+                )
+            }
+        }
+    }
+
+    class OnlyPsiPlugin : DokkaPlugin() {
+        private val dokkaBase by lazy { plugin<DokkaBase>() }
+
+        @Suppress("unused")
+        val psiOverrideDescriptorTranslator by extending {
+            (dokkaBase.psiToDocumentableTranslator
+                    override dokkaBase.descriptorToDocumentableTranslator)
+        }
+    }
+
+    @Test
+    fun `psi bug`() {
+        val configurationWithNoJVM = dokkaConfiguration {
+            sourceSets {
+                sourceSet {
+                    sourceRoots = listOf("src/main/java")
+                    includeNonPublic = true
+                }
+            }
+        }
+
+        testInline(
+            """
+            |/src/main/java/example/Test.kt
+            |package example
+            |
+            |open class KotlinSubClass {
+            |    fun kotlinSubclassFunction(bar: String): String {
+            |       return "KotlinSubClass"
+            |    }
+            |}
+            |
+            |/src/main/java/example/JavaLeafClass.java
+            |package example;
+            |
+            |public class JavaLeafClass extends KotlinSubClass {
+            |    public String javaLeafClassFunction(String baz) {
+            |        return "JavaLeafClass";
+            |    }
+            |}
+        """.trimMargin(),
+            configurationWithNoJVM,
+            pluginOverrides = listOf(OnlyPsiPlugin()) // suppress a descriptor translator because of psi and descriptor translators work in parallel
+        ) {
+            documentablesMergingStage = { module ->
+                val kotlinSubclassFunction =
+                    module.packages.single().classlikes.find { it.name == "JavaLeafClass" }?.functions?.find { it.name == "kotlinSubclassFunction" }
+                        .assertNotNull("kotlinSubclassFunction ")
+                assertEquals((kotlinSubclassFunction.type as? TypeConstructor)?.dri?.classNames, "String")
+                assertEquals(
+                    (kotlinSubclassFunction.parameters.firstOrNull()?.type as? TypeConstructor)?.dri?.classNames,
+                    "String"
                 )
             }
         }
