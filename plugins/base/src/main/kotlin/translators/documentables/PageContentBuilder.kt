@@ -173,6 +173,18 @@ open class PageContentBuilder(
             contents += ListBuilder(true, mainDRI, sourceSets, kind, styles, extra).apply(operation).build()
         }
 
+        fun descriptionList(
+            kind: Kind = ContentKind.Main,
+            sourceSets: Set<DokkaSourceSet> = mainSourcesetData,
+            styles: Set<Style> = mainStyles,
+            extra: PropertyContainer<ContentNode> = mainExtra,
+            operation: ListBuilder.() -> Unit = {}
+        ) {
+            contents += ListBuilder(false, mainDRI, sourceSets, kind, styles + ListStyle.DescriptionList, extra)
+                .apply(operation)
+                .build()
+        }
+
         internal fun headers(vararg label: String) = contentFor(mainDRI, mainSourcesetData) {
             label.forEach { text(it) }
         }

@@ -1,13 +1,14 @@
 package transformers
 
+import matchers.content.*
 import org.jetbrains.dokka.base.transformers.pages.comments.DocTagToContentConverter
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.doc.*
-import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.Test
-import matchers.content.*
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.kotlin.utils.addToStdlib.assertedCast
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Test
 
 class CommentsToContentConverterTest {
     private val converter = DocTagToContentConverter()
@@ -418,6 +419,56 @@ class CommentsToContentConverterTest {
                 }
                 group {
                     +"New paragraph"
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `description list`() {
+        val docTag =
+            Dl(
+                listOf(
+                    Dt(
+                        listOf(
+                            Text("description list can have...")
+                        )
+                    ),
+                    Dt(
+                        listOf(
+                            Text("... two consecutive description terms")
+                        )
+                    ),
+                    Dd(
+                        listOf(
+                            Text("and usually has some sort of a description, like this one")
+                        )
+                    )
+                )
+            )
+
+        executeTest(docTag) {
+            composite<ContentList> {
+                check {
+                    assertTrue(style.contains(ListStyle.DescriptionList)) { "Expected DL style" }
+                }
+                group {
+                    check {
+                        assertTrue(style.contains(ListStyle.DescriptionTerm)) { "Expected DT style" }
+                    }
+                    +"description list can have..."
+                }
+                group {
+                    check {
+                        assertTrue(style.contains(ListStyle.DescriptionTerm)) { "Expected DT style" }
+                    }
+                    +"... two consecutive description terms"
+                }
+                group {
+                    check {
+                        assertTrue(style.contains(ListStyle.DescriptionDetails)) { "Expected DD style" }
+                    }
+                    +"and usually has some sort of a description, like this one"
                 }
             }
         }
