@@ -350,6 +350,28 @@ enum class ContentStyle : Style {
     RowTitle, TabbedContent, WithExtraAttributes, RunnableSample, InDocumentationAnchor, Caption
 }
 
+enum class ListStyle : Style {
+    /**
+     * Represents a list of groups of [DescriptionTerm] and [DescriptionDetails].
+     * Common uses for this element are to implement a glossary or to display
+     * metadata (a list of key-value pairs). Formatting example: see `<dl>` html tag.
+     */
+    DescriptionList,
+
+    /**
+     * If used within [DescriptionList] context, specifies a term in a description
+     * or definition list, usually followed by [DescriptionDetails] for one or more
+     * terms. Formatting example: see `<dt>` html tag
+     */
+    DescriptionTerm,
+
+    /**
+     * If used within [DescriptionList] context, provides the definition or other
+     * related text associated with [DescriptionTerm]. Formatting example: see `<dd>` html tag
+     */
+    DescriptionDetails
+}
+
 object CommentTable : Style
 
 object MultimoduleTable : Style
