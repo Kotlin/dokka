@@ -90,7 +90,7 @@ class DokkaSourceSetBuilder(
     var includes: List<String> = emptyList(),
     @Deprecated(message = "Use [documentedVisibilities] property for a more flexible control over documented visibilities")
     var includeNonPublic: Boolean = false,
-    var documentedVisibilities: Set<DokkaConfiguration.Visibility> = emptySet(),
+    var documentedVisibilities: Set<DokkaConfiguration.Visibility> = DokkaDefaults.documentedVisibilities,
     var reportUndocumented: Boolean = false,
     var skipEmptyPackages: Boolean = false,
     var skipDeprecated: Boolean = false,
@@ -140,7 +140,7 @@ val defaultSourceSet = DokkaSourceSetImpl(
     samples = emptySet(),
     includes = emptySet(),
     includeNonPublic = false,
-    documentedVisibilities = emptySet(),
+    documentedVisibilities = DokkaDefaults.documentedVisibilities,
     reportUndocumented = false,
     skipEmptyPackages = true,
     skipDeprecated = false,

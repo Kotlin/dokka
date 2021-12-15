@@ -2,6 +2,7 @@ package filter
 
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.DokkaConfigurationImpl
+import org.jetbrains.dokka.DokkaDefaults
 import org.jetbrains.dokka.PackageOptionsImpl
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.model.DClass
@@ -15,7 +16,7 @@ import kotlin.test.assertEquals
 class JavaVisibilityFilterTest : BaseAbstractTest() {
 
     @Test
-    fun `should include nothing private if no visibilities are included`() {
+    fun `should document nothing private if no visibilities are included`() {
         testVisibility(
             """
             | public class JavaVisibilityTest {
@@ -26,7 +27,7 @@ class JavaVisibilityFilterTest : BaseAbstractTest() {
             |     private void privateFunction() { }
             | }
             """.trimIndent(),
-            includedVisibility = setOf()
+            includedVisibility = DokkaDefaults.documentedVisibilities
         ) { module ->
             val clazz = module.first().packages.first().classlikes.filterIsInstance<DClass>().first()
             clazz.properties.also {
@@ -41,7 +42,7 @@ class JavaVisibilityFilterTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `should include private`() {
+    fun `should document private within public class`() {
         testVisibility(
             """
             | public class JavaVisibilityTest {
@@ -54,7 +55,7 @@ class JavaVisibilityFilterTest : BaseAbstractTest() {
             |     private void privateFunction() { }
             | }
             """.trimIndent(),
-            includedVisibility = setOf(DokkaConfiguration.Visibility.PRIVATE)
+            includedVisibility = setOf(DokkaConfiguration.Visibility.PUBLIC, DokkaConfiguration.Visibility.PRIVATE)
         ) { module ->
             val clazz = module.first().packages.first().classlikes.filterIsInstance<DClass>().first()
             clazz.properties.also {
@@ -71,7 +72,7 @@ class JavaVisibilityFilterTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `should include package private`() {
+    fun `should document package private within private class`() {
         testVisibility(
             """
             | public class JavaVisibilityTest {
@@ -84,7 +85,7 @@ class JavaVisibilityFilterTest : BaseAbstractTest() {
             |     void packagePrivateFunction() { }
             | }
             """.trimIndent(),
-            includedVisibility = setOf(DokkaConfiguration.Visibility.PACKAGE)
+            includedVisibility = setOf(DokkaConfiguration.Visibility.PUBLIC, DokkaConfiguration.Visibility.PACKAGE)
         ) { module ->
             val clazz = module.first().packages.first().classlikes.filterIsInstance<DClass>().first()
             clazz.properties.also {
@@ -101,7 +102,7 @@ class JavaVisibilityFilterTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `should include protected`() {
+    fun `should document protected within public class`() {
         testVisibility(
             """
             | public class JavaVisibilityTest {
@@ -114,7 +115,7 @@ class JavaVisibilityFilterTest : BaseAbstractTest() {
             |     protected void protectedFunction() { }
             | }
             """.trimIndent(),
-            includedVisibility = setOf(DokkaConfiguration.Visibility.PROTECTED)
+            includedVisibility = setOf(DokkaConfiguration.Visibility.PUBLIC, DokkaConfiguration.Visibility.PROTECTED)
         ) { module ->
             val clazz = module.first().packages.first().classlikes.filterIsInstance<DClass>().first()
             clazz.properties.also {
@@ -147,6 +148,7 @@ class JavaVisibilityFilterTest : BaseAbstractTest() {
             | }
             """.trimIndent(),
             includedVisibility = setOf(
+                DokkaConfiguration.Visibility.PUBLIC,
                 DokkaConfiguration.Visibility.PRIVATE,
                 DokkaConfiguration.Visibility.PROTECTED,
                 DokkaConfiguration.Visibility.PACKAGE,
@@ -253,7 +255,7 @@ class JavaVisibilityFilterTest : BaseAbstractTest() {
                             false,
                             false,
                             false,
-                            emptySet()
+                            DokkaDefaults.documentedVisibilities
                         )
                     )
                 }
@@ -272,7 +274,7 @@ class JavaVisibilityFilterTest : BaseAbstractTest() {
                             false,
                             false,
                             false,
-                            emptySet()
+                            DokkaDefaults.documentedVisibilities
                         )
                     )
                 }

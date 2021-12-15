@@ -240,6 +240,7 @@ class DefaultDescriptorToDocumentableTranslatorTest : BaseAbstractTest() {
                 sourceSet {
                     sourceRoots = listOf("src/main/kotlin")
                     documentedVisibilities = setOf(
+                        DokkaConfiguration.Visibility.PUBLIC,
                         DokkaConfiguration.Visibility.PRIVATE,
                         DokkaConfiguration.Visibility.PROTECTED,
                         DokkaConfiguration.Visibility.INTERNAL,
@@ -483,7 +484,6 @@ class DefaultDescriptorToDocumentableTranslatorTest : BaseAbstractTest() {
                 sourceSet {
                     sourceRoots = listOf("src/main/kotlin")
                     includeNonPublic = false
-                    documentedVisibilities = emptySet()
                 }
             }
         }

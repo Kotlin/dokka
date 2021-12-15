@@ -19,7 +19,7 @@ object DokkaDefaults {
     const val delayTemplateSubstitution: Boolean = false
 
     const val includeNonPublic: Boolean = false
-    val documentedVisibilities: Set<DokkaConfiguration.Visibility> = setOf()
+    val documentedVisibilities: Set<DokkaConfiguration.Visibility> = setOf(DokkaConfiguration.Visibility.PUBLIC)
     const val reportUndocumented: Boolean = false
     const val skipEmptyPackages: Boolean = true
     const val skipDeprecated: Boolean = false

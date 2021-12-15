@@ -76,7 +76,7 @@ The available configuration options are shown below:
 
         <!-- A list of visibility modifiers that should be documented -->
         <documentedVisibilities>
-            <visibility>PUBLIC</visibility> <!-- Default, can be omitted -->
+            <visibility>PUBLIC</visibility> <!-- Same for both kotlin and java -->
             <visibility>PRIVATE</visibility> <!-- Same for both kotlin and java -->
             <visibility>PROTECTED</visibility> <!-- Same for both kotlin and java -->
             <visibility>INTERNAL</visibility> <!-- Kotlin-specific internal modifier -->
@@ -166,7 +166,7 @@ The available configuration options are shown below:
 
                 <!-- A list of visibility modifiers that should be documented -->
                 <documentedVisibilities>
-                    <visibility>PUBLIC</visibility> <!-- Included by default, can be omitted -->
+                    <visibility>PUBLIC</visibility> <!-- Same for both kotlin and java -->
                     <visibility>PRIVATE</visibility> <!-- Same for both kotlin and java -->
                     <visibility>PROTECTED</visibility> <!-- Same for both kotlin and java -->
                     <visibility>INTERNAL</visibility> <!-- Kotlin-specific internal modifier -->

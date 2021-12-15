@@ -1,6 +1,7 @@
 package transformers
 
 import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.DokkaDefaults
 import org.jetbrains.dokka.PackageOptionsImpl
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
@@ -910,7 +911,7 @@ class ReportUndocumentedTransformerTest : BaseAbstractTest() {
         includeNonPublic: Boolean = true,
         skipDeprecated: Boolean = false,
         suppress: Boolean = false,
-        documentedVisibilities: Set<DokkaConfiguration.Visibility> = emptySet()
+        documentedVisibilities: Set<DokkaConfiguration.Visibility> = DokkaDefaults.documentedVisibilities
     ) = PackageOptionsImpl(
         matchingRegex = matchingRegex,
         reportUndocumented = reportUndocumented,

@@ -1,5 +1,6 @@
 package filter
 
+import org.jetbrains.dokka.DokkaDefaults
 import org.jetbrains.dokka.PackageOptionsImpl
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.junit.jupiter.api.Assertions
@@ -110,7 +111,7 @@ class DeprecationFilterTest : BaseAbstractTest() {
                             false,
                             true,
                             false,
-                            emptySet()
+                            DokkaDefaults.documentedVisibilities
                         )
                     )
                 }
@@ -149,7 +150,7 @@ class DeprecationFilterTest : BaseAbstractTest() {
                             false,
                             false,
                             false,
-                            emptySet()
+                            DokkaDefaults.documentedVisibilities
                         )
                     )
                 }

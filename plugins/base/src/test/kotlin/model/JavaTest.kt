@@ -23,6 +23,7 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
                 analysisPlatform = Platform.jvm.toString()
                 classpath += jvmStdlibPath!!
                 documentedVisibilities = setOf(
+                    DokkaConfiguration.Visibility.PUBLIC,
                     DokkaConfiguration.Visibility.PRIVATE,
                     DokkaConfiguration.Visibility.PROTECTED,
                     DokkaConfiguration.Visibility.PACKAGE,

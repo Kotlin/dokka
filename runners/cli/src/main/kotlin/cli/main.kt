@@ -296,6 +296,7 @@ private fun parseSourceSet(moduleName: String, args: Array<String>): DokkaConfig
         override val noJdkLink = noJdkLink
         override val suppressedFiles = suppressedFiles.toMutableSet()
         override val documentedVisibilities: Set<DokkaConfiguration.Visibility> = documentedVisibilities.toSet()
+            .ifEmpty { DokkaDefaults.documentedVisibilities }
     }
 }
 

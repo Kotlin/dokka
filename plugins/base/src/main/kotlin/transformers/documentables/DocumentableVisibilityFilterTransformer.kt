@@ -5,6 +5,7 @@ import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.transformers.documentation.PreMergeDocumentableTransformer
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
+import org.jetbrains.dokka.DokkaDefaults
 
 class DocumentableVisibilityFilterTransformer(val context: DokkaContext) : PreMergeDocumentableTransformer {
 
@@ -20,7 +21,7 @@ class DocumentableVisibilityFilterTransformer(val context: DokkaContext) : PreMe
     ) {
         fun Visibility.isAllowedInPackage(packageName: String?) = when (this) {
             is JavaVisibility.Public,
-            is KotlinVisibility.Public -> true
+            is KotlinVisibility.Public -> isAllowedInPackage(packageName, DokkaConfiguration.Visibility.PUBLIC)
             is JavaVisibility.Private,
             is KotlinVisibility.Private -> isAllowedInPackage(packageName, DokkaConfiguration.Visibility.PRIVATE)
             is JavaVisibility.Protected,
@@ -39,7 +40,12 @@ class DocumentableVisibilityFilterTransformer(val context: DokkaContext) : PreMe
                 else -> globalOptions.documentedVisibilities to globalOptions.includeNonPublic
             }
 
-            return documentedVisibilities.takeIf { it.isNotEmpty() }?.contains(visibility) ?: includeNonPublic
+            val isDocumentedVisibilitiesOverridden = documentedVisibilities !== DokkaDefaults.documentedVisibilities
+            return if (isDocumentedVisibilitiesOverridden) {
+                documentedVisibilities.contains(visibility)
+            } else {
+                visibility == DokkaConfiguration.Visibility.PUBLIC || includeNonPublic
+            }
         }
 
         fun processModule(original: DModule) =

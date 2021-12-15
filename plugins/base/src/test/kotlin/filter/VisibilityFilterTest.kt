@@ -1,7 +1,7 @@
 package filter
 
-import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.DokkaConfiguration.Visibility
+import org.jetbrains.dokka.DokkaDefaults
 import org.jetbrains.dokka.PackageOptionsImpl
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.model.DClass
@@ -16,7 +16,7 @@ import kotlin.test.assertTrue
 class VisibilityFilterTest : BaseAbstractTest() {
 
     @Test
-    fun `should not include non-public if no additional visibilities are provided`() {
+    fun `should document only public for defaults`() {
         testVisibility(
             """
             | val publicProperty: String = "publicProperty"
@@ -25,7 +25,7 @@ class VisibilityFilterTest : BaseAbstractTest() {
             | fun publicFun() { }
             | private fun privateFun() { } 
             """.trimIndent(),
-            includedVisibility = setOf()
+            visibilities = DokkaDefaults.documentedVisibilities
         ) { module ->
             val pckg = module.first().packages.first()
             pckg.properties.also {
@@ -40,7 +40,7 @@ class VisibilityFilterTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `should document private`() {
+    fun `should document public`() {
         testVisibility(
             """
             | class TestClass {
@@ -54,7 +54,90 @@ class VisibilityFilterTest : BaseAbstractTest() {
             |     private fun privateFun() { }
             | }
             """.trimIndent(),
-            includedVisibility = setOf(Visibility.PRIVATE)
+            visibilities = setOf(Visibility.PUBLIC)
+        ) { module ->
+            val clazz = module.first().packages.first().classlikes.filterIsInstance<DClass>().first()
+            clazz.properties.also {
+                assertEquals(1, it.size)
+                assertEquals("publicProperty", it[0].name)
+            }
+            clazz.functions.also {
+                assertEquals(1, it.size)
+                assertEquals("publicFun", it[0].name)
+            }
+        }
+    }
+
+    @Test
+    fun `should document only private`() {
+        testVisibility(
+            """
+            | public val noiseMember: String = "noise"
+            | internal fun noiseFun() { }
+            | class NoisePublicClass { }
+            |
+            | private val privateProperty: String = "privateProperty"
+            | private fun privateFun() { }
+            """.trimIndent(),
+            visibilities = setOf(Visibility.PRIVATE)
+        ) { module ->
+            val pckg = module.first().packages.first()
+
+            assertTrue(pckg.classlikes.isEmpty())
+            pckg.properties.also {
+                assertEquals(1, it.size)
+                assertEquals("privateProperty", it[0].name)
+            }
+            pckg.functions.also {
+                assertEquals(1, it.size)
+                assertEquals("privateFun", it[0].name)
+            }
+        }
+    }
+
+    @Test
+    fun `should document only internal`() {
+        testVisibility(
+            """
+            | public val noiseMember: String = "noise"
+            | private fun noiseFun() { }
+            | class NoisePublicClass { }
+            |
+            | internal val internalProperty: String = "privateProperty"
+            | internal fun internalFun() { }
+            """.trimIndent(),
+            visibilities = setOf(Visibility.INTERNAL)
+        ) { module ->
+            val pckg = module.first().packages.first()
+
+            assertTrue(pckg.classlikes.isEmpty())
+            pckg.properties.also {
+                assertEquals(1, it.size)
+                assertEquals("internalProperty", it[0].name)
+            }
+            pckg.functions.also {
+                assertEquals(1, it.size)
+                assertEquals("internalFun", it[0].name)
+            }
+        }
+    }
+
+    @Test
+    fun `should document private within public class`() {
+        testVisibility(
+            """
+            | class TestClass {
+            |     val publicProperty: String = "publicProperty"
+            |     internal val noise: String = "noise"
+            |
+            |     private val privateProperty: String = "privateProperty"
+            |
+            |     fun publicFun() { }
+            |
+            |     private fun privateFun() { }
+            | }
+            """.trimIndent(),
+            visibilities = setOf(Visibility.PUBLIC, Visibility.PRIVATE)
         ) { module ->
             val clazz = module.first().packages.first().classlikes.filterIsInstance<DClass>().first()
             clazz.properties.also {
@@ -71,7 +154,7 @@ class VisibilityFilterTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `should document internal`() {
+    fun `should document internal within public class`() {
         testVisibility(
             """
             | class TestClass {
@@ -85,7 +168,7 @@ class VisibilityFilterTest : BaseAbstractTest() {
             |     internal fun internalFun() { }
             | }
             """.trimIndent(),
-            includedVisibility = setOf(Visibility.INTERNAL)
+            visibilities = setOf(Visibility.PUBLIC, Visibility.INTERNAL)
         ) { module ->
             val clazz = module.first().packages.first().classlikes.filterIsInstance<DClass>().first()
             clazz.properties.also {
@@ -102,7 +185,7 @@ class VisibilityFilterTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `should document protected`() {
+    fun `should document protected within public class`() {
         testVisibility(
             """
             | class TestClass {
@@ -116,7 +199,7 @@ class VisibilityFilterTest : BaseAbstractTest() {
             |     protected fun protectedFun() { }
             | }
             """.trimIndent(),
-            includedVisibility = setOf(Visibility.PROTECTED)
+            visibilities = setOf(Visibility.PUBLIC, Visibility.PROTECTED)
         ) { module ->
             val clazz = module.first().packages.first().classlikes.filterIsInstance<DClass>().first()
             clazz.properties.also {
@@ -150,7 +233,8 @@ class VisibilityFilterTest : BaseAbstractTest() {
             |     protected fun protectedFun() { }
             | }
             """.trimIndent(),
-            includedVisibility = setOf(
+            visibilities = setOf(
+                Visibility.PUBLIC,
                 Visibility.PRIVATE,
                 Visibility.PROTECTED,
                 Visibility.INTERNAL
@@ -199,7 +283,7 @@ class VisibilityFilterTest : BaseAbstractTest() {
             |/src/main/kotlin/basic/Test.kt
             |package example
             |
-            | fun testFunction() { }
+            | fun publicFun() { }
             |
             | private fun privateFun() { }
             |
@@ -209,7 +293,7 @@ class VisibilityFilterTest : BaseAbstractTest() {
             preMergeDocumentablesTransformationStage = {
                 val functions = it.first().packages.first().functions
                 assertEquals(1, functions.size)
-                assertEquals("testFunction", functions[0].name)
+                assertEquals("publicFun", functions[0].name)
             }
         }
     }
@@ -240,8 +324,6 @@ class VisibilityFilterTest : BaseAbstractTest() {
             |/src/main/kotlin/basic/Test.kt
             |package example
             |
-            | fun testFunction() { }
-            |
             | internal fun internalFun() { }
             | 
             | private fun privateFun() { }
@@ -251,9 +333,8 @@ class VisibilityFilterTest : BaseAbstractTest() {
         ) {
             preMergeDocumentablesTransformationStage = {
                 val functions = it.first().packages.first().functions
-                assertEquals(2, functions.size)
-                assertEquals("testFunction", functions[0].name)
-                assertEquals("privateFun", functions[1].name)
+                assertEquals(1, functions.size)
+                assertEquals("privateFun", functions[0].name)
             }
         }
     }
@@ -275,8 +356,6 @@ class VisibilityFilterTest : BaseAbstractTest() {
             |/src/main/kotlin/basic/Test.kt
             |package example
             |
-            | fun testFunction() { }
-            |
             | internal fun internalFun() { }
             | 
             | private fun privateFun() { }
@@ -286,9 +365,8 @@ class VisibilityFilterTest : BaseAbstractTest() {
         ) {
             preMergeDocumentablesTransformationStage = {
                 val functions = it.first().packages.first().functions
-                assertEquals(2, functions.size)
-                assertEquals("testFunction", functions[0].name)
-                assertEquals("internalFun", functions[1].name)
+                assertEquals(1, functions.size)
+                assertEquals("internalFun", functions[0].name)
             }
         }
     }
@@ -431,7 +509,7 @@ class VisibilityFilterTest : BaseAbstractTest() {
                             false,
                             false,
                             false,
-                            emptySet()
+                            DokkaDefaults.documentedVisibilities
                         )
                     )
                 }
@@ -472,7 +550,7 @@ class VisibilityFilterTest : BaseAbstractTest() {
                             false,
                             false,
                             false,
-                            emptySet()
+                            DokkaDefaults.documentedVisibilities
                         )
                     )
                 }
@@ -604,11 +682,15 @@ class VisibilityFilterTest : BaseAbstractTest() {
     }
 
 
-    private fun testVisibility(body: String, includedVisibility: Set<DokkaConfiguration.Visibility>, asserts: (List<DModule>) -> Unit) {
+    private fun testVisibility(
+        body: String,
+        visibilities: Set<Visibility>,
+        asserts: (List<DModule>) -> Unit
+    ) {
         val configuration = dokkaConfiguration {
             sourceSets {
                 sourceSet {
-                    documentedVisibilities = includedVisibility
+                    documentedVisibilities = visibilities
                     sourceRoots = listOf("src/main/kotlin/basic/Test.kt")
                 }
             }

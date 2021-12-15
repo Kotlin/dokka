@@ -106,7 +106,7 @@ val dokkaHtml by getting(DokkaTask::class) {
             // A set of visibility modifiers that should be documented
             documentedVisibilities.set(
                 setOf(
-                    Visibility.PUBLIC, // Included by default, can be omitted
+                    Visibility.PUBLIC, // Same for both Kotlin and Java
                     Visibility.PRIVATE, // Same for both Kotlin and Java
                     Visibility.PROTECTED, // Same for both Kotlin and Java
                     Visibility.INTERNAL, // Kotlin-specific internal modifier
@@ -193,7 +193,7 @@ val dokkaHtml by getting(DokkaTask::class) {
                 includeNonPublic.set(false) // Deprecated, prefer using documentedVisibilities
                 documentedVisibilities.set( // Visibilities that should be included in the documentation
                     setOf(
-                        Visibility.PUBLIC, // Included by default, can be omitted
+                        Visibility.PUBLIC, // Same for both Kotlin and Java
                         Visibility.PRIVATE, // Same for both Kotlin and Java
                         Visibility.PROTECTED, // Same for both Kotlin and Java
                         Visibility.INTERNAL, // Kotlin-specific internal modifier

@@ -20,6 +20,7 @@ class ContentForSignaturesTest : BaseAbstractTest() {
                 sourceRoots = listOf("src/")
                 analysisPlatform = "jvm"
                 documentedVisibilities = setOf(
+                    DokkaConfiguration.Visibility.PUBLIC,
                     DokkaConfiguration.Visibility.PRIVATE,
                     DokkaConfiguration.Visibility.PROTECTED,
                     DokkaConfiguration.Visibility.INTERNAL,
