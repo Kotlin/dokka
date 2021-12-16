@@ -2,6 +2,7 @@ import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.dokka.gradle.kotlinSourceSet
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.DokkaBaseConfiguration
+import org.jetbrains.dokka.DokkaConfiguration
 import java.net.URL
 
 plugins {
@@ -28,10 +29,19 @@ tasks.withType<DokkaTask> {
     moduleName.set("Basic Project")
     dokkaSourceSets {
         configureEach {
+            documentedVisibilities.set(
+                setOf(DokkaConfiguration.Visibility.PUBLIC, DokkaConfiguration.Visibility.PROTECTED)
+            )
             suppressedFiles.from(file("src/main/kotlin/it/suppressedByPath"))
             perPackageOption {
                 matchingRegex.set("it.suppressedByPackage.*")
                 suppress.set(true)
+            }
+            perPackageOption {
+                matchingRegex.set("it.overriddenVisibility.*")
+                documentedVisibilities.set(
+                    setOf(DokkaConfiguration.Visibility.PRIVATE)
+                )
             }
             sourceLink {
                 localDirectory.set(file("src/main"))

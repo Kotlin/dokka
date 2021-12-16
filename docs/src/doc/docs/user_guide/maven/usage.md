@@ -75,6 +75,7 @@ The available configuration options are shown below:
         </includes>
 
         <!-- A list of visibility modifiers that should be documented -->
+        <!-- If set by user, overrides includeNonPublic. Default is PUBLIC -->
         <documentedVisibilities>
             <visibility>PUBLIC</visibility> <!-- Same for both kotlin and java -->
             <visibility>PRIVATE</visibility> <!-- Same for both kotlin and java -->
@@ -165,6 +166,7 @@ The available configuration options are shown below:
                 <includeNonPublic>false</includeNonPublic>
 
                 <!-- A list of visibility modifiers that should be documented -->
+                <!-- If set by user, overrides includeNonPublic. Default is PUBLIC -->
                 <documentedVisibilities>
                     <visibility>PUBLIC</visibility> <!-- Same for both kotlin and java -->
                     <visibility>PRIVATE</visibility> <!-- Same for both kotlin and java -->

@@ -104,13 +104,14 @@ val dokkaHtml by getting(DokkaTask::class) {
             includeNonPublic.set(false)
 
             // A set of visibility modifiers that should be documented
+            // If set by user, overrides includeNonPublic. Default is PUBLIC
             documentedVisibilities.set(
                 setOf(
-                    Visibility.PUBLIC, // Same for both Kotlin and Java
-                    Visibility.PRIVATE, // Same for both Kotlin and Java
-                    Visibility.PROTECTED, // Same for both Kotlin and Java
-                    Visibility.INTERNAL, // Kotlin-specific internal modifier
-                    Visibility.PACKAGE, // Java-specific package-private visibility
+                    DokkaConfiguration.Visibility.PUBLIC, // Same for both Kotlin and Java
+                    DokkaConfiguration.Visibility.PRIVATE, // Same for both Kotlin and Java
+                    DokkaConfiguration.Visibility.PROTECTED, // Same for both Kotlin and Java
+                    DokkaConfiguration.Visibility.INTERNAL, // Kotlin-specific internal modifier
+                    DokkaConfiguration.Visibility.PACKAGE, // Java-specific package-private visibility
                 )
             )
 
@@ -191,13 +192,16 @@ val dokkaHtml by getting(DokkaTask::class) {
                 skipDeprecated.set(false)
                 reportUndocumented.set(true) // Emit warnings about not documented members 
                 includeNonPublic.set(false) // Deprecated, prefer using documentedVisibilities
-                documentedVisibilities.set( // Visibilities that should be included in the documentation
+
+                // Visibilities that should be included in the documentation
+                // If set by user, overrides includeNonPublic. Default is PUBLIC
+                documentedVisibilities.set(
                     setOf(
-                        Visibility.PUBLIC, // Same for both Kotlin and Java
-                        Visibility.PRIVATE, // Same for both Kotlin and Java
-                        Visibility.PROTECTED, // Same for both Kotlin and Java
-                        Visibility.INTERNAL, // Kotlin-specific internal modifier
-                        Visibility.PACKAGE, // Java-specific package-private visibility
+                        DokkaConfiguration.Visibility.PUBLIC, // Same for both Kotlin and Java
+                        DokkaConfiguration.Visibility.PRIVATE, // Same for both Kotlin and Java
+                        DokkaConfiguration.Visibility.PROTECTED, // Same for both Kotlin and Java
+                        DokkaConfiguration.Visibility.INTERNAL, // Kotlin-specific internal modifier
+                        DokkaConfiguration.Visibility.PACKAGE, // Java-specific package-private visibility
                     )
                 )
             }

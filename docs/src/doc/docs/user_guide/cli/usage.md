@@ -30,7 +30,7 @@ Dokka supports the following command line arguments:
     * `-samples` - list of directories containing sample code (documentation for those directories is not generated but declarations from them can be referenced using the `@sample` tag) separated by `;`
     * `-includes` - list of files containing the documentation for the module and individual packages separated by `;`
     * `-includeNonPublic` - **Deprecated**, prefer using `documentedVisibilities`. Include protected and private code
-    * `-documentedVisibilities` - a list of visibility modifiers (separated by `;`) that should be documented. Possible values: `PUBLIC`, `PRIVATE`, `PROTECTED`, `INTERNAL` (Kotlin-specific), `PACKAGE` (Java-specific package-private)
+    * `-documentedVisibilities` - a list of visibility modifiers (separated by `;`) that should be documented. Overrides `includeNonPublic`. Default is `PUBLIC`. Possible values: `PUBLIC`, `PRIVATE`, `PROTECTED`, `INTERNAL` (Kotlin-specific), `PACKAGE` (Java-specific package-private)
     * `-skipDeprecated` - if set, deprecated elements are not included in the generated documentation
     * `-reportUndocumented` - warn about undocumented members
     * `-noSkipEmptyPackages` - create index pages for empty packages
