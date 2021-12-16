@@ -496,19 +496,17 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
     /**
      * Classpath for this environment.
      */
-    val classpath: List<File>
-        get() = configuration.jvmClasspathRoots + configuration.getList(JSConfigurationKeys.LIBRARIES)
-            .mapNotNull { File(it) }
+    val classpath: MutableList<File> = mutableListOf()
 
     /**
      * Adds list of paths to classpath.
      * $paths: collection of files to add
      */
     fun addClasspath(paths: List<File>) {
-        if (analysisPlatform == Platform.js) {
-            configuration.addAll(JSConfigurationKeys.LIBRARIES, paths.map { it.absolutePath })
-        } else {
-            configuration.addJvmClasspathRoots(paths)
+        classpath.addAll(paths)
+        when (analysisPlatform) {
+            Platform.js -> configuration.addAll(JSConfigurationKeys.LIBRARIES, paths.map { it.absolutePath })
+            Platform.common, Platform.jvm -> configuration.addJvmClasspathRoots(paths)
         }
     }
 
@@ -517,10 +515,10 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
      * $path: path to add
      */
     fun addClasspath(path: File) {
-        if (analysisPlatform == Platform.js) {
-            configuration.add(JSConfigurationKeys.LIBRARIES, path.absolutePath)
-        } else {
-            configuration.addJvmClasspathRoot(path)
+        classpath.add(path)
+        when (analysisPlatform) {
+            Platform.js -> configuration.add(JSConfigurationKeys.LIBRARIES, path.absolutePath)
+            Platform.common, Platform.jvm -> configuration.addJvmClasspathRoot(path)
         }
     }
 
