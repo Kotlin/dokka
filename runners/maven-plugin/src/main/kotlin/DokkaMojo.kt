@@ -157,6 +157,9 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
 
     @Parameter(property = "visibility")
     var documentedVisibilities: Set<DokkaConfiguration.Visibility> = DokkaDefaults.documentedVisibilities
+        // hack to set the default value for lists, didn't find any other safe way
+        // maven seems to overwrite Kotlin's default initialization value, so it doesn't matter what you put there
+        get() = field.ifEmpty { DokkaDefaults.documentedVisibilities }
 
     @Parameter
     var failOnWarning: Boolean = DokkaDefaults.failOnWarning
@@ -204,7 +207,7 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
             samples = samples.map(::File).toSet(),
             includes = includes.map(::File).toSet(),
             includeNonPublic = includeNonPublic,
-            documentedVisibilities = documentedVisibilities,
+            documentedVisibilities = documentedVisibilities.also { println("DOCUMENTED VISIBILITIES (is empty: ${it.isEmpty()}): $it") },
             reportUndocumented = reportUndocumented,
             skipEmptyPackages = skipEmptyPackages,
             skipDeprecated = skipDeprecated,
@@ -214,7 +217,7 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
                 PackageOptionsImpl(
                     matchingRegex = it.matchingRegex,
                     includeNonPublic = it.includeNonPublic,
-                    documentedVisibilities = it.documentedVisibilities,
+                    documentedVisibilities = it.documentedVisibilities.also { println("DOCUMENTED package VISIBILITIES (is empty: ${it.isEmpty()}): $it") },
                     reportUndocumented = it.reportUndocumented,
                     skipDeprecated = it.skipDeprecated,
                     suppress = it.suppress
