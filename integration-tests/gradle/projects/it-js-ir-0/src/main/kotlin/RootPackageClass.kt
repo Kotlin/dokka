@@ -13,3 +13,9 @@ class RootPackageClass {
 }
 
 fun RComponent<*, *>.params() = URLSearchParams()
+
+fun test(list: MutableList<Int>) = "list"
+
+@JsModule("is-sorted")
+@JsNonModule
+external fun <T> sorted(a: Array<T>): Boolean

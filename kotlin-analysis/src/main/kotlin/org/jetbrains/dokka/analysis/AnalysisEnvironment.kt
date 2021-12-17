@@ -30,6 +30,7 @@ import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
 import org.jetbrains.kotlin.cli.common.config.ContentRoot
 import org.jetbrains.kotlin.cli.common.config.KotlinSourceRoot
 import org.jetbrains.kotlin.cli.common.config.addKotlinSourceRoot
+import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles
 import org.jetbrains.kotlin.cli.jvm.compiler.JvmPackagePartProvider
@@ -74,7 +75,7 @@ import org.jetbrains.kotlin.resolve.jvm.platform.JvmPlatformAnalyzerServices
 import org.jetbrains.kotlin.resolve.konan.platform.NativePlatformAnalyzerServices
 import java.io.File
 import org.jetbrains.kotlin.konan.file.File as KFile
-
+import org.jetbrains.kotlin.library.KLIB_FILE_EXTENSION
 
 const val JAR_SEPARATOR = "!/"
 
@@ -289,23 +290,32 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
         val analyzerServices = analysisPlatform.analyzerServices()
 
         return buildMap {
-            classpath.forEach { libraryFile ->
-                val kotlinLibrary = resolveSingleFileKlib(
-                    libraryFile = KFile(libraryFile.absolutePath),
-                    strategy = ToolingSingleFileKlibResolveStrategy
-                )
+            classpath
+                .filter { it.isDirectory || (it.extension == "jar" || it.extension == KLIB_FILE_EXTENSION) }
+                .forEach { libraryFile ->
+                    try {
+                        val kotlinLibrary = resolveSingleFileKlib(
+                            libraryFile = KFile(libraryFile.absolutePath),
+                            strategy = ToolingSingleFileKlibResolveStrategy
+                        )
 
-                if (kotlinLibrary.getCompatibilityInfo().isCompatible) {
-                    // exists, is KLIB, has compatible format
-                    put(
-                        libraryFile.absolutePath,
-                        if (analysisPlatform == Platform.native)
-                            DokkaNativeKlibLibraryInfo(kotlinLibrary, analyzerServices, dependencyResolver)
-                        else
-                            DokkaJsKlibLibraryInfo(kotlinLibrary, analyzerServices, dependencyResolver)
-                    )
+                        if (kotlinLibrary.getCompatibilityInfo().isCompatible) {
+                            // exists, is KLIB, has compatible format
+                            put(
+                                libraryFile.absolutePath,
+                                if (analysisPlatform == Platform.native) DokkaNativeKlibLibraryInfo(
+                                    kotlinLibrary,
+                                    analyzerServices,
+                                    dependencyResolver
+                                )
+                                else DokkaJsKlibLibraryInfo(kotlinLibrary, analyzerServices, dependencyResolver)
+                            )
+                        }
+                    } catch (e: Throwable) {
+                        configuration.getNotNull(CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY)
+                            .report(CompilerMessageSeverity.WARNING, "Can not resolve KLIB. " + e.message)
+                    }
                 }
-            }
         }
     }
 
@@ -487,7 +497,8 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
      * Classpath for this environment.
      */
     val classpath: List<File>
-        get() = configuration.jvmClasspathRoots
+        get() = configuration.jvmClasspathRoots + configuration.getList(JSConfigurationKeys.LIBRARIES)
+            .mapNotNull { File(it) }
 
     /**
      * Adds list of paths to classpath.
@@ -496,8 +507,9 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
     fun addClasspath(paths: List<File>) {
         if (analysisPlatform == Platform.js) {
             configuration.addAll(JSConfigurationKeys.LIBRARIES, paths.map { it.absolutePath })
+        } else {
+            configuration.addJvmClasspathRoots(paths)
         }
-        configuration.addJvmClasspathRoots(paths)
     }
 
     /**
@@ -507,8 +519,9 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
     fun addClasspath(path: File) {
         if (analysisPlatform == Platform.js) {
             configuration.add(JSConfigurationKeys.LIBRARIES, path.absolutePath)
+        } else {
+            configuration.addJvmClasspathRoot(path)
         }
-        configuration.addJvmClasspathRoot(path)
     }
 
     /**
