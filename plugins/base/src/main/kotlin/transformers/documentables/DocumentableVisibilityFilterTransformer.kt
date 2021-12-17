@@ -40,12 +40,10 @@ class DocumentableVisibilityFilterTransformer(val context: DokkaContext) : PreMe
                 else -> globalOptions.documentedVisibilities to globalOptions.includeNonPublic
             }
 
+            // if `documentedVisibilities` is explicitly overridden by the user (i.e. not default value by reference),
+            // deprecated `includeNonPublic` should not be taken into account, so that only one setting prevails
             val isDocumentedVisibilitiesOverridden = documentedVisibilities !== DokkaDefaults.documentedVisibilities
-            return if (isDocumentedVisibilitiesOverridden) {
-                documentedVisibilities.contains(visibility)
-            } else {
-                visibility == DokkaConfiguration.Visibility.PUBLIC || includeNonPublic
-            }
+            return documentedVisibilities.contains(visibility) || (!isDocumentedVisibilitiesOverridden && includeNonPublic)
         }
 
         fun processModule(original: DModule) =
