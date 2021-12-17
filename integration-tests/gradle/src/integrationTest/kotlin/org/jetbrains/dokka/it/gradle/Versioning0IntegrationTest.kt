@@ -12,7 +12,7 @@ class Versioning0IntegrationTest(override val versions: BuildVersions) : Abstrac
         @get:Parameterized.Parameters(name = "{0}")
         val versions = BuildVersions.permutations(
             gradleVersions = listOf("7.0", "7.3"),
-            kotlinVersions = listOf("1.6.0", "1.5.31", "1.5.0")
+            kotlinVersions = listOf("1.6.10", "1.6.0", "1.5.31", "1.5.0")
         )
     }
 
