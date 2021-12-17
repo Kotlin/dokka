@@ -207,7 +207,7 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
             samples = samples.map(::File).toSet(),
             includes = includes.map(::File).toSet(),
             includeNonPublic = includeNonPublic,
-            documentedVisibilities = documentedVisibilities.also { println("DOCUMENTED VISIBILITIES (is empty: ${it.isEmpty()}): $it") },
+            documentedVisibilities = documentedVisibilities,
             reportUndocumented = reportUndocumented,
             skipEmptyPackages = skipEmptyPackages,
             skipDeprecated = skipDeprecated,
@@ -217,7 +217,7 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
                 PackageOptionsImpl(
                     matchingRegex = it.matchingRegex,
                     includeNonPublic = it.includeNonPublic,
-                    documentedVisibilities = it.documentedVisibilities.also { println("DOCUMENTED package VISIBILITIES (is empty: ${it.isEmpty()}): $it") },
+                    documentedVisibilities = it.documentedVisibilities,
                     reportUndocumented = it.reportUndocumented,
                     skipDeprecated = it.skipDeprecated,
                     suppress = it.suppress
