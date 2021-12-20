@@ -81,9 +81,12 @@ class DocumentableVisibilityFilterTransformer(val context: DokkaContext) : PreMe
             return Pair(packagesListChanged, filteredPackages)
         }
 
+        @Suppress("UNUSED_PARAMETER")
         private fun <T : WithVisibility> alwaysTrue(a: T, p: DokkaSourceSet) = true
+        @Suppress("UNUSED_PARAMETER")
         private fun <T : WithVisibility> alwaysFalse(a: T, p: DokkaSourceSet) = false
-        private fun <T> alwaysNoModify(a: T, sourceSets: Set<DokkaSourceSet>) = Pair(false, a)
+        @Suppress("UNUSED_PARAMETER")
+        private fun <T> alwaysNoModify(a: T, sourceSets: Set<DokkaSourceSet>) = false to a
 
         private fun WithVisibility.visibilityForPlatform(data: DokkaSourceSet): Visibility? = visibility[data]
 
@@ -159,16 +162,14 @@ class DocumentableVisibilityFilterTransformer(val context: DokkaContext) : PreMe
 
                     val modified = setter?.first == true || getter?.first == true
 
-                    Pair(modified,
+                    val property =
                         if (modified)
-                            with(original) {
-                                copy(
-                                    setter = setter?.second?.firstOrNull(),
-                                    getter = getter?.second?.firstOrNull()
-                                )
-                            }
+                            original.copy(
+                                setter = setter?.second?.firstOrNull(),
+                                getter = getter?.second?.firstOrNull()
+                            )
                         else original
-                    )
+                    modified to property
                 }
 
             return properties.transform(

@@ -2,7 +2,6 @@ package transformers
 
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.model.DEnum
-import org.jetbrains.dokka.model.DProperty
 import org.jetbrains.dokka.model.WithCompanion
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -101,7 +100,7 @@ class SuppressTagFilterTest : BaseAbstractTest() {
         ) {
             preMergeDocumentablesTransformationStage = { modules ->
                 val prop = modules.flatMap { it.packages }.flatMap { it.properties }
-                    .firstOrNull { it.name == "property" } as? DProperty
+                    .find { it.name == "property" }
                 assertNotNull(prop)
                 assertNotNull(prop.getter)
                 assertNull(prop.setter)
