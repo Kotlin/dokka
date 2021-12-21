@@ -228,6 +228,7 @@ html ::-webkit-scrollbar-thumb {
     margin-top: 8px;
 }
 
+p.paragraph:first-child,
 .brief p.paragraph {
     margin-top: 0;
 }
