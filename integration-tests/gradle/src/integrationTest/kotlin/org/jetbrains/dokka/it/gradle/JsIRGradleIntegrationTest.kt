@@ -10,10 +10,7 @@ class JsIRGradleIntegrationTest(override val versions: BuildVersions) : Abstract
     companion object {
         @get:JvmStatic
         @get:Parameters(name = "{0}")
-        val versions = BuildVersions.permutations(
-            gradleVersions = listOf("7.2", *ifExhaustive("7.0")),
-            kotlinVersions = listOf("1.5.0", "1.5.30", "1.5.31")
-        )
+        val versions = TestedVersions.BASE
     }
 
     val reactVersionArg = mapOf(

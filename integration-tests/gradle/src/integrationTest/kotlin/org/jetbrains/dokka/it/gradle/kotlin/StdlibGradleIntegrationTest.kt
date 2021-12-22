@@ -16,8 +16,8 @@ class StdlibGradleIntegrationTest(override val versions: BuildVersions) : Abstra
         @get:JvmStatic
         @get:Parameterized.Parameters(name = "{0}")
         val versions = BuildVersions.permutations(
-            gradleVersions = listOf("5.6"),
-            kotlinVersions = listOf("1.4.10")
+            gradleVersions = listOf("7.3"),
+            kotlinVersions = listOf("1.6.10")
         )
     }
 
