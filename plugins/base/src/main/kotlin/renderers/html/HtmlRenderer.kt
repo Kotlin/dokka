@@ -450,7 +450,9 @@ open class HtmlRenderer(
                 it.filter { sourceSetRestriction == null || it.sourceSets.any { s -> s in sourceSetRestriction } }
                     .forEach {
                         span("inline-flex") {
-                            it.build(this, pageContext, sourceSetRestriction)
+                            div {
+                                it.build(this, pageContext, sourceSetRestriction)
+                            }
                             if (it is ContentLink && !anchorDestination.isNullOrBlank()) buildAnchorCopyButton(
                                 anchorDestination
                             )
