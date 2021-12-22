@@ -777,7 +777,6 @@ td.content {
 .platform-hinted {
     flex: auto;
     display: block;
-    margin-bottom: 5px;
 }
 
 .platform-hinted > .platform-bookmarks-row > .platform-bookmark {
