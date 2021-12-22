@@ -747,7 +747,6 @@ td.content {
 }
 
 .main-subrow .anchor-icon {
-    padding: 0 8px;
     opacity: 0;
     transition: 0.2s 0.5s;
 }
@@ -766,8 +765,9 @@ td.content {
 
 .main-subrow .anchor-wrapper {
     position: relative;
-    width: 16px;
+    width: 24px;
     height: 16px;
+    margin-left: 3px;
 }
 
 .inline-flex {
