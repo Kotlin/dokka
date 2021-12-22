@@ -261,7 +261,7 @@ open class DefaultPageCreator(
                     needsAnchors = true,
                     extra = PropertyContainer.empty<ContentNode>() + SimpleAttr.header("Constructors")
                 ) {
-                    link(it.name, it.dri, kind = ContentKind.Main)
+                    link(it.name, it.dri, kind = ContentKind.Main, styles = setOf(ContentStyle.RowTitle))
                     sourceSetDependentHint(
                         it.dri,
                         it.sourceSets.toSet(),
