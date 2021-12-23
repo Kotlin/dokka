@@ -607,7 +607,9 @@ open class HtmlRenderer(
             if (path.size > 1) {
                 buildNavigationElement(path.first(), page)
                 path.drop(1).forEach { node ->
-                    text("/")
+                    span(classes = "delimiter") {
+                        text("/")
+                    }
                     buildNavigationElement(node, page)
                 }
             }
