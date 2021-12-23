@@ -15,6 +15,7 @@ import utils.A
 import utils.Span
 import utils.TestOutputWriterPlugin
 import utils.match
+import kotlin.test.assertEquals
 
 class KotlinAsJavaPluginTest : BaseAbstractTest() {
 
@@ -87,7 +88,7 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
                     .map { it.content }
 
                 val children = contentList.flatMap { content ->
-                    content.mainContents.first().cast<ContentGroup>().children
+                    content.mainContents.single { it is ContentGroup }.children
                         .filterIsInstance<ContentTable>()
                         .filter { it.children.isNotEmpty() }
                 }
@@ -433,6 +434,49 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/kotlinAsJavaPlugin/-test-kt/sample.html").signature().first().match(
                     "final static ", A("String"), A("sample"), "(", A("Integer"), "a)", Span(), ignoreSpanWithTokenStyle = true
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `should render primary kotlin constructor as a java constructor`() {
+        val writerPlugin = TestOutputWriterPlugin()
+        val configuration = dokkaConfiguration {
+            sourceSets {
+                sourceSet {
+                    sourceRoots = listOf("src/")
+                    externalDocumentationLinks = listOf(
+                        DokkaConfiguration.ExternalDocumentationLink.jdk(8),
+                        stdlibExternalDocumentationLink
+                    )
+                }
+            }
+        }
+        testInline(
+            """
+            |/src/main/kotlin/kotlinAsJavaPlugin/Test.kt
+            |package kotlinAsJavaPlugin
+            |
+            |class Test(val xd: Int)
+        """.trimMargin(),
+            configuration,
+            pluginOverrides = listOf(writerPlugin),
+            cleanupOutput = true
+        ) {
+            pagesGenerationStage = { root ->
+                val content = root.children
+                    .flatMap { it.children<ContentPage>() }
+                    .map { it.content }.single().mainContents
+
+                val text = content.single { it is ContentHeader }.children
+                        .single() as ContentText
+
+                assertEquals("Constructors", text.text)
+            }
+            renderingStage = { _, _ ->
+                writerPlugin.writer.renderedContent("root/kotlinAsJavaPlugin/-test/-test.html").signature().first().match(
+                    A("Test"), A("Test"), "(", A("Integer"), "xd)", Span(), ignoreSpanWithTokenStyle = true
                 )
             }
         }
