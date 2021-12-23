@@ -6,6 +6,8 @@ import RootPackageClass
 
 /**
  * This class, unlike [RootPackageClass] is located in a sub-package
+ *
+ * §PUBLIC§ (marker for asserts)
  */
 class PublicClass {
     /**
@@ -21,6 +23,13 @@ class PublicClass {
     internal fun internalDocumentedFunction(): String = ""
 
     internal fun internalUndocumentedFunction(): String = ""
+
+    /**
+     * This function is protected and documented
+     */
+    protected fun protectedDocumentedFunction(): String = ""
+
+    protected fun protectedUndocumentedFunction(): String = ""
 
     /**
      * This function is private and documented
@@ -43,6 +52,13 @@ class PublicClass {
     val internalDocumentedProperty: Int = 0
 
     val internalUndocumentedProperty: Int = 0
+
+    /**
+     * This property is protected and documented
+     */
+    val protectedDocumentedProperty: Int = 0
+
+    val protectedUndocumentedProperty: Int = 0
 
     /**
      * This property private and documented

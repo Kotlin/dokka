@@ -39,6 +39,7 @@ class DokkaConfigurationJsonTest {
                     packageOption.includeNonPublic by true
                     packageOption.reportUndocumented by true
                     packageOption.skipDeprecated by true
+                    packageOption.documentedVisibilities by setOf(DokkaConfiguration.Visibility.PRIVATE)
                 }
             }
         }

@@ -60,6 +60,10 @@ open class GradleDokkaSourceSetBuilder(
         .safeConvention(DokkaDefaults.includeNonPublic)
 
     @Input
+    val documentedVisibilities: SetProperty<DokkaConfiguration.Visibility> = project.objects.setProperty<DokkaConfiguration.Visibility>()
+        .convention(DokkaDefaults.documentedVisibilities)
+
+    @Input
     val reportUndocumented: Property<Boolean> = project.objects.safeProperty<Boolean>()
         .safeConvention(DokkaDefaults.reportUndocumented)
 
