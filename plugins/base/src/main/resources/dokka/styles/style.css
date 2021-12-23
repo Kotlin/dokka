@@ -146,6 +146,10 @@ html ::-webkit-scrollbar-thumb {
     overflow-wrap: break-word;
 }
 
+.breadcrumbs .delimiter {
+    margin: auto 2px;
+}
+
 .tabs-section > .section-tab:first-child,
 .platform-hinted > .platform-bookmarks-row > .platform-bookmark:first-child {
     margin-left: 0;
