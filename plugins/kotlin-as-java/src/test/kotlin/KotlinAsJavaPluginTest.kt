@@ -88,7 +88,7 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
                     .map { it.content }
 
                 val children = contentList.flatMap { content ->
-                    content.mainContents.first().cast<ContentGroup>().children
+                    content.mainContents.single { it is ContentGroup }.children
                         .filterIsInstance<ContentTable>()
                         .filter { it.children.isNotEmpty() }
                 }
