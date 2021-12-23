@@ -29,11 +29,12 @@ Dokka supports the following command line arguments:
     * `-classpath` - list of directories or .jar files to include in the classpath (used for resolving references) separated by `;`
     * `-samples` - list of directories containing sample code (documentation for those directories is not generated but declarations from them can be referenced using the `@sample` tag) separated by `;`
     * `-includes` - list of files containing the documentation for the module and individual packages separated by `;`
-    * `-includeNonPublic` - include protected and private code   
+    * `-includeNonPublic` - **Deprecated**, prefer using `documentedVisibilities`. Include protected and private code
+    * `-documentedVisibilities` - a list of visibility modifiers (separated by `;`) that should be documented. Overrides `includeNonPublic`. Default is `PUBLIC`. Possible values: `PUBLIC`, `PRIVATE`, `PROTECTED`, `INTERNAL` (Kotlin-specific), `PACKAGE` (Java-specific package-private)
     * `-skipDeprecated` - if set, deprecated elements are not included in the generated documentation
     * `-reportUndocumented` - warn about undocumented members
     * `-noSkipEmptyPackages` - create index pages for empty packages
-    * `-packageOptions` - list of package options in format `matchingRegex,-deprecated,-privateApi,+reportUndocumented;matchingRegex, ...`, separated by `;`
+    * `-perPackageOptions` - list of package options in format `matchingRegex,-deprecated,-privateApi,+reportUndocumented;+visibility:PRIVATE;matchingRegex, ...`, separated by `;`
     * `-links` - list of external documentation links in format `url^packageListUrl^^url2...`, separated by `;`
     * `-srcLink` - mapping between a source directory and a Web site for browsing the code in format `<path>=<url>[#lineSuffix]`
     * `-noStdlibLink` - disable linking to online kotlin-stdlib documentation
@@ -104,6 +105,7 @@ The content of JSON file ```dokkaConfiguration.json```:
         "Module.md"
       ],
       "includeNonPublic": false,
+      "documentedVisibilities": ["PUBLIC", "PRIVATE", "PROTECTED", "INTERNAL", "PACKAGE"],
       "reportUndocumented": false,
       "skipEmptyPackages": true,
       "skipDeprecated": false,

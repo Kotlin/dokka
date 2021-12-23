@@ -163,6 +163,22 @@ class GradleDokkaSourceSetBuilderTest {
     }
 
     @Test
+    fun documentedVisibilities() {
+        val sourceSet = GradleDokkaSourceSetBuilder("", project)
+        assertEquals(
+            DokkaDefaults.documentedVisibilities, sourceSet.build().documentedVisibilities,
+            "Expected default value for ${GradleDokkaSourceSetBuilder::documentedVisibilities.name}"
+        )
+
+        val visibilities = setOf(DokkaConfiguration.Visibility.PRIVATE, DokkaConfiguration.Visibility.INTERNAL)
+        sourceSet.documentedVisibilities.set(visibilities)
+        assertEquals(
+            visibilities, sourceSet.build().documentedVisibilities,
+            "Expected to see previously set value for ${GradleDokkaSourceSetBuilder::includeNonPublic.name}"
+        )
+    }
+
+    @Test
     fun reportUndocumented() {
         val sourceSet = GradleDokkaSourceSetBuilder("", project)
         assertEquals(
@@ -261,6 +277,7 @@ class GradleDokkaSourceSetBuilderTest {
                 PackageOptionsImpl(
                     matchingRegex = matchingRegex,
                     includeNonPublic = DokkaDefaults.includeNonPublic,
+                    documentedVisibilities = DokkaDefaults.documentedVisibilities,
                     reportUndocumented = DokkaDefaults.reportUndocumented,
                     skipDeprecated = DokkaDefaults.skipDeprecated,
                     suppress = DokkaDefaults.suppress

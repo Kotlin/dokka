@@ -7,7 +7,9 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import java.io.File
 import java.net.URL
+import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 @RunWith(JUnit4::class)
@@ -109,5 +111,58 @@ abstract class AbstractIntegrationTest {
             parsedFile.select("dokka-template-command").isEmpty(),
             "Expected all templates to be substituted"
         )
+    }
+
+    /**
+     * Asserts that [contentFiles] have no pages where content contains special visibility markers,
+     * such as §INTERNAL§ for `internal`, §PROTECTED§ for `protected` and §PRIVATE§ for `private` modifiers
+     *
+     * This can be used to check whether actual documented code corresponds to configured documented visibility
+     *
+     * @param contentFiles any readable content file such as html/md/rst/etc
+     */
+    protected fun assertContentVisibility(
+        contentFiles: List<File>,
+        documentPublic: Boolean,
+        documentProtected: Boolean,
+        documentInternal: Boolean,
+        documentPrivate: Boolean
+    ) {
+        val hasPublic = contentFiles.any { file -> "§PUBLIC§" in file.readText() }
+        assertEquals(documentPublic, hasPublic, "Expected content visibility and file content do not match for public")
+
+        val hasInternal = contentFiles.any { file -> "§INTERNAL§" in file.readText() }
+        assertEquals(
+            documentInternal,
+            hasInternal,
+            "Expected content visibility and file content do not match for internal"
+        )
+
+        val hasProtected = contentFiles.any { file -> "§PROTECTED§" in file.readText() }
+        assertEquals(
+            documentProtected,
+            hasProtected,
+            "Expected content visibility and file content do not match for protected"
+        )
+
+        val hasPrivate = contentFiles.any { file -> "§PRIVATE§" in file.readText() }
+        assertEquals(
+            documentPrivate,
+            hasPrivate,
+            "Expected content visibility and file content do not match for private"
+        )
+    }
+
+    /**
+     * Check that [outputFiles] contain specific file paths provided in [expectedFilePaths].
+     * Can be used for checking whether expected folders/pages have been created.
+     */
+    protected fun assertContainsFilePaths(outputFiles: List<File>, expectedFilePaths: List<Regex>) {
+        expectedFilePaths.forEach { pathRegex ->
+            assertNotNull(
+                outputFiles.any { it.absolutePath.contains(pathRegex) },
+                "Expected to find a file with path regex $pathRegex, but found nothing"
+            )
+        }
     }
 }

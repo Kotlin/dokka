@@ -4,10 +4,7 @@ import org.jetbrains.dokka.it.AbstractIntegrationTest
 import org.jetbrains.dokka.it.awaitProcessResult
 import org.jetbrains.dokka.it.ProcessResult
 import java.io.File
-import kotlin.test.BeforeTest
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
+import kotlin.test.*
 
 class MavenIntegrationTest : AbstractIntegrationTest() {
 
@@ -69,6 +66,8 @@ class MavenIntegrationTest : AbstractIntegrationTest() {
         }
         assertEquals("""/* custom stylesheet */""", stylesDir.resolve("custom-style-to-add.css").readText())
         assertTrue(imagesDir.resolve("custom-resource.svg").isFile)
+
+        assertConfiguredVisibility(projectDir)
     }
 
     @Test
@@ -144,6 +143,28 @@ class MavenIntegrationTest : AbstractIntegrationTest() {
         assertTrue(
             amountOfUndocumentedJavaReports > 0,
             "Expected at least one report of undocumented java code (found $amountOfUndocumentedJavaReports)"
+        )
+    }
+
+    private fun assertConfiguredVisibility(projectDir: File) {
+        val projectHtmlFiles = projectDir.allHtmlFiles().toList()
+
+        assertContentVisibility(
+            contentFiles = projectHtmlFiles,
+            documentPublic = true,
+            documentProtected = true, // sourceSet documentedVisibilities
+            documentInternal = false,
+            documentPrivate = true // for overriddenVisibility package
+        )
+
+        assertContainsFilePaths(
+            outputFiles = projectHtmlFiles,
+            expectedFilePaths = listOf(
+                // documentedVisibilities is overridden for package `overriddenVisibility` specifically
+                // to include private code, so html pages for it are expected to have been created
+                Regex("it\\.overriddenVisibility/-visible-private-class/private-method\\.html"),
+                Regex("it\\.overriddenVisibility/-visible-private-class/private-val\\.html"),
+            )
         )
     }
 }

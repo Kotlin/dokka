@@ -117,6 +117,10 @@
                         <dir>${project.basedir}/src/main/java</dir>
                     </sourceDirectories>
 
+                    <documentedVisibilities>
+                        <visibility>PUBLIC</visibility>
+                        <visibility>PROTECTED</visibility>
+                    </documentedVisibilities>
 
                     <!-- Disable linking to online kotlin-stdlib documentation  -->
                     <noStdlibLink>false</noStdlibLink>
@@ -137,6 +141,13 @@
                             <!-- Emit warnings about not documented members  -->
                             <reportUndocumented>true</reportUndocumented>
                             <includeNonPublic>false</includeNonPublic>
+                        </packageOptions>
+
+                        <packageOptions>
+                            <matchingRegex>it.overriddenVisibility.*</matchingRegex>
+                            <documentedVisibilities>
+                                <visibility>PRIVATE</visibility>
+                            </documentedVisibilities>
                         </packageOptions>
                     </perPackageOptions>
                     <pluginsConfiguration>

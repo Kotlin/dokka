@@ -2,6 +2,9 @@
 
 package it.basic
 
+/**
+ * §PUBLIC§ (marker for asserts)
+ */
 class PublicClass {
     /**
      * This function is public and documented
@@ -24,6 +27,12 @@ class PublicClass {
 
     private fun privateUndocumentedFunction(): String = ""
 
+    /**
+     * This function is protected and documented
+     */
+    protected fun protectedDocumentedFunction(): String = ""
+
+    protected fun protectedUndocumentedFunction(): String = ""
 
     /**
      * This property is public and documented

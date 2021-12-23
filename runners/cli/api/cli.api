@@ -53,6 +53,13 @@ public final class org/jetbrains/dokka/ArgTypeSourceLinkDefinition : kotlinx/cli
 	public fun getDescription ()Ljava/lang/String;
 }
 
+public final class org/jetbrains/dokka/ArgTypeVisibility : kotlinx/cli/ArgType {
+	public static final field INSTANCE Lorg/jetbrains/dokka/ArgTypeVisibility;
+	public synthetic fun convert (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/Object;
+	public fun convert (Ljava/lang/String;Ljava/lang/String;)Lorg/jetbrains/dokka/DokkaConfiguration$Visibility;
+	public fun getDescription ()Ljava/lang/String;
+}
+
 public final class org/jetbrains/dokka/GlobalArguments : org/jetbrains/dokka/DokkaConfiguration {
 	public fun <init> ([Ljava/lang/String;)V
 	public fun getCacheRoot ()Ljava/io/File;
