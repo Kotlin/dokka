@@ -84,6 +84,14 @@ class CliIntegrationTest : AbstractCliIntegrationTest() {
             assertNoEmptySpans(file)
         }
 
+        assertContentVisibility(
+            contentFiles = projectDir.allHtmlFiles().toList(),
+            documentPublic = true,
+            documentInternal = false,
+            documentProtected = false,
+            documentPrivate = false
+        )
+
         assertFalse(
             projectDir.resolve("output").resolve("index.html").readText().contains("emptypackagetest"),
             "Expected not to render empty packages"
@@ -204,5 +212,51 @@ class CliIntegrationTest : AbstractCliIntegrationTest() {
         val result = process.awaitProcessResult()
         assertEquals(0, result.exitCode, "Expected exitCode 0 (Success)")
         assertFalse(result.output.contains("Loaded plugins: "), "Expected output to not contain info logs")
+    }
+
+    @Test
+    fun `custom documented visibility`() {
+        val dokkaOutputDir = File(projectDir, "output")
+        assertTrue(dokkaOutputDir.mkdirs())
+        val process = ProcessBuilder(
+            "java", "-jar", cliJarFile.path,
+            "-outputDir", dokkaOutputDir.path,
+            "-pluginsClasspath", basePluginJarFile.path,
+            "-moduleName", "Basic Project",
+            "-sourceSet",
+            buildString {
+                append(" -sourceSetName cliMain")
+                append(" -src ${File(projectDir, "src").path}")
+                append(" -jdkVersion 8")
+                append(" -analysisPlatform jvm")
+                append(" -documentedVisibilities PUBLIC;PROTECTED")
+                append(" -perPackageOptions it.overriddenVisibility.*,+visibility:PRIVATE")
+            }
+        )
+            .redirectErrorStream(true)
+            .start()
+
+        val result = process.awaitProcessResult()
+        assertEquals(0, result.exitCode, "Expected exitCode 0 (Success)")
+
+        val allHtmlFiles = projectDir.allHtmlFiles().toList()
+
+        assertContentVisibility(
+            contentFiles = allHtmlFiles,
+            documentPublic = true,
+            documentProtected = true, // sourceSet documentedVisibilities
+            documentInternal = false,
+            documentPrivate = true // for overriddenVisibility package
+        )
+
+        assertContainsFilePaths(
+            outputFiles = allHtmlFiles,
+            expectedFilePaths = listOf(
+                // documentedVisibilities is overridden for package `overriddenVisibility` specifically
+                // to include private code, so html pages for it are expected to have been created
+                Regex("it\\.overriddenVisibility/-visible-private-class/private-method\\.html"),
+                Regex("it\\.overriddenVisibility/-visible-private-class/private-val\\.html"),
+            )
+        )
     }
 }

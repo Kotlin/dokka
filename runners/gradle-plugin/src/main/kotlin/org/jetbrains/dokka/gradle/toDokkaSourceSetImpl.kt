@@ -13,6 +13,7 @@ internal fun GradleDokkaSourceSetBuilder.toDokkaSourceSetImpl(): DokkaSourceSetI
     samples = samples.toSet(),
     includes = includes.toSet(),
     includeNonPublic = includeNonPublic.getSafe(),
+    documentedVisibilities = documentedVisibilities.getSafe(),
     reportUndocumented = reportUndocumented.getSafe(),
     skipEmptyPackages = skipEmptyPackages.getSafe(),
     skipDeprecated = skipDeprecated.getSafe(),

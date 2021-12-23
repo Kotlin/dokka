@@ -5,6 +5,7 @@ public abstract class org/jetbrains/dokka/maven/AbstractDokkaMojo : org/apache/m
 	public final fun getCacheRoot ()Ljava/lang/String;
 	public final fun getClasspath ()Ljava/util/List;
 	public final fun getDisplayName ()Ljava/lang/String;
+	public final fun getDocumentedVisibilities ()Ljava/util/Set;
 	public final fun getDokkaPlugins ()Ljava/util/List;
 	public final fun getExternalDocumentationLinks ()Ljava/util/List;
 	public final fun getFailOnWarning ()Z
@@ -36,6 +37,7 @@ public abstract class org/jetbrains/dokka/maven/AbstractDokkaMojo : org/apache/m
 	public final fun setCacheRoot (Ljava/lang/String;)V
 	public final fun setClasspath (Ljava/util/List;)V
 	public final fun setDisplayName (Ljava/lang/String;)V
+	public final fun setDocumentedVisibilities (Ljava/util/Set;)V
 	public final fun setDokkaPlugins (Ljava/util/List;)V
 	public final fun setExternalDocumentationLinks (Ljava/util/List;)V
 	public final fun setFailOnWarning (Z)V
@@ -66,11 +68,13 @@ public abstract class org/jetbrains/dokka/maven/AbstractDokkaMojo : org/apache/m
 
 public final class org/jetbrains/dokka/maven/AbstractDokkaMojo$PackageOptions : org/jetbrains/dokka/DokkaConfiguration$PackageOptions {
 	public fun <init> ()V
+	public fun getDocumentedVisibilities ()Ljava/util/Set;
 	public fun getIncludeNonPublic ()Z
 	public fun getMatchingRegex ()Ljava/lang/String;
 	public fun getReportUndocumented ()Ljava/lang/Boolean;
 	public fun getSkipDeprecated ()Z
 	public fun getSuppress ()Z
+	public fun setDocumentedVisibilities (Ljava/util/Set;)V
 	public fun setIncludeNonPublic (Z)V
 	public fun setMatchingRegex (Ljava/lang/String;)V
 	public fun setReportUndocumented (Z)V

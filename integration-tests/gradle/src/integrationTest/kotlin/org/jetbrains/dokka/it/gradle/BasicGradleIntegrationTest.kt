@@ -152,6 +152,8 @@ class BasicGradleIntegrationTest(override val versions: BuildVersions) : Abstrac
             )
         }
         assertTrue(imagesDir.resolve("custom-resource.svg").isFile)
+
+        assertConfiguredVisibility(this)
     }
 
     private fun File.assertJavadocOutputDir() {
@@ -177,5 +179,27 @@ class BasicGradleIntegrationTest(override val versions: BuildVersions) : Abstrac
 
     private fun File.assertJekyllOutputDir() {
         assertTrue(isDirectory, "Missing dokka jekyll output directory")
+    }
+
+    private fun assertConfiguredVisibility(outputDir: File) {
+        val allHtmlFiles = outputDir.allHtmlFiles().toList()
+
+        assertContentVisibility(
+            contentFiles = allHtmlFiles,
+            documentPublic = true,
+            documentProtected = true, // sourceSet documentedVisibilities
+            documentInternal = false,
+            documentPrivate = true // for overriddenVisibility package
+        )
+
+        assertContainsFilePaths(
+            outputFiles = allHtmlFiles,
+            expectedFilePaths = listOf(
+                // documentedVisibilities is overridden for package `overriddenVisibility` specifically
+                // to include private code, so html pages for it are expected to have been created
+                Regex("it\\.overriddenVisibility/-visible-private-class/private-method\\.html"),
+                Regex("it\\.overriddenVisibility/-visible-private-class/private-val\\.html"),
+            )
+        )
     }
 }
