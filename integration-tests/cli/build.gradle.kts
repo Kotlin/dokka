@@ -12,6 +12,8 @@ evaluationDependsOn(":plugins:base")
 dependencies {
     implementation(kotlin("stdlib"))
     implementation(kotlin("test-junit"))
+    val jackson_version: String by project
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jackson_version")
 }
 
 /* Create a fat base plugin jar for cli tests */
@@ -23,6 +25,7 @@ val basePluginShadow: Configuration by configurations.creating {
 
 dependencies {
     basePluginShadow(project(":plugins:base"))
+
 }
 val basePluginShadowJar by tasks.register("basePluginShadowJar", ShadowJar::class) {
     configurations = listOf(basePluginShadow)

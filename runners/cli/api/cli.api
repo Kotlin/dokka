@@ -87,9 +87,37 @@ public final class org/jetbrains/dokka/GlobalArguments : org/jetbrains/dokka/Dok
 	public fun getSuppressObviousFunctions ()Z
 }
 
+public final class org/jetbrains/dokka/GlobalDokkaConfiguration {
+	public fun <init> (Ljava/util/List;Ljava/util/List;Ljava/util/List;)V
+	public final fun component1 ()Ljava/util/List;
+	public final fun component2 ()Ljava/util/List;
+	public final fun component3 ()Ljava/util/List;
+	public final fun copy (Ljava/util/List;Ljava/util/List;Ljava/util/List;)Lorg/jetbrains/dokka/GlobalDokkaConfiguration;
+	public static synthetic fun copy$default (Lorg/jetbrains/dokka/GlobalDokkaConfiguration;Ljava/util/List;Ljava/util/List;Ljava/util/List;ILjava/lang/Object;)Lorg/jetbrains/dokka/GlobalDokkaConfiguration;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getExternalDocumentationLinks ()Ljava/util/List;
+	public final fun getPerPackageOptions ()Ljava/util/List;
+	public final fun getSourceLinks ()Ljava/util/List;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/jetbrains/dokka/JsonMapperForCLIKt {
+	public static final fun parseJson (Ljava/lang/String;Lorg/jetbrains/dokka/TypeReference;)Ljava/lang/Object;
+}
+
 public final class org/jetbrains/dokka/MainKt {
 	public static final fun defaultLinks (Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;)Ljava/util/List;
+	public static final fun initializeConfiguration (Lorg/jetbrains/dokka/GlobalArguments;)Lorg/jetbrains/dokka/DokkaConfiguration;
 	public static final fun main ([Ljava/lang/String;)V
 	public static final fun parseLinks (Ljava/util/List;)Ljava/util/List;
+}
+
+public final class org/jetbrains/dokka/TypeReference {
+	public static final field Companion Lorg/jetbrains/dokka/TypeReference$Companion;
+	public synthetic fun <init> (Lcom/fasterxml/jackson/core/type/TypeReference;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+}
+
+public final class org/jetbrains/dokka/TypeReference$Companion {
 }
 
