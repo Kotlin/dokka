@@ -1,9 +1,9 @@
 plugins {
-    id("com.github.node-gradle.node") version "3.1.0"
+    id("com.github.node-gradle.node") version "3.1.1"
 }
 
 node {
-    version.set("12.18.2")
+    version.set("16.13.0")
     download.set(true)
 }
 

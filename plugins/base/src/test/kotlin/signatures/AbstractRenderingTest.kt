@@ -50,6 +50,9 @@ abstract class AbstractRenderingTest : BaseAbstractTest() {
     fun TestOutputWriterPlugin.renderedDivergentContent(path: String): Elements =
         renderedContent(path).select("div.divergent-group")
 
+    fun TestOutputWriterPlugin.renderedSourceDepenentContent(path: String): Elements =
+        renderedContent(path).select("div.sourceset-depenent-content")
+
     val Element.brief: String
         get() = children().select("p").text()
 

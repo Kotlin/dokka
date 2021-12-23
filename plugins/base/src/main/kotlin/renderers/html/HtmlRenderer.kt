@@ -6,11 +6,8 @@ import org.jetbrains.dokka.DokkaSourceSetID
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.DokkaBaseConfiguration
 import org.jetbrains.dokka.base.DokkaBaseConfiguration.Companion.defaultFooterMessage
-import org.jetbrains.dokka.base.renderers.DefaultRenderer
-import org.jetbrains.dokka.base.renderers.TabSortingStrategy
+import org.jetbrains.dokka.base.renderers.*
 import org.jetbrains.dokka.base.renderers.html.command.consumers.ImmediateResolutionTagConsumer
-import org.jetbrains.dokka.base.renderers.isImage
-import org.jetbrains.dokka.base.renderers.pageId
 import org.jetbrains.dokka.base.resolvers.anchors.SymbolAnchorHint
 import org.jetbrains.dokka.base.resolvers.local.DokkaBaseLocationProvider
 import org.jetbrains.dokka.base.templating.*
@@ -23,6 +20,7 @@ import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.pages.HtmlContent
 import org.jetbrains.dokka.plugability.*
 import org.jetbrains.dokka.utilities.htmlEscape
+import org.jetbrains.kotlin.utils.addIfNotNull
 import java.net.URI
 
 open class HtmlRenderer(
@@ -113,6 +111,12 @@ open class HtmlRenderer(
             ) { childrenCallback() }
             node.extra[InsertTemplateExtra] != null -> node.extra[InsertTemplateExtra]?.let { templateCommand(it.command) }
                 ?: Unit
+            node.hasStyle(ListStyle.DescriptionTerm) -> DT(emptyMap(), consumer).visit {
+                this@wrapGroup.childrenCallback()
+            }
+            node.hasStyle(ListStyle.DescriptionDetails) -> DD(emptyMap(), consumer).visit {
+                this@wrapGroup.childrenCallback()
+            }
             else -> childrenCallback()
         }
     }
@@ -121,19 +125,20 @@ open class HtmlRenderer(
         if (shouldRenderSourceSetBubbles && page is ContentPage) {
             div(classes = "filter-section") {
                 id = "filter-section"
-                page.content.withDescendants().flatMap { it.sourceSets }.distinct().forEach {
-                    button(classes = "platform-tag platform-selector") {
-                        attributes["data-active"] = ""
-                        attributes["data-filter"] = it.sourceSetIDs.merged.toString()
-                        when (it.platform.key) {
-                            "common" -> classes = classes + "common-like"
-                            "native" -> classes = classes + "native-like"
-                            "jvm" -> classes = classes + "jvm-like"
-                            "js" -> classes = classes + "js-like"
+                page.content.withDescendants().flatMap { it.sourceSets }.distinct()
+                    .sortedBy { it.comparableKey }.forEach {
+                        button(classes = "platform-tag platform-selector") {
+                            attributes["data-active"] = ""
+                            attributes["data-filter"] = it.sourceSetIDs.merged.toString()
+                            when (it.platform.key) {
+                                "common" -> classes = classes + "common-like"
+                                "native" -> classes = classes + "native-like"
+                                "jvm" -> classes = classes + "jvm-like"
+                                "js" -> classes = classes + "js-like"
+                            }
+                            text(it.name)
                         }
-                        text(it.name)
                     }
-                }
             }
         }
     }
@@ -169,13 +174,13 @@ open class HtmlRenderer(
         nodes: Map<DisplaySourceSet, Collection<ContentNode>>,
         pageContext: ContentPage,
         extra: PropertyContainer<ContentNode> = PropertyContainer.empty(),
-        styles: Set<Style> = emptySet()
+        styles: Set<Style> = emptySet(),
+        shouldHaveTabs: Boolean = shouldRenderSourceSetBubbles
     ) {
         val contents = contentsForSourceSetDependent(nodes, pageContext)
-        val shouldHaveTabs = contents.size != 1
 
-        val styles = "platform-hinted ${styles.joinToString()}" + if (shouldHaveTabs) " with-platform-tabs" else ""
-        div(styles) {
+        val divStyles = "platform-hinted ${styles.joinToString()}" + if (shouldHaveTabs) " with-platform-tabs" else ""
+        div(divStyles) {
             attributes["data-platform-hinted"] = "data-platform-hinted"
             extra.extraHtmlAttributes().forEach { attributes[it.extraKey] = it.extraValue }
             if (shouldHaveTabs) {
@@ -211,94 +216,82 @@ open class HtmlRenderer(
     ): List<Pair<DisplaySourceSet, String>> {
         var counter = 0
         return nodes.toList().map { (sourceSet, elements) ->
-            sourceSet to createHTML(prettyPrint = false).prepareForTemplates().div {
+            val htmlContent = createHTML(prettyPrint = false).prepareForTemplates().div {
                 elements.forEach {
                     buildContentNode(it, pageContext, sourceSet.toSet())
                 }
             }.stripDiv()
-        }.groupBy(
-            Pair<DisplaySourceSet, String>::second,
-            Pair<DisplaySourceSet, String>::first
-        ).entries.flatMap { (html, sourceSets) ->
-            sourceSets.filterNot { sourceSet ->
-                sourceSet.sourceSetIDs.all.flatMap { sourceSetDependencyMap[it].orEmpty() }
-                    .any { sourceSetId -> sourceSetId in sourceSets.sourceSetIDs }
-            }.map {
-                it to createHTML(prettyPrint = false).prepareForTemplates()
-                    .div(classes = "content sourceset-depenent-content") {
-                        if (counter++ == 0) attributes["data-active"] = ""
-                        attributes["data-togglable"] = it.sourceSetIDs.merged.toString()
-                        unsafe {
-                            +html
-                        }
+            sourceSet to createHTML(prettyPrint = false).prepareForTemplates()
+                .div(classes = "content sourceset-depenent-content") {
+                    if (counter++ == 0) attributes["data-active"] = ""
+                    attributes["data-togglable"] = sourceSet.sourceSetIDs.merged.toString()
+                    unsafe {
+                        +htmlContent
                     }
-            }
-        }
+                }
+        }.sortedBy { it.first.comparableKey }
     }
 
     override fun FlowContent.buildDivergent(node: ContentDivergentGroup, pageContext: ContentPage) {
+        fun groupDivergentInstancesWithSourceSet(
+            instances: List<ContentDivergentInstance>,
+            sourceSet: DisplaySourceSet,
+            pageContext: ContentPage,
+            beforeTransformer: (ContentDivergentInstance, ContentPage, DisplaySourceSet) -> String,
+            afterTransformer: (ContentDivergentInstance, ContentPage, DisplaySourceSet) -> String
+        ): Map<SerializedBeforeAndAfter, List<ContentDivergentInstance>> =
+            instances.map { instance ->
+                instance to Pair(
+                    beforeTransformer(instance, pageContext, sourceSet),
+                    afterTransformer(instance, pageContext, sourceSet)
+                )
+            }.groupBy(
+                Pair<ContentDivergentInstance, SerializedBeforeAndAfter>::second,
+                Pair<ContentDivergentInstance, SerializedBeforeAndAfter>::first
+            )
 
-        val distinct =
-            node.groupDivergentInstances(pageContext,
-                beforeTransformer = { instance, _, sourceSet ->
-                    createHTML(prettyPrint = false).prepareForTemplates().div {
-                        instance.before?.let { before ->
-                            buildContentNode(before, pageContext, sourceSet)
-                        }
-                    }.stripDiv()
-                },
-                afterTransformer = { instance, _, sourceSet ->
-                    createHTML(prettyPrint = false).prepareForTemplates().div {
-                        instance.after?.let { after ->
-                            buildContentNode(after, pageContext, sourceSet)
-                        }
-                    }.stripDiv()
-                })
+        if (node.implicitlySourceSetHinted) {
+            val groupedInstancesBySourceSet = node.children.flatMap { instance ->
+                instance.sourceSets.map { sourceSet -> instance to sourceSet }
+            }.groupBy(
+                Pair<ContentDivergentInstance, DisplaySourceSet>::second,
+                Pair<ContentDivergentInstance, DisplaySourceSet>::first
+            )
 
-        distinct.forEach { distinctInstances ->
-            val groupedDivergent = distinctInstances.value.groupBy { it.second }
-
-            consumer.onTagContentUnsafe {
-                +createHTML().prepareForTemplates().div("divergent-group") {
-                    attributes["data-filterable-current"] = groupedDivergent.keys.joinToString(" ") {
-                        it.sourceSetIDs.merged.toString()
-                    }
-                    attributes["data-filterable-set"] = groupedDivergent.keys.joinToString(" ") {
-                        it.sourceSetIDs.merged.toString()
-                    }
-
-                    val divergentForPlatformDependent = groupedDivergent.map { (sourceSet, elements) ->
-                        sourceSet to elements.map { e -> e.first.divergent }
-                    }.toMap()
-
-                    val content = contentsForSourceSetDependent(divergentForPlatformDependent, pageContext)
-
-                    consumer.onTagContentUnsafe {
-                        +createHTML().prepareForTemplates().div("with-platform-tags") {
-                            consumer.onTagContentUnsafe { +distinctInstances.key.first }
-
-                            consumer.onTagContentUnsafe {
-                                +createHTML().prepareForTemplates().span("pull-right") {
-                                    if ((distinct.size > 1 && groupedDivergent.size == 1) || groupedDivergent.size == 1 || content.size == 1) {
-                                        if (node.sourceSets.size != 1) {
-                                            createPlatformTags(node, setOf(content.first().first))
-                                        }
-                                    }
+            val nodes = groupedInstancesBySourceSet.mapValues {
+                val distinct =
+                    groupDivergentInstancesWithSourceSet(it.value, it.key, pageContext,
+                        beforeTransformer = { instance, _, sourceSet ->
+                            createHTML(prettyPrint = false).prepareForTemplates().div {
+                                instance.before?.let { before ->
+                                    buildContentNode(before, pageContext, sourceSet)
                                 }
-                            }
-                        }
-                    }
-                    div {
-                        if (node.implicitlySourceSetHinted) {
-                            buildPlatformDependent(divergentForPlatformDependent, pageContext)
-                        } else {
-                            distinctInstances.value.forEach {
-                                buildContentNode(it.first.divergent, pageContext, setOf(it.second))
-                            }
-                        }
-                    }
-                    consumer.onTagContentUnsafe { +distinctInstances.key.second }
+                            }.stripDiv()
+                        },
+                        afterTransformer = { instance, _, sourceSet ->
+                            createHTML(prettyPrint = false).prepareForTemplates().div {
+                                instance.after?.let { after ->
+                                    buildContentNode(after, pageContext, sourceSet)
+                                }
+                            }.stripDiv()
+                        })
+                val contentOfSourceSet = mutableListOf<ContentNode>()
+                distinct.onEachIndexed{ i, (_, distinctInstances) ->
+                    contentOfSourceSet.addIfNotNull(distinctInstances.firstOrNull()?.before)
+                    contentOfSourceSet.addAll(distinctInstances.map { it.divergent })
+                    contentOfSourceSet.addIfNotNull(
+                        distinctInstances.firstOrNull()?.after
+                            ?: if (i != distinct.size - 1) ContentBreakLine(it.key) else null
+                    )
+                    if(node.dci.kind == ContentKind.Main && i != distinct.size - 1)
+                        contentOfSourceSet.add(ContentBreakLine(it.key))
                 }
+                contentOfSourceSet
+            }
+            buildPlatformDependent(nodes, pageContext)
+        } else {
+            node.children.forEach {
+                buildContentNode(it.divergent, pageContext, it.sourceSets)
             }
         }
     }
@@ -307,8 +300,17 @@ open class HtmlRenderer(
         node: ContentList,
         pageContext: ContentPage,
         sourceSetRestriction: Set<DisplaySourceSet>?
-    ) = if (node.ordered) ol { buildListItems(node.children, pageContext, sourceSetRestriction) }
-    else ul { buildListItems(node.children, pageContext, sourceSetRestriction) }
+    ) = when {
+        node.ordered -> {
+            ol { buildListItems(node.children, pageContext, sourceSetRestriction) }
+        }
+        node.hasStyle(ListStyle.DescriptionList) -> {
+            dl { node.children.forEach { it.build(this, pageContext, sourceSetRestriction) } }
+        }
+        else -> {
+            ul { buildListItems(node.children, pageContext, sourceSetRestriction) }
+        }
+    }
 
     open fun OL.buildListItems(
         items: List<ContentNode>,
@@ -425,9 +427,6 @@ open class HtmlRenderer(
                 div {
                     toRender.filter { it !is ContentLink && !it.hasStyle(ContentStyle.RowTitle) }
                         .takeIf { it.isNotEmpty() }?.let {
-                            if (ContentKind.shouldBePlatformTagged(contextNode.dci.kind) && contextNode.sourceSets.size == 1)
-                                createPlatformTags(contextNode)
-
                             div("title") {
                                 it.forEach {
                                     it.build(this, pageContext, sourceSetRestriction)
@@ -451,7 +450,9 @@ open class HtmlRenderer(
                 it.filter { sourceSetRestriction == null || it.sourceSets.any { s -> s in sourceSetRestriction } }
                     .forEach {
                         span("inline-flex") {
-                            it.build(this, pageContext, sourceSetRestriction)
+                            div {
+                                it.build(this, pageContext, sourceSetRestriction)
+                            }
                             if (it is ContentLink && !anchorDestination.isNullOrBlank()) buildAnchorCopyButton(
                                 anchorDestination
                             )
@@ -606,7 +607,9 @@ open class HtmlRenderer(
             if (path.size > 1) {
                 buildNavigationElement(path.first(), page)
                 path.drop(1).forEach { node ->
-                    text("/")
+                    span(classes = "delimiter") {
+                        text("/")
+                    }
                     buildNavigationElement(node, page)
                 }
             }
@@ -687,7 +690,7 @@ open class HtmlRenderer(
              - it is useless
              - it overflows with playground's run button
              */
-            if(!code.style.contains(ContentStyle.RunnableSample)) copyButton()
+            if (!code.style.contains(ContentStyle.RunnableSample)) copyButton()
         }
     }
 
@@ -767,13 +770,17 @@ open class HtmlRenderer(
                     script { unsafe { +"""var pathToRoot = "###";""" } }
                 }
                 // This script doesn't need to be there but it is nice to have since app in dark mode doesn't 'blink' (class is added before it is rendered)
-                script { unsafe { +"""
+                script {
+                    unsafe {
+                        +"""
                     const storage = localStorage.getItem("dokka-dark-mode")
                     const savedDarkMode = storage ? JSON.parse(storage) : false
                     if(savedDarkMode === true){
                         document.getElementsByTagName("html")[0].classList.add("theme-dark")
                     }
-                """.trimIndent() } }
+                """.trimIndent()
+                    }
+                }
                 resources.forEach {
                     when {
                         it.substringBefore('?').substringAfterLast('.') == "css" ->
@@ -798,7 +805,10 @@ open class HtmlRenderer(
                                     type = ScriptType.textJavaScript,
                                     src = "###$it"
                                 ) {
-                                    async = true
+                                    if (it == "scripts/main.js")
+                                        defer = true
+                                    else
+                                        async = true
                                 }
                             }
                         it.isImage() -> if (it.isAbsolute) link(href = it)
@@ -843,13 +853,10 @@ open class HtmlRenderer(
                     }
                     div {
                         id = "main"
-                        templateCommand(PathToRootSubstitutionCommand("###", default = pathToRoot)) {
-                            script(type = ScriptType.textJavaScript, src = "###scripts/main.js") {}
-                        }
                         content()
                         div(classes = "footer") {
                             span("go-to-top-icon") {
-                                a(href = "#content"){
+                                a(href = "#content") {
                                     id = "go-to-top-link"
                                 }
                             }
@@ -881,7 +888,12 @@ open class HtmlRenderer(
             templateCommand(PathToRootSubstitutionCommand(pattern = "###", default = pathToRoot)) {
                 a {
                     href = "###index.html"
-                    templateCommand(ProjectNameSubstitutionCommand(pattern = "@@@", default = context.configuration.moduleName)) {
+                    templateCommand(
+                        ProjectNameSubstitutionCommand(
+                            pattern = "@@@",
+                            default = context.configuration.moduleName
+                        )
+                    ) {
                         span {
                             text("@@@")
                         }
@@ -921,3 +933,6 @@ private fun PropertyContainer<ContentNode>.extraHtmlAttributes() = allOfType<Sim
 
 private val ContentNode.sourceSetsFilters: String
     get() = sourceSets.sourceSetIDs.joinToString(" ") { it.toString() }
+
+private val DisplaySourceSet.comparableKey
+        get() = sourceSetIDs.merged.let { it.scopeId + it.sourceSetName }

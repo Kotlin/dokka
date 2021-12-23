@@ -5,9 +5,9 @@ import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.pages.ContentDivergentGroup
 import org.junit.jupiter.api.Test
 import renderers.testPage
-import utils.Div
-import utils.Span
+import utils.Br
 import utils.match
+import kotlin.test.assertEquals
 
 class DivergentTest : HtmlRenderingOnlyTestBase() {
 
@@ -23,7 +23,7 @@ class DivergentTest : HtmlRenderingOnlyTestBase() {
             }
         }
         HtmlRenderer(context).render(page)
-        renderedContent.match(Div(Div(Div(Div("a")))))
+        renderedContent.select("[data-togglable=DEFAULT/js]").single().match("a")
     }
 
     @Test
@@ -38,7 +38,7 @@ class DivergentTest : HtmlRenderingOnlyTestBase() {
             }
         }
         HtmlRenderer(context).render(page)
-        renderedContent.match(Div(Div("a")))
+        renderedContent.match("a")
     }
 
     @Test
@@ -64,7 +64,10 @@ class DivergentTest : HtmlRenderingOnlyTestBase() {
         }
 
         HtmlRenderer(context).render(page)
-        renderedContent.match(Div(Div(Div(Div("a"), Div("b"), Div("c")))))
+        val content = renderedContent
+        content.select("[data-togglable=DEFAULT/js]").single().match("a")
+        content.select("[data-togglable=DEFAULT/jvm]").single().match("b")
+        content.select("[data-togglable=DEFAULT/native]").single().match("c")
     }
 
     @Test
@@ -90,7 +93,7 @@ class DivergentTest : HtmlRenderingOnlyTestBase() {
         }
 
         HtmlRenderer(context).render(page)
-        renderedContent.match(Div(Div((Div(Div("abc"))))))
+        renderedContent.select("[data-togglable=DEFAULT/js]").single().match("abc")
     }
 
     @Test
@@ -126,7 +129,14 @@ class DivergentTest : HtmlRenderingOnlyTestBase() {
         }
 
         HtmlRenderer(context).render(page)
-        renderedContent.match(Div(Div(Div(Div("ae"), Div("bd"), Div("c")))))
+        val content = renderedContent
+        val orderOfTabs = content.select(".platform-bookmarks-row").single().children().map { it.attr("data-toggle") }
+
+        assertEquals(listOf("DEFAULT/js", "DEFAULT/jvm", "DEFAULT/native"), orderOfTabs)
+
+        content.select("[data-togglable=DEFAULT/native]").single().match("ae")
+        content.select("[data-togglable=DEFAULT/js]").single().match("bd")
+        content.select("[data-togglable=DEFAULT/jvm]").single().match("c")
     }
 
     @Test
@@ -174,12 +184,10 @@ class DivergentTest : HtmlRenderingOnlyTestBase() {
         }
 
         HtmlRenderer(context).render(page)
-        renderedContent.match(
-            Div(Div(Span(Div(Div("NATIVE")))), Div(Div(Div("a"))), "a+"),
-            Div(Div(Span(Div(Div("JS")))), Div(Div(Div("bd"))), "bd+"),
-            Div(Div(Span(Div(Div("JVM")))), Div(Div(Div("c")))),
-            Div(Div(Span(Div(Div("NATIVE")))), Div(Div(Div("e"))), "e+"),
-        )
+        val content = renderedContent
+        content.select("[data-togglable=DEFAULT/native]").single().match("aa+", Br, "ee+")
+        content.select("[data-togglable=DEFAULT/js]").single().match("bdbd+")
+        content.select("[data-togglable=DEFAULT/jvm]").single().match("c")
     }
 
     @Test
@@ -206,15 +214,7 @@ class DivergentTest : HtmlRenderingOnlyTestBase() {
         }
 
         HtmlRenderer(context).render(page)
-        renderedContent.match(
-            Div(
-                Div(
-                    "ab-",
-                    Span()
-                ),
-                Div(Div(Div("ab")))
-            )
-        )
+        renderedContent.select("[data-togglable=DEFAULT/native]").single().match("ab-ab")
     }
 
     @Test
@@ -241,12 +241,7 @@ class DivergentTest : HtmlRenderingOnlyTestBase() {
         }
 
         HtmlRenderer(context).render(page)
-        renderedContent.match(
-            Div(
-                Div(Div(Div("ab"))),
-                "ab+"
-            )
-        )
+        renderedContent.select("[data-togglable=DEFAULT/native]").single().match("abab+")
     }
 
     @Test
@@ -279,13 +274,7 @@ class DivergentTest : HtmlRenderingOnlyTestBase() {
         }
 
         HtmlRenderer(context).render(page)
-        renderedContent.match(
-            Div(
-                Div("ab-", Span()),
-                Div(Div(Div("ab"))),
-                "ab+"
-            )
-        )
+        renderedContent.select("[data-togglable=DEFAULT/native]").single().match("ab-abab+")
     }
 
     @Test
@@ -318,9 +307,6 @@ class DivergentTest : HtmlRenderingOnlyTestBase() {
         }
 
         HtmlRenderer(context).render(page)
-        renderedContent.match(
-            Div(Div("a-", Span()), Div(Div(Div("a"))), "ab+"),
-            Div(Div("b-", Span()), Div(Div(Div(("b")))), "ab+")
-        )
+        renderedContent.select("[data-togglable=DEFAULT/native]").single().match("a-aab+", Br, "b-bab+")
     }
 }

@@ -7,6 +7,7 @@ import org.jetbrains.dokka.analysis.AnalysisEnvironment
 import org.jetbrains.dokka.analysis.DokkaMessageCollector
 import org.jetbrains.dokka.analysis.DokkaResolutionFacade
 import org.jetbrains.dokka.analysis.EnvironmentAndFacade
+import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.renderers.sourceSets
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.DisplaySourceSet
@@ -14,6 +15,8 @@ import org.jetbrains.dokka.model.doc.Sample
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
+import org.jetbrains.dokka.plugability.plugin
+import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 import org.jetbrains.kotlin.idea.kdoc.resolveKDocSampleLink
 import org.jetbrains.kotlin.name.FqName
@@ -43,8 +46,10 @@ abstract class SamplesTransformer(val context: DokkaContext) : PageTransformer {
         }
     }
 
-    private fun setUpAnalysis(context: DokkaContext) = context.configuration.sourceSets.associateWith { sourceSet ->
-        AnalysisEnvironment(DokkaMessageCollector(context.logger), sourceSet.analysisPlatform).run {
+    private fun setUpAnalysis(context: DokkaContext) = context.configuration.sourceSets.map { sourceSet ->
+        sourceSet to if (sourceSet.samples.isEmpty()) context.plugin<DokkaBase>()
+            .querySingle { kotlinAnalysis }[sourceSet] // from sourceSet.sourceRoots
+        else AnalysisEnvironment(DokkaMessageCollector(context.logger), sourceSet.analysisPlatform).run {
             if (analysisPlatform == Platform.jvm) {
                 addClasspath(PathUtil.getJdkClassesRootsFromCurrentJre())
             }

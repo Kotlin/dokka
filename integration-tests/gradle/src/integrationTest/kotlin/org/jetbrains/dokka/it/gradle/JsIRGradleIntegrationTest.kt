@@ -12,13 +12,14 @@ class JsIRGradleIntegrationTest(override val versions: BuildVersions) : Abstract
         @get:Parameters(name = "{0}")
         val versions = BuildVersions.permutations(
             gradleVersions = listOf("7.2", *ifExhaustive("7.0")),
-            kotlinVersions = listOf("1.5.0", "1.5.30")
+            kotlinVersions = listOf("1.5.0", "1.5.30", "1.5.31")
         )
     }
 
     val reactVersionArg = mapOf(
         "1.5.0" to "-Pdokka_it_react_kotlin_version=5.2.0-pre.202-kotlin-1.5.0",
-        "1.5.30" to "-Pdokka_it_react_kotlin_version=5.2.0-pre.246-kotlin-1.5.30"
+        "1.5.30" to "-Pdokka_it_react_kotlin_version=5.2.0-pre.246-kotlin-1.5.30",
+        "1.5.31" to "-Pdokka_it_react_kotlin_version=5.2.0-pre.251-kotlin-1.5.31"
     )
 
     @BeforeTest

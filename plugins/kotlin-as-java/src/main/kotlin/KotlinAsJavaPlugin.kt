@@ -24,6 +24,7 @@ class KotlinAsJavaPlugin : DokkaPlugin() {
             signatureProvider providing ::JavaSignatureProvider override kotlinSignatureProvider
         }
     }
+
     val kotlinAsJavaDocumentableToPageTranslator by extending {
         CoreExtensions.documentableToPageTranslator providing ::KotlinAsJavaDocumentableToPageTranslator override
                 plugin<DokkaBase>().documentableToPageTranslator

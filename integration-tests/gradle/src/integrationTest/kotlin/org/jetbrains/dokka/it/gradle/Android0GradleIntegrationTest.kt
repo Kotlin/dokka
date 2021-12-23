@@ -20,9 +20,9 @@ class Android0GradleIntegrationTest(override val versions: BuildVersions) : Abst
             kotlinVersions = listOf("1.4.0", *ifExhaustive("1.3.72")),
             androidGradlePluginVersions = listOf("4.0.0")
         ) + BuildVersions.permutations(
-            gradleVersions = listOf("7.0"),
-            kotlinVersions = listOf("1.5.30", *ifExhaustive("1.4.0", "1.3.72")),
-            androidGradlePluginVersions = listOf("4.2.0")
+            gradleVersions = listOf("7.3"),
+            kotlinVersions = listOf("1.6.10", "1.6.0", "1.5.31", *ifExhaustive("1.4.0", "1.3.72")),
+            androidGradlePluginVersions = listOf("7.0.0")
         )
     }
 

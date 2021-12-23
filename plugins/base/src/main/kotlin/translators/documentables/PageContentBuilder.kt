@@ -9,10 +9,10 @@ import org.jetbrains.dokka.model.Documentable
 import org.jetbrains.dokka.model.SourceSetDependent
 import org.jetbrains.dokka.model.doc.DocTag
 import org.jetbrains.dokka.model.properties.PropertyContainer
+import org.jetbrains.dokka.model.properties.plus
 import org.jetbrains.dokka.model.toDisplaySourceSets
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.utilities.DokkaLogger
-import org.jetbrains.dokka.model.properties.plus
 
 @DslMarker
 annotation class ContentBuilderMarker
@@ -151,6 +151,38 @@ open class PageContentBuilder(
             contents += TableBuilder(mainDRI, sourceSets, kind, styles, extra).apply {
                 operation()
             }.build()
+        }
+
+        fun unorderedList(
+            kind: Kind = ContentKind.Main,
+            sourceSets: Set<DokkaSourceSet> = mainSourcesetData,
+            styles: Set<Style> = mainStyles,
+            extra: PropertyContainer<ContentNode> = mainExtra,
+            operation: ListBuilder.() -> Unit = {}
+        ) {
+            contents += ListBuilder(false, mainDRI, sourceSets, kind, styles, extra).apply(operation).build()
+        }
+
+        fun orderedList(
+            kind: Kind = ContentKind.Main,
+            sourceSets: Set<DokkaSourceSet> = mainSourcesetData,
+            styles: Set<Style> = mainStyles,
+            extra: PropertyContainer<ContentNode> = mainExtra,
+            operation: ListBuilder.() -> Unit = {}
+        ) {
+            contents += ListBuilder(true, mainDRI, sourceSets, kind, styles, extra).apply(operation).build()
+        }
+
+        fun descriptionList(
+            kind: Kind = ContentKind.Main,
+            sourceSets: Set<DokkaSourceSet> = mainSourcesetData,
+            styles: Set<Style> = mainStyles,
+            extra: PropertyContainer<ContentNode> = mainExtra,
+            operation: ListBuilder.() -> Unit = {}
+        ) {
+            contents += ListBuilder(false, mainDRI, sourceSets, kind, styles + ListStyle.DescriptionList, extra)
+                .apply(operation)
+                .build()
         }
 
         internal fun headers(vararg label: String) = contentFor(mainDRI, mainSourcesetData) {
@@ -583,5 +615,41 @@ open class PageContentBuilder(
                 styles,
                 extra
             )
+    }
+
+    @ContentBuilderMarker
+    open inner class ListBuilder(
+        val ordered: Boolean,
+        private val mainDRI: Set<DRI>,
+        private val mainSourceSets: Set<DokkaSourceSet>,
+        private val mainKind: Kind,
+        private val mainStyles: Set<Style>,
+        private val mainExtra: PropertyContainer<ContentNode>
+    ) {
+        private val contentNodes: MutableList<ContentNode> = mutableListOf()
+
+        fun item(
+            dri: Set<DRI> = mainDRI,
+            sourceSets: Set<DokkaSourceSet> = mainSourceSets,
+            kind: Kind = mainKind,
+            styles: Set<Style> = mainStyles,
+            extra: PropertyContainer<ContentNode> = mainExtra,
+            block: DocumentableContentBuilder.() -> Unit
+        ) {
+            contentNodes += contentFor(dri, sourceSets, kind, styles, extra, block)
+        }
+
+        fun build(
+            sourceSets: Set<DokkaSourceSet> = mainSourceSets,
+            kind: Kind = mainKind,
+            styles: Set<Style> = mainStyles,
+            extra: PropertyContainer<ContentNode> = mainExtra
+        ) = ContentList(
+            contentNodes,
+            ordered,
+            DCI(mainDRI, kind),
+            sourceSets.toDisplaySourceSets(),
+            styles, extra
+        )
     }
 }

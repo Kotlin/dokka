@@ -14,7 +14,7 @@ The preferred way is to use `plugins` block.
 build.gradle.kts:
 ```kotlin
 plugins {
-    id("org.jetbrains.dokka") version "1.5.30"
+    id("org.jetbrains.dokka") version "1.6.0"
 }
 
 repositories {
@@ -100,8 +100,20 @@ val dokkaHtml by getting(DokkaTask::class) {
             // Used to remove a source set from documentation, test source sets are suppressed by default  
             suppress.set(false)
 
-            // Use to include or exclude non public members
+            // Deprecated. Prefer using documentedVisibilities.
             includeNonPublic.set(false)
+
+            // A set of visibility modifiers that should be documented
+            // If set by user, overrides includeNonPublic. Default is PUBLIC
+            documentedVisibilities.set(
+                setOf(
+                    DokkaConfiguration.Visibility.PUBLIC, // Same for both Kotlin and Java
+                    DokkaConfiguration.Visibility.PRIVATE, // Same for both Kotlin and Java
+                    DokkaConfiguration.Visibility.PROTECTED, // Same for both Kotlin and Java
+                    DokkaConfiguration.Visibility.INTERNAL, // Kotlin-specific internal modifier
+                    DokkaConfiguration.Visibility.PACKAGE, // Java-specific package-private visibility
+                )
+            )
 
             // Do not output deprecated members. Applies globally, can be overridden by packageOptions
             skipDeprecated.set(false)
@@ -173,11 +185,25 @@ val dokkaHtml by getting(DokkaTask::class) {
             // Repeat for multiple packageOptions
             // If multiple packages match the same matchingRegex, the longuest matchingRegex will be used
             perPackageOption {
-                matchingRegex.set("kotlin($|\\.).*") // will match kotlin and all sub-packages of it
-                // All options are optional, default values are below:
+                // will match kotlin and all sub-packages of it
+                matchingRegex.set("kotlin($|\\.).*") 
+                
+                // All options are optional
                 skipDeprecated.set(false)
                 reportUndocumented.set(true) // Emit warnings about not documented members 
-                includeNonPublic.set(false)
+                includeNonPublic.set(false) // Deprecated, prefer using documentedVisibilities
+
+                // Visibilities that should be included in the documentation
+                // If set by user, overrides includeNonPublic. Default is PUBLIC
+                documentedVisibilities.set(
+                    setOf(
+                        DokkaConfiguration.Visibility.PUBLIC, // Same for both Kotlin and Java
+                        DokkaConfiguration.Visibility.PRIVATE, // Same for both Kotlin and Java
+                        DokkaConfiguration.Visibility.PROTECTED, // Same for both Kotlin and Java
+                        DokkaConfiguration.Visibility.INTERNAL, // Kotlin-specific internal modifier
+                        DokkaConfiguration.Visibility.PACKAGE, // Java-specific package-private visibility
+                    )
+                )
             }
             // Suppress a package
             perPackageOption {
@@ -237,7 +263,7 @@ Dokka plugin creates Gradle configuration for each output format in the form of 
 
 ```kotlin
 dependencies {
-    dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:1.5.30")
+    dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:1.6.0")
 }
 ``` 
 
@@ -246,7 +272,7 @@ You can also create a custom Dokka task and add plugins directly inside:
 ```kotlin
 val customDokkaTask by creating(DokkaTask::class) {
     dependencies {
-        plugins("org.jetbrains.dokka:kotlin-as-java-plugin:1.5.30")
+        plugins("org.jetbrains.dokka:kotlin-as-java-plugin:1.6.0")
     }
 }
 ```
@@ -279,7 +305,7 @@ For example, you can add `DokkaBase` to gain access to aforementioned configurat
 buildscript {
     dependencies {
         // classpath("<plugin coordinates>:<plugin version>")
-        classpath("org.jetbrains.dokka:dokka-base:1.5.30")
+        classpath("org.jetbrains.dokka:dokka-base:1.6.0")
     }
 }
 ```

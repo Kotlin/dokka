@@ -1,5 +1,6 @@
 package model
 
+import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.base.transformers.documentables.InheritorsInfo
 import org.jetbrains.dokka.links.*
@@ -21,7 +22,12 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
                 sourceRoots = listOf("src/")
                 analysisPlatform = Platform.jvm.toString()
                 classpath += jvmStdlibPath!!
-                includeNonPublic = true
+                documentedVisibilities = setOf(
+                    DokkaConfiguration.Visibility.PUBLIC,
+                    DokkaConfiguration.Visibility.PRIVATE,
+                    DokkaConfiguration.Visibility.PROTECTED,
+                    DokkaConfiguration.Visibility.PACKAGE,
+                )
             }
         }
     }
@@ -248,6 +254,27 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
                 with(extra[AdditionalModifiers]!!.content.entries.single().value.assertNotNull("AdditionalModifiers")) {
                     this counts 1
                     first() equals ExtraModifiers.JavaOnlyModifiers.Static
+                }
+            }
+        }
+    }
+
+    @Test
+    fun throwsList() {
+        inlineModelTest(
+            """
+            |class C {
+            |  public void foo() throws java.io.IOException, ArithmeticException {}
+            |}
+            """, configuration = configuration
+        ) {
+            with((this / "java" / "C" / "foo").cast<DFunction>()) {
+                with(extra[CheckedExceptions]?.exceptions?.entries?.single()?.value.assertNotNull("CheckedExceptions")) {
+                    this counts 2
+                    first().packageName equals "java.io"
+                    first().classNames equals "IOException"
+                    get(1).packageName equals "java.lang"
+                    get(1).classNames equals "ArithmeticException"
                 }
             }
         }

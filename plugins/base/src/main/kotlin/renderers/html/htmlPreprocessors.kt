@@ -76,6 +76,8 @@ class CustomResourceInstaller(val dokkaContext: DokkaContext) : PageTransformer 
         val customResourcesPaths = (customAssets + customStylesheets).map { it.name }.toSet()
         val withEmbeddedResources =
             input.transformContentPagesTree { it.modified(embeddedResources = it.embeddedResources + customResourcesPaths) }
+        if(dokkaContext.configuration.delayTemplateSubstitution)
+            return withEmbeddedResources
         val (currentResources, otherPages) = withEmbeddedResources.children.partition { it is RendererSpecificResourcePage }
         return input.modified(children = otherPages + currentResources.filterNot { it.name in customResourcesPaths } + customAssets + customStylesheets)
     }

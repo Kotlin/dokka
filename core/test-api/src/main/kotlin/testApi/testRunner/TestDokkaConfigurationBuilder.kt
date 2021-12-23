@@ -37,6 +37,7 @@ class TestDokkaConfigurationBuilder {
     var suppressObviousFunctions: Boolean = DokkaDefaults.suppressObviousFunctions
     var includes: List<File> = emptyList()
     var suppressInheritedMembers: Boolean = DokkaDefaults.suppressInheritedMembers
+    var delayTemplateSubstitution: Boolean = DokkaDefaults.delayTemplateSubstitution
     private val lazySourceSets = mutableListOf<Lazy<DokkaSourceSetImpl>>()
 
     fun build() = DokkaConfigurationImpl(
@@ -53,6 +54,7 @@ class TestDokkaConfigurationBuilder {
         suppressObviousFunctions = suppressObviousFunctions,
         includes = includes.toSet(),
         suppressInheritedMembers = suppressInheritedMembers,
+        delayTemplateSubstitution = delayTemplateSubstitution
     )
 
     fun sourceSets(block: SourceSetsBuilder.() -> Unit) {
@@ -86,7 +88,9 @@ class DokkaSourceSetBuilder(
     var dependentSourceSets: Set<DokkaSourceSetID> = emptySet(),
     var samples: List<String> = emptyList(),
     var includes: List<String> = emptyList(),
+    @Deprecated(message = "Use [documentedVisibilities] property for a more flexible control over documented visibilities")
     var includeNonPublic: Boolean = false,
+    var documentedVisibilities: Set<DokkaConfiguration.Visibility> = DokkaDefaults.documentedVisibilities,
     var reportUndocumented: Boolean = false,
     var skipEmptyPackages: Boolean = false,
     var skipDeprecated: Boolean = false,
@@ -110,6 +114,7 @@ class DokkaSourceSetBuilder(
         samples = samples.map(::File).toSet(),
         includes = includes.map(::File).toSet(),
         includeNonPublic = includeNonPublic,
+        documentedVisibilities = documentedVisibilities,
         reportUndocumented = reportUndocumented,
         skipEmptyPackages = skipEmptyPackages,
         skipDeprecated = skipDeprecated,
@@ -135,6 +140,7 @@ val defaultSourceSet = DokkaSourceSetImpl(
     samples = emptySet(),
     includes = emptySet(),
     includeNonPublic = false,
+    documentedVisibilities = DokkaDefaults.documentedVisibilities,
     reportUndocumented = false,
     skipEmptyPackages = true,
     skipDeprecated = false,

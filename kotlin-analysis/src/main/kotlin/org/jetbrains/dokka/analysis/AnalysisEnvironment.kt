@@ -1,20 +1,16 @@
 package org.jetbrains.dokka.analysis
 
 import com.intellij.core.CoreApplicationEnvironment
-import com.intellij.core.CoreModuleManager
 import com.intellij.mock.MockApplication
 import com.intellij.mock.MockComponentManager
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.extensions.Extensions
-import com.intellij.openapi.module.Module
-import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.OrderEnumerationHandler
-import com.intellij.openapi.roots.ProjectFileIndex
-import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.vfs.StandardFileSystems
+import com.intellij.psi.PsiNameHelper
+import com.intellij.psi.impl.PsiNameHelperImpl
 import com.intellij.psi.impl.source.javadoc.JavadocManagerImpl
 import com.intellij.psi.javadoc.CustomJavadocTagProvider
 import com.intellij.psi.javadoc.JavadocManager
@@ -34,15 +30,13 @@ import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
 import org.jetbrains.kotlin.cli.common.config.ContentRoot
 import org.jetbrains.kotlin.cli.common.config.KotlinSourceRoot
 import org.jetbrains.kotlin.cli.common.config.addKotlinSourceRoot
+import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles
 import org.jetbrains.kotlin.cli.jvm.compiler.JvmPackagePartProvider
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
 import org.jetbrains.kotlin.cli.jvm.compiler.TopDownAnalyzerFacadeForJVM
-import org.jetbrains.kotlin.cli.jvm.config.addJavaSourceRoot
-import org.jetbrains.kotlin.cli.jvm.config.addJvmClasspathRoot
-import org.jetbrains.kotlin.cli.jvm.config.addJvmClasspathRoots
-import org.jetbrains.kotlin.cli.jvm.config.jvmClasspathRoots
+import org.jetbrains.kotlin.cli.jvm.config.*
 import org.jetbrains.kotlin.cli.jvm.index.JavaRoot
 import org.jetbrains.kotlin.config.*
 import org.jetbrains.kotlin.context.ProjectContext
@@ -81,7 +75,7 @@ import org.jetbrains.kotlin.resolve.jvm.platform.JvmPlatformAnalyzerServices
 import org.jetbrains.kotlin.resolve.konan.platform.NativePlatformAnalyzerServices
 import java.io.File
 import org.jetbrains.kotlin.konan.file.File as KFile
-
+import org.jetbrains.kotlin.library.KLIB_FILE_EXTENSION
 
 const val JAR_SEPARATOR = "!/"
 
@@ -113,25 +107,6 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
         val environment = KotlinCoreEnvironment.createForProduction(this, configuration, configFiles)
         val projectComponentManager = environment.project as MockComponentManager
 
-        val projectFileIndex = CoreProjectFileIndex(
-            environment.project,
-            environment.configuration.getList(CLIConfigurationKeys.CONTENT_ROOTS)
-        )
-
-        val moduleManager = object : CoreModuleManager(environment.project, this) {
-            override fun getModules(): Array<out Module> = arrayOf(projectFileIndex.module)
-        }
-
-        CoreApplicationEnvironment.registerComponentInstance(
-            projectComponentManager.picoContainer,
-            ModuleManager::class.java, moduleManager
-        )
-
-        CoreApplicationEnvironment.registerExtensionPoint(
-            Extensions.getRootArea(),
-            OrderEnumerationHandler.EP_NAME, OrderEnumerationHandler.Factory::class.java
-        )
-
         CoreApplicationEnvironment.registerExtensionPoint(
             environment.project.extensionArea,
             JavadocTagInfo.EP_NAME, JavadocTagInfo::class.java
@@ -150,18 +125,13 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
         }
 
         projectComponentManager.registerService(
-            ProjectFileIndex::class.java,
-            projectFileIndex
-        )
-
-        projectComponentManager.registerService(
-            ProjectRootManager::class.java,
-            CoreProjectRootManager(projectFileIndex)
-        )
-
-        projectComponentManager.registerService(
             JavadocManager::class.java,
             JavadocManagerImpl(environment.project)
+        )
+
+        projectComponentManager.registerService(
+            PsiNameHelper::class.java,
+            PsiNameHelperImpl(environment.project)
         )
 
         projectComponentManager.registerService(
@@ -320,23 +290,32 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
         val analyzerServices = analysisPlatform.analyzerServices()
 
         return buildMap {
-            classpath.forEach { libraryFile ->
-                val kotlinLibrary = resolveSingleFileKlib(
-                    libraryFile = KFile(libraryFile.absolutePath),
-                    strategy = ToolingSingleFileKlibResolveStrategy
-                )
+            classpath
+                .filter { it.isDirectory || (it.extension == "jar" || it.extension == KLIB_FILE_EXTENSION) }
+                .forEach { libraryFile ->
+                    try {
+                        val kotlinLibrary = resolveSingleFileKlib(
+                            libraryFile = KFile(libraryFile.absolutePath),
+                            strategy = ToolingSingleFileKlibResolveStrategy
+                        )
 
-                if (kotlinLibrary.getCompatibilityInfo().isCompatible) {
-                    // exists, is KLIB, has compatible format
-                    put(
-                        libraryFile.absolutePath,
-                        if (analysisPlatform == Platform.native)
-                            DokkaNativeKlibLibraryInfo(kotlinLibrary, analyzerServices, dependencyResolver)
-                        else
-                            DokkaJsKlibLibraryInfo(kotlinLibrary, analyzerServices, dependencyResolver)
-                    )
+                        if (kotlinLibrary.getCompatibilityInfo().isCompatible) {
+                            // exists, is KLIB, has compatible format
+                            put(
+                                libraryFile.absolutePath,
+                                if (analysisPlatform == Platform.native) DokkaNativeKlibLibraryInfo(
+                                    kotlinLibrary,
+                                    analyzerServices,
+                                    dependencyResolver
+                                )
+                                else DokkaJsKlibLibraryInfo(kotlinLibrary, analyzerServices, dependencyResolver)
+                            )
+                        }
+                    } catch (e: Throwable) {
+                        configuration.getNotNull(CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY)
+                            .report(CompilerMessageSeverity.WARNING, "Can not resolve KLIB. " + e.message)
+                    }
                 }
-            }
         }
     }
 
@@ -518,7 +497,8 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
      * Classpath for this environment.
      */
     val classpath: List<File>
-        get() = configuration.jvmClasspathRoots
+        get() = configuration.jvmClasspathRoots + configuration.getList(JSConfigurationKeys.LIBRARIES)
+            .mapNotNull { File(it) }
 
     /**
      * Adds list of paths to classpath.
@@ -527,8 +507,9 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
     fun addClasspath(paths: List<File>) {
         if (analysisPlatform == Platform.js) {
             configuration.addAll(JSConfigurationKeys.LIBRARIES, paths.map { it.absolutePath })
+        } else {
+            configuration.addJvmClasspathRoots(paths)
         }
-        configuration.addJvmClasspathRoots(paths)
     }
 
     /**
@@ -538,8 +519,9 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
     fun addClasspath(path: File) {
         if (analysisPlatform == Platform.js) {
             configuration.add(JSConfigurationKeys.LIBRARIES, path.absolutePath)
+        } else {
+            configuration.addJvmClasspathRoot(path)
         }
-        configuration.addJvmClasspathRoot(path)
     }
 
     /**
