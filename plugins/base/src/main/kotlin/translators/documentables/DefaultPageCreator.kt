@@ -256,7 +256,7 @@ open class DefaultPageCreator(
                     "Constructors",
                     2,
                     ContentKind.Constructors,
-                    c.constructors.filter { it.extra[PrimaryConstructorExtra] == null || it.documentation.isNotEmpty() },
+                    c.constructors,
                     c.sourceSets,
                     needsAnchors = true,
                     extra = PropertyContainer.empty<ContentNode>() + SimpleAttr.header("Constructors")

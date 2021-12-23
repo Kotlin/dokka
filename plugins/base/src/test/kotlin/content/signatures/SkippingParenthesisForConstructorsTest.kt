@@ -4,6 +4,7 @@ import matchers.content.*
 import org.jetbrains.dokka.pages.ContentPage
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.junit.jupiter.api.Test
+import utils.ParamAttributes
 import utils.functionSignature
 
 class ConstructorsSignaturesTest : BaseAbstractTest() {
@@ -181,6 +182,17 @@ class ConstructorsSignaturesTest : BaseAbstractTest() {
                                     modifier = "",
                                     keywords = emptySet(),
                                     name = "SomeClass"
+                                )
+                            }
+                            group {
+                                link { +"SomeClass" }
+                                functionSignature(
+                                    annotations = emptyMap(),
+                                    visibility = "",
+                                    modifier = "",
+                                    keywords = emptySet(),
+                                    name = "SomeClass",
+                                    params = listOf("a" to ParamAttributes(emptyMap(), emptySet(), "String")).toTypedArray()
                                 )
                             }
                         }
