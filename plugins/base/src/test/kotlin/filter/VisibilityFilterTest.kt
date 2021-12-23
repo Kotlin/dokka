@@ -340,6 +340,37 @@ class VisibilityFilterTest : BaseAbstractTest() {
     }
 
     @Test
+    fun `private setter should be hidden if only PUBLIC is documented`() {
+        val configuration = dokkaConfiguration {
+            sourceSets {
+                sourceSet {
+                    documentedVisibilities = setOf(Visibility.PUBLIC)
+                    sourceRoots = listOf("src/main/kotlin/basic/Test.kt")
+                }
+            }
+        }
+
+        testInline(
+            """
+            |/src/main/kotlin/basic/Test.kt
+            |package example
+            |
+            |var property: Int = 0
+            |private set 
+            |
+            |
+        """.trimMargin(),
+            configuration
+        ) {
+            preMergeDocumentablesTransformationStage = {
+                Assertions.assertNull(
+                    it.first().packages.first().properties.first().setter
+                )
+            }
+        }
+    }
+
+    @Test
     fun `should choose new documentedVisibilities over deprecated includeNonPublic`() {
         val configuration = dokkaConfiguration {
             sourceSets {
