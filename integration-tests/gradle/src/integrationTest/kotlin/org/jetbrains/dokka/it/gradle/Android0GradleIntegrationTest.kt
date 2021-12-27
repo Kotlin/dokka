@@ -11,7 +11,7 @@ class Android0GradleIntegrationTest(override val versions: BuildVersions) : Abst
     companion object {
         @get:JvmStatic
         @get:Parameters(name = "{0}")
-        val versions = TestedVersions.getBaseWithAndroid()
+        val versions = TestedVersions.ANDROID
     }
 
     @BeforeTest
