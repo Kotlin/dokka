@@ -478,7 +478,7 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
                 projectContext.withModule(descriptor),
                 modulesContent(moduleInfo),
                 this,
-                LanguageVersionSettingsImpl.DEFAULT,
+                configuration.languageVersionSettings,
                 CliSealedClassInheritorsProvider,
             )
 
@@ -490,7 +490,11 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
         val languageVersion = LanguageVersion.fromVersionString(languageVersionString) ?: LanguageVersion.LATEST_STABLE
         val apiVersion =
             apiVersionString?.let { ApiVersion.parse(it) } ?: ApiVersion.createByLanguageVersion(languageVersion)
-        configuration.languageVersionSettings = LanguageVersionSettingsImpl(languageVersion, apiVersion)
+        configuration.languageVersionSettings = LanguageVersionSettingsImpl(
+            languageVersion = languageVersion,
+            apiVersion = apiVersion,
+            analysisFlags = hashMapOf(org.jetbrains.kotlin.config.AnalysisFlags.eagerResolveOfLightClasses to true)
+        )
     }
 
     /**
