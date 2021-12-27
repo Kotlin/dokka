@@ -9,8 +9,8 @@ val olderVersionsFolder = "olderVersions"
 // The previously documentations should be generated with the versioning plugin
 val generatePreviouslyDocTask by tasks.register<DokkaMultiModuleTask>("dokkaPreviouslyDocumentation") {
     dependencies {
-        dokkaPlugin("org.jetbrains.dokka:all-modules-page-plugin:1.6.0")
-        dokkaPlugin("org.jetbrains.dokka:versioning-plugin:1.6.0")
+        dokkaPlugin("org.jetbrains.dokka:all-modules-page-plugin:1.6.10")
+        dokkaPlugin("org.jetbrains.dokka:versioning-plugin:1.6.10")
     }
     val configuredVersion = "0.9"
     outputDirectory.set(file(projectDir.toPath().resolve(olderVersionsFolder).resolve(configuredVersion)))
