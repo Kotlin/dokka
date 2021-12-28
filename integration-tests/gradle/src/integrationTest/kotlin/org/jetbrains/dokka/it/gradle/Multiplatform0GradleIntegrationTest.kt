@@ -10,7 +10,7 @@ class Multiplatform0GradleIntegrationTest(override val versions: BuildVersions) 
     companion object {
         @get:JvmStatic
         @get:Parameterized.Parameters(name = "{0}")
-        val versions = TestedVersions.MPP
+        val versions = TestedVersions.BASE
     }
 
     @BeforeTest

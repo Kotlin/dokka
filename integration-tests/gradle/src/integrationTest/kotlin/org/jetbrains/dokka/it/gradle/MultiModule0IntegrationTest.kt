@@ -9,7 +9,7 @@ class MultiModule0IntegrationTest(override val versions: BuildVersions) : Abstra
     companion object {
         @get:JvmStatic
         @get:Parameterized.Parameters(name = "{0}")
-        val versions = TestedVersions.JVM
+        val versions = TestedVersions.BASE
     }
 
     @BeforeTest

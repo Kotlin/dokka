@@ -14,7 +14,7 @@ class BasicGroovyIntegrationTest(override val versions: BuildVersions) : Abstrac
     companion object {
         @get:JvmStatic
         @get:Parameterized.Parameters(name = "{0}")
-        val versions = TestedVersions.JVM
+        val versions = TestedVersions.BASE
     }
 
     @BeforeTest

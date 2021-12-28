@@ -10,15 +10,16 @@ class JsIRGradleIntegrationTest(override val versions: BuildVersions) : Abstract
     companion object {
         @get:JvmStatic
         @get:Parameters(name = "{0}")
-        val versions = TestedVersions.MPP
+        val versions = TestedVersions.BASE
     }
 
     // https://mvnrepository.com/artifact/org.jetbrains.kotlin-wrappers/kotlin-react-router-dom
     val reactVersionArg = mapOf(
-        "1.5.0" to "-Pdokka_it_react_kotlin_version=5.2.0-pre.202-kotlin-1.5.0",
-        "1.5.30" to "-Pdokka_it_react_kotlin_version=5.2.0-pre.246-kotlin-1.5.30",
-        "1.5.31" to "-Pdokka_it_react_kotlin_version=5.2.0-pre.251-kotlin-1.5.31",
+        "1.4.0" to "-Pdokka_it_react_kotlin_version=5.2.0-pre.204-kotlin-1.4.32",
+        "1.5.0" to "-Pdokka_it_react_kotlin_version=5.2.0-pre.204-kotlin-1.5.0",
         "1.6.0" to "-Pdokka_it_react_kotlin_version=6.1.1-pre.280-kotlin-1.6.0",
+        "1.4.32" to "-Pdokka_it_react_kotlin_version=5.2.0-pre.204-kotlin-1.4.32",
+        "1.5.31" to "-Pdokka_it_react_kotlin_version=5.2.0-pre.251-kotlin-1.5.31",
         "1.6.10" to "-Pdokka_it_react_kotlin_version=6.2.1-pre.284-kotlin-1.6.10",
     )
 

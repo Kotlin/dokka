@@ -10,7 +10,7 @@ class GradleRelocatedCachingIntegrationTest(override val versions: BuildVersions
     companion object {
         @get:JvmStatic
         @get:Parameters(name = "{0}")
-        val versions = TestedVersions.JVM
+        val versions = TestedVersions.BASE
     }
 
     @BeforeTest
