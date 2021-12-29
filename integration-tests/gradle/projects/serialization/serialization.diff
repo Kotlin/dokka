@@ -1,5 +1,5 @@
 diff --git a/build.gradle b/build.gradle
-index 23537170..50672336 100644
+index 845f7e4e..b3145969 100644
 --- a/build.gradle
 +++ b/build.gradle
 @@ -64,7 +64,6 @@ buildscript {
@@ -21,78 +21,33 @@ index 23537170..50672336 100644
  // To make it visible for compiler-version.gradle
  ext.compilerVersion = org.jetbrains.kotlin.config.KotlinCompilerVersion.VERSION
  ext.nativeDebugBuild = org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType.DEBUG
-@@ -182,3 +185,5 @@ subprojects {
+@@ -99,7 +102,6 @@ knit {
+ // Build API docs for all modules with dokka before running Knit
+ knitPrepare.dependsOn "dokka"
+
+-apply plugin: 'org.jetbrains.dokka'
+ dependencies {
+     dokkaPlugin("org.jetbrains.kotlinx:dokka-pathsaver-plugin:$knit_version")
+ }
+@@ -187,3 +189,5 @@ subprojects {
  apply from: rootProject.file('gradle/compiler-version.gradle')
  apply from: rootProject.file("gradle/dokka.gradle")
  apply from: rootProject.file("gradle/benchmark-parsing.gradle")
-+
 +apply from: "../template.root.gradle.kts"
-\ No newline at end of file
++
 diff --git a/gradle.properties b/gradle.properties
-index 4335988b..e642bdd5 100644
+index 05428604..b4c7b3d1 100644
 --- a/gradle.properties
 +++ b/gradle.properties
 @@ -13,7 +13,7 @@ kotlin.version.snapshot=1.6.255-SNAPSHOT
 
  junit_version=4.12
  jackson_version=2.10.0.pr1
--dokka_version=1.4.20-multimodule-dev-7
-+dokka_version=1.5.31-SNAPSHOT
+-dokka_version=1.6.0
++dokka_version=for-integration-tests-SNAPSHOT
  native.deploy=
  validator_version=0.7.1
- knit_version=0.2.2
-diff --git a/gradle/dokka.gradle b/gradle/dokka.gradle
-index 5b8c66a8..cb697c92 100644
---- a/gradle/dokka.gradle
-+++ b/gradle/dokka.gradle
-@@ -14,41 +14,41 @@ def documentedSubprojects = ["kotlinx-serialization-core",
- subprojects {
-     if (!(name in documentedSubprojects)) return
-     apply plugin: 'org.jetbrains.dokka'
--    tasks.named('dokkaHtml') {
-+    tasks.named('dokkaHtmlPartial') {
-         outputDirectory = file("build/dokka")
-         dokkaSourceSets {
-             configureEach {
-                 includes.from(rootProject.file('dokka/moduledoc.md').path)
-
-                 perPackageOption {
--                    prefix.set("kotlinx.serialization")
-+                    matchingRegex.set("kotlinx.serialization(\$|\\.).*")
-                     reportUndocumented.set(true)
-                     skipDeprecated.set(true)
-                 }
-
-                 // Internal API
-                 perPackageOption {
--                    prefix.set("kotlinx.serialization.internal")
-+                    matchingRegex.set("kotlinx.serialization.internal(\$|\\.).*")
-                     suppress.set(true)
-                 }
-
-                 // Workaround for typealias
-                 perPackageOption {
--                    prefix.set("kotlinx.serialization.protobuf.internal")
-+                    matchingRegex.set("kotlinx.serialization.protobuf.internal(\$|\\.).*")
-                     suppress.set(true)
-                     reportUndocumented.set(false)
-                 }
-
-                 // Deprecated migrations
-                 perPackageOption {
--                    prefix.set("kotlinx.protobuf")
-+                    matchingRegex.set("kotlinx.protobuf(\$|\\.).*")
-                     reportUndocumented.set(true)
-                     skipDeprecated.set(true)
-                 }
-
-                 // Deprecated migrations
-                 perPackageOption {
--                    prefix.set("org.jetbrains.kotlinx.serialization.config")
-+                    matchingRegex.set("org.jetbrains.kotlinx.serialization.config(\$|\\.).*")
-                     reportUndocumented.set(false)
-                     skipDeprecated.set(true)
-                 }
+ knit_version=0.3.0
 diff --git a/settings.gradle b/settings.gradle
 index 27933950..6a6fc80a 100644
 --- a/settings.gradle
