@@ -406,9 +406,9 @@ fun parseLinks(links: List<String>): List<ExternalDocumentationLink> {
 
 fun initializeConfiguration(globalArguments: GlobalArguments): DokkaConfiguration = if (globalArguments.json != null) {
         val jsonContent = Paths.get(checkNotNull(globalArguments.json)).toFile().readText()
-        val globals: GlobalDokkaConfiguration = parseJson(jsonContent)
+        val globals = GlobalDokkaConfiguration(jsonContent)
         val dokkaConfigurationImpl = DokkaConfigurationImpl(jsonContent)
-        dokkaConfigurationImpl.run {
+        dokkaConfigurationImpl.apply {
             sourceSets.forEach {
                 it.perPackageOptions.cast<MutableList<DokkaConfiguration.PackageOptions>>().addAll(globals.perPackageOptions ?: emptyList())
             }
@@ -425,7 +425,6 @@ fun initializeConfiguration(globalArguments: GlobalArguments): DokkaConfiguratio
                 it.externalDocumentationLinks.cast<MutableSet<ExternalDocumentationLink>>().addAll(defaultLinks(it))
             }
         }
-        dokkaConfigurationImpl
     } else {
         globalArguments
     }

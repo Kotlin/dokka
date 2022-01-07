@@ -264,7 +264,7 @@ class CliIntegrationTest : AbstractCliIntegrationTest() {
 
 
     @Test
-    fun json() {
+    fun `should accept json as input configuration`() {
         val dokkaOutputDir = File(projectDir, "output")
         assertTrue(dokkaOutputDir.mkdirs())
         val jsonPath = javaClass.getResource("/my-file.json")?.path ?: throw IllegalStateException("No JSON found!")
@@ -303,7 +303,7 @@ class CliIntegrationTest : AbstractCliIntegrationTest() {
      * make sure that global settings apply to dokka context.
      */
     @Test
-    fun jsonWithGlobals() {
+    fun `global settings should overwrite package options in configuration`() {
         val dokkaOutputDir = File(projectDir, "output")
         assertTrue(dokkaOutputDir.mkdirs())
         val jsonPath = javaClass.getResource("/my-file.json")?.path ?: throw IllegalStateException("No JSON found!")

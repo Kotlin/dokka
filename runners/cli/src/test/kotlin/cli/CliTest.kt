@@ -3,13 +3,14 @@ package org.jetbrains.dokka
 import junit.framework.Assert.assertTrue
 import org.junit.Test
 import java.lang.IllegalStateException
+import java.nio.file.Paths
 import kotlin.test.assertEquals
 
 class CliIntegrationTest {
 
     @Test
-    fun testGlobalArgs() {
-        val jsonPath = javaClass.getResource("/my-file.json")?.path ?: throw IllegalStateException("No JSON found!")
+    fun `should apply global settings to all source sets`() {
+        val jsonPath = Paths.get(javaClass.getResource("/my-file.json")?.toURI() ?: throw IllegalStateException("No JSON found!")).toFile().toString()
         val globalArguments = GlobalArguments(arrayOf(jsonPath))
 
         val configuration = initializeConfiguration(globalArguments)

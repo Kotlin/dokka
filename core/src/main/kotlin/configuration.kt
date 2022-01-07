@@ -86,6 +86,20 @@ data class DokkaSourceSetID(
 
 fun DokkaConfigurationImpl(json: String): DokkaConfigurationImpl = parseJson(json)
 
+/**
+ * Global options are applied to all packages and modules and overwrite package configuration.
+ *
+ * These are handy if we have multiple sourcesets sharing the same global options as it reduces the size of the boilerplate.
+ * Otherwise, the user would be enforced to repeat all these options per each sourceset.
+ */
+data class GlobalDokkaConfiguration(
+    val perPackageOptions: List<PackageOptionsImpl>?,
+    val externalDocumentationLinks: List<ExternalDocumentationLinkImpl>?,
+    val sourceLinks: List<SourceLinkDefinitionImpl>?
+)
+
+fun GlobalDokkaConfiguration(json: String): GlobalDokkaConfiguration = parseJson(json)
+
 fun DokkaConfiguration.toJsonString(): String = toJsonString(this)
 fun <T : ConfigurableBlock> T.toJsonString(): String = toJsonString(this)
 
