@@ -10,9 +10,6 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-cli-jvm:0.3.3")
     implementation(project(":core"))
     implementation(kotlin("stdlib"))
-    val jackson_version: String by project
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jackson_version")
-
     testImplementation(kotlin("test-junit"))
 }
 

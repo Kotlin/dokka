@@ -3,6 +3,7 @@
 package org.jetbrains.dokka
 
 import org.jetbrains.dokka.plugability.ConfigurableBlock
+import org.jetbrains.dokka.utilities.cast
 import org.jetbrains.dokka.utilities.parseJson
 import org.jetbrains.dokka.utilities.toJsonString
 import java.io.File
@@ -99,6 +100,20 @@ data class GlobalDokkaConfiguration(
 )
 
 fun GlobalDokkaConfiguration(json: String): GlobalDokkaConfiguration = parseJson(json)
+
+fun DokkaConfiguration.apply(globals: GlobalDokkaConfiguration): DokkaConfiguration = this.apply {
+    sourceSets.forEach {
+        it.perPackageOptions.cast<MutableList<DokkaConfiguration.PackageOptions>>().addAll(globals.perPackageOptions ?: emptyList())
+    }
+
+    sourceSets.forEach {
+        it.externalDocumentationLinks.cast<MutableSet<DokkaConfiguration.ExternalDocumentationLink>>().addAll(globals.externalDocumentationLinks ?: emptyList())
+    }
+
+    sourceSets.forEach {
+        it.sourceLinks.cast<MutableSet<SourceLinkDefinitionImpl>>().addAll(globals.sourceLinks ?: emptyList())
+    }
+}
 
 fun DokkaConfiguration.toJsonString(): String = toJsonString(this)
 fun <T : ConfigurableBlock> T.toJsonString(): String = toJsonString(this)

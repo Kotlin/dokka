@@ -408,19 +408,8 @@ fun initializeConfiguration(globalArguments: GlobalArguments): DokkaConfiguratio
         val jsonContent = Paths.get(checkNotNull(globalArguments.json)).toFile().readText()
         val globals = GlobalDokkaConfiguration(jsonContent)
         val dokkaConfigurationImpl = DokkaConfigurationImpl(jsonContent)
-        dokkaConfigurationImpl.apply {
-            sourceSets.forEach {
-                it.perPackageOptions.cast<MutableList<DokkaConfiguration.PackageOptions>>().addAll(globals.perPackageOptions ?: emptyList())
-            }
 
-            sourceSets.forEach {
-                it.externalDocumentationLinks.cast<MutableSet<ExternalDocumentationLink>>().addAll(globals.externalDocumentationLinks ?: emptyList())
-            }
-
-            sourceSets.forEach {
-                it.sourceLinks.cast<MutableSet<SourceLinkDefinitionImpl>>().addAll(globals.sourceLinks ?: emptyList())
-            }
-
+        dokkaConfigurationImpl.apply(globals).apply {
             sourceSets.forEach {
                 it.externalDocumentationLinks.cast<MutableSet<ExternalDocumentationLink>>().addAll(defaultLinks(it))
             }

@@ -5,6 +5,7 @@ public final class org/jetbrains/dokka/ConfigurationKt {
 	public static synthetic fun ExternalDocumentationLink$default (Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lorg/jetbrains/dokka/ExternalDocumentationLinkImpl;
 	public static synthetic fun ExternalDocumentationLink$default (Ljava/net/URL;Ljava/net/URL;ILjava/lang/Object;)Lorg/jetbrains/dokka/ExternalDocumentationLinkImpl;
 	public static final fun GlobalDokkaConfiguration (Ljava/lang/String;)Lorg/jetbrains/dokka/GlobalDokkaConfiguration;
+	public static final fun apply (Lorg/jetbrains/dokka/DokkaConfiguration;Lorg/jetbrains/dokka/GlobalDokkaConfiguration;)Lorg/jetbrains/dokka/DokkaConfiguration;
 	public static final fun build (Ljava/lang/Iterable;)Ljava/util/List;
 	public static final fun toJsonString (Lorg/jetbrains/dokka/DokkaConfiguration;)Ljava/lang/String;
 	public static final fun toJsonString (Lorg/jetbrains/dokka/plugability/ConfigurableBlock;)Ljava/lang/String;
