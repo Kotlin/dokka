@@ -45,7 +45,7 @@ If you encounter any problems when migrating from older versions of Dokka, pleas
 
 Minimal configuration (with custom output directory only):
 
-Kotlin
+Kotlin DSL
 ```kotlin
 tasks.dokkaHtml.configure {
     outputDirectory.set(buildDir.resolve("dokka"))
@@ -53,10 +53,10 @@ tasks.dokkaHtml.configure {
 ```
 
 
-Groovy
-```kotlin
-tasks.named("dokkaHtml") {
-    outputDirectory.set(buildDir.resolve("dokka"))
+Groovy DSL
+```groovy
+dokkaHtml {
+    outputDirectory.set(file("${buildDir}/dokka"))
 }
 ```
 
