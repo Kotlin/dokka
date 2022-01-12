@@ -717,6 +717,13 @@ Output formats are explained in <a href="../../introduction/#output-formats">the
     <span class="n">outputDirectory</span><span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="n">file</span><span class="o">(</span><span class="s2">&quot;${buildDir}/dokka&quot;</span><span class="o">))</span>
 <span class="o">}</span>
 </code></pre></div></p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Dokka extracts the information about sourcesets from the Kotlin Gradle plugin.
+Therefore, if you are using Dokka in a <a href="https://docs.gradle.org/current/userguide/custom_plugins.html#sec:precompiled_plugins">precompiled script plugin</a>, 
+you will have to add a depencency to the Kotlin Gradle Plugin as well
+(<code>implementation(kotlin("gradle-plugin", "&lt;kotlin-version&gt;"))</code> resp. <code>implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:&lt;kotlin-version&gt;")</code>).</p>
+</div>
 <h2 id="configuration-options">Configuration options<a class="headerlink" href="#configuration-options" title="Permanent link">&para;</a></h2>
 <p>Dokka documents single-platform as well as multi-platform projects. 
 Most of the configuration options are set per one source set.
