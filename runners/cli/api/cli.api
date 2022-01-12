@@ -89,6 +89,7 @@ public final class org/jetbrains/dokka/GlobalArguments : org/jetbrains/dokka/Dok
 
 public final class org/jetbrains/dokka/MainKt {
 	public static final fun defaultLinks (Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;)Ljava/util/List;
+	public static final fun initializeConfiguration (Lorg/jetbrains/dokka/GlobalArguments;)Lorg/jetbrains/dokka/DokkaConfiguration;
 	public static final fun main ([Ljava/lang/String;)V
 	public static final fun parseLinks (Ljava/util/List;)Ljava/util/List;
 }

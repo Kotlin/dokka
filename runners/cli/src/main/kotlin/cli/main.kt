@@ -2,10 +2,7 @@ package org.jetbrains.dokka
 
 import kotlinx.cli.*
 import org.jetbrains.dokka.DokkaConfiguration.ExternalDocumentationLink
-import org.jetbrains.dokka.utilities.DokkaConsoleLogger
-import org.jetbrains.dokka.utilities.DokkaLogger
-import org.jetbrains.dokka.utilities.LoggingLevel
-import org.jetbrains.dokka.utilities.cast
+import org.jetbrains.dokka.utilities.*
 import java.io.*
 import java.net.MalformedURLException
 import java.net.URL
@@ -80,6 +77,7 @@ class GlobalArguments(args: Array<String>) : DokkaConfiguration {
 
     private val _includes by parser.option(
         ArgTypeFile,
+        fullName = "includes",
         description = "Markdown files that would be displayed in multi-module page separated by the semicolon `;`)"
     ).delimiter(";")
 
@@ -406,14 +404,23 @@ fun parseLinks(links: List<String>): List<ExternalDocumentationLink> {
             }
 }
 
+fun initializeConfiguration(globalArguments: GlobalArguments): DokkaConfiguration = if (globalArguments.json != null) {
+        val jsonContent = Paths.get(checkNotNull(globalArguments.json)).toFile().readText()
+        val globals = GlobalDokkaConfiguration(jsonContent)
+        val dokkaConfigurationImpl = DokkaConfigurationImpl(jsonContent)
+
+        dokkaConfigurationImpl.apply(globals).apply {
+            sourceSets.forEach {
+                it.externalDocumentationLinks.cast<MutableSet<ExternalDocumentationLink>>().addAll(defaultLinks(it))
+            }
+        }
+    } else {
+        globalArguments
+    }
+
 fun main(args: Array<String>) {
     val globalArguments = GlobalArguments(args)
-    val configuration = if (globalArguments.json != null)
-        DokkaConfigurationImpl(
-            Paths.get(checkNotNull(globalArguments.json)).toFile().readText()
-        )
-    else
-        globalArguments
+    val configuration = initializeConfiguration(globalArguments)
     DokkaGenerator(configuration, globalArguments.logger).generate()
 }
 
