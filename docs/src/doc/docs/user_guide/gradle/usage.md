@@ -60,6 +60,12 @@ dokkaHtml {
 }
 ```
 
+!!! note 
+    Dokka extracts the information about sourcesets from the Kotlin Gradle plugin.
+    Therefore, if you are using Dokka in a [precompiled script plugin](https://docs.gradle.org/current/userguide/custom_plugins.html#sec:precompiled_plugins), 
+    you will have to add a depencency to the Kotlin Gradle Plugin as well
+    (`implementation(kotlin("gradle-plugin", "<kotlin-version>"))` resp. `implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:<kotlin-version>")`).
+
 ## Configuration options
 
 Dokka documents single-platform as well as multi-platform projects. 
