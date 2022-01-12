@@ -6,19 +6,29 @@ import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.descriptors.impl.EnumEntrySyntheticClassDescriptor
 import org.jetbrains.kotlin.psi.psiUtil.parentsWithSelf
 import org.jetbrains.kotlin.resolve.descriptorUtil.parentsWithSelf
+import org.jetbrains.kotlin.resolve.lazy.descriptors.LazyClassDescriptor
 import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
+import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 
 fun DRI.Companion.from(descriptor: DeclarationDescriptor) = descriptor.parentsWithSelf.run {
     val parameter = firstIsInstanceOrNull<ValueParameterDescriptor>()
     val callable = parameter?.containingDeclaration ?: firstIsInstanceOrNull<CallableDescriptor>()
-
     DRI(
         packageName = firstIsInstanceOrNull<PackageFragmentDescriptor>()?.fqName?.asString() ?: "",
-        classNames = (filterIsInstance<ClassDescriptor>() + filterIsInstance<TypeAliasDescriptor>()).toList()
+        classNames = (filterIsInstance<ClassDescriptor>().map {
+                if (it.kind == ClassKind.ENUM_ENTRY)
+                    it.name.asString().split(".").dropLast(1).joinToString(".")
+                else
+                    it.name.asString()
+                } + filterIsInstance<TypeAliasDescriptor>().map { it.name.asString() }
+            ).toList()
+            .filter { it.isNotBlank() }
             .takeIf { it.isNotEmpty() }
             ?.asReversed()
-            ?.joinToString(separator = ".") { it.name.asString() },
-        callable = callable?.let { Callable.from(it) },
+            ?.joinToString(separator = "."),
+        callable = callable?.let { Callable.from(it) }
+            ?: descriptor.safeAs<LazyClassDescriptor>().takeIf { it?.kind == ClassKind.ENUM_ENTRY }?.let { Callable.from(it) }
+            ?: descriptor.safeAs<EnumEntrySyntheticClassDescriptor>()?.let { Callable.from(it) },
         target = DriTarget.from(parameter ?: descriptor),
         extra = if (descriptor is EnumEntrySyntheticClassDescriptor)
             DRIExtraContainer().also { it[EnumEntryDRIExtra] = EnumEntryDRIExtra }.encode()

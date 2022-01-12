@@ -326,7 +326,7 @@ class JavadocParser(
                 dri.toString()
             } ?: UNRESOLVED_PSI_ELEMENT
 
-            return """<a data-dri="$dri">${label.ifBlank{ defaultLabel().text }}</a>"""
+            return """<a data-dri="${dri.replace("\"", "&quot;")}">${label.ifBlank{ defaultLabel().text }}</a>"""
         }
 
         private fun convertInlineDocTag(
