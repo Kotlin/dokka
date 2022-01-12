@@ -707,15 +707,15 @@ eg. you'll have to use <code>named&lt;DokkaTask&gt;("dokkaHtml")</code> instead 
 Output formats are explained in <a href="../../introduction/#output-formats">the introduction</a></p>
 <p>If you encounter any problems when migrating from older versions of Dokka, please see the <a href="https://github.com/Kotlin/dokka/wiki/faq">FAQ</a>.</p>
 <p>Minimal configuration (with custom output directory only):</p>
-<p>Kotlin
+<p>Kotlin DSL
 <div class="highlight"><pre><span></span><code><span class="n">tasks</span><span class="p">.</span><span class="na">dokkaHtml</span><span class="p">.</span><span class="na">configure</span> <span class="p">{</span>
     <span class="n">outputDirectory</span><span class="p">.</span><span class="na">set</span><span class="p">(</span><span class="n">buildDir</span><span class="p">.</span><span class="na">resolve</span><span class="p">(</span><span class="s">&quot;dokka&quot;</span><span class="p">))</span>
 <span class="p">}</span>
 </code></pre></div></p>
-<p>Groovy
-<div class="highlight"><pre><span></span><code><span class="n">tasks</span><span class="p">.</span><span class="na">named</span><span class="p">(</span><span class="s">&quot;dokkaHtml&quot;</span><span class="p">)</span> <span class="p">{</span>
-    <span class="n">outputDirectory</span><span class="p">.</span><span class="na">set</span><span class="p">(</span><span class="n">buildDir</span><span class="p">.</span><span class="na">resolve</span><span class="p">(</span><span class="s">&quot;dokka&quot;</span><span class="p">))</span>
-<span class="p">}</span>
+<p>Groovy DSL
+<div class="highlight"><pre><span></span><code><span class="n">dokkaHtml</span> <span class="o">{</span>
+    <span class="n">outputDirectory</span><span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="n">file</span><span class="o">(</span><span class="s2">&quot;${buildDir}/dokka&quot;</span><span class="o">))</span>
+<span class="o">}</span>
 </code></pre></div></p>
 <h2 id="configuration-options">Configuration options<a class="headerlink" href="#configuration-options" title="Permanent link">&para;</a></h2>
 <p>Dokka documents single-platform as well as multi-platform projects. 
