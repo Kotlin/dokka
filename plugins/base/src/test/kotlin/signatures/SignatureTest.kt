@@ -93,10 +93,12 @@ class SignatureTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/simple-fun.html").firstSignature().match(
-                    "fun ", A("simpleFun"), "(a: ", A("Int"),
-                    ", b: ", A("Boolean"), ", c: ", A("Any"),
-                    "): ", A("String"), Span(),
-                        ignoreSpanWithTokenStyle = true
+                    "fun ", A("simpleFun"), "(", Span(
+                        Span("a: ", A("Int"), ","),
+                        Span("b: ", A("Boolean"), ","),
+                        Span("c: ", A("Any")),
+                    ), "): ", A("String"), Span(),
+                    ignoreSpanWithTokenStyle = true
                 )
             }
         }
@@ -114,9 +116,10 @@ class SignatureTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/simple-fun.html").firstSignature().match(
-                    "fun ", A("simpleFun"), "(a: (", A("Int"),
-                    ") -> ", A("String"), "): ", A("String"), Span(),
-                        ignoreSpanWithTokenStyle = true
+                    "fun ", A("simpleFun"), "(", Span(
+                        Span("a: (", A("Int"), ") -> ", A("String")),
+                    ),"): ", A("String"), Span(),
+                    ignoreSpanWithTokenStyle = true
                 )
             }
         }
@@ -174,9 +177,11 @@ class SignatureTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/simple-fun.html").firstSignature().match(
-                    "inline suspend fun <", A("T"), " : ", A("String"), "> ", A("simpleFun"),
-                    "(a: ", A("Int"), ", b: ", A("String"), "): ", A("T"), Span(),
-                        ignoreSpanWithTokenStyle = true
+                    "inline suspend fun <", A("T"), " : ", A("String"), "> ", A("simpleFun"), "(", Span(
+                        Span("a: ", A("Int"), ","),
+                        Span("b: ", A("String")),
+                    ), "): ", A("T"), Span(),
+                    ignoreSpanWithTokenStyle = true
                 )
             }
         }
@@ -194,8 +199,10 @@ class SignatureTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/simple-fun.html").firstSignature().match(
-                    "fun ", A("simpleFun"), "(vararg params: ", A("Int"), ")", Span(),
-                        ignoreSpanWithTokenStyle = true
+                    "fun ", A("simpleFun"), "(", Span(
+                        Span("vararg params: ", A("Int")),
+                    ), ")", Span(),
+                    ignoreSpanWithTokenStyle = true
                 )
             }
         }
@@ -655,9 +662,11 @@ class SignatureTest : BaseAbstractTest() {
             pluginOverrides = listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
-                writerPlugin.writer.renderedContent("root/kotlinAsJavaPlugin/-a-b-c/some-fun.html").signature().first().match(
-                    "fun ", A("someFun"), "(xd: ", A("XD"), "<", A("Int"),
-                    ", ", A("String"), ">):", A("Int"), Span(),
+                writerPlugin.writer.renderedContent("root/kotlinAsJavaPlugin/-a-b-c/some-fun.html").signature().first()
+                    .match(
+                        "fun ", A("someFun"), "(", Span(
+                            Span("xd: ", A("XD"), "<", A("Int"), ", ", A("String"), ">"),
+                        ), "):", A("Int"), Span(),
                         ignoreSpanWithTokenStyle = true
                 )
             }
@@ -666,8 +675,6 @@ class SignatureTest : BaseAbstractTest() {
 
     @Test
     fun `generic constructor params`() {
-
-
         val writerPlugin = TestOutputWriterPlugin()
 
         testInline(
@@ -694,13 +701,12 @@ class SignatureTest : BaseAbstractTest() {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/-generic-class/-generic-class.html").signature().zip(
                     listOf(
-                        arrayOf("fun <", A("T"), "> ", A("GenericClass"), "(x: ", A("T"), ")", Span()),
-                        arrayOf("fun ", A("GenericClass"), "(x: ", A("Int"), ", y: ", A("String"), ")", Span()),
-                        arrayOf("fun <", A("T"), "> ", A("GenericClass"), "(x: ", A("Int"), ", y: ", A("List"), "<", A("T"), ">)", Span()),
-                        arrayOf("fun ", A("GenericClass"), "(x: ", A("Boolean"), ", y: ", A("Int"), ", z:", A("String"), ")", Span()),
-                        arrayOf("fun <", A("T"), "> ", A("GenericClass"), "(x: ", A("List"), "<", A("Comparable"),
-                            "<", A("Lazy"), "<", A("T"), ">>>?)", Span()),
-                        arrayOf("fun ", A("GenericClass"), "(x: ", A("Int"), ")", Span()),
+                        arrayOf("fun <", A("T"), "> ", A("GenericClass"), "(", Span(Span("x: ", A("T"))), ")", Span()),
+                        arrayOf("fun ", A("GenericClass"), "(", Span(Span("x: ", A("Int"), ", "), Span("y: ", A("String"))), ")", Span()),
+                        arrayOf("fun <", A("T"), "> ", A("GenericClass"), "(", Span(Span("x: ", A("Int"), ", "), Span("y: ", A("List"), "<", A("T"), ">")), ")", Span()),
+                        arrayOf("fun ", A("GenericClass"), "(", Span(Span("x: ", A("Boolean"), ", "), Span("y: ", A("Int"), ", "), Span("z:", A("String"))), ")", Span()),
+                        arrayOf("fun <", A("T"), "> ", A("GenericClass"), "(", Span(Span("x: ", A("List"), "<", A("Comparable"), "<", A("Lazy"), "<", A("T"), ">>>?")), ")", Span()),
+                        arrayOf("fun ", A("GenericClass"), "(", Span(Span("x: ", A("Int"))), ")", Span()),
                     )
                 ).forEach {
                     it.first.match(*it.second, ignoreSpanWithTokenStyle = true)
@@ -721,8 +727,10 @@ class SignatureTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/simple-fun.html").firstSignature().match(
-                    "fun", A("simpleFun"), "(int: ", A("Int"), " = 1, string: ", A("String"),
-                            " = \"string\"): ", A("String"), Span(),
+                    "fun", A("simpleFun"), "(", Span(
+                        Span("int: ", A("Int"), " = 1,"),
+                        Span("string: ", A("String"), " = \"string\"")
+                    ), "): ", A("String"), Span(),
                         ignoreSpanWithTokenStyle = true
                 )
             }

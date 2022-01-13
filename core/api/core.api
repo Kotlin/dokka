@@ -3748,6 +3748,7 @@ public final class org/jetbrains/dokka/pages/ContentKind : java/lang/Enum, org/j
 	public static final field Inheritors Lorg/jetbrains/dokka/pages/ContentKind;
 	public static final field Main Lorg/jetbrains/dokka/pages/ContentKind;
 	public static final field Packages Lorg/jetbrains/dokka/pages/ContentKind;
+	public static final field Parameter Lorg/jetbrains/dokka/pages/ContentKind;
 	public static final field Parameters Lorg/jetbrains/dokka/pages/ContentKind;
 	public static final field Properties Lorg/jetbrains/dokka/pages/ContentKind;
 	public static final field Sample Lorg/jetbrains/dokka/pages/ContentKind;
@@ -3861,10 +3862,12 @@ public final class org/jetbrains/dokka/pages/ContentResolvedLink : org/jetbrains
 public final class org/jetbrains/dokka/pages/ContentStyle : java/lang/Enum, org/jetbrains/dokka/pages/Style {
 	public static final field Caption Lorg/jetbrains/dokka/pages/ContentStyle;
 	public static final field InDocumentationAnchor Lorg/jetbrains/dokka/pages/ContentStyle;
+	public static final field Indented Lorg/jetbrains/dokka/pages/ContentStyle;
 	public static final field RowTitle Lorg/jetbrains/dokka/pages/ContentStyle;
 	public static final field RunnableSample Lorg/jetbrains/dokka/pages/ContentStyle;
 	public static final field TabbedContent Lorg/jetbrains/dokka/pages/ContentStyle;
 	public static final field WithExtraAttributes Lorg/jetbrains/dokka/pages/ContentStyle;
+	public static final field Wrapped Lorg/jetbrains/dokka/pages/ContentStyle;
 	public static fun valueOf (Ljava/lang/String;)Lorg/jetbrains/dokka/pages/ContentStyle;
 	public static fun values ()[Lorg/jetbrains/dokka/pages/ContentStyle;
 }

@@ -318,7 +318,7 @@ interface Kind
 
 enum class ContentKind : Kind {
 
-    Comment, Constructors, Functions, Parameters, Properties, Classlikes, Packages, Symbol, Sample, Main, BriefComment,
+    Comment, Constructors, Functions, Parameters, Parameter, Properties, Classlikes, Packages, Symbol, Sample, Main, BriefComment,
     Empty, Source, TypeAliases, Cover, Inheritors, SourceSetDependentHint, Extensions, Annotations;
 
     companion object {
@@ -347,7 +347,8 @@ enum class TextStyle : Style {
 }
 
 enum class ContentStyle : Style {
-    RowTitle, TabbedContent, WithExtraAttributes, RunnableSample, InDocumentationAnchor, Caption
+    RowTitle, TabbedContent, WithExtraAttributes, RunnableSample, InDocumentationAnchor, Caption,
+    Wrapped, Indented
 }
 
 enum class ListStyle : Style {
