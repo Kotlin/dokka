@@ -85,6 +85,14 @@ public final class renderers/TestPageKt {
 	public static final fun testPage (Lkotlin/jvm/functions/Function1;)Lrenderers/RawTestPage;
 }
 
+public final class signatures/Parameter : utils/Tag {
+	public fun <init> ([Ljava/lang/Object;)V
+}
+
+public final class signatures/Parameters : utils/Tag {
+	public fun <init> ([Ljava/lang/Object;)V
+}
+
 public final class signatures/SignatureUtilsKt {
 	public static final fun firstSignature (Lorg/jsoup/nodes/Element;)Lorg/jsoup/nodes/Element;
 	public static final fun renderedContent (Lutils/TestOutputWriter;Ljava/lang/String;)Lorg/jsoup/nodes/Element;
