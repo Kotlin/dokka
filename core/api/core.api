@@ -3749,6 +3749,7 @@ public final class org/jetbrains/dokka/pages/ContentKind : java/lang/Enum, org/j
 	public static final field Inheritors Lorg/jetbrains/dokka/pages/ContentKind;
 	public static final field Main Lorg/jetbrains/dokka/pages/ContentKind;
 	public static final field Packages Lorg/jetbrains/dokka/pages/ContentKind;
+	public static final field Parameter Lorg/jetbrains/dokka/pages/ContentKind;
 	public static final field Parameters Lorg/jetbrains/dokka/pages/ContentKind;
 	public static final field Properties Lorg/jetbrains/dokka/pages/ContentKind;
 	public static final field Sample Lorg/jetbrains/dokka/pages/ContentKind;

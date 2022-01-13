@@ -306,6 +306,26 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
             }
         }
 
+    private fun DocumentableContentBuilder.parametersBlock(
+        function: DFunction, paramBuilder: DocumentableContentBuilder.(DParameter) -> Unit
+    ) {
+        val parametersStyle = if (function.shouldWrapParams()) setOf(ContentStyle.Wrapped) else emptySet()
+        val elementStyle = if (function.shouldWrapParams()) setOf(ContentStyle.Indented) else emptySet()
+        group(kind = ContentKind.Parameters, styles = parametersStyle) {
+            function.parameters.dropLast(1).forEach {
+                group(kind = SymbolContentKind.Parameter, styles = elementStyle) {
+                    paramBuilder(it)
+                    keyword(", ")
+                }
+            }
+            group(kind = SymbolContentKind.Parameter, styles = elementStyle) {
+                paramBuilder(function.parameters.last())
+            }
+        }
+    }
+
+    private fun DFunction.shouldWrapParams() = this.parameters.size >= FUNCTION_PARAMETERS_WRAP_THRESHOLD
+
     private fun DFunction.documentReturnType() = when {
         this.isConstructor -> false
         this.type is TypeConstructor && (this.type as TypeConstructor).dri == DriOfUnit -> false
@@ -437,6 +457,26 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
             operator(" -> ")
             signatureForProjection(args.last())
         }
+
+    private companion object {
+        /**
+         * Number of parameters in a function (including constructor) after
+         * which the parameters should be wrapped
+         * ```
+         * class SimpleClass(foo: String, bar: String, baz: String) {}
+         * ```
+         * After wrapping:
+         * ```
+         * class SimpleClass(
+         *     foo: String,
+         *     bar: String,
+         *     baz: String,
+         *     qux: String
+         * )
+         * ```
+         */
+        private const val FUNCTION_PARAMETERS_WRAP_THRESHOLD = 4
+    }
 }
 
 private fun PrimitiveJavaType.translateToKotlin() = GenericTypeConstructor(
