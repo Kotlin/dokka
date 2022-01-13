@@ -283,7 +283,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                 link(f.name, f.dri, styles = mainStyles + TokenStyle.Function)
 
                 // for a function, opening and closing parentheses must be present
-                // anyway, even if it has on parameters, resulting in `fun test(): R`
+                // anyway, even if it has no parameters, resulting in `fun test(): R`
                 punctuation("(")
                 if (f.parameters.isNotEmpty()) {
                     parametersBlock(f) { param ->
