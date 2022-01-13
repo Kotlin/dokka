@@ -831,7 +831,4 @@ class SignatureTest : BaseAbstractTest() {
             }
         }
     }
-
-    private class Parameters(vararg matchers: Any) : Tag("span", *matchers, expectedClasses = listOf("parameters"))
-    private class Parameter(vararg matchers: Any) : Tag("span", *matchers, expectedClasses = listOf("parameter"))
 }
