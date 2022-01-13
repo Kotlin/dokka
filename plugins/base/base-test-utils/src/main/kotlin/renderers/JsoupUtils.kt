@@ -21,7 +21,7 @@ fun Element.match(vararg matchers: Any, ignoreSpanWithTokenStyle:Boolean = false
         .zip(matchers)
         .forEach { (n, m) -> m.accepts(n, ignoreSpan = ignoreSpanWithTokenStyle) }
 
-open class Tag(val name: String, vararg val matchers: Any)
+open class Tag(val name: String, vararg val matchers: Any, val expectedClasses: List<String> = emptyList())
 class Div(vararg matchers: Any) : Tag("div", *matchers)
 class P(vararg matchers: Any) : Tag("p", *matchers)
 class Span(vararg matchers: Any) : Tag("span", *matchers)
@@ -34,16 +34,24 @@ class Dt(vararg matchers: Any) : Tag("dt", *matchers)
 class Dd(vararg matchers: Any) : Tag("dd", *matchers)
 object Wbr : Tag("wbr")
 object Br : Tag("br")
+
+fun Tag.withClasses(vararg classes: String) = Tag(name, *matchers, expectedClasses = classes.toList())
+
 private fun Any.accepts(n: Node, ignoreSpan:Boolean = true) {
     when (this) {
         is String -> assert(n is TextNode && n.text().trim() == this.trim()) { "\"$this\" expected but found: $n" }
         is Tag -> {
-            assert(n is Element && n.tagName() == name) { "Tag $name expected but found: $n" }
-            if (n is Element && matchers.isNotEmpty()) n.match(*matchers, ignoreSpanWithTokenStyle = ignoreSpan)
+            check(n is Element) { "Expected node to be Element: $n" }
+            assert(n.tagName() == name) { "Tag \"$name\" expected but found: \"$n\"" }
+            expectedClasses.forEach {
+                assert(n.hasClass(it)) { "Expected to find class \"$it\" for tag \"$name\", found: ${n.classNames()}" }
+            }
+            if (matchers.isNotEmpty()) n.match(*matchers, ignoreSpanWithTokenStyle = ignoreSpan)
         }
         else -> throw IllegalArgumentException("$this is not proper matcher")
     }
 }
+
 private fun List<Node>.uniteConsecutiveTextNodes(): MutableList<Node> {
     val resList = mutableListOf<Node>()
     var acc = StringBuilder()

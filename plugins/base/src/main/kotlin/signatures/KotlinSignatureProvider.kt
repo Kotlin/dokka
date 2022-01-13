@@ -182,14 +182,14 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                     // should be present only if it has parameters. If there are
                     // no parameters, it should result in `class Example`
                     if (pConstructor.parameters.isNotEmpty()) {
-                        keyword("(")
+                        punctuation("(")
                         parametersBlock(pConstructor) { param ->
                             annotationsInline(param)
                             text(param.name.orEmpty())
                             operator(": ")
                             signatureForProjection(param.type)
                         }
-                        keyword(")")
+                        punctuation(")")
                     }
                 }
             }
@@ -315,7 +315,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
             function.parameters.dropLast(1).forEach {
                 group(kind = ContentKind.Parameter, styles = elementStyle) {
                     paramBuilder(it)
-                    keyword(", ")
+                    punctuation(", ")
                 }
             }
             group(kind = ContentKind.Parameter, styles = elementStyle) {
@@ -463,19 +463,18 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
          * Number of parameters in a function (including constructor) after
          * which the parameters should be wrapped
          * ```
-         * class SimpleClass(foo: String, bar: String, baz: String) {}
+         * class SimpleClass(foo: String, bar: String) {}
          * ```
          * After wrapping:
          * ```
          * class SimpleClass(
          *     foo: String,
          *     bar: String,
-         *     baz: String,
-         *     qux: String
+         *     baz: String
          * )
          * ```
          */
-        private const val FUNCTION_PARAMETERS_WRAP_THRESHOLD = 4
+        private const val FUNCTION_PARAMETERS_WRAP_THRESHOLD = 3
     }
 }
 
