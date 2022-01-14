@@ -5,6 +5,8 @@ public final class org/jetbrains/dokka/base/DokkaBase : org/jetbrains/dokka/plug
 	public final fun getBaseSearchbarDataInstaller ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getCommentsToContentConverter ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
 	public final fun getCustomResourceInstaller ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getDefaultExternalClasslikesTranslator ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getDefaultExternalDocumentablesProvider ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getDefaultKotlinAnalysis ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getDefaultSamplesTransformer ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getDefaultTabSortingStrategy ()Lorg/jetbrains/dokka/plugability/Extension;
@@ -18,6 +20,8 @@ public final class org/jetbrains/dokka/base/DokkaBase : org/jetbrains/dokka/plug
 	public final fun getEmptyModulesFilter ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getEmptyPackagesFilter ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getExtensionsExtractor ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getExternalClasslikesTranslator ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
+	public final fun getExternalDocumentablesProvider ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
 	public final fun getExternalLocationProviderFactory ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
 	public final fun getFallbackMerger ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getFileWriter ()Lorg/jetbrains/dokka/plugability/Extension;
@@ -1279,14 +1283,30 @@ public final class org/jetbrains/dokka/base/translators/descriptors/DRIWithPlatf
 	public fun toString ()Ljava/lang/String;
 }
 
-public final class org/jetbrains/dokka/base/translators/descriptors/DefaultDescriptorToDocumentableTranslator : org/jetbrains/dokka/transformers/sources/AsyncSourceToDocumentableTranslator {
+public final class org/jetbrains/dokka/base/translators/descriptors/DefaultDescriptorToDocumentableTranslator : org/jetbrains/dokka/base/translators/descriptors/ExternalClasslikesTranslator, org/jetbrains/dokka/transformers/sources/AsyncSourceToDocumentableTranslator {
 	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
 	public fun invoke (Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Lorg/jetbrains/dokka/plugability/DokkaContext;)Lorg/jetbrains/dokka/model/DModule;
 	public fun invokeSuspending (Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Lorg/jetbrains/dokka/plugability/DokkaContext;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun translateDescriptor (Lorg/jetbrains/kotlin/descriptors/ClassDescriptor;Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;)Lorg/jetbrains/dokka/model/DClasslike;
 }
 
 public final class org/jetbrains/dokka/base/translators/descriptors/DefaultDescriptorToDocumentableTranslatorKt {
 	public static final fun withEmptyInfo (Lorg/jetbrains/dokka/links/DRI;)Lorg/jetbrains/dokka/base/translators/descriptors/DRIWithPlatformInfo;
+}
+
+public final class org/jetbrains/dokka/base/translators/descriptors/DefaultExternalDocumentablesProvider : org/jetbrains/dokka/base/translators/descriptors/ExternalDocumentablesProvider {
+	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
+	public fun findClasslike (Lorg/jetbrains/dokka/links/DRI;Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;)Lorg/jetbrains/dokka/model/DClasslike;
+	public final fun getAnalysis ()Lorg/jetbrains/dokka/analysis/KotlinAnalysis;
+	public final fun getTranslator ()Lorg/jetbrains/dokka/base/translators/descriptors/ExternalClasslikesTranslator;
+}
+
+public abstract interface class org/jetbrains/dokka/base/translators/descriptors/ExternalClasslikesTranslator {
+	public abstract fun translateDescriptor (Lorg/jetbrains/kotlin/descriptors/ClassDescriptor;Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;)Lorg/jetbrains/dokka/model/DClasslike;
+}
+
+public abstract interface class org/jetbrains/dokka/base/translators/descriptors/ExternalDocumentablesProvider {
+	public abstract fun findClasslike (Lorg/jetbrains/dokka/links/DRI;Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;)Lorg/jetbrains/dokka/model/DClasslike;
 }
 
 public final class org/jetbrains/dokka/base/translators/documentables/BriefFromContentNodesKt {
