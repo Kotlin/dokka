@@ -15,9 +15,9 @@ import org.jetbrains.kotlin.resolve.scopes.MemberScope
 import org.jetbrains.kotlin.resolve.scopes.getDescriptorsFiltered
 
 class DefaultExternalDocumentablesProvider(context: DokkaContext) : ExternalDocumentablesProvider {
-    val analysis = context.plugin<DokkaBase>().querySingle { kotlinAnalysis }
+    private val analysis = context.plugin<DokkaBase>().querySingle { kotlinAnalysis }
 
-    val translator = context.plugin<DokkaBase>().querySingle { externalClasslikesTranslator }
+    private val translator = context.plugin<DokkaBase>().querySingle { externalClasslikesTranslator }
 
     override fun findClasslike(dri: DRI, sourceSet: DokkaSourceSet): DClasslike? {
         val pkg = dri.packageName?.let { FqName(it) } ?: FqName.ROOT

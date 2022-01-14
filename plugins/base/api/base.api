@@ -1297,8 +1297,6 @@ public final class org/jetbrains/dokka/base/translators/descriptors/DefaultDescr
 public final class org/jetbrains/dokka/base/translators/descriptors/DefaultExternalDocumentablesProvider : org/jetbrains/dokka/base/translators/descriptors/ExternalDocumentablesProvider {
 	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
 	public fun findClasslike (Lorg/jetbrains/dokka/links/DRI;Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;)Lorg/jetbrains/dokka/model/DClasslike;
-	public final fun getAnalysis ()Lorg/jetbrains/dokka/analysis/KotlinAnalysis;
-	public final fun getTranslator ()Lorg/jetbrains/dokka/base/translators/descriptors/ExternalClasslikesTranslator;
 }
 
 public abstract interface class org/jetbrains/dokka/base/translators/descriptors/ExternalClasslikesTranslator {
