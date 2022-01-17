@@ -53,7 +53,13 @@ fun DRI.withTargetToDeclaration() = copy(target = PointingToDeclaration)
 
 val DRI.parent: DRI
     get() = when {
-        extra != null -> copy(extra = null)
+        extra != null -> when {
+            DRIExtraContainer(extra)[EnumEntryDRIExtra] != null -> copy(
+                classNames = classNames?.substringBeforeLast(".", "")?.takeIf { it.isNotBlank() },
+                extra = null
+            )
+            else -> copy(extra = null)
+        }
         target != PointingToDeclaration -> copy(target = PointingToDeclaration)
         callable != null -> copy(callable = null)
         classNames != null -> copy(classNames = classNames.substringBeforeLast(".", "").takeIf { it.isNotBlank() })
