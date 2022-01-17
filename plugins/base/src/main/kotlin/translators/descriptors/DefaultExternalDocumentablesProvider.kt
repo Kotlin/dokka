@@ -30,7 +30,7 @@ class DefaultExternalDocumentablesProvider(context: DokkaContext) : ExternalDocu
                 ?.firstOrNull()
         }
 
-        return (classDsc as? ClassDescriptor)?.let { translator.translateDescriptor(it, sourceSet) }
+        return (classDsc as? ClassDescriptor)?.let { translator.translateClassDescriptor(it, sourceSet) }
     }
 
     private val DeclarationDescriptor.scope: MemberScope

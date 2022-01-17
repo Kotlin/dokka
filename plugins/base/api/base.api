@@ -1287,7 +1287,7 @@ public final class org/jetbrains/dokka/base/translators/descriptors/DefaultDescr
 	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
 	public fun invoke (Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Lorg/jetbrains/dokka/plugability/DokkaContext;)Lorg/jetbrains/dokka/model/DModule;
 	public fun invokeSuspending (Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Lorg/jetbrains/dokka/plugability/DokkaContext;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public fun translateDescriptor (Lorg/jetbrains/kotlin/descriptors/ClassDescriptor;Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;)Lorg/jetbrains/dokka/model/DClasslike;
+	public fun translateClassDescriptor (Lorg/jetbrains/kotlin/descriptors/ClassDescriptor;Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;)Lorg/jetbrains/dokka/model/DClasslike;
 }
 
 public final class org/jetbrains/dokka/base/translators/descriptors/DefaultDescriptorToDocumentableTranslatorKt {
@@ -1300,7 +1300,7 @@ public final class org/jetbrains/dokka/base/translators/descriptors/DefaultExter
 }
 
 public abstract interface class org/jetbrains/dokka/base/translators/descriptors/ExternalClasslikesTranslator {
-	public abstract fun translateDescriptor (Lorg/jetbrains/kotlin/descriptors/ClassDescriptor;Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;)Lorg/jetbrains/dokka/model/DClasslike;
+	public abstract fun translateClassDescriptor (Lorg/jetbrains/kotlin/descriptors/ClassDescriptor;Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;)Lorg/jetbrains/dokka/model/DClasslike;
 }
 
 public abstract interface class org/jetbrains/dokka/base/translators/descriptors/ExternalDocumentablesProvider {

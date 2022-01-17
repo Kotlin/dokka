@@ -13,7 +13,7 @@ import org.jetbrains.dokka.utilities.cast
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
-class ExternalDocumentables : BaseAbstractTest() {
+class ExternalDocumentablesTest : BaseAbstractTest() {
     @Test
     fun `external documentable from java stdlib`() {
         val configuration = dokkaConfiguration {
@@ -44,6 +44,7 @@ class ExternalDocumentables : BaseAbstractTest() {
                     entry.value.single().typeConstructor.dri,
                     entry.key)
                 assertEquals("ArrayList", res?.name)
+                assertEquals("java.util/ArrayList///PointingToDeclaration/", res?.dri?.toString())
 
                 val supertypes = res?.cast<DClass>()?.supertypes?.values?.single()
                     ?.map { it.typeConstructor.dri.classNames }
@@ -89,6 +90,7 @@ class ExternalDocumentables : BaseAbstractTest() {
                     entry.value.single().typeConstructor.dri,
                     entry.key)
                 assertEquals("Job", res?.name)
+                assertEquals("kotlinx.coroutines/Job///PointingToDeclaration/", res?.dri?.toString())
 
                 val supertypes = res?.cast<DInterface>()?.supertypes?.values?.single()
                     ?.map { it.typeConstructor.dri.classNames }
@@ -130,7 +132,7 @@ class ExternalDocumentables : BaseAbstractTest() {
                     entry.value.single().typeConstructor.dri,
                     entry.key)
                 assertEquals("Entry", res?.name)
-                assertEquals("Map.Entry", res?.dri?.classNames)
+                assertEquals("kotlin.collections/Map.Entry///PointingToDeclaration/", res?.dri?.toString())
             }
         }
     }

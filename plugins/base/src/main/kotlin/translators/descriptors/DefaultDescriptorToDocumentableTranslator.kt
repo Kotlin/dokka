@@ -112,7 +112,7 @@ class DefaultDescriptorToDocumentableTranslator(
         }
     }
 
-    override fun translateDescriptor(descriptor: ClassDescriptor, sourceSet: DokkaSourceSet): DClasslike {
+    override fun translateClassDescriptor(descriptor: ClassDescriptor, sourceSet: DokkaSourceSet): DClasslike {
         val driInfo = DRI.from(descriptor.parents.first()).withEmptyInfo()
 
         return runBlocking(Dispatchers.Default) {
