@@ -82,7 +82,6 @@ open class DokkaLocationProvider(
             val driWithSourceSets = DRIWithSourceSets(dri, setOfNotNull(sourceSet))
             getLocalLocation(driWithSourceSets, context)
                 ?: getLocalLocation(driWithSourceSets.copy(dri = dri.copy(target = PointingToDeclaration)), context)
-                ?: getLocalLocation(driWithSourceSets.copy(dri = dri.copy(target = PointingToDeclaration, extra = null)), context)
                 // Not found in PageGraph, that means it's an external link
                 ?: getExternalLocation(dri, sourceSets)
                 ?: getExternalLocation(dri.copy(target = PointingToDeclaration), sourceSets)

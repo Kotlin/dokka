@@ -21,11 +21,11 @@ import org.jetbrains.dokka.base.translators.isDirectlyAnException
 import org.jetbrains.dokka.base.translators.psi.parsers.JavaDocumentationParser
 import org.jetbrains.dokka.base.translators.psi.parsers.JavadocParser
 import org.jetbrains.dokka.base.translators.unquotedValue
-import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.links.nextTarget
-import org.jetbrains.dokka.links.withClass
+import org.jetbrains.dokka.links.*
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.AnnotationTarget
+import org.jetbrains.dokka.model.Nullable
+import org.jetbrains.dokka.model.TypeConstructor
 import org.jetbrains.dokka.model.doc.DocumentationNode
 import org.jetbrains.dokka.model.doc.Param
 import org.jetbrains.dokka.model.properties.PropertyContainer
@@ -269,7 +269,7 @@ class DefaultPsiToDocumentableTranslator(
                         name.orEmpty(),
                         fields.filterIsInstance<PsiEnumConstant>().map { entry ->
                             DEnumEntry(
-                                dri.withClass(entry.name),
+                                dri.withClass(entry.name).copy(extra = DRIExtraContainer().also { it[EnumEntryDRIExtra] = EnumEntryDRIExtra }.encode()),
                                 entry.name,
                                 javadocParser.parseDocumentation(entry).toSourceSetDependent(),
                                 null,
