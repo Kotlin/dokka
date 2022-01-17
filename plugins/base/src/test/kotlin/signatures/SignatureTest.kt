@@ -745,6 +745,32 @@ class SignatureTest : BaseAbstractTest() {
     }
 
     @Test
+    fun `complete primary constructor with properties`() {
+        val writerPlugin = TestOutputWriterPlugin()
+
+        testInline(
+            """
+                |/src/main/kotlin/common/Test.kt
+                |package example
+                |
+                |class PrimaryConstructorClass<T>(val x: Int, var s: String) { }
+            """.trimMargin(),
+            configuration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                writerPlugin.writer.renderedContent("root/example/-primary-constructor-class/index.html").firstSignature().match(
+                    // In `<T>` expression, an empty `<span class="token keyword"></span>` is present for some reason
+                    Span("class "), A("PrimaryConstructorClass"), Span("<"), Span(), A("T"), Span(">"), Span("("), Parameters(
+                        Parameter(Span("val "), "x", Span(": "), A("Int"), Span(",")),
+                        Parameter(Span("var "), "s", Span(": "), A("String"))
+                    ), Span(")"), Span(),
+                )
+            }
+        }
+    }
+
+    @Test
     fun `fun with default values`() {
         val source = source("fun simpleFun(int: Int = 1, string: String = \"string\"): String = \"\"")
         val writerPlugin = TestOutputWriterPlugin()

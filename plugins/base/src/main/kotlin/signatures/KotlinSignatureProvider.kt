@@ -2,12 +2,12 @@ package org.jetbrains.dokka.base.signatures
 
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.Platform
+import org.jetbrains.dokka.analysis.DescriptorDocumentableSource
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.signatures.KotlinSignatureUtils.dri
 import org.jetbrains.dokka.base.signatures.KotlinSignatureUtils.driOrNull
 import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentConverter
 import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder
-import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder.DocumentableContentBuilder
 import org.jetbrains.dokka.links.*
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.Nullable
@@ -18,6 +18,8 @@ import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.utilities.DokkaLogger
+import org.jetbrains.kotlin.js.resolve.diagnostics.findPsi
+import org.jetbrains.kotlin.psi.KtParameter
 import kotlin.text.Typography.nbsp
 
 class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogger)
@@ -182,12 +184,23 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                     // should be present only if it has parameters. If there are
                     // no parameters, it should result in `class Example`
                     if (pConstructor.parameters.isNotEmpty()) {
+                        val parameterPropertiesByName = c.properties
+                            .filter { it.isAlsoParameter(sourceSet) }
+                            .associateBy { it.name }
+
                         punctuation("(")
                         parametersBlock(pConstructor) { param ->
                             annotationsInline(param)
+                            parameterPropertiesByName[param.name]?.let { property ->
+                                property.setter?.let { keyword("var ") } ?: keyword("val ")
+                            }
                             text(param.name.orEmpty())
                             operator(": ")
                             signatureForProjection(param.type)
+                            param.extra[DefaultValue]?.let {
+                                operator(" = ")
+                                highlightValue(it.value)
+                            }
                         }
                         punctuation(")")
                     }
@@ -206,6 +219,13 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                 }
             }
         }
+
+    /**
+     * An example would be a primary constructor `class A(val s: String)`,
+     * where `s` is both a function parameter and a property
+     */
+    private fun DProperty.isAlsoParameter(sourceSet: DokkaSourceSet) =
+        (this.sources[sourceSet] as? DescriptorDocumentableSource)?.descriptor?.findPsi() is KtParameter
 
     private fun propertySignature(p: DProperty) =
         p.sourceSets.map {
