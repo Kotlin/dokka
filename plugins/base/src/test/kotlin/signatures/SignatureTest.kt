@@ -745,7 +745,7 @@ class SignatureTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `complete primary constructor with properties`() {
+    fun `primary constructor with properties check for all tokens`() {
         val writerPlugin = TestOutputWriterPlugin()
 
         testInline(
