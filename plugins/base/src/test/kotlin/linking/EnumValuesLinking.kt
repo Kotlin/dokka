@@ -1,16 +1,23 @@
 package linking
 
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
+import org.jetbrains.dokka.model.dfs
 import org.jetbrains.dokka.model.doc.DocumentationLink
+import org.jetbrains.dokka.pages.ContentDRILink
+import org.jetbrains.dokka.pages.ContentPage
+import org.jetbrains.kotlin.utils.addToStdlib.safeAs
+import org.jsoup.Jsoup
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import java.nio.file.Paths
-import org.junit.jupiter.api.Assertions.assertEquals
+import utils.TestOutputWriterPlugin
 import java.lang.AssertionError
 
 class EnumValuesLinking : BaseAbstractTest() {
 
     @Test
     fun `check if enum values are correctly linked`() {
+        val writerPlugin = TestOutputWriterPlugin()
         val testDataDir = getTestDataDir("linking").toAbsolutePath()
         testFromData(
             dokkaConfiguration {
@@ -21,7 +28,8 @@ class EnumValuesLinking : BaseAbstractTest() {
                         name = "jvm"
                     }
                 }
-            }
+            },
+            pluginOverrides = listOf(writerPlugin)
         ) {
             documentablesTransformationStage = {
                 val classlikes = it.packages.single().children
@@ -31,16 +39,16 @@ class EnumValuesLinking : BaseAbstractTest() {
                 javaLinker.documentation.values.single().children.run {
                     when (val kotlinLink = this[0].children[1].children[1]) {
                         is DocumentationLink -> kotlinLink.dri.run {
-                            assertEquals("KotlinEnum", this.classNames)
-                            assertEquals("ON_CREATE", this.callable?.name)
+                            assertEquals("KotlinEnum.ON_CREATE", this.classNames)
+                            assertEquals(null, this.callable)
                         }
                         else -> throw AssertionError("Link node is not DocumentationLink type")
                     }
 
                     when (val javaLink = this[0].children[2].children[1]) {
                         is DocumentationLink -> javaLink.dri.run {
-                            assertEquals("JavaEnum", this.classNames)
-                            assertEquals("ON_DECEIT", this.callable?.name)
+                            assertEquals("JavaEnum.ON_DECEIT", this.classNames)
+                            assertEquals(null, this.callable)
                         }
                         else -> throw AssertionError("Link node is not DocumentationLink type")
                     }
@@ -50,20 +58,53 @@ class EnumValuesLinking : BaseAbstractTest() {
                 kotlinLinker.documentation.values.single().children.run {
                     when (val kotlinLink = this[0].children[0].children[5]) {
                         is DocumentationLink -> kotlinLink.dri.run {
-                            assertEquals("KotlinEnum", this.classNames)
-                            assertEquals("ON_CREATE", this.callable?.name)
+                            assertEquals("KotlinEnum.ON_CREATE", this.classNames)
+                            assertEquals(null, this.callable)
                         }
                         else -> throw AssertionError("Link node is not DocumentationLink type")
                     }
 
                     when (val javaLink = this[0].children[0].children[9]) {
                         is DocumentationLink -> javaLink.dri.run {
-                            assertEquals("JavaEnum", this.classNames)
-                            assertEquals("ON_DECEIT", this.callable?.name)
+                            assertEquals("JavaEnum.ON_DECEIT", this.classNames)
+                            assertEquals(null, this.callable)
                         }
                         else -> throw AssertionError("Link node is not DocumentationLink type")
                     }
                 }
+
+                assertEquals(
+                    javaLinker.documentation.values.single().children[0].children[1].children[1].safeAs<DocumentationLink>()?.dri,
+                    kotlinLinker.documentation.values.single().children[0].children[0].children[5].safeAs<DocumentationLink>()?.dri
+                )
+
+                assertEquals(
+                    javaLinker.documentation.values.single().children[0].children[2].children[1].safeAs<DocumentationLink>()?.dri,
+                    kotlinLinker.documentation.values.single().children[0].children[0].children[9].safeAs<DocumentationLink>()?.dri
+                )
+            }
+
+            renderingStage = { rootPageNode, _ ->
+                val classlikes = rootPageNode.children.single().children
+                assertEquals(4, classlikes.size)
+
+                val javaLinker = classlikes.single { it.name == "JavaLinker" }
+                (javaLinker as ContentPage).run {
+                    assertNotNull(content.dfs { it is ContentDRILink && it.address.classNames == "KotlinEnum.ON_CREATE" })
+                    assertNotNull(content.dfs { it is ContentDRILink && it.address.classNames == "JavaEnum.ON_DECEIT" })
+                }
+
+                val kotlinLinker = classlikes.single { it.name == "KotlinLinker" }
+                (kotlinLinker as ContentPage).run {
+                    assertNotNull(content.dfs { it is ContentDRILink && it.address.classNames == "KotlinEnum.ON_CREATE" })
+                    assertNotNull(content.dfs { it is ContentDRILink && it.address.classNames == "JavaEnum.ON_DECEIT" })
+                }
+
+                // single method will throw an exception if there is no single element (0 or 2+)
+                Jsoup.parse(writerPlugin.writer.contents["root/linking.source/-java-linker/index.html"]).select("a[href=\"../-kotlin-enum/-o-n_-c-r-e-a-t-e/index.html\"]").single()
+                Jsoup.parse(writerPlugin.writer.contents["root/linking.source/-java-linker/index.html"]).select("a[href=\"../-java-enum/-o-n_-d-e-c-e-i-t/index.html\"]").single()
+                Jsoup.parse(writerPlugin.writer.contents["root/linking.source/-kotlin-linker/index.html"]).select("a[href=\"../-kotlin-enum/-o-n_-c-r-e-a-t-e/index.html\"]").single()
+                Jsoup.parse(writerPlugin.writer.contents["root/linking.source/-kotlin-linker/index.html"]).select("a[href=\"../-java-enum/-o-n_-d-e-c-e-i-t/index.html\"]").single()
             }
         }
     }

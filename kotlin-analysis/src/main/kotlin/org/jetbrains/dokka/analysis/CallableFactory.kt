@@ -6,8 +6,6 @@ import org.jetbrains.dokka.links.Callable
 import org.jetbrains.dokka.links.JavaClassReference
 import org.jetbrains.dokka.links.TypeReference
 import org.jetbrains.kotlin.descriptors.CallableDescriptor
-import org.jetbrains.kotlin.descriptors.impl.EnumEntrySyntheticClassDescriptor
-import org.jetbrains.kotlin.resolve.lazy.descriptors.LazyClassDescriptor
 
 fun Callable.Companion.from(descriptor: CallableDescriptor, name: String? = null) = with(descriptor) {
     Callable(
@@ -16,18 +14,6 @@ fun Callable.Companion.from(descriptor: CallableDescriptor, name: String? = null
         valueParameters.mapNotNull { TypeReference.from(it) }
     )
 }
-
-fun Callable.Companion.from(descriptor: LazyClassDescriptor) = Callable(
-    descriptor.name.asString(),
-    null,
-    emptyList()
-)
-
-fun Callable.Companion.from(descriptor: EnumEntrySyntheticClassDescriptor) = Callable(
-    descriptor.name.asString(),
-    null,
-    emptyList()
-)
 
 fun Callable.Companion.from(psi: PsiMethod) = with(psi) {
     Callable(
