@@ -1,6 +1,8 @@
 package linking
 
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
+import org.jetbrains.dokka.links.DRIExtraContainer
+import org.jetbrains.dokka.links.EnumEntryDRIExtra
 import org.jetbrains.dokka.model.dfs
 import org.jetbrains.dokka.model.doc.DocumentationLink
 import org.jetbrains.dokka.pages.ContentDRILink
@@ -13,7 +15,7 @@ import java.nio.file.Paths
 import utils.TestOutputWriterPlugin
 import java.lang.AssertionError
 
-class EnumValuesLinking : BaseAbstractTest() {
+class EnumValuesLinkingTest : BaseAbstractTest() {
 
     @Test
     fun `check if enum values are correctly linked`() {
@@ -41,6 +43,7 @@ class EnumValuesLinking : BaseAbstractTest() {
                         is DocumentationLink -> kotlinLink.dri.run {
                             assertEquals("KotlinEnum.ON_CREATE", this.classNames)
                             assertEquals(null, this.callable)
+                            assertNotNull(DRIExtraContainer(extra)[EnumEntryDRIExtra])
                         }
                         else -> throw AssertionError("Link node is not DocumentationLink type")
                     }
@@ -49,6 +52,7 @@ class EnumValuesLinking : BaseAbstractTest() {
                         is DocumentationLink -> javaLink.dri.run {
                             assertEquals("JavaEnum.ON_DECEIT", this.classNames)
                             assertEquals(null, this.callable)
+                            assertNotNull(DRIExtraContainer(extra)[EnumEntryDRIExtra])
                         }
                         else -> throw AssertionError("Link node is not DocumentationLink type")
                     }
@@ -60,6 +64,7 @@ class EnumValuesLinking : BaseAbstractTest() {
                         is DocumentationLink -> kotlinLink.dri.run {
                             assertEquals("KotlinEnum.ON_CREATE", this.classNames)
                             assertEquals(null, this.callable)
+                            assertNotNull(DRIExtraContainer(extra)[EnumEntryDRIExtra])
                         }
                         else -> throw AssertionError("Link node is not DocumentationLink type")
                     }
@@ -68,6 +73,7 @@ class EnumValuesLinking : BaseAbstractTest() {
                         is DocumentationLink -> javaLink.dri.run {
                             assertEquals("JavaEnum.ON_DECEIT", this.classNames)
                             assertEquals(null, this.callable)
+                            assertNotNull(DRIExtraContainer(extra)[EnumEntryDRIExtra])
                         }
                         else -> throw AssertionError("Link node is not DocumentationLink type")
                     }
