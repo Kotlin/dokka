@@ -79,7 +79,8 @@ class FileWriter(val context: DokkaContext): OutputWriter {
                 val filePath = file.toAbsolutePath().toString()
                 withContext(Dispatchers.IO) {
                     Paths.get(root.path, rebase(filePath)).toFile().writeBytes(
-                        this@FileWriter.javaClass.getResourceAsStream(filePath).readBytes()
+                        this@FileWriter.javaClass.getResourceAsStream(filePath).use { it?.readBytes() }
+                            ?: throw IllegalStateException("Can not get a resource from $filePath")
                     )
                 }
             }
