@@ -3748,7 +3748,6 @@ public final class org/jetbrains/dokka/pages/ContentKind : java/lang/Enum, org/j
 	public static final field Inheritors Lorg/jetbrains/dokka/pages/ContentKind;
 	public static final field Main Lorg/jetbrains/dokka/pages/ContentKind;
 	public static final field Packages Lorg/jetbrains/dokka/pages/ContentKind;
-	public static final field Parameter Lorg/jetbrains/dokka/pages/ContentKind;
 	public static final field Parameters Lorg/jetbrains/dokka/pages/ContentKind;
 	public static final field Properties Lorg/jetbrains/dokka/pages/ContentKind;
 	public static final field Sample Lorg/jetbrains/dokka/pages/ContentKind;
@@ -4197,6 +4196,13 @@ public final class org/jetbrains/dokka/pages/SimpleAttr$SimpleAttrKey : org/jetb
 }
 
 public abstract interface class org/jetbrains/dokka/pages/Style {
+}
+
+public final class org/jetbrains/dokka/pages/SymbolContentKind : java/lang/Enum, org/jetbrains/dokka/pages/Kind {
+	public static final field Parameter Lorg/jetbrains/dokka/pages/SymbolContentKind;
+	public static final field Parameters Lorg/jetbrains/dokka/pages/SymbolContentKind;
+	public static fun valueOf (Ljava/lang/String;)Lorg/jetbrains/dokka/pages/SymbolContentKind;
+	public static fun values ()[Lorg/jetbrains/dokka/pages/SymbolContentKind;
 }
 
 public final class org/jetbrains/dokka/pages/TextStyle : java/lang/Enum, org/jetbrains/dokka/pages/Style {

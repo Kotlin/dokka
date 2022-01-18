@@ -316,9 +316,25 @@ data class PlatformHintedContent(
 interface Style
 interface Kind
 
+/**
+ * [ContentKind] represents a grouping of content of one kind. This can be rendered
+ * as either a part of a composite page (one tab/block within a class's page, for instance)
+ * or as a separate page altogether.
+ */
 enum class ContentKind : Kind {
 
-    Comment, Constructors, Functions, Parameters, Parameter, Properties, Classlikes, Packages, Symbol, Sample, Main, BriefComment,
+    /**
+     * Marks all sorts of signatures. Can contain sub-kinds marked as [SymbolContentKind]
+     *
+     * Some examples:
+     * - primary constructor: `data class CoroutineName(name: String) : AbstractCoroutineContextElement`
+     * - constructor: `fun CoroutineName(name: String)`
+     * - function: `open override fun toString(): String`
+     * - property: `val name: String`
+     */
+    Symbol,
+
+    Comment, Constructors, Functions, Parameters, Properties, Classlikes, Packages, Sample, Main, BriefComment,
     Empty, Source, TypeAliases, Cover, Inheritors, SourceSetDependentHint, Extensions, Annotations;
 
     companion object {
@@ -338,6 +354,30 @@ enum class ContentKind : Kind {
         fun shouldBePlatformTagged(kind: Kind): Boolean = kind in platformTagged
     }
 }
+
+/**
+ * Content kind for [ContentKind.Symbol] content, which is essentially about signatures
+ */
+enum class SymbolContentKind : Kind {
+    /**
+     * Marks constructor/function parameters, everything in-between parentheses.
+     *
+     * For function `fun foo(bar: String, baz: Int, qux: Boolean)`,
+     * the parameters would be the whole of `bar: String, baz: Int, qux: Boolean`
+     */
+    Parameters,
+
+    /**
+     * Marks a single parameter in a function. Most likely to be a child of [Parameters].
+     *
+     * In function `fun foo(bar: String, baz: Int, qux: Boolean)` there would be 3 [Parameter] instances:
+     * - `bar: String, `
+     * - `baz: Int, `
+     * - `qux: Boolean`
+     */
+    Parameter,
+}
+
 enum class TokenStyle : Style {
     Keyword, Punctuation, Function, Operator, Annotation, Number, String, Boolean, Constant, Builtin
 }

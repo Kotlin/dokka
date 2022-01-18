@@ -181,10 +181,10 @@ interface JvmSignatureUtils {
      *
      * Resulting structure:
      * ```
-     * ContentKind.Parameters(style = wrapped) {
-     *     ContentKind.Parameter(style = indented) { param, }
-     *     ContentKind.Parameter(style = indented) { param, }
-     *     ContentKind.Parameter(style = indented) { param }
+     * SymbolContentKind.Parameters(style = wrapped) {
+     *     SymbolContentKind.Parameter(style = indented) { param, }
+     *     SymbolContentKind.Parameter(style = indented) { param, }
+     *     SymbolContentKind.Parameter(style = indented) { param }
      * }
      * ```
      * Wrapping and indentation of parameters is applied conditionally, see [shouldWrapParams]
@@ -195,14 +195,14 @@ interface JvmSignatureUtils {
         val shouldWrap = function.shouldWrapParams()
         val parametersStyle = if (shouldWrap) setOf(ContentStyle.Wrapped) else emptySet()
         val elementStyle = if (shouldWrap) setOf(ContentStyle.Indented) else emptySet()
-        group(kind = ContentKind.Parameters, styles = parametersStyle) {
+        group(kind = SymbolContentKind.Parameters, styles = parametersStyle) {
             function.parameters.dropLast(1).forEach {
-                group(kind = ContentKind.Parameter, styles = elementStyle) {
+                group(kind = SymbolContentKind.Parameter, styles = elementStyle) {
                     paramBuilder(it)
                     punctuation(", ")
                 }
             }
-            group(kind = ContentKind.Parameter, styles = elementStyle) {
+            group(kind = SymbolContentKind.Parameter, styles = elementStyle) {
                 paramBuilder(function.parameters.last())
             }
         }

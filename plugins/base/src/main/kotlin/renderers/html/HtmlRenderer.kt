@@ -89,21 +89,6 @@ open class HtmlRenderer(
                 childrenCallback()
                 if (node.hasStyle(TextStyle.Monospace)) copyButton()
             }
-            node.dci.kind == ContentKind.Parameters -> {
-                span("parameters $additionalClasses") {
-                    childrenCallback()
-                }
-            }
-            node.dci.kind == ContentKind.Parameter -> {
-                span("parameter $additionalClasses") {
-                    if (node.hasStyle(ContentStyle.Indented)) {
-                        // could've been done with CSS (padding-left), but the indent needs to
-                        // consist of physical spaces, otherwise select and copy won't work properly
-                        repeat(4) { consumer.onTagContentEntity(Entities.nbsp) }
-                    }
-                    childrenCallback()
-                }
-            }
             node.hasStyle(TextStyle.BreakableAfter) -> {
                 span { childrenCallback() }
                 wbr { }
@@ -113,6 +98,21 @@ open class HtmlRenderer(
             }
             node.hasStyle(TextStyle.Span) -> span { childrenCallback() }
             node.dci.kind == ContentKind.Symbol -> div("symbol $additionalClasses") { childrenCallback() }
+            node.dci.kind == SymbolContentKind.Parameters -> {
+                span("parameters $additionalClasses") {
+                    childrenCallback()
+                }
+            }
+            node.dci.kind == SymbolContentKind.Parameter -> {
+                span("parameter $additionalClasses") {
+                    if (node.hasStyle(ContentStyle.Indented)) {
+                        // could've been done with CSS (padding-left, ::before, etc), but the indent needs to
+                        // consist of physical spaces, otherwise select and copy won't work properly
+                        repeat(4) { consumer.onTagContentEntity(Entities.nbsp) }
+                    }
+                    childrenCallback()
+                }
+            }
             node.dci.kind == ContentKind.BriefComment -> div("brief $additionalClasses") { childrenCallback() }
             node.dci.kind == ContentKind.Cover -> div("cover $additionalClasses") { //TODO this can be removed
                 childrenCallback()
