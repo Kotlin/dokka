@@ -36,6 +36,7 @@ open class KotlinWebsiteSampleProcessingService
                 (getArgumentExpression() as KtStringTemplateExpression)
                         .entries.joinToString("") { it.text }
 
+        fun String.escapeStringContent(): String = replace("\\", "\\\\").replace("\"", "\\\"")
 
         fun convertAssertPrints(expression: KtCallExpression) {
             val (argument, commentArgument) = expression.valueArguments
@@ -56,7 +57,7 @@ open class KotlinWebsiteSampleProcessingService
                     append(ws?.text ?: "\n")
                 }
                 append("println(\"")
-                append(argument.text)
+                append(argument.text.escapeStringContent())
                 append(" is \${")
                 append(argument.text)
                 append("}\") // $expectedResult")
