@@ -32,11 +32,15 @@ fun DRI.Companion.from(psi: PsiElement) = psi.parentsWithSelf.run {
     val psiField = firstIsInstanceOrNull<PsiField>()
     val classes = filterIsInstance<PsiClass>().filterNot { it is PsiTypeParameter }
         .toList() // We only want exact PsiClass types, not PsiTypeParameter subtype
+    val additionalClasses = if (psi is PsiEnumConstant) listOfNotNull(psiField?.name) else emptyList()
     DRI(
         packageName = classes.lastOrNull()?.qualifiedName?.substringBeforeLast('.', "") ?: "",
-        classNames = (if (psi is PsiEnumConstant) listOfNotNull(psiField?.name) + classes.toList().mapNotNull { it.name } else classes.toList().mapNotNull { it.name })
-            .takeIf { it.isNotEmpty() }?.asReversed()
-            ?.joinToString("."),
+        classNames = (additionalClasses + classes.mapNotNull { it.name }).takeIf { it.isNotEmpty() }
+            ?.asReversed()?.joinToString("."),
+        // The fallback strategy test whether psi is not `PsiEnumConstant`. The reason behind this is that
+        // we need unified DRI for both Java and Kotlin enums, so we can link them properly and treat them alike.
+        // To achieve that, we append enum name to classNames list and leave the callable part set to null. For Kotlin enums
+        // it is by default, while for Java enums we have to explicitly test for that in this `takeUnless` condition.
         callable = psiMethod?.let { Callable.from(it) } ?: psiField?.takeUnless { psi is PsiEnumConstant }?.let { Callable.from(it) },
         target = DriTarget.from(psi),
         extra = if (psi is PsiEnumConstant)

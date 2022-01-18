@@ -503,6 +503,7 @@ public final class org/jetbrains/dokka/links/DRIKt {
 	public static final fun getSureClassNames (Lorg/jetbrains/dokka/links/DRI;)Ljava/lang/String;
 	public static final fun nextTarget (Lorg/jetbrains/dokka/links/DriTarget;)Lorg/jetbrains/dokka/links/DriTarget;
 	public static final fun withClass (Lorg/jetbrains/dokka/links/DRI;Ljava/lang/String;)Lorg/jetbrains/dokka/links/DRI;
+	public static final fun withEnumEntryExtra (Lorg/jetbrains/dokka/links/DRI;)Lorg/jetbrains/dokka/links/DRI;
 	public static final fun withTargetToDeclaration (Lorg/jetbrains/dokka/links/DRI;)Lorg/jetbrains/dokka/links/DRI;
 }
 

@@ -51,6 +51,10 @@ fun DRI.withClass(name: String) = copy(classNames = if (classNames.isNullOrBlank
 
 fun DRI.withTargetToDeclaration() = copy(target = PointingToDeclaration)
 
+fun DRI.withEnumEntryExtra() = copy(
+    extra = DRIExtraContainer(this.extra).also { it[EnumEntryDRIExtra] = EnumEntryDRIExtra }.encode()
+)
+
 val DRI.parent: DRI
     get() = when {
         extra != null -> when {

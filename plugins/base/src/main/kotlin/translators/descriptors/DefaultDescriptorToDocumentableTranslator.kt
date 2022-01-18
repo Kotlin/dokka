@@ -306,7 +306,7 @@ private class DokkaDescriptorVisitor(
             val classlikes = async { descriptorsWithKind.classlikes.visitClasslikes(driWithPlatform) }
 
             DEnumEntry(
-                dri = driWithPlatform.dri.copy(extra = DRIExtraContainer(driWithPlatform.dri.extra).also { it[EnumEntryDRIExtra] = EnumEntryDRIExtra }.encode()),
+                dri = driWithPlatform.dri.withEnumEntryExtra(),
                 name = descriptor.name.asString(),
                 documentation = descriptor.resolveDescriptorData(),
                 functions = functions.await(),

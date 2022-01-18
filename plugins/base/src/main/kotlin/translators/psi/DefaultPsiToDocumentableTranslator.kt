@@ -269,7 +269,7 @@ class DefaultPsiToDocumentableTranslator(
                         name.orEmpty(),
                         fields.filterIsInstance<PsiEnumConstant>().map { entry ->
                             DEnumEntry(
-                                dri.withClass(entry.name).copy(extra = DRIExtraContainer(dri.extra).also { it[EnumEntryDRIExtra] = EnumEntryDRIExtra }.encode()),
+                                dri.withClass(entry.name).withEnumEntryExtra(),
                                 entry.name,
                                 javadocParser.parseDocumentation(entry).toSourceSetDependent(),
                                 null,
