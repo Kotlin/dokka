@@ -33,15 +33,17 @@ abstract class DRIExtraProperty<T> {
         ?: (this.javaClass.let { it.`package`.name + "." + it.simpleName.ifEmpty { "anonymous" } })
 }
 
+private val DRI_EXTRA_OBJECT_MAPPER = ObjectMapper()
+
 class DRIExtraContainer(val data: String? = null) {
-    val map: MutableMap<String, Any> = if (data != null) ObjectMapper().readValue(data) else mutableMapOf()
+    val map: MutableMap<String, Any> = if (data != null) DRI_EXTRA_OBJECT_MAPPER.readValue(data) else mutableMapOf()
     inline operator fun <reified T> get(prop: DRIExtraProperty<T>): T? =
         map[prop.key]?.let { prop as? T }
 
     inline operator fun <reified T> set(prop: DRIExtraProperty<T>, value: T) =
         value.also { map[prop.key] = it as Any }
 
-    fun encode(): String = ObjectMapper().writeValueAsString(map)
+    fun encode(): String = DRI_EXTRA_OBJECT_MAPPER.writeValueAsString(map)
 }
 
 val DriOfUnit = DRI("kotlin", "Unit")
