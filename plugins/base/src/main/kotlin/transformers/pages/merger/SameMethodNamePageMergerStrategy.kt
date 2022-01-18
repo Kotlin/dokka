@@ -37,9 +37,9 @@ class SameMethodNamePageMergerStrategy(val logger: DokkaLogger) : PageMergerStra
             .reduce { acc, node ->
                 acc.mapTransform<ContentDivergentGroup, ContentNode> { g ->
                     g.copy(children = (g.children +
-                            (node.dfs { it is ContentDivergentGroup && it.groupID == g.groupID } as? ContentDivergentGroup)
-                                ?.children?.single()
-                            ).filterNotNull()
+                            ((node.dfs { it is ContentDivergentGroup && it.groupID == g.groupID } as? ContentDivergentGroup)
+                                ?.children ?: emptyList())
+                            )
                     )
                 }
             }

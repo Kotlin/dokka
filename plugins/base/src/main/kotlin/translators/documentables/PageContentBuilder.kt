@@ -227,6 +227,45 @@ open class PageContentBuilder(
             }
         }
 
+        fun multiBlock(
+            name: String,
+            level: Int,
+            kind: Kind = ContentKind.Main,
+            groupedElements: Iterable<Pair<String, List<Documentable>>>,
+            sourceSets: Set<DokkaSourceSet> = mainSourcesetData,
+            styles: Set<Style> = mainStyles,
+            extra: PropertyContainer<ContentNode> = mainExtra,
+            renderWhenEmpty: Boolean = false,
+            needsSorting: Boolean = true,
+            headers: List<ContentGroup> = emptyList(),
+            needsAnchors: Boolean = false,
+            operation: DocumentableContentBuilder.(String, List<Documentable>) -> Unit
+        ) {
+            if (renderWhenEmpty || groupedElements.any()) {
+                header(level, name, kind = kind) { }
+                contents += ContentTable(
+                    header = headers,
+                    children = groupedElements
+                        .let {
+                            if (needsSorting)
+                                it.sortedWith(compareBy(nullsLast(String.CASE_INSENSITIVE_ORDER)) { it.first })
+                            else it
+                        }
+                        .map {
+                            val newExtra = if (needsAnchors) extra + SymbolAnchorHint(it.first, kind) else extra
+                            val documentables = it.second
+                            buildGroup(documentables.map { it.dri }.toSet(), documentables.flatMap { it.sourceSets }.toSet(), kind, styles, newExtra) {
+                                operation(it.first, documentables)
+                            }
+                        },
+                    dci = DCI(mainDRI, kind),
+                    sourceSets = sourceSets.toDisplaySourceSets(),
+                    style = styles,
+                    extra = extra
+                )
+            }
+        }
+
         fun <T> list(
             elements: List<T>,
             prefix: String = "",
