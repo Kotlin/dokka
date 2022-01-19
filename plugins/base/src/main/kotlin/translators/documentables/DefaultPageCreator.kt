@@ -365,27 +365,29 @@ open class DefaultPageCreator(
                 +contentForComments(documentables)
                 val csWithConstructor = cs.filterIsInstance<WithConstructors>()
                 if (csWithConstructor.isNotEmpty()) {
-                    block(
+                    val constructorsToDocumented = csWithConstructor.flatMap { it.constructors }
+                    multiBlock(
                         "Constructors",
                         2,
                         ContentKind.Constructors,
-                        csWithConstructor.flatMap { it.constructors }
-                            .filter { it.extra[PrimaryConstructorExtra] == null || it.documentation.isNotEmpty() },
+                        constructorsToDocumented.groupBy { it.parameters.map { it.dri }  }.map { (_,v) -> v.first().name to v },
                         @Suppress("UNCHECKED_CAST")
                         (csWithConstructor as List<Documentable>).sourceSets,
                         needsAnchors = true,
                         extra = PropertyContainer.empty<ContentNode>() + SimpleAttr.header("Constructors")
-                    ) {
-                        link(it.name, it.dri, kind = ContentKind.Main, styles = setOf(ContentStyle.RowTitle))
+                    ) { key, ds ->
+                        link(key, ds.first().dri, kind = ContentKind.Main, styles = setOf(ContentStyle.RowTitle))
                         sourceSetDependentHint(
-                            it.dri,
-                            it.sourceSets.toSet(),
+                            ds.dri,
+                            ds.sourceSets,
                             kind = ContentKind.SourceSetDependentHint,
                             styles = emptySet(),
                             extra = PropertyContainer.empty<ContentNode>()
                         ) {
-                            +buildSignature(it)
-                            contentForBrief(it)
+                            ds.forEach {
+                                +buildSignature(it)
+                                contentForBrief(it)
+                            }
                         }
                     }
                 }
