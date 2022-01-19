@@ -40,7 +40,7 @@ open class DefaultPageCreator(
     protected val separateInheritedMembers =
         configuration?.separateInheritedMembers ?: DokkaBaseConfiguration.separateInheritedMembersDefault
 
-    open fun pageForModule(m: DModule) =
+    open fun pageForModule(m: DModule): ModulePageNode =
         ModulePageNode(m.name.ifEmpty { "<root>" }, contentForModule(m), m, m.packages.map(::pageForPackage))
 
     open fun pageForPackage(p: DPackage): PackagePageNode = PackagePageNode(
@@ -391,26 +391,28 @@ open class DefaultPageCreator(
                 }
                 val csEnum = cs.filterIsInstance<DEnum>()
                 if (csEnum.isNotEmpty()) {
-                    block(
+                    multiBlock(
                         "Entries",
                         2,
                         ContentKind.Classlikes,
-                        csEnum.flatMap { it.entries },
+                        csEnum.flatMap { it.entries }.groupBy { it.name }.toList(),
                         csEnum.sourceSets,
                         needsSorting = false,
                         needsAnchors = true,
                         extra = mainExtra + SimpleAttr.header("Entries"),
                         styles = emptySet()
-                    ) {
-                        link(it.name, it.dri)
+                    ) { key, ds ->
+                        link(key, ds.first().dri)
                         sourceSetDependentHint(
-                            it.dri,
-                            it.sourceSets.toSet(),
+                            ds.dri,
+                            ds.sourceSets,
                             kind = ContentKind.SourceSetDependentHint,
                             extra = PropertyContainer.empty<ContentNode>()
                         ) {
-                            +buildSignature(it)
-                            contentForBrief(it)
+                            ds.forEach {
+                                +buildSignature(it)
+                                contentForBrief(it)
+                            }
                         }
                     }
                 }
