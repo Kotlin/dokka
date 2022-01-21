@@ -33,9 +33,10 @@ data class PackageList(
                 return null
             }.getOrThrow()
 
-            val (params, packages) = packageListStream
-                .bufferedReader()
-                .useLines { lines -> lines.partition { it.startsWith(DOKKA_PARAM_PREFIX) } }
+            val (params, packages) = packageListStream.use { stream ->
+                stream.bufferedReader()
+                    .useLines { lines -> lines.partition { it.startsWith(DOKKA_PARAM_PREFIX) } }
+            }
 
             val paramsMap = splitParams(params)
             val format = linkFormat(paramsMap["format"]?.singleOrNull(), jdkVersion)
