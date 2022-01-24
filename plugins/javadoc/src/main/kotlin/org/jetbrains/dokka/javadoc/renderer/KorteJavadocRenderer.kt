@@ -189,8 +189,12 @@ class KorteJavadocRenderer(val context: DokkaContext, resourceDir: String) :
 
     private class ResourceTemplateProvider(val basePath: String) : TemplateProvider {
         override suspend fun get(template: String): String =
-            javaClass.classLoader.getResourceAsStream("$basePath/$template")?.bufferedReader()?.lines()?.toArray()
-                ?.joinToString("\n") ?: throw IllegalStateException("Template not found: $basePath/$template")
+            javaClass.classLoader.getResourceAsStream("$basePath/$template")?.use { stream ->
+                stream.bufferedReader()
+                    .lines()
+                    .toArray()
+                    .joinToString("\n")
+            } ?: throw IllegalStateException("Template not found: $basePath/$template")
     }
 
 }
