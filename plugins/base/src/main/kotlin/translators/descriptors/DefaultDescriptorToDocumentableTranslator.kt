@@ -1,5 +1,6 @@
 package org.jetbrains.dokka.base.translators.descriptors
 
+import com.intellij.psi.PsiMethod
 import com.intellij.psi.PsiNamedElement
 import com.intellij.psi.util.PsiLiteralUtil.*
 import kotlinx.coroutines.Dispatchers
@@ -45,6 +46,7 @@ import org.jetbrains.kotlin.descriptors.annotations.AnnotationDescriptor
 import org.jetbrains.kotlin.idea.kdoc.findKDoc
 import org.jetbrains.kotlin.idea.kdoc.resolveKDocLink
 import org.jetbrains.kotlin.js.resolve.diagnostics.findPsi
+import org.jetbrains.kotlin.load.java.descriptors.JavaMethodDescriptor
 import org.jetbrains.kotlin.load.kotlin.toSourceElement
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.*
@@ -521,6 +523,8 @@ private class DokkaDescriptorVisitor(
                     (descriptor.getAnnotations() + descriptor.fileLevelAnnotations()).toSourceSetDependent()
                         .toAnnotations(),
                     ObviousMember.takeIf { descriptor.isObvious },
+                    descriptor.checkedExceptionsFromParents().takeIf { it.isNotEmpty() }
+                        ?.toSourceSetDependent()?.let(::CheckedExceptions),
                 )
             )
         }
@@ -1093,6 +1097,17 @@ private class DokkaDescriptorVisitor(
                 kind == CallableMemberDescriptor.Kind.SYNTHESIZED ||
                 containingDeclaration.fqNameOrNull()?.asString()
                     ?.let { it == "kotlin.Any" || it == "kotlin.Enum" || it == "java.lang.Enum" || it == "java.lang.Object" } == true
+
+    private fun FunctionDescriptor.checkedExceptionsFromParents(): List<DRI> =
+        sequence { allOverridenDescriptorsOf(this@checkedExceptionsFromParents) }
+            .filterIsInstance<JavaMethodDescriptor>()
+            .mapNotNull { it.findPsi() }
+            .filterIsInstance<PsiMethod>()
+            .flatMap { it.throwsList.referenceElements.asSequence() }
+            .mapNotNull { it.resolve() }
+            .map { DRI.from(it) }
+            .distinct()
+            .toList()
 }
 
 private data class AncestryLevel(
@@ -1103,3 +1118,8 @@ private data class AncestryLevel(
 
 private fun List<AncestryLevel>.exceptionsInSupertypes(): List<TypeConstructor>? =
     mapNotNull { it.superclass }.filter { type -> type.dri.isDirectlyAnException() }.takeIf { it.isNotEmpty() }
+
+private suspend fun SequenceScope<FunctionDescriptor>.allOverridenDescriptorsOf(f: FunctionDescriptor) {
+    yieldAll(f.overriddenDescriptors)
+    f.overriddenDescriptors.forEach { allOverridenDescriptorsOf(it) }
+}

@@ -7,6 +7,7 @@ import utils.AbstractModelTest
 import utils.assertNotNull
 import utils.comments
 import utils.name
+import kotlin.test.assertEquals
 
 class FunctionTest : AbstractModelTest("/src/main/kotlin/function/Test.kt", "function") {
 
@@ -388,6 +389,91 @@ class FunctionTest : AbstractModelTest("/src/main/kotlin/function/Test.kt", "fun
                         params.entries counts 1
                         (params["version"].assertNotNull("version") as StringValue).value equals "1.1"
                     }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun checkedExceptionsInheritedFromJava() {
+        testInline(
+            """
+            |/src/main/kotlin/function/Trait.java
+            |package function;
+            |import java.io.IOException;
+            |import java.util.concurrent.TimeoutException;
+            |
+            |public interface Trait {
+            |    public void tested() throws IOException, TimeoutException
+            |} 
+            |
+            |/src/main/kotlin/function/Test.kt
+            |package function
+            |class Test: Trait {
+            |    override fun tested(): Unit {}
+            |}
+            """.trimIndent(),
+            configuration = dokkaConfiguration {
+                sourceSets {
+                    sourceSet {
+                        sourceRoots = listOf("src/main/kotlin")
+                    }
+                }
+            }
+        ) {
+            documentablesTransformationStage = { mod ->
+                with((mod / "function" / "Test" / "tested").cast<DFunction>()) {
+                    val actual = extra[CheckedExceptions]!!.exceptions.values.single().map { it.toString() }.sorted()
+                    assertEquals(listOf(
+                        "java.io/IOException///PointingToDeclaration/",
+                        "java.util.concurrent/TimeoutException///PointingToDeclaration/",
+                    ), actual)
+                }
+            }
+        }
+    }
+
+    @Test
+    fun checkedExceptionsInheritedIndirectlyFromJava() {
+        testInline(
+            """
+            |/src/main/kotlin/function/Trait.java
+            |package function;
+            |import java.io.IOException;
+            |import java.util.concurrent.TimeoutException;
+            |
+            |public interface Trait {
+            |    public void tested() throws IOException, TimeoutException
+            |} 
+            |
+            |/src/main/kotlin/function/Test.kt
+            |package function
+            |
+            |abstract class Indirect1: Trait
+            |
+            |open class Indirect2: Indirect1 {
+            |    open override fun tested(): Unit {}
+            |}
+            |
+            |class Test: Indirect2 {
+            |    override fun tested(): Unit {}
+            |}
+            """.trimIndent(),
+            configuration = dokkaConfiguration {
+                sourceSets {
+                    sourceSet {
+                        sourceRoots = listOf("src/main/kotlin")
+                    }
+                }
+            }
+        ) {
+            documentablesTransformationStage = { mod ->
+                with((mod / "function" / "Test" / "tested").cast<DFunction>()) {
+                    val actual = extra[CheckedExceptions]!!.exceptions.values.single().map { it.toString() }.sorted()
+                    assertEquals(listOf(
+                        "java.io/IOException///PointingToDeclaration/",
+                        "java.util.concurrent/TimeoutException///PointingToDeclaration/",
+                    ), actual)
                 }
             }
         }

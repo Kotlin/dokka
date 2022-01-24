@@ -39,7 +39,7 @@ object ObviousMember : ExtraProperty<Documentable>, ExtraProperty.Key<Documentab
     override val key: ExtraProperty.Key<Documentable, *> = this
 }
 
-data class CheckedExceptions(val exceptions: SourceSetDependent<List<DRI>>) : ExtraProperty<Documentable>, ExtraProperty.Key<Documentable, ObviousMember> {
+data class CheckedExceptions(val exceptions: SourceSetDependent<List<DRI>>) : ExtraProperty<Documentable> {
     companion object : ExtraProperty.Key<Documentable, CheckedExceptions> {
         override fun mergeStrategyFor(left: CheckedExceptions, right: CheckedExceptions) =
             MergeStrategy.Replace(CheckedExceptions(left.exceptions + right.exceptions))
