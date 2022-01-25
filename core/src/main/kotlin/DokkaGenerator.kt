@@ -44,7 +44,9 @@ class DokkaGenerator(
 
     @OptIn(DelicateCoroutinesApi::class)
     private fun finalizeCoroutines() {
-        Dispatchers.shutdown()
+        if (configuration.finalizeCoroutines) {
+            Dispatchers.shutdown()
+        }
     }
 }
 
