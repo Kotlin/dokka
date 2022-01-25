@@ -667,6 +667,22 @@ public final class org/jetbrains/dokka/model/AdditionalModifiers$Companion : org
 	public fun mergeStrategyFor (Lorg/jetbrains/dokka/model/AdditionalModifiers;Lorg/jetbrains/dokka/model/AdditionalModifiers;)Lorg/jetbrains/dokka/model/properties/MergeStrategy;
 }
 
+public final class org/jetbrains/dokka/model/AncestryNode {
+	public fun <init> (Lorg/jetbrains/dokka/model/TypeConstructor;Lorg/jetbrains/dokka/model/AncestryNode;Ljava/util/List;)V
+	public final fun allImplementedInterfaces ()Ljava/util/List;
+	public final fun component1 ()Lorg/jetbrains/dokka/model/TypeConstructor;
+	public final fun component2 ()Lorg/jetbrains/dokka/model/AncestryNode;
+	public final fun component3 ()Ljava/util/List;
+	public final fun copy (Lorg/jetbrains/dokka/model/TypeConstructor;Lorg/jetbrains/dokka/model/AncestryNode;Ljava/util/List;)Lorg/jetbrains/dokka/model/AncestryNode;
+	public static synthetic fun copy$default (Lorg/jetbrains/dokka/model/AncestryNode;Lorg/jetbrains/dokka/model/TypeConstructor;Lorg/jetbrains/dokka/model/AncestryNode;Ljava/util/List;ILjava/lang/Object;)Lorg/jetbrains/dokka/model/AncestryNode;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getInterfaces ()Ljava/util/List;
+	public final fun getSuperclass ()Lorg/jetbrains/dokka/model/AncestryNode;
+	public final fun getTypeConstructor ()Lorg/jetbrains/dokka/model/TypeConstructor;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
 public abstract class org/jetbrains/dokka/model/AnnotationParameterValue {
 }
 
