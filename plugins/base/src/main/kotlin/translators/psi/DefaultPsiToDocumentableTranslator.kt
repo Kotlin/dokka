@@ -150,9 +150,11 @@ class DefaultPsiToDocumentableTranslator(
 
         suspend fun parsePackage(packageName: String, psiFiles: List<PsiJavaFile>): DPackage = coroutineScope {
             val dri = DRI(packageName = packageName)
-            val documentation = psiFiles.firstOrNull { it.name == "package-info.java" }?.let {
+            val packageInfo = psiFiles.singleOrNull { it.name == "package-info.java" }
+            val documentation = packageInfo?.let {
                 javadocParser.parseDocumentation(it).toSourceSetDependent()
-            } ?: emptyMap()
+            }.orEmpty()
+            val annotations = packageInfo?.packageStatement?.annotationList?.annotations
 
             DPackage(
                 dri,
@@ -166,7 +168,10 @@ class DefaultPsiToDocumentableTranslator(
                 emptyList(),
                 documentation,
                 null,
-                setOf(sourceSetData)
+                setOf(sourceSetData),
+                PropertyContainer.withAll(
+                    annotations?.toList().orEmpty().toListOfAnnotations().toSourceSetDependent().toAnnotations()
+                )
             )
         }
 
