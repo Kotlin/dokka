@@ -122,7 +122,7 @@ class ConstructorsSignaturesTest : BaseAbstractTest() {
             |/src/main/kotlin/test/source.kt
             |package test
             |
-            |class SomeClass(val a: String)
+            |class SomeClass(val a: String, var i: Int)
             |
         """.trimIndent(), testConfiguration
         ) {
@@ -139,8 +139,13 @@ class ConstructorsSignaturesTest : BaseAbstractTest() {
                                 +"("
                                 group {
                                     group {
-                                        +"a: " // TODO: Make sure if we still do not want to have "val" here
+                                        +"val a: "
                                         group { link { +"String" } }
+                                        +", "
+                                    }
+                                    group {
+                                        +"var i: "
+                                        group { link { +"Int" } }
                                     }
                                 }
                                 +")"
