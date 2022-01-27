@@ -886,6 +886,10 @@ td.content {
     padding-bottom: 0;
 }
 
+.parameters.wrapped > .parameter {
+    display: block;
+}
+
 .table-row .with-platform-tabs .sourceset-depenent-content .brief {
     padding: 8px;
 }
