@@ -30,13 +30,10 @@ open class JavadocExternalLocationProvider(
             return "$docWithModule$packageLink/package-summary$extension".htmlEscape()
         }
 
-        // in Kotlin DRI of enum entry is not callable
         if (DRIExtraContainer(extra)[EnumEntryDRIExtra] != null) {
-            val (classSplit, enumEntityAnchor) = if (callable == null) {
-                val lastIndex = classNames?.lastIndexOf(".") ?: 0
+            val lastIndex = classNames?.lastIndexOf(".") ?: 0
+            val (classSplit, enumEntityAnchor) =
                 classNames?.substring(0, lastIndex) to classNames?.substring(lastIndex + 1)
-            } else
-                classNames to callable?.name
 
             val classLink =
                 if (packageLink == null) "${classSplit}$extension" else "$packageLink/${classSplit}$extension"

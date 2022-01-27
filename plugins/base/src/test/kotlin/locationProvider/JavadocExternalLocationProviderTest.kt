@@ -45,8 +45,8 @@ class JavadocExternalLocationProviderTest : BaseAbstractTest() {
         )
         val javaDri = DRI(
             "java.nio.file",
-            "StandardOpenOption",
-            Callable("CREATE", null, emptyList()),
+            "StandardOpenOption.CREATE",
+            null,
             PointingToDeclaration,
             DRIExtraContainer().also { it[EnumEntryDRIExtra] = EnumEntryDRIExtra }.encode()
         )
