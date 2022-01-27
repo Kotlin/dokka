@@ -1,20 +1,19 @@
 package kotlinAsJavaPlugin
 
-import org.jetbrains.dokka.model.dfs
-import org.jetbrains.dokka.pages.*
-import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
-import org.jetbrains.kotlin.utils.addToStdlib.cast
-import org.junit.jupiter.api.Test
 import matchers.content.*
 import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.jdk
+import org.jetbrains.dokka.model.dfs
+import org.jetbrains.dokka.pages.*
+import org.jetbrains.kotlin.utils.addToStdlib.cast
 import org.junit.Assert
+import org.junit.jupiter.api.Test
+import signatures.Parameter
+import signatures.Parameters
 import signatures.renderedContent
 import signatures.signature
-import utils.A
-import utils.Span
-import utils.TestOutputWriterPlugin
-import utils.match
+import utils.*
 import kotlin.test.assertEquals
 
 class KotlinAsJavaPluginTest : BaseAbstractTest() {
@@ -331,7 +330,9 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/kotlinAsJavaPlugin/-a-b-c/some-fun.html").signature().first().match(
-                    "final ", A("Integer"), A("someFun"), "(", A("Integer"), "xd)", Span(), ignoreSpanWithTokenStyle = true
+                    "final ", A("Integer"), A("someFun"), "(", Parameters(
+                        Parameter(A("Integer"), "xd")
+                    ), ")", Span(), ignoreSpanWithTokenStyle = true
                 )
             }
         }
@@ -368,8 +369,9 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/kotlinAsJavaPlugin/-a-b-c/some-fun.html").signature().first().match(
-                    "final ", A("Integer"), A("someFun"), "(", A("Map"), "<", A("String"),
-                    ", ", A("Integer"), "> xd)", Span(), ignoreSpanWithTokenStyle = true
+                    "final ", A("Integer"), A("someFun"), "(", Parameters(
+                        Parameter(A("Map"), "<", A("String"), ", ", A("Integer"), "> xd"),
+                    ), ")", Span(), ignoreSpanWithTokenStyle = true
                 )
             }
         }
@@ -433,7 +435,9 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/kotlinAsJavaPlugin/-test-kt/sample.html").signature().first().match(
-                    "final static ", A("String"), A("sample"), "(", A("Integer"), "a)", Span(), ignoreSpanWithTokenStyle = true
+                    "final static ", A("String"), A("sample"), "(", Parameters(
+                        Parameter(A("Integer"), "a"),
+                    ), ")", Span(), ignoreSpanWithTokenStyle = true
                 )
             }
         }
@@ -476,7 +480,56 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
             }
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/kotlinAsJavaPlugin/-test/-test.html").signature().first().match(
-                    A("Test"), A("Test"), "(", A("Integer"), "xd)", Span(), ignoreSpanWithTokenStyle = true
+                    A("Test"), A("Test"), "(", Parameters(
+                        Parameter(A("Integer"), "xd")
+                    ), ")", Span(), ignoreSpanWithTokenStyle = true
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `should add wrapping and indent to parameters if too many`() {
+        val writerPlugin = TestOutputWriterPlugin()
+        val configuration = dokkaConfiguration {
+            sourceSets {
+                sourceSet {
+                    sourceRoots = listOf("src/")
+                    externalDocumentationLinks = listOf(
+                        DokkaConfiguration.ExternalDocumentationLink.jdk(8),
+                        stdlibExternalDocumentationLink
+                    )
+                }
+            }
+        }
+        testInline(
+            """
+            |/src/main/kotlin/kotlinAsJavaPlugin/Wrapped.kt
+            |package kotlinAsJavaPlugin
+            |
+            |class Wrapped(val xd: Int, val l: Long, val s: String)
+        """.trimMargin(),
+            configuration,
+            pluginOverrides = listOf(writerPlugin),
+            cleanupOutput = true
+        ) {
+            pagesGenerationStage = { root ->
+                val content = root.children
+                    .flatMap { it.children<ContentPage>() }
+                    .map { it.content }.single().mainContents
+
+                val text = content.single { it is ContentHeader }.children
+                    .single() as ContentText
+
+                assertEquals("Constructors", text.text)
+            }
+            renderingStage = { _, _ ->
+                writerPlugin.writer.renderedContent("root/kotlinAsJavaPlugin/-wrapped/-wrapped.html").signature().first().match(
+                    A("Wrapped"), A("Wrapped"), "(", Parameters(
+                        Parameter(A("Integer"), "xd,").withClasses("indented"),
+                        Parameter(A("Long"), "l,").withClasses("indented"),
+                        Parameter(A("String"), "s").withClasses("indented"),
+                    ).withClasses("wrapped"), ")", Span(), ignoreSpanWithTokenStyle = true
                 )
             }
         }

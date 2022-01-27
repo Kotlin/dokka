@@ -8,10 +8,7 @@ import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.properties.WithExtraProperties
-import org.jetbrains.dokka.pages.ContentKind
-import org.jetbrains.dokka.pages.ContentNode
-import org.jetbrains.dokka.pages.TextStyle
-import org.jetbrains.dokka.pages.TokenStyle
+import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.querySingle
@@ -143,12 +140,14 @@ class JavaSignatureProvider internal constructor(ctcc: CommentsToContentConverte
                     +buildSignature(it)
                 }
                 punctuation("(")
-                list(f.parameters, separatorStyles = mainStyles + TokenStyle.Punctuation) {
-                    annotationsInline(it)
-                    text(it.modifiers()[sourceSet]?.toSignatureString() ?: "", styles = mainStyles + TokenStyle.Keyword)
-                    signatureForProjection(it.type)
-                    text(nbsp.toString())
-                    text(it.name!!)
+                if (f.parameters.isNotEmpty()) {
+                    parametersBlock(f) {
+                        annotationsInline(it)
+                        text(it.modifiers()[sourceSet]?.toSignatureString() ?: "", styles = mainStyles + TokenStyle.Keyword)
+                        signatureForProjection(it.type)
+                        text(nbsp.toString())
+                        text(it.name!!)
+                    }
                 }
                 punctuation(")")
             }

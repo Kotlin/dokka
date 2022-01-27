@@ -7,15 +7,13 @@ import org.jetbrains.dokka.base.signatures.KotlinSignatureUtils.dri
 import org.jetbrains.dokka.base.signatures.KotlinSignatureUtils.driOrNull
 import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentConverter
 import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder
+import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder.DocumentableContentBuilder
 import org.jetbrains.dokka.links.*
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.Nullable
 import org.jetbrains.dokka.model.TypeConstructor
 import org.jetbrains.dokka.model.properties.WithExtraProperties
-import org.jetbrains.dokka.pages.ContentKind
-import org.jetbrains.dokka.pages.ContentNode
-import org.jetbrains.dokka.pages.TextStyle
-import org.jetbrains.dokka.pages.TokenStyle
+import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.querySingle
@@ -179,19 +177,19 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                         annotationsInline(pConstructor)
                         keyword("constructor")
                     }
-                    list(
-                        elements = pConstructor.parameters,
-                        prefix = "(",
-                        suffix = ")",
-                        separator = ", ",
-                        separatorStyles = mainStyles + TokenStyle.Punctuation,
-                        surroundingCharactersStyle = mainStyles + TokenStyle.Punctuation,
-                        sourceSets = pConstructor.sourceSets.toSet()
-                    ) {
-                        annotationsInline(it)
-                        text(it.name.orEmpty())
-                        operator(": ")
-                        signatureForProjection(it.type)
+
+                    // for primary constructor, opening and closing parentheses
+                    // should be present only if it has parameters. If there are
+                    // no parameters, it should result in `class Example`
+                    if (pConstructor.parameters.isNotEmpty()) {
+                        punctuation("(")
+                        parametersBlock(pConstructor) { param ->
+                            annotationsInline(param)
+                            text(param.name.orEmpty())
+                            operator(": ")
+                            signatureForProjection(param.type)
+                        }
+                        punctuation(")")
                     }
                 }
             }
@@ -283,17 +281,21 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                     punctuation(".")
                 }
                 link(f.name, f.dri, styles = mainStyles + TokenStyle.Function)
+
+                // for a function, opening and closing parentheses must be present
+                // anyway, even if it has no parameters, resulting in `fun test(): R`
                 punctuation("(")
-                list(f.parameters,
-                    separatorStyles = mainStyles + TokenStyle.Punctuation) {
-                    annotationsInline(it)
-                    processExtraModifiers(it)
-                    text(it.name!!)
-                    operator(": ")
-                    signatureForProjection(it.type)
-                    it.extra[DefaultValue]?.run {
-                        operator(" = ")
-                        highlightValue(value)
+                if (f.parameters.isNotEmpty()) {
+                    parametersBlock(f) { param ->
+                        annotationsInline(param)
+                        processExtraModifiers(param)
+                        text(param.name!!)
+                        operator(": ")
+                        signatureForProjection(param.type)
+                        param.extra[DefaultValue]?.run {
+                            operator(" = ")
+                            highlightValue(value)
+                        }
                     }
                 }
                 punctuation(")")

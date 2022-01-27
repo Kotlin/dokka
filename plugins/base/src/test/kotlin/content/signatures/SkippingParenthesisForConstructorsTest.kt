@@ -98,8 +98,13 @@ class ConstructorsSignaturesTest : BaseAbstractTest() {
                             group {
                                 +"class "
                                 link { +"SomeClass" }
-                                +"(a: "
-                                group { link { +"String" } }
+                                +"("
+                                group {
+                                    group {
+                                        +"a: "
+                                        group { link { +"String" } }
+                                    }
+                                }
                                 +")"
                             }
                         }
@@ -131,8 +136,13 @@ class ConstructorsSignaturesTest : BaseAbstractTest() {
                             group {
                                 +"class "
                                 link { +"SomeClass" }
-                                +"(a: " // TODO: Make sure if we still do not want to have "val" here
-                                group { link { +"String" } }
+                                +"("
+                                group {
+                                    group {
+                                        +"a: " // TODO: Make sure if we still do not want to have "val" here
+                                        group { link { +"String" } }
+                                    }
+                                }
                                 +")"
                             }
                         }
@@ -165,8 +175,13 @@ class ConstructorsSignaturesTest : BaseAbstractTest() {
                             group {
                                 +"class "
                                 link { +"SomeClass" }
-                                +"(a: "
-                                group { link { +"String" } }
+                                +"("
+                                group {
+                                    group {
+                                        +"a: "
+                                        group { link { +"String" } }
+                                    }
+                                }
                                 +")"
                             }
                         }
@@ -227,8 +242,13 @@ class ConstructorsSignaturesTest : BaseAbstractTest() {
                             group {
                                 +"class "
                                 link { +"SomeClass" }
-                                +"(a: "
-                                group { link { +"String" } }
+                                +"("
+                                group {
+                                    group {
+                                        +"a: "
+                                        group { link { +"String" } }
+                                    }
+                                }
                                 +")"
                             }
                             skipAllNotMatching()
@@ -243,9 +263,14 @@ class ConstructorsSignaturesTest : BaseAbstractTest() {
                                     group {
                                         +"fun "
                                         link { +"SomeClass" }
-                                        +"(a: "
+                                        +"("
                                         group {
-                                            link { +"String" }
+                                            group {
+                                                +"a: "
+                                                group {
+                                                    link { +"String" }
+                                                }
+                                            }
                                         }
                                         +")"
                                     }
