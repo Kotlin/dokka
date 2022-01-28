@@ -2,6 +2,7 @@ package org.jetbrains.dokka.kotlinAsJava.transformers
 
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.properties.PropertyContainer
+import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.transformers.documentation.DocumentableTransformer
 
@@ -30,7 +31,14 @@ class JvmNameDocumentableTransformer : DocumentableTransformer {
                         extra = extra.withoutJvmName()
                     )
                 }
-                is DProperty -> transformGetterAndSetter(this)
+                is DProperty -> {
+                    val name = jvmNameProvider.nameFor(this)
+                    transformGetterAndSetter(copy(
+                        dri = documentable.dri.withCallableName(name),
+                        name = name,
+                        extra = extra.withoutJvmName()
+                    ))
+                }
                 is DClasslike -> transformClassLike(this)
                 is DEnumEntry -> copy(
                     functions = functions.map { transform(it) },
@@ -44,16 +52,17 @@ class JvmNameDocumentableTransformer : DocumentableTransformer {
             }
         } as T
 
-    private fun PropertyContainer<DFunction>.withoutJvmName(): PropertyContainer<DFunction> {
+    private fun <T> PropertyContainer<T>.withoutJvmName(): PropertyContainer<T> where T : Documentable, T : WithExtraProperties<out Documentable> {
         val annotationsWithoutJvmName = get(Annotations)?.let { annotations ->
             annotations.copy((annotations.directAnnotations).map { (sourceset, annotations) ->
                 sourceset to annotations.filterNot { it.isJvmName() }
             }.toMap() + annotations.fileLevelAnnotations)
         }
-        val extraWithoutAnnotations: PropertyContainer<DFunction> = minus(Annotations)
+        val extraWithoutAnnotations: PropertyContainer<T> = minus(Annotations)
 
         return extraWithoutAnnotations.addAll(listOfNotNull(annotationsWithoutJvmName))
     }
+
 
     private fun transformClassLike(documentable: DClasslike): DClasslike =
         with(documentable) {

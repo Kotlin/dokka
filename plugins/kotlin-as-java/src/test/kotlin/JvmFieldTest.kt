@@ -78,4 +78,26 @@ class JvmFieldTest : BaseAbstractTest() {
             }
         }
     }
+
+    @Test
+    fun `should change name with @JvmName`(){
+        testInline(
+            """
+            |/src/main/kotlin/kotlinAsJavaPlugin/sample.kt
+            |package kotlinAsJavaPlugin
+            |@JvmField
+            |@JvmName("newProperty")
+            |val property: String = TODO()
+        """.trimMargin(),
+            configuration,
+        ) {
+            documentablesTransformationStage = { module ->
+                val classLike = module.packages.flatMap { it.classlikes }.first()
+                assertNotNull(classLike.properties.firstOrNull { it.name == "newProperty" })
+                assertEquals(
+                    emptyList(),
+                    classLike.functions.map { it.name })
+            }
+        }
+    }
 }
