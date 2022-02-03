@@ -346,11 +346,13 @@ open class DefaultPageCreator(
             val customTags = d.customTags
             if (customTags.isNotEmpty()) {
                 group(styles = setOf(TextStyle.Block)) {
-                    customTags.forEach { (tagName, sourceSetDependent) ->
-                        sourceSetDependent.forEach { (sourceSet, tag) ->
-                            customTagContentProviders.forEach { provider ->
-                                with(provider) {
-                                    contentForDescription(sourceSet, tag)
+                    platforms.forEach { platform ->
+                        customTags.forEach { (tagName, sourceSetTag) ->
+                            sourceSetTag[platform]?.let { tag ->
+                                customTagContentProviders.forEach { provider ->
+                                    with(provider) {
+                                        contentForDescription(platform, tag)
+                                    }
                                 }
                             }
                         }
@@ -681,11 +683,17 @@ open class DefaultPageCreator(
                                         }
                                         after(extra = PropertyContainer.empty()) {
                                             contentForBrief(it)
-                                            it.customTags.forEach { (tagName, sourceSetDependent) ->
-                                                sourceSetDependent.forEach { (sourceSet, tag) ->
-                                                    customTagContentProviders.forEach { provider ->
-                                                        with(provider) {
-                                                            contentForBrief(sourceSet, tag)
+
+                                            val customTags = it.customTags
+                                            if (customTags.isNotEmpty()) {
+                                                it.sourceSets.forEach { sourceSet ->
+                                                    customTags.forEach { (tagName, sourceSetTag) ->
+                                                        sourceSetTag[sourceSet]?.let { tag ->
+                                                            customTagContentProviders.forEach { provider ->
+                                                                with(provider) {
+                                                                    contentForDescription(sourceSet, tag)
+                                                                }
+                                                            }
                                                         }
                                                     }
                                                 }
