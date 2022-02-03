@@ -2,6 +2,10 @@ package  org.jetbrains.dokka.mathjax
 
 
 import org.jetbrains.dokka.CoreExtensions
+import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.base.DokkaBase
+import org.jetbrains.dokka.base.transformers.pages.tags.CustomTagContentProvider
+import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder.DocumentableContentBuilder
 import org.jetbrains.dokka.model.doc.CustomTagWrapper
 import org.jetbrains.dokka.pages.ContentPage
 import org.jetbrains.dokka.pages.RootPageNode
@@ -11,6 +15,12 @@ import org.jetbrains.dokka.transformers.pages.PageTransformer
 class MathjaxPlugin : DokkaPlugin() {
     val transformer by extending {
         CoreExtensions.pageTransformer with MathjaxTransformer
+    }
+
+    val mathjaxTagContentProvider by extending {
+        plugin<DokkaBase>().customTagContentProvider with MathjaxTagContentProvider order {
+            before(plugin<DokkaBase>().sinceKotlinTagContentProvider)
+        }
     }
 }
 
@@ -29,4 +39,15 @@ object MathjaxTransformer : PageTransformer {
             ?.flatMap { it.children }
             .orEmpty()
             .any { (it as? CustomTagWrapper)?.name == ANNOTATION }
+}
+
+object MathjaxTagContentProvider : CustomTagContentProvider {
+    override fun DocumentableContentBuilder.contentForDescription(
+        sourceSet: DokkaConfiguration.DokkaSourceSet,
+        customTag: CustomTagWrapper
+    ) {
+        if (customTag.name == ANNOTATION) {
+            comment(customTag.root, sourceSets = setOf(sourceSet))
+        }
+    }
 }
