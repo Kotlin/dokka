@@ -691,7 +691,7 @@ open class DefaultPageCreator(
                                                         sourceSetTag[sourceSet]?.let { tag ->
                                                             customTagContentProviders.forEach { provider ->
                                                                 with(provider) {
-                                                                    contentForDescription(sourceSet, tag)
+                                                                    contentForBrief(sourceSet, tag)
                                                                 }
                                                             }
                                                         }
