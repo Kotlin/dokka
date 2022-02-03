@@ -340,6 +340,18 @@ open class DefaultPageCreator(
                     }
                 }
             }
+            val customTags = d.customTags
+            if (customTags.isNotEmpty()) {
+                group(styles = setOf(TextStyle.Block)) {
+                    customTags.forEach {
+                        group(styles = setOf(TextStyle.Block)) {
+                            it.value.values.forEach {
+                                comment(it.root)
+                            }
+                        }
+                    }
+                }
+            }
 
             val unnamedTags = tags.filterNot { (k, _) -> k.isSubclassOf(NamedTagWrapper::class) || k in specialTags }
                 .values.flatten().groupBy { it.first }.mapValues { it.value.map { it.second } }
@@ -705,6 +717,9 @@ open class DefaultPageCreator(
 
     private val Documentable.descriptions: SourceSetDependent<Description>
         get() = groupedTags.withTypeUnnamed<Description>()
+
+    private val Documentable.customTags: Map<String, SourceSetDependent<CustomTagWrapper>>
+        get() = groupedTags.withTypeNamed()
 
     private val Documentable.hasSeparatePage: Boolean
         get() = this !is DTypeAlias

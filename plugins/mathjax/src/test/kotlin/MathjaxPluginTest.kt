@@ -53,15 +53,17 @@ class MathjaxPluginTest : BaseAbstractTest() {
                 }
             }
         }
+        val math = """
+            a^2 = b^2 + c^2
+        """.trimIndent()
         val source =
             """
             |/src/main/kotlin/test/Test.kt
             |package example
             | /**
             | * @usesMathJax
-            | *
-            | * \(\alpha_{out} = \alpha_{dst}\)
-            | * \(C_{out} = C_{dst}\)
+            | * 
+            | * \($math\)
             | */
             | fun test(): String = ""
             """.trimIndent()
@@ -71,14 +73,17 @@ class MathjaxPluginTest : BaseAbstractTest() {
             configuration,
             pluginOverrides = listOf(writerPlugin, MathjaxPlugin())
         ) {
-            renderingStage = {
-                    _, _ -> Jsoup
-                .parse(writerPlugin.writer.contents["root/example/test.html"])
-                .head()
-                .select("link, script")
-                .let {
-                    assert(it.`is`("[href=$LIB_PATH], [src=$LIB_PATH]"))
-                }
+            renderingStage = { _, _ ->
+                val parsed = Jsoup.parse(writerPlugin.writer.contents["root/example/test.html"].also { println(it) })
+
+                // Ensure the MathJax CDN is loaded
+                assert(parsed.select("link, script").`is`("[href=$LIB_PATH], [src=$LIB_PATH]"))
+
+                // Ensure the contents are displayed
+                assert(parsed.select("p").any {
+                    println(it.text())
+                    it.text().contains(math)
+                })
             }
         }
     }
