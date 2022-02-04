@@ -349,4 +349,41 @@ class JavadocParserTest : BaseAbstractTest() {
             }
         }
     }
+    
+    @Test
+    fun `header tags are handled properly`() {
+        val source = """
+            |/src/main/kotlin/test/Test.java
+            |package example
+            |
+            | /**
+            | * An example of using the header tags
+            | * <h1>A header</h1>
+            | * <h2>A second level header</h2>
+            | * <h3>A third level header</h3>
+            | */
+            | public class Test  {}
+            """.trimIndent()
+        testInline(
+            source,
+            configuration,
+        ) {
+            documentablesCreationStage = { modules ->
+                val docs = modules.first().packages.first().classlikes.single().documentation.first().value
+                val root = docs.children.first().root
+
+                kotlin.test.assertEquals(
+                    listOf(
+                        P(children = listOf(
+                            Text(body = "An example of using the header tags"),
+                            H1(body = "A header"),
+                            H1(body = "A second level header"),
+                            H3(body = "A third level header")
+                        )),
+                    ),
+                    root.children
+                )
+            }
+        }
+    }
 }
