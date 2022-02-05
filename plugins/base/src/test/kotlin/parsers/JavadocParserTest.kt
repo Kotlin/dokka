@@ -375,10 +375,22 @@ class JavadocParserTest : BaseAbstractTest() {
                 kotlin.test.assertEquals(
                     listOf(
                         P(children = listOf(
-                            Text(body = "An example of using the header tags"),
-                            H1(body = "A header"),
-                            H1(body = "A second level header"),
-                            H3(body = "A third level header")
+                            Text("An example of using the header tags),
+                            H1(
+                                listOf(
+                                    Text("A header")
+                                )
+                            ),
+                            H1(
+                                listOf(
+                                    Text("A second level header")
+                                )
+                            ),
+                            H3(
+                                listOf(
+                                    Text("A third level header")
+                                )
+                            )
                         )),
                     ),
                     root.children
