@@ -82,3 +82,5 @@ pluginsMapConfiguration.set(mapOf("org.jetbrains.dokka.versioning.VersioningPlug
 Please consult the [Gradle documentation](../gradle/usage.md#applying-plugins) for more information about configuring Dokka with this build tool.
 
 Please see the [Dokka Gradle versioning multi modules example project](https://github.com/Kotlin/dokka/tree/master/examples/gradle/dokka-versioning-multimodule-example).
+
+Also see the [generated documentation](https://Kotlin.github.io/dokka/examples/dokka-versioning-multimodule-example/html).
