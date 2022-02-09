@@ -1230,13 +1230,6 @@ public final class org/jetbrains/dokka/base/transformers/pages/samples/DefaultSa
 	public fun processImports (Lcom/intellij/psi/PsiElement;)Ljava/lang/String;
 }
 
-public final class org/jetbrains/dokka/base/transformers/pages/samples/KotlinWebsiteSamplesTransformer : org/jetbrains/dokka/base/transformers/pages/samples/SamplesTransformer {
-	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
-	public final fun getImportsToIgnore ()Ljava/util/List;
-	public fun processBody (Lcom/intellij/psi/PsiElement;)Ljava/lang/String;
-	public fun processImports (Lcom/intellij/psi/PsiElement;)Ljava/lang/String;
-}
-
 public abstract class org/jetbrains/dokka/base/transformers/pages/samples/SamplesTransformer : org/jetbrains/dokka/transformers/pages/PageTransformer {
 	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
 	protected fun createSampleBody (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;

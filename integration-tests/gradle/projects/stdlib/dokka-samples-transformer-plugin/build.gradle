@@ -1,0 +1,19 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm'
+}
+description "Dokka Plugin to transform the samples from stdlib"
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencies {
+    implementation "org.jetbrains.dokka:dokka-base:${dokka_it_kotlin_version}"
+    compileOnly "org.jetbrains.dokka:dokka-core:${dokka_it_kotlin_version}"
+}
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile) {
+        kotlinOptions.jvmTarget = "1.8"
+}
+
