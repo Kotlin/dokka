@@ -77,7 +77,7 @@ jobs:
         if: steps.filter.outputs.examples_changed == 'true'
         with:
           name: ${{ matrix.projects }}
-          path: examples/gradle/${{ matrix.projects }}/build/dokka
+          path: examples/gradle/${{ matrix.projects }}/parentProject/build/dokka
 
   deploy-examples:
     runs-on: ubuntu-latest
