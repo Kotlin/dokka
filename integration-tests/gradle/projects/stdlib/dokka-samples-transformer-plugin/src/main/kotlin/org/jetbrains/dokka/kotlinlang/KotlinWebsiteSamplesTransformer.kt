@@ -1,4 +1,4 @@
-package org.jetbrains.dokka.base.transformers.pages.samples
+package org.jetbrains.dokka.kotlinlang
 
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiElement
@@ -6,6 +6,7 @@ import com.intellij.psi.PsiElementVisitor
 import com.intellij.psi.PsiWhiteSpace
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.dokka.base.transformers.pages.samples.SamplesTransformer
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.psi.psiUtil.allChildren
@@ -16,7 +17,6 @@ import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 import java.io.PrintWriter
 import java.io.StringWriter
 
-// TODO Inspect below class for any bugs. Big chunk of was ripped from 0.10.1
 class KotlinWebsiteSamplesTransformer(context: DokkaContext): SamplesTransformer(context) {
 
     private class SampleBuilder : KtTreeVisitorVoid() {
