@@ -133,8 +133,11 @@ open class DefaultPageCreator(
         else -> null
     } as? T?
 
+    /**
+     * Ignore DRI extra because of Enum Entries have [org.jetbrains.dokka.links.EnumEntryDRIExtra]
+     */
     private fun <T : Documentable> List<T>.mergeClashingDocumentable(): List<List<T>> =
-        groupBy { it.dri }.values.toList()
+        groupBy { it.dri.copy(extra = null) }.values.toList()
 
     open fun pageForFunction(f: DFunction) = MemberPageNode(f.nameAfterClash(), contentForFunction(f), setOf(f.dri), f)
 
