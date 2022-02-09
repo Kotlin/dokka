@@ -83,4 +83,4 @@ Please consult the [Gradle documentation](../gradle/usage.md#applying-plugins) f
 
 Please see the [Dokka Gradle versioning multi modules example project](https://github.com/Kotlin/dokka/tree/master/examples/gradle/dokka-versioning-multimodule-example).
 
-Also see the [generated documentation](https://Kotlin.github.io/dokka/examples/dokka-versioning-multimodule-example/html).
+Also see the [generated documentation](https://Kotlin.github.io/dokka/examples/dokka-versioning-multimodule-example/htmlMultiModule).
