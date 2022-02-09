@@ -44,10 +44,44 @@ jobs:
           name: ${{ matrix.projects }}
           path: examples/gradle/${{ matrix.projects }}/build/dokka
 
+  build-multimodule-examples:
+    runs-on: ubuntu-latest
+    if: github.repository == 'Kotlin/dokka'
+    strategy:
+      matrix:
+        projects: [
+          dokka-versioning-multimodule-example
+        ]
+    steps:
+      - name: Checkout dokka
+        uses: actions/checkout@v2
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            examples_changed:
+              - 'examples/gradle/${{ matrix.projects }}/**'
+
+      - uses: actions/setup-java@v2
+        with:
+          distribution: 'zulu'
+          java-version: 11
+
+      - name: Build html
+        run: ./gradlew dokkaHtmlMultiModule --no-daemon --stacktrace
+        working-directory: examples/gradle/${{ matrix.projects }}
+        if: steps.filter.outputs.examples_changed == 'true'
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        if: steps.filter.outputs.examples_changed == 'true'
+        with:
+          name: ${{ matrix.projects }}
+          path: examples/gradle/${{ matrix.projects }}/build/dokka
 
   deploy-examples:
     runs-on: ubuntu-latest
-    needs: build-examples
+    needs: [build-examples, build-multimodule-examples]
     steps:
       - uses: actions/download-artifact@v2
         with:
