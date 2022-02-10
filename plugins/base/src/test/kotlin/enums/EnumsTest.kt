@@ -125,7 +125,7 @@ class EnumsTest : BaseAbstractTest() {
             pagesGenerationStage = { module ->
                 val entryPage = module.dfs { it.name == "E1" } as ClasslikePageNode
                 val signaturePart = (entryPage.content.dfs {
-                    it is ContentGroup && it.dci.toString() == "[enums/Test.E1///PointingToDeclaration/][Symbol]"
+                    it is ContentGroup && it.dci.toString() == "[enums/Test.E1///PointingToDeclaration/{\"org.jetbrains.dokka.links.EnumEntryDRIExtra\":{\"key\":\"org.jetbrains.dokka.links.EnumEntryDRIExtra\"}}][Symbol]"
                 } as ContentGroup)
                 assertEquals("(\"e1\", 1, true)", signaturePart.constructorSignature())
             }
@@ -202,7 +202,7 @@ class EnumsTest : BaseAbstractTest() {
         ) {
             pagesTransformationStage = { m ->
                 val entryNode = m.children.first { it.name == "enums" }.children.first { it.name == "Test" }.children.firstIsInstance<ClasslikePageNode>()
-                val signature = (entryNode.content as ContentGroup).dfs { it is ContentGroup && it.dci.toString() == "[enums/Test.E1///PointingToDeclaration/][Cover]" } as ContentGroup
+                val signature = (entryNode.content as ContentGroup).dfs { it is ContentGroup && it.dci.toString() == "[enums/Test.E1///PointingToDeclaration/{\"org.jetbrains.dokka.links.EnumEntryDRIExtra\":{\"key\":\"org.jetbrains.dokka.links.EnumEntryDRIExtra\"}}][Cover]" } as ContentGroup
 
                 signature.assertNode {
                     header(1) { +"E1" }

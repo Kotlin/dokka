@@ -326,7 +326,7 @@ class JavadocParser(
                 dri.toString()
             } ?: UNRESOLVED_PSI_ELEMENT
 
-            return """<a data-dri="$dri">${label.ifBlank{ defaultLabel().text }}</a>"""
+            return """<a data-dri="${dri.htmlEscape()}">${label.ifBlank{ defaultLabel().text }}</a>"""
         }
 
         private fun convertInlineDocTag(
@@ -421,6 +421,9 @@ class JavadocParser(
                         parsed
                     }
                 }
+                "h1" -> ifChildrenPresent { H1(children) }
+                "h2" -> ifChildrenPresent { H2(children) }
+                "h3" -> ifChildrenPresent { H3(children) }
                 else -> listOf(Text(body = element.ownText()))
             }
         }

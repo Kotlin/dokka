@@ -21,11 +21,11 @@ import org.jetbrains.dokka.base.translators.isDirectlyAnException
 import org.jetbrains.dokka.base.translators.psi.parsers.JavaDocumentationParser
 import org.jetbrains.dokka.base.translators.psi.parsers.JavadocParser
 import org.jetbrains.dokka.base.translators.unquotedValue
-import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.links.nextTarget
-import org.jetbrains.dokka.links.withClass
+import org.jetbrains.dokka.links.*
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.AnnotationTarget
+import org.jetbrains.dokka.model.Nullable
+import org.jetbrains.dokka.model.TypeConstructor
 import org.jetbrains.dokka.model.doc.DocumentationNode
 import org.jetbrains.dokka.model.doc.Param
 import org.jetbrains.dokka.model.properties.PropertyContainer
@@ -150,9 +150,11 @@ class DefaultPsiToDocumentableTranslator(
 
         suspend fun parsePackage(packageName: String, psiFiles: List<PsiJavaFile>): DPackage = coroutineScope {
             val dri = DRI(packageName = packageName)
-            val documentation = psiFiles.firstOrNull { it.name == "package-info.java" }?.let {
+            val packageInfo = psiFiles.singleOrNull { it.name == "package-info.java" }
+            val documentation = packageInfo?.let {
                 javadocParser.parseDocumentation(it).toSourceSetDependent()
-            } ?: emptyMap()
+            }.orEmpty()
+            val annotations = packageInfo?.packageStatement?.annotationList?.annotations
 
             DPackage(
                 dri,
@@ -166,7 +168,10 @@ class DefaultPsiToDocumentableTranslator(
                 emptyList(),
                 documentation,
                 null,
-                setOf(sourceSetData)
+                setOf(sourceSetData),
+                PropertyContainer.withAll(
+                    annotations?.toList().orEmpty().toListOfAnnotations().toSourceSetDependent().toAnnotations()
+                )
             )
         }
 
@@ -269,7 +274,7 @@ class DefaultPsiToDocumentableTranslator(
                         name.orEmpty(),
                         fields.filterIsInstance<PsiEnumConstant>().map { entry ->
                             DEnumEntry(
-                                dri.withClass(entry.name),
+                                dri.withClass(entry.name).withEnumEntryExtra(),
                                 entry.name,
                                 javadocParser.parseDocumentation(entry).toSourceSetDependent(),
                                 null,

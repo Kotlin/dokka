@@ -301,6 +301,7 @@ code.paragraph {
 }
 
 .overview > .navButton {
+    position: absolute;
     align-items: center;
     display: flex;
     justify-content: flex-end;
@@ -433,6 +434,7 @@ code.paragraph {
     align-items: center;
     color: var(--default-font-color);
     overflow: hidden;
+    padding-left: 23px;
 }
 
 
@@ -882,6 +884,10 @@ td.content {
 
 .cover > .block:empty {
     padding-bottom: 0;
+}
+
+.parameters.wrapped > .parameter {
+    display: block;
 }
 
 .table-row .with-platform-tabs .sourceset-depenent-content .brief {

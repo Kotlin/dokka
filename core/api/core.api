@@ -4,6 +4,8 @@ public final class org/jetbrains/dokka/ConfigurationKt {
 	public static final fun ExternalDocumentationLink (Ljava/net/URL;Ljava/net/URL;)Lorg/jetbrains/dokka/ExternalDocumentationLinkImpl;
 	public static synthetic fun ExternalDocumentationLink$default (Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lorg/jetbrains/dokka/ExternalDocumentationLinkImpl;
 	public static synthetic fun ExternalDocumentationLink$default (Ljava/net/URL;Ljava/net/URL;ILjava/lang/Object;)Lorg/jetbrains/dokka/ExternalDocumentationLinkImpl;
+	public static final fun GlobalDokkaConfiguration (Ljava/lang/String;)Lorg/jetbrains/dokka/GlobalDokkaConfiguration;
+	public static final fun apply (Lorg/jetbrains/dokka/DokkaConfiguration;Lorg/jetbrains/dokka/GlobalDokkaConfiguration;)Lorg/jetbrains/dokka/DokkaConfiguration;
 	public static final fun build (Ljava/lang/Iterable;)Ljava/util/List;
 	public static final fun toJsonString (Lorg/jetbrains/dokka/DokkaConfiguration;)Ljava/lang/String;
 	public static final fun toJsonString (Lorg/jetbrains/dokka/plugability/ConfigurableBlock;)Ljava/lang/String;
@@ -343,6 +345,21 @@ public final class org/jetbrains/dokka/ExternalDocumentationLinkImpl : org/jetbr
 	public fun toString ()Ljava/lang/String;
 }
 
+public final class org/jetbrains/dokka/GlobalDokkaConfiguration {
+	public fun <init> (Ljava/util/List;Ljava/util/List;Ljava/util/List;)V
+	public final fun component1 ()Ljava/util/List;
+	public final fun component2 ()Ljava/util/List;
+	public final fun component3 ()Ljava/util/List;
+	public final fun copy (Ljava/util/List;Ljava/util/List;Ljava/util/List;)Lorg/jetbrains/dokka/GlobalDokkaConfiguration;
+	public static synthetic fun copy$default (Lorg/jetbrains/dokka/GlobalDokkaConfiguration;Ljava/util/List;Ljava/util/List;Ljava/util/List;ILjava/lang/Object;)Lorg/jetbrains/dokka/GlobalDokkaConfiguration;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getExternalDocumentationLinks ()Ljava/util/List;
+	public final fun getPerPackageOptions ()Ljava/util/List;
+	public final fun getSourceLinks ()Ljava/util/List;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
 public final class org/jetbrains/dokka/PackageOptionsImpl : org/jetbrains/dokka/DokkaConfiguration$PackageOptions {
 	public fun <init> (Ljava/lang/String;ZLjava/lang/Boolean;ZZLjava/util/Set;)V
 	public final fun component1 ()Ljava/lang/String;
@@ -503,6 +520,7 @@ public final class org/jetbrains/dokka/links/DRIKt {
 	public static final fun getSureClassNames (Lorg/jetbrains/dokka/links/DRI;)Ljava/lang/String;
 	public static final fun nextTarget (Lorg/jetbrains/dokka/links/DriTarget;)Lorg/jetbrains/dokka/links/DriTarget;
 	public static final fun withClass (Lorg/jetbrains/dokka/links/DRI;Ljava/lang/String;)Lorg/jetbrains/dokka/links/DRI;
+	public static final fun withEnumEntryExtra (Lorg/jetbrains/dokka/links/DRI;)Lorg/jetbrains/dokka/links/DRI;
 	public static final fun withTargetToDeclaration (Lorg/jetbrains/dokka/links/DRI;)Lorg/jetbrains/dokka/links/DRI;
 }
 
@@ -3844,10 +3862,12 @@ public final class org/jetbrains/dokka/pages/ContentResolvedLink : org/jetbrains
 public final class org/jetbrains/dokka/pages/ContentStyle : java/lang/Enum, org/jetbrains/dokka/pages/Style {
 	public static final field Caption Lorg/jetbrains/dokka/pages/ContentStyle;
 	public static final field InDocumentationAnchor Lorg/jetbrains/dokka/pages/ContentStyle;
+	public static final field Indented Lorg/jetbrains/dokka/pages/ContentStyle;
 	public static final field RowTitle Lorg/jetbrains/dokka/pages/ContentStyle;
 	public static final field RunnableSample Lorg/jetbrains/dokka/pages/ContentStyle;
 	public static final field TabbedContent Lorg/jetbrains/dokka/pages/ContentStyle;
 	public static final field WithExtraAttributes Lorg/jetbrains/dokka/pages/ContentStyle;
+	public static final field Wrapped Lorg/jetbrains/dokka/pages/ContentStyle;
 	public static fun valueOf (Ljava/lang/String;)Lorg/jetbrains/dokka/pages/ContentStyle;
 	public static fun values ()[Lorg/jetbrains/dokka/pages/ContentStyle;
 }
@@ -4177,6 +4197,13 @@ public final class org/jetbrains/dokka/pages/SimpleAttr$SimpleAttrKey : org/jetb
 }
 
 public abstract interface class org/jetbrains/dokka/pages/Style {
+}
+
+public final class org/jetbrains/dokka/pages/SymbolContentKind : java/lang/Enum, org/jetbrains/dokka/pages/Kind {
+	public static final field Parameter Lorg/jetbrains/dokka/pages/SymbolContentKind;
+	public static final field Parameters Lorg/jetbrains/dokka/pages/SymbolContentKind;
+	public static fun valueOf (Ljava/lang/String;)Lorg/jetbrains/dokka/pages/SymbolContentKind;
+	public static fun values ()[Lorg/jetbrains/dokka/pages/SymbolContentKind;
 }
 
 public final class org/jetbrains/dokka/pages/TextStyle : java/lang/Enum, org/jetbrains/dokka/pages/Style {

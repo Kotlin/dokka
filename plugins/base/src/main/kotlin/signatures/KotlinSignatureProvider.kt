@@ -2,6 +2,7 @@ package org.jetbrains.dokka.base.signatures
 
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.Platform
+import org.jetbrains.dokka.analysis.DescriptorDocumentableSource
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.signatures.KotlinSignatureUtils.dri
 import org.jetbrains.dokka.base.signatures.KotlinSignatureUtils.driOrNull
@@ -12,14 +13,13 @@ import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.Nullable
 import org.jetbrains.dokka.model.TypeConstructor
 import org.jetbrains.dokka.model.properties.WithExtraProperties
-import org.jetbrains.dokka.pages.ContentKind
-import org.jetbrains.dokka.pages.ContentNode
-import org.jetbrains.dokka.pages.TextStyle
-import org.jetbrains.dokka.pages.TokenStyle
+import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.utilities.DokkaLogger
+import org.jetbrains.kotlin.js.resolve.diagnostics.findPsi
+import org.jetbrains.kotlin.psi.KtParameter
 import kotlin.text.Typography.nbsp
 
 class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogger)
@@ -179,19 +179,30 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                         annotationsInline(pConstructor)
                         keyword("constructor")
                     }
-                    list(
-                        elements = pConstructor.parameters,
-                        prefix = "(",
-                        suffix = ")",
-                        separator = ", ",
-                        separatorStyles = mainStyles + TokenStyle.Punctuation,
-                        surroundingCharactersStyle = mainStyles + TokenStyle.Punctuation,
-                        sourceSets = pConstructor.sourceSets.toSet()
-                    ) {
-                        annotationsInline(it)
-                        text(it.name.orEmpty())
-                        operator(": ")
-                        signatureForProjection(it.type)
+
+                    // for primary constructor, opening and closing parentheses
+                    // should be present only if it has parameters. If there are
+                    // no parameters, it should result in `class Example`
+                    if (pConstructor.parameters.isNotEmpty()) {
+                        val parameterPropertiesByName = c.properties
+                            .filter { it.isAlsoParameter(sourceSet) }
+                            .associateBy { it.name }
+
+                        punctuation("(")
+                        parametersBlock(pConstructor) { param ->
+                            annotationsInline(param)
+                            parameterPropertiesByName[param.name]?.let { property ->
+                                property.setter?.let { keyword("var ") } ?: keyword("val ")
+                            }
+                            text(param.name.orEmpty())
+                            operator(": ")
+                            signatureForProjection(param.type)
+                            param.extra[DefaultValue]?.let {
+                                operator(" = ")
+                                highlightValue(it.value)
+                            }
+                        }
+                        punctuation(")")
                     }
                 }
             }
@@ -208,6 +219,13 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                 }
             }
         }
+
+    /**
+     * An example would be a primary constructor `class A(val s: String)`,
+     * where `s` is both a function parameter and a property
+     */
+    private fun DProperty.isAlsoParameter(sourceSet: DokkaSourceSet) =
+        (this.sources[sourceSet] as? DescriptorDocumentableSource)?.descriptor?.findPsi() is KtParameter
 
     private fun propertySignature(p: DProperty) =
         p.sourceSets.map {
@@ -283,17 +301,21 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                     punctuation(".")
                 }
                 link(f.name, f.dri, styles = mainStyles + TokenStyle.Function)
+
+                // for a function, opening and closing parentheses must be present
+                // anyway, even if it has no parameters, resulting in `fun test(): R`
                 punctuation("(")
-                list(f.parameters,
-                    separatorStyles = mainStyles + TokenStyle.Punctuation) {
-                    annotationsInline(it)
-                    processExtraModifiers(it)
-                    text(it.name!!)
-                    operator(": ")
-                    signatureForProjection(it.type)
-                    it.extra[DefaultValue]?.run {
-                        operator(" = ")
-                        highlightValue(value)
+                if (f.parameters.isNotEmpty()) {
+                    parametersBlock(f) { param ->
+                        annotationsInline(param)
+                        processExtraModifiers(param)
+                        text(param.name!!)
+                        operator(": ")
+                        signatureForProjection(param.type)
+                        param.extra[DefaultValue]?.run {
+                            operator(" = ")
+                            highlightValue(value)
+                        }
                     }
                 }
                 punctuation(")")

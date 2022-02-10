@@ -98,8 +98,13 @@ class ConstructorsSignaturesTest : BaseAbstractTest() {
                             group {
                                 +"class "
                                 link { +"SomeClass" }
-                                +"(a: "
-                                group { link { +"String" } }
+                                +"("
+                                group {
+                                    group {
+                                        +"a: "
+                                        group { link { +"String" } }
+                                    }
+                                }
                                 +")"
                             }
                         }
@@ -117,7 +122,7 @@ class ConstructorsSignaturesTest : BaseAbstractTest() {
             |/src/main/kotlin/test/source.kt
             |package test
             |
-            |class SomeClass(val a: String)
+            |class SomeClass(val a: String, var i: Int)
             |
         """.trimIndent(), testConfiguration
         ) {
@@ -131,8 +136,18 @@ class ConstructorsSignaturesTest : BaseAbstractTest() {
                             group {
                                 +"class "
                                 link { +"SomeClass" }
-                                +"(a: " // TODO: Make sure if we still do not want to have "val" here
-                                group { link { +"String" } }
+                                +"("
+                                group {
+                                    group {
+                                        +"val a: "
+                                        group { link { +"String" } }
+                                        +", "
+                                    }
+                                    group {
+                                        +"var i: "
+                                        group { link { +"Int" } }
+                                    }
+                                }
                                 +")"
                             }
                         }
@@ -165,8 +180,13 @@ class ConstructorsSignaturesTest : BaseAbstractTest() {
                             group {
                                 +"class "
                                 link { +"SomeClass" }
-                                +"(a: "
-                                group { link { +"String" } }
+                                +"("
+                                group {
+                                    group {
+                                        +"a: "
+                                        group { link { +"String" } }
+                                    }
+                                }
                                 +")"
                             }
                         }
@@ -227,8 +247,13 @@ class ConstructorsSignaturesTest : BaseAbstractTest() {
                             group {
                                 +"class "
                                 link { +"SomeClass" }
-                                +"(a: "
-                                group { link { +"String" } }
+                                +"("
+                                group {
+                                    group {
+                                        +"a: "
+                                        group { link { +"String" } }
+                                    }
+                                }
                                 +")"
                             }
                             skipAllNotMatching()
@@ -243,9 +268,14 @@ class ConstructorsSignaturesTest : BaseAbstractTest() {
                                     group {
                                         +"fun "
                                         link { +"SomeClass" }
-                                        +"(a: "
+                                        +"("
                                         group {
-                                            link { +"String" }
+                                            group {
+                                                +"a: "
+                                                group {
+                                                    link { +"String" }
+                                                }
+                                            }
                                         }
                                         +")"
                                     }

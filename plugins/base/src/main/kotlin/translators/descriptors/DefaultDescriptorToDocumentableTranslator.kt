@@ -2,6 +2,7 @@ package org.jetbrains.dokka.base.translators.descriptors
 
 import com.intellij.psi.PsiNamedElement
 import com.intellij.psi.util.PsiLiteralUtil.*
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.runBlocking
@@ -55,6 +56,7 @@ import org.jetbrains.kotlin.resolve.constants.KClassValue.Value.LocalClass
 import org.jetbrains.kotlin.resolve.constants.KClassValue.Value.NormalClass
 import org.jetbrains.kotlin.resolve.descriptorUtil.annotationClass
 import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameOrNull
+import org.jetbrains.kotlin.resolve.descriptorUtil.parents
 import org.jetbrains.kotlin.resolve.scopes.MemberScope
 import org.jetbrains.kotlin.resolve.source.KotlinSourceElement
 import org.jetbrains.kotlin.resolve.source.PsiSourceElement
@@ -79,8 +81,8 @@ import org.jetbrains.kotlin.resolve.constants.BooleanValue as ConstantsBooleanVa
 import org.jetbrains.kotlin.resolve.constants.NullValue as ConstantsNullValue
 
 class DefaultDescriptorToDocumentableTranslator(
-    context: DokkaContext
-) : AsyncSourceToDocumentableTranslator {
+    private val context: DokkaContext
+) : AsyncSourceToDocumentableTranslator, ExternalClasslikesTranslator {
 
     private val kotlinAnalysis: KotlinAnalysis = context.plugin<DokkaBase>().querySingle { kotlinAnalysis }
 
@@ -107,6 +109,15 @@ class DefaultDescriptorToDocumentableTranslator(
                 expectPresentInSet = null,
                 sourceSets = setOf(sourceSet)
             )
+        }
+    }
+
+    override fun translateClassDescriptor(descriptor: ClassDescriptor, sourceSet: DokkaSourceSet): DClasslike {
+        val driInfo = DRI.from(descriptor.parents.first()).withEmptyInfo()
+
+        return runBlocking(Dispatchers.Default) {
+            DokkaDescriptorVisitor(sourceSet, kotlinAnalysis[sourceSet].facade, context.logger)
+                .visitClassDescriptor(descriptor, driInfo)
         }
     }
 }
@@ -162,7 +173,7 @@ private class DokkaDescriptorVisitor(
         }
     }
 
-    private suspend fun visitClassDescriptor(descriptor: ClassDescriptor, parent: DRIWithPlatformInfo): DClasslike =
+    suspend fun visitClassDescriptor(descriptor: ClassDescriptor, parent: DRIWithPlatformInfo): DClasslike =
         when (descriptor.kind) {
             ClassKind.ENUM_CLASS -> enumDescriptor(descriptor, parent)
             ClassKind.OBJECT -> objectDescriptor(descriptor, parent)
@@ -306,7 +317,7 @@ private class DokkaDescriptorVisitor(
             val classlikes = async { descriptorsWithKind.classlikes.visitClasslikes(driWithPlatform) }
 
             DEnumEntry(
-                dri = driWithPlatform.dri,
+                dri = driWithPlatform.dri.withEnumEntryExtra(),
                 name = descriptor.name.asString(),
                 documentation = descriptor.resolveDescriptorData(),
                 functions = functions.await(),

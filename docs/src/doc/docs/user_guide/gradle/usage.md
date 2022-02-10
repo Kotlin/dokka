@@ -14,7 +14,7 @@ The preferred way is to use `plugins` block.
 build.gradle.kts:
 ```kotlin
 plugins {
-    id("org.jetbrains.dokka") version "1.6.0"
+    id("org.jetbrains.dokka") version "1.6.10"
 }
 
 repositories {
@@ -45,7 +45,7 @@ If you encounter any problems when migrating from older versions of Dokka, pleas
 
 Minimal configuration (with custom output directory only):
 
-Kotlin
+Kotlin DSL
 ```kotlin
 tasks.dokkaHtml.configure {
     outputDirectory.set(buildDir.resolve("dokka"))
@@ -53,12 +53,18 @@ tasks.dokkaHtml.configure {
 ```
 
 
-Groovy
-```kotlin
-tasks.named("dokkaHtml") {
-    outputDirectory.set(buildDir.resolve("dokka"))
+Groovy DSL
+```groovy
+dokkaHtml {
+    outputDirectory.set(file("${buildDir}/dokka"))
 }
 ```
+
+!!! note 
+    Dokka extracts the information about sourcesets from the Kotlin Gradle plugin.
+    Therefore, if you are using Dokka in a [precompiled script plugin](https://docs.gradle.org/current/userguide/custom_plugins.html#sec:precompiled_plugins), 
+    you will have to add a depencency to the Kotlin Gradle Plugin as well
+    (`implementation(kotlin("gradle-plugin", "<kotlin-version>"))` resp. `implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:<kotlin-version>")`).
 
 ## Configuration options
 
@@ -263,7 +269,7 @@ Dokka plugin creates Gradle configuration for each output format in the form of 
 
 ```kotlin
 dependencies {
-    dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:1.6.0")
+    dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:1.6.10")
 }
 ``` 
 
@@ -272,7 +278,7 @@ You can also create a custom Dokka task and add plugins directly inside:
 ```kotlin
 val customDokkaTask by creating(DokkaTask::class) {
     dependencies {
-        plugins("org.jetbrains.dokka:kotlin-as-java-plugin:1.6.0")
+        plugins("org.jetbrains.dokka:kotlin-as-java-plugin:1.6.10")
     }
 }
 ```
@@ -305,7 +311,7 @@ For example, you can add `DokkaBase` to gain access to aforementioned configurat
 buildscript {
     dependencies {
         // classpath("<plugin coordinates>:<plugin version>")
-        classpath("org.jetbrains.dokka:dokka-base:1.6.0")
+        classpath("org.jetbrains.dokka:dokka-base:1.6.10")
     }
 }
 ```
