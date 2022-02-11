@@ -606,9 +606,17 @@ private class DokkaDescriptorVisitor(
             )
 
         val name = run {
-            val modifier = if (isGetter) "get" else "set"
             val rawName = propertyDescriptor.name.asString()
-            "$modifier${rawName.capitalize()}"
+            // https://kotlinlang.org/docs/java-interop.html#getters-and-setters
+            val specialCaseIs = rawName.startsWith("is")
+                    && rawName.length >= 3
+                    && !rawName[2].isLowerCase()
+
+            if (specialCaseIs) {
+                if (isGetter) rawName else "set${rawName.drop(2)}"
+            } else {
+                if (isGetter) "get${rawName.capitalize()}" else "set${rawName.capitalize()}"
+            }
         }
 
         val parameters =
