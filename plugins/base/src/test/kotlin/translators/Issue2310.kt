@@ -53,68 +53,68 @@ class Issue2310 : BaseAbstractTest() {
 
                 // These should follow normal construction rules for properties
                 properties.first { it.name == "standardString" }.let {
-                    assertEquals("getStandardString", it.getter!!.name)
-                    assertEquals("setStandardString", it.setter!!.name)
+                    assertEquals("getStandardString", it.getter?.name)
+                    assertEquals("setStandardString", it.setter?.name)
                 }
                 properties.first { it.name == "standardBoolean" }.let {
-                    assertEquals("getStandardBoolean", it.getter!!.name)
-                    assertEquals("setStandardBoolean", it.setter!!.name)
+                    assertEquals("getStandardBoolean", it.getter?.name)
+                    assertEquals("setStandardBoolean", it.setter?.name)
                 }
                 properties.first { it.name == "issuesFetched" }.let {
-                    assertEquals("getIssuesFetched", it.getter!!.name)
-                    assertEquals("setIssuesFetched", it.setter!!.name)
+                    assertEquals("getIssuesFetched", it.getter?.name)
+                    assertEquals("setIssuesFetched", it.setter?.name)
                 }
                 properties.first { it.name == "issuesWereDisplayed" }.let {
-                    assertEquals("getIssuesWereDisplayed", it.getter!!.name)
-                    assertEquals("setIssuesWereDisplayed", it.setter!!.name)
+                    assertEquals("getIssuesWereDisplayed", it.getter?.name)
+                    assertEquals("setIssuesWereDisplayed", it.setter?.name)
                 }
 
                 // These are special cases where kotlin keeps the "is"
                 properties.first { it.name == "isFoo" }.let {
-                    assertEquals("isFoo", it.getter!!.name)
-                    assertEquals("setFoo", it.setter!!.name)
+                    assertEquals("isFoo", it.getter?.name)
+                    assertEquals("setFoo", it.setter?.name)
                 }
                 properties.first { it.name == "isBar" }.let {
-                    assertEquals("isBar", it.getter!!.name)
-                    assertEquals("setBar", it.setter!!.name)
+                    assertEquals("isBar", it.getter?.name)
+                    assertEquals("setBar", it.setter?.name)
                 }
                 properties.first { it.name == "is_underscoreA" }.let {
-                    assertEquals("is_underscoreA", it.getter!!.name)
-                    assertEquals("set_underscoreA", it.setter!!.name)
+                    assertEquals("is_underscoreA", it.getter?.name)
+                    assertEquals("set_underscoreA", it.setter?.name)
                 }
                 properties.first { it.name == "is_underscoreB" }.let {
-                    assertEquals("is_underscoreB", it.getter!!.name)
-                    assertEquals("set_underscoreB", it.setter!!.name)
+                    assertEquals("is_underscoreB", it.getter?.name)
+                    assertEquals("set_underscoreB", it.setter?.name)
                 }
                 properties.first { it.name == "is1of" }.let {
-                    assertEquals("is1of", it.getter!!.name)
-                    assertEquals("set1of", it.setter!!.name)
+                    assertEquals("is1of", it.getter?.name)
+                    assertEquals("set1of", it.setter?.name)
                 }
                 properties.first { it.name == "is2of" }.let {
-                    assertEquals("is2of", it.getter!!.name)
-                    assertEquals("set2of", it.setter!!.name)
+                    assertEquals("is2of", it.getter?.name)
+                    assertEquals("set2of", it.setter?.name)
                 }
 
                 // For sanity checking my indexing on short names
                 properties.first { it.name == "i" }.let {
-                    assertEquals("getI", it.getter!!.name)
-                    assertEquals("setI", it.setter!!.name)
+                    assertEquals("getI", it.getter?.name)
+                    assertEquals("setI", it.setter?.name)
                 }
                 properties.first { it.name == "is" }.let {
-                    assertEquals("getIs", it.getter!!.name)
-                    assertEquals("setIs", it.setter!!.name)
+                    assertEquals("getIs", it.getter?.name)
+                    assertEquals("setIs", it.setter?.name)
                 }
                 properties.first { it.name == "isz" }.let {
-                    assertEquals("getIsz", it.getter!!.name)
-                    assertEquals("setIsz", it.setter!!.name)
+                    assertEquals("getIsz", it.getter?.name)
+                    assertEquals("setIsz", it.setter?.name)
                 }
                 properties.first { it.name == "isA" }.let {
-                    assertEquals("isA", it.getter!!.name)
-                    assertEquals("setA", it.setter!!.name)
+                    assertEquals("isA", it.getter?.name)
+                    assertEquals("setA", it.setter?.name)
                 }
                 properties.first { it.name == "isB" }.let {
-                    assertEquals("isB", it.getter!!.name)
-                    assertEquals("setB", it.setter!!.name)
+                    assertEquals("isB", it.getter?.name)
+                    assertEquals("setB", it.setter?.name)
                 }
             }
         }
