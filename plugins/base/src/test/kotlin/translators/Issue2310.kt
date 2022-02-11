@@ -34,9 +34,9 @@ class Issue2310 : BaseAbstractTest() {
             |   var is1of: String,
             |   var is2of: Boolean,
             |
-            |   var a: Boolean,
-            |   var ab: Boolean,
-            |   var abc: Boolean,
+            |   var i: Boolean,
+            |   var `is`: Boolean,
+            |   var isz: Boolean,
             |   var isA: Int,
             |   var isB: Boolean,
             |)
@@ -96,17 +96,17 @@ class Issue2310 : BaseAbstractTest() {
                 }
 
                 // For sanity checking my indexing on short names
-                properties.first { it.name == "a" }.let {
-                    assertEquals("getA", it.getter!!.name)
-                    assertEquals("setA", it.setter!!.name)
+                properties.first { it.name == "i" }.let {
+                    assertEquals("getI", it.getter!!.name)
+                    assertEquals("setI", it.setter!!.name)
                 }
-                properties.first { it.name == "ab" }.let {
-                    assertEquals("getAb", it.getter!!.name)
-                    assertEquals("setAb", it.setter!!.name)
+                properties.first { it.name == "is" }.let {
+                    assertEquals("getIs", it.getter!!.name)
+                    assertEquals("setIs", it.setter!!.name)
                 }
-                properties.first { it.name == "abc" }.let {
-                    assertEquals("getAbc", it.getter!!.name)
-                    assertEquals("setAbc", it.setter!!.name)
+                properties.first { it.name == "isz" }.let {
+                    assertEquals("getIsz", it.getter!!.name)
+                    assertEquals("setIsz", it.setter!!.name)
                 }
                 properties.first { it.name == "isA" }.let {
                     assertEquals("isA", it.getter!!.name)
