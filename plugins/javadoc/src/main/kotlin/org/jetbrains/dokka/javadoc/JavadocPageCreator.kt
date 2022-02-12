@@ -33,7 +33,7 @@ open class JavadocPageCreator(context: DokkaContext) {
         )
 
     fun pageForPackage(p: DPackage) =
-        JavadocPackagePageNode(p.name, contentForPackage(p), setOf(p.dri), p,
+        JavadocPackagePageNode(p.name, contentForPackage(p), setOf(p.dri), listOf(p),
             p.classlikes.mapNotNull { pageForClasslike(it) }
         )
 
@@ -68,7 +68,7 @@ open class JavadocPageCreator(context: DokkaContext) {
                         PropertyContainer.withAll(it.indexesInDocumentation())
                     )
                 },
-                documentable = c,
+                documentables = listOf(c),
                 children = children,
                 extra = ((c as? WithExtraProperties<Documentable>)?.extra
                     ?: PropertyContainer.empty()) + c.indexesInDocumentation()

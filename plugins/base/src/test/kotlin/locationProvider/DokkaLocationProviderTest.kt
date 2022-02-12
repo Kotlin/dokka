@@ -53,8 +53,7 @@ class DokkaLocationProviderTest : BaseAbstractTest() {
                     ModulePageNode(
                         name = name,
                         children = packages.pages,
-                        content = stubContentNode,
-                        documentable = null
+                        content = stubContentNode
                     )
                 )
             }
@@ -69,7 +68,6 @@ class DokkaLocationProviderTest : BaseAbstractTest() {
                         name = name,
                         children = packages.pages,
                         content = stubContentNode,
-                        documentable = null,
                         dri = emptySet()
                     )
                 )
@@ -84,7 +82,6 @@ class DokkaLocationProviderTest : BaseAbstractTest() {
                         name = name,
                         children = emptyList(),
                         content = stubContentNode,
-                        documentable = null,
                         dri = emptySet()
                     )
                 )

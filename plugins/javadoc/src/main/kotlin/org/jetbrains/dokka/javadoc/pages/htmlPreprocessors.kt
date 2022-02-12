@@ -4,12 +4,10 @@ import org.jetbrains.dokka.base.renderers.sourceSets
 import org.jetbrains.dokka.base.transformers.documentables.deprecatedAnnotation
 import org.jetbrains.dokka.base.transformers.documentables.isDeprecated
 import org.jetbrains.dokka.base.transformers.documentables.isException
-import org.jetbrains.dokka.model.Documentable
 import org.jetbrains.dokka.model.BooleanValue
-import org.jetbrains.dokka.model.WithSupertypes
+import org.jetbrains.dokka.model.Documentable
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.transformers.pages.PageTransformer
-import kotlin.collections.HashMap
 
 object ResourcesInstaller : PageTransformer {
     override fun invoke(input: RootPageNode): RootPageNode = input.modified(
@@ -37,7 +35,7 @@ object TreeViewInstaller : PageTransformer {
             packages = node.children<JavadocPackagePageNode>().map { installPackageTreeNode(it, root) },
             classes = null,
             dri = node.dri,
-            documentable = node.documentable,
+            documentables = node.documentables,
             root = root
         )
 
@@ -55,7 +53,7 @@ object TreeViewInstaller : PageTransformer {
             packages = null,
             classes = node.children.filterIsInstance<JavadocClasslikePageNode>(),
             dri = node.dri,
-            documentable = node.documentable,
+            documentables = node.documentables,
             root = root
         )
 

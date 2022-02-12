@@ -41,10 +41,10 @@ open class DefaultPageCreator(
         configuration?.separateInheritedMembers ?: DokkaBaseConfiguration.separateInheritedMembersDefault
 
     open fun pageForModule(m: DModule): ModulePageNode =
-        ModulePageNode(m.name.ifEmpty { "<root>" }, contentForModule(m), m, m.packages.map(::pageForPackage))
+        ModulePageNode(m.name.ifEmpty { "<root>" }, contentForModule(m), listOf(m), m.packages.map(::pageForPackage))
 
     open fun pageForPackage(p: DPackage): PackagePageNode = PackagePageNode(
-        p.name, contentForPackage(p), setOf(p.dri), p,
+        p.name, contentForPackage(p), setOf(p.dri), listOf(p),
         if (mergeNoExpectActualDeclarations)
             p.classlikes.mergeClashingDocumentable().map(::pageForClasslikesAndEntries) +
                     p.functions.mergeClashingDocumentable().map(::pageForFunctions) +
@@ -56,7 +56,7 @@ open class DefaultPageCreator(
 
     open fun pageForEnumEntry(e: DEnumEntry): ClasslikePageNode =
         ClasslikePageNode(
-            e.nameAfterClash(), contentForEnumEntry(e), setOf(e.dri), e,
+            e.nameAfterClash(), contentForEnumEntry(e), setOf(e.dri), listOf(e),
             e.classlikes.renameClashingDocumentable().map(::pageForClasslike) +
                     e.filteredFunctions.renameClashingDocumentable().map(::pageForFunction) +
                     e.filteredProperties.renameClashingDocumentable().mapNotNull(::pageForProperty)
@@ -66,7 +66,7 @@ open class DefaultPageCreator(
         val constructors = if (c is WithConstructors) c.constructors else emptyList()
 
         return ClasslikePageNode(
-            c.nameAfterClash(), contentForClasslike(c), setOf(c.dri), c,
+            c.nameAfterClash(), contentForClasslike(c), setOf(c.dri), listOf(c),
             constructors.map(::pageForFunction) +
                     c.classlikes.renameClashingDocumentable().map(::pageForClasslike) +
                     c.filteredFunctions.renameClashingDocumentable().map(::pageForFunction) +
@@ -105,7 +105,7 @@ open class DefaultPageCreator(
 
 
         return ClasslikePageNode(
-            documentables.first().nameAfterClash(), contentForClasslikesAndEntries(documentables), dri, documentables.singleOrNull(),
+            documentables.first().nameAfterClash(), contentForClasslikesAndEntries(documentables), dri, documentables,
             childrenPages
         )
     }
@@ -139,23 +139,23 @@ open class DefaultPageCreator(
     private fun <T : Documentable> List<T>.mergeClashingDocumentable(): List<List<T>> =
         groupBy { it.dri.copy(extra = null) }.values.toList()
 
-    open fun pageForFunction(f: DFunction) = MemberPageNode(f.nameAfterClash(), contentForFunction(f), setOf(f.dri), f)
+    open fun pageForFunction(f: DFunction) = MemberPageNode(f.nameAfterClash(), contentForFunction(f), setOf(f.dri), listOf(f))
 
     open fun pageForFunctions(fs: List<DFunction>): MemberPageNode {
         val dri = fs.dri.also { if (it.size != 1) {
             logger.error("Function dri should have the same one ${it.first()} inside the one page!")
         } }
-        return MemberPageNode(fs.first().nameAfterClash(), contentForMembers(fs), dri, fs.singleOrNull())
+        return MemberPageNode(fs.first().nameAfterClash(), contentForMembers(fs), dri, fs)
     }
 
     open fun pageForProperty(p: DProperty): MemberPageNode? =
-        MemberPageNode(p.nameAfterClash(), contentForProperty(p), setOf(p.dri), p)
+        MemberPageNode(p.nameAfterClash(), contentForProperty(p), setOf(p.dri), listOf(p))
 
     open fun pageForProperties(ps: List<DProperty>): MemberPageNode {
         val dri = ps.dri.also { if (it.size != 1) {
             logger.error("Property dri should have the same one ${it.first()} inside the one page!")
         } }
-       return MemberPageNode(ps.first().nameAfterClash(), contentForMembers(ps), dri, ps.singleOrNull())
+       return MemberPageNode(ps.first().nameAfterClash(), contentForMembers(ps), dri, ps)
     }
 
     private fun <T> T.isInherited(): Boolean where T : Documentable, T : WithExtraProperties<T> =
