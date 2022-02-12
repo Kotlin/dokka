@@ -71,7 +71,7 @@ abstract class AbstractIntegrationTest {
                 hrefSplits.first()
             } else href
 
-            val targetFile = if (href.startsWith("file")) {
+            val targetFile = if (href.startsWith("file://")) {
                 File(URL(hrefWithoutAnchors).path)
             } else {
                 File(file.parent, hrefWithoutAnchors)
