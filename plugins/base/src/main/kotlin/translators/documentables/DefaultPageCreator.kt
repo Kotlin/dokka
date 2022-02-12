@@ -8,6 +8,7 @@ import org.jetbrains.dokka.base.transformers.documentables.CallableExtensions
 import org.jetbrains.dokka.base.transformers.documentables.ClashingDriIdentifier
 import org.jetbrains.dokka.base.transformers.documentables.InheritorsInfo
 import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentConverter
+import org.jetbrains.dokka.base.transformers.pages.tags.CustomTagContentProvider
 import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder.DocumentableContentBuilder
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.*
@@ -54,27 +55,9 @@ open class DefaultPageCreator(
                 p.properties.mapNotNull(::pageForProperty)
     )
 
-    open fun pageForEnumEntry(e: DEnumEntry): ClasslikePageNode =
-        ClasslikePageNode(
-            e.nameAfterClash(), contentForEnumEntry(e), setOf(e.dri), listOf(e),
-            e.classlikes.renameClashingDocumentable().map(::pageForClasslike) +
-                    e.filteredFunctions.renameClashingDocumentable().map(::pageForFunction) +
-                    e.filteredProperties.renameClashingDocumentable().mapNotNull(::pageForProperty)
-        )
+    open fun pageForEnumEntry(e: DEnumEntry): ClasslikePageNode = pageForClasslikesAndEntries(listOf(e))
 
-    open fun pageForClasslike(c: DClasslike): ClasslikePageNode {
-        val constructors = if (c is WithConstructors) c.constructors else emptyList()
-
-        return ClasslikePageNode(
-            c.nameAfterClash(), contentForClasslike(c), setOf(c.dri), listOf(c),
-            constructors.map(::pageForFunction) +
-                    c.classlikes.renameClashingDocumentable().map(::pageForClasslike) +
-                    c.filteredFunctions.renameClashingDocumentable().map(::pageForFunction) +
-                    c.filteredProperties.renameClashingDocumentable().mapNotNull(::pageForProperty) +
-                    if (c is DEnum) c.entries.map(::pageForEnumEntry) else emptyList()
-
-        )
-    }
+    open fun pageForClasslike(c: DClasslike): ClasslikePageNode = pageForClasslikesAndEntries(listOf(c))
 
     open fun pageForClasslikesAndEntries(documentables: List<Documentable>): ClasslikePageNode {
         val dri = documentables.dri.also {
@@ -133,10 +116,8 @@ open class DefaultPageCreator(
         else -> null
     } as? T?
 
-    /**
-     * Ignore DRI extra because of Enum Entries have [org.jetbrains.dokka.links.EnumEntryDRIExtra]
-     */
     private fun <T : Documentable> List<T>.mergeClashingDocumentable(): List<List<T>> =
+        // (unusual case) to merge classlike and enum entry ignore DRI extra because of enum entries have [org.jetbrains.dokka.links.EnumEntryDRIExtra]
         groupBy { it.dri.copy(extra = null) }.values.toList()
 
     open fun pageForFunction(f: DFunction) = MemberPageNode(f.nameAfterClash(), contentForFunction(f), setOf(f.dri), listOf(f))
@@ -325,29 +306,15 @@ open class DefaultPageCreator(
     private fun Iterable<DFunction>.sorted() =
         sortedWith(compareBy({ it.name }, { it.parameters.size }, { it.dri.toString() }))
 
-    protected open fun contentForEnumEntry(e: DEnumEntry) = contentBuilder.contentFor(e) {
-        group(kind = ContentKind.Cover) {
-            cover(e.name)
-            sourceSetDependentHint(e.dri, e.sourceSets.toSet()) {
-                +buildSignature(e)
-                +contentForDescription(e)
-            }
-        }
-        group(styles = setOf(ContentStyle.TabbedContent)) {
-            +contentForComments(e)
-            +contentForScope(e, e.dri, e.sourceSets)
-        }
-    }
-
     /**
      * @param documentables a list of [DClasslike] and [DEnumEntry] with the same dri in different sourceSets
      */
     protected open fun contentForClasslikesAndEntries(documentables: List<Documentable>): ContentGroup =
         contentBuilder.contentFor(documentables.dri, documentables.sourceSets) {
-            val cs = documentables.filterIsInstance<DClasslike>()
+            val classlikes = documentables.filterIsInstance<DClasslike>()
 
             @Suppress("UNCHECKED_CAST")
-            val extensions = (cs as List<WithExtraProperties<DClasslike>>).flatMap {
+            val extensions = (classlikes as List<WithExtraProperties<DClasslike>>).flatMap {
                 it.extra[CallableExtensions]?.extensions
                     ?.filterIsInstance<Documentable>().orEmpty()
             }
@@ -366,7 +333,7 @@ open class DefaultPageCreator(
 
             group(styles = setOf(ContentStyle.TabbedContent), sourceSets = mainSourcesetData + extensions.sourceSets) {
                 +contentForComments(documentables)
-                val csWithConstructor = cs.filterIsInstance<WithConstructors>()
+                val csWithConstructor = classlikes.filterIsInstance<WithConstructors>()
                 if (csWithConstructor.isNotEmpty()) {
                     val constructorsToDocumented = csWithConstructor.flatMap { it.constructors }
                     multiBlock(
@@ -394,7 +361,7 @@ open class DefaultPageCreator(
                         }
                     }
                 }
-                val csEnum = cs.filterIsInstance<DEnum>()
+                val csEnum = classlikes.filterIsInstance<DEnum>()
                 if (csEnum.isNotEmpty()) {
                     multiBlock(
                         "Entries",
@@ -431,9 +398,6 @@ open class DefaultPageCreator(
                 )
             }
         }
-
-
-    protected open fun contentForClasslike(c: DClasslike) =  contentForClasslikesAndEntries(listOf(c))
 
     @Suppress("UNCHECKED_CAST")
     private inline fun <reified T : TagWrapper> GroupedTags.withTypeUnnamed(): SourceSetDependent<T> =
