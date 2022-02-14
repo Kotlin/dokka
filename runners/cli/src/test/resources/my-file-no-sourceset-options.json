@@ -1,0 +1,13 @@
+{
+  "outputDir": "build/docs",
+  "sourceSets": [
+    {
+      "moduleDisplayName": "Sample",
+      "sourceSetID": {
+        "scopeId": "sample",
+        "sourceSetName": "main"
+      },
+      "sourceRoots": ["sample"]
+    }
+  ]
+}
