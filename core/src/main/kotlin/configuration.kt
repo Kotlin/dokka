@@ -246,6 +246,8 @@ interface DokkaConfiguration : Serializable {
     interface ExternalDocumentationLink : Serializable {
         val url: URL
         val packageListUrl: URL
+
+        companion object
     }
 }
 
