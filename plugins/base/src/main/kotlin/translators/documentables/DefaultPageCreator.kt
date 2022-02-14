@@ -683,21 +683,7 @@ open class DefaultPageCreator(
                                         }
                                         after(extra = PropertyContainer.empty()) {
                                             contentForBrief(it)
-
-                                            val customTags = it.customTags
-                                            if (customTags.isNotEmpty()) {
-                                                it.sourceSets.forEach { sourceSet ->
-                                                    customTags.forEach { (tagName, sourceSetTag) ->
-                                                        sourceSetTag[sourceSet]?.let { tag ->
-                                                            customTagContentProviders.forEach { provider ->
-                                                                with(provider) {
-                                                                    contentForBrief(sourceSet, tag)
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
+                                            contentForCustomTagsBrief(it)
                                         }
                                     }
                                 }
@@ -708,6 +694,22 @@ open class DefaultPageCreator(
         }
     }
 
+    private fun DocumentableContentBuilder.contentForCustomTagsBrief(documentable: Documentable) {
+        val customTags = documentable.customTags
+        if (customTags.isEmpty()) return
+
+        documentable.sourceSets.forEach { sourceSet ->
+            customTags.forEach { (tagName, sourceSetTag) ->
+                sourceSetTag[sourceSet]?.let { tag ->
+                    customTagContentProviders.forEach { provider ->
+                        with(provider) {
+                            contentForBrief(sourceSet, tag)
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     protected open fun TagWrapper.toHeaderString() = this.javaClass.toGenericString().split('.').last()
 

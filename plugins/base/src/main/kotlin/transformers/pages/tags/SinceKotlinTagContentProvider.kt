@@ -8,7 +8,7 @@ import org.jetbrains.dokka.pages.TextStyle
 
 object SinceKotlinTagContentProvider : CustomTagContentProvider {
 
-    private val TAG_NAME = "Since Kotlin"
+    private const val TAG_NAME = "Since Kotlin"
 
     override fun DocumentableContentBuilder.contentForDescription(
         sourceSet: DokkaConfiguration.DokkaSourceSet,
