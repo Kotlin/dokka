@@ -88,6 +88,8 @@ class GlobalArguments(args: Array<String>) : DokkaConfiguration {
         description = "Suppress members inherited from other classes"
     ).default(DokkaDefaults.suppressInheritedMembers)
 
+    override val finalizeCoroutines: Boolean = true
+
     val globalPackageOptions by parser.option(
         ArgType.String,
         description = "List of package source sets in format \"prefix,-deprecated,-privateApi,+warnUndocumented,+suppress;...\" "

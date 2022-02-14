@@ -21,7 +21,7 @@ abstract class GfmRenderingOnlyTestBase : RenderingOnlyTestBase<String>() {
         DokkaBase().externalLocationProviderFactory to ::DefaultExternalLocationProviderFactory,
         GfmPlugin().gfmPreprocessors to { RootCreator },
 
-        testConfiguration = DokkaConfigurationImpl(moduleName = "root")
+        testConfiguration = DokkaConfigurationImpl(moduleName = "root", finalizeCoroutines = false)
     )
 
     override val renderedContent: String by lazy {
