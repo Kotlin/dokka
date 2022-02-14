@@ -349,7 +349,7 @@ open class DefaultPageCreator(
                     platforms.forEach { platform ->
                         customTags.forEach { (tagName, sourceSetTag) ->
                             sourceSetTag[platform]?.let { tag ->
-                                customTagContentProviders.forEach { provider ->
+                                customTagContentProviders.filter { it.isApplicable(tag) }.forEach { provider ->
                                     with(provider) {
                                         contentForDescription(platform, tag)
                                     }
@@ -701,7 +701,7 @@ open class DefaultPageCreator(
         documentable.sourceSets.forEach { sourceSet ->
             customTags.forEach { (tagName, sourceSetTag) ->
                 sourceSetTag[sourceSet]?.let { tag ->
-                    customTagContentProviders.forEach { provider ->
+                    customTagContentProviders.filter { it.isApplicable(tag) }.forEach { provider ->
                         with(provider) {
                             contentForBrief(sourceSet, tag)
                         }

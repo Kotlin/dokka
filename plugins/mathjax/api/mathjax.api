@@ -8,6 +8,7 @@ public final class org/jetbrains/dokka/mathjax/MathjaxTagContentProvider : org/j
 	public static final field INSTANCE Lorg/jetbrains/dokka/mathjax/MathjaxTagContentProvider;
 	public fun contentForBrief (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Lorg/jetbrains/dokka/model/doc/CustomTagWrapper;)V
 	public fun contentForDescription (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Lorg/jetbrains/dokka/model/doc/CustomTagWrapper;)V
+	public fun isApplicable (Lorg/jetbrains/dokka/model/doc/CustomTagWrapper;)Z
 }
 
 public final class org/jetbrains/dokka/mathjax/MathjaxTransformer : org/jetbrains/dokka/transformers/pages/PageTransformer {

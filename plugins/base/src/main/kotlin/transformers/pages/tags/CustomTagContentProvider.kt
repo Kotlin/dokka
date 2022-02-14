@@ -3,6 +3,7 @@ package org.jetbrains.dokka.base.transformers.pages.tags
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder.DocumentableContentBuilder
 import org.jetbrains.dokka.model.doc.CustomTagWrapper
+import org.jetbrains.dokka.model.doc.DocTag
 
 /**
  * Provides an ability to render custom doc tags
@@ -19,6 +20,13 @@ import org.jetbrains.dokka.model.doc.CustomTagWrapper
  * will be displayed on the pages.
  */
 interface CustomTagContentProvider {
+
+    /**
+     * Whether this content provider supports given [CustomTagWrapper].
+     *
+     * Tags can be filtered out either by name or by nested [DocTag] type
+     */
+    fun isApplicable(customTag: CustomTagWrapper): Boolean
 
     /**
      * Full blown content description, most likely to be on a separate page

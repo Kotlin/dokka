@@ -42,12 +42,13 @@ object MathjaxTransformer : PageTransformer {
 }
 
 object MathjaxTagContentProvider : CustomTagContentProvider {
+
+    override fun isApplicable(customTag: CustomTagWrapper) = customTag.name == ANNOTATION
+
     override fun DocumentableContentBuilder.contentForDescription(
         sourceSet: DokkaConfiguration.DokkaSourceSet,
         customTag: CustomTagWrapper
     ) {
-        if (customTag.name == ANNOTATION) {
-            comment(customTag.root, sourceSets = setOf(sourceSet))
-        }
+        comment(customTag.root, sourceSets = setOf(sourceSet))
     }
 }

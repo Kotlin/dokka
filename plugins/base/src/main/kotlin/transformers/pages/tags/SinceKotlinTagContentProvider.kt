@@ -8,31 +8,25 @@ import org.jetbrains.dokka.pages.TextStyle
 
 object SinceKotlinTagContentProvider : CustomTagContentProvider {
 
-    private const val TAG_NAME = "Since Kotlin"
+    private const val SINCE_KOTLIN_TAG_NAME = "Since Kotlin"
+
+    override fun isApplicable(customTag: CustomTagWrapper) = customTag.name == SINCE_KOTLIN_TAG_NAME
 
     override fun DocumentableContentBuilder.contentForDescription(
         sourceSet: DokkaConfiguration.DokkaSourceSet,
         customTag: CustomTagWrapper
     ) {
-        sinceKotlinBlock(sourceSet, customTag)
+        group(sourceSets = setOf(sourceSet), kind = ContentKind.Comment, styles = setOf(TextStyle.Block)) {
+            header(4, customTag.name)
+            comment(customTag.root)
+        }
     }
 
     override fun DocumentableContentBuilder.contentForBrief(
         sourceSet: DokkaConfiguration.DokkaSourceSet,
         customTag: CustomTagWrapper
     ) {
-        sinceKotlinBlock(sourceSet, customTag)
-    }
-
-    private fun DocumentableContentBuilder.sinceKotlinBlock(
-        sourceSet: DokkaConfiguration.DokkaSourceSet,
-        customTag: CustomTagWrapper
-    ) {
-        if (customTag.name == TAG_NAME) {
-            group(sourceSets = setOf(sourceSet), kind = ContentKind.Comment, styles = setOf(TextStyle.Block)) {
-                header(4, customTag.name)
-                comment(customTag.root)
-            }
-        }
+        text(customTag.name + " ", styles = setOf(TextStyle.Bold))
+        comment(customTag.root)
     }
 }
