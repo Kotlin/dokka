@@ -288,7 +288,7 @@ private fun parseSourceSet(moduleName: String, args: Array<String>): DokkaConfig
         override val jdkVersion = jdkVersion
         override val sourceLinks = sourceLinks.toMutableSet()
         override val analysisPlatform = analysisPlatform
-        override val perPackageOptions = parsePerPackageOptions(perPackageOptions)
+        override val perPackageOptions = parsePerPackageOptions(perPackageOptions).toMutableList()
         override val externalDocumentationLinks = parseLinks(externalDocumentationLinks).toMutableSet()
         override val languageVersion = languageVersion
         override val apiVersion = apiVersion

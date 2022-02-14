@@ -27,4 +27,17 @@ class CliIntegrationTest {
 
     }
 
+    @Test
+    fun `should not fail when no sourceset options are specified`() {
+        val jsonPath = Paths.get(javaClass.getResource("/my-file-no-sourceset-options.json")?.toURI() ?: throw IllegalStateException("No JSON found!")).toFile().toString()
+        val globalArguments = GlobalArguments(arrayOf(jsonPath))
+
+        val configuration = initializeConfiguration(globalArguments)
+
+        configuration.sourceSets.forEach {
+            assertTrue(it.perPackageOptions.isEmpty())
+            assertTrue(it.sourceLinks.isEmpty())
+            assertTrue(it.externalDocumentationLinks.size == 2) // there are default values, java and kotlin stdlibs
+        }
+    }
 }
