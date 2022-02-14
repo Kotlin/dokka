@@ -607,13 +607,21 @@ private class DokkaDescriptorVisitor(
 
         val name = run {
             val rawName = propertyDescriptor.name.asString()
-            // https://kotlinlang.org/docs/java-interop.html#getters-and-setters
+            /*
+             * Kotlin has special rules for conversion around properties that
+             * start with "is" For more info see:
+             * https://kotlinlang.org/docs/java-interop.html#getters-and-setters
+             * https://kotlinlang.org/docs/java-to-kotlin-interop.html#properties
+             *
+             * Based on our testing, this rule only applies when the letter after
+             * the "is" is *not* lowercase. This means that words like "issue" won't
+             * have the rule applied but "is_foobar" and "is1of" will have the rule applied.
+             */
             val specialCaseIs = rawName.startsWith("is")
-                    && rawName.length >= 3
-                    && !rawName[2].isLowerCase()
+                    && rawName.getOrNull(2)?.isLowerCase() == false
 
             if (specialCaseIs) {
-                if (isGetter) rawName else "set${rawName.drop(2)}"
+                if (isGetter) rawName else rawName.replaceFirst("is", "set")
             } else {
                 if (isGetter) "get${rawName.capitalize()}" else "set${rawName.capitalize()}"
             }
