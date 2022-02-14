@@ -36,7 +36,7 @@ open class DefaultPageCreator(
     protected open val contentBuilder = PageContentBuilder(commentsToContentConverter, signatureProvider, logger)
 
     protected val mergeNoExpectActualDeclarations =
-        configuration?.mergeNoExpectActualDeclarations ?: DokkaBaseConfiguration.mergeNoExpectActualDeclarationsDefault
+        configuration?.mergeImplicitExpectActualDeclarations ?: DokkaBaseConfiguration.mergeImplicitExpectActualDeclarationsDefault
 
     protected val separateInheritedMembers =
         configuration?.separateInheritedMembers ?: DokkaBaseConfiguration.separateInheritedMembersDefault
