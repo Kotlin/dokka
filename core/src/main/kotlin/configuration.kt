@@ -61,7 +61,7 @@ enum class Platform(val key: String) {
     }
 }
 
-interface DokkaConfigurationBuilder<T : Any> {
+fun interface DokkaConfigurationBuilder<T : Any> {
     fun build(): T
 }
 
@@ -246,8 +246,6 @@ interface DokkaConfiguration : Serializable {
     interface ExternalDocumentationLink : Serializable {
         val url: URL
         val packageListUrl: URL
-
-        companion object
     }
 }
 
