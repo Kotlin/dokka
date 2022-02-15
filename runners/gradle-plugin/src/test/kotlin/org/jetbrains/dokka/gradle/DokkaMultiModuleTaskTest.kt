@@ -201,10 +201,8 @@ class DokkaMultiModuleTaskTest {
         val childTask = child.tasks.create<DokkaTask>("child")
 
         parentTask.addChildTask(childTask)
-        parentTask.fileLayout by object : DokkaMultiModuleFileLayout {
-            override fun targetChildOutputDirectory(parent: DokkaMultiModuleTask, child: AbstractDokkaTask): File {
-                return parent.project.buildDir.resolve(child.name)
-            }
+        parentTask.fileLayout by DokkaMultiModuleFileLayout { parent, child ->
+            parent.project.buildDir.resolve(child.name)
         }
 
         assertEquals(

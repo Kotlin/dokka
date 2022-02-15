@@ -7,6 +7,6 @@ import org.jetbrains.kotlin.descriptors.ClassDescriptor
 /**
  * Service translating [ClassDescriptor]s of symbols defined outside of documented project to [DClasslike]s.
  */
-interface ExternalClasslikesTranslator {
+fun interface ExternalClasslikesTranslator {
     fun translateClassDescriptor(descriptor: ClassDescriptor, sourceSet: DokkaSourceSet): DClasslike
 }

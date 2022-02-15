@@ -8,7 +8,7 @@ import java.io.File
  * @see NoCopy
  * @see CompactInParent
  */
-interface DokkaMultiModuleFileLayout {
+fun interface DokkaMultiModuleFileLayout {
 
     /**
      * @param parent: The [DokkaMultiModuleTask] that is initiating a composite documentation run
@@ -24,7 +24,6 @@ interface DokkaMultiModuleFileLayout {
     object NoCopy : DokkaMultiModuleFileLayout {
         override fun targetChildOutputDirectory(parent: DokkaMultiModuleTask, child: AbstractDokkaTask): File =
             child.outputDirectory.getSafe()
-
     }
 
     /**

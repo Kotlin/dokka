@@ -22,7 +22,7 @@ interface WithJavadocExtra<T : Documentable> : WithExtraProperties<T> {
         throw IllegalStateException("Merging extras is not applicable for javadoc")
 }
 
-interface WithNavigable {
+fun interface WithNavigable {
     fun getAllNavigables(): List<NavigableJavadocNode>
 }
 
