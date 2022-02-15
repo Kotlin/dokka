@@ -16,6 +16,7 @@ import kotlin.test.assertNotNull
 
 class MergeImplicitExpectActualDeclarationsTest : BaseAbstractTest() {
 
+    @Suppress("UNUSED_VARIABLE")
     private fun configuration(switchOn: Boolean) = dokkaConfiguration {
         sourceSets {
             val common = sourceSet {
@@ -28,6 +29,7 @@ class MergeImplicitExpectActualDeclarationsTest : BaseAbstractTest() {
                 name = "js"
                 displayName = "js"
                 analysisPlatform = "js"
+                dependentSourceSets = setOf(common.value.sourceSetID)
                 sourceRoots = listOf("src/jsMain/kotlin/pageMerger/Test.kt")
             }
             val jvm = sourceSet {
@@ -303,6 +305,46 @@ class MergeImplicitExpectActualDeclarationsTest : BaseAbstractTest() {
                     1,
                     allChildren.filter { it.name == "merged" }.size,
                     "Incorrect number of fun pages"
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `should always merge constructor`() {
+        testInline(
+            """
+                |/src/commonMain/kotlin/pageMerger/Test.kt
+                |package pageMerger
+                |
+                |expect class classA(a: Int)
+                |
+                |/src/jsMain/kotlin/pageMerger/Test.kt
+                |package pageMerger
+                |
+                |actual class classA(a: Int)
+        """.trimMargin(),
+            configuration(false),
+            cleanupOutput = true
+        ) {
+            pagesTransformationStage = { root ->
+                val classPage = root.dfs { it.name == "classA" } as? ClasslikePageNode
+                assertNotNull(classPage, "Tested class not found!")
+
+                val constructors = classPage.findSectionWithName("Constructors").assertNotNull("Constructors")
+
+                assertEquals(
+                    1,
+                    constructors.children.size,
+                    "Incorrect number of constructors"
+                )
+
+                val platformHinted = constructors.dfs { it is PlatformHintedContent } as? PlatformHintedContent
+
+                assertEquals(
+                    2,
+                    platformHinted?.sourceSets?.size,
+                    "Incorrect number of source sets"
                 )
             }
         }
