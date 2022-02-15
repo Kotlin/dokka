@@ -66,6 +66,7 @@ public final class renderers/RawTestPage : org/jetbrains/dokka/pages/RootPageNod
 	public synthetic fun <init> (Lorg/jetbrains/dokka/pages/ContentNode;Ljava/lang/String;Ljava/util/Set;Ljava/util/List;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun getChildren ()Ljava/util/List;
 	public fun getContent ()Lorg/jetbrains/dokka/pages/ContentNode;
+	public fun getDocumentable ()Lorg/jetbrains/dokka/model/Documentable;
 	public fun getDri ()Ljava/util/Set;
 	public fun getEmbeddedResources ()Ljava/util/List;
 	public fun getName ()Ljava/lang/String;

@@ -68,7 +68,7 @@ public final class org/jetbrains/dokka/base/DokkaBase : org/jetbrains/dokka/plug
 
 public final class org/jetbrains/dokka/base/DokkaBaseConfiguration : org/jetbrains/dokka/plugability/ConfigurableBlock {
 	public static final field Companion Lorg/jetbrains/dokka/base/DokkaBaseConfiguration$Companion;
-	public static final field mergeNoExpectActualDeclarationsDefault Z
+	public static final field mergeImplicitExpectActualDeclarationsDefault Z
 	public static final field separateInheritedMembersDefault Z
 	public fun <init> ()V
 	public fun <init> (Ljava/util/List;Ljava/util/List;ZLjava/lang/String;Z)V
@@ -84,13 +84,13 @@ public final class org/jetbrains/dokka/base/DokkaBaseConfiguration : org/jetbrai
 	public final fun getCustomAssets ()Ljava/util/List;
 	public final fun getCustomStyleSheets ()Ljava/util/List;
 	public final fun getFooterMessage ()Ljava/lang/String;
-	public final fun getMergeNoExpectActualDeclarations ()Z
+	public final fun getMergeImplicitExpectActualDeclarations ()Z
 	public final fun getSeparateInheritedMembers ()Z
 	public fun hashCode ()I
 	public final fun setCustomAssets (Ljava/util/List;)V
 	public final fun setCustomStyleSheets (Ljava/util/List;)V
 	public final fun setFooterMessage (Ljava/lang/String;)V
-	public final fun setMergeNoExpectActualDeclarations (Z)V
+	public final fun setMergeImplicitExpectActualDeclarations (Z)V
 	public final fun setSeparateInheritedMembers (Z)V
 	public fun toString ()Ljava/lang/String;
 }
@@ -1371,7 +1371,8 @@ public class org/jetbrains/dokka/base/translators/documentables/DefaultPageCreat
 	protected final fun getMergeNoExpectActualDeclarations ()Z
 	protected final fun getSeparateInheritedMembers ()Z
 	public fun pageForClasslike (Lorg/jetbrains/dokka/model/DClasslike;)Lorg/jetbrains/dokka/pages/ClasslikePageNode;
-	public fun pageForClasslikesAndEntries (Ljava/util/List;)Lorg/jetbrains/dokka/pages/ClasslikePageNode;
+	public fun pageForClasslikes (Ljava/util/List;)Lorg/jetbrains/dokka/pages/ClasslikePageNode;
+	public fun pageForEnumEntries (Ljava/util/List;)Lorg/jetbrains/dokka/pages/ClasslikePageNode;
 	public fun pageForEnumEntry (Lorg/jetbrains/dokka/model/DEnumEntry;)Lorg/jetbrains/dokka/pages/ClasslikePageNode;
 	public fun pageForFunction (Lorg/jetbrains/dokka/model/DFunction;)Lorg/jetbrains/dokka/pages/MemberPageNode;
 	public fun pageForFunctions (Ljava/util/List;)Lorg/jetbrains/dokka/pages/MemberPageNode;
