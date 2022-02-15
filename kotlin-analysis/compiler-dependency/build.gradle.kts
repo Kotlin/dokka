@@ -4,7 +4,6 @@ import org.jetbrains.registerDokkaArtifactPublication
 plugins {
     id("com.github.johnrengelman.shadow")
     `maven-publish`
-    id("com.jfrog.bintray")
 }
 
 dependencies {

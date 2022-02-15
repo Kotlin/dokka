@@ -4,7 +4,6 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 subprojects {
     apply {
         plugin("maven-publish")
-        plugin("com.jfrog.bintray")
     }
 
     dependencies {
