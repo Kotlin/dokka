@@ -11,7 +11,7 @@ import org.jetbrains.dokka.model.DClasslike
  * in the project itself but are somehow related to the symbols defined in the documented project (e.g. are supertypes
  * of classes defined in project).
  */
-interface ExternalDocumentablesProvider {
+fun interface ExternalDocumentablesProvider {
 
     /**
      * Returns [DClasslike] matching provided [DRI] in specified source set.
