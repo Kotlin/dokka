@@ -47,19 +47,45 @@ open class DefaultPageCreator(
     open fun pageForPackage(p: DPackage): PackagePageNode = PackagePageNode(
         p.name, contentForPackage(p), setOf(p.dri), listOf(p),
         if (mergeNoExpectActualDeclarations)
-            p.classlikes.mergeClashingDocumentable().map(::pageForClasslikesAndEntries) +
+            p.classlikes.mergeClashingDocumentable().map(::pageForClasslikes) +
                     p.functions.mergeClashingDocumentable().map(::pageForFunctions) +
                     p.properties.mergeClashingDocumentable().map(::pageForProperties)
-        else p.classlikes.renameClashingDocumentable().map(::pageForClasslike) +
-                p.functions.renameClashingDocumentable().map(::pageForFunction) +
-                p.properties.mapNotNull(::pageForProperty)
+        else
+            p.classlikes.renameClashingDocumentable().map(::pageForClasslike) +
+                    p.functions.renameClashingDocumentable().map(::pageForFunction) +
+                    p.properties.mapNotNull(::pageForProperty)
     )
 
-    open fun pageForEnumEntry(e: DEnumEntry): ClasslikePageNode = pageForClasslikesAndEntries(listOf(e))
+    open fun pageForEnumEntry(e: DEnumEntry): ClasslikePageNode = pageForEnumEntries(listOf(e))
 
-    open fun pageForClasslike(c: DClasslike): ClasslikePageNode = pageForClasslikesAndEntries(listOf(c))
+    open fun pageForClasslike(c: DClasslike): ClasslikePageNode = pageForClasslikes(listOf(c))
 
-    open fun pageForClasslikesAndEntries(documentables: List<Documentable>): ClasslikePageNode {
+    open fun pageForEnumEntries(documentables: List<DEnumEntry>): ClasslikePageNode {
+        val dri = documentables.dri.also {
+            if (it.size != 1) {
+                logger.error("Documentable dri should have the same one ${it.first()} inside the one page!")
+            }
+        }
+
+        val classlikes = documentables.flatMap { it.classlikes }
+        val functions = documentables.flatMap { it.filteredFunctions }
+        val props = documentables.flatMap { it.filteredProperties }
+
+        val childrenPages =  if (mergeNoExpectActualDeclarations)
+                            functions.mergeClashingDocumentable().map(::pageForFunctions) +
+                            props.mergeClashingDocumentable().map(::pageForProperties)
+                else
+                    classlikes.renameClashingDocumentable().map(::pageForClasslike) +
+                            functions.renameClashingDocumentable().map(::pageForFunction) +
+                            props.renameClashingDocumentable().mapNotNull(::pageForProperty)
+
+        return ClasslikePageNode(
+            documentables.first().nameAfterClash(), contentForClasslikesAndEntries(documentables), dri, documentables,
+            childrenPages
+        )
+    }
+
+    open fun pageForClasslikes(documentables: List<DClasslike>): ClasslikePageNode {
         val dri = documentables.dri.also {
             if (it.size != 1) {
                 logger.error("Documentable dri should have the same one ${it.first()} inside the one page!")
@@ -67,19 +93,18 @@ open class DefaultPageCreator(
         }
 
         val constructors = documentables.flatMap { if (it is WithConstructors) it.constructors else emptyList() }
-        @Suppress("UNCHECKED_CAST")
-        val scopes = documentables as List<WithScope>
 
-        val classlikes = scopes.flatMap { it.classlikes }
-        val functions = scopes.flatMap { it.filteredFunctions }
-        val props = scopes.flatMap { it.filteredProperties }
-        val entries = scopes.flatMap { if (it is DEnum) it.entries else emptyList() }
+        val classlikes = documentables.flatMap { it.classlikes }
+        val functions = documentables.flatMap { it.filteredFunctions }
+        val props = documentables.flatMap { it.filteredProperties }
+        val entries = documentables.flatMap { if (it is DEnum) it.entries else emptyList() }
 
         val childrenPages = constructors.map(::pageForFunction) +
                 if (mergeNoExpectActualDeclarations)
-                    (classlikes + entries).mergeClashingDocumentable().map(::pageForClasslikesAndEntries) +
+                    classlikes.mergeClashingDocumentable().map(::pageForClasslikes) +
                             functions.mergeClashingDocumentable().map(::pageForFunctions) +
-                            props.mergeClashingDocumentable().map(::pageForProperties)
+                            props.mergeClashingDocumentable().map(::pageForProperties) +
+                            entries.mergeClashingDocumentable().map(::pageForEnumEntries)
                 else
                     classlikes.renameClashingDocumentable().map(::pageForClasslike) +
                             functions.renameClashingDocumentable().map(::pageForFunction) +
@@ -117,8 +142,7 @@ open class DefaultPageCreator(
     } as? T?
 
     private fun <T : Documentable> List<T>.mergeClashingDocumentable(): List<List<T>> =
-        // (unusual case) to merge classlike and enum entry ignore DRI extra because of enum entries have [org.jetbrains.dokka.links.EnumEntryDRIExtra]
-        groupBy { it.dri.copy(extra = null) }.values.toList()
+        groupBy { it.dri }.values.toList()
 
     open fun pageForFunction(f: DFunction) = MemberPageNode(f.nameAfterClash(), contentForFunction(f), setOf(f.dri), listOf(f))
 
@@ -215,16 +239,13 @@ open class DefaultPageCreator(
         scopes: List<WithScope>,
         sourceSets: Set<DokkaSourceSet>
     ): ContentGroup {
-        val types = listOf(
-            scopes.flatMap { it.classlikes },
-            scopes.filterIsInstance<DPackage>().flatMap { it.typealiases }
-        ).flatten()
-        val inheritors = scopes.fold(HashMap<DokkaSourceSet, List<DRI>>()) { acc, scope ->
+        val types = scopes.flatMap { it.classlikes } + scopes.filterIsInstance<DPackage>().flatMap { it.typealiases }
+        val inheritors = scopes.fold(mutableMapOf<DokkaSourceSet, List<DRI>>()) { acc, scope ->
             val inheritorsForScope = scope.safeAs<WithExtraProperties<Documentable>>()?.let { it.extra[InheritorsInfo] }?.let { inheritors ->
                 inheritors.value.filter { it.value.isNotEmpty() }
             }.orEmpty()
             inheritorsForScope.forEach { (k,v) ->
-                acc[k]?.plus(v) ?: acc.put(k,v)
+                acc.compute(k) { _, value -> value?.plus(v) ?: v }
             }
             acc
         }

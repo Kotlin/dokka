@@ -227,11 +227,11 @@ open class PageContentBuilder(
             }
         }
 
-        fun multiBlock(
+        fun <T : Pair<String, List<Documentable>>> multiBlock(
             name: String,
             level: Int,
             kind: Kind = ContentKind.Main,
-            groupedElements: Iterable<Pair<String, List<Documentable>>>,
+            groupedElements: Iterable<T>,
             sourceSets: Set<DokkaSourceSet> = mainSourcesetData,
             styles: Set<Style> = mainStyles,
             extra: PropertyContainer<ContentNode> = mainExtra,

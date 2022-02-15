@@ -231,16 +231,15 @@ class MergeImplicitExpectActualDeclarationsTest : BaseAbstractTest() {
     fun PageNode.childrenRec(): List<PageNode> = listOf(this) + children.flatMap { it.childrenRec() }
 
     @Test
-    fun `should merge nested class and enum entry (synthetic case)`() {
+    fun `should merge enum entries`() {
         testInline(
             """
                 |/src/jvmMain/kotlin/pageMerger/Test.kt
                 |package pageMerger
                 |
-                |class classA {
-                |   class SMTH {
-                |       fun method1(): String
-                |   }
+                |enum class classA {
+                |   SMTH;
+                |   fun method1(): Int
                 |}
                 |
                 |/src/jsMain/kotlin/pageMerger/Test.kt
