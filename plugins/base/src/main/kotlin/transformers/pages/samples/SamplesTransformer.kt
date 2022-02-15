@@ -41,9 +41,9 @@ abstract class SamplesTransformer(val context: DokkaContext) : PageTransformer {
                 }
             }
 
-            samples?.fold(page as ContentPage) { acc, sample ->
+            samples?.fold(page as ContentPage) { acc, (sampleSourceSet, sample) ->
                     acc.modified(
-                        content = acc.content.addSample(page, sample.first, sample.second.name, analysis),
+                        content = acc.content.addSample(page, sampleSourceSet, sample.name, analysis),
                         embeddedResources = acc.embeddedResources + kotlinPlaygroundScript
                     )
                 } ?: page

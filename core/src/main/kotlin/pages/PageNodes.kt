@@ -20,6 +20,12 @@ interface ContentPage : PageNode {
     val dri: Set<DRI>
     val embeddedResources: List<String>
 
+    @Deprecated("Deprecated. Remove its usages from your code.",
+        ReplaceWith("documentables.firstOrNull()")
+    )
+    val documentable: Documentable?
+        get() = if (this is WithDocumentables) this.documentables.firstOrNull() else null
+
     fun modified(
         name: String = this.name,
         content: ContentNode = this.content,
@@ -31,12 +37,6 @@ interface ContentPage : PageNode {
 
 interface WithDocumentables {
     val documentables: List<Documentable>
-
-    @Deprecated("Deprecated. Remove its usages from your code.",
-        ReplaceWith("documentables.firstOrNull()")
-    )
-    val documentable: Documentable?
-        get() = documentables.firstOrNull()
 }
 
 abstract class RootPageNode(val forceTopLevelName: Boolean = false) : PageNode {

@@ -36,7 +36,7 @@ class SourceLinksTransformer(val context: DokkaContext) : PageTransformer {
                 is WithDocumentables ->
                     node.documentables.filterIsInstance<WithSources>().flatMap { resolveSources(it) }
                     .takeIf { it.isNotEmpty() }
-                    ?.let { (node as ContentPage).addSourcesContent(it) }
+                    ?.let { node.addSourcesContent(it) }
                     ?: node
                 else -> node
             }
