@@ -42,7 +42,7 @@ fun Project.registerDokkaArtifactPublication(publicationName: String, configure:
     configureSpacePublicationIfNecessary(publicationName)
     configureSonatypePublicationIfNecessary(publicationName)
     createDokkaPublishTaskIfNecessary()
-    registerBinaryCompatibilityCheck(publicationName)
+    registerApiValidation(publicationName)
 }
 
 fun Project.configureSpacePublicationIfNecessary(vararg publications: String) {

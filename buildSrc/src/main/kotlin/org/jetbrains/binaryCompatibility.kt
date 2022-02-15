@@ -15,7 +15,7 @@ internal object BinaryCompatibilityConfig {
     )
 }
 
-internal fun Project.registerBinaryCompatibilityCheck(publicationName: String) {
+internal fun Project.registerApiValidation(publicationName: String) {
     publicationName.takeIf {
         it !in BinaryCompatibilityConfig.ignoredPublications
     }?.let {
