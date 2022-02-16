@@ -23,6 +23,8 @@ import org.jetbrains.dokka.utilities.htmlEscape
 import org.jetbrains.kotlin.utils.addIfNotNull
 import java.net.URI
 
+internal const val TEMPLATE_REPLACEMENT: String = "###"
+
 open class HtmlRenderer(
     context: DokkaContext
 ) : DefaultRenderer<FlowContent>(context) {
@@ -779,11 +781,11 @@ open class HtmlRenderer(
             head {
                 meta(name = "viewport", content = "width=device-width, initial-scale=1", charset = "UTF-8")
                 title(page.name)
-                templateCommand(PathToRootSubstitutionCommand("###", default = pathToRoot)) {
-                    link(href = "###images/logo-icon.svg", rel = "icon", type = "image/svg")
+                templateCommandAsHtmlComment(PathToRootSubstitutionCommand(TEMPLATE_REPLACEMENT, default = pathToRoot)) {
+                    link(href = "${TEMPLATE_REPLACEMENT}images/logo-icon.svg", rel = "icon", type = "image/svg")
                 }
-                templateCommand(PathToRootSubstitutionCommand("###", default = pathToRoot)) {
-                    script { unsafe { +"""var pathToRoot = "###";""" } }
+                templateCommandAsHtmlComment(PathToRootSubstitutionCommand(TEMPLATE_REPLACEMENT, default = pathToRoot)) {
+                    script { unsafe { +"""var pathToRoot = "$TEMPLATE_REPLACEMENT";""" } }
                 }
                 // This script doesn't need to be there but it is nice to have since app in dark mode doesn't 'blink' (class is added before it is rendered)
                 script {
@@ -804,10 +806,10 @@ open class HtmlRenderer(
                                 rel = LinkRel.stylesheet,
                                 href = it
                             )
-                            else templateCommand(PathToRootSubstitutionCommand("###", default = pathToRoot)) {
+                            else templateCommandAsHtmlComment(PathToRootSubstitutionCommand(TEMPLATE_REPLACEMENT, default = pathToRoot)) {
                                 link(
                                     rel = LinkRel.stylesheet,
-                                    href = "###$it"
+                                    href = TEMPLATE_REPLACEMENT + it
                                 )
                             }
                         it.substringBefore('?').substringAfterLast('.') == "js" ->
@@ -816,10 +818,10 @@ open class HtmlRenderer(
                                 src = it
                             ) {
                                 async = true
-                            } else templateCommand(PathToRootSubstitutionCommand("###", default = pathToRoot)) {
+                            } else templateCommandAsHtmlComment(PathToRootSubstitutionCommand(TEMPLATE_REPLACEMENT, default = pathToRoot)) {
                                 script(
                                     type = ScriptType.textJavaScript,
-                                    src = "###$it"
+                                    src = TEMPLATE_REPLACEMENT + it
                                 ) {
                                     if (it == "scripts/main.js")
                                         defer = true
@@ -828,8 +830,8 @@ open class HtmlRenderer(
                                 }
                             }
                         it.isImage() -> if (it.isAbsolute) link(href = it)
-                        else templateCommand(PathToRootSubstitutionCommand("###", default = pathToRoot)) {
-                            link(href = "###$it")
+                        else templateCommandAsHtmlComment(PathToRootSubstitutionCommand(TEMPLATE_REPLACEMENT, default = pathToRoot)) {
+                            link(href = TEMPLATE_REPLACEMENT + it)
                         }
                         else -> unsafe { +it }
                     }

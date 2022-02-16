@@ -11,30 +11,37 @@ import org.jsoup.nodes.Node
 import org.jsoup.nodes.TextNode
 import java.io.File
 
-class SubstitutionCommandHandler(context: DokkaContext) : CommandHandler {
+class SubstitutionCommandHandler(context: DokkaContext) : CommandHandler, CommentCommandHandler {
 
     override fun handleCommand(element: Element, command: Command, input: File, output: File) {
         command as SubstitutionCommand
-        substitute(element, TemplatingContext(input, output, element, command))
+        val childrenCopy = element.children().toList()
+        substitute(childrenCopy, TemplatingContext(input, output, childrenCopy, command))
+
+        val position = element.elementSiblingIndex()
+        val parent = element.parent()
+        element.remove()
+
+        parent?.insertChildren(position, childrenCopy)
+    }
+
+    override fun handleCommand(nodes: List<Node>, command: Command, input: File, output: File) {
+        command as SubstitutionCommand
+        substitute(nodes, TemplatingContext(input, output, nodes, command))
     }
 
     override fun canHandle(command: Command): Boolean = command is SubstitutionCommand
+
+    override fun finish(output: File) { }
 
     private val substitutors = context.plugin<TemplatingPlugin>().query { substitutor }
 
     private fun findSubstitution(commandContext: TemplatingContext<SubstitutionCommand>, match: MatchResult): String =
         substitutors.asSequence().mapNotNull { it.trySubstitute(commandContext, match) }.firstOrNull() ?: match.value
 
-    private fun substitute(element: Element, commandContext: TemplatingContext<SubstitutionCommand>) {
+    private fun substitute(elements: List<Node>, commandContext: TemplatingContext<SubstitutionCommand>) {
         val regex = commandContext.command.pattern.toRegex()
-        element.children().forEach { it.traverseToSubstitute(regex, commandContext) }
-
-        val childrenCopy = element.children().toList()
-        val position = element.elementSiblingIndex()
-        val parent = element.parent()
-        element.remove()
-
-        parent.insertChildren(position, childrenCopy)
+        elements.forEach { it.traverseToSubstitute(regex, commandContext) }
     }
 
     private fun Node.traverseToSubstitute(regex: Regex, commandContext: TemplatingContext<SubstitutionCommand>) {
