@@ -20,8 +20,6 @@ import com.intellij.ide.highlighter.JavaClassFileType
 import com.intellij.ide.highlighter.JavaFileType
 import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.util.containers.IntArrayList
-import gnu.trove.THashMap
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName
 import java.util.*
@@ -36,37 +34,7 @@ class JvmDependenciesIndexImpl(_roots: List<JavaRoot>) : JvmDependenciesIndex {
     private val maxIndex: Int
         get() = roots.size
 
-    // each "Cache" object corresponds to a package
-    private class Cache {
-        private val innerPackageCaches = HashMap<String, Cache>()
-
-        operator fun get(name: String) = innerPackageCaches.getOrPut(name, ::Cache)
-
-        // indices of roots that are known to contain this package
-        // if this list contains [1, 3, 5] then roots with indices 1, 3 and 5 are known to contain this package, 2 and 4 are known not to (no information about roots 6 or higher)
-        // if this list contains maxIndex that means that all roots containing this package are known
-        val rootIndices = IntArrayList(2)
-    }
-
-    // root "Cache" object corresponds to DefaultPackage which exists in every root. Roots with non-default fqname are also listed here but
-    // they will be ignored on requests with invalid fqname prefix.
-    private val rootCache: Cache by lazy {
-        Cache().apply {
-            roots.indices.forEach(rootIndices::add)
-            rootIndices.add(maxIndex)
-            rootIndices.trimToSize()
-        }
-    }
-
-    // holds the request and the result last time we searched for class
-    // helps improve several scenarios, LazyJavaResolverContext.findClassInJava being the most important
-    private var lastClassSearch: Pair<FindClassRequest, SearchResult>? = null
-
     override val indexedRoots by lazy { roots.asSequence() }
-
-    private val packageCache: Array<out MutableMap<String, VirtualFile?>> by lazy {
-        Array(roots.size) { THashMap<String, VirtualFile?>() }
-    }
 
     override fun traverseDirectoriesInPackage(
         packageFqName: FqName,
@@ -84,94 +52,33 @@ class JvmDependenciesIndexImpl(_roots: List<JavaRoot>) : JvmDependenciesIndex {
         acceptedRootTypes: Set<JavaRoot.RootType>,
         findClassGivenDirectory: (VirtualFile, JavaRoot.RootType) -> T?
     ): T? {
-        // make a decision based on information saved from last class search
-        if (lastClassSearch?.first?.classId != classId) {
-            return search(FindClassRequest(classId, acceptedRootTypes), findClassGivenDirectory)
-        }
-
-        val (cachedRequest, cachedResult) = lastClassSearch!!
-        return when (cachedResult) {
-            is SearchResult.NotFound -> {
-                val limitedRootTypes = acceptedRootTypes - cachedRequest.acceptedRootTypes
-                if (limitedRootTypes.isEmpty()) {
-                    null
-                } else {
-                    search(FindClassRequest(classId, limitedRootTypes), findClassGivenDirectory)
-                }
-            }
-            is SearchResult.Found -> {
-                if (cachedRequest.acceptedRootTypes == acceptedRootTypes) {
-                    findClassGivenDirectory(cachedResult.packageDirectory, cachedResult.root.type)
-                } else {
-                    search(FindClassRequest(classId, acceptedRootTypes), findClassGivenDirectory)
-                }
-            }
-        }
+        return search(FindClassRequest(classId, acceptedRootTypes), findClassGivenDirectory)
     }
 
     private fun <T : Any> search(request: SearchRequest, handler: (VirtualFile, JavaRoot.RootType) -> T?): T? {
         // a list of package sub names, ["org", "jb", "kotlin"]
         val packagesPath = request.packageFqName.pathSegments().map { it.identifier }
-        // a list of caches corresponding to packages, [default, "org", "org.jb", "org.jb.kotlin"]
-        val caches = cachesPath(packagesPath)
 
-        var processedRootsUpTo = -1
-        // traverse caches starting from last, which contains most specific information
-
-        // NOTE: indices manipulation instead of using caches.reversed() is here for performance reasons
-        for (cacheIndex in caches.lastIndex downTo 0) {
-            val cacheRootIndices = caches[cacheIndex].rootIndices
-            for (i in 0..cacheRootIndices.size() - 1) {
-                val rootIndex = cacheRootIndices[i]
-                if (rootIndex <= processedRootsUpTo) continue // roots with those indices have been processed by now
-
-                val directoryInRoot = travelPath(rootIndex, request.packageFqName, packagesPath, cacheIndex, caches) ?: continue
-                val root = roots[rootIndex]
-                if (root.type in request.acceptedRootTypes) {
-                    val result = handler(directoryInRoot, root.type)
-                    if (result != null) {
-                        if (request is FindClassRequest) {
-                            lastClassSearch = Pair(request, SearchResult.Found(directoryInRoot, root))
-                        }
-                        return result
-                    }
+        for (rootIndex in roots.indices) {
+            val directoryInRoot = travelPath(rootIndex, packagesPath) ?: continue
+            val root = roots[rootIndex]
+            if (root.type in request.acceptedRootTypes) {
+                val result = handler(directoryInRoot, root.type)
+                if (result != null) {
+                    return result
                 }
             }
-            processedRootsUpTo = if (cacheRootIndices.isEmpty) processedRootsUpTo else cacheRootIndices.get(cacheRootIndices.size() - 1)
-        }
-
-        if (request is FindClassRequest) {
-            lastClassSearch = Pair(request, SearchResult.NotFound)
         }
         return null
     }
 
-    // try to find a target directory corresponding to package represented by packagesPath in a given root represented by index
-    // possibly filling "Cache" objects with new information
-    private fun travelPath(
-        rootIndex: Int,
-        packageFqName: FqName,
-        packagesPath: List<String>,
-        fillCachesAfter: Int,
-        cachesPath: List<Cache>
-    ): VirtualFile? {
+    // try to find a target directory corresponding to package
+    // represented by packagesPath in a given root represented by index
+    private fun travelPath(rootIndex: Int, packagesPath: List<String>): VirtualFile? {
         if (rootIndex >= maxIndex) {
-            for (i in (fillCachesAfter + 1)..(cachesPath.size - 1)) {
-                // we all know roots that contain this package by now
-                cachesPath[i].rootIndices.add(maxIndex)
-                cachesPath[i].rootIndices.trimToSize()
-            }
             return null
         }
 
-        return synchronized(packageCache) {
-            packageCache[rootIndex].getOrPut(packageFqName.asString()) {
-                doTravelPath(rootIndex, packagesPath, fillCachesAfter, cachesPath)
-            }
-        }
-    }
-
-    private fun doTravelPath(rootIndex: Int, packagesPath: List<String>, fillCachesAfter: Int, cachesPath: List<Cache>): VirtualFile? {
         val pathRoot = roots[rootIndex]
         val prefixPathSegments = pathRoot.prefixFqName?.pathSegments()
 
@@ -186,12 +93,6 @@ class JvmDependenciesIndexImpl(_roots: List<JavaRoot>) : JvmDependenciesIndex {
                 }
             } else {
                 currentFile = currentFile.findChildPackage(subPackageName, pathRoot.type) ?: return null
-            }
-
-            val correspondingCacheIndex = pathIndex + 1
-            if (correspondingCacheIndex > fillCachesAfter) {
-                // subPackageName exists in this root
-                cachesPath[correspondingCacheIndex].rootIndices.add(rootIndex)
             }
         }
 
@@ -215,17 +116,6 @@ class JvmDependenciesIndexImpl(_roots: List<JavaRoot>) : JvmDependenciesIndex {
         }
 
         return childDirectory
-    }
-
-    private fun cachesPath(path: List<String>): List<Cache> {
-        val caches = ArrayList<Cache>(path.size + 1)
-        caches.add(rootCache)
-        var currentCache = rootCache
-        for (subPackageName in path) {
-            currentCache = currentCache[subPackageName]
-            caches.add(currentCache)
-        }
-        return caches
     }
 
     private data class FindClassRequest(val classId: ClassId, override val acceptedRootTypes: Set<JavaRoot.RootType>) : SearchRequest {

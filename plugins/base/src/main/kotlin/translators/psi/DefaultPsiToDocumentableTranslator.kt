@@ -59,6 +59,7 @@ import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstance
 import org.jetbrains.kotlin.utils.addToStdlib.ifNotEmpty
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 import java.io.File
+import java.util.concurrent.ConcurrentHashMap
 
 class DefaultPsiToDocumentableTranslator(
     context: DokkaContext
@@ -116,7 +117,7 @@ class DefaultPsiToDocumentableTranslator(
 
         private val javadocParser: JavaDocumentationParser = JavadocParser(logger, facade)
 
-        private val cachedBounds = hashMapOf<String, Bound>()
+        private val cachedBounds = ConcurrentHashMap<String, Bound>()
 
         private fun PsiModifierListOwner.getVisibility() = modifierList?.let {
             val ml = it.children.toList()
@@ -483,7 +484,7 @@ class DefaultPsiToDocumentableTranslator(
             //We would like to cache most of the bounds since it is not common to annotate them,
             //but if this is the case, we treat them as 'one of'
             return if (annotationsFromType().isEmpty()) {
-                cachedBounds.getOrPut(type.canonicalText) {
+                cachedBounds.computeIfAbsent(type.canonicalText) {
                     bound()
                 }
             } else {

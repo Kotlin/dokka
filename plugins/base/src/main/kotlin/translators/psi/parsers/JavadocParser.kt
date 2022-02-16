@@ -29,6 +29,7 @@ import org.jsoup.nodes.Element
 import org.jsoup.nodes.Node
 import org.jsoup.nodes.TextNode
 import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 
 fun interface JavaDocumentationParser {
     fun parseDocumentation(element: PsiNamedElement): DocumentationNode
@@ -46,7 +47,7 @@ class JavadocParser(
      * It has to be mutable to allow for adding entries when @inheritDoc resolves to kotlin code,
      * from which we get a DocTags not descriptors.
      */
-    private var inheritDocSections: MutableMap<UUID, DocumentationNode> = mutableMapOf()
+    private var inheritDocSections = ConcurrentHashMap<UUID, DocumentationNode>()
 
     override fun parseDocumentation(element: PsiNamedElement): DocumentationNode {
         return when(val comment = findClosestDocComment(element, logger)){
