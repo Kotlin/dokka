@@ -26,7 +26,9 @@ object SinceKotlinTagContentProvider : CustomTagContentProvider {
         sourceSet: DokkaConfiguration.DokkaSourceSet,
         customTag: CustomTagWrapper
     ) {
-        text(customTag.name + " ", styles = setOf(TextStyle.Bold))
-        comment(customTag.root)
+        group(sourceSets = setOf(sourceSet), styles = setOf(TextStyle.InlineComment)) {
+            text(customTag.name + " ", styles = setOf(TextStyle.Bold))
+            comment(customTag.root, styles = emptySet())
+        }
     }
 }
