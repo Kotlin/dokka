@@ -113,6 +113,7 @@ open class HtmlRenderer(
                     childrenCallback()
                 }
             }
+            node.hasStyle(TextStyle.InlineComment) -> div("inline-comment") { childrenCallback() }
             node.dci.kind == ContentKind.BriefComment -> div("brief $additionalClasses") { childrenCallback() }
             node.dci.kind == ContentKind.Cover -> div("cover $additionalClasses") { //TODO this can be removed
                 childrenCallback()
