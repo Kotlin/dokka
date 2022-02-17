@@ -4216,6 +4216,7 @@ public final class org/jetbrains/dokka/pages/TextStyle : java/lang/Enum, org/jet
 	public static final field BreakableAfter Lorg/jetbrains/dokka/pages/TextStyle;
 	public static final field Cover Lorg/jetbrains/dokka/pages/TextStyle;
 	public static final field Indented Lorg/jetbrains/dokka/pages/TextStyle;
+	public static final field InlineComment Lorg/jetbrains/dokka/pages/TextStyle;
 	public static final field Italic Lorg/jetbrains/dokka/pages/TextStyle;
 	public static final field Monospace Lorg/jetbrains/dokka/pages/TextStyle;
 	public static final field Paragraph Lorg/jetbrains/dokka/pages/TextStyle;
