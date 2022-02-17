@@ -16,12 +16,6 @@ class MathjaxPlugin : DokkaPlugin() {
     val transformer by extending {
         CoreExtensions.pageTransformer with MathjaxTransformer
     }
-
-    val mathjaxTagContentProvider by extending {
-        plugin<DokkaBase>().customTagContentProvider with MathjaxTagContentProvider order {
-            before(plugin<DokkaBase>().sinceKotlinTagContentProvider)
-        }
-    }
 }
 
 private const val ANNOTATION = "usesMathJax"
@@ -39,16 +33,4 @@ object MathjaxTransformer : PageTransformer {
             ?.flatMap { it.children }
             .orEmpty()
             .any { (it as? CustomTagWrapper)?.name == ANNOTATION }
-}
-
-object MathjaxTagContentProvider : CustomTagContentProvider {
-
-    override fun isApplicable(customTag: CustomTagWrapper) = customTag.name == ANNOTATION
-
-    override fun DocumentableContentBuilder.contentForDescription(
-        sourceSet: DokkaConfiguration.DokkaSourceSet,
-        customTag: CustomTagWrapper
-    ) {
-        comment(customTag.root, sourceSets = setOf(sourceSet))
-    }
 }
