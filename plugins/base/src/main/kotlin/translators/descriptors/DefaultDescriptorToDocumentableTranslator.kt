@@ -13,7 +13,7 @@ import org.jetbrains.dokka.analysis.KotlinAnalysis
 import org.jetbrains.dokka.analysis.from
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.parsers.MarkdownParser
-import org.jetbrains.dokka.base.translators.isDirectlyAnException
+import org.jetbrains.dokka.base.translators.typeConstructorsBeingExceptions
 import org.jetbrains.dokka.base.translators.psi.parsers.JavadocParser
 import org.jetbrains.dokka.base.translators.unquotedValue
 import org.jetbrains.dokka.links.*
@@ -21,7 +21,6 @@ import org.jetbrains.dokka.links.Callable
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.AnnotationTarget
 import org.jetbrains.dokka.model.Nullable
-import org.jetbrains.dokka.model.TypeConstructor
 import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.plugability.DokkaContext
@@ -215,8 +214,8 @@ private class DokkaDescriptorVisitor(
                 extra = PropertyContainer.withAll(
                     descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
                     descriptor.getAnnotations().toSourceSetDependent().toAnnotations(),
-                    ImplementedInterfaces(info.allImplementedInterfaces.toSourceSetDependent()),
-                    info.exceptionsInSupertypes?.let { ExceptionInSupertypes(it.toSourceSetDependent()) },
+                    ImplementedInterfaces(info.ancestry.allImplementedInterfaces().toSourceSetDependent()),
+                    info.ancestry.exceptionInSupertypesOrNull()
                 )
             )
         }
@@ -253,8 +252,8 @@ private class DokkaDescriptorVisitor(
                 extra = PropertyContainer.withAll(
                     descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
                     descriptor.getAnnotations().toSourceSetDependent().toAnnotations(),
-                    ImplementedInterfaces(info.allImplementedInterfaces.toSourceSetDependent()),
-                    info.exceptionsInSupertypes?.let { ExceptionInSupertypes(it.toSourceSetDependent()) },
+                    ImplementedInterfaces(info.ancestry.allImplementedInterfaces().toSourceSetDependent()),
+                    info.ancestry.exceptionInSupertypesOrNull()
                 )
             )
         }
@@ -298,7 +297,7 @@ private class DokkaDescriptorVisitor(
                 extra = PropertyContainer.withAll(
                     descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
                     descriptor.getAnnotations().toSourceSetDependent().toAnnotations(),
-                    ImplementedInterfaces(info.allImplementedInterfaces.toSourceSetDependent())
+                    ImplementedInterfaces(info.ancestry.allImplementedInterfaces().toSourceSetDependent())
                 )
             )
         }
@@ -420,8 +419,8 @@ private class DokkaDescriptorVisitor(
                 extra = PropertyContainer.withAll<DClass>(
                     descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
                     descriptor.getAnnotations().toSourceSetDependent().toAnnotations(),
-                    ImplementedInterfaces(info.allImplementedInterfaces.toSourceSetDependent()),
-                    info.exceptionsInSupertypes?.let { ExceptionInSupertypes(it.toSourceSetDependent()) },
+                    ImplementedInterfaces(info.ancestry.allImplementedInterfaces().toSourceSetDependent()),
+                    info.ancestry.exceptionInSupertypesOrNull()
                 )
             )
         }
@@ -664,8 +663,10 @@ private class DokkaDescriptorVisitor(
         with(descriptor) {
             coroutineScope {
                 val generics = async { descriptor.declaredTypeParameters.parallelMap { it.toVariantTypeParameter() } }
-                val info = buildAncestryInformation(listOf(underlyingType)).sortedBy { it.level }
-
+                val info = buildAncestryInformation(defaultType).copy(
+                    superclass = buildAncestryInformation(underlyingType),
+                    interfaces = emptyList()
+                )
                 DTypeAlias(
                     dri = DRI.from(this@with),
                     name = name.asString(),
@@ -678,8 +679,7 @@ private class DokkaDescriptorVisitor(
                     generics = generics.await(),
                     extra = PropertyContainer.withAll(
                         descriptor.getAnnotations().toSourceSetDependent().toAnnotations(),
-                        info.exceptionsInSupertypes()?.takeIf { it.isNotEmpty() }
-                            ?.let { ExceptionInSupertypes(it.toSourceSetDependent()) },
+                        info.exceptionInSupertypesOrNull(),
                     )
                 )
             }
@@ -759,15 +759,10 @@ private class DokkaDescriptorVisitor(
             DRI.from(kt.constructor.declarationDescriptor as DeclarationDescriptor),
             kt.arguments.map { it.toProjection() })
 
-
-    private tailrec suspend fun buildAncestryInformation(
-        supertypes: Collection<KotlinType>,
-        level: Int = 0,
-        ancestryInformation: Set<AncestryLevel> = emptySet()
-    ): Set<AncestryLevel> {
-        if (supertypes.isEmpty()) return ancestryInformation
-
-        val (interfaces, superclass) = supertypes
+    private suspend fun buildAncestryInformation(
+        kotlinType: KotlinType
+    ): AncestryNode {
+        val (interfaces, superclass) = kotlinType.immediateSupertypes().filterNot { it.isAnyOrNullableAny() }
             .partition {
                 val declaration = it.constructor.declarationDescriptor
                 val descriptor = declaration as? ClassDescriptor
@@ -775,25 +770,20 @@ private class DokkaDescriptorVisitor(
                 descriptor?.kind == ClassKind.INTERFACE
             }
 
-        val updated = coroutineScope {
-            ancestryInformation + AncestryLevel(
-                level,
-                superclass.parallelMap(::toTypeConstructor).singleOrNull(),
-                interfaces.parallelMap(::toTypeConstructor)
+        return coroutineScope {
+            AncestryNode(
+                typeConstructor = toTypeConstructor(kotlinType),
+                superclass = superclass.parallelMap(::buildAncestryInformation).singleOrNull(),
+                interfaces = interfaces.parallelMap(::buildAncestryInformation)
             )
         }
-
-        return buildAncestryInformation(
-            supertypes = supertypes.flatMap { it.immediateSupertypes() },
-            level = level + 1,
-            ancestryInformation = updated
-        )
     }
+
 
     private suspend fun ClassDescriptor.resolveClassDescriptionData(): ClassInfo {
         return coroutineScope {
             ClassInfo(
-                buildAncestryInformation(this@resolveClassDescriptionData.typeConstructor.supertypes.filterNot { it.isAnyOrNullableAny() }).sortedBy { it.level },
+                buildAncestryInformation(this@resolveClassDescriptionData.defaultType),
                 resolveDescriptorData()
             )
         }
@@ -1050,22 +1040,16 @@ private class DokkaDescriptorVisitor(
         else -> node?.text?.let { ComplexExpression(it) }
     }
 
-    private data class ClassInfo(val ancestry: List<AncestryLevel>, val docs: SourceSetDependent<DocumentationNode>) {
+    private data class ClassInfo(val ancestry: AncestryNode, val docs: SourceSetDependent<DocumentationNode>) {
         val supertypes: List<TypeConstructorWithKind>
-            get() = ancestry.firstOrNull { it.level == 0 }?.let {
-                listOfNotNull(it.superclass?.let {
+            get() = listOfNotNull(ancestry.superclass?.let {
+                it.typeConstructor.let {
                     TypeConstructorWithKind(
                         it,
                         KotlinClassKindTypes.CLASS
                     )
-                }) + it.interfaces.map { TypeConstructorWithKind(it, KotlinClassKindTypes.INTERFACE) }
-            }.orEmpty()
-
-        val allImplementedInterfaces: List<TypeConstructor>
-            get() = ancestry.flatMap { it.interfaces }.distinct()
-
-        val exceptionsInSupertypes: List<TypeConstructor>?
-            get() = ancestry.exceptionsInSupertypes()
+                }
+            }) + ancestry.interfaces.map { TypeConstructorWithKind(it.typeConstructor, KotlinClassKindTypes.INTERFACE) }
     }
 
     private fun DescriptorVisibility.toDokkaVisibility(): org.jetbrains.dokka.model.Visibility = when (this.delegate) {
@@ -1093,13 +1077,8 @@ private class DokkaDescriptorVisitor(
                 kind == CallableMemberDescriptor.Kind.SYNTHESIZED ||
                 containingDeclaration.fqNameOrNull()?.asString()
                     ?.let { it == "kotlin.Any" || it == "kotlin.Enum" || it == "java.lang.Enum" || it == "java.lang.Object" } == true
+
+    private fun AncestryNode.exceptionInSupertypesOrNull(): ExceptionInSupertypes? =
+        typeConstructorsBeingExceptions().takeIf { it.isNotEmpty() }?.let { ExceptionInSupertypes(it.toSourceSetDependent()) }
 }
 
-private data class AncestryLevel(
-    val level: Int,
-    val superclass: TypeConstructor?,
-    val interfaces: List<TypeConstructor>
-)
-
-private fun List<AncestryLevel>.exceptionsInSupertypes(): List<TypeConstructor>? =
-    mapNotNull { it.superclass }.filter { type -> type.dri.isDirectlyAnException() }.takeIf { it.isNotEmpty() }

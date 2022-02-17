@@ -98,7 +98,7 @@ internal fun findClosestDocComment(element: PsiNamedElement, logger: DokkaLogger
             return findClosestDocComment(superMethods.single(), logger)
         }
 
-        val superMethodDocumentation = superMethods.map { method -> findClosestDocComment(method, logger) }
+        val superMethodDocumentation = superMethods.map { method -> findClosestDocComment(method, logger) }.distinct()
         if (superMethodDocumentation.size == 1) {
             return superMethodDocumentation.single()
         }
