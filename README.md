@@ -79,6 +79,10 @@ apply(plugin= "org.jetbrains.dokka")
 ```
 
 ```kotlin
+dependencies {
+    dokkaHtmlPlugin("org.jetbrains.dokka:android-documentation-plugin:${dokka_version}")
+}
+
 dokkaHtml.configure {
     dokkaSourceSets {
         named("main") {
@@ -87,6 +91,9 @@ dokkaHtml.configure {
     }
 }
 ```
+
+**NOTE:** replace `Html` in the above code with whatever [output format](#output_formats) you need. 
+
 
 #### Multi-module projects
 For documenting Gradle multi-module projects, you can use `dokka${format}Multimodule` tasks.
