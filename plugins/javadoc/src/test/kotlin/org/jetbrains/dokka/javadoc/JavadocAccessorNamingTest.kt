@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.assertEquals
 import utils.*
 
-internal class JavadocNamingTest : AbstractJavadocTemplateMapTest() {
+internal class JavadocAccessorNamingTest : AbstractJavadocTemplateMapTest() {
 
     val configuration = dokkaConfiguration {
         suppressObviousFunctions = true

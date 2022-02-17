@@ -5,6 +5,10 @@ import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.model.DProperty
 import org.junit.jupiter.api.Test
 
+/**
+ * https://kotlinlang.org/docs/java-to-kotlin-interop.html#properties
+ * https://kotlinlang.org/docs/java-interop.html#getters-and-setters
+ */
 class AccessorMethodNamingTest : BaseAbstractTest() {
 
     @Test
