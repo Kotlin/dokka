@@ -11,6 +11,9 @@ dependencies {
 
     val coroutines_version: String by project
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version")
+
+    val jsoup_version: String by project
+    testImplementation("org.jsoup:jsoup:$jsoup_version")
 }
 
 registerDokkaArtifactPublication("javadocPlugin") {
