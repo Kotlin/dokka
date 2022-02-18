@@ -30,7 +30,7 @@ import org.jsoup.nodes.Node
 import org.jsoup.nodes.TextNode
 import java.util.*
 
-interface JavaDocumentationParser {
+fun interface JavaDocumentationParser {
     fun parseDocumentation(element: PsiNamedElement): DocumentationNode
 }
 

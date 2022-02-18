@@ -19,6 +19,7 @@ import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.base.DokkaBaseConfiguration
 import org.jetbrains.dokka.base.resolvers.anchors.SymbolAnchorHint
 import org.jetbrains.dokka.base.transformers.documentables.ClashingDriIdentifier
+import org.jetbrains.dokka.base.transformers.pages.tags.CustomTagContentProvider
 
 private typealias GroupedTags = Map<KClass<out TagWrapper>, List<Pair<DokkaSourceSet?, TagWrapper>>>
 
@@ -29,7 +30,8 @@ open class DefaultPageCreator(
     configuration: DokkaBaseConfiguration?,
     commentsToContentConverter: CommentsToContentConverter,
     signatureProvider: SignatureProvider,
-    val logger: DokkaLogger
+    val logger: DokkaLogger,
+    val customTagContentProviders: List<CustomTagContentProvider> = emptyList()
 ) {
     protected open val contentBuilder = PageContentBuilder(commentsToContentConverter, signatureProvider, logger)
 
@@ -341,6 +343,23 @@ open class DefaultPageCreator(
                 }
             }
 
+            val customTags = d.customTags
+            if (customTags.isNotEmpty()) {
+                group(styles = setOf(TextStyle.Block)) {
+                    platforms.forEach { platform ->
+                        customTags.forEach { (tagName, sourceSetTag) ->
+                            sourceSetTag[platform]?.let { tag ->
+                                customTagContentProviders.filter { it.isApplicable(tag) }.forEach { provider ->
+                                    with(provider) {
+                                        contentForDescription(platform, tag)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
             val unnamedTags = tags.filterNot { (k, _) -> k.isSubclassOf(NamedTagWrapper::class) || k in specialTags }
                 .values.flatten().groupBy { it.first }.mapValues { it.value.map { it.second } }
             if (unnamedTags.isNotEmpty()) {
@@ -357,8 +376,6 @@ open class DefaultPageCreator(
                     }
                 }
             }
-
-            contentForSinceKotlin(d)
         }.children
     }
 
@@ -560,21 +577,6 @@ open class DefaultPageCreator(
         } ?: firstParagraphComment(tag.root)
     }
 
-    protected open fun DocumentableContentBuilder.contentForSinceKotlin(documentable: Documentable) {
-        documentable.documentation.mapValues {
-            it.value.children.find { it is CustomTagWrapper && it.name == "Since Kotlin" } as CustomTagWrapper?
-        }.run {
-            documentable.sourceSets.forEach { sourceSet ->
-                this[sourceSet]?.also { tag ->
-                    group(sourceSets = setOf(sourceSet), kind = ContentKind.Comment, styles = setOf(TextStyle.Block)) {
-                        header(4, tag.name)
-                        comment(tag.root)
-                    }
-                }
-            }
-        }
-    }
-
     protected open fun contentForFunction(f: DFunction) = contentForMember(f)
 
     protected open fun contentForProperty(p: DProperty) = contentForMember(p)
@@ -681,7 +683,7 @@ open class DefaultPageCreator(
                                         }
                                         after(extra = PropertyContainer.empty()) {
                                             contentForBrief(it)
-                                            contentForSinceKotlin(it)
+                                            contentForCustomTagsBrief(it)
                                         }
                                     }
                                 }
@@ -692,6 +694,22 @@ open class DefaultPageCreator(
         }
     }
 
+    private fun DocumentableContentBuilder.contentForCustomTagsBrief(documentable: Documentable) {
+        val customTags = documentable.customTags
+        if (customTags.isEmpty()) return
+
+        documentable.sourceSets.forEach { sourceSet ->
+            customTags.forEach { (tagName, sourceSetTag) ->
+                sourceSetTag[sourceSet]?.let { tag ->
+                    customTagContentProviders.filter { it.isApplicable(tag) }.forEach { provider ->
+                        with(provider) {
+                            contentForBrief(sourceSet, tag)
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     protected open fun TagWrapper.toHeaderString() = this.javaClass.toGenericString().split('.').last()
 
@@ -705,6 +723,9 @@ open class DefaultPageCreator(
 
     private val Documentable.descriptions: SourceSetDependent<Description>
         get() = groupedTags.withTypeUnnamed()
+
+    private val Documentable.customTags: Map<String, SourceSetDependent<CustomTagWrapper>>
+        get() = groupedTags.withTypeNamed()
 
     private val Documentable.hasSeparatePage: Boolean
         get() = this !is DTypeAlias

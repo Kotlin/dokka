@@ -65,6 +65,7 @@ public final class org/jetbrains/dokka/GlobalArguments : org/jetbrains/dokka/Dok
 	public fun getCacheRoot ()Ljava/io/File;
 	public fun getDelayTemplateSubstitution ()Z
 	public fun getFailOnWarning ()Z
+	public fun getFinalizeCoroutines ()Z
 	public final fun getGlobalLinks ()Ljava/util/List;
 	public final fun getGlobalPackageOptions ()Ljava/util/List;
 	public final fun getGlobalSrcLink ()Ljava/util/List;

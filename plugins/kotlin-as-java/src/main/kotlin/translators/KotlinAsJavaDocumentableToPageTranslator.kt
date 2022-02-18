@@ -15,8 +15,15 @@ class KotlinAsJavaDocumentableToPageTranslator(context: DokkaContext) : Document
     private val configuration = configuration<DokkaBase, DokkaBaseConfiguration>(context)
     private val commentsToContentConverter = context.plugin<DokkaBase>().querySingle { commentsToContentConverter }
     private val signatureProvider = context.plugin<DokkaBase>().querySingle { signatureProvider }
+    private val customTagContentProviders = context.plugin<DokkaBase>().query { customTagContentProvider }
     private val logger: DokkaLogger = context.logger
 
     override fun invoke(module: DModule): ModulePageNode =
-        KotlinAsJavaPageCreator(configuration, commentsToContentConverter, signatureProvider, logger).pageForModule(module)
+        KotlinAsJavaPageCreator(
+            configuration,
+            commentsToContentConverter,
+            signatureProvider,
+            logger,
+            customTagContentProviders
+        ).pageForModule(module)
 }

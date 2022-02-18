@@ -43,7 +43,8 @@ abstract class HtmlRenderingOnlyTestBase : RenderingOnlyTestBase<Element>() {
     val files = TestOutputWriter()
 
     open val configuration = DokkaConfigurationImpl(
-        sourceSets = listOf(js, jvm, native)
+        sourceSets = listOf(js, jvm, native),
+        finalizeCoroutines = false
     )
 
     override val context = MockContext(
