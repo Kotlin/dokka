@@ -7,6 +7,7 @@ import org.jetbrains.dokka.pages.ModulePageNode
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.configuration
 import org.jetbrains.dokka.plugability.plugin
+import org.jetbrains.dokka.plugability.query
 import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.transformers.documentation.DocumentableToPageTranslator
 import org.jetbrains.dokka.utilities.DokkaLogger
