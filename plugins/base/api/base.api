@@ -71,27 +71,30 @@ public final class org/jetbrains/dokka/base/DokkaBaseConfiguration : org/jetbrai
 	public static final field mergeImplicitExpectActualDeclarationsDefault Z
 	public static final field separateInheritedMembersDefault Z
 	public fun <init> ()V
-	public fun <init> (Ljava/util/List;Ljava/util/List;ZLjava/lang/String;Z)V
-	public synthetic fun <init> (Ljava/util/List;Ljava/util/List;ZLjava/lang/String;ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Ljava/util/List;Ljava/util/List;ZLjava/lang/String;ZLjava/io/File;)V
+	public synthetic fun <init> (Ljava/util/List;Ljava/util/List;ZLjava/lang/String;ZLjava/io/File;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/util/List;
 	public final fun component2 ()Ljava/util/List;
 	public final fun component3 ()Z
 	public final fun component4 ()Ljava/lang/String;
 	public final fun component5 ()Z
-	public final fun copy (Ljava/util/List;Ljava/util/List;ZLjava/lang/String;Z)Lorg/jetbrains/dokka/base/DokkaBaseConfiguration;
-	public static synthetic fun copy$default (Lorg/jetbrains/dokka/base/DokkaBaseConfiguration;Ljava/util/List;Ljava/util/List;ZLjava/lang/String;ZILjava/lang/Object;)Lorg/jetbrains/dokka/base/DokkaBaseConfiguration;
+	public final fun component6 ()Ljava/io/File;
+	public final fun copy (Ljava/util/List;Ljava/util/List;ZLjava/lang/String;ZLjava/io/File;)Lorg/jetbrains/dokka/base/DokkaBaseConfiguration;
+	public static synthetic fun copy$default (Lorg/jetbrains/dokka/base/DokkaBaseConfiguration;Ljava/util/List;Ljava/util/List;ZLjava/lang/String;ZLjava/io/File;ILjava/lang/Object;)Lorg/jetbrains/dokka/base/DokkaBaseConfiguration;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getCustomAssets ()Ljava/util/List;
 	public final fun getCustomStyleSheets ()Ljava/util/List;
 	public final fun getFooterMessage ()Ljava/lang/String;
 	public final fun getMergeImplicitExpectActualDeclarations ()Z
 	public final fun getSeparateInheritedMembers ()Z
+	public final fun getTemplatesDir ()Ljava/io/File;
 	public fun hashCode ()I
 	public final fun setCustomAssets (Ljava/util/List;)V
 	public final fun setCustomStyleSheets (Ljava/util/List;)V
 	public final fun setFooterMessage (Ljava/lang/String;)V
 	public final fun setMergeImplicitExpectActualDeclarations (Z)V
 	public final fun setSeparateInheritedMembers (Z)V
+	public final fun setTemplatesDir (Ljava/io/File;)V
 	public fun toString ()Ljava/lang/String;
 }
 
@@ -99,6 +102,7 @@ public final class org/jetbrains/dokka/base/DokkaBaseConfiguration$Companion {
 	public final fun getDefaultCustomAssets ()Ljava/util/List;
 	public final fun getDefaultCustomStyleSheets ()Ljava/util/List;
 	public final fun getDefaultFooterMessage ()Ljava/lang/String;
+	public final fun getDefaultTemplatesDir ()Ljava/io/File;
 }
 
 public final class org/jetbrains/dokka/base/generation/SingleModuleGeneration : org/jetbrains/dokka/generation/Generation {
@@ -216,6 +220,7 @@ public final class org/jetbrains/dokka/base/parsers/moduleAndPackage/ParseModule
 }
 
 public final class org/jetbrains/dokka/base/renderers/ContentTypeCheckingKt {
+	public static final fun getURIExtension (Ljava/lang/String;)Ljava/lang/String;
 	public static final fun isImage (Ljava/lang/String;)Z
 	public static final fun isImage (Lorg/jetbrains/dokka/pages/ContentEmbeddedResource;)Z
 }
@@ -330,6 +335,13 @@ public final class org/jetbrains/dokka/base/renderers/html/CustomResourceInstall
 	public fun invoke (Lorg/jetbrains/dokka/pages/RootPageNode;)Lorg/jetbrains/dokka/pages/RootPageNode;
 }
 
+public final class org/jetbrains/dokka/base/renderers/html/DokkaTemplateTypes : java/lang/Enum {
+	public static final field BASE Lorg/jetbrains/dokka/base/renderers/html/DokkaTemplateTypes;
+	public final fun getPath ()Ljava/lang/String;
+	public static fun valueOf (Ljava/lang/String;)Lorg/jetbrains/dokka/base/renderers/html/DokkaTemplateTypes;
+	public static fun values ()[Lorg/jetbrains/dokka/base/renderers/html/DokkaTemplateTypes;
+}
+
 public final class org/jetbrains/dokka/base/renderers/html/HtmlFormatingUtilsKt {
 	public static final fun buildBreakableDotSeparatedHtml (Lkotlinx/html/FlowContent;Ljava/lang/String;)V
 	public static final fun buildBreakableText (Lkotlinx/html/FlowContent;Ljava/lang/String;)V
@@ -386,6 +398,12 @@ public class org/jetbrains/dokka/base/renderers/html/HtmlRenderer : org/jetbrain
 
 public final class org/jetbrains/dokka/base/renderers/html/HtmlRendererKt {
 	public static final fun joinAttr (Ljava/util/List;)Ljava/lang/String;
+}
+
+public final class org/jetbrains/dokka/base/renderers/html/HtmlTemplater {
+	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
+	public final fun renderFromTemplate (Lorg/jetbrains/dokka/base/renderers/html/DokkaTemplateTypes;Lkotlin/jvm/functions/Function0;)Ljava/lang/String;
+	public final fun setupSharedModel (Ljava/util/Map;)V
 }
 
 public abstract class org/jetbrains/dokka/base/renderers/html/NavigationDataProvider {
@@ -526,6 +544,7 @@ public final class org/jetbrains/dokka/base/renderers/html/TagsKt {
 	public static final fun templateCommand (Lkotlinx/html/TagConsumer;Lorg/jetbrains/dokka/base/templating/Command;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
 	public static synthetic fun templateCommand$default (Lkotlinx/html/FlowOrMetaDataContent;Lorg/jetbrains/dokka/base/templating/Command;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
 	public static synthetic fun templateCommand$default (Lkotlinx/html/TagConsumer;Lorg/jetbrains/dokka/base/templating/Command;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Ljava/lang/Object;
+	public static final fun templateCommandAsHtmlComment (Ljava/lang/Appendable;Lorg/jetbrains/dokka/base/templating/Command;Lkotlin/jvm/functions/Function1;)V
 	public static final fun templateCommandAsHtmlComment (Lkotlinx/html/FlowOrMetaDataContent;Lorg/jetbrains/dokka/base/templating/Command;Lkotlin/jvm/functions/Function1;)V
 	public static synthetic fun templateCommandAsHtmlComment$default (Lkotlinx/html/FlowOrMetaDataContent;Lorg/jetbrains/dokka/base/templating/Command;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
 	public static final fun templateCommandFor (Lorg/jetbrains/dokka/base/templating/Command;Lkotlinx/html/TagConsumer;)Lorg/jetbrains/dokka/base/renderers/html/TemplateCommand;
@@ -535,6 +554,60 @@ public final class org/jetbrains/dokka/base/renderers/html/TagsKt {
 
 public final class org/jetbrains/dokka/base/renderers/html/TemplateCommand : kotlinx/html/HTMLTag, kotlinx/html/CommonAttributeGroupFacadeFlowInteractivePhrasingContent {
 	public fun <init> (Ljava/util/Map;Lkotlinx/html/TagConsumer;)V
+}
+
+public final class org/jetbrains/dokka/base/renderers/html/TemplateModelFactory {
+	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
+	public final fun buildModel (Lorg/jetbrains/dokka/pages/PageNode;Ljava/util/List;Lorg/jetbrains/dokka/base/resolvers/local/LocationProvider;ZLjava/lang/String;)Ljava/util/Map;
+	public final fun buildSharedModel ()Ljava/util/Map;
+	public final fun getContext ()Lorg/jetbrains/dokka/plugability/DokkaContext;
+}
+
+public final class org/jetbrains/dokka/base/renderers/html/TemplateModelFactory$PrintDirective : freemarker/template/TemplateDirectiveModel {
+	public fun <init> (Lkotlin/jvm/functions/Function0;)V
+	public fun execute (Lfreemarker/core/Environment;Ljava/util/Map;[Lfreemarker/template/TemplateModel;Lfreemarker/template/TemplateDirectiveBody;)V
+	public final fun getGenerateData ()Lkotlin/jvm/functions/Function0;
+}
+
+public final class org/jetbrains/dokka/base/renderers/html/TemplateModelFactory$SourceSetModel {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lorg/jetbrains/dokka/base/renderers/html/TemplateModelFactory$SourceSetModel;
+	public static synthetic fun copy$default (Lorg/jetbrains/dokka/base/renderers/html/TemplateModelFactory$SourceSetModel;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lorg/jetbrains/dokka/base/renderers/html/TemplateModelFactory$SourceSetModel;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getFilter ()Ljava/lang/String;
+	public final fun getName ()Ljava/lang/String;
+	public final fun getPlatform ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/jetbrains/dokka/base/renderers/html/TemplateModelFactory$TemplateDirective : freemarker/template/TemplateDirectiveModel {
+	public static final field Companion Lorg/jetbrains/dokka/base/renderers/html/TemplateModelFactory$TemplateDirective$Companion;
+	public static final field PARAM_NAME Ljava/lang/String;
+	public static final field PARAM_REPLACEMENT Ljava/lang/String;
+	public fun <init> (Lorg/jetbrains/dokka/DokkaConfiguration;Ljava/lang/String;)V
+	public fun execute (Lfreemarker/core/Environment;Ljava/util/Map;[Lfreemarker/template/TemplateModel;Lfreemarker/template/TemplateDirectiveBody;)V
+	public final fun getConfiguration ()Lorg/jetbrains/dokka/DokkaConfiguration;
+	public final fun getPathToRoot ()Ljava/lang/String;
+}
+
+public final class org/jetbrains/dokka/base/renderers/html/TemplateModelFactory$TemplateDirective$Companion {
+}
+
+public final class org/jetbrains/dokka/base/renderers/html/TemplateModelFactory$TemplateDirective$Context {
+	public fun <init> (Lfreemarker/core/Environment;Lfreemarker/template/TemplateDirectiveBody;)V
+	public final fun component1 ()Lfreemarker/core/Environment;
+	public final fun component2 ()Lfreemarker/template/TemplateDirectiveBody;
+	public final fun copy (Lfreemarker/core/Environment;Lfreemarker/template/TemplateDirectiveBody;)Lorg/jetbrains/dokka/base/renderers/html/TemplateModelFactory$TemplateDirective$Context;
+	public static synthetic fun copy$default (Lorg/jetbrains/dokka/base/renderers/html/TemplateModelFactory$TemplateDirective$Context;Lfreemarker/core/Environment;Lfreemarker/template/TemplateDirectiveBody;ILjava/lang/Object;)Lorg/jetbrains/dokka/base/renderers/html/TemplateModelFactory$TemplateDirective$Context;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getBody ()Lfreemarker/template/TemplateDirectiveBody;
+	public final fun getEnv ()Lfreemarker/core/Environment;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
 }
 
 public class org/jetbrains/dokka/base/renderers/html/WBR : kotlinx/html/HTMLTag, kotlinx/html/HtmlBlockInlineTag {
