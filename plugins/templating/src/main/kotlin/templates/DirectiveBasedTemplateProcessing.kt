@@ -3,6 +3,7 @@ package org.jetbrains.dokka.templates
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.base.renderers.html.TEMPLATE_COMMAND_BEGIN_BORDER
 import org.jetbrains.dokka.base.renderers.html.TEMPLATE_COMMAND_END_BORDER
+import org.jetbrains.dokka.base.renderers.html.TEMPLATE_COMMAND_SEPARATOR
 import org.jetbrains.dokka.base.templating.Command
 import org.jetbrains.dokka.base.templating.parseJson
 import org.jetbrains.dokka.plugability.DokkaContext
@@ -27,41 +28,45 @@ class DirectiveBasedHtmlTemplateProcessingStrategy(private val context: DokkaCon
             document.outputSettings().indentAmount(0).prettyPrint(false)
 
             document.select("dokka-template-command").forEach {
-                handleCommand(it, parseJson(it.attr("data")), input, output)
+                handleCommandAsTag(it, parseJson(it.attr("data")), input, output)
             }
-            extractCommandsFromComments(document) { nodes, command ->
-                val nodesTrimed =
-                    nodes.dropWhile { (it is TextNode && it.isBlank).also { res -> if (res) it.remove() } }
-                        .dropLastWhile { (it is TextNode && it.isBlank).also { res -> if (res) it.remove() } }
-                handleCommand(nodesTrimed, command, input, output)
+            extractCommandsFromComments(document) { command, body  ->
+                val bodyTrimed =
+                    body.dropWhile { node -> (node is TextNode && node.isBlank).also { if (it) node.remove() } }
+                        .dropLastWhile { node -> (node is TextNode && node.isBlank).also { if (it) node.remove() } }
+                handleCommandAsComment(command, bodyTrimed, input, output)
             }
 
             Files.write(output.toPath(), listOf(document.outerHtml()))
             true
         } else false
 
-    fun handleCommand(element: Element, command: Command, input: File, output: File) {
+    fun handleCommandAsTag(element: Element, command: Command, input: File, output: File) {
+        traverseHandlers(command) { handleCommand(element, command, input, output) }
+    }
+
+    fun handleCommandAsComment(command: Command, body: List<Node>, input: File, output: File) {
+        traverseHandlers(command) { handleCommandAsComment(command, body, input, output) }
+    }
+
+    private fun traverseHandlers(command: Command, action: CommandHandler.() -> Unit)  {
         val handlers = directiveBasedCommandHandlers.filter { it.canHandle(command) }
         if (handlers.isEmpty())
             context.logger.warn("Unknown templating command $command")
         else
-            handlers.forEach { it.handleCommand(element, command, input, output) }
+            handlers.forEach(action)
     }
 
-    fun handleCommand(nodes: List<Node>, command: Command, input: File, output: File) {
-        val handlers = directiveBasedCommandHandlers.filterIsInstance<CommentCommandHandler>().filter { it.canHandle(command) }
-        if (handlers.isEmpty())
-            context.logger.warn("Unknown templating command $command")
-        else
-            handlers.forEach { it.handleCommand(nodes, command, input, output) }
-    }
-
-    private fun extractCommandsFromComments(node: Node, startFrom: Int = 0, handler: (List<Node>, Command) -> Unit) {
+    private fun extractCommandsFromComments(
+        node: Node,
+        startFrom: Int = 0,
+        handler: (command: Command, body: List<Node>) -> Unit
+    ) {
         val nodes: MutableList<Node> = mutableListOf()
         var lastStartBorder: Comment? = null
         var firstStartBorder: Comment? = null
-        for (ind in startFrom until node.childNodeSize()) {
-            when (val currentChild = node.childNode(ind)) {
+        for (index in startFrom until node.childNodeSize()) {
+            when (val currentChild = node.childNode(index)) {
                 is Comment -> if (currentChild.data?.startsWith(TEMPLATE_COMMAND_BEGIN_BORDER) == true) {
                     lastStartBorder = currentChild
                     firstStartBorder = firstStartBorder ?: currentChild
@@ -69,17 +74,17 @@ class DirectiveBasedHtmlTemplateProcessingStrategy(private val context: DokkaCon
                 } else if (lastStartBorder != null && currentChild.data?.startsWith(TEMPLATE_COMMAND_END_BORDER) == true) {
                     lastStartBorder.remove()
                     val cmd: Command? =
-                        lastStartBorder.data?.removePrefix(TEMPLATE_COMMAND_BEGIN_BORDER)?.let { parseJson(it) }
-                    cmd?.let { handler(nodes, it) }
+                        lastStartBorder.data?.removePrefix("$TEMPLATE_COMMAND_BEGIN_BORDER$TEMPLATE_COMMAND_SEPARATOR")?.let { parseJson(it) }
+                    cmd?.let { handler(it, nodes) }
                     currentChild.remove()
                     extractCommandsFromComments(node, firstStartBorder?.siblingIndex() ?: 0, handler)
                     return
                 } else {
-                    lastStartBorder?.let { nodes.add(currentChild) }
+                    if (lastStartBorder != null) nodes.add(currentChild)
                 }
                 else -> {
                     extractCommandsFromComments(currentChild, handler = handler)
-                    lastStartBorder?.let { nodes.add(currentChild) }
+                    if (lastStartBorder != null) nodes.add(currentChild)
                 }
             }
         }

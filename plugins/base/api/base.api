@@ -514,6 +514,7 @@ public final class org/jetbrains/dokka/base/renderers/html/StylesInstaller : org
 public final class org/jetbrains/dokka/base/renderers/html/TagsKt {
 	public static final field TEMPLATE_COMMAND_BEGIN_BORDER Ljava/lang/String;
 	public static final field TEMPLATE_COMMAND_END_BORDER Ljava/lang/String;
+	public static final field TEMPLATE_COMMAND_SEPARATOR Ljava/lang/String;
 	public static final fun buildAsInnerHtml (Lkotlin/jvm/functions/Function1;)Ljava/lang/String;
 	public static final fun strike (Lkotlinx/html/FlowOrPhrasingContent;Ljava/lang/String;Lkotlin/jvm/functions/Function1;)V
 	public static synthetic fun strike$default (Lkotlinx/html/FlowOrPhrasingContent;Ljava/lang/String;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V

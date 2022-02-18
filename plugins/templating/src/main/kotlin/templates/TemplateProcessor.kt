@@ -88,7 +88,7 @@ class DefaultMultiModuleTemplateProcessor(
 data class TemplatingContext<out T : Command>(
     val input: File,
     val output: File,
-    val nodes: List<Node>,
+    val body: List<Node>,
     val command: T,
 )
 

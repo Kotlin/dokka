@@ -11,7 +11,7 @@ import org.jsoup.nodes.Node
 import org.jsoup.nodes.TextNode
 import java.io.File
 
-class SubstitutionCommandHandler(context: DokkaContext) : CommandHandler, CommentCommandHandler {
+class SubstitutionCommandHandler(context: DokkaContext) : CommandHandler {
 
     override fun handleCommand(element: Element, command: Command, input: File, output: File) {
         command as SubstitutionCommand
@@ -25,9 +25,9 @@ class SubstitutionCommandHandler(context: DokkaContext) : CommandHandler, Commen
         parent?.insertChildren(position, childrenCopy)
     }
 
-    override fun handleCommand(nodes: List<Node>, command: Command, input: File, output: File) {
+    override fun handleCommandAsComment(command: Command, body: List<Node>, input: File, output: File) {
         command as SubstitutionCommand
-        substitute(nodes, TemplatingContext(input, output, nodes, command))
+        substitute(body, TemplatingContext(input, output, body, command))
     }
 
     override fun canHandle(command: Command): Boolean = command is SubstitutionCommand
