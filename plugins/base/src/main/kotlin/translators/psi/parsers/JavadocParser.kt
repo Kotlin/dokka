@@ -30,7 +30,7 @@ import org.jsoup.nodes.Node
 import org.jsoup.nodes.TextNode
 import java.util.*
 
-interface JavaDocumentationParser {
+fun interface JavaDocumentationParser {
     fun parseDocumentation(element: PsiNamedElement): DocumentationNode
 }
 
@@ -421,6 +421,9 @@ class JavadocParser(
                         parsed
                     }
                 }
+                "h1" -> ifChildrenPresent { H1(children) }
+                "h2" -> ifChildrenPresent { H2(children) }
+                "h3" -> ifChildrenPresent { H3(children) }
                 else -> listOf(Text(body = element.ownText()))
             }
         }

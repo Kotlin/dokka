@@ -17,7 +17,7 @@ import org.jetbrains.dokka.analysis.KotlinAnalysis
 import org.jetbrains.dokka.analysis.PsiDocumentableSource
 import org.jetbrains.dokka.analysis.from
 import org.jetbrains.dokka.base.DokkaBase
-import org.jetbrains.dokka.base.translators.isDirectlyAnException
+import org.jetbrains.dokka.base.translators.typeConstructorsBeingExceptions
 import org.jetbrains.dokka.base.translators.psi.parsers.JavaDocumentationParser
 import org.jetbrains.dokka.base.translators.psi.parsers.JavadocParser
 import org.jetbrains.dokka.base.translators.unquotedValue
@@ -29,25 +29,18 @@ import org.jetbrains.dokka.model.TypeConstructor
 import org.jetbrains.dokka.model.doc.DocumentationNode
 import org.jetbrains.dokka.model.doc.Param
 import org.jetbrains.dokka.model.properties.PropertyContainer
-import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.transformers.sources.AsyncSourceToDocumentableTranslator
-import org.jetbrains.dokka.transformers.sources.SourceToDocumentableTranslator
 import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.dokka.utilities.parallelForEach
 import org.jetbrains.dokka.utilities.parallelMap
 import org.jetbrains.dokka.utilities.parallelMapNotNull
 import org.jetbrains.kotlin.asJava.elements.KtLightAbstractAnnotation
-import org.jetbrains.kotlin.builtins.functions.FunctionClassDescriptor
 import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
 import org.jetbrains.kotlin.cli.jvm.config.JavaSourceRoot
-import org.jetbrains.kotlin.descriptors.Visibilities
-import org.jetbrains.kotlin.descriptors.java.JavaVisibilities
-import org.jetbrains.kotlin.idea.caches.resolve.util.getJavaClassDescriptor
 import org.jetbrains.kotlin.idea.refactoring.fqName.getKotlinFqName
-import org.jetbrains.kotlin.idea.resolve.ResolutionFacade
 import org.jetbrains.kotlin.load.java.JvmAbi
 import org.jetbrains.kotlin.load.java.propertyNameByGetMethodName
 import org.jetbrains.kotlin.load.java.propertyNamesBySetMethodName
@@ -55,8 +48,6 @@ import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.psiUtil.getChildOfType
 import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.utils.KotlinExceptionWithAttachments
-import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstance
-import org.jetbrains.kotlin.utils.addToStdlib.ifNotEmpty
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 import java.io.File
 
@@ -178,28 +169,15 @@ class DefaultPsiToDocumentableTranslator(
         private suspend fun parseClasslike(psi: PsiClass, parent: DRI): DClasslike = coroutineScope {
             with(psi) {
                 val dri = parent.withClass(name.toString())
-                val ancestryTree = mutableListOf<AncestryLevel>()
                 val superMethodsKeys = hashSetOf<Int>()
                 val superMethods = mutableListOf<Pair<PsiMethod, DRI>>()
                 methods.asIterable().parallelForEach { superMethodsKeys.add(it.hash) }
-                fun parseSupertypes(superTypes: Array<PsiClassType>, level: Int = 0) { // TODO: Rewrite it
-                    if (superTypes.isEmpty()) return
-                    val parsedClasses = superTypes.filter { !it.shouldBeIgnored }.mapNotNull { supertypePsi ->
-                        supertypePsi.resolve()?.let { supertypePsiClass ->
-                            val (supertypeDri, javaClassKind) = when {
-                                supertypePsiClass.isInterface -> DRI.from(supertypePsiClass) to JavaClassKindTypes.INTERFACE
-                                else -> DRI.from(supertypePsiClass) to JavaClassKindTypes.CLASS
-                            }
-                            GenericTypeConstructor(
-                                supertypeDri,
-                                supertypePsi.parameters.map(::getProjection)
-                            ) to javaClassKind
-                        }
-                    }
-                    val (classes, interfaces) = parsedClasses.partition { it.second == JavaClassKindTypes.CLASS }
-                    ancestryTree.add(AncestryLevel(level, classes.firstOrNull()?.first, interfaces.map { it.first }))
 
-                    superTypes.forEach { type ->
+                /**
+                 * Caution! This method mutates superMethodsKeys and superMethods
+                 */
+                fun Array<PsiClassType>.getSuperTypesPsiClasses(): List<Pair<PsiClass, JavaClassKindTypes>> {
+                    forEach { type ->
                         (type as? PsiClassType)?.resolve()?.let {
                             val definedAt = DRI.from(it)
                             it.methods.forEach { method ->
@@ -211,13 +189,36 @@ class DefaultPsiToDocumentableTranslator(
                                     superMethods.add(Pair(method, definedAt))
                                 }
                             }
-                            parseSupertypes(it.superTypes, level + 1)
+                        }
+                    }
+                    return filter { !it.shouldBeIgnored }.mapNotNull { supertypePsi ->
+                        supertypePsi.resolve()?.let { supertypePsiClass ->
+                            val javaClassKind = when {
+                                supertypePsiClass.isInterface -> JavaClassKindTypes.INTERFACE
+                                else -> JavaClassKindTypes.CLASS
+                            }
+                            supertypePsiClass to javaClassKind
                         }
                     }
                 }
-                parseSupertypes(superTypes)
+
+                fun traversePsiClassForAncestorsAndInheritedMembers(psiClass: PsiClass): AncestryNode {
+                    val (classes, interfaces) = psiClass.superTypes.getSuperTypesPsiClasses()
+                        .partition { it.second == JavaClassKindTypes.CLASS }
+
+                    return AncestryNode(
+                        typeConstructor = GenericTypeConstructor(
+                            DRI.from(psiClass),
+                            psiClass.typeParameters.map(::getProjection)
+                        ),
+                        superclass = classes.singleOrNull()?.first?.let(::traversePsiClassForAncestorsAndInheritedMembers),
+                        interfaces = interfaces.map { traversePsiClassForAncestorsAndInheritedMembers(it.first) }
+                    )
+                }
+
+                val ancestry: AncestryNode = traversePsiClassForAncestorsAndInheritedMembers(this)
                 val (regularFunctions, accessors) = splitFunctionsAndAccessors()
-                val overriden = regularFunctions.flatMap { it.findSuperMethods().toList() }
+                val overridden = regularFunctions.flatMap { it.findSuperMethods().toList() }
                 val documentation = javadocParser.parseDocumentation(this).toSourceSetDependent()
                 val allFunctions = async {
                     regularFunctions.parallelMapNotNull {
@@ -225,27 +226,22 @@ class DefaultPsiToDocumentableTranslator(
                             it,
                             parentDRI = dri
                         ) else null
-                    } + superMethods.filter { it.first !in overriden }.parallelMap { parseFunction(it.first, inheritedFrom = it.second) }
+                    } + superMethods.filter { it.first !in overridden }.parallelMap { parseFunction(it.first, inheritedFrom = it.second) }
                 }
                 val source = PsiDocumentableSource(this).toSourceSetDependent()
                 val classlikes = async { innerClasses.asIterable().parallelMap { parseClasslike(it, dri) } }
                 val visibility = getVisibility().toSourceSetDependent()
-                val ancestors = ancestryTree.filter { it.level == 0 }.flatMap {
-                    listOfNotNull(it.superclass?.let {
+                val ancestors = (listOfNotNull(ancestry.superclass?.let {
+                    it.typeConstructor.let {
                         TypeConstructorWithKind(
-                            typeConstructor = it,
-                            kind = JavaClassKindTypes.CLASS
-                        )
-                    }) + it.interfaces.map {
-                        TypeConstructorWithKind(
-                            typeConstructor = it,
-                            kind = JavaClassKindTypes.INTERFACE
+                            it,
+                            JavaClassKindTypes.CLASS
                         )
                     }
-                }.toSourceSetDependent()
+                }) + ancestry.interfaces.map { TypeConstructorWithKind(it.typeConstructor, JavaClassKindTypes.INTERFACE) }).toSourceSetDependent()
                 val modifiers = getModifier().toSourceSetDependent()
                 val implementedInterfacesExtra =
-                    ImplementedInterfaces(ancestryTree.flatMap { it.interfaces }.distinct().toSourceSetDependent())
+                    ImplementedInterfaces(ancestry.allImplementedInterfaces().toSourceSetDependent())
                 when {
                     isAnnotationType ->
                         DAnnotation(
@@ -349,16 +345,15 @@ class DefaultPsiToDocumentableTranslator(
                             implementedInterfacesExtra,
                             annotations.toList().toListOfAnnotations().toSourceSetDependent()
                                 .toAnnotations(),
-                            isExceptionExtra(ancestryTree),
+                            ancestry.exceptionInSupertypesOrNull()
                         )
                     )
                 }
             }
         }
 
-        private fun isExceptionExtra(ancestryTree: List<AncestryLevel>): ExceptionInSupertypes? =
-            ancestryTree.mapNotNull { it.superclass }.filter { it.dri.isDirectlyAnException() }
-                .takeIf { it.isNotEmpty() }?.let { ExceptionInSupertypes(it.toSourceSetDependent()) }
+        private fun AncestryNode.exceptionInSupertypesOrNull(): ExceptionInSupertypes? =
+            typeConstructorsBeingExceptions().takeIf { it.isNotEmpty() }?.let { ExceptionInSupertypes(it.toSourceSetDependent()) }
 
         private fun parseFunction(
             psi: PsiMethod,
@@ -436,53 +431,56 @@ class DefaultPsiToDocumentableTranslator(
                 Annotations.Annotation(DRI("kotlin.jvm", "JvmStatic"), emptyMap())
         }
 
+        private fun <T : AnnotationTarget> PsiTypeParameter.annotations(): PropertyContainer<T> = this.annotations.toList().toListOfAnnotations().annotations()
+        private fun <T : AnnotationTarget> PsiType.annotations(): PropertyContainer<T> = this.annotations.toList().toListOfAnnotations().annotations()
+
+        private fun <T : AnnotationTarget> List<Annotations.Annotation>.annotations(): PropertyContainer<T> =
+            this.takeIf { it.isNotEmpty() }?.let { annotations ->
+                PropertyContainer.withAll(annotations.toSourceSetDependent().toAnnotations())
+            } ?: PropertyContainer.empty()
+
+        private fun getProjection(type: PsiTypeParameter) =
+            TypeParameter(
+                dri = DRI.from(type),
+                name = type.name.orEmpty(),
+                extra = type.annotations()
+            )
+
         private fun getBound(type: PsiType): Bound {
-            fun annotationsFromType(): List<Annotations.Annotation> = type.annotations.toList().toListOfAnnotations()
-
-            fun <T : AnnotationTarget> annotations(): PropertyContainer<T> =
-                annotationsFromType().takeIf { it.isNotEmpty() }?.let { annotations ->
-                    PropertyContainer.withAll(annotations.toSourceSetDependent().toAnnotations())
-                } ?: PropertyContainer.empty()
-
             fun bound() = when (type) {
                 is PsiClassReferenceType ->
                     type.resolve()?.let { resolved ->
                         when {
-                            resolved.qualifiedName == "java.lang.Object" -> JavaObject(annotations())
-                            resolved is PsiTypeParameter ->
-                                TypeParameter(
-                                    dri = DRI.from(resolved),
-                                    name = resolved.name.orEmpty(),
-                                    extra = annotations()
-                                )
+                            resolved.qualifiedName == "java.lang.Object" -> JavaObject(type.annotations())
+                            resolved is PsiTypeParameter -> getProjection(resolved)
                             Regex("kotlin\\.jvm\\.functions\\.Function.*").matches(resolved.qualifiedName ?: "") ||
                                     Regex("java\\.util\\.function\\.Function.*").matches(
                                         resolved.qualifiedName ?: ""
                                     ) -> FunctionalTypeConstructor(
                                 DRI.from(resolved),
                                 type.parameters.map { getProjection(it) },
-                                extra = annotations()
+                                extra = type.annotations()
                             )
                             else -> GenericTypeConstructor(
                                 DRI.from(resolved),
                                 type.parameters.map { getProjection(it) },
-                                extra = annotations()
+                                extra = type.annotations()
                             )
                         }
                     } ?: UnresolvedBound(type.presentableText)
                 is PsiArrayType -> GenericTypeConstructor(
                     DRI("kotlin", "Array"),
                     listOf(getProjection(type.componentType)),
-                    extra = annotations()
+                    extra = type.annotations()
                 )
                 is PsiPrimitiveType -> if (type.name == "void") Void else PrimitiveJavaType(type.name)
-                is PsiImmediateClassType -> JavaObject(annotations())
+                is PsiImmediateClassType -> JavaObject(type.annotations())
                 else -> throw IllegalStateException("${type.presentableText} is not supported by PSI parser")
             }
 
             //We would like to cache most of the bounds since it is not common to annotate them,
             //but if this is the case, we treat them as 'one of'
-            return if (annotationsFromType().isEmpty()) {
+            return if (type.annotations.toList().toListOfAnnotations().isEmpty()) {
                 cachedBounds.getOrPut(type.canonicalText) {
                     bound()
                 }
@@ -657,10 +655,4 @@ class DefaultPsiToDocumentableTranslator(
         private val PsiElement.psiReference
             get() = getChildOfType<PsiJavaCodeReferenceElement>()?.resolve()
     }
-
-    private data class AncestryLevel(
-        val level: Int,
-        val superclass: TypeConstructor?,
-        val interfaces: List<TypeConstructor>
-    )
 }
