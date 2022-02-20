@@ -342,18 +342,6 @@ open class DefaultPageCreator(
                     }
                 }
             }
-            val customTags = d.customTags
-            if (customTags.isNotEmpty()) {
-                group(styles = setOf(TextStyle.Block)) {
-                    customTags.forEach {
-                        group(styles = setOf(TextStyle.Block)) {
-                            it.value.values.forEach {
-                                comment(it.root)
-                            }
-                        }
-                    }
-                }
-            }
 
             val customTags = d.customTags
             if (customTags.isNotEmpty()) {
