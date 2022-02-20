@@ -53,9 +53,7 @@ class MathjaxPluginTest : BaseAbstractTest() {
                 }
             }
         }
-        val math = """
-            a^2 = b^2 + c^2
-        """.trimIndent()
+        val math = "a^2 = b^2 + c^2"
         val source =
             """
             |/src/main/kotlin/test/Test.kt
@@ -81,7 +79,6 @@ class MathjaxPluginTest : BaseAbstractTest() {
 
                 // Ensure the contents are displayed
                 assert(parsed.select("p").any {
-                    println(it.text())
                     it.text().contains(math)
                 })
             }
