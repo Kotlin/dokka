@@ -11,7 +11,7 @@ import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.utilities.urlEncoded
 import java.io.File
 
-interface VersionsNavigationCreator {
+fun interface VersionsNavigationCreator {
     operator fun invoke(output: File): String
 }
 

@@ -43,7 +43,7 @@ interface DokkaContext {
 inline fun <reified T : DokkaPlugin> DokkaContext.plugin(): T = plugin(T::class)
     ?: throw java.lang.IllegalStateException("Plugin ${T::class.qualifiedName} is not present in context.")
 
-interface DokkaContextConfiguration {
+fun interface DokkaContextConfiguration {
     fun installExtension(extension: Extension<*, *, *>)
 }
 
@@ -124,7 +124,11 @@ private class DokkaContextConfigurationImpl(
     }
 
     private fun findNotOverridden(bucket: Set<Extension<*, *, *>>): Extension<*, *, *> {
-        val filtered = bucket.filter { it !in suppressedExtensions }
+        // Let's filter out all suppressedExtensions that are not only overrides.
+        // suppressedExtensions can be polluted by suppressions that completely disables the extension, and would break dokka behaviour
+        // if not filtered out
+        val suppressedExtensionsByOverrides = suppressedExtensions.filterNot { it.value.any { it !is Suppression.ByExtension } }
+        val filtered = bucket.filterNot { it in suppressedExtensionsByOverrides }
         return filtered.singleOrNull()
             ?: throw IllegalStateException("Conflicting overrides: $filtered")
     }

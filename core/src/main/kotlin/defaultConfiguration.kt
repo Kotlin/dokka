@@ -19,6 +19,7 @@ data class DokkaConfigurationImpl(
     override val suppressObviousFunctions: Boolean = DokkaDefaults.suppressObviousFunctions,
     override val includes: Set<File> = emptySet(),
     override val suppressInheritedMembers: Boolean = DokkaDefaults.suppressInheritedMembers,
+    override val finalizeCoroutines: Boolean = true,
 ) : DokkaConfiguration
 
 data class PluginConfigurationImpl(
@@ -41,9 +42,9 @@ data class DokkaSourceSetImpl(
     override val skipEmptyPackages: Boolean = DokkaDefaults.skipEmptyPackages,
     override val skipDeprecated: Boolean = DokkaDefaults.skipDeprecated,
     override val jdkVersion: Int = DokkaDefaults.jdkVersion,
-    override val sourceLinks: Set<SourceLinkDefinitionImpl> = emptySet(),
-    override val perPackageOptions: List<PackageOptionsImpl> = emptyList(),
-    override val externalDocumentationLinks: Set<ExternalDocumentationLinkImpl> = emptySet(),
+    override val sourceLinks: Set<SourceLinkDefinitionImpl> = mutableSetOf(),
+    override val perPackageOptions: List<PackageOptionsImpl> = mutableListOf(),
+    override val externalDocumentationLinks: Set<ExternalDocumentationLinkImpl> = mutableSetOf(),
     override val languageVersion: String? = null,
     override val apiVersion: String? = null,
     override val noStdlibLink: Boolean = DokkaDefaults.noStdlibLink,
