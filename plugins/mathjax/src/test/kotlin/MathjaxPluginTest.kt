@@ -72,7 +72,7 @@ class MathjaxPluginTest : BaseAbstractTest() {
             pluginOverrides = listOf(writerPlugin, MathjaxPlugin())
         ) {
             renderingStage = { _, _ ->
-                val parsed = Jsoup.parse(writerPlugin.writer.contents["root/example/test.html"].also { println(it) })
+                val parsed = Jsoup.parse(writerPlugin.writer.contents["root/example/test.html"])
 
                 // Ensure the MathJax CDN is loaded
                 assert(parsed.select("link, script").`is`("[href=$LIB_PATH], [src=$LIB_PATH]"))
