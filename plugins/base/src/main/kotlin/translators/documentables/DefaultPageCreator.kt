@@ -36,7 +36,8 @@ open class DefaultPageCreator(
     protected open val contentBuilder = PageContentBuilder(commentsToContentConverter, signatureProvider, logger)
 
     protected val mergeImplicitExpectActualDeclarations =
-        configuration?.mergeImplicitExpectActualDeclarations ?: DokkaBaseConfiguration.mergeImplicitExpectActualDeclarationsDefault
+        configuration?.mergeImplicitExpectActualDeclarations
+            ?: DokkaBaseConfiguration.mergeImplicitExpectActualDeclarationsDefault
 
     protected val separateInheritedMembers =
         configuration?.separateInheritedMembers ?: DokkaBaseConfiguration.separateInheritedMembersDefault
@@ -71,13 +72,13 @@ open class DefaultPageCreator(
         val functions = documentables.flatMap { it.filteredFunctions }
         val props = documentables.flatMap { it.filteredProperties }
 
-        val childrenPages =  if (mergeImplicitExpectActualDeclarations)
-                            functions.mergeClashingDocumentable().map(::pageForFunctions) +
-                            props.mergeClashingDocumentable().map(::pageForProperties)
-                else
-                    classlikes.renameClashingDocumentable().map(::pageForClasslike) +
-                            functions.renameClashingDocumentable().map(::pageForFunction) +
-                            props.renameClashingDocumentable().mapNotNull(::pageForProperty)
+        val childrenPages = if (mergeImplicitExpectActualDeclarations)
+            functions.mergeClashingDocumentable().map(::pageForFunctions) +
+                    props.mergeClashingDocumentable().map(::pageForProperties)
+        else
+            classlikes.renameClashingDocumentable().map(::pageForClasslike) +
+                    functions.renameClashingDocumentable().map(::pageForFunction) +
+                    props.renameClashingDocumentable().mapNotNull(::pageForProperty)
 
         return ClasslikePageNode(
             documentables.first().nameAfterClash(), contentForClasslikesAndEntries(documentables), dri, documentables,
@@ -129,7 +130,7 @@ open class DefaultPageCreator(
         }
 
     @Suppress("UNCHECKED_CAST")
-    private fun <T : Documentable>  T.renameClashingDocumentable():T? = when (this) {
+    private fun <T : Documentable> T.renameClashingDocumentable(): T? = when (this) {
         is DClass -> copy(extra = this.extra + DriClashAwareName(this.toClashedName()))
         is DObject -> copy(extra = this.extra + DriClashAwareName(this.toClashedName()))
         is DAnnotation -> copy(extra = this.extra + DriClashAwareName(this.toClashedName()))
@@ -144,12 +145,15 @@ open class DefaultPageCreator(
     private fun <T : Documentable> List<T>.mergeClashingDocumentable(): List<List<T>> =
         groupBy { it.dri }.values.toList()
 
-    open fun pageForFunction(f: DFunction) = MemberPageNode(f.nameAfterClash(), contentForFunction(f), setOf(f.dri), listOf(f))
+    open fun pageForFunction(f: DFunction) =
+        MemberPageNode(f.nameAfterClash(), contentForFunction(f), setOf(f.dri), listOf(f))
 
     open fun pageForFunctions(fs: List<DFunction>): MemberPageNode {
-        val dri = fs.dri.also { if (it.size != 1) {
-            logger.error("Function dri should have the same one ${it.first()} inside the one page!")
-        } }
+        val dri = fs.dri.also {
+            if (it.size != 1) {
+                logger.error("Function dri should have the same one ${it.first()} inside the one page!")
+            }
+        }
         return MemberPageNode(fs.first().nameAfterClash(), contentForMembers(fs), dri, fs)
     }
 
@@ -157,10 +161,12 @@ open class DefaultPageCreator(
         MemberPageNode(p.nameAfterClash(), contentForProperty(p), setOf(p.dri), listOf(p))
 
     open fun pageForProperties(ps: List<DProperty>): MemberPageNode {
-        val dri = ps.dri.also { if (it.size != 1) {
-            logger.error("Property dri should have the same one ${it.first()} inside the one page!")
-        } }
-       return MemberPageNode(ps.first().nameAfterClash(), contentForMembers(ps), dri, ps)
+        val dri = ps.dri.also {
+            if (it.size != 1) {
+                logger.error("Property dri should have the same one ${it.first()} inside the one page!")
+            }
+        }
+        return MemberPageNode(ps.first().nameAfterClash(), contentForMembers(ps), dri, ps)
     }
 
     private fun <T> T.isInherited(): Boolean where T : Documentable, T : WithExtraProperties<T> =
@@ -241,10 +247,11 @@ open class DefaultPageCreator(
     ): ContentGroup {
         val types = scopes.flatMap { it.classlikes } + scopes.filterIsInstance<DPackage>().flatMap { it.typealiases }
         val inheritors = scopes.fold(mutableMapOf<DokkaSourceSet, List<DRI>>()) { acc, scope ->
-            val inheritorsForScope = scope.safeAs<WithExtraProperties<Documentable>>()?.let { it.extra[InheritorsInfo] }?.let { inheritors ->
-                inheritors.value.filter { it.value.isNotEmpty() }
-            }.orEmpty()
-            inheritorsForScope.forEach { (k,v) ->
+            val inheritorsForScope =
+                scope.safeAs<WithExtraProperties<Documentable>>()?.let { it.extra[InheritorsInfo] }?.let { inheritors ->
+                    inheritors.value.filter { it.value.isNotEmpty() }
+                }.orEmpty()
+            inheritorsForScope.forEach { (k, v) ->
                 acc.compute(k) { _, value -> value?.plus(v) ?: v }
             }
             acc
@@ -270,11 +277,12 @@ open class DefaultPageCreator(
             s.classlikes,
             (s as? DPackage)?.typealiases ?: emptyList()
         ).flatten()
-        val inheritors = s.safeAs<WithExtraProperties<Documentable>>()?.let { it.extra[InheritorsInfo] }?.let { inheritors ->
-           inheritors.value.filter { it.value.isNotEmpty() }
-        }.orEmpty()
+        val inheritors =
+            s.safeAs<WithExtraProperties<Documentable>>()?.let { it.extra[InheritorsInfo] }?.let { inheritors ->
+                inheritors.value.filter { it.value.isNotEmpty() }
+            }.orEmpty()
 
-       return contentForScope(setOf(dri), sourceSets, types, s.functions, s.properties, inheritors)
+        return contentForScope(setOf(dri), sourceSets, types, s.functions, s.properties, inheritors)
     }
 
     protected open fun contentForScope(
@@ -361,7 +369,8 @@ open class DefaultPageCreator(
                         "Constructors",
                         2,
                         ContentKind.Constructors,
-                        constructorsToDocumented.groupBy { it.parameters.map { it.dri }  }.map { (_,v) -> v.first().name to v },
+                        constructorsToDocumented.groupBy { it.parameters.map { it.dri } }
+                            .map { (_, v) -> v.first().name to v },
                         @Suppress("UNCHECKED_CAST")
                         (csWithConstructor as List<Documentable>).sourceSets,
                         needsAnchors = true,
@@ -456,7 +465,7 @@ open class DefaultPageCreator(
             if (customTags.isNotEmpty()) {
                 group(styles = setOf(TextStyle.Block)) {
                     platforms.forEach { platform ->
-                        customTags.forEach { (tagName, sourceSetTag) ->
+                        customTags.forEach { (_, sourceSetTag) ->
                             sourceSetTag[platform]?.let { tag ->
                                 customTagContentProviders.filter { it.isApplicable(tag) }.forEach { provider ->
                                     with(provider) {
@@ -677,7 +686,8 @@ open class DefaultPageCreator(
 
                     We purposefully ignore all other tags as they should not be visible in brief
                  */
-                it.firstMemberOfTypeOrNull<Description>() ?: it.firstMemberOfTypeOrNull<Property>().takeIf { documentable is DProperty }
+                it.firstMemberOfTypeOrNull<Description>() ?: it.firstMemberOfTypeOrNull<Property>()
+                    .takeIf { documentable is DProperty }
             }?.let {
                 group(sourceSets = setOf(sourceSet), kind = ContentKind.BriefComment) {
                     if (documentable.hasSeparatePage) createBriefComment(documentable, sourceSet, it)
@@ -687,9 +697,13 @@ open class DefaultPageCreator(
         }
     }
 
-    private fun DocumentableContentBuilder.createBriefComment(documentable: Documentable, sourceSet: DokkaSourceSet, tag: TagWrapper){
+    private fun DocumentableContentBuilder.createBriefComment(
+        documentable: Documentable,
+        sourceSet: DokkaSourceSet,
+        tag: TagWrapper
+    ) {
         (documentable as? WithSources)?.documentableLanguage(sourceSet)?.let {
-            when(it){
+            when (it) {
                 DocumentableLanguage.KOTLIN -> firstParagraphComment(tag.root)
                 DocumentableLanguage.JAVA -> firstSentenceComment(tag.root)
             }
@@ -825,7 +839,7 @@ open class DefaultPageCreator(
         if (customTags.isEmpty()) return
 
         documentable.sourceSets.forEach { sourceSet ->
-            customTags.forEach { (tagName, sourceSetTag) ->
+            customTags.forEach { (_, sourceSetTag) ->
                 sourceSetTag[sourceSet]?.let { tag ->
                     customTagContentProviders.filter { it.isApplicable(tag) }.forEach { provider ->
                         with(provider) {
@@ -851,9 +865,11 @@ open class DefaultPageCreator(
         }.groupBy { it.second::class }
 
     private val List<Documentable>.groupedTags: GroupedTags
-        get() = this.flatMap { it.documentation.flatMap { (pd, doc) ->
-            doc.children.map { pd to it }.toList()
-        } }.groupBy { it.second::class }
+        get() = this.flatMap {
+            it.documentation.flatMap { (pd, doc) ->
+                doc.children.map { pd to it }.toList()
+            }
+        }.groupBy { it.second::class }
 
     private val Documentable.descriptions: SourceSetDependent<Description>
         get() = groupedTags.withTypeUnnamed()

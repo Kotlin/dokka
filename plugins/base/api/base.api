@@ -1368,7 +1368,7 @@ public class org/jetbrains/dokka/base/translators/documentables/DefaultPageCreat
 	protected fun getContentBuilder ()Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder;
 	public final fun getCustomTagContentProviders ()Ljava/util/List;
 	public final fun getLogger ()Lorg/jetbrains/dokka/utilities/DokkaLogger;
-	protected final fun getMergeNoExpectActualDeclarations ()Z
+	protected final fun getMergeImplicitExpectActualDeclarations ()Z
 	protected final fun getSeparateInheritedMembers ()Z
 	public fun pageForClasslike (Lorg/jetbrains/dokka/model/DClasslike;)Lorg/jetbrains/dokka/pages/ClasslikePageNode;
 	public fun pageForClasslikes (Ljava/util/List;)Lorg/jetbrains/dokka/pages/ClasslikePageNode;
