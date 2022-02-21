@@ -368,7 +368,14 @@
     Separating inherited members
   </a>
   
-    <nav class="md-nav" aria-label="Separating inherited members">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#merging-declarations-with-name-clashing" class="md-nav__link">
+    Merging declarations with name clashing
+  </a>
+  
+    <nav class="md-nav" aria-label="Merging declarations with name clashing">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -664,7 +671,14 @@
     Separating inherited members
   </a>
   
-    <nav class="md-nav" aria-label="Separating inherited members">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#merging-declarations-with-name-clashing" class="md-nav__link">
+    Merging declarations with name clashing
+  </a>
+  
+    <nav class="md-nav" aria-label="Merging declarations with name clashing">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -728,6 +742,10 @@ Keep in mind that this value will be passed exactly to the output html, so it ha
 <h2 id="separating-inherited-members">Separating inherited members<a class="headerlink" href="#separating-inherited-members" title="Permanent link">&para;</a></h2>
 <p>By setting a boolean property <code>separateInheritedMembers</code> dokka will split inherited members (like functions, properties etc.) 
 from ones declared in viewed class. Separated members will have it's own tabs on the page.</p>
+<h2 id="merging-declarations-with-name-clashing">Merging declarations with name clashing<a class="headerlink" href="#merging-declarations-with-name-clashing" title="Permanent link">&para;</a></h2>
+<p>By setting a boolean property <code>mergeImplicitExpectActualDeclarations</code> dokka will merge declarations that do not have <code>expect</code>/<code>actual</code> keywords but have the same fully qualified name. 
+The declarations will be displayed on one page.
+By default, it is disabled. The page names of such declaration have a prefix that is the name of source set. </p>
 <h3 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h3>
 <p>In order to override a logo and style it accordingly a css file named <code>logo-styles.css</code> is needed:
 <div class="highlight"><pre><span></span><code><span class="p">.</span><span class="nc">library-name</span> <span class="nt">a</span> <span class="p">{</span>
