@@ -35,7 +35,7 @@ open class DefaultPageCreator(
 ) {
     protected open val contentBuilder = PageContentBuilder(commentsToContentConverter, signatureProvider, logger)
 
-    protected val mergeNoExpectActualDeclarations =
+    protected val mergeImplicitExpectActualDeclarations =
         configuration?.mergeImplicitExpectActualDeclarations ?: DokkaBaseConfiguration.mergeImplicitExpectActualDeclarationsDefault
 
     protected val separateInheritedMembers =
@@ -46,7 +46,7 @@ open class DefaultPageCreator(
 
     open fun pageForPackage(p: DPackage): PackagePageNode = PackagePageNode(
         p.name, contentForPackage(p), setOf(p.dri), listOf(p),
-        if (mergeNoExpectActualDeclarations)
+        if (mergeImplicitExpectActualDeclarations)
             p.classlikes.mergeClashingDocumentable().map(::pageForClasslikes) +
                     p.functions.mergeClashingDocumentable().map(::pageForFunctions) +
                     p.properties.mergeClashingDocumentable().map(::pageForProperties)
@@ -71,7 +71,7 @@ open class DefaultPageCreator(
         val functions = documentables.flatMap { it.filteredFunctions }
         val props = documentables.flatMap { it.filteredProperties }
 
-        val childrenPages =  if (mergeNoExpectActualDeclarations)
+        val childrenPages =  if (mergeImplicitExpectActualDeclarations)
                             functions.mergeClashingDocumentable().map(::pageForFunctions) +
                             props.mergeClashingDocumentable().map(::pageForProperties)
                 else
@@ -100,7 +100,7 @@ open class DefaultPageCreator(
         val entries = documentables.flatMap { if (it is DEnum) it.entries else emptyList() }
 
         val childrenPages = constructors.map(::pageForFunction) +
-                if (mergeNoExpectActualDeclarations)
+                if (mergeImplicitExpectActualDeclarations)
                     classlikes.mergeClashingDocumentable().map(::pageForClasslikes) +
                             functions.mergeClashingDocumentable().map(::pageForFunctions) +
                             props.mergeClashingDocumentable().map(::pageForProperties) +
@@ -847,12 +847,12 @@ open class DefaultPageCreator(
 
     private val Documentable.groupedTags: GroupedTags
         get() = documentation.flatMap { (pd, doc) ->
-            doc.children.asSequence().map { pd to it }.toList()
+            doc.children.map { pd to it }.toList()
         }.groupBy { it.second::class }
 
     private val List<Documentable>.groupedTags: GroupedTags
         get() = this.flatMap { it.documentation.flatMap { (pd, doc) ->
-            doc.children.asSequence().map { pd to it }.toList()
+            doc.children.map { pd to it }.toList()
         } }.groupBy { it.second::class }
 
     private val Documentable.descriptions: SourceSetDependent<Description>
