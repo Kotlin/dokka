@@ -85,7 +85,7 @@ class JavadocParser(
             parseWithChildren = parseWithChildren
         )
 
-    private fun parseDocTag(tag: PsiDocTag, docComment: PsiDocComment, analysedElement: PsiNamedElement): TagWrapper? =
+    private fun parseDocTag(tag: PsiDocTag, docComment: PsiDocComment, analysedElement: PsiNamedElement): TagWrapper =
         enumValueOrNull<JavadocTag>(tag.name)?.let { javadocTag ->
             val resolutionContext = CommentResolutionContext(comment = docComment, tag = javadocTag)
             when (resolutionContext.tag) {

@@ -85,7 +85,7 @@ data class TitleNode(
     val kind: Kind,
     override val sourceSets: Set<DisplaySourceSet>
 ) : JavadocContentNode(dri, kind, sourceSets) {
-    override fun hasAnyContent(): Boolean = !title.isBlank() || !version.isNullOrBlank() || subtitle.isNotEmpty()
+    override fun hasAnyContent(): Boolean = title.isNotBlank() || !version.isNullOrBlank() || subtitle.isNotEmpty()
 
     override fun withNewExtras(newExtras: PropertyContainer<ContentNode>): TitleNode = this
 

@@ -121,11 +121,12 @@ class JvmDependenciesIndexImpl(_roots: List<JavaRoot>) : JvmDependenciesIndex {
         // NOTE: indices manipulation instead of using caches.reversed() is here for performance reasons
         for (cacheIndex in caches.lastIndex downTo 0) {
             val cacheRootIndices = caches[cacheIndex].rootIndices
-            for (i in 0..cacheRootIndices.size() - 1) {
+            for (i in 0 until cacheRootIndices.size()) {
                 val rootIndex = cacheRootIndices[i]
                 if (rootIndex <= processedRootsUpTo) continue // roots with those indices have been processed by now
 
-                val directoryInRoot = travelPath(rootIndex, request.packageFqName, packagesPath, cacheIndex, caches) ?: continue
+                val directoryInRoot =
+                    travelPath(rootIndex, request.packageFqName, packagesPath, cacheIndex, caches) ?: continue
                 val root = roots[rootIndex]
                 if (root.type in request.acceptedRootTypes) {
                     val result = handler(directoryInRoot, root.type)
@@ -156,7 +157,7 @@ class JvmDependenciesIndexImpl(_roots: List<JavaRoot>) : JvmDependenciesIndex {
         cachesPath: List<Cache>
     ): VirtualFile? {
         if (rootIndex >= maxIndex) {
-            for (i in (fillCachesAfter + 1)..(cachesPath.size - 1)) {
+            for (i in (fillCachesAfter + 1) until cachesPath.size) {
                 // we all know roots that contain this package by now
                 cachesPath[i].rootIndices.add(maxIndex)
                 cachesPath[i].rootIndices.trimToSize()

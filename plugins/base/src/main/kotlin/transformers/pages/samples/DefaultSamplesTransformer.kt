@@ -19,8 +19,7 @@ class DefaultSamplesTransformer(context: DokkaContext) : SamplesTransformer(cont
 
     private fun processSampleBody(psiElement: PsiElement): String = when (psiElement) {
         is KtDeclarationWithBody -> {
-            val bodyExpression = psiElement.bodyExpression
-            when (bodyExpression) {
+            when (val bodyExpression = psiElement.bodyExpression) {
                 is KtBlockExpression -> bodyExpression.text.removeSurrounding("{", "}")
                 else -> bodyExpression!!.text
             }

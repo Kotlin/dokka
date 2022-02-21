@@ -1,8 +1,12 @@
 package org.jetbrains.dokka.base.renderers
 
 import org.jetbrains.dokka.base.resolvers.shared.LinkFormat
-import org.jetbrains.dokka.model.withDescendants
-import org.jetbrains.dokka.pages.*
+import org.jetbrains.dokka.pages.ModulePage
+import org.jetbrains.dokka.pages.RendererSpecificPage
+import org.jetbrains.dokka.pages.RendererSpecificResourcePage
+import org.jetbrains.dokka.pages.RendererSpecificRootPage
+import org.jetbrains.dokka.pages.RenderingStrategy
+import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 

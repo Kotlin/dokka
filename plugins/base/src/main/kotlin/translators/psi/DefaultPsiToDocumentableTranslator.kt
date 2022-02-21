@@ -540,7 +540,7 @@ class DefaultPsiToDocumentableTranslator(
                 }
 
         private fun PsiClass.splitFunctionsAndAccessors(): Pair<MutableList<PsiMethod>, MutableMap<PsiField, MutableList<PsiMethod>>> {
-            val fieldNames = fields.map { it.name to it }.toMap()
+            val fieldNames = fields.associateBy { it.name }
             val accessors = mutableMapOf<PsiField, MutableList<PsiMethod>>()
             val regularMethods = mutableListOf<PsiMethod>()
             methods.forEach { method ->
@@ -572,7 +572,7 @@ class DefaultPsiToDocumentableTranslator(
                 emptyList(),
                 false,
                 psi.additionalExtras().let {
-                    PropertyContainer.withAll<DProperty>(
+                    PropertyContainer.withAll(
                         it.toSourceSetDependent().toAdditionalModifiers(),
                         (psi.annotations.toList()
                             .toListOfAnnotations() + it.toListOfAnnotations()).toSourceSetDependent()

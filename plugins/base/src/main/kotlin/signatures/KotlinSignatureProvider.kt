@@ -377,7 +377,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
 
     private fun PageContentBuilder.DocumentableContentBuilder.signatureForProjection(
         p: Projection, showFullyQualifiedName: Boolean = false
-    ): Unit {
+    ) {
         return when (p) {
             is TypeParameter -> {
                 annotationsInline(p)

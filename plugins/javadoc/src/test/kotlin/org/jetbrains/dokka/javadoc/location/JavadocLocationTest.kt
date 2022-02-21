@@ -128,7 +128,7 @@ class JavadocLocationTest : BaseAbstractTest() {
         locationTestInline { rootPageNode, dokkaContext ->
             val locationProvider = dokkaContext.plugin<JavadocPlugin>().querySingle { locationProviderFactory }
                 .getLocationProvider(rootPageNode)
-            val packageNode = rootPageNode.firstChildOfType<JavadocPackagePageNode>() { it.name == "javadoc.test" }
+            val packageNode = rootPageNode.firstChildOfType<JavadocPackagePageNode> { it.name == "javadoc.test" }
             val packagePath = locationProvider.resolve(packageNode)
 
             assertEquals("javadoc/test/package-summary", packagePath)

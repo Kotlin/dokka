@@ -3,7 +3,6 @@ package org.jetbrains.dokka.base.renderers
 import org.jetbrains.dokka.pages.ContentKind
 import org.jetbrains.dokka.pages.ContentNode
 import org.jetbrains.dokka.pages.Kind
-import org.jetbrains.dokka.utilities.DokkaLogger
 
 private val kindsOrder = listOf(
     ContentKind.Classlikes,

@@ -51,7 +51,7 @@ object TreeViewInstaller : PageTransformer {
 
     private fun installPackageTreeNode(node: JavadocPackagePageNode, root: RootPageNode): JavadocPackagePageNode {
         val packageTree = TreeViewPage(
-            name = "${node.name}",
+            name = node.name,
             packages = null,
             classes = node.children.filterIsInstance<JavadocClasslikePageNode>(),
             dri = node.dri,

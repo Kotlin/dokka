@@ -96,7 +96,7 @@ open class DokkaLocationProvider(
                     .mapNotNull { ssid ->
                         dokkaContext.configuration.sourceSets.find { it.sourceSetID == ssid }?.toDisplaySourceSet()
                     }
-            }.orEmpty()
+            }
 
         return allSourceSets.asSequence().mapNotNull { displaySourceSet ->
             pagesIndex[DRIWithSourceSets(dri, displaySourceSet)]?.let { page -> resolve(page, context) }

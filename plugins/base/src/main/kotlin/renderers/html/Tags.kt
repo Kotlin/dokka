@@ -23,9 +23,8 @@ open class WBR(initialAttributes: Map<String, String>, consumer: TagConsumer<*>)
 @HtmlTagMarker
 inline fun FlowOrPhrasingContent.strike(classes : String? = null, crossinline block : STRIKE.() -> Unit = {}) : Unit = STRIKE(attributesMapOf("class", classes), consumer).visit(block)
 
-open class STRIKE(initialAttributes : Map<String, String>, override val consumer : TagConsumer<*>) : HTMLTag("strike", consumer, initialAttributes, null, false, false), HtmlBlockInlineTag {
-
-}
+open class STRIKE(initialAttributes: Map<String, String>, override val consumer: TagConsumer<*>) :
+    HTMLTag("strike", consumer, initialAttributes, null, false, false), HtmlBlockInlineTag
 
 fun FlowOrMetaDataContent.templateCommand(data: Command, block: TemplateBlock = {}): Unit =
     (consumer as? ImmediateResolutionTagConsumer)?.processCommand(data, block)

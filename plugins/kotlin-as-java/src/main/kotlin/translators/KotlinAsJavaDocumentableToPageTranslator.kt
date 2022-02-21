@@ -2,13 +2,14 @@ package org.jetbrains.dokka.kotlinAsJava.translators
 
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.DokkaBaseConfiguration
-import org.jetbrains.dokka.base.signatures.SignatureProvider
-import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentConverter
-import org.jetbrains.dokka.DokkaConfiguration
-import org.jetbrains.dokka.transformers.documentation.DocumentableToPageTranslator
 import org.jetbrains.dokka.model.DModule
 import org.jetbrains.dokka.pages.ModulePageNode
-import org.jetbrains.dokka.plugability.*
+import org.jetbrains.dokka.plugability.DokkaContext
+import org.jetbrains.dokka.plugability.configuration
+import org.jetbrains.dokka.plugability.plugin
+import org.jetbrains.dokka.plugability.query
+import org.jetbrains.dokka.plugability.querySingle
+import org.jetbrains.dokka.transformers.documentation.DocumentableToPageTranslator
 import org.jetbrains.dokka.utilities.DokkaLogger
 
 class KotlinAsJavaDocumentableToPageTranslator(context: DokkaContext) : DocumentableToPageTranslator {

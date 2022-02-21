@@ -5,9 +5,9 @@ package org.jetbrains.dokka.base.parsers.moduleAndPackage
 import org.jetbrains.dokka.analysis.DokkaResolutionFacade
 import org.jetbrains.dokka.analysis.from
 import org.jetbrains.dokka.base.parsers.MarkdownParser
-import org.jetbrains.dokka.base.parsers.moduleAndPackage.ModuleAndPackageDocumentation.Classifier.*
+import org.jetbrains.dokka.base.parsers.moduleAndPackage.ModuleAndPackageDocumentation.Classifier.Module
+import org.jetbrains.dokka.base.parsers.moduleAndPackage.ModuleAndPackageDocumentation.Classifier.Package
 import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.model.doc.Description
 import org.jetbrains.dokka.model.doc.DocumentationNode
 import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
