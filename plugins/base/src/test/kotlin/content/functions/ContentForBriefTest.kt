@@ -1,11 +1,11 @@
 package content.functions
 
-import org.junit.Assert.assertEquals
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.links.TypeConstructor
 import org.jetbrains.dokka.model.DClass
 import org.jetbrains.dokka.model.dfs
 import org.jetbrains.dokka.pages.*
+import org.junit.Assert.assertEquals
 import org.junit.jupiter.api.Test
 import kotlin.test.assertNull
 
@@ -60,7 +60,7 @@ class ContentForBriefTest : BaseAbstractTest() {
         testInline(codeWithSecondaryAndPrimaryConstructorsDocumented, testConfiguration) {
             pagesTransformationStage = { module ->
                 val classPage =
-                    module.dfs { it.name == "Example" && (it as ContentPage).documentable is DClass } as ContentPage
+                    module.dfs { it.name == "Example" && (it as WithDocumentables).documentables.firstOrNull() is DClass } as ContentPage
                 val constructorsTable =
                     classPage.content.dfs { it is ContentTable && it.dci.kind == ContentKind.Constructors } as ContentTable
 
@@ -84,7 +84,7 @@ class ContentForBriefTest : BaseAbstractTest() {
         testInline(codeWithSecondaryAndPrimaryConstructorsDocumented, testConfiguration) {
             pagesTransformationStage = { module ->
                 val classPage =
-                    module.dfs { it.name == "Example" && (it as ContentPage).documentable is DClass } as ContentPage
+                    module.dfs { it.name == "Example" && (it as WithDocumentables).documentables.firstOrNull() is DClass } as ContentPage
                 val constructorsTable =
                     classPage.content.dfs { it is ContentTable && it.dci.kind == ContentKind.Constructors } as ContentTable
 
@@ -108,7 +108,7 @@ class ContentForBriefTest : BaseAbstractTest() {
         testInline(codeWithDocumentedParameter, testConfiguration) {
             pagesTransformationStage = { module ->
                 val classPage =
-                    module.dfs { it.name == "Example" && (it as ContentPage).documentable is DClass } as ContentPage
+                    module.dfs { it.name == "Example" && (it as WithDocumentables).documentables.firstOrNull() is DClass } as ContentPage
                 val constructorsTable =
                     classPage.content.dfs { it is ContentTable && it.dci.kind == ContentKind.Constructors } as ContentTable
 
@@ -319,7 +319,7 @@ class ContentForBriefTest : BaseAbstractTest() {
     }
 
     private fun RootPageNode.singleFunctionDescription(className: String): ContentGroup {
-        val classPage = dfs { it.name == className && (it as ContentPage).documentable is DClass } as ContentPage
+        val classPage = dfs { it.name == className && (it as WithDocumentables).documentables.firstOrNull() is DClass } as ContentPage
         val functionsTable =
             classPage.content.dfs { it is ContentTable && it.dci.kind == ContentKind.Functions } as ContentTable
 

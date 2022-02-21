@@ -3440,15 +3440,20 @@ public abstract interface class org/jetbrains/dokka/model/properties/WithExtraPr
 	public abstract fun withNewExtras (Lorg/jetbrains/dokka/model/properties/PropertyContainer;)Ljava/lang/Object;
 }
 
-public abstract interface class org/jetbrains/dokka/pages/ClasslikePage : org/jetbrains/dokka/pages/ContentPage {
+public abstract interface class org/jetbrains/dokka/pages/ClasslikePage : org/jetbrains/dokka/pages/ContentPage, org/jetbrains/dokka/pages/WithDocumentables {
+}
+
+public final class org/jetbrains/dokka/pages/ClasslikePage$DefaultImpls {
+	public static fun getDocumentable (Lorg/jetbrains/dokka/pages/ClasslikePage;)Lorg/jetbrains/dokka/model/Documentable;
 }
 
 public final class org/jetbrains/dokka/pages/ClasslikePageNode : org/jetbrains/dokka/pages/ClasslikePage {
-	public fun <init> (Ljava/lang/String;Lorg/jetbrains/dokka/pages/ContentNode;Ljava/util/Set;Lorg/jetbrains/dokka/model/Documentable;Ljava/util/List;Ljava/util/List;)V
-	public synthetic fun <init> (Ljava/lang/String;Lorg/jetbrains/dokka/pages/ContentNode;Ljava/util/Set;Lorg/jetbrains/dokka/model/Documentable;Ljava/util/List;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Ljava/lang/String;Lorg/jetbrains/dokka/pages/ContentNode;Ljava/util/Set;Ljava/util/List;Ljava/util/List;Ljava/util/List;)V
+	public synthetic fun <init> (Ljava/lang/String;Lorg/jetbrains/dokka/pages/ContentNode;Ljava/util/Set;Ljava/util/List;Ljava/util/List;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun getChildren ()Ljava/util/List;
 	public fun getContent ()Lorg/jetbrains/dokka/pages/ContentNode;
 	public fun getDocumentable ()Lorg/jetbrains/dokka/model/Documentable;
+	public fun getDocumentables ()Ljava/util/List;
 	public fun getDri ()Ljava/util/Set;
 	public fun getEmbeddedResources ()Ljava/util/List;
 	public fun getName ()Ljava/lang/String;
@@ -3846,6 +3851,7 @@ public abstract interface class org/jetbrains/dokka/pages/ContentPage : org/jetb
 }
 
 public final class org/jetbrains/dokka/pages/ContentPage$DefaultImpls {
+	public static fun getDocumentable (Lorg/jetbrains/dokka/pages/ContentPage;)Lorg/jetbrains/dokka/model/Documentable;
 	public static synthetic fun modified$default (Lorg/jetbrains/dokka/pages/ContentPage;Ljava/lang/String;Lorg/jetbrains/dokka/pages/ContentNode;Ljava/util/Set;Ljava/util/List;Ljava/util/List;ILjava/lang/Object;)Lorg/jetbrains/dokka/pages/ContentPage;
 }
 
@@ -3982,15 +3988,20 @@ public final class org/jetbrains/dokka/pages/ListStyle : java/lang/Enum, org/jet
 	public static fun values ()[Lorg/jetbrains/dokka/pages/ListStyle;
 }
 
-public abstract interface class org/jetbrains/dokka/pages/MemberPage : org/jetbrains/dokka/pages/ContentPage {
+public abstract interface class org/jetbrains/dokka/pages/MemberPage : org/jetbrains/dokka/pages/ContentPage, org/jetbrains/dokka/pages/WithDocumentables {
+}
+
+public final class org/jetbrains/dokka/pages/MemberPage$DefaultImpls {
+	public static fun getDocumentable (Lorg/jetbrains/dokka/pages/MemberPage;)Lorg/jetbrains/dokka/model/Documentable;
 }
 
 public final class org/jetbrains/dokka/pages/MemberPageNode : org/jetbrains/dokka/pages/MemberPage {
-	public fun <init> (Ljava/lang/String;Lorg/jetbrains/dokka/pages/ContentNode;Ljava/util/Set;Lorg/jetbrains/dokka/model/Documentable;Ljava/util/List;Ljava/util/List;)V
-	public synthetic fun <init> (Ljava/lang/String;Lorg/jetbrains/dokka/pages/ContentNode;Ljava/util/Set;Lorg/jetbrains/dokka/model/Documentable;Ljava/util/List;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Ljava/lang/String;Lorg/jetbrains/dokka/pages/ContentNode;Ljava/util/Set;Ljava/util/List;Ljava/util/List;Ljava/util/List;)V
+	public synthetic fun <init> (Ljava/lang/String;Lorg/jetbrains/dokka/pages/ContentNode;Ljava/util/Set;Ljava/util/List;Ljava/util/List;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun getChildren ()Ljava/util/List;
 	public fun getContent ()Lorg/jetbrains/dokka/pages/ContentNode;
 	public fun getDocumentable ()Lorg/jetbrains/dokka/model/Documentable;
+	public fun getDocumentables ()Ljava/util/List;
 	public fun getDri ()Ljava/util/Set;
 	public fun getEmbeddedResources ()Ljava/util/List;
 	public fun getName ()Ljava/lang/String;
@@ -4000,15 +4011,20 @@ public final class org/jetbrains/dokka/pages/MemberPageNode : org/jetbrains/dokk
 	public fun modified (Ljava/lang/String;Lorg/jetbrains/dokka/pages/ContentNode;Ljava/util/Set;Ljava/util/List;Ljava/util/List;)Lorg/jetbrains/dokka/pages/MemberPageNode;
 }
 
-public abstract interface class org/jetbrains/dokka/pages/ModulePage : org/jetbrains/dokka/pages/ContentPage {
+public abstract interface class org/jetbrains/dokka/pages/ModulePage : org/jetbrains/dokka/pages/ContentPage, org/jetbrains/dokka/pages/WithDocumentables {
+}
+
+public final class org/jetbrains/dokka/pages/ModulePage$DefaultImpls {
+	public static fun getDocumentable (Lorg/jetbrains/dokka/pages/ModulePage;)Lorg/jetbrains/dokka/model/Documentable;
 }
 
 public final class org/jetbrains/dokka/pages/ModulePageNode : org/jetbrains/dokka/pages/RootPageNode, org/jetbrains/dokka/pages/ModulePage {
-	public fun <init> (Ljava/lang/String;Lorg/jetbrains/dokka/pages/ContentNode;Lorg/jetbrains/dokka/model/Documentable;Ljava/util/List;Ljava/util/List;)V
-	public synthetic fun <init> (Ljava/lang/String;Lorg/jetbrains/dokka/pages/ContentNode;Lorg/jetbrains/dokka/model/Documentable;Ljava/util/List;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Ljava/lang/String;Lorg/jetbrains/dokka/pages/ContentNode;Ljava/util/List;Ljava/util/List;Ljava/util/List;)V
+	public synthetic fun <init> (Ljava/lang/String;Lorg/jetbrains/dokka/pages/ContentNode;Ljava/util/List;Ljava/util/List;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun getChildren ()Ljava/util/List;
 	public fun getContent ()Lorg/jetbrains/dokka/pages/ContentNode;
 	public fun getDocumentable ()Lorg/jetbrains/dokka/model/Documentable;
+	public fun getDocumentables ()Ljava/util/List;
 	public fun getDri ()Ljava/util/Set;
 	public fun getEmbeddedResources ()Ljava/util/List;
 	public fun getName ()Ljava/lang/String;
@@ -4020,6 +4036,10 @@ public final class org/jetbrains/dokka/pages/ModulePageNode : org/jetbrains/dokk
 }
 
 public abstract interface class org/jetbrains/dokka/pages/MultimoduleRootPage : org/jetbrains/dokka/pages/ContentPage {
+}
+
+public final class org/jetbrains/dokka/pages/MultimoduleRootPage$DefaultImpls {
+	public static fun getDocumentable (Lorg/jetbrains/dokka/pages/MultimoduleRootPage;)Lorg/jetbrains/dokka/model/Documentable;
 }
 
 public final class org/jetbrains/dokka/pages/MultimoduleRootPageNode : org/jetbrains/dokka/pages/RootPageNode, org/jetbrains/dokka/pages/MultimoduleRootPage {
@@ -4041,15 +4061,20 @@ public final class org/jetbrains/dokka/pages/MultimoduleTable : org/jetbrains/do
 	public static final field INSTANCE Lorg/jetbrains/dokka/pages/MultimoduleTable;
 }
 
-public abstract interface class org/jetbrains/dokka/pages/PackagePage : org/jetbrains/dokka/pages/ContentPage {
+public abstract interface class org/jetbrains/dokka/pages/PackagePage : org/jetbrains/dokka/pages/ContentPage, org/jetbrains/dokka/pages/WithDocumentables {
+}
+
+public final class org/jetbrains/dokka/pages/PackagePage$DefaultImpls {
+	public static fun getDocumentable (Lorg/jetbrains/dokka/pages/PackagePage;)Lorg/jetbrains/dokka/model/Documentable;
 }
 
 public final class org/jetbrains/dokka/pages/PackagePageNode : org/jetbrains/dokka/pages/PackagePage {
-	public fun <init> (Ljava/lang/String;Lorg/jetbrains/dokka/pages/ContentNode;Ljava/util/Set;Lorg/jetbrains/dokka/model/Documentable;Ljava/util/List;Ljava/util/List;)V
-	public synthetic fun <init> (Ljava/lang/String;Lorg/jetbrains/dokka/pages/ContentNode;Ljava/util/Set;Lorg/jetbrains/dokka/model/Documentable;Ljava/util/List;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Ljava/lang/String;Lorg/jetbrains/dokka/pages/ContentNode;Ljava/util/Set;Ljava/util/List;Ljava/util/List;Ljava/util/List;)V
+	public synthetic fun <init> (Ljava/lang/String;Lorg/jetbrains/dokka/pages/ContentNode;Ljava/util/Set;Ljava/util/List;Ljava/util/List;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun getChildren ()Ljava/util/List;
 	public fun getContent ()Lorg/jetbrains/dokka/pages/ContentNode;
 	public fun getDocumentable ()Lorg/jetbrains/dokka/model/Documentable;
+	public fun getDocumentables ()Ljava/util/List;
 	public fun getDri ()Ljava/util/Set;
 	public fun getEmbeddedResources ()Ljava/util/List;
 	public fun getName ()Ljava/lang/String;
@@ -4262,6 +4287,10 @@ public final class org/jetbrains/dokka/pages/TokenStyle : java/lang/Enum, org/je
 public final class org/jetbrains/dokka/pages/UtilsKt {
 	public static final fun mapTransform (Lorg/jetbrains/dokka/pages/ContentNode;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/dokka/pages/ContentNode;
 	public static final fun recursiveMapTransform (Lorg/jetbrains/dokka/pages/ContentNode;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/dokka/pages/ContentNode;
+}
+
+public abstract interface class org/jetbrains/dokka/pages/WithDocumentables {
+	public abstract fun getDocumentables ()Ljava/util/List;
 }
 
 public final class org/jetbrains/dokka/pages/WrongRendererTypeException : java/lang/Exception {

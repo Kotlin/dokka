@@ -9,6 +9,7 @@ import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder.Doc
 import org.jetbrains.dokka.model.doc.CustomTagWrapper
 import org.jetbrains.dokka.pages.ContentPage
 import org.jetbrains.dokka.pages.RootPageNode
+import org.jetbrains.dokka.pages.WithDocumentables
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 
@@ -35,12 +36,10 @@ object MathjaxTransformer : PageTransformer {
     }
 
     private val ContentPage.isNeedingMathjax
-        get() = documentable?.documentation?.values
-            ?.flatMap { it.children }
-            .orEmpty()
-            .any { (it as? CustomTagWrapper)?.name == ANNOTATION }
+        get() = (this as WithDocumentables).documentables.any { it.documentation.values
+            .flatMap { it.children }
+            .any { (it as? CustomTagWrapper)?.name == ANNOTATION } }
 }
-
 object MathjaxTagContentProvider : CustomTagContentProvider {
 
     override fun isApplicable(customTag: CustomTagWrapper) = customTag.name == ANNOTATION

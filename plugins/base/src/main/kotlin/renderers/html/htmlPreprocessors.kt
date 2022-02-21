@@ -1,14 +1,14 @@
 package org.jetbrains.dokka.base.renderers.html
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.DokkaBaseConfiguration
 import org.jetbrains.dokka.base.renderers.sourceSets
-import org.jetbrains.dokka.base.templating.AddToSearch
 import org.jetbrains.dokka.base.templating.AddToSourcesetDependencies
 import org.jetbrains.dokka.base.templating.toJsonString
-import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.model.*
+import org.jetbrains.dokka.model.DEnum
+import org.jetbrains.dokka.model.DEnumEntry
+import org.jetbrains.dokka.model.DFunction
+import org.jetbrains.dokka.model.withDescendants
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.configuration
@@ -30,19 +30,18 @@ abstract class NavigationDataProvider {
         when {
             this !is ClasslikePageNode ->
                 children.filterIsInstance<ContentPage>().map { visit(it) }
-            documentable is DEnum ->
-                children.filter { it is ContentPage && it.documentable is DEnumEntry }.map { visit(it as ContentPage) }
+            documentables.any { it is DEnum } ->
+                children.filter { it is WithDocumentables && it.documentables.any { it is DEnumEntry } }
+                    .map { visit(it as ContentPage) }
             else -> emptyList()
         }.sortedBy { it.name.toLowerCase() }
 
     /**
-     * Parenthesis is applied in 2 cases:
+     * Parenthesis is applied in 1 case:
      *  - page only contains functions (therefore documentable from this page is [DFunction])
-     *  - page merges only functions (documentable is null because [SameMethodNamePageMergerStrategy][org.jetbrains.dokka.base.transformers.pages.merger.SameMethodNamePageMergerStrategy]
-     *      removes it from page)
      */
     private val ContentPage.displayableName: String
-        get() = if (documentable is DFunction || (documentable == null && dri.all { it.callable != null })) {
+        get() = if (this is WithDocumentables && documentables.all { it is DFunction }) {
             "$name()"
         } else {
             name

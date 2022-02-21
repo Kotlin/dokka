@@ -1,15 +1,15 @@
 package org.jetbrains.dokka.base.transformers.pages.sourcelinks
 
-import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiDocumentManager
+import com.intellij.psi.PsiElement
 import org.jetbrains.dokka.DokkaConfiguration
-import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder
-import org.jetbrains.dokka.model.DocumentableSource
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.analysis.DescriptorDocumentableSource
 import org.jetbrains.dokka.analysis.PsiDocumentableSource
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.resolvers.anchors.SymbolAnchorHint
+import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder
+import org.jetbrains.dokka.model.DocumentableSource
 import org.jetbrains.dokka.model.WithSources
 import org.jetbrains.dokka.model.toDisplaySourceSets
 import org.jetbrains.dokka.pages.*
@@ -32,8 +32,9 @@ class SourceLinksTransformer(val context: DokkaContext) : PageTransformer {
 
     override fun invoke(input: RootPageNode) =
         input.transformContentPagesTree { node ->
-            when (val documentable = node.documentable) {
-                is WithSources -> resolveSources(documentable)
+            when (node) {
+                is WithDocumentables ->
+                    node.documentables.filterIsInstance<WithSources>().flatMap { resolveSources(it) }
                     .takeIf { it.isNotEmpty() }
                     ?.let { node.addSourcesContent(it) }
                     ?: node
@@ -65,23 +66,26 @@ class SourceLinksTransformer(val context: DokkaContext) : PageTransformer {
     private fun PageContentBuilder.buildSourcesContent(
         node: ContentPage,
         sources: List<Pair<DokkaSourceSet, String>>
-    ) = contentFor(
-        node.dri.first(),
-        node.documentable!!.sourceSets.toSet()
-    ) {
-        header(2, "Sources", kind = ContentKind.Source)
-        +ContentTable(
-            header = emptyList(),
-            children = sources.map {
-                buildGroup(node.dri, setOf(it.first), kind = ContentKind.Source, extra = mainExtra + SymbolAnchorHint(it.second, ContentKind.Source)) {
-                    link("${it.first.displayName} source", it.second)
-                }
-            },
-            dci = DCI(node.dri, ContentKind.Source),
-            sourceSets = node.documentable!!.sourceSets.toDisplaySourceSets(),
-            style = emptySet(),
-            extra = mainExtra + SimpleAttr.header("Sources")
-        )
+    ): ContentGroup {
+        val documentables = (node as? WithDocumentables)?.documentables.orEmpty()
+        return contentFor(
+            node.dri,
+            documentables.flatMap { it.sourceSets }.toSet()
+        ) {
+            header(2, "Sources", kind = ContentKind.Source)
+            +ContentTable(
+                header = emptyList(),
+                children = sources.map {
+                    buildGroup(node.dri, setOf(it.first), kind = ContentKind.Source, extra = mainExtra + SymbolAnchorHint(it.second, ContentKind.Source)) {
+                        link("${it.first.displayName} source", it.second)
+                    }
+                },
+                dci = DCI(node.dri, ContentKind.Source),
+                sourceSets = documentables.flatMap { it.sourceSets }.toDisplaySourceSets(),
+                style = emptySet(),
+                extra = mainExtra + SimpleAttr.header("Sources")
+            )
+        }
     }
 
     private fun DocumentableSource.toLink(sourceLink: SourceLink): String {

@@ -52,8 +52,8 @@ class StdlibGradleIntegrationTest(override val versions: BuildVersions) : Abstra
 
         projectOutputLocation.allHtmlFiles().forEach { file ->
             assertContainsNoErrorClass(file)
-//            assertNoUnresolvedLinks(file)
-//            assertNoHrefToMissingLocalFileOrDirectory(file)
+            assertNoUnresolvedLinks(file)
+            assertNoHrefToMissingLocalFileOrDirectory(file)
             assertNoEmptyLinks(file)
             assertNoEmptySpans(file)
             assertNoUnsubstitutedTemplatesInHtml(file)
