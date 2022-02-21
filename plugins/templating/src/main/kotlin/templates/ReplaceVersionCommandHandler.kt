@@ -12,10 +12,10 @@ class ReplaceVersionCommandHandler(private val context: DokkaContext) : CommandH
 
     override fun canHandle(command: Command): Boolean = command is ReplaceVersionsCommand
 
-    override fun handleCommand(element: Element, command: Command, input: File, output: File) {
-        val position = element.elementSiblingIndex()
-        val parent = element.parent()
-        element.remove()
+    override fun handleCommandAsTag(command: Command, body: Element, input: File, output: File) {
+        val position = body.elementSiblingIndex()
+        val parent = body.parent()
+        body.remove()
         context.configuration.moduleVersion?.takeIf { it.isNotEmpty() }
             ?.let { parent.insertChildren(position, TextNode(it)) }
     }

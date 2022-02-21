@@ -29,6 +29,7 @@ public final class org/jetbrains/dokka/templates/AddToNavigationCommandHandler :
 	public final fun getContext ()Lorg/jetbrains/dokka/plugability/DokkaContext;
 	public fun handleCommand (Lorg/jsoup/nodes/Element;Lorg/jetbrains/dokka/base/templating/Command;Ljava/io/File;Ljava/io/File;)V
 	public fun handleCommandAsComment (Lorg/jetbrains/dokka/base/templating/Command;Ljava/util/List;Ljava/io/File;Ljava/io/File;)V
+	public fun handleCommandAsTag (Lorg/jetbrains/dokka/base/templating/Command;Lorg/jsoup/nodes/Element;Ljava/io/File;Ljava/io/File;)V
 }
 
 public abstract interface class org/jetbrains/dokka/templates/CommandHandler {
@@ -36,10 +37,12 @@ public abstract interface class org/jetbrains/dokka/templates/CommandHandler {
 	public abstract fun finish (Ljava/io/File;)V
 	public abstract fun handleCommand (Lorg/jsoup/nodes/Element;Lorg/jetbrains/dokka/base/templating/Command;Ljava/io/File;Ljava/io/File;)V
 	public abstract fun handleCommandAsComment (Lorg/jetbrains/dokka/base/templating/Command;Ljava/util/List;Ljava/io/File;Ljava/io/File;)V
+	public abstract fun handleCommandAsTag (Lorg/jetbrains/dokka/base/templating/Command;Lorg/jsoup/nodes/Element;Ljava/io/File;Ljava/io/File;)V
 }
 
 public final class org/jetbrains/dokka/templates/CommandHandler$DefaultImpls {
 	public static fun finish (Lorg/jetbrains/dokka/templates/CommandHandler;Ljava/io/File;)V
+	public static fun handleCommand (Lorg/jetbrains/dokka/templates/CommandHandler;Lorg/jsoup/nodes/Element;Lorg/jetbrains/dokka/base/templating/Command;Ljava/io/File;Ljava/io/File;)V
 	public static fun handleCommandAsComment (Lorg/jetbrains/dokka/templates/CommandHandler;Lorg/jetbrains/dokka/base/templating/Command;Ljava/util/List;Ljava/io/File;Ljava/io/File;)V
 }
 
@@ -87,6 +90,7 @@ public final class org/jetbrains/dokka/templates/SubstitutionCommandHandler : or
 	public fun finish (Ljava/io/File;)V
 	public fun handleCommand (Lorg/jsoup/nodes/Element;Lorg/jetbrains/dokka/base/templating/Command;Ljava/io/File;Ljava/io/File;)V
 	public fun handleCommandAsComment (Lorg/jetbrains/dokka/base/templating/Command;Ljava/util/List;Ljava/io/File;Ljava/io/File;)V
+	public fun handleCommandAsTag (Lorg/jetbrains/dokka/base/templating/Command;Lorg/jsoup/nodes/Element;Ljava/io/File;Ljava/io/File;)V
 }
 
 public abstract interface class org/jetbrains/dokka/templates/Substitutor {
@@ -168,6 +172,7 @@ public final class templates/ReplaceVersionCommandHandler : org/jetbrains/dokka/
 	public fun finish (Ljava/io/File;)V
 	public fun handleCommand (Lorg/jsoup/nodes/Element;Lorg/jetbrains/dokka/base/templating/Command;Ljava/io/File;Ljava/io/File;)V
 	public fun handleCommandAsComment (Lorg/jetbrains/dokka/base/templating/Command;Ljava/util/List;Ljava/io/File;Ljava/io/File;)V
+	public fun handleCommandAsTag (Lorg/jetbrains/dokka/base/templating/Command;Lorg/jsoup/nodes/Element;Ljava/io/File;Ljava/io/File;)V
 }
 
 public final class templates/SourcesetDependencyProcessingStrategy : org/jetbrains/dokka/templates/TemplateProcessingStrategy {

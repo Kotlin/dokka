@@ -13,14 +13,14 @@ import java.io.File
 
 class SubstitutionCommandHandler(context: DokkaContext) : CommandHandler {
 
-    override fun handleCommand(element: Element, command: Command, input: File, output: File) {
+    override fun handleCommandAsTag(command: Command, body: Element, input: File, output: File) {
         command as SubstitutionCommand
-        val childrenCopy = element.children().toList()
+        val childrenCopy = body.children().toList()
         substitute(childrenCopy, TemplatingContext(input, output, childrenCopy, command))
 
-        val position = element.elementSiblingIndex()
-        val parent = element.parent()
-        element.remove()
+        val position = body.elementSiblingIndex()
+        val parent = body.parent()
+        body.remove()
 
         parent?.insertChildren(position, childrenCopy)
     }

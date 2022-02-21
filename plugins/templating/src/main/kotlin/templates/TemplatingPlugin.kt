@@ -7,6 +7,7 @@ import templates.ProjectNameSubstitutor
 import templates.ReplaceVersionCommandHandler
 import templates.SourcesetDependencyProcessingStrategy
 
+@Suppress("unused")
 class TemplatingPlugin : DokkaPlugin() {
 
     val submoduleTemplateProcessor by extensionPoint<SubmoduleTemplateProcessor>()

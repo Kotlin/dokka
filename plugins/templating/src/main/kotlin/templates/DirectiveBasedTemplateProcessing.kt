@@ -42,7 +42,7 @@ class DirectiveBasedHtmlTemplateProcessingStrategy(private val context: DokkaCon
         } else false
 
     fun handleCommandAsTag(element: Element, command: Command, input: File, output: File) {
-        traverseHandlers(command) { handleCommand(element, command, input, output) }
+        traverseHandlers(command) { handleCommandAsTag(command, element, input, output) }
     }
 
     fun handleCommandAsComment(command: Command, body: List<Node>, input: File, output: File) {
