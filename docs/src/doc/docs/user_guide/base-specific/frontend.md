@@ -39,6 +39,12 @@ Keep in mind that this value will be passed exactly to the output html, so it ha
 By setting a boolean property `separateInheritedMembers` dokka will split inherited members (like functions, properties etc.) 
 from ones declared in viewed class. Separated members will have it's own tabs on the page.
 
+## Merging declarations with name clashing 
+
+By setting a boolean property `mergeImplicitExpectActualDeclarations` dokka will merge declarations that do not have `expect`/`actual` keywords but have the same fully qualified name. 
+The declarations will be displayed on one page.
+By default, it is disabled. The page names of such declaration have a prefix that is the name of source set. 
+
 ### Examples
 In order to override a logo and style it accordingly a css file named `logo-styles.css` is needed:
 ```css

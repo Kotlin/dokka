@@ -35,14 +35,18 @@ abstract class SamplesTransformer(val context: DokkaContext) : PageTransformer {
             "<script src=\"https://unpkg.com/kotlin-playground@1\"></script>"
 
         return input.transformContentPagesTree { page ->
-            page.documentable?.documentation?.entries?.fold(page) { acc, entry ->
-                entry.value.children.filterIsInstance<Sample>().fold(acc) { acc, sample ->
+            val samples = (page as? WithDocumentables)?.documentables?.flatMap {
+                it.documentation.entries.flatMap { entry ->
+                    entry.value.children.filterIsInstance<Sample>().map { entry.key to it }
+                }
+            }
+
+            samples?.fold(page as ContentPage) { acc, (sampleSourceSet, sample) ->
                     acc.modified(
-                        content = acc.content.addSample(page, entry.key, sample.name, analysis),
+                        content = acc.content.addSample(page, sampleSourceSet, sample.name, analysis),
                         embeddedResources = acc.embeddedResources + kotlinPlaygroundScript
                     )
-                }
-            } ?: page
+                } ?: page
         }
     }
 

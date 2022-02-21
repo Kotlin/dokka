@@ -32,7 +32,7 @@ class ContentForConstructors : BaseAbstractTest() {
         """.trimIndent(), testConfiguration) {
             pagesTransformationStage = { module ->
                 val classPage =
-                    module.dfs { it.name == "Example" && (it as ContentPage).documentable is DClass } as ContentPage
+                    module.dfs { it.name == "Example" && (it as WithDocumentables).documentables.firstOrNull() is DClass } as ContentPage
                 val constructorsTable =
                     classPage.content.dfs { it is ContentTable && it.dci.kind == ContentKind.Constructors } as ContentTable
 
