@@ -54,14 +54,14 @@ internal fun DPackage.asJava(): DPackage {
                     classlikes = emptyList(),
                     sources = emptyMap(),
                     expectPresentInSet = null,
-                    visibility = sourceSets.map {
-                        it to JavaVisibility.Public
-                    }.toMap(),
+                    visibility = sourceSets.associateWith {
+                        JavaVisibility.Public
+                    },
                     companion = null,
                     generics = emptyList(),
                     supertypes = emptyMap(),
                     documentation = emptyMap(),
-                    modifier = sourceSets.map { it to JavaModifier.Final }.toMap(),
+                    modifier = sourceSets.associateWith { JavaModifier.Final },
                     sourceSets = sourceSets,
                     isExpectActual = false,
                     extra = PropertyContainer.empty()
@@ -98,9 +98,9 @@ internal fun DProperty.asJava(isTopLevel: Boolean = false, relocateToClass: Stri
         getter = null, // Removing getters and setters as they will be available as functions
         extra = if (isTopLevel) extra +
                 extra.mergeAdditionalModifiers(
-                    sourceSets.map {
-                        it to setOf(ExtraModifiers.JavaOnlyModifiers.Static)
-                    }.toMap()
+                    sourceSets.associateWith {
+                        setOf(ExtraModifiers.JavaOnlyModifiers.Static)
+                    }
                 )
         else extra
     )
@@ -138,9 +138,9 @@ internal fun DProperty.javaAccessors(isTopLevel: Boolean = false, relocateToClas
                 type = getter.type.asJava(),
                 extra = if (isTopLevel) getter.extra +
                         getter.extra.mergeAdditionalModifiers(
-                            sourceSets.map {
-                                it to setOf(ExtraModifiers.JavaOnlyModifiers.Static)
-                            }.toMap()
+                            sourceSets.associateWith {
+                                setOf(ExtraModifiers.JavaOnlyModifiers.Static)
+                            }
                         )
                 else getter.extra
             )
@@ -167,9 +167,9 @@ internal fun DProperty.javaAccessors(isTopLevel: Boolean = false, relocateToClas
                 visibility = visibility.mapValues { JavaVisibility.Public },
                 type = Void,
                 extra = if (isTopLevel) setter.extra + setter.extra.mergeAdditionalModifiers(
-                    sourceSets.map {
-                        it to setOf(ExtraModifiers.JavaOnlyModifiers.Static)
-                    }.toMap()
+                    sourceSets.associateWith {
+                        setOf(ExtraModifiers.JavaOnlyModifiers.Static)
+                    }
                 )
                 else setter.extra
             )
@@ -187,16 +187,16 @@ private fun DFunction.asJava(
         name = newName,
         type = type.asJava(),
         modifier = if (modifier.all { (_, v) -> v is KotlinModifier.Final } && isConstructor)
-            sourceSets.map { it to JavaModifier.Empty }.toMap()
-        else sourceSets.map { it to modifier.values.first() }.toMap(),
+            sourceSets.associateWith { JavaModifier.Empty }
+        else sourceSets.associateWith { modifier.values.first() },
         parameters = listOfNotNull(receiver?.asJava()) + parameters.map { it.asJava() },
         visibility = visibility.map { (sourceSet, visibility) -> Pair(sourceSet, visibility.asJava()) }.toMap(),
         receiver = null,
         extra = if (isTopLevel) {
             extra + extra.mergeAdditionalModifiers(
-                sourceSets.map {
-                    it to setOf(ExtraModifiers.JavaOnlyModifiers.Static)
-                }.toMap()
+                sourceSets.associateWith {
+                    setOf(ExtraModifiers.JavaOnlyModifiers.Static)
+                }
             )
         } else {
             extra
@@ -253,7 +253,11 @@ internal fun DClasslike.asJava(): DClasslike = when (this) {
 internal fun DClass.asJava(): DClass = copy(
     constructors = constructors
         .filterNot { it.hasJvmSynthetic() }
-        .flatMap { it.asJava(dri.classNames ?: name) }, // name may not always be valid here, however classNames should always be not null
+        .flatMap {
+            it.asJava(
+                dri.classNames ?: name
+            )
+        }, // name may not always be valid here, however classNames should always be not null
     functions = functionsInJava(),
     properties = properties
         .filterNot { it.hasJvmSynthetic() }
@@ -261,9 +265,8 @@ internal fun DClass.asJava(): DClass = copy(
     classlikes = classlikes.map { it.asJava() },
     generics = generics.map { it.asJava() },
     supertypes = supertypes.mapValues { it.value.map { it.asJava() } },
-    modifier = if (modifier.all { (_, v) -> v is KotlinModifier.Empty }) sourceSets.map { it to JavaModifier.Final }
-        .toMap()
-    else sourceSets.map { it to modifier.values.first() }.toMap()
+    modifier = if (modifier.all { (_, v) -> v is KotlinModifier.Empty }) sourceSets.associateWith { JavaModifier.Final }
+    else sourceSets.associateWith { modifier.values.first() }
 )
 
 internal fun DClass.functionsInJava(): List<DFunction> =
@@ -343,13 +346,13 @@ internal fun DObject.asJava(): DObject = copy(
         .map { it.asJava() } +
             DProperty(
                 name = "INSTANCE",
-                modifier = sourceSets.map { it to JavaModifier.Final }.toMap(),
+                modifier = sourceSets.associateWith { JavaModifier.Final },
                 dri = dri.copy(callable = Callable("INSTANCE", null, emptyList())),
                 documentation = emptyMap(),
                 sources = emptyMap(),
-                visibility = sourceSets.map {
-                    it to JavaVisibility.Public
-                }.toMap(),
+                visibility = sourceSets.associateWith {
+                    JavaVisibility.Public
+                },
                 type = GenericTypeConstructor(dri, emptyList()),
                 setter = null,
                 getter = null,

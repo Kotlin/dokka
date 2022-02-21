@@ -299,8 +299,8 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
     }
 
     private val dokkaVersion: String by lazy {
-        mavenProject?.pluginArtifacts?.filter { it.groupId == "org.jetbrains.dokka" && it.artifactId == "dokka-maven-plugin" }
-            ?.firstOrNull()?.version ?: throw IllegalStateException("Not found dokka plugin")
+        mavenProject?.pluginArtifacts?.firstOrNull { it.groupId == "org.jetbrains.dokka" && it.artifactId == "dokka-maven-plugin" }?.version
+            ?: throw IllegalStateException("Not found dokka plugin")
     }
 }
 

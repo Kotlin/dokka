@@ -64,8 +64,7 @@ open class ValidatePublications : DefaultTask() {
                     )
 
                 val isPublished = publishing.publications.filterIsInstance<MavenPublication>()
-                    .filter { it.version == project.dokkaVersion }
-                    .any()
+                    .any { it.version == project.dokkaVersion }
 
                 if (!isPublished) {
                     throw UnpublishedProjectDependencyException(project, projectDependency.dependencyProject)

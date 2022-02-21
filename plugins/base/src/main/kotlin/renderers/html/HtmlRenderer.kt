@@ -29,11 +29,11 @@ open class HtmlRenderer(
     private val configuration = configuration<DokkaBase, DokkaBaseConfiguration>(context)
 
     private val sourceSetDependencyMap: Map<DokkaSourceSetID, List<DokkaSourceSetID>> =
-        context.configuration.sourceSets.map { sourceSet ->
+        context.configuration.sourceSets.associate { sourceSet ->
             sourceSet.sourceSetID to context.configuration.sourceSets
                 .map { it.sourceSetID }
                 .filter { it in sourceSet.dependentSourceSets }
-        }.toMap()
+        }
 
     private var shouldRenderSourceSetBubbles: Boolean = false
 
@@ -180,7 +180,7 @@ open class HtmlRenderer(
         buildPlatformDependent(
             content.sourceSets.filter {
                 sourceSetRestriction == null || it in sourceSetRestriction
-            }.map { it to setOf(content.inner) }.toMap(),
+            }.associateWith { setOf(content.inner) },
             pageContext,
             content.extra,
             content.style

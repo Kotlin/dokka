@@ -1,4 +1,4 @@
-package transformerBuilders;
+package transformerBuilders
 
 import org.jetbrains.dokka.CoreExtensions
 import org.jetbrains.dokka.pages.*

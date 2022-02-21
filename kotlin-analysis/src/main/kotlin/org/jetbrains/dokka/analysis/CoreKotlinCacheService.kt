@@ -1,7 +1,6 @@
 package org.jetbrains.dokka.analysis
 
 import com.intellij.psi.PsiFile
-import org.jetbrains.dokka.analysis.DokkaResolutionFacade
 import org.jetbrains.kotlin.analyzer.ModuleInfo
 import org.jetbrains.kotlin.caches.resolve.KotlinCacheService
 import org.jetbrains.kotlin.caches.resolve.PlatformAnalysisSettings
@@ -25,21 +24,21 @@ class CoreKotlinCacheService(private val resolutionFacade: DokkaResolutionFacade
     override fun getResolutionFacadeByFile(
         file: PsiFile,
         platform: org.jetbrains.kotlin.platform.TargetPlatform
-    ): ResolutionFacade? {
+    ): ResolutionFacade {
         return resolutionFacade
     }
 
     override fun getResolutionFacadeByModuleInfo(
         moduleInfo: ModuleInfo,
         settings: PlatformAnalysisSettings
-    ): ResolutionFacade? {
+    ): ResolutionFacade {
         return resolutionFacade
     }
 
     override fun getResolutionFacadeByModuleInfo(
         moduleInfo: ModuleInfo,
         platform: org.jetbrains.kotlin.platform.TargetPlatform
-    ): ResolutionFacade? {
+    ): ResolutionFacade {
         return resolutionFacade
     }
 

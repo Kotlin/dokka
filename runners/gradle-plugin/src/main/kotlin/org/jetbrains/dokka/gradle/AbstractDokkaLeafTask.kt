@@ -1,4 +1,4 @@
-package org.jetbrains.dokka.gradle;
+package org.jetbrains.dokka.gradle
 
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.internal.plugins.DslObject

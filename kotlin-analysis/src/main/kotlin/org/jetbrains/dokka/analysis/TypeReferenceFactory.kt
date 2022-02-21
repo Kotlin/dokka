@@ -20,7 +20,7 @@ fun TypeReference.Companion.from(d: ReceiverParameterDescriptor): TypeReference?
         }
     }
 
-fun TypeReference.Companion.from(d: ValueParameterDescriptor): TypeReference? =
+fun TypeReference.Companion.from(d: ValueParameterDescriptor): TypeReference =
     fromPossiblyNullable(d.type, emptyList())
 
 fun TypeReference.Companion.from(p: PsiClass) = TypeReference

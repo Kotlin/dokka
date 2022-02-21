@@ -39,7 +39,7 @@ open class JavadocPageCreator(context: DokkaContext) {
 
     fun pageForClasslike(c: DClasslike): JavadocClasslikePageNode? =
         c.highestJvmSourceSet?.let { jvm ->
-            var children = c.classlikes.mapNotNull { pageForClasslike(it) }
+            val children = c.classlikes.mapNotNull { pageForClasslike(it) }
             JavadocClasslikePageNode(
                 name = c.dri.classNames.orEmpty(),
                 content = contentForClasslike(c),

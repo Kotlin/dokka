@@ -428,10 +428,10 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
         builtIns: KotlinBuiltIns
     ): ResolverForProject<ModuleInfo> {
         val javaRoots = classpath
-            .mapNotNull {
-                val rootFile = when (it.extension) {
-                    "jar" -> StandardFileSystems.jar().findFileByPath("${it.absolutePath}$JAR_SEPARATOR")
-                    else -> StandardFileSystems.local().findFileByPath(it.absolutePath)
+            .mapNotNull { file ->
+                val rootFile = when (file.extension) {
+                    "jar" -> StandardFileSystems.jar().findFileByPath("${file.absolutePath}$JAR_SEPARATOR")
+                    else -> StandardFileSystems.local().findFileByPath(file.absolutePath)
                 }
                 rootFile?.let { JavaRoot(it, JavaRoot.RootType.BINARY) }
             }

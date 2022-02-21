@@ -46,8 +46,8 @@ abstract class SamplesTransformer(val context: DokkaContext) : PageTransformer {
         }
     }
 
-    private fun setUpAnalysis(context: DokkaContext) = context.configuration.sourceSets.map { sourceSet ->
-        sourceSet to if (sourceSet.samples.isEmpty()) context.plugin<DokkaBase>()
+    private fun setUpAnalysis(context: DokkaContext) = context.configuration.sourceSets.associateWith { sourceSet ->
+        if (sourceSet.samples.isEmpty()) context.plugin<DokkaBase>()
             .querySingle { kotlinAnalysis }[sourceSet] // from sourceSet.sourceRoots
         else AnalysisEnvironment(DokkaMessageCollector(context.logger), sourceSet.analysisPlatform).run {
             if (analysisPlatform == Platform.jvm) {
@@ -63,7 +63,7 @@ abstract class SamplesTransformer(val context: DokkaContext) : PageTransformer {
             val (facade, _) = createResolutionFacade(environment)
             EnvironmentAndFacade(environment, facade)
         }
-    }.toMap()
+    }
 
     private fun ContentNode.addSample(
         contentPage: ContentPage,
