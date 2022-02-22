@@ -470,6 +470,15 @@ class DefaultPsiToDocumentableTranslator(
                 Annotations.Annotation(DRI("kotlin.jvm", "JvmStatic"), emptyMap())
         }
 
+        /**
+         * Workaround for getting JvmField Kotlin annotation in PSIs
+         */
+        private fun Collection<PsiAnnotation>.getJvmFieldAnnotation() = filter {
+            it.qualifiedName == "kotlin.jvm.JvmField"
+        }.map {
+            Annotations.Annotation(DRI("kotlin.jvm", "JvmField"), emptyMap())
+        }.distinct()
+
         private fun <T : AnnotationTarget> PsiTypeParameter.annotations(): PropertyContainer<T> = this.annotations.toList().toListOfAnnotations().annotations()
         private fun <T : AnnotationTarget> PsiType.annotations(): PropertyContainer<T> = this.annotations.toList().toListOfAnnotations().annotations()
 
@@ -491,7 +500,7 @@ class DefaultPsiToDocumentableTranslator(
                     type.resolve()?.let { resolved ->
                         when {
                             resolved.qualifiedName == "java.lang.Object" -> JavaObject(type.annotations())
-                            resolved is PsiTypeParameter -> getProjection(resolved)
+                            resolved is PsiTypeParameter -> getProjection(resolved).copy(extra = type.annotations())
                             Regex("kotlin\\.jvm\\.functions\\.Function.*").matches(resolved.qualifiedName ?: "") ||
                                     Regex("java\\.util\\.function\\.Function.*").matches(
                                         resolved.qualifiedName ?: ""
@@ -628,9 +637,10 @@ class DefaultPsiToDocumentableTranslator(
                     PropertyContainer.withAll(
                         InheritedMember(inheritedFrom.toSourceSetDependent()),
                         it.toSourceSetDependent().toAdditionalModifiers(),
-                        (psi.annotations.toList()
-                            .toListOfAnnotations() + it.toListOfAnnotations()).toSourceSetDependent()
-                            .toAnnotations()
+                        (psi.annotations.toList().toListOfAnnotations() +
+                                it.toListOfAnnotations() +
+                                psi.annotations.toList().getJvmFieldAnnotation()
+                        ).toSourceSetDependent().toAnnotations()
                     )
                 }
             )

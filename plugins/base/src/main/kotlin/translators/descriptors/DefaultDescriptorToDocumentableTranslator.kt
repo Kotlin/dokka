@@ -647,13 +647,24 @@ private class DokkaDescriptorVisitor(
         return coroutineScope {
             val generics = async { descriptor.typeParameters.parallelMap { it.toVariantTypeParameter() } }
 
+            fun SourceSetDependent<DocumentationNode>.translateParamToDescription(): SourceSetDependent<DocumentationNode> {
+                return this.mapValues { (_, value) ->
+                    value.copy(children = value.children.map {
+                        when (it) {
+                            is Property -> Description(it.root)
+                            else -> it
+                        }
+                    })
+                }
+            }
+
             DFunction(
                 dri,
                 name,
                 isConstructor = false,
                 parameters = parameters,
                 visibility = descriptor.visibility.toDokkaVisibility().toSourceSetDependent(),
-                documentation = descriptor.resolveDescriptorData(),
+                documentation = descriptor.resolveDescriptorData().translateParamToDescription(),
                 type = descriptor.returnType!!.toBound(),
                 generics = generics.await(),
                 modifier = descriptor.modifier().toSourceSetDependent(),
