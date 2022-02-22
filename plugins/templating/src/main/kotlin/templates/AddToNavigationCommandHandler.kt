@@ -13,12 +13,12 @@ import java.util.concurrent.ConcurrentHashMap
 class AddToNavigationCommandHandler(val context: DokkaContext) : CommandHandler {
     private val navigationFragments = ConcurrentHashMap<String, Element>()
 
-    override fun handleCommand(element: Element, command: Command, input: File, output: File) {
+    override fun handleCommandAsTag(command: Command, body: Element, input: File, output: File) {
         command as AddToNavigationCommand
         context.configuration.modules.find { it.name == command.moduleName }
             ?.relativePathToOutputDirectory
             ?.relativeToOrSelf(context.configuration.outputDir)
-            ?.let { key -> navigationFragments[key.toString()] = element }
+            ?.let { key -> navigationFragments[key.toString()] = body }
     }
 
     override fun canHandle(command: Command) = command is AddToNavigationCommand
