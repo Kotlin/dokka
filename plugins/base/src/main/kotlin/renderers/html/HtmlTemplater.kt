@@ -3,6 +3,7 @@ package org.jetbrains.dokka.base.renderers.html
 import freemarker.cache.ClassTemplateLoader
 import freemarker.cache.FileTemplateLoader
 import freemarker.cache.MultiTemplateLoader
+import freemarker.log.Logger
 import freemarker.template.Configuration
 import freemarker.template.Template
 import freemarker.template.TemplateExceptionHandler
@@ -24,6 +25,16 @@ typealias TemplateMap = Map<String, Any?>
 class HtmlTemplater(
     context: DokkaContext
 ) {
+
+    init {
+        // to disable logging, but it isn't reliable see [Logger.SYSTEM_PROPERTY_NAME_LOGGER_LIBRARY]
+        // (use SLF4j further)
+        System.setProperty(
+            Logger.SYSTEM_PROPERTY_NAME_LOGGER_LIBRARY,
+            System.getProperty(Logger.SYSTEM_PROPERTY_NAME_LOGGER_LIBRARY) ?: Logger.LIBRARY_NAME_NONE
+        )
+    }
+
     private val configuration = configuration<DokkaBase, DokkaBaseConfiguration>(context)
     private val templaterConfiguration =
         Configuration(Configuration.VERSION_2_3_31).apply { configureTemplateEngine() }
