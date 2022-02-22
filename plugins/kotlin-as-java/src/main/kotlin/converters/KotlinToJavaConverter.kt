@@ -275,7 +275,7 @@ internal fun DClass.functionsInJava(): List<DFunction> =
         .flatMap { property -> listOfNotNull(property.getter, property.setter) }
         .plus(functions)
         .filterNot { it.hasJvmSynthetic() }
-        .flatMap { it.asJava(dri.classNames ?: name) }
+        .flatMap { it.asJava(it.dri.classNames ?: it.name) }
 
 private fun DTypeParameter.asJava(): DTypeParameter = copy(
     variantTypeParameter = variantTypeParameter.withDri(dri.possiblyAsJava()),

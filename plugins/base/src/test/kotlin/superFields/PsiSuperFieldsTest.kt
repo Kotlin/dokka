@@ -2,6 +2,7 @@ package superFields
 
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.model.Annotations
 import org.jetbrains.dokka.model.InheritedMember
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -124,6 +125,10 @@ class PsiSuperFieldsTest : BaseAbstractTest() {
                     assertNotNull(this)
                     assertNull(this.getter)
                     assertNull(this.setter)
+                    assertNotNull(this.extra[Annotations]?.directAnnotations?.values?.single()?.find {
+                        it.dri.packageName == "kotlin.jvm" &&
+                                it.dri.classNames == "JvmField"
+                    })
                     this.extra[InheritedMember]?.inheritedFrom?.values?.single()?.run {
                         assertEquals(
                             DRI(packageName = "test", classNames = "A"),

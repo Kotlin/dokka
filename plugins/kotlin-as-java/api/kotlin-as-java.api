@@ -7,12 +7,12 @@ public final class org/jetbrains/dokka/kotlinAsJava/KotlinAsJavaPlugin : org/jet
 }
 
 public final class org/jetbrains/dokka/kotlinAsJava/TransformToJavaKt {
-	public static final fun transformToJava (Lorg/jetbrains/dokka/model/DClasslike;Lorg/jetbrains/dokka/plugability/DokkaContext;)Lorg/jetbrains/dokka/model/DClasslike;
-	public static final fun transformToJava (Lorg/jetbrains/dokka/model/DFunction;Lorg/jetbrains/dokka/plugability/DokkaContext;Ljava/lang/String;Z)Ljava/util/List;
-	public static final fun transformToJava (Lorg/jetbrains/dokka/model/DPackage;Lorg/jetbrains/dokka/plugability/DokkaContext;)Lorg/jetbrains/dokka/model/DPackage;
-	public static final fun transformToJava (Lorg/jetbrains/dokka/model/DProperty;Lorg/jetbrains/dokka/plugability/DokkaContext;ZLjava/lang/String;)Lorg/jetbrains/dokka/model/DProperty;
-	public static synthetic fun transformToJava$default (Lorg/jetbrains/dokka/model/DFunction;Lorg/jetbrains/dokka/plugability/DokkaContext;Ljava/lang/String;ZILjava/lang/Object;)Ljava/util/List;
-	public static synthetic fun transformToJava$default (Lorg/jetbrains/dokka/model/DProperty;Lorg/jetbrains/dokka/plugability/DokkaContext;ZLjava/lang/String;ILjava/lang/Object;)Lorg/jetbrains/dokka/model/DProperty;
+	public static final fun transformToJava (Lorg/jetbrains/dokka/model/DClasslike;Lorg/jetbrains/dokka/utilities/DokkaLogger;)Lorg/jetbrains/dokka/model/DClasslike;
+	public static final fun transformToJava (Lorg/jetbrains/dokka/model/DFunction;Lorg/jetbrains/dokka/utilities/DokkaLogger;Ljava/lang/String;Z)Ljava/util/List;
+	public static final fun transformToJava (Lorg/jetbrains/dokka/model/DPackage;Lorg/jetbrains/dokka/utilities/DokkaLogger;)Lorg/jetbrains/dokka/model/DPackage;
+	public static final fun transformToJava (Lorg/jetbrains/dokka/model/DProperty;Lorg/jetbrains/dokka/utilities/DokkaLogger;ZLjava/lang/String;)Lorg/jetbrains/dokka/model/DProperty;
+	public static synthetic fun transformToJava$default (Lorg/jetbrains/dokka/model/DFunction;Lorg/jetbrains/dokka/utilities/DokkaLogger;Ljava/lang/String;ZILjava/lang/Object;)Ljava/util/List;
+	public static synthetic fun transformToJava$default (Lorg/jetbrains/dokka/model/DProperty;Lorg/jetbrains/dokka/utilities/DokkaLogger;ZLjava/lang/String;ILjava/lang/Object;)Lorg/jetbrains/dokka/model/DProperty;
 }
 
 public final class org/jetbrains/dokka/kotlinAsJava/converters/KotlinToJavaConverterKt {
