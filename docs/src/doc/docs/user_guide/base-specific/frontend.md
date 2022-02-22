@@ -94,3 +94,9 @@ Also, Dokka-defined [directives](https://freemarker.apache.org/docs/ref_directiv
   - `<@resources/>` - scripts, stylesheets 
   - `<@version/>` - version (A version plugin replace this with a version navigator)
   - `<@template_cmd name="...""> ...</@template_cmd>` - is used for stuff (`pathToRoot`, `projectName` are `name` parameter, local variables as well) that dependent on a root project. This is processed by a multi-module task that assembles a partial outputs from modules. 
+     Example:
+    ```
+    <@template_cmd name="projectName">
+       <span>${projectName}</span>
+    </@template_cmd>
+    ```
