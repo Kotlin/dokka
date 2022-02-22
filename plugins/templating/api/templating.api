@@ -28,16 +28,23 @@ public final class org/jetbrains/dokka/templates/AddToNavigationCommandHandler :
 	public fun finish (Ljava/io/File;)V
 	public final fun getContext ()Lorg/jetbrains/dokka/plugability/DokkaContext;
 	public fun handleCommand (Lorg/jsoup/nodes/Element;Lorg/jetbrains/dokka/base/templating/Command;Ljava/io/File;Ljava/io/File;)V
+	public fun handleCommandAsComment (Lorg/jetbrains/dokka/base/templating/Command;Ljava/util/List;Ljava/io/File;Ljava/io/File;)V
+	public fun handleCommandAsTag (Lorg/jetbrains/dokka/base/templating/Command;Lorg/jsoup/nodes/Element;Ljava/io/File;Ljava/io/File;)V
 }
 
 public abstract interface class org/jetbrains/dokka/templates/CommandHandler {
 	public abstract fun canHandle (Lorg/jetbrains/dokka/base/templating/Command;)Z
 	public abstract fun finish (Ljava/io/File;)V
 	public abstract fun handleCommand (Lorg/jsoup/nodes/Element;Lorg/jetbrains/dokka/base/templating/Command;Ljava/io/File;Ljava/io/File;)V
+	public abstract fun handleCommandAsComment (Lorg/jetbrains/dokka/base/templating/Command;Ljava/util/List;Ljava/io/File;Ljava/io/File;)V
+	public abstract fun handleCommandAsTag (Lorg/jetbrains/dokka/base/templating/Command;Lorg/jsoup/nodes/Element;Ljava/io/File;Ljava/io/File;)V
 }
 
 public final class org/jetbrains/dokka/templates/CommandHandler$DefaultImpls {
 	public static fun finish (Lorg/jetbrains/dokka/templates/CommandHandler;Ljava/io/File;)V
+	public static fun handleCommand (Lorg/jetbrains/dokka/templates/CommandHandler;Lorg/jsoup/nodes/Element;Lorg/jetbrains/dokka/base/templating/Command;Ljava/io/File;Ljava/io/File;)V
+	public static fun handleCommandAsComment (Lorg/jetbrains/dokka/templates/CommandHandler;Lorg/jetbrains/dokka/base/templating/Command;Ljava/util/List;Ljava/io/File;Ljava/io/File;)V
+	public static fun handleCommandAsTag (Lorg/jetbrains/dokka/templates/CommandHandler;Lorg/jetbrains/dokka/base/templating/Command;Lorg/jsoup/nodes/Element;Ljava/io/File;Ljava/io/File;)V
 }
 
 public final class org/jetbrains/dokka/templates/DefaultMultiModuleTemplateProcessor : org/jetbrains/dokka/templates/MultiModuleTemplateProcessor {
@@ -54,7 +61,8 @@ public final class org/jetbrains/dokka/templates/DefaultSubmoduleTemplateProcess
 public final class org/jetbrains/dokka/templates/DirectiveBasedHtmlTemplateProcessingStrategy : org/jetbrains/dokka/templates/TemplateProcessingStrategy {
 	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
 	public fun finish (Ljava/io/File;)V
-	public final fun handleCommand (Lorg/jsoup/nodes/Element;Lorg/jetbrains/dokka/base/templating/Command;Ljava/io/File;Ljava/io/File;)V
+	public final fun handleCommandAsComment (Lorg/jetbrains/dokka/base/templating/Command;Ljava/util/List;Ljava/io/File;Ljava/io/File;)V
+	public final fun handleCommandAsTag (Lorg/jsoup/nodes/Element;Lorg/jetbrains/dokka/base/templating/Command;Ljava/io/File;Ljava/io/File;)V
 	public fun process (Ljava/io/File;Ljava/io/File;Lorg/jetbrains/dokka/DokkaConfiguration$DokkaModuleDescription;)Z
 }
 
@@ -82,6 +90,8 @@ public final class org/jetbrains/dokka/templates/SubstitutionCommandHandler : or
 	public fun canHandle (Lorg/jetbrains/dokka/base/templating/Command;)Z
 	public fun finish (Ljava/io/File;)V
 	public fun handleCommand (Lorg/jsoup/nodes/Element;Lorg/jetbrains/dokka/base/templating/Command;Ljava/io/File;Ljava/io/File;)V
+	public fun handleCommandAsComment (Lorg/jetbrains/dokka/base/templating/Command;Ljava/util/List;Ljava/io/File;Ljava/io/File;)V
+	public fun handleCommandAsTag (Lorg/jetbrains/dokka/base/templating/Command;Lorg/jsoup/nodes/Element;Ljava/io/File;Ljava/io/File;)V
 }
 
 public abstract interface class org/jetbrains/dokka/templates/Substitutor {
@@ -101,16 +111,16 @@ public abstract interface class org/jetbrains/dokka/templates/TemplateProcessor 
 }
 
 public final class org/jetbrains/dokka/templates/TemplatingContext {
-	public fun <init> (Ljava/io/File;Ljava/io/File;Lorg/jsoup/nodes/Element;Lorg/jetbrains/dokka/base/templating/Command;)V
+	public fun <init> (Ljava/io/File;Ljava/io/File;Ljava/util/List;Lorg/jetbrains/dokka/base/templating/Command;)V
 	public final fun component1 ()Ljava/io/File;
 	public final fun component2 ()Ljava/io/File;
-	public final fun component3 ()Lorg/jsoup/nodes/Element;
+	public final fun component3 ()Ljava/util/List;
 	public final fun component4 ()Lorg/jetbrains/dokka/base/templating/Command;
-	public final fun copy (Ljava/io/File;Ljava/io/File;Lorg/jsoup/nodes/Element;Lorg/jetbrains/dokka/base/templating/Command;)Lorg/jetbrains/dokka/templates/TemplatingContext;
-	public static synthetic fun copy$default (Lorg/jetbrains/dokka/templates/TemplatingContext;Ljava/io/File;Ljava/io/File;Lorg/jsoup/nodes/Element;Lorg/jetbrains/dokka/base/templating/Command;ILjava/lang/Object;)Lorg/jetbrains/dokka/templates/TemplatingContext;
+	public final fun copy (Ljava/io/File;Ljava/io/File;Ljava/util/List;Lorg/jetbrains/dokka/base/templating/Command;)Lorg/jetbrains/dokka/templates/TemplatingContext;
+	public static synthetic fun copy$default (Lorg/jetbrains/dokka/templates/TemplatingContext;Ljava/io/File;Ljava/io/File;Ljava/util/List;Lorg/jetbrains/dokka/base/templating/Command;ILjava/lang/Object;)Lorg/jetbrains/dokka/templates/TemplatingContext;
 	public fun equals (Ljava/lang/Object;)Z
+	public final fun getBody ()Ljava/util/List;
 	public final fun getCommand ()Lorg/jetbrains/dokka/base/templating/Command;
-	public final fun getElement ()Lorg/jsoup/nodes/Element;
 	public final fun getInput ()Ljava/io/File;
 	public final fun getOutput ()Ljava/io/File;
 	public fun hashCode ()I
@@ -162,6 +172,8 @@ public final class templates/ReplaceVersionCommandHandler : org/jetbrains/dokka/
 	public fun canHandle (Lorg/jetbrains/dokka/base/templating/Command;)Z
 	public fun finish (Ljava/io/File;)V
 	public fun handleCommand (Lorg/jsoup/nodes/Element;Lorg/jetbrains/dokka/base/templating/Command;Ljava/io/File;Ljava/io/File;)V
+	public fun handleCommandAsComment (Lorg/jetbrains/dokka/base/templating/Command;Ljava/util/List;Ljava/io/File;Ljava/io/File;)V
+	public fun handleCommandAsTag (Lorg/jetbrains/dokka/base/templating/Command;Lorg/jsoup/nodes/Element;Ljava/io/File;Ljava/io/File;)V
 }
 
 public final class templates/SourcesetDependencyProcessingStrategy : org/jetbrains/dokka/templates/TemplateProcessingStrategy {

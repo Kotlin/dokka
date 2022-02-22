@@ -26,6 +26,18 @@ inline fun FlowOrPhrasingContent.strike(classes : String? = null, crossinline bl
 open class STRIKE(initialAttributes: Map<String, String>, override val consumer: TagConsumer<*>) :
     HTMLTag("strike", consumer, initialAttributes, null, false, false), HtmlBlockInlineTag
 
+const val TEMPLATE_COMMAND_SEPARATOR = ":"
+const val TEMPLATE_COMMAND_BEGIN_BORDER  = "[+]cmd"
+const val TEMPLATE_COMMAND_END_BORDER  = "[-]cmd"
+
+fun FlowOrMetaDataContent.templateCommandAsHtmlComment(data: Command, block: FlowOrMetaDataContent.() -> Unit = {}): Unit =
+    (consumer as? ImmediateResolutionTagConsumer)?.processCommand(data, block)
+        ?:  let{
+            comment( "$TEMPLATE_COMMAND_BEGIN_BORDER$TEMPLATE_COMMAND_SEPARATOR${toJsonString(data)}")
+            block()
+            comment(TEMPLATE_COMMAND_END_BORDER)
+        }
+
 fun FlowOrMetaDataContent.templateCommand(data: Command, block: TemplateBlock = {}): Unit =
     (consumer as? ImmediateResolutionTagConsumer)?.processCommand(data, block)
         ?: TemplateCommand(attributesMapOf("data", toJsonString(data)), consumer).visit(block)

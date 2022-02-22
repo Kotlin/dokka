@@ -12,7 +12,7 @@ import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.query
 import org.jetbrains.dokka.plugability.querySingle
-import org.jsoup.nodes.Element
+import org.jsoup.nodes.Node
 import java.io.File
 
 interface TemplateProcessor
@@ -88,7 +88,7 @@ class DefaultMultiModuleTemplateProcessor(
 data class TemplatingContext<out T : Command>(
     val input: File,
     val output: File,
-    val element: Element,
+    val body: List<Node>,
     val command: T,
 )
 

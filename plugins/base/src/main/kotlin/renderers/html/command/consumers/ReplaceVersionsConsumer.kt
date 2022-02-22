@@ -19,7 +19,7 @@ class ReplaceVersionsConsumer(private val context: DokkaContext) : ImmediateHtml
     }
 
     override fun <R> processCommandAndFinalize(command: Command, block: TemplateBlock, tagConsumer: ImmediateResolutionTagConsumer<R>): R {
-        PathToRootConsumer.processCommand(command, block, tagConsumer)
+        processCommand(command, block, tagConsumer)
         return tagConsumer.finalize()
     }
 }

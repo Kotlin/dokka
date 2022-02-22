@@ -4,10 +4,11 @@ import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.PluginConfigurationImpl
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.DokkaBaseConfiguration
+import org.jetbrains.dokka.base.renderers.html.TEMPLATE_REPLACEMENT
 import org.jetbrains.dokka.base.templating.toJsonString
+import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.DokkaPlugin
-import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 import org.jsoup.Jsoup
 import org.junit.jupiter.api.Test
@@ -125,11 +126,11 @@ class ResourceLinksTest : BaseAbstractTest() {
                     if (isMultiModule) {
                         Jsoup
                             .parse(writerPlugin.writer.contents["example.html"])
-                            .body()
+                            .head()
                             .select("link, script")
                             .let {
                                 listOf("styles/customStyle.css").forEach { r ->
-                                    assert(it.`is`("[href=###$r]"))
+                                    assert(it.`is`("[href=$TEMPLATE_REPLACEMENT$r]"))
                                 }
                             }
                     } else {

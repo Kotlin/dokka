@@ -18,7 +18,7 @@ class ReplaceVersionCommandHandler(context: DokkaContext) : CommandHandler {
 
     override fun canHandle(command: Command): Boolean = command is ReplaceVersionsCommand
 
-    override fun handleCommand(element: Element, command: Command, input: File, output: File) {
+    override fun handleCommandAsTag(command: Command, element: Element, input: File, output: File) {
         element.empty()
         element.append(versionsNavigationCreator(output))
     }
