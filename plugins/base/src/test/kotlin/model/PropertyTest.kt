@@ -1,10 +1,13 @@
 package model
 
+import org.jetbrains.dokka.links.Callable
+import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.*
 import org.junit.jupiter.api.Test
 import utils.AbstractModelTest
 import utils.assertNotNull
 import utils.name
+import kotlin.test.assertEquals
 
 class PropertyTest : AbstractModelTest("/src/main/kotlin/property/Test.kt", "property") {
 
@@ -152,11 +155,14 @@ class PropertyTest : AbstractModelTest("/src/main/kotlin/property/Test.kt", "pro
         ) {
             with((this / "property").cast<DPackage>()) {
                 with((this / "Bar" / "property").cast<DProperty>()) {
-                    dri.classNames equals "Foo"
+                    dri.classNames equals "Bar"
                     name equals "property"
                     children counts 0
                     with(getter.assertNotNull("Getter")) {
                         type.name equals "Int"
+                    }
+                    extra[InheritedMember]?.inheritedFrom?.values?.single()?.run {
+                        classNames equals "Foo"
                     }
                 }
             }

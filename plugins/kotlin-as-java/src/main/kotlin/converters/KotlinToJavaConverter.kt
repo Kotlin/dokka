@@ -87,7 +87,7 @@ internal fun DProperty.asJava(isTopLevel: Boolean = false, relocateToClass: Stri
         visibility = visibility.mapValues {
             if (isTopLevel && isConst) {
                 JavaVisibility.Public
-            } else if (jvmField() != null) {
+            } else if (jvmField() != null || (getter == null && setter == null)) {
                 it.value.asJava()
             } else {
                 it.value.propertyVisibilityAsJava()
