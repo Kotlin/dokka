@@ -317,7 +317,7 @@ internal fun DEnum.asJava(): DEnum = copy(
     functions = functions
         .plus(
             properties
-                .filterNot { it.hasJvmSynthetic() }
+                .filter { it.jvmField() == null && !it.hasJvmSynthetic() }
                 .flatMap { listOf(it.getter, it.setter) }
         )
         .filterNotNull()
@@ -335,7 +335,7 @@ internal fun DObject.asJava(): DObject = copy(
     functions = functions
         .plus(
             properties
-                .filterNot { it.hasJvmSynthetic() }
+                .filter { it.jvmField() == null && !it.hasJvmSynthetic() }
                 .flatMap { listOf(it.getter, it.setter) }
         )
         .filterNotNull()
@@ -373,7 +373,7 @@ internal fun DInterface.asJava(): DInterface = copy(
     functions = functions
         .plus(
             properties
-                .filterNot { it.hasJvmSynthetic() }
+                .filter { it.jvmField() == null && !it.hasJvmSynthetic() }
                 .flatMap { listOf(it.getter, it.setter) }
         )
         .filterNotNull()
