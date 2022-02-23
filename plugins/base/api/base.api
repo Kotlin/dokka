@@ -46,6 +46,7 @@ public final class org/jetbrains/dokka/base/DokkaBase : org/jetbrains/dokka/plug
 	public final fun getPageMergerStrategy ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
 	public final fun getPathToRootConsumer ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getPreMergeDocumentableTransformer ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
+	public final fun getPropertiesMergerTransformer ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getPsiToDocumentableTranslator ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getReplaceVersionConsumer ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getResolveLinkConsumer ()Lorg/jetbrains/dokka/plugability/Extension;
@@ -1218,6 +1219,11 @@ public final class org/jetbrains/dokka/base/transformers/documentables/KotlinArr
 public final class org/jetbrains/dokka/base/transformers/documentables/ObviousFunctionsDocumentableFilterTransformer : org/jetbrains/dokka/base/transformers/documentables/SuppressedByConditionDocumentableFilterTransformer {
 	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
 	public fun shouldBeSuppressed (Lorg/jetbrains/dokka/model/Documentable;)Z
+}
+
+public final class org/jetbrains/dokka/base/transformers/documentables/PropertiesMergerTransformer : org/jetbrains/dokka/transformers/documentation/PreMergeDocumentableTransformer {
+	public fun <init> ()V
+	public fun invoke (Ljava/util/List;)Ljava/util/List;
 }
 
 public final class org/jetbrains/dokka/base/transformers/documentables/SuppressTagDocumentableFilter : org/jetbrains/dokka/base/transformers/documentables/SuppressedByConditionDocumentableFilterTransformer {
