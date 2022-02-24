@@ -430,10 +430,8 @@ private class DokkaDescriptorVisitor(
         originalDescriptor: PropertyDescriptor,
         parent: DRIWithPlatformInfo
     ): DProperty {
-        val (dri, inheritedFrom) = originalDescriptor.createDRI().let {
-            if (it.second != null) (it.second to it.first) as Pair<DRI, DRI?>
-            else it
-        }
+        val (dri, _) = originalDescriptor.createDRI()
+        val inheritedFrom = dri.copy(callable = null).takeIf { parent.dri.classNames != dri.classNames }
         val descriptor = originalDescriptor.getConcreteDescriptor()
         val isExpect = descriptor.isExpect
         val isActual = descriptor.isActual
@@ -471,7 +469,7 @@ private class DokkaDescriptorVisitor(
                         (descriptor.getAnnotationsWithBackingField() + descriptor.fileLevelAnnotations()).toSourceSetDependent()
                             .toAnnotations(),
                         descriptor.getDefaultValue()?.let { DefaultValue(it) },
-                        InheritedMember(inheritedFrom.toSourceSetDependent()),
+                        inheritedFrom?.let { InheritedMember(it.toSourceSetDependent()) },
                     )
                 )
             )
@@ -488,10 +486,8 @@ private class DokkaDescriptorVisitor(
         originalDescriptor: FunctionDescriptor,
         parent: DRIWithPlatformInfo
     ): DFunction {
-        val (dri, inheritedFrom) = originalDescriptor.createDRI().let {
-            if (it.second != null) (it.second to it.first) as Pair<DRI, DRI?>
-            else it
-        }
+        val (dri, _) = originalDescriptor.createDRI()
+        val inheritedFrom = dri.copy(callable = null).takeIf { parent.dri.classNames != dri.classNames }
         val descriptor = originalDescriptor.getConcreteDescriptor()
         val isExpect = descriptor.isExpect
         val isActual = descriptor.isActual
@@ -521,7 +517,7 @@ private class DokkaDescriptorVisitor(
                 sourceSets = setOf(sourceSet),
                 isExpectActual = (isExpect || isActual),
                 extra = PropertyContainer.withAll(
-                    InheritedMember(inheritedFrom.toSourceSetDependent()),
+                    inheritedFrom?.let { InheritedMember(it.toSourceSetDependent()) },
                     descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
                     (descriptor.getAnnotations() + descriptor.fileLevelAnnotations()).toSourceSetDependent()
                         .toAnnotations(),
@@ -601,10 +597,9 @@ private class DokkaDescriptorVisitor(
         descriptor: PropertyAccessorDescriptor,
         propertyDescriptor: PropertyDescriptor,
         parent: DRI,
-        parentInheritedFrom: DRI? = null
+        inheritedFrom: DRI? = null
     ): DFunction {
         val dri = parent.copy(callable = Callable.from(descriptor))
-        val inheritedFrom = parentInheritedFrom?.copy(callable = Callable.from(descriptor))
         val isGetter = descriptor is PropertyGetterDescriptor
         val isExpect = descriptor.isExpect
         val isActual = descriptor.isActual
@@ -689,7 +684,7 @@ private class DokkaDescriptorVisitor(
                 extra = PropertyContainer.withAll(
                     descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
                     descriptor.getAnnotations().toSourceSetDependent().toAnnotations(),
-                    InheritedMember(inheritedFrom.toSourceSetDependent())
+                    inheritedFrom?.let { InheritedMember(it.toSourceSetDependent()) }
                 )
             )
         }

@@ -44,14 +44,14 @@ class DescriptorSuperPropertiesTest : BaseAbstractTest() {
                     Assertions.assertNull(this.setter)
                     this.extra[InheritedMember]?.inheritedFrom?.values?.single()?.run {
                         assertEquals(
-                            DRI(packageName = "test", classNames = "A", callable = Callable("a", params = emptyList())),
+                            DRI(packageName = "test", classNames = "A"),
                             this
                         )
                     }
                     this.getter.run {
                         this!!.extra[InheritedMember]?.inheritedFrom?.values?.single()?.run {
                             assertEquals(
-                                DRI(packageName = "test", classNames = "A", callable = Callable("getA", params = emptyList())),
+                                DRI(packageName = "test", classNames = "A"),
                                 this
                             )
                         }
@@ -94,14 +94,14 @@ class DescriptorSuperPropertiesTest : BaseAbstractTest() {
                     Assertions.assertNotNull(this.setter)
                     this.extra[InheritedMember]?.inheritedFrom?.values?.single()?.run {
                         assertEquals(
-                            DRI(packageName = "test", classNames = "A", callable = Callable("a", params = emptyList())),
+                            DRI(packageName = "test", classNames = "A"),
                             this
                         )
                     }
                     this.getter.run {
                         this!!.extra[InheritedMember]?.inheritedFrom?.values?.single()?.run {
                             assertEquals(
-                                DRI(packageName = "test", classNames = "A", callable = Callable("getA", params = emptyList())),
+                                DRI(packageName = "test", classNames = "A"),
                                 this
                             )
                         }
@@ -109,11 +109,7 @@ class DescriptorSuperPropertiesTest : BaseAbstractTest() {
                     this.setter.run {
                         this!!.extra[InheritedMember]?.inheritedFrom?.values?.single()?.run {
                             assertEquals(
-                                DRI(packageName = "test", classNames = "A",
-                                    callable = Callable("setA",
-                                        params = listOf(TypeConstructor("kotlin.Int", emptyList()))
-                                    )
-                                ),
+                                DRI(packageName = "test", classNames = "A"),
                                 this
                             )
                         }
@@ -157,7 +153,7 @@ class DescriptorSuperPropertiesTest : BaseAbstractTest() {
                     Assertions.assertNull(this.setter)
                     this.extra[InheritedMember]?.inheritedFrom?.values?.single()?.run {
                         assertEquals(
-                            DRI(packageName = "test", classNames = "A", callable = Callable("a", params = emptyList())),
+                            DRI(packageName = "test", classNames = "A"),
                             this
                         )
                     }
