@@ -919,9 +919,9 @@ private class DokkaDescriptorVisitor(
         )
     } ?: getJavaDocs())?.takeIf { it.children.isNotEmpty() }
 
-    private fun DeclarationDescriptor.getJavaDocs() = (this as? CallableDescriptor)
-        ?.overriddenDescriptors
-        ?.mapNotNull { it.findPsi() as? PsiNamedElement }
+    private fun DeclarationDescriptor.getJavaDocs() = (
+            ((this as? CallableDescriptor)?.overriddenDescriptors ?: emptyList()) + listOf(this)
+        )?.mapNotNull { it.findPsi() as? PsiNamedElement }
         ?.firstOrNull()
         ?.let { javadocParser.parseDocumentation(it) }
 
