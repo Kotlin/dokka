@@ -444,7 +444,7 @@ class DefaultPsiToDocumentableTranslator(
                 false,
                 psi.additionalExtras().let {
                     PropertyContainer.withAll(
-                        InheritedMember(inheritedFrom.toSourceSetDependent()),
+                        inheritedFrom?.let { InheritedMember(it.toSourceSetDependent()) },
                         it.toSourceSetDependent().toAdditionalModifiers(),
                         (psi.annotations.toList()
                             .toListOfAnnotations() + it.toListOfAnnotations()).toSourceSetDependent()
@@ -641,7 +641,7 @@ class DefaultPsiToDocumentableTranslator(
                 false,
                 psi.additionalExtras().let {
                     PropertyContainer.withAll(
-                        InheritedMember(inheritedFrom.toSourceSetDependent()),
+                        inheritedFrom?.let { InheritedMember(it.toSourceSetDependent()) },
                         it.toSourceSetDependent().toAdditionalModifiers(),
                         (psi.annotations.toList().toListOfAnnotations() +
                                 it.toListOfAnnotations() +

@@ -155,7 +155,7 @@ class PropertyTest : AbstractModelTest("/src/main/kotlin/property/Test.kt", "pro
         ) {
             with((this / "property").cast<DPackage>()) {
                 with((this / "Bar" / "property").cast<DProperty>()) {
-                    dri.classNames equals "Bar"
+                    dri.classNames equals "Foo"
                     name equals "property"
                     children counts 0
                     with(getter.assertNotNull("Getter")) {
@@ -163,6 +163,7 @@ class PropertyTest : AbstractModelTest("/src/main/kotlin/property/Test.kt", "pro
                     }
                     extra[InheritedMember]?.inheritedFrom?.values?.single()?.run {
                         classNames equals "Foo"
+                        callable equals null
                     }
                 }
             }
