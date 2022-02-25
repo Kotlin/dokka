@@ -29,6 +29,8 @@ data class PropertyContainer<C : Any> internal constructor(
 operator fun <D: Any> PropertyContainer<D>.plus(prop: ExtraProperty<D>?): PropertyContainer<D> =
     if (prop == null) this else PropertyContainer(map + (prop.key to prop))
 
+// alias because sometimes compiler insists on using non-nullable version of `plus`
+fun <D: Any> PropertyContainer<D>.addMaybe(prop: ExtraProperty<D>?): PropertyContainer<D> = plus(prop)
 
 interface WithExtraProperties<C : Any> {
     val extra: PropertyContainer<C>

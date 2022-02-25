@@ -1,5 +1,7 @@
 package org.jetbrains.dokka.kotlinAsJava.converters
 
+import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.kotlinAsJava.OriginalProperty
 import org.jetbrains.dokka.kotlinAsJava.hasJvmOverloads
 import org.jetbrains.dokka.kotlinAsJava.hasJvmSynthetic
 import org.jetbrains.dokka.kotlinAsJava.jvmField
@@ -10,7 +12,9 @@ import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.PointingToDeclaration
 import org.jetbrains.dokka.links.withClass
 import org.jetbrains.dokka.model.*
+import org.jetbrains.dokka.model.properties.ExtraProperty
 import org.jetbrains.dokka.model.properties.PropertyContainer
+import org.jetbrains.dokka.model.properties.addMaybe
 import org.jetbrains.kotlin.builtins.jvm.JavaToKotlinClassMap
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName
@@ -85,10 +89,12 @@ internal fun DProperty.asJava(isTopLevel: Boolean = false, relocateToClass: Stri
         },
         modifier = javaModifierFromSetter(),
         visibility = visibility.mapValues {
-            if (isTopLevel && isConst) {
+            if (isConst) {
                 JavaVisibility.Public
             } else if (jvmField() != null || (getter == null && setter == null)) {
                 it.value.asJava()
+            } else if (isLateinit(it.key)) {
+                setter?.visibility?.get(it.key) ?: JavaVisibility.Private
             } else {
                 it.value.propertyVisibilityAsJava()
             }
@@ -104,6 +110,12 @@ internal fun DProperty.asJava(isTopLevel: Boolean = false, relocateToClass: Stri
                 )
         else extra
     )
+
+private fun DProperty.isLateinit(sourceset: DokkaConfiguration.DokkaSourceSet) =
+    extra[AdditionalModifiers]?.content?.get(sourceset)?.let {
+        ExtraModifiers.KotlinOnlyModifiers.LateInit in it
+    } ?: false
+
 
 internal fun Visibility.asJava() =
     when (this) {
@@ -134,15 +146,8 @@ internal fun DProperty.javaAccessors(isTopLevel: Boolean = false, relocateToClas
                 }.withCallableName(name),
                 name = name,
                 modifier = javaModifierFromSetter(),
-                visibility = visibility.mapValues { JavaVisibility.Public },
                 type = getter.type.asJava(),
-                extra = if (isTopLevel) getter.extra +
-                        getter.extra.mergeAdditionalModifiers(
-                            sourceSets.associateWith {
-                                setOf(ExtraModifiers.JavaOnlyModifiers.Static)
-                            }
-                        )
-                else getter.extra
+                extra = asJavaExtras(getter, isTopLevel)
             )
         },
         setter?.let { setter ->
@@ -164,17 +169,21 @@ internal fun DProperty.javaAccessors(isTopLevel: Boolean = false, relocateToClas
                     )
                 },
                 modifier = javaModifierFromSetter(),
-                visibility = visibility.mapValues { JavaVisibility.Public },
                 type = Void,
-                extra = if (isTopLevel) setter.extra + setter.extra.mergeAdditionalModifiers(
-                    sourceSets.associateWith {
-                        setOf(ExtraModifiers.JavaOnlyModifiers.Static)
-                    }
-                )
-                else setter.extra
+                extra = asJavaExtras(setter, isTopLevel)
             )
         }
     )
+
+private fun DProperty.asJavaExtras(accessor: DFunction, isTopLevel: Boolean): PropertyContainer<DFunction> {
+    val additionalModifiers: ExtraProperty<DFunction>? = if (isTopLevel)
+        accessor.extra.mergeAdditionalModifiers(
+            sourceSets.associateWith { setOf(ExtraModifiers.JavaOnlyModifiers.Static) }
+        )
+    else null
+
+    return (accessor.extra + OriginalProperty(this)).addMaybe(additionalModifiers)
+}
 
 private fun DFunction.asJava(
     containingClassName: String,
@@ -263,16 +272,17 @@ internal fun DClass.asJava(): DClass = copy(
         .filterNot { it.hasJvmSynthetic() }
         .map { it.asJava() },
     classlikes = classlikes.map { it.asJava() },
+    companion = companion?.asJava(),
     generics = generics.map { it.asJava() },
     supertypes = supertypes.mapValues { it.value.map { it.asJava() } },
     modifier = if (modifier.all { (_, v) -> v is KotlinModifier.Empty }) sourceSets.associateWith { JavaModifier.Final }
     else sourceSets.associateWith { modifier.values.first() }
 )
 
-internal fun DClass.functionsInJava(): List<DFunction> =
+internal fun WithScope.functionsInJava(): List<DFunction> =
     properties
-        .filter { it.jvmField() == null && !it.hasJvmSynthetic() }
-        .flatMap { property -> listOfNotNull(property.getter, property.setter) }
+        .filter { !it.isConst && it.jvmField() == null && !it.hasJvmSynthetic() }
+        .flatMap { it.javaAccessors() }
         .plus(functions)
         .filterNot { it.hasJvmSynthetic() }
         .flatMap { it.asJava(it.dri.classNames ?: it.name) }
@@ -332,15 +342,7 @@ internal fun DEnum.asJava(): DEnum = copy(
 )
 
 internal fun DObject.asJava(): DObject = copy(
-    functions = functions
-        .plus(
-            properties
-                .filter { it.jvmField() == null && !it.hasJvmSynthetic() }
-                .flatMap { listOf(it.getter, it.setter) }
-        )
-        .filterNotNull()
-        .filterNot { it.hasJvmSynthetic() }
-        .flatMap { it.asJava(dri.classNames ?: name.orEmpty()) },
+    functions = functionsInJava(),
     properties = properties
         .filterNot { it.hasJvmSynthetic() }
         .map { it.asJava() } +
