@@ -28,7 +28,7 @@ Dokka uses 4 stylesheets:
 * [`prism.css`](https://github.com/Kotlin/dokka/blob/master/plugins/base/src/main/resources/dokka/styles/prism.css) - code highlighting
 
 Also, it uses js scripts. The actual ones are [here](https://github.com/Kotlin/dokka/tree/master/plugins/base/src/main/resources/dokka/scripts).
-User can choose to add or override those files. 
+User can choose to add or override those files - stylesheets and js scripts. 
 Resources will be overridden when in `pluginConfiguration` block there is a resource with the same name.
 
 ## Modifying footer
@@ -74,26 +74,26 @@ For build system specific instructions please visit dedicated pages: [gradle](..
 
 ## Custom HTML pages
 
-Dokka uses [FreeMarker](https://freemarker.apache.org/) template engine to render pages. 
-It takes templates from a folder that is set by a property `templatesDir`.
-To custom HTML output user can use a [default template](https://github.com/Kotlin/dokka/blob/master/plugins/base/src/main/resources/dokka/templates) as a basic.
+Templates are taken from the folder that is defined by the `templatesDir` property.
+To customize HTML output, you can use the [default template](https://github.com/Kotlin/dokka/blob/master/plugins/base/src/main/resources/dokka/templates) as a starting point.
 
 !!! note
-    To change page assets user can set properties `customAssets` and `customStyleSheets`.
-    Assets are handled by Dokka.
+    To change page assets, you can set properties `customAssets` and `customStyleSheets`.
+    Assets are handled by Dokka itself, not FreeMaker.
 
-Currently, there is one template file `base.ftl`. It defines general design of all pages to render.  
+Currently, there is only one template file with predefined name `base.ftl`. It defines general design of all pages to render.  
+If `templatesDir` is defined, Dokka will find the `base.ftl` file there.
 
-Variables given below are available to a template:
-  - `${pageName}` - a page name
-  - `${footerMessage}` - a text is set by `footerMessage` property
-  - `${sourceSets}` - a nullable list of source set, only for multi-platform pages. Each source set has `name`, `platfrom` and `filter` properties.
+Variables given below are available to the template:
+  - `${pageName}` - the page name
+  - `${footerMessage}` - a text that is set by the `footerMessage` property
+  - `${sourceSets}` - a nullable list of source sets, only for multi-platform pages. Each source set has `name`, `platfrom` and `filter` properties.
 
 Also, Dokka-defined [directives](https://freemarker.apache.org/docs/ref_directive_userDefined.html) can be used:
   - `<@content/>` - a main content
   - `<@resources/>` - scripts, stylesheets 
-  - `<@version/>` - version (A version plugin replace this with a version navigator)
-  - `<@template_cmd name="...""> ...</@template_cmd>` - is used for stuff (`pathToRoot`, `projectName` are `name` parameter, local variables as well) that dependent on a root project. This is processed by a multi-module task that assembles a partial outputs from modules. 
+  - `<@version/>` - version ([versioning-plugin](https://kotlin.github.io/dokka/1.6.10/user_guide/versioning/versioning/) will replace this with a version navigator)
+  - `<@template_cmd name="...""> ...</@template_cmd>` - is used for variables that depend on the root project (such `pathToRoot`, `projectName`). They are available only inside the directive. This is processed by a multi-module task that assembles a partial outputs from modules. 
      Example:
     ```
     <@template_cmd name="projectName">
