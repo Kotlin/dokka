@@ -3436,6 +3436,7 @@ public final class org/jetbrains/dokka/model/properties/PropertyContainer$Compan
 }
 
 public final class org/jetbrains/dokka/model/properties/PropertyContainerKt {
+	public static final fun addMaybe (Lorg/jetbrains/dokka/model/properties/PropertyContainer;Lorg/jetbrains/dokka/model/properties/ExtraProperty;)Lorg/jetbrains/dokka/model/properties/PropertyContainer;
 	public static final fun mergeExtras (Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 	public static final fun plus (Lorg/jetbrains/dokka/model/properties/PropertyContainer;Lorg/jetbrains/dokka/model/properties/ExtraProperty;)Lorg/jetbrains/dokka/model/properties/PropertyContainer;
 }
