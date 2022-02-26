@@ -59,6 +59,7 @@ class HtmlTemplater(
         logTemplateExceptions = false
         wrapUncheckedExceptions = true
         fallbackOnNullLoopVariable = false
+        templateUpdateDelayMilliseconds = Long.MAX_VALUE
     }
 
     fun setupSharedModel(model: TemplateMap) {
