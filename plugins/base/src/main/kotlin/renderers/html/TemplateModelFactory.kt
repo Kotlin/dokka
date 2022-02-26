@@ -43,8 +43,8 @@ class TemplateModelFactory(val context: DokkaContext) {
         val path = locationProvider.resolve(page)
         val pathToRoot = locationProvider.pathToRoot(page)
         val mapper = mutableMapOf<String, Any>()
-        mapper.put("pageName", page.name)
-        mapper.put("resources", PrintDirective {
+        mapper["pageName"] = page.name
+        mapper["resources"] = PrintDirective {
             val sb = StringBuilder()
             if (isPartial)
                 sb.templateCommandAsHtmlComment(
@@ -56,21 +56,20 @@ class TemplateModelFactory(val context: DokkaContext) {
             else
                 sb.resourcesForPage(pathToRoot, resources)
             sb.toString()
-        })
-        mapper.put("content", PrintDirective { content })
-        mapper.put(
-            "version",
-            PrintDirective {
-                createHTML().prepareForTemplates().templateCommand(ReplaceVersionsCommand(path.orEmpty()))
-            }
-        )
-        mapper.put("template_cmd", TemplateDirective(context.configuration, pathToRoot))
+        }
+        mapper["content"] = PrintDirective { content }
+        mapper["version"] = PrintDirective {
+            createHTML().prepareForTemplates().templateCommand(ReplaceVersionsCommand(path.orEmpty()))
+        }
+        mapper["template_cmd"] = TemplateDirective(context.configuration, pathToRoot)
 
         if (shouldRenderSourceSetBubbles && page is ContentPage) {
-            val sourceSets = page.content.withDescendants().flatMap { it.sourceSets }.distinct()
-                .sortedBy { it.comparableKey }.map {
-                    SourceSetModel(it.name, it.platform.key, it.sourceSetIDs.merged.toString())
-                }.toList()
+            val sourceSets = page.content.withDescendants()
+                .flatMap { it.sourceSets }
+                .distinct()
+                .sortedBy { it.comparableKey }
+                .map { SourceSetModel(it.name, it.platform.key, it.sourceSetIDs.merged.toString()) }
+                .toList()
             mapper["sourceSets"] = sourceSets
         }
         return mapper
@@ -111,24 +110,24 @@ class TemplateModelFactory(val context: DokkaContext) {
             } ?: it)
         }
 
-    class PrintDirective(val generateData: () -> String) : TemplateDirectiveModel {
+    private class PrintDirective(val generateData: () -> String) : TemplateDirectiveModel {
         override fun execute(
             env: Environment,
             params: MutableMap<Any?, Any?>?,
             loopVars: Array<TemplateModel>?,
             body: TemplateDirectiveBody?
         ) {
-            if ((params?.size ?: 0) > 0) throw TemplateModelException(
-                "A parameter is not allowed"
+            if (params?.isNotEmpty() == true) throw TemplateModelException(
+                "Parameters are not allowed"
             )
-            if ((loopVars?.size ?: 0) > 0) throw TemplateModelException(
-                "A loop variable is not allowed"
+            if (loopVars?.isNotEmpty() == true) throw TemplateModelException(
+                "Loop variables are not allowed"
             )
             env.out.write(generateData())
         }
     }
 
-    class TemplateDirective(val configuration: DokkaConfiguration, val pathToRoot: String) : TemplateDirectiveModel {
+    private class TemplateDirective(val configuration: DokkaConfiguration, val pathToRoot: String) : TemplateDirectiveModel {
         override fun execute(
             env: Environment,
             params: MutableMap<Any?, Any?>?,
@@ -173,7 +172,7 @@ class TemplateModelFactory(val context: DokkaContext) {
             }
         }
 
-        data class Context(val env: Environment, val body: TemplateDirectiveBody)
+        private data class Context(val env: Environment, val body: TemplateDirectiveBody)
 
         private fun executeSubstituteCommand(
             command: SubstitutionCommand,

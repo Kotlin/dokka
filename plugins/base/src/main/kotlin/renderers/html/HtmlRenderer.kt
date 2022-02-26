@@ -4,7 +4,6 @@ import kotlinx.html.*
 import kotlinx.html.stream.createHTML
 import org.jetbrains.dokka.DokkaSourceSetID
 import org.jetbrains.dokka.base.DokkaBase
-import org.jetbrains.dokka.base.DokkaBaseConfiguration
 import org.jetbrains.dokka.base.renderers.*
 import org.jetbrains.dokka.base.renderers.html.command.consumers.ImmediateResolutionTagConsumer
 import org.jetbrains.dokka.base.resolvers.anchors.SymbolAnchorHint
@@ -27,14 +26,15 @@ internal const val TEMPLATE_REPLACEMENT: String = "###"
 open class HtmlRenderer(
     context: DokkaContext
 ) : DefaultRenderer<FlowContent>(context) {
-    private val configuration = configuration<DokkaBase, DokkaBaseConfiguration>(context)
-
     private val sourceSetDependencyMap: Map<DokkaSourceSetID, List<DokkaSourceSetID>> =
         context.configuration.sourceSets.associate { sourceSet ->
             sourceSet.sourceSetID to context.configuration.sourceSets
                 .map { it.sourceSetID }
                 .filter { it in sourceSet.dependentSourceSets }
         }
+
+    private val templateModelFactory = TemplateModelFactory(context)
+    private val templater = HtmlTemplater(context).apply { setupSharedModel(templateModelFactory.buildSharedModel()) }
 
     private var shouldRenderSourceSetBubbles: Boolean = false
 
@@ -769,9 +769,6 @@ open class HtmlRenderer(
     private val String.isAbsolute: Boolean
         get() = URI(this).isAbsolute
 
-
-    private val templateModelFactory = TemplateModelFactory(context)
-    private val templater = HtmlTemplater(context).apply { setupSharedModel(templateModelFactory.buildSharedModel()) }
 
     open fun buildHtml(page: PageNode, resources: List<String>, content: FlowContent.() -> Unit): String =
         templater.renderFromTemplate(DokkaTemplateTypes.BASE) {
