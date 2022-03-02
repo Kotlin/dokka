@@ -480,9 +480,9 @@ class DefaultPsiToDocumentableTranslator(
          * Workaround for getting JvmField Kotlin annotation in PSIs
          */
         private fun Collection<PsiAnnotation>.getJvmFieldAnnotation() = filter {
-            it.qualifiedName == "kotlin.jvm.JvmField"
+            it.qualifiedName == "$JVM_FIELD_PACKAGE_NAME.$JVM_FIELD_CLASS_NAMES"
         }.map {
-            Annotations.Annotation(DRI("kotlin.jvm", "JvmField"), emptyMap())
+            Annotations.Annotation(DRI(JVM_FIELD_PACKAGE_NAME, JVM_FIELD_CLASS_NAMES), emptyMap())
         }.distinct()
 
         private fun <T : AnnotationTarget> PsiTypeParameter.annotations(): PropertyContainer<T> = this.annotations.toList().toListOfAnnotations().annotations()

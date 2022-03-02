@@ -2,6 +2,9 @@ package org.jetbrains.dokka.model
 
 import org.jetbrains.dokka.links.DRI
 
-fun DRI.isJvmField(): Boolean = packageName == "kotlin.jvm" && classNames == "JvmField"
+const val JVM_FIELD_PACKAGE_NAME = "kotlin.jvm"
+const val JVM_FIELD_CLASS_NAMES = "JvmField"
 
-fun Annotations.Annotation.isJvmField(): Boolean = dri.isJvmName()
+fun DRI.isJvmField(): Boolean = packageName == JVM_FIELD_PACKAGE_NAME && classNames == JVM_FIELD_CLASS_NAMES
+
+fun Annotations.Annotation.isJvmField(): Boolean = dri.isJvmField()

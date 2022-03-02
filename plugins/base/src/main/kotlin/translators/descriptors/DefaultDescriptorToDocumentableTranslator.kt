@@ -422,7 +422,15 @@ private class DokkaDescriptorVisitor(
 
     private suspend fun visitPropertyDescriptor(originalDescriptor: PropertyDescriptor, ): DProperty {
         val (dri, _) = originalDescriptor.createDRI()
-        val inheritedFrom = dri.copy(callable = null).takeIf { parent.dri.classNames != dri.classNames }
+        /**
+         * `createDRI` returns the DRI of the exact element and potential DRI of an element that is overriding it
+         * (It can be also FAKE_OVERRIDE which is in fact just inheritance of the symbol)
+         *
+         * Looking at what PSIs do, they give the DRI of the element within the classnames where it is actually
+         * declared and inheritedFrom as the same DRI but truncated callable part.
+         * Therefore, we set callable to null and take the DRI only if it is indeed coming from different class.
+         */
+        val inheritedFrom = dri.copy(callable = null).takeIf { parent.dri.classNames != dri.classNames || parent.dri.packageName != dri.packageName }
         val descriptor = originalDescriptor.getConcreteDescriptor()
         val isExpect = descriptor.isExpect
         val isActual = descriptor.isActual
@@ -475,7 +483,11 @@ private class DokkaDescriptorVisitor(
 
     private suspend fun visitFunctionDescriptor(originalDescriptor: FunctionDescriptor): DFunction {
         val (dri, _) = originalDescriptor.createDRI()
-        val inheritedFrom = dri.copy(callable = null).takeIf { parent.dri.classNames != dri.classNames }
+        /**
+         * To avoid redundant docs, please visit [visitPropertyDescriptor] inheritedFrom
+         * local val documentation.
+         */
+        val inheritedFrom = dri.copy(callable = null).takeIf { parent.dri.classNames != dri.classNames || parent.dri.packageName != dri.packageName }
         val descriptor = originalDescriptor.getConcreteDescriptor()
         val isExpect = descriptor.isExpect
         val isActual = descriptor.isActual
@@ -638,7 +650,17 @@ private class DokkaDescriptorVisitor(
         return coroutineScope {
             val generics = async { descriptor.typeParameters.parallelMap { it.toVariantTypeParameter() } }
 
-            fun SourceSetDependent<DocumentationNode>.translateParamToDescription(): SourceSetDependent<DocumentationNode> {
+            /**
+             * Workaround for problem with inheriting TagWrappers.
+             * There is an issue if one declare documentation in the class header for
+             * property using this syntax: `@property`
+             * The compiler will propagate the text wrapped in this tag to property and to its getters and setters.
+             *
+             * Actually, the problem impacts more of these tags, yet this particular tag was blocker for
+             * some opens-source plugin creators.
+             * TODO: Should rethink if we could fix it globally in dokka or in compiler itself.
+             */
+            fun SourceSetDependent<DocumentationNode>.translatePropertyTagToDescription(): SourceSetDependent<DocumentationNode> {
                 return this.mapValues { (_, value) ->
                     value.copy(children = value.children.map {
                         when (it) {
@@ -655,7 +677,7 @@ private class DokkaDescriptorVisitor(
                 isConstructor = false,
                 parameters = parameters,
                 visibility = descriptor.visibility.toDokkaVisibility().toSourceSetDependent(),
-                documentation = descriptor.resolveDescriptorData().translateParamToDescription(),
+                documentation = descriptor.resolveDescriptorData().translatePropertyTagToDescription(),
                 type = descriptor.returnType!!.toBound(),
                 generics = generics.await(),
                 modifier = descriptor.modifier().toSourceSetDependent(),
