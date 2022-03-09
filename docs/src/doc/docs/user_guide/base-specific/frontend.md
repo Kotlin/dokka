@@ -86,14 +86,14 @@ If `templatesDir` is defined, Dokka will find the `base.ftl` file there.
 
 Variables given below are available to the template:
   - `${pageName}` - the page name
-  - `${footerMessage}` - a text that is set by the `footerMessage` property
+  - `${footerMessage}` - text that is set by the `footerMessage` property
   - `${sourceSets}` - a nullable list of source sets, only for multi-platform pages. Each source set has `name`, `platfrom` and `filter` properties.
 
 Also, Dokka-defined [directives](https://freemarker.apache.org/docs/ref_directive_userDefined.html) can be used:
-  - `<@content/>` - a main content
+  - `<@content/>` - main content
   - `<@resources/>` - scripts, stylesheets 
   - `<@version/>` - version ([versioning-plugin](https://kotlin.github.io/dokka/1.6.10/user_guide/versioning/versioning/) will replace this with a version navigator)
-  - `<@template_cmd name="...""> ...</@template_cmd>` - is used for variables that depend on the root project (such `pathToRoot`, `projectName`). They are available only inside the directive. This is processed by a multi-module task that assembles a partial outputs from modules. 
+  - `<@template_cmd name="...""> ...</@template_cmd>` - is used for variables that depend on the root project (such `pathToRoot`, `projectName`). They are available only inside the directive. This is processed by a multi-module task that assembles partial outputs from modules. 
      Example:
     ```
     <@template_cmd name="projectName">
