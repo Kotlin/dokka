@@ -26,7 +26,7 @@ import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.configuration
 import java.net.URI
 
-class DefaultTemplateModelFactory(val context: DokkaContext) {
+class DefaultTemplateModelFactory(val context: DokkaContext) : TemplateModelFactory {
     private val configuration = configuration<DokkaBase, DokkaBaseConfiguration>(context)
     private val isPartial = context.configuration.delayTemplateSubstitution
 
@@ -36,7 +36,7 @@ class DefaultTemplateModelFactory(val context: DokkaContext) {
 
     data class SourceSetModel(val name: String, val platform: String, val filter: String)
 
-    fun buildModel(
+    override fun buildModel(
         page: PageNode,
         resources: List<String>,
         locationProvider: LocationProvider,
@@ -78,7 +78,7 @@ class DefaultTemplateModelFactory(val context: DokkaContext) {
         return mapper
     }
 
-    fun buildSharedModel(): TemplateMap = mapOf<String, Any>(
+    override fun buildSharedModel(): TemplateMap = mapOf<String, Any>(
         "footerMessage" to (configuration?.footerMessage?.takeIf { it.isNotEmpty() }
             ?: DokkaBaseConfiguration.defaultFooterMessage)
     )

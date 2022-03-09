@@ -335,13 +335,6 @@ public final class org/jetbrains/dokka/base/renderers/html/CustomResourceInstall
 	public fun invoke (Lorg/jetbrains/dokka/pages/RootPageNode;)Lorg/jetbrains/dokka/pages/RootPageNode;
 }
 
-public final class org/jetbrains/dokka/base/renderers/html/DokkaTemplateTypes : java/lang/Enum {
-	public static final field BASE Lorg/jetbrains/dokka/base/renderers/html/DokkaTemplateTypes;
-	public final fun getPath ()Ljava/lang/String;
-	public static fun valueOf (Ljava/lang/String;)Lorg/jetbrains/dokka/base/renderers/html/DokkaTemplateTypes;
-	public static fun values ()[Lorg/jetbrains/dokka/base/renderers/html/DokkaTemplateTypes;
-}
-
 public final class org/jetbrains/dokka/base/renderers/html/HtmlFormatingUtilsKt {
 	public static final fun buildBreakableDotSeparatedHtml (Lkotlinx/html/FlowContent;Ljava/lang/String;)V
 	public static final fun buildBreakableText (Lkotlinx/html/FlowContent;Ljava/lang/String;)V
@@ -398,12 +391,6 @@ public class org/jetbrains/dokka/base/renderers/html/HtmlRenderer : org/jetbrain
 
 public final class org/jetbrains/dokka/base/renderers/html/HtmlRendererKt {
 	public static final fun joinAttr (Ljava/util/List;)Ljava/lang/String;
-}
-
-public final class org/jetbrains/dokka/base/renderers/html/HtmlTemplater {
-	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
-	public final fun renderFromTemplate (Lorg/jetbrains/dokka/base/renderers/html/DokkaTemplateTypes;Lkotlin/jvm/functions/Function0;)Ljava/lang/String;
-	public final fun setupSharedModel (Ljava/util/Map;)V
 }
 
 public abstract class org/jetbrains/dokka/base/renderers/html/NavigationDataProvider {
@@ -556,28 +543,6 @@ public final class org/jetbrains/dokka/base/renderers/html/TemplateCommand : kot
 	public fun <init> (Ljava/util/Map;Lkotlinx/html/TagConsumer;)V
 }
 
-public final class org/jetbrains/dokka/base/renderers/html/TemplateModelFactory {
-	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
-	public final fun buildModel (Lorg/jetbrains/dokka/pages/PageNode;Ljava/util/List;Lorg/jetbrains/dokka/base/resolvers/local/LocationProvider;ZLjava/lang/String;)Ljava/util/Map;
-	public final fun buildSharedModel ()Ljava/util/Map;
-	public final fun getContext ()Lorg/jetbrains/dokka/plugability/DokkaContext;
-}
-
-public final class org/jetbrains/dokka/base/renderers/html/TemplateModelFactory$SourceSetModel {
-	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
-	public final fun component1 ()Ljava/lang/String;
-	public final fun component2 ()Ljava/lang/String;
-	public final fun component3 ()Ljava/lang/String;
-	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lorg/jetbrains/dokka/base/renderers/html/TemplateModelFactory$SourceSetModel;
-	public static synthetic fun copy$default (Lorg/jetbrains/dokka/base/renderers/html/TemplateModelFactory$SourceSetModel;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lorg/jetbrains/dokka/base/renderers/html/TemplateModelFactory$SourceSetModel;
-	public fun equals (Ljava/lang/Object;)Z
-	public final fun getFilter ()Ljava/lang/String;
-	public final fun getName ()Ljava/lang/String;
-	public final fun getPlatform ()Ljava/lang/String;
-	public fun hashCode ()I
-	public fun toString ()Ljava/lang/String;
-}
-
 public class org/jetbrains/dokka/base/renderers/html/WBR : kotlinx/html/HTMLTag, kotlinx/html/HtmlBlockInlineTag {
 	public fun <init> (Ljava/util/Map;Lkotlinx/html/TagConsumer;)V
 }
@@ -617,6 +582,55 @@ public final class org/jetbrains/dokka/base/renderers/html/command/consumers/Res
 	public fun canProcess (Lorg/jetbrains/dokka/base/templating/Command;)Z
 	public fun processCommand (Lorg/jetbrains/dokka/base/templating/Command;Lkotlin/jvm/functions/Function1;Lorg/jetbrains/dokka/base/renderers/html/command/consumers/ImmediateResolutionTagConsumer;)V
 	public fun processCommandAndFinalize (Lorg/jetbrains/dokka/base/templating/Command;Lkotlin/jvm/functions/Function1;Lorg/jetbrains/dokka/base/renderers/html/command/consumers/ImmediateResolutionTagConsumer;)Ljava/lang/Object;
+}
+
+public final class org/jetbrains/dokka/base/renderers/html/innerTemplating/DefaultTemplateModelFactory : org/jetbrains/dokka/base/renderers/html/innerTemplating/TemplateModelFactory {
+	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
+	public fun buildModel (Lorg/jetbrains/dokka/pages/PageNode;Ljava/util/List;Lorg/jetbrains/dokka/base/resolvers/local/LocationProvider;ZLjava/lang/String;)Ljava/util/Map;
+	public fun buildSharedModel ()Ljava/util/Map;
+	public final fun getContext ()Lorg/jetbrains/dokka/plugability/DokkaContext;
+}
+
+public final class org/jetbrains/dokka/base/renderers/html/innerTemplating/DefaultTemplateModelFactory$SourceSetModel {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lorg/jetbrains/dokka/base/renderers/html/innerTemplating/DefaultTemplateModelFactory$SourceSetModel;
+	public static synthetic fun copy$default (Lorg/jetbrains/dokka/base/renderers/html/innerTemplating/DefaultTemplateModelFactory$SourceSetModel;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lorg/jetbrains/dokka/base/renderers/html/innerTemplating/DefaultTemplateModelFactory$SourceSetModel;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getFilter ()Ljava/lang/String;
+	public final fun getName ()Ljava/lang/String;
+	public final fun getPlatform ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/jetbrains/dokka/base/renderers/html/innerTemplating/DefaultTemplateModelMerger : org/jetbrains/dokka/base/renderers/html/innerTemplating/TemplateModelMerger {
+	public fun <init> ()V
+	public fun invoke (Ljava/util/List;Lkotlin/jvm/functions/Function1;)Ljava/util/Map;
+}
+
+public final class org/jetbrains/dokka/base/renderers/html/innerTemplating/DokkaTemplateTypes : java/lang/Enum {
+	public static final field BASE Lorg/jetbrains/dokka/base/renderers/html/innerTemplating/DokkaTemplateTypes;
+	public final fun getPath ()Ljava/lang/String;
+	public static fun valueOf (Ljava/lang/String;)Lorg/jetbrains/dokka/base/renderers/html/innerTemplating/DokkaTemplateTypes;
+	public static fun values ()[Lorg/jetbrains/dokka/base/renderers/html/innerTemplating/DokkaTemplateTypes;
+}
+
+public final class org/jetbrains/dokka/base/renderers/html/innerTemplating/HtmlTemplater {
+	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
+	public final fun renderFromTemplate (Lorg/jetbrains/dokka/base/renderers/html/innerTemplating/DokkaTemplateTypes;Lkotlin/jvm/functions/Function0;)Ljava/lang/String;
+	public final fun setupSharedModel (Ljava/util/Map;)V
+}
+
+public abstract interface class org/jetbrains/dokka/base/renderers/html/innerTemplating/TemplateModelFactory {
+	public abstract fun buildModel (Lorg/jetbrains/dokka/pages/PageNode;Ljava/util/List;Lorg/jetbrains/dokka/base/resolvers/local/LocationProvider;ZLjava/lang/String;)Ljava/util/Map;
+	public abstract fun buildSharedModel ()Ljava/util/Map;
+}
+
+public abstract interface class org/jetbrains/dokka/base/renderers/html/innerTemplating/TemplateModelMerger {
+	public abstract fun invoke (Ljava/util/List;Lkotlin/jvm/functions/Function1;)Ljava/util/Map;
 }
 
 public final class org/jetbrains/dokka/base/resolvers/anchors/SymbolAnchorHint : org/jetbrains/dokka/model/properties/ExtraProperty {

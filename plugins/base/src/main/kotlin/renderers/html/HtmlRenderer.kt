@@ -7,6 +7,7 @@ import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.renderers.*
 import org.jetbrains.dokka.base.renderers.html.command.consumers.ImmediateResolutionTagConsumer
 import org.jetbrains.dokka.base.renderers.html.innerTemplating.DefaultTemplateModelFactory
+import org.jetbrains.dokka.base.renderers.html.innerTemplating.DefaultTemplateModelMerger
 import org.jetbrains.dokka.base.renderers.html.innerTemplating.DokkaTemplateTypes
 import org.jetbrains.dokka.base.renderers.html.innerTemplating.HtmlTemplater
 import org.jetbrains.dokka.base.resolvers.anchors.SymbolAnchorHint
@@ -36,8 +37,11 @@ open class HtmlRenderer(
                 .filter { it in sourceSet.dependentSourceSets }
         }
 
-    private val templateModelFactory = DefaultTemplateModelFactory(context)
-    private val templater = HtmlTemplater(context).apply { setupSharedModel(templateModelFactory.buildSharedModel()) }
+    private val templateModelFactories = listOf(DefaultTemplateModelFactory(context)) // TODO: Make extension point
+    private val templateModelMerger = DefaultTemplateModelMerger()
+    private val templater = HtmlTemplater(context).apply {
+        setupSharedModel(templateModelMerger.invoke(templateModelFactories) { buildSharedModel() })
+    }
 
     private var shouldRenderSourceSetBubbles: Boolean = false
 
@@ -784,13 +788,15 @@ open class HtmlRenderer(
                     content()
                 }
 
-            templateModelFactory.buildModel(
-                page,
-                resources,
-                locationProvider,
-                shouldRenderSourceSetBubbles,
-                generatedContent
-            )
+            templateModelMerger.invoke(templateModelFactories) {
+                buildModel(
+                    page,
+                    resources,
+                    locationProvider,
+                    shouldRenderSourceSetBubbles,
+                    generatedContent
+                )
+            }
         }
 
     /**
