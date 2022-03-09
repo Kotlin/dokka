@@ -1,4 +1,4 @@
-package org.jetbrains.dokka.base.renderers.html
+package org.jetbrains.dokka.base.renderers.html.innerTemplating
 
 import freemarker.core.Environment
 import freemarker.template.*
@@ -8,7 +8,10 @@ import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.DokkaBaseConfiguration
 import org.jetbrains.dokka.base.renderers.URIExtension
+import org.jetbrains.dokka.base.renderers.html.TEMPLATE_REPLACEMENT
 import org.jetbrains.dokka.base.renderers.html.command.consumers.ImmediateResolutionTagConsumer
+import org.jetbrains.dokka.base.renderers.html.templateCommand
+import org.jetbrains.dokka.base.renderers.html.templateCommandAsHtmlComment
 import org.jetbrains.dokka.base.renderers.isImage
 import org.jetbrains.dokka.base.resolvers.local.LocationProvider
 import org.jetbrains.dokka.base.templating.PathToRootSubstitutionCommand
@@ -23,7 +26,7 @@ import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.configuration
 import java.net.URI
 
-class TemplateModelFactory(val context: DokkaContext) {
+class DefaultTemplateModelFactory(val context: DokkaContext) {
     private val configuration = configuration<DokkaBase, DokkaBaseConfiguration>(context)
     private val isPartial = context.configuration.delayTemplateSubstitution
 
@@ -109,96 +112,96 @@ class TemplateModelFactory(val context: DokkaContext) {
                 }
             } ?: it)
         }
+}
 
-    private class PrintDirective(val generateData: () -> String) : TemplateDirectiveModel {
-        override fun execute(
-            env: Environment,
-            params: MutableMap<Any?, Any?>?,
-            loopVars: Array<TemplateModel>?,
-            body: TemplateDirectiveBody?
-        ) {
-            if (params?.isNotEmpty() == true) throw TemplateModelException(
-                "Parameters are not allowed"
+private class PrintDirective(val generateData: () -> String) : TemplateDirectiveModel {
+    override fun execute(
+        env: Environment,
+        params: MutableMap<Any?, Any?>?,
+        loopVars: Array<TemplateModel>?,
+        body: TemplateDirectiveBody?
+    ) {
+        if (params?.isNotEmpty() == true) throw TemplateModelException(
+            "Parameters are not allowed"
+        )
+        if (loopVars?.isNotEmpty() == true) throw TemplateModelException(
+            "Loop variables are not allowed"
+        )
+        env.out.write(generateData())
+    }
+}
+
+private class TemplateDirective(val configuration: DokkaConfiguration, val pathToRoot: String) : TemplateDirectiveModel {
+    override fun execute(
+        env: Environment,
+        params: MutableMap<Any?, Any?>?,
+        loopVars: Array<TemplateModel>?,
+        body: TemplateDirectiveBody?
+    ) {
+        val commandName = params?.get(PARAM_NAME) ?: throw TemplateModelException(
+            "The required $PARAM_NAME parameter is missing."
+        )
+        val replacement = (params[PARAM_REPLACEMENT] as? SimpleScalar)?.asString ?: TEMPLATE_REPLACEMENT
+
+        when ((commandName as? SimpleScalar)?.asString) {
+            "pathToRoot" -> {
+                body ?: throw TemplateModelException(
+                    "No directive body for $commandName command."
+                )
+                executeSubstituteCommand(
+                    PathToRootSubstitutionCommand(
+                        replacement, pathToRoot
+                    ),
+                    "pathToRoot",
+                    pathToRoot,
+                    Context(env, body)
+                )
+            }
+            "projectName" -> {
+                body ?: throw TemplateModelException(
+                    "No directive body $commandName command."
+                )
+                executeSubstituteCommand(
+                    ProjectNameSubstitutionCommand(
+                        replacement, configuration.moduleName
+                    ),
+                    "projectName",
+                    configuration.moduleName,
+                    Context(env, body)
+                )
+            }
+            else -> throw TemplateModelException(
+                "The parameter $PARAM_NAME $commandName is unknown"
             )
-            if (loopVars?.isNotEmpty() == true) throw TemplateModelException(
-                "Loop variables are not allowed"
-            )
-            env.out.write(generateData())
         }
     }
 
-    private class TemplateDirective(val configuration: DokkaConfiguration, val pathToRoot: String) : TemplateDirectiveModel {
-        override fun execute(
-            env: Environment,
-            params: MutableMap<Any?, Any?>?,
-            loopVars: Array<TemplateModel>?,
-            body: TemplateDirectiveBody?
-        ) {
-            val commandName = params?.get(PARAM_NAME) ?: throw TemplateModelException(
-                "The required $PARAM_NAME parameter is missing."
-            )
-            val replacement = (params[PARAM_REPLACEMENT] as? SimpleScalar)?.asString ?: TEMPLATE_REPLACEMENT
+    private data class Context(val env: Environment, val body: TemplateDirectiveBody)
 
-            when ((commandName as? SimpleScalar)?.asString) {
-                "pathToRoot" -> {
-                    body ?: throw TemplateModelException(
-                        "No directive body for $commandName command."
-                    )
-                    executeSubstituteCommand(
-                        PathToRootSubstitutionCommand(
-                            replacement, pathToRoot
-                        ),
-                        "pathToRoot",
-                        pathToRoot,
-                        Context(env, body)
-                    )
-                }
-                "projectName" -> {
-                    body ?: throw TemplateModelException(
-                        "No directive body $commandName command."
-                    )
-                    executeSubstituteCommand(
-                        ProjectNameSubstitutionCommand(
-                            replacement, configuration.moduleName
-                        ),
-                        "projectName",
-                        configuration.moduleName,
-                        Context(env, body)
-                    )
-                }
-                else -> throw TemplateModelException(
-                    "The parameter $PARAM_NAME $commandName is unknown"
-                )
+    private fun executeSubstituteCommand(
+        command: SubstitutionCommand,
+        name: String,
+        value: String,
+        ctx: Context
+    ) {
+        if (configuration.delayTemplateSubstitution)
+            ctx.env.out.templateCommandAsHtmlComment(command) {
+                renderWithLocalVar(name, command.pattern, ctx)
             }
+        else {
+            renderWithLocalVar(name, value, ctx)
+        }
+    }
+
+    private fun renderWithLocalVar(name: String, value: String, ctx: Context) =
+        with(ctx) {
+            env.setVariable(name, SimpleScalar(value))
+            body.render(env.out)
+            env.setVariable(name, null)
         }
 
-        private data class Context(val env: Environment, val body: TemplateDirectiveBody)
-
-        private fun executeSubstituteCommand(
-            command: SubstitutionCommand,
-            name: String,
-            value: String,
-            ctx: Context
-        ) {
-            if (configuration.delayTemplateSubstitution)
-                ctx.env.out.templateCommandAsHtmlComment(command) {
-                    renderWithLocalVar(name, command.pattern, ctx)
-                }
-            else {
-                renderWithLocalVar(name, value, ctx)
-            }
-        }
-
-        private fun renderWithLocalVar(name: String, value: String, ctx: Context) =
-            with(ctx) {
-                env.setVariable(name, SimpleScalar(value))
-                body.render(env.out)
-                env.setVariable(name, null)
-            }
-
-        companion object {
-            const val PARAM_NAME = "name"
-            const val PARAM_REPLACEMENT = "replacement"
-        }
+    companion object {
+        const val PARAM_NAME = "name"
+        const val PARAM_REPLACEMENT = "replacement"
     }
 }

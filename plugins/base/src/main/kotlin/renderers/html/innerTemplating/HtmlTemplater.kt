@@ -1,4 +1,4 @@
-package org.jetbrains.dokka.base.renderers.html
+package org.jetbrains.dokka.base.renderers.html.innerTemplating
 
 import freemarker.cache.ClassTemplateLoader
 import freemarker.cache.FileTemplateLoader

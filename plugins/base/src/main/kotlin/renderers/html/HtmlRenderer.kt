@@ -6,6 +6,9 @@ import org.jetbrains.dokka.DokkaSourceSetID
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.renderers.*
 import org.jetbrains.dokka.base.renderers.html.command.consumers.ImmediateResolutionTagConsumer
+import org.jetbrains.dokka.base.renderers.html.innerTemplating.DefaultTemplateModelFactory
+import org.jetbrains.dokka.base.renderers.html.innerTemplating.DokkaTemplateTypes
+import org.jetbrains.dokka.base.renderers.html.innerTemplating.HtmlTemplater
 import org.jetbrains.dokka.base.resolvers.anchors.SymbolAnchorHint
 import org.jetbrains.dokka.base.resolvers.local.DokkaBaseLocationProvider
 import org.jetbrains.dokka.base.templating.*
@@ -33,7 +36,7 @@ open class HtmlRenderer(
                 .filter { it in sourceSet.dependentSourceSets }
         }
 
-    private val templateModelFactory = TemplateModelFactory(context)
+    private val templateModelFactory = DefaultTemplateModelFactory(context)
     private val templater = HtmlTemplater(context).apply { setupSharedModel(templateModelFactory.buildSharedModel()) }
 
     private var shouldRenderSourceSetBubbles: Boolean = false
