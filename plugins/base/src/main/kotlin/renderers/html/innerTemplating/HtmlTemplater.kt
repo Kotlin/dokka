@@ -6,14 +6,11 @@ import freemarker.cache.MultiTemplateLoader
 import freemarker.log.Logger
 import freemarker.template.Configuration
 import freemarker.template.TemplateExceptionHandler
-import kotlinx.coroutines.async
-import kotlinx.coroutines.runBlocking
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.DokkaBaseConfiguration
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.configuration
 import java.io.StringWriter
-import java.util.concurrent.ConcurrentHashMap
 
 
 enum class DokkaTemplateTypes(val path: String) {
@@ -38,9 +35,6 @@ class HtmlTemplater(
     private val configuration = configuration<DokkaBase, DokkaBaseConfiguration>(context)
     private val templaterConfiguration =
         Configuration(Configuration.VERSION_2_3_31).apply { configureTemplateEngine() }
-    private val cachedTemplates: MutableSet<DokkaTemplateTypes> =
-        ConcurrentHashMap<DokkaTemplateTypes, Boolean>().keySet(true)
-
 
     private fun Configuration.configureTemplateEngine() {
         val loaderFromResources = ClassTemplateLoader(javaClass, "/dokka/templates")
@@ -71,20 +65,11 @@ class HtmlTemplater(
         generateModel: () -> TemplateMap
     ): String {
         val out = StringWriter()
-        // Freemarker has own cache to keep templates
-        if (cachedTemplates.contains(templateType)) { // it's a heuristic, freemarker can remove a template from cache
-            runBlocking {
-                val templateDeferred = async { templaterConfiguration.getTemplate(templateType.path) }
-                val model = generateModel()
-                val template = templateDeferred.await()
-                cachedTemplates.add(templateType)
-                template.process(model, out)
-            }
-        } else {
-            val template = templaterConfiguration.getTemplate(templateType.path)
-            val model = generateModel()
-            template.process(model, out)
-        }
+        // Freemarker has own thread-safe cache to keep templates
+        val template = templaterConfiguration.getTemplate(templateType.path)
+        val model = generateModel()
+        template.process(model, out)
+
         return out.toString()
     }
 }
