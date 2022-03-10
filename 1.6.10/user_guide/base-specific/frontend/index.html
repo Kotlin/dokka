@@ -390,6 +390,13 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#custom-html-pages" class="md-nav__link">
+    Custom HTML pages
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -693,6 +700,13 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#custom-html-pages" class="md-nav__link">
+    Custom HTML pages
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -712,12 +726,12 @@
 
 <h1 id="configuration-specific-to-html-format">Configuration specific to HTML format<a class="headerlink" href="#configuration-specific-to-html-format" title="Permanent link">&para;</a></h1>
 <h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h2>
-<p>Dokka's Html format requires a web server to view documentation correctly.
+<p>Dokka's HTML format requires a web server to view documentation correctly.
 This can be achieved by using the one that is build in IntelliJ or providing your own.
 If this requisite is not fulfilled Dokka with fail to load navigation pane and search bars.</p>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
-<p>Concepts specified below apply only to configuration of the Base Plugin (that contains Html format) 
+<p>Concepts specified below apply only to configuration of the Base Plugin (that contains HTML format) 
 and needs to be applied via pluginsConfiguration and not on the root one.</p>
 </div>
 <h2 id="modifying-assets">Modifying assets<a class="headerlink" href="#modifying-assets" title="Permanent link">&para;</a></h2>
@@ -728,17 +742,19 @@ Currently, user can modify:</p>
 <li>customStyleSheets</li>
 </ul>
 <p>Every file provided in those values will be applied to <strong>every</strong> page.</p>
-<p>Dokka uses 3 stylesheets:</p>
+<p>Dokka uses 4 stylesheets:</p>
 <ul>
 <li><code>style.css</code> - main css file responsible for styling the page</li>
 <li><code>jetbrains-mono.css</code> - fonts used across dokka</li>
 <li><code>logo-styles.css</code> - logo styling</li>
+<li><a href="https://github.com/Kotlin/dokka/blob/master/plugins/base/src/main/resources/dokka/styles/prism.css"><code>prism.css</code></a> - code highlighting</li>
 </ul>
-<p>User can choose to add or override those files. 
+<p>Also, it uses js scripts. The actual ones are <a href="https://github.com/Kotlin/dokka/tree/master/plugins/base/src/main/resources/dokka/scripts">here</a>.
+User can choose to add or override those files - stylesheets and js scripts. 
 Resources will be overridden when in <code>pluginConfiguration</code> block there is a resource with the same name.</p>
 <h2 id="modifying-footer">Modifying footer<a class="headerlink" href="#modifying-footer" title="Permanent link">&para;</a></h2>
 <p>Dokka supports custom messages in the footer via <code>footerMessage</code> string property on base plugin configuration. 
-Keep in mind that this value will be passed exactly to the output html, so it has to be valid and escaped correctly.</p>
+Keep in mind that this value will be passed exactly to the output HTML, so it has to be valid and escaped correctly.</p>
 <h2 id="separating-inherited-members">Separating inherited members<a class="headerlink" href="#separating-inherited-members" title="Permanent link">&para;</a></h2>
 <p>By setting a boolean property <code>separateInheritedMembers</code> dokka will split inherited members (like functions, properties etc.) 
 from ones declared in viewed class. Separated members will have it's own tabs on the page.</p>
@@ -767,6 +783,30 @@ By default, it is disabled. The page names of such declaration have a prefix tha
 <span class="p">}</span>
 </code></pre></div></p>
 <p>For build system specific instructions please visit dedicated pages: <a href="../../gradle/usage/#applying-plugins">gradle</a>, <a href="../../maven/usage/#applying-plugins">maven</a> and <a href="../../cli/usage/#configuration-options">cli</a></p>
+<h2 id="custom-html-pages">Custom HTML pages<a class="headerlink" href="#custom-html-pages" title="Permanent link">&para;</a></h2>
+<p>Templates are taken from the folder that is defined by the <code>templatesDir</code> property.
+To customize HTML output, you can use the <a href="https://github.com/Kotlin/dokka/blob/master/plugins/base/src/main/resources/dokka/templates">default template</a> as a starting point.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>To change page assets, you can set properties <code>customAssets</code> and <code>customStyleSheets</code>.
+Assets are handled by Dokka itself, not FreeMaker.</p>
+</div>
+<p>Currently, there is only one template file with predefined name <code>base.ftl</code>. It defines general design of all pages to render.<br />
+If <code>templatesDir</code> is defined, Dokka will find the <code>base.ftl</code> file there.</p>
+<p>Variables given below are available to the template:
+  - <code>${pageName}</code> - the page name
+  - <code>${footerMessage}</code> - text that is set by the <code>footerMessage</code> property
+  - <code>${sourceSets}</code> - a nullable list of source sets, only for multi-platform pages. Each source set has <code>name</code>, <code>platfrom</code> and <code>filter</code> properties.</p>
+<p>Also, Dokka-defined <a href="https://freemarker.apache.org/docs/ref_directive_userDefined.html">directives</a> can be used:
+  - <code>&lt;@content/&gt;</code> - main content
+  - <code>&lt;@resources/&gt;</code> - scripts, stylesheets 
+  - <code>&lt;@version/&gt;</code> - version (<a href="https://kotlin.github.io/dokka/1.6.10/user_guide/versioning/versioning/">versioning-plugin</a> will replace this with a version navigator)
+  - <code>&lt;@template_cmd name="...""&gt; ...&lt;!--@template_cmd--&gt;</code> - is used for variables that depend on the root project (such <code>pathToRoot</code>, <code>projectName</code>). They are available only inside the directive. This is processed by a multi-module task that assembles partial outputs from modules. 
+     Example:
+    <div class="highlight"><pre><span></span><code>&lt;@template_cmd name=&quot;projectName&quot;&gt;
+   &lt;span&gt;${projectName}&lt;/span&gt;
+&lt;/@template_cmd&gt;
+</code></pre></div></p>
 
               
             </article>
