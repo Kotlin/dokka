@@ -11,6 +11,10 @@ dependencies {
 
     val jackson_version: String by project
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jackson_version")
+
+    val freemarker_version: String by project
+    implementation("org.freemarker:freemarker:$freemarker_version")
+
     testImplementation(project(":plugins:base:base-test-utils"))
     testImplementation(project(":core:content-matcher-test-utils"))
 
