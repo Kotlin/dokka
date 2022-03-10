@@ -8,8 +8,11 @@ fun ContentEmbeddedResource.isImage(): Boolean {
     return File(address).extension.toLowerCase() in imageExtensions
 }
 
+val String.URIExtension: String
+    get() = substringBefore('?').substringAfterLast('.')
+
 fun String.isImage(): Boolean =
-    substringBefore('?').substringAfterLast('.') in imageExtensions
+    URIExtension in imageExtensions
 
 object HtmlFileExtensions {
     val imageExtensions = setOf("png", "jpg", "jpeg", "gif", "bmp", "tif", "webp", "svg")

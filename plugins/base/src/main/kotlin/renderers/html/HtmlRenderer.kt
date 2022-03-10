@@ -4,10 +4,12 @@ import kotlinx.html.*
 import kotlinx.html.stream.createHTML
 import org.jetbrains.dokka.DokkaSourceSetID
 import org.jetbrains.dokka.base.DokkaBase
-import org.jetbrains.dokka.base.DokkaBaseConfiguration
-import org.jetbrains.dokka.base.DokkaBaseConfiguration.Companion.defaultFooterMessage
 import org.jetbrains.dokka.base.renderers.*
 import org.jetbrains.dokka.base.renderers.html.command.consumers.ImmediateResolutionTagConsumer
+import org.jetbrains.dokka.base.renderers.html.innerTemplating.DefaultTemplateModelFactory
+import org.jetbrains.dokka.base.renderers.html.innerTemplating.DefaultTemplateModelMerger
+import org.jetbrains.dokka.base.renderers.html.innerTemplating.DokkaTemplateTypes
+import org.jetbrains.dokka.base.renderers.html.innerTemplating.HtmlTemplater
 import org.jetbrains.dokka.base.resolvers.anchors.SymbolAnchorHint
 import org.jetbrains.dokka.base.resolvers.local.DokkaBaseLocationProvider
 import org.jetbrains.dokka.base.templating.*
@@ -28,14 +30,18 @@ internal const val TEMPLATE_REPLACEMENT: String = "###"
 open class HtmlRenderer(
     context: DokkaContext
 ) : DefaultRenderer<FlowContent>(context) {
-    private val configuration = configuration<DokkaBase, DokkaBaseConfiguration>(context)
-
     private val sourceSetDependencyMap: Map<DokkaSourceSetID, List<DokkaSourceSetID>> =
         context.configuration.sourceSets.associate { sourceSet ->
             sourceSet.sourceSetID to context.configuration.sourceSets
                 .map { it.sourceSetID }
                 .filter { it in sourceSet.dependentSourceSets }
         }
+
+    private val templateModelFactories = listOf(DefaultTemplateModelFactory(context)) // TODO: Make extension point
+    private val templateModelMerger = DefaultTemplateModelMerger()
+    private val templater = HtmlTemplater(context).apply {
+        setupSharedModel(templateModelMerger.invoke(templateModelFactories) { buildSharedModel() })
+    }
 
     private var shouldRenderSourceSetBubbles: Boolean = false
 
@@ -764,138 +770,34 @@ open class HtmlRenderer(
 
     override fun buildPage(page: ContentPage, content: (FlowContent, ContentPage) -> Unit): String =
         buildHtml(page, page.embeddedResources) {
-            div("main-content") {
-                id = "content"
-                attributes["pageIds"] = "${context.configuration.moduleName}::${page.pageId}"
-                content(this, page)
-            }
+            content(this, page)
         }
 
     private val String.isAbsolute: Boolean
         get() = URI(this).isAbsolute
 
-    open fun buildHtml(page: PageNode, resources: List<String>, content: FlowContent.() -> Unit): String {
-        val path = locationProvider.resolve(page)
-        val pathToRoot = locationProvider.pathToRoot(page)
-        return createHTML().prepareForTemplates().html {
-            head {
-                meta(name = "viewport", content = "width=device-width, initial-scale=1", charset = "UTF-8")
-                title(page.name)
-                templateCommandAsHtmlComment(PathToRootSubstitutionCommand(TEMPLATE_REPLACEMENT, default = pathToRoot)) {
-                    link(href = "${TEMPLATE_REPLACEMENT}images/logo-icon.svg", rel = "icon", type = "image/svg")
+
+    open fun buildHtml(page: PageNode, resources: List<String>, content: FlowContent.() -> Unit): String =
+        templater.renderFromTemplate(DokkaTemplateTypes.BASE) {
+            val generatedContent =
+                createHTML().div("main-content") {
+                    id = "content"
+                    (page as? ContentPage)?.let {
+                        attributes["pageIds"] = "${context.configuration.moduleName}::${page.pageId}"
+                    }
+                    content()
                 }
-                templateCommandAsHtmlComment(PathToRootSubstitutionCommand(TEMPLATE_REPLACEMENT, default = pathToRoot)) {
-                    script { unsafe { +"""var pathToRoot = "$TEMPLATE_REPLACEMENT";""" } }
-                }
-                // This script doesn't need to be there but it is nice to have since app in dark mode doesn't 'blink' (class is added before it is rendered)
-                script {
-                    unsafe {
-                        +"""
-                    const storage = localStorage.getItem("dokka-dark-mode")
-                    const savedDarkMode = storage ? JSON.parse(storage) : false
-                    if(savedDarkMode === true){
-                        document.getElementsByTagName("html")[0].classList.add("theme-dark")
-                    }
-                """.trimIndent()
-                    }
-                }
-                resources.forEach {
-                    when {
-                        it.substringBefore('?').substringAfterLast('.') == "css" ->
-                            if (it.isAbsolute) link(
-                                rel = LinkRel.stylesheet,
-                                href = it
-                            )
-                            else templateCommandAsHtmlComment(PathToRootSubstitutionCommand(TEMPLATE_REPLACEMENT, default = pathToRoot)) {
-                                link(
-                                    rel = LinkRel.stylesheet,
-                                    href = TEMPLATE_REPLACEMENT + it
-                                )
-                            }
-                        it.substringBefore('?').substringAfterLast('.') == "js" ->
-                            if (it.isAbsolute) script(
-                                type = ScriptType.textJavaScript,
-                                src = it
-                            ) {
-                                async = true
-                            } else templateCommandAsHtmlComment(PathToRootSubstitutionCommand(TEMPLATE_REPLACEMENT, default = pathToRoot)) {
-                                script(
-                                    type = ScriptType.textJavaScript,
-                                    src = TEMPLATE_REPLACEMENT + it
-                                ) {
-                                    if (it == "scripts/main.js")
-                                        defer = true
-                                    else
-                                        async = true
-                                }
-                            }
-                        it.isImage() -> if (it.isAbsolute) link(href = it)
-                        else templateCommandAsHtmlComment(PathToRootSubstitutionCommand(TEMPLATE_REPLACEMENT, default = pathToRoot)) {
-                            link(href = TEMPLATE_REPLACEMENT + it)
-                        }
-                        else -> unsafe { +it }
-                    }
-                }
-            }
-            body {
-                div("navigation-wrapper") {
-                    id = "navigation-wrapper"
-                    div {
-                        id = "leftToggler"
-                        span("icon-toggler")
-                    }
-                    div("library-name") {
-                        clickableLogo(page, pathToRoot)
-                    }
-                    div { templateCommand(ReplaceVersionsCommand(path.orEmpty())) }
-                    div("pull-right d-flex") {
-                        filterButtons(page)
-                        button {
-                            id = "theme-toggle-button"
-                            span {
-                                id = "theme-toggle"
-                            }
-                        }
-                        div {
-                            id = "searchBar"
-                        }
-                    }
-                }
-                div {
-                    id = "container"
-                    div {
-                        id = "leftColumn"
-                        div {
-                            id = "sideMenu"
-                        }
-                    }
-                    div {
-                        id = "main"
-                        content()
-                        div(classes = "footer") {
-                            span("go-to-top-icon") {
-                                a(href = "#content") {
-                                    id = "go-to-top-link"
-                                }
-                            }
-                            span {
-                                configuration?.footerMessage?.takeIf { it.isNotEmpty() }
-                                    ?.let { unsafe { raw(it) } }
-                                    ?: text(defaultFooterMessage)
-                            }
-                            span("pull-right") {
-                                span { text("Generated by ") }
-                                a(href = "https://github.com/Kotlin/dokka") {
-                                    span { text("dokka") }
-                                    span(classes = "padded-icon")
-                                }
-                            }
-                        }
-                    }
-                }
+
+            templateModelMerger.invoke(templateModelFactories) {
+                buildModel(
+                    page,
+                    resources,
+                    locationProvider,
+                    shouldRenderSourceSetBubbles,
+                    generatedContent
+                )
             }
         }
-    }
 
     /**
      * This is deliberately left open for plugins that have some other pages above ours and would like to link to them

@@ -9,7 +9,8 @@ data class DokkaBaseConfiguration(
     var customAssets: List<File> = defaultCustomAssets,
     var separateInheritedMembers: Boolean = separateInheritedMembersDefault,
     var footerMessage: String = defaultFooterMessage,
-    var mergeImplicitExpectActualDeclarations: Boolean = mergeImplicitExpectActualDeclarationsDefault
+    var mergeImplicitExpectActualDeclarations: Boolean = mergeImplicitExpectActualDeclarationsDefault,
+    var templatesDir: File? = defaultTemplatesDir
 ) : ConfigurableBlock {
     companion object {
         val defaultFooterMessage = "© ${Year.now().value} Copyright"
@@ -17,5 +18,6 @@ data class DokkaBaseConfiguration(
         val defaultCustomAssets: List<File> = emptyList()
         const val separateInheritedMembersDefault: Boolean = false
         const val mergeImplicitExpectActualDeclarationsDefault: Boolean = false
+        val defaultTemplatesDir: File? = null
     }
 }

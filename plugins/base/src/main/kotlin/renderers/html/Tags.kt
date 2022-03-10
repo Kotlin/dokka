@@ -38,6 +38,12 @@ fun FlowOrMetaDataContent.templateCommandAsHtmlComment(data: Command, block: Flo
             comment(TEMPLATE_COMMAND_END_BORDER)
         }
 
+fun <T: Appendable> T.templateCommandAsHtmlComment(command: Command, action: T.() -> Unit ) {
+    append("<!--$TEMPLATE_COMMAND_BEGIN_BORDER$TEMPLATE_COMMAND_SEPARATOR${toJsonString(command)}-->")
+    action()
+    append("<!--$TEMPLATE_COMMAND_END_BORDER-->")
+}
+
 fun FlowOrMetaDataContent.templateCommand(data: Command, block: TemplateBlock = {}): Unit =
     (consumer as? ImmediateResolutionTagConsumer)?.processCommand(data, block)
         ?: TemplateCommand(attributesMapOf("data", toJsonString(data)), consumer).visit(block)
