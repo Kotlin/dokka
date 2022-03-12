@@ -34,7 +34,7 @@ jobs:
       - name: Copy files to dokka's S3 bucket
         run: ./integration-tests/aws_sync.sh s3://${{ env.bucket-name }} stdlib ../stdlib
       - name: Print link
-        run: echo http://dokka-snapshots.s3.eu-central-1.amazonaws.com/${{ env.branch-name }}/stdlib/${GITHUB_SHA::7}/index.html
+        run: echo https://dokka-snapshots.s3.eu-central-1.amazonaws.com/${{ env.branch-name }}/stdlib/${GITHUB_SHA::7}/index.html
 
   serialization:
     runs-on: ubuntu-latest
@@ -63,7 +63,7 @@ jobs:
       - name: Copy files to dokka's S3 bucket
         run: ./integration-tests/aws_sync.sh s3://${{ env.bucket-name }} serialization ../serialization
       - name: Print link
-        run: echo http://dokka-snapshots.s3.eu-central-1.amazonaws.com/${{ env.branch-name }}/serialization/${GITHUB_SHA::7}/index.html
+        run: echo https://dokka-snapshots.s3.eu-central-1.amazonaws.com/${{ env.branch-name }}/serialization/${GITHUB_SHA::7}/index.html
 
   biojava:
     runs-on: ubuntu-latest
@@ -92,4 +92,4 @@ jobs:
       - name: Copy files to dokka's S3 bucket
         run: ./integration-tests/aws_sync.sh s3://${{ env.bucket-name }} biojava ../biojava
       - name: Print link
-        run: echo http://dokka-snapshots.s3.eu-central-1.amazonaws.com/${{ env.branch-name }}/biojava/${GITHUB_SHA::7}/index.html
+        run: echo https://dokka-snapshots.s3.eu-central-1.amazonaws.com/${{ env.branch-name }}/biojava/${GITHUB_SHA::7}/index.html
