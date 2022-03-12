@@ -26,19 +26,15 @@ jobs:
           filters: |
             examples_changed:
               - 'examples/gradle/${{ matrix.projects }}/**'
-
       - uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
           java-version: 11
-
       - uses: gradle/gradle-build-action@v2
-
       - name: Build html
         run: ./gradlew dokkaHtml --no-daemon --stacktrace
         working-directory: examples/gradle/${{ matrix.projects }}
         if: steps.filter.outputs.examples_changed == 'true'
-
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         if: steps.filter.outputs.examples_changed == 'true'
@@ -63,19 +59,15 @@ jobs:
           filters: |
             examples_changed:
               - 'examples/gradle/${{ matrix.projects }}/**'
-
       - uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
           java-version: 11
-
       - uses: gradle/gradle-build-action@v2
-
       - name: Build html
         run: ./gradlew dokkaHtmlMultiModule --no-daemon --stacktrace
         working-directory: examples/gradle/${{ matrix.projects }}
         if: steps.filter.outputs.examples_changed == 'true'
-
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         if: steps.filter.outputs.examples_changed == 'true'
