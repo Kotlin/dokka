@@ -23,7 +23,7 @@ jobs:
           filters: |
             examples_changed:
               - '${{ matrix.projects }}/**'
-      - uses: actions/setup-java@v2
+      - uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
           java-version: 11
@@ -50,7 +50,7 @@ jobs:
           filters: |
             examples_changed:
               - '${{ matrix.projects }}/**'
-      - uses: actions/setup-java@v2
+      - uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
           java-version: 11
@@ -71,7 +71,7 @@ jobs:
           filters: |
             examples_changed:
               - 'examples/gradle/dokka-library-publishing-example/**'
-      - uses: actions/setup-java@v2
+      - uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
           java-version: 11
@@ -96,7 +96,7 @@ jobs:
           filters: |
             examples_changed:
               - '${{ matrix.dir }}/**'
-      - uses: actions/setup-java@v2
+      - uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
           java-version: 11
@@ -115,7 +115,7 @@ jobs:
             examples_changed:
               - 'examples/maven/**'
           working-directory: examples/maven
-      - uses: actions/setup-java@v2
+      - uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
           java-version: 11
