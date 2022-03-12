@@ -11,4 +11,6 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: 11
-      - run: ./gradlew apiCheck --stacktrace
+      - uses: gradle/gradle-build-action@v2
+        with:
+          arguments: ./gradlew apiCheck --stacktrace

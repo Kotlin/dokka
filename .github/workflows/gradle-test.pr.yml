@@ -14,7 +14,9 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: ${{ matrix.version }}
-      - run: ./gradlew clean test --stacktrace
+      - uses: gradle/gradle-build-action@v2
+        with:
+          arguments: clean test --stacktrace
 
   test-windows:
     strategy:
@@ -28,4 +30,6 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: ${{ matrix.version }}
-      - run: ./gradlew clean test --stacktrace --no-daemon --parallel --max-workers=1
+      - uses: gradle/gradle-build-action@v2
+        with:
+          arguments: clean test --stacktrace --no-daemon --parallel --max-workers=1
