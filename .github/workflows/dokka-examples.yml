@@ -7,12 +7,12 @@ jobs:
     strategy:
       matrix:
         projects: [
-            examples/gradle/dokka-gradle-example,
-            examples/gradle/dokka-kotlinAsJava-example,
-            examples/gradle/dokka-library-publishing-example,
-            examples/gradle/dokka-multimodule-example,
-            examples/gradle/dokka-multiplatform-example,
-            examples/gradle/dokka-customFormat-example
+          examples/gradle/dokka-gradle-example,
+          examples/gradle/dokka-kotlinAsJava-example,
+          examples/gradle/dokka-library-publishing-example,
+          examples/gradle/dokka-multimodule-example,
+          examples/gradle/dokka-multiplatform-example,
+          examples/gradle/dokka-customFormat-example
         ]
     runs-on: ubuntu-latest
     steps:
@@ -36,11 +36,11 @@ jobs:
     strategy:
       matrix:
         projects: [
-            examples/gradle/dokka-gradle-example,
-            examples/gradle/dokka-kotlinAsJava-example,
-            examples/gradle/dokka-library-publishing-example,
-            examples/gradle/dokka-multiplatform-example,
-            examples/gradle/dokka-customFormat-example
+          examples/gradle/dokka-gradle-example,
+          examples/gradle/dokka-kotlinAsJava-example,
+          examples/gradle/dokka-library-publishing-example,
+          examples/gradle/dokka-multiplatform-example,
+          examples/gradle/dokka-customFormat-example
         ]
     runs-on: ubuntu-latest
     steps:
@@ -63,7 +63,7 @@ jobs:
   run-dokka-publishing:
     strategy:
       matrix:
-        tasks: [dokkaJavadocJar, dokkaHtmlJar]
+        tasks: [ dokkaJavadocJar, dokkaHtmlJar ]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
