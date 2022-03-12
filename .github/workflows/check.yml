@@ -19,4 +19,4 @@ jobs:
           java-version: 11
       - uses: gradle/gradle-build-action@v2
         with:
-          arguments: ./gradlew apiCheck --stacktrace
+          arguments: apiCheck --stacktrace
