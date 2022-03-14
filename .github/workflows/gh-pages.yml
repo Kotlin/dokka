@@ -10,8 +10,7 @@ jobs:
     if: github.repository == 'Kotlin/dokka'
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout dokka
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
         with:
           path: dokka
       - uses: dorny/paths-filter@v2

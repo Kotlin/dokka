@@ -18,8 +18,7 @@ jobs:
           dokka-customFormat-example
         ]
     steps:
-      - name: Checkout dokka
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
       - uses: dorny/paths-filter@v2
         id: filter
         with:
@@ -51,8 +50,7 @@ jobs:
           dokka-versioning-multimodule-example
         ]
     steps:
-      - name: Checkout dokka
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
       - uses: dorny/paths-filter@v2
         id: filter
         with:
