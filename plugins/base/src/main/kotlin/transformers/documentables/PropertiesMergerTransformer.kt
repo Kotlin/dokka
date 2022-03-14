@@ -63,7 +63,7 @@ class PropertiesMergerTransformer : PreMergeDocumentableTransformer {
         }
 
     /**
-     * This is losely copied from here
+     * This is loosely copied from here
      * [org.jetbrains.dokka.base.translators.psi.DefaultPsiToDocumentableTranslator.DokkaPsiParser.splitFunctionsAndAccessors]
      * we should consider if we could unify that.
      * TODO: Revisit that

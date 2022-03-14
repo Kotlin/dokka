@@ -1838,6 +1838,8 @@ public final class org/jetbrains/dokka/model/JavaVisibility$Public : org/jetbrai
 }
 
 public final class org/jetbrains/dokka/model/JvmFieldKt {
+	public static final field JVM_FIELD_CLASS_NAMES Ljava/lang/String;
+	public static final field JVM_FIELD_PACKAGE_NAME Ljava/lang/String;
 	public static final fun isJvmField (Lorg/jetbrains/dokka/links/DRI;)Z
 	public static final fun isJvmField (Lorg/jetbrains/dokka/model/Annotations$Annotation;)Z
 }

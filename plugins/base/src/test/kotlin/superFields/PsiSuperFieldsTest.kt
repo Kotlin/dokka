@@ -4,6 +4,7 @@ import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.Annotations
 import org.jetbrains.dokka.model.InheritedMember
+import org.jetbrains.dokka.model.isJvmField
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
@@ -126,8 +127,7 @@ class PsiSuperFieldsTest : BaseAbstractTest() {
                     assertNull(this.getter)
                     assertNull(this.setter)
                     assertNotNull(this.extra[Annotations]?.directAnnotations?.values?.single()?.find {
-                        it.dri.packageName == "kotlin.jvm" &&
-                                it.dri.classNames == "JvmField"
+                        it.isJvmField()
                     })
                     this.extra[InheritedMember]?.inheritedFrom?.values?.single()?.run {
                         assertEquals(

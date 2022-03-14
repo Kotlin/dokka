@@ -439,7 +439,7 @@ private class DokkaDescriptorVisitor(
          * declared and inheritedFrom as the same DRI but truncated callable part.
          * Therefore, we set callable to null and take the DRI only if it is indeed coming from different class.
          */
-        val inheritedFrom = dri.copy(callable = null).takeIf { parent.dri.classNames != dri.classNames }
+        val inheritedFrom = dri.copy(callable = null).takeIf { parent.dri.classNames != dri.classNames || parent.dri.packageName != dri.packageName }
         val descriptor = originalDescriptor.getConcreteDescriptor()
         val isExpect = descriptor.isExpect
         val isActual = descriptor.isActual
@@ -499,7 +499,7 @@ private class DokkaDescriptorVisitor(
          * To avoid redundant docs, please visit [visitPropertyDescriptor] inheritedFrom
          * local val documentation.
          */
-        val inheritedFrom = dri.copy(callable = null).takeIf { parent.dri.classNames != dri.classNames }
+        val inheritedFrom = dri.copy(callable = null).takeIf { parent.dri.classNames != dri.classNames || parent.dri.packageName != dri.packageName }
         val descriptor = originalDescriptor.getConcreteDescriptor()
         val isExpect = descriptor.isExpect
         val isActual = descriptor.isActual
@@ -666,13 +666,13 @@ private class DokkaDescriptorVisitor(
              * Workaround for problem with inheriting TagWrappers.
              * There is an issue if one declare documentation in the class header for
              * property using this syntax: `@property`
-             * The compiler will propagate it withing this tag to property and to its getters and setters.
+             * The compiler will propagate the text wrapped in this tag to property and to its getters and setters.
              *
              * Actually, the problem impacts more of these tags, yet this particular tag was blocker for
              * some opens-source plugin creators.
              * TODO: Should rethink if we could fix it globally in dokka or in compiler itself.
              */
-            fun SourceSetDependent<DocumentationNode>.translatePropertyToDescription(): SourceSetDependent<DocumentationNode> {
+            fun SourceSetDependent<DocumentationNode>.translatePropertyTagToDescription(): SourceSetDependent<DocumentationNode> {
                 return this.mapValues { (_, value) ->
                     value.copy(children = value.children.map {
                         when (it) {
@@ -689,7 +689,7 @@ private class DokkaDescriptorVisitor(
                 isConstructor = false,
                 parameters = parameters,
                 visibility = descriptor.visibility.toDokkaVisibility().toSourceSetDependent(),
-                documentation = descriptor.resolveDescriptorData().translatePropertyToDescription(),
+                documentation = descriptor.resolveDescriptorData().translatePropertyTagToDescription(),
                 type = descriptor.returnType!!.toBound(),
                 generics = generics.await(),
                 modifier = descriptor.modifier().toSourceSetDependent(),
