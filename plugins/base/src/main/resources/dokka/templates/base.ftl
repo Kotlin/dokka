@@ -35,8 +35,6 @@ if(savedDarkMode === true){
         <@version/>
     </div>
     <div class="pull-right d-flex">
-        <button id="theme-toggle-button"><span id="theme-toggle"></span></button>
-        <div id="searchBar"></div>
         <#if sourceSets??>
             <div class="filter-section" id="filter-section">
                 <#list sourceSets as ss>
@@ -44,6 +42,8 @@ if(savedDarkMode === true){
                 </#list>
             </div>
         </#if>
+        <button id="theme-toggle-button"><span id="theme-toggle"></span></button>
+        <div id="searchBar"></div>
     </div>
 </div>
 <div id="container">
