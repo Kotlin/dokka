@@ -643,8 +643,7 @@ To generate documentation, run the following command:
 <li><code>-classpath</code> - list of directories or .jar files to include in the classpath (used for resolving references) separated by <code>;</code></li>
 <li><code>-samples</code> - list of directories containing sample code (documentation for those directories is not generated but declarations from them can be referenced using the <code>@sample</code> tag) separated by <code>;</code></li>
 <li><code>-includes</code> - list of files containing the documentation for the module and individual packages separated by <code>;</code></li>
-<li><code>-includeNonPublic</code> - <strong>Deprecated</strong>, prefer using <code>documentedVisibilities</code>. Include protected and private code</li>
-<li><code>-documentedVisibilities</code> - a list of visibility modifiers (separated by <code>;</code>) that should be documented. Overrides <code>includeNonPublic</code>. Default is <code>PUBLIC</code>. Possible values: <code>PUBLIC</code>, <code>PRIVATE</code>, <code>PROTECTED</code>, <code>INTERNAL</code> (Kotlin-specific), <code>PACKAGE</code> (Java-specific package-private)</li>
+<li><code>-includeNonPublic</code> - Include protected and private code</li>
 <li><code>-skipDeprecated</code> - if set, deprecated elements are not included in the generated documentation</li>
 <li><code>-reportUndocumented</code> - warn about undocumented members</li>
 <li><code>-noSkipEmptyPackages</code> - create index pages for empty packages</li>
@@ -711,7 +710,6 @@ The content of JSON file <code>dokkaConfiguration.json</code>:
         <span class="s2">&quot;Module.md&quot;</span>
       <span class="p">],</span>
       <span class="nt">&quot;includeNonPublic&quot;</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
-      <span class="nt">&quot;documentedVisibilities&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;PUBLIC&quot;</span><span class="p">,</span> <span class="s2">&quot;PRIVATE&quot;</span><span class="p">,</span> <span class="s2">&quot;PROTECTED&quot;</span><span class="p">,</span> <span class="s2">&quot;INTERNAL&quot;</span><span class="p">,</span> <span class="s2">&quot;PACKAGE&quot;</span><span class="p">],</span>
       <span class="nt">&quot;reportUndocumented&quot;</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
       <span class="nt">&quot;skipEmptyPackages&quot;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
       <span class="nt">&quot;skipDeprecated&quot;</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>

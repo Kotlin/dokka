@@ -754,20 +754,8 @@ The available configuration options for are shown below:</p>
             <span class="c1">// Used to remove a source set from documentation, test source sets are suppressed by default  </span>
             <span class="n">suppress</span><span class="p">.</span><span class="na">set</span><span class="p">(</span><span class="kc">false</span><span class="p">)</span>
 
-            <span class="c1">// Deprecated. Prefer using documentedVisibilities.</span>
+            <span class="c1">// Use to include or exclude non public members </span>
             <span class="n">includeNonPublic</span><span class="p">.</span><span class="na">set</span><span class="p">(</span><span class="kc">false</span><span class="p">)</span>
-
-            <span class="c1">// A set of visibility modifiers that should be documented</span>
-            <span class="c1">// If set by user, overrides includeNonPublic. Default is PUBLIC</span>
-            <span class="n">documentedVisibilities</span><span class="p">.</span><span class="na">set</span><span class="p">(</span>
-                <span class="n">setOf</span><span class="p">(</span>
-                    <span class="n">DokkaConfiguration</span><span class="p">.</span><span class="na">Visibility</span><span class="p">.</span><span class="na">PUBLIC</span><span class="p">,</span> <span class="c1">// Same for both Kotlin and Java</span>
-                    <span class="n">DokkaConfiguration</span><span class="p">.</span><span class="na">Visibility</span><span class="p">.</span><span class="na">PRIVATE</span><span class="p">,</span> <span class="c1">// Same for both Kotlin and Java</span>
-                    <span class="n">DokkaConfiguration</span><span class="p">.</span><span class="na">Visibility</span><span class="p">.</span><span class="na">PROTECTED</span><span class="p">,</span> <span class="c1">// Same for both Kotlin and Java</span>
-                    <span class="n">DokkaConfiguration</span><span class="p">.</span><span class="na">Visibility</span><span class="p">.</span><span class="na">INTERNAL</span><span class="p">,</span> <span class="c1">// Kotlin-specific internal modifier</span>
-                    <span class="n">DokkaConfiguration</span><span class="p">.</span><span class="na">Visibility</span><span class="p">.</span><span class="na">PACKAGE</span><span class="p">,</span> <span class="c1">// Java-specific package-private visibility</span>
-                <span class="p">)</span>
-            <span class="p">)</span>
 
             <span class="c1">// Do not output deprecated members. Applies globally, can be overridden by packageOptions</span>
             <span class="n">skipDeprecated</span><span class="p">.</span><span class="na">set</span><span class="p">(</span><span class="kc">false</span><span class="p">)</span>
@@ -845,19 +833,7 @@ The available configuration options for are shown below:</p>
                 <span class="c1">// All options are optional</span>
                 <span class="n">skipDeprecated</span><span class="p">.</span><span class="na">set</span><span class="p">(</span><span class="kc">false</span><span class="p">)</span>
                 <span class="n">reportUndocumented</span><span class="p">.</span><span class="na">set</span><span class="p">(</span><span class="kc">true</span><span class="p">)</span> <span class="c1">// Emit warnings about not documented members </span>
-                <span class="n">includeNonPublic</span><span class="p">.</span><span class="na">set</span><span class="p">(</span><span class="kc">false</span><span class="p">)</span> <span class="c1">// Deprecated, prefer using documentedVisibilities</span>
-
-                <span class="c1">// Visibilities that should be included in the documentation</span>
-                <span class="c1">// If set by user, overrides includeNonPublic. Default is PUBLIC</span>
-                <span class="n">documentedVisibilities</span><span class="p">.</span><span class="na">set</span><span class="p">(</span>
-                    <span class="n">setOf</span><span class="p">(</span>
-                        <span class="n">DokkaConfiguration</span><span class="p">.</span><span class="na">Visibility</span><span class="p">.</span><span class="na">PUBLIC</span><span class="p">,</span> <span class="c1">// Same for both Kotlin and Java</span>
-                        <span class="n">DokkaConfiguration</span><span class="p">.</span><span class="na">Visibility</span><span class="p">.</span><span class="na">PRIVATE</span><span class="p">,</span> <span class="c1">// Same for both Kotlin and Java</span>
-                        <span class="n">DokkaConfiguration</span><span class="p">.</span><span class="na">Visibility</span><span class="p">.</span><span class="na">PROTECTED</span><span class="p">,</span> <span class="c1">// Same for both Kotlin and Java</span>
-                        <span class="n">DokkaConfiguration</span><span class="p">.</span><span class="na">Visibility</span><span class="p">.</span><span class="na">INTERNAL</span><span class="p">,</span> <span class="c1">// Kotlin-specific internal modifier</span>
-                        <span class="n">DokkaConfiguration</span><span class="p">.</span><span class="na">Visibility</span><span class="p">.</span><span class="na">PACKAGE</span><span class="p">,</span> <span class="c1">// Java-specific package-private visibility</span>
-                    <span class="p">)</span>
-                <span class="p">)</span>
+                <span class="n">includeNonPublic</span><span class="p">.</span><span class="na">set</span><span class="p">(</span><span class="kc">false</span><span class="p">)</span>
             <span class="p">}</span>
             <span class="c1">// Suppress a package</span>
             <span class="n">perPackageOption</span> <span class="p">{</span>

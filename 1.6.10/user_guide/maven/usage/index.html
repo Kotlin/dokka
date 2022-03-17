@@ -670,16 +670,6 @@
             <span class="nt">&lt;include&gt;</span>extra.md<span class="nt">&lt;/include&gt;</span>
         <span class="nt">&lt;/includes&gt;</span>
 
-        <span class="c">&lt;!-- A list of visibility modifiers that should be documented --&gt;</span>
-        <span class="c">&lt;!-- If set by user, overrides includeNonPublic. Default is PUBLIC --&gt;</span>
-        <span class="nt">&lt;documentedVisibilities&gt;</span>
-            <span class="nt">&lt;visibility&gt;</span>PUBLIC<span class="nt">&lt;/visibility&gt;</span> <span class="c">&lt;!-- Same for both kotlin and java --&gt;</span>
-            <span class="nt">&lt;visibility&gt;</span>PRIVATE<span class="nt">&lt;/visibility&gt;</span> <span class="c">&lt;!-- Same for both kotlin and java --&gt;</span>
-            <span class="nt">&lt;visibility&gt;</span>PROTECTED<span class="nt">&lt;/visibility&gt;</span> <span class="c">&lt;!-- Same for both kotlin and java --&gt;</span>
-            <span class="nt">&lt;visibility&gt;</span>INTERNAL<span class="nt">&lt;/visibility&gt;</span> <span class="c">&lt;!-- Kotlin-specific internal modifier --&gt;</span>
-            <span class="nt">&lt;visibility&gt;</span>PACKAGE<span class="nt">&lt;/visibility&gt;</span> <span class="c">&lt;!-- Java-specific package-private visibility (default) --&gt;</span>
-        <span class="nt">&lt;/documentedVisibilities&gt;</span>
-
         <span class="c">&lt;!-- List of sample roots --&gt;</span>
         <span class="nt">&lt;samples&gt;</span>
             <span class="nt">&lt;dir&gt;</span>src/test/samples<span class="nt">&lt;/dir&gt;</span>
@@ -758,18 +748,8 @@
                 <span class="c">&lt;!-- Emit warnings about not documented members  --&gt;</span>
                 <span class="nt">&lt;reportUndocumented&gt;</span>true<span class="nt">&lt;/reportUndocumented&gt;</span>
 
-                <span class="c">&lt;!-- Deprecated. Prefer using documentedVisibilities --&gt;</span>
+                <span class="c">&lt;!-- Use to include or exclude non public members  --&gt;</span>
                 <span class="nt">&lt;includeNonPublic&gt;</span>false<span class="nt">&lt;/includeNonPublic&gt;</span>
-
-                <span class="c">&lt;!-- A list of visibility modifiers that should be documented --&gt;</span>
-                <span class="c">&lt;!-- If set by user, overrides includeNonPublic. Default is PUBLIC --&gt;</span>
-                <span class="nt">&lt;documentedVisibilities&gt;</span>
-                    <span class="nt">&lt;visibility&gt;</span>PUBLIC<span class="nt">&lt;/visibility&gt;</span> <span class="c">&lt;!-- Same for both kotlin and java --&gt;</span>
-                    <span class="nt">&lt;visibility&gt;</span>PRIVATE<span class="nt">&lt;/visibility&gt;</span> <span class="c">&lt;!-- Same for both kotlin and java --&gt;</span>
-                    <span class="nt">&lt;visibility&gt;</span>PROTECTED<span class="nt">&lt;/visibility&gt;</span> <span class="c">&lt;!-- Same for both kotlin and java --&gt;</span>
-                    <span class="nt">&lt;visibility&gt;</span>INTERNAL<span class="nt">&lt;/visibility&gt;</span> <span class="c">&lt;!-- Kotlin-specific internal modifier --&gt;</span>
-                    <span class="nt">&lt;visibility&gt;</span>PACKAGE<span class="nt">&lt;/visibility&gt;</span> <span class="c">&lt;!-- Java-specific package-private visibility (default) --&gt;</span>
-                <span class="nt">&lt;/documentedVisibilities&gt;</span>
             <span class="nt">&lt;/packageOptions&gt;</span>
         <span class="nt">&lt;/perPackageOptions&gt;</span>
 
