@@ -3,7 +3,6 @@ import org.jetbrains.registerDokkaArtifactPublication
 
 plugins {
     `maven-publish`
-    id("com.jfrog.bintray")
 }
 
 dependencies {
