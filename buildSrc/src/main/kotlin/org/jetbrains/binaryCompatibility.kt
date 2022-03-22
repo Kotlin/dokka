@@ -15,7 +15,7 @@ internal object BinaryCompatibilityConfig {
     )
 }
 
-internal fun Project.registerApiValidation(publicationName: String) {
+internal fun Project.registerBinaryCompatibilityCheck(publicationName: String) {
     if (publicationName !in BinaryCompatibilityConfig.ignoredPublications) {
         if (tasks.findByName("apiBuild") == null) {
             plugins.apply(kotlinx.validation.BinaryCompatibilityValidatorPlugin::class.java)
