@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - master
+  release:
+    types: [published]
 
 jobs:
   docs:
@@ -30,17 +32,17 @@ jobs:
 
       - name: Get current dokka version
         run: echo "DOKKA_VERSION=`./gradlew :properties | grep '^version:.*' | cut -d ' ' -f 2 | cut -d '-' -f 1`" >> $GITHUB_ENV
-        if: steps.filter.outputs.docs_changed == 'true'
+        if: github.event_name == 'release' || steps.filter.outputs.docs_changed == 'true'
         working-directory: ./dokka
 
       - name: Build docs
         run: ./gradlew mkdocsBuild -Pdokka_version=$DOKKA_VERSION --info
-        if: steps.filter.outputs.docs_changed == 'true'
+        if: github.event_name == 'release' || steps.filter.outputs.docs_changed == 'true'
         working-directory: ./dokka
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
-        if: steps.filter.outputs.docs_changed == 'true'
+        if: github.event_name == 'release' || steps.filter.outputs.docs_changed == 'true'
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dokka/docs/build/mkdocs
