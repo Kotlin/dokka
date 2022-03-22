@@ -1,6 +1,5 @@
 package org.jetbrains
 
-import com.jfrog.bintray.gradle.BintrayExtension
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.Project
@@ -9,12 +8,8 @@ import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.findByType
-import org.gradle.kotlin.dsl.provideDelegate
 
 open class ValidatePublications : DefaultTask() {
-    class MissingBintrayPublicationException(project: Project, publication: MavenPublication) : GradleException(
-        "Project ${project.path} has publication ${publication.name} that is not configured for bintray publication"
-    )
 
     class UnpublishedProjectDependencyException(
         project: Project, dependencyProject: Project
@@ -32,24 +27,9 @@ open class ValidatePublications : DefaultTask() {
                 .filterIsInstance<MavenPublication>()
                 .filter { it.version == project.dokkaVersion }
                 .forEach { publication ->
-                    if (project.publicationChannels.any { it.isBintrayRepository }) {
-                        checkPublicationIsConfiguredForBintray(subProject, publication)
-                    }
                     checkProjectDependenciesArePublished(subProject)
                     subProject.assertPublicationVersion()
                 }
-        }
-    }
-
-    private fun checkPublicationIsConfiguredForBintray(project: Project, publication: MavenPublication) {
-        val bintrayExtension = project.extensions.findByType<BintrayExtension>()
-            ?: throw MissingBintrayPublicationException(project, publication)
-
-        val isPublicationConfiguredForBintray = bintrayExtension.publications.orEmpty()
-            .any { publicationName -> publicationName == publication.name }
-
-        if (!isPublicationConfiguredForBintray) {
-            throw MissingBintrayPublicationException(project, publication)
         }
     }
 

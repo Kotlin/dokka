@@ -16,14 +16,12 @@ internal object BinaryCompatibilityConfig {
 }
 
 internal fun Project.registerBinaryCompatibilityCheck(publicationName: String) {
-    publicationName.takeIf {
-        it !in BinaryCompatibilityConfig.ignoredPublications
-    }?.let {
+    if (publicationName !in BinaryCompatibilityConfig.ignoredPublications) {
         if (tasks.findByName("apiBuild") == null) {
             plugins.apply(kotlinx.validation.BinaryCompatibilityValidatorPlugin::class.java)
             configure<ApiValidationExtension> {
                 ignoredProjects.addAll(
-                    BinaryCompatibilityConfig.ignoredSubprojects.intersect(allprojects.map { it.name })
+                    BinaryCompatibilityConfig.ignoredSubprojects.intersect(allprojects.map { it.name }.toSet())
                 )
             }
         }

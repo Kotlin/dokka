@@ -3,7 +3,6 @@ import org.jetbrains.registerDokkaArtifactPublication
 
 plugins {
     id("com.github.johnrengelman.shadow")
-    id("com.jfrog.bintray")
 }
 
 dependencies {
