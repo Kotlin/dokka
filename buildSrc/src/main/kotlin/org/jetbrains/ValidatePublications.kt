@@ -11,22 +11,21 @@ import org.gradle.kotlin.dsl.findByType
 
 open class ValidatePublications : DefaultTask() {
 
-    class UnpublishedProjectDependencyException(
-        project: Project, dependencyProject: Project
-    ) : GradleException(
-        "Published project ${project.path} cannot depend on unpublished project ${dependencyProject.path}"
-    )
-
+    init {
+        group = "verification"
+        project.tasks.named("check") {
+            dependsOn(this@ValidatePublications)
+        }
+    }
 
     @TaskAction
     fun validatePublicationConfiguration() {
-        @Suppress("LocalVariableName")
         project.subprojects.forEach { subProject ->
             val publishing = subProject.extensions.findByType<PublishingExtension>() ?: return@forEach
             publishing.publications
                 .filterIsInstance<MavenPublication>()
                 .filter { it.version == project.dokkaVersion }
-                .forEach { publication ->
+                .forEach { _ ->
                     checkProjectDependenciesArePublished(subProject)
                     subProject.assertPublicationVersion()
                 }
@@ -34,8 +33,11 @@ open class ValidatePublications : DefaultTask() {
     }
 
     private fun checkProjectDependenciesArePublished(project: Project) {
-        (project.configurations.findByName("implementation")?.allDependencies.orEmpty() +
-                project.configurations.findByName("api")?.allDependencies.orEmpty())
+        val implementationDeps = project.configurations.findByName("implementation")?.allDependencies.orEmpty()
+        val apiDependencies = project.configurations.findByName("api")?.allDependencies.orEmpty()
+        val allDependencies = implementationDeps + apiDependencies
+
+        allDependencies
             .filterIsInstance<ProjectDependency>()
             .forEach { projectDependency ->
                 val publishing = projectDependency.dependencyProject.extensions.findByType<PublishingExtension>()
@@ -53,22 +55,24 @@ open class ValidatePublications : DefaultTask() {
     }
 
     private fun Project.assertPublicationVersion() {
-        if (System.getenv("SKIP_VERSION_CHECK")?.contains("true", ignoreCase = true) == true)
+        val isVersionCheckEnabled = System.getenv("ENABLE_VERSION_CHECK").equals("true", ignoreCase = true)
+        if (!isVersionCheckEnabled) {
             return
+        }
 
-        if (!publicationChannels.all { publicationChannel ->
-                publicationChannel.acceptedDokkaVersionTypes.any { acceptedVersionType ->
-                    acceptedVersionType == dokkaVersionType
-                }
-            }) {
+        val versionTypeMatchesPublicationChannels = publicationChannels.all { publicationChannel ->
+            publicationChannel.acceptedDokkaVersionTypes.any { acceptedVersionType ->
+                acceptedVersionType == dokkaVersionType
+            }
+        }
+        if (!versionTypeMatchesPublicationChannels) {
             throw AssertionError("Wrong version $dokkaVersion for configured publication channels $publicationChannels")
         }
     }
 
-    init {
-        group = "verification"
-        project.tasks.named("check") {
-            dependsOn(this@ValidatePublications)
-        }
-    }
+    private class UnpublishedProjectDependencyException(
+        project: Project, dependencyProject: Project
+    ): GradleException(
+        "Published project ${project.path} cannot depend on unpublished project ${dependencyProject.path}"
+    )
 }

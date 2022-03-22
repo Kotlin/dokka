@@ -46,13 +46,13 @@ fun Project.registerDokkaArtifactPublication(publicationName: String, configure:
 }
 
 fun Project.configureSpacePublicationIfNecessary(vararg publications: String) {
-    if (SpaceDokkaDev in this.publicationChannels) {
+    if (SPACE_DOKKA_DEV in this.publicationChannels) {
         configure<PublishingExtension> {
             repositories {
                 /* already registered */
-                findByName(SpaceDokkaDev.name)?.let { return@repositories }
+                findByName(SPACE_DOKKA_DEV.name)?.let { return@repositories }
                 maven {
-                    name = SpaceDokkaDev.name
+                    name = SPACE_DOKKA_DEV.name
                     url = URI.create("https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev")
                     credentials {
                         username = System.getenv("SPACE_PACKAGES_USER")
@@ -65,7 +65,7 @@ fun Project.configureSpacePublicationIfNecessary(vararg publications: String) {
 
     whenEvaluated {
         tasks.withType<PublishToMavenRepository> {
-            if (this.repository.name == SpaceDokkaDev.name) {
+            if (this.repository.name == SPACE_DOKKA_DEV.name) {
                 this.isEnabled = this.isEnabled && publication.name in publications
                 if (!this.isEnabled) {
                     this.group = "disabled"
@@ -77,18 +77,18 @@ fun Project.configureSpacePublicationIfNecessary(vararg publications: String) {
 
 fun Project.createDokkaPublishTaskIfNecessary() {
     tasks.maybeCreate("dokkaPublish").run {
-        if (publicationChannels.any { it.isSpaceRepository }) {
+        if (publicationChannels.any { it.isSpaceRepository() }) {
             dependsOn(tasks.named("publish"))
         }
 
-        if (publicationChannels.any { it.isMavenRepository }) {
+        if (publicationChannels.any { it.isMavenRepository() }) {
             dependsOn(tasks.named("publishToSonatype"))
         }
     }
 }
 
 fun Project.configureSonatypePublicationIfNecessary(vararg publications: String) {
-    if (publicationChannels.any { it.isMavenRepository }) {
+    if (publicationChannels.any { it.isMavenRepository() }) {
         signPublicationsIfKeyPresent(*publications)
     }
 }
