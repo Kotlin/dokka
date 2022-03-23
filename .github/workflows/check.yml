@@ -3,7 +3,7 @@ name: Check
 on: pull_request
 
 jobs:
-  validation:
+  validate-wrapper:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
