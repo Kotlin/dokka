@@ -1,4 +1,4 @@
-## Building dokka
+## Building Dokka
 
 Dokka is built with Gradle. To build it, use `./gradlew build`.
 Alternatively, open the project directory in IntelliJ IDEA and use the IDE to build and run dokka.
@@ -24,6 +24,8 @@ Here's how to import and configure Dokka in IntelliJ IDEA:
   message: "Error Loading Project: Cannot load 3 modules".  Open up the details
   of the error, and click "Remove Selected", as these module `.iml` files are
   safe to remove.
+
+## Using/testing locally built Dokka
   
 If you want to use/test your locally built Dokka in a project, do the following:
 1. Change `dokka_version` in `gradle.properties` to something that you will use later on as the dependency version.

@@ -3,6 +3,7 @@ package org.jetbrains
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.Project
+import org.gradle.api.artifacts.Dependency
 import org.gradle.api.artifacts.ProjectDependency
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
@@ -33,9 +34,10 @@ open class ValidatePublications : DefaultTask() {
     }
 
     private fun checkProjectDependenciesArePublished(project: Project) {
-        val implementationDeps = project.configurations.findByName("implementation")?.allDependencies.orEmpty()
-        val apiDependencies = project.configurations.findByName("api")?.allDependencies.orEmpty()
-        val allDependencies = implementationDeps + apiDependencies
+        val implementationDependencies = project.findDependenciesByName("implementation")
+        val apiDependencies = project.findDependenciesByName("api")
+
+        val allDependencies = implementationDependencies + apiDependencies
 
         allDependencies
             .filterIsInstance<ProjectDependency>()
@@ -54,12 +56,11 @@ open class ValidatePublications : DefaultTask() {
             }
     }
 
-    private fun Project.assertPublicationVersion() {
-        val isVersionCheckEnabled = System.getenv("ENABLE_VERSION_CHECK").equals("true", ignoreCase = true)
-        if (!isVersionCheckEnabled) {
-            return
-        }
+    private fun Project.findDependenciesByName(name: String): Set<Dependency> {
+        return configurations.findByName(name)?.allDependencies.orEmpty()
+    }
 
+    private fun Project.assertPublicationVersion() {
         val versionTypeMatchesPublicationChannels = publicationChannels.all { publicationChannel ->
             publicationChannel.acceptedDokkaVersionTypes.any { acceptedVersionType ->
                 acceptedVersionType == dokkaVersionType

@@ -22,6 +22,8 @@ enum class DokkaPublicationChannel {
 
     fun isMavenRepository() =  this == MAVEN_CENTRAL || this == MAVEN_CENTRAL_SNAPSHOT
 
+    fun isGradlePluginPortal() = this == GRADLE_PLUGIN_PORTAL
+
     companion object {
         fun fromPropertyString(value: String): DokkaPublicationChannel = when (value) {
             "space-dokka-dev" -> SPACE_DOKKA_DEV
