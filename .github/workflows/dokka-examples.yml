@@ -7,26 +7,27 @@ jobs:
     strategy:
       matrix:
         projects: [
-            examples/gradle/dokka-gradle-example,
-            examples/gradle/dokka-kotlinAsJava-example,
-            examples/gradle/dokka-library-publishing-example,
-            examples/gradle/dokka-multimodule-example,
-            examples/gradle/dokka-multiplatform-example,
-            examples/gradle/dokka-customFormat-example
+          examples/gradle/dokka-gradle-example,
+          examples/gradle/dokka-kotlinAsJava-example,
+          examples/gradle/dokka-library-publishing-example,
+          examples/gradle/dokka-multimodule-example,
+          examples/gradle/dokka-multiplatform-example,
+          examples/gradle/dokka-customFormat-example
         ]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: dorny/paths-filter@v2
         id: filter
         with:
           filters: |
             examples_changed:
               - '${{ matrix.projects }}/**'
-      - uses: actions/setup-java@v2
+      - uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
           java-version: 11
+      - uses: gradle/gradle-build-action@v2
       - run: ./gradlew build --no-daemon --stacktrace
         working-directory: ${{ matrix.projects }}
         if: steps.filter.outputs.examples_changed == 'true'
@@ -35,25 +36,26 @@ jobs:
     strategy:
       matrix:
         projects: [
-            examples/gradle/dokka-gradle-example,
-            examples/gradle/dokka-kotlinAsJava-example,
-            examples/gradle/dokka-library-publishing-example,
-            examples/gradle/dokka-multiplatform-example,
-            examples/gradle/dokka-customFormat-example
+          examples/gradle/dokka-gradle-example,
+          examples/gradle/dokka-kotlinAsJava-example,
+          examples/gradle/dokka-library-publishing-example,
+          examples/gradle/dokka-multiplatform-example,
+          examples/gradle/dokka-customFormat-example
         ]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: dorny/paths-filter@v2
         id: filter
         with:
           filters: |
             examples_changed:
               - '${{ matrix.projects }}/**'
-      - uses: actions/setup-java@v2
+      - uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
           java-version: 11
+      - uses: gradle/gradle-build-action@v2
       - run: ./gradlew dokkaHtml --no-daemon --stacktrace
         working-directory: ${{ matrix.projects }}
         if: steps.filter.outputs.examples_changed == 'true'
@@ -61,20 +63,21 @@ jobs:
   run-dokka-publishing:
     strategy:
       matrix:
-        tasks: [dokkaJavadocJar, dokkaHtmlJar]
+        tasks: [ dokkaJavadocJar, dokkaHtmlJar ]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: dorny/paths-filter@v2
         id: filter
         with:
           filters: |
             examples_changed:
               - 'examples/gradle/dokka-library-publishing-example/**'
-      - uses: actions/setup-java@v2
+      - uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
           java-version: 11
+      - uses: gradle/gradle-build-action@v2
       - run: ./gradlew ${{ matrix.tasks }} --no-daemon --stacktrace
         working-directory: examples/gradle/dokka-library-publishing-example
         if: steps.filter.outputs.examples_changed == 'true'
@@ -89,17 +92,18 @@ jobs:
           - task: "dokkaHtmlMultiModule"
             dir: "examples/gradle/dokka-multimodule-example"
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: dorny/paths-filter@v2
         id: filter
         with:
           filters: |
             examples_changed:
               - '${{ matrix.dir }}/**'
-      - uses: actions/setup-java@v2
+      - uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
           java-version: 11
+      - uses: gradle/gradle-build-action@v2
       - run: ./gradlew ${{ matrix.task }} --no-daemon --stacktrace
         working-directory: ${{ matrix.dir }}
         if: steps.filter.outputs.examples_changed == 'true'
@@ -107,7 +111,7 @@ jobs:
   run-dokka-maven-example:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: dorny/paths-filter@v2
         id: filter
         with:
@@ -115,7 +119,7 @@ jobs:
             examples_changed:
               - 'examples/maven/**'
           working-directory: examples/maven
-      - uses: actions/setup-java@v2
+      - uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
           java-version: 11

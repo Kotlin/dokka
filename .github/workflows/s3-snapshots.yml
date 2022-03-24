@@ -12,93 +12,84 @@ jobs:
     if: github.repository == 'Kotlin/dokka'
     steps:
       - name: Checkout dokka
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           submodules: true
-
-      - uses: actions/setup-java@v2
+      - uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
           java-version: 12
-
       - name: Document stdlib
-        run: ./gradlew :integration-tests:gradle:integrationTest --tests org.jetbrains.dokka.it.gradle.kotlin.StdlibGradleIntegrationTest --stacktrace
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: :integration-tests:gradle:integrationTest --tests org.jetbrains.dokka.it.gradle.kotlin.StdlibGradleIntegrationTest --stacktrace
         env:
           DOKKA_IT_AWS_PATH: /home/runner/work/dokka/stdlib
-
       - name: Configure AWS credentials for S3 access
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-central-1
-
       - name: Copy files to dokka's S3 bucket
         run: ./integration-tests/aws_sync.sh s3://${{ env.bucket-name }} stdlib ../stdlib
-
       - name: Print link
-        run: echo http://dokka-snapshots.s3.eu-central-1.amazonaws.com/${{ env.branch-name }}/stdlib/${GITHUB_SHA::7}/index.html
+        run: echo https://dokka-snapshots.s3.eu-central-1.amazonaws.com/${{ env.branch-name }}/stdlib/${GITHUB_SHA::7}/index.html
 
   serialization:
     runs-on: ubuntu-latest
     if: github.repository == 'Kotlin/dokka'
     steps:
       - name: Checkout dokka
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           submodules: true
-
-      - uses: actions/setup-java@v2
+      - uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
           java-version: 12
-
       - name: Document serialization
-        run: ./gradlew :integration-tests:gradle:integrationTest --tests org.jetbrains.dokka.it.gradle.kotlin.SerializationGradleIntegrationTest --stacktrace
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: :integration-tests:gradle:integrationTest --tests org.jetbrains.dokka.it.gradle.kotlin.SerializationGradleIntegrationTest --stacktrace
         env:
           DOKKA_IT_AWS_PATH: /home/runner/work/dokka/serialization
-
       - name: Configure AWS credentials for S3 access
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-central-1
-
       - name: Copy files to dokka's S3 bucket
         run: ./integration-tests/aws_sync.sh s3://${{ env.bucket-name }} serialization ../serialization
-
       - name: Print link
-        run: echo http://dokka-snapshots.s3.eu-central-1.amazonaws.com/${{ env.branch-name }}/serialization/${GITHUB_SHA::7}/index.html
+        run: echo https://dokka-snapshots.s3.eu-central-1.amazonaws.com/${{ env.branch-name }}/serialization/${GITHUB_SHA::7}/index.html
 
   biojava:
     runs-on: ubuntu-latest
     if: github.repository == 'Kotlin/dokka'
     steps:
       - name: Checkout dokka
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           submodules: true
-
-      - uses: actions/setup-java@v2
+      - uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
           java-version: 12
-
       - name: Document biojava-core
-        run: ./gradlew :integration-tests:maven:integrationTest --tests org.jetbrains.dokka.it.maven.BiojavaIntegrationTest --stacktrace
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: :integration-tests:maven:integrationTest --tests org.jetbrains.dokka.it.maven.BiojavaIntegrationTest --stacktrace
         env:
           DOKKA_IT_AWS_PATH: /home/runner/work/dokka/biojava
-
       - name: Configure AWS credentials for S3 access
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-central-1
-
       - name: Copy files to dokka's S3 bucket
         run: ./integration-tests/aws_sync.sh s3://${{ env.bucket-name }} biojava ../biojava
-
       - name: Print link
-        run: echo http://dokka-snapshots.s3.eu-central-1.amazonaws.com/${{ env.branch-name }}/biojava/${GITHUB_SHA::7}/index.html
+        run: echo https://dokka-snapshots.s3.eu-central-1.amazonaws.com/${{ env.branch-name }}/biojava/${GITHUB_SHA::7}/index.html

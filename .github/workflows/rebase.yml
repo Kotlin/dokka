@@ -1,7 +1,9 @@
+name: Automatic Rebase
+
 on:
   issue_comment:
-    types: [created]
-name: Automatic Rebase
+    types: [ created ]
+
 jobs:
   rebase:
     name: Rebase
@@ -9,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the latest code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
       - name: Automatic Rebase
