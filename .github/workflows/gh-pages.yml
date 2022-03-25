@@ -28,7 +28,7 @@ jobs:
           java-version: 11
       - uses: gradle/gradle-build-action@v2
       - name: Get current dokka version
-        run: echo "DOKKA_VERSION=`./gradlew :properties | grep '^version:.*' | cut -d ' ' -f 2 | cut -d '-' -f 1`" >> $GITHUB_ENV
+        run: echo "DOKKA_VERSION=`./gradlew :properties | grep '^version:.*' | cut -d ' ' -f 2`" >> $GITHUB_ENV
         if: github.event_name == 'release' || steps.filter.outputs.docs_changed == 'true'
         working-directory: ./dokka
       - name: Build docs
