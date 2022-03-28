@@ -2,11 +2,11 @@ package translators
 
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
+import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.model.Annotations
 import org.jetbrains.dokka.model.TypeConstructor
 import org.jetbrains.dokka.model.doc.Text
 import org.jetbrains.dokka.model.firstMemberOfType
-import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.model.Annotations
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -208,8 +208,9 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
         }
     }
 
+    // for Kotlin classes from DefaultPsiToDocumentableTranslator
     @Test
-    fun `psi bug`() {
+    fun `should resolve ultralight class`() {
         val configurationWithNoJVM = dokkaConfiguration {
             sourceSets {
                 sourceSet {
