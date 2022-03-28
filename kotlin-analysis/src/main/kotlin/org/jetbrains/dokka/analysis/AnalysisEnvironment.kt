@@ -49,6 +49,7 @@ import org.jetbrains.kotlin.idea.klib.KlibLoadingMetadataCache
 import org.jetbrains.kotlin.idea.klib.getCompatibilityInfo
 import org.jetbrains.kotlin.js.config.JSConfigurationKeys
 import org.jetbrains.kotlin.js.resolve.JsPlatformAnalyzerServices
+import org.jetbrains.kotlin.library.KLIB_FILE_EXTENSION
 import org.jetbrains.kotlin.library.ToolingSingleFileKlibResolveStrategy
 import org.jetbrains.kotlin.library.resolveSingleFileKlib
 import org.jetbrains.kotlin.load.java.structure.impl.JavaClassImpl
@@ -75,7 +76,6 @@ import org.jetbrains.kotlin.resolve.jvm.platform.JvmPlatformAnalyzerServices
 import org.jetbrains.kotlin.resolve.konan.platform.NativePlatformAnalyzerServices
 import java.io.File
 import org.jetbrains.kotlin.konan.file.File as KFile
-import org.jetbrains.kotlin.library.KLIB_FILE_EXTENSION
 
 const val JAR_SEPARATOR = "!/"
 
@@ -478,7 +478,7 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
                 projectContext.withModule(descriptor),
                 modulesContent(moduleInfo),
                 this,
-                LanguageVersionSettingsImpl.DEFAULT,
+                configuration.languageVersionSettings,
                 CliSealedClassInheritorsProvider,
             )
 
@@ -490,7 +490,13 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
         val languageVersion = LanguageVersion.fromVersionString(languageVersionString) ?: LanguageVersion.LATEST_STABLE
         val apiVersion =
             apiVersionString?.let { ApiVersion.parse(it) } ?: ApiVersion.createByLanguageVersion(languageVersion)
-        configuration.languageVersionSettings = LanguageVersionSettingsImpl(languageVersion, apiVersion)
+        configuration.languageVersionSettings = LanguageVersionSettingsImpl(
+            languageVersion = languageVersion,
+            apiVersion = apiVersion, analysisFlags = hashMapOf(
+                // force to resolve light classes (lazily by default)
+                AnalysisFlags.eagerResolveOfLightClasses to true
+            )
+        )
     }
 
     /**
