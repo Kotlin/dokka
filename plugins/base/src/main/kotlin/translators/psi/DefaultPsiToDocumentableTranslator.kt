@@ -209,7 +209,13 @@ class DefaultPsiToDocumentableTranslator(
                     return AncestryNode(
                         typeConstructor = GenericTypeConstructor(
                             DRI.from(psiClass),
-                            psiClass.typeParameters.map(::getProjection)
+                            psiClass.typeParameters.map { typeParameter ->
+                                TypeParameter(
+                                    dri = DRI.from(typeParameter),
+                                    name = typeParameter.name.orEmpty(),
+                                    extra = typeParameter.annotations()
+                                )
+                            }
                         ),
                         superclass = classes.singleOrNull()?.first?.let(::traversePsiClassForAncestorsAndInheritedMembers),
                         interfaces = interfaces.map { traversePsiClassForAncestorsAndInheritedMembers(it.first) }
@@ -439,20 +445,19 @@ class DefaultPsiToDocumentableTranslator(
                 PropertyContainer.withAll(annotations.toSourceSetDependent().toAnnotations())
             } ?: PropertyContainer.empty()
 
-        private fun getProjection(type: PsiTypeParameter) =
-            TypeParameter(
-                dri = DRI.from(type),
-                name = type.name.orEmpty(),
-                extra = type.annotations()
-            )
-
         private fun getBound(type: PsiType): Bound {
             fun bound() = when (type) {
                 is PsiClassReferenceType ->
                     type.resolve()?.let { resolved ->
                         when {
                             resolved.qualifiedName == "java.lang.Object" -> JavaObject(type.annotations())
-                            resolved is PsiTypeParameter -> getProjection(resolved)
+                            resolved is PsiTypeParameter -> {
+                                TypeParameter(
+                                    dri = DRI.from(resolved),
+                                    name = resolved.name.orEmpty(),
+                                    extra = type.annotations()
+                                )
+                            }
                             Regex("kotlin\\.jvm\\.functions\\.Function.*").matches(resolved.qualifiedName ?: "") ||
                                     Regex("java\\.util\\.function\\.Function.*").matches(
                                         resolved.qualifiedName ?: ""
