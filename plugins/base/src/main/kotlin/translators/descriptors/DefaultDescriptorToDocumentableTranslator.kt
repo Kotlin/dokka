@@ -13,8 +13,9 @@ import org.jetbrains.dokka.analysis.KotlinAnalysis
 import org.jetbrains.dokka.analysis.from
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.parsers.MarkdownParser
-import org.jetbrains.dokka.base.translators.typeConstructorsBeingExceptions
 import org.jetbrains.dokka.base.translators.psi.parsers.JavadocParser
+import org.jetbrains.dokka.base.translators.psi.DefaultPsiToDocumentableTranslator
+import org.jetbrains.dokka.base.translators.typeConstructorsBeingExceptions
 import org.jetbrains.dokka.base.translators.unquotedValue
 import org.jetbrains.dokka.links.*
 import org.jetbrains.dokka.links.Callable
@@ -31,7 +32,6 @@ import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.dokka.utilities.parallelMap
 import org.jetbrains.dokka.utilities.parallelMapNotNull
 import org.jetbrains.kotlin.KtNodeTypes
-import org.jetbrains.dokka.model.BooleanConstant
 import org.jetbrains.kotlin.builtins.functions.FunctionClassDescriptor
 import org.jetbrains.kotlin.builtins.isBuiltinExtensionFunctionalType
 import org.jetbrains.kotlin.builtins.isExtensionFunctionType
@@ -68,16 +68,16 @@ import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 import java.nio.file.Paths
 import org.jetbrains.kotlin.resolve.constants.AnnotationValue as ConstantsAnnotationValue
 import org.jetbrains.kotlin.resolve.constants.ArrayValue as ConstantsArrayValue
-import org.jetbrains.kotlin.resolve.constants.EnumValue as ConstantsEnumValue
-import org.jetbrains.kotlin.resolve.constants.KClassValue as ConstantsKtClassValue
+import org.jetbrains.kotlin.resolve.constants.BooleanValue as ConstantsBooleanValue
 import org.jetbrains.kotlin.resolve.constants.DoubleValue as ConstantsDoubleValue
+import org.jetbrains.kotlin.resolve.constants.EnumValue as ConstantsEnumValue
 import org.jetbrains.kotlin.resolve.constants.FloatValue as ConstantsFloatValue
 import org.jetbrains.kotlin.resolve.constants.IntValue as ConstantsIntValue
+import org.jetbrains.kotlin.resolve.constants.KClassValue as ConstantsKtClassValue
 import org.jetbrains.kotlin.resolve.constants.LongValue as ConstantsLongValue
+import org.jetbrains.kotlin.resolve.constants.NullValue as ConstantsNullValue
 import org.jetbrains.kotlin.resolve.constants.UIntValue as ConstantsUIntValue
 import org.jetbrains.kotlin.resolve.constants.ULongValue as ConstantsULongValue
-import org.jetbrains.kotlin.resolve.constants.BooleanValue as ConstantsBooleanValue
-import org.jetbrains.kotlin.resolve.constants.NullValue as ConstantsNullValue
 
 class DefaultDescriptorToDocumentableTranslator(
     private val context: DokkaContext
@@ -773,7 +773,9 @@ private class DokkaDescriptorVisitor(
     private suspend fun toTypeConstructor(kt: KotlinType) =
         GenericTypeConstructor(
             DRI.from(kt.constructor.declarationDescriptor as DeclarationDescriptor),
-            kt.arguments.map { it.toProjection() })
+            kt.arguments.map { it.toProjection() },
+            extra = PropertyContainer.withAll(kt.getAnnotations().toSourceSetDependent().toAnnotations())
+        )
 
     private suspend fun buildAncestryInformation(
         kotlinType: KotlinType
@@ -834,7 +836,8 @@ private class DokkaDescriptorVisitor(
             is DynamicType -> Dynamic
             is AbbreviatedType -> TypeAliased(
                 abbreviation.toBound(),
-                expandedType.toBound()
+                expandedType.toBound(),
+                annotations()
             )
             else -> when (val ctor = constructor.declarationDescriptor) {
                 is TypeParameterDescriptor -> TypeParameter(
