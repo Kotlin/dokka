@@ -1,5 +1,6 @@
 package translators
 
+import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.Annotations
@@ -8,9 +9,9 @@ import org.jetbrains.dokka.model.TypeConstructor
 import org.jetbrains.dokka.model.doc.Text
 import org.jetbrains.dokka.model.firstMemberOfType
 import org.jetbrains.dokka.plugability.DokkaPlugin
-import org.junit.Ignore
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import utils.assertNotNull
 
@@ -260,7 +261,7 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
         }
     }
 
-    @Ignore // The compiler throws away annotations on unresolved types upstream
+    @Disabled // The compiler throws away annotations on unresolved types upstream
     @Test
     fun `Can annotate UnresolvedBound`() {
         testInline(
