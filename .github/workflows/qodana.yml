@@ -19,6 +19,9 @@ jobs:
       - name: Qodana - Code Inspection
         id: qodana
         uses: JetBrains/qodana-action@v4.2.5
+        with:
+          baseline-path: qodana.sarif.json
+          fail-threshold: 1
   clone-finder:
     runs-on: ubuntu-latest
     steps:
