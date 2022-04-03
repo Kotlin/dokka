@@ -16,7 +16,7 @@ jobs:
         id: qodana
         uses: JetBrains/qodana-action@v5.0.2
         with:
-          args: --baseline,qodana.sarif.json,--linter,jetbrains/qodana-jvm
+          args: --baseline,qodana.sarif.json,--fail-threshold,0,--linter,jetbrains/qodana-jvm
   clone-finder:
     runs-on: ubuntu-latest
     steps:
