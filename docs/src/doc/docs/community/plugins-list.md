@@ -13,3 +13,6 @@ In order to add your plugin to this list it needs to be:
 | [GFM](https://kotlin.github.io/dokka/1.6.10/user_guide/introduction/#plugins) | Renders documentation in a GFM format | [Github](https://github.com/Kotlin/dokka/tree/master/plugins/gfm)
 | [Javadoc](https://kotlin.github.io/dokka/1.6.10/user_guide/introduction/#plugins) | Renders documentation in a Javadoc format | [Github](https://github.com/Kotlin/dokka/tree/master/plugins/javadoc)
 | [Jekyll](https://kotlin.github.io/dokka/1.6.10/user_guide/introduction/#plugins) | Renders documentation in a Jekyll format | [Github](https://github.com/Kotlin/dokka/tree/master/plugins/jekyll)
+| [Mermaid-HTML](https://mermaid-js.github.io/mermaid/#/) | Renders Mermaid graphs for HTML renderer. | [Github](https://github.com/glureau/dokka-mermaid)
+
+
