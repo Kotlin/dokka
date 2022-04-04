@@ -1,6 +1,8 @@
 package org.jetbrains.dokka.base.parsers
 
 import org.jetbrains.dokka.model.doc.*
+import org.jetbrains.dokka.model.doc.Deprecated
+import org.jetbrains.dokka.model.doc.Suppress
 
 abstract class Parser {
 
@@ -49,10 +51,49 @@ abstract class Parser {
 
     private fun jkdocToListOfPairs(javadoc: String): List<Pair<String, String>> =
         "description $javadoc"
-            .split("\n@")
+            .splitIgnoredInsideBackticks("\n@")
             .map { content ->
                 val contentWithEscapedAts = content.replace("\\@", "@")
                 val (tag, body) = contentWithEscapedAts.split(" ", limit = 2)
                 tag to body
             }
+
+    private fun CharSequence.splitIgnoredInsideBackticks(delimiter: String): List<String> {
+        var countOfBackticks = 0
+        var countOfBackticksInOpeningFence = 0
+
+        var isInCode = false
+        val result = mutableListOf<String>()
+        val buf = StringBuilder()
+        var currentOffset = 0
+        while (currentOffset < length) {
+
+            if (get(currentOffset) == '`') {
+                countOfBackticks++
+            } else {
+                if (isInCode) {
+                    // The closing code fence must be at least as long as the opening fence
+                    isInCode = countOfBackticks < countOfBackticksInOpeningFence
+                } else {
+                    if (countOfBackticks > 0) {
+                        isInCode = true
+                        countOfBackticksInOpeningFence = countOfBackticks
+                    }
+                }
+                countOfBackticks = 0
+            }
+            if (!isInCode && startsWith(delimiter, currentOffset)) {
+                result.add(buf.toString())
+                buf.clear()
+                currentOffset += delimiter.length
+                continue
+            }
+
+            buf.append(get(currentOffset))
+            ++currentOffset
+        }
+        result.add(buf.toString())
+        return result
+    }
+
 }
