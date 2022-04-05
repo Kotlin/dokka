@@ -64,7 +64,8 @@ abstract class Parser {
 
         var isInCode = false
         val result = mutableListOf<String>()
-        val buf = StringBuilder()
+        var rangeStart = 0
+        var rangeEnd = 0
         var currentOffset = 0
         while (currentOffset < length) {
 
@@ -83,16 +84,17 @@ abstract class Parser {
                 countOfBackticks = 0
             }
             if (!isInCode && startsWith(delimiter, currentOffset)) {
-                result.add(buf.toString())
-                buf.clear()
+                result.add(substring(rangeStart, rangeEnd))
                 currentOffset += delimiter.length
+                rangeStart = currentOffset
+                rangeEnd = currentOffset
                 continue
             }
 
-            buf.append(get(currentOffset))
+            ++rangeEnd
             ++currentOffset
         }
-        result.add(buf.toString())
+        result.add(substring(rangeStart, rangeEnd))
         return result
     }
 
