@@ -472,13 +472,14 @@ class DefaultPsiToDocumentableTranslator(
                                 extra = type.annotations()
                             )
                         }
-                    } ?: UnresolvedBound(type.presentableText)
+                    } ?: UnresolvedBound(type.presentableText, type.annotations())
                 is PsiArrayType -> GenericTypeConstructor(
                     DRI("kotlin", "Array"),
                     listOf(getProjection(type.componentType)),
                     extra = type.annotations()
                 )
-                is PsiPrimitiveType -> if (type.name == "void") Void else PrimitiveJavaType(type.name)
+                is PsiPrimitiveType -> if (type.name == "void") Void
+                    else PrimitiveJavaType(type.name, type.annotations())
                 is PsiImmediateClassType -> JavaObject(type.annotations())
                 else -> throw IllegalStateException("${type.presentableText} is not supported by PSI parser")
             }

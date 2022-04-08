@@ -4,10 +4,14 @@ import matchers.content.*
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.jdk
+import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.model.Annotations
+import org.jetbrains.dokka.model.GenericTypeConstructor
 import org.jetbrains.dokka.model.dfs
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.kotlin.utils.addToStdlib.cast
 import org.junit.Assert
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import signatures.Parameter
 import signatures.Parameters
@@ -531,6 +535,54 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
                         Parameter(A("String"), "s").withClasses("indented"),
                     ).withClasses("wrapped"), ")", Span(), ignoreSpanWithTokenStyle = true
                 )
+            }
+        }
+    }
+
+    /**
+     * Kotlin Int becomes java int. Java int cannot be annotated in source, but Kotlin Int can be.
+     * This is paired with DefaultDescriptorToDocumentableTranslatorTest.`Java primitive annotations work`()
+     *
+     * This test currently does not do anything because Kotlin.Int currently becomes java.lang.Integer not primitive int
+     */
+    @Test
+    fun `Java primitive annotations work`() {
+        val writerPlugin = TestOutputWriterPlugin()
+        val configuration = dokkaConfiguration {
+            sourceSets {
+                sourceSet {
+                    sourceRoots = listOf("src/")
+                    externalDocumentationLinks = listOf(
+                        DokkaConfiguration.ExternalDocumentationLink.jdk(8),
+                        stdlibExternalDocumentationLink
+                    )
+                }
+            }
+        }
+        testInline(
+            """
+            |/src/main/kotlin/kotlinAsJavaPlugin/Test.kt
+            |package kotlinAsJavaPlugin
+            |@MustBeDocumented
+            |@Target(AnnotationTarget.TYPE)
+            |annotation class Hello()
+            |fun bar(): @Hello() Int
+        """.trimMargin(),
+            configuration,
+            pluginOverrides = listOf(writerPlugin),
+            cleanupOutput = true
+        ) {
+            documentablesTransformationStage = { module ->
+                val type = module.packages.single()
+                    .classlikes.first { it.name == "TestKt" }
+                    .functions.single()
+                    .type as GenericTypeConstructor
+                Assertions.assertEquals(
+                    Annotations.Annotation(DRI("kotlinAsJavaPlugin", "Hello"), emptyMap()),
+                    type.extra[Annotations]?.directAnnotations?.values?.single()?.single()
+                )
+                // A bug; the GenericTypeConstructor cast should fail and this should be a PrimitiveJavaType
+                Assertions.assertEquals("java.lang/Integer///PointingToDeclaration/", type.dri.toString())
             }
         }
     }
