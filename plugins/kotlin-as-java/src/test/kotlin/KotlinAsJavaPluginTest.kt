@@ -541,7 +541,7 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
 
     /**
      * Kotlin Int becomes java int. Java int cannot be annotated in source, but Kotlin Int can be.
-     * This is paired with DefaultPsiToDocumentableTranslatorTest.`Java primitive annotations work`()
+     * This is paired with DefaultDescriptorToDocumentableTranslatorTest.`Java primitive annotations work`()
      *
      * This test currently does not do anything because Kotlin.Int currently becomes java.lang.Integer not primitive int
      */
