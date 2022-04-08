@@ -1,3 +1,3 @@
 plugins {
-    id("ru.vyarus.mkdocs") version "2.2.0"
+    id("ru.vyarus.mkdocs") version "2.3.0"
 }
