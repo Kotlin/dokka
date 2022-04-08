@@ -784,7 +784,7 @@ public final class org/jetbrains/dokka/model/BooleanValue : org/jetbrains/dokka/
 	public fun toString ()Ljava/lang/String;
 }
 
-public abstract class org/jetbrains/dokka/model/Bound : org/jetbrains/dokka/model/Projection, org/jetbrains/dokka/model/AnnotationTarget {
+public abstract class org/jetbrains/dokka/model/Bound : org/jetbrains/dokka/model/Projection {
 }
 
 public abstract interface class org/jetbrains/dokka/model/Callable : org/jetbrains/dokka/model/WithAbstraction, org/jetbrains/dokka/model/WithIsExpectActual, org/jetbrains/dokka/model/WithSources, org/jetbrains/dokka/model/WithType, org/jetbrains/dokka/model/WithVisibility {
@@ -1802,7 +1802,7 @@ public final class org/jetbrains/dokka/model/JavaModifier$Final : org/jetbrains/
 	public static final field INSTANCE Lorg/jetbrains/dokka/model/JavaModifier$Final;
 }
 
-public final class org/jetbrains/dokka/model/JavaObject : org/jetbrains/dokka/model/Bound, org/jetbrains/dokka/model/properties/WithExtraProperties {
+public final class org/jetbrains/dokka/model/JavaObject : org/jetbrains/dokka/model/Bound, org/jetbrains/dokka/model/AnnotationTarget, org/jetbrains/dokka/model/properties/WithExtraProperties {
 	public fun <init> ()V
 	public fun <init> (Lorg/jetbrains/dokka/model/properties/PropertyContainer;)V
 	public synthetic fun <init> (Lorg/jetbrains/dokka/model/properties/PropertyContainer;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
@@ -1949,15 +1949,20 @@ public final class org/jetbrains/dokka/model/PrimaryConstructorExtra : org/jetbr
 	public fun mergeStrategyFor (Lorg/jetbrains/dokka/model/PrimaryConstructorExtra;Lorg/jetbrains/dokka/model/PrimaryConstructorExtra;)Lorg/jetbrains/dokka/model/properties/MergeStrategy;
 }
 
-public final class org/jetbrains/dokka/model/PrimitiveJavaType : org/jetbrains/dokka/model/Bound {
-	public fun <init> (Ljava/lang/String;)V
+public final class org/jetbrains/dokka/model/PrimitiveJavaType : org/jetbrains/dokka/model/Bound, org/jetbrains/dokka/model/AnnotationTarget, org/jetbrains/dokka/model/properties/WithExtraProperties {
+	public fun <init> (Ljava/lang/String;Lorg/jetbrains/dokka/model/properties/PropertyContainer;)V
+	public synthetic fun <init> (Ljava/lang/String;Lorg/jetbrains/dokka/model/properties/PropertyContainer;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/lang/String;
-	public final fun copy (Ljava/lang/String;)Lorg/jetbrains/dokka/model/PrimitiveJavaType;
-	public static synthetic fun copy$default (Lorg/jetbrains/dokka/model/PrimitiveJavaType;Ljava/lang/String;ILjava/lang/Object;)Lorg/jetbrains/dokka/model/PrimitiveJavaType;
+	public final fun component2 ()Lorg/jetbrains/dokka/model/properties/PropertyContainer;
+	public final fun copy (Ljava/lang/String;Lorg/jetbrains/dokka/model/properties/PropertyContainer;)Lorg/jetbrains/dokka/model/PrimitiveJavaType;
+	public static synthetic fun copy$default (Lorg/jetbrains/dokka/model/PrimitiveJavaType;Ljava/lang/String;Lorg/jetbrains/dokka/model/properties/PropertyContainer;ILjava/lang/Object;)Lorg/jetbrains/dokka/model/PrimitiveJavaType;
 	public fun equals (Ljava/lang/Object;)Z
+	public fun getExtra ()Lorg/jetbrains/dokka/model/properties/PropertyContainer;
 	public final fun getName ()Ljava/lang/String;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
+	public synthetic fun withNewExtras (Lorg/jetbrains/dokka/model/properties/PropertyContainer;)Ljava/lang/Object;
+	public fun withNewExtras (Lorg/jetbrains/dokka/model/properties/PropertyContainer;)Lorg/jetbrains/dokka/model/PrimitiveJavaType;
 }
 
 public abstract class org/jetbrains/dokka/model/Projection {
@@ -1990,20 +1995,25 @@ public final class org/jetbrains/dokka/model/StringValue : org/jetbrains/dokka/m
 	public fun toString ()Ljava/lang/String;
 }
 
-public final class org/jetbrains/dokka/model/TypeAliased : org/jetbrains/dokka/model/Bound {
-	public fun <init> (Lorg/jetbrains/dokka/model/Bound;Lorg/jetbrains/dokka/model/Bound;)V
+public final class org/jetbrains/dokka/model/TypeAliased : org/jetbrains/dokka/model/Bound, org/jetbrains/dokka/model/AnnotationTarget, org/jetbrains/dokka/model/properties/WithExtraProperties {
+	public fun <init> (Lorg/jetbrains/dokka/model/Bound;Lorg/jetbrains/dokka/model/Bound;Lorg/jetbrains/dokka/model/properties/PropertyContainer;)V
+	public synthetic fun <init> (Lorg/jetbrains/dokka/model/Bound;Lorg/jetbrains/dokka/model/Bound;Lorg/jetbrains/dokka/model/properties/PropertyContainer;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Lorg/jetbrains/dokka/model/Bound;
 	public final fun component2 ()Lorg/jetbrains/dokka/model/Bound;
-	public final fun copy (Lorg/jetbrains/dokka/model/Bound;Lorg/jetbrains/dokka/model/Bound;)Lorg/jetbrains/dokka/model/TypeAliased;
-	public static synthetic fun copy$default (Lorg/jetbrains/dokka/model/TypeAliased;Lorg/jetbrains/dokka/model/Bound;Lorg/jetbrains/dokka/model/Bound;ILjava/lang/Object;)Lorg/jetbrains/dokka/model/TypeAliased;
+	public final fun component3 ()Lorg/jetbrains/dokka/model/properties/PropertyContainer;
+	public final fun copy (Lorg/jetbrains/dokka/model/Bound;Lorg/jetbrains/dokka/model/Bound;Lorg/jetbrains/dokka/model/properties/PropertyContainer;)Lorg/jetbrains/dokka/model/TypeAliased;
+	public static synthetic fun copy$default (Lorg/jetbrains/dokka/model/TypeAliased;Lorg/jetbrains/dokka/model/Bound;Lorg/jetbrains/dokka/model/Bound;Lorg/jetbrains/dokka/model/properties/PropertyContainer;ILjava/lang/Object;)Lorg/jetbrains/dokka/model/TypeAliased;
 	public fun equals (Ljava/lang/Object;)Z
+	public fun getExtra ()Lorg/jetbrains/dokka/model/properties/PropertyContainer;
 	public final fun getInner ()Lorg/jetbrains/dokka/model/Bound;
 	public final fun getTypeAlias ()Lorg/jetbrains/dokka/model/Bound;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
+	public synthetic fun withNewExtras (Lorg/jetbrains/dokka/model/properties/PropertyContainer;)Ljava/lang/Object;
+	public fun withNewExtras (Lorg/jetbrains/dokka/model/properties/PropertyContainer;)Lorg/jetbrains/dokka/model/TypeAliased;
 }
 
-public abstract class org/jetbrains/dokka/model/TypeConstructor : org/jetbrains/dokka/model/Bound {
+public abstract class org/jetbrains/dokka/model/TypeConstructor : org/jetbrains/dokka/model/Bound, org/jetbrains/dokka/model/AnnotationTarget {
 	public abstract fun getDri ()Lorg/jetbrains/dokka/links/DRI;
 	public abstract fun getPresentableName ()Ljava/lang/String;
 	public abstract fun getProjections ()Ljava/util/List;
@@ -2022,7 +2032,7 @@ public final class org/jetbrains/dokka/model/TypeConstructorWithKind {
 	public fun toString ()Ljava/lang/String;
 }
 
-public final class org/jetbrains/dokka/model/TypeParameter : org/jetbrains/dokka/model/Bound, org/jetbrains/dokka/model/properties/WithExtraProperties {
+public final class org/jetbrains/dokka/model/TypeParameter : org/jetbrains/dokka/model/Bound, org/jetbrains/dokka/model/AnnotationTarget, org/jetbrains/dokka/model/properties/WithExtraProperties {
 	public fun <init> (Lorg/jetbrains/dokka/links/DRI;Ljava/lang/String;Ljava/lang/String;Lorg/jetbrains/dokka/model/properties/PropertyContainer;)V
 	public synthetic fun <init> (Lorg/jetbrains/dokka/links/DRI;Ljava/lang/String;Ljava/lang/String;Lorg/jetbrains/dokka/model/properties/PropertyContainer;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Lorg/jetbrains/dokka/links/DRI;
@@ -2042,15 +2052,20 @@ public final class org/jetbrains/dokka/model/TypeParameter : org/jetbrains/dokka
 	public fun withNewExtras (Lorg/jetbrains/dokka/model/properties/PropertyContainer;)Lorg/jetbrains/dokka/model/TypeParameter;
 }
 
-public final class org/jetbrains/dokka/model/UnresolvedBound : org/jetbrains/dokka/model/Bound {
-	public fun <init> (Ljava/lang/String;)V
+public final class org/jetbrains/dokka/model/UnresolvedBound : org/jetbrains/dokka/model/Bound, org/jetbrains/dokka/model/AnnotationTarget, org/jetbrains/dokka/model/properties/WithExtraProperties {
+	public fun <init> (Ljava/lang/String;Lorg/jetbrains/dokka/model/properties/PropertyContainer;)V
+	public synthetic fun <init> (Ljava/lang/String;Lorg/jetbrains/dokka/model/properties/PropertyContainer;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/lang/String;
-	public final fun copy (Ljava/lang/String;)Lorg/jetbrains/dokka/model/UnresolvedBound;
-	public static synthetic fun copy$default (Lorg/jetbrains/dokka/model/UnresolvedBound;Ljava/lang/String;ILjava/lang/Object;)Lorg/jetbrains/dokka/model/UnresolvedBound;
+	public final fun component2 ()Lorg/jetbrains/dokka/model/properties/PropertyContainer;
+	public final fun copy (Ljava/lang/String;Lorg/jetbrains/dokka/model/properties/PropertyContainer;)Lorg/jetbrains/dokka/model/UnresolvedBound;
+	public static synthetic fun copy$default (Lorg/jetbrains/dokka/model/UnresolvedBound;Ljava/lang/String;Lorg/jetbrains/dokka/model/properties/PropertyContainer;ILjava/lang/Object;)Lorg/jetbrains/dokka/model/UnresolvedBound;
 	public fun equals (Ljava/lang/Object;)Z
+	public fun getExtra ()Lorg/jetbrains/dokka/model/properties/PropertyContainer;
 	public final fun getName ()Ljava/lang/String;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
+	public synthetic fun withNewExtras (Lorg/jetbrains/dokka/model/properties/PropertyContainer;)Ljava/lang/Object;
+	public fun withNewExtras (Lorg/jetbrains/dokka/model/properties/PropertyContainer;)Lorg/jetbrains/dokka/model/UnresolvedBound;
 }
 
 public abstract class org/jetbrains/dokka/model/Variance : org/jetbrains/dokka/model/Projection {
