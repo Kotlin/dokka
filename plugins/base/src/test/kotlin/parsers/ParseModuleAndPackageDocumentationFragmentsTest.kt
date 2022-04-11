@@ -1,12 +1,11 @@
 package parsers
 
-import org.jetbrains.dokka.base.parsers.moduleAndPackage.IllegalModuleAndPackageDocumentation
+import org.intellij.markdown.MarkdownElementTypes
+import org.jetbrains.dokka.base.parsers.moduleAndPackage.*
 import org.jetbrains.dokka.base.parsers.moduleAndPackage.ModuleAndPackageDocumentation.Classifier.Module
 import org.jetbrains.dokka.base.parsers.moduleAndPackage.ModuleAndPackageDocumentation.Classifier.Package
-import org.jetbrains.dokka.base.parsers.moduleAndPackage.ModuleAndPackageDocumentationFile
-import org.jetbrains.dokka.base.parsers.moduleAndPackage.ModuleAndPackageDocumentationFragment
-import org.jetbrains.dokka.base.parsers.moduleAndPackage.ModuleAndPackageDocumentationSource
-import org.jetbrains.dokka.base.parsers.moduleAndPackage.parseModuleAndPackageDocumentationFragments
+import org.jetbrains.dokka.model.doc.*
+import org.jetbrains.dokka.utilities.DokkaLogger
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -216,6 +215,64 @@ class ParseModuleAndPackageDocumentationFragmentsTest {
         )
     }
 
+    @Test
+    fun `at in code block is supported`() {
+        val fragment = parseModuleAndPackageDocumentationFragments(
+            source(
+                """
+                # Module My Module 
+                ```
+                @Smth
+                ```
+                @author Smb
+                """.trimIndent()
+            )
+        )
+
+        assertEquals(
+            "```\n" +
+                    "@Smth\n" +
+                    "```\n" +
+                    "@author Smb", fragment.single().documentation,
+            "Expected documentation being available"
+        )
+
+        val parsingContext = ModuleAndPackageDocumentationParsingContext(object : DokkaLogger {
+            override var warningsCount: Int = 0
+            override var errorsCount: Int = 0
+            override fun debug(message: String) {}
+            override fun info(message: String) {}
+            override fun progress(message: String) {}
+            override fun warn(message: String) {}
+            override fun error(message: String) {}
+        })
+        val parsedFragment = parseModuleAndPackageDocumentation(parsingContext, fragment.single())
+        val expectedDocumentationNode = DocumentationNode(
+            listOf(
+                Description(
+                    CustomDocTag(
+                        listOf(
+                            CodeBlock(
+                                listOf(
+                                    Text("@Smth")
+                                )
+                            )
+                        ), name = MarkdownElementTypes.MARKDOWN_FILE.name
+                    )
+                ),
+                Author(
+                    CustomDocTag(
+                        listOf(
+                            P(listOf(Text("Smb")))
+                        ), name = MarkdownElementTypes.MARKDOWN_FILE.name
+                    )
+                )
+            )
+        )
+        assertEquals(
+            expectedDocumentationNode, parsedFragment.documentation
+        )
+    }
 
     private fun source(documentation: String): ModuleAndPackageDocumentationSource =
         object : ModuleAndPackageDocumentationSource() {
