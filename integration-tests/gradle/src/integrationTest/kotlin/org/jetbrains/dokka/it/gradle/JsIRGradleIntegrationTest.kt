@@ -13,14 +13,6 @@ class JsIRGradleIntegrationTest(override val versions: BuildVersions) : Abstract
         val versions = TestedVersions.BASE
     }
 
-    // https://mvnrepository.com/artifact/org.jetbrains.kotlin-wrappers/kotlin-react
-    private val reactVersionArg = mapOf(
-        "1.5.0" to "-Preact_version=17.0.2-pre.204-kotlin-1.5.0",
-        "1.6.0" to "-Preact_version=17.0.2-pre.280-kotlin-1.6.0",
-        "1.5.31" to "-Preact_version=17.0.2-pre.265-kotlin-1.5.31",
-        "1.6.10" to "-Preact_version=18.0.0-pre.325-kotlin-1.6.10",
-    )
-
     private val ignoredKotlinVersions = setOf(
         // There were some breaking refactoring changes in kotlin react wrapper libs in 1.4.0 -> 1.5.0,
         // some core react classes were moved from `react-router-dom` to `react` artifacts.
@@ -48,7 +40,7 @@ class JsIRGradleIntegrationTest(override val versions: BuildVersions) : Abstract
             return
         }
 
-        val reactPropertyArg = reactVersionArg[versions.kotlinVersion]
+        val reactPropertyArg = TestedVersions.KT_REACT_WRAPPER_MAPPING[versions.kotlinVersion]
             ?: throw IllegalStateException("Unspecified version of react for kotlin " + versions.kotlinVersion)
         val result = createGradleRunner(reactPropertyArg, "dokkaHtml", "-i", "-s").buildRelaxed()
         assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":dokkaHtml")).outcome)

@@ -25,4 +25,12 @@ internal object TestedVersions {
             kotlinVersions = listOf("1.6.10", "1.5.31", "1.4.32"),
             androidGradlePluginVersions = listOf("4.0.0", *ifExhaustive("3.6.3"))
         )
+
+    // https://mvnrepository.com/artifact/org.jetbrains.kotlin-wrappers/kotlin-react
+    val KT_REACT_WRAPPER_MAPPING = mapOf(
+        "1.5.0" to "-Preact_version=17.0.2-pre.204-kotlin-1.5.0",
+        "1.6.0" to "-Preact_version=17.0.2-pre.280-kotlin-1.6.0",
+        "1.5.31" to "-Preact_version=17.0.2-pre.265-kotlin-1.5.31",
+        "1.6.10" to "-Preact_version=18.0.0-pre.325-kotlin-1.6.10",
+    )
 }
