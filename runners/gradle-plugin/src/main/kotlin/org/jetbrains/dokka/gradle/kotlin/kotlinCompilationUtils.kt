@@ -21,12 +21,13 @@ internal fun Project.allCompilationsOf(
 }
 
 internal fun Project.compilationsOf(sourceSet: KotlinSourceSet): List<KotlinCompilation> {
-    return allCompilationsOf(sourceSet).filter { compilation -> sourceSet in compilation.kotlinSourceSets }
+    //KT-45412 Make sure .kotlinSourceSets and .allKotlinSourceSets include the default source set
+    return allCompilationsOf(sourceSet).filter { compilation -> sourceSet in compilation.kotlinSourceSets || sourceSet == compilation.defaultSourceSet }
 }
 
 private fun KotlinMultiplatformExtension.allCompilationsOf(sourceSet: KotlinSourceSet): List<KotlinCompilation> {
     val allCompilations = targets.flatMap { target -> target.compilations }
-    return allCompilations.filter { compilation -> sourceSet in compilation.allKotlinSourceSets }
+    return allCompilations.filter { compilation -> sourceSet in compilation.allKotlinSourceSets || sourceSet == compilation.defaultSourceSet }
 }
 
 private fun KotlinSingleTargetExtension.allCompilationsOf(sourceSet: KotlinSourceSet): List<KotlinCompilation> {
