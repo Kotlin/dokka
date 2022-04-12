@@ -3,7 +3,7 @@ import org.jetbrains.*
 
 plugins {
     `java-gradle-plugin`
-    id("com.gradle.plugin-publish") version "0.20.0"
+    id("com.gradle.plugin-publish") version "0.21.0"
 }
 
 repositories {
