@@ -1,3 +1,4 @@
+<#import "source_set_selector.ftl" as source_set_selector>
 <#macro display>
 <div class="navigation-wrapper" id="navigation-wrapper">
     <div id="leftToggler"><span class="icon-toggler"></span></div>
@@ -15,13 +16,7 @@
         <@version/>
     </div>
     <div class="pull-right d-flex">
-        <#if sourceSets??>
-            <div class="filter-section" id="filter-section">
-                <#list sourceSets as ss>
-                    <button class="platform-tag platform-selector ${ss.platform}-like" data-active="" data-filter="${ss.filter}">${ss.name}</button>
-                </#list>
-            </div>
-        </#if>
+        <@source_set_selector.display/>
         <button id="theme-toggle-button"><span id="theme-toggle"></span></button>
         <div id="searchBar"></div>
     </div>
