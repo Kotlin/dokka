@@ -1,12 +1,11 @@
-<#import "includes/page_heads.ftl" as page_heads>
+<#import "includes/page_metadata.ftl" as page_metadata>
 <#import "includes/header.ftl" as header>
 <#import "includes/footer.ftl" as footer>
-<#import "includes/article.ftl" as article>
 <!DOCTYPE html>
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
-    <@page_heads.display/>
+    <@page_metadata.display/>
     <@template_cmd name="pathToRoot">
     <script>var pathToRoot = "${pathToRoot}";</script>
     </@template_cmd>
@@ -28,7 +27,7 @@ if(savedDarkMode === true){
         <div id="sideMenu"></div>
     </div>
     <div id="main">
-        <@article.display/>
+        <@content/>
         <@footer.display/>
     </div>
 </div>

@@ -1,3 +1,0 @@
-<#macro display>
-        <@content/>
-</#macro>

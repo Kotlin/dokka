@@ -82,7 +82,12 @@ To customize HTML output, you can use the [default template](https://github.com/
     Assets are handled by Dokka itself, not FreeMaker.
 
 There is a template file with predefined name `base.ftl`. It defines general design of all pages to render.
-`base.ftl` can import another templates that can be set by user as well.
+`base.ftl` can import another templates that can be set by user as well:
+* `includes/header.ftl`
+* `includes/footer.ftl`
+* `includes/page_metadata.ftl`
+* `includes/source_set_selector.ftl`.
+
 If `templatesDir` is defined, Dokka will find a template file there. 
 If the file is not found, a default one will be used.
 
