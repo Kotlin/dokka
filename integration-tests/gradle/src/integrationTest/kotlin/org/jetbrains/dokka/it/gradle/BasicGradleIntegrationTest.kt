@@ -10,13 +10,7 @@ class BasicGradleIntegrationTest(override val versions: BuildVersions) : Abstrac
     companion object {
         @get:JvmStatic
         @get:Parameters(name = "{0}")
-        val versions = BuildVersions.permutations(
-            gradleVersions = listOf("7.3", *ifExhaustive("7.2", "7.0", "6.6", "6.3", "6.2.2", "6.1.1")),
-            kotlinVersions = listOf("1.3.30", *ifExhaustive("1.3.72", "1.4.32"), "1.5.0", "1.5.31", "1.6.0", "1.6.10")
-        ) + BuildVersions.permutations(
-            gradleVersions = listOf("5.6.4", "6.0"),
-            kotlinVersions = listOf("1.3.30", *ifExhaustive("1.3.72", "1.4.32"))
-        )
+        val versions = TestedVersions.BASE
     }
 
     @BeforeTest

@@ -2,7 +2,6 @@
 
 import org.w3c.dom.url.URLSearchParams
 import react.Props
-import react.RComponent
 import react.State
 
 /**
@@ -12,7 +11,8 @@ class RootPackageClass {
     val description = "I do live in the root package!"
 }
 
-fun RComponent<*, *>.params() = URLSearchParams()
+// sample method that uses classes from dom and react, should compile
+fun URLSearchParams.react(props: Props, state: State) {}
 
 fun test(list: MutableList<Int>) = "list"
 

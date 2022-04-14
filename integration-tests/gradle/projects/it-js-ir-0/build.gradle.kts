@@ -15,5 +15,8 @@ kotlin {
 dependencies {
     implementation(kotlin("stdlib"))
     implementation(npm("is-sorted", "1.0.5"))
-    implementation("org.jetbrains.kotlin-wrappers:kotlin-react-router-dom:${properties["dokka_it_react_kotlin_version"]}")
+
+    val reactVersion = properties["react_version"]
+    implementation("org.jetbrains.kotlin-wrappers:kotlin-react:$reactVersion")
+    implementation("org.jetbrains.kotlin-wrappers:kotlin-react-dom:$reactVersion")
 }
