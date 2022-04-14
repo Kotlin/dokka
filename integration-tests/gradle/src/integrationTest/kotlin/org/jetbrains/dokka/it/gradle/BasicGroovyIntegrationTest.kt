@@ -14,13 +14,7 @@ class BasicGroovyIntegrationTest(override val versions: BuildVersions) : Abstrac
     companion object {
         @get:JvmStatic
         @get:Parameterized.Parameters(name = "{0}")
-        val versions = BuildVersions.permutations(
-            gradleVersions = listOf("7.0", "6.6"),
-            kotlinVersions = listOf("1.3.72", "1.4.0", "1.5.10")
-        ) + BuildVersions.permutations(
-            gradleVersions = listOf("5.6.4"),
-            kotlinVersions = listOf("1.4.0", "1.4.32")
-        )
+        val versions = TestedVersions.BASE
     }
 
     @BeforeTest

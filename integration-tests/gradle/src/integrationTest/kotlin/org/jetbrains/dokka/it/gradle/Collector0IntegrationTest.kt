@@ -9,10 +9,7 @@ class Collector0IntegrationTest(override val versions: BuildVersions) : Abstract
     companion object {
         @get:JvmStatic
         @get:Parameterized.Parameters(name = "{0}")
-        val versions = BuildVersions.permutations(
-            gradleVersions = listOf("7.0", "6.6", "6.1.1"),
-            kotlinVersions = listOf("1.5.10", "1.4.0")
-        )
+        val versions = TestedVersions.BASE
     }
 
     @BeforeTest

@@ -10,16 +10,15 @@ class JsIRGradleIntegrationTest(override val versions: BuildVersions) : Abstract
     companion object {
         @get:JvmStatic
         @get:Parameters(name = "{0}")
-        val versions = BuildVersions.permutations(
-            gradleVersions = listOf("7.2", *ifExhaustive("7.0")),
-            kotlinVersions = listOf("1.5.0", "1.5.30", "1.5.31")
-        )
+        val versions = TestedVersions.BASE
     }
 
-    val reactVersionArg = mapOf(
-        "1.5.0" to "-Pdokka_it_react_kotlin_version=5.2.0-pre.202-kotlin-1.5.0",
-        "1.5.30" to "-Pdokka_it_react_kotlin_version=5.2.0-pre.246-kotlin-1.5.30",
-        "1.5.31" to "-Pdokka_it_react_kotlin_version=5.2.0-pre.251-kotlin-1.5.31"
+    private val ignoredKotlinVersions = setOf(
+        // There were some breaking refactoring changes in kotlin react wrapper libs in 1.4.0 -> 1.5.0,
+        // some core react classes were moved from `react-router-dom` to `react` artifacts.
+        // Writing an integration test project that would work for both 1.4.0 and 1.5.0 would involve
+        // ugly solutions, so these versions are ignored. Not a big loss given they are deprecated as of this moment.
+        "1.4.0", "1.4.32"
     )
 
     @BeforeTest
@@ -37,7 +36,11 @@ class JsIRGradleIntegrationTest(override val versions: BuildVersions) : Abstract
 
     @Test
     fun execute() {
-        val reactPropertyArg = reactVersionArg[versions.kotlinVersion]
+        if (ignoredKotlinVersions.contains(versions.kotlinVersion)) {
+            return
+        }
+
+        val reactPropertyArg = TestedVersions.KT_REACT_WRAPPER_MAPPING[versions.kotlinVersion]
             ?: throw IllegalStateException("Unspecified version of react for kotlin " + versions.kotlinVersion)
         val result = createGradleRunner(reactPropertyArg, "dokkaHtml", "-i", "-s").buildRelaxed()
         assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":dokkaHtml")).outcome)
