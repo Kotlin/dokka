@@ -1,13 +1,13 @@
 import org.jetbrains.dokka.gradle.DokkaTask
 
 plugins {
-    kotlin("jvm") version "1.6.10"
-    id("org.jetbrains.dokka") version ("1.6.10")
+    kotlin("jvm") version "1.6.20"
+    id("org.jetbrains.dokka") version ("1.6.20")
 }
 
 buildscript {
     dependencies {
-        classpath("org.jetbrains.dokka:dokka-base:1.6.10")
+        classpath("org.jetbrains.dokka:dokka-base:1.6.20")
     }
 }
 
