@@ -4,7 +4,7 @@ internal object TestedVersions {
 
     val BASE =
         BuildVersions.permutations(
-            gradleVersions = listOf("7.3", "6.9"),
+            gradleVersions = listOf("7.4.2", "6.9"),
             kotlinVersions = listOf("1.6.20", "1.5.31", "1.4.32"),
         ) + BuildVersions.permutations(
             gradleVersions = listOf(*ifExhaustive("7.0", "6.1.1")),
@@ -17,9 +17,9 @@ internal object TestedVersions {
      */
     val ANDROID =
         BuildVersions.permutations(
-            gradleVersions = listOf("7.3", *ifExhaustive("7.0")),
+            gradleVersions = listOf("7.4.2", *ifExhaustive("7.0")),
             kotlinVersions = listOf("1.6.20", "1.5.31", "1.4.32"),
-            androidGradlePluginVersions = listOf("7.0.0")
+            androidGradlePluginVersions = listOf("7.1.2")
         ) + BuildVersions.permutations(
             gradleVersions = listOf("6.9", *ifExhaustive("6.1.1", "5.6.4")),
             kotlinVersions = listOf("1.6.20", "1.5.31", "1.4.32"),
