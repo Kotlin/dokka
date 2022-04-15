@@ -1,234 +1,261 @@
+<!DOCTYPE html>
 <html>
-  <head>
+<head>
     <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
     <title>org.kotlintestmpp</title>
-<link href="../../images/logo-icon.svg" rel="icon" type="image/svg"><script>var pathToRoot = "../../";</script>    <script>const storage = localStorage.getItem("dokka-dark-mode")
+    <link href="../../images/logo-icon.svg" rel="icon" type="image/svg">
+    <script>var pathToRoot = "../../";</script>
+    <script>const storage = localStorage.getItem("dokka-dark-mode")
 const savedDarkMode = storage ? JSON.parse(storage) : false
 if(savedDarkMode === true){
     document.getElementsByTagName("html")[0].classList.add("theme-dark")
 }</script>
-<script type="text/javascript" src="../../scripts/sourceset_dependencies.js" async="async"></script><link href="../../styles/style.css" rel="Stylesheet"><link href="../../styles/jetbrains-mono.css" rel="Stylesheet"><link href="../../styles/main.css" rel="Stylesheet"><link href="../../styles/prism.css" rel="Stylesheet"><link href="../../styles/logo-styles.css" rel="Stylesheet"><script type="text/javascript" src="../../scripts/clipboard.js" async="async"></script><script type="text/javascript" src="../../scripts/navigation-loader.js" async="async"></script><script type="text/javascript" src="../../scripts/platform-content-handler.js" async="async"></script><script type="text/javascript" src="../../scripts/main.js" defer="defer"></script><script type="text/javascript" src="../../scripts/prism.js" async="async"></script>  </head>
-  <body>
-    <div class="navigation-wrapper" id="navigation-wrapper">
-      <div id="leftToggler"><span class="icon-toggler"></span></div>
-      <div class="library-name"><a href="../../index.html">dokka-multiplatform-example</a></div>
-      <div>1.0-SNAPSHOT</div>
-      <div class="pull-right d-flex">
-        <div class="filter-section" id="filter-section"><button class="platform-tag platform-selector common-like" data-active="" data-filter=":dokkaHtml/commonMain">common</button><button class="platform-tag platform-selector js-like" data-active="" data-filter=":dokkaHtml/jsMain">js</button><button class="platform-tag platform-selector jvm-like" data-active="" data-filter=":dokkaHtml/jvmMain">jvm</button><button class="platform-tag platform-selector native-like" data-active="" data-filter=":dokkaHtml/linuxMain">linux</button><button class="platform-tag platform-selector native-like" data-active="" data-filter=":dokkaHtml/macosMain">macos</button></div>
-<button id="theme-toggle-button"><span id="theme-toggle"></span></button>
-        <div id="searchBar"></div>
-      </div>
+<script type="text/javascript" src="../../scripts/sourceset_dependencies.js" async="async"></script>
+<link href="../../styles/style.css" rel="Stylesheet">
+<link href="../../styles/jetbrains-mono.css" rel="Stylesheet">
+<link href="../../styles/main.css" rel="Stylesheet">
+<link href="../../styles/prism.css" rel="Stylesheet">
+<link href="../../styles/logo-styles.css" rel="Stylesheet">
+<script type="text/javascript" src="../../scripts/clipboard.js" async="async"></script>
+<script type="text/javascript" src="../../scripts/navigation-loader.js" async="async"></script>
+<script type="text/javascript" src="../../scripts/platform-content-handler.js" async="async"></script>
+<script type="text/javascript" src="../../scripts/main.js" defer="defer"></script>
+<script type="text/javascript" src="../../scripts/prism.js" async="async"></script>
+</head>
+<body>
+<div class="navigation-wrapper" id="navigation-wrapper">
+    <div id="leftToggler"><span class="icon-toggler"></span></div>
+    <div class="library-name">
+            <a href="../../index.html">
+                    <span>dokka-multiplatform-example</span>
+            </a>
     </div>
-    <div id="container">
-      <div id="leftColumn">
+    <div>
+1.0-SNAPSHOT    </div>
+    <div class="pull-right d-flex">
+            <div class="filter-section" id="filter-section">
+                    <button class="platform-tag platform-selector common-like" data-active="" data-filter=":dokkaHtml/commonMain">common</button>
+                    <button class="platform-tag platform-selector js-like" data-active="" data-filter=":dokkaHtml/jsMain">js</button>
+                    <button class="platform-tag platform-selector jvm-like" data-active="" data-filter=":dokkaHtml/jvmMain">jvm</button>
+                    <button class="platform-tag platform-selector native-like" data-active="" data-filter=":dokkaHtml/linuxMain">linux</button>
+                    <button class="platform-tag platform-selector native-like" data-active="" data-filter=":dokkaHtml/macosMain">macos</button>
+            </div>
+        <button id="theme-toggle-button"><span id="theme-toggle"></span></button>
+        <div id="searchBar"></div>
+    </div>
+</div>
+<div id="container">
+    <div id="leftColumn">
         <div id="sideMenu"></div>
-      </div>
-      <div id="main">
-        <div class="main-content" id="content" pageIds="dokka-multiplatform-example::org.kotlintestmpp////PointingToDeclaration//-1642938820">
-          <div class="breadcrumbs"><a href="../../index.html">dokka-multiplatform-example</a>/<a href="index.html">org.kotlintestmpp</a></div>
-          <div class="cover ">
-            <h1 class="cover"><span><span>Package</span></span> <span>org.</span><wbr></wbr><span><span>kotlintestmpp</span></span></h1>
-          </div>
-          <div class="tabbedcontent">
-            <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="Types">Types</button><button class="section-tab" data-togglable="Functions">Functions</button></div>
-            <div class="tabs-section-body">
-              <h2 class="">Types</h2>
-              <div class="table" data-togglable="Types"><a data-name="1512517182%2FClasslikes%2F-879532132" anchor-label="MainCommand" id="1512517182%2FClasslikes%2F-879532132" data-filterable-set=":dokkaHtml/jvmMain"></a>
-                <div class="table-row" data-filterable-current=":dokkaHtml/jvmMain" data-filterable-set=":dokkaHtml/jvmMain">
-                  <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex">
-                        <div><a href="-main-command/index.html"><span>Main</span><wbr></wbr><span><span>Command</span></span></a></div>
+    </div>
+    <div id="main">
+<div class="main-content" id="content" pageIds="dokka-multiplatform-example::org.kotlintestmpp////PointingToDeclaration//-1642938820">
+  <div class="breadcrumbs"><a href="../../index.html">dokka-multiplatform-example</a><span class="delimiter">/</span><a href="index.html">org.kotlintestmpp</a></div>
+  <div class="cover ">
+    <h1 class="cover"><span><span>Package</span></span> <span>org.</span><wbr></wbr><span><span>kotlintestmpp</span></span></h1>
+  </div>
+  <div class="tabbedcontent">
+    <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="Types">Types</button><button class="section-tab" data-togglable="Functions">Functions</button></div>
+    <div class="tabs-section-body">
+      <h2 class="">Types</h2>
+      <div class="table" data-togglable="Types"><a data-name="1512517182%2FClasslikes%2F-879532132" anchor-label="MainCommand" id="1512517182%2FClasslikes%2F-879532132" data-filterable-set=":dokkaHtml/jvmMain"></a>
+        <div class="table-row" data-filterable-current=":dokkaHtml/jvmMain" data-filterable-set=":dokkaHtml/jvmMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="-main-command/index.html"><span>Main</span><wbr></wbr><span><span>Command</span></span></a></div>
 <span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1512517182%2FClasslikes%2F-879532132"></span>
-                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
-                        </span></span></div>
-                    <div>
-                      <div class="title">
-                        <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
-                          <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark jvm-like" data-filterable-current=":dokkaHtml/jvmMain" data-filterable-set=":dokkaHtml/jvmMain" data-active="" data-toggle=":dokkaHtml/jvmMain">jvm</button></div>
-<div class="content sourceset-depenent-content" data-active="" data-togglable=":dokkaHtml/jvmMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation">@</span><a href="https://docs.oracle.com/javase/8/docs/api/java/lang/annotation/Target.html"><span class="token annotation">Target</span></a><span class="token punctuation">(</span><span>value<span class="token operator"> = </span><a href="https://docs.oracle.com/javase/8/docs/api/java/lang/annotation/ElementType.html">ElementType.TYPE</a></span><wbr></wbr><span class="token punctuation">)</span></div><div class="block"><span class="token annotation">@</span><a href="https://docs.oracle.com/javase/8/docs/api/java/lang/annotation/Retention.html"><span class="token annotation">Retention</span></a><span class="token punctuation">(</span><span>value<span class="token operator"> = </span><a href="https://docs.oracle.com/javase/8/docs/api/java/lang/annotation/RetentionPolicy.html">RetentionPolicy.RUNTIME</a></span><wbr></wbr><span class="token punctuation">)</span></div></div><span class="token keyword">annotation class </span><a href="-main-command/index.html">MainCommand</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div>                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <h2 class="">Functions</h2>
-              <div class="table" data-togglable="Functions"><a data-name="-671070568%2FFunctions%2F-1642938820" anchor-label="asyncWithDealy" id="-671070568%2FFunctions%2F-1642938820" data-filterable-set=":dokkaHtml/commonMain :dokkaHtml/jsMain :dokkaHtml/jvmMain :dokkaHtml/linuxMain :dokkaHtml/macosMain"></a>
-                <div class="table-row" data-filterable-current=":dokkaHtml/commonMain :dokkaHtml/jsMain :dokkaHtml/jvmMain :dokkaHtml/linuxMain :dokkaHtml/macosMain" data-filterable-set=":dokkaHtml/commonMain :dokkaHtml/jsMain :dokkaHtml/jvmMain :dokkaHtml/linuxMain :dokkaHtml/macosMain">
-                  <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex">
-                        <div><a href="async-with-dealy.html"><span>async</span><wbr></wbr><span>With</span><wbr></wbr><span><span>Dealy</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-671070568%2FFunctions%2F-1642938820"></span>
-                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
-                        </span></span></div>
-                    <div>
-                      <div class="title">
-                        <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
-                          <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark common-like" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain" data-active="" data-toggle=":dokkaHtml/commonMain">common</button><button class="platform-bookmark js-like" data-filterable-current=":dokkaHtml/jsMain" data-filterable-set=":dokkaHtml/jsMain" data-toggle=":dokkaHtml/jsMain">js</button><button class="platform-bookmark jvm-like" data-filterable-current=":dokkaHtml/jvmMain" data-filterable-set=":dokkaHtml/jvmMain" data-toggle=":dokkaHtml/jvmMain">jvm</button><button class="platform-bookmark native-like" data-filterable-current=":dokkaHtml/linuxMain" data-filterable-set=":dokkaHtml/linuxMain" data-toggle=":dokkaHtml/linuxMain">linux</button><button class="platform-bookmark native-like" data-filterable-current=":dokkaHtml/macosMain" data-filterable-set=":dokkaHtml/macosMain" data-toggle=":dokkaHtml/macosMain">macos</button></div>
-<div class="content sourceset-depenent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">expect </span><span class="token keyword"></span><span class="token keyword">fun </span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="async-with-dealy.html">T</a><span class="token operator">&gt; </span><span data-unresolved-link="kotlinx.coroutines/CoroutineScope///PointingToDeclaration/">CoroutineScope</span><span class="token punctuation">.</span><a href="async-with-dealy.html"><span class="token function">asyncWithDealy</span></a><span class="token punctuation">(</span>delay<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-long/index.html">Long</a><span class="token punctuation">, </span>block<span class="token operator">: </span><span class="token keyword">suspend </span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><span class="token keyword"></span><a href="async-with-dealy.html">T</a><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="kotlinx.coroutines/Deferred///PointingToDeclaration/">Deferred</span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="async-with-dealy.html">T</a><span class="token operator">&gt;</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div><div class="content sourceset-depenent-content" data-togglable=":dokkaHtml/jsMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword"></span><span class="token keyword">fun </span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="async-with-dealy.html">T</a><span class="token operator">&gt; </span><span data-unresolved-link="kotlinx.coroutines/CoroutineScope///PointingToDeclaration/">CoroutineScope</span><span class="token punctuation">.</span><a href="async-with-dealy.html"><span class="token function">asyncWithDealy</span></a><span class="token punctuation">(</span>delay<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-long/index.html">Long</a><span class="token punctuation">, </span>block<span class="token operator">: </span><span class="token keyword">suspend </span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><span class="token keyword"></span><a href="async-with-dealy.html">T</a><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="kotlinx.coroutines/Deferred///PointingToDeclaration/">Deferred</span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="async-with-dealy.html">T</a><span class="token operator">&gt;</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div><div class="content sourceset-depenent-content" data-togglable=":dokkaHtml/jvmMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword"></span><span class="token keyword">fun </span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="async-with-dealy.html">T</a><span class="token operator">&gt; </span><span data-unresolved-link="kotlinx.coroutines/CoroutineScope///PointingToDeclaration/">CoroutineScope</span><span class="token punctuation">.</span><a href="async-with-dealy.html"><span class="token function">asyncWithDealy</span></a><span class="token punctuation">(</span>delay<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-long/index.html">Long</a><span class="token punctuation">, </span>block<span class="token operator">: </span><span class="token keyword">suspend </span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><span class="token keyword"></span><a href="async-with-dealy.html">T</a><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="kotlinx.coroutines/Deferred///PointingToDeclaration/">Deferred</span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="async-with-dealy.html">T</a><span class="token operator">&gt;</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div><div class="content sourceset-depenent-content" data-togglable=":dokkaHtml/linuxMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword"></span><span class="token keyword">fun </span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="async-with-dealy.html">T</a><span class="token operator">&gt; </span><span data-unresolved-link="kotlinx.coroutines/CoroutineScope///PointingToDeclaration/">CoroutineScope</span><span class="token punctuation">.</span><a href="async-with-dealy.html"><span class="token function">asyncWithDealy</span></a><span class="token punctuation">(</span>delay<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-long/index.html">Long</a><span class="token punctuation">, </span>block<span class="token operator">: </span><span class="token keyword">suspend </span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><span class="token keyword"></span><a href="async-with-dealy.html">T</a><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="kotlinx.coroutines/Deferred///PointingToDeclaration/">Deferred</span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="async-with-dealy.html">T</a><span class="token operator">&gt;</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div><div class="content sourceset-depenent-content" data-togglable=":dokkaHtml/macosMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword"></span><span class="token keyword">fun </span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="async-with-dealy.html">T</a><span class="token operator">&gt; </span><span data-unresolved-link="kotlinx.coroutines/CoroutineScope///PointingToDeclaration/">CoroutineScope</span><span class="token punctuation">.</span><a href="async-with-dealy.html"><span class="token function">asyncWithDealy</span></a><span class="token punctuation">(</span>delay<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-long/index.html">Long</a><span class="token punctuation">, </span>block<span class="token operator">: </span><span class="token keyword">suspend </span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><span class="token keyword"></span><a href="async-with-dealy.html">T</a><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="kotlinx.coroutines/Deferred///PointingToDeclaration/">Deferred</span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="async-with-dealy.html">T</a><span class="token operator">&gt;</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div>                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-<a data-name="-1994171972%2FFunctions%2F-1642938820" anchor-label="getCurrentDate" id="-1994171972%2FFunctions%2F-1642938820" data-filterable-set=":dokkaHtml/commonMain :dokkaHtml/jsMain :dokkaHtml/jvmMain :dokkaHtml/linuxMain :dokkaHtml/macosMain"></a>
-                <div class="table-row" data-filterable-current=":dokkaHtml/commonMain :dokkaHtml/jsMain :dokkaHtml/jvmMain :dokkaHtml/linuxMain :dokkaHtml/macosMain" data-filterable-set=":dokkaHtml/commonMain :dokkaHtml/jsMain :dokkaHtml/jvmMain :dokkaHtml/linuxMain :dokkaHtml/macosMain">
-                  <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex">
-                        <div><a href="get-current-date.html"><span>get</span><wbr></wbr><span>Current</span><wbr></wbr><span><span>Date</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1994171972%2FFunctions%2F-1642938820"></span>
-                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
-                        </span></span></div>
-                    <div>
-                      <div class="title">
-                        <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
-                          <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark common-like" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain" data-active="" data-toggle=":dokkaHtml/commonMain">common</button><button class="platform-bookmark js-like" data-filterable-current=":dokkaHtml/jsMain" data-filterable-set=":dokkaHtml/jsMain" data-toggle=":dokkaHtml/jsMain">js</button><button class="platform-bookmark jvm-like" data-filterable-current=":dokkaHtml/jvmMain" data-filterable-set=":dokkaHtml/jvmMain" data-toggle=":dokkaHtml/jvmMain">jvm</button><button class="platform-bookmark native-like" data-filterable-current=":dokkaHtml/linuxMain" data-filterable-set=":dokkaHtml/linuxMain" data-toggle=":dokkaHtml/linuxMain">linux</button><button class="platform-bookmark native-like" data-filterable-current=":dokkaHtml/macosMain" data-filterable-set=":dokkaHtml/macosMain" data-toggle=":dokkaHtml/macosMain">macos</button></div>
-<div class="content sourceset-depenent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">expect </span><span class="token keyword"></span><span class="token keyword">fun </span><a href="get-current-date.html"><span class="token function">getCurrentDate</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div><div class="content sourceset-depenent-content" data-togglable=":dokkaHtml/jsMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword"></span><span class="token keyword">fun </span><a href="get-current-date.html"><span class="token function">getCurrentDate</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Actual function for js</p></div></div><div class="content sourceset-depenent-content" data-togglable=":dokkaHtml/jvmMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword"></span><span class="token keyword">fun </span><a href="get-current-date.html"><span class="token function">getCurrentDate</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Actual function for jvm</p></div></div><div class="content sourceset-depenent-content" data-togglable=":dokkaHtml/linuxMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword"></span><span class="token keyword">fun </span><a href="get-current-date.html"><span class="token function">getCurrentDate</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Actual function for linux</p></div></div><div class="content sourceset-depenent-content" data-togglable=":dokkaHtml/macosMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword"></span><span class="token keyword">fun </span><a href="get-current-date.html"><span class="token function">getCurrentDate</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Actual function for mac os</p></div></div>                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-<a data-name="-800074327%2FFunctions%2F788909594" anchor-label="getDate" id="-800074327%2FFunctions%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a>
-                <div class="table-row" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
-                  <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex">
-                        <div><a href="get-date.html"><span>get</span><wbr></wbr><span><span>Date</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-800074327%2FFunctions%2F788909594"></span>
-                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
-                        </span></span></div>
-                    <div>
-                      <div class="title">
-                        <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
-                          <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark common-like" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain" data-active="" data-toggle=":dokkaHtml/commonMain">common</button></div>
-<div class="content sourceset-depenent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="get-date.html"><span class="token function">getDate</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div>                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-<a data-name="-2143856892%2FFunctions%2F371682492" anchor-label="js" id="-2143856892%2FFunctions%2F371682492" data-filterable-set=":dokkaHtml/jsMain"></a>
-                <div class="table-row" data-filterable-current=":dokkaHtml/jsMain" data-filterable-set=":dokkaHtml/jsMain">
-                  <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex">
-                        <div><a href="js.html"><span><span>js</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2143856892%2FFunctions%2F371682492"></span>
-                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
-                        </span></span></div>
-                    <div>
-                      <div class="title">
-                        <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
-                          <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark js-like" data-filterable-current=":dokkaHtml/jsMain" data-filterable-set=":dokkaHtml/jsMain" data-active="" data-toggle=":dokkaHtml/jsMain">js</button></div>
-<div class="content sourceset-depenent-content" data-active="" data-togglable=":dokkaHtml/jsMain"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="js.html"><span class="token function">js</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div>                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-<a data-name="-2065043508%2FFunctions%2F-879532132" anchor-label="jvm" id="-2065043508%2FFunctions%2F-879532132" data-filterable-set=":dokkaHtml/jvmMain"></a>
-                <div class="table-row" data-filterable-current=":dokkaHtml/jvmMain" data-filterable-set=":dokkaHtml/jvmMain">
-                  <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex">
-                        <div><a href="jvm.html"><span><span>jvm</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2065043508%2FFunctions%2F-879532132"></span>
-                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
-                        </span></span></div>
-                    <div>
-                      <div class="title">
-                        <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
-                          <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark jvm-like" data-filterable-current=":dokkaHtml/jvmMain" data-filterable-set=":dokkaHtml/jvmMain" data-active="" data-toggle=":dokkaHtml/jvmMain">jvm</button></div>
-<div class="content sourceset-depenent-content" data-active="" data-togglable=":dokkaHtml/jvmMain"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="jvm.html"><span class="token function">jvm</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">also see the <span data-unresolved-link="org.kotlintestmpp.common/Foo///PointingToDeclaration/">Foo</span> class</p></div></div>                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-<a data-name="-25997568%2FFunctions%2F584457932" anchor-label="main" id="-25997568%2FFunctions%2F584457932" data-filterable-set=":dokkaHtml/jsMain :dokkaHtml/jvmMain"></a>
-                <div class="table-row" data-filterable-current=":dokkaHtml/jsMain :dokkaHtml/jvmMain" data-filterable-set=":dokkaHtml/jsMain :dokkaHtml/jvmMain">
-                  <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex">
-                        <div><span data-unresolved-link="org.kotlintestmpp//main/#kotlin.Array[kotlin.String]/PointingToDeclaration/"><span><span>main</span></span></span></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-25997568%2FFunctions%2F584457932"></span>
-                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
-                        </span></span></div>
-                    <div>
-                      <div class="title">
-                        <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
-                          <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark js-like" data-filterable-current=":dokkaHtml/jsMain" data-filterable-set=":dokkaHtml/jsMain" data-active="" data-toggle=":dokkaHtml/jsMain">js</button><button class="platform-bookmark jvm-like" data-filterable-current=":dokkaHtml/jvmMain" data-filterable-set=":dokkaHtml/jvmMain" data-toggle=":dokkaHtml/jvmMain">jvm</button></div>
-<div class="content sourceset-depenent-content" data-active="" data-togglable=":dokkaHtml/jsMain"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="[js]main.html"><span class="token function">main</span></a><span class="token punctuation">(</span>args<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html">Array</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token operator">&gt;</span><span class="token punctuation">)</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div><div class="content sourceset-depenent-content" data-togglable=":dokkaHtml/jvmMain"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="[jvm]main.html"><span class="token function">main</span></a><span class="token punctuation">(</span>args<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html">Array</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token operator">&gt;</span><span class="token punctuation">)</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div>                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-<a data-name="-589887584%2FFunctions%2F584457932" anchor-label="myExtension" id="-589887584%2FFunctions%2F584457932" data-filterable-set=":dokkaHtml/jsMain :dokkaHtml/jvmMain"></a>
-                <div class="table-row" data-filterable-current=":dokkaHtml/jsMain :dokkaHtml/jvmMain" data-filterable-set=":dokkaHtml/jsMain :dokkaHtml/jvmMain">
-                  <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex">
-                        <div><span data-unresolved-link="org.kotlintestmpp//myExtension/kotlin.String#/PointingToDeclaration/"><span>my</span><wbr></wbr><span><span>Extension</span></span></span></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-589887584%2FFunctions%2F584457932"></span>
-                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
-                        </span></span></div>
-                    <div>
-                      <div class="title">
-                        <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
-                          <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark js-like" data-filterable-current=":dokkaHtml/jsMain" data-filterable-set=":dokkaHtml/jsMain" data-active="" data-toggle=":dokkaHtml/jsMain">js</button><button class="platform-bookmark jvm-like" data-filterable-current=":dokkaHtml/jvmMain" data-filterable-set=":dokkaHtml/jvmMain" data-toggle=":dokkaHtml/jvmMain">jvm</button></div>
-<div class="content sourceset-depenent-content" data-active="" data-togglable=":dokkaHtml/jsMain"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">.</span><a href="[js]my-extension.html"><span class="token function">myExtension</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div><div class="content sourceset-depenent-content" data-togglable=":dokkaHtml/jvmMain"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">.</span><a href="[jvm]my-extension.html"><span class="token function">myExtension</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div>                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-<a data-name="-3317024%2FFunctions%2F1463616612" anchor-label="printPointerRawValue" id="-3317024%2FFunctions%2F1463616612" data-filterable-set=":dokkaHtml/linuxMain"></a>
-                <div class="table-row" data-filterable-current=":dokkaHtml/linuxMain" data-filterable-set=":dokkaHtml/linuxMain">
-                  <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex">
-                        <div><a href="print-pointer-raw-value.html"><span>print</span><wbr></wbr><span>Pointer</span><wbr></wbr><span>Raw</span><wbr></wbr><span><span>Value</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-3317024%2FFunctions%2F1463616612"></span>
-                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
-                        </span></span></div>
-                    <div>
-                      <div class="title">
-                        <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
-                          <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark native-like" data-filterable-current=":dokkaHtml/linuxMain" data-filterable-set=":dokkaHtml/linuxMain" data-active="" data-toggle=":dokkaHtml/linuxMain">linux</button></div>
-<div class="content sourceset-depenent-content" data-active="" data-togglable=":dokkaHtml/linuxMain"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="print-pointer-raw-value.html">T</a><span class="token operator"> : </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlinx.cinterop/-c-pointed/index.html">CPointed</a><span class="token operator">&gt; </span><a href="print-pointer-raw-value.html"><span class="token function">printPointerRawValue</span></a><span class="token punctuation">(</span>pointer<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlinx.cinterop/-c-pointer/index.html">CPointer</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="print-pointer-raw-value.html">T</a><span class="token operator">&gt;</span><span class="token punctuation">)</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div>                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-<a data-name="101513064%2FFunctions%2F584457932" anchor-label="shared" id="101513064%2FFunctions%2F584457932" data-filterable-set=":dokkaHtml/jsMain :dokkaHtml/jvmMain"></a>
-                <div class="table-row" data-filterable-current=":dokkaHtml/jsMain :dokkaHtml/jvmMain" data-filterable-set=":dokkaHtml/jsMain :dokkaHtml/jvmMain">
-                  <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex">
-                        <div><span data-unresolved-link="org.kotlintestmpp//shared/#/PointingToDeclaration/"><span><span>shared</span></span></span></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="101513064%2FFunctions%2F584457932"></span>
-                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
-                        </span></span></div>
-                    <div>
-                      <div class="title">
-                        <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
-                          <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark js-like" data-filterable-current=":dokkaHtml/jsMain" data-filterable-set=":dokkaHtml/jsMain" data-active="" data-toggle=":dokkaHtml/jsMain">js</button><button class="platform-bookmark jvm-like" data-filterable-current=":dokkaHtml/jvmMain" data-filterable-set=":dokkaHtml/jvmMain" data-toggle=":dokkaHtml/jvmMain">jvm</button></div>
-<div class="content sourceset-depenent-content" data-active="" data-togglable=":dokkaHtml/jsMain"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="[js]shared.html"><span class="token function">shared</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div><div class="content sourceset-depenent-content" data-togglable=":dokkaHtml/jvmMain"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="[jvm]shared.html"><span class="token function">shared</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div>                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-<a data-name="-2085135813%2FFunctions%2F-879532132" anchor-label="startConnectionPipeline" id="-2085135813%2FFunctions%2F-879532132" data-filterable-set=":dokkaHtml/jvmMain"></a>
-                <div class="table-row" data-filterable-current=":dokkaHtml/jvmMain" data-filterable-set=":dokkaHtml/jvmMain">
-                  <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex">
-                        <div><a href="start-connection-pipeline.html"><span>start</span><wbr></wbr><span>Connection</span><wbr></wbr><span><span>Pipeline</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2085135813%2FFunctions%2F-879532132"></span>
-                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
-                        </span></span></div>
-                    <div>
-                      <div class="title">
-                        <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
-                          <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark jvm-like" data-filterable-current=":dokkaHtml/jvmMain" data-filterable-set=":dokkaHtml/jvmMain" data-active="" data-toggle=":dokkaHtml/jvmMain">jvm</button></div>
-<div class="content sourceset-depenent-content" data-active="" data-togglable=":dokkaHtml/jvmMain"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><span data-unresolved-link="kotlinx.coroutines/CoroutineScope///PointingToDeclaration/">CoroutineScope</span><span class="token punctuation">.</span><a href="start-connection-pipeline.html"><span class="token function">startConnectionPipeline</span></a><span class="token punctuation">(</span>input<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="kotlinx.coroutines/Job///PointingToDeclaration/">Job</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div>                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                  <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark jvm-like" data-filterable-current=":dokkaHtml/jvmMain" data-filterable-set=":dokkaHtml/jvmMain" data-active="" data-toggle=":dokkaHtml/jvmMain">jvm</button></div>
+<div class="content sourceset-depenent-content" data-active="" data-togglable=":dokkaHtml/jvmMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation">@</span><a href="https://docs.oracle.com/javase/8/docs/api/java/lang/annotation/Target.html"><span class="token annotation">Target</span></a><span class="token punctuation">(</span><span>value<span class="token operator"> = </span><a href="https://docs.oracle.com/javase/8/docs/api/java/lang/annotation/ElementType.html">ElementType.TYPE</a></span><wbr></wbr><span class="token punctuation">)</span></div><div class="block"><span class="token annotation">@</span><a href="https://docs.oracle.com/javase/8/docs/api/java/lang/annotation/Retention.html"><span class="token annotation">Retention</span></a><span class="token punctuation">(</span><span>value<span class="token operator"> = </span><a href="https://docs.oracle.com/javase/8/docs/api/java/lang/annotation/RetentionPolicy.html">RetentionPolicy.RUNTIME</a></span><wbr></wbr><span class="token punctuation">)</span></div></div><span class="token keyword">annotation class </span><a href="-main-command/index.html">MainCommand</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div>                </div>
               </div>
             </div>
           </div>
         </div>
-        <div class="footer"><span class="go-to-top-icon"><a href="#content" id="go-to-top-link"></a></span><span>© 2021 Copyright</span><span class="pull-right"><span>Generated by </span><a href="https://github.com/Kotlin/dokka"><span>dokka</span><span class="padded-icon"></span></a></span></div>
+      </div>
+      <h2 class="">Functions</h2>
+      <div class="table" data-togglable="Functions"><a data-name="-809015476%2FFunctions%2F788909594" anchor-label="asyncWithDealy" id="-809015476%2FFunctions%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a>
+        <div class="table-row" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="async-with-dealy.html"><span>async</span><wbr></wbr><span>With</span><wbr></wbr><span><span>Dealy</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-809015476%2FFunctions%2F788909594"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                  <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark common-like" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain" data-active="" data-toggle=":dokkaHtml/commonMain">common</button></div>
+<div class="content sourceset-depenent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">expect </span><span class="token keyword"></span><span class="token keyword">fun </span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="async-with-dealy.html">T</a><span class="token operator">&gt; </span><span data-unresolved-link="/&amp;lt;ERROR CLASS&amp;gt;///PointingToDeclaration/">&lt;ERROR CLASS&gt;</span><span class="token punctuation">.</span><a href="async-with-dealy.html"><span class="token function">asyncWithDealy</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">delay<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-long/index.html">Long</a><span class="token punctuation">, </span></span><span class="parameter ">block<span class="token operator">: </span><span class="token keyword">suspend </span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><span class="token keyword"></span><a href="async-with-dealy.html">T</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="/&amp;lt;ERROR CLASS&amp;gt;///PointingToDeclaration/">&lt;ERROR CLASS&gt;</span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="async-with-dealy.html">T</a><span class="token operator">&gt;</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div>                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-1994171972%2FFunctions%2F-1642938820" anchor-label="getCurrentDate" id="-1994171972%2FFunctions%2F-1642938820" data-filterable-set=":dokkaHtml/commonMain :dokkaHtml/jsMain :dokkaHtml/jvmMain :dokkaHtml/linuxMain :dokkaHtml/macosMain"></a>
+        <div class="table-row" data-filterable-current=":dokkaHtml/commonMain :dokkaHtml/jsMain :dokkaHtml/jvmMain :dokkaHtml/linuxMain :dokkaHtml/macosMain" data-filterable-set=":dokkaHtml/commonMain :dokkaHtml/jsMain :dokkaHtml/jvmMain :dokkaHtml/linuxMain :dokkaHtml/macosMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="get-current-date.html"><span>get</span><wbr></wbr><span>Current</span><wbr></wbr><span><span>Date</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1994171972%2FFunctions%2F-1642938820"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                  <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark common-like" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain" data-active="" data-toggle=":dokkaHtml/commonMain">common</button><button class="platform-bookmark js-like" data-filterable-current=":dokkaHtml/jsMain" data-filterable-set=":dokkaHtml/jsMain" data-toggle=":dokkaHtml/jsMain">js</button><button class="platform-bookmark jvm-like" data-filterable-current=":dokkaHtml/jvmMain" data-filterable-set=":dokkaHtml/jvmMain" data-toggle=":dokkaHtml/jvmMain">jvm</button><button class="platform-bookmark native-like" data-filterable-current=":dokkaHtml/linuxMain" data-filterable-set=":dokkaHtml/linuxMain" data-toggle=":dokkaHtml/linuxMain">linux</button><button class="platform-bookmark native-like" data-filterable-current=":dokkaHtml/macosMain" data-filterable-set=":dokkaHtml/macosMain" data-toggle=":dokkaHtml/macosMain">macos</button></div>
+<div class="content sourceset-depenent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">expect </span><span class="token keyword"></span><span class="token keyword">fun </span><a href="get-current-date.html"><span class="token function">getCurrentDate</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div><div class="content sourceset-depenent-content" data-togglable=":dokkaHtml/jsMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword"></span><span class="token keyword">fun </span><a href="get-current-date.html"><span class="token function">getCurrentDate</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Actual function for js</p></div></div><div class="content sourceset-depenent-content" data-togglable=":dokkaHtml/jvmMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword"></span><span class="token keyword">fun </span><a href="get-current-date.html"><span class="token function">getCurrentDate</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Actual function for jvm</p></div></div><div class="content sourceset-depenent-content" data-togglable=":dokkaHtml/linuxMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword"></span><span class="token keyword">fun </span><a href="get-current-date.html"><span class="token function">getCurrentDate</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Actual function for linux</p></div></div><div class="content sourceset-depenent-content" data-togglable=":dokkaHtml/macosMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword"></span><span class="token keyword">fun </span><a href="get-current-date.html"><span class="token function">getCurrentDate</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Actual function for mac os</p></div></div>                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-800074327%2FFunctions%2F788909594" anchor-label="getDate" id="-800074327%2FFunctions%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a>
+        <div class="table-row" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="get-date.html"><span>get</span><wbr></wbr><span><span>Date</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-800074327%2FFunctions%2F788909594"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                  <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark common-like" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain" data-active="" data-toggle=":dokkaHtml/commonMain">common</button></div>
+<div class="content sourceset-depenent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="get-date.html"><span class="token function">getDate</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div>                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-2143856892%2FFunctions%2F371682492" anchor-label="js" id="-2143856892%2FFunctions%2F371682492" data-filterable-set=":dokkaHtml/jsMain"></a>
+        <div class="table-row" data-filterable-current=":dokkaHtml/jsMain" data-filterable-set=":dokkaHtml/jsMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="js.html"><span><span>js</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2143856892%2FFunctions%2F371682492"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                  <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark js-like" data-filterable-current=":dokkaHtml/jsMain" data-filterable-set=":dokkaHtml/jsMain" data-active="" data-toggle=":dokkaHtml/jsMain">js</button></div>
+<div class="content sourceset-depenent-content" data-active="" data-togglable=":dokkaHtml/jsMain"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="js.html"><span class="token function">js</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div>                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-2065043508%2FFunctions%2F-879532132" anchor-label="jvm" id="-2065043508%2FFunctions%2F-879532132" data-filterable-set=":dokkaHtml/jvmMain"></a>
+        <div class="table-row" data-filterable-current=":dokkaHtml/jvmMain" data-filterable-set=":dokkaHtml/jvmMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="jvm.html"><span><span>jvm</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2065043508%2FFunctions%2F-879532132"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                  <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark jvm-like" data-filterable-current=":dokkaHtml/jvmMain" data-filterable-set=":dokkaHtml/jvmMain" data-active="" data-toggle=":dokkaHtml/jvmMain">jvm</button></div>
+<div class="content sourceset-depenent-content" data-active="" data-togglable=":dokkaHtml/jvmMain"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="jvm.html"><span class="token function">jvm</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">also see the <span data-unresolved-link="org.kotlintestmpp.common/Foo///PointingToDeclaration/">Foo</span> class</p></div></div>                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-25997568%2FFunctions%2F584457932" anchor-label="main" id="-25997568%2FFunctions%2F584457932" data-filterable-set=":dokkaHtml/jsMain :dokkaHtml/jvmMain"></a>
+        <div class="table-row" data-filterable-current=":dokkaHtml/jsMain :dokkaHtml/jvmMain" data-filterable-set=":dokkaHtml/jsMain :dokkaHtml/jvmMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><span data-unresolved-link="org.kotlintestmpp//main/#kotlin.Array[kotlin.String]/PointingToDeclaration/"><span><span>main</span></span></span></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-25997568%2FFunctions%2F584457932"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                  <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark js-like" data-filterable-current=":dokkaHtml/jsMain" data-filterable-set=":dokkaHtml/jsMain" data-active="" data-toggle=":dokkaHtml/jsMain">js</button><button class="platform-bookmark jvm-like" data-filterable-current=":dokkaHtml/jvmMain" data-filterable-set=":dokkaHtml/jvmMain" data-toggle=":dokkaHtml/jvmMain">jvm</button></div>
+<div class="content sourceset-depenent-content" data-active="" data-togglable=":dokkaHtml/jsMain"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="[js]main.html"><span class="token function">main</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">args<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html">Array</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div><div class="content sourceset-depenent-content" data-togglable=":dokkaHtml/jvmMain"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="[jvm]main.html"><span class="token function">main</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">args<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html">Array</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div>                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-589887584%2FFunctions%2F584457932" anchor-label="myExtension" id="-589887584%2FFunctions%2F584457932" data-filterable-set=":dokkaHtml/jsMain :dokkaHtml/jvmMain"></a>
+        <div class="table-row" data-filterable-current=":dokkaHtml/jsMain :dokkaHtml/jvmMain" data-filterable-set=":dokkaHtml/jsMain :dokkaHtml/jvmMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><span data-unresolved-link="org.kotlintestmpp//myExtension/kotlin.String#/PointingToDeclaration/"><span>my</span><wbr></wbr><span><span>Extension</span></span></span></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-589887584%2FFunctions%2F584457932"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                  <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark js-like" data-filterable-current=":dokkaHtml/jsMain" data-filterable-set=":dokkaHtml/jsMain" data-active="" data-toggle=":dokkaHtml/jsMain">js</button><button class="platform-bookmark jvm-like" data-filterable-current=":dokkaHtml/jvmMain" data-filterable-set=":dokkaHtml/jvmMain" data-toggle=":dokkaHtml/jvmMain">jvm</button></div>
+<div class="content sourceset-depenent-content" data-active="" data-togglable=":dokkaHtml/jsMain"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">.</span><a href="[js]my-extension.html"><span class="token function">myExtension</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div><div class="content sourceset-depenent-content" data-togglable=":dokkaHtml/jvmMain"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">.</span><a href="[jvm]my-extension.html"><span class="token function">myExtension</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div>                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-3317024%2FFunctions%2F1463616612" anchor-label="printPointerRawValue" id="-3317024%2FFunctions%2F1463616612" data-filterable-set=":dokkaHtml/linuxMain"></a>
+        <div class="table-row" data-filterable-current=":dokkaHtml/linuxMain" data-filterable-set=":dokkaHtml/linuxMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="print-pointer-raw-value.html"><span>print</span><wbr></wbr><span>Pointer</span><wbr></wbr><span>Raw</span><wbr></wbr><span><span>Value</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-3317024%2FFunctions%2F1463616612"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                  <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark native-like" data-filterable-current=":dokkaHtml/linuxMain" data-filterable-set=":dokkaHtml/linuxMain" data-active="" data-toggle=":dokkaHtml/linuxMain">linux</button></div>
+<div class="content sourceset-depenent-content" data-active="" data-togglable=":dokkaHtml/linuxMain"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="print-pointer-raw-value.html">T</a><span class="token operator"> : </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlinx.cinterop/-c-pointed/index.html">CPointed</a><span class="token operator">&gt; </span><a href="print-pointer-raw-value.html"><span class="token function">printPointerRawValue</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">pointer<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlinx.cinterop/-c-pointer/index.html">CPointer</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="print-pointer-raw-value.html">T</a><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div>                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="101513064%2FFunctions%2F584457932" anchor-label="shared" id="101513064%2FFunctions%2F584457932" data-filterable-set=":dokkaHtml/jsMain :dokkaHtml/jvmMain"></a>
+        <div class="table-row" data-filterable-current=":dokkaHtml/jsMain :dokkaHtml/jvmMain" data-filterable-set=":dokkaHtml/jsMain :dokkaHtml/jvmMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><span data-unresolved-link="org.kotlintestmpp//shared/#/PointingToDeclaration/"><span><span>shared</span></span></span></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="101513064%2FFunctions%2F584457932"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                  <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark js-like" data-filterable-current=":dokkaHtml/jsMain" data-filterable-set=":dokkaHtml/jsMain" data-active="" data-toggle=":dokkaHtml/jsMain">js</button><button class="platform-bookmark jvm-like" data-filterable-current=":dokkaHtml/jvmMain" data-filterable-set=":dokkaHtml/jvmMain" data-toggle=":dokkaHtml/jvmMain">jvm</button></div>
+<div class="content sourceset-depenent-content" data-active="" data-togglable=":dokkaHtml/jsMain"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="[js]shared.html"><span class="token function">shared</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div><div class="content sourceset-depenent-content" data-togglable=":dokkaHtml/jvmMain"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="[jvm]shared.html"><span class="token function">shared</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div>                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-2085135813%2FFunctions%2F-879532132" anchor-label="startConnectionPipeline" id="-2085135813%2FFunctions%2F-879532132" data-filterable-set=":dokkaHtml/jvmMain"></a>
+        <div class="table-row" data-filterable-current=":dokkaHtml/jvmMain" data-filterable-set=":dokkaHtml/jvmMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="start-connection-pipeline.html"><span>start</span><wbr></wbr><span>Connection</span><wbr></wbr><span><span>Pipeline</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2085135813%2FFunctions%2F-879532132"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                  <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark jvm-like" data-filterable-current=":dokkaHtml/jvmMain" data-filterable-set=":dokkaHtml/jvmMain" data-active="" data-toggle=":dokkaHtml/jvmMain">jvm</button></div>
+<div class="content sourceset-depenent-content" data-active="" data-togglable=":dokkaHtml/jvmMain"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><span data-unresolved-link="kotlinx.coroutines/CoroutineScope///PointingToDeclaration/">CoroutineScope</span><span class="token punctuation">.</span><a href="start-connection-pipeline.html"><span class="token function">startConnectionPipeline</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">input<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="kotlinx.coroutines/Job///PointingToDeclaration/">Job</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div>                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-  </body>
+  </div>
+</div>
+        <div class="footer"><span class="go-to-top-icon"><a href="#content" id="go-to-top-link"></a></span><span>© 2022 Copyright</span><span
+                class="pull-right"><span>Generated by </span><a
+                href="https://github.com/Kotlin/dokka"><span>dokka</span><span class="padded-icon"></span></a></span>
+        </div>
+    </div>
+</div>
+</body>
 </html>
-
