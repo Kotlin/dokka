@@ -10,10 +10,7 @@ class Multiplatform0GradleIntegrationTest(override val versions: BuildVersions) 
     companion object {
         @get:JvmStatic
         @get:Parameterized.Parameters(name = "{0}")
-        val versions = BuildVersions.permutations(
-            gradleVersions = listOf("6.6", "6.1.1"),
-            kotlinVersions = listOf("1.4.0")
-        )
+        val versions = TestedVersions.BASE
     }
 
     @BeforeTest
@@ -26,6 +23,7 @@ class Multiplatform0GradleIntegrationTest(override val versions: BuildVersions) 
     }
 
     @Test
+    @Ignore("KLIB is currently not supported, planned for 1.6.21")
     fun execute() {
         val result = createGradleRunner("dokkaHtml", "-i", "-s").buildRelaxed()
 
