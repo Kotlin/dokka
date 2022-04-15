@@ -792,19 +792,25 @@ To customize HTML output, you can use the <a href="https://github.com/Kotlin/dok
 <p>To change page assets, you can set properties <code>customAssets</code> and <code>customStyleSheets</code>.
 Assets are handled by Dokka itself, not FreeMaker.</p>
 </div>
-<p>Currently, there is only one template file with predefined name <code>base.ftl</code>. It defines general design of all pages to render.<br />
-If <code>templatesDir</code> is defined, Dokka will find the <code>base.ftl</code> file there.</p>
+<p>There is a template file with predefined name <code>base.ftl</code>. It defines general design of all pages to render.
+<code>base.ftl</code> can import another templates that can be set by user as well:
+* <code>includes/header.ftl</code>
+* <code>includes/footer.ftl</code>
+* <code>includes/page_metadata.ftl</code>
+* <code>includes/source_set_selector.ftl</code>.</p>
+<p>If <code>templatesDir</code> is defined, Dokka will find a template file there. 
+If the file is not found, a default one will be used.</p>
 <p>Variables given below are available to the template:
-  * <code>${pageName}</code> - the page name
-  * <code>${footerMessage}</code> - text that is set by the <code>footerMessage</code> property
-  * <code>${sourceSets}</code> - a nullable list of source sets, only for multi-platform pages. Each source set has <code>name</code>, <code>platfrom</code> and <code>filter</code> properties.</p>
+* <code>${pageName}</code> - the page name
+* <code>${footerMessage}</code> - text that is set by the <code>footerMessage</code> property
+* <code>${sourceSets}</code> - a nullable list of source sets, only for multi-platform pages. Each source set has <code>name</code>, <code>platfrom</code> and <code>filter</code> properties.</p>
 <p>Also, Dokka-defined <a href="https://freemarker.apache.org/docs/ref_directive_userDefined.html">directives</a> can be used:
-  * <code>&lt;@content/&gt;</code> - main content
-  * <code>&lt;@resources/&gt;</code> - scripts, stylesheets 
-  * <code>&lt;@version/&gt;</code> - version (<a href="https://kotlin.github.io/dokka/1.6.20/user_guide/versioning/versioning/">versioning-plugin</a> will replace this with a version navigator)
-  * <code>&lt;@template_cmd name="...""&gt; ...&lt;!--@template_cmd--&gt;</code> - is used for variables that depend on the root project (such <code>pathToRoot</code>, <code>projectName</code>). They are available only inside the directive. This is processed by a multi-module task that assembles partial outputs from modules. 
-     Example:
-    <div class="highlight"><pre><span></span><code>&lt;@template_cmd name=&quot;projectName&quot;&gt;
+* <code>&lt;@content/&gt;</code> - main content
+* <code>&lt;@resources/&gt;</code> - scripts, stylesheets 
+* <code>&lt;@version/&gt;</code> - version (<a href="https://kotlin.github.io/dokka/1.6.20/user_guide/versioning/versioning/">versioning-plugin</a> will replace this with a version navigator)
+* <code>&lt;@template_cmd name="...""&gt; ...&lt;!--@template_cmd--&gt;</code> - is used for variables that depend on the root project (such <code>pathToRoot</code>, <code>projectName</code>). They are available only inside the directive. This is processed by a multi-module task that assembles partial outputs from modules. 
+   Example:
+  <div class="highlight"><pre><span></span><code>&lt;@template_cmd name=&quot;projectName&quot;&gt;
    &lt;span&gt;${projectName}&lt;/span&gt;
 &lt;/@template_cmd&gt;
 </code></pre></div></p>
