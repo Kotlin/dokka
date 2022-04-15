@@ -801,7 +801,7 @@ If <code>templatesDir</code> is defined, Dokka will find the <code>base.ftl</cod
 <p>Also, Dokka-defined <a href="https://freemarker.apache.org/docs/ref_directive_userDefined.html">directives</a> can be used:
   * <code>&lt;@content/&gt;</code> - main content
   * <code>&lt;@resources/&gt;</code> - scripts, stylesheets 
-  * <code>&lt;@version/&gt;</code> - version (<a href="https://kotlin.github.io/dokka/1.6.10/user_guide/versioning/versioning/">versioning-plugin</a> will replace this with a version navigator)
+  * <code>&lt;@version/&gt;</code> - version (<a href="https://kotlin.github.io/dokka/1.6.20/user_guide/versioning/versioning/">versioning-plugin</a> will replace this with a version navigator)
   * <code>&lt;@template_cmd name="...""&gt; ...&lt;!--@template_cmd--&gt;</code> - is used for variables that depend on the root project (such <code>pathToRoot</code>, <code>projectName</code>). They are available only inside the directive. This is processed by a multi-module task that assembles partial outputs from modules. 
      Example:
     <div class="highlight"><pre><span></span><code>&lt;@template_cmd name=&quot;projectName&quot;&gt;
