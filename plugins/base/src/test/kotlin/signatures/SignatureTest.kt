@@ -547,7 +547,7 @@ class SignatureTest : BaseAbstractTest() {
             pluginOverrides = listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
-                writerPlugin.writer.renderedContent("root/example.html").signature().first().match(
+                writerPlugin.writer.renderedContent("root/example.html").firstSignature().match(
                     "typealias ", A("PlainTypealias"), " = ", A("Int"), Span(),
                         ignoreSpanWithTokenStyle = true
                 )
@@ -577,7 +577,7 @@ class SignatureTest : BaseAbstractTest() {
             pluginOverrides = listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
-                writerPlugin.writer.renderedContent("root/example/index.html").signature().first().match(
+                writerPlugin.writer.renderedContent("root/example/index.html").firstSignature().match(
                     Div(
                         Div(
                             "@", A("SomeAnnotation")
@@ -607,7 +607,7 @@ class SignatureTest : BaseAbstractTest() {
             pluginOverrides = listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
-                writerPlugin.writer.renderedContent("root/example.html").signature().first().match(
+                writerPlugin.writer.renderedContent("root/example.html").firstSignature().match(
                     "typealias ", A("PlainTypealias"), " = ", A("Comparable"),
                     "<", A("Int"), ">", Span(),
                         ignoreSpanWithTokenStyle = true
@@ -634,7 +634,7 @@ class SignatureTest : BaseAbstractTest() {
             pluginOverrides = listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
-                writerPlugin.writer.renderedContent("root/example.html").signature().first().match(
+                writerPlugin.writer.renderedContent("root/example.html").firstSignature().match(
                     "typealias ", A("GenericTypealias"), "<", A("T"), "> = ", A("Comparable"),
                     "<", A("T"), ">", Span(),
                         ignoreSpanWithTokenStyle = true
@@ -663,7 +663,7 @@ class SignatureTest : BaseAbstractTest() {
             pluginOverrides = listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
-                writerPlugin.writer.renderedContent("root/kotlinAsJavaPlugin/-a-b-c/some-fun.html").signature().first()
+                writerPlugin.writer.renderedContent("root/kotlinAsJavaPlugin/-a-b-c/some-fun.html").firstSignature()
                     .match(
                         "fun ", A("someFun"), "(", Parameters(
                             Parameter("xd: ", A("XD"), "<", A("Int"), ", ", A("String"), ">"),

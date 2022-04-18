@@ -11,7 +11,8 @@ fun TestOutputWriter.renderedContent(path: String = "root/example.html"): Elemen
         .single()
 
 fun Element.signature(): Elements = select("div.symbol.monospace")
-fun Element.firstSignature(): Element = signature().first()
+fun Element.firstSignature(): Element = signature().first() ?: throw IllegalStateException("No signature found")
+fun Element.lastSignature(): Element = signature().last() ?: throw IllegalStateException("No signature found")
 
 class Parameters(vararg matchers: Any) : Tag("span", *matchers, expectedClasses = listOf("parameters"))
 class Parameter(vararg matchers: Any) : Tag("span", *matchers, expectedClasses = listOf("parameter"))
