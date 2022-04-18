@@ -123,7 +123,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
     private fun PageContentBuilder.DocumentableContentBuilder.defaultValueAssign(
         v: DefaultValue,
         sourceSet: DokkaSourceSet,
-        expectSourceSet: DokkaSourceSet?
+        expectSourceSet: DokkaSourceSet? = null
     ) {
         // otherwise get a default value from an expect source set
         v.value.let { it[sourceSet] ?: it[expectSourceSet] }
@@ -268,7 +268,8 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                 link(p.name, p.dri)
                 operator(": ")
                 signatureForProjection(p.type)
-                p.extra[DefaultValue]?.let { extra -> defaultValueAssign(extra, it, p.expectPresentInSet) }
+                // expect properties cannot have a default value
+                p.extra[DefaultValue]?.let { extra -> defaultValueAssign(extra, it) }
             }
         }
 
