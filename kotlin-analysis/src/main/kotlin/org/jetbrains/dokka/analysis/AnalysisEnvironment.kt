@@ -312,9 +312,9 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
 
     @OptIn(ExperimentalStdlibApi::class)
     private fun resolveKotlinLibraries(): Map<AbsolutePathString, KotlinLibrary> {
-        return buildMap {
+        return if (analysisPlatform == Platform.jvm) emptyMap() else buildMap {
             classpath
-                .filter { it.isDirectory || (it.extension == "jar" || it.extension == KLIB_FILE_EXTENSION) }
+                .filter { it.isDirectory || it.extension == KLIB_FILE_EXTENSION }
                 .forEach { libraryFile ->
                     try {
                         val kotlinLibrary = resolveSingleFileKlib(
