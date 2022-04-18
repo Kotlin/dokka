@@ -368,7 +368,6 @@ open class HtmlRenderer(
     ) = // TODO: extension point there
         if (node.isImage()) {
             //TODO: add imgAttrs parsing
-            val imgAttrs = node.extra.allOfType<SimpleAttr>().joinAttr()
             img(src = node.address, alt = node.altText)
         } else {
             println("Unrecognized resource type: $node")
@@ -377,17 +376,16 @@ open class HtmlRenderer(
     private fun FlowContent.buildRow(
         node: ContentGroup,
         pageContext: ContentPage,
-        sourceSetRestriction: Set<DisplaySourceSet>?,
-        style: Set<Style>
+        sourceSetRestriction: Set<DisplaySourceSet>?
     ) {
         node.children
             .filter { sourceSetRestriction == null || it.sourceSets.any { s -> s in sourceSetRestriction } }
             .takeIf { it.isNotEmpty() }
             ?.let {
                 when (pageContext) {
-                    is MultimoduleRootPage -> buildRowForMultiModule(node, it, pageContext, sourceSetRestriction, style)
-                    is ModulePage -> buildRowForModule(node, it, pageContext, sourceSetRestriction, style)
-                    else -> buildRowForContent(node, it, pageContext, sourceSetRestriction, style)
+                    is MultimoduleRootPage -> buildRowForMultiModule(node, it, pageContext, sourceSetRestriction)
+                    is ModulePage -> buildRowForModule(node, it, pageContext, sourceSetRestriction)
+                    else -> buildRowForContent(node, it, pageContext, sourceSetRestriction)
                 }
             }
     }
@@ -396,8 +394,7 @@ open class HtmlRenderer(
         contextNode: ContentGroup,
         toRender: List<ContentNode>,
         pageContext: ContentPage,
-        sourceSetRestriction: Set<DisplaySourceSet>?,
-        style: Set<Style>
+        sourceSetRestriction: Set<DisplaySourceSet>?
     ) {
         buildAnchor(contextNode)
         div(classes = "table-row") {
@@ -414,8 +411,7 @@ open class HtmlRenderer(
         contextNode: ContentGroup,
         toRender: List<ContentNode>,
         pageContext: ContentPage,
-        sourceSetRestriction: Set<DisplaySourceSet>?,
-        style: Set<Style>
+        sourceSetRestriction: Set<DisplaySourceSet>?
     ) {
         buildAnchor(contextNode)
         div(classes = "table-row") {
@@ -440,8 +436,7 @@ open class HtmlRenderer(
         contextNode: ContentGroup,
         toRender: List<ContentNode>,
         pageContext: ContentPage,
-        sourceSetRestriction: Set<DisplaySourceSet>?,
-        style: Set<Style>
+        sourceSetRestriction: Set<DisplaySourceSet>?
     ) {
         buildAnchor(contextNode)
         div(classes = "table-row") {
@@ -551,7 +546,7 @@ open class HtmlRenderer(
             else -> div(classes = "table") {
                 node.extra.extraHtmlAttributes().forEach { attributes[it.extraKey] = it.extraValue }
                 node.children.forEach {
-                    buildRow(it, pageContext, sourceSetRestriction, node.style)
+                    buildRow(it, pageContext, sourceSetRestriction)
                 }
             }
         }

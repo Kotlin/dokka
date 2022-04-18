@@ -114,6 +114,7 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
             JavadocTagInfo.EP_NAME, JavadocTagInfo::class.java
         )
 
+        @Suppress("DEPRECATION") // for getRootArea(), TODO [beresnev] figure out
         CoreApplicationEnvironment.registerExtensionPoint(
             Extensions.getRootArea(),
             CustomJavadocTagProvider.EP_NAME, CustomJavadocTagProvider::class.java
@@ -588,6 +589,8 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
             instances: List<T>,
             disposable: Disposable
         ) {
+
+            @Suppress("DEPRECATION") // for getRootArea(), TODO [beresnev] figure out
             if (Extensions.getRootArea().hasExtensionPoint(appExtension.extensionPointName))
                 return
 

@@ -11,7 +11,6 @@ import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.*
 import org.gradle.kotlin.dsl.listProperty
 import org.gradle.kotlin.dsl.setProperty
-import org.gradle.util.ConfigureUtil
 import org.jetbrains.dokka.*
 import java.io.File
 import java.net.URL
@@ -156,8 +155,10 @@ open class GradleDokkaSourceSetBuilder(
         sourceRoot(project.file(path))
     }
 
+    @Suppress("DEPRECATION")
+    @Deprecated("Use methods that use Action") // TODO [beresnev] investigate
     fun sourceLink(c: Closure<in GradleSourceLinkBuilder>) {
-        val configured = ConfigureUtil.configure(c, GradleSourceLinkBuilder(project))
+        val configured = org.gradle.util.ConfigureUtil.configure(c, GradleSourceLinkBuilder(project))
         sourceLinks.add(configured)
     }
 
@@ -167,8 +168,10 @@ open class GradleDokkaSourceSetBuilder(
         sourceLinks.add(sourceLink)
     }
 
+    @Suppress("DEPRECATION")
+    @Deprecated("Use methods that use Action") // TODO [beresnev] investigate
     fun perPackageOption(c: Closure<in GradlePackageOptionsBuilder>) {
-        val configured = ConfigureUtil.configure(c, GradlePackageOptionsBuilder(project))
+        val configured = org.gradle.util.ConfigureUtil.configure(c, GradlePackageOptionsBuilder(project))
         perPackageOptions.add(configured)
     }
 
@@ -178,8 +181,10 @@ open class GradleDokkaSourceSetBuilder(
         perPackageOptions.add(option)
     }
 
+    @Suppress("DEPRECATION")
+    @Deprecated("Use methods that use Action") // TODO [beresnev] investigate
     fun externalDocumentationLink(c: Closure<in GradleExternalDocumentationLinkBuilder>) {
-        val link = ConfigureUtil.configure(c, GradleExternalDocumentationLinkBuilder(project))
+        val link = org.gradle.util.ConfigureUtil.configure(c, GradleExternalDocumentationLinkBuilder(project))
         externalDocumentationLinks.add(link)
     }
 

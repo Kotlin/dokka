@@ -11,7 +11,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.renderers.OutputWriter
-import org.jetbrains.dokka.base.resolvers.local.LocationProvider
 import org.jetbrains.dokka.javadoc.JavadocPlugin
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.pages.*
@@ -136,7 +135,9 @@ class KorteJavadocRenderer(val context: DokkaContext, resourceDir: String) :
                 )
             },
             TeFunction("createPackageHierarchy") { args ->
+                @Suppress("UNCHECKED_CAST")
                 val list = args.first() as List<JavadocPackagePageNode>
+
                 list.mapIndexed { i, p ->
                     val content = if (i + 1 == list.size) "" else ", "
                     val name = p.name
@@ -144,6 +145,7 @@ class KorteJavadocRenderer(val context: DokkaContext, resourceDir: String) :
                 }.joinToString("\n")
             },
             TeFunction("renderInheritanceGraph") { args ->
+                @Suppress("UNCHECKED_CAST")
                 val rootNodes = args.first() as List<TreeViewPage.InheritanceNode>
 
                 fun drawRec(node: TreeViewPage.InheritanceNode): String =

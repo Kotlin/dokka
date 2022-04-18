@@ -75,6 +75,7 @@ class DokkaResolutionFacade(
                     if (key != element) {
                         throw UnsupportedOperationException()
                     }
+                    @Suppress("UNCHECKED_CAST")
                     return when {
                         slice == BindingContext.DECLARATION_TO_DESCRIPTOR -> descriptor as V
                         slice == BindingContext.PRIMARY_CONSTRUCTOR_PARAMETER && (element as KtParameter).hasValOrVar() -> descriptor as V

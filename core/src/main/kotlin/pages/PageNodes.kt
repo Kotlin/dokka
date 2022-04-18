@@ -21,7 +21,7 @@ interface ContentPage : PageNode {
     val embeddedResources: List<String>
 
     @Deprecated("Deprecated. Remove its usages from your code.",
-        ReplaceWith("documentables.firstOrNull()")
+        ReplaceWith("this.documentables.firstOrNull()")
     )
     val documentable: Documentable?
         get() = if (this is WithDocumentables) this.documentables.firstOrNull() else null

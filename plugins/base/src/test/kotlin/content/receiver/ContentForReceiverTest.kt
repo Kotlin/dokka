@@ -1,7 +1,5 @@
 package content.receiver
 
-import junit.framework.Assert.assertEquals
-import junit.framework.Assert.assertNotNull
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.model.dfs
 import org.jetbrains.dokka.model.doc.Receiver
@@ -11,6 +9,8 @@ import org.jetbrains.dokka.pages.ContentText
 import org.jetbrains.dokka.pages.MemberPageNode
 import org.junit.jupiter.api.Test
 import utils.docs
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 
 class ContentForReceiverTest: BaseAbstractTest() {
     private val testConfiguration = dokkaConfiguration {
@@ -40,7 +40,7 @@ class ContentForReceiverTest: BaseAbstractTest() {
                 with(module.packages.flatMap { it.functions }.first()){
                     val receiver = docs().firstOrNull { it is Receiver }
                     assertNotNull(receiver)
-                    val content = receiver?.dfs { it is Text } as Text
+                    val content = receiver.dfs { it is Text } as Text
                     assertEquals("docs for string", content.body)
                 }
             }
