@@ -5,7 +5,11 @@ import org.jetbrains.dokka.model.properties.MergeStrategy
 
 class DefaultValue(val value: Expression): ExtraProperty<Documentable> {
     companion object : ExtraProperty.Key<Documentable, DefaultValue> {
-        override fun mergeStrategyFor(left: DefaultValue, right: DefaultValue): MergeStrategy<Documentable> = MergeStrategy.Remove // TODO pass a logger somehow and log this
+        override fun mergeStrategyFor(left: DefaultValue, right: DefaultValue): MergeStrategy<Documentable> =
+            if (left.value == right.value)
+                MergeStrategy.Replace(DefaultValue(left.value))
+            else
+                MergeStrategy.Remove // TODO pass a logger somehow and log this
     }
 
     override val key: ExtraProperty.Key<Documentable, *>
