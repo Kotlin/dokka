@@ -61,7 +61,7 @@ abstract class AbstractIntegrationTest {
         val fileText = file.readText()
         val html = Jsoup.parse(fileText)
         html.allElements.toList().forEach { element ->
-            val href = (element.attr("href") ?: return@forEach)
+            val href = element.attr("href")
             if (href.startsWith("https")) return@forEach
             if (href.startsWith("http")) return@forEach
 

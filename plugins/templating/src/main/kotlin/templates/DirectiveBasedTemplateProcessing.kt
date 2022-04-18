@@ -67,15 +67,17 @@ class DirectiveBasedHtmlTemplateProcessingStrategy(private val context: DokkaCon
         var firstStartBorder: Comment? = null
         for (index in startFrom until node.childNodeSize()) {
             when (val currentChild = node.childNode(index)) {
-                is Comment -> if (currentChild.data?.startsWith(TEMPLATE_COMMAND_BEGIN_BORDER) == true) {
+                is Comment -> if (currentChild.data.startsWith(TEMPLATE_COMMAND_BEGIN_BORDER)) {
                     lastStartBorder = currentChild
                     firstStartBorder = firstStartBorder ?: currentChild
                     nodes.clear()
-                } else if (lastStartBorder != null && currentChild.data?.startsWith(TEMPLATE_COMMAND_END_BORDER) == true) {
+                } else if (lastStartBorder != null && currentChild.data.startsWith(TEMPLATE_COMMAND_END_BORDER)) {
                     lastStartBorder.remove()
-                    val cmd: Command? =
-                        lastStartBorder.data?.removePrefix("$TEMPLATE_COMMAND_BEGIN_BORDER$TEMPLATE_COMMAND_SEPARATOR")?.let { parseJson(it) }
-                    cmd?.let { handler(it, nodes) }
+                    val cmd = lastStartBorder.data
+                        .removePrefix("$TEMPLATE_COMMAND_BEGIN_BORDER$TEMPLATE_COMMAND_SEPARATOR")
+                        .let { parseJson<Command>(it) }
+
+                    handler(cmd, nodes)
                     currentChild.remove()
                     extractCommandsFromComments(node, firstStartBorder?.siblingIndex() ?: 0, handler)
                     return
