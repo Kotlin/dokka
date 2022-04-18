@@ -13,7 +13,10 @@ import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.Nullable
 import org.jetbrains.dokka.model.TypeConstructor
 import org.jetbrains.dokka.model.properties.WithExtraProperties
-import org.jetbrains.dokka.pages.*
+import org.jetbrains.dokka.pages.ContentKind
+import org.jetbrains.dokka.pages.ContentNode
+import org.jetbrains.dokka.pages.TextStyle
+import org.jetbrains.dokka.pages.TokenStyle
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.querySingle
@@ -197,9 +200,9 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                             text(param.name.orEmpty())
                             operator(": ")
                             signatureForProjection(param.type)
-                            param.extra[DefaultValue]?.let {
+                            param.extra[DefaultValue]?.value?.get(sourceSet)?.let { expr ->
                                 operator(" = ")
-                                highlightValue(it.value)
+                                highlightValue(expr)
                             }
                         }
                         punctuation(")")
@@ -256,9 +259,9 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                 link(p.name, p.dri)
                 operator(": ")
                 signatureForProjection(p.type)
-                p.extra[DefaultValue]?.run {
+                p.extra[DefaultValue]?.value?.get(it)?.let { expr ->
                     operator(" = ")
-                    highlightValue(value)
+                    highlightValue(expr)
                 }
             }
         }
@@ -312,9 +315,9 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                         text(param.name!!)
                         operator(": ")
                         signatureForProjection(param.type)
-                        param.extra[DefaultValue]?.run {
+                        param.extra[DefaultValue]?.value?.get(it)?.let { expr ->
                             operator(" = ")
-                            highlightValue(value)
+                            highlightValue(expr)
                         }
                     }
                 }

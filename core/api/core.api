@@ -1385,9 +1385,9 @@ public final class org/jetbrains/dokka/model/DTypeParameter : org/jetbrains/dokk
 
 public final class org/jetbrains/dokka/model/DefaultValue : org/jetbrains/dokka/model/properties/ExtraProperty {
 	public static final field Companion Lorg/jetbrains/dokka/model/DefaultValue$Companion;
-	public fun <init> (Lorg/jetbrains/dokka/model/Expression;)V
+	public fun <init> (Ljava/util/Map;)V
 	public fun getKey ()Lorg/jetbrains/dokka/model/properties/ExtraProperty$Key;
-	public final fun getValue ()Lorg/jetbrains/dokka/model/Expression;
+	public final fun getValue ()Ljava/util/Map;
 }
 
 public final class org/jetbrains/dokka/model/DefaultValue$Companion : org/jetbrains/dokka/model/properties/ExtraProperty$Key {
