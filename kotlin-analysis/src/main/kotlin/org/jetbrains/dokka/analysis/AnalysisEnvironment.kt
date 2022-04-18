@@ -20,6 +20,7 @@ import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.analysis.resolve.*
 import org.jetbrains.kotlin.analyzer.*
 import org.jetbrains.kotlin.analyzer.common.CommonAnalysisParameters
+import org.jetbrains.kotlin.analyzer.common.CommonDependenciesContainer
 import org.jetbrains.kotlin.analyzer.common.CommonPlatformAnalyzerServices
 import org.jetbrains.kotlin.analyzer.common.CommonResolverForModuleFactory
 import org.jetbrains.kotlin.builtins.DefaultBuiltIns
@@ -50,6 +51,7 @@ import org.jetbrains.kotlin.idea.klib.getCompatibilityInfo
 import org.jetbrains.kotlin.js.config.JSConfigurationKeys
 import org.jetbrains.kotlin.js.resolve.JsPlatformAnalyzerServices
 import org.jetbrains.kotlin.library.KLIB_FILE_EXTENSION
+import org.jetbrains.kotlin.library.KotlinLibrary
 import org.jetbrains.kotlin.library.ToolingSingleFileKlibResolveStrategy
 import org.jetbrains.kotlin.library.resolveSingleFileKlib
 import org.jetbrains.kotlin.load.java.structure.impl.JavaClassImpl
@@ -184,7 +186,15 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
             Platform.jvm -> JvmPlatforms.defaultJvmPlatform
         }
 
-        val nativeLibraries: Map<AbsolutePathString, LibraryModuleInfo> = loadNativeLibraries()
+        val kotlinLibraries: Map<AbsolutePathString, KotlinLibrary> = resolveKotlinLibraries()
+
+        val commonDependencyContainer = if (analysisPlatform == Platform.common) DokkaKlibMetadataCommonDependencyContainer(
+            kotlinLibraries.values.toList(),
+            environment.configuration,
+            projectContext.storageManager
+        ) else null
+
+        val extraModuleDependencies = kotlinLibraries.values.registerLibraries() + commonDependencyContainer?.moduleInfos.orEmpty()
 
         val library = object : LibraryModuleInfo {
             override val analyzerServices: PlatformDependentAnalyzerServices =
@@ -194,7 +204,7 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
             override fun dependencies(): List<ModuleInfo> = listOf(this)
             override fun getLibraryRoots(): Collection<String> = classpath
                 .map { libraryFile -> libraryFile.absolutePath }
-                .filter { path -> path !in nativeLibraries }
+                .filter { path -> path !in kotlinLibraries }
         }
 
         val module = object : ModuleInfo {
@@ -202,7 +212,8 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
                 analysisPlatform.analyzerServices()
             override val name: Name = Name.special("<module>")
             override val platform: TargetPlatform = targetPlatform
-            override fun dependencies(): List<ModuleInfo> = listOf(this, library) + nativeLibraries.values
+            override fun dependencies(): List<ModuleInfo> =
+                listOf(this, library) + extraModuleDependencies
         }
 
         val sourcesScope = createSourceModuleSearchScope(environment.project, sourceFiles)
@@ -211,10 +222,11 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
                 library -> ModuleContent(it, emptyList(), GlobalSearchScope.notScope(sourcesScope))
                 module -> ModuleContent(it, emptyList(), GlobalSearchScope.allScope(environment.project))
                 is DokkaKlibLibraryInfo -> {
-                    if (it.libraryRoot in nativeLibraries)
+                    if (it.libraryRoot in kotlinLibraries)
                         ModuleContent(it, emptyList(), GlobalSearchScope.notScope(sourcesScope))
                     else null
                 }
+                is CommonKlibModuleInfo -> ModuleContent(it, emptyList(), GlobalSearchScope.notScope(sourcesScope))
                 else -> null
             } ?: throw IllegalArgumentException("Unexpected module info")
         }
@@ -240,7 +252,8 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
                 projectContext,
                 module,
                 modulesContent,
-                environment
+                environment,
+                commonDependencyContainer
             )
             Platform.js -> createJsResolverForProject(projectContext, module, modulesContent)
             Platform.native -> createNativeResolverForProject(projectContext, module, modulesContent)
@@ -282,16 +295,26 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
         Platform.jvm -> JvmPlatformAnalyzerServices
     }
 
-    @OptIn(ExperimentalStdlibApi::class)
-    private fun loadNativeLibraries(): Map<AbsolutePathString, LibraryModuleInfo> {
-        if (analysisPlatform != Platform.native && analysisPlatform != Platform.js) return emptyMap()
-
+    fun Collection<KotlinLibrary>.registerLibraries(): List<DokkaKlibLibraryInfo> {
+        if (analysisPlatform != Platform.native && analysisPlatform != Platform.js) return emptyList()
         val dependencyResolver = DokkaKlibLibraryDependencyResolver()
         val analyzerServices = analysisPlatform.analyzerServices()
 
-        return buildMap {
+        return map { kotlinLibrary ->
+            if (analysisPlatform == org.jetbrains.dokka.Platform.native) DokkaNativeKlibLibraryInfo(
+                kotlinLibrary,
+                analyzerServices,
+                dependencyResolver
+            )
+            else DokkaJsKlibLibraryInfo(kotlinLibrary, analyzerServices, dependencyResolver)
+        }
+    }
+
+    @OptIn(ExperimentalStdlibApi::class)
+    private fun resolveKotlinLibraries(): Map<AbsolutePathString, KotlinLibrary> {
+        return if (analysisPlatform == Platform.jvm) emptyMap() else buildMap {
             classpath
-                .filter { it.isDirectory || (it.extension == "jar" || it.extension == KLIB_FILE_EXTENSION) }
+                .filter { it.isDirectory || it.extension == KLIB_FILE_EXTENSION }
                 .forEach { libraryFile ->
                     try {
                         val kotlinLibrary = resolveSingleFileKlib(
@@ -303,12 +326,7 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
                             // exists, is KLIB, has compatible format
                             put(
                                 libraryFile.absolutePath,
-                                if (analysisPlatform == Platform.native) DokkaNativeKlibLibraryInfo(
-                                    kotlinLibrary,
-                                    analyzerServices,
-                                    dependencyResolver
-                                )
-                                else DokkaJsKlibLibraryInfo(kotlinLibrary, analyzerServices, dependencyResolver)
+                                kotlinLibrary
                             )
                         }
                     } catch (e: Throwable) {
@@ -323,7 +341,8 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
         projectContext: ProjectContext,
         module: ModuleInfo,
         modulesContent: (ModuleInfo) -> ModuleContent<ModuleInfo>,
-        environment: KotlinCoreEnvironment
+        environment: KotlinCoreEnvironment,
+        dependencyContainer: CommonDependenciesContainer?
     ): ResolverForProject<ModuleInfo> {
         return object : AbstractResolverForProject<ModuleInfo>(
             "Dokka",
@@ -344,7 +363,8 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
                     },
                     CompilerEnvironment,
                     unspecifiedJvmPlatform,
-                    true
+                    true,
+                    dependencyContainer
                 ).createResolverForModule(
                     descriptor as ModuleDescriptorImpl,
                     projectContext.withModule(descriptor),
