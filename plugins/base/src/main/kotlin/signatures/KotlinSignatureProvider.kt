@@ -120,6 +120,18 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                 } ?: regularSignature(c, sourceSetData)
         }
 
+    private fun PageContentBuilder.DocumentableContentBuilder.defaultValueAssign(
+        v: DefaultValue,
+        sourceSet: DokkaSourceSet,
+        expectSourceSet: DokkaSourceSet?
+    ) {
+        // otherwise get a default value from an expect source set
+        v.value.let { it[sourceSet] ?: it[expectSourceSet] }
+            ?.let { expr ->
+                operator(" = ")
+                highlightValue(expr)
+            }
+    }
 
     private fun regularSignature(c: DClasslike, sourceSet: DokkaSourceSet) =
         contentBuilder.contentFor(
@@ -200,10 +212,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                             text(param.name.orEmpty())
                             operator(": ")
                             signatureForProjection(param.type)
-                            param.extra[DefaultValue]?.value?.get(sourceSet)?.let { expr ->
-                                operator(" = ")
-                                highlightValue(expr)
-                            }
+                            param.extra[DefaultValue]?.let { defaultValueAssign(it, sourceSet, c.expectPresentInSet) }
                         }
                         punctuation(")")
                     }
@@ -259,10 +268,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                 link(p.name, p.dri)
                 operator(": ")
                 signatureForProjection(p.type)
-                p.extra[DefaultValue]?.value?.get(it)?.let { expr ->
-                    operator(" = ")
-                    highlightValue(expr)
-                }
+                p.extra[DefaultValue]?.let { extra -> defaultValueAssign(extra, it, p.expectPresentInSet) }
             }
         }
 
@@ -315,10 +321,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                         text(param.name!!)
                         operator(": ")
                         signatureForProjection(param.type)
-                        param.extra[DefaultValue]?.value?.get(it)?.let { expr ->
-                            operator(" = ")
-                            highlightValue(expr)
-                        }
+                        param.extra[DefaultValue]?.let { extra -> defaultValueAssign(extra, it, f.expectPresentInSet) }
                     }
                 }
                 punctuation(")")
