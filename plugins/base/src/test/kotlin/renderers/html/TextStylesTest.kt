@@ -45,7 +45,8 @@ class TextStylesTest : HtmlRenderingOnlyTestBase() {
         }
         HtmlRenderer(context).render(page)
         renderedContent.match(Span("keyword"))
-        assertEquals(renderedContent.children().last().attr("class"), "token keyword")
+        val lastChild = renderedContent.children().last() ?: throw IllegalStateException("No element found")
+        assertEquals(lastChild.attr("class"), "token keyword")
     }
 
     @Test

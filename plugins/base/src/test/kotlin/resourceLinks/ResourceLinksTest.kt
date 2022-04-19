@@ -65,7 +65,7 @@ class ResourceLinksTest : BaseAbstractTest() {
         ) {
             renderingStage = { root, context ->
                 Jsoup
-                    .parse(writerPlugin.writer.contents["root/example.html"])
+                    .parse(writerPlugin.writer.contents.getValue("root/example.html"))
                     .head()
                     .select("link, script")
                     .let {
@@ -125,7 +125,7 @@ class ResourceLinksTest : BaseAbstractTest() {
                     }
                     if (isMultiModule) {
                         Jsoup
-                            .parse(writerPlugin.writer.contents["example.html"])
+                            .parse(writerPlugin.writer.contents.getValue("example.html"))
                             .head()
                             .select("link, script")
                             .let {
@@ -135,7 +135,7 @@ class ResourceLinksTest : BaseAbstractTest() {
                             }
                     } else {
                         Jsoup
-                            .parse(writerPlugin.writer.contents["root/example.html"])
+                            .parse(writerPlugin.writer.contents.getValue("root/example.html"))
                             .head()
                             .select("link, script")
                             .let {
@@ -184,7 +184,7 @@ class ResourceLinksTest : BaseAbstractTest() {
                     assertNull(writerPlugin.writer.contents["scripts/relativePath.js"])
                     assertNull(writerPlugin.writer.contents["styles/relativePath.js"])
                     Jsoup
-                        .parse(writerPlugin.writer.contents["root/example.html"])
+                        .parse(writerPlugin.writer.contents.getValue("root/example.html"))
                         .head()
                         .select("link, script")
                         .let {

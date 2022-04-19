@@ -95,6 +95,7 @@ public final class signatures/Parameters : utils/Tag {
 
 public final class signatures/SignatureUtilsKt {
 	public static final fun firstSignature (Lorg/jsoup/nodes/Element;)Lorg/jsoup/nodes/Element;
+	public static final fun lastSignature (Lorg/jsoup/nodes/Element;)Lorg/jsoup/nodes/Element;
 	public static final fun renderedContent (Lutils/TestOutputWriter;Ljava/lang/String;)Lorg/jsoup/nodes/Element;
 	public static synthetic fun renderedContent$default (Lutils/TestOutputWriter;Ljava/lang/String;ILjava/lang/Object;)Lorg/jsoup/nodes/Element;
 	public static final fun signature (Lorg/jsoup/nodes/Element;)Lorg/jsoup/select/Elements;

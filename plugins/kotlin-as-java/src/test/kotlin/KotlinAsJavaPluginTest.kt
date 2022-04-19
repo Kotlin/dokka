@@ -13,10 +13,7 @@ import org.jetbrains.kotlin.utils.addToStdlib.cast
 import org.junit.Assert
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
-import signatures.Parameter
-import signatures.Parameters
-import signatures.renderedContent
-import signatures.signature
+import signatures.*
 import utils.*
 import kotlin.test.assertEquals
 
@@ -333,7 +330,7 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
             cleanupOutput = true
         ) {
             renderingStage = { _, _ ->
-                writerPlugin.writer.renderedContent("root/kotlinAsJavaPlugin/-a-b-c/some-fun.html").signature().first().match(
+                writerPlugin.writer.renderedContent("root/kotlinAsJavaPlugin/-a-b-c/some-fun.html").firstSignature().match(
                     "final ", A("Integer"), A("someFun"), "(", Parameters(
                         Parameter(A("Integer"), "xd")
                     ), ")", Span(), ignoreSpanWithTokenStyle = true
@@ -372,7 +369,7 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
             cleanupOutput = true
         ) {
             renderingStage = { _, _ ->
-                writerPlugin.writer.renderedContent("root/kotlinAsJavaPlugin/-a-b-c/some-fun.html").signature().first().match(
+                writerPlugin.writer.renderedContent("root/kotlinAsJavaPlugin/-a-b-c/some-fun.html").firstSignature().match(
                     "final ", A("Integer"), A("someFun"), "(", Parameters(
                         Parameter(A("Map"), "<", A("String"), ", ", A("Integer"), "> xd"),
                     ), ")", Span(), ignoreSpanWithTokenStyle = true
@@ -438,7 +435,7 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
             cleanupOutput = true
         ) {
             renderingStage = { _, _ ->
-                writerPlugin.writer.renderedContent("root/kotlinAsJavaPlugin/-test-kt/sample.html").signature().first().match(
+                writerPlugin.writer.renderedContent("root/kotlinAsJavaPlugin/-test-kt/sample.html").firstSignature().match(
                     "final static ", A("String"), A("sample"), "(", Parameters(
                         Parameter(A("Integer"), "a"),
                     ), ")", Span(), ignoreSpanWithTokenStyle = true
@@ -483,7 +480,7 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
                 assertEquals("Constructors", text.text)
             }
             renderingStage = { _, _ ->
-                writerPlugin.writer.renderedContent("root/kotlinAsJavaPlugin/-test/-test.html").signature().first().match(
+                writerPlugin.writer.renderedContent("root/kotlinAsJavaPlugin/-test/-test.html").firstSignature().match(
                     A("Test"), A("Test"), "(", Parameters(
                         Parameter(A("Integer"), "xd")
                     ), ")", Span(), ignoreSpanWithTokenStyle = true
@@ -528,7 +525,7 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
                 assertEquals("Constructors", text.text)
             }
             renderingStage = { _, _ ->
-                writerPlugin.writer.renderedContent("root/kotlinAsJavaPlugin/-wrapped/-wrapped.html").signature().first().match(
+                writerPlugin.writer.renderedContent("root/kotlinAsJavaPlugin/-wrapped/-wrapped.html").firstSignature().match(
                     A("Wrapped"), A("Wrapped"), "(", Parameters(
                         Parameter(A("Integer"), "xd,").withClasses("indented"),
                         Parameter(A("Long"), "l,").withClasses("indented"),
