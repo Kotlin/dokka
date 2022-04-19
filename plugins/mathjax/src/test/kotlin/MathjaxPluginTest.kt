@@ -34,7 +34,7 @@ class MathjaxPluginTest : BaseAbstractTest() {
         ) {
             renderingStage = {
                     _, _ -> Jsoup
-                .parse(writerPlugin.writer.contents["root/example/test.html"])
+                .parse(writerPlugin.writer.contents.getValue("root/example/test.html"))
                 .head()
                 .select("link, script")
                 .let {
@@ -72,7 +72,7 @@ class MathjaxPluginTest : BaseAbstractTest() {
             pluginOverrides = listOf(writerPlugin, MathjaxPlugin())
         ) {
             renderingStage = { _, _ ->
-                val parsed = Jsoup.parse(writerPlugin.writer.contents["root/example/test.html"])
+                val parsed = Jsoup.parse(writerPlugin.writer.contents.getValue("root/example/test.html"))
 
                 // Ensure the MathJax CDN is loaded
                 assert(parsed.select("link, script").`is`("[href=$LIB_PATH], [src=$LIB_PATH]"))

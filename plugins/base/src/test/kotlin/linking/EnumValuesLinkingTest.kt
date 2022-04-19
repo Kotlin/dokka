@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import java.nio.file.Paths
 import utils.TestOutputWriterPlugin
-import java.lang.AssertionError
+import kotlin.AssertionError
 
 class EnumValuesLinkingTest : BaseAbstractTest() {
 
@@ -106,12 +106,32 @@ class EnumValuesLinkingTest : BaseAbstractTest() {
                     assertNotNull(content.dfs { it is ContentDRILink && it.address.classNames == "JavaEnum.ON_DECEIT" })
                 }
 
-                // single method will throw an exception if there is no single element (0 or 2+)
-                Jsoup.parse(writerPlugin.writer.contents["root/linking.source/-java-linker/index.html"]).select("a[href=\"../-kotlin-enum/-o-n_-c-r-e-a-t-e/index.html\"]").single()
-                Jsoup.parse(writerPlugin.writer.contents["root/linking.source/-java-linker/index.html"]).select("a[href=\"../-java-enum/-o-n_-d-e-c-e-i-t/index.html\"]").single()
-                Jsoup.parse(writerPlugin.writer.contents["root/linking.source/-kotlin-linker/index.html"]).select("a[href=\"../-kotlin-enum/-o-n_-c-r-e-a-t-e/index.html\"]").single()
-                Jsoup.parse(writerPlugin.writer.contents["root/linking.source/-kotlin-linker/index.html"]).select("a[href=\"../-java-enum/-o-n_-d-e-c-e-i-t/index.html\"]").single()
+                Jsoup
+                    .parse(writerPlugin.writer.contents.getValue("root/linking.source/-java-linker/index.html"))
+                    .select("a[href=\"../-kotlin-enum/-o-n_-c-r-e-a-t-e/index.html\"]")
+                    .assertOnlyOneElement()
+
+                Jsoup
+                    .parse(writerPlugin.writer.contents.getValue("root/linking.source/-java-linker/index.html"))
+                    .select("a[href=\"../-java-enum/-o-n_-d-e-c-e-i-t/index.html\"]")
+                    .assertOnlyOneElement()
+
+                Jsoup
+                    .parse(writerPlugin.writer.contents.getValue("root/linking.source/-kotlin-linker/index.html"))
+                    .select("a[href=\"../-kotlin-enum/-o-n_-c-r-e-a-t-e/index.html\"]")
+                    .assertOnlyOneElement()
+
+                Jsoup
+                    .parse(writerPlugin.writer.contents.getValue("root/linking.source/-kotlin-linker/index.html"))
+                    .select("a[href=\"../-java-enum/-o-n_-d-e-c-e-i-t/index.html\"]")
+                    .assertOnlyOneElement()
             }
+        }
+    }
+
+    private fun <T> List<T>.assertOnlyOneElement() {
+        if (isEmpty() || size > 1) {
+            throw AssertionError("Single element expected in list: $this")
         }
     }
 }
