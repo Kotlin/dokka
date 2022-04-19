@@ -43,7 +43,7 @@ internal class JavadocAccessorNamingTest : AbstractJavadocTemplateMapTest() {
             pluginOverrides = listOf(writerPlugin, JavadocPlugin())
         ) {
             renderingStage = { _, _ ->
-                val html = writerPlugin.writer.contents["sample/TestCase.html"].let { Jsoup.parse(it) }
+                val html = writerPlugin.writer.contents.getValue("sample/TestCase.html").let { Jsoup.parse(it) }
                 val props = html
                     .select("#memberSummary_tabpanel")
                     .select("th[scope=row].colSecond")
