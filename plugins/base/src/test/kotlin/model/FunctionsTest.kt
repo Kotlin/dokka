@@ -393,33 +393,4 @@ class FunctionTest : AbstractModelTest("/src/main/kotlin/function/Test.kt", "fun
         }
     }
 
-
-    @Test
-    fun functionInherited() {
-        inlineModelTest(
-            """
-            |open class Foo() {
-            |    open fun f() = ""
-            |}
-            |class Bar(): Foo() {
-            |    override fun f() = ""
-            |}
-            """
-        ) {
-            with((this / "function").cast<DPackage>()) {
-                with((this / "Bar" / "f").cast<DFunction>()) {
-                    dri.classNames equals "Foo"
-                    name equals "f"
-                    children counts 0
-
-                    extra[InheritedMember]?.inheritedFrom?.values?.single()?.run {
-                        classNames equals "Foo"
-                        callable equals null
-                    }
-                }
-
-
-            }
-        }
-    }
 }
