@@ -17,6 +17,25 @@ class SignatureTest : BaseAbstractTest() {
         }
     }
 
+    private val mppConfiguration = dokkaConfiguration {
+        moduleName = "test"
+        sourceSets {
+            sourceSet {
+                name = "common"
+                sourceRoots = listOf("src/main/kotlin/common/Test.kt")
+                classpath = listOf(commonStdlibPath!!)
+                externalDocumentationLinks = listOf(stdlibExternalDocumentationLink)
+            }
+            sourceSet {
+                name = "jvm"
+                dependentSourceSets = setOf(DokkaSourceSetID("test", "common"))
+                sourceRoots = listOf("src/main/kotlin/jvm/Test.kt")
+                classpath = listOf(commonStdlibPath!!)
+                externalDocumentationLinks = listOf(stdlibExternalDocumentationLink)
+            }
+        }
+    }
+
     fun source(signature: String) =
         """
             |/src/main/kotlin/test/Test.kt
@@ -419,26 +438,6 @@ class SignatureTest : BaseAbstractTest() {
 
     @Test
     fun `actual fun`() {
-
-        val configuration = dokkaConfiguration {
-            moduleName = "test"
-            sourceSets {
-                sourceSet {
-                    name = "common"
-                    sourceRoots = listOf("src/main/kotlin/common/Test.kt")
-                    classpath = listOf(commonStdlibPath!!)
-                    externalDocumentationLinks = listOf(stdlibExternalDocumentationLink)
-                }
-                sourceSet {
-                    name = "jvm"
-                    dependentSourceSets = setOf(DokkaSourceSetID("test", "common"))
-                    sourceRoots = listOf("src/main/kotlin/jvm/Test.kt")
-                    classpath = listOf(commonStdlibPath!!)
-                    externalDocumentationLinks = listOf(stdlibExternalDocumentationLink)
-                }
-            }
-        }
-
         val writerPlugin = TestOutputWriterPlugin()
 
         testInline(
@@ -454,7 +453,7 @@ class SignatureTest : BaseAbstractTest() {
                 |actual fun simpleFun(): String = "Celebrimbor"
                 |
             """.trimMargin(),
-            configuration,
+            mppConfiguration,
             pluginOverrides = listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
@@ -475,27 +474,45 @@ class SignatureTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `type with an actual typealias`() {
+    fun `actual property with a default value`() {
+        val writerPlugin = TestOutputWriterPlugin()
 
-        val configuration = dokkaConfiguration {
-            moduleName = "test"
-            sourceSets {
-                sourceSet {
-                    name = "common"
-                    sourceRoots = listOf("src/main/kotlin/common/Test.kt")
-                    classpath = listOf(commonStdlibPath!!)
-                    externalDocumentationLinks = listOf(stdlibExternalDocumentationLink)
-                }
-                sourceSet {
-                    name = "jvm"
-                    dependentSourceSets = setOf(DokkaSourceSetID("test", "common"))
-                    sourceRoots = listOf("src/main/kotlin/jvm/Test.kt")
-                    classpath = listOf(commonStdlibPath!!)
-                    externalDocumentationLinks = listOf(stdlibExternalDocumentationLink)
-                }
+        testInline(
+            """
+                |/src/main/kotlin/common/Test.kt
+                |package example
+                |
+                |expect val prop: Int
+                |
+                |/src/main/kotlin/jvm/Test.kt
+                |package example
+                |
+                |actual val prop: Int = 2
+                |
+            """.trimMargin(),
+            mppConfiguration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                val signatures = writerPlugin.writer.renderedContent("test/example/prop.html").signature().toList()
+
+                signatures[0].match(
+                    "expect val ", A("prop"),
+                    ": ", A("Int"), Span(),
+                    ignoreSpanWithTokenStyle = true
+                )
+                signatures[1].match(
+                    "actual val ", A("prop"),
+                    ": ", A("Int"),
+                    " = 2", Span(),
+                    ignoreSpanWithTokenStyle = true
+                )
             }
         }
+    }
 
+    @Test
+    fun `type with an actual typealias`() {
         val writerPlugin = TestOutputWriterPlugin()
 
         testInline(
@@ -512,7 +529,7 @@ class SignatureTest : BaseAbstractTest() {
                 |actual typealias Foo = Bar
                 |
             """.trimMargin(),
-            configuration,
+            mppConfiguration,
             pluginOverrides = listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
