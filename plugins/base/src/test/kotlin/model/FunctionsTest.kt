@@ -344,7 +344,7 @@ class FunctionTest : AbstractModelTest("/src/main/kotlin/function/Test.kt", "fun
                 parameters.forEach { p ->
                     p.name equals "x"
                     p.type.name.assertNotNull("Parameter type: ") equals "String"
-                    p.extra[DefaultValue]?.value?.get(sourceSets.single()) equals StringConstant("")
+                    p.extra[DefaultValue]?.expression?.get(sourceSets.single()) equals StringConstant("")
                 }
             }
         }
@@ -363,7 +363,7 @@ class FunctionTest : AbstractModelTest("/src/main/kotlin/function/Test.kt", "fun
                 parameters.forEach { p ->
                     p.name equals "x"
                     p.type.name.assertNotNull("Parameter type: ") equals "Float"
-                    p.extra[DefaultValue]?.value?.get(sourceSets.single()) equals FloatConstant(3.14f)
+                    p.extra[DefaultValue]?.expression?.get(sourceSets.single()) equals FloatConstant(3.14f)
                 }
             }
         }
@@ -393,4 +393,33 @@ class FunctionTest : AbstractModelTest("/src/main/kotlin/function/Test.kt", "fun
         }
     }
 
+
+    @Test
+    fun functionInherited() {
+        inlineModelTest(
+            """
+            |open class Foo() {
+            |    open fun f() = ""
+            |}
+            |class Bar(): Foo() {
+            |    override fun f() = ""
+            |}
+            """
+        ) {
+            with((this / "function").cast<DPackage>()) {
+                with((this / "Bar" / "f").cast<DFunction>()) {
+                    dri.classNames equals "Foo"
+                    name equals "f"
+                    children counts 0
+
+                    extra[InheritedMember]?.inheritedFrom?.values?.single()?.run {
+                        classNames equals "Foo"
+                        callable equals null
+                    }
+                }
+
+
+            }
+        }
+    }
 }

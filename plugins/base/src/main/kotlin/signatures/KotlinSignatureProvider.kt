@@ -126,7 +126,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
         expectSourceSet: DokkaSourceSet? = null
     ) {
         // otherwise get a default value from an expect source set
-        v.value.let { it[sourceSet] ?: it[expectSourceSet] }
+        v.expression.let { it[sourceSet] ?: it[expectSourceSet] }
             ?.let { expr ->
                 operator(" = ")
                 highlightValue(expr)
