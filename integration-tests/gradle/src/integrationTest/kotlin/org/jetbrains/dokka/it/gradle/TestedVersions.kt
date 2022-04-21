@@ -31,7 +31,6 @@ internal object TestedVersions {
         "1.5.0" to "-Preact_version=17.0.2-pre.204-kotlin-1.5.0",
         "1.6.0" to "-Preact_version=17.0.2-pre.280-kotlin-1.6.0",
         "1.5.31" to "-Preact_version=17.0.2-pre.265-kotlin-1.5.31",
-        "1.6.10" to "-Preact_version=18.0.0-pre.325-kotlin-1.6.10",
-        "1.6.20" to "-Preact_version=18.0.0-pre.329-kotlin-1.6.20"
+        "1.6.21" to "-Preact_version=18.0.0-pre.329-kotlin-1.6.20" // TODO update to 1.6.21 when released
     )
 }
