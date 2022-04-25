@@ -26,15 +26,21 @@ abstract class NavigationDataProvider {
             children = page.navigableChildren()
         )
 
-    private fun ContentPage.navigableChildren(): List<NavigationNode> =
-        when {
-            this !is ClasslikePageNode ->
-                children.filterIsInstance<ContentPage>().map { visit(it) }
-            documentables.any { it is DEnum } ->
-                children.filter { it is WithDocumentables && it.documentables.any { it is DEnumEntry } }
-                    .map { visit(it as ContentPage) }
-            else -> emptyList()
-        }.sortedBy { it.name.toLowerCase() }
+    private fun ContentPage.navigableChildren(): List<NavigationNode> {
+        return if (this !is ClasslikePageNode) {
+            children
+                .filterIsInstance<ContentPage>()
+                .map { visit(it) }
+                .sortedBy { it.name.toLowerCase() }
+        } else if (documentables.any { it is DEnum }) {
+            // no sorting for enum entries, should be the same as in source code
+            children
+                .filter { child -> child is WithDocumentables && child.documentables.any { it is DEnumEntry } }
+                .map { visit(it as ContentPage) }
+        } else {
+            emptyList()
+        }
+    }
 
     /**
      * Parenthesis is applied in 1 case:
