@@ -262,6 +262,10 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
             failOnWarning = failOnWarning,
             suppressObviousFunctions = suppressObviousFunctions,
             suppressInheritedMembers = suppressInheritedMembers,
+            // looks like maven has different life cycle compared to gradle,
+            // so finalizing coroutines after each module pass causes an error.
+            // see https://github.com/Kotlin/dokka/issues/2457
+            finalizeCoroutines = false,
         )
 
         val gen = DokkaGenerator(configuration, logger)
