@@ -7,7 +7,7 @@ and can generate documentation in multiple formats including standard Javadoc, H
 
 ## Using Dokka
 
-**Full documentation is available at [https://kotlin.github.io/dokka/1.6.20/](https://kotlin.github.io/dokka/1.6.20/)**
+**Full documentation is available at [https://kotlin.github.io/dokka/1.6.21/](https://kotlin.github.io/dokka/1.6.21/)**
 
 ### Using the Gradle plugin
 _Note: If you are upgrading from 0.10.x to a current release of Dokka, please have a look at our 
@@ -18,7 +18,7 @@ The preferred way is to use `plugins` block.
 build.gradle.kts:
 ```kotlin
 plugins {
-    id("org.jetbrains.dokka") version "1.6.20"
+    id("org.jetbrains.dokka") version "1.6.21"
 }
 
 repositories {
@@ -33,7 +33,7 @@ Dokka plugin creates Gradle configuration for each output format in the form of 
 
 ```kotlin
 dependencies {
-    dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:1.6.20")
+    dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:1.6.21")
 }
 ``` 
 
@@ -42,7 +42,7 @@ You can also create a custom Dokka task and add plugins directly inside:
 ```kotlin
 val customDokkaTask by creating(DokkaTask::class) {
     dependencies {
-        plugins("org.jetbrains.dokka:kotlin-as-java-plugin:1.6.20")
+        plugins("org.jetbrains.dokka:kotlin-as-java-plugin:1.6.21")
     }
 }
 ```

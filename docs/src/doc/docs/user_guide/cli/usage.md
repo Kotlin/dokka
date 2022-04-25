@@ -93,8 +93,8 @@ The content of JSON file ```dokkaConfiguration.json```:
         "sourceSetName": "main"
       },
       "classpath": [
-        "libs/kotlin-stdlib-1.6.20.jar",
-        "libs/kotlin-stdlib-common-1.6.20.jar"
+        "libs/kotlin-stdlib-1.6.21.jar",
+        "libs/kotlin-stdlib-common-1.6.21.jar"
       ],
       "sourceRoots": [
         "/home/Vadim.Mishenev/dokka/examples/cli/src/main/kotlin"
@@ -135,11 +135,11 @@ The content of JSON file ```dokkaConfiguration.json```:
     }
   ],
   "pluginsClasspath": [
-    "plugins/dokka-base-1.6.20.jar",
+    "plugins/dokka-base-1.6.21.jar",
     "libs/kotlinx-html-jvm-0.7.3.jar",
-    "libs/dokka-analysis-1.6.20.jar",
-    "libs/kotlin-analysis-intellij-1.6.20.jar",
-    "libs/kotlin-analysis-compiler-1.6.20.jar"
+    "libs/dokka-analysis-1.6.21.jar",
+    "libs/kotlin-analysis-intellij-1.6.21.jar",
+    "libs/kotlin-analysis-compiler-1.6.21.jar"
   ],
   "pluginsConfiguration": [
     {

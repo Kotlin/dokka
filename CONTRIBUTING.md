@@ -29,13 +29,13 @@ Here's how to import and configure Dokka in IntelliJ IDEA:
   
 If you want to use/test your locally built Dokka in a project, do the following:
 1. Change `dokka_version` in `gradle.properties` to something that you will use later on as the dependency version.
-   For instance, you can set it to something like `1.6.20-my-fix-SNAPSHOT`.
+   For instance, you can set it to something like `1.6.21-my-fix-SNAPSHOT`.
 2. Publish it to maven local (`./gradlew publishToMavenLocal`)
 3. In the project you want to generate documentation for, add maven local as a plugin/dependency
    repository (`mavenLocal()`)
 4. Update your dokka dependency to the version you've just published:
 ```kotlin
 plugins {
-    id("org.jetbrains.dokka") version "1.6.20-my-fix-SNAPSHOT"
+    id("org.jetbrains.dokka") version "1.6.21-my-fix-SNAPSHOT"
 }
 ```
