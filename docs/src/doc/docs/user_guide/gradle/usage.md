@@ -14,7 +14,7 @@ The preferred way is to use `plugins` block.
 build.gradle.kts:
 ```kotlin
 plugins {
-    id("org.jetbrains.dokka") version "1.6.20"
+    id("org.jetbrains.dokka") version "1.6.21"
 }
 
 repositories {
@@ -269,7 +269,7 @@ Dokka plugin creates Gradle configuration for each output format in the form of 
 
 ```kotlin
 dependencies {
-    dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:1.6.20")
+    dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:1.6.21")
 }
 ``` 
 
@@ -278,7 +278,7 @@ You can also create a custom Dokka task and add plugins directly inside:
 ```kotlin
 val customDokkaTask by creating(DokkaTask::class) {
     dependencies {
-        plugins("org.jetbrains.dokka:kotlin-as-java-plugin:1.6.20")
+        plugins("org.jetbrains.dokka:kotlin-as-java-plugin:1.6.21")
     }
 }
 ```
@@ -311,7 +311,7 @@ For example, you can add `DokkaBase` to gain access to aforementioned configurat
 buildscript {
     dependencies {
         // classpath("<plugin coordinates>:<plugin version>")
-        classpath("org.jetbrains.dokka:dokka-base:1.6.20")
+        classpath("org.jetbrains.dokka:dokka-base:1.6.21")
     }
 }
 ```
