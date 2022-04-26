@@ -80,15 +80,14 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                     link(e.name, e.dri, styles = emptySet())
                     e.extra[ConstructorValues]?.let { constructorValues ->
                         constructorValues.values[it]
-                            ?.takeIf { values -> values.isNotEmpty() }
                             ?.let { values ->
-                                punctuation("(")
                                 list(
                                     elements = values,
+                                    prefix = "(",
+                                    suffix = ")",
                                     separator = ", ",
                                     separatorStyles = mainStyles + TokenStyle.Punctuation,
                                 ) { highlightValue(it) }
-                                punctuation(")")
                         }
                     }
                 }
