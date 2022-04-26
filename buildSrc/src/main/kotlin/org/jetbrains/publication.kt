@@ -84,10 +84,6 @@ fun Project.createDokkaPublishTaskIfNecessary() {
         if (publicationChannels.any { it.isMavenRepository() }) {
             dependsOn(tasks.named("publishToSonatype"))
         }
-
-        if (publicationChannels.any { it.isGradlePluginPortal() }) {
-            dependsOn(tasks.named("publishPlugins"))
-        }
     }
 }
 

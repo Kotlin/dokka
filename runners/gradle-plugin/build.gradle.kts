@@ -92,6 +92,12 @@ publishing {
     }
 }
 
+tasks.maybeCreate("dokkaPublish").run {
+    if (publicationChannels.any { it.isGradlePluginPortal() }) {
+        dependsOn(tasks.named("publishPlugins"))
+    }
+}
+
 tasks.withType<PublishToMavenRepository>().configureEach {
     onlyIf { publication != publishing.publications["dokkaGradlePluginForIntegrationTests"] }
 }
