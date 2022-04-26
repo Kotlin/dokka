@@ -33,16 +33,16 @@ class EnumsTest : BaseAbstractTest() {
             |package testpackage
             |
             |enum class TestEnum {
-            |   E1,
-            |   E2,
-            |   E3,
-            |   E4,
-            |   E5,
-            |   E6,
-            |   E7,
-            |   E8,
-            |   E9,
-            |   E10
+            |   ZERO,
+            |   ONE,
+            |   TWO,
+            |   THREE,
+            |   FOUR,
+            |   FIVE,
+            |   SIX,
+            |   SEVEN,
+            |   EIGHT,
+            |   NINE
             |}
         """.trimMargin(),
             configuration,
@@ -58,16 +58,16 @@ class EnumsTest : BaseAbstractTest() {
                 val enumEntries = testEnum.entries
                 assertEquals(10, enumEntries.count())
 
-                assertEquals("E1", enumEntries[0].name)
-                assertEquals("E2", enumEntries[1].name)
-                assertEquals("E3", enumEntries[2].name)
-                assertEquals("E4", enumEntries[3].name)
-                assertEquals("E5", enumEntries[4].name)
-                assertEquals("E6", enumEntries[5].name)
-                assertEquals("E7", enumEntries[6].name)
-                assertEquals("E8", enumEntries[7].name)
-                assertEquals("E9", enumEntries[8].name)
-                assertEquals("E10", enumEntries[9].name)
+                assertEquals("ZERO", enumEntries[0].name)
+                assertEquals("ONE", enumEntries[1].name)
+                assertEquals("TWO", enumEntries[2].name)
+                assertEquals("THREE", enumEntries[3].name)
+                assertEquals("FOUR", enumEntries[4].name)
+                assertEquals("FIVE", enumEntries[5].name)
+                assertEquals("SIX", enumEntries[6].name)
+                assertEquals("SEVEN", enumEntries[7].name)
+                assertEquals("EIGHT", enumEntries[8].name)
+                assertEquals("NINE", enumEntries[9].name)
             }
         }
     }
@@ -90,16 +90,16 @@ class EnumsTest : BaseAbstractTest() {
             |package testpackage
             |
             |enum class TestEnum {
-            |   E1,
-            |   E2,
-            |   E3,
-            |   E4,
-            |   E5,
-            |   E6,
-            |   E7,
-            |   E8,
-            |   E9,
-            |   E10
+            |   ZERO,
+            |   ONE,
+            |   TWO,
+            |   THREE,
+            |   FOUR,
+            |   FIVE,
+            |   SIX,
+            |   SEVEN,
+            |   EIGHT,
+            |   NINE
             |}
         """.trimMargin(),
             configuration,
@@ -115,16 +115,16 @@ class EnumsTest : BaseAbstractTest() {
                 val enumEntries = testEnumNode.children
                 assertEquals(10, enumEntries.size)
 
-                assertEquals("E1", enumEntries[0].name)
-                assertEquals("E2", enumEntries[1].name)
-                assertEquals("E3", enumEntries[2].name)
-                assertEquals("E4", enumEntries[3].name)
-                assertEquals("E5", enumEntries[4].name)
-                assertEquals("E6", enumEntries[5].name)
-                assertEquals("E7", enumEntries[6].name)
-                assertEquals("E8", enumEntries[7].name)
-                assertEquals("E9", enumEntries[8].name)
-                assertEquals("E10", enumEntries[9].name)
+                assertEquals("ZERO", enumEntries[0].name)
+                assertEquals("ONE", enumEntries[1].name)
+                assertEquals("TWO", enumEntries[2].name)
+                assertEquals("THREE", enumEntries[3].name)
+                assertEquals("FOUR", enumEntries[4].name)
+                assertEquals("FIVE", enumEntries[5].name)
+                assertEquals("SIX", enumEntries[6].name)
+                assertEquals("SEVEN", enumEntries[7].name)
+                assertEquals("EIGHT", enumEntries[8].name)
+                assertEquals("NINE", enumEntries[9].name)
             }
         }
     }
@@ -147,16 +147,16 @@ class EnumsTest : BaseAbstractTest() {
             |package testpackage
             |
             |enum class TestEnum {
-            |   E1,
-            |   E2,
-            |   E3,
-            |   E4,
-            |   E5,
-            |   E6,
-            |   E7,
-            |   E8,
-            |   E9,
-            |   E10
+            |   ZERO,
+            |   ONE,
+            |   TWO,
+            |   THREE,
+            |   FOUR,
+            |   FIVE,
+            |   SIX,
+            |   SEVEN,
+            |   EIGHT,
+            |   NINE
             |}
         """.trimMargin(),
             configuration,
@@ -173,16 +173,16 @@ class EnumsTest : BaseAbstractTest() {
                 val enumEntries = enumEntriesOnPage.map { it.text() }
                 assertEquals(10, enumEntries.size)
 
-                assertEquals("E1", enumEntries[0])
-                assertEquals("E2", enumEntries[1])
-                assertEquals("E3", enumEntries[2])
-                assertEquals("E4", enumEntries[3])
-                assertEquals("E5", enumEntries[4])
-                assertEquals("E6", enumEntries[5])
-                assertEquals("E7", enumEntries[6])
-                assertEquals("E8", enumEntries[7])
-                assertEquals("E9", enumEntries[8])
-                assertEquals("E10", enumEntries[9])
+                assertEquals("ZERO", enumEntries[0])
+                assertEquals("ONE", enumEntries[1])
+                assertEquals("TWO", enumEntries[2])
+                assertEquals("THREE", enumEntries[3])
+                assertEquals("FOUR", enumEntries[4])
+                assertEquals("FIVE", enumEntries[5])
+                assertEquals("SIX", enumEntries[6])
+                assertEquals("SEVEN", enumEntries[7])
+                assertEquals("EIGHT", enumEntries[8])
+                assertEquals("NINE", enumEntries[9])
             }
         }
     }
@@ -205,16 +205,16 @@ class EnumsTest : BaseAbstractTest() {
             |package testpackage
             |
             |enum class TestEnum {
-            |   E1,
-            |   E2,
-            |   E3,
-            |   E4,
-            |   E5,
-            |   E6,
-            |   E7,
-            |   E8,
-            |   E9,
-            |   E10
+            |   ZERO,
+            |   ONE,
+            |   TWO,
+            |   THREE,
+            |   FOUR,
+            |   FIVE,
+            |   SIX,
+            |   SEVEN,
+            |   EIGHT,
+            |   NINE
             |}
         """.trimMargin(),
             configuration,
@@ -223,16 +223,16 @@ class EnumsTest : BaseAbstractTest() {
             renderingStage = { _, _ ->
                 val sideMenu = writerPlugin.writer.navigationHtml().select("div.sideMenuPart")
 
-                assertEquals("E1", sideMenu.select("#root-nav-submenu-0-0-0").text())
-                assertEquals("E2", sideMenu.select("#root-nav-submenu-0-0-1").text())
-                assertEquals("E3", sideMenu.select("#root-nav-submenu-0-0-2").text())
-                assertEquals("E4", sideMenu.select("#root-nav-submenu-0-0-3").text())
-                assertEquals("E5", sideMenu.select("#root-nav-submenu-0-0-4").text())
-                assertEquals("E6", sideMenu.select("#root-nav-submenu-0-0-5").text())
-                assertEquals("E7", sideMenu.select("#root-nav-submenu-0-0-6").text())
-                assertEquals("E8", sideMenu.select("#root-nav-submenu-0-0-7").text())
-                assertEquals("E9", sideMenu.select("#root-nav-submenu-0-0-8").text())
-                assertEquals("E10", sideMenu.select("#root-nav-submenu-0-0-9").text())
+                assertEquals("ZERO", sideMenu.select("#root-nav-submenu-0-0-0").text())
+                assertEquals("ONE", sideMenu.select("#root-nav-submenu-0-0-1").text())
+                assertEquals("TWO", sideMenu.select("#root-nav-submenu-0-0-2").text())
+                assertEquals("THREE", sideMenu.select("#root-nav-submenu-0-0-3").text())
+                assertEquals("FOUR", sideMenu.select("#root-nav-submenu-0-0-4").text())
+                assertEquals("FIVE", sideMenu.select("#root-nav-submenu-0-0-5").text())
+                assertEquals("SIX", sideMenu.select("#root-nav-submenu-0-0-6").text())
+                assertEquals("SEVEN", sideMenu.select("#root-nav-submenu-0-0-7").text())
+                assertEquals("EIGHT", sideMenu.select("#root-nav-submenu-0-0-8").text())
+                assertEquals("NINE", sideMenu.select("#root-nav-submenu-0-0-9").text())
             }
         }
     }
