@@ -857,4 +857,43 @@ class SignatureTest : BaseAbstractTest() {
             }
         }
     }
+
+    @Test
+    fun `should have no empty parentheses for no-arg enum entry`() {
+        val writerPlugin = TestOutputWriterPlugin()
+
+        testInline(
+            """
+                |/src/main/kotlin/common/EnumClass.kt
+                |package example
+                |
+                |enum class EnumClass(param: String = "Default") {
+                |    EMPTY,
+                |    WITH_ARG("arg")
+                |}
+            """.trimMargin(),
+            configuration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                val enumEntrySignatures = writerPlugin.writer.renderedContent("root/example/-enum-class/index.html")
+                    .select("div.table[data-togglable=Entries]")
+                    .single()
+                    .signature()
+                    .select("div.block")
+
+                // TODO [beresnev] change ordering after https://github.com/Kotlin/dokka/pull/2469
+
+                enumEntrySignatures[1].match(
+                    A("EMPTY"),
+                    ignoreSpanWithTokenStyle = true
+                )
+
+                enumEntrySignatures[0].match(
+                    A("WITH_ARG"), "(\"arg\")",
+                    ignoreSpanWithTokenStyle = true
+                )
+            }
+        }
+    }
 }
