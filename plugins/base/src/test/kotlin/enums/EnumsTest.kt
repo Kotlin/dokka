@@ -5,9 +5,12 @@ import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.model.*
 import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstance
+import org.jsoup.Jsoup
+import org.jsoup.nodes.Element
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import signatures.renderedContent
+import utils.TestOutputWriter
 import utils.TestOutputWriterPlugin
 
 class EnumsTest : BaseAbstractTest() {
@@ -159,7 +162,7 @@ class EnumsTest : BaseAbstractTest() {
             configuration,
             pluginOverrides = listOf(writerPlugin)
         ) {
-            renderingStage = { rootPage, context ->
+            renderingStage = { _, _ ->
                 val enumEntriesOnPage = writerPlugin.writer.renderedContent("root/testpackage/-test-enum/index.html")
                     .select("div.table[data-togglable=Entries]")
                     .select("div.table-row")
@@ -183,6 +186,58 @@ class EnumsTest : BaseAbstractTest() {
             }
         }
     }
+
+    @Test
+    fun `should preserve enum source ordering for navigation menu`() {
+        val configuration = dokkaConfiguration {
+            sourceSets {
+                sourceSet {
+                    sourceRoots = listOf("src/")
+                }
+            }
+        }
+
+        val writerPlugin = TestOutputWriterPlugin()
+
+        testInline(
+            """
+            |/src/main/kotlin/basic/Test.kt
+            |package testpackage
+            |
+            |enum class TestEnum {
+            |   E1,
+            |   E2,
+            |   E3,
+            |   E4,
+            |   E5,
+            |   E6,
+            |   E7,
+            |   E8,
+            |   E9,
+            |   E10
+            |}
+        """.trimMargin(),
+            configuration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                val sideMenu = writerPlugin.writer.navigationHtml().select("div.sideMenuPart")
+
+                assertEquals("E1", sideMenu.select("#root-nav-submenu-0-0-0").text())
+                assertEquals("E2", sideMenu.select("#root-nav-submenu-0-0-1").text())
+                assertEquals("E3", sideMenu.select("#root-nav-submenu-0-0-2").text())
+                assertEquals("E4", sideMenu.select("#root-nav-submenu-0-0-3").text())
+                assertEquals("E5", sideMenu.select("#root-nav-submenu-0-0-4").text())
+                assertEquals("E6", sideMenu.select("#root-nav-submenu-0-0-5").text())
+                assertEquals("E7", sideMenu.select("#root-nav-submenu-0-0-6").text())
+                assertEquals("E8", sideMenu.select("#root-nav-submenu-0-0-7").text())
+                assertEquals("E9", sideMenu.select("#root-nav-submenu-0-0-8").text())
+                assertEquals("E10", sideMenu.select("#root-nav-submenu-0-0-9").text())
+            }
+        }
+    }
+
+    fun TestOutputWriter.navigationHtml(): Element = contents.getValue("navigation.html").let { Jsoup.parse(it) }
 
     @Test
     fun `should handle companion object within enum`() {
