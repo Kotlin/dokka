@@ -114,9 +114,12 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
             JavadocTagInfo.EP_NAME, JavadocTagInfo::class.java
         )
 
-        @Suppress("DEPRECATION") // for getRootArea(), TODO [beresnev] figure out
+        // TODO [beresnev] change to ApplicationManager#getExtensionArea after update to 213 platform
+        @Suppress("DEPRECATION")
+        val extensionArea = Extensions.getRootArea()
+
         CoreApplicationEnvironment.registerExtensionPoint(
-            Extensions.getRootArea(),
+            extensionArea,
             CustomJavadocTagProvider.EP_NAME, CustomJavadocTagProvider::class.java
         )
 
@@ -589,10 +592,13 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
             instances: List<T>,
             disposable: Disposable
         ) {
+            // TODO [beresnev] change to ApplicationManager#getExtensionArea after update to 213 platform
+            @Suppress("DEPRECATION")
+            val extensionArea = Extensions.getRootArea()
 
-            @Suppress("DEPRECATION") // for getRootArea(), TODO [beresnev] figure out
-            if (Extensions.getRootArea().hasExtensionPoint(appExtension.extensionPointName))
+            if (extensionArea.hasExtensionPoint(appExtension.extensionPointName)) {
                 return
+            }
 
             appExtension.registerExtensionPoint()
             instances.forEach { extension -> appExtension.registerExtension(extension, disposable) }
