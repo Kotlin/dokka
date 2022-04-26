@@ -882,14 +882,12 @@ class SignatureTest : BaseAbstractTest() {
                     .signature()
                     .select("div.block")
 
-                // TODO [beresnev] change ordering after https://github.com/Kotlin/dokka/pull/2469
-
-                enumEntrySignatures[1].match(
+                enumEntrySignatures[0].match(
                     A("EMPTY"),
                     ignoreSpanWithTokenStyle = true
                 )
 
-                enumEntrySignatures[0].match(
+                enumEntrySignatures[1].match(
                     A("WITH_ARG"), "(\"arg\")",
                     ignoreSpanWithTokenStyle = true
                 )
