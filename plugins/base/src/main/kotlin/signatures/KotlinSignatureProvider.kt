@@ -79,15 +79,14 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                     annotationsBlock(e)
                     link(e.name, e.dri, styles = emptySet())
                     e.extra[ConstructorValues]?.let { constructorValues ->
-                        constructorValues.values[it]
-                            ?.let { values ->
-                                list(
-                                    elements = values,
-                                    prefix = "(",
-                                    suffix = ")",
-                                    separator = ", ",
-                                    separatorStyles = mainStyles + TokenStyle.Punctuation,
-                                ) { highlightValue(it) }
+                        constructorValues.values[it]?.let { values ->
+                            list(
+                                elements = values,
+                                prefix = "(",
+                                suffix = ")",
+                                separator = ", ",
+                                separatorStyles = mainStyles + TokenStyle.Punctuation,
+                            ) { highlightValue(it) }
                         }
                     }
                 }
