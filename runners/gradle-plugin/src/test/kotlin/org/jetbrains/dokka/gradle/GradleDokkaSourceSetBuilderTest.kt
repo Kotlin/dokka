@@ -227,7 +227,6 @@ class GradleDokkaSourceSetBuilderTest {
             it.remoteUrl by URL("https://u2")
         }
 
-        @Suppress("DEPRECATION")
         sourceSet.sourceLink(project.closureOf<GradleSourceLinkBuilder> {
             this.remoteLineSuffix by "ls3"
             this.localDirectory by project.file("p3")
@@ -270,7 +269,6 @@ class GradleDokkaSourceSetBuilderTest {
             it.matchingRegex by "p2.*"
         }
 
-        @Suppress("DEPRECATION")
         sourceSet.perPackageOption(project.closureOf<GradlePackageOptionsBuilder> {
             this.matchingRegex by "p3.*"
         })
@@ -313,7 +311,6 @@ class GradleDokkaSourceSetBuilderTest {
             it.url by URL("https://u2")
         }
 
-        @Suppress("DEPRECATION")
         sourceSet.externalDocumentationLink(project.closureOf<GradleExternalDocumentationLinkBuilder> {
             url by URL("https://u3")
         })
