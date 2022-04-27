@@ -1,5 +1,8 @@
 package org.jetbrains.dokka.base.translators.psi
 
+import com.intellij.ide.highlighter.JavaClassFileType
+import com.intellij.ide.highlighter.JavaFileType
+import com.intellij.lang.jvm.JvmElement
 import com.intellij.lang.jvm.JvmModifier
 import com.intellij.lang.jvm.annotation.JvmAnnotationAttribute
 import com.intellij.lang.jvm.annotation.JvmAnnotationAttributeValue
@@ -25,7 +28,6 @@ import org.jetbrains.dokka.links.*
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.AnnotationTarget
 import org.jetbrains.dokka.model.Nullable
-import org.jetbrains.dokka.model.TypeConstructor
 import org.jetbrains.dokka.model.doc.DocumentationNode
 import org.jetbrains.dokka.model.doc.Param
 import org.jetbrains.dokka.model.properties.PropertyContainer
@@ -38,14 +40,18 @@ import org.jetbrains.dokka.utilities.parallelForEach
 import org.jetbrains.dokka.utilities.parallelMap
 import org.jetbrains.dokka.utilities.parallelMapNotNull
 import org.jetbrains.kotlin.asJava.elements.KtLightAbstractAnnotation
+import org.jetbrains.kotlin.asJava.elements.KtLightElement
 import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
 import org.jetbrains.kotlin.cli.jvm.config.JavaSourceRoot
+import org.jetbrains.kotlin.idea.KotlinFileType
 import org.jetbrains.kotlin.idea.refactoring.fqName.getKotlinFqName
 import org.jetbrains.kotlin.load.java.JvmAbi
 import org.jetbrains.kotlin.load.java.propertyNameByGetMethodName
 import org.jetbrains.kotlin.load.java.propertyNamesBySetMethodName
 import org.jetbrains.kotlin.name.Name
+import org.jetbrains.kotlin.psi.KtElement
 import org.jetbrains.kotlin.psi.psiUtil.getChildOfType
+import org.jetbrains.kotlin.psi.psiUtil.isTopLevelKtOrJavaMember
 import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.utils.KotlinExceptionWithAttachments
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
@@ -213,7 +219,7 @@ class DefaultPsiToDocumentableTranslator(
                                 TypeParameter(
                                     dri = DRI.from(typeParameter),
                                     name = typeParameter.name.orEmpty(),
-                                    extra = typeParameter.annotations()
+                                    extra = typeParameter.extras()
                                 )
                             }
                         ),
@@ -268,7 +274,8 @@ class DefaultPsiToDocumentableTranslator(
                             PropertyContainer.withAll(
                                 implementedInterfacesExtra,
                                 annotations.toList().toListOfAnnotations().toSourceSetDependent()
-                                    .toAnnotations()
+                                    .toAnnotations(),
+                                getSourceLanguage()
                             )
                         )
                     isEnum -> DEnum(
@@ -287,7 +294,8 @@ class DefaultPsiToDocumentableTranslator(
                                 PropertyContainer.withAll(
                                     implementedInterfacesExtra,
                                     annotations.toList().toListOfAnnotations().toSourceSetDependent()
-                                        .toAnnotations()
+                                        .toAnnotations(),
+                                    psi.getSourceLanguage()
                                 )
                             )
                         },
@@ -306,7 +314,8 @@ class DefaultPsiToDocumentableTranslator(
                         PropertyContainer.withAll(
                             implementedInterfacesExtra,
                             annotations.toList().toListOfAnnotations().toSourceSetDependent()
-                                .toAnnotations()
+                                .toAnnotations(),
+                            psi.getSourceLanguage()
                         )
                     )
                     isInterface -> DInterface(
@@ -327,7 +336,8 @@ class DefaultPsiToDocumentableTranslator(
                         PropertyContainer.withAll(
                             implementedInterfacesExtra,
                             annotations.toList().toListOfAnnotations().toSourceSetDependent()
-                                .toAnnotations()
+                                .toAnnotations(),
+                            psi.getSourceLanguage()
                         )
                     )
                     else -> DClass(
@@ -351,7 +361,8 @@ class DefaultPsiToDocumentableTranslator(
                             implementedInterfacesExtra,
                             annotations.toList().toListOfAnnotations().toSourceSetDependent()
                                 .toAnnotations(),
-                            ancestry.exceptionInSupertypesOrNull()
+                            ancestry.exceptionInSupertypesOrNull(),
+                            psi.getSourceLanguage()
                         )
                     )
                 }
@@ -389,7 +400,8 @@ class DefaultPsiToDocumentableTranslator(
                         setOf(sourceSetData),
                         PropertyContainer.withAll(
                             psiParameter.annotations.toList().toListOfAnnotations().toSourceSetDependent()
-                                .toAnnotations()
+                                .toAnnotations(),
+                            psi.getSourceLanguage()
                         )
                     )
                 },
@@ -412,11 +424,18 @@ class DefaultPsiToDocumentableTranslator(
                             .toAnnotations(),
                         ObviousMember.takeIf { inheritedFrom != null && inheritedFrom.isObvious },
                         psi.throwsList.toDriList().takeIf { it.isNotEmpty() }
-                            ?.let { CheckedExceptions(it.toSourceSetDependent()) }
+                            ?.let { CheckedExceptions(it.toSourceSetDependent()) },
+                        psi.getSourceLanguage()
                     )
                 }
             )
         }
+
+        private fun PsiElement.getSourceLanguage() = when (this.containingFile.fileType) {
+                is KotlinFileType -> SourceLanguage(Language.KOTLIN)
+                is JavaFileType, is JavaClassFileType -> SourceLanguage(Language.JAVA)
+                else -> SourceLanguage(Language.UNKNOWN)
+            }
 
         private fun PsiReferenceList.toDriList() = referenceElements.mapNotNull { it?.resolve()?.let { DRI.from(it) } }
 
@@ -437,25 +456,28 @@ class DefaultPsiToDocumentableTranslator(
                 Annotations.Annotation(DRI("kotlin.jvm", "JvmStatic"), emptyMap())
         }
 
-        private fun <T : AnnotationTarget> PsiTypeParameter.annotations(): PropertyContainer<T> = this.annotations.toList().toListOfAnnotations().annotations()
-        private fun <T : AnnotationTarget> PsiType.annotations(): PropertyContainer<T> = this.annotations.toList().toListOfAnnotations().annotations()
-
-        private fun <T : AnnotationTarget> List<Annotations.Annotation>.annotations(): PropertyContainer<T> =
-            this.takeIf { it.isNotEmpty() }?.let { annotations ->
-                PropertyContainer.withAll(annotations.toSourceSetDependent().toAnnotations())
-            } ?: PropertyContainer.empty()
+        private fun <T> PsiTypeParameter.extras(): PropertyContainer<T> where T : AnnotationTarget, T : HasSourceLanguage =
+            PropertyContainer.withAll(
+                this.annotations.toList().toListOfAnnotations().toSourceSetDependent().toAnnotations(),
+                this.containingFile.getSourceLanguage()
+            )
+        private fun <T> PsiType.extras(): PropertyContainer<T> where T : AnnotationTarget, T : HasSourceLanguage =
+            PropertyContainer.withAll(
+                this.annotations.toList().toListOfAnnotations().toSourceSetDependent().toAnnotations(),
+                SourceLanguage(Language.JAVA)
+            )
 
         private fun getBound(type: PsiType): Bound {
             fun bound() = when (type) {
                 is PsiClassReferenceType ->
                     type.resolve()?.let { resolved ->
                         when {
-                            resolved.qualifiedName == "java.lang.Object" -> JavaObject(type.annotations())
+                            resolved.qualifiedName == "java.lang.Object" -> JavaObject(type.extras())
                             resolved is PsiTypeParameter -> {
                                 TypeParameter(
                                     dri = DRI.from(resolved),
                                     name = resolved.name.orEmpty(),
-                                    extra = type.annotations()
+                                    extra = type.extras()
                                 )
                             }
                             Regex("kotlin\\.jvm\\.functions\\.Function.*").matches(resolved.qualifiedName ?: "") ||
@@ -464,23 +486,23 @@ class DefaultPsiToDocumentableTranslator(
                                     ) -> FunctionalTypeConstructor(
                                 DRI.from(resolved),
                                 type.parameters.map { getProjection(it) },
-                                extra = type.annotations()
+                                extra = type.extras()
                             )
                             else -> GenericTypeConstructor(
                                 DRI.from(resolved),
                                 type.parameters.map { getProjection(it) },
-                                extra = type.annotations()
+                                extra = type.extras()
                             )
                         }
-                    } ?: UnresolvedBound(type.presentableText, type.annotations())
+                    } ?: UnresolvedBound(type.presentableText, type.extras())
                 is PsiArrayType -> GenericTypeConstructor(
                     DRI("kotlin", "Array"),
                     listOf(getProjection(type.componentType)),
-                    extra = type.annotations()
+                    extra = type.extras()
                 )
                 is PsiPrimitiveType -> if (type.name == "void") Void
-                    else PrimitiveJavaType(type.name, type.annotations())
-                is PsiImmediateClassType -> JavaObject(type.annotations())
+                    else PrimitiveJavaType(type.name, type.extras())
+                is PsiImmediateClassType -> JavaObject(type.extras())
                 else -> throw IllegalStateException("${type.presentableText} is not supported by PSI parser")
             }
 
@@ -530,7 +552,8 @@ class DefaultPsiToDocumentableTranslator(
                     setOf(sourceSetData),
                     PropertyContainer.withAll(
                         type.annotations.toList().toListOfAnnotations().toSourceSetDependent()
-                            .toAnnotations()
+                            .toAnnotations(),
+                        getSourceLanguage()
                     )
                 )
             }
@@ -582,7 +605,8 @@ class DefaultPsiToDocumentableTranslator(
                         it.toSourceSetDependent().toAdditionalModifiers(),
                         (psi.annotations.toList()
                             .toListOfAnnotations() + it.toListOfAnnotations()).toSourceSetDependent()
-                            .toAnnotations()
+                            .toAnnotations(),
+                        psi.getSourceLanguage()
                     )
                 }
             )

@@ -3,10 +3,8 @@ package translators
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.model.Annotations
-import org.jetbrains.dokka.model.TypeConstructor
+import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.doc.Text
-import org.jetbrains.dokka.model.firstMemberOfType
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -240,12 +238,17 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
             |}
         """.trimMargin(),
             configurationWithNoJVM,
-            pluginOverrides = listOf(OnlyPsiPlugin()) // suppress a descriptor translator because of psi and descriptor translators work in parallel
+            //pluginOverrides = listOf(OnlyPsiPlugin()) // suppress a descriptor translator because of psi and descriptor translators work in parallel
         ) {
             documentablesMergingStage = { module ->
-                val kotlinSubclassFunction =
-                    module.packages.single().classlikes.find { it.name == "JavaLeafClass" }?.functions?.find { it.name == "kotlinSubclassFunction" }
-                        .assertNotNull("kotlinSubclassFunction ")
+                val javaLeafClass = module.packages.single().classlikes.find { it.name == "JavaLeafClass" }!! as DClass
+                val kotlinSubClass = module.packages.single().classlikes.find { it.name == "KotlinSubClass" }!! as DClass
+                val kotlinLeafClassFunction = javaLeafClass.functions.find { it.name == "kotlinSubclassFunction" }
+                    .assertNotNull("kotlinSubclassFunction")
+                val kotlinSubclassFunction = kotlinSubClass.functions.find { it.name == "kotlinSubclassFunction" }
+                    .assertNotNull("kotlinSubclassFunction")
+                val javaLeafClassFunction = javaLeafClass.functions.find { it.name == "javaLeafClassFunction" }
+                    .assertNotNull("javaLeafClassFunction")
 
                 assertEquals(
                     "String",
@@ -255,6 +258,13 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
                     "String",
                     (kotlinSubclassFunction.parameters.firstOrNull()?.type as? TypeConstructor)?.dri?.classNames
                 )
+                assertEquals(javaLeafClass.extra[SourceLanguage]!!.sourceLanguage, Language.JAVA)
+                assertEquals(kotlinSubClass.extra[SourceLanguage]!!.sourceLanguage, Language.KOTLIN)
+                assertEquals(kotlinSubclassFunction.extra[SourceLanguage]!!.sourceLanguage, Language.KOTLIN)
+                // This function was defined in Kotlin and inherited by a Java class without overriding.
+                // Its param types, if no nullability information is present, default to non-null instead of platform.
+                assertEquals(kotlinLeafClassFunction.extra[SourceLanguage]!!.sourceLanguage, Language.KOTLIN)
+                assertEquals(javaLeafClassFunction.extra[SourceLanguage]!!.sourceLanguage, Language.JAVA)
             }
         }
     }

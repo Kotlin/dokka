@@ -704,8 +704,8 @@ open class DefaultPageCreator(
     ) {
         (documentable as? WithSources)?.documentableLanguage(sourceSet)?.let {
             when (it) {
-                DocumentableLanguage.KOTLIN -> firstParagraphComment(tag.root)
-                DocumentableLanguage.JAVA -> firstSentenceComment(tag.root)
+                Language.KOTLIN -> firstParagraphComment(tag.root)
+                Language.JAVA -> firstSentenceComment(tag.root)
             }
         } ?: firstParagraphComment(tag.root)
     }

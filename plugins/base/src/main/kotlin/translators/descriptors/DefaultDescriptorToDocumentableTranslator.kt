@@ -14,7 +14,6 @@ import org.jetbrains.dokka.analysis.from
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.parsers.MarkdownParser
 import org.jetbrains.dokka.base.translators.psi.parsers.JavadocParser
-import org.jetbrains.dokka.base.translators.psi.DefaultPsiToDocumentableTranslator
 import org.jetbrains.dokka.base.translators.typeConstructorsBeingExceptions
 import org.jetbrains.dokka.base.translators.unquotedValue
 import org.jetbrains.dokka.links.*
@@ -215,7 +214,8 @@ private class DokkaDescriptorVisitor(
                     descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
                     descriptor.getAnnotations().toSourceSetDependent().toAnnotations(),
                     ImplementedInterfaces(info.ancestry.allImplementedInterfaces().toSourceSetDependent()),
-                    info.ancestry.exceptionInSupertypesOrNull()
+                    info.ancestry.exceptionInSupertypesOrNull(),
+                    SourceLanguage(Language.KOTLIN)
                 )
             )
         }
@@ -253,7 +253,8 @@ private class DokkaDescriptorVisitor(
                     descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
                     descriptor.getAnnotations().toSourceSetDependent().toAnnotations(),
                     ImplementedInterfaces(info.ancestry.allImplementedInterfaces().toSourceSetDependent()),
-                    info.ancestry.exceptionInSupertypesOrNull()
+                    info.ancestry.exceptionInSupertypesOrNull(),
+                    SourceLanguage(Language.KOTLIN)
                 )
             )
         }
@@ -297,7 +298,8 @@ private class DokkaDescriptorVisitor(
                 extra = PropertyContainer.withAll(
                     descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
                     descriptor.getAnnotations().toSourceSetDependent().toAnnotations(),
-                    ImplementedInterfaces(info.ancestry.allImplementedInterfaces().toSourceSetDependent())
+                    ImplementedInterfaces(info.ancestry.allImplementedInterfaces().toSourceSetDependent()),
+                    SourceLanguage(Language.KOTLIN)
                 )
             )
         }
@@ -327,7 +329,8 @@ private class DokkaDescriptorVisitor(
                 extra = PropertyContainer.withAll(
                     descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
                     descriptor.getAnnotations().toSourceSetDependent().toAnnotations(),
-                    ConstructorValues(descriptor.getAppliedConstructorParameters().toSourceSetDependent())
+                    ConstructorValues(descriptor.getAppliedConstructorParameters().toSourceSetDependent()),
+                    SourceLanguage(Language.KOTLIN)
                 )
             )
         }
@@ -361,7 +364,8 @@ private class DokkaDescriptorVisitor(
                 isExpectActual = (isExpect || isActual),
                 extra = PropertyContainer.withAll(
                     descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
-                    descriptor.getAnnotations().toSourceSetDependent().toAnnotations()
+                    descriptor.getAnnotations().toSourceSetDependent().toAnnotations(),
+                    SourceLanguage(Language.KOTLIN)
                 ),
                 companion = descriptor.companionObjectDescriptor?.let { objectDescriptor(it, driWithPlatform) },
                 visibility = descriptor.visibility.toDokkaVisibility().toSourceSetDependent(),
@@ -420,7 +424,8 @@ private class DokkaDescriptorVisitor(
                     descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
                     descriptor.getAnnotations().toSourceSetDependent().toAnnotations(),
                     ImplementedInterfaces(info.ancestry.allImplementedInterfaces().toSourceSetDependent()),
-                    info.ancestry.exceptionInSupertypesOrNull()
+                    info.ancestry.exceptionInSupertypesOrNull(),
+                    SourceLanguage(Language.KOTLIN)
                 )
             )
         }
@@ -469,6 +474,7 @@ private class DokkaDescriptorVisitor(
                             .toAnnotations(),
                         descriptor.getDefaultValue()?.let { DefaultValue(it) },
                         InheritedMember(inheritedFrom.toSourceSetDependent()),
+                        SourceLanguage(Language.KOTLIN)
                     )
                 )
             )
@@ -520,6 +526,7 @@ private class DokkaDescriptorVisitor(
                     (descriptor.getAnnotations() + descriptor.fileLevelAnnotations()).toSourceSetDependent()
                         .toAnnotations(),
                     ObviousMember.takeIf { descriptor.isObvious },
+                    SourceLanguage(Language.KOTLIN)
                 )
             )
         }
@@ -568,7 +575,8 @@ private class DokkaDescriptorVisitor(
                 isExpectActual = (isExpect || isActual),
                 extra = PropertyContainer.withAll<DFunction>(
                     descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
-                    descriptor.getAnnotations().toSourceSetDependent().toAnnotations()
+                    descriptor.getAnnotations().toSourceSetDependent().toAnnotations(),
+                    SourceLanguage(Language.KOTLIN)
                 ).let {
                     if (descriptor.isPrimary) {
                         it + PrimaryConstructorExtra
@@ -588,7 +596,10 @@ private class DokkaDescriptorVisitor(
         expectPresentInSet = null,
         documentation = descriptor.resolveDescriptorData(),
         sourceSets = setOf(sourceSet),
-        extra = PropertyContainer.withAll(descriptor.getAnnotations().toSourceSetDependent().toAnnotations())
+        extra = PropertyContainer.withAll(
+            descriptor.getAnnotations().toSourceSetDependent().toAnnotations(),
+            SourceLanguage(Language.KOTLIN)
+        )
     )
 
     private suspend fun visitPropertyAccessorDescriptor(
@@ -611,7 +622,8 @@ private class DokkaDescriptorVisitor(
                 sourceSets = setOf(sourceSet),
                 extra = PropertyContainer.withAll(
                     descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
-                    getAnnotationsWithBackingField().toSourceSetDependent().toAnnotations()
+                    getAnnotationsWithBackingField().toSourceSetDependent().toAnnotations(),
+                    SourceLanguage(Language.KOTLIN)
                 )
             )
 
@@ -669,7 +681,8 @@ private class DokkaDescriptorVisitor(
                 isExpectActual = (isExpect || isActual),
                 extra = PropertyContainer.withAll(
                     descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
-                    descriptor.getAnnotations().toSourceSetDependent().toAnnotations()
+                    descriptor.getAnnotations().toSourceSetDependent().toAnnotations(),
+                    SourceLanguage(Language.KOTLIN)
                 )
             )
         }
@@ -696,6 +709,7 @@ private class DokkaDescriptorVisitor(
                     extra = PropertyContainer.withAll(
                         descriptor.getAnnotations().toSourceSetDependent().toAnnotations(),
                         info.exceptionInSupertypesOrNull(),
+                        SourceLanguage(Language.KOTLIN)
                     )
                 )
             }
@@ -712,7 +726,8 @@ private class DokkaDescriptorVisitor(
             extra = PropertyContainer.withAll(listOfNotNull(
                 descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
                 descriptor.getAnnotations().toSourceSetDependent().toAnnotations(),
-                descriptor.getDefaultValue()?.let { DefaultValue(it) }
+                descriptor.getDefaultValue()?.let { DefaultValue(it) },
+                SourceLanguage(Language.KOTLIN)
             ))
         )
 
@@ -774,7 +789,10 @@ private class DokkaDescriptorVisitor(
         GenericTypeConstructor(
             DRI.from(kt.constructor.declarationDescriptor as DeclarationDescriptor),
             kt.arguments.map { it.toProjection() },
-            extra = PropertyContainer.withAll(kt.getAnnotations().toSourceSetDependent().toAnnotations())
+            extra = PropertyContainer.withAll(
+                kt.getAnnotations().toSourceSetDependent().toAnnotations(),
+                SourceLanguage(Language.KOTLIN)
+            )
         )
 
     private suspend fun buildAncestryInformation(
@@ -818,7 +836,8 @@ private class DokkaDescriptorVisitor(
             setOf(sourceSet),
             extra = PropertyContainer.withAll(
                 additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
-                getAnnotations().toSourceSetDependent().toAnnotations()
+                getAnnotations().toSourceSetDependent().toAnnotations(),
+                SourceLanguage(Language.KOTLIN)
             )
         )
 
@@ -827,24 +846,27 @@ private class DokkaDescriptorVisitor(
             .safeAs<StringValue>()?.value?.let { unquotedValue(it) }
 
     private suspend fun KotlinType.toBound(): Bound {
-        suspend fun <T : AnnotationTarget> annotations(): PropertyContainer<T> =
+        suspend fun <T> extras(): PropertyContainer<T> where T:AnnotationTarget, T:HasSourceLanguage =
             getAnnotations().takeIf { it.isNotEmpty() }?.let { annotations ->
-                PropertyContainer.withAll(annotations.toSourceSetDependent().toAnnotations())
-            } ?: PropertyContainer.empty()
+                PropertyContainer.withAll(
+                    annotations.toSourceSetDependent().toAnnotations(),
+                    SourceLanguage(Language.KOTLIN)
+                )
+            } ?: PropertyContainer.withAll(SourceLanguage(Language.KOTLIN))
 
         return when (this) {
             is DynamicType -> Dynamic
             is AbbreviatedType -> TypeAliased(
                 abbreviation.toBound(),
                 expandedType.toBound(),
-                annotations()
+                extras()
             )
             else -> when (val ctor = constructor.declarationDescriptor) {
                 is TypeParameterDescriptor -> TypeParameter(
                     dri = DRI.from(ctor),
                     name = ctor.name.asString(),
                     presentableName = annotations.getPresentableName(),
-                    extra = annotations()
+                    extra = extras()
                 )
                 is FunctionClassDescriptor -> FunctionalTypeConstructor(
                     DRI.from(ctor),
@@ -852,13 +874,13 @@ private class DokkaDescriptorVisitor(
                     isExtensionFunction = isExtensionFunctionType || isBuiltinExtensionFunctionalType,
                     isSuspendable = isSuspendFunctionTypeOrSubtype,
                     presentableName = annotations.getPresentableName(),
-                    extra = annotations()
+                    extra = extras()
                 )
                 else -> GenericTypeConstructor(
                     DRI.from(ctor!!), // TODO: remove '!!'
                     arguments.map { it.toProjection() },
                     annotations.getPresentableName(),
-                    extra = annotations()
+                    extra = extras()
                 )
             }.let {
                 if (isMarkedNullable) Nullable(it) else it

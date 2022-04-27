@@ -7,9 +7,10 @@ import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.model.properties.WithExtraProperties
 
 interface AnnotationTarget
+interface HasSourceLanguage
 
 abstract class Documentable : WithChildren<Documentable>,
-    AnnotationTarget {
+    AnnotationTarget, HasSourceLanguage {
     abstract val name: String?
     abstract val dri: DRI
     abstract val documentation: SourceSetDependent<DocumentationNode>
@@ -384,7 +385,7 @@ data class DTypeAlias(
     override fun withNewExtras(newExtras: PropertyContainer<DTypeAlias>) = copy(extra = newExtras)
 }
 
-sealed class Projection
+sealed class Projection : HasSourceLanguage
 sealed class Bound : Projection()
 data class TypeParameter(
     val dri: DRI,
