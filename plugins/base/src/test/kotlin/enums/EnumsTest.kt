@@ -400,7 +400,6 @@ class EnumsTest : BaseAbstractTest() {
                         group {
                             group {
                                 link { +"E1" }
-                                +"()"
                             }
                         }
                         group {
