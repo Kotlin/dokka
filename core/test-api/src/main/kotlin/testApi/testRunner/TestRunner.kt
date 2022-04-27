@@ -28,6 +28,10 @@ abstract class AbstractTest<M : TestMethods, T : TestBuilder<M>, D : DokkaTestGe
         File("src/test/resources/$name").takeIf { it.exists() }?.toPath()
             ?: throw InvalidPathException(name, "Cannot be found")
 
+    /**
+     * @param useOutputLocationFromConfig if set to true, output location specified in [DokkaConfigurationImpl.outputDir]
+     *                                    will be used. If set to false, a temporary folder will be used instead.
+     */
     protected fun testFromData(
         configuration: DokkaConfigurationImpl,
         cleanupOutput: Boolean = true,
