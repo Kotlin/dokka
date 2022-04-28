@@ -317,17 +317,19 @@ class DeprecatedNode(val name: String, val address: DRI, val description: List<C
     override fun hashCode(): Int = address.hashCode()
 }
 
-enum class DeprecatedPageSection(val id: String, val caption: String, val header: String, val priority: Int = 100) {
-    DeprecatedForRemoval("forRemoval", "For Removal", "Element", priority = 90),
+enum class DeprecatedPageSection(val id: String, val caption: String, val header: String) {
     DeprecatedModules("module", "Modules", "Module"),
     DeprecatedInterfaces("interface", "Interfaces", "Interface"),
     DeprecatedClasses("class", "Classes", "Class"),
-    DeprecatedEnums("enum", "Enums", "Enum"),
     DeprecatedExceptions("exception", "Exceptions", "Exceptions"),
     DeprecatedFields("field", "Fields", "Field"),
     DeprecatedMethods("method", "Methods", "Method"),
     DeprecatedConstructors("constructor", "Constructors", "Constructor"),
-    DeprecatedEnumConstants("enum.constant", "Enum Constants", "Enum Constant")
+    DeprecatedEnums("enum", "Enums", "Enum"),
+    DeprecatedEnumConstants("enum.constant", "Enum Constants", "Enum Constant"),
+    DeprecatedForRemoval("forRemoval", "For Removal", "Element");
+
+    internal fun getPosition() = ordinal
 }
 
 class IndexPage(
