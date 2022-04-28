@@ -125,13 +125,13 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
         sourceSet: DokkaSourceSet
     ) {
         // a default value of parameter can be got from expect source set
+        // but expect properties cannot have a default value
         d.extra[DefaultValue]?.expression?.let {
             it[sourceSet] ?: if (d is DParameter) it[d.expectPresentInSet] else null
+        }?.let { expr ->
+            operator(" = ")
+            highlightValue(expr)
         }
-            ?.let { expr ->
-                operator(" = ")
-                highlightValue(expr)
-            }
     }
 
     private fun regularSignature(c: DClasslike, sourceSet: DokkaSourceSet) =
@@ -269,7 +269,6 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                 link(p.name, p.dri)
                 operator(": ")
                 signatureForProjection(p.type)
-                // expect properties cannot have a default value
                 defaultValueAssign(p, sourceSet)
             }
         }

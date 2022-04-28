@@ -5,7 +5,7 @@ import org.jetbrains.dokka.model.properties.MergeStrategy
 
 class DefaultValue(val expression: SourceSetDependent<Expression>): ExtraProperty<Documentable> {
 
-    @Deprecated("Use `expression` property that depends on source set", ReplaceWith("expression.values.first()"))
+    @Deprecated("Use `expression` property that depends on source set", ReplaceWith("this.expression.values.first()"))
     val value: Expression
         get() = expression.values.first()
     companion object : ExtraProperty.Key<Documentable, DefaultValue> {
