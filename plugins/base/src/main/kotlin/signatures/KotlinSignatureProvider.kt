@@ -170,7 +170,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                     } else {
                         null
                     }
-                modifier.takeIf { it != null && it.isNotEmpty() }?.let { keyword(it) }
+                modifier?.takeIf { it.isNotEmpty() }?.let { keyword(it) }
             }
             when (c) {
                 is DClass -> {

@@ -367,7 +367,6 @@ open class HtmlRenderer(
         pageContext: ContentPage
     ) = // TODO: extension point there
         if (node.isImage()) {
-            //TODO: add imgAttrs parsing
             img(src = node.address, alt = node.altText)
         } else {
             println("Unrecognized resource type: $node")

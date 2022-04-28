@@ -114,7 +114,6 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
             JavadocTagInfo.EP_NAME, JavadocTagInfo::class.java
         )
 
-        // TODO [beresnev] change to ApplicationManager#getExtensionArea after update to 213 platform
         @Suppress("DEPRECATION")
         val extensionArea = Extensions.getRootArea()
 
@@ -592,7 +591,6 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
             instances: List<T>,
             disposable: Disposable
         ) {
-            // TODO [beresnev] change to ApplicationManager#getExtensionArea after update to 213 platform
             @Suppress("DEPRECATION")
             val extensionArea = Extensions.getRootArea()
 
