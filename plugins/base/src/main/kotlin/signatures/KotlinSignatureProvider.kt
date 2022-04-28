@@ -387,13 +387,14 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
     ) {
         return when (p) {
             is TypeParameter -> {
+                if (p.presentableName != null) {
+                    text(p.presentableName!!)
+                    operator(": ")
+                }
                 annotationsInline(p)
                 link(p.name, p.dri)
             }
-            is FunctionalTypeConstructor -> {
-                annotationsInline(p)
-                +funType(mainDRI.single(), mainSourcesetData, p)
-            }
+            is FunctionalTypeConstructor -> +funType(mainDRI.single(), mainSourcesetData, p)
             is GenericTypeConstructor ->
                 group(styles = emptySet()) {
                     val linkText = if (showFullyQualifiedName && p.dri.packageName != null) {
@@ -443,6 +444,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                 text(type.presentableName!!)
                 operator(": ")
             }
+            annotationsInline(type)
             if (type.isSuspendable) keyword("suspend ")
 
             if (type.isExtensionFunction) {
