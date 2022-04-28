@@ -13,7 +13,10 @@ import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.Nullable
 import org.jetbrains.dokka.model.TypeConstructor
 import org.jetbrains.dokka.model.properties.WithExtraProperties
-import org.jetbrains.dokka.pages.*
+import org.jetbrains.dokka.pages.ContentKind
+import org.jetbrains.dokka.pages.ContentNode
+import org.jetbrains.dokka.pages.TextStyle
+import org.jetbrains.dokka.pages.TokenStyle
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.querySingle
@@ -117,6 +120,19 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                 } ?: regularSignature(c, sourceSetData)
         }
 
+    private fun <T : Documentable> PageContentBuilder.DocumentableContentBuilder.defaultValueAssign(
+        d: WithExtraProperties<T>,
+        sourceSet: DokkaSourceSet
+    ) {
+        // a default value of parameter can be got from expect source set
+        // but expect properties cannot have a default value
+        d.extra[DefaultValue]?.expression?.let {
+            it[sourceSet] ?: if (d is DParameter) it[d.expectPresentInSet] else null
+        }?.let { expr ->
+            operator(" = ")
+            highlightValue(expr)
+        }
+    }
 
     private fun regularSignature(c: DClasslike, sourceSet: DokkaSourceSet) =
         contentBuilder.contentFor(
@@ -197,10 +213,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                             text(param.name.orEmpty())
                             operator(": ")
                             signatureForProjection(param.type)
-                            param.extra[DefaultValue]?.let {
-                                operator(" = ")
-                                highlightValue(it.value)
-                            }
+                            defaultValueAssign(param, sourceSet)
                         }
                         punctuation(")")
                     }
@@ -228,20 +241,20 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
         (this.sources[sourceSet] as? DescriptorDocumentableSource)?.descriptor?.findPsi() is KtParameter
 
     private fun propertySignature(p: DProperty) =
-        p.sourceSets.map {
+        p.sourceSets.map { sourceSet ->
             contentBuilder.contentFor(
                 p,
                 ContentKind.Symbol,
-                setOf(TextStyle.Monospace) + p.stylesIfDeprecated(it),
-                sourceSets = setOf(it)
+                setOf(TextStyle.Monospace) + p.stylesIfDeprecated(sourceSet),
+                sourceSets = setOf(sourceSet)
             ) {
                 annotationsBlock(p)
-                p.visibility[it].takeIf { it !in ignoredVisibilities }?.name?.let { keyword("$it ") }
-                if (p.isExpectActual) keyword(if (it == p.expectPresentInSet) "expect " else "actual ")
-                p.modifier[it].takeIf { it !in ignoredModifiers }?.let {
+                p.visibility[sourceSet].takeIf { it !in ignoredVisibilities }?.name?.let { keyword("$it ") }
+                if (p.isExpectActual) keyword(if (sourceSet == p.expectPresentInSet) "expect " else "actual ")
+                p.modifier[sourceSet].takeIf { it !in ignoredModifiers }?.let {
                         if (it is JavaModifier.Empty) KotlinModifier.Open else it
                     }?.name?.let { keyword("$it ") }
-                p.modifiers()[it]?.toSignatureString()?.let { keyword(it) }
+                p.modifiers()[sourceSet]?.toSignatureString()?.let { keyword(it) }
                 p.setter?.let { keyword("var ") } ?: keyword("val ")
                 list(p.generics, prefix = "<", suffix = "> ",
                     separatorStyles = mainStyles + TokenStyle.Punctuation,
@@ -256,10 +269,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                 link(p.name, p.dri)
                 operator(": ")
                 signatureForProjection(p.type)
-                p.extra[DefaultValue]?.run {
-                    operator(" = ")
-                    highlightValue(value)
-                }
+                defaultValueAssign(p, sourceSet)
             }
         }
 
@@ -274,20 +284,20 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
     }
 
     private fun functionSignature(f: DFunction) =
-        f.sourceSets.map {
+        f.sourceSets.map { sourceSet ->
             contentBuilder.contentFor(
                 f,
                 ContentKind.Symbol,
-                setOf(TextStyle.Monospace) + f.stylesIfDeprecated(it),
-                sourceSets = setOf(it)
+                setOf(TextStyle.Monospace) + f.stylesIfDeprecated(sourceSet),
+                sourceSets = setOf(sourceSet)
             ) {
                 annotationsBlock(f)
-                f.visibility[it]?.takeIf { it !in ignoredVisibilities }?.name?.let { keyword("$it ") }
-                if (f.isExpectActual) keyword(if (it == f.expectPresentInSet) "expect " else "actual ")
-                f.modifier[it]?.takeIf { it !in ignoredModifiers }?.let {
+                f.visibility[sourceSet]?.takeIf { it !in ignoredVisibilities }?.name?.let { keyword("$it ") }
+                if (f.isExpectActual) keyword(if (sourceSet == f.expectPresentInSet) "expect " else "actual ")
+                f.modifier[sourceSet]?.takeIf { it !in ignoredModifiers }?.let {
                     if (it is JavaModifier.Empty) KotlinModifier.Open else it
                 }?.name?.let { keyword("$it ") }
-                f.modifiers()[it]?.toSignatureString()?.let { keyword(it) }
+                f.modifiers()[sourceSet]?.toSignatureString()?.let { keyword(it) }
                 keyword("fun ")
                 val usedGenerics = if (f.isConstructor) f.generics.filter { f uses it } else f.generics
                 list(usedGenerics, prefix = "<", suffix = "> ",
@@ -312,10 +322,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                         text(param.name!!)
                         operator(": ")
                         signatureForProjection(param.type)
-                        param.extra[DefaultValue]?.run {
-                            operator(" = ")
-                            highlightValue(value)
-                        }
+                        defaultValueAssign(param, sourceSet)
                     }
                 }
                 punctuation(")")

@@ -467,7 +467,7 @@ private class DokkaDescriptorVisitor(
                             .toAdditionalExtras()).toSet().toSourceSetDependent().toAdditionalModifiers(),
                         (descriptor.getAnnotationsWithBackingField() + descriptor.fileLevelAnnotations()).toSourceSetDependent()
                             .toAnnotations(),
-                        descriptor.getDefaultValue()?.let { DefaultValue(it) },
+                        descriptor.getDefaultValue()?.let { DefaultValue(it.toSourceSetDependent()) },
                         InheritedMember(inheritedFrom.toSourceSetDependent()),
                     )
                 )
@@ -712,7 +712,7 @@ private class DokkaDescriptorVisitor(
             extra = PropertyContainer.withAll(listOfNotNull(
                 descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
                 descriptor.getAnnotations().toSourceSetDependent().toAnnotations(),
-                descriptor.getDefaultValue()?.let { DefaultValue(it) }
+                descriptor.getDefaultValue()?.let { DefaultValue(it.toSourceSetDependent()) }
             ))
         )
 
