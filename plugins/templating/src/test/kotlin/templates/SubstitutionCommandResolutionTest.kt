@@ -102,7 +102,7 @@ class SubstitutionCommandResolutionTest : TemplatingAbstractTest() {
             this.outputDir = folder.root
         }
 
-        testFromData(configuration, preserveOutputLocation = true){
+        testFromData(configuration, useOutputLocationFromConfig = true){
             finishProcessingSubmodules = {
                 assertHtmlEqualsIgnoringWhitespace(expected, testedFile.readText())
             }

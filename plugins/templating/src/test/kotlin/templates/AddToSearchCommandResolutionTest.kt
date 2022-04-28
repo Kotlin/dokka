@@ -55,7 +55,7 @@ class AddToSearchCommandResolutionTest : TemplatingAbstractTest() {
             this.outputDir = outputDir
         }
 
-        testFromData(configuration, preserveOutputLocation = true) {
+        testFromData(configuration, useOutputLocationFromConfig = true) {
             finishProcessingSubmodules = { _ ->
                 val expected = elements.map { it.copy(location = "module1/${it.location}") } +
                         elements.map { it.copy(location = "module2/${it.location}") }

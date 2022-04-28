@@ -39,7 +39,7 @@ class MultiModuleDocumentationTest : MultiModuleAbstractTest() {
             includes = listOf(folder.root.resolve("README.md"))
         }
 
-        testFromData(configuration, preserveOutputLocation = true) {
+        testFromData(configuration) {
             allModulesPageCreationStage = { rootPage ->
                 (rootPage as? MultimoduleRootPageNode)?.content?.dfs { it.dci.kind == ContentKind.Cover }?.children?.firstOrNull()
                     ?.assertNode {
