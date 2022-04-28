@@ -123,7 +123,7 @@ class FunctionalTypeConstructorsSignatureTest : BaseAbstractTest() {
             source, configuration, pluginOverrides = listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
-                writerPlugin.writer.renderedContent("root/example/index.html").lastSignature().firstSignature().match(
+                writerPlugin.writer.renderedContent("root/example/index.html").lastSignature().match(
                     "fun <", A("T"), "> ",
                     A("f"), "(): (param1:", A("T"),
                     ", param2: ", Span("@", A("Fancy")), " () -> ", A("Unit"),
