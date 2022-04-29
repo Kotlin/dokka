@@ -1412,7 +1412,7 @@ class ContentForParamsTest : BaseAbstractTest() {
                     it is MemberPageNode && it.dri.first()
                         .toString() == "test/Main/sample/#java.lang.String#java.lang.String/PointingToDeclaration/"
                 } as MemberPageNode
-                val forJvm = (sampleFunction.documentable as DFunction).parameters.mapNotNull {
+                val forJvm = (sampleFunction.documentables.firstOrNull() as DFunction).parameters.mapNotNull {
                     val jvm = it.documentation.keys.first { it.analysisPlatform == Platform.jvm }
                     it.documentation[jvm]
                 }

@@ -201,6 +201,8 @@ class DokkaMultiModuleTaskTest {
         val childTask = child.tasks.create<DokkaTask>("child")
 
         parentTask.addChildTask(childTask)
+
+        @Suppress("NAME_SHADOWING") // ¯\_(ツ)_/¯
         parentTask.fileLayout by DokkaMultiModuleFileLayout { parent, child ->
             parent.project.buildDir.resolve(child.name)
         }

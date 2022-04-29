@@ -34,7 +34,7 @@ class AddToSearchCommandResolutionTest : TemplatingAbstractTest() {
     @ParameterizedTest
     @ValueSource(strings = ["pages.json"])
     fun `should merge navigation templates`(fileName: String) {
-        val (module1Navigation, module2Navigation) = setupTestDirectoriesWithContent(fileName)
+        setupTestDirectoriesWithContent(fileName)
 
         val outputDir = folder.root
         val configuration = dokkaConfiguration {

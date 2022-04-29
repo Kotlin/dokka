@@ -10,6 +10,7 @@ internal class JavadocDeprecatedTest : AbstractJavadocTemplateMapTest() {
     @Test
     fun `generates correct number of sections`() {
         testDeprecatedPageTemplateMaps { templateMap ->
+            @Suppress("UNCHECKED_CAST")
             Assertions.assertEquals(6, (templateMap["sections"] as List<TemplateMap>).size)
         }
     }
@@ -164,9 +165,11 @@ internal class JavadocDeprecatedTest : AbstractJavadocTemplateMapTest() {
             operation(firstPageOfType<DeprecatedPage>().templateMap)
         }
 
+    @Suppress("UNCHECKED_CAST")
     private fun TemplateMap.section(name: String) =
         (this["sections"] as List<TemplateMap>).first { it["caption"] == name }
 
+    @Suppress("UNCHECKED_CAST")
     private fun TemplateMap.elements() =
         this["elements"] as List<TemplateMap>
 }

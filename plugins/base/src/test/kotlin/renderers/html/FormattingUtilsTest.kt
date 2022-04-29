@@ -1,11 +1,11 @@
 package renderers.html
 
-import junit.framework.Assert.assertEquals
 import kotlinx.html.body
 import kotlinx.html.html
 import kotlinx.html.stream.createHTML
 import org.jetbrains.dokka.base.renderers.html.buildBreakableText
 import org.junit.jupiter.api.Test
+import kotlin.test.assertEquals
 
 class FormattingUtilsTest {
     @Test

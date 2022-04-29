@@ -49,6 +49,7 @@ private object FileSerializer : StdScalarSerializer<File>(File::class.java) {
     }
 }
 
+@Suppress("DEPRECATION") // for TypeFactory constructor, no way to use non-deprecated one, it's essentially identical
 private class PluginTypeFactory: TypeFactory(null) {
     override fun findClass(className: String): Class<out Any>? =
         Class.forName(className, true, DokkaBase::class.java.classLoader) ?: super.findClass(className)

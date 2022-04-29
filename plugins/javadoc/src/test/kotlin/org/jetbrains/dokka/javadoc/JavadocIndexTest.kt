@@ -28,6 +28,7 @@ internal class JavadocIndexTest : AbstractJavadocTemplateMapTest() {
     @Test
     fun `templateMap for class index`() {
         testIndexPagesTemplateMaps { templateMaps ->
+            @Suppress("UNCHECKED_CAST")
             val element = (templateMaps[2]["elements"] as List<TemplateMap>)[1]
             assertEquals("../package0/ClassA.html", element["address"])
             assertEquals("ClassA", element["name"])
@@ -41,6 +42,7 @@ internal class JavadocIndexTest : AbstractJavadocTemplateMapTest() {
     @Test
     fun `templateMap for enum entry index`() {
         testIndexPagesTemplateMaps { templateMaps ->
+            @Suppress("UNCHECKED_CAST")
             val element = (templateMaps[0]["elements"] as List<TemplateMap>).last()
             assertEquals("../package1/ClassCEnum.html#A", element["address"])
             assertEquals("A", element["name"])
@@ -54,6 +56,7 @@ internal class JavadocIndexTest : AbstractJavadocTemplateMapTest() {
     @Test
     fun `templateMap for function index`() {
         testIndexPagesTemplateMaps { templateMaps ->
+            @Suppress("UNCHECKED_CAST")
             val element = (templateMaps[0]["elements"] as List<TemplateMap>).first()
             assertEquals("../package0/ClassA.html#a()", element["address"])
             assertEquals("a()", element["name"])

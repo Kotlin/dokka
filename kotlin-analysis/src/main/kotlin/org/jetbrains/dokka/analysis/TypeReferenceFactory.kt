@@ -23,7 +23,7 @@ fun TypeReference.Companion.from(d: ReceiverParameterDescriptor): TypeReference?
 fun TypeReference.Companion.from(d: ValueParameterDescriptor): TypeReference =
     fromPossiblyNullable(d.type, emptyList())
 
-fun TypeReference.Companion.from(p: PsiClass) = TypeReference
+fun TypeReference.Companion.from(@Suppress("UNUSED_PARAMETER") p: PsiClass) = TypeReference
 
 private fun TypeReference.Companion.fromPossiblyNullable(t: KotlinType, paramTrace: List<KotlinType>): TypeReference =
     fromPossiblyRecursive(t, paramTrace).let { if (t.isMarkedNullable) Nullable(it) else it }

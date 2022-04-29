@@ -52,19 +52,23 @@ class JavaSignatureProvider internal constructor(ctcc: CommentsToContentConverte
         }
 
     private fun signature(c: DClasslike) =
-        c.sourceSets.map {
+        c.sourceSets.map { sourceSet ->
+            @Suppress("UNCHECKED_CAST")
+            val deprecationStyles = (c as? WithExtraProperties<out Documentable>)
+                ?.stylesIfDeprecated(sourceSet)
+                ?: emptySet()
+
             contentBuilder.contentFor(
                 c,
                 ContentKind.Symbol,
-                setOf(TextStyle.Monospace) + ((c as? WithExtraProperties<out Documentable>)?.stylesIfDeprecated(it)
-                    ?: emptySet()),
-                sourceSets = setOf(it)
+                setOf(TextStyle.Monospace) + deprecationStyles,
+                sourceSets = setOf(sourceSet)
             ) {
-                c.visibility[it]?.takeIf { it !in ignoredVisibilities }?.name?.plus(" ")?.let { keyword(it) }
+                c.visibility[sourceSet]?.takeIf { it !in ignoredVisibilities }?.name?.plus(" ")?.let { keyword(it) }
 
                 if (c is DClass) {
-                    c.modifier[it]?.takeIf { it !in ignoredModifiers }?.name?.plus(" ")?.let { keyword(it) }
-                    c.modifiers()[it]?.toSignatureString()?.let { keyword(it) }
+                    c.modifier[sourceSet]?.takeIf { it !in ignoredModifiers }?.name?.plus(" ")?.let { keyword(it) }
+                    c.modifiers()[sourceSet]?.toSignatureString()?.let { keyword(it) }
                 }
 
                 when (c) {

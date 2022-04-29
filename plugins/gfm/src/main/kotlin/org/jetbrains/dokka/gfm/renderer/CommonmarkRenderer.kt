@@ -99,15 +99,20 @@ open class CommonmarkRenderer(
         pageContext: ContentPage,
         sourceSetRestriction: Set<DisplaySourceSet>?
     ) {
-        locationProvider.resolve(node.address, node.sourceSets, pageContext)?.let {
-            buildLink(it) {
+        val location = locationProvider.resolve(node.address, node.sourceSets, pageContext)
+        if (location == null) {
+            if (isPartial) {
+                templateCommand(ResolveLinkGfmCommand(node.address)) {
+                    buildText(node.children, pageContext, sourceSetRestriction)
+                }
+            } else {
                 buildText(node.children, pageContext, sourceSetRestriction)
             }
-        } ?: if (isPartial) {
-            templateCommand(ResolveLinkGfmCommand(node.address)) {
+        } else {
+            buildLink(location) {
                 buildText(node.children, pageContext, sourceSetRestriction)
             }
-        } else buildText(node.children, pageContext, sourceSetRestriction)
+        }
     }
 
     override fun StringBuilder.buildLineBreak() {
@@ -253,11 +258,11 @@ open class CommonmarkRenderer(
     override fun StringBuilder.buildDivergent(node: ContentDivergentGroup, pageContext: ContentPage) {
 
         val distinct =
-            node.groupDivergentInstances(pageContext, { instance, contentPage, sourceSet ->
+            node.groupDivergentInstances(pageContext, { instance, _, sourceSet ->
                 instance.before?.let { before ->
                     buildString { buildContentNode(before, pageContext, sourceSet) }
                 } ?: ""
-            }, { instance, contentPage, sourceSet ->
+            }, { instance, _, sourceSet ->
                 instance.after?.let { after ->
                     buildString { buildContentNode(after, pageContext, sourceSet) }
                 } ?: ""

@@ -52,7 +52,7 @@ abstract class AbstractExpectTest(
         excludes: List<String>,
         timeout: Long = 500
     ) {
-        obtained?.let { path ->
+        obtained?.let { _ ->
             val (res, out, err) = runDiff(expected, obtained, excludes, timeout)
             assertTrue(res == 0, "Outputs differ:\nstdout - $out\n\nstderr - ${err ?: ""}")
         } ?: throw AssertionError("obtained path is null")

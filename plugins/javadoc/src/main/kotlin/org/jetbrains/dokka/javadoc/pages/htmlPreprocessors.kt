@@ -39,12 +39,13 @@ object TreeViewInstaller : PageTransformer {
             root = root
         )
 
-        return node.modified(children = node.children.map { node ->
+        val nodeChildren = node.children.map { childNode ->
             install(
-                node,
+                childNode,
                 root
             )
-        } + overviewTree) as JavadocModulePageNode
+        }
+        return node.modified(children = nodeChildren + overviewTree) as JavadocModulePageNode
     }
 
     private fun installPackageTreeNode(node: JavadocPackagePageNode, root: RootPageNode): JavadocPackagePageNode {

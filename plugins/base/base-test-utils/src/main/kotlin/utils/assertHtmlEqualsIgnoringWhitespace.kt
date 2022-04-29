@@ -1,8 +1,8 @@
 package utils
 
-import junit.framework.Assert.assertEquals
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import kotlin.test.assertEquals
 
 /**
  * Parses it using JSOUP, trims whitespace at the end of the line and asserts if they are equal

@@ -12,8 +12,8 @@ class JvmNameDocumentableTransformer : DocumentableTransformer {
         return original.copy(packages = original.packages.map { transform(it, context) })
     }
 
-    internal fun <T : Documentable> transform(documentable: T, context: DokkaContext): T =
-        with(documentable) {
+    internal fun <T : Documentable> transform(documentable: T, context: DokkaContext): T {
+        val transformResult = with(documentable) {
             when (this) {
                 is DPackage -> copy(
                     functions = functions.map { transform(it, context) },
@@ -40,7 +40,10 @@ class JvmNameDocumentableTransformer : DocumentableTransformer {
                     this
                 }
             }
-        } as T
+        }
+        @Suppress("UNCHECKED_CAST")
+        return transformResult as T
+    }
 
     private fun PropertyContainer<DFunction>.withoutJvmName(): PropertyContainer<DFunction> {
         val annotationsWithoutJvmName = get(Annotations)?.let { annotations ->
