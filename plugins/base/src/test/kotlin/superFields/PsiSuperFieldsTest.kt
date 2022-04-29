@@ -5,7 +5,6 @@ import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.Annotations
 import org.jetbrains.dokka.model.InheritedMember
 import org.jetbrains.dokka.model.isJvmField
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
@@ -14,7 +13,6 @@ import kotlin.test.assertEquals
 
 class PsiSuperFieldsTest : BaseAbstractTest() {
 
-    @Disabled // TODO: Remove with Kotlin 1.6.20
     @Test
     fun `java inheriting java`() {
         testInline(
@@ -53,7 +51,6 @@ class PsiSuperFieldsTest : BaseAbstractTest() {
         }
     }
 
-    @Disabled // TODO: Remove with Kotlin 1.6.20
     @Test
     fun `java inheriting kotlin`() {
         testInline(
@@ -94,7 +91,6 @@ class PsiSuperFieldsTest : BaseAbstractTest() {
         }
     }
 
-    @Disabled // TODO: Remove with Kotlin 1.6.20
     @Test
     fun `java inheriting kotlin with @JvmField should not inherit beans`() {
         testInline(

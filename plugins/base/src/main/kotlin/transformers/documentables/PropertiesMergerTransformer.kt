@@ -25,7 +25,7 @@ class PropertiesMergerTransformer : PreMergeDocumentableTransformer {
 
     private fun <T : WithScope> T.mergeAccessorsAndField(): T {
         val (functions, properties) = mergePotentialAccessorsAndField(this.functions, this.properties)
-        return when (this) {
+        val result = when (this) {
             is DClass -> {
                 this.copy(functions = functions, properties = properties)
             }
@@ -45,7 +45,10 @@ class PropertiesMergerTransformer : PreMergeDocumentableTransformer {
                 this.copy(functions = functions, properties = properties)
             }
             else -> this
-        } as T
+        }
+
+        @Suppress("UNCHECKED_CAST")
+        return result as T
     }
 
     /**
