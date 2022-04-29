@@ -76,6 +76,7 @@ import org.jetbrains.kotlin.resolve.jvm.JvmPlatformParameters
 import org.jetbrains.kotlin.resolve.jvm.JvmResolverForModuleFactory
 import org.jetbrains.kotlin.resolve.jvm.platform.JvmPlatformAnalyzerServices
 import org.jetbrains.kotlin.resolve.konan.platform.NativePlatformAnalyzerServices
+import org.jetbrains.kotlin.storage.LockBasedStorageManager
 import java.io.File
 import org.jetbrains.kotlin.konan.file.File as KFile
 
@@ -191,7 +192,7 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
         val commonDependencyContainer = if (analysisPlatform == Platform.common) DokkaKlibMetadataCommonDependencyContainer(
             kotlinLibraries.values.toList(),
             environment.configuration,
-            projectContext.storageManager
+            LockBasedStorageManager("DokkaKlibMetadata")
         ) else null
 
         val extraModuleDependencies = kotlinLibraries.values.registerLibraries() + commonDependencyContainer?.moduleInfos.orEmpty()
