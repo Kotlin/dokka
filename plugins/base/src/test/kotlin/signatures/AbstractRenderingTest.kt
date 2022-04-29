@@ -27,14 +27,14 @@ abstract class AbstractRenderingTest : BaseAbstractTest() {
                 dependentSourceSets = setOf(common.value.sourceSetID)
                 sourceRoots = listOf(Paths.get("$testDataDir/jvmAndJsSecondCommonMain/kotlin").toString())
             }
-            val js = sourceSet {
+            sourceSet {
                 name = "js"
                 displayName = "js"
                 analysisPlatform = "js"
                 dependentSourceSets = setOf(common.value.sourceSetID, jvmAndJsSecondCommonMain.value.sourceSetID)
                 sourceRoots = listOf(Paths.get("$testDataDir/jsMain/kotlin").toString())
             }
-            val jvm = sourceSet {
+            sourceSet {
                 name = "jvm"
                 displayName = "jvm"
                 analysisPlatform = "jvm"

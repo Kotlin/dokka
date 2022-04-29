@@ -63,7 +63,7 @@ class ResourceLinksTest : BaseAbstractTest() {
             configuration,
             pluginOverrides = listOf(TestResourcesAppenderPlugin(absoluteResources + relativeResources), writerPlugin)
         ) {
-            renderingStage = { root, context ->
+            renderingStage = { _, _ ->
                 Jsoup
                     .parse(writerPlugin.writer.contents.getValue("root/example.html"))
                     .head()
@@ -114,7 +114,7 @@ class ResourceLinksTest : BaseAbstractTest() {
             configuration,
             pluginOverrides = listOf(writerPlugin)
         ) {
-            renderingStage = { root, context ->
+            renderingStage = { _, _ ->
                 run {
                     if (isMultiModule) {
                         assertNull(writerPlugin.writer.contents["images/customImage.svg"])
@@ -179,7 +179,7 @@ class ResourceLinksTest : BaseAbstractTest() {
             configuration,
             pluginOverrides = listOf(TestResourcesAppenderPlugin(absoluteResources + relativeResources), writerPlugin)
         ) {
-            renderingStage = { root, context ->
+            renderingStage = { _, _ ->
                 run {
                     assertNull(writerPlugin.writer.contents["scripts/relativePath.js"])
                     assertNull(writerPlugin.writer.contents["styles/relativePath.js"])

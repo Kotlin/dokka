@@ -24,7 +24,7 @@ class ContentForClassWithParamsAndPropertiesTest : BaseAbstractTest() {
         propertyTest { rootPage ->
             val node = rootPage.dfs { it.name == "LoadInitialParams" } as ClasslikePageNode
             val actualDocsForPlaceholdersEnabled =
-                (node.documentable as DClass).constructors.first().parameters.find { it.name == "placeholdersEnabled" }
+                (node.documentables.firstOrNull() as DClass).constructors.first().parameters.find { it.name == "placeholdersEnabled" }
                     ?.documentation?.entries?.first()?.value
             assertEquals(DocumentationNode(listOf(docsForPlaceholdersEnabled)), actualDocsForPlaceholdersEnabled)
         }
@@ -35,7 +35,7 @@ class ContentForClassWithParamsAndPropertiesTest : BaseAbstractTest() {
         propertyTest { rootPage ->
             val node = rootPage.dfs { it.name == "LoadInitialParams" } as ClasslikePageNode
             val actualDocsForRequestedLoadSize =
-                (node.documentable as DClass).constructors.first().parameters.find { it.name == "requestedLoadSize" }
+                (node.documentables.firstOrNull() as DClass).constructors.first().parameters.find { it.name == "requestedLoadSize" }
                     ?.documentation?.entries?.first()?.value
             assertEquals(DocumentationNode(listOf(docsForRequestedLoadSize)), actualDocsForRequestedLoadSize)
         }
@@ -47,7 +47,7 @@ class ContentForClassWithParamsAndPropertiesTest : BaseAbstractTest() {
             val node = rootPage.dfs { it.name == "LoadInitialParams" } as ClasslikePageNode
 
             val actualDocsForRequestedInitialKey =
-                (node.documentable as DClass).constructors.first().parameters.find { it.name == "requestedInitialKey" }
+                (node.documentables.firstOrNull() as DClass).constructors.first().parameters.find { it.name == "requestedInitialKey" }
                     ?.documentation?.entries?.first()?.value
             assertEquals(DocumentationNode(listOf(docsForRequestedInitialKey)), actualDocsForRequestedInitialKey)
         }
@@ -71,7 +71,7 @@ class ContentForClassWithParamsAndPropertiesTest : BaseAbstractTest() {
             val node = rootPage.dfs { it.name == "LoadInitialParams" } as ClasslikePageNode
 
             val actualDocs =
-                (node.documentable as DClass).constructors.first().documentation.entries.first().value
+                (node.documentables.firstOrNull() as DClass).constructors.first().documentation.entries.first().value
             assertEquals(DocumentationNode(listOf(constructorDocs, docsForParam)), actualDocs)
         }
     }
@@ -94,7 +94,7 @@ class ContentForClassWithParamsAndPropertiesTest : BaseAbstractTest() {
             val node = rootPage.dfs { it.name == "LoadInitialParams" } as ClasslikePageNode
 
             val actualDocs =
-                (node.documentable as DClass).documentation.entries.first().value
+                (node.documentables.firstOrNull() as DClass).documentation.entries.first().value
             assertEquals(
                 DocumentationNode(
                     listOf(
@@ -129,7 +129,7 @@ class ContentForClassWithParamsAndPropertiesTest : BaseAbstractTest() {
             val node = rootPage.dfs { it.name == "ItemKeyedDataSource" } as ClasslikePageNode
 
             val actualDocs =
-                (node.documentable as DClass).properties.first().documentation.entries.first().value
+                (node.documentables.firstOrNull() as DClass).properties.first().documentation.entries.first().value
             assertEquals(
                 DocumentationNode(listOf(ownDescription)),
                 actualDocs

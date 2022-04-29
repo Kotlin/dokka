@@ -15,17 +15,18 @@ open class DocTagToContentConverter : CommentsToContentConverter {
         dci: DCI,
         sourceSets: Set<DokkaSourceSet>,
         styles: Set<Style>,
-        extra: PropertyContainer<ContentNode>
+        extras: PropertyContainer<ContentNode>
     ): List<ContentNode> {
 
         fun buildChildren(docTag: DocTag, newStyles: Set<Style> = emptySet(), newExtras: SimpleAttr? = null) =
             docTag.children.flatMap {
-                buildContent(it, dci, sourceSets, styles + newStyles, newExtras?.let { extra + it } ?: extra)
+                buildContent(it, dci, sourceSets, styles + newStyles, newExtras?.let { extras + it } ?: extras)
             }
 
         fun buildTableRows(rows: List<DocTag>, newStyle: Style): List<ContentGroup> =
             rows.flatMap {
-                buildContent(it, dci, sourceSets, styles + newStyle, extra) as List<ContentGroup>
+                @Suppress("UNCHECKED_CAST")
+                buildContent(it, dci, sourceSets, styles + newStyle, extras) as List<ContentGroup>
             }
 
         fun buildHeader(level: Int) =
@@ -70,7 +71,7 @@ open class DocTagToContentConverter : CommentsToContentConverter {
             is Ul -> buildList(false)
             is Ol -> buildList(true, start = docTag.params["start"]?.toInt() ?: 1)
             is Li -> listOf(
-                ContentGroup(buildChildren(docTag), dci, sourceSets.toDisplaySourceSets(), styles, extra)
+                ContentGroup(buildChildren(docTag), dci, sourceSets.toDisplaySourceSets(), styles, extras)
             )
             is Dl -> buildList(false, newStyles = setOf(ListStyle.DescriptionList))
             is Dt -> listOf(
@@ -98,7 +99,7 @@ open class DocTagToContentConverter : CommentsToContentConverter {
                     dci,
                     sourceSets.toDisplaySourceSets(),
                     styles + setOf(TextStyle.Paragraph),
-                    extra
+                    extras
                 )
             )
             is A -> listOf(
@@ -147,7 +148,7 @@ open class DocTagToContentConverter : CommentsToContentConverter {
                     dci = dci,
                     sourceSets = sourceSets.toDisplaySourceSets(),
                     style = styles,
-                    extra = extra
+                    extra = extras
                 )
             )
             is HorizontalRule -> listOf(
@@ -164,7 +165,7 @@ open class DocTagToContentConverter : CommentsToContentConverter {
                     dci,
                     sourceSets.toDisplaySourceSets(),
                     styles,
-                    extra + HtmlContent.takeIf { docTag.params["content-type"] == "html" }
+                    extras + HtmlContent.takeIf { docTag.params["content-type"] == "html" }
                 )
             )
             is Strikethrough -> buildChildren(docTag, setOf(TextStyle.Strikethrough))
@@ -182,7 +183,7 @@ open class DocTagToContentConverter : CommentsToContentConverter {
                                     dci,
                                     sourceSets.toDisplaySourceSets(),
                                     styles,
-                                    extra
+                                    extras
                                 )
                             },
                             buildTableRows(body.filterIsInstance<Tr>(), CommentTable),
@@ -208,7 +209,7 @@ open class DocTagToContentConverter : CommentsToContentConverter {
             is Tr -> listOf(
                 ContentGroup(
                     docTag.children.map {
-                        ContentGroup(buildChildren(it), dci, sourceSets.toDisplaySourceSets(), styles, extra)
+                        ContentGroup(buildChildren(it), dci, sourceSets.toDisplaySourceSets(), styles, extras)
                     },
                     dci,
                     sourceSets.toDisplaySourceSets(),
@@ -230,7 +231,7 @@ open class DocTagToContentConverter : CommentsToContentConverter {
                         dci,
                         sourceSets.toDisplaySourceSets(),
                         styles,
-                        extra = extra
+                        extra = extras
                     )
                 )
             } else {
@@ -242,7 +243,7 @@ open class DocTagToContentConverter : CommentsToContentConverter {
                     dci,
                     sourceSets.toDisplaySourceSets(),
                     styles + ContentStyle.Caption,
-                    extra = extra
+                    extra = extras
                 )
             )
 
