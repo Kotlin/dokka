@@ -1,7 +1,7 @@
 allprojects {
     repositories {
-        maven("https://cache-redirector.jetbrains.com/jcenter.bintray.com")
         mavenLocal()
+        maven("https://cache-redirector.jetbrains.com/jcenter.bintray.com")
         mavenCentral()
         google()
         maven("https://cache-redirector.jetbrains.com/dl.bintray.com/kotlin/kotlin-eap")
