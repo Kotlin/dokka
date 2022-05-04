@@ -41,6 +41,10 @@ public final class org/jetbrains/dokka/gfm/renderer/BriefCommentPreprocessor : o
 
 public class org/jetbrains/dokka/gfm/renderer/CommonmarkRenderer : org/jetbrains/dokka/base/renderers/DefaultRenderer {
 	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
+	public synthetic fun buildCodeBlock (Ljava/lang/Object;Lorg/jetbrains/dokka/pages/ContentCodeBlock;Lorg/jetbrains/dokka/pages/ContentPage;)V
+	public fun buildCodeBlock (Ljava/lang/StringBuilder;Lorg/jetbrains/dokka/pages/ContentCodeBlock;Lorg/jetbrains/dokka/pages/ContentPage;)V
+	public synthetic fun buildCodeInline (Ljava/lang/Object;Lorg/jetbrains/dokka/pages/ContentCodeInline;Lorg/jetbrains/dokka/pages/ContentPage;)V
+	public fun buildCodeInline (Ljava/lang/StringBuilder;Lorg/jetbrains/dokka/pages/ContentCodeInline;Lorg/jetbrains/dokka/pages/ContentPage;)V
 	public synthetic fun buildDRILink (Ljava/lang/Object;Lorg/jetbrains/dokka/pages/ContentDRILink;Lorg/jetbrains/dokka/pages/ContentPage;Ljava/util/Set;)V
 	public fun buildDRILink (Ljava/lang/StringBuilder;Lorg/jetbrains/dokka/pages/ContentDRILink;Lorg/jetbrains/dokka/pages/ContentPage;Ljava/util/Set;)V
 	public synthetic fun buildDivergent (Ljava/lang/Object;Lorg/jetbrains/dokka/pages/ContentDivergentGroup;Lorg/jetbrains/dokka/pages/ContentPage;)V

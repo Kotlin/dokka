@@ -311,6 +311,22 @@ open class CommonmarkRenderer(
         }
     }
 
+    override fun StringBuilder.buildCodeBlock(code: ContentCodeBlock, pageContext: ContentPage) {
+        append("```")
+        append(code.language.ifEmpty { "kotlin" })
+        buildNewLine()
+        code.children.forEach { it.build(this, pageContext) }
+        buildNewLine()
+        append("```")
+        buildNewLine()
+    }
+
+    override fun StringBuilder.buildCodeInline(code: ContentCodeInline, pageContext: ContentPage) {
+        append("`")
+        code.children.forEach { it.build(this, pageContext) }
+        append("`")
+    }
+
     private fun decorators(styles: Set<Style>) = buildString {
         styles.forEach {
             when (it) {

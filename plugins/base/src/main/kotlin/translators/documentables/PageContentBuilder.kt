@@ -363,6 +363,42 @@ open class PageContentBuilder(
             contents += ContentGroup(content, DCI(mainDRI, kind), sourceSets.toDisplaySourceSets(), styles, extra)
         }
 
+        fun codeBlock(
+            language: String = "",
+            kind: Kind = ContentKind.Main,
+            sourceSets: Set<DokkaSourceSet> = mainSourcesetData,
+            styles: Set<Style> = mainStyles,
+            extra: PropertyContainer<ContentNode> = mainExtra,
+            block: DocumentableContentBuilder.() -> Unit
+        ) {
+            contents += ContentCodeBlock(
+                contentFor(mainDRI, sourceSets, kind, styles, extra, block).children,
+                language,
+                DCI(mainDRI, kind),
+                sourceSets.toDisplaySourceSets(),
+                styles,
+                extra
+            )
+        }
+
+        fun codeInline(
+            language: String,
+            kind: Kind = ContentKind.Main,
+            sourceSets: Set<DokkaSourceSet> = mainSourcesetData,
+            styles: Set<Style> = mainStyles,
+            extra: PropertyContainer<ContentNode> = mainExtra,
+            block: DocumentableContentBuilder.() -> Unit
+        ) {
+            contents += ContentCodeInline(
+                contentFor(mainDRI, sourceSets, kind, styles, extra, block).children,
+                language,
+                DCI(mainDRI, kind),
+                sourceSets.toDisplaySourceSets(),
+                styles,
+                extra
+            )
+        }
+
         fun firstParagraphComment(
             content: DocTag,
             kind: Kind = ContentKind.Comment,
