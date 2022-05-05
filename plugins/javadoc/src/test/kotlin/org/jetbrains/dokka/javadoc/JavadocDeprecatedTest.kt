@@ -4,6 +4,7 @@ import org.jetbrains.dokka.javadoc.pages.DeprecatedPage
 import org.jetbrains.dokka.javadoc.renderer.TemplateMap
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
+import kotlin.test.assertEquals
 
 internal class JavadocDeprecatedTest : AbstractJavadocTemplateMapTest() {
 
@@ -64,6 +65,21 @@ internal class JavadocDeprecatedTest : AbstractJavadocTemplateMapTest() {
 
             val map = templateMap.section("Methods")
             Assertions.assertEquals(if (hasAdditionalFunction()) 5 else 4, map.elements().size)
+        }
+    }
+
+    @Test
+    fun `should be sorted by position`() {
+        testDeprecatedPageTemplateMaps { templateMap ->
+            @Suppress("UNCHECKED_CAST")
+            val contents = (templateMap["sections"] as List<TemplateMap>).map { it["caption"] }
+
+            // maybe some other ordering is required by the javadoc spec
+            // but it has to be deterministic
+            val expected = "Classes, Exceptions, Methods, Constructors, Enums, For Removal"
+            val actual = contents.joinToString(separator = ", ")
+
+            assertEquals(expected, actual)
         }
     }
 

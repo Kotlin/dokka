@@ -90,9 +90,30 @@ object IndexGenerator : PageTransformer {
         }
         val keys = elements.keys.sortedBy { it }
         val sortedElements = elements.entries.sortedBy { (a, _) -> a }
-        return input.modified(children = input.children + sortedElements.mapIndexed { i, (_, set) ->
-            IndexPage(i + 1, set.sortedBy { it.getId().toLowerCase() }, keys, input.sourceSets())
-        })
+
+        val indexNodeComparator = compareBy<NavigableJavadocNode> { it.getId().toLowerCase() }
+            .thenBy { it.getFullComparatorKey() }
+
+        val indexPages = sortedElements.mapIndexed { idx, (_, set) ->
+            IndexPage(
+                id = idx + 1,
+                elements = set.sortedWith(indexNodeComparator),
+                keys = keys,
+                sourceSet = input.sourceSets()
+            )
+        }
+        return input.modified(children = input.children + indexPages)
+    }
+
+    private fun NavigableJavadocNode.getFullComparatorKey(): String {
+        return getDRI().let { dri ->
+            val packageName = dri.packageName.orEmpty()
+            val className = dri.classNames.orEmpty()
+            val callableName = dri.callable?.name.orEmpty()
+            val parameters = dri.callable?.signature().orEmpty()
+
+            "$packageName/$className/$callableName/$parameters"
+        }
     }
 }
 
