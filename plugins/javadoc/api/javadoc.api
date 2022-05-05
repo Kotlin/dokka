@@ -119,7 +119,6 @@ public final class org/jetbrains/dokka/javadoc/pages/DeprecatedPageSection : jav
 	public final fun getCaption ()Ljava/lang/String;
 	public final fun getHeader ()Ljava/lang/String;
 	public final fun getId ()Ljava/lang/String;
-	public final fun getPriority ()I
 	public static fun valueOf (Ljava/lang/String;)Lorg/jetbrains/dokka/javadoc/pages/DeprecatedPageSection;
 	public static fun values ()[Lorg/jetbrains/dokka/javadoc/pages/DeprecatedPageSection;
 }
