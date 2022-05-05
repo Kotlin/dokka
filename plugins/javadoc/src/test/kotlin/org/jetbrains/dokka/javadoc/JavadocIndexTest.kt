@@ -9,7 +9,7 @@ import kotlin.test.assertNotNull
 
 internal class JavadocIndexTest : AbstractJavadocTemplateMapTest() {
 
-    private val genericQuery = """
+    private val commonTestQuery = """
             /src/source0.kt
             package package0
             /** 
@@ -59,7 +59,7 @@ internal class JavadocIndexTest : AbstractJavadocTemplateMapTest() {
 
     @Test
     fun `generates correct number of index pages`() {
-        testIndexPages(genericQuery) { indexPages ->
+        testIndexPages(commonTestQuery) { indexPages ->
             assertEquals(12, indexPages.size)
         }
     }
@@ -70,14 +70,14 @@ internal class JavadocIndexTest : AbstractJavadocTemplateMapTest() {
         fun hasAdditionalFunction() =
             AnnotationTarget.ANNOTATION_CLASS::class.java.methods.any { it.name == "describeConstable" }
 
-        testIndexPages(genericQuery) { indexPages ->
+        testIndexPages(commonTestQuery) { indexPages ->
             assertEquals(if (hasAdditionalFunction()) 41 else 40, indexPages.sumBy { it.elements.size })
         }
     }
 
     @Test
     fun `templateMap for class index`() {
-        testIndexPagesTemplateMaps(genericQuery) { templateMaps ->
+        testIndexPagesTemplateMaps(commonTestQuery) { templateMaps ->
             @Suppress("UNCHECKED_CAST")
             val element = (templateMaps[2]["elements"] as List<TemplateMap>)[1]
             assertEquals("../package0/ClassA.html", element["address"])
@@ -91,7 +91,7 @@ internal class JavadocIndexTest : AbstractJavadocTemplateMapTest() {
 
     @Test
     fun `templateMap for enum entry index`() {
-        testIndexPagesTemplateMaps(genericQuery) { templateMaps ->
+        testIndexPagesTemplateMaps(commonTestQuery) { templateMaps ->
             @Suppress("UNCHECKED_CAST")
             val element = (templateMaps[0]["elements"] as List<TemplateMap>).last()
             assertEquals("../package1/ClassCEnum.html#A", element["address"])
@@ -105,7 +105,7 @@ internal class JavadocIndexTest : AbstractJavadocTemplateMapTest() {
 
     @Test
     fun `templateMap for function index`() {
-        testIndexPagesTemplateMaps(genericQuery) { templateMaps ->
+        testIndexPagesTemplateMaps(commonTestQuery) { templateMaps ->
             @Suppress("UNCHECKED_CAST")
             val element = (templateMaps[0]["elements"] as List<TemplateMap>).first()
             assertEquals("../package0/ClassA.html#a()", element["address"])
