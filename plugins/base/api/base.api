@@ -1124,10 +1124,9 @@ public final class org/jetbrains/dokka/base/transformers/documentables/ClashingD
 	public fun mergeStrategyFor (Lorg/jetbrains/dokka/base/transformers/documentables/ClashingDriIdentifier;Lorg/jetbrains/dokka/base/transformers/documentables/ClashingDriIdentifier;)Lorg/jetbrains/dokka/model/properties/MergeStrategy;
 }
 
-public final class org/jetbrains/dokka/base/transformers/documentables/DeprecatedDocumentableFilterTransformer : org/jetbrains/dokka/transformers/documentation/PreMergeDocumentableTransformer {
+public final class org/jetbrains/dokka/base/transformers/documentables/DeprecatedDocumentableFilterTransformer : org/jetbrains/dokka/base/transformers/documentables/SuppressedByConditionDocumentableFilterTransformer {
 	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
-	public final fun getContext ()Lorg/jetbrains/dokka/plugability/DokkaContext;
-	public fun invoke (Ljava/util/List;)Ljava/util/List;
+	public fun shouldBeSuppressed (Lorg/jetbrains/dokka/model/Documentable;)Z
 }
 
 public abstract class org/jetbrains/dokka/base/transformers/documentables/DocumentableReplacerTransformer : org/jetbrains/dokka/transformers/documentation/PreMergeDocumentableTransformer {
