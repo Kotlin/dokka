@@ -4,6 +4,7 @@ import org.jetbrains.dokka.base.renderers.sourceSets
 import org.jetbrains.dokka.base.transformers.documentables.deprecatedAnnotation
 import org.jetbrains.dokka.base.transformers.documentables.isDeprecated
 import org.jetbrains.dokka.base.transformers.documentables.isException
+import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.BooleanValue
 import org.jetbrains.dokka.model.Documentable
 import org.jetbrains.dokka.pages.*
@@ -91,9 +92,7 @@ object IndexGenerator : PageTransformer {
         val keys = elements.keys.sortedBy { it }
         val sortedElements = elements.entries.sortedBy { (a, _) -> a }
 
-        val indexNodeComparator = compareBy<NavigableJavadocNode> { it.getId().toLowerCase() }
-            .thenBy { it.getFullComparatorKey() }
-
+        val indexNodeComparator = getIndexNodeComparator()
         val indexPages = sortedElements.mapIndexed { idx, (_, set) ->
             IndexPage(
                 id = idx + 1,
@@ -105,15 +104,14 @@ object IndexGenerator : PageTransformer {
         return input.modified(children = input.children + indexPages)
     }
 
-    private fun NavigableJavadocNode.getFullComparatorKey(): String {
-        return getDRI().let { dri ->
-            val packageName = dri.packageName.orEmpty()
-            val className = dri.classNames.orEmpty()
-            val callableName = dri.callable?.name.orEmpty()
-            val parameters = dri.callable?.signature().orEmpty()
+    private fun getIndexNodeComparator(): Comparator<NavigableJavadocNode> {
+        val driComparator = compareBy<DRI> { it.packageName }
+            .thenBy { it.classNames }
+            .thenBy { it.callable?.name.orEmpty() }
+            .thenBy { it.callable?.signature().orEmpty() }
 
-            "$packageName/$className/$callableName/$parameters"
-        }
+        return compareBy<NavigableJavadocNode> { it.getId().toLowerCase() }
+            .thenBy(driComparator) { it.getDRI() }
     }
 }
 
