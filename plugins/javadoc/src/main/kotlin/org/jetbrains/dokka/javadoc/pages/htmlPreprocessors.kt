@@ -92,9 +92,7 @@ object IndexGenerator : PageTransformer {
         val keys = elements.keys.sortedBy { it }
         val sortedElements = elements.entries.sortedBy { (a, _) -> a }
 
-        val indexNodeComparator = compareBy<NavigableJavadocNode> { it.getId().toLowerCase() }
-            .thenBy(getLocalDRIComparator()) { it.getDRI() }
-
+        val indexNodeComparator = getIndexNodeComparator()
         val indexPages = sortedElements.mapIndexed { idx, (_, set) ->
             IndexPage(
                 id = idx + 1,
@@ -106,12 +104,14 @@ object IndexGenerator : PageTransformer {
         return input.modified(children = input.children + indexPages)
     }
 
-    // only includes fields relevant for NavigableJavadocNode
-    private fun getLocalDRIComparator(): Comparator<DRI> {
-        return compareBy<DRI> { it.packageName }
+    private fun getIndexNodeComparator(): Comparator<NavigableJavadocNode> {
+        val driComparator = compareBy<DRI> { it.packageName }
             .thenBy { it.classNames }
             .thenBy { it.callable?.name.orEmpty() }
             .thenBy { it.callable?.signature().orEmpty() }
+
+        return compareBy<NavigableJavadocNode> { it.getId().toLowerCase() }
+            .thenBy(driComparator) { it.getDRI() }
     }
 }
 
