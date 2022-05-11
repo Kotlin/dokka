@@ -69,6 +69,14 @@ class TextStylesTest : HtmlRenderingOnlyTestBase() {
         files.contents.getValue("test-page.html").contains("&nbsp;<strike><b>styled text</b></strike>")
     }
 
+    @Test
+    fun `should include blockquote`() {
+        val page = testPage {
+            text("blockquote text", styles = setOf(TextStyle.Quotation))
+        }
+        HtmlRenderer(context).render(page)
+        renderedContent.match(BLOCKQUOTE("blockquote text"))
+    }
 
     override val renderedContent: Element
         get() = files.contents.getValue("test-page.html").let { Jsoup.parse(it) }.select("#content").single()
