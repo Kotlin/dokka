@@ -876,7 +876,7 @@ class SignatureTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `should have no empty parentheses for no-arg enum entry`() {
+    fun `should have no empty parentheses for enum entries`() {
         val writerPlugin = TestOutputWriterPlugin()
 
         testInline(
@@ -905,7 +905,7 @@ class SignatureTest : BaseAbstractTest() {
                 )
 
                 enumEntrySignatures[1].match(
-                    A("WITH_ARG"), "(\"arg\")",
+                    A("WITH_ARG"),
                     ignoreSpanWithTokenStyle = true
                 )
             }
