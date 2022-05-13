@@ -29,6 +29,8 @@ class A(vararg matchers: Any) : Tag("a", *matchers)
 class B(vararg matchers: Any) : Tag("b", *matchers)
 class I(vararg matchers: Any) : Tag("i", *matchers)
 class STRIKE(vararg matchers: Any) : Tag("strike", *matchers)
+
+class BlockQuote(vararg matchers: Any) : Tag("blockquote", *matchers)
 class Dl(vararg matchers: Any) : Tag("dl", *matchers)
 class Dt(vararg matchers: Any) : Tag("dt", *matchers)
 class Dd(vararg matchers: Any) : Tag("dd", *matchers)
