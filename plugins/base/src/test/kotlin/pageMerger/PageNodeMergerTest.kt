@@ -137,14 +137,14 @@ class PageNodeMergerTest : BaseAbstractTest() {
                     analysisPlatform = "common"
                     sourceRoots = listOf("src/commonMain/kotlin/pageMerger/Test.kt")
                 }
-                val js = sourceSet {
+                sourceSet {
                     name = "js"
                     displayName = "js"
                     analysisPlatform = "js"
                     dependentSourceSets = setOf(common.value.sourceSetID)
                     sourceRoots = listOf("src/jsMain/kotlin/pageMerger/Test.kt")
                 }
-                val jvm = sourceSet {
+                sourceSet {
                     name = "jvm"
                     displayName = "jvm"
                     analysisPlatform = "jvm"
@@ -178,10 +178,10 @@ class PageNodeMergerTest : BaseAbstractTest() {
                 val jsClass = allChildren.filter { it.name == "[js]DoNotMerge" }
                 val noClass = allChildren.filter { it.name == "DoNotMerge" }
                 assertTrue(jvmClass.size == 1) { "There can be only one DoNotMerge(jvm) page" }
-                assertTrue(jvmClass.first().documentable?.sourceSets?.single()?.analysisPlatform?.key == "jvm") { "[jvm]DoNotMerge should have only jvm sources" }
+                assertTrue(jvmClass.first().documentables.firstOrNull()?.sourceSets?.single()?.analysisPlatform?.key == "jvm") { "[jvm]DoNotMerge should have only jvm sources" }
 
                 assertTrue(jsClass.size == 1) { "There can be only one DoNotMerge(js) page" }
-                assertTrue(jsClass.first().documentable?.sourceSets?.single()?.analysisPlatform?.key == "js") { "[js]DoNotMerge should have only js sources" }
+                assertTrue(jsClass.first().documentables.firstOrNull()?.sourceSets?.single()?.analysisPlatform?.key == "js") { "[js]DoNotMerge should have only js sources" }
 
                 assertTrue(noClass.isEmpty()) { "There can't be any DoNotMerge page" }
             }

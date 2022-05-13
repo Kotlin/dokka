@@ -92,8 +92,7 @@ class DefaultDescriptorToDocumentableTranslator(
         return DokkaDescriptorVisitor(sourceSet, kotlinAnalysis[sourceSet].facade, context.logger).run {
             packageFragments.mapNotNull { it.safeAs<PackageFragmentDescriptor>() }.parallelMap {
                 visitPackageFragmentDescriptor(
-                    it,
-                    DRIWithPlatformInfo(DRI.topLevel, emptyMap())
+                    it
                 )
             }
         }.let {
@@ -141,20 +140,17 @@ private class DokkaDescriptorVisitor(
 
     private fun <T> T.toSourceSetDependent() = if (this != null) mapOf(sourceSet to this) else emptyMap()
 
-    suspend fun visitPackageFragmentDescriptor(
-        descriptor: PackageFragmentDescriptor,
-        parent: DRIWithPlatformInfo
-    ): DPackage {
+    suspend fun visitPackageFragmentDescriptor(descriptor: PackageFragmentDescriptor): DPackage {
         val name = descriptor.fqName.asString().takeUnless { it.isBlank() } ?: ""
         val driWithPlatform = DRI(packageName = name).withEmptyInfo()
         val scope = descriptor.getMemberScope()
         return coroutineScope {
             val descriptorsWithKind = scope.getDescriptorsWithKind(true)
 
-            val functions = async { descriptorsWithKind.functions.visitFunctions(driWithPlatform) }
-            val properties = async { descriptorsWithKind.properties.visitProperties(driWithPlatform) }
+            val functions = async { descriptorsWithKind.functions.visitFunctions() }
+            val properties = async { descriptorsWithKind.properties.visitProperties() }
             val classlikes = async { descriptorsWithKind.classlikes.visitClasslikes(driWithPlatform) }
-            val typealiases = async { descriptorsWithKind.typealiases.visitTypealiases(driWithPlatform) }
+            val typealiases = async { descriptorsWithKind.typealiases.visitTypealiases() }
 
             DPackage(
                 dri = driWithPlatform.dri,
@@ -187,8 +183,8 @@ private class DokkaDescriptorVisitor(
         return coroutineScope {
             val descriptorsWithKind = scope.getDescriptorsWithKind()
 
-            val functions = async { descriptorsWithKind.functions.visitFunctions(driWithPlatform) }
-            val properties = async { descriptorsWithKind.properties.visitProperties(driWithPlatform) }
+            val functions = async { descriptorsWithKind.functions.visitFunctions() }
+            val properties = async { descriptorsWithKind.properties.visitProperties() }
             val classlikes = async { descriptorsWithKind.classlikes.visitClasslikes(driWithPlatform) }
             val generics = async { descriptor.declaredTypeParameters.parallelMap {
                 it.toVariantTypeParameter(parent.actualSources)
@@ -231,8 +227,8 @@ private class DokkaDescriptorVisitor(
         return coroutineScope {
             val descriptorsWithKind = scope.getDescriptorsWithKind()
 
-            val functions = async { descriptorsWithKind.functions.visitFunctions(driWithPlatform) }
-            val properties = async { descriptorsWithKind.properties.visitProperties(driWithPlatform) }
+            val functions = async { descriptorsWithKind.functions.visitFunctions() }
+            val properties = async { descriptorsWithKind.properties.visitProperties() }
             val classlikes = async { descriptorsWithKind.classlikes.visitClasslikes(driWithPlatform) }
 
             DObject(
@@ -271,8 +267,8 @@ private class DokkaDescriptorVisitor(
         return coroutineScope {
             val descriptorsWithKind = scope.getDescriptorsWithKind()
 
-            val functions = async { descriptorsWithKind.functions.visitFunctions(driWithPlatform) }
-            val properties = async { descriptorsWithKind.properties.visitProperties(driWithPlatform) }
+            val functions = async { descriptorsWithKind.functions.visitFunctions() }
+            val properties = async { descriptorsWithKind.properties.visitProperties() }
             val classlikes = async { descriptorsWithKind.classlikes.visitClasslikes(driWithPlatform) }
             val constructors =
                 async { descriptor.constructors.parallelMap { visitConstructorDescriptor(it, driWithPlatform) } }
@@ -311,8 +307,8 @@ private class DokkaDescriptorVisitor(
         return coroutineScope {
             val descriptorsWithKind = scope.getDescriptorsWithKind()
 
-            val functions = async { descriptorsWithKind.functions.visitFunctions(driWithPlatform) }
-            val properties = async { descriptorsWithKind.properties.visitProperties(driWithPlatform) }
+            val functions = async { descriptorsWithKind.functions.visitFunctions() }
+            val properties = async { descriptorsWithKind.properties.visitProperties() }
             val classlikes = async { descriptorsWithKind.classlikes.visitClasslikes(driWithPlatform) }
 
             DEnumEntry(
@@ -344,8 +340,8 @@ private class DokkaDescriptorVisitor(
             val descriptorsWithKind = scope.getDescriptorsWithKind()
             val sources = descriptor.createSources()
 
-            val functions = async { descriptorsWithKind.functions.visitFunctions(driWithPlatform) }
-            val properties = async { descriptorsWithKind.properties.visitProperties(driWithPlatform) }
+            val functions = async { descriptorsWithKind.functions.visitFunctions() }
+            val properties = async { descriptorsWithKind.properties.visitProperties() }
             val classlikes = async { descriptorsWithKind.classlikes.visitClasslikes(driWithPlatform) }
             val generics = async { descriptor.declaredTypeParameters.parallelMap {
                 it.toVariantTypeParameter(sources)
@@ -389,8 +385,8 @@ private class DokkaDescriptorVisitor(
         return coroutineScope {
             val descriptorsWithKind = scope.getDescriptorsWithKind()
 
-            val functions = async { descriptorsWithKind.functions.visitFunctions(driWithPlatform) }
-            val properties = async { descriptorsWithKind.properties.visitProperties(driWithPlatform) }
+            val functions = async { descriptorsWithKind.functions.visitFunctions() }
+            val properties = async { descriptorsWithKind.properties.visitProperties() }
             val classlikes = async { descriptorsWithKind.classlikes.visitClasslikes(driWithPlatform) }
             val generics = async {
                 descriptor.declaredTypeParameters.parallelMap { it.toVariantTypeParameter(actualSources) }
@@ -432,10 +428,7 @@ private class DokkaDescriptorVisitor(
         }
     }
 
-    private suspend fun visitPropertyDescriptor(
-        originalDescriptor: PropertyDescriptor,
-        parent: DRIWithPlatformInfo
-    ): DProperty {
+    private suspend fun visitPropertyDescriptor(originalDescriptor: PropertyDescriptor): DProperty {
         val (dri, inheritedFrom) = originalDescriptor.createDRI()
         val descriptor = originalDescriptor.getConcreteDescriptor()
         val isExpect = descriptor.isExpect
@@ -473,7 +466,7 @@ private class DokkaDescriptorVisitor(
                             .toAdditionalExtras()).toSet().toSourceSetDependent().toAdditionalModifiers(),
                         (descriptor.getAnnotationsWithBackingField() + descriptor.fileLevelAnnotations()).toSourceSetDependent()
                             .toAnnotations(),
-                        descriptor.getDefaultValue()?.let { DefaultValue(it) },
+                        descriptor.getDefaultValue()?.let { DefaultValue(it.toSourceSetDependent()) },
                         InheritedMember(inheritedFrom.toSourceSetDependent()),
                     )
                 )
@@ -487,10 +480,7 @@ private class DokkaDescriptorVisitor(
         else
             overriddenDescriptors.first().createDRI(DRI.from(this))
 
-    private suspend fun visitFunctionDescriptor(
-        originalDescriptor: FunctionDescriptor,
-        parent: DRIWithPlatformInfo
-    ): DFunction {
+    private suspend fun visitFunctionDescriptor(originalDescriptor: FunctionDescriptor): DFunction {
         val (dri, inheritedFrom) = originalDescriptor.createDRI()
         val descriptor = originalDescriptor.getConcreteDescriptor()
         val isExpect = descriptor.isExpect
@@ -684,17 +674,17 @@ private class DokkaDescriptorVisitor(
         }
     }
 
-    private suspend fun visitTypeAliasDescriptor(descriptor: TypeAliasDescriptor, parent: DRIWithPlatformInfo) =
+    private suspend fun visitTypeAliasDescriptor(descriptor: TypeAliasDescriptor) =
         with(descriptor) {
             coroutineScope {
+                val sources = descriptor.createSources()
                 val generics = async {
-                    descriptor.declaredTypeParameters.parallelMap { it.toVariantTypeParameter(parent.actualSources) }
+                    descriptor.declaredTypeParameters.parallelMap { it.toVariantTypeParameter(sources) }
                 }
-                val info = buildAncestryInformation(defaultType, parent.actualSources).copy(
-                    superclass = buildAncestryInformation(underlyingType, parent.actualSources),
+                val info = buildAncestryInformation(defaultType, sources).copy(
+                    superclass = buildAncestryInformation(underlyingType, sources),
                     interfaces = emptyList()
                 )
-                val sources = descriptor.createSources()
                 DTypeAlias(
                     dri = DRI.from(this@with),
                     name = name.asString(),
@@ -731,7 +721,7 @@ private class DokkaDescriptorVisitor(
             extra = PropertyContainer.withAll(listOfNotNull(
                 descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
                 descriptor.getAnnotations().toSourceSetDependent().toAnnotations(),
-                descriptor.getDefaultValue()?.let { DefaultValue(it) },
+                descriptor.getDefaultValue()?.let { DefaultValue(it.toSourceSetDependent()) }
             ))
         )
 
@@ -761,6 +751,7 @@ private class DokkaDescriptorVisitor(
             }
         }
 
+        @Suppress("UNCHECKED_CAST")
         return DescriptorsWithKind(
             (groupedDescriptors[FunctionDescriptor::class] ?: emptyList()) as List<FunctionDescriptor>,
             (groupedDescriptors[PropertyDescriptor::class] ?: emptyList()) as List<PropertyDescriptor>,
@@ -770,17 +761,17 @@ private class DokkaDescriptorVisitor(
         )
     }
 
-    private suspend fun List<FunctionDescriptor>.visitFunctions(parent: DRIWithPlatformInfo): List<DFunction> =
-        coroutineScope { parallelMap { visitFunctionDescriptor(it, parent) } }
+    private suspend fun List<FunctionDescriptor>.visitFunctions(): List<DFunction> =
+        coroutineScope { parallelMap { visitFunctionDescriptor(it) } }
 
-    private suspend fun List<PropertyDescriptor>.visitProperties(parent: DRIWithPlatformInfo): List<DProperty> =
-        coroutineScope { parallelMap { visitPropertyDescriptor(it, parent) } }
+    private suspend fun List<PropertyDescriptor>.visitProperties(): List<DProperty> =
+        coroutineScope { parallelMap { visitPropertyDescriptor(it) } }
 
     private suspend fun List<ClassDescriptor>.visitClasslikes(parent: DRIWithPlatformInfo): List<DClasslike> =
         coroutineScope { parallelMap { visitClassDescriptor(it, parent) } }
 
-    private suspend fun List<TypeAliasDescriptor>.visitTypealiases(parent: DRIWithPlatformInfo): List<DTypeAlias> =
-        coroutineScope { parallelMap { visitTypeAliasDescriptor(it, parent) } }
+    private suspend fun List<TypeAliasDescriptor>.visitTypealiases(): List<DTypeAlias> =
+        coroutineScope { parallelMap { visitTypeAliasDescriptor(it) } }
 
     private suspend fun List<ClassDescriptor>.visitEnumEntries(parent: DRIWithPlatformInfo): List<DEnumEntry> =
         coroutineScope { parallelMap { visitEnumEntryDescriptor(it, parent) } }
@@ -1004,7 +995,7 @@ private class DokkaDescriptorVisitor(
 
     private fun ConstantValue<*>.toValue(): AnnotationParameterValue = when (this) {
         is ConstantsAnnotationValue -> AnnotationValue(value.toAnnotation())
-        is ConstantsArrayValue -> ArrayValue(value.mapNotNull { it.toValue() })
+        is ConstantsArrayValue -> ArrayValue(value.map { it.toValue() })
         is ConstantsEnumValue -> EnumValue(
             fullEnumEntryName(),
             DRI(enumClassId.packageFqName.asString(), fullEnumEntryName())
@@ -1037,9 +1028,7 @@ private class DokkaDescriptorVisitor(
     private fun AnnotationDescriptor.toAnnotation(scope: Annotations.AnnotationScope = Annotations.AnnotationScope.DIRECT): Annotations.Annotation =
         Annotations.Annotation(
             DRI.from(annotationClass as DeclarationDescriptor),
-            allValueArguments.map { it.key.asString() to it.value.toValue() }.filter {
-                it.second != null
-            }.toMap(),
+            allValueArguments.map { it.key.asString() to it.value.toValue() }.toMap(),
             mustBeDocumented(),
             scope
         )
@@ -1059,9 +1048,14 @@ private class DokkaDescriptorVisitor(
         }
     }
 
-    private fun <T : CallableMemberDescriptor> T.getConcreteDescriptor(): T =
-        if (kind != CallableMemberDescriptor.Kind.FAKE_OVERRIDE) this
-        else overriddenDescriptors.first().getConcreteDescriptor() as T
+    private fun <T : CallableMemberDescriptor> T.getConcreteDescriptor(): T {
+        return if (kind != CallableMemberDescriptor.Kind.FAKE_OVERRIDE) {
+            this
+        } else {
+            @Suppress("UNCHECKED_CAST")
+            overriddenDescriptors.first().getConcreteDescriptor() as T
+        }
+    }
 
     private fun ValueParameterDescriptor.getDefaultValue(): Expression? =
         ((source as? KotlinSourceElement)?.psi as? KtParameter)?.defaultValue?.toDefaultValueExpression()

@@ -35,10 +35,12 @@ class DocumentableVisibilityFilterTransformer(val context: DokkaContext) : PreMe
                 packageOptions.firstOrNull { Regex(it.matchingRegex).matches(name) }
             }
 
-            val (documentedVisibilities, includeNonPublic) = when {
-                packageOpts != null -> packageOpts.documentedVisibilities to packageOpts.includeNonPublic
-                else -> globalOptions.documentedVisibilities to globalOptions.includeNonPublic
-            }
+            val (documentedVisibilities, includeNonPublic) =
+                @Suppress("DEPRECATION") // for includeNonPublic, preserve backwards compatibility
+                when {
+                    packageOpts != null -> packageOpts.documentedVisibilities to packageOpts.includeNonPublic
+                    else -> globalOptions.documentedVisibilities to globalOptions.includeNonPublic
+                }
 
             // if `documentedVisibilities` is explicitly overridden by the user (i.e. not default value by reference),
             // deprecated `includeNonPublic` should not be taken into account, so that only one setting prevails
@@ -176,7 +178,7 @@ class DocumentableVisibilityFilterTransformer(val context: DokkaContext) : PreMe
         ): Pair<Boolean, List<DProperty>> {
 
             val modifier: (DProperty, Set<DokkaSourceSet>) -> Pair<Boolean, DProperty> =
-                { original, filteredPlatforms ->
+                { original, _ ->
                     val setter = original.setter?.let { filterFunctions(listOf(it), additionalConditionAccessors) }
                     val getter = original.getter?.let { filterFunctions(listOf(it), additionalConditionAccessors) }
 
@@ -219,7 +221,7 @@ class DocumentableVisibilityFilterTransformer(val context: DokkaContext) : PreMe
             entries: List<DEnumEntry>,
             filteredPlatforms: Set<DokkaSourceSet>,
         ): Pair<Boolean, List<DEnumEntry>> =
-            entries.foldRight(Pair(false, emptyList())) { entry, acc ->
+            entries.fold(Pair(false, emptyList())) { acc, entry ->
                 val intersection = filteredPlatforms.intersect(entry.sourceSets)
                 if (intersection.isEmpty()) Pair(true, acc.second)
                 else {

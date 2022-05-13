@@ -134,10 +134,10 @@ class MergeImplicitExpectActualDeclarationsTest : BaseAbstractTest() {
                 assertNotNull(classPage, "Tested class not found!")
 
                 val props = classPage.findSectionWithName("Properties").assertNotNull("Properties")
-                val prop1 = props.children.singleOrNull().assertNotNull("prop1")
+                props.children.singleOrNull().assertNotNull("prop1")
 
                 val functions = classPage.findSectionWithName("Functions").assertNotNull("Functions")
-                val method1 = functions.children.singleOrNull().assertNotNull("method1")
+                functions.children.singleOrNull().assertNotNull("method1")
             }
         }
     }
@@ -218,7 +218,7 @@ class MergeImplicitExpectActualDeclarationsTest : BaseAbstractTest() {
                 assertNotNull(classPage, "Tested class not found!")
 
                 val entries = classPage.findSectionWithName("Entries").assertNotNull("Entries")
-                val entry = entries.children.singleOrNull().assertNotNull("ENTRY")
+                entries.children.singleOrNull().assertNotNull("ENTRY")
 
                 val props = classPage.findSectionWithName("Properties").assertNotNull("Properties")
                 assertEquals(

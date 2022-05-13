@@ -148,6 +148,7 @@ class GradleDokkaSourceSetBuilderTest {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun includeNonPublic() {
         val sourceSet = GradleDokkaSourceSetBuilder("", project)
         assertEquals(

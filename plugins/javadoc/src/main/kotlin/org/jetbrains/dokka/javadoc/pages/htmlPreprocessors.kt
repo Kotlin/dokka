@@ -4,6 +4,7 @@ import org.jetbrains.dokka.base.renderers.sourceSets
 import org.jetbrains.dokka.base.transformers.documentables.deprecatedAnnotation
 import org.jetbrains.dokka.base.transformers.documentables.isDeprecated
 import org.jetbrains.dokka.base.transformers.documentables.isException
+import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.BooleanValue
 import org.jetbrains.dokka.model.Documentable
 import org.jetbrains.dokka.pages.*
@@ -39,12 +40,13 @@ object TreeViewInstaller : PageTransformer {
             root = root
         )
 
-        return node.modified(children = node.children.map { node ->
+        val nodeChildren = node.children.map { childNode ->
             install(
-                node,
+                childNode,
                 root
             )
-        } + overviewTree) as JavadocModulePageNode
+        }
+        return node.modified(children = nodeChildren + overviewTree) as JavadocModulePageNode
     }
 
     private fun installPackageTreeNode(node: JavadocPackagePageNode, root: RootPageNode): JavadocPackagePageNode {
@@ -89,9 +91,27 @@ object IndexGenerator : PageTransformer {
         }
         val keys = elements.keys.sortedBy { it }
         val sortedElements = elements.entries.sortedBy { (a, _) -> a }
-        return input.modified(children = input.children + sortedElements.mapIndexed { i, (_, set) ->
-            IndexPage(i + 1, set.sortedBy { it.getId().toLowerCase() }, keys, input.sourceSets())
-        })
+
+        val indexNodeComparator = getIndexNodeComparator()
+        val indexPages = sortedElements.mapIndexed { idx, (_, set) ->
+            IndexPage(
+                id = idx + 1,
+                elements = set.sortedWith(indexNodeComparator),
+                keys = keys,
+                sourceSet = input.sourceSets()
+            )
+        }
+        return input.modified(children = input.children + indexPages)
+    }
+
+    private fun getIndexNodeComparator(): Comparator<NavigableJavadocNode> {
+        val driComparator = compareBy<DRI> { it.packageName }
+            .thenBy { it.classNames }
+            .thenBy { it.callable?.name.orEmpty() }
+            .thenBy { it.callable?.signature().orEmpty() }
+
+        return compareBy<NavigableJavadocNode> { it.getId().toLowerCase() }
+            .thenBy(driComparator) { it.getDRI() }
     }
 }
 

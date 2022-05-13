@@ -68,6 +68,7 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
         override var matchingRegex: String = ".*"
 
         @Parameter
+        @Deprecated("Use [documentedVisibilities] property for a more flexible control over documented visibilities")
         override var includeNonPublic: Boolean = DokkaDefaults.includeNonPublic
 
         @Parameter
@@ -214,6 +215,7 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
             jdkVersion = jdkVersion,
             sourceLinks = sourceLinks.map { SourceLinkDefinitionImpl(it.path, URL(it.url), it.lineSuffix) }.toSet(),
             perPackageOptions = perPackageOptions.map {
+                @Suppress("DEPRECATION") // for includeNonPublic, preserve backwards compatibility
                 PackageOptionsImpl(
                     matchingRegex = it.matchingRegex,
                     includeNonPublic = it.includeNonPublic,

@@ -126,7 +126,7 @@ class AddToNavigationCommandResolutionTest : TemplatingAbstractTest() {
         val module2Navigation = module2.resolve("navigation.html")
         module2Navigation.writeText(inputForModule("module2"))
 
-        testFromData(configuration, preserveOutputLocation = true) {
+        testFromData(configuration, useOutputLocationFromConfig = true) {
             finishProcessingSubmodules = { ctx ->
                 test(ctx)
             }

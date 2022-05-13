@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test
 import utils.assertNotNull
 
 class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
+    @Suppress("DEPRECATION") // for includeNonPublic
     val configuration = dokkaConfiguration {
         sourceSets {
             sourceSet {

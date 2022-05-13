@@ -80,25 +80,29 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                     link(e.name, e.dri, styles = emptySet())
                     e.extra[ConstructorValues]?.let { constructorValues ->
                         constructorValues.values[it]?.let { values ->
-                            punctuation("(")
                             list(
                                 elements = values,
+                                prefix = "(",
+                                suffix = ")",
                                 separator = ", ",
                                 separatorStyles = mainStyles + TokenStyle.Punctuation,
                             ) { highlightValue(it) }
-                            punctuation(")")
                         }
                     }
                 }
             }
         }
 
-    private fun actualTypealiasedSignature(c: DClasslike, sourceSet: DokkaSourceSet, aliasedType: Bound) =
-        contentBuilder.contentFor(
+    private fun actualTypealiasedSignature(c: DClasslike, sourceSet: DokkaSourceSet, aliasedType: Bound): ContentGroup {
+        @Suppress("UNCHECKED_CAST")
+        val deprecationStyles = (c as? WithExtraProperties<out Documentable>)
+            ?.stylesIfDeprecated(sourceSet)
+            ?: emptySet()
+
+        return contentBuilder.contentFor(
             c,
             ContentKind.Symbol,
-            setOf(TextStyle.Monospace) + ((c as? WithExtraProperties<out Documentable>)?.stylesIfDeprecated(sourceSet)
-                ?: emptySet()),
+            setOf(TextStyle.Monospace) + deprecationStyles,
             sourceSets = setOf(sourceSet)
         ) {
             keyword("actual ")
@@ -107,38 +111,66 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
             operator(" = ")
             signatureForProjection(aliasedType)
         }
+    }
 
-    @Suppress("UNCHECKED_CAST")
-    private fun <T : DClasslike> classlikeSignature(c: T): List<ContentNode> =
-        c.sourceSets.map { sourceSetData ->
-            (c as? WithExtraProperties<out DClasslike>)?.extra?.get(ActualTypealias)?.underlyingType?.get(sourceSetData)
-                ?.let {
-                    actualTypealiasedSignature(c, sourceSetData, it)
-                } ?: regularSignature(c, sourceSetData)
+    private fun <T : DClasslike> classlikeSignature(c: T): List<ContentNode> {
+        @Suppress("UNCHECKED_CAST")
+        val typeAliasUnderlyingType = (c as? WithExtraProperties<out DClasslike>)
+            ?.extra
+            ?.get(ActualTypealias)
+            ?.underlyingType
+
+        return c.sourceSets.map { sourceSetData ->
+            val sourceSetType = typeAliasUnderlyingType?.get(sourceSetData)
+            if (sourceSetType == null) {
+                regularSignature(c, sourceSetData)
+            } else {
+                actualTypealiasedSignature(c, sourceSetData, sourceSetType)
+            }
         }
+    }
 
+    private fun <T : Documentable> PageContentBuilder.DocumentableContentBuilder.defaultValueAssign(
+        d: WithExtraProperties<T>,
+        sourceSet: DokkaSourceSet
+    ) {
+        // a default value of parameter can be got from expect source set
+        // but expect properties cannot have a default value
+        d.extra[DefaultValue]?.expression?.let {
+            it[sourceSet] ?: if (d is DParameter) it[d.expectPresentInSet] else null
+        }?.let { expr ->
+            operator(" = ")
+            highlightValue(expr)
+        }
+    }
 
-    private fun regularSignature(c: DClasslike, sourceSet: DokkaSourceSet) =
-        contentBuilder.contentFor(
+    private fun regularSignature(c: DClasslike, sourceSet: DokkaSourceSet): ContentGroup {
+        @Suppress("UNCHECKED_CAST")
+        val deprecationStyles = (c as? WithExtraProperties<out Documentable>)
+            ?.stylesIfDeprecated(sourceSet)
+            ?: emptySet()
+
+        return contentBuilder.contentFor(
             c,
             ContentKind.Symbol,
-            setOf(TextStyle.Monospace) + ((c as? WithExtraProperties<out Documentable>)?.stylesIfDeprecated(sourceSet)
-                ?: emptySet()),
+            setOf(TextStyle.Monospace) + deprecationStyles,
             sourceSets = setOf(sourceSet)
         ) {
             annotationsBlock(c)
             c.visibility[sourceSet]?.takeIf { it !in ignoredVisibilities }?.name?.let { keyword("$it ") }
             if (c.isExpectActual) keyword(if (sourceSet == c.expectPresentInSet) "expect " else "actual ")
             if (c is DClass) {
-               val modifier = if (c.modifier[sourceSet] !in ignoredModifiers)
+                val modifier =
+                    if (c.modifier[sourceSet] !in ignoredModifiers) {
                         when {
                             c.extra[AdditionalModifiers]?.content?.get(sourceSet)?.contains(ExtraModifiers.KotlinOnlyModifiers.Data) == true -> ""
                             c.modifier[sourceSet] is JavaModifier.Empty -> "${KotlinModifier.Open.name} "
-                            else -> c.modifier[sourceSet]?.name?.let { "$it " } ?: ""
+                            else -> c.modifier[sourceSet]?.name?.let { "$it " }
                         }
-                    else
-                        ""
-                modifier.takeIf { it.isNotEmpty() }?.let { keyword(it) }
+                    } else {
+                        null
+                    }
+                modifier?.takeIf { it.isNotEmpty() }?.let { keyword(it) }
             }
             when (c) {
                 is DClass -> {
@@ -197,10 +229,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                             text(param.name.orEmpty())
                             operator(": ")
                             signatureForProjection(param.type)
-                            param.extra[DefaultValue]?.let {
-                                operator(" = ")
-                                highlightValue(it.value)
-                            }
+                            defaultValueAssign(param, sourceSet)
                         }
                         punctuation(")")
                     }
@@ -219,6 +248,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                 }
             }
         }
+    }
 
     /**
      * An example would be a primary constructor `class A(val s: String)`,
@@ -228,20 +258,20 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
         (this.sources[sourceSet] as? DescriptorDocumentableSource)?.psi is KtParameter
 
     private fun propertySignature(p: DProperty) =
-        p.sourceSets.map {
+        p.sourceSets.map { sourceSet ->
             contentBuilder.contentFor(
                 p,
                 ContentKind.Symbol,
-                setOf(TextStyle.Monospace) + p.stylesIfDeprecated(it),
-                sourceSets = setOf(it)
+                setOf(TextStyle.Monospace) + p.stylesIfDeprecated(sourceSet),
+                sourceSets = setOf(sourceSet)
             ) {
                 annotationsBlock(p)
-                p.visibility[it].takeIf { it !in ignoredVisibilities }?.name?.let { keyword("$it ") }
-                if (p.isExpectActual) keyword(if (it == p.expectPresentInSet) "expect " else "actual ")
-                p.modifier[it].takeIf { it !in ignoredModifiers }?.let {
+                p.visibility[sourceSet].takeIf { it !in ignoredVisibilities }?.name?.let { keyword("$it ") }
+                if (p.isExpectActual) keyword(if (sourceSet == p.expectPresentInSet) "expect " else "actual ")
+                p.modifier[sourceSet].takeIf { it !in ignoredModifiers }?.let {
                         if (it is JavaModifier.Empty) KotlinModifier.Open else it
                     }?.name?.let { keyword("$it ") }
-                p.modifiers()[it]?.toSignatureString()?.let { keyword(it) }
+                p.modifiers()[sourceSet]?.toSignatureString()?.let { keyword(it) }
                 p.setter?.let { keyword("var ") } ?: keyword("val ")
                 list(p.generics, prefix = "<", suffix = "> ",
                     separatorStyles = mainStyles + TokenStyle.Punctuation,
@@ -256,10 +286,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                 link(p.name, p.dri)
                 operator(": ")
                 signatureForProjection(p.type)
-                p.extra[DefaultValue]?.run {
-                    operator(" = ")
-                    highlightValue(value)
-                }
+                defaultValueAssign(p, sourceSet)
             }
         }
 
@@ -274,20 +301,20 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
     }
 
     private fun functionSignature(f: DFunction) =
-        f.sourceSets.map {
+        f.sourceSets.map { sourceSet ->
             contentBuilder.contentFor(
                 f,
                 ContentKind.Symbol,
-                setOf(TextStyle.Monospace) + f.stylesIfDeprecated(it),
-                sourceSets = setOf(it)
+                setOf(TextStyle.Monospace) + f.stylesIfDeprecated(sourceSet),
+                sourceSets = setOf(sourceSet)
             ) {
                 annotationsBlock(f)
-                f.visibility[it]?.takeIf { it !in ignoredVisibilities }?.name?.let { keyword("$it ") }
-                if (f.isExpectActual) keyword(if (it == f.expectPresentInSet) "expect " else "actual ")
-                f.modifier[it]?.takeIf { it !in ignoredModifiers }?.let {
+                f.visibility[sourceSet]?.takeIf { it !in ignoredVisibilities }?.name?.let { keyword("$it ") }
+                if (f.isExpectActual) keyword(if (sourceSet == f.expectPresentInSet) "expect " else "actual ")
+                f.modifier[sourceSet]?.takeIf { it !in ignoredModifiers }?.let {
                     if (it is JavaModifier.Empty) KotlinModifier.Open else it
                 }?.name?.let { keyword("$it ") }
-                f.modifiers()[it]?.toSignatureString()?.let { keyword(it) }
+                f.modifiers()[sourceSet]?.toSignatureString()?.let { keyword(it) }
                 keyword("fun ")
                 val usedGenerics = if (f.isConstructor) f.generics.filter { f uses it } else f.generics
                 list(usedGenerics, prefix = "<", suffix = "> ",
@@ -312,10 +339,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                         text(param.name!!)
                         operator(": ")
                         signatureForProjection(param.type)
-                        param.extra[DefaultValue]?.run {
-                            operator(" = ")
-                            highlightValue(value)
-                        }
+                        defaultValueAssign(param, sourceSet)
                     }
                 }
                 punctuation(")")
@@ -380,13 +404,14 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
     ) {
         return when (p) {
             is TypeParameter -> {
+                if (p.presentableName != null) {
+                    text(p.presentableName!!)
+                    operator(": ")
+                }
                 annotationsInline(p)
                 link(p.name, p.dri)
             }
-            is FunctionalTypeConstructor -> {
-                annotationsInline(p)
-                +funType(mainDRI.single(), mainSourcesetData, p)
-            }
+            is FunctionalTypeConstructor -> +funType(mainDRI.single(), mainSourcesetData, p)
             is GenericTypeConstructor ->
                 group(styles = emptySet()) {
                     val linkText = if (showFullyQualifiedName && p.dri.packageName != null) {
@@ -436,6 +461,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                 text(type.presentableName!!)
                 operator(": ")
             }
+            annotationsInline(type)
             if (type.isSuspendable) keyword("suspend ")
 
             if (type.isExtensionFunction) {

@@ -4,12 +4,14 @@ import org.jetbrains.dokka.javadoc.pages.DeprecatedPage
 import org.jetbrains.dokka.javadoc.renderer.TemplateMap
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
+import kotlin.test.assertEquals
 
 internal class JavadocDeprecatedTest : AbstractJavadocTemplateMapTest() {
 
     @Test
     fun `generates correct number of sections`() {
         testDeprecatedPageTemplateMaps { templateMap ->
+            @Suppress("UNCHECKED_CAST")
             Assertions.assertEquals(6, (templateMap["sections"] as List<TemplateMap>).size)
         }
     }
@@ -63,6 +65,21 @@ internal class JavadocDeprecatedTest : AbstractJavadocTemplateMapTest() {
 
             val map = templateMap.section("Methods")
             Assertions.assertEquals(if (hasAdditionalFunction()) 5 else 4, map.elements().size)
+        }
+    }
+
+    @Test
+    fun `should be sorted by position`() {
+        testDeprecatedPageTemplateMaps { templateMap ->
+            @Suppress("UNCHECKED_CAST")
+            val contents = (templateMap["sections"] as List<TemplateMap>).map { it["caption"] }
+
+            // maybe some other ordering is required by the javadoc spec
+            // but it has to be deterministic
+            val expected = "Classes, Exceptions, Methods, Constructors, Enums, For Removal"
+            val actual = contents.joinToString(separator = ", ")
+
+            assertEquals(expected, actual)
         }
     }
 
@@ -164,9 +181,11 @@ internal class JavadocDeprecatedTest : AbstractJavadocTemplateMapTest() {
             operation(firstPageOfType<DeprecatedPage>().templateMap)
         }
 
+    @Suppress("UNCHECKED_CAST")
     private fun TemplateMap.section(name: String) =
         (this["sections"] as List<TemplateMap>).first { it["caption"] == name }
 
+    @Suppress("UNCHECKED_CAST")
     private fun TemplateMap.elements() =
         this["elements"] as List<TemplateMap>
 }

@@ -351,8 +351,10 @@ internal class JavadocClasslikeTemplateMapTest : AbstractJavadocTemplateMapTest(
 
     private fun Map<String, Any?>.signatureWithModifiers(): String = "${modifiers()} ${signatureWithoutModifiers()}"
 
+    @Suppress("UNCHECKED_CAST")
     private fun Map<String, Any?>.signatureWithoutModifiers(): String = (get("signature") as Map<String, Any?>)["signatureWithoutModifiers"] as String
 
+    @Suppress("UNCHECKED_CAST")
     private fun Map<String, Any?>.modifiers(): String = (get("signature") as Map<String, Any?>)["modifiers"] as String
 
 }

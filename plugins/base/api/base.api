@@ -1124,10 +1124,9 @@ public final class org/jetbrains/dokka/base/transformers/documentables/ClashingD
 	public fun mergeStrategyFor (Lorg/jetbrains/dokka/base/transformers/documentables/ClashingDriIdentifier;Lorg/jetbrains/dokka/base/transformers/documentables/ClashingDriIdentifier;)Lorg/jetbrains/dokka/model/properties/MergeStrategy;
 }
 
-public final class org/jetbrains/dokka/base/transformers/documentables/DeprecatedDocumentableFilterTransformer : org/jetbrains/dokka/transformers/documentation/PreMergeDocumentableTransformer {
+public final class org/jetbrains/dokka/base/transformers/documentables/DeprecatedDocumentableFilterTransformer : org/jetbrains/dokka/base/transformers/documentables/SuppressedByConditionDocumentableFilterTransformer {
 	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
-	public final fun getContext ()Lorg/jetbrains/dokka/plugability/DokkaContext;
-	public fun invoke (Ljava/util/List;)Ljava/util/List;
+	public fun shouldBeSuppressed (Lorg/jetbrains/dokka/model/Documentable;)Z
 }
 
 public abstract class org/jetbrains/dokka/base/transformers/documentables/DocumentableReplacerTransformer : org/jetbrains/dokka/transformers/documentation/PreMergeDocumentableTransformer {
@@ -1503,6 +1502,10 @@ public class org/jetbrains/dokka/base/translators/documentables/PageContentBuild
 	public final fun buildGroup (Ljava/util/Set;Ljava/util/Set;Lorg/jetbrains/dokka/pages/Kind;Ljava/util/Set;Lorg/jetbrains/dokka/model/properties/PropertyContainer;Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/dokka/pages/ContentGroup;
 	public static synthetic fun buildGroup$default (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Ljava/util/Set;Ljava/util/Set;Lorg/jetbrains/dokka/pages/Kind;Ljava/util/Set;Lorg/jetbrains/dokka/model/properties/PropertyContainer;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lorg/jetbrains/dokka/pages/ContentGroup;
 	public final fun buildSignature (Lorg/jetbrains/dokka/model/Documentable;)Ljava/util/List;
+	public final fun codeBlock (Ljava/lang/String;Lorg/jetbrains/dokka/pages/Kind;Ljava/util/Set;Ljava/util/Set;Lorg/jetbrains/dokka/model/properties/PropertyContainer;Lkotlin/jvm/functions/Function1;)V
+	public static synthetic fun codeBlock$default (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Ljava/lang/String;Lorg/jetbrains/dokka/pages/Kind;Ljava/util/Set;Ljava/util/Set;Lorg/jetbrains/dokka/model/properties/PropertyContainer;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
+	public final fun codeInline (Ljava/lang/String;Lorg/jetbrains/dokka/pages/Kind;Ljava/util/Set;Ljava/util/Set;Lorg/jetbrains/dokka/model/properties/PropertyContainer;Lkotlin/jvm/functions/Function1;)V
+	public static synthetic fun codeInline$default (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Ljava/lang/String;Lorg/jetbrains/dokka/pages/Kind;Ljava/util/Set;Ljava/util/Set;Lorg/jetbrains/dokka/model/properties/PropertyContainer;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
 	public final fun comment (Lorg/jetbrains/dokka/model/doc/DocTag;Lorg/jetbrains/dokka/pages/Kind;Ljava/util/Set;Ljava/util/Set;Lorg/jetbrains/dokka/model/properties/PropertyContainer;)V
 	public static synthetic fun comment$default (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Lorg/jetbrains/dokka/model/doc/DocTag;Lorg/jetbrains/dokka/pages/Kind;Ljava/util/Set;Ljava/util/Set;Lorg/jetbrains/dokka/model/properties/PropertyContainer;ILjava/lang/Object;)V
 	public final fun constant (Ljava/lang/String;)V

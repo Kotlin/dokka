@@ -281,6 +281,7 @@ private fun parseSourceSet(moduleName: String, args: Array<String>): DokkaConfig
             .toMutableSet()
         override val samples = samples.toMutableSet()
         override val includes = includes.toMutableSet()
+        @Deprecated("Use [documentedVisibilities] property for a more flexible control over documented visibilities")
         override val includeNonPublic = includeNonPublic
         override val reportUndocumented = reportUndocumented
         override val skipEmptyPackages = skipEmptyPackages
