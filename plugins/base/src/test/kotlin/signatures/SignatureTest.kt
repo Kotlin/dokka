@@ -876,7 +876,7 @@ class SignatureTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `should have no empty parentheses for enum entries`() {
+    fun `should not expose enum constructor entry arguments`() {
         val writerPlugin = TestOutputWriterPlugin()
 
         testInline(
