@@ -7,10 +7,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
-import org.jetbrains.dokka.analysis.DescriptorDocumentableSource
-import org.jetbrains.dokka.analysis.DokkaResolutionFacade
-import org.jetbrains.dokka.analysis.KotlinAnalysis
-import org.jetbrains.dokka.analysis.from
+import org.jetbrains.dokka.analysis.*
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.parsers.MarkdownParser
 import org.jetbrains.dokka.base.translators.psi.parsers.JavadocParser
@@ -121,7 +118,7 @@ class DefaultDescriptorToDocumentableTranslator(
 
 data class DRIWithPlatformInfo(
     val dri: DRI,
-    val actual: SourceSetDependent<DocumentableSource>
+    val actualSources: SourceSetDependent<DocumentableSource>
 )
 
 fun DRI.withEmptyInfo() = DRIWithPlatformInfo(this, emptyMap())
@@ -181,7 +178,7 @@ private class DokkaDescriptorVisitor(
         val scope = descriptor.unsubstitutedMemberScope
         val isExpect = descriptor.isExpect
         val isActual = descriptor.isActual
-        val info = descriptor.resolveClassDescriptionData()
+        val info = descriptor.resolveClassDescriptionData(parent.actualSources)
 
         return coroutineScope {
             val descriptorsWithKind = scope.getDescriptorsWithKind()
@@ -189,7 +186,9 @@ private class DokkaDescriptorVisitor(
             val functions = async { descriptorsWithKind.functions.visitFunctions() }
             val properties = async { descriptorsWithKind.properties.visitProperties() }
             val classlikes = async { descriptorsWithKind.classlikes.visitClasslikes(driWithPlatform) }
-            val generics = async { descriptor.declaredTypeParameters.parallelMap { it.toVariantTypeParameter() } }
+            val generics = async { descriptor.declaredTypeParameters.parallelMap {
+                it.toVariantTypeParameter(parent.actualSources)
+            } }
 
             DInterface(
                 dri = driWithPlatform.dri,
@@ -210,7 +209,7 @@ private class DokkaDescriptorVisitor(
                     descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
                     descriptor.getAnnotations().toSourceSetDependent().toAnnotations(),
                     ImplementedInterfaces(info.ancestry.allImplementedInterfaces().toSourceSetDependent()),
-                    info.ancestry.exceptionInSupertypesOrNull()
+                    info.ancestry.exceptionInSupertypesOrNull(),
                 )
             )
         }
@@ -221,7 +220,8 @@ private class DokkaDescriptorVisitor(
         val scope = descriptor.unsubstitutedMemberScope
         val isExpect = descriptor.isExpect
         val isActual = descriptor.isActual
-        val info = descriptor.resolveClassDescriptionData()
+        val sources = descriptor.createSources()
+        val info = descriptor.resolveClassDescriptionData(sources)
 
 
         return coroutineScope {
@@ -237,7 +237,7 @@ private class DokkaDescriptorVisitor(
                 functions = functions.await(),
                 properties = properties.await(),
                 classlikes = classlikes.await(),
-                sources = descriptor.createSources(),
+                sources = sources,
                 expectPresentInSet = sourceSet.takeIf { isExpect },
                 visibility = descriptor.visibility.toDokkaVisibility().toSourceSetDependent(),
                 supertypes = info.supertypes.toSourceSetDependent(),
@@ -248,7 +248,7 @@ private class DokkaDescriptorVisitor(
                     descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
                     descriptor.getAnnotations().toSourceSetDependent().toAnnotations(),
                     ImplementedInterfaces(info.ancestry.allImplementedInterfaces().toSourceSetDependent()),
-                    info.ancestry.exceptionInSupertypesOrNull()
+                    info.ancestry.exceptionInSupertypesOrNull(),
                 )
             )
         }
@@ -261,7 +261,8 @@ private class DokkaDescriptorVisitor(
         val scope = descriptor.unsubstitutedMemberScope
         val isExpect = descriptor.isExpect
         val isActual = descriptor.isActual
-        val info = descriptor.resolveClassDescriptionData()
+        val sources = descriptor.createSources()
+        val info = descriptor.resolveClassDescriptionData(sources)
 
         return coroutineScope {
             val descriptorsWithKind = scope.getDescriptorsWithKind()
@@ -281,7 +282,7 @@ private class DokkaDescriptorVisitor(
                 functions = functions.await(),
                 properties = properties.await(),
                 classlikes = classlikes.await(),
-                sources = descriptor.createSources(),
+                sources = sources,
                 expectPresentInSet = sourceSet.takeIf { isExpect },
                 visibility = descriptor.visibility.toDokkaVisibility().toSourceSetDependent(),
                 supertypes = info.supertypes.toSourceSetDependent(),
@@ -292,7 +293,7 @@ private class DokkaDescriptorVisitor(
                 extra = PropertyContainer.withAll(
                     descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
                     descriptor.getAnnotations().toSourceSetDependent().toAnnotations(),
-                    ImplementedInterfaces(info.ancestry.allImplementedInterfaces().toSourceSetDependent())
+                    ImplementedInterfaces(info.ancestry.allImplementedInterfaces().toSourceSetDependent()),
                 )
             )
         }
@@ -318,11 +319,12 @@ private class DokkaDescriptorVisitor(
                 properties = properties.await(),
                 classlikes = classlikes.await(),
                 sourceSets = setOf(sourceSet),
+                sources = descriptor.createSources(),
                 expectPresentInSet = sourceSet.takeIf { isExpect },
                 extra = PropertyContainer.withAll(
                     descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
                     descriptor.getAnnotations().toSourceSetDependent().toAnnotations(),
-                    ConstructorValues(descriptor.getAppliedConstructorParameters().toSourceSetDependent())
+                    ConstructorValues(descriptor.getAppliedConstructorParameters().toSourceSetDependent()),
                 )
             )
         }
@@ -336,11 +338,14 @@ private class DokkaDescriptorVisitor(
 
         return coroutineScope {
             val descriptorsWithKind = scope.getDescriptorsWithKind()
+            val sources = descriptor.createSources()
 
             val functions = async { descriptorsWithKind.functions.visitFunctions() }
             val properties = async { descriptorsWithKind.properties.visitProperties() }
             val classlikes = async { descriptorsWithKind.classlikes.visitClasslikes(driWithPlatform) }
-            val generics = async { descriptor.declaredTypeParameters.parallelMap { it.toVariantTypeParameter() } }
+            val generics = async { descriptor.declaredTypeParameters.parallelMap {
+                it.toVariantTypeParameter(sources)
+            } }
             val constructors =
                 async { descriptor.constructors.parallelMap { visitConstructorDescriptor(it, driWithPlatform) } }
 
@@ -356,13 +361,13 @@ private class DokkaDescriptorVisitor(
                 isExpectActual = (isExpect || isActual),
                 extra = PropertyContainer.withAll(
                     descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
-                    descriptor.getAnnotations().toSourceSetDependent().toAnnotations()
+                    descriptor.getAnnotations().toSourceSetDependent().toAnnotations(),
                 ),
                 companion = descriptor.companionObjectDescriptor?.let { objectDescriptor(it, driWithPlatform) },
                 visibility = descriptor.visibility.toDokkaVisibility().toSourceSetDependent(),
                 generics = generics.await(),
                 constructors = constructors.await(),
-                sources = descriptor.createSources()
+                sources = sources
             )
         }
 
@@ -372,10 +377,10 @@ private class DokkaDescriptorVisitor(
     private suspend fun classDescriptor(descriptor: ClassDescriptor, parent: DRIWithPlatformInfo): DClass {
         val driWithPlatform = parent.dri.withClass(descriptor.name.asString()).withEmptyInfo()
         val scope = descriptor.unsubstitutedMemberScope
+        val actualSources = descriptor.createSources()
         val isExpect = descriptor.isExpect
         val isActual = descriptor.isActual
-        val info = descriptor.resolveClassDescriptionData()
-        val actual = descriptor.createSources()
+        val info = descriptor.resolveClassDescriptionData(actualSources)
 
         return coroutineScope {
             val descriptorsWithKind = scope.getDescriptorsWithKind()
@@ -383,12 +388,14 @@ private class DokkaDescriptorVisitor(
             val functions = async { descriptorsWithKind.functions.visitFunctions() }
             val properties = async { descriptorsWithKind.properties.visitProperties() }
             val classlikes = async { descriptorsWithKind.classlikes.visitClasslikes(driWithPlatform) }
-            val generics = async { descriptor.declaredTypeParameters.parallelMap { it.toVariantTypeParameter() } }
+            val generics = async {
+                descriptor.declaredTypeParameters.parallelMap { it.toVariantTypeParameter(actualSources) }
+            }
             val constructors = async {
                 descriptor.constructors.parallelMap {
                     visitConstructorDescriptor(
                         it,
-                        if (it.isPrimary) DRIWithPlatformInfo(driWithPlatform.dri, actual)
+                        if (it.isPrimary) DRIWithPlatformInfo(driWithPlatform.dri, actualSources)
                         else DRIWithPlatformInfo(driWithPlatform.dri, emptyMap())
                     )
                 }
@@ -401,7 +408,7 @@ private class DokkaDescriptorVisitor(
                 functions = functions.await(),
                 properties = properties.await(),
                 classlikes = classlikes.await(),
-                sources = actual,
+                sources = actualSources,
                 expectPresentInSet = sourceSet.takeIf { isExpect },
                 visibility = descriptor.visibility.toDokkaVisibility().toSourceSetDependent(),
                 supertypes = info.supertypes.toSourceSetDependent(),
@@ -415,7 +422,7 @@ private class DokkaDescriptorVisitor(
                     descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
                     descriptor.getAnnotations().toSourceSetDependent().toAnnotations(),
                     ImplementedInterfaces(info.ancestry.allImplementedInterfaces().toSourceSetDependent()),
-                    info.ancestry.exceptionInSupertypesOrNull()
+                    info.ancestry.exceptionInSupertypesOrNull(),
                 )
             )
         }
@@ -427,18 +434,18 @@ private class DokkaDescriptorVisitor(
         val isExpect = descriptor.isExpect
         val isActual = descriptor.isActual
 
-        val actual = originalDescriptor.createSources()
+        val actualSources = originalDescriptor.createSources()
 
         return coroutineScope {
-            val generics = async { descriptor.typeParameters.parallelMap { it.toVariantTypeParameter() } }
+            val generics = async { descriptor.typeParameters.parallelMap { it.toVariantTypeParameter(actualSources) } }
 
             DProperty(
                 dri = dri,
                 name = descriptor.name.asString(),
                 receiver = descriptor.extensionReceiverParameter?.let {
-                    visitReceiverParameterDescriptor(it, DRIWithPlatformInfo(dri, actual))
+                    visitReceiverParameterDescriptor(it, DRIWithPlatformInfo(dri, actualSources))
                 },
-                sources = actual,
+                sources = actualSources,
                 getter = descriptor.accessors.filterIsInstance<PropertyGetterDescriptor>().singleOrNull()?.let {
                     visitPropertyAccessorDescriptor(it, descriptor, dri)
                 },
@@ -448,7 +455,7 @@ private class DokkaDescriptorVisitor(
                 visibility = descriptor.visibility.toDokkaVisibility().toSourceSetDependent(),
                 documentation = descriptor.resolveDescriptorData(),
                 modifier = descriptor.modifier().toSourceSetDependent(),
-                type = descriptor.returnType!!.toBound(),
+                type = descriptor.returnType!!.toBound(actualSources),
                 expectPresentInSet = sourceSet.takeIf { isExpect },
                 sourceSets = setOf(sourceSet),
                 generics = generics.await(),
@@ -479,28 +486,28 @@ private class DokkaDescriptorVisitor(
         val isExpect = descriptor.isExpect
         val isActual = descriptor.isActual
 
-        val actual = originalDescriptor.createSources()
+        val actualSources = originalDescriptor.createSources()
         return coroutineScope {
-            val generics = async { descriptor.typeParameters.parallelMap { it.toVariantTypeParameter() } }
+            val generics = async { descriptor.typeParameters.parallelMap { it.toVariantTypeParameter(actualSources) } }
 
             DFunction(
                 dri = dri,
                 name = descriptor.name.asString(),
                 isConstructor = false,
                 receiver = descriptor.extensionReceiverParameter?.let {
-                    visitReceiverParameterDescriptor(it, DRIWithPlatformInfo(dri, actual))
+                    visitReceiverParameterDescriptor(it, DRIWithPlatformInfo(dri, actualSources))
                 },
                 parameters = descriptor.valueParameters.mapIndexed { index, desc ->
-                    parameter(index, desc, DRIWithPlatformInfo(dri, actual))
+                    parameter(index, desc, DRIWithPlatformInfo(dri, actualSources))
                 },
                 expectPresentInSet = sourceSet.takeIf { isExpect },
-                sources = actual,
+                sources = actualSources,
                 visibility = descriptor.visibility.toDokkaVisibility().toSourceSetDependent(),
                 generics = generics.await(),
                 documentation = descriptor.takeIf { it.kind != CallableMemberDescriptor.Kind.SYNTHESIZED }
                     ?.resolveDescriptorData() ?: emptyMap(),
                 modifier = descriptor.modifier().toSourceSetDependent(),
-                type = descriptor.returnType!!.toBound(),
+                type = descriptor.returnType!!.toBound(actualSources),
                 sourceSets = setOf(sourceSet),
                 isExpectActual = (isExpect || isActual),
                 extra = PropertyContainer.withAll(
@@ -517,24 +524,24 @@ private class DokkaDescriptorVisitor(
     suspend fun visitConstructorDescriptor(descriptor: ConstructorDescriptor, parent: DRIWithPlatformInfo): DFunction {
         val name = descriptor.constructedClass.name.toString()
         val dri = parent.dri.copy(callable = Callable.from(descriptor, name))
-        val actual = descriptor.createSources()
+        val actualSources = descriptor.createSources()
         val isExpect = descriptor.isExpect
         val isActual = descriptor.isActual
 
         return coroutineScope {
-            val generics = async { descriptor.typeParameters.parallelMap { it.toVariantTypeParameter() } }
+            val generics = async { descriptor.typeParameters.parallelMap { it.toVariantTypeParameter(actualSources) } }
 
             DFunction(
                 dri = dri,
                 name = name,
                 isConstructor = true,
                 receiver = descriptor.extensionReceiverParameter?.let {
-                    visitReceiverParameterDescriptor(it, DRIWithPlatformInfo(dri, actual))
+                    visitReceiverParameterDescriptor(it, DRIWithPlatformInfo(dri, actualSources))
                 },
                 parameters = descriptor.valueParameters.mapIndexed { index, desc ->
-                    parameter(index, desc, DRIWithPlatformInfo(dri, actual))
+                    parameter(index, desc, DRIWithPlatformInfo(dri, actualSources))
                 },
-                sources = actual,
+                sources = actualSources,
                 expectPresentInSet = sourceSet.takeIf { isExpect },
                 visibility = descriptor.visibility.toDokkaVisibility().toSourceSetDependent(),
                 documentation = descriptor.resolveDescriptorData().let { sourceSetDependent ->
@@ -550,14 +557,14 @@ private class DokkaDescriptorVisitor(
                         sourceSetDependent
                     }
                 },
-                type = descriptor.returnType.toBound(),
+                type = descriptor.returnType.toBound(actualSources),
                 modifier = descriptor.modifier().toSourceSetDependent(),
                 generics = generics.await(),
                 sourceSets = setOf(sourceSet),
                 isExpectActual = (isExpect || isActual),
                 extra = PropertyContainer.withAll<DFunction>(
                     descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
-                    descriptor.getAnnotations().toSourceSetDependent().toAnnotations()
+                    descriptor.getAnnotations().toSourceSetDependent().toAnnotations(),
                 ).let {
                     if (descriptor.isPrimary) {
                         it + PrimaryConstructorExtra
@@ -573,10 +580,11 @@ private class DokkaDescriptorVisitor(
     ) = DParameter(
         dri = parent.dri.copy(target = PointingToDeclaration),
         name = null,
-        type = descriptor.type.toBound(),
+        type = descriptor.type.toBound(parent.actualSources),
         expectPresentInSet = null,
         documentation = descriptor.resolveDescriptorData(),
         sourceSets = setOf(sourceSet),
+        sources = parent.actualSources,
         extra = PropertyContainer.withAll(descriptor.getAnnotations().toSourceSetDependent().toAnnotations())
     )
 
@@ -589,18 +597,20 @@ private class DokkaDescriptorVisitor(
         val isGetter = descriptor is PropertyGetterDescriptor
         val isExpect = descriptor.isExpect
         val isActual = descriptor.isActual
+        val actualSources = descriptor.createSources()
 
         suspend fun PropertyDescriptor.asParameter(parent: DRI) =
             DParameter(
                 parent.copy(target = PointingToCallableParameters(parameterIndex = 1)),
                 this.name.asString(),
-                type = this.type.toBound(),
+                type = this.type.toBound(actualSources),
                 expectPresentInSet = sourceSet.takeIf { isExpect },
                 documentation = descriptor.resolveDescriptorData(),
                 sourceSets = setOf(sourceSet),
+                sources = actualSources,
                 extra = PropertyContainer.withAll(
                     descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
-                    getAnnotationsWithBackingField().toSourceSetDependent().toAnnotations()
+                    getAnnotationsWithBackingField().toSourceSetDependent().toAnnotations(),
                 )
             )
 
@@ -634,7 +644,7 @@ private class DokkaDescriptorVisitor(
             }
 
         return coroutineScope {
-            val generics = async { descriptor.typeParameters.parallelMap { it.toVariantTypeParameter() } }
+            val generics = async { descriptor.typeParameters.parallelMap { it.toVariantTypeParameter(actualSources) } }
 
             DFunction(
                 dri,
@@ -643,7 +653,7 @@ private class DokkaDescriptorVisitor(
                 parameters = parameters,
                 visibility = descriptor.visibility.toDokkaVisibility().toSourceSetDependent(),
                 documentation = descriptor.resolveDescriptorData(),
-                type = descriptor.returnType!!.toBound(),
+                type = descriptor.returnType!!.toBound(actualSources),
                 generics = generics.await(),
                 modifier = descriptor.modifier().toSourceSetDependent(),
                 expectPresentInSet = sourceSet.takeIf { isExpect },
@@ -658,7 +668,7 @@ private class DokkaDescriptorVisitor(
                 isExpectActual = (isExpect || isActual),
                 extra = PropertyContainer.withAll(
                     descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
-                    descriptor.getAnnotations().toSourceSetDependent().toAnnotations()
+                    descriptor.getAnnotations().toSourceSetDependent().toAnnotations(),
                 )
             )
         }
@@ -667,20 +677,25 @@ private class DokkaDescriptorVisitor(
     private suspend fun visitTypeAliasDescriptor(descriptor: TypeAliasDescriptor) =
         with(descriptor) {
             coroutineScope {
-                val generics = async { descriptor.declaredTypeParameters.parallelMap { it.toVariantTypeParameter() } }
-                val info = buildAncestryInformation(defaultType).copy(
-                    superclass = buildAncestryInformation(underlyingType),
+                val sources = descriptor.createSources()
+                val generics = async {
+                    descriptor.declaredTypeParameters.parallelMap { it.toVariantTypeParameter(sources) }
+                }
+                val info = buildAncestryInformation(defaultType, sources).copy(
+                    superclass = buildAncestryInformation(underlyingType, sources),
                     interfaces = emptyList()
                 )
                 DTypeAlias(
                     dri = DRI.from(this@with),
                     name = name.asString(),
-                    type = defaultType.toBound(),
+                    type = defaultType.toBound(sources),
                     expectPresentInSet = null,
-                    underlyingType = underlyingType.toBound().toSourceSetDependent(),
+                    underlyingType = underlyingType.toBound(sources).toSourceSetDependent(),
                     visibility = visibility.toDokkaVisibility().toSourceSetDependent(),
                     documentation = resolveDescriptorData(),
                     sourceSets = setOf(sourceSet),
+                    // A TypeAlias in Kotlin of a Java type uses Kotlin properties like default nullability
+                    sources = sources,
                     generics = generics.await(),
                     extra = PropertyContainer.withAll(
                         descriptor.getAnnotations().toSourceSetDependent().toAnnotations(),
@@ -690,14 +705,19 @@ private class DokkaDescriptorVisitor(
             }
         }
 
-    private suspend fun parameter(index: Int, descriptor: ValueParameterDescriptor, parent: DRIWithPlatformInfo) =
-        DParameter(
+    private suspend fun parameter(
+        index: Int,
+        descriptor: ValueParameterDescriptor,
+        parent: DRIWithPlatformInfo
+    ) = DParameter(
             dri = parent.dri.copy(target = PointingToCallableParameters(index)),
             name = descriptor.name.asString(),
-            type = descriptor.varargElementType?.toBound() ?: descriptor.type.toBound(),
+            type = descriptor.varargElementType?.toBound(parent.actualSources)
+                ?: descriptor.type.toBound(parent.actualSources),
             expectPresentInSet = null,
             documentation = descriptor.resolveDescriptorData(),
             sourceSets = setOf(sourceSet),
+            sources = parent.actualSources,
             extra = PropertyContainer.withAll(listOfNotNull(
                 descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
                 descriptor.getAnnotations().toSourceSetDependent().toAnnotations(),
@@ -760,15 +780,17 @@ private class DokkaDescriptorVisitor(
         getDocumentation()?.toSourceSetDependent() ?: emptyMap()
 
 
-    private suspend fun toTypeConstructor(kt: KotlinType) =
+    private suspend fun toTypeConstructor(kt: KotlinType, sources: SourceSetDependent<DocumentableSource>) =
         GenericTypeConstructor(
             DRI.from(kt.constructor.declarationDescriptor as DeclarationDescriptor),
-            kt.arguments.map { it.toProjection() },
+            kt.arguments.map { it.toProjection(sources) },
+            sources = sources,
             extra = PropertyContainer.withAll(kt.getAnnotations().toSourceSetDependent().toAnnotations())
         )
 
     private suspend fun buildAncestryInformation(
-        kotlinType: KotlinType
+        kotlinType: KotlinType,
+        sources: SourceSetDependent<DocumentableSource>
     ): AncestryNode {
         val (interfaces, superclass) = kotlinType.immediateSupertypes().filterNot { it.isAnyOrNullableAny() }
             .partition {
@@ -780,35 +802,41 @@ private class DokkaDescriptorVisitor(
 
         return coroutineScope {
             AncestryNode(
-                typeConstructor = toTypeConstructor(kotlinType),
-                superclass = superclass.parallelMap(::buildAncestryInformation).singleOrNull(),
-                interfaces = interfaces.parallelMap(::buildAncestryInformation)
+                typeConstructor = toTypeConstructor(kotlinType, sources),
+                superclass = superclass.parallelMap { buildAncestryInformation(it, sources) }.singleOrNull(),
+                interfaces = interfaces.parallelMap { buildAncestryInformation(it, sources) }
             )
         }
     }
 
 
-    private suspend fun ClassDescriptor.resolveClassDescriptionData(): ClassInfo {
+    private suspend fun ClassDescriptor.resolveClassDescriptionData(sources: SourceSetDependent<DocumentableSource>): ClassInfo {
         return coroutineScope {
             ClassInfo(
-                buildAncestryInformation(this@resolveClassDescriptionData.defaultType),
+                buildAncestryInformation(this@resolveClassDescriptionData.defaultType, sources),
                 resolveDescriptorData()
             )
         }
     }
 
-    private suspend fun TypeParameterDescriptor.toVariantTypeParameter() =
+    private suspend fun TypeParameterDescriptor.toVariantTypeParameter(sources: SourceSetDependent<DocumentableSource>) =
         DTypeParameter(
             variantTypeParameter(
-                TypeParameter(DRI.from(this), name.identifier, annotations.getPresentableName())
+                TypeParameter(
+                    DRI.from(this),
+                    name.identifier,
+                    annotations.getPresentableName(),
+                    sources
+                )
             ),
             resolveDescriptorData(),
             null,
-            upperBounds.map { it.toBound() },
+            upperBounds.map { it.toBound(sources) },
+            sources,
             setOf(sourceSet),
             extra = PropertyContainer.withAll(
                 additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
-                getAnnotations().toSourceSetDependent().toAnnotations()
+                getAnnotations().toSourceSetDependent().toAnnotations(),
             )
         )
 
@@ -816,8 +844,9 @@ private class DokkaDescriptorVisitor(
         mapNotNull { it.toAnnotation() }.singleOrNull { it.dri.classNames == "ParameterName" }?.params?.get("name")
             .safeAs<StringValue>()?.value?.let { unquotedValue(it) }
 
-    private suspend fun KotlinType.toBound(): Bound {
-        suspend fun <T : AnnotationTarget> annotations(): PropertyContainer<T> =
+    private suspend fun KotlinType.toBound(sources: SourceSetDependent<DocumentableSource>): Bound {
+
+        suspend fun <T> extras(): PropertyContainer<T> where T:AnnotationTarget =
             getAnnotations().takeIf { it.isNotEmpty() }?.let { annotations ->
                 PropertyContainer.withAll(annotations.toSourceSetDependent().toAnnotations())
             } ?: PropertyContainer.empty()
@@ -825,30 +854,34 @@ private class DokkaDescriptorVisitor(
         return when (this) {
             is DynamicType -> Dynamic
             is AbbreviatedType -> TypeAliased(
-                abbreviation.toBound(),
-                expandedType.toBound(),
-                annotations()
+                typeAlias = abbreviation.toBound(sources),
+                inner = expandedType.toBound(sources),
+                sources = sources,
+                extra = extras()
             )
             else -> when (val ctor = constructor.declarationDescriptor) {
                 is TypeParameterDescriptor -> TypeParameter(
                     dri = DRI.from(ctor),
                     name = ctor.name.asString(),
                     presentableName = annotations.getPresentableName(),
-                    extra = annotations()
+                    sources = sources,
+                    extra = extras()
                 )
                 is FunctionClassDescriptor -> FunctionalTypeConstructor(
-                    DRI.from(ctor),
-                    arguments.map { it.toProjection() },
+                    dri = DRI.from(ctor),
+                    projections = arguments.map { it.toProjection(sources) },
                     isExtensionFunction = isExtensionFunctionType || isBuiltinExtensionFunctionalType,
                     isSuspendable = isSuspendFunctionTypeOrSubtype,
                     presentableName = annotations.getPresentableName(),
-                    extra = annotations()
+                    sources = sources,
+                    extra = extras()
                 )
                 else -> GenericTypeConstructor(
-                    DRI.from(ctor!!), // TODO: remove '!!'
-                    arguments.map { it.toProjection() },
-                    annotations.getPresentableName(),
-                    extra = annotations()
+                    dri = DRI.from(ctor!!), // TODO: remove '!!'
+                    projections = arguments.map { it.toProjection(sources) },
+                    presentableName = annotations.getPresentableName(),
+                    sources = sources,
+                    extra = extras()
                 )
             }.let {
                 if (isMarkedNullable) Nullable(it) else it
@@ -856,11 +889,11 @@ private class DokkaDescriptorVisitor(
         }
     }
 
-    private suspend fun TypeProjection.toProjection(): Projection =
-        if (isStarProjection) Star else formPossiblyVariant()
+    private suspend fun TypeProjection.toProjection(sources: SourceSetDependent<DocumentableSource>): Projection =
+        if (isStarProjection) Star else formPossiblyVariant(sources)
 
-    private suspend fun TypeProjection.formPossiblyVariant(): Projection =
-        type.toBound().wrapWithVariance(projectionKind)
+    private suspend fun TypeProjection.formPossiblyVariant(sources: SourceSetDependent<DocumentableSource>) =
+        type.toBound(sources).wrapWithVariance(projectionKind)
 
     private fun TypeParameterDescriptor.variantTypeParameter(type: TypeParameter) =
         type.wrapWithVariance(variance)

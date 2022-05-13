@@ -46,3 +46,8 @@ data class CheckedExceptions(val exceptions: SourceSetDependent<List<DRI>>) : Ex
     }
     override val key: ExtraProperty.Key<Documentable, *> = CheckedExceptions
 }
+
+enum class Language {
+    JAVA, KOTLIN, UNKNOWN
+}
+

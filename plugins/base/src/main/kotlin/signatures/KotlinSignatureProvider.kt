@@ -255,7 +255,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
      * where `s` is both a function parameter and a property
      */
     private fun DProperty.isAlsoParameter(sourceSet: DokkaSourceSet) =
-        (this.sources[sourceSet] as? DescriptorDocumentableSource)?.descriptor?.findPsi() is KtParameter
+        (this.sources[sourceSet] as? DescriptorDocumentableSource)?.psi is KtParameter
 
     private fun propertySignature(p: DProperty) =
         p.sourceSets.map { sourceSet ->
@@ -382,7 +382,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
     private fun signature(t: DTypeParameter) =
         t.sourceSets.map {
             contentBuilder.contentFor(t, styles = t.stylesIfDeprecated(it), sourceSets = setOf(it)) {
-                signatureForProjection(t.variantTypeParameter.withDri(t.dri.withTargetToDeclaration()))
+                signatureForProjection(t.variantTypeParameter.withDri(t.dri.withTargetToDeclaration(), t.sources))
                 list(t.nontrivialBounds, prefix = " : ",
                 surroundingCharactersStyle = mainStyles + TokenStyle.Operator) { bound ->
                     signatureForProjection(bound)
@@ -488,7 +488,8 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
 private fun PrimitiveJavaType.translateToKotlin() = GenericTypeConstructor(
     dri = dri,
     projections = emptyList(),
-    presentableName = null
+    presentableName = null,
+    sources = sources
 )
 
 private val DTypeParameter.nontrivialBounds: List<Bound>

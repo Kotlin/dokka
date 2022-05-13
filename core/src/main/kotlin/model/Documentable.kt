@@ -192,9 +192,10 @@ data class DEnumEntry(
     override val functions: List<DFunction>,
     override val properties: List<DProperty>,
     override val classlikes: List<DClasslike>,
+    override val sources: SourceSetDependent<DocumentableSource>,
     override val sourceSets: Set<DokkaSourceSet>,
     override val extra: PropertyContainer<DEnumEntry> = PropertyContainer.empty()
-) : Documentable(), WithScope, WithExtraProperties<DEnumEntry> {
+) : Documentable(), WithScope, WithExtraProperties<DEnumEntry>, WithSources {
     override val children: List<Documentable>
         get() = (functions + properties + classlikes)
 
@@ -321,9 +322,10 @@ data class DParameter(
     override val documentation: SourceSetDependent<DocumentationNode>,
     override val expectPresentInSet: DokkaSourceSet?,
     override val type: Bound,
+    override val sources: SourceSetDependent<DocumentableSource>,
     override val sourceSets: Set<DokkaSourceSet>,
     override val extra: PropertyContainer<DParameter> = PropertyContainer.empty()
-) : Documentable(), WithExtraProperties<DParameter>, WithType {
+) : Documentable(), WithExtraProperties<DParameter>, WithType, WithSources {
     override val children: List<Nothing>
         get() = emptyList()
 
@@ -335,9 +337,10 @@ data class DTypeParameter(
     override val documentation: SourceSetDependent<DocumentationNode>,
     override val expectPresentInSet: DokkaSourceSet?,
     val bounds: List<Bound>,
+    override val sources: SourceSetDependent<DocumentableSource>,
     override val sourceSets: Set<DokkaSourceSet>,
     override val extra: PropertyContainer<DTypeParameter> = PropertyContainer.empty()
-) : Documentable(), WithExtraProperties<DTypeParameter> {
+) : Documentable(), WithExtraProperties<DTypeParameter>, WithSources {
 
     constructor(
         dri: DRI,
@@ -346,13 +349,15 @@ data class DTypeParameter(
         documentation: SourceSetDependent<DocumentationNode>,
         expectPresentInSet: DokkaSourceSet?,
         bounds: List<Bound>,
+        sources: SourceSetDependent<DocumentableSource>,
         sourceSets: Set<DokkaSourceSet>,
         extra: PropertyContainer<DTypeParameter> = PropertyContainer.empty()
     ) : this(
-        Invariance(TypeParameter(dri, name, presentableName)),
+        Invariance(TypeParameter(dri, name, presentableName, sources)),
         documentation,
         expectPresentInSet,
         bounds,
+        sources,
         sourceSets,
         extra
     )
@@ -374,10 +379,11 @@ data class DTypeAlias(
     override val visibility: SourceSetDependent<Visibility>,
     override val documentation: SourceSetDependent<DocumentationNode>,
     override val expectPresentInSet: DokkaSourceSet?,
+    override val sources: SourceSetDependent<DocumentableSource>,
     override val sourceSets: Set<DokkaSourceSet>,
     override val generics: List<DTypeParameter>,
     override val extra: PropertyContainer<DTypeAlias> = PropertyContainer.empty()
-) : Documentable(), WithType, WithVisibility, WithExtraProperties<DTypeAlias>, WithGenerics {
+) : Documentable(), WithType, WithVisibility, WithExtraProperties<DTypeAlias>, WithGenerics, WithSources {
     override val children: List<Nothing>
         get() = emptyList()
 
@@ -386,26 +392,30 @@ data class DTypeAlias(
 
 sealed class Projection
 sealed class Bound : Projection()
+val Bound.sources get() = (this as WithSources).sources
 data class TypeParameter(
     val dri: DRI,
     val name: String,
     val presentableName: String? = null,
+    override val sources: SourceSetDependent<DocumentableSource>,
     override val extra: PropertyContainer<TypeParameter> = PropertyContainer.empty()
-) : Bound(), AnnotationTarget, WithExtraProperties<TypeParameter> {
+) : Bound(), AnnotationTarget, WithExtraProperties<TypeParameter>, WithSources {
     override fun withNewExtras(newExtras: PropertyContainer<TypeParameter>): TypeParameter =
         copy(extra = extra)
 }
 
-sealed class TypeConstructor : Bound(), AnnotationTarget {
+sealed class TypeConstructor : Bound(), AnnotationTarget, WithSources {
     abstract val dri: DRI
     abstract val projections: List<Projection>
     abstract val presentableName: String?
+    abstract override val sources: SourceSetDependent<DocumentableSource>
 }
 
 data class GenericTypeConstructor(
     override val dri: DRI,
     override val projections: List<Projection>,
     override val presentableName: String? = null,
+    override val sources: SourceSetDependent<DocumentableSource>,
     override val extra: PropertyContainer<GenericTypeConstructor> = PropertyContainer.empty()
 ) : TypeConstructor(), WithExtraProperties<GenericTypeConstructor> {
     override fun withNewExtras(newExtras: PropertyContainer<GenericTypeConstructor>): GenericTypeConstructor =
@@ -418,6 +428,7 @@ data class FunctionalTypeConstructor(
     val isExtensionFunction: Boolean = false,
     val isSuspendable: Boolean = false,
     override val presentableName: String? = null,
+    override val sources: SourceSetDependent<DocumentableSource>,
     override val extra: PropertyContainer<FunctionalTypeConstructor> = PropertyContainer.empty(),
 ) : TypeConstructor(), WithExtraProperties<FunctionalTypeConstructor> {
     override fun withNewExtras(newExtras: PropertyContainer<FunctionalTypeConstructor>): FunctionalTypeConstructor =
@@ -428,39 +439,65 @@ data class FunctionalTypeConstructor(
 data class TypeAliased(
     val typeAlias: Bound,
     val inner: Bound,
+    override val sources: SourceSetDependent<DocumentableSource>,
     override val extra: PropertyContainer<TypeAliased> = PropertyContainer.empty()
-) : Bound(), AnnotationTarget, WithExtraProperties<TypeAliased> {
+) : Bound(), AnnotationTarget, WithExtraProperties<TypeAliased>, WithSources {
     override fun withNewExtras(newExtras: PropertyContainer<TypeAliased>): TypeAliased =
         copy(extra = newExtras)
 }
 
 data class PrimitiveJavaType(
     val name: String,
+    override val sources: SourceSetDependent<DocumentableSource>,
     override val extra: PropertyContainer<PrimitiveJavaType> = PropertyContainer.empty()
-) : Bound(), AnnotationTarget, WithExtraProperties<PrimitiveJavaType> {
+) : Bound(), AnnotationTarget, WithExtraProperties<PrimitiveJavaType>, WithSources {
     override fun withNewExtras(newExtras: PropertyContainer<PrimitiveJavaType>): PrimitiveJavaType =
         copy(extra = newExtras)
 }
 
-data class JavaObject(override val extra: PropertyContainer<JavaObject> = PropertyContainer.empty()) :
-    Bound(), AnnotationTarget, WithExtraProperties<JavaObject> {
+data class JavaObject(
+    override val sources: SourceSetDependent<DocumentableSource>,
+    override val extra: PropertyContainer<JavaObject> = PropertyContainer.empty()
+) :
+    Bound(), AnnotationTarget, WithExtraProperties<JavaObject>, WithSources {
     override fun withNewExtras(newExtras: PropertyContainer<JavaObject>): JavaObject =
         copy(extra = newExtras)
 }
 
 data class UnresolvedBound(
     val name: String,
+    override val sources: SourceSetDependent<DocumentableSource>,
     override val extra: PropertyContainer<UnresolvedBound> = PropertyContainer.empty()
-) : Bound(), AnnotationTarget, WithExtraProperties<UnresolvedBound> {
+) : Bound(), AnnotationTarget, WithExtraProperties<UnresolvedBound>, WithSources {
     override fun withNewExtras(newExtras: PropertyContainer<UnresolvedBound>): UnresolvedBound =
         copy(extra = newExtras)
 }
 
 // The following Projections are not AnnotationTargets; they cannot be annotated.
-data class Nullable(val inner: Bound) : Bound()
+data class Nullable(val inner: Bound) : Bound(), WithSources {
+    override val sources: SourceSetDependent<DocumentableSource>
+        get() = when (inner) {
+            is Nullable -> throw RuntimeException("Nullable Nullable is not a valid type")
+            is Dynamic -> throw RuntimeException("Nullable Dynamic is not a valid type")
+            is JavaObject -> inner.sources
+            is PrimitiveJavaType -> inner.sources
+            is TypeAliased -> inner.sources
+            is TypeConstructor -> inner.sources
+            is TypeParameter -> inner.sources
+            is UnresolvedBound -> inner.sources
+            is Void -> inner.sources
+        }
+}
 
-sealed class Variance<out T : Bound> : Projection() {
+sealed class Variance<out T : Bound> : Projection(), WithSources {
     abstract val inner: T
+
+    override val sources: SourceSetDependent<DocumentableSource> get() = when (inner) {
+        is WithSources -> (inner as WithSources).sources
+        is Dynamic -> TODO()
+        is Void -> TODO()
+        else -> throw RuntimeException("Impossible inner Bound for Variance: $inner")
+    }
 }
 
 data class Covariance<out T : Bound>(override val inner: T) : Variance<T>() {
@@ -475,15 +512,18 @@ data class Invariance<out T : Bound>(override val inner: T) : Variance<T>() {
     override fun toString() = ""
 }
 
+// Void cannot be an object because not all Void types are the same. For example, a Void declared in Java is of
+// platform nullability, while a (non-wrapped) Void declared in Kotlin is non-null.
+class Void(override val sources: SourceSetDependent<DocumentableSource>) : Bound(), WithSources
+// TODO: should these be WithSources? (that would require they be classes)
+object Dynamic : Bound()
 object Star : Projection()
 
-object Void : Bound()
-object Dynamic : Bound()
 
-fun Variance<TypeParameter>.withDri(dri: DRI) = when (this) {
-    is Contravariance -> Contravariance(TypeParameter(dri, inner.name, inner.presentableName))
-    is Covariance -> Covariance(TypeParameter(dri, inner.name, inner.presentableName))
-    is Invariance -> Invariance(TypeParameter(dri, inner.name, inner.presentableName))
+fun Variance<TypeParameter>.withDri(dri: DRI, sources: SourceSetDependent<DocumentableSource>) = when (this) {
+    is Contravariance -> Contravariance(TypeParameter(dri, inner.name, inner.presentableName, sources))
+    is Covariance -> Covariance(TypeParameter(dri, inner.name, inner.presentableName, sources))
+    is Invariance -> Invariance(TypeParameter(dri, inner.name, inner.presentableName, sources))
 }
 
 fun Documentable.dfs(predicate: (Documentable) -> Boolean): Documentable? =
@@ -512,6 +552,11 @@ fun <T> SourceSetDependent<T>?.orEmpty(): SourceSetDependent<T> = this ?: emptyM
 
 interface DocumentableSource {
     val path: String
+    val language: Language
 }
 
 data class TypeConstructorWithKind(val typeConstructor: TypeConstructor, val kind: ClassKind)
+
+public fun WithSources.sourceLanguage(sourceSet: DokkaSourceSet) = sources[sourceSet]!!.language
+
+public val WithSources.sourceLanguage: Language get() = this.sources.entries.single().value.language

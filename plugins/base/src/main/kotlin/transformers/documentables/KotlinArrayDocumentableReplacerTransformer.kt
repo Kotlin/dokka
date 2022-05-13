@@ -19,35 +19,63 @@ class KotlinArrayDocumentableReplacerTransformer(context: DokkaContext):
                         when (this?.dri) {
                             DRI("kotlin", "Int") ->
                                 AnyWithChanges(
-                                    GenericTypeConstructor(DRI("kotlin", "IntArray"), emptyList()),
+                                    GenericTypeConstructor(
+                                        dri = DRI("kotlin", "IntArray"),
+                                        projections = emptyList(),
+                                        sources = genericTypeConstructor.sources
+                                    ),
                                     true)
                             DRI("kotlin", "Boolean") ->
                                 AnyWithChanges(
-                                    GenericTypeConstructor(DRI("kotlin", "BooleanArray"), emptyList()),
+                                    GenericTypeConstructor(
+                                        dri = DRI("kotlin", "BooleanArray"),
+                                        projections = emptyList(),
+                                        sources = genericTypeConstructor.sources
+                                    ),
                                     true)
                             DRI("kotlin", "Float") ->
                                 AnyWithChanges(
-                                    GenericTypeConstructor(DRI("kotlin", "FloatArray"), emptyList()),
+                                    GenericTypeConstructor(
+                                        dri = DRI("kotlin", "FloatArray"),
+                                        projections = emptyList(),
+                                        sources = genericTypeConstructor.sources
+                                    ),
                                     true)
                             DRI("kotlin", "Double") ->
                                 AnyWithChanges(
-                                    GenericTypeConstructor(DRI("kotlin", "DoubleArray"), emptyList()),
+                                    GenericTypeConstructor(
+                                        dri = DRI("kotlin", "DoubleArray"),
+                                        projections = emptyList(),
+                                        sources = genericTypeConstructor.sources
+                                    ),
                                     true)
                             DRI("kotlin", "Long") ->
                                 AnyWithChanges(
-                                    GenericTypeConstructor(DRI("kotlin", "LongArray"), emptyList()),
+                                    GenericTypeConstructor(
+                                        dri = DRI("kotlin", "LongArray"),
+                                        projections = emptyList(),
+                                        sources = genericTypeConstructor.sources),
                                     true)
                             DRI("kotlin", "Short") ->
                                 AnyWithChanges(
-                                    GenericTypeConstructor(DRI("kotlin", "ShortArray"), emptyList()),
+                                    GenericTypeConstructor(
+                                        dri = DRI("kotlin", "ShortArray"),
+                                        projections = emptyList(),
+                                        sources = genericTypeConstructor.sources),
                                     true)
                             DRI("kotlin", "Char") ->
                                 AnyWithChanges(
-                                    GenericTypeConstructor(DRI("kotlin", "CharArray"), emptyList()),
+                                    GenericTypeConstructor(
+                                        dri = DRI("kotlin", "CharArray"),
+                                        projections = emptyList(),
+                                        sources = genericTypeConstructor.sources),
                                     true)
                             DRI("kotlin", "Byte") ->
                                 AnyWithChanges(
-                                    GenericTypeConstructor(DRI("kotlin", "ByteArray"), emptyList()),
+                                    GenericTypeConstructor(
+                                        dri = DRI("kotlin", "ByteArray"),
+                                        projections = emptyList(),
+                                        sources = genericTypeConstructor.sources),
                                     true)
                             else -> null
                         }
