@@ -72,10 +72,12 @@ class TextStylesTest : HtmlRenderingOnlyTestBase() {
     @Test
     fun `should include blockquote`() {
         val page = testPage {
-            text("blockquote text", styles = setOf(TextStyle.Quotation))
+            group(styles = setOf(TextStyle.Quotation)) {
+                text("blockquote text")
+            }
         }
         HtmlRenderer(context).render(page)
-        renderedContent.match(BLOCKQUOTE("blockquote text"))
+        renderedContent.match(BlockQuote("blockquote text"))
     }
 
     override val renderedContent: Element
