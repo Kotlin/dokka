@@ -113,6 +113,10 @@ public final class utils/B : utils/Tag {
 	public fun <init> ([Ljava/lang/Object;)V
 }
 
+public final class utils/BlockQuote : utils/Tag {
+	public fun <init> ([Ljava/lang/Object;)V
+}
+
 public final class utils/Br : utils/Tag {
 	public static final field INSTANCE Lutils/Br;
 }

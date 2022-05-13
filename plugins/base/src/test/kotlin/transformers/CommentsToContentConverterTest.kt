@@ -14,8 +14,8 @@ class CommentsToContentConverterTest {
     private val converter = DocTagToContentConverter()
 
     private fun executeTest(
-        docTag:DocTag,
-        match: ContentMatcherBuilder<ContentComposite>.() -> Unit
+        docTag: DocTag,
+        match: ContentMatcherBuilder<ContentComposite>.() -> Unit,
     ) {
         val dci = DCI(
             setOf(
@@ -225,12 +225,16 @@ class CommentsToContentConverterTest {
         )
         executeTest(docTag) {
             group {
-                node<ContentCodeBlock> {
-                    +"Blockquotes are very handy in email to emulate reply text. This line is part of the same quote."
+                group {
+                    group {
+                        +"Blockquotes are very handy in email to emulate reply text. This line is part of the same quote."
+                    }
                 }
                 group { +"Quote break." }
-                node<ContentCodeBlock> {
-                    +"Quote"
+                group {
+                    group {
+                        +"Quote"
+                    }
                 }
             }
         }
@@ -261,16 +265,16 @@ class CommentsToContentConverterTest {
         )
         executeTest(docTag) {
             group {
-                node<ContentCodeBlock> {
-                    +"text 1 text 2"
-                    node<ContentCodeBlock> {
-                        +"text 3 text 4"
+                group {
+                    group { +"text 1 text 2" }
+                    group {
+                        group { +"text 3 text 4" }
                     }
-                    +"text 5"
+                    group { +"text 5" }
                 }
                 group { +"Quote break." }
-                node<ContentCodeBlock> {
-                    +"Quote"
+                group {
+                    group { +"Quote" }
                 }
             }
         }
@@ -326,48 +330,49 @@ class CommentsToContentConverterTest {
             )
         )
         executeTest(docTag) {
-            group { link {
-                +"I'm an inline-style link"
-                check {
-                    assertEquals(
-                        assertedCast<ContentResolvedLink> { "Link should be resolved" }.address,
-                        "https://www.google.com"
-                    )
+            group {
+                link {
+                    +"I'm an inline-style link"
+                    check {
+                        assertEquals(
+                            assertedCast<ContentResolvedLink> { "Link should be resolved" }.address,
+                            "https://www.google.com"
+                        )
+                    }
                 }
-            } }
+            }
         }
     }
-
 
 
     @Test
     fun `ordered list`() {
         val docTag =
             Ol(
-            listOf(
-                Li(
-                    listOf(
-                        P(listOf(Text("test1"))),
-                        P(listOf(Text("test2"))),
-                    )
-                ),
-                Li(
-                    listOf(
-                        P(listOf(Text("test3"))),
-                        P(listOf(Text("test4"))),
+                listOf(
+                    Li(
+                        listOf(
+                            P(listOf(Text("test1"))),
+                            P(listOf(Text("test2"))),
+                        )
+                    ),
+                    Li(
+                        listOf(
+                            P(listOf(Text("test3"))),
+                            P(listOf(Text("test4"))),
+                        )
                     )
                 )
             )
-        )
         executeTest(docTag) {
             node<ContentList> {
                 group {
-                        +"test1"
-                        +"test2"
+                    +"test1"
+                    +"test2"
                 }
                 group {
-                        +"test3"
-                        +"test4"
+                    +"test3"
+                    +"test4"
                 }
             }
         }

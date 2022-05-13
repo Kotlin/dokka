@@ -4277,6 +4277,7 @@ public final class org/jetbrains/dokka/pages/TextStyle : java/lang/Enum, org/jet
 	public static final field Italic Lorg/jetbrains/dokka/pages/TextStyle;
 	public static final field Monospace Lorg/jetbrains/dokka/pages/TextStyle;
 	public static final field Paragraph Lorg/jetbrains/dokka/pages/TextStyle;
+	public static final field Quotation Lorg/jetbrains/dokka/pages/TextStyle;
 	public static final field Span Lorg/jetbrains/dokka/pages/TextStyle;
 	public static final field Strikethrough Lorg/jetbrains/dokka/pages/TextStyle;
 	public static final field Strong Lorg/jetbrains/dokka/pages/TextStyle;
