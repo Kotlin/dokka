@@ -695,7 +695,7 @@ class DefaultDescriptorToDocumentableTranslatorTest : BaseAbstractTest() {
                     Annotations.Annotation(DRI("sample", "Hello"), emptyMap()),
                     type.extra[Annotations]?.directAnnotations?.values?.single()?.single()
                 )
-                assertEquals(type.extra[SourceLanguage]!!.sourceLanguage, Language.KOTLIN)
+                assertEquals(type.sourceLanguage, Language.KOTLIN)
             }
         }
     }
@@ -724,7 +724,7 @@ class DefaultDescriptorToDocumentableTranslatorTest : BaseAbstractTest() {
                     type.extra[Annotations]?.directAnnotations?.values?.single()?.single()
                 )
                 assertEquals("kotlin/Int///PointingToDeclaration/", type.dri.toString())
-                assertEquals(type.extra[SourceLanguage]!!.sourceLanguage, Language.KOTLIN)
+                assertEquals(type.sourceLanguage, Language.KOTLIN)
             }
         }
     }

@@ -215,7 +215,10 @@ class DocumentableVisibilityFilterTransformer(val context: DokkaContext) : PreMe
             }
         }
 
-        private fun filterEnumEntries(entries: List<DEnumEntry>, filteredPlatforms: Set<DokkaSourceSet>): Pair<Boolean, List<DEnumEntry>> =
+        private fun filterEnumEntries(
+            entries: List<DEnumEntry>,
+            filteredPlatforms: Set<DokkaSourceSet>,
+        ): Pair<Boolean, List<DEnumEntry>> =
             entries.foldRight(Pair(false, emptyList())) { entry, acc ->
                 val intersection = filteredPlatforms.intersect(entry.sourceSets)
                 if (intersection.isEmpty()) Pair(true, acc.second)
@@ -225,15 +228,16 @@ class DocumentableVisibilityFilterTransformer(val context: DokkaContext) : PreMe
                     val classlikes = filterClasslikes(entry.classlikes) { _, data -> data in intersection }
 
                     DEnumEntry(
-                        entry.dri,
-                        entry.name,
-                        entry.documentation.filtered(intersection),
-                        entry.expectPresentInSet.filtered(filteredPlatforms),
-                        functions.second,
-                        properties.second,
-                        classlikes.second,
-                        intersection,
-                        entry.extra
+                        dri = entry.dri,
+                        name = entry.name,
+                        documentation = entry.documentation.filtered(intersection),
+                        expectPresentInSet = entry.expectPresentInSet.filtered(filteredPlatforms),
+                        functions = functions.second,
+                        properties = properties.second,
+                        classlikes = classlikes.second,
+                        sources = entry.sources.filtered(filteredPlatforms),
+                        sourceSets = intersection,
+                        extra = entry.extra
                     ).let { Pair(functions.first || properties.first || classlikes.first, acc.second + it) }
                 }
             }
@@ -361,8 +365,7 @@ class DocumentableVisibilityFilterTransformer(val context: DokkaContext) : PreMe
         private fun filterTypeAliases(
             typeAliases: List<DTypeAlias>,
             additionalCondition: (DTypeAlias, DokkaSourceSet) -> Boolean = ::alwaysTrue
-        ) =
-            typeAliases.transform(additionalCondition) { original, filteredPlatforms ->
+        ) = typeAliases.transform(additionalCondition) { original, filteredPlatforms ->
                 with(original) {
                     copy(
                         documentation = documentation.filtered(filteredPlatforms),
@@ -370,6 +373,7 @@ class DocumentableVisibilityFilterTransformer(val context: DokkaContext) : PreMe
                         underlyingType = underlyingType.filtered(filteredPlatforms),
                         visibility = visibility.filtered(filteredPlatforms),
                         generics = generics.mapNotNull { it.filter(filteredPlatforms) },
+                        sources = sources.filtered(filteredPlatforms),
                         sourceSets = filteredPlatforms,
                     )
                 }

@@ -141,8 +141,7 @@ internal fun DProperty.javaAccessors(isTopLevel: Boolean = false, relocateToClas
                             sourceSets.associateWith {
                                 setOf(ExtraModifiers.JavaOnlyModifiers.Static)
                             }
-                        )
-                else getter.extra
+                        ) else getter.extra
             )
         },
         setter?.let { setter ->
@@ -165,13 +164,12 @@ internal fun DProperty.javaAccessors(isTopLevel: Boolean = false, relocateToClas
                 },
                 modifier = javaModifierFromSetter(),
                 visibility = visibility.mapValues { JavaVisibility.Public },
-                type = Void,
+                type = Void(sources),
                 extra = if (isTopLevel) setter.extra + setter.extra.mergeAdditionalModifiers(
                     sourceSets.associateWith {
                         setOf(ExtraModifiers.JavaOnlyModifiers.Static)
                     }
-                )
-                else setter.extra
+                ) else setter.extra
             )
         }
     )
@@ -278,7 +276,7 @@ internal fun DClass.functionsInJava(): List<DFunction> =
         .flatMap { it.asJava(dri.classNames ?: name) }
 
 private fun DTypeParameter.asJava(): DTypeParameter = copy(
-    variantTypeParameter = variantTypeParameter.withDri(dri.possiblyAsJava()),
+    variantTypeParameter = variantTypeParameter.withDri(dri.possiblyAsJava(), sources),
     bounds = bounds.map { it.asJava() }
 )
 
@@ -353,7 +351,7 @@ internal fun DObject.asJava(): DObject = copy(
                 visibility = sourceSets.associateWith {
                     JavaVisibility.Public
                 },
-                type = GenericTypeConstructor(dri, emptyList()),
+                type = GenericTypeConstructor(dri = dri, projections = emptyList(), sources = sources),
                 setter = null,
                 getter = null,
                 sourceSets = sourceSets,

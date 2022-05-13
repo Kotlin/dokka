@@ -258,13 +258,13 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
                     "String",
                     (kotlinSubclassFunction.parameters.firstOrNull()?.type as? TypeConstructor)?.dri?.classNames
                 )
-                assertEquals(javaLeafClass.extra[SourceLanguage]!!.sourceLanguage, Language.JAVA)
-                assertEquals(kotlinSubClass.extra[SourceLanguage]!!.sourceLanguage, Language.KOTLIN)
-                assertEquals(kotlinSubclassFunction.extra[SourceLanguage]!!.sourceLanguage, Language.KOTLIN)
+                assertEquals(javaLeafClass.sourceLanguage, Language.JAVA)
+                assertEquals(kotlinSubClass.sourceLanguage, Language.KOTLIN)
+                assertEquals(kotlinSubclassFunction.sourceLanguage, Language.KOTLIN)
                 // This function was defined in Kotlin and inherited by a Java class without overriding.
                 // Its param types, if no nullability information is present, default to non-null instead of platform.
-                assertEquals(kotlinLeafClassFunction.extra[SourceLanguage]!!.sourceLanguage, Language.KOTLIN)
-                assertEquals(javaLeafClassFunction.extra[SourceLanguage]!!.sourceLanguage, Language.JAVA)
+                assertEquals(kotlinLeafClassFunction.sourceLanguage, Language.KOTLIN)
+                assertEquals(javaLeafClassFunction.sourceLanguage, Language.JAVA)
             }
         }
     }

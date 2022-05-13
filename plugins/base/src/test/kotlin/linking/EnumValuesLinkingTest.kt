@@ -38,7 +38,7 @@ class EnumValuesLinkingTest : BaseAbstractTest() {
                 assertEquals(4, classlikes.size)
 
                 val javaLinker = classlikes.single { it.name == "JavaLinker" } as DClass
-                assertEquals(javaLinker.extra[SourceLanguage]!!.sourceLanguage, Language.JAVA)
+                assertEquals(javaLinker.sourceLanguage, Language.JAVA)
                 javaLinker.documentation.values.single().children.run {
                     when (val kotlinLink = this[0].children[1].children[1]) {
                         is DocumentationLink -> kotlinLink.dri.run {
@@ -60,7 +60,7 @@ class EnumValuesLinkingTest : BaseAbstractTest() {
                 }
 
                 val kotlinLinker = classlikes.single { it.name == "KotlinLinker" } as DClass
-                assertEquals(kotlinLinker.extra[SourceLanguage]!!.sourceLanguage, Language.KOTLIN)
+                assertEquals(kotlinLinker.sourceLanguage, Language.KOTLIN)
                 kotlinLinker.documentation.values.single().children.run {
                     when (val kotlinLink = this[0].children[0].children[5]) {
                         is DocumentationLink -> kotlinLink.dri.run {
@@ -82,9 +82,9 @@ class EnumValuesLinkingTest : BaseAbstractTest() {
                 }
 
                 val kotlinEnum = classlikes.single { it.name == "KotlinEnum" } as DEnum
-                assertEquals(kotlinEnum.extra[SourceLanguage]!!.sourceLanguage, Language.KOTLIN)
+                assertEquals(kotlinEnum.sourceLanguage, Language.KOTLIN)
                 val javaEnum = classlikes.single { it.name == "JavaEnum" } as DEnum
-                assertEquals(javaEnum.extra[SourceLanguage]!!.sourceLanguage, Language.JAVA)
+                assertEquals(javaEnum.sourceLanguage, Language.JAVA)
 
                 assertEquals(
                     javaLinker.documentation.values.single().children[0].children[1].children[1].safeAs<DocumentationLink>()?.dri,

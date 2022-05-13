@@ -7,6 +7,7 @@ import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.base.translators.descriptors.ExternalDocumentablesProvider
 import org.jetbrains.dokka.model.DClass
 import org.jetbrains.dokka.model.DInterface
+import org.jetbrains.dokka.model.Language
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.utilities.cast
@@ -31,6 +32,8 @@ class ExternalDocumentablesTest : BaseAbstractTest() {
             /src/com/sample/MyList.kt
             package com.sample
             class MyList: ArrayList<Int>()
+            
+            class MyJsonThingy: 
             """.trimIndent(),
             configuration
         ) {
@@ -52,6 +55,8 @@ class ExternalDocumentablesTest : BaseAbstractTest() {
                     listOf("AbstractList", "RandomAccess", "Cloneable", "Serializable", "MutableList"),
                     supertypes
                 )
+                assertEquals(Language.JAVA, res!!.sources.values.single().language)
+                assertEquals("JavaStandardLibrary.java", res.sources.values.single().path)
             }
         }
     }
@@ -98,6 +103,8 @@ class ExternalDocumentablesTest : BaseAbstractTest() {
                     listOf("CoroutineContext.Element"),
                     supertypes
                 )
+                assertEquals(Language.KOTLIN, res!!.sources.values.single().language)
+                assertEquals("KotlinBuiltins.kt", res.sources.values.single().path)
             }
         }
     }
@@ -133,6 +140,8 @@ class ExternalDocumentablesTest : BaseAbstractTest() {
                     entry.key)
                 assertEquals("Entry", res?.name)
                 assertEquals("kotlin.collections/Map.Entry///PointingToDeclaration/", res?.dri?.toString())
+                assertEquals(Language.KOTLIN, res!!.sources.values.single().language)
+                assertEquals("KotlinBuiltins.kt", res.sources.values.single().path)
             }
         }
     }

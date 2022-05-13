@@ -51,12 +51,3 @@ enum class Language {
     JAVA, KOTLIN, UNKNOWN
 }
 
-data class SourceLanguage(val sourceLanguage: Language) : ExtraProperty<HasSourceLanguage> {
-    companion object : ExtraProperty.Key<HasSourceLanguage, SourceLanguage> {
-        override fun mergeStrategyFor(left: SourceLanguage, right: SourceLanguage) = MergeStrategy.Replace(
-            if (left.sourceLanguage == right.sourceLanguage) SourceLanguage(left.sourceLanguage)
-            else SourceLanguage(Language.UNKNOWN)
-        )
-    }
-    override val key: ExtraProperty.Key<HasSourceLanguage, *> = SourceLanguage
-}

@@ -39,7 +39,7 @@ class DocumentableTest {
                     modifier = emptyMap(),
                     sources = emptyMap(),
                     sourceSets = emptySet(),
-                    type = Void,
+                    type = Void(emptyMap()),
                     receiver = null,
                     isConstructor = false,
                     isExpectActual = false,
@@ -50,8 +50,9 @@ class DocumentableTest {
                             documentation = emptyMap(),
                             expectPresentInSet = null,
                             extra = PropertyContainer.empty(),
+                            sources = emptyMap(),
                             sourceSets = emptySet(),
-                            type = Void
+                            type = Void(emptyMap())
                         ),
                         DParameter(
                             dri = DRI(),
@@ -59,8 +60,9 @@ class DocumentableTest {
                             documentation = emptyMap(),
                             expectPresentInSet = null,
                             extra = PropertyContainer.empty(),
+                            sources = emptyMap(),
                             sourceSets = emptySet(),
-                            type = Void
+                            type = Void(emptyMap())
                         )
                     )
                 ),
@@ -75,7 +77,7 @@ class DocumentableTest {
                     modifier = emptyMap(),
                     sources = emptyMap(),
                     sourceSets = emptySet(),
-                    type = Void,
+                    type = Void(emptyMap()),
                     receiver = null,
                     isConstructor = false,
                     isExpectActual = false,
@@ -87,7 +89,8 @@ class DocumentableTest {
                             expectPresentInSet = null,
                             extra = PropertyContainer.empty(),
                             sourceSets = emptySet(),
-                            type = Void
+                            sources = emptyMap(),
+                            type = Void(emptyMap())
                         ),
                         DParameter(
                             dri = DRI(),
@@ -96,7 +99,8 @@ class DocumentableTest {
                             expectPresentInSet = null,
                             extra = PropertyContainer.empty(),
                             sourceSets = emptySet(),
-                            type = Void
+                            sources = emptyMap(),
+                            type = Void(emptyMap())
                         )
                     )
                 )

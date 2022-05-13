@@ -9,13 +9,15 @@ fun DTypeParameter.filter(filteredSet: Set<DokkaSourceSet>) =
     if (filteredSet.containsAll(sourceSets)) this
     else {
         val intersection = filteredSet.intersect(sourceSets)
+        val filteredSources = sources.filtered(intersection)
         if (intersection.isEmpty()) null
         else DTypeParameter(
-            variantTypeParameter,
-            documentation.filtered(intersection),
-            expectPresentInSet?.takeIf { intersection.contains(expectPresentInSet) },
-            bounds,
-            intersection,
-            extra
+            variantTypeParameter = variantTypeParameter,
+            documentation = documentation.filtered(intersection),
+            expectPresentInSet = expectPresentInSet?.takeIf { intersection.contains(expectPresentInSet) },
+            bounds = bounds,
+            sources = filteredSources,
+            sourceSets = intersection,
+            extra = extra
         )
     }

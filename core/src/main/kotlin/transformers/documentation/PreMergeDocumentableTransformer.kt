@@ -34,3 +34,4 @@ fun PreMergeDocumentableTransformer.perPackageOptions(documentable: Documentable
 
 fun <T> PreMergeDocumentableTransformer.source(documentable: T) where T : Documentable, T : WithSources =
     checkNotNull(documentable.sources[sourceSet(documentable)])
+        { "Sources were null for ${sourceSet(documentable)} \nfor $documentable" }

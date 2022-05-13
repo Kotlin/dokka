@@ -219,7 +219,7 @@ abstract class DocumentableReplacerTransformer(val context: DokkaContext) :
         val wasChanged = underlyingType.any { it.value.changed } || generics.any { it.changed }
         return (dTypeAlias.takeIf { !wasChanged } ?: dTypeAlias.copy(
             underlyingType = underlyingType.mapValues { it.value.target ?: dTypeAlias.underlyingType.getValue(it.key) },
-            generics = generics.mapNotNull { it.target }
+            generics = generics.mapNotNull { it.target },
         )).let { AnyWithChanges(it, wasChanged) }
     }
 
