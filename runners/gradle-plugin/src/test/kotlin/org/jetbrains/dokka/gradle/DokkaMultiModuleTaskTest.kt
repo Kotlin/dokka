@@ -25,14 +25,6 @@ class DokkaMultiModuleTaskTest {
         addChildTask(childDokkaTask)
     }
 
-    init {
-        rootProject.allprojects { project ->
-            project.tasks.withType<AbstractDokkaTask>().configureEach { task ->
-                task.plugins.withDependencies { dependencies -> dependencies.clear() }
-            }
-        }
-    }
-
     @Test
     fun `child project is withing root project`() {
         assertEquals(

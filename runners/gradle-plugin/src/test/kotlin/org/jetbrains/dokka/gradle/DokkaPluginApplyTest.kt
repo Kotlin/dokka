@@ -1,11 +1,11 @@
 package org.jetbrains.dokka.gradle
 
 import org.gradle.api.plugins.JavaBasePlugin
+import org.gradle.kotlin.dsl.repositories
 import org.gradle.kotlin.dsl.withType
 import org.gradle.testfixtures.ProjectBuilder
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
 class DokkaPluginApplyTest {
@@ -40,12 +40,16 @@ class DokkaPluginApplyTest {
     fun `dokka plugin configurations extend dokkaPlugin`() {
         val project = ProjectBuilder.builder().build()
         project.plugins.apply("org.jetbrains.dokka")
+        project.repositories {
+            mavenLocal()
+            mavenCentral()
+        }
 
         val dokkaPluginsConfiguration = project.maybeCreateDokkaDefaultPluginConfiguration()
 
         project.tasks.withType<DokkaTask>().forEach { dokkaTask ->
-            assertSame(
-                dokkaTask.plugins.extendsFrom.single(), dokkaPluginsConfiguration,
+            assertTrue(
+                dokkaTask.plugins.files.containsAll(dokkaPluginsConfiguration.files),
                 "Expected dokka plugins configuration to extend default ${dokkaPluginsConfiguration.name} configuration"
             )
         }

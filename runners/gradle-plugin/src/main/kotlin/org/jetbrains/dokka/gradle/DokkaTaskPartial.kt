@@ -17,7 +17,7 @@ abstract class DokkaTaskPartial : AbstractDokkaLeafTask() {
             failOnWarning = failOnWarning.getSafe(),
             sourceSets = unsuppressedSourceSets.build(),
             pluginsConfiguration = buildPluginsConfiguration(),
-            pluginsClasspath = plugins.resolve().toList(),
+            pluginsClasspath = plugins.toList(),
             delayTemplateSubstitution = true,
             suppressObviousFunctions = suppressObviousFunctions.getSafe(),
             suppressInheritedMembers = suppressInheritedMembers.getSafe(),

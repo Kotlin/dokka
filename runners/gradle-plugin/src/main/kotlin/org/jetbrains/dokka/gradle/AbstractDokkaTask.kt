@@ -6,7 +6,7 @@ import groovy.lang.Closure
 import org.gradle.api.Action
 import org.gradle.api.DefaultTask
 import org.gradle.api.Task
-import org.gradle.api.artifacts.Configuration
+import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.MapProperty
@@ -76,10 +76,10 @@ abstract class AbstractDokkaTask : DefaultTask() {
     }
 
     @Classpath
-    val plugins: Configuration = project.maybeCreateDokkaPluginConfiguration(name)
+    val plugins: ConfigurableFileCollection = project.objects.fileCollection()
 
     @Classpath
-    val runtime: Configuration = project.maybeCreateDokkaRuntimeConfiguration(name)
+    val runtime: ConfigurableFileCollection = project.objects.fileCollection()
 
     final override fun doFirst(action: Action<in Task>): Task = super.doFirst(action)
 

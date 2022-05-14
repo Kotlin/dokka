@@ -1,6 +1,7 @@
 package org.jetbrains.dokka.gradle
 
 import org.gradle.kotlin.dsl.create
+import org.gradle.kotlin.dsl.repositories
 import org.gradle.kotlin.dsl.withType
 import org.gradle.testfixtures.ProjectBuilder
 import org.jetbrains.dokka.DokkaConfigurationImpl
@@ -21,8 +22,9 @@ class DokkaCollectorTaskTest {
 
         rootProject.allprojects { project ->
             project.plugins.apply("org.jetbrains.dokka")
-            project.tasks.withType<AbstractDokkaTask>().configureEach { task ->
-                task.plugins.withDependencies { dependencies -> dependencies.clear() }
+            project.repositories {
+                mavenLocal()
+                mavenCentral()
             }
             project.tasks.withType<DokkaTask>().configureEach { task ->
                 task.dokkaSourceSets.configureEach { sourceSet ->
@@ -56,7 +58,7 @@ class DokkaCollectorTaskTest {
                         .map { it.sourceSets }
                         .reduce { acc, list -> acc + list },
                     pluginsClasspath = task.childDokkaTasks
-                        .map { it.plugins.resolve().toList() }
+                        .map { it.plugins.toList() }
                         .reduce { acc, mutableSet -> acc + mutableSet }
                 ),
                 dokkaConfiguration

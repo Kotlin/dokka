@@ -2,13 +2,12 @@
 
 package org.jetbrains.dokka.gradle
 
-import org.gradle.api.artifacts.Configuration
+import org.gradle.api.file.FileCollection
 import org.jetbrains.dokka.DokkaBootstrap
 import java.net.URLClassLoader
 import kotlin.reflect.KClass
 
-fun DokkaBootstrap(configuration: Configuration, bootstrapClass: KClass<out DokkaBootstrap>): DokkaBootstrap {
-    val runtimeJars = configuration.resolve()
+fun DokkaBootstrap(runtimeJars: FileCollection, bootstrapClass: KClass<out DokkaBootstrap>): DokkaBootstrap {
     val runtimeClassLoader = URLClassLoader(
         runtimeJars.map { it.toURI().toURL() }.toTypedArray(),
         ClassLoader.getSystemClassLoader().parent
