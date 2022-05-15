@@ -10,7 +10,6 @@ import kotlin.reflect.typeOf
 internal inline fun <reified T : Any> ObjectFactory.safeProperty() = property<T?>()
 
 internal inline fun <reified T : Any> Property<T?>.safeConvention(value: T): Property<T> {
-    @Suppress("UnstableApiUsage")
     return this.convention(value).cast()
 }
 

@@ -12,7 +12,6 @@ import java.lang.reflect.Proxy
  * Creates [java.lang.reflect.Proxy] with pass through invocation algorithm,
  * to create access proxy for [delegate] into [targetClassLoader].
  */
-@Suppress("UNCHECKED_CAST")
 internal inline fun <reified T : Any> automagicTypedProxy(targetClassLoader: ClassLoader, delegate: Any): T =
     automagicProxy(targetClassLoader, T::class.java, delegate) as T
 
