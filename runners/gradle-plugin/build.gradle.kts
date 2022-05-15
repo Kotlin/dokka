@@ -30,13 +30,6 @@ dependencies {
                 .classpath.asFiles.first()
         )
     )
-
-    constraints {
-        val kotlin_version: String by project
-        compileOnly("org.jetbrains.kotlin:kotlin-reflect:${kotlin_version}") {
-            because("kotlin-gradle-plugin and :core both depend on this")
-        }
-    }
 }
 
 val sourceJar by tasks.registering(Jar::class) {
