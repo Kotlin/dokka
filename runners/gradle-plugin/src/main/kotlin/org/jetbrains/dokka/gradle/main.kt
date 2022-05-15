@@ -44,7 +44,6 @@ open class DokkaPlugin : Plugin<Project> {
         name: String,
         multiModuleTaskSupported: Boolean = true,
         allModulesPageAndTemplateProcessing: Dependency = project.dokkaArtifacts.allModulesPage,
-        collectorTaskSupported: Boolean = true,
         configuration: AbstractDokkaTask.() -> Unit = {}
     ) {
         project.maybeCreateDokkaPluginConfiguration(name)
@@ -81,12 +80,11 @@ open class DokkaPlugin : Plugin<Project> {
                     }
                 }
             }
-            if (collectorTaskSupported) {
-                project.tasks.register<DokkaCollectorTask>("${name}Collector") {
-                    addSubprojectChildTasks(name)
-                    description =
-                        "Generates documentation merging all subprojects '$name' tasks into one virtual module"
-                }
+
+            project.tasks.register<DokkaCollectorTask>("${name}Collector") {
+                addSubprojectChildTasks(name)
+                description =
+                    "Generates documentation merging all subprojects '$name' tasks into one virtual module"
             }
         }
     }
