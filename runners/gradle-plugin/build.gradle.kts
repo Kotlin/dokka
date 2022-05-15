@@ -15,10 +15,8 @@ dependencies {
 
     compileOnly("org.jetbrains.kotlin:kotlin-gradle-plugin")
     compileOnly("com.android.tools.build:gradle:4.0.1")
-    compileOnly(gradleApi())
     compileOnly(gradleKotlinDsl())
     testImplementation(project(":test-utils"))
-    testImplementation(gradleApi())
     testImplementation(gradleKotlinDsl())
     testImplementation("org.jetbrains.kotlin:kotlin-gradle-plugin")
     testImplementation("com.android.tools.build:gradle:4.0.1")
