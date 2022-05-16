@@ -277,52 +277,6 @@ class EnumsTest : BaseAbstractTest() {
     }
 
     @Test
-    fun enumWithConstructor() {
-        val configuration = dokkaConfiguration {
-            sourceSets {
-                sourceSet {
-                    sourceRoots = listOf("src/")
-                }
-            }
-        }
-
-        testInline(
-            """
-            |/src/main/kotlin/basic/TestEnum.kt
-            |package testpackage
-            |
-            |
-            |enum class TestEnum(name: String, index: Int, excluded: Boolean) {
-            |   E1("e1", 1, true),
-            |   E2("e2", 2, false);
-            |}
-        """.trimMargin(),
-            configuration
-        ) {
-            documentablesTransformationStage = { m ->
-                m.packages.let { p ->
-                    p.first().classlikes.let { c ->
-                        val enum = c.first() as DEnum
-                        val (first, second) = enum.entries.sortedBy { it.name }
-
-                        assertEquals(1, first.extra.allOfType<ConstructorValues>().size)
-                        assertEquals(1, second.extra.allOfType<ConstructorValues>().size)
-                        assertEquals(listOf(StringConstant("e1"), IntegerConstant(1), BooleanConstant(true)), first.extra.allOfType<ConstructorValues>().first().values.values.first())
-                        assertEquals(listOf(StringConstant("e2"), IntegerConstant(2), BooleanConstant(false)), second.extra.allOfType<ConstructorValues>().first().values.values.first())
-                    }
-                }
-            }
-            pagesGenerationStage = { module ->
-                val entryPage = module.dfs { it.name == "E1" } as ClasslikePageNode
-                val signaturePart = (entryPage.content.dfs {
-                    it is ContentGroup && it.dci.toString() == "[testpackage/TestEnum.E1///PointingToDeclaration/{\"org.jetbrains.dokka.links.EnumEntryDRIExtra\":{\"key\":\"org.jetbrains.dokka.links.EnumEntryDRIExtra\"}}][Symbol]"
-                } as ContentGroup)
-                assertEquals("(\"e1\", 1, true)", signaturePart.constructorSignature())
-            }
-        }
-    }
-
-    @Test
     fun enumWithMethods() {
         val configuration = dokkaConfiguration {
             sourceSets {
@@ -356,8 +310,6 @@ class EnumsTest : BaseAbstractTest() {
                         val enum = c.first { it is DEnum } as DEnum
                         val first = enum.entries.first()
 
-                        assertEquals(1, first.extra.allOfType<ConstructorValues>().size)
-                        assertEquals(emptyList<String>(), first.extra.allOfType<ConstructorValues>().first().values.values.first())
                         assertNotNull(first.functions.find { it.name == "toBeImplemented" })
                     }
                 }
@@ -414,7 +366,4 @@ class EnumsTest : BaseAbstractTest() {
             }
         }
     }
-
-    private fun ContentGroup.constructorSignature(): String =
-        (children.single() as ContentGroup).children.drop(1).joinToString(separator = "") { (it as ContentText).text }
 }
