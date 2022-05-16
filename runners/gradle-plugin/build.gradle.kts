@@ -30,6 +30,15 @@ dependencies {
     )
 }
 
+// Gradle will put its own version of the stdlib in the classpath, do not pull our own we will end up with
+// warnings like 'Runtime JAR files in the classpath should have the same version'
+configurations.api {
+    exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib")
+    exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib-jdk7")
+    exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib-jdk8")
+}
+
+
 val sourceJar by tasks.registering(Jar::class) {
     archiveClassifier.set("sources")
     from(sourceSets["main"].allSource)
