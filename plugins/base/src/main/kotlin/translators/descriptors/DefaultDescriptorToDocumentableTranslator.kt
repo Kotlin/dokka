@@ -321,8 +321,7 @@ private class DokkaDescriptorVisitor(
                 expectPresentInSet = sourceSet.takeIf { isExpect },
                 extra = PropertyContainer.withAll(
                     descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
-                    descriptor.getAnnotations().toSourceSetDependent().toAnnotations(),
-                    ConstructorValues(descriptor.getAppliedConstructorParameters().toSourceSetDependent())
+                    descriptor.getAnnotations().toSourceSetDependent().toAnnotations()
                 )
             )
         }

@@ -858,24 +858,6 @@ public final class org/jetbrains/dokka/model/CompositeSourceSetIDKt {
 	public static final fun plus (Lorg/jetbrains/dokka/DokkaSourceSetID;Lorg/jetbrains/dokka/DokkaSourceSetID;)Lorg/jetbrains/dokka/model/CompositeSourceSetID;
 }
 
-public final class org/jetbrains/dokka/model/ConstructorValues : org/jetbrains/dokka/model/properties/ExtraProperty {
-	public static final field Companion Lorg/jetbrains/dokka/model/ConstructorValues$Companion;
-	public fun <init> (Ljava/util/Map;)V
-	public final fun component1 ()Ljava/util/Map;
-	public final fun copy (Ljava/util/Map;)Lorg/jetbrains/dokka/model/ConstructorValues;
-	public static synthetic fun copy$default (Lorg/jetbrains/dokka/model/ConstructorValues;Ljava/util/Map;ILjava/lang/Object;)Lorg/jetbrains/dokka/model/ConstructorValues;
-	public fun equals (Ljava/lang/Object;)Z
-	public fun getKey ()Lorg/jetbrains/dokka/model/properties/ExtraProperty$Key;
-	public final fun getValues ()Ljava/util/Map;
-	public fun hashCode ()I
-	public fun toString ()Ljava/lang/String;
-}
-
-public final class org/jetbrains/dokka/model/ConstructorValues$Companion : org/jetbrains/dokka/model/properties/ExtraProperty$Key {
-	public synthetic fun mergeStrategyFor (Ljava/lang/Object;Ljava/lang/Object;)Lorg/jetbrains/dokka/model/properties/MergeStrategy;
-	public fun mergeStrategyFor (Lorg/jetbrains/dokka/model/ConstructorValues;Lorg/jetbrains/dokka/model/ConstructorValues;)Lorg/jetbrains/dokka/model/properties/MergeStrategy$Replace;
-}
-
 public final class org/jetbrains/dokka/model/Contravariance : org/jetbrains/dokka/model/Variance {
 	public fun <init> (Lorg/jetbrains/dokka/model/Bound;)V
 	public final fun component1 ()Lorg/jetbrains/dokka/model/Bound;
