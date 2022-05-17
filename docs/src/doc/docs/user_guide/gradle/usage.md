@@ -70,7 +70,7 @@ dokkaHtml {
 
 Dokka documents single-platform as well as multi-platform projects. 
 Most of the configuration options are set per one source set.
-The available configuration options for are shown below:
+The available configuration options are shown below:
 
 ```kotlin
 import org.jetbrains.dokka.gradle.DokkaTask
