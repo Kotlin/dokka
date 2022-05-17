@@ -13,6 +13,16 @@ import kotlin.test.assertEquals
 
 class PsiSuperFieldsTest : BaseAbstractTest() {
 
+    private val commonTestConfiguration = dokkaConfiguration {
+        sourceSets {
+            sourceSet {
+                sourceRoots = listOf("src/")
+                analysisPlatform = "jvm"
+                name = "jvm"
+            }
+        }
+    }
+
     @Test
     fun `java inheriting java`() {
         testInline(
@@ -27,26 +37,14 @@ class PsiSuperFieldsTest : BaseAbstractTest() {
             |package test;
             |public class B extends A {}
         """.trimIndent(),
-            dokkaConfiguration {
-                sourceSets {
-                    sourceSet {
-                        sourceRoots = listOf("src/")
-                        analysisPlatform = "jvm"
-                        name = "jvm"
-                    }
-                }
-            }
+            commonTestConfiguration
         ) {
-            documentablesMergingStage = {
-                it.packages.single().classlikes.single { it.name == "B" }.properties.single { it.name == "a" }.run {
-                    assertNotNull(this)
-                    this.extra[InheritedMember]?.inheritedFrom?.values?.single()?.run {
-                        assertEquals(
-                            DRI(packageName = "test", classNames = "A"),
-                            this
-                        )
-                    }
-                }
+            documentablesMergingStage = { module ->
+                val inheritorProperties = module.packages.single().classlikes.single { it.name == "B" }.properties
+                val property = inheritorProperties.single { it.name == "a" }
+
+                val inheritedFrom = property.extra[InheritedMember]?.inheritedFrom?.values?.single()
+                assertEquals(DRI(packageName = "test", classNames = "A"), inheritedFrom)
             }
         }
     }
@@ -65,34 +63,23 @@ class PsiSuperFieldsTest : BaseAbstractTest() {
             |package test;
             |public class B extends A {}
         """.trimIndent(),
-            dokkaConfiguration {
-                sourceSets {
-                    sourceSet {
-                        sourceRoots = listOf("src/")
-                        analysisPlatform = "jvm"
-                        name = "jvm"
-                    }
-                }
-            }
+            commonTestConfiguration
         ) {
-            documentablesMergingStage = {
-                it.packages.single().classlikes.single { it.name == "B" }.properties.single { it.name == "a" }.run {
-                    assertNotNull(this)
-                    assertNotNull(this.getter)
-                    assertNotNull(this.setter)
-                    this.extra[InheritedMember]?.inheritedFrom?.values?.single()?.run {
-                        assertEquals(
-                            DRI(packageName = "test", classNames = "A"),
-                            this
-                        )
-                    }
-                }
+            documentablesMergingStage = { module ->
+                val inheritorProperties = module.packages.single().classlikes.single { it.name == "B" }.properties
+                val property = inheritorProperties.single { it.name == "a" }
+
+                assertNotNull(property.getter)
+                assertNotNull(property.setter)
+
+                val inheritedFrom = property.extra[InheritedMember]?.inheritedFrom?.values?.single()
+                assertEquals(DRI(packageName = "test", classNames = "A"), inheritedFrom)
             }
         }
     }
 
     @Test
-    fun `java inheriting kotlin with @JvmField should not inherit beans`() {
+    fun `java inheriting kotlin with @JvmField should not inherit accessors`() {
         testInline(
             """
             |/src/test/A.kt
@@ -112,26 +99,25 @@ class PsiSuperFieldsTest : BaseAbstractTest() {
                         sourceRoots = listOf("src/")
                         analysisPlatform = "jvm"
                         name = "jvm"
-                        classpath += jvmStdlibPath!!
+                        classpath += jvmStdlibPath!! // needed for JvmField
                     }
                 }
             }
         ) {
-            documentablesMergingStage = {
-                it.packages.single().classlikes.single { it.name == "B" }.properties.single { it.name == "a" }.run {
-                    assertNotNull(this)
-                    assertNull(this.getter)
-                    assertNull(this.setter)
-                    assertNotNull(this.extra[Annotations]?.directAnnotations?.values?.single()?.find {
-                        it.isJvmField()
-                    })
-                    this.extra[InheritedMember]?.inheritedFrom?.values?.single()?.run {
-                        assertEquals(
-                            DRI(packageName = "test", classNames = "A"),
-                            this
-                        )
-                    }
+            documentablesMergingStage = { module ->
+                val inheritorProperties = module.packages.single().classlikes.single { it.name == "B" }.properties
+                val property = inheritorProperties.single { it.name == "a" }
+
+                assertNull(property.getter)
+                assertNull(property.setter)
+
+                val jvmFieldAnnotation = property.extra[Annotations]?.directAnnotations?.values?.single()?.find {
+                    it.isJvmField()
                 }
+                assertNotNull(jvmFieldAnnotation)
+
+                val inheritedFrom = property.extra[InheritedMember]?.inheritedFrom?.values?.single()
+                assertEquals(DRI(packageName = "test", classNames = "A"), inheritedFrom)
             }
         }
     }

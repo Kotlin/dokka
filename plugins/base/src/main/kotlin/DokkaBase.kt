@@ -122,12 +122,6 @@ class DokkaBase : DokkaPlugin() {
         preMergeDocumentableTransformer providing ::ModuleAndPackageDocumentationTransformer
     }
 
-    val propertiesMergerTransformer by extending {
-        preMergeDocumentableTransformer with PropertiesMergerTransformer() order {
-            before(documentableVisibilityFilter)
-        }
-    }
-
     val actualTypealiasAdder by extending {
         CoreExtensions.documentableTransformer with ActualTypealiasAdder()
     }

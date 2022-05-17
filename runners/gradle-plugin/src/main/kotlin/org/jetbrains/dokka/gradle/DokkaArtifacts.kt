@@ -3,6 +3,7 @@ package org.jetbrains.dokka.gradle
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Dependency
 import org.jetbrains.dokka.DokkaVersion
+import org.gradle.api.artifacts.Dependency
 
 internal val Project.dokkaArtifacts get() = DokkaArtifacts(this)
 
