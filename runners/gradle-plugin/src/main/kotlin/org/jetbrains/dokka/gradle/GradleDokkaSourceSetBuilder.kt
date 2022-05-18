@@ -1,5 +1,3 @@
-@file:Suppress("FunctionName", "UnstableApiUsage")
-
 package org.jetbrains.dokka.gradle
 
 import groovy.lang.Closure
