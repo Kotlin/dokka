@@ -4,7 +4,9 @@ import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Nested
+import org.gradle.work.DisableCachingByDefault
 
+@DisableCachingByDefault(because = "Abstract super-class, not to be instantiated directly")
 abstract class AbstractDokkaParentTask : AbstractDokkaTask() {
 
     @get:Internal
