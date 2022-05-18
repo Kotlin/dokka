@@ -267,9 +267,10 @@ class CliIntegrationTest : AbstractCliIntegrationTest() {
     fun `should accept json as input configuration`() {
         val dokkaOutputDir = File(projectDir, "output")
         assertTrue(dokkaOutputDir.mkdirs())
-        val jsonPath = javaClass.getResource("/my-file.json")?.path ?: throw IllegalStateException("No JSON found!")
+        val resourcePath = javaClass.getResource("/my-file.json")?.toURI() ?: throw IllegalStateException("No JSON found!")
+        val jsonPath = File(resourcePath).absolutePath
         PrintWriter(jsonPath).run {
-            write(jsonBuilder(dokkaOutputDir.path, basePluginJarFile.path, File(projectDir, "src").path, reportUndocumented = true))
+            write(jsonBuilder(dokkaOutputDir.invariantSeparatorsPath, basePluginJarFile.invariantSeparatorsPath, File(projectDir, "src").invariantSeparatorsPath, reportUndocumented = true))
             close()
         }
 
@@ -306,13 +307,14 @@ class CliIntegrationTest : AbstractCliIntegrationTest() {
     fun `global settings should overwrite package options in configuration`() {
         val dokkaOutputDir = File(projectDir, "output")
         assertTrue(dokkaOutputDir.mkdirs())
-        val jsonPath = javaClass.getResource("/my-file.json")?.path ?: throw IllegalStateException("No JSON found!")
+        val resourcePath = javaClass.getResource("/my-file.json")?.toURI() ?: throw IllegalStateException("No JSON found!")
+        val jsonPath = File(resourcePath).absolutePath
         PrintWriter(jsonPath).run {
             write(
                 jsonBuilder(
-                    outputPath = dokkaOutputDir.path,
-                    pluginsClasspath = basePluginJarFile.path,
-                    projectPath = File(projectDir, "src").path,
+                    outputPath = dokkaOutputDir.invariantSeparatorsPath,
+                    pluginsClasspath = basePluginJarFile.invariantSeparatorsPath,
+                    projectPath = File(projectDir, "src").invariantSeparatorsPath,
                     globalSourceLinks = """
                         {
                           "localDirectory": "/home/Vadim.Mishenev/dokka/examples/cli/src/main/kotlin",

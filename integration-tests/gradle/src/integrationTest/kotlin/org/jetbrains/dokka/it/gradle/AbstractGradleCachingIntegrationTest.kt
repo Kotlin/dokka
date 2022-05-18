@@ -29,7 +29,7 @@ abstract class AbstractGradleCachingIntegrationTest(override val versions: Build
                 buildCache {
                     local {
                         // Set local build cache directory.
-                        directory = File("${projectDir.absolutePath}", "build-cache")
+                        directory = File("${projectDir.invariantSeparatorsPath}", "build-cache")
                     }
                 }
             """.trimIndent()
@@ -40,7 +40,7 @@ abstract class AbstractGradleCachingIntegrationTest(override val versions: Build
                 buildCache {
                     local<DirectoryBuildCache> {
                         // Set local build cache directory.
-                        directory = File("${projectDir.absolutePath}", "build-cache")
+                        directory = File("${projectDir.invariantSeparatorsPath}", "build-cache")
                     }
                 }
             """.trimIndent()
