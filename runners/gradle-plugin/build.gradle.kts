@@ -92,6 +92,10 @@ publishing {
     }
 }
 
+tasks.validatePlugins {
+    enableStricterValidation.set(true)
+}
+
 tasks.withType<PublishToMavenRepository>().configureEach {
     onlyIf { publication != publishing.publications["dokkaGradlePluginForIntegrationTests"] }
 }
