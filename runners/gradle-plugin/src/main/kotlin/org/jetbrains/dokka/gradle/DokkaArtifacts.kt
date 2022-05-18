@@ -1,12 +1,13 @@
 package org.jetbrains.dokka.gradle
 
 import org.gradle.api.Project
+import org.gradle.api.artifacts.Dependency
 import org.jetbrains.dokka.DokkaVersion
 
 internal val Project.dokkaArtifacts get() = DokkaArtifacts(this)
 
 internal class DokkaArtifacts(private val project: Project) {
-    private fun fromModuleName(name: String) =
+    private fun fromModuleName(name: String): Dependency =
         project.dependencies.create("org.jetbrains.dokka:$name:${DokkaVersion.version}")
 
     val allModulesPage get() = fromModuleName("all-modules-page-plugin")

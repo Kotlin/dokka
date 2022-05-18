@@ -1,3 +1,5 @@
+@file:Suppress("PackageDirectoryMismatch")
+
 package  org.jetbrains.dokka.test.tools.matchers.content
 
 import org.jetbrains.dokka.model.asPrintableTree
