@@ -43,10 +43,6 @@ import org.jetbrains.kotlin.descriptors.annotations.AnnotationDescriptor
 import org.jetbrains.kotlin.idea.kdoc.findKDoc
 import org.jetbrains.kotlin.idea.kdoc.resolveKDocLink
 import org.jetbrains.kotlin.js.resolve.diagnostics.findPsi
-import org.jetbrains.kotlin.load.java.JvmAbi
-import org.jetbrains.kotlin.load.java.descriptors.JavaMethodDescriptor
-import org.jetbrains.kotlin.load.java.propertyNameByGetMethodName
-import org.jetbrains.kotlin.load.java.propertyNamesBySetMethodName
 import org.jetbrains.kotlin.load.kotlin.toSourceElement
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.*
@@ -383,11 +379,10 @@ private class DokkaDescriptorVisitor(
         return coroutineScope {
             val descriptorsWithKind = scope.getDescriptorsWithKind()
 
-            val propertiesByName = descriptorsWithKind.properties.associateBy { it.name.asString() }
-            val (accessors, regularFunctions) = descriptorsWithKind.functions.partition {
-                val property = propertiesByName[it.toPossiblePropertyName()]
-                property != null && (it.isGetterFor(property) || it.isSetterFor(property))
-            }
+            val (regularFunctions, accessors) = splitFunctionsAndAccessors(
+                properties = descriptorsWithKind.properties,
+                functions = descriptorsWithKind.functions
+            )
 
             val functions = async { regularFunctions.visitFunctions(driWithPlatform) }
             val properties = async { descriptorsWithKind.properties.visitProperties(driWithPlatform, accessors) }
@@ -428,45 +423,6 @@ private class DokkaDescriptorVisitor(
                 )
             )
         }
-    }
-
-    private fun FunctionDescriptor.toPossiblePropertyName(): String? {
-        val stringName = this.name.asString()
-        return when {
-            JvmAbi.isSetterName(stringName) -> propertyNamesBySetMethodName(this.name).firstOrNull()?.asString()
-            JvmAbi.isGetterName(stringName) -> {
-                // In java, the convention for boolean property accessors is as follows:
-                // - `private boolean active;`
-                // - `private boolean isActive();`
-                //
-                // Whereas in Kotlin, because there are no explicit accessors, the convention is
-                // - `val isActive: Boolean`
-                //
-                // This makes it difficult to guess the name of the accessor property in case of Java
-                if (this is JavaMethodDescriptor && JvmAbi.startsWithIsPrefix(stringName)) {
-                    stringName.removePrefix("is").let { newName ->
-                        newName.replaceFirst(newName[0], newName[0].toLowerCase())
-                    }
-                } else {
-                    propertyNameByGetMethodName(this.name)?.asString()
-                }
-            }
-            else -> null
-        }
-    }
-
-    private fun FunctionDescriptor.isGetterFor(property: PropertyDescriptor): Boolean {
-        return this.returnType == property.returnType
-                && this.valueParameters.isEmpty()
-                && !property.visibility.isPublicAPI
-                && this.visibility.isPublicAPI
-    }
-
-    private fun FunctionDescriptor.isSetterFor(property: PropertyDescriptor): Boolean {
-        return this.valueParameters.size == 1
-                && this.valueParameters[0].type == property.returnType
-                && !property.visibility.isPublicAPI
-                && this.visibility.isPublicAPI
     }
 
     /**
@@ -864,12 +820,11 @@ private class DokkaDescriptorVisitor(
 
     private suspend fun List<PropertyDescriptor>.visitProperties(
         parent: DRIWithPlatformInfo,
-        implicitAccessors: List<FunctionDescriptor> = emptyList(),
+        implicitAccessors: Map<PropertyDescriptor, List<FunctionDescriptor>> = emptyMap(),
     ): List<DProperty> {
-        val accessorsByPropertyName = implicitAccessors.groupBy { it.toPossiblePropertyName() }
         return coroutineScope {
             parallelMap {
-                val propertyAccessors = accessorsByPropertyName[it.name.asString()] ?: emptyList()
+                val propertyAccessors = implicitAccessors[it] ?: emptyList()
                 visitPropertyDescriptor(it, propertyAccessors, parent)
             }
         }

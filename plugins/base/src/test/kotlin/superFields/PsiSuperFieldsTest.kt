@@ -50,7 +50,7 @@ class PsiSuperFieldsTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `java inheriting kotlin`() {
+    fun `java inheriting kotlin common case`() {
         testInline(
             """
             |/src/test/A.kt
@@ -71,6 +71,38 @@ class PsiSuperFieldsTest : BaseAbstractTest() {
 
                 assertNotNull(property.getter)
                 assertNotNull(property.setter)
+
+                val inheritedFrom = property.extra[InheritedMember]?.inheritedFrom?.values?.single()
+                assertEquals(DRI(packageName = "test", classNames = "A"), inheritedFrom)
+            }
+        }
+    }
+
+    @Test
+    fun `java inheriting kotlin with boolean property`() {
+        testInline(
+            """
+            |/src/test/A.kt
+            |package test
+            |open class A {
+            |    var isActive: Boolean = true
+            |}
+            |
+            |/src/test/B.java
+            |package test;
+            |public class B extends A {}
+        """.trimIndent(),
+            commonTestConfiguration
+        ) {
+            documentablesMergingStage = { module ->
+                val inheritorProperties = module.packages.single().classlikes.single { it.name == "B" }.properties
+                val property = inheritorProperties.single { it.name == "isActive" }
+
+                assertNotNull(property.getter)
+                assertEquals("isActive", property.getter!!.name)
+
+                assertNotNull(property.setter)
+                assertEquals("setActive", property.setter!!.name)
 
                 val inheritedFrom = property.extra[InheritedMember]?.inheritedFrom?.values?.single()
                 assertEquals(DRI(packageName = "test", classNames = "A"), inheritedFrom)

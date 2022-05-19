@@ -25,7 +25,6 @@ import org.jetbrains.dokka.links.*
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.AnnotationTarget
 import org.jetbrains.dokka.model.Nullable
-import org.jetbrains.dokka.model.TypeConstructor
 import org.jetbrains.dokka.model.doc.DocumentationNode
 import org.jetbrains.dokka.model.doc.Param
 import org.jetbrains.dokka.model.properties.PropertyContainer
@@ -87,14 +86,14 @@ class DefaultPsiToDocumentableTranslator(
                 )
 
             DModule(
-                context.configuration.moduleName,
-                psiFiles.parallelMapNotNull { it.safeAs<PsiJavaFile>() }.groupBy { it.packageName }.toList()
+                name = context.configuration.moduleName,
+                packages = psiFiles.parallelMapNotNull { it.safeAs<PsiJavaFile>() }.groupBy { it.packageName }.toList()
                     .parallelMap { (packageName: String, psiFiles: List<PsiJavaFile>) ->
                         docParser.parsePackage(packageName, psiFiles)
                     },
-                emptyMap(),
-                null,
-                setOf(sourceSet)
+                documentation = emptyMap(),
+                expectPresentInSet = null,
+                sourceSets = setOf(sourceSet)
             )
         }
     }
@@ -151,19 +150,19 @@ class DefaultPsiToDocumentableTranslator(
             val annotations = packageInfo?.packageStatement?.annotationList?.annotations
 
             DPackage(
-                dri,
-                emptyList(),
-                emptyList(),
-                psiFiles.parallelMap { psiFile ->
+                dri = dri,
+                functions = emptyList(),
+                properties = emptyList(),
+                classlikes = psiFiles.parallelMap { psiFile ->
                     coroutineScope {
                         psiFile.classes.asIterable().parallelMap { parseClasslike(it, dri) }
                     }
                 }.flatten(),
-                emptyList(),
-                documentation,
-                null,
-                setOf(sourceSetData),
-                PropertyContainer.withAll(
+                typealiases = emptyList(),
+                documentation = documentation,
+                expectPresentInSet = null,
+                sourceSets = setOf(sourceSetData),
+                extra = PropertyContainer.withAll(
                     annotations?.toList().orEmpty().toListOfAnnotations().toSourceSetDependent().toAnnotations()
                 )
             )
@@ -239,16 +238,19 @@ class DefaultPsiToDocumentableTranslator(
                 }
 
                 val ancestry: AncestryNode = traversePsiClassForAncestorsAndInheritedMembers(this)
+
                 val (regularFunctions, accessors) = splitFunctionsAndAccessors(psi.fields, psi.methods)
-                val (regularSuperFunctions, superAccessors) = splitFunctionsAndAccessors(superFields.map { it.first }.toTypedArray(), superMethods.map { it.first }.toTypedArray())
+                val (regularSuperFunctions, superAccessors) = splitFunctionsAndAccessors(
+                    fields = superFields.map { it.first }.toTypedArray(),
+                    methods = superMethods.map { it.first }.toTypedArray()
+                )
 
                 val regularSuperFunctionsKeys = regularSuperFunctions.map { it.hash }.toSet()
-
                 val regularSuperFunctionsWithDRI = superMethods.filter { it.first.hash in regularSuperFunctionsKeys }
 
-                val superAccessorsWithDRI = superAccessors
-                    .mapValues { (field, methods) ->
-                    if (field.annotations.mapNotNull { it.toAnnotation() }.any { it.isJvmField() }) {
+                val superAccessorsWithDRI = superAccessors.mapValues { (field, methods) ->
+                    val containsJvmField = field.annotations.mapNotNull { it.toAnnotation() }.any { it.isJvmField() }
+                    if (containsJvmField) {
                         emptyList()
                     } else {
                         methods.mapNotNull { method -> superMethods.find { it.first.hash == method.hash } }
@@ -258,28 +260,38 @@ class DefaultPsiToDocumentableTranslator(
                 val overridden = regularFunctions.flatMap { it.findSuperMethods().toList() }
                 val documentation = javadocParser.parseDocumentation(this).toSourceSetDependent()
                 val allFunctions = async {
-                    regularFunctions.parallelMapNotNull {
+                    val mappedRegularFunctions = regularFunctions.parallelMapNotNull {
                         if (!it.isConstructor) parseFunction(
                             it,
                             parentDRI = dri
                         ) else null
-                    } + regularSuperFunctionsWithDRI.filter { it.first !in overridden }.parallelMap { parseFunction(it.first, inheritedFrom = it.second) }
+                    }
+                    val mappedSuperFunctions = regularSuperFunctionsWithDRI
+                        .filter { it.first !in overridden }
+                        .parallelMap { parseFunction(it.first, inheritedFrom = it.second) }
+
+                    mappedRegularFunctions + mappedSuperFunctions
                 }
                 val allFields = async {
-                    fields.toList().parallelMapNotNull { parseField(it, accessors[it].orEmpty()) } +
-                    superFields.parallelMapNotNull { parseFieldWithInheritingAccessors(
-                        it.first,
-                        superAccessorsWithDRI[it.first].orEmpty(),
-                        inheritedFrom = it.second)
+                    val mappedFields = fields.toList().parallelMapNotNull {
+                        parseField(it, accessors[it].orEmpty())
                     }
+                    val mappedSuperFields = superFields.parallelMapNotNull { (field, dri) ->
+                        parseFieldWithInheritingAccessors(
+                            field,
+                            superAccessorsWithDRI[field].orEmpty(),
+                            inheritedFrom = dri
+                        )
+                    }
+                    mappedFields + mappedSuperFields
                 }
                 val source = PsiDocumentableSource(this).toSourceSetDependent()
                 val classlikes = async { innerClasses.asIterable().parallelMap { parseClasslike(it, dri) } }
                 val visibility = getVisibility().toSourceSetDependent()
                 val ancestors = (listOfNotNull(ancestry.superclass?.let {
-                    it.typeConstructor.let {
+                    it.typeConstructor.let { typeConstructor ->
                         TypeConstructorWithKind(
-                            it,
+                            typeConstructor,
                             JavaClassKindTypes.CLASS
                         )
                     }
@@ -290,103 +302,103 @@ class DefaultPsiToDocumentableTranslator(
                 when {
                     isAnnotationType ->
                         DAnnotation(
-                            name.orEmpty(),
-                            dri,
-                            documentation,
-                            null,
-                            source,
-                            allFunctions.await(),
-                            allFields.await(),
-                            classlikes.await(),
-                            visibility,
-                            null,
-                            constructors.map { parseFunction(it, true) },
-                            mapTypeParameters(dri),
-                            setOf(sourceSetData),
-                            false,
-                            PropertyContainer.withAll(
+                            name = name.orEmpty(),
+                            dri = dri,
+                            documentation = documentation,
+                            expectPresentInSet = null,
+                            sources = source,
+                            functions = allFunctions.await(),
+                            properties = allFields.await(),
+                            classlikes = classlikes.await(),
+                            visibility = visibility,
+                            companion = null,
+                            constructors = constructors.map { parseFunction(it, true) },
+                            generics = mapTypeParameters(dri),
+                            sourceSets = setOf(sourceSetData),
+                            isExpectActual = false,
+                            extra = PropertyContainer.withAll(
                                 implementedInterfacesExtra,
                                 annotations.toList().toListOfAnnotations().toSourceSetDependent()
                                     .toAnnotations()
                             )
                         )
                     isEnum -> DEnum(
-                        dri,
-                        name.orEmpty(),
-                        fields.filterIsInstance<PsiEnumConstant>().map { entry ->
+                        dri = dri,
+                        name = name.orEmpty(),
+                        entries = fields.filterIsInstance<PsiEnumConstant>().map { entry ->
                             DEnumEntry(
-                                dri.withClass(entry.name).withEnumEntryExtra(),
-                                entry.name,
-                                javadocParser.parseDocumentation(entry).toSourceSetDependent(),
-                                null,
-                                emptyList(),
-                                emptyList(),
-                                emptyList(),
-                                setOf(sourceSetData),
-                                PropertyContainer.withAll(
+                                dri = dri.withClass(entry.name).withEnumEntryExtra(),
+                                name = entry.name,
+                                documentation = javadocParser.parseDocumentation(entry).toSourceSetDependent(),
+                                expectPresentInSet = null,
+                                functions = emptyList(),
+                                properties = emptyList(),
+                                classlikes = emptyList(),
+                                sourceSets = setOf(sourceSetData),
+                                extra = PropertyContainer.withAll(
                                     implementedInterfacesExtra,
                                     annotations.toList().toListOfAnnotations().toSourceSetDependent()
                                         .toAnnotations()
                                 )
                             )
                         },
-                        documentation,
-                        null,
-                        source,
-                        allFunctions.await(),
-                        fields.filter { it !is PsiEnumConstant }.map { parseField(it, accessors[it].orEmpty()) },
-                        classlikes.await(),
-                        visibility,
-                        null,
-                        constructors.map { parseFunction(it, true) },
-                        ancestors,
-                        setOf(sourceSetData),
-                        false,
-                        PropertyContainer.withAll(
+                        documentation = documentation,
+                        expectPresentInSet = null,
+                        sources = source,
+                        functions = allFunctions.await(),
+                        properties = fields.filter { it !is PsiEnumConstant }.map { parseField(it, accessors[it].orEmpty()) },
+                        classlikes = classlikes.await(),
+                        visibility = visibility,
+                        companion = null,
+                        constructors = constructors.map { parseFunction(it, true) },
+                        supertypes = ancestors,
+                        sourceSets = setOf(sourceSetData),
+                        isExpectActual = false,
+                        extra = PropertyContainer.withAll(
                             implementedInterfacesExtra,
                             annotations.toList().toListOfAnnotations().toSourceSetDependent()
                                 .toAnnotations()
                         )
                     )
                     isInterface -> DInterface(
-                        dri,
-                        name.orEmpty(),
-                        documentation,
-                        null,
-                        source,
-                        allFunctions.await(),
-                        allFields.await(),
-                        classlikes.await(),
-                        visibility,
-                        null,
-                        mapTypeParameters(dri),
-                        ancestors,
-                        setOf(sourceSetData),
-                        false,
-                        PropertyContainer.withAll(
+                        dri = dri,
+                        name = name.orEmpty(),
+                        documentation = documentation,
+                        expectPresentInSet = null,
+                        sources = source,
+                        functions = allFunctions.await(),
+                        properties = allFields.await(),
+                        classlikes = classlikes.await(),
+                        visibility = visibility,
+                        companion = null,
+                        generics = mapTypeParameters(dri),
+                        supertypes = ancestors,
+                        sourceSets = setOf(sourceSetData),
+                        isExpectActual = false,
+                        extra = PropertyContainer.withAll(
                             implementedInterfacesExtra,
                             annotations.toList().toListOfAnnotations().toSourceSetDependent()
                                 .toAnnotations()
                         )
                     )
                     else -> DClass(
-                        dri,
-                        name.orEmpty(),
-                        constructors.map { parseFunction(it, true) },
-                        allFunctions.await(),
-                        allFields.await(),
-                        classlikes.await(),
-                        source,
-                        visibility,
-                        null,
-                        mapTypeParameters(dri),
-                        ancestors,
-                        documentation,
-                        null,
-                        modifiers,
-                        setOf(sourceSetData),
-                        false,
-                        PropertyContainer.withAll(
+                        dri = dri,
+                        name = name.orEmpty(),
+                        constructors = constructors.map { parseFunction(it, true) },
+                        functions = allFunctions.await(),
+                        properties = allFields.await(),
+                        classlikes = classlikes.await(),
+                        sources = source,
+                        visibility = visibility,
+                        companion = null,
+                        generics = mapTypeParameters(dri),
+                        supertypes = ancestors,
+                        documentation = documentation,
+                        expectPresentInSet = null,
+                        modifier = modifiers,
+                        sourceSets = setOf(sourceSetData),
+                        isExpectActual = false,
+                        extra = PropertyContainer.withAll(
                             implementedInterfacesExtra,
                             annotations.toList().toListOfAnnotations().toSourceSetDependent()
                                 .toAnnotations(),
@@ -411,38 +423,38 @@ class DefaultPsiToDocumentableTranslator(
             } ?: DRI.from(psi)
             val docs = javadocParser.parseDocumentation(psi)
             return DFunction(
-                dri,
-                psi.name,
-                isConstructor,
-                psi.parameterList.parameters.map { psiParameter ->
+                dri = dri,
+                name = psi.name,
+                isConstructor = isConstructor,
+                parameters = psi.parameterList.parameters.map { psiParameter ->
                     DParameter(
-                        dri.copy(target = dri.target.nextTarget()),
-                        psiParameter.name,
-                        DocumentationNode(
+                        dri = dri.copy(target = dri.target.nextTarget()),
+                        name = psiParameter.name,
+                        documentation = DocumentationNode(
                             listOfNotNull(docs.firstChildOfTypeOrNull<Param> {
                                 it.name == psiParameter.name
                             })
                         ).toSourceSetDependent(),
-                        null,
-                        getBound(psiParameter.type),
-                        setOf(sourceSetData),
-                        PropertyContainer.withAll(
+                        expectPresentInSet = null,
+                        type = getBound(psiParameter.type),
+                        sourceSets = setOf(sourceSetData),
+                        extra = PropertyContainer.withAll(
                             psiParameter.annotations.toList().toListOfAnnotations().toSourceSetDependent()
                                 .toAnnotations()
                         )
                     )
                 },
-                docs.toSourceSetDependent(),
-                null,
-                PsiDocumentableSource(psi).toSourceSetDependent(),
-                psi.getVisibility().toSourceSetDependent(),
-                psi.returnType?.let { getBound(type = it) } ?: Void,
-                psi.mapTypeParameters(dri),
-                null,
-                psi.getModifier().toSourceSetDependent(),
-                setOf(sourceSetData),
-                false,
-                psi.additionalExtras().let {
+                documentation = docs.toSourceSetDependent(),
+                expectPresentInSet = null,
+                sources = PsiDocumentableSource(psi).toSourceSetDependent(),
+                visibility = psi.getVisibility().toSourceSetDependent(),
+                type = psi.returnType?.let { getBound(type = it) } ?: Void,
+                generics = psi.mapTypeParameters(dri),
+                receiver = null,
+                modifier = psi.getModifier().toSourceSetDependent(),
+                sourceSets = setOf(sourceSetData),
+                isExpectActual = false,
+                extra = psi.additionalExtras().let {
                     PropertyContainer.withAll(
                         inheritedFrom?.let { InheritedMember(it.toSourceSetDependent()) },
                         it.toSourceSetDependent().toAdditionalModifiers(),
@@ -479,11 +491,16 @@ class DefaultPsiToDocumentableTranslator(
         /**
          * Workaround for getting JvmField Kotlin annotation in PSIs
          */
-        private fun Collection<PsiAnnotation>.getJvmFieldAnnotation() = filter {
-            it.qualifiedName == "$JVM_FIELD_PACKAGE_NAME.$JVM_FIELD_CLASS_NAMES"
-        }.map {
-            Annotations.Annotation(DRI(JVM_FIELD_PACKAGE_NAME, JVM_FIELD_CLASS_NAMES), emptyMap())
-        }.distinct()
+        private fun Collection<PsiAnnotation>.findJvmFieldAnnotation(): Annotations.Annotation? {
+            val anyJvmFieldAnnotation = this.any {
+                it.qualifiedName == "$JVM_FIELD_PACKAGE_NAME.$JVM_FIELD_CLASS_NAMES"
+            }
+            return if (anyJvmFieldAnnotation) {
+                Annotations.Annotation(DRI(JVM_FIELD_PACKAGE_NAME, JVM_FIELD_CLASS_NAMES), emptyMap())
+            } else {
+                null
+            }
+        }
 
         private fun <T : AnnotationTarget> PsiTypeParameter.annotations(): PropertyContainer<T> = this.annotations.toList().toListOfAnnotations().annotations()
         private fun <T : AnnotationTarget> PsiType.annotations(): PropertyContainer<T> = this.annotations.toList().toListOfAnnotations().annotations()
@@ -569,14 +586,14 @@ class DefaultPsiToDocumentableTranslator(
                 }
             return typeParameters.map { type ->
                 DTypeParameter(
-                    dri.copy(target = dri.target.nextTarget()),
-                    type.name.orEmpty(),
-                    null,
-                    javadocParser.parseDocumentation(type).toSourceSetDependent(),
-                    null,
-                    mapBounds(type.bounds),
-                    setOf(sourceSetData),
-                    PropertyContainer.withAll(
+                    dri = dri.copy(target = dri.target.nextTarget()),
+                    name = type.name.orEmpty(),
+                    presentableName = null,
+                    documentation = javadocParser.parseDocumentation(type).toSourceSetDependent(),
+                    expectPresentInSet = null,
+                    bounds = mapBounds(type.bounds),
+                    sourceSets = setOf(sourceSetData),
+                    extra = PropertyContainer.withAll(
                         type.annotations.toList().toListOfAnnotations().toSourceSetDependent()
                             .toAnnotations()
                     )
@@ -584,69 +601,65 @@ class DefaultPsiToDocumentableTranslator(
             }
         }
 
-        private fun PsiMethod.getPropertyNameForFunction() =
-            getAnnotation(DescriptorUtils.JVM_NAME.asString())?.findAttributeValue("name")?.text
-                ?: when {
-                    JvmAbi.isGetterName(name) -> propertyNameByGetMethodName(Name.identifier(name))?.asString()
-                    JvmAbi.isSetterName(name) -> propertyNamesBySetMethodName(Name.identifier(name)).firstOrNull()
-                        ?.asString()
-                    else -> null
-                }
+        private fun parseFieldWithInheritingAccessors(
+            psi: PsiField,
+            accessors: List<Pair<PsiMethod, DRI>>,
+            inheritedFrom: DRI
+        ): DProperty {
+            val getter = accessors
+                .firstOrNull { (method, _) -> method.isGetterFor(psi) }
+                ?.let { (method, dri) -> parseFunction(method, inheritedFrom = dri) }
 
-        private fun splitFunctionsAndAccessors(fields: Array<PsiField>, methods: Array<PsiMethod>): Pair<MutableList<PsiMethod>, MutableMap<PsiField, MutableList<PsiMethod>>> {
-            val fieldNames = fields.associateBy { it.name }
-            val accessors = mutableMapOf<PsiField, MutableList<PsiMethod>>()
-            val regularMethods = mutableListOf<PsiMethod>()
-            methods.forEach { method ->
-                val field = method.getPropertyNameForFunction()?.let { name -> fieldNames[name] }
-                if (field != null) {
-                    accessors.getOrPut(field, ::mutableListOf).add(method)
-                } else {
-                    regularMethods.add(method)
-                }
-            }
-            return regularMethods to accessors
+            val setter = accessors
+                .firstOrNull { (method, _) -> method.isSetterFor(psi) }
+                ?.let { (method, dri) -> parseFunction(method, inheritedFrom = dri) }
+
+            return parseField(
+                psi = psi,
+                getter = getter,
+                setter = setter,
+                inheritedFrom = inheritedFrom
+            )
         }
 
-        private fun parseFieldWithInheritingAccessors(psi: PsiField, accessors: List<Pair<PsiMethod, DRI>>, inheritedFrom: DRI): DProperty = parseField(
-            psi,
-            accessors.firstOrNull { it.first.hasParameters() }?.let { parseFunction(it.first, inheritedFrom = it.second) },
-            accessors.firstOrNull { it.first.returnType == psi.type }?.let { parseFunction(it.first, inheritedFrom = it.second) },
-            inheritedFrom
-        )
-
-        private fun parseField(psi: PsiField, accessors: List<PsiMethod>, inheritedFrom: DRI? = null): DProperty = parseField(
-            psi,
-            accessors.firstOrNull { it.hasParameters() }?.let { parseFunction(it) },
-            accessors.firstOrNull { it.returnType == psi.type }?.let { parseFunction(it) },
-            inheritedFrom
-        )
+        private fun parseField(psi: PsiField, accessors: List<PsiMethod>, inheritedFrom: DRI? = null): DProperty {
+            val getter = accessors.firstOrNull { it.isGetterFor(psi) }?.let { parseFunction(it) }
+            val setter = accessors.firstOrNull { it.isSetterFor(psi) }?.let { parseFunction(it) }
+            return parseField(
+                psi = psi,
+                getter = getter,
+                setter = setter,
+                inheritedFrom = inheritedFrom
+            )
+        }
 
         private fun parseField(psi: PsiField, getter: DFunction?, setter: DFunction?, inheritedFrom: DRI? = null): DProperty {
             val dri = DRI.from(psi)
             return DProperty(
-                dri,
-                psi.name,
-                javadocParser.parseDocumentation(psi).toSourceSetDependent(),
-                null,
-                PsiDocumentableSource(psi).toSourceSetDependent(),
-                psi.getVisibility().toSourceSetDependent(),
-                getBound(psi.type),
-                null,
-                getter,
-                setter,
-                psi.getModifier().toSourceSetDependent(),
-                setOf(sourceSetData),
-                emptyList(),
-                false,
-                psi.additionalExtras().let {
+                dri = dri,
+                name = psi.name,
+                documentation = javadocParser.parseDocumentation(psi).toSourceSetDependent(),
+                expectPresentInSet = null,
+                sources = PsiDocumentableSource(psi).toSourceSetDependent(),
+                visibility = psi.getVisibility().toSourceSetDependent(),
+                type = getBound(psi.type),
+                receiver = null,
+                setter = setter,
+                getter = getter,
+                modifier = psi.getModifier().toSourceSetDependent(),
+                sourceSets = setOf(sourceSetData),
+                generics = emptyList(),
+                isExpectActual = false,
+                extra = psi.additionalExtras().let {
+                    val psiAnnotations = psi.annotations.toList().toListOfAnnotations()
+                    val extraModifierAnnotations = it.toListOfAnnotations()
+                    val jvmFieldAnnotation = psi.annotations.toList().findJvmFieldAnnotation()
+                    val annotations = psiAnnotations + extraModifierAnnotations + listOfNotNull(jvmFieldAnnotation)
+
                     PropertyContainer.withAll(
-                        inheritedFrom?.let { InheritedMember(it.toSourceSetDependent()) },
+                        inheritedFrom?.let { inheritedFrom -> InheritedMember(inheritedFrom.toSourceSetDependent()) },
                         it.toSourceSetDependent().toAdditionalModifiers(),
-                        (psi.annotations.toList().toListOfAnnotations() +
-                                it.toListOfAnnotations() +
-                                psi.annotations.toList().getJvmFieldAnnotation()
-                        ).toSourceSetDependent().toAnnotations()
+                        annotations.toSourceSetDependent().toAnnotations()
                     )
                 }
             )
