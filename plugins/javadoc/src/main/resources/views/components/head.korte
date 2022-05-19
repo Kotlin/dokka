@@ -5,8 +5,8 @@
     <link rel="stylesheet" type="text/css" href="{{ pathToRoot }}stylesheet.css" title="Style">
     <link rel="stylesheet" type="text/css" href="{{ pathToRoot }}dokka-javadoc-stylesheet.css" title="Style">
     <link rel="stylesheet" type="text/css" href="{{ pathToRoot }}jquery/jquery-ui.css" title="Style">
-    <script type="text/javascript" src="{{ pathToRoot }}jquery/jquery-3.3.1.js"></script>
-    <script type="text/javascript" src="{{ pathToRoot }}jquery/jquery-migrate-3.0.1.js"></script>
+    <script type="text/javascript" src="{{ pathToRoot }}jquery/jquery-{{ jQueryVersion() }}.min.js"></script>
+    <script type="text/javascript" src="{{ pathToRoot }}jquery/jquery-migrate-{{ jQueryMigrateVersion() }}.min.js"></script>
     <script type="text/javascript" src="{{ pathToRoot }}jquery/jquery-ui.js"></script>
 
     <script type="text/javascript" src="{{ pathToRoot }}search.js"></script>

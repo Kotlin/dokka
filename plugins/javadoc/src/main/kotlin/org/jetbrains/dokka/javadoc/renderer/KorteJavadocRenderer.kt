@@ -114,8 +114,8 @@ class KorteJavadocRenderer(val context: DokkaContext, resourceDir: String) :
     private fun getTemplateConfig() = TemplateConfig().also { config ->
         listOf(
             TeFunction("curDate") { LocalDate.now() },
-            TeFunction("jQueryVersion") { "3.1" },
-            TeFunction("jQueryMigrateVersion") { "1.2.1" },
+            TeFunction("jQueryVersion") { "3.6.0" },
+            TeFunction("jQueryMigrateVersion") { "3.4.0" },
             TeFunction("rowColor") { args -> if ((args.first() as Int) % 2 == 0) "altColor" else "rowColor" },
             TeFunction("h1Title") { args -> if ((args.first() as? String) == "package") "title=\"Package\" " else "" },
             TeFunction("createTabRow") { args ->
