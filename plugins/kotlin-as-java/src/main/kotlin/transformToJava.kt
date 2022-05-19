@@ -7,7 +7,6 @@ import org.jetbrains.dokka.model.DFunction
 import org.jetbrains.dokka.model.DPackage
 import org.jetbrains.dokka.model.DProperty
 import org.jetbrains.dokka.plugability.DokkaContext
-import org.jetbrains.dokka.utilities.DokkaLogger
 
 private val JVM_NAME_DOCUMENTABLE_TRANSFORMER by lazy {
     JvmNameDocumentableTransformer()

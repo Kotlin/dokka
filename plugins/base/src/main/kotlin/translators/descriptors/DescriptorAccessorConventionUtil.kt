@@ -8,7 +8,6 @@ import org.jetbrains.kotlin.load.java.descriptors.JavaMethodDescriptor
 import org.jetbrains.kotlin.load.java.propertyNameByGetMethodName
 import org.jetbrains.kotlin.load.java.propertyNamesBySetMethodName
 
-
 internal data class DescriptorFunctionsHolder(
     val regularFunctions: List<FunctionDescriptor>,
     val accessors: Map<PropertyDescriptor, List<FunctionDescriptor>>

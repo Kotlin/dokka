@@ -4,7 +4,6 @@ import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.transformers.documentation.DocumentableTransformer
-import org.jetbrains.dokka.utilities.DokkaLogger
 
 class JvmNameDocumentableTransformer : DocumentableTransformer {
     private val jvmNameProvider = JvmNameProvider()
