@@ -95,6 +95,9 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
 
     init {
         configuration.put(CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY, messageCollector)
+
+        // Set up JDK classpath roots explicitly because of https://github.com/JetBrains/kotlin/commit/f89765eb33dd95c8de33a919cca83651b326b246
+        configuration.configureJdkClasspathRoots()
     }
 
     fun createCoreEnvironment(): KotlinCoreEnvironment {
