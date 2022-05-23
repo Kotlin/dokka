@@ -9,7 +9,8 @@ import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
 import org.jetbrains.kotlin.resolve.scopes.receivers.ExtensionReceiver
 import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.TypeProjection
-import org.jetbrains.kotlin.types.UnresolvedType
+import org.jetbrains.kotlin.types.error.ErrorType
+import org.jetbrains.kotlin.types.error.ErrorTypeConstructor
 
 fun TypeReference.Companion.from(d: ReceiverParameterDescriptor): TypeReference? =
     when (d.value) {
@@ -35,9 +36,10 @@ private fun TypeReference.Companion.fromPossiblyRecursive(t: KotlinType, paramTr
         ?: from(t, paramTrace)
 
 private fun TypeReference.Companion.from(t: KotlinType, paramTrace: List<KotlinType>): TypeReference {
-    if (t is UnresolvedType) {
+    if (t is ErrorType) {
         return TypeConstructor(
-            t.presentableName, t.arguments.map { fromProjection(it, paramTrace) }
+            (t.constructor as? ErrorTypeConstructor)?.getParam(0).orEmpty(),
+            t.arguments.map { fromProjection(it, paramTrace) }
         )
     }
     return when (val d = t.constructor.declarationDescriptor) {

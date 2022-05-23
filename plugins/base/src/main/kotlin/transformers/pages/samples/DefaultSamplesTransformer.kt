@@ -2,7 +2,6 @@ package org.jetbrains.dokka.base.transformers.pages.samples
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.dokka.plugability.DokkaContext
-import org.jetbrains.kotlin.idea.kdoc.resolveKDocSampleLink
 import org.jetbrains.kotlin.psi.KtBlockExpression
 import org.jetbrains.kotlin.psi.KtDeclarationWithBody
 import org.jetbrains.kotlin.psi.KtFile

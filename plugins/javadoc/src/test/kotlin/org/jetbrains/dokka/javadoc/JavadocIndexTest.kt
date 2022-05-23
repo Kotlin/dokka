@@ -144,7 +144,7 @@ internal class JavadocIndexTest : AbstractJavadocTemplateMapTest() {
                 assertEquals(1, it.callable!!.params.size)
             }
 
-            assertEquals("[kotlin.String]", indexElementDRIs[0].getParam(0))
+            assertEquals("Map[kotlin.String]", indexElementDRIs[0].getParam(0))
             assertEquals("kotlin.Int", indexElementDRIs[1].getParam(0))
             assertEquals("kotlin.String", indexElementDRIs[2].getParam(0))
             assertEquals("kotlin.collections.List[kotlin.String]", indexElementDRIs[3].getParam(0))

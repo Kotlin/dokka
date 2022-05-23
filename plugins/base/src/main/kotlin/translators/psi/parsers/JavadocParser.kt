@@ -19,7 +19,7 @@ import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.dokka.utilities.enumValueOrNull
 import org.jetbrains.dokka.utilities.htmlEscape
 import org.jetbrains.kotlin.idea.kdoc.resolveKDocLink
-import org.jetbrains.kotlin.idea.refactoring.fqName.getKotlinFqName
+import org.jetbrains.kotlin.idea.base.utils.fqname.getKotlinFqName
 import org.jetbrains.kotlin.idea.util.CommentSaver.Companion.tokenType
 import org.jetbrains.kotlin.psi.psiUtil.getNextSiblingIgnoringWhitespace
 import org.jetbrains.kotlin.psi.psiUtil.siblings
