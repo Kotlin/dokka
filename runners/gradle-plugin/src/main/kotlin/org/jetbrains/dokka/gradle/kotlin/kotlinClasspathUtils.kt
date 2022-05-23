@@ -25,7 +25,7 @@ internal fun Project.classpathOf(sourceSet: KotlinSourceSet): FileCollection {
 private fun Project.compileClasspathOf(compilation: KotlinCompilation): FileCollection {
     if (compilation.target.isAndroidTarget()) {
         // This is a workaround for https://youtrack.jetbrains.com/issue/KT-33893
-        return compilation.compileKotlinTask.cast<KotlinCompile>().classpath
+        return compilation.compileKotlinTask.cast<KotlinCompile>().libraries
     }
 
     val platformDependencyFiles: FileCollection = (compilation as? KotlinNativeCompilation)
@@ -34,5 +34,5 @@ private fun Project.compileClasspathOf(compilation: KotlinCompilation): FileColl
         ?: files()
 
     return compilation.compileDependencyFiles + platformDependencyFiles +
-            (compilation.compileKotlinTask.run { this as? KotlinCompile }?.classpath ?: files())
+            (compilation.compileKotlinTask.run { this as? KotlinCompile }?.libraries ?: files())
 }
