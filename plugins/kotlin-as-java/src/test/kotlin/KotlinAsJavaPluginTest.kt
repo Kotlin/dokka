@@ -583,6 +583,52 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
             }
         }
     }
+
+    @Test
+    fun `Java function should keep its access modifier`(){
+        val className = "Test"
+        val accessModifier = "public"
+        val methodName = "method"
+
+        val testClassQuery = """
+            |/src/main/kotlin/kotlinAsJavaPlugin/${className}.java
+            |package kotlinAsJavaPlugin;
+            |
+            |public class $className {
+            |   $accessModifier void ${methodName}() {
+            |   
+            |   }
+            |}
+            """.trimMargin()
+
+        val configuration = dokkaConfiguration {
+            sourceSets {
+                sourceSet {
+                    sourceRoots = listOf("src/")
+                }
+            }
+        }
+
+        val writerPlugin = TestOutputWriterPlugin()
+
+        testInline(
+            testClassQuery,
+            configuration,
+            pluginOverrides = listOf(writerPlugin),
+            cleanupOutput = true
+        ) {
+            renderingStage = { _, _ ->
+                val methodDocumentation = "root/kotlinAsJavaPlugin/-${className.toLowerCase()}/${methodName}.html"
+
+                writerPlugin.writer.renderedContent(methodDocumentation)
+                    .firstSignature()
+                    .match(
+                        "$accessModifier void ", A(methodName), "()", Span(),
+                        ignoreSpanWithTokenStyle = true
+                    )
+            }
+        }
+    }
 }
 
 private val ContentNode.mainContents: List<ContentNode>
