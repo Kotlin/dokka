@@ -176,7 +176,7 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
                         divergentInstance {
                             divergent {
                                 group {
-                                    +"final "
+                                    +"public final "
                                     group {
                                         link {
                                             +"String"
@@ -331,7 +331,7 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/kotlinAsJavaPlugin/-a-b-c/some-fun.html").firstSignature().match(
-                    "final ", A("Integer"), A("someFun"), "(", Parameters(
+                    "public final ", A("Integer"), A("someFun"), "(", Parameters(
                         Parameter(A("Integer"), "xd")
                     ), ")", Span(), ignoreSpanWithTokenStyle = true
                 )
@@ -370,7 +370,7 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/kotlinAsJavaPlugin/-a-b-c/some-fun.html").firstSignature().match(
-                    "final ", A("Integer"), A("someFun"), "(", Parameters(
+                    "public final ", A("Integer"), A("someFun"), "(", Parameters(
                         Parameter(A("Map"), "<", A("String"), ", ", A("Integer"), "> xd"),
                     ), ")", Span(), ignoreSpanWithTokenStyle = true
                 )
@@ -436,7 +436,7 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/kotlinAsJavaPlugin/-test-kt/sample.html").firstSignature().match(
-                    "final static ", A("String"), A("sample"), "(", Parameters(
+                    "public final static ", A("String"), A("sample"), "(", Parameters(
                         Parameter(A("Integer"), "a"),
                     ), ")", Span(), ignoreSpanWithTokenStyle = true
                 )
