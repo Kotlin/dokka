@@ -55,7 +55,7 @@ abstract class SamplesTransformer(val context: DokkaContext) : PageTransformer {
             .querySingle { kotlinAnalysis }[sourceSet] // from sourceSet.sourceRoots
         else AnalysisEnvironment(DokkaMessageCollector(context.logger), sourceSet.analysisPlatform).run {
             if (analysisPlatform == Platform.jvm) {
-                addClasspath(PathUtil.getJdkClassesRootsFromCurrentJre())
+                configureJdkClasspathRoots()
             }
             sourceSet.classpath.forEach(::addClasspath)
 
