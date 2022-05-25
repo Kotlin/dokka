@@ -11,6 +11,7 @@ import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.TypeProjection
 import org.jetbrains.kotlin.types.error.ErrorType
 import org.jetbrains.kotlin.types.error.ErrorTypeConstructor
+import org.jetbrains.kotlin.types.error.ErrorTypeKind
 
 fun TypeReference.Companion.from(d: ReceiverParameterDescriptor): TypeReference? =
     when (d.value) {
@@ -37,8 +38,12 @@ private fun TypeReference.Companion.fromPossiblyRecursive(t: KotlinType, paramTr
 
 private fun TypeReference.Companion.from(t: KotlinType, paramTrace: List<KotlinType>): TypeReference {
     if (t is ErrorType) {
+        val errorConstructor = t.constructor as? ErrorTypeConstructor
         return TypeConstructor(
-            (t.constructor as? ErrorTypeConstructor)?.getParam(0).orEmpty(),
+            if (errorConstructor?.kind == ErrorTypeKind.UNRESOLVED_TYPE && errorConstructor.parameters.isNotEmpty())
+                errorConstructor.getParam(0)
+            else
+                t.constructor.toString(),
             t.arguments.map { fromProjection(it, paramTrace) }
         )
     }
