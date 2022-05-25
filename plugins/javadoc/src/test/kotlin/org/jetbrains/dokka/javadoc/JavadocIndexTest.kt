@@ -126,7 +126,7 @@ internal class JavadocIndexTest : AbstractJavadocTemplateMapTest() {
             class Clazz {
                 fun funName(param: List<String>) {}
                 fun funName(param: String) {}
-                fun funName(param: Map<String>) {}
+                fun funName(param: Map<String, String>>) {}
                 fun funName(param: Int) {}
             }
         """.trimIndent()
@@ -144,10 +144,10 @@ internal class JavadocIndexTest : AbstractJavadocTemplateMapTest() {
                 assertEquals(1, it.callable!!.params.size)
             }
 
-            assertEquals("Map[kotlin.String]", indexElementDRIs[0].getParam(0))
-            assertEquals("kotlin.Int", indexElementDRIs[1].getParam(0))
-            assertEquals("kotlin.String", indexElementDRIs[2].getParam(0))
-            assertEquals("kotlin.collections.List[kotlin.String]", indexElementDRIs[3].getParam(0))
+            assertEquals("kotlin.Int", indexElementDRIs[0].getParam(0))
+            assertEquals("kotlin.String", indexElementDRIs[1].getParam(0))
+            assertEquals("kotlin.collections.List[kotlin.String]", indexElementDRIs[2].getParam(0))
+            assertEquals("kotlin.collections.Map[kotlin.String,kotlin.String]", indexElementDRIs[3].getParam(0))
         }
     }
 
