@@ -27,9 +27,6 @@ val jpsStandalone: Configuration by configurations.creating
 fun jpsModel() = zipTree(jpsStandalone.singleFile).matching {
     include("jps-model.jar")
     include("aalto-xml-*.jar")
-}.filter {
-    println(it.name)
-    true
 }
 
 dependencies {
