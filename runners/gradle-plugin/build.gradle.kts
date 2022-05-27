@@ -13,14 +13,10 @@ repositories {
 dependencies {
     api(project(":core"))
 
-    val jackson_version: String by project
-    compileOnly("com.fasterxml.jackson.core:jackson-annotations:$jackson_version")
     compileOnly("org.jetbrains.kotlin:kotlin-gradle-plugin")
     compileOnly("com.android.tools.build:gradle:4.0.1")
-    compileOnly(gradleApi())
     compileOnly(gradleKotlinDsl())
     testImplementation(project(":test-utils"))
-    testImplementation(gradleApi())
     testImplementation(gradleKotlinDsl())
     testImplementation("org.jetbrains.kotlin:kotlin-gradle-plugin")
     testImplementation("com.android.tools.build:gradle:4.0.1")
@@ -32,13 +28,6 @@ dependencies {
                 .classpath.asFiles.first()
         )
     )
-
-    constraints {
-        val kotlin_version: String by project
-        compileOnly("org.jetbrains.kotlin:kotlin-reflect:${kotlin_version}") {
-            because("kotlin-gradle-plugin and :core both depend on this")
-        }
-    }
 }
 
 val sourceJar by tasks.registering(Jar::class) {
