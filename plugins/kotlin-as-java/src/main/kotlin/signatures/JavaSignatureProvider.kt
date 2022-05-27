@@ -131,6 +131,7 @@ class JavaSignatureProvider internal constructor(ctcc: CommentsToContentConverte
                 sourceSets = setOf(sourceSet)
             ) {
                 annotationsBlock(f)
+                f.visibility[sourceSet]?.takeIf { it !in ignoredVisibilities }?.name?.let { keyword("$it ") }
                 f.modifier[sourceSet]?.takeIf { it !in ignoredModifiers }?.name?.plus(" ")?.let { keyword(it) }
                 f.modifiers()[sourceSet]?.toSignatureString()?.let { keyword(it) }
                 val returnType = f.type
