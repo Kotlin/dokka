@@ -10,19 +10,19 @@ java -jar dokka-cli.jar <arguments>
 
 Dokka supports the following command line arguments:
 
-  * `-outputDir` - the output directory where the documentation is generated
-  * `-moduleName` - (required) - module name used as a part of source set ID when declaring dependent source sets
-  * `-cacheRoot` - cache directory to enable package-list caching
-  * `-pluginsClasspath` - artifacts with Dokka plugins, separated by `;`. At least `dokka-base` and all its dependencies must be added there 
-  * `-pluginsConfiguration` - configuration for plugins in format `fqPluginName=json^^fqPluginName=json...`
-  * `-offlineMode` - do not resolve package-lists online
-  * `-failOnWarning` - throw an exception instead of a warning
-  * `-globalPackageOptions` - per package options added to all source sets
-  * `-globalLinks` - external documentation links added to all source sets
-  * `-globalSrcLink` - source links added to all source sets
-  * `-noSuppressObviousFunctions` - don't suppress obvious functions like default `toString` or `equals`
-  * `-suppressInheritedMembers` - suppress all inherited members that were not overriden in a given class. Eg. using it you can suppress toString or equals functions but you can't suppress componentN or copy on data class
-  * `-sourceSet` - (repeatable) - configuration for a single source set. Following this argument, you can pass other arguments:
+* `-outputDir` - the output directory where the documentation is generated
+* `-moduleName` - (required) - module name used as a part of source set ID when declaring dependent source sets
+* `-cacheRoot` - cache directory to enable package-list caching
+* `-pluginsClasspath` - artifacts with Dokka plugins, separated by `;`. At least `dokka-base` and all its dependencies must be added there
+* `-pluginsConfiguration` - configuration for plugins in format `fqPluginName=json^^fqPluginName=json...`
+* `-offlineMode` - do not resolve package-lists online
+* `-failOnWarning` - throw an exception instead of a warning
+* `-globalPackageOptions` - per package options added to all source sets
+* `-globalLinks` - external documentation links added to all source sets
+* `-globalSrcLink` - source links added to all source sets
+* `-noSuppressObviousFunctions` - don't suppress obvious functions like default `toString` or `equals`
+* `-suppressInheritedMembers` - suppress all inherited members that were not overriden in a given class. Eg. using it you can suppress toString or equals functions but you can't suppress componentN or copy on data class
+* `-sourceSet` - (repeatable) - configuration for a single source set. Following this argument, you can pass other arguments:
     * `-sourceSetName` - source set name as a part of source set ID when declaring dependent source sets
     * `-displayName` - source set name displayed in the generated documentation
     * `-src` - list of source files or directories separated by `;`
@@ -42,7 +42,7 @@ Dokka supports the following command line arguments:
     * `-jdkVersion` - version of JDK to use for linking to JDK JavaDoc
     * `-analysisPlatform` - platform used for analysis, see the [Platforms](#platforms) section
     * `-dependentSourceSets` - list of dependent source sets in format `moduleName/sourceSetName`, separated by `;`
-  * `-loggingLevel` - one of `DEBUG`, `PROGRESS`, `INFO`, `WARN`, `ERROR`. Defaults to `DEBUG`. Please note that this argument can't be passed in JSON.
+* `-loggingLevel` - one of `DEBUG`, `PROGRESS`, `INFO`, `WARN`, `ERROR`. Defaults to `DEBUG`. Please note that this argument can't be passed in JSON.
 
 
 You can also use a JSON file with Dokka configuration:

@@ -79,7 +79,7 @@ Alternatively, without adding plugin to classpath:
 pluginsMapConfiguration.set(mapOf("org.jetbrains.dokka.versioning.VersioningPlugin" to """{ "version": "1.0" }"""))
 ```
 
-Please consult the [Gradle documentation](../gradle/usage.md#applying-plugins) for more information about configuring Dokka with this build tool.
+Please consult the [Gradle documentation](../applying/gradle.md#applying-plugins) for more information about configuring Dokka with this build tool.
 
 Please see the [Dokka Gradle versioning multi modules example project](https://github.com/Kotlin/dokka/tree/master/examples/gradle/dokka-versioning-multimodule-example).
 

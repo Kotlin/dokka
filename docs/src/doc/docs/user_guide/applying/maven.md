@@ -1,7 +1,7 @@
 # Using the Maven plugin
 
-!!! note 
-    Dokka Maven plugin does not support multi-platform projects.
+!!! note
+Dokka Maven plugin does not support multi-platform projects.
 
 The Maven plugin does not support multi-platform projects.
 
@@ -27,9 +27,9 @@ By default files will be generated in `target/dokka`.
 
 The following goals are provided by the plugin:
 
-  * `dokka:dokka` - generate HTML documentation in Dokka format (showing declarations in Kotlin syntax)
-  * `dokka:javadoc` - generate HTML documentation in Javadoc format (showing declarations in Java syntax)
-  * `dokka:javadocJar` - generate a .jar file with Javadoc format documentation
+* `dokka:dokka` - generate HTML documentation in Dokka format (showing declarations in Kotlin syntax)
+* `dokka:javadoc` - generate HTML documentation in Javadoc format (showing declarations in Java syntax)
+* `dokka:javadocJar` - generate a .jar file with Javadoc format documentation
 
 ## Configuration options
 

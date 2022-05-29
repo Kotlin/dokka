@@ -2,10 +2,7 @@ package renderers.gfm
 
 import org.jetbrains.dokka.gfm.renderer.CommonmarkRenderer
 import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.pages.ContentEmbeddedResource
-import org.jetbrains.dokka.pages.ContentKind
-import org.jetbrains.dokka.pages.DCI
-import org.jetbrains.dokka.pages.TextStyle
+import org.jetbrains.dokka.pages.*
 import org.junit.Assert.assertEquals
 import org.junit.jupiter.api.Test
 import renderers.RawTestPage
@@ -312,8 +309,10 @@ class SimpleElementsTest : GfmRenderingOnlyTestBase() {
                             text("Col2")
                         }
                         row {
-                            text("Text1")
-                            text("Text2")
+                            group(styles = setOf(TextStyle.Paragraph)) {
+                                text("Text1", styles = setOf(TextStyle.Bold))
+                                text("Text2", styles = setOf(TextStyle.Italic))
+                            }
                         }
                     }
                 }

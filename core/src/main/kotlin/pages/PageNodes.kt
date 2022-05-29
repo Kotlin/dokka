@@ -1,8 +1,12 @@
 package org.jetbrains.dokka.pages
 
+import org.jetbrains.dokka.links.Callable
 import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.links.PointingToDeclaration
+import org.jetbrains.dokka.links.TypeConstructor
 import org.jetbrains.dokka.model.Documentable
 import org.jetbrains.dokka.model.WithChildren
+import org.jetbrains.dokka.model.properties.PropertyContainer
 import java.util.*
 
 interface PageNode : WithChildren<PageNode> {
@@ -37,6 +41,26 @@ interface ContentPage : PageNode {
 
 interface WithDocumentables {
     val documentables: List<Documentable>
+}
+
+fun create() {
+
+    DRI(
+        packageName = "kotlinx.coroutines",
+        classNames = "MainCoroutineDispatcher",
+        callable = Callable(
+            name = "limitedParallelism",
+            receiver = null,
+            params = listOf(
+                TypeConstructor(
+                    fullyQualifiedName = "kotlin.Int",
+                    params = emptyList()
+                )
+            )
+        ),
+        target = PointingToDeclaration,
+        extra = null
+    )
 }
 
 abstract class RootPageNode(val forceTopLevelName: Boolean = false) : PageNode {

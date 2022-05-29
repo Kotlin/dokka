@@ -7,8 +7,8 @@ We will discuss all base extension points along with the steps, that `DokkaGener
 ### Setting up Kotlin and Java analysis process and initializing plugins
 
 The provided Maven / CLI / Gradle configuration is read.Then, all the `DokkaPlugin` classes are loaded and the extensions are created.
- 
- No entry points here.
+
+No entry points here.
 
 ### Creating documentation models
 
@@ -28,7 +28,7 @@ By default, two translators are created:
 
 After this step, all data from different source sets and languages are kept separately.
 
-If you are using Kotlin it is recommended to make use of the asynchronous version, providing you implementation of `invokeSuspending`: 
+If you are using Kotlin it is recommended to make use of the asynchronous version, providing you implementation of `invokeSuspending`:
 
 ```kotlin
 interface AsyncSourceToDocumentableTranslator : SourceToDocumentableTranslator {
@@ -47,11 +47,13 @@ interface PreMergeDocumentableTransformer {
     operator fun invoke(modules: List<DModule>, context: DokkaContext): List<DModule>
 }
 ```
+
+// TODO not true, may more now
 By default, three transformers are created:
 
 * `DocumentableVisibilityFilter` that, depending on configuration, filters out all private members from declared packages
 * `ActualTypealiasAdder` that handles Kotlin typealiases
-* `ModuleAndPackageDocumentationTransformer` that creates documentation content for models and packages itself 
+* `ModuleAndPackageDocumentationTransformer` that creates documentation content for models and packages itself
 
 ### Merging
 
@@ -120,7 +122,7 @@ By default, two transformers are created:
 All pages are rendered to desired format.
 
 This step uses `DokkaCore.renderer` entry point. It is required to have exactly one extension registered for this entry point. Having more will trigger an error, unless only one is not overridden.
-                                    
+
 The extension is required to implement  `Renderer` interface:
 
 ```kotlin
@@ -129,7 +131,7 @@ interface Renderer {
 }
 ```
 
-By default, only `HtmlRenderer`, that extends basic `DefaultRenderer`, is created, but it will be registered only if configuration parameter `format` is set to `html`. Using any other value without providing valid renderer will cause Dokka to fail. 
+By default, only `HtmlRenderer`, that extends basic `DefaultRenderer`, is created, but it will be registered only if configuration parameter `format` is set to `html`. Using any other value without providing valid renderer will cause Dokka to fail.
 
 ## Multimodule page generation endpoints
 
@@ -149,7 +151,7 @@ interface PageCreator {
 }
 ```
 
-By default, `MultimodulePageCreator` is created.  This extension is treated as a fallback, so it can be replaced by a custom one. 
+By default, `MultimodulePageCreator` is created.  This extension is treated as a fallback, so it can be replaced by a custom one.
 
 ### Multimodule page transformation
 
@@ -160,7 +162,7 @@ This step uses `CoreExtensions.allModulePageTransformer` entry point. All extens
 ## Default extensions' extension points
 
 Default core extension points already have an implementation for providing basic Dokka functionality. All of them are declared in `DokkaBase` plugin. If you don't want this default extensions to load, all you need to do is not load Dokka base and load your plugin instead.
- 
+
 ```kotlin
 val customPlugin by configurations.creating
 
@@ -176,8 +178,8 @@ tasks {
     }
 }
 ```
- 
- You will then need to implement extensions for all core extension points. 
+
+You will then need to implement extensions for all core extension points.
 
 `DokkaBase` also register several new extension points, with which you can change default behaviour of `DokkaBase` extensions. In order to use them, you need to add `dokka-base` to you dependencies:
 

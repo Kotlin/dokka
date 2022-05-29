@@ -151,8 +151,7 @@ data class DClass(
     override val sourceSets: Set<DokkaSourceSet>,
     override val isExpectActual: Boolean,
     override val extra: PropertyContainer<DClass> = PropertyContainer.empty()
-) : DClasslike(), WithAbstraction, WithCompanion, WithConstructors, WithGenerics, WithSupertypes,
-    WithExtraProperties<DClass> {
+) : DClasslike(), WithAbstraction, WithCompanion, WithConstructors, WithGenerics, WithSupertypes, WithExtraProperties<DClass> {
 
     override val children: List<Documentable>
         get() = (functions + properties + classlikes + constructors)

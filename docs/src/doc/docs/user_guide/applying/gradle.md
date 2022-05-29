@@ -1,15 +1,15 @@
 # Using the Gradle plugin
 
 !!! important
-    If you are upgrading from 0.10.x to a current release of Dokka, please have a look at our 
-    [migration guide](https://github.com/Kotlin/dokka/blob/master/runners/gradle-plugin/MIGRATION.md)
+If you are upgrading from 0.10.x to a current release of Dokka, please have a look at our
+[migration guide](https://github.com/Kotlin/dokka/blob/master/runners/gradle-plugin/MIGRATION.md)
 
 ### Supported versions
 Dokka should work on gradle newer than 5.6
 
 ### Setup
 
-The preferred way is to use `plugins` block. 
+The preferred way is to use `plugins` block.
 
 build.gradle.kts:
 ```kotlin
@@ -37,7 +37,7 @@ apply(plugin="org.jetbrains.dokka")
 ```
 
 The plugin adds `dokkaHtml`, `dokkaJavadoc`, `dokkaGfm` and `dokkaJekyll` tasks to the project.
- 
+
 Each task corresponds to one output format, so you should run `dokkaGfm` when you want to have a documentation in `GFM` format.
 Output formats are explained in [the introduction](../introduction.md#output-formats)
 
@@ -60,15 +60,15 @@ dokkaHtml {
 }
 ```
 
-!!! note 
-    Dokka extracts the information about sourcesets from the Kotlin Gradle plugin.
-    Therefore, if you are using Dokka in a [precompiled script plugin](https://docs.gradle.org/current/userguide/custom_plugins.html#sec:precompiled_plugins), 
-    you will have to add a depencency to the Kotlin Gradle Plugin as well
-    (`implementation(kotlin("gradle-plugin", "<kotlin-version>"))` resp. `implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:<kotlin-version>")`).
+!!! note
+Dokka extracts the information about sourcesets from the Kotlin Gradle plugin.
+Therefore, if you are using Dokka in a [precompiled script plugin](https://docs.gradle.org/current/userguide/custom_plugins.html#sec:precompiled_plugins),
+you will have to add a depencency to the Kotlin Gradle Plugin as well
+(`implementation(kotlin("gradle-plugin", "<kotlin-version>"))` resp. `implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:<kotlin-version>")`).
 
 ## Configuration options
 
-Dokka documents single-platform as well as multi-platform projects. 
+Dokka documents single-platform as well as multi-platform projects.
 Most of the configuration options are set per one source set.
 The available configuration options are shown below:
 
@@ -262,7 +262,7 @@ tasks.withType<DokkaTask>().configureEach {
 ```
 
 !!! note
-    If you want to share the configuration between source sets, you can use Gradle's `configureEach`
+If you want to share the configuration between source sets, you can use Gradle's `configureEach`
 
 ## Applying plugins
 Dokka plugin creates Gradle configuration for each output format in the form of `dokka${format}Plugin` (or `dokka${format}PartialPlugin` for multi-module tasks) :
@@ -284,7 +284,7 @@ val customDokkaTask by creating(DokkaTask::class) {
 ```
 
 !!! important
-    Please note that `dokkaJavadoc` task will properly document only single `jvm` source set
+Please note that `dokkaJavadoc` task will properly document only single `jvm` source set
 
 To generate the documentation, use the appropriate `dokka${format}` Gradle task:
 
@@ -323,7 +323,7 @@ pluginsMapConfiguration.set(mapOf("<fully qualified plugin's name>" to """<json 
 ## Android
 
 !!! important
-    Make sure you apply Dokka after `com.android.library` and `kotlin-android`.
+Make sure you apply Dokka after `com.android.library` and `kotlin-android`.
 
 ```kotlin
 buildscript {
