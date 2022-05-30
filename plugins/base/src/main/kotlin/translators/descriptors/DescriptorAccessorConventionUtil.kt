@@ -17,14 +17,14 @@ internal fun splitFunctionsAndAccessors(
     properties: List<PropertyDescriptor>,
     functions: List<FunctionDescriptor>
 ): DescriptorFunctionsHolder {
-    val fieldsByName = properties.associateBy { it.name.asString() }
+    val propertiesByName = properties.associateBy { it.name.asString() }
     val regularFunctions = mutableListOf<FunctionDescriptor>()
     val accessors = mutableMapOf<PropertyDescriptor, MutableList<FunctionDescriptor>>()
     functions.forEach { function ->
         val possiblePropertyNamesForFunction = function.toPossiblePropertyNames()
-        val field = possiblePropertyNamesForFunction.firstNotNullOfOrNull { fieldsByName[it] }
-        if (field != null) {
-            accessors.getOrPut(field, ::mutableListOf).add(function)
+        val property = possiblePropertyNamesForFunction.firstNotNullOfOrNull { propertiesByName[it] }
+        if (property != null && function.isAccessorFor(property)) {
+            accessors.getOrPut(property, ::mutableListOf).add(function)
         } else {
             regularFunctions.add(function)
         }
@@ -61,6 +61,10 @@ internal fun propertyNamesByGetMethod(functionDescriptor: FunctionDescriptor): L
     }
     val kotlinPropName = propertyNameByGetMethodName(functionDescriptor.name)?.asString()
     return listOfNotNull(javaPropName, kotlinPropName)
+}
+
+internal fun FunctionDescriptor.isAccessorFor(property: PropertyDescriptor): Boolean {
+    return this.isGetterFor(property) || this.isSetterFor(property)
 }
 
 internal fun FunctionDescriptor.isGetterFor(property: PropertyDescriptor): Boolean {

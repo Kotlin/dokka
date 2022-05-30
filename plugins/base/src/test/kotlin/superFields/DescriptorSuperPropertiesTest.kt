@@ -159,4 +159,33 @@ class DescriptorSuperPropertiesTest : BaseAbstractTest() {
             }
         }
     }
+
+    @Test
+    fun `should preserve regular functions that look like accessors, but are not accessors`() {
+        testInline(
+            """
+            |/src/test/A.kt
+            |package test
+            |class A {
+            |    val v = 0
+            |    fun setV() { println(10) } // no arg
+            |    fun getV(): String { return "s" } // wrong return type
+            |}
+        """.trimIndent(),
+            commonTestConfiguration
+        ) {
+            documentablesMergingStage = { module ->
+                val testClass = module.packages.single().classlikes.single { it.name == "A" }
+                val setterLookalike = testClass.functions.firstOrNull { it.name == "setV" }
+                assertNotNull(setterLookalike) {
+                    "Expected regular function not found, wrongly categorized as setter?"
+                }
+
+                val getterLookalike = testClass.functions.firstOrNull { it.name == "getV" }
+                assertNotNull(getterLookalike) {
+                    "Expected regular function not found, wrongly categorized as getter?"
+                }
+            }
+        }
+    }
 }

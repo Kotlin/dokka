@@ -153,4 +153,34 @@ class PsiSuperFieldsTest : BaseAbstractTest() {
             }
         }
     }
+
+    @Test
+    fun `should preserve regular functions that look like accessors, but are not accessors`() {
+        testInline(
+            """
+            |/src/test/A.java
+            |package test;
+            |public class A {
+            |    public int a = 1;
+            |    public void setA() { } // no arg
+            |    public String getA() { return "s"; } // wrong return type
+            |}
+        """.trimIndent(),
+            commonTestConfiguration
+        ) {
+            documentablesMergingStage = { module ->
+                val testClass = module.packages.single().classlikes.single { it.name == "A" }
+
+                val setterLookalike = testClass.functions.firstOrNull { it.name == "setA" }
+                assertNotNull(setterLookalike) {
+                    "Expected regular function not found, wrongly categorized as setter?"
+                }
+
+                val getterLookalike = testClass.functions.firstOrNull { it.name == "getA" }
+                assertNotNull(getterLookalike) {
+                    "Expected regular function not found, wrongly categorized as getter?"
+                }
+            }
+        }
+    }
 }

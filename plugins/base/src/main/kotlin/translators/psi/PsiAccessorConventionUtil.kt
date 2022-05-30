@@ -22,7 +22,7 @@ internal fun splitFunctionsAndAccessors(fields: Array<PsiField>, methods: Array<
     methods.forEach { method ->
         val possiblePropertyNamesForFunction = method.getPossiblePropertyNamesForFunction()
         val field = possiblePropertyNamesForFunction.firstNotNullOfOrNull { fieldsByName[it] }
-        if (field != null) {
+        if (field != null && method.isAccessorFor(field)) {
             accessors.getOrPut(field, ::mutableListOf).add(method)
         } else {
             regularFunctions.add(method)
@@ -43,6 +43,10 @@ internal fun PsiMethod.getPossiblePropertyNamesForFunction(): List<String> {
             }
             else -> listOf()
         }
+}
+
+internal fun PsiMethod.isAccessorFor(field: PsiField): Boolean {
+    return this.isGetterFor(field) || this.isSetterFor(field)
 }
 
 internal fun PsiMethod.isGetterFor(field: PsiField): Boolean {
