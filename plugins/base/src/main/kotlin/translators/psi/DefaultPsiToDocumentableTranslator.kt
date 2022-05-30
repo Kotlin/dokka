@@ -651,10 +651,11 @@ class DefaultPsiToDocumentableTranslator(
                 generics = emptyList(),
                 isExpectActual = false,
                 extra = psi.additionalExtras().let {
-                    val psiAnnotations = psi.annotations.toList().toListOfAnnotations()
+                    val psiAnnotations = psi.annotations.toList()
+                    val parsedAnnotations = psiAnnotations.toListOfAnnotations()
                     val extraModifierAnnotations = it.toListOfAnnotations()
-                    val jvmFieldAnnotation = psi.annotations.toList().findJvmFieldAnnotation()
-                    val annotations = psiAnnotations + extraModifierAnnotations + listOfNotNull(jvmFieldAnnotation)
+                    val jvmFieldAnnotation = psiAnnotations.findJvmFieldAnnotation()
+                    val annotations = parsedAnnotations + extraModifierAnnotations + listOfNotNull(jvmFieldAnnotation)
 
                     PropertyContainer.withAll(
                         inheritedFrom?.let { inheritedFrom -> InheritedMember(inheritedFrom.toSourceSetDependent()) },

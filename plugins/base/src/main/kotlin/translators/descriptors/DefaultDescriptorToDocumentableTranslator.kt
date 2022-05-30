@@ -721,7 +721,7 @@ private class DokkaDescriptorVisitor(
      * Workaround for a problem with inheriting parent TagWrappers of the wrong type.
      *
      * For instance, if you annotate a class with `@property`, kotlin compiler will propagate
-     * this tag to the property and it's getters and setters. In case of getters and setters,
+     * this tag to the property and its getters and setters. In case of getters and setters,
      * it's more correct to display propagated docs as description instead of property
      */
     private fun SourceSetDependent<DocumentationNode>.mapInheritedTagWrappers(): SourceSetDependent<DocumentationNode> {
