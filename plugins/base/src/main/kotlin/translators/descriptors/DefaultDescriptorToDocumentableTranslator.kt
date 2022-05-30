@@ -445,8 +445,7 @@ private class DokkaDescriptorVisitor(
         // example - generated getter that comes with data classes
         suspend fun getDescriptorGetter() =
             descriptor.accessors
-                .filterIsInstance<PropertyGetterDescriptor>()
-                .singleOrNull()
+                .firstIsInstanceOrNull<PropertyGetterDescriptor>()
                 ?.let {
                     visitPropertyAccessorDescriptor(it, descriptor, dri, inheritedFrom)
                 }
@@ -459,8 +458,7 @@ private class DokkaDescriptorVisitor(
         // example - generated setter that comes with data classes
         suspend fun getDescriptorSetter() =
             descriptor.accessors
-                .filterIsInstance<PropertySetterDescriptor>()
-                .singleOrNull()
+                .firstIsInstanceOrNull<PropertySetterDescriptor>()
                 ?.let {
                     visitPropertyAccessorDescriptor(it, descriptor, dri, inheritedFrom)
                 }

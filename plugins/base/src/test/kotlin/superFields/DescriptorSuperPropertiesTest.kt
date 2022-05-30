@@ -47,7 +47,7 @@ class DescriptorSuperPropertiesTest : BaseAbstractTest() {
                 assertNull(property.setter)
                 assertNotNull(property.getter)
 
-                val getterInheritedFrom = property.getter!!.extra[InheritedMember]?.inheritedFrom?.values?.single()
+                val getterInheritedFrom = property.getter?.extra?.get(InheritedMember)?.inheritedFrom?.values?.single()
                 assertEquals(DRI(packageName = "test", classNames = "A"), getterInheritedFrom)
             }
         }

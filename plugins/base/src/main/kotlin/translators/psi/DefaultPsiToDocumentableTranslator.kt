@@ -260,30 +260,30 @@ class DefaultPsiToDocumentableTranslator(
                 val overridden = regularFunctions.flatMap { it.findSuperMethods().toList() }
                 val documentation = javadocParser.parseDocumentation(this).toSourceSetDependent()
                 val allFunctions = async {
-                    val mappedRegularFunctions = regularFunctions.parallelMapNotNull {
+                    val parsedRegularFunctions = regularFunctions.parallelMapNotNull {
                         if (!it.isConstructor) parseFunction(
                             it,
                             parentDRI = dri
                         ) else null
                     }
-                    val mappedSuperFunctions = regularSuperFunctionsWithDRI
+                    val parsedSuperFunctions = regularSuperFunctionsWithDRI
                         .filter { it.first !in overridden }
                         .parallelMap { parseFunction(it.first, inheritedFrom = it.second) }
 
-                    mappedRegularFunctions + mappedSuperFunctions
+                    parsedRegularFunctions + parsedSuperFunctions
                 }
                 val allFields = async {
-                    val mappedFields = fields.toList().parallelMapNotNull {
+                    val parsedFields = fields.toList().parallelMapNotNull {
                         parseField(it, accessors[it].orEmpty())
                     }
-                    val mappedSuperFields = superFields.parallelMapNotNull { (field, dri) ->
+                    val parsedSuperFields = superFields.parallelMapNotNull { (field, dri) ->
                         parseFieldWithInheritingAccessors(
                             field,
                             superAccessorsWithDRI[field].orEmpty(),
                             inheritedFrom = dri
                         )
                     }
-                    mappedFields + mappedSuperFields
+                    parsedFields + parsedSuperFields
                 }
                 val source = PsiDocumentableSource(this).toSourceSetDependent()
                 val classlikes = async { innerClasses.asIterable().parallelMap { parseClasslike(it, dri) } }
