@@ -39,13 +39,12 @@ private fun TypeReference.Companion.fromPossiblyRecursive(t: KotlinType, paramTr
 private fun TypeReference.Companion.from(t: KotlinType, paramTrace: List<KotlinType>): TypeReference {
     if (t is ErrorType) {
         val errorConstructor = t.constructor as? ErrorTypeConstructor
-        return TypeConstructor(
+        val presentableName =
             if (errorConstructor?.kind == ErrorTypeKind.UNRESOLVED_TYPE && errorConstructor.parameters.isNotEmpty())
                 errorConstructor.getParam(0)
             else
-                t.constructor.toString(),
-            t.arguments.map { fromProjection(it, paramTrace) }
-        )
+                t.constructor.toString()
+        return TypeConstructor(presentableName, t.arguments.map { fromProjection(it, paramTrace) })
     }
     return when (val d = t.constructor.declarationDescriptor) {
         is TypeParameterDescriptor -> TypeParam(
