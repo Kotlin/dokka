@@ -13,9 +13,12 @@ dependencies {
     implementation(kotlin("stdlib-jdk8"))
 }
 
+val mavenBuildDir = setupMaven.mavenBuildDir
+val mavenBinDir = setupMaven.mavenBinDir
+
 tasks.named<Delete>("clean") {
-    delete(setupMaven.mavenBuildDir)
-    delete(setupMaven.mavenBinDir)
+    delete(mavenBuildDir)
+    delete(mavenBinDir)
 }
 
 /**

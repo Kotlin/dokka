@@ -15,6 +15,10 @@ class CoreKotlinCacheService(private val resolutionFacade: DokkaResolutionFacade
         return resolutionFacade
     }
 
+    override fun getResolutionFacade(element: KtElement): ResolutionFacade {
+        return resolutionFacade
+    }
+
     override fun getResolutionFacadeByFile(
         file: PsiFile,
         platform: org.jetbrains.kotlin.platform.TargetPlatform

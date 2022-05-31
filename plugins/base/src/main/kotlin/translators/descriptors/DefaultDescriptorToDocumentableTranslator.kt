@@ -587,7 +587,7 @@ private class DokkaDescriptorVisitor(
                     parameter(index, desc, DRIWithPlatformInfo(dri, actual))
                 },
                 sources = actual,
-                expectPresentInSet = sourceSet.takeIf { isExpect },
+                expectPresentInSet = if(isExpect) sourceSet else null,
                 visibility = descriptor.visibility.toDokkaVisibility().toSourceSetDependent(),
                 documentation = descriptor.resolveDescriptorData().let { sourceSetDependent ->
                     if (descriptor.isPrimary) {

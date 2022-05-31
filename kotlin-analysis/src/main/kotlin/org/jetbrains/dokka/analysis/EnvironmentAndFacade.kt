@@ -17,7 +17,7 @@ internal fun createEnvironmentAndFacade(
 ): EnvironmentAndFacade =
     AnalysisEnvironment(DokkaMessageCollector(logger), sourceSet.analysisPlatform).run {
         if (analysisPlatform == Platform.jvm) {
-            addClasspath(PathUtil.getJdkClassesRootsFromCurrentJre())
+            configureJdkClasspathRoots()
         }
 
         val parentSourceSets = sourceSets.filter { it.sourceSetID in sourceSet.dependentSourceSets }
