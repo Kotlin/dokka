@@ -71,7 +71,7 @@ internal class JavadocIndexTest : AbstractJavadocTemplateMapTest() {
             AnnotationTarget.ANNOTATION_CLASS::class.java.methods.any { it.name == "describeConstable" }
 
         testIndexPages(commonTestQuery) { indexPages ->
-            assertEquals(if (hasAdditionalFunction()) 41 else 40, indexPages.sumBy { it.elements.size })
+            assertEquals(if (hasAdditionalFunction()) 32 else 31, indexPages.sumBy { it.elements.size })
         }
     }
 

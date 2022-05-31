@@ -5,6 +5,7 @@ import org.jetbrains.dokka.model.JavaVisibility
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 
 class JvmFieldTest : BaseAbstractTest() {
     val configuration = dokkaConfiguration {
@@ -75,6 +76,33 @@ class JvmFieldTest : BaseAbstractTest() {
                     JavaVisibility.Public,
                     classLike.functions.first { it.name.startsWith("get") }.visibility.values.first()
                 )
+            }
+        }
+    }
+
+    @Test
+    fun `object jvmfield property should have no getters`(){
+        testInline(
+            """
+            |/src/main/kotlin/kotlinAsJavaPlugin/sample.kt
+            |package kotlinAsJavaPlugin
+            |object MyObject {
+            |    @JvmField
+            |    val property: String = TODO()
+            |}
+        """.trimMargin(),
+            configuration,
+        ) {
+            documentablesTransformationStage = { module ->
+                val classLike = module.packages.flatMap { it.classlikes }.first()
+                val property = classLike.properties.singleOrNull { it.name == "property" }
+                assertNotNull(property)
+                assertEquals(
+                    emptyList(),
+                    classLike.functions.map { it.name }
+                )
+                assertNull(property.getter)
+                assertNull(property.setter)
             }
         }
     }

@@ -87,7 +87,7 @@ internal fun DProperty.asJava(isTopLevel: Boolean = false, relocateToClass: Stri
         visibility = visibility.mapValues {
             if (isTopLevel && isConst) {
                 JavaVisibility.Public
-            } else if (jvmField() != null) {
+            } else if (jvmField() != null || (getter == null && setter == null)) {
                 it.value.asJava()
             } else {
                 it.value.propertyVisibilityAsJava()
@@ -275,7 +275,7 @@ internal fun DClass.functionsInJava(): List<DFunction> =
         .flatMap { property -> listOfNotNull(property.getter, property.setter) }
         .plus(functions)
         .filterNot { it.hasJvmSynthetic() }
-        .flatMap { it.asJava(dri.classNames ?: name) }
+        .flatMap { it.asJava(it.dri.classNames ?: it.name) }
 
 private fun DTypeParameter.asJava(): DTypeParameter = copy(
     variantTypeParameter = variantTypeParameter.withDri(dri.possiblyAsJava()),
@@ -317,7 +317,7 @@ internal fun DEnum.asJava(): DEnum = copy(
     functions = functions
         .plus(
             properties
-                .filterNot { it.hasJvmSynthetic() }
+                .filter { it.jvmField() == null && !it.hasJvmSynthetic() }
                 .flatMap { listOf(it.getter, it.setter) }
         )
         .filterNotNull()
@@ -335,7 +335,7 @@ internal fun DObject.asJava(): DObject = copy(
     functions = functions
         .plus(
             properties
-                .filterNot { it.hasJvmSynthetic() }
+                .filter { it.jvmField() == null && !it.hasJvmSynthetic() }
                 .flatMap { listOf(it.getter, it.setter) }
         )
         .filterNotNull()
@@ -373,7 +373,7 @@ internal fun DInterface.asJava(): DInterface = copy(
     functions = functions
         .plus(
             properties
-                .filterNot { it.hasJvmSynthetic() }
+                .filter { it.jvmField() == null && !it.hasJvmSynthetic() }
                 .flatMap { listOf(it.getter, it.setter) }
         )
         .filterNotNull()
