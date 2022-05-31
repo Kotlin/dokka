@@ -16,7 +16,7 @@ tasks {
         val dokka_version: String by project
         archiveFileName.set("dokka-kotlin-analysis-compiler-$dokka_version.jar")
         archiveClassifier.set("")
-        exclude("**/intellij**")
+        exclude("com/intellij/")
     }
 }
 

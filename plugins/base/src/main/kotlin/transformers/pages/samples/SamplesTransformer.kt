@@ -18,7 +18,7 @@ import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.transformers.pages.PageTransformer
-import org.jetbrains.kotlin.idea.kdoc.resolveKDocSampleLink
+import org.jetbrains.kotlin.idea.kdoc.resolveKDocLink
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.DescriptorToSourceUtils
@@ -55,7 +55,7 @@ abstract class SamplesTransformer(val context: DokkaContext) : PageTransformer {
             .querySingle { kotlinAnalysis }[sourceSet] // from sourceSet.sourceRoots
         else AnalysisEnvironment(DokkaMessageCollector(context.logger), sourceSet.analysisPlatform).run {
             if (analysisPlatform == Platform.jvm) {
-                addClasspath(PathUtil.getJdkClassesRootsFromCurrentJre())
+                configureJdkClasspathRoots()
             }
             sourceSet.classpath.forEach(::addClasspath)
 
@@ -124,10 +124,11 @@ abstract class SamplesTransformer(val context: DokkaContext) : PageTransformer {
         val packageName = functionName.takeWhile { it != '.' }
         val descriptor = resolutionFacade.resolveSession.getPackageFragment(FqName(packageName))
             ?: return null.also { context.logger.warn("Cannot find descriptor for package $packageName") }
-        val symbol = resolveKDocSampleLink(
+        val symbol = resolveKDocLink(
             BindingContext.EMPTY,
             resolutionFacade,
             descriptor,
+            null,
             functionName.split(".")
         ).firstOrNull() ?: return null.also { context.logger.warn("Unresolved function $functionName in @sample") }
         return DescriptorToSourceUtils.descriptorToDeclaration(symbol)

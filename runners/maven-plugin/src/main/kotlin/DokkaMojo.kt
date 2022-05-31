@@ -17,6 +17,7 @@ import org.apache.maven.project.MavenProjectHelper
 import org.apache.maven.repository.RepositorySystem
 import org.codehaus.plexus.archiver.Archiver
 import org.codehaus.plexus.archiver.jar.JarArchiver
+import org.codehaus.plexus.archiver.util.DefaultFileSet
 import org.codehaus.plexus.util.xml.Xpp3Dom
 import org.jetbrains.dokka.*
 import org.jetbrains.dokka.DokkaConfiguration.ExternalDocumentationLink
@@ -404,7 +405,7 @@ class DokkaJavadocJarMojo : AbstractDokkaMojo(listOf(javadocDependency)) {
         val archiver = MavenArchiver()
         archiver.archiver = jarArchiver
         archiver.setOutputFile(javadocJar)
-        archiver.archiver.addDirectory(File(outputDir), arrayOf("**/**"), arrayOf())
+        archiver.archiver.addFileSet(DefaultFileSet().apply { directory = File(outputDir) })
 
         archive.isAddMavenDescriptor = false
         archiver.createArchive(session, mavenProject, archive)

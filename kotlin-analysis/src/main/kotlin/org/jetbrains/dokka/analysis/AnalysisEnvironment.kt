@@ -542,6 +542,8 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
         }
     }
 
+    // Set up JDK classpath roots explicitly because of https://github.com/JetBrains/kotlin/commit/f89765eb33dd95c8de33a919cca83651b326b246
+    fun configureJdkClasspathRoots() = configuration.configureJdkClasspathRoots()
     /**
      * Adds path to classpath.
      * $path: path to add

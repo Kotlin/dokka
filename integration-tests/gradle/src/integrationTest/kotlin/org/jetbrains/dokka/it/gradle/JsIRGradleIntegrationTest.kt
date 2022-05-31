@@ -18,7 +18,7 @@ class JsIRGradleIntegrationTest(override val versions: BuildVersions) : Abstract
         // some core react classes were moved from `react-router-dom` to `react` artifacts.
         // Writing an integration test project that would work for both 1.4.0 and 1.5.0 would involve
         // ugly solutions, so these versions are ignored. Not a big loss given they are deprecated as of this moment.
-        "1.4.0", "1.4.32"
+        "1.4.0", "1.4.32", "1.7.0-RC"
     )
 
     @BeforeTest
