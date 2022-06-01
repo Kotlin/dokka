@@ -4,14 +4,14 @@ Normally, you would think that a tool like Dokka simply parses some programming 
 `HTML` pages for whatever it sees along the way, with little to no abstractions. That would be the simplest and
 shortest way to implement a documentation engine.
 
-However, it was clear Dokka may need to generate documentation from various sources (not only `Kotlin`), that users
+However, it was clear that Dokka may need to generate documentation from various sources (not only `Kotlin`), that users
 might request additional output formats (like `Markdown`), that users might need additional features like supporting
-custom KDoc tags or rendering `mermaid.js` diagrams from documentation in the source code - all these things would
-require changing a lot of code inside Dokka itself if all solutions were hardcoded.
+custom KDoc tags or rendering `mermaid.js` diagrams - all these things would require changing a lot of code inside
+Dokka itself if all solutions were hardcoded.
 
 For this reason, Dokka was built from the ground up to be extensible and customizable. You can think of the general
 flow of generating documentation with Dokka as mapping one intermediate representation / abstraction into another.
-Then you, as a Dokka developer or a plugin writer, can use extension points and introduce selective changes to the
+You, as a Dokka developer or a plugin writer, can use extension points and introduce selective changes to the
 model on any level without touching everything else.
 
 ## Overview of data model
@@ -28,12 +28,12 @@ flowchart TD
   (lists, text, code blocks) that the users needs to see
 * `Output` - specific output format like `HTML`/`Markdown`/`Javadoc`/etc. This is a mapping of content to
   some human-readable and visual representation. For instance:
-  * `ContentList` is mapped as
-    * `<li>` / `<ul>` for `HTML` format
-    * `1.` / `*` for `Markdown` format
-  * `ContentCodeBlock` is mapped as
-    * `<code>` or `<pre>` with some CSS styles in `HTML` format
-    * Text wrapped in triple backticks for `Markdown` format
+    * `ContentList` is mapped as
+        * `<li>` / `<ul>` for `HTML` format
+        * `1.` / `*` for `Markdown` format
+    * `ContentCodeBlock` is mapped as
+        * `<code>` or `<pre>` with some CSS styles in `HTML` format
+        * Text wrapped in triple backticks for `Markdown` format
 
 
 For a deeper dive into Dokka's data model with more examples and details,
@@ -41,36 +41,50 @@ see sections about [Documentables](data_model/documentables.md) and [Page/Conten
 
 ## Overview of extension points
 
-Below you can find the main stages and extension points.
+An extension point usually represents some pluggable interface that performs an action during one of the stages of
+generating documentation. An extension is therefore an implementation of that interface which is extending the
+extension point.
 
-```mermaid
-flowchart TD
-    Input -- SourceToDocumentableTranslator --> 
-    Documentables -- DocumentableTransformer --> 
-    Documentables -- DocumentableToPageTranslator --> 
-    Pages -- PageTransformer --> 
-    Pages -- Renderer --> 
-    Output
+You can create extension points, provide your own implementations (extensions) and configure them. All of
+this is possible with Dokka's plugin/extension point API.
+
+For a deeper dive into extensions and extension points with more examples and details, see
+[Introduction to Extensions](extension_points/introduction.md).
+
+Here's a sneak peek of the DSL:
+
+```kotlin
+class MyPlugin : DokkaPlugin() {
+    // create an extension point for other developers
+    val signatureProvider by extensionPoint<SignatureProvider>()
+
+    // provide a default implementation
+    val defaultSignatureProvider by extending {
+        signatureProvider with KotlinSignatureProvider()
+    }
+
+    // register our own extension in someone else's plugin and override its default
+    val dokkaBasePlugin by lazy { plugin<DokkaBase>() }
+    val customOutputWriter by extending {
+        (dokkaBasePlugin.outputWriter with MyOutputWriter()
+                override dokkaBasePlugin.fileWriter)
+    }
+}
+
+// use a registered extention, pretty much dependency injection
+class MyExtension(val context: DokkaContext) {
+    val signatureProvider: SignatureProvider = context.plugin<MyPlugin>().querySingle { signatureProvider }
+
+    fun doSomething() {
+        signatureProvider.signature(..)
+    }
+}
+
+interface SignatureProvider {
+    fun signature(documentable: Documentable): List<ContentNode>
+}
+
+class KotlinSignatureProvider : SignatureProvider {
+    override fun signature(documentable: Documentable): List<ContentNode> = listOf()
+}
 ```
-
-* `SourceToDocumentableTranslator` - translates sources into documentable model. `Kotlin` and `Java` sources are
-  supported by default, but you can analyze any language as long as you can map it to `Documentables` model
-* `DocumentableTransformer` - useful if you want to filter/map existing documentables. For instance, if you want
-  to only include members annotated as `@PublicAPI`, you will need to implement a `DocumentableTransformer`
-* `DocumentableToPageTranslator` - responsible for creating pages and their content. Different output formats can
-  either use the same page structure or define their own in case it needs to be different.
-* `PageTransformer` - useful if you need to add/remove/modify generated pages or their content (such as `css`/`js`).
-  Plugins like `mathjax` can add js scripts to pages using this extension point. If you want all overloaded functions 
-  to be rendered on the same page (instead of separate ones), you can also use `PageTransformer` to merge it
-* `Render` - defines rules on what to do with pages and their content, which files to create and how to display 
-  it properly. Output formats should use `Renderer` extension point - `HtmlRenderer`, `CommonmarkRenderer`, etc
-
-___
-
-Plugins themselves might declare additional extension points used in intermediate steps. For instance, during
-`DocumentableToPageTranslator` phase, a plugin might declare a `signatureProvider` extension point, allowing you
-to provide your own implementation of generating a text signature of a `Documentable` - this could be used by
-`kotlin-as-java` plugin to display `Kotlin` sources as `Java` code.
-
-For a deeper dive into extension points with examples on how to create and use them, 
-see [Extension points section](extension_points.md)

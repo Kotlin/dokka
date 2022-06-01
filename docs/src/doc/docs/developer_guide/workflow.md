@@ -70,7 +70,7 @@ wish to debug a plugin which resides in a separate project.
    Prefer using smaller projects that reproduce the exact problem or behaviour you want
    since the less code you have, the easier it will be to understand what's going on. You can use example projects
    found in [dokka/examples/gradle](https://github.com/Kotlin/dokka/tree/master/examples/gradle), there's both simple 
-   single-module and more complex multi-module/multiplatform examples.
+   single-module and more complex multimodule/multiplatform examples.
 2. For the debug project, set `org.gradle.debug` to `true` in one of the following ways:
 
     * In your `gradle.properties` add `org.gradle.debug=true`

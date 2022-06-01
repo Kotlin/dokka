@@ -68,7 +68,10 @@ nav:
               -  Documentables: developer_guide/architecture/data_model/documentables.md
               -  Page & Content: developer_guide/architecture/data_model/page_content.md
               -  Extra properties: developer_guide/architecture/data_model/extra.md
-          - Extension points: developer_guide/architecture/extension_points.md
+          - Extension points:
+              - Introduction: developer_guide/architecture/extension_points/introduction.md
+              - Core extension points: developer_guide/architecture/extension_points/core_extensions.md
+              - Base extensions: developer_guide/architecture/extension_points/base_extensions.md
       - Plugin development:
           - Introduction: developer_guide/plugin-development/introduction.md
           - Simple plugin tutorial: developer_guide/plugin-development/simple-plugin-guide.md
