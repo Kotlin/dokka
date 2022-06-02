@@ -1,4 +1,4 @@
-# Introduction to Extension Points
+# Overview
 
 In this section you can learn how to create new extension points, how to use and configure existing ones and
 how to query for extensions when generating documentation.

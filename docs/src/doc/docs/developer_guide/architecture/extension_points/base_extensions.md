@@ -8,8 +8,5 @@ plugin that only needs to provide a few extensions or change a single place and 
 
 `DokkaBase` is used extensively for Dokka's own output formats such as `HTML`, `Markdown`, `Mathjax` and others.
 
-If you are developing a plugin, you can find more information on how to use defaults and extension points from 
-`DokkaBase` in [Introduction to Plugin development](../../plugin-development/introduction.md). 
-
 You can learn how to add/use/override/configure extensions and extension points in
-[Introduction to Extensions](introduction.md), all of the information is applicable to `DokkaBase`.
+[Introduction to Extensions](introduction.md), all the information is applicable to `DokkaBase` plugin as well.

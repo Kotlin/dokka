@@ -6,7 +6,7 @@ These extension points are plugin and output format independent, meaning it's th
 low-level as can get. For higher-level extension functions that can be used in different output formats, have a look at
 [Base extensions](base_extensions.md) defined in `DokkaBase`.
 
-You can find all extensions in `CoreExtensions` class:
+You can find all core extensions in `CoreExtensions` class:
 ```kotlin
 object CoreExtensions {
     val preGenerationCheck by coreExtensionPoint<PreGenerationChecker>()

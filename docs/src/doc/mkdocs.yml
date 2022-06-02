@@ -20,6 +20,12 @@ theme:
   social:
     - type: 'github'
       link: 'https://github.com/Kotlin/dokka'
+  features:
+    - navigation.expand
+    - navigation.tabs
+    - navigation.instant
+    - navigation.indexes
+    - navigation.top
 
 # Extensions
 markdown_extensions:
@@ -37,6 +43,8 @@ markdown_extensions:
   - pymdownx.inlinehilite
   - pymdownx.magiclink
   - pymdownx.smartsymbols
+  - attr_list
+  - md_in_html
   - pymdownx.superfences:
       custom_fences:
           - name: mermaid
@@ -47,9 +55,14 @@ markdown_extensions:
 #dev_addr: 127.0.0.1:3001
 
 nav:
-  - Home: index.md
+  - Home:
+      - index.md
+      - User guides: user_guide/introduction.md
+      - Developer guides: developer_guide/introduction.md
+      - Community: community/slack.md
+      - FAQ: faq.md
   - User guides:
-      - Introduction: user_guide/introduction.md
+      - user_guide/introduction.md
       - Applying Dokka:
           - Gradle: user_guide/applying/gradle.md
           - Maven: user_guide/applying/maven.md
@@ -60,28 +73,25 @@ nav:
           - Versioning plugin: user_guide/plugins/versioning-plugin.md
           - Android plugin: user_guide/plugins/android-plugin.md
   - Developer guides:
-      - Introduction: developer_guide/introduction.md
+      - developer_guide/introduction.md
       - Workflow: developer_guide/workflow.md
-      - Architecture:
-          - Overview: developer_guide/architecture/architecture_overview.md
+      - Internals:
+          - Architecture: developer_guide/architecture/architecture_overview.md
           - Data model:
               -  Documentables: developer_guide/architecture/data_model/documentables.md
               -  Page & Content: developer_guide/architecture/data_model/page_content.md
               -  Extra properties: developer_guide/architecture/data_model/extra.md
           - Extension points:
-              - Introduction: developer_guide/architecture/extension_points/introduction.md
+              - developer_guide/architecture/extension_points/introduction.md
               - Core extension points: developer_guide/architecture/extension_points/core_extensions.md
               - Base extensions: developer_guide/architecture/extension_points/base_extensions.md
       - Plugin development:
-          - Introduction: developer_guide/plugin-development/introduction.md
+          - Plugin development: developer_guide/plugin-development/introduction.md
           - Simple plugin tutorial: developer_guide/plugin-development/simple-plugin-guide.md
   - Community:
       - Slack: community/slack.md
       - Community plugins: community/plugins-list.md
   - FAQ: faq.md
-
-extra_javascript:
-  - expand_navigation.js
 
 extra_css:
   - dokka_colors.css

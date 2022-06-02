@@ -63,11 +63,12 @@ class MyPlugin : DokkaPlugin() {
         signatureProvider with KotlinSignatureProvider()
     }
 
-    // register our own extension in someone else's plugin and override its default
+    // register our own extension in another plugin and override its default
     val dokkaBasePlugin by lazy { plugin<DokkaBase>() }
-    val customOutputWriter by extending {
-        (dokkaBasePlugin.outputWriter with MyOutputWriter()
-                override dokkaBasePlugin.fileWriter)
+    val multimoduleLocationProvider by extending {
+        (dokkaBasePlugin.locationProviderFactory
+                providing MultimoduleLocationProvider::Factory
+                override dokkaBasePlugin.locationProvider)
     }
 }
 
@@ -88,3 +89,11 @@ class KotlinSignatureProvider : SignatureProvider {
     override fun signature(documentable: Documentable): List<ContentNode> = listOf()
 }
 ```
+
+## Historical context
+
+This is a second iteration of Dokka that was built from scratch.
+
+If you want to learn more about why Dokka has been designed this way, watch this great talk by Paweł Marks:
+[New Dokka - Designed for Fearless Creativity](https://www.youtube.com/watch?v=OvFoTRhqaKg). The general principles 
+and general architecture are the same, although it may be outdated in some areas, so please double-check.

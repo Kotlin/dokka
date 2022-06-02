@@ -1,8 +1,20 @@
-## Configuration
+# Plugin Development
 
-tldr: you can use a convenient [plugin template](https://github.com/Kotlin/dokka-plugin-template) to speed up the setup.
+In order to have an easier time developing plugins, it's a good idea to go through
+[Dokka's internals](../architecture/architecture_overview.md) to learn more about
+[extensions](../architecture/extension_points/introduction.md) and
+[data model](../architecture/data_model/documentables.md).
 
-Dokka requires configured `Kotlin plugin` and `dokka-core` dependency.
+## Setup
+
+### Template 
+
+The easiest way to start is to use a convenient [Dokka plugin template](https://github.com/Kotlin/dokka-plugin-template).
+It has pre-configured dependencies, publishing and signing of your artifacts.
+
+### Manual
+
+At a bare minimum, Dokka requires `Kotlin Gradle Plugin` and `dokka-core` dependencies:
 
 ```kotlin
 plugins {
@@ -18,51 +30,30 @@ tasks.withType<KotlinCompile> {
 }
 ```
 
-### Registering extension point
+In order to load a plugin into Dokka, your class must extend `DokkaPlugin` class. A fully qualified name of that class
+must be placed in a file named `org.jetbrains.dokka.plugability.DokkaPlugin` under `resources/META-INF/services`. 
+All instances are automatically loaded during Dokka setup using `java.util.ServiceLoader`.
 
-You can register your own extension point using `extensionPoint` function declared in `DokkaPlugin` class
+## Extension points 
 
-```kotlin
-class SamplePlugin : DokkaPlugin() {
-    val extensionPoint by extensionPoint<SampleExtensionPointInterface>()
-}
+Dokka provides a set of entry points for which you can create your own implementations. If you are not sure which
+extension point to use, have a look at [core extensions](../architecture/extension_points/core_extensions.md) and
+[base extensions](../architecture/extension_points/base_extensions.md) - it might give you a general direction.
 
-interface SampleExtensionPointInterface
-```
+You can learn how to declare extension points and use extensions in
+[Introduction to Extension points](../architecture/extension_points/introduction.md).
 
-### Obtaining extension instance
+In case no suitable extension point exists for your use case, do share the details - it might be added in future
+versions of Dokka.
 
-All registered plugins are accessible with `DokkaContext.plugin` function. All plugins that extends `DokkaPlugin` can use `DokkaPlugin.plugin` function, that uses underlying `DokkaContext` instance. If you want to pass context to your extension, you can obtain it using aforementioned `providing` infix function.
+## Example
 
-With plugin instance obtained, you can browse extensions registered for this plugins' extension points using `querySingle` and `query` methods:
+You can follow [a simple plugin guide](simple-plugin-guide.md) which covers creation of a simple plugin: hide members
+annotated with `@Internal` annotation, i.e exclude them from generated documentation.
 
-```kotlin
-    context.plugin<DokkaBase>().query { htmlPreprocessors }
-    context.plugin<DokkaBase>().querySingle { samplesTransformer }
-```
+Fore more practical examples, have a look at sources of [community plugins](../../community/plugins-list.md).
 
-You can also browse `DokkaContext` directly, using `single` and `get` methods:
+## Help
 
-```kotlin
-class SamplePlugin : DokkaPlugin() {
-
-    val extensionPoint by extensionPoint<SampleExtensionPointInterface>()
-    val anotherExtensionPoint by extensionPoint<AnotherSampleExtensionPointInterface>()
-
-    val extension by extending {
-        extensionPoint with SampleExtension()
-    }
-
-    val anotherExtension by extending { 
-        anotherExtensionPoint providing { context ->
-            AnotherSampleExtension(context.single(extensionPoint))
-        }
-    }
-}
-
-interface SampleExtensionPointInterface
-interface AnotherSampleExtensionPointInterface
-
-class SampleExtension: SampleExtensionPointInterface
-class AnotherSampleExtension(sampleExtension: SampleExtensionPointInterface): AnotherSampleExtensionPointInterface
-```
+If you have any further questions, feel free to get in touch with maintainers via [Slack](../../community/slack.md) or
+[GitHub](https://github.com/kotlin/dokka).

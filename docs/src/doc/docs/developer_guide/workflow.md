@@ -19,8 +19,9 @@ Building Dokka is pretty straightforward, with one small caveat: when you run `.
 integration tests as well, which might take some time and will consume a lot of RAM, so you would usually want
 to exclude integration tests when building locally.
 
-!!! example
-    `./gradlew build -x integrationTest`
+```shell
+./gradlew build -x integrationTest
+```
 
 Unit tests which are run as part of `build` should not take much time, but you can also skip it with `-x test`.
 
