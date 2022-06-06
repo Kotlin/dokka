@@ -5,7 +5,7 @@ dependencies {
     val coroutines_version: String by project
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version")
 
-    api(project(":kotlin-analysis"))
+    compileOnly(project(":kotlin-analysis"))
     val jsoup_version: String by project
     implementation("org.jsoup:jsoup:$jsoup_version")
 
@@ -20,6 +20,8 @@ dependencies {
 
     val kotlinx_html_version: String by project
     implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:$kotlinx_html_version")
+
+    testCompileOnly(project(":kotlin-analysis"))
 }
 
 val projectDistDir = project(":plugins:base:frontend").file("dist")
