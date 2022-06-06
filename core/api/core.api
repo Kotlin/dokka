@@ -1378,6 +1378,17 @@ public final class org/jetbrains/dokka/model/DefaultValue$Companion : org/jetbra
 	public fun mergeStrategyFor (Lorg/jetbrains/dokka/model/DefaultValue;Lorg/jetbrains/dokka/model/DefaultValue;)Lorg/jetbrains/dokka/model/properties/MergeStrategy;
 }
 
+public final class org/jetbrains/dokka/model/DefinitelyNonNullable : org/jetbrains/dokka/model/Bound {
+	public fun <init> (Lorg/jetbrains/dokka/model/Bound;)V
+	public final fun component1 ()Lorg/jetbrains/dokka/model/Bound;
+	public final fun copy (Lorg/jetbrains/dokka/model/Bound;)Lorg/jetbrains/dokka/model/DefinitelyNonNullable;
+	public static synthetic fun copy$default (Lorg/jetbrains/dokka/model/DefinitelyNonNullable;Lorg/jetbrains/dokka/model/Bound;ILjava/lang/Object;)Lorg/jetbrains/dokka/model/DefinitelyNonNullable;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getInner ()Lorg/jetbrains/dokka/model/Bound;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
 public final class org/jetbrains/dokka/model/DisplaySourceSet : org/jetbrains/dokka/utilities/SelfRepresentingSingletonSet {
 	public fun <init> (Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;)V
 	public fun <init> (Lorg/jetbrains/dokka/model/CompositeSourceSetID;Ljava/lang/String;Lorg/jetbrains/dokka/Platform;)V

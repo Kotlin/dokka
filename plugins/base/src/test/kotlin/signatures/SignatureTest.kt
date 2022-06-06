@@ -186,6 +186,31 @@ class SignatureTest : BaseAbstractTest() {
     }
 
     @Test
+    fun `fun with definitely non-nullable types`() {
+        val source = source("fun <T> elvisLike(x: T, y: T & Any): T & Any = x ?: y")
+        val writerPlugin = TestOutputWriterPlugin()
+
+        testInline(
+            source,
+            configuration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                writerPlugin.writer.renderedContent("root/example/elvis-like.html").firstSignature().match(
+                    "fun <", A("T"), "> ", A("elvisLike"),
+                    "(",
+                    Span(
+                        Span("x: ", A("T"), ", "),
+                        Span("y: ", A("T"), " & ", A("Any"))
+                    ),
+                    "): ", A("T"), " & ", A("Any"), Span(),
+                    ignoreSpanWithTokenStyle = true
+                )
+            }
+        }
+    }
+
+    @Test
     fun `fun with keywords, params and generic bound`() {
         val source = source("inline suspend fun <T : String> simpleFun(a: Int, b: String): T = \"Celebrimbor\" as T")
         val writerPlugin = TestOutputWriterPlugin()

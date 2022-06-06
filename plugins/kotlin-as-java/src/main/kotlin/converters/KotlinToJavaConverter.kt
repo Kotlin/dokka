@@ -305,6 +305,7 @@ private fun Bound.asJava(): Bound = when (this) {
         inner = inner.asJava()
     )
     is Nullable -> copy(inner.asJava())
+    is DefinitelyNonNullable -> copy(inner.asJava())
     is PrimitiveJavaType -> this
     is Void -> this
     is JavaObject -> this
