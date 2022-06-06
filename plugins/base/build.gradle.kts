@@ -21,7 +21,7 @@ dependencies {
     val kotlinx_html_version: String by project
     implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:$kotlinx_html_version")
 
-    testCompileOnly(project(":kotlin-analysis"))
+    testImplementation(project(":kotlin-analysis"))
 }
 
 val projectDistDir = project(":plugins:base:frontend").file("dist")

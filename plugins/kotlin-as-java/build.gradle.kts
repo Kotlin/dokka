@@ -8,7 +8,7 @@ dependencies {
     testImplementation(project(":core:content-matcher-test-utils"))
     val jsoup_version: String by project
     testImplementation("org.jsoup:jsoup:$jsoup_version")
-    testCompileOnly(project(":kotlin-analysis"))
+    testImplementation(project(":kotlin-analysis"))
 }
 
 registerDokkaArtifactPublication("kotlinAsJavaPlugin") {
