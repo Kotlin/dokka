@@ -2,8 +2,12 @@ package signatures
 
 import org.jetbrains.dokka.DokkaSourceSetID
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
+import org.jetbrains.dokka.model.DFunction
+import org.jetbrains.dokka.model.DefinitelyNonNullable
+import org.jetbrains.dokka.model.dfs
 import org.junit.jupiter.api.Test
 import utils.*
+import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 
 class SignatureTest : BaseAbstractTest() {
@@ -180,6 +184,39 @@ class SignatureTest : BaseAbstractTest() {
                     "fun <", A("T"), " : ", A("String"), "> ", A("simpleFun"),
                     "(): ", A("T"), Span(),
                         ignoreSpanWithTokenStyle = true
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `fun with definitely non-nullable types`() {
+        val source = source("fun <T> elvisLike(x: T, y: T & Any): T & Any = x ?: y")
+        val writerPlugin = TestOutputWriterPlugin()
+
+        testInline(
+            source,
+            configuration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            documentablesTransformationStage = {
+                val fn = (it.dfs { it.name == "elvisLike" } as? DFunction).assertNotNull("Function elvisLike")
+
+                assert(fn.type is DefinitelyNonNullable)
+                assert(fn.parameters[1].type is DefinitelyNonNullable)
+            }
+            renderingStage = { _, _ ->
+                val signature = writerPlugin.writer.renderedContent("root/example/elvis-like.html")
+                assertEquals(2, signature.select("a[href=\"https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html\"]").size)
+                signature.firstSignature().match(
+                    "fun <", A("T"), "> ", A("elvisLike"),
+                    "(",
+                    Span(
+                        Span("x: ", A("T"), ", "),
+                        Span("y: ", A("T"), " & ", A("Any"))
+                    ),
+                    "): ", A("T"), " & ", A("Any"), Span(),
+                    ignoreSpanWithTokenStyle = true
                 )
             }
         }

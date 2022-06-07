@@ -430,6 +430,11 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                 signatureForProjection(p.inner, showFullyQualifiedName)
                 operator("?")
             }
+            is DefinitelyNonNullable -> group(styles = emptySet()) {
+                signatureForProjection(p.inner, showFullyQualifiedName)
+                operator(" & ")
+                link("Any", DriOfAny)
+            }
 
             is TypeAliased -> signatureForProjection(p.typeAlias)
             is JavaObject -> {

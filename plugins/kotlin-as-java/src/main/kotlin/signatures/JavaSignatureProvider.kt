@@ -196,6 +196,7 @@ class JavaSignatureProvider internal constructor(ctcc: CommentsToContentConverte
         is Star -> operator("?")
 
         is Nullable -> signatureForProjection(p.inner)
+        is DefinitelyNonNullable -> signatureForProjection(p.inner)
 
         is JavaObject, is Dynamic -> link("Object", DRI("java.lang", "Object"))
         is Void -> text("void")
