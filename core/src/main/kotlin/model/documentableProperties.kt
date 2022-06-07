@@ -48,6 +48,6 @@ data class CheckedExceptions(val exceptions: SourceSetDependent<List<DRI>>) : Ex
 }
 
 enum class Language {
-    JAVA, KOTLIN, UNKNOWN
+    JAVA, KOTLIN, XML, JS, UNKNOWN
 }
 

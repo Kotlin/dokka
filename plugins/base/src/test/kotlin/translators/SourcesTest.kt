@@ -15,7 +15,7 @@ import org.jsoup.nodes.Element
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
-class ExternalDocumentablesTest : BaseAbstractTest() {
+class SourcesTest : BaseAbstractTest() {
     @Test
     fun `external documentable from java stdlib`() {
         val configuration = dokkaConfiguration {
@@ -24,8 +24,11 @@ class ExternalDocumentablesTest : BaseAbstractTest() {
                     sourceRoots = listOf("src")
                     analysisPlatform = "jvm"
                     classpath += listOf(jvmStdlibPath!!,
-                            PathManager.getResourceRoot(Element::class.java, "/org/jsoup/nodes/Element.class")!!
-                                .replaceAfter(".jar", ""))
+                        PathManager.getResourceRoot(Element::class.java, "/org/jsoup/nodes/Element.class")!!
+                            .replaceAfter(".jar", ""),
+                        PathManager.getResourceRoot(Language::class.java, "/com/fasterxml/jackson/module/kotlin/KotlinModule.class")!!
+                            .replaceAfter(".jar", "")
+                    )
 
                 }
             }
@@ -35,10 +38,15 @@ class ExternalDocumentablesTest : BaseAbstractTest() {
             """
             /src/com/sample/MyList.kt
             import org.jsoup.nodes.Element
+            import com.fasterxml.jackson.module.kotlin.KotlinModule
             package com.sample
             class MyList: ArrayList<Int>()
             
-            class Foo: org.jsoup.nodes.Element("foo")
+            class Jextern: org.jsoup.nodes.Element("Jextern")
+            
+            class Kstd: IntArray()
+            
+            class Kextern: com.fasterxml.jackson.module.kotlin.KotlinModule
             """.trimIndent(),
             configuration
         ) {
@@ -46,8 +54,7 @@ class ExternalDocumentablesTest : BaseAbstractTest() {
             pluginsSetupStage = {
                 provider = it.plugin<DokkaBase>().querySingle { externalDocumentablesProvider }
             }
-            val jfoo = org.jsoup.nodes.Element("jfoo")
-            println(jfoo::class.java)
+
             documentablesTransformationStage = { mod ->
                 val listEntry = mod.packages.single().classlikes.single { it.name == "MyList" }
                     .cast<DClass>().supertypes.entries.single()
@@ -66,22 +73,56 @@ class ExternalDocumentablesTest : BaseAbstractTest() {
                 assertEquals(Language.JAVA, listRes.sources.values.single().language)
                 assertEquals("java.util", listRes.sources.values.single().path)
 
-                val jsoupEntry = mod.packages.single().classlikes.single { it.name == "Foo" }
+                val jexternEntry = mod.packages.single().classlikes.single { it.name == "Jextern" }
                     .cast<DClass>().supertypes.entries.single()
-                val jsoupRes = provider.findClasslike(
-                    jsoupEntry.value.single().typeConstructor.dri,
-                    jsoupEntry.key)!!
-                assertEquals("Element", jsoupRes.name)
-                assertEquals("org.jsoup.nodes/Element///PointingToDeclaration/", jsoupRes.dri.toString())
+                val jexternRes = provider.findClasslike(
+                    jexternEntry.value.single().typeConstructor.dri,
+                    jexternEntry.key)!!
+                assertEquals("Element", jexternRes.name)
+                assertEquals("org.jsoup.nodes/Element///PointingToDeclaration/", jexternRes.dri.toString())
 
-                val jsoupSupertypes = jsoupRes.cast<DClass>().supertypes.values.single()
+                val jexternSupertypes = jexternRes.cast<DClass>().supertypes.values.single()
                     .map { it.typeConstructor.dri.classNames }
                 assertEquals(
                     listOf("Node"),
-                    jsoupSupertypes
+                    jexternSupertypes
                 )
-                assertEquals(Language.JAVA, jsoupRes.sources.values.single().language)
-                assertEquals("org.jsoup.nodes", jsoupRes.sources.values.single().path)
+                assertEquals(Language.JAVA, jexternRes.sources.values.single().language)
+                assertEquals("org.jsoup.nodes", jexternRes.sources.values.single().path)
+
+                val kstdEntry = mod.packages.single().classlikes.single { it.name == "Kstd" }
+                    .cast<DClass>().supertypes.entries.single()
+                val kstdRes = provider.findClasslike(
+                    kstdEntry.value.single().typeConstructor.dri,
+                    kstdEntry.key)!!
+                assertEquals("IntArray", kstdRes.name)
+                assertEquals("kotlin/IntArray///PointingToDeclaration/", kstdRes.dri.toString())
+
+                val kstdSupertypes = kstdRes.cast<DClass>().supertypes.values.single()
+                    .map { it.typeConstructor.dri.classNames }
+                assertEquals(
+                    listOf("Cloneable", "Serializable"),
+                    kstdSupertypes
+                )
+                assertEquals(Language.KOTLIN, kstdRes.sources.values.single().language)
+                assertEquals("KotlinBuiltins.kt", kstdRes.sources.values.single().path)
+
+                val kexternEntry = mod.packages.single().classlikes.single { it.name == "Kextern" }
+                    .cast<DClass>().supertypes.entries.single()
+                val kexternRes = provider.findClasslike(
+                    kexternEntry.value.single().typeConstructor.dri,
+                    kexternEntry.key)!!
+                assertEquals("KotlinModule", kexternRes.name)
+                assertEquals("com.fasterxml.jackson.module.kotlin/KotlinModule///PointingToDeclaration/", kexternRes.dri.toString())
+
+                val kexternSupertypes = kexternRes.cast<DClass>().supertypes.values.single()
+                    .map { it.typeConstructor.dri.classNames }
+                assertEquals(
+                    listOf("SimpleModule"),
+                    kexternSupertypes
+                )
+                assertEquals(Language.KOTLIN, kexternRes.sources.values.single().language)
+                assertEquals("com.fasterxml.jackson.module.kotlin", kexternRes.sources.values.single().path)
             }
         }
     }
@@ -128,8 +169,6 @@ class ExternalDocumentablesTest : BaseAbstractTest() {
                     listOf("CoroutineContext.Element"),
                     supertypes
                 )
-                assertEquals(Language.KOTLIN, res!!.sources.values.single().language)
-                assertEquals("KotlinBuiltins.kt", res.sources.values.single().path)
             }
         }
     }
@@ -165,8 +204,6 @@ class ExternalDocumentablesTest : BaseAbstractTest() {
                     entry.key)
                 assertEquals("Entry", res?.name)
                 assertEquals("kotlin.collections/Map.Entry///PointingToDeclaration/", res?.dri?.toString())
-                assertEquals(Language.KOTLIN, res!!.sources.values.single().language)
-                assertEquals("KotlinBuiltins.kt", res.sources.values.single().path)
             }
         }
     }

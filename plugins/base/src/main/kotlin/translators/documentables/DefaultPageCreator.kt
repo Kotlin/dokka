@@ -706,6 +706,7 @@ open class DefaultPageCreator(
             when (it) {
                 Language.KOTLIN -> firstParagraphComment(tag.root)
                 Language.JAVA -> firstSentenceComment(tag.root)
+                Language.XML, Language.JS, Language.UNKNOWN -> firstParagraphComment(tag.root)
             }
         } ?: firstParagraphComment(tag.root)
     }
