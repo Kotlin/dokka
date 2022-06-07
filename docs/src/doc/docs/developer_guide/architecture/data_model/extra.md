@@ -2,7 +2,10 @@
 
 ## Introduction
 
-`ExtraProperty` classes are used both by [Documentable](documentables.md) and [Content](page_content.md) models.
+`ExtraProperty` classes are used both by [Documentable](documentables.md) and [Content](page_content.md#content-model)
+models.
+
+Source code for `ExtraProperty`:
 
 ```kotlin
 interface ExtraProperty<in C : Any> {
@@ -21,6 +24,7 @@ when declaring new extras:
 
 ```kotlin
 data class CustomExtra(
+    [any data relevant to your extra], 
     [any data relevant to your extra] 
 ): ExtraProperty<Documentable> {
     override val key: CustomExtra.Key<Documentable, *> = CustomExtra
@@ -51,7 +55,7 @@ which can only be stored in a specific `Documentable`.
 
 ## Usage example
 
-In following example we will create `DFunction`-only property, store it and then retrieve its value:
+In following example we will create a `DFunction`-only property, store it and then retrieve its value:
 
 ```kotlin
 data class CustomExtra(val customExtraValue: String) : ExtraProperty<DFunction> {

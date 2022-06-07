@@ -1,8 +1,8 @@
 site_name: Dokka documentation
 
 # Meta tags (placed in header)
-site_description: Dokka is a documentation engine for Kotlin, performing the same function as javadoc for Java
-site_author: Jetbrains
+site_description: Dokka is a documentation engine for Kotlin, performing the same function as the Javadoc tool for Java
+site_author: JetBrains
 site_url: https://github.com/Kotlin/dokka
 
 # Repository (add link to repository on each page)
@@ -11,7 +11,7 @@ repo_url: https://github.com/Kotlin/dokka
 edit_uri: edit/master/docs/src/doc/docs/
 
 # Copyright (shown at the footer)
-copyright: 'Copyright &copy; 2020 Jetbrains'
+copyright: 'Copyright &copy; 2022 JetBrains'
 
 # Material theme
 theme:
@@ -62,7 +62,7 @@ nav:
       - Community: community/slack.md
       - FAQ: faq.md
   - User guides:
-      - user_guide/introduction.md
+      - User guides: user_guide/introduction.md
       - Applying Dokka:
           - Gradle: user_guide/applying/gradle.md
           - Maven: user_guide/applying/maven.md
@@ -73,7 +73,7 @@ nav:
           - Versioning plugin: user_guide/plugins/versioning-plugin.md
           - Android plugin: user_guide/plugins/android-plugin.md
   - Developer guides:
-      - developer_guide/introduction.md
+      - Developer guides: developer_guide/introduction.md
       - Workflow: developer_guide/workflow.md
       - Internals:
           - Architecture: developer_guide/architecture/architecture_overview.md
@@ -82,12 +82,12 @@ nav:
               -  Page & Content: developer_guide/architecture/data_model/page_content.md
               -  Extra properties: developer_guide/architecture/data_model/extra.md
           - Extension points:
-              - developer_guide/architecture/extension_points/introduction.md
+              - Extension points: developer_guide/architecture/extension_points/introduction.md
               - Core extension points: developer_guide/architecture/extension_points/core_extensions.md
               - Base extensions: developer_guide/architecture/extension_points/base_extensions.md
       - Plugin development:
           - Plugin development: developer_guide/plugin-development/introduction.md
-          - Simple plugin tutorial: developer_guide/plugin-development/simple-plugin-guide.md
+          - Sample plugin tutorial: developer_guide/plugin-development/sample-plugin-tutorial.md
   - Community:
       - Slack: community/slack.md
       - Community plugins: community/plugins-list.md

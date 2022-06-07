@@ -9,7 +9,7 @@ Page model represents the structure of documentation pages to be generated. Duri
 is processed separately, so one page corresponds to exactly one output file.
 
 Page model is independent of the final output format, in other words it's universal. Which extension the pages
-should be created as (`.html`, `.md`, etc) and how is up to the `Renderer` part.
+should be created as (`.html`, `.md`, etc) and how is up to the `Renderer`.
 
 Subclasses of `PageNode` represent different kinds of rendered pages, such as `ModulePage`, `PackagePage`,
 `ClasslikePage`, `MemberPage` (properties, functions), etc.
@@ -28,7 +28,7 @@ flowchart TD
     firstPackageClasslike --> firstPackageClasslikeSecondMember[MemberPageNode - Property]
 ```
 
-Almost all pages are `ContentPage` - it's the type of `Page` that has `Content` on it.
+Almost all pages are derivatives of `ContentPage` - it's the type of `Page` that has `Content` on it.
 
 ## Content Model
 
@@ -44,7 +44,7 @@ to wrap all children with some style.
 // real example of composing content using `DocumentableContentBuilder` DSL
 orderedList {
     item {
-        text("The following table is nested in a list:")
+        text("This list contains a nested table:")
         table {
             header {
                 text("Col1")
@@ -61,16 +61,17 @@ orderedList {
 }
 ```
 
-It is then responsibility of `Renderer` (i.e specific output format) to render it the way it wants. For instance,
-`HtmlRenderer` might render `ContentCodeBlock` as `<code>text</code>`, but `CommonmarkRenderer` might render it using
-backticks.
+It is then responsibility of `Renderer` (i.e specific output format) to render it the way it wants. 
+
+For instance, `HtmlRenderer` might render `ContentCodeBlock` as `<code>text</code>`, but `CommonmarkRenderer` might 
+render it using backticks.
 
 ___
 
 ### DCI
 
 Each node is identified by unique `DCI`, which stands for _Dokka Content Identifier_. `DCI` aggregates `DRI`s of all
-`Documentables` that make up specific `ContentNode`.
+`Documentables` that make up a specific `ContentNode`.
 
 ```kotlin
 data class DCI(val dri: Set<DRI>, val kind: Kind)

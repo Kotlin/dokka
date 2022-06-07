@@ -12,7 +12,7 @@
         </@template_cmd>
     </div>
     <div>
-        <#-- This can be handled by a versioning plugin -->
+        <#-- This can be handled by the versioning plugin -->
         <@version/>
     </div>
     <div class="pull-right d-flex">

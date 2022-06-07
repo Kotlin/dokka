@@ -21,11 +21,13 @@ object CoreExtensions {
 }
 ```
 
+On this page we'll go over each extension point individually.
+
 ## PreGenerationChecker
 
-`PreGenerationChecker` can be used to run some check to check for constraints. 
+`PreGenerationChecker` can be used to run some checks and constraints. 
 
-For instance, `Javadoc` plugin does not support generating documentation for multi-platform project, so it uses
+For instance, `Javadoc` plugin does not support generating documentation for multi-platform projects, so it uses
 `PreGenerationChecker` to check for multi-platform source sets and fails if it finds any.
 
 ## Generation
@@ -70,7 +72,7 @@ flowchart TD
 `SourceToDocumentableTranslator` translates sources into documentable model. 
 
 `Kotlin` and `Java` sources are supported by default, but you can analyze any language as long as you can map
-it to `Documentables` model.
+it to the [Documentable](../data_model/documentables.md) model.
 
 For reference, see
 
@@ -81,17 +83,18 @@ For reference, see
 
 This extension point actually comes from `DokkaBase` and is not a core extension point, but it's used in
 `SingleModuleGeneration` nonetheless. If you are implementing your own plugin without relying on `DokkaBase`,
-you can either have something similar or rely on [DocumentableTransformer](#documentabletransformer).
+you can either introduce a similar extension point or rely on [DocumentableTransformer](#documentabletransformer) which
+will be discussed below.
 
 `PreMergeDocumentableTransformer` allows applying any transformation to 
 [Documentables model](../data_model/documentables.md) before different source sets are merged. 
 
-Useful if you want to filter/map existing documentables. For instance, if you want to only include members annotated
-as `@PublicAPI`, you most likely need an implementation of `PreMergeDocumentableTransformer`.
+Useful if you want to filter/map existing documentables. For instance, if you want to exclude members annotated with
+`@Internal`, you most likely need an implementation of `PreMergeDocumentableTransformer`.
 
 For simple condition-based filtering of documentables consider extending 
 `SuppressedByConditionDocumentableFilterTransformer` - it implements `PreMergeDocumentableTransformer` and only
-requires one function to be overriden and takes care of the rest.
+requires one function to be overridden. The rest is taken care of.
 
 #### DocumentableMerger
 

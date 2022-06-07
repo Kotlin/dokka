@@ -1,15 +1,15 @@
-# Plugin Development
+# Introduction to plugin development
 
 In order to have an easier time developing plugins, it's a good idea to go through
-[Dokka's internals](../architecture/architecture_overview.md) to learn more about
-[extensions](../architecture/extension_points/introduction.md) and
-[data model](../architecture/data_model/documentables.md).
+[Dokka's internals](../architecture/architecture_overview.md) first to learn more about its
+[data model](../architecture/data_model/documentables.md) and 
+[extensions](../architecture/extension_points/introduction.md).
 
 ## Setup
 
 ### Template 
 
-The easiest way to start is to use a convenient [Dokka plugin template](https://github.com/Kotlin/dokka-plugin-template).
+The easiest way to start is to use the convenient [Dokka plugin template](https://github.com/Kotlin/dokka-plugin-template).
 It has pre-configured dependencies, publishing and signing of your artifacts.
 
 ### Manual
@@ -38,7 +38,7 @@ All instances are automatically loaded during Dokka setup using `java.util.Servi
 
 Dokka provides a set of entry points for which you can create your own implementations. If you are not sure which
 extension point to use, have a look at [core extensions](../architecture/extension_points/core_extensions.md) and
-[base extensions](../architecture/extension_points/base_extensions.md) - it might give you a general direction.
+[base extensions](../architecture/extension_points/base_extensions.md).
 
 You can learn how to declare extension points and use extensions in
 [Introduction to Extension points](../architecture/extension_points/introduction.md).
@@ -48,8 +48,8 @@ versions of Dokka.
 
 ## Example
 
-You can follow [a simple plugin guide](simple-plugin-guide.md) which covers creation of a simple plugin: hide members
-annotated with `@Internal` annotation, i.e exclude them from generated documentation.
+You can follow the [sample plugin tutorial](sample-plugin-tutorial.md) which covers creation of a simple plugin: hide members
+annotated with your own `@Internal` annotation, that is exclude these members from generated documentation.
 
 Fore more practical examples, have a look at sources of [community plugins](../../community/plugins-list.md).
 

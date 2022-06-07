@@ -1,3 +1,5 @@
+# Workflow
+
 Whether you're contributing a feature/fix to Dokka itself or developing a separate plugin, there's 3 things
 you'll be doing:
 
@@ -9,9 +11,6 @@ We'll go over each step individually in this section.
 
 Examples below will be specific to Gradle and [Gradle’s Kotlin DSL](https://docs.gradle.org/current/userguide/kotlin_dsl.html),
 but you can apply the same principles and run/test/debug with CLI/Maven runners and build configurations if you wish.
-
-If you have any specific questions which are not covered in this section, feel free to reach out to devs out through
-[Slack](../community/slack.md).
 
 ## Building Dokka
 
@@ -34,8 +33,8 @@ If you see messages like `API check failed for project ..` during `build` phase,
 changed/added/removed some public API.
 
 If the change was intentional, run `./gradlew apiDump` - it will re-generate `.api` files with signatures,
-and you should be able to `build` Dokka with no errors. Maintainers will review API changes, so please make sure
-it's intentional and rational.
+and you should be able to `build` Dokka with no errors. These updated files need to be committed as well. Maintainers
+will review API changes thoroughly, so please make sure it's intentional and rational.
 
 ## Using/testing locally built Dokka
 
@@ -59,6 +58,8 @@ plugins {
     id("org.jetbrains.dokka") version "1.6.21-my-fix-SNAPSHOT"
 }
 ```
+
+After completing these steps, you should be able to build documentation using your own version of Dokka.
 
 ## Debugging Dokka
 

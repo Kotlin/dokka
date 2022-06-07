@@ -1,7 +1,7 @@
-# Documentables
+# Documentables Model
 
-Documentables represent data that is parsed from some sources. Think of this data model as of something that could be
-seen or produced by a compiler frontend, and it's not far off from the truth.
+Documentables represent data that is parsed from sources. Think of this data model as of something that could be
+seen or produced by a compiler frontend, it's not far off from the truth.
 
 By default, documentables are parsed from `Descriptor` (for `Kotlin`)
 and [Psi](https://plugins.jetbrains.com/docs/intellij/psi.html)
@@ -67,7 +67,7 @@ data class DClass(
 
 ___
 
-There are three non-documentable classes important for this model:
+There are three non-documentable classes that important for this model:
 
 * `DRI`
 * `SourceSetDependent`
@@ -75,7 +75,7 @@ There are three non-documentable classes important for this model:
 
 ### DRI
 
-`DRI` stans for _Dokka Resource Identifier_ - a unique value that identifies specific `Documentable`.
+`DRI` stans for _Dokka Resource Identifier_ - a unique value that identifies a specific `Documentable`.
 All references and relations between documentables (other than direct ownership) are described using `DRI`.
 
 For example, `DFunction` with a parameter of type `Foo` has only `Foo`'s `DRI`, not the actual reference
@@ -83,7 +83,7 @@ to `Foo`'s `Documentable` object.
 
 #### Example
 
-For an example of how a `DRI` can look like, let's look at `limitedParallelism` function from `kotlinx.coroutines`:
+For an example of how a `DRI` can look like, let's take the `limitedParallelism` function from `kotlinx.coroutines`:
 
 ```kotlin
 package kotlinx.coroutines
@@ -152,22 +152,54 @@ ___
 
 ## Documentation model
 
-Documentation model is used along `Documentable` model to store data obtained by parsing
+Documentation model is used alongside Documentables to store data obtained by parsing
 code comments (such as `KDoc`/`Javadoc`).
 
 ### DocTag
 
-`DocTag` describes a specific documentation syntax element, universal across source languages. For instance,
-DocTag `B` is the same for `**bold**` in `Kotlin` and `<b>bold</b>` in `Java`.
+`DocTag` describes a specific documentation syntax element.
 
-However, some `DocTag` elements are specific to a certain language, there are many such example for `Java`
-because it allows HTML tags inside `Javadoc` comments, some of which are not possible with `Markdown`.
+It's universal across source languages. For instance, DocTag `B` is the same for `**bold**` in `Kotlin` and
+`<b>bold</b>` in `Java`.
+
+However, some `DocTag` elements are specific to a certain language, there are many such examples for `Java`
+because it allows HTML tags inside `Javadoc` comments, some of which are simply not possible to reproduce with `Markdown`.
 
 `DocTag` elements can be deeply nested with other `DocTag` children elements.
 
+Examples:
+
+```kotlin
+data class H1(
+    override val children: List<DocTag> = emptyList(),
+    override val params: Map<String, String> = emptyMap()
+) : DocTag()
+
+data class H2(
+    override val children: List<DocTag> = emptyList(),
+    override val params: Map<String, String> = emptyMap()
+) : DocTag()
+
+data class Strikethrough(
+    override val children: List<DocTag> = emptyList(),
+    override val params: Map<String, String> = emptyMap()
+) : DocTag()
+
+data class Strong(
+    override val children: List<DocTag> = emptyList(),
+    override val params: Map<String, String> = emptyMap()
+) : DocTag()
+
+data class CodeBlock(
+    override val children: List<DocTag> = emptyList(),
+    override val params: Map<String, String> = emptyMap()
+) : Code()
+
+```
+
 ### TagWrapper
 
-`TagWrapper` described a whole comment description or a specific comment tag.
+`TagWrapper` describes the whole comment description or a specific comment tag.
 For example: `@see` / `@author` / `@return`.
 
 Since each such section may contain formatted text inside of it, each `TagWrapper` has `DocTag` children.

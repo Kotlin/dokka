@@ -1,4 +1,4 @@
-# Overview
+# Introduction to extension points
 
 In this section you can learn how to create new extension points, how to use and configure existing ones and
 how to query for extensions when generating documentation.
@@ -29,7 +29,7 @@ See [Extending from extension points](#extending-from-extension-points) for exam
 
 You can use extension points to provide your own implementation(s) in order to customize plugin's behaviour.
 
-If you want to provide a default implementation of your plugin's extension point, you can do that within the same class:
+You can do that within the same class as the extension point itself:
 
 ```kotlin
 open class MyPlugin : DokkaPlugin() {
@@ -46,6 +46,8 @@ class DefaultSampleExtension : SampleExtensionPointInterface {
     override fun doSomething(input: Input): List<Output> = listOf()
 }
 ```
+
+___
 
 If you want to extend someone else's plugin (including `DokkaBase`), you can use plugin querying API to do that.
 In the example below we will extend `MyPlugin` that was created above with our own implementation of
@@ -81,7 +83,7 @@ You can read more on what you can do with `context` in [Obtaining extension inst
 
 ### Override
 
-By extending an extension point, you are registering an additional extension. This behaviour is expected for some
+By extending an extension point, you are registering an _additional_ extension. This behaviour is expected for some
 extension points, for instance documentable transformers, since all transformers do their own transformations and all
 of them will be invoked before proceeding.
 

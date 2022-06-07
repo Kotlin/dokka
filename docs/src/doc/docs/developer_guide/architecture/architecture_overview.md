@@ -1,20 +1,22 @@
 # Architecture overview
 
-Normally, you would think that a tool like Dokka simply parses some programming language sources and generates
+Normally, you would think that a tool like `Dokka` simply parses some programming language sources and generates
 `HTML` pages for whatever it sees along the way, with little to no abstractions. That would be the simplest and
 shortest way to implement a documentation engine.
 
-However, it was clear that Dokka may need to generate documentation from various sources (not only `Kotlin`), that users
+However, it was clear that `Dokka` may need to generate documentation from various sources (not only `Kotlin`), that users
 might request additional output formats (like `Markdown`), that users might need additional features like supporting
-custom KDoc tags or rendering `mermaid.js` diagrams - all these things would require changing a lot of code inside
-Dokka itself if all solutions were hardcoded.
+custom `KDoc` tags or rendering `mermaid.js` diagrams - all these things would require changing a lot of code inside
+`Dokka` itself if all solutions were hardcoded.
 
-For this reason, Dokka was built from the ground up to be extensible and customizable. You can think of the general
-flow of generating documentation with Dokka as mapping one intermediate representation / abstraction into another.
-You, as a Dokka developer or a plugin writer, can use extension points and introduce selective changes to the
-model on any level without touching everything else.
+For this reason, `Dokka` was built from the ground up to be extensible and customizable. You can think of the general
+flow of generating documentation with `Dokka` as mapping one intermediate representation / abstraction into another.
+You, as a `Dokka` developer or a plugin writer, can use extension points and introduce selective changes to the
+model on one particular level without touching the rest.
 
 ## Overview of data model
+
+Below you can find the general flow and transformation of Dokka's models.
 
 ```mermaid
 flowchart TD
@@ -25,9 +27,13 @@ flowchart TD
 * `Documentables` - unified data model that represents any parsed sources as a tree. 
   Examples: class/function/package/property
 * `Pages` - universal model that represents pages (e.g a function/property page) and its content
-  (lists, text, code blocks) that the users needs to see
-* `Output` - specific output format like `HTML`/`Markdown`/`Javadoc`/etc. This is a mapping of content to
+  (lists, text, code blocks) that the users needs to see. Not to be confused with `.html` pages. Goes hand in hand
+  with so-called Content Model.
+* `Output` - specific output format like `HTML`/`Markdown`/`Javadoc`/etc. This is a mapping of pages/content model to
   some human-readable and visual representation. For instance:
+    * `PageNode` is mapped as 
+        * `.html` file for `HTML` format
+        * `.md` file for `Markdown` format
     * `ContentList` is mapped as
         * `<li>` / `<ul>` for `HTML` format
         * `1.` / `*` for `Markdown` format
@@ -63,7 +69,7 @@ class MyPlugin : DokkaPlugin() {
         signatureProvider with KotlinSignatureProvider()
     }
 
-    // register our own extension in another plugin and override its default
+    // register our own extension in base plugin and override its default
     val dokkaBasePlugin by lazy { plugin<DokkaBase>() }
     val multimoduleLocationProvider by extending {
         (dokkaBasePlugin.locationProviderFactory
@@ -74,6 +80,7 @@ class MyPlugin : DokkaPlugin() {
 
 // use a registered extention, pretty much dependency injection
 class MyExtension(val context: DokkaContext) {
+    
     val signatureProvider: SignatureProvider = context.plugin<MyPlugin>().querySingle { signatureProvider }
 
     fun doSomething() {
