@@ -910,6 +910,9 @@ private class DokkaDescriptorVisitor(
                 expandedType.toBound(),
                 annotations()
             )
+            is DefinitelyNotNullType -> DefinitelyNonNullable(
+                original.toBound()
+            )
             else -> when (val ctor = constructor.declarationDescriptor) {
                 is TypeParameterDescriptor -> TypeParameter(
                     dri = DRI.from(ctor),

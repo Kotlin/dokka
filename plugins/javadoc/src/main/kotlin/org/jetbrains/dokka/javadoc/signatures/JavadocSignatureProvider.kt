@@ -205,6 +205,7 @@ class JavadocSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLo
         }
         is Star -> text("?")
         is Nullable -> signatureForProjection(p.inner)
+        is DefinitelyNonNullable -> signatureForProjection(p.inner)
         is JavaObject, is Dynamic -> link("Object", DRI("java.lang", "Object"))
         is Void -> text("void")
         is PrimitiveJavaType -> text(p.name)
