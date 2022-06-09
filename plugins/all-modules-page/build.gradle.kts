@@ -5,6 +5,7 @@ registerDokkaArtifactPublication("dokkaAllModulesPage") {
 }
 
 dependencies {
+    compileOnly(project(":kotlin-analysis"))
     implementation(project(":plugins:base"))
     implementation(project(":plugins:templating"))
     testImplementation(project(":plugins:base"))

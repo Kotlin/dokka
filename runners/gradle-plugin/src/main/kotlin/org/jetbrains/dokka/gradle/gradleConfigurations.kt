@@ -24,6 +24,7 @@ internal fun Project.maybeCreateDokkaPluginConfiguration(dokkaTaskName: String, 
         extendsFrom(maybeCreateDokkaDefaultPluginConfiguration())
         attributes.attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(Usage::class.java, "java-runtime"))
         isCanBeConsumed = false
+        dependencies.add(project.dokkaArtifacts.dokkaAnalysis) // compileOnly in base plugin
         dependencies.add(project.dokkaArtifacts.dokkaBase)
         dependencies.addAll(additionalDependencies)
     }

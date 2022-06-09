@@ -9,6 +9,7 @@ import utils.A
 import utils.Span
 import utils.TestOutputWriterPlugin
 import utils.match
+import java.lang.IllegalStateException
 
 class FunctionalTypeConstructorsSignatureTest : BaseAbstractTest() {
     private val configuration = dokkaConfiguration {
@@ -16,6 +17,19 @@ class FunctionalTypeConstructorsSignatureTest : BaseAbstractTest() {
             sourceSet {
                 sourceRoots = listOf("src/")
                 classpath = listOf(commonStdlibPath!!)
+                externalDocumentationLinks = listOf(
+                    stdlibExternalDocumentationLink,
+                    DokkaConfiguration.ExternalDocumentationLink.Companion.jdk(8)
+                )
+            }
+        }
+    }
+
+    private val jvmConfiguration = dokkaConfiguration {
+        sourceSets {
+            sourceSet {
+                sourceRoots = listOf("src/")
+                classpath = listOf(jvmStdlibPath ?: throw IllegalStateException("JVM stdlib is not found"))
                 externalDocumentationLinks = listOf(
                     stdlibExternalDocumentationLink,
                     DokkaConfiguration.ExternalDocumentationLink.Companion.jdk(8)
@@ -282,7 +296,7 @@ class FunctionalTypeConstructorsSignatureTest : BaseAbstractTest() {
 
         testInline(
             source,
-            configuration,
+            jvmConfiguration,
             pluginOverrides = listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->

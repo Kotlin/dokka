@@ -12,9 +12,7 @@ plugins {
 
 buildscript {
     dependencies {
-        classpath("org.jetbrains.dokka:dokka-base:${System.getenv("DOKKA_VERSION")}") {
-            exclude(group = "org.jetbrains.dokka", module = "dokka-analysis") // Gradle has embeddable Kotlin compiler
-        }
+        classpath("org.jetbrains.dokka:dokka-base:${System.getenv("DOKKA_VERSION")}")
     }
 }
 

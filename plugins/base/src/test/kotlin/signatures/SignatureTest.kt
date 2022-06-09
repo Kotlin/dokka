@@ -15,7 +15,7 @@ class SignatureTest : BaseAbstractTest() {
         sourceSets {
             sourceSet {
                 sourceRoots = listOf("src/")
-                classpath = listOf(commonStdlibPath!!)
+                classpath = listOf(commonStdlibPath ?: throw IllegalStateException("Common stdlib is not found"), jvmStdlibPath ?: throw IllegalStateException("JVM stdlib is not found"))
                 externalDocumentationLinks = listOf(stdlibExternalDocumentationLink)
             }
         }

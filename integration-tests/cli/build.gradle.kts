@@ -23,6 +23,7 @@ val basePluginShadow: Configuration by configurations.creating {
 
 dependencies {
     basePluginShadow(project(":plugins:base"))
+    basePluginShadow(project(":kotlin-analysis")) // compileOnly in base plugin
 }
 val basePluginShadowJar by tasks.register("basePluginShadowJar", ShadowJar::class) {
     configurations = listOf(basePluginShadow)
