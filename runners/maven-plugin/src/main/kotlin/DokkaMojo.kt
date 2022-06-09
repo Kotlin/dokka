@@ -257,7 +257,8 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
             offlineMode = offlineMode,
             cacheRoot = cacheRoot?.let(::File),
             sourceSets = listOf(sourceSet),
-            pluginsClasspath = getArtifactByMaven("org.jetbrains.dokka", "dokka-base", dokkaVersion) +
+            pluginsClasspath = getArtifactByMaven("org.jetbrains.dokka", "dokka-analysis", dokkaVersion) + // compileOnly in base plugin
+                    getArtifactByMaven("org.jetbrains.dokka", "dokka-base", dokkaVersion) +
                     dokkaPlugins.map { getArtifactByMaven(it.groupId, it.artifactId, it.version ?: dokkaVersion) }
                         .flatten(),
             pluginsConfiguration = pluginsConfiguration.toMutableList(),
