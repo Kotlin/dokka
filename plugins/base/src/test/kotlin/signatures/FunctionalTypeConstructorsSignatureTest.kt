@@ -275,7 +275,7 @@ class FunctionalTypeConstructorsSignatureTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/-java-class/index.html").lastSignature().match(
-                    "open val ", A("javaFunction"), ": (", A("Integer"), ") -> ", A("String"), Span(),
+                    "open var ", A("javaFunction"), ": (", A("Integer"), ") -> ", A("String"), Span(),
                         ignoreSpanWithTokenStyle = true
                 )
             }
@@ -301,7 +301,7 @@ class FunctionalTypeConstructorsSignatureTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/-java-class/index.html").lastSignature().match(
-                    "open val ", A("kotlinFunction"), ": (", A("Integer"), ") -> ", A("String"), Span(),
+                    "open var ", A("kotlinFunction"), ": (", A("Integer"), ") -> ", A("String"), Span(),
                         ignoreSpanWithTokenStyle = true
                 )
             }
