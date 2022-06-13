@@ -17,9 +17,9 @@ import org.jetbrains.dokka.analysis.KotlinAnalysis
 import org.jetbrains.dokka.analysis.PsiDocumentableSource
 import org.jetbrains.dokka.analysis.from
 import org.jetbrains.dokka.base.DokkaBase
-import org.jetbrains.dokka.base.translators.typeConstructorsBeingExceptions
 import org.jetbrains.dokka.base.translators.psi.parsers.JavaDocumentationParser
 import org.jetbrains.dokka.base.translators.psi.parsers.JavadocParser
+import org.jetbrains.dokka.base.translators.typeConstructorsBeingExceptions
 import org.jetbrains.dokka.base.translators.unquotedValue
 import org.jetbrains.dokka.links.*
 import org.jetbrains.dokka.model.*
@@ -40,12 +40,7 @@ import org.jetbrains.kotlin.asJava.elements.KtLightAbstractAnnotation
 import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
 import org.jetbrains.kotlin.cli.jvm.config.JavaSourceRoot
 import org.jetbrains.kotlin.idea.base.utils.fqname.getKotlinFqName
-import org.jetbrains.kotlin.load.java.JvmAbi
-import org.jetbrains.kotlin.load.java.propertyNameByGetMethodName
-import org.jetbrains.kotlin.load.java.propertyNamesBySetMethodName
-import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.psiUtil.getChildOfType
-import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.utils.KotlinExceptionWithAttachments
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 import java.io.File
@@ -641,7 +636,7 @@ class DefaultPsiToDocumentableTranslator(
                 documentation = javadocParser.parseDocumentation(psi).toSourceSetDependent(),
                 expectPresentInSet = null,
                 sources = PsiDocumentableSource(psi).toSourceSetDependent(),
-                visibility = psi.getVisibility().toSourceSetDependent(),
+                visibility = psi.getVisibility(getter).toSourceSetDependent(),
                 type = getBound(psi.type),
                 receiver = null,
                 setter = setter,
@@ -664,6 +659,22 @@ class DefaultPsiToDocumentableTranslator(
                     )
                 }
             )
+        }
+
+        private fun PsiField.getVisibility(getter: DFunction?): Visibility {
+            val psiVisibility = this.getVisibility()
+            val isPrivatePropertyWithPublicGetter = !psiVisibility.isPublicAPI()
+                    && getter?.visibility?.get(sourceSetData)?.isPublicAPI() == true
+
+            return if (isPrivatePropertyWithPublicGetter) JavaVisibility.Public else psiVisibility
+        }
+
+        private fun Visibility.isPublicAPI() = when (this) {
+            JavaVisibility.Public,
+            JavaVisibility.Protected,
+            KotlinVisibility.Public,
+            KotlinVisibility.Protected -> true
+            else -> false
         }
 
         private fun Collection<PsiAnnotation>.toListOfAnnotations() =

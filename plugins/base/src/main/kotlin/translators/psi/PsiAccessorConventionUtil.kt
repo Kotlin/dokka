@@ -28,7 +28,30 @@ internal fun splitFunctionsAndAccessors(fields: Array<PsiField>, methods: Array<
             regularFunctions.add(method)
         }
     }
+
+    val accessorLookalikes = removeNonAccessorsReturning(accessors)
+    regularFunctions.addAll(accessorLookalikes)
+
     return PsiFunctionsHolder(regularFunctions, accessors)
+}
+
+/**
+ * If a field has no getter, it's not accessible as a property from Kotlin's perspective,
+ * but it still might have a setter. In this case, this "setter" should be just a regular function
+ */
+private fun removeNonAccessorsReturning(
+    fieldAccessors: MutableMap<PsiField, MutableList<PsiMethod>>
+): List<PsiMethod> {
+    val nonAccessors = mutableListOf<PsiMethod>()
+    fieldAccessors.entries.removeIf { (field, methods) ->
+        if (methods.size == 1 && methods[0].isSetterFor(field)) {
+            nonAccessors.add(methods[0])
+            true
+        } else {
+            false
+        }
+    }
+    return nonAccessors
 }
 
 internal fun PsiMethod.getPossiblePropertyNamesForFunction(): List<String> {
