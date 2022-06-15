@@ -3434,6 +3434,7 @@ public final class org/jetbrains/dokka/model/properties/PropertyContainer {
 	public final fun copy (Ljava/util/Map;)Lorg/jetbrains/dokka/model/properties/PropertyContainer;
 	public static synthetic fun copy$default (Lorg/jetbrains/dokka/model/properties/PropertyContainer;Ljava/util/Map;ILjava/lang/Object;)Lorg/jetbrains/dokka/model/properties/PropertyContainer;
 	public fun equals (Ljava/lang/Object;)Z
+	public final fun getMap ()Ljava/util/Map;
 	public fun hashCode ()I
 	public final fun minus (Lorg/jetbrains/dokka/model/properties/ExtraProperty$Key;)Lorg/jetbrains/dokka/model/properties/PropertyContainer;
 	public final fun plus (Lorg/jetbrains/dokka/model/properties/ExtraProperty;)Lorg/jetbrains/dokka/model/properties/PropertyContainer;
@@ -4352,6 +4353,8 @@ public abstract class org/jetbrains/dokka/plugability/DokkaPlugin {
 	public fun <init> ()V
 	protected final fun extending (Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/dokka/plugability/DokkaPlugin$ExtensionProvider;
 	protected final fun extensionPoint ()Lkotlin/properties/ReadOnlyProperty;
+	public final fun getContext ()Lorg/jetbrains/dokka/plugability/DokkaContext;
+	public final fun setContext (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
 	protected final fun unsafeInstall (Lkotlin/Lazy;)V
 }
 
