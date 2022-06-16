@@ -3,6 +3,9 @@ package org.jetbrains.dokka.base.translators.psi
 import com.intellij.psi.PsiField
 import com.intellij.psi.PsiMethod
 import org.jetbrains.dokka.base.translators.firstNotNullOfOrNull
+import org.jetbrains.dokka.model.JavaVisibility
+import org.jetbrains.dokka.model.KotlinVisibility
+import org.jetbrains.dokka.model.Visibility
 import org.jetbrains.kotlin.load.java.JvmAbi
 import org.jetbrains.kotlin.load.java.propertyNameByGetMethodName
 import org.jetbrains.kotlin.load.java.propertyNamesBySetMethodName
@@ -69,7 +72,9 @@ internal fun PsiMethod.getPossiblePropertyNamesForFunction(): List<String> {
 }
 
 internal fun PsiMethod.isAccessorFor(field: PsiField): Boolean {
-    return this.isGetterFor(field) || this.isSetterFor(field)
+    return (this.isGetterFor(field) || this.isSetterFor(field))
+            && !field.getVisibility().isPublicAPI()
+            && this.getVisibility().isPublicAPI()
 }
 
 internal fun PsiMethod.isGetterFor(field: PsiField): Boolean {
@@ -78,4 +83,12 @@ internal fun PsiMethod.isGetterFor(field: PsiField): Boolean {
 
 internal fun PsiMethod.isSetterFor(field: PsiField): Boolean {
     return parameterList.getParameter(0)?.type == field.type
+}
+
+internal fun Visibility.isPublicAPI() = when(this) {
+    KotlinVisibility.Public,
+    KotlinVisibility.Protected,
+    JavaVisibility.Public,
+    JavaVisibility.Protected -> true
+    else -> false
 }

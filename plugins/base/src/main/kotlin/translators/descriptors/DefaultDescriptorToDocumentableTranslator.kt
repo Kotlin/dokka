@@ -41,6 +41,7 @@ import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.descriptors.ClassKind
 import org.jetbrains.kotlin.descriptors.annotations.Annotated
 import org.jetbrains.kotlin.descriptors.annotations.AnnotationDescriptor
+import org.jetbrains.kotlin.descriptors.java.JavaVisibilities
 import org.jetbrains.kotlin.idea.kdoc.findKDoc
 import org.jetbrains.kotlin.idea.kdoc.resolveKDocLink
 import org.jetbrains.kotlin.js.resolve.diagnostics.findPsi
@@ -501,16 +502,19 @@ private class DokkaDescriptorVisitor(
     }
 
     private fun PropertyDescriptor.getVisibility(implicitAccessors: DescriptorAccessorHolder?): Visibility {
-        val isPrivateJavaPropertyWithPublicGetter =
-            this is JavaPropertyDescriptor
-                    && !this.visibility.isPublicAPI
-                    && implicitAccessors?.getter?.visibility?.isPublicAPI == true
+        val isNonPublicJavaProperty = this is JavaPropertyDescriptor && !this.visibility.isPublicAPI
+        val visibility =
+            if (isNonPublicJavaProperty) {
+                // only try to take implicit getter's visibility if it's a java property
+                // because it's not guaranteed that implicit accessor will be used
+                // for the kotlin property, as it may have an explicit accessor of its own,
+                // i.e in data classes or with get() and set() are overridden
+                (implicitAccessors?.getter?.visibility ?: this.visibility)
+            } else {
+                this.visibility
+            }
 
-        return if (isPrivateJavaPropertyWithPublicGetter) {
-            KotlinVisibility.Public
-        } else {
-            return this.visibility.toDokkaVisibility()
-        }
+        return visibility.toDokkaVisibility()
     }
 
     private fun CallableMemberDescriptor.createDRI(wasOverridenBy: DRI? = null): Pair<DRI, DRI?> =
@@ -1161,11 +1165,14 @@ private class DokkaDescriptorVisitor(
             }) + ancestry.interfaces.map { TypeConstructorWithKind(it.typeConstructor, KotlinClassKindTypes.INTERFACE) }
     }
 
-    private fun DescriptorVisibility.toDokkaVisibility(): org.jetbrains.dokka.model.Visibility = when (this.delegate) {
+    private fun DescriptorVisibility.toDokkaVisibility(): Visibility = when (this.delegate) {
         Visibilities.Public -> KotlinVisibility.Public
         Visibilities.Protected -> KotlinVisibility.Protected
         Visibilities.Internal -> KotlinVisibility.Internal
         Visibilities.Private -> KotlinVisibility.Private
+        JavaVisibilities.ProtectedAndPackage -> KotlinVisibility.Protected
+        JavaVisibilities.ProtectedStaticVisibility -> KotlinVisibility.Protected
+        JavaVisibilities.PackageVisibility -> JavaVisibility.Default
         else -> KotlinVisibility.Public
     }
 

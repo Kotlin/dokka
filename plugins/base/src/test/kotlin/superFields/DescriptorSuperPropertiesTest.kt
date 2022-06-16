@@ -4,6 +4,7 @@ import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.InheritedMember
+import org.jetbrains.dokka.model.KotlinVisibility
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -215,32 +216,105 @@ class DescriptorSuperPropertiesTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `should preserve regular functions that look like accessors, but are not accessors`() {
+    fun `should inherit property visibility from getter`() {
+        val configuration = dokkaConfiguration {
+            sourceSets {
+                sourceSet {
+                    sourceRoots = listOf("src/")
+                    analysisPlatform = "jvm"
+                    name = "jvm"
+                    documentedVisibilities = setOf(
+                        DokkaConfiguration.Visibility.PUBLIC,
+                        DokkaConfiguration.Visibility.PROTECTED
+                    )
+                }
+            }
+        }
+
         testInline(
             """
-            |/src/test/A.kt
-            |package test
-            |class A {
-            |    private var v: Int = 0
-            |    
-            |    // not accessors because declared separately, just functions
-            |    fun setV(new: Int) { v = new }
-            |    fun getV(): Int = v
+            |/src/test/A.java
+            |package test;
+            |public class A {
+            |   private int a = 1;
+            |   protected int getA() { return a; }
+            |   protected void setA(int a) { this.a = a; }
             |}
+            |
+            |/src/test/B.kt
+            |package test
+            |class B : A {}
         """.trimIndent(),
-            commonTestConfiguration
+            configuration
         ) {
             documentablesMergingStage = { module ->
-                val testClass = module.packages.single().classlikes.single { it.name == "A" }
-                val setterLookalike = testClass.functions.firstOrNull { it.name == "setV" }
-                assertNotNull(setterLookalike) {
-                    "Expected regular function not found, wrongly categorized as setter?"
-                }
+                val testedClass = module.packages.single().classlikes.single { it.name == "B" }
+                assertEquals(0, testedClass.functions.size)
 
-                val getterLookalike = testClass.functions.firstOrNull { it.name == "getV" }
-                assertNotNull(getterLookalike) {
-                    "Expected regular function not found, wrongly categorized as getter?"
+                val property = testedClass.properties.single { it.name == "a" }
+
+                assertNotNull(property.getter)
+                assertNotNull(property.setter)
+
+                val propertyVisibility = property.visibility.values.single()
+                assertEquals(KotlinVisibility.Protected, propertyVisibility)
+
+                val getterVisibility = property.getter?.visibility?.values?.single()
+                assertEquals(KotlinVisibility.Protected, getterVisibility)
+
+                val setterVisibility = property.setter?.visibility?.values?.single()
+                assertEquals(KotlinVisibility.Protected, setterVisibility)
+
+                val inheritedFrom = property.extra[InheritedMember]?.inheritedFrom?.values?.single()
+                assertEquals(DRI(packageName = "test", classNames = "A"), inheritedFrom)
+            }
+        }
+    }
+
+    @Test // checking for mapping between kotlin and java visibility
+    fun `should resolve inherited java protected field as protected`() {
+        val configuration = dokkaConfiguration {
+            sourceSets {
+                sourceSet {
+                    sourceRoots = listOf("src/")
+                    analysisPlatform = "jvm"
+                    name = "jvm"
+                    documentedVisibilities = setOf(
+                        DokkaConfiguration.Visibility.PUBLIC,
+                        DokkaConfiguration.Visibility.PROTECTED
+                    )
                 }
+            }
+        }
+
+        testInline(
+            """
+            |/src/test/A.java
+            |package test;
+            |public class A {
+            |   protected int protectedProperty = 0;
+            |}
+            |
+            |/src/test/B.kt
+            |package test
+            |class B : A {}
+        """.trimIndent(),
+            configuration
+        ) {
+            documentablesMergingStage = { module ->
+                val testedClass = module.packages.single().classlikes.single { it.name == "B" }
+                assertEquals(0, testedClass.functions.size)
+
+                val property = testedClass.properties.single { it.name == "protectedProperty" }
+
+                assertNull(property.getter)
+                assertNull(property.setter)
+
+                val propertyVisibility = property.visibility.values.single()
+                assertEquals(KotlinVisibility.Protected, propertyVisibility)
+
+                val inheritedFrom = property.extra[InheritedMember]?.inheritedFrom?.values?.single()
+                assertEquals(DRI(packageName = "test", classNames = "A"), inheritedFrom)
             }
         }
     }

@@ -103,16 +103,6 @@ class DefaultPsiToDocumentableTranslator(
 
         private val cachedBounds = hashMapOf<String, Bound>()
 
-        private fun PsiModifierListOwner.getVisibility() = modifierList?.let {
-            val ml = it.children.toList()
-            when {
-                ml.any { it.text == PsiKeyword.PUBLIC } || it.hasModifierProperty("public") -> JavaVisibility.Public
-                ml.any { it.text == PsiKeyword.PROTECTED } || it.hasModifierProperty("protected") -> JavaVisibility.Protected
-                ml.any { it.text == PsiKeyword.PRIVATE } || it.hasModifierProperty("private") -> JavaVisibility.Private
-                else -> JavaVisibility.Default
-            }
-        } ?: JavaVisibility.Default
-
         private val PsiMethod.hash: Int
             get() = "$returnType $name$parameterList".hashCode()
 
@@ -662,19 +652,7 @@ class DefaultPsiToDocumentableTranslator(
         }
 
         private fun PsiField.getVisibility(getter: DFunction?): Visibility {
-            val psiVisibility = this.getVisibility()
-            val isPrivatePropertyWithPublicGetter = !psiVisibility.isPublicAPI()
-                    && getter?.visibility?.get(sourceSetData)?.isPublicAPI() == true
-
-            return if (isPrivatePropertyWithPublicGetter) JavaVisibility.Public else psiVisibility
-        }
-
-        private fun Visibility.isPublicAPI() = when (this) {
-            JavaVisibility.Public,
-            JavaVisibility.Protected,
-            KotlinVisibility.Public,
-            KotlinVisibility.Protected -> true
-            else -> false
+            return getter?.visibility?.get(sourceSetData) ?: this.getVisibility()
         }
 
         private fun Collection<PsiAnnotation>.toListOfAnnotations() =
@@ -751,3 +729,13 @@ class DefaultPsiToDocumentableTranslator(
             get() = getChildOfType<PsiJavaCodeReferenceElement>()?.resolve()
     }
 }
+
+internal fun PsiModifierListOwner.getVisibility() = modifierList?.let {
+    val ml = it.children.toList()
+    when {
+        ml.any { it.text == PsiKeyword.PUBLIC } || it.hasModifierProperty("public") -> JavaVisibility.Public
+        ml.any { it.text == PsiKeyword.PROTECTED } || it.hasModifierProperty("protected") -> JavaVisibility.Protected
+        ml.any { it.text == PsiKeyword.PRIVATE } || it.hasModifierProperty("private") -> JavaVisibility.Private
+        else -> JavaVisibility.Default
+    }
+} ?: JavaVisibility.Default
