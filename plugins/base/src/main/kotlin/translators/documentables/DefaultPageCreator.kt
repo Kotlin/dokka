@@ -760,7 +760,12 @@ open class DefaultPageCreator(
                 headers("Name", "Summary")
             )
         ) { key, props ->
-            link(key, props.first().dri, kind = ContentKind.Main)
+            link(
+                text = key,
+                address = props.first().dri,
+                kind = ContentKind.Main,
+                styles = setOf(ContentStyle.RowTitle)
+            )
             sourceSetDependentHint(props.dri, props.sourceSets, kind = ContentKind.SourceSetDependentHint) {
                 props.forEach {
                     +buildSignature(it)
