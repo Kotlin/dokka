@@ -4,14 +4,11 @@ import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.model.Annotations
-import org.jetbrains.dokka.model.TypeConstructor
+import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.doc.Text
-import org.jetbrains.dokka.model.firstMemberOfType
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import utils.assertNotNull
 
@@ -280,12 +277,12 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
                 val testClass = module.packages.single().classlikes.single { it.name == "A" }
 
                 val setterLookalike = testClass.functions.firstOrNull { it.name == "setA" }
-                Assertions.assertNotNull(setterLookalike) {
+                assertNotNull(setterLookalike) {
                     "Expected regular function not found, wrongly categorized as setter?"
                 }
 
                 val getterLookalike = testClass.functions.firstOrNull { it.name == "getA" }
-                Assertions.assertNotNull(getterLookalike) {
+                assertNotNull(getterLookalike) {
                     "Expected regular function not found, wrongly categorized as getter?"
                 }
             }
@@ -320,14 +317,16 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
         ) {
             documentablesMergingStage = { module ->
                 val testedClass = module.packages.single().classlikes.single { it.name == "A" }
+
                 val property = testedClass.properties.single { it.name == "a" }
+                assertEquals(JavaVisibility.Protected, property.visibility.values.single())
+                assertNull(property.getter)
+                assertNull(property.setter)
 
-                Assertions.assertNull(property.getter)
-                Assertions.assertNull(property.setter)
-                kotlin.test.assertEquals(2, testedClass.functions.size)
+                assertEquals(2, testedClass.functions.size)
 
-                kotlin.test.assertEquals("getA", testedClass.functions[0].name)
-                kotlin.test.assertEquals("setA", testedClass.functions[1].name)
+                assertEquals("getA", testedClass.functions[0].name)
+                assertEquals("setA", testedClass.functions[1].name)
             }
         }
     }
