@@ -21,6 +21,7 @@ import org.jetbrains.dokka.links.Callable
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.AnnotationTarget
 import org.jetbrains.dokka.model.Nullable
+import org.jetbrains.dokka.model.Visibility
 import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.plugability.DokkaContext
@@ -40,9 +41,11 @@ import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.descriptors.ClassKind
 import org.jetbrains.kotlin.descriptors.annotations.Annotated
 import org.jetbrains.kotlin.descriptors.annotations.AnnotationDescriptor
+import org.jetbrains.kotlin.descriptors.java.JavaVisibilities
 import org.jetbrains.kotlin.idea.kdoc.findKDoc
 import org.jetbrains.kotlin.idea.kdoc.resolveKDocLink
 import org.jetbrains.kotlin.js.resolve.diagnostics.findPsi
+import org.jetbrains.kotlin.load.java.descriptors.JavaPropertyDescriptor
 import org.jetbrains.kotlin.load.kotlin.toSourceElement
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.*
@@ -379,7 +382,7 @@ private class DokkaDescriptorVisitor(
         return coroutineScope {
             val descriptorsWithKind = scope.getDescriptorsWithKind()
 
-            val (regularFunctions, accessors) = splitFunctionsAndAccessors(
+            val (regularFunctions, accessors) = splitFunctionsAndInheritedAccessors(
                 properties = descriptorsWithKind.properties,
                 functions = descriptorsWithKind.functions
             )
@@ -427,11 +430,11 @@ private class DokkaDescriptorVisitor(
 
     /**
      * @param implicitAccessors getters/setters that are not part of the property descriptor, for instance
-     *                          average methods inherited from java sources
+     *                          average methods inherited from java sources that access the property
      */
     private suspend fun visitPropertyDescriptor(
         originalDescriptor: PropertyDescriptor,
-        implicitAccessors: List<FunctionDescriptor>,
+        implicitAccessors: DescriptorAccessorHolder?,
         parent: DRIWithPlatformInfo
     ): DProperty {
         val (dri, _) = originalDescriptor.createDRI()
@@ -451,9 +454,7 @@ private class DokkaDescriptorVisitor(
                 }
 
         suspend fun getImplicitAccessorGetter() =
-            implicitAccessors
-                .firstOrNull { it.isGetterFor(originalDescriptor) }
-                ?.let { visitFunctionDescriptor(it, parent) }
+            implicitAccessors?.getter?.let { visitFunctionDescriptor(it, parent) }
 
         // example - generated setter that comes with data classes
         suspend fun getDescriptorSetter() =
@@ -464,9 +465,7 @@ private class DokkaDescriptorVisitor(
                 }
 
         suspend fun getImplicitAccessorSetter() =
-            implicitAccessors
-                .firstOrNull { it.isSetterFor(originalDescriptor) }
-                ?.let { visitFunctionDescriptor(it, parent) }
+            implicitAccessors?.setter?.let { visitFunctionDescriptor(it, parent) }
 
         return coroutineScope {
             val generics = async { descriptor.typeParameters.parallelMap { it.toVariantTypeParameter() } }
@@ -480,7 +479,7 @@ private class DokkaDescriptorVisitor(
                 sources = actual,
                 getter = getDescriptorGetter() ?: getImplicitAccessorGetter(),
                 setter = getDescriptorSetter() ?: getImplicitAccessorSetter(),
-                visibility = descriptor.visibility.toDokkaVisibility().toSourceSetDependent(),
+                visibility = descriptor.getVisibility(implicitAccessors).toSourceSetDependent(),
                 documentation = descriptor.resolveDescriptorData(),
                 modifier = descriptor.modifier().toSourceSetDependent(),
                 type = descriptor.returnType!!.toBound(),
@@ -500,6 +499,22 @@ private class DokkaDescriptorVisitor(
                 )
             )
         }
+    }
+
+    private fun PropertyDescriptor.getVisibility(implicitAccessors: DescriptorAccessorHolder?): Visibility {
+        val isNonPublicJavaProperty = this is JavaPropertyDescriptor && !this.visibility.isPublicAPI
+        val visibility =
+            if (isNonPublicJavaProperty) {
+                // only try to take implicit getter's visibility if it's a java property
+                // because it's not guaranteed that implicit accessor will be used
+                // for the kotlin property, as it may have an explicit accessor of its own,
+                // i.e in data classes or with get() and set() are overridden
+                (implicitAccessors?.getter?.visibility ?: this.visibility)
+            } else {
+                this.visibility
+            }
+
+        return visibility.toDokkaVisibility()
     }
 
     private fun CallableMemberDescriptor.createDRI(wasOverridenBy: DRI? = null): Pair<DRI, DRI?> =
@@ -818,12 +833,11 @@ private class DokkaDescriptorVisitor(
 
     private suspend fun List<PropertyDescriptor>.visitProperties(
         parent: DRIWithPlatformInfo,
-        implicitAccessors: Map<PropertyDescriptor, List<FunctionDescriptor>> = emptyMap(),
+        implicitAccessors: Map<PropertyDescriptor, DescriptorAccessorHolder> = emptyMap(),
     ): List<DProperty> {
         return coroutineScope {
             parallelMap {
-                val propertyAccessors = implicitAccessors[it] ?: emptyList()
-                visitPropertyDescriptor(it, propertyAccessors, parent)
+                visitPropertyDescriptor(it, implicitAccessors[it], parent)
             }
         }
     }
@@ -1151,11 +1165,14 @@ private class DokkaDescriptorVisitor(
             }) + ancestry.interfaces.map { TypeConstructorWithKind(it.typeConstructor, KotlinClassKindTypes.INTERFACE) }
     }
 
-    private fun DescriptorVisibility.toDokkaVisibility(): org.jetbrains.dokka.model.Visibility = when (this.delegate) {
+    private fun DescriptorVisibility.toDokkaVisibility(): Visibility = when (this.delegate) {
         Visibilities.Public -> KotlinVisibility.Public
         Visibilities.Protected -> KotlinVisibility.Protected
         Visibilities.Internal -> KotlinVisibility.Internal
         Visibilities.Private -> KotlinVisibility.Private
+        JavaVisibilities.ProtectedAndPackage -> KotlinVisibility.Protected
+        JavaVisibilities.ProtectedStaticVisibility -> KotlinVisibility.Protected
+        JavaVisibilities.PackageVisibility -> JavaVisibility.Default
         else -> KotlinVisibility.Public
     }
 

@@ -114,7 +114,7 @@ class JavaSignatureProvider internal constructor(ctcc: CommentsToContentConverte
             ) {
                 annotationsBlock(p)
                 p.visibility[it]?.takeIf { it !in ignoredVisibilities }?.name?.let { keyword("$it ") }
-                p.modifier[it]?.name?.let { keyword("$it ") }
+                p.modifier[it]?.takeIf { it !in ignoredModifiers }?.name?.let { keyword("$it ") }
                 p.modifiers()[it]?.toSignatureString()?.let { keyword(it) }
                 signatureForProjection(p.type)
                 text(nbsp.toString())
