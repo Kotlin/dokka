@@ -17,9 +17,9 @@ import org.jetbrains.dokka.analysis.KotlinAnalysis
 import org.jetbrains.dokka.analysis.PsiDocumentableSource
 import org.jetbrains.dokka.analysis.from
 import org.jetbrains.dokka.base.DokkaBase
-import org.jetbrains.dokka.base.translators.typeConstructorsBeingExceptions
 import org.jetbrains.dokka.base.translators.psi.parsers.JavaDocumentationParser
 import org.jetbrains.dokka.base.translators.psi.parsers.JavadocParser
+import org.jetbrains.dokka.base.translators.typeConstructorsBeingExceptions
 import org.jetbrains.dokka.base.translators.unquotedValue
 import org.jetbrains.dokka.links.*
 import org.jetbrains.dokka.model.*
@@ -40,12 +40,7 @@ import org.jetbrains.kotlin.asJava.elements.KtLightAbstractAnnotation
 import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
 import org.jetbrains.kotlin.cli.jvm.config.JavaSourceRoot
 import org.jetbrains.kotlin.idea.base.utils.fqname.getKotlinFqName
-import org.jetbrains.kotlin.load.java.JvmAbi
-import org.jetbrains.kotlin.load.java.propertyNameByGetMethodName
-import org.jetbrains.kotlin.load.java.propertyNamesBySetMethodName
-import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.psiUtil.getChildOfType
-import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.utils.KotlinExceptionWithAttachments
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 import java.io.File
@@ -107,16 +102,6 @@ class DefaultPsiToDocumentableTranslator(
         private val javadocParser: JavaDocumentationParser = JavadocParser(logger, facade)
 
         private val cachedBounds = hashMapOf<String, Bound>()
-
-        private fun PsiModifierListOwner.getVisibility() = modifierList?.let {
-            val ml = it.children.toList()
-            when {
-                ml.any { it.text == PsiKeyword.PUBLIC } || it.hasModifierProperty("public") -> JavaVisibility.Public
-                ml.any { it.text == PsiKeyword.PROTECTED } || it.hasModifierProperty("protected") -> JavaVisibility.Protected
-                ml.any { it.text == PsiKeyword.PRIVATE } || it.hasModifierProperty("private") -> JavaVisibility.Private
-                else -> JavaVisibility.Default
-            }
-        } ?: JavaVisibility.Default
 
         private val PsiMethod.hash: Int
             get() = "$returnType $name$parameterList".hashCode()
@@ -641,7 +626,7 @@ class DefaultPsiToDocumentableTranslator(
                 documentation = javadocParser.parseDocumentation(psi).toSourceSetDependent(),
                 expectPresentInSet = null,
                 sources = PsiDocumentableSource(psi).toSourceSetDependent(),
-                visibility = psi.getVisibility().toSourceSetDependent(),
+                visibility = psi.getVisibility(getter).toSourceSetDependent(),
                 type = getBound(psi.type),
                 receiver = null,
                 setter = setter,
@@ -664,6 +649,10 @@ class DefaultPsiToDocumentableTranslator(
                     )
                 }
             )
+        }
+
+        private fun PsiField.getVisibility(getter: DFunction?): Visibility {
+            return getter?.visibility?.get(sourceSetData) ?: this.getVisibility()
         }
 
         private fun Collection<PsiAnnotation>.toListOfAnnotations() =
@@ -740,3 +729,13 @@ class DefaultPsiToDocumentableTranslator(
             get() = getChildOfType<PsiJavaCodeReferenceElement>()?.resolve()
     }
 }
+
+internal fun PsiModifierListOwner.getVisibility() = modifierList?.let {
+    val ml = it.children.toList()
+    when {
+        ml.any { it.text == PsiKeyword.PUBLIC } || it.hasModifierProperty("public") -> JavaVisibility.Public
+        ml.any { it.text == PsiKeyword.PROTECTED } || it.hasModifierProperty("protected") -> JavaVisibility.Protected
+        ml.any { it.text == PsiKeyword.PRIVATE } || it.hasModifierProperty("private") -> JavaVisibility.Private
+        else -> JavaVisibility.Default
+    }
+} ?: JavaVisibility.Default
