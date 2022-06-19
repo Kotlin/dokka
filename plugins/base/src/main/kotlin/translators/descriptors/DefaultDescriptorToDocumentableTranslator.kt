@@ -469,6 +469,8 @@ private class DokkaDescriptorVisitor(
 
         return coroutineScope {
             val generics = async { descriptor.typeParameters.parallelMap { it.toVariantTypeParameter() } }
+            val getter = getDescriptorGetter() ?: getImplicitAccessorGetter()
+            val setter = getDescriptorSetter() ?: getImplicitAccessorSetter()
 
             DProperty(
                 dri = dri,
@@ -477,8 +479,8 @@ private class DokkaDescriptorVisitor(
                     visitReceiverParameterDescriptor(it, DRIWithPlatformInfo(dri, actual))
                 },
                 sources = actual,
-                getter = getDescriptorGetter() ?: getImplicitAccessorGetter(),
-                setter = getDescriptorSetter() ?: getImplicitAccessorSetter(),
+                getter = getter,
+                setter = setter,
                 visibility = descriptor.getVisibility(implicitAccessors).toSourceSetDependent(),
                 documentation = descriptor.resolveDescriptorData(),
                 modifier = descriptor.modifier().toSourceSetDependent(),
@@ -495,9 +497,23 @@ private class DokkaDescriptorVisitor(
                             .toAnnotations(),
                         descriptor.getDefaultValue()?.let { DefaultValue(it.toSourceSetDependent()) },
                         inheritedFrom?.let { InheritedMember(it.toSourceSetDependent()) },
+                        takeIf { descriptor.isVar(getter, setter) }?.let { IsVar },
                     )
                 )
             )
+        }
+    }
+
+    private fun PropertyDescriptor.isVar(getter: DFunction?, setter: DFunction?): Boolean {
+        return if (this is JavaPropertyDescriptor) {
+            // in Java, concepts of extensibility and mutability are mixed into a single `final` modifier
+            // in Kotlin, it's different - val/var controls mutability and open modifier controls extensibility
+            // so when inheriting Java properties, you can end up with a final var - non extensible mutable prop
+            val isMutable = this.isVar
+            // non-final java property should be var if it has no accessors at all or has a setter
+            (isMutable && getter == null && setter == null) || (getter != null && setter != null)
+        } else {
+            this.isVar
         }
     }
 

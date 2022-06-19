@@ -620,6 +620,12 @@ class DefaultPsiToDocumentableTranslator(
 
         private fun parseField(psi: PsiField, getter: DFunction?, setter: DFunction?, inheritedFrom: DRI? = null): DProperty {
             val dri = DRI.from(psi)
+
+            // non-final java field without accessors should be a var
+            // setter should be not null when inheriting kotlin vars
+            val isMutable = !psi.hasModifierProperty("final")
+            val isVar = (isMutable && getter == null && setter == null) || (getter != null && setter != null)
+
             return DProperty(
                 dri = dri,
                 name = psi.name,
@@ -645,7 +651,8 @@ class DefaultPsiToDocumentableTranslator(
                     PropertyContainer.withAll(
                         inheritedFrom?.let { inheritedFrom -> InheritedMember(inheritedFrom.toSourceSetDependent()) },
                         it.toSourceSetDependent().toAdditionalModifiers(),
-                        annotations.toSourceSetDependent().toAnnotations()
+                        annotations.toSourceSetDependent().toAnnotations(),
+                        takeIf { isVar }?.let { IsVar }
                     )
                 }
             )

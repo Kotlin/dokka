@@ -951,4 +951,48 @@ class SignatureTest : BaseAbstractTest() {
             }
         }
     }
+
+    @Test
+    fun `java property without accessors should be var`() {
+        val writerPlugin = TestOutputWriterPlugin()
+        testInline(
+            """
+            |/src/test/JavaClass.java
+            |package test;
+            |public class JavaClass {
+            |    public int property = 0;
+            |}
+            |
+            |/src/test/KotlinClass.kt
+            |package test
+            |open class KotlinClass : JavaClass() { }
+        """.trimIndent(),
+            configuration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                writerPlugin.writer.renderedContent("root/test/-kotlin-class/index.html").let { kotlinClassContent ->
+                    val signatures = kotlinClassContent.signature().toList()
+                    assertEquals(3, signatures.size, "Expected 2 signatures: class signature, constructor and property")
+
+                    val property = signatures[2]
+                    property.match(
+                        "var ", A("property"), ":", A("Int"), Span(),
+                        ignoreSpanWithTokenStyle = true
+                    )
+                }
+
+                writerPlugin.writer.renderedContent("root/test/-java-class/index.html").let { kotlinClassContent ->
+                    val signatures = kotlinClassContent.signature().toList()
+                    assertEquals(2, signatures.size, "Expected 2 signatures: class signature and property")
+
+                    val property = signatures[1]
+                    property.match(
+                        "open var ", A("property"), ":", A("Int"), Span(),
+                        ignoreSpanWithTokenStyle = true
+                    )
+                }
+            }
+        }
+    }
 }

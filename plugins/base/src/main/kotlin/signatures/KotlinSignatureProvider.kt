@@ -261,7 +261,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                         if (it is JavaModifier.Empty) KotlinModifier.Open else it
                     }?.name?.let { keyword("$it ") }
                 p.modifiers()[sourceSet]?.toSignatureString()?.let { keyword(it) }
-                p.setter?.let { keyword("var ") } ?: keyword("val ")
+                if (p.isMutable()) keyword("var ") else keyword("val ")
                 list(p.generics, prefix = "<", suffix = "> ",
                     separatorStyles = mainStyles + TokenStyle.Punctuation,
                     surroundingCharactersStyle = mainStyles + TokenStyle.Operator) {
@@ -278,6 +278,10 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                 defaultValueAssign(p, sourceSet)
             }
         }
+
+    private fun DProperty.isMutable(): Boolean {
+        return this.extra[IsVar] != null || this.setter != null
+    }
 
     private fun PageContentBuilder.DocumentableContentBuilder.highlightValue(expr: Expression) = when (expr) {
         is IntegerConstant -> constant(expr.value.toString())
