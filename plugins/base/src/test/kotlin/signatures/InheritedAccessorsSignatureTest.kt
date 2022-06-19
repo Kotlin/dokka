@@ -213,7 +213,7 @@ class InheritedAccessorsSignatureTest : BaseAbstractTest() {
 
                 val property = signatures[4]
                 property.match(
-                    "val ", A("a"), ":", A("Int"), Span(),
+                    "var ", A("a"), ":", A("Int"), Span(),
                     ignoreSpanWithTokenStyle = true
                 )
             }
@@ -421,7 +421,7 @@ class InheritedAccessorsSignatureTest : BaseAbstractTest() {
 
                     val property = signatures[2]
                     property.match(
-                        "protected val ", A("protectedProperty"), ":", A("Int"), Span(),
+                        "protected var ", A("protectedProperty"), ":", A("Int"), Span(),
                         ignoreSpanWithTokenStyle = true
                     )
                 }
