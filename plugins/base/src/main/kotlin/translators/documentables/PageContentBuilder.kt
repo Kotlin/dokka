@@ -382,7 +382,7 @@ open class PageContentBuilder(
         }
 
         fun codeInline(
-            language: String,
+            language: String = "",
             kind: Kind = ContentKind.Main,
             sourceSets: Set<DokkaSourceSet> = mainSourcesetData,
             styles: Set<Style> = mainStyles,

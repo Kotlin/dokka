@@ -315,7 +315,17 @@ open class CommonmarkRenderer(
         append("```")
         append(code.language.ifEmpty { "kotlin" })
         buildNewLine()
-        code.children.forEach { it.build(this, pageContext) }
+        code.children.forEach {
+            if (it is ContentText) {
+                // since this is a code block where text will be rendered as is,
+                // no need to escape text, apply styles, etc. Just need the plain value
+                append(it.text)
+            } else if (it is ContentBreakLine) {
+                // since this is a code block where text will be rendered as is,
+                // there's no need to add tailing slash for line breaks
+                buildNewLine()
+            }
+        }
         buildNewLine()
         append("```")
         buildNewLine()
@@ -323,7 +333,7 @@ open class CommonmarkRenderer(
 
     override fun StringBuilder.buildCodeInline(code: ContentCodeInline, pageContext: ContentPage) {
         append("`")
-        code.children.forEach { it.build(this, pageContext) }
+        code.children.filterIsInstance<ContentText>().forEach { append(it.text) }
         append("`")
     }
 
