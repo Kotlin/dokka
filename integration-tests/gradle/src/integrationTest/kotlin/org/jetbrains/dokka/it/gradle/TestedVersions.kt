@@ -18,11 +18,11 @@ internal object TestedVersions {
     val ANDROID =
         BuildVersions.permutations(
             gradleVersions = listOf("7.4.2", *ifExhaustive("7.0")),
-            kotlinVersions = listOf("1.6.21", "1.5.31", "1.4.32"),
+            kotlinVersions = listOf("1.7.0", "1.6.21", "1.5.31", "1.4.32"),
             androidGradlePluginVersions = listOf("7.2.0")
         ) + BuildVersions.permutations(
             gradleVersions = listOf("6.9", *ifExhaustive("6.1.1", "5.6.4")),
-            kotlinVersions = listOf("1.6.21", "1.5.31", "1.4.32"),
+            kotlinVersions = listOf("1.7.0", "1.6.21", "1.5.31", "1.4.32"),
             androidGradlePluginVersions = listOf("4.0.0", *ifExhaustive("3.6.3"))
         )
 
