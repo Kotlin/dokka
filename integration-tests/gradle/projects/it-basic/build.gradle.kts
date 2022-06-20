@@ -16,7 +16,7 @@ buildscript {
     }
 }
 
-version = "1.6.21-SNAPSHOT"
+version = "1.7.0-SNAPSHOT"
 
 apply(from = "../template.root.gradle.kts")
 
