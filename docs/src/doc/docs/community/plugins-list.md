@@ -155,6 +155,6 @@ For instance, `fun foo(bar: Bar): Baz` will be rendered as `public final Baz foo
 
 `Kotlin as Java` plugin is published to maven central as a 
 [separate artifact](https://mvnrepository.com/artifact/org.jetbrains.dokka/kotlin-as-java-plugin): 
-`org.jetbrains.dokka:kotlin-as-java-plugin:1.6.21`. 
+`org.jetbrains.dokka:kotlin-as-java-plugin:1.7.0`. 
 
 [Plugin source code on GitHub](https://github.com/Kotlin/dokka/tree/master/plugins/kotlin-as-java)
