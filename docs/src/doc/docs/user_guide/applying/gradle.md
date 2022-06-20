@@ -1,8 +1,9 @@
 # Using the Gradle plugin
 
 !!! important
-If you are upgrading from 0.10.x to a current release of Dokka, please have a look at our
-[migration guide](https://github.com/Kotlin/dokka/blob/master/runners/gradle-plugin/MIGRATION.md)
+
+    If you are upgrading from 0.10.x to a current release of Dokka, please have a look at our
+    [migration guide](https://github.com/Kotlin/dokka/blob/master/runners/gradle-plugin/MIGRATION.md)
 
 ### Supported versions
 Dokka should work on gradle newer than 5.6

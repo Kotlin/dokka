@@ -16,6 +16,8 @@ Subclasses of `PageNode` represent different kinds of rendered pages, such as `M
 
 The Page Model is a tree structure, with `RootPageNode` at the root.
 
+Here's an example of how an arbitrary `Page` tree might look like:
+
 ```mermaid
 flowchart TD
     RootPageNode --> firstPackage[PackagePageNode]

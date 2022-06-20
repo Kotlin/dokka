@@ -276,7 +276,8 @@ otherwise it will fail.
 Things to note and remember:
 
 1. Your test class should extend `BaseAbstractTest`, which contains base utility methods for testing.
-2. You can configure Dokka to your liking, enable some specific settings, configure source sets, etc. All done via
+2. You can configure Dokka to your liking, enable some specific settings, configure 
+   [source sets](https://kotlinlang.org/docs/multiplatform-discover-project.html#source-sets), etc. All done via
    `dokkaConfiguration` DSL.
 3. `testInline` function is the main entry point for unit tests
 4. You can pass plugins to be used in a test, notice `pluginOverrides` parameter

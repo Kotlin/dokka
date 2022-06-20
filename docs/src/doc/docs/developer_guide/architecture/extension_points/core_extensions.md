@@ -28,7 +28,8 @@ On this page we'll go over each extension point individually.
 `PreGenerationChecker` can be used to run some checks and constraints. 
 
 For instance, `Javadoc` plugin does not support generating documentation for multi-platform projects, so it uses
-`PreGenerationChecker` to check for multi-platform source sets and fails if it finds any.
+`PreGenerationChecker` to check for multi-platform
+[source sets](https://kotlinlang.org/docs/multiplatform-discover-project.html#source-sets) and fails if it finds any.
 
 ## Generation
 
@@ -87,7 +88,8 @@ you can either introduce a similar extension point or rely on [DocumentableTrans
 will be discussed below.
 
 `PreMergeDocumentableTransformer` allows applying any transformation to 
-[Documentables model](../data_model/documentables.md) before different source sets are merged. 
+[Documentables model](../data_model/documentables.md) before different 
+[source sets](https://kotlinlang.org/docs/multiplatform-discover-project.html#source-sets) are merged. 
 
 Useful if you want to filter/map existing documentables. For instance, if you want to exclude members annotated with
 `@Internal`, you most likely need an implementation of `PreMergeDocumentableTransformer`.
@@ -105,8 +107,9 @@ requires one function to be overridden. The rest is taken care of.
 `DocumentableTransformer` performs the same function as `PreMergeDocumentableTransformer`, but after merging source
 sets.
 
-Notable example is `InheritorsExtractorTransformer`, it extracts inherited classes data across source sets
-and creates an inheritance map.
+Notable example is `InheritorsExtractorTransformer`, it extracts inherited classes data across 
+[source sets](https://kotlinlang.org/docs/multiplatform-discover-project.html#source-sets) and creates an inheritance
+map.
 
 #### DocumentableToPageTranslator
 

@@ -5,8 +5,9 @@ but it's modern and highly pluggable.
 
 Just like `Kotlin` itself, `Dokka` supports mixed-language projects (`Kotlin`/`Java`). It understands
 [KDoc comments](https://kotlinlang.org/docs/reference/kotlin-doc.html) in `Kotlin` source files as well
-as `Javadoc` comments in `Java` files, and can generate documentation in multiple formats including its
-own `HTML` format, Java's `Javadoc` lookalike and `Markdown`.
+as [Javadoc comments](https://www.oracle.com/technical-resources/articles/java/javadoc-tool.html#format) in `Java` 
+files, and can generate documentation in multiple formats including its own `HTML` format, Java's `Javadoc` lookalike
+and `Markdown`.
 
 Some libraries that use `Dokka` for API reference docs:
 
@@ -27,8 +28,8 @@ ___
 
 `Dokka` is also very pluggable and comes with convenient plugin and extension point API. 
 
-You can write a plugin to support [mermaid.js](https://mermaid-js.github.io/mermaid/#/) diagrams,
-[mathjax](https://www.mathjax.org/) formulas or even write custom processing of your own tags and annotations.
+You can write a plugin to support [mermaid.js](community/plugins-list.md#mermaid) diagrams,
+[mathjax](community/plugins-list.md#mathjax) formulas or even write custom processing of your own tags and annotations.
 
 For more info, see:
 

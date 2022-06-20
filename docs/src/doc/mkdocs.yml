@@ -1,7 +1,7 @@
 site_name: Dokka documentation
 
 # Meta tags (placed in header)
-site_description: Dokka is a documentation engine for Kotlin, performing the same function as the Javadoc tool for Java
+site_description: Dokka is an API documentation engine for Kotlin, performing the same function as the Javadoc tool for Java
 site_author: JetBrains
 site_url: https://github.com/Kotlin/dokka
 

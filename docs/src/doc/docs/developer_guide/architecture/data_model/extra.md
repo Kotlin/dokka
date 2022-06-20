@@ -32,8 +32,10 @@ data class CustomExtra(
 }
 ```
 
-Merge strategy for extras is invoked only if merged objects have different values for same Extra.
-If you don't expect it to happen, you can omit implementing `mergeStrategyFor` function.
+Merge strategy (`mergeStrategyFor` method) for extras is invoked during
+[merging](../extension_points/core_extensions.md#documentablemerger) if documentables from different 
+[source sets](https://kotlinlang.org/docs/multiplatform-discover-project.html#source-sets) each
+have their own `Extra`. 
 
 ## PropertyContainer
 

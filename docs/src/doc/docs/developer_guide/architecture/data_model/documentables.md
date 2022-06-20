@@ -12,6 +12,8 @@ and [Psi](https://plugins.jetbrains.com/docs/intellij/psi.html)
 
 Upon creation, it's a collection of trees, each with `DModule` as root.
 
+Here's an example of how an arbitrary `Documentable` tree might look like:
+
 ```mermaid
 flowchart TD
     DModule --> firstPackage[DPackage]
@@ -128,7 +130,8 @@ kotlinx.coroutines/MainCoroutineDispatcher/limitedParallelism/#kotlin.Int/Pointi
 ### SourceSetDependent
 
 `SourceSetDependent` helps handling multiplatform data by associating platform-specific data (declared with either
-`expect` or `actual` modifier) with particular source sets.
+`expect` or `actual` modifier) with particular 
+[source sets](https://kotlinlang.org/docs/multiplatform-discover-project.html#source-sets).
 
 This comes in handy if `expect`/`actual` declarations differ. For instance, the default value for `actual` might differ
 from that declared in `expect`, or code comments written for `expect` might be different from what's written
