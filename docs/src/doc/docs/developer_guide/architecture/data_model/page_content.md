@@ -56,11 +56,15 @@ orderedList {
                 text("Col2")
             }
             row {
-                group(styles = setOf(TextStyle.Bold)) {
-                    text("Text1")
-                    text("Text2")
-                }
+                text("Text1")
+                text("Text2")
             }
+        }
+    }
+    item {
+        group(styles = setOf(TextStyle.Bold)) {
+            text("This is bald")
+            text("This is also bald")
         }
     }
 }

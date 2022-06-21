@@ -45,7 +45,7 @@ flowchart TD
         * Text wrapped in triple backticks for `Markdown` format
 
     
-You, as a `Dokka` developer or a plugin writer, can use extension points and introduce selective changes to the
+You, as a `Dokka` developer or a plugin writer, can use extension points to introduce selective changes to the
 model on one particular level without touching everything else. 
 
 For instance, if you wanted to make some annotation/function/class invisible in the final documentation, you would only
