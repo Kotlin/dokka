@@ -1,6 +1,7 @@
 package enums
 
 import matchers.content.*
+import org.jetbrains.dokka.SourceLinkDefinitionImpl
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.model.*
@@ -8,12 +9,15 @@ import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstance
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import signatures.renderedContent
 import utils.TestOutputWriter
 import utils.TestOutputWriterPlugin
+import java.io.File
+import java.net.URL
 
-class EnumsTest : BaseAbstractTest() {
+class KotlinEnumsTest : BaseAbstractTest() {
 
     @Test
     fun `should preserve enum source ordering for documentables`() {
@@ -363,6 +367,54 @@ class EnumsTest : BaseAbstractTest() {
                         }
                     }
                 }
+            }
+        }
+    }
+
+    // Shouldn't try to give source links to synthetic methods (values, valueOf) if any are present
+    // Initially reported for Java, making sure it doesn't fail for Kotlin either
+    // https://github.com/Kotlin/dokka/issues/2544
+    @Test
+    fun `kotlin enum with configured source links should not fail the build due to synthetic methods`() {
+        val configuration = dokkaConfiguration {
+            sourceSets {
+                sourceSet {
+                    sourceRoots = listOf("src/")
+                    sourceLinks = listOf(
+                        SourceLinkDefinitionImpl(
+                            localDirectory = "src/main/kotlin",
+                            remoteUrl = URL("https://github.com/user/repo/tree/master/src/main/kotlin"),
+                            remoteLineSuffix = "#L"
+                        )
+                    )
+                }
+            }
+        }
+
+        val writerPlugin = TestOutputWriterPlugin()
+
+        testInline(
+            """
+            |/src/main/kotlin/basic/KotlinEnum.kt
+            |package testpackage
+            |
+            |enum class KotlinEnum {
+            |    ONE, TWO, THREE
+            |}
+        """.trimMargin(),
+            configuration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                val sourceLink = writerPlugin.writer.renderedContent("root/testpackage/-kotlin-enum/index.html")
+                    .select("div[data-togglable=Sources]")
+                    .select("a[href]")
+                    .attr("href")
+
+                assertEquals(
+                    "https://github.com/user/repo/tree/master/src/main/kotlin/basic/KotlinEnum.kt#L3",
+                    sourceLink
+                )
             }
         }
     }
