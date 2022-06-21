@@ -64,6 +64,7 @@ class JavaSignatureProvider internal constructor(ctcc: CommentsToContentConverte
                 setOf(TextStyle.Monospace) + deprecationStyles,
                 sourceSets = setOf(sourceSet)
             ) {
+                annotationsBlock(c)
                 c.visibility[sourceSet]?.takeIf { it !in ignoredVisibilities }?.name?.plus(" ")?.let { keyword(it) }
 
                 if (c is DClass) {
