@@ -1,9 +1,7 @@
 # Using the Maven plugin
 
 !!! note
-Dokka Maven plugin does not support multi-platform projects.
-
-The Maven plugin does not support multi-platform projects.
+    Dokka Maven plugin does not support multi-platform projects.
 
 Minimal Maven configuration is
 

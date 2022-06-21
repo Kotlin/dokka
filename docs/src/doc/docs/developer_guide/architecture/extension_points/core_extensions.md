@@ -50,10 +50,13 @@ modules and so on.
 ### SingleModuleGeneration stages
 
 When developing a feature or a plugin, it's more convenient to think that you are generating documentation for single
-module projects, believeing that Dokka will somehow take care of the rest in multimodule environment.
+module projects, believing that Dokka will somehow take care of the rest in multimodule environment.
 
 `SingleModuleGeneration` is at heart of generating documentation and utilizes other core extension points, so
 it's worth going over its stages. 
+
+Below you can see the transformations of [Dokka's models](../architecture_overview.md#overview-of-data-model) and 
+extension interfaces responsible for each one. Notice how `Documentables` and `Pages` are transformed multiple times.
 
 ```mermaid
 flowchart TD
@@ -66,7 +69,6 @@ flowchart TD
     Pages -- Renderer --> 
     Output
 ```
-
 
 #### SourceToDocumentableTranslator
 

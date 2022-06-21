@@ -16,7 +16,8 @@ Subclasses of `PageNode` represent different kinds of rendered pages, such as `M
 
 The Page Model is a tree structure, with `RootPageNode` at the root.
 
-Here's an example of how an arbitrary `Page` tree might look like:
+Here's an example of how an arbitrary `Page` tree might look like for a module with 3 packages, one of which contains
+a top level function, top level property and a class, inside which there's a function and a property:
 
 ```mermaid
 flowchart TD
@@ -28,6 +29,8 @@ flowchart TD
     firstPackage ---> firstPackageClasslike[ClasslikePageNode - Class]
     firstPackageClasslike --> firstPackageClasslikeFirstMember[MemberPageNode - Function]
     firstPackageClasslike --> firstPackageClasslikeSecondMember[MemberPageNode - Property]
+    secondPackage --> etcOne[...]
+    thirdPackage --> etcTwo[...]
 ```
 
 Almost all pages are derivatives of `ContentPage` - it's the type of `Page` that has `Content` on it.

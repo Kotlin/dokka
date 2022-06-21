@@ -12,7 +12,23 @@ and [Psi](https://plugins.jetbrains.com/docs/intellij/psi.html)
 
 Upon creation, it's a collection of trees, each with `DModule` as root.
 
-Here's an example of how an arbitrary `Documentable` tree might look like:
+Take some arbitrary `Kotlin` source code that is located within the same module:
+
+```kotlin
+// Package 1
+class Clazz(val property: String) {
+    fun function(parameter: String) {}
+}
+
+fun topLevelFunction() {}
+
+// Package 2
+enum class Enum { }
+
+val topLevelProperty: String
+```
+
+This would be represented roughly as the following `Documentable` tree:
 
 ```mermaid
 flowchart TD
