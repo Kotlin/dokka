@@ -15,6 +15,8 @@ import org.jetbrains.dokka.javadoc.validity.MultiplatformConfiguredChecker
 import org.jetbrains.dokka.kotlinAsJava.KotlinAsJavaPlugin
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.transformers.pages.PageTransformer
+import org.jetbrains.dokka.validity.PreGenerationChecker
+import org.jetbrains.dokka.validity.PreGenerationCheckerOutput
 
 class JavadocPlugin : DokkaPlugin() {
 
@@ -80,6 +82,15 @@ class JavadocPlugin : DokkaPlugin() {
 
     val deprecatedPageCreator by extending {
         javadocPreprocessors with DeprecatedPageCreator order { before(rootCreator) }
+    }
+
+    val alphaVersionNotifier by extending {
+        CoreExtensions.preGenerationCheck providing { ctx ->
+            PreGenerationChecker {
+                ctx.logger.warn("The Javadoc output format is in Alpha version")
+                PreGenerationCheckerOutput(true, emptyList())
+            }
+        }
     }
 }
 

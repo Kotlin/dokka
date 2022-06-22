@@ -10,6 +10,8 @@ import org.jetbrains.dokka.gfm.renderer.BriefCommentPreprocessor
 import org.jetbrains.dokka.gfm.renderer.CommonmarkRenderer
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.transformers.pages.PageTransformer
+import org.jetbrains.dokka.validity.PreGenerationChecker
+import org.jetbrains.dokka.validity.PreGenerationCheckerOutput
 
 class GfmPlugin : DokkaPlugin() {
 
@@ -37,5 +39,14 @@ class GfmPlugin : DokkaPlugin() {
         (gfmPreprocessors
                 providing { PackageListCreator(it, RecognizedLinkFormat.DokkaGFM) }
                 order { after(rootCreator) })
+    }
+
+    val alphaVersionNotifier by extending {
+        CoreExtensions.preGenerationCheck providing { ctx ->
+            PreGenerationChecker {
+                ctx.logger.warn("The GFM output format is in Alpha version")
+                PreGenerationCheckerOutput(true, emptyList())
+            }
+        }
     }
 }
