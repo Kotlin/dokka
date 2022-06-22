@@ -76,10 +76,18 @@ class KotlinAsJavaSignatureTest : BaseAbstractTest() {
             |@MustBeDocumented
             |annotation class OnParameter
             |
+            |@Target(AnnotationTarget.TYPE)
+            |@MustBeDocumented
+            |annotation class OnType
+            |
+            |@Target(AnnotationTarget.TYPE_PARAMETER)
+            |@MustBeDocumented
+            |annotation class OnTypeParameter
+            |
             |@OnClass
-            |class Clazz {
+            |class Clazz<@OnTypeParameter T : @OnType Any> {
             |    @OnMethod
-            |    fun withParams(@OnParameter str1: String, str2: String): Boolean {
+            |    fun <@OnTypeParameter T : @OnType Any> withParams(@OnParameter str1: String, str2: String): Boolean {
             |        return str1 == str2
             |    }
             |}
@@ -95,14 +103,20 @@ class KotlinAsJavaSignatureTest : BaseAbstractTest() {
                 val classSignature = signatures[0]
                 classSignature.match(
                     Div(Div("@", A("OnClass"), "()")),
-                    "public final class ", A("Clazz"), Span(),
+                    "public final class ", A("Clazz"),
+                    // <@OnTypeParameter() T extends @OnType() Object>
+                    "<", Span("@", A("OnTypeParameter"), "() "), "T extends ", Span("@", A("OnType"), "() "), A("Object"), ">",
+                    Span(),
                     ignoreSpanWithTokenStyle = true
                 )
 
                 val functionSignature = signatures[2]
                 functionSignature.match(
                     Div(Div("@", A("OnMethod"), "()")),
-                    "public final ", A("Boolean"), A("withParams"), "(", Span(
+                    "public final ", A("Boolean"), A("withParams"),
+                    // <@OnTypeParameter() T extends @OnType() Object>
+                    "<", Span("@", A("OnTypeParameter"), "() "), "T extends ", Span("@", A("OnType"), "() "), A("Any"), ">(",
+                    Span(
                         Span(
                             Span("@", A("OnParameter"), "() "),
                             A("String"), "str1, "
