@@ -64,6 +64,7 @@ class JavaSignatureProvider internal constructor(ctcc: CommentsToContentConverte
                 setOf(TextStyle.Monospace) + deprecationStyles,
                 sourceSets = setOf(sourceSet)
             ) {
+                annotationsBlock(c)
                 c.visibility[sourceSet]?.takeIf { it !in ignoredVisibilities }?.name?.plus(" ")?.let { keyword(it) }
 
                 if (c is DClass) {
@@ -161,6 +162,7 @@ class JavaSignatureProvider internal constructor(ctcc: CommentsToContentConverte
     private fun signature(t: DTypeParameter) =
         t.sourceSets.map {
             contentBuilder.contentFor(t, styles = t.stylesIfDeprecated(it), sourceSets = setOf(it)) {
+                annotationsInline(t)
                 text(t.name.substringAfterLast("."))
                 list(t.bounds, prefix = " extends ",
                     separatorStyles = mainStyles + TokenStyle.Punctuation,
@@ -172,9 +174,13 @@ class JavaSignatureProvider internal constructor(ctcc: CommentsToContentConverte
         }
 
     private fun PageContentBuilder.DocumentableContentBuilder.signatureForProjection(p: Projection): Unit = when (p) {
-        is TypeParameter -> link(p.name, p.dri)
+        is TypeParameter -> {
+            annotationsInline(p)
+            link(p.name, p.dri)
+        }
 
         is TypeConstructor -> group(styles = emptySet()) {
+            annotationsInline(p)
             link(p.dri.classNames.orEmpty(), p.dri)
             list(p.projections, prefix = "<", suffix = ">",
                 separatorStyles = mainStyles + TokenStyle.Punctuation,
