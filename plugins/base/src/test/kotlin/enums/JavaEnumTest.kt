@@ -8,7 +8,7 @@ import utils.TestOutputWriterPlugin
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
-class JavaEnumTests : BaseAbstractTest() {
+class JavaEnumTest : BaseAbstractTest() {
 
     private val configuration = dokkaConfiguration {
         sourceSets {
