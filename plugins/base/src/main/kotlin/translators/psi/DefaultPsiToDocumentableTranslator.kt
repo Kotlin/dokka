@@ -112,9 +112,6 @@ class DefaultPsiToDocumentableTranslator(
         private val PsiClassType.shouldBeIgnored: Boolean
             get() = isClass("java.lang.Enum") || isClass("java.lang.Object")
 
-        private val DRI.isObvious: Boolean
-            get() = packageName == "java.lang" && (classNames == "Object" || classNames == "Enum")
-
         private fun PsiClassType.isClass(qName: String): Boolean {
             val shortName = qName.substringAfterLast('.')
             if (className == shortName) {
@@ -446,12 +443,20 @@ class DefaultPsiToDocumentableTranslator(
                         (psi.annotations.toList()
                             .toListOfAnnotations() + it.toListOfAnnotations()).toSourceSetDependent()
                             .toAnnotations(),
-                        ObviousMember.takeIf { inheritedFrom != null && inheritedFrom.isObvious },
+                        ObviousMember.takeIf { psi.isObvious(inheritedFrom) },
                         psi.throwsList.toDriList().takeIf { it.isNotEmpty() }
                             ?.let { CheckedExceptions(it.toSourceSetDependent()) }
                     )
                 }
             )
+        }
+
+        private fun PsiMethod.isObvious(inheritedFrom: DRI? = null): Boolean {
+            return this is SyntheticElement || inheritedFrom?.isObvious() == true
+        }
+
+        private fun DRI.isObvious(): Boolean {
+            return packageName == "java.lang" && (classNames == "Object" || classNames == "Enum")
         }
 
         private fun PsiReferenceList.toDriList() = referenceElements.mapNotNull { it?.resolve()?.let { DRI.from(it) } }
