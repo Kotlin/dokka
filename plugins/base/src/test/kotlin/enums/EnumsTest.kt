@@ -276,6 +276,45 @@ class EnumsTest : BaseAbstractTest() {
         }
     }
 
+
+    @Test
+    fun `should contain synthetic values and valueOf functions`() {
+        val configuration = dokkaConfiguration {
+            sourceSets {
+                sourceSet {
+                    sourceRoots = listOf("src/")
+                }
+            }
+        }
+
+        testInline(
+            """
+            |/src/main/kotlin/basic/Test.kt
+            |package testpackage
+            |
+            |enum class TestEnum {
+            |   E1,
+            |   E2;
+            |}
+        """.trimMargin(),
+            configuration
+        ) {
+            // stage is important because they will get filtered out later on
+            documentablesCreationStage = { modules ->
+                val pckg = modules.flatMap { it.packages }.single { it.packageName == "testpackage" }
+                val enum = pckg.children.single { it is DEnum } as DEnum
+
+                val valueOf = enum.functions.single { it.name == "valueOf" }
+                assertEquals("testpackage/TestEnum/valueOf/#kotlin.String/PointingToDeclaration/", valueOf.dri.toString())
+                assertNotNull(valueOf.extra[ObviousMember])
+
+                val values = enum.functions.single { it.name == "values" }
+                assertEquals("testpackage/TestEnum/values/#/PointingToDeclaration/", values.dri.toString())
+                assertNotNull(values.extra[ObviousMember])
+            }
+        }
+    }
+
     @Test
     fun enumWithMethods() {
         val configuration = dokkaConfiguration {
