@@ -13,7 +13,7 @@ import signatures.renderedContent
 import utils.TestOutputWriter
 import utils.TestOutputWriterPlugin
 
-class EnumsTest : BaseAbstractTest() {
+class KotlinEnumTest : BaseAbstractTest() {
 
     @Test
     fun `should preserve enum source ordering for documentables`() {
