@@ -34,9 +34,13 @@ class DokkaGenerator(val dokkaConfiguration: DokkaConfiguration,
 
 
         for (pass in passesConfigurations) {
+            commentOutSinceKotlinForPathWalkOption(pass.sourceRoots)
+
             val documentationModule = DocumentationModule(pass.moduleName)
             appendSourceModule(pass, documentationModule)
             documentationModules.add(documentationModule)
+
+            uncommentSinceKotlinForPathWalkOption(pass.sourceRoots)
         }
 
         val totalDocumentationModule = DocumentationMerger(documentationModules, logger).merge()
@@ -140,6 +144,33 @@ class DokkaMessageCollector(val logger: DokkaLogger) : MessageCollector {
     }
 
     override fun hasErrors() = seenErrors
+}
+
+// TODO: Eliminate this workaround when KT-52977 gets fixed in the Kotlin compiler used in this project
+private fun findPathWalkOptionFile(sourcePaths: List<DokkaConfiguration.SourceRoot>): File? {
+    return sourcePaths.find {
+        it.path.endsWith("kotlin/libraries/stdlib/jdk7/src")
+    }?.let { jdk7Src ->
+        File(jdk7Src.path).walk().find { it.name == "PathWalkOption.kt" }
+    }
+}
+
+private fun commentOutSinceKotlinForPathWalkOption(sourcePaths: List<DokkaConfiguration.SourceRoot>) {
+    findPathWalkOptionFile(sourcePaths)?.let { pathWalkOption ->
+        val text = pathWalkOption.readLines().joinToString(separator = "\n") { line ->
+            if (line == "@SinceKotlin(\"1.7\")") "//$line" else line
+        }
+        pathWalkOption.writeText(text)
+    }
+}
+
+private fun uncommentSinceKotlinForPathWalkOption(sourcePaths: List<DokkaConfiguration.SourceRoot>) {
+    findPathWalkOptionFile(sourcePaths)?.let { pathWalkOption ->
+        val text = pathWalkOption.readLines().joinToString(separator = "\n") { line ->
+            if (line == "//@SinceKotlin(\"1.7\")") line.removePrefix("//") else line
+        }
+        pathWalkOption.writeText(text)
+    }
 }
 
 fun buildDocumentationModule(injector: Injector,
