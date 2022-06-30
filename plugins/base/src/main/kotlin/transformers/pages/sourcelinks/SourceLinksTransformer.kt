@@ -24,36 +24,47 @@ import java.io.File
 
 class SourceLinksTransformer(val context: DokkaContext) : PageTransformer {
 
-    private val builder : PageContentBuilder =  PageContentBuilder(
+    private val builder : PageContentBuilder = PageContentBuilder(
         context.plugin<DokkaBase>().querySingle { commentsToContentConverter },
         context.plugin<DokkaBase>().querySingle { signatureProvider },
         context.logger
     )
 
-    override fun invoke(input: RootPageNode) =
-        input.transformContentPagesTree { node ->
+    override fun invoke(input: RootPageNode): RootPageNode {
+        val sourceLinks = getSourceLinksFromConfiguration()
+        if (sourceLinks.isEmpty()) {
+            return input
+        }
+        return input.transformContentPagesTree { node ->
             when (node) {
                 is WithDocumentables ->
-                    node.documentables.filterIsInstance<WithSources>().flatMap { resolveSources(it) }
-                    .takeIf { it.isNotEmpty() }
-                    ?.let { node.addSourcesContent(it) }
-                    ?: node
+                    node.documentables
+                        .filterIsInstance<WithSources>()
+                        .flatMap { resolveSources(sourceLinks, it) }
+                        .takeIf { it.isNotEmpty() }
+                        ?.let { node.addSourcesContent(it) }
+                        ?: node
                 else -> node
             }
         }
+    }
 
-    private fun getSourceLinks() = context.configuration.sourceSets
-        .flatMap { it.sourceLinks.map { sl -> SourceLink(sl, it) } }
+    private fun getSourceLinksFromConfiguration(): List<SourceLink> {
+        return context.configuration.sourceSets
+            .flatMap { it.sourceLinks.map { sl -> SourceLink(sl, it) } }
+    }
 
-    private fun resolveSources(documentable: WithSources) = documentable.sources
-        .mapNotNull { entry ->
-            getSourceLinks().find { File(entry.value.path).startsWith(it.path) && it.sourceSetData == entry.key }?.let {
-                Pair(
-                    entry.key,
-                    entry.value.toLink(it)
-                )
-            }
+    private fun resolveSources(
+        sourceLinks: List<SourceLink>, documentable: WithSources
+    ): List<Pair<DokkaSourceSet, String>> {
+        return documentable.sources.mapNotNull { (sourceSet, documentableSource) ->
+            val sourceLink = sourceLinks.find { sourceLink ->
+                File(documentableSource.path).startsWith(sourceLink.path) && sourceLink.sourceSetData == sourceSet
+            } ?: return@mapNotNull null
+
+            sourceSet to documentableSource.toLink(sourceLink)
         }
+    }
 
     private fun ContentPage.addSourcesContent(sources: List<Pair<DokkaSourceSet, String>>) = builder
         .buildSourcesContent(this, sources)
@@ -89,8 +100,8 @@ class SourceLinksTransformer(val context: DokkaContext) : PageTransformer {
     }
 
     private fun DocumentableSource.toLink(sourceLink: SourceLink): String {
-        val sourcePath = File(this.path).canonicalPath.replace("\\", "/")
-        val sourceLinkPath = File(sourceLink.path).canonicalPath.replace("\\", "/")
+        val sourcePath = File(this.path).invariantSeparatorsPath
+        val sourceLinkPath = File(sourceLink.path).invariantSeparatorsPath
 
         val lineNumber = when (this) {
             is DescriptorDocumentableSource -> this.descriptor
@@ -134,6 +145,9 @@ class SourceLinksTransformer(val context: DokkaContext) : PageTransformer {
         }
 
     private fun PsiElement.lineNumber(): Int? {
+        // synthetic and some light methods might return null
+        val textRange = textRange ?: return null
+
         val doc = PsiDocumentManager.getInstance(project).getDocument(containingFile)
         // IJ uses 0-based line-numbers; external source browsers use 1-based
         return doc?.getLineNumber(textRange.startOffset)?.plus(1)
