@@ -60,7 +60,8 @@ internal class JavadocIndexTest : AbstractJavadocTemplateMapTest() {
     @Test
     fun `generates correct number of index pages`() {
         testIndexPages(commonTestQuery) { indexPages ->
-            assertEquals(12, indexPages.size)
+            // index pages with letters of the alphabet, so A, B, C, D, E, etc
+            assertEquals(13, indexPages.size)
         }
     }
 
@@ -71,7 +72,7 @@ internal class JavadocIndexTest : AbstractJavadocTemplateMapTest() {
             AnnotationTarget.ANNOTATION_CLASS::class.java.methods.any { it.name == "describeConstable" }
 
         testIndexPages(commonTestQuery) { indexPages ->
-            assertEquals(if (hasAdditionalFunction()) 31 else 30, indexPages.sumBy { it.elements.size })
+            assertEquals(if (hasAdditionalFunction()) 33 else 32, indexPages.sumBy { it.elements.size })
         }
     }
 

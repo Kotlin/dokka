@@ -59,6 +59,7 @@ import org.jetbrains.kotlin.resolve.descriptorUtil.annotationClass
 import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameOrNull
 import org.jetbrains.kotlin.resolve.descriptorUtil.parents
 import org.jetbrains.kotlin.resolve.scopes.MemberScope
+import org.jetbrains.kotlin.resolve.scopes.StaticScopeForKotlinEnum
 import org.jetbrains.kotlin.resolve.source.KotlinSourceElement
 import org.jetbrains.kotlin.resolve.source.PsiSourceElement
 import org.jetbrains.kotlin.resolve.source.PsiSourceFile
@@ -261,13 +262,12 @@ private class DokkaDescriptorVisitor(
 
     private suspend fun enumDescriptor(descriptor: ClassDescriptor, parent: DRIWithPlatformInfo): DEnum {
         val driWithPlatform = parent.dri.withClass(descriptor.name.asString()).withEmptyInfo()
-        val scope = descriptor.unsubstitutedMemberScope
         val isExpect = descriptor.isExpect
         val isActual = descriptor.isActual
         val info = descriptor.resolveClassDescriptionData()
 
         return coroutineScope {
-            val descriptorsWithKind = scope.getDescriptorsWithKind()
+            val descriptorsWithKind = descriptor.getEnumDescriptorsWithKind()
 
             val functions = async { descriptorsWithKind.functions.visitFunctions(driWithPlatform) }
             val properties = async { descriptorsWithKind.properties.visitProperties(driWithPlatform) }
@@ -299,6 +299,16 @@ private class DokkaDescriptorVisitor(
                 )
             )
         }
+    }
+
+    private fun ClassDescriptor.getEnumDescriptorsWithKind(): DescriptorsWithKind {
+        val descriptorsWithKind = this.unsubstitutedMemberScope.getDescriptorsWithKind()
+        val staticScopeForKotlinEnum = (this.staticScope as? StaticScopeForKotlinEnum) ?: return descriptorsWithKind
+
+        // synthetic values() and valueOf() functions are not present among average class functions
+        val enumSyntheticFunctions = staticScopeForKotlinEnum.getContributedDescriptors { true }
+
+        return descriptorsWithKind.copy(functions = descriptorsWithKind.functions + enumSyntheticFunctions)
     }
 
     private suspend fun visitEnumEntryDescriptor(descriptor: ClassDescriptor, parent: DRIWithPlatformInfo): DEnumEntry {
@@ -578,7 +588,7 @@ private class DokkaDescriptorVisitor(
                     descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
                     (descriptor.getAnnotations() + descriptor.fileLevelAnnotations()).toSourceSetDependent()
                         .toAnnotations(),
-                    ObviousMember.takeIf { descriptor.isObvious },
+                    ObviousMember.takeIf { descriptor.isObvious() },
                 )
             )
         }
@@ -595,6 +605,17 @@ private class DokkaDescriptorVisitor(
     private fun DRI.getInheritedFromDRI(parent: DRIWithPlatformInfo): DRI? {
         return this.copy(callable = null)
             .takeIf { parent.dri.classNames != this.classNames || parent.dri.packageName != this.packageName }
+    }
+
+    private fun FunctionDescriptor.isObvious(): Boolean {
+        return kind == CallableMemberDescriptor.Kind.FAKE_OVERRIDE
+                || kind == CallableMemberDescriptor.Kind.SYNTHESIZED
+                || containingDeclaration.fqNameOrNull()?.isObvious() == true
+    }
+
+    private fun FqName.isObvious(): Boolean = with(this.asString()) {
+            return this == "kotlin.Any" || this == "kotlin.Enum"
+                    || this == "java.lang.Object" || this == "java.lang.Enum"
     }
 
     suspend fun visitConstructorDescriptor(descriptor: ConstructorDescriptor, parent: DRIWithPlatformInfo): DFunction {
@@ -1203,12 +1224,6 @@ private class DokkaDescriptorVisitor(
         ?.toList()
         ?.parallelMap { it.toAnnotation(scope = Annotations.AnnotationScope.FILE) }
         .orEmpty()
-
-    private val FunctionDescriptor.isObvious: Boolean
-        get() = kind == CallableMemberDescriptor.Kind.FAKE_OVERRIDE ||
-                kind == CallableMemberDescriptor.Kind.SYNTHESIZED ||
-                containingDeclaration.fqNameOrNull()?.asString()
-                    ?.let { it == "kotlin.Any" || it == "kotlin.Enum" || it == "java.lang.Enum" || it == "java.lang.Object" } == true
 
     private fun AncestryNode.exceptionInSupertypesOrNull(): ExceptionInSupertypes? =
         typeConstructorsBeingExceptions().takeIf { it.isNotEmpty() }?.let { ExceptionInSupertypes(it.toSourceSetDependent()) }
