@@ -692,8 +692,15 @@ class DefaultPsiToDocumentableTranslator(
             is PsiArrayInitializerMemberValue -> ArrayValue(initializers.mapNotNull { it.toValue() })
             is PsiReferenceExpression -> psiReference?.let { EnumValue(text ?: "", DRI.from(it)) }
             is PsiClassObjectAccessExpression -> {
-                val psiClass = ((type as PsiImmediateClassType).parameters.single() as PsiClassReferenceType).resolve()
-                psiClass?.let { ClassValue(text ?: "", DRI.from(psiClass)) }
+                val parameterType = (type as? PsiClassType)?.parameters?.firstOrNull()
+                val classType = when (parameterType) {
+                    is PsiClassType -> parameterType.resolve()
+                    // Notice: Array<String>::class will be passed down as String::class
+                    // should probably be Array::class instead but this reflects behaviour for Kotlin sources
+                    is PsiArrayType -> (parameterType.componentType as? PsiClassType)?.resolve()
+                    else -> null
+                }
+                classType?.let { ClassValue(it.name ?: "", DRI.from(it)) }
             }
             is PsiLiteralExpression -> toValue()
             else -> StringValue(text ?: "")
