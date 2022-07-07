@@ -56,11 +56,11 @@ In the example below we will extend `MyPlugin` that was created above with our o
 ```kotlin
 class MyExtendedPlugin : DokkaPlugin() {
     val mySampleExtensionImplementation by extending {
-        plugin<MyPlugin>().sampleExtensionPoint with MyOwnSampleExtensionImplementation()
+        plugin<MyPlugin>().sampleExtensionPoint with SampleExtensionImpl()
     }
 }
 
-class MyOwnSampleExtensionImplementation : SampleExtensionPointInterface {
+class SampleExtensionImpl : SampleExtensionPointInterface {
     override fun doSomething(input: Input): List<Output> = listOf()
 }
 
@@ -73,7 +73,7 @@ If you need to have access to `DokkaContext` in order to create an extension, yo
 ```kotlin
 val defaultSampleExtension by extending {
     sampleExtensionPoint providing { context ->
-        // can use context to query other extensions    
+        // can use context to query other extensions or get configuration 
         DefaultSampleExtension() 
     }
 }
@@ -84,7 +84,7 @@ You can read more on what you can do with `context` in [Obtaining extension inst
 ### Override
 
 By extending an extension point, you are registering an _additional_ extension. This behaviour is expected for some
-extension points, for instance documentable transformers, since all transformers do their own transformations and all
+extension points, for instance `Documentable` transformers, since all transformers do their own transformations and all
 of them will be invoked before proceeding.
 
 However, a plugin can expect only a single registered extension for an extension point. In this case, you can `override`
@@ -96,11 +96,13 @@ class MyExtendedPlugin : DokkaPlugin() {
 
     val mySampleExtensionImplementation by extending {
         (myPlugin.sampleExtensionPoint
-                with MyOwnSampleExtensionImplementation()
+                with SampleExtensionImpl()
                 override myPlugin.defaultSampleExtension)
     }
 }
 ```
+
+This is also useful if you wish to override some extension from `DokkaBase` to disable or alter it.
 
 ### Order
 
@@ -111,7 +113,7 @@ class MyExtendedPlugin : DokkaPlugin() {
     private val myPlugin by lazy { plugin<MyPlugin>() }
 
     val mySampleExtensionImplementation by extending {
-        myPlugin.sampleExtensionPoint with MyOwnSampleExtensionImplementation() order {
+        myPlugin.sampleExtensionPoint with SampleExtensionImpl() order {
             before(myPlugin.firstExtension)
             after(myPlugin.thirdExtension)
         }
@@ -121,14 +123,14 @@ class MyExtendedPlugin : DokkaPlugin() {
 
 ### Conditional apply
 
-If you want your extension to be registered only if some condition is true, you can use `applyIf`:
+If you want your extension to be registered only if some condition is `true`, you can use `applyIf`:
 
 ```kotlin
 class MyExtendedPlugin : DokkaPlugin() {
     private val myPlugin by lazy { plugin<MyPlugin>() }
     
     val mySampleExtensionImplementation by extending {
-        myPlugin.sampleExtensionPoint with MyOwnSampleExtensionImplementation() applyIf {
+        myPlugin.sampleExtensionPoint with SampleExtensionImpl() applyIf {
             Random.Default.nextBoolean()
         }
     }

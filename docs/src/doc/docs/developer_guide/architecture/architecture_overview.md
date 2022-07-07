@@ -10,7 +10,7 @@ custom `KDoc` tags or rendering `mermaid.js` diagrams - all these things would r
 `Dokka` itself if all solutions were hardcoded.
 
 For this reason, `Dokka` was built from the ground up to be easily extensible and customizable by adding several layers
-of abstractions to the data model, and by providing pluggable extension points, giving one the ability to introduce
+of abstractions to the data model, and by providing pluggable extension points, giving you the ability to introduce
 selective changes on a single level.
 
 ## Overview of data model
@@ -49,9 +49,9 @@ You, as a `Dokka` developer or a plugin writer, can use extension points to intr
 model on one particular level without touching everything else. 
 
 For instance, if you wanted to make some annotation/function/class invisible in the final documentation, you would only
-need to modify the `Documentables` model by filtering it out. If you wanted to display all overloaded methods on the same
-page instead of on separate ones, you would only need to modify the `Page` model by merging multiple pages into one, 
-and so on.
+need to modify the `Documentables` model by filtering undesirable members out. If you wanted to display all overloaded
+methods on the same page instead of on separate ones, you would only need to modify the `Page` model by merging multiple
+pages into one, and so on.
 
 For a deeper dive into Dokka's model with more examples and details,
 see sections about [Documentables](data_model/documentables.md) and [Page/Content](data_model/page_content.md)

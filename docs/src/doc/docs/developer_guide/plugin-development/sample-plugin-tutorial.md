@@ -110,10 +110,10 @@ First, let's begin by publishing our plugin to `mavenLocal()`.
 ./gradlew publishToMavenLocal
 ```
 
-This will publish your plugin under the groupId, artifactId and version that you've specified in your
+This will publish your plugin under the `groupId`, `artifactId` and `version` that you've specified in your
 `build.gradle.kts`. In our case it's `org.example:hide-internal-api:1.0-SNAPSHOT`.
 
-Open a debug project of your choosing and add our plugin to dependencies:
+Open a debug project of your choosing that has Dokka configured, and add our plugin to dependencies:
 
 ```kotlin
 dependencies {
@@ -140,11 +140,12 @@ place of `d: Documentable` (observe the changing `name` property).
 Looking at what's inside the object, you might notice it has 3 values in `extra`, one of which is `Annotations`.
 Sounds like something we need!
 
-Having poked around, you come up with the following monstrosity of a code for determining if a given documentable has
+Having poked around, we come up with the following monstrosity of a code for determining if a given documentable has
 `@Internal` annotation (it can of course be refactored.. later):
 
 ```kotlin
 override fun shouldBeSuppressed(d: Documentable): Boolean {
+   
     val annotations: List<Annotations.Annotation> =
         (d as? WithExtraProperties<*>)
             ?.extra
@@ -156,8 +157,8 @@ override fun shouldBeSuppressed(d: Documentable): Boolean {
 }
 
 private fun isInternalAnnotation(annotation: Annotations.Annotation): Boolean {
-    return annotation.dri.packageName == "org.jetbrains.dokka.expose.test"
-            && annotation.dri.classNames == "Internal"
+   return annotation.dri.packageName == "org.jetbrains.dokka.internal.test"
+           && annotation.dri.classNames == "Internal"
 }
 ```
 
@@ -204,8 +205,9 @@ class HideInternalApiTransformer(context: DokkaContext) : SuppressedByConditionD
 }
 ```
 
-Bump plugin version in `gradle.build.kts`, publish it to maven local, open the debug project and run `dokkaHtml`. 
-It should work, you should **not** be able to see `shouldBeExcludedFromDocumentation` function in generated documentation.
+Bump plugin version in `gradle.build.kts`, publish it to maven local, open the debug project and run `dokkaHtml` 
+(without debug this time). It should work, you should **not** be able to see `shouldBeExcludedFromDocumentation`
+function in generated documentation.
 
 Manual testing is cool and all, but wouldn't it be better if we could somehow write unit tests for it? Indeed!
 
@@ -230,6 +232,7 @@ import org.junit.Test
 import kotlin.test.assertEquals
 
 class HideInternalApiPluginTest : BaseAbstractTest() {
+   
     @Test
     fun `should hide annotated functions`() {
         val configuration = dokkaConfiguration {
@@ -270,8 +273,7 @@ class HideInternalApiPluginTest : BaseAbstractTest() {
 ```
 
 Note that the package of the tested code (inside `testInline` function) is the same as the package that we have
-hardcoded in our plugin. Make sure to change that if you are following along but for your own annotation and package,
-otherwise it will fail.
+hardcoded in our plugin. Make sure to change that to your own if you are following along, otherwise it will fail.
 
 Things to note and remember:
 
@@ -281,10 +283,10 @@ Things to note and remember:
    `dokkaConfiguration` DSL.
 3. `testInline` function is the main entry point for unit tests
 4. You can pass plugins to be used in a test, notice `pluginOverrides` parameter
-5. You can test Dokka on different stages of generating documentation, the main ones being documentables model
-   generation, pages generation and output generation. Since we implemented our plugin to work during
+5. You can write asserts for different stages of generating documentation, the main ones being `Documentables` model
+   generation, `Pages` generation and `Output` generation. Since we implemented our plugin to work during
    `PreMergeDocumentableTransformer` stage, we can test it on the same level (that is
    `preMergeDocumentablesTransformationStage`).
-6. You will need to write asserts using the model of whatever stage you choose. For documentables transformation stage 
-   it's documentables, for page generation stage you would have pages, and for output you can have `.html` files
-   that you will need to parse with JSoup (there are also utilities for that).
+6. You will need to write asserts using the model of whatever stage you choose. For `Documentable` transformation stage 
+   it's `Documentable`, for `Page` generation stage you would have `Page` model, and for `Output` you can have `.html`
+   files that you will need to parse with `JSoup` (there are also utilities for that).

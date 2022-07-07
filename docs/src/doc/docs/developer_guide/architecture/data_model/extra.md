@@ -35,7 +35,7 @@ data class CustomExtra(
 Merge strategy (`mergeStrategyFor` method) for extras is invoked during
 [merging](../extension_points/core_extensions.md#documentablemerger) if documentables from different 
 [source sets](https://kotlinlang.org/docs/multiplatform-discover-project.html#source-sets) each
-have their own `Extra`. 
+have their own `Extra` of the same type. 
 
 ## PropertyContainer
 

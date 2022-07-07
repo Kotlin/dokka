@@ -3,7 +3,7 @@
 Whether you're contributing a feature/fix to Dokka itself or developing a separate plugin, there's 3 things
 you'll be doing:
 
-1. Building Dokka
+1. Building Dokka / Plugins
 2. Using/Testing locally built Dokka in a (debug) project
 3. Debugging Dokka / Plugin code
 
@@ -96,5 +96,5 @@ wish to debug a plugin which resides in a separate project.
     If you previously ran Dokka with daemons and you are already encountering problems with it, try killing
     gradle daemons. For instance, via `pkill -f gradle.*daemon`
 
-In case you're experiencing need to debug some other part of the build - consult the official Gradle
+In case you need to debug some other part of the build - consult the official Gradle
 tutorials on [Troubleshooting Builds](https://docs.gradle.org/current/userguide/troubleshooting.html).

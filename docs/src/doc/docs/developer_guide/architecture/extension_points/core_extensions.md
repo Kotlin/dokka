@@ -60,14 +60,17 @@ extension interfaces responsible for each one. Notice how `Documentables` and `P
 
 ```mermaid
 flowchart TD
-    Input -- SourceToDocumentableTranslator --> 
-    docFirst[Documentables] -- PreMergeDocumentableTransformer --> 
-    docSecond[Documentables] -- DocumentableMerger --> 
-    docThird[Documentables] -- DocumentableTransformer --> 
-    docFourth[Documentables] -- DocumentableToPageTranslator --> 
-    Pages -- PageTransformer --> 
-    Pages -- Renderer --> 
-    Output
+    Input -- SourceToDocumentableTranslator --> doc1[Documentables]
+    subgraph documentables [ ]
+    doc1 -- PreMergeDocumentableTransformer --> doc2[Documentables]
+    doc2 -- DocumentableMerger --> doc3[Documentables]
+    doc3 -- DocumentableTransformer --> doc4[Documentables]
+    end
+    doc4 -- DocumentableToPageTranslator --> page1[Pages]
+    subgraph ide2 [ ]
+    page1 -- PageTransformer --> page2[Pages]
+    end
+    page2 -- Renderer --> Output
 ```
 
 #### SourceToDocumentableTranslator
