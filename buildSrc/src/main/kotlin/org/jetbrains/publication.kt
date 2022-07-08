@@ -100,7 +100,7 @@ fun Project.configureSonatypePublicationIfNecessary(vararg publications: String)
 fun MavenPublication.configurePom(projectName: String) {
     pom {
         name.set(projectName)
-        description.set("Dokka is a documentation engine for Kotlin and Java, performing the same function as Javadoc for Java")
+        description.set("Dokka is an API documentation engine for Kotlin and Java, performing the same function as Javadoc for Java")
         url.set("https://github.com/Kotlin/dokka")
 
         licenses {
