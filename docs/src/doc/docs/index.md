@@ -1,16 +1,38 @@
-# Dokka  [![official JetBrains project](https://jb.gg/badges/official.svg)](https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub) [![TeamCity (build status)](https://teamcity.jetbrains.com/app/rest/builds/buildType:(id:Kotlin_Dokka_DokkaAntMavenGradle)/statusIcon)](https://teamcity.jetbrains.com/viewType.html?buildTypeId=Kotlin_Dokka_DokkaAntMavenGradle&branch_KotlinTools_Dokka=%3Cdefault%3E&tab=buildTypeStatusDiv) 
+# Dokka 
 
-Dokka is a documentation engine for Kotlin, performing the same function as javadoc for Java.
-Just like Kotlin itself, Dokka fully supports mixed-language Java/Kotlin projects. It understands
-standard Javadoc comments in Java files and [KDoc comments](https://kotlinlang.org/docs/reference/kotlin-doc.html) in Kotlin files,
-and can generate documentation in multiple formats including standard Javadoc, HTML and Markdown.
+`Dokka` is an API documentation engine for `Kotlin` that performs the same function as the `Javadoc` tool for `Java`,
+but it's modern and highly pluggable.
 
-## Integrations
-Dokka provides support for the following build systems:
+Just like `Kotlin` itself, `Dokka` supports mixed-language projects (`Kotlin`/`Java`). It understands
+[KDoc comments](https://kotlinlang.org/docs/reference/kotlin-doc.html) in `Kotlin` source files as well
+as [Javadoc comments](https://www.oracle.com/technical-resources/articles/java/javadoc-tool.html#format) in `Java` 
+files, and can generate documentation in multiple formats including its own `HTML` format, Java's `Javadoc` lookalike
+and `Markdown`.
 
-* [Gradle](user_guide/gradle/usage.md)
-* [Maven](user_guide/maven/usage.md)
-* [Command line](user_guide/cli/usage.md)
+Some libraries that use `Dokka` for API reference docs:
 
-!!! note
-    The Gradle plugin is the preferred way to use Dokka
+* [kotlinx.coroutines](https://kotlinlang.org/api/kotlinx.coroutines/)
+* [kotlinx.serialization](https://kotlinlang.org/api/kotlinx.serialization/)
+* [Ktor](https://api.ktor.io/)
+* [Spring Framework](https://docs.spring.io/spring-framework/docs/current/kdoc-api/)
+
+___
+
+`Dokka` provides support for the following build systems:
+
+* [Gradle](user_guide/applying/gradle.md) (preffered)
+* [Maven](user_guide/applying/maven.md)
+* [Command line](user_guide/applying/cli.md)
+
+___
+
+`Dokka` is also very pluggable and comes with convenient plugin and extension point API. 
+
+You can write a plugin to support [mermaid.js](community/plugins-list.md#mermaid) diagrams,
+[mathjax](community/plugins-list.md#mathjax) formulas or even write custom processing of your own tags and annotations.
+
+For more info, see:
+
+* [Sample plugin tutorial](developer_guide/plugin-development/sample-plugin-tutorial.md)
+* [Community plugins](community/plugins-list.md)
+* [Developer guides](developer_guide/introduction.md)
