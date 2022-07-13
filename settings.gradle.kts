@@ -39,6 +39,11 @@ include("test-utils")
 include("docs")
 
 pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        maven("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev/") // Kotlin dev builds
+    }
+
     val kotlin_version: String by settings
     plugins {
         id("org.jetbrains.kotlin.jvm") version kotlin_version

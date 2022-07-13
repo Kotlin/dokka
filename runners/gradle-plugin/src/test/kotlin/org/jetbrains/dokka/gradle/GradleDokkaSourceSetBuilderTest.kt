@@ -113,7 +113,7 @@ class GradleDokkaSourceSetBuilderTest {
         sourceSet.dependsOn(sourceSet.DokkaSourceSetID("s3"))
         sourceSet.dependsOn(GradleDokkaSourceSetBuilder("s4", project))
         sourceSet.dependsOn(GradleDokkaSourceSetBuilder("s5", project).build())
-        sourceSet.dependsOn(DefaultKotlinSourceSet(project, "s6"))
+        sourceSet.dependsOn(project.objects.newInstance(DefaultKotlinSourceSet::class.java, project, "s6"))
         sourceSet.dependsOn(DefaultAndroidSourceSet("s7", project, false))
 
         assertEquals(

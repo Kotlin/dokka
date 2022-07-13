@@ -8,25 +8,13 @@ plugins {
 
 repositories {
     mavenCentral()
-    maven(url = "https://www.jetbrains.com/intellij-repository/snapshots")
-    maven(url = "https://www.jetbrains.com/intellij-repository/releases")
+
+    maven("https://www.jetbrains.com/intellij-repository/snapshots")
+    maven("https://www.jetbrains.com/intellij-repository/releases")
+    maven("https://cache-redirector.jetbrains.com/intellij-dependencies")
+
     maven("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/kotlin-ide")
     maven("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/kotlin-ide-plugin-dependencies")
-    maven("https://cache-redirector.jetbrains.com/intellij-dependencies")
-    maven("https://www.myget.org/F/rd-snapshots/maven/")
-}
-
-val intellijCore: Configuration by configurations.creating
-
-fun intellijCoreAnalysis() = zipTree(intellijCore.singleFile).matching {
-    include("intellij-core.jar")
-}
-
-val jpsStandalone: Configuration by configurations.creating
-
-fun jpsModel() = zipTree(jpsStandalone.singleFile).matching {
-    include("jps-model.jar")
-    include("aalto-xml-*.jar")
 }
 
 dependencies {
@@ -39,11 +27,9 @@ dependencies {
     api("org.jetbrains.kotlin:native:$kotlin_plugin_version")
 
     val idea_version: String by project
-    intellijCore("com.jetbrains.intellij.idea:intellij-core:$idea_version")
-    implementation(intellijCoreAnalysis())
-
-    jpsStandalone("com.jetbrains.intellij.idea:jps-standalone:$idea_version")
-    implementation(jpsModel())
+    implementation("com.jetbrains.intellij.java:java-psi-impl:$idea_version")
+    implementation("com.jetbrains.intellij.platform:util-rt:$idea_version")
+    implementation("com.jetbrains.intellij.platform:jps-model-impl:$idea_version")
 }
 
 tasks {

@@ -12,10 +12,10 @@ import java.io.File
 @Suppress("LeakingThis")
 open class SetupMaven : Sync() {
     @get:Input
-    var mavenVersion = "3.5.0"
+    var mavenVersion = "3.8.1"
 
     @get:Input
-    var mavenPluginToolsVersion = "3.5.2"
+    var mavenPluginToolsVersion = "3.6.4"
 
     @get:Internal
     val mavenBuildDir = "${project.buildDir}/maven"

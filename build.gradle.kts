@@ -30,12 +30,13 @@ allprojects {
             allWarningsAsErrors = true
             languageVersion = language_version
             apiVersion = language_version
-            jvmTarget = "1.8"
+            jvmTarget = "11"
         }
     }
 
     repositories {
         mavenCentral()
+        maven("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev/") // Kotlin dev builds
     }
 }
 
