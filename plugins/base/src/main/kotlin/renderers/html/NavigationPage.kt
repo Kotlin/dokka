@@ -7,9 +7,7 @@ import org.jetbrains.dokka.base.templating.AddToNavigationCommand
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.DisplaySourceSet
 import org.jetbrains.dokka.model.WithChildren
-import org.jetbrains.dokka.pages.PageNode
-import org.jetbrains.dokka.pages.RendererSpecificPage
-import org.jetbrains.dokka.pages.RenderingStrategy
+import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 
 class NavigationPage(val root: NavigationNode, val moduleName: String, val context: DokkaContext) :
@@ -46,22 +44,47 @@ class NavigationPage(val root: NavigationNode, val moduleName: String, val conte
                             span("navButtonContent")
                         }
                     }
-                    buildLink(node.dri, node.sourceSets.toList()) { buildBreakableText(node.name) }
+                    buildLink(node.dri, node.sourceSets.toList()) {
+                        span("nav-link-text") {
+                            if (node.icon != null) {
+                                span(node.icon.style())
+                            }
+                            buildBreakableText(node.name)
+                        }
+                    }
                 }
                 node.children.withIndex().forEach { (n, p) -> visit(p, "$navId-$n", renderer) }
             }
         }
+
+    private fun NavigationNodeIcon.style(): String = when(this) {
+        NavigationNodeIcon.CLASS -> "nav-icon class"
+        NavigationNodeIcon.ABSTRACT_CLASS -> "nav-icon abstract-class"
+        NavigationNodeIcon.ENUM_CLASS -> "nav-icon enum-class"
+        NavigationNodeIcon.ANNOTATION_CLASS -> "nav-icon annotation-class"
+        NavigationNodeIcon.FUNCTION -> "nav-icon function"
+        NavigationNodeIcon.INTERFACE -> "nav-icon interface"
+        NavigationNodeIcon.EXCEPTION -> "nav-icon exception-class"
+        NavigationNodeIcon.OBJECT -> "nav-icon object"
+        NavigationNodeIcon.VAL -> "nav-icon val"
+        NavigationNodeIcon.VAR -> "nav-icon var"
+    }
 }
 
 data class NavigationNode(
     val name: String,
     val dri: DRI,
     val sourceSets: Set<DisplaySourceSet>,
+    val icon: NavigationNodeIcon?,
     override val children: List<NavigationNode>
 ) : WithChildren<NavigationNode>
+
+enum class NavigationNodeIcon {
+    CLASS, ABSTRACT_CLASS, ENUM_CLASS, ANNOTATION_CLASS, FUNCTION, INTERFACE, EXCEPTION, OBJECT, VAL, VAR
+}
 
 fun NavigationPage.transform(block: (NavigationNode) -> NavigationNode) =
     NavigationPage(root.transform(block), moduleName, context)
 
 fun NavigationNode.transform(block: (NavigationNode) -> NavigationNode) =
-    run(block).let { NavigationNode(it.name, it.dri, it.sourceSets, it.children.map(block)) }
+    run(block).let { NavigationNode(it.name, it.dri, it.sourceSets, it.icon, it.children.map(block)) }

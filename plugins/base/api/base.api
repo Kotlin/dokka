@@ -400,20 +400,37 @@ public abstract class org/jetbrains/dokka/base/renderers/html/NavigationDataProv
 }
 
 public final class org/jetbrains/dokka/base/renderers/html/NavigationNode : org/jetbrains/dokka/model/WithChildren {
-	public fun <init> (Ljava/lang/String;Lorg/jetbrains/dokka/links/DRI;Ljava/util/Set;Ljava/util/List;)V
+	public fun <init> (Ljava/lang/String;Lorg/jetbrains/dokka/links/DRI;Ljava/util/Set;Lorg/jetbrains/dokka/base/renderers/html/NavigationNodeIcon;Ljava/util/List;)V
 	public final fun component1 ()Ljava/lang/String;
 	public final fun component2 ()Lorg/jetbrains/dokka/links/DRI;
 	public final fun component3 ()Ljava/util/Set;
-	public final fun component4 ()Ljava/util/List;
-	public final fun copy (Ljava/lang/String;Lorg/jetbrains/dokka/links/DRI;Ljava/util/Set;Ljava/util/List;)Lorg/jetbrains/dokka/base/renderers/html/NavigationNode;
-	public static synthetic fun copy$default (Lorg/jetbrains/dokka/base/renderers/html/NavigationNode;Ljava/lang/String;Lorg/jetbrains/dokka/links/DRI;Ljava/util/Set;Ljava/util/List;ILjava/lang/Object;)Lorg/jetbrains/dokka/base/renderers/html/NavigationNode;
+	public final fun component4 ()Lorg/jetbrains/dokka/base/renderers/html/NavigationNodeIcon;
+	public final fun component5 ()Ljava/util/List;
+	public final fun copy (Ljava/lang/String;Lorg/jetbrains/dokka/links/DRI;Ljava/util/Set;Lorg/jetbrains/dokka/base/renderers/html/NavigationNodeIcon;Ljava/util/List;)Lorg/jetbrains/dokka/base/renderers/html/NavigationNode;
+	public static synthetic fun copy$default (Lorg/jetbrains/dokka/base/renderers/html/NavigationNode;Ljava/lang/String;Lorg/jetbrains/dokka/links/DRI;Ljava/util/Set;Lorg/jetbrains/dokka/base/renderers/html/NavigationNodeIcon;Ljava/util/List;ILjava/lang/Object;)Lorg/jetbrains/dokka/base/renderers/html/NavigationNode;
 	public fun equals (Ljava/lang/Object;)Z
 	public fun getChildren ()Ljava/util/List;
 	public final fun getDri ()Lorg/jetbrains/dokka/links/DRI;
+	public final fun getIcon ()Lorg/jetbrains/dokka/base/renderers/html/NavigationNodeIcon;
 	public final fun getName ()Ljava/lang/String;
 	public final fun getSourceSets ()Ljava/util/Set;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/jetbrains/dokka/base/renderers/html/NavigationNodeIcon : java/lang/Enum {
+	public static final field ABSTRACT_CLASS Lorg/jetbrains/dokka/base/renderers/html/NavigationNodeIcon;
+	public static final field ANNOTATION_CLASS Lorg/jetbrains/dokka/base/renderers/html/NavigationNodeIcon;
+	public static final field CLASS Lorg/jetbrains/dokka/base/renderers/html/NavigationNodeIcon;
+	public static final field ENUM_CLASS Lorg/jetbrains/dokka/base/renderers/html/NavigationNodeIcon;
+	public static final field EXCEPTION Lorg/jetbrains/dokka/base/renderers/html/NavigationNodeIcon;
+	public static final field FUNCTION Lorg/jetbrains/dokka/base/renderers/html/NavigationNodeIcon;
+	public static final field INTERFACE Lorg/jetbrains/dokka/base/renderers/html/NavigationNodeIcon;
+	public static final field OBJECT Lorg/jetbrains/dokka/base/renderers/html/NavigationNodeIcon;
+	public static final field VAL Lorg/jetbrains/dokka/base/renderers/html/NavigationNodeIcon;
+	public static final field VAR Lorg/jetbrains/dokka/base/renderers/html/NavigationNodeIcon;
+	public static fun valueOf (Ljava/lang/String;)Lorg/jetbrains/dokka/base/renderers/html/NavigationNodeIcon;
+	public static fun values ()[Lorg/jetbrains/dokka/base/renderers/html/NavigationNodeIcon;
 }
 
 public final class org/jetbrains/dokka/base/renderers/html/NavigationPage : org/jetbrains/dokka/pages/RendererSpecificPage {
