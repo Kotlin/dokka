@@ -15,13 +15,7 @@ displayNavigationFromPage = () => {
     }).then(() => {
         revealNavigationForCurrentPage()
     }).then(() => {
-        // scroll to currently selected navigation element
-        // such that the element is vertically in the middle (if possible)
-        document.querySelector('div.sideMenuPart[data-active]').scrollIntoView({
-            behavior: 'auto',
-            block: 'center',
-            inline: 'center'
-        })
+        scrollNavigationToSelectedElement()
     })
     document.querySelectorAll('.footer a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
@@ -58,6 +52,25 @@ revealParents = (part) => {
         revealParents(part.parentNode)
     }
 };
+
+scrollNavigationToSelectedElement = () => {
+    let selectedElement = document.querySelector('div.sideMenuPart[data-active]')
+
+    let isPackageElement = selectedElement.children.length > 1
+    if (isPackageElement) {
+        // if package is selected or linked, it makes sense to align it to top
+        // so that you can see all the members it contains
+        selectedElement.scrollIntoView(true)
+    } else {
+        // if a member within a package is linked, it makes sense to center it since it,
+        // this should make it easier to look at surrounding members
+        selectedElement.scrollIntoView({
+            behavior: 'auto',
+            block: 'center',
+            inline: 'center'
+        })
+    }
+}
 
 /*
     This is a work-around for safari being IE of our times.
