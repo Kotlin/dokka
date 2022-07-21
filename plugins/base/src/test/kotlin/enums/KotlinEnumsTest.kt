@@ -191,56 +191,6 @@ class KotlinEnumsTest : BaseAbstractTest() {
         }
     }
 
-    @Test
-    fun `should preserve enum source ordering for navigation menu`() {
-        val configuration = dokkaConfiguration {
-            sourceSets {
-                sourceSet {
-                    sourceRoots = listOf("src/")
-                }
-            }
-        }
-
-        val writerPlugin = TestOutputWriterPlugin()
-
-        testInline(
-            """
-            |/src/main/kotlin/basic/Test.kt
-            |package testpackage
-            |
-            |enum class TestEnum {
-            |   ZERO,
-            |   ONE,
-            |   TWO,
-            |   THREE,
-            |   FOUR,
-            |   FIVE,
-            |   SIX,
-            |   SEVEN,
-            |   EIGHT,
-            |   NINE
-            |}
-        """.trimMargin(),
-            configuration,
-            pluginOverrides = listOf(writerPlugin)
-        ) {
-            renderingStage = { _, _ ->
-                val sideMenu = writerPlugin.writer.navigationHtml().select("div.sideMenuPart")
-
-                assertEquals("ZERO", sideMenu.select("#root-nav-submenu-0-0-0").text())
-                assertEquals("ONE", sideMenu.select("#root-nav-submenu-0-0-1").text())
-                assertEquals("TWO", sideMenu.select("#root-nav-submenu-0-0-2").text())
-                assertEquals("THREE", sideMenu.select("#root-nav-submenu-0-0-3").text())
-                assertEquals("FOUR", sideMenu.select("#root-nav-submenu-0-0-4").text())
-                assertEquals("FIVE", sideMenu.select("#root-nav-submenu-0-0-5").text())
-                assertEquals("SIX", sideMenu.select("#root-nav-submenu-0-0-6").text())
-                assertEquals("SEVEN", sideMenu.select("#root-nav-submenu-0-0-7").text())
-                assertEquals("EIGHT", sideMenu.select("#root-nav-submenu-0-0-8").text())
-                assertEquals("NINE", sideMenu.select("#root-nav-submenu-0-0-9").text())
-            }
-        }
-    }
-
     fun TestOutputWriter.navigationHtml(): Element = contents.getValue("navigation.html").let { Jsoup.parse(it) }
 
     @Test
