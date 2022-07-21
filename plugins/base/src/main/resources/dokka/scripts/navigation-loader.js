@@ -14,6 +14,14 @@ displayNavigationFromPage = () => {
         })
     }).then(() => {
         revealNavigationForCurrentPage()
+    }).then(() => {
+        // scroll to currently selected navigation element
+        // such that the element is vertically in the middle (if possible)
+        document.querySelector('div.sideMenuPart[data-active]').scrollIntoView({
+            behavior: 'auto',
+            block: 'center',
+            inline: 'center'
+        })
     })
     document.querySelectorAll('.footer a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
