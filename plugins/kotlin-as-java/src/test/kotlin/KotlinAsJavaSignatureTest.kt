@@ -51,7 +51,7 @@ class KotlinAsJavaSignatureTest : BaseAbstractTest() {
                         Span(Span(), " x, "),
                         Span(Span(), " y")
                     ),
-                    ")", Span(),
+                    ")",
                     ignoreSpanWithTokenStyle = true
                 )
             }
@@ -106,7 +106,6 @@ class KotlinAsJavaSignatureTest : BaseAbstractTest() {
                     "public final class ", A("Clazz"),
                     // <@OnTypeParameter() T extends @OnType() Object>
                     "<", Span("@", A("OnTypeParameter"), "() "), "T extends ", Span("@", A("OnType"), "() "), A("Object"), ">",
-                    Span(),
                     ignoreSpanWithTokenStyle = true
                 )
 
@@ -124,7 +123,7 @@ class KotlinAsJavaSignatureTest : BaseAbstractTest() {
                         Span(
                             A("String"), "str2"
                         )
-                    ), ")", Span(),
+                    ), ")",
                     ignoreSpanWithTokenStyle = true
                 )
             }

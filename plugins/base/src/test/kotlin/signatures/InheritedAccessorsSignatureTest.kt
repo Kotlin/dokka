@@ -54,7 +54,7 @@ class InheritedAccessorsSignatureTest : BaseAbstractTest() {
 
                     val property = signatures[2]
                     property.match(
-                        "var ", A("a"), ":", A("Int"), Span(),
+                        "var ", A("a"), ":", A("Int"),
                         ignoreSpanWithTokenStyle = true
                     )
                 }
@@ -68,7 +68,7 @@ class InheritedAccessorsSignatureTest : BaseAbstractTest() {
 
                     val property = signatures[1]
                     property.match(
-                        "open var ", A("a"), ":", A("Int"), Span(),
+                        "open var ", A("a"), ":", A("Int"),
                         ignoreSpanWithTokenStyle = true
                     )
                 }
@@ -102,7 +102,7 @@ class InheritedAccessorsSignatureTest : BaseAbstractTest() {
 
                     val property = signatures[2]
                     property.match(
-                        "val ", A("a"), ":", A("Int"), Span(),
+                        "val ", A("a"), ":", A("Int"),
                         ignoreSpanWithTokenStyle = true
                     )
                 }
@@ -113,7 +113,7 @@ class InheritedAccessorsSignatureTest : BaseAbstractTest() {
 
                     val property = signatures[1]
                     property.match(
-                        "open val ", A("a"), ":", A("Int"), Span(),
+                        "open val ", A("a"), ":", A("Int"),
                         ignoreSpanWithTokenStyle = true
                     )
                 }
@@ -149,7 +149,7 @@ class InheritedAccessorsSignatureTest : BaseAbstractTest() {
                     setterFunction.match(
                         "open fun ", A("setA"), "(", Parameters(
                             Parameter("a: ", A("Int"))
-                        ), ")", Span(),
+                        ), ")",
                         ignoreSpanWithTokenStyle = true
                     )
                 }
@@ -162,7 +162,7 @@ class InheritedAccessorsSignatureTest : BaseAbstractTest() {
                     setterFunction.match(
                         "open fun ", A("setA"), "(", Parameters(
                             Parameter("a: ", A("Int"))
-                        ), ")", Span(),
+                        ), ")",
                         ignoreSpanWithTokenStyle = true
                     )
                 }
@@ -199,7 +199,7 @@ class InheritedAccessorsSignatureTest : BaseAbstractTest() {
 
                 val getterLookalikeFunction = signatures[2]
                 getterLookalikeFunction.match(
-                    "open fun ", A("getA"), "():", A("Int"), Span(),
+                    "open fun ", A("getA"), "():", A("Int"),
                     ignoreSpanWithTokenStyle = true
                 )
 
@@ -207,13 +207,13 @@ class InheritedAccessorsSignatureTest : BaseAbstractTest() {
                 setterLookalikeFunction.match(
                     "open fun ", A("setA"), "(", Parameters(
                         Parameter("a: ", A("Int"))
-                    ), ")", Span(),
+                    ), ")",
                     ignoreSpanWithTokenStyle = true
                 )
 
                 val property = signatures[4]
                 property.match(
-                    "var ", A("a"), ":", A("Int"), Span(),
+                    "var ", A("a"), ":", A("Int"),
                     ignoreSpanWithTokenStyle = true
                 )
             }
@@ -245,7 +245,7 @@ class InheritedAccessorsSignatureTest : BaseAbstractTest() {
 
                     val property = signatures[1]
                     property.match(
-                        "open var ", A("variable"), ": ", Span("String"), Span(),
+                        "open var ", A("variable"), ": ", Span("String"),
                         ignoreSpanWithTokenStyle = true
                     )
                 }
@@ -280,7 +280,7 @@ class InheritedAccessorsSignatureTest : BaseAbstractTest() {
 
                     val property = signatures[2]
                     property.match(
-                        "var ", A("variable"), ": ", A("String"), Span(),
+                        "var ", A("variable"), ": ", A("String"),
                         ignoreSpanWithTokenStyle = true
                     )
                 }
@@ -294,7 +294,7 @@ class InheritedAccessorsSignatureTest : BaseAbstractTest() {
 
                     val getter = signatures[1]
                     getter.match(
-                        "fun ", A("getVariable"), "(): ", Span("String"), Span(),
+                        "fun ", A("getVariable"), "(): ", Span("String"),
                         ignoreSpanWithTokenStyle = true
                     )
 
@@ -302,7 +302,7 @@ class InheritedAccessorsSignatureTest : BaseAbstractTest() {
                     setter.match(
                         "fun ", A("setVariable"), "(", Parameters(
                             Parameter("value: ", Span("String"))
-                        ), ")", Span(),
+                        ), ")",
                         ignoreSpanWithTokenStyle = true
                     )
                 }
@@ -360,7 +360,7 @@ class InheritedAccessorsSignatureTest : BaseAbstractTest() {
 
                     val property = signatures[2]
                     property.match(
-                        "protected var ", A("protectedGetterAndProtectedSetter"), ":", A("Int"), Span(),
+                        "protected var ", A("protectedGetterAndProtectedSetter"), ":", A("Int"),
                         ignoreSpanWithTokenStyle = true
                     )
                 }
@@ -371,7 +371,7 @@ class InheritedAccessorsSignatureTest : BaseAbstractTest() {
 
                     val property = signatures[1]
                     property.match(
-                        "protected open var ", A("protectedGetterAndProtectedSetter"), ":", A("Int"), Span(),
+                        "protected open var ", A("protectedGetterAndProtectedSetter"), ":", A("Int"),
                         ignoreSpanWithTokenStyle = true
                     )
                 }
@@ -421,7 +421,7 @@ class InheritedAccessorsSignatureTest : BaseAbstractTest() {
 
                     val property = signatures[2]
                     property.match(
-                        "protected var ", A("protectedProperty"), ":", A("Int"), Span(),
+                        "protected var ", A("protectedProperty"), ":", A("Int"),
                         ignoreSpanWithTokenStyle = true
                     )
                 }
