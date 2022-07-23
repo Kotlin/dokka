@@ -68,7 +68,6 @@ class NavigationIconTest : BaseAbstractTest() {
         )
     }
 
-
     @Test
     fun `should add icon styles to java class navigation item`() {
         assertNavigationIcon(
@@ -247,6 +246,34 @@ class NavigationIconTest : BaseAbstractTest() {
 
                 val navLinkText = navigationGrid.child(1).text()
                 assertEquals(expectedNavLinkText, navLinkText)
+            }
+        }
+    }
+
+    @Test
+    fun `should not generate nav link grids or icons for packages and modules`() {
+        val writerPlugin = TestOutputWriterPlugin()
+        testInline(
+            """
+            |/src/main/kotlin/com/example/Example.kt
+            |package com.example
+            |
+            |class Example {}
+            """.trimIndent(),
+            configuration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                val content = writerPlugin.writer.navigationHtml().select("div.sideMenuPart")
+
+                assertEquals(3, content.size)
+                assertEquals("root-nav-submenu", content[0].id())
+                assertEquals("root-nav-submenu-0", content[1].id())
+                assertEquals("root-nav-submenu-0-0", content[2].id())
+
+                // there's 3 nav items, but only one icon
+                val navLinkGrids = content.select("span.nav-icon")
+                assertEquals(1, navLinkGrids.size)
             }
         }
     }
