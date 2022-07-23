@@ -59,11 +59,16 @@ class NavigationPage(val root: NavigationNode, val moduleName: String, val conte
 
     private fun NavigationNodeIcon.style(): String = when(this) {
         NavigationNodeIcon.CLASS -> "nav-icon class"
+        NavigationNodeIcon.CLASS_KT -> "nav-icon class-kt"
         NavigationNodeIcon.ABSTRACT_CLASS -> "nav-icon abstract-class"
+        NavigationNodeIcon.ABSTRACT_CLASS_KT -> "nav-icon abstract-class-kt"
         NavigationNodeIcon.ENUM_CLASS -> "nav-icon enum-class"
+        NavigationNodeIcon.ENUM_CLASS_KT -> "nav-icon enum-class-kt"
         NavigationNodeIcon.ANNOTATION_CLASS -> "nav-icon annotation-class"
+        NavigationNodeIcon.ANNOTATION_CLASS_KT -> "nav-icon annotation-class-kt"
         NavigationNodeIcon.FUNCTION -> "nav-icon function"
         NavigationNodeIcon.INTERFACE -> "nav-icon interface"
+        NavigationNodeIcon.INTERFACE_KT -> "nav-icon interface-kt"
         NavigationNodeIcon.EXCEPTION -> "nav-icon exception-class"
         NavigationNodeIcon.OBJECT -> "nav-icon object"
         NavigationNodeIcon.VAL -> "nav-icon val"
@@ -79,8 +84,21 @@ data class NavigationNode(
     override val children: List<NavigationNode>
 ) : WithChildren<NavigationNode>
 
+/**
+ * [CLASS] represents a neutral (a.k.a Java-style) icon,
+ * whereas [CLASS_KT] should be Kotlin-styled
+ */
 enum class NavigationNodeIcon {
-    CLASS, ABSTRACT_CLASS, ENUM_CLASS, ANNOTATION_CLASS, FUNCTION, INTERFACE, EXCEPTION, OBJECT, VAL, VAR
+    CLASS, CLASS_KT,
+    ABSTRACT_CLASS, ABSTRACT_CLASS_KT,
+    ENUM_CLASS, ENUM_CLASS_KT,
+    ANNOTATION_CLASS, ANNOTATION_CLASS_KT,
+    INTERFACE, INTERFACE_KT,
+    FUNCTION,
+    EXCEPTION,
+    OBJECT,
+    VAL,
+    VAR
 }
 
 fun NavigationPage.transform(block: (NavigationNode) -> NavigationNode) =

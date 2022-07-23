@@ -420,12 +420,17 @@ public final class org/jetbrains/dokka/base/renderers/html/NavigationNode : org/
 
 public final class org/jetbrains/dokka/base/renderers/html/NavigationNodeIcon : java/lang/Enum {
 	public static final field ABSTRACT_CLASS Lorg/jetbrains/dokka/base/renderers/html/NavigationNodeIcon;
+	public static final field ABSTRACT_CLASS_KT Lorg/jetbrains/dokka/base/renderers/html/NavigationNodeIcon;
 	public static final field ANNOTATION_CLASS Lorg/jetbrains/dokka/base/renderers/html/NavigationNodeIcon;
+	public static final field ANNOTATION_CLASS_KT Lorg/jetbrains/dokka/base/renderers/html/NavigationNodeIcon;
 	public static final field CLASS Lorg/jetbrains/dokka/base/renderers/html/NavigationNodeIcon;
+	public static final field CLASS_KT Lorg/jetbrains/dokka/base/renderers/html/NavigationNodeIcon;
 	public static final field ENUM_CLASS Lorg/jetbrains/dokka/base/renderers/html/NavigationNodeIcon;
+	public static final field ENUM_CLASS_KT Lorg/jetbrains/dokka/base/renderers/html/NavigationNodeIcon;
 	public static final field EXCEPTION Lorg/jetbrains/dokka/base/renderers/html/NavigationNodeIcon;
 	public static final field FUNCTION Lorg/jetbrains/dokka/base/renderers/html/NavigationNodeIcon;
 	public static final field INTERFACE Lorg/jetbrains/dokka/base/renderers/html/NavigationNodeIcon;
+	public static final field INTERFACE_KT Lorg/jetbrains/dokka/base/renderers/html/NavigationNodeIcon;
 	public static final field OBJECT Lorg/jetbrains/dokka/base/renderers/html/NavigationNodeIcon;
 	public static final field VAL Lorg/jetbrains/dokka/base/renderers/html/NavigationNodeIcon;
 	public static final field VAR Lorg/jetbrains/dokka/base/renderers/html/NavigationNodeIcon;

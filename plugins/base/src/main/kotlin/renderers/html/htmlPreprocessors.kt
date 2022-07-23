@@ -1,5 +1,6 @@
 package org.jetbrains.dokka.base.renderers.html
 
+import org.jetbrains.dokka.analysis.PsiDocumentableSource
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.DokkaBaseConfiguration
 import org.jetbrains.dokka.base.renderers.sourceSets
@@ -38,20 +39,27 @@ abstract class NavigationDataProvider {
 
     private fun chooseNavigationIcon(contentPage: ContentPage): NavigationNodeIcon? {
         return if (contentPage is WithDocumentables) {
-            when(val documentable = contentPage.documentables.firstOrNull()) {
+            val documentable = contentPage.documentables.firstOrNull()
+            val isJava = (documentable as? WithSources)?.sources?.any { it.value is PsiDocumentableSource } ?: false
+
+            when (documentable) {
                 is DClass -> when {
                     documentable.isException -> NavigationNodeIcon.EXCEPTION
-                    documentable.isAbstract() -> NavigationNodeIcon.ABSTRACT_CLASS
-                    else -> NavigationNodeIcon.CLASS
+                    documentable.isAbstract() -> {
+                        if (isJava) NavigationNodeIcon.ABSTRACT_CLASS else NavigationNodeIcon.ABSTRACT_CLASS_KT
+                    }
+                    else -> if (isJava) NavigationNodeIcon.CLASS else NavigationNodeIcon.CLASS_KT
                 }
                 is DFunction -> NavigationNodeIcon.FUNCTION
                 is DProperty -> {
                     val isVar = documentable.extra[IsVar] != null
                     if (isVar) NavigationNodeIcon.VAR else NavigationNodeIcon.VAL
                 }
-                is DInterface -> NavigationNodeIcon.INTERFACE
-                is DEnum -> NavigationNodeIcon.ENUM_CLASS
-                is DAnnotation -> NavigationNodeIcon.ANNOTATION_CLASS
+                is DInterface -> if (isJava) NavigationNodeIcon.INTERFACE else NavigationNodeIcon.INTERFACE_KT
+                is DEnum -> if (isJava) NavigationNodeIcon.ENUM_CLASS else NavigationNodeIcon.ENUM_CLASS_KT
+                is DAnnotation -> {
+                    if (isJava) NavigationNodeIcon.ANNOTATION_CLASS else NavigationNodeIcon.ANNOTATION_CLASS_KT
+                }
                 is DObject -> NavigationNodeIcon.OBJECT
                 else -> null
             }
@@ -160,15 +168,22 @@ object AssetsInstaller : PageTransformer {
         "images/copy-icon.svg",
         "images/copy-successful-icon.svg",
         "images/theme-toggle.svg",
+
+        // navigation icons
         "images/nav-icons/abstract-class.svg",
+        "images/nav-icons/abstract-class-kotlin.svg",
         "images/nav-icons/annotation.svg",
+        "images/nav-icons/annotation-kotlin.svg",
         "images/nav-icons/class.svg",
+        "images/nav-icons/class-kotlin.svg",
         "images/nav-icons/enum.svg",
+        "images/nav-icons/enum-kotlin.svg",
         "images/nav-icons/exception-class.svg",
         "images/nav-icons/field-value.svg",
         "images/nav-icons/field-variable.svg",
         "images/nav-icons/function.svg",
         "images/nav-icons/interface.svg",
+        "images/nav-icons/interface-kotlin.svg",
         "images/nav-icons/object.svg",
     )
 

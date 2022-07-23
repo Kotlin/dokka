@@ -518,6 +518,10 @@ code.paragraph {
     content: url("../images/nav-icons/class.svg");
 }
 
+.nav-icon.class-kt::before {
+    content: url("../images/nav-icons/class-kotlin.svg");
+}
+
 .nav-icon.function::before {
     content: url("../images/nav-icons/function.svg");
 }
@@ -526,12 +530,24 @@ code.paragraph {
     content: url("../images/nav-icons/enum.svg");
 }
 
+.nav-icon.enum-class-kt::before {
+    content: url("../images/nav-icons/enum-kotlin.svg");
+}
+
 .nav-icon.annotation-class::before {
     content: url("../images/nav-icons/annotation.svg");
 }
 
+.nav-icon.annotation-class-kt::before {
+    content: url("../images/nav-icons/annotation-kotlin.svg");
+}
+
 .nav-icon.abstract-class::before {
     content: url("../images/nav-icons/abstract-class.svg");
+}
+
+.nav-icon.abstract-class-kt::before {
+    content: url("../images/nav-icons/abstract-class-kotlin.svg");
 }
 
 .nav-icon.exception-class::before {
@@ -540,6 +556,10 @@ code.paragraph {
 
 .nav-icon.interface::before {
     content: url("../images/nav-icons/interface.svg");
+}
+
+.nav-icon.interface-kt::before {
+    content: url("../images/nav-icons/interface-kotlin.svg");
 }
 
 .nav-icon.object::before {
