@@ -10,8 +10,12 @@ import org.jetbrains.dokka.model.WithChildren
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 
-class NavigationPage(val root: NavigationNode, val moduleName: String, val context: DokkaContext) :
-    RendererSpecificPage {
+class NavigationPage(
+    val root: NavigationNode,
+    val moduleName: String,
+    val context: DokkaContext
+) : RendererSpecificPage {
+
     override val name = "navigation"
 
     override val children = emptyList<PageNode>()
@@ -64,24 +68,6 @@ class NavigationPage(val root: NavigationNode, val moduleName: String, val conte
                 node.children.withIndex().forEach { (n, p) -> visit(p, "$navId-$n", renderer) }
             }
         }
-
-    private fun NavigationNodeIcon.style(): String = when(this) {
-        NavigationNodeIcon.CLASS -> "nav-icon class"
-        NavigationNodeIcon.CLASS_KT -> "nav-icon class-kt"
-        NavigationNodeIcon.ABSTRACT_CLASS -> "nav-icon abstract-class"
-        NavigationNodeIcon.ABSTRACT_CLASS_KT -> "nav-icon abstract-class-kt"
-        NavigationNodeIcon.ENUM_CLASS -> "nav-icon enum-class"
-        NavigationNodeIcon.ENUM_CLASS_KT -> "nav-icon enum-class-kt"
-        NavigationNodeIcon.ANNOTATION_CLASS -> "nav-icon annotation-class"
-        NavigationNodeIcon.ANNOTATION_CLASS_KT -> "nav-icon annotation-class-kt"
-        NavigationNodeIcon.FUNCTION -> "nav-icon function"
-        NavigationNodeIcon.INTERFACE -> "nav-icon interface"
-        NavigationNodeIcon.INTERFACE_KT -> "nav-icon interface-kt"
-        NavigationNodeIcon.EXCEPTION -> "nav-icon exception-class"
-        NavigationNodeIcon.OBJECT -> "nav-icon object"
-        NavigationNodeIcon.VAL -> "nav-icon val"
-        NavigationNodeIcon.VAR -> "nav-icon var"
-    }
 }
 
 data class NavigationNode(
@@ -96,17 +82,26 @@ data class NavigationNode(
  * [CLASS] represents a neutral (a.k.a Java-style) icon,
  * whereas [CLASS_KT] should be Kotlin-styled
  */
-enum class NavigationNodeIcon {
-    CLASS, CLASS_KT,
-    ABSTRACT_CLASS, ABSTRACT_CLASS_KT,
-    ENUM_CLASS, ENUM_CLASS_KT,
-    ANNOTATION_CLASS, ANNOTATION_CLASS_KT,
-    INTERFACE, INTERFACE_KT,
-    FUNCTION,
-    EXCEPTION,
-    OBJECT,
-    VAL,
-    VAR
+enum class NavigationNodeIcon(
+    private val cssClass: String
+) {
+    CLASS("class"),
+    CLASS_KT("class-kt"),
+    ABSTRACT_CLASS("abstract-class"),
+    ABSTRACT_CLASS_KT("abstract-class-kt"),
+    ENUM_CLASS("enum-class"),
+    ENUM_CLASS_KT("enum-class-kt"),
+    ANNOTATION_CLASS("annotation-class"),
+    ANNOTATION_CLASS_KT("annotation-class-kt"),
+    INTERFACE("interface"),
+    INTERFACE_KT("interface-kt"),
+    FUNCTION("function"),
+    EXCEPTION("exception-class"),
+    OBJECT("object"),
+    VAL("val"),
+    VAR("var");
+
+    internal fun style(): String = "nav-icon $cssClass"
 }
 
 fun NavigationPage.transform(block: (NavigationNode) -> NavigationNode) =

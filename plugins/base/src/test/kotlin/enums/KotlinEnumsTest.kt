@@ -191,8 +191,6 @@ class KotlinEnumsTest : BaseAbstractTest() {
         }
     }
 
-    fun TestOutputWriter.navigationHtml(): Element = contents.getValue("navigation.html").let { Jsoup.parse(it) }
-
     @Test
     fun `should handle companion object within enum`() {
         val configuration = dokkaConfiguration {
