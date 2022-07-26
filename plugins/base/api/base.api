@@ -1328,10 +1328,6 @@ public final class org/jetbrains/dokka/base/transformers/pages/sourcelinks/Sourc
 	public fun invoke (Lorg/jetbrains/dokka/pages/RootPageNode;)Lorg/jetbrains/dokka/pages/RootPageNode;
 }
 
-public final class org/jetbrains/dokka/base/transformers/pages/sourcelinks/SourceLinksTransformerKt {
-	public static final fun hasTabbedContent (Lorg/jetbrains/dokka/pages/ContentGroup;)Z
-}
-
 public abstract interface class org/jetbrains/dokka/base/transformers/pages/tags/CustomTagContentProvider {
 	public abstract fun contentForBrief (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Lorg/jetbrains/dokka/model/doc/CustomTagWrapper;)V
 	public abstract fun contentForDescription (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Lorg/jetbrains/dokka/model/doc/CustomTagWrapper;)V

@@ -383,7 +383,8 @@ enum class TokenStyle : Style {
 
 enum class TextStyle : Style {
     Bold, Italic, Strong, Strikethrough, Paragraph,
-    Block, Span, Monospace, Indented, Cover, UnderCoverText, BreakableAfter, Breakable, InlineComment, Quotation
+    Block, Span, Monospace, Indented, Cover, UnderCoverText, BreakableAfter, Breakable, InlineComment, Quotation,
+    RightAligned
 }
 
 enum class ContentStyle : Style {

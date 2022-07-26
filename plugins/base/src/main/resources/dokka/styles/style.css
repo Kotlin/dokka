@@ -1181,3 +1181,13 @@ div.runnablesample {
         display: none;
     }
 }
+.clearfix::after {
+    content: ' ';
+    clear: both;
+    display: block;
+    height: 0;
+}
+
+.right-alligned {
+    float: right;
+}
