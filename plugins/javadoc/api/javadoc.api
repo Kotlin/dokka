@@ -14,7 +14,6 @@ public class org/jetbrains/dokka/javadoc/JavadocPageCreator {
 public final class org/jetbrains/dokka/javadoc/JavadocPlugin : org/jetbrains/dokka/plugability/DokkaPlugin {
 	public fun <init> ()V
 	public final fun getAllClassessPageInstaller ()Lorg/jetbrains/dokka/plugability/Extension;
-	public final fun getAlphaVersionNotifier ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getDeprecatedPageCreator ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getDocumentableSourceSetFilter ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getDokkaBasePlugin ()Lorg/jetbrains/dokka/base/DokkaBase;

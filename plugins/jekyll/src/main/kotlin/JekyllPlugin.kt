@@ -14,9 +14,8 @@ import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.query
+import org.jetbrains.dokka.renderers.PostAction
 import org.jetbrains.dokka.transformers.pages.PageTransformer
-import org.jetbrains.dokka.validity.PreGenerationChecker
-import org.jetbrains.dokka.validity.PreGenerationCheckerOutput
 
 class JekyllPlugin : DokkaPlugin() {
 
@@ -50,11 +49,10 @@ class JekyllPlugin : DokkaPlugin() {
         dokkaBase.locationProviderFactory providing ::DokkaLocationProviderFactory override listOf(gfmPlugin.locationProvider)
     }
 
-    val alphaVersionNotifier by extending {
-        CoreExtensions.preGenerationCheck providing { ctx ->
-            PreGenerationChecker {
-                ctx.logger.warn("The Jekyll output format is in Alpha version")
-                PreGenerationCheckerOutput(true, emptyList())
+    internal val alphaVersionNotifier by extending {
+        CoreExtensions.postActions providing { ctx ->
+            PostAction {
+                ctx.logger.warn("Jekyll output format is in Alpha version, use at your own risk, expect bugs and migration issues")
             }
         }
     }

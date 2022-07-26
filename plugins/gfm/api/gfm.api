@@ -11,7 +11,6 @@ public final class org/jetbrains/dokka/gfm/GfmCommand$Companion {
 
 public final class org/jetbrains/dokka/gfm/GfmPlugin : org/jetbrains/dokka/plugability/DokkaPlugin {
 	public fun <init> ()V
-	public final fun getAlphaVersionNotifier ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getBriefCommentPreprocessor ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getGfmPreprocessors ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
 	public final fun getLocationProvider ()Lorg/jetbrains/dokka/plugability/Extension;
