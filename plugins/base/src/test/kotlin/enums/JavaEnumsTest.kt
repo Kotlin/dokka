@@ -45,7 +45,7 @@ class JavaEnumsTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 val enumPage = writerPlugin.writer.renderedContent("root/testpackage/-java-enum/index.html")
-                val sourceLink = enumPage.select("div[data-togglable=Sources]")
+                val sourceLink = enumPage.select(".symbol .right-aligned")
                     .select("a[href]")
                     .attr("href")
 
