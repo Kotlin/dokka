@@ -97,13 +97,12 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
                                 )
                             }
                             after {
-                                header(2) { +"See also" }
+                                header(4) { +"See also" }
                                 group {
                                     table {
                                         group {
                                             //DRI should be "test//abc/#/-1/"
                                             link { +"abc" }
-                                            group { }
                                         }
                                     }
                                 }
@@ -150,7 +149,7 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
                                 )
                             }
                             after {
-                                header(2) { +"See also" }
+                                header(4) { +"See also" }
                                 group {
                                     table {
                                         group {
@@ -158,6 +157,60 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
                                             link { +"abc" }
                                             group {
                                                 group { +"Comment to abc" }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `should use fully qualified name for unresolved link`() {
+        testInline(
+            """
+            |/src/main/kotlin/test/source.kt
+            |package test
+            | /**
+            |  * @see com.example.NonExistingClass description for non-existing
+            |  */
+            |fun function(abc: String) {
+            |    println(abc)
+            |}
+        """.trimIndent(), testConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val page = module.children.single { it.name == "test" }
+                    .children.single { it.name == "function" } as ContentPage
+                page.content.assertNode {
+                    group {
+                        header(1) { +"function" }
+                    }
+                    divergentGroup {
+                        divergentInstance {
+                            divergent {
+                                bareSignature(
+                                    emptyMap(),
+                                    "",
+                                    "",
+                                    emptySet(),
+                                    "function",
+                                    null,
+                                    "abc" to ParamAttributes(emptyMap(), emptySet(), "String")
+                                )
+                            }
+                            after {
+                                header(4) { +"See also" }
+                                group {
+                                    table {
+                                        group {
+                                            +"com.example.NonExistingClass"
+                                            group {
+                                                group { +"description for non-existing" }
                                             }
                                         }
                                     }
@@ -205,7 +258,7 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
                                 )
                             }
                             after {
-                                header(2) { +"See also" }
+                                header(4) { +"See also" }
                                 group {
                                     table {
                                         group {
@@ -216,9 +269,8 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
                                                         (this as ContentDRILink).address.toString()
                                                     )
                                                 }
-                                                +"kotlin.collections.Collection"
+                                                +"Collection"
                                             }
-                                            group { }
                                         }
                                     }
                                 }
@@ -265,12 +317,12 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
                                 )
                             }
                             after {
-                                header(2) { +"See also" }
+                                header(4) { +"See also" }
                                 group {
                                     table {
                                         group {
                                             //DRI should be "test//abc/#/-1/"
-                                            link { +"kotlin.collections.Collection" }
+                                            link { +"Collection" }
                                             group {
                                                 group { +"Comment to stdliblink" }
                                             }
@@ -327,12 +379,12 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
                                 unnamedTag("Author") { comment { +"pikinier20" } }
                                 unnamedTag("Since") { comment { +"0.11" } }
 
-                                header(2) { +"See also" }
+                                header(4) { +"See also" }
                                 group {
                                     table {
                                         group {
                                             //DRI should be "test//abc/#/-1/"
-                                            link { +"kotlin.collections.Collection" }
+                                            link { +"Collection" }
                                             group {
                                                 group { +"Comment to stdliblink" }
                                             }
@@ -383,7 +435,7 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
                                 )
                             }
                             after {
-                                header(2) { +"See also" }
+                                header(4) { +"See also" }
                                 group {
                                     table {
                                         group {
@@ -439,7 +491,7 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
                                 )
                             }
                             after {
-                                header(2) { +"See also" }
+                                header(4) { +"See also" }
                                 group {
                                     table {
                                         group {
@@ -451,7 +503,7 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
                                         }
                                         group {
                                             //DRI should be "test//abc/#/-1/"
-                                            link { +"kotlin.collections.Collection" }
+                                            link { +"Collection" }
                                             group { group { +"Comment to collection" } }
                                         }
                                     }

@@ -227,9 +227,12 @@ html ::-webkit-scrollbar-thumb {
     width: 100%;
 }
 
-.main-content p.paragraph,
 .sample-container {
     margin-top: 8px;
+}
+
+.content > h4 {
+    margin-bottom: 0;
 }
 
 p.paragraph:first-child,
@@ -943,11 +946,12 @@ td.content {
 
 .keyValue {
     display: grid;
+    grid-gap: 8px;
 }
 
 @media print, screen and (min-width: 960px) {
     .keyValue {
-        grid-template-columns: 20% 80%;
+        grid-template-columns: 25% 75%;
     }
 
     .title-row {
