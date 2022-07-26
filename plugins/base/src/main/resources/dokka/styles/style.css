@@ -192,8 +192,6 @@ html ::-webkit-scrollbar-thumb {
 }
 
 .cover > .platform-hinted {
-    padding-top: 12px;
-    margin-top: 12px;
     padding-bottom: 12px;
 }
 
@@ -550,8 +548,8 @@ h1 {
 
 
 h1.cover {
-    font-size: 60px;
-    line-height: 64px;
+    font-size: 52px;
+    line-height: 56px;
     letter-spacing: -1.5px;
     margin-bottom: 0;
     padding-bottom: 32px;

@@ -147,7 +147,7 @@ fun ContentMatcherBuilder<*>.propertySignature(
     value: String? = null
 ) {
     group {
-        header { +"Package test" }
+        header { +"Package-level declarations" }
         skipAllNotMatching()
     }
     group {
@@ -190,7 +190,7 @@ fun ContentMatcherBuilder<*>.propertySignature(
 
 fun ContentMatcherBuilder<*>.typealiasSignature(name: String, expressionTarget: String) {
     group {
-        header { +"Package test" }
+        header { +"Package-level declarations" }
         skipAllNotMatching()
     }
     group {

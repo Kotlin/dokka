@@ -223,7 +223,7 @@ open class DefaultPageCreator(
 
     protected open fun contentForPackage(p: DPackage) = contentBuilder.contentFor(p) {
         group(kind = ContentKind.Cover) {
-            cover("Package ${p.name}")
+            cover("Package-level declarations")
             if (contentForDescription(p).isNotEmpty()) {
                 sourceSetDependentHint(
                     p.dri,
