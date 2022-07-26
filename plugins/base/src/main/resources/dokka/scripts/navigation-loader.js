@@ -55,6 +55,9 @@ revealParents = (part) => {
 
 scrollNavigationToSelectedElement = () => {
     let selectedElement = document.querySelector('div.sideMenuPart[data-active]')
+    if (selectedElement == null) { // nothing selected, probably just the main page opened
+        return
+    }
 
     let isPackageElement = selectedElement.children.length > 1
     if (isPackageElement) {
