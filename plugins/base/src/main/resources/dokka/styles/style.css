@@ -401,7 +401,6 @@ code.paragraph {
     left: -15em;
 }
 
-.symbol:hover .copy-popup-wrapper.active-popup,
 .sample-container:hover .copy-popup-wrapper.active-popup {
     display: flex !important;
 }
