@@ -343,15 +343,15 @@ code.paragraph {
     cursor: pointer;
 }
 
-.symbol span.copy-icon, .sample-container span.copy-icon {
+.sample-container span.copy-icon {
     display: none;
 }
 
-.symbol:hover span.copy-icon, .sample-container:hover span.copy-icon {
+.sample-container:hover span.copy-icon {
     display: inline-block;
 }
 
-.symbol span.copy-icon::before, .sample-container span.copy-icon::before {
+.sample-container span.copy-icon::before {
     width: 24px;
     height: 24px;
     display: inline-block;
@@ -364,7 +364,7 @@ code.paragraph {
     background-color: var(--copy-icon-color);
 }
 
-.symbol span.copy-icon:hover::before, .sample-container span.copy-icon:hover::before {
+.sample-container span.copy-icon:hover::before {
     background-color: var(--copy-icon-hover-color);
 }
 
