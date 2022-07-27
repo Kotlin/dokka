@@ -635,8 +635,18 @@ open class HtmlRenderer(
         }
 
     private fun FlowContent.buildNavigationElement(node: PageNode, page: PageNode) =
-        if (node.isNavigable) buildLink(node, page)
-        else text(node.name)
+        if (node.isNavigable) {
+            val isCurrentPage = (node == page)
+            if (isCurrentPage) {
+                span(classes = "current") {
+                    text(node.name)
+                }
+            } else {
+                buildLink(node, page)
+            }
+        } else {
+            text(node.name)
+        }
 
     private fun FlowContent.buildLink(to: PageNode, from: PageNode) =
         locationProvider.resolve(to, from)?.let { path ->
