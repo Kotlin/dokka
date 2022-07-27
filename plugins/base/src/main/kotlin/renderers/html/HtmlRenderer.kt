@@ -216,13 +216,6 @@ open class HtmlRenderer(
                             attributes["data-filterable-set"] = pair.first.sourceSetIDs.merged.toString()
                             if (index == 0) attributes["data-active"] = ""
                             attributes["data-toggle"] = pair.first.sourceSetIDs.merged.toString()
-                            when (pair.first.platform.key) {
-                                "common" -> classes = classes + "common-like"
-                                "native" -> classes = classes + "native-like"
-                                "jvm" -> classes = classes + "jvm-like"
-                                "js" -> classes = classes + "js-like"
-                            }
-                            attributes["data-toggle"] = pair.first.sourceSetIDs.merged.toString()
                             text(pair.first.name)
                         }
                     }
