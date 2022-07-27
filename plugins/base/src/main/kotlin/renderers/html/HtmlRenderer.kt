@@ -95,7 +95,6 @@ open class HtmlRenderer(
             }
             node.dci.kind in setOf(ContentKind.Symbol) -> div("symbol $additionalClasses") {
                 childrenCallback()
-                if (node.hasStyle(TextStyle.Monospace)) copyButton()
             }
             node.hasStyle(TextStyle.BreakableAfter) -> {
                 span { childrenCallback() }
@@ -472,9 +471,9 @@ open class HtmlRenderer(
                             div {
                                 it.build(this, pageContext, sourceSetRestriction)
                             }
-                            if (it is ContentLink && !anchorDestination.isNullOrBlank()) buildAnchorCopyButton(
-                                anchorDestination
-                            )
+                            if (it is ContentLink && !anchorDestination.isNullOrBlank()) {
+                                buildAnchorCopyButton(anchorDestination)
+                            }
                         }
                     }
             }

@@ -38,7 +38,7 @@ class VarianceSignatureTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/-generic/index.html").firstSignature().match(
-                    "class ", A("Generic"), "<in ", A("T"), ">", Span(),
+                    "class ", A("Generic"), "<in ", A("T"), ">",
                     ignoreSpanWithTokenStyle = true
                 )
             }
@@ -57,7 +57,7 @@ class VarianceSignatureTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/-generic/index.html").firstSignature().match(
-                    "class ", A("Generic"), "<out ", A("T"), ">", Span(),
+                    "class ", A("Generic"), "<out ", A("T"), ">",
                     ignoreSpanWithTokenStyle = true
                 )
             }
@@ -76,7 +76,7 @@ class VarianceSignatureTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/-generic/index.html").firstSignature().match(
-                    "class ", A("Generic"), "<", A("T"), ">", Span(),
+                    "class ", A("Generic"), "<", A("T"), ">",
                     ignoreSpanWithTokenStyle = true
                 )
             }
@@ -95,7 +95,7 @@ class VarianceSignatureTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/-generic/index.html").firstSignature().match(
-                    "class ", A("Generic"), "<out ", A("T"), ":", A("List"), "<", A("CharSequence"), ">>", Span(),
+                    "class ", A("Generic"), "<out ", A("T"), ":", A("List"), "<", A("CharSequence"), ">>",
                     ignoreSpanWithTokenStyle = true
                 )
             }

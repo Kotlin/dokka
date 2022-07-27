@@ -333,7 +333,7 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
                 writerPlugin.writer.renderedContent("root/kotlinAsJavaPlugin/-a-b-c/some-fun.html").firstSignature().match(
                     "public final ", A("Integer"), A("someFun"), "(", Parameters(
                         Parameter(A("Integer"), "xd")
-                    ), ")", Span(), ignoreSpanWithTokenStyle = true
+                    ), ")", ignoreSpanWithTokenStyle = true
                 )
             }
         }
@@ -372,7 +372,7 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
                 writerPlugin.writer.renderedContent("root/kotlinAsJavaPlugin/-a-b-c/some-fun.html").firstSignature().match(
                     "public final ", A("Integer"), A("someFun"), "(", Parameters(
                         Parameter(A("Map"), "<", A("String"), ", ", A("Integer"), "> xd"),
-                    ), ")", Span(), ignoreSpanWithTokenStyle = true
+                    ), ")", ignoreSpanWithTokenStyle = true
                 )
             }
         }
@@ -438,7 +438,7 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
                 writerPlugin.writer.renderedContent("root/kotlinAsJavaPlugin/-test-kt/sample.html").firstSignature().match(
                     "public final static ", A("String"), A("sample"), "(", Parameters(
                         Parameter(A("Integer"), "a"),
-                    ), ")", Span(), ignoreSpanWithTokenStyle = true
+                    ), ")", ignoreSpanWithTokenStyle = true
                 )
             }
         }
@@ -483,7 +483,7 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
                 writerPlugin.writer.renderedContent("root/kotlinAsJavaPlugin/-test/-test.html").firstSignature().match(
                     A("Test"), A("Test"), "(", Parameters(
                         Parameter(A("Integer"), "xd")
-                    ), ")", Span(), ignoreSpanWithTokenStyle = true
+                    ), ")", ignoreSpanWithTokenStyle = true
                 )
             }
         }
@@ -530,7 +530,7 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
                         Parameter(A("Integer"), "xd,").withClasses("indented"),
                         Parameter(A("Long"), "l,").withClasses("indented"),
                         Parameter(A("String"), "s").withClasses("indented"),
-                    ).withClasses("wrapped"), ")", Span(), ignoreSpanWithTokenStyle = true
+                    ).withClasses("wrapped"), ")", ignoreSpanWithTokenStyle = true
                 )
             }
         }
@@ -623,7 +623,7 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
                 writerPlugin.writer.renderedContent(methodDocumentation)
                     .firstSignature()
                     .match(
-                        "$accessModifier void ", A(methodName), "()", Span(),
+                        "$accessModifier void ", A(methodName), "()",
                         ignoreSpanWithTokenStyle = true
                     )
             }

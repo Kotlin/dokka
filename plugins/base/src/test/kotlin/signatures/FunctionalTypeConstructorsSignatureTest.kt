@@ -58,7 +58,7 @@ class FunctionalTypeConstructorsSignatureTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/index.html").firstSignature().match(
-                    "val ", A("nF"), ": (", A("Int"), ") -> ", A("String"), Span(),
+                    "val ", A("nF"), ": (", A("Int"), ") -> ", A("String"),
                         ignoreSpanWithTokenStyle = true
                 )
             }
@@ -77,7 +77,7 @@ class FunctionalTypeConstructorsSignatureTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/index.html").firstSignature().match(
-                    "val ", A("nF"), ": (", A("Int"), ") -> ", A("String"), Span(),
+                    "val ", A("nF"), ": (", A("Int"), ") -> ", A("String"),
                         ignoreSpanWithTokenStyle = true
                 )
             }
@@ -96,7 +96,7 @@ class FunctionalTypeConstructorsSignatureTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/index.html").firstSignature().match(
-                    "val ", A("nF"), ": ", A("Boolean"), ".(", A("Int"), ") -> ", A("String"), Span(),
+                    "val ", A("nF"), ": ", A("Boolean"), ".(", A("Int"), ") -> ", A("String"),
                         ignoreSpanWithTokenStyle = true
                 )
             }
@@ -115,7 +115,7 @@ class FunctionalTypeConstructorsSignatureTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/index.html").firstSignature().match(
-                    "val ", A("nF"), ": (param: ", A("Int"), ") -> ", A("String"), Span(),
+                    "val ", A("nF"), ": (param: ", A("Int"), ") -> ", A("String"),
                         ignoreSpanWithTokenStyle = true
                 )
             }
@@ -141,7 +141,7 @@ class FunctionalTypeConstructorsSignatureTest : BaseAbstractTest() {
                     "fun <", A("T"), "> ",
                     A("f"), "(): (param1:", A("T"),
                     ", param2: ", Span("@", A("Fancy")), " () -> ", A("Unit"),
-                    ") -> ", A("String"), Span(),
+                    ") -> ", A("String"),
                     ignoreSpanWithTokenStyle = true
                 )
             }
@@ -160,7 +160,7 @@ class FunctionalTypeConstructorsSignatureTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/index.html").firstSignature().match(
-                    "val ", A("nF"), ": suspend (", A("Int"), ") -> ", A("String"), Span(),
+                    "val ", A("nF"), ": suspend (", A("Int"), ") -> ", A("String"),
                         ignoreSpanWithTokenStyle = true
                 )
             }
@@ -179,7 +179,7 @@ class FunctionalTypeConstructorsSignatureTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/index.html").firstSignature().match(
-                    "val ", A("nF"), ": suspend (", A("Int"), ") -> ", A("String"), Span(),
+                    "val ", A("nF"), ": suspend (", A("Int"), ") -> ", A("String"),
                         ignoreSpanWithTokenStyle = true
                 )
             }
@@ -198,7 +198,7 @@ class FunctionalTypeConstructorsSignatureTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/index.html").firstSignature().match(
-                    "val ", A("nF"), ": suspend ", A("Boolean"), ".(", A("Int"), ") -> ", A("String"), Span(),
+                    "val ", A("nF"), ": suspend ", A("Boolean"), ".(", A("Int"), ") -> ", A("String"),
                         ignoreSpanWithTokenStyle = true
                 )
             }
@@ -217,7 +217,7 @@ class FunctionalTypeConstructorsSignatureTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/index.html").firstSignature().match(
-                    "val ", A("nF"), ": suspend (param: ", A("Int"), ") -> ", A("String"), Span(),
+                    "val ", A("nF"), ": suspend (param: ", A("Int"), ") -> ", A("String"),
                         ignoreSpanWithTokenStyle = true
                 )
             }
@@ -249,8 +249,7 @@ class FunctionalTypeConstructorsSignatureTest : BaseAbstractTest() {
                     A("Boolean"),
                     ") -> ",
                     A("String"),
-                    Span(),
-                        ignoreSpanWithTokenStyle = true
+                    ignoreSpanWithTokenStyle = true
                 )
             }
         }
@@ -275,7 +274,7 @@ class FunctionalTypeConstructorsSignatureTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/-java-class/index.html").lastSignature().match(
-                    "open var ", A("javaFunction"), ": (", A("Integer"), ") -> ", A("String"), Span(),
+                    "open var ", A("javaFunction"), ": (", A("Integer"), ") -> ", A("String"),
                         ignoreSpanWithTokenStyle = true
                 )
             }
@@ -301,7 +300,7 @@ class FunctionalTypeConstructorsSignatureTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/-java-class/index.html").lastSignature().match(
-                    "open var ", A("kotlinFunction"), ": (", A("Integer"), ") -> ", A("String"), Span(),
+                    "open var ", A("kotlinFunction"), ": (", A("Integer"), ") -> ", A("String"),
                         ignoreSpanWithTokenStyle = true
                 )
             }
