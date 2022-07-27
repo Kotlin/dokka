@@ -1,24 +1,11 @@
 package org.jetbrains.dokka.base.renderers.html
 
-import org.jetbrains.dokka.analysis.PsiDocumentableSource
 import org.jetbrains.dokka.base.renderers.sourceSets
 import org.jetbrains.dokka.base.transformers.documentables.isException
+import org.jetbrains.dokka.base.translators.documentables.DocumentableLanguage
+import org.jetbrains.dokka.base.translators.documentables.documentableLanguage
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.pages.*
-import org.jetbrains.dokka.plugability.DokkaContext
-import org.jetbrains.dokka.transformers.pages.PageTransformer
-
-open class NavigationPageInstaller(val context: DokkaContext) : NavigationDataProvider(), PageTransformer {
-
-    override fun invoke(input: RootPageNode): RootPageNode =
-        input.modified(
-            children = input.children + NavigationPage(
-                root = navigableChildren(input),
-                moduleName = context.configuration.moduleName,
-                context = context
-            )
-        )
-}
 
 abstract class NavigationDataProvider {
     open fun navigableChildren(input: RootPageNode): NavigationNode = input.withDescendants()
@@ -47,7 +34,7 @@ abstract class NavigationDataProvider {
     private fun chooseNavigationIcon(contentPage: ContentPage): NavigationNodeIcon? {
         return if (contentPage is WithDocumentables) {
             val documentable = contentPage.documentables.firstOrNull()
-            val isJava = (documentable as? WithSources)?.sources?.any { it.value is PsiDocumentableSource } ?: false
+            val isJava = documentable?.hasAnyJavaSources() ?: false
 
             when (documentable) {
                 is DClass -> when {
@@ -63,7 +50,8 @@ abstract class NavigationDataProvider {
                     if (isVar) NavigationNodeIcon.VAR else NavigationNodeIcon.VAL
                 }
                 is DInterface -> if (isJava) NavigationNodeIcon.INTERFACE else NavigationNodeIcon.INTERFACE_KT
-                is DEnum -> if (isJava) NavigationNodeIcon.ENUM_CLASS else NavigationNodeIcon.ENUM_CLASS_KT
+                is DEnum,
+                is DEnumEntry -> if (isJava) NavigationNodeIcon.ENUM_CLASS else NavigationNodeIcon.ENUM_CLASS_KT
                 is DAnnotation -> {
                     if (isJava) NavigationNodeIcon.ANNOTATION_CLASS else NavigationNodeIcon.ANNOTATION_CLASS_KT
                 }
@@ -73,6 +61,11 @@ abstract class NavigationDataProvider {
         } else {
             null
         }
+    }
+
+    private fun Documentable.hasAnyJavaSources(): Boolean {
+        val withSources = this as? WithSources ?: return false
+        return this.sourceSets.any { withSources.documentableLanguage(it) == DocumentableLanguage.JAVA }
     }
 
     private fun DClass.isAbstract(): Boolean {
@@ -85,6 +78,11 @@ abstract class NavigationDataProvider {
                 .filterIsInstance<ContentPage>()
                 .map { visit(it) }
                 .sortedBy { it.name.toLowerCase() }
+        } else if (documentables.any { it is DEnum }) {
+            // no sorting for enum entries, should be the same as in source code
+            children
+                .filter { child -> child is WithDocumentables && child.documentables.any { it is DEnumEntry } }
+                .map { visit(it as ContentPage) }
         } else {
             emptyList()
         }

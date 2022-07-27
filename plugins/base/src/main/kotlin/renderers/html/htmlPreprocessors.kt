@@ -11,6 +11,17 @@ import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.configuration
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 
+open class NavigationPageInstaller(val context: DokkaContext) : NavigationDataProvider(), PageTransformer {
+    override fun invoke(input: RootPageNode): RootPageNode =
+        input.modified(
+            children = input.children + NavigationPage(
+                root = navigableChildren(input),
+                moduleName = context.configuration.moduleName,
+                context = context
+            )
+        )
+}
+
 class CustomResourceInstaller(val dokkaContext: DokkaContext) : PageTransformer {
     private val configuration = configuration<DokkaBase, DokkaBaseConfiguration>(dokkaContext)
 
