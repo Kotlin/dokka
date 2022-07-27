@@ -150,6 +150,10 @@ html ::-webkit-scrollbar-thumb {
     margin: auto 2px;
 }
 
+.breadcrumbs .current {
+    color: var(--default-font-color);
+}
+
 .tabs-section > .section-tab:first-child,
 .platform-hinted > .platform-bookmarks-row > .platform-bookmark:first-child {
     margin-left: 0;
