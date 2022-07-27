@@ -21,6 +21,8 @@ import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
 
+internal const val KDOC_TAG_HEADER_LEVEL = 4
+
 private typealias GroupedTags = Map<KClass<out TagWrapper>, List<Pair<DokkaSourceSet?, TagWrapper>>>
 
 private val specialTags: Set<KClass<out TagWrapper>> =
@@ -463,14 +465,12 @@ open class DefaultPageCreator(
 
             val customTags = d.customTags
             if (customTags.isNotEmpty()) {
-                group(styles = setOf(TextStyle.Block)) {
-                    platforms.forEach { platform ->
-                        customTags.forEach { (_, sourceSetTag) ->
-                            sourceSetTag[platform]?.let { tag ->
-                                customTagContentProviders.filter { it.isApplicable(tag) }.forEach { provider ->
-                                    with(provider) {
-                                        contentForDescription(platform, tag)
-                                    }
+                platforms.forEach { platform ->
+                    customTags.forEach { (_, sourceSetTag) ->
+                        sourceSetTag[platform]?.let { tag ->
+                            customTagContentProviders.filter { it.isApplicable(tag) }.forEach { provider ->
+                                with(provider) {
+                                    contentForDescription(platform, tag)
                                 }
                             }
                         }
@@ -486,7 +486,7 @@ open class DefaultPageCreator(
                         if (tags.isNotEmpty()) {
                             tags.groupBy { it::class }.forEach { (_, sameCategoryTags) ->
                                 group(sourceSets = setOf(platform), styles = emptySet()) {
-                                    header(4, sameCategoryTags.first().toHeaderString())
+                                    header(KDOC_TAG_HEADER_LEVEL, sameCategoryTags.first().toHeaderString())
                                     sameCategoryTags.forEach { comment(it.root) }
                                 }
                             }
@@ -537,7 +537,7 @@ open class DefaultPageCreator(
                 val params = tags.withTypeNamed<Param>()
                 val availablePlatforms = params.values.flatMap { it.keys }.toSet()
 
-                header(4, "Parameters", kind = ContentKind.Parameters, sourceSets = availablePlatforms)
+                header(KDOC_TAG_HEADER_LEVEL, "Parameters", kind = ContentKind.Parameters, sourceSets = availablePlatforms)
                 group(
                     extra = mainExtra + SimpleAttr.header("Parameters"),
                     styles = setOf(ContentStyle.WithExtraAttributes),
@@ -555,7 +555,7 @@ open class DefaultPageCreator(
                                                 kind = ContentKind.Parameters,
                                                 styles = mainStyles + ContentStyle.RowTitle
                                             )
-                                            if (it.root.children.isNotEmpty()) {
+                                            if (it.isNotEmpty()) {
                                                 comment(it.root)
                                             }
                                         }
@@ -573,7 +573,7 @@ open class DefaultPageCreator(
                 val seeAlsoTags = tags.withTypeNamed<See>()
                 val availablePlatforms = seeAlsoTags.values.flatMap { it.keys }.toSet()
 
-                header(4, "See also", kind = ContentKind.Comment, sourceSets = availablePlatforms)
+                header(KDOC_TAG_HEADER_LEVEL, "See also", kind = ContentKind.Comment, sourceSets = availablePlatforms)
                 group(
                     extra = mainExtra + SimpleAttr.header("See also"),
                     styles = setOf(ContentStyle.WithExtraAttributes),
@@ -602,7 +602,7 @@ open class DefaultPageCreator(
                                                 kind = ContentKind.Comment,
                                                 styles = mainStyles + ContentStyle.RowTitle
                                             )
-                                            if (it.root.children.isNotEmpty()) {
+                                            if (it.isNotEmpty()) {
                                                 comment(it.root)
                                             }
                                         }
@@ -620,7 +620,7 @@ open class DefaultPageCreator(
             if (throws.isNotEmpty()) {
                 val availablePlatforms = throws.values.flatMap { it.keys }.toSet()
 
-                header(4, "Throws", sourceSets = availablePlatforms)
+                header(KDOC_TAG_HEADER_LEVEL, "Throws", sourceSets = availablePlatforms)
                 buildContent(availablePlatforms) {
                     availablePlatforms.forEach { sourceset ->
                         table(
@@ -636,7 +636,7 @@ open class DefaultPageCreator(
                                                 link(text = it.classNames ?: entry.key, address = it)
                                             } ?: text(entry.key)
                                         }
-                                        if (throws.root.children.isNotEmpty()) {
+                                        if (throws.isNotEmpty()) {
                                             comment(throws.root)
                                         }
                                     }
@@ -652,7 +652,7 @@ open class DefaultPageCreator(
             val samples = tags.withTypeNamed<Sample>()
             if (samples.isNotEmpty()) {
                 val availablePlatforms = samples.values.flatMap { it.keys }.toSet()
-                header(4, "Samples", kind = ContentKind.Sample, sourceSets = availablePlatforms)
+                header(KDOC_TAG_HEADER_LEVEL, "Samples", kind = ContentKind.Sample, sourceSets = availablePlatforms)
                 group(
                     extra = mainExtra + SimpleAttr.header("Samples"),
                     styles = emptySet(),
@@ -685,6 +685,8 @@ open class DefaultPageCreator(
             }
         }.children
     }
+
+    private fun TagWrapper.isNotEmpty() = this.children.isNotEmpty()
 
     protected open fun DocumentableContentBuilder.contentForBrief(documentable: Documentable) {
         documentable.sourceSets.forEach { sourceSet ->
