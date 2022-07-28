@@ -388,7 +388,7 @@ enum class TextStyle : Style {
 
 enum class ContentStyle : Style {
     RowTitle, TabbedContent, WithExtraAttributes, RunnableSample, InDocumentationAnchor, Caption,
-    Wrapped, Indented
+    Wrapped, Indented, KDocTag
 }
 
 enum class ListStyle : Style {

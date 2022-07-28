@@ -469,8 +469,10 @@ open class DefaultPageCreator(
                     customTags.forEach { (_, sourceSetTag) ->
                         sourceSetTag[platform]?.let { tag ->
                             customTagContentProviders.filter { it.isApplicable(tag) }.forEach { provider ->
-                                with(provider) {
-                                    contentForDescription(platform, tag)
+                                group(sourceSets = setOf(platform), styles = setOf(ContentStyle.KDocTag)) {
+                                    with(provider) {
+                                        contentForDescription(platform, tag)
+                                    }
                                 }
                             }
                         }
@@ -485,9 +487,13 @@ open class DefaultPageCreator(
                     unnamedTags[platform]?.let { tags ->
                         if (tags.isNotEmpty()) {
                             tags.groupBy { it::class }.forEach { (_, sameCategoryTags) ->
-                                group(sourceSets = setOf(platform), styles = emptySet()) {
-                                    header(KDOC_TAG_HEADER_LEVEL, sameCategoryTags.first().toHeaderString())
-                                    sameCategoryTags.forEach { comment(it.root) }
+                                group(sourceSets = setOf(platform), styles = setOf(ContentStyle.KDocTag)) {
+                                    header(
+                                        level = KDOC_TAG_HEADER_LEVEL,
+                                        text = sameCategoryTags.first().toHeaderString(),
+                                        styles = setOf()
+                                    )
+                                    sameCategoryTags.forEach { comment(it.root, styles = setOf()) }
                                 }
                             }
                         }

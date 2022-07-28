@@ -3912,6 +3912,7 @@ public final class org/jetbrains/dokka/pages/ContentStyle : java/lang/Enum, org/
 	public static final field Caption Lorg/jetbrains/dokka/pages/ContentStyle;
 	public static final field InDocumentationAnchor Lorg/jetbrains/dokka/pages/ContentStyle;
 	public static final field Indented Lorg/jetbrains/dokka/pages/ContentStyle;
+	public static final field KDocTag Lorg/jetbrains/dokka/pages/ContentStyle;
 	public static final field RowTitle Lorg/jetbrains/dokka/pages/ContentStyle;
 	public static final field RunnableSample Lorg/jetbrains/dokka/pages/ContentStyle;
 	public static final field TabbedContent Lorg/jetbrains/dokka/pages/ContentStyle;

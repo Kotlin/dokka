@@ -97,6 +97,7 @@ open class HtmlRenderer(
                 childrenCallback()
                 if (node.hasStyle(TextStyle.Monospace)) copyButton()
             }
+            node.hasStyle(ContentStyle.KDocTag) -> span("kdoc-tag") { childrenCallback() }
             node.hasStyle(TextStyle.BreakableAfter) -> {
                 span { childrenCallback() }
                 wbr { }
