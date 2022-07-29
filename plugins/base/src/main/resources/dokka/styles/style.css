@@ -271,13 +271,13 @@ p.paragraph:first-child,
 
 #main {
     width: 100%;
-    max-width: calc(100% - 280px);
+    max-width: calc(100% - 300px);
     display: flex;
     flex-direction: column;
 }
 
 #leftColumn {
-    width: 280px;
+    width: 300px;
     border-right: 1px solid var(--border-color);
     display: flex;
     flex-direction: column;
@@ -448,7 +448,7 @@ code.paragraph {
     box-sizing: border-box;
     content: '';
     top: 0;
-    width: 280px;
+    width: 300px;
     right: 0;
     bottom: 0;
     position: absolute;
@@ -500,6 +500,78 @@ code.paragraph {
 
 .sideMenuPart.hidden > .sideMenuPart {
     display: none;
+}
+
+.overview .nav-link-grid {
+    display: grid;
+    grid-template-columns: 16px auto; /* first is the icon, then name */
+    grid-gap: 6px;
+    align-items: center;
+}
+
+.nav-icon {
+    width: 16px;
+    height: 16px;
+}
+
+.nav-icon.class::before {
+    content: url("../images/nav-icons/class.svg");
+}
+
+.nav-icon.class-kt::before {
+    content: url("../images/nav-icons/class-kotlin.svg");
+}
+
+.nav-icon.function::before {
+    content: url("../images/nav-icons/function.svg");
+}
+
+.nav-icon.enum-class::before {
+    content: url("../images/nav-icons/enum.svg");
+}
+
+.nav-icon.enum-class-kt::before {
+    content: url("../images/nav-icons/enum-kotlin.svg");
+}
+
+.nav-icon.annotation-class::before {
+    content: url("../images/nav-icons/annotation.svg");
+}
+
+.nav-icon.annotation-class-kt::before {
+    content: url("../images/nav-icons/annotation-kotlin.svg");
+}
+
+.nav-icon.abstract-class::before {
+    content: url("../images/nav-icons/abstract-class.svg");
+}
+
+.nav-icon.abstract-class-kt::before {
+    content: url("../images/nav-icons/abstract-class-kotlin.svg");
+}
+
+.nav-icon.exception-class::before {
+    content: url("../images/nav-icons/exception-class.svg");
+}
+
+.nav-icon.interface::before {
+    content: url("../images/nav-icons/interface.svg");
+}
+
+.nav-icon.interface-kt::before {
+    content: url("../images/nav-icons/interface-kotlin.svg");
+}
+
+.nav-icon.object::before {
+    content: url("../images/nav-icons/object.svg");
+}
+
+.nav-icon.val::before {
+    content: url("../images/nav-icons/field-value.svg");
+}
+
+.nav-icon.var::before {
+    content: url("../images/nav-icons/field-variable.svg");
 }
 
 .filtered > a, .filtered > .navButton {
@@ -1118,7 +1190,7 @@ div.runnablesample {
 
     #leftColumn {
         position: fixed;
-        margin-left: -280px;
+        margin-left: -300px;
         transition: margin .2s ease-out;
         z-index: 4;
         background: white;
@@ -1147,7 +1219,7 @@ div.runnablesample {
     }
 
     #leftColumn.open ~ #main #leftToggler {
-        margin-left: 280px;
+        margin-left: 300px;
     }
 
     .icon-toggler::before {
