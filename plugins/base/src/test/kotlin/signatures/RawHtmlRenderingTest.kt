@@ -16,7 +16,7 @@ class RawHtmlRenderingTest: AbstractRenderingTest() {
             pluginOverrides = listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
-                val content = writerPlugin.renderedSourceDepenentContent("example/example/-html-test/test.html")
+                val content = writerPlugin.renderedSourceDependentContent("example/example/-html-test/test.html")
                 assert(content.count() == 1)
                 assertEquals(content.select("[data-togglable=example/jvm]").single().rawBrief,"This is an example <!-- not visible --> of html")
 
@@ -53,7 +53,7 @@ class RawHtmlRenderingTest: AbstractRenderingTest() {
             pluginOverrides = listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
-                val content = writerPlugin.renderedSourceDepenentContent("example/example/-html-test/test-p.html")
+                val content = writerPlugin.renderedSourceDependentContent("example/example/-html-test/test-p.html")
                 assert(content.count() == 1)
                 assertEquals(content.select("[data-togglable=example/jvm]").single().rawBrief, "This is an <b> documentation </b>")
 
