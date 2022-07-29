@@ -7,13 +7,15 @@ import org.jetbrains.dokka.base.templating.AddToNavigationCommand
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.DisplaySourceSet
 import org.jetbrains.dokka.model.WithChildren
-import org.jetbrains.dokka.pages.PageNode
-import org.jetbrains.dokka.pages.RendererSpecificPage
-import org.jetbrains.dokka.pages.RenderingStrategy
+import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 
-class NavigationPage(val root: NavigationNode, val moduleName: String, val context: DokkaContext) :
-    RendererSpecificPage {
+class NavigationPage(
+    val root: NavigationNode,
+    val moduleName: String,
+    val context: DokkaContext
+) : RendererSpecificPage {
+
     override val name = "navigation"
 
     override val children = emptyList<PageNode>()
@@ -46,22 +48,69 @@ class NavigationPage(val root: NavigationNode, val moduleName: String, val conte
                             span("navButtonContent")
                         }
                     }
-                    buildLink(node.dri, node.sourceSets.toList()) { buildBreakableText(node.name) }
+                    buildLink(node.dri, node.sourceSets.toList()) {
+                        // special condition for Enums as it has children enum entries in navigation
+                        val withIcon = node.icon != null && (node.children.isEmpty() || node.isEnum())
+                        if (withIcon) {
+                            // in case link text is so long that it needs to have word breaks,
+                            // and it stretches to two or more lines, make sure the icon
+                            // is always on the left in the grid and is not wrapped with text
+                            span("nav-link-grid") {
+                                span("nav-link-child ${node.icon?.style()}")
+                                span("nav-link-child") {
+                                    buildBreakableText(node.name)
+                                }
+                            }
+                        } else {
+                            buildBreakableText(node.name)
+                        }
+                    }
                 }
                 node.children.withIndex().forEach { (n, p) -> visit(p, "$navId-$n", renderer) }
             }
         }
+
+    private fun NavigationNode.isEnum(): Boolean {
+        return icon == NavigationNodeIcon.ENUM_CLASS || icon == NavigationNodeIcon.ENUM_CLASS_KT
+    }
 }
 
 data class NavigationNode(
     val name: String,
     val dri: DRI,
     val sourceSets: Set<DisplaySourceSet>,
+    val icon: NavigationNodeIcon?,
     override val children: List<NavigationNode>
 ) : WithChildren<NavigationNode>
+
+/**
+ * [CLASS] represents a neutral (a.k.a Java-style) icon,
+ * whereas [CLASS_KT] should be Kotlin-styled
+ */
+enum class NavigationNodeIcon(
+    private val cssClass: String
+) {
+    CLASS("class"),
+    CLASS_KT("class-kt"),
+    ABSTRACT_CLASS("abstract-class"),
+    ABSTRACT_CLASS_KT("abstract-class-kt"),
+    ENUM_CLASS("enum-class"),
+    ENUM_CLASS_KT("enum-class-kt"),
+    ANNOTATION_CLASS("annotation-class"),
+    ANNOTATION_CLASS_KT("annotation-class-kt"),
+    INTERFACE("interface"),
+    INTERFACE_KT("interface-kt"),
+    FUNCTION("function"),
+    EXCEPTION("exception-class"),
+    OBJECT("object"),
+    VAL("val"),
+    VAR("var");
+
+    internal fun style(): String = "nav-icon $cssClass"
+}
 
 fun NavigationPage.transform(block: (NavigationNode) -> NavigationNode) =
     NavigationPage(root.transform(block), moduleName, context)
 
 fun NavigationNode.transform(block: (NavigationNode) -> NavigationNode) =
-    run(block).let { NavigationNode(it.name, it.dri, it.sourceSets, it.children.map(block)) }
+    run(block).let { NavigationNode(it.name, it.dri, it.sourceSets, it.icon, it.children.map(block)) }

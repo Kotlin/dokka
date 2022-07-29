@@ -2,60 +2,16 @@ package org.jetbrains.dokka.base.renderers.html
 
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.DokkaBaseConfiguration
-import org.jetbrains.dokka.base.renderers.sourceSets
 import org.jetbrains.dokka.base.templating.AddToSourcesetDependencies
 import org.jetbrains.dokka.base.templating.toJsonString
-import org.jetbrains.dokka.model.DEnum
-import org.jetbrains.dokka.model.DEnumEntry
-import org.jetbrains.dokka.model.DFunction
-import org.jetbrains.dokka.model.withDescendants
-import org.jetbrains.dokka.pages.*
+import org.jetbrains.dokka.pages.RendererSpecificResourcePage
+import org.jetbrains.dokka.pages.RenderingStrategy
+import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.configuration
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 
-abstract class NavigationDataProvider {
-    open fun navigableChildren(input: RootPageNode): NavigationNode = input.withDescendants()
-        .first { it is ModulePage || it is MultimoduleRootPage }.let { visit(it as ContentPage) }
-
-    open fun visit(page: ContentPage): NavigationNode =
-        NavigationNode(
-            name = page.displayableName,
-            dri = page.dri.first(),
-            sourceSets = page.sourceSets(),
-            children = page.navigableChildren()
-        )
-
-    private fun ContentPage.navigableChildren(): List<NavigationNode> {
-        return if (this !is ClasslikePageNode) {
-            children
-                .filterIsInstance<ContentPage>()
-                .map { visit(it) }
-                .sortedBy { it.name.toLowerCase() }
-        } else if (documentables.any { it is DEnum }) {
-            // no sorting for enum entries, should be the same as in source code
-            children
-                .filter { child -> child is WithDocumentables && child.documentables.any { it is DEnumEntry } }
-                .map { visit(it as ContentPage) }
-        } else {
-            emptyList()
-        }
-    }
-
-    /**
-     * Parenthesis is applied in 1 case:
-     *  - page only contains functions (therefore documentable from this page is [DFunction])
-     */
-    private val ContentPage.displayableName: String
-        get() = if (this is WithDocumentables && documentables.all { it is DFunction }) {
-            "$name()"
-        } else {
-            name
-        }
-}
-
 open class NavigationPageInstaller(val context: DokkaContext) : NavigationDataProvider(), PageTransformer {
-
     override fun invoke(input: RootPageNode): RootPageNode =
         input.modified(
             children = input.children + NavigationPage(
@@ -138,6 +94,23 @@ object AssetsInstaller : PageTransformer {
         "images/copy-icon.svg",
         "images/copy-successful-icon.svg",
         "images/theme-toggle.svg",
+
+        // navigation icons
+        "images/nav-icons/abstract-class.svg",
+        "images/nav-icons/abstract-class-kotlin.svg",
+        "images/nav-icons/annotation.svg",
+        "images/nav-icons/annotation-kotlin.svg",
+        "images/nav-icons/class.svg",
+        "images/nav-icons/class-kotlin.svg",
+        "images/nav-icons/enum.svg",
+        "images/nav-icons/enum-kotlin.svg",
+        "images/nav-icons/exception-class.svg",
+        "images/nav-icons/field-value.svg",
+        "images/nav-icons/field-variable.svg",
+        "images/nav-icons/function.svg",
+        "images/nav-icons/interface.svg",
+        "images/nav-icons/interface-kotlin.svg",
+        "images/nav-icons/object.svg",
     )
 
     override fun invoke(input: RootPageNode) = input.modified(

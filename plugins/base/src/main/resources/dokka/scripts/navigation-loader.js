@@ -59,7 +59,10 @@ scrollNavigationToSelectedElement = () => {
         return
     }
 
-    let isPackageElement = selectedElement.children.length > 1
+    let hasIcon = selectedElement.querySelectorAll(":scope > div.overview span.nav-icon").length > 0
+
+    // for instance enums also have children and are expandable, but are not package/module elements
+    let isPackageElement = selectedElement.children.length > 1 && !hasIcon
     if (isPackageElement) {
         // if package is selected or linked, it makes sense to align it to top
         // so that you can see all the members it contains
