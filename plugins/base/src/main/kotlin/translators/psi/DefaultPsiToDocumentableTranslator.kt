@@ -682,9 +682,22 @@ class DefaultPsiToDocumentableTranslator(
          * This is a workaround for static imports from JDK like RetentionPolicy
          * For some reason they are not represented in the same way than using normal import
          */
-        private fun JvmAnnotationAttributeValue.toValue(): AnnotationParameterValue? = when (this) {
-            is JvmAnnotationEnumFieldValue -> (field as? PsiElement)?.let { EnumValue(fieldName ?: "", DRI.from(it)) }
-            else -> null
+        private fun JvmAnnotationAttributeValue.toValue(): AnnotationParameterValue? {
+            return when {
+                this is JvmAnnotationEnumFieldValue -> (field as? PsiElement)?.let { EnumValue(fieldName ?: "", DRI.from(it)) }
+                // static import of a constant is resolved to constant value instead of a field/link
+                this.isPsiAnnotationConstantValue() -> this.getPsiAnnotationConstantValue()?.toAnnotationLiteralValue()
+                else -> null
+            }
+        }
+
+        private fun Any.toAnnotationLiteralValue() = when (this) {
+            is Int -> IntValue(this)
+            is Long -> LongValue(this)
+            is Boolean -> BooleanValue(this)
+            is Float -> FloatValue(this)
+            is Double -> DoubleValue(this)
+            else -> StringValue(this.toString())
         }
 
         private fun PsiAnnotationMemberValue.toValue(): AnnotationParameterValue? = when (this) {
