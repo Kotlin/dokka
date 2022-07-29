@@ -73,18 +73,17 @@ abstract class NavigationDataProvider {
     }
 
     private fun ContentPage.navigableChildren(): List<NavigationNode> {
-        return if (this !is ClasslikePageNode) {
+        return if (this is ClasslikePage) {
+            // Classlikes should only have other classlikes as navigable children
+            children
+                .filterIsInstance<ClasslikePage>()
+                .map { visit(it) }
+                .sortedBy { it.name.toLowerCase() }
+        } else {
             children
                 .filterIsInstance<ContentPage>()
                 .map { visit(it) }
                 .sortedBy { it.name.toLowerCase() }
-        } else if (documentables.any { it is DEnum }) {
-            // no sorting for enum entries, should be the same as in source code
-            children
-                .filter { child -> child is WithDocumentables && child.documentables.any { it is DEnumEntry } }
-                .map { visit(it as ContentPage) }
-        } else {
-            emptyList()
         }
     }
 }
