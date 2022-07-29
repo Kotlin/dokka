@@ -34,7 +34,6 @@ class SourceLinksTransformer(val context: DokkaContext) : PageTransformer {
         if (sourceLinks.isEmpty()) {
             return input
         }
-        context.logger.warn("sourceLinks.size " + sourceLinks.size)
        return input.transformContentPagesTree { node ->
             when (node) {
                 is WithDocumentables -> {
@@ -101,12 +100,12 @@ class SourceLinksTransformer(val context: DokkaContext) : PageTransformer {
     private fun transformContent(
         contentNode: ContentNode, sources: Map<DRI, List<Pair<DokkaSourceSet, String>>>
     ): ContentNode =
-        contentNode.signatureGroupOrNull()?.let { cg ->
-            sources[cg.dci.dri.singleOrNull()]?.let { sourceLinks ->
-                sourceLinks.filter { it.first.sourceSetID in cg.sourceSets.sourceSetIDs }.ifNotEmpty {
-                    cg.copy(children = cg.children + sourceLinks.map {
+        contentNode.signatureGroupOrNull()?.let { sg ->
+            sources[sg.dci.dri.singleOrNull()]?.let { sourceLinks ->
+                sourceLinks.filter { it.first.sourceSetID in sg.sourceSets.sourceSetIDs }.ifNotEmpty {
+                    sg.copy(children = sg.children + sourceLinks.map {
                         buildContentLink(
-                            cg.dci.dri.first(),
+                            sg.dci.dri.first(),
                             it.first,
                             it.second
                         )
@@ -122,7 +121,7 @@ class SourceLinksTransformer(val context: DokkaContext) : PageTransformer {
         dri,
         setOf(sourceSet),
         ContentKind.Source,
-        setOf(TextStyle.RightAligned)
+        setOf(TextStyle.FloatingRight)
     ) {
         text("(")
         link("source", link)

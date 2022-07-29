@@ -4280,13 +4280,13 @@ public final class org/jetbrains/dokka/pages/TextStyle : java/lang/Enum, org/jet
 	public static final field Breakable Lorg/jetbrains/dokka/pages/TextStyle;
 	public static final field BreakableAfter Lorg/jetbrains/dokka/pages/TextStyle;
 	public static final field Cover Lorg/jetbrains/dokka/pages/TextStyle;
+	public static final field FloatingRight Lorg/jetbrains/dokka/pages/TextStyle;
 	public static final field Indented Lorg/jetbrains/dokka/pages/TextStyle;
 	public static final field InlineComment Lorg/jetbrains/dokka/pages/TextStyle;
 	public static final field Italic Lorg/jetbrains/dokka/pages/TextStyle;
 	public static final field Monospace Lorg/jetbrains/dokka/pages/TextStyle;
 	public static final field Paragraph Lorg/jetbrains/dokka/pages/TextStyle;
 	public static final field Quotation Lorg/jetbrains/dokka/pages/TextStyle;
-	public static final field RightAligned Lorg/jetbrains/dokka/pages/TextStyle;
 	public static final field Span Lorg/jetbrains/dokka/pages/TextStyle;
 	public static final field Strikethrough Lorg/jetbrains/dokka/pages/TextStyle;
 	public static final field Strong Lorg/jetbrains/dokka/pages/TextStyle;

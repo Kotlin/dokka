@@ -129,7 +129,7 @@ open class HtmlRenderer(
             node.hasStyle(TextStyle.Paragraph) -> p(additionalClasses) { childrenCallback() }
             node.hasStyle(TextStyle.Block) -> div(additionalClasses) { childrenCallback() }
             node.hasStyle(TextStyle.Quotation) -> blockQuote(additionalClasses) { childrenCallback() }
-            node.hasStyle(TextStyle.RightAligned) -> span("clearfix") { span("right-aligned") { childrenCallback() } }
+            node.hasStyle(TextStyle.FloatingRight) -> span("clearfix") { span("floating-right") { childrenCallback() } }
             node.isAnchorable -> buildAnchor(
                 node.anchor!!,
                 node.anchorLabel!!,

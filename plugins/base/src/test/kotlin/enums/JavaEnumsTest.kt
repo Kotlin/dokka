@@ -45,7 +45,7 @@ class JavaEnumsTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 val enumPage = writerPlugin.writer.renderedContent("root/testpackage/-java-enum/index.html")
-                val sourceLink = enumPage.select(".symbol .right-aligned")
+                val sourceLink = enumPage.select(".symbol .floating-right")
                     .select("a[href]")
                     .attr("href")
 
