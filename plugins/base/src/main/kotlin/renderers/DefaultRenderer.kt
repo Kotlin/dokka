@@ -15,6 +15,7 @@ import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.renderers.PostAction
 import org.jetbrains.dokka.renderers.Renderer
 import org.jetbrains.dokka.transformers.pages.PageTransformer
+import java.util.concurrent.atomic.AtomicInteger
 
 abstract class DefaultRenderer<T>(
     protected val context: DokkaContext
@@ -157,12 +158,13 @@ abstract class DefaultRenderer<T>(
         context.buildNavigation(page)
         page.content.build(context, page)
     }
-
+    val countOfRenderedPages = AtomicInteger(0)
     open suspend fun renderPage(page: PageNode) {
         val path by lazy {
             locationProvider.resolve(page, skipExtension = true)
                 ?: throw DokkaException("Cannot resolve path for ${page.name}")
         }
+        countOfRenderedPages.incrementAndGet()
         when (page) {
             is ContentPage -> outputWriter.write(path, buildPage(page) { c, p -> buildPageContent(c, p) }, ".html")
             is RendererSpecificPage -> when (val strategy = page.strategy) {
@@ -206,10 +208,11 @@ abstract class DefaultRenderer<T>(
 
         locationProvider =
             context.plugin<DokkaBase>().querySingle { locationProviderFactory }.getLocationProvider(newRoot)
-
+        countOfRenderedPages.set(0)
         runBlocking(Dispatchers.Default) {
             renderPages(newRoot)
         }
+        context.logger.info("Number of rendered pages is ${countOfRenderedPages.get()}")
     }
 
     protected fun ContentDivergentGroup.groupDivergentInstances(
