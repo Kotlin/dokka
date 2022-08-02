@@ -26,6 +26,44 @@ class BasicMultiplatformTest : BaseAbstractTest() {
     }
 
     @Test
+    fun dataTestLongSparseArray() {
+        val testDataDir = getTestDataDir("multiplatform/longSparseArray").toAbsolutePath()
+
+        val configuration = dokkaConfiguration {
+            sourceSets {
+                sourceSet {
+                    name = "jvm"
+                    displayName = "JVM"
+                    sourceRoots = listOf("$testDataDir/jvmMain/")
+                }
+            }
+            sourceSets {
+                sourceSet {
+                    name = "common"
+                    displayName = "common"
+                    analysisPlatform = "common"
+                    sourceRoots = listOf("$testDataDir/commonMain/")
+                }
+            }
+            sourceSets {
+                sourceSet {
+                    name = "native"
+                    displayName = "Native"
+                    analysisPlatform = "native"
+                    sourceRoots = listOf("$testDataDir/nativeMain/")
+                }
+            }
+        }
+
+        testFromData(configuration) {
+            documentablesCreationStage = {
+                assertEquals(1, it[0].packages.size)
+                assertEquals(1, it[0].packages[0].classlikes.size)
+            }
+        }
+    }
+
+    @Test
     fun inlineTestExample() {
         val configuration = dokkaConfiguration {
             sourceSets {
