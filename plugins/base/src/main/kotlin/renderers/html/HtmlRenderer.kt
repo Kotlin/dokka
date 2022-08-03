@@ -248,7 +248,7 @@ open class HtmlRenderer(
                 }
             }.stripDiv()
             sourceSet to createHTML(prettyPrint = false).prepareForTemplates()
-                .div(classes = "content sourceset-depenent-content") {
+                .div(classes = "content sourceset-dependent-content") {
                     if (counter++ == 0) attributes["data-active"] = ""
                     attributes["data-togglable"] = sourceSet.sourceSetIDs.merged.toString()
                     unsafe {
