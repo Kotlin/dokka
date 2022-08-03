@@ -3,6 +3,7 @@ package org.jetbrains.dokka.base.translators.psi
 import com.intellij.lang.jvm.JvmModifier
 import com.intellij.lang.jvm.annotation.JvmAnnotationAttribute
 import com.intellij.lang.jvm.annotation.JvmAnnotationAttributeValue
+import com.intellij.lang.jvm.annotation.JvmAnnotationConstantValue
 import com.intellij.lang.jvm.annotation.JvmAnnotationEnumFieldValue
 import com.intellij.lang.jvm.types.JvmReferenceType
 import com.intellij.openapi.vfs.VirtualFileManager
@@ -683,10 +684,10 @@ class DefaultPsiToDocumentableTranslator(
          * For some reason they are not represented in the same way than using normal import
          */
         private fun JvmAnnotationAttributeValue.toValue(): AnnotationParameterValue? {
-            return when {
-                this is JvmAnnotationEnumFieldValue -> (field as? PsiElement)?.let { EnumValue(fieldName ?: "", DRI.from(it)) }
+            return when (this) {
+                is JvmAnnotationEnumFieldValue -> (field as? PsiElement)?.let { EnumValue(fieldName ?: "", DRI.from(it)) }
                 // static import of a constant is resolved to constant value instead of a field/link
-                this.isPsiAnnotationConstantValue() -> this.getPsiAnnotationConstantValue()?.toAnnotationLiteralValue()
+                is JvmAnnotationConstantValue -> this.constantValue?.toAnnotationLiteralValue()
                 else -> null
             }
         }
