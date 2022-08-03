@@ -15,7 +15,7 @@ class DivergentSignatureTest : AbstractRenderingTest() {
             pluginOverrides = listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
-                val content = writerPlugin.renderedSourceDepenentContent("example/example/-clock/get-time.html")
+                val content = writerPlugin.renderedSourceDependentContent("example/example/-clock/get-time.html")
 
                 assert(content.count() == 3)
                 val sourceSets = listOf("example/common", "example/js", "example/jvm")
@@ -36,7 +36,7 @@ class DivergentSignatureTest : AbstractRenderingTest() {
             pluginOverrides = listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
-                val content = writerPlugin.renderedSourceDepenentContent("example/example/-clock/get-times-in-millis.html")
+                val content = writerPlugin.renderedSourceDependentContent("example/example/-clock/get-times-in-millis.html")
 
                 assert(content.count() == 3)
                 assert(content.select("[data-togglable=example/common]").single().brief == "Time in minis")
@@ -56,7 +56,7 @@ class DivergentSignatureTest : AbstractRenderingTest() {
             pluginOverrides = listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
-                val content = writerPlugin.renderedSourceDepenentContent("example/example/-clock/get-year.html")
+                val content = writerPlugin.renderedSourceDependentContent("example/example/-clock/get-year.html")
                 assert(content.count() == 3)
                 assert(content.select("[data-togglable=example/jvm]").single().brief == "JVM custom kdoc")
                 assert(content.select("[data-togglable=example/js]").single().brief == "JS custom kdoc")
