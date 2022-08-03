@@ -96,6 +96,7 @@ open class HtmlRenderer(
             node.dci.kind in setOf(ContentKind.Symbol) -> div("symbol $additionalClasses") {
                 childrenCallback()
             }
+            node.hasStyle(ContentStyle.KDocTag) -> span("kdoc-tag") { childrenCallback() }
             node.hasStyle(TextStyle.BreakableAfter) -> {
                 span { childrenCallback() }
                 wbr { }

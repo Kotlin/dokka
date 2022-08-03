@@ -1,9 +1,9 @@
 package org.jetbrains.dokka.base.transformers.pages.tags
 
 import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.base.translators.documentables.KDOC_TAG_HEADER_LEVEL
 import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder.DocumentableContentBuilder
 import org.jetbrains.dokka.model.doc.CustomTagWrapper
-import org.jetbrains.dokka.pages.ContentKind
 import org.jetbrains.dokka.pages.TextStyle
 
 object SinceKotlinTagContentProvider : CustomTagContentProvider {
@@ -16,8 +16,8 @@ object SinceKotlinTagContentProvider : CustomTagContentProvider {
         sourceSet: DokkaConfiguration.DokkaSourceSet,
         customTag: CustomTagWrapper
     ) {
-        group(sourceSets = setOf(sourceSet), kind = ContentKind.Comment, styles = setOf(TextStyle.Block)) {
-            header(4, customTag.name)
+        group(sourceSets = setOf(sourceSet), styles = emptySet()) {
+            header(KDOC_TAG_HEADER_LEVEL, customTag.name)
             comment(customTag.root)
         }
     }

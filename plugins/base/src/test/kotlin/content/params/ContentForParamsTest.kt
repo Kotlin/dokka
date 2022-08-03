@@ -450,17 +450,17 @@ class ContentForParamsTest : BaseAbstractTest() {
                             }
                             after {
                                 group { pWrapped("a normal comment") }
-                                header(2) { +"Throws" }
+                                header(4) { +"Throws" }
                                 table {
                                     group {
                                         group {
-                                            link { +"java.lang.IllegalStateException" }
+                                            link { +"IllegalStateException" }
                                         }
                                         comment { +"if the Dialog has not yet been created (before onCreateDialog) or has been destroyed (after onDestroyView)." }
                                     }
                                     group {
                                         group {
-                                            link { +"java.lang.RuntimeException" }
+                                            link { +"RuntimeException" }
                                         }
                                         comment {
                                             +"when "
@@ -507,7 +507,7 @@ class ContentForParamsTest : BaseAbstractTest() {
                             }
                             after {
                                 group { pWrapped("a normal comment") }
-                                header(2) { +"Throws" }
+                                header(4) { +"Throws" }
                                 table {
                                     group {
                                         group {
@@ -518,7 +518,7 @@ class ContentForParamsTest : BaseAbstractTest() {
                                                         (this as ContentDRILink).address.toString()
                                                     )
                                                 }
-                                                +"java.lang.IllegalStateException"
+                                                +"IllegalStateException"
                                             }
                                         }
                                         comment { +"if the Dialog has not yet been created (before onCreateDialog) or has been destroyed (after onDestroyView)." }
@@ -532,7 +532,7 @@ class ContentForParamsTest : BaseAbstractTest() {
                                                         (this as ContentDRILink).address.toString()
                                                     )
                                                 }
-                                                +"java.lang.RuntimeException"
+                                                +"RuntimeException"
                                             }
                                         }
                                         comment {
@@ -540,6 +540,51 @@ class ContentForParamsTest : BaseAbstractTest() {
                                             link { +"Hash Map" }
                                             +" doesn't contain value."
                                         }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `should display fully qualified throws name for unresolved class`() {
+        testInline(
+            """
+            |/src/main/kotlin/sample/sample.kt
+            |package sample;
+            | /**
+            | * a normal comment
+            | *
+            | * @throws com.example.UnknownException description for non-resolved
+            | */
+            | fun sample(){ }
+            """.trimIndent(), testConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val functionPage =
+                    module.children.single { it.name == "sample" }.children.single { it.name == "sample" } as ContentPage
+                functionPage.content.assertNode {
+                    group {
+                        header(1) { +"sample" }
+                    }
+                    divergentGroup {
+                        divergentInstance {
+                            divergent {
+                                skipAllNotMatching() //Signature
+                            }
+                            after {
+                                group { pWrapped("a normal comment") }
+                                header(4) { +"Throws" }
+                                table {
+                                    group {
+                                        group {
+                                            +"com.example.UnknownException"
+                                        }
+                                        comment { +"description for non-resolved" }
                                     }
                                 }
                             }
@@ -585,7 +630,7 @@ class ContentForParamsTest : BaseAbstractTest() {
                             }
                             after {
                                 group { pWrapped("a normal comment") }
-                                header(2) { +"Throws" }
+                                header(4) { +"Throws" }
                                 table {
                                     group {
                                         group {
@@ -596,7 +641,7 @@ class ContentForParamsTest : BaseAbstractTest() {
                                                         (this as ContentDRILink).address.toString()
                                                     )
                                                 }
-                                                +"java.lang.IllegalStateException"
+                                                +"IllegalStateException"
                                             }
                                         }
                                         comment { +"if the Dialog has not yet been created (before onCreateDialog) or has been destroyed (after onDestroyView)." }
@@ -610,7 +655,7 @@ class ContentForParamsTest : BaseAbstractTest() {
                                                         (this as ContentDRILink).address.toString()
                                                     )
                                                 }
-                                                +"java.lang.RuntimeException"
+                                                +"RuntimeException"
                                             }
                                         }
                                         comment {
@@ -719,7 +764,7 @@ class ContentForParamsTest : BaseAbstractTest() {
                                         +" doesn't contain value."
                                     }
                                 }
-                                header(2) { +"Parameters" }
+                                header(4) { +"Parameters" }
                                 group {
                                     table {
                                         group {
@@ -1007,7 +1052,7 @@ class ContentForParamsTest : BaseAbstractTest() {
                             }
                             after {
                                 group { pWrapped("comment to function") }
-                                header(2) { +"Parameters" }
+                                header(4) { +"Parameters" }
                                 group {
                                     table {
                                         group {
@@ -1060,7 +1105,7 @@ class ContentForParamsTest : BaseAbstractTest() {
                             }
                             after {
                                 group { group { group { +"comment to function" } } }
-                                header(2) { +"Parameters" }
+                                header(4) { +"Parameters" }
                                 group {
                                     table {
                                         group {
@@ -1122,7 +1167,7 @@ class ContentForParamsTest : BaseAbstractTest() {
                             }
                             after {
                                 group { group { group { +"comment to function" } } }
-                                header(2) { +"Parameters" }
+                                header(4) { +"Parameters" }
                                 group {
                                     table {
                                         group {
@@ -1181,7 +1226,7 @@ class ContentForParamsTest : BaseAbstractTest() {
                                 )
                             }
                             after {
-                                header(2) { +"Parameters" }
+                                header(4) { +"Parameters" }
                                 group {
                                     table {
                                         group {
@@ -1249,7 +1294,7 @@ class ContentForParamsTest : BaseAbstractTest() {
                                     header(4) { +"Receiver" }
                                     pWrapped("comment to receiver")
                                 }
-                                header(2) { +"Parameters" }
+                                header(4) { +"Parameters" }
                                 group {
                                     table {
                                         group {
@@ -1301,7 +1346,7 @@ class ContentForParamsTest : BaseAbstractTest() {
                             }
                             after {
                                 group { group { group { +"comment to function" } } }
-                                header(2) { +"Parameters" }
+                                header(4) { +"Parameters" }
                                 group {
                                     table {
                                         group {
@@ -1362,7 +1407,7 @@ class ContentForParamsTest : BaseAbstractTest() {
                                 group { pWrapped("comment to function") }
                                 unnamedTag("Author") { comment { +"Kordyjan" } }
                                 unnamedTag("Since") { comment { +"0.11" } }
-                                header(2) { +"Parameters" }
+                                header(4) { +"Parameters" }
 
                                 group {
                                     table {
