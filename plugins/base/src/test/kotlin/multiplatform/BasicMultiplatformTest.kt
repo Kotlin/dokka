@@ -30,19 +30,19 @@ class BasicMultiplatformTest : BaseAbstractTest() {
         val testDataDir = getTestDataDir("multiplatform/longSparseArray").toAbsolutePath()
 
         val configuration = dokkaConfiguration {
+            
+            val common =  sourceSet {
+                name = "common"
+                displayName = "common"
+                analysisPlatform = "common"
+                sourceRoots = listOf("$testDataDir/commonMain/")
+            }
             sourceSets {
                 sourceSet {
                     name = "jvm"
                     displayName = "JVM"
                     sourceRoots = listOf("$testDataDir/jvmMain/")
-                }
-            }
-            sourceSets {
-                sourceSet {
-                    name = "common"
-                    displayName = "common"
-                    analysisPlatform = "common"
-                    sourceRoots = listOf("$testDataDir/commonMain/")
+                    dependentSourceSets = setOf(common.value.sourceSetID)
                 }
             }
             sourceSets {
@@ -51,14 +51,22 @@ class BasicMultiplatformTest : BaseAbstractTest() {
                     displayName = "Native"
                     analysisPlatform = "native"
                     sourceRoots = listOf("$testDataDir/nativeMain/")
+                    dependentSourceSets = setOf(common.value.sourceSetID)
                 }
             }
         }
 
         testFromData(configuration) {
-            documentablesCreationStage = {
-                assertEquals(1, it[0].packages.size)
-                assertEquals(1, it[0].packages[0].classlikes.size)
+            documentablesMergingStage = {
+                assertEquals(1, it.packages.size)
+                assertEquals(1, it.packages[0].classlikes.size)
+                assertEquals(3, it.sourceSets.size)
+            }
+            
+            documentablesTransformationStage = {
+                assertEquals(1, it.packages.size)
+                assertEquals(1, it.packages[0].classlikes.size)
+                assertEquals(3, it.sourceSets.size)
             }
         }
     }
