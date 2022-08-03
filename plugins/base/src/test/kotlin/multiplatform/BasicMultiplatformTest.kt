@@ -30,22 +30,21 @@ class BasicMultiplatformTest : BaseAbstractTest() {
         val testDataDir = getTestDataDir("multiplatform/longSparseArray").toAbsolutePath()
 
         val configuration = dokkaConfiguration {
-            
-            val common =  sourceSet {
-                name = "common"
-                displayName = "common"
-                analysisPlatform = "common"
-                sourceRoots = listOf("$testDataDir/commonMain/")
-            }
             sourceSets {
+                val common =  sourceSet {
+                    name = "common"
+                    displayName = "common"
+                    analysisPlatform = "common"
+                    sourceRoots = listOf("$testDataDir/commonMain/")
+                }
+                
                 sourceSet {
                     name = "jvm"
                     displayName = "JVM"
                     sourceRoots = listOf("$testDataDir/jvmMain/")
                     dependentSourceSets = setOf(common.value.sourceSetID)
                 }
-            }
-            sourceSets {
+                        
                 sourceSet {
                     name = "native"
                     displayName = "Native"
