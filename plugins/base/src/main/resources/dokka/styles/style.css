@@ -239,6 +239,14 @@ p.paragraph:first-child,
     margin-top: 0;
 }
 
+.content .kdoc-tag > p.paragraph {
+    margin-top: 0;
+}
+
+.content h4 {
+    margin-bottom: 0;
+}
+
 .divergent-group {
     background-color: var(--background-color);
     padding: 16px 0 8px 0;
@@ -1016,11 +1024,12 @@ td.content {
 
 .keyValue {
     display: grid;
+    grid-gap: 8px;
 }
 
 @media print, screen and (min-width: 960px) {
     .keyValue {
-        grid-template-columns: 20% 80%;
+        grid-template-columns: 25% 75%;
     }
 
     .title-row {
