@@ -49,8 +49,7 @@ class NavigationPage(
                         }
                     }
                     buildLink(node.dri, node.sourceSets.toList()) {
-                        // special condition for Enums as it has children enum entries in navigation
-                        val withIcon = node.icon != null && (node.children.isEmpty() || node.isEnum())
+                        val withIcon = node.icon != null
                         if (withIcon) {
                             // in case link text is so long that it needs to have word breaks,
                             // and it stretches to two or more lines, make sure the icon
@@ -69,10 +68,6 @@ class NavigationPage(
                 node.children.withIndex().forEach { (n, p) -> visit(p, "$navId-$n", renderer) }
             }
         }
-
-    private fun NavigationNode.isEnum(): Boolean {
-        return icon == NavigationNodeIcon.ENUM_CLASS || icon == NavigationNodeIcon.ENUM_CLASS_KT
-    }
 }
 
 data class NavigationNode(

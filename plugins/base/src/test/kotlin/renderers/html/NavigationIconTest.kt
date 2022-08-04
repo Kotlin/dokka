@@ -1,13 +1,11 @@
 package renderers.html
 
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
-import org.jsoup.Jsoup
-import org.jsoup.nodes.Element
-import org.jsoup.select.Elements
 import org.junit.jupiter.api.Test
-import utils.TestOutputWriter
 import utils.TestOutputWriterPlugin
 import kotlin.test.assertEquals
+import utils.navigationHtml
+import utils.selectNavigationGrid
 
 class NavigationIconTest : BaseAbstractTest() {
 
@@ -276,11 +274,5 @@ class NavigationIconTest : BaseAbstractTest() {
                 assertEquals(1, navLinkGrids.size)
             }
         }
-    }
-
-    private fun TestOutputWriter.navigationHtml(): Element = contents.getValue("navigation.html").let { Jsoup.parse(it) }
-
-    private fun Elements.selectNavigationGrid(): Element {
-        return this.select("div.overview").select("span.nav-link-grid").single()
     }
 }
