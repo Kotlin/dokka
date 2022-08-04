@@ -665,6 +665,13 @@ class DefaultPsiToDocumentableTranslator(
             )
         }
 
+        private fun PsiField.getVisibility(getter: DFunction?): Visibility {
+            return getter?.visibility?.get(sourceSetData) ?: this.getVisibility()
+        }
+
+        private fun Collection<PsiAnnotation>.toListOfAnnotations() =
+            filter { it !is KtLightAbstractAnnotation }.mapNotNull { it.toAnnotation() }
+
         private fun PsiField.getConstantExpression(): Expression? {
             val constantValue = this.computeConstantValue() ?: return null
             return when (constantValue) {
@@ -680,13 +687,6 @@ class DefaultPsiToDocumentableTranslator(
                 else -> ComplexExpression(constantValue.toString())
             }
         }
-
-        private fun PsiField.getVisibility(getter: DFunction?): Visibility {
-            return getter?.visibility?.get(sourceSetData) ?: this.getVisibility()
-        }
-
-        private fun Collection<PsiAnnotation>.toListOfAnnotations() =
-            filter { it !is KtLightAbstractAnnotation }.mapNotNull { it.toAnnotation() }
 
         private fun JvmAnnotationAttribute.toValue(): AnnotationParameterValue = when (this) {
             is PsiNameValuePair -> value?.toValue() ?: attributeValue?.toValue() ?: StringValue("")
