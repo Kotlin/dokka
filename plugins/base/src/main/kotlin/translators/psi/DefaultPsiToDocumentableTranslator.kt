@@ -658,10 +658,27 @@ class DefaultPsiToDocumentableTranslator(
                         inheritedFrom?.let { inheritedFrom -> InheritedMember(inheritedFrom.toSourceSetDependent()) },
                         it.toSourceSetDependent().toAdditionalModifiers(),
                         annotations.toSourceSetDependent().toAnnotations(),
+                        psi.getConstantExpression()?.let { DefaultValue(it.toSourceSetDependent()) },
                         takeIf { isVar }?.let { IsVar }
                     )
                 }
             )
+        }
+
+        private fun PsiField.getConstantExpression(): Expression? {
+            val constantValue = this.computeConstantValue() ?: return null
+            return when (constantValue) {
+                is Byte -> IntegerConstant(constantValue.toLong())
+                is Short -> IntegerConstant(constantValue.toLong())
+                is Int -> IntegerConstant(constantValue.toLong())
+                is Long -> IntegerConstant(constantValue)
+                is Char -> StringConstant(constantValue.toString())
+                is String -> StringConstant(constantValue)
+                is Double -> DoubleConstant(constantValue)
+                is Float -> FloatConstant(constantValue)
+                is Boolean -> BooleanConstant(constantValue)
+                else -> ComplexExpression(constantValue.toString())
+            }
         }
 
         private fun PsiField.getVisibility(getter: DFunction?): Visibility {
