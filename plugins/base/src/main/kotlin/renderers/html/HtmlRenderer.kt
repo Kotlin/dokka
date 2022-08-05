@@ -14,16 +14,13 @@ import org.jetbrains.dokka.base.resolvers.anchors.SymbolAnchorHint
 import org.jetbrains.dokka.base.resolvers.local.DokkaBaseLocationProvider
 import org.jetbrains.dokka.base.templating.*
 import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.model.DisplaySourceSet
+import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.properties.PropertyContainer
-import org.jetbrains.dokka.model.sourceSetIDs
-import org.jetbrains.dokka.model.withDescendants
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.pages.HtmlContent
 import org.jetbrains.dokka.plugability.*
 import org.jetbrains.dokka.utilities.htmlEscape
 import org.jetbrains.kotlin.utils.addIfNotNull
-import java.net.URI
 
 internal const val TEMPLATE_REPLACEMENT: String = "###"
 
@@ -252,23 +249,6 @@ open class HtmlRenderer(
     }
 
     override fun FlowContent.buildDivergent(node: ContentDivergentGroup, pageContext: ContentPage) {
-        fun groupDivergentInstancesWithSourceSet(
-            instances: List<ContentDivergentInstance>,
-            sourceSet: DisplaySourceSet,
-            pageContext: ContentPage,
-            beforeTransformer: (ContentDivergentInstance, ContentPage, DisplaySourceSet) -> String,
-            afterTransformer: (ContentDivergentInstance, ContentPage, DisplaySourceSet) -> String
-        ): Map<SerializedBeforeAndAfter, List<ContentDivergentInstance>> =
-            instances.map { instance ->
-                instance to Pair(
-                    beforeTransformer(instance, pageContext, sourceSet),
-                    afterTransformer(instance, pageContext, sourceSet)
-                )
-            }.groupBy(
-                Pair<ContentDivergentInstance, SerializedBeforeAndAfter>::second,
-                Pair<ContentDivergentInstance, SerializedBeforeAndAfter>::first
-            )
-
         if (node.implicitlySourceSetHinted) {
             val groupedInstancesBySourceSet = node.children.flatMap { instance ->
                 instance.sourceSets.map { sourceSet -> instance to sourceSet }
@@ -294,16 +274,28 @@ open class HtmlRenderer(
                                 }
                             }.stripDiv()
                         })
+
+                val isPageWithOverloadedMembers = pageContext is MemberPage && pageContext.documentables().size > 1
+
                 val contentOfSourceSet = mutableListOf<ContentNode>()
-                distinct.onEachIndexed{ i, (_, distinctInstances) ->
+                distinct.onEachIndexed{ index, (_, distinctInstances) ->
                     contentOfSourceSet.addIfNotNull(distinctInstances.firstOrNull()?.before)
                     contentOfSourceSet.addAll(distinctInstances.map { it.divergent })
                     contentOfSourceSet.addIfNotNull(
                         distinctInstances.firstOrNull()?.after
-                            ?: if (i != distinct.size - 1) ContentBreakLine(it.key) else null
+                            ?: if (index != distinct.size - 1) ContentBreakLine(it.key) else null
                     )
-                    if(node.dci.kind == ContentKind.Main && i != distinct.size - 1)
-                        contentOfSourceSet.add(ContentBreakLine(it.key))
+
+                    // content kind main is important for declarations list to avoid double line breaks
+                    if (node.dci.kind == ContentKind.Main && index != distinct.size - 1) {
+                        if (isPageWithOverloadedMembers) {
+                            // add some spacing and distinction between function/property overloads.
+                            // not ideal, but there's no other place to modify overloads page atm
+                            contentOfSourceSet.add(ContentBreakLine(it.key, style = setOf(HorizontalBreakLineStyle)))
+                        } else {
+                            contentOfSourceSet.add(ContentBreakLine(it.key))
+                        }
+                    }
                 }
                 contentOfSourceSet
             }
@@ -313,6 +305,27 @@ open class HtmlRenderer(
                 buildContentNode(it.divergent, pageContext, it.sourceSets)
             }
         }
+    }
+
+    private fun groupDivergentInstancesWithSourceSet(
+        instances: List<ContentDivergentInstance>,
+        sourceSet: DisplaySourceSet,
+        pageContext: ContentPage,
+        beforeTransformer: (ContentDivergentInstance, ContentPage, DisplaySourceSet) -> String,
+        afterTransformer: (ContentDivergentInstance, ContentPage, DisplaySourceSet) -> String
+    ): Map<SerializedBeforeAndAfter, List<ContentDivergentInstance>> =
+        instances.map { instance ->
+            instance to Pair(
+                beforeTransformer(instance, pageContext, sourceSet),
+                afterTransformer(instance, pageContext, sourceSet)
+            )
+        }.groupBy(
+            Pair<ContentDivergentInstance, SerializedBeforeAndAfter>::second,
+            Pair<ContentDivergentInstance, SerializedBeforeAndAfter>::first
+        )
+
+    private fun ContentPage.documentables(): List<Documentable> {
+        return (this as? WithDocumentables)?.documentables ?: emptyList()
     }
 
     override fun FlowContent.buildList(
@@ -672,6 +685,13 @@ open class HtmlRenderer(
     override fun buildError(node: ContentNode) = context.logger.error("Unknown ContentNode type: $node")
 
     override fun FlowContent.buildLineBreak() = br()
+    override fun FlowContent.buildLineBreak(node: ContentBreakLine, pageContext: ContentPage) {
+        if (node.style.contains(HorizontalBreakLineStyle)) {
+            hr()
+        } else {
+            buildLineBreak()
+        }
+    }
 
     override fun FlowContent.buildLink(address: String, content: FlowContent.() -> Unit) =
         a(href = address, block = content)
@@ -771,9 +791,6 @@ open class HtmlRenderer(
         buildHtml(page, page.embeddedResources) {
             content(this, page)
         }
-
-    private val String.isAbsolute: Boolean
-        get() = URI(this).isAbsolute
 
 
     open fun buildHtml(page: PageNode, resources: List<String>, content: FlowContent.() -> Unit): String =
