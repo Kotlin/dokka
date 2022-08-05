@@ -6,6 +6,10 @@ import org.jetbrains.dokka.model.dfs
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.utilities.DokkaLogger
 
+/**
+ * Merges [MemberPage] elements that have the same name.
+ * That includes **both** properties and functions.
+ */
 class SameMethodNamePageMergerStrategy(val logger: DokkaLogger) : PageMergerStrategy {
     override fun tryMerge(pages: List<PageNode>, path: List<String>): List<PageNode> {
         val members = pages.filterIsInstance<MemberPageNode>().takeIf { it.isNotEmpty() } ?: return pages

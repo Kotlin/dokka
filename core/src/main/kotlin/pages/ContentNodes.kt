@@ -36,7 +36,6 @@ data class ContentText(
     override fun hasAnyContent(): Boolean = text.isNotBlank()
 }
 
-// TODO: Remove
 data class ContentBreakLine(
     override val sourceSets: Set<DisplaySourceSet>,
     override val dci: DCI = DCI(emptySet(), ContentKind.Empty),

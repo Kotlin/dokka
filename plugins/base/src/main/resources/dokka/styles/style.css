@@ -115,6 +115,11 @@ html ::-webkit-scrollbar-thumb {
     margin-right: var(--horizontal-spacing-for-content);
 }
 
+.main-content .content > hr {
+    margin: 30px 0;
+    border-top: 3px double #8c8b8b;
+}
+
 .navigation-wrapper {
     display: flex;
     flex-wrap: wrap;
