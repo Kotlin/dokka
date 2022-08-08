@@ -203,7 +203,9 @@ open class HtmlRenderer(
     ) {
         val contents = contentsForSourceSetDependent(nodes, pageContext)
         val isOnlyCommonContent = contents.singleOrNull()?.let { (sourceSet, _) ->
-            sourceSet.platform == Platform.common && sourceSet.name == "common" && sourceSet.dependentSourceSetIDs.isEmpty()
+            sourceSet.platform == Platform.common
+                    && sourceSet.name.equals("common", ignoreCase = true)
+                    && sourceSet.dependentSourceSetIDs.isEmpty()
         } ?: false
 
         // little point in rendering a single "common" tab - it can be
