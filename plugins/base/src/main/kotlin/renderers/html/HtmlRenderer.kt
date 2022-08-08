@@ -3,6 +3,7 @@ package org.jetbrains.dokka.base.renderers.html
 import kotlinx.html.*
 import kotlinx.html.stream.createHTML
 import org.jetbrains.dokka.DokkaSourceSetID
+import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.renderers.*
 import org.jetbrains.dokka.base.renderers.html.command.consumers.ImmediateResolutionTagConsumer
@@ -201,12 +202,19 @@ open class HtmlRenderer(
         shouldHaveTabs: Boolean = shouldRenderSourceSetBubbles
     ) {
         val contents = contentsForSourceSetDependent(nodes, pageContext)
+        val isOnlyCommonContent = contents.singleOrNull()?.let { (sourceSet, _) ->
+            sourceSet.platform == Platform.common && sourceSet.name == "common" && sourceSet.dependentSourceSetIDs.isEmpty()
+        } ?: false
 
-        val divStyles = "platform-hinted ${styles.joinToString()}" + if (shouldHaveTabs) " with-platform-tabs" else ""
+        // little point in rendering a single "common" tab - it can be
+        // assumed that code without any tabs is common by default
+        val renderTabs = shouldHaveTabs && !isOnlyCommonContent
+
+        val divStyles = "platform-hinted ${styles.joinToString()}" + if (renderTabs) " with-platform-tabs" else ""
         div(divStyles) {
             attributes["data-platform-hinted"] = "data-platform-hinted"
             extra.extraHtmlAttributes().forEach { attributes[it.extraKey] = it.extraValue }
-            if (shouldHaveTabs) {
+            if (renderTabs) {
                 div("platform-bookmarks-row") {
                     attributes["data-toggle-list"] = "data-toggle-list"
                     contents.forEachIndexed { index, pair ->
