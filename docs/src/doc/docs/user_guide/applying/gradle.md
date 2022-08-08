@@ -241,7 +241,7 @@ kotlin {  // Kotlin Multiplatform plugin configuration
     js("customName")
 }
 
-tasks.withType<DokkaTask>().configureEach {
+tasks.withType<DokkaTaskPartial>().configureEach {
     // custom output directory
     outputDirectory.set(buildDir.resolve("dokka"))
 
