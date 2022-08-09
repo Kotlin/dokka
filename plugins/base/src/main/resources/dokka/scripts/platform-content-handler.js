@@ -32,15 +32,12 @@ const darkModeSwitch = () => {
     const localStorageKey = "dokka-dark-mode"
     const storage = localStorage.getItem(localStorageKey)
     const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
-    const savedDarkMode = storage ? JSON.parse(storage) : osDarkSchemePreferred
+    const darkModeEnabled = storage ? JSON.parse(storage) : osDarkSchemePreferred
     const element = document.getElementById("theme-toggle-button")
-    const enabledClasses = document.getElementsByTagName("html")[0].classList
-    initPlayground(savedDarkMode ? samplesDarkThemeName : samplesLightThemeName)
-    if (savedDarkMode != enabledClasses.contains('theme-dark')) {
-        enabledClasses.toggle("theme-dark");
-    }
+    initPlayground(darkModeEnabled ? samplesDarkThemeName : samplesLightThemeName)
 
     element.addEventListener('click', () => {
+        const enabledClasses = document.getElementsByTagName("html")[0].classList
         enabledClasses.toggle("theme-dark")
 
         //if previously we had saved dark theme then we set it to light as this is what we save in local storage
