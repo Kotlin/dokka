@@ -4292,6 +4292,7 @@ public final class org/jetbrains/dokka/pages/TextStyle : java/lang/Enum, org/jet
 	public static final field Strikethrough Lorg/jetbrains/dokka/pages/TextStyle;
 	public static final field Strong Lorg/jetbrains/dokka/pages/TextStyle;
 	public static final field UnderCoverText Lorg/jetbrains/dokka/pages/TextStyle;
+	public static final field Var Lorg/jetbrains/dokka/pages/TextStyle;
 	public static fun valueOf (Ljava/lang/String;)Lorg/jetbrains/dokka/pages/TextStyle;
 	public static fun values ()[Lorg/jetbrains/dokka/pages/TextStyle;
 }

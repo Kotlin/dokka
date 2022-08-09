@@ -184,6 +184,10 @@ public final class utils/TestOutputWriterPlugin : org/jetbrains/dokka/plugabilit
 	public final fun getWriter ()Lutils/TestOutputWriter;
 }
 
+public final class utils/Var : utils/Tag {
+	public fun <init> ([Ljava/lang/Object;)V
+}
+
 public final class utils/Wbr : utils/Tag {
 	public static final field INSTANCE Lutils/Wbr;
 }
