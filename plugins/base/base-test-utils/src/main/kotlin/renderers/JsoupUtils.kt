@@ -34,6 +34,7 @@ class BlockQuote(vararg matchers: Any) : Tag("blockquote", *matchers)
 class Dl(vararg matchers: Any) : Tag("dl", *matchers)
 class Dt(vararg matchers: Any) : Tag("dt", *matchers)
 class Dd(vararg matchers: Any) : Tag("dd", *matchers)
+class Var(vararg matchers: Any) : Tag("var", *matchers)
 object Wbr : Tag("wbr")
 object Br : Tag("br")
 
