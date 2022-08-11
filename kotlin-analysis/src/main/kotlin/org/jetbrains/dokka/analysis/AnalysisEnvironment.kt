@@ -571,7 +571,7 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
     fun addSources(sourceDirectories: Iterable<File>) {
         sourceDirectories.forEach { directory ->
             configuration.addKotlinSourceRoot(directory.path)
-            if (directory.isDirectory || directory.extension == ".java") {
+            if (directory.isDirectory || directory.extension == "java") {
                 configuration.addJavaSourceRoot(directory)
             }
         }
