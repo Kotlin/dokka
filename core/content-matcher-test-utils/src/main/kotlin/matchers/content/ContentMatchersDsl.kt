@@ -91,6 +91,10 @@ fun ContentMatcherBuilder<*>.platformHinted(block: ContentMatcherBuilder<Content
 
 fun ContentMatcherBuilder<*>.list(block: ContentMatcherBuilder<ContentList>.() -> Unit) = composite(block)
 
+fun ContentMatcherBuilder<*>.codeBlock(block: ContentMatcherBuilder<ContentCodeBlock>.() -> Unit) = composite(block)
+
+fun ContentMatcherBuilder<*>.codeInline(block: ContentMatcherBuilder<ContentCodeInline>.() -> Unit) = composite(block)
+
 fun ContentMatcherBuilder<*>.caption(block: ContentMatcherBuilder<ContentGroup>.() -> Unit) = composite<ContentGroup> {
     block()
     check { assertThat(this::style).contains(ContentStyle.Caption) }

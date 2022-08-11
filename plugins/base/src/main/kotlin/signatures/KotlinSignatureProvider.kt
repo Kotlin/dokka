@@ -72,12 +72,12 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
             contentBuilder.contentFor(
                 e,
                 ContentKind.Symbol,
-                setOf(TextStyle.Monospace) + e.stylesIfDeprecated(it),
+                setOf(TextStyle.Monospace),
                 sourceSets = setOf(it)
             ) {
                 group(styles = setOf(TextStyle.Block)) {
                     annotationsBlock(e)
-                    link(e.name, e.dri, styles = emptySet())
+                    link(e.name, e.dri, styles = mainStyles + e.stylesIfDeprecated(it))
                 }
             }
         }
@@ -91,12 +91,12 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
         return contentBuilder.contentFor(
             c,
             ContentKind.Symbol,
-            setOf(TextStyle.Monospace) + deprecationStyles,
+            setOf(TextStyle.Monospace),
             sourceSets = setOf(sourceSet)
         ) {
             keyword("actual ")
             keyword("typealias ")
-            link(c.name.orEmpty(), c.dri)
+            link(c.name.orEmpty(), c.dri, styles = mainStyles + deprecationStyles)
             operator(" = ")
             signatureForProjection(aliasedType)
         }
@@ -142,7 +142,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
         return contentBuilder.contentFor(
             c,
             ContentKind.Symbol,
-            setOf(TextStyle.Monospace) + deprecationStyles,
+            setOf(TextStyle.Monospace),
             sourceSets = setOf(sourceSet)
         ) {
             annotationsBlock(c)
@@ -183,7 +183,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                     keyword("annotation class ")
                 }
             }
-            link(c.name!!, c.dri)
+            link(c.name!!, c.dri, styles = mainStyles + deprecationStyles)
             if (c is WithGenerics) {
                 list(c.generics, prefix = "<", suffix = ">",
                     separatorStyles = mainStyles + TokenStyle.Punctuation,
@@ -251,7 +251,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
             contentBuilder.contentFor(
                 p,
                 ContentKind.Symbol,
-                setOf(TextStyle.Monospace) + p.stylesIfDeprecated(sourceSet),
+                setOf(TextStyle.Monospace),
                 sourceSets = setOf(sourceSet)
             ) {
                 annotationsBlock(p)
@@ -272,7 +272,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                     signatureForProjection(it.type)
                     punctuation(".")
                 }
-                link(p.name, p.dri)
+                link(p.name, p.dri, styles = mainStyles + p.stylesIfDeprecated(sourceSet))
                 operator(": ")
                 signatureForProjection(p.type)
                 defaultValueAssign(p, sourceSet)
@@ -298,7 +298,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
             contentBuilder.contentFor(
                 f,
                 ContentKind.Symbol,
-                setOf(TextStyle.Monospace) + f.stylesIfDeprecated(sourceSet),
+                setOf(TextStyle.Monospace),
                 sourceSets = setOf(sourceSet)
             ) {
                 annotationsBlock(f)
@@ -320,7 +320,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                     signatureForProjection(it.type)
                     punctuation(".")
                 }
-                link(f.name, f.dri, styles = mainStyles + TokenStyle.Function)
+                link(f.name, f.dri, styles = mainStyles + TokenStyle.Function + f.stylesIfDeprecated(sourceSet))
 
                 // for a function, opening and closing parentheses must be present
                 // anyway, even if it has no parameters, resulting in `fun test(): R`
@@ -357,14 +357,16 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                     +contentBuilder.contentFor(
                         t,
                         ContentKind.Symbol,
-                        setOf(TextStyle.Monospace) + t.stylesIfDeprecated(it),
+                        setOf(TextStyle.Monospace),
                         sourceSets = platforms.toSet()
                     ) {
                         annotationsBlock(t)
                         t.visibility[it]?.takeIf { it !in ignoredVisibilities }?.name?.let { keyword("$it ") }
                         processExtraModifiers(t)
                         keyword("typealias ")
-                        signatureForProjection(t.type)
+                        group(styles = mainStyles + t.stylesIfDeprecated(it)) {
+                            signatureForProjection(t.type)
+                        }
                         operator(" = ")
                         signatureForTypealiasTarget(t, type)
                     }
@@ -374,10 +376,15 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
 
     private fun signature(t: DTypeParameter) =
         t.sourceSets.map {
-            contentBuilder.contentFor(t, styles = t.stylesIfDeprecated(it), sourceSets = setOf(it)) {
-                signatureForProjection(t.variantTypeParameter.withDri(t.dri.withTargetToDeclaration()))
-                list(t.nontrivialBounds, prefix = " : ",
-                surroundingCharactersStyle = mainStyles + TokenStyle.Operator) { bound ->
+            contentBuilder.contentFor(t, sourceSets = setOf(it)) {
+                group(styles = mainStyles + t.stylesIfDeprecated(it)) {
+                    signatureForProjection(t.variantTypeParameter.withDri(t.dri.withTargetToDeclaration()))
+                }
+                list(
+                    elements = t.nontrivialBounds,
+                    prefix = " : ",
+                    surroundingCharactersStyle = mainStyles + TokenStyle.Operator
+                ) { bound ->
                     signatureForProjection(bound)
                 }
             }

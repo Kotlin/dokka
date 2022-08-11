@@ -1,6 +1,8 @@
 package org.jetbrains.dokka.base.renderers.html
 
 import org.jetbrains.dokka.base.renderers.sourceSets
+import org.jetbrains.dokka.base.signatures.KotlinSignatureUtils.annotations
+import org.jetbrains.dokka.base.transformers.documentables.isDeprecated
 import org.jetbrains.dokka.base.transformers.documentables.isException
 import org.jetbrains.dokka.base.translators.documentables.DocumentableLanguage
 import org.jetbrains.dokka.base.translators.documentables.documentableLanguage
@@ -17,6 +19,7 @@ abstract class NavigationDataProvider {
             dri = page.dri.first(),
             sourceSets = page.sourceSets(),
             icon = chooseNavigationIcon(page),
+            styles = chooseStyles(page),
             children = page.navigableChildren()
         )
 
@@ -70,6 +73,24 @@ abstract class NavigationDataProvider {
 
     private fun DClass.isAbstract(): Boolean {
         return modifier.values.all { it is KotlinModifier.Abstract || it is JavaModifier.Abstract }
+    }
+
+    private fun chooseStyles(page: ContentPage): Set<Style> {
+        return if (page.containsOnlyDeprecatedDocumentables()) setOf(TextStyle.Strikethrough) else emptySet()
+    }
+
+    private fun ContentPage.containsOnlyDeprecatedDocumentables(): Boolean {
+        if (this !is WithDocumentables) {
+            return false
+        }
+        return this.documentables.isNotEmpty() && this.documentables.all { it.isDeprecatedForAllSourceSets() }
+    }
+
+    private fun Documentable.isDeprecatedForAllSourceSets(): Boolean {
+        val sourceSetAnnotations = this.annotations()
+        return sourceSetAnnotations.isNotEmpty() && sourceSetAnnotations.all { (_, annotations) ->
+            annotations.any { it.isDeprecated() }
+        }
     }
 
     private fun ContentPage.navigableChildren(): List<NavigationNode> {

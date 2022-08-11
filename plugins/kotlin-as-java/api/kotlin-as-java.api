@@ -22,6 +22,7 @@ public final class org/jetbrains/dokka/kotlinAsJava/converters/KotlinToJavaConve
 public final class org/jetbrains/dokka/kotlinAsJava/signatures/JavaSignatureProvider : org/jetbrains/dokka/base/signatures/JvmSignatureUtils, org/jetbrains/dokka/base/signatures/SignatureProvider {
 	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
 	public fun annotations (Lorg/jetbrains/dokka/model/DProperty;)Ljava/util/Map;
+	public fun annotations (Lorg/jetbrains/dokka/model/Documentable;)Ljava/util/Map;
 	public fun annotations (Lorg/jetbrains/dokka/model/properties/WithExtraProperties;)Ljava/util/Map;
 	public fun annotationsBlock (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Lorg/jetbrains/dokka/model/AnnotationTarget;)V
 	public fun annotationsBlockWithIgnored (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Lorg/jetbrains/dokka/model/AnnotationTarget;Ljava/util/Set;Lorg/jetbrains/dokka/base/signatures/AtStrategy;Lkotlin/Pair;Ljava/lang/String;)V
@@ -40,6 +41,7 @@ public final class org/jetbrains/dokka/kotlinAsJava/signatures/JavaSignatureProv
 public final class org/jetbrains/dokka/kotlinAsJava/signatures/JavaSignatureUtils : org/jetbrains/dokka/base/signatures/JvmSignatureUtils {
 	public static final field INSTANCE Lorg/jetbrains/dokka/kotlinAsJava/signatures/JavaSignatureUtils;
 	public fun annotations (Lorg/jetbrains/dokka/model/DProperty;)Ljava/util/Map;
+	public fun annotations (Lorg/jetbrains/dokka/model/Documentable;)Ljava/util/Map;
 	public fun annotations (Lorg/jetbrains/dokka/model/properties/WithExtraProperties;)Ljava/util/Map;
 	public fun annotationsBlock (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Lorg/jetbrains/dokka/model/AnnotationTarget;)V
 	public fun annotationsBlockWithIgnored (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Lorg/jetbrains/dokka/model/AnnotationTarget;Ljava/util/Set;Lorg/jetbrains/dokka/base/signatures/AtStrategy;Lkotlin/Pair;Ljava/lang/String;)V

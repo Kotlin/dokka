@@ -94,6 +94,7 @@ open class HtmlRenderer(
                 childrenCallback()
             }
             node.hasStyle(ContentStyle.KDocTag) -> span("kdoc-tag") { childrenCallback() }
+            node.hasStyle(ContentStyle.Footnote) -> div("footnote") { childrenCallback() }
             node.hasStyle(TextStyle.BreakableAfter) -> {
                 span { childrenCallback() }
                 wbr { }
@@ -123,10 +124,12 @@ open class HtmlRenderer(
             node.dci.kind == ContentKind.Cover -> div("cover $additionalClasses") { //TODO this can be removed
                 childrenCallback()
             }
+            node.dci.kind == ContentKind.Deprecation -> div("deprecation-block") { childrenCallback() }
             node.hasStyle(TextStyle.Paragraph) -> p(additionalClasses) { childrenCallback() }
             node.hasStyle(TextStyle.Block) -> div(additionalClasses) { childrenCallback() }
             node.hasStyle(TextStyle.Quotation) -> blockQuote(additionalClasses) { childrenCallback() }
             node.hasStyle(TextStyle.FloatingRight) -> span("clearfix") { span("floating-right") { childrenCallback() } }
+            node.hasStyle(TextStyle.Strikethrough) -> strike { childrenCallback() }
             node.isAnchorable -> buildAnchor(
                 node.anchor!!,
                 node.anchorLabel!!,

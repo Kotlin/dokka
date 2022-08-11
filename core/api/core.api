@@ -3791,6 +3791,7 @@ public final class org/jetbrains/dokka/pages/ContentKind : java/lang/Enum, org/j
 	public static final field Companion Lorg/jetbrains/dokka/pages/ContentKind$Companion;
 	public static final field Constructors Lorg/jetbrains/dokka/pages/ContentKind;
 	public static final field Cover Lorg/jetbrains/dokka/pages/ContentKind;
+	public static final field Deprecation Lorg/jetbrains/dokka/pages/ContentKind;
 	public static final field Empty Lorg/jetbrains/dokka/pages/ContentKind;
 	public static final field Extensions Lorg/jetbrains/dokka/pages/ContentKind;
 	public static final field Functions Lorg/jetbrains/dokka/pages/ContentKind;
@@ -3910,6 +3911,7 @@ public final class org/jetbrains/dokka/pages/ContentResolvedLink : org/jetbrains
 
 public final class org/jetbrains/dokka/pages/ContentStyle : java/lang/Enum, org/jetbrains/dokka/pages/Style {
 	public static final field Caption Lorg/jetbrains/dokka/pages/ContentStyle;
+	public static final field Footnote Lorg/jetbrains/dokka/pages/ContentStyle;
 	public static final field InDocumentationAnchor Lorg/jetbrains/dokka/pages/ContentStyle;
 	public static final field Indented Lorg/jetbrains/dokka/pages/ContentStyle;
 	public static final field KDocTag Lorg/jetbrains/dokka/pages/ContentStyle;
