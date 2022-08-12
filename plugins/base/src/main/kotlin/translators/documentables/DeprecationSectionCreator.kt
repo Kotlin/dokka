@@ -112,16 +112,28 @@ private fun createKotlinDeprecatedHeaderText(
 
 /**
  * Footnote for [DeprecatedSinceKotlin] annotation used in stdlib
+ *
+ * Notice that values are empty by default, so it's not guaranteed that all three will be set
  */
 private fun DocumentableContentBuilder.createDeprecatedSinceKotlinFootnote(
     deprecatedSinceKotlinAnnotation: Annotations.Annotation
 ) {
     group(styles = setOf(ContentStyle.Footnote)) {
-        deprecatedSinceKotlinAnnotation.takeStringParam("warningSince")?.let { text("Warning since $it") }
-        breakLine()
-        deprecatedSinceKotlinAnnotation.takeStringParam("errorSince")?.let { text("Error since $it") }
-        breakLine()
-        deprecatedSinceKotlinAnnotation.takeStringParam("hiddenSince")?.let { text("Hidden since $it") }
+        deprecatedSinceKotlinAnnotation.takeStringParam("warningSince")?.let {
+            group(styles = setOf(TextStyle.Paragraph)) {
+                text("Warning since $it")
+            }
+        }
+        deprecatedSinceKotlinAnnotation.takeStringParam("errorSince")?.let {
+            group(styles = setOf(TextStyle.Paragraph)) {
+                text("Error since $it")
+            }
+        }
+        deprecatedSinceKotlinAnnotation.takeStringParam("hiddenSince")?.let {
+            group(styles = setOf(TextStyle.Paragraph)) {
+                text("Hidden since $it")
+            }
+        }
     }
 }
 
@@ -137,7 +149,7 @@ private fun DocumentableContentBuilder.createReplaceWithSection(kotlinDeprecated
         text = "Replace with"
     )
 
-    replaceWithAnnotation.takeStringParam("expression")?.let {
+    replaceWithAnnotation.takeStringParam("expression")?.removeSurrounding("`")?.let {
         codeBlock(language = "kotlin", styles = setOf(TextStyle.Monospace)) {
             text(it)
         }

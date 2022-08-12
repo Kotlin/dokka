@@ -273,12 +273,15 @@ class KotlinDeprecatedTest : BaseAbstractTest() {
                                     }
                                     group {
                                         check { assertEquals(ContentStyle.Footnote, this.style.firstOrNull()) }
-
-                                        +"Warning since 1.4"
-                                        br()
-                                        +"Error since 1.5"
-                                        br()
-                                        +"Hidden since 1.6"
+                                        p {
+                                            +"Warning since 1.4"
+                                        }
+                                        p {
+                                            +"Error since 1.5"
+                                        }
+                                        p {
+                                            +"Hidden since 1.6"
+                                        }
                                     }
                                     p {
                                         +"Deprecation reason bla bla"

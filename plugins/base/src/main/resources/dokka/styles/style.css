@@ -778,6 +778,10 @@ small {
     display: block;
 }
 
+.deprecation-block .footnote > p {
+    margin: 0;
+}
+
 .platform-tag {
     display: flex;
     flex-direction: row;
