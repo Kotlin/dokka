@@ -8,14 +8,12 @@ import org.jetbrains.dokka.utilities.SelfRepresentingSingletonSet
 data class DisplaySourceSet(
     val sourceSetIDs: CompositeSourceSetID,
     val name: String,
-    val platform: Platform,
-    val dependentSourceSetIDs: Set<DokkaSourceSetID> = emptySet()
+    val platform: Platform
 ) : SelfRepresentingSingletonSet<DisplaySourceSet> {
     constructor(sourceSet: DokkaSourceSet) : this(
         sourceSetIDs = CompositeSourceSetID(sourceSet.sourceSetID),
         name = sourceSet.displayName,
-        platform = sourceSet.analysisPlatform,
-        dependentSourceSetIDs = sourceSet.dependentSourceSets
+        platform = sourceSet.analysisPlatform
     )
 }
 
