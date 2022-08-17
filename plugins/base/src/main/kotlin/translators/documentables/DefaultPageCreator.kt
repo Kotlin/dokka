@@ -11,6 +11,7 @@ import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentCon
 import org.jetbrains.dokka.base.transformers.pages.tags.CustomTagContentProvider
 import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder.DocumentableContentBuilder
 import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.links.PointingToDeclaration
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.model.properties.PropertyContainer
@@ -590,26 +591,31 @@ open class DefaultPageCreator(
                             availablePlatforms.forEach { platform ->
                                 val possibleFallbacks = sourceSets.getPossibleFallbackSourcesets(platform)
                                 seeAlsoTags.forEach { (_, see) ->
-                                    (see[platform] ?: see.fallback(possibleFallbacks))?.let {
+                                    (see[platform] ?: see.fallback(possibleFallbacks))?.let { seeTag ->
                                         row(
                                             sourceSets = setOf(platform),
                                             kind = ContentKind.Comment,
                                             styles = this@group.mainStyles,
                                         ) {
-                                            it.address?.let { dri ->
+                                            seeTag.address?.let { dri ->
+                                                // only declaration links are expected to be fully qualified
+                                                val linkText = dri.takeIf { it.target is PointingToDeclaration }
+                                                    ?.let { seeTag.name.removePrefix("${it.packageName}.") }
+                                                    ?: seeTag.name
+
                                                 link(
-                                                    dri.classNames ?: it.name,
-                                                    dri,
+                                                    text = linkText,
+                                                    address = dri,
                                                     kind = ContentKind.Comment,
                                                     styles = mainStyles + ContentStyle.RowTitle
                                                 )
                                             } ?: text(
-                                                it.name,
+                                                text = seeTag.name,
                                                 kind = ContentKind.Comment,
                                                 styles = mainStyles + ContentStyle.RowTitle
                                             )
-                                            if (it.isNotEmpty()) {
-                                                comment(it.root)
+                                            if (seeTag.isNotEmpty()) {
+                                                comment(seeTag.root)
                                             }
                                         }
                                     }
@@ -639,7 +645,8 @@ open class DefaultPageCreator(
                                     row(sourceSets = setOf(sourceset)) {
                                         group(styles = mainStyles + ContentStyle.RowTitle) {
                                             throws.exceptionAddress?.let {
-                                                link(text = it.classNames ?: entry.key, address = it)
+                                                val className = it.takeIf { it.target is PointingToDeclaration }?.classNames
+                                                link(text = className ?: entry.key, address = it)
                                             } ?: text(entry.key)
                                         }
                                         if (throws.isNotEmpty()) {
