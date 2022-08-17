@@ -710,6 +710,9 @@ class DefaultPsiToDocumentableTranslator(
         }
 
         private fun Any.toAnnotationLiteralValue() = when (this) {
+            is Byte -> IntValue(this.toInt())
+            is Short -> IntValue(this.toInt())
+            is Char -> StringValue(this.toString())
             is Int -> IntValue(this)
             is Long -> LongValue(this)
             is Boolean -> BooleanValue(this)
