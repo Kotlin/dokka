@@ -15,7 +15,7 @@ class ExtensionsTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "cl
         }
 
     @Test
-    fun extensionForSubclasses() {
+    fun `should be extension for subclasses`() {
         inlineModelTest(
             """
             |open class A
@@ -41,7 +41,7 @@ class ExtensionsTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "cl
     }
 
     @Test
-    fun extensionForInterfaces() {
+    fun `should be extension for interfaces`() {
         inlineModelTest(
             """
             |interface I
@@ -64,7 +64,7 @@ class ExtensionsTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "cl
     }
 
     @Test
-    fun extensionForExternalClasses() {
+    fun `should be extension for external classes`() {
         inlineModelTest(
             """
             |abstract class A<T>: AbstractList<T>()
@@ -84,13 +84,13 @@ class ExtensionsTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "cl
     }
 
     @Test
-    fun extensionForTypeAlias() {
+    fun `should be extension for typealias`() {
         inlineModelTest(
             """
-            |class A {}
-            |class B: A {}
-            |class C: B {}
-            |class D: C {}
+            |open class A
+            |open class B: A()
+            |open class C: B()
+            |open class D: C()
             |typealias B2 = B
             |fun B2.extension() = ""
             """
@@ -106,6 +106,44 @@ class ExtensionsTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "cl
             }
             with((this / "classes" / "A").cast<DClass>()) {
                 extra[CallableExtensions] equals null
+            }
+        }
+    }    @Test
+    fun `should be extension for java classes`() {
+        val testConfiguration = dokkaConfiguration {
+            suppressObviousFunctions = false
+            sourceSets {
+                sourceSet {
+                    sourceRoots = listOf("src/main/kotlin/")
+                    classpath += jvmStdlibPath!!
+                }
+            }
+        }
+        testInline(
+            """
+            |/src/main/kotlin/classes/Test.kt
+            | package classes
+            | fun A.extension() = ""
+            | 
+            |/src/main/kotlin/classes/A.java
+            | package classes;
+            | public class A {}
+            | 
+            | /src/main/kotlin/classes/B.java
+            | package classes;
+            | public class B extends A {}
+            """,
+            configuration = testConfiguration
+        ) {
+            documentablesTransformationStage = {
+                it.run {
+                    with((this / "classes" / "B").cast<DClass>()) {
+                        checkExtension()
+                    }
+                    with((this / "classes" / "A").cast<DClass>()) {
+                        checkExtension()
+                    }
+                }
             }
         }
     }
