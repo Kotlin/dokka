@@ -953,8 +953,8 @@ td.content {
     padding-bottom: 8px;
 }
 
-.table-row .with-platform-tabs .sourceset-dependent-content .brief,
-.table-row .with-platform-tabs .sourceset-dependent-content .inline-comment {
+.table-row .platform-hinted .sourceset-dependent-content .brief,
+.table-row .platform-hinted .sourceset-dependent-content .inline-comment {
     padding: 8px;
 }
 
