@@ -149,12 +149,6 @@ private fun DocumentableContentBuilder.createReplaceWithSection(kotlinDeprecated
         text = "Replace with"
     )
 
-    replaceWithAnnotation.takeStringParam("expression")?.removeSurrounding("`")?.let {
-        codeBlock(language = "kotlin", styles = setOf(TextStyle.Monospace)) {
-            text(it)
-        }
-    }
-
     // Signature: vararg val imports: String
     val imports = (replaceWithAnnotation.params["imports"] as? ArrayValue)
         ?.value
@@ -162,15 +156,17 @@ private fun DocumentableContentBuilder.createReplaceWithSection(kotlinDeprecated
         ?: emptyList()
 
     if (imports.isNotEmpty()) {
-        header(
-            level = NESTED_PARAM_HEADER_LEVEL,
-            text = "Imports"
-        )
         codeBlock(language = "kotlin", styles = setOf(TextStyle.Monospace)) {
             imports.forEach {
-                text(it)
+                text("import $it")
                 breakLine()
             }
+        }
+    }
+
+    replaceWithAnnotation.takeStringParam("expression")?.removeSurrounding("`")?.let {
+        codeBlock(language = "kotlin", styles = setOf(TextStyle.Monospace)) {
+            text(it)
         }
     }
 }

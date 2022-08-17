@@ -760,12 +760,6 @@ small {
     margin-bottom: 0;
 }
 
-.deprecation-block > h5 {
-    font-size: 15px;
-    margin-top: 10px;
-    margin-bottom: 0;
-}
-
 .deprecation-block code.block {
     padding: 5px 10px;
     display: inline-block;

@@ -192,18 +192,15 @@ class KotlinDeprecatedTest : BaseAbstractTest() {
                                         +"Replace with"
                                     }
                                     codeBlock {
-                                        +"newShinyFunction(typedParam, someLiteral, SomeNewType())"
-                                    }
-                                    header(5) {
-                                        +"Imports"
+                                        +"import com.example.dokka.debug.newShinyFunction"
+                                        br()
+                                        +"import com.example.dokka.debug.SomeOldType"
+                                        br()
+                                        +"import com.example.dokka.debug.SomeNewType"
+                                        br()
                                     }
                                     codeBlock {
-                                        +"com.example.dokka.debug.newShinyFunction"
-                                        br()
-                                        +"com.example.dokka.debug.SomeOldType"
-                                        br()
-                                        +"com.example.dokka.debug.SomeNewType"
-                                        br()
+                                        +"newShinyFunction(typedParam, someLiteral, SomeNewType())"
                                     }
                                 }
                                 group { pWrapped("Average function description") }
@@ -376,18 +373,15 @@ class KotlinDeprecatedTest : BaseAbstractTest() {
                                         +"Replace with"
                                     }
                                     codeBlock {
-                                        +"newShinyFunction(typedParam, someLiteral, SomeNewType())"
-                                    }
-                                    header(5) {
-                                        +"Imports"
+                                        +"import com.example.dokka.debug.newShinyFunction"
+                                        br()
+                                        +"import com.example.dokka.debug.SomeOldType"
+                                        br()
+                                        +"import com.example.dokka.debug.SomeNewType"
+                                        br()
                                     }
                                     codeBlock {
-                                        +"com.example.dokka.debug.newShinyFunction"
-                                        br()
-                                        +"com.example.dokka.debug.SomeOldType"
-                                        br()
-                                        +"com.example.dokka.debug.SomeNewType"
-                                        br()
+                                        +"newShinyFunction(typedParam, someLiteral, SomeNewType())"
                                     }
                                 }
                                 group { pWrapped("Average function description") }
