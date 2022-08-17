@@ -20,6 +20,9 @@ repositories {
  */
 tasks.register<DokkaTask>("dokkaCustomFormat") {
     pluginConfiguration<org.jetbrains.dokka.base.DokkaBase, org.jetbrains.dokka.base.DokkaBaseConfiguration> {
+        // Dokka's stylesheets and assets with conflicting names will be overriden.
+        // In this particular case, logo-styles.css will be overriden and ktor-logo.png will
+        // be added as an additional image asset
         customStyleSheets = listOf(file("logo-styles.css"))
         customAssets = listOf(file("ktor-logo.png"))
     }
