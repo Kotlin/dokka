@@ -108,7 +108,9 @@ class ExtensionsTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "cl
                 extra[CallableExtensions] equals null
             }
         }
-    }    @Test
+    }
+
+    @Test
     fun `should be extension for java classes`() {
         val testConfiguration = dokkaConfiguration {
             suppressObviousFunctions = false

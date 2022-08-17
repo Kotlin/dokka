@@ -20,9 +20,9 @@ import java.util.concurrent.ConcurrentHashMap
  * The class allows lo build a full class hierarchy via descriptors
  */
 class ClassGraphBuilder {
-    suspend operator fun invoke(original: DModule,): SourceSetDependent<Map<DRI, List<DRI>>> = coroutineScope{
+    suspend operator fun invoke(original: DModule): SourceSetDependent<Map<DRI, List<DRI>>> = coroutineScope {
         val map = original.sourceSets.associateWith { ConcurrentHashMap<DRI, List<DRI>>() }
-        original.packages.parallelForEach{ visitDocumentable(it, map) }
+        original.packages.parallelForEach { visitDocumentable(it, map) }
         map
     }
 
@@ -52,8 +52,9 @@ class ClassGraphBuilder {
         sourceSet: DokkaConfiguration.DokkaSourceSet,
         supersMap: SourceSetDependent<MutableMap<DRI, List<DRI>>>
     ): Unit = coroutineScope {
-        val supertypes = DRIWithPsiClass.second.superTypes.mapNotNull { it.resolve() }.filterNot { it.qualifiedName == "java.lang.Object" }
-        val supertypesDRIWithPsiClass = supertypes.map { DRI.from(it) to it}
+        val supertypes = DRIWithPsiClass.second.superTypes.mapNotNull { it.resolve() }
+            .filterNot { it.qualifiedName == "java.lang.Object" }
+        val supertypesDRIWithPsiClass = supertypes.map { DRI.from(it) to it }
 
         supersMap[sourceSet]?.let { map ->
             if (map[DRIWithPsiClass.first] == null) {
@@ -69,10 +70,9 @@ class ClassGraphBuilder {
         supersMap: SourceSetDependent<MutableMap<DRI, List<DRI>>>
     ): Unit = coroutineScope {
         if (documentable is WithScope) {
-            documentable.classlikes.
-            parallelForEach{ visitDocumentable(it, supersMap) }
+            documentable.classlikes.parallelForEach { visitDocumentable(it, supersMap) }
         }
-        if(documentable is DClasslike) {
+        if (documentable is DClasslike) {
             // to build a full class graph, using supertypes from Documentable
             // is not enough since it keeps only one level of hierarchy
             documentable.sources.forEach { (sourceSet, source) ->
