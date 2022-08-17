@@ -11,7 +11,6 @@ import org.jetbrains.dokka.model.properties.MergeStrategy
 import org.jetbrains.dokka.model.properties.plus
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.transformers.documentation.DocumentableTransformer
-import org.jetbrains.kotlin.utils.addToStdlib.popLast
 import org.jetbrains.dokka.utilities.parallelForEach
 import org.jetbrains.dokka.utilities.parallelMap
 
@@ -101,15 +100,13 @@ class ExtensionExtractorTransformer : DocumentableTransformer {
         extensionMap: Map<DRI, List<Callable>>
     ): CallableExtensions? {
         val resultSet = mutableSetOf<Callable>()
-        extensionMap[dri]?.let { resultSet.addAll(it) }
 
-        val queue = mutableListOf<DRI>()
-        sourceSets.forEach { classGraph[it]?.get(dri)?.let { supertypesDRIs -> queue.addAll(supertypesDRIs) } }
-        while (queue.isNotEmpty()) {
-            val element = queue.popLast()
-            sourceSets.forEach { classGraph[it]?.get(element)?.let { supertypesDRIs -> queue.addAll(supertypesDRIs) } }
+        fun collectFrom(element: DRI) {
             extensionMap[element]?.let { resultSet.addAll(it) }
+            sourceSets.forEach { sourceSet -> classGraph[sourceSet]?.get(element)?.forEach { collectFrom(it) } }
         }
+        collectFrom(dri)
+
         return if (resultSet.isEmpty()) null else CallableExtensions(resultSet)
     }
 
