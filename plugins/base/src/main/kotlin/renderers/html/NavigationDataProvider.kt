@@ -34,8 +34,8 @@ abstract class NavigationDataProvider {
             name
         }
 
-    private fun chooseNavigationIcon(contentPage: ContentPage): NavigationNodeIcon? {
-        return if (contentPage is WithDocumentables) {
+    private fun chooseNavigationIcon(contentPage: ContentPage): NavigationNodeIcon? =
+        if (contentPage is WithDocumentables) {
             val documentable = contentPage.documentables.firstOrNull()
             val isJava = documentable?.hasAnyJavaSources() ?: false
 
@@ -64,20 +64,17 @@ abstract class NavigationDataProvider {
         } else {
             null
         }
-    }
 
     private fun Documentable.hasAnyJavaSources(): Boolean {
         val withSources = this as? WithSources ?: return false
         return this.sourceSets.any { withSources.documentableLanguage(it) == DocumentableLanguage.JAVA }
     }
 
-    private fun DClass.isAbstract(): Boolean {
-        return modifier.values.all { it is KotlinModifier.Abstract || it is JavaModifier.Abstract }
-    }
+    private fun DClass.isAbstract() =
+        modifier.values.all { it is KotlinModifier.Abstract || it is JavaModifier.Abstract }
 
-    private fun chooseStyles(page: ContentPage): Set<Style> {
-        return if (page.containsOnlyDeprecatedDocumentables()) setOf(TextStyle.Strikethrough) else emptySet()
-    }
+    private fun chooseStyles(page: ContentPage): Set<Style> =
+        if (page.containsOnlyDeprecatedDocumentables()) setOf(TextStyle.Strikethrough) else emptySet()
 
     private fun ContentPage.containsOnlyDeprecatedDocumentables(): Boolean {
         if (this !is WithDocumentables) {
@@ -93,16 +90,15 @@ abstract class NavigationDataProvider {
         }
     }
 
-    private fun ContentPage.navigableChildren(): List<NavigationNode> {
-        return if (this is ClasslikePage) {
-            return this.navigableChildren()
+    private fun ContentPage.navigableChildren() =
+        if (this is ClasslikePage) {
+            this.navigableChildren()
         } else {
             children
                 .filterIsInstance<ContentPage>()
                 .map { visit(it) }
                 .sortedBy { it.name.toLowerCase() }
         }
-    }
 
     private fun ClasslikePage.navigableChildren(): List<NavigationNode> {
         // Classlikes should only have other classlikes as navigable children

@@ -41,10 +41,9 @@ class SameMethodNamePageMergerStrategy(val logger: DokkaLogger) : PageMergerStra
         return (pages - members) + listOf(merged)
     }
 
-    private fun MemberPageNode.containsDeprecatedDocumentables(): Boolean {
-        @Suppress("UNCHECKED_CAST")
-        return this.documentables.any { (it as? WithExtraProperties<Documentable>)?.isDeprecated() == true }
-    }
+    @Suppress("UNCHECKED_CAST")
+    private fun MemberPageNode.containsDeprecatedDocumentables() =
+        this.documentables.any { (it as? WithExtraProperties<Documentable>)?.isDeprecated() == true }
 
     private fun List<MemberPageNode>.allSourceSets(): Set<DisplaySourceSet> =
         fold(emptySet()) { acc, e -> acc + e.sourceSets() }

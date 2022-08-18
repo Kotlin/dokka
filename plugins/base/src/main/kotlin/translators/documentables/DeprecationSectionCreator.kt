@@ -20,13 +20,7 @@ private const val DEPRECATED_HEADER_LEVEL = 3
  */
 private const val DIRECT_PARAM_HEADER_LEVEL = 4
 
-/**
- * Header for a nested param of [Deprecated],
- * such as [ReplaceWith.expression] and [ReplaceWith.imports]
- */
-private const val NESTED_PARAM_HEADER_LEVEL = 5
-
-internal fun PageContentBuilder.DocumentableContentBuilder.deprecatedSection(
+internal fun PageContentBuilder.DocumentableContentBuilder.deprecatedSectionContent(
     documentable: Documentable,
     platforms: Set<DokkaConfiguration.DokkaSourceSet>
 ) {
@@ -48,9 +42,9 @@ internal fun PageContentBuilder.DocumentableContentBuilder.deprecatedSection(
                 // contains more useful information, and Java's annotation is probably there
                 // for interop with Java callers, so it should be OK to ignore it
                 if (kotlinAnnotation != null) {
-                    createKotlinDeprecatedSection(kotlinAnnotation, platformAnnotations)
+                    createKotlinDeprecatedSectionContent(kotlinAnnotation, platformAnnotations)
                 } else if (javaAnnotation != null) {
-                    createJavaDeprecatedSection(javaAnnotation)
+                    createJavaDeprecatedSectionContent(javaAnnotation)
                 }
             }
         }
@@ -69,7 +63,7 @@ private fun findDeprecatedSinceKotlinAnnotation(annotations: List<Annotations.An
 /**
  * Section with details for Kotlin's [kotlin.Deprecated] annotation
  */
-private fun DocumentableContentBuilder.createKotlinDeprecatedSection(
+private fun DocumentableContentBuilder.createKotlinDeprecatedSectionContent(
     deprecatedAnnotation: Annotations.Annotation,
     allAnnotations: List<Annotations.Annotation>
 ) {
@@ -80,7 +74,7 @@ private fun DocumentableContentBuilder.createKotlinDeprecatedSection(
     )
 
     deprecatedSinceKotlinAnnotation?.let {
-        createDeprecatedSinceKotlinFootnote(it)
+        createDeprecatedSinceKotlinFootnoteContent(it)
     }
 
     deprecatedAnnotation.takeStringParam("message")?.let {
@@ -89,7 +83,7 @@ private fun DocumentableContentBuilder.createKotlinDeprecatedSection(
         }
     }
 
-    createReplaceWithSection(deprecatedAnnotation)
+    createReplaceWithSectionContent(deprecatedAnnotation)
 }
 
 private fun createKotlinDeprecatedHeaderText(
@@ -115,7 +109,7 @@ private fun createKotlinDeprecatedHeaderText(
  *
  * Notice that values are empty by default, so it's not guaranteed that all three will be set
  */
-private fun DocumentableContentBuilder.createDeprecatedSinceKotlinFootnote(
+private fun DocumentableContentBuilder.createDeprecatedSinceKotlinFootnoteContent(
     deprecatedSinceKotlinAnnotation: Annotations.Annotation
 ) {
     group(styles = setOf(ContentStyle.Footnote)) {
@@ -140,7 +134,7 @@ private fun DocumentableContentBuilder.createDeprecatedSinceKotlinFootnote(
 /**
  * Section for [ReplaceWith] parameter of [kotlin.Deprecated] annotation
  */
-private fun DocumentableContentBuilder.createReplaceWithSection(kotlinDeprecatedAnnotation: Annotations.Annotation) {
+private fun DocumentableContentBuilder.createReplaceWithSectionContent(kotlinDeprecatedAnnotation: Annotations.Annotation) {
     val replaceWithAnnotation = (kotlinDeprecatedAnnotation.params["replaceWith"] as? AnnotationValue)?.annotation
         ?: return
 
@@ -174,7 +168,7 @@ private fun DocumentableContentBuilder.createReplaceWithSection(kotlinDeprecated
 /**
  * Section with details for Java's [java.lang.Deprecated] annotation
  */
-private fun DocumentableContentBuilder.createJavaDeprecatedSection(
+private fun DocumentableContentBuilder.createJavaDeprecatedSectionContent(
     deprecatedAnnotation: Annotations.Annotation,
 ) {
     val isForRemoval = deprecatedAnnotation.takeBooleanParam("forRemoval", default = false)
@@ -189,10 +183,8 @@ private fun DocumentableContentBuilder.createJavaDeprecatedSection(
     }
 }
 
-private fun Annotations.Annotation.takeBooleanParam(name: String, default: Boolean): Boolean {
-    return (this.params[name] as? BooleanValue)?.value ?: default
-}
+private fun Annotations.Annotation.takeBooleanParam(name: String, default: Boolean): Boolean =
+    (this.params[name] as? BooleanValue)?.value ?: default
 
-private fun Annotations.Annotation.takeStringParam(name: String): String? {
-    return (this.params[name] as? StringValue)?.takeIf { it.value.isNotEmpty() }?.value
-}
+private fun Annotations.Annotation.takeStringParam(name: String): String? =
+    (this.params[name] as? StringValue)?.takeIf { it.value.isNotEmpty() }?.value

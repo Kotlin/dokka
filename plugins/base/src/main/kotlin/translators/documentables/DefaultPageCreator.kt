@@ -452,7 +452,7 @@ open class DefaultPageCreator(
         val platforms = d.sourceSets.toSet()
 
         return contentBuilder.contentFor(d, styles = setOf(TextStyle.Block)) {
-            deprecatedSection(d, platforms)
+            deprecatedSectionContent(d, platforms)
 
             val descriptions = d.descriptions
             if (descriptions.any { it.value.root.children.isNotEmpty() }) {

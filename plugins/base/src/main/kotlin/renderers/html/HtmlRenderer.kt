@@ -124,7 +124,7 @@ open class HtmlRenderer(
             node.dci.kind == ContentKind.Cover -> div("cover $additionalClasses") { //TODO this can be removed
                 childrenCallback()
             }
-            node.dci.kind == ContentKind.Deprecation -> div("deprecation-block") { childrenCallback() }
+            node.dci.kind == ContentKind.Deprecation -> div("deprecation-content") { childrenCallback() }
             node.hasStyle(TextStyle.Paragraph) -> p(additionalClasses) { childrenCallback() }
             node.hasStyle(TextStyle.Block) -> div(additionalClasses) { childrenCallback() }
             node.hasStyle(TextStyle.Quotation) -> blockQuote(additionalClasses) { childrenCallback() }
