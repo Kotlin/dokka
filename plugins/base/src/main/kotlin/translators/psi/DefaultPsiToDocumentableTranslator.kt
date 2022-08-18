@@ -534,7 +534,8 @@ class DefaultPsiToDocumentableTranslator(
                             )
 
                             else -> {
-                                // cache types that has no annotation and no type parameter
+                                // cache types that have no annotation and no type parameter
+                                // since we cache only by name and type parameters depend on context
                                 val typeParameters = type.parameters.map { getProjection(it) }
                                 if (typeParameters.isEmpty())
                                     type.cacheBoundIfHasNoAnnotation { annotations ->
