@@ -743,6 +743,39 @@ small {
     font-size: 11px;
 }
 
+.deprecation-content {
+    margin: 20px 10px;
+    border:1px solid var(--border-color);
+    padding: 13px 15px 16px 15px;
+}
+
+.deprecation-content > h3 {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.deprecation-content > h4 {
+    font-size: 16px;
+    margin-top: 15px;
+    margin-bottom: 0;
+}
+
+.deprecation-content code.block {
+    padding: 5px 10px;
+    display: inline-block;
+}
+
+.deprecation-content .footnote {
+    margin-left: 25px;
+    font-size: 13px;
+    font-weight: bold;
+    display: block;
+}
+
+.deprecation-content .footnote > p {
+    margin: 0;
+}
+
 .platform-tag {
     display: flex;
     flex-direction: row;
