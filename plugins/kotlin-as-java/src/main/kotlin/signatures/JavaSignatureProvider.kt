@@ -44,10 +44,10 @@ class JavaSignatureProvider internal constructor(ctcc: CommentsToContentConverte
             contentBuilder.contentFor(
                 e,
                 ContentKind.Symbol,
-                setOf(TextStyle.Monospace) + e.stylesIfDeprecated(it),
+                setOf(TextStyle.Monospace),
                 sourceSets = setOf(it)
             ) {
-                link(e.name, e.dri)
+                link(e.name, e.dri, styles = mainStyles + e.stylesIfDeprecated(it))
             }
         }
 
@@ -61,7 +61,7 @@ class JavaSignatureProvider internal constructor(ctcc: CommentsToContentConverte
             contentBuilder.contentFor(
                 c,
                 ContentKind.Symbol,
-                setOf(TextStyle.Monospace) + deprecationStyles,
+                setOf(TextStyle.Monospace),
                 sourceSets = setOf(sourceSet)
             ) {
                 annotationsBlock(c)
@@ -79,7 +79,7 @@ class JavaSignatureProvider internal constructor(ctcc: CommentsToContentConverte
                     is DObject -> keyword("class ")
                     is DAnnotation -> keyword("@interface ")
                 }
-                link(c.name!!, c.dri)
+                link(c.name!!, c.dri, styles = mainStyles + deprecationStyles)
                 if (c is WithGenerics) {
                     list(c.generics, prefix = "<", suffix = ">",
                         separatorStyles = mainStyles + TokenStyle.Punctuation,
@@ -110,7 +110,7 @@ class JavaSignatureProvider internal constructor(ctcc: CommentsToContentConverte
             contentBuilder.contentFor(
                 p,
                 ContentKind.Symbol,
-                setOf(TextStyle.Monospace, TextStyle.Block) + p.stylesIfDeprecated(it),
+                setOf(TextStyle.Monospace, TextStyle.Block),
                 sourceSets = setOf(it)
             ) {
                 annotationsBlock(p)
@@ -119,7 +119,7 @@ class JavaSignatureProvider internal constructor(ctcc: CommentsToContentConverte
                 p.modifiers()[it]?.toSignatureString()?.let { keyword(it) }
                 signatureForProjection(p.type)
                 text(nbsp.toString())
-                link(p.name, p.dri)
+                link(p.name, p.dri, styles = mainStyles + p.stylesIfDeprecated(it))
             }
         }
 
@@ -128,7 +128,7 @@ class JavaSignatureProvider internal constructor(ctcc: CommentsToContentConverte
             contentBuilder.contentFor(
                 f,
                 ContentKind.Symbol,
-                setOf(TextStyle.Monospace, TextStyle.Block) + f.stylesIfDeprecated(sourceSet),
+                setOf(TextStyle.Monospace, TextStyle.Block),
                 sourceSets = setOf(sourceSet)
             ) {
                 annotationsBlock(f)
@@ -138,7 +138,7 @@ class JavaSignatureProvider internal constructor(ctcc: CommentsToContentConverte
                 val returnType = f.type
                 signatureForProjection(returnType)
                 text(nbsp.toString())
-                link(f.name, f.dri, styles = mainStyles + TokenStyle.Function)
+                link(f.name, f.dri, styles = mainStyles + TokenStyle.Function + f.stylesIfDeprecated(sourceSet))
                 val usedGenerics = if (f.isConstructor) f.generics.filter { f uses it } else f.generics
                 list(usedGenerics, prefix = "<", suffix = ">",
                     separatorStyles = mainStyles + TokenStyle.Punctuation,
@@ -161,12 +161,15 @@ class JavaSignatureProvider internal constructor(ctcc: CommentsToContentConverte
 
     private fun signature(t: DTypeParameter) =
         t.sourceSets.map {
-            contentBuilder.contentFor(t, styles = t.stylesIfDeprecated(it), sourceSets = setOf(it)) {
+            contentBuilder.contentFor(t, sourceSets = setOf(it)) {
                 annotationsInline(t)
-                text(t.name.substringAfterLast("."))
-                list(t.bounds, prefix = " extends ",
+                text(t.name.substringAfterLast("."), styles = mainStyles + t.stylesIfDeprecated(it))
+                list(
+                    elements = t.bounds,
+                    prefix = " extends ",
                     separatorStyles = mainStyles + TokenStyle.Punctuation,
-                    surroundingCharactersStyle = mainStyles + TokenStyle.Keyword) {
+                    surroundingCharactersStyle = mainStyles + TokenStyle.Keyword
+                ) {
                     signatureForProjection(it)
                 }
             }

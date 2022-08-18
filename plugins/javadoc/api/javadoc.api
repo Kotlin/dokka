@@ -649,6 +649,7 @@ public final class org/jetbrains/dokka/javadoc/signatures/JavadocSignatureProvid
 	public fun <init> (Lorg/jetbrains/dokka/base/transformers/pages/comments/CommentsToContentConverter;Lorg/jetbrains/dokka/utilities/DokkaLogger;)V
 	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
 	public fun annotations (Lorg/jetbrains/dokka/model/DProperty;)Ljava/util/Map;
+	public fun annotations (Lorg/jetbrains/dokka/model/Documentable;)Ljava/util/Map;
 	public fun annotations (Lorg/jetbrains/dokka/model/properties/WithExtraProperties;)Ljava/util/Map;
 	public fun annotationsBlock (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Lorg/jetbrains/dokka/model/AnnotationTarget;)V
 	public fun annotationsBlockWithIgnored (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Lorg/jetbrains/dokka/model/AnnotationTarget;Ljava/util/Set;Lorg/jetbrains/dokka/base/signatures/AtStrategy;Lkotlin/Pair;Ljava/lang/String;)V

@@ -139,6 +139,10 @@ open class PageContentBuilder(
             contents += createText(text, kind, sourceSets, styles, extra)
         }
 
+        fun breakLine(sourceSets: Set<DokkaSourceSet> = mainSourcesetData) {
+            contents += ContentBreakLine(sourceSets.toDisplaySourceSets())
+        }
+
         fun buildSignature(d: Documentable) = signatureProvider.signature(d)
 
         fun table(
