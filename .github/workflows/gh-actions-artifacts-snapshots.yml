@@ -23,11 +23,13 @@ jobs:
         uses: gradle/gradle-build-action@v2
         with:
           arguments: :integration-tests:gradle:integrationTest --tests org.jetbrains.dokka.it.gradle.kotlin.StdlibGradleIntegrationTest --stacktrace
+        env:
+          DOKKA_IT_AWS_PATH: /home/runner/work/dokka/stdlib      
       - name: Copy files to GitHub Actions Artifacts
         uses: actions/upload-artifact@v3
         with:
           name: dokka-stdlib
-          path: /home/runner/work/stdlib
+          path: /home/runner/work/dokka/stdlib
 
   serialization:
     runs-on: ubuntu-latest
@@ -45,11 +47,13 @@ jobs:
         uses: gradle/gradle-build-action@v2
         with:
           arguments: :integration-tests:gradle:integrationTest --tests org.jetbrains.dokka.it.gradle.kotlin.SerializationGradleIntegrationTest --stacktrace
+        env:
+          DOKKA_IT_AWS_PATH: /home/runner/work/dokka/serialization
       - name: Copy files to GitHub Actions Artifacts
         uses: actions/upload-artifact@v3
         with:
           name: dokka-serialization
-          path: /home/runner/work/serialization
+          path: /home/runner/work/dokka/serialization
 
   biojava:
     runs-on: ubuntu-latest
@@ -67,8 +71,10 @@ jobs:
         uses: gradle/gradle-build-action@v2
         with:
           arguments: :integration-tests:maven:integrationTest --tests org.jetbrains.dokka.it.maven.BiojavaIntegrationTest --stacktrace
+        env:
+          DOKKA_IT_AWS_PATH: /home/runner/work/dokka/biojava                        
       - name: Copy files to GitHub Actions Artifacts
         uses: actions/upload-artifact@v3
         with:
           name: dokka-biojava
-          path: /home/runner/work/biojava
+          path: /home/runner/work/dokka/biojava
