@@ -71,4 +71,26 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: dokka-biojava
-          path: ../biojava
+          path: ~/biojava
+          
+  biojava-different-path:
+    runs-on: ubuntu-latest
+    if: github.repository == 'Kotlin/dokka'
+    steps:
+      - name: Checkout dokka
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: 12
+      - name: Document biojava-core
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: :integration-tests:maven:integrationTest --tests org.jetbrains.dokka.it.maven.BiojavaIntegrationTest --stacktrace
+      - name: Copy files to GitHub Actions Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: dokka-biojava
+          path: ~/../biojava          
