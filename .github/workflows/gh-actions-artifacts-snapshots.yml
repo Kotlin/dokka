@@ -1,10 +1,10 @@
-name: Build example projects and publish them to s3
+name: Build example projects and publish them to GitHub Actions Artifacts
 
-on: push
-
-env:
-  branch-name: ${GITHUB_REF#refs/heads/}
-  bucket-name: 'dokka-snapshots'
+on:
+  pull_request:
+  push:
+    branches:
+      - master
 
 jobs:
   stdlib:
