@@ -12,8 +12,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
       - name: Qodana - Code Inspection
         id: qodana
         uses: JetBrains/qodana-action@v2022.2.1
