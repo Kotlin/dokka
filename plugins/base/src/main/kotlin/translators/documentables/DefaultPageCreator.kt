@@ -598,13 +598,8 @@ open class DefaultPageCreator(
                                             styles = this@group.mainStyles,
                                         ) {
                                             seeTag.address?.let { dri ->
-                                                // only declaration links are expected to be fully qualified
-                                                val linkText = dri.takeIf { it.target is PointingToDeclaration }
-                                                    ?.let { seeTag.name.removePrefix("${it.packageName}.") }
-                                                    ?: seeTag.name
-
                                                 link(
-                                                    text = linkText,
+                                                    text = seeTag.name.removePrefix("${dri.packageName}."),
                                                     address = dri,
                                                     kind = ContentKind.Comment,
                                                     styles = mainStyles + ContentStyle.RowTitle
