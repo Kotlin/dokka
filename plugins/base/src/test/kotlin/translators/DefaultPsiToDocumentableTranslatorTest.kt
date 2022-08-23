@@ -199,6 +199,51 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
     }
 
     @Test
+    fun `should add default value to constant properties`() {
+        testInline(
+            """
+            |/src/main/java/test/JavaConstants.java
+            |package test;
+            |
+            |public class JavaConstants {
+            |    public static final byte BYTE = 1;
+            |    public static final short SHORT = 2;
+            |    public static final int INT = 3;
+            |    public static final long LONG = 4L;
+            |    public static final float FLOAT = 5.0f;
+            |    public static final double DOUBLE = 6.0d;
+            |    public static final String STRING = "Seven";
+            |    public static final char CHAR = 'E';
+            |    public static final boolean BOOLEAN = true;
+            |}
+            """.trimIndent(),
+            configuration
+        ) {
+            documentablesMergingStage = { module ->
+                val testedClass = module.packages.single().classlikes.single { it.name == "JavaConstants" }
+
+                val constants = testedClass.properties
+                assertEquals(9, constants.size)
+
+                val constantsByName = constants.associateBy { it.name }
+                fun getConstantExpression(name: String): Expression? {
+                    return constantsByName.getValue(name).extra[DefaultValue]?.expression?.values?.first()
+                }
+
+                assertEquals(IntegerConstant(1), getConstantExpression("BYTE"))
+                assertEquals(IntegerConstant(2), getConstantExpression("SHORT"))
+                assertEquals(IntegerConstant(3), getConstantExpression("INT"))
+                assertEquals(IntegerConstant(4), getConstantExpression("LONG"))
+                assertEquals(FloatConstant(5.0f), getConstantExpression("FLOAT"))
+                assertEquals(DoubleConstant(6.0), getConstantExpression("DOUBLE"))
+                assertEquals(StringConstant("Seven"), getConstantExpression("STRING"))
+                assertEquals(StringConstant("E"), getConstantExpression("CHAR"))
+                assertEquals(BooleanConstant(true), getConstantExpression("BOOLEAN"))
+            }
+        }
+    }
+
+    @Test
     fun `should resolve static imports used as annotation param values as literal values`() {
         testInline(
             """
@@ -211,10 +256,13 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
             |import static test.JavaConstants.BOOLEAN;
             |import static test.JavaConstants.DOUBLE;
             |import static test.JavaConstants.FLOAT;
+            |import static test.JavaConstants.BYTE;
+            |import static test.JavaConstants.SHORT;
+            |import static test.JavaConstants.CHAR;
             |
             |@JavaAnnotation(
-            |        stringValue = STRING, intValue = INTEGER, longValue = LONG,
-            |        booleanValue = BOOLEAN, doubleValue = DOUBLE, floatValue = FLOAT
+            |        byteValue = BYTE, shortValue = SHORT, intValue = INTEGER, longValue = LONG, booleanValue = BOOLEAN,
+            |        doubleValue = DOUBLE, floatValue = FLOAT, stringValue = STRING, charValue = CHAR
             |)
             |public class JavaClassUsingAnnotation {
             |}
@@ -223,23 +271,29 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
             |package test;
             |@Documented
             |public @interface JavaAnnotation {
-            |    String stringValue();
+            |    byte byteValue();
+            |    short shortValue();
             |    int intValue();
             |    long longValue();
             |    boolean booleanValue();
             |    double doubleValue();
             |    float floatValue();
+            |    String stringValue();
+            |    char charValue();
             |}
             |
             |/src/main/java/test/JavaConstants.java
             |package test;
             |public class JavaConstants {
-            |    public static final String STRING = "STRING_CONSTANT_VALUE";
+            |    public static final byte BYTE = 3;
+            |    public static final short SHORT = 4;
             |    public static final int INTEGER = 5;
             |    public static final long LONG = 6L;
             |    public static final boolean BOOLEAN = true;
             |    public static final double DOUBLE = 7.0d;
             |    public static final float FLOAT = 8.0f;
+            |    public static final String STRING = "STRING_CONSTANT_VALUE";
+            |    public static final char CHAR = 'c';
             |}
         """.trimIndent(),
             configuration
@@ -251,13 +305,16 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
                 checkNotNull(annotation)
 
                 assertEquals("JavaAnnotation", annotation.dri.classNames)
-                assertEquals(StringValue("STRING_CONSTANT_VALUE"), annotation.params["stringValue"])
 
+                assertEquals(IntValue(3), annotation.params["byteValue"])
+                assertEquals(IntValue(4), annotation.params["shortValue"])
                 assertEquals(IntValue(5), annotation.params["intValue"])
                 assertEquals(LongValue(6), annotation.params["longValue"])
                 assertEquals(BooleanValue(true), annotation.params["booleanValue"])
                 assertEquals(DoubleValue(7.0), annotation.params["doubleValue"])
                 assertEquals(FloatValue(8.0f), annotation.params["floatValue"])
+                assertEquals(StringValue("STRING_CONSTANT_VALUE"), annotation.params["stringValue"])
+                assertEquals(StringValue("c"), annotation.params["charValue"])
             }
         }
     }

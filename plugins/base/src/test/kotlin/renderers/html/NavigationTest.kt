@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test
 import utils.TestOutputWriterPlugin
 import kotlin.test.assertEquals
 import utils.navigationHtml
+import kotlin.test.assertNull
 
 class NavigationTest : BaseAbstractTest() {
 
@@ -14,6 +15,106 @@ class NavigationTest : BaseAbstractTest() {
         sourceSets {
             sourceSet {
                 sourceRoots = listOf("src/")
+            }
+        }
+    }
+
+    @Test
+    fun `should strike deprecated class link`() {
+        val writerPlugin = TestOutputWriterPlugin()
+        testInline(
+            """
+            |/src/main/kotlin/com/example/SimpleDeprecatedClass.kt
+            |package com.example
+            |
+            |@Deprecated("reason")
+            |class SimpleDeprecatedClass {}
+            """.trimIndent(),
+            configuration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                val content = writerPlugin.writer.navigationHtml().select("div.sideMenuPart")
+                assertEquals(3, content.size)
+
+                // Navigation menu should be the following:
+                // - root
+                //    - com.example
+                //       - SimpleDeprecatedClass
+
+                content[0].assertNavigationLink(
+                    id = "root-nav-submenu",
+                    text = "root",
+                    address = "index.html",
+                )
+
+                content[1].assertNavigationLink(
+                    id = "root-nav-submenu-0",
+                    text = "com.example",
+                    address = "root/com.example/index.html",
+                )
+
+                content[2].assertNavigationLink(
+                    id = "root-nav-submenu-0-0",
+                    text = "SimpleDeprecatedClass",
+                    address = "root/com.example/-simple-deprecated-class/index.html",
+                    icon = NavigationNodeIcon.CLASS_KT,
+                    isStrikethrough = true
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `should not strike pages where only one of N documentables is deprecated`() {
+        val writerPlugin = TestOutputWriterPlugin()
+        testInline(
+            """
+            |/src/main/kotlin/com/example/File.kt
+            |package com.example
+            |
+            |/**
+            | * First
+            | */
+            |@Deprecated("reason")
+            |fun functionWithCommonName()
+            |
+            |/**
+            | * Second
+            | */
+            |fun functionWithCommonName()
+            """.trimIndent(),
+            configuration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                val content = writerPlugin.writer.navigationHtml().select("div.sideMenuPart")
+                assertEquals(3, content.size)
+
+                // Navigation menu should be the following:
+                // - root
+                //    - com.example
+                //       - functionWithCommonName
+
+                content[0].assertNavigationLink(
+                    id = "root-nav-submenu",
+                    text = "root",
+                    address = "index.html",
+                )
+
+                content[1].assertNavigationLink(
+                    id = "root-nav-submenu-0",
+                    text = "com.example",
+                    address = "root/com.example/index.html",
+                )
+
+                content[2].assertNavigationLink(
+                    id = "root-nav-submenu-0-0",
+                    text = "functionWithCommonName()",
+                    address = "root/com.example/function-with-common-name.html",
+                    icon = NavigationNodeIcon.FUNCTION,
+                    isStrikethrough = false
+                )
             }
         }
     }
@@ -209,7 +310,7 @@ class NavigationTest : BaseAbstractTest() {
     }
 
     private fun Element.assertNavigationLink(
-        id: String, text: String, address: String, icon: NavigationNodeIcon? = null
+        id: String, text: String, address: String, icon: NavigationNodeIcon? = null, isStrikethrough: Boolean = false
     ) {
         assertEquals(id, this.id())
 
@@ -223,6 +324,12 @@ class NavigationTest : BaseAbstractTest() {
             assertEquals(3, iconStyles.size)
             assertEquals("nav-link-child", iconStyles[0])
             assertEquals(icon.style(), "${iconStyles[1]} ${iconStyles[2]}")
+        }
+        if (isStrikethrough) {
+            val textInsideStrikethrough = link.selectFirst("strike")?.text()
+            assertEquals(text, textInsideStrikethrough)
+        } else {
+            assertNull(link.selectFirst("strike"))
         }
     }
 }

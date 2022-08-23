@@ -32,6 +32,16 @@ open class CommonmarkRenderer(
                 childrenCallback()
                 buildParagraph()
             }
+            node.dci.kind == ContentKind.Deprecation -> {
+                append("---")
+                childrenCallback()
+                append("---")
+                buildNewLine()
+            }
+            node.hasStyle(ContentStyle.Footnote) -> {
+                childrenCallback()
+                buildParagraph()
+            }
             else -> childrenCallback()
         }
     }

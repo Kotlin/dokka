@@ -502,11 +502,21 @@ class DefaultPsiToDocumentableTranslator(
             } ?: PropertyContainer.empty()
 
         private fun getBound(type: PsiType): Bound {
-            fun bound() = when (type) {
+            //We would like to cache most of the bounds since it is not common to annotate them,
+            //but if this is the case, we treat them as 'one of'
+            fun PsiType.cacheBoundIfHasNoAnnotation(f: (List<Annotations.Annotation>) -> Bound): Bound {
+                val annotations = this.annotations.toList().toListOfAnnotations()
+                return if (annotations.isNotEmpty()) f(annotations)
+                else cachedBounds.getOrPut(canonicalText) {
+                    f(annotations)
+                }
+            }
+
+            return when (type) {
                 is PsiClassReferenceType ->
                     type.resolve()?.let { resolved ->
                         when {
-                            resolved.qualifiedName == "java.lang.Object" -> JavaObject(type.annotations())
+                            resolved.qualifiedName == "java.lang.Object" -> type.cacheBoundIfHasNoAnnotation { annotations -> JavaObject(annotations.annotations()) }
                             resolved is PsiTypeParameter -> {
                                 TypeParameter(
                                     dri = DRI.from(resolved),
@@ -514,6 +524,7 @@ class DefaultPsiToDocumentableTranslator(
                                     extra = type.annotations()
                                 )
                             }
+
                             Regex("kotlin\\.jvm\\.functions\\.Function.*").matches(resolved.qualifiedName ?: "") ||
                                     Regex("java\\.util\\.function\\.Function.*").matches(
                                         resolved.qualifiedName ?: ""
@@ -522,32 +533,40 @@ class DefaultPsiToDocumentableTranslator(
                                 type.parameters.map { getProjection(it) },
                                 extra = type.annotations()
                             )
-                            else -> GenericTypeConstructor(
-                                DRI.from(resolved),
-                                type.parameters.map { getProjection(it) },
-                                extra = type.annotations()
-                            )
+
+                            else -> {
+                                // cache types that have no annotation and no type parameter
+                                // since we cache only by name and type parameters depend on context
+                                val typeParameters = type.parameters.map { getProjection(it) }
+                                if (typeParameters.isEmpty())
+                                    type.cacheBoundIfHasNoAnnotation { annotations ->
+                                        GenericTypeConstructor(
+                                            DRI.from(resolved),
+                                            typeParameters,
+                                            extra = annotations.annotations()
+                                        )
+                                    }
+                                else
+                                    GenericTypeConstructor(
+                                        DRI.from(resolved),
+                                        typeParameters,
+                                        extra = type.annotations()
+                                    )
+                            }
                         }
                     } ?: UnresolvedBound(type.presentableText, type.annotations())
+
                 is PsiArrayType -> GenericTypeConstructor(
                     DRI("kotlin", "Array"),
                     listOf(getProjection(type.componentType)),
                     extra = type.annotations()
                 )
-                is PsiPrimitiveType -> if (type.name == "void") Void
-                    else PrimitiveJavaType(type.name, type.annotations())
-                is PsiImmediateClassType -> JavaObject(type.annotations())
-                else -> throw IllegalStateException("${type.presentableText} is not supported by PSI parser")
-            }
 
-            //We would like to cache most of the bounds since it is not common to annotate them,
-            //but if this is the case, we treat them as 'one of'
-            return if (type.annotations.toList().toListOfAnnotations().isEmpty()) {
-                cachedBounds.getOrPut(type.canonicalText) {
-                    bound()
-                }
-            } else {
-                bound()
+                is PsiPrimitiveType -> if (type.name == "void") Void
+                else type.cacheBoundIfHasNoAnnotation { annotations -> PrimitiveJavaType(type.name, annotations.annotations()) }
+                is PsiImmediateClassType ->
+                    type.cacheBoundIfHasNoAnnotation { annotations -> JavaObject(annotations.annotations()) }
+                else -> throw IllegalStateException("${type.presentableText} is not supported by PSI parser")
             }
         }
 
@@ -658,6 +677,7 @@ class DefaultPsiToDocumentableTranslator(
                         inheritedFrom?.let { inheritedFrom -> InheritedMember(inheritedFrom.toSourceSetDependent()) },
                         it.toSourceSetDependent().toAdditionalModifiers(),
                         annotations.toSourceSetDependent().toAnnotations(),
+                        psi.getConstantExpression()?.let { DefaultValue(it.toSourceSetDependent()) },
                         takeIf { isVar }?.let { IsVar }
                     )
                 }
@@ -670,6 +690,22 @@ class DefaultPsiToDocumentableTranslator(
 
         private fun Collection<PsiAnnotation>.toListOfAnnotations() =
             filter { it !is KtLightAbstractAnnotation }.mapNotNull { it.toAnnotation() }
+
+        private fun PsiField.getConstantExpression(): Expression? {
+            val constantValue = this.computeConstantValue() ?: return null
+            return when (constantValue) {
+                is Byte -> IntegerConstant(constantValue.toLong())
+                is Short -> IntegerConstant(constantValue.toLong())
+                is Int -> IntegerConstant(constantValue.toLong())
+                is Long -> IntegerConstant(constantValue)
+                is Char -> StringConstant(constantValue.toString())
+                is String -> StringConstant(constantValue)
+                is Double -> DoubleConstant(constantValue)
+                is Float -> FloatConstant(constantValue)
+                is Boolean -> BooleanConstant(constantValue)
+                else -> ComplexExpression(constantValue.toString())
+            }
+        }
 
         private fun JvmAnnotationAttribute.toValue(): AnnotationParameterValue = when (this) {
             is PsiNameValuePair -> value?.toValue() ?: attributeValue?.toValue() ?: StringValue("")
@@ -693,6 +729,9 @@ class DefaultPsiToDocumentableTranslator(
         }
 
         private fun Any.toAnnotationLiteralValue() = when (this) {
+            is Byte -> IntValue(this.toInt())
+            is Short -> IntValue(this.toInt())
+            is Char -> StringValue(this.toString())
             is Int -> IntValue(this)
             is Long -> LongValue(this)
             is Boolean -> BooleanValue(this)

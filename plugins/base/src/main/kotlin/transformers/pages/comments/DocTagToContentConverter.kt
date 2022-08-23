@@ -254,6 +254,7 @@ open class DocTagToContentConverter : CommentsToContentConverter {
                     extra = extras
                 )
             )
+            is Var -> buildChildren(docTag, setOf(TextStyle.Var))
 
             else -> buildChildren(docTag)
         }

@@ -3,6 +3,7 @@ package org.jetbrains.dokka.base.renderers.html
 import kotlinx.html.*
 import kotlinx.html.stream.createHTML
 import org.jetbrains.dokka.DokkaSourceSetID
+import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.renderers.*
 import org.jetbrains.dokka.base.renderers.html.command.consumers.ImmediateResolutionTagConsumer
@@ -94,6 +95,7 @@ open class HtmlRenderer(
                 childrenCallback()
             }
             node.hasStyle(ContentStyle.KDocTag) -> span("kdoc-tag") { childrenCallback() }
+            node.hasStyle(ContentStyle.Footnote) -> div("footnote") { childrenCallback() }
             node.hasStyle(TextStyle.BreakableAfter) -> {
                 span { childrenCallback() }
                 wbr { }
@@ -123,10 +125,12 @@ open class HtmlRenderer(
             node.dci.kind == ContentKind.Cover -> div("cover $additionalClasses") { //TODO this can be removed
                 childrenCallback()
             }
+            node.dci.kind == ContentKind.Deprecation -> div("deprecation-content") { childrenCallback() }
             node.hasStyle(TextStyle.Paragraph) -> p(additionalClasses) { childrenCallback() }
             node.hasStyle(TextStyle.Block) -> div(additionalClasses) { childrenCallback() }
             node.hasStyle(TextStyle.Quotation) -> blockQuote(additionalClasses) { childrenCallback() }
             node.hasStyle(TextStyle.FloatingRight) -> span("clearfix") { span("floating-right") { childrenCallback() } }
+            node.hasStyle(TextStyle.Strikethrough) -> strike { childrenCallback() }
             node.isAnchorable -> buildAnchor(
                 node.anchor!!,
                 node.anchorLabel!!,
@@ -201,12 +205,21 @@ open class HtmlRenderer(
         shouldHaveTabs: Boolean = shouldRenderSourceSetBubbles
     ) {
         val contents = contentsForSourceSetDependent(nodes, pageContext)
+        val isOnlyCommonContent = contents.singleOrNull()?.let { (sourceSet, _) ->
+            sourceSet.platform == Platform.common
+                    && sourceSet.name.equals("common", ignoreCase = true)
+                    && sourceSet.sourceSetIDs.all.all { sourceSetDependencyMap[it]?.isEmpty() == true }
+        } ?: false
 
-        val divStyles = "platform-hinted ${styles.joinToString()}" + if (shouldHaveTabs) " with-platform-tabs" else ""
+        // little point in rendering a single "common" tab - it can be
+        // assumed that code without any tabs is common by default
+        val renderTabs = shouldHaveTabs && !isOnlyCommonContent
+
+        val divStyles = "platform-hinted ${styles.joinToString()}" + if (renderTabs) " with-platform-tabs" else ""
         div(divStyles) {
             attributes["data-platform-hinted"] = "data-platform-hinted"
             extra.extraHtmlAttributes().forEach { attributes[it.extraKey] = it.extraValue }
-            if (shouldHaveTabs) {
+            if (renderTabs) {
                 div("platform-bookmarks-row") {
                     attributes["data-toggle-list"] = "data-toggle-list"
                     contents.forEachIndexed { index, pair ->
@@ -777,6 +790,7 @@ open class HtmlRenderer(
             TextStyle.Italic -> i { body() }
             TextStyle.Strikethrough -> strike { body() }
             TextStyle.Strong -> strong { body() }
+            TextStyle.Var -> htmlVar { body() }
             is TokenStyle -> span("token " + styleToApply.toString().toLowerCase()) { body() }
             else -> body()
         }

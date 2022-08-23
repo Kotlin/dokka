@@ -333,7 +333,12 @@ enum class ContentKind : Kind {
     Symbol,
 
     Comment, Constructors, Functions, Parameters, Properties, Classlikes, Packages, Sample, Main, BriefComment,
-    Empty, Source, TypeAliases, Cover, Inheritors, SourceSetDependentHint, Extensions, Annotations;
+    Empty, Source, TypeAliases, Cover, Inheritors, SourceSetDependentHint, Extensions, Annotations,
+
+    /**
+     * Deprecation details block with related information such as message/replaceWith/level.
+     */
+    Deprecation;
 
     companion object {
         private val platformTagged =
@@ -383,12 +388,12 @@ enum class TokenStyle : Style {
 enum class TextStyle : Style {
     Bold, Italic, Strong, Strikethrough, Paragraph,
     Block, Span, Monospace, Indented, Cover, UnderCoverText, BreakableAfter, Breakable, InlineComment, Quotation,
-    FloatingRight
+    FloatingRight, Var
 }
 
 enum class ContentStyle : Style {
     RowTitle, TabbedContent, WithExtraAttributes, RunnableSample, InDocumentationAnchor, Caption,
-    Wrapped, Indented, KDocTag
+    Wrapped, Indented, KDocTag, Footnote
 }
 
 enum class ListStyle : Style {

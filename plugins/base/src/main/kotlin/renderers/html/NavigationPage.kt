@@ -57,17 +57,27 @@ class NavigationPage(
                             span("nav-link-grid") {
                                 span("nav-link-child ${node.icon?.style()}")
                                 span("nav-link-child") {
-                                    buildBreakableText(node.name)
+                                    nodeText(node)
                                 }
                             }
                         } else {
-                            buildBreakableText(node.name)
+                            nodeText(node)
                         }
                     }
                 }
                 node.children.withIndex().forEach { (n, p) -> visit(p, "$navId-$n", renderer) }
             }
         }
+
+    private fun FlowContent.nodeText(node: NavigationNode) {
+        if (node.styles.contains(TextStyle.Strikethrough)) {
+            strike {
+                buildBreakableText(node.name)
+            }
+        } else {
+            buildBreakableText(node.name)
+        }
+    }
 }
 
 data class NavigationNode(
@@ -75,6 +85,7 @@ data class NavigationNode(
     val dri: DRI,
     val sourceSets: Set<DisplaySourceSet>,
     val icon: NavigationNodeIcon?,
+    val styles: Set<Style> = emptySet(),
     override val children: List<NavigationNode>
 ) : WithChildren<NavigationNode>
 
@@ -108,4 +119,4 @@ fun NavigationPage.transform(block: (NavigationNode) -> NavigationNode) =
     NavigationPage(root.transform(block), moduleName, context)
 
 fun NavigationNode.transform(block: (NavigationNode) -> NavigationNode) =
-    run(block).let { NavigationNode(it.name, it.dri, it.sourceSets, it.icon, it.children.map(block)) }
+    run(block).let { NavigationNode(it.name, it.dri, it.sourceSets, it.icon, it.styles, it.children.map(block)) }

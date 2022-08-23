@@ -14,9 +14,11 @@ jobs:
         uses: actions/checkout@v3
       - name: Qodana - Code Inspection
         id: qodana
-        uses: JetBrains/qodana-action@v5.1.0
+        uses: JetBrains/qodana-action@v2022.2.1
         with:
-          args: --baseline,qodana.sarif.json,--fail-threshold,0,--linter,jetbrains/qodana-jvm:2022.1-eap
+          args: --baseline,qodana.sarif.json,--fail-threshold,0,--linter,jetbrains/qodana-jvm
+        env:
+          QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
   clone-finder:
     runs-on: ubuntu-latest
     steps:
