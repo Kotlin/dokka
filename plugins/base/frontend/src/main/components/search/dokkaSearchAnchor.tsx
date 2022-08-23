@@ -2,19 +2,19 @@ import React from "react";
 import Tooltip from '@jetbrains/ring-ui/components/tooltip/tooltip';
 import SearchIcon from 'react-svg-loader!../assets/searchIcon.svg';
 import {CustomAnchorProps} from "./types";
-import {detectOsKind, OsKind} from "../utils/os";
+import {Hotkey} from "../utils/hotkey";
 
 const HOTKEY_LETTER = 'k'
 const HOTKEY_TOOLTIP_DISPLAY_DELAY = 0.5 * 1000 // seconds
 
 export const DokkaSearchAnchor = ({wrapperProps, buttonProps, popup}: CustomAnchorProps) => {
-    const currentOs = detectOsKind()
-    registerSearchHotkey(currentOs, buttonProps)
+    const hotkeys = new Hotkey()
+    hotkeys.registerHotkeyWithAccel(buttonProps.onClick, HOTKEY_LETTER)
 
     return (
         <span {...wrapperProps}>
             <Tooltip
-                title={`${osMetaKeyName(currentOs)} + ${HOTKEY_LETTER.toUpperCase()}`}
+                title={`${hotkeys.getOsAccelKeyName()} + ${HOTKEY_LETTER.toUpperCase()}`}
                 delay={HOTKEY_TOOLTIP_DISPLAY_DELAY}
                 popupProps={{className: "search-hotkey-popup"}}
             >
@@ -25,34 +25,4 @@ export const DokkaSearchAnchor = ({wrapperProps, buttonProps, popup}: CustomAnch
             {popup}
         </span>
     )
-}
-
-
-const registerSearchHotkey = (currentOs: OsKind, buttonProps: any) => {
-    document.onkeydown = (keyDownEvent) => {
-        if (isOsMetaKeyPressed(currentOs, keyDownEvent) && keyDownEvent.key === HOTKEY_LETTER) {
-            keyDownEvent.preventDefault()
-            buttonProps.onClick()
-        }
-    };
-}
-
-const isOsMetaKeyPressed = (currentOs: OsKind, keyEvent: KeyboardEvent): Boolean => {
-    switch (osMetaKeyName(currentOs)) {
-        case "Command":
-            return keyEvent.metaKey
-        case "Ctrl":
-            return keyEvent.ctrlKey
-        default:
-            return keyEvent.ctrlKey
-    }
-}
-
-const osMetaKeyName = (currentOs: OsKind): String => {
-    switch (currentOs) {
-        case OsKind.MACOS:
-            return "Command"
-        default:
-            return "Ctrl"
-    }
 }
