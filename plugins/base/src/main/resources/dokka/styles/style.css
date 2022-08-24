@@ -1056,7 +1056,7 @@ td.content {
 
 @media print, screen and (min-width: 960px) {
     .keyValue {
-        grid-template-columns: 20% 70%;
+        grid-template-columns: 20% 80%;
     }
 
     .title-row {
