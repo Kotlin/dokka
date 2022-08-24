@@ -1206,7 +1206,7 @@ private class DokkaDescriptorVisitor(
         Visibilities.Public -> KotlinVisibility.Public
         Visibilities.Protected -> KotlinVisibility.Protected
         Visibilities.Internal -> KotlinVisibility.Internal
-        Visibilities.Private -> KotlinVisibility.Private
+        Visibilities.Private, Visibilities.PrivateToThis -> KotlinVisibility.Private
         JavaVisibilities.ProtectedAndPackage -> KotlinVisibility.Protected
         JavaVisibilities.ProtectedStaticVisibility -> KotlinVisibility.Protected
         JavaVisibilities.PackageVisibility -> JavaVisibility.Default
