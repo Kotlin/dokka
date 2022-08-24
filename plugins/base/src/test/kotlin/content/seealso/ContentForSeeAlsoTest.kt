@@ -517,76 +517,73 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `undocumented see also from java`(){
+    fun `should prefix static function and property links with class name`() {
         testInline(
             """
-            |/src/main/java/example/Source.java
-            |package example;
+            |/src/main/kotlin/com/example/package/CollectionExtensions.kt
+            |package com.example.util
             |
-            |public interface Source {
-            |   String getProperty(String k, String v);
-            |
-            |   /**
-            |    * @see #getProperty(String, String)
-            |    */
-            |   String getProperty(String k);
+            |object CollectionExtensions {
+            |    val property = "Hi"
+            |    fun emptyList() {}
             |}
-        """.trimIndent(), testConfiguration
-        ) {
-            documentablesTransformationStage = { module ->
-                val functionWithSeeTag = module.packages.flatMap { it.classlikes }.flatMap { it.functions }.find { it.name == "getProperty" && it.parameters.count() == 1 }
-                val seeTag = functionWithSeeTag?.docs()?.firstIsInstanceOrNull<See>()
-                val expectedLinkDestinationDRI = DRI(
-                    packageName = "example",
-                    classNames = "Source",
-                    callable = Callable(
-                        name = "getProperty",
-                        params = listOf(JavaClassReference("java.lang.String"), JavaClassReference("java.lang.String"))
-                    )
-                )
-
-                kotlin.test.assertNotNull(seeTag)
-                assertEquals("getProperty(String, String)", seeTag.name)
-                assertEquals(expectedLinkDestinationDRI, seeTag.address)
-                assertEquals(emptyList(), seeTag.children)
-            }
-        }
-    }
-
-    @Test
-    fun `documented see also from java`(){
-        testInline(
-            """
-            |/src/main/java/example/Source.java
-            |package example;
             |
-            |public interface Source {
-            |   String getProperty(String k, String v);
+            |/src/main/kotlin/com/example/foo.kt
+            |package com.example
             |
-            |   /**
-            |    * @see #getProperty(String, String) this is a reference to a method that is present on the same class.
-            |    */
-            |   String getProperty(String k);
-            |}
-        """.trimIndent(), testConfiguration
+            |import com.example.util.CollectionExtensions.property
+            |import com.example.util.CollectionExtensions.emptyList
+            |
+            |/**
+            | * @see [property] static property
+            | * @see [emptyList] static emptyList
+            | */
+            |fun function() {}
+            """.trimIndent(),
+            testConfiguration
         ) {
-            documentablesTransformationStage = { module ->
-                val functionWithSeeTag = module.packages.flatMap { it.classlikes }.flatMap { it.functions }.find { it.name == "getProperty" && it.parameters.size == 1 }
-                val seeTag = functionWithSeeTag?.docs()?.firstIsInstanceOrNull<See>()
-                val expectedLinkDestinationDRI = DRI(
-                    packageName = "example",
-                    classNames = "Source",
-                    callable = Callable(
-                        name = "getProperty",
-                        params = listOf(JavaClassReference("java.lang.String"), JavaClassReference("java.lang.String"))
-                    )
-                )
+            pagesTransformationStage = { module ->
+                val page = module.children.single { it.name == "com.example" }
+                    .children.single { it.name == "function" } as ContentPage
 
-                kotlin.test.assertNotNull(seeTag)
-                assertEquals("getProperty(String, String)", seeTag.name)
-                assertEquals(expectedLinkDestinationDRI, seeTag.address)
-                assertEquals("this is a reference to a method that is present on the same class.", seeTag.children.first().text().trim())
-                assertEquals(1, seeTag.children.size)
+                page.content.assertNode {
+                    group {
+                        header(1) { +"function" }
+                    }
+                    divergentGroup {
+                        divergentInstance {
+                            divergent {
+                                bareSignature(
+                                    annotations = emptyMap(),
+                                    visibility = "",
+                                    modifier = "",
+                                    keywords = emptySet(),
+                                    name = "function",
+                                    returnType = null,
+                                )
+                            }
+                            after {
+                                header(4) { +"See also" }
+                                group {
+                                    table {
+                                        group {
+                                            link { +"CollectionExtensions.property" }
+                                            group {
+                                                group { +"static property" }
+                                            }
+                                        }
+                                        group {
+                                            link { +"CollectionExtensions.emptyList" }
+                                            group {
+                                                group { +"static emptyList" }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }
