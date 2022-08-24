@@ -2,7 +2,7 @@ package org.jetbrains.dokka.base.transformers.documentables
 
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.*
-import org.jetbrains.dokka.base.transformers.documentables.utils.ClassGraphBuilder
+import org.jetbrains.dokka.base.transformers.documentables.utils.FullClassHierarchyBuilder
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.DriOfAny
 import org.jetbrains.dokka.model.*
@@ -17,7 +17,7 @@ import org.jetbrains.dokka.utilities.parallelMap
 
 class ExtensionExtractorTransformer : DocumentableTransformer {
     override fun invoke(original: DModule, context: DokkaContext): DModule = runBlocking(Dispatchers.Default) {
-        val classGraph = async { ClassGraphBuilder()(original) }
+        val classGraph = async { FullClassHierarchyBuilder()(original) }
 
         val channel = Channel<Pair<DRI, Callable>>(10)
         launch {

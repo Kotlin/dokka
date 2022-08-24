@@ -15,52 +15,53 @@ import org.jetbrains.kotlin.types.typeUtil.immediateSupertypes
 import org.jetbrains.kotlin.types.typeUtil.isAnyOrNullableAny
 import java.util.concurrent.ConcurrentHashMap
 
+typealias Supertypes = List<DRI>
+typealias ClassHierarchy = SourceSetDependent<Map<DRI, Supertypes>>
 
-/**
- * The class allows lo build a full class hierarchy via descriptors
- */
-class ClassGraphBuilder {
-    suspend operator fun invoke(original: DModule): SourceSetDependent<Map<DRI, List<DRI>>> = coroutineScope {
+class FullClassHierarchyBuilder {
+    suspend operator fun invoke(original: DModule): ClassHierarchy = coroutineScope {
         val map = original.sourceSets.associateWith { ConcurrentHashMap<DRI, List<DRI>>() }
         original.packages.parallelForEach { visitDocumentable(it, map) }
         map
     }
 
     private suspend fun collectSupertypesFromKotlinType(
-        DRIWithKType: Pair<DRI, KotlinType>,
+        driWithKType: Pair<DRI, KotlinType>,
         sourceSet: DokkaConfiguration.DokkaSourceSet,
-        supersMap: SourceSetDependent<MutableMap<DRI, List<DRI>>>
+        supersMap: SourceSetDependent<MutableMap<DRI, Supertypes>>
     ): Unit = coroutineScope {
-        val supertypes = DRIWithKType.second.immediateSupertypes().filterNot { it.isAnyOrNullableAny() }
-        val supertypesDRIWithKType = supertypes.mapNotNull { supertype ->
+        val (dri, kotlinType) = driWithKType
+        val supertypes = kotlinType.immediateSupertypes().filterNot { it.isAnyOrNullableAny() }
+        val supertypesDriWithKType = supertypes.mapNotNull { supertype ->
             supertype.constructor.declarationDescriptor?.let {
                 DRI.from(it) to supertype
             }
         }
 
         supersMap[sourceSet]?.let { map ->
-            if (map[DRIWithKType.first] == null) {
+            if (map[dri] == null) {
                 // another thread can rewrite the same value, but it isn't a problem
-                map[DRIWithKType.first] = supertypesDRIWithKType.map { it.first }
-                supertypesDRIWithKType.parallelForEach { collectSupertypesFromKotlinType(it, sourceSet, supersMap) }
+                map[dri] = supertypesDriWithKType.map { it.first }
+                supertypesDriWithKType.parallelForEach { collectSupertypesFromKotlinType(it, sourceSet, supersMap) }
             }
         }
     }
 
     private suspend fun collectSupertypesFromPsiClass(
-        DRIWithPsiClass: Pair<DRI, PsiClass>,
+        driWithPsiClass: Pair<DRI, PsiClass>,
         sourceSet: DokkaConfiguration.DokkaSourceSet,
-        supersMap: SourceSetDependent<MutableMap<DRI, List<DRI>>>
+        supersMap: SourceSetDependent<MutableMap<DRI, Supertypes>>
     ): Unit = coroutineScope {
-        val supertypes = DRIWithPsiClass.second.superTypes.mapNotNull { it.resolve() }
+        val (dri, psiClass) = driWithPsiClass
+        val supertypes = psiClass.superTypes.mapNotNull { it.resolve() }
             .filterNot { it.qualifiedName == "java.lang.Object" }
-        val supertypesDRIWithPsiClass = supertypes.map { DRI.from(it) to it }
+        val supertypesDriWithPsiClass = supertypes.map { DRI.from(it) to it }
 
         supersMap[sourceSet]?.let { map ->
-            if (map[DRIWithPsiClass.first] == null) {
+            if (map[dri] == null) {
                 // another thread can rewrite the same value, but it isn't a problem
-                map[DRIWithPsiClass.first] = supertypesDRIWithPsiClass.map { it.first }
-                supertypesDRIWithPsiClass.parallelForEach { collectSupertypesFromPsiClass(it, sourceSet, supersMap) }
+                map[dri] = supertypesDriWithPsiClass.map { it.first }
+                supertypesDriWithPsiClass.parallelForEach { collectSupertypesFromPsiClass(it, sourceSet, supersMap) }
             }
         }
     }
