@@ -25,6 +25,11 @@ export class Hotkey {
         return this.getOsAccelKey().name
     }
 
+    /**
+     * Register a hotkey of combination Accel key (Cmd/Ctrl depending on OS).
+     * The method also checks that other modifiers key is not pressed to avoid shortcuts intersection.
+     * E.g. don't trigger [Ctrl+K] if [Ctrl + Shift + K] pressed
+     */
     public registerHotkeyWithAccel = (event: () => void, letter: string) => {
         const osMetaKey = this.getOsAccelKey()
         document.onkeydown = (keyDownEvent) => {
