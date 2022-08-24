@@ -96,7 +96,12 @@ open class DefaultPageCreator(
             }
         }
 
-        val constructors = documentables.flatMap { if (it is WithConstructors) it.constructors else emptyList() }
+        val constructors =
+            if (documentables.shouldRenderConstructors()) {
+                documentables.flatMap { (it as? WithConstructors)?.constructors ?: emptyList() }
+            } else {
+                emptyList()
+            }
 
         val classlikes = documentables.flatMap { it.classlikes }
         val functions = documentables.flatMap { it.filteredFunctions }
@@ -366,7 +371,7 @@ open class DefaultPageCreator(
             group(styles = setOf(ContentStyle.TabbedContent), sourceSets = mainSourcesetData + extensions.sourceSets) {
                 +contentForComments(documentables)
                 val csWithConstructor = classlikes.filterIsInstance<WithConstructors>()
-                if (csWithConstructor.isNotEmpty()) {
+                if (csWithConstructor.isNotEmpty() && documentables.shouldRenderConstructors()) {
                     val constructorsToDocumented = csWithConstructor.flatMap { it.constructors }
                     multiBlock(
                         "Constructors",
@@ -431,6 +436,11 @@ open class DefaultPageCreator(
                 )
             }
         }
+
+    // Annotations might have constructors to substitute reflection invocations
+    // and for internal/compiler purposes, but they are not expected to be documented
+    // and instantiated directly under normal circumstances, so constructors should not be rendered.
+    private fun List<Documentable>.shouldRenderConstructors() = !this.any { it is DAnnotation }
 
     @Suppress("UNCHECKED_CAST")
     private inline fun <reified T : TagWrapper> GroupedTags.withTypeUnnamed(): SourceSetDependent<T> =
