@@ -17,7 +17,12 @@ import org.jetbrains.dokka.utilities.parallelMap
 
 class ExtensionExtractorTransformer : DocumentableTransformer {
     override fun invoke(original: DModule, context: DokkaContext): DModule = runBlocking(Dispatchers.Default) {
-        val classGraph = async { FullClassHierarchyBuilder()(original) }
+        val classGraph = async {
+            if (!context.configuration.suppressInheritedMembers)
+                FullClassHierarchyBuilder()(original)
+            else
+                emptyMap()
+        }
 
         val channel = Channel<Pair<DRI, Callable>>(10)
         launch {
