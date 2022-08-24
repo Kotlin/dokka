@@ -18,6 +18,11 @@ $secondary-font-color: hsla(0, 0%, 100%, 0.6);
   }
 }
 
+.search-hotkey-popup{
+  background-color: var(--background-color) !important;
+  padding: 4px;
+}
+
 .popup-wrapper {
   min-width: calc(100% - 322px) !important;
 
