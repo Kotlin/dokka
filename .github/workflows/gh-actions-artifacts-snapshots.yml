@@ -19,17 +19,17 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: 12
-      - name: Document stdlib
+      - name: Document coroutines
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: :integration-tests:gradle:integrationTest --tests org.jetbrains.dokka.it.gradle.kotlin.StdlibGradleIntegrationTest --stacktrace
+          arguments: :integration-tests:gradle:integrationTest --tests org.jetbrains.dokka.it.gradle.kotlin.CoroutinesGradleIntegrationTest.kt --stacktrace
         env:
-          DOKKA_IT_AWS_PATH: /home/runner/work/dokka/stdlib      
+          DOKKA_IT_AWS_PATH: /home/runner/work/dokka/coroutines      
       - name: Copy files to GitHub Actions Artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: dokka-stdlib
-          path: /home/runner/work/dokka/stdlib
+          name: dokka-coroutines
+          path: /home/runner/work/dokka/coroutines
           retention-days: 2
 
   serialization:
