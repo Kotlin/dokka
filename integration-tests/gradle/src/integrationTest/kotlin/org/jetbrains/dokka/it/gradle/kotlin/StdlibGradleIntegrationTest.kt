@@ -1,7 +1,6 @@
 package org.jetbrains.dokka.it.gradle.kotlin
 
 import org.gradle.testkit.runner.TaskOutcome
-import org.jetbrains.dokka.it.S3Project
 import org.jetbrains.dokka.it.copyAndApplyGitDiff
 import org.jetbrains.dokka.it.gradle.AbstractGradleIntegrationTest
 import org.jetbrains.dokka.it.gradle.BuildVersions
