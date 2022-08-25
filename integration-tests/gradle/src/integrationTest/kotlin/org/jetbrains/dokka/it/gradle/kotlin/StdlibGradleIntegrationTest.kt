@@ -9,8 +9,7 @@ import org.junit.runners.Parameterized
 import java.io.File
 import kotlin.test.*
 
-class StdlibGradleIntegrationTest(override val versions: BuildVersions) : AbstractGradleIntegrationTest(),
-    S3Project {
+class StdlibGradleIntegrationTest(override val versions: BuildVersions) : AbstractGradleIntegrationTest() {
 
     companion object {
         @get:JvmStatic
@@ -20,8 +19,6 @@ class StdlibGradleIntegrationTest(override val versions: BuildVersions) : Abstra
             kotlinVersions = listOf("1.4.10")
         )
     }
-
-    override val projectOutputLocation: File by lazy { File(projectDir, "build/dokka/kotlin-stdlib") }
 
     @BeforeTest
     fun prepareProjectFiles() {

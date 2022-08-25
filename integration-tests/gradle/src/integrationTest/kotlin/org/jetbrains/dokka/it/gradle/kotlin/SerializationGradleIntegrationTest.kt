@@ -9,7 +9,7 @@ import java.io.File
 import kotlin.test.*
 
 class SerializationGradleIntegrationTest(override val versions: BuildVersions) : AbstractGradleIntegrationTest(),
-    S3Project {
+    TestOutputCopier {
 
     companion object {
         @get:JvmStatic
