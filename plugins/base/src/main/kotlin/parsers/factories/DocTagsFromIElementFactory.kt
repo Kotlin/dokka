@@ -41,7 +41,8 @@ object DocTagsFromIElementFactory {
                 params
             ) else {
                 // corner case: there are only spaces between two Markdown nodes
-                if (body?.isNotEmpty() == true && body.isBlank()) Text(" ", children, params)
+                val containsOnlySpaces = body?.isNotEmpty() == true && body.all { it.isWhitespace() }
+                if (containsOnlySpaces) Text(" ", children, params)
                 else body?.parseWithNormalisedSpaces(renderWhiteCharactersAsSpaces = false).orEmpty()
             }
             MarkdownTokenTypes.HORIZONTAL_RULE          -> HorizontalRule
