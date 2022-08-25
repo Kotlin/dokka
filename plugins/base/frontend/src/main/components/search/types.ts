@@ -1,4 +1,4 @@
-import React from "react";
+import React, {ButtonHTMLAttributes, HTMLAttributes, ReactNode, RefCallback} from "react";
 
 export type Page = {
     name: string;
@@ -36,4 +36,16 @@ export type OptionWithHighlightComponent = Option & {
 
 export type SearchProps = {
     searchResult: OptionWithSearchResult,
+}
+
+export interface DataTestProps {
+    'data-test'?: string | null | undefined
+}
+
+export interface CustomAnchorProps {
+    wrapperProps: HTMLAttributes<HTMLElement> & DataTestProps & {ref: RefCallback<HTMLElement>}
+    buttonProps: Pick<ButtonHTMLAttributes<HTMLButtonElement>, 'id' | 'disabled' | 'children'> &
+        {onClick: () => void} &
+        DataTestProps,
+    popup: ReactNode
 }
