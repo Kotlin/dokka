@@ -2,7 +2,6 @@ package org.jetbrains.dokka.base.transformers.documentables.utils
 
 import com.intellij.psi.PsiClass
 import kotlinx.coroutines.*
-import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.analysis.DescriptorDocumentableSource
 import org.jetbrains.dokka.analysis.PsiDocumentableSource
 import org.jetbrains.dokka.analysis.from
@@ -27,8 +26,7 @@ class FullClassHierarchyBuilder {
 
     private suspend fun collectSupertypesFromKotlinType(
         driWithKType: Pair<DRI, KotlinType>,
-        sourceSet: DokkaConfiguration.DokkaSourceSet,
-        supersMap: SourceSetDependent<MutableMap<DRI, Supertypes>>
+        supersMap: MutableMap<DRI, Supertypes>
     ): Unit = coroutineScope {
         val (dri, kotlinType) = driWithKType
         val supertypes = kotlinType.immediateSupertypes().filterNot { it.isAnyOrNullableAny() }
@@ -38,40 +36,35 @@ class FullClassHierarchyBuilder {
             }
         }
 
-        supersMap[sourceSet]?.let { map ->
-            if (map[dri] == null) {
-                // another thread can rewrite the same value, but it isn't a problem
-                map[dri] = supertypesDriWithKType.map { it.first }
-                supertypesDriWithKType.parallelForEach { collectSupertypesFromKotlinType(it, sourceSet, supersMap) }
-            }
+        if (supersMap[dri] == null) {
+            // another thread can rewrite the same value, but it isn't a problem
+            supersMap[dri] = supertypesDriWithKType.map { it.first }
+            supertypesDriWithKType.parallelForEach { collectSupertypesFromKotlinType(it, supersMap) }
         }
     }
 
     private suspend fun collectSupertypesFromPsiClass(
         driWithPsiClass: Pair<DRI, PsiClass>,
-        sourceSet: DokkaConfiguration.DokkaSourceSet,
-        supersMap: SourceSetDependent<MutableMap<DRI, Supertypes>>
+        supersMap: MutableMap<DRI, Supertypes>
     ): Unit = coroutineScope {
         val (dri, psiClass) = driWithPsiClass
         val supertypes = psiClass.superTypes.mapNotNull { it.resolve() }
             .filterNot { it.qualifiedName == "java.lang.Object" }
         val supertypesDriWithPsiClass = supertypes.map { DRI.from(it) to it }
 
-        supersMap[sourceSet]?.let { map ->
-            if (map[dri] == null) {
-                // another thread can rewrite the same value, but it isn't a problem
-                map[dri] = supertypesDriWithPsiClass.map { it.first }
-                supertypesDriWithPsiClass.parallelForEach { collectSupertypesFromPsiClass(it, sourceSet, supersMap) }
-            }
+        if (supersMap[dri] == null) {
+            // another thread can rewrite the same value, but it isn't a problem
+            supersMap[dri] = supertypesDriWithPsiClass.map { it.first }
+            supertypesDriWithPsiClass.parallelForEach { collectSupertypesFromPsiClass(it, supersMap) }
         }
     }
 
     private suspend fun visitDocumentable(
         documentable: Documentable,
-        supersMap: SourceSetDependent<MutableMap<DRI, List<DRI>>>
+        hierarchy: SourceSetDependent<MutableMap<DRI, List<DRI>>>
     ): Unit = coroutineScope {
         if (documentable is WithScope) {
-            documentable.classlikes.parallelForEach { visitDocumentable(it, supersMap) }
+            documentable.classlikes.parallelForEach { visitDocumentable(it, hierarchy) }
         }
         if (documentable is DClasslike) {
             // to build a full class graph, using supertypes from Documentable
@@ -80,10 +73,10 @@ class FullClassHierarchyBuilder {
                 if (source is DescriptorDocumentableSource) {
                     val descriptor = source.descriptor as ClassDescriptor
                     val type = descriptor.defaultType
-                    collectSupertypesFromKotlinType(documentable.dri to type, sourceSet, supersMap)
+                    hierarchy[sourceSet]?.let { collectSupertypesFromKotlinType(documentable.dri to type, it) }
                 } else if (source is PsiDocumentableSource) {
                     val psi = source.psi as PsiClass
-                    collectSupertypesFromPsiClass(documentable.dri to psi, sourceSet, supersMap)
+                    hierarchy[sourceSet]?.let { collectSupertypesFromPsiClass(documentable.dri to psi, it) }
                 }
             }
         }
