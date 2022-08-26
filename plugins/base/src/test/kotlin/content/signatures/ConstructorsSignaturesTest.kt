@@ -293,4 +293,49 @@ class ConstructorsSignaturesTest : BaseAbstractTest() {
             }
         }
     }
+
+    @Test
+    fun `should render primary constructor, but not constructors block for annotation class`() {
+        testInline(
+            """
+            |/src/main/kotlin/test/source.kt
+            |package test
+            |
+            |annotation class MyAnnotation(val param: String) {}
+            """.trimIndent(),
+            testConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val page = module.children.single { it.name == "test" }
+                    .children.single { it.name == "MyAnnotation" } as ContentPage
+                page.content.assertNode {
+                    group {
+                        header(1) { +"MyAnnotation" }
+                        platformHinted {
+                            group {
+                                +"annotation class "
+                                link { +"MyAnnotation" }
+                                +"("
+                                group {
+                                    group {
+                                        +"val param: "
+                                        group { link { +"String" } }
+                                    }
+                                }
+                                +")"
+                            }
+                        }
+                    }
+                    group {
+                        group {
+                            header { +"Properties" }
+                            table {
+                                skipAllNotMatching()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
