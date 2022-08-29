@@ -1217,10 +1217,6 @@ public final class org/jetbrains/dokka/base/transformers/documentables/Extension
 	public fun invoke (Lorg/jetbrains/dokka/model/DModule;Lorg/jetbrains/dokka/plugability/DokkaContext;)Lorg/jetbrains/dokka/model/DModule;
 }
 
-public final class org/jetbrains/dokka/base/transformers/documentables/ExtensionExtractorTransformerKt {
-	public static final fun consumeAsFlow (Lkotlinx/coroutines/channels/ReceiveChannel;)Lkotlinx/coroutines/flow/Flow;
-}
-
 public final class org/jetbrains/dokka/base/transformers/documentables/InheritedEntriesDocumentableFilterTransformer : org/jetbrains/dokka/base/transformers/documentables/SuppressedByConditionDocumentableFilterTransformer {
 	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
 	public fun shouldBeSuppressed (Lorg/jetbrains/dokka/model/Documentable;)Z
@@ -1276,6 +1272,11 @@ public final class org/jetbrains/dokka/base/transformers/documentables/UtilsKt {
 	public static final fun isDeprecated (Lorg/jetbrains/dokka/model/Annotations$Annotation;)Z
 	public static final fun isDeprecated (Lorg/jetbrains/dokka/model/properties/WithExtraProperties;)Z
 	public static final fun isException (Lorg/jetbrains/dokka/model/properties/WithExtraProperties;)Z
+}
+
+public final class org/jetbrains/dokka/base/transformers/documentables/utils/FullClassHierarchyBuilder {
+	public fun <init> ()V
+	public final fun invoke (Lorg/jetbrains/dokka/model/DModule;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
 public final class org/jetbrains/dokka/base/transformers/pages/annotations/SinceKotlinTransformer : org/jetbrains/dokka/transformers/documentation/DocumentableTransformer {
