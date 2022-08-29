@@ -1,7 +1,7 @@
 package org.jetbrains.dokka.analysis.resolve
 
 import org.jetbrains.kotlin.analyzer.*
-import org.jetbrains.kotlin.builtins.konan.KonanBuiltIns
+import org.jetbrains.kotlin.builtins.DefaultBuiltIns
 import org.jetbrains.kotlin.config.LanguageVersionSettings
 import org.jetbrains.kotlin.container.StorageComponentContainer
 import org.jetbrains.kotlin.container.get
@@ -14,14 +14,15 @@ import org.jetbrains.kotlin.idea.klib.createKlibPackageFragmentProvider
 import org.jetbrains.kotlin.incremental.components.LookupTracker
 import org.jetbrains.kotlin.js.resolve.JsPlatformAnalyzerServices
 import org.jetbrains.kotlin.konan.util.KlibMetadataFactories
-import org.jetbrains.kotlin.library.metadata.NullFlexibleTypeDeserializer
 import org.jetbrains.kotlin.resolve.CodeAnalyzerInitializer
 import org.jetbrains.kotlin.resolve.SealedClassInheritorsProvider
 import org.jetbrains.kotlin.resolve.TargetEnvironment
 import org.jetbrains.kotlin.resolve.lazy.ResolveSession
 import org.jetbrains.kotlin.resolve.lazy.declarations.DeclarationProviderFactoryService
+import org.jetbrains.kotlin.serialization.js.DynamicTypeDeserializer
 import org.jetbrains.kotlin.serialization.js.KotlinJavascriptSerializationUtil
 import org.jetbrains.kotlin.serialization.js.createKotlinJavascriptPackageFragmentProvider
+import org.jetbrains.kotlin.serialization.konan.impl.KlibMetadataModuleDescriptorFactoryImpl
 import org.jetbrains.kotlin.utils.KotlinJavascriptMetadataUtils
 import java.io.File
 
@@ -30,7 +31,14 @@ internal class DokkaJsResolverForModuleFactory(
     private val targetEnvironment: TargetEnvironment
 ) : ResolverForModuleFactory() {
     companion object {
-        private val metadataFactories = KlibMetadataFactories(::KonanBuiltIns, NullFlexibleTypeDeserializer)
+        private val metadataFactories = KlibMetadataFactories({ DefaultBuiltIns.Instance }, DynamicTypeDeserializer)
+
+        private val metadataModuleDescriptorFactory = KlibMetadataModuleDescriptorFactoryImpl(
+            metadataFactories.DefaultDescriptorFactory,
+            metadataFactories.DefaultPackageFragmentsFactory,
+            metadataFactories.flexibleTypeDeserializer,
+            metadataFactories.platformDependentTypeTransformer
+        )
     }
 
     override fun <M : ModuleInfo> createResolverForModule(
@@ -82,7 +90,7 @@ internal class DokkaJsResolverForModuleFactory(
                 moduleInfo.kotlinLibrary
                     .createKlibPackageFragmentProvider(
                         storageManager = moduleContext.storageManager,
-                        metadataModuleDescriptorFactory = metadataFactories.DefaultDeserializedDescriptorFactory,
+                        metadataModuleDescriptorFactory = metadataModuleDescriptorFactory,
                         languageVersionSettings = languageVersionSettings,
                         moduleDescriptor = moduleDescriptor,
                         lookupTracker = LookupTracker.DO_NOTHING
