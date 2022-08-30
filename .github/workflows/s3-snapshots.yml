@@ -22,7 +22,7 @@ jobs:
       - name: Document stdlib
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: :integration-tests:gradle:integrationTest --tests org.jetbrains.dokka.it.gradle.kotlin.StdlibGradleIntegrationTest.kt --stacktrace
+          arguments: :integration-tests:gradle:integrationTest --tests org.jetbrains.dokka.it.gradle.kotlin.StdlibGradleIntegrationTest --stacktrace
         env:
           DOKKA_TEST_OUTPUT_PATH: /home/runner/work/dokka/stdlib
       - name: Configure AWS credentials for S3 access
@@ -51,7 +51,7 @@ jobs:
       - name: Document coroutines
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: :integration-tests:gradle:integrationTest --tests org.jetbrains.dokka.it.gradle.kotlin.CoroutinesGradleIntegrationTest.kt --stacktrace
+          arguments: :integration-tests:gradle:integrationTest --tests org.jetbrains.dokka.it.gradle.kotlin.CoroutinesGradleIntegrationTest --stacktrace
         env:
           DOKKA_TEST_OUTPUT_PATH: /home/runner/work/dokka/coroutines
       - name: Configure AWS credentials for S3 access
