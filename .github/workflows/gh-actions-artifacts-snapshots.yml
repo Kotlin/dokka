@@ -30,7 +30,7 @@ jobs:
         with:
           name: dokka-coroutines
           path: /home/runner/work/dokka/coroutines
-          retention-days: 2
+          retention-days: 7
 
   serialization:
     runs-on: ubuntu-latest
@@ -55,7 +55,7 @@ jobs:
         with:
           name: dokka-serialization
           path: /home/runner/work/dokka/serialization
-          retention-days: 2
+          retention-days: 7
 
   biojava:
     runs-on: ubuntu-latest
@@ -80,4 +80,4 @@ jobs:
         with:
           name: dokka-biojava
           path: /home/runner/work/dokka/biojava
-          retention-days: 2
+          retention-days: 7
