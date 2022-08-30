@@ -513,7 +513,7 @@ class DefaultPsiToDocumentableTranslator(
             }
 
             return when (type) {
-                is PsiClassReferenceType ->
+                is PsiClassType ->
                     type.resolve()?.let { resolved ->
                         when {
                             resolved.qualifiedName == "java.lang.Object" -> type.cacheBoundIfHasNoAnnotation { annotations -> JavaObject(annotations.annotations()) }
@@ -564,8 +564,6 @@ class DefaultPsiToDocumentableTranslator(
 
                 is PsiPrimitiveType -> if (type.name == "void") Void
                 else type.cacheBoundIfHasNoAnnotation { annotations -> PrimitiveJavaType(type.name, annotations.annotations()) }
-                is PsiImmediateClassType ->
-                    type.cacheBoundIfHasNoAnnotation { annotations -> JavaObject(annotations.annotations()) }
                 else -> throw IllegalStateException("${type.presentableText} is not supported by PSI parser")
             }
         }
