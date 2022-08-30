@@ -1,6 +1,7 @@
 package org.jetbrains.dokka.it.gradle.kotlin
 
 import org.gradle.testkit.runner.TaskOutcome
+import org.jetbrains.dokka.it.TestOutputCopier
 import org.jetbrains.dokka.it.copyAndApplyGitDiff
 import org.jetbrains.dokka.it.gradle.AbstractGradleIntegrationTest
 import org.jetbrains.dokka.it.gradle.BuildVersions
@@ -8,7 +9,8 @@ import org.junit.runners.Parameterized
 import java.io.File
 import kotlin.test.*
 
-class StdlibGradleIntegrationTest(override val versions: BuildVersions) : AbstractGradleIntegrationTest() {
+class StdlibGradleIntegrationTest(override val versions: BuildVersions) : AbstractGradleIntegrationTest(),
+    TestOutputCopier {
 
     companion object {
         @get:JvmStatic
@@ -18,6 +20,8 @@ class StdlibGradleIntegrationTest(override val versions: BuildVersions) : Abstra
             kotlinVersions = listOf("1.4.10")
         )
     }
+
+    override val projectOutputLocation: File by lazy { File(projectDir, "build/dokka/kotlin-stdlib") }
 
     @BeforeTest
     fun prepareProjectFiles() {
