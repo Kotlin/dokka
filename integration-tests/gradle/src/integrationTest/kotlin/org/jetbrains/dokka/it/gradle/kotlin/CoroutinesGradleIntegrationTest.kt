@@ -15,8 +15,8 @@ class CoroutinesGradleIntegrationTest(override val versions: BuildVersions) : Ab
         @get:JvmStatic
         @get:Parameterized.Parameters(name = "{0}")
         val versions = BuildVersions.permutations(
-            gradleVersions = listOf("6.8.3"),
-            kotlinVersions = listOf("1.6.0")
+            gradleVersions = listOf("6.9.1"),
+            kotlinVersions = listOf("1.6.10")
         )
     }
 
