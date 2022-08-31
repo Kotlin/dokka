@@ -577,8 +577,7 @@ private class DokkaDescriptorVisitor(
                 sources = actual,
                 visibility = descriptor.visibility.toDokkaVisibility().toSourceSetDependent(),
                 generics = generics.await(),
-                documentation = descriptor.takeIf { it.kind != CallableMemberDescriptor.Kind.SYNTHESIZED }
-                    ?.resolveDescriptorData() ?: emptyMap(),
+                documentation = descriptor.getDocumentation(),
                 modifier = descriptor.modifier().toSourceSetDependent(),
                 type = descriptor.returnType!!.toBound(),
                 sourceSets = setOf(sourceSet),
@@ -591,6 +590,15 @@ private class DokkaDescriptorVisitor(
                     ObviousMember.takeIf { descriptor.isObvious() },
                 )
             )
+        }
+    }
+
+    private fun FunctionDescriptor.getDocumentation(): SourceSetDependent<DocumentationNode> {
+        val isSynthesized = this.kind == CallableMemberDescriptor.Kind.SYNTHESIZED
+        return if (isSynthesized) {
+            this.getSyntheticFunctionDocumentation()?.toSourceSetDependent() ?: emptyMap()
+        } else {
+            this.resolveDescriptorData()
         }
     }
 
@@ -609,7 +617,7 @@ private class DokkaDescriptorVisitor(
 
     private fun FunctionDescriptor.isObvious(): Boolean {
         return kind == CallableMemberDescriptor.Kind.FAKE_OVERRIDE
-                || kind == CallableMemberDescriptor.Kind.SYNTHESIZED
+                || (kind == CallableMemberDescriptor.Kind.SYNTHESIZED && !this.isDocumentedSyntheticFunction())
                 || containingDeclaration.fqNameOrNull()?.isObvious() == true
     }
 

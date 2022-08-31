@@ -8,8 +8,6 @@ import com.intellij.lang.jvm.annotation.JvmAnnotationEnumFieldValue
 import com.intellij.lang.jvm.types.JvmReferenceType
 import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.psi.*
-import com.intellij.psi.impl.source.PsiClassReferenceType
-import com.intellij.psi.impl.source.PsiImmediateClassType
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
@@ -404,7 +402,7 @@ class DefaultPsiToDocumentableTranslator(
             val dri = parentDRI?.let { dri ->
                 DRI.from(psi).copy(packageName = dri.packageName, classNames = dri.classNames)
             } ?: DRI.from(psi)
-            val docs = javadocParser.parseDocumentation(psi)
+            val docs = psi.getDocumentation()
             return DFunction(
                 dri = dri,
                 name = psi.name,
@@ -452,8 +450,13 @@ class DefaultPsiToDocumentableTranslator(
             )
         }
 
+        private fun PsiMethod.getDocumentation(): DocumentationNode =
+            this.takeIf { it is SyntheticElement }?.getSyntheticMethodDocumentation()
+                ?: javadocParser.parseDocumentation(this)
+
         private fun PsiMethod.isObvious(inheritedFrom: DRI? = null): Boolean {
-            return this is SyntheticElement || inheritedFrom?.isObvious() == true
+            return (this is SyntheticElement && !this.isDocumentedSyntheticMethod())
+                    || inheritedFrom?.isObvious() == true
         }
 
         private fun DRI.isObvious(): Boolean {

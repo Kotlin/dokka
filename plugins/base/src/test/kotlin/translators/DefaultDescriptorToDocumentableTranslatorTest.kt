@@ -2,10 +2,11 @@ package translators
 
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
+import org.jetbrains.dokka.base.translators.descriptors.KOTLIN_ENUM_VALUES_DOCUMENTATION
+import org.jetbrains.dokka.base.translators.descriptors.KOTLIN_ENUM_VALUE_OF_DOCUMENTATION
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.doc.*
-import org.junit.Assert
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Disabled
@@ -850,6 +851,63 @@ class DefaultDescriptorToDocumentableTranslatorTest : BaseAbstractTest() {
                     expectedName = "com.example.util.CollectionExtensions.property",
                     expectedDescription = "static property"
                 )
+            }
+        }
+    }
+
+    @Test
+    fun `should have documentation for synthetic enum functions`() {
+        testInline(
+            """
+            |/src/main/kotlin/test/KotlinEnum.kt
+            |package test
+            |
+            |enum class KotlinEnum {
+            |    FOO, BAR;
+            |}
+            """.trimIndent(),
+            configuration
+        ) {
+            documentablesMergingStage = { module ->
+                val kotlinEnum = module.packages.find { it.name == "test" }
+                    ?.classlikes
+                    ?.single { it.name == "KotlinEnum" }
+                checkNotNull(kotlinEnum)
+
+                val valuesFunction = kotlinEnum.functions.single { it.name == "values" }
+                val expectedValuesType = GenericTypeConstructor(
+                    dri = DRI(
+                        packageName = "kotlin",
+                        classNames = "Array"
+                    ),
+                    projections = listOf(
+                        Invariance(
+                            GenericTypeConstructor(
+                                dri = DRI(
+                                    packageName = "test",
+                                    classNames = "KotlinEnum"
+                                ),
+                                projections = emptyList()
+                            )
+                        )
+                    )
+                )
+                assertEquals(KOTLIN_ENUM_VALUES_DOCUMENTATION, valuesFunction.documentation.values.single())
+                assertEquals(expectedValuesType, valuesFunction.type)
+
+                val valueOfFunction = kotlinEnum.functions.single { it.name == "valueOf" }
+                val expectedValueOfType = GenericTypeConstructor(
+                    dri = DRI(
+                        packageName = "test",
+                        classNames = "KotlinEnum"
+                    ),
+                    projections = emptyList()
+                )
+                assertEquals(KOTLIN_ENUM_VALUE_OF_DOCUMENTATION, valueOfFunction.documentation.values.single())
+                assertEquals(expectedValueOfType, valueOfFunction.type)
+
+                val valueOfParamDRI = (valueOfFunction.parameters.single().type as GenericTypeConstructor).dri
+                assertEquals(DRI(packageName = "kotlin", classNames = "String"), valueOfParamDRI)
             }
         }
     }
