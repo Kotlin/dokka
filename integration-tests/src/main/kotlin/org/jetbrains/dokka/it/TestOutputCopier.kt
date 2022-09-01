@@ -3,14 +3,14 @@ package org.jetbrains.dokka.it
 import org.junit.After
 import java.io.File
 
-interface S3Project {
+interface TestOutputCopier {
     val projectOutputLocation: File
 
     @After
     fun copyToLocation() {
-        System.getenv("DOKKA_IT_AWS_PATH")?.also { location ->
+        System.getenv("DOKKA_TEST_OUTPUT_PATH")?.also { location ->
             println("Copying to ${File(location).absolutePath}")
             projectOutputLocation.copyRecursively(File(location))
-        } ?: println("No copy path provided, skipping")
+        } ?: println("No path via env. varbiable 'DOKKA_TEST_OUTPUT_PATH' provided, skipping copying")
     }
 }

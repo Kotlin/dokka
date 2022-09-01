@@ -7,7 +7,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-class BiojavaIntegrationTest : AbstractIntegrationTest(), S3Project {
+class BiojavaIntegrationTest : AbstractIntegrationTest(), TestOutputCopier {
 
     private val currentDokkaVersion: String = checkNotNull(System.getenv("DOKKA_VERSION"))
     private val mavenBinaryFile: File = File(checkNotNull(System.getenv("MVN_BINARY_PATH")))
