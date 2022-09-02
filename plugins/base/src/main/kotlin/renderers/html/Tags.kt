@@ -26,6 +26,12 @@ inline fun FlowOrPhrasingContent.strike(classes : String? = null, crossinline bl
 open class STRIKE(initialAttributes: Map<String, String>, override val consumer: TagConsumer<*>) :
     HTMLTag("strike", consumer, initialAttributes, null, false, false), HtmlBlockInlineTag
 
+@HtmlTagMarker
+inline fun FlowOrPhrasingContent.underline(classes : String? = null, crossinline block : UNDERLINE.() -> Unit = {}) : Unit = UNDERLINE(attributesMapOf("class", classes), consumer).visit(block)
+
+open class UNDERLINE(initialAttributes: Map<String, String>, override val consumer: TagConsumer<*>) :
+    HTMLTag("u", consumer, initialAttributes, null, false, false), HtmlBlockInlineTag
+
 const val TEMPLATE_COMMAND_SEPARATOR = ":"
 const val TEMPLATE_COMMAND_BEGIN_BORDER  = "[+]cmd"
 const val TEMPLATE_COMMAND_END_BORDER  = "[-]cmd"

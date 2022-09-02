@@ -35,6 +35,7 @@ class Dl(vararg matchers: Any) : Tag("dl", *matchers)
 class Dt(vararg matchers: Any) : Tag("dt", *matchers)
 class Dd(vararg matchers: Any) : Tag("dd", *matchers)
 class Var(vararg matchers: Any) : Tag("var", *matchers)
+class U(vararg matchers: Any) : Tag("u", *matchers)
 object Wbr : Tag("wbr")
 object Br : Tag("br")
 

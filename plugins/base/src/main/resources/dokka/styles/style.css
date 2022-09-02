@@ -709,6 +709,12 @@ a small {
     display: block;
 }
 
+u {
+    text-decoration: none;
+    padding-bottom: 2px;
+    border-bottom: 1px solid var(--border-color);
+}
+
 blockquote {
     border-left: 1ch solid var(--default-gray);
     margin: 0;
@@ -1039,7 +1045,7 @@ td.content {
 
 @media print, screen and (min-width: 960px) {
     .keyValue {
-        grid-template-columns: 25% 75%;
+        grid-template-columns: 20% 80%;
     }
 
     .title-row {

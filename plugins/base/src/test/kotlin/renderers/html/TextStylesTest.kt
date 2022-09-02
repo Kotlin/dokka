@@ -92,6 +92,18 @@ class TextStylesTest : HtmlRenderingOnlyTestBase() {
         renderedContent.match(Var("variable"))
     }
 
+    @Test
+    fun `should include underlined text`() {
+        val page = testPage {
+            group(styles = setOf(TextStyle.Underlined)) {
+                text("underlined text")
+            }
+        }
+        HtmlRenderer(context).render(page)
+        println(renderedContent)
+        renderedContent.match(U("underlined text"))
+    }
+
     override val renderedContent: Element
         get() = files.contents.getValue("test-page.html").let { Jsoup.parse(it) }.select("#content").single()
 }

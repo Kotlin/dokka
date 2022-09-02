@@ -425,6 +425,7 @@ class JavadocParser(
                 "h2" -> ifChildrenPresent { H2(children) }
                 "h3" -> ifChildrenPresent { H3(children) }
                 "var" -> ifChildrenPresent { Var(children) }
+                "u" -> ifChildrenPresent { U(children) }
                 else -> listOf(Text(body = element.ownText()))
             }
         }

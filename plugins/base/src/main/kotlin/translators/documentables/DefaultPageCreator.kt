@@ -572,7 +572,7 @@ open class DefaultPageCreator(
                                             text(
                                                 it.name,
                                                 kind = ContentKind.Parameters,
-                                                styles = mainStyles + ContentStyle.RowTitle
+                                                styles = mainStyles + setOf(ContentStyle.RowTitle, TextStyle.Underlined)
                                             )
                                             if (it.isNotEmpty()) {
                                                 comment(it.root)

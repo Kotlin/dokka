@@ -7,10 +7,8 @@ import org.jetbrains.dokka.model.dfs
 import org.jetbrains.dokka.model.doc.DocumentationNode
 import org.jetbrains.dokka.model.doc.Param
 import org.jetbrains.dokka.model.doc.Text
-import org.jetbrains.dokka.pages.ContentDRILink
-import org.jetbrains.dokka.pages.ContentPage
-import org.jetbrains.dokka.pages.MemberPageNode
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
+import org.jetbrains.dokka.pages.*
 import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
 import org.junit.jupiter.api.Test
 import utils.*
@@ -1057,6 +1055,10 @@ class ContentForParamsTest : BaseAbstractTest() {
                                     table {
                                         group {
                                             +"abc"
+                                            check {
+                                                val textStyles = children.single { it is ContentText }.style
+                                                assertContains(textStyles, TextStyle.Underlined)
+                                            }
                                             group { group { +"comment to param" } }
                                         }
                                     }
@@ -1110,14 +1112,26 @@ class ContentForParamsTest : BaseAbstractTest() {
                                     table {
                                         group {
                                             +"first"
+                                            check {
+                                                val textStyles = children.single { it is ContentText }.style
+                                                assertContains(textStyles, TextStyle.Underlined)
+                                            }
                                             group { group { +"comment to first param" } }
                                         }
                                         group {
                                             +"second"
+                                            check {
+                                                val textStyles = children.single { it is ContentText }.style
+                                                assertContains(textStyles, TextStyle.Underlined)
+                                            }
                                             group { group { +"comment to second param" } }
                                         }
                                         group {
                                             +"third"
+                                            check {
+                                                val textStyles = children.single { it is ContentText }.style
+                                                assertContains(textStyles, TextStyle.Underlined)
+                                            }
                                             group { group { +"comment to third param" } }
                                         }
                                     }
