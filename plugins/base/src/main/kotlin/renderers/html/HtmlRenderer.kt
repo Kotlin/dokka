@@ -791,6 +791,7 @@ open class HtmlRenderer(
             TextStyle.Strikethrough -> strike { body() }
             TextStyle.Strong -> strong { body() }
             TextStyle.Var -> htmlVar { body() }
+            TextStyle.Underlined -> underline { body() }
             is TokenStyle -> span("token " + styleToApply.toString().toLowerCase()) { body() }
             else -> body()
         }
