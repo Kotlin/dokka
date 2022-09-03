@@ -6,6 +6,15 @@ repositories {
     gradlePluginPortal()
 }
 
+gradlePlugin {
+    plugins {
+        create("build-logic") {
+            id = "build-logic"
+            implementationClass = "org.jetbrains.BuildLogic"
+        }
+    }
+}
+
 dependencies {
     implementation("com.github.jengelman.gradle.plugins:shadow:2.0.4")
     implementation("org.jetbrains.kotlinx:binary-compatibility-validator:0.10.1")

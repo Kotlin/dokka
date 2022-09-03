@@ -5,7 +5,8 @@ plugins {
     kotlin("jvm") apply false
     id("java")
     id("org.jetbrains.dokka") version "1.7.10"
-    id("io.github.gradle-nexus.publish-plugin")
+    id("io.github.gradle-nexus.publish-plugin") version "1.1.0"
+    id("build-logic") apply false
 }
 
 val dokka_version: String by project

@@ -1,5 +1,7 @@
 rootProject.name = "dokka"
 
+includeBuild("build-logic")
+
 include("core")
 include("core:test-api")
 include("core:content-matcher-test-utils")
