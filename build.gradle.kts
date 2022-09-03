@@ -12,6 +12,7 @@ plugins {
 val dokka_version: String by project
 
 allprojects {
+    apply(plugin = "build-logic")
     configureDokkaVersion()
 
     group = "org.jetbrains.dokka"
