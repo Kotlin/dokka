@@ -17,6 +17,6 @@ gradlePlugin {
 
 dependencies {
     implementation("com.github.jengelman.gradle.plugins:shadow:2.0.4")
-    implementation("org.jetbrains.kotlinx:binary-compatibility-validator:0.11.0")
+    implementation("org.jetbrains.kotlinx:binary-compatibility-validator:0.11.1")
     implementation("io.github.gradle-nexus:publish-plugin:1.1.0")
 }
