@@ -8,12 +8,13 @@ import org.jetbrains.dokka.model.SourceSetDependent
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.utilities.DokkaLogger
 
-fun KotlinAnalysis(sourceSets: List<DokkaSourceSet>, logger: DokkaLogger): KotlinAnalysis {
+fun KotlinAnalysis(sourceSets: List<DokkaSourceSet>, logger: DokkaLogger, isStdLib: Boolean = false): KotlinAnalysis {
     val environments = sourceSets.associateWith { sourceSet ->
         createEnvironmentAndFacade(
             logger = logger,
             sourceSets = sourceSets,
-            sourceSet = sourceSet
+            sourceSet = sourceSet,
+            isStdLib = isStdLib
         )
     }
 

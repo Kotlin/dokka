@@ -19,10 +19,7 @@ import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.analysis.resolve.*
 import org.jetbrains.kotlin.analyzer.*
-import org.jetbrains.kotlin.analyzer.common.CommonAnalysisParameters
-import org.jetbrains.kotlin.analyzer.common.CommonDependenciesContainer
-import org.jetbrains.kotlin.analyzer.common.CommonPlatformAnalyzerServices
-import org.jetbrains.kotlin.analyzer.common.CommonResolverForModuleFactory
+import org.jetbrains.kotlin.analyzer.common.*
 import org.jetbrains.kotlin.builtins.DefaultBuiltIns
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.builtins.jvm.JvmBuiltIns
@@ -179,7 +176,7 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
             )
         }
 
-    fun createResolutionFacade(environment: KotlinCoreEnvironment): Pair<DokkaResolutionFacade, DokkaResolutionFacade> {
+    fun createResolutionFacade(environment: KotlinCoreEnvironment, ignoreCommonBuiltIns: Boolean = false): Pair<DokkaResolutionFacade, DokkaResolutionFacade> {
         val projectContext = ProjectContext(environment.project, "Dokka")
         val sourceFiles = environment.getSourceFiles()
 
@@ -218,6 +215,15 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
             override val platform: TargetPlatform = targetPlatform
             override fun dependencies(): List<ModuleInfo> =
                 listOf(this, library) + extraModuleDependencies
+
+            /**
+             * Only for common platform ignore BuiltIns for StdLib since it can cause a conflict
+             * between BuiltIns from a compiler and ones from source code.
+             */
+            override fun dependencyOnBuiltIns(): ModuleInfo.DependencyOnBuiltIns {
+                return if (analysisPlatform == Platform.common && ignoreCommonBuiltIns) ModuleInfo.DependencyOnBuiltIns.NONE
+                else super.dependencyOnBuiltIns()
+            }
         }
 
         val sourcesScope = createSourceModuleSearchScope(environment.project, sourceFiles)
