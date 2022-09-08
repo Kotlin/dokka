@@ -3,12 +3,10 @@ package translators
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
-import org.jetbrains.dokka.base.translators.psi.JAVA_ENUM_VALUES_DOCUMENTATION
-import org.jetbrains.dokka.base.translators.psi.JAVA_ENUM_VALUE_OF_DOCUMENTATION
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.PointingToDeclaration
 import org.jetbrains.dokka.model.*
-import org.jetbrains.dokka.model.doc.Text
+import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.*
@@ -595,7 +593,7 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `should have documentation for synthetic enum functions`() {
+    fun `should have documentation for synthetic Enum values functions`() {
         testInline(
             """
             |/src/main/java/test/JavaEnum.java
@@ -614,6 +612,35 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
                 checkNotNull(kotlinEnum)
 
                 val valuesFunction = kotlinEnum.functions.single { it.name == "values" }
+
+                val expectedDocumentation = DocumentationNode(listOf(
+                    Description(
+                        CustomDocTag(
+                            children = listOf(
+                                P(listOf(
+                                    Text(
+                                        "Returns an array containing the constants of this enum type, " +
+                                                "in the order they're declared. This method may be used to " +
+                                                "iterate over the constants."
+                                    ),
+                                ))
+                            ),
+                            name = "MARKDOWN_FILE"
+                        )
+                    ),
+                    Return(
+                        CustomDocTag(
+                            children = listOf(
+                                P(listOf(
+                                    Text("an array containing the constants of this enum type, in the order they're declared")
+                                ))
+                            ),
+                            name = "MARKDOWN_FILE"
+                        )
+                    )
+                ))
+                assertEquals(expectedDocumentation, valuesFunction.documentation.values.single())
+
                 val expectedValuesType = GenericTypeConstructor(
                     dri = DRI(
                         packageName = "kotlin",
@@ -629,10 +656,77 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
                         )
                     )
                 )
-                assertEquals(JAVA_ENUM_VALUES_DOCUMENTATION, valuesFunction.documentation.values.single())
                 assertEquals(expectedValuesType, valuesFunction.type)
+            }
+        }
+    }
+
+    @Test
+    fun `should have documentation for synthetic Enum valueOf functions`() {
+        testInline(
+            """
+            |/src/main/java/test/JavaEnum.java
+            |package test
+            |
+            |public enum JavaEnum {
+            |    FOO, BAR;
+            |}
+            """.trimIndent(),
+            configuration
+        ) {
+            documentablesMergingStage = { module ->
+                val kotlinEnum = module.packages.find { it.name == "test" }
+                    ?.classlikes
+                    ?.single { it.name == "JavaEnum" }
+                checkNotNull(kotlinEnum)
 
                 val valueOfFunction = kotlinEnum.functions.single { it.name == "valueOf" }
+
+                val expectedDocumentation = DocumentationNode(listOf(
+                    Description(
+                        CustomDocTag(
+                            children = listOf(
+                                P(listOf(
+                                    Text(
+                                        "Returns the enum constant of this type with the " +
+                                                "specified name. The string must match exactly an identifier used " +
+                                                "to declare an enum constant in this type. (Extraneous whitespace " +
+                                                "characters are not permitted.)"
+                                    )
+                                ))
+                            ),
+                            name = "MARKDOWN_FILE"
+                        )
+                    ),
+                    Return(
+                        root = CustomDocTag(
+                            children = listOf(
+                                P(listOf(
+                                    Text("the enum constant with the specified name")
+                                ))
+                            ),
+                            name = "MARKDOWN_FILE"
+                        )
+                    ),
+                    Throws(
+                        name = "java.lang.IllegalArgumentException",
+                        exceptionAddress = DRI(
+                            packageName = "java.lang",
+                            classNames = "IllegalArgumentException",
+                            target = PointingToDeclaration
+                        ),
+                        root = CustomDocTag(
+                            children = listOf(
+                                P(listOf(
+                                    Text("if this enum type has no constant with the specified name")
+                                ))
+                            ),
+                            name = "MARKDOWN_FILE"
+                        )
+                    ),
+                ))
+                assertEquals(expectedDocumentation, valueOfFunction.documentation.values.single())
+
                 val expectedValueOfType = GenericTypeConstructor(
                     dri = DRI(
                         packageName = "test",
@@ -640,7 +734,6 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
                     ),
                     projections = emptyList()
                 )
-                assertEquals(JAVA_ENUM_VALUE_OF_DOCUMENTATION, valueOfFunction.documentation.values.single())
                 assertEquals(expectedValueOfType, valueOfFunction.type)
 
                 val valueOfParamDRI = (valueOfFunction.parameters.single().type as GenericTypeConstructor).dri

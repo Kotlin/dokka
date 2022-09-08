@@ -97,8 +97,8 @@ class DefaultPsiToDocumentableTranslator(
         facade: DokkaResolutionFacade,
         private val logger: DokkaLogger
     ) {
-
-        private val javadocParser: JavaDocumentationParser = JavadocParser(logger, facade)
+        private val javadocParser = JavadocParser(logger, facade)
+        private val syntheticDocProvider = SyntheticElementDocumentationProvider(javadocParser, facade)
 
         private val cachedBounds = hashMapOf<String, Bound>()
 
@@ -451,11 +451,11 @@ class DefaultPsiToDocumentableTranslator(
         }
 
         private fun PsiMethod.getDocumentation(): DocumentationNode =
-            this.takeIf { it is SyntheticElement }?.getSyntheticMethodDocumentation()
+            this.takeIf { it is SyntheticElement }?.let { syntheticDocProvider.getDocumentation(it) }
                 ?: javadocParser.parseDocumentation(this)
 
         private fun PsiMethod.isObvious(inheritedFrom: DRI? = null): Boolean {
-            return (this is SyntheticElement && !this.isDocumentedSyntheticMethod())
+            return (this is SyntheticElement && !syntheticDocProvider.isDocumented(this))
                     || inheritedFrom?.isObvious() == true
         }
 

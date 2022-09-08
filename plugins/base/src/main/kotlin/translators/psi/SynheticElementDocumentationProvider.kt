@@ -1,85 +1,37 @@
 package org.jetbrains.dokka.base.translators.psi
 
-import com.intellij.psi.PsiMethod
-import com.intellij.psi.SyntheticElement
-import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.links.PointingToDeclaration
-import org.jetbrains.dokka.model.doc.*
+import com.intellij.psi.*
+import com.intellij.psi.javadoc.PsiDocComment
+import org.jetbrains.dokka.analysis.DokkaResolutionFacade
+import org.jetbrains.dokka.base.translators.psi.parsers.JavadocParser
+import org.jetbrains.dokka.model.doc.DocumentationNode
 
-/**
- * Adaptation of text taken from [java.lang.Enum.valueOf]
- */
-internal val JAVA_ENUM_VALUE_OF_DOCUMENTATION = DocumentationNode(listOf(
-    Description(
-        P(listOf(
-            Text(
-                "Returns the enum constant of the this enum type with the " +
-                        "specified name. The name must match exactly an identifier used " +
-                        "to declare an enum constant in this type.  (Extraneous whitespace " +
-                        "characters are not permitted.)"
-            )
-        ))
-    ),
-    Param(
-        name = "name",
-        root = P(listOf(
-            Text("the name of the constant to return")
-        ))
-    ),
-    Return(root = P(listOf(
-        Text("the enum constant of this enum type with the specified name")
-    ))),
-    Throws(
-        name = "java.lang.IllegalArgumentException",
-        exceptionAddress = DRI(
-            packageName = "java.lang",
-            classNames = "IllegalArgumentException",
-            target = PointingToDeclaration
-        ),
-        root = P(listOf(
-            Text("if this enum type has no constant with the specified name")
-        ))
-    ),
-    Throws(
-        name = "java.lang.NullPointerException",
-        exceptionAddress = DRI(
-            packageName = "java.lang",
-            classNames = "NullPointerException",
-            target = PointingToDeclaration
-        ),
-        root = P(listOf(
-            Text("if name is null")
-        ))
-    ),
-    Since(root = P(listOf(
-        Text("1.5")
-    )))
-))
+private const val ENUM_VALUEOF_TEMPLATE_PATH = "/dokka/docs/javadoc/EnumValueOf.java.template"
+private const val ENUM_VALUES_TEMPLATE_PATH = "/dokka/docs/javadoc/EnumValues.java.template"
 
-/**
- * Adaptation of text from the Java SE specification.
- *
- * See https://docs.oracle.com/javase/specs/jls/se18/html/jls-8.html#jls-8.9.3
- */
-internal val JAVA_ENUM_VALUES_DOCUMENTATION = DocumentationNode(listOf(
-    Description(
-        P(listOf(
-            Text(
-                "Returns an array containing the enum constants of this type, " +
-                        "in the same order as they appear in the body of the declaration"
-            )
-        ))
-    )
-))
+internal class SyntheticElementDocumentationProvider(
+    private val javadocParser: JavadocParser,
+    private val resolutionFacade: DokkaResolutionFacade
+) {
+    fun isDocumented(psiElement: PsiElement): Boolean = psiElement is PsiMethod
+            && (psiElement.isSyntheticEnumValuesMethod() || psiElement.isSyntheticEnumValueOfMethod())
 
+    fun getDocumentation(psiElement: PsiElement): DocumentationNode? {
+        val psiMethod = psiElement as? PsiMethod ?: return null
+        val templatePath = when {
+            psiMethod.isSyntheticEnumValuesMethod() -> ENUM_VALUES_TEMPLATE_PATH
+            psiMethod.isSyntheticEnumValueOfMethod() -> ENUM_VALUEOF_TEMPLATE_PATH
+            else -> return null
+        }
+        val docComment = loadSyntheticDoc(psiElement, templatePath) ?: return null
+        return javadocParser.parseDocComment(docComment, psiElement)
+    }
 
-internal fun PsiMethod.isDocumentedSyntheticMethod() = this.isSyntheticEnumValuesMethod() || this.isSyntheticEnumValueOfMethod()
-
-internal fun PsiMethod.getSyntheticMethodDocumentation(): DocumentationNode? {
-    return when {
-        this.isSyntheticEnumValuesMethod() -> JAVA_ENUM_VALUES_DOCUMENTATION
-        this.isSyntheticEnumValueOfMethod() -> JAVA_ENUM_VALUE_OF_DOCUMENTATION
-        else -> null
+    private fun loadSyntheticDoc(psiElement: PsiElement, path: String): PsiDocComment? {
+        val containingClassName = (psiElement as? PsiMember)?.containingClass?.name ?: return null
+        val template = javaClass.getResource(path)?.readText() ?: return null
+        val text = template.replace("<ClassName>", containingClassName)
+        return JavaPsiFacade.getElementFactory(resolutionFacade.project).createDocCommentFromText(text)
     }
 }
 

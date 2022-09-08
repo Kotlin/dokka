@@ -136,6 +136,7 @@ private class DokkaDescriptorVisitor(
     private val logger: DokkaLogger
 ) {
     private val javadocParser = JavadocParser(logger, resolutionFacade)
+    private val syntheticDocProvider = SyntheticDescriptorDocumentationProvider(resolutionFacade)
 
     private fun Collection<DeclarationDescriptor>.filterDescriptorsInSourceSet() = filter {
         it.toSourceElement.containingFile.toString().let { path ->
@@ -596,7 +597,7 @@ private class DokkaDescriptorVisitor(
     private fun FunctionDescriptor.getDocumentation(): SourceSetDependent<DocumentationNode> {
         val isSynthesized = this.kind == CallableMemberDescriptor.Kind.SYNTHESIZED
         return if (isSynthesized) {
-            this.getSyntheticFunctionDocumentation()?.toSourceSetDependent() ?: emptyMap()
+            syntheticDocProvider.getDocumentation(this)?.toSourceSetDependent() ?: emptyMap()
         } else {
             this.resolveDescriptorData()
         }
@@ -617,7 +618,7 @@ private class DokkaDescriptorVisitor(
 
     private fun FunctionDescriptor.isObvious(): Boolean {
         return kind == CallableMemberDescriptor.Kind.FAKE_OVERRIDE
-                || (kind == CallableMemberDescriptor.Kind.SYNTHESIZED && !this.isDocumentedSyntheticFunction())
+                || (kind == CallableMemberDescriptor.Kind.SYNTHESIZED && !syntheticDocProvider.isDocumented(this))
                 || containingDeclaration.fqNameOrNull()?.isObvious() == true
     }
 
