@@ -112,11 +112,6 @@ open class HtmlRenderer(
             }
             node.dci.kind == SymbolContentKind.Parameter -> {
                 span("parameter $additionalClasses") {
-                    if (node.hasStyle(ContentStyle.Indented)) {
-                        // could've been done with CSS (padding-left, ::before, etc), but the indent needs to
-                        // consist of physical spaces, otherwise select and copy won't work properly
-                        repeat(4) { consumer.onTagContentEntity(Entities.nbsp) }
-                    }
                     childrenCallback()
                 }
             }
