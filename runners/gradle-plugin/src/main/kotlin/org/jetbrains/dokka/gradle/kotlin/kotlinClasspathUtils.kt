@@ -5,7 +5,7 @@ import org.gradle.api.file.FileCollection
 import org.jetbrains.dokka.gradle.isAndroidTarget
 import org.jetbrains.dokka.utilities.cast
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeCompilation
+import org.jetbrains.kotlin.gradle.plugin.mpp.AbstractKotlinNativeCompilation
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinCommonCompilation
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -42,7 +42,7 @@ private fun Project.compileClasspathOf(compilation: KotlinCompilation): FileColl
         return compilation.compileKotlinTask.cast<KotlinCompile>().classpath
     }
 
-    val platformDependencyFiles: FileCollection = (compilation as? KotlinNativeCompilation)
+    val platformDependencyFiles: FileCollection = (compilation as? AbstractKotlinNativeCompilation)
         ?.target?.project?.configurations
         ?.findByName(compilation.defaultSourceSet.implementationMetadataConfigurationName)
         ?: files()
