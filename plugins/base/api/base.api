@@ -1175,7 +1175,7 @@ public abstract class org/jetbrains/dokka/base/transformers/documentables/Docume
 	protected fun processBound (Lorg/jetbrains/dokka/model/Bound;)Lorg/jetbrains/dokka/base/transformers/documentables/DocumentableReplacerTransformer$AnyWithChanges;
 	protected fun processClassLike (Lorg/jetbrains/dokka/model/DClasslike;)Lorg/jetbrains/dokka/base/transformers/documentables/DocumentableReplacerTransformer$AnyWithChanges;
 	protected fun processEnumEntry (Lorg/jetbrains/dokka/model/DEnumEntry;)Lorg/jetbrains/dokka/base/transformers/documentables/DocumentableReplacerTransformer$AnyWithChanges;
-	protected final fun processFunction (Lorg/jetbrains/dokka/model/DFunction;)Lorg/jetbrains/dokka/base/transformers/documentables/DocumentableReplacerTransformer$AnyWithChanges;
+	protected fun processFunction (Lorg/jetbrains/dokka/model/DFunction;)Lorg/jetbrains/dokka/base/transformers/documentables/DocumentableReplacerTransformer$AnyWithChanges;
 	protected fun processFunctionalTypeConstructor (Lorg/jetbrains/dokka/model/FunctionalTypeConstructor;)Lorg/jetbrains/dokka/base/transformers/documentables/DocumentableReplacerTransformer$AnyWithChanges;
 	protected fun processGenericTypeConstructor (Lorg/jetbrains/dokka/model/GenericTypeConstructor;)Lorg/jetbrains/dokka/base/transformers/documentables/DocumentableReplacerTransformer$AnyWithChanges;
 	protected fun processModule (Lorg/jetbrains/dokka/model/DModule;)Lorg/jetbrains/dokka/base/transformers/documentables/DocumentableReplacerTransformer$AnyWithChanges;
