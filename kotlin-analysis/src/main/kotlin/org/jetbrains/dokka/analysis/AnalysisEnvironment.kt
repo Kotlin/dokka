@@ -362,9 +362,11 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
                 moduleInfo: ModuleInfo
             ): ResolverForModule =
                 CommonResolverForModuleFactory(
-                    CommonAnalysisParameters { content ->
-                        environment.createPackagePartProvider(content.moduleContentScope)
-                    },
+                    CommonAnalysisParameters(
+                        metadataPartProviderFactory = { content ->
+                            environment.createPackagePartProvider(content.moduleContentScope)
+                        }
+                    ),
                     CompilerEnvironment,
                     unspecifiedJvmPlatform,
                     true,
