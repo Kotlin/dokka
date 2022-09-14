@@ -7,22 +7,25 @@ const wrapAllSymbolParameters = () => {
 }
 
 const wrapSymbolParameters = (symbol) => {
+    let parametersBlock = symbol.querySelector("span.parameters")
+    if (parametersBlock == null) {
+        return // nothing to wrap
+    }
+
     let symbolBlockWidth = symbol.clientWidth
     let innerTextWidth = Array.from(symbol.children)
+        .filter(it => !it.classList.contains("block")) // blocks are usually on their own (like annotations), so ignore it
         .map(it => it.getBoundingClientRect().width).reduce((a, b) => a + b, 0)
 
     // if signature text takes up more than a single line, wrap params for readability
     let shouldWrapParams = innerTextWidth > (symbolBlockWidth - leftPaddingPx)
     if (shouldWrapParams) {
-        let parameters = symbol.querySelector("span.parameters")
-        if (parameters != null) {
-            parameters.classList.add("wrapped")
-            parameters.querySelectorAll("span.parameter").forEach(param => {
-                // has to be a physical indent so that it can be copied. styles like
-                // paddings and `::before { content: "    " }` do not work for that
-                param.prepend(createNbspIndent())
-            })
-        }
+        parametersBlock.classList.add("wrapped")
+        parametersBlock.querySelectorAll("span.parameter").forEach(param => {
+            // has to be a physical indent so that it can be copied. styles like
+            // paddings and `::before { content: "    " }` do not work for that
+            param.prepend(createNbspIndent())
+        })
     }
 }
 
