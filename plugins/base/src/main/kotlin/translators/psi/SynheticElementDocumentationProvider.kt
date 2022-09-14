@@ -28,7 +28,6 @@ internal class SyntheticElementDocumentationProvider(
     }
 
     private fun loadSyntheticDoc(psiElement: PsiElement, path: String): PsiDocComment? {
-        val containingClassName = (psiElement as? PsiMember)?.containingClass?.name ?: return null
         val text = javaClass.getResource(path)?.readText() ?: return null
         return JavaPsiFacade.getElementFactory(resolutionFacade.project).createDocCommentFromText(text)
     }
