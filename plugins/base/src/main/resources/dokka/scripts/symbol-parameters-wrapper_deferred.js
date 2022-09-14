@@ -22,6 +22,7 @@ const wrapSymbolParameters = (symbol) => {
         setTimeout(function() {
             wrapSymbolParameters(symbol);
         }, 100)
+        return
     }
 
     let innerTextWidth = Array.from(symbol.children)
