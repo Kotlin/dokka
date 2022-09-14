@@ -772,6 +772,14 @@ open class HtmlRenderer(
                 consumer.onTagContentEntity(Entities.nbsp)
                 buildText(textNode, unappliedStyles - TextStyle.Indented)
             }
+            unappliedStyles.any { it is TokenStyle } -> {
+                val tokenStyles = unappliedStyles.filterIsInstance<TokenStyle>().toSet()
+                val tokenStyleClasses = tokenStyles.joinToString(separator = " ") { it.toString().toLowerCase() }
+                span("token $tokenStyleClasses") {
+                    val hasMoreStyles = unappliedStyles.size > tokenStyles.size
+                    if (hasMoreStyles) buildText(textNode, unappliedStyles - tokenStyles) else text(textNode.text)
+                }
+            }
             unappliedStyles.isNotEmpty() -> {
                 val styleToApply = unappliedStyles.first()
                 applyStyle(styleToApply) {
@@ -792,7 +800,6 @@ open class HtmlRenderer(
             TextStyle.Strong -> strong { body() }
             TextStyle.Var -> htmlVar { body() }
             TextStyle.Underlined -> underline { body() }
-            is TokenStyle -> span("token " + styleToApply.toString().toLowerCase()) { body() }
             else -> body()
         }
     }
