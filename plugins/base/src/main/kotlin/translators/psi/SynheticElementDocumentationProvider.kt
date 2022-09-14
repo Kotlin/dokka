@@ -23,11 +23,11 @@ internal class SyntheticElementDocumentationProvider(
             psiMethod.isSyntheticEnumValueOfMethod() -> ENUM_VALUEOF_TEMPLATE_PATH
             else -> return null
         }
-        val docComment = loadSyntheticDoc(psiElement, templatePath) ?: return null
+        val docComment = loadSyntheticDoc(templatePath) ?: return null
         return javadocParser.parseDocComment(docComment, psiElement)
     }
 
-    private fun loadSyntheticDoc(psiElement: PsiElement, path: String): PsiDocComment? {
+    private fun loadSyntheticDoc(path: String): PsiDocComment? {
         val text = javaClass.getResource(path)?.readText() ?: return null
         return JavaPsiFacade.getElementFactory(resolutionFacade.project).createDocCommentFromText(text)
     }
