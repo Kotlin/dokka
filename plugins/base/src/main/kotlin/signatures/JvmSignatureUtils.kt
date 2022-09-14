@@ -82,12 +82,15 @@ interface JvmSignatureUtils {
 
         when (renderAtStrategy) {
             is All, is OnlyOnce -> {
+                // Prism.js parser adds Builtin token instead of Annotation
+                // for some reason, so we also add it for consistency.
+                val annotationStyles = setOf(TokenStyle.Annotation, TokenStyle.Builtin)
                 when(a.scope) {
-                    Annotations.AnnotationScope.GETTER -> text("@get:", styles = mainStyles + TokenStyle.Annotation)
-                    Annotations.AnnotationScope.SETTER -> text("@set:", styles = mainStyles + TokenStyle.Annotation)
-                    else -> text("@", styles = mainStyles + TokenStyle.Annotation)
+                    Annotations.AnnotationScope.GETTER -> text("@get:", styles = mainStyles + annotationStyles)
+                    Annotations.AnnotationScope.SETTER -> text("@set:", styles = mainStyles + annotationStyles)
+                    else -> text("@", styles = mainStyles + annotationStyles)
                 }
-                link(a.dri.classNames!!, a.dri, styles = mainStyles + TokenStyle.Annotation)
+                link(a.dri.classNames!!, a.dri, styles = mainStyles + annotationStyles)
             }
             is Never -> link(a.dri.classNames!!, a.dri)
         }
