@@ -13,6 +13,17 @@ const wrapSymbolParameters = (symbol) => {
     }
 
     let symbolBlockWidth = symbol.clientWidth
+
+    // Even though the script is marked as `defer` and we wait for `DOMContentLoaded` event,
+    // it can happen that `symbolBlockWidth` is 0, indicating that something hasn't been loaded.
+    // Re-try after some time, should work. Should not go into infinite recursion because
+    // symbol blocks that have parameters definitely have width above 0
+    if (symbolBlockWidth === 0) {
+        setTimeout(function() {
+            wrapSymbolParameters(symbol);
+        }, 100)
+    }
+
     let innerTextWidth = Array.from(symbol.children)
         .filter(it => !it.classList.contains("block")) // blocks are usually on their own (like annotations), so ignore it
         .map(it => it.getBoundingClientRect().width).reduce((a, b) => a + b, 0)
