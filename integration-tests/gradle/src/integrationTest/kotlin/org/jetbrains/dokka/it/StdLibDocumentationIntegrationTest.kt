@@ -20,19 +20,19 @@ class StdLibDocumentationIntegrationTest {
 
         val expectedValuesDoc =
             "    /**\n" +
-                    "     * Returns an array containing the constants of this enum type, in the order they're declared.\n" +
-                    "     * This method may be used to iterate over the constants.\n" +
-                    "     * @values\n" +
-                    "     */"
+            "     * Returns an array containing the constants of this enum type, in the order they're declared.\n" +
+            "     * This method may be used to iterate over the constants.\n" +
+            "     * @values\n" +
+            "     */"
         check(sources.contains(expectedValuesDoc))
 
         val expectedValueOfDoc =
             "    /**\n" +
-                    "     * Returns the enum constant of this type with the specified name. The string must match exactly " +
-                    "an identifier used to declare an enum constant in this type. (Extraneous whitespace characters are not permitted.)\n" +
-                    "     * @throws IllegalArgumentException if this enum type has no constant with the specified name\n" +
-                    "     * @valueOf\n" +
-                    "     */"
+            "     * Returns the enum constant of this type with the specified name. The string must match exactly " +
+            "an identifier used to declare an enum constant in this type. (Extraneous whitespace characters are not permitted.)\n" +
+            "     * @throws IllegalArgumentException if this enum type has no constant with the specified name\n" +
+            "     * @valueOf\n" +
+            "     */"
         check(sources.contains(expectedValueOfDoc))
     }
 }
