@@ -1,8 +1,8 @@
 diff --git a/build.gradle b/build.gradle
-index 845f7e4e..b3145969 100644
+index 0d21932a..4c5a9c7f 100644
 --- a/build.gradle
 +++ b/build.gradle
-@@ -64,7 +64,6 @@ buildscript {
+@@ -63,7 +63,6 @@ buildscript {
      dependencies {
          classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
          classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlin_version"
@@ -10,7 +10,7 @@ index 845f7e4e..b3145969 100644
          classpath "org.jetbrains.kotlinx:kover:$kover_version"
          classpath "org.jetbrains.kotlinx:binary-compatibility-validator:$validator_version"
          classpath "org.jetbrains.kotlinx:kotlinx-knit:$knit_version"
-@@ -79,6 +78,10 @@ buildscript {
+@@ -77,6 +76,10 @@ buildscript {
      }
  }
 
@@ -21,7 +21,7 @@ index 845f7e4e..b3145969 100644
  // To make it visible for compiler-version.gradle
  ext.compilerVersion = org.jetbrains.kotlin.config.KotlinCompilerVersion.VERSION
  ext.nativeDebugBuild = org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType.DEBUG
-@@ -99,7 +102,6 @@ knit {
+@@ -97,7 +100,6 @@ knit {
  // Build API docs for all modules with dokka before running Knit
  knitPrepare.dependsOn "dokka"
 
@@ -29,30 +29,32 @@ index 845f7e4e..b3145969 100644
  dependencies {
      dokkaPlugin("org.jetbrains.kotlinx:dokka-pathsaver-plugin:$knit_version")
  }
-@@ -187,3 +189,5 @@ subprojects {
+@@ -188,6 +190,7 @@ subprojects {
  apply from: rootProject.file('gradle/compiler-version.gradle')
  apply from: rootProject.file("gradle/dokka.gradle")
  apply from: rootProject.file("gradle/benchmark-parsing.gradle")
 +apply from: "../template.root.gradle.kts"
-+
+
+ tasks.named("dokkaHtmlMultiModule") {
+     pluginsMapConfiguration.set(["org.jetbrains.dokka.base.DokkaBase": """{ "templatesDir": "${projectDir.toString().replace('\\', '/')}/dokka-templates" }"""])
 diff --git a/gradle.properties b/gradle.properties
-index 05428604..b4c7b3d1 100644
+index c4888992..d845be67 100644
 --- a/gradle.properties
 +++ b/gradle.properties
-@@ -13,7 +13,7 @@ kotlin.version.snapshot=1.6.255-SNAPSHOT
+@@ -13,7 +13,7 @@ kotlin.version.snapshot=1.8.255-SNAPSHOT
 
  junit_version=4.12
  jackson_version=2.10.0.pr1
--dokka_version=1.6.0
+-dokka_version=1.7.0
 +dokka_version=for-integration-tests-SNAPSHOT
  native.deploy=
- validator_version=0.7.1
+ validator_version=0.10.1
  knit_version=0.3.0
 diff --git a/settings.gradle b/settings.gradle
-index 27933950..6a6fc80a 100644
+index 01d4ea62..aa1800d6 100644
 --- a/settings.gradle
 +++ b/settings.gradle
-@@ -31,3 +31,5 @@ project(':benchmark').projectDir = file('./benchmark')
+@@ -36,3 +36,5 @@ project(':benchmark').projectDir = file('./benchmark')
 
  include ':guide'
  project(':guide').projectDir = file('./guide')
