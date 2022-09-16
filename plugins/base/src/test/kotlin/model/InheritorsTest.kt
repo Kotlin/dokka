@@ -1,8 +1,8 @@
 package model
 
-import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.Platform
-import org.jetbrains.dokka.PluginConfigurationImpl
+import org.jetbrains.dokka.analysis.DokkaAnalysisConfiguration
+import org.jetbrains.dokka.analysis.KotlinAnalysis
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.transformers.documentables.InheritorsInfo
 import org.jetbrains.dokka.model.DClass
@@ -10,7 +10,7 @@ import org.jetbrains.dokka.model.DFunction
 import org.jetbrains.dokka.model.DInterface
 import org.jetbrains.dokka.model.doc.P
 import org.jetbrains.dokka.model.doc.Text
-import org.jetbrains.kotlin.utils.addIfNotNull
+import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import utils.AbstractModelTest
@@ -160,6 +160,19 @@ class InheritorsTest : AbstractModelTest("/src/main/kotlin/inheritors/Test.kt", 
         }
     }
 
+    class IgnoreCommonBuiltInsPlugin : DokkaPlugin() {
+        private val dokkaBase by lazy { plugin<DokkaBase>() }
+        @Suppress("unused")
+        val stdLibKotlinAnalysis by extending {
+            dokkaBase.kotlinAnalysis providing { ctx ->
+                KotlinAnalysis(
+                    sourceSets = ctx.configuration.sourceSets,
+                    logger = ctx.logger,
+                    analysisConfiguration = DokkaAnalysisConfiguration(ignoreCommonBuiltIns = true)
+                )
+            } override dokkaBase.defaultKotlinAnalysis
+        }
+    }
     @Test
     fun `should inherit docs for stdLib #2638`() {
         val testConfiguration = dokkaConfiguration {
@@ -171,13 +184,6 @@ class InheritorsTest : AbstractModelTest("/src/main/kotlin/inheritors/Test.kt", 
                     languageVersion = "1.4"
                 }
             }
-            pluginsConfigurations.addIfNotNull(
-                PluginConfigurationImpl(
-                    DokkaBase::class.qualifiedName!!,
-                    DokkaConfiguration.SerializationFormat.JSON,
-                    """{ "isStdLib": true }""",
-                )
-            )
         }
 
         inlineModelTest(
@@ -355,7 +361,8 @@ class InheritorsTest : AbstractModelTest("/src/main/kotlin/inheritors/Test.kt", 
             """.trimMargin(),
             platform = Platform.common.toString(),
             configuration = testConfiguration,
-            prependPackage = false
+            prependPackage = false,
+            pluginsOverrides = listOf(IgnoreCommonBuiltInsPlugin())
         ) {
             with((this / "kotlin.collections" / "List" / "contains").cast<DFunction>()) {
                 documentation.size equals 1
