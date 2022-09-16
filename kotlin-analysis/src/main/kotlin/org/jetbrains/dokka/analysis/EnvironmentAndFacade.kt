@@ -13,7 +13,7 @@ internal fun createEnvironmentAndFacade(
     logger: DokkaLogger,
     sourceSets: List<DokkaConfiguration.DokkaSourceSet>,
     sourceSet: DokkaConfiguration.DokkaSourceSet,
-    isStdLib: Boolean
+    analysisConfiguration: DokkaAnalysisConfiguration
 ): EnvironmentAndFacade =
     AnalysisEnvironment(DokkaMessageCollector(logger), sourceSet.analysisPlatform).run {
         if (analysisPlatform == Platform.jvm) {
@@ -29,7 +29,7 @@ internal fun createEnvironmentAndFacade(
 
         val environment = createCoreEnvironment()
 
-        val (facade, _) = createResolutionFacade(environment, isStdLib)
+        val (facade, _) = createResolutionFacade(environment, analysisConfiguration.ignoreCommonBuiltIns)
         EnvironmentAndFacade(environment, facade)
     }
 

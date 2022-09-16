@@ -190,9 +190,7 @@ class DokkaBase : DokkaPlugin() {
         kotlinAnalysis providing { ctx ->
             KotlinAnalysis(
                 sourceSets = ctx.configuration.sourceSets,
-                logger = ctx.logger,
-                isStdLib = configuration<DokkaBase, DokkaBaseConfiguration>(ctx)?.isStdLib
-                    ?: DokkaBaseConfiguration.isStdLibDefault
+                logger = ctx.logger
             )
         }
     }

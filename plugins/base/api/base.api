@@ -68,21 +68,19 @@ public final class org/jetbrains/dokka/base/DokkaBase : org/jetbrains/dokka/plug
 
 public final class org/jetbrains/dokka/base/DokkaBaseConfiguration : org/jetbrains/dokka/plugability/ConfigurableBlock {
 	public static final field Companion Lorg/jetbrains/dokka/base/DokkaBaseConfiguration$Companion;
-	public static final field isStdLibDefault Z
 	public static final field mergeImplicitExpectActualDeclarationsDefault Z
 	public static final field separateInheritedMembersDefault Z
 	public fun <init> ()V
-	public fun <init> (Ljava/util/List;Ljava/util/List;ZLjava/lang/String;ZLjava/io/File;Z)V
-	public synthetic fun <init> (Ljava/util/List;Ljava/util/List;ZLjava/lang/String;ZLjava/io/File;ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Ljava/util/List;Ljava/util/List;ZLjava/lang/String;ZLjava/io/File;)V
+	public synthetic fun <init> (Ljava/util/List;Ljava/util/List;ZLjava/lang/String;ZLjava/io/File;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/util/List;
 	public final fun component2 ()Ljava/util/List;
 	public final fun component3 ()Z
 	public final fun component4 ()Ljava/lang/String;
 	public final fun component5 ()Z
 	public final fun component6 ()Ljava/io/File;
-	public final fun component7 ()Z
-	public final fun copy (Ljava/util/List;Ljava/util/List;ZLjava/lang/String;ZLjava/io/File;Z)Lorg/jetbrains/dokka/base/DokkaBaseConfiguration;
-	public static synthetic fun copy$default (Lorg/jetbrains/dokka/base/DokkaBaseConfiguration;Ljava/util/List;Ljava/util/List;ZLjava/lang/String;ZLjava/io/File;ZILjava/lang/Object;)Lorg/jetbrains/dokka/base/DokkaBaseConfiguration;
+	public final fun copy (Ljava/util/List;Ljava/util/List;ZLjava/lang/String;ZLjava/io/File;)Lorg/jetbrains/dokka/base/DokkaBaseConfiguration;
+	public static synthetic fun copy$default (Lorg/jetbrains/dokka/base/DokkaBaseConfiguration;Ljava/util/List;Ljava/util/List;ZLjava/lang/String;ZLjava/io/File;ILjava/lang/Object;)Lorg/jetbrains/dokka/base/DokkaBaseConfiguration;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getCustomAssets ()Ljava/util/List;
 	public final fun getCustomStyleSheets ()Ljava/util/List;
@@ -91,13 +89,11 @@ public final class org/jetbrains/dokka/base/DokkaBaseConfiguration : org/jetbrai
 	public final fun getSeparateInheritedMembers ()Z
 	public final fun getTemplatesDir ()Ljava/io/File;
 	public fun hashCode ()I
-	public final fun isStdLib ()Z
 	public final fun setCustomAssets (Ljava/util/List;)V
 	public final fun setCustomStyleSheets (Ljava/util/List;)V
 	public final fun setFooterMessage (Ljava/lang/String;)V
 	public final fun setMergeImplicitExpectActualDeclarations (Z)V
 	public final fun setSeparateInheritedMembers (Z)V
-	public final fun setStdLib (Z)V
 	public final fun setTemplatesDir (Ljava/io/File;)V
 	public fun toString ()Ljava/lang/String;
 }
