@@ -772,14 +772,6 @@ open class HtmlRenderer(
                 consumer.onTagContentEntity(Entities.nbsp)
                 buildText(textNode, unappliedStyles - TextStyle.Indented)
             }
-            unappliedStyles.any { it is TokenStyle } -> {
-                val tokenStyles = unappliedStyles.filterIsInstance<TokenStyle>().toSet()
-                val tokenStyleClasses = tokenStyles.joinToString(separator = " ") { it.toString().toLowerCase() }
-                span("token $tokenStyleClasses") {
-                    val hasMoreStyles = unappliedStyles.size > tokenStyles.size
-                    if (hasMoreStyles) buildText(textNode, unappliedStyles - tokenStyles) else text(textNode.text)
-                }
-            }
             unappliedStyles.isNotEmpty() -> {
                 val styleToApply = unappliedStyles.first()
                 applyStyle(styleToApply) {
@@ -800,8 +792,16 @@ open class HtmlRenderer(
             TextStyle.Strong -> strong { body() }
             TextStyle.Var -> htmlVar { body() }
             TextStyle.Underlined -> underline { body() }
+            is TokenStyle -> span("token ${styleToApply.prismJsClass()}") { body() }
             else -> body()
         }
+    }
+
+    private fun TokenStyle.prismJsClass(): String = when(this) {
+        // Prism.js parser adds Builtin token instead of Annotation
+        // for some reason, so we also add it for consistency and correct coloring
+        TokenStyle.Annotation -> "annotation builtin"
+        else -> this.toString().toLowerCase()
     }
 
     override fun render(root: RootPageNode) {

@@ -71,9 +71,8 @@ class HighlightingTest : BaseAbstractTest() {
                     assertTrue(children?.get(it.first)?.style?.contains(it.second) == true)
                 val annotation = children?.first()?.children?.first()
 
-                val annotationStyles = setOf(TokenStyle.Annotation, TokenStyle.Builtin)
-                assertTrue(annotation?.children?.get(0)?.style?.containsAll(annotationStyles) == true)
-                assertTrue(annotation?.children?.get(1)?.children?.first()?.style?.containsAll(annotationStyles) == true)
+                assertTrue(annotation?.children?.get(0)?.style?.contains(TokenStyle.Annotation) == true)
+                assertTrue(annotation?.children?.get(1)?.children?.first()?.style?.contains(TokenStyle.Annotation) == true)
             }
         }
     }
