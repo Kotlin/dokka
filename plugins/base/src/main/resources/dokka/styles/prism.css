@@ -12,67 +12,14 @@ code .token {
  *   so nested css blocks have been unrolled (like dark theme).
  * - Webhelp uses "Custom Class" prism.js plugin, so all of their prism classes are prefixed with "--prism".
  *   Dokka doesn't seem to need this plugin at the moment, so all "--prism" prefixes have been removed.
+ * - Removed all styles related to `pre` and `code` tags. Kotlinlang's resulting styles are so spread out and complicated
+ *   that it's difficult to gather in one place. Instead use code styles defined in the main Dokka styles,
+ *   which at the moment looks fairly similar.
  *
  * Based on prism.js default theme
  * Based on dabblet (http://dabblet.com)
  * @author Lea Verou
  */
-
-code[class*='language-'],
-pre[class*='language-'] {
-	text-align: left;
-	white-space: pre;
-	word-spacing: normal;
-	text-shadow: 0 1px white;
-	word-wrap: normal;
-	word-break: normal;
-
-	-moz-tab-size: 4;
-	-o-tab-size: 4;
-	tab-size: 4;
-
-	-webkit-hyphens: none;
-	-moz-hyphens: none;
-	-ms-hyphens: none;
-	hyphens: none;
-
-	color: black;
-	background: none;
-
-	font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
-	font-size: 1em;
-	line-height: 1.5;
-	direction: ltr;
-}
-
-@media print {
-	code[class*='language-'],
-	pre[class*='language-'] {
-		text-shadow: none;
-	}
-}
-
-/* Code blocks */
-pre[class*='language-'] {
-	overflow: auto;
-
-	margin: 0.5em 0;
-	padding: 1em;
-}
-
-:not(pre) > code[class*='language-'],
-pre[class*='language-'] {
-	background: #f5f2f0;
-}
-
-/* Inline code */
-:not(pre) > code[class*='language-'] {
-	padding: 0.1em;
-
-	border-radius: 0.3em;
-
-	white-space: normal;
-}
 
 .token.comment,
 .token.prolog,
@@ -151,68 +98,6 @@ pre[class*='language-'] {
 	cursor: help;
 }
 
-code[class*='language-'],
-pre[class*='language-'] {
-	text-align: left;
-	white-space: pre;
-	word-spacing: normal;
-	text-shadow: inherit;
-	word-wrap: normal;
-	word-break: normal;
-
-	-moz-tab-size: 4;
-	tab-size: 4;
-
-	-webkit-hyphens: none;
-	-moz-hyphens: none;
-	-ms-hyphens: none;
-	hyphens: none;
-
-	color: black;
-
-	background-color: transparent;
-
-	font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
-
-	font-size: inherit;
-
-	line-height: 24px;
-}
-
-pre[class*='language-']::-moz-selection,
-pre[class*='language-'] ::-moz-selection,
-code[class*='language-']::-moz-selection,
-code[class*='language-'] ::-moz-selection {
-	text-shadow: none;
-}
-
-pre[class*='language-']::selection,
-pre[class*='language-'] ::selection,
-code[class*='language-']::selection,
-code[class*='language-'] ::selection {
-	text-shadow: none;
-}
-
-/* Code blocks */
-pre[class*='language-'] {
-	display: flex;
-
-	margin: 0;
-
-	border-radius: 0;
-
-	color: var(--default-font-color);
-
-	background-color: transparent;
-
-	font-size: 15.2px;
-}
-
-pre[class*='language-'] code {
-	font-family: 'JetBrains Mono', SFMono-Regular, Consolas, 'Liberation Mono',
-	Menlo, Courier, monospace;
-}
-
 .token.operator {
 	background: none;
 }
@@ -220,28 +105,6 @@ pre[class*='language-'] code {
 /*
  * DARK THEME
  */
-
-:root.theme-dark code[class*='language-'],
-:root.theme-dark pre[class*='language-'] {
-	color: #a9b7c6;
-}
-
-:root.theme-dark pre[class*='language-']::-moz-selection,
-:root.theme-dark pre[class*='language-'] ::-moz-selection,
-:root.theme-dark code[class*='language-']::-moz-selection,
-:root.theme-dark code[class*='language-'] ::-moz-selection {
-	color: inherit;
-	background: rgba(33, 66, 131, 0.85);
-}
-
-:root.theme-dark pre[class*='language-']::selection,
-:root.theme-dark pre[class*='language-'] ::selection,
-:root.theme-dark code[class*='language-']::selection,
-:root.theme-dark code[class*='language-'] ::selection {
-	color: inherit;
-	background: rgba(33, 66, 131, 0.85);
-}
-
 :root.theme-dark .token.comment,
 :root.theme-dark .token.prolog,
 :root.theme-dark .token.cdata {
