@@ -2,6 +2,14 @@
 // but the signature is not yet long enough to be wrapped
 const leftPaddingPx = 60
 
+const symbolResizeObserver = new ResizeObserver(entries => {
+    entries.forEach(entry => {
+        const symbolElement = entry.target
+        symbolResizeObserver.unobserve(symbolElement) // only need it once, otherwise will be executed multiple times
+        wrapSymbolParameters(symbolElement);
+    })
+});
+
 const wrapAllSymbolParameters = () => {
     document.querySelectorAll("div.symbol").forEach(symbol => wrapSymbolParameters(symbol))
 }
@@ -16,12 +24,9 @@ const wrapSymbolParameters = (symbol) => {
 
     // Even though the script is marked as `defer` and we wait for `DOMContentLoaded` event,
     // it can happen that `symbolBlockWidth` is 0, indicating that something hasn't been loaded.
-    // Re-try after some time, should work. Should not go into infinite recursion because
-    // symbol blocks that have parameters definitely have width above 0
+    // In this case, just retry once all styles have been applied and it has been resized correctly.
     if (symbolBlockWidth === 0) {
-        setTimeout(function() {
-            wrapSymbolParameters(symbol);
-        }, 100)
+        symbolResizeObserver.observe(symbol)
         return
     }
 
