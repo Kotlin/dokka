@@ -792,9 +792,16 @@ open class HtmlRenderer(
             TextStyle.Strong -> strong { body() }
             TextStyle.Var -> htmlVar { body() }
             TextStyle.Underlined -> underline { body() }
-            is TokenStyle -> span("token " + styleToApply.toString().toLowerCase()) { body() }
+            is TokenStyle -> span("token ${styleToApply.prismJsClass()}") { body() }
             else -> body()
         }
+    }
+
+    private fun TokenStyle.prismJsClass(): String = when(this) {
+        // Prism.js parser adds Builtin token instead of Annotation
+        // for some reason, so we also add it for consistency and correct coloring
+        TokenStyle.Annotation -> "annotation builtin"
+        else -> this.toString().toLowerCase()
     }
 
     override fun render(root: RootPageNode) {

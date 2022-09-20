@@ -382,7 +382,7 @@ enum class SymbolContentKind : Kind {
 }
 
 enum class TokenStyle : Style {
-    Keyword, Punctuation, Function, Operator, Annotation, Number, String, Boolean, Constant, Builtin
+    Keyword, Punctuation, Function, Operator, Annotation, Number, String, Boolean, Constant
 }
 
 enum class TextStyle : Style {

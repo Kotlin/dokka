@@ -4303,7 +4303,6 @@ public final class org/jetbrains/dokka/pages/TextStyle : java/lang/Enum, org/jet
 public final class org/jetbrains/dokka/pages/TokenStyle : java/lang/Enum, org/jetbrains/dokka/pages/Style {
 	public static final field Annotation Lorg/jetbrains/dokka/pages/TokenStyle;
 	public static final field Boolean Lorg/jetbrains/dokka/pages/TokenStyle;
-	public static final field Builtin Lorg/jetbrains/dokka/pages/TokenStyle;
 	public static final field Constant Lorg/jetbrains/dokka/pages/TokenStyle;
 	public static final field Function Lorg/jetbrains/dokka/pages/TokenStyle;
 	public static final field Keyword Lorg/jetbrains/dokka/pages/TokenStyle;
