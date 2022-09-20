@@ -106,7 +106,7 @@ private fun flattenToText(node: ContentNode): String {
             is ContentComposite -> node.children
                 .filter { sourceSetRestriction in it.sourceSets }
                 .flatMap { getContentTextNodes(it, sourceSetRestriction) }
-                .takeIf { node.dci.kind != ContentKind.Annotations }
+                .takeIf { node.dci.kind != ContentKind.Annotations && node.dci.kind != ContentKind.Source }
                 .orEmpty()
             else -> emptyList()
         }
