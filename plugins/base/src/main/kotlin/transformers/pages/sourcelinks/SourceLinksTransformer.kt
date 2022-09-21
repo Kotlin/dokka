@@ -18,7 +18,6 @@ import org.jetbrains.dokka.transformers.pages.PageTransformer
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptorWithSource
 import org.jetbrains.kotlin.resolve.source.getPsi
 import org.jetbrains.kotlin.utils.addToStdlib.cast
-import org.jetbrains.kotlin.utils.addToStdlib.ifNotEmpty
 import java.io.File
 
 class SourceLinksTransformer(val context: DokkaContext) : PageTransformer {
@@ -39,7 +38,15 @@ class SourceLinksTransformer(val context: DokkaContext) : PageTransformer {
                 is WithDocumentables -> {
                     val sources = node.documentables
                         .filterIsInstance<WithSources>()
-                        .associate { (it as Documentable).dri to resolveSources(sourceLinks, it) }
+                        .fold(mutableMapOf<DRI, List<Pair<DokkaSourceSet, String>>>()) { acc, documentable ->
+                            val dri = (documentable as Documentable).dri
+                            acc.compute(dri) { _, v ->
+                                if (v != null) v + resolveSources(
+                                    sourceLinks, documentable
+                                ) else resolveSources(sourceLinks, documentable)
+                            }
+                            acc
+                        }
                     if (sources.isNotEmpty())
                         node.modified(content = transformContent(node.content, sources))
                     else
@@ -102,15 +109,18 @@ class SourceLinksTransformer(val context: DokkaContext) : PageTransformer {
     ): ContentNode =
         contentNode.signatureGroupOrNull()?.let { sg ->
             sources[sg.dci.dri.singleOrNull()]?.let { sourceLinks ->
-                sourceLinks.filter { it.first.sourceSetID in sg.sourceSets.sourceSetIDs }.ifNotEmpty {
-                    sg.copy(children = sg.children + sourceLinks.map {
-                        buildContentLink(
-                            sg.dci.dri.first(),
-                            it.first,
-                            it.second
-                        )
-                    })
-                }
+                sourceLinks
+                    .filter { it.first.sourceSetID in sg.sourceSets.sourceSetIDs }
+                    .takeIf { it.isNotEmpty() }
+                    ?.let { filteredSourcesLinks ->
+                        sg.copy(children = sg.children + filteredSourcesLinks.map {
+                            buildContentLink(
+                                sg.dci.dri.first(),
+                                it.first,
+                                it.second
+                            )
+                        })
+                    }
             }
         } ?: when (contentNode) {
             is ContentComposite -> contentNode.transformChildren { transformContent(it, sources) }
