@@ -102,7 +102,7 @@ class DefaultTemplateModelFactory(val context: DokkaContext) : TemplateModelFact
                             type = ScriptType.textJavaScript,
                             src = if (it.isAbsolute) it else "$pathToRoot$it"
                         ) {
-                            if (it == "scripts/main.js")
+                            if (it == "scripts/main.js" || it.endsWith("_deferred.js"))
                                 defer = true
                             else
                                 async = true

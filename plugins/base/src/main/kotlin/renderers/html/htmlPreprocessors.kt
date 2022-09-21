@@ -45,12 +45,20 @@ class CustomResourceInstaller(val dokkaContext: DokkaContext) : PageTransformer 
 }
 
 class ScriptsInstaller(private val dokkaContext: DokkaContext) : PageTransformer {
+
+    // scripts ending with `_deferred.js` are loaded with `defer`, otherwise `async`
     private val scriptsPages = listOf(
         "scripts/clipboard.js",
         "scripts/navigation-loader.js",
         "scripts/platform-content-handler.js",
         "scripts/main.js",
-        "scripts/prism.js"
+        "scripts/prism.js",
+
+        // It's important for this script to be deferred because it has logic that makes decisions based on
+        // rendered elements (for instance taking their clientWidth), and if not all styles are loaded/applied
+        // at the time of inspecting them, it will give incorrect results and might lead to visual bugs.
+        // should be easy to test if you open any page in incognito or by reloading it (Ctrl+Shift+R)
+        "scripts/symbol-parameters-wrapper_deferred.js",
     )
 
     override fun invoke(input: RootPageNode): RootPageNode =

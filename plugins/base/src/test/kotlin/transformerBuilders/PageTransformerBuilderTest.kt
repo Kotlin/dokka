@@ -8,7 +8,10 @@ import org.jetbrains.dokka.transformers.pages.PageTransformer
 import org.jetbrains.dokka.transformers.pages.pageMapper
 import org.jetbrains.dokka.transformers.pages.pageScanner
 import org.jetbrains.dokka.transformers.pages.pageStructureTransformer
+import org.jsoup.Jsoup
 import org.junit.jupiter.api.Test
+import utils.TestOutputWriterPlugin
+import utils.assertContains
 import kotlin.test.assertEquals
 
 class PageTransformerBuilderTest : BaseAbstractTest() {
@@ -168,6 +171,39 @@ class PageTransformerBuilderTest : BaseAbstractTest() {
         }
     }
 
+    @Test
+    fun `should load script as defer if name ending in _deferred`() {
+        val configuration = dokkaConfiguration {
+            sourceSets {
+                sourceSet {
+                    sourceRoots = listOf("src/main/kotlin")
+                }
+            }
+        }
+        val writerPlugin = TestOutputWriterPlugin()
+        testInline(
+            """
+            |/src/main/kotlin/test/Test.kt
+            |package test
+            |
+            |class Test
+        """.trimMargin(),
+            configuration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                val generatedFiles = writerPlugin.writer.contents
+
+                assertContains(generatedFiles.keys, "scripts/symbol-parameters-wrapper_deferred.js")
+
+                val scripts = generatedFiles.getValue("root/test/-test/-test.html").let { Jsoup.parse(it) }.select("script")
+                val deferredScriptSources = scripts.filter { it.hasAttr("defer") }.map { it.attr("src") }
+
+                // important to check symbol-parameters-wrapper_deferred specifically since it might break some features
+                assertContains(deferredScriptSources, "../../../scripts/symbol-parameters-wrapper_deferred.js")
+            }
+        }
+    }
 
     private fun <T> Collection<T>.assertCount(n: Int, prefix: String = "") =
         assert(count() == n) { "${prefix}Expected $n, got ${count()}" }
