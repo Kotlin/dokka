@@ -850,53 +850,6 @@ class SignatureTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `fun with single param should NOT have any wrapped or indented parameters`() {
-        val source = source("fun assertNoIndent(int: Int): String = \"\"")
-        val writerPlugin = TestOutputWriterPlugin()
-
-        testInline(
-            source,
-            configuration,
-            pluginOverrides = listOf(writerPlugin)
-        ) {
-            renderingStage = { _, _ ->
-                val signature = writerPlugin.writer.renderedContent("root/example/assert-no-indent.html").firstSignature()
-                signature.match(
-                    "fun", A("assertNoIndent"), "(", Parameters(
-                        Parameter("int: ", A("Int")),
-                    ), "): ", A("String"),
-                    ignoreSpanWithTokenStyle = true
-                )
-                assertFalse { signature.select("span.parameters").single().hasClass("wrapped") }
-                assertFalse { signature.select("span.parameters > span.parameter").single().hasClass("indented") }
-            }
-        }
-    }
-
-    @Test
-    fun `fun with many params should have wrapped and indented parameters`() {
-        val source = source("fun assertParamsIndent(int: Int, string: String, long: Long): String = \"\"")
-        val writerPlugin = TestOutputWriterPlugin()
-
-        testInline(
-            source,
-            configuration,
-            pluginOverrides = listOf(writerPlugin)
-        ) {
-            renderingStage = { _, _ ->
-                writerPlugin.writer.renderedContent("root/example/assert-params-indent.html").firstSignature().match(
-                    "fun", A("assertParamsIndent"), "(", Parameters(
-                        Parameter("int: ", A("Int"), ",").withClasses("indented"),
-                        Parameter("string: ", A("String"), ",").withClasses("indented"),
-                        Parameter("long: ", A("Long")).withClasses("indented")
-                    ).withClasses("wrapped"), "): ", A("String"),
-                    ignoreSpanWithTokenStyle = true
-                )
-            }
-        }
-    }
-
-    @Test
     fun `const val with default values`() {
         val source = source("const val simpleVal = 1")
         val writerPlugin = TestOutputWriterPlugin()
