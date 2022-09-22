@@ -89,7 +89,11 @@ abstract class AbstractDokkaTask : DefaultTask() {
     internal open fun generateDocumentation() {
         DokkaBootstrap(runtime, DokkaBootstrapImpl::class).apply {
             configure(buildDokkaConfiguration().toJsonString(), createProxyLogger())
-            generate()
+            // run in a new thread to avoid memory leaks that are related to ThreadLocal
+            Thread { generate() }.apply {
+                start()
+                join()
+            }
         }
     }
 
