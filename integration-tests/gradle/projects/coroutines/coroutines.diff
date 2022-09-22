@@ -1,70 +1,59 @@
 diff --git a/build.gradle b/build.gradle
-index 636a6f57f..57f0c6ea5 100644
+index ba6d5c18c..bd31bca29 100644
 --- a/build.gradle
 +++ b/build.gradle
-@@ -46,7 +46,6 @@ buildscript {
-         mavenCentral()
-         maven { url "https://plugins.gradle.org/m2/" }
-         maven { url "https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev" }
--        maven { url 'https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev' }
-         mavenLocal()
-     }
- 
-@@ -126,7 +125,7 @@ allprojects {
+@@ -125,6 +125,7 @@ allprojects {
+          * transitive dependencies was removed from jcenter, thus breaking gradle dependency resolution
+          */
          google()
++        mavenLocal()
          mavenCentral()
          maven { url "https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev" }
--        maven { url 'https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev' }
-+        mavenLocal()
      }
- }
- 
 diff --git a/buildSrc/build.gradle.kts b/buildSrc/build.gradle.kts
-index 8517a5aee..038be4089 100644
+index eaa03f2f1..deae8d40d 100644
 --- a/buildSrc/build.gradle.kts
 +++ b/buildSrc/build.gradle.kts
-@@ -19,7 +19,7 @@ repositories {
+@@ -19,6 +19,7 @@ repositories {
          maven("https://plugins.gradle.org/m2")
      }
      maven("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev")
--    maven("https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev")
 +    mavenLocal()
      if (buildSnapshotTrain) {
          mavenLocal()
      }
 diff --git a/buildSrc/settings.gradle.kts b/buildSrc/settings.gradle.kts
-index e30c3ee59..80163ff95 100644
+index c2e859f65..80163ff95 100644
 --- a/buildSrc/settings.gradle.kts
 +++ b/buildSrc/settings.gradle.kts
-@@ -4,7 +4,7 @@
+@@ -4,6 +4,7 @@
  pluginManagement {
      val build_snapshot_train: String? by settings
      repositories {
--        maven(url = "https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev/")
 +        mavenLocal()
          val cacheRedirectorEnabled = System.getenv("CACHE_REDIRECTOR")?.toBoolean() == true
          if (cacheRedirectorEnabled) {
              println("Redirecting repositories for buildSrc buildscript")
 diff --git a/gradle.properties b/gradle.properties
-index fdd63662d..237da9e03 100644
+index e452a07ee..471285c20 100644
 --- a/gradle.properties
 +++ b/gradle.properties
-@@ -14,7 +14,7 @@ atomicfu_version=0.17.0
- knit_version=0.3.0
+@@ -14,7 +14,7 @@ atomicfu_version=0.17.3
+ knit_version=0.4.0
  html_version=0.7.2
  lincheck_version=2.14
--dokka_version=1.6.0-dev-138
+-dokka_version=1.6.21
 +dokka_version=for-integration-tests-SNAPSHOT
  byte_buddy_version=1.10.9
  reactor_version=3.4.1
  reactive_streams_version=1.0.3
 diff --git a/settings.gradle b/settings.gradle
-index d7673a64f..03d929e63 100644
+index f0a764898..1cc45fdf6 100644
 --- a/settings.gradle
 +++ b/settings.gradle
 @@ -12,7 +12,7 @@ pluginManagement {
      }
- 
+
      repositories {
 -        maven { url "https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev/" }
 +        mavenLocal()

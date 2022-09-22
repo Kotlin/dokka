@@ -1,11 +1,11 @@
-diff --git a/biojava-core/pom.xml b/biojava-core/pom.xml
-index 6cc9c6c9a..ef4f28225 100644
---- a/biojava-core/pom.xml
-+++ b/biojava-core/pom.xml
-@@ -26,9 +26,40 @@
+diff --git a/pom.xml b/pom.xml
+index 7e3e806d1..765b6dea3 100644
+--- a/pom.xml
++++ b/pom.xml
+@@ -31,6 +31,24 @@
+ 			<distribution>repo</distribution>
  		</license>
  	</licenses>
- 
 +	<pluginRepositories>
 +		<pluginRepository>
 +			<id>kotlin-dev</id>
@@ -24,10 +24,13 @@ index 6cc9c6c9a..ef4f28225 100644
 +			<url>https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven/</url>
 +		</pluginRepository>
 +	</pluginRepositories>
-+
- 	<build>
+ 	<properties>
+ 		<!-- Notice: if using java 9 or 10 jres, it is possible to simply use here "8", "9" or "10". But if using java 8 jre, "8" is not an allowed value but only "1.8"-->
+ 		<jdk.version>1.8</jdk.version>
+@@ -338,6 +356,19 @@
+
+
  		<plugins>
--
 +			<plugin>
 +				<groupId>org.jetbrains.dokka</groupId>
 +				<artifactId>dokka-maven-plugin</artifactId>
@@ -41,6 +44,6 @@ index 6cc9c6c9a..ef4f28225 100644
 +					</execution>
 +				</executions>
 +			</plugin>
- 			<!-- Excluding demo package is required for avoiding namespace clashes (demo package is in all modules) for signing the jar. See issue #387 -->
-             <plugin>
-                 <groupId>org.apache.maven.plugins</groupId>
+
+ 			<!-- give more memory for junit tests -->
+ 			<plugin>
