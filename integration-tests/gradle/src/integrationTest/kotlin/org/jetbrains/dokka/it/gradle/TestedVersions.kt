@@ -2,6 +2,7 @@ package org.jetbrains.dokka.it.gradle
 
 internal object TestedVersions {
 
+    val LATEST = BuildVersions("7.4.2", "1.7.10")
     val BASE =
         BuildVersions.permutations(
             gradleVersions = listOf("7.4.2", "6.9"),
