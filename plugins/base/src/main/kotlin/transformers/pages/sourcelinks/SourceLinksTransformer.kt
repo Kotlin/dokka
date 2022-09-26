@@ -41,9 +41,8 @@ class SourceLinksTransformer(val context: DokkaContext) : PageTransformer {
                         .fold(mutableMapOf<DRI, List<Pair<DokkaSourceSet, String>>>()) { acc, documentable ->
                             val dri = (documentable as Documentable).dri
                             acc.compute(dri) { _, v ->
-                                if (v != null) v + resolveSources(
-                                    sourceLinks, documentable
-                                ) else resolveSources(sourceLinks, documentable)
+                                val sources = resolveSources(sourceLinks, documentable)
+                                v?.plus(sources) ?: sources
                             }
                             acc
                         }
