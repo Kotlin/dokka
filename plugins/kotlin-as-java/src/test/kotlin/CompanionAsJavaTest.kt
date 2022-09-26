@@ -302,6 +302,76 @@ class CompanionAsJavaTest : BaseAbstractTest() {
         }
     }
 
+    @Test
+    fun `named companion instance property should be rendered if companion rendered`() {
+        testInline(
+            """
+            |/src/main/kotlin/kotlinAsJavaPlugin/sample.kt
+            |package kotlinAsJavaPlugin
+            |class MyClass {
+            |    companion object $COMPANION_NAME {
+            |       var property: String = ""
+            |    }
+            |}
+        """.trimMargin(),
+            configuration,
+        ) {
+            documentablesTransformationStage = { module ->
+                val parentClass = module.packages.flatMap { it.classlikes }
+                    .firstOrNull { it.name == "MyClass" } as DClass
+
+                assertNotNull(parentClass.properties.any {it.name == COMPANION_NAME})
+            }
+        }
+    }
+
+    @Test
+    fun `default named companion instance property should be rendered if companion rendered`() {
+        testInline(
+            """
+            |/src/main/kotlin/kotlinAsJavaPlugin/sample.kt
+            |package kotlinAsJavaPlugin
+            |class MyClass {
+            |    companion object {
+            |       var property: String = ""
+            |    }
+            |}
+        """.trimMargin(),
+            configuration,
+        ) {
+            documentablesTransformationStage = { module ->
+                val parentClass = module.packages.flatMap { it.classlikes }
+                    .firstOrNull { it.name == "MyClass" } as DClass
+
+                assertNotNull(parentClass.properties.any {it.name == "Companion"})
+            }
+        }
+    }
+
+    @Test
+    fun `companion instance property should be hidden if companion not rendered`() {
+        testInline(
+            """
+            |/src/main/kotlin/kotlinAsJavaPlugin/sample.kt
+            |package kotlinAsJavaPlugin
+            |class MyClass {
+            |    companion object $COMPANION_NAME {
+            |       const val property: String = ""
+            |    }
+            |}
+        """.trimMargin(),
+            configuration,
+        ) {
+            documentablesTransformationStage = { module ->
+                val parentClass = module.packages.flatMap { it.classlikes }
+                    .firstOrNull { it.name == "MyClass" } as DClass
+
+                assertNotNull(parentClass.properties.none {it.name == COMPANION_NAME})
+            }
+        }
+    }
+
+
 
     private fun `companion object not rendered for declaration`(declaration: String) {
         testInline(

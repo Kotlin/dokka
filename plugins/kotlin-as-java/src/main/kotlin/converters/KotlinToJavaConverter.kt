@@ -300,15 +300,18 @@ internal fun DClass.functionsInJava(): List<DFunction> =
         .flatMap { it.asJava(it.dri.classNames ?: it.name) }
 
 internal fun DClass.propertiesInJava(): List<DProperty> {
-    val propertiesFromCompanion = companion.asKotlinCompanion()
+    val companionObj = companion.asKotlinCompanion()
+
+    val propertiesFromCompanion = companionObj
         .staticProperties()
         .filterNot { it.hasJvmSynthetic() }
         .map { it.asJava(isBelongToObjectOrCompanion = true) }
+    val companionInstanceProperty = companionObj.companionInstancePropertyInJava()
     val ownProperties = properties
         .filterNot { it.hasJvmSynthetic() }
         .map { it.asJava() }
 
-    return propertiesFromCompanion + ownProperties
+    return propertiesFromCompanion + ownProperties + companionInstanceProperty
 }
 
 internal fun DObject?.asKotlinCompanion(): KotlinCompanion = KotlinCompanion(this)

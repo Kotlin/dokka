@@ -1,9 +1,10 @@
 package org.jetbrains.dokka.kotlinAsJava.converters
 
-import org.jetbrains.dokka.model.DFunction
-import org.jetbrains.dokka.model.DObject
-import org.jetbrains.dokka.model.DProperty
+import org.jetbrains.dokka.links.Callable
+import org.jetbrains.dokka.model.*
+import org.jetbrains.dokka.model.properties.PropertyContainer
 
+private const val DEFAULT_COMPANION_NAME = "Companion"
 
 internal class KotlinCompanion(private val companion: DObject?) {
 
@@ -19,6 +20,35 @@ internal class KotlinCompanion(private val companion: DObject?) {
     fun staticProperties(): List<DProperty> {
         if(companion == null) return emptyList()
         return companion.properties.filter { it.isJvmField || it.isConst || it.isLateInit}
+    }
+
+    fun companionInstancePropertyInJava(): List<DProperty>{
+        if(companion == null) return emptyList()
+        if(companion.hasNothingToRender()) return emptyList() // do not show if companion not rendered
+
+        with(companion){
+            return listOf(DProperty(
+                name = name ?: DEFAULT_COMPANION_NAME,
+                modifier = sourceSets.associateWith { JavaModifier.Final },
+                dri = dri.copy(callable = Callable(name ?: DEFAULT_COMPANION_NAME, null, emptyList())),
+                documentation = emptyMap(),
+                sources = emptyMap(),
+                visibility = companion.sourceSets.associateWith {
+                    JavaVisibility.Public
+                },
+                type = GenericTypeConstructor(dri, emptyList()),
+                setter = null,
+                getter = null,
+                sourceSets = sourceSets,
+                receiver = null,
+                generics = emptyList(),
+                expectPresentInSet = expectPresentInSet,
+                isExpectActual = false,
+                extra = PropertyContainer.withAll(sourceSets.map {
+                    mapOf(it to setOf(ExtraModifiers.JavaOnlyModifiers.Static)).toAdditionalModifiers()
+                })
+            ))
+        }
     }
 
     fun asJava():DObject? {
