@@ -50,14 +50,13 @@ class JavadocParser(
 
     override fun parseDocumentation(element: PsiNamedElement): DocumentationNode {
         return when(val comment = findClosestDocComment(element, logger)){
-            is JavaDocComment -> parseDocumentation(comment, element)
+            is JavaDocComment -> parseDocComment(comment.comment, element)
             is KotlinDocComment -> parseDocumentation(comment)
             else -> DocumentationNode(emptyList())
         }
     }
 
-    private fun parseDocumentation(element: JavaDocComment, context: PsiNamedElement): DocumentationNode {
-        val docComment = element.comment
+    internal fun parseDocComment(docComment: PsiDocComment, context: PsiNamedElement): DocumentationNode {
         val nodes = listOfNotNull(docComment.getDescription()) + docComment.tags.mapNotNull { tag ->
             parseDocTag(tag, docComment, context)
         }

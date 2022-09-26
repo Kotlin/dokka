@@ -7,6 +7,7 @@ import org.jetbrains.dokka.it.gradle.AbstractGradleIntegrationTest
 import org.jetbrains.dokka.it.gradle.BuildVersions
 import org.junit.runners.Parameterized
 import java.io.File
+import java.net.URL
 import kotlin.test.*
 
 class StdlibGradleIntegrationTest(override val versions: BuildVersions) : AbstractGradleIntegrationTest(),
