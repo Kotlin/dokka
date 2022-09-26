@@ -110,6 +110,37 @@ class JvmFieldTest : BaseAbstractTest() {
         }
     }
 
+    @Test
+    fun `enum jvmfield property should have no getters`(){
+        testInline(
+            """
+            |/src/main/kotlin/kotlinAsJavaPlugin/sample.kt
+            |package kotlinAsJavaPlugin
+            |enum class MyEnum {
+            |    ITEM;
+            |    
+            |    @JvmField
+            |    val property: String = TODO()
+            |}
+        """.trimMargin(),
+            configuration,
+        ) {
+            documentablesTransformationStage = { module ->
+                val classLike = module.packages.flatMap { it.classlikes }.first()
+                val property = classLike.properties.singleOrNull { it.name == "property" }
+                assertNotNull(property)
+                assertEquals(
+                    emptyList(),
+                    classLike.functions
+                        .filter{ it.name.contains("property", ignoreCase = true) }
+                        .map { it.name }
+                )
+                assertNull(property.getter)
+                assertNull(property.setter)
+            }
+        }
+    }
+
 
     @Test
     fun `object jvmfield property should be static`(){

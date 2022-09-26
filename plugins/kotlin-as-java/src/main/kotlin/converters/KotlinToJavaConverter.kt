@@ -94,9 +94,7 @@ internal fun DProperty.asJava(
         },
         modifier = javaModifierFromSetter(),
         visibility = visibility.mapValues {
-            if (isTopLevel && isConst) {
-                JavaVisibility.Public
-            } else if (isJvmField || (getter == null && setter == null)) {
+            if (isConst || isJvmField || (getter == null && setter == null) || (isBelongToObjectOrCompanion && isLateInit)) {
                 it.value.asJava()
             } else {
                 it.value.propertyVisibilityAsJava()
@@ -294,7 +292,7 @@ internal fun DClass.classlikesInJava(): List<DClasslike> {
 
 internal fun DClass.functionsInJava(): List<DFunction> =
     properties
-        .filter { it.jvmField() == null && !it.hasJvmSynthetic() }
+        .filter { !it.isJvmField && !it.hasJvmSynthetic() }
         .flatMap { property -> listOfNotNull(property.getter, property.setter) }
         .plus(functions)
         .plus(companion.asKotlinCompanion().staticFunctions())
@@ -356,7 +354,7 @@ internal fun DEnum.asJava(): DEnum = copy(
     functions = functions
         .plus(
             properties
-                .filter { it.jvmField() == null && !it.hasJvmSynthetic() }
+                .filter { !it.isJvmField && !it.hasJvmSynthetic() }
                 .flatMap { listOf(it.getter, it.setter) }
         )
         .filterNotNull()
@@ -382,7 +380,7 @@ internal fun DObject.asJava(
         .plus(
             properties
                 .filterNot { it in excludedProps }
-                .filter { it.jvmField() == null && !it.hasJvmSynthetic() }
+                .filter { !it.isJvmField && !it.isConst && !it.isLateInit && !it.hasJvmSynthetic() }
                 .flatMap { listOf(it.getter, it.setter) }
         )
         .filterNotNull()

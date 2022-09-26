@@ -213,6 +213,95 @@ class CompanionAsJavaTest : BaseAbstractTest() {
         }
     }
 
+    @Test
+    fun `companion const value should be rendered as public by default`() {
+        testInline(
+            """
+            |/src/main/kotlin/kotlinAsJavaPlugin/sample.kt
+            |package kotlinAsJavaPlugin
+            |class MyClass {
+            |    companion object $COMPANION_NAME {
+            |       const val constProp: String = ""
+            |    }
+            |}
+        """.trimMargin(),
+            configuration,
+        ) {
+            documentablesTransformationStage = { module ->
+                val parentClass = module.packages.flatMap { it.classlikes }
+                    .firstOrNull { it.name == "MyClass" } as DClass
+
+                assertEquals(JavaVisibility.Public,
+                    parentClass.properties.firstOrNull()?.visibility?.values?.first())
+                assertNull(parentClass.functions.firstOrNull { it.name.contains("constProp", ignoreCase = true) },
+                    "There is no getter for the cont field")
+            }
+        }
+    }
+
+    @Test
+    fun `companion const value should preserve Java modifier`() {
+        testInline(
+            """
+            |/src/main/kotlin/kotlinAsJavaPlugin/sample.kt
+            |package kotlinAsJavaPlugin
+            |class MyClass {
+            |    companion object $COMPANION_NAME {
+            |       protected const val constProp: String = ""
+            |    }
+            |}
+        """.trimMargin(),
+            dokkaConfiguration {
+                sourceSets {
+                    sourceSet {
+                        sourceRoots = listOf("src/")
+                        classpath += jvmStdlibPath!!
+                        documentedVisibilities = setOf(
+                            org.jetbrains.dokka.DokkaConfiguration.Visibility.PUBLIC,
+                            org.jetbrains.dokka.DokkaConfiguration.Visibility.PROTECTED
+                        )
+                    }
+                }
+            },
+        ) {
+            documentablesTransformationStage = { module ->
+                val parentClass = module.packages.flatMap { it.classlikes }
+                    .firstOrNull { it.name == "MyClass" } as DClass
+
+                assertEquals(JavaVisibility.Protected,
+                    parentClass.properties.firstOrNull()?.visibility?.values?.first())
+                assertNull(parentClass.functions.firstOrNull { it.name.contains("constProp", ignoreCase = true) },
+                    "There is no getter for the cont field")
+            }
+        }
+    }
+
+    @Test
+    fun `companion lateinit value should be rendered as public by default`() {
+        testInline(
+            """
+            |/src/main/kotlin/kotlinAsJavaPlugin/sample.kt
+            |package kotlinAsJavaPlugin
+            |class MyClass {
+            |    companion object $COMPANION_NAME {
+            |       lateinit var lateInitProp: String
+            |    }
+            |}
+        """.trimMargin(),
+            configuration,
+        ) {
+            documentablesTransformationStage = { module ->
+                val parentClass = module.packages.flatMap { it.classlikes }
+                    .firstOrNull { it.name == "MyClass" } as DClass
+
+                assertEquals(JavaVisibility.Public,
+                    parentClass.properties.firstOrNull()?.visibility?.values?.first())
+                assertNull(parentClass.functions.firstOrNull { it.name.contains("lateInitProp", ignoreCase = true) },
+                    "There is no getter for the cont field")
+            }
+        }
+    }
+
 
     private fun `companion object not rendered for declaration`(declaration: String) {
         testInline(
