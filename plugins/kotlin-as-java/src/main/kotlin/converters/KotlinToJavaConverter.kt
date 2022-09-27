@@ -1,10 +1,6 @@
 package org.jetbrains.dokka.kotlinAsJava.converters
 
 import org.jetbrains.dokka.kotlinAsJava.*
-import org.jetbrains.dokka.kotlinAsJava.hasJvmOverloads
-import org.jetbrains.dokka.kotlinAsJava.hasJvmSynthetic
-import org.jetbrains.dokka.kotlinAsJava.jvmField
-import org.jetbrains.dokka.kotlinAsJava.jvmStatic
 import org.jetbrains.dokka.kotlinAsJava.transformers.JvmNameProvider
 import org.jetbrains.dokka.kotlinAsJava.transformers.withCallableName
 import org.jetbrains.dokka.links.Callable
@@ -269,7 +265,7 @@ internal fun DClass.asJava(): DClass = copy(
     properties = propertiesInJava(),
     classlikes = classlikesInJava(),
     generics = generics.map { it.asJava() },
-    companion = companion.asKotlinCompanion().asJava(),
+    companion = companion.companionAsJava(),
     supertypes = supertypes.mapValues { it.value.map { it.asJava() } },
     modifier = if (modifier.all { (_, v) -> v is KotlinModifier.Empty }) sourceSets.associateWith { JavaModifier.Final }
     else sourceSets.associateWith { modifier.values.first() }
@@ -280,11 +276,10 @@ internal fun DClass.asJava(): DClass = copy(
  * They are excluded from usual classlikes rendering and added after.
  */
 internal fun DClass.classlikesInJava(): List<DClasslike> {
-    val companionAsJava = companion.asKotlinCompanion().asJava()
-    val filterOutCompanion = { it: DClasslike -> it.name != companion?.name }
+    val companionAsJava = companion.companionAsJava()
 
     val classlikes = classlikes
-        .filter { filterOutCompanion(it) }
+        .filter { it.name != companion?.name }
         .map { it.asJava() }
     return if (companionAsJava != null) classlikes.plus(companionAsJava) else classlikes
 }
@@ -295,26 +290,22 @@ internal fun DClass.functionsInJava(): List<DFunction> =
         .filter { !it.isJvmField && !it.hasJvmSynthetic() }
         .flatMap { property -> listOfNotNull(property.getter, property.setter) }
         .plus(functions)
-        .plus(companion.asKotlinCompanion().staticFunctions())
+        .plus(companion.staticFunctionsForJava())
         .filterNot { it.hasJvmSynthetic() }
         .flatMap { it.asJava(it.dri.classNames ?: it.name) }
 
 internal fun DClass.propertiesInJava(): List<DProperty> {
-    val companionObj = companion.asKotlinCompanion()
-
-    val propertiesFromCompanion = companionObj
-        .staticProperties()
+    val propertiesFromCompanion = companion
+        .staticPropertiesForJava()
         .filterNot { it.hasJvmSynthetic() }
         .map { it.asJava(isBelongToObjectOrCompanion = true) }
-    val companionInstanceProperty = companionObj.companionInstancePropertyInJava()
+    val companionInstanceProperty = companion.companionInstancePropertyForJava()
     val ownProperties = properties
         .filterNot { it.hasJvmSynthetic() }
         .map { it.asJava() }
 
     return propertiesFromCompanion + ownProperties + companionInstanceProperty
 }
-
-internal fun DObject?.asKotlinCompanion(): KotlinCompanion = KotlinCompanion(this)
 
 private fun DTypeParameter.asJava(): DTypeParameter = copy(
     variantTypeParameter = variantTypeParameter.withDri(dri.possiblyAsJava()),
