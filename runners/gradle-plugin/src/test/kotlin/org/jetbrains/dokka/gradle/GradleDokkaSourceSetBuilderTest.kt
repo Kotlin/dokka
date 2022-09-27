@@ -113,7 +113,7 @@ class GradleDokkaSourceSetBuilderTest {
         sourceSet.dependsOn(sourceSet.DokkaSourceSetID("s3"))
         sourceSet.dependsOn(GradleDokkaSourceSetBuilder("s4", project))
         sourceSet.dependsOn(GradleDokkaSourceSetBuilder("s5", project).build())
-        sourceSet.dependsOn(DefaultKotlinSourceSet(project, "s6"))
+        sourceSet.dependsOn(createDefaultKotlinSourceSet("s6"))
         sourceSet.dependsOn(DefaultAndroidSourceSet("s7", project, false))
 
         assertEquals(
@@ -121,6 +121,10 @@ class GradleDokkaSourceSetBuilderTest {
             sourceSet.build().dependentSourceSets.map { it.toString() },
             "Expected all source sets being registered"
         )
+    }
+
+    private fun createDefaultKotlinSourceSet(displayName: String): DefaultKotlinSourceSet {
+        return project.objects.newInstance(DefaultKotlinSourceSet::class.java, project, displayName)
     }
 
     @Test

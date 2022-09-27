@@ -40,9 +40,9 @@ class JsIRGradleIntegrationTest(override val versions: BuildVersions) : Abstract
             return
         }
 
-        val reactPropertyArg = TestedVersions.KT_REACT_WRAPPER_MAPPING[versions.kotlinVersion]
+        val reactVersion = TestedVersions.KT_REACT_WRAPPER_MAPPING[versions.kotlinVersion]
             ?: throw IllegalStateException("Unspecified version of react for kotlin " + versions.kotlinVersion)
-        val result = createGradleRunner(reactPropertyArg, "dokkaHtml", "-i", "-s").buildRelaxed()
+        val result = createGradleRunner("-Preact_version=$reactVersion", "dokkaHtml", "-i", "-s").buildRelaxed()
         assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":dokkaHtml")).outcome)
 
         val htmlOutputDir = File(projectDir, "build/dokka/html")
