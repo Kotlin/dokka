@@ -13,12 +13,12 @@ import java.util.concurrent.ConcurrentHashMap
 class AddToNavigationCommandHandler(val context: DokkaContext) : CommandHandler {
     private val navigationFragments = ConcurrentHashMap<String, Element>()
 
-    override fun handleCommand(element: Element, command: Command, input: File, output: File) {
+    override fun handleCommandAsTag(command: Command, body: Element, input: File, output: File) {
         command as AddToNavigationCommand
         context.configuration.modules.find { it.name == command.moduleName }
             ?.relativePathToOutputDirectory
             ?.relativeToOrSelf(context.configuration.outputDir)
-            ?.let { key -> navigationFragments[key.toString()] = element }
+            ?.let { key -> navigationFragments[key.toString()] = body }
     }
 
     override fun canHandle(command: Command) = command is AddToNavigationCommand
@@ -31,7 +31,7 @@ class AddToNavigationCommandHandler(val context: DokkaContext) : CommandHandler 
             val node = Element(Tag.valueOf("div"), "", attributes)
             navigationFragments.entries.sortedBy { it.key }.forEach { (moduleName, command) ->
                 command.select("a").forEach { a ->
-                    a.attr("href")?.also { a.attr("href", "${moduleName}/${it}") }
+                    a.attr("href").also { a.attr("href", "${moduleName}/${it}") }
                 }
                 command.childNodes().toList().forEachIndexed { index, child ->
                     if (index == 0) {
@@ -43,7 +43,7 @@ class AddToNavigationCommandHandler(val context: DokkaContext) : CommandHandler 
 
             Files.write(output.resolve("navigation.html").toPath(), listOf(node.outerHtml()))
             node.select("a").forEach { a ->
-                a.attr("href")?.also { a.attr("href", "../${it}") }
+                a.attr("href").also { a.attr("href", "../${it}") }
             }
             navigationFragments.keys.forEach {
                 Files.write(

@@ -1,7 +1,7 @@
 pluginManagement {
     plugins {
-        kotlin("jvm") version "1.5.30"
-        id("org.jetbrains.dokka") version ("1.5.30")
+        kotlin("jvm") version "1.7.20-RC"
+        id("org.jetbrains.dokka") version ("1.7.10")
     }
 }
 

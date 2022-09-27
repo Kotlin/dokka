@@ -33,13 +33,16 @@ open class JavadocPageCreator(context: DokkaContext) {
         )
 
     fun pageForPackage(p: DPackage) =
-        JavadocPackagePageNode(p.name, contentForPackage(p), setOf(p.dri), p,
+        JavadocPackagePageNode(p.name, contentForPackage(p), setOf(p.dri), listOf(p),
             p.classlikes.mapNotNull { pageForClasslike(it) }
         )
 
-    fun pageForClasslike(c: DClasslike): JavadocClasslikePageNode? =
-        c.highestJvmSourceSet?.let { jvm ->
-            var children = c.classlikes.mapNotNull { pageForClasslike(it) }
+    fun pageForClasslike(c: DClasslike): JavadocClasslikePageNode? {
+        return c.highestJvmSourceSet?.let { jvm ->
+            @Suppress("UNCHECKED_CAST")
+            val extra = ((c as? WithExtraProperties<Documentable>)?.extra ?: PropertyContainer.empty())
+            val children = c.classlikes.mapNotNull { pageForClasslike(it) }
+
             JavadocClasslikePageNode(
                 name = c.dri.classNames.orEmpty(),
                 content = contentForClasslike(c),
@@ -68,12 +71,12 @@ open class JavadocPageCreator(context: DokkaContext) {
                         PropertyContainer.withAll(it.indexesInDocumentation())
                     )
                 },
-                documentable = c,
+                documentables = listOf(c),
                 children = children,
-                extra = ((c as? WithExtraProperties<Documentable>)?.extra
-                    ?: PropertyContainer.empty()) + c.indexesInDocumentation()
+                extra = extra + c.indexesInDocumentation()
             )
         }
+    }
 
     private fun contentForModule(m: DModule): JavadocContentNode =
         JavadocContentGroup(

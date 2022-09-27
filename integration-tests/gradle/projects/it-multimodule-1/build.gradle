@@ -7,8 +7,8 @@ apply from: '../template.root.gradle.kts'
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib"
-    compile project(':first')
-    compile project(':second')
+    implementation project(':first')
+    implementation project(':second')
 }
 
 

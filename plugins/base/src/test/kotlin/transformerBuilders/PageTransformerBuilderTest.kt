@@ -1,16 +1,18 @@
-package transformerBuilders;
+package transformerBuilders
 
 import org.jetbrains.dokka.CoreExtensions
-import org.jetbrains.dokka.pages.PageNode
-import org.jetbrains.dokka.pages.RendererSpecificResourcePage
-import org.jetbrains.dokka.pages.RenderingStrategy
+import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 import org.jetbrains.dokka.transformers.pages.pageMapper
 import org.jetbrains.dokka.transformers.pages.pageScanner
 import org.jetbrains.dokka.transformers.pages.pageStructureTransformer
+import org.jsoup.Jsoup
 import org.junit.jupiter.api.Test
+import utils.TestOutputWriterPlugin
+import utils.assertContains
+import kotlin.test.assertEquals
 
 class PageTransformerBuilderTest : BaseAbstractTest() {
 
@@ -129,6 +131,76 @@ class PageTransformerBuilderTest : BaseAbstractTest() {
                 root.children.assertCount(2, "Root children: ")
                 root.children.first().name.assertEqual("transformerBuilder")
                 root.children[1].name.assertEqual("test")
+            }
+        }
+    }
+
+    @Test
+    fun `kotlin constructors tab should exist even though there is primary constructor only`() {
+        val configuration = dokkaConfiguration {
+            sourceSets {
+                sourceSet {
+                    sourceRoots = listOf("src/")
+                }
+            }
+        }
+        testInline(
+            """
+            |/src/main/kotlin/kotlinAsJavaPlugin/Test.kt
+            |package kotlinAsJavaPlugin
+            |
+            |class Test(val xd: Int)
+        """.trimMargin(),
+            configuration
+        ) {
+            pagesGenerationStage = { root ->
+                val content = root.children
+                    .flatMap { it.children<ContentPage>() }
+                    .map { it.content }.single().children
+                    .filterIsInstance<ContentGroup>()
+                    .single { it.dci.kind == ContentKind.Main }.children
+
+                val constructorTabsCount = content.filter { it is ContentHeader }.flatMap {
+                    it.children.filter { it is ContentText }
+                }.count {
+                    (it as? ContentText)?.text == "Constructors"
+                }
+
+                assertEquals(1, constructorTabsCount)
+            }
+        }
+    }
+
+    @Test
+    fun `should load script as defer if name ending in _deferred`() {
+        val configuration = dokkaConfiguration {
+            sourceSets {
+                sourceSet {
+                    sourceRoots = listOf("src/main/kotlin")
+                }
+            }
+        }
+        val writerPlugin = TestOutputWriterPlugin()
+        testInline(
+            """
+            |/src/main/kotlin/test/Test.kt
+            |package test
+            |
+            |class Test
+        """.trimMargin(),
+            configuration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                val generatedFiles = writerPlugin.writer.contents
+
+                assertContains(generatedFiles.keys, "scripts/symbol-parameters-wrapper_deferred.js")
+
+                val scripts = generatedFiles.getValue("root/test/-test/-test.html").let { Jsoup.parse(it) }.select("script")
+                val deferredScriptSources = scripts.filter { it.hasAttr("defer") }.map { it.attr("src") }
+
+                // important to check symbol-parameters-wrapper_deferred specifically since it might break some features
+                assertContains(deferredScriptSources, "../../../scripts/symbol-parameters-wrapper_deferred.js")
             }
         }
     }

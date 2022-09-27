@@ -12,6 +12,7 @@ import org.jetbrains.kotlin.utils.addToStdlib.cast
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
+import utils.assertNotNull
 import java.net.URL
 import java.nio.file.Paths
 
@@ -39,7 +40,7 @@ class LinkableContentTest : BaseAbstractTest() {
                     dependentSourceSets = setOf(common.value.sourceSetID)
                     sourceRoots = listOf(Paths.get("$testDataDir/jvmAndJsSecondCommonMain/kotlin").toString())
                 }
-                val js = sourceSet {
+                sourceSet {
                     name = "js"
                     displayName = "js"
                     analysisPlatform = "js"
@@ -47,7 +48,7 @@ class LinkableContentTest : BaseAbstractTest() {
                     sourceRoots = listOf(Paths.get("$testDataDir/jsMain/kotlin").toString())
                     includes = listOf(Paths.get("$includesDir/include2.md").toString())
                 }
-                val jvm = sourceSet {
+                sourceSet {
                     name = "jvm"
                     displayName = "jvm"
                     analysisPlatform = "jvm"
@@ -91,7 +92,7 @@ class LinkableContentTest : BaseAbstractTest() {
                     dependentSourceSets = setOf(common.value.sourceSetID)
                     sourceRoots = listOf(Paths.get("$testDataDir/jvmAndJsSecondCommonMain/kotlin").toString())
                 }
-                val js = sourceSet {
+                sourceSet {
                     name = "js"
                     displayName = "js"
                     analysisPlatform = "js"
@@ -105,7 +106,7 @@ class LinkableContentTest : BaseAbstractTest() {
                         )
                     )
                 }
-                val jvm = sourceSet {
+                sourceSet {
                     name = "jvm"
                     displayName = "jvm"
                     analysisPlatform = "jvm"
@@ -131,10 +132,8 @@ class LinkableContentTest : BaseAbstractTest() {
                 Assertions.assertEquals(2, packageChildren.size)
                 packageChildren.forEach {
                     val name = it.name.substringBefore("Class")
-                    val crl = it.safeAs<ClasslikePageNode>()?.content?.safeAs<ContentGroup>()?.children?.last()
-                        ?.safeAs<ContentGroup>()?.children?.last()?.safeAs<ContentGroup>()?.children?.lastOrNull()
-                        ?.safeAs<ContentTable>()?.children?.singleOrNull()
-                        ?.safeAs<ContentGroup>()?.children?.singleOrNull().safeAs<ContentResolvedLink>()
+                    val signature = it.safeAs<ClasslikePageNode>()?.content?.dfs { it is ContentGroup && it.dci.kind == ContentKind.Symbol }.assertNotNull("signature")
+                    val crl = signature.children.last().children[1].safeAs<ContentResolvedLink>()
                     Assertions.assertEquals(
                         "https://github.com/user/repo/tree/master/src/${name.toLowerCase()}Main/kotlin/${name}Class.kt#L3",
                         crl?.address
@@ -165,7 +164,7 @@ class LinkableContentTest : BaseAbstractTest() {
                     dependentSourceSets = setOf(common.value.sourceSetID)
                     sourceRoots = listOf(Paths.get("$testDataDir/jvmAndJsSecondCommonMain/kotlin").toString())
                 }
-                val js = sourceSet {
+                sourceSet {
                     name = "js"
                     displayName = "js"
                     analysisPlatform = "js"
@@ -173,7 +172,7 @@ class LinkableContentTest : BaseAbstractTest() {
                     sourceRoots = listOf(Paths.get("$testDataDir/jsMain/kotlin").toString())
                     samples = listOf("$testDataDir/jsMain/resources/Samples.kt")
                 }
-                val jvm = sourceSet {
+                sourceSet {
                     name = "jvm"
                     displayName = "jvm"
                     analysisPlatform = "jvm"
@@ -192,9 +191,9 @@ class LinkableContentTest : BaseAbstractTest() {
                 Assertions.assertEquals(1, moduleChildren.size)
                 val packageChildren = moduleChildren.first().children
                 Assertions.assertEquals(2, packageChildren.size)
-                packageChildren.forEach {
-                    val name = it.name.substringBefore("Class")
-                    val classChildren = it.children
+                packageChildren.forEach { pageNode ->
+                    val name = pageNode.name.substringBefore("Class")
+                    val classChildren = pageNode.children
                     Assertions.assertEquals(2, classChildren.size)
                     val function = classChildren.find { it.name == "printWithExclamation" }
                     val text = function.cast<MemberPageNode>().content.cast<ContentGroup>().children.last()
@@ -256,7 +255,7 @@ class LinkableContentTest : BaseAbstractTest() {
                 }?.safeAs<ContentDRILink>()
 
                 Assertions.assertEquals(
-                    (sample.documentable as WithGenerics).generics.first().dri,
+                    (sample.documentables.firstOrNull() as WithGenerics).generics.first().dri,
                     returnTypeNode?.address
                 )
             }
@@ -323,7 +322,7 @@ class LinkableContentTest : BaseAbstractTest() {
                     dependentSourceSets = setOf(common.value.sourceSetID)
                     sourceRoots = listOf(Paths.get("$testDataDir/jvmAndJsSecondCommonMain/kotlin").toString())
                 }
-                val js = sourceSet {
+                sourceSet {
                     name = "js"
                     displayName = "js"
                     analysisPlatform = "js"
@@ -331,7 +330,7 @@ class LinkableContentTest : BaseAbstractTest() {
                     sourceRoots = listOf(Paths.get("$testDataDir/jsMain/kotlin").toString())
                     includes = listOf(Paths.get("$includesDir/include2.md").toString())
                 }
-                val jvm = sourceSet {
+                sourceSet {
                     name = "jvm"
                     displayName = "jvm"
                     analysisPlatform = "jvm"
@@ -346,8 +345,8 @@ class LinkableContentTest : BaseAbstractTest() {
         }
 
         testFromData(configuration) {
-            documentablesMergingStage = {
-                it.documentation.entries.single {
+            documentablesMergingStage = { module ->
+                module.documentation.entries.single {
                     it.key.displayName == "jvm"
                 }.value.run {
                     Assertions.assertNotNull(dfs {

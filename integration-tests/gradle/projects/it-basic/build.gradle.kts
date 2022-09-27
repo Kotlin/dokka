@@ -2,6 +2,7 @@ import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.dokka.gradle.kotlinSourceSet
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.DokkaBaseConfiguration
+import org.jetbrains.dokka.DokkaConfiguration
 import java.net.URL
 
 plugins {
@@ -15,7 +16,7 @@ buildscript {
     }
 }
 
-version = "1.5-SNAPSHOT"
+version = "1.7.10-SNAPSHOT"
 
 apply(from = "../template.root.gradle.kts")
 
@@ -28,10 +29,19 @@ tasks.withType<DokkaTask> {
     moduleName.set("Basic Project")
     dokkaSourceSets {
         configureEach {
+            documentedVisibilities.set(
+                setOf(DokkaConfiguration.Visibility.PUBLIC, DokkaConfiguration.Visibility.PROTECTED)
+            )
             suppressedFiles.from(file("src/main/kotlin/it/suppressedByPath"))
             perPackageOption {
                 matchingRegex.set("it.suppressedByPackage.*")
                 suppress.set(true)
+            }
+            perPackageOption {
+                matchingRegex.set("it.overriddenVisibility.*")
+                documentedVisibilities.set(
+                    setOf(DokkaConfiguration.Visibility.PRIVATE)
+                )
             }
             sourceLink {
                 localDirectory.set(file("src/main"))
@@ -50,5 +60,5 @@ tasks.withType<DokkaTask> {
     }
     suppressObviousFunctions.set(false)
 
-    pluginsMapConfiguration.set(mapOf(DokkaBase::class.qualifiedName to """{ "customStyleSheets": ["${file("../customResources/logo-styles.css")}", "${file("../customResources/custom-style-to-add.css")}"], "customAssets" : ["${file("../customResources/custom-resource.svg")}"] }"""))
+    pluginsMapConfiguration.set(mapOf(DokkaBase::class.qualifiedName to """{ "customStyleSheets": ["${file("../customResources/logo-styles.css").invariantSeparatorsPath}", "${file("../customResources/custom-style-to-add.css").invariantSeparatorsPath}"], "customAssets" : ["${file("../customResources/custom-resource.svg").invariantSeparatorsPath}"] }"""))
 }

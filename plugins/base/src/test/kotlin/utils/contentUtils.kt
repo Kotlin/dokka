@@ -38,19 +38,24 @@ fun ContentMatcherBuilder<*>.bareSignature(
     +("${keywords.joinToString("") { "$it " }}fun ")
     link { +name }
     +"("
-    params.forEachIndexed { id, (n, t) ->
+    if (params.isNotEmpty()) {
+        group {
+            params.forEachIndexed { id, (n, t) ->
+                group {
+                    t.annotations.forEach {
+                        unwrapAnnotation(it)
+                    }
+                    t.keywords.forEach {
+                        +it
+                    }
 
-        t.annotations.forEach {
-            unwrapAnnotation(it)
+                    +"$n: "
+                    group { link { +(t.type) } }
+                    if (id != params.lastIndex)
+                        +", "
+                }
+            }
         }
-        t.keywords.forEach {
-            +it
-        }
-
-        +"$n: "
-        group { link { +(t.type) } }
-        if (id != params.lastIndex)
-            +", "
     }
     +")"
     if (returnType != null) {
@@ -101,19 +106,24 @@ fun ContentMatcherBuilder<*>.bareSignatureWithReceiver(
     +"."
     link { +name }
     +"("
-    params.forEachIndexed { id, (n, t) ->
+    if (params.isNotEmpty()) {
+        group {
+            params.forEachIndexed { id, (n, t) ->
+                group {
+                    t.annotations.forEach {
+                        unwrapAnnotation(it)
+                    }
+                    t.keywords.forEach {
+                        +it
+                    }
 
-        t.annotations.forEach {
-            unwrapAnnotation(it)
+                    +"$n: "
+                    group { link { +(t.type) } }
+                    if (id != params.lastIndex)
+                        +", "
+                }
+            }
         }
-        t.keywords.forEach {
-            +it
-        }
-
-        +"$n: "
-        group { link { +(t.type) } }
-        if (id != params.lastIndex)
-            +", "
     }
     +")"
     if (returnType != null) {
@@ -137,7 +147,7 @@ fun ContentMatcherBuilder<*>.propertySignature(
     value: String? = null
 ) {
     group {
-        header { +"Package test" }
+        header { +"Package-level declarations" }
         skipAllNotMatching()
     }
     group {
@@ -180,7 +190,7 @@ fun ContentMatcherBuilder<*>.propertySignature(
 
 fun ContentMatcherBuilder<*>.typealiasSignature(name: String, expressionTarget: String) {
     group {
-        header { +"Package test" }
+        header { +"Package-level declarations" }
         skipAllNotMatching()
     }
     group {
@@ -198,7 +208,9 @@ fun ContentMatcherBuilder<*>.typealiasSignature(name: String, expressionTarget: 
                                         group {
                                             +"typealias "
                                             group {
-                                                link { +name }
+                                                group {
+                                                    link { +name }
+                                                }
                                                 skipAllNotMatching()
                                             }
                                             +" = "

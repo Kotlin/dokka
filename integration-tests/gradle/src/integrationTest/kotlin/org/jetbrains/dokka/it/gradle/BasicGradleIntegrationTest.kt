@@ -10,13 +10,7 @@ class BasicGradleIntegrationTest(override val versions: BuildVersions) : Abstrac
     companion object {
         @get:JvmStatic
         @get:Parameters(name = "{0}")
-        val versions = BuildVersions.permutations(
-            gradleVersions = listOf("7.3", *ifExhaustive("7.2", "7.0", "6.6", "6.3", "6.2.2", "6.1.1")),
-            kotlinVersions = listOf("1.3.30", *ifExhaustive("1.3.72", "1.4.32"), "1.5.0", "1.5.31", "1.6.0")
-        ) + BuildVersions.permutations(
-            gradleVersions = listOf("5.6.4", "6.0"),
-            kotlinVersions = listOf("1.3.30", *ifExhaustive("1.3.72", "1.4.32"))
-        )
+        val versions = TestedVersions.BASE
     }
 
     @BeforeTest
@@ -152,6 +146,8 @@ class BasicGradleIntegrationTest(override val versions: BuildVersions) : Abstrac
             )
         }
         assertTrue(imagesDir.resolve("custom-resource.svg").isFile)
+
+        assertConfiguredVisibility(this)
     }
 
     private fun File.assertJavadocOutputDir() {
@@ -160,7 +156,7 @@ class BasicGradleIntegrationTest(override val versions: BuildVersions) : Abstrac
         val indexFile = File(this, "index.html")
         assertTrue(indexFile.isFile, "Missing index.html")
         assertTrue(
-            """<title>Basic Project 1.5-SNAPSHOT API </title>""" in indexFile.readText(),
+            """<title>Basic Project 1.7.10-SNAPSHOT API </title>""" in indexFile.readText(),
             "Header with version number not present in index.html"
         )
 
@@ -177,5 +173,27 @@ class BasicGradleIntegrationTest(override val versions: BuildVersions) : Abstrac
 
     private fun File.assertJekyllOutputDir() {
         assertTrue(isDirectory, "Missing dokka jekyll output directory")
+    }
+
+    private fun assertConfiguredVisibility(outputDir: File) {
+        val allHtmlFiles = outputDir.allHtmlFiles().toList()
+
+        assertContentVisibility(
+            contentFiles = allHtmlFiles,
+            documentPublic = true,
+            documentProtected = true, // sourceSet documentedVisibilities
+            documentInternal = false,
+            documentPrivate = true // for overriddenVisibility package
+        )
+
+        assertContainsFilePaths(
+            outputFiles = allHtmlFiles,
+            expectedFilePaths = listOf(
+                // documentedVisibilities is overridden for package `overriddenVisibility` specifically
+                // to include private code, so html pages for it are expected to have been created
+                Regex("it\\.overriddenVisibility/-visible-private-class/private-method\\.html"),
+                Regex("it\\.overriddenVisibility/-visible-private-class/private-val\\.html"),
+            )
+        )
     }
 }

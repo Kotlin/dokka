@@ -1,7 +1,7 @@
 package org.jetbrains.dokka.it.gradle.kotlin
 
 import org.gradle.testkit.runner.TaskOutcome
-import org.jetbrains.dokka.it.S3Project
+import org.jetbrains.dokka.it.TestOutputCopier
 import org.jetbrains.dokka.it.copyAndApplyGitDiff
 import org.jetbrains.dokka.it.gradle.*
 import org.junit.runners.Parameterized
@@ -9,14 +9,14 @@ import java.io.File
 import kotlin.test.*
 
 class CoroutinesGradleIntegrationTest(override val versions: BuildVersions) : AbstractGradleIntegrationTest(),
-    S3Project {
+    TestOutputCopier {
 
     companion object {
         @get:JvmStatic
         @get:Parameterized.Parameters(name = "{0}")
         val versions = BuildVersions.permutations(
-            gradleVersions = listOf("6.3"),
-            kotlinVersions = listOf("1.4.10")
+            gradleVersions = listOf("7.4.2"),
+            kotlinVersions = listOf("1.7.10")
         )
     }
 

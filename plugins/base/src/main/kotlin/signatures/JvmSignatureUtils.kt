@@ -20,6 +20,9 @@ interface JvmSignatureUtils {
     fun Collection<ExtraModifiers>.toSignatureString(): String =
         joinToString("") { it.name.toLowerCase() + " " }
 
+    @Suppress("UNCHECKED_CAST")
+    fun Documentable.annotations() = (this as? WithExtraProperties<Documentable>)?.annotations() ?: emptyMap()
+
     fun <T : AnnotationTarget> WithExtraProperties<T>.annotations(): SourceSetDependent<List<Annotations.Annotation>> =
         extra[Annotations]?.directAnnotations ?: emptyMap()
 
@@ -163,16 +166,53 @@ interface JvmSignatureUtils {
         }
     }
 
-    fun <T : Documentable> WithExtraProperties<T>.stylesIfDeprecated(sourceSetData: DokkaSourceSet): Set<TextStyle> =
-        if (extra[Annotations]?.directAnnotations?.get(sourceSetData)?.any {
-                it.dri == DRI("kotlin", "Deprecated")
-                        || it.dri == DRI("java.lang", "Deprecated")
-            } == true) setOf(TextStyle.Strikethrough) else emptySet()
+    fun <T : Documentable> WithExtraProperties<T>.stylesIfDeprecated(sourceSetData: DokkaSourceSet): Set<TextStyle> {
+        val directAnnotations = extra[Annotations]?.directAnnotations?.get(sourceSetData) ?: emptyList()
+        val hasAnyDeprecatedAnnotation =
+            directAnnotations.any { it.dri == DRI("kotlin", "Deprecated") || it.dri == DRI("java.lang", "Deprecated") }
 
-    infix fun DFunction.uses(t: DTypeParameter): Boolean {
-        val allDris: List<DRI> = (listOfNotNull(receiver?.dri, *receiver?.type?.drisOfAllNestedBounds?.toTypedArray() ?: emptyArray()) +
-                parameters.flatMap { listOf(it.dri) + it.type.drisOfAllNestedBounds })
-        return t.dri in allDris
+        return if (hasAnyDeprecatedAnnotation) setOf(TextStyle.Strikethrough) else emptySet()
+    }
+
+    infix fun DFunction.uses(typeParameter: DTypeParameter): Boolean {
+        val parameterDris = parameters.flatMap { listOf(it.dri) + it.type.drisOfAllNestedBounds }
+        val receiverDris =
+            listOfNotNull(
+                receiver?.dri,
+                *receiver?.type?.drisOfAllNestedBounds?.toTypedArray() ?: emptyArray()
+            )
+        val allDris = parameterDris + receiverDris
+        return typeParameter.dri in allDris
+    }
+
+    /**
+     * Builds a distinguishable [function] parameters block, so that it
+     * can be processed or custom rendered down the road.
+     *
+     * Resulting structure:
+     * ```
+     * SymbolContentKind.Parameters(style = wrapped) {
+     *     SymbolContentKind.Parameter(style = indented) { param, }
+     *     SymbolContentKind.Parameter(style = indented) { param, }
+     *     SymbolContentKind.Parameter(style = indented) { param }
+     * }
+     * ```
+     * Wrapping and indentation of parameters is applied conditionally, see [shouldWrapParams]
+     */
+    fun PageContentBuilder.DocumentableContentBuilder.parametersBlock(
+        function: DFunction, paramBuilder: PageContentBuilder.DocumentableContentBuilder.(DParameter) -> Unit
+    ) {
+        group(kind = SymbolContentKind.Parameters, styles = emptySet()) {
+            function.parameters.dropLast(1).forEach {
+                group(kind = SymbolContentKind.Parameter) {
+                    paramBuilder(it)
+                    punctuation(", ")
+                }
+            }
+            group(kind = SymbolContentKind.Parameter) {
+                paramBuilder(function.parameters.last())
+            }
+        }
     }
 }
 

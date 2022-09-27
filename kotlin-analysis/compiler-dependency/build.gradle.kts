@@ -4,7 +4,6 @@ import org.jetbrains.registerDokkaArtifactPublication
 plugins {
     id("com.github.johnrengelman.shadow")
     `maven-publish`
-    id("com.jfrog.bintray")
 }
 
 dependencies {
@@ -17,7 +16,7 @@ tasks {
         val dokka_version: String by project
         archiveFileName.set("dokka-kotlin-analysis-compiler-$dokka_version.jar")
         archiveClassifier.set("")
-        exclude("**/intellij**")
+        exclude("com/intellij/")
     }
 }
 

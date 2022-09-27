@@ -2,14 +2,41 @@ package signatures
 
 import org.jetbrains.dokka.DokkaSourceSetID
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
+import org.jetbrains.dokka.model.DFunction
+import org.jetbrains.dokka.model.DefinitelyNonNullable
+import org.jetbrains.dokka.model.dfs
 import org.junit.jupiter.api.Test
 import utils.*
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 
 class SignatureTest : BaseAbstractTest() {
     private val configuration = dokkaConfiguration {
         sourceSets {
             sourceSet {
                 sourceRoots = listOf("src/")
+                classpath = listOf(
+                    commonStdlibPath ?: throw IllegalStateException("Common stdlib is not found"),
+                    jvmStdlibPath ?: throw IllegalStateException("JVM stdlib is not found")
+                )
+                externalDocumentationLinks = listOf(stdlibExternalDocumentationLink)
+            }
+        }
+    }
+
+    private val mppConfiguration = dokkaConfiguration {
+        moduleName = "test"
+        sourceSets {
+            sourceSet {
+                name = "common"
+                sourceRoots = listOf("src/main/kotlin/common/Test.kt")
+                classpath = listOf(commonStdlibPath!!)
+                externalDocumentationLinks = listOf(stdlibExternalDocumentationLink)
+            }
+            sourceSet {
+                name = "jvm"
+                dependentSourceSets = setOf(DokkaSourceSetID("test", "common"))
+                sourceRoots = listOf("src/main/kotlin/jvm/Test.kt")
                 classpath = listOf(commonStdlibPath!!)
                 externalDocumentationLinks = listOf(stdlibExternalDocumentationLink)
             }
@@ -36,7 +63,7 @@ class SignatureTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/simple-fun.html").firstSignature().match(
-                    "fun ", A("simpleFun"), "(): ", A("String"), Span(),
+                    "fun ", A("simpleFun"), "(): ", A("String"),
                         ignoreSpanWithTokenStyle = true
                 )
             }
@@ -55,7 +82,7 @@ class SignatureTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/simple-fun.html").firstSignature().match(
-                    "open fun ", A("simpleFun"), "(): ", A("String"), Span(),
+                    "open fun ", A("simpleFun"), "(): ", A("String"),
                         ignoreSpanWithTokenStyle = true
                 )
             }
@@ -74,7 +101,7 @@ class SignatureTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/simple-fun.html").firstSignature().match(
-                    "open suspend fun ", A("simpleFun"), "(): ", A("String"), Span(),
+                    "open suspend fun ", A("simpleFun"), "(): ", A("String"),
                         ignoreSpanWithTokenStyle = true
                 )
             }
@@ -93,10 +120,12 @@ class SignatureTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/simple-fun.html").firstSignature().match(
-                    "fun ", A("simpleFun"), "(a: ", A("Int"),
-                    ", b: ", A("Boolean"), ", c: ", A("Any"),
-                    "): ", A("String"), Span(),
-                        ignoreSpanWithTokenStyle = true
+                    "fun ", A("simpleFun"), "(", Parameters(
+                        Parameter("a: ", A("Int"), ","),
+                        Parameter("b: ", A("Boolean"), ","),
+                        Parameter("c: ", A("Any")),
+                    ), "): ", A("String"),
+                    ignoreSpanWithTokenStyle = true
                 )
             }
         }
@@ -114,9 +143,10 @@ class SignatureTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/simple-fun.html").firstSignature().match(
-                    "fun ", A("simpleFun"), "(a: (", A("Int"),
-                    ") -> ", A("String"), "): ", A("String"), Span(),
-                        ignoreSpanWithTokenStyle = true
+                    "fun ", A("simpleFun"), "(", Parameters(
+                        Parameter("a: (", A("Int"), ") -> ", A("String")),
+                    ),"): ", A("String"),
+                    ignoreSpanWithTokenStyle = true
                 )
             }
         }
@@ -135,7 +165,7 @@ class SignatureTest : BaseAbstractTest() {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/simple-fun.html").firstSignature().match(
                     "fun <", A("T"), "> ", A("simpleFun"), "(): ",
-                    A("T"), Span(),
+                    A("T"),
                         ignoreSpanWithTokenStyle = true
                 )
             }
@@ -155,8 +185,41 @@ class SignatureTest : BaseAbstractTest() {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/simple-fun.html").firstSignature().match(
                     "fun <", A("T"), " : ", A("String"), "> ", A("simpleFun"),
-                    "(): ", A("T"), Span(),
+                    "(): ", A("T"),
                         ignoreSpanWithTokenStyle = true
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `fun with definitely non-nullable types`() {
+        val source = source("fun <T> elvisLike(x: T, y: T & Any): T & Any = x ?: y")
+        val writerPlugin = TestOutputWriterPlugin()
+
+        testInline(
+            source,
+            configuration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            documentablesTransformationStage = {
+                val fn = (it.dfs { it.name == "elvisLike" } as? DFunction).assertNotNull("Function elvisLike")
+
+                assert(fn.type is DefinitelyNonNullable)
+                assert(fn.parameters[1].type is DefinitelyNonNullable)
+            }
+            renderingStage = { _, _ ->
+                val signature = writerPlugin.writer.renderedContent("root/example/elvis-like.html")
+                assertEquals(2, signature.select("a[href=\"https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html\"]").size)
+                signature.firstSignature().match(
+                    "fun <", A("T"), "> ", A("elvisLike"),
+                    "(",
+                    Span(
+                        Span("x: ", A("T"), ", "),
+                        Span("y: ", A("T"), " & ", A("Any"))
+                    ),
+                    "): ", A("T"), " & ", A("Any"),
+                    ignoreSpanWithTokenStyle = true
                 )
             }
         }
@@ -174,9 +237,11 @@ class SignatureTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/simple-fun.html").firstSignature().match(
-                    "inline suspend fun <", A("T"), " : ", A("String"), "> ", A("simpleFun"),
-                    "(a: ", A("Int"), ", b: ", A("String"), "): ", A("T"), Span(),
-                        ignoreSpanWithTokenStyle = true
+                    "inline suspend fun <", A("T"), " : ", A("String"), "> ", A("simpleFun"), "(", Parameters(
+                        Parameter("a: ", A("Int"), ","),
+                        Parameter("b: ", A("String")),
+                    ), "): ", A("T"),
+                    ignoreSpanWithTokenStyle = true
                 )
             }
         }
@@ -194,8 +259,10 @@ class SignatureTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/simple-fun.html").firstSignature().match(
-                    "fun ", A("simpleFun"), "(vararg params: ", A("Int"), ")", Span(),
-                        ignoreSpanWithTokenStyle = true
+                    "fun ", A("simpleFun"), "(", Parameters(
+                        Parameter("vararg params: ", A("Int")),
+                    ), ")",
+                    ignoreSpanWithTokenStyle = true
                 )
             }
         }
@@ -213,7 +280,7 @@ class SignatureTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/-simple-class/index.html").firstSignature().match(
-                    "class ", A("SimpleClass"), Span(),
+                    "class ", A("SimpleClass"),
                         ignoreSpanWithTokenStyle = true
                 )
             }
@@ -233,7 +300,7 @@ class SignatureTest : BaseAbstractTest() {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/-inheriting-class-from-generic-type/index.html").firstSignature().match(
                     "class ", A("InheritingClassFromGenericType"), " <", A("T"), " : ", A("Number"), ", ", A("R"), " : ", A("CharSequence"),
-                    "> : ", A("Comparable"), "<", A("T"), "> , ", A("Collection"), "<", A("R"), ">", Span(),
+                    "> : ", A("Comparable"), "<", A("T"), "> , ", A("Collection"), "<", A("R"), ">",
                         ignoreSpanWithTokenStyle = true
                 )
             }
@@ -252,7 +319,7 @@ class SignatureTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/-k-runnable/index.html").firstSignature().match(
-                    "fun interface ", A("KRunnable"), Span(),
+                    "fun interface ", A("KRunnable"),
                         ignoreSpanWithTokenStyle = true
                 )
             }
@@ -285,7 +352,7 @@ class SignatureTest : BaseAbstractTest() {
                         Div("@", A("Marking"))
                     ),
                     "fun ", A("simpleFun"),
-                    "(): ", A("String"), Span(),
+                    "(): ", A("String"),
                     ignoreSpanWithTokenStyle = true
                 )
             }
@@ -320,7 +387,7 @@ class SignatureTest : BaseAbstractTest() {
                         Div("@set:", A("Marking"))
                     ),
                     "var ", A("str"),
-                    ": ", A("String"), Span(),
+                    ": ", A("String"),
                     ignoreSpanWithTokenStyle = true
                 )
             }
@@ -361,7 +428,7 @@ class SignatureTest : BaseAbstractTest() {
                            Div("@", A("Marking2"), "(", Span("int = ", Span("1")), Wbr, ")")
                         ),
                         "fun ", A("simpleFun"),
-                        "(): ", A("String"), Span(),
+                        "(): ", A("String"),
                         ignoreSpanWithTokenStyle = true
                     )
             }
@@ -402,7 +469,7 @@ class SignatureTest : BaseAbstractTest() {
                         )
                     ),
                     "fun ", A("simpleFun"),
-                    "(): ", A("String"), Span(),
+                    "(): ", A("String"),
                         ignoreSpanWithTokenStyle = true
                 )
             }
@@ -411,26 +478,6 @@ class SignatureTest : BaseAbstractTest() {
 
     @Test
     fun `actual fun`() {
-
-        val configuration = dokkaConfiguration {
-            moduleName = "test"
-            sourceSets {
-                sourceSet {
-                    name = "common"
-                    sourceRoots = listOf("src/main/kotlin/common/Test.kt")
-                    classpath = listOf(commonStdlibPath!!)
-                    externalDocumentationLinks = listOf(stdlibExternalDocumentationLink)
-                }
-                sourceSet {
-                    name = "jvm"
-                    dependentSourceSets = setOf(DokkaSourceSetID("test", "common"))
-                    sourceRoots = listOf("src/main/kotlin/jvm/Test.kt")
-                    classpath = listOf(commonStdlibPath!!)
-                    externalDocumentationLinks = listOf(stdlibExternalDocumentationLink)
-                }
-            }
-        }
-
         val writerPlugin = TestOutputWriterPlugin()
 
         testInline(
@@ -446,7 +493,7 @@ class SignatureTest : BaseAbstractTest() {
                 |actual fun simpleFun(): String = "Celebrimbor"
                 |
             """.trimMargin(),
-            configuration,
+            mppConfiguration,
             pluginOverrides = listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
@@ -454,12 +501,50 @@ class SignatureTest : BaseAbstractTest() {
 
                 signatures[0].match(
                     "expect fun ", A("simpleFun"),
-                    "(): ", A("String"), Span(),
+                    "(): ", A("String"),
                     ignoreSpanWithTokenStyle = true
                 )
                 signatures[1].match(
                     "actual fun ", A("simpleFun"),
-                    "(): ", A("String"), Span(),
+                    "(): ", A("String"),
+                    ignoreSpanWithTokenStyle = true
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `actual property with a default value`() {
+        val writerPlugin = TestOutputWriterPlugin()
+
+        testInline(
+            """
+                |/src/main/kotlin/common/Test.kt
+                |package example
+                |
+                |expect val prop: Int
+                |
+                |/src/main/kotlin/jvm/Test.kt
+                |package example
+                |
+                |actual val prop: Int = 2
+                |
+            """.trimMargin(),
+            mppConfiguration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                val signatures = writerPlugin.writer.renderedContent("test/example/prop.html").signature().toList()
+
+                signatures[0].match(
+                    "expect val ", A("prop"),
+                    ": ", A("Int"),
+                    ignoreSpanWithTokenStyle = true
+                )
+                signatures[1].match(
+                    "actual val ", A("prop"),
+                    ": ", A("Int"),
+                    " = 2",
                     ignoreSpanWithTokenStyle = true
                 )
             }
@@ -468,26 +553,6 @@ class SignatureTest : BaseAbstractTest() {
 
     @Test
     fun `type with an actual typealias`() {
-
-        val configuration = dokkaConfiguration {
-            moduleName = "test"
-            sourceSets {
-                sourceSet {
-                    name = "common"
-                    sourceRoots = listOf("src/main/kotlin/common/Test.kt")
-                    classpath = listOf(commonStdlibPath!!)
-                    externalDocumentationLinks = listOf(stdlibExternalDocumentationLink)
-                }
-                sourceSet {
-                    name = "jvm"
-                    dependentSourceSets = setOf(DokkaSourceSetID("test", "common"))
-                    sourceRoots = listOf("src/main/kotlin/jvm/Test.kt")
-                    classpath = listOf(commonStdlibPath!!)
-                    externalDocumentationLinks = listOf(stdlibExternalDocumentationLink)
-                }
-            }
-        }
-
         val writerPlugin = TestOutputWriterPlugin()
 
         testInline(
@@ -504,18 +569,18 @@ class SignatureTest : BaseAbstractTest() {
                 |actual typealias Foo = Bar
                 |
             """.trimMargin(),
-            configuration,
+            mppConfiguration,
             pluginOverrides = listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
                 val signatures = writerPlugin.writer.renderedContent("test/example/-foo/index.html").signature().toList()
 
                 signatures[0].match(
-                    "expect class ", A("Foo"), Span(),
+                    "expect class ", A("Foo"),
                     ignoreSpanWithTokenStyle = true
                 )
                 signatures[1].match(
-                    "actual typealias ", A("Foo"), " = ", A("Bar"), Span(),
+                    "actual typealias ", A("Foo"), " = ", A("Bar"),
                         ignoreSpanWithTokenStyle = true
                 )
             }
@@ -539,8 +604,8 @@ class SignatureTest : BaseAbstractTest() {
             pluginOverrides = listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
-                writerPlugin.writer.renderedContent("root/example.html").signature().first().match(
-                    "typealias ", A("PlainTypealias"), " = ", A("Int"), Span(),
+                writerPlugin.writer.renderedContent("root/example.html").firstSignature().match(
+                    "typealias ", A("PlainTypealias"), " = ", A("Int"),
                         ignoreSpanWithTokenStyle = true
                 )
             }
@@ -569,13 +634,13 @@ class SignatureTest : BaseAbstractTest() {
             pluginOverrides = listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
-                writerPlugin.writer.renderedContent("root/example/index.html").signature().first().match(
+                writerPlugin.writer.renderedContent("root/example/index.html").firstSignature().match(
                     Div(
                         Div(
                             "@", A("SomeAnnotation")
                         )
                     ),
-                    "typealias ", A("PlainTypealias"), " = ", A("Int"), Span(),
+                    "typealias ", A("PlainTypealias"), " = ", A("Int"),
                         ignoreSpanWithTokenStyle = true
                 )
             }
@@ -599,9 +664,9 @@ class SignatureTest : BaseAbstractTest() {
             pluginOverrides = listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
-                writerPlugin.writer.renderedContent("root/example.html").signature().first().match(
+                writerPlugin.writer.renderedContent("root/example.html").firstSignature().match(
                     "typealias ", A("PlainTypealias"), " = ", A("Comparable"),
-                    "<", A("Int"), ">", Span(),
+                    "<", A("Int"), ">",
                         ignoreSpanWithTokenStyle = true
                 )
             }
@@ -626,9 +691,9 @@ class SignatureTest : BaseAbstractTest() {
             pluginOverrides = listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
-                writerPlugin.writer.renderedContent("root/example.html").signature().first().match(
+                writerPlugin.writer.renderedContent("root/example.html").firstSignature().match(
                     "typealias ", A("GenericTypealias"), "<", A("T"), "> = ", A("Comparable"),
-                    "<", A("T"), ">", Span(),
+                    "<", A("T"), ">",
                         ignoreSpanWithTokenStyle = true
                 )
             }
@@ -655,9 +720,11 @@ class SignatureTest : BaseAbstractTest() {
             pluginOverrides = listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
-                writerPlugin.writer.renderedContent("root/kotlinAsJavaPlugin/-a-b-c/some-fun.html").signature().first().match(
-                    "fun ", A("someFun"), "(xd: ", A("XD"), "<", A("Int"),
-                    ", ", A("String"), ">):", A("Int"), Span(),
+                writerPlugin.writer.renderedContent("root/kotlinAsJavaPlugin/-a-b-c/some-fun.html").firstSignature()
+                    .match(
+                        "fun ", A("someFun"), "(", Parameters(
+                            Parameter("xd: ", A("XD"), "<", A("Int"), ", ", A("String"), ">"),
+                        ), "):", A("Int"),
                         ignoreSpanWithTokenStyle = true
                 )
             }
@@ -666,8 +733,6 @@ class SignatureTest : BaseAbstractTest() {
 
     @Test
     fun `generic constructor params`() {
-
-
         val writerPlugin = TestOutputWriterPlugin()
 
         testInline(
@@ -694,17 +759,70 @@ class SignatureTest : BaseAbstractTest() {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/-generic-class/-generic-class.html").signature().zip(
                     listOf(
-                        arrayOf("fun <", A("T"), "> ", A("GenericClass"), "(x: ", A("T"), ")", Span()),
-                        arrayOf("fun ", A("GenericClass"), "(x: ", A("Int"), ", y: ", A("String"), ")", Span()),
-                        arrayOf("fun <", A("T"), "> ", A("GenericClass"), "(x: ", A("Int"), ", y: ", A("List"), "<", A("T"), ">)", Span()),
-                        arrayOf("fun ", A("GenericClass"), "(x: ", A("Boolean"), ", y: ", A("Int"), ", z:", A("String"), ")", Span()),
-                        arrayOf("fun <", A("T"), "> ", A("GenericClass"), "(x: ", A("List"), "<", A("Comparable"),
-                            "<", A("Lazy"), "<", A("T"), ">>>?)", Span()),
-                        arrayOf("fun ", A("GenericClass"), "(x: ", A("Int"), ")", Span()),
+                        arrayOf(
+                            "fun <", A("T"), "> ", A("GenericClass"), "(", Parameters(
+                                Parameter("x: ", A("T"))
+                            ), ")",
+                        ),
+                        arrayOf(
+                            "fun ", A("GenericClass"), "(", Parameters(
+                                Parameter("x: ", A("Int"), ", "),
+                                Parameter("y: ", A("String"))
+                            ), ")",
+                        ),
+                        arrayOf(
+                            "fun <", A("T"), "> ", A("GenericClass"), "(", Parameters(
+                                Parameter("x: ", A("Int"), ", "),
+                                Parameter("y: ", A("List"), "<", A("T"), ">")
+                            ), ")",
+                        ),
+                        arrayOf(
+                            "fun ", A("GenericClass"), "(", Parameters(
+                                Parameter("x: ", A("Boolean"), ", "),
+                                Parameter("y: ", A("Int"), ", "),
+                                Parameter("z:", A("String"))
+                            ), ")",
+                        ),
+                        arrayOf(
+                            "fun <", A("T"), "> ", A("GenericClass"), "(", Parameters(
+                                Parameter("x: ", A("List"), "<", A("Comparable"), "<", A("Lazy"), "<", A("T"), ">>>?")
+                            ), ")",
+                        ),
+                        arrayOf(
+                            "fun ", A("GenericClass"), "(", Parameters(
+                                Parameter("x: ", A("Int"))
+                            ), ")",
+                        ),
                     )
                 ).forEach {
                     it.first.match(*it.second, ignoreSpanWithTokenStyle = true)
                 }
+            }
+        }
+    }
+
+    @Test
+    fun `primary constructor with properties check for all tokens`() {
+        val writerPlugin = TestOutputWriterPlugin()
+
+        testInline(
+            """
+                |/src/main/kotlin/common/Test.kt
+                |package example
+                |
+                |class PrimaryConstructorClass<T>(val x: Int, var s: String) { }
+            """.trimMargin(),
+            configuration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                writerPlugin.writer.renderedContent("root/example/-primary-constructor-class/index.html").firstSignature().match(
+                    // In `<T>` expression, an empty `<span class="token keyword"></span>` is present for some reason
+                    Span("class "), A("PrimaryConstructorClass"), Span("<"), Span(), A("T"), Span(">"), Span("("), Parameters(
+                        Parameter(Span("val "), "x", Span(": "), A("Int"), Span(",")),
+                        Parameter(Span("var "), "s", Span(": "), A("String"))
+                    ), Span(")"),
+                )
             }
         }
     }
@@ -721,8 +839,10 @@ class SignatureTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/simple-fun.html").firstSignature().match(
-                    "fun", A("simpleFun"), "(int: ", A("Int"), " = 1, string: ", A("String"),
-                            " = \"string\"): ", A("String"), Span(),
+                    "fun", A("simpleFun"), "(", Parameters(
+                        Parameter("int: ", A("Int"), " = 1,"),
+                        Parameter("string: ", A("String"), " = \"string\"")
+                    ), "): ", A("String"),
                         ignoreSpanWithTokenStyle = true
                 )
             }
@@ -741,9 +861,90 @@ class SignatureTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/index.html").firstSignature().match(
-                    "const val ", A("simpleVal"), ": ", A("Int"), " = 1", Span(),
+                    "const val ", A("simpleVal"), ": ", A("Int"), " = 1",
                         ignoreSpanWithTokenStyle = true
                 )
+            }
+        }
+    }
+
+    @Test
+    fun `should not expose enum constructor entry arguments`() {
+        val writerPlugin = TestOutputWriterPlugin()
+
+        testInline(
+            """
+                |/src/main/kotlin/common/EnumClass.kt
+                |package example
+                |
+                |enum class EnumClass(param: String = "Default") {
+                |    EMPTY,
+                |    WITH_ARG("arg")
+                |}
+            """.trimMargin(),
+            configuration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                val enumEntrySignatures = writerPlugin.writer.renderedContent("root/example/-enum-class/index.html")
+                    .select("div.table[data-togglable=Entries]")
+                    .single()
+                    .signature()
+                    .select("div.block")
+
+                enumEntrySignatures[0].match(
+                    A("EMPTY"),
+                    ignoreSpanWithTokenStyle = true
+                )
+
+                enumEntrySignatures[1].match(
+                    A("WITH_ARG"),
+                    ignoreSpanWithTokenStyle = true
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `java property without accessors should be var`() {
+        val writerPlugin = TestOutputWriterPlugin()
+        testInline(
+            """
+            |/src/test/JavaClass.java
+            |package test;
+            |public class JavaClass {
+            |    public int property = 0;
+            |}
+            |
+            |/src/test/KotlinClass.kt
+            |package test
+            |open class KotlinClass : JavaClass() { }
+        """.trimIndent(),
+            configuration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                writerPlugin.writer.renderedContent("root/test/-kotlin-class/index.html").let { kotlinClassContent ->
+                    val signatures = kotlinClassContent.signature().toList()
+                    assertEquals(3, signatures.size, "Expected 2 signatures: class signature, constructor and property")
+
+                    val property = signatures[2]
+                    property.match(
+                        "var ", A("property"), ":", A("Int"),
+                        ignoreSpanWithTokenStyle = true
+                    )
+                }
+
+                writerPlugin.writer.renderedContent("root/test/-java-class/index.html").let { kotlinClassContent ->
+                    val signatures = kotlinClassContent.signature().toList()
+                    assertEquals(2, signatures.size, "Expected 2 signatures: class signature and property")
+
+                    val property = signatures[1]
+                    property.match(
+                        "open var ", A("property"), ":", A("Int"),
+                        ignoreSpanWithTokenStyle = true
+                    )
+                }
             }
         }
     }

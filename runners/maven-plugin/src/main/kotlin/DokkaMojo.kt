@@ -17,6 +17,7 @@ import org.apache.maven.project.MavenProjectHelper
 import org.apache.maven.repository.RepositorySystem
 import org.codehaus.plexus.archiver.Archiver
 import org.codehaus.plexus.archiver.jar.JarArchiver
+import org.codehaus.plexus.archiver.util.DefaultFileSet
 import org.codehaus.plexus.util.xml.Xpp3Dom
 import org.jetbrains.dokka.*
 import org.jetbrains.dokka.DokkaConfiguration.ExternalDocumentationLink
@@ -68,6 +69,7 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
         override var matchingRegex: String = ".*"
 
         @Parameter
+        @Deprecated("Use [documentedVisibilities] property for a more flexible control over documented visibilities")
         override var includeNonPublic: Boolean = DokkaDefaults.includeNonPublic
 
         @Parameter
@@ -78,6 +80,9 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
 
         @Parameter
         override var suppress: Boolean = DokkaDefaults.suppress
+
+        @Parameter(property = "visibility")
+        override var documentedVisibilities: Set<DokkaConfiguration.Visibility> = DokkaDefaults.documentedVisibilities
     }
 
     @Parameter
@@ -152,6 +157,12 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
     @Parameter
     var includeNonPublic: Boolean = DokkaDefaults.includeNonPublic
 
+    @Parameter(property = "visibility")
+    var documentedVisibilities: Set<DokkaConfiguration.Visibility> = DokkaDefaults.documentedVisibilities
+        // hack to set the default value for lists, didn't find any other safe way
+        // maven seems to overwrite Kotlin's default initialization value, so it doesn't matter what you put there
+        get() = field.ifEmpty { DokkaDefaults.documentedVisibilities }
+
     @Parameter
     var failOnWarning: Boolean = DokkaDefaults.failOnWarning
 
@@ -198,15 +209,18 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
             samples = samples.map(::File).toSet(),
             includes = includes.map(::File).toSet(),
             includeNonPublic = includeNonPublic,
+            documentedVisibilities = documentedVisibilities,
             reportUndocumented = reportUndocumented,
             skipEmptyPackages = skipEmptyPackages,
             skipDeprecated = skipDeprecated,
             jdkVersion = jdkVersion,
             sourceLinks = sourceLinks.map { SourceLinkDefinitionImpl(it.path, URL(it.url), it.lineSuffix) }.toSet(),
             perPackageOptions = perPackageOptions.map {
+                @Suppress("DEPRECATION") // for includeNonPublic, preserve backwards compatibility
                 PackageOptionsImpl(
                     matchingRegex = it.matchingRegex,
                     includeNonPublic = it.includeNonPublic,
+                    documentedVisibilities = it.documentedVisibilities,
                     reportUndocumented = it.reportUndocumented,
                     skipDeprecated = it.skipDeprecated,
                     suppress = it.suppress
@@ -243,7 +257,8 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
             offlineMode = offlineMode,
             cacheRoot = cacheRoot?.let(::File),
             sourceSets = listOf(sourceSet),
-            pluginsClasspath = getArtifactByMaven("org.jetbrains.dokka", "dokka-base", dokkaVersion) +
+            pluginsClasspath = getArtifactByMaven("org.jetbrains.dokka", "dokka-analysis", dokkaVersion) + // compileOnly in base plugin
+                    getArtifactByMaven("org.jetbrains.dokka", "dokka-base", dokkaVersion) +
                     dokkaPlugins.map { getArtifactByMaven(it.groupId, it.artifactId, it.version ?: dokkaVersion) }
                         .flatten(),
             pluginsConfiguration = pluginsConfiguration.toMutableList(),
@@ -251,6 +266,10 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
             failOnWarning = failOnWarning,
             suppressObviousFunctions = suppressObviousFunctions,
             suppressInheritedMembers = suppressInheritedMembers,
+            // looks like maven has different life cycle compared to gradle,
+            // so finalizing coroutines after each module pass causes an error.
+            // see https://github.com/Kotlin/dokka/issues/2457
+            finalizeCoroutines = false,
         )
 
         val gen = DokkaGenerator(configuration, logger)
@@ -288,8 +307,8 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
     }
 
     private val dokkaVersion: String by lazy {
-        mavenProject?.pluginArtifacts?.filter { it.groupId == "org.jetbrains.dokka" && it.artifactId == "dokka-maven-plugin" }
-            ?.firstOrNull()?.version ?: throw IllegalStateException("Not found dokka plugin")
+        mavenProject?.pluginArtifacts?.firstOrNull { it.groupId == "org.jetbrains.dokka" && it.artifactId == "dokka-maven-plugin" }?.version
+            ?: throw IllegalStateException("Not found dokka plugin")
     }
 }
 
@@ -387,7 +406,7 @@ class DokkaJavadocJarMojo : AbstractDokkaMojo(listOf(javadocDependency)) {
         val archiver = MavenArchiver()
         archiver.archiver = jarArchiver
         archiver.setOutputFile(javadocJar)
-        archiver.archiver.addDirectory(File(outputDir), arrayOf("**/**"), arrayOf())
+        archiver.archiver.addFileSet(DefaultFileSet().apply { directory = File(outputDir) })
 
         archive.isAddMavenDescriptor = false
         archiver.createArchive(session, mavenProject, archive)

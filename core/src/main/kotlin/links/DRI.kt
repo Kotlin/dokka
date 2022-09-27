@@ -33,15 +33,20 @@ abstract class DRIExtraProperty<T> {
         ?: (this.javaClass.let { it.`package`.name + "." + it.simpleName.ifEmpty { "anonymous" } })
 }
 
+
 class DRIExtraContainer(val data: String? = null) {
-    val map: MutableMap<String, Any> = if (data != null) ObjectMapper().readValue(data) else mutableMapOf()
+    val map: MutableMap<String, Any> = if (data != null) OBJECT_MAPPER.readValue(data) else mutableMapOf()
     inline operator fun <reified T> get(prop: DRIExtraProperty<T>): T? =
         map[prop.key]?.let { prop as? T }
 
     inline operator fun <reified T> set(prop: DRIExtraProperty<T>, value: T) =
         value.also { map[prop.key] = it as Any }
 
-    fun encode(): String = ObjectMapper().writeValueAsString(map)
+    fun encode(): String = OBJECT_MAPPER.writeValueAsString(map)
+
+    private companion object {
+        private val OBJECT_MAPPER = ObjectMapper()
+    }
 }
 
 val DriOfUnit = DRI("kotlin", "Unit")
@@ -51,9 +56,19 @@ fun DRI.withClass(name: String) = copy(classNames = if (classNames.isNullOrBlank
 
 fun DRI.withTargetToDeclaration() = copy(target = PointingToDeclaration)
 
+fun DRI.withEnumEntryExtra() = copy(
+    extra = DRIExtraContainer(this.extra).also { it[EnumEntryDRIExtra] = EnumEntryDRIExtra }.encode()
+)
+
 val DRI.parent: DRI
     get() = when {
-        extra != null -> copy(extra = null)
+        extra != null -> when {
+            DRIExtraContainer(extra)[EnumEntryDRIExtra] != null -> copy(
+                classNames = classNames?.substringBeforeLast(".", "")?.takeIf { it.isNotBlank() },
+                extra = null
+            )
+            else -> copy(extra = null)
+        }
         target != PointingToDeclaration -> copy(target = PointingToDeclaration)
         callable != null -> copy(callable = null)
         classNames != null -> copy(classNames = classNames.substringBeforeLast(".", "").takeIf { it.isNotBlank() })

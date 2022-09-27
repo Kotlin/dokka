@@ -4,10 +4,10 @@ import org.intellij.markdown.MarkdownElementTypes
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.model.properties.PropertyContainer
+import org.jetbrains.dokka.model.properties.plus
 import org.jetbrains.dokka.model.toDisplaySourceSets
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
-import org.jetbrains.dokka.model.properties.plus
 
 open class DocTagToContentConverter : CommentsToContentConverter {
     override fun buildContent(
@@ -15,17 +15,18 @@ open class DocTagToContentConverter : CommentsToContentConverter {
         dci: DCI,
         sourceSets: Set<DokkaSourceSet>,
         styles: Set<Style>,
-        extra: PropertyContainer<ContentNode>
+        extras: PropertyContainer<ContentNode>
     ): List<ContentNode> {
 
         fun buildChildren(docTag: DocTag, newStyles: Set<Style> = emptySet(), newExtras: SimpleAttr? = null) =
             docTag.children.flatMap {
-                buildContent(it, dci, sourceSets, styles + newStyles, newExtras?.let { extra + it } ?: extra)
+                buildContent(it, dci, sourceSets, styles + newStyles, newExtras?.let { extras + it } ?: extras)
             }
 
         fun buildTableRows(rows: List<DocTag>, newStyle: Style): List<ContentGroup> =
             rows.flatMap {
-                buildContent(it, dci, sourceSets, styles + newStyle, extra) as List<ContentGroup>
+                @Suppress("UNCHECKED_CAST")
+                buildContent(it, dci, sourceSets, styles + newStyle, extras) as List<ContentGroup>
             }
 
         fun buildHeader(level: Int) =
@@ -39,14 +40,14 @@ open class DocTagToContentConverter : CommentsToContentConverter {
                 )
             )
 
-        fun buildList(ordered: Boolean, start: Int = 1) =
+        fun buildList(ordered: Boolean, newStyles: Set<Style> = emptySet(), start: Int = 1) =
             listOf(
                 ContentList(
                     buildChildren(docTag),
                     ordered,
                     dci,
                     sourceSets.toDisplaySourceSets(),
-                    styles,
+                    styles + newStyles,
                     ((PropertyContainer.empty<ContentNode>()) + SimpleAttr("start", start.toString()))
                 )
             )
@@ -68,9 +69,26 @@ open class DocTagToContentConverter : CommentsToContentConverter {
             is H5 -> buildHeader(5)
             is H6 -> buildHeader(6)
             is Ul -> buildList(false)
-            is Ol -> buildList(true, docTag.params["start"]?.toInt() ?: 1)
+            is Ol -> buildList(true, start = docTag.params["start"]?.toInt() ?: 1)
             is Li -> listOf(
-                ContentGroup(buildChildren(docTag), dci, sourceSets.toDisplaySourceSets(), styles, extra)
+                ContentGroup(buildChildren(docTag), dci, sourceSets.toDisplaySourceSets(), styles, extras)
+            )
+            is Dl -> buildList(false, newStyles = setOf(ListStyle.DescriptionList))
+            is Dt -> listOf(
+                ContentGroup(
+                    buildChildren(docTag),
+                    dci,
+                    sourceSets.toDisplaySourceSets(),
+                    styles + ListStyle.DescriptionTerm
+                )
+            )
+            is Dd -> listOf(
+                ContentGroup(
+                    buildChildren(docTag),
+                    dci,
+                    sourceSets.toDisplaySourceSets(),
+                    styles + ListStyle.DescriptionDetails
+                )
             )
             is Br -> buildNewLine()
             is B -> buildChildren(docTag, setOf(TextStyle.Strong))
@@ -81,7 +99,7 @@ open class DocTagToContentConverter : CommentsToContentConverter {
                     dci,
                     sourceSets.toDisplaySourceSets(),
                     styles + setOf(TextStyle.Paragraph),
-                    extra
+                    extras
                 )
             )
             is A -> listOf(
@@ -105,7 +123,15 @@ open class DocTagToContentConverter : CommentsToContentConverter {
                     styles
                 )
             )
-            is BlockQuote, is Pre, is CodeBlock -> listOf(
+            is BlockQuote -> listOf(
+                ContentGroup(
+                    buildChildren(docTag),
+                    dci,
+                    sourceSets.toDisplaySourceSets(),
+                    styles + TextStyle.Quotation,
+                )
+            )
+            is Pre, is CodeBlock -> listOf(
                 ContentCodeBlock(
                     buildChildren(docTag),
                     docTag.params.getOrDefault("lang", ""),
@@ -130,7 +156,7 @@ open class DocTagToContentConverter : CommentsToContentConverter {
                     dci = dci,
                     sourceSets = sourceSets.toDisplaySourceSets(),
                     style = styles,
-                    extra = extra
+                    extra = extras
                 )
             )
             is HorizontalRule -> listOf(
@@ -147,7 +173,7 @@ open class DocTagToContentConverter : CommentsToContentConverter {
                     dci,
                     sourceSets.toDisplaySourceSets(),
                     styles,
-                    extra + HtmlContent.takeIf { docTag.params["content-type"] == "html" }
+                    extras + HtmlContent.takeIf { docTag.params["content-type"] == "html" }
                 )
             )
             is Strikethrough -> buildChildren(docTag, setOf(TextStyle.Strikethrough))
@@ -165,7 +191,7 @@ open class DocTagToContentConverter : CommentsToContentConverter {
                                     dci,
                                     sourceSets.toDisplaySourceSets(),
                                     styles,
-                                    extra
+                                    extras
                                 )
                             },
                             buildTableRows(body.filterIsInstance<Tr>(), CommentTable),
@@ -191,7 +217,7 @@ open class DocTagToContentConverter : CommentsToContentConverter {
             is Tr -> listOf(
                 ContentGroup(
                     docTag.children.map {
-                        ContentGroup(buildChildren(it), dci, sourceSets.toDisplaySourceSets(), styles, extra)
+                        ContentGroup(buildChildren(it), dci, sourceSets.toDisplaySourceSets(), styles, extras)
                     },
                     dci,
                     sourceSets.toDisplaySourceSets(),
@@ -213,7 +239,7 @@ open class DocTagToContentConverter : CommentsToContentConverter {
                         dci,
                         sourceSets.toDisplaySourceSets(),
                         styles,
-                        extra = extra
+                        extra = extras
                     )
                 )
             } else {
@@ -225,9 +251,11 @@ open class DocTagToContentConverter : CommentsToContentConverter {
                     dci,
                     sourceSets.toDisplaySourceSets(),
                     styles + ContentStyle.Caption,
-                    extra = extra
+                    extra = extras
                 )
             )
+            is Var -> buildChildren(docTag, setOf(TextStyle.Var))
+            is U -> buildChildren(docTag, setOf(TextStyle.Underlined))
 
             else -> buildChildren(docTag)
         }

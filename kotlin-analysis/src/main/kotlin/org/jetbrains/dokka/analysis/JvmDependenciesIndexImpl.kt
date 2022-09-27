@@ -20,7 +20,7 @@ import com.intellij.ide.highlighter.JavaClassFileType
 import com.intellij.ide.highlighter.JavaFileType
 import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.util.containers.IntArrayList
+import it.unimi.dsi.fastutil.ints.IntArrayList
 import gnu.trove.THashMap
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName
@@ -54,7 +54,7 @@ class JvmDependenciesIndexImpl(_roots: List<JavaRoot>) : JvmDependenciesIndex {
         Cache().apply {
             roots.indices.forEach(rootIndices::add)
             rootIndices.add(maxIndex)
-            rootIndices.trimToSize()
+            rootIndices.trim()
         }
     }
 
@@ -121,11 +121,12 @@ class JvmDependenciesIndexImpl(_roots: List<JavaRoot>) : JvmDependenciesIndex {
         // NOTE: indices manipulation instead of using caches.reversed() is here for performance reasons
         for (cacheIndex in caches.lastIndex downTo 0) {
             val cacheRootIndices = caches[cacheIndex].rootIndices
-            for (i in 0..cacheRootIndices.size() - 1) {
-                val rootIndex = cacheRootIndices[i]
+            for (i in 0 until cacheRootIndices.size) {
+                val rootIndex = cacheRootIndices.getInt(i)
                 if (rootIndex <= processedRootsUpTo) continue // roots with those indices have been processed by now
 
-                val directoryInRoot = travelPath(rootIndex, request.packageFqName, packagesPath, cacheIndex, caches) ?: continue
+                val directoryInRoot =
+                    travelPath(rootIndex, request.packageFqName, packagesPath, cacheIndex, caches) ?: continue
                 val root = roots[rootIndex]
                 if (root.type in request.acceptedRootTypes) {
                     val result = handler(directoryInRoot, root.type)
@@ -137,7 +138,12 @@ class JvmDependenciesIndexImpl(_roots: List<JavaRoot>) : JvmDependenciesIndex {
                     }
                 }
             }
-            processedRootsUpTo = if (cacheRootIndices.isEmpty) processedRootsUpTo else cacheRootIndices.get(cacheRootIndices.size() - 1)
+            processedRootsUpTo =
+                if (cacheRootIndices.isEmpty) {
+                    processedRootsUpTo
+                } else {
+                    cacheRootIndices.getInt(cacheRootIndices.size - 1)
+                }
         }
 
         if (request is FindClassRequest) {
@@ -156,10 +162,10 @@ class JvmDependenciesIndexImpl(_roots: List<JavaRoot>) : JvmDependenciesIndex {
         cachesPath: List<Cache>
     ): VirtualFile? {
         if (rootIndex >= maxIndex) {
-            for (i in (fillCachesAfter + 1)..(cachesPath.size - 1)) {
+            for (i in (fillCachesAfter + 1) until cachesPath.size) {
                 // we all know roots that contain this package by now
                 cachesPath[i].rootIndices.add(maxIndex)
-                cachesPath[i].rootIndices.trimToSize()
+                cachesPath[i].rootIndices.trim()
             }
             return null
         }
@@ -203,6 +209,7 @@ class JvmDependenciesIndexImpl(_roots: List<JavaRoot>) : JvmDependenciesIndex {
 
         val fileExtension = when (rootType) {
             JavaRoot.RootType.BINARY -> JavaClassFileType.INSTANCE.defaultExtension
+            JavaRoot.RootType.BINARY_SIG -> "sig"
             JavaRoot.RootType.SOURCE -> JavaFileType.INSTANCE.defaultExtension
         }
 

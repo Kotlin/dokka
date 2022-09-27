@@ -3,11 +3,10 @@ import org.jetbrains.registerDokkaArtifactPublication
 
 plugins {
     `maven-publish`
-    id("com.jfrog.bintray")
 }
 
 dependencies {
-    api("org.jetbrains:markdown:0.2.4")
+    api("org.jetbrains:markdown:0.3.1")
     implementation(kotlin("reflect"))
 
     val jsoup_version: String by project

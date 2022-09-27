@@ -149,13 +149,13 @@ internal class JavadocClasslikeTemplateMapTest : AbstractJavadocTemplateMapTest(
             val map = allPagesOfType<JavadocClasslikePageNode>().first { it.name == "TestClass" }.templateMap
             assertEquals("TestClass", map["name"])
             val signature = assertIsInstance<Map<String, Any?>>(map["signature"])
-            assertEquals("@<a href=Author.html>Author</a>(name = \"Benjamin Franklin\")", signature["annotations"])
+            assertEquals("@<a href=Author.html>Author</a>(name = &quot;Benjamin Franklin&quot;)", signature["annotations"])
 
             val methods = assertIsInstance<Map<Any, Any?>>(map["methods"])
             val ownMethods = assertIsInstance<List<*>>(methods["own"])
             val method = assertIsInstance<Map<String, Any?>>(ownMethods.single())
             val methodSignature = assertIsInstance<Map<String, Any?>>(method["signature"])
-            assertEquals("@<a href=Author.html>Author</a>(name = \"Franklin D. Roosevelt\")", methodSignature["annotations"])
+            assertEquals("@<a href=Author.html>Author</a>(name = &quot;Franklin D. Roosevelt&quot;)", methodSignature["annotations"])
         }
     }
 
@@ -351,8 +351,10 @@ internal class JavadocClasslikeTemplateMapTest : AbstractJavadocTemplateMapTest(
 
     private fun Map<String, Any?>.signatureWithModifiers(): String = "${modifiers()} ${signatureWithoutModifiers()}"
 
+    @Suppress("UNCHECKED_CAST")
     private fun Map<String, Any?>.signatureWithoutModifiers(): String = (get("signature") as Map<String, Any?>)["signatureWithoutModifiers"] as String
 
+    @Suppress("UNCHECKED_CAST")
     private fun Map<String, Any?>.modifiers(): String = (get("signature") as Map<String, Any?>)["modifiers"] as String
 
 }

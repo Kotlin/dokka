@@ -4,7 +4,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     kotlin("jvm") apply false
     id("java")
-    id("org.jetbrains.dokka") version "1.5.0"
+    id("org.jetbrains.dokka") version "1.7.10"
     id("io.github.gradle-nexus.publish-plugin")
 }
 
@@ -21,10 +21,13 @@ allprojects {
     tasks.withType(KotlinCompile::class).all {
         kotlinOptions {
             freeCompilerArgs = freeCompilerArgs + listOf(
-                "-Xopt-in=kotlin.RequiresOptIn",
+                "-opt-in=kotlin.RequiresOptIn",
+                "-Xjsr305=strict",
                 "-Xskip-metadata-version-check",
-                "-Xjsr305=strict"
+                // need 1.4 support, otherwise there might be problems with Gradle 6.x (it's bundling Kotlin 1.4)
+                "-Xsuppress-version-warnings"
             )
+            allWarningsAsErrors = true
             languageVersion = language_version
             apiVersion = language_version
             jvmTarget = "1.8"
@@ -67,14 +70,6 @@ subprojects {
     }
 }
 
-// Workaround for https://github.com/bintray/gradle-bintray-plugin/issues/267
-//  Manually disable bintray tasks added to the root project
-tasks.whenTaskAdded {
-    if ("bintray" in name) {
-        enabled = false
-    }
-}
-
 println("Publication version: $dokka_version")
 tasks.register<ValidatePublications>("validatePublications")
 
@@ -88,7 +83,7 @@ nexusPublishing {
 }
 
 tasks.maybeCreate("dokkaPublish").run {
-    if (publicationChannels.any { it.isMavenRepository }) {
+    if (publicationChannels.any { it.isMavenRepository() }) {
         finalizedBy(tasks.named("closeAndReleaseSonatypeStagingRepository"))
     }
 }

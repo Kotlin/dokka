@@ -28,22 +28,28 @@ abstract class AbstractTest<M : TestMethods, T : TestBuilder<M>, D : DokkaTestGe
         File("src/test/resources/$name").takeIf { it.exists() }?.toPath()
             ?: throw InvalidPathException(name, "Cannot be found")
 
+    /**
+     * @param useOutputLocationFromConfig if set to true, output location specified in [DokkaConfigurationImpl.outputDir]
+     *                                    will be used. If set to false, a temporary folder will be used instead.
+     */
     protected fun testFromData(
         configuration: DokkaConfigurationImpl,
         cleanupOutput: Boolean = true,
-        preserveOutputLocation: Boolean = false,
+        useOutputLocationFromConfig: Boolean = false,
         pluginOverrides: List<DokkaPlugin> = emptyList(),
         block: T.() -> Unit
     ) {
         val testMethods = testBuilder().apply(block).build()
-        val configurationToUse = if (!preserveOutputLocation) {
-            val tempDir = getTempDir(cleanupOutput)
-            if (!cleanupOutput)
-                logger.info("Output generated under: ${tempDir.root.absolutePath}")
-            configuration.copy(
-                outputDir = tempDir.root
-            )
-        } else configuration
+        val configurationToUse =
+            if (useOutputLocationFromConfig) {
+                configuration
+            } else {
+                val tempDir = getTempDir(cleanupOutput)
+                if (!cleanupOutput) {
+                    logger.info("Output generated under: ${tempDir.root.absolutePath}")
+                }
+                configuration.copy(outputDir = tempDir.root)
+            }
 
         dokkaTestGenerator(
             configurationToUse,
@@ -62,7 +68,7 @@ abstract class AbstractTest<M : TestMethods, T : TestBuilder<M>, D : DokkaTestGe
         block: T.() -> Unit
     ) {
         val testMethods = testBuilder().apply(block).build()
-        val testDirPath = getTempDir(cleanupOutput).root.toPath()
+        val testDirPath = getTempDir(cleanupOutput).root.toPath().toAbsolutePath()
         val fileMap = query.toFileMap()
         fileMap.materializeFiles(testDirPath.toAbsolutePath())
         if (!cleanupOutput)
@@ -79,7 +85,7 @@ abstract class AbstractTest<M : TestMethods, T : TestBuilder<M>, D : DokkaTestGe
                     }.toSet(),
                     sourceLinks = sourceSet.sourceLinks.map { link ->
                         link.copy(
-                            localDirectory = testDirPath.toFile().resolve(link.localDirectory).canonicalPath
+                            localDirectory = testDirPath.toFile().resolve(link.localDirectory).absolutePath
                         )
                     }.toSet()
                 )
@@ -99,14 +105,12 @@ abstract class AbstractTest<M : TestMethods, T : TestBuilder<M>, D : DokkaTestGe
             .replace("\r\n", "\n")
             .sliceAt(filePathRegex)
             .filter { it.isNotEmpty() && it.isNotBlank() && "\n" in it }
-            .map { fileDeclaration -> fileDeclaration.trim() }
-            .map { fileDeclaration ->
+            .map { fileDeclaration -> fileDeclaration.trim() }.associate { fileDeclaration ->
                 val filePathAndContent = fileDeclaration.split("\n", limit = 2)
                 val filePath = filePathAndContent.first().removePrefix("/").trim()
                 val content = filePathAndContent.last().trim()
                 filePath to content
             }
-            .toMap()
     }
 
     private fun String.sliceAt(regex: Regex): List<String> {
@@ -133,12 +137,19 @@ abstract class AbstractTest<M : TestMethods, T : TestBuilder<M>, D : DokkaTestGe
         Files.write(file, content.toByteArray(charset))
     }
 
-    private fun getTempDir(cleanupOutput: Boolean) = if (cleanupOutput) {
-        TemporaryFolder().apply { create() }
-    } else {
-        object : TemporaryFolder() {
-            override fun after() {}
-        }.apply { create() }
+    private fun getTempDir(cleanupOutput: Boolean) =
+        if (cleanupOutput) {
+            TemporaryFolder().apply { create() }
+        } else {
+            TemporaryFolderWithoutCleanup().apply { create() }
+        }
+
+    /**
+     * Creates a temporary folder, but doesn't delete files
+     * right after it's been used, delegating it to the OS
+     */
+    private class TemporaryFolderWithoutCleanup : TemporaryFolder() {
+        override fun after() { }
     }
 
     protected fun dokkaConfiguration(block: TestDokkaConfigurationBuilder.() -> Unit): DokkaConfigurationImpl =

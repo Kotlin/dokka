@@ -1,13 +1,13 @@
 import org.jetbrains.dokka.gradle.DokkaTask
 
 plugins {
-    kotlin("jvm") version "1.5.30"
-    id("org.jetbrains.dokka") version ("1.5.30")
+    kotlin("jvm") version "1.7.20-RC"
+    id("org.jetbrains.dokka") version ("1.7.10")
 }
 
 buildscript {
     dependencies {
-        classpath("org.jetbrains.dokka:dokka-base:1.5.30")
+        classpath("org.jetbrains.dokka:dokka-base:1.7.10")
     }
 }
 
@@ -20,6 +20,9 @@ repositories {
  */
 tasks.register<DokkaTask>("dokkaCustomFormat") {
     pluginConfiguration<org.jetbrains.dokka.base.DokkaBase, org.jetbrains.dokka.base.DokkaBaseConfiguration> {
+        // Dokka's stylesheets and assets with conflicting names will be overriden.
+        // In this particular case, logo-styles.css will be overriden and ktor-logo.png will
+        // be added as an additional image asset
         customStyleSheets = listOf(file("logo-styles.css"))
         customAssets = listOf(file("ktor-logo.png"))
     }

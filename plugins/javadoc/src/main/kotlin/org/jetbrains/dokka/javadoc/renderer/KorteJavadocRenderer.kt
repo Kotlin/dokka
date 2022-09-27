@@ -11,7 +11,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.renderers.OutputWriter
-import org.jetbrains.dokka.base.resolvers.local.LocationProvider
 import org.jetbrains.dokka.javadoc.JavadocPlugin
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.pages.*
@@ -115,8 +114,8 @@ class KorteJavadocRenderer(val context: DokkaContext, resourceDir: String) :
     private fun getTemplateConfig() = TemplateConfig().also { config ->
         listOf(
             TeFunction("curDate") { LocalDate.now() },
-            TeFunction("jQueryVersion") { "3.1" },
-            TeFunction("jQueryMigrateVersion") { "1.2.1" },
+            TeFunction("jQueryVersion") { "3.6.0" },
+            TeFunction("jQueryMigrateVersion") { "3.4.0" },
             TeFunction("rowColor") { args -> if ((args.first() as Int) % 2 == 0) "altColor" else "rowColor" },
             TeFunction("h1Title") { args -> if ((args.first() as? String) == "package") "title=\"Package\" " else "" },
             TeFunction("createTabRow") { args ->
@@ -136,7 +135,9 @@ class KorteJavadocRenderer(val context: DokkaContext, resourceDir: String) :
                 )
             },
             TeFunction("createPackageHierarchy") { args ->
+                @Suppress("UNCHECKED_CAST")
                 val list = args.first() as List<JavadocPackagePageNode>
+
                 list.mapIndexed { i, p ->
                     val content = if (i + 1 == list.size) "" else ", "
                     val name = p.name
@@ -144,6 +145,7 @@ class KorteJavadocRenderer(val context: DokkaContext, resourceDir: String) :
                 }.joinToString("\n")
             },
             TeFunction("renderInheritanceGraph") { args ->
+                @Suppress("UNCHECKED_CAST")
                 val rootNodes = args.first() as List<TreeViewPage.InheritanceNode>
 
                 fun drawRec(node: TreeViewPage.InheritanceNode): String =
@@ -189,8 +191,12 @@ class KorteJavadocRenderer(val context: DokkaContext, resourceDir: String) :
 
     private class ResourceTemplateProvider(val basePath: String) : TemplateProvider {
         override suspend fun get(template: String): String =
-            javaClass.classLoader.getResourceAsStream("$basePath/$template")?.bufferedReader()?.lines()?.toArray()
-                ?.joinToString("\n") ?: throw IllegalStateException("Template not found: $basePath/$template")
+            javaClass.classLoader.getResourceAsStream("$basePath/$template")?.use { stream ->
+                stream.bufferedReader()
+                    .lines()
+                    .toArray()
+                    .joinToString("\n")
+            } ?: throw IllegalStateException("Template not found: $basePath/$template")
     }
 
 }

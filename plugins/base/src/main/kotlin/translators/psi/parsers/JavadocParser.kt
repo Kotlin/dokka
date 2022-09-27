@@ -14,19 +14,23 @@ import org.jetbrains.dokka.base.parsers.MarkdownParser
 import org.jetbrains.dokka.base.translators.parseHtmlEncodedWithNormalisedSpaces
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.doc.*
+import org.jetbrains.dokka.model.doc.Deprecated
 import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.dokka.utilities.enumValueOrNull
+import org.jetbrains.dokka.utilities.htmlEscape
 import org.jetbrains.kotlin.idea.kdoc.resolveKDocLink
-import org.jetbrains.kotlin.idea.refactoring.fqName.getKotlinFqName
+import org.jetbrains.kotlin.idea.base.utils.fqname.getKotlinFqName
 import org.jetbrains.kotlin.idea.util.CommentSaver.Companion.tokenType
 import org.jetbrains.kotlin.psi.psiUtil.getNextSiblingIgnoringWhitespace
 import org.jetbrains.kotlin.psi.psiUtil.siblings
 import org.jsoup.Jsoup
-import org.jsoup.nodes.*
+import org.jsoup.nodes.Comment
+import org.jsoup.nodes.Element
+import org.jsoup.nodes.Node
+import org.jsoup.nodes.TextNode
 import java.util.*
-import org.jetbrains.dokka.utilities.htmlEscape
 
-interface JavaDocumentationParser {
+fun interface JavaDocumentationParser {
     fun parseDocumentation(element: PsiNamedElement): DocumentationNode
 }
 
@@ -46,14 +50,13 @@ class JavadocParser(
 
     override fun parseDocumentation(element: PsiNamedElement): DocumentationNode {
         return when(val comment = findClosestDocComment(element, logger)){
-            is JavaDocComment -> parseDocumentation(comment, element)
+            is JavaDocComment -> parseDocComment(comment.comment, element)
             is KotlinDocComment -> parseDocumentation(comment)
             else -> DocumentationNode(emptyList())
         }
     }
 
-    private fun parseDocumentation(element: JavaDocComment, context: PsiNamedElement): DocumentationNode {
-        val docComment = element.comment
+    internal fun parseDocComment(docComment: PsiDocComment, context: PsiNamedElement): DocumentationNode {
         val nodes = listOfNotNull(docComment.getDescription()) + docComment.tags.mapNotNull { tag ->
             parseDocTag(tag, docComment, context)
         }
@@ -81,7 +84,7 @@ class JavadocParser(
             parseWithChildren = parseWithChildren
         )
 
-    private fun parseDocTag(tag: PsiDocTag, docComment: PsiDocComment, analysedElement: PsiNamedElement): TagWrapper? =
+    private fun parseDocTag(tag: PsiDocTag, docComment: PsiDocComment, analysedElement: PsiNamedElement): TagWrapper =
         enumValueOrNull<JavadocTag>(tag.name)?.let { javadocTag ->
             val resolutionContext = CommentResolutionContext(comment = docComment, tag = javadocTag)
             when (resolutionContext.tag) {
@@ -322,7 +325,7 @@ class JavadocParser(
                 dri.toString()
             } ?: UNRESOLVED_PSI_ELEMENT
 
-            return """<a data-dri="$dri">${label.ifBlank{ defaultLabel().text }}</a>"""
+            return """<a data-dri="${dri.htmlEscape()}">${label.ifBlank{ defaultLabel().text }}</a>"""
         }
 
         private fun convertInlineDocTag(
@@ -396,6 +399,9 @@ class JavadocParser(
                 "ul" -> ifChildrenPresent { Ul(children) }
                 "ol" -> ifChildrenPresent { Ol(children) }
                 "li" -> listOf(Li(children))
+                "dl" -> ifChildrenPresent { Dl(children) }
+                "dt" -> listOf(Dt(children))
+                "dd" -> listOf(Dd(children))
                 "a" -> listOf(createLink(element, children))
                 "table" -> ifChildrenPresent { Table(children) }
                 "tr" -> ifChildrenPresent { Tr(children) }
@@ -414,6 +420,11 @@ class JavadocParser(
                         parsed
                     }
                 }
+                "h1" -> ifChildrenPresent { H1(children) }
+                "h2" -> ifChildrenPresent { H2(children) }
+                "h3" -> ifChildrenPresent { H3(children) }
+                "var" -> ifChildrenPresent { Var(children) }
+                "u" -> ifChildrenPresent { U(children) }
                 else -> listOf(Text(body = element.ownText()))
             }
         }

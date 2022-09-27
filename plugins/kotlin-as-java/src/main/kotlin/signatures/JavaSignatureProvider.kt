@@ -8,10 +8,7 @@ import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.properties.WithExtraProperties
-import org.jetbrains.dokka.pages.ContentKind
-import org.jetbrains.dokka.pages.ContentNode
-import org.jetbrains.dokka.pages.TextStyle
-import org.jetbrains.dokka.pages.TokenStyle
+import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.querySingle
@@ -47,27 +44,32 @@ class JavaSignatureProvider internal constructor(ctcc: CommentsToContentConverte
             contentBuilder.contentFor(
                 e,
                 ContentKind.Symbol,
-                setOf(TextStyle.Monospace) + e.stylesIfDeprecated(it),
+                setOf(TextStyle.Monospace),
                 sourceSets = setOf(it)
             ) {
-                link(e.name, e.dri)
+                link(e.name, e.dri, styles = mainStyles + e.stylesIfDeprecated(it))
             }
         }
 
     private fun signature(c: DClasslike) =
-        c.sourceSets.map {
+        c.sourceSets.map { sourceSet ->
+            @Suppress("UNCHECKED_CAST")
+            val deprecationStyles = (c as? WithExtraProperties<out Documentable>)
+                ?.stylesIfDeprecated(sourceSet)
+                ?: emptySet()
+
             contentBuilder.contentFor(
                 c,
                 ContentKind.Symbol,
-                setOf(TextStyle.Monospace) + ((c as? WithExtraProperties<out Documentable>)?.stylesIfDeprecated(it)
-                    ?: emptySet()),
-                sourceSets = setOf(it)
+                setOf(TextStyle.Monospace),
+                sourceSets = setOf(sourceSet)
             ) {
-                c.visibility[it]?.takeIf { it !in ignoredVisibilities }?.name?.plus(" ")?.let { keyword(it) }
+                annotationsBlock(c)
+                c.visibility[sourceSet]?.takeIf { it !in ignoredVisibilities }?.name?.plus(" ")?.let { keyword(it) }
 
                 if (c is DClass) {
-                    c.modifier[it]?.takeIf { it !in ignoredModifiers }?.name?.plus(" ")?.let { keyword(it) }
-                    c.modifiers()[it]?.toSignatureString()?.let { keyword(it) }
+                    c.modifier[sourceSet]?.takeIf { it !in ignoredModifiers }?.name?.plus(" ")?.let { keyword(it) }
+                    c.modifiers()[sourceSet]?.toSignatureString()?.let { keyword(it) }
                 }
 
                 when (c) {
@@ -77,7 +79,7 @@ class JavaSignatureProvider internal constructor(ctcc: CommentsToContentConverte
                     is DObject -> keyword("class ")
                     is DAnnotation -> keyword("@interface ")
                 }
-                link(c.name!!, c.dri)
+                link(c.name!!, c.dri, styles = mainStyles + deprecationStyles)
                 if (c is WithGenerics) {
                     list(c.generics, prefix = "<", suffix = ">",
                         separatorStyles = mainStyles + TokenStyle.Punctuation,
@@ -108,16 +110,16 @@ class JavaSignatureProvider internal constructor(ctcc: CommentsToContentConverte
             contentBuilder.contentFor(
                 p,
                 ContentKind.Symbol,
-                setOf(TextStyle.Monospace, TextStyle.Block) + p.stylesIfDeprecated(it),
+                setOf(TextStyle.Monospace, TextStyle.Block),
                 sourceSets = setOf(it)
             ) {
                 annotationsBlock(p)
                 p.visibility[it]?.takeIf { it !in ignoredVisibilities }?.name?.let { keyword("$it ") }
-                p.modifier[it]?.name?.let { keyword("$it ") }
+                p.modifier[it]?.takeIf { it !in ignoredModifiers }?.name?.let { keyword("$it ") }
                 p.modifiers()[it]?.toSignatureString()?.let { keyword(it) }
                 signatureForProjection(p.type)
                 text(nbsp.toString())
-                link(p.name, p.dri)
+                link(p.name, p.dri, styles = mainStyles + p.stylesIfDeprecated(it))
             }
         }
 
@@ -126,16 +128,17 @@ class JavaSignatureProvider internal constructor(ctcc: CommentsToContentConverte
             contentBuilder.contentFor(
                 f,
                 ContentKind.Symbol,
-                setOf(TextStyle.Monospace, TextStyle.Block) + f.stylesIfDeprecated(sourceSet),
+                setOf(TextStyle.Monospace, TextStyle.Block),
                 sourceSets = setOf(sourceSet)
             ) {
                 annotationsBlock(f)
+                f.visibility[sourceSet]?.takeIf { it !in ignoredVisibilities }?.name?.let { keyword("$it ") }
                 f.modifier[sourceSet]?.takeIf { it !in ignoredModifiers }?.name?.plus(" ")?.let { keyword(it) }
                 f.modifiers()[sourceSet]?.toSignatureString()?.let { keyword(it) }
                 val returnType = f.type
                 signatureForProjection(returnType)
                 text(nbsp.toString())
-                link(f.name, f.dri, styles = mainStyles + TokenStyle.Function)
+                link(f.name, f.dri, styles = mainStyles + TokenStyle.Function + f.stylesIfDeprecated(sourceSet))
                 val usedGenerics = if (f.isConstructor) f.generics.filter { f uses it } else f.generics
                 list(usedGenerics, prefix = "<", suffix = ">",
                     separatorStyles = mainStyles + TokenStyle.Punctuation,
@@ -143,12 +146,14 @@ class JavaSignatureProvider internal constructor(ctcc: CommentsToContentConverte
                     +buildSignature(it)
                 }
                 punctuation("(")
-                list(f.parameters, separatorStyles = mainStyles + TokenStyle.Punctuation) {
-                    annotationsInline(it)
-                    text(it.modifiers()[sourceSet]?.toSignatureString() ?: "", styles = mainStyles + TokenStyle.Keyword)
-                    signatureForProjection(it.type)
-                    text(nbsp.toString())
-                    text(it.name!!)
+                if (f.parameters.isNotEmpty()) {
+                    parametersBlock(f) {
+                        annotationsInline(it)
+                        text(it.modifiers()[sourceSet]?.toSignatureString() ?: "", styles = mainStyles + TokenStyle.Keyword)
+                        signatureForProjection(it.type)
+                        text(nbsp.toString())
+                        text(it.name!!)
+                    }
                 }
                 punctuation(")")
             }
@@ -156,11 +161,15 @@ class JavaSignatureProvider internal constructor(ctcc: CommentsToContentConverte
 
     private fun signature(t: DTypeParameter) =
         t.sourceSets.map {
-            contentBuilder.contentFor(t, styles = t.stylesIfDeprecated(it), sourceSets = setOf(it)) {
-                text(t.name.substringAfterLast("."))
-                list(t.bounds, prefix = " extends ",
+            contentBuilder.contentFor(t, sourceSets = setOf(it)) {
+                annotationsInline(t)
+                text(t.name.substringAfterLast("."), styles = mainStyles + t.stylesIfDeprecated(it))
+                list(
+                    elements = t.bounds,
+                    prefix = " extends ",
                     separatorStyles = mainStyles + TokenStyle.Punctuation,
-                    surroundingCharactersStyle = mainStyles + TokenStyle.Keyword) {
+                    surroundingCharactersStyle = mainStyles + TokenStyle.Keyword
+                ) {
                     signatureForProjection(it)
                 }
             }
@@ -168,9 +177,13 @@ class JavaSignatureProvider internal constructor(ctcc: CommentsToContentConverte
         }
 
     private fun PageContentBuilder.DocumentableContentBuilder.signatureForProjection(p: Projection): Unit = when (p) {
-        is TypeParameter -> link(p.name, p.dri)
+        is TypeParameter -> {
+            annotationsInline(p)
+            link(p.name, p.dri)
+        }
 
         is TypeConstructor -> group(styles = emptySet()) {
+            annotationsInline(p)
             link(p.dri.classNames.orEmpty(), p.dri)
             list(p.projections, prefix = "<", suffix = ">",
                 separatorStyles = mainStyles + TokenStyle.Punctuation,
@@ -192,6 +205,7 @@ class JavaSignatureProvider internal constructor(ctcc: CommentsToContentConverte
         is Star -> operator("?")
 
         is Nullable -> signatureForProjection(p.inner)
+        is DefinitelyNonNullable -> signatureForProjection(p.inner)
 
         is JavaObject, is Dynamic -> link("Object", DRI("java.lang", "Object"))
         is Void -> text("void")

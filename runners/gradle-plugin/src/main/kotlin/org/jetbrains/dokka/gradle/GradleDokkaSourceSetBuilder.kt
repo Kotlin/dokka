@@ -1,5 +1,3 @@
-@file:Suppress("FunctionName", "UnstableApiUsage")
-
 package org.jetbrains.dokka.gradle
 
 import groovy.lang.Closure
@@ -11,7 +9,6 @@ import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.*
 import org.gradle.kotlin.dsl.listProperty
 import org.gradle.kotlin.dsl.setProperty
-import org.gradle.util.ConfigureUtil
 import org.jetbrains.dokka.*
 import java.io.File
 import java.net.URL
@@ -58,6 +55,10 @@ open class GradleDokkaSourceSetBuilder(
     @Input
     val includeNonPublic: Property<Boolean> = project.objects.safeProperty<Boolean>()
         .safeConvention(DokkaDefaults.includeNonPublic)
+
+    @Input
+    val documentedVisibilities: SetProperty<DokkaConfiguration.Visibility> = project.objects.setProperty<DokkaConfiguration.Visibility>()
+        .convention(DokkaDefaults.documentedVisibilities)
 
     @Input
     val reportUndocumented: Property<Boolean> = project.objects.safeProperty<Boolean>()
@@ -152,8 +153,9 @@ open class GradleDokkaSourceSetBuilder(
         sourceRoot(project.file(path))
     }
 
+    @Suppress("DEPRECATION") // TODO [beresnev] ConfigureUtil will be removed in Gradle 8
     fun sourceLink(c: Closure<in GradleSourceLinkBuilder>) {
-        val configured = ConfigureUtil.configure(c, GradleSourceLinkBuilder(project))
+        val configured = org.gradle.util.ConfigureUtil.configure(c, GradleSourceLinkBuilder(project))
         sourceLinks.add(configured)
     }
 
@@ -163,8 +165,9 @@ open class GradleDokkaSourceSetBuilder(
         sourceLinks.add(sourceLink)
     }
 
+    @Suppress("DEPRECATION") // TODO [beresnev] ConfigureUtil will be removed in Gradle 8
     fun perPackageOption(c: Closure<in GradlePackageOptionsBuilder>) {
-        val configured = ConfigureUtil.configure(c, GradlePackageOptionsBuilder(project))
+        val configured = org.gradle.util.ConfigureUtil.configure(c, GradlePackageOptionsBuilder(project))
         perPackageOptions.add(configured)
     }
 
@@ -174,8 +177,9 @@ open class GradleDokkaSourceSetBuilder(
         perPackageOptions.add(option)
     }
 
+    @Suppress("DEPRECATION") // TODO [beresnev] ConfigureUtil will be removed in Gradle 8
     fun externalDocumentationLink(c: Closure<in GradleExternalDocumentationLinkBuilder>) {
-        val link = ConfigureUtil.configure(c, GradleExternalDocumentationLinkBuilder(project))
+        val link = org.gradle.util.ConfigureUtil.configure(c, GradleExternalDocumentationLinkBuilder(project))
         externalDocumentationLinks.add(link)
     }
 

@@ -2,7 +2,6 @@ package org.jetbrains.dokka.base.transformers.pages.samples
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.dokka.plugability.DokkaContext
-import org.jetbrains.kotlin.idea.kdoc.resolveKDocSampleLink
 import org.jetbrains.kotlin.psi.KtBlockExpression
 import org.jetbrains.kotlin.psi.KtDeclarationWithBody
 import org.jetbrains.kotlin.psi.KtFile
@@ -19,8 +18,7 @@ class DefaultSamplesTransformer(context: DokkaContext) : SamplesTransformer(cont
 
     private fun processSampleBody(psiElement: PsiElement): String = when (psiElement) {
         is KtDeclarationWithBody -> {
-            val bodyExpression = psiElement.bodyExpression
-            when (bodyExpression) {
+            when (val bodyExpression = psiElement.bodyExpression) {
                 is KtBlockExpression -> bodyExpression.text.removeSurrounding("{", "}")
                 else -> bodyExpression!!.text
             }

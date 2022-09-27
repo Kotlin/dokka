@@ -3,10 +3,12 @@ package org.jetbrains.dokka.analysis
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.utilities.DokkaLogger
-import org.jetbrains.kotlin.cli.common.messages.*
+import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity
+import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSourceLocation
+import org.jetbrains.kotlin.cli.common.messages.MessageCollector
+import org.jetbrains.kotlin.cli.common.messages.MessageRenderer
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
 import org.jetbrains.kotlin.utils.PathUtil
-import java.io.File
 
 internal fun createEnvironmentAndFacade(
     logger: DokkaLogger,
@@ -15,7 +17,7 @@ internal fun createEnvironmentAndFacade(
 ): EnvironmentAndFacade =
     AnalysisEnvironment(DokkaMessageCollector(logger), sourceSet.analysisPlatform).run {
         if (analysisPlatform == Platform.jvm) {
-            addClasspath(PathUtil.getJdkClassesRootsFromCurrentJre())
+            configureJdkClasspathRoots()
         }
 
         val parentSourceSets = sourceSets.filter { it.sourceSetID in sourceSet.dependentSourceSets }

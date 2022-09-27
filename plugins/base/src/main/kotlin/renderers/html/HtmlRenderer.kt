@@ -3,38 +3,43 @@ package org.jetbrains.dokka.base.renderers.html
 import kotlinx.html.*
 import kotlinx.html.stream.createHTML
 import org.jetbrains.dokka.DokkaSourceSetID
+import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.base.DokkaBase
-import org.jetbrains.dokka.base.DokkaBaseConfiguration
-import org.jetbrains.dokka.base.DokkaBaseConfiguration.Companion.defaultFooterMessage
 import org.jetbrains.dokka.base.renderers.*
 import org.jetbrains.dokka.base.renderers.html.command.consumers.ImmediateResolutionTagConsumer
-import org.jetbrains.dokka.base.renderers.pageId
+import org.jetbrains.dokka.base.renderers.html.innerTemplating.DefaultTemplateModelFactory
+import org.jetbrains.dokka.base.renderers.html.innerTemplating.DefaultTemplateModelMerger
+import org.jetbrains.dokka.base.renderers.html.innerTemplating.DokkaTemplateTypes
+import org.jetbrains.dokka.base.renderers.html.innerTemplating.HtmlTemplater
 import org.jetbrains.dokka.base.resolvers.anchors.SymbolAnchorHint
 import org.jetbrains.dokka.base.resolvers.local.DokkaBaseLocationProvider
 import org.jetbrains.dokka.base.templating.*
 import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.model.DisplaySourceSet
+import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.properties.PropertyContainer
-import org.jetbrains.dokka.model.sourceSetIDs
-import org.jetbrains.dokka.model.withDescendants
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.pages.HtmlContent
 import org.jetbrains.dokka.plugability.*
 import org.jetbrains.dokka.utilities.htmlEscape
 import org.jetbrains.kotlin.utils.addIfNotNull
-import java.net.URI
+
+internal const val TEMPLATE_REPLACEMENT: String = "###"
 
 open class HtmlRenderer(
     context: DokkaContext
 ) : DefaultRenderer<FlowContent>(context) {
-    private val configuration = configuration<DokkaBase, DokkaBaseConfiguration>(context)
-
     private val sourceSetDependencyMap: Map<DokkaSourceSetID, List<DokkaSourceSetID>> =
-        context.configuration.sourceSets.map { sourceSet ->
+        context.configuration.sourceSets.associate { sourceSet ->
             sourceSet.sourceSetID to context.configuration.sourceSets
                 .map { it.sourceSetID }
                 .filter { it in sourceSet.dependentSourceSets }
-        }.toMap()
+        }
+
+    private val templateModelFactories = listOf(DefaultTemplateModelFactory(context)) // TODO: Make extension point
+    private val templateModelMerger = DefaultTemplateModelMerger()
+    private val templater = HtmlTemplater(context).apply {
+        setupSharedModel(templateModelMerger.invoke(templateModelFactories) { buildSharedModel() })
+    }
 
     private var shouldRenderSourceSetBubbles: Boolean = false
 
@@ -88,8 +93,9 @@ open class HtmlRenderer(
             }
             node.dci.kind in setOf(ContentKind.Symbol) -> div("symbol $additionalClasses") {
                 childrenCallback()
-                if (node.hasStyle(TextStyle.Monospace)) copyButton()
             }
+            node.hasStyle(ContentStyle.KDocTag) -> span("kdoc-tag") { childrenCallback() }
+            node.hasStyle(ContentStyle.Footnote) -> div("footnote") { childrenCallback() }
             node.hasStyle(TextStyle.BreakableAfter) -> {
                 span { childrenCallback() }
                 wbr { }
@@ -99,12 +105,27 @@ open class HtmlRenderer(
             }
             node.hasStyle(TextStyle.Span) -> span { childrenCallback() }
             node.dci.kind == ContentKind.Symbol -> div("symbol $additionalClasses") { childrenCallback() }
+            node.dci.kind == SymbolContentKind.Parameters -> {
+                span("parameters $additionalClasses") {
+                    childrenCallback()
+                }
+            }
+            node.dci.kind == SymbolContentKind.Parameter -> {
+                span("parameter $additionalClasses") {
+                    childrenCallback()
+                }
+            }
+            node.hasStyle(TextStyle.InlineComment) -> div("inline-comment") { childrenCallback() }
             node.dci.kind == ContentKind.BriefComment -> div("brief $additionalClasses") { childrenCallback() }
             node.dci.kind == ContentKind.Cover -> div("cover $additionalClasses") { //TODO this can be removed
                 childrenCallback()
             }
+            node.dci.kind == ContentKind.Deprecation -> div("deprecation-content") { childrenCallback() }
             node.hasStyle(TextStyle.Paragraph) -> p(additionalClasses) { childrenCallback() }
             node.hasStyle(TextStyle.Block) -> div(additionalClasses) { childrenCallback() }
+            node.hasStyle(TextStyle.Quotation) -> blockQuote(additionalClasses) { childrenCallback() }
+            node.hasStyle(TextStyle.FloatingRight) -> span("clearfix") { span("floating-right") { childrenCallback() } }
+            node.hasStyle(TextStyle.Strikethrough) -> strike { childrenCallback() }
             node.isAnchorable -> buildAnchor(
                 node.anchor!!,
                 node.anchorLabel!!,
@@ -112,6 +133,12 @@ open class HtmlRenderer(
             ) { childrenCallback() }
             node.extra[InsertTemplateExtra] != null -> node.extra[InsertTemplateExtra]?.let { templateCommand(it.command) }
                 ?: Unit
+            node.hasStyle(ListStyle.DescriptionTerm) -> DT(emptyMap(), consumer).visit {
+                this@wrapGroup.childrenCallback()
+            }
+            node.hasStyle(ListStyle.DescriptionDetails) -> DD(emptyMap(), consumer).visit {
+                this@wrapGroup.childrenCallback()
+            }
             else -> childrenCallback()
         }
     }
@@ -159,7 +186,7 @@ open class HtmlRenderer(
         buildPlatformDependent(
             content.sourceSets.filter {
                 sourceSetRestriction == null || it in sourceSetRestriction
-            }.map { it to setOf(content.inner) }.toMap(),
+            }.associateWith { setOf(content.inner) },
             pageContext,
             content.extra,
             content.style
@@ -173,12 +200,21 @@ open class HtmlRenderer(
         shouldHaveTabs: Boolean = shouldRenderSourceSetBubbles
     ) {
         val contents = contentsForSourceSetDependent(nodes, pageContext)
+        val isOnlyCommonContent = contents.singleOrNull()?.let { (sourceSet, _) ->
+            sourceSet.platform == Platform.common
+                    && sourceSet.name.equals("common", ignoreCase = true)
+                    && sourceSet.sourceSetIDs.all.all { sourceSetDependencyMap[it]?.isEmpty() == true }
+        } ?: false
 
-        val divStyles = "platform-hinted ${styles.joinToString()}" + if (shouldHaveTabs) " with-platform-tabs" else ""
+        // little point in rendering a single "common" tab - it can be
+        // assumed that code without any tabs is common by default
+        val renderTabs = shouldHaveTabs && !isOnlyCommonContent
+
+        val divStyles = "platform-hinted ${styles.joinToString()}" + if (renderTabs) " with-platform-tabs" else ""
         div(divStyles) {
             attributes["data-platform-hinted"] = "data-platform-hinted"
             extra.extraHtmlAttributes().forEach { attributes[it.extraKey] = it.extraValue }
-            if (shouldHaveTabs) {
+            if (renderTabs) {
                 div("platform-bookmarks-row") {
                     attributes["data-toggle-list"] = "data-toggle-list"
                     contents.forEachIndexed { index, pair ->
@@ -186,13 +222,6 @@ open class HtmlRenderer(
                             attributes["data-filterable-current"] = pair.first.sourceSetIDs.merged.toString()
                             attributes["data-filterable-set"] = pair.first.sourceSetIDs.merged.toString()
                             if (index == 0) attributes["data-active"] = ""
-                            attributes["data-toggle"] = pair.first.sourceSetIDs.merged.toString()
-                            when (pair.first.platform.key) {
-                                "common" -> classes = classes + "common-like"
-                                "native" -> classes = classes + "native-like"
-                                "jvm" -> classes = classes + "jvm-like"
-                                "js" -> classes = classes + "js-like"
-                            }
                             attributes["data-toggle"] = pair.first.sourceSetIDs.merged.toString()
                             text(pair.first.name)
                         }
@@ -217,7 +246,7 @@ open class HtmlRenderer(
                 }
             }.stripDiv()
             sourceSet to createHTML(prettyPrint = false).prepareForTemplates()
-                .div(classes = "content sourceset-depenent-content") {
+                .div(classes = "content sourceset-dependent-content") {
                     if (counter++ == 0) attributes["data-active"] = ""
                     attributes["data-togglable"] = sourceSet.sourceSetIDs.merged.toString()
                     unsafe {
@@ -228,23 +257,6 @@ open class HtmlRenderer(
     }
 
     override fun FlowContent.buildDivergent(node: ContentDivergentGroup, pageContext: ContentPage) {
-        fun groupDivergentInstancesWithSourceSet(
-            instances: List<ContentDivergentInstance>,
-            sourceSet: DisplaySourceSet,
-            pageContext: ContentPage,
-            beforeTransformer: (ContentDivergentInstance, ContentPage, DisplaySourceSet) -> String,
-            afterTransformer: (ContentDivergentInstance, ContentPage, DisplaySourceSet) -> String
-        ): Map<SerializedBeforeAndAfter, List<ContentDivergentInstance>> =
-            instances.map { instance ->
-                instance to Pair(
-                    beforeTransformer(instance, pageContext, sourceSet),
-                    afterTransformer(instance, pageContext, sourceSet)
-                )
-            }.groupBy(
-                Pair<ContentDivergentInstance, SerializedBeforeAndAfter>::second,
-                Pair<ContentDivergentInstance, SerializedBeforeAndAfter>::first
-            )
-
         if (node.implicitlySourceSetHinted) {
             val groupedInstancesBySourceSet = node.children.flatMap { instance ->
                 instance.sourceSets.map { sourceSet -> instance to sourceSet }
@@ -270,14 +282,28 @@ open class HtmlRenderer(
                                 }
                             }.stripDiv()
                         })
+
+                val isPageWithOverloadedMembers = pageContext is MemberPage && pageContext.documentables().size > 1
+
                 val contentOfSourceSet = mutableListOf<ContentNode>()
-                distinct.onEachIndexed{ i, (_, distinctInstances) ->
+                distinct.onEachIndexed{ index, (_, distinctInstances) ->
                     contentOfSourceSet.addIfNotNull(distinctInstances.firstOrNull()?.before)
                     contentOfSourceSet.addAll(distinctInstances.map { it.divergent })
                     contentOfSourceSet.addIfNotNull(
                         distinctInstances.firstOrNull()?.after
-                            ?: if (i != distinct.size - 1) ContentBreakLine(it.key) else null
+                            ?: if (index != distinct.size - 1) ContentBreakLine(it.key) else null
                     )
+
+                    // content kind main is important for declarations list to avoid double line breaks
+                    if (node.dci.kind == ContentKind.Main && index != distinct.size - 1) {
+                        if (isPageWithOverloadedMembers) {
+                            // add some spacing and distinction between function/property overloads.
+                            // not ideal, but there's no other place to modify overloads page atm
+                            contentOfSourceSet.add(ContentBreakLine(it.key, style = setOf(HorizontalBreakLineStyle)))
+                        } else {
+                            contentOfSourceSet.add(ContentBreakLine(it.key))
+                        }
+                    }
                 }
                 contentOfSourceSet
             }
@@ -289,12 +315,42 @@ open class HtmlRenderer(
         }
     }
 
+    private fun groupDivergentInstancesWithSourceSet(
+        instances: List<ContentDivergentInstance>,
+        sourceSet: DisplaySourceSet,
+        pageContext: ContentPage,
+        beforeTransformer: (ContentDivergentInstance, ContentPage, DisplaySourceSet) -> String,
+        afterTransformer: (ContentDivergentInstance, ContentPage, DisplaySourceSet) -> String
+    ): Map<SerializedBeforeAndAfter, List<ContentDivergentInstance>> =
+        instances.map { instance ->
+            instance to Pair(
+                beforeTransformer(instance, pageContext, sourceSet),
+                afterTransformer(instance, pageContext, sourceSet)
+            )
+        }.groupBy(
+            Pair<ContentDivergentInstance, SerializedBeforeAndAfter>::second,
+            Pair<ContentDivergentInstance, SerializedBeforeAndAfter>::first
+        )
+
+    private fun ContentPage.documentables(): List<Documentable> {
+        return (this as? WithDocumentables)?.documentables ?: emptyList()
+    }
+
     override fun FlowContent.buildList(
         node: ContentList,
         pageContext: ContentPage,
         sourceSetRestriction: Set<DisplaySourceSet>?
-    ) = if (node.ordered) ol { buildListItems(node.children, pageContext, sourceSetRestriction) }
-    else ul { buildListItems(node.children, pageContext, sourceSetRestriction) }
+    ) = when {
+        node.ordered -> {
+            ol { buildListItems(node.children, pageContext, sourceSetRestriction) }
+        }
+        node.hasStyle(ListStyle.DescriptionList) -> {
+            dl { node.children.forEach { it.build(this, pageContext, sourceSetRestriction) } }
+        }
+        else -> {
+            ul { buildListItems(node.children, pageContext, sourceSetRestriction) }
+        }
+    }
 
     open fun OL.buildListItems(
         items: List<ContentNode>,
@@ -327,8 +383,6 @@ open class HtmlRenderer(
         pageContext: ContentPage
     ) = // TODO: extension point there
         if (node.isImage()) {
-            //TODO: add imgAttrs parsing
-            val imgAttrs = node.extra.allOfType<SimpleAttr>().joinAttr()
             img(src = node.address, alt = node.altText)
         } else {
             println("Unrecognized resource type: $node")
@@ -337,17 +391,16 @@ open class HtmlRenderer(
     private fun FlowContent.buildRow(
         node: ContentGroup,
         pageContext: ContentPage,
-        sourceSetRestriction: Set<DisplaySourceSet>?,
-        style: Set<Style>
+        sourceSetRestriction: Set<DisplaySourceSet>?
     ) {
         node.children
             .filter { sourceSetRestriction == null || it.sourceSets.any { s -> s in sourceSetRestriction } }
             .takeIf { it.isNotEmpty() }
             ?.let {
                 when (pageContext) {
-                    is MultimoduleRootPage -> buildRowForMultiModule(node, it, pageContext, sourceSetRestriction, style)
-                    is ModulePage -> buildRowForModule(node, it, pageContext, sourceSetRestriction, style)
-                    else -> buildRowForContent(node, it, pageContext, sourceSetRestriction, style)
+                    is MultimoduleRootPage -> buildRowForMultiModule(node, it, pageContext, sourceSetRestriction)
+                    is ModulePage -> buildRowForModule(node, it, pageContext, sourceSetRestriction)
+                    else -> buildRowForContent(node, it, pageContext, sourceSetRestriction)
                 }
             }
     }
@@ -356,8 +409,7 @@ open class HtmlRenderer(
         contextNode: ContentGroup,
         toRender: List<ContentNode>,
         pageContext: ContentPage,
-        sourceSetRestriction: Set<DisplaySourceSet>?,
-        style: Set<Style>
+        sourceSetRestriction: Set<DisplaySourceSet>?
     ) {
         buildAnchor(contextNode)
         div(classes = "table-row") {
@@ -374,8 +426,7 @@ open class HtmlRenderer(
         contextNode: ContentGroup,
         toRender: List<ContentNode>,
         pageContext: ContentPage,
-        sourceSetRestriction: Set<DisplaySourceSet>?,
-        style: Set<Style>
+        sourceSetRestriction: Set<DisplaySourceSet>?
     ) {
         buildAnchor(contextNode)
         div(classes = "table-row") {
@@ -400,8 +451,7 @@ open class HtmlRenderer(
         contextNode: ContentGroup,
         toRender: List<ContentNode>,
         pageContext: ContentPage,
-        sourceSetRestriction: Set<DisplaySourceSet>?,
-        style: Set<Style>
+        sourceSetRestriction: Set<DisplaySourceSet>?
     ) {
         buildAnchor(contextNode)
         div(classes = "table-row") {
@@ -434,10 +484,12 @@ open class HtmlRenderer(
                 it.filter { sourceSetRestriction == null || it.sourceSets.any { s -> s in sourceSetRestriction } }
                     .forEach {
                         span("inline-flex") {
-                            it.build(this, pageContext, sourceSetRestriction)
-                            if (it is ContentLink && !anchorDestination.isNullOrBlank()) buildAnchorCopyButton(
-                                anchorDestination
-                            )
+                            div {
+                                it.build(this, pageContext, sourceSetRestriction)
+                            }
+                            if (it is ContentLink && !anchorDestination.isNullOrBlank()) {
+                                buildAnchorCopyButton(anchorDestination)
+                            }
                         }
                     }
             }
@@ -509,7 +561,7 @@ open class HtmlRenderer(
             else -> div(classes = "table") {
                 node.extra.extraHtmlAttributes().forEach { attributes[it.extraKey] = it.extraValue }
                 node.children.forEach {
-                    buildRow(it, pageContext, sourceSetRestriction, node.style)
+                    buildRow(it, pageContext, sourceSetRestriction)
                 }
             }
         }
@@ -589,15 +641,27 @@ open class HtmlRenderer(
             if (path.size > 1) {
                 buildNavigationElement(path.first(), page)
                 path.drop(1).forEach { node ->
-                    text("/")
+                    span(classes = "delimiter") {
+                        text("/")
+                    }
                     buildNavigationElement(node, page)
                 }
             }
         }
 
     private fun FlowContent.buildNavigationElement(node: PageNode, page: PageNode) =
-        if (node.isNavigable) buildLink(node, page)
-        else text(node.name)
+        if (node.isNavigable) {
+            val isCurrentPage = (node == page)
+            if (isCurrentPage) {
+                span(classes = "current") {
+                    text(node.name)
+                }
+            } else {
+                buildLink(node, page)
+            }
+        } else {
+            text(node.name)
+        }
 
     private fun FlowContent.buildLink(to: PageNode, from: PageNode) =
         locationProvider.resolve(to, from)?.let { path ->
@@ -629,6 +693,13 @@ open class HtmlRenderer(
     override fun buildError(node: ContentNode) = context.logger.error("Unknown ContentNode type: $node")
 
     override fun FlowContent.buildLineBreak() = br()
+    override fun FlowContent.buildLineBreak(node: ContentBreakLine, pageContext: ContentPage) {
+        if (node.style.contains(HorizontalBreakLineStyle)) {
+            hr()
+        } else {
+            buildLineBreak()
+        }
+    }
 
     override fun FlowContent.buildLink(address: String, content: FlowContent.() -> Unit) =
         a(href = address, block = content)
@@ -714,9 +785,18 @@ open class HtmlRenderer(
             TextStyle.Italic -> i { body() }
             TextStyle.Strikethrough -> strike { body() }
             TextStyle.Strong -> strong { body() }
-            is TokenStyle -> span("token " + styleToApply.toString().toLowerCase()) { body() }
+            TextStyle.Var -> htmlVar { body() }
+            TextStyle.Underlined -> underline { body() }
+            is TokenStyle -> span("token ${styleToApply.prismJsClass()}") { body() }
             else -> body()
         }
+    }
+
+    private fun TokenStyle.prismJsClass(): String = when(this) {
+        // Prism.js parser adds Builtin token instead of Annotation
+        // for some reason, so we also add it for consistency and correct coloring
+        TokenStyle.Annotation -> "annotation builtin"
+        else -> this.toString().toLowerCase()
     }
 
     override fun render(root: RootPageNode) {
@@ -726,138 +806,31 @@ open class HtmlRenderer(
 
     override fun buildPage(page: ContentPage, content: (FlowContent, ContentPage) -> Unit): String =
         buildHtml(page, page.embeddedResources) {
-            div("main-content") {
-                id = "content"
-                attributes["pageIds"] = "${context.configuration.moduleName}::${page.pageId}"
-                content(this, page)
-            }
+            content(this, page)
         }
 
-    private val String.isAbsolute: Boolean
-        get() = URI(this).isAbsolute
 
-    open fun buildHtml(page: PageNode, resources: List<String>, content: FlowContent.() -> Unit): String {
-        val path = locationProvider.resolve(page)
-        val pathToRoot = locationProvider.pathToRoot(page)
-        return createHTML().prepareForTemplates().html {
-            head {
-                meta(name = "viewport", content = "width=device-width, initial-scale=1", charset = "UTF-8")
-                title(page.name)
-                templateCommand(PathToRootSubstitutionCommand("###", default = pathToRoot)) {
-                    link(href = "###images/logo-icon.svg", rel = "icon", type = "image/svg")
+    open fun buildHtml(page: PageNode, resources: List<String>, content: FlowContent.() -> Unit): String =
+        templater.renderFromTemplate(DokkaTemplateTypes.BASE) {
+            val generatedContent =
+                createHTML().div("main-content") {
+                    id = "content"
+                    (page as? ContentPage)?.let {
+                        attributes["pageIds"] = "${context.configuration.moduleName}::${page.pageId}"
+                    }
+                    content()
                 }
-                templateCommand(PathToRootSubstitutionCommand("###", default = pathToRoot)) {
-                    script { unsafe { +"""var pathToRoot = "###";""" } }
-                }
-                // This script doesn't need to be there but it is nice to have since app in dark mode doesn't 'blink' (class is added before it is rendered)
-                script {
-                    unsafe {
-                        +"""
-                    const storage = localStorage.getItem("dokka-dark-mode")
-                    const savedDarkMode = storage ? JSON.parse(storage) : false
-                    if(savedDarkMode === true){
-                        document.getElementsByTagName("html")[0].classList.add("theme-dark")
-                    }
-                """.trimIndent()
-                    }
-                }
-                resources.forEach {
-                    when {
-                        it.substringBefore('?').substringAfterLast('.') == "css" ->
-                            if (it.isAbsolute) link(
-                                rel = LinkRel.stylesheet,
-                                href = it
-                            )
-                            else templateCommand(PathToRootSubstitutionCommand("###", default = pathToRoot)) {
-                                link(
-                                    rel = LinkRel.stylesheet,
-                                    href = "###$it"
-                                )
-                            }
-                        it.substringBefore('?').substringAfterLast('.') == "js" ->
-                            if (it.isAbsolute) script(
-                                type = ScriptType.textJavaScript,
-                                src = it
-                            ) {
-                                async = true
-                            } else templateCommand(PathToRootSubstitutionCommand("###", default = pathToRoot)) {
-                                script(
-                                    type = ScriptType.textJavaScript,
-                                    src = "###$it"
-                                ) {
-                                    async = true
-                                }
-                            }
-                        it.isImage() -> if (it.isAbsolute) link(href = it)
-                        else templateCommand(PathToRootSubstitutionCommand("###", default = pathToRoot)) {
-                            link(href = "###$it")
-                        }
-                        else -> unsafe { +it }
-                    }
-                }
-            }
-            body {
-                div("navigation-wrapper") {
-                    id = "navigation-wrapper"
-                    div {
-                        id = "leftToggler"
-                        span("icon-toggler")
-                    }
-                    div("library-name") {
-                        clickableLogo(page, pathToRoot)
-                    }
-                    div { templateCommand(ReplaceVersionsCommand(path.orEmpty())) }
-                    div("pull-right d-flex") {
-                        filterButtons(page)
-                        button {
-                            id = "theme-toggle-button"
-                            span {
-                                id = "theme-toggle"
-                            }
-                        }
-                        div {
-                            id = "searchBar"
-                        }
-                    }
-                }
-                div {
-                    id = "container"
-                    div {
-                        id = "leftColumn"
-                        div {
-                            id = "sideMenu"
-                        }
-                    }
-                    div {
-                        id = "main"
-                        templateCommand(PathToRootSubstitutionCommand("###", default = pathToRoot)) {
-                            script(type = ScriptType.textJavaScript, src = "###scripts/main.js") {}
-                        }
-                        content()
-                        div(classes = "footer") {
-                            span("go-to-top-icon") {
-                                a(href = "#content") {
-                                    id = "go-to-top-link"
-                                }
-                            }
-                            span {
-                                configuration?.footerMessage?.takeIf { it.isNotEmpty() }
-                                    ?.let { unsafe { raw(it) } }
-                                    ?: text(defaultFooterMessage)
-                            }
-                            span("pull-right") {
-                                span { text("Generated by ") }
-                                a(href = "https://github.com/Kotlin/dokka") {
-                                    span { text("dokka") }
-                                    span(classes = "padded-icon")
-                                }
-                            }
-                        }
-                    }
-                }
+
+            templateModelMerger.invoke(templateModelFactories) {
+                buildModel(
+                    page,
+                    resources,
+                    locationProvider,
+                    shouldRenderSourceSetBubbles,
+                    generatedContent
+                )
             }
         }
-    }
 
     /**
      * This is deliberately left open for plugins that have some other pages above ours and would like to link to them

@@ -62,8 +62,8 @@ public final class org/jetbrains/dokka/base/testApi/testRunner/BaseTestMethods :
 }
 
 public final class renderers/RawTestPage : org/jetbrains/dokka/pages/RootPageNode, org/jetbrains/dokka/pages/ContentPage {
-	public fun <init> (Lorg/jetbrains/dokka/pages/ContentNode;Ljava/lang/String;Ljava/util/Set;Lorg/jetbrains/dokka/model/Documentable;Ljava/util/List;Ljava/util/List;)V
-	public synthetic fun <init> (Lorg/jetbrains/dokka/pages/ContentNode;Ljava/lang/String;Ljava/util/Set;Lorg/jetbrains/dokka/model/Documentable;Ljava/util/List;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Lorg/jetbrains/dokka/pages/ContentNode;Ljava/lang/String;Ljava/util/Set;Ljava/util/List;Ljava/util/List;)V
+	public synthetic fun <init> (Lorg/jetbrains/dokka/pages/ContentNode;Ljava/lang/String;Ljava/util/Set;Ljava/util/List;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun getChildren ()Ljava/util/List;
 	public fun getContent ()Lorg/jetbrains/dokka/pages/ContentNode;
 	public fun getDocumentable ()Lorg/jetbrains/dokka/model/Documentable;
@@ -85,8 +85,17 @@ public final class renderers/TestPageKt {
 	public static final fun testPage (Lkotlin/jvm/functions/Function1;)Lrenderers/RawTestPage;
 }
 
+public final class signatures/Parameter : utils/Tag {
+	public fun <init> ([Ljava/lang/Object;)V
+}
+
+public final class signatures/Parameters : utils/Tag {
+	public fun <init> ([Ljava/lang/Object;)V
+}
+
 public final class signatures/SignatureUtilsKt {
 	public static final fun firstSignature (Lorg/jsoup/nodes/Element;)Lorg/jsoup/nodes/Element;
+	public static final fun lastSignature (Lorg/jsoup/nodes/Element;)Lorg/jsoup/nodes/Element;
 	public static final fun renderedContent (Lutils/TestOutputWriter;Ljava/lang/String;)Lorg/jsoup/nodes/Element;
 	public static synthetic fun renderedContent$default (Lutils/TestOutputWriter;Ljava/lang/String;ILjava/lang/Object;)Lorg/jsoup/nodes/Element;
 	public static final fun signature (Lorg/jsoup/nodes/Element;)Lorg/jsoup/select/Elements;
@@ -104,7 +113,27 @@ public final class utils/B : utils/Tag {
 	public fun <init> ([Ljava/lang/Object;)V
 }
 
+public final class utils/BlockQuote : utils/Tag {
+	public fun <init> ([Ljava/lang/Object;)V
+}
+
+public final class utils/Br : utils/Tag {
+	public static final field INSTANCE Lutils/Br;
+}
+
+public final class utils/Dd : utils/Tag {
+	public fun <init> ([Ljava/lang/Object;)V
+}
+
 public final class utils/Div : utils/Tag {
+	public fun <init> ([Ljava/lang/Object;)V
+}
+
+public final class utils/Dl : utils/Tag {
+	public fun <init> ([Ljava/lang/Object;)V
+}
+
+public final class utils/Dt : utils/Tag {
 	public fun <init> ([Ljava/lang/Object;)V
 }
 
@@ -115,6 +144,7 @@ public final class utils/I : utils/Tag {
 public final class utils/JsoupUtilsKt {
 	public static final fun match (Lorg/jsoup/nodes/Element;[Ljava/lang/Object;Z)V
 	public static synthetic fun match$default (Lorg/jsoup/nodes/Element;[Ljava/lang/Object;ZILjava/lang/Object;)V
+	public static final fun withClasses (Lutils/Tag;[Ljava/lang/String;)Lutils/Tag;
 }
 
 public final class utils/P : utils/Tag {
@@ -130,7 +160,9 @@ public final class utils/Span : utils/Tag {
 }
 
 public class utils/Tag {
-	public fun <init> (Ljava/lang/String;[Ljava/lang/Object;)V
+	public fun <init> (Ljava/lang/String;[Ljava/lang/Object;Ljava/util/List;)V
+	public synthetic fun <init> (Ljava/lang/String;[Ljava/lang/Object;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getExpectedClasses ()Ljava/util/List;
 	public final fun getMatchers ()[Ljava/lang/Object;
 	public final fun getName ()Ljava/lang/String;
 }
@@ -150,6 +182,14 @@ public final class utils/TestOutputWriterPlugin : org/jetbrains/dokka/plugabilit
 	public synthetic fun <init> (ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun getTestWriter ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getWriter ()Lutils/TestOutputWriter;
+}
+
+public final class utils/U : utils/Tag {
+	public fun <init> ([Ljava/lang/Object;)V
+}
+
+public final class utils/Var : utils/Tag {
+	public fun <init> ([Ljava/lang/Object;)V
 }
 
 public final class utils/Wbr : utils/Tag {

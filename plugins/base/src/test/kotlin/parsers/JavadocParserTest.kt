@@ -2,13 +2,18 @@ package parsers
 
 import com.jetbrains.rd.util.first
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
+import org.jetbrains.dokka.links.Callable
+import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.links.JavaClassReference
 import org.jetbrains.dokka.model.DEnum
 import org.jetbrains.dokka.model.DModule
 import org.jetbrains.dokka.model.doc.*
-import org.jetbrains.dokka.model.doc.P
+import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import utils.*
+import utils.docs
+import utils.text
+import kotlin.test.assertNotNull
 
 class JavadocParserTest : BaseAbstractTest() {
 
@@ -246,6 +251,296 @@ class JavadocParserTest : BaseAbstractTest() {
                     ),
                     root.children
                 )
+            }
+        }
+    }
+
+    @Test
+    fun `description list tag`() {
+        val source = """
+            |/src/main/kotlin/test/Test.java
+            |package example
+            |
+            | /**
+            | * <dl>
+            | *     <dt>
+            | *         <code>name="<i>name</i>"</code>
+            | *     </dt>
+            | *     <dd>
+            | *         A URI path segment. The subdirectory name for this value is contained in the
+            | *         <code>path</code> attribute.
+            | *     </dd>
+            | *     <dt>
+            | *         <code>path="<i>path</i>"</code>
+            | *     </dt>
+            | *     <dd>
+            | *         The subdirectory you're sharing. While the <i>name</i> attribute is a URI path
+            | *         segment, the <i>path</i> value is an actual subdirectory name. 
+            | *     </dd>
+            | * </dl>
+            | */
+            | public class Test  {}
+            """.trimIndent()
+
+        val expected = listOf(
+            Dl(
+                listOf(
+                    Dt(
+                        listOf(
+                            CodeInline(
+                                listOf(
+                                    Text("name=\""),
+                                    I(
+                                        listOf(
+                                            Text("name")
+                                        )
+                                    ),
+                                    Text("\"")
+                                )
+                            ),
+                        )
+                    ),
+                    Dd(
+                        listOf(
+                            Text(" A URI path segment. The subdirectory name for this value is contained in the "),
+                            CodeInline(
+                                listOf(
+                                    Text("path")
+                                )
+                            ),
+                            Text(" attribute. ")
+                        )
+                    ),
+
+                    Dt(
+                        listOf(
+                            CodeInline(
+                                listOf(
+                                    Text("path=\""),
+                                    I(
+                                        listOf(
+                                            Text("path")
+                                        )
+                                    ),
+                                    Text("\"")
+                                )
+                            )
+                        )
+                    ),
+                    Dd(
+                        listOf(
+                            Text(" The subdirectory you're sharing. While the "),
+                            I(
+                                listOf(
+                                    Text("name")
+                                )
+                            ),
+                            Text(" attribute is a URI path segment, the "),
+                            I(
+                                listOf(
+                                    Text("path")
+                                )
+                            ),
+                            Text(" value is an actual subdirectory name. ")
+                        )
+                    )
+                )
+            )
+        )
+
+        testInline(source, configuration) {
+            documentablesCreationStage = { modules ->
+                val docs = modules.first().packages.first().classlikes.single().documentation.first().value
+                assertEquals(expected, docs.children.first().root.children)
+            }
+        }
+    }
+    
+    @Test
+    fun `header tags are handled properly`() {
+        val source = """
+            |/src/main/kotlin/test/Test.java
+            |package example
+            |
+            | /**
+            | * An example of using the header tags
+            | * <h1>A header</h1>
+            | * <h2>A second level header</h2>
+            | * <h3>A third level header</h3>
+            | */
+            | public class Test  {}
+            """.trimIndent()
+        testInline(
+            source,
+            configuration,
+        ) {
+            documentablesCreationStage = { modules ->
+                val docs = modules.first().packages.first().classlikes.single().documentation.first().value
+                val root = docs.children.first().root
+
+                kotlin.test.assertEquals(
+                    listOf(
+                        P(children = listOf(Text("An example of using the header tags "))),
+                        H1(
+                            listOf(
+                                Text("A header")
+                            )
+                        ),
+                        H2(
+                            listOf(
+                                Text("A second level header")
+                            )
+                        ),
+                        H3(
+                            listOf(
+                                Text("A third level header")
+                            )
+                        )
+                    ),
+                    root.children
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `var tag is handled properly`() {
+        val source = """
+            |/src/main/kotlin/test/Test.java
+            |package example
+            |
+            | /**
+            | * An example of using var tag: <var>variable</var>
+            | */
+            | public class Test  {}
+            """.trimIndent()
+        testInline(
+            source,
+            configuration,
+        ) {
+            documentablesCreationStage = { modules ->
+                val docs = modules.first().packages.first().classlikes.single().documentation.first().value
+                val root = docs.children.first().root
+
+                kotlin.test.assertEquals(
+                    listOf(
+                        P(children = listOf(
+                            Text("An example of using var tag: "),
+                            Var(children = listOf(Text("variable"))),
+                        )),
+                    ),
+                    root.children
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `u tag is handled properly`() {
+        val source = """
+            |/src/main/kotlin/test/Test.java
+            |package example
+            |
+            | /**
+            | * An example of using u tag: <u>underlined</u>
+            | */
+            | public class Test  {}
+            """.trimIndent()
+        testInline(
+            source,
+            configuration,
+        ) {
+            documentablesCreationStage = { modules ->
+                val docs = modules.first().packages.first().classlikes.single().documentation.first().value
+                val root = docs.children.first().root
+
+                assertEquals(
+                    listOf(
+                        P(children = listOf(
+                            Text("An example of using u tag: "),
+                            U(children = listOf(Text("underlined"))),
+                        )),
+                    ),
+                    root.children
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `undocumented see also from java`(){
+        testInline(
+            """
+            |/src/main/java/example/Source.java
+            |package example;
+            |
+            |public interface Source {
+            |   String getProperty(String k, String v);
+            |
+            |   /**
+            |    * @see #getProperty(String, String)
+            |    */
+            |   String getProperty(String k);
+            |}
+        """.trimIndent(), configuration
+        ) {
+            documentablesTransformationStage = { module ->
+                val functionWithSeeTag = module.packages.flatMap { it.classlikes }.flatMap { it.functions }.find { it.name == "getProperty" && it.parameters.count() == 1 }
+                val seeTag = functionWithSeeTag?.docs()?.firstIsInstanceOrNull<See>()
+                val expectedLinkDestinationDRI = DRI(
+                    packageName = "example",
+                    classNames = "Source",
+                    callable = Callable(
+                        name = "getProperty",
+                        params = listOf(JavaClassReference("java.lang.String"), JavaClassReference("java.lang.String"))
+                    )
+                )
+
+                assertNotNull(seeTag)
+                assertEquals("getProperty(String, String)", seeTag.name)
+                assertEquals(expectedLinkDestinationDRI, seeTag.address)
+                assertEquals(emptyList<DocTag>(), seeTag.children)
+            }
+        }
+    }
+
+    @Test
+    fun `documented see also from java`(){
+        testInline(
+            """
+            |/src/main/java/example/Source.java
+            |package example;
+            |
+            |public interface Source {
+            |   String getProperty(String k, String v);
+            |
+            |   /**
+            |    * @see #getProperty(String, String) this is a reference to a method that is present on the same class.
+            |    */
+            |   String getProperty(String k);
+            |}
+        """.trimIndent(), configuration
+        ) {
+            documentablesTransformationStage = { module ->
+                val functionWithSeeTag = module.packages.flatMap { it.classlikes }.flatMap { it.functions }.find { it.name == "getProperty" && it.parameters.size == 1 }
+                val seeTag = functionWithSeeTag?.docs()?.firstIsInstanceOrNull<See>()
+                val expectedLinkDestinationDRI = DRI(
+                    packageName = "example",
+                    classNames = "Source",
+                    callable = Callable(
+                        name = "getProperty",
+                        params = listOf(JavaClassReference("java.lang.String"), JavaClassReference("java.lang.String"))
+                    )
+                )
+
+                assertNotNull(seeTag)
+                assertEquals("getProperty(String, String)", seeTag.name)
+                assertEquals(expectedLinkDestinationDRI, seeTag.address)
+                assertEquals(
+                    "this is a reference to a method that is present on the same class.",
+                    seeTag.children.first().text().trim()
+                )
+                assertEquals(1, seeTag.children.size)
             }
         }
     }

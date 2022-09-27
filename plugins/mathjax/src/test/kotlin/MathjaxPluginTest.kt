@@ -34,7 +34,7 @@ class MathjaxPluginTest : BaseAbstractTest() {
         ) {
             renderingStage = {
                     _, _ -> Jsoup
-                .parse(writerPlugin.writer.contents["root/example/test.html"])
+                .parse(writerPlugin.writer.contents.getValue("root/example/test.html"))
                 .head()
                 .select("link, script")
                 .let {
@@ -53,15 +53,15 @@ class MathjaxPluginTest : BaseAbstractTest() {
                 }
             }
         }
+        val math = "a^2 = b^2 + c^2"
         val source =
             """
             |/src/main/kotlin/test/Test.kt
             |package example
             | /**
             | * @usesMathJax
-            | *
-            | * \(\alpha_{out} = \alpha_{dst}\)
-            | * \(C_{out} = C_{dst}\)
+            | * 
+            | * \($math\)
             | */
             | fun test(): String = ""
             """.trimIndent()
@@ -71,14 +71,16 @@ class MathjaxPluginTest : BaseAbstractTest() {
             configuration,
             pluginOverrides = listOf(writerPlugin, MathjaxPlugin())
         ) {
-            renderingStage = {
-                    _, _ -> Jsoup
-                .parse(writerPlugin.writer.contents["root/example/test.html"])
-                .head()
-                .select("link, script")
-                .let {
-                    assert(it.`is`("[href=$LIB_PATH], [src=$LIB_PATH]"))
-                }
+            renderingStage = { _, _ ->
+                val parsed = Jsoup.parse(writerPlugin.writer.contents.getValue("root/example/test.html"))
+
+                // Ensure the MathJax CDN is loaded
+                assert(parsed.select("link, script").`is`("[href=$LIB_PATH], [src=$LIB_PATH]"))
+
+                // Ensure the contents are displayed
+                assert(parsed.select("p").any {
+                    it.text().contains(math)
+                })
             }
         }
     }

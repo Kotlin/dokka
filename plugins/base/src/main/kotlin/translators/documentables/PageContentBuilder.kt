@@ -139,6 +139,10 @@ open class PageContentBuilder(
             contents += createText(text, kind, sourceSets, styles, extra)
         }
 
+        fun breakLine(sourceSets: Set<DokkaSourceSet> = mainSourcesetData) {
+            contents += ContentBreakLine(sourceSets.toDisplaySourceSets())
+        }
+
         fun buildSignature(d: Documentable) = signatureProvider.signature(d)
 
         fun table(
@@ -173,6 +177,18 @@ open class PageContentBuilder(
             contents += ListBuilder(true, mainDRI, sourceSets, kind, styles, extra).apply(operation).build()
         }
 
+        fun descriptionList(
+            kind: Kind = ContentKind.Main,
+            sourceSets: Set<DokkaSourceSet> = mainSourcesetData,
+            styles: Set<Style> = mainStyles,
+            extra: PropertyContainer<ContentNode> = mainExtra,
+            operation: ListBuilder.() -> Unit = {}
+        ) {
+            contents += ListBuilder(false, mainDRI, sourceSets, kind, styles + ListStyle.DescriptionList, extra)
+                .apply(operation)
+                .build()
+        }
+
         internal fun headers(vararg label: String) = contentFor(mainDRI, mainSourcesetData) {
             label.forEach { text(it) }
         }
@@ -205,6 +221,45 @@ open class PageContentBuilder(
                             val newExtra = if (needsAnchors) extra + SymbolAnchorHint.from(it, kind) else extra
                             buildGroup(setOf(it.dri), it.sourceSets.toSet(), kind, styles, newExtra) {
                                 operation(it)
+                            }
+                        },
+                    dci = DCI(mainDRI, kind),
+                    sourceSets = sourceSets.toDisplaySourceSets(),
+                    style = styles,
+                    extra = extra
+                )
+            }
+        }
+
+        fun <T : Pair<String, List<Documentable>>> multiBlock(
+            name: String,
+            level: Int,
+            kind: Kind = ContentKind.Main,
+            groupedElements: Iterable<T>,
+            sourceSets: Set<DokkaSourceSet> = mainSourcesetData,
+            styles: Set<Style> = mainStyles,
+            extra: PropertyContainer<ContentNode> = mainExtra,
+            renderWhenEmpty: Boolean = false,
+            needsSorting: Boolean = true,
+            headers: List<ContentGroup> = emptyList(),
+            needsAnchors: Boolean = false,
+            operation: DocumentableContentBuilder.(String, List<Documentable>) -> Unit
+        ) {
+            if (renderWhenEmpty || groupedElements.any()) {
+                header(level, name, kind = kind) { }
+                contents += ContentTable(
+                    header = headers,
+                    children = groupedElements
+                        .let {
+                            if (needsSorting)
+                                it.sortedWith(compareBy(nullsLast(String.CASE_INSENSITIVE_ORDER)) { it.first })
+                            else it
+                        }
+                        .map {
+                            val newExtra = if (needsAnchors) extra + SymbolAnchorHint(it.first, kind) else extra
+                            val documentables = it.second
+                            buildGroup(documentables.map { it.dri }.toSet(), documentables.flatMap { it.sourceSets }.toSet(), kind, styles, newExtra) {
+                                operation(it.first, documentables)
                             }
                         },
                     dci = DCI(mainDRI, kind),
@@ -310,6 +365,42 @@ open class PageContentBuilder(
                 sourceSets
             )
             contents += ContentGroup(content, DCI(mainDRI, kind), sourceSets.toDisplaySourceSets(), styles, extra)
+        }
+
+        fun codeBlock(
+            language: String = "",
+            kind: Kind = ContentKind.Main,
+            sourceSets: Set<DokkaSourceSet> = mainSourcesetData,
+            styles: Set<Style> = mainStyles,
+            extra: PropertyContainer<ContentNode> = mainExtra,
+            block: DocumentableContentBuilder.() -> Unit
+        ) {
+            contents += ContentCodeBlock(
+                contentFor(mainDRI, sourceSets, kind, styles, extra, block).children,
+                language,
+                DCI(mainDRI, kind),
+                sourceSets.toDisplaySourceSets(),
+                styles,
+                extra
+            )
+        }
+
+        fun codeInline(
+            language: String = "",
+            kind: Kind = ContentKind.Main,
+            sourceSets: Set<DokkaSourceSet> = mainSourcesetData,
+            styles: Set<Style> = mainStyles,
+            extra: PropertyContainer<ContentNode> = mainExtra,
+            block: DocumentableContentBuilder.() -> Unit
+        ) {
+            contents += ContentCodeInline(
+                contentFor(mainDRI, sourceSets, kind, styles, extra, block).children,
+                language,
+                DCI(mainDRI, kind),
+                sourceSets.toDisplaySourceSets(),
+                styles,
+                extra
+            )
         }
 
         fun firstParagraphComment(

@@ -4,7 +4,6 @@ import org.jetbrains.registerDokkaArtifactPublication
 plugins {
     id("com.github.johnrengelman.shadow")
     `maven-publish`
-    id("com.jfrog.bintray")
 }
 
 repositories {
@@ -20,7 +19,14 @@ repositories {
 val intellijCore: Configuration by configurations.creating
 
 fun intellijCoreAnalysis() = zipTree(intellijCore.singleFile).matching {
-    include("intellij-core-analysis-deprecated.jar")
+    include("intellij-core.jar")
+}
+
+val jpsStandalone: Configuration by configurations.creating
+
+fun jpsModel() = zipTree(jpsStandalone.singleFile).matching {
+    include("jps-model.jar")
+    include("aalto-xml-*.jar")
 }
 
 dependencies {
@@ -35,6 +41,9 @@ dependencies {
     val idea_version: String by project
     intellijCore("com.jetbrains.intellij.idea:intellij-core:$idea_version")
     implementation(intellijCoreAnalysis())
+
+    jpsStandalone("com.jetbrains.intellij.idea:jps-standalone:$idea_version")
+    implementation(jpsModel())
 }
 
 tasks {

@@ -45,7 +45,8 @@ class TextStylesTest : HtmlRenderingOnlyTestBase() {
         }
         HtmlRenderer(context).render(page)
         renderedContent.match(Span("keyword"))
-        assertEquals(renderedContent.children().last().attr("class"), "token keyword")
+        val lastChild = renderedContent.children().last() ?: throw IllegalStateException("No element found")
+        assertEquals(lastChild.attr("class"), "token keyword")
     }
 
     @Test
@@ -68,6 +69,40 @@ class TextStylesTest : HtmlRenderingOnlyTestBase() {
         files.contents.getValue("test-page.html").contains("&nbsp;<strike><b>styled text</b></strike>")
     }
 
+    @Test
+    fun `should include blockquote`() {
+        val page = testPage {
+            group(styles = setOf(TextStyle.Quotation)) {
+                text("blockquote text")
+            }
+        }
+        HtmlRenderer(context).render(page)
+        renderedContent.match(BlockQuote("blockquote text"))
+    }
+
+    @Test
+    fun `should include var`() {
+        val page = testPage {
+            group(styles = setOf(TextStyle.Var)) {
+                text("variable")
+            }
+        }
+        HtmlRenderer(context).render(page)
+        println(renderedContent)
+        renderedContent.match(Var("variable"))
+    }
+
+    @Test
+    fun `should include underlined text`() {
+        val page = testPage {
+            group(styles = setOf(TextStyle.Underlined)) {
+                text("underlined text")
+            }
+        }
+        HtmlRenderer(context).render(page)
+        println(renderedContent)
+        renderedContent.match(U("underlined text"))
+    }
 
     override val renderedContent: Element
         get() = files.contents.getValue("test-page.html").let { Jsoup.parse(it) }.select("#content").single()

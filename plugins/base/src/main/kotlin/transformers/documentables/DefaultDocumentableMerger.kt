@@ -34,7 +34,7 @@ internal class DefaultDocumentableMerger(val context: DokkaContext) : Documentab
                 it.sourceSetID in sourceSet.dependentSourceSets
             }.flatMap { getDependencies(it) }
 
-        return configuration.sourceSets.map { it to getDependencies(it) }.toMap()
+        return configuration.sourceSets.associateWith { getDependencies(it) }
     }
 
     private fun <T : Documentable> merge(elements: List<T>, reducer: (T, T) -> T): List<T> =
@@ -49,7 +49,7 @@ internal class DefaultDocumentableMerger(val context: DokkaContext) : Documentab
 
         fun mergeClashingElements(elements: List<Pair<T, Set<DokkaConfiguration.DokkaSourceSet>>>): List<T> =
             elements.groupBy { it.first.name }.values.flatMap { listOfDocumentableToSSIds ->
-                listOfDocumentableToSSIds.map { (documentable, sourceSets) ->
+                val merged = listOfDocumentableToSSIds.map { (documentable, sourceSets) ->
                     when (documentable) {
                         is DClass -> documentable.copy(
                             extra = documentable.extra + ClashingDriIdentifier(
@@ -88,7 +88,9 @@ internal class DefaultDocumentableMerger(val context: DokkaContext) : Documentab
                         )
                         else -> documentable
                     }
-                } as List<T>
+                }
+                @Suppress("UNCHECKED_CAST")
+                merged as List<T>
             }
 
 
@@ -104,8 +106,7 @@ internal class DefaultDocumentableMerger(val context: DokkaContext) : Documentab
             }
             val reducedToOneDocumentableWithActualSourceSetIds =
                 groupedByOwnExpectWithActualSourceSetIds.map { it.first.reduce(reducer) to it.second }
-            val uniqueNamedDocumentables = reducedToOneDocumentableWithActualSourceSetIds.let(::mergeClashingElements)
-            return uniqueNamedDocumentables
+            return reducedToOneDocumentableWithActualSourceSetIds.let(::mergeClashingElements)
         }
 
 

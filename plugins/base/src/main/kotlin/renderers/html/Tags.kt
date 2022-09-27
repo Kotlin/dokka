@@ -23,8 +23,31 @@ open class WBR(initialAttributes: Map<String, String>, consumer: TagConsumer<*>)
 @HtmlTagMarker
 inline fun FlowOrPhrasingContent.strike(classes : String? = null, crossinline block : STRIKE.() -> Unit = {}) : Unit = STRIKE(attributesMapOf("class", classes), consumer).visit(block)
 
-open class STRIKE(initialAttributes : Map<String, String>, override val consumer : TagConsumer<*>) : HTMLTag("strike", consumer, initialAttributes, null, false, false), HtmlBlockInlineTag {
+open class STRIKE(initialAttributes: Map<String, String>, override val consumer: TagConsumer<*>) :
+    HTMLTag("strike", consumer, initialAttributes, null, false, false), HtmlBlockInlineTag
 
+@HtmlTagMarker
+inline fun FlowOrPhrasingContent.underline(classes : String? = null, crossinline block : UNDERLINE.() -> Unit = {}) : Unit = UNDERLINE(attributesMapOf("class", classes), consumer).visit(block)
+
+open class UNDERLINE(initialAttributes: Map<String, String>, override val consumer: TagConsumer<*>) :
+    HTMLTag("u", consumer, initialAttributes, null, false, false), HtmlBlockInlineTag
+
+const val TEMPLATE_COMMAND_SEPARATOR = ":"
+const val TEMPLATE_COMMAND_BEGIN_BORDER  = "[+]cmd"
+const val TEMPLATE_COMMAND_END_BORDER  = "[-]cmd"
+
+fun FlowOrMetaDataContent.templateCommandAsHtmlComment(data: Command, block: FlowOrMetaDataContent.() -> Unit = {}): Unit =
+    (consumer as? ImmediateResolutionTagConsumer)?.processCommand(data, block)
+        ?:  let{
+            comment( "$TEMPLATE_COMMAND_BEGIN_BORDER$TEMPLATE_COMMAND_SEPARATOR${toJsonString(data)}")
+            block()
+            comment(TEMPLATE_COMMAND_END_BORDER)
+        }
+
+fun <T: Appendable> T.templateCommandAsHtmlComment(command: Command, action: T.() -> Unit ) {
+    append("<!--$TEMPLATE_COMMAND_BEGIN_BORDER$TEMPLATE_COMMAND_SEPARATOR${toJsonString(command)}-->")
+    action()
+    append("<!--$TEMPLATE_COMMAND_END_BORDER-->")
 }
 
 fun FlowOrMetaDataContent.templateCommand(data: Command, block: TemplateBlock = {}): Unit =

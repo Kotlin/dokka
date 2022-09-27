@@ -1,0 +1,27 @@
+name: Qodana
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches:
+      - master
+jobs:
+  inspection:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Qodana - Code Inspection
+        id: qodana
+        uses: JetBrains/qodana-action@v2022.2.1
+        with:
+          args: --baseline,qodana.sarif.json,--fail-threshold,0,--linter,jetbrains/qodana-jvm
+        env:
+          QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
+  clone-finder:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Qodana - Clone Finder
+        uses: JetBrains/qodana-clone-finder-action@v2.0-eap

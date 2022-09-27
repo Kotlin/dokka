@@ -3,7 +3,7 @@ import org.jetbrains.*
 
 plugins {
     `java-gradle-plugin`
-    id("com.gradle.plugin-publish") version "0.15.0"
+    id("com.gradle.plugin-publish") version "0.20.0"
 }
 
 repositories {
@@ -13,14 +13,10 @@ repositories {
 dependencies {
     api(project(":core"))
 
-    val jackson_version: String by project
-    compileOnly("com.fasterxml.jackson.core:jackson-annotations:$jackson_version")
     compileOnly("org.jetbrains.kotlin:kotlin-gradle-plugin")
     compileOnly("com.android.tools.build:gradle:4.0.1")
-    compileOnly(gradleApi())
     compileOnly(gradleKotlinDsl())
     testImplementation(project(":test-utils"))
-    testImplementation(gradleApi())
     testImplementation(gradleKotlinDsl())
     testImplementation("org.jetbrains.kotlin:kotlin-gradle-plugin")
     testImplementation("com.android.tools.build:gradle:4.0.1")
@@ -32,13 +28,30 @@ dependencies {
                 .classpath.asFiles.first()
         )
     )
+}
 
-    constraints {
-        val kotlin_version: String by project
-        compileOnly("org.jetbrains.kotlin:kotlin-reflect:${kotlin_version}") {
-            because("kotlin-gradle-plugin and :core both depend on this")
+// Gradle will put its own version of the stdlib in the classpath, do not pull our own we will end up with
+// warnings like 'Runtime JAR files in the classpath should have the same version'
+configurations.api.configure {
+    excludeGradleCommonDependencies()
+}
+
+/**
+ * These dependencies will be provided by Gradle, and we should prevent version conflict
+ * Code taken from the Kotlin Gradle plugin:
+ * https://github.com/JetBrains/kotlin/blob/70e15b281cb43379068facb82b8e4bcb897a3c4f/buildSrc/src/main/kotlin/GradleCommon.kt#L72
+ */
+fun Configuration.excludeGradleCommonDependencies() {
+    dependencies
+        .withType<ModuleDependency>()
+        .configureEach {
+            exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib")
+            exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib-jdk7")
+            exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib-jdk8")
+            exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib-common")
+            exclude(group = "org.jetbrains.kotlin", module = "kotlin-reflect")
+            exclude(group = "org.jetbrains.kotlin", module = "kotlin-script-runtime")
         }
-    }
 }
 
 val sourceJar by tasks.registering(Jar::class) {
@@ -92,12 +105,15 @@ publishing {
     }
 }
 
+tasks.validatePlugins {
+    enableStricterValidation.set(true)
+}
+
 tasks.withType<PublishToMavenRepository>().configureEach {
     onlyIf { publication != publishing.publications["dokkaGradlePluginForIntegrationTests"] }
 }
 
 afterEvaluate { // Workaround for an interesting design choice https://github.com/gradle/gradle/blob/c4f935f77377f1783f70ec05381c8182b3ade3ea/subprojects/plugin-development/src/main/java/org/gradle/plugin/devel/plugins/MavenPluginPublishPlugin.java#L49
-    configureBintrayPublicationIfNecessary("pluginMaven", "dokkaGradlePluginPluginMarkerMaven")
     configureSpacePublicationIfNecessary("pluginMaven", "dokkaGradlePluginPluginMarkerMaven")
     configureSonatypePublicationIfNecessary("pluginMaven", "dokkaGradlePluginPluginMarkerMaven")
     createDokkaPublishTaskIfNecessary()

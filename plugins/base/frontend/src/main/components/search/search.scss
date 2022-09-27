@@ -3,7 +3,7 @@ $secondary-font-color: hsla(0, 0%, 100%, 0.6);
 
 .search {
   button {
-    margin-top: 3px;
+    margin-top: 10px;
 
     cursor: pointer;
 
@@ -16,6 +16,11 @@ $secondary-font-color: hsla(0, 0%, 100%, 0.6);
       outline: none;
     }
   }
+}
+
+.search-hotkey-popup{
+  background-color: var(--background-color) !important;
+  padding: 4px;
 }
 
 .popup-wrapper {

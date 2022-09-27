@@ -9,7 +9,9 @@ import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
 import org.jetbrains.kotlin.resolve.scopes.receivers.ExtensionReceiver
 import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.TypeProjection
-import org.jetbrains.kotlin.types.UnresolvedType
+import org.jetbrains.kotlin.types.error.ErrorType
+import org.jetbrains.kotlin.types.error.ErrorTypeConstructor
+import org.jetbrains.kotlin.types.error.ErrorTypeKind
 
 fun TypeReference.Companion.from(d: ReceiverParameterDescriptor): TypeReference? =
     when (d.value) {
@@ -20,10 +22,10 @@ fun TypeReference.Companion.from(d: ReceiverParameterDescriptor): TypeReference?
         }
     }
 
-fun TypeReference.Companion.from(d: ValueParameterDescriptor): TypeReference? =
+fun TypeReference.Companion.from(d: ValueParameterDescriptor): TypeReference =
     fromPossiblyNullable(d.type, emptyList())
 
-fun TypeReference.Companion.from(p: PsiClass) = TypeReference
+fun TypeReference.Companion.from(@Suppress("UNUSED_PARAMETER") p: PsiClass) = TypeReference
 
 private fun TypeReference.Companion.fromPossiblyNullable(t: KotlinType, paramTrace: List<KotlinType>): TypeReference =
     fromPossiblyRecursive(t, paramTrace).let { if (t.isMarkedNullable) Nullable(it) else it }
@@ -35,10 +37,14 @@ private fun TypeReference.Companion.fromPossiblyRecursive(t: KotlinType, paramTr
         ?: from(t, paramTrace)
 
 private fun TypeReference.Companion.from(t: KotlinType, paramTrace: List<KotlinType>): TypeReference {
-    if (t is UnresolvedType) {
-        return TypeConstructor(
-            t.presentableName, t.arguments.map { fromProjection(it, paramTrace) }
-        )
+    if (t is ErrorType) {
+        val errorConstructor = t.constructor as? ErrorTypeConstructor
+        val presentableName =
+            if (errorConstructor?.kind == ErrorTypeKind.UNRESOLVED_TYPE && errorConstructor.parameters.isNotEmpty())
+                errorConstructor.getParam(0)
+            else
+                t.constructor.toString()
+        return TypeConstructor(presentableName, t.arguments.map { fromProjection(it, paramTrace) })
     }
     return when (val d = t.constructor.declarationDescriptor) {
         is TypeParameterDescriptor -> TypeParam(

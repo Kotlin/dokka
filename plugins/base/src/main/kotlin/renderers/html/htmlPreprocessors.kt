@@ -1,56 +1,17 @@
 package org.jetbrains.dokka.base.renderers.html
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.DokkaBaseConfiguration
-import org.jetbrains.dokka.base.renderers.sourceSets
-import org.jetbrains.dokka.base.templating.AddToSearch
 import org.jetbrains.dokka.base.templating.AddToSourcesetDependencies
 import org.jetbrains.dokka.base.templating.toJsonString
-import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.model.*
-import org.jetbrains.dokka.pages.*
+import org.jetbrains.dokka.pages.RendererSpecificResourcePage
+import org.jetbrains.dokka.pages.RenderingStrategy
+import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.configuration
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 
-abstract class NavigationDataProvider {
-    open fun navigableChildren(input: RootPageNode): NavigationNode = input.withDescendants()
-        .first { it is ModulePage || it is MultimoduleRootPage }.let { visit(it as ContentPage) }
-
-    open fun visit(page: ContentPage): NavigationNode =
-        NavigationNode(
-            name = page.displayableName,
-            dri = page.dri.first(),
-            sourceSets = page.sourceSets(),
-            children = page.navigableChildren()
-        )
-
-    private fun ContentPage.navigableChildren(): List<NavigationNode> =
-        when {
-            this !is ClasslikePageNode ->
-                children.filterIsInstance<ContentPage>().map { visit(it) }
-            documentable is DEnum ->
-                children.filter { it is ContentPage && it.documentable is DEnumEntry }.map { visit(it as ContentPage) }
-            else -> emptyList()
-        }.sortedBy { it.name.toLowerCase() }
-
-    /**
-     * Parenthesis is applied in 2 cases:
-     *  - page only contains functions (therefore documentable from this page is [DFunction])
-     *  - page merges only functions (documentable is null because [SameMethodNamePageMergerStrategy][org.jetbrains.dokka.base.transformers.pages.merger.SameMethodNamePageMergerStrategy]
-     *      removes it from page)
-     */
-    private val ContentPage.displayableName: String
-        get() = if (documentable is DFunction || (documentable == null && dri.all { it.callable != null })) {
-            "$name()"
-        } else {
-            name
-        }
-}
-
 open class NavigationPageInstaller(val context: DokkaContext) : NavigationDataProvider(), PageTransformer {
-
     override fun invoke(input: RootPageNode): RootPageNode =
         input.modified(
             children = input.children + NavigationPage(
@@ -84,12 +45,20 @@ class CustomResourceInstaller(val dokkaContext: DokkaContext) : PageTransformer 
 }
 
 class ScriptsInstaller(private val dokkaContext: DokkaContext) : PageTransformer {
+
+    // scripts ending with `_deferred.js` are loaded with `defer`, otherwise `async`
     private val scriptsPages = listOf(
         "scripts/clipboard.js",
         "scripts/navigation-loader.js",
         "scripts/platform-content-handler.js",
         "scripts/main.js",
-        "scripts/prism.js"
+        "scripts/prism.js",
+
+        // It's important for this script to be deferred because it has logic that makes decisions based on
+        // rendered elements (for instance taking their clientWidth), and if not all styles are loaded/applied
+        // at the time of inspecting them, it will give incorrect results and might lead to visual bugs.
+        // should be easy to test if you open any page in incognito or by reloading it (Ctrl+Shift+R)
+        "scripts/symbol-parameters-wrapper_deferred.js",
     )
 
     override fun invoke(input: RootPageNode): RootPageNode =
@@ -133,6 +102,23 @@ object AssetsInstaller : PageTransformer {
         "images/copy-icon.svg",
         "images/copy-successful-icon.svg",
         "images/theme-toggle.svg",
+
+        // navigation icons
+        "images/nav-icons/abstract-class.svg",
+        "images/nav-icons/abstract-class-kotlin.svg",
+        "images/nav-icons/annotation.svg",
+        "images/nav-icons/annotation-kotlin.svg",
+        "images/nav-icons/class.svg",
+        "images/nav-icons/class-kotlin.svg",
+        "images/nav-icons/enum.svg",
+        "images/nav-icons/enum-kotlin.svg",
+        "images/nav-icons/exception-class.svg",
+        "images/nav-icons/field-value.svg",
+        "images/nav-icons/field-variable.svg",
+        "images/nav-icons/function.svg",
+        "images/nav-icons/interface.svg",
+        "images/nav-icons/interface-kotlin.svg",
+        "images/nav-icons/object.svg",
     )
 
     override fun invoke(input: RootPageNode) = input.modified(

@@ -1,5 +1,3 @@
-@file:Suppress("UnstableApiUsage")
-
 package org.jetbrains.dokka.gradle
 
 import groovy.lang.Closure
@@ -14,6 +12,7 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
 import org.gradle.kotlin.dsl.listProperty
 import org.gradle.kotlin.dsl.mapProperty
+import org.gradle.work.DisableCachingByDefault
 import org.jetbrains.dokka.*
 import org.jetbrains.dokka.plugability.ConfigurableBlock
 import org.jetbrains.dokka.plugability.DokkaPlugin
@@ -21,6 +20,7 @@ import java.io.File
 import java.util.function.BiConsumer
 import kotlin.reflect.full.createInstance
 
+@DisableCachingByDefault(because = "Abstract super-class, not to be instantiated directly")
 abstract class AbstractDokkaTask : DefaultTask() {
 
     @Input

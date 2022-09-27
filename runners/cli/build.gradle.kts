@@ -3,13 +3,13 @@ import org.jetbrains.registerDokkaArtifactPublication
 
 plugins {
     id("com.github.johnrengelman.shadow")
-    id("com.jfrog.bintray")
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlinx:kotlinx-cli-jvm:0.3.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-cli-jvm:0.3.4")
     implementation(project(":core"))
     implementation(kotlin("stdlib"))
+    testImplementation(kotlin("test-junit"))
 }
 
 tasks {

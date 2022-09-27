@@ -9,6 +9,7 @@ import utils.A
 import utils.Span
 import utils.TestOutputWriterPlugin
 import utils.match
+import java.lang.IllegalStateException
 
 class FunctionalTypeConstructorsSignatureTest : BaseAbstractTest() {
     private val configuration = dokkaConfiguration {
@@ -16,6 +17,19 @@ class FunctionalTypeConstructorsSignatureTest : BaseAbstractTest() {
             sourceSet {
                 sourceRoots = listOf("src/")
                 classpath = listOf(commonStdlibPath!!)
+                externalDocumentationLinks = listOf(
+                    stdlibExternalDocumentationLink,
+                    DokkaConfiguration.ExternalDocumentationLink.Companion.jdk(8)
+                )
+            }
+        }
+    }
+
+    private val jvmConfiguration = dokkaConfiguration {
+        sourceSets {
+            sourceSet {
+                sourceRoots = listOf("src/")
+                classpath = listOf(jvmStdlibPath ?: throw IllegalStateException("JVM stdlib is not found"))
                 externalDocumentationLinks = listOf(
                     stdlibExternalDocumentationLink,
                     DokkaConfiguration.ExternalDocumentationLink.Companion.jdk(8)
@@ -44,7 +58,7 @@ class FunctionalTypeConstructorsSignatureTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/index.html").firstSignature().match(
-                    "val ", A("nF"), ": (", A("Int"), ") -> ", A("String"), Span(),
+                    "val ", A("nF"), ": (", A("Int"), ") -> ", A("String"),
                         ignoreSpanWithTokenStyle = true
                 )
             }
@@ -63,7 +77,7 @@ class FunctionalTypeConstructorsSignatureTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/index.html").firstSignature().match(
-                    "val ", A("nF"), ": (", A("Int"), ") -> ", A("String"), Span(),
+                    "val ", A("nF"), ": (", A("Int"), ") -> ", A("String"),
                         ignoreSpanWithTokenStyle = true
                 )
             }
@@ -82,7 +96,7 @@ class FunctionalTypeConstructorsSignatureTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/index.html").firstSignature().match(
-                    "val ", A("nF"), ": ", A("Boolean"), ".(", A("Int"), ") -> ", A("String"), Span(),
+                    "val ", A("nF"), ": ", A("Boolean"), ".(", A("Int"), ") -> ", A("String"),
                         ignoreSpanWithTokenStyle = true
                 )
             }
@@ -101,13 +115,38 @@ class FunctionalTypeConstructorsSignatureTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/index.html").firstSignature().match(
-                    "val ", A("nF"), ": (param: ", A("Int"), ") -> ", A("String"), Span(),
+                    "val ", A("nF"), ": (param: ", A("Int"), ") -> ", A("String"),
                         ignoreSpanWithTokenStyle = true
                 )
             }
         }
     }
 
+    @Test
+    fun `kotlin syntactic sugar function with param name of generic and functional type`() {
+        val source = source("""
+                            | @Target(AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.TYPE)
+                            | @MustBeDocumented
+                            | annotation class Fancy
+                            |
+                            | fun <T> f(): (param1: T, param2: @Fancy ()->Unit) -> String "
+                            """.trimIndent())
+        val writerPlugin = TestOutputWriterPlugin()
+
+        testInline(
+            source, configuration, pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                writerPlugin.writer.renderedContent("root/example/index.html").lastSignature().match(
+                    "fun <", A("T"), "> ",
+                    A("f"), "(): (param1:", A("T"),
+                    ", param2: ", Span("@", A("Fancy")), " () -> ", A("Unit"),
+                    ") -> ", A("String"),
+                    ignoreSpanWithTokenStyle = true
+                )
+            }
+        }
+    }
     @Disabled // Add coroutines on classpath and get proper import
     @Test
     fun `kotlin normal suspendable function`() {
@@ -121,7 +160,7 @@ class FunctionalTypeConstructorsSignatureTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/index.html").firstSignature().match(
-                    "val ", A("nF"), ": suspend (", A("Int"), ") -> ", A("String"), Span(),
+                    "val ", A("nF"), ": suspend (", A("Int"), ") -> ", A("String"),
                         ignoreSpanWithTokenStyle = true
                 )
             }
@@ -140,7 +179,7 @@ class FunctionalTypeConstructorsSignatureTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/index.html").firstSignature().match(
-                    "val ", A("nF"), ": suspend (", A("Int"), ") -> ", A("String"), Span(),
+                    "val ", A("nF"), ": suspend (", A("Int"), ") -> ", A("String"),
                         ignoreSpanWithTokenStyle = true
                 )
             }
@@ -159,7 +198,7 @@ class FunctionalTypeConstructorsSignatureTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/index.html").firstSignature().match(
-                    "val ", A("nF"), ": suspend ", A("Boolean"), ".(", A("Int"), ") -> ", A("String"), Span(),
+                    "val ", A("nF"), ": suspend ", A("Boolean"), ".(", A("Int"), ") -> ", A("String"),
                         ignoreSpanWithTokenStyle = true
                 )
             }
@@ -178,7 +217,7 @@ class FunctionalTypeConstructorsSignatureTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/index.html").firstSignature().match(
-                    "val ", A("nF"), ": suspend (param: ", A("Int"), ") -> ", A("String"), Span(),
+                    "val ", A("nF"), ": suspend (param: ", A("Int"), ") -> ", A("String"),
                         ignoreSpanWithTokenStyle = true
                 )
             }
@@ -210,8 +249,7 @@ class FunctionalTypeConstructorsSignatureTest : BaseAbstractTest() {
                     A("Boolean"),
                     ") -> ",
                     A("String"),
-                    Span(),
-                        ignoreSpanWithTokenStyle = true
+                    ignoreSpanWithTokenStyle = true
                 )
             }
         }
@@ -235,8 +273,8 @@ class FunctionalTypeConstructorsSignatureTest : BaseAbstractTest() {
             pluginOverrides = listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
-                writerPlugin.writer.renderedContent("root/example/-java-class/index.html").signature().last().match(
-                    "open val ", A("javaFunction"), ": (", A("Integer"), ") -> ", A("String"), Span(),
+                writerPlugin.writer.renderedContent("root/example/-java-class/index.html").lastSignature().match(
+                    "open var ", A("javaFunction"), ": (", A("Integer"), ") -> ", A("String"),
                         ignoreSpanWithTokenStyle = true
                 )
             }
@@ -257,12 +295,12 @@ class FunctionalTypeConstructorsSignatureTest : BaseAbstractTest() {
 
         testInline(
             source,
-            configuration,
+            jvmConfiguration,
             pluginOverrides = listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
-                writerPlugin.writer.renderedContent("root/example/-java-class/index.html").signature().last().match(
-                    "open val ", A("kotlinFunction"), ": (", A("Integer"), ") -> ", A("String"), Span(),
+                writerPlugin.writer.renderedContent("root/example/-java-class/index.html").lastSignature().match(
+                    "open var ", A("kotlinFunction"), ": (", A("Integer"), ") -> ", A("String"),
                         ignoreSpanWithTokenStyle = true
                 )
             }

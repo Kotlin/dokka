@@ -1,8 +1,6 @@
 package org.jetbrains
 
 import com.github.jengelman.gradle.plugins.shadow.ShadowExtension
-import com.jfrog.bintray.gradle.BintrayExtension
-import kotlinx.validation.ApiValidationExtension
 import org.gradle.api.Project
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
@@ -10,7 +8,6 @@ import org.gradle.api.publish.maven.tasks.PublishToMavenRepository
 import org.gradle.kotlin.dsl.*
 import org.gradle.plugins.signing.SigningExtension
 import org.jetbrains.DokkaPublicationChannel.*
-import io.github.gradlenexus.publishplugin.NexusPublishExtension
 import java.net.URI
 
 class DokkaPublicationBuilder {
@@ -42,7 +39,6 @@ fun Project.registerDokkaArtifactPublication(publicationName: String, configure:
         }
     }
 
-    configureBintrayPublicationIfNecessary(publicationName)
     configureSpacePublicationIfNecessary(publicationName)
     configureSonatypePublicationIfNecessary(publicationName)
     createDokkaPublishTaskIfNecessary()
@@ -50,13 +46,13 @@ fun Project.registerDokkaArtifactPublication(publicationName: String, configure:
 }
 
 fun Project.configureSpacePublicationIfNecessary(vararg publications: String) {
-    if (SpaceDokkaDev in this.publicationChannels) {
+    if (SPACE_DOKKA_DEV in this.publicationChannels) {
         configure<PublishingExtension> {
             repositories {
                 /* already registered */
-                findByName(SpaceDokkaDev.name)?.let { return@repositories }
+                findByName(SPACE_DOKKA_DEV.name)?.let { return@repositories }
                 maven {
-                    name = SpaceDokkaDev.name
+                    name = SPACE_DOKKA_DEV.name
                     url = URI.create("https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev")
                     credentials {
                         username = System.getenv("SPACE_PACKAGES_USER")
@@ -69,7 +65,7 @@ fun Project.configureSpacePublicationIfNecessary(vararg publications: String) {
 
     whenEvaluated {
         tasks.withType<PublishToMavenRepository> {
-            if (this.repository.name == SpaceDokkaDev.name) {
+            if (this.repository.name == SPACE_DOKKA_DEV.name) {
                 this.isEnabled = this.isEnabled && publication.name in publications
                 if (!this.isEnabled) {
                     this.group = "disabled"
@@ -81,62 +77,22 @@ fun Project.configureSpacePublicationIfNecessary(vararg publications: String) {
 
 fun Project.createDokkaPublishTaskIfNecessary() {
     tasks.maybeCreate("dokkaPublish").run {
-        if (publicationChannels.any { it.isSpaceRepository }) {
+        if (publicationChannels.any { it.isSpaceRepository() }) {
             dependsOn(tasks.named("publish"))
         }
 
-        if (publicationChannels.any { it.isMavenRepository }) {
+        if (publicationChannels.any { it.isMavenRepository() }) {
             dependsOn(tasks.named("publishToSonatype"))
         }
 
-        if (publicationChannels.any { it.isBintrayRepository }) {
-            dependsOn(tasks.named("bintrayUpload"))
+        if (publicationChannels.any { it.isGradlePluginPortal() }) {
+            dependsOn(tasks.named("publishPlugins"))
         }
-    }
-}
-
-fun Project.configureBintrayPublicationIfNecessary(vararg publications: String) {
-    if (publicationChannels.any { it.isBintrayRepository }) {
-        configureBintrayPublication(*publications)
-    }
-}
-
-private fun Project.configureBintrayPublication(vararg publications: String) {
-    extensions.configure<BintrayExtension>("bintray") {
-        user = System.getenv("BINTRAY_USER")
-        key = System.getenv("BINTRAY_KEY")
-        dryRun = System.getenv("BINTRAY_DRY_RUN") == "true" ||
-                project.properties["bintray_dry_run"] == "true"
-        pkg = PackageConfig().apply {
-            val bintrayPublicationChannels = publicationChannels.filter { it.isBintrayRepository }
-            if (bintrayPublicationChannels.size > 1) {
-                throw IllegalArgumentException(
-                    "Only a single bintray repository can be used for publishing at once. Found $publicationChannels"
-                )
-            }
-
-            repo = when (bintrayPublicationChannels.single()) {
-                SpaceDokkaDev, MavenCentral, MavenCentralSnapshot -> throw IllegalStateException("${bintrayPublicationChannels.single()} is not a bintray repository")
-                BintrayKotlinDev -> "kotlin-dev"
-                BintrayKotlinEap -> "kotlin-eap"
-                BintrayKotlinDokka -> "dokka"
-            }
-
-            name = "dokka"
-            userOrg = "kotlin"
-            desc = "Dokka, the Kotlin documentation tool"
-            vcsUrl = "https://github.com/kotlin/dokka.git"
-            setLicenses("Apache-2.0")
-            version = VersionConfig().apply {
-                name = dokkaVersion
-            }
-        }
-        setPublications(*publications)
     }
 }
 
 fun Project.configureSonatypePublicationIfNecessary(vararg publications: String) {
-    if (publicationChannels.any { it.isMavenRepository }) {
+    if (publicationChannels.any { it.isMavenRepository() }) {
         signPublicationsIfKeyPresent(*publications)
     }
 }
@@ -144,7 +100,7 @@ fun Project.configureSonatypePublicationIfNecessary(vararg publications: String)
 fun MavenPublication.configurePom(projectName: String) {
     pom {
         name.set(projectName)
-        description.set("Dokka is a documentation engine for Kotlin and Java, performing the same function as Javadoc for Java")
+        description.set("Dokka is an API documentation engine for Kotlin and Java, performing the same function as Javadoc for Java")
         url.set("https://github.com/Kotlin/dokka")
 
         licenses {

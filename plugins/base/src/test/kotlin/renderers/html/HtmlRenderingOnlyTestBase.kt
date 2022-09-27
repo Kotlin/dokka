@@ -43,15 +43,16 @@ abstract class HtmlRenderingOnlyTestBase : RenderingOnlyTestBase<Element>() {
     val files = TestOutputWriter()
 
     open val configuration = DokkaConfigurationImpl(
-        sourceSets = listOf(js, jvm, native)
+        sourceSets = listOf(js, jvm, native),
+        finalizeCoroutines = false
     )
 
     override val context = MockContext(
-        DokkaBase().outputWriter to { _ -> files },
+        DokkaBase().outputWriter to { files },
         DokkaBase().locationProviderFactory to ::DokkaLocationProviderFactory,
-        DokkaBase().htmlPreprocessors to { _ -> RootCreator },
-        DokkaBase().externalLocationProviderFactory to { ::JavadocExternalLocationProviderFactory },
-        DokkaBase().externalLocationProviderFactory to { ::DefaultExternalLocationProviderFactory },
+        DokkaBase().htmlPreprocessors to { RootCreator },
+        DokkaBase().externalLocationProviderFactory to ::JavadocExternalLocationProviderFactory,
+        DokkaBase().externalLocationProviderFactory to ::DefaultExternalLocationProviderFactory,
         DokkaBase().tabSortingStrategy to { DefaultTabSortingStrategy() },
         testConfiguration = configuration
     )

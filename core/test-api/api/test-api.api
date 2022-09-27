@@ -83,14 +83,15 @@ public abstract interface annotation class testApi/testRunner/DokkaConfiguration
 }
 
 public final class testApi/testRunner/DokkaSourceSetBuilder {
-	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Ljava/util/List;Ljava/util/Set;Ljava/util/List;Ljava/util/List;ZZZZILjava/lang/String;Ljava/lang/String;ZZLjava/util/List;Ljava/lang/String;Ljava/util/List;Ljava/util/List;Ljava/util/List;)V
-	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Ljava/util/List;Ljava/util/Set;Ljava/util/List;Ljava/util/List;ZZZZILjava/lang/String;Ljava/lang/String;ZZLjava/util/List;Ljava/lang/String;Ljava/util/List;Ljava/util/List;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Ljava/util/List;Ljava/util/Set;Ljava/util/List;Ljava/util/List;ZLjava/util/Set;ZZZILjava/lang/String;Ljava/lang/String;ZZLjava/util/List;Ljava/lang/String;Ljava/util/List;Ljava/util/List;Ljava/util/List;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Ljava/util/List;Ljava/util/Set;Ljava/util/List;Ljava/util/List;ZLjava/util/Set;ZZZILjava/lang/String;Ljava/lang/String;ZZLjava/util/List;Ljava/lang/String;Ljava/util/List;Ljava/util/List;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun build ()Lorg/jetbrains/dokka/DokkaSourceSetImpl;
 	public final fun getAnalysisPlatform ()Ljava/lang/String;
 	public final fun getApiVersion ()Ljava/lang/String;
 	public final fun getClasspath ()Ljava/util/List;
 	public final fun getDependentSourceSets ()Ljava/util/Set;
 	public final fun getDisplayName ()Ljava/lang/String;
+	public final fun getDocumentedVisibilities ()Ljava/util/Set;
 	public final fun getExternalDocumentationLinks ()Ljava/util/List;
 	public final fun getIncludeNonPublic ()Z
 	public final fun getIncludes ()Ljava/util/List;
@@ -112,6 +113,7 @@ public final class testApi/testRunner/DokkaSourceSetBuilder {
 	public final fun setClasspath (Ljava/util/List;)V
 	public final fun setDependentSourceSets (Ljava/util/Set;)V
 	public final fun setDisplayName (Ljava/lang/String;)V
+	public final fun setDocumentedVisibilities (Ljava/util/Set;)V
 	public final fun setExternalDocumentationLinks (Ljava/util/List;)V
 	public final fun setIncludeNonPublic (Z)V
 	public final fun setIncludes (Ljava/util/List;)V

@@ -7,20 +7,18 @@ import org.jetbrains.dokka.transformers.documentation.DocumentableTransformer
 
 class JvmNameDocumentableTransformer : DocumentableTransformer {
     private val jvmNameProvider = JvmNameProvider()
-    private lateinit var context: DokkaContext
 
     override fun invoke(original: DModule, context: DokkaContext): DModule {
-        this.context = context
-        return original.copy(packages = original.packages.map { transform(it) })
+        return original.copy(packages = original.packages.map { transform(it, context) })
     }
 
-    private fun <T : Documentable> transform(documentable: T): T =
-        with(documentable) {
+    internal fun <T : Documentable> transform(documentable: T, context: DokkaContext): T {
+        val transformResult = with(documentable) {
             when (this) {
                 is DPackage -> copy(
-                    functions = functions.map { transform(it) },
-                    properties = properties.map { transform(it) },
-                    classlikes = classlikes.map { transform(it) },
+                    functions = functions.map { transform(it, context) },
+                    properties = properties.map { transform(it, context) },
+                    classlikes = classlikes.map { transform(it, context) },
                 )
                 is DFunction -> {
                     val name = jvmNameProvider.nameFor(this)
@@ -31,18 +29,21 @@ class JvmNameDocumentableTransformer : DocumentableTransformer {
                     )
                 }
                 is DProperty -> transformGetterAndSetter(this)
-                is DClasslike -> transformClassLike(this)
+                is DClasslike -> transformClassLike(this, context)
                 is DEnumEntry -> copy(
-                    functions = functions.map { transform(it) },
-                    properties = properties.map { transform(it) },
-                    classlikes = classlikes.map { transform(it) },
+                    functions = functions.map { transform(it, context) },
+                    properties = properties.map { transform(it, context) },
+                    classlikes = classlikes.map { transform(it, context) },
                 )
                 else -> {
                     context.logger.warn("Failed to translate a JvmName for ${this.javaClass.canonicalName}")
                     this
                 }
             }
-        } as T
+        }
+        @Suppress("UNCHECKED_CAST")
+        return transformResult as T
+    }
 
     private fun PropertyContainer<DFunction>.withoutJvmName(): PropertyContainer<DFunction> {
         val annotationsWithoutJvmName = get(Annotations)?.let { annotations ->
@@ -55,33 +56,33 @@ class JvmNameDocumentableTransformer : DocumentableTransformer {
         return extraWithoutAnnotations.addAll(listOfNotNull(annotationsWithoutJvmName))
     }
 
-    private fun transformClassLike(documentable: DClasslike): DClasslike =
+    private fun transformClassLike(documentable: DClasslike, context: DokkaContext): DClasslike =
         with(documentable) {
             when (this) {
                 is DClass -> copy(
-                    functions = functions.map { transform(it) },
-                    properties = properties.map { transform(it) },
-                    classlikes = classlikes.map { transform(it) },
+                    functions = functions.map { transform(it, context) },
+                    properties = properties.map { transform(it, context) },
+                    classlikes = classlikes.map { transform(it, context) },
                 )
                 is DAnnotation -> copy(
-                    functions = functions.map { transform(it) },
-                    properties = properties.map { transform(it) },
-                    classlikes = classlikes.map { transform(it) },
+                    functions = functions.map { transform(it, context) },
+                    properties = properties.map { transform(it, context) },
+                    classlikes = classlikes.map { transform(it, context) },
                 )
                 is DObject -> copy(
-                    functions = functions.map { transform(it) },
-                    properties = properties.map { transform(it) },
-                    classlikes = classlikes.map { transform(it) },
+                    functions = functions.map { transform(it, context) },
+                    properties = properties.map { transform(it, context) },
+                    classlikes = classlikes.map { transform(it, context) },
                 )
                 is DEnum -> copy(
-                    functions = functions.map { transform(it) },
-                    properties = properties.map { transform(it) },
-                    classlikes = classlikes.map { transform(it) },
+                    functions = functions.map { transform(it, context) },
+                    properties = properties.map { transform(it, context) },
+                    classlikes = classlikes.map { transform(it, context) },
                 )
                 is DInterface -> copy(
-                    functions = functions.map { transform(it) },
-                    properties = properties.map { transform(it) },
-                    classlikes = classlikes.map { transform(it) },
+                    functions = functions.map { transform(it, context) },
+                    properties = properties.map { transform(it, context) },
+                    classlikes = classlikes.map { transform(it, context) },
                 )
             }
         }

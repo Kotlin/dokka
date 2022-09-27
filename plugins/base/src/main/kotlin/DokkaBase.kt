@@ -29,6 +29,12 @@ import org.jetbrains.dokka.base.translators.documentables.DefaultDocumentableToP
 import org.jetbrains.dokka.base.translators.psi.DefaultPsiToDocumentableTranslator
 import org.jetbrains.dokka.base.generation.SingleModuleGeneration
 import org.jetbrains.dokka.base.renderers.html.command.consumers.ReplaceVersionsConsumer
+import org.jetbrains.dokka.base.transformers.pages.tags.CustomTagContentProvider
+import org.jetbrains.dokka.base.transformers.pages.tags.SinceKotlinTagContentProvider
+import org.jetbrains.dokka.base.translators.descriptors.DefaultExternalDocumentablesProvider
+import org.jetbrains.dokka.base.translators.descriptors.ExternalClasslikesTranslator
+import org.jetbrains.dokka.base.translators.descriptors.ExternalDocumentablesProvider
+import org.jetbrains.dokka.base.utils.NoopIntellijLoggerFactory
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.transformers.documentation.PreMergeDocumentableTransformer
 import org.jetbrains.dokka.transformers.pages.PageTransformer
@@ -38,6 +44,7 @@ class DokkaBase : DokkaPlugin() {
     val preMergeDocumentableTransformer by extensionPoint<PreMergeDocumentableTransformer>()
     val pageMergerStrategy by extensionPoint<PageMergerStrategy>()
     val commentsToContentConverter by extensionPoint<CommentsToContentConverter>()
+    val customTagContentProvider by extensionPoint<CustomTagContentProvider>()
     val signatureProvider by extensionPoint<SignatureProvider>()
     val locationProviderFactory by extensionPoint<LocationProviderFactory>()
     val externalLocationProviderFactory by extensionPoint<ExternalLocationProviderFactory>()
@@ -46,6 +53,8 @@ class DokkaBase : DokkaPlugin() {
     val kotlinAnalysis by extensionPoint<KotlinAnalysis>()
     val tabSortingStrategy by extensionPoint<TabSortingStrategy>()
     val immediateHtmlCommandConsumer by extensionPoint<ImmediateHtmlCommandConsumer>()
+    val externalDocumentablesProvider by extensionPoint<ExternalDocumentablesProvider>()
+    val externalClasslikesTranslator by extensionPoint<ExternalClasslikesTranslator>()
 
     val singleGeneration by extending {
         CoreExtensions.generation providing ::SingleModuleGeneration
@@ -144,6 +153,10 @@ class DokkaBase : DokkaPlugin() {
 
     val docTagToContentConverter by extending {
         commentsToContentConverter with DocTagToContentConverter()
+    }
+
+    val sinceKotlinTagContentProvider by extending {
+        customTagContentProvider with SinceKotlinTagContentProvider
     }
 
     val pageMerger by extending {
@@ -251,5 +264,21 @@ class DokkaBase : DokkaPlugin() {
     }
     val baseSearchbarDataInstaller by extending {
         htmlPreprocessors providing ::SearchbarDataInstaller order { after(sourceLinksTransformer) }
+    }
+
+    val defaultExternalDocumentablesProvider by extending {
+        externalDocumentablesProvider providing ::DefaultExternalDocumentablesProvider
+    }
+
+    val defaultExternalClasslikesTranslator by extending {
+        externalClasslikesTranslator providing ::DefaultDescriptorToDocumentableTranslator
+    }
+
+    private companion object {
+        init {
+            // Suppress messages emitted by the IntelliJ logger since
+            // there's not much the end user can do about it
+            com.intellij.openapi.diagnostic.Logger.setFactory(NoopIntellijLoggerFactory())
+        }
     }
 }

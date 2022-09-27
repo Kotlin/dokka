@@ -1,7 +1,10 @@
 package model
 
+import org.jetbrains.dokka.model.DClass
 import org.jetbrains.dokka.model.DProperty
-import org.jetbrains.dokka.model.doc.*
+import org.jetbrains.dokka.model.doc.CodeBlock
+import org.jetbrains.dokka.model.doc.CustomTagWrapper
+import org.jetbrains.dokka.model.doc.Text
 import org.junit.jupiter.api.Test
 import utils.*
 
@@ -97,7 +100,6 @@ class CommentTest : AbstractModelTest("/src/main/kotlin/comment/Test.kt", "comme
             |fun tst() = property
         """
         ) {
-            val p = this
             with((this / "comment" / "property").cast<DProperty>()) {
                 comments() equals ""
             }
@@ -200,11 +202,9 @@ class CommentTest : AbstractModelTest("/src/main/kotlin/comment/Test.kt", "comme
         ) {
             with((this / "comment" / "property").cast<DProperty>()) {
                 comments() equals "Summary\n\none: []"
-                docs().find { it is CustomTagWrapper && it.name == "one" }.let {
-                    with(it.assertNotNull("'one' entry")) {
-                        root.children counts 0
-                        root.params.keys counts 0
-                    }
+                with(docs().find { it is CustomTagWrapper && it.name == "one" }.assertNotNull("'one' entry")) {
+                    root.children counts 0
+                    root.params.keys counts 0
                 }
             }
         }
@@ -280,84 +280,54 @@ class CommentTest : AbstractModelTest("/src/main/kotlin/comment/Test.kt", "comme
         }
     }
 
-//    @Test todo
-    fun directive() {
+    @Test
+    fun `should be space between Markdown nodes`() {
         inlineModelTest(
             """
             |/**
-            | * Summary
-            | *
-            | * @sample example1
-            | * @sample example2
-            | * @sample X.example3
-            | * @sample X.Y.example4
+            | * Rotates paths by `amount` **radians** around (`x`, `y`).
             | */
             |val property = "test"
-            |
-            |fun example1(node: String) = if (true) {
-            |    println(property)
-            |}
-            |
-            |fun example2(node: String) {
-            |    if (true) {
-            |        println(property)
-            |    }
-            |}
-            |
-            |class X {
-            |    fun example3(node: String) {
-            |        if (true) {
-            |            println(property)
-            |        }
-            |    }
-            |
-            |    class Y {
-            |        fun example4(node: String) {
-            |            if (true) {
-            |                println(property)
-            |            }
-            |        }
-            |    }
-            |}
         """
         ) {
             with((this / "comment" / "property").cast<DProperty>()) {
-                this
+                comments() equals "Rotates paths by amount radians around (x, y).\n"
             }
         }
     }
 
-
-//    @Test fun directive() {
-//        checkSourceExistsAndVerifyModel("testdata/comments/directive.kt", defaultModelConfig) { model ->
-//            with(model.members.single().members.first()) {
-//                assertEquals("Summary", content.summary.toTestString())
-//                with (content.description) {
-//                    assertEqualsIgnoringSeparators("""
-//                        |[code lang=kotlin]
-//                        |if (true) {
-//                        |    println(property)
-//                        |}
-//                        |[/code]
-//                        |[code lang=kotlin]
-//                        |if (true) {
-//                        |    println(property)
-//                        |}
-//                        |[/code]
-//                        |[code lang=kotlin]
-//                        |if (true) {
-//                        |    println(property)
-//                        |}
-//                        |[/code]
-//                        |[code lang=kotlin]
-//                        |if (true) {
-//                        |    println(property)
-//                        |}
-//                        |[/code]
-//                        |""".trimMargin(), toTestString())
-//                }
-//            }
-//        }
-//    }
+    @Test
+    fun `should remove spaces inside indented code block`() {
+        inlineModelTest(
+            """
+            |/**
+            | * Welcome:
+            | *
+            | * ```kotlin
+            | * fun main() {
+            | *     println("Hello World!")
+            | * }
+            | * ```
+            | *
+            | *     fun thisIsACodeBlock() {
+            | *         val butWhy = "per markdown spec, because four-spaces prefix"
+            | *     }
+            | */
+            |class Foo
+        """
+        ) {
+            with((this / "comment" / "Foo").cast<DClass>()) {
+                docs()[0].children[2] equals CodeBlock(
+                    listOf(
+                        Text(
+                            "fun thisIsACodeBlock() {\n" +
+                                    "    val butWhy = \"per markdown spec, because four-spaces prefix\"\n" +
+                                    "}"
+                        )
+                    )
+                )
+            }
+        }
+    }
 
 }

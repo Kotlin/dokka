@@ -33,10 +33,9 @@ data class ContentText(
 ) : ContentNode {
     override fun withNewExtras(newExtras: PropertyContainer<ContentNode>): ContentText = copy(extra = newExtras)
     override fun withSourceSets(sourceSets: Set<DisplaySourceSet>): ContentText = copy(sourceSets = sourceSets)
-    override fun hasAnyContent(): Boolean = !text.isBlank()
+    override fun hasAnyContent(): Boolean = text.isNotBlank()
 }
 
-// TODO: Remove
 data class ContentBreakLine(
     override val sourceSets: Set<DisplaySourceSet>,
     override val dci: DCI = DCI(emptySet(), ContentKind.Empty),
@@ -316,10 +315,30 @@ data class PlatformHintedContent(
 interface Style
 interface Kind
 
+/**
+ * [ContentKind] represents a grouping of content of one kind that can can be rendered
+ * as part of a composite page (one tab/block within a class's page, for instance).
+ */
 enum class ContentKind : Kind {
 
-    Comment, Constructors, Functions, Parameters, Properties, Classlikes, Packages, Symbol, Sample, Main, BriefComment,
-    Empty, Source, TypeAliases, Cover, Inheritors, SourceSetDependentHint, Extensions, Annotations;
+    /**
+     * Marks all sorts of signatures. Can contain sub-kinds marked as [SymbolContentKind]
+     *
+     * Some examples:
+     * - primary constructor: `data class CoroutineName(name: String) : AbstractCoroutineContextElement`
+     * - constructor: `fun CoroutineName(name: String)`
+     * - function: `open override fun toString(): String`
+     * - property: `val name: String`
+     */
+    Symbol,
+
+    Comment, Constructors, Functions, Parameters, Properties, Classlikes, Packages, Sample, Main, BriefComment,
+    Empty, Source, TypeAliases, Cover, Inheritors, SourceSetDependentHint, Extensions, Annotations,
+
+    /**
+     * Deprecation details block with related information such as message/replaceWith/level.
+     */
+    Deprecation;
 
     companion object {
         private val platformTagged =
@@ -338,16 +357,65 @@ enum class ContentKind : Kind {
         fun shouldBePlatformTagged(kind: Kind): Boolean = kind in platformTagged
     }
 }
+
+/**
+ * Content kind for [ContentKind.Symbol] content, which is essentially about signatures
+ */
+enum class SymbolContentKind : Kind {
+    /**
+     * Marks constructor/function parameters, everything in-between parentheses.
+     *
+     * For function `fun foo(bar: String, baz: Int, qux: Boolean)`,
+     * the parameters would be the whole of `bar: String, baz: Int, qux: Boolean`
+     */
+    Parameters,
+
+    /**
+     * Marks a single parameter in a function. Most likely to be a child of [Parameters].
+     *
+     * In function `fun foo(bar: String, baz: Int, qux: Boolean)` there would be 3 [Parameter] instances:
+     * - `bar: String, `
+     * - `baz: Int, `
+     * - `qux: Boolean`
+     */
+    Parameter,
+}
+
 enum class TokenStyle : Style {
-    Keyword, Punctuation, Function, Operator, Annotation, Number, String, Boolean, Constant, Builtin
+    Keyword, Punctuation, Function, Operator, Annotation, Number, String, Boolean, Constant
 }
 
 enum class TextStyle : Style {
-    Bold, Italic, Strong, Strikethrough, Paragraph, Block, Span, Monospace, Indented, Cover, UnderCoverText, BreakableAfter, Breakable
+    Bold, Italic, Strong, Strikethrough, Paragraph,
+    Block, Span, Monospace, Indented, Cover, UnderCoverText, BreakableAfter, Breakable, InlineComment, Quotation,
+    FloatingRight, Var, Underlined
 }
 
 enum class ContentStyle : Style {
-    RowTitle, TabbedContent, WithExtraAttributes, RunnableSample, InDocumentationAnchor, Caption
+    RowTitle, TabbedContent, WithExtraAttributes, RunnableSample, InDocumentationAnchor, Caption,
+    Wrapped, Indented, KDocTag, Footnote
+}
+
+enum class ListStyle : Style {
+    /**
+     * Represents a list of groups of [DescriptionTerm] and [DescriptionDetails].
+     * Common uses for this element are to implement a glossary or to display
+     * metadata (a list of key-value pairs). Formatting example: see `<dl>` html tag.
+     */
+    DescriptionList,
+
+    /**
+     * If used within [DescriptionList] context, specifies a term in a description
+     * or definition list, usually followed by [DescriptionDetails] for one or more
+     * terms. Formatting example: see `<dt>` html tag
+     */
+    DescriptionTerm,
+
+    /**
+     * If used within [DescriptionList] context, provides the definition or other
+     * related text associated with [DescriptionTerm]. Formatting example: see `<dd>` html tag
+     */
+    DescriptionDetails
 }
 
 object CommentTable : Style

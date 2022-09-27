@@ -1,6 +1,7 @@
 public final class matchers/content/ContentMatcherBuilder {
 	public fun <init> (Lkotlin/reflect/KClass;)V
 	public final fun build ()Lorg/jetbrains/dokka/test/tools/matchers/content/CompositeMatcher;
+	public final fun getChildren ()Ljava/util/List;
 	public final fun unaryPlus (Ljava/lang/String;)V
 }
 
@@ -14,6 +15,8 @@ public final class matchers/content/ContentMatchersDslKt {
 	public static final fun br (Lmatchers/content/ContentMatcherBuilder;)V
 	public static final fun caption (Lmatchers/content/ContentMatcherBuilder;Lkotlin/jvm/functions/Function1;)V
 	public static final fun check (Lmatchers/content/ContentMatcherBuilder;Lkotlin/jvm/functions/Function1;)V
+	public static final fun codeBlock (Lmatchers/content/ContentMatcherBuilder;Lkotlin/jvm/functions/Function1;)V
+	public static final fun codeInline (Lmatchers/content/ContentMatcherBuilder;Lkotlin/jvm/functions/Function1;)V
 	public static final fun divergent (Lmatchers/content/ContentMatcherBuilder;Lkotlin/jvm/functions/Function1;)V
 	public static final fun divergentGroup (Lmatchers/content/ContentMatcherBuilder;Lkotlin/jvm/functions/Function1;)V
 	public static final fun divergentInstance (Lmatchers/content/ContentMatcherBuilder;Lkotlin/jvm/functions/Function1;)V

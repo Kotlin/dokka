@@ -4,10 +4,11 @@ import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.PluginConfigurationImpl
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.DokkaBaseConfiguration
+import org.jetbrains.dokka.base.renderers.html.TEMPLATE_REPLACEMENT
 import org.jetbrains.dokka.base.templating.toJsonString
+import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.DokkaPlugin
-import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 import org.jsoup.Jsoup
 import org.junit.jupiter.api.Test
@@ -62,9 +63,9 @@ class ResourceLinksTest : BaseAbstractTest() {
             configuration,
             pluginOverrides = listOf(TestResourcesAppenderPlugin(absoluteResources + relativeResources), writerPlugin)
         ) {
-            renderingStage = { root, context ->
+            renderingStage = { _, _ ->
                 Jsoup
-                    .parse(writerPlugin.writer.contents["root/example.html"])
+                    .parse(writerPlugin.writer.contents.getValue("root/example.html"))
                     .head()
                     .select("link, script")
                     .let {
@@ -113,7 +114,7 @@ class ResourceLinksTest : BaseAbstractTest() {
             configuration,
             pluginOverrides = listOf(writerPlugin)
         ) {
-            renderingStage = { root, context ->
+            renderingStage = { _, _ ->
                 run {
                     if (isMultiModule) {
                         assertNull(writerPlugin.writer.contents["images/customImage.svg"])
@@ -124,17 +125,17 @@ class ResourceLinksTest : BaseAbstractTest() {
                     }
                     if (isMultiModule) {
                         Jsoup
-                            .parse(writerPlugin.writer.contents["example.html"])
-                            .body()
+                            .parse(writerPlugin.writer.contents.getValue("example.html"))
+                            .head()
                             .select("link, script")
                             .let {
                                 listOf("styles/customStyle.css").forEach { r ->
-                                    assert(it.`is`("[href=###$r]"))
+                                    assert(it.`is`("[href=$TEMPLATE_REPLACEMENT$r]"))
                                 }
                             }
                     } else {
                         Jsoup
-                            .parse(writerPlugin.writer.contents["root/example.html"])
+                            .parse(writerPlugin.writer.contents.getValue("root/example.html"))
                             .head()
                             .select("link, script")
                             .let {
@@ -178,12 +179,12 @@ class ResourceLinksTest : BaseAbstractTest() {
             configuration,
             pluginOverrides = listOf(TestResourcesAppenderPlugin(absoluteResources + relativeResources), writerPlugin)
         ) {
-            renderingStage = { root, context ->
+            renderingStage = { _, _ ->
                 run {
                     assertNull(writerPlugin.writer.contents["scripts/relativePath.js"])
                     assertNull(writerPlugin.writer.contents["styles/relativePath.js"])
                     Jsoup
-                        .parse(writerPlugin.writer.contents["root/example.html"])
+                        .parse(writerPlugin.writer.contents.getValue("root/example.html"))
                         .head()
                         .select("link, script")
                         .let {

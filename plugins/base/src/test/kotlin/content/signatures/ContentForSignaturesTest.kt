@@ -1,6 +1,7 @@
 package content.signatures
 
 import matchers.content.*
+import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.doc.Text
 import org.jetbrains.dokka.pages.*
@@ -18,7 +19,12 @@ class ContentForSignaturesTest : BaseAbstractTest() {
             sourceSet {
                 sourceRoots = listOf("src/")
                 analysisPlatform = "jvm"
-                includeNonPublic = true
+                documentedVisibilities = setOf(
+                    DokkaConfiguration.Visibility.PUBLIC,
+                    DokkaConfiguration.Visibility.PRIVATE,
+                    DokkaConfiguration.Visibility.PROTECTED,
+                    DokkaConfiguration.Visibility.INTERNAL,
+                )
             }
         }
     }

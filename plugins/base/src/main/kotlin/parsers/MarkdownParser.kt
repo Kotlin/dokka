@@ -10,8 +10,10 @@ import org.intellij.markdown.ast.impl.ListItemCompositeNode
 import org.intellij.markdown.flavours.gfm.GFMElementTypes
 import org.intellij.markdown.flavours.gfm.GFMFlavourDescriptor
 import org.intellij.markdown.flavours.gfm.GFMTokenTypes
+import org.intellij.markdown.html.HtmlGenerator
 import org.jetbrains.dokka.base.parsers.factories.DocTagsFromIElementFactory
 import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.links.PointingToDeclaration
 import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.model.doc.Suppress
 import org.jetbrains.kotlin.kdoc.parser.KDocKnownTag
@@ -51,7 +53,7 @@ open class MarkdownParser(
                 val dri = externalDri(referencedName)
                 See(
                     parseStringToDocNode(content.substringAfter(' ')),
-                    dri?.fqName() ?: referencedName,
+                    dri?.fqDeclarationName() ?: referencedName,
                     dri
                 )
             }
@@ -59,7 +61,7 @@ open class MarkdownParser(
                 val dri = externalDri(content.substringBefore(' '))
                 Throws(
                     parseStringToDocNode(content.substringAfter(' ')),
-                    dri?.fqName() ?: content.substringBefore(' '),
+                    dri?.fqDeclarationName() ?: content.substringBefore(' '),
                     dri
                 )
             }
@@ -74,7 +76,7 @@ open class MarkdownParser(
             ).flatMap { it.children }
         )
 
-    private fun horizontalRulesHandler(node: ASTNode) =
+    private fun horizontalRulesHandler() =
         DocTagsFromIElementFactory.getInstance(MarkdownTokenTypes.HORIZONTAL_RULE)
 
     private fun emphasisHandler(node: ASTNode) =
@@ -194,7 +196,9 @@ open class MarkdownParser(
     private fun markdownFileHandler(node: ASTNode) =
         DocTagsFromIElementFactory.getInstance(
             node.type,
-            children = node.children.evaluateChildren()
+            children = node.children
+                .filterSpacesAndEOL()
+                .evaluateChildren()
         )
 
     private fun autoLinksHandler(node: ASTNode): List<DocTag> {
@@ -249,17 +253,23 @@ open class MarkdownParser(
 
     private fun tableHandler(node: ASTNode) = DocTagsFromIElementFactory.getInstance(
         GFMElementTypes.TABLE,
-        children = node.children.filterTabSeparators().evaluateChildren()
+        children = node.children
+            .filter { it.type == GFMElementTypes.ROW || it.type == GFMElementTypes.HEADER }
+            .evaluateChildren()
     )
 
     private fun headerHandler(node: ASTNode) = DocTagsFromIElementFactory.getInstance(
         GFMElementTypes.HEADER,
-        children = node.children.filterTabSeparators().evaluateChildren()
+        children = node.children
+            .filter { it.type == GFMTokenTypes.CELL }
+            .evaluateChildren()
     )
 
     private fun rowHandler(node: ASTNode) = DocTagsFromIElementFactory.getInstance(
         GFMElementTypes.ROW,
-        children = node.children.filterTabSeparators().evaluateChildren()
+        children = node.children
+            .filter { it.type == GFMTokenTypes.CELL }
+            .evaluateChildren()
     )
 
     private fun cellHandler(node: ASTNode) = DocTagsFromIElementFactory.getInstance(
@@ -335,7 +345,7 @@ open class MarkdownParser(
         DocTagsFromIElementFactory.getInstance(node.type, children = node.children.mergeLeafASTNodes().flatMap {
             DocTagsFromIElementFactory.getInstance(
                 MarkdownTokenTypes.TEXT,
-                body = text.substring(it.startOffset, it.endOffset)
+                body = HtmlGenerator.trimIndents(text.substring(it.startOffset, it.endOffset), 4).toString()
             )
         })
 
@@ -354,7 +364,7 @@ open class MarkdownParser(
             MarkdownElementTypes.ATX_5,
             MarkdownElementTypes.ATX_6,
             -> headersHandler(node)
-            MarkdownTokenTypes.HORIZONTAL_RULE -> horizontalRulesHandler(node)
+            MarkdownTokenTypes.HORIZONTAL_RULE -> horizontalRulesHandler()
             MarkdownElementTypes.STRONG -> strongHandler(node)
             MarkdownElementTypes.EMPH -> emphasisHandler(node)
             MarkdownElementTypes.FULL_REFERENCE_LINK,
@@ -390,6 +400,9 @@ open class MarkdownParser(
 
     private fun List<ASTNode>.filterTabSeparators() =
         this.filterNot { it.type == GFMTokenTypes.TABLE_SEPARATOR }
+
+    private fun List<ASTNode>.filterSpacesAndEOL() =
+        this.filterNot { it.type == MarkdownTokenTypes.WHITE_SPACE || it.type == MarkdownTokenTypes.EOL }
 
     private fun List<ASTNode>.evaluateChildren(keepAllFormatting: Boolean = false): List<DocTag> =
         this.removeUselessTokens().swapImagesThatShouldBeLinks(keepAllFormatting).mergeLeafASTNodes().flatMap { visitNode(it, keepAllFormatting) }
@@ -430,9 +443,11 @@ open class MarkdownParser(
         MarkdownTokenTypes.HTML_BLOCK_CONTENT
     )
 
+    private fun ASTNode.isNotLeaf() = this is CompositeASTNode || this.type in notLeafNodes
+
     private fun List<ASTNode>.isNotLeaf(index: Int): Boolean =
         if (index in 0..this.lastIndex)
-            (this[index] is CompositeASTNode) || this[index].type in notLeafNodes
+            this[index].isNotLeaf()
         else
             false
 
@@ -447,17 +462,13 @@ open class MarkdownParser(
                 val sIndex = index
                 while (index < this.lastIndex) {
                     if (this.isNotLeaf(index + 1) || this[index + 1].startOffset != this[index].endOffset) {
-                        mergedLeafNode(this, index, startOffset, sIndex)?.run {
-                            children += this
-                        }
+                        children += mergedLeafNode(this, index, startOffset, sIndex)
                         break
                     }
                     index++
                 }
                 if (index == this.lastIndex) {
-                    mergedLeafNode(this, index, startOffset, sIndex)?.run {
-                        children += this
-                    }
+                    children += mergedLeafNode(this, index, startOffset, sIndex)
                 }
             }
             index++
@@ -465,15 +476,12 @@ open class MarkdownParser(
         return children
     }
 
-    private fun mergedLeafNode(nodes: List<ASTNode>, index: Int, startOffset: Int, sIndex: Int): LeafASTNode? {
+    private fun mergedLeafNode(nodes: List<ASTNode>, index: Int, startOffset: Int, sIndex: Int): LeafASTNode {
         val endOffset = nodes[index].endOffset
-        if (text.substring(startOffset, endOffset).transform().trim().isNotEmpty()) {
-            val type = if (nodes.subList(sIndex, index)
-                    .any { it.type == MarkdownTokenTypes.CODE_LINE }
-            ) MarkdownTokenTypes.CODE_LINE else MarkdownTokenTypes.TEXT
-            return LeafASTNode(type, startOffset, endOffset)
-        }
-        return null
+        val type = if (nodes.subList(sIndex, index)
+                .any { it.type == MarkdownTokenTypes.CODE_LINE }
+        ) MarkdownTokenTypes.CODE_LINE else MarkdownTokenTypes.TEXT
+        return LeafASTNode(type, startOffset, endOffset)
     }
 
     private fun String.transform() = this
@@ -524,7 +532,7 @@ open class MarkdownParser(
                                 val dri = pointedLink(it)
                                 Throws(
                                     parseStringToDocNode(it.getContent()),
-                                    dri?.fqName() ?: it.getSubjectName().orEmpty(),
+                                    dri?.fqDeclarationName() ?: it.getSubjectName().orEmpty(),
                                     dri,
                                 )
                             }
@@ -532,7 +540,7 @@ open class MarkdownParser(
                                 val dri = pointedLink(it)
                                 Throws(
                                     parseStringToDocNode(it.getContent()),
-                                    dri?.fqName() ?: it.getSubjectName().orEmpty(),
+                                    dri?.fqDeclarationName() ?: it.getSubjectName().orEmpty(),
                                     dri
                                 )
                             }
@@ -546,7 +554,7 @@ open class MarkdownParser(
                                 val dri = pointedLink(it)
                                 See(
                                     parseStringToDocNode(it.getContent()),
-                                    dri?.fqName() ?: it.getSubjectName().orEmpty(),
+                                    dri?.fqDeclarationName() ?: it.getSubjectName().orEmpty(),
                                     dri,
                                 )
                             }
@@ -568,7 +576,19 @@ open class MarkdownParser(
         }
 
         //Horrible hack but since link resolution is passed as a function i am not able to resolve them otherwise
+        @kotlin.Suppress("DeprecatedCallableAddReplaceWith")
+        @Deprecated("This function makes wrong assumptions and is missing a lot of corner cases related to generics, " +
+                "parameters and static members. This is not supposed to be public API and will not be supported in the future")
         fun DRI.fqName(): String? = "$packageName.$classNames".takeIf { packageName != null && classNames != null }
+
+        private fun DRI.fqDeclarationName(): String? {
+            if (this.target !is PointingToDeclaration) {
+                return null
+            }
+            return listOfNotNull(this.packageName, this.classNames, this.callable?.name)
+                .joinToString(separator = ".")
+                .takeIf { it.isNotBlank() }
+        }
 
         private fun findParent(kDoc: PsiElement): PsiElement =
             if (kDoc.canHaveParent()) findParent(kDoc.parent) else kDoc

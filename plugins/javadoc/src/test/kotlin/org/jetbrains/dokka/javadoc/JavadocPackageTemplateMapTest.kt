@@ -13,6 +13,7 @@ import java.io.File
 internal class JavadocPackageTemplateMapTest : AbstractJavadocTemplateMapTest() {
 
     @Test
+    @Suppress("UNCHECKED_CAST")
     fun `single class`() {
         dualTestTemplateMapInline(
             kotlin =
@@ -44,6 +45,7 @@ internal class JavadocPackageTemplateMapTest : AbstractJavadocTemplateMapTest() 
     }
 
     @Test
+    @Suppress("UNCHECKED_CAST")
     fun `multiple packages`() {
         dualTestTemplateMapInline(
             kotlin =

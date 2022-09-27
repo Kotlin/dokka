@@ -37,13 +37,13 @@ diff --git a/build.gradle b/build.gradle
 index aa8f21b..dd6a2ae 100644
 --- a/build.gradle
 +++ b/build.gradle
-@@ -1,80 +1,424 @@
+@@ -1,80 +1,444 @@
 +import org.jetbrains.dokka.Platform
 +
  plugins {
 -  id "de.undercouch.download" version "3.4.3"
 -  id 'com.github.jk1.tcdeps' version '0.17'
-+    id "de.undercouch.download" version "3.4.3"
++    id "de.undercouch.download" version "4.1.2"
 +    id 'com.github.jk1.tcdeps' version '0.17'
 +    id "java"
 +    id "org.jetbrains.dokka"
@@ -74,10 +74,11 @@ index aa8f21b..dd6a2ae 100644
 +    jcenter()
  }
  
--dependencies {
+ dependencies {
 -  dokka "org.jetbrains.dokka:dokka-fatjar:$dokka_version"
--}
--
++  dokkaPlugin project(":dokka-samples-transformer-plugin")
+ }
+
 -final File dokkaHome = new File(buildDir, "dokka-home")
 -task setupDokka(type: Sync) {
 -  from configurations.dokka
@@ -162,6 +163,7 @@ index aa8f21b..dd6a2ae 100644
 +    task dokkaStdlib(type: org.jetbrains.dokka.gradle.DokkaTask) {
 +        outputDirectory.set(new File(outputDir, "/kotlin-stdlib"))
 +        moduleName.set("kotlin-stdlib")
++        pluginsMapConfiguration.set(["org.jetbrains.dokka.base.DokkaBase": """{ "mergeImplicitExpectActualDeclarations": "true" }"""])
 +        dokkaSourceSets {
 +            register("kotlin-stdlib-common") {
 +                skipDeprecated.set(false)
@@ -178,6 +180,16 @@ index aa8f21b..dd6a2ae 100644
 +                sourceRoots.from("$kotlin_root/core/builtins/native")
 +                sourceRoots.from("$kotlin_root/core/builtins/src")
 +                sourceRoots.from("$kotlin_sources/kotlin-stdlib-common")
++                sourceLink {
++                    localDirectory.set(file("$kotlin_sources/kotlin-stdlib-common"))
++                    remoteUrl.set(new URL("https://github.com/JetBrains/kotlin/tree/master/libraries/stdlib/common/src"))
++                    remoteLineSuffix.set("#L")
++                }
++                sourceLink {
++                    localDirectory.set(file("$kotlin_root/core/builtins/src"))
++                    remoteUrl.set(new URL("https://github.com/JetBrains/kotlin/tree/master/libraries/stdlib/src"))
++                    remoteLineSuffix.set("#L")
++                }
 +            }
 +
 +            register("kotlin-stdlib-java-common") {
@@ -219,6 +231,11 @@ index aa8f21b..dd6a2ae 100644
 +                    matchingRegex.set("kotlin.coroutines.experimental.migration(\$|\\.).*")
 +                    suppress.set(true)
 +                }
++               sourceLink {
++                   localDirectory.set(file("$kotlin_sources/kotlin-stdlib"))
++                   remoteUrl.set(new URL("https://github.com/JetBrains/kotlin/tree/master/libraries/stdlib/jvm/src"))
++                   remoteLineSuffix.set("#L")
++               }
 +            }
 +
 +
@@ -542,7 +559,7 @@ diff --git a/settings.gradle b/settings.gradle
 index 5209245..bd38b18 100644
 --- a/settings.gradle
 +++ b/settings.gradle
-@@ -1,5 +1,21 @@
+@@ -1,5 +1,19 @@
 +pluginManagement {
 +    resolutionStrategy {
 +        eachPlugin {
@@ -553,9 +570,6 @@ index 5209245..bd38b18 100644
 +    }
 +    repositories {
 +        mavenLocal()
-+        maven {
-+            url "https://dl.bintray.com/kotlin/kotlin-dev"
-+        }
 +        gradlePluginPortal()
 +    }
 +}
@@ -565,3 +579,4 @@ index 5209245..bd38b18 100644
  include 'kotlin_native'
  include 'kotlin_big'
 -include 'ant'
++include 'dokka-samples-transformer-plugin'

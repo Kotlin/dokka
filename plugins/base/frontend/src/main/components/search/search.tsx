@@ -1,8 +1,9 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Select, List } from '@jetbrains/ring-ui';
-import '@jetbrains/ring-ui/components/input-size/input-size.scss';
+import List from '@jetbrains/ring-ui/components/list/list';
+import Select from '@jetbrains/ring-ui/components/select/select';
+import '@jetbrains/ring-ui/components/input-size/input-size.css';
 import './search.scss';
-import { IWindow, Option, Props } from "./types";
+import {CustomAnchorProps, IWindow, Option, Props} from "./types";
 import { DokkaSearchAnchor } from "./dokkaSearchAnchor";
 import { DokkaFuzzyFilterComponent } from "./dokkaFuzzyFilter";
 import { relativizeUrlForRequest } from '../utils/requests';
@@ -33,7 +34,7 @@ const WithFuzzySearchFilterComponent: React.FC<Props> = ({ data }: Props) => {
                     data={data}
                     popupClassName={"popup-wrapper"}
                     onSelect={onChangeSelected}
-                    customAnchor={({ wrapperProps, buttonProps, popup }) =>
+                    customAnchor={({ wrapperProps, buttonProps, popup }: CustomAnchorProps) =>
                         <DokkaSearchAnchor wrapperProps={wrapperProps} buttonProps={buttonProps} popup={popup} />
                     }
                 />

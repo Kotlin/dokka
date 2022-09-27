@@ -2,6 +2,8 @@ package org.jetbrains.dokka.it.cli
 
 import org.jetbrains.dokka.it.awaitProcessResult
 import java.io.File
+import java.io.PrintWriter
+import java.lang.IllegalStateException
 import kotlin.test.*
 
 class CliIntegrationTest : AbstractCliIntegrationTest() {
@@ -83,6 +85,14 @@ class CliIntegrationTest : AbstractCliIntegrationTest() {
             assertNoEmptyLinks(file)
             assertNoEmptySpans(file)
         }
+
+        assertContentVisibility(
+            contentFiles = projectDir.allHtmlFiles().toList(),
+            documentPublic = true,
+            documentInternal = false,
+            documentProtected = false,
+            documentPrivate = false
+        )
 
         assertFalse(
             projectDir.resolve("output").resolve("index.html").readText().contains("emptypackagetest"),
@@ -185,7 +195,7 @@ class CliIntegrationTest : AbstractCliIntegrationTest() {
     }
 
     @Test
-    fun `logging level should be respected`(){
+    fun `logging level should be respected`() {
         val dokkaOutputDir = File(projectDir, "output")
         assertTrue(dokkaOutputDir.mkdirs())
         val process = ProcessBuilder(
@@ -204,5 +214,160 @@ class CliIntegrationTest : AbstractCliIntegrationTest() {
         val result = process.awaitProcessResult()
         assertEquals(0, result.exitCode, "Expected exitCode 0 (Success)")
         assertFalse(result.output.contains("Loaded plugins: "), "Expected output to not contain info logs")
+    }
+
+    @Test
+    fun `custom documented visibility`() {
+        val dokkaOutputDir = File(projectDir, "output")
+        assertTrue(dokkaOutputDir.mkdirs())
+        val process = ProcessBuilder(
+            "java", "-jar", cliJarFile.path,
+            "-outputDir", dokkaOutputDir.path,
+            "-pluginsClasspath", basePluginJarFile.path,
+            "-moduleName", "Basic Project",
+            "-sourceSet",
+            buildString {
+                append(" -sourceSetName cliMain")
+                append(" -src ${File(projectDir, "src").path}")
+                append(" -jdkVersion 8")
+                append(" -analysisPlatform jvm")
+                append(" -documentedVisibilities PUBLIC;PROTECTED")
+                append(" -perPackageOptions it.overriddenVisibility.*,+visibility:PRIVATE")
+            }
+        )
+            .redirectErrorStream(true)
+            .start()
+
+        val result = process.awaitProcessResult()
+        assertEquals(0, result.exitCode, "Expected exitCode 0 (Success)")
+
+        val allHtmlFiles = projectDir.allHtmlFiles().toList()
+
+        assertContentVisibility(
+            contentFiles = allHtmlFiles,
+            documentPublic = true,
+            documentProtected = true, // sourceSet documentedVisibilities
+            documentInternal = false,
+            documentPrivate = true // for overriddenVisibility package
+        )
+
+        assertContainsFilePaths(
+            outputFiles = allHtmlFiles,
+            expectedFilePaths = listOf(
+                // documentedVisibilities is overridden for package `overriddenVisibility` specifically
+                // to include private code, so html pages for it are expected to have been created
+                Regex("it\\.overriddenVisibility/-visible-private-class/private-method\\.html"),
+                Regex("it\\.overriddenVisibility/-visible-private-class/private-val\\.html"),
+            )
+        )
+    }
+
+
+    @Test
+    fun `should accept json as input configuration`() {
+        val dokkaOutputDir = File(projectDir, "output")
+        assertTrue(dokkaOutputDir.mkdirs())
+        val resourcePath = javaClass.getResource("/my-file.json")?.toURI() ?: throw IllegalStateException("No JSON found!")
+        val jsonPath = File(resourcePath).absolutePath
+        PrintWriter(jsonPath).run {
+            write(jsonBuilder(dokkaOutputDir.invariantSeparatorsPath, basePluginJarFile.invariantSeparatorsPath, File(projectDir, "src").invariantSeparatorsPath, reportUndocumented = true))
+            close()
+        }
+
+        val process = ProcessBuilder(
+            "java", "-jar", cliJarFile.path, jsonPath
+        ).redirectErrorStream(true).start()
+
+        val result = process.awaitProcessResult()
+        assertEquals(0, result.exitCode, "Expected exitCode 0 (Success)")
+
+        val extensionLoadedRegex = Regex("""Extension: org\.jetbrains\.dokka\.base\.DokkaBase""")
+        val amountOfExtensionsLoaded = extensionLoadedRegex.findAll(result.output).count()
+
+        assertTrue(
+            amountOfExtensionsLoaded > 10,
+            "Expected more than 10 extensions being present (found $amountOfExtensionsLoaded)"
+        )
+
+        val undocumentedReportRegex = Regex("""Undocumented:""")
+        val amountOfUndocumentedReports = undocumentedReportRegex.findAll(result.output).count()
+        assertTrue(
+            amountOfUndocumentedReports > 0,
+            "Expected at least one report of undocumented code (found $amountOfUndocumentedReports)"
+        )
+
+        assertTrue(dokkaOutputDir.isDirectory, "Missing dokka output directory")
+    }
+
+    /**
+     * This test disables global `reportUndocumneted` property and set `reportUndocumented` via perPackageOptions to
+     * make sure that global settings apply to dokka context.
+     */
+    @Test
+    fun `global settings should overwrite package options in configuration`() {
+        val dokkaOutputDir = File(projectDir, "output")
+        assertTrue(dokkaOutputDir.mkdirs())
+        val resourcePath = javaClass.getResource("/my-file.json")?.toURI() ?: throw IllegalStateException("No JSON found!")
+        val jsonPath = File(resourcePath).absolutePath
+        PrintWriter(jsonPath).run {
+            write(
+                jsonBuilder(
+                    outputPath = dokkaOutputDir.invariantSeparatorsPath,
+                    pluginsClasspath = basePluginJarFile.invariantSeparatorsPath,
+                    projectPath = File(projectDir, "src").invariantSeparatorsPath,
+                    globalSourceLinks = """
+                        {
+                          "localDirectory": "/home/Vadim.Mishenev/dokka/examples/cli/src/main/kotlin",
+                          "remoteUrl": "https://github.com/Kotlin/dokka/tree/master/examples/gradle/dokka-gradle-example/src/main/kotlin",
+                          "remoteLineSuffix": "#L"
+                        }
+                    """.trimIndent(),
+                    globalExternalDocumentationLinks = """
+                        {
+                          "url": "https://docs.oracle.com/javase/8/docs/api/",
+                          "packageListUrl": "https://docs.oracle.com/javase/8/docs/api/package-list"
+                        },
+                        {
+                          "url": "https://kotlinlang.org/api/latest/jvm/stdlib/",
+                          "packageListUrl": "https://kotlinlang.org/api/latest/jvm/stdlib/package-list"
+                        }
+                        """.trimIndent(),
+                    globalPerPackageOptions = """
+                        {
+                          "matchingRegex": ".*",
+                          "skipDeprecated": "true",
+                          "reportUndocumented": "true", 
+                          "documentedVisibilities": ["PUBLIC", "PRIVATE", "PROTECTED", "INTERNAL", "PACKAGE"]
+                        }
+                    """.trimIndent(),
+                    reportUndocumented = false
+                ),
+            )
+            close()
+        }
+
+        val process = ProcessBuilder(
+            "java", "-jar", cliJarFile.path, jsonPath
+        ).redirectErrorStream(true).start()
+
+        val result = process.awaitProcessResult()
+        assertEquals(0, result.exitCode, "Expected exitCode 0 (Success)")
+
+        val extensionLoadedRegex = Regex("""Extension: org\.jetbrains\.dokka\.base\.DokkaBase""")
+        val amountOfExtensionsLoaded = extensionLoadedRegex.findAll(result.output).count()
+
+        assertTrue(
+            amountOfExtensionsLoaded > 10,
+            "Expected more than 10 extensions being present (found $amountOfExtensionsLoaded)"
+        )
+
+        val undocumentedReportRegex = Regex("""Undocumented:""")
+        val amountOfUndocumentedReports = undocumentedReportRegex.findAll(result.output).count()
+        assertTrue(
+            amountOfUndocumentedReports > 0,
+            "Expected at least one report of undocumented code (found $amountOfUndocumentedReports)"
+        )
+
+        assertTrue(dokkaOutputDir.isDirectory, "Missing dokka output directory")
     }
 }

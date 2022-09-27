@@ -1,15 +1,17 @@
 package org.jetbrains.dokka.it.gradle.kotlin
 
 import org.gradle.testkit.runner.TaskOutcome
-import org.jetbrains.dokka.it.S3Project
+import org.jetbrains.dokka.it.TestOutputCopier
 import org.jetbrains.dokka.it.copyAndApplyGitDiff
-import org.jetbrains.dokka.it.gradle.*
+import org.jetbrains.dokka.it.gradle.AbstractGradleIntegrationTest
+import org.jetbrains.dokka.it.gradle.BuildVersions
 import org.junit.runners.Parameterized
 import java.io.File
+import java.net.URL
 import kotlin.test.*
 
 class StdlibGradleIntegrationTest(override val versions: BuildVersions) : AbstractGradleIntegrationTest(),
-    S3Project {
+    TestOutputCopier {
 
     companion object {
         @get:JvmStatic
@@ -28,6 +30,16 @@ class StdlibGradleIntegrationTest(override val versions: BuildVersions) : Abstra
         templateProjectDir.listFiles().orEmpty()
             .forEach { topLevelFile -> topLevelFile.copyRecursively(File(projectDir, topLevelFile.name)) }
 
+        val pluginDir = File("projects", "stdlib/dokka-samples-transformer-plugin")
+        pluginDir.listFiles().orEmpty()
+            .forEach { topLevelFile ->
+                topLevelFile.copyRecursively(
+                    File(
+                        projectDir.resolve("dokka-samples-transformer-plugin").also { it.mkdir() }, topLevelFile.name
+                    )
+                )
+            }
+
         copyAndApplyGitDiff(File("projects", "stdlib/stdlib.diff"))
     }
 
@@ -41,8 +53,8 @@ class StdlibGradleIntegrationTest(override val versions: BuildVersions) : Abstra
 
         projectOutputLocation.allHtmlFiles().forEach { file ->
             assertContainsNoErrorClass(file)
-//            assertNoUnresolvedLinks(file)
-//            assertNoHrefToMissingLocalFileOrDirectory(file)
+            assertNoUnresolvedLinks(file)
+            assertNoHrefToMissingLocalFileOrDirectory(file)
             assertNoEmptyLinks(file)
             assertNoEmptySpans(file)
             assertNoUnsubstitutedTemplatesInHtml(file)

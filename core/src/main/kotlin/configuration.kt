@@ -3,6 +3,7 @@
 package org.jetbrains.dokka
 
 import org.jetbrains.dokka.plugability.ConfigurableBlock
+import org.jetbrains.dokka.utilities.cast
 import org.jetbrains.dokka.utilities.parseJson
 import org.jetbrains.dokka.utilities.toJsonString
 import java.io.File
@@ -19,6 +20,7 @@ object DokkaDefaults {
     const val delayTemplateSubstitution: Boolean = false
 
     const val includeNonPublic: Boolean = false
+    val documentedVisibilities: Set<DokkaConfiguration.Visibility> = setOf(DokkaConfiguration.Visibility.PUBLIC)
     const val reportUndocumented: Boolean = false
     const val skipEmptyPackages: Boolean = true
     const val skipDeprecated: Boolean = false
@@ -59,7 +61,7 @@ enum class Platform(val key: String) {
     }
 }
 
-interface DokkaConfigurationBuilder<T : Any> {
+fun interface DokkaConfigurationBuilder<T : Any> {
     fun build(): T
 }
 
@@ -85,6 +87,34 @@ data class DokkaSourceSetID(
 
 fun DokkaConfigurationImpl(json: String): DokkaConfigurationImpl = parseJson(json)
 
+/**
+ * Global options are applied to all packages and modules and overwrite package configuration.
+ *
+ * These are handy if we have multiple sourcesets sharing the same global options as it reduces the size of the boilerplate.
+ * Otherwise, the user would be enforced to repeat all these options per each sourceset.
+ */
+data class GlobalDokkaConfiguration(
+    val perPackageOptions: List<PackageOptionsImpl>?,
+    val externalDocumentationLinks: List<ExternalDocumentationLinkImpl>?,
+    val sourceLinks: List<SourceLinkDefinitionImpl>?
+)
+
+fun GlobalDokkaConfiguration(json: String): GlobalDokkaConfiguration = parseJson(json)
+
+fun DokkaConfiguration.apply(globals: GlobalDokkaConfiguration): DokkaConfiguration = this.apply {
+    sourceSets.forEach {
+        it.perPackageOptions.cast<MutableList<DokkaConfiguration.PackageOptions>>().addAll(globals.perPackageOptions ?: emptyList())
+    }
+
+    sourceSets.forEach {
+        it.externalDocumentationLinks.cast<MutableSet<DokkaConfiguration.ExternalDocumentationLink>>().addAll(globals.externalDocumentationLinks ?: emptyList())
+    }
+
+    sourceSets.forEach {
+        it.sourceLinks.cast<MutableSet<SourceLinkDefinitionImpl>>().addAll(globals.sourceLinks ?: emptyList())
+    }
+}
+
 fun DokkaConfiguration.toJsonString(): String = toJsonString(this)
 fun <T : ConfigurableBlock> T.toJsonString(): String = toJsonString(this)
 
@@ -104,6 +134,25 @@ interface DokkaConfiguration : Serializable {
     val includes: Set<File>
     val suppressInheritedMembers: Boolean
 
+    /**
+     * Whether coroutines dispatchers should be shutdown after
+     * generating documentation via [DokkaGenerator.generate].
+     *
+     * It effectively stops all background threads associated with
+     * coroutines in order to make classes unloadable by the JVM,
+     * and rejects all new tasks with [RejectedExecutionException]
+     *
+     * This is primarily useful for multi-module builds where coroutines
+     * can be shut down after each module's partial task to avoid
+     * possible memory leaks.
+     *
+     * However, this can lead to problems in specific lifecycles where
+     * coroutines are shared and will be reused after documentation generation,
+     * and closing it down will leave the build in an inoperable state.
+     * One such example is unit tests, for which finalization should be disabled.
+     */
+    val finalizeCoroutines: Boolean
+
     enum class SerializationFormat : Serializable {
         JSON, XML
     }
@@ -122,6 +171,7 @@ interface DokkaConfiguration : Serializable {
         val dependentSourceSets: Set<DokkaSourceSetID>
         val samples: Set<File>
         val includes: Set<File>
+        @Deprecated(message = "Use [documentedVisibilities] property for a more flexible control over documented visibilities")
         val includeNonPublic: Boolean
         val reportUndocumented: Boolean
         val skipEmptyPackages: Boolean
@@ -136,6 +186,38 @@ interface DokkaConfiguration : Serializable {
         val noJdkLink: Boolean
         val suppressedFiles: Set<File>
         val analysisPlatform: Platform
+        val documentedVisibilities: Set<Visibility>
+    }
+
+    enum class Visibility {
+        /**
+         * `public` modifier for Java, default visibility for Kotlin
+         */
+        PUBLIC,
+
+        /**
+         * `private` modifier for both Kotlin and Java
+         */
+        PRIVATE,
+
+        /**
+         * `protected` modifier for both Kotlin and Java
+         */
+        PROTECTED,
+
+        /**
+         * Kotlin-specific `internal` modifier
+         */
+        INTERNAL,
+
+        /**
+         * Java-specific package-private visibility (no modifier)
+         */
+        PACKAGE;
+
+        companion object {
+            fun fromString(value: String) = valueOf(value.toUpperCase())
+        }
     }
 
     interface SourceLinkDefinition : Serializable {
@@ -153,10 +235,12 @@ interface DokkaConfiguration : Serializable {
 
     interface PackageOptions : Serializable {
         val matchingRegex: String
+        @Deprecated("Use [documentedVisibilities] property for a more flexible control over documented visibilities")
         val includeNonPublic: Boolean
         val reportUndocumented: Boolean?
         val skipDeprecated: Boolean
         val suppress: Boolean
+        val documentedVisibilities: Set<Visibility>
     }
 
     interface ExternalDocumentationLink : Serializable {

@@ -53,11 +53,19 @@ public final class org/jetbrains/dokka/ArgTypeSourceLinkDefinition : kotlinx/cli
 	public fun getDescription ()Ljava/lang/String;
 }
 
+public final class org/jetbrains/dokka/ArgTypeVisibility : kotlinx/cli/ArgType {
+	public static final field INSTANCE Lorg/jetbrains/dokka/ArgTypeVisibility;
+	public synthetic fun convert (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/Object;
+	public fun convert (Ljava/lang/String;Ljava/lang/String;)Lorg/jetbrains/dokka/DokkaConfiguration$Visibility;
+	public fun getDescription ()Ljava/lang/String;
+}
+
 public final class org/jetbrains/dokka/GlobalArguments : org/jetbrains/dokka/DokkaConfiguration {
 	public fun <init> ([Ljava/lang/String;)V
 	public fun getCacheRoot ()Ljava/io/File;
 	public fun getDelayTemplateSubstitution ()Z
 	public fun getFailOnWarning ()Z
+	public fun getFinalizeCoroutines ()Z
 	public final fun getGlobalLinks ()Ljava/util/List;
 	public final fun getGlobalPackageOptions ()Ljava/util/List;
 	public final fun getGlobalSrcLink ()Ljava/util/List;
@@ -82,6 +90,7 @@ public final class org/jetbrains/dokka/GlobalArguments : org/jetbrains/dokka/Dok
 
 public final class org/jetbrains/dokka/MainKt {
 	public static final fun defaultLinks (Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;)Ljava/util/List;
+	public static final fun initializeConfiguration (Lorg/jetbrains/dokka/GlobalArguments;)Lorg/jetbrains/dokka/DokkaConfiguration;
 	public static final fun main ([Ljava/lang/String;)V
 	public static final fun parseLinks (Ljava/util/List;)Ljava/util/List;
 }

@@ -15,14 +15,14 @@ import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.descriptors.ClassKind
 import org.jetbrains.kotlin.resolve.DescriptorUtils.getClassDescriptorForType
 
-interface JavadocPageNode : ContentPage
+interface JavadocPageNode : ContentPage, WithDocumentables
 
 interface WithJavadocExtra<T : Documentable> : WithExtraProperties<T> {
     override fun withNewExtras(newExtras: PropertyContainer<T>): T =
         throw IllegalStateException("Merging extras is not applicable for javadoc")
 }
 
-interface WithNavigable {
+fun interface WithNavigable {
     fun getAllNavigables(): List<NavigableJavadocNode>
 }
 
@@ -43,7 +43,7 @@ class JavadocModulePageNode(
     JavadocPageNode,
     ModulePage {
 
-    override val documentable: Documentable? = null
+    override val documentables: List<Documentable> = emptyList()
     override val embeddedResources: List<String> = emptyList()
     override fun modified(name: String, children: List<PageNode>): RootPageNode =
         JavadocModulePageNode(name, content, children, dri, extra)
@@ -66,7 +66,7 @@ class JavadocPackagePageNode(
     override val content: JavadocContentNode,
     override val dri: Set<DRI>,
 
-    override val documentable: Documentable? = null,
+    override val documentables: List<Documentable> = emptyList(),
     override val children: List<PageNode> = emptyList(),
     override val embeddedResources: List<String> = listOf()
 ) : JavadocPageNode,
@@ -91,7 +91,7 @@ class JavadocPackagePageNode(
         name,
         content,
         dri,
-        documentable,
+        documentables,
         children,
         embeddedResources
     )
@@ -107,7 +107,7 @@ class JavadocPackagePageNode(
             name,
             content as JavadocContentNode,
             dri,
-            documentable,
+            documentables,
             children,
             embeddedResources
         )
@@ -182,7 +182,7 @@ class JavadocClasslikePageNode(
     val classlikes: List<JavadocClasslikePageNode>,
     val properties: List<JavadocPropertyNode>,
     override val brief: List<ContentNode>,
-    override val documentable: Documentable? = null,
+    override val documentables: List<Documentable> = emptyList(),
     override val children: List<PageNode> = emptyList(),
     override val embeddedResources: List<String> = listOf(),
     override val extra: PropertyContainer<DClasslike> = PropertyContainer.empty(),
@@ -194,7 +194,7 @@ class JavadocClasslikePageNode(
     fun getAnchorables(): List<AnchorableJavadocNode> =
         constructors + methods + entries + properties
 
-    val kind: String? = documentable?.kind()
+    val kind: String? = documentables.firstOrNull()?.kind()
     val packageName = dri.first().packageName
 
     override fun getId(): String = name
@@ -215,7 +215,7 @@ class JavadocClasslikePageNode(
         classlikes,
         properties,
         brief,
-        documentable,
+        documentables,
         children,
         embeddedResources,
         extra
@@ -240,7 +240,7 @@ class JavadocClasslikePageNode(
             classlikes,
             properties,
             brief,
-            documentable,
+            documentables,
             children,
             embeddedResources,
             extra
@@ -254,7 +254,7 @@ class AllClassesPage(val classes: List<JavadocClasslikePageNode>) : JavadocPageN
     override val name: String = "All Classes"
     override val dri: Set<DRI> = setOf(DRI.topLevel)
 
-    override val documentable: Documentable? = null
+    override val documentables: List<Documentable> = emptyList()
     override val embeddedResources: List<String> = emptyList()
 
     override val content: ContentNode =
@@ -285,7 +285,7 @@ class DeprecatedPage(
 ) : JavadocPageNode {
     override val name: String = "deprecated"
     override val dri: Set<DRI> = setOf(DRI.topLevel)
-    override val documentable: Documentable? = null
+    override val documentables: List<Documentable> = emptyList()
     override val children: List<PageNode> = emptyList()
     override val embeddedResources: List<String> = listOf()
 
@@ -317,17 +317,19 @@ class DeprecatedNode(val name: String, val address: DRI, val description: List<C
     override fun hashCode(): Int = address.hashCode()
 }
 
-enum class DeprecatedPageSection(val id: String, val caption: String, val header: String, val priority: Int = 100) {
-    DeprecatedForRemoval("forRemoval", "For Removal", "Element", priority = 90),
+enum class DeprecatedPageSection(val id: String, val caption: String, val header: String) {
     DeprecatedModules("module", "Modules", "Module"),
     DeprecatedInterfaces("interface", "Interfaces", "Interface"),
     DeprecatedClasses("class", "Classes", "Class"),
-    DeprecatedEnums("enum", "Enums", "Enum"),
     DeprecatedExceptions("exception", "Exceptions", "Exceptions"),
     DeprecatedFields("field", "Fields", "Field"),
     DeprecatedMethods("method", "Methods", "Method"),
     DeprecatedConstructors("constructor", "Constructors", "Constructor"),
-    DeprecatedEnumConstants("enum.constant", "Enum Constants", "Enum Constant")
+    DeprecatedEnums("enum", "Enums", "Enum"),
+    DeprecatedEnumConstants("enum.constant", "Enum Constants", "Enum Constant"),
+    DeprecatedForRemoval("forRemoval", "For Removal", "Element");
+
+    internal fun getPosition() = ordinal
 }
 
 class IndexPage(
@@ -339,7 +341,7 @@ class IndexPage(
 ) : JavadocPageNode {
     override val name: String = "index-$id"
     override val dri: Set<DRI> = setOf(DRI.topLevel)
-    override val documentable: Documentable? = null
+    override val documentables: List<Documentable> = emptyList()
     override val children: List<PageNode> = emptyList()
     override val embeddedResources: List<String> = listOf()
     val title: String = "${keys[id - 1]}-index"
@@ -370,7 +372,7 @@ class TreeViewPage(
     val packages: List<JavadocPackagePageNode>?,
     val classes: List<JavadocClasslikePageNode>?,
     override val dri: Set<DRI>,
-    override val documentable: Documentable?,
+    override val documentables: List<Documentable> = emptyList(),
     val root: PageNode
 ) : JavadocPageNode {
     init {
@@ -378,7 +380,7 @@ class TreeViewPage(
         assert(packages != null || classes != null)
     }
 
-    private val documentables = root.children.filterIsInstance<ContentPage>().flatMap { node ->
+    private val childrenDocumentables = root.children.filterIsInstance<WithDocumentables>().flatMap { node ->
         getDocumentableEntries(node)
     }.groupBy({ it.first }) { it.second }.map { (l, r) -> l to r.first() }.toMap()
 
@@ -389,12 +391,12 @@ class TreeViewPage(
 
     override val children: List<PageNode> = emptyList()
 
-    val title = when (documentable) {
+    val title = when (documentables.firstOrNull()) {
         is DPackage -> "$name Class Hierarchy"
         else -> "All packages"
     }
 
-    val kind = when (documentable) {
+    val kind = when (documentables.firstOrNull()) {
         is DPackage -> "package"
         else -> "main"
     }
@@ -411,7 +413,7 @@ class TreeViewPage(
             packages = children.filterIsInstance<JavadocPackagePageNode>().takeIf { it.isNotEmpty() },
             classes = children.filterIsInstance<JavadocClasslikePageNode>().takeIf { it.isNotEmpty() },
             dri = dri,
-            documentable = documentable,
+            documentables,
             root = root
         )
 
@@ -421,7 +423,7 @@ class TreeViewPage(
             packages = children.filterIsInstance<JavadocPackagePageNode>().takeIf { it.isNotEmpty() },
             classes = children.filterIsInstance<JavadocClasslikePageNode>().takeIf { it.isNotEmpty() },
             dri = dri,
-            documentable = documentable,
+            documentables,
             root = root
         )
 
@@ -473,23 +475,25 @@ class TreeViewPage(
             listOf(psi to l) + l.flatMap { gatherPsiClasses(it) }
         }
 
-        val psiInheritanceTree = documentables.flatMap { (_, v) -> (v as? WithSources)?.sources?.values.orEmpty() }
-            .filterIsInstance<PsiDocumentableSource>().mapNotNull { it.psi as? PsiClass }.flatMap(::gatherPsiClasses)
-            .flatMap { entry -> entry.second.map { it to entry.first } }
-            .let {
-                it + it.map { it.second to null }
-            }
-            .groupBy({ it.first }) { it.second }
-            .map { it.key to it.value.filterNotNull().distinct() }
-            .map { (k, v) ->
-                InheritanceNode(
-                    DRI.from(k),
-                    v.map { InheritanceNode(DRI.from(it)) },
-                    k.supers.filter { it.isInterface }.map { DRI.from(it) },
-                    k.isInterface
-                )
+        val psiInheritanceTree =
+            childrenDocumentables.flatMap { (_, v) -> (v as? WithSources)?.sources?.values.orEmpty() }
+                .filterIsInstance<PsiDocumentableSource>().mapNotNull { it.psi as? PsiClass }
+                .flatMap(::gatherPsiClasses)
+                .flatMap { entry -> entry.second.map { it to entry.first } }
+                .let {
+                    it + it.map { it.second to null }
+                }
+                .groupBy({ it.first }) { it.second }
+                .map { it.key to it.value.filterNotNull().distinct() }
+                .map { (k, v) ->
+                    InheritanceNode(
+                        DRI.from(k),
+                        v.map { InheritanceNode(DRI.from(it)) },
+                        k.supers.filter { it.isInterface }.map { DRI.from(it) },
+                        k.isInterface
+                    )
 
-            }
+                }
 
         val descriptorInheritanceTree = descriptorMap.flatMap { (_, v) ->
             v.typeConstructor.supertypes
@@ -523,16 +527,17 @@ class TreeViewPage(
     }
 
     private fun generateInterfaceGraph() {
-        documentables.values.filterIsInstance<DInterface>()
+        childrenDocumentables.values.filterIsInstance<DInterface>()
     }
 
-    private fun getDocumentableEntries(node: ContentPage): List<Pair<DRI, Documentable>> =
-        listOfNotNull(node.documentable?.let { it.dri to it }) +
-                node.children.filterIsInstance<ContentPage>().flatMap(::getDocumentableEntries)
+    private fun getDocumentableEntries(node: WithDocumentables): List<Pair<DRI, Documentable>> =
+        node.documentables.map { it.dri to it } +
+                (node as? ContentPage)?.children?.filterIsInstance<WithDocumentables>()
+                    ?.flatMap(::getDocumentableEntries).orEmpty()
 
     private fun getDescriptorMap(): Map<DRI, ClassDescriptor> {
         val map: MutableMap<DRI, ClassDescriptor> = mutableMapOf()
-        documentables
+        childrenDocumentables
             .mapNotNull { (k, v) ->
                 v.descriptorForPlatform()?.let { k to it }?.also { (k, v) -> map[k] = v }
             }.map { it.second }.forEach { gatherSupertypes(it, map) }

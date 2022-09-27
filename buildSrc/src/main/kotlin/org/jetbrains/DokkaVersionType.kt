@@ -1,5 +1,8 @@
 package org.jetbrains
 
 enum class DokkaVersionType(val suffix: Regex) {
-    Release("^$".toRegex()), Snapshot("SNAPSHOT".toRegex()), Dev("dev-\\d+".toRegex()), MC("mc-\\d+".toRegex())
+    RELEASE("^$".toRegex()),
+    RC("RC\\d?".toRegex()),
+    SNAPSHOT("SNAPSHOT".toRegex()),
+    DEV("dev-\\d+".toRegex());
 }

@@ -1,3 +1,5 @@
+@file:Suppress("PackageDirectoryMismatch")
+
 package  org.jetbrains.dokka.test.tools.matchers.content
 
 import org.jetbrains.dokka.model.asPrintableTree
@@ -37,7 +39,7 @@ class CompositeMatcher<T : ContentComposite>(
     assertions: T.() -> Unit = {}
 ) : NodeMatcher<T>(kclass, assertions) {
     internal val normalizedChildren: List<MatcherElement> by lazy {
-        children.fold(listOf<MatcherElement>()) { acc, e ->
+        children.fold(listOf()) { acc, e ->
             when {
                 acc.lastOrNull() is Anything && e is Anything -> acc
                 acc.lastOrNull() is TextMatcher && e is TextMatcher ->
@@ -119,8 +121,7 @@ private class FurtherSiblings(val list: List<MatcherElement>, val parent: Compos
     fun drop() = FurtherSiblings(list.drop(1), parent)
 
     val messageEnd: String
-        get() = list.filter { it !is Anything }
-            .count().takeIf { it > 0 }
+        get() = list.count { it !is Anything }.takeIf { it > 0 }
             ?.let { " and $it further matchers were not satisfied" } ?: ""
 }
 
@@ -139,10 +140,10 @@ internal fun MatcherElement.toDebugString(anchor: MatcherElement?, anchorAfter: 
             is CompositeMatcher<*> -> {
                 append("${element.kclass.simpleName.toString()}\n")
                 if (element.normalizedChildren.isNotEmpty()) {
-                    val newOwnPrefix = childPrefix + '\u251c' + '\u2500' + ' '
-                    val lastOwnPrefix = childPrefix + '\u2514' + '\u2500' + ' '
-                    val newChildPrefix = childPrefix + '\u2502' + ' ' + ' '
-                    val lastChildPrefix = childPrefix + ' ' + ' ' + ' '
+                    val newOwnPrefix = "$childPrefix├─ "
+                    val lastOwnPrefix = "$childPrefix└─ "
+                    val newChildPrefix = "$childPrefix│  "
+                    val lastChildPrefix = "$childPrefix   "
                     element.normalizedChildren.forEachIndexed { n, e ->
                         if (n != element.normalizedChildren.lastIndex) append(e, newOwnPrefix, newChildPrefix)
                         else append(e, lastOwnPrefix, lastChildPrefix)

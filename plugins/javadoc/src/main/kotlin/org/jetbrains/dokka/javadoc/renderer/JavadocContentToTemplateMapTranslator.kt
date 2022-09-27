@@ -81,7 +81,7 @@ internal class JavadocContentToTemplateMapTranslator(
                 "id" to node.name,
                 "title" to "Deprecated",
                 "kind" to "deprecated",
-                "sections" to node.elements.toList().sortedBy { (section, _) -> section.priority }
+                "sections" to node.elements.toList().sortedBy { (section, _) -> section.getPosition() }
                     .map { (s, e) -> templateMapForDeprecatedPageSection(s, e) }
             )
 

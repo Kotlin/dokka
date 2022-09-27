@@ -1,10 +1,12 @@
-package org.jetbrains.dokka.gradle;
+package org.jetbrains.dokka.gradle
 
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.internal.plugins.DslObject
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Nested
+import org.gradle.work.DisableCachingByDefault
 
+@DisableCachingByDefault(because = "Abstract super-class, not to be instantiated directly")
 abstract class AbstractDokkaLeafTask : AbstractDokkaTask() {
 
     @get:Internal

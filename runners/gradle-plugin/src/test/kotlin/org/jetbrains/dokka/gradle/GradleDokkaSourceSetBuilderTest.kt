@@ -113,7 +113,7 @@ class GradleDokkaSourceSetBuilderTest {
         sourceSet.dependsOn(sourceSet.DokkaSourceSetID("s3"))
         sourceSet.dependsOn(GradleDokkaSourceSetBuilder("s4", project))
         sourceSet.dependsOn(GradleDokkaSourceSetBuilder("s5", project).build())
-        sourceSet.dependsOn(DefaultKotlinSourceSet(project, "s6"))
+        sourceSet.dependsOn(createDefaultKotlinSourceSet("s6"))
         sourceSet.dependsOn(DefaultAndroidSourceSet("s7", project, false))
 
         assertEquals(
@@ -121,6 +121,10 @@ class GradleDokkaSourceSetBuilderTest {
             sourceSet.build().dependentSourceSets.map { it.toString() },
             "Expected all source sets being registered"
         )
+    }
+
+    private fun createDefaultKotlinSourceSet(displayName: String): DefaultKotlinSourceSet {
+        return project.objects.newInstance(DefaultKotlinSourceSet::class.java, project, displayName)
     }
 
     @Test
@@ -148,6 +152,7 @@ class GradleDokkaSourceSetBuilderTest {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun includeNonPublic() {
         val sourceSet = GradleDokkaSourceSetBuilder("", project)
         assertEquals(
@@ -159,6 +164,22 @@ class GradleDokkaSourceSetBuilderTest {
         assertEquals(
             !DokkaDefaults.includeNonPublic, sourceSet.build().includeNonPublic,
             "Expected flipped value for ${GradleDokkaSourceSetBuilder::includeNonPublic.name}"
+        )
+    }
+
+    @Test
+    fun documentedVisibilities() {
+        val sourceSet = GradleDokkaSourceSetBuilder("", project)
+        assertEquals(
+            DokkaDefaults.documentedVisibilities, sourceSet.build().documentedVisibilities,
+            "Expected default value for ${GradleDokkaSourceSetBuilder::documentedVisibilities.name}"
+        )
+
+        val visibilities = setOf(DokkaConfiguration.Visibility.PRIVATE, DokkaConfiguration.Visibility.INTERNAL)
+        sourceSet.documentedVisibilities.set(visibilities)
+        assertEquals(
+            visibilities, sourceSet.build().documentedVisibilities,
+            "Expected to see previously set value for ${GradleDokkaSourceSetBuilder::includeNonPublic.name}"
         )
     }
 
@@ -261,6 +282,7 @@ class GradleDokkaSourceSetBuilderTest {
                 PackageOptionsImpl(
                     matchingRegex = matchingRegex,
                     includeNonPublic = DokkaDefaults.includeNonPublic,
+                    documentedVisibilities = DokkaDefaults.documentedVisibilities,
                     reportUndocumented = DokkaDefaults.reportUndocumented,
                     skipDeprecated = DokkaDefaults.skipDeprecated,
                     suppress = DokkaDefaults.suppress
@@ -395,7 +417,7 @@ class GradleDokkaSourceSetBuilderTest {
         }, "Expected android sdk in external documentation links")
 
         assertEquals(1, sourceSet.build().externalDocumentationLinks.count {
-            "https://developer.android.com/reference/androidx" in it.packageListUrl.toURI().toString()
+            "https://developer.android.com/reference/kotlin/androidx/package-list" in it.packageListUrl.toURI().toString()
         }, "Expected androidx in external documentation links")
 
 
@@ -406,7 +428,7 @@ class GradleDokkaSourceSetBuilderTest {
         }, "Expected no android sdk in external documentation links")
 
         assertEquals(0, sourceSet.build().externalDocumentationLinks.count {
-            "https://developer.android.com/reference/androidx" in it.packageListUrl.toURI().toString()
+            "https://developer.android.com/reference/kotlin/androidx/package-list" in it.packageListUrl.toURI().toString()
         }, "Expected no androidx in external documentation links")
     }
 

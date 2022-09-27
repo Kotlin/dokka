@@ -32,6 +32,16 @@ open class CommonmarkRenderer(
                 childrenCallback()
                 buildParagraph()
             }
+            node.dci.kind == ContentKind.Deprecation -> {
+                append("---")
+                childrenCallback()
+                append("---")
+                buildNewLine()
+            }
+            node.hasStyle(ContentStyle.Footnote) -> {
+                childrenCallback()
+                buildParagraph()
+            }
             else -> childrenCallback()
         }
     }
@@ -99,15 +109,20 @@ open class CommonmarkRenderer(
         pageContext: ContentPage,
         sourceSetRestriction: Set<DisplaySourceSet>?
     ) {
-        locationProvider.resolve(node.address, node.sourceSets, pageContext)?.let {
-            buildLink(it) {
+        val location = locationProvider.resolve(node.address, node.sourceSets, pageContext)
+        if (location == null) {
+            if (isPartial) {
+                templateCommand(ResolveLinkGfmCommand(node.address)) {
+                    buildText(node.children, pageContext, sourceSetRestriction)
+                }
+            } else {
                 buildText(node.children, pageContext, sourceSetRestriction)
             }
-        } ?: if (isPartial) {
-            templateCommand(ResolveLinkGfmCommand(node.address)) {
+        } else {
+            buildLink(location) {
                 buildText(node.children, pageContext, sourceSetRestriction)
             }
-        } else buildText(node.children, pageContext, sourceSetRestriction)
+        }
     }
 
     override fun StringBuilder.buildLineBreak() {
@@ -253,11 +268,11 @@ open class CommonmarkRenderer(
     override fun StringBuilder.buildDivergent(node: ContentDivergentGroup, pageContext: ContentPage) {
 
         val distinct =
-            node.groupDivergentInstances(pageContext, { instance, contentPage, sourceSet ->
+            node.groupDivergentInstances(pageContext, { instance, _, sourceSet ->
                 instance.before?.let { before ->
                     buildString { buildContentNode(before, pageContext, sourceSet) }
                 } ?: ""
-            }, { instance, contentPage, sourceSet ->
+            }, { instance, _, sourceSet ->
                 instance.after?.let { after ->
                     buildString { buildContentNode(after, pageContext, sourceSet) }
                 } ?: ""
@@ -304,6 +319,32 @@ open class CommonmarkRenderer(
 
             buildParagraph()
         }
+    }
+
+    override fun StringBuilder.buildCodeBlock(code: ContentCodeBlock, pageContext: ContentPage) {
+        append("```")
+        append(code.language.ifEmpty { "kotlin" })
+        buildNewLine()
+        code.children.forEach {
+            if (it is ContentText) {
+                // since this is a code block where text will be rendered as is,
+                // no need to escape text, apply styles, etc. Just need the plain value
+                append(it.text)
+            } else if (it is ContentBreakLine) {
+                // since this is a code block where text will be rendered as is,
+                // there's no need to add tailing slash for line breaks
+                buildNewLine()
+            }
+        }
+        buildNewLine()
+        append("```")
+        buildNewLine()
+    }
+
+    override fun StringBuilder.buildCodeInline(code: ContentCodeInline, pageContext: ContentPage) {
+        append("`")
+        code.children.filterIsInstance<ContentText>().forEach { append(it.text) }
+        append("`")
     }
 
     private fun decorators(styles: Set<Style>) = buildString {

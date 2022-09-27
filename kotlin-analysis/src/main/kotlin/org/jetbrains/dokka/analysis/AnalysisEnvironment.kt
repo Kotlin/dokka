@@ -20,6 +20,7 @@ import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.analysis.resolve.*
 import org.jetbrains.kotlin.analyzer.*
 import org.jetbrains.kotlin.analyzer.common.CommonAnalysisParameters
+import org.jetbrains.kotlin.analyzer.common.CommonDependenciesContainer
 import org.jetbrains.kotlin.analyzer.common.CommonPlatformAnalyzerServices
 import org.jetbrains.kotlin.analyzer.common.CommonResolverForModuleFactory
 import org.jetbrains.kotlin.builtins.DefaultBuiltIns
@@ -30,6 +31,7 @@ import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
 import org.jetbrains.kotlin.cli.common.config.ContentRoot
 import org.jetbrains.kotlin.cli.common.config.KotlinSourceRoot
 import org.jetbrains.kotlin.cli.common.config.addKotlinSourceRoot
+import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles
 import org.jetbrains.kotlin.cli.jvm.compiler.JvmPackagePartProvider
@@ -48,6 +50,8 @@ import org.jetbrains.kotlin.idea.klib.KlibLoadingMetadataCache
 import org.jetbrains.kotlin.idea.klib.getCompatibilityInfo
 import org.jetbrains.kotlin.js.config.JSConfigurationKeys
 import org.jetbrains.kotlin.js.resolve.JsPlatformAnalyzerServices
+import org.jetbrains.kotlin.library.KLIB_FILE_EXTENSION
+import org.jetbrains.kotlin.library.KotlinLibrary
 import org.jetbrains.kotlin.library.ToolingSingleFileKlibResolveStrategy
 import org.jetbrains.kotlin.library.resolveSingleFileKlib
 import org.jetbrains.kotlin.load.java.structure.impl.JavaClassImpl
@@ -72,9 +76,9 @@ import org.jetbrains.kotlin.resolve.jvm.JvmPlatformParameters
 import org.jetbrains.kotlin.resolve.jvm.JvmResolverForModuleFactory
 import org.jetbrains.kotlin.resolve.jvm.platform.JvmPlatformAnalyzerServices
 import org.jetbrains.kotlin.resolve.konan.platform.NativePlatformAnalyzerServices
+import org.jetbrains.kotlin.storage.LockBasedStorageManager
 import java.io.File
 import org.jetbrains.kotlin.konan.file.File as KFile
-
 
 const val JAR_SEPARATOR = "!/"
 
@@ -111,8 +115,11 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
             JavadocTagInfo.EP_NAME, JavadocTagInfo::class.java
         )
 
+        @Suppress("DEPRECATION")
+        val extensionArea = Extensions.getRootArea()
+
         CoreApplicationEnvironment.registerExtensionPoint(
-            Extensions.getRootArea(),
+            extensionArea,
             CustomJavadocTagProvider.EP_NAME, CustomJavadocTagProvider::class.java
         )
 
@@ -183,7 +190,15 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
             Platform.jvm -> JvmPlatforms.defaultJvmPlatform
         }
 
-        val nativeLibraries: Map<AbsolutePathString, LibraryModuleInfo> = loadNativeLibraries()
+        val kotlinLibraries: Map<AbsolutePathString, KotlinLibrary> = resolveKotlinLibraries()
+
+        val commonDependencyContainer = if (analysisPlatform == Platform.common) DokkaKlibMetadataCommonDependencyContainer(
+            kotlinLibraries.values.toList(),
+            environment.configuration,
+            LockBasedStorageManager("DokkaKlibMetadata")
+        ) else null
+
+        val extraModuleDependencies = kotlinLibraries.values.registerLibraries() + commonDependencyContainer?.moduleInfos.orEmpty()
 
         val library = object : LibraryModuleInfo {
             override val analyzerServices: PlatformDependentAnalyzerServices =
@@ -193,7 +208,7 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
             override fun dependencies(): List<ModuleInfo> = listOf(this)
             override fun getLibraryRoots(): Collection<String> = classpath
                 .map { libraryFile -> libraryFile.absolutePath }
-                .filter { path -> path !in nativeLibraries }
+                .filter { path -> path !in kotlinLibraries }
         }
 
         val module = object : ModuleInfo {
@@ -201,7 +216,8 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
                 analysisPlatform.analyzerServices()
             override val name: Name = Name.special("<module>")
             override val platform: TargetPlatform = targetPlatform
-            override fun dependencies(): List<ModuleInfo> = listOf(this, library) + nativeLibraries.values
+            override fun dependencies(): List<ModuleInfo> =
+                listOf(this, library) + extraModuleDependencies
         }
 
         val sourcesScope = createSourceModuleSearchScope(environment.project, sourceFiles)
@@ -210,10 +226,11 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
                 library -> ModuleContent(it, emptyList(), GlobalSearchScope.notScope(sourcesScope))
                 module -> ModuleContent(it, emptyList(), GlobalSearchScope.allScope(environment.project))
                 is DokkaKlibLibraryInfo -> {
-                    if (it.libraryRoot in nativeLibraries)
+                    if (it.libraryRoot in kotlinLibraries)
                         ModuleContent(it, emptyList(), GlobalSearchScope.notScope(sourcesScope))
                     else null
                 }
+                is CommonKlibModuleInfo -> ModuleContent(it, emptyList(), GlobalSearchScope.notScope(sourcesScope))
                 else -> null
             } ?: throw IllegalArgumentException("Unexpected module info")
         }
@@ -239,7 +256,8 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
                 projectContext,
                 module,
                 modulesContent,
-                environment
+                environment,
+                commonDependencyContainer
             )
             Platform.js -> createJsResolverForProject(projectContext, module, modulesContent)
             Platform.native -> createNativeResolverForProject(projectContext, module, modulesContent)
@@ -281,31 +299,45 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
         Platform.jvm -> JvmPlatformAnalyzerServices
     }
 
-    @OptIn(ExperimentalStdlibApi::class)
-    private fun loadNativeLibraries(): Map<AbsolutePathString, LibraryModuleInfo> {
-        if (analysisPlatform != Platform.native && analysisPlatform != Platform.js) return emptyMap()
-
+    fun Collection<KotlinLibrary>.registerLibraries(): List<DokkaKlibLibraryInfo> {
+        if (analysisPlatform != Platform.native && analysisPlatform != Platform.js) return emptyList()
         val dependencyResolver = DokkaKlibLibraryDependencyResolver()
         val analyzerServices = analysisPlatform.analyzerServices()
 
-        return buildMap {
-            classpath.forEach { libraryFile ->
-                val kotlinLibrary = resolveSingleFileKlib(
-                    libraryFile = KFile(libraryFile.absolutePath),
-                    strategy = ToolingSingleFileKlibResolveStrategy
-                )
+        return map { kotlinLibrary ->
+            if (analysisPlatform == org.jetbrains.dokka.Platform.native) DokkaNativeKlibLibraryInfo(
+                kotlinLibrary,
+                analyzerServices,
+                dependencyResolver
+            )
+            else DokkaJsKlibLibraryInfo(kotlinLibrary, analyzerServices, dependencyResolver)
+        }
+    }
 
-                if (kotlinLibrary.getCompatibilityInfo().isCompatible) {
-                    // exists, is KLIB, has compatible format
-                    put(
-                        libraryFile.absolutePath,
-                        if (analysisPlatform == Platform.native)
-                            DokkaNativeKlibLibraryInfo(kotlinLibrary, analyzerServices, dependencyResolver)
-                        else
-                            DokkaJsKlibLibraryInfo(kotlinLibrary, analyzerServices, dependencyResolver)
-                    )
+    @OptIn(ExperimentalStdlibApi::class)
+    private fun resolveKotlinLibraries(): Map<AbsolutePathString, KotlinLibrary> {
+        return if (analysisPlatform == Platform.jvm) emptyMap() else buildMap {
+            classpath
+                .filter { it.isDirectory || it.extension == KLIB_FILE_EXTENSION }
+                .forEach { libraryFile ->
+                    try {
+                        val kotlinLibrary = resolveSingleFileKlib(
+                            libraryFile = KFile(libraryFile.absolutePath),
+                            strategy = ToolingSingleFileKlibResolveStrategy
+                        )
+
+                        if (kotlinLibrary.getCompatibilityInfo().isCompatible) {
+                            // exists, is KLIB, has compatible format
+                            put(
+                                libraryFile.absolutePath,
+                                kotlinLibrary
+                            )
+                        }
+                    } catch (e: Throwable) {
+                        configuration.getNotNull(CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY)
+                            .report(CompilerMessageSeverity.WARNING, "Can not resolve KLIB. " + e.message)
+                    }
                 }
-            }
         }
     }
 
@@ -313,7 +345,8 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
         projectContext: ProjectContext,
         module: ModuleInfo,
         modulesContent: (ModuleInfo) -> ModuleContent<ModuleInfo>,
-        environment: KotlinCoreEnvironment
+        environment: KotlinCoreEnvironment,
+        dependencyContainer: CommonDependenciesContainer?
     ): ResolverForProject<ModuleInfo> {
         return object : AbstractResolverForProject<ModuleInfo>(
             "Dokka",
@@ -329,12 +362,15 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
                 moduleInfo: ModuleInfo
             ): ResolverForModule =
                 CommonResolverForModuleFactory(
-                    CommonAnalysisParameters { content ->
-                        environment.createPackagePartProvider(content.moduleContentScope)
-                    },
+                    CommonAnalysisParameters(
+                        metadataPartProviderFactory = { content ->
+                            environment.createPackagePartProvider(content.moduleContentScope)
+                        }
+                    ),
                     CompilerEnvironment,
                     unspecifiedJvmPlatform,
-                    true
+                    true,
+                    dependencyContainer
                 ).createResolverForModule(
                     descriptor as ModuleDescriptorImpl,
                     projectContext.withModule(descriptor),
@@ -418,10 +454,10 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
         builtIns: KotlinBuiltIns
     ): ResolverForProject<ModuleInfo> {
         val javaRoots = classpath
-            .mapNotNull {
-                val rootFile = when (it.extension) {
-                    "jar" -> StandardFileSystems.jar().findFileByPath("${it.absolutePath}$JAR_SEPARATOR")
-                    else -> StandardFileSystems.local().findFileByPath(it.absolutePath)
+            .mapNotNull { file ->
+                val rootFile = when (file.extension) {
+                    "jar" -> StandardFileSystems.jar().findFileByPath("${file.absolutePath}$JAR_SEPARATOR")
+                    else -> StandardFileSystems.local().findFileByPath(file.absolutePath)
                 }
                 rootFile?.let { JavaRoot(it, JavaRoot.RootType.BINARY) }
             }
@@ -468,7 +504,7 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
                 projectContext.withModule(descriptor),
                 modulesContent(moduleInfo),
                 this,
-                LanguageVersionSettingsImpl.DEFAULT,
+                configuration.languageVersionSettings,
                 CliSealedClassInheritorsProvider,
             )
 
@@ -480,14 +516,21 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
         val languageVersion = LanguageVersion.fromVersionString(languageVersionString) ?: LanguageVersion.LATEST_STABLE
         val apiVersion =
             apiVersionString?.let { ApiVersion.parse(it) } ?: ApiVersion.createByLanguageVersion(languageVersion)
-        configuration.languageVersionSettings = LanguageVersionSettingsImpl(languageVersion, apiVersion)
+        configuration.languageVersionSettings = LanguageVersionSettingsImpl(
+            languageVersion = languageVersion,
+            apiVersion = apiVersion, analysisFlags = hashMapOf(
+                // force to resolve light classes (lazily by default)
+                AnalysisFlags.eagerResolveOfLightClasses to true
+            )
+        )
     }
 
     /**
      * Classpath for this environment.
      */
     val classpath: List<File>
-        get() = configuration.jvmClasspathRoots
+        get() = configuration.jvmClasspathRoots + configuration.getList(JSConfigurationKeys.LIBRARIES)
+            .mapNotNull { File(it) }
 
     /**
      * Adds list of paths to classpath.
@@ -496,10 +539,13 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
     fun addClasspath(paths: List<File>) {
         if (analysisPlatform == Platform.js) {
             configuration.addAll(JSConfigurationKeys.LIBRARIES, paths.map { it.absolutePath })
+        } else {
+            configuration.addJvmClasspathRoots(paths)
         }
-        configuration.addJvmClasspathRoots(paths)
     }
 
+    // Set up JDK classpath roots explicitly because of https://github.com/JetBrains/kotlin/commit/f89765eb33dd95c8de33a919cca83651b326b246
+    fun configureJdkClasspathRoots() = configuration.configureJdkClasspathRoots()
     /**
      * Adds path to classpath.
      * $path: path to add
@@ -507,8 +553,9 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
     fun addClasspath(path: File) {
         if (analysisPlatform == Platform.js) {
             configuration.add(JSConfigurationKeys.LIBRARIES, path.absolutePath)
+        } else {
+            configuration.addJvmClasspathRoot(path)
         }
-        configuration.addJvmClasspathRoot(path)
     }
 
     /**
@@ -526,7 +573,7 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
     fun addSources(sourceDirectories: Iterable<File>) {
         sourceDirectories.forEach { directory ->
             configuration.addKotlinSourceRoot(directory.path)
-            if (directory.isDirectory || directory.extension == ".java") {
+            if (directory.isDirectory || directory.extension == "java") {
                 configuration.addJavaSourceRoot(directory)
             }
         }
@@ -549,8 +596,12 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
             instances: List<T>,
             disposable: Disposable
         ) {
-            if (Extensions.getRootArea().hasExtensionPoint(appExtension.extensionPointName))
+            @Suppress("DEPRECATION")
+            val extensionArea = Extensions.getRootArea()
+
+            if (extensionArea.hasExtensionPoint(appExtension.extensionPointName)) {
                 return
+            }
 
             appExtension.registerExtensionPoint()
             instances.forEach { extension -> appExtension.registerExtension(extension, disposable) }

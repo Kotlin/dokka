@@ -126,7 +126,7 @@ data class DPackage(
      * e.g. this will return a human readable version for root packages.
      * Use [packageName] or `dri.packageName` instead to obtain the real packageName
      */
-    override val name: String = if (packageName.isBlank()) "[root]" else packageName
+    override val name: String = packageName.ifBlank { "[root]" }
 
     override val children: List<Documentable> = properties + functions + classlikes + typealiases
 
@@ -385,20 +385,18 @@ data class DTypeAlias(
 }
 
 sealed class Projection
-sealed class Bound : Projection(), AnnotationTarget
+sealed class Bound : Projection()
 data class TypeParameter(
     val dri: DRI,
     val name: String,
     val presentableName: String? = null,
     override val extra: PropertyContainer<TypeParameter> = PropertyContainer.empty()
-) : Bound(), WithExtraProperties<TypeParameter> {
+) : Bound(), AnnotationTarget, WithExtraProperties<TypeParameter> {
     override fun withNewExtras(newExtras: PropertyContainer<TypeParameter>): TypeParameter =
         copy(extra = extra)
 }
 
-object Star : Projection()
-
-sealed class TypeConstructor : Bound() {
+sealed class TypeConstructor : Bound(), AnnotationTarget {
     abstract val dri: DRI
     abstract val projections: List<Projection>
     abstract val presentableName: String?
@@ -426,7 +424,45 @@ data class FunctionalTypeConstructor(
         copy(extra = newExtras)
 }
 
+// kotlin.annotation.AnnotationTarget.TYPEALIAS
+data class TypeAliased(
+    val typeAlias: Bound,
+    val inner: Bound,
+    override val extra: PropertyContainer<TypeAliased> = PropertyContainer.empty()
+) : Bound(), AnnotationTarget, WithExtraProperties<TypeAliased> {
+    override fun withNewExtras(newExtras: PropertyContainer<TypeAliased>): TypeAliased =
+        copy(extra = newExtras)
+}
+
+data class PrimitiveJavaType(
+    val name: String,
+    override val extra: PropertyContainer<PrimitiveJavaType> = PropertyContainer.empty()
+) : Bound(), AnnotationTarget, WithExtraProperties<PrimitiveJavaType> {
+    override fun withNewExtras(newExtras: PropertyContainer<PrimitiveJavaType>): PrimitiveJavaType =
+        copy(extra = newExtras)
+}
+
+data class JavaObject(override val extra: PropertyContainer<JavaObject> = PropertyContainer.empty()) :
+    Bound(), AnnotationTarget, WithExtraProperties<JavaObject> {
+    override fun withNewExtras(newExtras: PropertyContainer<JavaObject>): JavaObject =
+        copy(extra = newExtras)
+}
+
+data class UnresolvedBound(
+    val name: String,
+    override val extra: PropertyContainer<UnresolvedBound> = PropertyContainer.empty()
+) : Bound(), AnnotationTarget, WithExtraProperties<UnresolvedBound> {
+    override fun withNewExtras(newExtras: PropertyContainer<UnresolvedBound>): UnresolvedBound =
+        copy(extra = newExtras)
+}
+
+// The following Projections are not AnnotationTargets; they cannot be annotated.
 data class Nullable(val inner: Bound) : Bound()
+
+/**
+ * It introduces [definitely non-nullable types](https://github.com/Kotlin/KEEP/blob/c72601cf35c1e95a541bb4b230edb474a6d1d1a8/proposals/definitely-non-nullable-types.md)
+ */
+data class DefinitelyNonNullable(val inner: Bound) : Bound()
 
 sealed class Variance<out T : Bound> : Projection() {
     abstract val inner: T
@@ -444,19 +480,10 @@ data class Invariance<out T : Bound>(override val inner: T) : Variance<T>() {
     override fun toString() = ""
 }
 
-data class TypeAliased(val typeAlias: Bound, val inner: Bound) : Bound()
-data class PrimitiveJavaType(val name: String) : Bound()
+object Star : Projection()
 
 object Void : Bound()
-
-data class JavaObject(override val extra: PropertyContainer<JavaObject> = PropertyContainer.empty()) : Bound(),
-    WithExtraProperties<JavaObject> {
-    override fun withNewExtras(newExtras: PropertyContainer<JavaObject>): JavaObject =
-        copy(extra = newExtras)
-}
-
 object Dynamic : Bound()
-data class UnresolvedBound(val name: String) : Bound()
 
 fun Variance<TypeParameter>.withDri(dri: DRI) = when (this) {
     is Contravariance -> Contravariance(TypeParameter(dri, inner.name, inner.presentableName))

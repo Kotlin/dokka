@@ -1,7 +1,8 @@
 import org.jetbrains.registerDokkaArtifactPublication
 
 dependencies {
-    implementation("com.soywiz.korlibs.korte:korte-jvm:2.4.6")
+    compileOnly(project(":kotlin-analysis"))
+    implementation("com.soywiz.korlibs.korte:korte-jvm:2.7.0")
     implementation(project(":plugins:base"))
     implementation(project(":plugins:kotlin-as-java"))
     testImplementation(project(":plugins:base:base-test-utils"))
@@ -11,6 +12,9 @@ dependencies {
 
     val coroutines_version: String by project
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version")
+
+    val jsoup_version: String by project
+    testImplementation("org.jsoup:jsoup:$jsoup_version")
 }
 
 registerDokkaArtifactPublication("javadocPlugin") {

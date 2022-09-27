@@ -7,6 +7,7 @@ import org.jetbrains.dokka.model.doc.P
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import kotlin.collections.orEmpty
+import kotlin.test.asserter
 
 @DslMarker
 annotation class TestDSL
@@ -24,7 +25,7 @@ abstract class ModelDSL : BaseAbstractTest() {
 interface AssertDSL {
     infix fun Any?.equals(other: Any?) = assertEquals(other, this)
     infix fun Collection<Any>?.allEquals(other: Any?) =
-        this?.also { c -> c.forEach { it equals other } } ?: run { assert(false) { "Collection is empty" } }
+        this?.onEach { it equals other } ?: run { assert(false) { "Collection is empty" } }
     infix fun <T> Collection<T>?.exists(e: T) {
         assertTrue(this.orEmpty().isNotEmpty(), "Collection cannot be null or empty")
         assertTrue(this!!.any{it == e}, "Collection doesn't contain $e")
@@ -36,6 +37,16 @@ interface AssertDSL {
 
     fun <T> Collection<T>.assertCount(n: Int, prefix: String = "") =
         assert(count() == n) { "${prefix}Expected $n, got ${count()}" }
+}
+
+/*
+ * TODO replace with kotlin.test.assertContains after migrating to Kotlin 1.5+
+ */
+internal fun <T> assertContains(iterable: Iterable<T>, element: T, ) {
+    asserter.assertTrue(
+        { "Expected the collection to contain the element.\nCollection <$iterable>, element <$element>." },
+        iterable.contains(element)
+    )
 }
 
 inline fun <reified T : Any> Any?.assertIsInstance(name: String): T =
@@ -66,6 +77,7 @@ val DClass.supers
 val Bound.name: String?
     get() = when (this) {
         is Nullable -> inner.name
+        is DefinitelyNonNullable -> inner.name
         is TypeParameter -> name
         is PrimitiveJavaType -> name
         is TypeConstructor -> dri.classNames
