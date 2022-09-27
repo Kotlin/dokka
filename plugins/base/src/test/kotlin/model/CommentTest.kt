@@ -2,9 +2,7 @@ package model
 
 import org.jetbrains.dokka.model.DClass
 import org.jetbrains.dokka.model.DProperty
-import org.jetbrains.dokka.model.doc.CodeBlock
-import org.jetbrains.dokka.model.doc.CustomTagWrapper
-import org.jetbrains.dokka.model.doc.Text
+import org.jetbrains.dokka.model.doc.*
 import org.junit.jupiter.api.Test
 import utils.*
 
