@@ -3,6 +3,7 @@ package model
 import org.jetbrains.dokka.model.DClass
 import org.jetbrains.dokka.model.DProperty
 import org.jetbrains.dokka.model.doc.*
+import org.jetbrains.dokka.model.doc.Br
 import org.junit.jupiter.api.Test
 import utils.*
 
