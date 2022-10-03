@@ -1,11 +1,9 @@
 package content.signatures
 
 import matchers.content.*
-import org.jetbrains.dokka.pages.ContentPage
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
+import org.jetbrains.dokka.pages.ContentPage
 import org.junit.jupiter.api.Test
-import utils.ParamAttributes
-import utils.functionSignature
 
 class ConstructorsSignaturesTest : BaseAbstractTest() {
     private val testConfiguration = dokkaConfiguration {
@@ -196,24 +194,29 @@ class ConstructorsSignaturesTest : BaseAbstractTest() {
                         table {
                             group {
                                 link { +"SomeClass" }
-                                functionSignature(
-                                    annotations = emptyMap(),
-                                    visibility = "",
-                                    modifier = "",
-                                    keywords = emptySet(),
-                                    name = "SomeClass"
-                                )
+                                platformHinted {
+                                    group {
+                                        +"constructor"
+                                        +"("
+                                        +")"
+                                    }
+                                }
                             }
                             group {
                                 link { +"SomeClass" }
-                                functionSignature(
-                                    annotations = emptyMap(),
-                                    visibility = "",
-                                    modifier = "",
-                                    keywords = emptySet(),
-                                    name = "SomeClass",
-                                    params = listOf("a" to ParamAttributes(emptyMap(), emptySet(), "String")).toTypedArray()
-                                )
+                                platformHinted {
+                                    group {
+                                        +"constructor"
+                                        +"("
+                                        group {
+                                            group {
+                                                +"a: "
+                                                group { link { +"String" } }
+                                            }
+                                        }
+                                        +")"
+                                    }
+                                }
                             }
                         }
                         skipAllNotMatching()
@@ -266,8 +269,7 @@ class ConstructorsSignaturesTest : BaseAbstractTest() {
                                 link { +"SomeClass" }
                                 platformHinted {
                                     group {
-                                        +"fun "
-                                        link { +"SomeClass" }
+                                        +"constructor"
                                         +"("
                                         group {
                                             group {
