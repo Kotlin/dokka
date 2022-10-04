@@ -32,7 +32,7 @@ class Stress0IntegrationTest(override val versions: BuildVersions) : AbstractGra
             "-i",
             "-s",
             "-Ptask_number=100",
-            jvmArgs = listOf("-Xmx1G", "-XX:MaxMetaspaceSize=256m")
+            jvmArgs = listOf("-Xmx1G", "-XX:MaxMetaspaceSize=350m")
         ).buildRelaxed()
 
         assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":runTasks")).outcome)
