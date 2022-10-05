@@ -10,6 +10,7 @@ import org.intellij.markdown.ast.impl.ListItemCompositeNode
 import org.intellij.markdown.flavours.gfm.GFMElementTypes
 import org.intellij.markdown.flavours.gfm.GFMFlavourDescriptor
 import org.intellij.markdown.flavours.gfm.GFMTokenTypes
+import org.intellij.markdown.html.HtmlGenerator
 import org.jetbrains.dokka.base.parsers.factories.DocTagsFromIElementFactory
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.PointingToDeclaration
@@ -326,6 +327,7 @@ open class MarkdownParser(
                 .children
                 .dropWhile { it.type != MarkdownTokenTypes.CODE_FENCE_CONTENT }
                 .dropLastWhile { it.type != MarkdownTokenTypes.CODE_FENCE_CONTENT }
+                .filter { it.type != MarkdownTokenTypes.WHITE_SPACE }
                 .map {
                     if (it.type == MarkdownTokenTypes.EOL)
                         LeafASTNode(MarkdownTokenTypes.HARD_LINE_BREAK, 0, 0)
@@ -343,7 +345,7 @@ open class MarkdownParser(
         DocTagsFromIElementFactory.getInstance(node.type, children = node.children.mergeLeafASTNodes().flatMap {
             DocTagsFromIElementFactory.getInstance(
                 MarkdownTokenTypes.TEXT,
-                body = text.substring(it.startOffset, it.endOffset)
+                body = HtmlGenerator.trimIndents(text.substring(it.startOffset, it.endOffset), 4).toString()
             )
         })
 

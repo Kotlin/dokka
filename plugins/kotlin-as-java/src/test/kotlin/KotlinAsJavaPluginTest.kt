@@ -489,53 +489,6 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
         }
     }
 
-    @Test
-    fun `should add wrapping and indent to parameters if too many`() {
-        val writerPlugin = TestOutputWriterPlugin()
-        val configuration = dokkaConfiguration {
-            sourceSets {
-                sourceSet {
-                    sourceRoots = listOf("src/")
-                    externalDocumentationLinks = listOf(
-                        DokkaConfiguration.ExternalDocumentationLink.jdk(8),
-                        stdlibExternalDocumentationLink
-                    )
-                }
-            }
-        }
-        testInline(
-            """
-            |/src/main/kotlin/kotlinAsJavaPlugin/Wrapped.kt
-            |package kotlinAsJavaPlugin
-            |
-            |class Wrapped(val xd: Int, val l: Long, val s: String)
-        """.trimMargin(),
-            configuration,
-            pluginOverrides = listOf(writerPlugin),
-            cleanupOutput = true
-        ) {
-            pagesGenerationStage = { root ->
-                val content = root.children
-                    .flatMap { it.children<ContentPage>() }
-                    .map { it.content }.single().mainContents
-
-                val text = content.single { it is ContentHeader }.children
-                    .single() as ContentText
-
-                assertEquals("Constructors", text.text)
-            }
-            renderingStage = { _, _ ->
-                writerPlugin.writer.renderedContent("root/kotlinAsJavaPlugin/-wrapped/-wrapped.html").firstSignature().match(
-                    A("Wrapped"), A("Wrapped"), "(", Parameters(
-                        Parameter(A("Integer"), "xd,").withClasses("indented"),
-                        Parameter(A("Long"), "l,").withClasses("indented"),
-                        Parameter(A("String"), "s").withClasses("indented"),
-                    ).withClasses("wrapped"), ")", ignoreSpanWithTokenStyle = true
-                )
-            }
-        }
-    }
-
     /**
      * Kotlin Int becomes java int. Java int cannot be annotated in source, but Kotlin Int can be.
      * This is paired with DefaultDescriptorToDocumentableTranslatorTest.`Java primitive annotations work`()

@@ -112,11 +112,6 @@ open class HtmlRenderer(
             }
             node.dci.kind == SymbolContentKind.Parameter -> {
                 span("parameter $additionalClasses") {
-                    if (node.hasStyle(ContentStyle.Indented)) {
-                        // could've been done with CSS (padding-left, ::before, etc), but the indent needs to
-                        // consist of physical spaces, otherwise select and copy won't work properly
-                        repeat(4) { consumer.onTagContentEntity(Entities.nbsp) }
-                    }
                     childrenCallback()
                 }
             }
@@ -792,9 +787,16 @@ open class HtmlRenderer(
             TextStyle.Strong -> strong { body() }
             TextStyle.Var -> htmlVar { body() }
             TextStyle.Underlined -> underline { body() }
-            is TokenStyle -> span("token " + styleToApply.toString().toLowerCase()) { body() }
+            is TokenStyle -> span("token ${styleToApply.prismJsClass()}") { body() }
             else -> body()
         }
+    }
+
+    private fun TokenStyle.prismJsClass(): String = when(this) {
+        // Prism.js parser adds Builtin token instead of Annotation
+        // for some reason, so we also add it for consistency and correct coloring
+        TokenStyle.Annotation -> "annotation builtin"
+        else -> this.toString().toLowerCase()
     }
 
     override fun render(root: RootPageNode) {
