@@ -43,7 +43,7 @@ class GfmPlugin : DokkaPlugin() {
     internal val alphaVersionNotifier by extending {
         CoreExtensions.postActions providing { ctx ->
             PostAction {
-                ctx.logger.warn("GFM output format is in Alpha version, use at your own risk, expect bugs and migration issues")
+                ctx.logger.info("GFM output format is in Alpha version, use at your own risk, expect bugs and migration issues")
             }
         }
     }
