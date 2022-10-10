@@ -7,6 +7,7 @@ import org.jetbrains.dokka.model.dfs
 import org.jetbrains.dokka.pages.*
 import org.junit.Assert.assertEquals
 import org.junit.jupiter.api.Test
+import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
 
@@ -55,8 +56,15 @@ class ContentForBriefTest : BaseAbstractTest() {
             |}
         """.trimIndent()
 
-    @Test
-    fun `primary constructor should not inherit docs from its parameter`() {
+    /**
+     * All constructors are merged in one block (like overloaded functions).
+     * That leads to the structure where content block (`constructorsAndBriefs`) consist of plain list of constructors and briefs.
+     * In that list constructor is above, brief is below.
+     */
+    private fun `constructor should not inherit docs from its parameter`(
+        constructor: TypeConstructor,
+        expectedDocs: String
+    ) {
         testInline(codeWithSecondaryAndPrimaryConstructorsDocumented, testConfiguration) {
             pagesTransformationStage = { module ->
                 val classPage =
@@ -64,43 +72,43 @@ class ContentForBriefTest : BaseAbstractTest() {
                 val constructorsTable =
                     classPage.content.dfs { it is ContentTable && it.dci.kind == ContentKind.Constructors } as ContentTable
 
-                assertEquals(2, constructorsTable.children.size)
-                val primary = constructorsTable.children.first {
-                    it.dci.dri.first().callable?.params?.first() == TypeConstructor(
-                        "kotlin.Int",
-                        emptyList()
-                    )
-                }
-                val primaryConstructorDocs =
-                    primary.dfs { it is ContentText && it.dci.kind == ContentKind.Comment } as ContentText
+                val constructorsAndBriefs =
+                    constructorsTable.dfs { it is ContentGroup && it.dci.kind == ContentKind.SourceSetDependentHint }?.children
+                assertNotNull(constructorsAndBriefs, "Content node with constructors and briefs is not found")
 
-                assertEquals("constructor docs", primaryConstructorDocs.text)
+                val constructorIndex = constructorsAndBriefs.indexOfFirst {
+                    it.dci.dri.first().callable?.params?.first() == constructor
+                }
+                val constructorDocs =
+                    constructorsAndBriefs[constructorIndex + 1] // expect that the relevant comment is below the constructor
+                        .dfs { it is ContentText && it.dci.kind == ContentKind.Comment } as ContentText
+
+                assertEquals(expectedDocs, constructorDocs.text)
             }
         }
     }
 
+
+    @Test
+    fun `primary constructor should not inherit docs from its parameter`() {
+        `constructor should not inherit docs from its parameter`(
+            TypeConstructor(
+                "kotlin.Int",
+                emptyList()
+            ),
+            "constructor docs"
+        )
+    }
+
     @Test
     fun `secondary constructor should not inherit docs from its parameter`() {
-        testInline(codeWithSecondaryAndPrimaryConstructorsDocumented, testConfiguration) {
-            pagesTransformationStage = { module ->
-                val classPage =
-                    module.dfs { it.name == "Example" && (it as WithDocumentables).documentables.firstOrNull() is DClass } as ContentPage
-                val constructorsTable =
-                    classPage.content.dfs { it is ContentTable && it.dci.kind == ContentKind.Constructors } as ContentTable
-
-                assertEquals(2, constructorsTable.children.size)
-                val primary = constructorsTable.children.first {
-                    it.dci.dri.first().callable?.params?.first() == TypeConstructor(
-                        "kotlin.String",
-                        emptyList()
-                    )
-                }
-                val primaryConstructorDocs =
-                    primary.dfs { it is ContentText && it.dci.kind == ContentKind.Comment } as ContentText
-
-                assertEquals("secondary constructor", primaryConstructorDocs.text)
-            }
-        }
+        `constructor should not inherit docs from its parameter`(
+            TypeConstructor(
+                "kotlin.String",
+                emptyList()
+            ),
+            "secondary constructor"
+        )
     }
 
     @Test
