@@ -18,7 +18,7 @@ class DokkaTaskTest {
         task.dokkaSourceSets.register("main")
         task.dokkaSourceSets.register("jvm")
         task.dokkaSourceSets.register("test") {
-            suppress by true
+            suppress.set(true)
         }
 
         assertEquals(

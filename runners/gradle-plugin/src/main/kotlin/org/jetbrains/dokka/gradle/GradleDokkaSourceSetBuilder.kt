@@ -196,9 +196,9 @@ open class GradleDokkaSourceSetBuilder(
     fun externalDocumentationLink(url: URL, packageListUrl: URL? = null) {
         externalDocumentationLinks.add(
             GradleExternalDocumentationLinkBuilder(project).apply {
-                this.url by url
+                this.url.set(url)
                 if (packageListUrl != null) {
-                    this.packageListUrl by packageListUrl
+                    this.packageListUrl.set(packageListUrl)
                 }
             }
         )
