@@ -3,7 +3,8 @@ import org.jetbrains.*
 
 plugins {
     `java-gradle-plugin`
-    id("com.gradle.plugin-publish") version "0.20.0"
+    `kotlin-dsl`
+    id("com.gradle.plugin-publish")// version "0.20.0"
 }
 
 repositories {
