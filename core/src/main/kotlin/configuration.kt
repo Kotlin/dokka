@@ -133,6 +133,7 @@ interface DokkaConfiguration : Serializable {
     val suppressObviousFunctions: Boolean
     val includes: Set<File>
     val suppressInheritedMembers: Boolean
+    val extraOptions: List<String>
 
     /**
      * Whether coroutines dispatchers should be shutdown after
@@ -268,5 +269,13 @@ fun ExternalDocumentationLink(
     url: String, packageListUrl: String? = null
 ): ExternalDocumentationLinkImpl =
     ExternalDocumentationLink(url.let(::URL), packageListUrl?.let(::URL))
+
+interface Option
+interface FeatureOption : Option {
+    val name: String
+}
+
+fun DokkaConfiguration.containsOption(option: FeatureOption) =
+    extraOptions.firstOrNull { it.indexOf("-XX") == 0 && option.name == it.substring(3) } != null
 
 

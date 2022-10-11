@@ -11,8 +11,11 @@ import java.nio.file.Paths
 class GlobalArguments(args: Array<String>) : DokkaConfiguration {
 
     val parser = ArgParser("globalArguments", prefixStyle = ArgParser.OptionPrefixStyle.JVM)
+    private val extraArgs: List<String> by parser.argument(ArgType.String, "Json file name or extra options", ).vararg().optional()
 
-    val json: String? by parser.argument(ArgType.String, description = "Json file name").optional()
+    val json: File? = extraArgs.singleOrNull()?.let { Paths.get(it) }?.toFile()?.takeIf { it.exists() }
+
+    override val extraOptions = extraArgs
 
     private val _moduleName = parser.option(
         ArgType.String,
@@ -408,7 +411,7 @@ fun parseLinks(links: List<String>): List<ExternalDocumentationLink> {
 }
 
 fun initializeConfiguration(globalArguments: GlobalArguments): DokkaConfiguration = if (globalArguments.json != null) {
-        val jsonContent = Paths.get(checkNotNull(globalArguments.json)).toFile().readText()
+        val jsonContent = checkNotNull(globalArguments.json).readText()
         val globals = GlobalDokkaConfiguration(jsonContent)
         val dokkaConfigurationImpl = DokkaConfigurationImpl(jsonContent)
 

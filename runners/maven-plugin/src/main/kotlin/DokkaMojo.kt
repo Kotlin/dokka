@@ -164,6 +164,9 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
         get() = field.ifEmpty { DokkaDefaults.documentedVisibilities }
 
     @Parameter
+    var extraOptions: List<String> = emptyList()
+
+    @Parameter
     var failOnWarning: Boolean = DokkaDefaults.failOnWarning
 
     @Parameter(defaultValue = "${DokkaDefaults.suppressObviousFunctions}")
@@ -270,6 +273,7 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
             // so finalizing coroutines after each module pass causes an error.
             // see https://github.com/Kotlin/dokka/issues/2457
             finalizeCoroutines = false,
+            extraOptions = extraOptions
         )
 
         val gen = DokkaGenerator(configuration, logger)

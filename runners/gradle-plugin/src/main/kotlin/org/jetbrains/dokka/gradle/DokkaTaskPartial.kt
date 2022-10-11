@@ -21,6 +21,7 @@ abstract class DokkaTaskPartial : AbstractDokkaLeafTask() {
             delayTemplateSubstitution = true,
             suppressObviousFunctions = suppressObviousFunctions.getSafe(),
             suppressInheritedMembers = suppressInheritedMembers.getSafe(),
+            extraOptions = extraOptions.getSafe()
         )
     }
 }
