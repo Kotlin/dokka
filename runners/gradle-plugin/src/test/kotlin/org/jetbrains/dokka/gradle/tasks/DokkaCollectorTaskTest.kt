@@ -1,4 +1,4 @@
-package org.jetbrains.dokka.gradle
+package org.jetbrains.dokka.gradle.tasks
 
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.withType
@@ -14,6 +14,8 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
+import org.jetbrains.dokka.gradle.tasks.*
+import org.jetbrains.dokka.gradle.*
 
 class DokkaCollectorTaskTest {
 

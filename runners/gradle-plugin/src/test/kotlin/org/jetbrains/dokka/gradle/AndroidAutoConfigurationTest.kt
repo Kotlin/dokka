@@ -7,6 +7,7 @@ import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.withType
 import org.gradle.testfixtures.ProjectBuilder
 import kotlin.test.*
+import org.jetbrains.dokka.gradle.tasks.*
 
 class AndroidAutoConfigurationTest {
 

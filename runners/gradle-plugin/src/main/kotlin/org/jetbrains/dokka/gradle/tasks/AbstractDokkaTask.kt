@@ -1,4 +1,4 @@
-package org.jetbrains.dokka.gradle
+package org.jetbrains.dokka.gradle.tasks
 
 import groovy.lang.Closure
 import org.gradle.api.Action
@@ -14,6 +14,12 @@ import org.gradle.kotlin.dsl.listProperty
 import org.gradle.kotlin.dsl.mapProperty
 import org.gradle.work.DisableCachingByDefault
 import org.jetbrains.dokka.*
+import org.jetbrains.dokka.DokkaBootstrap
+import org.jetbrains.dokka.gradle.*
+import org.jetbrains.dokka.gradle.defaultDokkaOutputDirectory
+import org.jetbrains.dokka.gradle.maybeCreateDokkaPluginConfiguration
+import org.jetbrains.dokka.gradle.safeConvention
+import org.jetbrains.dokka.gradle.safeProperty
 import org.jetbrains.dokka.plugability.ConfigurableBlock
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import java.io.File

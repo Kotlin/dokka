@@ -1,8 +1,9 @@
-package org.jetbrains.dokka.gradle
+package org.jetbrains.dokka.gradle.tasks
 
 import org.jetbrains.dokka.DokkaConfigurationImpl
 import org.jetbrains.dokka.build
 import org.gradle.api.tasks.*
+import org.jetbrains.dokka.gradle.getSafe
 
 @CacheableTask
 abstract class DokkaTaskPartial : AbstractDokkaLeafTask() {

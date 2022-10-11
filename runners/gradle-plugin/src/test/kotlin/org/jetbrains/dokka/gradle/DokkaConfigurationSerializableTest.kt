@@ -13,6 +13,7 @@ import java.io.ObjectOutputStream
 import java.net.URL
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import org.jetbrains.dokka.gradle.tasks.*
 
 @Suppress("UnstableApiUsage")
 class DokkaConfigurationSerializableTest {

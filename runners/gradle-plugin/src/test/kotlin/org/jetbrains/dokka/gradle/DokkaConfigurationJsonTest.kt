@@ -5,11 +5,13 @@ package org.jetbrains.dokka.gradle
 import org.gradle.kotlin.dsl.withType
 import org.gradle.testfixtures.ProjectBuilder
 import org.jetbrains.dokka.*
+import org.jetbrains.dokka.DokkaDefaults.includeNonPublic
 import org.jetbrains.dokka.DokkaDefaults.reportUndocumented
 import java.io.File
 import java.net.URL
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import org.jetbrains.dokka.gradle.tasks.*
 
 class DokkaConfigurationJsonTest {
 
