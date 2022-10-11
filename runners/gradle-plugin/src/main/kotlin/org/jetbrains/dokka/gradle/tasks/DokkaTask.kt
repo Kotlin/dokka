@@ -12,8 +12,8 @@ abstract class DokkaTask : AbstractDokkaLeafTask() {
         DokkaConfigurationImpl(
             moduleName = moduleName.getSafe(),
             moduleVersion = moduleVersion.getValidVersionOrNull(),
-            outputDir = outputDirectory.getSafe(),
-            cacheRoot = cacheRoot.getSafe(),
+            outputDir = outputDirectory.asFile.get(),
+            cacheRoot = cacheRoot.asFile.get(),
             offlineMode = offlineMode.getSafe(),
             failOnWarning = failOnWarning.getSafe(),
             sourceSets = unsuppressedSourceSets.build(),

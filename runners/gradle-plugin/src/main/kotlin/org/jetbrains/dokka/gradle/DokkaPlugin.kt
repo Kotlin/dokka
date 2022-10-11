@@ -4,7 +4,7 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Dependency
-import org.gradle.kotlin.dsl.register
+import org.gradle.kotlin.dsl.*
 import org.gradle.util.GradleVersion
 import org.jetbrains.dokka.gradle.tasks.*
 
@@ -35,6 +35,9 @@ open class DokkaPlugin : Plugin<Project> {
             plugins.dependencies.add(project.dokkaArtifacts.jekyllPlugin)
             description = "Generates documentation in Jekyll flavored markdown format"
         }
+
+        project.configureEachAbstractDokkaTask()
+        project.configureEachDokkaMultiModuleTask()
     }
 
     /**
@@ -87,6 +90,19 @@ open class DokkaPlugin : Plugin<Project> {
                 description =
                     "Generates documentation merging all subprojects '$name' tasks into one virtual module"
             }
+        }
+    }
+
+    private fun Project.configureEachAbstractDokkaTask() {
+        tasks.withType<AbstractDokkaTask>().configureEach {
+            val formatClassifier = name.removePrefix("dokka").decapitalize()
+            outputDirectory.convention(project.layout.buildDirectory.dir("dokka/$formatClassifier"))
+        }
+    }
+
+    private fun Project.configureEachDokkaMultiModuleTask() {
+        tasks.withType<DokkaMultiModuleTask>().configureEach {
+            sourceChildOutputDirectories.from(childDokkaTasks.map { it.outputDirectory })
         }
     }
 }
