@@ -164,6 +164,7 @@ index aa8f21b..dd6a2ae 100644
 +    task dokkaStdlib(type: org.jetbrains.dokka.gradle.DokkaTask) {
 +        outputDirectory.set(new File(outputDir, "/kotlin-stdlib"))
 +        moduleName.set("kotlin-stdlib")
++        extraOptions.add("-XXSinceKotlin")
 +        pluginsMapConfiguration.set(["org.jetbrains.dokka.base.DokkaBase": """{ "mergeImplicitExpectActualDeclarations": "true" }"""])
 +        dokkaSourceSets {
 +            register("kotlin-stdlib-common") {

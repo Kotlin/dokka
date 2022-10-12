@@ -3,6 +3,7 @@
 package org.jetbrains.dokka.base
 
 import org.jetbrains.dokka.CoreExtensions
+import org.jetbrains.dokka.FeatureOption
 import org.jetbrains.dokka.analysis.KotlinAnalysis
 import org.jetbrains.dokka.base.renderers.*
 import org.jetbrains.dokka.base.renderers.html.*
@@ -35,11 +36,15 @@ import org.jetbrains.dokka.base.translators.descriptors.DefaultExternalDocumenta
 import org.jetbrains.dokka.base.translators.descriptors.ExternalClasslikesTranslator
 import org.jetbrains.dokka.base.translators.descriptors.ExternalDocumentablesProvider
 import org.jetbrains.dokka.base.utils.NoopIntellijLoggerFactory
+import org.jetbrains.dokka.containsOption
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.plugability.configuration
 import org.jetbrains.dokka.transformers.documentation.PreMergeDocumentableTransformer
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 
+enum class BasePluginFeatureOptions : FeatureOption {
+    SinceKotlin
+}
 class DokkaBase : DokkaPlugin() {
 
     val preMergeDocumentableTransformer by extensionPoint<PreMergeDocumentableTransformer>()
@@ -133,7 +138,7 @@ class DokkaBase : DokkaPlugin() {
     }
 
     val sinceKotlinTransformer by extending {
-        CoreExtensions.documentableTransformer providing ::SinceKotlinTransformer
+        CoreExtensions.documentableTransformer providing ::SinceKotlinTransformer applyIf { containsOption(BasePluginFeatureOptions.SinceKotlin) }
     }
 
     val inheritorsExtractor by extending {
@@ -157,7 +162,7 @@ class DokkaBase : DokkaPlugin() {
     }
 
     val sinceKotlinTagContentProvider by extending {
-        customTagContentProvider with SinceKotlinTagContentProvider
+        customTagContentProvider with SinceKotlinTagContentProvider applyIf { containsOption(BasePluginFeatureOptions.SinceKotlin) }
     }
 
     val pageMerger by extending {
