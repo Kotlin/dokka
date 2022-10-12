@@ -18,7 +18,7 @@ abstract class DokkaCollectorTask : AbstractDokkaParentTask() {
             cacheRoot = cacheRoot.getSafe(),
             failOnWarning = failOnWarning.getSafe(),
             offlineMode = offlineMode.getSafe(),
-            pluginsClasspath = plugins.resolve().toList(),
+            pluginsClasspath = plugins.toList(),
             pluginsConfiguration = buildPluginsConfiguration(),
             suppressObviousFunctions = suppressObviousFunctions.getSafe(),
             suppressInheritedMembers = suppressInheritedMembers.getSafe(),

@@ -2,6 +2,7 @@
 
 package org.jetbrains.dokka.gradle
 
+import org.gradle.kotlin.dsl.repositories
 import org.gradle.kotlin.dsl.withType
 import org.gradle.testfixtures.ProjectBuilder
 import org.jetbrains.dokka.*
@@ -17,8 +18,9 @@ class DokkaConfigurationJsonTest {
         val project = ProjectBuilder.builder().build()
         project.plugins.apply("org.jetbrains.dokka")
         val dokkaTask = project.tasks.withType<DokkaTask>().first()
-        dokkaTask.plugins.withDependencies { dependencies ->
-            dependencies.clear()
+        project.repositories {
+            mavenLocal()
+            mavenCentral()
         }
         dokkaTask.apply {
             this.failOnWarning by true

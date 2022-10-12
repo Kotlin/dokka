@@ -16,7 +16,7 @@ abstract class DokkaTask : AbstractDokkaLeafTask() {
             failOnWarning = failOnWarning.getSafe(),
             sourceSets = unsuppressedSourceSets.build(),
             pluginsConfiguration = buildPluginsConfiguration(),
-            pluginsClasspath = plugins.resolve().toList(),
+            pluginsClasspath = plugins.toList(),
             suppressObviousFunctions = suppressObviousFunctions.getSafe(),
             suppressInheritedMembers = suppressInheritedMembers.getSafe(),
         )

@@ -4,6 +4,7 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Dependency
+import org.gradle.api.file.FileCollection
 import org.gradle.kotlin.dsl.register
 import org.gradle.util.GradleVersion
 
@@ -14,6 +15,8 @@ open class DokkaPlugin : Plugin<Project> {
         }
 
         project.setupDokkaTasks("dokkaHtml") {
+            runtime.from(project.configurations.getByName("dokkaHtmlRuntime"))
+            plugins.from(project.configurations.getByName("dokkaHtmlPlugin"))
             description = "Generates documentation in 'html' format"
         }
 
@@ -21,17 +24,29 @@ open class DokkaPlugin : Plugin<Project> {
             name = "dokkaJavadoc",
             multiModuleTaskSupported = false
         ) {
-            plugins.dependencies.add(project.dokkaArtifacts.javadocPlugin)
+            project.configurations.getByName("dokkaJavadocPlugin") {
+                it.dependencies.add(project.dokkaArtifacts.javadocPlugin)
+            }
+            runtime.from(project.configurations.getByName("dokkaJavadocRuntime"))
+            plugins.from(project.configurations.getByName("dokkaJavadocPlugin"))
             description = "Generates documentation in 'javadoc' format"
         }
 
         project.setupDokkaTasks("dokkaGfm", allModulesPageAndTemplateProcessing = project.dokkaArtifacts.gfmTemplateProcessing) {
-            plugins.dependencies.add(project.dokkaArtifacts.gfmPlugin)
+            project.configurations.getByName("dokkaGfmPlugin") {
+                it.dependencies.add(project.dokkaArtifacts.gfmPlugin)
+            }
+            runtime.from(project.configurations.getByName("dokkaGfmRuntime"))
+            plugins.from(project.configurations.getByName("dokkaGfmPlugin"))
             description = "Generates documentation in GitHub flavored markdown format"
         }
 
         project.setupDokkaTasks("dokkaJekyll", allModulesPageAndTemplateProcessing = project.dokkaArtifacts.jekyllTemplateProcessing) {
-            plugins.dependencies.add(project.dokkaArtifacts.jekyllPlugin)
+            project.configurations.getByName("dokkaJekyllPlugin") {
+                it.dependencies.add(project.dokkaArtifacts.jekyllPlugin)
+            }
+            runtime.from(project.configurations.getByName("dokkaJekyllRuntime"))
+            plugins.from(project.configurations.getByName("dokkaJekyllPlugin"))
             description = "Generates documentation in Jekyll flavored markdown format"
         }
     }

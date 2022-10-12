@@ -58,7 +58,7 @@ abstract class DokkaMultiModuleTask : AbstractDokkaParentTask() {
         pluginsConfiguration = buildPluginsConfiguration(),
         failOnWarning = failOnWarning.getSafe(),
         offlineMode = offlineMode.getSafe(),
-        pluginsClasspath = plugins.resolve().toList(),
+        pluginsClasspath = plugins.toList(),
         modules = childDokkaTasks.map { dokkaTask ->
             DokkaModuleDescriptionImpl(
                 name = dokkaTask.moduleName.getSafe(),
