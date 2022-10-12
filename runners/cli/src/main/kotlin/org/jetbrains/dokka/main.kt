@@ -13,7 +13,8 @@ class GlobalArguments(args: Array<String>) : DokkaConfiguration {
     val parser = ArgParser("globalArguments", prefixStyle = ArgParser.OptionPrefixStyle.JVM)
     private val extraArgs: List<String> by parser.argument(ArgType.String, "Json file name or extra options", ).vararg().optional()
 
-    val json: File? = extraArgs.singleOrNull()?.let { Paths.get(it) }?.toFile()?.takeIf { it.exists() }
+    val json: File?
+        get() = extraArgs.singleOrNull()?.let { Paths.get(it) }?.toFile()?.takeIf { it.exists() }
 
     override val extraOptions = extraArgs
 
