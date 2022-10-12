@@ -7,6 +7,7 @@ public final class org/jetbrains/dokka/ConfigurationKt {
 	public static final fun GlobalDokkaConfiguration (Ljava/lang/String;)Lorg/jetbrains/dokka/GlobalDokkaConfiguration;
 	public static final fun apply (Lorg/jetbrains/dokka/DokkaConfiguration;Lorg/jetbrains/dokka/GlobalDokkaConfiguration;)Lorg/jetbrains/dokka/DokkaConfiguration;
 	public static final fun build (Ljava/lang/Iterable;)Ljava/util/List;
+	public static final fun containsOption (Lorg/jetbrains/dokka/DokkaConfiguration;Lorg/jetbrains/dokka/FeatureOption;)Z
 	public static final fun toJsonString (Lorg/jetbrains/dokka/DokkaConfiguration;)Ljava/lang/String;
 	public static final fun toJsonString (Lorg/jetbrains/dokka/plugability/ConfigurableBlock;)Ljava/lang/String;
 }
@@ -64,6 +65,7 @@ public final class org/jetbrains/dokka/DokkaBootstrapImplKt {
 public abstract interface class org/jetbrains/dokka/DokkaConfiguration : java/io/Serializable {
 	public abstract fun getCacheRoot ()Ljava/io/File;
 	public abstract fun getDelayTemplateSubstitution ()Z
+	public abstract fun getExtraOptions ()Ljava/util/List;
 	public abstract fun getFailOnWarning ()Z
 	public abstract fun getFinalizeCoroutines ()Z
 	public abstract fun getIncludes ()Ljava/util/Set;
@@ -169,8 +171,8 @@ public abstract interface class org/jetbrains/dokka/DokkaConfigurationBuilder {
 
 public final class org/jetbrains/dokka/DokkaConfigurationImpl : org/jetbrains/dokka/DokkaConfiguration {
 	public fun <init> ()V
-	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/io/File;Ljava/io/File;ZLjava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;ZZZLjava/util/Set;ZZ)V
-	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/io/File;Ljava/io/File;ZLjava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;ZZZLjava/util/Set;ZZILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/io/File;Ljava/io/File;ZLjava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;ZZZLjava/util/Set;ZZLjava/util/List;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/io/File;Ljava/io/File;ZLjava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;ZZZLjava/util/Set;ZZLjava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/lang/String;
 	public final fun component10 ()Z
 	public final fun component11 ()Z
@@ -178,6 +180,7 @@ public final class org/jetbrains/dokka/DokkaConfigurationImpl : org/jetbrains/do
 	public final fun component13 ()Ljava/util/Set;
 	public final fun component14 ()Z
 	public final fun component15 ()Z
+	public final fun component16 ()Ljava/util/List;
 	public final fun component2 ()Ljava/lang/String;
 	public final fun component3 ()Ljava/io/File;
 	public final fun component4 ()Ljava/io/File;
@@ -186,11 +189,12 @@ public final class org/jetbrains/dokka/DokkaConfigurationImpl : org/jetbrains/do
 	public final fun component7 ()Ljava/util/List;
 	public final fun component8 ()Ljava/util/List;
 	public final fun component9 ()Ljava/util/List;
-	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/io/File;Ljava/io/File;ZLjava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;ZZZLjava/util/Set;ZZ)Lorg/jetbrains/dokka/DokkaConfigurationImpl;
-	public static synthetic fun copy$default (Lorg/jetbrains/dokka/DokkaConfigurationImpl;Ljava/lang/String;Ljava/lang/String;Ljava/io/File;Ljava/io/File;ZLjava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;ZZZLjava/util/Set;ZZILjava/lang/Object;)Lorg/jetbrains/dokka/DokkaConfigurationImpl;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/io/File;Ljava/io/File;ZLjava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;ZZZLjava/util/Set;ZZLjava/util/List;)Lorg/jetbrains/dokka/DokkaConfigurationImpl;
+	public static synthetic fun copy$default (Lorg/jetbrains/dokka/DokkaConfigurationImpl;Ljava/lang/String;Ljava/lang/String;Ljava/io/File;Ljava/io/File;ZLjava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;ZZZLjava/util/Set;ZZLjava/util/List;ILjava/lang/Object;)Lorg/jetbrains/dokka/DokkaConfigurationImpl;
 	public fun equals (Ljava/lang/Object;)Z
 	public fun getCacheRoot ()Ljava/io/File;
 	public fun getDelayTemplateSubstitution ()Z
+	public fun getExtraOptions ()Ljava/util/List;
 	public fun getFailOnWarning ()Z
 	public fun getFinalizeCoroutines ()Z
 	public fun getIncludes ()Ljava/util/Set;
@@ -348,6 +352,10 @@ public final class org/jetbrains/dokka/ExternalDocumentationLinkImpl : org/jetbr
 	public fun toString ()Ljava/lang/String;
 }
 
+public abstract interface class org/jetbrains/dokka/FeatureOption : org/jetbrains/dokka/Option {
+	public abstract fun getName ()Ljava/lang/String;
+}
+
 public final class org/jetbrains/dokka/GlobalDokkaConfiguration {
 	public fun <init> (Ljava/util/List;Ljava/util/List;Ljava/util/List;)V
 	public final fun component1 ()Ljava/util/List;
@@ -361,6 +369,9 @@ public final class org/jetbrains/dokka/GlobalDokkaConfiguration {
 	public final fun getSourceLinks ()Ljava/util/List;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class org/jetbrains/dokka/Option {
 }
 
 public final class org/jetbrains/dokka/PackageOptionsImpl : org/jetbrains/dokka/DokkaConfiguration$PackageOptions {

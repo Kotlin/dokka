@@ -8,6 +8,7 @@ public abstract class org/jetbrains/dokka/maven/AbstractDokkaMojo : org/apache/m
 	public final fun getDocumentedVisibilities ()Ljava/util/Set;
 	public final fun getDokkaPlugins ()Ljava/util/List;
 	public final fun getExternalDocumentationLinks ()Ljava/util/List;
+	public final fun getExtraOptions ()Ljava/util/List;
 	public final fun getFailOnWarning ()Z
 	public final fun getIncludeNonPublic ()Z
 	public final fun getIncludes ()Ljava/util/List;
@@ -40,6 +41,7 @@ public abstract class org/jetbrains/dokka/maven/AbstractDokkaMojo : org/apache/m
 	public final fun setDocumentedVisibilities (Ljava/util/Set;)V
 	public final fun setDokkaPlugins (Ljava/util/List;)V
 	public final fun setExternalDocumentationLinks (Ljava/util/List;)V
+	public final fun setExtraOptions (Ljava/util/List;)V
 	public final fun setFailOnWarning (Z)V
 	public final fun setIncludeNonPublic (Z)V
 	public final fun setIncludes (Ljava/util/List;)V

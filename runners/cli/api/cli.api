@@ -64,6 +64,7 @@ public final class org/jetbrains/dokka/GlobalArguments : org/jetbrains/dokka/Dok
 	public fun <init> ([Ljava/lang/String;)V
 	public fun getCacheRoot ()Ljava/io/File;
 	public fun getDelayTemplateSubstitution ()Z
+	public fun getExtraOptions ()Ljava/util/List;
 	public fun getFailOnWarning ()Z
 	public fun getFinalizeCoroutines ()Z
 	public final fun getGlobalLinks ()Ljava/util/List;
@@ -71,7 +72,7 @@ public final class org/jetbrains/dokka/GlobalArguments : org/jetbrains/dokka/Dok
 	public final fun getGlobalSrcLink ()Ljava/util/List;
 	public final fun getHelpSourceSet ()Ljava/lang/Object;
 	public fun getIncludes ()Ljava/util/Set;
-	public final fun getJson ()Ljava/lang/String;
+	public final fun getJson ()Ljava/io/File;
 	public final fun getLogger ()Lorg/jetbrains/dokka/utilities/DokkaLogger;
 	public final fun getLoggingLevel ()Lorg/jetbrains/dokka/utilities/LoggingLevel;
 	public fun getModuleName ()Ljava/lang/String;
