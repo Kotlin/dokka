@@ -12,12 +12,19 @@ val integrationTestSourceSet = sourceSets.create("integrationTest") {
     runtimeClasspath += sourceSets.main.get().output
 }
 
+val integrationTestImplementation by configurations.getting {
+    extendsFrom(configurations.implementation.get())
+}
+
+val integrationTestRuntimeOnly by configurations.getting {
+    extendsFrom(configurations.runtimeOnly.get())
+}
+
 val integrationTest by tasks.registering(Test::class) {
     maxHeapSize = "2G"
     description = "Runs integration tests."
     group = "verification"
     useJUnit()
-
 
     testClassesDirs = integrationTestSourceSet.output.classesDirs
     classpath = integrationTestSourceSet.runtimeClasspath
