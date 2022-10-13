@@ -2,6 +2,10 @@ name: Build examples
 
 on: pull_request
 
+concurrency:
+  group: '${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}'
+  cancel-in-progress: true
+
 jobs:
   build:
     strategy:
@@ -123,6 +127,7 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: 11
+      - uses: gradle/gradle-build-action@v2 # provides a cache of .m2 dependencies
       - run: mvn compile dokka:dokka
         working-directory: examples/maven
         if: steps.filter.outputs.examples_changed == 'true'
