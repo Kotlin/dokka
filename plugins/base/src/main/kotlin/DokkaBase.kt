@@ -138,7 +138,13 @@ class DokkaBase : DokkaPlugin() {
     }
 
     val sinceKotlinTransformer by extending {
-        CoreExtensions.documentableTransformer providing ::SinceKotlinTransformer applyIf { containsOption(BasePluginFeatureOptions.SinceKotlin) }
+        CoreExtensions.documentableTransformer providing ::SinceKotlinTransformer applyIf {
+            containsOption(
+                BasePluginFeatureOptions.SinceKotlin
+            )
+        } order {
+            before(extensionsExtractor)
+        }
     }
 
     val inheritorsExtractor by extending {
