@@ -35,8 +35,8 @@ internal fun Project.maybeCreateDokkaRuntimeConfiguration(dokkaTaskName: String)
         extendsFrom(maybeCreateDokkaDefaultRuntimeConfiguration())
         attributes.attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(Usage::class.java, "java-runtime"))
         isCanBeConsumed = false
-        defaultDependencies { dependencies ->
-            dependencies.add(project.dokkaArtifacts.dokkaCore)
+        defaultDependencies {
+            add(project.dokkaArtifacts.dokkaCore)
         }
     }
 }
