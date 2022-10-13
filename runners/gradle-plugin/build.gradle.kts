@@ -25,7 +25,7 @@ dependencies {
     testImplementation("com.android.tools.build:gradle:4.0.1")
 
     // Fix https://github.com/gradle/gradle/issues/16774
-    testImplementation (
+    testImplementation(
         files(
             serviceOf<org.gradle.api.internal.classpath.ModuleRegistry>().getModule("gradle-tooling-api-builders")
                 .classpath.asFiles.first()
@@ -127,4 +127,8 @@ afterEvaluate { // Workaround for an interesting design choice https://github.co
     configureSpacePublicationIfNecessary("pluginMaven", "dokkaGradlePluginPluginMarkerMaven")
     configureSonatypePublicationIfNecessary("pluginMaven", "dokkaGradlePluginPluginMarkerMaven")
     createDokkaPublishTaskIfNecessary()
+}
+
+tasks.processResources {
+    duplicatesStrategy = DuplicatesStrategy.WARN
 }
