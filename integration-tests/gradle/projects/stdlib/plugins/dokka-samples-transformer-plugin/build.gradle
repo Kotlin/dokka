@@ -9,11 +9,12 @@ repositories {
 }
 
 dependencies {
-    implementation "org.jetbrains.dokka:dokka-base:${dokka_it_kotlin_version}"
-    compileOnly "org.jetbrains.dokka:dokka-core:${dokka_it_kotlin_version}"
+    implementation "org.jetbrains.dokka:dokka-base:${dokka_it_version}"
+    compileOnly "org.jetbrains.dokka:dokka-core:${dokka_it_version}"
+    compileOnly "org.jetbrains.dokka:dokka-analysis:${dokka_it_version}"
 }
 
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile) {
-        kotlinOptions.jvmTarget = "1.8"
+    kotlinOptions.jvmTarget = "1.8"
 }
 

@@ -8,17 +8,26 @@ import org.jetbrains.dokka.model.SourceSetDependent
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.utilities.DokkaLogger
 
-fun KotlinAnalysis(sourceSets: List<DokkaSourceSet>, logger: DokkaLogger): KotlinAnalysis {
+fun KotlinAnalysis(sourceSets: List<DokkaSourceSet>, logger: DokkaLogger, analysisConfiguration: DokkaAnalysisConfiguration = DokkaAnalysisConfiguration()): KotlinAnalysis {
     val environments = sourceSets.associateWith { sourceSet ->
         createEnvironmentAndFacade(
             logger = logger,
             sourceSets = sourceSets,
-            sourceSet = sourceSet
+            sourceSet = sourceSet,
+            analysisConfiguration = analysisConfiguration
         )
     }
 
     return KotlinAnalysisImpl(environments)
 }
+
+class DokkaAnalysisConfiguration(
+    /**
+     * Only for common platform ignore BuiltIns for StdLib since it can cause a conflict
+     * between BuiltIns from a compiler and ones from source code.
+     */
+    val ignoreCommonBuiltIns: Boolean = false
+)
 
 @Deprecated(message = "Construct using list of DokkaSourceSets and logger",
     replaceWith = ReplaceWith("KotlinAnalysis(context.configuration.sourceSets, context.logger)")
