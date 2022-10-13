@@ -20,14 +20,14 @@ abstract class DokkaExecutorService @Inject constructor(
         val defaultLoggingLevel: Property<LoggingLevel>
     }
 
-    private val dokkaGeneratorClass = parameters.dokkaGeneratorClass.get()
-    private val defaultLoggingLevel = parameters.defaultLoggingLevel.get()
-
     fun generate(
         dokkaConfiguration: DokkaConfiguration,
         runtimeClasspath: Collection<File>,
-        loggingLevel: LoggingLevel = defaultLoggingLevel,
+        loggingLevel: LoggingLevel? = null,
     ) {
+        val dokkaGeneratorClass = parameters.dokkaGeneratorClass.get()
+        val defaultLoggingLevel = parameters.defaultLoggingLevel.get()
+
         val dokkaConfigurationFile = Files.createTempFile("dokka", ".json").toFile()
         dokkaConfigurationFile.writeText(dokkaConfiguration.toJsonString())
 
@@ -37,10 +37,8 @@ abstract class DokkaExecutorService @Inject constructor(
             isIgnoreExitValue = true
             args(
                 dokkaConfigurationFile.invariantSeparatorsPath,
-                loggingLevel.name,
+                (loggingLevel ?: defaultLoggingLevel).name,
             )
         }
     }
-
-
 }
