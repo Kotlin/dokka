@@ -1,14 +1,20 @@
 package org.jetbrains.conventions
 
-import org.gradle.kotlin.dsl.`maven-publish`
-import org.gradle.kotlin.dsl.provideDelegate
-import org.gradle.kotlin.dsl.register
-import org.gradle.kotlin.dsl.repositories
-import org.jetbrains.ValidatePublications
-import org.jetbrains.publicationChannels
-
 plugins {
-  id("org.jetbrains.conventions.base")
-  `maven-publish`
-  signing
+    id("org.jetbrains.conventions.base")
+    `maven-publish`
+    signing
+}
+
+publishing {
+    publications.withType<MavenPublication>().configureEach {
+        repositories {
+            // Publish to a project-local Maven directory, for verification. To test, run:
+            // ./gradlew publishAllPublicationsToMavenProjectLocalRepository
+            // and check $rootDir/build/maven-project-local
+            maven(rootProject.layout.buildDirectory.dir("maven-project-local")) {
+                name = "MavenProjectLocal"
+            }
+        }
+    }
 }
