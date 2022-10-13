@@ -82,7 +82,7 @@ abstract class AbstractDokkaTask : DefaultTask() {
     @Classpath
     val runtime: Configuration = project.maybeCreateDokkaRuntimeConfiguration(name)
 
-    @get:Input
+    @get:Internal
     abstract val dokkaExecutorService: Property<DokkaExecutorService>
 
     final override fun doFirst(action: Action<in Task>): Task = super.doFirst(action)
