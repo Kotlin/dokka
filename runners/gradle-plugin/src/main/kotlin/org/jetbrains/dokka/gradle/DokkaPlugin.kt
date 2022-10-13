@@ -106,6 +106,7 @@ open class DokkaPlugin : Plugin<Project> {
 
         tasks.withType<AbstractDokkaTask>().configureEach {
             dokkaExecutorService.convention(registeredDokkaService)
+            usesService(registeredDokkaService)
         }
     }
 }
