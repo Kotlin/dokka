@@ -63,7 +63,7 @@ dokkaHtml {
 !!! note
     Dokka extracts the information about sourcesets from the Kotlin Gradle plugin.
     Therefore, if you are using Dokka in a [precompiled script plugin](https://docs.gradle.org/current/userguide/custom_plugins.html#sec:precompiled_plugins),
-    you will have to add a depencency to the Kotlin Gradle Plugin as well
+    you will have to add a dependency to the Kotlin Gradle Plugin as well
     (`implementation(kotlin("gradle-plugin", "<kotlin-version>"))` resp. `implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:<kotlin-version>")`).
 
 ## Configuration options
@@ -73,7 +73,7 @@ Most of the configuration options are set per one source set.
 The available configuration options are shown below:
 
 ```kotlin
-import org.jetbrains.dokka.gradle.DokkaTask
+import org.jetbrains.dokka.gradle.tasks.DokkaTask
 
 val dokkaHtml by getting(DokkaTask::class) {
     outputDirectory.set(buildDir.resolve("dokka"))
