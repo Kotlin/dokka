@@ -5,6 +5,7 @@ plugins {
 }
 
 dependencies {
+    implementation(project(":integration-tests"))
     implementation(kotlin("stdlib"))
     implementation(kotlin("test-junit"))
     implementation(gradleTestKit())
