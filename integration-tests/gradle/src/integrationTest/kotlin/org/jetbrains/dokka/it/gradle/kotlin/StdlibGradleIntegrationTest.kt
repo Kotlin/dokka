@@ -24,18 +24,20 @@ class StdlibGradleIntegrationTest(override val versions: BuildVersions) : Abstra
 
     override val projectOutputLocation: File by lazy { File(projectDir, "build/dokka/kotlin-stdlib") }
 
+    private val currentDokkaVersion: String = "1.5.0"//checkNotNull(System.getenv("DOKKA_VERSION")) // uncomment after updating of StdLib
+
     @BeforeTest
     fun prepareProjectFiles() {
         val templateProjectDir = File("projects", "stdlib/kotlin-dokka-stdlib")
         templateProjectDir.listFiles().orEmpty()
             .forEach { topLevelFile -> topLevelFile.copyRecursively(File(projectDir, topLevelFile.name)) }
 
-        val pluginDir = File("projects", "stdlib/dokka-samples-transformer-plugin")
+        val pluginDir = File("projects", "stdlib/plugins")
         pluginDir.listFiles().orEmpty()
             .forEach { topLevelFile ->
                 topLevelFile.copyRecursively(
                     File(
-                        projectDir.resolve("dokka-samples-transformer-plugin").also { it.mkdir() }, topLevelFile.name
+                        projectDir.resolve("plugins").also { it.mkdir() }, topLevelFile.name
                     )
                 )
             }
@@ -45,7 +47,7 @@ class StdlibGradleIntegrationTest(override val versions: BuildVersions) : Abstra
 
     @Test
     fun execute() {
-        val result = createGradleRunner("callDokka", "-i", "-s").buildRelaxed()
+        val result = createGradleRunner("callDokka", "-Pdokka_it_version=$currentDokkaVersion", "-i", "-s").buildRelaxed()
 
         assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":callDokka")).outcome)
 

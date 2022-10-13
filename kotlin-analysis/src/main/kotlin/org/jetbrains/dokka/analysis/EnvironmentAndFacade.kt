@@ -8,12 +8,12 @@ import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSourceLocation
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 import org.jetbrains.kotlin.cli.common.messages.MessageRenderer
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
-import org.jetbrains.kotlin.utils.PathUtil
 
 internal fun createEnvironmentAndFacade(
     logger: DokkaLogger,
     sourceSets: List<DokkaConfiguration.DokkaSourceSet>,
-    sourceSet: DokkaConfiguration.DokkaSourceSet
+    sourceSet: DokkaConfiguration.DokkaSourceSet,
+    analysisConfiguration: DokkaAnalysisConfiguration
 ): EnvironmentAndFacade =
     AnalysisEnvironment(DokkaMessageCollector(logger), sourceSet.analysisPlatform).run {
         if (analysisPlatform == Platform.jvm) {
@@ -28,7 +28,8 @@ internal fun createEnvironmentAndFacade(
         loadLanguageVersionSettings(sourceSet.languageVersion, sourceSet.apiVersion)
 
         val environment = createCoreEnvironment()
-        val (facade, _) = createResolutionFacade(environment)
+
+        val (facade, _) = createResolutionFacade(environment, analysisConfiguration.ignoreCommonBuiltIns)
         EnvironmentAndFacade(environment, facade)
     }
 
