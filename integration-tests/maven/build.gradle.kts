@@ -1,6 +1,10 @@
 import org.jetbrains.SetupMaven
 import org.jetbrains.dependsOnMavenLocalPublication
 
+plugins {
+    org.jetbrains.conventions.`dokka-integration-test`
+}
+
 evaluationDependsOn(":runners:maven-plugin")
 
 dependencies {

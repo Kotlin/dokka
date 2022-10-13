@@ -1,5 +1,10 @@
 import org.jetbrains.registerDokkaArtifactPublication
 
+plugins {
+    org.jetbrains.conventions.`kotlin-jvm`
+    org.jetbrains.conventions.`maven-publish`
+}
+
 registerDokkaArtifactPublication("dokkaAllModulesPage") {
     artifactId = "all-modules-page-plugin"
 }

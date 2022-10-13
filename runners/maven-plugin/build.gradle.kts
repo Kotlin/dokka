@@ -1,6 +1,12 @@
+import kotlinx.validation.sourceSets
 import org.jetbrains.CrossPlatformExec
 import org.jetbrains.SetupMaven
 import org.jetbrains.registerDokkaArtifactPublication
+
+plugins {
+    org.jetbrains.conventions.`kotlin-jvm`
+    org.jetbrains.conventions.`maven-publish`
+}
 
 val setupMaven by tasks.register<SetupMaven>("setupMaven")
 

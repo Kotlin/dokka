@@ -1,5 +1,10 @@
 import org.jetbrains.registerDokkaArtifactPublication
 
+plugins {
+    org.jetbrains.conventions.`kotlin-jvm`
+    org.jetbrains.conventions.`maven-publish`
+}
+
 dependencies {
     compileOnly(project(":kotlin-analysis"))
     implementation("com.soywiz.korlibs.korte:korte-jvm:2.7.0")

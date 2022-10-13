@@ -1,5 +1,10 @@
 import org.jetbrains.registerDokkaArtifactPublication
 
+plugins {
+    org.jetbrains.conventions.`kotlin-jvm`
+    org.jetbrains.conventions.`maven-publish`
+}
+
 dependencies {
     compileOnly(project(":plugins:base"))
     implementation(project(":core:test-api"))

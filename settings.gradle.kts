@@ -59,7 +59,7 @@ dependencyResolutionManagement {
 
     repositories {
         mavenCentral()
-        gradlePluginPortal()
+        google()
     }
 
     pluginManagement {

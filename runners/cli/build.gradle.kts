@@ -1,7 +1,10 @@
 import org.jetbrains.DokkaPublicationBuilder.Component.Shadow
 import org.jetbrains.registerDokkaArtifactPublication
 
+
 plugins {
+    org.jetbrains.conventions.`kotlin-jvm`
+    org.jetbrains.conventions.`maven-publish`
     id("com.github.johnrengelman.shadow")
 }
 

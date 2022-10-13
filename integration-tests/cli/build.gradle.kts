@@ -1,7 +1,7 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
-
 plugins {
+    org.jetbrains.conventions.`dokka-integration-test`
     id("com.github.johnrengelman.shadow")
 }
 
@@ -25,6 +25,7 @@ dependencies {
     basePluginShadow(project(":plugins:base"))
     basePluginShadow(project(":kotlin-analysis")) // compileOnly in base plugin
 }
+
 val basePluginShadowJar by tasks.register("basePluginShadowJar", ShadowJar::class) {
     configurations = listOf(basePluginShadow)
     archiveFileName.set("fat-base-plugin-$dokka_version.jar")

@@ -1,5 +1,9 @@
 import org.jetbrains.dependsOnMavenLocalPublication
 
+plugins {
+    org.jetbrains.conventions.`dokka-integration-test`
+}
+
 dependencies {
     implementation(kotlin("stdlib"))
     implementation(kotlin("test-junit"))

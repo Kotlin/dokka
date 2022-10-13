@@ -4,21 +4,23 @@ import org.jetbrains.*
 plugins {
     `java-gradle-plugin`
     `kotlin-dsl`
+    org.jetbrains.conventions.`maven-publish`
     id("com.gradle.plugin-publish")// version "0.20.0"
 }
 
-repositories {
-    google()
-}
+//repositories {
+//    google()
+//}
 
 dependencies {
     api(project(":core"))
 
     compileOnly("org.jetbrains.kotlin:kotlin-gradle-plugin")
     compileOnly("com.android.tools.build:gradle:4.0.1")
-    compileOnly(gradleKotlinDsl())
+//    compileOnly(gradleKotlinDsl())
+
     testImplementation(project(":test-utils"))
-    testImplementation(gradleKotlinDsl())
+//    testImplementation(gradleKotlinDsl())
     testImplementation("org.jetbrains.kotlin:kotlin-gradle-plugin")
     testImplementation("com.android.tools.build:gradle:4.0.1")
 
@@ -84,6 +86,13 @@ pluginBundle {
     }
 }
 
+val javadocJar by tasks.creating(Jar::class) {
+    group = JavaBasePlugin.DOCUMENTATION_GROUP
+    description = "Assembles java doc to jar"
+    archiveClassifier.set("javadoc")
+    from(tasks.javadoc)
+}
+
 publishing {
     publications {
         register<MavenPublication>("dokkaGradlePluginForIntegrationTests") {
@@ -95,7 +104,7 @@ publishing {
         register<MavenPublication>("pluginMaven") {
             configurePom("Dokka ${project.name}")
             artifactId = "dokka-gradle-plugin"
-            artifact(tasks["javadocJar"])
+            artifact(javadocJar)
         }
 
         afterEvaluate {
