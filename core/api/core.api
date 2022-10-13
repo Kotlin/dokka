@@ -36,27 +36,6 @@ public abstract interface class org/jetbrains/dokka/DokkaBootstrap {
 	public abstract fun generate ()V
 }
 
-public final class org/jetbrains/dokka/DokkaBootstrapImpl : org/jetbrains/dokka/DokkaBootstrap {
-	public fun <init> ()V
-	public fun configure (Ljava/lang/String;Ljava/util/function/BiConsumer;)V
-	public final fun configure (Lorg/jetbrains/dokka/utilities/DokkaLogger;Lorg/jetbrains/dokka/DokkaConfigurationImpl;)V
-	public fun generate ()V
-}
-
-public final class org/jetbrains/dokka/DokkaBootstrapImpl$DokkaProxyLogger : org/jetbrains/dokka/utilities/DokkaLogger {
-	public fun <init> (Ljava/util/function/BiConsumer;)V
-	public fun debug (Ljava/lang/String;)V
-	public fun error (Ljava/lang/String;)V
-	public final fun getConsumer ()Ljava/util/function/BiConsumer;
-	public fun getErrorsCount ()I
-	public fun getWarningsCount ()I
-	public fun info (Ljava/lang/String;)V
-	public fun progress (Ljava/lang/String;)V
-	public fun setErrorsCount (I)V
-	public fun setWarningsCount (I)V
-	public fun warn (Ljava/lang/String;)V
-}
-
 public final class org/jetbrains/dokka/DokkaBootstrapImplKt {
 	public static final fun parsePerPackageOptions (Ljava/util/List;)Ljava/util/List;
 }
@@ -244,6 +223,10 @@ public final class org/jetbrains/dokka/DokkaGenerator {
 	public final fun generate ()V
 	public final fun initializePlugins (Lorg/jetbrains/dokka/DokkaConfiguration;Lorg/jetbrains/dokka/utilities/DokkaLogger;Ljava/util/List;)Lorg/jetbrains/dokka/plugability/DokkaContext;
 	public static synthetic fun initializePlugins$default (Lorg/jetbrains/dokka/DokkaGenerator;Lorg/jetbrains/dokka/DokkaConfiguration;Lorg/jetbrains/dokka/utilities/DokkaLogger;Ljava/util/List;ILjava/lang/Object;)Lorg/jetbrains/dokka/plugability/DokkaContext;
+}
+
+public final class org/jetbrains/dokka/DokkaGeneratorMainRunnerKt {
+	public static final fun main ([Ljava/lang/String;)V
 }
 
 public final class org/jetbrains/dokka/DokkaModuleDescriptionImpl : org/jetbrains/dokka/DokkaConfiguration$DokkaModuleDescription {
