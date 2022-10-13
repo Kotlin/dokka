@@ -14,6 +14,7 @@ import org.gradle.kotlin.dsl.listProperty
 import org.gradle.kotlin.dsl.mapProperty
 import org.gradle.work.DisableCachingByDefault
 import org.jetbrains.dokka.*
+import org.jetbrains.dokka.gradle.services.DokkaExecutorService
 import org.jetbrains.dokka.plugability.ConfigurableBlock
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import java.io.File
@@ -81,16 +82,24 @@ abstract class AbstractDokkaTask : DefaultTask() {
     @Classpath
     val runtime: Configuration = project.maybeCreateDokkaRuntimeConfiguration(name)
 
+    @get:Input
+    abstract val dokkaExecutorService: Property<DokkaExecutorService>
+
     final override fun doFirst(action: Action<in Task>): Task = super.doFirst(action)
 
     final override fun doFirst(action: Closure<*>): Task = super.doFirst(action)
 
     @TaskAction
     internal open fun generateDocumentation() {
-        DokkaBootstrap(runtime, DokkaBootstrapImpl::class).apply {
-            configure(buildDokkaConfiguration().toJsonString(), createProxyLogger())
-            generate()
-        }
+        val dokkaExecutorService= dokkaExecutorService.get()
+
+        val runtimeJars = runtime.resolve()
+        val dokkaConfiguration = buildDokkaConfiguration()
+
+        dokkaExecutorService.generate(
+            dokkaConfiguration,
+            runtimeJars,
+        )
     }
 
     internal abstract fun buildDokkaConfiguration(): DokkaConfigurationImpl
