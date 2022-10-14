@@ -81,6 +81,10 @@ class SinceKotlinTransformer(val context: DokkaContext) : DocumentableTransforme
                 properties = properties.map { it.transform() as DProperty }
             )
 
+            is DTypeAlias -> copy(
+                documentation = appendSinceKotlin()
+            )
+
             is DAnnotation -> copy(
                 documentation = appendSinceKotlin(),
                 classlikes = classlikes.map { it.transform() as DClasslike },
