@@ -50,7 +50,8 @@ class SinceKotlinTransformer(val context: DokkaContext) : DocumentableTransforme
             is DPackage -> copy(
                 classlikes = classlikes.map { it.transform() as DClasslike },
                 functions = functions.map { it.transform() as DFunction },
-                properties = properties.map { it.transform() as DProperty }
+                properties = properties.map { it.transform() as DProperty },
+                typealiases = typealiases.map { it.transform() as DTypeAlias }
             )
 
             is DClass -> copy(

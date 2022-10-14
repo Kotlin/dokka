@@ -37,7 +37,7 @@ diff --git a/build.gradle b/build.gradle
 index aa8f21b..dd6a2ae 100644
 --- a/build.gradle
 +++ b/build.gradle
-@@ -1,80 +1,445 @@
+@@ -1,80 +1,446 @@
 +import org.jetbrains.dokka.Platform
 +
  plugins {
