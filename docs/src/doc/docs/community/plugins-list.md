@@ -115,7 +115,7 @@ class Foo {}
 
 Which results in:
 
-![Mathjax demo](../images/mathjax_demo.png){ width="400" }
+[<img src="../images/mathjax_demo.png" width="400" />](../images/mathjax_demo.png)
 
 [Plugin source code on GitHub](https://github.com/Kotlin/dokka/tree/master/plugins/mathjax)
 
@@ -142,7 +142,7 @@ class CompositeSubscription
 
 Which results in:
 
-![Mermaid demo](../images/mermaid_demo.png){ width="700" }
+[<img src="../images/mermaid_demo.png" width="700" />](../images/mermaid_demo.png)
 
 For more information and examples, see 
 [Html Mermaid Dokka plugin](https://github.com/glureau/dokka-mermaid) repository on GitHub.
