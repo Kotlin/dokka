@@ -33,8 +33,7 @@ class CompanionAsJavaTest : BaseAbstractTest() {
             configuration,
         ) {
             documentablesTransformationStage = { module ->
-                val parentClass = module.packages.flatMap { it.classlikes }
-                    .firstOrNull { it.name == "MyClass" } as DClass
+                val parentClass = module.findClass("MyClass")
 
                 assertCompanionNotRendered(parentClass)
             }
@@ -43,42 +42,186 @@ class CompanionAsJavaTest : BaseAbstractTest() {
 
     @Test
     fun `companion object with only jvmField should not be rendered`() {
-        `companion object not rendered for declaration`("@JvmField val jvmFieldProp: String = \"\"")
+        testInline(
+            """
+            |/src/main/kotlin/kotlinAsJavaPlugin/sample.kt
+            |package kotlinAsJavaPlugin
+            |class MyClass {
+            |    companion object $COMPANION_NAME {
+            |       @JvmField val jvmFieldProp: String = ""
+            |    }
+            |}
+        """.trimMargin(),
+            configuration,
+        ) {
+            documentablesTransformationStage = { module ->
+                val parentClass = module.findClass("MyClass")
+
+                assertCompanionNotRendered(parentClass)
+            }
+        }
     }
 
     @Test
     fun `companion property with jvmField should be static`() {
-        `companion property is belong to outer class and static`("@JvmField val jvmFieldProp: String = \"\"", "jvmFieldProp")
+        testInline(
+            """
+            |/src/main/kotlin/kotlinAsJavaPlugin/sample.kt
+            |package kotlinAsJavaPlugin
+            |class MyClass {
+            |    companion object $COMPANION_NAME {
+            |       @JvmField val jvmFieldProp: String = ""
+            |    }
+            |}
+        """.trimMargin(),
+            configuration,
+        ) {
+            documentablesTransformationStage = { module ->
+                val parentClass = module.findClass("MyClass")
+
+                val parentClassProperty = parentClass.properties.firstOrNull { it.name == "jvmFieldProp" }
+                assertNotNull(parentClassProperty, "Parent class should contain the companion jvmField property")
+                assertIsStatic(parentClassProperty)
+            }
+        }
     }
 
     @Test
     fun `companion object with only const should not be rendered`() {
-        `companion object not rendered for declaration`("const val constProp: Int = 0")
+        testInline(
+            """
+            |/src/main/kotlin/kotlinAsJavaPlugin/sample.kt
+            |package kotlinAsJavaPlugin
+            |class MyClass {
+            |    companion object $COMPANION_NAME {
+            |       const val constProp: Int = 0
+            |    }
+            |}
+        """.trimMargin(),
+            configuration,
+        ) {
+            documentablesTransformationStage = { module ->
+                val parentClass = module.findClass("MyClass")
+
+                assertCompanionNotRendered(parentClass)
+            }
+        }
     }
 
     @Test
     fun `companion property with const should be static`() {
-        `companion property is belong to outer class and static`("const val constProp: Int = 0", "constProp")
+        testInline(
+            """
+            |/src/main/kotlin/kotlinAsJavaPlugin/sample.kt
+            |package kotlinAsJavaPlugin
+            |class MyClass {
+            |    companion object $COMPANION_NAME {
+            |       const val constProp: Int = 0
+            |    }
+            |}
+        """.trimMargin(),
+            configuration,
+        ) {
+            documentablesTransformationStage = { module ->
+                val parentClass = module.findClass("MyClass")
+
+                val parentClassProperty = parentClass.properties.firstOrNull { it.name == "constProp" }
+                assertNotNull(parentClassProperty, "Parent class should contain the companion const property")
+                assertIsStatic(parentClassProperty)
+            }
+        }
     }
 
     @Test
     fun `companion object with only lateinit not rendered`() {
-        `companion object not rendered for declaration`("lateinit var lateInitProp: String")
+        testInline(
+            """
+            |/src/main/kotlin/kotlinAsJavaPlugin/sample.kt
+            |package kotlinAsJavaPlugin
+            |class MyClass {
+            |    companion object $COMPANION_NAME {
+            |       lateinit var lateInitProp: String
+            |    }
+            |}
+        """.trimMargin(),
+            configuration,
+        ) {
+            documentablesTransformationStage = { module ->
+                val parentClass = module.findClass("MyClass")
+
+                assertCompanionNotRendered(parentClass)
+            }
+        }
     }
 
     @Test
     fun `companion property with lateinit should be static`() {
-        `companion property is belong to outer class and static`("lateinit var lateInitProp: String", "lateInitProp")
+        testInline(
+            """
+            |/src/main/kotlin/kotlinAsJavaPlugin/sample.kt
+            |package kotlinAsJavaPlugin
+            |class MyClass {
+            |    companion object $COMPANION_NAME {
+            |       lateinit var lateInitProp: String
+            |    }
+            |}
+        """.trimMargin(),
+            configuration,
+        ) {
+            documentablesTransformationStage = { module ->
+                val parentClass = module.findClass("MyClass")
+
+                val parentClassProperty = parentClass.properties.firstOrNull { it.name == "lateInitProp" }
+                assertNotNull(parentClassProperty, "Parent class should contain the companion lateinit property")
+                assertIsStatic(parentClassProperty)
+            }
+        }
     }
 
     @Test
     fun `companion object with only jvmStatic fun not rendered`() {
-        `companion object not rendered for declaration`("@JvmStatic fun staticFun(): String = \"\"")
+        testInline(
+            """
+            |/src/main/kotlin/kotlinAsJavaPlugin/sample.kt
+            |package kotlinAsJavaPlugin
+            |class MyClass {
+            |    companion object $COMPANION_NAME {
+            |       @JvmStatic fun staticFun(): String = ""
+            |    }
+            |}
+        """.trimMargin(),
+            configuration,
+        ) {
+            documentablesTransformationStage = { module ->
+                val parentClass = module.findClass("MyClass")
+
+                assertCompanionNotRendered(parentClass)
+            }
+        }
     }
 
     @Test
     fun `companion function with JvmStatic should be static`() {
-        `companion function is belong to outer class and static`("@JvmStatic fun staticFun(): String = \"\"", "staticFun")
+        testInline(
+            """
+            |/src/main/kotlin/kotlinAsJavaPlugin/sample.kt
+            |package kotlinAsJavaPlugin
+            |class MyClass {
+            |    companion object $COMPANION_NAME {
+            |       @JvmStatic fun staticFun(): String = ""
+            |    }
+            |}
+        """.trimMargin(),
+            configuration,
+        ) {
+            documentablesTransformationStage = { module ->
+                val parentClass = module.findClass("MyClass")
+
+                val parentClassFunction = parentClass.functions.firstOrNull { it.name == "staticFun" }
+                assertNotNull(parentClassFunction, "Parent class should contains the companion jvmStatic function")
+                assertIsStatic(parentClassFunction)
+            }
+        }
     }
 
     @Test
@@ -102,8 +245,7 @@ class CompanionAsJavaTest : BaseAbstractTest() {
             configuration,
         ) {
             documentablesTransformationStage = { module ->
-                val parentClass = module.packages.flatMap { it.classlikes }
-                    .firstOrNull { it.name == "MyClass" } as DClass
+                val parentClass = module.findClass("MyClass")
 
                 assertCompanionRendered(parentClass)
 
@@ -135,8 +277,7 @@ class CompanionAsJavaTest : BaseAbstractTest() {
             configuration,
         ) {
             documentablesTransformationStage = { module ->
-                val parentClass = module.packages.flatMap { it.classlikes }
-                    .firstOrNull { it.name == "MyClass" } as DClass
+                val parentClass = module.findClass("MyClass")
 
                 assertCompanionRendered(parentClass)
             }
@@ -163,8 +304,7 @@ class CompanionAsJavaTest : BaseAbstractTest() {
             configuration,
         ) {
             documentablesTransformationStage = { module ->
-                val parentClass = module.packages.flatMap { it.classlikes }
-                    .firstOrNull { it.name == "MyClass" } as DClass
+                val parentClass = module.findClass("MyClass")
 
                 assertCompanionRendered(parentClass)
 
@@ -198,8 +338,7 @@ class CompanionAsJavaTest : BaseAbstractTest() {
             configuration,
         ) {
             documentablesTransformationStage = { module ->
-                val parentClass = module.packages.flatMap { it.classlikes }
-                    .firstOrNull { it.name == "MyClass" } as DClass
+                val parentClass = module.findClass("MyClass")
 
                 assertCompanionRendered(parentClass)
 
@@ -228,13 +367,13 @@ class CompanionAsJavaTest : BaseAbstractTest() {
             configuration,
         ) {
             documentablesTransformationStage = { module ->
-                val parentClass = module.packages.flatMap { it.classlikes }
-                    .firstOrNull { it.name == "MyClass" } as DClass
+                val parentClass = module.findClass("MyClass")
 
-                assertEquals(JavaVisibility.Public,
-                    parentClass.properties.firstOrNull()?.visibility?.values?.first())
-                assertNull(parentClass.functions.firstOrNull { it.name.contains("constProp", ignoreCase = true) },
-                    "There is no getter for the cont field")
+                assertEquals(
+                    JavaVisibility.Public,
+                    parentClass.properties.firstOrNull()?.visibility?.values?.first()
+                )
+                assertNull(parentClass.findFunction("constProp"), "There is no getter for the cont field")
             }
         }
     }
@@ -265,13 +404,13 @@ class CompanionAsJavaTest : BaseAbstractTest() {
             },
         ) {
             documentablesTransformationStage = { module ->
-                val parentClass = module.packages.flatMap { it.classlikes }
-                    .firstOrNull { it.name == "MyClass" } as DClass
+                val parentClass = module.findClass("MyClass")
 
-                assertEquals(JavaVisibility.Protected,
-                    parentClass.properties.firstOrNull()?.visibility?.values?.first())
-                assertNull(parentClass.functions.firstOrNull { it.name.contains("constProp", ignoreCase = true) },
-                    "There is no getter for the cont field")
+                assertEquals(
+                    JavaVisibility.Protected,
+                    parentClass.properties.firstOrNull()?.visibility?.values?.first()
+                )
+                assertNull(parentClass.findFunction("constProp"), "There is no getter for the cont field")
             }
         }
     }
@@ -291,13 +430,13 @@ class CompanionAsJavaTest : BaseAbstractTest() {
             configuration,
         ) {
             documentablesTransformationStage = { module ->
-                val parentClass = module.packages.flatMap { it.classlikes }
-                    .firstOrNull { it.name == "MyClass" } as DClass
+                val parentClass = module.findClass("MyClass")
 
-                assertEquals(JavaVisibility.Public,
-                    parentClass.properties.firstOrNull()?.visibility?.values?.first())
-                assertNull(parentClass.functions.firstOrNull { it.name.contains("lateInitProp", ignoreCase = true) },
-                    "There is no getter for the cont field")
+                assertEquals(
+                    JavaVisibility.Public,
+                    parentClass.properties.firstOrNull()?.visibility?.values?.first()
+                )
+                assertNull(parentClass.findFunction("lateInitProp"), "There is no getter for the cont field")
             }
         }
     }
@@ -317,10 +456,9 @@ class CompanionAsJavaTest : BaseAbstractTest() {
             configuration,
         ) {
             documentablesTransformationStage = { module ->
-                val parentClass = module.packages.flatMap { it.classlikes }
-                    .firstOrNull { it.name == "MyClass" } as DClass
+                val parentClass = module.findClass("MyClass")
 
-                assertNotNull(parentClass.properties.any {it.name == COMPANION_NAME})
+                assertNotNull(parentClass.properties.any { it.name == COMPANION_NAME })
             }
         }
     }
@@ -340,10 +478,9 @@ class CompanionAsJavaTest : BaseAbstractTest() {
             configuration,
         ) {
             documentablesTransformationStage = { module ->
-                val parentClass = module.packages.flatMap { it.classlikes }
-                    .firstOrNull { it.name == "MyClass" } as DClass
+                val parentClass = module.findClass("MyClass")
 
-                assertNotNull(parentClass.properties.any {it.name == "Companion"})
+                assertTrue(parentClass.properties.any { it.name == "Companion" })
             }
         }
     }
@@ -363,109 +500,49 @@ class CompanionAsJavaTest : BaseAbstractTest() {
             configuration,
         ) {
             documentablesTransformationStage = { module ->
-                val parentClass = module.packages.flatMap { it.classlikes }
-                    .firstOrNull { it.name == "MyClass" } as DClass
+                val parentClass = module.findClass("MyClass")
 
-                assertNotNull(parentClass.properties.none {it.name == COMPANION_NAME})
-            }
-        }
-    }
-
-
-
-    private fun `companion object not rendered for declaration`(declaration: String) {
-        testInline(
-            """
-            |/src/main/kotlin/kotlinAsJavaPlugin/sample.kt
-            |package kotlinAsJavaPlugin
-            |class MyClass {
-            |    companion object $COMPANION_NAME {
-            |       $declaration
-            |    }
-            |}
-        """.trimMargin(),
-            configuration,
-        ) {
-            documentablesTransformationStage = { module ->
-                val parentClass = module.packages.flatMap { it.classlikes }
-                    .firstOrNull { it.name == "MyClass" } as DClass
-
-                assertCompanionNotRendered(parentClass)
-            }
-        }
-    }
-
-    private fun `companion property is belong to outer class and static`(declaration: String, name: String) {
-        testInline(
-            """
-            |/src/main/kotlin/kotlinAsJavaPlugin/sample.kt
-            |package kotlinAsJavaPlugin
-            |class MyClass {
-            |    companion object $COMPANION_NAME {
-            |       $declaration
-            |    }
-            |}
-        """.trimMargin(),
-            configuration,
-        ) {
-            documentablesTransformationStage = { module ->
-                val parentClass = module.packages.flatMap { it.classlikes }
-                    .firstOrNull { it.name == "MyClass" } as DClass
-
-                val outerClassProperty = parentClass.properties.firstOrNull{ it.name == name}
-                assertNotNull(outerClassProperty, "Outer class contains the companion property")
-                assertIsStatic(outerClassProperty)
-            }
-        }
-    }
-
-    private fun `companion function is belong to outer class and static`(declaration: String, name: String) {
-        testInline(
-            """
-            |/src/main/kotlin/kotlinAsJavaPlugin/sample.kt
-            |package kotlinAsJavaPlugin
-            |class MyClass {
-            |    companion object $COMPANION_NAME {
-            |       $declaration
-            |    }
-            |}
-        """.trimMargin(),
-            configuration,
-        ) {
-            documentablesTransformationStage = { module ->
-                val parentClass = module.packages.flatMap { it.classlikes }
-                    .firstOrNull { it.name == "MyClass" } as DClass
-
-                val outerClassFunction = parentClass.functions.firstOrNull{ it.name == name}
-                assertNotNull(outerClassFunction, "Outer class contains the companion function")
-                assertIsStatic(outerClassFunction)
+                assertTrue(parentClass.properties.none { it.name == COMPANION_NAME })
             }
         }
     }
 }
 
-private fun assertCompanionRendered(parentClass: DClass){
+private fun DModule.findClass(name: String) = packages.flatMap { it.classlikes }
+    .firstOrNull { it.name == name } as DClass
+
+private fun DClass.findFunction(name: String) = functions.firstOrNull { it.name.contains(name, ignoreCase = true) }
+
+private fun assertCompanionRendered(parentClass: DClass) {
     assertNotNull(parentClass.companion, "Companion should not be null")
-    assertTrue(parentClass.classlikes.any { it.name == COMPANION_NAME },
-        "Companion should be in classlikes list")
+    assertTrue(
+        parentClass.classlikes.any { it.name == COMPANION_NAME },
+        "Companion should be in classlikes list"
+    )
 }
 
-private fun assertCompanionNotRendered(parentClass: DClass){
+private fun assertCompanionNotRendered(parentClass: DClass) {
     assertNull(parentClass.companion, "Companion should be null")
-    assertTrue(parentClass.classlikes.none { it.name == COMPANION_NAME },
-        "Companion should not be in classlikes list")
+    assertTrue(
+        parentClass.classlikes.none { it.name == COMPANION_NAME },
+        "Companion should not be in classlikes list"
+    )
 }
 
-private fun assertIsStatic(property: DProperty){
+private fun assertIsStatic(property: DProperty) {
     val extra = property.extra[AdditionalModifiers]
     assertNotNull(extra, "extra for property is present")
-    assertTrue(extra.content.values.contains(setOf(ExtraModifiers.JavaOnlyModifiers.Static)),
-        "Property contains extra modifier static")
+    assertTrue(
+        extra.content.values.contains(setOf(ExtraModifiers.JavaOnlyModifiers.Static)),
+        "Property contains extra modifier static"
+    )
 }
 
-private fun assertIsStatic(function: DFunction){
+private fun assertIsStatic(function: DFunction) {
     val extra = function.extra[AdditionalModifiers]
     assertNotNull(extra, "extra for property is present")
-    assertTrue(extra.content.values.contains(setOf(ExtraModifiers.JavaOnlyModifiers.Static)),
-        "Function contains extra modifier static")
+    assertTrue(
+        extra.content.values.contains(setOf(ExtraModifiers.JavaOnlyModifiers.Static)),
+        "Function contains extra modifier static"
+    )
 }

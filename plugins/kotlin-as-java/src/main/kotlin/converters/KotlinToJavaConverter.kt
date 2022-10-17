@@ -80,7 +80,7 @@ internal fun DPackage.asJava(): DPackage {
 internal fun DProperty.asJava(
     isTopLevel: Boolean = false,
     relocateToClass: String? = null,
-    isBelongToObjectOrCompanion: Boolean = false
+    isFromObjectOrCompanion: Boolean = false
 ) =
     copy(
         dri = if (relocateToClass.isNullOrBlank()) {
@@ -90,7 +90,7 @@ internal fun DProperty.asJava(
         },
         modifier = javaModifierFromSetter(),
         visibility = visibility.mapValues {
-            if (isConst || isJvmField || (getter == null && setter == null) || (isBelongToObjectOrCompanion && isLateInit)) {
+            if (isConst || isJvmField || (getter == null && setter == null) || (isFromObjectOrCompanion && isLateInit)) {
                 it.value.asJava()
             } else {
                 it.value.propertyVisibilityAsJava()
@@ -99,7 +99,7 @@ internal fun DProperty.asJava(
         type = type.asJava(), // TODO: check
         setter = null,
         getter = null, // Removing getters and setters as they will be available as functions
-        extra = if (isTopLevel || isConst || (isBelongToObjectOrCompanion && isJvmField) || (isBelongToObjectOrCompanion && isLateInit))
+        extra = if (isTopLevel || isConst || (isFromObjectOrCompanion && isJvmField) || (isFromObjectOrCompanion && isLateInit))
             extra + extra.mergeAdditionalModifiers(
                 sourceSets.associateWith {
                     setOf(ExtraModifiers.JavaOnlyModifiers.Static)
@@ -276,11 +276,11 @@ internal fun DClass.asJava(): DClass = copy(
  * They are excluded from usual classlikes rendering and added after.
  */
 internal fun DClass.classlikesInJava(): List<DClasslike> {
-    val companionAsJava = companion.companionAsJava()
-
     val classlikes = classlikes
         .filter { it.name != companion?.name }
         .map { it.asJava() }
+
+    val companionAsJava = companion.companionAsJava()
     return if (companionAsJava != null) classlikes.plus(companionAsJava) else classlikes
 }
 
@@ -298,8 +298,8 @@ internal fun DClass.propertiesInJava(): List<DProperty> {
     val propertiesFromCompanion = companion
         .staticPropertiesForJava()
         .filterNot { it.hasJvmSynthetic() }
-        .map { it.asJava(isBelongToObjectOrCompanion = true) }
-    val companionInstanceProperty = companion.companionInstancePropertyForJava()
+        .map { it.asJava(isFromObjectOrCompanion = true) }
+    val companionInstanceProperty = listOfNotNull(companion.companionInstancePropertyForJava())
     val ownProperties = properties
         .filterNot { it.hasJvmSynthetic() }
         .map { it.asJava() }
@@ -384,7 +384,7 @@ internal fun DObject.asJava(
     properties = properties
         .filterNot { it.hasJvmSynthetic() }
         .filterNot { it in excludedProps }
-        .map { it.asJava(isBelongToObjectOrCompanion = true) } +
+        .map { it.asJava(isFromObjectOrCompanion = true) } +
             DProperty(
                 name = OBJECT_INSTANCE_NAME,
                 modifier = sourceSets.associateWith { JavaModifier.Final },

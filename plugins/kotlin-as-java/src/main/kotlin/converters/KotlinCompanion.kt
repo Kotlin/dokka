@@ -20,32 +20,30 @@ internal fun DObject?.staticPropertiesForJava(): List<DProperty> {
     return properties.filter { it.isJvmField || it.isConst || it.isLateInit }
 }
 
-internal fun DObject?.companionInstancePropertyForJava(): List<DProperty> {
-    if (this == null) return emptyList()
-    if (hasNothingToRender()) return emptyList() // do not show if companion not rendered
+internal fun DObject?.companionInstancePropertyForJava(): DProperty? {
+    if (this == null) return null
+    if (hasNothingToRender()) return null // do not show if companion not rendered
 
-    return listOf(
-        DProperty(
-            name = name ?: DEFAULT_COMPANION_NAME,
-            modifier = sourceSets.associateWith { JavaModifier.Final },
-            dri = dri.copy(callable = Callable(name ?: DEFAULT_COMPANION_NAME, null, emptyList())),
-            documentation = emptyMap(),
-            sources = emptyMap(),
-            visibility = sourceSets.associateWith {
-                JavaVisibility.Public
-            },
-            type = GenericTypeConstructor(dri, emptyList()),
-            setter = null,
-            getter = null,
-            sourceSets = sourceSets,
-            receiver = null,
-            generics = emptyList(),
-            expectPresentInSet = expectPresentInSet,
-            isExpectActual = false,
-            extra = PropertyContainer.withAll(sourceSets.map {
-                mapOf(it to setOf(ExtraModifiers.JavaOnlyModifiers.Static)).toAdditionalModifiers()
-            })
-        )
+    return DProperty(
+        name = name ?: DEFAULT_COMPANION_NAME,
+        modifier = sourceSets.associateWith { JavaModifier.Final },
+        dri = dri.copy(callable = Callable(name ?: DEFAULT_COMPANION_NAME, null, emptyList())),
+        documentation = emptyMap(),
+        sources = emptyMap(),
+        visibility = sourceSets.associateWith {
+            JavaVisibility.Public
+        },
+        type = GenericTypeConstructor(dri, emptyList()),
+        setter = null,
+        getter = null,
+        sourceSets = sourceSets,
+        receiver = null,
+        generics = emptyList(),
+        expectPresentInSet = expectPresentInSet,
+        isExpectActual = false,
+        extra = PropertyContainer.withAll(sourceSets.map {
+            mapOf(it to setOf(ExtraModifiers.JavaOnlyModifiers.Static)).toAdditionalModifiers()
+        })
     )
 }
 
