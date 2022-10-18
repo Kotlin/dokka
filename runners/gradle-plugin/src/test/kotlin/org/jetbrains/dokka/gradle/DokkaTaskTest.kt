@@ -11,12 +11,12 @@ class DokkaTaskTest {
     fun `no suppressed source sets are present after in built configuration`() {
         val project = ProjectBuilder.builder().build()
         val task = project.tasks.create<DokkaTask>("dokkaTask")
-        project.configurations.all { withDependencies { clear() } }
+        project.configurations.all { configuration -> configuration.withDependencies { it.clear() } }
 
         task.dokkaSourceSets.register("main")
         task.dokkaSourceSets.register("jvm")
         task.dokkaSourceSets.register("test") {
-            suppress by true
+            it.suppress by true
         }
 
         assertEquals(
@@ -30,7 +30,7 @@ class DokkaTaskTest {
     fun `module version is not present if not specified`(){
         val project = ProjectBuilder.builder().build()
         val task = project.tasks.create<DokkaTask>("dokkaTask")
-        project.configurations.all { withDependencies { clear() } }
+        project.configurations.all { configuration -> configuration.withDependencies { it.clear() } }
 
         task.dokkaSourceSets.register("main")
         assertNull(task.buildDokkaConfiguration().moduleVersion)

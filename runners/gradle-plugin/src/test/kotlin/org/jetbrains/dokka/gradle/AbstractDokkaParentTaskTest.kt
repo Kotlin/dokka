@@ -18,8 +18,8 @@ class AbstractDokkaParentTaskTest {
     private val subSubproject0 = ProjectBuilder.builder().withName("subSubproject0").withParent(subproject0).build()
 
     init {
-        rootProject.subprojects {
-            tasks.create<DokkaTask>("dokkaTask")
+        rootProject.subprojects { project ->
+            project.tasks.create<DokkaTask>("dokkaTask")
         }
     }
 
@@ -196,3 +196,5 @@ internal open class TestDokkaParentTask : AbstractDokkaParentTask() {
 }
 
 private val Project.dokkaTask: DokkaTask get() = tasks.getByName<DokkaTask>("dokkaTask")
+
+

@@ -14,7 +14,7 @@ class KotlinDslDokkaTaskConfigurationTest {
         val project = ProjectBuilder.builder().build()
         project.plugins.apply("org.jetbrains.dokka")
         project.tasks.withType<DokkaTask>().configureEach {
-            outputDirectory by File("test")
+            it.outputDirectory by File("test")
         }
 
         project.tasks.withType(DokkaTask::class.java).forEach { dokkaTask ->
@@ -31,7 +31,7 @@ class KotlinDslDokkaTaskConfigurationTest {
             dokkaTask.dokkaSourceSets.run {
                 val commonMain = create("commonMain")
                 val jvmMain = create("jvmMain") {
-                    dependsOn("commonMain")
+                    it.dependsOn("commonMain")
                 }
 
                 assertEquals(
@@ -65,7 +65,7 @@ class KotlinDslDokkaTaskConfigurationTest {
             dokkaSourceSets.run {
                 val commonMain = create("commonMain")
                 val jvmMain = create("jvmMain") {
-                    dependsOn(commonMain)
+                    it.dependsOn(commonMain)
                 }
 
                 assertEquals(
@@ -86,7 +86,7 @@ class KotlinDslDokkaTaskConfigurationTest {
         project.tasks.withType(DokkaTask::class.java).first().apply {
             dokkaSourceSets.run {
                 val special = create("special") {
-                    dependsOn(kotlin.sourceSets.getByName("main"))
+                    it.dependsOn(kotlin.sourceSets.getByName("main"))
                 }
 
                 assertEquals(

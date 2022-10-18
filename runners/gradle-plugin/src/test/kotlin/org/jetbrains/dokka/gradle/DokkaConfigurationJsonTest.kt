@@ -17,7 +17,9 @@ class DokkaConfigurationJsonTest {
         val project = ProjectBuilder.builder().build()
         project.plugins.apply("org.jetbrains.dokka")
         val dokkaTask = project.tasks.withType<DokkaTask>().first()
-        dokkaTask.plugins.withDependencies { clear() }
+        dokkaTask.plugins.withDependencies { dependencies ->
+            dependencies.clear()
+        }
         dokkaTask.apply {
             this.failOnWarning by true
             this.offlineMode by true
@@ -25,19 +27,19 @@ class DokkaConfigurationJsonTest {
             this.cacheRoot by File("customCacheRoot")
             this.pluginsConfiguration.add(PluginConfigurationImpl("A", DokkaConfiguration.SerializationFormat.JSON, """ { "key" : "value1" } """))
             this.pluginsConfiguration.add(PluginConfigurationImpl("B", DokkaConfiguration.SerializationFormat.JSON, """ { "key" : "value2" } """))
-            this.dokkaSourceSets.create("main") {
-                displayName by "customSourceSetDisplayName"
-                reportUndocumented by true
+            this.dokkaSourceSets.create("main") { sourceSet ->
+                sourceSet.displayName by "customSourceSetDisplayName"
+                sourceSet.reportUndocumented by true
 
-                externalDocumentationLink {
-                    packageListUrl by URL("http://some.url")
-                    url by URL("http://some.other.url")
+                sourceSet.externalDocumentationLink { link ->
+                    link.packageListUrl by URL("http://some.url")
+                    link.url by URL("http://some.other.url")
                 }
-                perPackageOption {
-                    includeNonPublic by true
-                    reportUndocumented by true
-                    skipDeprecated by true
-                    documentedVisibilities by setOf(DokkaConfiguration.Visibility.PRIVATE)
+                sourceSet.perPackageOption { packageOption ->
+                    packageOption.includeNonPublic by true
+                    packageOption.reportUndocumented by true
+                    packageOption.skipDeprecated by true
+                    packageOption.documentedVisibilities by setOf(DokkaConfiguration.Visibility.PRIVATE)
                 }
             }
         }

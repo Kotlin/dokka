@@ -26,9 +26,9 @@ class DokkaMultiModuleTaskTest {
     }
 
     init {
-        rootProject.allprojects {
-            tasks.withType<AbstractDokkaTask>().configureEach {
-                plugins.withDependencies { clear() }
+        rootProject.allprojects { project ->
+            project.tasks.withType<AbstractDokkaTask>().configureEach { task ->
+                task.plugins.withDependencies { dependencies -> dependencies.clear() }
             }
         }
     }
@@ -56,7 +56,7 @@ class DokkaMultiModuleTaskTest {
             dokkaSourceSets.create("main")
             dokkaSourceSets.create("test")
             dokkaSourceSets.configureEach {
-                includes.from(include1, include2)
+                it.includes.from(include1, include2)
             }
         }
 
@@ -135,7 +135,7 @@ class DokkaMultiModuleTaskTest {
     fun `multimodule task with no child tasks throws DokkaException`() {
         val project = ProjectBuilder.builder().build()
         val multimodule = project.tasks.create<DokkaMultiModuleTask>("multimodule")
-        project.configurations.configureEach { withDependencies { clear() } }
+        project.configurations.configureEach { it.withDependencies { it.clear() } }
         assertFailsWith<DokkaException> { multimodule.generateDocumentation() }
     }
 
@@ -147,17 +147,17 @@ class DokkaMultiModuleTaskTest {
 
         childDokkaTask.apply {
             dokkaSourceSets.create("main") {
-                includes.from(childDokkaTaskInclude1, childDokkaTaskInclude2)
+                it.includes.from(childDokkaTaskInclude1, childDokkaTaskInclude2)
             }
             dokkaSourceSets.create("main2") {
-                includes.from(childDokkaTaskInclude3)
+                it.includes.from(childDokkaTaskInclude3)
             }
         }
 
         val secondChildDokkaTaskInclude = childProject.file("include4")
         val secondChildDokkaTask = childProject.tasks.create<DokkaTaskPartial>("secondChildDokkaTask") {
             dokkaSourceSets.create("main") {
-                includes.from(secondChildDokkaTaskInclude)
+                it.includes.from(secondChildDokkaTaskInclude)
             }
         }
         multiModuleTask.addChildTask(secondChildDokkaTask)

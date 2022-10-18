@@ -117,8 +117,8 @@ class KotlinSourceSetGistTest {
 
         /* Only work with file dependencies */
         project.configurations.forEach { configuration ->
-            configuration.withDependencies {
-                removeIf { dependency ->
+            configuration.withDependencies { dependencies ->
+                dependencies.removeIf { dependency ->
                     dependency !is FileCollectionDependency
                 }
             }

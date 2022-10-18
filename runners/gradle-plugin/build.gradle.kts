@@ -3,9 +3,8 @@ import org.jetbrains.*
 
 plugins {
     `java-gradle-plugin`
-    `kotlin-dsl`
     org.jetbrains.conventions.`maven-publish`
-    id("com.gradle.plugin-publish")// version "0.20.0"
+    id("com.gradle.plugin-publish")
 }
 
 dependencies {
@@ -13,8 +12,9 @@ dependencies {
 
     compileOnly("org.jetbrains.kotlin:kotlin-gradle-plugin")
     compileOnly("com.android.tools.build:gradle:4.0.1")
-
+    compileOnly(gradleKotlinDsl())
     testImplementation(project(":test-utils"))
+    testImplementation(gradleKotlinDsl())
     testImplementation("org.jetbrains.kotlin:kotlin-gradle-plugin")
     testImplementation("com.android.tools.build:gradle:4.0.1")
 
