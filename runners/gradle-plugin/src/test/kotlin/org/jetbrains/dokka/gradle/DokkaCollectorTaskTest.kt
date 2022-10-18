@@ -19,25 +19,25 @@ class DokkaCollectorTaskTest {
         val childProject = ProjectBuilder.builder().withParent(rootProject).build()
         childProject.plugins.apply("org.jetbrains.kotlin.jvm")
 
-        rootProject.allprojects { project ->
-            project.plugins.apply("org.jetbrains.dokka")
-            project.tasks.withType<AbstractDokkaTask>().configureEach { task ->
-                task.plugins.withDependencies { dependencies -> dependencies.clear() }
+        rootProject.allprojects {
+            plugins.apply("org.jetbrains.dokka")
+            tasks.withType<AbstractDokkaTask>().configureEach {
+                plugins.withDependencies { clear() }
             }
-            project.tasks.withType<DokkaTask>().configureEach { task ->
-                task.dokkaSourceSets.configureEach { sourceSet ->
-                    sourceSet.classpath.setFrom(emptyList<Any>())
+            tasks.withType<DokkaTask>().configureEach {
+                dokkaSourceSets.configureEach {
+                    classpath.setFrom(emptyList<Any>())
                 }
             }
         }
 
         val collectorTasks = rootProject.tasks.withType<DokkaCollectorTask>()
-        collectorTasks.configureEach { task ->
-            task.moduleName by "custom Module Name"
-            task.outputDirectory by File("customOutputDirectory")
-            task.cacheRoot by File("customCacheRoot")
-            task.failOnWarning by true
-            task.offlineMode by true
+        collectorTasks.configureEach {
+            moduleName by "custom Module Name"
+            outputDirectory by File("customOutputDirectory")
+            cacheRoot by File("customCacheRoot")
+            failOnWarning by true
+            offlineMode by true
         }
 
         assertTrue(collectorTasks.isNotEmpty(), "Expected at least one collector task")
@@ -68,7 +68,7 @@ class DokkaCollectorTaskTest {
     fun `with no child tasks throws DokkaException`() {
         val project = ProjectBuilder.builder().build()
         val collectorTask = project.tasks.create<DokkaCollectorTask>("collector")
-        project.configurations.all { configuration -> configuration.withDependencies { it.clear() } }
+        project.configurations.all { withDependencies { clear() } }
         assertFailsWith<DokkaException> { collectorTask.generateDocumentation() }
     }
 }
