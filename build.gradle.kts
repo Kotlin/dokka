@@ -12,7 +12,7 @@ group = "org.jetbrains.dokka"
 version = dokka_version
 
 
-println("Publication version: $dokka_version")
+logger.lifecycle("Publication version: $dokka_version")
 tasks.register<ValidatePublications>("validatePublications")
 
 nexusPublishing {
