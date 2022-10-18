@@ -4,7 +4,7 @@ plugins {
     base
 }
 
-description = "common Gradle configuration that should be applied to all projets"
+// common Gradle configuration that should be applied to all projects
 
 if (project != rootProject) {
     project.group = rootProject.group
