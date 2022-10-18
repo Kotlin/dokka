@@ -8,19 +8,13 @@ plugins {
     id("com.gradle.plugin-publish")// version "0.20.0"
 }
 
-//repositories {
-//    google()
-//}
-
 dependencies {
     api(project(":core"))
 
     compileOnly("org.jetbrains.kotlin:kotlin-gradle-plugin")
     compileOnly("com.android.tools.build:gradle:4.0.1")
-//    compileOnly(gradleKotlinDsl())
 
     testImplementation(project(":test-utils"))
-//    testImplementation(gradleKotlinDsl())
     testImplementation("org.jetbrains.kotlin:kotlin-gradle-plugin")
     testImplementation("com.android.tools.build:gradle:4.0.1")
 
@@ -33,7 +27,7 @@ dependencies {
     )
 }
 
-// Gradle will put its own version of the stdlib in the classpath, do not pull our own we will end up with
+// Gradle will put its own version of the stdlib in the classpath, so not pull our own we will end up with
 // warnings like 'Runtime JAR files in the classpath should have the same version'
 configurations.api.configure {
     excludeGradleCommonDependencies()
