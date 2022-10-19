@@ -73,6 +73,7 @@ Most of the configuration options are set per one source set.
 The available configuration options are shown below:
 
 ```kotlin
+import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.gradle.DokkaTask
 
 val dokkaHtml by getting(DokkaTask::class) {
