@@ -1018,7 +1018,7 @@ private class DokkaDescriptorVisitor(
             org.jetbrains.kotlin.types.Variance.OUT_VARIANCE -> Covariance(this)
         }
 
-    fun descriptorToAnyDeclaration(descriptor: DeclarationDescriptor): PsiElement? {
+    private fun descriptorToAnyDeclaration(descriptor: DeclarationDescriptor): PsiElement? {
         val effectiveReferencedDescriptors = DescriptorToSourceUtils.getEffectiveReferencedDescriptors(descriptor)
         //take any
         return effectiveReferencedDescriptors.firstOrNull()?.let { DescriptorToSourceUtils.getSourceFromDescriptor(it) }
