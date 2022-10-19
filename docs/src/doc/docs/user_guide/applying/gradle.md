@@ -189,7 +189,7 @@ val dokkaHtml by getting(DokkaTask::class) {
 
             // Allows to customize documentation generation options on a per-package basis
             // Repeat for multiple packageOptions
-            // If multiple packages match the same matchingRegex, the longuest matchingRegex will be used
+            // If multiple packages match the same matchingRegex, the longest matchingRegex will be used
             perPackageOption {
                 // will match kotlin and all sub-packages of it
                 matchingRegex.set("kotlin($|\\.).*") 
