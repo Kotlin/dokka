@@ -123,7 +123,6 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: 11
-      - uses: gradle/gradle-build-action@v2 # provides a cache of .m2 dependencies
       - run: mvn compile dokka:dokka
         working-directory: examples/maven
         if: steps.filter.outputs.examples_changed == 'true'
