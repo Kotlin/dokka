@@ -16,6 +16,7 @@ import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptorWithSource
+import org.jetbrains.kotlin.kdoc.psi.api.KDoc
 import org.jetbrains.kotlin.resolve.source.getPsi
 import org.jetbrains.kotlin.utils.addToStdlib.cast
 import java.io.File
@@ -92,8 +93,9 @@ class SourceLinksTransformer(val context: DokkaContext) : PageTransformer {
     }
 
     private fun PsiElement.lineNumber(): Int? {
+        val skippedKDoc = children.firstOrNull { it !is KDoc } ?: this
         // synthetic and some light methods might return null
-        val textRange = textRange ?: return null
+        val textRange = skippedKDoc.textRange ?: return null
 
         val doc = PsiDocumentManager.getInstance(project).getDocument(containingFile)
         // IJ uses 0-based line-numbers; external source browsers use 1-based
