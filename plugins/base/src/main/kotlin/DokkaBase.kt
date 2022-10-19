@@ -144,6 +144,7 @@ class DokkaBase : DokkaPlugin() {
             )
         } order {
             before(extensionsExtractor)
+            before(actualTypealiasAdder)
         }
     }
 
