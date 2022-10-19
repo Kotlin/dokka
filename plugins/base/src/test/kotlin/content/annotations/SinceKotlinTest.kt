@@ -2,7 +2,6 @@ package content.annotations
 
 import matchers.content.*
 import org.jetbrains.dokka.Platform
-import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.base.transformers.pages.annotations.SinceKotlinTransformer.Version
 import org.jetbrains.dokka.model.DFunction
 import org.jetbrains.dokka.model.dfs
@@ -10,13 +9,15 @@ import org.jetbrains.dokka.model.doc.CustomTagWrapper
 import org.jetbrains.dokka.model.doc.Text
 import org.jetbrains.dokka.pages.ContentPage
 import org.junit.jupiter.api.Test
+import signatures.AbstractRenderingTest
 import utils.ParamAttributes
+import utils.TestOutputWriterPlugin
 import utils.assertNotNull
 import utils.bareSignature
 import kotlin.test.assertEquals
 
 
-class SinceKotlinTest : BaseAbstractTest() {
+class SinceKotlinTest : AbstractRenderingTest() {
 
     val testConfiguration = dokkaConfiguration {
         sourceSets {
@@ -35,6 +36,47 @@ class SinceKotlinTest : BaseAbstractTest() {
         assert(Version("1.1") > Version("1"))
         assert(Version("1.0") < Version("2.0"))
         assert(Version("1.0") < Version("2.2"))
+    }
+
+    @Test
+    fun `rendered SinceKotlin custom tag for typealias, extensions, functions, properties`() {
+        val configuration =   dokkaConfiguration {
+            extraOptions = listOf("-XXSinceKotlin")
+            sourceSets {
+                sourceSet {
+                    sourceRoots = listOf("src/")
+                    analysisPlatform = "jvm"
+                }
+            }
+        }
+        val writerPlugin = TestOutputWriterPlugin()
+
+        testInline(
+            """
+            |/src/main/kotlin/test/source.kt
+            |package test
+            |
+            |@SinceKotlin("1.5")
+            |fun ring(abc: String): String {
+            |    return "My precious " + abc
+            |}
+            |@SinceKotlin("1.5")
+            |fun String.extension(abc: String): String {
+            |    return "My precious " + abc
+            |}            
+            |@SinceKotlin("1.5")
+            |typealias Str = String
+            |@SinceKotlin("1.5")
+            |val str = "str"
+        """.trimIndent(),
+            configuration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                val content = writerPlugin.renderedContent("root/test/index.html")
+                assert(content.getElementsContainingOwnText("Since Kotlin").count() == 4)
+            }
+        }
     }
 
     @Test
