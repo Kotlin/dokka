@@ -1355,7 +1355,8 @@ you will have to add a depencency to the Kotlin Gradle Plugin as well
 <p>Dokka documents single-platform as well as multi-platform projects.
 Most of the configuration options are set per one source set.
 The available configuration options are shown below:</p>
-<div class="highlight"><pre><span></span><code><span class="k">import</span> <span class="nn">org.jetbrains.dokka.gradle.DokkaTask</span>
+<div class="highlight"><pre><span></span><code><span class="k">import</span> <span class="nn">org.jetbrains.dokka.DokkaConfiguration</span>
+<span class="k">import</span> <span class="nn">org.jetbrains.dokka.gradle.DokkaTask</span>
 
 <span class="kd">val</span> <span class="nv">dokkaHtml</span> <span class="k">by</span> <span class="n">getting</span><span class="p">(</span><span class="n">DokkaTask</span><span class="o">::</span><span class="n">class</span><span class="p">)</span> <span class="p">{</span>
     <span class="n">outputDirectory</span><span class="p">.</span><span class="na">set</span><span class="p">(</span><span class="n">buildDir</span><span class="p">.</span><span class="na">resolve</span><span class="p">(</span><span class="s">&quot;dokka&quot;</span><span class="p">))</span>
