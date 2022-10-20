@@ -2,6 +2,8 @@ package org.jetbrains.dokka.base.transformers.pages.sourcelinks
 
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiWhiteSpace
+import com.intellij.psi.javadoc.PsiDocComment
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.analysis.DescriptorDocumentableSource
@@ -93,9 +95,10 @@ class SourceLinksTransformer(val context: DokkaContext) : PageTransformer {
     }
 
     private fun PsiElement.lineNumber(): Int? {
-        val skippedKDoc = children.firstOrNull { it !is KDoc } ?: this
+        val skippedDoc = children.firstOrNull { it !is KDoc && it !is PsiDocComment }
+            ?.let { if (it is PsiWhiteSpace) it.nextSibling else it } ?: this
         // synthetic and some light methods might return null
-        val textRange = skippedKDoc.textRange ?: return null
+        val textRange = skippedDoc.textRange ?: return null
 
         val doc = PsiDocumentManager.getInstance(project).getDocument(containingFile)
         // IJ uses 0-based line-numbers; external source browsers use 1-based
