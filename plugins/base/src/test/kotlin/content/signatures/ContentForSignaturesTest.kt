@@ -373,7 +373,35 @@ class ContentForSignaturesTest : BaseAbstractTest() {
             pagesTransformationStage = { module ->
                 val page = module.children.single { it.name == "test" } as PackagePageNode
                 page.content.assertNode {
-                    propertySignature(emptyMap(), "protected", "", setOf("lateinit"), "var", "property", "Int", "6")
+                    propertySignature(emptyMap(), "protected", "", setOf("lateinit"), "var", "property", "Int", null)
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `should not display default value for mutable property`() {
+        testInline(
+            """
+            |/src/main/kotlin/test/source.kt
+            |package test
+            |
+            |var property: Int = 6
+        """.trimIndent(), testConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val page = module.children.single { it.name == "test" } as PackagePageNode
+                page.content.assertNode {
+                    propertySignature(
+                        annotations = emptyMap(),
+                        visibility = "",
+                        modifier = "",
+                        keywords = setOf(),
+                        preposition = "var",
+                        name = "property",
+                        type = "Int",
+                        value = null
+                    )
                 }
             }
         }
