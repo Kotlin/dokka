@@ -176,7 +176,7 @@ fun ContentMatcherBuilder<*>.propertySignature(
                                     }
                                 }
                             }
-                            if (type != null) {
+                            if (value != null) {
                                 +(" = $value")
                             }
                         }
