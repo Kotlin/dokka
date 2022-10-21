@@ -1,6 +1,8 @@
 package org.jetbrains.dokka.base.transformers.pages.samples
 
 import com.intellij.psi.PsiElement
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.analysis.AnalysisEnvironment
@@ -22,19 +24,17 @@ import org.jetbrains.kotlin.idea.kdoc.resolveKDocLink
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.DescriptorToSourceUtils
-import org.jetbrains.kotlin.utils.PathUtil
 
 abstract class SamplesTransformer(val context: DokkaContext) : PageTransformer {
 
     abstract fun processBody(psiElement: PsiElement): String
     abstract fun processImports(psiElement: PsiElement): String
 
-    final override fun invoke(input: RootPageNode): RootPageNode {
+    final override fun invoke(input: RootPageNode): RootPageNode = runBlocking(Dispatchers.Default) { // to run from thread of Dispatchers.Default
         val analysis = setUpAnalysis(context)
-        val kotlinPlaygroundScript =
-            "<script src=\"https://unpkg.com/kotlin-playground@1\"></script>"
+        val kotlinPlaygroundScript = "<script src=\"https://unpkg.com/kotlin-playground@1\"></script>"
 
-        return input.transformContentPagesTree { page ->
+        input.transformContentPagesTree { page ->
             val samples = (page as? WithDocumentables)?.documentables?.flatMap {
                 it.documentation.entries.flatMap { entry ->
                     entry.value.children.filterIsInstance<Sample>().map { entry.key to it }
@@ -42,11 +42,11 @@ abstract class SamplesTransformer(val context: DokkaContext) : PageTransformer {
             }
 
             samples?.fold(page as ContentPage) { acc, (sampleSourceSet, sample) ->
-                    acc.modified(
-                        content = acc.content.addSample(page, sampleSourceSet, sample.name, analysis),
-                        embeddedResources = acc.embeddedResources + kotlinPlaygroundScript
-                    )
-                } ?: page
+                acc.modified(
+                    content = acc.content.addSample(page, sampleSourceSet, sample.name, analysis),
+                    embeddedResources = acc.embeddedResources + kotlinPlaygroundScript
+                )
+            } ?: page
         }
     }
 
