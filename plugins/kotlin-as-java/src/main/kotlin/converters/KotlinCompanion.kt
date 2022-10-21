@@ -20,8 +20,7 @@ internal fun DObject?.staticPropertiesForJava(): List<DProperty> {
     return properties.filter { it.isJvmField || it.isConst || it.isLateInit }
 }
 
-internal fun DObject?.companionInstancePropertyForJava(): DProperty? {
-    if (this == null) return null
+internal fun DObject.companionInstancePropertyForJava(): DProperty? {
     if (hasNothingToRender()) return null // do not show if companion not rendered
 
     return DProperty(
@@ -47,8 +46,7 @@ internal fun DObject?.companionInstancePropertyForJava(): DProperty? {
     )
 }
 
-internal fun DObject?.companionAsJava(): DObject? {
-    if (this == null) return null
+internal fun DObject.companionAsJava(): DObject? {
     if (hasNothingToRender()) return null
 
     return asJava(

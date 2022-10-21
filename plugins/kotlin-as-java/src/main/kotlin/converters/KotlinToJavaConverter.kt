@@ -265,7 +265,7 @@ internal fun DClass.asJava(): DClass = copy(
     properties = propertiesInJava(),
     classlikes = classlikesInJava(),
     generics = generics.map { it.asJava() },
-    companion = companion.companionAsJava(),
+    companion = companion?.companionAsJava(),
     supertypes = supertypes.mapValues { it.value.map { it.asJava() } },
     modifier = if (modifier.all { (_, v) -> v is KotlinModifier.Empty }) sourceSets.associateWith { JavaModifier.Final }
     else sourceSets.associateWith { modifier.values.first() }
@@ -280,7 +280,7 @@ internal fun DClass.classlikesInJava(): List<DClasslike> {
         .filter { it.name != companion?.name }
         .map { it.asJava() }
 
-    val companionAsJava = companion.companionAsJava()
+    val companionAsJava = companion?.companionAsJava()
     return if (companionAsJava != null) classlikes.plus(companionAsJava) else classlikes
 }
 
@@ -299,12 +299,12 @@ internal fun DClass.propertiesInJava(): List<DProperty> {
         .staticPropertiesForJava()
         .filterNot { it.hasJvmSynthetic() }
         .map { it.asJava(isFromObjectOrCompanion = true) }
-    val companionInstanceProperty = listOfNotNull(companion.companionInstancePropertyForJava())
+    val companionInstanceProperty = companion?.companionInstancePropertyForJava()
     val ownProperties = properties
         .filterNot { it.hasJvmSynthetic() }
         .map { it.asJava() }
 
-    return propertiesFromCompanion + ownProperties + companionInstanceProperty
+    return propertiesFromCompanion + ownProperties + listOfNotNull(companionInstanceProperty)
 }
 
 private fun DTypeParameter.asJava(): DTypeParameter = copy(
