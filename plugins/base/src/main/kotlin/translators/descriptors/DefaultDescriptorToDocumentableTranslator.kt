@@ -1,5 +1,6 @@
 package org.jetbrains.dokka.base.translators.descriptors
 
+import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiNamedElement
 import com.intellij.psi.util.PsiLiteralUtil.*
 import kotlinx.coroutines.Dispatchers
@@ -49,6 +50,7 @@ import org.jetbrains.kotlin.load.java.descriptors.JavaPropertyDescriptor
 import org.jetbrains.kotlin.load.kotlin.toSourceElement
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.*
+import org.jetbrains.kotlin.resolve.DescriptorToSourceUtils
 import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.resolve.calls.components.isVararg
 import org.jetbrains.kotlin.resolve.calls.util.getValueArgumentsInParentheses
@@ -1016,7 +1018,13 @@ private class DokkaDescriptorVisitor(
             org.jetbrains.kotlin.types.Variance.OUT_VARIANCE -> Covariance(this)
         }
 
-    private fun DeclarationDescriptor.getDocumentation() = (findKDoc()?.let {
+    private fun descriptorToAnyDeclaration(descriptor: DeclarationDescriptor): PsiElement? {
+        val effectiveReferencedDescriptors = DescriptorToSourceUtils.getEffectiveReferencedDescriptors(descriptor)
+        //take any
+        return effectiveReferencedDescriptors.firstOrNull()?.let { DescriptorToSourceUtils.getSourceFromDescriptor(it) }
+    }
+
+    private fun DeclarationDescriptor.getDocumentation() = (findKDoc(::descriptorToAnyDeclaration)?.let {
         MarkdownParser.parseFromKDocTag(
             kDocTag = it,
             externalDri = { link: String ->
