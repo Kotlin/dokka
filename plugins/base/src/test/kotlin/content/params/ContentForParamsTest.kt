@@ -2,12 +2,12 @@ package content.params
 
 import matchers.content.*
 import org.jetbrains.dokka.Platform
+import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.model.DFunction
 import org.jetbrains.dokka.model.dfs
 import org.jetbrains.dokka.model.doc.DocumentationNode
 import org.jetbrains.dokka.model.doc.Param
 import org.jetbrains.dokka.model.doc.Text
-import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
 import org.junit.jupiter.api.Test
@@ -763,14 +763,12 @@ class ContentForParamsTest : BaseAbstractTest() {
                                     }
                                 }
                                 header(4) { +"Parameters" }
-                                group {
-                                    table {
-                                        group {
-                                            +"testParam"
-                                            comment {
-                                                +"Sample description for test param that has a type of "
-                                                link { +"String" }
-                                            }
+                                table {
+                                    group {
+                                        +"testParam"
+                                        comment {
+                                            +"Sample description for test param that has a type of "
+                                            link { +"String" }
                                         }
                                     }
                                 }
@@ -1051,16 +1049,14 @@ class ContentForParamsTest : BaseAbstractTest() {
                             after {
                                 group { pWrapped("comment to function") }
                                 header(4) { +"Parameters" }
-                                group {
-                                    table {
-                                        group {
-                                            +"abc"
-                                            check {
-                                                val textStyles = children.single { it is ContentText }.style
-                                                assertContains(textStyles, TextStyle.Underlined)
-                                            }
-                                            group { group { +"comment to param" } }
+                                table {
+                                    group {
+                                        +"abc"
+                                        check {
+                                            val textStyles = children.single { it is ContentText }.style
+                                            assertContains(textStyles, TextStyle.Underlined)
                                         }
+                                        group { group { +"comment to param" } }
                                     }
                                 }
                             }
@@ -1108,32 +1104,30 @@ class ContentForParamsTest : BaseAbstractTest() {
                             after {
                                 group { group { group { +"comment to function" } } }
                                 header(4) { +"Parameters" }
-                                group {
-                                    table {
-                                        group {
-                                            +"first"
-                                            check {
-                                                val textStyles = children.single { it is ContentText }.style
-                                                assertContains(textStyles, TextStyle.Underlined)
-                                            }
-                                            group { group { +"comment to first param" } }
+                                table {
+                                    group {
+                                        +"first"
+                                        check {
+                                            val textStyles = children.single { it is ContentText }.style
+                                            assertContains(textStyles, TextStyle.Underlined)
                                         }
-                                        group {
-                                            +"second"
-                                            check {
-                                                val textStyles = children.single { it is ContentText }.style
-                                                assertContains(textStyles, TextStyle.Underlined)
-                                            }
-                                            group { group { +"comment to second param" } }
+                                        group { group { +"comment to first param" } }
+                                    }
+                                    group {
+                                        +"second"
+                                        check {
+                                            val textStyles = children.single { it is ContentText }.style
+                                            assertContains(textStyles, TextStyle.Underlined)
                                         }
-                                        group {
-                                            +"third"
-                                            check {
-                                                val textStyles = children.single { it is ContentText }.style
-                                                assertContains(textStyles, TextStyle.Underlined)
-                                            }
-                                            group { group { +"comment to third param" } }
+                                        group { group { +"comment to second param" } }
+                                    }
+                                    group {
+                                        +"third"
+                                        check {
+                                            val textStyles = children.single { it is ContentText }.style
+                                            assertContains(textStyles, TextStyle.Underlined)
                                         }
+                                        group { group { +"comment to third param" } }
                                     }
                                 }
                             }
@@ -1182,22 +1176,21 @@ class ContentForParamsTest : BaseAbstractTest() {
                             after {
                                 group { group { group { +"comment to function" } } }
                                 header(4) { +"Parameters" }
-                                group {
-                                    table {
-                                        group {
-                                            +"c"
-                                            group { group { +"comment to c param" } }
-                                        }
-                                        group {
-                                            +"b"
-                                            group { group { +"comment to b param" } }
-                                        }
-                                        group {
-                                            +"a"
-                                            group { group { +"comment to a param" } }
-                                        }
+                                table {
+                                    group {
+                                        +"c"
+                                        group { group { +"comment to c param" } }
+                                    }
+                                    group {
+                                        +"b"
+                                        group { group { +"comment to b param" } }
+                                    }
+                                    group {
+                                        +"a"
+                                        group { group { +"comment to a param" } }
                                     }
                                 }
+
                             }
                         }
                     }
@@ -1241,20 +1234,18 @@ class ContentForParamsTest : BaseAbstractTest() {
                             }
                             after {
                                 header(4) { +"Parameters" }
-                                group {
-                                    table {
-                                        group {
-                                            +"first"
-                                            group { group { +"comment to first param" } }
-                                        }
-                                        group {
-                                            +"second"
-                                            group { group { +"comment to second param" } }
-                                        }
-                                        group {
-                                            +"third"
-                                            group { group { +"comment to third param" } }
-                                        }
+                                table {
+                                    group {
+                                        +"first"
+                                        group { group { +"comment to first param" } }
+                                    }
+                                    group {
+                                        +"second"
+                                        group { group { +"comment to second param" } }
+                                    }
+                                    group {
+                                        +"third"
+                                        group { group { +"comment to third param" } }
                                     }
                                 }
                             }
@@ -1309,14 +1300,13 @@ class ContentForParamsTest : BaseAbstractTest() {
                                     pWrapped("comment to receiver")
                                 }
                                 header(4) { +"Parameters" }
-                                group {
-                                    table {
-                                        group {
-                                            +"abc"
-                                            group { group { +"comment to param" } }
-                                        }
+                                table {
+                                    group {
+                                        +"abc"
+                                        group { group { +"comment to param" } }
                                     }
                                 }
+
                             }
                         }
                     }
@@ -1361,16 +1351,14 @@ class ContentForParamsTest : BaseAbstractTest() {
                             after {
                                 group { group { group { +"comment to function" } } }
                                 header(4) { +"Parameters" }
-                                group {
-                                    table {
-                                        group {
-                                            +"first"
-                                            group { group { +"comment to first param" } }
-                                        }
-                                        group {
-                                            +"third"
-                                            group { group { +"comment to third param" } }
-                                        }
+                                table {
+                                    group {
+                                        +"first"
+                                        group { group { +"comment to first param" } }
+                                    }
+                                    group {
+                                        +"third"
+                                        group { group { +"comment to third param" } }
                                     }
                                 }
                             }
@@ -1423,20 +1411,18 @@ class ContentForParamsTest : BaseAbstractTest() {
                                 unnamedTag("Since") { comment { +"0.11" } }
                                 header(4) { +"Parameters" }
 
-                                group {
-                                    table {
-                                        group {
-                                            +"first"
-                                            group { group { +"comment to first param" } }
-                                        }
-                                        group {
-                                            +"second"
-                                            group { group { +"comment to second param" } }
-                                        }
-                                        group {
-                                            +"third"
-                                            group { group { +"comment to third param" } }
-                                        }
+                                table {
+                                    group {
+                                        +"first"
+                                        group { group { +"comment to first param" } }
+                                    }
+                                    group {
+                                        +"second"
+                                        group { group { +"comment to second param" } }
+                                    }
+                                    group {
+                                        +"third"
+                                        group { group { +"comment to third param" } }
                                     }
                                 }
                             }

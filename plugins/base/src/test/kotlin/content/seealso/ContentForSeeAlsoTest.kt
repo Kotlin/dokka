@@ -1,16 +1,14 @@
 package content.seealso
 
 import matchers.content.*
+import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.pages.ContentDRILink
 import org.jetbrains.dokka.pages.ContentPage
-import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
-import org.jetbrains.dokka.links.Callable
-import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.links.JavaClassReference
-import org.jetbrains.dokka.model.doc.See
-import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
 import org.junit.jupiter.api.Test
-import utils.*
+import utils.ParamAttributes
+import utils.bareSignature
+import utils.comment
+import utils.unnamedTag
 import kotlin.test.assertEquals
 
 class ContentForSeeAlsoTest : BaseAbstractTest() {
@@ -98,12 +96,10 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
                             }
                             after {
                                 header(4) { +"See also" }
-                                group {
-                                    table {
-                                        group {
-                                            //DRI should be "test//abc/#/-1/"
-                                            link { +"abc" }
-                                        }
+                                table {
+                                    group {
+                                        //DRI should be "test//abc/#/-1/"
+                                        link { +"abc" }
                                     }
                                 }
                             }
@@ -150,14 +146,12 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
                             }
                             after {
                                 header(4) { +"See also" }
-                                group {
-                                    table {
+                                table {
+                                    group {
+                                        //DRI should be "test//abc/#/-1/"
+                                        link { +"abc" }
                                         group {
-                                            //DRI should be "test//abc/#/-1/"
-                                            link { +"abc" }
-                                            group {
-                                                group { +"Comment to abc" }
-                                            }
+                                            group { +"Comment to abc" }
                                         }
                                     }
                                 }
@@ -205,13 +199,11 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
                             }
                             after {
                                 header(4) { +"See also" }
-                                group {
-                                    table {
+                                table {
+                                    group {
+                                        +"com.example.NonExistingClass"
                                         group {
-                                            +"com.example.NonExistingClass"
-                                            group {
-                                                group { +"description for non-existing" }
-                                            }
+                                            group { +"description for non-existing" }
                                         }
                                     }
                                 }
@@ -259,21 +251,20 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
                             }
                             after {
                                 header(4) { +"See also" }
-                                group {
-                                    table {
-                                        group {
-                                            link {
-                                                check {
-                                                    assertEquals(
-                                                        "kotlin.collections/Collection///PointingToDeclaration/",
-                                                        (this as ContentDRILink).address.toString()
-                                                    )
-                                                }
-                                                +"Collection"
+                                table {
+                                    group {
+                                        link {
+                                            check {
+                                                assertEquals(
+                                                    "kotlin.collections/Collection///PointingToDeclaration/",
+                                                    (this as ContentDRILink).address.toString()
+                                                )
                                             }
+                                            +"Collection"
                                         }
                                     }
                                 }
+
                             }
                         }
                     }
@@ -318,16 +309,15 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
                             }
                             after {
                                 header(4) { +"See also" }
-                                group {
-                                    table {
+                                table {
+                                    group {
+                                        //DRI should be "test//abc/#/-1/"
+                                        link { +"Collection" }
                                         group {
-                                            //DRI should be "test//abc/#/-1/"
-                                            link { +"Collection" }
-                                            group {
-                                                group { +"Comment to stdliblink" }
-                                            }
+                                            group { +"Comment to stdliblink" }
                                         }
                                     }
+
                                 }
                             }
                         }
@@ -380,17 +370,16 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
                                 unnamedTag("Since") { comment { +"0.11" } }
 
                                 header(4) { +"See also" }
-                                group {
-                                    table {
+                                table {
+                                    group {
+                                        //DRI should be "test//abc/#/-1/"
+                                        link { +"Collection" }
                                         group {
-                                            //DRI should be "test//abc/#/-1/"
-                                            link { +"Collection" }
-                                            group {
-                                                group { +"Comment to stdliblink" }
-                                            }
+                                            group { +"Comment to stdliblink" }
                                         }
                                     }
                                 }
+
                             }
                         }
                     }
@@ -436,17 +425,16 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
                             }
                             after {
                                 header(4) { +"See also" }
-                                group {
-                                    table {
+                                table {
+                                    group {
+                                        //DRI should be "test//abc/#/-1/"
+                                        link { +"abc" }
                                         group {
-                                            //DRI should be "test//abc/#/-1/"
-                                            link { +"abc" }
-                                            group {
-                                                group { +"Comment to abc2" }
-                                            }
+                                            group { +"Comment to abc2" }
                                         }
                                     }
                                 }
+
                             }
                         }
                     }
@@ -492,20 +480,18 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
                             }
                             after {
                                 header(4) { +"See also" }
-                                group {
-                                    table {
+                                table {
+                                    group {
+                                        //DRI should be "test//abc/#/-1/"
+                                        link { +"abc" }
                                         group {
-                                            //DRI should be "test//abc/#/-1/"
-                                            link { +"abc" }
-                                            group {
-                                                group { +"Comment to abc1" }
-                                            }
+                                            group { +"Comment to abc1" }
                                         }
-                                        group {
-                                            //DRI should be "test//abc/#/-1/"
-                                            link { +"Collection" }
-                                            group { group { +"Comment to collection" } }
-                                        }
+                                    }
+                                    group {
+                                        //DRI should be "test//abc/#/-1/"
+                                        link { +"Collection" }
+                                        group { group { +"Comment to collection" } }
                                     }
                                 }
                             }
@@ -564,19 +550,17 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
                             }
                             after {
                                 header(4) { +"See also" }
-                                group {
-                                    table {
+                                table {
+                                    group {
+                                        link { +"CollectionExtensions.property" }
                                         group {
-                                            link { +"CollectionExtensions.property" }
-                                            group {
-                                                group { +"static property" }
-                                            }
+                                            group { +"static property" }
                                         }
+                                    }
+                                    group {
+                                        link { +"CollectionExtensions.emptyList" }
                                         group {
-                                            link { +"CollectionExtensions.emptyList" }
-                                            group {
-                                                group { +"static emptyList" }
-                                            }
+                                            group { +"static emptyList" }
                                         }
                                     }
                                 }
