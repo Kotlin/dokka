@@ -16,3 +16,4 @@ let renderApp = () => {
 };
 
 document.addEventListener('DOMContentLoaded', renderApp);
+document.addEventListener('updateContentPage', renderMainSearch);

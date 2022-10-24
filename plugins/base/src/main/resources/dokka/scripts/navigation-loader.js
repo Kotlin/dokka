@@ -14,6 +14,10 @@ displayNavigationFromPage = () => {
         })
     }).then(() => {
         revealNavigationForCurrentPage()
+        document.querySelectorAll("#sideMenu a")
+            .forEach(elem => elem.addEventListener('click', (event) => selectPage(event, elem)))
+        document.querySelectorAll("#main a")
+            .forEach(elem => elem.addEventListener('click', (event) => selectPage(event, elem)))
     }).then(() => {
         scrollNavigationToSelectedElement()
     })
@@ -25,6 +29,65 @@ displayNavigationFromPage = () => {
             });
         });
     });
+    window.addEventListener('popstate', (event) => {
+      loadPage(document.location, false)
+    });
+}
+
+const selectPage = (event, elem) => {
+    const link = elem.getAttribute("href")
+    let pattern = /^#|^(?:[a-z]+:)?\/\//gi;
+    if(link.match(pattern))
+        return;
+     event.preventDefault();
+     event.stopPropagation();
+     event.stopImmediatePropagation();
+     loadPage(link, true)
+}
+
+const loadPage = (link, isPushState) => {
+    navigationPageText = fetch(link).then(response => response.text()).then(data => {
+        var parser = new DOMParser();
+        var doc = parser.parseFromString(data, "text/html");
+
+        const oldPathToRoot = pathToRoot
+                // update pathToRoot
+        const newScript = document.createElement("script");
+        newScript.appendChild(document.createTextNode(doc.getElementsByTagName("script")[0].innerHTML));
+        const oldScript = document.getElementsByTagName("script")[0]
+        oldScript.parentNode.replaceChild(newScript, oldScript);
+
+        replacePathToRoot(oldPathToRoot)
+
+        document.getElementById("main").innerHTML = doc.getElementById("main").innerHTML;
+        document.getElementById("navigation-wrapper").innerHTML = doc.getElementById("navigation-wrapper").innerHTML;
+        document.getElementsByTagName("title")[0].innerHTML = doc.getElementsByTagName("title")[0].innerHTML;
+
+        if(isPushState) window.history.pushState({}, doc.getElementsByTagName("title")[0].innerHTML, link);
+
+        document.querySelectorAll("#main a")
+          .forEach(elem => elem.addEventListener('click', (event) => selectPage(event, elem)))
+
+     //    console.log(pathToRoot + "\n" + oldPathToRoot)
+    }).then(() => {
+             revealNavigationForCurrentPage()
+             window.Prism = window.Prism || {};
+             window.Prism.highlightAllUnder(document.getElementById("main"))
+          // scrollNavigationToSelectedElement()
+            document.dispatchEvent(new Event('updateContentPage'))
+    })
+}
+
+// TODO: replace with absolute link
+replacePathToRoot = (oldPathToRoot) => {
+    document.querySelectorAll(".overview > a").forEach(link => {
+        const  oldLink = link.getAttribute("href")
+        if(oldLink.startsWith(oldPathToRoot)) {
+            const originLink = oldLink.substring(oldPathToRoot.length)
+              ///console.log(oldLink + "\n" + pathToRoot + originLink)
+            link.setAttribute("href", pathToRoot + originLink);
+        }
+    })
 }
 
 revealNavigationForCurrentPage = () => {
@@ -35,11 +98,12 @@ revealNavigationForCurrentPage = () => {
         parts.forEach(part => {
             if (part.attributes['pageId'].value.indexOf(pageId) !== -1 && found === 0) {
                 found = 1;
-                if (part.classList.contains("hidden")) {
-                    part.classList.remove("hidden");
-                    part.setAttribute('data-active', "");
-                }
+                 part.classList.remove("hidden");
+                 part.setAttribute('data-active', "");
                 revealParents(part)
+            } else if(part.hasAttribute("data-active")) {
+                part.classList.add("hidden");
+                part.removeAttribute("data-active")
             }
         });
         pageId = pageId.substring(0, pageId.lastIndexOf("/"))
