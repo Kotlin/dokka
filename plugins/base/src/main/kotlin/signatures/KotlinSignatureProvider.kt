@@ -275,9 +275,14 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                 link(p.name, p.dri, styles = mainStyles + p.stylesIfDeprecated(sourceSet))
                 operator(": ")
                 signatureForProjection(p.type)
-                defaultValueAssign(p, sourceSet)
+
+                if (p.isNotMutable()) {
+                    defaultValueAssign(p, sourceSet)
+                }
             }
         }
+
+    private fun DProperty.isNotMutable(): Boolean = !isMutable()
 
     private fun DProperty.isMutable(): Boolean {
         return this.extra[IsVar] != null || this.setter != null

@@ -73,6 +73,7 @@ Most of the configuration options are set per one source set.
 The available configuration options are shown below:
 
 ```kotlin
+import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.gradle.tasks.DokkaTask
 
 val dokkaHtml by getting(DokkaTask::class) {
@@ -189,7 +190,7 @@ val dokkaHtml by getting(DokkaTask::class) {
 
             // Allows to customize documentation generation options on a per-package basis
             // Repeat for multiple packageOptions
-            // If multiple packages match the same matchingRegex, the longuest matchingRegex will be used
+            // If multiple packages match the same matchingRegex, the longest matchingRegex will be used
             perPackageOption {
                 // will match kotlin and all sub-packages of it
                 matchingRegex.set("kotlin($|\\.).*") 
