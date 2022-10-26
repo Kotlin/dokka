@@ -36,8 +36,8 @@ displayNavigationFromPage = () => {
 
 const selectPage = (event, elem) => {
     const link = elem.getAttribute("href")
-    let pattern = /^#|^(?:[a-z]+:)?\/\//gi;
-    if(link.match(pattern))
+    const anchorOrAbsoluteUrlRegex = /^#|^(?:[a-z]+:)?\/\//gi;
+    if(link.match(anchorOrAbsoluteUrlRegex))
         return;
      event.preventDefault();
      event.stopPropagation();
@@ -45,49 +45,121 @@ const selectPage = (event, elem) => {
      loadPage(link, true)
 }
 
-const loadPage = (link, isPushState) => {
+const loadPage = (link, isPushState = true) => {
     navigationPageText = fetch(link).then(response => response.text()).then(data => {
         var parser = new DOMParser();
         var doc = parser.parseFromString(data, "text/html");
+        addBase(doc, link)
 
         const oldPathToRoot = pathToRoot
-                // update pathToRoot
-        const newScript = document.createElement("script");
-        newScript.appendChild(document.createTextNode(doc.getElementsByTagName("script")[0].innerHTML));
-        const oldScript = document.getElementsByTagName("script")[0]
-        oldScript.parentNode.replaceChild(newScript, oldScript);
-
+        updatePathToRoot(doc)
         replacePathToRoot(oldPathToRoot)
+        convertLinksToAbsoluteInHead()
 
         document.getElementById("main").innerHTML = doc.getElementById("main").innerHTML;
         document.getElementById("navigation-wrapper").innerHTML = doc.getElementById("navigation-wrapper").innerHTML;
         document.getElementsByTagName("title")[0].innerHTML = doc.getElementsByTagName("title")[0].innerHTML;
 
-        if(isPushState) window.history.pushState({}, doc.getElementsByTagName("title")[0].innerHTML, link);
+        if(isPushState) window.history.pushState({}, '', link);
 
         document.querySelectorAll("#main a")
           .forEach(elem => elem.addEventListener('click', (event) => selectPage(event, elem)))
 
-     //    console.log(pathToRoot + "\n" + oldPathToRoot)
+        // wait when all new scripts are loaded
+        // e.g. Kotlin Playground, mathajax
+        return applyNewScripts(doc)
     }).then(() => {
-             revealNavigationForCurrentPage()
-             window.Prism = window.Prism || {};
-             window.Prism.highlightAllUnder(document.getElementById("main"))
+        revealNavigationForCurrentPage()
+        window.Prism = window.Prism || {};
+        window.Prism.highlightAllUnder(document.getElementById("main"))
           // scrollNavigationToSelectedElement()
-            document.dispatchEvent(new Event('updateContentPage'))
+        document.dispatchEvent(new Event('updateContentPage'))
     })
 }
 
-// TODO: replace with absolute link
-replacePathToRoot = (oldPathToRoot) => {
+const loadScript = (src, async = true, type = 'text/javascript') => {
+  return new Promise((resolve, reject) => {
+    try {
+      const newScript = document.createElement('script')
+
+      newScript.type = type
+      newScript.async = async
+      newScript.src = src
+
+      newScript.addEventListener('load', () => {
+        console.log("loaded")
+        resolve({ status: true })
+      })
+
+      newScript.addEventListener('error', () => {
+        reject({
+          status: false,
+          message: `Failed to load the script ${src}`
+        })
+      })
+
+      document.head.appendChild(newScript)
+    } catch (err) {
+      reject(err)
+    }
+  })
+}
+
+const applyNewScripts = (doc) => {
+    let currentScripts = document.getElementsByTagName("script")
+    let currentScriptsSet = new Set()
+    for(i in currentScripts) {
+        currentScriptsSet.add(currentScripts[i].src)
+    }
+    let scripts = doc.head.getElementsByTagName("script")
+    let promiseArray = []
+    for (i in scripts) {
+        if(!currentScriptsSet.has(scripts[i].src)) {
+           promiseArray.push(loadScript(scripts[i].src))
+           console.log("Load script: "+  scripts[i].src)
+        }
+    }
+    return Promise.all(promiseArray)
+}
+
+const updatePathToRoot = (doc) => {
+    const newScript = document.createElement("script");
+    newScript.appendChild(document.createTextNode(doc.getElementsByTagName("script")[0].innerHTML));
+    const oldScript = document.getElementsByTagName("script")[0]
+    oldScript.parentNode.replaceChild(newScript, oldScript);
+}
+
+// TODO?: replace with absolute link
+const replacePathToRoot = (oldPathToRoot) => {
     document.querySelectorAll(".overview > a").forEach(link => {
         const  oldLink = link.getAttribute("href")
         if(oldLink.startsWith(oldPathToRoot)) {
             const originLink = oldLink.substring(oldPathToRoot.length)
-              ///console.log(oldLink + "\n" + pathToRoot + originLink)
             link.setAttribute("href", pathToRoot + originLink);
         }
     })
+}
+
+let isConverted = false
+const convertLinksToAbsoluteInHead = () => {
+    if(isConverted)
+        return
+    isConverted = true
+    for(i in document.head.children) {
+        let element = document.head.children[i]
+        if(element.src) {
+            element.src =  element.src
+        }
+        if(element.href) {
+            element.href =  element.href
+        }
+    }
+}
+
+const addBase = (doc, link) => {
+    let baseEl = doc.createElement('base');
+    baseEl.setAttribute('href', link);
+    doc.head.prepend(baseEl);
 }
 
 revealNavigationForCurrentPage = () => {
