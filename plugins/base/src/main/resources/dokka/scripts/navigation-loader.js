@@ -70,11 +70,24 @@ const loadPage = (link, isPushState = true) => {
         return applyNewScripts(doc)
     }).then(() => {
         revealNavigationForCurrentPage()
-        window.Prism = window.Prism || {};
+        let selectedElement = document.querySelector('div.sideMenuPart[data-active]')
+        if (selectedElement && !isElementInViewport(selectedElement)) { // nothing selected, probably just the main page opened
+            scrollNavigationToSelectedElement('smooth')
+        }
+
         window.Prism.highlightAllUnder(document.getElementById("main"))
-          // scrollNavigationToSelectedElement()
         document.dispatchEvent(new Event('updateContentPage'))
     })
+}
+
+const isElementInViewport = (el) => {
+    var rect = el.getBoundingClientRect()
+    return (
+        rect.top >= 0 &&
+        rect.left >= 0 &&
+        rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+        rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+    )
 }
 
 const loadScript = (src, async = true, type = 'text/javascript') => {
@@ -189,7 +202,7 @@ revealParents = (part) => {
     }
 };
 
-scrollNavigationToSelectedElement = () => {
+scrollNavigationToSelectedElement = (behavior = 'auto') => {
     let selectedElement = document.querySelector('div.sideMenuPart[data-active]')
     if (selectedElement == null) { // nothing selected, probably just the main page opened
         return
