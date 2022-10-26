@@ -220,7 +220,7 @@ scrollNavigationToSelectedElement = (behavior = 'auto') => {
         // if a member within a package is linked, it makes sense to center it since it,
         // this should make it easier to look at surrounding members
         selectedElement.scrollIntoView({
-            behavior: 'auto',
+            behavior: behavior,
             block: 'center',
             inline: 'center'
         })

@@ -1,4 +1,12 @@
 window.addEventListener('load', () => {
+    initClipboard()
+})
+
+document.addEventListener('updateContentPage', () => {
+    initClipboard()
+})
+
+const initClipboard = (element) => {
     document.querySelectorAll('span.copy-icon').forEach(element => {
         element.addEventListener('click', (el) => copyElementsContentToClipboard(element));
     })
@@ -11,7 +19,7 @@ window.addEventListener('load', () => {
             }
         });
     })
-})
+}
 
 const copyElementsContentToClipboard = (element) => {
     const selection = window.getSelection();
