@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE product-profile
+        SYSTEM "https://resources.jetbrains.com/stardust/product-profile.dtd">
+
+<product-profile id="dokka"
+                 name="Dokka"
+                 start-page="quickstart.md">
+
+    <toc-element id="overview.md"/>
+    <toc-element toc-title="Runners">
+        <toc-element id="gradle.md"/>
+        <toc-element id="maven.md"/>
+        <toc-element id="cli.md"/>
+    </toc-element>
+    <toc-element toc-title="Output formats">
+        <toc-element id="html.md"/>
+        <toc-element id="markdown.md"/>
+        <toc-element id="javadoc.md"/>
+    </toc-element>
+    <toc-element toc-title="Plugins">
+        <toc-element id="plugins_introduction.md"/>
+        <toc-element id="versioning.md"/>
+    </toc-element>
+</product-profile>

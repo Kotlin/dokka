@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE ihp SYSTEM "https://resources.jetbrains.com/stardust/ihp.dtd">
+
+<ihp version="2.0">
+    <categories src="categories.list"/>
+    <topics dir="topics"/>
+    <images dir="images" version="1.0"/>
+    <vars src="vars.list"/>
+    <product src="dokka.tree" version="%dokkaVersion%" />
+</ihp>
