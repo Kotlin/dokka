@@ -2,6 +2,7 @@ package org.jetbrains.dokka.base.transformers.pages.sourcelinks
 
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiIdentifier
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.analysis.DescriptorDocumentableSource
@@ -16,6 +17,8 @@ import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptorWithSource
+import org.jetbrains.kotlin.lexer.KtTokens
+import org.jetbrains.kotlin.psi.psiUtil.getChildOfType
 import org.jetbrains.kotlin.resolve.source.getPsi
 import org.jetbrains.kotlin.utils.addToStdlib.cast
 import java.io.File
@@ -92,8 +95,10 @@ class SourceLinksTransformer(val context: DokkaContext) : PageTransformer {
     }
 
     private fun PsiElement.lineNumber(): Int? {
+        val ktIdentifierTextRange = this.node?.findChildByType(KtTokens.IDENTIFIER)?.textRange
+        val javaIdentifierTextRange = this.getChildOfType<PsiIdentifier>()?.textRange
         // synthetic and some light methods might return null
-        val textRange = textRange ?: return null
+        val textRange = ktIdentifierTextRange ?: javaIdentifierTextRange ?: textRange ?: return null
 
         val doc = PsiDocumentManager.getInstance(project).getDocument(containingFile)
         // IJ uses 0-based line-numbers; external source browsers use 1-based
