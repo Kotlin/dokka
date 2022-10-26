@@ -1,6 +1,6 @@
 [//]: # (title: CLI runner)
 
-If for some reason you cannot use [Gradle](gradle.md) or [Maven](maven.md) plugin, Dokka has
+If for some reason you cannot use [Gradle](gradle.md) or [Maven](maven.md) plugins, Dokka has
 a command line runner for generating documentation without any build tools.
 
 In comparison, it has the same, if not more, capabilities as the Gradle plugin, although it is considerably more 
@@ -63,8 +63,8 @@ java -jar dokka-cli-%dokkaVersion%.jar \
      -outputDir "./dokka/html"
 ```
 
-> Due to an internal class conflict, first pass `kotlin-analysis-intellij` and only then `kotlin-analysis-compiler`
-> artifact, otherwise it can lead to obscure exceptions such as `NoSuchFieldError`.
+> Due to an internal class conflict, first pass `kotlin-analysis-intellij` and only then `kotlin-analysis-compiler`,
+> otherwise it can lead to obscure exceptions such as `NoSuchFieldError`.
 >
 {type="note"}
 
@@ -75,7 +75,7 @@ See [all command line arguments](#command-line-arguments) for more details.
 ### Running with JSON configuration
 
 It is possible to configure the CLI runner with JSON. In this case, you will need to provide an
-absolute/relative path to the JSON configuration file,and  all the other configuration options will be parsed from it.
+absolute/relative path to the JSON configuration file, and  all other configuration options will be parsed from it.
 
 ```Bash
 java -jar dokka-cli-%dokkaVersion%.jar dokka-configuration.json

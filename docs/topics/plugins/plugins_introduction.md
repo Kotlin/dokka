@@ -13,7 +13,7 @@ If you want to learn how to create Dokka plugins, see
 
 ## Applying Dokka plugins
 
-Dokka plugins are published as separate artifacts, so to apply a Dokka plugin you only need to add as a dependency.
+Dokka plugins are published as separate artifacts, so to apply a Dokka plugin you only need to add it as a dependency.
 From there, the plugin will extend Dokka by itself - no extra actions needed. 
 
 > Plugins that use the same extension points or work in a similar way can interfere with each other.

@@ -22,7 +22,7 @@ This format comes standard in all runners:
 
 ## Configuration
 
-HTML format is Dokka's base format, so it is configurable through `DokkaBase` and `DokkaBaseConfiguration`.
+HTML format is Dokka's base format, so it is configurable through `DokkaBase` and `DokkaBaseConfiguration`:
 
 <tabs group="build-script">
 <tab title="Kotlin" group-key="kotlin">
