@@ -116,6 +116,7 @@ class JavadocSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLo
                     text(it.modifiers()[sourceSet]?.toSignatureString().orEmpty())
                     signatureForProjection(it.type)
                     text(Typography.nbsp.toString())
+                    text(it.dri.packageName.orEmpty().plus("."))
                     text(it.name.orEmpty())
                 }
                 text(")")
