@@ -377,7 +377,7 @@ open class DefaultPageCreator(
                         "Constructors",
                         2,
                         ContentKind.Constructors,
-                        constructorsToDocumented.groupBy { it.parameters.map { it.dri } }
+                        constructorsToDocumented.groupBy { it.name }
                             .map { (_, v) -> v.first().name to v },
                         @Suppress("UNCHECKED_CAST")
                         (csWithConstructor as List<Documentable>).sourceSets,

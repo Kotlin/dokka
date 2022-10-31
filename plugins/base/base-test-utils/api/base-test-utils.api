@@ -99,6 +99,7 @@ public final class signatures/SignatureUtilsKt {
 	public static final fun renderedContent (Lutils/TestOutputWriter;Ljava/lang/String;)Lorg/jsoup/nodes/Element;
 	public static synthetic fun renderedContent$default (Lutils/TestOutputWriter;Ljava/lang/String;ILjava/lang/Object;)Lorg/jsoup/nodes/Element;
 	public static final fun signature (Lorg/jsoup/nodes/Element;)Lorg/jsoup/select/Elements;
+	public static final fun tab (Lorg/jsoup/nodes/Element;Ljava/lang/String;)Lorg/jsoup/select/Elements;
 }
 
 public final class utils/A : utils/Tag {
