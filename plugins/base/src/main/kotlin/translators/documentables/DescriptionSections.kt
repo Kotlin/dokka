@@ -159,13 +159,10 @@ internal fun PageContentBuilder.DocumentableContentBuilder.seeAlsoSectionContent
     }
 }
 
-internal fun PageContentBuilder.DocumentableContentBuilder.throwsSectionContent(
-    tags: GroupedTags
-) {
+internal fun PageContentBuilder.DocumentableContentBuilder.throwsSectionContent(tags: GroupedTags) {
     val throws = tags.withTypeNamed<Throws>() ?: return
 
-    val availablePlatforms = throws.values.flatMap { it.keys }.toSet()
-    availablePlatforms.forEach { platform ->
+    throws.availablePlatforms().forEach { platform ->
         header(KDOC_TAG_HEADER_LEVEL, "Throws", sourceSets = setOf(platform))
         table(
             kind = ContentKind.Main,
@@ -193,12 +190,12 @@ internal fun PageContentBuilder.DocumentableContentBuilder.throwsSectionContent(
 
 internal fun PageContentBuilder.DocumentableContentBuilder.samplesSectionContent(tags: GroupedTags) {
     val samples = tags.withTypeNamed<Sample>() ?: return
+    samples.availablePlatforms().forEach { platform ->
+        val content = samples.filter { it.value.isEmpty() || platform in it.value }
+        header(KDOC_TAG_HEADER_LEVEL, "Samples", kind = ContentKind.Sample, sourceSets = setOf(platform))
 
-    samples.availablePlatforms().forEach { platformData ->
-        val content = samples.filter { it.value.isEmpty() || platformData in it.value }
-        header(KDOC_TAG_HEADER_LEVEL, "Samples", kind = ContentKind.Sample, sourceSets = setOf(platformData))
         group(
-            sourceSets = setOf(platformData),
+            sourceSets = setOf(platform),
             kind = ContentKind.Sample,
             styles = setOf(TextStyle.Monospace, ContentStyle.RunnableSample),
             extra = mainExtra + SimpleAttr.header("Samples")
