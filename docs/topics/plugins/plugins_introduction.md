@@ -44,6 +44,11 @@ dependencies {
 }
 ```
 
+> When documenting [multi-project](gradle.md#multi-project-builds) builds, you need to apply Dokka plugins in
+> subprojects as well as in their parent project.
+>
+{type="note"}
+
 </tab>
 <tab title="Groovy" group-key="groovy">
 
@@ -62,6 +67,11 @@ dependencies {
     dokkaHtmlPartialPlugin 'org.jetbrains.dokka:kotlin-as-java-plugin:%dokkaVersion%'
 }
 ```
+
+> When documenting [multi-project](gradle.md#multi-project-builds) builds, you need to apply Dokka plugins in
+> subprojects as well as in their parent project.
+>
+{type="note"}
 
 </tab>
 <tab title="Maven" group-key="mvn">

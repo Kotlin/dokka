@@ -62,45 +62,9 @@ plugins {
 >
 {type="note"}
 
-
-### Legacy plugin application
-
 If you cannot use plugins DSL for some reason, you can use
 [the legacy method](https://docs.gradle.org/current/userguide/plugins.html#sec:old_plugin_application) of applying
 plugins.
-
-<tabs group="build-script">
-<tab title="Kotlin" group-key="kotlin">
-
-```kotlin
-buildscript {
-    dependencies {
-        classpath("org.jetbrains.dokka:dokka-gradle-plugin:%dokkaVersion%")
-    }
-}
-
-apply(plugin="org.jetbrains.dokka")
-```
-
-> Note that by applying Dokka this way, certain type-safe accessors will not be available in Kotlin DSL. 
->
-{type="note"}
-
-</tab>
-<tab title="Groovy" group-key="groovy">
-
-```groovy
-buildscript {
-    dependencies {
-        classpath 'org.jetbrains.dokka:dokka-gradle-plugin:%dokkaVersion%'
-    }
-}
-
-apply plugin: 'org.jetbrains.dokka'
-```
-
-</tab>
-</tabs>
 
 ## Generating documentation
 
@@ -111,9 +75,16 @@ and adds a number of tasks for generating documentation, both for [single](#sing
 
 Use the following tasks to build documentation for simple, single project applications and libraries:
 
+#### Stable formats
+
 | **Task**       | **Description**                                                                     |
 |----------------|-------------------------------------------------------------------------------------|
 | `dokkaHtml`    | Generates documentation in [HTML](html.md) format.                                  |
+
+#### Experimental formats
+
+| **Task**       | **Description**                                                                     |
+|----------------|-------------------------------------------------------------------------------------|
 | `dokkaGfm`     | Generates documentation in [GitHub Flavored Markdown](markdown.md#gfm) format.      |
 | `dokkaJavadoc` | Generates documentation in [Javadoc](javadoc.md) format.                            |
 | `dokkaJekyll`  | Generates documentation in [Jekyll compatible Markdown](markdown.md#jekyll) format. |
@@ -123,12 +94,50 @@ Output location, among other things, can be [configured](#configuration) separat
 
 ### Multi-project builds
 
-For documenting [multi-project builds](https://docs.gradle.org/current/userguide/multi_project_builds.html), you can
-use tasks which are created for all parent projects automatically:
+For documenting [multi-project builds](https://docs.gradle.org/current/userguide/multi_project_builds.html), you need
+to apply the Dokka plugin in subprojects that you want to generate documentation for as well as in their parent project.
+
+You can use `allprojects {}` and `subprojects {}` Gradle configurations to achieve that:
+
+<tabs group="build-script">
+<tab title="Kotlin" group-key="kotlin">
+
+```kotlin
+subprojects {
+    apply(plugin = "org.jetbrains.dokka")
+}
+```
+
+</tab>
+<tab title="Groovy" group-key="groovy">
+
+```groovy
+subprojects {
+    apply plugin: 'org.jetbrains.dokka'
+}
+```
+
+</tab>
+</tabs>
+
+#### MultiModule tasks
+
+`MultiModule` tasks generate documentation for each subproject individually via [partial](#partial-tasks) tasks,
+collect and process all outputs, and produce complete documentation with a common table of contents and resolved
+cross-project references.
+
+Dokka creates the following tasks for **parent** projects automatically:
+
+#### Stable formats
 
 | **Task**                 | **Description**                                                                                  |
 |--------------------------|--------------------------------------------------------------------------------------------------|
 | `dokkaHtmlMultiModule`   | Generates multi-module documentation in [HTML](html.md) format.                                  |
+
+#### Experimental formats
+
+| **Task**                 | **Description**                                                                                  |
+|--------------------------|--------------------------------------------------------------------------------------------------|
 | `dokkaGfmMultiModule`    | Generates multi-module documentation in [GitHub Flavored Markdown](markdown.md#gfm) format.      |
 | `dokkaJekyllMultiModule` | Generates multi-module documentation in [Jekyll compatible Markdown](markdown.md#jekyll) format. |
 
@@ -137,13 +146,9 @@ use tasks which are created for all parent projects automatically:
 >
 {type="note"}
 
-A _MultiModule_ task generates documentation for each subproject individually via [partial](#partial-tasks) tasks,
-collects and processes all outputs, and produces complete documentation with a common table of contents and resolved
-cross-project references.
-
 By default, you will find ready-to-use documentation under `{parentProject}/build/dokka/{format}MultiModule` directory.
 
-##### MultiModule task example
+#### MultiModule task example
 
 Given a project with the following structure:
 
@@ -287,7 +292,7 @@ tasks.dokkaHtmlPartial {
 }
 ```
 
-If you applied Dokka with the [buildscript block](#legacy-plugin-application):
+If you applied Dokka with the [buildscript block](https://docs.gradle.org/current/userguide/plugins.html#sec:old_plugin_application):
 
 ```kotlin
 import org.jetbrains.dokka.gradle.DokkaTask

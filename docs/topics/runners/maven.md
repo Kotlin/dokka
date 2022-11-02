@@ -3,7 +3,7 @@
 To generate documentation for Maven-based projects, you can use [Dokka Maven plugin](#applying-the-plugin).
 
 > Compared to the [Gradle plugin](gradle.md), Maven plugin has only basic features and 
-> **does not support multiplatform projects**.
+> does not provide support for multimodule builds out of the box.
 > 
 {type="note"}
 
@@ -35,17 +35,18 @@ To apply the plugin, you need to add it to the plugins section of your POM:
 
 Following goals are provided by the plugin:
 
-| **Goal** | **Description**                                                                             |
-|-----------------------|---------------------------------------------------------------------------------------------|
-| `dokka:dokka`         | Generates documentation with Dokka plugins applied. [HTML](html.md) format by default.      |
-| `dokka:javadoc`       | Generates documentation in [Javadoc](javadoc.md) format.                                    |
-| `dokka:javadocJar`    | Generates a `javadoc.jar` file that contains documentation in [Javadoc](javadoc.md) format. |
+### Stable
 
-> Unlike [Gradle plugin](gradle.md#building-javadoc-jar), Maven plugin only comes with [HTML](html.md) format built in
-> and does not provide any separate goals to generate documentation in other formats. In order to do that, you will have
-> to [apply other formats as Dokka plugins](#other-output-formats) and re-run `dokka:dokka` goal.
-> 
-{type="note"}
+| **Goal**      | **Description**                                                                        |
+|---------------|----------------------------------------------------------------------------------------|
+| `dokka:dokka` | Generates documentation with Dokka plugins applied. [HTML](html.md) format by default. |
+
+### Experimental
+
+| **Goal**           | **Description**                                                                             |
+|--------------------|---------------------------------------------------------------------------------------------|
+| `dokka:javadoc`    | Generates documentation in [Javadoc](javadoc.md) format.                                    |
+| `dokka:javadocJar` | Generates a `javadoc.jar` file that contains documentation in [Javadoc](javadoc.md) format. |
 
 ### Other output formats
 
@@ -54,7 +55,8 @@ By default, Maven plugin will build documentation in [HTML](html.md) format.
 All other output formats come as [Dokka plugins](plugins_introduction.md). In order to use it, you have to apply
 it as a dependency.
 
-For example, for [GFM](markdown.md#gfm) format, you have to use apply `org.jetbrains.dokka:gfm-plugin` in the following way:
+For example, to use experimental [GFM](markdown.md#gfm) format, you have to apply `org.jetbrains.dokka:gfm-plugin` in 
+the following way:
 
 ```xml
 <plugin>

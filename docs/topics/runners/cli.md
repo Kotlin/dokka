@@ -116,12 +116,12 @@ See [JSON configuration options](#json-configuration) for more details.
 
 ### Other output formats
 
-By default, `dokka-base` artifact contains [HTML](html.md) format only. 
+By default, `dokka-base` artifact contains stable [HTML](html.md) format only. 
 
 All other output formats come as [Dokka plugins](plugins_introduction.md). In order to use them, you have to put it
 on plugins classpath.
 
-For example, if you want to generate documentation in [GFM](markdown.md#gfm) format, you have to download and
+For example, if you want to generate documentation in experimental [GFM](markdown.md#gfm) format, you have to download and
 pass [gfm-plugin's jar](https://mvnrepository.com/artifact/org.jetbrains.dokka/gfm-plugin/%dokkaVersion%) into 
 `pluginsClasspath` configuration option.
 

@@ -22,6 +22,11 @@ dependencies {
 }
 ```
 
+> When documenting [multi-project](gradle.md#multi-project-builds) builds, you need to apply versioning plugin in
+> subprojects as well as in their parent project.
+>
+{type="note"}
+
 </tab>
 <tab title="Groovy" group-key="groovy">
 
@@ -30,6 +35,11 @@ dependencies {
     dokkaHtmlPlugin 'org.jetbrains.dokka:versioning-plugin:%dokkaVersion%'
 }
 ```
+
+> When documenting [multi-project](gradle.md#multi-project-builds) builds, you need to apply versioning plugin in
+> subprojects as well as in their parent project.
+>
+{type="note"}
 
 </tab>
 <tab title="Maven" group-key="mvn">
@@ -90,7 +100,7 @@ Via [JSON configuration](cli.md#running-with-json-configuration):
 
 Versioning plugin has a number of optional configuration properties:
 
-| **Task**                             | **Description**                                                                                                                                                                               |
+| **Property**                         | **Description**                                                                                                                                                                               |
 |--------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `version`                            | Version of your application/library for which documentation is going to be generated. This will be the version in the dropdown menu.                                                          |
 | `versionsOrdering`                   | Optional list of strings that represents the order in which versions should appear in the dropdown. Must match version string exactly. First item of the list is the topmost in the dropdown. |
@@ -242,9 +252,9 @@ Alternatively, via JSON configuration:
 
 With versioning plugin applied and configured, no other steps are needed: documentation can be built the usual way.
 
-Versioning plugin will add a `version.json` file to the output folder. This file will be used by the plugin to match
-versions and generate version navigation. If your previously generated documentation does not have that file, you
-may need to re-generate it.
+Among other things, versioning plugin will add a `version.json` file to the output folder. This file will be used by the
+plugin to match versions and generate version navigation. If your previously generated documentation does not have that
+file, you will need to re-generate documentation for such versions -- adding just the file will not work.
 
 Versioning plugin will also bundle all other documentation versions that have been passed through `olderVersionsDir` 
 and `olderVersions` configuration properties by putting them inside `older` directory.
