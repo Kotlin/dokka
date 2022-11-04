@@ -6,9 +6,6 @@ import org.gradle.api.Project
 import org.gradle.api.artifacts.Dependency
 import org.gradle.kotlin.dsl.register
 import org.gradle.util.GradleVersion
-import org.gradle.kotlin.dsl.*
-import org.jetbrains.dokka.gradle.services.DokkaExecutorService
-import org.jetbrains.dokka.utilities.LoggingLevel
 
 open class DokkaPlugin : Plugin<Project> {
     override fun apply(project: Project) {
@@ -37,8 +34,6 @@ open class DokkaPlugin : Plugin<Project> {
             plugins.dependencies.add(project.dokkaArtifacts.jekyllPlugin)
             description = "Generates documentation in Jekyll flavored markdown format"
         }
-
-        project.setupDokkaExecutorService()
     }
 
     /**
@@ -91,22 +86,6 @@ open class DokkaPlugin : Plugin<Project> {
                 description =
                     "Generates documentation merging all subprojects '$name' tasks into one virtual module"
             }
-        }
-    }
-
-    private fun Project.setupDokkaExecutorService() {
-        val registeredDokkaService =
-            gradle.sharedServices.registerIfAbsent("dokkaExecutorService", DokkaExecutorService::class) {
-                parameters {
-                    dokkaGeneratorClass.set("org.jetbrains.dokka.DokkaGeneratorMainRunnerKt")
-                    defaultLoggingLevel.convention(LoggingLevel.PROGRESS)
-                }
-                maxParallelUsages.set(1)
-            }
-
-        tasks.withType<AbstractDokkaTask>().configureEach {
-            dokkaExecutorService.convention(registeredDokkaService)
-            usesService(registeredDokkaService)
         }
     }
 }

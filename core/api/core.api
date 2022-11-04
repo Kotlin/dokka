@@ -225,10 +225,6 @@ public final class org/jetbrains/dokka/DokkaGenerator {
 	public static synthetic fun initializePlugins$default (Lorg/jetbrains/dokka/DokkaGenerator;Lorg/jetbrains/dokka/DokkaConfiguration;Lorg/jetbrains/dokka/utilities/DokkaLogger;Ljava/util/List;ILjava/lang/Object;)Lorg/jetbrains/dokka/plugability/DokkaContext;
 }
 
-public final class org/jetbrains/dokka/DokkaGeneratorMainRunnerKt {
-	public static final fun main ([Ljava/lang/String;)V
-}
-
 public final class org/jetbrains/dokka/DokkaModuleDescriptionImpl : org/jetbrains/dokka/DokkaConfiguration$DokkaModuleDescription {
 	public fun <init> (Ljava/lang/String;Ljava/io/File;Ljava/util/Set;Ljava/io/File;)V
 	public final fun component1 ()Ljava/lang/String;
