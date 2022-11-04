@@ -275,9 +275,14 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                 link(p.name, p.dri, styles = mainStyles + p.stylesIfDeprecated(sourceSet))
                 operator(": ")
                 signatureForProjection(p.type)
-                defaultValueAssign(p, sourceSet)
+
+                if (p.isNotMutable()) {
+                    defaultValueAssign(p, sourceSet)
+                }
             }
         }
+
+    private fun DProperty.isNotMutable(): Boolean = !isMutable()
 
     private fun DProperty.isMutable(): Boolean {
         return this.extra[IsVar] != null || this.setter != null
@@ -304,24 +309,28 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                 annotationsBlock(f)
                 f.visibility[sourceSet]?.takeIf { it !in ignoredVisibilities }?.name?.let { keyword("$it ") }
                 if (f.isExpectActual) keyword(if (sourceSet == f.expectPresentInSet) "expect " else "actual ")
-                f.modifier[sourceSet]?.takeIf { it !in ignoredModifiers }?.let {
-                    if (it is JavaModifier.Empty) KotlinModifier.Open else it
-                }?.name?.let { keyword("$it ") }
-                f.modifiers()[sourceSet]?.toSignatureString()?.let { keyword(it) }
-                keyword("fun ")
-                val usedGenerics = if (f.isConstructor) f.generics.filter { f uses it } else f.generics
-                list(usedGenerics, prefix = "<", suffix = "> ",
-                    separatorStyles = mainStyles + TokenStyle.Punctuation,
-                    surroundingCharactersStyle = mainStyles + TokenStyle.Operator) {
-                    annotationsInline(it)
-                    +buildSignature(it)
+                if (f.isConstructor) {
+                    keyword("constructor")
+                } else {
+                    f.modifier[sourceSet]?.takeIf { it !in ignoredModifiers }?.let {
+                        if (it is JavaModifier.Empty) KotlinModifier.Open else it
+                    }?.name?.let { keyword("$it ") }
+                    f.modifiers()[sourceSet]?.toSignatureString()?.let { keyword(it) }
+                    keyword("fun ")
+                    list(
+                        f.generics, prefix = "<", suffix = "> ",
+                        separatorStyles = mainStyles + TokenStyle.Punctuation,
+                        surroundingCharactersStyle = mainStyles + TokenStyle.Operator
+                    ) {
+                        annotationsInline(it)
+                        +buildSignature(it)
+                    }
+                    f.receiver?.also {
+                        signatureForProjection(it.type)
+                        punctuation(".")
+                    }
+                    link(f.name, f.dri, styles = mainStyles + TokenStyle.Function + f.stylesIfDeprecated(sourceSet))
                 }
-                f.receiver?.also {
-                    signatureForProjection(it.type)
-                    punctuation(".")
-                }
-                link(f.name, f.dri, styles = mainStyles + TokenStyle.Function + f.stylesIfDeprecated(sourceSet))
-
                 // for a function, opening and closing parentheses must be present
                 // anyway, even if it has no parameters, resulting in `fun test(): R`
                 punctuation("(")
