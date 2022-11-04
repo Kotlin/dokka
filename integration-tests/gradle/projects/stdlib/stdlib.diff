@@ -37,7 +37,7 @@ diff --git a/build.gradle b/build.gradle
 index aa8f21b..dd6a2ae 100644
 --- a/build.gradle
 +++ b/build.gradle
-@@ -1,80 +1,444 @@
+@@ -1,80 +1,445 @@
 +import org.jetbrains.dokka.Platform
 +
  plugins {
@@ -76,7 +76,8 @@ index aa8f21b..dd6a2ae 100644
  
  dependencies {
 -  dokka "org.jetbrains.dokka:dokka-fatjar:$dokka_version"
-+  dokkaPlugin project(":dokka-samples-transformer-plugin")
++  dokkaPlugin project(":plugins:dokka-samples-transformer-plugin")
++  dokkaPlugin project(":plugins:dokka-stdlib-configuration-plugin")
  }
 
 -final File dokkaHome = new File(buildDir, "dokka-home")
@@ -559,7 +560,7 @@ diff --git a/settings.gradle b/settings.gradle
 index 5209245..bd38b18 100644
 --- a/settings.gradle
 +++ b/settings.gradle
-@@ -1,5 +1,19 @@
+@@ -1,5 +1,20 @@
 +pluginManagement {
 +    resolutionStrategy {
 +        eachPlugin {
@@ -579,4 +580,5 @@ index 5209245..bd38b18 100644
  include 'kotlin_native'
  include 'kotlin_big'
 -include 'ant'
-+include 'dokka-samples-transformer-plugin'
++include 'plugins:dokka-samples-transformer-plugin'
++include 'plugins:dokka-stdlib-configuration-plugin'
