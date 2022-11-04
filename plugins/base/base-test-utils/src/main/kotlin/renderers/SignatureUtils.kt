@@ -11,6 +11,7 @@ fun TestOutputWriter.renderedContent(path: String = "root/example.html"): Elemen
         .single()
 
 fun Element.signature(): Elements = select("div.symbol.monospace")
+fun Element.tab(tabName: String): Elements = select("div[data-togglable=\"$tabName\"]")
 fun Element.firstSignature(): Element = signature().first() ?: throw NoSuchElementException("No signature found")
 fun Element.lastSignature(): Element = signature().last() ?: throw NoSuchElementException("No signature found")
 
