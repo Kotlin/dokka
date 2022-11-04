@@ -1,6 +1,8 @@
 package org.jetbrains.dokka.base.transformers.pages.annotations
 
+import com.intellij.util.containers.ComparatorUtil.max
 import org.intellij.markdown.MarkdownElementTypes
+import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.*
@@ -11,6 +13,7 @@ import org.jetbrains.dokka.model.doc.Text
 import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.transformers.documentation.DocumentableTransformer
+import org.jetbrains.dokka.utilities.associateWithNotNull
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 
 class SinceKotlinTransformer(val context: DokkaContext) : DocumentableTransformer {
@@ -31,7 +34,6 @@ class SinceKotlinTransformer(val context: DokkaContext) : DocumentableTransforme
 
         override fun toString(): String = parts.joinToString(".")
     }
-
     private val minSinceKotlin = mapOf(
         Platform.common to Version("1.2"),
         Platform.jvm to Version("1.0"),
@@ -41,8 +43,9 @@ class SinceKotlinTransformer(val context: DokkaContext) : DocumentableTransforme
 
     override fun invoke(original: DModule, context: DokkaContext) = original.transform() as DModule
 
-    private fun <T : Documentable> T.transform(): Documentable =
-        when (this) {
+    private fun <T : Documentable> T.transform(parent: SourceSetDependent<Version>? = null): Documentable {
+        val versions = calculateVersions(parent)
+        return when (this) {
             is DModule -> copy(
                 packages = packages.map { it.transform() as DPackage }
             )
@@ -55,71 +58,89 @@ class SinceKotlinTransformer(val context: DokkaContext) : DocumentableTransforme
             )
 
             is DClass -> copy(
-                documentation = appendSinceKotlin(),
-                classlikes = classlikes.map { it.transform() as DClasslike },
-                functions = functions.map { it.transform() as DFunction },
-                properties = properties.map { it.transform() as DProperty }
+                documentation = appendSinceKotlin(versions),
+                classlikes = classlikes.map { it.transform(versions) as DClasslike },
+                functions = functions.map { it.transform(versions) as DFunction },
+                properties = properties.map { it.transform(versions) as DProperty }
             )
 
             is DEnum -> copy(
-                documentation = appendSinceKotlin(),
-                classlikes = classlikes.map { it.transform() as DClasslike },
-                functions = functions.map { it.transform() as DFunction },
-                properties = properties.map { it.transform() as DProperty }
+                documentation = appendSinceKotlin(versions),
+                classlikes = classlikes.map { it.transform(versions) as DClasslike },
+                functions = functions.map { it.transform(versions) as DFunction },
+                properties = properties.map { it.transform(versions) as DProperty }
             )
 
             is DInterface -> copy(
-                documentation = appendSinceKotlin(),
-                classlikes = classlikes.map { it.transform() as DClasslike },
-                functions = functions.map { it.transform() as DFunction },
-                properties = properties.map { it.transform() as DProperty }
+                documentation = appendSinceKotlin(versions),
+                classlikes = classlikes.map { it.transform(versions) as DClasslike },
+                functions = functions.map { it.transform(versions) as DFunction },
+                properties = properties.map { it.transform(versions) as DProperty }
             )
 
             is DObject -> copy(
-                documentation = appendSinceKotlin(),
-                classlikes = classlikes.map { it.transform() as DClasslike },
-                functions = functions.map { it.transform() as DFunction },
-                properties = properties.map { it.transform() as DProperty }
+                documentation = appendSinceKotlin(versions),
+                classlikes = classlikes.map { it.transform(versions) as DClasslike },
+                functions = functions.map { it.transform(versions) as DFunction },
+                properties = properties.map { it.transform(versions) as DProperty }
             )
 
             is DTypeAlias -> copy(
-                documentation = appendSinceKotlin()
+                documentation = appendSinceKotlin(versions)
             )
 
             is DAnnotation -> copy(
-                documentation = appendSinceKotlin(),
-                classlikes = classlikes.map { it.transform() as DClasslike },
-                functions = functions.map { it.transform() as DFunction },
-                properties = properties.map { it.transform() as DProperty }
+                documentation = appendSinceKotlin(versions),
+                classlikes = classlikes.map { it.transform(versions) as DClasslike },
+                functions = functions.map { it.transform(versions) as DFunction },
+                properties = properties.map { it.transform(versions) as DProperty }
             )
 
             is DFunction -> copy(
-                documentation = appendSinceKotlin()
+                documentation = appendSinceKotlin(versions)
             )
 
             is DProperty -> copy(
-                documentation = appendSinceKotlin()
+                documentation = appendSinceKotlin(versions)
             )
 
             is DParameter -> copy(
-                documentation = appendSinceKotlin()
+                documentation = appendSinceKotlin(versions)
             )
 
             else -> this.also { context.logger.warn("Unrecognized documentable $this while SinceKotlin transformation") }
         }
+    }
 
-    private fun Documentable.appendSinceKotlin() =
+    private fun Documentable.getVersion(sourceSet: DokkaConfiguration.DokkaSourceSet): Version? {
+        val annotatedVersion =
+            safeAs<WithExtraProperties<Documentable>>()?.extra?.get(Annotations)?.directAnnotations?.get(sourceSet)
+                ?.find {
+                    it.dri == DRI("kotlin", "SinceKotlin")
+                }?.params?.get("version").safeAs<StringValue>()?.value
+
+        val version = annotatedVersion?.let {
+            Version(annotatedVersion.dropWhile { it == '"' }.dropLastWhile { it == '"' })
+        }?.takeIf { version -> minSinceKotlin[sourceSet.analysisPlatform]?.let { version >= it } ?: true }
+            ?: minSinceKotlin[sourceSet.analysisPlatform]
+        return version
+    }
+
+    private fun Documentable.calculateVersions(parent: SourceSetDependent<Version>?): SourceSetDependent<Version> {
+        return sourceSets.associateWithNotNull { sourceSet ->
+            val version = getVersion(sourceSet)
+            val parentVersion = parent?.get(sourceSet)
+            if(version != null && parentVersion != null)
+                 max(version, parentVersion)
+            else
+             version
+        }
+    }
+
+    private fun Documentable.appendSinceKotlin(versions: SourceSetDependent<Version>) =
         sourceSets.fold(documentation) { acc, sourceSet ->
-            val annotatedVersion =
-                safeAs<WithExtraProperties<Documentable>>()?.extra?.get(Annotations)?.directAnnotations?.get(sourceSet)
-                    ?.find {
-                        it.dri == DRI("kotlin", "SinceKotlin")
-                    }?.params?.get("version").safeAs<StringValue>()?.value
 
-            val version = annotatedVersion?.let {
-                Version(annotatedVersion.dropWhile { it == '"' }.dropLastWhile { it == '"' })
-            }?.takeIf { version -> minSinceKotlin[sourceSet.analysisPlatform]?.let { version >= it } ?: true }
-                ?: minSinceKotlin[sourceSet.analysisPlatform]
+            val version = versions[sourceSet]
 
             val customTag = CustomTagWrapper(
                 CustomDocTag(

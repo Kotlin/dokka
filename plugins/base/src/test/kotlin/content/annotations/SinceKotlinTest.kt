@@ -80,6 +80,51 @@ class SinceKotlinTest : AbstractRenderingTest() {
     }
 
     @Test
+    fun `should propagate SinceKotlin`() {
+        val configuration =   dokkaConfiguration {
+            extraOptions = listOf("-XXSinceKotlin")
+            sourceSets {
+                sourceSet {
+                    sourceRoots = listOf("src/")
+                    analysisPlatform = "jvm"
+                }
+            }
+        }
+        testInline(
+            """
+            |/src/main/kotlin/test/source.kt
+            |package test
+            |
+            |@SinceKotlin("1.5")
+            |class A {
+            |   fun ring(abc: String): String {
+            |       return "My precious " + abc
+            |   }
+            |}
+        """.trimIndent(), configuration
+        ) {
+            documentablesTransformationStage = { module ->
+                @Suppress("UNCHECKED_CAST") val funcs = module.children.single { it.name == "test" }
+                    .children.single { it.name == "A" }
+                    .children.filter { it.name == "ring" && it is DFunction } as List<DFunction>
+                with(funcs) {
+                    val sinceKotlin = mapOf(
+                        Platform.jvm to Version("1.5"),
+                    )
+
+                    for(i in sinceKotlin) {
+                        val tag =
+                            find { it.sourceSets.first().analysisPlatform == i.key }?.documentation?.values?.first()
+                                ?.dfs { it is CustomTagWrapper && it.name == "Since Kotlin" }
+                                .assertNotNull("SinceKotlin[${i.key}]")
+                        assertEquals((tag.children.first() as Text).body, i.value.toString())
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
     fun `mpp fun without SinceKotlin annotation`() {
         val configuration =   dokkaConfiguration {
             extraOptions = listOf("-XXSinceKotlin")
