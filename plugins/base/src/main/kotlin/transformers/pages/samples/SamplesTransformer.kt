@@ -25,30 +25,36 @@ import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.DescriptorToSourceUtils
 
+internal const val KOTLIN_PLAYGROUND_SCRIPT = "<script src=\"https://unpkg.com/kotlin-playground@1\"></script>"
 abstract class SamplesTransformer(val context: DokkaContext) : PageTransformer {
 
     abstract fun processBody(psiElement: PsiElement): String
     abstract fun processImports(psiElement: PsiElement): String
 
-    final override fun invoke(input: RootPageNode): RootPageNode = runBlocking(Dispatchers.Default) { // to run from thread of Dispatchers.Default
-        val analysis = setUpAnalysis(context)
-        val kotlinPlaygroundScript = "<script src=\"https://unpkg.com/kotlin-playground@1\"></script>"
+    final override fun invoke(input: RootPageNode): RootPageNode =
+        /**
+         * Run from thread of [Dispatchers.Default]. It can help to avoid a memory leaks in `ThreadLocal` (that keeps `URLCLassLoader`)
+         * since we shut down Dispatchers.Default in the end of each task.
+         * Currently, all `ThreadLocal`s are in a compiler/IDE codebase.
+         */
+        runBlocking(Dispatchers.Default) {
+            val analysis = setUpAnalysis(context)
 
-        input.transformContentPagesTree { page ->
-            val samples = (page as? WithDocumentables)?.documentables?.flatMap {
-                it.documentation.entries.flatMap { entry ->
-                    entry.value.children.filterIsInstance<Sample>().map { entry.key to it }
+            input.transformContentPagesTree { page ->
+                val samples = (page as? WithDocumentables)?.documentables?.flatMap {
+                    it.documentation.entries.flatMap { entry ->
+                        entry.value.children.filterIsInstance<Sample>().map { entry.key to it }
+                    }
                 }
-            }
 
-            samples?.fold(page as ContentPage) { acc, (sampleSourceSet, sample) ->
-                acc.modified(
-                    content = acc.content.addSample(page, sampleSourceSet, sample.name, analysis),
-                    embeddedResources = acc.embeddedResources + kotlinPlaygroundScript
-                )
-            } ?: page
+                samples?.fold(page as ContentPage) { acc, (sampleSourceSet, sample) ->
+                    acc.modified(
+                        content = acc.content.addSample(page, sampleSourceSet, sample.name, analysis),
+                        embeddedResources = acc.embeddedResources + KOTLIN_PLAYGROUND_SCRIPT
+                    )
+                } ?: page
+            }
         }
-    }
 
     private fun setUpAnalysis(context: DokkaContext) = context.configuration.sourceSets.associateWith { sourceSet ->
         if (sourceSet.samples.isEmpty()) context.plugin<DokkaBase>()

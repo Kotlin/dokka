@@ -5,7 +5,13 @@ import org.junit.runners.Parameterized.Parameters
 import java.io.File
 import kotlin.test.*
 
-class Stress0IntegrationTest(override val versions: BuildVersions) : AbstractGradleIntegrationTest() {
+/**
+ *  Creates 100 tasks for the test project and runs them sequentially under low memory settings.
+ *
+ *  If the test passes, it's likely there are no noticeable memory leaks.
+ *  If it fails, it's likely that memory is leaking somewhere.
+ */
+class SequentialTasksExecutionStressTest(override val versions: BuildVersions) : AbstractGradleIntegrationTest() {
 
     companion object {
         @get:JvmStatic
@@ -15,7 +21,7 @@ class Stress0IntegrationTest(override val versions: BuildVersions) : AbstractGra
 
     @BeforeTest
     fun prepareProjectFiles() {
-        val templateProjectDir = File("projects", "it-stress-0")
+        val templateProjectDir = File("projects", "it-sequential-tasks-execution-stress")
 
         templateProjectDir.listFiles().orEmpty()
             .filter { it.isFile }
@@ -26,11 +32,10 @@ class Stress0IntegrationTest(override val versions: BuildVersions) : AbstractGra
 
     @Test
     fun execute() {
-       //if(!TestEnvironment.isExhaustive) return
         val result = createGradleRunner(
             "runTasks",
-            "-i",
-            "-s",
+            "--info",
+            "--stacktrace",
             "-Ptask_number=100",
             jvmArgs = listOf("-Xmx1G", "-XX:MaxMetaspaceSize=350m")
         ).buildRelaxed()

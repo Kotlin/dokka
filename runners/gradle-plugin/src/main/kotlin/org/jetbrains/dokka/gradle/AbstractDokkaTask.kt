@@ -89,7 +89,10 @@ abstract class AbstractDokkaTask : DefaultTask() {
     internal open fun generateDocumentation() {
         DokkaBootstrap(runtime, DokkaBootstrapImpl::class).apply {
             configure(buildDokkaConfiguration().toJsonString(), createProxyLogger())
-            // run in a new thread to avoid memory leaks that are related to ThreadLocal
+            /**
+             * Run in a new thread to avoid memory leaks that are related to ThreadLocal (that keeps `URLCLassLoader`)
+             * Currently, all `ThreadLocal`s are in a compiler/IDE codebase.
+             */
             Thread { generate() }.apply {
                 start()
                 join()
