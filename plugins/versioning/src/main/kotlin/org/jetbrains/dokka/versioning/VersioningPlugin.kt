@@ -28,7 +28,7 @@ class VersioningPlugin : DokkaPlugin() {
         dokkaBase.immediateHtmlCommandConsumer providing ::ReplaceVersionCommandConsumer override dokkaBase.replaceVersionConsumer
     }
     val cssStyleInstaller by extending {
-        dokkaBase.htmlPreprocessors providing ::MultiModuleStylesInstaller order {
+        dokkaBase.htmlPreprocessors providing ::ResourcesInstaller order {
             after(dokkaBase.assetsInstaller)
             before(dokkaBase.customResourceInstaller)
         }

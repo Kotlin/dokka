@@ -3,7 +3,6 @@ package org.jetbrains.dokka.versioning
 import kotlinx.html.a
 import kotlinx.html.div
 import kotlinx.html.stream.appendHTML
-import org.jetbrains.dokka.base.renderers.html.strike
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.configuration
 import org.jetbrains.dokka.plugability.plugin
@@ -68,9 +67,13 @@ class HtmlVersionsNavigationCreator(private val context: DokkaContext) : Version
                                     else
                                         versioningStorage.currentVersion.dir.resolve("not-found-version.html")
 
-                                a(href = absolutePath?.toRelativeString(position) +
-                                        if (!isExistsFile) "?v=" + version.urlEncoded() else "") {
-                                        text(version)
+                                val href =
+                                    absolutePath?.toRelativeString(position) + if (!isExistsFile) "?v=" + version.urlEncoded() else ""
+                                a(
+                                    href = href,
+                                    classes = if (!isExistsFile) "unavailable-version" else null
+                                ) {
+                                    text(version)
                                 }
                             }
                         }
