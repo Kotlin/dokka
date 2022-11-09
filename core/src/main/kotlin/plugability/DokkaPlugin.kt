@@ -9,6 +9,11 @@ import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
 
+@RequiresOptIn(level = RequiresOptIn.Level.WARNING, message = "The Plugin API is experimental. It can be incompatibly changed in the future.")
+@Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION, AnnotationTarget.FIELD)
+@Retention(AnnotationRetention.BINARY)
+annotation class ExperimentalDokkaPluginApi
+
 abstract class DokkaPlugin {
     private val extensionDelegates = mutableListOf<KProperty<*>>()
     private val unsafePlugins = mutableListOf<Lazy<Extension<*, *, *>>>()
@@ -25,8 +30,10 @@ abstract class DokkaPlugin {
         )
     }
 
+    @OptIn(ExperimentalDokkaPluginApi::class)
     protected fun <T : Any> extending(definition: ExtendingDSL.() -> Extension<T, *, *>) = ExtensionProvider(definition)
 
+    @ExperimentalDokkaPluginApi
     protected class ExtensionProvider<T : Any> internal constructor(
         private val definition: ExtendingDSL.() -> Extension<T, *, *>
     ) {
@@ -56,15 +63,18 @@ interface WithUnsafeExtensionSuppression {
 
 interface ConfigurableBlock
 
+@ExperimentalDokkaPluginApi
 inline fun <reified P : DokkaPlugin, reified E : Any> P.query(extension: P.() -> ExtensionPoint<E>): List<E> =
     context?.let { it[extension()] } ?: throwIllegalQuery()
 
+@ExperimentalDokkaPluginApi
 inline fun <reified P : DokkaPlugin, reified E : Any> P.querySingle(extension: P.() -> ExtensionPoint<E>): E =
     context?.single(extension()) ?: throwIllegalQuery()
 
 fun throwIllegalQuery(): Nothing =
     throw IllegalStateException("Querying about plugins is only possible with dokka context initialised")
 
+@ExperimentalDokkaPluginApi
 inline fun <reified T : DokkaPlugin, reified R : ConfigurableBlock> configuration(context: DokkaContext): R? =
     context.configuration.pluginsConfiguration.firstOrNull { it.fqPluginName == T::class.qualifiedName }
         ?.let { configuration ->
