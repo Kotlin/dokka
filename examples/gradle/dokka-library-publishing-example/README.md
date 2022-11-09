@@ -13,7 +13,7 @@ both HTML and Javadoc formats as demonstrated by
 
 ## Running
 
-Run `dokkaHtml` task in order to generate documentation for this example:
+Run `dokkaHtml` task to generate documentation for this example:
 
 ```bash
 ./gradlew dokkaHtml

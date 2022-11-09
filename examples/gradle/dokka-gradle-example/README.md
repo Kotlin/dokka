@@ -15,7 +15,7 @@ You can see up-to-date documentation generated for this example on
 
 ### Running
 
-Run `dokkaHtml` task in order to generate documentation for this example:
+Run `dokkaHtml` task to generate documentation for this example:
 
 ```bash
 ./gradlew dokkaHtml

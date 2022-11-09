@@ -10,7 +10,7 @@ You can see up-to-date documentation generated for this example on
 
 ### Running
 
-Run `dokkaHtml` task in order to generate documentation with the custom logo in place:
+Run `dokkaHtml` task to generate documentation with the custom logo in place:
 
 ```bash
 ./gradlew dokkaHtml

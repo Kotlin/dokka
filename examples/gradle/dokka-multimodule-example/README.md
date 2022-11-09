@@ -1,6 +1,6 @@
 # Dokka MultiModule example
 
-This example demonstrates how to apply and configure Dokka in a  
+This example demonstrates how to apply and configure Dokka in a 
 [multi-project build](https://docs.gradle.org/current/userguide/multi_project_builds.html).
 
 You can also learn how to set Dokka's version in [gradle.properties](gradle.properties) using `pluginManagement` 
@@ -15,7 +15,7 @@ You can see up-to-date documentation generated for this example on
 
 ### Running
 
-Run `dokkaHtmlMultiModule` task in order to generate documentation for this example:
+Run `dokkaHtmlMultiModule` task to generate documentation for this example:
 
 ```bash
 ./gradlew dokkaHtmlMultiModule

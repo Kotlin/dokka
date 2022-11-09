@@ -1,6 +1,6 @@
 # GFM plugin
 
-`GFM` plugin adds the ability to generate documentation in `GitHub flavoured Markdown` format. It supports both
+`GFM` plugin adds the ability to generate documentation in `GitHub Flavoured Markdown` format. It supports both
 multimodule and multiplatform projects.
 
 GFM plugin is shipped together with Dokka Gradle Plugin, so you can start using it

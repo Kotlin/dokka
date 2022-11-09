@@ -12,19 +12,19 @@ Bug reports, feature requests and questions are welcome. Submit issues [here](ht
 
 * Search for existing issues to avoid reporting duplicates.
 * When submitting a bug report:
-   * Test it against the most recently released version. It might have been already fixed.
-   * Include the code that reproduces the problem. Provide the complete reproducer code, yet minimize it as much as 
+   * Test it against the most recently released version. It might have been fixed already.
+   * Include code that reproduces the problem. Provide a complete reproducer, yet minimize it as much as 
      possible. A separate project that can be cloned is ideal.
-   * If the bug is in behavior, then explain what behavior you've expected and what you've got.
+   * If the bug is in behavior, explain what behavior you expected and what the actual result is.
 * When submitting a feature request:
    * Explain why you need the feature.
    * Explaining the problem you face is more important than suggesting a solution.
-     Report your problem even if you don't have any proposed solution.
+     Report your problem even if you have no proposed solution.
 
 ## Submitting PRs
 
 Dokka has extensive [Developer Guides](https://kotlin.github.io/dokka/1.7.20/developer_guide/introduction/) documentation
-which goes over development [Workflow](https://kotlin.github.io/dokka/1.7.20/developer_guide/workflow/) and 
+which goes over the development [Workflow](https://kotlin.github.io/dokka/1.7.20/developer_guide/workflow/) and 
 [Dokka's architecture](https://kotlin.github.io/dokka/1.7.20/developer_guide/architecture/architecture_overview/),
 which can help you understand how to achieve what you want and where to look.
 
@@ -37,12 +37,12 @@ For any code changes:
   Use 4 spaces for indentation.
 * [Build the project](#building) to make sure it all works and tests pass.
 * Write tests that reproduce the bug or test new features.
-* PRs without tests are accepted only in exceptional circumstances if it can be shown that writing the
+* PRs without tests are accepted only in exceptional circumstances if it is evident that writing the
   corresponding test is too hard or otherwise impractical.
 * If you add new or change old public API, [update public API dump](#updating-public-api-dump), otherwise it will fail 
   the build.
 
-Please [contact maintainers](#contacting-maintainers) to coordinate any big piece of work in advance.
+Please [contact maintainers](#contacting-maintainers) in advance to coordinate any big piece of work.
 
 ### Building
 
@@ -58,15 +58,15 @@ Unit tests which are run as part of `build` should not take much time, but you c
 
 ### Using/testing locally built Dokka
 
-Below you will find bare-bones instruction on how to use and test locally built Dokka. For more details and examples, 
-visit [Workflow](https://kotlin.github.io/dokka/1.7.20/developer_guide/workflow/) documentation topic.
+Below you will find a bare-bones instruction on how to use and test locally built Dokka. For more details and examples, 
+visit [Workflow](https://kotlin.github.io/dokka/1.7.20/developer_guide/workflow/) topic.
 
 1. Change `dokka_version` in `gradle.properties` to something that you will use later on as the dependency version.
-   For example, you can set it to something like `1.7.20-my-fix-SNAPSHOT`.
-2. Publish it to maven local (`./gradlew publishToMavenLocal`)
-3. In the project you want to generate documentation for, add maven local as a plugin/dependency
+   For instance, you can set it to something like `1.7.20-my-fix-SNAPSHOT`.
+2. Publish it to Maven Local (`./gradlew publishToMavenLocal`)
+3. In the project for which you want to generate documentation add Maven Local as a buildscript/dependency
    repository (`mavenLocal()`)
-4. Update your dokka dependency to the version you've just published:
+4. Update your Dokka dependency to the version you've just published:
 
 ```kotlin
 plugins {
@@ -77,7 +77,7 @@ plugins {
 ### Updating public API dump
 
 [Binary Compatibility Validator](https://github.com/Kotlin/binary-compatibility-validator/blob/master/README.md) 
-is used to keep track of public API.
+is used to keep track of public API changes.
 
 Run `./gradlew apiDump` to update API index files after introducing new or changing old public API. Commit updated 
 API indexes together with other changes.

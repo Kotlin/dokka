@@ -9,3 +9,6 @@ Kotlin as Java plugin is published to maven central as a
 ```text
 org.jetbrains.dokka:kotlin-as-java-plugin:1.7.20
 ```
+
+**This plugin is at its early stages**, so you may experience issues and encounter bugs. Feel free to
+[report](https://github.com/Kotlin/dokka/issues/new/choose) any errors you see.

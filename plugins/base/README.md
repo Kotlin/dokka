@@ -7,11 +7,11 @@ Including, but not limited to:
 
 * Markdown and KDoc parsing.
 * Kotlin signature generation.
-* Transformers that suppress empty modules/packages, configured visibility modifiers, obvious functions 
+* Transformers that suppress empty modules/packages, unwanted visibility modifiers, obvious functions 
   (hashCode/equals/etc), and so on. 
 * Declaration link resolution (i.e linking to a class in a KDoc).
 * Support for external documentation links (i.e links to Java's Javadocs website or Kotlin's stdlib).
-* Declaration source link generation for navigation to source code.
+* Declaration source link generation for navigation to source code (a.k.a `source` button).
 * Multiplatform support.
 * Output file writers.
 

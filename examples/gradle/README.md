@@ -1,6 +1,4 @@
-# Dokka examples
-
-## Gradle
+# Gradle examples
 
 | Project                                                                             | Description                                                                                                                                                           |
 |-------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -11,15 +9,3 @@
 | [dokka-multimodule-example](gradle/dokka-multimodule-example)                       | Demonstrates how to apply and configure Dokka in a [multi-project build](https://docs.gradle.org/current/userguide/multi_project_builds.html).                        |
 | [dokka-multiplatform-example](gradle/dokka-multiplatform-example)                   | Demonstrates Dokka's configuration and output for a simple [Kotlin Multiplatform](https://kotlinlang.org/docs/multiplatform.html) project.                            |
 | [dokka-versioning-multimodule-example](gradle/dokka-versioning-multimodule-example) | Demonstrates configuration of Dokka's [versioning plugin](../../../plugins/versioning), which allows readers to navigate through different versions of documentation. |
-
-## Maven
-
-| Project        | Description                                         |
-|----------------|-----------------------------------------------------|
-| [maven](maven) | Simple Maven project with basic Dokka configuration |
-
-## Plugins
-
-| Project                                       | Description                                                                                            |
-|-----------------------------------------------|--------------------------------------------------------------------------------------------------------|
-| [hide-internal-api](plugin/hide-internal-api) | Dokka plugin that excludes declarations from generated documentation based on an `Internal` annotation |
