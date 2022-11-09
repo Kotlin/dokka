@@ -46,13 +46,6 @@ subprojects {
 }
 ```
 
-To generate documentation run the following Gradle tasks:
-
-* `dokkaHtml` for single-project builds.
-* `dokkaHtmlMultiModule` for multi-module builds.
-
-By default, output directory is set to `/build/dokka/html` and `/build/dokka/htmlMultiModule` respectively.
-
 </details>
 
 <details>
@@ -74,14 +67,14 @@ subprojects {
 }
 ```
 
+</details>
+
 To generate documentation run the following Gradle tasks:
 
 * `dokkaHtml` for single-project builds.
 * `dokkaHtmlMultiModule` for multi-module builds.
 
-By default, output directory is set to `/build/dokka/html` and `/build/dokka/htmlMultiModule`.
-
-</details>
+By default, output directory is set to `/build/dokka/html` and `/build/dokka/htmlMultiModule` respectively.
 
 Learn more about Gradle configuration in a separate [topic dedicated to Gradle](TODO). 
 
@@ -116,7 +109,7 @@ Learn more about Maven configuration in a separate [topic dedicated to Maven](TO
 ### CLI
 
 It is possible to run Dokka from command line without having to use any of the build tools, but it's more
-difficult to set up and for that reason is not covered by this Quickstart guide.
+difficult to set up and for that reason it is not covered by this Quickstart guide.
 
 Please consult [documentation for command line runner](https://kotlin.github.io/dokka/1.7.20/user_guide/applying/cli/)
 to learn how to use it.
@@ -124,7 +117,7 @@ to learn how to use it.
 ### Android
 
 In addition to applying and configuring Dokka, you can apply Dokka's 
-[Android documentation plugin](plugins/android-documentation) which aims to improve documentation experience on the 
+[Android documentation plugin](plugins/android-documentation), which aims to improve documentation experience on the 
 Android platform:
 
 <details open>
@@ -175,13 +168,13 @@ dependencies {
 
 ### HTML
 
-HTML is Dokka's default, stable and recommended format. You can see it in action by browsing documentation for 
+HTML is Dokka's default, stable and recommended output format. You can see it in action by browsing documentation for 
 [kotlinx.coroutines](https://kotlinlang.org/api/kotlinx.coroutines/).
 
 HTML format is configurable and, among other things, allows you to modify stylesheets, add custom image assets, change
 footer message and revamp the structure of generated HTML pages through templates.
 
-For more details and examples see [HTML format](TODO) topic.
+For more details and examples, see [HTML format](TODO) topic.
 
 ### Markdown
 
