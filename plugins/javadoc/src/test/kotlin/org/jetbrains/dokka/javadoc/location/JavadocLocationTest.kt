@@ -95,7 +95,7 @@ class JavadocLocationTest : BaseAbstractTest() {
                 .firstChildOfType<JavadocClasslikePageNode> { it.name == "Test" }
             val testFunctionNode = testClassNode.methods.first { it.name == "test2" }
             assertEquals(
-                """<a href=Test.html#test2(String)>test2</a>(<a href=https://docs.oracle.com/javase/8/docs/api/java/lang/String.html>String</a> s)""",
+                """<a href=Test.html#test2(java.lang.String)>test2</a>(<a href=https://docs.oracle.com/javase/8/docs/api/java/lang/String.html>String</a> s)""",
                 transformer.htmlForContentNode(
                     testFunctionNode.signature.signatureWithoutModifiers,
                     testClassNode
