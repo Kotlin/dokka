@@ -20,7 +20,7 @@ ___
 
 `Dokka` provides support for the following build systems:
 
-* [Gradle](user_guide/applying/gradle.md) (preffered)
+* [Gradle](user_guide/applying/gradle.md) (preferred)
 * [Maven](user_guide/applying/maven.md)
 * [Command line](user_guide/applying/cli.md)
 
