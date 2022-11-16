@@ -37,8 +37,7 @@ class ContentForParamsTest : BaseAbstractTest() {
         """.trimIndent(), testConfiguration
         ) {
             pagesTransformationStage = { module ->
-                val page = module.children.single { it.name == "test" }
-                    .children.single { it.name == "function" } as ContentPage
+                val page = module.findTestType("test", "function")
                 page.content.assertNode {
                     group {
                         header(1) { +"function" }
@@ -76,8 +75,7 @@ class ContentForParamsTest : BaseAbstractTest() {
         """.trimIndent(), testConfiguration
         ) {
             pagesTransformationStage = { module ->
-                val page = module.children.single { it.name == "test" }
-                    .children.single { it.name == "function" } as ContentPage
+                val page = module.findTestType("test", "function")
                 page.content.assertNode {
                     group {
                         header(1) { +"function" }
@@ -122,8 +120,7 @@ class ContentForParamsTest : BaseAbstractTest() {
         """.trimIndent(), testConfiguration
         ) {
             pagesTransformationStage = { module ->
-                val page = module.children.single { it.name == "test" }
-                    .children.single { it.name == "function" } as ContentPage
+                val page = module.findTestType("test", "function")
                 page.content.assertNode {
                     group {
                         header(1) { +"function" }
@@ -175,8 +172,7 @@ class ContentForParamsTest : BaseAbstractTest() {
             """.trimIndent(), testConfiguration
         ) {
             pagesTransformationStage = { module ->
-                val classPage =
-                    module.children.single { it.name == "sample" }.children.single { it.name == "DocGenProcessor" } as ContentPage
+                val classPage = module.findTestType("sample", "DocGenProcessor")
                 classPage.content.assertNode {
                     group {
                         header { +"DocGenProcessor" }
@@ -219,8 +215,7 @@ class ContentForParamsTest : BaseAbstractTest() {
             """.trimIndent(), testConfiguration
         ) {
             pagesTransformationStage = { module ->
-                val classPage =
-                    module.children.single { it.name == "sample" }.children.single { it.name == "DocGenProcessor" } as ContentPage
+                val classPage = module.findTestType("sample", "DocGenProcessor")
                 classPage.content.assertNode {
                     group {
                         header { +"DocGenProcessor" }
@@ -274,7 +269,7 @@ class ContentForParamsTest : BaseAbstractTest() {
         ) {
             pagesTransformationStage = { module ->
                 val classPage =
-                    module.children.single { it.name == "sample" }.children.single { it.name == "DocGenProcessor" } as ContentPage
+                    module.findTestType("sample", "DocGenProcessor")
                 classPage.content.assertNode {
                     group {
                         header { +"DocGenProcessor" }
@@ -327,7 +322,7 @@ class ContentForParamsTest : BaseAbstractTest() {
         ) {
             pagesTransformationStage = { module ->
                 val classPage =
-                    module.children.single { it.name == "sample" }.children.single { it.name == "DocGenProcessor" } as ContentPage
+                    module.findTestType("sample", "DocGenProcessor")
                 classPage.content.assertNode {
                     group {
                         header { +"DocGenProcessor" }
@@ -375,7 +370,7 @@ class ContentForParamsTest : BaseAbstractTest() {
         ) {
             pagesTransformationStage = { module ->
                 val classPage =
-                    module.children.single { it.name == "sample" }.children.single { it.name == "DocGenProcessor" } as ContentPage
+                    module.findTestType("sample", "DocGenProcessor")
                 classPage.content.assertNode {
                     group {
                         header { +"DocGenProcessor" }
@@ -436,7 +431,10 @@ class ContentForParamsTest : BaseAbstractTest() {
         ) {
             pagesTransformationStage = { module ->
                 val functionPage =
-                    module.children.single { it.name == "sample" }.children.single { it.name == "DocGenProcessor" }.children.single { it.name == "sample" } as ContentPage
+                    module.findTestType(
+                        "sample",
+                        "DocGenProcessor"
+                    ).children.single { it.name == "sample" } as ContentPage
                 functionPage.content.assertNode {
                     group {
                         header(1) { +"sample" }
@@ -492,8 +490,7 @@ class ContentForParamsTest : BaseAbstractTest() {
             """.trimIndent(), testConfiguration
         ) {
             pagesTransformationStage = { module ->
-                val functionPage =
-                    module.children.single { it.name == "sample" }.children.single { it.name == "sample" } as ContentPage
+                val functionPage = module.findTestType("sample", "sample")
                 functionPage.content.assertNode {
                     group {
                         header(1) { +"sample" }
@@ -564,7 +561,7 @@ class ContentForParamsTest : BaseAbstractTest() {
         ) {
             pagesTransformationStage = { module ->
                 val functionPage =
-                    module.children.single { it.name == "sample" }.children.single { it.name == "sample" } as ContentPage
+                    module.findTestType("sample", "sample")
                 functionPage.content.assertNode {
                     group {
                         header(1) { +"sample" }
@@ -616,7 +613,10 @@ class ContentForParamsTest : BaseAbstractTest() {
         ) {
             pagesTransformationStage = { module ->
                 val functionPage =
-                    module.children.single { it.name == "sample" }.children.single { it.name == "DocGenProcessor" }.children.single { it.name == "sample" } as ContentPage
+                    module.findTestType(
+                        "sample",
+                        "DocGenProcessor"
+                    ).children.single { it.name == "sample" } as ContentPage
                 functionPage.content.assertNode {
                     group {
                         header(1) { +"sample" }
@@ -693,7 +693,7 @@ class ContentForParamsTest : BaseAbstractTest() {
         ) {
             pagesTransformationStage = { module ->
                 val classPage =
-                    module.children.single { it.name == "sample" }.children.single { it.name == "DocGenProcessor" } as ContentPage
+                    module.findTestType("sample", "DocGenProcessor")
                 classPage.content.assertNode {
                     group {
                         header { +"DocGenProcessor" }
@@ -742,7 +742,10 @@ class ContentForParamsTest : BaseAbstractTest() {
         ) {
             pagesTransformationStage = { module ->
                 val functionPage =
-                    module.children.single { it.name == "sample" }.children.single { it.name == "DocGenProcessor" }.children.single { it.name == "sample" } as ContentPage
+                    module.findTestType(
+                        "sample",
+                        "DocGenProcessor"
+                    ).children.single { it.name == "sample" } as ContentPage
                 functionPage.content.assertNode {
                     group {
                         header(1) { +"sample" }
@@ -799,8 +802,7 @@ class ContentForParamsTest : BaseAbstractTest() {
             """.trimIndent(), testConfiguration
         ) {
             pagesTransformationStage = { module ->
-                val functionPage =
-                    module.children.single { it.name == "sample" }.children.single { it.name == "sample" } as ContentPage
+                val functionPage = module.findTestType("sample", "sample")
                 functionPage.content.assertNode {
                     group {
                         header(1) { +"sample" }
@@ -853,8 +855,7 @@ class ContentForParamsTest : BaseAbstractTest() {
             """.trimIndent(), testConfiguration
         ) {
             pagesTransformationStage = { module ->
-                val classPage =
-                    module.children.single { it.name == "sample" }.children.single { it.name == "DocGenProcessor" } as ContentPage
+                val classPage = module.findTestType("sample", "DocGenProcessor")
                 classPage.content.assertNode {
                     group {
                         header { +"DocGenProcessor" }
@@ -919,7 +920,7 @@ class ContentForParamsTest : BaseAbstractTest() {
         ) {
             pagesTransformationStage = { module ->
                 val classPage =
-                    module.children.single { it.name == "sample" }.children.single { it.name == "DocGenProcessor" } as ContentPage
+                    module.findTestType("sample", "DocGenProcessor")
                 classPage.content.assertNode {
                     group {
                         header { +"DocGenProcessor" }
@@ -980,8 +981,7 @@ class ContentForParamsTest : BaseAbstractTest() {
         """.trimIndent(), testConfiguration
         ) {
             pagesTransformationStage = { module ->
-                val page = module.children.single { it.name == "test" }
-                    .children.single { it.name == "function" } as ContentPage
+                val page = module.findTestType("test", "function")
                 page.content.assertNode {
                     group {
                         header(1) { +"function" }
@@ -1027,8 +1027,7 @@ class ContentForParamsTest : BaseAbstractTest() {
         """.trimIndent(), testConfiguration
         ) {
             pagesTransformationStage = { module ->
-                val page = module.children.single { it.name == "test" }
-                    .children.single { it.name == "function" } as ContentPage
+                val page = module.findTestType("test", "function")
                 page.content.assertNode {
                     group {
                         header(1) { +"function" }
@@ -1068,6 +1067,56 @@ class ContentForParamsTest : BaseAbstractTest() {
     }
 
     @Test
+    fun `single parameter in class`() {
+        testInline(
+            """
+            |/src/main/kotlin/test/source.kt
+            |package test
+            | /**
+            |  * comment to class
+            |  * @param abc comment to param
+            |  */
+            |class Foo(abc: String)
+        """.trimIndent(), testConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val page = module.findTestType("test", "Foo")
+                println(page.content)
+                page.content.assertNode {
+                    group {
+                        header(1) { +"Foo" }
+                        platformHinted {
+                            classSignature(
+                                emptyMap(),
+                                "",
+                                "",
+                                emptySet(),
+                                "Foo",
+                                "abc" to ParamAttributes(emptyMap(), emptySet(), "String")
+                            )
+                            group {
+                                pWrapped("comment to class")
+                            }
+                            header(4) { +"Parameters" }
+                            table {
+                                group {
+                                    +"abc"
+                                    check {
+                                        val textStyles = children.single { it is ContentText }.style
+                                        assertContains(textStyles, TextStyle.Underlined)
+                                    }
+                                    group { group { +"comment to param" } }
+                                }
+                            }
+                        }
+                    }
+                    skipAllNotMatching()
+                }
+            }
+        }
+    }
+
+    @Test
     fun `multiple parameters`() {
         testInline(
             """
@@ -1085,8 +1134,7 @@ class ContentForParamsTest : BaseAbstractTest() {
         """.trimIndent(), testConfiguration
         ) {
             pagesTransformationStage = { module ->
-                val page = module.children.single { it.name == "test" }
-                    .children.single { it.name == "function" } as ContentPage
+                val page = module.findTestType("test", "function")
                 page.content.assertNode {
                     group {
                         header(1) { +"function" }
@@ -1157,8 +1205,7 @@ class ContentForParamsTest : BaseAbstractTest() {
         """.trimIndent(), testConfiguration
         ) {
             pagesTransformationStage = { module ->
-                val page = module.children.single { it.name == "test" }
-                    .children.single { it.name == "function" } as ContentPage
+                val page = module.findTestType("test", "function")
                 page.content.assertNode {
                     group {
                         header(1) { +"function" }
@@ -1216,8 +1263,7 @@ class ContentForParamsTest : BaseAbstractTest() {
         """.trimIndent(), testConfiguration
         ) {
             pagesTransformationStage = { module ->
-                val page = module.children.single { it.name == "test" }
-                    .children.single { it.name == "function" } as ContentPage
+                val page = module.findTestType("test", "function")
                 page.content.assertNode {
                     group {
                         header(1) { +"function" }
@@ -1273,8 +1319,7 @@ class ContentForParamsTest : BaseAbstractTest() {
         """.trimIndent(), testConfiguration
         ) {
             pagesTransformationStage = { module ->
-                val page = module.children.single { it.name == "test" }
-                    .children.single { it.name == "function" } as ContentPage
+                val page = module.findTestType("test", "function")
                 page.content.assertNode {
                     group {
                         header(1) { +"function" }
@@ -1332,8 +1377,7 @@ class ContentForParamsTest : BaseAbstractTest() {
         """.trimIndent(), testConfiguration
         ) {
             pagesTransformationStage = { module ->
-                val page = module.children.single { it.name == "test" }
-                    .children.single { it.name == "function" } as ContentPage
+                val page = module.findTestType("test", "function")
                 page.content.assertNode {
                     group {
                         header(1) { +"function" }
@@ -1389,8 +1433,7 @@ class ContentForParamsTest : BaseAbstractTest() {
         """.trimIndent(), testConfiguration
         ) {
             pagesTransformationStage = { module ->
-                val page = module.children.single { it.name == "test" }
-                    .children.single { it.name == "function" } as ContentPage
+                val page = module.findTestType("test", "function")
                 page.content.assertNode {
                     group {
                         header(1) { +"function" }
