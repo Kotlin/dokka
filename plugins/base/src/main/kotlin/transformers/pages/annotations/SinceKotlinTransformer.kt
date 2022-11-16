@@ -4,7 +4,6 @@ import com.intellij.util.containers.ComparatorUtil.max
 import org.intellij.markdown.MarkdownElementTypes
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.Platform
-import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.doc.CustomDocTag
 import org.jetbrains.dokka.model.doc.CustomTagWrapper
@@ -34,6 +33,7 @@ class SinceKotlinTransformer(val context: DokkaContext) : DocumentableTransforme
 
         override fun toString(): String = parts.joinToString(".")
     }
+
     private val minSinceKotlin = mapOf(
         Platform.common to Version("1.2"),
         Platform.jvm to Version("1.0"),
@@ -112,28 +112,32 @@ class SinceKotlinTransformer(val context: DokkaContext) : DocumentableTransforme
         }
     }
 
-    private fun Documentable.getVersion(sourceSet: DokkaConfiguration.DokkaSourceSet): Version? {
+    private fun List<Annotations.Annotation>.findSinceKotlinAnnotation(): Annotations.Annotation? =
+        this.find { it.dri.packageName == "kotlin" && it.dri.classNames == "SinceKotlin" }
+
+    private fun Documentable.getVersion(sourceSet: DokkaConfiguration.DokkaSourceSet): Version {
         val annotatedVersion =
             safeAs<WithExtraProperties<Documentable>>()?.extra?.get(Annotations)?.directAnnotations?.get(sourceSet)
-                ?.find {
-                    it.dri == DRI("kotlin", "SinceKotlin")
-                }?.params?.get("version").safeAs<StringValue>()?.value
+                ?.findSinceKotlinAnnotation()
+                ?.params?.get("version").safeAs<StringValue>()?.value
+                ?.dropWhile { it == '"' }?.dropLastWhile { it == '"' }
+                ?.let { Version(it) }
 
-        val version = annotatedVersion?.let {
-            Version(annotatedVersion.dropWhile { it == '"' }.dropLastWhile { it == '"' })
-        }?.takeIf { version -> minSinceKotlin[sourceSet.analysisPlatform]?.let { version >= it } ?: true }
-            ?: minSinceKotlin[sourceSet.analysisPlatform]
-        return version
+        val minSinceKotlin = minSinceKotlin[sourceSet.analysisPlatform]
+            ?: throw IllegalStateException("No value for platform: ${sourceSet.analysisPlatform}")
+
+        return annotatedVersion?.takeIf { version -> version >= minSinceKotlin } ?: minSinceKotlin
     }
+
 
     private fun Documentable.calculateVersions(parent: SourceSetDependent<Version>?): SourceSetDependent<Version> {
         return sourceSets.associateWithNotNull { sourceSet ->
             val version = getVersion(sourceSet)
             val parentVersion = parent?.get(sourceSet)
-            if(version != null && parentVersion != null)
-                 max(version, parentVersion)
+            if (parentVersion != null)
+                max(version, parentVersion)
             else
-             version
+                version
         }
     }
 
