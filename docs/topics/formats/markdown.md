@@ -10,7 +10,7 @@ These formats give you more freedom in terms of hosting documentation as the out
 documentation website. For example, see [OkHttp's API reference](https://square.github.io/okhttp/4.x/okhttp/okhttp3/)
 pages.
 
-Markdown output formats are rendering [Dokka plugin](plugins_introduction.md), maintained by the Dokka team, and 
+Markdown output formats are rendering [Dokka plugins](plugins_introduction.md), maintained by the Dokka team, and 
 they are open source.
 
 ## GFM

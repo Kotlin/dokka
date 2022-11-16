@@ -111,3 +111,8 @@ Learn more about Maven configuration in a separate [topic dedicated to Maven](ma
 
 </tab>
 </tabs>
+
+## Community
+
+Dokka has a dedicated `#dokka` channel in [Kotlin Community Slack](https://surveys.jetbrains.com/s3/kotlin-slack-sign-up)
+where you can chat about Dokka itself, its plugins and how to develop them, and get in touch with maintainers.

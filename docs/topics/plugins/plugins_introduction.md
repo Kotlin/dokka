@@ -17,12 +17,14 @@ Dokka plugins are published as separate artifacts, so to apply a Dokka plugin yo
 From there, the plugin will extend Dokka by itself - no extra actions needed. 
 
 > Plugins that use the same extension points or work in a similar way can interfere with each other.
-> This may lead to visual bugs, general undefined behaviour or even failed builds. If you notice anything of that
-> nature, it's a good idea to check which plugins are applied and what they do.
+> This may lead to visual bugs, general undefined behaviour or even failed builds. However, it should not lead to 
+> concurrency issues since Dokka does not expose any mutable data structures or objects.
+> 
+> If you notice any problems of such nature, it's a good idea to check which plugins are applied and what they do.
 > 
 {type="note"}
 
-Let's have a look at how you can apply [mathjax plugin](https://github.com/Kotlin/dokka/tree/master/plugins/mathjax)
+Let's have a look at how you can apply the [mathjax plugin](https://github.com/Kotlin/dokka/tree/master/plugins/mathjax)
 to your project:
 
 <tabs group="build-script">
@@ -125,7 +127,7 @@ If you are using [JSON configuration](cli.md#running-with-json-configuration), D
 
 ## Configuring Dokka plugins
 
-Dokka plugins can also have configuration options of their own. Consult plugin's documentation to see which
+Dokka plugins can also have configuration options of their own. Consult used plugin's documentation to see which
 options are available.
 
 Let's have a look at how you can configure `DokkaBase` plugin, which is responsible for generating [HTML](html.md) 
