@@ -103,7 +103,7 @@ open class JavadocPageCreator(context: DokkaContext) {
             JavadocContentKind.PackageSummary,
             p.sourceSets.toDisplaySourceSets()
         ) {
-            title("Package ${p.name}", p.brief(), dri = setOf(p.dri), kind = ContentKind.Packages)
+            title("Package ${p.name}", p.descriptionToContentNodes(), dri = setOf(p.dri), kind = ContentKind.Packages)
             fun allClasslikes(c: DClasslike): List<DClasslike> = c.classlikes.flatMap { allClasslikes(it) } + c
             val rootList = p.classlikes.map { allClasslikes(it) }.flatten().groupBy { it::class }.map { (key, value) ->
                 JavadocList(key.tabTitle, key.colTitle, value.map { c ->
