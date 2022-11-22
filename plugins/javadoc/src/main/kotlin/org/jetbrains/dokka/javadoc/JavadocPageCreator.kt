@@ -84,7 +84,7 @@ open class JavadocPageCreator(context: DokkaContext) {
             JavadocContentKind.OverviewSummary,
             m.sourceSets.toDisplaySourceSets()
         ) {
-            title(m.name, m.brief(), documentationVersion, dri = setOf(m.dri), kind = ContentKind.Main)
+            title(m.name, m.descriptionToContentNodes(), documentationVersion, dri = setOf(m.dri), kind = ContentKind.Main)
             leafList(setOf(m.dri),
                 ContentKind.Packages, JavadocList(
                     "Packages", "Package",
