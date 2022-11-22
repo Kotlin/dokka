@@ -1445,7 +1445,6 @@ public class org/jetbrains/dokka/base/translators/documentables/DefaultPageCreat
 	protected fun contentForClasslikesAndEntries (Ljava/util/List;)Lorg/jetbrains/dokka/pages/ContentGroup;
 	protected fun contentForDescription (Lorg/jetbrains/dokka/model/Documentable;)Ljava/util/List;
 	protected fun contentForFunction (Lorg/jetbrains/dokka/model/DFunction;)Lorg/jetbrains/dokka/pages/ContentGroup;
-	protected fun contentForInheritors (Lorg/jetbrains/dokka/model/Documentable;Ljava/util/List;)Ljava/util/List;
 	protected fun contentForMember (Lorg/jetbrains/dokka/model/Documentable;)Lorg/jetbrains/dokka/pages/ContentGroup;
 	protected fun contentForMembers (Ljava/util/List;)Lorg/jetbrains/dokka/pages/ContentGroup;
 	protected fun contentForModule (Lorg/jetbrains/dokka/model/DModule;)Lorg/jetbrains/dokka/pages/ContentGroup;

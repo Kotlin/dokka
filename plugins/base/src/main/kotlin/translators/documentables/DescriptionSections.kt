@@ -208,13 +208,25 @@ internal fun PageContentBuilder.DocumentableContentBuilder.samplesSectionContent
 }
 
 internal fun PageContentBuilder.DocumentableContentBuilder.inheritorsSectionContent(
-    documentables: List<Documentable>,
+    documentable: Documentable,
     logger: DokkaLogger
 ) {
-    val inheritors = documentables.filterIsInstance<WithScope>().inheritors()
+    val inheritors = if (documentable is WithScope) documentable.inheritors() else return
     if (inheritors.values.none()) return
 
+    // split content sections to this 2 different functions for 2 cases:
+    // * parent in the common code only and inheritor on the platform code
+    // * flag `mergeImplicitExpectActualDeclarations` used -> each instance will go through rendering
+    if (documentable.sourceSets.size == 1) singlePlatformInheritorsSectionContent(inheritors, logger)
+    else multiplatformInheritorsSectionContent(inheritors, logger)
+}
+
+private fun PageContentBuilder.DocumentableContentBuilder.multiplatformInheritorsSectionContent(
+    inheritors: Map<DokkaConfiguration.DokkaSourceSet, List<DRI>>,
+    logger: DokkaLogger
+) {
     val availablePlatforms = inheritors.keys.toSet()
+
     availablePlatforms.forEach { platform ->
         header(KDOC_TAG_HEADER_LEVEL, "Inheritors", sourceSets = setOf(platform))
         table(
@@ -222,30 +234,44 @@ internal fun PageContentBuilder.DocumentableContentBuilder.inheritorsSectionCont
             sourceSets = setOf(platform),
             extra = mainExtra + SimpleAttr.header("Inheritors")
         ) {
-            inheritors[platform]?.forEach { classlike ->
-                row {
-                    link(
-                        text = classlike.friendlyClassName()
-                            ?: classlike.toString().also { logger.warn("No class name found for DRI $classlike") },
-                        address = classlike
-                    )
-                }
+            inheritors[platform]?.forEach { classlike: DRI ->
+                inheritorRow(classlike, logger)
             }
         }
     }
 }
 
-private fun List<WithScope>.inheritors() =
-    fold(mutableMapOf<DokkaConfiguration.DokkaSourceSet, List<DRI>>()) { acc, scope ->
-        val inheritorsForScope =
-            scope.safeAs<WithExtraProperties<Documentable>>()?.let { it.extra[InheritorsInfo] }?.let { inheritors ->
-                inheritors.value.filter { it.value.isNotEmpty() }
-            }.orEmpty()
-        inheritorsForScope.forEach { (k, v) ->
-            acc.compute(k) { _, value -> value?.plus(v) ?: v }
+private fun PageContentBuilder.DocumentableContentBuilder.singlePlatformInheritorsSectionContent(
+    inheritors: Map<DokkaConfiguration.DokkaSourceSet, List<DRI>>,
+    logger: DokkaLogger
+) {
+    // used for cases of `mergeImplicitExpectActualDeclarations` when similar classes from different platforms
+    // will be process more than one time.
+    val uniqueInheritors = inheritors.values.flatten().distinct()
+
+    header(KDOC_TAG_HEADER_LEVEL, "Inheritors")
+    table(
+        kind = ContentKind.Inheritors,
+        extra = mainExtra + SimpleAttr.header("Inheritors")
+    ) {
+        uniqueInheritors.forEach { classlike ->
+            inheritorRow(classlike, logger)
         }
-        acc
     }
+}
+
+private fun PageContentBuilder.TableBuilder.inheritorRow(classlike: DRI, logger: DokkaLogger) = row {
+    link(
+        text = classlike.friendlyClassName()
+            ?: classlike.toString().also { logger.warn("No class name found for DRI $classlike") },
+        address = classlike
+    )
+}
+
+private fun WithScope.inheritors() = safeAs<WithExtraProperties<Documentable>>()
+    ?.let { it.extra[InheritorsInfo] }
+    ?.let { inheritors -> inheritors.value.filter { it.value.isNotEmpty() } }
+    .orEmpty()
 
 private fun DRI.friendlyClassName() = classNames?.substringAfterLast(".")
 

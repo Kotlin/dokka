@@ -312,7 +312,6 @@ open class DefaultPageCreator(
                     documentables.forEach {
                         +buildSignature(it)
                         +contentForDescription(it)
-                        +contentForInheritors(it, documentables)
                     }
                 }
             }
@@ -406,12 +405,8 @@ open class DefaultPageCreator(
             seeAlsoSectionContent(tags)
             throwsSectionContent(tags)
             samplesSectionContent(tags)
-        }.children
-    }
 
-    protected open fun contentForInheritors(d: Documentable, documentables: List<Documentable>): List<ContentNode> {
-        return contentBuilder.contentFor(d, styles = setOf(TextStyle.Block)) {
-            inheritorsSectionContent(documentables, logger)
+            inheritorsSectionContent(d, logger)
         }.children
     }
 
