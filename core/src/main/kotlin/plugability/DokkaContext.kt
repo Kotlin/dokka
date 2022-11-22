@@ -24,17 +24,22 @@ interface DokkaContext {
         fun create(
             configuration: DokkaConfiguration,
             logger: DokkaLogger,
-            pluginOverrides: List<DokkaPlugin>
+            pluginOverrides: List<DokkaPlugin>,
+            ignorePluginsFromClassLoader: Boolean = false
         ): DokkaContext =
             DokkaContextConfigurationImpl(logger, configuration).apply {
-                // File(it.path) is a workaround for an incorrect filesystem in a File instance returned by Gradle.
-                configuration.pluginsClasspath.map { File(it.path).toURI().toURL() }
-                    .toTypedArray()
-                    .let { URLClassLoader(it, this.javaClass.classLoader) }
-                    .also { checkClasspath(it) }
-                    .let { ServiceLoader.load(DokkaPlugin::class.java, it) }
-                    .let { it + pluginOverrides }
-                    .forEach { install(it) }
+                if(ignorePluginsFromClassLoader) {
+                    pluginOverrides.forEach { install(it) }
+                } else {
+                    // File(it.path) is a workaround for an incorrect filesystem in a File instance returned by Gradle.
+                    configuration.pluginsClasspath.map { File(it.path).toURI().toURL() }
+                        .toTypedArray()
+                        .let { URLClassLoader(it, this.javaClass.classLoader) }
+                        .also { checkClasspath(it) }
+                        .let { ServiceLoader.load(DokkaPlugin::class.java, it) }
+                        .let { it + pluginOverrides }
+                        .forEach { install(it) }
+                }
                 topologicallySortAndPrune()
             }.also { it.logInitialisationInfo() }
     }

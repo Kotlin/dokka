@@ -319,11 +319,16 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
     requiresDependencyResolution = ResolutionScope.COMPILE,
     requiresProject = true
 )
-class DokkaMojo : AbstractDokkaMojo(emptyList()) {
+class DokkaMojo : AbstractDokkaMojo(listOf(htmlDependency)) {
     @Parameter(required = true, defaultValue = "\${project.basedir}/target/dokka")
     var outputDir: String = ""
 
     override fun getOutDir() = outputDir
+}
+
+private val htmlDependency = Dependency().apply {
+    groupId = "org.jetbrains.dokka"
+    artifactId = "html-plugin"
 }
 
 @Mojo(

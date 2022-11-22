@@ -9,6 +9,7 @@ dependencies {
     implementation(project(":plugins:base"))
     implementation(project(":plugins:templating"))
     testImplementation(project(":plugins:base"))
+    testImplementation(project(":plugins:html"))
     testImplementation(project(":plugins:base:base-test-utils"))
     testImplementation(project(":plugins:gfm"))
     testImplementation(project(":plugins:gfm:gfm-template-processing"))

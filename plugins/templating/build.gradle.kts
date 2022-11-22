@@ -7,6 +7,8 @@ registerDokkaArtifactPublication("templating-plugin") {
 dependencies {
     implementation(project(":plugins:base"))
 
+    testImplementation(project(":plugins:html"))
+
     val coroutines_version: String by project
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version")
     val jackson_version: String by project

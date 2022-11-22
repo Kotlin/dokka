@@ -9,6 +9,7 @@ dependencies {
     testImplementation(project(":core:content-matcher-test-utils"))
     testImplementation(kotlin("test-junit"))
     testImplementation(project(":kotlin-analysis"))
+    testImplementation(project(":plugins:html"))
 }
 
 registerDokkaArtifactPublication("mathjaxPlugin") {

@@ -39,8 +39,9 @@ class DokkaGenerator(
     fun initializePlugins(
         configuration: DokkaConfiguration,
         logger: DokkaLogger,
-        additionalPlugins: List<DokkaPlugin> = emptyList()
-    ) = DokkaContext.create(configuration, logger, additionalPlugins)
+        additionalPlugins: List<DokkaPlugin> = emptyList(),
+        ignorePluginsFromClassLoader: Boolean = false
+    ) = DokkaContext.create(configuration, logger, additionalPlugins, ignorePluginsFromClassLoader)
 
     @OptIn(DelicateCoroutinesApi::class)
     private fun finalizeCoroutines() {

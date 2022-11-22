@@ -6,8 +6,8 @@ import kotlinx.html.id
 import kotlinx.html.span
 import kotlinx.html.stream.createHTML
 import org.jetbrains.dokka.DokkaModuleDescriptionImpl
-import org.jetbrains.dokka.base.renderers.html.templateCommand
 import org.jetbrains.dokka.base.templating.AddToNavigationCommand
+import org.jetbrains.dokka.html.renderers.templateCommand
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.junit.Rule
 import org.junit.jupiter.api.Test

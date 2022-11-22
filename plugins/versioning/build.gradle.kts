@@ -6,6 +6,7 @@ registerDokkaArtifactPublication("versioning-plugin") {
 
 dependencies {
     implementation(project(":plugins:base"))
+    implementation(project(":plugins:html"))
     implementation(project(":plugins:templating"))
 
     val coroutines_version: String by project

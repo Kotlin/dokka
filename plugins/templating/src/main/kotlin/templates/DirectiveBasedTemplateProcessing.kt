@@ -1,9 +1,6 @@
 package org.jetbrains.dokka.templates
 
 import org.jetbrains.dokka.DokkaConfiguration
-import org.jetbrains.dokka.base.renderers.html.TEMPLATE_COMMAND_BEGIN_BORDER
-import org.jetbrains.dokka.base.renderers.html.TEMPLATE_COMMAND_END_BORDER
-import org.jetbrains.dokka.base.renderers.html.TEMPLATE_COMMAND_SEPARATOR
 import org.jetbrains.dokka.base.templating.Command
 import org.jetbrains.dokka.base.templating.parseJson
 import org.jetbrains.dokka.plugability.DokkaContext
@@ -16,6 +13,10 @@ import org.jsoup.nodes.Node
 import org.jsoup.nodes.TextNode
 import java.io.File
 import java.nio.file.Files
+
+const val TEMPLATE_COMMAND_SEPARATOR = ":"
+const val TEMPLATE_COMMAND_BEGIN_BORDER  = "[+]cmd"
+const val TEMPLATE_COMMAND_END_BORDER  = "[-]cmd"
 
 class DirectiveBasedHtmlTemplateProcessingStrategy(private val context: DokkaContext) : TemplateProcessingStrategy {
 

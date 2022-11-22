@@ -9,7 +9,7 @@ repositories {
 }
 
 dependencies {
-    implementation "org.jetbrains.dokka:dokka-base:${dokka_it_version}"
+    implementation "org.jetbrains.dokka:html-plugin:${dokka_it_version}"
     compileOnly "org.jetbrains.dokka:dokka-core:${dokka_it_version}"
     compileOnly "org.jetbrains.dokka:dokka-analysis:${dokka_it_version}"
 }

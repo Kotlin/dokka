@@ -46,11 +46,11 @@ public final class org/jetbrains/dokka/versioning/NotFoundPageInstaller : org/je
 	public fun invoke (Lorg/jetbrains/dokka/pages/RootPageNode;)Lorg/jetbrains/dokka/pages/RootPageNode;
 }
 
-public final class org/jetbrains/dokka/versioning/ReplaceVersionCommandConsumer : org/jetbrains/dokka/base/templating/ImmediateHtmlCommandConsumer {
+public final class org/jetbrains/dokka/versioning/ReplaceVersionCommandConsumer : org/jetbrains/dokka/html/templating/ImmediateHtmlCommandConsumer {
 	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
 	public fun canProcess (Lorg/jetbrains/dokka/base/templating/Command;)Z
-	public fun processCommand (Lorg/jetbrains/dokka/base/templating/Command;Lkotlin/jvm/functions/Function1;Lorg/jetbrains/dokka/base/renderers/html/command/consumers/ImmediateResolutionTagConsumer;)V
-	public fun processCommandAndFinalize (Lorg/jetbrains/dokka/base/templating/Command;Lkotlin/jvm/functions/Function1;Lorg/jetbrains/dokka/base/renderers/html/command/consumers/ImmediateResolutionTagConsumer;)Ljava/lang/Object;
+	public fun processCommand (Lorg/jetbrains/dokka/base/templating/Command;Lkotlin/jvm/functions/Function1;Lorg/jetbrains/dokka/html/renderers/command/consumers/ImmediateResolutionTagConsumer;)V
+	public fun processCommandAndFinalize (Lorg/jetbrains/dokka/base/templating/Command;Lkotlin/jvm/functions/Function1;Lorg/jetbrains/dokka/html/renderers/command/consumers/ImmediateResolutionTagConsumer;)Ljava/lang/Object;
 }
 
 public final class org/jetbrains/dokka/versioning/ReplaceVersionCommandHandler : org/jetbrains/dokka/templates/CommandHandler {
