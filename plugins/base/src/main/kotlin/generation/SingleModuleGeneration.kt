@@ -14,6 +14,7 @@ import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.query
+import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.transformers.sources.AsyncSourceToDocumentableTranslator
 import org.jetbrains.dokka.utilities.parallelMap
 import org.jetbrains.dokka.utilities.report
@@ -60,6 +61,10 @@ class SingleModuleGeneration(private val context: DokkaContext) : Generation {
     fun createDocumentationModels(): List<DModule> = runBlocking(Dispatchers.Default) {
         context.configuration.sourceSets.parallelMap { sourceSet -> translateSources(sourceSet, context) }.flatten()
             .also { modules -> if (modules.isEmpty()) exitGenerationGracefully("Nothing to document") }
+    }
+
+    fun disposeAnalysis()  {
+        context.plugin<DokkaBase>().querySingle { kotlinAnalysis }.values.forEach { it.analysisEnvironment.dispose() }
     }
 
     fun transformDocumentationModelBeforeMerge(modulesFromPlatforms: List<DModule>) =

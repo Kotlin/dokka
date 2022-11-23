@@ -22,7 +22,6 @@ import org.jetbrains.kotlin.idea.kdoc.resolveKDocLink
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.DescriptorToSourceUtils
-import org.jetbrains.kotlin.utils.PathUtil
 
 abstract class SamplesTransformer(val context: DokkaContext) : PageTransformer {
 
@@ -65,7 +64,7 @@ abstract class SamplesTransformer(val context: DokkaContext) : PageTransformer {
 
             val environment = createCoreEnvironment()
             val (facade, _) = createResolutionFacade(environment)
-            EnvironmentAndFacade(environment, facade)
+            EnvironmentAndFacade(environment, facade, this)
         }
     }
 
