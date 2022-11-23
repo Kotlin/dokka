@@ -14,7 +14,7 @@ fun jsonBuilder(
   "moduleName": "Dokka Example",
   "moduleVersion": null,
   "outputDir": "$outputPath",
-  "pluginsClasspath": ["$pluginsClasspath"],
+  "pluginsClasspath": [$pluginsClasspath],
   "cacheRoot": null,
   "offlineMode": false,
   "sourceLinks": [$globalSourceLinks],

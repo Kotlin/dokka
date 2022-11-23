@@ -1,4 +1,4 @@
-package org.jetbrains.dokka.base.renderers.html
+package org.jetbrains.dokka.html.renderers
 
 import org.jetbrains.dokka.base.renderers.sourceSets
 import org.jetbrains.dokka.base.signatures.KotlinSignatureUtils.annotations
@@ -6,8 +6,6 @@ import org.jetbrains.dokka.base.transformers.documentables.isDeprecated
 import org.jetbrains.dokka.base.transformers.documentables.isException
 import org.jetbrains.dokka.base.translators.documentables.DocumentableLanguage
 import org.jetbrains.dokka.base.translators.documentables.documentableLanguage
-import org.jetbrains.dokka.html.renderers.NavigationNode
-import org.jetbrains.dokka.html.renderers.NavigationNodeIcon
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.pages.*
 

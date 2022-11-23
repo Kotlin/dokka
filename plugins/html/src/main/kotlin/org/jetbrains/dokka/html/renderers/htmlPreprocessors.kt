@@ -2,7 +2,6 @@ package org.jetbrains.dokka.html.renderers
 
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.DokkaBaseConfiguration
-import org.jetbrains.dokka.base.renderers.html.NavigationDataProvider
 import org.jetbrains.dokka.base.templating.AddToSourcesetDependencies
 import org.jetbrains.dokka.base.templating.toJsonString
 import org.jetbrains.dokka.html.DokkaHtml
