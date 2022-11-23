@@ -8,6 +8,10 @@ import kotlin.test.*
 
 class CliIntegrationTest : AbstractCliIntegrationTest() {
 
+    val pluginClasspath by lazy {
+        listOf(basePluginJarFile, htmlPluginJarFile).joinToString(separator = ";") { it.path }
+    }
+
     @BeforeTest
     fun copyProject() {
         val templateProjectDir = File("projects", "it-cli")
@@ -32,7 +36,7 @@ class CliIntegrationTest : AbstractCliIntegrationTest() {
         val process = ProcessBuilder(
             "java", "-jar", cliJarFile.path,
             "-outputDir", dokkaOutputDir.path,
-            "-pluginsClasspath", basePluginJarFile.path,
+            "-pluginsClasspath", pluginClasspath,
             "-moduleName", "Basic Project",
             "-sourceSet",
             buildString {
@@ -107,7 +111,7 @@ class CliIntegrationTest : AbstractCliIntegrationTest() {
         val process = ProcessBuilder(
             "java", "-jar", cliJarFile.path,
             "-outputDir", dokkaOutputDir.path,
-            "-pluginsClasspath", basePluginJarFile.path,
+            "-pluginsClasspath", pluginClasspath,
             "-moduleName", "Basic Project",
             "-failOnWarning",
             "-sourceSet",
@@ -135,7 +139,7 @@ class CliIntegrationTest : AbstractCliIntegrationTest() {
         val process = ProcessBuilder(
             "java", "-jar", cliJarFile.path,
             "-outputDir", dokkaOutputDir.path,
-            "-pluginsClasspath", basePluginJarFile.path,
+            "-pluginsClasspath", pluginClasspath,
             "-moduleName", "Basic Project",
             "-sourceSet",
             buildString {
@@ -166,7 +170,7 @@ class CliIntegrationTest : AbstractCliIntegrationTest() {
             "java", "-jar", cliJarFile.path,
             "-outputDir", dokkaOutputDir.path,
             "-loggingLevel", "DEBUG",
-            "-pluginsClasspath", basePluginJarFile.path,
+            "-pluginsClasspath", pluginClasspath,
             "-sourceSet",
             buildString {
                 append(" -src ${File(projectDir, "src").path}")
@@ -202,7 +206,7 @@ class CliIntegrationTest : AbstractCliIntegrationTest() {
             "java", "-jar", cliJarFile.path,
             "-outputDir", dokkaOutputDir.path,
             "-loggingLevel", "WARN",
-            "-pluginsClasspath", basePluginJarFile.path,
+            "-pluginsClasspath", pluginClasspath,
             "-sourceSet",
             buildString {
                 append(" -src ${File(projectDir, "src").path}")
@@ -223,7 +227,7 @@ class CliIntegrationTest : AbstractCliIntegrationTest() {
         val process = ProcessBuilder(
             "java", "-jar", cliJarFile.path,
             "-outputDir", dokkaOutputDir.path,
-            "-pluginsClasspath", basePluginJarFile.path,
+            "-pluginsClasspath", pluginClasspath,
             "-moduleName", "Basic Project",
             "-sourceSet",
             buildString {
@@ -270,7 +274,13 @@ class CliIntegrationTest : AbstractCliIntegrationTest() {
         val resourcePath = javaClass.getResource("/my-file.json")?.toURI() ?: throw IllegalStateException("No JSON found!")
         val jsonPath = File(resourcePath).absolutePath
         PrintWriter(jsonPath).run {
-            write(jsonBuilder(dokkaOutputDir.invariantSeparatorsPath, basePluginJarFile.invariantSeparatorsPath, File(projectDir, "src").invariantSeparatorsPath, reportUndocumented = true))
+            write(
+                jsonBuilder(
+                    outputPath = dokkaOutputDir.invariantSeparatorsPath,
+                    pluginsClasspath = "\"${basePluginJarFile.invariantSeparatorsPath}\", \"${htmlPluginJarFile.invariantSeparatorsPath}\"",
+                    projectPath = File(projectDir, "src").invariantSeparatorsPath, reportUndocumented = true
+                )
+            )
             close()
         }
 
@@ -313,7 +323,7 @@ class CliIntegrationTest : AbstractCliIntegrationTest() {
             write(
                 jsonBuilder(
                     outputPath = dokkaOutputDir.invariantSeparatorsPath,
-                    pluginsClasspath = basePluginJarFile.invariantSeparatorsPath,
+                    pluginsClasspath = "\"${basePluginJarFile.invariantSeparatorsPath}\", \"${htmlPluginJarFile.invariantSeparatorsPath}\"",
                     projectPath = File(projectDir, "src").invariantSeparatorsPath,
                     globalSourceLinks = """
                         {

@@ -15,6 +15,10 @@ abstract class AbstractCliIntegrationTest : AbstractIntegrationTest() {
         File(temporaryTestFolder.root, "base-plugin.jar")
     }
 
+    protected val htmlPluginJarFile: File by lazy {
+        File(temporaryTestFolder.root, "html-plugin.jar")
+    }
+
     @BeforeTest
     fun copyJarFiles() {
         val cliJarPathEnvironmentKey = "CLI_JAR_PATH"
@@ -32,5 +36,13 @@ abstract class AbstractCliIntegrationTest : AbstractIntegrationTest() {
             "Missing path to base plugin jar System.getenv($basePluginPathEnvironmentKey)"
         )
         basePluginJarFile.copyTo(this.basePluginJarFile)
+
+        val htmlPluginPathEnvironmentKey = "HTML_PLUGIN_JAR_PATH"
+        val htmlPluginJarFile = File(System.getenv(htmlPluginPathEnvironmentKey))
+        assertTrue(
+            htmlPluginJarFile.exists() && htmlPluginJarFile.isFile,
+            "Missing path to html plugin jar System.getenv($htmlPluginPathEnvironmentKey)"
+        )
+        htmlPluginJarFile.copyTo(this.htmlPluginJarFile)
     }
 }
