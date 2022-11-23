@@ -76,7 +76,7 @@ index aa8f21b..dd6a2ae 100644
  
  dependencies {
 -  dokka "org.jetbrains.dokka:dokka-fatjar:$dokka_version"
-+  dokkaPlugin project(":plugins:dokka-samples-transformer-plugin")
++  // dokkaPlugin project(":plugins:dokka-samples-transformer-plugin") uncomment after upgrade StdLib Gradle
 +  dokkaPlugin project(":plugins:dokka-stdlib-configuration-plugin")
  }
 
