@@ -57,8 +57,6 @@ class BaseDokkaTestGenerator(
         }
 
         singleModuleGeneration.reportAfterRendering()
-
-        singleModuleGeneration.disposeAnalysis()
     }
 }
 

@@ -55,4 +55,8 @@ class EnvironmentAndFacade(val environment: KotlinCoreEnvironment, val facade: D
     operator fun component1() = environment
     operator fun component2() = facade
     operator fun component3() = analysisEnvironment
+
+    protected fun finalize() {
+        analysisEnvironment.dispose()
+    }
 }
