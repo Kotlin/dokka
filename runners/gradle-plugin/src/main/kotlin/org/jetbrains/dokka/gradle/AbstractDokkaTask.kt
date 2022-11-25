@@ -91,7 +91,7 @@ abstract class AbstractDokkaTask : DefaultTask() {
             configure(buildDokkaConfiguration().toJsonString(), createProxyLogger())
             /**
              * Run in a new thread to avoid memory leaks that are related to ThreadLocal (that keeps `URLCLassLoader`)
-             * Currently, all `ThreadLocal`s are in a compiler/IDE codebase.
+             * Currently, all `ThreadLocal`s leaking are in the compiler/IDE codebase.
              */
             Thread { generate() }.apply {
                 start()

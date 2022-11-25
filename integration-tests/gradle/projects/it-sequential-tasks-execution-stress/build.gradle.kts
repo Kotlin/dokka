@@ -16,8 +16,6 @@ buildscript {
     }
 }
 
-version = "1.7.10-SNAPSHOT"
-
 apply(from = "../template.root.gradle.kts")
 
 dependencies {

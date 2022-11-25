@@ -33,8 +33,8 @@ abstract class SamplesTransformer(val context: DokkaContext) : PageTransformer {
 
     final override fun invoke(input: RootPageNode): RootPageNode =
         /**
-         * Run from thread of [Dispatchers.Default]. It can help to avoid a memory leaks in `ThreadLocal` (that keeps `URLCLassLoader`)
-         * since we shut down Dispatchers.Default in the end of each task.
+         * Run from the thread of [Dispatchers.Default]. It can help to avoid a memory leaks in `ThreadLocal`s (that keep `URLCLassLoader`)
+         * since we shut down Dispatchers. Default at the end of each task (see [org.jetbrains.dokka.DokkaConfiguration.finalizeCoroutines]).
          * Currently, all `ThreadLocal`s are in a compiler/IDE codebase.
          */
         runBlocking(Dispatchers.Default) {
