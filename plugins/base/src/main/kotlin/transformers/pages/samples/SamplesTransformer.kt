@@ -71,7 +71,7 @@ abstract class SamplesTransformer(val context: DokkaContext) : PageTransformer {
 
             val environment = createCoreEnvironment()
             val (facade, _) = createResolutionFacade(environment)
-            EnvironmentAndFacade(environment, facade)
+            EnvironmentAndFacade(environment, facade, this)
         }
     }
 

@@ -30,7 +30,7 @@ internal fun createEnvironmentAndFacade(
         val environment = createCoreEnvironment()
 
         val (facade, _) = createResolutionFacade(environment, analysisConfiguration.ignoreCommonBuiltIns)
-        EnvironmentAndFacade(environment, facade)
+        EnvironmentAndFacade(environment, facade, this)
     }
 
 class DokkaMessageCollector(private val logger: DokkaLogger) : MessageCollector {
@@ -51,7 +51,10 @@ class DokkaMessageCollector(private val logger: DokkaLogger) : MessageCollector 
 }
 
 // It is not data class due to ill-defined equals
-class EnvironmentAndFacade(val environment: KotlinCoreEnvironment, val facade: DokkaResolutionFacade) {
+class EnvironmentAndFacade(val environment: KotlinCoreEnvironment, val facade: DokkaResolutionFacade, private val analysisEnvironment: AnalysisEnvironment) {
     operator fun component1() = environment
     operator fun component2() = facade
+    protected fun finalize() {
+        analysisEnvironment.dispose()
+    }
 }
