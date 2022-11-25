@@ -6,8 +6,6 @@ import org.gradle.testkit.runner.internal.DefaultGradleRunner
 import org.gradle.tooling.GradleConnectionException
 import org.gradle.util.GradleVersion
 import org.jetbrains.dokka.it.AbstractIntegrationTest
-import org.junit.Assume
-import org.junit.Assume.assumeFalse
 import org.junit.AssumptionViolatedException
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -29,7 +27,8 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
     }
 
     fun createGradleRunner(
-        vararg arguments: String
+        vararg arguments: String,
+        jvmArgs: List<String> = listOf("-Xmx4G", "-XX:MaxMetaspaceSize=2G")
     ): GradleRunner {
         return GradleRunner.create()
             .withProjectDir(projectDir)
@@ -46,7 +45,7 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
                     * arguments
                 )
             ).run { this as DefaultGradleRunner }
-            .withJvmArguments("-Xmx4G", "-XX:MaxMetaspaceSize=2G")
+            .withJvmArguments(jvmArgs)
     }
 
     fun GradleRunner.buildRelaxed(): BuildResult {
