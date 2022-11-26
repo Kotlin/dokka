@@ -13,6 +13,10 @@ internal inline fun <reified T : Any> Property<T?>.safeConvention(value: T): Pro
     return this.convention(value).cast()
 }
 
+internal inline fun <reified T : Any> Property<T?>.safeConvention(provider: Provider<T?>): Property<T> {
+    return this.convention(provider).cast()
+}
+
 @OptIn(ExperimentalStdlibApi::class)
 internal inline fun <reified T> Provider<T>.getSafe(): T =
     if (typeOf<T>().isMarkedNullable) orNull as T
