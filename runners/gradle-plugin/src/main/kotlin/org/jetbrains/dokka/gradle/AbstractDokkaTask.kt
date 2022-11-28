@@ -36,7 +36,7 @@ abstract class AbstractDokkaTask : DefaultTask() {
 
     @OutputDirectory
     val outputDirectory: Property<File> = project.objects.safeProperty<File>()
-        .safeConvention(defaultDokkaOutputDirectory())
+        .safeConvention(project.provider { defaultDokkaOutputDirectory() })
 
     @Optional
     @InputDirectory

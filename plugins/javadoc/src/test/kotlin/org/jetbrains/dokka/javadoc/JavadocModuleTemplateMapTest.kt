@@ -3,9 +3,10 @@ package org.jetbrains.dokka.javadoc
 import org.jetbrains.dokka.javadoc.pages.JavadocModulePageNode
 import org.jetbrains.dokka.javadoc.pages.RowJavadocListEntry
 import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.test.assertIsInstance
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import org.jetbrains.dokka.test.assertIsInstance
+import java.io.File
 
 internal class JavadocModuleTemplateMapTest : AbstractJavadocTemplateMapTest() {
 
@@ -75,6 +76,72 @@ internal class JavadocModuleTemplateMapTest : AbstractJavadocTemplateMapTest() {
             assertEquals("com.test.package1", assertIsInstance<RowJavadocListEntry>(list[1]).link.name)
             assertEquals(DRI("com.test.package0"), assertIsInstance<RowJavadocListEntry>(list[0]).link.dri.single())
             assertEquals(DRI("com.test.package1"), assertIsInstance<RowJavadocListEntry>(list[1]).link.dri.single())
+        }
+    }
+
+    @Test
+    fun `single class with module documentation (kotlin)`() {
+        testTemplateMapInline(
+            query =
+            """
+            /src/module.md
+            # Module module1
+            ABC
+            
+            /src/source0.kt
+            package com.test.package0
+            class Test
+            """,
+            configuration = config.copy(
+                sourceSets = config.sourceSets.map { sourceSet ->
+                    sourceSet.copy(
+                        includes = setOf(File("src/module.md"))
+                    )
+                },
+                moduleName = "module1"
+            )
+        ) {
+            val modulePage = singlePageOfType<JavadocModulePageNode>()
+
+            val map = modulePage.templateMap
+            assertEquals("<p>ABC</p>", map["subtitle"].toString().trim())
+        }
+    }
+
+    @Test
+    fun `single class with long module documentation (kotlin)`() {
+        testTemplateMapInline(
+            query =
+            """
+            /src/module.md
+            # Module module1
+            Aliquam rerum est vel. Molestiae eos expedita animi repudiandae sed commodi.
+            Omnis qui ducimus ut et perspiciatis sint.
+            
+            Veritatis nam eaque sequi laborum voluptas voluptate aut.
+            
+            /src/source0.kt
+            package com.test.package0
+            class Test
+            """,
+            configuration = config.copy(
+                sourceSets = config.sourceSets.map { sourceSet ->
+                    sourceSet.copy(
+                        includes = setOf(File("src/module.md"))
+                    )
+                },
+                moduleName = "module1"
+            )
+        ) {
+            val modulePage = singlePageOfType<JavadocModulePageNode>()
+
+            val map = modulePage.templateMap
+            val expectedText = """
+                <p>Aliquam rerum est vel. Molestiae eos expedita animi repudiandae sed commodi. 
+                Omnis qui ducimus ut et perspiciatis sint.</p>
+                <p>Veritatis nam eaque sequi laborum voluptas voluptate aut.</p>
+            """.trimIndent().replace("\n", "")
+            assertEquals(expectedText, map["subtitle"].toString().trim())
         }
     }
 }
