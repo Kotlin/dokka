@@ -6,6 +6,7 @@ import org.gradle.api.UnknownDomainObjectException
 import org.gradle.api.provider.HasMultipleValues
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
+import org.gradle.kotlin.dsl.*
 import org.gradle.util.Path
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
@@ -31,13 +32,13 @@ internal fun parsePath(path: String): Path = Path.path(path)
 
 internal val Project.kotlinOrNull: KotlinProjectExtension?
     get() = try {
-        project.extensions.findByType(KotlinProjectExtension::class.java)
+        project.extensions.findByType()
     } catch (e: NoClassDefFoundError) {
         null
     }
 
 internal val Project.kotlin: KotlinProjectExtension
-    get() = project.extensions.getByType(KotlinProjectExtension::class.java)
+    get() = project.extensions.getByType()
 
 internal fun Project.isAndroidProject() = try {
     project.extensions.getByName("android")
