@@ -59,6 +59,9 @@ abstract class AbstractDokkaTask : DefaultTask() {
     val offlineMode: Property<Boolean> = project.objects.safeProperty<Boolean>()
         .safeConvention(DokkaDefaults.offlineMode)
 
+    @get:Input
+    abstract val finalizeCoroutines: Property<Boolean>
+
     @Input
     val pluginsConfiguration: ListProperty<in DokkaConfiguration.PluginConfiguration> = project.objects.listProperty()
 
