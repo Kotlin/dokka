@@ -96,7 +96,7 @@ abstract class AbstractDokkaTask : DefaultTask() {
         val builtDokkaConfig = buildDokkaConfiguration()
 
         val workQueue = workers.processIsolation {
-            classpath.from(runtime)
+            classpath.from(runtime + plugins)
             forkOptions {
                 defaultCharacterEncoding = "UTF-8"
             }
