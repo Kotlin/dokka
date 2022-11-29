@@ -196,5 +196,3 @@ internal abstract class TestDokkaParentTask : AbstractDokkaParentTask() {
 }
 
 private val Project.dokkaTask: DokkaTask get() = tasks.getByName<DokkaTask>("dokkaTask")
-
-

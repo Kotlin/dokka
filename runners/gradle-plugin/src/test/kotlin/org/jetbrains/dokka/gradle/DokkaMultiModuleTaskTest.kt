@@ -26,6 +26,9 @@ class DokkaMultiModuleTaskTest {
     }
 
     init {
+        rootProject.plugins.apply("org.jetbrains.dokka")
+        childProject.plugins.apply("org.jetbrains.dokka")
+
         rootProject.allprojects {
             tasks.withType<AbstractDokkaTask>().configureEach {
                 plugins.withDependencies { clear() }
@@ -69,6 +72,7 @@ class DokkaMultiModuleTaskTest {
             failOnWarning by true
             offlineMode by true
             includes.from(listOf(topLevelInclude))
+            finalizeCoroutines.set(true)
         }
 
         val dokkaConfiguration = multiModuleTask.buildDokkaConfiguration()
@@ -90,7 +94,8 @@ class DokkaMultiModuleTaskTest {
                         includes = setOf(include1, include2),
                         sourceOutputDirectory = childDokkaTask.outputDirectory.getSafe()
                     )
-                )
+                ),
+                finalizeCoroutines = true,
             ),
             dokkaConfiguration
         )
