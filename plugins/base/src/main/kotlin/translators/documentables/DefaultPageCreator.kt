@@ -391,15 +391,15 @@ open class DefaultPageCreator(
     protected open fun contentForDescription(
         d: Documentable
     ): List<ContentNode> {
-        val platforms = d.sourceSets.toSet()
+        val sourceSets = d.sourceSets.toSet()
         val tags = d.groupedTags
 
         return contentBuilder.contentFor(d) {
-            deprecatedSectionContent(d, platforms)
+            deprecatedSectionContent(d, sourceSets)
 
-            descriptionSectionContent(d, platforms)
-            customTagSectionContent(d, platforms, customTagContentProviders)
-            unnamedTagSectionContent(d, platforms) { toHeaderString() }
+            descriptionSectionContent(d, sourceSets)
+            customTagSectionContent(d, sourceSets, customTagContentProviders)
+            unnamedTagSectionContent(d, sourceSets) { toHeaderString() }
 
             paramsSectionContent(tags)
             seeAlsoSectionContent(tags)

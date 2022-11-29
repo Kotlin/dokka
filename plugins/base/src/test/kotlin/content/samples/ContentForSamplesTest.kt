@@ -37,7 +37,6 @@ class ContentForSamplesTest : BaseAbstractTest() {
         ) {
             pagesTransformationStage = { module ->
                 val page = module.findTestType("test", "Foo")
-                println(page.content)
                 page.content.assertNode {
                     group {
                         header(1) { +"Foo" }

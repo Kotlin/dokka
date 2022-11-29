@@ -1,6 +1,7 @@
 package org.jetbrains.dokka.base.translators.documentables
 
 import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.base.transformers.documentables.InheritorsInfo
 import org.jetbrains.dokka.base.transformers.pages.tags.CustomTagContentProvider
 import org.jetbrains.dokka.links.DRI
@@ -23,11 +24,11 @@ import kotlin.reflect.full.isSubclassOf
 
 internal fun PageContentBuilder.DocumentableContentBuilder.descriptionSectionContent(
     documentable: Documentable,
-    platforms: Set<DokkaConfiguration.DokkaSourceSet>
+    sourceSets: Set<DokkaConfiguration.DokkaSourceSet>,
 ) {
     val descriptions = documentable.descriptions
     if (descriptions.any { it.value.root.children.isNotEmpty() }) {
-        platforms.forEach { platform ->
+        sourceSets.forEach { platform ->
             descriptions[platform]?.also {
                 group(sourceSets = setOf(platform), styles = emptySet()) {
                     comment(it.root)
@@ -39,12 +40,12 @@ internal fun PageContentBuilder.DocumentableContentBuilder.descriptionSectionCon
 
 internal fun PageContentBuilder.DocumentableContentBuilder.customTagSectionContent(
     documentable: Documentable,
-    platforms: Set<DokkaConfiguration.DokkaSourceSet>,
-    customTagContentProviders: List<CustomTagContentProvider>
+    sourceSets: Set<DokkaConfiguration.DokkaSourceSet>,
+    customTagContentProviders: List<CustomTagContentProvider>,
 ) {
     val customTags = documentable.customTags ?: return
 
-    platforms.forEach { platform ->
+    sourceSets.forEach { platform ->
         customTags.forEach { (_, sourceSetTag) ->
             sourceSetTag[platform]?.let { tag ->
                 customTagContentProviders.filter { it.isApplicable(tag) }.forEach { provider ->
@@ -61,14 +62,14 @@ internal fun PageContentBuilder.DocumentableContentBuilder.customTagSectionConte
 
 internal fun PageContentBuilder.DocumentableContentBuilder.unnamedTagSectionContent(
     documentable: Documentable,
-    platforms: Set<DokkaConfiguration.DokkaSourceSet>,
-    toHeaderString: TagWrapper.() -> String
+    sourceSets: Set<DokkaConfiguration.DokkaSourceSet>,
+    toHeaderString: TagWrapper.() -> String,
 ) {
     val unnamedTags = documentable.groupedTags
         .filterNot { (k, _) -> k.isSubclassOf(NamedTagWrapper::class) || k in specialTags }
         .values.flatten().groupBy { it.first }.mapValues { it.value.map { it.second } }
     if (unnamedTags.isEmpty()) return
-    platforms.forEach { platform ->
+    sourceSets.forEach { platform ->
         unnamedTags[platform]?.let { tags ->
             if (tags.isNotEmpty()) {
                 tags.groupBy { it::class }.forEach { (_, sameCategoryTags) ->
@@ -90,8 +91,8 @@ internal fun PageContentBuilder.DocumentableContentBuilder.unnamedTagSectionCont
 internal fun PageContentBuilder.DocumentableContentBuilder.paramsSectionContent(tags: GroupedTags) {
     val params = tags.withTypeNamed<Param>() ?: return
 
-    val availablePlatforms = params.availablePlatforms()
-    availablePlatforms.forEach { platform ->
+    val availableSourceSets = params.availableSourceSets()
+    availableSourceSets.forEach { platform ->
         header(KDOC_TAG_HEADER_LEVEL, "Parameters", kind = ContentKind.Parameters, sourceSets = setOf(platform))
         table(
             kind = ContentKind.Parameters,
@@ -99,7 +100,7 @@ internal fun PageContentBuilder.DocumentableContentBuilder.paramsSectionContent(
             sourceSets = setOf(platform)
         )
         {
-            val possibleFallbacks = availablePlatforms.getPossibleFallbackSourcesets(platform)
+            val possibleFallbacks = availableSourceSets.getPossibleFallback(platform)
             params.mapNotNull { (_, param) ->
                 (param[platform] ?: param.fallback(possibleFallbacks))?.let {
                     row(sourceSets = setOf(platform), kind = ContentKind.Parameters) {
@@ -121,7 +122,7 @@ internal fun PageContentBuilder.DocumentableContentBuilder.paramsSectionContent(
 internal fun PageContentBuilder.DocumentableContentBuilder.seeAlsoSectionContent(tags: GroupedTags) {
     val seeAlsoTags = tags.withTypeNamed<See>() ?: return
 
-    val availablePlatforms = seeAlsoTags.availablePlatforms()
+    val availablePlatforms = seeAlsoTags.availableSourceSets()
     availablePlatforms.forEach { platform ->
         header(KDOC_TAG_HEADER_LEVEL, "See also", kind = ContentKind.Comment, sourceSets = setOf(platform))
 
@@ -130,7 +131,7 @@ internal fun PageContentBuilder.DocumentableContentBuilder.seeAlsoSectionContent
             extra = mainExtra + SimpleAttr.header("See also")
         )
         {
-            val possibleFallbacks = availablePlatforms.getPossibleFallbackSourcesets(platform)
+            val possibleFallbacks = availablePlatforms.getPossibleFallback(platform)
             seeAlsoTags.forEach { (_, see) ->
                 (see[platform] ?: see.fallback(possibleFallbacks))?.let { seeTag ->
                     row(
@@ -162,7 +163,7 @@ internal fun PageContentBuilder.DocumentableContentBuilder.seeAlsoSectionContent
 internal fun PageContentBuilder.DocumentableContentBuilder.throwsSectionContent(tags: GroupedTags) {
     val throws = tags.withTypeNamed<Throws>() ?: return
 
-    throws.availablePlatforms().forEach { platform ->
+    throws.availableSourceSets().forEach { platform ->
         header(KDOC_TAG_HEADER_LEVEL, "Throws", sourceSets = setOf(platform))
         table(
             kind = ContentKind.Main,
@@ -190,7 +191,7 @@ internal fun PageContentBuilder.DocumentableContentBuilder.throwsSectionContent(
 
 internal fun PageContentBuilder.DocumentableContentBuilder.samplesSectionContent(tags: GroupedTags) {
     val samples = tags.withTypeNamed<Sample>() ?: return
-    samples.availablePlatforms().forEach { platform ->
+    samples.availableSourceSets().forEach { platform ->
         val content = samples.filter { it.value.isEmpty() || platform in it.value }
         header(KDOC_TAG_HEADER_LEVEL, "Samples", kind = ContentKind.Sample, sourceSets = setOf(platform))
 
@@ -209,25 +210,47 @@ internal fun PageContentBuilder.DocumentableContentBuilder.samplesSectionContent
 
 internal fun PageContentBuilder.DocumentableContentBuilder.inheritorsSectionContent(
     documentable: Documentable,
-    logger: DokkaLogger
+    logger: DokkaLogger,
 ) {
     val inheritors = if (documentable is WithScope) documentable.inheritors() else return
     if (inheritors.values.none()) return
 
-    // split content sections to this 2 different functions for 2 cases:
-    // * parent in the common code only and inheritor on the platform code
-    // * flag `mergeImplicitExpectActualDeclarations` used -> each instance will go through rendering
-    if (documentable.sourceSets.size == 1) singlePlatformInheritorsSectionContent(inheritors, logger)
-    else multiplatformInheritorsSectionContent(inheritors, logger)
+    // split content section for the case:
+    // parent is in the shared source set (without expect-actual) and inheritor is in the platform code
+    if (documentable.isDefinedInSharedSourceSetOnly(inheritors.keys.toSet()))
+        sharedSourceSetOnlyInheritorsSectionContent(inheritors, logger)
+    else
+        multiplatformInheritorsSectionContent(documentable, inheritors, logger)
 }
 
-private fun PageContentBuilder.DocumentableContentBuilder.multiplatformInheritorsSectionContent(
-    inheritors: Map<DokkaConfiguration.DokkaSourceSet, List<DRI>>,
-    logger: DokkaLogger
-) {
-    val availablePlatforms = inheritors.keys.toSet()
+/**
+ * Detect that documentable is located only in the shared code without expect-actuals
+ * Value of `analysisPlatform` will be [Platform.common] in cases if a source set shared between 2 different platforms.
+ * But if it shared between 2 same platforms (e.g. jvm("awt") and jvm("android"))
+ * then the source set will be still marked as jvm platform.
+ *
+ * So, we also try to check if any of inheritors source sets depends on current documentable source set.
+ * that will mean that the source set is shared.
+ */
+private fun Documentable.isDefinedInSharedSourceSetOnly(inheritorsSourceSets: Set<DokkaConfiguration.DokkaSourceSet>) =
+    sourceSets.size == 1 &&
+            (sourceSets.first().analysisPlatform == Platform.common
+                    || sourceSets.first().hasDependentSourceSetInInheritors(inheritorsSourceSets))
 
-    availablePlatforms.forEach { platform ->
+private fun DokkaConfiguration.DokkaSourceSet.hasDependentSourceSetInInheritors(
+    inheritorsSourceSets: Set<DokkaConfiguration.DokkaSourceSet>,
+) =
+    inheritorsSourceSets.any { sourceSet -> sourceSet.dependentSourceSets.any { it == this.sourceSetID } }
+
+private fun PageContentBuilder.DocumentableContentBuilder.multiplatformInheritorsSectionContent(
+    documentable: Documentable,
+    inheritors: Map<DokkaConfiguration.DokkaSourceSet, List<DRI>>,
+    logger: DokkaLogger,
+) {
+    // intersect is used for removing duplication in case of merged classlikes from different platforms
+    val availableSourceSets = inheritors.keys.toSet().intersect(documentable.sourceSets)
+
+    availableSourceSets.forEach { platform ->
         header(KDOC_TAG_HEADER_LEVEL, "Inheritors", sourceSets = setOf(platform))
         table(
             kind = ContentKind.Inheritors,
@@ -241,13 +264,11 @@ private fun PageContentBuilder.DocumentableContentBuilder.multiplatformInheritor
     }
 }
 
-private fun PageContentBuilder.DocumentableContentBuilder.singlePlatformInheritorsSectionContent(
+private fun PageContentBuilder.DocumentableContentBuilder.sharedSourceSetOnlyInheritorsSectionContent(
     inheritors: Map<DokkaConfiguration.DokkaSourceSet, List<DRI>>,
-    logger: DokkaLogger
+    logger: DokkaLogger,
 ) {
-    // used for cases of `mergeImplicitExpectActualDeclarations` when similar classes from different platforms
-    // will be process more than one time.
-    val uniqueInheritors = inheritors.values.flatten().distinct()
+    val uniqueInheritors = inheritors.values.flatten().toSet()
 
     header(KDOC_TAG_HEADER_LEVEL, "Inheritors")
     table(
@@ -285,12 +306,12 @@ private fun <V> Map<DokkaConfiguration.DokkaSourceSet, V>.fallback(sourceSets: L
  * It this case description is inherited from parent platform.
  * E.g. if param hasn't description in JVM, the description is taken from common.
  */
-private fun Set<DokkaConfiguration.DokkaSourceSet>.getPossibleFallbackSourcesets(sourceSet: DokkaConfiguration.DokkaSourceSet) =
+private fun Set<DokkaConfiguration.DokkaSourceSet>.getPossibleFallback(sourceSet: DokkaConfiguration.DokkaSourceSet) =
     this.filter { it.sourceSetID in sourceSet.dependentSourceSets }
 
 private val specialTags: Set<KClass<out TagWrapper>> =
     setOf(Property::class, Description::class, Constructor::class, Param::class, See::class)
 
-private fun <T> Map<String, SourceSetDependent<T>>.availablePlatforms() = values.flatMap { it.keys }.toSet()
+private fun <T> Map<String, SourceSetDependent<T>>.availableSourceSets() = values.flatMap { it.keys }.toSet()
 
 
