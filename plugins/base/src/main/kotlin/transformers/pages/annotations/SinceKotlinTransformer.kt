@@ -4,12 +4,12 @@ import com.intellij.util.containers.ComparatorUtil.max
 import org.intellij.markdown.MarkdownElementTypes
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.Platform
+import org.jetbrains.dokka.base.signatures.KotlinSignatureUtils.annotations
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.doc.CustomDocTag
 import org.jetbrains.dokka.model.doc.CustomTagWrapper
 import org.jetbrains.dokka.model.doc.DocumentationNode
 import org.jetbrains.dokka.model.doc.Text
-import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.transformers.documentation.DocumentableTransformer
 import org.jetbrains.dokka.utilities.associateWithNotNull
@@ -34,7 +34,7 @@ class SinceKotlinTransformer(val context: DokkaContext) : DocumentableTransforme
         override fun toString(): String = parts.joinToString(".")
     }
 
-    private val minSinceKotlin = mapOf(
+    private val minSinceKotlinOfPlatform = mapOf(
         Platform.common to Version("1.2"),
         Platform.jvm to Version("1.0"),
         Platform.js to Version("1.1"),
@@ -117,13 +117,12 @@ class SinceKotlinTransformer(val context: DokkaContext) : DocumentableTransforme
 
     private fun Documentable.getVersion(sourceSet: DokkaConfiguration.DokkaSourceSet): Version {
         val annotatedVersion =
-            safeAs<WithExtraProperties<Documentable>>()?.extra?.get(Annotations)?.directAnnotations?.get(sourceSet)
+            annotations()[sourceSet]
                 ?.findSinceKotlinAnnotation()
                 ?.params?.get("version").safeAs<StringValue>()?.value
-                ?.dropWhile { it == '"' }?.dropLastWhile { it == '"' }
                 ?.let { Version(it) }
 
-        val minSinceKotlin = minSinceKotlin[sourceSet.analysisPlatform]
+        val minSinceKotlin = minSinceKotlinOfPlatform[sourceSet.analysisPlatform]
             ?: throw IllegalStateException("No value for platform: ${sourceSet.analysisPlatform}")
 
         return annotatedVersion?.takeIf { version -> version >= minSinceKotlin } ?: minSinceKotlin
