@@ -22,7 +22,7 @@ jobs:
       - name: Publish Dokka Gradle Plugin For IntegrationTests
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: publishDokkaGradlePluginForIntegrationTestsPublicationToMavenLocal
+          arguments: :runners:gradle-plugin:publishToMavenLocal
       - name: Document coroutines
         uses: gradle/gradle-build-action@v2
         with:
@@ -55,7 +55,7 @@ jobs:
       - name: Publish Dokka Gradle Plugin For IntegrationTests
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: publishDokkaGradlePluginForIntegrationTestsPublicationToMavenLocal
+          arguments: :runners:gradle-plugin:publishToMavenLocal
       - name: Document serialization
         uses: gradle/gradle-build-action@v2
         with:
