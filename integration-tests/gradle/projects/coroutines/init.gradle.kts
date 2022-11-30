@@ -1,7 +1,7 @@
 initscript {
     repositories {
-        mavenLocal()
         mavenCentral()
+        mavenLocal()
     }
     dependencies {
         classpath("org.jetbrains.dokka:dokka-gradle-plugin:for-integration-tests-SNAPSHOT")
