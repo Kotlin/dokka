@@ -19,10 +19,10 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: 12
-      - name: publish Dokka to Maven Local
+      - name: Publish Dokka Gradle Plugin For IntegrationTests
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: publishToMavenLocal
+          arguments: :runners:gradle-plugin:publishToMavenLocal
       - name: Document coroutines
         uses: gradle/gradle-build-action@v2
         with:
@@ -52,10 +52,10 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: 12
-      - name: publish Dokka to Maven Local
+      - name: Publish Dokka Gradle Plugin For IntegrationTests
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: publishToMavenLocal
+          arguments: :runners:gradle-plugin:publishToMavenLocal
       - name: Document serialization
         uses: gradle/gradle-build-action@v2
         with:
