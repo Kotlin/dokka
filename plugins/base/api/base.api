@@ -13,6 +13,7 @@ public final class org/jetbrains/dokka/base/DokkaBase : org/jetbrains/dokka/plug
 	public final fun getDefaultTabSortingStrategy ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getDeprecatedDocumentableFilter ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getDescriptorToDocumentableTranslator ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getDisposeKotlinAnalysisPostAction ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getDocTagToContentConverter ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getDocumentableMerger ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getDocumentableToPageTranslator ()Lorg/jetbrains/dokka/plugability/Extension;

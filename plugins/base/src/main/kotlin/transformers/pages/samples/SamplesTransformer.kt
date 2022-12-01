@@ -4,11 +4,7 @@ import com.intellij.psi.PsiElement
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
-import org.jetbrains.dokka.Platform
-import org.jetbrains.dokka.analysis.AnalysisEnvironment
-import org.jetbrains.dokka.analysis.DokkaMessageCollector
-import org.jetbrains.dokka.analysis.DokkaResolutionFacade
-import org.jetbrains.dokka.analysis.EnvironmentAndFacade
+import org.jetbrains.dokka.analysis.*
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.renderers.sourceSets
 import org.jetbrains.dokka.links.DRI
@@ -38,42 +34,26 @@ abstract class SamplesTransformer(val context: DokkaContext) : PageTransformer {
          * Currently, all `ThreadLocal`s are in a compiler/IDE codebase.
          */
         runBlocking(Dispatchers.Default) {
-            val analysis = setUpAnalysis(context)
-
-            input.transformContentPagesTree { page ->
-                val samples = (page as? WithDocumentables)?.documentables?.flatMap {
-                    it.documentation.entries.flatMap { entry ->
-                        entry.value.children.filterIsInstance<Sample>().map { entry.key to it }
+            val analysis = KotlinAnalysisForSamples(sourceSets = context.configuration.sourceSets,
+                logger = context.logger,
+                defaultKotlinAnalysis = context.plugin<DokkaBase>().querySingle { kotlinAnalysis })
+            analysis.use {
+                input.transformContentPagesTree { page ->
+                    val samples = (page as? WithDocumentables)?.documentables?.flatMap {
+                        it.documentation.entries.flatMap { entry ->
+                            entry.value.children.filterIsInstance<Sample>().map { entry.key to it }
+                        }
                     }
+
+                    samples?.fold(page as ContentPage) { acc, (sampleSourceSet, sample) ->
+                        acc.modified(
+                            content = acc.content.addSample(page, sampleSourceSet, sample.name, it),
+                            embeddedResources = acc.embeddedResources + KOTLIN_PLAYGROUND_SCRIPT
+                        )
+                    } ?: page
                 }
-
-                samples?.fold(page as ContentPage) { acc, (sampleSourceSet, sample) ->
-                    acc.modified(
-                        content = acc.content.addSample(page, sampleSourceSet, sample.name, analysis),
-                        embeddedResources = acc.embeddedResources + KOTLIN_PLAYGROUND_SCRIPT
-                    )
-                } ?: page
             }
         }
-
-    private fun setUpAnalysis(context: DokkaContext) = context.configuration.sourceSets.associateWith { sourceSet ->
-        if (sourceSet.samples.isEmpty()) context.plugin<DokkaBase>()
-            .querySingle { kotlinAnalysis }[sourceSet] // from sourceSet.sourceRoots
-        else AnalysisEnvironment(DokkaMessageCollector(context.logger), sourceSet.analysisPlatform).run {
-            if (analysisPlatform == Platform.jvm) {
-                configureJdkClasspathRoots()
-            }
-            sourceSet.classpath.forEach(::addClasspath)
-
-            addSources(sourceSet.samples.toList())
-
-            loadLanguageVersionSettings(sourceSet.languageVersion, sourceSet.apiVersion)
-
-            val environment = createCoreEnvironment()
-            val (facade, _) = createResolutionFacade(environment)
-            EnvironmentAndFacade(environment, facade, this)
-        }
-    }
 
     private fun ContentNode.addSample(
         contentPage: ContentPage,

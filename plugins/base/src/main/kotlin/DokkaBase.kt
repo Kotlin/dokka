@@ -36,6 +36,8 @@ import org.jetbrains.dokka.base.translators.descriptors.ExternalClasslikesTransl
 import org.jetbrains.dokka.base.translators.descriptors.ExternalDocumentablesProvider
 import org.jetbrains.dokka.base.utils.NoopIntellijLoggerFactory
 import org.jetbrains.dokka.plugability.DokkaPlugin
+import org.jetbrains.dokka.plugability.querySingle
+import org.jetbrains.dokka.renderers.PostAction
 import org.jetbrains.dokka.transformers.documentation.PreMergeDocumentableTransformer
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 
@@ -279,6 +281,10 @@ class DokkaBase : DokkaPlugin() {
 
     val defaultExternalClasslikesTranslator by extending {
         externalClasslikesTranslator providing ::DefaultDescriptorToDocumentableTranslator
+    }
+
+    val disposeKotlinAnalysisPostAction by extending {
+        CoreExtensions.postActions with PostAction { this@DokkaBase.querySingle { kotlinAnalysis }.close() }
     }
 
     private companion object {
