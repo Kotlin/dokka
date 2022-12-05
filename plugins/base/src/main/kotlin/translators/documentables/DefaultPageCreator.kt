@@ -315,7 +315,48 @@ open class DefaultPageCreator(
                     }
                 }
             }
-            group(styles = setOf(ContentStyle.TabbedContent), sourceSets = mainSourcesetData + extensions.sourceSets) {
+            val extraTabs = ExtraTabs(
+                listOfNotNull(
+                    ContentTab(
+                        ContentText(
+                            "Members",
+                            DCI(mainDRI, ContentKind.Main),
+                            sourceSets = (mainSourcesetData + extensions.sourceSets).toDisplaySourceSets()
+                        ),
+                        listOf(
+                            "Constructors",
+                            "Types",
+                            "Functions",
+                            "Inherited Functions",
+                            "Properties",
+                            "Inherited Properties"
+                        )
+                    ),
+                    if (extensions.isEmpty()) null else ContentTab(
+                        ContentText(
+                            "Members + Extensions",
+                            DCI(mainDRI, ContentKind.Main),
+                            sourceSets = (mainSourcesetData + extensions.sourceSets).toDisplaySourceSets()
+                        ),
+                        listOf(
+                            "Constructors",
+                            "Types",
+                            "Functions",
+                            "Inherited Functions",
+                            "Properties",
+                            "Inherited Properties",
+                            "Extensions"
+                        )
+                    )
+
+                )
+            )
+
+            group(
+                styles = setOf(ContentStyle.TabbedContent),
+                sourceSets = mainSourcesetData + extensions.sourceSets,
+                extra = mainExtra + extraTabs
+            ) {
                 val csWithConstructor = classlikes.filterIsInstance<WithConstructors>()
                 if (csWithConstructor.isNotEmpty() && documentables.shouldRenderConstructors()) {
                     val constructorsToDocumented = csWithConstructor.flatMap { it.constructors }

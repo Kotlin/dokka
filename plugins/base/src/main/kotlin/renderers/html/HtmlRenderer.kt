@@ -71,14 +71,23 @@ open class HtmlRenderer(
                 val firstLevel = node.children.filterIsInstance<ContentHeader>().flatMap { it.children }
                     .filterIsInstance<ContentText>()
 
-                val renderable = sortTabs(tabSortingStrategy, firstLevel.union(secondLevel))
+                val defaultTabsText = firstLevel.union(secondLevel)
+                val extraTabsText= node.extra[ExtraTabs]?.tabs?.map { it.text } ?: emptySet()
+                val overridenTabsName = node.extra[ExtraTabs]?.tabs?.flatMap { it.overriddenToggleTarget } ?: emptyList()
+
+                val renderable = sortTabs(
+                    tabSortingStrategy,
+                    defaultTabsText.filterNot { it.text in overridenTabsName }.union(extraTabsText)
+                )
+
+                val dataToggleTargets = node.extra[ExtraTabs]?.tabs?.associate { it.text to it.overriddenToggleTarget } ?: emptyMap()
 
                 div(classes = "tabs-section") {
                     attributes["tabs-section"] = "tabs-section"
                     renderable.forEachIndexed { index, node ->
                         button(classes = "section-tab") {
                             if (index == 0) attributes["data-active"] = ""
-                            attributes["data-togglable"] = node.text
+                            attributes["data-togglable"] = dataToggleTargets[node]?.joinToString(",") ?: node.text
                             text(node.text)
                         }
                     }

@@ -175,9 +175,12 @@ function showCorrespondingTabBody(element) {
     const buttonWithKey = element.querySelector("button[data-active]")
     if (buttonWithKey) {
         const key = buttonWithKey.getAttribute("data-togglable")
-        document.querySelector(".tabs-section-body")
-            .querySelector("div[data-togglable='" + key + "']")
-            .setAttribute("data-active", "")
+        key.split(",").forEach( target => {
+                const tabBody = document.querySelector(".tabs-section-body")
+                    .querySelector("div[data-togglable='" + target + "']")
+                if(tabBody) tabBody.setAttribute("data-active", "")
+        })
+
     }
 }
 
@@ -253,7 +256,7 @@ function toggleSections(target) {
     const activateTabs = (containerClass) => {
         for (const element of document.getElementsByClassName(containerClass)) {
             for (const child of element.children) {
-                if (child.getAttribute("data-togglable") === target.getAttribute("data-togglable")) {
+                if (target.getAttribute("data-togglable") === child.getAttribute("data-togglable")) {
                     child.setAttribute("data-active", "")
                 } else {
                     child.removeAttribute("data-active")
@@ -261,9 +264,20 @@ function toggleSections(target) {
             }
         }
     }
-
+    const toggleTargets = target.getAttribute("data-togglable").split(",")
+    const activateTabsBody = (containerClass) => {
+        for (const element of document.getElementsByClassName(containerClass)) {
+            for (const child of element.children) {
+                if (toggleTargets.includes(child.getAttribute("data-togglable"))) {
+                    child.setAttribute("data-active", "")
+                } else {
+                    child.removeAttribute("data-active")
+                }
+            }
+        }
+    }
     activateTabs("tabs-section")
-    activateTabs("tabs-section-body")
+    activateTabsBody("tabs-section-body")
 }
 
 function toggleSectionsEventHandler(evt) {

@@ -3929,6 +3929,19 @@ public final class org/jetbrains/dokka/pages/ContentStyle : java/lang/Enum, org/
 	public static fun values ()[Lorg/jetbrains/dokka/pages/ContentStyle;
 }
 
+public final class org/jetbrains/dokka/pages/ContentTab {
+	public fun <init> (Lorg/jetbrains/dokka/pages/ContentText;Ljava/util/List;)V
+	public final fun component1 ()Lorg/jetbrains/dokka/pages/ContentText;
+	public final fun component2 ()Ljava/util/List;
+	public final fun copy (Lorg/jetbrains/dokka/pages/ContentText;Ljava/util/List;)Lorg/jetbrains/dokka/pages/ContentTab;
+	public static synthetic fun copy$default (Lorg/jetbrains/dokka/pages/ContentTab;Lorg/jetbrains/dokka/pages/ContentText;Ljava/util/List;ILjava/lang/Object;)Lorg/jetbrains/dokka/pages/ContentTab;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getOverriddenToggleTarget ()Ljava/util/List;
+	public final fun getText ()Lorg/jetbrains/dokka/pages/ContentText;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
 public final class org/jetbrains/dokka/pages/ContentTable : org/jetbrains/dokka/pages/ContentComposite {
 	public fun <init> (Ljava/util/List;Lorg/jetbrains/dokka/pages/ContentGroup;Ljava/util/List;Lorg/jetbrains/dokka/pages/DCI;Ljava/util/Set;Ljava/util/Set;Lorg/jetbrains/dokka/model/properties/PropertyContainer;)V
 	public synthetic fun <init> (Ljava/util/List;Lorg/jetbrains/dokka/pages/ContentGroup;Ljava/util/List;Lorg/jetbrains/dokka/pages/DCI;Ljava/util/Set;Ljava/util/Set;Lorg/jetbrains/dokka/model/properties/PropertyContainer;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
@@ -4000,6 +4013,18 @@ public final class org/jetbrains/dokka/pages/DCI {
 }
 
 public abstract interface class org/jetbrains/dokka/pages/DriResolver : kotlin/jvm/functions/Function2 {
+}
+
+public final class org/jetbrains/dokka/pages/ExtraTabs : org/jetbrains/dokka/model/properties/ExtraProperty {
+	public static final field Companion Lorg/jetbrains/dokka/pages/ExtraTabs$Companion;
+	public fun <init> (Ljava/util/List;)V
+	public fun getKey ()Lorg/jetbrains/dokka/model/properties/ExtraProperty$Key;
+	public final fun getTabs ()Ljava/util/List;
+}
+
+public final class org/jetbrains/dokka/pages/ExtraTabs$Companion : org/jetbrains/dokka/model/properties/ExtraProperty$Key {
+	public synthetic fun mergeStrategyFor (Ljava/lang/Object;Ljava/lang/Object;)Lorg/jetbrains/dokka/model/properties/MergeStrategy;
+	public fun mergeStrategyFor (Lorg/jetbrains/dokka/pages/ExtraTabs;Lorg/jetbrains/dokka/pages/ExtraTabs;)Lorg/jetbrains/dokka/model/properties/MergeStrategy;
 }
 
 public final class org/jetbrains/dokka/pages/HtmlContent : org/jetbrains/dokka/model/properties/ExtraProperty, org/jetbrains/dokka/model/properties/ExtraProperty$Key {
