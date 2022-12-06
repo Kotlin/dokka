@@ -28,9 +28,9 @@ internal fun PageContentBuilder.DocumentableContentBuilder.descriptionSectionCon
 ) {
     val descriptions = documentable.descriptions
     if (descriptions.any { it.value.root.children.isNotEmpty() }) {
-        sourceSets.forEach { platform ->
-            descriptions[platform]?.also {
-                group(sourceSets = setOf(platform), styles = emptySet()) {
+        sourceSets.forEach { sourceSet ->
+            descriptions[sourceSet]?.also {
+                group(sourceSets = setOf(sourceSet), styles = emptySet()) {
                     comment(it.root)
                 }
             }
@@ -45,13 +45,13 @@ internal fun PageContentBuilder.DocumentableContentBuilder.customTagSectionConte
 ) {
     val customTags = documentable.customTags ?: return
 
-    sourceSets.forEach { platform ->
+    sourceSets.forEach { sourceSet ->
         customTags.forEach { (_, sourceSetTag) ->
-            sourceSetTag[platform]?.let { tag ->
+            sourceSetTag[sourceSet]?.let { tag ->
                 customTagContentProviders.filter { it.isApplicable(tag) }.forEach { provider ->
-                    group(sourceSets = setOf(platform), styles = setOf(ContentStyle.KDocTag)) {
+                    group(sourceSets = setOf(sourceSet), styles = setOf(ContentStyle.KDocTag)) {
                         with(provider) {
-                            contentForDescription(platform, tag)
+                            contentForDescription(sourceSet, tag)
                         }
                     }
                 }
@@ -69,11 +69,11 @@ internal fun PageContentBuilder.DocumentableContentBuilder.unnamedTagSectionCont
         .filterNot { (k, _) -> k.isSubclassOf(NamedTagWrapper::class) || k in specialTags }
         .values.flatten().groupBy { it.first }.mapValues { it.value.map { it.second } }
     if (unnamedTags.isEmpty()) return
-    sourceSets.forEach { platform ->
-        unnamedTags[platform]?.let { tags ->
+    sourceSets.forEach { sourceSet ->
+        unnamedTags[sourceSet]?.let { tags ->
             if (tags.isNotEmpty()) {
                 tags.groupBy { it::class }.forEach { (_, sameCategoryTags) ->
-                    group(sourceSets = setOf(platform), styles = setOf(ContentStyle.KDocTag)) {
+                    group(sourceSets = setOf(sourceSet), styles = setOf(ContentStyle.KDocTag)) {
                         header(
                             level = KDOC_TAG_HEADER_LEVEL,
                             text = sameCategoryTags.first().toHeaderString(),
@@ -92,18 +92,18 @@ internal fun PageContentBuilder.DocumentableContentBuilder.paramsSectionContent(
     val params = tags.withTypeNamed<Param>() ?: return
 
     val availableSourceSets = params.availableSourceSets()
-    availableSourceSets.forEach { platform ->
-        header(KDOC_TAG_HEADER_LEVEL, "Parameters", kind = ContentKind.Parameters, sourceSets = setOf(platform))
-        table(
-            kind = ContentKind.Parameters,
-            extra = mainExtra + SimpleAttr.header("Parameters"),
-            sourceSets = setOf(platform)
-        )
-        {
-            val possibleFallbacks = availableSourceSets.getPossibleFallback(platform)
+    header(KDOC_TAG_HEADER_LEVEL, "Parameters", kind = ContentKind.Parameters, sourceSets = availableSourceSets)
+    table(
+        kind = ContentKind.Parameters,
+        extra = mainExtra + SimpleAttr.header("Parameters"),
+        sourceSets = availableSourceSets
+    )
+    {
+        availableSourceSets.forEach { sourceSet ->
+            val possibleFallbacks = availableSourceSets.getPossibleFallback(sourceSet)
             params.mapNotNull { (_, param) ->
-                (param[platform] ?: param.fallback(possibleFallbacks))?.let {
-                    row(sourceSets = setOf(platform), kind = ContentKind.Parameters) {
+                (param[sourceSet] ?: param.fallback(possibleFallbacks))?.let {
+                    row(sourceSets = setOf(sourceSet), kind = ContentKind.Parameters) {
                         text(
                             it.name,
                             kind = ContentKind.Parameters,
@@ -122,20 +122,21 @@ internal fun PageContentBuilder.DocumentableContentBuilder.paramsSectionContent(
 internal fun PageContentBuilder.DocumentableContentBuilder.seeAlsoSectionContent(tags: GroupedTags) {
     val seeAlsoTags = tags.withTypeNamed<See>() ?: return
 
-    val availablePlatforms = seeAlsoTags.availableSourceSets()
-    availablePlatforms.forEach { platform ->
-        header(KDOC_TAG_HEADER_LEVEL, "See also", kind = ContentKind.Comment, sourceSets = setOf(platform))
+    val availableSourceSets = seeAlsoTags.availableSourceSets()
+    header(KDOC_TAG_HEADER_LEVEL, "See also", kind = ContentKind.Comment, sourceSets = availableSourceSets)
 
-        table(
-            kind = ContentKind.Comment,
-            extra = mainExtra + SimpleAttr.header("See also")
-        )
-        {
-            val possibleFallbacks = availablePlatforms.getPossibleFallback(platform)
+    table(
+        kind = ContentKind.Comment,
+        extra = mainExtra + SimpleAttr.header("See also"),
+        sourceSets = availableSourceSets
+    )
+    {
+        availableSourceSets.forEach { sourceSet ->
+            val possibleFallbacks = availableSourceSets.getPossibleFallback(sourceSet)
             seeAlsoTags.forEach { (_, see) ->
-                (see[platform] ?: see.fallback(possibleFallbacks))?.let { seeTag ->
+                (see[sourceSet] ?: see.fallback(possibleFallbacks))?.let { seeTag ->
                     row(
-                        sourceSets = setOf(platform),
+                        sourceSets = setOf(sourceSet),
                         kind = ContentKind.Comment
                     ) {
                         seeTag.address?.let { dri ->
@@ -161,27 +162,26 @@ internal fun PageContentBuilder.DocumentableContentBuilder.seeAlsoSectionContent
 }
 
 internal fun PageContentBuilder.DocumentableContentBuilder.throwsSectionContent(tags: GroupedTags) {
-    val throws = tags.withTypeNamed<Throws>() ?: return
+    val throwsTags = tags.withTypeNamed<Throws>() ?: return
+    val availableSourceSets = throwsTags.availableSourceSets()
 
-    throws.availableSourceSets().forEach { platform ->
-        header(KDOC_TAG_HEADER_LEVEL, "Throws", sourceSets = setOf(platform))
-        table(
-            kind = ContentKind.Main,
-            sourceSets = setOf(platform),
-            extra = mainExtra + SimpleAttr.header("Throws")
-        ) {
-            throws.entries.forEach { entry ->
-                entry.value[platform]?.let { throws ->
-                    row(sourceSets = setOf(platform)) {
-                        group(styles = mainStyles + ContentStyle.RowTitle) {
-                            throws.exceptionAddress?.let {
-                                val className = it.takeIf { it.target is PointingToDeclaration }?.classNames
-                                link(text = className ?: entry.key, address = it)
-                            } ?: text(entry.key)
-                        }
-                        if (throws.isNotEmpty()) {
-                            comment(throws.root)
-                        }
+    header(KDOC_TAG_HEADER_LEVEL, "Throws", sourceSets = availableSourceSets)
+    table(
+        kind = ContentKind.Main,
+        sourceSets = availableSourceSets,
+        extra = mainExtra + SimpleAttr.header("Throws")
+    ) {
+        throwsTags.forEach { (throwsName, throwsPerSourceSet) ->
+            throwsPerSourceSet.forEach { (sourceSet, throws) ->
+                row(sourceSets = setOf(sourceSet)) {
+                    group(styles = mainStyles + ContentStyle.RowTitle) {
+                        throws.exceptionAddress?.let {
+                            val className = it.takeIf { it.target is PointingToDeclaration }?.classNames
+                            link(text = className ?: throwsName, address = it)
+                        } ?: text(throwsName)
+                    }
+                    if (throws.isNotEmpty()) {
+                        comment(throws.root)
                     }
                 }
             }
@@ -191,19 +191,18 @@ internal fun PageContentBuilder.DocumentableContentBuilder.throwsSectionContent(
 
 internal fun PageContentBuilder.DocumentableContentBuilder.samplesSectionContent(tags: GroupedTags) {
     val samples = tags.withTypeNamed<Sample>() ?: return
-    samples.availableSourceSets().forEach { platform ->
-        val content = samples.filter { it.value.isEmpty() || platform in it.value }
-        header(KDOC_TAG_HEADER_LEVEL, "Samples", kind = ContentKind.Sample, sourceSets = setOf(platform))
+    val availableSourceSets = samples.availableSourceSets()
 
+    header(KDOC_TAG_HEADER_LEVEL, "Samples", kind = ContentKind.Sample, sourceSets = availableSourceSets)
+    availableSourceSets.forEach { sourceSet ->
         group(
-            sourceSets = setOf(platform),
+            sourceSets = setOf(sourceSet),
             kind = ContentKind.Sample,
             styles = setOf(TextStyle.Monospace, ContentStyle.RunnableSample),
             extra = mainExtra + SimpleAttr.header("Samples")
         ) {
-            content.forEach {
-                text(it.key)
-            }
+            samples.filter { it.value.isEmpty() || sourceSet in it.value }
+                .forEach { text(text = it.key, sourceSets = setOf(sourceSet)) }
         }
     }
 }
@@ -250,20 +249,21 @@ private fun PageContentBuilder.DocumentableContentBuilder.multiplatformInheritor
     // intersect is used for removing duplication in case of merged classlikes from different platforms
     val availableSourceSets = inheritors.keys.toSet().intersect(documentable.sourceSets)
 
-    availableSourceSets.forEach { platform ->
-        header(KDOC_TAG_HEADER_LEVEL, "Inheritors", sourceSets = setOf(platform))
-        table(
-            kind = ContentKind.Inheritors,
-            sourceSets = setOf(platform),
-            extra = mainExtra + SimpleAttr.header("Inheritors")
-        ) {
-            inheritors[platform]?.forEach { classlike: DRI ->
-                inheritorRow(classlike, logger)
+    header(KDOC_TAG_HEADER_LEVEL, "Inheritors", sourceSets = availableSourceSets)
+    table(
+        kind = ContentKind.Inheritors,
+        sourceSets = availableSourceSets,
+        extra = mainExtra + SimpleAttr.header("Inheritors")
+    ) {
+        availableSourceSets.forEach { sourceSet ->
+            inheritors[sourceSet]?.forEach { classlike: DRI ->
+                inheritorRow(classlike, logger, sourceSet)
             }
         }
     }
 }
 
+// `sourceSets` parameters is not applied on purpose
 private fun PageContentBuilder.DocumentableContentBuilder.sharedSourceSetOnlyInheritorsSectionContent(
     inheritors: Map<DokkaConfiguration.DokkaSourceSet, List<DRI>>,
     logger: DokkaLogger,
@@ -281,11 +281,14 @@ private fun PageContentBuilder.DocumentableContentBuilder.sharedSourceSetOnlyInh
     }
 }
 
-private fun PageContentBuilder.TableBuilder.inheritorRow(classlike: DRI, logger: DokkaLogger) = row {
+private fun PageContentBuilder.TableBuilder.inheritorRow(
+    classlike: DRI, logger: DokkaLogger, sourceSet: DokkaConfiguration.DokkaSourceSet? = null,
+) = row {
     link(
         text = classlike.friendlyClassName()
             ?: classlike.toString().also { logger.warn("No class name found for DRI $classlike") },
-        address = classlike
+        address = classlike,
+        sourceSets = sourceSet?.let { setOf(it) } ?: mainSourcesetData
     )
 }
 

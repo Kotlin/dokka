@@ -2,6 +2,7 @@ package content.seealso
 
 import matchers.content.*
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
+import org.jetbrains.dokka.model.DisplaySourceSet
 import org.jetbrains.dokka.pages.ContentDRILink
 import org.junit.jupiter.api.Test
 import utils.*
@@ -13,6 +14,32 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
             sourceSet {
                 sourceRoots = listOf("src/")
                 analysisPlatform = "jvm"
+            }
+        }
+    }
+
+    private val mppTestConfiguration = dokkaConfiguration {
+        moduleName = "example"
+        sourceSets {
+            val common = sourceSet {
+                name = "common"
+                displayName = "common"
+                analysisPlatform = "common"
+                sourceRoots = listOf("src/commonMain/kotlin/pageMerger/Test.kt")
+            }
+            sourceSet {
+                name = "jvm"
+                displayName = "jvm"
+                analysisPlatform = "jvm"
+                dependentSourceSets = setOf(common.value.sourceSetID)
+                sourceRoots = listOf("src/jvmMain/kotlin/pageMerger/Test.kt")
+            }
+            sourceSet {
+                name = "linuxX64"
+                displayName = "linuxX64"
+                analysisPlatform = "native"
+                dependentSourceSets = setOf(common.value.sourceSetID)
+                sourceRoots = listOf("src/linuxX64Main/kotlin/pageMerger/Test.kt")
             }
         }
     }
@@ -723,4 +750,109 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
             }
         }
     }
+
+    @Test
+    fun `multiplatofrm class with seealso in few platforms`() {
+        testInline(
+            """
+                |/src/commonMain/kotlin/pageMerger/Test.kt
+                |package pageMerger
+                |
+                |/**
+                |* @see Unit
+                |*/
+                |expect open class Parent
+                |
+                |/src/jvmMain/kotlin/pageMerger/Test.kt
+                |package pageMerger
+                |
+                |val x = 0
+                |/**
+                |* @see x resolved
+                |* @see y unresolved
+                |*/
+                |actual open class Parent
+                |
+                |/src/linuxX64Main/kotlin/pageMerger/Test.kt
+                |package pageMerger
+                |
+                |actual open class Parent
+                |
+            """.trimMargin(),
+            mppTestConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val page = module.findTestType("pageMerger", "Parent")
+                page.content.assertNode {
+                    group {
+                        header(1) { +"Parent" }
+                        platformHinted {
+                            group {
+                                +"expect open class "
+                                link {
+                                    +"Parent"
+                                }
+                            }
+                            group {
+                                +"actual open class "
+                                link {
+                                    +"Parent"
+                                }
+                            }
+                            group {
+                                +"actual open class "
+                                link {
+                                    +"Parent"
+                                }
+                            }
+                            header(4) {
+                                +"See also"
+                                check {
+                                    assertEquals(2, sourceSets.size)
+                                }
+                            }
+                            table {
+                                group {
+                                    link { +"Unit" }
+                                    check {
+                                        sourceSets.assertSourceSet("common")
+                                    }
+                                }
+                                group {
+                                    link { +"Unit" }
+                                    check {
+                                        sourceSets.assertSourceSet("jvm")
+                                    }
+                                }
+                                group {
+                                    link { +"x" }
+                                    group { group { +"resolved" } }
+                                    check {
+                                        sourceSets.assertSourceSet("jvm")
+                                    }
+                                }
+                                group {
+                                    +"y"
+                                    group { group { +"unresolved" } }
+                                    check {
+                                        sourceSets.assertSourceSet("jvm")
+                                    }
+                                }
+
+                                check {
+                                    assertEquals(2, sourceSets.size)
+                                }
+                            }
+                        }
+                    }
+                    skipAllNotMatching()
+                }
+            }
+        }
+    }
+}
+
+private fun Set<DisplaySourceSet>.assertSourceSet(expectedName: String) {
+    assertEquals(1, this.size)
+    assertEquals(expectedName, this.first().name)
 }
