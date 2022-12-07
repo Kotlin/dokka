@@ -8,6 +8,7 @@ class SimpleAttr(val extraKey: String, val extraValue: String) : ExtraProperty<C
 
     companion object {
         fun header(value: String) = SimpleAttr("data-togglable", value)
+        fun togglableTarget(value: String) = SimpleAttr("data-togglable", value)
     }
 }
 

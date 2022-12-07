@@ -266,15 +266,14 @@ function toggleSections(target) {
     }
     const toggleTargets = target.getAttribute("data-togglable").split(",")
     const activateTabsBody = (containerClass) => {
-        for (const element of document.getElementsByClassName(containerClass)) {
-            for (const child of element.children) {
-                if (toggleTargets.includes(child.getAttribute("data-togglable"))) {
-                    child.setAttribute("data-active", "")
-                } else {
-                    child.removeAttribute("data-active")
-                }
-            }
-        }
+        document.querySelectorAll("." + containerClass + " *[data-togglable]")
+            .forEach(child => {
+                    if (toggleTargets.includes(child.getAttribute("data-togglable"))) {
+                        child.setAttribute("data-active", "")
+                    } else if(!child.classList.contains("sourceset-dependent-content")) {
+                        child.removeAttribute("data-active")
+                    }
+            })
     }
     activateTabs("tabs-section")
     activateTabsBody("tabs-section-body")

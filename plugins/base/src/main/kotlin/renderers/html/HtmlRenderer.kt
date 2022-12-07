@@ -101,6 +101,7 @@ open class HtmlRenderer(
                 childrenCallback()
             }
             node.dci.kind in setOf(ContentKind.Symbol) -> div("symbol $additionalClasses") {
+                node.extra.extraHtmlAttributes().forEach { attributes[it.extraKey] = it.extraValue }
                 childrenCallback()
             }
             node.hasStyle(ContentStyle.KDocTag) -> span("kdoc-tag") { childrenCallback() }
@@ -113,7 +114,10 @@ open class HtmlRenderer(
                 span("breakable-word") { childrenCallback() }
             }
             node.hasStyle(TextStyle.Span) -> span { childrenCallback() }
-            node.dci.kind == ContentKind.Symbol -> div("symbol $additionalClasses") { childrenCallback() }
+            node.dci.kind == ContentKind.Symbol -> div("symbol $additionalClasses") {
+                node.extra.extraHtmlAttributes().forEach { attributes[it.extraKey] = it.extraValue }
+                childrenCallback()
+            }
             node.dci.kind == SymbolContentKind.Parameters -> {
                 span("parameters $additionalClasses") {
                     childrenCallback()
@@ -131,7 +135,10 @@ open class HtmlRenderer(
             }
             node.dci.kind == ContentKind.Deprecation -> div("deprecation-content") { childrenCallback() }
             node.hasStyle(TextStyle.Paragraph) -> p(additionalClasses) { childrenCallback() }
-            node.hasStyle(TextStyle.Block) -> div(additionalClasses) { childrenCallback() }
+            node.hasStyle(TextStyle.Block) -> div(additionalClasses) {
+                node.extra.extraHtmlAttributes().forEach { attributes[it.extraKey] = it.extraValue }
+                childrenCallback()
+            }
             node.hasStyle(TextStyle.Quotation) -> blockQuote(additionalClasses) { childrenCallback() }
             node.hasStyle(TextStyle.FloatingRight) -> span("clearfix") { span("floating-right") { childrenCallback() } }
             node.hasStyle(TextStyle.Strikethrough) -> strike { childrenCallback() }
@@ -258,6 +265,7 @@ open class HtmlRenderer(
                         beforeTransformer = { instance, _, sourceSet ->
                             createHTML(prettyPrint = false).prepareForTemplates().div {
                                 instance.before?.let { before ->
+                                    before.extra.extraHtmlAttributes().forEach { attributes[it.extraKey] = it.extraValue }
                                     buildContentNode(before, pageContext, sourceSet)
                                 }
                             }.stripDiv()
@@ -265,6 +273,7 @@ open class HtmlRenderer(
                         afterTransformer = { instance, _, sourceSet ->
                             createHTML(prettyPrint = false).prepareForTemplates().div {
                                 instance.after?.let { after ->
+                                    after.extra.extraHtmlAttributes().forEach { attributes[it.extraKey] = it.extraValue }
                                     buildContentNode(after, pageContext, sourceSet)
                                 }
                             }.stripDiv()
@@ -442,6 +451,7 @@ open class HtmlRenderer(
     ) {
         buildAnchor(contextNode)
         div(classes = "table-row") {
+            contextNode.extra.extraHtmlAttributes().forEach { attributes[it.extraKey] = it.extraValue }
             addSourceSetFilteringAttributes(contextNode)
             div("main-subrow keyValue " + contextNode.style.joinToString(separator = " ")) {
                 buildRowHeaderLink(toRender, pageContext, sourceSetRestriction, contextNode.anchor)
@@ -588,13 +598,17 @@ open class HtmlRenderer(
 
     override fun FlowContent.buildHeader(level: Int, node: ContentHeader, content: FlowContent.() -> Unit) {
         val classes = node.style.joinToString { it.toString() }.toLowerCase()
+        val contentWithExtraAttributes: FlowContent.() -> Unit = {
+            node.extra.extraHtmlAttributes().forEach { attributes[it.extraKey] = it.extraValue }
+            content()
+        }
         when (level) {
-            1 -> h1(classes = classes, content)
-            2 -> h2(classes = classes, content)
-            3 -> h3(classes = classes, content)
-            4 -> h4(classes = classes, content)
-            5 -> h5(classes = classes, content)
-            else -> h6(classes = classes, content)
+            1 -> h1(classes = classes, contentWithExtraAttributes)
+            2 -> h2(classes = classes, contentWithExtraAttributes)
+            3 -> h3(classes = classes, contentWithExtraAttributes)
+            4 -> h4(classes = classes, contentWithExtraAttributes)
+            5 -> h5(classes = classes, contentWithExtraAttributes)
+            else -> h6(classes = classes, contentWithExtraAttributes)
         }
     }
 

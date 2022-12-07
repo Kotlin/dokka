@@ -4282,6 +4282,7 @@ public final class org/jetbrains/dokka/pages/SimpleAttr : org/jetbrains/dokka/mo
 
 public final class org/jetbrains/dokka/pages/SimpleAttr$Companion {
 	public final fun header (Ljava/lang/String;)Lorg/jetbrains/dokka/pages/SimpleAttr;
+	public final fun togglableTarget (Ljava/lang/String;)Lorg/jetbrains/dokka/pages/SimpleAttr;
 }
 
 public final class org/jetbrains/dokka/pages/SimpleAttr$SimpleAttrKey : org/jetbrains/dokka/model/properties/ExtraProperty$Key {
