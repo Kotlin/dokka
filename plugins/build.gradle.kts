@@ -31,7 +31,7 @@ subprojects {
     tasks.withType(KotlinCompile::class).all {
         kotlinOptions {
             freeCompilerArgs = freeCompilerArgs + listOf(
-                "-opt-in=org.jetbrains.dokka.plugability.ExperimentalDokkaPluginApi"
+                "-opt-in=org.jetbrains.dokka.plugability.PreviewDokkaPluginApi"
             )
         }
     }
