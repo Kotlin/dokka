@@ -251,7 +251,34 @@ open class DefaultPageCreator(
                 }
             }
         }
-        group(styles = setOf(ContentStyle.TabbedContent)) {
+        val extraTabs = ExtraTabs(
+            listOfNotNull(
+                if (p.functions.isEmpty()) null else ContentTab(
+                    ContentText(
+                        "Functions",
+                        DCI(mainDRI, ContentKind.Main),
+                        sourceSets = mainSourcesetData.toDisplaySourceSets()
+                    ),
+                    listOf(
+                        "Functions",
+                        "Extensions",
+                    )
+                ),
+                if (p.properties.isEmpty()) null else ContentTab(
+                    ContentText(
+                        "Properties",
+                        DCI(mainDRI, ContentKind.Main),
+                        sourceSets = mainSourcesetData.toDisplaySourceSets()
+                    ),
+                    listOf(
+                        "Properties",
+                        "Extensions"
+                    )
+                )
+
+            )
+        )
+        group(styles = setOf(ContentStyle.TabbedContent), extra = mainExtra + extraTabs) {
             +contentForScope(p, p.dri, p.sourceSets)
         }
     }
@@ -311,13 +338,13 @@ open class DefaultPageCreator(
 
             val (inheritedExtensionFunctions, extensionFunctions) = extensionFuns.splitInheritedExtension(dri)
             val (inheritedExtensionProperties, extensionProperties) = extensionProps.splitInheritedExtension(dri)
-            propertiesBlock("Properties", memberProperties, sourceSets, extensionProperties, isVisibleHeader = isClasslike)
-            propertiesBlock("Inherited properties", inheritedProperties, sourceSets, inheritedExtensionProperties, isVisibleHeader = isClasslike)
-            functionsBlock("Functions", memberFunctions, inheritedExtensionFunctions, isVisibleHeader = isClasslike)
-            functionsBlock("Inherited functions", inheritedFunctions, extensionFunctions, isVisibleHeader = isClasslike)
+            propertiesBlock("Properties", memberProperties + extensionProperties, sourceSets, isVisibleHeader = isClasslike)
+            propertiesBlock("Inherited properties", inheritedProperties + inheritedExtensionProperties, sourceSets, isVisibleHeader = isClasslike)
+            functionsBlock("Functions", memberFunctions + extensionFunctions, isVisibleHeader = isClasslike)
+            functionsBlock("Inherited functions", inheritedFunctions + inheritedExtensionFunctions, isVisibleHeader = isClasslike)
         } else {
-            functionsBlock("Functions", functions, extensionFuns, isVisibleHeader = isClasslike)
-            propertiesBlock("Properties", properties, sourceSets, extensionProps, isVisibleHeader = isClasslike)
+            functionsBlock("Functions", functions + extensionFuns, isVisibleHeader = isClasslike)
+            propertiesBlock("Properties", properties + extensionProps, sourceSets, isVisibleHeader = isClasslike)
         }
     }
 
@@ -540,11 +567,10 @@ open class DefaultPageCreator(
     private fun DocumentableContentBuilder.functionsBlock(
         name: String,
         list: Collection<DFunction>,
-        extensions: Collection<DFunction> = emptyList(),
         isVisibleHeader: Boolean = false
     ) = divergentBlock(
         name,
-        (list + extensions).sorted(),
+        list.sorted(),
         ContentKind.Functions,
         extra = mainExtra + SimpleAttr.header(name),
         headExtra = if(isVisibleHeader) mainExtra + SimpleAttr.header(name) else mainExtra
@@ -554,14 +580,16 @@ open class DefaultPageCreator(
         name: String,
         list: Collection<DProperty>,
         sourceSets: Set<DokkaSourceSet>,
-        extensions: Collection<DProperty> = emptyList(),
         isVisibleHeader: Boolean = false
     ) {
+        val groupedElements = list.groupBy { Pair(it.name, it.isExtension()) }.toList()
+        val sortedGroupedElements = groupedElements.sortedWith(compareBy<Pair<Pair<String, Boolean>, List<DProperty>>, String>(nullsLast(String.CASE_INSENSITIVE_ORDER)) { it.first.first }.thenBy { it.first.second })
+
         multiBlock(
             name,
             2,
             ContentKind.Properties,
-            (list + extensions).groupBy { it.name }.toList(),
+            sortedGroupedElements.map { it.first.first to it.second },
             sourceSets,
             needsAnchors = true,
             extra = mainExtra + SimpleAttr.togglableTarget(name),
@@ -607,12 +635,14 @@ open class DefaultPageCreator(
                     group { text("Summary") }
                 }
                 collection
-                    .groupBy { it.name } // This groupBy should probably use LocationProvider
+                    .groupBy { Pair(it.name, it.isExtension()) } // This groupBy should probably use LocationProvider
                     // This hacks displaying actual typealias signatures along classlike ones
                     .mapValues { if (it.value.any { it is DClasslike }) it.value.filter { it !is DTypeAlias } else it.value }
-                    .toSortedMap(compareBy(nullsLast(String.CASE_INSENSITIVE_ORDER)) { it })
-                    .forEach { (elementName, elements) -> // This groupBy should probably use LocationProvider
-                        val rowExtra = if(elements.all { it.isExtension() }) extra + SimpleAttr.togglableTarget("Extensions") else extra
+                    .toSortedMap(compareBy<Pair<String?, Boolean>, String?>(nullsLast(String.CASE_INSENSITIVE_ORDER)) { it.first }.thenBy { it.second })
+                    .forEach { (elementNameAndIsExtension, elements) -> // This groupBy should probably use LocationProvider
+                        val elementName = elementNameAndIsExtension.first
+                        val isExtension = elementNameAndIsExtension.second
+                        val rowExtra = if(isExtension) extra + SimpleAttr.togglableTarget("Extensions") else extra
 
                         row(
                             dri = elements.map { it.dri }.toSet(),
@@ -645,20 +675,11 @@ open class DefaultPageCreator(
                                     ) {
                                         divergent(extra = PropertyContainer.empty()) {
                                             group {
-                                                if (element.isExtension()) +buildSignature(element).map {
-                                                    it.withNewExtras(
-                                                        it.extra + SimpleAttr.togglableTarget(
-                                                            "Extensions"
-                                                        )
-                                                    )
-                                                }
-                                                else +buildSignature(element)
+                                                +buildSignature(element)
                                             }
                                         }
                                         after(
-                                            extra = PropertyContainer.withAll(
-                                                SimpleAttr.togglableTarget("Extensions")
-                                                    .takeIf { element.isExtension() })
+                                            extra = PropertyContainer.empty()
                                         ) {
                                             contentForBrief(element)
                                             contentForCustomTagsBrief(element)
