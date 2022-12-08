@@ -174,13 +174,7 @@ function initTabs() {
 function showCorrespondingTabBody(element) {
     const buttonWithKey = element.querySelector("button[data-active]")
     if (buttonWithKey) {
-        const key = buttonWithKey.getAttribute("data-togglable")
-        key.split(",").forEach( target => {
-                const tabBody = document.querySelector(".tabs-section-body")
-                    .querySelector("div[data-togglable='" + target + "']")
-                if(tabBody) tabBody.setAttribute("data-active", "")
-        })
-
+        toggleSections(buttonWithKey)
     }
 }
 
@@ -252,7 +246,6 @@ function removeSourcesetFilterFromCache(sourceset) {
 }
 
 function toggleSections(target) {
-    localStorage.setItem('active-tab', JSON.stringify(target.getAttribute("data-togglable")))
     const activateTabs = (containerClass) => {
         for (const element of document.getElementsByClassName(containerClass)) {
             for (const child of element.children) {
@@ -281,6 +274,7 @@ function toggleSections(target) {
 
 function toggleSectionsEventHandler(evt) {
     if (!evt.target.getAttribute("data-togglable")) return
+    localStorage.setItem('active-tab', JSON.stringify(evt.target.getAttribute("data-togglable")))
     toggleSections(evt.target)
 }
 

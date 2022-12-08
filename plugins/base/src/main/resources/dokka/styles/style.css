@@ -947,7 +947,8 @@ td.content {
 }
 
 .platform-hinted > .content:not([data-active]),
-.tabs-section-body *[data-togglable]:not([data-active]) {
+.tabs-section-body *[data-togglable]:not([data-active]),
+.tabs-section-body > *:not([data-active]) {
     display: none;
 }
 
