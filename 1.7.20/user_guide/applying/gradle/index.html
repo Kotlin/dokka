@@ -1311,7 +1311,7 @@
 <p>The preferred way is to use <code>plugins</code> block.</p>
 <p>build.gradle.kts:
 <div class="highlight"><pre><span></span><code><span class="n">plugins</span> <span class="p">{</span>
-    <span class="n">id</span><span class="p">(</span><span class="s">&quot;org.jetbrains.dokka&quot;</span><span class="p">)</span> <span class="n">version</span> <span class="s">&quot;1.7.10&quot;</span>
+    <span class="n">id</span><span class="p">(</span><span class="s">&quot;org.jetbrains.dokka&quot;</span><span class="p">)</span> <span class="n">version</span> <span class="s">&quot;1.7.20&quot;</span>
 <span class="p">}</span>
 
 <span class="n">repositories</span> <span class="p">{</span>
@@ -1355,7 +1355,8 @@ you will have to add a depencency to the Kotlin Gradle Plugin as well
 <p>Dokka documents single-platform as well as multi-platform projects.
 Most of the configuration options are set per one source set.
 The available configuration options are shown below:</p>
-<div class="highlight"><pre><span></span><code><span class="k">import</span> <span class="nn">org.jetbrains.dokka.gradle.DokkaTask</span>
+<div class="highlight"><pre><span></span><code><span class="k">import</span> <span class="nn">org.jetbrains.dokka.DokkaConfiguration</span>
+<span class="k">import</span> <span class="nn">org.jetbrains.dokka.gradle.DokkaTask</span>
 
 <span class="kd">val</span> <span class="nv">dokkaHtml</span> <span class="k">by</span> <span class="n">getting</span><span class="p">(</span><span class="n">DokkaTask</span><span class="o">::</span><span class="n">class</span><span class="p">)</span> <span class="p">{</span>
     <span class="n">outputDirectory</span><span class="p">.</span><span class="na">set</span><span class="p">(</span><span class="n">buildDir</span><span class="p">.</span><span class="na">resolve</span><span class="p">(</span><span class="s">&quot;dokka&quot;</span><span class="p">))</span>
@@ -1471,7 +1472,7 @@ The available configuration options are shown below:</p>
 
             <span class="c1">// Allows to customize documentation generation options on a per-package basis</span>
             <span class="c1">// Repeat for multiple packageOptions</span>
-            <span class="c1">// If multiple packages match the same matchingRegex, the longuest matchingRegex will be used</span>
+            <span class="c1">// If multiple packages match the same matchingRegex, the longest matchingRegex will be used</span>
             <span class="n">perPackageOption</span> <span class="p">{</span>
                 <span class="c1">// will match kotlin and all sub-packages of it</span>
                 <span class="n">matchingRegex</span><span class="p">.</span><span class="na">set</span><span class="p">(</span><span class="s">&quot;kotlin(</span><span class="err">$</span><span class="s">|\\.).*&quot;</span><span class="p">)</span> 
@@ -1546,13 +1547,13 @@ and configured automatically although test source sets are suppressed</p>
 <h2 id="applying-plugins">Applying plugins<a class="headerlink" href="#applying-plugins" title="Permanent link">&para;</a></h2>
 <p>Dokka plugin creates Gradle configuration for each output format in the form of <code>dokka${format}Plugin</code> (or <code>dokka${format}PartialPlugin</code> for multi-module tasks) :</p>
 <div class="highlight"><pre><span></span><code><span class="n">dependencies</span> <span class="p">{</span>
-    <span class="n">dokkaHtmlPlugin</span><span class="p">(</span><span class="s">&quot;org.jetbrains.dokka:kotlin-as-java-plugin:1.7.10&quot;</span><span class="p">)</span>
+    <span class="n">dokkaHtmlPlugin</span><span class="p">(</span><span class="s">&quot;org.jetbrains.dokka:kotlin-as-java-plugin:1.7.20&quot;</span><span class="p">)</span>
 <span class="p">}</span>
 </code></pre></div>
 <p>You can also create a custom Dokka task and add plugins directly inside:</p>
 <div class="highlight"><pre><span></span><code><span class="kd">val</span> <span class="nv">customDokkaTask</span> <span class="k">by</span> <span class="n">creating</span><span class="p">(</span><span class="n">DokkaTask</span><span class="o">::</span><span class="n">class</span><span class="p">)</span> <span class="p">{</span>
     <span class="n">dependencies</span> <span class="p">{</span>
-        <span class="n">plugins</span><span class="p">(</span><span class="s">&quot;org.jetbrains.dokka:kotlin-as-java-plugin:1.7.10&quot;</span><span class="p">)</span>
+        <span class="n">plugins</span><span class="p">(</span><span class="s">&quot;org.jetbrains.dokka:kotlin-as-java-plugin:1.7.20&quot;</span><span class="p">)</span>
     <span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
@@ -1577,7 +1578,7 @@ For example, you can add <code>DokkaBase</code> to gain access to aforementioned
 <div class="highlight"><pre><span></span><code><span class="n">buildscript</span> <span class="p">{</span>
     <span class="n">dependencies</span> <span class="p">{</span>
         <span class="c1">// classpath(&quot;&lt;plugin coordinates&gt;:&lt;plugin version&gt;&quot;)</span>
-        <span class="n">classpath</span><span class="p">(</span><span class="s">&quot;org.jetbrains.dokka:dokka-base:1.7.10&quot;</span><span class="p">)</span>
+        <span class="n">classpath</span><span class="p">(</span><span class="s">&quot;org.jetbrains.dokka:dokka-base:1.7.20&quot;</span><span class="p">)</span>
     <span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
@@ -1708,6 +1709,8 @@ with links to all generated (sub)documentations. It is possible to configure eac
     
     
       <script src="../../../assets/javascripts/bundle.c44cc438.min.js"></script>
+      
+        <script src="../../../survey_banner.js"></script>
       
     
   </body>
