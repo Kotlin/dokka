@@ -95,3 +95,5 @@ nav:
 
 extra_css:
   - dokka_colors.css
+extra_javascript:
+  - survey_banner.js

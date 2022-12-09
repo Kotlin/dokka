@@ -9,6 +9,9 @@ Just like Kotlin itself, Dokka fully supports mixed-language Java/Kotlin project
 standard Javadoc comments in Java files and [KDoc comments](https://kotlinlang.org/docs/reference/kotlin-doc.html) in Kotlin files,
 and can generate documentation in multiple formats including standard Javadoc, HTML and Markdown.
 
+:mega: Dokka team now leads the product to the first Stable release. 
+And we’d really appreciate it if you could [take our brief survey](https://surveys.jetbrains.com/s3/dokka-survey) about your dev. experience with the tool. It helps us to understand priorities right and deliver the most valuable things.
+
 ## Using Dokka
 
 **Full documentation is available at [https://kotlin.github.io/dokka/1.7.20/](https://kotlin.github.io/dokka/1.7.20/)**
