@@ -234,12 +234,12 @@ internal fun PageContentBuilder.DocumentableContentBuilder.inheritorsSectionCont
 private fun Documentable.isDefinedInSharedSourceSetOnly(inheritorsSourceSets: Set<DokkaConfiguration.DokkaSourceSet>) =
     sourceSets.size == 1 &&
             (sourceSets.first().analysisPlatform == Platform.common
-                    || sourceSets.first().hasDependentSourceSetInInheritors(inheritorsSourceSets))
+                    || sourceSets.first().hasDependentSourceSet(inheritorsSourceSets))
 
-private fun DokkaConfiguration.DokkaSourceSet.hasDependentSourceSetInInheritors(
-    inheritorsSourceSets: Set<DokkaConfiguration.DokkaSourceSet>,
+private fun DokkaConfiguration.DokkaSourceSet.hasDependentSourceSet(
+    sourceSets: Set<DokkaConfiguration.DokkaSourceSet>,
 ) =
-    inheritorsSourceSets.any { sourceSet -> sourceSet.dependentSourceSets.any { it == this.sourceSetID } }
+    sourceSets.any { sourceSet -> sourceSet.dependentSourceSets.any { it == this.sourceSetID } }
 
 private fun PageContentBuilder.DocumentableContentBuilder.multiplatformInheritorsSectionContent(
     documentable: Documentable,
@@ -249,12 +249,7 @@ private fun PageContentBuilder.DocumentableContentBuilder.multiplatformInheritor
     // intersect is used for removing duplication in case of merged classlikes from different platforms
     val availableSourceSets = inheritors.keys.toSet().intersect(documentable.sourceSets)
 
-    header(KDOC_TAG_HEADER_LEVEL, "Inheritors", sourceSets = availableSourceSets)
-    table(
-        kind = ContentKind.Inheritors,
-        sourceSets = availableSourceSets,
-        extra = mainExtra + SimpleAttr.header("Inheritors")
-    ) {
+    inheritorsBlock(sourceSets = availableSourceSets) {
         availableSourceSets.forEach { sourceSet ->
             inheritors[sourceSet]?.forEach { classlike: DRI ->
                 inheritorRow(classlike, logger, sourceSet)
@@ -263,21 +258,29 @@ private fun PageContentBuilder.DocumentableContentBuilder.multiplatformInheritor
     }
 }
 
-// `sourceSets` parameters is not applied on purpose
 private fun PageContentBuilder.DocumentableContentBuilder.sharedSourceSetOnlyInheritorsSectionContent(
     inheritors: Map<DokkaConfiguration.DokkaSourceSet, List<DRI>>,
     logger: DokkaLogger,
 ) {
     val uniqueInheritors = inheritors.values.flatten().toSet()
-
-    header(KDOC_TAG_HEADER_LEVEL, "Inheritors")
-    table(
-        kind = ContentKind.Inheritors,
-        extra = mainExtra + SimpleAttr.header("Inheritors")
-    ) {
+    inheritorsBlock {
         uniqueInheritors.forEach { classlike ->
             inheritorRow(classlike, logger)
         }
+    }
+}
+
+private fun PageContentBuilder.DocumentableContentBuilder.inheritorsBlock(
+    sourceSets: Set<DokkaConfiguration.DokkaSourceSet> = mainSourcesetData,
+    body: PageContentBuilder.TableBuilder.() -> Unit,
+) {
+    header(KDOC_TAG_HEADER_LEVEL, "Inheritors", sourceSets = sourceSets)
+    table(
+        kind = ContentKind.Inheritors,
+        sourceSets = sourceSets,
+        extra = mainExtra + SimpleAttr.header("Inheritors")
+    ) {
+        body()
     }
 }
 
