@@ -2,112 +2,112 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://github.com/Kotlin/dokka/1.8.0-SNAPSHOT/</loc>
-         <lastmod>2022-11-15</lastmod>
+         <lastmod>2022-12-09</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/Kotlin/dokka/1.8.0-SNAPSHOT/faq/</loc>
-         <lastmod>2022-11-15</lastmod>
+         <lastmod>2022-12-09</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/Kotlin/dokka/1.8.0-SNAPSHOT/community/plugins-list/</loc>
-         <lastmod>2022-11-15</lastmod>
+         <lastmod>2022-12-09</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/Kotlin/dokka/1.8.0-SNAPSHOT/community/slack/</loc>
-         <lastmod>2022-11-15</lastmod>
+         <lastmod>2022-12-09</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/Kotlin/dokka/1.8.0-SNAPSHOT/developer_guide/introduction/</loc>
-         <lastmod>2022-11-15</lastmod>
+         <lastmod>2022-12-09</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/Kotlin/dokka/1.8.0-SNAPSHOT/developer_guide/workflow/</loc>
-         <lastmod>2022-11-15</lastmod>
+         <lastmod>2022-12-09</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/Kotlin/dokka/1.8.0-SNAPSHOT/developer_guide/architecture/architecture_overview/</loc>
-         <lastmod>2022-11-15</lastmod>
+         <lastmod>2022-12-09</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/Kotlin/dokka/1.8.0-SNAPSHOT/developer_guide/architecture/data_model/documentables/</loc>
-         <lastmod>2022-11-15</lastmod>
+         <lastmod>2022-12-09</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/Kotlin/dokka/1.8.0-SNAPSHOT/developer_guide/architecture/data_model/extra/</loc>
-         <lastmod>2022-11-15</lastmod>
+         <lastmod>2022-12-09</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/Kotlin/dokka/1.8.0-SNAPSHOT/developer_guide/architecture/data_model/page_content/</loc>
-         <lastmod>2022-11-15</lastmod>
+         <lastmod>2022-12-09</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/Kotlin/dokka/1.8.0-SNAPSHOT/developer_guide/architecture/extension_points/base_extensions/</loc>
-         <lastmod>2022-11-15</lastmod>
+         <lastmod>2022-12-09</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/Kotlin/dokka/1.8.0-SNAPSHOT/developer_guide/architecture/extension_points/core_extensions/</loc>
-         <lastmod>2022-11-15</lastmod>
+         <lastmod>2022-12-09</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/Kotlin/dokka/1.8.0-SNAPSHOT/developer_guide/architecture/extension_points/introduction/</loc>
-         <lastmod>2022-11-15</lastmod>
+         <lastmod>2022-12-09</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/Kotlin/dokka/1.8.0-SNAPSHOT/developer_guide/plugin-development/introduction/</loc>
-         <lastmod>2022-11-15</lastmod>
+         <lastmod>2022-12-09</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/Kotlin/dokka/1.8.0-SNAPSHOT/developer_guide/plugin-development/sample-plugin-tutorial/</loc>
-         <lastmod>2022-11-15</lastmod>
+         <lastmod>2022-12-09</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/Kotlin/dokka/1.8.0-SNAPSHOT/user_guide/introduction/</loc>
-         <lastmod>2022-11-15</lastmod>
+         <lastmod>2022-12-09</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/Kotlin/dokka/1.8.0-SNAPSHOT/user_guide/applying/cli/</loc>
-         <lastmod>2022-11-15</lastmod>
+         <lastmod>2022-12-09</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/Kotlin/dokka/1.8.0-SNAPSHOT/user_guide/applying/gradle/</loc>
-         <lastmod>2022-11-15</lastmod>
+         <lastmod>2022-12-09</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/Kotlin/dokka/1.8.0-SNAPSHOT/user_guide/applying/maven/</loc>
-         <lastmod>2022-11-15</lastmod>
+         <lastmod>2022-12-09</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/Kotlin/dokka/1.8.0-SNAPSHOT/user_guide/output-formats/html/</loc>
-         <lastmod>2022-11-15</lastmod>
+         <lastmod>2022-12-09</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/Kotlin/dokka/1.8.0-SNAPSHOT/user_guide/plugins/android-plugin/</loc>
-         <lastmod>2022-11-15</lastmod>
+         <lastmod>2022-12-09</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/Kotlin/dokka/1.8.0-SNAPSHOT/user_guide/plugins/versioning-plugin/</loc>
-         <lastmod>2022-11-15</lastmod>
+         <lastmod>2022-12-09</lastmod>
          <changefreq>daily</changefreq>
     </url>
 </urlset>
