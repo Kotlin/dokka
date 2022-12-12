@@ -92,13 +92,11 @@ internal fun PageContentBuilder.DocumentableContentBuilder.paramsSectionContent(
     val params = tags.withTypeNamed<Param>() ?: return
 
     val availableSourceSets = params.availableSourceSets()
-    header(KDOC_TAG_HEADER_LEVEL, "Parameters", kind = ContentKind.Parameters, sourceSets = availableSourceSets)
-    table(
+    tableSectionContentBlock(
+        blockName = "Parameters",
         kind = ContentKind.Parameters,
-        extra = mainExtra + SimpleAttr.header("Parameters"),
         sourceSets = availableSourceSets
-    )
-    {
+    ) {
         availableSourceSets.forEach { sourceSet ->
             val possibleFallbacks = availableSourceSets.getPossibleFallback(sourceSet)
             params.mapNotNull { (_, param) ->
@@ -123,14 +121,11 @@ internal fun PageContentBuilder.DocumentableContentBuilder.seeAlsoSectionContent
     val seeAlsoTags = tags.withTypeNamed<See>() ?: return
 
     val availableSourceSets = seeAlsoTags.availableSourceSets()
-    header(KDOC_TAG_HEADER_LEVEL, "See also", kind = ContentKind.Comment, sourceSets = availableSourceSets)
-
-    table(
+    tableSectionContentBlock(
+        blockName = "See also",
         kind = ContentKind.Comment,
-        extra = mainExtra + SimpleAttr.header("See also"),
         sourceSets = availableSourceSets
-    )
-    {
+    ) {
         availableSourceSets.forEach { sourceSet ->
             val possibleFallbacks = availableSourceSets.getPossibleFallback(sourceSet)
             seeAlsoTags.forEach { (_, see) ->
@@ -165,11 +160,10 @@ internal fun PageContentBuilder.DocumentableContentBuilder.throwsSectionContent(
     val throwsTags = tags.withTypeNamed<Throws>() ?: return
     val availableSourceSets = throwsTags.availableSourceSets()
 
-    header(KDOC_TAG_HEADER_LEVEL, "Throws", sourceSets = availableSourceSets)
-    table(
+    tableSectionContentBlock(
+        blockName = "Throws",
         kind = ContentKind.Main,
-        sourceSets = availableSourceSets,
-        extra = mainExtra + SimpleAttr.header("Throws")
+        sourceSets = availableSourceSets
     ) {
         throwsTags.forEach { (throwsName, throwsPerSourceSet) ->
             throwsPerSourceSet.forEach { (sourceSet, throws) ->
@@ -249,7 +243,11 @@ private fun PageContentBuilder.DocumentableContentBuilder.multiplatformInheritor
     // intersect is used for removing duplication in case of merged classlikes from different platforms
     val availableSourceSets = inheritors.keys.toSet().intersect(documentable.sourceSets)
 
-    inheritorsBlock(sourceSets = availableSourceSets) {
+    tableSectionContentBlock(
+        blockName = "Inheritors",
+        kind = ContentKind.Inheritors,
+        sourceSets = availableSourceSets
+    ) {
         availableSourceSets.forEach { sourceSet ->
             inheritors[sourceSet]?.forEach { classlike: DRI ->
                 inheritorRow(classlike, logger, sourceSet)
@@ -263,22 +261,27 @@ private fun PageContentBuilder.DocumentableContentBuilder.sharedSourceSetOnlyInh
     logger: DokkaLogger,
 ) {
     val uniqueInheritors = inheritors.values.flatten().toSet()
-    inheritorsBlock {
+    tableSectionContentBlock(
+        blockName = "Inheritors",
+        kind = ContentKind.Inheritors,
+    ) {
         uniqueInheritors.forEach { classlike ->
             inheritorRow(classlike, logger)
         }
     }
 }
 
-private fun PageContentBuilder.DocumentableContentBuilder.inheritorsBlock(
+private fun PageContentBuilder.DocumentableContentBuilder.tableSectionContentBlock(
+    blockName: String,
+    kind: ContentKind,
     sourceSets: Set<DokkaConfiguration.DokkaSourceSet> = mainSourcesetData,
     body: PageContentBuilder.TableBuilder.() -> Unit,
 ) {
-    header(KDOC_TAG_HEADER_LEVEL, "Inheritors", sourceSets = sourceSets)
+    header(KDOC_TAG_HEADER_LEVEL, text = blockName, kind = kind, sourceSets = sourceSets)
     table(
-        kind = ContentKind.Inheritors,
+        kind = kind,
         sourceSets = sourceSets,
-        extra = mainExtra + SimpleAttr.header("Inheritors")
+        extra = mainExtra + SimpleAttr.header(blockName)
     ) {
         body()
     }
