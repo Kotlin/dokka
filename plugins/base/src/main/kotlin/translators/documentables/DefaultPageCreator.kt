@@ -375,9 +375,15 @@ open class DefaultPageCreator(
                     }
                 }
             }
+
+            val csWithConstructor = classlikes.filterIsInstance<WithConstructors>()
+            val scopes = documentables.filterIsInstance<WithScope>()
+
+            val isThereAnyConstructor = csWithConstructor.isNotEmpty() && documentables.shouldRenderConstructors()
+            val isThereAnyMember = isThereAnyConstructor || scopes.any { it.classlikes.isNotEmpty() || it.functions.isNotEmpty() || it.properties.isNotEmpty() }
             val extraTabs = ExtraTabs(
                 listOfNotNull(
-                    ContentTab(
+                    if (!isThereAnyMember) null else ContentTab(
                         ContentText(
                             "Members",
                             DCI(mainDRI, ContentKind.Main),
@@ -417,7 +423,6 @@ open class DefaultPageCreator(
                 sourceSets = mainSourcesetData + extensions.sourceSets,
                 extra = mainExtra + extraTabs
             ) {
-                val csWithConstructor = classlikes.filterIsInstance<WithConstructors>()
                 if (csWithConstructor.isNotEmpty() && documentables.shouldRenderConstructors()) {
                     val constructorsToDocumented = csWithConstructor.flatMap { it.constructors }
                     multiBlock(
@@ -474,7 +479,7 @@ open class DefaultPageCreator(
                         }
                     }
                 }
-                +contentForScopes(documentables.filterIsInstance<WithScope>(), documentables.sourceSets, extensions, isClasslike = true)
+                +contentForScopes(scopes, documentables.sourceSets, extensions, isClasslike = true)
             }
         }
 
