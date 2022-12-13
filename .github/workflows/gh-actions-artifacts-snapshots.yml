@@ -19,6 +19,7 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: 12
+          cache: 'maven'
       - name: Publish Dokka Gradle Plugin For IntegrationTests
         uses: gradle/gradle-build-action@v2
         with:
@@ -52,6 +53,7 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: 12
+          cache: 'maven'
       - name: Publish Dokka Gradle Plugin For IntegrationTests
         uses: gradle/gradle-build-action@v2
         with:
@@ -85,6 +87,7 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: 12
+          cache: 'maven'
       - name: Document biojava-core
         uses: gradle/gradle-build-action@v2
         with:
