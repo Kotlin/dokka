@@ -167,4 +167,7 @@ class SinceKotlinTransformer(val context: DokkaContext) : DocumentableTransforme
                     ) else it.value
                 }
         }
+    companion object {
+       internal fun isAddSinceKotlin() = System.getProperty("dokka.SinceKotlin") in listOf("true", "1")
+    }
 }
