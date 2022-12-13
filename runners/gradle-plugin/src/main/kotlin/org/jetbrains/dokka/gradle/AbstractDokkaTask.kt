@@ -57,9 +57,6 @@ abstract class AbstractDokkaTask : DefaultTask() {
         .safeConvention(DokkaDefaults.offlineMode)
 
     @Input
-    val extraOptions: ListProperty<String> = project.objects.listProperty()
-
-    @Input
     val pluginsConfiguration: ListProperty<in DokkaConfiguration.PluginConfiguration> = project.objects.listProperty()
 
     /**

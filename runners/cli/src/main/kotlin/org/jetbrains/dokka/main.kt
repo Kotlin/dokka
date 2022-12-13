@@ -11,12 +11,8 @@ import java.nio.file.Paths
 class GlobalArguments(args: Array<String>) : DokkaConfiguration {
 
     val parser = ArgParser("globalArguments", prefixStyle = ArgParser.OptionPrefixStyle.JVM)
-    private val extraArgs: List<String> by parser.argument(ArgType.String, "Json file name or extra options", ).vararg().optional()
 
-    val json: File?
-        get() = extraArgs.singleOrNull()?.let { Paths.get(it) }?.toFile()?.takeIf { it.exists() }
-
-    override val extraOptions = extraArgs
+    val json: String? by parser.argument(ArgType.String, description = "Json file name").optional()
 
     private val _moduleName = parser.option(
         ArgType.String,
@@ -412,18 +408,18 @@ fun parseLinks(links: List<String>): List<ExternalDocumentationLink> {
 }
 
 fun initializeConfiguration(globalArguments: GlobalArguments): DokkaConfiguration = if (globalArguments.json != null) {
-        val jsonContent = checkNotNull(globalArguments.json).readText()
-        val globals = GlobalDokkaConfiguration(jsonContent)
-        val dokkaConfigurationImpl = DokkaConfigurationImpl(jsonContent)
+    val jsonContent = Paths.get(checkNotNull(globalArguments.json)).toFile().readText()
+    val globals = GlobalDokkaConfiguration(jsonContent)
+    val dokkaConfigurationImpl = DokkaConfigurationImpl(jsonContent)
 
-        dokkaConfigurationImpl.apply(globals).apply {
-            sourceSets.forEach {
-                it.externalDocumentationLinks.cast<MutableSet<ExternalDocumentationLink>>().addAll(defaultLinks(it))
-            }
+    dokkaConfigurationImpl.apply(globals).apply {
+        sourceSets.forEach {
+            it.externalDocumentationLinks.cast<MutableSet<ExternalDocumentationLink>>().addAll(defaultLinks(it))
         }
-    } else {
-        globalArguments
     }
+} else {
+    globalArguments
+}
 
 fun main(args: Array<String>) {
     val globalArguments = GlobalArguments(args)
