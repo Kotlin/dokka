@@ -91,7 +91,10 @@ jobs:
       - name: Document biojava-core
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: :integration-tests:maven:integrationTest --tests org.jetbrains.dokka.it.maven.BiojavaIntegrationTest --stacktrace
+          arguments: |
+            :integration-tests:maven:integrationTest 
+            --tests org.jetbrains.dokka.it.maven.BiojavaIntegrationTest 
+            --stacktrace
         env:
           DOKKA_TEST_OUTPUT_PATH: /home/runner/work/dokka/biojava                        
       - name: Copy files to GitHub Actions Artifacts
