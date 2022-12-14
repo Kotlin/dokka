@@ -545,7 +545,7 @@ index 0000000..76356e8
 +dokka_build = 611
 +dokka_version = 1.4.20.2-SNAPSHOT
 +org.gradle.jvmargs=-Xmx4096m
-+systemProp.dokka.SinceKotlin=true
++systemProp.dokka.should-display-since-kotlin=true
 diff --git a/gradle/wrapper/gradle-wrapper.properties b/gradle/wrapper/gradle-wrapper.properties
 index d76b502..5028f28 100644
 --- a/gradle/wrapper/gradle-wrapper.properties

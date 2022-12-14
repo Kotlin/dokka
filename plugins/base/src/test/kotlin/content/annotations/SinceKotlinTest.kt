@@ -2,7 +2,8 @@ package content.annotations
 
 import matchers.content.*
 import org.jetbrains.dokka.Platform
-import org.jetbrains.dokka.base.transformers.pages.annotations.SinceKotlinTransformer.Version
+import org.jetbrains.dokka.base.transformers.pages.annotations.SinceKotlinTransformer
+import org.jetbrains.dokka.base.transformers.pages.annotations.SinceKotlinVersion
 import org.jetbrains.dokka.model.DFunction
 import org.jetbrains.dokka.model.dfs
 import org.jetbrains.dokka.model.doc.CustomTagWrapper
@@ -30,21 +31,21 @@ class SinceKotlinTest : AbstractRenderingTest() {
 
     @BeforeEach
     fun setSystemProperty() {
-        System.setProperty("dokka.SinceKotlin", "true")
+        System.setProperty(SinceKotlinTransformer.SHOULD_DISPLAY_SINCE_KOTLIN_SYS_PROP, "true")
     }
     @AfterEach
     fun clearSystemProperty() {
-        System.setProperty("dokka.SinceKotlin", "")
+        System.clearProperty(SinceKotlinTransformer.SHOULD_DISPLAY_SINCE_KOTLIN_SYS_PROP)
     }
 
     @Test
     fun versionsComparing() {
-        assert(Version("1.0").compareTo(Version("1.0")) == 0)
-        assert(Version("1.0.0").compareTo(Version("1")) == 0)
-        assert(Version("1.0") >= Version("1.0"))
-        assert(Version("1.1") > Version("1"))
-        assert(Version("1.0") < Version("2.0"))
-        assert(Version("1.0") < Version("2.2"))
+        assert(SinceKotlinVersion("1.0").compareTo(SinceKotlinVersion("1.0")) == 0)
+        assert(SinceKotlinVersion("1.0.0").compareTo(SinceKotlinVersion("1")) == 0)
+        assert(SinceKotlinVersion("1.0") >= SinceKotlinVersion("1.0"))
+        assert(SinceKotlinVersion("1.1") > SinceKotlinVersion("1"))
+        assert(SinceKotlinVersion("1.0") < SinceKotlinVersion("2.0"))
+        assert(SinceKotlinVersion("1.0") < SinceKotlinVersion("2.2"))
     }
 
     @Test
@@ -100,7 +101,7 @@ class SinceKotlinTest : AbstractRenderingTest() {
                     .children.filter { it.name == "ring" && it is DFunction } as List<DFunction>
                 with(funcs) {
                     val sinceKotlin = mapOf(
-                        Platform.jvm to Version("1.5"),
+                        Platform.jvm to SinceKotlinVersion("1.5"),
                     )
 
                     for(i in sinceKotlin) {
@@ -152,10 +153,10 @@ class SinceKotlinTest : AbstractRenderingTest() {
                     .children.filter { it.name == "ring" && it is DFunction } as List<DFunction>
                 with(funcs) {
                     val sinceKotlin = mapOf(
-                        Platform.common to Version("1.2"),
-                        Platform.jvm to Version("1.0"),
-                        Platform.js to Version("1.1"),
-                        Platform.native to Version("1.3")
+                        Platform.common to SinceKotlinVersion("1.2"),
+                        Platform.jvm to SinceKotlinVersion("1.0"),
+                        Platform.js to SinceKotlinVersion("1.1"),
+                        Platform.native to SinceKotlinVersion("1.3")
                     )
 
                     for(i in sinceKotlin) {
@@ -209,10 +210,10 @@ class SinceKotlinTest : AbstractRenderingTest() {
                     .children.filter { it.name == "ring" && it is DFunction } as List<DFunction>
                 with(funcs) {
                     val sinceKotlin = mapOf(
-                        Platform.common to Version("1.3"),
-                        Platform.jvm to Version("1.3"),
-                        Platform.js to Version("1.3"),
-                        Platform.native to Version("1.3")
+                        Platform.common to SinceKotlinVersion("1.3"),
+                        Platform.jvm to SinceKotlinVersion("1.3"),
+                        Platform.js to SinceKotlinVersion("1.3"),
+                        Platform.native to SinceKotlinVersion("1.3")
                     )
 
                     for(i in sinceKotlin) {
@@ -228,8 +229,8 @@ class SinceKotlinTest : AbstractRenderingTest() {
     }
 
     @Test
-    fun `function with since kotlin annotation`() {
-        System.setProperty("dokka.SinceKotlin", "")
+    fun `should do not render since kotlin tag when flag is unset`() {
+        clearSystemProperty()
         testInline(
             """
             |/src/main/kotlin/test/source.kt

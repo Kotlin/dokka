@@ -15,35 +15,36 @@ import org.jetbrains.dokka.transformers.documentation.DocumentableTransformer
 import org.jetbrains.dokka.utilities.associateWithNotNull
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 
-class SinceKotlinTransformer(val context: DokkaContext) : DocumentableTransformer {
-    class Version constructor(str: String) : Comparable<Version> {
-        private val parts: List<Int> = str.split(".").map { it.toInt() }
+class SinceKotlinVersion constructor(str: String) : Comparable<SinceKotlinVersion> {
+    private val parts: List<Int> = str.split(".").map { it.toInt() }
 
-        override fun compareTo(other: Version): Int {
-            val i1 = parts.listIterator()
-            val i2 = other.parts.listIterator()
+    override fun compareTo(other: SinceKotlinVersion): Int {
+        val i1 = parts.listIterator()
+        val i2 = other.parts.listIterator()
 
-            while (i1.hasNext() || i2.hasNext()) {
-                val diff = (if (i1.hasNext()) i1.next() else 0) - (if (i2.hasNext()) i2.next() else 0)
-                if (diff != 0) return diff
-            }
-
-            return 0
+        while (i1.hasNext() || i2.hasNext()) {
+            val diff = (if (i1.hasNext()) i1.next() else 0) - (if (i2.hasNext()) i2.next() else 0)
+            if (diff != 0) return diff
         }
 
-        override fun toString(): String = parts.joinToString(".")
+        return 0
     }
 
-    private val minSinceKotlinOfPlatform = mapOf(
-        Platform.common to Version("1.2"),
-        Platform.jvm to Version("1.0"),
-        Platform.js to Version("1.1"),
-        Platform.native to Version("1.3")
+    override fun toString(): String = parts.joinToString(".")
+}
+
+class SinceKotlinTransformer(val context: DokkaContext) : DocumentableTransformer {
+
+    private val minSinceKotlinVersionOfPlatform = mapOf(
+        Platform.common to SinceKotlinVersion("1.2"),
+        Platform.jvm to SinceKotlinVersion("1.0"),
+        Platform.js to SinceKotlinVersion("1.1"),
+        Platform.native to SinceKotlinVersion("1.3")
     )
 
     override fun invoke(original: DModule, context: DokkaContext) = original.transform() as DModule
 
-    private fun <T : Documentable> T.transform(parent: SourceSetDependent<Version>? = null): Documentable {
+    private fun <T : Documentable> T.transform(parent: SourceSetDependent<SinceKotlinVersion>? = null): Documentable {
         val versions = calculateVersions(parent)
         return when (this) {
             is DModule -> copy(
@@ -115,21 +116,21 @@ class SinceKotlinTransformer(val context: DokkaContext) : DocumentableTransforme
     private fun List<Annotations.Annotation>.findSinceKotlinAnnotation(): Annotations.Annotation? =
         this.find { it.dri.packageName == "kotlin" && it.dri.classNames == "SinceKotlin" }
 
-    private fun Documentable.getVersion(sourceSet: DokkaConfiguration.DokkaSourceSet): Version {
+    private fun Documentable.getVersion(sourceSet: DokkaConfiguration.DokkaSourceSet): SinceKotlinVersion {
         val annotatedVersion =
             annotations()[sourceSet]
                 ?.findSinceKotlinAnnotation()
                 ?.params?.get("version").safeAs<StringValue>()?.value
-                ?.let { Version(it) }
+                ?.let { SinceKotlinVersion(it) }
 
-        val minSinceKotlin = minSinceKotlinOfPlatform[sourceSet.analysisPlatform]
+        val minSinceKotlin = minSinceKotlinVersionOfPlatform[sourceSet.analysisPlatform]
             ?: throw IllegalStateException("No value for platform: ${sourceSet.analysisPlatform}")
 
         return annotatedVersion?.takeIf { version -> version >= minSinceKotlin } ?: minSinceKotlin
     }
 
 
-    private fun Documentable.calculateVersions(parent: SourceSetDependent<Version>?): SourceSetDependent<Version> {
+    private fun Documentable.calculateVersions(parent: SourceSetDependent<SinceKotlinVersion>?): SourceSetDependent<SinceKotlinVersion> {
         return sourceSets.associateWithNotNull { sourceSet ->
             val version = getVersion(sourceSet)
             val parentVersion = parent?.get(sourceSet)
@@ -140,12 +141,12 @@ class SinceKotlinTransformer(val context: DokkaContext) : DocumentableTransforme
         }
     }
 
-    private fun Documentable.appendSinceKotlin(versions: SourceSetDependent<Version>) =
+    private fun Documentable.appendSinceKotlin(versions: SourceSetDependent<SinceKotlinVersion>) =
         sourceSets.fold(documentation) { acc, sourceSet ->
 
             val version = versions[sourceSet]
 
-            val customTag = CustomTagWrapper(
+            val sinceKotlinCustomTag = CustomTagWrapper(
                 CustomDocTag(
                     listOf(
                         Text(
@@ -157,17 +158,20 @@ class SinceKotlinTransformer(val context: DokkaContext) : DocumentableTransforme
                 "Since Kotlin"
             )
             if (acc[sourceSet] == null)
-                acc + (sourceSet to DocumentationNode(listOf(customTag)))
+                acc + (sourceSet to DocumentationNode(listOf(sinceKotlinCustomTag)))
             else
                 acc.mapValues {
                     if (it.key == sourceSet) it.value.copy(
                         it.value.children + listOf(
-                            customTag
+                            sinceKotlinCustomTag
                         )
                     ) else it.value
                 }
         }
-    companion object {
-       internal fun isAddSinceKotlin() = System.getProperty("dokka.SinceKotlin") in listOf("true", "1")
+
+    internal companion object {
+        internal const val SHOULD_DISPLAY_SINCE_KOTLIN_SYS_PROP = "dokka.should-display-since-kotlin"
+        internal fun shouldDisplaySinceKotlin() =
+            System.getProperty(SHOULD_DISPLAY_SINCE_KOTLIN_SYS_PROP) in listOf("true", "1")
     }
 }

@@ -132,7 +132,7 @@ class DokkaBase : DokkaPlugin() {
     }
 
     val sinceKotlinTransformer by extending {
-        CoreExtensions.documentableTransformer providing ::SinceKotlinTransformer applyIf { SinceKotlinTransformer.isAddSinceKotlin() }
+        CoreExtensions.documentableTransformer providing ::SinceKotlinTransformer applyIf { SinceKotlinTransformer.shouldDisplaySinceKotlin() }
     }
 
     val inheritorsExtractor by extending {
@@ -156,7 +156,7 @@ class DokkaBase : DokkaPlugin() {
     }
 
     val sinceKotlinTagContentProvider by extending {
-        customTagContentProvider with SinceKotlinTagContentProvider applyIf { SinceKotlinTransformer.isAddSinceKotlin() }
+        customTagContentProvider with SinceKotlinTagContentProvider applyIf { SinceKotlinTransformer.shouldDisplaySinceKotlin() }
     }
 
     val pageMerger by extending {

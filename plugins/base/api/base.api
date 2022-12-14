@@ -1287,19 +1287,15 @@ public final class org/jetbrains/dokka/base/transformers/documentables/utils/Ful
 }
 
 public final class org/jetbrains/dokka/base/transformers/pages/annotations/SinceKotlinTransformer : org/jetbrains/dokka/transformers/documentation/DocumentableTransformer {
-	public static final field Companion Lorg/jetbrains/dokka/base/transformers/pages/annotations/SinceKotlinTransformer$Companion;
 	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
 	public final fun getContext ()Lorg/jetbrains/dokka/plugability/DokkaContext;
 	public fun invoke (Lorg/jetbrains/dokka/model/DModule;Lorg/jetbrains/dokka/plugability/DokkaContext;)Lorg/jetbrains/dokka/model/DModule;
 }
 
-public final class org/jetbrains/dokka/base/transformers/pages/annotations/SinceKotlinTransformer$Companion {
-}
-
-public final class org/jetbrains/dokka/base/transformers/pages/annotations/SinceKotlinTransformer$Version : java/lang/Comparable {
+public final class org/jetbrains/dokka/base/transformers/pages/annotations/SinceKotlinVersion : java/lang/Comparable {
 	public fun <init> (Ljava/lang/String;)V
 	public synthetic fun compareTo (Ljava/lang/Object;)I
-	public fun compareTo (Lorg/jetbrains/dokka/base/transformers/pages/annotations/SinceKotlinTransformer$Version;)I
+	public fun compareTo (Lorg/jetbrains/dokka/base/transformers/pages/annotations/SinceKotlinVersion;)I
 	public fun toString ()Ljava/lang/String;
 }
 
