@@ -8,7 +8,7 @@ import org.jetbrains.dokka.model.dfs
 import org.jetbrains.dokka.model.doc.CustomTagWrapper
 import org.jetbrains.dokka.model.doc.Text
 import org.jetbrains.dokka.pages.ContentPage
-import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.*
 import signatures.AbstractRenderingTest
 import utils.ParamAttributes
 import utils.TestOutputWriterPlugin
@@ -28,6 +28,15 @@ class SinceKotlinTest : AbstractRenderingTest() {
         }
     }
 
+    @BeforeEach
+    fun setSystemProperty() {
+        System.setProperty("dokka.SinceKotlin", "true")
+    }
+    @AfterEach
+    fun clearSystemProperty() {
+        System.setProperty("dokka.SinceKotlin", "")
+    }
+
     @Test
     fun versionsComparing() {
         assert(Version("1.0").compareTo(Version("1.0")) == 0)
@@ -40,15 +49,6 @@ class SinceKotlinTest : AbstractRenderingTest() {
 
     @Test
     fun `rendered SinceKotlin custom tag for typealias, extensions, functions, properties`() {
-        val configuration =   dokkaConfiguration {
-            extraOptions = listOf("-XXSinceKotlin")
-            sourceSets {
-                sourceSet {
-                    sourceRoots = listOf("src/")
-                    analysisPlatform = "jvm"
-                }
-            }
-        }
         val writerPlugin = TestOutputWriterPlugin()
 
         testInline(
@@ -69,7 +69,7 @@ class SinceKotlinTest : AbstractRenderingTest() {
             |@SinceKotlin("1.5")
             |val str = "str"
         """.trimIndent(),
-            configuration,
+            testConfiguration,
             pluginOverrides = listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
@@ -81,15 +81,6 @@ class SinceKotlinTest : AbstractRenderingTest() {
 
     @Test
     fun `should propagate SinceKotlin`() {
-        val configuration =   dokkaConfiguration {
-            extraOptions = listOf("-XXSinceKotlin")
-            sourceSets {
-                sourceSet {
-                    sourceRoots = listOf("src/")
-                    analysisPlatform = "jvm"
-                }
-            }
-        }
         testInline(
             """
             |/src/main/kotlin/test/source.kt
@@ -101,7 +92,7 @@ class SinceKotlinTest : AbstractRenderingTest() {
             |       return "My precious " + abc
             |   }
             |}
-        """.trimIndent(), configuration
+        """.trimIndent(), testConfiguration
         ) {
             documentablesTransformationStage = { module ->
                 @Suppress("UNCHECKED_CAST") val funcs = module.children.single { it.name == "test" }
@@ -127,7 +118,6 @@ class SinceKotlinTest : AbstractRenderingTest() {
     @Test
     fun `mpp fun without SinceKotlin annotation`() {
         val configuration =   dokkaConfiguration {
-            extraOptions = listOf("-XXSinceKotlin")
             sourceSets {
                 sourceSet {
                     sourceRoots = listOf("src/")
@@ -183,7 +173,6 @@ class SinceKotlinTest : AbstractRenderingTest() {
     @Test
     fun `mpp fun with SinceKotlin annotation`() {
         val configuration =   dokkaConfiguration {
-            extraOptions = listOf("-XXSinceKotlin")
             sourceSets {
                 sourceSet {
                     sourceRoots = listOf("src/")
@@ -240,6 +229,7 @@ class SinceKotlinTest : AbstractRenderingTest() {
 
     @Test
     fun `function with since kotlin annotation`() {
+        System.setProperty("dokka.SinceKotlin", "")
         testInline(
             """
             |/src/main/kotlin/test/source.kt
