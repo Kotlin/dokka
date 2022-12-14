@@ -1,10 +1,3 @@
-public final class org/jetbrains/dokka/base/BasePluginFeatureOptions : java/lang/Enum, org/jetbrains/dokka/FeatureOption {
-	public static final field SinceKotlin Lorg/jetbrains/dokka/base/BasePluginFeatureOptions;
-	public synthetic fun getName ()Ljava/lang/String;
-	public static fun valueOf (Ljava/lang/String;)Lorg/jetbrains/dokka/base/BasePluginFeatureOptions;
-	public static fun values ()[Lorg/jetbrains/dokka/base/BasePluginFeatureOptions;
-}
-
 public final class org/jetbrains/dokka/base/DokkaBase : org/jetbrains/dokka/plugability/DokkaPlugin {
 	public fun <init> ()V
 	public final fun getActualTypealiasAdder ()Lorg/jetbrains/dokka/plugability/Extension;
@@ -1294,9 +1287,13 @@ public final class org/jetbrains/dokka/base/transformers/documentables/utils/Ful
 }
 
 public final class org/jetbrains/dokka/base/transformers/pages/annotations/SinceKotlinTransformer : org/jetbrains/dokka/transformers/documentation/DocumentableTransformer {
+	public static final field Companion Lorg/jetbrains/dokka/base/transformers/pages/annotations/SinceKotlinTransformer$Companion;
 	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
 	public final fun getContext ()Lorg/jetbrains/dokka/plugability/DokkaContext;
 	public fun invoke (Lorg/jetbrains/dokka/model/DModule;Lorg/jetbrains/dokka/plugability/DokkaContext;)Lorg/jetbrains/dokka/model/DModule;
+}
+
+public final class org/jetbrains/dokka/base/transformers/pages/annotations/SinceKotlinTransformer$Companion {
 }
 
 public final class org/jetbrains/dokka/base/transformers/pages/annotations/SinceKotlinTransformer$Version : java/lang/Comparable {
