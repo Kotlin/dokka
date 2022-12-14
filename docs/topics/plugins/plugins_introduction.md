@@ -14,13 +14,13 @@ If you want to learn how to create Dokka plugins, see
 ## Applying Dokka plugins
 
 Dokka plugins are published as separate artifacts, so to apply a Dokka plugin you only need to add it as a dependency.
-From there, the plugin will extend Dokka by itself - no extra actions needed. 
+From there, the plugin extends Dokka by itself - no further action is needed.
 
 > Plugins that use the same extension points or work in a similar way can interfere with each other.
 > This may lead to visual bugs, general undefined behaviour or even failed builds. However, it should not lead to 
 > concurrency issues since Dokka does not expose any mutable data structures or objects.
-> 
-> If you notice any problems of such nature, it's a good idea to check which plugins are applied and what they do.
+>
+> If you notice problems like this, it's a good idea to check which plugins are applied and what they do.
 > 
 {type="note"}
 
@@ -30,23 +30,23 @@ to your project:
 <tabs group="build-script">
 <tab title="Kotlin" group-key="kotlin">
 
-Gradle plugin creates convenient dependency configurations that allow you to apply plugins universally or
+The Gradle plugin creates convenient dependency configurations that allow you to apply plugins universally or
 for a specific output format only.
 
 ```kotlin
 dependencies {
-    // will be applied universally
+    // Is applied universally
     dokkaPlugin("org.jetbrains.dokka:mathjax-plugin:%dokkaVersion%")
-    
-    // will be applied for single-module dokkaHtml task only
+
+    // Is applied for the single-module dokkaHtml task only
     dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:%dokkaVersion%")
 
-    // will be applied for html format in multi-project builds
+    // Is applied for HTML format in multi-project builds
     dokkaHtmlPartialPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:%dokkaVersion%")
 }
 ```
 
-> When documenting [multi-project](gradle.md#multi-project-builds) builds, you need to apply Dokka plugins in
+> When documenting [multi-project](gradle.md#multi-project-builds) builds, you need to apply Dokka plugins within
 > subprojects as well as in their parent project.
 >
 {type="note"}
@@ -54,23 +54,23 @@ dependencies {
 </tab>
 <tab title="Groovy" group-key="groovy">
 
-Gradle plugin creates convenient dependency configurations that allow you to apply Dokka plugins universally or
+The Gradle plugin creates convenient dependency configurations that allow you to apply Dokka plugins universally or
 for a specific output format only.
 
 ```groovy
 dependencies {
-    // will be applied universally
+    // Is applied universally
     dokkaPlugin 'org.jetbrains.dokka:mathjax-plugin:%dokkaVersion%'
 
-    // will be applied for single-module dokkaHtml task only
+    // Is applied for the single-module dokkaHtml task only
     dokkaHtmlPlugin 'org.jetbrains.dokka:kotlin-as-java-plugin:%dokkaVersion%'
 
-    // will be applied for html format in multi-project builds
+    // Is applied for HTML format in multi-project builds
     dokkaHtmlPartialPlugin 'org.jetbrains.dokka:kotlin-as-java-plugin:%dokkaVersion%'
 }
 ```
 
-> When documenting [multi-project](gradle.md#multi-project-builds) builds, you need to apply Dokka plugins in
+> When documenting [multi-project](gradle.md#multi-project-builds) builds, you need to apply Dokka plugins within
 > subprojects as well as in their parent project.
 >
 {type="note"}
@@ -127,18 +127,18 @@ If you are using [JSON configuration](cli.md#running-with-json-configuration), D
 
 ## Configuring Dokka plugins
 
-Dokka plugins can also have configuration options of their own. Consult used plugin's documentation to see which
+Dokka plugins can also have configuration options of their own. Consult each plugin's documentation to see which
 options are available.
 
-Let's have a look at how you can configure `DokkaBase` plugin, which is responsible for generating [HTML](html.md) 
-documentation, by adding a custom image to assets (`customAssets` option), by adding custom style sheets 
-(`customStyleSheets` option) and by modifying the footer message (`footerMessage` option):
+Let's have a look at how you can configure the `DokkaBase` plugin, which is responsible for generating [HTML](html.md)
+documentation, by adding a custom image to assets (`customAssets` option), by adding custom style sheets
+(`customStyleSheets` option), and by modifying the footer message (`footerMessage` option):
 
 <tabs group="build-script">
 <tab title="Kotlin" group-key="kotlin">
 
 Gradle's Kotlin DSL allows for type-safe plugin configuration. This is achievable by adding plugin's artifact to classpath
-dependencies in `buildscript` block, and then importing plugin and configuration classes:
+dependencies in the `buildscript` block, and then importing plugin and configuration classes:
 
 ```kotlin
 import org.jetbrains.dokka.base.DokkaBase
@@ -160,7 +160,7 @@ tasks.withType<DokkaTask>().configureEach {
 }
 ```
 
-Alternatively, plugins can be configured via JSON. This way no additional dependencies are needed.
+Alternatively, plugins can be configured via JSON. With this method, no additional dependencies are needed.
 
 ```kotlin
 import org.jetbrains.dokka.gradle.DokkaTask
@@ -233,7 +233,7 @@ tasks.withType(DokkaTask.class) {
 <tab title="CLI" group-key="cli">
 
 If you are using the [CLI](cli.md) runner with [command line arguments](cli.md#running-with-command-line-arguments),
-use `-pluginsConfiguration` argument that accepts JSON configuration in the form of `fullyQualifiedPluginName=json`. 
+use the `-pluginsConfiguration` argument that accepts JSON configuration in the form of `fullyQualifiedPluginName=json`.
 
 If you need to configure multiple plugins, you can pass multiple values separated by `^^`.
 
@@ -243,8 +243,8 @@ java -jar dokka-cli-%dokkaVersion%.jar \
      -pluginsConfiguration "org.jetbrains.dokka.base.DokkaBase={\"customAssets\": [\"my-image.png\"], \"customStyleSheets\": [\"my-styles.css\"], \"footerMessage\": \"(c) 2022 MyOrg CLI\"}"
 ```
 
-If you are using [JSON configuration](cli.md#running-with-json-configuration), there exists a similar 
-`pluginsConfiguration` array that accepts JSON as values.
+If you are using [JSON configuration](cli.md#running-with-json-configuration), there exists a similar
+`pluginsConfiguration` array that accepts JSON as `values`.
 
 ```json
 {
@@ -264,10 +264,12 @@ If you are using [JSON configuration](cli.md#running-with-json-configuration), t
 
 ## Notable plugins
 
-| **Name**                                                                                                  | **Description**                                                                                          |
-|-----------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------|
-| [Android documentation plugin](https://github.com/Kotlin/dokka/tree/master/plugins/android-documentation) | Improves documentation experience on Android platform                                                    |
-| [Versioning plugin](versioning.md)                                                                        | Adds version selector and helps organize documentation for different version of your application/library |
-| [MermaidJS HTML plugin](https://github.com/glureau/dokka-mermaid)                                         | Renders [MermaidJS](https://mermaid-js.github.io/mermaid/#/) diagrams and visualizations found in KDocs  |
-| [Mathjax HTML plugin](https://github.com/Kotlin/dokka/tree/master/plugins/mathjax)                        | Pretty prints mathematics found in KDocs                                                                 |
-| [Kotlin as Java plugin](https://github.com/Kotlin/dokka/tree/master/plugins/kotlin-as-java)               | Renders Kotlin signatures as seen from Java's perspective                                                |
+For a list of popular Dokka plugins, see the table below.
+
+| **Name**                                                                                                  | **Description**                                                                                              |
+|-----------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------|
+| [Android documentation plugin](https://github.com/Kotlin/dokka/tree/master/plugins/android-documentation) | Improves the documentation experience on Android                                                             |
+| [Versioning plugin](versioning.md)                                                                        | Adds version selector and helps to organize documentation for different versions of your application/library |
+| [MermaidJS HTML plugin](https://github.com/glureau/dokka-mermaid)                                         | Renders [MermaidJS](https://mermaid-js.github.io/mermaid/#/) diagrams and visualizations found in KDocs      |
+| [Mathjax HTML plugin](https://github.com/Kotlin/dokka/tree/master/plugins/mathjax)                        | Pretty prints mathematics found in KDocs                                                                     |
+| [Kotlin as Java plugin](https://github.com/Kotlin/dokka/tree/master/plugins/kotlin-as-java)               | Renders Kotlin signatures as seen from Java's perspective                                                    |

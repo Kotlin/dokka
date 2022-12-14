@@ -1,6 +1,6 @@
 [//]: # (title: Markdown)
 
-> Markdown output formats are still in Alpha, use at your own risk, expect bugs and migration issues.
+> The Markdown output formats are still in Alpha so you may find bugs and experience migration issues when using them. **You use them at your own risk.**
 >
 {type="warning"}
 
@@ -15,18 +15,18 @@ they are open source.
 
 ## GFM
 
-GFM format generates documentation in [GitHub Flavored Markdown](https://github.github.com/gfm/).
+The GFM output format generates documentation in [GitHub Flavored Markdown](https://github.github.com/gfm/).
 
 <tabs group="build-script">
 <tab title="Gradle" group-key="kotlin">
 
-Dokka's [Gradle plugin](gradle.md) ships with GFM format included, you can use the following tasks:
+Dokka's [Gradle plugin](gradle.md) comes with the GFM output format included. You can use the following tasks with it:
 
-| **Task**              | **Description**                                                                                                                                                                                                                    |
-|-----------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `dokkaGfm`            | Generates GFM documentation for a single project.                                                                                                                                                                                  |
-| `dokkaGfmMultiModule` | A [MultiModule](gradle.md#multi-project-builds) task created only for parent projects in multi-project builds. Generates documentation for subprojects and collects all outputs in a single place with a common table of contents. |
-| `dokkaGfmCollector`   | A [Collector](gradle.md#collector-tasks) task created only for parent projects in multi-project builds. Calls `dokkaGfm` for every subproject and merges all outputs into a single virtual project.                                |
+| **Task**              | **Description**                                                                                                                                                                                                                       |
+|-----------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `dokkaGfm`            | Generates GFM documentation for a single project.                                                                                                                                                                                     |
+| `dokkaGfmMultiModule` | A [MultiModule](gradle.md#multi-project-builds) task created only for parent projects in multi-project builds. It generates documentation for subprojects and collects all outputs in a single place with a common table of contents. |
+| `dokkaGfmCollector`   | A [Collector](gradle.md#collector-tasks) task created only for parent projects in multi-project builds. It calls `dokkaGfm` for every subproject and merges all outputs into a single virtual project.                                |
 
 </tab>
 <tab title="Maven" group-key="groovy">
@@ -51,9 +51,9 @@ dependency:
 </plugin>
 ```
 
-After that, running `dokka:dokka` goal should produce documentation in GFM format.
+After configuring this, running the `dokka:dokka` goal produces documentation in GFM format.
 
-For more information, see [other output formats](maven.md#other-output-formats) section for the Maven plugin.
+For more information, see the Mavin plugin documentation for [Other output formats](maven.md#other-output-formats).
 
 </tab>
 <tab title="CLI" group-key="cli">
@@ -84,27 +84,27 @@ Via [JSON configuration](cli.md#running-with-json-configuration):
 }
 ```
 
-For more information, see [other output formats](cli.md#other-output-formats) section for the CLI runner.
+For more information, see the CLI runner documentation for [Other output formats](cli.md#other-output-formats).
 
 </tab>
 </tabs>
 
-You can find sources [on GitHub](https://github.com/Kotlin/dokka/tree/%dokkaVersion%/plugins/gfm).
+You can find the source code [on GitHub](https://github.com/Kotlin/dokka/tree/%dokkaVersion%/plugins/gfm).
 
 ## Jekyll
 
-Jekyll format generates documentation in [Jekyll](https://jekyllrb.com/) compatible Markdown.
+The Jekyll output format generates documentation in [Jekyll](https://jekyllrb.com/) compatible Markdown.
 
 <tabs group="build-script">
 <tab title="Gradle" group-key="kotlin">
 
-Dokka's [Gradle plugin](gradle.md) ships with Jekyll format included, you can use the following tasks:
+Dokka's [Gradle plugin](gradle.md) comes with the Jekyll output format included. You can use the following tasks with it:
 
-| **Task**                 | **Description**                                                                                                                                                                                                                    |
-|--------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `dokkaJekyll`            | Generates Jekyll documentation for a single project.                                                                                                                                                                               |
-| `dokkaJekyllMultiModule` | A [MultiModule](gradle.md#multi-project-builds) task created only for parent projects in multi-project builds. Generates documentation for subprojects and collects all outputs in a single place with a common table of contents. |
-| `dokkaJekyllCollector`   | A [Collector](gradle.md#collector-tasks) task created only for parent projects in multi-project builds. Calls `dokkaJekyll` for every subproject and merges all outputs into a single virtual project.                             |
+| **Task**                 | **Description**                                                                                                                                                                                                                       |
+|--------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `dokkaJekyll`            | Generates Jekyll documentation for a single project.                                                                                                                                                                                  |
+| `dokkaJekyllMultiModule` | A [MultiModule](gradle.md#multi-project-builds) task created only for parent projects in multi-project builds. It generates documentation for subprojects and collects all outputs in a single place with a common table of contents. |
+| `dokkaJekyllCollector`   | A [Collector](gradle.md#collector-tasks) task created only for parent projects in multi-project builds. It calls `dokkaJekyll` for every subproject and merges all outputs into a single virtual project.                             |
 
 </tab>
 <tab title="Maven" group-key="groovy">
@@ -129,9 +129,9 @@ dependency:
 </plugin>
 ```
 
-After that, running `dokka:dokka` goal should produce documentation in GFM format.
+After configuring this, running the `dokka:dokka` goal produces documentation in GFM format.
 
-For more information, see [other output formats](maven.md#other-output-formats) section for the Maven plugin.
+For more information, see the Maven plugin documentation for [Other output formats](maven.md#other-output-formats).
 
 </tab>
 <tab title="CLI" group-key="cli">
@@ -164,9 +164,9 @@ Via [JSON configuration](cli.md#running-with-json-configuration):
 }
 ```
 
-For more information, see [other output formats](cli.md#other-output-formats) section for the CLI runner.
+For more information, see the CLI runner documentation for [Other output formats](cli.md#other-output-formats).
 
 </tab>
 </tabs>
 
-You can find sources [on GitHub](https://github.com/Kotlin/dokka/tree/%dokkaVersion%/plugins/jekyll).
+You can find the source code on [GitHub](https://github.com/Kotlin/dokka/tree/%dokkaVersion%/plugins/jekyll).

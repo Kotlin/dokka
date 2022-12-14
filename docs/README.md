@@ -1,29 +1,35 @@
-# docs
+# Dokka documentation
 
-This module contains documentation for Dokka that is deployed to [kotlinlang.org](https://kotlinlang.org/)
+This folder contains the Dokka documentation that is available on [kotlinlang.org](https://kotlinlang.org/).
 
-Documentation format is basically markdown with some DSL that is used internally at JetBrains.
+Our documentation is written in  Markdown format with some domain specific language (DSL) that is used at JetBrains.
 
 ## Project structure
 
-* `dokka.tree` represents Table of Contents
-* `vars.list` contains variables that you can use throughout documentation
-* `topics` directory contains documentation topics themselves
+This project contains:
+* A `topics` directory,  which contains our documentation in Markdown format.
+* A `dokka.tree` file, that describes the site navigation structure.
+* A `vars.list` file, that contains a list of variables that you can use throughout documentation.
 
-## DSL
+## DSL guide
+
+This section explains what DSL you can use to create different document elements.
 
 ### Title
 
-Each page must have a title. By default, this title is used in ToC as well.
+To declare the title of your document:
 
 ```text
 [//]: # (title: Name of topic)
 ```
 
-Note that title is basically a level 1 header, and it has to be the only one. So all other headers within topics must
-be at least level 2, otherwise sidebar navigation may not work as expected.
+Every document must have a title. By default, this title is used in the side menu.
+
+As the title is a level 1 header, it must be the only level 1 header in your document. All other headers within your document must be at least level 2, otherwise the side menu may not work as expected.
 
 ### Notes
+
+To add a note:
 
 ```text
 > This is a simple note
@@ -33,6 +39,8 @@ be at least level 2, otherwise sidebar navigation may not work as expected.
 
 ### Tips
 
+To add a tip:
+
 ```text
 > This is a useful tip
 >
@@ -40,6 +48,8 @@ be at least level 2, otherwise sidebar navigation may not work as expected.
 ```
 
 ### Warning
+
+To add a warning:
 
 ```text
 > This is a warning
@@ -49,9 +59,9 @@ be at least level 2, otherwise sidebar navigation may not work as expected.
 
 ### Tabs
 
-Tabs can be used to give instructions that are specific to a build system or something else.
+Tabs can be used to save space in your document, allowing you to show different text in the same space depending on the tab chosen.
 
-Content inside tabs is not limited to just text - it can be code blocks, tips, etc.
+Content within tabs isn't limited to text. You can also add code blocks, tips, etc.
 
 ```text
 <tabs group="build-script">
@@ -75,9 +85,7 @@ Instructions specific to CLI
 </tabs>
 ```
 
-Notice the use of `group-key` - this groups all tabs on the page, and when the user switches to a tab - it switches to
-all tabs with this key throughout the whole page. This is convenient for the user, since if they switched to Groovy tab,
-they probably want other tabs to be of that value as well.
+You can use the `group-key` parameter to link tabs in a document together. Grouping tabs like this means that if your reader selects a particular tab, e.g. "Groovy", then other tabbed sections in your document will also show the tab for "Groovy" first.
 
 ## Documentation preview
 

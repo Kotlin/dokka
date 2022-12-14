@@ -1,16 +1,16 @@
 [//]: # (title: Versioning plugin)
 
-Versioning plugin aims to provide the ability to host documentation for multiple versions of your library/application
-with seamless switching between them. This, in turn, provides better experience for your users.
+The versioning plugin provides the ability to host documentation for multiple versions of your library/application
+with seamless switching between them. This, in turn, provides a better experience for your users.
 
 ![Screenshot of documentation version dropdown](versioning-plugin-example.png){height=350}
 
-> Versioning plugin only works with [HTML](html.md) format.
+> The versioning plugin only works with [HTML](html.md) format.
 > 
 {type="note"}
 
-Visit [versioning plugin example project](https://github.com/Kotlin/dokka/tree/1.7.20/examples/gradle/dokka-versioning-multimodule-example)
-to see it in action as well as how it can be configured.
+Visit the [versioning plugin example project](https://github.com/Kotlin/dokka/tree/1.7.20/examples/gradle/dokka-versioning-multimodule-example)
+to see an example of it in action and how it can be configured.
 
 ## Applying the plugin
 
@@ -25,7 +25,7 @@ dependencies {
 }
 ```
 
-> When documenting [multi-project](gradle.md#multi-project-builds) builds, you need to apply versioning plugin in
+> When documenting [multi-project](gradle.md#multi-project-builds) builds, you need to apply the versioning plugin within
 > subprojects as well as in their parent project.
 >
 {type="note"}
@@ -39,7 +39,7 @@ dependencies {
 }
 ```
 
-> When documenting [multi-project](gradle.md#multi-project-builds) builds, you need to apply versioning plugin in
+> When documenting [multi-project](gradle.md#multi-project-builds) builds, you need to apply the versioning plugin within
 > subprojects as well as in their parent project.
 >
 {type="note"}
@@ -67,10 +67,10 @@ dependencies {
 </tab>
 <tab title="CLI" group-key="cli">
 
-You can find versioning plugin's artifact on 
+You can find the versioning plugin's artifact on
 [mvnrepository](https://mvnrepository.com/artifact/org.jetbrains.dokka/versioning-plugin/%dokkaVersion%) or by browsing
-[maven central repository](https://repo1.maven.org/maven2/org/jetbrains/dokka/versioning-plugin/%dokkaVersion%/) 
-directly, and pass it to `pliginsClasspath`.
+[maven central repository](https://repo1.maven.org/maven2/org/jetbrains/dokka/versioning-plugin/%dokkaVersion%/)
+directly, and pass it to `pluginsClasspath`.
 
 Via [command line arguments](cli.md#running-with-command-line-arguments):
 
@@ -101,19 +101,19 @@ Via [JSON configuration](cli.md#running-with-json-configuration):
 
 ### Configuration options
 
-Versioning plugin has a number of optional configuration properties:
+The table below contains all the possible configuration options for the versioning plugin and their purpose.
 
-| **Property**                         | **Description**                                                                                                                                                                                     |
-|--------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `version`                            | Version of your application/library for which documentation is going to be generated. This will be the version in the dropdown menu.                                                                |
-| `versionsOrdering`                   | Optional list of strings that represents the order in which versions should appear in the dropdown menu. Must match versions string exactly. First item of the list is the topmost in the dropdown. |
-| `olderVersionsDir`                   | Optional path to a parent folder that contains other documentation versions. Requires a certain [directory structure](#directory-structure).                                                        |
-| `olderVersions`                      | Optional list of paths to other documentation versions. Must point to Dokka's outputs directly. Useful if different versions are scattered and cannot be put into a single directory.               |
-| `renderVersionsNavigationOnAllPages` | Optional boolean indicating whether to render navigation dropdown on all pages. True by default.                                                                                                    |
+| **Option**                           | **Description**                                                                                                                                                                                       |
+|--------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `version`                            | The version of your application/library that documentation is going to be generated for. This will be the version shown in the dropdown menu.                                                         |
+| `versionsOrdering`                   | An optional list of strings that represents the order that versions should appear in the dropdown menu. Must match versions string exactly. The first item in the list is at the top of the dropdown. |
+| `olderVersionsDir`                   | An optional path to a parent folder that contains other documentation versions. It requires a specific directory structure. For more information, see [Directory structure](#directory-structure).    |
+| `olderVersions`                      | An optional list of paths to other documentation versions. It must point to Dokka's outputs directly. This is useful if different versions can't all be in the same directory.                        |
+| `renderVersionsNavigationOnAllPages` | An optional boolean value indicating whether to render the navigation dropdown on all pages. Set to true by default.                                                                                  |
 
 #### Directory structure
 
-Note that the directory passed to `olderVersionsDir` requires a specific structure:
+Note that the directory passed to `olderVersionsDir` needs to follow a specific structure:
 
 ```text
 .
@@ -253,31 +253,30 @@ Alternatively, via JSON configuration:
 
 ## Generating versioned documentation
 
-With versioning plugin applied and configured, no other steps are needed: documentation can be built the usual way.
+With the versioning plugin applied and configured, no other steps are needed. Documentation can be built in the usual way.
 
-Among other things, versioning plugin will add a `version.json` file to the output folder. This file will be used by the
+Among other things, the versioning plugin adds a `version.json` file to the output folder. This file is used by the
 plugin to match versions and generate version navigation. If your previously generated documentation does not have that
-file, you will need to re-generate documentation for such versions -- adding just the file will not work.
+file, you will need to re-generate documentation for such versions. Just adding the file will not work.
 
-Versioning plugin will also bundle all other documentation versions that have been passed through `olderVersionsDir` 
-and `olderVersions` configuration properties by putting them inside `older` directory.
+The versioning plugin also bundles all other documentation versions that have been passed through `olderVersionsDir`
+and `olderVersions` configuration options by putting them inside the `older` directory.
 
 ## Usage example
 
-There is no single correct way to configure the plugin, it can be tailored to your liking and needs. However,
+There is no single correct way to configure the plugin, it can be tailored to your needs. However,
 it can be a bit overwhelming when starting out. Below you will find one of the ways it can be configured so that you
-can begin publishing versioned documentation right away.
+can begin publishing versioned documentation straight away.
 
 The main idea behind it is the following:
 
-1. One directory will contain all versions of your documentation. For instance, `documentation/version/{doc_version}`.
-   This is your archive, you will need to preserve it for future builds.
-2. Output directory of all new builds will be set to that directory as well, under `documentation/version/{new_version}`
-3. When new builds are executed, the plugin will look for previous versions of documentation in the archive directory.
-4. Once new documentation has been generated, it needs to be **copied** to some place accessible by the user: 
-   GitHub pages, nginx static directories, and so on. It needs to be copied and not moved because Dokka will still need
-   this version for future builds, otherwise there will be a gap in the archive.
-5. Once it has been safely copied away, you can remove `older` directory from the newly generated and archived version. 
+1. One directory contains all versions of your documentation. For example, `documentation/version/{doc_version}`.
+   This is your archive which is needed for future builds.
+2. The output directory of all new builds is set to that directory as well, under `documentation/version/{new_version}`.
+3. When new builds are executed, the plugin looks for previous versions of documentation in the archive directory.
+4. Once new documentation has been generated, it needs to be **copied** to somewhere accessible by the user.
+   For example, GitHub pages or nginx static directories. It needs to be **copied**, not moved, because Dokka needs
+5. Once it has been safely copied, you can remove the `older` directory from the newly generated and archived version.
    This helps reduce the overhead of each version bundling all previous versions, as these files are effectively duplicates.
 
 ```kotlin
@@ -295,15 +294,15 @@ dependencies {
 }
 
 tasks.dokkaHtml {
-    // can be any persistent folder where
+    // This can be any persistent folder where
     // you store documentation by version
     val docVersionsDir = projectDir.resolve("documentation/version")
 
-    // version for which you are currently generating docs
+    // The version for which you are currently generating docs
     val currentVersion = "1.3"
     
-    // set output to folder with all other versions
-    // as you'll need current version for future builds
+    // Set the output to a folder with all other versions
+    // as you'll need the current version for future builds
     val currentDocsDir = docVersionsDir.resolve(currentVersion)
     outputDirectory.set(currentDocsDir)
 
@@ -313,15 +312,15 @@ tasks.dokkaHtml {
     }
 
     doLast {
-        // this folder will contain latest documentation with all
+        // This folder contains the latest documentation with all
         // previous versions included, so it's ready to be published.
-        // make sure it's copied and not moved - you'll still need this
+        // Make sure it's copied and not moved - you'll still need this
         // version for future builds
         currentDocsDir.copyTo(file("/my/hosting"))
        
-        // only once current documentation has been safely moved,
+        // Only once current documentation has been safely moved,
         // remove previous versions bundled in it. They will not
-        // be needed in future builds, it's just overhead
+        // be needed in future builds, it's just overhead.
         currentDocsDir.resolve("older").deleteRecursively()
     }
 }
