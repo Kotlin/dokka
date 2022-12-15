@@ -802,6 +802,7 @@ open class DefaultPageCreator(
                 props.forEach {
                     +buildSignature(it)
                     contentForBrief(it)
+                    contentForCustomTagsBrief(it)
                 }
             }
         }

@@ -541,10 +541,11 @@ new file mode 100644
 index 0000000..76356e8
 --- /dev/null
 +++ b/gradle.properties
-@@ -0,0 +1,3 @@
+@@ -0,0 +1,4 @@
 +dokka_build = 611
 +dokka_version = 1.4.20.2-SNAPSHOT
 +org.gradle.jvmargs=-Xmx4096m
++systemProp.dokka.shouldDisplaySinceKotlin=true
 diff --git a/gradle/wrapper/gradle-wrapper.properties b/gradle/wrapper/gradle-wrapper.properties
 index d76b502..5028f28 100644
 --- a/gradle/wrapper/gradle-wrapper.properties
