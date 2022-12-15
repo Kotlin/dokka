@@ -18,6 +18,9 @@ import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 class SinceKotlinVersion constructor(str: String) : Comparable<SinceKotlinVersion> {
     private val parts: List<Int> = str.split(".").map { it.toInt() }
 
+    /**
+     * Corner case: 1.0 == 1.0.0
+     */
     override fun compareTo(other: SinceKotlinVersion): Int {
         val i1 = parts.listIterator()
         val i2 = other.parts.listIterator()
@@ -170,7 +173,7 @@ class SinceKotlinTransformer(val context: DokkaContext) : DocumentableTransforme
         }
 
     internal companion object {
-        internal const val SHOULD_DISPLAY_SINCE_KOTLIN_SYS_PROP = "dokka.should-display-since-kotlin"
+        internal const val SHOULD_DISPLAY_SINCE_KOTLIN_SYS_PROP = "dokka.shouldDisplaySinceKotlin"
         internal fun shouldDisplaySinceKotlin() =
             System.getProperty(SHOULD_DISPLAY_SINCE_KOTLIN_SYS_PROP) in listOf("true", "1")
     }
