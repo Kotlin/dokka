@@ -18,8 +18,6 @@ import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.utilities.DokkaLogger
 import kotlin.reflect.KClass
 
-internal const val KDOC_TAG_HEADER_LEVEL = 4
-
 internal typealias GroupedTags = Map<KClass<out TagWrapper>, List<Pair<DokkaSourceSet?, TagWrapper>>>
 
 open class DefaultPageCreator(
@@ -573,7 +571,8 @@ open class DefaultPageCreator(
     }
 
     private fun DocumentableContentBuilder.contentForCustomTagsBrief(documentable: Documentable) {
-        val customTags = documentable.customTags ?: return
+        val customTags = documentable.customTags
+        if (customTags.isEmpty()) return
 
         documentable.sourceSets.forEach { sourceSet ->
             customTags.forEach { (_, sourceSetTag) ->
@@ -605,7 +604,7 @@ internal val Documentable.groupedTags: GroupedTags
 internal val Documentable.descriptions: SourceSetDependent<Description>
     get() = groupedTags.withTypeUnnamed()
 
-internal val Documentable.customTags: Map<String, SourceSetDependent<CustomTagWrapper>>?
+internal val Documentable.customTags: Map<String, SourceSetDependent<CustomTagWrapper>>
     get() = groupedTags.withTypeNamed()
 
 private val Documentable.hasSeparatePage: Boolean
@@ -620,7 +619,8 @@ internal inline fun <reified T : TagWrapper> GroupedTags.withTypeUnnamed(): Sour
     (this[T::class] as List<Pair<DokkaSourceSet, T>>?)?.toMap().orEmpty()
 
 @Suppress("UNCHECKED_CAST")
-internal inline fun <reified T : NamedTagWrapper> GroupedTags.withTypeNamed(): Map<String, SourceSetDependent<T>>? =
+internal inline fun <reified T : NamedTagWrapper> GroupedTags.withTypeNamed(): Map<String, SourceSetDependent<T>> =
     (this[T::class] as List<Pair<DokkaSourceSet, T>>?)
         ?.groupByTo(linkedMapOf()) { it.second.name }
         ?.mapValues { (_, v) -> v.toMap() }
+        .orEmpty()

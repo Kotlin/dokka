@@ -752,7 +752,7 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `multiplatofrm class with seealso in few platforms`() {
+    fun `multiplatform class with seealso in few platforms`() {
         testInline(
             """
                 |/src/commonMain/kotlin/pageMerger/Test.kt

@@ -21,6 +21,10 @@ import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
 
+internal const val KDOC_TAG_HEADER_LEVEL = 4
+
+private val unnamedTagsExceptions: Set<KClass<out TagWrapper>> =
+    setOf(Property::class, Description::class, Constructor::class, Param::class, See::class)
 
 internal fun PageContentBuilder.DocumentableContentBuilder.descriptionSectionContent(
     documentable: Documentable,
@@ -38,12 +42,19 @@ internal fun PageContentBuilder.DocumentableContentBuilder.descriptionSectionCon
     }
 }
 
+/**
+ * Custom tags are tags which are not part of the [KDoc specification](https://kotlinlang.org/docs/kotlin-doc.html). For instance, a user-defined tag
+ * which is specific to the user's code base would be considered a custom tag.
+ *
+ * For details, see [CustomTagContentProvider]
+ */
 internal fun PageContentBuilder.DocumentableContentBuilder.customTagSectionContent(
     documentable: Documentable,
     sourceSets: Set<DokkaConfiguration.DokkaSourceSet>,
     customTagContentProviders: List<CustomTagContentProvider>,
 ) {
-    val customTags = documentable.customTags ?: return
+    val customTags = documentable.customTags
+    if (customTags.isEmpty()) return
 
     sourceSets.forEach { sourceSet ->
         customTags.forEach { (_, sourceSetTag) ->
@@ -60,15 +71,22 @@ internal fun PageContentBuilder.DocumentableContentBuilder.customTagSectionConte
     }
 }
 
+/**
+ * Tags in KDoc are used in form of "@tag name value".
+ * This function handles tags that have only value parameter without name.
+ * List of such tags: `@return`, `@author`, `@since`, `@receiver`
+ */
 internal fun PageContentBuilder.DocumentableContentBuilder.unnamedTagSectionContent(
     documentable: Documentable,
     sourceSets: Set<DokkaConfiguration.DokkaSourceSet>,
     toHeaderString: TagWrapper.() -> String,
 ) {
     val unnamedTags = documentable.groupedTags
-        .filterNot { (k, _) -> k.isSubclassOf(NamedTagWrapper::class) || k in specialTags }
-        .values.flatten().groupBy { it.first }.mapValues { it.value.map { it.second } }
-    if (unnamedTags.isEmpty()) return
+        .filterNot { (k, _) -> k.isSubclassOf(NamedTagWrapper::class) || k in unnamedTagsExceptions }
+        .values.flatten().groupBy { it.first }
+        .mapValues { it.value.map { it.second } }
+        .takeIf { it.isNotEmpty() } ?: return
+
     sourceSets.forEach { sourceSet ->
         unnamedTags[sourceSet]?.let { tags ->
             if (tags.isNotEmpty()) {
@@ -89,7 +107,8 @@ internal fun PageContentBuilder.DocumentableContentBuilder.unnamedTagSectionCont
 
 
 internal fun PageContentBuilder.DocumentableContentBuilder.paramsSectionContent(tags: GroupedTags) {
-    val params = tags.withTypeNamed<Param>() ?: return
+    val params = tags.withTypeNamed<Param>()
+    if (params.isEmpty()) return
 
     val availableSourceSets = params.availableSourceSets()
     tableSectionContentBlock(
@@ -118,7 +137,8 @@ internal fun PageContentBuilder.DocumentableContentBuilder.paramsSectionContent(
 }
 
 internal fun PageContentBuilder.DocumentableContentBuilder.seeAlsoSectionContent(tags: GroupedTags) {
-    val seeAlsoTags = tags.withTypeNamed<See>() ?: return
+    val seeAlsoTags = tags.withTypeNamed<See>()
+    if (seeAlsoTags.isEmpty()) return
 
     val availableSourceSets = seeAlsoTags.availableSourceSets()
     tableSectionContentBlock(
@@ -156,10 +176,22 @@ internal fun PageContentBuilder.DocumentableContentBuilder.seeAlsoSectionContent
     }
 }
 
-internal fun PageContentBuilder.DocumentableContentBuilder.throwsSectionContent(tags: GroupedTags) {
-    val throwsTags = tags.withTypeNamed<Throws>() ?: return
-    val availableSourceSets = throwsTags.availableSourceSets()
+/**
+ * Used for multi-value tags (e.g. params) when values are missed on some platforms.
+ * It this case description is inherited from parent platform.
+ * E.g. if param hasn't description in JVM, the description is taken from common.
+ */
+private fun Set<DokkaConfiguration.DokkaSourceSet>.getPossibleFallback(sourceSet: DokkaConfiguration.DokkaSourceSet) =
+    this.filter { it.sourceSetID in sourceSet.dependentSourceSets }
 
+private fun <V> Map<DokkaConfiguration.DokkaSourceSet, V>.fallback(sourceSets: List<DokkaConfiguration.DokkaSourceSet>): V? =
+    sourceSets.firstOrNull { it in this.keys }.let { this[it] }
+
+internal fun PageContentBuilder.DocumentableContentBuilder.throwsSectionContent(tags: GroupedTags) {
+    val throwsTags = tags.withTypeNamed<Throws>()
+    if (throwsTags.isEmpty()) return
+
+    val availableSourceSets = throwsTags.availableSourceSets()
     tableSectionContentBlock(
         blockName = "Throws",
         kind = ContentKind.Main,
@@ -183,8 +215,12 @@ internal fun PageContentBuilder.DocumentableContentBuilder.throwsSectionContent(
     }
 }
 
+private fun TagWrapper.isNotEmpty() = this.children.isNotEmpty()
+
 internal fun PageContentBuilder.DocumentableContentBuilder.samplesSectionContent(tags: GroupedTags) {
-    val samples = tags.withTypeNamed<Sample>() ?: return
+    val samples = tags.withTypeNamed<Sample>()
+    if (samples.isEmpty()) return
+
     val availableSourceSets = samples.availableSourceSets()
 
     header(KDOC_TAG_HEADER_LEVEL, "Samples", kind = ContentKind.Sample, sourceSets = availableSourceSets)
@@ -215,6 +251,11 @@ internal fun PageContentBuilder.DocumentableContentBuilder.inheritorsSectionCont
     else
         multiplatformInheritorsSectionContent(documentable, inheritors, logger)
 }
+
+private fun WithScope.inheritors() = safeAs<WithExtraProperties<Documentable>>()
+    ?.let { it.extra[InheritorsInfo] }
+    ?.let { inheritors -> inheritors.value.filter { it.value.isNotEmpty() } }
+    .orEmpty()
 
 /**
  * Detect that documentable is located only in the shared code without expect-actuals
@@ -271,6 +312,17 @@ private fun PageContentBuilder.DocumentableContentBuilder.sharedSourceSetOnlyInh
     }
 }
 
+private fun PageContentBuilder.TableBuilder.inheritorRow(
+    classlike: DRI, logger: DokkaLogger, sourceSet: DokkaConfiguration.DokkaSourceSet? = null,
+) = row {
+    link(
+        text = classlike.friendlyClassName()
+            ?: classlike.toString().also { logger.warn("No class name found for DRI $classlike") },
+        address = classlike,
+        sourceSets = sourceSet?.let { setOf(it) } ?: mainSourcesetData
+    )
+}
+
 private fun PageContentBuilder.DocumentableContentBuilder.tableSectionContentBlock(
     blockName: String,
     kind: ContentKind,
@@ -287,39 +339,7 @@ private fun PageContentBuilder.DocumentableContentBuilder.tableSectionContentBlo
     }
 }
 
-private fun PageContentBuilder.TableBuilder.inheritorRow(
-    classlike: DRI, logger: DokkaLogger, sourceSet: DokkaConfiguration.DokkaSourceSet? = null,
-) = row {
-    link(
-        text = classlike.friendlyClassName()
-            ?: classlike.toString().also { logger.warn("No class name found for DRI $classlike") },
-        address = classlike,
-        sourceSets = sourceSet?.let { setOf(it) } ?: mainSourcesetData
-    )
-}
-
-private fun WithScope.inheritors() = safeAs<WithExtraProperties<Documentable>>()
-    ?.let { it.extra[InheritorsInfo] }
-    ?.let { inheritors -> inheritors.value.filter { it.value.isNotEmpty() } }
-    .orEmpty()
-
 private fun DRI.friendlyClassName() = classNames?.substringAfterLast(".")
-
-private fun TagWrapper.isNotEmpty() = this.children.isNotEmpty()
-
-private fun <V> Map<DokkaConfiguration.DokkaSourceSet, V>.fallback(sourceSets: List<DokkaConfiguration.DokkaSourceSet>): V? =
-    sourceSets.firstOrNull { it in this.keys }.let { this[it] }
-
-/**
- * Used for multi-value tags (e.g. params) when values are missed on some platforms.
- * It this case description is inherited from parent platform.
- * E.g. if param hasn't description in JVM, the description is taken from common.
- */
-private fun Set<DokkaConfiguration.DokkaSourceSet>.getPossibleFallback(sourceSet: DokkaConfiguration.DokkaSourceSet) =
-    this.filter { it.sourceSetID in sourceSet.dependentSourceSets }
-
-private val specialTags: Set<KClass<out TagWrapper>> =
-    setOf(Property::class, Description::class, Constructor::class, Param::class, See::class)
 
 private fun <T> Map<String, SourceSetDependent<T>>.availableSourceSets() = values.flatMap { it.keys }.toSet()
 
