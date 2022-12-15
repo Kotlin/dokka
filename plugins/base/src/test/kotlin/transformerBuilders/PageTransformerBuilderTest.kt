@@ -197,7 +197,7 @@ class PageTransformerBuilderTest : BaseAbstractTest() {
                 assertContains(generatedFiles.keys, "scripts/symbol-parameters-wrapper_deferred.js")
 
                 val scripts = generatedFiles.getValue("root/test/-test/-test.html").let { Jsoup.parse(it) }.select("script")
-                val deferredScriptSources = scripts.filter { it.hasAttr("defer") }.map { it.attr("src") }
+                val deferredScriptSources = scripts.filter { element -> element.hasAttr("defer") }.map { it.attr("src") }
 
                 // important to check symbol-parameters-wrapper_deferred specifically since it might break some features
                 assertContains(deferredScriptSources, "../../../scripts/symbol-parameters-wrapper_deferred.js")
