@@ -1292,6 +1292,13 @@ public final class org/jetbrains/dokka/base/transformers/pages/annotations/Since
 	public fun invoke (Lorg/jetbrains/dokka/model/DModule;Lorg/jetbrains/dokka/plugability/DokkaContext;)Lorg/jetbrains/dokka/model/DModule;
 }
 
+public final class org/jetbrains/dokka/base/transformers/pages/annotations/SinceKotlinVersion : java/lang/Comparable {
+	public fun <init> (Ljava/lang/String;)V
+	public synthetic fun compareTo (Ljava/lang/Object;)I
+	public fun compareTo (Lorg/jetbrains/dokka/base/transformers/pages/annotations/SinceKotlinVersion;)I
+	public fun toString ()Ljava/lang/String;
+}
+
 public abstract interface class org/jetbrains/dokka/base/transformers/pages/comments/CommentsToContentConverter {
 	public abstract fun buildContent (Lorg/jetbrains/dokka/model/doc/DocTag;Lorg/jetbrains/dokka/pages/DCI;Ljava/util/Set;Ljava/util/Set;Lorg/jetbrains/dokka/model/properties/PropertyContainer;)Ljava/util/List;
 }
