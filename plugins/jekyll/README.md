@@ -1,12 +1,12 @@
 # Jekyll plugin
 
-Jekyll plugin adds the ability to generate documentation in `Jekyll Flavoured Markdown` format. It supports both
-multimodule and multiplatform projects.
+The Jekyll plugin adds the ability to generate documentation in `Jekyll Flavoured Markdown` format. It supports both
+multi-module and multiplatform projects.
 
-Jekyll plugin is shipped together with Dokka Gradle Plugin, so you can start using it
+The Jekyll plugin is shipped together with the Dokka Gradle Plugin, so you can start using it
 right away with one of the following tasks:
 
-* `dokkaJekyll` - generate documentation for a non multi-module project or one specific module.
+* `dokkaJekyll` - generate documentation for a single-project build or one specific module.
 * `dokkaJekyllMultiModule` - generate documentation for a multi-module project, assemble it together and
   generate navigation page/menu for all the modules.
 

@@ -3,7 +3,7 @@
 This example demonstrates Dokka's configuration and output for a simple 
 [Kotlin Multiplatform](https://kotlinlang.org/docs/multiplatform.html) project.
 
-It contains [source sets](https://kotlinlang.org/docs/multiplatform-discover-project.html#source-sets) for different
+It contains [Kotlin source sets](https://kotlinlang.org/docs/multiplatform-discover-project.html#source-sets) for different
 platforms that are automatically picked up by Dokka from the Kotlin Gradle Plugin, and an additional custom source
 set known to Dokka only.
 

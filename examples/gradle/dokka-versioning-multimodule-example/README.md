@@ -3,8 +3,8 @@
 This example demonstrates configuration of Dokka's [versioning plugin](../../../plugins/versioning), which
 allows readers to navigate through different versions of your API reference documentation.
 
-The example contains some code that exists only in current documentation version `1.0` and that you cannot
-find in the previous version `0.9`, which is located in [previousDocVersions](previousDocVersions) directory.
+The example contains some code that exists only in the current documentation version `1.0`. You will not see
+this code in the previous version `0.9`, which is located in the [previousDocVersions](previousDocVersions) directory.
 
 ___
 

@@ -1,6 +1,6 @@
 # Base plugin
 
-Base plugin comes with a number of basic extensions and features that are likely to be needed by output formats and
+The Base plugin comes with a number of basic extensions and features that are likely to be needed by any output format and
 some plugins in general. 
 
 Including, but not limited to:
@@ -15,7 +15,7 @@ Including, but not limited to:
 * Multiplatform support.
 * Output file writers.
 
-Base plugin is not intended to be used directly by those who want to generate documentation - it is a building block
+The Base plugin is not intended to be used directly by those who want to generate documentation - it is a building block
 for other plugins and formats.
 
 It is in the heart of all documentation formats that come with Dokka.
