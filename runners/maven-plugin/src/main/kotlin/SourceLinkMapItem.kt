@@ -12,8 +12,8 @@ import org.apache.maven.plugins.annotations.Parameter
  * ```xml
  * <sourceLinks>
  *     <link>
- *         <path>${project.basedir}/src/main/kotlin</path>
- *         <url>https://github.com/kotlin/dokka/tree/master/src/main/kotlin</url>
+ *         <path>${project.basedir}/src</path>
+ *         <url>https://github.com/kotlin/dokka/tree/master/src</url>
  *         <lineSuffix>#L</lineSuffix>
  *     </link>
  * </sourceLinks>
@@ -27,7 +27,7 @@ class SourceLinkMapItem {
      * Example:
      *
      * ```xml
-     * <path>${project.basedir}/src/main/kotlin</path>
+     * <path>${project.basedir}/src</path>
      * ```
      */
     @Parameter(name = "path", required = true)
@@ -41,7 +41,7 @@ class SourceLinkMapItem {
      * Example:
      *
      * ```xml
-     * <url>https://github.com/username/projectname/tree/master/src/main/kotlin</url>
+     * <url>https://github.com/username/projectname/tree/master/src</url>
      * ```
      */
     @Parameter(name = "url", required = true)

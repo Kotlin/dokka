@@ -1,24 +1,26 @@
-[//]: # (title: CLI runner)
+[//]: # (title: CLI)
 
-If for some reason you cannot use [Gradle](gradle.md) or [Maven](maven.md) plugins, Dokka has
-a command line (CLI) runner for generating documentation without any build tools.
+If for some reason you cannot use [Gradle](gradle.md) or [Maven](maven.md) build tools, Dokka has
+a command line (CLI) runner for generating documentation.
 
-In comparison, it has the same, if not more, capabilities as the Gradle plugin. Although it is considerably more
-difficult to set up as there is no autoconfiguration, especially in multiplatform and multimodule environments.
-
-The CLI runner is published as a separate artifact to Maven Central under `org.jetbrains.dokka:dokka-cli`, so you can 
-find it on [mvnrepository](https://mvnrepository.com/artifact/org.jetbrains.dokka/dokka-cli) or by browsing 
-[maven central repository directories](https://repo1.maven.org/maven2/org/jetbrains/dokka/dokka-cli/) directly.
+In comparison, it has the same, if not more, capabilities as the Gradle runner. Although it is considerably more
+difficult to set up as there is no autoconfiguration, especially in multiplatform and multi-module environments.
 
 ## Getting started
 
-With the `dokka-cli-%dokkaVersion%.jar` file saved on your computer, run it with the `-help` option to see all available arguments and their description:
+The CLI runner is published to Maven Central as a separate runnable artifact.
+
+You can find it on [mvnrepository](https://mvnrepository.com/artifact/org.jetbrains.dokka/dokka-cli/%dokkaVersion%) or by browsing
+[maven central repository directories](https://repo1.maven.org/maven2/org/jetbrains/dokka/dokka-cli/%dokkaVersion%) directly.
+
+With the `dokka-cli-%dokkaVersion%.jar` file saved on your computer, run it with the `-help` option to see all 
+available configuration options and their description:
 
 ```Bash
 java -jar dokka-cli-%dokkaVersion%.jar -help
 ```
 
-It also works for some nested arguments, such as `-sourceSet`:
+It also works for some nested options, such as `-sourceSet`:
 
 ```Bash
 java -jar dokka-cli-%dokkaVersion%.jar -sourceSet -help
@@ -47,11 +49,12 @@ Below are the additional dependencies that you need for [HTML](html.md) output f
 | `org.freemarker`        | `freemarker`       | 2.3.31      | [mvnrepository](https://mvnrepository.com/artifact/org.freemarker/freemarker/2.3.31)             |
 
 
-### Running with command line arguments
+### Running with command line options
 
-You can pass command line arguments to configure the CLI runner. 
+You can pass command line options to configure the CLI runner. 
 
-At the very least you need to provide the following arguments:
+At the very least you need to provide the following options:
+
 * `-pluginsClasspath` - a list of absolute/relative paths to downloaded dependencies, separated by semi-colons `;`
 * `-sourceSet` - an absolute path to code sources to generate documentation for
 * `-outputDir` - an absolute/relative path of the documentation output directory
@@ -70,18 +73,19 @@ java -jar dokka-cli-%dokkaVersion%.jar \
 
 Executing the given example generates documentation in [HTML](html.md) output format.
 
-See [Command line arguments](#command-line-arguments) for more configuration details.
+See [Command line options](#command-line-options) for more configuration details.
 
 ### Running with JSON configuration
 
 It's possible to configure the CLI runner with JSON. In this case, you need to provide an
-absolute/relative path to the JSON configuration file. All other configuration options are parsed from it.
+absolute/relative path to the JSON configuration file as the first and only argument. 
+All other configuration options are parsed from it.
 
 ```Bash
 java -jar dokka-cli-%dokkaVersion%.jar dokka-configuration.json
 ```
 
-At the very least, you need the following configuration:
+At the very least, you need the following JSON configuration file:
 ```json
 {
   "outputDir": "./dokka/html",
@@ -118,14 +122,14 @@ See [JSON configuration options](#json-configuration) for more details.
 
 By default, the `dokka-base` artifact contains the [HTML](html.md) output format only.
 
-All other output formats come as part of [Dokka plugins](plugins_introduction.md). In order to use them, you have to put them
-in the plugins classpath.
+All other output formats come as [Dokka plugins](dokka_plugins.md). In order to use them, you have to put them
+on the plugins classpath.
 
 For example, if you want to generate documentation in the experimental [GFM](markdown.md#gfm) output format, you need to download and
 pass [gfm-plugin's JAR](https://mvnrepository.com/artifact/org.jetbrains.dokka/gfm-plugin/%dokkaVersion%) into 
 the `pluginsClasspath` configuration option.
 
-Via command line arguments:
+Via command line options:
 
 ```Shell
 java -jar dokka-cli-%dokkaVersion%.jar \
@@ -147,51 +151,50 @@ Via JSON configuration:
 }
 ```
 
-With the GFM plugin in the `pluginsClasspath`, the CLI runner generates documentation in GFM output format.
-No further action is needed.
+With the GFM plugin passed to `pluginsClasspath`, the CLI runner generates documentation in the GFM output format.
 
 For more information, see [Markdown](markdown.md) and [Javadoc](javadoc.md#generating-javadoc-documentation).
 
-## Command line arguments
+## Command line options
 
-To see a list of all possible command line arguments for the nested `-sourceSet` configuration, run:
+To see the list of all possible command line options and their detailed description, run:
 
 ```Bash
 java -jar dokka-cli-%dokkaVersion%.jar -help
 ```
 
-Summary:
+Short summary:
 
 - `-moduleName` -> Name of the project/module.
 - `-moduleVersion` -> Documented version.
 - `-outputDir` -> Output directory path, `./dokka` by default.
-- `-sourceSet` -> Configuration for a Dokka source set. Contains nested configuration.
+- `-sourceSet` -> Configuration for a Dokka source set. Contains nested configuration options.
 - `-pluginsConfiguration` -> Configuration for Dokka plugins.
 - `-pluginsClasspath` -> List of jars with Dokka plugins and their dependencies. Accepts multiple paths separated by semicolons.
 - `-offlineMode` -> Whether to resolve remote files/links over network.
 - `-failOnWarning` -> Whether to fail documentation generation if Dokka has emitted a warning or an error.
-- `-delayTemplateSubstitution` -> Delay substitution of some elements. Used in incremental builds of 
-   multimodule projects.
-- `-noSuppressObviousFunctions` -> Whether to suppress obvious functions such as inherited from `kotlin.Any` 
+- `-delayTemplateSubstitution` -> Whether to delay substitution of some elements. Used in incremental builds of 
+   multi-module projects.
+- `-noSuppressObviousFunctions` -> Whether to suppress obvious functions such as those inherited from `kotlin.Any` 
   and `java.lang.Object`.
 - `-includes` -> Markdown files that contain module and package documentation. Accepts multiple values separated by 
   semicolons.
 - `-suppressInheritedMembers` -> Whether to suppress inherited members that aren't explicitly overridden in a 
   given class.
-- `-globalPackageOptions` -> Global list of package configurations in format 
+- `-globalPackageOptions` -> Global list of package configuration options in format 
   `"matchingRegex,-deprecated,-privateApi,+warnUndocumented,+suppress;+visibility:PUBLIC;..."`. 
   Accepts multiple values separated by semicolons.
 - `-globalLinks` -> Global external documentation links in format `{url}^{packageListUrl}`. 
   Accepts multiple values separated by `^^`.
 - `-globalSrcLink` -> Global mapping between a source directory and a Web service for browsing the code. 
   Accepts multiple paths separated by semicolons.
-- `-helpSourceSet` -> Prints help for nested `-sourceSet` configuration.
+- `-helpSourceSet` -> Prints help for the nested `-sourceSet` configuration.
 - `-loggingLevel` -> Logging level, possible values: `DEBUG, PROGRESS, INFO, WARN, ERROR`.
 - `-help, -h` -> Usage info.
 
-#### Source set arguments
+#### Source set options
 
-You can also see short descriptions for nested `-sourceSet` configuration:
+To see the list of command line options for the nested `-sourceSet` configuration, run:
 
 ```Bash
 java -jar dokka-cli-%dokkaVersion%.jar -sourceSet -help
@@ -203,24 +206,23 @@ Summary:
 - `-displayName` -> Display name of the source set, used both internally and externally.
 - `-classpath` -> Classpath for analysis and interactive samples. Accepts multiple paths separated by semicolons.
 - `-src` -> Source code roots to be analyzed and documented. Accepts multiple paths separated by semicolons.
-- `-dependentSourceSets` -> Names of dependent source sets in format `moduleName/sourceSetName`. 
+- `-dependentSourceSets` -> Names of the dependent source sets in format `moduleName/sourceSetName`. 
   Accepts multiple paths separated by semicolons.
 - `-samples` -> List of directories or files that contain sample functions. Accepts multiple paths separated by semicolons.
 - `-includes` -> Markdown files that contain module and package documentation. Accepts multiple paths separated by semicolons.
-- `-includeNonPublic` -> Deprecated, use `documentedVisibilities`. 
-  Possible values: `PUBLIC`, `PRIVATE`, `PROTECTED`, `INTERNAL`, `PACKAGE`.
 - `-documentedVisibilities` -> Visibilities to be documented. Accepts multiple values separated by semicolons.
+  Possible values: `PUBLIC`, `PRIVATE`, `PROTECTED`, `INTERNAL`, `PACKAGE`.
 - `-reportUndocumented` -> Whether to report undocumented declarations. 
 - `-noSkipEmptyPackages` -> Whether to create pages for empty packages. 
 - `-skipDeprecated` -> Whether to skip deprecated declarations. 
 - `-jdkVersion` -> Version of JDK to use for linking to JDK Javadocs.
 - `-languageVersion` -> Language version used for setting up analysis and samples.
 - `-apiVersion` -> Kotlin API version used for setting up analysis and samples.
-- `-noStdlibLink` -> Whether to generate links to Standard library. 
+- `-noStdlibLink` -> Whether to generate links to the Kotlin standard library. 
 - `-noJdkLink` -> Whether to generate links to JDK Javadocs. 
 - `-suppressedFiles` -> Paths to files to be suppressed. Accepts multiple paths separated by semicolons.
 - `-analysisPlatform` -> Platform used for setting up analysis.
-- `-perPackageOptions` -> List of package source set configuration in format 
+- `-perPackageOptions` -> List of package source set configurations in format 
   `matchingRegexp,-deprecated,-privateApi,+warnUndocumented,+suppress;...`. Accepts multiple values separated by semicolons.
 - `-externalDocumentationLinks` -> External documentation links in format `{url}^{packageListUrl}`. 
   Accepts multiple values separated by `^^`.
@@ -272,11 +274,11 @@ with [all configuration options](#complete-configuration) applied.
 
 <deflist>
     <def title="moduleName">
-        <p>The display name used to refer to the module. Used in the table of contents, navigation, logging, etc.</p>
+        <p>The display name used to refer to the module. It is used for the table of contents, navigation, logging, etc.</p>
         <p>Default: <code>root</code>.</p>
     </def>
     <def title="moduleVersion">
-        <p>Module version.</p>
+        <p>The module version.</p>
         <p>Default: empty.</p>
     </def>
     <def title="outputDirectory">
@@ -285,7 +287,7 @@ with [all configuration options](#complete-configuration) applied.
     </def>
     <def title="failOnWarning">
         <p>
-            Whether to fail documentation generation if Dokka emits a warning or an error.
+            Whether to fail documentation generation if Dokka has emitted a warning or an error.
             The process waits until all errors and warnings have been emitted first.
         </p>
         <p>This setting works well with <code>reportUndocumented</code></p>
@@ -311,8 +313,7 @@ with [all configuration options](#complete-configuration) applied.
     <def title="suppressInheritedMembers">
         <p>Whether to suppress inherited members that aren't explicitly overridden in a given class.</p>
         <p>
-            Note: this can suppress functions such as <code>equals</code> / <code>hashCode</code> / 
-<code>toString</code>, 
+            Note: this can suppress functions such as <code>equals</code> / <code>hashCode</code> / <code>toString</code>, 
             but cannot suppress synthetic functions such as <code>dataClass.componentN</code> and 
             <code>dataClass.copy</code>. Use <code>suppressObviousFunctions</code>
             for that.
@@ -320,19 +321,19 @@ with [all configuration options](#complete-configuration) applied.
         <p>Default: <code>false</code>.</p>
     </def>
     <def title="offlineMode">
-        <p>Whether to resolve remote files/links over network.</p>
+        <p>Whether to resolve remote files/links over your network.</p>
         <p>
-            This includes package-lists used for generating external documentation links.
-            For example, to make classes from standard library clickable.
+            This includes package-lists used for generating external documentation links. 
+            For example, to make classes from the standard library clickable. 
         </p>
         <p>
             Setting this to <code>true</code> can significantly speed up build times in certain cases,
             but can also worsen documentation quality and user experience. For example, by
-            not resolving some dependency's class/member links.
+            not resolving class/member links from your dependencies, including the standard library.
         </p>
         <p>
             Note: you can cache fetched files locally and provide them to
-            Dokka as local paths. See <code>externalDocumentationLinks</code>.
+            Dokka as local paths. See <code>externalDocumentationLinks</code> section.
         </p>
         <p>Default: <code>false</code>.</p>
     </def>
@@ -341,8 +342,7 @@ with [all configuration options](#complete-configuration) applied.
             A list of Markdown files that contain
             <a href="https://kotlinlang.org/docs/reference/kotlin-doc.html#module-and-package-documentation">module and package documentation</a>.
         </p>
-        <p>The contents of specified files are parsed and embedded into documentation as module and package 
-descriptions.</p>
+        <p>The contents of specified files are parsed and embedded into documentation as module and package descriptions.</p>
         <p>This can be configured on per-package basis.</p>
     </def>
     <def title="sourceSets">
@@ -353,7 +353,7 @@ descriptions.</p>
         <p>For a list of possible options, see <a href="#source-set-configuration">source set configuration</a>.</p>
     </def>
     <def title="sourceLinks">
-        <p>The global configuration of source links that are applied for all source sets.</p>
+        <p>The global configuration of source links that is applied for all source sets.</p>
         <p>For a list of possible options, see <a href="#source-link-configuration">source link configuration</a>.</p>
     </def>
     <def title="perPackageOptions">
@@ -431,7 +431,7 @@ How to configure Kotlin
 
 <deflist>
     <def title="displayName">
-        <p>The display name used to refer to the source set.</p>
+        <p>The display name used to refer to this source set.</p>
         <p>
             The name is used both externally (for example, the source set name is visible to documentation readers) and 
             internally (for example, for logging messages of <code>reportUndocumented</code>).
@@ -463,9 +463,10 @@ How to configure Kotlin
     <def title="reportUndocumented">
         <p>
             Whether to emit warnings about visible undocumented declarations, that is declarations without KDocs
-            after they have been filtered by <code>documentedVisibilities</code>.
+            after they have been filtered by <code>documentedVisibilities</code> and other filters.
         </p>
-        <p>This setting works well with <code>failOnWarning</code>. It can be overridden for a specific package</p>
+        <p>This setting works well with <code>failOnWarning</code>.</p>
+        <p>This can be configured on per-package basis.</p>
         <p>Default: <code>false</code>.</p>
     </def>
     <def title="skipEmptyPackages">
@@ -481,14 +482,14 @@ How to configure Kotlin
     </def>
     <def title="skipDeprecated">
         <p>Whether to document declarations annotated with <code>@Deprecated</code>.</p>
-        <p>It can be overridden at package level.</p>
+        <p>This can be configured on per-package basis.</p>
         <p>Default: <code>false</code>.</p>
     </def>
     <def title="jdkVersion">
         <p>The JDK version to use when generating external documentation links for Java types.</p>
         <p>
-            For example, if you use <code>java.util.UUID</code> from JDK in some public declaration signature,
-            and this property is set to <code>8</code>, Dokka generates an external documentation link
+            For example, if you use <code>java.util.UUID</code> in some public declaration signature,
+            and this option is set to <code>8</code>, Dokka generates an external documentation link
             to <a href="https://docs.oracle.com/javase/8/docs/api/java/util/UUID.html">JDK 8 Javadocs</a> for it.
         </p>
     </def>
@@ -508,16 +509,16 @@ How to configure Kotlin
     </def>
     <def title="noStdlibLink">
         <p>
-            Whether to generate external documentation links that lead to API reference
-            documentation for Kotlin's standard library when declarations from it are used.
+            Whether to generate external documentation links that lead to the API reference
+            documentation of Kotlin's standard library.
         </p>
-        <p>Links are generated when `noStdLibLink` is set to <code>false</code>.</p>
+        <p>Note: links <b>are</b> generated when <code>noStdLibLink</code> is set to <code>false</code>.</p>
         <p>Default: <code>false</code>.</p>
     </def>
     <def title="noJdkLink">
-        <p>Whether to generate external documentation links to JDK's Javadocs when declarations from it are used.</p>
-        <p>Links are generated when `noJdkLink` is set to <code>false</code>.</p>
-        <p>The version of JDK Javadocs is determined by <code>jdkVersion</code> property.</p>
+        <p>Whether to generate external documentation links to JDK's Javadocs.</p>
+        <p>The version of JDK Javadocs is determined by the <code>jdkVersion</code> option.</p>
+        <p>Note: links <b>are</b> generated when <code>noJdkLink</code> is set to <code>false</code>.</p>
         <p>Default: <code>false</code>.</p>
     </def>
     <def title="includes">
@@ -532,7 +533,6 @@ How to configure Kotlin
             Platform to be used for setting up code analysis and 
             <a href="https://kotlinlang.org/docs/kotlin-doc.html#sample-identifier">@sample</a> environment.
         </p>
-        <p>The default value is deduced from information provided by the Kotlin Gradle plugin.</p>
         <p>
             Possible values:
             <list>
@@ -546,19 +546,17 @@ How to configure Kotlin
     <def title="sourceRoots">
         <p>
             The source code roots to be analyzed and documented.
-            It accepts directories and individual <code>.kt</code> / <code>.java</code> files.
+            Acceptable inputs are directories and individual <code>.kt</code> / <code>.java</code> files.
         </p>
     </def>
     <def title="classpath">
-        <p>
-            The classpath for analysis and interactive samples. If you use a declaration from a dependency, 
-            it should be present on the classpath to be resolved.
-        </p>
-        <p>Property accepts both <code>.jar</code> and <code>.klib</code> files.</p>
+        <p>The classpath for analysis and interactive samples.</p>
+        <p>This is useful if some types that come from dependencies are not resolved/picked up automatically.</p>
+        <p>This option accepts both <code>.jar</code> and <code>.klib</code> files.</p>
     </def>
     <def title="samples">
         <p>
-            A list of directories or files that contain sample functions which are referenced via
+            A list of directories or files that contain sample functions which are referenced via the
             <a href="https://kotlinlang.org/docs/kotlin-doc.html#sample-identifier">@sample</a> KDoc tag.
         </p>
     </def>
@@ -566,7 +564,7 @@ How to configure Kotlin
         <p>The files to be suppressed when generating documentation.</p>
     </def>
     <def title="sourceLinks">
-        <p>A set of parameters for source links that are applied only for this source set.</p>
+        <p>A set of parameters for source links that is applied only for this source set.</p>
         <p>For a list of possible options, see <a href="#source-link-configuration">source link configuration</a>.</p>
     </def>
     <def title="perPackageOptions">
@@ -574,22 +572,24 @@ How to configure Kotlin
         <p>For a list of possible options, see <a href="#per-package-configuration">per-package configuration</a>.</p>
     </def>
     <def title="externalDocumentationLinks">
-        <p>A set of parameters for external documentation links that are applied only for this source set.</p>
+        <p>A set of parameters for external documentation links that is applied only for this source set.</p>
         <p>For a list of possible options, see <a href="#external-documentation-configuration">external documentation configuration</a>.</p>
     </def>
 </deflist>
 
 ### Source link configuration
 
-The `sourceLinks` configuration block is where you can add a `source` link to each signature
-that leads to a `remoteUrl` with a specific line number. (The line number is configurable by setting `remoteLineSuffix`).
+The `sourceLinks` configuration block allows you to add a `source` link to each signature
+that leads to the `remoteUrl` with a specific line number. (The line number is configurable by setting `remoteLineSuffix`).
+
 This helps readers to find the source code for each declaration.
 
 For an example, see the documentation for the
 [`count()`](https://kotlinlang.org/api/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines.flow/count.html)
 function in `kotlinx.coroutines`.
 
-You can configure source sets together at the same time, or [individually](#source-set-configuration):
+You can configure source links for all source sets together at the same time, or 
+[individually](#source-set-configuration):
 
 ```json
 {
@@ -605,7 +605,7 @@ You can configure source sets together at the same time, or [individually](#sour
 
 <deflist>
     <def title="localDirectory">
-        <p>Path to the local source directory.</p>
+        <p>The path to the local source directory.</p>
     </def>
     <def title="remoteUrl">
         <p>
@@ -616,12 +616,12 @@ You can configure source sets together at the same time, or [individually](#sour
     </def>
     <def title="remoteLineSuffix">
         <p>
-            The suffix used to append source code line number to the URL. This helps readers navigate
+            The suffix used to append the source code line number to the URL. This helps readers navigate
             not only to the file, but to the specific line number of the declaration.
         </p>
         <p>
             The number itself is appended to the specified suffix. For example,
-            if this property is set to <code>#L</code> and the line number is 10, the resulting URL suffix
+            if this option is set to <code>#L</code> and the line number is 10, the resulting URL suffix
             is <code>#L10</code>.
         </p>
         <p>
@@ -638,9 +638,10 @@ You can configure source sets together at the same time, or [individually](#sour
 
 ### Per-package configuration
 
-The `perPackageOptions` configuration block allows you to set some options for specific packages matched by `matchingRegex`.
+The `perPackageOptions` configuration block allows setting some options for specific packages matched by `matchingRegex`.
 
-You can configure source sets together at the same time, or [individually](#source-set-configuration):
+You can add package configurations for all source sets together at the same time, or 
+[individually](#source-set-configuration):
 
 ```json
 {
@@ -671,8 +672,8 @@ You can configure source sets together at the same time, or [individually](#sour
     </def>
     <def title="reportUndocumented">
         <p>
-            Whether to emit warnings about visible undocumented declarations, that is declarations from
-            this package and without KDocs, after they have been filtered by <code>documentedVisibilities</code>.
+            Whether to emit warnings about visible undocumented declarations, that is declarations without KDocs
+            after they have been filtered by <code>documentedVisibilities</code> and other filters.
         </p>
         <p>This setting works well with <code>failOnWarning</code>.</p>
         <p>This can be configured on source set level.</p>
@@ -681,8 +682,8 @@ You can configure source sets together at the same time, or [individually](#sour
     <def title="documentedVisibilities">
         <p>The set of visibility modifiers that should be documented.</p>
         <p>
-            This can be used if you want to document protected/internal/private declarations within a
-            specific package, as well as if you want to exclude public declarations and only document internal API.
+            This can be used if you want to document protected/internal/private declarations within this package,
+            as well as if you want to exclude public declarations and only document internal API.
         </p>
         <p>Can be configured on source set level.</p>
         <p>Default: <code>PUBLIC</code>.</p>
@@ -691,15 +692,17 @@ You can configure source sets together at the same time, or [individually](#sour
 
 ### External documentation configuration
 
-The `externalDocumentationLinks` configuration block allows you to add links that lead to the externally hosted documentation of your dependencies.
+The `externalDocumentationLink` block allows the creation of links that lead to the externally hosted documentation of
+your dependencies.
 
 For example, if you are using types from `kotlinx.serialization`, by default they are unclickable in your
-documentation, as if they are unresolved. However, since the API reference for `kotlinx.serialization` is also built by Dokka and is
-[published on kotlinlang.org](https://kotlinlang.org/api/kotlinx.serialization/), you can configure external
-documentation links for it. Thus allowing Dokka to generate links for types, making them clickable
-and resolve successfully.
+documentation, as if they are unresolved. However, since the API reference documentation for `kotlinx.serialization`
+is built by Dokka and is [published on kotlinlang.org](https://kotlinlang.org/api/kotlinx.serialization/), you can
+configure external documentation links for it. Thus allowing Dokka to generate links for types from the library, making
+them resolve successfully and clickable.
 
-You can configure source sets together all at once, or [individually](#source-set-configuration):
+You can configure external documentation links for all source sets together at the same time, or 
+[individually](#source-set-configuration):
 
 ```json
 {
@@ -714,27 +717,32 @@ You can configure source sets together all at once, or [individually](#source-se
 
 <deflist>
     <def title="url">
-        <p>The root URL of documentation to link with. It **must** contain a trailing slash.</p>
+        <p>The root URL of documentation to link to. It <b>must</b> contain a trailing slash.</p>
         <p>
-            Dokka does its best to automatically find <code>package-list</code> for the given URL 
+            Dokka does its best to automatically find <code>package-list</code> for the given URL, 
             and link declarations together.
         </p>
         <p>
             If automatic resolution fails or if you want to use locally cached files instead, 
-            consider providing the <code>packageListUrl</code>.
+            consider setting the <code>packageListUrl</code> option.
         </p>
     </def>
     <def title="packageListUrl">
         <p>
             The exact location of a <code>package-list</code>. This is an alternative to relying on Dokka
-            automatically resolving it. This can also be a locally cached file to avoid network calls.
+            automatically resolving it.
         </p>
+        <p>
+            Package lists contain information about the documentation and the project itself, 
+            such as module and package names.
+        </p>
+        <p>This can also be a locally cached file to avoid network calls.</p>
     </def>
 </deflist>
 
 ### Complete configuration
 
-Below you can see all the possible configuration options applied at the same time.
+Below you can see all possible configuration options applied at the same time.
 
 ```json
 {

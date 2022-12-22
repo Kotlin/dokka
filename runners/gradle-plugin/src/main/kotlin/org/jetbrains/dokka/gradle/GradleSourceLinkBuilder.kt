@@ -18,7 +18,7 @@ import java.net.URL
  * ```kotlin
  * sourceLink {
  *     localDirectory.set(projectDir.resolve("src"))
- *     remoteUrl.set(URL("https://github.com/kotlin/dokka/tree/master/src/main/kotlin"))
+ *     remoteUrl.set(URL("https://github.com/kotlin/dokka/tree/master/src"))
  *     remoteLineSuffix.set("#L")
  * }
  * ```
@@ -48,7 +48,7 @@ class GradleSourceLinkBuilder(
      * Example:
      *
      * ```kotlin
-     * java.net.URL("https://github.com/username/projectname/tree/master/src/main/kotlin"))
+     * java.net.URL("https://github.com/username/projectname/tree/master/src"))
      * ```
      */
     @Input

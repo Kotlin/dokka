@@ -10,7 +10,7 @@ These formats give you more freedom in terms of hosting documentation as the out
 documentation website. For example, see [OkHttp's API reference](https://square.github.io/okhttp/4.x/okhttp/okhttp3/)
 pages.
 
-Markdown output formats are rendering [Dokka plugins](plugins_introduction.md), maintained by the Dokka team, and 
+Markdown output formats are rendering [Dokka plugins](dokka_plugins.md), maintained by the Dokka team, and 
 they are open source.
 
 ## GFM
@@ -20,7 +20,7 @@ The GFM output format generates documentation in [GitHub Flavored Markdown](http
 <tabs group="build-script">
 <tab title="Gradle" group-key="kotlin">
 
-Dokka's [Gradle plugin](gradle.md) comes with the GFM output format included. You can use the following tasks with it:
+Dokka's [Gradle runner](gradle.md) comes with the GFM output format included. You can use the following tasks with it:
 
 | **Task**              | **Description**                                                                                                                                                                                                                       |
 |-----------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -31,7 +31,7 @@ Dokka's [Gradle plugin](gradle.md) comes with the GFM output format included. Yo
 </tab>
 <tab title="Maven" group-key="groovy">
 
-Since GFM format is a [Dokka plugin](plugins_introduction.md#applying-dokka-plugins), you need to apply it as a plugin
+Since GFM format is a [Dokka plugin](dokka_plugins.md#applying-dokka-plugins), you need to apply it as a plugin
 dependency:
 
 ```xml
@@ -58,11 +58,11 @@ For more information, see the Mavin plugin documentation for [Other output forma
 </tab>
 <tab title="CLI" group-key="cli">
 
-Since GFM format is a [Dokka plugin](plugins_introduction.md#applying-dokka-plugins), you need to download the
-[jar file](https://mvnrepository.com/artifact/org.jetbrains.dokka/gfm-plugin/%dokkaVersion%) and pass it to
+Since GFM format is a [Dokka plugin](dokka_plugins.md#applying-dokka-plugins), you need to download the
+[JAR file](https://mvnrepository.com/artifact/org.jetbrains.dokka/gfm-plugin/%dokkaVersion%) and pass it to
 `pluginsClasspath`.
 
-Via [command line arguments](cli.md#running-with-command-line-arguments):
+Via [command line options](cli.md#running-with-command-line-options):
 
 ```Bash
 java -jar dokka-cli-%dokkaVersion%.jar \
@@ -98,7 +98,7 @@ The Jekyll output format generates documentation in [Jekyll](https://jekyllrb.co
 <tabs group="build-script">
 <tab title="Gradle" group-key="kotlin">
 
-Dokka's [Gradle plugin](gradle.md) comes with the Jekyll output format included. You can use the following tasks with it:
+Dokka's [Gradle runner](gradle.md) comes with the Jekyll output format included. You can use the following tasks with it:
 
 | **Task**                 | **Description**                                                                                                                                                                                                                       |
 |--------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -109,7 +109,7 @@ Dokka's [Gradle plugin](gradle.md) comes with the Jekyll output format included.
 </tab>
 <tab title="Maven" group-key="groovy">
 
-Since Jekyll format is a [Dokka plugin](plugins_introduction.md#applying-dokka-plugins), you need to apply it as a plugin
+Since Jekyll format is a [Dokka plugin](dokka_plugins.md#applying-dokka-plugins), you need to apply it as a plugin
 dependency:
 
 ```xml
@@ -131,17 +131,17 @@ dependency:
 
 After configuring this, running the `dokka:dokka` goal produces documentation in GFM format.
 
-For more information, see the Maven plugin documentation for [Other output formats](maven.md#other-output-formats).
+For more information, see the Maven runner documentation for [Other output formats](maven.md#other-output-formats).
 
 </tab>
 <tab title="CLI" group-key="cli">
 
-Since Jekyll format is a [Dokka plugin](plugins_introduction.md#applying-dokka-plugins), you need to download the
-[jar file](https://mvnrepository.com/artifact/org.jetbrains.dokka/jekyll-plugin/%dokkaVersion%). This format is also
-based on [GFM](#gfm) format, so you need to provide it as a dependency as well. Both jars need to be passed to 
+Since Jekyll format is a [Dokka plugin](dokka_plugins.md#applying-dokka-plugins), you need to download the
+[JAR file](https://mvnrepository.com/artifact/org.jetbrains.dokka/jekyll-plugin/%dokkaVersion%). This format is also
+based on [GFM](#gfm) format, so you need to provide it as a dependency as well. Both JARs need to be passed to 
 `pluginsClasspath`:
 
-Via [command line arguments](cli.md#running-with-command-line-arguments):
+Via [command line options](cli.md#running-with-command-line-options):
 
 ```Bash
 java -jar dokka-cli-%dokkaVersion%.jar \
