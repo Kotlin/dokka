@@ -1,6 +1,6 @@
 [//]: # (title: Get started)
 
-TODO add an introduction of some sort?
+Below you can find simple instructions to help you get started with Dokka.
 
 <tabs group="build-script">
 <tab title="Gradle Kotlin DSL" group-key="kotlin">
@@ -29,7 +29,7 @@ To generate documentation, run the following Gradle tasks:
 
 By default, the output directory is set to `/build/dokka/html` and `/build/dokka/htmlMultiModule`.
 
-To learn more about Gradle configuration, see [Gradle](gradle.md).
+To learn more about the Gradle runner, see [Gradle](gradle.md).
 
 </tab>
 <tab title="Gradle Groovy DSL" group-key="groovy">
@@ -58,7 +58,7 @@ To generate documentation, run the following Gradle tasks:
 
 By default, the output directory is set to `/build/dokka/html` and `/build/dokka/htmlMultiModule`.
 
-To learn more about Gradle configuration, see [Gradle](gradle.md).
+To learn more about the Gradle runner, see [Gradle](gradle.md).
 
 </tab>
 <tab title="Maven" group-key="mvn">
@@ -89,7 +89,7 @@ To generate documentation, run the `dokka:dokka` goal.
 
 By default, the output directory is set to `target/dokka`.
 
-To learn more about Maven configuration, see [Maven](maven.md).
+To learn more about the Maven runner, see [Maven](maven.md).
 
 </tab>
 </tabs>

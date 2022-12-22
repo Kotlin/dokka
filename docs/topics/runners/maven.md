@@ -55,9 +55,10 @@ The following goals are provided by the plugin:
 
 By default, the Maven runner builds documentation in [HTML](html.md) output format.
 
-All other output formats come as [Dokka plugins](dokka_plugins.md). In order to use them, you have to apply TODO
+All other output formats come as [Dokka plugins](dokka_plugins.md). In order to generate documentation in the desired
+format, you have to add it as a Dokka plugin to the configuration.
 
-For example, to use the experimental [GFM](markdown.md#gfm) format, you have to apply `org.jetbrains.dokka:gfm-plugin` in TODO
+For example, to use the experimental [GFM](markdown.md#gfm) format, you have to add `gfm-plugin` artifact:
 
 ```xml
 <plugin>

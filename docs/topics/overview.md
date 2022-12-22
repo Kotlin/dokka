@@ -20,6 +20,8 @@ Some libraries that use Dokka for their API reference documentation:
 You can run Dokka using [Gradle](gradle.md), [Maven](maven.md) or from the [command line](cli.md). It is also
 [highly pluggable](dokka_plugins.md).
 
+See [Get started](get_started.md) to take the first steps in using Dokka.
+
 ## Community
 
 Dokka has a dedicated `#dokka` channel in [Kotlin Community Slack](https://surveys.jetbrains.com/s3/kotlin-slack-sign-up)
