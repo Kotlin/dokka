@@ -1,36 +1,36 @@
 # Dokka 
 
-[![JetBrains official project](https://jb.gg/badges/official.svg)](https://github.com/JetBrains#jetbrains-on-github)
 [![Kotlin Beta](https://kotl.in/badges/beta.svg)](https://kotlinlang.org/docs/components-stability.html)
+[![JetBrains official project](https://jb.gg/badges/official.svg)](https://github.com/JetBrains#jetbrains-on-github)
 
 Dokka is an API documentation engine for Kotlin.
 
-Just like Kotlin itself, Dokka supports mixed-language projects: it understands Kotlin's
+Just like Kotlin itself, Dokka supports mixed-language projects. It understands Kotlin's
 [KDoc comments](https://kotlinlang.org/docs/kotlin-doc.html#kdoc-syntax) and Java's
 [Javadoc comments](https://www.oracle.com/technical-resources/articles/java/javadoc-tool.html).
 
-Dokka can generate documentation in multiple formats, including its own and modern [HTML format](TODO),
-multiple flavours of [Markdown](TODO) and Java's [Javadoc HTML](TODO).
+Dokka can generate documentation in multiple formats, including its own modern [HTML format](/TODO),
+multiple flavors of [Markdown](/TODO), and Java's [Javadoc HTML](/TODO).
 
-Libraries that use Dokka for API reference docs:
+Some libraries that use Dokka for their API reference documentation:
 
 * [kotlinx.coroutines](https://kotlinlang.org/api/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines/)
 * [Bitmovin](https://cdn.bitmovin.com/player/android/3/docs/index.html)
 * [Hexagon](https://hexagonkt.com/api/index.html)
 * [Ktor](https://api.ktor.io/)
-* [OkHttp](https://square.github.io/okhttp/4.x/okhttp/okhttp3/) (Markdown format)
+* [OkHttp](https://square.github.io/okhttp/4.x/okhttp/okhttp3/) (Markdown)
 
-Dokka can be run via [Gradle](TODO), [Maven](TODO) or [command line](TODO). It is also
-[highly pluggable](TODO).
+You can run Dokka using [Gradle](/TODO), [Maven](/TODO) or from the [command line](/TODO). It is also
+[highly pluggable](/TODO).
 
-## Quickstart
+## Get started
 
 ### Gradle
 
 <details open>
 <summary>Kotlin DSL</summary>
 
-Apply Dokka Gradle plugin in the root project:
+Apply the Dokka Gradle plugin in the root build script of your project:
 
 ```kotlin
 plugins {
@@ -38,7 +38,8 @@ plugins {
 }
 ```
 
-When documenting [multi-project](gradle.md#multi-project-builds) builds, you need to apply Dokka in subprojects as well:
+When documenting [multi-project](https://docs.gradle.org/current/userguide/multi_project_builds.html) builds, you need 
+to apply the Dokka Gradle plugin within subprojects as well:
 
 ```kotlin
 subprojects {
@@ -59,7 +60,8 @@ plugins {
 }
 ```
 
-When documenting multi-project builds, you need to apply Dokka in subprojects as well:
+When documenting [multi-project](https://docs.gradle.org/current/userguide/multi_project_builds.html) builds, you need 
+to apply the Dokka Gradle plugin within subprojects as well:
 
 ```groovy
 subprojects {
@@ -69,18 +71,18 @@ subprojects {
 
 </details>
 
-To generate documentation run the following Gradle tasks:
+To generate documentation, run the following Gradle tasks:
 
-* `dokkaHtml` for single-project builds.
-* `dokkaHtmlMultiModule` for multi-module builds.
+* `dokkaHtml` for single-project builds
+* `dokkaHtmlMultiModule` for multi-module builds
 
-By default, output directory is set to `/build/dokka/html` and `/build/dokka/htmlMultiModule` respectively.
+By default, the output directory is set to `/build/dokka/html` and `/build/dokka/htmlMultiModule` respectively.
 
-Learn more about Gradle configuration in a separate [topic dedicated to Gradle](TODO). 
+To learn more about the Gradle runner, see [Gradle](/TODO).
 
 ### Maven
 
-Add Dokka Maven plugin to the plugins section of your POM:
+Add the Dokka Maven plugin to the `plugins` section of your POM file:
 
 ```xml
 <build>
@@ -102,16 +104,18 @@ Add Dokka Maven plugin to the plugins section of your POM:
 </build>
 ```
 
-To generate documentation run `dokka:dokka` goal. By default, output directory is set to `target/dokka`.
+To generate documentation, run the `dokka:dokka` goal.
 
-Learn more about Maven configuration in a separate [topic dedicated to Maven](TODO).
+By default, the output directory is set to `target/dokka`.
+
+To learn more about the Maven runner, see [Maven](/TODO).
 
 ### CLI
 
-It is possible to run Dokka from command line without having to use any of the build tools, but it's more
-difficult to set up and for that reason it is not covered by this Quickstart guide.
+It is possible to run Dokka from the command line without having to use any of the build tools, but it's more
+difficult to set up and for that reason it is not covered in this Get started section.
 
-Please consult [documentation for command line runner](https://kotlin.github.io/dokka/1.7.20/user_guide/applying/cli/)
+Please consult [documentation for the command line runner](/TODO)
 to learn how to use it.
 
 ### Android
@@ -168,43 +172,48 @@ dependencies {
 
 ### HTML
 
-HTML is Dokka's default, stable and recommended output format. You can see it in action by browsing documentation for 
-[kotlinx.coroutines](https://kotlinlang.org/api/kotlinx.coroutines/).
+HTML is Dokka's default and recommended output format. You can see an example of the final result by browsing 
+documentation for [kotlinx.coroutines](https://kotlinlang.org/api/kotlinx.coroutines/).
 
 HTML format is configurable and, among other things, allows you to modify stylesheets, add custom image assets, change
 footer message and revamp the structure of generated HTML pages through templates.
 
-For more details and examples, see [HTML format](TODO) topic.
+For more details and examples, see [HTML format](/TODO).
 
 ### Markdown
 
 Dokka is able to generate documentation in GitHub Flavored and Jekyll compatible Markdown. However, both of these
 formats are still in Alpha, so you might encounter bugs and migration issues.
 
-`GFM` and `Jekyll` formats are essentially Dokka plugins. Learn how to apply and use them in a separate topic
-dedicated to [Markdown format](TODO).
+`GFM` and `Jekyll` formats are [Dokka plugins](/TODO). Learn how to apply and use them in a separate topic
+dedicated to the [Markdown formats](/TODO).
 
 ### Javadoc
 
 Dokka's Javadoc output format is a lookalike of Java's 
-[Javadoc HTML format](https://docs.oracle.com/en/java/javase/19/docs/api/index.html). The format is still in Alpha,
+[Javadoc HTML format](https://docs.oracle.com/en/java/javase/19/docs/api/index.html). This format is still in Alpha,
 so you might encounter bugs and migration issues.
 
-Javadoc format tries to visually mimic HTML pages generated by the Javadoc tool, but it's not a direct implementation, 
-and it's not an exact copy. In addition, all Kotlin signatures are translated to Java signatures.
+Javadoc format tries to visually mimic HTML pages generated by the Javadoc tool, but it's not a direct implementation 
+or an exact copy. In addition, all Kotlin signatures are translated to Java signatures.
 
-For more details and examples see [Javadoc format](TODO) topic.
+For more details and examples see [Javadoc format](/TODO) topic.
 
 ## Dokka plugins
 
-Dokka was built to be easily extensible and highly customizable, which allows the community to implement plugins for 
-missing or very specific features that are not provided out of the box.
+Dokka was built from the ground up to be easily extensible and highly customizable, which allows the community to 
+implement plugins for missing or very specific features that are not provided out of the box.
 
-Learn more about Dokka plugin and their configuration in a separate [topic dedicated to plugins](TODO)
+Learn more about Dokka plugins and their configuration in [Dokka plugins](TODO)
 
-If you want to learn how to create Dokka plugins, see
+If you want to learn how to develop Dokka plugins, see
 [Developer guides](https://kotlin.github.io/dokka/1.7.20/developer_guide/introduction/).
 
 ## Building and Contributing
 
 See [Contributing Guidelines](CONTRIBUTING.md)
+
+## Community
+
+Dokka has a dedicated `#dokka` channel in [Kotlin Community Slack](https://surveys.jetbrains.com/s3/kotlin-slack-sign-up)
+where you can chat about Dokka, its plugins and how to develop them, as well as get in touch with maintainers.
