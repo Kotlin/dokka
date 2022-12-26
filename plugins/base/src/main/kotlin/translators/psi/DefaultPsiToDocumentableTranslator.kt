@@ -16,14 +16,15 @@ import org.jetbrains.dokka.analysis.KotlinAnalysis
 import org.jetbrains.dokka.analysis.PsiDocumentableSource
 import org.jetbrains.dokka.analysis.from
 import org.jetbrains.dokka.base.DokkaBase
-import org.jetbrains.dokka.base.translators.psi.parsers.JavaDocumentationParser
 import org.jetbrains.dokka.base.translators.psi.parsers.JavadocParser
 import org.jetbrains.dokka.base.translators.typeConstructorsBeingExceptions
 import org.jetbrains.dokka.base.translators.unquotedValue
-import org.jetbrains.dokka.links.*
+import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.links.nextTarget
+import org.jetbrains.dokka.links.withClass
+import org.jetbrains.dokka.links.withEnumEntryExtra
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.AnnotationTarget
-import org.jetbrains.dokka.model.Nullable
 import org.jetbrains.dokka.model.doc.DocumentationNode
 import org.jetbrains.dokka.model.doc.Param
 import org.jetbrains.dokka.model.properties.PropertyContainer
@@ -45,7 +46,7 @@ import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 import java.io.File
 
 class DefaultPsiToDocumentableTranslator(
-    context: DokkaContext
+    context: DokkaContext,
 ) : AsyncSourceToDocumentableTranslator {
 
     private val kotlinAnalysis: KotlinAnalysis = context.plugin<DokkaBase>().querySingle { kotlinAnalysis }
@@ -94,8 +95,8 @@ class DefaultPsiToDocumentableTranslator(
 
     class DokkaPsiParser(
         private val sourceSetData: DokkaSourceSet,
-        facade: DokkaResolutionFacade,
-        private val logger: DokkaLogger
+        private val facade: DokkaResolutionFacade,
+        private val logger: DokkaLogger,
     ) {
         private val javadocParser = JavadocParser(logger, facade)
         private val syntheticDocProvider = SyntheticElementDocumentationProvider(javadocParser, facade)
@@ -276,10 +277,19 @@ class DefaultPsiToDocumentableTranslator(
                             JavaClassKindTypes.CLASS
                         )
                     }
-                }) + ancestry.interfaces.map { TypeConstructorWithKind(it.typeConstructor, JavaClassKindTypes.INTERFACE) }).toSourceSetDependent()
+                }) + ancestry.interfaces.map {
+                    TypeConstructorWithKind(
+                        it.typeConstructor,
+                        JavaClassKindTypes.INTERFACE
+                    )
+                }).toSourceSetDependent()
                 val modifiers = getModifier().toSourceSetDependent()
                 val implementedInterfacesExtra =
                     ImplementedInterfaces(ancestry.allImplementedInterfaces().toSourceSetDependent())
+
+                fun Array<PsiMethod>.defaultCtorIfEmpty() =
+                    if (isEmpty()) arrayOf(psi.createDefaultConstructor()) else this
+
                 when {
                     isAnnotationType ->
                         DAnnotation(
@@ -303,6 +313,7 @@ class DefaultPsiToDocumentableTranslator(
                                     .toAnnotations()
                             )
                         )
+
                     isEnum -> DEnum(
                         dri = dri,
                         name = name.orEmpty(),
@@ -341,6 +352,7 @@ class DefaultPsiToDocumentableTranslator(
                                 .toAnnotations()
                         )
                     )
+
                     isInterface -> DInterface(
                         dri = dri,
                         name = name.orEmpty(),
@@ -362,10 +374,11 @@ class DefaultPsiToDocumentableTranslator(
                                 .toAnnotations()
                         )
                     )
+
                     else -> DClass(
                         dri = dri,
                         name = name.orEmpty(),
-                        constructors = constructors.map { parseFunction(it, true) },
+                        constructors = constructors.defaultCtorIfEmpty().map { parseFunction(it, true) },
                         functions = allFunctions.await(),
                         properties = allFields.await(),
                         classlikes = classlikes.await(),
@@ -390,14 +403,29 @@ class DefaultPsiToDocumentableTranslator(
             }
         }
 
+        /**
+         * PSI doesn't return a default constructor if class doesn't contain an explicit one.
+         * This method create synthetic constructor
+         * Visibility modifier is preserved from the class.
+         */
+        private fun PsiClass.createDefaultConstructor(): PsiMethod {
+            val psiElementFactory = JavaPsiFacade.getElementFactory(facade.project)
+            val signature = when (val classVisibility = getVisibility()) {
+                JavaVisibility.Default -> name.orEmpty()
+                else -> "${classVisibility.name} $name"
+            }
+            return psiElementFactory.createConstructor(signature, this)
+        }
+
         private fun AncestryNode.exceptionInSupertypesOrNull(): ExceptionInSupertypes? =
-            typeConstructorsBeingExceptions().takeIf { it.isNotEmpty() }?.let { ExceptionInSupertypes(it.toSourceSetDependent()) }
+            typeConstructorsBeingExceptions().takeIf { it.isNotEmpty() }
+                ?.let { ExceptionInSupertypes(it.toSourceSetDependent()) }
 
         private fun parseFunction(
             psi: PsiMethod,
             isConstructor: Boolean = false,
             inheritedFrom: DRI? = null,
-            parentDRI: DRI? = null
+            parentDRI: DRI? = null,
         ): DFunction {
             val dri = parentDRI?.let { dri ->
                 DRI.from(psi).copy(packageName = dri.packageName, classNames = dri.classNames)
@@ -427,7 +455,8 @@ class DefaultPsiToDocumentableTranslator(
                 },
                 documentation = docs.toSourceSetDependent(),
                 expectPresentInSet = null,
-                sources = PsiDocumentableSource(psi).toSourceSetDependent(),
+                // isPhysical detects the virtual methods without real sources. Here it used for default constructor
+                sources = if (psi.isPhysical) PsiDocumentableSource(psi).toSourceSetDependent() else emptyMap(),
                 visibility = psi.getVisibility().toSourceSetDependent(),
                 type = psi.returnType?.let { getBound(type = it) } ?: Void,
                 generics = psi.mapTypeParameters(dri),
