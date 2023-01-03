@@ -295,7 +295,7 @@ buildscript {
 }
 
 dependencies {
-    dokkaPlugin("org.jetbrains.dokka:versioning-plugin:$dokkaVersion")
+    dokkaPlugin("org.jetbrains.dokka:versioning-plugin:1.7.20")
 }
 
 tasks.dokkaHtml {
