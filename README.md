@@ -23,6 +23,10 @@ Some libraries that use Dokka for their API reference documentation:
 You can run Dokka using [Gradle](/TODO), [Maven](/TODO) or from the [command line](/TODO). It is also
 [highly pluggable](/TODO).
 
+:mega: Dokka team now leads the product to the Stable release.
+We’d really appreciate it if you could [take our brief survey](https://surveys.jetbrains.com/s3/dokka-survey) about 
+your dev. experience with the tool. It helps us get priorities right and deliver the most valuable things first.
+
 ## Get started
 
 ### Gradle
