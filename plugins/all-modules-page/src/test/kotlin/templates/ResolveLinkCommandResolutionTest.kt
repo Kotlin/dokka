@@ -5,9 +5,10 @@ import kotlinx.html.span
 import kotlinx.html.stream.createHTML
 import org.jetbrains.dokka.DokkaModuleDescriptionImpl
 import org.jetbrains.dokka.allModulesPage.MultiModuleAbstractTest
-import org.jetbrains.dokka.base.renderers.html.templateCommand
 import org.jetbrains.dokka.base.resolvers.shared.RecognizedLinkFormat
 import org.jetbrains.dokka.base.templating.ResolveLinkCommand
+import org.jetbrains.dokka.html.DokkaHtml
+import org.jetbrains.dokka.html.renderers.templateCommand
 import org.jetbrains.dokka.links.DRI
 import org.junit.Rule
 import org.junit.jupiter.api.Test
@@ -59,7 +60,7 @@ class ResolveLinkCommandResolutionTest : MultiModuleAbstractTest() {
         val contentFile = setup(link)
         val configuration = configuration()
 
-        testFromData(configuration, useOutputLocationFromConfig = true) {
+        testFromData(configuration, useOutputLocationFromConfig = true, pluginOverrides = listOf(DokkaHtml())) {
             finishProcessingSubmodules = {
                 assertHtmlEqualsIgnoringWhitespace(expected, contentFile.readText())
             }
@@ -88,7 +89,7 @@ class ResolveLinkCommandResolutionTest : MultiModuleAbstractTest() {
         val contentFile = setup(link)
         val configuration = configuration()
 
-        testFromData(configuration, useOutputLocationFromConfig = true) {
+        testFromData(configuration, useOutputLocationFromConfig = true, pluginOverrides = listOf(DokkaHtml())) {
             finishProcessingSubmodules = {
                 assertHtmlEqualsIgnoringWhitespace(expected, contentFile.readText())
             }

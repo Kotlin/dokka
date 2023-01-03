@@ -9,6 +9,7 @@ dependencies {
     val jsoup_version: String by project
     testImplementation("org.jsoup:jsoup:$jsoup_version")
     testImplementation(project(":kotlin-analysis"))
+    testImplementation(project(":plugins:html"))
 }
 
 registerDokkaArtifactPublication("kotlinAsJavaPlugin") {

@@ -11,6 +11,7 @@ public final class org/jetbrains/dokka/base/testApi/testRunner/BaseDokkaTestGene
 }
 
 public final class org/jetbrains/dokka/base/testApi/testRunner/BaseTestBuilder : org/jetbrains/dokka/testApi/testRunner/TestBuilder {
+	public static final field Companion Lorg/jetbrains/dokka/base/testApi/testRunner/BaseTestBuilder$Companion;
 	public fun <init> ()V
 	public fun build ()Lorg/jetbrains/dokka/base/testApi/testRunner/BaseTestMethods;
 	public synthetic fun build ()Lorg/jetbrains/dokka/testApi/testRunner/TestMethods;
@@ -32,6 +33,10 @@ public final class org/jetbrains/dokka/base/testApi/testRunner/BaseTestBuilder :
 	public final fun setPreMergeDocumentablesTransformationStage (Lkotlin/jvm/functions/Function1;)V
 	public final fun setRenderingStage (Lkotlin/jvm/functions/Function2;)V
 	public final fun setVerificationStage (Lkotlin/jvm/functions/Function1;)V
+}
+
+public final class org/jetbrains/dokka/base/testApi/testRunner/BaseTestBuilder$Companion {
+	public final fun getDefaultRenderingStage ()Lkotlin/jvm/functions/Function2;
 }
 
 public final class org/jetbrains/dokka/base/testApi/testRunner/BaseTestMethods : org/jetbrains/dokka/testApi/testRunner/CoreTestMethods {

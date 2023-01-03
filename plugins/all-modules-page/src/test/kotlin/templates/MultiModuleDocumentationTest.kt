@@ -2,6 +2,7 @@ package org.jetbrains.dokka.allModulesPage.templates
 
 import matchers.content.*
 import org.jetbrains.dokka.allModulesPage.MultiModuleAbstractTest
+import org.jetbrains.dokka.html.DokkaHtml
 import org.jetbrains.dokka.model.dfs
 import org.jetbrains.dokka.pages.ContentKind
 import org.jetbrains.dokka.pages.ContentResolvedLink
@@ -39,7 +40,10 @@ class MultiModuleDocumentationTest : MultiModuleAbstractTest() {
             includes = listOf(folder.root.resolve("README.md"))
         }
 
-        testFromData(configuration) {
+        testFromData(
+            configuration,
+            pluginOverrides = listOf(DokkaHtml())
+        ) {
             allModulesPageCreationStage = { rootPage ->
                 (rootPage as? MultimoduleRootPageNode)?.content?.dfs { it.dci.kind == ContentKind.Cover }?.children?.firstOrNull()
                     ?.assertNode {

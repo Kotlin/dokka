@@ -4,6 +4,7 @@ import org.jetbrains.dokka.CoreExtensions
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.DokkaGenerator
 import org.jetbrains.dokka.base.generation.SingleModuleGeneration
+import org.jetbrains.dokka.base.testApi.testRunner.BaseTestBuilder.Companion.defaultRenderingStage
 import org.jetbrains.dokka.model.DModule
 import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.DokkaContext
@@ -50,8 +51,10 @@ class BaseDokkaTestGenerator(
         val transformedPages = singleModuleGeneration.transformPages(pages)
         pagesTransformationStage(transformedPages)
 
-        singleModuleGeneration.render(transformedPages)
-        renderingStage(transformedPages, context)
+        if(renderingStage != defaultRenderingStage) {
+            singleModuleGeneration.render(transformedPages)
+            renderingStage(transformedPages, context)
+        }
 
         singleModuleGeneration.reportAfterRendering()
     }
@@ -87,7 +90,7 @@ class BaseTestBuilder : TestBuilder<BaseTestMethods>() {
     var documentablesTransformationStage: (DModule) -> Unit = {}
     var pagesGenerationStage: (RootPageNode) -> Unit = {}
     var pagesTransformationStage: (RootPageNode) -> Unit = {}
-    var renderingStage: (RootPageNode, DokkaContext) -> Unit = { _, _ -> }
+    var renderingStage: (RootPageNode, DokkaContext) -> Unit = defaultRenderingStage
 
     override fun build() = BaseTestMethods(
         pluginsSetupStage,
@@ -100,6 +103,9 @@ class BaseTestBuilder : TestBuilder<BaseTestMethods>() {
         pagesTransformationStage,
         renderingStage
     )
+   companion object {
+       val defaultRenderingStage: (RootPageNode, DokkaContext) -> Unit = { _, _ -> }
+    }
 }
 
 abstract class BaseAbstractTest(logger: TestLogger = TestLogger(DokkaConsoleLogger(LoggingLevel.DEBUG))) : AbstractTest<BaseTestMethods, BaseTestBuilder, BaseDokkaTestGenerator>(

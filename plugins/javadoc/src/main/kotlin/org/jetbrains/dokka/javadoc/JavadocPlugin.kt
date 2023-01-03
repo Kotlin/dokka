@@ -25,7 +25,7 @@ class JavadocPlugin : DokkaPlugin() {
     val javadocPreprocessors by extensionPoint<PageTransformer>()
 
     val dokkaJavadocPlugin by extending {
-        CoreExtensions.renderer providing { ctx -> KorteJavadocRenderer(ctx, "views") } override dokkaBasePlugin.htmlRenderer
+        CoreExtensions.renderer providing { ctx -> KorteJavadocRenderer(ctx, "views") }
     }
 
     val javadocMultiplatformCheck by extending {

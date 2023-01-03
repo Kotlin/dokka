@@ -9,9 +9,9 @@ repositories {
 }
 
 dependencies {
-    implementation "org.jetbrains.dokka:dokka-base:${dokka_it_version}"
-    compileOnly "org.jetbrains.dokka:dokka-core:${dokka_it_version}"
-    compileOnly "org.jetbrains.dokka:dokka-analysis:${dokka_it_version}"
+    implementation "org.jetbrains.dokka:dokka-base:1.5.0" // ${dokka_it_version} - old Gradle does not support latest Dokka
+    compileOnly "org.jetbrains.dokka:dokka-core:1.5.0"// ${dokka_it_version}
+    compileOnly "org.jetbrains.dokka:dokka-analysis:1.5.0" // ${dokka_it_version}
 }
 
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile) {

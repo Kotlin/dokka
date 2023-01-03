@@ -3,9 +3,11 @@ package org.jetbrains.dokka.allModulesPage
 import org.jetbrains.dokka.CoreExtensions
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.DokkaGenerator
+import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.DokkaPlugin
+import org.jetbrains.dokka.templates.TemplatingPlugin
 import org.jetbrains.dokka.testApi.logger.TestLogger
 import org.jetbrains.dokka.testApi.testRunner.AbstractTest
 import org.jetbrains.dokka.testApi.testRunner.DokkaTestGenerator
@@ -29,7 +31,12 @@ class MultiModuleDokkaTestGenerator(
         val dokkaGenerator = DokkaGenerator(configuration, logger)
 
         val context =
-            dokkaGenerator.initializePlugins(configuration, logger, additionalPlugins + AllModulesPagePlugin())
+            dokkaGenerator.initializePlugins(
+                configuration = configuration,
+                logger = logger,
+                additionalPlugins = additionalPlugins + listOf(AllModulesPagePlugin(), DokkaBase(), TemplatingPlugin()),
+                ignorePluginsFromClassLoader = true // in classloader we have a conflict HTML and GFM plugins
+            )
         pluginsSetupStage(context)
 
         val generation = context.single(CoreExtensions.generation) as AllModulesPageGeneration

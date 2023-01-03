@@ -3,7 +3,6 @@ package org.jetbrains.dokka.versioning
 import kotlinx.html.a
 import kotlinx.html.div
 import kotlinx.html.stream.appendHTML
-import org.jetbrains.dokka.base.renderers.html.strike
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.configuration
 import org.jetbrains.dokka.plugability.plugin

@@ -66,6 +66,12 @@ public final class org/jetbrains/dokka/templates/DirectiveBasedHtmlTemplateProce
 	public fun process (Ljava/io/File;Ljava/io/File;Lorg/jetbrains/dokka/DokkaConfiguration$DokkaModuleDescription;)Z
 }
 
+public final class org/jetbrains/dokka/templates/DirectiveBasedTemplateProcessingKt {
+	public static final field TEMPLATE_COMMAND_BEGIN_BORDER Ljava/lang/String;
+	public static final field TEMPLATE_COMMAND_END_BORDER Ljava/lang/String;
+	public static final field TEMPLATE_COMMAND_SEPARATOR Ljava/lang/String;
+}
+
 public final class org/jetbrains/dokka/templates/FallbackTemplateProcessingStrategy : org/jetbrains/dokka/templates/TemplateProcessingStrategy {
 	public fun <init> ()V
 	public fun finish (Ljava/io/File;)V

@@ -37,7 +37,7 @@ diff --git a/build.gradle b/build.gradle
 index aa8f21b..dd6a2ae 100644
 --- a/build.gradle
 +++ b/build.gradle
-@@ -1,80 +1,445 @@
+@@ -1,80 +1,446 @@
 +import org.jetbrains.dokka.Platform
 +
  plugins {
@@ -76,8 +76,9 @@ index aa8f21b..dd6a2ae 100644
  
  dependencies {
 -  dokka "org.jetbrains.dokka:dokka-fatjar:$dokka_version"
-+  dokkaPlugin project(":plugins:dokka-samples-transformer-plugin")
++  // dokkaPlugin project(":plugins:dokka-samples-transformer-plugin") uncomment after upgrade StdLib Gradle
 +  dokkaPlugin project(":plugins:dokka-stdlib-configuration-plugin")
++  dokkaPlugin "org.jetbrains.dokka:html-plugin:$dokka_it_version"
  }
 
 -final File dokkaHome = new File(buildDir, "dokka-home")

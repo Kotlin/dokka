@@ -1,8 +1,8 @@
 package org.jetbrains.dokka.allModulesPage.templates
 
 import org.jetbrains.dokka.DokkaConfiguration.DokkaModuleDescription
-import org.jetbrains.dokka.base.renderers.html.SearchRecord
 import org.jetbrains.dokka.base.templating.AddToSearch
+import org.jetbrains.dokka.base.templating.SearchRecord
 import org.jetbrains.dokka.base.templating.parseJson
 import org.jetbrains.dokka.base.templating.toJsonString
 import org.jetbrains.dokka.plugability.DokkaContext

@@ -14,6 +14,7 @@ open class DokkaPlugin : Plugin<Project> {
         }
 
         project.setupDokkaTasks("dokkaHtml") {
+            plugins.dependencies.add(project.dokkaArtifacts.htmlPlugin)
             description = "Generates documentation in 'html' format"
         }
 

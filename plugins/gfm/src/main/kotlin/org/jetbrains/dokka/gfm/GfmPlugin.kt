@@ -19,7 +19,7 @@ class GfmPlugin : DokkaPlugin() {
     private val dokkaBase by lazy { plugin<DokkaBase>() }
 
     val renderer by extending {
-        CoreExtensions.renderer providing ::CommonmarkRenderer override dokkaBase.htmlRenderer
+        CoreExtensions.renderer providing ::CommonmarkRenderer
     }
 
     val locationProvider by extending {

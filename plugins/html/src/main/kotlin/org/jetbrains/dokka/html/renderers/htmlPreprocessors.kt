@@ -1,0 +1,169 @@
+package org.jetbrains.dokka.html.renderers
+
+import org.jetbrains.dokka.base.DokkaBase
+import org.jetbrains.dokka.base.DokkaBaseConfiguration
+import org.jetbrains.dokka.base.templating.AddToSourcesetDependencies
+import org.jetbrains.dokka.base.templating.toJsonString
+import org.jetbrains.dokka.html.DokkaHtml
+import org.jetbrains.dokka.html.DokkaHtmlConfiguration
+import org.jetbrains.dokka.pages.RendererSpecificResourcePage
+import org.jetbrains.dokka.pages.RenderingStrategy
+import org.jetbrains.dokka.pages.RootPageNode
+import org.jetbrains.dokka.plugability.DokkaContext
+import org.jetbrains.dokka.plugability.configuration
+import org.jetbrains.dokka.transformers.pages.PageTransformer
+
+open class NavigationPageInstaller(val context: DokkaContext) : NavigationDataProvider(), PageTransformer {
+    override fun invoke(input: RootPageNode): RootPageNode =
+        input.modified(
+            children = input.children + NavigationPage(
+                root = navigableChildren(input),
+                moduleName = context.configuration.moduleName,
+                context = context
+            )
+        )
+}
+
+class CustomResourceInstaller(val dokkaContext: DokkaContext) : PageTransformer {
+    private val configuration = configuration<DokkaHtml, DokkaHtmlConfiguration>(dokkaContext)
+
+    private val oldBaseConfiguration = configuration<DokkaBase, DokkaBaseConfiguration>(dokkaContext)
+
+    @Suppress("DEPRECATION")
+    private val customAssets = configuration?.customAssets?.map {
+        RendererSpecificResourcePage("images/${it.name}", emptyList(), RenderingStrategy.Copy(it.absolutePath))
+    }.orEmpty() + oldBaseConfiguration?.customAssets?.map {
+        RendererSpecificResourcePage("images/${it.name}", emptyList(), RenderingStrategy.Copy(it.absolutePath))
+    }.orEmpty()
+
+    @Suppress("DEPRECATION")
+    private val customStylesheets = configuration?.customStyleSheets?.map {
+        RendererSpecificResourcePage("styles/${it.name}", emptyList(), RenderingStrategy.Copy(it.absolutePath))
+    }.orEmpty() + oldBaseConfiguration?.customStyleSheets?.map {
+        RendererSpecificResourcePage("styles/${it.name}", emptyList(), RenderingStrategy.Copy(it.absolutePath))
+    }.orEmpty()
+
+    override fun invoke(input: RootPageNode): RootPageNode {
+        val customResourcesPaths = (customAssets + customStylesheets).map { it.name }.toSet()
+        val withEmbeddedResources =
+            input.transformContentPagesTree { it.modified(embeddedResources = it.embeddedResources + customResourcesPaths) }
+        if(dokkaContext.configuration.delayTemplateSubstitution)
+            return withEmbeddedResources
+        val (currentResources, otherPages) = withEmbeddedResources.children.partition { it is RendererSpecificResourcePage }
+        return input.modified(children = otherPages + currentResources.filterNot { it.name in customResourcesPaths } + customAssets + customStylesheets)
+    }
+}
+
+class ScriptsInstaller(private val dokkaContext: DokkaContext) : PageTransformer {
+
+    // scripts ending with `_deferred.js` are loaded with `defer`, otherwise `async`
+    private val scriptsPages = listOf(
+        "scripts/clipboard.js",
+        "scripts/navigation-loader.js",
+        "scripts/platform-content-handler.js",
+        "scripts/main.js",
+        "scripts/prism.js",
+
+        // It's important for this script to be deferred because it has logic that makes decisions based on
+        // rendered elements (for instance taking their clientWidth), and if not all styles are loaded/applied
+        // at the time of inspecting them, it will give incorrect results and might lead to visual bugs.
+        // should be easy to test if you open any page in incognito or by reloading it (Ctrl+Shift+R)
+        "scripts/symbol-parameters-wrapper_deferred.js",
+    )
+
+    override fun invoke(input: RootPageNode): RootPageNode =
+        input.let { root ->
+            if (dokkaContext.configuration.delayTemplateSubstitution) root
+            else root.modified(children = input.children + scriptsPages.toRenderSpecificResourcePage())
+        }.transformContentPagesTree {
+            it.modified(
+                embeddedResources = it.embeddedResources + scriptsPages
+            )
+        }
+}
+
+class StylesInstaller(private val dokkaContext: DokkaContext) : PageTransformer {
+    private val stylesPages = listOf(
+        "styles/style.css",
+        "styles/jetbrains-mono.css",
+        "styles/main.css",
+        "styles/prism.css",
+        "styles/logo-styles.css"
+    )
+
+    override fun invoke(input: RootPageNode): RootPageNode =
+        input.let { root ->
+            if (dokkaContext.configuration.delayTemplateSubstitution) root
+            else root.modified(children = input.children + stylesPages.toRenderSpecificResourcePage())
+        }.transformContentPagesTree {
+            it.modified(
+                embeddedResources = it.embeddedResources + stylesPages
+            )
+        }
+}
+
+object AssetsInstaller : PageTransformer {
+    private val imagesPages = listOf(
+        "images/arrow_down.svg",
+        "images/logo-icon.svg",
+        "images/go-to-top-icon.svg",
+        "images/footer-go-to-link.svg",
+        "images/anchor-copy-button.svg",
+        "images/copy-icon.svg",
+        "images/copy-successful-icon.svg",
+        "images/theme-toggle.svg",
+
+        // navigation icons
+        "images/nav-icons/abstract-class.svg",
+        "images/nav-icons/abstract-class-kotlin.svg",
+        "images/nav-icons/annotation.svg",
+        "images/nav-icons/annotation-kotlin.svg",
+        "images/nav-icons/class.svg",
+        "images/nav-icons/class-kotlin.svg",
+        "images/nav-icons/enum.svg",
+        "images/nav-icons/enum-kotlin.svg",
+        "images/nav-icons/exception-class.svg",
+        "images/nav-icons/field-value.svg",
+        "images/nav-icons/field-variable.svg",
+        "images/nav-icons/function.svg",
+        "images/nav-icons/interface.svg",
+        "images/nav-icons/interface-kotlin.svg",
+        "images/nav-icons/object.svg",
+    )
+
+    override fun invoke(input: RootPageNode) = input.modified(
+        children = input.children + imagesPages.toRenderSpecificResourcePage()
+    )
+}
+
+private fun List<String>.toRenderSpecificResourcePage(): List<RendererSpecificResourcePage> =
+    map { RendererSpecificResourcePage(it, emptyList(), RenderingStrategy.Copy("/dokka/$it")) }
+
+class SourcesetDependencyAppender(val context: DokkaContext) : PageTransformer {
+    private val name = "scripts/sourceset_dependencies.js"
+    override fun invoke(input: RootPageNode): RootPageNode {
+        val dependenciesMap = context.configuration.sourceSets.associate {
+            it.sourceSetID to it.dependentSourceSets
+        }
+
+        fun createDependenciesJson(): String =
+            dependenciesMap.map { (key, values) -> key.toString() to values.map { it.toString() } }.toMap()
+                .let { content ->
+                    if (context.configuration.delayTemplateSubstitution) {
+                        toJsonString(AddToSourcesetDependencies(context.configuration.moduleName, content))
+                    } else {
+                        "sourceset_dependencies='${toJsonString(content)}'"
+                    }
+                }
+
+        val deps = RendererSpecificResourcePage(
+            name = name,
+            children = emptyList(),
+            strategy = RenderingStrategy.Write(createDependenciesJson())
+        )
+
+        return input.modified(
+            children = input.children + deps
+        ).transformContentPagesTree { it.modified(embeddedResources = it.embeddedResources + name) }
+    }
+}

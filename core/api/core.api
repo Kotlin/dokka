@@ -242,8 +242,8 @@ public class org/jetbrains/dokka/DokkaException : java/lang/RuntimeException {
 public final class org/jetbrains/dokka/DokkaGenerator {
 	public fun <init> (Lorg/jetbrains/dokka/DokkaConfiguration;Lorg/jetbrains/dokka/utilities/DokkaLogger;)V
 	public final fun generate ()V
-	public final fun initializePlugins (Lorg/jetbrains/dokka/DokkaConfiguration;Lorg/jetbrains/dokka/utilities/DokkaLogger;Ljava/util/List;)Lorg/jetbrains/dokka/plugability/DokkaContext;
-	public static synthetic fun initializePlugins$default (Lorg/jetbrains/dokka/DokkaGenerator;Lorg/jetbrains/dokka/DokkaConfiguration;Lorg/jetbrains/dokka/utilities/DokkaLogger;Ljava/util/List;ILjava/lang/Object;)Lorg/jetbrains/dokka/plugability/DokkaContext;
+	public final fun initializePlugins (Lorg/jetbrains/dokka/DokkaConfiguration;Lorg/jetbrains/dokka/utilities/DokkaLogger;Ljava/util/List;Z)Lorg/jetbrains/dokka/plugability/DokkaContext;
+	public static synthetic fun initializePlugins$default (Lorg/jetbrains/dokka/DokkaGenerator;Lorg/jetbrains/dokka/DokkaConfiguration;Lorg/jetbrains/dokka/utilities/DokkaLogger;Ljava/util/List;ZILjava/lang/Object;)Lorg/jetbrains/dokka/plugability/DokkaContext;
 }
 
 public final class org/jetbrains/dokka/DokkaModuleDescriptionImpl : org/jetbrains/dokka/DokkaConfiguration$DokkaModuleDescription {
@@ -4348,7 +4348,8 @@ public abstract interface class org/jetbrains/dokka/plugability/DokkaContext {
 }
 
 public final class org/jetbrains/dokka/plugability/DokkaContext$Companion {
-	public final fun create (Lorg/jetbrains/dokka/DokkaConfiguration;Lorg/jetbrains/dokka/utilities/DokkaLogger;Ljava/util/List;)Lorg/jetbrains/dokka/plugability/DokkaContext;
+	public final fun create (Lorg/jetbrains/dokka/DokkaConfiguration;Lorg/jetbrains/dokka/utilities/DokkaLogger;Ljava/util/List;Z)Lorg/jetbrains/dokka/plugability/DokkaContext;
+	public static synthetic fun create$default (Lorg/jetbrains/dokka/plugability/DokkaContext$Companion;Lorg/jetbrains/dokka/DokkaConfiguration;Lorg/jetbrains/dokka/utilities/DokkaLogger;Ljava/util/List;ZILjava/lang/Object;)Lorg/jetbrains/dokka/plugability/DokkaContext;
 }
 
 public abstract interface class org/jetbrains/dokka/plugability/DokkaContextConfiguration {

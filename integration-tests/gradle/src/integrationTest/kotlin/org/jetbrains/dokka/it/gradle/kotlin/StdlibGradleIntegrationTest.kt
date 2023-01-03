@@ -24,7 +24,7 @@ class StdlibGradleIntegrationTest(override val versions: BuildVersions) : Abstra
 
     override val projectOutputLocation: File by lazy { File(projectDir, "build/dokka/kotlin-stdlib") }
 
-    private val currentDokkaVersion: String = "1.5.0"//checkNotNull(System.getenv("DOKKA_VERSION")) // uncomment after updating of StdLib
+    private val currentDokkaVersion: String = checkNotNull(System.getenv("DOKKA_VERSION"))
 
     @BeforeTest
     fun prepareProjectFiles() {

@@ -1,7 +1,7 @@
 package org.jetbrains.dokka.versioning
 
 import org.jetbrains.dokka.CoreExtensions.postActions
-import org.jetbrains.dokka.base.DokkaBase
+import org.jetbrains.dokka.html.DokkaHtml
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.plugability.configuration
 import org.jetbrains.dokka.templates.TemplatingPlugin
@@ -12,7 +12,7 @@ class VersioningPlugin : DokkaPlugin() {
     val versionsNavigationCreator by extensionPoint<VersionsNavigationCreator>()
     val versionsOrdering by extensionPoint<VersionsOrdering>()
 
-    private val dokkaBase by lazy { plugin<DokkaBase>() }
+    private val dokkaHtml by lazy { plugin<DokkaHtml>() }
     private val templatingPlugin by lazy { plugin<TemplatingPlugin>() }
 
     val defaultVersioningStorage by extending {
@@ -25,18 +25,18 @@ class VersioningPlugin : DokkaPlugin() {
         templatingPlugin.directiveBasedCommandHandlers providing ::ReplaceVersionCommandHandler override templatingPlugin.replaceVersionCommandHandler
     }
     val resolveLinkConsumer by extending {
-        dokkaBase.immediateHtmlCommandConsumer providing ::ReplaceVersionCommandConsumer override dokkaBase.replaceVersionConsumer
+        dokkaHtml.immediateHtmlCommandConsumer providing ::ReplaceVersionCommandConsumer override dokkaHtml.replaceVersionConsumer
     }
     val cssStyleInstaller by extending {
-        dokkaBase.htmlPreprocessors providing ::MultiModuleStylesInstaller order {
-            after(dokkaBase.assetsInstaller)
-            before(dokkaBase.customResourceInstaller)
+        dokkaHtml.htmlPreprocessors providing ::MultiModuleStylesInstaller order {
+            after(dokkaHtml.assetsInstaller)
+            before(dokkaHtml.customResourceInstaller)
         }
     }
     val notFoundPageInstaller by extending {
-        dokkaBase.htmlPreprocessors providing ::NotFoundPageInstaller order {
-            after(dokkaBase.assetsInstaller)
-            before(dokkaBase.customResourceInstaller)
+        dokkaHtml.htmlPreprocessors providing ::NotFoundPageInstaller order {
+            after(dokkaHtml.assetsInstaller)
+            before(dokkaHtml.customResourceInstaller)
         } applyIf { !delayTemplateSubstitution }
     }
     val versionsDefaultOrdering by extending {

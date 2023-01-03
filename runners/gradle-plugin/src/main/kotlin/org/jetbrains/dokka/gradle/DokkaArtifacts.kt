@@ -14,6 +14,7 @@ internal class DokkaArtifacts(private val project: Project) {
     val allModulesPage get() = fromModuleName("all-modules-page-plugin")
     val dokkaCore get() = fromModuleName("dokka-core")
     val dokkaBase get() = fromModuleName("dokka-base")
+    val htmlPlugin get() = fromModuleName("html-plugin")
     val javadocPlugin get() = fromModuleName("javadoc-plugin")
     val gfmPlugin get() = fromModuleName("gfm-plugin")
     val gfmTemplateProcessing get() = fromModuleName("gfm-template-processing-plugin")
