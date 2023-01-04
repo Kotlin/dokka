@@ -30,7 +30,7 @@ to your project:
 <tabs group="build-script">
 <tab title="Kotlin" group-key="kotlin">
 
-The Dokka Gradle runner creates convenient dependency configurations that allow you to apply plugins universally or
+The Gradle plugin for Dokka creates convenient dependency configurations that allow you to apply plugins universally or
 for a specific output format only.
 
 ```kotlin
@@ -54,7 +54,7 @@ dependencies {
 </tab>
 <tab title="Groovy" group-key="groovy">
 
-The Dokka Gradle runner creates convenient dependency configurations that allow you to apply Dokka plugins universally or
+The Gradle plugin for Dokka creates convenient dependency configurations that allow you to apply Dokka plugins universally or
 for a specific output format only.
 
 ```groovy
@@ -127,8 +127,8 @@ If you are using [JSON configuration](cli.md#running-with-json-configuration), D
 
 ## Configuring Dokka plugins
 
-Dokka plugins can also have configuration options of their own. To see which options are available, consult 
-documentation of the plugin you want to configure. 
+Dokka plugins can also have configuration options of their own. To see which options are available, consult documentation
+of the plugins you are using. 
 
 Let's have a look at how you can configure the `DokkaBase` plugin, which is responsible for generating [HTML](html.md)
 documentation, by adding a custom image to the assets (`customAssets` option), by adding custom style sheets
@@ -264,6 +264,8 @@ If you are using [JSON configuration](cli.md#running-with-json-configuration), t
 
 ## Notable plugins
 
+Here are some notable Dokka plugins that you might find useful:
+
 | **Name**                                                                                                  | **Description**                                                                                              |
 |-----------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------|
 | [Android documentation plugin](https://github.com/Kotlin/dokka/tree/master/plugins/android-documentation) | Improves the documentation experience on Android                                                             |
@@ -271,3 +273,6 @@ If you are using [JSON configuration](cli.md#running-with-json-configuration), t
 | [MermaidJS HTML plugin](https://github.com/glureau/dokka-mermaid)                                         | Renders [MermaidJS](https://mermaid-js.github.io/mermaid/#/) diagrams and visualizations found in KDocs      |
 | [Mathjax HTML plugin](https://github.com/Kotlin/dokka/tree/master/plugins/mathjax)                        | Pretty prints mathematics found in KDocs                                                                     |
 | [Kotlin as Java plugin](https://github.com/Kotlin/dokka/tree/master/plugins/kotlin-as-java)               | Renders Kotlin signatures as seen from Java's perspective                                                    |
+
+If you are a Dokka plugin author and would like to add your plugin to this list, get in touch with maintainers
+via [Slack](introduction.md#community) or [GitHub](https://github.com/Kotlin/dokka/).

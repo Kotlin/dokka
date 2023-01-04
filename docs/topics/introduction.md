@@ -1,4 +1,4 @@
-[//]: # (title: Overview)
+[//]: # (title: Introduction)
 
 Dokka is an API documentation engine for Kotlin.
 
@@ -9,7 +9,7 @@ Just like Kotlin itself, Dokka supports mixed-language projects. It understands 
 Dokka can generate documentation in multiple formats, including its own modern [HTML format](html.md),
 multiple flavors of [Markdown](markdown.md), and Java's [Javadoc HTML](javadoc.md).
 
-Some libraries that use Dokka for their API reference documentation:
+Here are some libraries that use Dokka for their API reference documentation:
 
 * [kotlinx.coroutines](https://kotlinlang.org/api/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines/)
 * [Bitmovin](https://cdn.bitmovin.com/player/android/3/docs/index.html)
@@ -20,7 +20,7 @@ Some libraries that use Dokka for their API reference documentation:
 You can run Dokka using [Gradle](gradle.md), [Maven](maven.md) or from the [command line](cli.md). It is also
 [highly pluggable](dokka_plugins.md).
 
-See [Get started](get_started.md) to take the first steps in using Dokka.
+See [Get started](get_started.md) to take your first steps in using Dokka.
 
 ## Community
 

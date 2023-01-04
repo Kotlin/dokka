@@ -5,7 +5,9 @@ for [kotlinx.coroutines](https://kotlinlang.org/api/kotlinx.coroutines/).
 
 ## Generating HTML documentation
 
-HTML as an output format is supported by all runners. To generate HTML documentation, follow these steps depending on your runner:
+HTML as an output format is supported by all runners. To generate HTML documentation, follow these steps depending on 
+your build tool or runner:
+
 * For [Gradle](gradle.md#generating-documentation), run `dokkaHtml` or `dokkaHtmlMultiModule` tasks.
 * For [Maven](maven.md#generating-documentation), run the `dokka:dokka` goal.
 * For [CLI runner](cli.md#generating-documentation), run with HTML dependencies set.
@@ -212,10 +214,9 @@ You can find all images used by Dokka on
 ### Changing the logo
 
 To customize the logo, you can begin by [providing your own asset](#customizing-assets) for `logo-icon.svg`.
-If your image has similar size, it should not look out of place.
 
-However, if your image has different dimensions or you want to use a `.png` file instead of the default `.svg` file,
-you can [override the `logo-styles.css` stylesheet](#customizing-styles) and make it fit.
+If you don't like how it looks, or you want to use a `.png` file instead of the default `.svg` file,
+you can [override the `logo-styles.css` stylesheet](#customizing-styles) to customize it.
 
 For an example of how to do this, see our
 [custom format example project](https://github.com/Kotlin/dokka/tree/%dokkaVersion%/examples/gradle/dokka-customFormat-example).

@@ -1,7 +1,8 @@
 [//]: # (title: Javadoc)
 
-> The Javadoc output format is still in Alpha so you may find bugs and experience migration issues when using it. **You use it at your own risk.**
+> The Javadoc output format is still in Alpha so you may find bugs and experience migration issues when using it. 
 > Successful integration with tools that accept Java's Javadoc HTML as input is not guaranteed.
+> **You use it at your own risk.**
 >
 {type="warning"}
 
@@ -17,7 +18,7 @@ All Kotlin code and signatures are rendered as seen from Java's perspective. Thi
 [Kotlin as Java Dokka plugin](https://github.com/Kotlin/dokka/tree/master/plugins/kotlin-as-java), which comes bundled and
 applied by default for this format.
 
-The Javadoc output format itself is a [Dokka plugin](dokka_plugins.md), and it is maintained by the Dokka team.
+The Javadoc output format is implemented as a [Dokka plugin](dokka_plugins.md), and it is maintained by the Dokka team.
 It is open source and you can find the source code on [GitHub](https://github.com/Kotlin/dokka/tree/master/plugins/javadoc).
 
 ## Generating Javadoc documentation
@@ -30,19 +31,19 @@ It is open source and you can find the source code on [GitHub](https://github.co
 <tabs group="build-script">
 <tab title="Gradle" group-key="kotlin">
 
-Dokka's [Gradle runner](gradle.md) comes with the Javadoc output format included. You can use the following tasks:
+The [Gradle plugin for Dokka](gradle.md) comes with the Javadoc output format included. You can use the following tasks:
 
-| **Task**                | **Description**                                                                                                                                                                                            |
-|-------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `dokkaJavadoc`          | Generates Javadoc documentation for a single project.                                                                                                                                                      |
-| `dokkaJavadocCollector` | A [Collector](gradle.md#collector-tasks) task created only for parent projects in multi-project builds. It calls `dokkaJavadoc` for every subproject and merges all outputs into a single virtual project. |
+| **Task**                | **Description**                                                                                                                                                                                              |
+|-------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `dokkaJavadoc`          | Generates Javadoc documentation for a single project.                                                                                                                                                        |
+| `dokkaJavadocCollector` | A [`Collector`](gradle.md#collector-tasks) task created only for parent projects in multi-project builds. It calls `dokkaJavadoc` for every subproject and merges all outputs into a single virtual project. |
 
 The `javadoc.jar` file can be generated separately. For more information, see [Building `javadoc.jar`](gradle.md#building-javadoc-jar).
 
 </tab>
 <tab title="Maven" group-key="groovy">
 
-Dokka's [Maven runner](maven.md) comes with the Javadoc output format built in. You can generate documentation
+The [Maven plugin for Dokka](maven.md) comes with the Javadoc output format built in. You can generate documentation
 by using the following goals:
 
 | **Goal**           | **Description**                                                              |
@@ -86,7 +87,7 @@ Via [JSON configuration](cli.md#running-with-json-configuration):
 }
 ```
 
-For more information, see [Other output formats](cli.md#other-output-formats) in the CLI runner documentation.
+For more information, see [Other output formats](cli.md#other-output-formats) in the CLI runner's documentation.
 
 </tab>
 </tabs>

@@ -4,10 +4,10 @@
 
 <product-profile id="kl"
                  name="dokka"
-                 start-page="overview.md">
+                 start-page="introduction.md">
 
     <chunk include-id="dokka">
-        <toc-element id="overview.md"/>
+        <toc-element id="introduction.md"/>
         <toc-element id="get_started.md"/>
         <toc-element toc-title="Running Dokka">
             <toc-element id="gradle.md"/>

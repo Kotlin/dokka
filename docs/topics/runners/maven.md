@@ -1,8 +1,8 @@
 [//]: # (title: Maven)
 
-To generate documentation for a Maven-based project, you can use the [Dokka Maven plugin](#applying-dokka).
+To generate documentation for a Maven-based project, you can use the Maven plugin for Dokka.
 
-> Compared to the [Gradle runner](gradle.md), the Maven runner has only basic features and
+> Compared to the [Gradle plugin for Dokka](gradle.md), the Maven plugin has only basic features and
 > does not provide support for multi-module builds.
 > 
 {type="note"}
@@ -36,7 +36,7 @@ To apply Dokka, you need to add `dokka-maven-plugin` to the `plugins` section of
 
 ## Generating documentation
 
-The following goals are provided by the plugin:
+The following goals are provided by the Maven plugin:
 
 ### Stable
 
@@ -53,10 +53,10 @@ The following goals are provided by the plugin:
 
 ### Other output formats
 
-By default, the Maven runner builds documentation in [HTML](html.md) output format.
+By default, the Maven plugin for Dokka builds documentation in [HTML](html.md) output format.
 
-All other output formats come as [Dokka plugins](dokka_plugins.md). In order to generate documentation in the desired
-format, you have to add it as a Dokka plugin to the configuration.
+All other output formats are implemented as [Dokka plugins](dokka_plugins.md). In order to generate documentation in the 
+desired format, you have to add it as a Dokka plugin to the configuration.
 
 For example, to use the experimental [GFM](markdown.md#gfm) format, you have to add `gfm-plugin` artifact:
 
@@ -90,7 +90,7 @@ For example, if you want to publish to [Maven Central](https://central.sonatype.
 [must](https://central.sonatype.org/publish/requirements/) supply a `javadoc.jar` alongside your project. However,
 not all repositories have that rule.
 
-Unlike the [Gradle runner](gradle.md#building-javadoc-jar), the Maven runner comes with a ready-to-use `dokka:javadocJar`
+Unlike the [Gradle plugin for Dokka](gradle.md#building-javadoc-jar), the Maven plugin comes with a ready-to-use `dokka:javadocJar`
 goal. By default, it generates documentation in [Javadoc](javadoc.md) output format in the`target` folder.
 
 If you are not satisfied with the built-in goal or want to customize the output (for example, you want to generate
@@ -137,7 +137,7 @@ mvn dokka:dokka jar:jar@dokka-jar
 >
 {type="tip"}
 
-## Configuration
+## Configuration example
 
 Maven's plugin configuration block can be used to configure Dokka.
 
@@ -159,7 +159,7 @@ Here is an example of a basic configuration that only changes the output locatio
 Dokka has many configuration options to tailor your and your reader's experience.
 
 Below are some examples and detailed descriptions for each configuration section. You can also find an example
-with [all configuration options](#complete-configuration) applied.
+with [all configuration options](#complete-configuration) applied at the bottom of the page.
 
 ### General configuration
 
@@ -216,7 +216,7 @@ with [all configuration options](#complete-configuration) applied.
 </plugin>
 ```
 
-<deflist>
+<deflist collapsible="true">
     <def title="skip">
         <p>Whether to skip documentation generation.</p>
         <p>Default: <code>false</code>.</p>
@@ -257,7 +257,7 @@ with [all configuration options](#complete-configuration) applied.
     <def title="suppressInheritedMembers">
         <p>Whether to suppress inherited members that aren't explicitly overridden in a given class.</p>
         <p>
-            Note: this can suppress functions such as <code>equals</code>/<code>hashCode</code>/<code>toString</code>, 
+            Note: This can suppress functions such as <code>equals</code>/<code>hashCode</code>/<code>toString</code>, 
             but cannot suppress synthetic functions such as <code>dataClass.componentN</code> and 
             <code>dataClass.copy</code>. Use <code>suppressObviousFunctions</code> for that.
         </p>
@@ -275,7 +275,7 @@ with [all configuration options](#complete-configuration) applied.
             not resolving class/member links from your dependencies, including the standard library.
         </p>
         <p>
-            Note: you can cache fetched files locally and provide them to
+            Note: You can cache fetched files locally and provide them to
             Dokka as local paths. See <code>externalDocumentationLinks</code> section.
         </p>
         <p>Default: <code>false</code>.</p>
@@ -357,13 +357,13 @@ with [all configuration options](#complete-configuration) applied.
             Whether to generate external documentation links that lead to the API reference
             documentation of Kotlin's standard library.
         </p>
-        <p>Note: links <b>are</b> generated when <code>noStdLibLink</code> is set to <code>false</code>.</p>
+        <p>Note: Links <b>are</b> generated when <code>noStdLibLink</code> is set to <code>false</code>.</p>
         <p>Default: <code>false</code>.</p>
     </def>
     <def title="noJdkLink">
         <p>Whether to generate external documentation links to JDK's Javadocs.</p>
         <p>The version of JDK Javadocs is determined by the <code>jdkVersion</code> option.</p>
-        <p>Note: links <b>are</b> generated when <code>noJdkLink</code> is set to <code>false</code>.</p>
+        <p>Note: Links <b>are</b> generated when <code>noJdkLink</code> is set to <code>false</code>.</p>
         <p>Default: <code>false</code></p>
     </def>
     <def title="includes">
@@ -417,7 +417,7 @@ function in `kotlinx.coroutines`.
 </plugin>
 ```
 
-<deflist>
+<deflist collapsible="true">
     <def title="path">
         <p>
             The path to the local source directory. The path must be relative to the root of the
@@ -480,7 +480,7 @@ By default, external documentation links for Kotlin standard library and JDK are
 </plugin>
 ```
 
-<deflist>
+<deflist collapsible="true">
     <def title="url">
         <p>The root URL of documentation to link to. It <b>must</b> contain a trailing slash.</p>
         <p>
@@ -534,7 +534,7 @@ The `perPackageOptions` configuration block allows setting some options for spec
 </plugin>
 ```
 
-<deflist>
+<deflist collapsible="true">
     <def title="matchingRegex">
         <p>The regular expression that is used to match the package.</p>
         <p>Default: <code>.*</code>.</p>

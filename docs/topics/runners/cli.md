@@ -3,7 +3,7 @@
 If for some reason you cannot use [Gradle](gradle.md) or [Maven](maven.md) build tools, Dokka has
 a command line (CLI) runner for generating documentation.
 
-In comparison, it has the same, if not more, capabilities as the Gradle runner. Although it is considerably more
+In comparison, it has the same, if not more, capabilities as the Gradle plugin for Dokka. Although it is considerably more
 difficult to set up as there is no autoconfiguration, especially in multiplatform and multi-module environments.
 
 ## Getting started
@@ -86,6 +86,7 @@ java -jar dokka-cli-%dokkaVersion%.jar dokka-configuration.json
 ```
 
 At the very least, you need the following JSON configuration file:
+
 ```json
 {
   "outputDir": "./dokka/html",
@@ -122,7 +123,7 @@ See [JSON configuration options](#json-configuration) for more details.
 
 By default, the `dokka-base` artifact contains the [HTML](html.md) output format only.
 
-All other output formats come as [Dokka plugins](dokka_plugins.md). In order to use them, you have to put them
+All other output formats are implemented as [Dokka plugins](dokka_plugins.md). In order to use them, you have to put them
 on the plugins classpath.
 
 For example, if you want to generate documentation in the experimental [GFM](markdown.md#gfm) output format, you need to download and
@@ -153,7 +154,7 @@ Via JSON configuration:
 
 With the GFM plugin passed to `pluginsClasspath`, the CLI runner generates documentation in the GFM output format.
 
-For more information, see [Markdown](markdown.md) and [Javadoc](javadoc.md#generating-javadoc-documentation).
+For more information, see [Markdown](markdown.md) and [Javadoc](javadoc.md#generating-javadoc-documentation) pages.
 
 ## Command line options
 
@@ -165,32 +166,26 @@ java -jar dokka-cli-%dokkaVersion%.jar -help
 
 Short summary:
 
-- `-moduleName` -> Name of the project/module.
-- `-moduleVersion` -> Documented version.
-- `-outputDir` -> Output directory path, `./dokka` by default.
-- `-sourceSet` -> Configuration for a Dokka source set. Contains nested configuration options.
-- `-pluginsConfiguration` -> Configuration for Dokka plugins.
-- `-pluginsClasspath` -> List of jars with Dokka plugins and their dependencies. Accepts multiple paths separated by semicolons.
-- `-offlineMode` -> Whether to resolve remote files/links over network.
-- `-failOnWarning` -> Whether to fail documentation generation if Dokka has emitted a warning or an error.
-- `-delayTemplateSubstitution` -> Whether to delay substitution of some elements. Used in incremental builds of 
-   multi-module projects.
-- `-noSuppressObviousFunctions` -> Whether to suppress obvious functions such as those inherited from `kotlin.Any` 
-  and `java.lang.Object`.
-- `-includes` -> Markdown files that contain module and package documentation. Accepts multiple values separated by 
-  semicolons.
-- `-suppressInheritedMembers` -> Whether to suppress inherited members that aren't explicitly overridden in a 
-  given class.
-- `-globalPackageOptions` -> Global list of package configuration options in format 
-  `"matchingRegex,-deprecated,-privateApi,+warnUndocumented,+suppress;+visibility:PUBLIC;..."`. 
-  Accepts multiple values separated by semicolons.
-- `-globalLinks` -> Global external documentation links in format `{url}^{packageListUrl}`. 
-  Accepts multiple values separated by `^^`.
-- `-globalSrcLink` -> Global mapping between a source directory and a Web service for browsing the code. 
-  Accepts multiple paths separated by semicolons.
-- `-helpSourceSet` -> Prints help for the nested `-sourceSet` configuration.
-- `-loggingLevel` -> Logging level, possible values: `DEBUG, PROGRESS, INFO, WARN, ERROR`.
-- `-help, -h` -> Usage info.
+| Option                       | Description                                                                                                                                                                                           |
+|------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `moduleName`                 | Name of the project/module.                                                                                                                                                                           |
+| `moduleVersion`              | Documented version.                                                                                                                                                                                   |
+| `outputDir`                  | Output directory path, `./dokka` by default.                                                                                                                                                          |
+| `sourceSet`                  | Configuration for a Dokka source set. Contains nested configuration options.                                                                                                                          |
+| `pluginsConfiguration`       | Configuration for Dokka plugins.                                                                                                                                                                      |
+| `pluginsClasspath`           | List of jars with Dokka plugins and their dependencies. Accepts multiple paths separated by semicolons.                                                                                               |
+| `offlineMode`                | Whether to resolve remote files/links over network.                                                                                                                                                   |
+| `failOnWarning`              | Whether to fail documentation generation if Dokka has emitted a warning or an error.                                                                                                                  |
+| `delayTemplateSubstitution`  | Whether to delay substitution of some elements. Used in incremental builds of multi-module projects.                                                                                                  |
+| `noSuppressObviousFunctions` | Whether to suppress obvious functions such as those inherited from `kotlin.Any` and `java.lang.Object`.                                                                                               |
+| `includes`                   | Markdown files that contain module and package documentation. Accepts multiple values separated by semicolons.                                                                                        |
+| `suppressInheritedMembers`   | Whether to suppress inherited members that aren't explicitly overridden in a given class.                                                                                                             |
+| `globalPackageOptions`       | Global list of package configuration options in format `"matchingRegex,-deprecated,-privateApi,+warnUndocumented,+suppress;+visibility:PUBLIC;..."`. Accepts multiple values separated by semicolons. |
+| `globalLinks`                | Global external documentation links in format `{url}^{packageListUrl}`. Accepts multiple values separated by `^^`.                                                                                    |
+| `globalSrcLink`              | Global mapping between a source directory and a Web service for browsing the code. Accepts multiple paths separated by semicolons.                                                                    |
+| `helpSourceSet`              | Prints help for the nested `-sourceSet` configuration.                                                                                                                                                |
+| `loggingLevel`               | Logging level, possible values: `DEBUG, PROGRESS, INFO, WARN, ERROR`.                                                                                                                                 |
+| `help, h`                    | Usage info.                                                                                                                                                                                           |
 
 #### Source set options
 
@@ -200,40 +195,36 @@ To see the list of command line options for the nested `-sourceSet` configuratio
 java -jar dokka-cli-%dokkaVersion%.jar -sourceSet -help
 ```
 
-Summary:
+Short summary:
 
-- `-sourceSetName` -> Name of the source set.
-- `-displayName` -> Display name of the source set, used both internally and externally.
-- `-classpath` -> Classpath for analysis and interactive samples. Accepts multiple paths separated by semicolons.
-- `-src` -> Source code roots to be analyzed and documented. Accepts multiple paths separated by semicolons.
-- `-dependentSourceSets` -> Names of the dependent source sets in format `moduleName/sourceSetName`. 
-  Accepts multiple paths separated by semicolons.
-- `-samples` -> List of directories or files that contain sample functions. Accepts multiple paths separated by semicolons.
-- `-includes` -> Markdown files that contain module and package documentation. Accepts multiple paths separated by semicolons.
-- `-documentedVisibilities` -> Visibilities to be documented. Accepts multiple values separated by semicolons.
-  Possible values: `PUBLIC`, `PRIVATE`, `PROTECTED`, `INTERNAL`, `PACKAGE`.
-- `-reportUndocumented` -> Whether to report undocumented declarations. 
-- `-noSkipEmptyPackages` -> Whether to create pages for empty packages. 
-- `-skipDeprecated` -> Whether to skip deprecated declarations. 
-- `-jdkVersion` -> Version of JDK to use for linking to JDK Javadocs.
-- `-languageVersion` -> Language version used for setting up analysis and samples.
-- `-apiVersion` -> Kotlin API version used for setting up analysis and samples.
-- `-noStdlibLink` -> Whether to generate links to the Kotlin standard library. 
-- `-noJdkLink` -> Whether to generate links to JDK Javadocs. 
-- `-suppressedFiles` -> Paths to files to be suppressed. Accepts multiple paths separated by semicolons.
-- `-analysisPlatform` -> Platform used for setting up analysis.
-- `-perPackageOptions` -> List of package source set configurations in format 
-  `matchingRegexp,-deprecated,-privateApi,+warnUndocumented,+suppress;...`. Accepts multiple values separated by semicolons.
-- `-externalDocumentationLinks` -> External documentation links in format `{url}^{packageListUrl}`. 
-  Accepts multiple values separated by `^^`.
-- `-srcLink` -> Mapping between a source directory and a Web service for browsing the code. 
-  Accepts multiple paths separated by semicolons.
-- `-help`, `-h` -> Usage info
+| Option                       | Description                                                                                                                                                                    |
+|------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `sourceSetName`              | Name of the source set.                                                                                                                                                        |
+| `displayName`                | Display name of the source set, used both internally and externally.                                                                                                           |
+| `classpath`                  | Classpath for analysis and interactive samples. Accepts multiple paths separated by semicolons.                                                                                |
+| `src`                        | Source code roots to be analyzed and documented. Accepts multiple paths separated by semicolons.                                                                               |
+| `dependentSourceSets`        | Names of the dependent source sets in format `moduleName/sourceSetName`. Accepts multiple paths separated by semicolons.                                                       |
+| `samples`                    | List of directories or files that contain sample functions. Accepts multiple paths separated by semicolons.                                                                    |
+| `includes`                   | Markdown files that contain module and package documentation. Accepts multiple paths separated by semicolons.                                                                  |
+| `documentedVisibilities`     | Visibilities to be documented. Accepts multiple values separated by semicolons. Possible values: `PUBLIC`, `PRIVATE`, `PROTECTED`, `INTERNAL`, `PACKAGE`.                      |
+| `reportUndocumented`         | Whether to report undocumented declarations.                                                                                                                                   | 
+| `noSkipEmptyPackages`        | Whether to create pages for empty packages.                                                                                                                                    | 
+| `skipDeprecated`             | Whether to skip deprecated declarations.                                                                                                                                       | 
+| `jdkVersion`                 | Version of JDK to use for linking to JDK Javadocs.                                                                                                                             |
+| `languageVersion`            | Language version used for setting up analysis and samples.                                                                                                                     |
+| `apiVersion`                 | Kotlin API version used for setting up analysis and samples.                                                                                                                   |
+| `noStdlibLink`               | Whether to generate links to the Kotlin standard library.                                                                                                                      | 
+| `noJdkLink`                  | Whether to generate links to JDK Javadocs.                                                                                                                                     | 
+| `suppressedFiles`            | Paths to files to be suppressed. Accepts multiple paths separated by semicolons.                                                                                               |
+| `analysisPlatform`           | Platform used for setting up analysis.                                                                                                                                         |
+| `perPackageOptions`          | List of package source set configurations in format `matchingRegexp,-deprecated,-privateApi,+warnUndocumented,+suppress;...`. Accepts multiple values separated by semicolons. |
+| `externalDocumentationLinks` | External documentation links in format `{url}^{packageListUrl}`. Accepts multiple values separated by `^^`.                                                                    |
+| `srcLink`                    | Mapping between a source directory and a Web service for browsing the code. Accepts multiple paths separated by semicolons.                                                    |
 
 ## JSON configuration
 
 Below are some examples and detailed descriptions for each configuration section. You can also find an example
-with [all configuration options](#complete-configuration) applied.
+with [all configuration options](#complete-configuration) applied at the bottom of the page.
 
 ### General configuration
 
@@ -272,7 +263,7 @@ with [all configuration options](#complete-configuration) applied.
 }
 ```
 
-<deflist>
+<deflist collapsible="true">
     <def title="moduleName">
         <p>The display name used to refer to the module. It is used for the table of contents, navigation, logging, etc.</p>
         <p>Default: <code>root</code>.</p>
@@ -313,7 +304,7 @@ with [all configuration options](#complete-configuration) applied.
     <def title="suppressInheritedMembers">
         <p>Whether to suppress inherited members that aren't explicitly overridden in a given class.</p>
         <p>
-            Note: this can suppress functions such as <code>equals</code> / <code>hashCode</code> / <code>toString</code>, 
+            Note: This can suppress functions such as <code>equals</code> / <code>hashCode</code> / <code>toString</code>, 
             but cannot suppress synthetic functions such as <code>dataClass.componentN</code> and 
             <code>dataClass.copy</code>. Use <code>suppressObviousFunctions</code>
             for that.
@@ -332,7 +323,7 @@ with [all configuration options](#complete-configuration) applied.
             not resolving class/member links from your dependencies, including the standard library.
         </p>
         <p>
-            Note: you can cache fetched files locally and provide them to
+            Note: You can cache fetched files locally and provide them to
             Dokka as local paths. See <code>externalDocumentationLinks</code> section.
         </p>
         <p>Default: <code>false</code>.</p>
@@ -429,7 +420,7 @@ How to configure Kotlin
 }
 ```
 
-<deflist>
+<deflist collapsible="true">
     <def title="displayName">
         <p>The display name used to refer to this source set.</p>
         <p>
@@ -512,13 +503,13 @@ How to configure Kotlin
             Whether to generate external documentation links that lead to the API reference
             documentation of Kotlin's standard library.
         </p>
-        <p>Note: links <b>are</b> generated when <code>noStdLibLink</code> is set to <code>false</code>.</p>
+        <p>Note: Links <b>are</b> generated when <code>noStdLibLink</code> is set to <code>false</code>.</p>
         <p>Default: <code>false</code>.</p>
     </def>
     <def title="noJdkLink">
         <p>Whether to generate external documentation links to JDK's Javadocs.</p>
         <p>The version of JDK Javadocs is determined by the <code>jdkVersion</code> option.</p>
-        <p>Note: links <b>are</b> generated when <code>noJdkLink</code> is set to <code>false</code>.</p>
+        <p>Note: Links <b>are</b> generated when <code>noJdkLink</code> is set to <code>false</code>.</p>
         <p>Default: <code>false</code>.</p>
     </def>
     <def title="includes">
@@ -603,7 +594,7 @@ You can configure source links for all source sets together at the same time, or
 }
 ```
 
-<deflist>
+<deflist collapsible="true">
     <def title="localDirectory">
         <p>The path to the local source directory.</p>
     </def>
@@ -657,7 +648,7 @@ You can add package configurations for all source sets together at the same time
 }
 ```
 
-<deflist>
+<deflist collapsible="true">
     <def title="matchingRegex">
         <p>The regular expression that is used to match the package.</p>
     </def>
@@ -715,7 +706,7 @@ You can configure external documentation links for all source sets together at t
 }
 ```
 
-<deflist>
+<deflist collapsible="true">
     <def title="url">
         <p>The root URL of documentation to link to. It <b>must</b> contain a trailing slash.</p>
         <p>
