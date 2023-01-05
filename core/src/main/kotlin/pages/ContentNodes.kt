@@ -392,7 +392,14 @@ enum class TextStyle : Style {
 }
 
 enum class ContentStyle : Style {
-    RowTitle, TabbedContent, WithExtraAttributes, RunnableSample, InDocumentationAnchor, Caption,
+    RowTitle,
+    /**
+     * Group content where the first header in each child displays as a tab name by default.
+     * This header is used as a toggle target [SimpleAttr.togglableTarget] as well.
+     */
+    TabbedContent,
+
+    WithExtraAttributes, RunnableSample, InDocumentationAnchor, Caption,
     Wrapped, Indented, KDocTag, Footnote
 }
 

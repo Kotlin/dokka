@@ -229,7 +229,7 @@ internal fun PageContentBuilder.DocumentableContentBuilder.samplesSectionContent
             sourceSets = setOf(sourceSet),
             kind = ContentKind.Sample,
             styles = setOf(TextStyle.Monospace, ContentStyle.RunnableSample),
-            extra = mainExtra + SimpleAttr.header("Samples")
+            extra = mainExtra + SimpleAttr.togglableTarget("Samples")
         ) {
             samples.filter { it.value.isEmpty() || sourceSet in it.value }
                 .forEach { text(text = it.key, sourceSets = setOf(sourceSet)) }
@@ -333,7 +333,7 @@ private fun PageContentBuilder.DocumentableContentBuilder.tableSectionContentBlo
     table(
         kind = kind,
         sourceSets = sourceSets,
-        extra = mainExtra + SimpleAttr.header(blockName)
+        extra = mainExtra + SimpleAttr.togglableTarget(blockName)
     ) {
         body()
     }

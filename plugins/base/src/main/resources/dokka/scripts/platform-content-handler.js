@@ -249,7 +249,7 @@ function toggleSections(target) {
     const activateTabs = (containerClass) => {
         for (const element of document.getElementsByClassName(containerClass)) {
             for (const child of element.children) {
-                if (target.getAttribute("data-togglable") === child.getAttribute("data-togglable")) {
+                if (child.getAttribute("data-togglable") === target.getAttribute("data-togglable")) {
                     child.setAttribute("data-active", "")
                 } else {
                     child.removeAttribute("data-active")

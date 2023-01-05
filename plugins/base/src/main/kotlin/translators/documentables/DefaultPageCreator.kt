@@ -183,10 +183,10 @@ open class DefaultPageCreator(
         val first = ArrayList<DProperty>()
         val second = ArrayList<DFunction>()
         for (element in this) {
-            if (element is DProperty) {
-                first.add(element)
-            } else if(element is DFunction) {
-                second.add(element)
+            when (element) {
+                is DProperty -> first.add(element)
+                is DFunction -> second.add(element)
+                else -> throw IllegalStateException("Expected only properties or functions")
             }
         }
         return Pair(first, second)
@@ -328,8 +328,8 @@ open class DefaultPageCreator(
             "Types",
             types,
             ContentKind.Classlikes,
-            extra = mainExtra + SimpleAttr.header("Types"),
-            headExtra = if(isClasslike) mainExtra + SimpleAttr.header("Types") else mainExtra
+            extra = mainExtra + SimpleAttr.togglableTarget("Types"),
+            headExtra = if(isClasslike) mainExtra + SimpleAttr.togglableTarget("Types") else mainExtra
         )
         val (extensionProps, extensionFuns) = extensions.splitPropsAndFuns()
         if (separateInheritedMembers) {
@@ -379,11 +379,11 @@ open class DefaultPageCreator(
             val csWithConstructor = classlikes.filterIsInstance<WithConstructors>()
             val scopes = documentables.filterIsInstance<WithScope>()
 
-            val isThereAnyConstructor = csWithConstructor.isNotEmpty() && documentables.shouldRenderConstructors()
-            val isThereAnyMember = isThereAnyConstructor || scopes.any { it.classlikes.isNotEmpty() || it.functions.isNotEmpty() || it.properties.isNotEmpty() }
+            val containsAnyConstructor = csWithConstructor.isNotEmpty() && documentables.shouldRenderConstructors()
+            val containsAnyMember = containsAnyConstructor || scopes.any { it.classlikes.isNotEmpty() || it.functions.isNotEmpty() || it.properties.isNotEmpty() }
             val extraTabs = ExtraTabs(
                 listOfNotNull(
-                    if (!isThereAnyMember) null else ContentTab(
+                    if (!containsAnyMember) null else ContentTab(
                         ContentText(
                             "Members",
                             DCI(mainDRI, ContentKind.Main),
@@ -434,8 +434,8 @@ open class DefaultPageCreator(
                         @Suppress("UNCHECKED_CAST")
                         (csWithConstructor as List<Documentable>).sourceSets,
                         needsAnchors = true,
-                        extra = PropertyContainer.empty<ContentNode>() + SimpleAttr.header("Constructors"),
-                        extraHead = PropertyContainer.empty<ContentNode>() + SimpleAttr.header("Constructors"),
+                        extra = PropertyContainer.empty<ContentNode>() + SimpleAttr.togglableTarget("Constructors"),
+                        extraHead = PropertyContainer.empty<ContentNode>() + SimpleAttr.togglableTarget("Constructors"),
                     ) { key, ds ->
                         link(key, ds.first().dri, kind = ContentKind.Main, styles = setOf(ContentStyle.RowTitle))
                         sourceSetDependentHint(
@@ -462,7 +462,7 @@ open class DefaultPageCreator(
                         csEnum.sourceSets,
                         needsSorting = false,
                         needsAnchors = true,
-                        extra = mainExtra + SimpleAttr.header("Entries"),
+                        extra = mainExtra + SimpleAttr.togglableTarget("Entries"),
                         styles = emptySet()
                     ) { key, ds ->
                         link(key, ds.first().dri)
@@ -577,8 +577,8 @@ open class DefaultPageCreator(
         name,
         list.sorted(),
         ContentKind.Functions,
-        extra = mainExtra + SimpleAttr.header(name),
-        headExtra = if(isVisibleHeader) mainExtra + SimpleAttr.header(name) else mainExtra
+        extra = mainExtra + SimpleAttr.togglableTarget(name),
+        headExtra = if(isVisibleHeader) mainExtra + SimpleAttr.togglableTarget(name) else mainExtra
     )
 
     private fun DocumentableContentBuilder.propertiesBlock(
