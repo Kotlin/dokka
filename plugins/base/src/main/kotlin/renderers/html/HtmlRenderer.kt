@@ -101,7 +101,6 @@ open class HtmlRenderer(
                 childrenCallback()
             }
             node.dci.kind in setOf(ContentKind.Symbol) -> div("symbol $additionalClasses") {
-                node.extra.extraHtmlAttributes().forEach { attributes[it.extraKey] = it.extraValue }
                 childrenCallback()
             }
             node.hasStyle(ContentStyle.KDocTag) -> span("kdoc-tag") { childrenCallback() }
@@ -115,7 +114,6 @@ open class HtmlRenderer(
             }
             node.hasStyle(TextStyle.Span) -> span { childrenCallback() }
             node.dci.kind == ContentKind.Symbol -> div("symbol $additionalClasses") {
-                node.extra.extraHtmlAttributes().forEach { attributes[it.extraKey] = it.extraValue }
                 childrenCallback()
             }
             node.dci.kind == SymbolContentKind.Parameters -> {
@@ -136,7 +134,6 @@ open class HtmlRenderer(
             node.dci.kind == ContentKind.Deprecation -> div("deprecation-content") { childrenCallback() }
             node.hasStyle(TextStyle.Paragraph) -> p(additionalClasses) { childrenCallback() }
             node.hasStyle(TextStyle.Block) -> div(additionalClasses) {
-                node.extra.extraHtmlAttributes().forEach { attributes[it.extraKey] = it.extraValue }
                 childrenCallback()
             }
             node.hasStyle(TextStyle.Quotation) -> blockQuote(additionalClasses) { childrenCallback() }
@@ -265,7 +262,6 @@ open class HtmlRenderer(
                         beforeTransformer = { instance, _, sourceSet ->
                             createHTML(prettyPrint = false).prepareForTemplates().div {
                                 instance.before?.let { before ->
-                                    before.extra.extraHtmlAttributes().forEach { attributes[it.extraKey] = it.extraValue }
                                     buildContentNode(before, pageContext, sourceSet)
                                 }
                             }.stripDiv()
@@ -273,7 +269,6 @@ open class HtmlRenderer(
                         afterTransformer = { instance, _, sourceSet ->
                             createHTML(prettyPrint = false).prepareForTemplates().div {
                                 instance.after?.let { after ->
-                                    after.extra.extraHtmlAttributes().forEach { attributes[it.extraKey] = it.extraValue }
                                     buildContentNode(after, pageContext, sourceSet)
                                 }
                             }.stripDiv()
