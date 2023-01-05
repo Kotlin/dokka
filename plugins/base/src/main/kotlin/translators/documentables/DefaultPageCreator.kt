@@ -354,7 +354,7 @@ open class DefaultPageCreator(
             val extensions = (classlikes as List<WithExtraProperties<DClasslike>>).flatMap {
                 it.extra[CallableExtensions]?.extensions
                     ?.filterIsInstance<Documentable>().orEmpty()
-            }.distinct()
+            }.distinctBy{ it.sourceSets to it.dri} // [Documentable] has expensive equals/hashCode at the moment, see #2620
 
             // Extensions are added to sourceSets since they can be placed outside the sourceSets from classlike
             // Example would be an Interface in common and extension function in jvm
