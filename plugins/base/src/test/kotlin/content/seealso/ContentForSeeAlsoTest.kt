@@ -1,14 +1,9 @@
 package content.seealso
 
 import matchers.content.*
-import org.jetbrains.dokka.pages.ContentDRILink
-import org.jetbrains.dokka.pages.ContentPage
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
-import org.jetbrains.dokka.links.Callable
-import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.links.JavaClassReference
-import org.jetbrains.dokka.model.doc.See
-import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
+import org.jetbrains.dokka.model.DisplaySourceSet
+import org.jetbrains.dokka.pages.ContentDRILink
 import org.junit.jupiter.api.Test
 import utils.*
 import kotlin.test.assertEquals
@@ -19,6 +14,32 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
             sourceSet {
                 sourceRoots = listOf("src/")
                 analysisPlatform = "jvm"
+            }
+        }
+    }
+
+    private val mppTestConfiguration = dokkaConfiguration {
+        moduleName = "example"
+        sourceSets {
+            val common = sourceSet {
+                name = "common"
+                displayName = "common"
+                analysisPlatform = "common"
+                sourceRoots = listOf("src/commonMain/kotlin/pageMerger/Test.kt")
+            }
+            sourceSet {
+                name = "jvm"
+                displayName = "jvm"
+                analysisPlatform = "jvm"
+                dependentSourceSets = setOf(common.value.sourceSetID)
+                sourceRoots = listOf("src/jvmMain/kotlin/pageMerger/Test.kt")
+            }
+            sourceSet {
+                name = "linuxX64"
+                displayName = "linuxX64"
+                analysisPlatform = "native"
+                dependentSourceSets = setOf(common.value.sourceSetID)
+                sourceRoots = listOf("src/linuxX64Main/kotlin/pageMerger/Test.kt")
             }
         }
     }
@@ -36,8 +57,7 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
         """.trimIndent(), testConfiguration
         ) {
             pagesTransformationStage = { module ->
-                val page = module.children.single { it.name == "test" }
-                    .children.single { it.name == "function" } as ContentPage
+                val page = module.findTestType("test", "function")
                 page.content.assertNode {
                     group {
                         header(1) { +"function" }
@@ -77,8 +97,7 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
         """.trimIndent(), testConfiguration
         ) {
             pagesTransformationStage = { module ->
-                val page = module.children.single { it.name == "test" }
-                    .children.single { it.name == "function" } as ContentPage
+                val page = module.findTestType("test", "function")
                 page.content.assertNode {
                     group {
                         header(1) { +"function" }
@@ -98,17 +117,137 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
                             }
                             after {
                                 header(4) { +"See also" }
-                                group {
-                                    table {
-                                        group {
-                                            //DRI should be "test//abc/#/-1/"
-                                            link { +"abc" }
-                                        }
+                                table {
+                                    group {
+                                        //DRI should be "test//abc/#/-1/"
+                                        link { +"abc" }
                                     }
                                 }
                             }
                         }
                     }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `undocumented seealso without reference for class`() {
+        testInline(
+            """
+            |/src/main/kotlin/test/source.kt
+            |package test
+            | /**
+            |  * @see abc
+            |  */
+            |class Foo()
+        """.trimIndent(), testConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val page = module.findTestType("test", "Foo")
+                println(page.content)
+                page.content.assertNode {
+                    group {
+                        header(1) { +"Foo" }
+                        platformHinted {
+                            classSignature(
+                                emptyMap(),
+                                "",
+                                "",
+                                emptySet(),
+                                "Foo"
+                            )
+                            header(4) { +"See also" }
+                            table {
+                                group {
+                                    +"abc"
+                                }
+                            }
+                        }
+                    }
+                    skipAllNotMatching()
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `undocumented seealso with reference to parameter for class`() {
+        testInline(
+            """
+            |/src/main/kotlin/test/source.kt
+            |package test
+            | /**
+            |  * @see abc
+            |  */
+            |class Foo(abc: String)
+        """.trimIndent(), testConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val page = module.findTestType("test", "Foo")
+                println(page.content)
+                page.content.assertNode {
+                    group {
+                        header(1) { +"Foo" }
+                        platformHinted {
+                            classSignature(
+                                emptyMap(),
+                                "",
+                                "",
+                                emptySet(),
+                                "Foo",
+                                "abc" to ParamAttributes(emptyMap(), emptySet(), "String")
+                            )
+                            header(4) { +"See also" }
+                            table {
+                                group {
+                                    +"abc"
+                                }
+                            }
+                        }
+                    }
+                    skipAllNotMatching()
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `undocumented seealso with reference to property for class`() {
+        testInline(
+            """
+            |/src/main/kotlin/test/source.kt
+            |package test
+            | /**
+            |  * @see abc
+            |  */
+            |class Foo(val abc: String)
+        """.trimIndent(), testConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val page = module.findTestType("test", "Foo")
+                println(page.content)
+                page.content.assertNode {
+                    group {
+                        header(1) { +"Foo" }
+                        platformHinted {
+                            classSignature(
+                                emptyMap(),
+                                "",
+                                "",
+                                emptySet(),
+                                "Foo",
+                                "val abc" to ParamAttributes(emptyMap(), emptySet(), "String")
+                            )
+                            header(4) { +"See also" }
+                            table {
+                                group {
+                                    link { +"Foo.abc" }
+                                }
+                            }
+                        }
+                    }
+                    skipAllNotMatching()
                 }
             }
         }
@@ -129,8 +268,7 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
         """.trimIndent(), testConfiguration
         ) {
             pagesTransformationStage = { module ->
-                val page = module.children.single { it.name == "test" }
-                    .children.single { it.name == "function" } as ContentPage
+                val page = module.findTestType("test", "function")
                 page.content.assertNode {
                     group {
                         header(1) { +"function" }
@@ -150,20 +288,62 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
                             }
                             after {
                                 header(4) { +"See also" }
-                                group {
-                                    table {
+                                table {
+                                    group {
+                                        //DRI should be "test//abc/#/-1/"
+                                        link { +"abc" }
                                         group {
-                                            //DRI should be "test//abc/#/-1/"
-                                            link { +"abc" }
-                                            group {
-                                                group { +"Comment to abc" }
-                                            }
+                                            group { +"Comment to abc" }
                                         }
                                     }
                                 }
                             }
                         }
                     }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `documented seealso with reference to property for class`() {
+        testInline(
+            """
+            |/src/main/kotlin/test/source.kt
+            |package test
+            | /**
+            |  * @see abc Comment to abc
+            |  */
+            |class Foo(val abc: String)
+        """.trimIndent(), testConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val page = module.findTestType("test", "Foo")
+                println(page.content)
+                page.content.assertNode {
+                    group {
+                        header(1) { +"Foo" }
+                        platformHinted {
+                            classSignature(
+                                emptyMap(),
+                                "",
+                                "",
+                                emptySet(),
+                                "Foo",
+                                "val abc" to ParamAttributes(emptyMap(), emptySet(), "String")
+                            )
+                            header(4) { +"See also" }
+                            table {
+                                group {
+                                    link { +"Foo.abc" }
+                                    group {
+                                        group { +"Comment to abc" }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    skipAllNotMatching()
                 }
             }
         }
@@ -184,8 +364,7 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
         """.trimIndent(), testConfiguration
         ) {
             pagesTransformationStage = { module ->
-                val page = module.children.single { it.name == "test" }
-                    .children.single { it.name == "function" } as ContentPage
+                val page = module.findTestType("test", "function")
                 page.content.assertNode {
                     group {
                         header(1) { +"function" }
@@ -205,13 +384,11 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
                             }
                             after {
                                 header(4) { +"See also" }
-                                group {
-                                    table {
+                                table {
+                                    group {
+                                        +"com.example.NonExistingClass"
                                         group {
-                                            +"com.example.NonExistingClass"
-                                            group {
-                                                group { +"description for non-existing" }
-                                            }
+                                            group { +"description for non-existing" }
                                         }
                                     }
                                 }
@@ -238,8 +415,7 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
         """.trimIndent(), testConfiguration
         ) {
             pagesTransformationStage = { module ->
-                val page = module.children.single { it.name == "test" }
-                    .children.single { it.name == "function" } as ContentPage
+                val page = module.findTestType("test", "function")
                 page.content.assertNode {
                     group {
                         header(1) { +"function" }
@@ -259,21 +435,20 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
                             }
                             after {
                                 header(4) { +"See also" }
-                                group {
-                                    table {
-                                        group {
-                                            link {
-                                                check {
-                                                    assertEquals(
-                                                        "kotlin.collections/Collection///PointingToDeclaration/",
-                                                        (this as ContentDRILink).address.toString()
-                                                    )
-                                                }
-                                                +"Collection"
+                                table {
+                                    group {
+                                        link {
+                                            check {
+                                                assertEquals(
+                                                    "kotlin.collections/Collection///PointingToDeclaration/",
+                                                    (this as ContentDRILink).address.toString()
+                                                )
                                             }
+                                            +"Collection"
                                         }
                                     }
                                 }
+
                             }
                         }
                     }
@@ -297,8 +472,7 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
         """.trimIndent(), testConfiguration
         ) {
             pagesTransformationStage = { module ->
-                val page = module.children.single { it.name == "test" }
-                    .children.single { it.name == "function" } as ContentPage
+                val page = module.findTestType("test", "function")
                 page.content.assertNode {
                     group {
                         header(1) { +"function" }
@@ -318,16 +492,15 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
                             }
                             after {
                                 header(4) { +"See also" }
-                                group {
-                                    table {
+                                table {
+                                    group {
+                                        //DRI should be "test//abc/#/-1/"
+                                        link { +"Collection" }
                                         group {
-                                            //DRI should be "test//abc/#/-1/"
-                                            link { +"Collection" }
-                                            group {
-                                                group { +"Comment to stdliblink" }
-                                            }
+                                            group { +"Comment to stdliblink" }
                                         }
                                     }
+
                                 }
                             }
                         }
@@ -355,8 +528,7 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
         """.trimIndent(), testConfiguration
         ) {
             pagesTransformationStage = { module ->
-                val page = module.children.single { it.name == "test" }
-                    .children.single { it.name == "function" } as ContentPage
+                val page = module.findTestType("test", "function")
                 page.content.assertNode {
                     group {
                         header(1) { +"function" }
@@ -380,17 +552,16 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
                                 unnamedTag("Since") { comment { +"0.11" } }
 
                                 header(4) { +"See also" }
-                                group {
-                                    table {
+                                table {
+                                    group {
+                                        //DRI should be "test//abc/#/-1/"
+                                        link { +"Collection" }
                                         group {
-                                            //DRI should be "test//abc/#/-1/"
-                                            link { +"Collection" }
-                                            group {
-                                                group { +"Comment to stdliblink" }
-                                            }
+                                            group { +"Comment to stdliblink" }
                                         }
                                     }
                                 }
+
                             }
                         }
                     }
@@ -415,8 +586,7 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
         """.trimIndent(), testConfiguration
         ) {
             pagesTransformationStage = { module ->
-                val page = module.children.single { it.name == "test" }
-                    .children.single { it.name == "function" } as ContentPage
+                val page = module.findTestType("test", "function")
                 page.content.assertNode {
                     group {
                         header(1) { +"function" }
@@ -436,17 +606,16 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
                             }
                             after {
                                 header(4) { +"See also" }
-                                group {
-                                    table {
+                                table {
+                                    group {
+                                        //DRI should be "test//abc/#/-1/"
+                                        link { +"abc" }
                                         group {
-                                            //DRI should be "test//abc/#/-1/"
-                                            link { +"abc" }
-                                            group {
-                                                group { +"Comment to abc2" }
-                                            }
+                                            group { +"Comment to abc2" }
                                         }
                                     }
                                 }
+
                             }
                         }
                     }
@@ -471,8 +640,7 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
         """.trimIndent(), testConfiguration
         ) {
             pagesTransformationStage = { module ->
-                val page = module.children.single { it.name == "test" }
-                    .children.single { it.name == "function" } as ContentPage
+                val page = module.findTestType("test", "function")
                 page.content.assertNode {
                     group {
                         header(1) { +"function" }
@@ -492,20 +660,18 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
                             }
                             after {
                                 header(4) { +"See also" }
-                                group {
-                                    table {
+                                table {
+                                    group {
+                                        //DRI should be "test//abc/#/-1/"
+                                        link { +"abc" }
                                         group {
-                                            //DRI should be "test//abc/#/-1/"
-                                            link { +"abc" }
-                                            group {
-                                                group { +"Comment to abc1" }
-                                            }
+                                            group { +"Comment to abc1" }
                                         }
-                                        group {
-                                            //DRI should be "test//abc/#/-1/"
-                                            link { +"Collection" }
-                                            group { group { +"Comment to collection" } }
-                                        }
+                                    }
+                                    group {
+                                        //DRI should be "test//abc/#/-1/"
+                                        link { +"Collection" }
+                                        group { group { +"Comment to collection" } }
                                     }
                                 }
                             }
@@ -543,8 +709,7 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
             testConfiguration
         ) {
             pagesTransformationStage = { module ->
-                val page = module.children.single { it.name == "com.example" }
-                    .children.single { it.name == "function" } as ContentPage
+                val page = module.findTestType("com.example", "function")
 
                 page.content.assertNode {
                     group {
@@ -564,19 +729,17 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
                             }
                             after {
                                 header(4) { +"See also" }
-                                group {
-                                    table {
+                                table {
+                                    group {
+                                        link { +"CollectionExtensions.property" }
                                         group {
-                                            link { +"CollectionExtensions.property" }
-                                            group {
-                                                group { +"static property" }
-                                            }
+                                            group { +"static property" }
                                         }
+                                    }
+                                    group {
+                                        link { +"CollectionExtensions.emptyList" }
                                         group {
-                                            link { +"CollectionExtensions.emptyList" }
-                                            group {
-                                                group { +"static emptyList" }
-                                            }
+                                            group { +"static emptyList" }
                                         }
                                     }
                                 }
@@ -587,4 +750,109 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
             }
         }
     }
+
+    @Test
+    fun `multiplatform class with seealso in few platforms`() {
+        testInline(
+            """
+                |/src/commonMain/kotlin/pageMerger/Test.kt
+                |package pageMerger
+                |
+                |/**
+                |* @see Unit
+                |*/
+                |expect open class Parent
+                |
+                |/src/jvmMain/kotlin/pageMerger/Test.kt
+                |package pageMerger
+                |
+                |val x = 0
+                |/**
+                |* @see x resolved
+                |* @see y unresolved
+                |*/
+                |actual open class Parent
+                |
+                |/src/linuxX64Main/kotlin/pageMerger/Test.kt
+                |package pageMerger
+                |
+                |actual open class Parent
+                |
+            """.trimMargin(),
+            mppTestConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val page = module.findTestType("pageMerger", "Parent")
+                page.content.assertNode {
+                    group {
+                        header(1) { +"Parent" }
+                        platformHinted {
+                            group {
+                                +"expect open class "
+                                link {
+                                    +"Parent"
+                                }
+                            }
+                            group {
+                                +"actual open class "
+                                link {
+                                    +"Parent"
+                                }
+                            }
+                            group {
+                                +"actual open class "
+                                link {
+                                    +"Parent"
+                                }
+                            }
+                            header(4) {
+                                +"See also"
+                                check {
+                                    assertEquals(2, sourceSets.size)
+                                }
+                            }
+                            table {
+                                group {
+                                    link { +"Unit" }
+                                    check {
+                                        sourceSets.assertSourceSet("common")
+                                    }
+                                }
+                                group {
+                                    link { +"Unit" }
+                                    check {
+                                        sourceSets.assertSourceSet("jvm")
+                                    }
+                                }
+                                group {
+                                    link { +"x" }
+                                    group { group { +"resolved" } }
+                                    check {
+                                        sourceSets.assertSourceSet("jvm")
+                                    }
+                                }
+                                group {
+                                    +"y"
+                                    group { group { +"unresolved" } }
+                                    check {
+                                        sourceSets.assertSourceSet("jvm")
+                                    }
+                                }
+
+                                check {
+                                    assertEquals(2, sourceSets.size)
+                                }
+                            }
+                        }
+                    }
+                    skipAllNotMatching()
+                }
+            }
+        }
+    }
+}
+
+private fun Set<DisplaySourceSet>.assertSourceSet(expectedName: String) {
+    assertEquals(1, this.size)
+    assertEquals(expectedName, this.first().name)
 }
