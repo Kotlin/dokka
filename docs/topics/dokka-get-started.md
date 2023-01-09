@@ -29,7 +29,7 @@ To generate documentation, run the following Gradle tasks:
 
 By default, the output directory is set to `/build/dokka/html` and `/build/dokka/htmlMultiModule`.
 
-To learn more about using Dokka with Gradle, see [Gradle](gradle.md).
+To learn more about using Dokka with Gradle, see [Gradle](dokka-gradle.md).
 
 </tab>
 <tab title="Gradle Groovy DSL" group-key="groovy">
@@ -58,7 +58,7 @@ To generate documentation, run the following Gradle tasks:
 
 By default, the output directory is set to `/build/dokka/html` and `/build/dokka/htmlMultiModule`.
 
-To learn more about using Dokka with Gradle, see [Gradle](gradle.md).
+To learn more about using Dokka with Gradle, see [Gradle](dokka-gradle.md).
 
 </tab>
 <tab title="Maven" group-key="mvn">
@@ -89,7 +89,7 @@ To generate documentation, run the `dokka:dokka` goal.
 
 By default, the output directory is set to `target/dokka`.
 
-To learn more about using Dokka with Maven, see [Maven](maven.md).
+To learn more about using Dokka with Maven, see [Maven](dokka-maven.md).
 
 </tab>
 </tabs>

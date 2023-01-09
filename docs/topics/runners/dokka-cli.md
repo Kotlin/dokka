@@ -1,12 +1,12 @@
 [//]: # (title: CLI)
 
-If for some reason you cannot use [Gradle](gradle.md) or [Maven](maven.md) build tools, Dokka has
+If for some reason you cannot use [Gradle](dokka-gradle.md) or [Maven](dokka-maven.md) build tools, Dokka has
 a command line (CLI) runner for generating documentation.
 
 In comparison, it has the same, if not more, capabilities as the Gradle plugin for Dokka. Although it is considerably more
 difficult to set up as there is no autoconfiguration, especially in multiplatform and multi-module environments.
 
-## Getting started
+## Get started
 
 The CLI runner is published to Maven Central as a separate runnable artifact.
 
@@ -26,7 +26,7 @@ It also works for some nested options, such as `-sourceSet`:
 java -jar dokka-cli-%dokkaVersion%.jar -sourceSet -help
 ```
 
-## Generating documentation
+## Generate documentation
 
 ### Prerequisites
 
@@ -41,7 +41,7 @@ Listed below are the dependencies that you need for any output format:
 | `org.jetbrains.dokka` | `kotlin-analysis-compiler` | %dokkaVersion% | [mvnrepository](https://mvnrepository.com/artifact/org.jetbrains.dokka/kotlin-analysis-compiler/%dokkaVersion%) |
 | `org.jetbrains.dokka` | `kotlin-analysis-intellij` | %dokkaVersion% | [mvnrepository](https://mvnrepository.com/artifact/org.jetbrains.dokka/kotlin-analysis-intellij/%dokkaVersion%) |
 
-Below are the additional dependencies that you need for [HTML](html.md) output format:
+Below are the additional dependencies that you need for [HTML](dokka-html.md) output format:
 
 | **Group**               | **Artifact**       | **Version** | **Link**                                                                                         |
 |-------------------------|--------------------|-------------|--------------------------------------------------------------------------------------------------|
@@ -49,7 +49,7 @@ Below are the additional dependencies that you need for [HTML](html.md) output f
 | `org.freemarker`        | `freemarker`       | 2.3.31      | [mvnrepository](https://mvnrepository.com/artifact/org.freemarker/freemarker/2.3.31)             |
 
 
-### Running with command line options
+### Run with command line options
 
 You can pass command line options to configure the CLI runner. 
 
@@ -71,11 +71,11 @@ java -jar dokka-cli-%dokkaVersion%.jar \
 >
 {type="note"}
 
-Executing the given example generates documentation in [HTML](html.md) output format.
+Executing the given example generates documentation in [HTML](dokka-html.md) output format.
 
 See [Command line options](#command-line-options) for more configuration details.
 
-### Running with JSON configuration
+### Run with JSON configuration
 
 It's possible to configure the CLI runner with JSON. In this case, you need to provide an
 absolute/relative path to the JSON configuration file as the first and only argument. 
@@ -121,12 +121,12 @@ See [JSON configuration options](#json-configuration) for more details.
 
 ### Other output formats
 
-By default, the `dokka-base` artifact contains the [HTML](html.md) output format only.
+By default, the `dokka-base` artifact contains the [HTML](dokka-html.md) output format only.
 
-All other output formats are implemented as [Dokka plugins](dokka_plugins.md). In order to use them, you have to put them
+All other output formats are implemented as [Dokka plugins](dokka-plugins.md). In order to use them, you have to put them
 on the plugins classpath.
 
-For example, if you want to generate documentation in the experimental [GFM](markdown.md#gfm) output format, you need to download and
+For example, if you want to generate documentation in the experimental [GFM](dokka-markdown.md#gfm) output format, you need to download and
 pass [gfm-plugin's JAR](https://mvnrepository.com/artifact/org.jetbrains.dokka/gfm-plugin/%dokkaVersion%) into 
 the `pluginsClasspath` configuration option.
 
@@ -154,7 +154,7 @@ Via JSON configuration:
 
 With the GFM plugin passed to `pluginsClasspath`, the CLI runner generates documentation in the GFM output format.
 
-For more information, see [Markdown](markdown.md) and [Javadoc](javadoc.md#generating-javadoc-documentation) pages.
+For more information, see [Markdown](dokka-markdown.md) and [Javadoc](dokka-javadoc.md#generate-javadoc-documentation) pages.
 
 ## Command line options
 

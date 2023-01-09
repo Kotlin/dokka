@@ -4,13 +4,13 @@ To generate documentation for a Gradle-based project, you can use the
 [Gradle plugin for Dokka](https://plugins.gradle.org/plugin/org.jetbrains.dokka).
 
 It comes with basic autoconfiguration (including multi-project and multiplatform builds), has convenient
-[Gradle tasks](#generating-documentation) for generating documentation, and provides a great deal of
+[Gradle tasks](#generate-documentation) for generating documentation, and provides a great deal of
 [configuration options](#configuration-example) to customize the output.
 
 You can play around with Dokka and see how it can be configured for various projects by visiting our
 [Gradle example projects](https://github.com/Kotlin/dokka/tree/%dokkaVersion%/examples/gradle).
 
-## Applying Dokka
+## Apply Dokka
 
 The recommended way of applying the Gradle plugin for Dokka is with the 
 [plugins DSL](https://docs.gradle.org/current/userguide/plugins.html#sec:plugins_block):
@@ -36,7 +36,7 @@ plugins {
 </tab>
 </tabs>
 
-When documenting [multi-project](gradle.md#multi-project-builds) builds, you need to apply the Gradle plugin for Dokka 
+When documenting [multi-project](dokka-gradle.md#multi-project-builds) builds, you need to apply the Gradle plugin for Dokka 
 within subprojects as well. You can use `allprojects {}` or `subprojects {}` Gradle configurations to achieve that:
 
 <tabs group="build-script">
@@ -95,9 +95,9 @@ If you cannot use the plugins DSL for some reason, you can use
 [the legacy method](https://docs.gradle.org/current/userguide/plugins.html#sec:old_plugin_application) of applying
 plugins.
 
-## Generating documentation
+## Generate documentation
 
-The Gradle plugin for Dokka comes with [HTML](html.md), [Markdown](markdown.md) and [Javadoc](javadoc.md) output formats 
+The Gradle plugin for Dokka comes with [HTML](dokka-html.md), [Markdown](dokka-markdown.md) and [Javadoc](dokka-javadoc.md) output formats 
 built in. It adds a number of tasks for generating documentation, both for [single](#single-project-builds)
 and [multi-project](#multi-project-builds) builds.
 
@@ -109,15 +109,15 @@ Use the following tasks to build documentation for simple, single-project applic
 
 | **Task**       | **Description**                                                                     |
 |----------------|-------------------------------------------------------------------------------------|
-| `dokkaHtml`    | Generates documentation in [HTML](html.md) format.                                  |
+| `dokkaHtml`    | Generates documentation in [HTML](dokka-html.md) format.                                  |
 
 #### Experimental formats
 
 | **Task**       | **Description**                                                                     |
 |----------------|-------------------------------------------------------------------------------------|
-| `dokkaGfm`     | Generates documentation in [GitHub Flavored Markdown](markdown.md#gfm) format.      |
-| `dokkaJavadoc` | Generates documentation in [Javadoc](javadoc.md) format.                            |
-| `dokkaJekyll`  | Generates documentation in [Jekyll compatible Markdown](markdown.md#jekyll) format. |
+| `dokkaGfm`     | Generates documentation in [GitHub Flavored Markdown](dokka-markdown.md#gfm) format.      |
+| `dokkaJavadoc` | Generates documentation in [Javadoc](dokka-javadoc.md) format.                            |
+| `dokkaJekyll`  | Generates documentation in [Jekyll compatible Markdown](dokka-markdown.md#jekyll) format. |
 
 By default, generated documentation is located in the `build/dokka/{format}` directory of your project.
 The output location, among other things, can be [configured](#configuration-example).
@@ -125,7 +125,7 @@ The output location, among other things, can be [configured](#configuration-exam
 ### Multi-project builds
 
 For documenting [multi-project builds](https://docs.gradle.org/current/userguide/multi_project_builds.html), make sure
-that you [apply the Gradle plugin for Dokka](#applying-dokka) within subprojects that you want to generate documentation
+that you [apply the Gradle plugin for Dokka](#apply-dokka) within subprojects that you want to generate documentation
 for, as well as in their parent project.
 
 #### MultiModule tasks
@@ -140,16 +140,16 @@ Dokka creates the following tasks for **parent** projects automatically:
 
 | **Task**                 | **Description**                                                        |
 |--------------------------|------------------------------------------------------------------------|
-| `dokkaHtmlMultiModule`   | Generates multi-module documentation in [HTML](html.md) output format. |
+| `dokkaHtmlMultiModule`   | Generates multi-module documentation in [HTML](dokka-html.md) output format. |
 
 #### Experimental formats
 
 | **Task**                 | **Description**                                                                                         |
 |--------------------------|---------------------------------------------------------------------------------------------------------|
-| `dokkaGfmMultiModule`    | Generates multi-module documentation in [GitHub Flavored Markdown](markdown.md#gfm) output format.      |
-| `dokkaJekyllMultiModule` | Generates multi-module documentation in [Jekyll compatible Markdown](markdown.md#jekyll) output format. |
+| `dokkaGfmMultiModule`    | Generates multi-module documentation in [GitHub Flavored Markdown](dokka-markdown.md#gfm) output format.      |
+| `dokkaJekyllMultiModule` | Generates multi-module documentation in [Jekyll compatible Markdown](dokka-markdown.md#jekyll) output format. |
 
-> The [Javadoc](javadoc.md) output format does not have a `MultiModule` task, but a [`Collector`](#collector-tasks) task can
+> The [Javadoc](dokka-javadoc.md) output format does not have a `MultiModule` task, but a [`Collector`](#collector-tasks) task can
 > be used instead.
 >
 {type="note"}
@@ -232,7 +232,7 @@ the subprojects allows documenting `protected` declarations, while others do not
 > If you want to generate documentation for a single subproject only, use
 > [single-project tasks](#single-project-builds). For example, `:subprojectName:dokkaHtml`.
 
-## Building javadoc.jar
+## Build javadoc.jar
 
 If you want to publish your library to a repository, you may need to provide a `javadoc.jar` file that contains 
 API reference documentation of your library. 
@@ -242,7 +242,7 @@ For example, if you want to publish to [Maven Central](https://central.sonatype.
 not all repositories have that rule.
 
 The Gradle plugin for Dokka does not provide any way to do this out of the box, but it can be achieved with custom Gradle
-tasks. One for generating documentation in [HTML](html.md) format and another one for [Javadoc](javadoc.md) format:
+tasks. One for generating documentation in [HTML](dokka-html.md) format and another one for [Javadoc](dokka-javadoc.md) format:
 
 <tabs group="build-script">
 <tab title="Kotlin" group-key="kotlin">
