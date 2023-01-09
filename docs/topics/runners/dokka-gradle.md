@@ -754,14 +754,14 @@ tasks.withType(DokkaTask.class) {
     <def title="moduleName">
         <p>The display name used to refer to the module. It is used for the table of contents, navigation, logging, etc.</p>
         <p>If set for a single-project build or a <code>MultiModule</code> task, it is used as the project name.</p>
-        <p>Default: Gradle project name.</p>
+        <p>Default: Gradle project name</p>
     </def>
     <def title="moduleVersion">
         <p>
             The module version. If set for a single-project build or a <code>MultiModule</code> task, it is used as the 
             project version.
         </p>
-        <p>Default: Gradle project version.</p>
+        <p>Default: Gradle project version</p>
     </def>
     <def title="outputDirectory">
         <p>The directory to where documentation is generated, regardless of format. It can be set on a per-task basis.</p>
@@ -777,7 +777,7 @@ tasks.withType(DokkaTask.class) {
             The process waits until all errors and warnings have been emitted first.
         </p>
         <p>This setting works well with <code>reportUndocumented</code>.</p>
-        <p>Default: <code>false</code>.</p>
+        <p>Default: <code>false</code></p>
     </def>
     <def title="suppressObviousFunctions">
         <p>Whether to suppress obvious functions.</p>
@@ -794,7 +794,7 @@ tasks.withType(DokkaTask.class) {
                 </li>
             </list>
         </p>
-        <p>Default: <code>true</code>.</p>
+        <p>Default: <code>true</code></p>
     </def>
     <def title="suppressInheritedMembers">
         <p>Whether to suppress inherited members that aren't explicitly overridden in a given class.</p>
@@ -804,7 +804,7 @@ tasks.withType(DokkaTask.class) {
             <code>dataClass.copy</code>. Use <code>suppressObviousFunctions</code>
             for that.
         </p>
-        <p>Default: <code>false</code>.</p>
+        <p>Default: <code>false</code></p>
     </def>
     <def title="offlineMode">
         <p>Whether to resolve remote files/links over your network.</p>
@@ -821,7 +821,7 @@ tasks.withType(DokkaTask.class) {
             Note: You can cache fetched files locally and provide them to
             Dokka as local paths. See <code>externalDocumentationLinks</code> section.
         </p>
-        <p>Default: <code>false</code>.</p>
+        <p>Default: <code>false</code></p>
     </def>
 </deflist>
 
@@ -948,7 +948,7 @@ tasks.withType(DokkaTask.class) {
 <deflist collapsible="true">
     <def title="suppress">
         <p>Whether this source set should be skipped when generating documentation.</p>
-        <p>Default: <code>false</code>.</p>
+        <p>Default: <code>false</code></p>
     </def>
     <def title="displayName">
         <p>The display name used to refer to this source set.</p>
@@ -965,7 +965,7 @@ tasks.withType(DokkaTask.class) {
             as well as if you want to exclude public declarations and only document internal API.
         </p>
         <p>This can be configured on per-package basis.</p>
-        <p>Default: <code>DokkaConfiguration.Visibility.PUBLIC</code>.</p>
+        <p>Default: <code>DokkaConfiguration.Visibility.PUBLIC</code></p>
     </def>
     <def title="reportUndocumented">
         <p>
@@ -974,7 +974,7 @@ tasks.withType(DokkaTask.class) {
         </p>
         <p>This setting works well with <code>failOnWarning</code>.</p>
         <p>This can be configured on per-package basis.</p>
-        <p>Default: <code>false</code>.</p>
+        <p>Default: <code>false</code></p>
     </def>
     <def title="skipEmptyPackages">
         <p>
@@ -985,12 +985,12 @@ tasks.withType(DokkaTask.class) {
             For example, if <code>skipDeprecated</code> is set to <code>true</code> and your package contains only
             deprecated declarations, it is considered to be empty.
         </p>
-        <p>Default: <code>true</code>.</p>
+        <p>Default: <code>true</code></p>
     </def>
     <def title="skipDeprecated">
         <p>Whether to document declarations annotated with <code>@Deprecated</code>.</p>
         <p>This can be configured on per-package basis.</p>
-        <p>Default: <code>false</code>.</p>
+        <p>Default: <code>false</code></p>
     </def>
     <def title="suppressGeneratedFiles">
         <p>Whether to document/analyze generated files.</p>
@@ -1001,7 +1001,7 @@ tasks.withType(DokkaTask.class) {
             If set to <code>true</code>, it effectively adds all files from that directory to the
             <code>suppressedFiles</code> option, so you can configure it manually.
         </p>
-        <p>Default: <code>true</code>.</p>
+        <p>Default: <code>true</code></p>
     </def>
     <def title="jdkVersion">
         <p>The JDK version to use when generating external documentation links for Java types.</p>
@@ -1010,7 +1010,7 @@ tasks.withType(DokkaTask.class) {
             and this option is set to <code>8</code>, Dokka generates an external documentation link
             to <a href="https://docs.oracle.com/javase/8/docs/api/java/util/UUID.html">JDK 8 Javadocs</a> for it.
         </p>
-        <p>Default: JDK 8.</p>
+        <p>Default: JDK 8</p>
     </def>
     <def title="languageVersion">
         <p>
@@ -1034,19 +1034,19 @@ tasks.withType(DokkaTask.class) {
             documentation of Kotlin's standard library.
         </p>
         <p>Note: Links <b>are</b> generated when <code>noStdLibLink</code> is set to <code>false</code>.</p>
-        <p>Default: <code>false</code>.</p>
+        <p>Default: <code>false</code></p>
     </def>
     <def title="noJdkLink">
         <p>Whether to generate external documentation links to JDK's Javadocs.</p>
         <p>The version of JDK Javadocs is determined by the <code>jdkVersion</code> option.</p>
         <p>Note: Links <b>are</b> generated when <code>noJdkLink</code> is set to <code>false</code>.</p>
-        <p>Default: <code>false</code>.</p>
+        <p>Default: <code>false</code></p>
     </def>
     <def title="noAndroidSdkLink">
         <p>Whether to generate external documentation links to the Android SDK API reference</p>
         <p>This is only relevant in Android projects, ignored otherwise.</p>
         <p>Note: Links <b>are</b> generated when <code>noAndroidSdkLink</code> is set to <code>false</code>.</p>
-        <p>Default: <code>false</code>.</p>
+        <p>Default: <code>false</code></p>
     </def>
     <def title="includes">
         <p>
@@ -1191,7 +1191,7 @@ tasks.withType(DokkaTask.class) {
                 <li>Bitbucket: <code>#lines-</code></li>
             </list>
         </p>
-        <p>Default: <code>#L</code>.</p>
+        <p>Default: <code>#L</code></p>
     </def>
 </deflist>
 
@@ -1267,16 +1267,16 @@ tasks.withType(DokkaTask.class) {
 <deflist collapsible="true">
     <def title="matchingRegex">
         <p>The regular expression that is used to match the package.</p>
-        <p>Default: <code>.*</code>.</p>
+        <p>Default: <code>.*</code></p>
     </def>
     <def title="suppress">
         <p>Whether this package should be skipped when generating documentation.</p>
-        <p>Default: <code>false</code>.</p>
+        <p>Default: <code>false</code></p>
     </def>
     <def title="skipDeprecated">
         <p>Whether to document declarations annotated with <code>@Deprecated</code>.</p>
         <p>This can be configured on source set level.</p>
-        <p>Default: <code>false</code>.</p>
+        <p>Default: <code>false</code></p>
     </def>
     <def title="reportUndocumented">
         <p>
@@ -1285,7 +1285,7 @@ tasks.withType(DokkaTask.class) {
         </p>
         <p>This setting works well with <code>failOnWarning</code>.</p>
         <p>This can be configured on source set level.</p>
-        <p>Default: <code>false</code>.</p>
+        <p>Default: <code>false</code></p>
     </def>
     <def title="documentedVisibilities">
         <p>The set of visibility modifiers that should be documented.</p>
@@ -1294,7 +1294,7 @@ tasks.withType(DokkaTask.class) {
             as well as if you want to exclude public declarations and only document internal API.
         </p>
         <p>This can be configured on source set level.</p>
-        <p>Default: <code>DokkaConfiguration.Visibility.PUBLIC</code>.</p>
+        <p>Default: <code>DokkaConfiguration.Visibility.PUBLIC</code></p>
     </def>
 </deflist>
 

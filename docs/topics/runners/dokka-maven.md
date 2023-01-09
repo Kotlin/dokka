@@ -219,15 +219,15 @@ with [all configuration options](#complete-configuration) applied at the bottom 
 <deflist collapsible="true">
     <def title="skip">
         <p>Whether to skip documentation generation.</p>
-        <p>Default: <code>false</code>.</p>
+        <p>Default: <code>false</code></p>
     </def>
     <def title="moduleName">
         <p>The display name used to refer to the project/module. It's used for the table of contents, navigation, logging, etc.</p>
-        <p>Default: <code>{project.artifactId}</code>.</p>
+        <p>Default: <code>{project.artifactId}</code></p>
     </def>
     <def title="outputDir">
         <p>The directory to where documentation is generated, regardless of format.</p>
-        <p>Default: <code>{project.basedir}/target/dokka</code>.</p>
+        <p>Default: <code>{project.basedir}/target/dokka</code></p>
     </def>
     <def title="failOnWarning">
         <p>
@@ -235,7 +235,7 @@ with [all configuration options](#complete-configuration) applied at the bottom 
             all errors and warnings have been emitted first.
         </p>
         <p>This setting works well with <code>reportUndocumented</code>.</p>
-        <p>Default: <code>false</code>.</p>
+        <p>Default: <code>false</code></p>
     </def>
     <def title="suppressObviousFunctions">
         <p>Whether to suppress obvious functions.</p>
@@ -261,7 +261,7 @@ with [all configuration options](#complete-configuration) applied at the bottom 
             but cannot suppress synthetic functions such as <code>dataClass.componentN</code> and 
             <code>dataClass.copy</code>. Use <code>suppressObviousFunctions</code> for that.
         </p>
-        <p>Default: <code>false</code>.</p>
+        <p>Default: <code>false</code></p>
     </def>
     <def title="offlineMode">
         <p>Whether to resolve remote files/links over your network.</p>
@@ -278,14 +278,14 @@ with [all configuration options](#complete-configuration) applied at the bottom 
             Note: You can cache fetched files locally and provide them to
             Dokka as local paths. See <code>externalDocumentationLinks</code> section.
         </p>
-        <p>Default: <code>false</code>.</p>
+        <p>Default: <code>false</code></p>
     </def>
     <def title="sourceDirectories">
         <p>
             The source code roots to be analyzed and documented.
             Acceptable inputs are directories and individual <code>.kt</code> / <code>.java</code> files.
         </p>
-        <p>Default: <code>{project.compileSourceRoots}</code>.</p>
+        <p>Default: <code>{project.compileSourceRoots}</code></p>
     </def>
     <def title="documentedVisibilities">
         <p>The set of visibility modifiers that should be documented.</p>
@@ -294,7 +294,7 @@ with [all configuration options](#complete-configuration) applied at the bottom 
             as well as if you want to exclude public declarations and only document internal API.
         </p>
         <p>Can be configured on per-package basis.</p>
-        <p>Default: <code>PUBLIC</code>.</p>
+        <p>Default: <code>PUBLIC</code></p>
     </def>
     <def title="reportUndocumented">
         <p>
@@ -303,12 +303,12 @@ with [all configuration options](#complete-configuration) applied at the bottom 
         </p>
         <p>This setting works well with <code>failOnWarning</code>.</p>
         <p>This can be overridden at package level.</p>
-        <p>Default: <code>false</code>.</p>
+        <p>Default: <code>false</code></p>
     </def>
     <def title="skipDeprecated">
         <p>Whether to document declarations annotated with <code>@Deprecated</code>.</p>
         <p>This can be overridden at package level.</p>
-        <p>Default: <code>false</code>.</p>
+        <p>Default: <code>false</code></p>
     </def>
     <def title="skipEmptyPackages">
         <p>
@@ -319,7 +319,7 @@ with [all configuration options](#complete-configuration) applied at the bottom 
             For example, if <code>skipDeprecated</code> is set to <code>true</code> and your package contains only
             deprecated declarations, it is considered to be empty.
         </p>
-        <p>Default: <code>true</code>.</p>
+        <p>Default: <code>true</code></p>
     </def>
     <def title="suppressedFiles">
         <p>
@@ -334,7 +334,7 @@ with [all configuration options](#complete-configuration) applied at the bottom 
             and this option is set to <code>8</code>, Dokka generates an external documentation link
             to <a href="https://docs.oracle.com/javase/8/docs/api/java/util/UUID.html">JDK 8 Javadocs</a> for it.
         </p>
-        <p>Default: JDK 8.</p>
+        <p>Default: JDK 8</p>
     </def>
     <def title="languageVersion">
         <p>
@@ -358,7 +358,7 @@ with [all configuration options](#complete-configuration) applied at the bottom 
             documentation of Kotlin's standard library.
         </p>
         <p>Note: Links <b>are</b> generated when <code>noStdLibLink</code> is set to <code>false</code>.</p>
-        <p>Default: <code>false</code>.</p>
+        <p>Default: <code>false</code></p>
     </def>
     <def title="noJdkLink">
         <p>Whether to generate external documentation links to JDK's Javadocs.</p>
@@ -379,7 +379,7 @@ with [all configuration options](#complete-configuration) applied at the bottom 
             This is useful if some types that come from dependencies are not resolved/picked up automatically.
             This option accepts both <code>.jar</code> and <code>.klib</code> files.
         </p>
-        <p>Default: <code>{project.compileClasspathElements}</code>.</p>
+        <p>Default: <code>{project.compileClasspathElements}</code></p>
     </def>
     <def title="samples">
         <p>
@@ -537,11 +537,11 @@ The `perPackageOptions` configuration block allows setting some options for spec
 <deflist collapsible="true">
     <def title="matchingRegex">
         <p>The regular expression that is used to match the package.</p>
-        <p>Default: <code>.*</code>.</p>
+        <p>Default: <code>.*</code></p>
  </def>
     <def title="suppress">
         <p>Whether this package should be skipped when generating documentation.</p>
-        <p>Default: <code>false</code>.</p>
+        <p>Default: <code>false</code></p>
     </def>
     <def title="documentedVisibilities">
         <p>The set of visibility modifiers that should be documented.</p>
@@ -549,12 +549,12 @@ The `perPackageOptions` configuration block allows setting some options for spec
             This can be used if you want to document protected/internal/private declarations within this package,
             as well as if you want to exclude public declarations and only document internal API.
         </p>
-        <p>Default: <code>PUBLIC</code>.</p>
+        <p>Default: <code>PUBLIC</code></p>
     </def>
     <def title="skipDeprecated">
         <p>Whether to document declarations annotated with <code>@Deprecated</code>.</p>
         <p>This can be set on project/module level.</p>
-        <p>Default: <code>false</code>.</p>
+        <p>Default: <code>false</code></p>
     </def>
     <def title="reportUndocumented">
         <p>
@@ -562,7 +562,7 @@ The `perPackageOptions` configuration block allows setting some options for spec
             after they have been filtered by <code>documentedVisibilities</code> and other filters.
         </p>
         <p>This setting works well with <code>failOnWarning</code>.</p>
-        <p>Default: <code>false</code>.</p>
+        <p>Default: <code>false</code></p>
     </def>
 </deflist>
 

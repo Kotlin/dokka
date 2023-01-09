@@ -266,11 +266,11 @@ with [all configuration options](#complete-configuration) applied at the bottom 
 <deflist collapsible="true">
     <def title="moduleName">
         <p>The display name used to refer to the module. It is used for the table of contents, navigation, logging, etc.</p>
-        <p>Default: <code>root</code>.</p>
+        <p>Default: <code>root</code></p>
     </def>
     <def title="moduleVersion">
         <p>The module version.</p>
-        <p>Default: empty.</p>
+        <p>Default: empty</p>
     </def>
     <def title="outputDirectory">
         <p>The directory to where documentation is generated, regardless of output format.</p>
@@ -282,7 +282,7 @@ with [all configuration options](#complete-configuration) applied at the bottom 
             The process waits until all errors and warnings have been emitted first.
         </p>
         <p>This setting works well with <code>reportUndocumented</code></p>
-        <p>Default: <code>false</code>.</p>
+        <p>Default: <code>false</code></p>
     </def>
     <def title="suppressObviousFunctions">
         <p>Whether to suppress obvious functions.</p>
@@ -299,7 +299,7 @@ with [all configuration options](#complete-configuration) applied at the bottom 
                 </li>
             </list>
         </p>
-        <p>Default: <code>true</code>.</p>
+        <p>Default: <code>true</code></p>
     </def>
     <def title="suppressInheritedMembers">
         <p>Whether to suppress inherited members that aren't explicitly overridden in a given class.</p>
@@ -309,7 +309,7 @@ with [all configuration options](#complete-configuration) applied at the bottom 
             <code>dataClass.copy</code>. Use <code>suppressObviousFunctions</code>
             for that.
         </p>
-        <p>Default: <code>false</code>.</p>
+        <p>Default: <code>false</code></p>
     </def>
     <def title="offlineMode">
         <p>Whether to resolve remote files/links over your network.</p>
@@ -326,7 +326,7 @@ with [all configuration options](#complete-configuration) applied at the bottom 
             Note: You can cache fetched files locally and provide them to
             Dokka as local paths. See <code>externalDocumentationLinks</code> section.
         </p>
-        <p>Default: <code>false</code>.</p>
+        <p>Default: <code>false</code></p>
     </def>
     <def title="includes">
         <p>
@@ -449,7 +449,7 @@ How to configure Kotlin
                 <li><code>PACKAGE</code></li>
             </list>
         </p>
-        <p>Default: <code>PUBLIC</code>.</p>
+        <p>Default: <code>PUBLIC</code></p>
     </def>
     <def title="reportUndocumented">
         <p>
@@ -458,7 +458,7 @@ How to configure Kotlin
         </p>
         <p>This setting works well with <code>failOnWarning</code>.</p>
         <p>This can be configured on per-package basis.</p>
-        <p>Default: <code>false</code>.</p>
+        <p>Default: <code>false</code></p>
     </def>
     <def title="skipEmptyPackages">
         <p>
@@ -474,7 +474,7 @@ How to configure Kotlin
     <def title="skipDeprecated">
         <p>Whether to document declarations annotated with <code>@Deprecated</code>.</p>
         <p>This can be configured on per-package basis.</p>
-        <p>Default: <code>false</code>.</p>
+        <p>Default: <code>false</code></p>
     </def>
     <def title="jdkVersion">
         <p>The JDK version to use when generating external documentation links for Java types.</p>
@@ -504,13 +504,13 @@ How to configure Kotlin
             documentation of Kotlin's standard library.
         </p>
         <p>Note: Links <b>are</b> generated when <code>noStdLibLink</code> is set to <code>false</code>.</p>
-        <p>Default: <code>false</code>.</p>
+        <p>Default: <code>false</code></p>
     </def>
     <def title="noJdkLink">
         <p>Whether to generate external documentation links to JDK's Javadocs.</p>
         <p>The version of JDK Javadocs is determined by the <code>jdkVersion</code> option.</p>
         <p>Note: Links <b>are</b> generated when <code>noJdkLink</code> is set to <code>false</code>.</p>
-        <p>Default: <code>false</code>.</p>
+        <p>Default: <code>false</code></p>
     </def>
     <def title="includes">
         <p>
@@ -623,7 +623,7 @@ You can configure source links for all source sets together at the same time, or
                 <li>Bitbucket: <code>#lines-</code></li>
             </list>
         </p>
-        <p>Default: empty (no suffix).</p>
+        <p>Default: empty (no suffix)</p>
     </def>
 </deflist>
 
@@ -654,12 +654,12 @@ You can add package configurations for all source sets together at the same time
     </def>
     <def title="suppress">
         <p>Whether this package should be skipped when generating documentation.</p>
-        <p>Default: <code>false</code>.</p>
+        <p>Default: <code>false</code></p>
     </def>
     <def title="skipDeprecated">
         <p>Whether to document declarations annotated with <code>@Deprecated</code>.</p>
         <p>This can be set on project/module level.</p>
-        <p>Default: <code>false</code>.</p>
+        <p>Default: <code>false</code></p>
     </def>
     <def title="reportUndocumented">
         <p>
@@ -668,7 +668,7 @@ You can add package configurations for all source sets together at the same time
         </p>
         <p>This setting works well with <code>failOnWarning</code>.</p>
         <p>This can be configured on source set level.</p>
-        <p>Default: <code>false</code>.</p>
+        <p>Default: <code>false</code></p>
     </def>
     <def title="documentedVisibilities">
         <p>The set of visibility modifiers that should be documented.</p>
@@ -677,7 +677,7 @@ You can add package configurations for all source sets together at the same time
             as well as if you want to exclude public declarations and only document internal API.
         </p>
         <p>Can be configured on source set level.</p>
-        <p>Default: <code>PUBLIC</code>.</p>
+        <p>Default: <code>PUBLIC</code></p>
     </def>
 </deflist>
 
