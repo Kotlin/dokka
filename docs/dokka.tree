@@ -9,7 +9,7 @@
     <chunk include-id="dokka">
         <toc-element id="dokka-introduction.md"/>
         <toc-element id="dokka-get-started.md"/>
-        <toc-element toc-title="Running Dokka">
+        <toc-element toc-title="Run Dokka">
             <toc-element id="dokka-gradle.md"/>
             <toc-element id="dokka-maven.md"/>
             <toc-element id="dokka-cli.md"/>

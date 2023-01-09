@@ -4,7 +4,7 @@ To generate documentation for a Gradle-based project, you can use the
 [Gradle plugin for Dokka](https://plugins.gradle.org/plugin/org.jetbrains.dokka).
 
 It comes with basic autoconfiguration for your project, has convenient [Gradle tasks](#generate-documentation) for 
-generating documentation, and provides a great deal of [configuration options](#configuration-example) to 
+generating documentation, and provides a great deal of [configuration options](#configuration-options) to 
 customize the output.
 
 You can play around with Dokka and see how it can be configured for various projects by visiting our
@@ -60,7 +60,7 @@ subprojects {
 </tab>
 </tabs>
 
-See [Configuration example](#configuration-example) if you are not sure where to apply Dokka.
+See [Configuration examples](#configuration-examples) if you are not sure where to apply Dokka.
 
 > Under the hood, Dokka uses the [Kotlin Gradle plugin](https://kotlinlang.org/docs/gradle-configure-project.html#apply-the-plugin) 
 > to perform autoconfiguration of [source sets](https://kotlinlang.org/docs/multiplatform-discover-project.html#source-sets) 
@@ -122,7 +122,7 @@ Use the following tasks to build documentation for simple, single-project applic
 | `dokkaJekyll`  | Generates documentation in [Jekyll compatible Markdown](dokka-markdown.md#jekyll) format. |
 
 By default, generated documentation is located in the `build/dokka/{format}` directory of your project.
-The output location, among other things, can be [configured](#configuration-example).
+The output location, among other things, can be [configured](#configuration-examples).
 
 ### Multi-project builds
 
@@ -292,7 +292,7 @@ tasks.register('dokkaJavadocJar', Jar.class) {
 >
 {type="tip"}
 
-## Configuration example
+## Configuration examples
 
 Depending on the type of project that you have, the way you apply and configure Dokka differs slightly. However,
 [configuration options](#configuration-options) themselves are the same, regardless of the type of your project.
@@ -542,7 +542,7 @@ In this case, there are multiple ways of applying and configuring Dokka.
 
 #### Subproject configuration
 
-To configure subprojects in a multi-module build, you need to configure [`Partial`](#partial-tasks) tasks.
+To configure subprojects in a multi-project build, you need to configure [`Partial`](#partial-tasks) tasks.
 
 You can configure all subprojects at the same time in the root `build.gradle.kts` or `build.gradle` file,
 using Gradle's `allprojects {}` or `subprojects {}` configuration blocks:
@@ -693,7 +693,7 @@ Dokka has many configuration options to tailor your and your reader's experience
 Below are some examples and detailed descriptions for each configuration section. You can also find an example
 with [all configuration options](#complete-configuration) applied at the bottom of the page.
 
-See [Configuration example](#configuration-example) for more details on where to apply configuration blocks and how.
+See [Configuration examples](#configuration-examples) for more details on where to apply configuration blocks and how.
 
 ### General configuration
 
