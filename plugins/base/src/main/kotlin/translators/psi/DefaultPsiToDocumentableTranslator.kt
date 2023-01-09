@@ -267,7 +267,7 @@ class DefaultPsiToDocumentableTranslator(
                     }
                     parsedFields + parsedSuperFields
                 }
-                val source = PsiDocumentableSource(this).toSourceSetDependent()
+                val source = parseSources()
                 val classlikes = async { innerClasses.asIterable().parallelMap { parseClasslike(it, dri) } }
                 val visibility = getVisibility().toSourceSetDependent()
                 val ancestors = (listOfNotNull(ancestry.superclass?.let {
@@ -287,9 +287,6 @@ class DefaultPsiToDocumentableTranslator(
                 val implementedInterfacesExtra =
                     ImplementedInterfaces(ancestry.allImplementedInterfaces().toSourceSetDependent())
 
-                fun Array<PsiMethod>.defaultCtorIfEmpty() =
-                    if (isEmpty()) arrayOf(psi.createDefaultConstructor()) else this
-
                 when {
                     isAnnotationType ->
                         DAnnotation(
@@ -303,7 +300,7 @@ class DefaultPsiToDocumentableTranslator(
                             classlikes = classlikes.await(),
                             visibility = visibility,
                             companion = null,
-                            constructors = constructors.map { parseFunction(it, true) },
+                            constructors = parseConstructors(),
                             generics = mapTypeParameters(dri),
                             sourceSets = setOf(sourceSetData),
                             isExpectActual = false,
@@ -338,11 +335,12 @@ class DefaultPsiToDocumentableTranslator(
                         expectPresentInSet = null,
                         sources = source,
                         functions = allFunctions.await(),
-                        properties = fields.filter { it !is PsiEnumConstant }.map { parseField(it, accessors[it].orEmpty()) },
+                        properties = fields.filter { it !is PsiEnumConstant }
+                            .map { parseField(it, accessors[it].orEmpty()) },
                         classlikes = classlikes.await(),
                         visibility = visibility,
                         companion = null,
-                        constructors = constructors.map { parseFunction(it, true) },
+                        constructors = parseConstructors(),
                         supertypes = ancestors,
                         sourceSets = setOf(sourceSetData),
                         isExpectActual = false,
@@ -378,7 +376,7 @@ class DefaultPsiToDocumentableTranslator(
                     else -> DClass(
                         dri = dri,
                         name = name.orEmpty(),
-                        constructors = constructors.defaultCtorIfEmpty().map { parseFunction(it, true) },
+                        constructors = parseConstructors(),
                         functions = allFunctions.await(),
                         properties = allFields.await(),
                         classlikes = classlikes.await(),
@@ -401,6 +399,15 @@ class DefaultPsiToDocumentableTranslator(
                     )
                 }
             }
+        }
+
+        private fun PsiClass.parseConstructors(): List<DFunction> {
+            val constructors = when {
+                isAnnotationType || isInterface -> emptyArray()
+                isEnum -> this.constructors
+                else -> this.constructors.takeIf { it.isNotEmpty() } ?: arrayOf(createDefaultConstructor())
+            }
+            return constructors.map { parseFunction(it, true) }
         }
 
         /**
@@ -455,8 +462,7 @@ class DefaultPsiToDocumentableTranslator(
                 },
                 documentation = docs.toSourceSetDependent(),
                 expectPresentInSet = null,
-                // isPhysical detects the virtual methods without real sources. Here it used for default constructor
-                sources = if (psi.isPhysical) PsiDocumentableSource(psi).toSourceSetDependent() else emptyMap(),
+                sources = psi.parseSources(),
                 visibility = psi.getVisibility().toSourceSetDependent(),
                 type = psi.returnType?.let { getBound(type = it) } ?: Void,
                 generics = psi.mapTypeParameters(dri),
@@ -477,6 +483,18 @@ class DefaultPsiToDocumentableTranslator(
                     )
                 }
             )
+        }
+
+        /**
+         * `isPhysical` detects the virtual declarations without real sources.
+         * Otherwise, [PsiDocumentableSource] initialization will fail: non-physical declarations doesn't have `virtualFile`.
+         * The check is required since in [parseConstructors] we create a virtual method for default constructor.
+         */
+        private fun PsiNamedElement.parseSources(): SourceSetDependent<DocumentableSource> {
+            return when {
+                isPhysical -> PsiDocumentableSource(this).toSourceSetDependent()
+                else -> emptyMap()
+            }
         }
 
         private fun PsiMethod.getDocumentation(): DocumentationNode =
@@ -686,7 +704,7 @@ class DefaultPsiToDocumentableTranslator(
                 name = psi.name,
                 documentation = javadocParser.parseDocumentation(psi).toSourceSetDependent(),
                 expectPresentInSet = null,
-                sources = PsiDocumentableSource(psi).toSourceSetDependent(),
+                sources = psi.parseSources(),
                 visibility = psi.getVisibility(getter).toSourceSetDependent(),
                 type = getBound(psi.type),
                 receiver = null,

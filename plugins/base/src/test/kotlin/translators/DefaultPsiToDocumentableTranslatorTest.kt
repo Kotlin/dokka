@@ -1,6 +1,5 @@
 package translators
 
-import com.jetbrains.rd.util.first
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
@@ -761,7 +760,7 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
                     testedClass.constructors.first().parameters.isEmpty(),
                     "Expect default constructor doesn't have params"
                 )
-                assertEquals(JavaVisibility.Public, testedClass.constructors.first().constructorVisibility())
+                assertEquals(JavaVisibility.Public, testedClass.constructors.first().visibility())
             }
         }
     }
@@ -781,7 +780,7 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
                 val testedClass = module.findClasslike(packageName = "test", "A") as DClass
 
                 assertEquals(1, testedClass.constructors.size, "Expect 1 default constructor")
-                assertEquals(JavaVisibility.Default, testedClass.constructors.first().constructorVisibility())
+                assertEquals(JavaVisibility.Default, testedClass.constructors.first().visibility())
             }
         }
     }
@@ -803,7 +802,7 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
                 val testedClass = parentClass.classlikes.single { it.name == "PrivateNested" } as DClass
 
                 assertEquals(1, testedClass.constructors.size, "Expect 1 default constructor")
-                assertEquals(JavaVisibility.Private, testedClass.constructors.first().constructorVisibility())
+                assertEquals(JavaVisibility.Private, testedClass.constructors.first().visibility())
             }
         }
     }
@@ -824,10 +823,10 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
                 val testedClass = module.findClasslike(packageName = "test", "A") as DClass
 
                 assertEquals(1, testedClass.constructors.size, "Expect 1 declared constructor")
-                assertEquals(JavaVisibility.Private, testedClass.constructors.first().constructorVisibility())
+                assertEquals(JavaVisibility.Private, testedClass.constructors.first().visibility())
             }
         }
     }
 }
 
-private fun DFunction.constructorVisibility() = visibility.first().value
+private fun DFunction.visibility() = visibility.values.first()

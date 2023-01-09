@@ -979,7 +979,7 @@ class SignatureTest : BaseAbstractTest() {
                     assertEquals(
                         3,
                         signatures.size,
-                        "Expected 2 signatures: class signature, default constructor and property"
+                        "Expected 3 signatures: class signature, default constructor and property"
                     )
 
                     val property = signatures[2]
