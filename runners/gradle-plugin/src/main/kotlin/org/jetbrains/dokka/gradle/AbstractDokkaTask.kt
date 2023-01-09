@@ -33,7 +33,7 @@ abstract class AbstractDokkaTask : DefaultTask() {
 
     @OutputDirectory
     val outputDirectory: Property<File> = project.objects.safeProperty<File>()
-        .safeConvention(defaultDokkaOutputDirectory())
+        .safeConvention(project.provider { defaultDokkaOutputDirectory() })
 
     @Optional
     @InputDirectory
@@ -89,7 +89,14 @@ abstract class AbstractDokkaTask : DefaultTask() {
     internal open fun generateDocumentation() {
         DokkaBootstrap(runtime, DokkaBootstrapImpl::class).apply {
             configure(buildDokkaConfiguration().toJsonString(), createProxyLogger())
-            generate()
+            /**
+             * Run in a new thread to avoid memory leaks that are related to ThreadLocal (that keeps `URLCLassLoader`)
+             * Currently, all `ThreadLocal`s leaking are in the compiler/IDE codebase.
+             */
+            Thread { generate() }.apply {
+                start()
+                join()
+            }
         }
     }
 

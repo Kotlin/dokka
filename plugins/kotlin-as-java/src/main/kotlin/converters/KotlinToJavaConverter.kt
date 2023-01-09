@@ -1,8 +1,6 @@
 package org.jetbrains.dokka.kotlinAsJava.converters
 
-import org.jetbrains.dokka.kotlinAsJava.hasJvmOverloads
-import org.jetbrains.dokka.kotlinAsJava.hasJvmSynthetic
-import org.jetbrains.dokka.kotlinAsJava.jvmField
+import org.jetbrains.dokka.kotlinAsJava.*
 import org.jetbrains.dokka.kotlinAsJava.transformers.JvmNameProvider
 import org.jetbrains.dokka.kotlinAsJava.transformers.withCallableName
 import org.jetbrains.dokka.links.Callable
@@ -17,16 +15,19 @@ import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.resolve.jvm.JvmPrimitiveType
 
 val jvmNameProvider = JvmNameProvider()
+internal const val OBJECT_INSTANCE_NAME = "INSTANCE"
 
-private val DProperty.isConst: Boolean
-    get() = extra[AdditionalModifiers]
-        ?.content
-        ?.any { (_, modifiers) ->
-            ExtraModifiers.KotlinOnlyModifiers.Const in modifiers
-        } == true
+internal val DProperty.isConst: Boolean
+    get() = hasModifier(ExtraModifiers.KotlinOnlyModifiers.Const)
 
-private val DProperty.isJvmField: Boolean
+internal val DProperty.isLateInit: Boolean
+    get() = hasModifier(ExtraModifiers.KotlinOnlyModifiers.LateInit)
+
+internal val DProperty.isJvmField: Boolean
     get() = jvmField() != null
+
+internal val DFunction.isJvmStatic: Boolean
+    get() = jvmStatic() != null
 
 internal fun DPackage.asJava(): DPackage {
     val syntheticClasses =
@@ -76,7 +77,11 @@ internal fun DPackage.asJava(): DPackage {
     )
 }
 
-internal fun DProperty.asJava(isTopLevel: Boolean = false, relocateToClass: String? = null) =
+internal fun DProperty.asJava(
+    isTopLevel: Boolean = false,
+    relocateToClass: String? = null,
+    isFromObjectOrCompanion: Boolean = false
+) =
     copy(
         dri = if (relocateToClass.isNullOrBlank()) {
             dri
@@ -85,9 +90,7 @@ internal fun DProperty.asJava(isTopLevel: Boolean = false, relocateToClass: Stri
         },
         modifier = javaModifierFromSetter(),
         visibility = visibility.mapValues {
-            if (isTopLevel && isConst) {
-                JavaVisibility.Public
-            } else if (jvmField() != null || (getter == null && setter == null)) {
+            if (isConst || isJvmField || (getter == null && setter == null) || (isFromObjectOrCompanion && isLateInit)) {
                 it.value.asJava()
             } else {
                 it.value.propertyVisibilityAsJava()
@@ -96,12 +99,12 @@ internal fun DProperty.asJava(isTopLevel: Boolean = false, relocateToClass: Stri
         type = type.asJava(), // TODO: check
         setter = null,
         getter = null, // Removing getters and setters as they will be available as functions
-        extra = if (isTopLevel) extra +
-                extra.mergeAdditionalModifiers(
-                    sourceSets.associateWith {
-                        setOf(ExtraModifiers.JavaOnlyModifiers.Static)
-                    }
-                )
+        extra = if (isTopLevel || isConst || (isFromObjectOrCompanion && isJvmField) || (isFromObjectOrCompanion && isLateInit))
+            extra + extra.mergeAdditionalModifiers(
+                sourceSets.associateWith {
+                    setOf(ExtraModifiers.JavaOnlyModifiers.Static)
+                }
+            )
         else extra
     )
 
@@ -192,7 +195,7 @@ private fun DFunction.asJava(
         parameters = listOfNotNull(receiver?.asJava()) + parameters.map { it.asJava() },
         visibility = visibility.map { (sourceSet, visibility) -> Pair(sourceSet, visibility.asJava()) }.toMap(),
         receiver = null,
-        extra = if (isTopLevel) {
+        extra = if (isTopLevel || isJvmStatic) {
             extra + extra.mergeAdditionalModifiers(
                 sourceSets.associateWith {
                     setOf(ExtraModifiers.JavaOnlyModifiers.Static)
@@ -259,23 +262,50 @@ internal fun DClass.asJava(): DClass = copy(
             )
         }, // name may not always be valid here, however classNames should always be not null
     functions = functionsInJava(),
-    properties = properties
-        .filterNot { it.hasJvmSynthetic() }
-        .map { it.asJava() },
-    classlikes = classlikes.map { it.asJava() },
+    properties = propertiesInJava(),
+    classlikes = classlikesInJava(),
     generics = generics.map { it.asJava() },
+    companion = companion?.companionAsJava(),
     supertypes = supertypes.mapValues { it.value.map { it.asJava() } },
     modifier = if (modifier.all { (_, v) -> v is KotlinModifier.Empty }) sourceSets.associateWith { JavaModifier.Final }
     else sourceSets.associateWith { modifier.values.first() }
 )
 
+/**
+ * Companion objects requires some custom logic for rendering as Java.
+ * They are excluded from usual classlikes rendering and added after.
+ */
+internal fun DClass.classlikesInJava(): List<DClasslike> {
+    val classlikes = classlikes
+        .filter { it.name != companion?.name }
+        .map { it.asJava() }
+
+    val companionAsJava = companion?.companionAsJava()
+    return if (companionAsJava != null) classlikes.plus(companionAsJava) else classlikes
+}
+
+
 internal fun DClass.functionsInJava(): List<DFunction> =
     properties
-        .filter { it.jvmField() == null && !it.hasJvmSynthetic() }
+        .filter { !it.isJvmField && !it.hasJvmSynthetic() }
         .flatMap { property -> listOfNotNull(property.getter, property.setter) }
         .plus(functions)
+        .plus(companion.staticFunctionsForJava())
         .filterNot { it.hasJvmSynthetic() }
         .flatMap { it.asJava(it.dri.classNames ?: it.name) }
+
+internal fun DClass.propertiesInJava(): List<DProperty> {
+    val propertiesFromCompanion = companion
+        .staticPropertiesForJava()
+        .filterNot { it.hasJvmSynthetic() }
+        .map { it.asJava(isFromObjectOrCompanion = true) }
+    val companionInstanceProperty = companion?.companionInstancePropertyForJava()
+    val ownProperties = properties
+        .filterNot { it.hasJvmSynthetic() }
+        .map { it.asJava() }
+
+    return propertiesFromCompanion + ownProperties + listOfNotNull(companionInstanceProperty)
+}
 
 private fun DTypeParameter.asJava(): DTypeParameter = copy(
     variantTypeParameter = variantTypeParameter.withDri(dri.possiblyAsJava()),
@@ -318,7 +348,7 @@ internal fun DEnum.asJava(): DEnum = copy(
     functions = functions
         .plus(
             properties
-                .filter { it.jvmField() == null && !it.hasJvmSynthetic() }
+                .filter { !it.isJvmField && !it.hasJvmSynthetic() }
                 .flatMap { listOf(it.getter, it.setter) }
         )
         .filterNotNull()
@@ -332,23 +362,33 @@ internal fun DEnum.asJava(): DEnum = copy(
 //    , entries = entries.map { it.asJava() }
 )
 
-internal fun DObject.asJava(): DObject = copy(
+/**
+ * Parameters [excludedProps] and [excludedFunctions] used for rendering companion objects
+ * where some members (that lifted to outer class) are not rendered
+ */
+internal fun DObject.asJava(
+    excludedProps: List<DProperty> = emptyList(),
+    excludedFunctions: List<DFunction> = emptyList()
+): DObject = copy(
     functions = functions
         .plus(
             properties
-                .filter { it.jvmField() == null && !it.hasJvmSynthetic() }
+                .filterNot { it in excludedProps }
+                .filter { !it.isJvmField && !it.isConst && !it.isLateInit && !it.hasJvmSynthetic() }
                 .flatMap { listOf(it.getter, it.setter) }
         )
         .filterNotNull()
+        .filterNot { it in excludedFunctions }
         .filterNot { it.hasJvmSynthetic() }
         .flatMap { it.asJava(dri.classNames ?: name.orEmpty()) },
     properties = properties
         .filterNot { it.hasJvmSynthetic() }
-        .map { it.asJava() } +
+        .filterNot { it in excludedProps }
+        .map { it.asJava(isFromObjectOrCompanion = true) } +
             DProperty(
-                name = "INSTANCE",
+                name = OBJECT_INSTANCE_NAME,
                 modifier = sourceSets.associateWith { JavaModifier.Final },
-                dri = dri.copy(callable = Callable("INSTANCE", null, emptyList())),
+                dri = dri.copy(callable = Callable(OBJECT_INSTANCE_NAME, null, emptyList())),
                 documentation = emptyMap(),
                 sources = emptyMap(),
                 visibility = sourceSets.associateWith {
@@ -450,3 +490,8 @@ private fun AdditionalModifiers.squash(second: AdditionalModifiers) =
 
 internal fun ClassId.classNames(): String =
     shortClassName.identifier + (outerClassId?.classNames()?.let { ".$it" } ?: "")
+
+private fun DProperty.hasModifier(modifier: ExtraModifiers.KotlinOnlyModifiers): Boolean =
+    extra[AdditionalModifiers]
+        ?.content
+        ?.any { (_, modifiers) -> modifier in modifiers } == true

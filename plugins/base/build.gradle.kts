@@ -20,6 +20,12 @@ dependencies {
 
     val jackson_version: String by project
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jackson_version")
+    val jackson_databind_version: String by project
+    constraints {
+        implementation("com.fasterxml.jackson.core:jackson-databind:$jackson_databind_version") {
+            because("CVE-2022-42003")
+        }
+    }
 
     val freemarker_version: String by project
     implementation("org.freemarker:freemarker:$freemarker_version")

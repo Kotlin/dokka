@@ -30,6 +30,7 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: 11
+          cache: 'maven'
       - uses: gradle/gradle-build-action@v2
       - name: Build html
         run: ./gradlew dokkaHtml --no-daemon --stacktrace
@@ -60,6 +61,7 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: 11
+          cache: 'maven'
       - uses: gradle/gradle-build-action@v2
       - name: Build html
         run: ./gradlew dokkaHtmlMultiModule --no-daemon --stacktrace

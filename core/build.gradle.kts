@@ -16,6 +16,12 @@ dependencies {
     val jackson_version: String by project
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jackson_version")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:$jackson_version")
+    val jackson_databind_version: String by project
+    constraints {
+        implementation("com.fasterxml.jackson.core:jackson-databind:$jackson_databind_version") {
+            because("CVE-2022-42003")
+        }
+    }
 
     val coroutines_version: String by project
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version")
