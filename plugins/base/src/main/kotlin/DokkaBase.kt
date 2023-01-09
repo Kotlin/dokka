@@ -283,7 +283,7 @@ class DokkaBase : DokkaPlugin() {
         externalClasslikesTranslator providing ::DefaultDescriptorToDocumentableTranslator
     }
 
-    val disposeKotlinAnalysisPostAction by extending {
+    internal val disposeKotlinAnalysisPostAction by extending {
         CoreExtensions.postActions with PostAction { this@DokkaBase.querySingle { kotlinAnalysis }.close() }
     }
 

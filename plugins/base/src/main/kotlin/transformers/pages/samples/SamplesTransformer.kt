@@ -34,9 +34,11 @@ abstract class SamplesTransformer(val context: DokkaContext) : PageTransformer {
          * Currently, all `ThreadLocal`s are in a compiler/IDE codebase.
          */
         runBlocking(Dispatchers.Default) {
-            val analysis = KotlinAnalysisForSamples(sourceSets = context.configuration.sourceSets,
+            val analysis = SamplesKotlinAnalysis(
+                sourceSets = context.configuration.sourceSets,
                 logger = context.logger,
-                defaultKotlinAnalysis = context.plugin<DokkaBase>().querySingle { kotlinAnalysis })
+                projectKotlinAnalysis = context.plugin<DokkaBase>().querySingle { kotlinAnalysis }
+            )
             analysis.use {
                 input.transformContentPagesTree { page ->
                     val samples = (page as? WithDocumentables)?.documentables?.flatMap {
@@ -59,7 +61,7 @@ abstract class SamplesTransformer(val context: DokkaContext) : PageTransformer {
         contentPage: ContentPage,
         sourceSet: DokkaSourceSet,
         fqName: String,
-        analysis: Map<DokkaSourceSet, EnvironmentAndFacade>
+        analysis: Map<DokkaSourceSet, AnalysisContext>
     ): ContentNode {
         val facade = analysis[sourceSet]?.facade
             ?: return this.also { context.logger.warn("Cannot resolve facade for platform ${sourceSet.sourceSetID}") }

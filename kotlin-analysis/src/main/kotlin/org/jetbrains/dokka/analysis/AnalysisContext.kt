@@ -11,17 +11,17 @@ import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
 import java.io.Closeable
 import java.io.File
 
-internal fun createEnvironmentAndFacade(
+internal fun createAnalysisContext(
     logger: DokkaLogger,
     sourceSets: List<DokkaConfiguration.DokkaSourceSet>,
     sourceSet: DokkaConfiguration.DokkaSourceSet,
     analysisConfiguration: DokkaAnalysisConfiguration
-): EnvironmentAndFacade {
+): AnalysisContext {
     val parentSourceSets = sourceSets.filter { it.sourceSetID in sourceSet.dependentSourceSets }
     val classpath = sourceSet.classpath + parentSourceSets.flatMap { it.classpath }
     val sources = sourceSet.sourceRoots + parentSourceSets.flatMap { it.sourceRoots }
 
-    return createEnvironmentAndFacade(
+    return createAnalysisContext(
         logger = logger,
         classpath = classpath,
         sourceRoots = sources,
@@ -30,25 +30,30 @@ internal fun createEnvironmentAndFacade(
     )
 }
 
-internal fun createEnvironmentAndFacade(
+internal fun createAnalysisContext(
     logger: DokkaLogger,
     classpath: List<File>,
     sourceRoots: Set<File>,
     sourceSet: DokkaConfiguration.DokkaSourceSet,
     analysisConfiguration: DokkaAnalysisConfiguration
-) = AnalysisEnvironment(DokkaMessageCollector(logger), sourceSet.analysisPlatform).run {
-    if (analysisPlatform == Platform.jvm) {
-        configureJdkClasspathRoots()
+): AnalysisContext {
+    val analysisEnvironment = AnalysisEnvironment(DokkaMessageCollector(logger), sourceSet.analysisPlatform).apply {
+        if (analysisPlatform == Platform.jvm) {
+            configureJdkClasspathRoots()
+        }
+        addClasspath(classpath)
+        addSources(sourceRoots)
+
+        loadLanguageVersionSettings(sourceSet.languageVersion, sourceSet.apiVersion)
     }
-    addClasspath(classpath)
-    addSources(sourceRoots)
 
-    loadLanguageVersionSettings(sourceSet.languageVersion, sourceSet.apiVersion)
+    val environment = analysisEnvironment.createCoreEnvironment()
+    val (facade, _) = analysisEnvironment.createResolutionFacade(
+        environment,
+        analysisConfiguration.ignoreCommonBuiltIns
+    )
 
-    val environment = createCoreEnvironment()
-
-    val (facade, _) = createResolutionFacade(environment, analysisConfiguration.ignoreCommonBuiltIns)
-    EnvironmentAndFacade(environment, facade, this)
+    return AnalysisContext(environment, facade, analysisEnvironment)
 }
 
 class DokkaMessageCollector(private val logger: DokkaLogger) : MessageCollector {
@@ -69,7 +74,7 @@ class DokkaMessageCollector(private val logger: DokkaLogger) : MessageCollector 
 }
 
 // It is not data class due to ill-defined equals
-class EnvironmentAndFacade(
+class AnalysisContext(
     environment: KotlinCoreEnvironment,
     facade: DokkaResolutionFacade,
     private val analysisEnvironment: AnalysisEnvironment
