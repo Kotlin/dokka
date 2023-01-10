@@ -73,12 +73,17 @@ class DokkaPluginApplyTest {
     fun `all dokka tasks provide a task description`() {
         val project = ProjectBuilder.builder().build()
         project.plugins.apply("org.jetbrains.dokka")
-        project.tasks.filter { "dokka" in it.name.toLowerCase() }.forEach { dokkaTask ->
-            assertTrue(
-                dokkaTask.description.orEmpty().isNotEmpty(),
-                "Expected description for task ${dokkaTask.name}"
-            )
-        }
+        assertTasksHaveDescription(project.tasks)
+    }
+
+    @Test
+    fun `all dokka tasks provide a task description in a multi module setup`() {
+        val root = ProjectBuilder.builder().withName("root").build()
+        val child = ProjectBuilder.builder().withName("child").withParent(root).build()
+        root.plugins.apply("org.jetbrains.dokka")
+        child.plugins.apply("org.jetbrains.dokka")
+        assertTasksHaveDescription(root.tasks)
+        assertTasksHaveDescription(child.tasks)
     }
 
     @Test
@@ -106,6 +111,15 @@ private fun assertTasksHaveDocumentationGroup(taskContainer: TaskContainer) {
         assertEquals(
             JavaBasePlugin.DOCUMENTATION_GROUP, dokkaTask.group,
             "Expected task: ${dokkaTask.path} group to be ${JavaBasePlugin.DOCUMENTATION_GROUP}"
+        )
+    }
+}
+
+private fun assertTasksHaveDescription(taskContainer: TaskContainer) {
+    taskContainer.filter { "dokka" in it.name.toLowerCase() }.forEach { dokkaTask ->
+        assertTrue(
+            dokkaTask.description.orEmpty().isNotEmpty(),
+            "Expected description for task ${dokkaTask.name}"
         )
     }
 }
