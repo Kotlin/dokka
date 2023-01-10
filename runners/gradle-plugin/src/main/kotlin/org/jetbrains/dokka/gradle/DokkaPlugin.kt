@@ -4,6 +4,7 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Dependency
+import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.kotlin.dsl.register
 import org.gradle.util.GradleVersion
 
@@ -74,6 +75,7 @@ open class DokkaPlugin : Plugin<Project> {
                 }
 
                 project.tasks.register<DefaultTask>("${name}Multimodule") {
+                    group = JavaBasePlugin.DOCUMENTATION_GROUP
                     dependsOn(multiModuleName)
                     doLast {
                         logger.warn("'Multimodule' is deprecated. Use 'MultiModule' instead")
