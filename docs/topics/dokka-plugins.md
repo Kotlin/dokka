@@ -127,8 +127,8 @@ If you are using [JSON configuration](dokka-cli.md#run-with-json-configuration),
 
 ## Configure Dokka plugins
 
-Dokka plugins can also have configuration options of their own. To see which options are available, consult documentation
-of the plugins you are using. 
+Dokka plugins can also have configuration options of their own. To see which options are available, consult
+the documentation of the plugins you are using. 
 
 Let's have a look at how you can configure the `DokkaBase` plugin, which is responsible for generating [HTML](dokka-html.md)
 documentation, by adding a custom image to the assets (`customAssets` option), by adding custom style sheets
