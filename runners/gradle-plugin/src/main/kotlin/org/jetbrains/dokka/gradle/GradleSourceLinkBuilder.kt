@@ -2,6 +2,7 @@ package org.jetbrains.dokka.gradle
 
 import org.gradle.api.Project
 import org.gradle.api.provider.Property
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.*
 import org.jetbrains.dokka.DokkaConfigurationBuilder
 import org.jetbrains.dokka.SourceLinkDefinitionImpl
@@ -36,9 +37,13 @@ class GradleSourceLinkBuilder(
      * projectDir.resolve("src")
      * ```
      */
-    @InputDirectory
-    @PathSensitive(PathSensitivity.RELATIVE)
+    @Internal
     val localDirectory: Property<File?> = project.objects.safeProperty()
+
+    @Suppress("unused")
+    @get:Input
+    internal val localDirectoryPath: Provider<String?> =
+        localDirectory.map { it.relativeToOrSelf(project.projectDir).invariantSeparatorsPath }
 
     /**
      * URL of source code hosting service that can be accessed by documentation readers,
