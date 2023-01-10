@@ -31,6 +31,10 @@ class GradleSourceLinkBuilder(
     /**
      * Path to the local source directory. The path must be relative to the root of current project.
      *
+     * This path is used to find relative paths of the source files from which the documentation is built.
+     * These relative paths are then combined with the base url of a source code hosting service specified with
+     * the [remoteUrl] property to create source links for each declaration.
+     *
      * Example:
      *
      * ```kotlin
