@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<vars>
+    <var name="dokkaVersion"
+         value="1.7.20"
+         type="string"/>
+    <var name="kotlinVersion"
+         value="1.7.20"
+         type="string"/>
+</vars>

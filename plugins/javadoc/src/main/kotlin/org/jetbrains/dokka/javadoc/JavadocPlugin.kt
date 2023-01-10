@@ -86,7 +86,11 @@ class JavadocPlugin : DokkaPlugin() {
     internal val alphaVersionNotifier by extending {
         CoreExtensions.postActions providing { ctx ->
             PostAction {
-                ctx.logger.info("Javadoc output format is in Alpha version, use at your own risk, expect bugs and migration issues")
+                ctx.logger.info(
+                    "The Javadoc output format is still in Alpha so you may find bugs and experience migration " +
+                            "issues when using it. Successful integration with tools that accept Java's Javadoc " +
+                            "HTML as input is not guaranteed. You use it at your own risk."
+                )
             }
         }
     }

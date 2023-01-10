@@ -66,22 +66,6 @@ public abstract class org/jetbrains/dokka/maven/AbstractDokkaMojo : org/apache/m
 	public final fun setSuppressedFiles (Ljava/util/List;)V
 }
 
-public final class org/jetbrains/dokka/maven/AbstractDokkaMojo$PackageOptions : org/jetbrains/dokka/DokkaConfiguration$PackageOptions {
-	public fun <init> ()V
-	public fun getDocumentedVisibilities ()Ljava/util/Set;
-	public fun getIncludeNonPublic ()Z
-	public fun getMatchingRegex ()Ljava/lang/String;
-	public fun getReportUndocumented ()Ljava/lang/Boolean;
-	public fun getSkipDeprecated ()Z
-	public fun getSuppress ()Z
-	public fun setDocumentedVisibilities (Ljava/util/Set;)V
-	public fun setIncludeNonPublic (Z)V
-	public fun setMatchingRegex (Ljava/lang/String;)V
-	public fun setReportUndocumented (Z)V
-	public fun setSkipDeprecated (Z)V
-	public fun setSuppress (Z)V
-}
-
 public final class org/jetbrains/dokka/maven/DokkaJavadocJarMojo : org/jetbrains/dokka/maven/AbstractDokkaMojo {
 	public fun <init> ()V
 	public fun execute ()V
@@ -122,6 +106,22 @@ public final class org/jetbrains/dokka/maven/MavenDokkaLogger : org/jetbrains/do
 	public fun setErrorsCount (I)V
 	public fun setWarningsCount (I)V
 	public fun warn (Ljava/lang/String;)V
+}
+
+public final class org/jetbrains/dokka/maven/PackageOptions : org/jetbrains/dokka/DokkaConfiguration$PackageOptions {
+	public fun <init> ()V
+	public fun getDocumentedVisibilities ()Ljava/util/Set;
+	public fun getIncludeNonPublic ()Z
+	public fun getMatchingRegex ()Ljava/lang/String;
+	public fun getReportUndocumented ()Ljava/lang/Boolean;
+	public fun getSkipDeprecated ()Z
+	public fun getSuppress ()Z
+	public fun setDocumentedVisibilities (Ljava/util/Set;)V
+	public fun setIncludeNonPublic (Z)V
+	public fun setMatchingRegex (Ljava/lang/String;)V
+	public fun setReportUndocumented (Z)V
+	public fun setSkipDeprecated (Z)V
+	public fun setSuppress (Z)V
 }
 
 public final class org/jetbrains/dokka/maven/SourceLinkMapItem {
