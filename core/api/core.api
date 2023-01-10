@@ -57,10 +57,6 @@ public final class org/jetbrains/dokka/DokkaBootstrapImpl$DokkaProxyLogger : org
 	public fun warn (Ljava/lang/String;)V
 }
 
-public final class org/jetbrains/dokka/DokkaBootstrapImplKt {
-	public static final fun parsePerPackageOptions (Ljava/util/List;)Ljava/util/List;
-}
-
 public abstract interface class org/jetbrains/dokka/DokkaConfiguration : java/io/Serializable {
 	public abstract fun getCacheRoot ()Ljava/io/File;
 	public abstract fun getDelayTemplateSubstitution ()Z
@@ -212,9 +208,9 @@ public final class org/jetbrains/dokka/DokkaDefaults {
 	public static final field INSTANCE Lorg/jetbrains/dokka/DokkaDefaults;
 	public static final field delayTemplateSubstitution Z
 	public static final field failOnWarning Z
-	public static final field format Ljava/lang/String;
 	public static final field includeNonPublic Z
 	public static final field jdkVersion I
+	public static final field noAndroidSdkLink Z
 	public static final field noJdkLink Z
 	public static final field noStdlibLink Z
 	public static final field offlineMode Z
@@ -224,6 +220,7 @@ public final class org/jetbrains/dokka/DokkaDefaults {
 	public static final field sourceSetDisplayName Ljava/lang/String;
 	public static final field sourceSetName Ljava/lang/String;
 	public static final field suppress Z
+	public static final field suppressGeneratedFiles Z
 	public static final field suppressInheritedMembers Z
 	public static final field suppressObviousFunctions Z
 	public final fun getAnalysisPlatform ()Lorg/jetbrains/dokka/Platform;
