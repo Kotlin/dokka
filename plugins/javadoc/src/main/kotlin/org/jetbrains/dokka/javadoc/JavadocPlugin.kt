@@ -14,9 +14,11 @@ import org.jetbrains.dokka.javadoc.transformers.documentables.JavadocDocumentabl
 import org.jetbrains.dokka.javadoc.validity.MultiplatformConfiguredChecker
 import org.jetbrains.dokka.kotlinAsJava.KotlinAsJavaPlugin
 import org.jetbrains.dokka.plugability.DokkaPlugin
+import org.jetbrains.dokka.plugability.PreviewDokkaPluginApi
 import org.jetbrains.dokka.renderers.PostAction
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 
+@OptIn(PreviewDokkaPluginApi::class)
 class JavadocPlugin : DokkaPlugin() {
 
     val dokkaBasePlugin by lazy { plugin<DokkaBase>() }

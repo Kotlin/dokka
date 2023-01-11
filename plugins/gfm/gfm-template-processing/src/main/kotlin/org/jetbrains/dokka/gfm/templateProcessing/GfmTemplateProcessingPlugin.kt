@@ -6,8 +6,10 @@ import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.gfm.GfmPlugin
 import org.jetbrains.dokka.gfm.location.MarkdownLocationProvider
 import org.jetbrains.dokka.plugability.DokkaPlugin
+import org.jetbrains.dokka.plugability.PreviewDokkaPluginApi
 import org.jetbrains.dokka.templates.TemplatingPlugin
 
+@OptIn(PreviewDokkaPluginApi::class)
 class GfmTemplateProcessingPlugin : DokkaPlugin() {
 
     private val allModulesPagePlugin by lazy { plugin<AllModulesPagePlugin>() }

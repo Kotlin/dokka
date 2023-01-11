@@ -6,7 +6,9 @@ import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.resolvers.local.DokkaLocationProviderFactory
 import org.jetbrains.dokka.jekyll.JekyllPlugin
 import org.jetbrains.dokka.plugability.DokkaPlugin
+import org.jetbrains.dokka.plugability.PreviewDokkaPluginApi
 
+@OptIn(PreviewDokkaPluginApi::class)
 class JekyllTemplateProcessingPlugin : DokkaPlugin() {
 
     private val allModulesPagePlugin by lazy { plugin<AllModulesPagePlugin>() }

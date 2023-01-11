@@ -7,8 +7,10 @@ import org.jetbrains.dokka.kotlinAsJava.transformers.JvmNameDocumentableTransfor
 import org.jetbrains.dokka.kotlinAsJava.transformers.KotlinAsJavaDocumentableTransformer
 import org.jetbrains.dokka.kotlinAsJava.translators.KotlinAsJavaDocumentableToPageTranslator
 import org.jetbrains.dokka.plugability.DokkaPlugin
+import org.jetbrains.dokka.plugability.PreviewDokkaPluginApi
 import org.jetbrains.dokka.renderers.PostAction
 
+@OptIn(PreviewDokkaPluginApi::class)
 class KotlinAsJavaPlugin : DokkaPlugin() {
     val kotlinAsJavaDocumentableTransformer by extending {
         CoreExtensions.documentableTransformer with KotlinAsJavaDocumentableTransformer()

@@ -7,6 +7,7 @@ import kotlinx.coroutines.Dispatchers
 import org.jetbrains.dokka.generation.GracefulGenerationExit
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.DokkaPlugin
+import org.jetbrains.dokka.plugability.PreviewDokkaPluginApi
 import org.jetbrains.dokka.utilities.DokkaLogger
 
 /**
@@ -19,6 +20,7 @@ class DokkaGenerator(
     private val logger: DokkaLogger
 ) {
 
+    @OptIn(PreviewDokkaPluginApi::class)
     fun generate() = timed(logger) {
         report("Initializing plugins")
         val context = initializePlugins(configuration, logger)
@@ -36,6 +38,7 @@ class DokkaGenerator(
         finalizeCoroutines()
     }.dump("\n\n === TIME MEASUREMENT ===\n")
 
+    @OptIn(PreviewDokkaPluginApi::class)
     fun initializePlugins(
         configuration: DokkaConfiguration,
         logger: DokkaLogger,

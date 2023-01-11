@@ -3,9 +3,11 @@ package org.jetbrains.dokka.versioning
 import org.jetbrains.dokka.CoreExtensions.postActions
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.plugability.DokkaPlugin
+import org.jetbrains.dokka.plugability.PreviewDokkaPluginApi
 import org.jetbrains.dokka.plugability.configuration
 import org.jetbrains.dokka.templates.TemplatingPlugin
 
+@OptIn(PreviewDokkaPluginApi::class)
 class VersioningPlugin : DokkaPlugin() {
 
     val versioningStorage by extensionPoint<VersioningStorage>()

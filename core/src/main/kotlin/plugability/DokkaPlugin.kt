@@ -14,7 +14,7 @@ import kotlin.reflect.KProperty1
 @Retention(AnnotationRetention.BINARY)
 annotation class PreviewDokkaPluginApi
 
-@OptIn(PreviewDokkaPluginApi::class)
+@PreviewDokkaPluginApi
 abstract class DokkaPlugin {
     private val extensionDelegates = mutableListOf<KProperty<*>>()
     private val unsafePlugins = mutableListOf<Lazy<Extension<*, *, *>>>()
@@ -61,18 +61,18 @@ interface WithUnsafeExtensionSuppression {
 
 interface ConfigurableBlock
 
-@PreviewDokkaPluginApi
+@OptIn(PreviewDokkaPluginApi::class)
 inline fun <reified P : DokkaPlugin, reified E : Any> P.query(extension: P.() -> ExtensionPoint<E>): List<E> =
     context?.let { it[extension()] } ?: throwIllegalQuery()
 
-@PreviewDokkaPluginApi
+@OptIn(PreviewDokkaPluginApi::class)
 inline fun <reified P : DokkaPlugin, reified E : Any> P.querySingle(extension: P.() -> ExtensionPoint<E>): E =
     context?.single(extension()) ?: throwIllegalQuery()
 
 fun throwIllegalQuery(): Nothing =
     throw IllegalStateException("Querying about plugins is only possible with dokka context initialised")
 
-@PreviewDokkaPluginApi
+@OptIn(PreviewDokkaPluginApi::class)
 inline fun <reified T : DokkaPlugin, reified R : ConfigurableBlock> configuration(context: DokkaContext): R? =
     context.configuration.pluginsConfiguration.firstOrNull { it.fqPluginName == T::class.qualifiedName }
         ?.let { configuration ->

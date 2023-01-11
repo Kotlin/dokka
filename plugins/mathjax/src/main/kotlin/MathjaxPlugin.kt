@@ -11,8 +11,10 @@ import org.jetbrains.dokka.pages.ContentPage
 import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.pages.WithDocumentables
 import org.jetbrains.dokka.plugability.DokkaPlugin
+import org.jetbrains.dokka.plugability.PreviewDokkaPluginApi
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 
+@OptIn(PreviewDokkaPluginApi::class)
 class MathjaxPlugin : DokkaPlugin() {
     val transformer by extending {
         CoreExtensions.pageTransformer with MathjaxTransformer

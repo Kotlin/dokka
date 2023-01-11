@@ -10,13 +10,11 @@ import org.jetbrains.dokka.gfm.GfmPlugin
 import org.jetbrains.dokka.gfm.renderer.BriefCommentPreprocessor
 import org.jetbrains.dokka.gfm.renderer.CommonmarkRenderer
 import org.jetbrains.dokka.pages.ContentPage
-import org.jetbrains.dokka.plugability.DokkaContext
-import org.jetbrains.dokka.plugability.DokkaPlugin
-import org.jetbrains.dokka.plugability.plugin
-import org.jetbrains.dokka.plugability.query
+import org.jetbrains.dokka.plugability.*
 import org.jetbrains.dokka.renderers.PostAction
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 
+@OptIn(PreviewDokkaPluginApi::class)
 class JekyllPlugin : DokkaPlugin() {
 
     val jekyllPreprocessors by extensionPoint<PageTransformer>()

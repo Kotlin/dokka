@@ -3,8 +3,10 @@ package utils
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.renderers.OutputWriter
 import org.jetbrains.dokka.plugability.DokkaPlugin
+import org.jetbrains.dokka.plugability.PreviewDokkaPluginApi
 import java.util.*
 
+@OptIn(PreviewDokkaPluginApi::class)
 class TestOutputWriterPlugin(failOnOverwrite: Boolean = true) : DokkaPlugin() {
     val writer = TestOutputWriter(failOnOverwrite)
 

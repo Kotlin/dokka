@@ -8,12 +8,14 @@ import org.jetbrains.dokka.model.DModule
 import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.DokkaPlugin
+import org.jetbrains.dokka.plugability.PreviewDokkaPluginApi
 import org.jetbrains.dokka.testApi.logger.TestLogger
 import org.jetbrains.dokka.testApi.testRunner.*
 import org.jetbrains.dokka.utilities.DokkaConsoleLogger
 import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.dokka.utilities.LoggingLevel
 
+@OptIn(PreviewDokkaPluginApi::class)
 class BaseDokkaTestGenerator(
     configuration: DokkaConfiguration,
     logger: DokkaLogger,

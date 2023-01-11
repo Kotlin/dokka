@@ -5,10 +5,12 @@ import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.resolvers.local.DokkaLocationProviderFactory
 import org.jetbrains.dokka.base.resolvers.local.LocationProviderFactory
 import org.jetbrains.dokka.plugability.DokkaPlugin
+import org.jetbrains.dokka.plugability.PreviewDokkaPluginApi
 import org.jetbrains.dokka.templates.TemplatingPlugin
 import org.jetbrains.dokka.transformers.pages.PageCreator
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 
+@OptIn(PreviewDokkaPluginApi::class)
 class AllModulesPagePlugin : DokkaPlugin() {
 
     val partialLocationProviderFactory by extensionPoint<LocationProviderFactory>()
