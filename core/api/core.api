@@ -4406,9 +4406,6 @@ public final class org/jetbrains/dokka/plugability/DokkaPluginKt {
 	public static final fun throwIllegalQuery ()Ljava/lang/Void;
 }
 
-public abstract interface annotation class org/jetbrains/dokka/plugability/ExperimentalDokkaPluginApi : java/lang/annotation/Annotation {
-}
-
 public final class org/jetbrains/dokka/plugability/ExtendingDSL {
 	public fun <init> (Ljava/lang/String;Ljava/lang/String;)V
 	public final fun applyIf (Lorg/jetbrains/dokka/plugability/Extension;Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/dokka/plugability/Extension;
@@ -4484,6 +4481,9 @@ public final class org/jetbrains/dokka/plugability/OverrideKind$None : org/jetbr
 public final class org/jetbrains/dokka/plugability/OverrideKind$Present : org/jetbrains/dokka/plugability/OverrideKind {
 	public fun <init> (Ljava/util/List;)V
 	public final fun getOverriden ()Ljava/util/List;
+}
+
+public abstract interface annotation class org/jetbrains/dokka/plugability/PreviewDokkaPluginApi : java/lang/annotation/Annotation {
 }
 
 public final class org/jetbrains/dokka/plugability/ProvidedExtension {
