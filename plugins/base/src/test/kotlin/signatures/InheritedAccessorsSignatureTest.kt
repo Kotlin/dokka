@@ -62,11 +62,11 @@ class InheritedAccessorsSignatureTest : BaseAbstractTest() {
                 writerPlugin.writer.renderedContent("root/test/-a/index.html").let { javaClassContent ->
                     val signatures = javaClassContent.signature().toList()
                     assertEquals(
-                        2, signatures.size,
-                        "Expected 2 signatures: class signature and property"
+                        3, signatures.size,
+                        "Expected 3 signatures: class signature, default constructor and property"
                     )
 
-                    val property = signatures[1]
+                    val property = signatures[2]
                     property.match(
                         "open var ", A("a"), ":", A("Int"),
                         ignoreSpanWithTokenStyle = true
@@ -109,9 +109,13 @@ class InheritedAccessorsSignatureTest : BaseAbstractTest() {
 
                 writerPlugin.writer.renderedContent("root/test/-a/index.html").let { javaClassContent ->
                     val signatures = javaClassContent.signature().toList()
-                    assertEquals(2, signatures.size, "Expected 2 signatures: class signature and property")
+                    assertEquals(
+                        3,
+                        signatures.size,
+                        "Expected 3 signatures: class signature, default constructor and property"
+                    )
 
-                    val property = signatures[1]
+                    val property = signatures[2]
                     property.match(
                         "open val ", A("a"), ":", A("Int"),
                         ignoreSpanWithTokenStyle = true
@@ -156,9 +160,13 @@ class InheritedAccessorsSignatureTest : BaseAbstractTest() {
 
                 writerPlugin.writer.renderedContent("root/test/-a/index.html").let { javaClassContent ->
                     val signatures = javaClassContent.signature().toList()
-                    assertEquals(2, signatures.size, "Expected 2 signatures: class signature and setter")
+                    assertEquals(
+                        3,
+                        signatures.size,
+                        "Expected 3 signatures: class signature, default constructor and setter"
+                    )
 
-                    val setterFunction = signatures[1]
+                    val setterFunction = signatures[2]
                     setterFunction.match(
                         "open fun ", A("setA"), "(", Parameters(
                             Parameter("a: ", A("Int"))
@@ -241,9 +249,13 @@ class InheritedAccessorsSignatureTest : BaseAbstractTest() {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/test/-java-class/index.html").let { kotlinClassContent ->
                     val signatures = kotlinClassContent.signature().toList()
-                    assertEquals(2, signatures.size, "Expected to find two signatures: class and property")
+                    assertEquals(
+                        3,
+                        signatures.size,
+                        "Expected to find 3 signatures: class, default constructor and property"
+                    )
 
-                    val property = signatures[1]
+                    val property = signatures[2]
                     property.match(
                         "open var ", A("variable"), ": ", Span("String"),
                         ignoreSpanWithTokenStyle = true
@@ -290,15 +302,19 @@ class InheritedAccessorsSignatureTest : BaseAbstractTest() {
                 // test added to control changes
                 writerPlugin.writer.renderedContent("root/test/-java-class/index.html").let { javaClassContent ->
                     val signatures = javaClassContent.signature().toList()
-                    assertEquals(3, signatures.size, "Expected to find 3 signatures: class and two accessors")
+                    assertEquals(
+                        4,
+                        signatures.size,
+                        "Expected to find 4 signatures: class, default constructor and two accessors"
+                    )
 
-                    val getter = signatures[1]
+                    val getter = signatures[2]
                     getter.match(
                         "fun ", A("getVariable"), "(): ", Span("String"),
                         ignoreSpanWithTokenStyle = true
                     )
 
-                    val setter = signatures[2]
+                    val setter = signatures[3]
                     setter.match(
                         "fun ", A("setVariable"), "(", Parameters(
                             Parameter("value: ", Span("String"))
@@ -367,9 +383,13 @@ class InheritedAccessorsSignatureTest : BaseAbstractTest() {
 
                 writerPlugin.writer.renderedContent("root/test/-java-class/index.html").let { javaClassContent ->
                     val signatures = javaClassContent.signature().toList()
-                    assertEquals(2, signatures.size, "Expected 2 signatures: class signature and property")
+                    assertEquals(
+                        3,
+                        signatures.size,
+                        "Expected 3 signatures: class signature, default constructor and property"
+                    )
 
-                    val property = signatures[1]
+                    val property = signatures[2]
                     property.match(
                         "protected open var ", A("protectedGetterAndProtectedSetter"), ":", A("Int"),
                         ignoreSpanWithTokenStyle = true
