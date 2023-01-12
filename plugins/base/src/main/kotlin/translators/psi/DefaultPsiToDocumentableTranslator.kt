@@ -485,13 +485,11 @@ class DefaultPsiToDocumentableTranslator(
             )
         }
 
-        /**
-         * `isPhysical` detects the virtual declarations without real sources.
-         * Otherwise, [PsiDocumentableSource] initialization will fail: non-physical declarations doesn't have `virtualFile`.
-         * The check is required since in [parseConstructors] we create a virtual method for default constructor.
-         */
         private fun PsiNamedElement.parseSources(): SourceSetDependent<DocumentableSource> {
             return when {
+                // `isPhysical` detects the virtual declarations without real sources.
+                // Otherwise, `PsiDocumentableSource` initialization will fail: non-physical declarations doesn't have `virtualFile`.
+                // This check protects from accidentally requesting sources for synthetic / virtual declarations.
                 isPhysical -> PsiDocumentableSource(this).toSourceSetDependent()
                 else -> emptyMap()
             }
