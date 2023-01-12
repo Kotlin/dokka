@@ -1439,6 +1439,35 @@ public final class org/jetbrains/dokka/base/translators/documentables/BriefFromC
 public abstract interface annotation class org/jetbrains/dokka/base/translators/documentables/ContentBuilderMarker : java/lang/annotation/Annotation {
 }
 
+public final class org/jetbrains/dokka/base/translators/documentables/ContentTab {
+	public fun <init> (Ljava/lang/String;Ljava/util/List;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/util/List;
+	public final fun copy (Ljava/lang/String;Ljava/util/List;)Lorg/jetbrains/dokka/base/translators/documentables/ContentTab;
+	public static synthetic fun copy$default (Lorg/jetbrains/dokka/base/translators/documentables/ContentTab;Ljava/lang/String;Ljava/util/List;ILjava/lang/Object;)Lorg/jetbrains/dokka/base/translators/documentables/ContentTab;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getContentTypes ()Ljava/util/List;
+	public final fun getName ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/jetbrains/dokka/base/translators/documentables/ContentTabs : org/jetbrains/dokka/model/properties/ExtraProperty {
+	public static final field Companion Lorg/jetbrains/dokka/base/translators/documentables/ContentTabs$Companion;
+	public fun <init> (Ljava/util/List;)V
+	public fun getKey ()Lorg/jetbrains/dokka/model/properties/ExtraProperty$Key;
+	public final fun getTabs ()Ljava/util/List;
+}
+
+public final class org/jetbrains/dokka/base/translators/documentables/ContentTabs$Companion : org/jetbrains/dokka/model/properties/ExtraProperty$Key {
+	public synthetic fun mergeStrategyFor (Ljava/lang/Object;Ljava/lang/Object;)Lorg/jetbrains/dokka/model/properties/MergeStrategy;
+	public fun mergeStrategyFor (Lorg/jetbrains/dokka/base/translators/documentables/ContentTabs;Lorg/jetbrains/dokka/base/translators/documentables/ContentTabs;)Lorg/jetbrains/dokka/model/properties/MergeStrategy;
+}
+
+public final class org/jetbrains/dokka/base/translators/documentables/ContentTabsKt {
+	public static final fun toExtra (Lorg/jetbrains/dokka/base/translators/documentables/TabbedContentType;)Lorg/jetbrains/dokka/base/translators/documentables/TabbedContent;
+}
+
 public final class org/jetbrains/dokka/base/translators/documentables/DefaultDocumentableToPageTranslator : org/jetbrains/dokka/transformers/documentation/DocumentableToPageTranslator {
 	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
 	public fun invoke (Lorg/jetbrains/dokka/model/DModule;)Lorg/jetbrains/dokka/pages/ModulePageNode;
@@ -1622,6 +1651,29 @@ public class org/jetbrains/dokka/base/translators/documentables/PageContentBuild
 	public static synthetic fun header$default (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$TableBuilder;Ljava/util/Set;Ljava/util/Set;Lorg/jetbrains/dokka/pages/Kind;Ljava/util/Set;Lorg/jetbrains/dokka/model/properties/PropertyContainer;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
 	public final fun row (Ljava/util/Set;Ljava/util/Set;Lorg/jetbrains/dokka/pages/Kind;Ljava/util/Set;Lorg/jetbrains/dokka/model/properties/PropertyContainer;Lkotlin/jvm/functions/Function1;)V
 	public static synthetic fun row$default (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$TableBuilder;Ljava/util/Set;Ljava/util/Set;Lorg/jetbrains/dokka/pages/Kind;Ljava/util/Set;Lorg/jetbrains/dokka/model/properties/PropertyContainer;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
+}
+
+public final class org/jetbrains/dokka/base/translators/documentables/TabbedContent : org/jetbrains/dokka/model/properties/ExtraProperty {
+	public static final field Companion Lorg/jetbrains/dokka/base/translators/documentables/TabbedContent$Companion;
+	public fun <init> (Lorg/jetbrains/dokka/base/translators/documentables/TabbedContentType;)V
+	public fun getKey ()Lorg/jetbrains/dokka/model/properties/ExtraProperty$Key;
+	public final fun getType ()Lorg/jetbrains/dokka/base/translators/documentables/TabbedContentType;
+}
+
+public final class org/jetbrains/dokka/base/translators/documentables/TabbedContent$Companion : org/jetbrains/dokka/model/properties/ExtraProperty$Key {
+	public synthetic fun mergeStrategyFor (Ljava/lang/Object;Ljava/lang/Object;)Lorg/jetbrains/dokka/model/properties/MergeStrategy;
+	public fun mergeStrategyFor (Lorg/jetbrains/dokka/base/translators/documentables/TabbedContent;Lorg/jetbrains/dokka/base/translators/documentables/TabbedContent;)Lorg/jetbrains/dokka/model/properties/MergeStrategy;
+}
+
+public final class org/jetbrains/dokka/base/translators/documentables/TabbedContentType : java/lang/Enum {
+	public static final field CONSTRUCTOR Lorg/jetbrains/dokka/base/translators/documentables/TabbedContentType;
+	public static final field ENTRY Lorg/jetbrains/dokka/base/translators/documentables/TabbedContentType;
+	public static final field EXTENSION Lorg/jetbrains/dokka/base/translators/documentables/TabbedContentType;
+	public static final field FUNCTION Lorg/jetbrains/dokka/base/translators/documentables/TabbedContentType;
+	public static final field PROPERTY Lorg/jetbrains/dokka/base/translators/documentables/TabbedContentType;
+	public static final field TYPE Lorg/jetbrains/dokka/base/translators/documentables/TabbedContentType;
+	public static fun valueOf (Ljava/lang/String;)Lorg/jetbrains/dokka/base/translators/documentables/TabbedContentType;
+	public static fun values ()[Lorg/jetbrains/dokka/base/translators/documentables/TabbedContentType;
 }
 
 public final class org/jetbrains/dokka/base/translators/psi/DefaultPsiToDocumentableTranslator : org/jetbrains/dokka/transformers/sources/AsyncSourceToDocumentableTranslator {

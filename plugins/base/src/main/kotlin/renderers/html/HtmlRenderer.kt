@@ -14,6 +14,9 @@ import org.jetbrains.dokka.base.renderers.html.innerTemplating.HtmlTemplater
 import org.jetbrains.dokka.base.resolvers.anchors.SymbolAnchorHint
 import org.jetbrains.dokka.base.resolvers.local.DokkaBaseLocationProvider
 import org.jetbrains.dokka.base.templating.*
+import org.jetbrains.dokka.base.translators.documentables.ContentTabs
+import org.jetbrains.dokka.base.translators.documentables.TabbedContent
+import org.jetbrains.dokka.base.translators.documentables.TabbedContentType
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.properties.PropertyContainer
@@ -65,21 +68,16 @@ open class HtmlRenderer(
     ) {
         val additionalClasses = node.style.joinToString(" ") { it.toString().toLowerCase() }
         return when {
-            node.hasStyle(ContentStyle.TabbedContent) -> div(additionalClasses) {
-                val secondLevel = node.children.filterIsInstance<ContentComposite>().flatMap { it.children }
-                    .filterIsInstance<ContentHeader>().flatMap { it.children }.filterIsInstance<ContentText>()
-                val firstLevel = node.children.filterIsInstance<ContentHeader>().flatMap { it.children }
-                    .filterIsInstance<ContentText>()
-
-                val renderable = sortTabs(tabSortingStrategy, firstLevel.union(secondLevel))
+            node.hasStyle(ContentStyle.TabbedContent) && node.extra[ContentTabs] != null -> div(additionalClasses) {
+                val contentTabs = node.extra[ContentTabs]!!.tabs // TODO handle !!
 
                 div(classes = "tabs-section") {
                     attributes["tabs-section"] = "tabs-section"
-                    renderable.forEachIndexed { index, node ->
+                    contentTabs.forEachIndexed { index, tab ->
                         button(classes = "section-tab") {
                             if (index == 0) attributes["data-active"] = ""
-                            attributes["data-togglable"] = node.text
-                            text(node.text)
+                            attributes["data-togglable"] = tab.contentTypes.joinToString(separator = ",") { it.toClass() }
+                            text(tab.name)
                         }
                     }
                 }
@@ -89,6 +87,10 @@ open class HtmlRenderer(
             }
             node.hasStyle(ContentStyle.WithExtraAttributes) -> div {
                 node.extra.extraHtmlAttributes().forEach { attributes[it.extraKey] = it.extraValue }
+                childrenCallback()
+            }
+            node.extra[TabbedContent] != null -> div {
+                attributes["data-togglable"] = node.extra[TabbedContent]!!.type.toClass() // TODO handle null
                 childrenCallback()
             }
             node.dci.kind in setOf(ContentKind.Symbol) -> div("symbol $additionalClasses") {
@@ -141,6 +143,10 @@ open class HtmlRenderer(
             }
             else -> childrenCallback()
         }
+    }
+
+    private fun TabbedContentType.toClass(): String {
+        return this.name
     }
 
     private fun FlowContent.filterButtons(page: PageNode) {
@@ -559,7 +565,6 @@ open class HtmlRenderer(
         when {
             node.style.contains(CommentTable) -> buildDefaultTable(node, pageContext, sourceSetRestriction)
             else -> div(classes = "table") {
-                node.extra.extraHtmlAttributes().forEach { attributes[it.extraKey] = it.extraValue }
                 node.children.forEach {
                     buildRow(it, pageContext, sourceSetRestriction)
                 }

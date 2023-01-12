@@ -174,10 +174,7 @@ function initTabs() {
 function showCorrespondingTabBody(element) {
     const buttonWithKey = element.querySelector("button[data-active]")
     if (buttonWithKey) {
-        const key = buttonWithKey.getAttribute("data-togglable")
-        document.querySelector(".tabs-section-body")
-            .querySelector("div[data-togglable='" + key + "']")
-            .setAttribute("data-active", "")
+        toggleSections(buttonWithKey)
     }
 }
 
@@ -249,7 +246,6 @@ function removeSourcesetFilterFromCache(sourceset) {
 }
 
 function toggleSections(target) {
-    localStorage.setItem('active-tab', JSON.stringify(target.getAttribute("data-togglable")))
     const activateTabs = (containerClass) => {
         for (const element of document.getElementsByClassName(containerClass)) {
             for (const child of element.children) {
@@ -261,13 +257,24 @@ function toggleSections(target) {
             }
         }
     }
-
+    const toggleTargets = target.getAttribute("data-togglable").split(",")
+    const activateTabsBody = (containerClass) => {
+        document.querySelectorAll("." + containerClass + " *[data-togglable]")
+            .forEach(child => {
+                if (toggleTargets.includes(child.getAttribute("data-togglable"))) {
+                    child.setAttribute("data-active", "")
+                } else if(!child.classList.contains("sourceset-dependent-content")) {
+                    child.removeAttribute("data-active")
+                }
+            })
+    }
     activateTabs("tabs-section")
-    activateTabs("tabs-section-body")
+    activateTabsBody("tabs-section-body")
 }
 
 function toggleSectionsEventHandler(evt) {
     if (!evt.target.getAttribute("data-togglable")) return
+    localStorage.setItem('active-tab', JSON.stringify(evt.target.getAttribute("data-togglable")))
     toggleSections(evt.target)
 }
 
