@@ -47,6 +47,15 @@ class JavadocLocationTest : BaseAbstractTest() {
             |  * Referencing element from another package: [javadoc.test.Test]
             | */
             |class Referenced {}
+            |
+            |/jvmSrc/javadoc/test/FunctionParameters.kt
+            |package javadoc.test.functionparams
+            |
+            |typealias FunctionParamTypealias = String
+            |
+            |class FunctionParameters {
+            |    fun foo(param: FunctionParamTypealias) {}
+            |}
         """.trimIndent(),
             config,
             cleanupOutput = false,
@@ -148,6 +157,25 @@ class JavadocLocationTest : BaseAbstractTest() {
                     testClassNode
                 )
             )
+        }
+    }
+
+    @Test
+    fun `should resolve typealias function parameter`() {
+        locationTestInline { rootPageNode, dokkaContext ->
+            val transformer = htmlTranslator(rootPageNode, dokkaContext)
+            val containingClass = rootPageNode
+                .firstChildOfType<JavadocPackagePageNode> { it.name == "javadoc.test.functionparams" }
+                .firstChildOfType<JavadocClasslikePageNode> { it.name == "FunctionParameters" }
+
+            val methodWithTypealiasParam = containingClass.methods.single { it.name == "foo" }
+            val methodSignatureHtml = transformer.htmlForContentNode(methodWithTypealiasParam.signature, null)
+
+            val expectedSignatureHtml = "final <a href=https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html>Unit</a> " +
+                    "<a href=javadoc/test/functionparams/FunctionParameters.html#foo(javadoc.test.functionparams.FunctionParamTypealias)>foo</a>" +
+                    "(<a href=https://docs.oracle.com/javase/8/docs/api/java/lang/String.html>String</a> param)"
+
+            assertEquals(expectedSignatureHtml, methodSignatureHtml)
         }
     }
 

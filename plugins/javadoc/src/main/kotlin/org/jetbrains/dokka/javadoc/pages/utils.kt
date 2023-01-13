@@ -2,14 +2,20 @@ package org.jetbrains.dokka.javadoc.pages
 
 import org.jetbrains.dokka.model.*
 
-internal fun JavadocFunctionNode.getAnchor(): String =
-    "$name(${parameters.joinToString(",") {
-        when (val bound = if (it.typeBound is Nullable) it.typeBound.inner else it.typeBound) {
-            is TypeConstructor -> listOf(bound.dri.packageName, bound.dri.classNames).joinToString(".")
-            is TypeParameter -> bound.name
-            is PrimitiveJavaType -> bound.name
-            is UnresolvedBound -> bound.name
-            is JavaObject -> "Object"
-            else -> bound.toString()
-        }
-    }})"
+internal fun JavadocFunctionNode.getAnchor(): String {
+    val parameters = parameters.joinToString(",") { it.typeBound.asString() }
+    return "$name($parameters)"
+}
+
+private fun Bound.asString(): String = when (this) {
+    is Nullable -> this.inner.asString()
+    is DefinitelyNonNullable -> this.inner.asString()
+    is TypeConstructor -> listOf(this.dri.packageName, this.dri.classNames).joinToString(".")
+    is TypeParameter -> this.name
+    is PrimitiveJavaType -> this.name
+    is UnresolvedBound -> this.name
+    is TypeAliased -> this.typeAlias.asString()
+    is JavaObject -> "Object"
+    Dynamic -> "dynamic"
+    Void -> "void"
+}
