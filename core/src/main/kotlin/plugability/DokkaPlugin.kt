@@ -9,7 +9,12 @@ import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
 
-@RequiresOptIn(level = RequiresOptIn.Level.WARNING, message = "The Plugin API is preview. It is not final yet and it might change, but not to the point where a Dokka plugin cannot exist anymore.")
+@RequiresOptIn(
+    level = RequiresOptIn.Level.WARNING,
+    message = "All of Dokka's plugin API is in preview and it can be changed " +
+            "in a backwards-incompatible manner with a best-effort migration. " +
+            "By opting in, you acknowledge the risks of relying on preview API."
+)
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION, AnnotationTarget.FIELD)
 @Retention(AnnotationRetention.BINARY)
 annotation class PreviewDokkaPluginApi
