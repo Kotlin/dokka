@@ -20,8 +20,39 @@ class BasicCachingIntegrationTest(override val versions: BuildVersions) : Abstra
 
     @Test
     fun execute() {
+        runAndAssertOutcomeAndContents(TaskOutcome.SUCCESS)
+        runAndAssertOutcomeAndContents(TaskOutcome.FROM_CACHE)
+    }
+
+    @Test
+    fun localDirectoryPointingToRoot() {
+        fun String.findAndReplace(oldValue: String, newValue: String): String {
+            assertTrue(oldValue in this, "Expected to replace '$oldValue'")
+            return replace(oldValue, newValue)
+        }
+        val projectKts = projectDir.resolve("build.gradle.kts")
+
+        projectKts.readText()
+            .findAndReplace("localDirectory.set(file(\"src/main\"))", "localDirectory.set(projectDir)")
+            .findAndReplace("integration-tests/gradle/projects/it-basic/src/main", "integration-tests/gradle/projects/it-basic")
+            .also { projectKts.writeText(it) }
+
+        runAndAssertOutcomeAndContents(TaskOutcome.SUCCESS)
+        projectDir.resolve("unrelated.txt").writeText("modified")
+        // despite projectDir is used as an input in localDirectory, changing its contents shouldn't invalidate the cache
+        runAndAssertOutcomeAndContents(TaskOutcome.FROM_CACHE)
+
+        projectKts.readText()
+            .findAndReplace("localDirectory.set(projectDir)", "localDirectory.set(file(\"src\"))")
+            .also { projectKts.writeText(it) }
+        // changing localDirectory path invalidates cached task results
         runAndAssertOutcome(TaskOutcome.SUCCESS)
-        runAndAssertOutcome(TaskOutcome.FROM_CACHE)
+    }
+
+
+    private fun runAndAssertOutcomeAndContents(expectedOutcome: TaskOutcome) {
+        runAndAssertOutcome(expectedOutcome)
+        File(projectDir, "build/dokka/html").assertHtmlOutputDir()
     }
 
     private fun runAndAssertOutcome(expectedOutcome: TaskOutcome) {
@@ -35,7 +66,5 @@ class BasicCachingIntegrationTest(override val versions: BuildVersions) : Abstra
         ).buildRelaxed()
 
         assertEquals(expectedOutcome, assertNotNull(result.task(":dokkaHtml")).outcome)
-
-        File(projectDir, "build/dokka/html").assertHtmlOutputDir()
     }
 }

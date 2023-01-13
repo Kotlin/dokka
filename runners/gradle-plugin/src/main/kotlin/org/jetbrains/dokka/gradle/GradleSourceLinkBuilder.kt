@@ -2,6 +2,7 @@ package org.jetbrains.dokka.gradle
 
 import org.gradle.api.Project
 import org.gradle.api.provider.Property
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.*
 import org.jetbrains.dokka.DokkaConfigurationBuilder
 import org.jetbrains.dokka.SourceLinkDefinitionImpl
@@ -30,15 +31,27 @@ class GradleSourceLinkBuilder(
     /**
      * Path to the local source directory. The path must be relative to the root of current project.
      *
+     * This path is used to find relative paths of the source files from which the documentation is built.
+     * These relative paths are then combined with the base url of a source code hosting service specified with
+     * the [remoteUrl] property to create source links for each declaration.
+     *
      * Example:
      *
      * ```kotlin
      * projectDir.resolve("src")
      * ```
      */
-    @InputDirectory
-    @PathSensitive(PathSensitivity.RELATIVE)
+    @Internal // changing contents of the directory should not invalidate the task
     val localDirectory: Property<File?> = project.objects.safeProperty()
+    
+    /**
+     * The relative path to [localDirectory] from the project directory. Declared as an input to invalidate the task if that path changes.
+     * Should not be used anywhere directly.
+     */
+    @Suppress("unused")
+    @get:Input
+    internal val localDirectoryPath: Provider<String?> =
+        localDirectory.map { it.relativeToOrSelf(project.projectDir).invariantSeparatorsPath }
 
     /**
      * URL of source code hosting service that can be accessed by documentation readers,

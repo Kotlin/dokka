@@ -21,11 +21,11 @@ class GradleRelocatedCachingIntegrationTest(override val versions: BuildVersions
 
     @Test
     fun execute() {
-        runAndAssertOutcome(projectFolder(1), TaskOutcome.SUCCESS)
-        runAndAssertOutcome(projectFolder(2), TaskOutcome.FROM_CACHE)
+        runAndAssertOutcomeAndContents(projectFolder(1), TaskOutcome.SUCCESS)
+        runAndAssertOutcomeAndContents(projectFolder(2), TaskOutcome.FROM_CACHE)
     }
 
-    private fun runAndAssertOutcome(project: File, expectedOutcome: TaskOutcome) {
+    private fun runAndAssertOutcomeAndContents(project: File, expectedOutcome: TaskOutcome) {
         val result = createGradleRunner("clean", "dokkaHtml", "-i", "-s", "-Dorg.gradle.caching.debug=true", "--build-cache")
             .withProjectDir(project)
             .buildRelaxed()
