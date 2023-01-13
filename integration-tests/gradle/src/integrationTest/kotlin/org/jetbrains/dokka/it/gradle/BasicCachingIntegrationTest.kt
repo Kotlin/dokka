@@ -20,8 +20,8 @@ class BasicCachingIntegrationTest(override val versions: BuildVersions) : Abstra
 
     @Test
     fun execute() {
-        runAndAssertOutcome(TaskOutcome.SUCCESS)
-        runAndAssertOutcome(TaskOutcome.FROM_CACHE)
+        runAndAssertOutcomeAndContents(TaskOutcome.SUCCESS)
+        runAndAssertOutcomeAndContents(TaskOutcome.FROM_CACHE)
     }
 
     @Test
@@ -31,17 +31,29 @@ class BasicCachingIntegrationTest(override val versions: BuildVersions) : Abstra
             return replace(oldValue, newValue)
         }
         val projectKts = projectDir.resolve("build.gradle.kts")
-        val projectKtsText = projectKts.readText()
+
+        projectKts.readText()
             .findAndReplace("localDirectory.set(file(\"src/main\"))", "localDirectory.set(projectDir)")
             .findAndReplace("integration-tests/gradle/projects/it-basic/src/main", "integration-tests/gradle/projects/it-basic")
-        projectKts.writeText(projectKtsText)
+            .also { projectKts.writeText(it) }
 
-        runAndAssertOutcome(TaskOutcome.SUCCESS)
+        runAndAssertOutcomeAndContents(TaskOutcome.SUCCESS)
         projectDir.resolve("unrelated.txt").writeText("modified")
         // despite projectDir is used as an input in localDirectory, changing its contents shouldn't invalidate the cache
-        runAndAssertOutcome(TaskOutcome.FROM_CACHE)
+        runAndAssertOutcomeAndContents(TaskOutcome.FROM_CACHE)
+
+        projectKts.readText()
+            .findAndReplace("localDirectory.set(projectDir)", "localDirectory.set(file(\"src\"))")
+            .also { projectKts.writeText(it) }
+        // changing localDirectory path invalidates cached task results
+        runAndAssertOutcome(TaskOutcome.SUCCESS)
     }
 
+
+    private fun runAndAssertOutcomeAndContents(expectedOutcome: TaskOutcome) {
+        runAndAssertOutcome(expectedOutcome)
+        File(projectDir, "build/dokka/html").assertHtmlOutputDir()
+    }
 
     private fun runAndAssertOutcome(expectedOutcome: TaskOutcome) {
         val result = createGradleRunner(
@@ -54,7 +66,5 @@ class BasicCachingIntegrationTest(override val versions: BuildVersions) : Abstra
         ).buildRelaxed()
 
         assertEquals(expectedOutcome, assertNotNull(result.task(":dokkaHtml")).outcome)
-
-        File(projectDir, "build/dokka/html").assertHtmlOutputDir()
     }
 }
