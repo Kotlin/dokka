@@ -38,8 +38,6 @@ To apply Dokka, you need to add `dokka-maven-plugin` to the `plugins` section of
 
 The following goals are provided by the Maven plugin:
 
-### Stable
-
 | **Goal**      | **Description**                                                                        |
 |---------------|----------------------------------------------------------------------------------------|
 | `dokka:dokka` | Generates documentation with Dokka plugins applied. [HTML](dokka-html.md) format by default. |

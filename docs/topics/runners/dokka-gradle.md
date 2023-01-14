@@ -72,24 +72,7 @@ See [Configuration examples](#configuration-examples) if you are not sure where 
 > If you are using Dokka in a
 > [precompiled script plugin](https://docs.gradle.org/current/userguide/custom_plugins.html#sec:precompiled_plugins),
 > you need to add the [Kotlin Gradle plugin](https://kotlinlang.org/docs/gradle-configure-project.html#apply-the-plugin) 
-> as a dependency for it to work properly:
->
-> <tabs group="build-script">
-> <tab title="Kotlin" group-key="kotlin">
->
-> ```kotlin
-> implementation(kotlin("gradle-plugin", "%kotlinVersion%"))
-> ```
->
-> </tab>
-> <tab title="Groovy" group-key="groovy">
->
-> ```groovy
-> implementation 'org.jetbrains.kotlin:kotlin-gradle-plugin:%kotlinVersion%'
-> ```
->
-> </tab>
-> </tabs>
+> as a dependency for it to work properly.
 >
 {type="note"}
 
@@ -107,7 +90,7 @@ and [multi-project](#multi-project-builds) builds.
 
 Use the following tasks to build documentation for simple, single-project applications and libraries:
 
-#### Stable formats
+#### Beta formats
 
 | **Task**       | **Description**                                                                     |
 |----------------|-------------------------------------------------------------------------------------|
@@ -138,13 +121,13 @@ cross-project references.
 
 Dokka creates the following tasks for **parent** projects automatically:
 
-#### Stable formats
+#### Beta formats (multi-module)
 
 | **Task**                 | **Description**                                                        |
 |--------------------------|------------------------------------------------------------------------|
 | `dokkaHtmlMultiModule`   | Generates multi-module documentation in [HTML](dokka-html.md) output format. |
 
-#### Experimental formats
+#### Experimental formats (multi-module)
 
 | **Task**                 | **Description**                                                                                         |
 |--------------------------|---------------------------------------------------------------------------------------------------------|
