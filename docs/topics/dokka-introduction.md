@@ -11,7 +11,7 @@ multiple flavors of [Markdown](dokka-markdown.md), and Java's [Javadoc HTML](dok
 
 Here are some libraries that use Dokka for their API reference documentation:
 
-* [kotlinx.coroutines](https://kotlinlang.org/api/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines/)
+* [kotlinx.coroutines](https://kotlinlang.org/api/kotlinx.coroutines/)
 * [Bitmovin](https://cdn.bitmovin.com/player/android/3/docs/index.html)
 * [Hexagon](https://hexagonkt.com/api/index.html)
 * [Ktor](https://api.ktor.io/)

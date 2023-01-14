@@ -1,6 +1,8 @@
 [//]: # (title: HTML)
 
-HTML is Dokka's default and recommended output format. You can see an example of the final result by browsing documentation
+HTML is Dokka's default and recommended output format. It is currently in Beta and approaching the Stable release.
+
+You can see an example of the output by browsing documentation
 for [kotlinx.coroutines](https://kotlinlang.org/api/kotlinx.coroutines/).
 
 ## Generate HTML documentation
