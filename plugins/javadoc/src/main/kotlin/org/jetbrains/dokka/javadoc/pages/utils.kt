@@ -1,10 +1,11 @@
 package org.jetbrains.dokka.javadoc.pages
 
 import org.jetbrains.dokka.model.*
+import org.jetbrains.dokka.utilities.htmlEscape
 
 internal fun JavadocFunctionNode.getAnchor(): String {
     val parameters = parameters.joinToString(",") { it.typeBound.asString() }
-    return "$name($parameters)"
+    return "$name($parameters)".htmlEscape()
 }
 
 private fun Bound.asString(): String = when (this) {
