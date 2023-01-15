@@ -45,8 +45,6 @@ open class HtmlRenderer(
 
     override val preprocessors = context.plugin<DokkaBase>().query { htmlPreprocessors }
 
-    private val tabSortingStrategy = context.plugin<DokkaBase>().querySingle { tabSortingStrategy }
-
     private fun <R> TagConsumer<R>.prepareForTemplates() =
         if (context.configuration.delayTemplateSubstitution || this is ImmediateResolutionTagConsumer) this
         else ImmediateResolutionTagConsumer(this, context)
@@ -66,29 +64,15 @@ open class HtmlRenderer(
         val additionalClasses = node.style.joinToString(" ") { it.toString().toLowerCase() }
         return when {
             node.hasStyle(ContentStyle.TabbedContent) -> div(additionalClasses) {
-                val secondLevel = node.children.filterIsInstance<ContentComposite>().flatMap { it.children }
-                    .filterIsInstance<ContentHeader>().flatMap { it.children }.filterIsInstance<ContentText>()
-                val firstLevel = node.children.filterIsInstance<ContentHeader>().flatMap { it.children }
-                    .filterIsInstance<ContentText>()
-
-                val defaultTabsText = firstLevel.union(secondLevel)
-                val extraTabsText= node.extra[ExtraTabs]?.tabs?.map { it.text } ?: emptySet()
-                val overridenTabsName = node.extra[ExtraTabs]?.tabs?.flatMap { it.overriddenToggleTarget } ?: emptyList()
-
-                val renderable = sortTabs(
-                    tabSortingStrategy,
-                    defaultTabsText.filterNot { it.text in overridenTabsName }.union(extraTabsText)
-                )
-
-                val dataToggleTargets = node.extra[ExtraTabs]?.tabs?.associate { it.text to it.overriddenToggleTarget } ?: emptyMap()
+                val contentTabs= node.extra[ContentTabsExtra]?.tabs ?: throw IllegalStateException("The tabbed content must have ContentTabsExtra")
 
                 div(classes = "tabs-section") {
                     attributes["tabs-section"] = "tabs-section"
-                    renderable.forEachIndexed { index, node ->
+                    contentTabs.forEachIndexed { index, node ->
                         button(classes = "section-tab") {
                             if (index == 0) attributes["data-active"] = ""
-                            attributes["data-togglable"] = dataToggleTargets[node]?.joinToString(",") ?: node.text
-                            text(node.text)
+                            attributes["data-togglable"] = node.toggleableContentTypes.joinToString(",")
+                            text(node.text.text)
                         }
                     }
                 }
@@ -205,6 +189,7 @@ open class HtmlRenderer(
         div(divStyles) {
             attributes["data-platform-hinted"] = "data-platform-hinted"
             extra.extraHtmlAttributes().forEach { attributes[it.extraKey] = it.extraValue }
+            extra.extraToggleableContentType()?.let { attributes[TOGGLEABLE_CONTENT_TYPE_ATTR] = it.value.toString() }
             if (renderTabs) {
                 div("platform-bookmarks-row") {
                     attributes["data-toggle-list"] = "data-toggle-list"
@@ -447,6 +432,7 @@ open class HtmlRenderer(
         buildAnchor(contextNode)
         div(classes = "table-row") {
             contextNode.extra.extraHtmlAttributes().forEach { attributes[it.extraKey] = it.extraValue }
+            contextNode.extra.extraToggleableContentType()?.let { attributes[TOGGLEABLE_CONTENT_TYPE_ATTR] = it.value.toString() }
             addSourceSetFilteringAttributes(contextNode)
             div("main-subrow keyValue " + contextNode.style.joinToString(separator = " ")) {
                 buildRowHeaderLink(toRender, pageContext, sourceSetRestriction, contextNode.anchor)
@@ -551,6 +537,7 @@ open class HtmlRenderer(
             node.style.contains(CommentTable) -> buildDefaultTable(node, pageContext, sourceSetRestriction)
             else -> div(classes = "table") {
                 node.extra.extraHtmlAttributes().forEach { attributes[it.extraKey] = it.extraValue }
+                node.extra.extraToggleableContentType()?.let { attributes[TOGGLEABLE_CONTENT_TYPE_ATTR] = it.value.toString() }
                 node.children.forEach {
                     buildRow(it, pageContext, sourceSetRestriction)
                 }
@@ -595,6 +582,7 @@ open class HtmlRenderer(
         val classes = node.style.joinToString { it.toString() }.toLowerCase()
         val contentWithExtraAttributes: FlowContent.() -> Unit = {
             node.extra.extraHtmlAttributes().forEach { attributes[it.extraKey] = it.extraValue }
+            node.extra.extraToggleableContentType()?.let { attributes[TOGGLEABLE_CONTENT_TYPE_ATTR] = it.value.toString() }
             content()
         }
         when (level) {
@@ -877,6 +865,7 @@ private val PageNode.isNavigable: Boolean
     get() = this !is RendererSpecificPage || strategy != RenderingStrategy.DoNothing
 
 private fun PropertyContainer<ContentNode>.extraHtmlAttributes() = allOfType<SimpleAttr>()
+private fun PropertyContainer<ContentNode>.extraToggleableContentType() = allOfType<ToggleableContentTypeExtra>().lastOrNull()
 
 private val ContentNode.sourceSetsFilters: String
     get() = sourceSets.sourceSetIDs.joinToString(" ") { it.toString() }

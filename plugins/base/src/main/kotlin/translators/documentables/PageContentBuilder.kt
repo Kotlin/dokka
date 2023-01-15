@@ -243,38 +243,55 @@ open class PageContentBuilder(
             needsSorting: Boolean = true,
             headers: List<ContentGroup> = emptyList(),
             needsAnchors: Boolean = false,
-            extraHead: PropertyContainer<ContentNode> = mainExtra,
+            renderHeader: Boolean = false,
             operation: DocumentableContentBuilder.(String, List<Documentable>) -> Unit
         ) {
+
             if (renderWhenEmpty || groupedElements.any()) {
-                header(level, name, kind = kind, extra = extraHead) { }
-                contents += ContentTable(
-                    header = headers,
-                    children = groupedElements
-                        .let {
-                            if (needsSorting)
-                                it.sortedWith(compareBy(nullsLast(String.CASE_INSENSITIVE_ORDER)) { it.first })
-                            else it
-                        }
-                        .map {
-                            val documentables = it.second
-                            val newExtraWithTab = if (documentables.all { it.isExtension() }) mainExtra + SimpleAttr.togglableTarget("Extensions") else mainExtra
-                            val newExtra = if (needsAnchors) newExtraWithTab + SymbolAnchorHint(it.first, kind) else newExtraWithTab
-                            buildGroup(
-                                documentables.map { it.dri }.toSet(),
-                                documentables.flatMap { it.sourceSets }.toSet(),
-                                kind,
-                                styles,
-                                newExtra
-                            ) {
-                                operation(it.first, documentables)
+                group(extra = extra) {
+                    if (renderHeader) {
+                        // corner case
+                        val onlyExtensions = groupedElements.all { it.second.all { it.isExtension() } }
+                        val headerExtra = if (onlyExtensions)
+                            extra + ToggleableContentTypeExtra(BasicToggleableContentType.EXTENSION)
+                        else
+                            extra
+                        header(level, name, kind = kind, extra = headerExtra) { }
+                    }
+                    contents += ContentTable(
+                        header = headers,
+                        children = groupedElements
+                            .let {
+                                if (needsSorting)
+                                    it.sortedWith(compareBy(nullsLast(String.CASE_INSENSITIVE_ORDER)) { it.first })
+                                else it
                             }
-                        },
-                    dci = DCI(mainDRI, kind),
-                    sourceSets = sourceSets.toDisplaySourceSets(),
-                    style = styles,
-                    extra = extra
-                )
+                            .map {
+                                val documentables = it.second
+                                val newExtraWithTab =
+                                    if (documentables.all { it.isExtension() }) mainExtra + ToggleableContentTypeExtra(
+                                        BasicToggleableContentType.EXTENSION
+                                    ) else mainExtra
+                                val newExtra = if (needsAnchors) newExtraWithTab + SymbolAnchorHint(
+                                    it.first,
+                                    kind
+                                ) else newExtraWithTab
+                                buildGroup(
+                                    documentables.map { it.dri }.toSet(),
+                                    documentables.flatMap { it.sourceSets }.toSet(),
+                                    kind,
+                                    styles,
+                                    newExtra
+                                ) {
+                                    operation(it.first, documentables)
+                                }
+                            },
+                        dci = DCI(mainDRI, kind),
+                        sourceSets = sourceSets.toDisplaySourceSets(),
+                        style = styles,
+                        extra = extra
+                    )
+                }
             }
         }
 

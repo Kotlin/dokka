@@ -251,8 +251,18 @@ open class DefaultPageCreator(
                 }
             }
         }
-        val extraTabs = ExtraTabs(
+        val contentTabsExtra = ContentTabsExtra(
             listOfNotNull(
+                ContentTab(
+                    ContentText(
+                        "Types",
+                        DCI(mainDRI, ContentKind.Main),
+                        sourceSets = mainSourcesetData.toDisplaySourceSets()
+                    ),
+                    listOf(
+                        BasicToggleableContentType.TYPE,
+                    )
+                ),
                 if (p.functions.isEmpty()) null else ContentTab(
                     ContentText(
                         "Functions",
@@ -260,8 +270,8 @@ open class DefaultPageCreator(
                         sourceSets = mainSourcesetData.toDisplaySourceSets()
                     ),
                     listOf(
-                        "Functions",
-                        "Extensions",
+                        BasicToggleableContentType.FUNCTION,
+                        BasicToggleableContentType.EXTENSION,
                     )
                 ),
                 if (p.properties.isEmpty()) null else ContentTab(
@@ -271,14 +281,14 @@ open class DefaultPageCreator(
                         sourceSets = mainSourcesetData.toDisplaySourceSets()
                     ),
                     listOf(
-                        "Properties",
-                        "Extensions"
+                        BasicToggleableContentType.PROPERTY,
+                        BasicToggleableContentType.EXTENSION,
                     )
                 )
 
             )
         )
-        group(styles = setOf(ContentStyle.TabbedContent), extra = mainExtra + extraTabs) {
+        group(styles = setOf(ContentStyle.TabbedContent), extra = mainExtra + contentTabsExtra) {
             +contentForScope(p, p.dri, p.sourceSets)
         }
     }
@@ -328,8 +338,8 @@ open class DefaultPageCreator(
             "Types",
             types,
             ContentKind.Classlikes,
-            extra = mainExtra + SimpleAttr.togglableTarget("Types"),
-            headExtra = if(isClasslike) mainExtra + SimpleAttr.togglableTarget("Types") else mainExtra
+            extra = mainExtra + ToggleableContentTypeExtra(BasicToggleableContentType.TYPE),
+            renderHeader = isClasslike
         )
         val (extensionProps, extensionFuns) = extensions.splitPropsAndFuns()
         if (separateInheritedMembers) {
@@ -338,13 +348,36 @@ open class DefaultPageCreator(
 
             val (inheritedExtensionFunctions, extensionFunctions) = extensionFuns.splitInheritedExtension(dri)
             val (inheritedExtensionProperties, extensionProperties) = extensionProps.splitInheritedExtension(dri)
-            propertiesBlock("Properties", memberProperties + extensionProperties, sourceSets, isVisibleHeader = isClasslike)
-            propertiesBlock("Inherited properties", inheritedProperties + inheritedExtensionProperties, sourceSets, isVisibleHeader = isClasslike)
-            functionsBlock("Functions", memberFunctions + extensionFunctions, isVisibleHeader = isClasslike)
-            functionsBlock("Inherited functions", inheritedFunctions + inheritedExtensionFunctions, isVisibleHeader = isClasslike)
+            propertiesBlock(
+                "Properties",
+                BasicToggleableContentType.PROPERTY,
+                memberProperties + extensionProperties,
+                sourceSets,
+                renderHeader = isClasslike
+            )
+            propertiesBlock(
+                "Inherited properties",
+                BasicToggleableContentType.PROPERTY,
+                inheritedProperties + inheritedExtensionProperties,
+                sourceSets,
+                renderHeader = isClasslike
+            )
+            functionsBlock("Functions", BasicToggleableContentType.FUNCTION, memberFunctions + extensionFunctions, renderHeader = isClasslike)
+            functionsBlock(
+                "Inherited functions",
+                BasicToggleableContentType.FUNCTION,
+                inheritedFunctions + inheritedExtensionFunctions,
+                renderHeader = isClasslike
+            )
         } else {
-            functionsBlock("Functions", functions + extensionFuns, isVisibleHeader = isClasslike)
-            propertiesBlock("Properties", properties + extensionProps, sourceSets, isVisibleHeader = isClasslike)
+            functionsBlock("Functions", BasicToggleableContentType.FUNCTION, functions + extensionFuns, renderHeader = isClasslike)
+            propertiesBlock(
+                "Properties",
+                BasicToggleableContentType.PROPERTY,
+                properties + extensionProps,
+                sourceSets,
+                renderHeader = isClasslike
+            )
         }
     }
 
@@ -362,7 +395,8 @@ open class DefaultPageCreator(
             val extensions = (classlikes as List<WithExtraProperties<DClasslike>>).flatMap {
                 it.extra[CallableExtensions]?.extensions
                     ?.filterIsInstance<Documentable>().orEmpty()
-            }.distinctBy{ it.sourceSets to it.dri} // [Documentable] has expensive equals/hashCode at the moment, see #2620
+            }
+                .distinctBy { it.sourceSets to it.dri } // [Documentable] has expensive equals/hashCode at the moment, see #2620
 
             // Extensions are added to sourceSets since they can be placed outside the sourceSets from classlike
             // Example would be an Interface in common and extension function in jvm
@@ -375,13 +409,14 @@ open class DefaultPageCreator(
                     }
                 }
             }
-
+            val csEnum = classlikes.filterIsInstance<DEnum>()
             val csWithConstructor = classlikes.filterIsInstance<WithConstructors>()
             val scopes = documentables.filterIsInstance<WithScope>()
 
             val containsAnyConstructor = csWithConstructor.isNotEmpty() && documentables.shouldRenderConstructors()
-            val containsAnyMember = containsAnyConstructor || scopes.any { it.classlikes.isNotEmpty() || it.functions.isNotEmpty() || it.properties.isNotEmpty() }
-            val extraTabs = ExtraTabs(
+            val containsAnyMember =
+                containsAnyConstructor || scopes.any { it.classlikes.isNotEmpty() || it.functions.isNotEmpty() || it.properties.isNotEmpty() }
+            val contentTabsExtra = ContentTabsExtra(
                 listOfNotNull(
                     if (!containsAnyMember) null else ContentTab(
                         ContentText(
@@ -390,98 +425,123 @@ open class DefaultPageCreator(
                             sourceSets = (mainSourcesetData + extensions.sourceSets).toDisplaySourceSets()
                         ),
                         listOf(
-                            "Constructors",
-                            "Types",
-                            "Functions",
-                            "Inherited Functions",
-                            "Properties",
-                            "Inherited Properties"
+                            BasicToggleableContentType.CONSTRUCTOR,
+                            BasicToggleableContentType.TYPE,
+                            BasicToggleableContentType.FUNCTION,
+                            BasicToggleableContentType.INHERITED_FUNCTION,
+                            BasicToggleableContentType.PROPERTY,
+                            BasicToggleableContentType.INHERITED_PROPERTY
                         )
                     ),
                     if (extensions.isEmpty()) null else ContentTab(
                         ContentText(
-                            "Members + Extensions",
+                            "Members & Extensions",
                             DCI(mainDRI, ContentKind.Main),
                             sourceSets = (mainSourcesetData + extensions.sourceSets).toDisplaySourceSets()
                         ),
                         listOf(
-                            "Constructors",
-                            "Types",
-                            "Functions",
-                            "Inherited Functions",
-                            "Properties",
-                            "Inherited Properties",
-                            "Extensions"
+                            BasicToggleableContentType.CONSTRUCTOR,
+                            BasicToggleableContentType.TYPE,
+                            BasicToggleableContentType.FUNCTION,
+                            BasicToggleableContentType.INHERITED_FUNCTION,
+                            BasicToggleableContentType.PROPERTY,
+                            BasicToggleableContentType.INHERITED_PROPERTY,
+                            BasicToggleableContentType.EXTENSION,
+                        )
+                    ),
+                    if(csEnum.isEmpty()) null else ContentTab(
+                        ContentText(
+                            "Entries",
+                            DCI(mainDRI, ContentKind.Main),
+                            sourceSets = (mainSourcesetData + extensions.sourceSets).toDisplaySourceSets()
+                        ),
+                        listOf(
+                            BasicToggleableContentType.ENTRY
                         )
                     )
-
                 )
             )
 
             group(
                 styles = setOf(ContentStyle.TabbedContent),
                 sourceSets = mainSourcesetData + extensions.sourceSets,
-                extra = mainExtra + extraTabs
+                extra = mainExtra + contentTabsExtra
             ) {
                 if (csWithConstructor.isNotEmpty() && documentables.shouldRenderConstructors()) {
                     val constructorsToDocumented = csWithConstructor.flatMap { it.constructors }
-                    multiBlock(
-                        "Constructors",
-                        2,
-                        ContentKind.Constructors,
-                        constructorsToDocumented.groupBy { it.name }
-                            .map { (_, v) -> v.first().name to v },
-                        @Suppress("UNCHECKED_CAST")
-                        (csWithConstructor as List<Documentable>).sourceSets,
-                        needsAnchors = true,
-                        extra = PropertyContainer.empty<ContentNode>() + SimpleAttr.togglableTarget("Constructors"),
-                        extraHead = PropertyContainer.empty<ContentNode>() + SimpleAttr.togglableTarget("Constructors"),
-                    ) { key, ds ->
-                        link(key, ds.first().dri, kind = ContentKind.Main, styles = setOf(ContentStyle.RowTitle))
-                        sourceSetDependentHint(
-                            ds.dri,
-                            ds.sourceSets,
-                            kind = ContentKind.SourceSetDependentHint,
-                            styles = emptySet(),
-                            extra = PropertyContainer.empty<ContentNode>()
-                        ) {
-                            ds.forEach {
-                                +buildSignature(it)
-                                contentForBrief(it)
-                            }
-                        }
-                    }
+                    +contentForConstructors(constructorsToDocumented, classlikes.dri, classlikes.sourceSets)
                 }
-                val csEnum = classlikes.filterIsInstance<DEnum>()
                 if (csEnum.isNotEmpty()) {
-                    multiBlock(
-                        "Entries",
-                        2,
-                        ContentKind.Classlikes,
-                        csEnum.flatMap { it.entries }.groupBy { it.name }.toList(),
-                        csEnum.sourceSets,
-                        needsSorting = false,
-                        needsAnchors = true,
-                        extra = mainExtra + SimpleAttr.togglableTarget("Entries"),
-                        styles = emptySet()
-                    ) { key, ds ->
-                        link(key, ds.first().dri)
-                        sourceSetDependentHint(
-                            ds.dri,
-                            ds.sourceSets,
-                            kind = ContentKind.SourceSetDependentHint,
-                            extra = PropertyContainer.empty<ContentNode>()
-                        ) {
-                            ds.forEach {
-                                +buildSignature(it)
-                                contentForBrief(it)
-                            }
-                        }
-                    }
+                    +contentForEntries(csEnum.flatMap { it.entries }, csEnum.dri, csEnum.sourceSets)
                 }
                 +contentForScopes(scopes, documentables.sourceSets, extensions, isClasslike = true)
             }
         }
+    protected open fun contentForConstructors(
+        constructorsToDocumented: List<DFunction>,
+        dri: Set<DRI>,
+        sourceSets: Set<DokkaSourceSet>
+    ) = contentBuilder.contentFor(dri, sourceSets) {
+        multiBlock(
+            "Constructors",
+            2,
+            ContentKind.Constructors,
+            constructorsToDocumented.groupBy { it.name }
+                .map { (_, v) -> v.first().name to v },
+            @Suppress("UNCHECKED_CAST")
+            (constructorsToDocumented as List<Documentable>).sourceSets,
+            needsAnchors = true,
+            renderHeader = true,
+            extra = PropertyContainer.empty<ContentNode>() + ToggleableContentTypeExtra(
+                BasicToggleableContentType.CONSTRUCTOR
+            ),
+        ) { key, ds ->
+            link(key, ds.first().dri, kind = ContentKind.Main, styles = setOf(ContentStyle.RowTitle))
+            sourceSetDependentHint(
+                ds.dri,
+                ds.sourceSets,
+                kind = ContentKind.SourceSetDependentHint,
+                styles = emptySet(),
+                extra = PropertyContainer.empty<ContentNode>()
+            ) {
+                ds.forEach {
+                    +buildSignature(it)
+                    contentForBrief(it)
+                }
+            }
+        }
+    }
+
+    protected open fun contentForEntries(
+        entries: List<DEnumEntry>,
+        dri: Set<DRI>,
+        sourceSets: Set<DokkaSourceSet>
+    ) = contentBuilder.contentFor(dri, sourceSets) {
+        multiBlock(
+            "Entries",
+            2,
+            ContentKind.Classlikes,
+            entries.groupBy { it.name }.toList(),
+            entries.sourceSets,
+            needsSorting = false,
+            needsAnchors = true,
+            extra = mainExtra + ToggleableContentTypeExtra(BasicToggleableContentType.ENTRY),
+            styles = emptySet()
+        ) { key, ds ->
+            link(key, ds.first().dri)
+            sourceSetDependentHint(
+                ds.dri,
+                ds.sourceSets,
+                kind = ContentKind.SourceSetDependentHint,
+                extra = PropertyContainer.empty<ContentNode>()
+            ) {
+                ds.forEach {
+                    +buildSignature(it)
+                    contentForBrief(it)
+                }
+            }
+        }
+    }
 
     // Annotations might have constructors to substitute reflection invocations
     // and for internal/compiler purposes, but they are not expected to be documented
@@ -510,7 +570,10 @@ open class DefaultPageCreator(
         }.children
     }
 
-    protected open fun DocumentableContentBuilder.contentForBrief(documentable: Documentable, extra: PropertyContainer<ContentNode> = mainExtra) {
+    protected open fun DocumentableContentBuilder.contentForBrief(
+        documentable: Documentable,
+        extra: PropertyContainer<ContentNode> = mainExtra
+    ) {
         documentable.sourceSets.forEach { sourceSet ->
             documentable.documentation[sourceSet]?.let {
                 /*
@@ -571,24 +634,27 @@ open class DefaultPageCreator(
 
     private fun DocumentableContentBuilder.functionsBlock(
         name: String,
+        toggleableContentType: ToggleableContentType,
         list: Collection<DFunction>,
-        isVisibleHeader: Boolean = false
+        renderHeader: Boolean = false
     ) = divergentBlock(
         name,
         list.sorted(),
         ContentKind.Functions,
-        extra = mainExtra + SimpleAttr.togglableTarget(name),
-        headExtra = if(isVisibleHeader) mainExtra + SimpleAttr.togglableTarget(name) else mainExtra
+        extra = mainExtra + ToggleableContentTypeExtra(toggleableContentType),
+        renderHeader = renderHeader
     )
 
     private fun DocumentableContentBuilder.propertiesBlock(
         name: String,
+        toggleableContentType: ToggleableContentType,
         list: Collection<DProperty>,
         sourceSets: Set<DokkaSourceSet>,
-        isVisibleHeader: Boolean = false
+        renderHeader: Boolean = false
     ) {
         val groupedElements = list.groupBy { Pair(it.name, it.isExtension()) }.toList()
-        val sortedGroupedElements = groupedElements.sortedWith(compareBy<Pair<Pair<String, Boolean>, List<DProperty>>, String>(nullsLast(String.CASE_INSENSITIVE_ORDER)) { it.first.first }.thenBy { it.first.second })
+        val sortedGroupedElements =
+            groupedElements.sortedWith(compareBy<Pair<Pair<String, Boolean>, List<DProperty>>, String>(nullsLast(String.CASE_INSENSITIVE_ORDER)) { it.first.first }.thenBy { it.first.second })
 
         multiBlock(
             name,
@@ -597,13 +663,14 @@ open class DefaultPageCreator(
             sortedGroupedElements.map { it.first.first to it.second },
             sourceSets,
             needsAnchors = true,
-            extra = mainExtra + SimpleAttr.togglableTarget(name),
+            extra = mainExtra + ToggleableContentTypeExtra(toggleableContentType),
             headers = listOf(
                 headers("Name", "Summary")
             ),
-            extraHead = if(isVisibleHeader) mainExtra + SimpleAttr.togglableTarget(name) else mainExtra
+            renderHeader = renderHeader
         ) { key, props ->
-            val extra = if(props.all { it.isExtension() }) mainExtra + SimpleAttr.togglableTarget("Extensions") else mainExtra
+            val extra =
+                if (props.all { it.isExtension() }) mainExtra + ToggleableContentTypeExtra(BasicToggleableContentType.EXTENSION) else mainExtra
             link(
                 text = key,
                 address = props.first().dri,
@@ -635,70 +702,86 @@ open class DefaultPageCreator(
         collection: Collection<Documentable>,
         kind: ContentKind,
         extra: PropertyContainer<ContentNode> = mainExtra,
-        headExtra: PropertyContainer<ContentNode> = mainExtra
+        renderHeader: Boolean = false
     ) {
         if (collection.any()) {
-            header(2, name, kind = kind, extra = headExtra)
-            table(kind, extra = extra, styles = emptySet()) {
-                header {
-                    group { text("Name") }
-                    group { text("Summary") }
+            group(extra = extra) {
+                if (renderHeader) {
+                    // corner case
+                    val onlyExtensions = collection.all { it.isExtension() }
+                    val headerExtra = if (onlyExtensions)
+                        extra + ToggleableContentTypeExtra(BasicToggleableContentType.EXTENSION)
+                    else
+                        extra
+                    header(2, name, kind = kind, extra = headerExtra) { }
                 }
-                collection
-                    .groupBy { Pair(it.name, it.isExtension()) } // This groupBy should probably use LocationProvider
-                    // This hacks displaying actual typealias signatures along classlike ones
-                    .mapValues { if (it.value.any { it is DClasslike }) it.value.filter { it !is DTypeAlias } else it.value }
-                    .toSortedMap(compareBy<Pair<String?, Boolean>, String?>(nullsLast(String.CASE_INSENSITIVE_ORDER)) { it.first }.thenBy { it.second })
-                    .forEach { (elementNameAndIsExtension, elements) -> // This groupBy should probably use LocationProvider
-                        val elementName = elementNameAndIsExtension.first
-                        val isExtension = elementNameAndIsExtension.second
-                        val rowExtra = if(isExtension) extra + SimpleAttr.togglableTarget("Extensions") else extra
-
-                        row(
-                            dri = elements.map { it.dri }.toSet(),
-                            sourceSets = elements.flatMap { it.sourceSets }.toSet(),
-                            kind = kind,
-                            styles = emptySet(),
-                            extra = elementName?.let { name -> rowExtra + SymbolAnchorHint(name, kind) } ?: rowExtra
-                        ) {
-                            link(
-                                text = elementName.orEmpty(),
-                                address = elements.first().dri,
-                                kind = kind,
-                                styles = setOf(ContentStyle.RowTitle),
-                                sourceSets = elements.sourceSets.toSet(),
-                                extra = extra
+                table(kind, extra = extra, styles = emptySet()) {
+                    header {
+                        group { text("Name") }
+                        group { text("Summary") }
+                    }
+                    collection
+                        .groupBy {
+                            Pair(
+                                it.name,
+                                it.isExtension()
                             )
-                            divergentGroup(
-                                ContentDivergentGroup.GroupID(name),
-                                elements.map { it.dri }.toSet(),
+                        } // This groupBy should probably use LocationProvider
+                        // This hacks displaying actual typealias signatures along classlike ones
+                        .mapValues { if (it.value.any { it is DClasslike }) it.value.filter { it !is DTypeAlias } else it.value }
+                        .toSortedMap(compareBy<Pair<String?, Boolean>, String?>(nullsLast(String.CASE_INSENSITIVE_ORDER)) { it.first }.thenBy { it.second })
+                        .forEach { (elementNameAndIsExtension, elements) -> // This groupBy should probably use LocationProvider
+                            val elementName = elementNameAndIsExtension.first
+                            val isExtension = elementNameAndIsExtension.second
+                            val rowExtra =
+                                if (isExtension) extra + ToggleableContentTypeExtra(BasicToggleableContentType.EXTENSION) else extra
+
+                            row(
+                                dri = elements.map { it.dri }.toSet(),
+                                sourceSets = elements.flatMap { it.sourceSets }.toSet(),
                                 kind = kind,
-                                extra = extra
+                                styles = emptySet(),
+                                extra = elementName?.let { name -> rowExtra + SymbolAnchorHint(name, kind) } ?: rowExtra
                             ) {
-                                elements.map { element ->
-                                    instance(
-                                        setOf(element.dri),
-                                        element.sourceSets.toSet(),
-                                        extra = PropertyContainer.withAll(
-                                            SymbolAnchorHint(element.name ?: "", kind)
-                                        )
-                                    ) {
-                                        divergent(extra = PropertyContainer.empty()) {
-                                            group {
-                                                +buildSignature(element)
-                                            }
-                                        }
-                                        after(
-                                            extra = PropertyContainer.empty()
+                                link(
+                                    text = elementName.orEmpty(),
+                                    address = elements.first().dri,
+                                    kind = kind,
+                                    styles = setOf(ContentStyle.RowTitle),
+                                    sourceSets = elements.sourceSets.toSet(),
+                                    extra = extra
+                                )
+                                divergentGroup(
+                                    ContentDivergentGroup.GroupID(name),
+                                    elements.map { it.dri }.toSet(),
+                                    kind = kind,
+                                    extra = extra
+                                ) {
+                                    elements.map { element ->
+                                        instance(
+                                            setOf(element.dri),
+                                            element.sourceSets.toSet(),
+                                            extra = PropertyContainer.withAll(
+                                                SymbolAnchorHint(element.name ?: "", kind)
+                                            )
                                         ) {
-                                            contentForBrief(element)
-                                            contentForCustomTagsBrief(element)
+                                            divergent(extra = PropertyContainer.empty()) {
+                                                group {
+                                                    +buildSignature(element)
+                                                }
+                                            }
+                                            after(
+                                                extra = PropertyContainer.empty()
+                                            ) {
+                                                contentForBrief(element)
+                                                contentForCustomTagsBrief(element)
+                                            }
                                         }
                                     }
                                 }
                             }
                         }
-                    }
+                }
             }
         }
     }

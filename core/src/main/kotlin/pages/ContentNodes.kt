@@ -394,8 +394,7 @@ enum class TextStyle : Style {
 enum class ContentStyle : Style {
     RowTitle,
     /**
-     * Group content where the first header in each child displays as a tab name by default.
-     * This header is used as a toggle target [SimpleAttr.togglableTarget] as well.
+     * The content must have [ContentTabsExtra] to define tabs.
      */
     TabbedContent,
 
