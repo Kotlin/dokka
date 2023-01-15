@@ -28,4 +28,11 @@ subprojects {
             showStackTraces = true
         }
     }
+
+    val compileTestKotlin: KotlinCompile by tasks
+    compileTestKotlin.kotlinOptions {
+        freeCompilerArgs = freeCompilerArgs + listOf(
+            "-opt-in=org.jetbrains.dokka.plugability.PreviewDokkaPluginApi"
+        )
+    }
 }
