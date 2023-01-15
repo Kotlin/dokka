@@ -129,22 +129,39 @@ function handleAnchor() {
         highlightedAnchor = null;
     }
 
-    let searchForTab = function (element) {
+    let searchForContentTarget = function (element) {
         if (element && element.hasAttribute) {
-            if (element.hasAttribute("data-togglable")) return element;
-            else return searchForTab(element.parentNode)
+            if (element.hasAttribute("data-togglable")) return element.getAttribute("data-togglable");
+            else return searchForContentTarget(element.parentNode)
         } else return null
     }
+
+    let findAnyTab = function (target) {
+    	let result = null
+        document.querySelectorAll('div[tabs-section] > button[data-togglable]')
+        .forEach(node => {
+            if(node.getAttribute("data-togglable").split(",").includes(target)) {
+            	result = node
+            }
+        })
+        return result
+    }
+
     let anchor = window.location.hash
     if (anchor != "") {
         anchor = anchor.substring(1)
         let element = document.querySelector('a[data-name="' + anchor + '"]')
+
         if (element) {
-            let tab = searchForTab(element)
-            if (tab) {
-                toggleSections(tab)
-            }
             const content = element.nextElementSibling
+            const contentStyle = window.getComputedStyle(content)
+            if(contentStyle.display == 'none') {
+		 let tab = findAnyTab(searchForContentTarget(content))
+		 if (tab) {
+		     toggleSections(tab)
+		 }
+            }
+
             if (content) {
                 content.classList.add('anchor-highlight')
                 highlightedAnchor = content
@@ -263,7 +280,7 @@ function toggleSections(target) {
             .forEach(child => {
                     if (toggleTargets.includes(child.getAttribute("data-togglable"))) {
                         child.setAttribute("data-active", "")
-                    } else if(!child.classList.contains("sourceset-dependent-content")) {
+                    } else if(!child.classList.contains("sourceset-dependent-content")) { // data-togglable is used to switch source set as well, ignore it
                         child.removeAttribute("data-active")
                     }
             })
