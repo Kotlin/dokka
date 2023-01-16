@@ -339,7 +339,7 @@ open class DefaultPageCreator(
             types,
             ContentKind.Classlikes,
             extra = mainExtra + ToggleableContentTypeExtra(BasicToggleableContentType.TYPE),
-            renderHeader = isClasslike
+            isVisibleHeader = isClasslike
         )
         val (extensionProps, extensionFuns) = extensions.splitPropsAndFuns()
         if (separateInheritedMembers) {
@@ -353,30 +353,30 @@ open class DefaultPageCreator(
                 BasicToggleableContentType.PROPERTY,
                 memberProperties + extensionProperties,
                 sourceSets,
-                renderHeader = isClasslike
+                isVisibleHeader = isClasslike
             )
             propertiesBlock(
                 "Inherited properties",
                 BasicToggleableContentType.PROPERTY,
                 inheritedProperties + inheritedExtensionProperties,
                 sourceSets,
-                renderHeader = isClasslike
+                isVisibleHeader = isClasslike
             )
-            functionsBlock("Functions", BasicToggleableContentType.FUNCTION, memberFunctions + extensionFunctions, renderHeader = isClasslike)
+            functionsBlock("Functions", BasicToggleableContentType.FUNCTION, memberFunctions + extensionFunctions, isVisibleHeader = isClasslike)
             functionsBlock(
                 "Inherited functions",
                 BasicToggleableContentType.FUNCTION,
                 inheritedFunctions + inheritedExtensionFunctions,
-                renderHeader = isClasslike
+                isVisibleHeader = isClasslike
             )
         } else {
-            functionsBlock("Functions", BasicToggleableContentType.FUNCTION, functions + extensionFuns, renderHeader = isClasslike)
+            functionsBlock("Functions", BasicToggleableContentType.FUNCTION, functions + extensionFuns, isVisibleHeader = isClasslike)
             propertiesBlock(
                 "Properties",
                 BasicToggleableContentType.PROPERTY,
                 properties + extensionProps,
                 sourceSets,
-                renderHeader = isClasslike
+                isVisibleHeader = isClasslike
             )
         }
     }
@@ -490,7 +490,7 @@ open class DefaultPageCreator(
             @Suppress("UNCHECKED_CAST")
             (constructorsToDocumented as List<Documentable>).sourceSets,
             needsAnchors = true,
-            renderHeader = true,
+            isVisibleHeader = true,
             extra = PropertyContainer.empty<ContentNode>() + ToggleableContentTypeExtra(
                 BasicToggleableContentType.CONSTRUCTOR
             ),
@@ -635,13 +635,13 @@ open class DefaultPageCreator(
         name: String,
         toggleableContentType: ToggleableContentType,
         list: Collection<DFunction>,
-        renderHeader: Boolean = false
+        isVisibleHeader: Boolean = false
     ) = divergentBlock(
         name,
         list.sorted(),
         ContentKind.Functions,
         extra = mainExtra + ToggleableContentTypeExtra(toggleableContentType),
-        renderHeader = renderHeader
+        isVisibleHeader = isVisibleHeader
     )
 
     private fun DocumentableContentBuilder.propertiesBlock(
@@ -649,7 +649,7 @@ open class DefaultPageCreator(
         toggleableContentType: ToggleableContentType,
         list: Collection<DProperty>,
         sourceSets: Set<DokkaSourceSet>,
-        renderHeader: Boolean = false
+        isVisibleHeader: Boolean = false
     ) {
         val groupedElements = list.groupBy { Pair(it.name, it.isExtension()) }.toList()
         val sortedGroupedElements =
@@ -666,7 +666,7 @@ open class DefaultPageCreator(
             headers = listOf(
                 headers("Name", "Summary")
             ),
-            renderHeader = renderHeader
+            isVisibleHeader = isVisibleHeader
         ) { key, props ->
             val extra =
                 if (props.all { it.isExtension() }) mainExtra + ToggleableContentTypeExtra(BasicToggleableContentType.EXTENSION) else mainExtra
@@ -701,19 +701,19 @@ open class DefaultPageCreator(
         collection: Collection<Documentable>,
         kind: ContentKind,
         extra: PropertyContainer<ContentNode> = mainExtra,
-        renderHeader: Boolean = false
+        isVisibleHeader: Boolean = false
     ) {
         if (collection.any()) {
             group(extra = extra) {
-                if (renderHeader) {
-                    // corner case
-                    val onlyExtensions = collection.all { it.isExtension() }
-                    val headerExtra = if (onlyExtensions)
-                        extra + ToggleableContentTypeExtra(BasicToggleableContentType.EXTENSION)
-                    else
-                        extra
-                    header(2, name, kind = kind, extra = headerExtra) { }
-                }
+                // corner case
+                val onlyExtensions = collection.all { it.isExtension() }
+                val headerExtra = if (onlyExtensions)
+                    extra + ToggleableContentTypeExtra(BasicToggleableContentType.EXTENSION)
+                else
+                    extra
+                val headerExtraWithVisibility = if (isVisibleHeader) headerExtra else headerExtra + HtmlInvisibleExtra
+                header(2, name, kind = kind, extra = headerExtraWithVisibility) { }
+
                 table(kind, extra = extra, styles = emptySet()) {
                     header {
                         group { text("Name") }

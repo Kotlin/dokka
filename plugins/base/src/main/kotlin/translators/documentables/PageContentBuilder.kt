@@ -243,21 +243,21 @@ open class PageContentBuilder(
             needsSorting: Boolean = true,
             headers: List<ContentGroup> = emptyList(),
             needsAnchors: Boolean = false,
-            renderHeader: Boolean = false,
+            isVisibleHeader: Boolean = false,
             operation: DocumentableContentBuilder.(String, List<Documentable>) -> Unit
         ) {
 
             if (renderWhenEmpty || groupedElements.any()) {
                 group(extra = extra) {
-                    if (renderHeader) {
+
                         // corner case
-                        val onlyExtensions = groupedElements.all { it.second.all { it.isExtension() } }
-                        val headerExtra = if (onlyExtensions)
-                            extra + ToggleableContentTypeExtra(BasicToggleableContentType.EXTENSION)
-                        else
-                            extra
-                        header(level, name, kind = kind, extra = headerExtra) { }
-                    }
+                    val onlyExtensions = groupedElements.all { it.second.all { it.isExtension() } }
+                    val headerExtra = if (onlyExtensions)
+                        extra + ToggleableContentTypeExtra(BasicToggleableContentType.EXTENSION)
+                    else
+                        extra
+                    val headerExtraWithVisibility = if (isVisibleHeader) headerExtra else headerExtra + HtmlInvisibleExtra
+                    header(level, name, kind = kind, extra = headerExtraWithVisibility) { }
                     contents += ContentTable(
                         header = headers,
                         children = groupedElements

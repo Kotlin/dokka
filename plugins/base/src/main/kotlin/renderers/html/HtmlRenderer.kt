@@ -56,6 +56,15 @@ open class HtmlRenderer(
         return sorted
     }
 
+    override fun ContentNode.build(
+        builder: FlowContent,
+        pageContext: ContentPage,
+        sourceSetRestriction: Set<DisplaySourceSet>?
+    ) {
+        if(extra[HtmlInvisibleExtra] ==  null)
+            builder.buildContentNode(this, pageContext, sourceSetRestriction)
+    }
+
     override fun FlowContent.wrapGroup(
         node: ContentGroup,
         pageContext: ContentPage,
