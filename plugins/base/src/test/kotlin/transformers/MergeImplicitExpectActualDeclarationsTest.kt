@@ -57,6 +57,12 @@ class MergeImplicitExpectActualDeclarationsTest : BaseAbstractTest() {
         }?.children?.dropWhile { child -> child != sectionHeader  }?.drop(1)?.firstOrNull()
     }
 
+    private fun ContentNode.findTabWithType(type: ToggleableContentType): ContentNode? = dfs { node ->
+        node.children.filterIsInstance<ContentGroup>().any { gr ->
+            gr.extra[ToggleableContentTypeExtra]?.value == type
+        }
+    }
+
     @Test
     fun `should merge fun`() {
         testInline(
@@ -217,7 +223,7 @@ class MergeImplicitExpectActualDeclarationsTest : BaseAbstractTest() {
                 val classPage = root.dfs { it.name == "classA" } as? ClasslikePageNode
                 assertNotNull(classPage, "Tested class not found!")
 
-                val entries = classPage.findSectionWithName("Entries").assertNotNull("Entries")
+                val entries = classPage.content.findTabWithType(BasicToggleableContentType.ENTRY).assertNotNull("Entries")
                 entries.children.singleOrNull().assertNotNull("ENTRY")
 
                 val props = classPage.findSectionWithName("Properties").assertNotNull("Properties")

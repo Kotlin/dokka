@@ -9,23 +9,17 @@ import org.jetbrains.dokka.model.Annotations
 import org.jetbrains.dokka.model.GenericTypeConstructor
 import org.jetbrains.dokka.model.dfs
 import org.jetbrains.dokka.pages.*
-import org.jetbrains.kotlin.utils.addToStdlib.cast
 import org.junit.Assert
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
-import signatures.Parameter
-import signatures.Parameters
-import signatures.firstSignature
-import signatures.renderedContent
-import utils.A
-import utils.TestOutputWriterPlugin
-import utils.match
+import signatures.*
+import utils.*
 import kotlin.test.assertEquals
 
 class KotlinAsJavaPluginTest : BaseAbstractTest() {
 
     @Test
-    fun topLevelTest() {
+    fun `top-level functions should be generated`() {
         val configuration = dokkaConfiguration {
             sourceSets {
                 sourceSet {
@@ -53,12 +47,17 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
             pagesGenerationStage = { root ->
                 val content = (root.children.single().children.first { it.name == "TestKt" } as ContentPage).content
 
-                val children = content.mainContents.first().cast<ContentGroup>()
-                    .children.filterIsInstance<ContentTable>()
-                    .filter { it.children.isNotEmpty() }
+                val functionRows = content.mainContents.filterIsInstance<ContentTable>()
+                    .single().children
 
-                children.assertCount(2)
+                functionRows.assertCount(6)
             }
+        }
+    }
+
+    private fun ContentNode.findTabWithType(type: ToggleableContentType): ContentNode? = dfs { node ->
+        node.children.filterIsInstance<ContentGroup>().any { gr ->
+            gr.extra[ToggleableContentTypeExtra]?.value == type
         }
     }
 
@@ -93,9 +92,9 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
                     .map { it.content }
 
                 val children = contentList.flatMap { content ->
-                    content.mainContents.single { it is ContentGroup }.children
-                        .filterIsInstance<ContentTable>()
-                        .filter { it.children.isNotEmpty() }
+                    (content.findTabWithType(BasicToggleableContentType.FUNCTION)
+                        ?: throw IllegalStateException("A function tab is not found")).children[0].children.filterIsInstance<ContentTable>()
+                        .flatMap { it.children }
                 }
 
                 children.assertCount(4)
@@ -233,10 +232,9 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
             pagesGenerationStage = { root ->
                 val testClass = root.dfs { it.name == "TestJ" } as? ClasslikePageNode
                 assert(testClass != null)
-                (testClass!!.content as ContentGroup).children.last().assertNode {
-                    skipAllNotMatching()
+                (testClass!!.content as ContentGroup).children.last().children.last().assertNode {
                     group {
-                        header(2) {
+                        header(2){
                             +"Properties"
                         }
                         table {
@@ -602,4 +600,4 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
 private val ContentNode.mainContents: List<ContentNode>
     get() = (this as ContentGroup).children
     .filterIsInstance<ContentGroup>()
-    .single { it.dci.kind == ContentKind.Main }.children
+    .single { it.dci.kind == ContentKind.Main }.children[0].let { it.children[0] }.children

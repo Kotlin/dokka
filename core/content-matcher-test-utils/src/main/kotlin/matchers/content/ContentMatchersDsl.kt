@@ -3,6 +3,7 @@ package matchers.content
 import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.isEqualTo
+import assertk.assertions.isNotNull
 import org.jetbrains.dokka.model.withDescendants
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.test.tools.matchers.content.*
@@ -69,6 +70,23 @@ fun ContentMatcherBuilder<*>.skipAllNotMatching() {
 
 // Convenience functions:
 fun ContentMatcherBuilder<*>.group(block: ContentMatcherBuilder<ContentGroup>.() -> Unit) = composite(block)
+
+fun ContentMatcherBuilder<*>.tabbedGroup(
+    block: ContentMatcherBuilder<ContentGroup>.() -> Unit
+) = composite<ContentGroup> {
+    block()
+    check { assertThat(this::extra).transform { extra -> extra[ContentTabsExtra] }.isNotNull() }
+}
+
+fun ContentMatcherBuilder<*>.tab(
+    toggleableContentType: ToggleableContentType, block: ContentMatcherBuilder<ContentGroup>.() -> Unit
+) = composite<ContentGroup> {
+    block()
+    check {
+        assertThat(this::extra).transform { extra -> extra[ToggleableContentTypeExtra]?.value }
+            .isEqualTo(toggleableContentType)
+    }
+}
 
 fun ContentMatcherBuilder<*>.header(expectedLevel: Int? = null, block: ContentMatcherBuilder<ContentHeader>.() -> Unit) =
     composite<ContentHeader> {

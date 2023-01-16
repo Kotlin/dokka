@@ -412,8 +412,9 @@ open class DefaultPageCreator(
             val csEnum = classlikes.filterIsInstance<DEnum>()
             val csWithConstructor = classlikes.filterIsInstance<WithConstructors>()
             val scopes = documentables.filterIsInstance<WithScope>()
+            val constructorsToDocumented = csWithConstructor.flatMap { it.constructors }
 
-            val containsAnyConstructor = csWithConstructor.isNotEmpty() && documentables.shouldRenderConstructors()
+            val containsAnyConstructor = constructorsToDocumented.isNotEmpty() && documentables.shouldRenderConstructors()
             val containsAnyMember =
                 containsAnyConstructor || scopes.any { it.classlikes.isNotEmpty() || it.functions.isNotEmpty() || it.properties.isNotEmpty() }
             val contentTabsExtra = ContentTabsExtra(
@@ -461,14 +462,12 @@ open class DefaultPageCreator(
                     )
                 )
             )
-
             group(
                 styles = setOf(ContentStyle.TabbedContent),
                 sourceSets = mainSourcesetData + extensions.sourceSets,
                 extra = mainExtra + contentTabsExtra
             ) {
-                if (csWithConstructor.isNotEmpty() && documentables.shouldRenderConstructors()) {
-                    val constructorsToDocumented = csWithConstructor.flatMap { it.constructors }
+                if (constructorsToDocumented.isNotEmpty() && documentables.shouldRenderConstructors()) {
                     +contentForConstructors(constructorsToDocumented, classlikes.dri, classlikes.sourceSets)
                 }
                 if (csEnum.isNotEmpty()) {

@@ -1,9 +1,7 @@
 package utils
 
 import matchers.content.*
-import org.jetbrains.dokka.pages.ContentGroup
-import org.jetbrains.dokka.pages.ContentPage
-import org.jetbrains.dokka.pages.RootPageNode
+import org.jetbrains.dokka.pages.*
 
 //TODO: Try to unify those functions after update to 1.4
 fun ContentMatcherBuilder<*>.functionSignature(
@@ -197,34 +195,35 @@ fun ContentMatcherBuilder<*>.propertySignature(
         header { +"Package-level declarations" }
         skipAllNotMatching()
     }
-    group {
+    tabbedGroup {
         group {
             skipAllNotMatching()
-            header { +"Properties" }
-            table {
-                group {
-                    link { +name }
-                    platformHinted {
-                        group {
-                            annotations.entries.forEach {
-                                group {
-                                    unwrapAnnotation(it)
-                                }
-                            }
-                            if (visibility.isNotBlank()) +"$visibility "
-                            if (modifier.isNotBlank()) +"$modifier "
-                            +("${keywords.joinToString("") { "$it " }}$preposition ")
-                            link { +name }
-                            if (type != null) {
-                                +(": ")
-                                group {
-                                    link {
-                                        +(type)
+            tab(BasicToggleableContentType.PROPERTY) {
+                table {
+                    group {
+                        link { +name }
+                        platformHinted {
+                            group {
+                                annotations.entries.forEach {
+                                    group {
+                                        unwrapAnnotation(it)
                                     }
                                 }
-                            }
-                            if (value != null) {
-                                +(" = $value")
+                                if (visibility.isNotBlank()) +"$visibility "
+                                if (modifier.isNotBlank()) +"$modifier "
+                                +("${keywords.joinToString("") { "$it " }}$preposition ")
+                                link { +name }
+                                if (type != null) {
+                                    +(": ")
+                                    group {
+                                        link {
+                                            +(type)
+                                        }
+                                    }
+                                }
+                                if (value != null) {
+                                    +(" = $value")
+                                }
                             }
                         }
                     }
@@ -242,39 +241,39 @@ fun ContentMatcherBuilder<*>.typealiasSignature(name: String, expressionTarget: 
     }
     group {
         group {
-            skipAllNotMatching()
-            header { +"Types" }
-            table {
-                group {
-                    link { +name }
-                    divergentGroup {
-                        divergentInstance {
-                            group {
+            tab(BasicToggleableContentType.TYPE) {
+                table {
+                    group {
+                        link { +name }
+                        divergentGroup {
+                            divergentInstance {
                                 group {
                                     group {
                                         group {
-                                            +"typealias "
                                             group {
+                                                +"typealias "
                                                 group {
-                                                    link { +name }
+                                                    group {
+                                                        link { +name }
+                                                    }
+                                                    skipAllNotMatching()
                                                 }
-                                                skipAllNotMatching()
-                                            }
-                                            +" = "
-                                            group {
-                                                link { +expressionTarget }
+                                                +" = "
+                                                group {
+                                                    link { +expressionTarget }
+                                                }
                                             }
                                         }
                                     }
                                 }
                             }
+                            skipAllNotMatching()
                         }
-                        skipAllNotMatching()
                     }
+                    skipAllNotMatching()
                 }
                 skipAllNotMatching()
             }
-            skipAllNotMatching()
         }
     }
 }

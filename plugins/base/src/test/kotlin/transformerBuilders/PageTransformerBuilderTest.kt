@@ -4,6 +4,7 @@ import org.jetbrains.dokka.CoreExtensions
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
+import org.jetbrains.dokka.model.dfs
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 import org.jetbrains.dokka.transformers.pages.pageMapper
 import org.jetbrains.dokka.transformers.pages.pageScanner
@@ -12,7 +13,6 @@ import org.jsoup.Jsoup
 import org.junit.jupiter.api.Test
 import utils.TestOutputWriterPlugin
 import utils.assertContains
-import kotlin.test.assertEquals
 
 class PageTransformerBuilderTest : BaseAbstractTest() {
 
@@ -160,13 +160,9 @@ class PageTransformerBuilderTest : BaseAbstractTest() {
                     .filterIsInstance<ContentGroup>()
                     .single { it.dci.kind == ContentKind.Main }.children
 
-                val constructorTabsCount = content.filter { it is ContentHeader }.flatMap {
-                    it.children.filter { it is ContentText }
-                }.count {
-                    (it as? ContentText)?.text == "Constructors"
-                }
+                val existsConstructorsHeader = content.any { tabContent -> tabContent.dfs {  it is ContentText && (it as? ContentText)?.text == "Constructors"} != null }
 
-                assertEquals(1, constructorTabsCount)
+                assert(existsConstructorsHeader)
             }
         }
     }
