@@ -90,8 +90,6 @@ and [multi-project](#multi-project-builds) builds.
 
 Use the following tasks to build documentation for simple, single-project applications and libraries:
 
-#### Beta formats
-
 | **Task**       | **Description**                                                                     |
 |----------------|-------------------------------------------------------------------------------------|
 | `dokkaHtml`    | Generates documentation in [HTML](dokka-html.md) format.                                  |
@@ -120,8 +118,6 @@ collect and process all outputs, and produce complete documentation with a commo
 cross-project references.
 
 Dokka creates the following tasks for **parent** projects automatically:
-
-#### Beta formats (multi-module)
 
 | **Task**                 | **Description**                                                        |
 |--------------------------|------------------------------------------------------------------------|
@@ -194,7 +190,7 @@ parentProject
 
 These pages are generated after running `dokkaHtmlCollector`:
 
-![Screenshot for output of dokkaHtmlCollector task](dokkaHtmlCollector-example.png){width=800}
+![Screenshot for output of dokkaHtmlCollector task](dokkaHtmlCollector-example.png){width=706}
 
 See our [multi-module project example](https://github.com/Kotlin/dokka/tree/master/examples/gradle/dokka-multimodule-example)
 for more details.
