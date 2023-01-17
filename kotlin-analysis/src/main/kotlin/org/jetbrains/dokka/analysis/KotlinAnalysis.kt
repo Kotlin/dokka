@@ -70,7 +70,9 @@ abstract class KotlinAnalysis(
 ) : Closeable {
 
     operator fun get(key: DokkaSourceSet): AnalysisContext {
-        return get(key.sourceSetID)
+        return find(key)
+            ?: parent?.get(key)
+            ?: throw IllegalStateException("Missing EnvironmentAndFacade for sourceSet ${key}")
     }
 
     operator fun get(sourceSetID: DokkaSourceSetID): AnalysisContext {
@@ -80,6 +82,7 @@ abstract class KotlinAnalysis(
     }
 
     protected abstract fun find(sourceSetID: DokkaSourceSetID): AnalysisContext?
+    protected abstract fun find(sourceSet: DokkaSourceSet): AnalysisContext?
 }
 
 internal open class EnvironmentKotlinAnalysis(
@@ -89,6 +92,10 @@ internal open class EnvironmentKotlinAnalysis(
 
     override fun find(sourceSetID: DokkaSourceSetID): AnalysisContext? {
         return environments.entries.firstOrNull { (sourceSet, _) -> sourceSet.sourceSetID == sourceSetID }?.value
+    }
+
+    override fun find(sourceSet: DokkaSourceSet): AnalysisContext? {
+        return environments[sourceSet]
     }
 
     override fun close() {
