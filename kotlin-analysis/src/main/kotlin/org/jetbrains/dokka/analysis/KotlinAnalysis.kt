@@ -62,39 +62,46 @@ class DokkaAnalysisConfiguration(
 )
 fun KotlinAnalysis(context: DokkaContext): KotlinAnalysis = KotlinAnalysis(context.configuration.sourceSets, context.logger)
 
-interface KotlinAnalysis : SourceSetDependent<AnalysisContext>, Closeable {
-    override fun get(key: DokkaSourceSet): AnalysisContext
-    operator fun get(sourceSetID: DokkaSourceSetID): AnalysisContext
+/**
+ * First child delegation. It does not close [parent].
+ */
+abstract class KotlinAnalysis(
+    val parent: KotlinAnalysis? = null
+) : Closeable {
+
+    operator fun get(key: DokkaSourceSet): AnalysisContext {
+        return get(key.sourceSetID)
+    }
+
+    operator fun get(sourceSetID: DokkaSourceSetID): AnalysisContext {
+        return find(sourceSetID)
+            ?: parent?.get(sourceSetID)
+            ?: throw IllegalStateException("Missing EnvironmentAndFacade for sourceSet ${sourceSetID.sourceSetName}")
+    }
+
+    protected abstract fun find(sourceSetID: DokkaSourceSetID): AnalysisContext?
 }
 
-internal class ProjectKotlinAnalysis(
-    environments: SourceSetDependent<AnalysisContext>
-) : KotlinAnalysisImpl(environments)
-
-internal class SamplesKotlinAnalysis(
-    sampleEnvironments: SourceSetDependent<AnalysisContext>,
-    projectKotlinAnalysis: KotlinAnalysis
-) : KotlinAnalysisImpl(sampleEnvironments, projectKotlinAnalysis)
-
-/**
- * It does not close [defaultKotlinAnalysis].
- */
-internal open class KotlinAnalysisImpl(
+internal open class EnvironmentKotlinAnalysis(
     private val environments: SourceSetDependent<AnalysisContext>,
-    private val defaultKotlinAnalysis: KotlinAnalysis? = null
-) : KotlinAnalysis, SourceSetDependent<AnalysisContext> by environments {
+    parent: KotlinAnalysis? = null,
+) : KotlinAnalysis(parent = parent) {
 
-    override fun get(key: DokkaSourceSet): AnalysisContext {
-        return environments[key] ?: defaultKotlinAnalysis?.get(key)
-        ?: throw IllegalStateException("Missing EnvironmentAndFacade for sourceSet $key")
-    }
-
-    override fun get(sourceSetID: DokkaSourceSetID): AnalysisContext {
+    override fun find(sourceSetID: DokkaSourceSetID): AnalysisContext? {
         return environments.entries.firstOrNull { (sourceSet, _) -> sourceSet.sourceSetID == sourceSetID }?.value
-            ?: defaultKotlinAnalysis?.get(sourceSetID)
-            ?: throw IllegalStateException("Missing EnvironmentAndFacade for sourceSetID $sourceSetID")
     }
+
     override fun close() {
         environments.values.forEach(AnalysisContext::close)
     }
 }
+
+internal class ProjectKotlinAnalysis(
+    environments: SourceSetDependent<AnalysisContext>
+) : EnvironmentKotlinAnalysis(environments)
+
+internal class SamplesKotlinAnalysis(
+    sampleEnvironments: SourceSetDependent<AnalysisContext>,
+    projectKotlinAnalysis: KotlinAnalysis
+) : EnvironmentKotlinAnalysis(sampleEnvironments, projectKotlinAnalysis)
+
