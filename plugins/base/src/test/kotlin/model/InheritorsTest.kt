@@ -61,10 +61,12 @@ class InheritorsTest : AbstractModelTest("/src/main/kotlin/inheritors/Test.kt", 
         val configuration = dokkaConfiguration {
             sourceSets {
                 sourceSet {
+                    displayName = "jvm"
                     sourceRoots = listOf("common/src/", "jvm/src/")
                     analysisPlatform = "jvm"
                 }
                 sourceSet {
+                    displayName = "js"
                     sourceRoots = listOf("common/src/", "js/src/")
                     analysisPlatform = "js"
                 }
