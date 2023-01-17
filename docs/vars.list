@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE vars
+        SYSTEM "https://resources.jetbrains.com/stardust/vars.dtd">
+
 <vars>
     <var name="dokkaVersion"
          value="1.7.20"
