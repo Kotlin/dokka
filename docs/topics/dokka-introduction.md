@@ -20,7 +20,7 @@ Here are some libraries that use Dokka for their API reference documentation:
 You can run Dokka using [Gradle](dokka-gradle.md), [Maven](dokka-maven.md) or from the [command line](dokka-cli.md). It is also
 [highly pluggable](dokka-plugins.md).
 
-See [Get started](dokka-get-started.md) to take your first steps in using Dokka.
+See [Get started with Dokka](dokka-get-started.md) to take your first steps in using Dokka.
 
 ## Community
 

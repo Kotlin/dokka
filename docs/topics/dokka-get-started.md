@@ -1,4 +1,4 @@
-[//]: # (title: Get started)
+[//]: # (title: Get started with Dokka)
 
 Below you can find simple instructions to help you get started with Dokka.
 
