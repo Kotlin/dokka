@@ -9,7 +9,7 @@ import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.utilities.DokkaLogger
 import java.io.Closeable
 
-fun KotlinAnalysis(
+fun ProjectKotlinAnalysis(
     sourceSets: List<DokkaSourceSet>,
     logger: DokkaLogger,
     analysisConfiguration: DokkaAnalysisConfiguration = DokkaAnalysisConfiguration()
@@ -22,11 +22,13 @@ fun KotlinAnalysis(
             analysisConfiguration = analysisConfiguration
         )
     }
-    return ProjectKotlinAnalysis(environments)
+    return EnvironmentKotlinAnalysis(environments)
 }
 
 /**
  * [projectKotlinAnalysis] needs to be closed separately
+ *  Usually the analysis created for samples is short-lived and can be closed right after
+ *  it's been used, there's no need to wait for [projectKotlinAnalysis] to be closed as it must be handled separately.
  */
 fun SamplesKotlinAnalysis(
     sourceSets: List<DokkaSourceSet>,
@@ -46,7 +48,7 @@ fun SamplesKotlinAnalysis(
             )
     }
 
-    return SamplesKotlinAnalysis(environments, projectKotlinAnalysis)
+    return EnvironmentKotlinAnalysis(environments, projectKotlinAnalysis)
 }
 
 class DokkaAnalysisConfiguration(
@@ -60,7 +62,18 @@ class DokkaAnalysisConfiguration(
 @Deprecated(message = "Construct using list of DokkaSourceSets and logger",
     replaceWith = ReplaceWith("KotlinAnalysis(context.configuration.sourceSets, context.logger)")
 )
-fun KotlinAnalysis(context: DokkaContext): KotlinAnalysis = KotlinAnalysis(context.configuration.sourceSets, context.logger)
+fun KotlinAnalysis(context: DokkaContext): KotlinAnalysis =
+    ProjectKotlinAnalysis(context.configuration.sourceSets, context.logger)
+
+@Deprecated(message = "It was renamed to `ProjectKotlinAnalysis`",
+    replaceWith = ReplaceWith("ProjectKotlinAnalysis(sourceSets, logger, analysisConfiguration)")
+)
+fun KotlinAnalysis(
+    sourceSets: List<DokkaSourceSet>,
+    logger: DokkaLogger,
+    analysisConfiguration: DokkaAnalysisConfiguration = DokkaAnalysisConfiguration()
+) = ProjectKotlinAnalysis(sourceSets, logger, analysisConfiguration)
+
 
 /**
  * First child delegation. It does not close [parent].
@@ -103,12 +116,4 @@ internal open class EnvironmentKotlinAnalysis(
     }
 }
 
-internal class ProjectKotlinAnalysis(
-    environments: SourceSetDependent<AnalysisContext>
-) : EnvironmentKotlinAnalysis(environments)
-
-internal class SamplesKotlinAnalysis(
-    sampleEnvironments: SourceSetDependent<AnalysisContext>,
-    projectKotlinAnalysis: KotlinAnalysis
-) : EnvironmentKotlinAnalysis(sampleEnvironments, projectKotlinAnalysis)
 

@@ -4,6 +4,7 @@ package org.jetbrains.dokka.base
 
 import org.jetbrains.dokka.CoreExtensions
 import org.jetbrains.dokka.analysis.KotlinAnalysis
+import org.jetbrains.dokka.analysis.ProjectKotlinAnalysis
 import org.jetbrains.dokka.base.renderers.*
 import org.jetbrains.dokka.base.renderers.html.*
 import org.jetbrains.dokka.base.renderers.html.command.consumers.PathToRootConsumer
@@ -191,7 +192,7 @@ class DokkaBase : DokkaPlugin() {
 
     val defaultKotlinAnalysis by extending {
         kotlinAnalysis providing { ctx ->
-            KotlinAnalysis(
+            ProjectKotlinAnalysis(
                 sourceSets = ctx.configuration.sourceSets,
                 logger = ctx.logger
             )
