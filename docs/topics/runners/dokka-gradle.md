@@ -826,40 +826,41 @@ tasks.withType<DokkaTask>().configureEach {
     // general configuration section
     // ..
 
-    // configuration exclusive to the 'linux' source set 
-    named("linux") {
-        dependsOn("native")
-        sourceRoots.from(file("linux/src"))
-    }
-    
-    dokkaSourceSets.configureEach {
-        suppress.set(false)
-        displayName.set(name)
-        documentedVisibilities.set(setOf(Visibility.PUBLIC))
-        reportUndocumented.set(false)
-        skipEmptyPackages.set(true)
-        skipDeprecated.set(false)
-        suppressGeneratedFiles.set(true)
-        jdkVersion.set(8)
-        languageVersion.set("1.7")
-        apiVersion.set("1.7")
-        noStdlibLink.set(false)
-        noJdkLink.set(false)
-        noAndroidSdkLink.set(false)
-        includes.from(project.files(), "packages.md", "extra.md")
-        platform.set(Platform.DEFAULT)
-        sourceRoots.from(file("src"))
-        classpath.from(project.files(), file("libs/dependency.jar"))
-        samples.from(project.files(), "samples/Basic.kt", "samples/Advanced.kt")
+    dokkaSourceSets {
+        // configuration exclusive to the 'linux' source set
+        named("linux") {
+            dependsOn("native")
+            sourceRoots.from(file("linux/src"))
+        }
+        configureEach {
+            suppress.set(false)
+            displayName.set(name)
+            documentedVisibilities.set(setOf(Visibility.PUBLIC))
+            reportUndocumented.set(false)
+            skipEmptyPackages.set(true)
+            skipDeprecated.set(false)
+            suppressGeneratedFiles.set(true)
+            jdkVersion.set(8)
+            languageVersion.set("1.7")
+            apiVersion.set("1.7")
+            noStdlibLink.set(false)
+            noJdkLink.set(false)
+            noAndroidSdkLink.set(false)
+            includes.from(project.files(), "packages.md", "extra.md")
+            platform.set(Platform.DEFAULT)
+            sourceRoots.from(file("src"))
+            classpath.from(project.files(), file("libs/dependency.jar"))
+            samples.from(project.files(), "samples/Basic.kt", "samples/Advanced.kt")
 
-        sourceLink {
-            // Source link section
-        }
-        externalDocumentationLink {
-            // External documentation link section
-        }
-        perPackageOption {
-            // Package options section
+            sourceLink {
+                // Source link section
+            }
+            externalDocumentationLink {
+                // External documentation link section
+            }
+            perPackageOption {
+                // Package options section
+            }
         }
     }
 }
@@ -881,41 +882,42 @@ tasks.withType(DokkaTask.class) {
     // ..
     // general configuration section
     // ..
-
-    // configuration exclusive to the 'linux' source set 
-    named("linux") {
-        dependsOn("native")
-        sourceRoots.from(file("linux/src"))
-    }
     
-    dokkaSourceSets.configureEach {
-        suppress.set(false)
-        displayName.set(name)
-        documentedVisibilities.set([Visibility.PUBLIC])
-        reportUndocumented.set(false)
-        skipEmptyPackages.set(true)
-        skipDeprecated.set(false)
-        suppressGeneratedFiles.set(true)
-        jdkVersion.set(8)
-        languageVersion.set("1.7")
-        apiVersion.set("1.7")
-        noStdlibLink.set(false)
-        noJdkLink.set(false)
-        noAndroidSdkLink.set(false)
-        includes.from(project.files(), "packages.md", "extra.md")
-        platform.set(Platform.DEFAULT)
-        sourceRoots.from(file("src"))
-        classpath.from(project.files(), file("libs/dependency.jar"))
-        samples.from(project.files(), "samples/Basic.kt", "samples/Advanced.kt")
+    dokkaSourceSets {
+        // configuration exclusive to the 'linux' source set 
+        named("linux") {
+            dependsOn("native")
+            sourceRoots.from(file("linux/src"))
+        }
+        configureEach {
+            suppress.set(false)
+            displayName.set(name)
+            documentedVisibilities.set([Visibility.PUBLIC])
+            reportUndocumented.set(false)
+            skipEmptyPackages.set(true)
+            skipDeprecated.set(false)
+            suppressGeneratedFiles.set(true)
+            jdkVersion.set(8)
+            languageVersion.set("1.7")
+            apiVersion.set("1.7")
+            noStdlibLink.set(false)
+            noJdkLink.set(false)
+            noAndroidSdkLink.set(false)
+            includes.from(project.files(), "packages.md", "extra.md")
+            platform.set(Platform.DEFAULT)
+            sourceRoots.from(file("src"))
+            classpath.from(project.files(), file("libs/dependency.jar"))
+            samples.from(project.files(), "samples/Basic.kt", "samples/Advanced.kt")
 
-        sourceLink {
-            // Source link section
-        }
-        externalDocumentationLink {
-            // External documentation link section
-        }
-        perPackageOption {
-            // Package options section
+            sourceLink {
+                // Source link section
+            }
+            externalDocumentationLink {
+                // External documentation link section
+            }
+            perPackageOption {
+                // Package options section
+            }
         }
     }
 }
