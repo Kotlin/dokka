@@ -9,8 +9,8 @@ Just like Kotlin itself, Dokka supports mixed-language projects. It understands 
 [KDoc comments](https://kotlinlang.org/docs/kotlin-doc.html#kdoc-syntax) and Java's
 [Javadoc comments](https://www.oracle.com/technical-resources/articles/java/javadoc-tool.html).
 
-Dokka can generate documentation in multiple formats, including its own modern [HTML format](/TODO),
-multiple flavors of [Markdown](/TODO), and Java's [Javadoc HTML](/TODO).
+Dokka can generate documentation in multiple formats, including its own modern [HTML format](#html),
+multiple flavors of [Markdown](#markdown), and Java's [Javadoc HTML](#javadoc).
 
 Some libraries that use Dokka for their API reference documentation:
 
@@ -20,21 +20,22 @@ Some libraries that use Dokka for their API reference documentation:
 * [Ktor](https://api.ktor.io/)
 * [OkHttp](https://square.github.io/okhttp/4.x/okhttp/okhttp3/) (Markdown)
 
-You can run Dokka using [Gradle](/TODO), [Maven](/TODO) or from the [command line](/TODO). It is also
-[highly pluggable](/TODO).
+You can run Dokka using [Gradle](https://kotlinlang.org/docs/dokka-gradle.html), 
+[Maven](https://kotlinlang.org/docs/dokka-maven.html) or from the [command line](https://kotlinlang.org/docs/dokka-cli.html). 
+It is also [highly pluggable](https://kotlinlang.org/docs/dokka-plugins.html).
 
-:mega: Dokka team now leads the product to the Stable release.
-We’d really appreciate it if you could [take our brief survey](https://surveys.jetbrains.com/s3/dokka-survey) about 
-your dev. experience with the tool. It helps us get priorities right and deliver the most valuable things first.
+## Documentation
 
-## Get started
+Comprehensive documentation for Dokka is available on [kotlinlang.org](https://kotlinlang.org/docs/dokka-introduction.html)
+
+## Get started with Dokka
 
 ### Gradle
 
 <details open>
 <summary>Kotlin DSL</summary>
 
-Apply the Dokka Gradle plugin in the root build script of your project:
+Apply the Gradle plugin for Dokka in the root build script of your project:
 
 ```kotlin
 plugins {
@@ -43,7 +44,7 @@ plugins {
 ```
 
 When documenting [multi-project](https://docs.gradle.org/current/userguide/multi_project_builds.html) builds, you need 
-to apply the Dokka Gradle plugin within subprojects as well:
+to apply the Gradle plugin for Dokka within subprojects as well:
 
 ```kotlin
 subprojects {
@@ -56,7 +57,7 @@ subprojects {
 <details>
 <summary>Groovy DSL</summary>
 
-Apply Dokka Gradle plugin in the root project:
+Apply Gradle plugin for Dokka in the root project:
 
 ```groovy
 plugins {
@@ -65,7 +66,7 @@ plugins {
 ```
 
 When documenting [multi-project](https://docs.gradle.org/current/userguide/multi_project_builds.html) builds, you need 
-to apply the Dokka Gradle plugin within subprojects as well:
+to apply the Gradle plugin for Dokka within subprojects as well:
 
 ```groovy
 subprojects {
@@ -78,11 +79,11 @@ subprojects {
 To generate documentation, run the following Gradle tasks:
 
 * `dokkaHtml` for single-project builds
-* `dokkaHtmlMultiModule` for multi-module builds
+* `dokkaHtmlMultiModule` for multi-project builds
 
 By default, the output directory is set to `/build/dokka/html` and `/build/dokka/htmlMultiModule` respectively.
 
-To learn more about the Gradle runner, see [Gradle](/TODO).
+To learn more about the Gradle plugin for Dokka, see [documentation for Gradle](https://kotlinlang.org/docs/dokka-gradle.html).
 
 ### Maven
 
@@ -112,14 +113,14 @@ To generate documentation, run the `dokka:dokka` goal.
 
 By default, the output directory is set to `target/dokka`.
 
-To learn more about the Maven runner, see [Maven](/TODO).
+To learn more about using Dokka with Maven, see [documentation for Maven](https://kotlinlang.org/docs/dokka-maven.html).
 
 ### CLI
 
 It is possible to run Dokka from the command line without having to use any of the build tools, but it's more
-difficult to set up and for that reason it is not covered in this Get started section.
+difficult to set up and for that reason it is not covered in this section.
 
-Please consult [documentation for the command line runner](/TODO)
+Please consult [documentation for the command line runner](https://kotlinlang.org/docs/dokka-cli.html)
 to learn how to use it.
 
 ### Android
@@ -176,21 +177,20 @@ dependencies {
 
 ### HTML
 
-HTML is Dokka's default and recommended output format. You can see an example of the final result by browsing 
-documentation for [kotlinx.coroutines](https://kotlinlang.org/api/kotlinx.coroutines/).
+HTML is Dokka's default and recommended output format. You can see an example of the output by browsing documentation 
+for [kotlinx.coroutines](https://kotlinlang.org/api/kotlinx.coroutines/).
 
 HTML format is configurable and, among other things, allows you to modify stylesheets, add custom image assets, change
-footer message and revamp the structure of generated HTML pages through templates.
+footer message and revamp the structure of the generated HTML pages through templates.
 
-For more details and examples, see [HTML format](/TODO).
+For more details and examples, see [documentation for HTML format](https://kotlinlang.org/docs/dokka-html.html).
 
 ### Markdown
 
 Dokka is able to generate documentation in GitHub Flavored and Jekyll compatible Markdown. However, both of these
 formats are still in Alpha, so you might encounter bugs and migration issues.
 
-`GFM` and `Jekyll` formats are [Dokka plugins](/TODO). Learn how to apply and use them in a separate topic
-dedicated to the [Markdown formats](/TODO).
+For more details and examples, see [documentation for Markdown formats](https://kotlinlang.org/docs/dokka-markdown.html).
 
 ### Javadoc
 
@@ -201,23 +201,23 @@ so you might encounter bugs and migration issues.
 Javadoc format tries to visually mimic HTML pages generated by the Javadoc tool, but it's not a direct implementation 
 or an exact copy. In addition, all Kotlin signatures are translated to Java signatures.
 
-For more details and examples see [Javadoc format](/TODO) topic.
+For more details and examples, see [documentation for Javadoc format](https://kotlinlang.org/docs/dokka-javadoc.html).
 
 ## Dokka plugins
 
 Dokka was built from the ground up to be easily extensible and highly customizable, which allows the community to 
 implement plugins for missing or very specific features that are not provided out of the box.
 
-Learn more about Dokka plugins and their configuration in [Dokka plugins](TODO)
+Learn more about Dokka plugins and their configuration in [Dokka plugins](https://kotlinlang.org/docs/dokka-plugins.html).
 
 If you want to learn how to develop Dokka plugins, see
 [Developer guides](https://kotlin.github.io/dokka/1.7.20/developer_guide/introduction/).
-
-## Building and Contributing
-
-See [Contributing Guidelines](CONTRIBUTING.md)
 
 ## Community
 
 Dokka has a dedicated `#dokka` channel in [Kotlin Community Slack](https://surveys.jetbrains.com/s3/kotlin-slack-sign-up)
 where you can chat about Dokka, its plugins and how to develop them, as well as get in touch with maintainers.
+
+## Building and Contributing
+
+See [Contributing Guidelines](CONTRIBUTING.md)
