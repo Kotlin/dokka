@@ -48,7 +48,10 @@ jobs:
     if: github.repository == 'Kotlin/dokka'
     strategy:
       matrix:
-        projects: [ dokka-versioning-multimodule-example ]
+        projects: [
+          dokka-versioning-multimodule-example,
+          dokka-multimodule-example
+        ]
     steps:
       - uses: actions/checkout@v3
       - uses: dorny/paths-filter@v2

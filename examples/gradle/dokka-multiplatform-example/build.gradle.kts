@@ -12,11 +12,11 @@ repositories {
     mavenCentral()
 }
 
-group = "org.test"
+group = "org.dokka.example"
 version = "1.0-SNAPSHOT"
 
 kotlin {
-    jvm() // Create a JVM target with the default name "jvm"
+    jvm() // Creates a JVM target with the default name "jvm"
     linuxX64("linux")
     macosX64("macos")
     js()
@@ -32,9 +32,7 @@ kotlin {
 
 tasks.withType<DokkaTask>().configureEach {
     dokkaSourceSets {
-        /*
-        Create custom source set (not known to the Kotlin Gradle Plugin)
-         */
+        // Create a custom source set not known to the Kotlin Gradle Plugin
         register("customSourceSet") {
             this.jdkVersion.set(9)
             this.displayName.set("custom")

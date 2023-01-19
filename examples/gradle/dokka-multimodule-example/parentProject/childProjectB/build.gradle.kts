@@ -9,10 +9,12 @@ dependencies {
     implementation(kotlin("stdlib"))
 }
 
+// configuration specific to this subproject.
+// notice the use of Partial task
 tasks.withType<DokkaTaskPartial>().configureEach {
     dokkaSourceSets {
         configureEach {
-            includes.from("Module.md")
+            includes.from("ModuleB.md")
         }
     }
 }

@@ -1,25 +1,31 @@
 import org.jetbrains.dokka.gradle.DokkaMultiModuleTask
+import org.jetbrains.dokka.versioning.VersioningPlugin
+import org.jetbrains.dokka.versioning.VersioningConfiguration
+
+buildscript {
+    dependencies {
+        classpath("org.jetbrains.dokka:versioning-plugin:1.7.20")
+    }
+
+    repositories {
+        mavenCentral()
+    }
+}
 
 dependencies {
     implementation(kotlin("stdlib"))
 }
 
-val olderVersionsFolder = "olderVersions"
+val currentVersion = "1.0"
+val previousVersionsDirectory = project.rootProject.projectDir.resolve("previousDocVersions").invariantSeparatorsPath
 
-// The previously documentations should be generated with the versioning plugin
-val generatePreviouslyDocTask by tasks.register<DokkaMultiModuleTask>("dokkaPreviouslyDocumentation") {
-    dependencies {
-        dokkaPlugin("org.jetbrains.dokka:all-modules-page-plugin:1.7.20")
-        dokkaPlugin("org.jetbrains.dokka:versioning-plugin:1.7.20")
-    }
-    val configuredVersion = "0.9"
-    outputDirectory.set(file(projectDir.resolve(olderVersionsFolder).resolve(configuredVersion)))
-    pluginsMapConfiguration.set(mapOf("org.jetbrains.dokka.versioning.VersioningPlugin" to """{ "version": "$configuredVersion" }"""))
-    addChildTasks(listOf(project("childProjectA"), project("childProjectB")), "dokkaHtmlPartial")
-}
-
+// Main configuration for the versioning plugin. It will generate documentation for
+// the current version of the application, and look for previous versions of docs
+// in the directory defined in previousVersionsDirectory, allowing it to create
+// the version navigation dropdown menu.
 tasks.dokkaHtmlMultiModule {
-    dependsOn(generatePreviouslyDocTask)
-    val configuredVersion = "1.0"
-    pluginsMapConfiguration.set(mapOf("org.jetbrains.dokka.versioning.VersioningPlugin" to """{ "version": "$configuredVersion", "olderVersionsDir": "${projectDir.resolve(olderVersionsFolder).invariantSeparatorsPath}" }"""))
+    pluginConfiguration<VersioningPlugin, VersioningConfiguration> {
+        version = currentVersion
+        olderVersionsDir = file(previousVersionsDirectory)
+    }
 }
