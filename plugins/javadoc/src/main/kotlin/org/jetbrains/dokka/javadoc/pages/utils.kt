@@ -5,7 +5,7 @@ import org.jetbrains.dokka.utilities.htmlEscape
 
 internal fun JavadocFunctionNode.getAnchor(): String {
     val parameters = parameters.joinToString(",") { it.typeBound.asString() }
-    return "$name($parameters)".htmlEscape()
+    return "$name($parameters)".htmlEscape() // can be used in HTML as is, thus some escaping to avoid invalid HTML
 }
 
 private fun Bound.asString(): String = when (this) {
