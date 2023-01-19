@@ -20,5 +20,6 @@
             <toc-element id="dokka-javadoc.md"/>
         </toc-element>
         <toc-element id="dokka-plugins.md"/>
+        <toc-element toc-title="Module documentation" id="dokka-module-and-package-docs.md"/>
     </chunk>
 </product-profile>

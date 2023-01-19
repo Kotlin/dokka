@@ -359,6 +359,7 @@ with [all configuration options](#complete-configuration) applied at the bottom 
         <p>Default: <code>false</code></p>
     </def>
     <def title="noJdkLink">
+    <anchor name="includes"/>
         <p>Whether to generate external documentation links to JDK's Javadocs.</p>
         <p>The version of JDK Javadocs is determined by the <code>jdkVersion</code> option.</p>
         <p>Note: Links <b>are</b> generated when <code>noJdkLink</code> is set to <code>false</code>.</p>
@@ -367,7 +368,7 @@ with [all configuration options](#complete-configuration) applied at the bottom 
     <def title="includes">
         <p>
             A list of Markdown files that contain 
-            <a href="https://kotlinlang.org/docs/reference/kotlin-doc.html#module-and-package-documentation">module and package documentation</a>
+            <a href="dokka-module-and-package-docs.md">module and package documentation</a>
         </p>
         <p>The contents of specified files are parsed and embedded into documentation as module and package descriptions.</p>
     </def>

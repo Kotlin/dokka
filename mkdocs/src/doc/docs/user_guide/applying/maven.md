@@ -66,7 +66,7 @@ The available configuration options are shown below:
         <offlineMode>false</offlineMode>
 
         <!-- List of '.md' files with package and module docs -->
-        <!-- https://kotlinlang.org/docs/reference/kotlin-doc.html#module-and-package-documentation -->
+        <!-- https://kotlinlang.org/docs/reference/dokka-module-and-package-docs.html -->
         <includes>
             <include>packages.md</include>
             <include>extra.md</include>

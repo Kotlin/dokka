@@ -204,8 +204,8 @@ Short summary:
 | `classpath`                  | Classpath for analysis and interactive samples. Accepts multiple paths separated by semicolons.                                                                                |
 | `src`                        | Source code roots to be analyzed and documented. Accepts multiple paths separated by semicolons.                                                                               |
 | `dependentSourceSets`        | Names of the dependent source sets in format `moduleName/sourceSetName`. Accepts multiple paths separated by semicolons.                                                       |
-| `samples`                    | List of directories or files that contain sample functions. Accepts multiple paths separated by semicolons.                                                                    |
-| `includes`                   | Markdown files that contain module and package documentation. Accepts multiple paths separated by semicolons.                                                                  |
+| `samples`                    | List of directories or files that contain sample functions. Accepts multiple paths separated by semicolons. <anchor name="includes-cli"/>                                      |
+| `includes`                   | Markdown files that contain [module and package documentation](dokka-module-and-package-docs.md). Accepts multiple paths separated by semicolons.                              |
 | `documentedVisibilities`     | Visibilities to be documented. Accepts multiple values separated by semicolons. Possible values: `PUBLIC`, `PRIVATE`, `PROTECTED`, `INTERNAL`, `PACKAGE`.                      |
 | `reportUndocumented`         | Whether to report undocumented declarations.                                                                                                                                   | 
 | `noSkipEmptyPackages`        | Whether to create pages for empty packages.                                                                                                                                    | 
@@ -312,6 +312,7 @@ with [all configuration options](#complete-configuration) applied at the bottom 
         <p>Default: <code>false</code></p>
     </def>
     <def title="offlineMode">
+        <anchor name="includes-json"/>
         <p>Whether to resolve remote files/links over your network.</p>
         <p>
             This includes package-lists used for generating external documentation links. 
@@ -331,7 +332,7 @@ with [all configuration options](#complete-configuration) applied at the bottom 
     <def title="includes">
         <p>
             A list of Markdown files that contain
-            <a href="https://kotlinlang.org/docs/reference/kotlin-doc.html#module-and-package-documentation">module and package documentation</a>.
+            <a href="dokka-module-and-package-docs.md">module and package documentation</a>.
         </p>
         <p>The contents of specified files are parsed and embedded into documentation as module and package descriptions.</p>
         <p>This can be configured on per-package basis.</p>
@@ -515,7 +516,7 @@ How to configure Kotlin
     <def title="includes">
         <p>
             A list of Markdown files that contain
-            <a href="https://kotlinlang.org/docs/reference/kotlin-doc.html#module-and-package-documentation">module and package documentation</a>.
+            <a href="dokka-module-and-package-docs.md">module and package documentation</a>.
         </p>
         <p>The contents of the specified files are parsed and embedded into documentation as module and package descriptions.</p>
     </def>

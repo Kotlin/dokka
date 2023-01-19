@@ -142,7 +142,7 @@ val dokkaHtml by getting(DokkaTask::class) {
             classpath.from(file("libs/dependency.jar"))
 
             // List of files with module and package documentation
-            // https://kotlinlang.org/docs/reference/kotlin-doc.html#module-and-package-documentation
+            // https://kotlinlang.org/docs/reference/dokka-module-and-package-docs.html
             includes.from("packages.md", "extra.md")
 
             // List of files or directories containing sample code (referenced with @sample tags)

@@ -1,0 +1,66 @@
+[//]: # (title: Module documentation)
+
+Documentation for a module as a whole, as well as packages in that module, can be provided as separate Markdown files.
+
+## File format
+
+Inside the Markdown file, the documentation for the module as a whole and for individual packages is introduced by the corresponding
+first-level headings. The text of the heading **must** be **Module `<module name>`** for a module, and **Package `<package qualified name>`**
+for a package. 
+
+The file doesn't have to contain both module and package documentation. You can have files that contain only package or 
+module documentation. You can even have a Markdown file per module or package.
+
+Using [Markdown syntax](https://www.markdownguide.org/basic-syntax/), you can add:
+* Headings up to level 6
+* Emphasis with bold or italic formatting
+* Links
+* Inline code
+* Code blocks
+* Blockquotes
+
+Here's an example file containing both module and package documentation:
+
+```text
+# Module kotlin-demo
+
+This content appears under your module name.
+
+# Package org.jetbrains.kotlin.demo
+
+This content appears under your package name in the packages list.
+It also appears under the first-level heading on your package's page.
+
+## Level 2 heading for package org.jetbrains.kotlin.demo
+
+Content after this heading is also part of documentation for org.jetbrains.kotlin.demo
+
+# Package org.jetbrains.kotlin.demo2
+
+This content appears under your package name in the packages list.
+It also appears under the first-level heading on your package's page.
+
+## Level 2 heading for package org.jetbrains.kotlin.demo
+
+Content after this heading is also part of documentation for `org.jetbrains.kotlin.demo2`
+```
+
+To explore an example project with Gradle, see [Dokka gradle example](https://github.com/Kotlin/dokka/tree/master/examples/gradle/dokka-gradle-example).
+
+## Pass files to Dokka
+
+To pass these files to Dokka, you need to use the relevant **includes** option for Gradle, Maven, or CLI:
+
+<tabs group="build-script">
+<tab title="Gradle" group-key="gradle">
+Use the <a href="dokka-gradle.md#includes">includes</a> option in <a href="dokka-gradle.md#source-set-configuration">Source set configuration</a>.
+</tab>
+<tab title="Maven" group-key="mvn">
+Use the <a href="dokka-maven.md#includes">includes</a> option in <a href="dokka-maven.md#general-configuration">General configuration</a>.
+</tab>
+<tab title="CLI" group-key="cli">
+If you are using command line configuration, use the <a href="dokka-cli.md#includes-cli">includes</a> option in <a href="dokka-cli.md#source-set-options">Source set options</a>.
+
+If you are using JSON configuration, use the <a href="dokka-cli.md#includes-json">includes</a> option in <a href="dokka-cli.md#general-configuration">General configuration</a>.
+</tab>
+</tabs>
