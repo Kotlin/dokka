@@ -5,6 +5,11 @@
         <enable-browser-edits>true</enable-browser-edits>
         <browser-edits-url>https://github.com/Kotlin/dokka/edit/master/docs/</browser-edits-url>
         <allow-indexable-eaps>true</allow-indexable-eaps>
+
+        <!-- At this moment, nested documentation modules (like Dokka) do not inherit settings from the base -->
+        <!-- repository, so Dokka's docs don't have a preview image when the links are shared on social media. -->
+        <!-- This variable adds the preview image until it's  implemented/fixed. -->
+        <og-image>https://kotlinlang.org/assets/images/open-graph/docs.png</og-image>
     </variables>
     <build-profile product="kl"/>
 </buildprofiles>
