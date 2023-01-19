@@ -68,6 +68,9 @@
                             <lineSuffix>#L</lineSuffix>
                         </link>
                     </sourceLinks>
+                    <includes>
+                        <include>Module.md</include>
+                    </includes>
                 </configuration>
             </plugin>
         </plugins>

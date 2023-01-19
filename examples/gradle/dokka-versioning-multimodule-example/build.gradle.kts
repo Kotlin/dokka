@@ -3,7 +3,7 @@ plugins {
     id("org.jetbrains.dokka") version ("1.7.20") apply false
 }
 
-// The versioning plugin should be applied in all submodules
+// The versioning plugin must be applied in all submodules
 subprojects {
     repositories {
         mavenCentral()

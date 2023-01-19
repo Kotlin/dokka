@@ -290,3 +290,8 @@ Things to note and remember:
 6. You will need to write asserts using the model of whatever stage you choose. For `Documentable` transformation stage 
    it's `Documentable`, for `Page` generation stage you would have `Page` model, and for `Output` you can have `.html`
    files that you will need to parse with `JSoup` (there are also utilities for that).
+
+___
+
+Full source code of this tutorial can be found in Dokka's examples under
+[hide-internal-api](https://github.com/Kotlin/dokka/examples/plugin/hide-internal-api).
