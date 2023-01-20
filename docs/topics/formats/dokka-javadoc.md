@@ -91,3 +91,7 @@ For more information, see [Other output formats](dokka-cli.md#other-output-forma
 
 </tab>
 </tabs>
+
+<a href="https://surveys.jetbrains.com/s3/dokka-survey">
+   <img src="dokka-devx-survey-banner.png" width="700" alt="Dokka devX survey"/>
+</a>
