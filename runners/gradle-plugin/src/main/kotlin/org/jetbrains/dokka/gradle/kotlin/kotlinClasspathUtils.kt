@@ -38,7 +38,7 @@ internal fun Project.classpathOf(sourceSet: KotlinSourceSet): FileCollection {
 private fun Project.compileClasspathOf(compilation: KotlinCompilation): FileCollection {
     if (compilation.target.isAndroidTarget()) {
         // This is a workaround for https://youtrack.jetbrains.com/issue/KT-33893
-        @Suppress("DEPRECATION") // for compatibility
+        @Suppress("DEPRECATION", "DEPRECATION_ERROR")
         return compilation.compileKotlinTask.cast<KotlinCompile>().classpath
     }
 
@@ -48,6 +48,6 @@ private fun Project.compileClasspathOf(compilation: KotlinCompilation): FileColl
         ?: files()
 
     return compilation.compileDependencyFiles + platformDependencyFiles +
-            @Suppress("DEPRECATION") // for compatibility
+            @Suppress("DEPRECATION", "DEPRECATION_ERROR")
             (compilation.compileKotlinTask.run { this as? KotlinCompile }?.classpath ?: files())
 }
