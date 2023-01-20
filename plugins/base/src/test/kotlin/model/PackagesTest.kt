@@ -116,4 +116,4 @@ class PackagesTest : AbstractModelTest("/src/main/kotlin/packages/Test.kt", "pac
             }
         }
     }
-
+}
