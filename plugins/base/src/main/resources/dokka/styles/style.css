@@ -399,7 +399,7 @@ code.paragraph {
     align-items: center;
     position: absolute;
     z-index: 1000;
-    background: white;
+    background: var(--background-color);
     font-weight: normal;
     font-family: var(--default-font-family);
     width: max-content;
@@ -1184,8 +1184,8 @@ div.runnablesample {
 }
 
 #theme-toggle-button {
-    width: 36px;
-    height: 36px;
+    width: 40px;
+    height: 40px;
     display: inline-flex;
     justify-content: center;
     align-items: center;
@@ -1222,9 +1222,10 @@ div.runnablesample {
     #leftColumn {
         position: fixed;
         margin-left: -300px;
+        box-sizing: border-box;
         transition: margin .2s ease-out;
         z-index: 4;
-        background: white;
+        background: var(--background-color);
         height: 100%;
     }
 
@@ -1254,7 +1255,11 @@ div.runnablesample {
     }
 
     .icon-toggler::before {
-        content: "\2630";
+        display: block;
+        content: "";
+        background: url("../images/burger.svg") no-repeat center;
+        height: 28px;
+        width: 28px;
     }
 
     #leftColumn.open ~ #main .icon-toggler::before {
