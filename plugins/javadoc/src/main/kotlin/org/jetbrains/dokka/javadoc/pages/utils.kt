@@ -3,9 +3,16 @@ package org.jetbrains.dokka.javadoc.pages
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.utilities.htmlEscape
 
+/**
+ * Returns an unencoded, unescaped function anchor.
+ *
+ * Should be URL encoded / HTML escaped at call site,
+ * depending on usage.
+ */
+// see the discussion in #2813 related to encoding/escaping this value for ids/hrefs
 internal fun JavadocFunctionNode.getAnchor(): String {
     val parameters = parameters.joinToString(",") { it.typeBound.asString() }
-    return "$name($parameters)".htmlEscape() // can be used in HTML as is, thus some escaping to avoid invalid HTML
+    return "$name($parameters)"
 }
 
 private fun Bound.asString(): String = when (this) {
