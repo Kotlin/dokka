@@ -37,7 +37,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
         ExtraModifiers.KotlinOnlyModifiers.External
     )
     private val platformSpecificModifiers: Map<ExtraModifiers, Set<Platform>> = mapOf(
-        ExtraModifiers.KotlinOnlyModifiers.External to setOf(Platform.js)
+        ExtraModifiers.KotlinOnlyModifiers.External to setOf(Platform.js, Platform.wasm)
     )
 
     override fun signature(documentable: Documentable): List<ContentNode> = when (documentable) {
