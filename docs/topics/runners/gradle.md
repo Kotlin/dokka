@@ -36,7 +36,7 @@ plugins {
 </tab>
 </tabs>
 
-When documenting [multi-project](dokka-gradle.md#multi-project-builds) builds, you need to apply the Gradle plugin for Dokka 
+When documenting [multi-project](gradle.md#multi-project-builds) builds, you need to apply the Gradle plugin for Dokka 
 within subprojects as well. You can use `allprojects {}` or `subprojects {}` Gradle configurations to achieve that:
 
 <tabs group="build-script">
@@ -82,7 +82,7 @@ plugins.
 
 ## Generate documentation
 
-The Gradle plugin for Dokka comes with [HTML](dokka-html.md), [Markdown](dokka-markdown.md) and [Javadoc](dokka-javadoc.md) output formats 
+The Gradle plugin for Dokka comes with [HTML](html.md), [Markdown](markdown.md) and [Javadoc](javadoc.md) output formats 
 built in. It adds a number of tasks for generating documentation, both for [single](#single-project-builds)
 and [multi-project](#multi-project-builds) builds.
 
@@ -92,15 +92,15 @@ Use the following tasks to build documentation for simple, single-project applic
 
 | **Task**       | **Description**                                                                     |
 |----------------|-------------------------------------------------------------------------------------|
-| `dokkaHtml`    | Generates documentation in [HTML](dokka-html.md) format.                                  |
+| `dokkaHtml`    | Generates documentation in [HTML](html.md) format.                                  |
 
 #### Experimental formats
 
 | **Task**       | **Description**                                                                     |
 |----------------|-------------------------------------------------------------------------------------|
-| `dokkaGfm`     | Generates documentation in [GitHub Flavored Markdown](dokka-markdown.md#gfm) format.      |
-| `dokkaJavadoc` | Generates documentation in [Javadoc](dokka-javadoc.md) format.                            |
-| `dokkaJekyll`  | Generates documentation in [Jekyll compatible Markdown](dokka-markdown.md#jekyll) format. |
+| `dokkaGfm`     | Generates documentation in [GitHub Flavored Markdown](markdown.md#gfm) format.      |
+| `dokkaJavadoc` | Generates documentation in [Javadoc](javadoc.md) format.                            |
+| `dokkaJekyll`  | Generates documentation in [Jekyll compatible Markdown](markdown.md#jekyll) format. |
 
 By default, generated documentation is located in the `build/dokka/{format}` directory of your project.
 The output location, among other things, can be [configured](#configuration-examples).
@@ -121,16 +121,16 @@ Dokka creates the following tasks for **parent** projects automatically:
 
 | **Task**                 | **Description**                                                        |
 |--------------------------|------------------------------------------------------------------------|
-| `dokkaHtmlMultiModule`   | Generates multi-module documentation in [HTML](dokka-html.md) output format. |
+| `dokkaHtmlMultiModule`   | Generates multi-module documentation in [HTML](html.md) output format. |
 
 #### Experimental formats (multi-module)
 
 | **Task**                 | **Description**                                                                                         |
 |--------------------------|---------------------------------------------------------------------------------------------------------|
-| `dokkaGfmMultiModule`    | Generates multi-module documentation in [GitHub Flavored Markdown](dokka-markdown.md#gfm) output format.      |
-| `dokkaJekyllMultiModule` | Generates multi-module documentation in [Jekyll compatible Markdown](dokka-markdown.md#jekyll) output format. |
+| `dokkaGfmMultiModule`    | Generates multi-module documentation in [GitHub Flavored Markdown](markdown.md#gfm) output format.      |
+| `dokkaJekyllMultiModule` | Generates multi-module documentation in [Jekyll compatible Markdown](markdown.md#jekyll) output format. |
 
-> The [Javadoc](dokka-javadoc.md) output format does not have a `MultiModule` task, but a [`Collector`](#collector-tasks) task can
+> The [Javadoc](javadoc.md) output format does not have a `MultiModule` task, but a [`Collector`](#collector-tasks) task can
 > be used instead.
 >
 {type="note"}
@@ -225,7 +225,7 @@ For example, if you want to publish to [Maven Central](https://central.sonatype.
 not all repositories have that rule.
 
 The Gradle plugin for Dokka does not provide any way to do this out of the box, but it can be achieved with custom Gradle
-tasks. One for generating documentation in [HTML](dokka-html.md) format and another one for [Javadoc](dokka-javadoc.md) format:
+tasks. One for generating documentation in [HTML](html.md) format and another one for [Javadoc](javadoc.md) format:
 
 <tabs group="build-script">
 <tab title="Kotlin" group-key="kotlin">
@@ -1033,7 +1033,7 @@ tasks.withType(DokkaTask.class) {
     <def title="includes">
         <p>
             A list of Markdown files that contain
-            <a href="dokka-module-and-package-docs.md">module and package documentation</a>.
+            <a href="module-and-package-docs.md">module and package documentation</a>.
         </p>
         <p>The contents of the specified files are parsed and embedded into documentation as module and package descriptions.</p>
         <p>

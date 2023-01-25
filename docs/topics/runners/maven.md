@@ -2,7 +2,7 @@
 
 To generate documentation for a Maven-based project, you can use the Maven plugin for Dokka.
 
-> Compared to the [Gradle plugin for Dokka](dokka-gradle.md), the Maven plugin has only basic features and
+> Compared to the [Gradle plugin for Dokka](gradle.md), the Maven plugin has only basic features and
 > does not provide support for multi-module builds.
 > 
 {type="note"}
@@ -40,23 +40,23 @@ The following goals are provided by the Maven plugin:
 
 | **Goal**      | **Description**                                                                        |
 |---------------|----------------------------------------------------------------------------------------|
-| `dokka:dokka` | Generates documentation with Dokka plugins applied. [HTML](dokka-html.md) format by default. |
+| `dokka:dokka` | Generates documentation with Dokka plugins applied. [HTML](html.md) format by default. |
 
 ### Experimental
 
 | **Goal**           | **Description**                                                                             |
 |--------------------|---------------------------------------------------------------------------------------------|
-| `dokka:javadoc`    | Generates documentation in [Javadoc](dokka-javadoc.md) format.                                    |
-| `dokka:javadocJar` | Generates a `javadoc.jar` file that contains documentation in [Javadoc](dokka-javadoc.md) format. |
+| `dokka:javadoc`    | Generates documentation in [Javadoc](javadoc.md) format.                                    |
+| `dokka:javadocJar` | Generates a `javadoc.jar` file that contains documentation in [Javadoc](javadoc.md) format. |
 
 ### Other output formats
 
-By default, the Maven plugin for Dokka builds documentation in [HTML](dokka-html.md) output format.
+By default, the Maven plugin for Dokka builds documentation in [HTML](html.md) output format.
 
-All other output formats are implemented as [Dokka plugins](dokka-plugins.md). In order to generate documentation in the 
+All other output formats are implemented as [Dokka plugins](plugins.md). In order to generate documentation in the 
 desired format, you have to add it as a Dokka plugin to the configuration.
 
-For example, to use the experimental [GFM](dokka-markdown.md#gfm) format, you have to add `gfm-plugin` artifact:
+For example, to use the experimental [GFM](markdown.md#gfm) format, you have to add `gfm-plugin` artifact:
 
 ```xml
 <plugin>
@@ -77,7 +77,7 @@ For example, to use the experimental [GFM](dokka-markdown.md#gfm) format, you ha
 
 With this configuration, running the `dokka:dokka` goal produces documentation in GFM format.
 
-To learn more about Dokka plugins, see [Dokka plugins](dokka-plugins.md).
+To learn more about Dokka plugins, see [Dokka plugins](plugins.md).
 
 ## Build javadoc.jar
 
@@ -88,11 +88,11 @@ For example, if you want to publish to [Maven Central](https://central.sonatype.
 [must](https://central.sonatype.org/publish/requirements/) supply a `javadoc.jar` alongside your project. However,
 not all repositories have that rule.
 
-Unlike the [Gradle plugin for Dokka](dokka-gradle.md#build-javadoc-jar), the Maven plugin comes with a ready-to-use `dokka:javadocJar`
-goal. By default, it generates documentation in [Javadoc](dokka-javadoc.md) output format in the`target` folder.
+Unlike the [Gradle plugin for Dokka](gradle.md#build-javadoc-jar), the Maven plugin comes with a ready-to-use `dokka:javadocJar`
+goal. By default, it generates documentation in [Javadoc](javadoc.md) output format in the`target` folder.
 
 If you are not satisfied with the built-in goal or want to customize the output (for example, you want to generate
-documentation in [HTML](dokka-html.md) format instead of Javadoc), similar behavior can be achieved by adding the
+documentation in [HTML](html.md) format instead of Javadoc), similar behavior can be achieved by adding the
 Maven JAR plugin with the following configuration:
 
 ```xml
@@ -368,7 +368,7 @@ with [all configuration options](#complete-configuration) applied at the bottom 
     <def title="includes">
         <p>
             A list of Markdown files that contain 
-            <a href="dokka-module-and-package-docs.md">module and package documentation</a>
+            <a href="module-and-package-docs.md">module and package documentation</a>
         </p>
         <p>The contents of specified files are parsed and embedded into documentation as module and package descriptions.</p>
     </def>

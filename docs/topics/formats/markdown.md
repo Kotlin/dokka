@@ -10,7 +10,7 @@ These formats give you more freedom in terms of hosting documentation as the out
 documentation website. For example, see [OkHttp's API reference](https://square.github.io/okhttp/4.x/okhttp/okhttp3/)
 pages.
 
-Markdown output formats are implemented as [Dokka plugins](dokka-plugins.md), maintained by the Dokka team, and 
+Markdown output formats are implemented as [Dokka plugins](plugins.md), maintained by the Dokka team, and 
 they are open source.
 
 ## GFM
@@ -20,18 +20,18 @@ The GFM output format generates documentation in [GitHub Flavored Markdown](http
 <tabs group="build-script">
 <tab title="Gradle" group-key="kotlin">
 
-The [Gradle plugin for Dokka](dokka-gradle.md) comes with the GFM output format included. You can use the following tasks with it:
+The [Gradle plugin for Dokka](gradle.md) comes with the GFM output format included. You can use the following tasks with it:
 
 | **Task**              | **Description**                                                                                                                                                                                                                         |
 |-----------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `dokkaGfm`            | Generates GFM documentation for a single project.                                                                                                                                                                                       |
-| `dokkaGfmMultiModule` | A [`MultiModule`](dokka-gradle.md#multi-project-builds) task created only for parent projects in multi-project builds. It generates documentation for subprojects and collects all outputs in a single place with a common table of contents. |
-| `dokkaGfmCollector`   | A [`Collector`](dokka-gradle.md#collector-tasks) task created only for parent projects in multi-project builds. It calls `dokkaGfm` for every subproject and merges all outputs into a single virtual project.                                |
+| `dokkaGfmMultiModule` | A [`MultiModule`](gradle.md#multi-project-builds) task created only for parent projects in multi-project builds. It generates documentation for subprojects and collects all outputs in a single place with a common table of contents. |
+| `dokkaGfmCollector`   | A [`Collector`](gradle.md#collector-tasks) task created only for parent projects in multi-project builds. It calls `dokkaGfm` for every subproject and merges all outputs into a single virtual project.                                |
 
 </tab>
 <tab title="Maven" group-key="groovy">
 
-Since GFM format is implemented as a [Dokka plugin](dokka-plugins.md#apply-dokka-plugins), you need to apply it as a plugin
+Since GFM format is implemented as a [Dokka plugin](plugins.md#apply-dokka-plugins), you need to apply it as a plugin
 dependency:
 
 ```xml
@@ -53,16 +53,16 @@ dependency:
 
 After configuring this, running the `dokka:dokka` goal produces documentation in GFM format.
 
-For more information, see the Mavin plugin documentation for [Other output formats](dokka-maven.md#other-output-formats).
+For more information, see the Mavin plugin documentation for [Other output formats](maven.md#other-output-formats).
 
 </tab>
 <tab title="CLI" group-key="cli">
 
-Since GFM format is implemented as a [Dokka plugin](dokka-plugins.md#apply-dokka-plugins), you need to download the
+Since GFM format is implemented as a [Dokka plugin](plugins.md#apply-dokka-plugins), you need to download the
 [JAR file](https://mvnrepository.com/artifact/org.jetbrains.dokka/gfm-plugin/%dokkaVersion%) and pass it to
 `pluginsClasspath`.
 
-Via [command line options](dokka-cli.md#run-with-command-line-options):
+Via [command line options](cli.md#run-with-command-line-options):
 
 ```Bash
 java -jar dokka-cli-%dokkaVersion%.jar \
@@ -70,7 +70,7 @@ java -jar dokka-cli-%dokkaVersion%.jar \
      ...
 ```
 
-Via [JSON configuration](dokka-cli.md#run-with-json-configuration):
+Via [JSON configuration](cli.md#run-with-json-configuration):
 
 ```json
 {
@@ -84,7 +84,7 @@ Via [JSON configuration](dokka-cli.md#run-with-json-configuration):
 }
 ```
 
-For more information, see the CLI runner's documentation for [Other output formats](dokka-cli.md#other-output-formats).
+For more information, see the CLI runner's documentation for [Other output formats](cli.md#other-output-formats).
 
 </tab>
 </tabs>
@@ -98,18 +98,18 @@ The Jekyll output format generates documentation in [Jekyll](https://jekyllrb.co
 <tabs group="build-script">
 <tab title="Gradle" group-key="kotlin">
 
-The [Gradle plugin for Dokka](dokka-gradle.md) comes with the Jekyll output format included. You can use the following tasks with it:
+The [Gradle plugin for Dokka](gradle.md) comes with the Jekyll output format included. You can use the following tasks with it:
 
 | **Task**                 | **Description**                                                                                                                                                                                                                         |
 |--------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `dokkaJekyll`            | Generates Jekyll documentation for a single project.                                                                                                                                                                                    |
-| `dokkaJekyllMultiModule` | A [`MultiModule`](dokka-gradle.md#multi-project-builds) task created only for parent projects in multi-project builds. It generates documentation for subprojects and collects all outputs in a single place with a common table of contents. |
-| `dokkaJekyllCollector`   | A [`Collector`](dokka-gradle.md#collector-tasks) task created only for parent projects in multi-project builds. It calls `dokkaJekyll` for every subproject and merges all outputs into a single virtual project.                             |
+| `dokkaJekyllMultiModule` | A [`MultiModule`](gradle.md#multi-project-builds) task created only for parent projects in multi-project builds. It generates documentation for subprojects and collects all outputs in a single place with a common table of contents. |
+| `dokkaJekyllCollector`   | A [`Collector`](gradle.md#collector-tasks) task created only for parent projects in multi-project builds. It calls `dokkaJekyll` for every subproject and merges all outputs into a single virtual project.                             |
 
 </tab>
 <tab title="Maven" group-key="groovy">
 
-Since Jekyll format is implemented as a [Dokka plugin](dokka-plugins.md#apply-dokka-plugins), you need to apply it as a plugin
+Since Jekyll format is implemented as a [Dokka plugin](plugins.md#apply-dokka-plugins), you need to apply it as a plugin
 dependency:
 
 ```xml
@@ -131,17 +131,17 @@ dependency:
 
 After configuring this, running the `dokka:dokka` goal produces documentation in GFM format.
 
-For more information, see the Maven plugin's documentation for [Other output formats](dokka-maven.md#other-output-formats).
+For more information, see the Maven plugin's documentation for [Other output formats](maven.md#other-output-formats).
 
 </tab>
 <tab title="CLI" group-key="cli">
 
-Since Jekyll format is implemented as a [Dokka plugin](dokka-plugins.md#apply-dokka-plugins), you need to download the
+Since Jekyll format is implemented as a [Dokka plugin](plugins.md#apply-dokka-plugins), you need to download the
 [JAR file](https://mvnrepository.com/artifact/org.jetbrains.dokka/jekyll-plugin/%dokkaVersion%). This format is also
 based on [GFM](#gfm) format, so you need to provide it as a dependency as well. Both JARs need to be passed to 
 `pluginsClasspath`:
 
-Via [command line options](dokka-cli.md#run-with-command-line-options):
+Via [command line options](cli.md#run-with-command-line-options):
 
 ```Bash
 java -jar dokka-cli-%dokkaVersion%.jar \
@@ -149,7 +149,7 @@ java -jar dokka-cli-%dokkaVersion%.jar \
      ...
 ```
 
-Via [JSON configuration](dokka-cli.md#run-with-json-configuration):
+Via [JSON configuration](cli.md#run-with-json-configuration):
 
 ```json
 {
@@ -164,7 +164,7 @@ Via [JSON configuration](dokka-cli.md#run-with-json-configuration):
 }
 ```
 
-For more information, see the CLI runner's documentation for [Other output formats](dokka-cli.md#other-output-formats).
+For more information, see the CLI runner's documentation for [Other output formats](cli.md#other-output-formats).
 
 </tab>
 </tabs>

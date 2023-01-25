@@ -46,7 +46,7 @@ dependencies {
 }
 ```
 
-> When documenting [multi-project](dokka-gradle.md#multi-project-builds) builds, you need to apply Dokka plugins within
+> When documenting [multi-project](gradle.md#multi-project-builds) builds, you need to apply Dokka plugins within
 > subprojects as well as in their parent project.
 >
 {type="note"}
@@ -70,7 +70,7 @@ dependencies {
 }
 ```
 
-> When documenting [multi-project](dokka-gradle.md#multi-project-builds) builds, you need to apply Dokka plugins within
+> When documenting [multi-project](gradle.md#multi-project-builds) builds, you need to apply Dokka plugins within
 > subprojects as well as in their parent project.
 >
 {type="note"}
@@ -98,7 +98,7 @@ dependencies {
 </tab>
 <tab title="CLI" group-key="cli">
 
-If you are using the [CLI](dokka-cli.md) runner with [command line options](dokka-cli.md#run-with-command-line-options), 
+If you are using the [CLI](cli.md) runner with [command line options](cli.md#run-with-command-line-options), 
 Dokka plugins should be passed as `.jar` files to `-pluginsClasspath`:
 
 ```Shell
@@ -107,7 +107,7 @@ java -jar dokka-cli-%dokkaVersion%.jar \
      ...
 ```
 
-If you are using [JSON configuration](dokka-cli.md#run-with-json-configuration), Dokka plugins should be specified under 
+If you are using [JSON configuration](cli.md#run-with-json-configuration), Dokka plugins should be specified under 
 `pluginsClasspath`.
 
 ```json
@@ -130,7 +130,7 @@ If you are using [JSON configuration](dokka-cli.md#run-with-json-configuration),
 Dokka plugins can also have configuration options of their own. To see which options are available, consult
 the documentation of the plugins you are using. 
 
-Let's have a look at how you can configure the `DokkaBase` plugin, which is responsible for generating [HTML](dokka-html.md)
+Let's have a look at how you can configure the `DokkaBase` plugin, which is responsible for generating [HTML](html.md)
 documentation, by adding a custom image to the assets (`customAssets` option), by adding custom style sheets
 (`customStyleSheets` option), and by modifying the footer message (`footerMessage` option):
 
@@ -232,7 +232,7 @@ tasks.withType(DokkaTask.class) {
 </tab>
 <tab title="CLI" group-key="cli">
 
-If you are using the [CLI](dokka-cli.md) runner with [command line options](dokka-cli.md#run-with-command-line-options),
+If you are using the [CLI](cli.md) runner with [command line options](cli.md#run-with-command-line-options),
 use the `-pluginsConfiguration` option that accepts JSON configuration in the form of `fullyQualifiedPluginName=json`.
 
 If you need to configure multiple plugins, you can pass multiple values separated by `^^`.
@@ -243,7 +243,7 @@ java -jar dokka-cli-%dokkaVersion%.jar \
      -pluginsConfiguration "org.jetbrains.dokka.base.DokkaBase={\"customAssets\": [\"my-image.png\"], \"customStyleSheets\": [\"my-styles.css\"], \"footerMessage\": \"(c) 2022 MyOrg CLI\"}"
 ```
 
-If you are using [JSON configuration](dokka-cli.md#run-with-json-configuration), there exists a similar
+If you are using [JSON configuration](cli.md#run-with-json-configuration), there exists a similar
 `pluginsConfiguration` array that accepts JSON configuration in `values`.
 
 ```json

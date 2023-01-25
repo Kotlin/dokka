@@ -54,23 +54,23 @@ To pass these files to Dokka, you need to use the relevant **includes** option f
 <tabs group="build-script">
 <tab title="Gradle" group-key="gradle">
 
-Use the [includes](dokka-gradle.md#includes) option in [Source set configuration](dokka-gradle.md#source-set-configuration).
+Use the [includes](gradle.md#includes) option in [Source set configuration](gradle.md#source-set-configuration).
 
 </tab>
 
 <tab title="Maven" group-key="mvn">
 
-Use the [includes](dokka-maven.md#includes) option in [General configuration](dokka-maven.md#general-configuration).
+Use the [includes](maven.md#includes) option in [General configuration](maven.md#general-configuration).
 
 </tab>
 
 <tab title="CLI" group-key="cli">
 
-If you are using command line configuration, use the [includes](dokka-cli.md#includes-cli) option in 
-[Source set options](dokka-cli.md#source-set-options).
+If you are using command line configuration, use the [includes](cli.md#includes-cli) option in 
+[Source set options](cli.md#source-set-options).
 
-If you are using JSON configuration, use the [includes](dokka-cli.md#includes-json) option in 
-[General configuration](dokka-cli.md#general-configuration).
+If you are using JSON configuration, use the [includes](cli.md#includes-json) option in 
+[General configuration](cli.md#general-configuration).
 
 </tab>
 </tabs>

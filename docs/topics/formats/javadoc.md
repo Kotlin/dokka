@@ -18,7 +18,7 @@ All Kotlin code and signatures are rendered as seen from Java's perspective. Thi
 [Kotlin as Java Dokka plugin](https://github.com/Kotlin/dokka/tree/master/plugins/kotlin-as-java), which comes bundled and
 applied by default for this format.
 
-The Javadoc output format is implemented as a [Dokka plugin](dokka-plugins.md), and it is maintained by the Dokka team.
+The Javadoc output format is implemented as a [Dokka plugin](plugins.md), and it is maintained by the Dokka team.
 It is open source and you can find the source code on [GitHub](https://github.com/Kotlin/dokka/tree/master/plugins/javadoc).
 
 ## Generate Javadoc documentation
@@ -31,19 +31,19 @@ It is open source and you can find the source code on [GitHub](https://github.co
 <tabs group="build-script">
 <tab title="Gradle" group-key="kotlin">
 
-The [Gradle plugin for Dokka](dokka-gradle.md) comes with the Javadoc output format included. You can use the following tasks:
+The [Gradle plugin for Dokka](gradle.md) comes with the Javadoc output format included. You can use the following tasks:
 
 | **Task**                | **Description**                                                                                                                                                                                              |
 |-------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `dokkaJavadoc`          | Generates Javadoc documentation for a single project.                                                                                                                                                        |
-| `dokkaJavadocCollector` | A [`Collector`](dokka-gradle.md#collector-tasks) task created only for parent projects in multi-project builds. It calls `dokkaJavadoc` for every subproject and merges all outputs into a single virtual project. |
+| `dokkaJavadocCollector` | A [`Collector`](gradle.md#collector-tasks) task created only for parent projects in multi-project builds. It calls `dokkaJavadoc` for every subproject and merges all outputs into a single virtual project. |
 
-The `javadoc.jar` file can be generated separately. For more information, see [Building `javadoc.jar`](dokka-gradle.md#build-javadoc-jar).
+The `javadoc.jar` file can be generated separately. For more information, see [Building `javadoc.jar`](gradle.md#build-javadoc-jar).
 
 </tab>
 <tab title="Maven" group-key="groovy">
 
-The [Maven plugin for Dokka](dokka-maven.md) comes with the Javadoc output format built in. You can generate documentation
+The [Maven plugin for Dokka](maven.md) comes with the Javadoc output format built in. You can generate documentation
 by using the following goals:
 
 | **Goal**           | **Description**                                                              |
@@ -55,7 +55,7 @@ by using the following goals:
 </tab>
 <tab title="CLI" group-key="cli">
 
-Since the Javadoc output format is a [Dokka plugin](dokka-plugins.md#apply-dokka-plugins), you need to 
+Since the Javadoc output format is a [Dokka plugin](plugins.md#apply-dokka-plugins), you need to 
 download the plugin's [JAR file](https://mvnrepository.com/artifact/org.jetbrains.dokka/javadoc-plugin/%dokkaVersion%).
 
 The Javadoc output format has two dependencies that you need to provide as additional JAR files:
@@ -63,7 +63,7 @@ The Javadoc output format has two dependencies that you need to provide as addit
 * [kotlin-as-java plugin](https://mvnrepository.com/artifact/org.jetbrains.dokka/kotlin-as-java-plugin/%dokkaVersion%)
 * [korte-jvm](https://mvnrepository.com/artifact/com.soywiz.korlibs.korte/korte-jvm/3.3.0)
 
-Via [command line options](dokka-cli.md#run-with-command-line-options):
+Via [command line options](cli.md#run-with-command-line-options):
 
 ```Bash
 java -jar dokka-cli-%dokkaVersion%.jar \
@@ -71,7 +71,7 @@ java -jar dokka-cli-%dokkaVersion%.jar \
      ...
 ```
 
-Via [JSON configuration](dokka-cli.md#run-with-json-configuration):
+Via [JSON configuration](cli.md#run-with-json-configuration):
 
 ```json
 {
@@ -87,7 +87,7 @@ Via [JSON configuration](dokka-cli.md#run-with-json-configuration):
 }
 ```
 
-For more information, see [Other output formats](dokka-cli.md#other-output-formats) in the CLI runner's documentation.
+For more information, see [Other output formats](cli.md#other-output-formats) in the CLI runner's documentation.
 
 </tab>
 </tabs>

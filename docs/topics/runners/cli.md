@@ -1,6 +1,6 @@
 [//]: # (title: CLI)
 
-If for some reason you cannot use [Gradle](dokka-gradle.md) or [Maven](dokka-maven.md) build tools, Dokka has
+If for some reason you cannot use [Gradle](gradle.md) or [Maven](maven.md) build tools, Dokka has
 a command line (CLI) runner for generating documentation.
 
 In comparison, it has the same, if not more, capabilities as the Gradle plugin for Dokka. Although it is considerably more
@@ -41,7 +41,7 @@ Listed below are the dependencies that you need for any output format:
 | `org.jetbrains.dokka` | `kotlin-analysis-compiler` | %dokkaVersion% | [mvnrepository](https://mvnrepository.com/artifact/org.jetbrains.dokka/kotlin-analysis-compiler/%dokkaVersion%) |
 | `org.jetbrains.dokka` | `kotlin-analysis-intellij` | %dokkaVersion% | [mvnrepository](https://mvnrepository.com/artifact/org.jetbrains.dokka/kotlin-analysis-intellij/%dokkaVersion%) |
 
-Below are the additional dependencies that you need for [HTML](dokka-html.md) output format:
+Below are the additional dependencies that you need for [HTML](html.md) output format:
 
 | **Group**               | **Artifact**       | **Version** | **Link**                                                                                         |
 |-------------------------|--------------------|-------------|--------------------------------------------------------------------------------------------------|
@@ -71,7 +71,7 @@ java -jar dokka-cli-%dokkaVersion%.jar \
 >
 {type="note"}
 
-Executing the given example generates documentation in [HTML](dokka-html.md) output format.
+Executing the given example generates documentation in [HTML](html.md) output format.
 
 See [Command line options](#command-line-options) for more configuration details.
 
@@ -121,12 +121,12 @@ See [JSON configuration options](#json-configuration) for more details.
 
 ### Other output formats
 
-By default, the `dokka-base` artifact contains the [HTML](dokka-html.md) output format only.
+By default, the `dokka-base` artifact contains the [HTML](html.md) output format only.
 
-All other output formats are implemented as [Dokka plugins](dokka-plugins.md). In order to use them, you have to put them
+All other output formats are implemented as [Dokka plugins](plugins.md). In order to use them, you have to put them
 on the plugins classpath.
 
-For example, if you want to generate documentation in the experimental [GFM](dokka-markdown.md#gfm) output format, you need to download and
+For example, if you want to generate documentation in the experimental [GFM](markdown.md#gfm) output format, you need to download and
 pass [gfm-plugin's JAR](https://mvnrepository.com/artifact/org.jetbrains.dokka/gfm-plugin/%dokkaVersion%) into 
 the `pluginsClasspath` configuration option.
 
@@ -154,7 +154,7 @@ Via JSON configuration:
 
 With the GFM plugin passed to `pluginsClasspath`, the CLI runner generates documentation in the GFM output format.
 
-For more information, see [Markdown](dokka-markdown.md) and [Javadoc](dokka-javadoc.md#generate-javadoc-documentation) pages.
+For more information, see [Markdown](markdown.md) and [Javadoc](javadoc.md#generate-javadoc-documentation) pages.
 
 ## Command line options
 
@@ -205,7 +205,7 @@ Short summary:
 | `src`                        | Source code roots to be analyzed and documented. Accepts multiple paths separated by semicolons.                                                                               |
 | `dependentSourceSets`        | Names of the dependent source sets in format `moduleName/sourceSetName`. Accepts multiple paths separated by semicolons.                                                       |
 | `samples`                    | List of directories or files that contain sample functions. Accepts multiple paths separated by semicolons. <anchor name="includes-cli"/>                                      |
-| `includes`                   | Markdown files that contain [module and package documentation](dokka-module-and-package-docs.md). Accepts multiple paths separated by semicolons.                              |
+| `includes`                   | Markdown files that contain [module and package documentation](module-and-package-docs.md). Accepts multiple paths separated by semicolons.                              |
 | `documentedVisibilities`     | Visibilities to be documented. Accepts multiple values separated by semicolons. Possible values: `PUBLIC`, `PRIVATE`, `PROTECTED`, `INTERNAL`, `PACKAGE`.                      |
 | `reportUndocumented`         | Whether to report undocumented declarations.                                                                                                                                   | 
 | `noSkipEmptyPackages`        | Whether to create pages for empty packages.                                                                                                                                    | 
@@ -332,7 +332,7 @@ with [all configuration options](#complete-configuration) applied at the bottom 
     <def title="includes">
         <p>
             A list of Markdown files that contain
-            <a href="dokka-module-and-package-docs.md">module and package documentation</a>.
+            <a href="module-and-package-docs.md">module and package documentation</a>.
         </p>
         <p>The contents of specified files are parsed and embedded into documentation as module and package descriptions.</p>
         <p>This can be configured on per-package basis.</p>
@@ -516,7 +516,7 @@ How to configure Kotlin
     <def title="includes">
         <p>
             A list of Markdown files that contain
-            <a href="dokka-module-and-package-docs.md">module and package documentation</a>.
+            <a href="module-and-package-docs.md">module and package documentation</a>.
         </p>
         <p>The contents of the specified files are parsed and embedded into documentation as module and package descriptions.</p>
     </def>
