@@ -828,6 +828,11 @@ small {
     color: white;
 }
 
+.platform-tag.wasm-like {
+    background-color: #654FF0;
+    color: white;
+}
+
 .platform-tag.native-like {
     background-color: #CD74F6;
     color: white;
