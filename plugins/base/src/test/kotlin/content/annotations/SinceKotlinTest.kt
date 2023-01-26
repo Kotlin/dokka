@@ -153,7 +153,7 @@ class SinceKotlinTest : AbstractRenderingTest() {
                     .children.filter { it.name == "ring" && it is DFunction } as List<DFunction>
                 with(funcs) {
                     val sinceKotlin = mapOf(
-                        Platform.common to SinceKotlinVersion("1.2"),
+                        Platform.common to SinceKotlinVersion("1.0"),
                         Platform.jvm to SinceKotlinVersion("1.0"),
                         Platform.js to SinceKotlinVersion("1.1"),
                         Platform.native to SinceKotlinVersion("1.3")
