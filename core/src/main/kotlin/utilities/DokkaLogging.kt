@@ -1,6 +1,6 @@
 package org.jetbrains.dokka.utilities
 
-import java.util.concurrent.atomic.LongAdder
+import java.util.concurrent.atomic.AtomicInteger
 
 interface DokkaLogger {
     var warningsCount: Int
@@ -42,11 +42,16 @@ class DokkaConsoleLogger(
     val minLevel: LoggingLevel = LoggingLevel.DEBUG,
     private val emitter: MessageEmitter = MessageEmitter.consoleEmitter
 ) : DokkaLogger {
-    private val warningsCounter = LongAdder()
-    private val errorsCounter = LongAdder()
+    private val warningsCounter = AtomicInteger()
+    private val errorsCounter = AtomicInteger()
 
-    override var warningsCount: Int = warningsCounter.toInt()
-    override var errorsCount: Int = errorsCounter.toInt()
+    override var warningsCount: Int
+        get() = warningsCounter.get()
+        set(value) = warningsCounter.set(value)
+
+    override var errorsCount: Int
+        get() = errorsCounter.get()
+        set(value) = errorsCounter.set(value)
 
     override fun debug(message: String) {
         if (shouldBeDisplayed(LoggingLevel.DEBUG)) emitter(message)
@@ -64,14 +69,14 @@ class DokkaConsoleLogger(
         if (shouldBeDisplayed(LoggingLevel.WARN)) {
             emitter("WARN: $message")
         }
-        warningsCounter.increment()
+        warningsCounter.incrementAndGet()
     }
 
     override fun error(message: String) {
         if (shouldBeDisplayed(LoggingLevel.ERROR)) {
             emitter("ERROR: $message")
         }
-        errorsCounter.increment()
+        errorsCounter.incrementAndGet()
     }
 
     private fun shouldBeDisplayed(messageLevel: LoggingLevel): Boolean = messageLevel.index >= minLevel.index
