@@ -34,3 +34,14 @@ tasks.withType<DokkaTask>().configureEach {
         }
     }
 }
+
+// HACK: some dependencies (coroutines -wasm0 and atomicfu -wasm0) reference deleted *-dev libs
+configurations.all {
+    val conf = this
+    resolutionStrategy.eachDependency {
+        if (requested.version == "1.8.20-dev-3308") {
+            println("Substitute deleted version ${requested.module}:${requested.version} for ${conf.name}")
+            useVersion(project.properties["kotlin.version"] as String)
+        }
+    }
+}
