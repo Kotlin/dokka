@@ -1,24 +1,24 @@
 <#import "source_set_selector.ftl" as source_set_selector>
 <#macro display>
-<div class="navigation-wrapper" id="navigation-wrapper">
-    <div id="leftToggler"><span class="icon-toggler"></span></div>
+<nav class="navigation" id="navigation-wrapper">
+    <button class="menu-toggle" id="menu-toggle" type="button">Menu Toggle</button>
     <div class="library-name">
         <@template_cmd name="pathToRoot">
-            <a href="${pathToRoot}index.html">
+            <a class="library-name--link" href="${pathToRoot}index.html">
                 <@template_cmd name="projectName">
-                    <span>${projectName}</span>
+                    ${projectName}
                 </@template_cmd>
             </a>
         </@template_cmd>
     </div>
-    <div>
+    <div class="library-version">
         <#-- This can be handled by the versioning plugin -->
         <@version/>
     </div>
-    <div class="pull-right d-flex">
+    <div class="navigation-controls">
         <@source_set_selector.display/>
-        <button id="theme-toggle-button"><span id="theme-toggle"></span></button>
-        <div id="searchBar"></div>
+        <button class="navigation-controls--btn navigation-controls--theme" id="theme-toggle-button" type="button"></button>
+        <button class="navigation-controls--btn navigation-controls--search" id="searchBar" type="button"></button>
     </div>
-</div>
+</nav>
 </#macro>
