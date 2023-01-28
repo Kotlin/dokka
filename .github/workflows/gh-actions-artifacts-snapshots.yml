@@ -19,6 +19,7 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: 12
+          cache: 'maven'
       - name: Document coroutines
         uses: gradle/gradle-build-action@v2
         with:
@@ -44,6 +45,7 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: 12
+          cache: 'maven'
       - name: Document serialization
         uses: gradle/gradle-build-action@v2
         with:
@@ -69,6 +71,7 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: 12
+          cache: 'maven'
       - name: Document biojava-core
         uses: gradle/gradle-build-action@v2
         with:

@@ -21,7 +21,7 @@
     </dependencies>
 
     <build>
-        <sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
+        <sourceDirectory>${project.basedir}/src</sourceDirectory>
 
         <plugins>
             <plugin>
@@ -68,6 +68,9 @@
                             <lineSuffix>#L</lineSuffix>
                         </link>
                     </sourceLinks>
+                    <includes>
+                        <include>Module.md</include>
+                    </includes>
                 </configuration>
             </plugin>
         </plugins>

@@ -101,7 +101,7 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
         val configFiles = when (analysisPlatform) {
             Platform.jvm, Platform.common -> EnvironmentConfigFiles.JVM_CONFIG_FILES
             Platform.native -> EnvironmentConfigFiles.NATIVE_CONFIG_FILES
-            Platform.js -> EnvironmentConfigFiles.JS_CONFIG_FILES
+            Platform.js, Platform.wasm -> EnvironmentConfigFiles.JS_CONFIG_FILES
         }
 
         val environment = KotlinCoreEnvironment.createForProduction(this, configuration, configFiles)
@@ -170,7 +170,7 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
     private fun createSourceModuleSearchScope(project: Project, sourceFiles: List<KtFile>): GlobalSearchScope =
         when (analysisPlatform) {
             Platform.jvm -> TopDownAnalyzerFacadeForJVM.newModuleSearchScope(project, sourceFiles)
-            Platform.js, Platform.common, Platform.native -> GlobalSearchScope.filesScope(
+            Platform.js, Platform.common, Platform.native, Platform.wasm -> GlobalSearchScope.filesScope(
                 project,
                 sourceFiles.map { it.virtualFile }.toSet()
             )
@@ -181,7 +181,7 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
         val sourceFiles = environment.getSourceFiles()
 
         val targetPlatform = when (analysisPlatform) {
-            Platform.js -> JsPlatforms.defaultJsPlatform
+            Platform.js, Platform.wasm -> JsPlatforms.defaultJsPlatform
             Platform.common -> CommonPlatforms.defaultCommonPlatform
             Platform.native -> NativePlatforms.unspecifiedNativePlatform
             Platform.jvm -> JvmPlatforms.defaultJvmPlatform
@@ -265,7 +265,7 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
                 environment,
                 commonDependencyContainer
             )
-            Platform.js -> createJsResolverForProject(projectContext, module, modulesContent)
+            Platform.js, Platform.wasm -> createJsResolverForProject(projectContext, module, modulesContent)
             Platform.native -> createNativeResolverForProject(projectContext, module, modulesContent)
 
         }
@@ -299,14 +299,14 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
     }
 
     private fun Platform.analyzerServices() = when (this) {
-        Platform.js -> JsPlatformAnalyzerServices
+        Platform.js, Platform.wasm -> JsPlatformAnalyzerServices
         Platform.common -> CommonPlatformAnalyzerServices
         Platform.native -> NativePlatformAnalyzerServices
         Platform.jvm -> JvmPlatformAnalyzerServices
     }
 
     fun Collection<KotlinLibrary>.registerLibraries(): List<DokkaKlibLibraryInfo> {
-        if (analysisPlatform != Platform.native && analysisPlatform != Platform.js) return emptyList()
+        if (analysisPlatform != Platform.native && analysisPlatform != Platform.js && analysisPlatform != Platform.wasm) return emptyList()
         val dependencyResolver = DokkaKlibLibraryDependencyResolver()
         val analyzerServices = analysisPlatform.analyzerServices()
 
@@ -543,7 +543,7 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
      * $paths: collection of files to add
      */
     fun addClasspath(paths: List<File>) {
-        if (analysisPlatform == Platform.js) {
+        if (analysisPlatform == Platform.js || analysisPlatform == Platform.wasm) {
             configuration.addAll(JSConfigurationKeys.LIBRARIES, paths.map { it.absolutePath })
         } else {
             configuration.addJvmClasspathRoots(paths)
@@ -557,7 +557,7 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
      * $path: path to add
      */
     fun addClasspath(path: File) {
-        if (analysisPlatform == Platform.js) {
+        if (analysisPlatform == Platform.js || analysisPlatform == Platform.wasm) {
             configuration.add(JSConfigurationKeys.LIBRARIES, path.absolutePath)
         } else {
             configuration.addJvmClasspathRoot(path)

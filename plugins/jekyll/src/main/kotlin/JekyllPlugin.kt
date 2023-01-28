@@ -52,7 +52,10 @@ class JekyllPlugin : DokkaPlugin() {
     internal val alphaVersionNotifier by extending {
         CoreExtensions.postActions providing { ctx ->
             PostAction {
-                ctx.logger.info("Jekyll output format is in Alpha version, use at your own risk, expect bugs and migration issues")
+                ctx.logger.info(
+                    "The Jekyll output format is still in Alpha so you may find bugs and experience migration " +
+                            "issues when using it. You use it at your own risk."
+                )
             }
         }
     }
