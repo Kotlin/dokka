@@ -4,10 +4,9 @@ import org.jetbrains.dokka.javadoc.pages.JavadocContentKind
 import org.jetbrains.dokka.javadoc.pages.JavadocPackagePageNode
 import org.jetbrains.dokka.javadoc.pages.RowJavadocListEntry
 import org.jetbrains.dokka.links.DRI
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Disabled
-import org.junit.jupiter.api.Test
 import org.jetbrains.dokka.test.assertIsInstance
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
 import java.io.File
 
 internal class JavadocPackageTemplateMapTest : AbstractJavadocTemplateMapTest() {
@@ -82,22 +81,10 @@ internal class JavadocPackageTemplateMapTest : AbstractJavadocTemplateMapTest() 
         }
     }
 
-    @Disabled("To be implemented / To be fixed")
     @Test
-    fun `single class with package documentation`() {
-        dualTestTemplateMapInline(
-            kotlin =
-            """
-            /src/packages.md
-            # Package com.test.package0
-            ABC
-
-            /src/source0.kt
-            package com.test.package0
-            class Test
-            """,
-
-            java =
+    fun `single class with package documentation (java)`() {
+        testTemplateMapInline(
+            query =
             """
             /src/com/test/package0/package-info.java
             /**
@@ -108,11 +95,32 @@ internal class JavadocPackageTemplateMapTest : AbstractJavadocTemplateMapTest() 
             /src/com/test/package0/Test.java
             package com.test.package0;
             public class Test{}
+            """
+        ) {
+          val packagePage = singlePageOfType<JavadocPackagePageNode>()
+
+          val map = packagePage.templateMap
+          assertEquals("<p>ABC</p>", map["subtitle"].toString().trim())
+        }
+    }
+
+    @Test
+    fun `single class with package documentation (kotlin)`() {
+        testTemplateMapInline(
+            query =
+            """
+            /src/packages.md
+            # Package com.test.package0
+            ABC
+
+            /src/source0.kt
+            package com.test.package0
+            class Test
             """,
             configuration = config.copy(
                 sourceSets = config.sourceSets.map { sourceSet ->
                     sourceSet.copy(
-                        includes = setOf(File("packages.md"))
+                        includes = setOf(File("src/packages.md"))
                     )
                 }
             )
@@ -120,7 +128,74 @@ internal class JavadocPackageTemplateMapTest : AbstractJavadocTemplateMapTest() 
             val packagePage = singlePageOfType<JavadocPackagePageNode>()
 
             val map = packagePage.templateMap
-            assertEquals("ABD", map["subtitle"].toString().trim())
+            assertEquals("<p>ABC</p>", map["subtitle"].toString().trim())
+        }
+    }
+
+    @Test
+    fun `single class with long package documentation (java)`() {
+        testTemplateMapInline(
+            query =
+            """
+            /src/com/test/package0/package-info.java
+            /**
+            * Aliquam rerum est vel. Molestiae eos expedita animi repudiandae sed commodi. 
+            * Omnis qui ducimus ut et perspiciatis sint. 
+            *
+            * Veritatis nam eaque sequi laborum voluptas voluptate aut.
+            */
+            package com.test.package0;
+            
+            /src/com/test/package0/Test.java
+            package com.test.package0;
+            public class Test{}
+            """
+        ) {
+            val packagePage = singlePageOfType<JavadocPackagePageNode>()
+
+            val map = packagePage.templateMap
+            val expectedText = """
+                <p>Aliquam rerum est vel. Molestiae eos expedita animi repudiandae sed commodi. 
+                Omnis qui ducimus ut et perspiciatis sint. 
+                Veritatis nam eaque sequi laborum voluptas voluptate aut.</p>
+            """.trimIndent().replace("\n", "")
+            assertEquals(expectedText, map["subtitle"].toString().trim())
+        }
+    }
+
+    @Test
+    fun `single class with long package documentation (kotlin)`() {
+        testTemplateMapInline(
+            query =
+            """
+            /src/packages.md
+            # Package com.test.package0
+            Aliquam rerum est vel. Molestiae eos expedita animi repudiandae sed commodi.
+            Omnis qui ducimus ut et perspiciatis sint.
+            
+            Veritatis nam eaque sequi laborum voluptas voluptate aut.
+
+            /src/source0.kt
+            package com.test.package0
+            class Test
+            """,
+            configuration = config.copy(
+                sourceSets = config.sourceSets.map { sourceSet ->
+                    sourceSet.copy(
+                        includes = setOf(File("src/packages.md"))
+                    )
+                }
+            )
+        ) {
+            val packagePage = singlePageOfType<JavadocPackagePageNode>()
+
+            val map = packagePage.templateMap
+            val expectedText = """
+                <p>Aliquam rerum est vel. Molestiae eos expedita animi repudiandae sed commodi. 
+                Omnis qui ducimus ut et perspiciatis sint.</p>
+                <p>Veritatis nam eaque sequi laborum voluptas voluptate aut.</p>
+            """.trimIndent().replace("\n", "")
+            assertEquals(expectedText, map["subtitle"].toString().trim())
         }
     }
 }

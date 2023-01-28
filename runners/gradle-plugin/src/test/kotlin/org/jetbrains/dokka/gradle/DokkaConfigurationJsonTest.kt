@@ -13,7 +13,7 @@ import java.io.File
 import java.net.URL
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import org.jetbrains.dokka.gradle.tasks.*
+import org.jetbrains.dokka.gradle.tasks.DokkaTask
 
 class DokkaConfigurationJsonTest {
 

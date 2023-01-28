@@ -6,7 +6,11 @@ import org.gradle.api.Project
 import org.gradle.api.artifacts.Dependency
 import org.gradle.kotlin.dsl.register
 import org.gradle.util.GradleVersion
-import org.jetbrains.dokka.gradle.tasks.*
+import org.jetbrains.dokka.gradle.tasks.AbstractDokkaTask
+import org.jetbrains.dokka.gradle.tasks.DokkaCollectorTask
+import org.jetbrains.dokka.gradle.tasks.DokkaMultiModuleTask
+import org.jetbrains.dokka.gradle.tasks.DokkaTask
+import org.jetbrains.dokka.gradle.tasks.DokkaTaskPartial
 
 open class DokkaPlugin : Plugin<Project> {
     override fun apply(project: Project) {

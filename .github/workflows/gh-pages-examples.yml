@@ -30,6 +30,7 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: 11
+          cache: 'maven'
       - uses: gradle/gradle-build-action@v2
       - name: Build html
         run: ./gradlew dokkaHtml --no-daemon --stacktrace
@@ -47,7 +48,10 @@ jobs:
     if: github.repository == 'Kotlin/dokka'
     strategy:
       matrix:
-        projects: [ dokka-versioning-multimodule-example ]
+        projects: [
+          dokka-versioning-multimodule-example,
+          dokka-multimodule-example
+        ]
     steps:
       - uses: actions/checkout@v3
       - uses: dorny/paths-filter@v2
@@ -60,6 +64,7 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: 11
+          cache: 'maven'
       - uses: gradle/gradle-build-action@v2
       - name: Build html
         run: ./gradlew dokkaHtmlMultiModule --no-daemon --stacktrace
