@@ -13,8 +13,13 @@ import org.jetbrains.kotlin.utils.addToStdlib.cast
 import org.junit.Assert
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
-import signatures.*
-import utils.*
+import signatures.Parameter
+import signatures.Parameters
+import signatures.firstSignature
+import signatures.renderedContent
+import utils.A
+import utils.TestOutputWriterPlugin
+import utils.match
 import kotlin.test.assertEquals
 
 class KotlinAsJavaPluginTest : BaseAbstractTest() {
@@ -134,9 +139,18 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
                 }
 
                 classes["TestJ"].let {
-                    it?.children.orEmpty().assertCount(1, "(Java) TestJ members: ")
-                    it!!.children.first()
-                        .let { assert(it.name == "testF") { "(Java) Expected method name: testF, got: ${it.name}" } }
+                    it?.children.orEmpty().assertCount(2, "(Java) TestJ members: ") // constructor + method
+                    it!!.children.map { it.name }
+                        .let {
+                            assert(
+                                it.containsAll(
+                                    setOf(
+                                        "testF",
+                                        "TestJ"
+                                    )
+                                )
+                            ) { "(Java) Expected method name: testF, got: $it" }
+                        }
                 }
             }
         }
@@ -220,8 +234,9 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
                 val testClass = root.dfs { it.name == "TestJ" } as? ClasslikePageNode
                 assert(testClass != null)
                 (testClass!!.content as ContentGroup).children.last().assertNode {
+                    skipAllNotMatching()
                     group {
-                        header(2){
+                        header(2) {
                             +"Properties"
                         }
                         table {

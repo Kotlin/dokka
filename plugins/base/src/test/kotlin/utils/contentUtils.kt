@@ -1,9 +1,9 @@
 package utils
 
 import matchers.content.*
-import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.pages.ContentGroup
-import kotlin.text.Typography.nbsp
+import org.jetbrains.dokka.pages.ContentPage
+import org.jetbrains.dokka.pages.RootPageNode
 
 //TODO: Try to unify those functions after update to 1.4
 fun ContentMatcherBuilder<*>.functionSignature(
@@ -64,6 +64,53 @@ fun ContentMatcherBuilder<*>.bareSignature(
             link {
                 +(returnType)
             }
+        }
+    }
+}
+
+fun ContentMatcherBuilder<*>.classSignature(
+    annotations: Map<String, Set<String>>,
+    visibility: String,
+    modifier: String,
+    keywords: Set<String>,
+    name: String,
+    vararg params: Pair<String, ParamAttributes>,
+    parent: String? = null
+) = group {
+    annotations.entries.forEach {
+        group {
+            unwrapAnnotation(it)
+        }
+    }
+    if (visibility.isNotBlank()) +"$visibility "
+    if (modifier.isNotBlank()) +"$modifier "
+    +("${keywords.joinToString("") { "$it " }}class ")
+    link { +name }
+    if (params.isNotEmpty()) {
+        +"("
+        group {
+            params.forEachIndexed { id, (n, t) ->
+                group {
+                    t.annotations.forEach {
+                        unwrapAnnotation(it)
+                    }
+                    t.keywords.forEach {
+                        +it
+                    }
+
+                    +"$n: "
+                    group { link { +(t.type) } }
+                    if (id != params.lastIndex)
+                        +", "
+                }
+            }
+        }
+        +")"
+    }
+    if (parent != null) {
+        +(" : ")
+        link {
+            +(parent)
         }
     }
 }
@@ -176,7 +223,7 @@ fun ContentMatcherBuilder<*>.propertySignature(
                                     }
                                 }
                             }
-                            if (type != null) {
+                            if (value != null) {
                                 +(" = $value")
                             }
                         }
@@ -272,3 +319,6 @@ data class ParamAttributes(
     val keywords: Set<String>,
     val type: String
 )
+
+fun RootPageNode.findTestType(packageName: String, name: String) =
+    children.single { it.name == packageName }.children.single { it.name == name } as ContentPage

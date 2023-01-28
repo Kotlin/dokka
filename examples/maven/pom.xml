@@ -9,7 +9,7 @@
     <version>1.0-SNAPSHOT</version>
     <properties>
         <kotlin.version>1.7.20</kotlin.version>
-        <dokka.version>1.7.10</dokka.version>
+        <dokka.version>1.7.20</dokka.version>
     </properties>
 
     <dependencies>
@@ -21,7 +21,7 @@
     </dependencies>
 
     <build>
-        <sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
+        <sourceDirectory>${project.basedir}/src</sourceDirectory>
 
         <plugins>
             <plugin>
@@ -68,6 +68,9 @@
                             <lineSuffix>#L</lineSuffix>
                         </link>
                     </sourceLinks>
+                    <includes>
+                        <include>Module.md</include>
+                    </includes>
                 </configuration>
             </plugin>
         </plugins>

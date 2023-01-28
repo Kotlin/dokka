@@ -8,7 +8,6 @@ import org.jetbrains.dokka.model.dfs
 import org.junit.jupiter.api.Test
 import utils.*
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
 
 class SignatureTest : BaseAbstractTest() {
     private val configuration = dokkaConfiguration {
@@ -760,43 +759,83 @@ class SignatureTest : BaseAbstractTest() {
                 writerPlugin.writer.renderedContent("root/example/-generic-class/-generic-class.html").signature().zip(
                     listOf(
                         arrayOf(
-                            "fun <", A("T"), "> ", A("GenericClass"), "(", Parameters(
+                            "constructor(",
+                            Parameters(
                                 Parameter("x: ", A("T"))
-                            ), ")",
+                            ),
+                            ")",
                         ),
                         arrayOf(
-                            "fun ", A("GenericClass"), "(", Parameters(
+                            "constructor(",
+                            Parameters(
                                 Parameter("x: ", A("Int"), ", "),
                                 Parameter("y: ", A("String"))
-                            ), ")",
+                            ),
+                            ")",
                         ),
                         arrayOf(
-                            "fun <", A("T"), "> ", A("GenericClass"), "(", Parameters(
+                            "constructor(",
+                            Parameters(
                                 Parameter("x: ", A("Int"), ", "),
                                 Parameter("y: ", A("List"), "<", A("T"), ">")
-                            ), ")",
+                            ),
+                            ")",
                         ),
                         arrayOf(
-                            "fun ", A("GenericClass"), "(", Parameters(
+                            "constructor(",
+                            Parameters(
                                 Parameter("x: ", A("Boolean"), ", "),
                                 Parameter("y: ", A("Int"), ", "),
                                 Parameter("z:", A("String"))
-                            ), ")",
+                            ),
+                            ")",
                         ),
                         arrayOf(
-                            "fun <", A("T"), "> ", A("GenericClass"), "(", Parameters(
+                            "constructor(",
+                            Parameters(
                                 Parameter("x: ", A("List"), "<", A("Comparable"), "<", A("Lazy"), "<", A("T"), ">>>?")
-                            ), ")",
+                            ),
+                            ")",
                         ),
                         arrayOf(
-                            "fun ", A("GenericClass"), "(", Parameters(
+                            "constructor(",
+                            Parameters(
                                 Parameter("x: ", A("Int"))
-                            ), ")",
+                            ),
+                            ")",
                         ),
                     )
                 ).forEach {
                     it.first.match(*it.second, ignoreSpanWithTokenStyle = true)
                 }
+            }
+        }
+    }
+
+    @Test
+    fun `constructor has its own custom signature keyword in Constructor tab`() {
+        val writerPlugin = TestOutputWriterPlugin()
+
+        testInline(
+            """
+                |/src/main/kotlin/common/Test.kt
+                |package example
+                |
+                |class PrimaryConstructorClass(x: String) { }
+            """.trimMargin(),
+            configuration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                val constructorTabFirstElement =
+                    writerPlugin.writer.renderedContent("root/example/-primary-constructor-class/index.html")
+                        .tab("Constructors")
+                        .first() ?: throw NoSuchElementException("No Constructors tab found or it is empty")
+
+                constructorTabFirstElement.firstSignature().match(
+                    "constructor(", Parameters(Parameter("x: ", A("String"))), ")",
+                    ignoreSpanWithTokenStyle = true
+                )
             }
         }
     }
@@ -937,9 +976,13 @@ class SignatureTest : BaseAbstractTest() {
 
                 writerPlugin.writer.renderedContent("root/test/-java-class/index.html").let { kotlinClassContent ->
                     val signatures = kotlinClassContent.signature().toList()
-                    assertEquals(2, signatures.size, "Expected 2 signatures: class signature and property")
+                    assertEquals(
+                        3,
+                        signatures.size,
+                        "Expected 3 signatures: class signature, default constructor and property"
+                    )
 
-                    val property = signatures[1]
+                    val property = signatures[2]
                     property.match(
                         "open var ", A("property"), ":", A("Int"),
                         ignoreSpanWithTokenStyle = true
