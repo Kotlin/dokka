@@ -1,12 +1,10 @@
 package org.jetbrains.dokka.base.transformers.pages.samples
 
 import com.intellij.psi.PsiElement
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
-import org.jetbrains.dokka.Platform
-import org.jetbrains.dokka.analysis.AnalysisEnvironment
-import org.jetbrains.dokka.analysis.DokkaMessageCollector
-import org.jetbrains.dokka.analysis.DokkaResolutionFacade
-import org.jetbrains.dokka.analysis.EnvironmentAndFacade
+import org.jetbrains.dokka.analysis.*
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.renderers.sourceSets
 import org.jetbrains.dokka.links.DRI
@@ -22,61 +20,50 @@ import org.jetbrains.kotlin.idea.kdoc.resolveKDocLink
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.DescriptorToSourceUtils
-import org.jetbrains.kotlin.utils.PathUtil
 
+internal const val KOTLIN_PLAYGROUND_SCRIPT = "<script src=\"https://unpkg.com/kotlin-playground@1\"></script>"
 abstract class SamplesTransformer(val context: DokkaContext) : PageTransformer {
 
     abstract fun processBody(psiElement: PsiElement): String
     abstract fun processImports(psiElement: PsiElement): String
 
-    final override fun invoke(input: RootPageNode): RootPageNode {
-        val analysis = setUpAnalysis(context)
-        val kotlinPlaygroundScript =
-            "<script src=\"https://unpkg.com/kotlin-playground@1\"></script>"
+    final override fun invoke(input: RootPageNode): RootPageNode =
+        /**
+         * Run from the thread of [Dispatchers.Default]. It can help to avoid a memory leaks in `ThreadLocal`s (that keep `URLCLassLoader`)
+         * since we shut down Dispatchers. Default at the end of each task (see [org.jetbrains.dokka.DokkaConfiguration.finalizeCoroutines]).
+         * Currently, all `ThreadLocal`s are in a compiler/IDE codebase.
+         */
+        runBlocking(Dispatchers.Default) {
+            val analysis = SamplesKotlinAnalysis(
+                sourceSets = context.configuration.sourceSets,
+                logger = context.logger,
+                projectKotlinAnalysis = context.plugin<DokkaBase>().querySingle { kotlinAnalysis }
+            )
+            analysis.use {
+                input.transformContentPagesTree { page ->
+                    val samples = (page as? WithDocumentables)?.documentables?.flatMap {
+                        it.documentation.entries.flatMap { entry ->
+                            entry.value.children.filterIsInstance<Sample>().map { entry.key to it }
+                        }
+                    }
 
-        return input.transformContentPagesTree { page ->
-            val samples = (page as? WithDocumentables)?.documentables?.flatMap {
-                it.documentation.entries.flatMap { entry ->
-                    entry.value.children.filterIsInstance<Sample>().map { entry.key to it }
+                    samples?.fold(page as ContentPage) { acc, (sampleSourceSet, sample) ->
+                        acc.modified(
+                            content = acc.content.addSample(page, sampleSourceSet, sample.name, it),
+                            embeddedResources = acc.embeddedResources + KOTLIN_PLAYGROUND_SCRIPT
+                        )
+                    } ?: page
                 }
             }
-
-            samples?.fold(page as ContentPage) { acc, (sampleSourceSet, sample) ->
-                    acc.modified(
-                        content = acc.content.addSample(page, sampleSourceSet, sample.name, analysis),
-                        embeddedResources = acc.embeddedResources + kotlinPlaygroundScript
-                    )
-                } ?: page
         }
-    }
-
-    private fun setUpAnalysis(context: DokkaContext) = context.configuration.sourceSets.associateWith { sourceSet ->
-        if (sourceSet.samples.isEmpty()) context.plugin<DokkaBase>()
-            .querySingle { kotlinAnalysis }[sourceSet] // from sourceSet.sourceRoots
-        else AnalysisEnvironment(DokkaMessageCollector(context.logger), sourceSet.analysisPlatform).run {
-            if (analysisPlatform == Platform.jvm) {
-                configureJdkClasspathRoots()
-            }
-            sourceSet.classpath.forEach(::addClasspath)
-
-            addSources(sourceSet.samples.toList())
-
-            loadLanguageVersionSettings(sourceSet.languageVersion, sourceSet.apiVersion)
-
-            val environment = createCoreEnvironment()
-            val (facade, _) = createResolutionFacade(environment)
-            EnvironmentAndFacade(environment, facade)
-        }
-    }
 
     private fun ContentNode.addSample(
         contentPage: ContentPage,
         sourceSet: DokkaSourceSet,
         fqName: String,
-        analysis: Map<DokkaSourceSet, EnvironmentAndFacade>
+        analysis: KotlinAnalysis
     ): ContentNode {
-        val facade = analysis[sourceSet]?.facade
-            ?: return this.also { context.logger.warn("Cannot resolve facade for platform ${sourceSet.sourceSetID}") }
+        val facade = analysis[sourceSet].facade
         val psiElement = fqNameToPsiElement(facade, fqName)
             ?: return this.also { context.logger.warn("Cannot find PsiElement corresponding to $fqName") }
         val imports =

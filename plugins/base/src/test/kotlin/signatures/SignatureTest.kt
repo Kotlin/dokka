@@ -976,9 +976,13 @@ class SignatureTest : BaseAbstractTest() {
 
                 writerPlugin.writer.renderedContent("root/test/-java-class/index.html").let { kotlinClassContent ->
                     val signatures = kotlinClassContent.signature().toList()
-                    assertEquals(2, signatures.size, "Expected 2 signatures: class signature and property")
+                    assertEquals(
+                        3,
+                        signatures.size,
+                        "Expected 3 signatures: class signature, default constructor and property"
+                    )
 
-                    val property = signatures[1]
+                    val property = signatures[2]
                     property.match(
                         "open var ", A("property"), ":", A("Int"),
                         ignoreSpanWithTokenStyle = true
