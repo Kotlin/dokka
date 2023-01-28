@@ -15,7 +15,7 @@ include(
 
     ":plugins:base",
     ":plugins:base:frontend",
-//    ":plugins:base:search-component",
+    ":plugins:base:search-component",
     ":plugins:base:base-test-utils",
     ":plugins:all-modules-page",
     ":plugins:templating",
@@ -37,7 +37,7 @@ include(
 
     ":test-utils",
 
-    ":docs",
+    ":mkdocs",
 )
 
 val isCiBuild = System.getenv("GITHUB_ACTIONS") != null || System.getenv("TEAMCITY_VERSION") != null

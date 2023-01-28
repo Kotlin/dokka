@@ -90,8 +90,6 @@ jobs:
     strategy:
       matrix:
         include:
-          - task: "dokkaCustomFormat"
-            dir: "examples/gradle/dokka-customFormat-example"
           - task: "dokkaHtmlMultiModule"
             dir: "examples/gradle/dokka-multimodule-example"
     steps:
