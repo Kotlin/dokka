@@ -3,30 +3,12 @@ package org.jetbrains.dokka.gradle
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
 import org.gradle.api.UnknownDomainObjectException
-import org.gradle.api.provider.HasMultipleValues
-import org.gradle.api.provider.Property
-import org.gradle.api.provider.Provider
-import org.gradle.kotlin.dsl.*
+import org.gradle.kotlin.dsl.findByType
+import org.gradle.kotlin.dsl.getByType
 import org.gradle.util.Path
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
-
-internal infix fun <T> Property<T>.by(value: T?) {
-    this.set(value)
-}
-
-internal infix fun <T> Property<T>.by(value: Provider<T>) {
-    this.set(value)
-}
-
-internal infix fun <T> HasMultipleValues<in T>.by(values: Iterable<T>) {
-    this.set(values)
-}
-
-internal infix fun <T> HasMultipleValues<in T>.by(values: Provider<out Iterable<T>>) {
-    this.set(values)
-}
 
 internal fun parsePath(path: String): Path = Path.path(path)
 
