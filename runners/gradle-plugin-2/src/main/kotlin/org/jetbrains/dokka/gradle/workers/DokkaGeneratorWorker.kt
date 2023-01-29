@@ -1,0 +1,30 @@
+package org.jetbrains.dokka.gradle.workers
+
+import org.gradle.api.provider.Property
+import org.gradle.workers.WorkAction
+import org.gradle.workers.WorkParameters
+import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.DokkaGenerator
+import org.jetbrains.dokka.gradle.internal.LoggerAdapter
+
+/**
+ * Gradle Worker Daemon for running [DokkaGenerator].
+ *
+ * The worker requires [DokkaGenerator] is present on the classpath.
+ */
+abstract class DokkaGeneratorWorker : WorkAction<DokkaGeneratorWorker.Parameters> {
+
+    private val logger = LoggerAdapter(DokkaGeneratorWorker::class)
+
+    interface Parameters : WorkParameters {
+        val dokkaConfiguration: Property<DokkaConfiguration>
+    }
+
+    override fun execute() {
+        val dokkaConfiguration = parameters.dokkaConfiguration.get()
+
+        val generator = DokkaGenerator(dokkaConfiguration, logger)
+
+        generator.generate()
+    }
+}

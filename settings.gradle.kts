@@ -40,6 +40,8 @@ include(
     ":mkdocs",
 )
 
+includeBuild("runners/gradle-plugin-2")
+
 val isCiBuild = System.getenv("GITHUB_ACTIONS") != null || System.getenv("TEAMCITY_VERSION") != null
 
 plugins {
