@@ -35,7 +35,7 @@ abstract class DokkaGenerateTask @Inject constructor(
     abstract val outputDirectory: DirectoryProperty
 
     @TaskAction
-    @OptIn(ExperimentalSerializationApi::class)
+    @OptIn(ExperimentalSerializationApi::class) // jsonMapper.decodeFromStream
     fun generateDocumentation() {
         val dokkaConfigurationJsonFile = dokkaConfigurationJson.get().asFile
 
@@ -57,9 +57,10 @@ abstract class DokkaGenerateTask @Inject constructor(
     }
 
     /**
-     * Extract a property from [dokkaConfigurationJson] so it can be used as the value of a task property.
+     * Extract a property from [dokkaConfigurationJson] so it can be converted to a specific Gradle property type
+     * (for example, a [DirectoryProperty]) and used as a task property.
      */
-    @OptIn(ExperimentalSerializationApi::class)
+    @OptIn(ExperimentalSerializationApi::class) // jsonMapper.decodeFromStream
     internal inline fun <reified T : Any> dokkaConfigurationValue(
         crossinline property: DokkaConfigurationKxs.() -> T?
     ): Provider<T> = dokkaConfigurationJson.mapNotNull { dokkaConfigurationFile ->

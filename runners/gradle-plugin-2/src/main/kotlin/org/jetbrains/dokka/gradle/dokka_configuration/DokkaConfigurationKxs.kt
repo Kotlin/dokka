@@ -20,6 +20,10 @@ import java.net.URL
 import java.nio.file.Paths
 
 
+// Implementations of DokkaConfiguration interfaces that can be serialized to files.
+// Serialization is required because Gradle tasks can only pass data to one-another via files.
+
+
 @Serializable
 data class DokkaConfigurationKxs(
     override val moduleName: String,
