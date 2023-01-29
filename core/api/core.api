@@ -227,6 +227,7 @@ public final class org/jetbrains/dokka/DokkaDefaults {
 	public final fun getAnalysisPlatform ()Lorg/jetbrains/dokka/Platform;
 	public final fun getCacheRoot ()Ljava/io/File;
 	public final fun getDocumentedVisibilities ()Ljava/util/Set;
+	public final fun getModuleName ()Ljava/lang/String;
 	public final fun getModuleVersion ()Ljava/lang/String;
 	public final fun getOutputDir ()Ljava/io/File;
 	public final fun getPluginsConfiguration ()Ljava/util/List;

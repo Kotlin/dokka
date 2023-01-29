@@ -44,6 +44,9 @@ object DokkaDefaults {
     const val delayTemplateSubstitution: Boolean = false
 
     val cacheRoot: File? = null
+
+    @Deprecated("updated to be a const", ReplaceWith("moduleName", "org.jetbrains.dokka.DokkaDefaults.moduleName"))
+    fun getModuleName(): String = moduleName
 }
 
 @Suppress("EnumEntryName")
