@@ -40,6 +40,7 @@ abstract class DokkaGenerateTask @Inject constructor(
     fun generateDocumentation() {
         val dokkaConfigurationJsonFile = dokkaConfigurationJson.get().asFile
 
+
         val workQueue = workers.processIsolation {
             classpath.from(runtimeClasspath)
             forkOptions {
@@ -51,6 +52,8 @@ abstract class DokkaGenerateTask @Inject constructor(
             DokkaConfigurationKxs.serializer(),
             dokkaConfigurationJsonFile.inputStream(),
         )
+
+        logger.info("dokkaConfiguration: $dokkaConfiguration")
 
         workQueue.submit(DokkaGeneratorWorker::class) worker@{
             this@worker.dokkaConfiguration.set(dokkaConfiguration)
