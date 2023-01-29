@@ -236,6 +236,6 @@ abstract class AbstractDokkaTask : DefaultTask() {
                 entry.value
             )
         }
-        return pluginsConfiguration.get().mapNotNull { it as? PluginConfigurationImpl } + manuallyConfigured
+        return pluginsConfiguration.get().filterIsInstance<PluginConfigurationImpl>() + manuallyConfigured
     }
 }
