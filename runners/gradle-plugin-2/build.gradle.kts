@@ -5,6 +5,7 @@ plugins {
     `kotlin-dsl`
     id("com.gradle.plugin-publish") version "1.0.0"
     kotlin("plugin.serialization") version embeddedKotlinVersion
+    `jvm-test-suite`
 }
 
 group = "org.jetbrains.dokka"
@@ -13,12 +14,9 @@ version = "2.0.0"
 dependencies {
     implementation("org.jetbrains.dokka:dokka-core:1.7.20")
 
-    compileOnly("com.android.tools.build:gradle:4.0.1")
+//    compileOnly("com.android.tools.build:gradle:4.0.1")
 
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
-
-    testImplementation("org.jetbrains.kotlin:kotlin-gradle-plugin")
-    testImplementation("com.android.tools.build:gradle:4.0.1")
 }
 
 java {
@@ -51,4 +49,67 @@ tasks.withType<KotlinCompile>().configureEach {
             "-opt-in=kotlin.RequiresOptIn"
         )
     }
+}
+
+val projectTestMavenRepoDir = layout.buildDirectory.dir("test-maven-repo")
+
+publishing {
+    repositories {
+        maven(projectTestMavenRepoDir) {
+            name = "Test"
+        }
+    }
+}
+
+
+
+@Suppress("UnstableApiUsage") // jvm test suites are incubating
+testing.suites {
+    val test by getting(JvmTestSuite::class) {
+        useJUnitJupiter()
+
+        dependencies {
+            implementation(project.dependencies.kotlin("test"))
+            implementation(project.dependencies.gradleTestKit())
+//            implementation("org.jetbrains.kotlin:kotlin-gradle-plugin")
+//            implementation("com.android.tools.build:gradle:4.0.1")
+        }
+    }
+
+    val testFunctional by registering(JvmTestSuite::class) {
+        useJUnitJupiter()
+
+        dependencies {
+            implementation(project)
+
+            implementation(project.dependencies.kotlin("test"))
+            implementation(project.dependencies.gradleTestKit())
+//            implementation("org.jetbrains.kotlin:kotlin-gradle-plugin")
+//            implementation("com.android.tools.build:gradle:4.0.1")
+        }
+
+        targets.all {
+            testTask.configure {
+                shouldRunAfter(test)
+                dependsOn(tasks.matching { it.name == "publishAllPublicationsToTestRepository" })
+
+//                dependsOn(installMavenInternal)
+                systemProperties(
+                    "testMavenRepoDir" to file(projectTestMavenRepoDir).canonicalPath,
+                )
+            }
+        }
+
+        sources {
+            java {
+                resources {
+                    srcDir(tasks.pluginUnderTestMetadata.map { it.outputDirectory })
+                }
+            }
+        }
+
+        gradlePlugin.testSourceSet(sources)
+    }
+
+    tasks.check { dependsOn(testFunctional) }
 }
