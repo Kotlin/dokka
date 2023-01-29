@@ -12,6 +12,8 @@ class DokkaTaskTest {
     @Test
     fun `no suppressed source sets are present after in built configuration`() {
         val project = ProjectBuilder.builder().build()
+        project.plugins.apply("org.jetbrains.dokka")
+
         val task = project.tasks.create<DokkaTask>("dokkaTask")
         project.configurations.all { withDependencies { clear() } }
 
@@ -31,6 +33,8 @@ class DokkaTaskTest {
     @Test
     fun `module version is not present if not specified`(){
         val project = ProjectBuilder.builder().build()
+        project.plugins.apply("org.jetbrains.dokka")
+
         val task = project.tasks.create<DokkaTask>("dokkaTask")
         project.configurations.all { withDependencies { clear() } }
 

@@ -14,12 +14,14 @@ class KotlinDslDokkaTaskConfigurationTest {
     fun `configure dokka task`() {
         val project = ProjectBuilder.builder().build()
         project.plugins.apply("org.jetbrains.dokka")
+
+        project.plugins.apply("org.jetbrains.dokka")
         project.tasks.withType<DokkaTask>().configureEach {
             outputDirectory.set(File("test"))
         }
 
         project.tasks.withType(DokkaTask::class.java).forEach { dokkaTask ->
-            assertEquals(File("test"), dokkaTask.outputDirectory.getSafe())
+            assertEquals(File("test"), dokkaTask.outputDirectory.get().asFile.relativeTo(project.projectDir))
         }
     }
 

@@ -13,7 +13,7 @@ abstract class DokkaTask : AbstractDokkaLeafTask() {
             moduleName = moduleName.getSafe(),
             moduleVersion = moduleVersion.getValidVersionOrNull(),
             outputDir = outputDirectory.asFile.get(),
-            cacheRoot = cacheRoot.asFile.get(),
+            cacheRoot = cacheRoot.asFile.orNull,
             offlineMode = offlineMode.getSafe(),
             failOnWarning = failOnWarning.getSafe(),
             sourceSets = unsuppressedSourceSets.build(),

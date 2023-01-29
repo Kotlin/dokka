@@ -53,8 +53,8 @@ class DokkaCollectorTaskTest {
             assertEquals(
                 DokkaConfigurationImpl(
                     moduleName = "custom Module Name",
-                    outputDir = File("customOutputDirectory"),
-                    cacheRoot = File("customCacheRoot"),
+                    outputDir = rootProject.projectDir.resolve("customOutputDirectory"),
+                    cacheRoot = rootProject.projectDir.resolve("customCacheRoot"),
                     failOnWarning = true,
                     offlineMode = true,
                     sourceSets = task.childDokkaTasks
@@ -65,7 +65,7 @@ class DokkaCollectorTaskTest {
                         .map { it.plugins.resolve().toList() }
                         .reduce { acc, mutableSet -> acc + mutableSet }
                 ),
-                dokkaConfiguration
+                dokkaConfiguration,
             )
         }
     }
@@ -78,3 +78,6 @@ class DokkaCollectorTaskTest {
         assertFailsWith<DokkaException> { collectorTask.generateDocumentation() }
     }
 }
+
+// DokkaConfigurationImpl(moduleName=custom Module Name, moduleVersion=null, outputDir=/Users/semene000/projects/3rd-party/kotlin/dokka/runners/gradle-plugin/build/tmp/test/work/gradle4671445158257533141projectDir/customOutputDirectory, cacheRoot=/Users/semene000/projects/3rd-party/kotlin/dokka/runners/gradle-plugin/build/tmp/test/work/gradle4671445158257533141projectDir/customCacheRoot, offlineMode=true, sourceSets=[DokkaSourceSetImpl(displayName=jvm, sourceSetID=:test:dokkaGfm/main, classpath=[], sourceRoots=[], dependentSourceSets=[], samples=[], includes=[], includeNonPublic=false, reportUndocumented=false, skipEmptyPackages=true, skipDeprecated=false, jdkVersion=8, sourceLinks=[], perPackageOptions=[], externalDocumentationLinks=[ExternalDocumentationLinkImpl(url=https://docs.oracle.com/javase/8/docs/api/, packageListUrl=https://docs.oracle.com/javase/8/docs/api/package-list), ExternalDocumentationLinkImpl(url=https://kotlinlang.org/api/latest/jvm/stdlib/, packageListUrl=https://kotlinlang.org/api/latest/jvm/stdlib/package-list)], languageVersion=null, apiVersion=null, noStdlibLink=false, noJdkLink=false, suppressedFiles=[], analysisPlatform=jvm, documentedVisibilities=[PUBLIC])], pluginsClasspath=[], pluginsConfiguration=[], modules=[], failOnWarning=true, delayTemplateSubstitution=false, suppressObviousFunctions=true, includes=[], suppressInheritedMembers=false, finalizeCoroutines=true)
+// DokkaConfigurationImpl(moduleName=custom Module Name, moduleVersion=null, outputDir=customOutputDirectory, cacheRoot=customCacheRoot, offlineMode=true, sourceSets=[DokkaSourceSetImpl(displayName=jvm, sourceSetID=:test:dokkaGfm/main, classpath=[], sourceRoots=[], dependentSourceSets=[], samples=[], includes=[], includeNonPublic=false, reportUndocumented=false, skipEmptyPackages=true, skipDeprecated=false, jdkVersion=8, sourceLinks=[], perPackageOptions=[], externalDocumentationLinks=[ExternalDocumentationLinkImpl(url=https://docs.oracle.com/javase/8/docs/api/, packageListUrl=https://docs.oracle.com/javase/8/docs/api/package-list), ExternalDocumentationLinkImpl(url=https://kotlinlang.org/api/latest/jvm/stdlib/, packageListUrl=https://kotlinlang.org/api/latest/jvm/stdlib/package-list)], languageVersion=null, apiVersion=null, noStdlibLink=false, noJdkLink=false, suppressedFiles=[], analysisPlatform=jvm, documentedVisibilities=[PUBLIC])], pluginsClasspath=[], pluginsConfiguration=[], modules=[], failOnWarning=true, delayTemplateSubstitution=false, suppressObviousFunctions=true, includes=[], suppressInheritedMembers=false, finalizeCoroutines=true)

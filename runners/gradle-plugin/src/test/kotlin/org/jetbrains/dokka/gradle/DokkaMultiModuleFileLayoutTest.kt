@@ -5,26 +5,28 @@ import org.gradle.testfixtures.ProjectBuilder
 import org.jetbrains.dokka.DokkaException
 import org.jetbrains.dokka.gradle.DokkaMultiModuleFileLayout.CompactInParent
 import org.jetbrains.dokka.gradle.DokkaMultiModuleFileLayout.NoCopy
+import org.jetbrains.dokka.gradle.tasks.DokkaMultiModuleTask
+import org.jetbrains.dokka.gradle.tasks.DokkaTask
 import java.io.File
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
-import org.jetbrains.dokka.gradle.tasks.AbstractDokkaTask
-import org.jetbrains.dokka.gradle.tasks.DokkaMultiModuleTask
-import org.jetbrains.dokka.gradle.tasks.DokkaTask
 
 class DokkaMultiModuleFileLayoutTest {
 
     @Test
     fun `no copy`() {
         val project = ProjectBuilder.builder().build()
+        project.plugins.apply("org.jetbrains.dokka")
+
         val child = project.tasks.create<DokkaTask>("child")
         val parent = project.tasks.create<DokkaMultiModuleTask>("parent")
         child.outputDirectory.set(File("some/path"))
 
         assertEquals(
-            File("some/path"), NoCopy.targetChildOutputDirectory(parent, child),
+            File("some/path"),
+            NoCopy.targetChildOutputDirectory(parent, child).get().asFile.relativeTo(project.projectDir),
             "Expected original file path returned"
         )
     }
@@ -32,16 +34,21 @@ class DokkaMultiModuleFileLayoutTest {
     @Test
     fun `compact in parent`() {
         val rootProject = ProjectBuilder.builder().build()
+
         val parentProject = ProjectBuilder.builder().withName("parent").withParent(rootProject).build()
+        parentProject.plugins.apply("org.jetbrains.dokka")
+
         val intermediateProject = ProjectBuilder.builder().withName("intermediate").withParent(parentProject).build()
         val childProject = ProjectBuilder.builder().withName("child").withParent(intermediateProject).build()
+        childProject.plugins.apply("org.jetbrains.dokka")
 
         val parentTask = parentProject.tasks.create<DokkaMultiModuleTask>("parentTask")
         val childTask = childProject.tasks.create<DokkaTask>("childTask")
 
         val targetOutputDirectory = CompactInParent.targetChildOutputDirectory(parentTask, childTask)
         assertEquals(
-            parentTask.outputDirectory.getSafe().resolve("intermediate/child"), targetOutputDirectory,
+            parentTask.outputDirectory.get().asFile.resolve("intermediate/child"),
+            targetOutputDirectory.get().asFile,
             "Expected nested file structure representing project structure"
         )
     }
@@ -50,20 +57,20 @@ class DokkaMultiModuleFileLayoutTest {
     fun copyChildOutputDirectory() {
         /* Prepare */
         val project = ProjectBuilder.builder().build()
+        project.plugins.apply("org.jetbrains.dokka")
+
         val childTask = project.tasks.create<DokkaTask>("child")
         val parentTask = project.tasks.create<DokkaMultiModuleTask>("parent")
 
-        val sourceOutputDirectory = childTask.outputDirectory.getSafe()
+        val sourceOutputDirectory = childTask.outputDirectory.get().asFile
         sourceOutputDirectory.mkdirs()
         sourceOutputDirectory.resolve("some.file").writeText("some text")
         val subFolder = sourceOutputDirectory.resolve("subFolder")
         subFolder.mkdirs()
         subFolder.resolve("other.file").writeText("other text")
 
-        parentTask.fileLayout.set(object : DokkaMultiModuleFileLayout {
-            override fun targetChildOutputDirectory(parent: DokkaMultiModuleTask, child: AbstractDokkaTask): File {
-                return parent.project.file("target/output")
-            }
+        parentTask.fileLayout.set(DokkaMultiModuleFileLayout { parent, _ ->
+            parent.project.provider { parent.project.layout.projectDirectory.dir("target/output") }
         })
         parentTask.copyChildOutputDirectory(childTask)
 
@@ -106,10 +113,12 @@ class DokkaMultiModuleFileLayoutTest {
     @Test
     fun `copyChildOutputDirectory target output directory within itself throws DokkaException`() {
         val project = ProjectBuilder.builder().build()
+        project.plugins.apply("org.jetbrains.dokka")
+
         val childTask = project.tasks.create<DokkaTask>("child")
         val parentTask = project.tasks.create<DokkaMultiModuleTask>("parent")
         parentTask.fileLayout.set(DokkaMultiModuleFileLayout { _, child ->
-            child.outputDirectory.getSafe().resolve("subfolder")
+            child.outputDirectory.dir("subfolder")
         })
         assertFailsWith<DokkaException> { parentTask.copyChildOutputDirectory(childTask) }
     }
@@ -117,6 +126,8 @@ class DokkaMultiModuleFileLayoutTest {
     @Test
     fun `copyChildOutputDirectory NoCopy`() {
         val project = ProjectBuilder.builder().build()
+        project.plugins.apply("org.jetbrains.dokka")
+
         val childTask = project.tasks.create<DokkaTask>("child")
         val parentTask = project.tasks.create<DokkaMultiModuleTask>("parent")
         parentTask.fileLayout.set(NoCopy)

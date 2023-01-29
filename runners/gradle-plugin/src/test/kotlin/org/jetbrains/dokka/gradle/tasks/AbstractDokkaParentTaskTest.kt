@@ -191,12 +191,10 @@ class AbstractDokkaParentTaskTest {
     }
 }
 
-internal open class TestDokkaParentTask : AbstractDokkaParentTask() {
+internal abstract class TestDokkaParentTask : AbstractDokkaParentTask() {
     override fun buildDokkaConfiguration(): DokkaConfigurationImpl {
         throw NotImplementedError()
     }
 }
 
 private val Project.dokkaTask: DokkaTask get() = tasks.getByName<DokkaTask>("dokkaTask")
-
-

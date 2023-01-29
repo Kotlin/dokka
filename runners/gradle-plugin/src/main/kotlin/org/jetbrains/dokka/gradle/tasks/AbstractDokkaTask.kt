@@ -11,6 +11,7 @@ import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
+import org.gradle.kotlin.dsl.listProperty
 import org.gradle.kotlin.dsl.mapProperty
 import org.gradle.work.DisableCachingByDefault
 import org.jetbrains.dokka.*
@@ -64,7 +65,7 @@ abstract class AbstractDokkaTask : DefaultTask() {
      * [pluginConfiguration] blocks (preferred) or [pluginsMapConfiguration] instead.
      */
     @Input
-    abstract val pluginsConfiguration: ListProperty<in DokkaConfiguration.PluginConfiguration>
+    val pluginsConfiguration: ListProperty<in DokkaConfiguration.PluginConfiguration> = project.objects.listProperty()
 
     /**
      * JSON configuration of Dokka plugins.

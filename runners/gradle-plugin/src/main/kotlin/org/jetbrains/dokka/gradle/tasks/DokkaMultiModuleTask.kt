@@ -1,15 +1,15 @@
 package org.jetbrains.dokka.gradle.tasks
 
+import org.gradle.api.*
 import org.gradle.api.file.ConfigurableFileCollection
+import org.gradle.api.file.Directory
 import org.gradle.api.internal.tasks.TaskDependencyInternal
 import org.gradle.api.provider.*
-import org.gradle.api.*
 import org.gradle.api.tasks.*
 import org.jetbrains.dokka.DokkaConfigurationImpl
 import org.jetbrains.dokka.DokkaModuleDescriptionImpl
-import org.jetbrains.dokka.gradle.DokkaMultiModuleFileLayout
-import org.jetbrains.dokka.gradle.tasks.*
 import org.jetbrains.dokka.gradle.*
+import org.jetbrains.dokka.gradle.tasks.*
 import java.io.File
 
 @Suppress("unused") // Shall provide source compatibility if possible
@@ -47,9 +47,9 @@ abstract class DokkaMultiModuleTask : AbstractDokkaParentTask() {
      * Useful stuff in another package.
      * ```
      */
-    @InputFiles
-    @Optional
-    @PathSensitive(PathSensitivity.RELATIVE)
+    @get:InputFiles
+    @get:Optional
+    @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val includes: ConfigurableFileCollection
 
     @Internal
@@ -61,8 +61,9 @@ abstract class DokkaMultiModuleTask : AbstractDokkaParentTask() {
     internal abstract val sourceChildOutputDirectories: ConfigurableFileCollection
 
     @get:OutputDirectories
-    internal val targetChildOutputDirectories: Iterable<File>
-        get() = childDokkaTasks.map { task -> targetChildOutputDirectory(task) }
+    internal val targetChildOutputDirectories: Provider<Iterable<Directory>> = project.provider {
+        childDokkaTasks.map { task -> targetChildOutputDirectory(task).get() }
+    }
 
     @get:Input
     internal val childDokkaTaskIncludes: Map<TaskPath, Set<File>>
@@ -85,7 +86,7 @@ abstract class DokkaMultiModuleTask : AbstractDokkaParentTask() {
             moduleName = moduleName.getSafe(),
             moduleVersion = moduleVersion.getValidVersionOrNull(),
             outputDir = outputDirectory.asFile.get(),
-            cacheRoot = cacheRoot.asFile.get(),
+            cacheRoot = cacheRoot.asFile.orNull,
             pluginsConfiguration = buildPluginsConfiguration(),
             failOnWarning = failOnWarning.getSafe(),
             offlineMode = offlineMode.getSafe(),
@@ -93,7 +94,9 @@ abstract class DokkaMultiModuleTask : AbstractDokkaParentTask() {
             modules = childDokkaTasks.map { dokkaTask ->
                 DokkaModuleDescriptionImpl(
                     name = dokkaTask.moduleName.getSafe(),
-                    relativePathToOutputDirectory = targetChildOutputDirectory(dokkaTask).relativeTo(outputDirectory.asFile.get()),
+                    relativePathToOutputDirectory = targetChildOutputDirectory(dokkaTask).get().asFile.relativeTo(
+                        outputDirectory.asFile.get()
+                    ),
                     includes = childDokkaTaskIncludes[dokkaTask.path].orEmpty(),
                     sourceOutputDirectory = dokkaTask.outputDirectory.asFile.get(),
                 )

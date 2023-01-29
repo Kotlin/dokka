@@ -27,6 +27,8 @@ class DokkaMultiModuleTaskTest {
     }
 
     init {
+        rootProject.plugins.apply("org.jetbrains.dokka")
+        childProject.plugins.apply("org.jetbrains.dokka")
         rootProject.allprojects {
             tasks.withType<AbstractDokkaTask>().configureEach {
                 plugins.withDependencies { clear() }
@@ -84,7 +86,7 @@ class DokkaMultiModuleTaskTest {
                 moduleName = "custom Module Name",
                 moduleVersion = "1.5.0",
                 outputDir = multiModuleTask.project.buildDir.resolve("customOutputDirectory"),
-                cacheRoot = File("customCacheRoot"),
+                cacheRoot = multiModuleTask.project.projectDir.resolve("customCacheRoot"),
                 pluginsConfiguration = mutableListOf(
                     PluginConfigurationImpl(
                         "pluginA",
@@ -101,7 +103,7 @@ class DokkaMultiModuleTaskTest {
                         name = "child",
                         relativePathToOutputDirectory = File("child"),
                         includes = setOf(include1, include2),
-                        sourceOutputDirectory = childDokkaTask.outputDirectory.getSafe()
+                        sourceOutputDirectory = childDokkaTask.outputDirectory.get().asFile
                     )
                 )
             ),
@@ -194,7 +196,9 @@ class DokkaMultiModuleTaskTest {
     @Test
     fun sourceChildOutputDirectories() {
         val parent = ProjectBuilder.builder().build()
+        parent.plugins.apply("org.jetbrains.dokka")
         val child = ProjectBuilder.builder().withName("child").withParent(parent).build()
+        child.plugins.apply("org.jetbrains.dokka")
 
         val parentTask = parent.tasks.create<DokkaMultiModuleTask>("parent")
         val childTask = child.tasks.create<DokkaTask>("child")
@@ -203,7 +207,8 @@ class DokkaMultiModuleTaskTest {
         childTask.outputDirectory.set(child.file("custom/output"))
 
         assertEquals(
-            listOf(parent.file("child/custom/output")), parentTask.sourceChildOutputDirectories,
+            listOf(parent.file("child/custom/output")),
+            parentTask.sourceChildOutputDirectories.files.toList(),
             "Expected child output directory being present"
         )
     }
@@ -218,13 +223,13 @@ class DokkaMultiModuleTaskTest {
 
         parentTask.addChildTask(childTask)
 
-        @Suppress("NAME_SHADOWING") // ¯\_(ツ)_/¯
-        (parentTask.fileLayout.set(DokkaMultiModuleFileLayout { parent, child ->
-            parent.project.buildDir.resolve(child.name)
-        }))
+        parentTask.fileLayout.set(DokkaMultiModuleFileLayout { taskParent, taskChild ->
+            taskParent.project.layout.buildDirectory.dir(taskChild.name)
+        })
 
         assertEquals(
-            listOf(parent.project.buildDir.resolve("child")), parentTask.targetChildOutputDirectories,
+            listOf(parent.project.buildDir.resolve("child")),
+            parentTask.targetChildOutputDirectories.get().map { it.asFile },
             "Expected child target output directory being present"
         )
     }
