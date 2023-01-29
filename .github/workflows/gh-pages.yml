@@ -19,8 +19,8 @@ jobs:
         id: filter
         with:
           filters: |
-            docs_changed:
-              - 'docs/**'
+            mkdocs_changed:
+              - 'mkdocs/**'
           working-directory: ./dokka
       - uses: actions/setup-java@v3
         with:
@@ -30,17 +30,17 @@ jobs:
       - uses: gradle/gradle-build-action@v2
       - name: Get current dokka version
         run: echo "DOKKA_VERSION=`./gradlew :properties | grep '^version:.*' | cut -d ' ' -f 2`" >> $GITHUB_ENV
-        if: github.event_name == 'release' || steps.filter.outputs.docs_changed == 'true'
+        if: github.event_name == 'release' || steps.filter.outputs.mkdocs_changed == 'true'
         working-directory: ./dokka
       - name: Build docs
         run: ./gradlew mkdocsBuild -Pdokka_version=$DOKKA_VERSION --info
-        if: github.event_name == 'release' || steps.filter.outputs.docs_changed == 'true'
+        if: github.event_name == 'release' || steps.filter.outputs.mkdocs_changed == 'true'
         working-directory: ./dokka
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
-        if: github.event_name == 'release' || steps.filter.outputs.docs_changed == 'true'
+        if: github.event_name == 'release' || steps.filter.outputs.mkdocs_changed == 'true'
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dokka/docs/build/mkdocs
+          publish_dir: ./dokka/mkdocs/build/mkdocs
           keep_files: true
           full_commit_message: Publish ${{ env.DOKKA_VERSION }} documentation

@@ -16,14 +16,15 @@ import org.jetbrains.dokka.analysis.KotlinAnalysis
 import org.jetbrains.dokka.analysis.PsiDocumentableSource
 import org.jetbrains.dokka.analysis.from
 import org.jetbrains.dokka.base.DokkaBase
-import org.jetbrains.dokka.base.translators.psi.parsers.JavaDocumentationParser
 import org.jetbrains.dokka.base.translators.psi.parsers.JavadocParser
 import org.jetbrains.dokka.base.translators.typeConstructorsBeingExceptions
 import org.jetbrains.dokka.base.translators.unquotedValue
-import org.jetbrains.dokka.links.*
+import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.links.nextTarget
+import org.jetbrains.dokka.links.withClass
+import org.jetbrains.dokka.links.withEnumEntryExtra
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.AnnotationTarget
-import org.jetbrains.dokka.model.Nullable
 import org.jetbrains.dokka.model.doc.DocumentationNode
 import org.jetbrains.dokka.model.doc.Param
 import org.jetbrains.dokka.model.properties.PropertyContainer
@@ -45,7 +46,7 @@ import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 import java.io.File
 
 class DefaultPsiToDocumentableTranslator(
-    context: DokkaContext
+    context: DokkaContext,
 ) : AsyncSourceToDocumentableTranslator {
 
     private val kotlinAnalysis: KotlinAnalysis = context.plugin<DokkaBase>().querySingle { kotlinAnalysis }
@@ -94,8 +95,8 @@ class DefaultPsiToDocumentableTranslator(
 
     class DokkaPsiParser(
         private val sourceSetData: DokkaSourceSet,
-        facade: DokkaResolutionFacade,
-        private val logger: DokkaLogger
+        private val facade: DokkaResolutionFacade,
+        private val logger: DokkaLogger,
     ) {
         private val javadocParser = JavadocParser(logger, facade)
         private val syntheticDocProvider = SyntheticElementDocumentationProvider(javadocParser, facade)
@@ -266,7 +267,7 @@ class DefaultPsiToDocumentableTranslator(
                     }
                     parsedFields + parsedSuperFields
                 }
-                val source = PsiDocumentableSource(this).toSourceSetDependent()
+                val source = parseSources()
                 val classlikes = async { innerClasses.asIterable().parallelMap { parseClasslike(it, dri) } }
                 val visibility = getVisibility().toSourceSetDependent()
                 val ancestors = (listOfNotNull(ancestry.superclass?.let {
@@ -276,10 +277,16 @@ class DefaultPsiToDocumentableTranslator(
                             JavaClassKindTypes.CLASS
                         )
                     }
-                }) + ancestry.interfaces.map { TypeConstructorWithKind(it.typeConstructor, JavaClassKindTypes.INTERFACE) }).toSourceSetDependent()
+                }) + ancestry.interfaces.map {
+                    TypeConstructorWithKind(
+                        it.typeConstructor,
+                        JavaClassKindTypes.INTERFACE
+                    )
+                }).toSourceSetDependent()
                 val modifiers = getModifier().toSourceSetDependent()
                 val implementedInterfacesExtra =
                     ImplementedInterfaces(ancestry.allImplementedInterfaces().toSourceSetDependent())
+
                 when {
                     isAnnotationType ->
                         DAnnotation(
@@ -293,7 +300,7 @@ class DefaultPsiToDocumentableTranslator(
                             classlikes = classlikes.await(),
                             visibility = visibility,
                             companion = null,
-                            constructors = constructors.map { parseFunction(it, true) },
+                            constructors = parseConstructors(),
                             generics = mapTypeParameters(dri),
                             sourceSets = setOf(sourceSetData),
                             isExpectActual = false,
@@ -303,6 +310,7 @@ class DefaultPsiToDocumentableTranslator(
                                     .toAnnotations()
                             )
                         )
+
                     isEnum -> DEnum(
                         dri = dri,
                         name = name.orEmpty(),
@@ -327,11 +335,12 @@ class DefaultPsiToDocumentableTranslator(
                         expectPresentInSet = null,
                         sources = source,
                         functions = allFunctions.await(),
-                        properties = fields.filter { it !is PsiEnumConstant }.map { parseField(it, accessors[it].orEmpty()) },
+                        properties = fields.filter { it !is PsiEnumConstant }
+                            .map { parseField(it, accessors[it].orEmpty()) },
                         classlikes = classlikes.await(),
                         visibility = visibility,
                         companion = null,
-                        constructors = constructors.map { parseFunction(it, true) },
+                        constructors = parseConstructors(),
                         supertypes = ancestors,
                         sourceSets = setOf(sourceSetData),
                         isExpectActual = false,
@@ -341,6 +350,7 @@ class DefaultPsiToDocumentableTranslator(
                                 .toAnnotations()
                         )
                     )
+
                     isInterface -> DInterface(
                         dri = dri,
                         name = name.orEmpty(),
@@ -362,10 +372,11 @@ class DefaultPsiToDocumentableTranslator(
                                 .toAnnotations()
                         )
                     )
+
                     else -> DClass(
                         dri = dri,
                         name = name.orEmpty(),
-                        constructors = constructors.map { parseFunction(it, true) },
+                        constructors = parseConstructors(),
                         functions = allFunctions.await(),
                         properties = allFields.await(),
                         classlikes = classlikes.await(),
@@ -390,14 +401,38 @@ class DefaultPsiToDocumentableTranslator(
             }
         }
 
+        private fun PsiClass.parseConstructors(): List<DFunction> {
+            val constructors = when {
+                isAnnotationType || isInterface -> emptyArray()
+                isEnum -> this.constructors
+                else -> this.constructors.takeIf { it.isNotEmpty() } ?: arrayOf(createDefaultConstructor())
+            }
+            return constructors.map { parseFunction(it, true) }
+        }
+
+        /**
+         * PSI doesn't return a default constructor if class doesn't contain an explicit one.
+         * This method create synthetic constructor
+         * Visibility modifier is preserved from the class.
+         */
+        private fun PsiClass.createDefaultConstructor(): PsiMethod {
+            val psiElementFactory = JavaPsiFacade.getElementFactory(facade.project)
+            val signature = when (val classVisibility = getVisibility()) {
+                JavaVisibility.Default -> name.orEmpty()
+                else -> "${classVisibility.name} $name"
+            }
+            return psiElementFactory.createConstructor(signature, this)
+        }
+
         private fun AncestryNode.exceptionInSupertypesOrNull(): ExceptionInSupertypes? =
-            typeConstructorsBeingExceptions().takeIf { it.isNotEmpty() }?.let { ExceptionInSupertypes(it.toSourceSetDependent()) }
+            typeConstructorsBeingExceptions().takeIf { it.isNotEmpty() }
+                ?.let { ExceptionInSupertypes(it.toSourceSetDependent()) }
 
         private fun parseFunction(
             psi: PsiMethod,
             isConstructor: Boolean = false,
             inheritedFrom: DRI? = null,
-            parentDRI: DRI? = null
+            parentDRI: DRI? = null,
         ): DFunction {
             val dri = parentDRI?.let { dri ->
                 DRI.from(psi).copy(packageName = dri.packageName, classNames = dri.classNames)
@@ -427,7 +462,7 @@ class DefaultPsiToDocumentableTranslator(
                 },
                 documentation = docs.toSourceSetDependent(),
                 expectPresentInSet = null,
-                sources = PsiDocumentableSource(psi).toSourceSetDependent(),
+                sources = psi.parseSources(),
                 visibility = psi.getVisibility().toSourceSetDependent(),
                 type = psi.returnType?.let { getBound(type = it) } ?: Void,
                 generics = psi.mapTypeParameters(dri),
@@ -448,6 +483,16 @@ class DefaultPsiToDocumentableTranslator(
                     )
                 }
             )
+        }
+
+        private fun PsiNamedElement.parseSources(): SourceSetDependent<DocumentableSource> {
+            return when {
+                // `isPhysical` detects the virtual declarations without real sources.
+                // Otherwise, `PsiDocumentableSource` initialization will fail: non-physical declarations doesn't have `virtualFile`.
+                // This check protects from accidentally requesting sources for synthetic / virtual declarations.
+                isPhysical -> PsiDocumentableSource(this).toSourceSetDependent()
+                else -> emptyMap()
+            }
         }
 
         private fun PsiMethod.getDocumentation(): DocumentationNode =
@@ -657,7 +702,7 @@ class DefaultPsiToDocumentableTranslator(
                 name = psi.name,
                 documentation = javadocParser.parseDocumentation(psi).toSourceSetDependent(),
                 expectPresentInSet = null,
-                sources = PsiDocumentableSource(psi).toSourceSetDependent(),
+                sources = psi.parseSources(),
                 visibility = psi.getVisibility(getter).toSourceSetDependent(),
                 type = getBound(psi.type),
                 receiver = null,

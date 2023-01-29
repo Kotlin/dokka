@@ -36,10 +36,6 @@ public abstract interface class org/jetbrains/dokka/DokkaBootstrap {
 	public abstract fun generate ()V
 }
 
-public final class org/jetbrains/dokka/DokkaBootstrapImplKt {
-	public static final fun parsePerPackageOptions (Ljava/util/List;)Ljava/util/List;
-}
-
 public abstract interface class org/jetbrains/dokka/DokkaConfiguration : java/io/Serializable {
 	public abstract fun getCacheRoot ()Ljava/io/File;
 	public abstract fun getDelayTemplateSubstitution ()Z
@@ -191,9 +187,9 @@ public final class org/jetbrains/dokka/DokkaDefaults {
 	public static final field INSTANCE Lorg/jetbrains/dokka/DokkaDefaults;
 	public static final field delayTemplateSubstitution Z
 	public static final field failOnWarning Z
-	public static final field format Ljava/lang/String;
 	public static final field includeNonPublic Z
 	public static final field jdkVersion I
+	public static final field noAndroidSdkLink Z
 	public static final field noJdkLink Z
 	public static final field noStdlibLink Z
 	public static final field offlineMode Z
@@ -203,6 +199,7 @@ public final class org/jetbrains/dokka/DokkaDefaults {
 	public static final field sourceSetDisplayName Ljava/lang/String;
 	public static final field sourceSetName Ljava/lang/String;
 	public static final field suppress Z
+	public static final field suppressGeneratedFiles Z
 	public static final field suppressInheritedMembers Z
 	public static final field suppressObviousFunctions Z
 	public final fun getAnalysisPlatform ()Lorg/jetbrains/dokka/Platform;
@@ -369,6 +366,7 @@ public final class org/jetbrains/dokka/Platform : java/lang/Enum {
 	public static final field js Lorg/jetbrains/dokka/Platform;
 	public static final field jvm Lorg/jetbrains/dokka/Platform;
 	public static final field native Lorg/jetbrains/dokka/Platform;
+	public static final field wasm Lorg/jetbrains/dokka/Platform;
 	public final fun getKey ()Ljava/lang/String;
 	public static fun valueOf (Ljava/lang/String;)Lorg/jetbrains/dokka/Platform;
 	public static fun values ()[Lorg/jetbrains/dokka/Platform;
