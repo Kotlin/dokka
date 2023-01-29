@@ -112,3 +112,9 @@ var GradleProjectTest.buildGradle: String by TestProjectFile("build.gradle")
 @get:Language("properties")
 @set:Language("properties")
 var GradleProjectTest.gradleProperties: String by TestProjectFile("gradle.properties")
+
+fun GradleProjectTest.createKotlinFile(filePath: String, @Language("kotlin") contents: String) =
+    createFile(filePath, contents)
+
+fun GradleProjectTest.createKtsFile(filePath: String, @Language("kts") contents: String) =
+    createFile(filePath, contents)
