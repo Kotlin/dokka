@@ -12,12 +12,15 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
 import org.gradle.kotlin.dsl.listProperty
 import org.gradle.kotlin.dsl.mapProperty
+import org.gradle.kotlin.dsl.submit
 import org.gradle.work.DisableCachingByDefault
+import org.gradle.workers.WorkerExecutor
 import org.jetbrains.dokka.*
+import org.jetbrains.dokka.gradle.workers.DokkaGeneratorWorker
 import org.jetbrains.dokka.plugability.ConfigurableBlock
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import java.io.File
-import java.util.function.BiConsumer
+import javax.inject.Inject
 import kotlin.reflect.full.createInstance
 
 @DisableCachingByDefault(because = "Abstract super-class, not to be instantiated directly")
@@ -196,36 +199,30 @@ abstract class AbstractDokkaTask : DefaultTask() {
     @Classpath
     val runtime: Configuration = project.maybeCreateDokkaRuntimeConfiguration(name)
 
+    @get:Inject
+    protected abstract val workers: WorkerExecutor
+
     final override fun doFirst(action: Action<in Task>): Task = super.doFirst(action)
 
     final override fun doFirst(action: Closure<*>): Task = super.doFirst(action)
 
     @TaskAction
     internal open fun generateDocumentation() {
-        DokkaBootstrap(runtime, DokkaBootstrapImpl::class).apply {
-            configure(buildDokkaConfiguration().toJsonString(), createProxyLogger())
-            /**
-             * Run in a new thread to avoid memory leaks that are related to ThreadLocal (that keeps `URLCLassLoader`)
-             * Currently, all `ThreadLocal`s leaking are in the compiler/IDE codebase.
-             */
-            Thread { generate() }.apply {
-                start()
-                join()
+        val builtDokkaConfig = buildDokkaConfiguration()
+
+        val workQueue = workers.processIsolation {
+            classpath.from(runtime + plugins)
+            forkOptions {
+                defaultCharacterEncoding = "UTF-8"
             }
+        }
+
+        workQueue.submit(DokkaGeneratorWorker::class) {
+            dokkaConfiguration.set(builtDokkaConfig)
         }
     }
 
     internal abstract fun buildDokkaConfiguration(): DokkaConfigurationImpl
-
-    private fun createProxyLogger(): BiConsumer<String, String> = BiConsumer { level, message ->
-        when (level) {
-            "debug" -> logger.debug(message)
-            "info" -> logger.info(message)
-            "progress" -> logger.lifecycle(message)
-            "warn" -> logger.warn(message)
-            "error" -> logger.error(message)
-        }
-    }
 
     init {
         group = JavaBasePlugin.DOCUMENTATION_GROUP
