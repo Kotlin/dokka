@@ -27,42 +27,12 @@ class GradleProjectTest(
         }
 }
 
-private class TestProjectFile(
-    val filePath: String,
-) : ReadWriteProperty<GradleProjectTest, String> {
-    override fun getValue(thisRef: GradleProjectTest, property: KProperty<*>): String =
-        thisRef.projectDir.resolve(filePath).toFile().readText()
-
-    override fun setValue(thisRef: GradleProjectTest, property: KProperty<*>, value: String) {
-        thisRef.createFile(filePath, value)
-    }
-}
-
-@get:Language("kts")
-@set:Language("kts")
-var GradleProjectTest.settingsGradleKts: String by TestProjectFile("settings.gradle.kts")
-
-
-@get:Language("kts")
-@set:Language("kts")
-var GradleProjectTest.buildGradleKts: String by TestProjectFile("build.gradle.kts")
-
-
-@get:Language("groovy")
-@set:Language("groovy")
-var GradleProjectTest.settingsGradle: String by TestProjectFile("settings.gradle")
-
-
-@get:Language("groovy")
-@set:Language("groovy")
-var GradleProjectTest.buildGradle: String by TestProjectFile("build.gradle")
-
-
-@get:Language("properties")
-@set:Language("properties")
-var GradleProjectTest.gradleProperties: String by TestProjectFile("gradle.properties")
-
-/** Builder for testing a Gradle project that uses Kotlin script DSL */
+/**
+ * Builder for testing a Gradle project that uses Kotlin script DSL
+ *
+ * Note that this sets default values for Gradle KTS files, and so should not be used if using the Groovy DSL as the
+ * Groovy/Kotlin files will confuse Gradle.
+ */
 fun gradleKtsProjectTest(
     projectDir: Path = Files.createTempDirectory("dokka-test"),
     runner: GradleRunner = GradleRunner.create().withProjectDir(projectDir.toFile()),
@@ -100,3 +70,45 @@ fun gradleKtsProjectTest(
         build()
     }
 }
+
+
+/** Delegate for reading and writing a [GradleProjectTest] file. */
+private class TestProjectFile(
+    val filePath: String,
+) : ReadWriteProperty<GradleProjectTest, String> {
+    override fun getValue(thisRef: GradleProjectTest, property: KProperty<*>): String =
+        thisRef.projectDir.resolve(filePath).toFile().readText()
+
+    override fun setValue(thisRef: GradleProjectTest, property: KProperty<*>, value: String) {
+        thisRef.createFile(filePath, value)
+    }
+}
+
+/** Set the content of `settings.gradle.kts` */
+@get:Language("kts")
+@set:Language("kts")
+var GradleProjectTest.settingsGradleKts: String by TestProjectFile("settings.gradle.kts")
+
+
+/** Set the content of `build.gradle.kts` */
+@get:Language("kts")
+@set:Language("kts")
+var GradleProjectTest.buildGradleKts: String by TestProjectFile("build.gradle.kts")
+
+
+/** Set the content of `settings.gradle` */
+@get:Language("groovy")
+@set:Language("groovy")
+var GradleProjectTest.settingsGradle: String by TestProjectFile("settings.gradle")
+
+
+/** Set the content of `build.gradle` */
+@get:Language("groovy")
+@set:Language("groovy")
+var GradleProjectTest.buildGradle: String by TestProjectFile("build.gradle")
+
+
+/** Set the content of `gradle.properties` */
+@get:Language("properties")
+@set:Language("properties")
+var GradleProjectTest.gradleProperties: String by TestProjectFile("gradle.properties")
