@@ -71,12 +71,16 @@ val helpMojo by tasks.registering(CrossPlatformExec::class) {
     dependsOn(setupMaven, generatePom, syncClasses)
     workingDir(setupMaven.mavenBuildDir)
     commandLine(setupMaven.mvn, "-e", "-B", "org.apache.maven.plugins:maven-plugin-plugin:helpmojo")
+
+    outputs.dir(layout.buildDirectory.dir("maven"))
 }
 
 val pluginDescriptor by tasks.registering(CrossPlatformExec::class) {
     dependsOn(setupMaven, generatePom, syncClasses)
     workingDir(setupMaven.mavenBuildDir)
     commandLine(setupMaven.mvn, "-e", "-B", "org.apache.maven.plugins:maven-plugin-plugin:descriptor")
+
+    outputs.dir(layout.buildDirectory.dir("maven/classes/java/main/META-INF/maven"))
 }
 
 val sourceJar by tasks.registering(Jar::class) {
