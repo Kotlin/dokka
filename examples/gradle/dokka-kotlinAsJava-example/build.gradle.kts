@@ -11,7 +11,7 @@ dependencies {
     implementation(kotlin("stdlib"))
     testImplementation(kotlin("test-junit"))
 
-    // Will apply the plugin to all dokka tasks
+    // Will apply the plugin to all Dokka tasks
     dokkaPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:1.7.20")
 
     // Will apply the plugin only to the `:dokkaHtml` task

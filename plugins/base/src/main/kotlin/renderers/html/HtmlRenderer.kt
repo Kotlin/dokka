@@ -157,6 +157,7 @@ open class HtmlRenderer(
                                 "native" -> classes = classes + "native-like"
                                 "jvm" -> classes = classes + "jvm-like"
                                 "js" -> classes = classes + "js-like"
+                                "wasm" -> classes = classes + "wasm-like"
                             }
                             text(it.name)
                         }
@@ -531,6 +532,7 @@ open class HtmlRenderer(
                             "native" -> classes = classes + "native-like"
                             "jvm" -> classes = classes + "jvm-like"
                             "js" -> classes = classes + "js-like"
+                            "wasm" -> classes = classes + "wasm-like"
                         }
                         text(it.name)
                     }
