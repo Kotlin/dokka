@@ -16,6 +16,7 @@ import org.jetbrains.dokka.gradle.dokka_configuration.DokkaConfigurationKxs
 import org.jetbrains.dokka.gradle.workers.DokkaGeneratorWorker
 import javax.inject.Inject
 
+@CacheableTask
 abstract class DokkaGenerateTask @Inject constructor(
     private val providers: ProviderFactory,
     private val workers: WorkerExecutor,
