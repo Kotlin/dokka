@@ -26,10 +26,9 @@ tasks.clean {
     delete(mavenBinDir)
 }
 
-/**
- * Generate pom.xml for Maven Plugin Plugin
- */
 val generatePom by tasks.registering(Copy::class) {
+    description = "Generate pom.xml for Maven Plugin Plugin"
+
     val dokka_version: String by project
     inputs.property("dokka_version", dokka_version)
 
@@ -54,10 +53,9 @@ val generatePom by tasks.registering(Copy::class) {
     }
 }
 
-/**
- * Copy compiled classes to [mavenBuildDir] for Maven Plugin Plugin
- */
 val syncClasses by tasks.registering(Sync::class) {
+    description = "Copy compiled classes to the Maven build dir, for Maven Plugin task execution"
+
     dependsOn(tasks.compileKotlin, tasks.compileJava)
     from("$buildDir/classes/kotlin", "$buildDir/classes/java")
     into("${setupMaven.mavenBuildDir}/classes/java")
