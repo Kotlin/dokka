@@ -19,10 +19,7 @@ import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.analysis.resolve.*
 import org.jetbrains.kotlin.analyzer.*
-import org.jetbrains.kotlin.analyzer.common.CommonAnalysisParameters
-import org.jetbrains.kotlin.analyzer.common.CommonDependenciesContainer
-import org.jetbrains.kotlin.analyzer.common.CommonPlatformAnalyzerServices
-import org.jetbrains.kotlin.analyzer.common.CommonResolverForModuleFactory
+import org.jetbrains.kotlin.analyzer.common.*
 import org.jetbrains.kotlin.builtins.DefaultBuiltIns
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.builtins.jvm.JvmBuiltIns
@@ -104,7 +101,7 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
         val configFiles = when (analysisPlatform) {
             Platform.jvm, Platform.common -> EnvironmentConfigFiles.JVM_CONFIG_FILES
             Platform.native -> EnvironmentConfigFiles.NATIVE_CONFIG_FILES
-            Platform.js -> EnvironmentConfigFiles.JS_CONFIG_FILES
+            Platform.js, Platform.wasm -> EnvironmentConfigFiles.JS_CONFIG_FILES
         }
 
         val environment = KotlinCoreEnvironment.createForProduction(this, configuration, configFiles)
@@ -173,18 +170,18 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
     private fun createSourceModuleSearchScope(project: Project, sourceFiles: List<KtFile>): GlobalSearchScope =
         when (analysisPlatform) {
             Platform.jvm -> TopDownAnalyzerFacadeForJVM.newModuleSearchScope(project, sourceFiles)
-            Platform.js, Platform.common, Platform.native -> GlobalSearchScope.filesScope(
+            Platform.js, Platform.common, Platform.native, Platform.wasm -> GlobalSearchScope.filesScope(
                 project,
                 sourceFiles.map { it.virtualFile }.toSet()
             )
         }
 
-    fun createResolutionFacade(environment: KotlinCoreEnvironment): Pair<DokkaResolutionFacade, DokkaResolutionFacade> {
+    fun createResolutionFacade(environment: KotlinCoreEnvironment, ignoreCommonBuiltIns: Boolean = false): Pair<DokkaResolutionFacade, DokkaResolutionFacade> {
         val projectContext = ProjectContext(environment.project, "Dokka")
         val sourceFiles = environment.getSourceFiles()
 
         val targetPlatform = when (analysisPlatform) {
-            Platform.js -> JsPlatforms.defaultJsPlatform
+            Platform.js, Platform.wasm -> JsPlatforms.defaultJsPlatform
             Platform.common -> CommonPlatforms.defaultCommonPlatform
             Platform.native -> NativePlatforms.unspecifiedNativePlatform
             Platform.jvm -> JvmPlatforms.defaultJvmPlatform
@@ -218,6 +215,15 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
             override val platform: TargetPlatform = targetPlatform
             override fun dependencies(): List<ModuleInfo> =
                 listOf(this, library) + extraModuleDependencies
+
+            /**
+             * Only for common platform ignore BuiltIns for StdLib since it can cause a conflict
+             * between BuiltIns from a compiler and ones from source code.
+             */
+            override fun dependencyOnBuiltIns(): ModuleInfo.DependencyOnBuiltIns {
+                return if (analysisPlatform == Platform.common && ignoreCommonBuiltIns) ModuleInfo.DependencyOnBuiltIns.NONE
+                else super.dependencyOnBuiltIns()
+            }
         }
 
         val sourcesScope = createSourceModuleSearchScope(environment.project, sourceFiles)
@@ -259,7 +265,7 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
                 environment,
                 commonDependencyContainer
             )
-            Platform.js -> createJsResolverForProject(projectContext, module, modulesContent)
+            Platform.js, Platform.wasm -> createJsResolverForProject(projectContext, module, modulesContent)
             Platform.native -> createNativeResolverForProject(projectContext, module, modulesContent)
 
         }
@@ -293,14 +299,14 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
     }
 
     private fun Platform.analyzerServices() = when (this) {
-        Platform.js -> JsPlatformAnalyzerServices
+        Platform.js, Platform.wasm -> JsPlatformAnalyzerServices
         Platform.common -> CommonPlatformAnalyzerServices
         Platform.native -> NativePlatformAnalyzerServices
         Platform.jvm -> JvmPlatformAnalyzerServices
     }
 
     fun Collection<KotlinLibrary>.registerLibraries(): List<DokkaKlibLibraryInfo> {
-        if (analysisPlatform != Platform.native && analysisPlatform != Platform.js) return emptyList()
+        if (analysisPlatform != Platform.native && analysisPlatform != Platform.js && analysisPlatform != Platform.wasm) return emptyList()
         val dependencyResolver = DokkaKlibLibraryDependencyResolver()
         val analyzerServices = analysisPlatform.analyzerServices()
 
@@ -537,7 +543,7 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
      * $paths: collection of files to add
      */
     fun addClasspath(paths: List<File>) {
-        if (analysisPlatform == Platform.js) {
+        if (analysisPlatform == Platform.js || analysisPlatform == Platform.wasm) {
             configuration.addAll(JSConfigurationKeys.LIBRARIES, paths.map { it.absolutePath })
         } else {
             configuration.addJvmClasspathRoots(paths)
@@ -551,7 +557,7 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
      * $path: path to add
      */
     fun addClasspath(path: File) {
-        if (analysisPlatform == Platform.js) {
+        if (analysisPlatform == Platform.js || analysisPlatform == Platform.wasm) {
             configuration.add(JSConfigurationKeys.LIBRARIES, path.absolutePath)
         } else {
             configuration.addJvmClasspathRoot(path)
