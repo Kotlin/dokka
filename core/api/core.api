@@ -189,6 +189,7 @@ public final class org/jetbrains/dokka/DokkaDefaults {
 	public static final field failOnWarning Z
 	public static final field includeNonPublic Z
 	public static final field jdkVersion I
+	public static final field moduleName Ljava/lang/String;
 	public static final field noAndroidSdkLink Z
 	public static final field noJdkLink Z
 	public static final field noStdlibLink Z

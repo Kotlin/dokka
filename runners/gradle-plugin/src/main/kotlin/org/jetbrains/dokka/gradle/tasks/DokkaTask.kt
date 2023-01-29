@@ -3,24 +3,23 @@ package org.jetbrains.dokka.gradle.tasks
 import org.jetbrains.dokka.DokkaConfigurationImpl
 import org.jetbrains.dokka.build
 import org.gradle.api.tasks.*
-import org.jetbrains.dokka.gradle.getSafe
 import org.jetbrains.dokka.gradle.getValidVersionOrNull
 
 @CacheableTask
 abstract class DokkaTask : AbstractDokkaLeafTask() {
     override fun buildDokkaConfiguration(): DokkaConfigurationImpl =
         DokkaConfigurationImpl(
-            moduleName = moduleName.getSafe(),
+            moduleName = moduleName.get(),
             moduleVersion = moduleVersion.getValidVersionOrNull(),
-            outputDir = outputDirectory.getSafe(),
-            cacheRoot = cacheRoot.getSafe(),
-            offlineMode = offlineMode.getSafe(),
-            failOnWarning = failOnWarning.getSafe(),
+            outputDir = outputDirectory.get(),
+            cacheRoot = cacheRoot.orNull,
+            offlineMode = offlineMode.get(),
+            failOnWarning = failOnWarning.get(),
             sourceSets = unsuppressedSourceSets.build(),
             pluginsConfiguration = buildPluginsConfiguration(),
             pluginsClasspath = plugins.resolve().toList(),
-            suppressObviousFunctions = suppressObviousFunctions.getSafe(),
-            suppressInheritedMembers = suppressInheritedMembers.getSafe(),
+            suppressObviousFunctions = suppressObviousFunctions.get(),
+            suppressInheritedMembers = suppressInheritedMembers.get(),
             finalizeCoroutines = finalizeCoroutines.get(),
         )
 }
