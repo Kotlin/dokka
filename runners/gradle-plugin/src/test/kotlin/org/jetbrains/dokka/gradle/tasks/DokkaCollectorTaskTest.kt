@@ -39,11 +39,11 @@ class DokkaCollectorTaskTest {
 
         val collectorTasks = rootProject.tasks.withType<DokkaCollectorTask>()
         collectorTasks.configureEach {
-            moduleName by "custom Module Name"
-            outputDirectory by File("customOutputDirectory")
-            cacheRoot by File("customCacheRoot")
-            failOnWarning by true
-            offlineMode by true
+            moduleName.set("custom Module Name")
+            outputDirectory.set(File("customOutputDirectory"))
+            cacheRoot.set(File("customCacheRoot"))
+            failOnWarning.set(true)
+            offlineMode.set(true)
             finalizeCoroutines.set(false)
         }
 
