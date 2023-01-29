@@ -1,3 +1,4 @@
+import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -112,4 +113,15 @@ testing.suites {
     }
 
     tasks.check { dependsOn(testFunctional) }
+}
+
+
+tasks.withType<Test>().configureEach {
+    testLogging {
+        events = TestLogEvent.values().toSet()
+        showStandardStreams = true
+        showExceptions = true
+        showCauses = true
+        showStackTraces = true
+    }
 }
