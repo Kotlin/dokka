@@ -5,6 +5,7 @@ import org.gradle.api.Action
 import org.gradle.api.DefaultTask
 import org.gradle.api.Task
 import org.gradle.api.artifacts.Configuration
+import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.MapProperty
@@ -17,9 +18,9 @@ import org.gradle.work.DisableCachingByDefault
 import org.gradle.workers.WorkerExecutor
 import org.jetbrains.dokka.*
 import org.jetbrains.dokka.gradle.workers.DokkaGeneratorWorker
+import org.jetbrains.dokka.gradle.*
 import org.jetbrains.dokka.plugability.ConfigurableBlock
 import org.jetbrains.dokka.plugability.DokkaPlugin
-import java.io.File
 import javax.inject.Inject
 import kotlin.reflect.full.createInstance
 
@@ -56,9 +57,8 @@ abstract class AbstractDokkaTask : DefaultTask() {
      * Default is `project/buildDir/taskName.removePrefix("dokka").decapitalize()`, so
      * for `dokkaHtmlMultiModule` task it will be `project/buildDir/htmlMultiModule`
      */
-    @OutputDirectory
-    val outputDirectory: Property<File> = project.objects.property<File>()
-        .convention(project.provider { defaultDokkaOutputDirectory() })
+    @get:OutputDirectory
+    abstract val outputDirectory: DirectoryProperty
 
     /**
      * Configuration for Dokka plugins. This property is not expected to be used directly - if possible, use
@@ -154,10 +154,10 @@ abstract class AbstractDokkaTask : DefaultTask() {
     @get:Input
     abstract val finalizeCoroutines: Property<Boolean>
 
-    @Optional
-    @InputDirectory
-    @PathSensitive(PathSensitivity.RELATIVE)
-    val cacheRoot: Property<File?> = project.objects.property()
+    @get:Optional
+    @get:InputDirectory
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    abstract val cacheRoot: DirectoryProperty
 
     /**
      * Type-safe configuration for a Dokka plugin.

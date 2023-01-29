@@ -6,6 +6,7 @@ import org.gradle.api.Project
 import org.gradle.api.artifacts.Dependency
 import org.gradle.kotlin.dsl.*
 import org.gradle.util.GradleVersion
+import org.jetbrains.dokka.DokkaDefaults
 import org.jetbrains.dokka.gradle.tasks.AbstractDokkaTask
 import org.jetbrains.dokka.gradle.tasks.DokkaCollectorTask
 import org.jetbrains.dokka.gradle.tasks.DokkaMultiModuleTask
@@ -30,15 +31,24 @@ open class DokkaPlugin : Plugin<Project> {
             description = "Generates documentation in 'javadoc' format"
         }
 
-        project.setupDokkaTasks("dokkaGfm", allModulesPageAndTemplateProcessing = project.dokkaArtifacts.gfmTemplateProcessing) {
+        project.setupDokkaTasks(
+            "dokkaGfm",
+            allModulesPageAndTemplateProcessing = project.dokkaArtifacts.gfmTemplateProcessing
+        ) {
             plugins.dependencies.add(project.dokkaArtifacts.gfmPlugin)
             description = "Generates documentation in GitHub flavored markdown format"
         }
 
-        project.setupDokkaTasks("dokkaJekyll", allModulesPageAndTemplateProcessing = project.dokkaArtifacts.jekyllTemplateProcessing) {
+        project.setupDokkaTasks(
+            "dokkaJekyll",
+            allModulesPageAndTemplateProcessing = project.dokkaArtifacts.jekyllTemplateProcessing
+        ) {
             plugins.dependencies.add(project.dokkaArtifacts.jekyllPlugin)
             description = "Generates documentation in Jekyll flavored markdown format"
         }
+
+        project.configureEachAbstractDokkaTask()
+        project.configureEachDokkaMultiModuleTask()
     }
 
     /**
@@ -95,6 +105,20 @@ open class DokkaPlugin : Plugin<Project> {
 
         tasks.withType<AbstractDokkaTask>().configureEach {
             finalizeCoroutines.convention(true)
+        }
+    }
+
+    private fun Project.configureEachAbstractDokkaTask() {
+        tasks.withType<AbstractDokkaTask>().configureEach {
+            val formatClassifier = name.removePrefix("dokka").decapitalize()
+            outputDirectory.convention(project.layout.buildDirectory.dir("dokka/$formatClassifier"))
+            cacheRoot.set(DokkaDefaults.cacheRoot)
+        }
+    }
+
+    private fun Project.configureEachDokkaMultiModuleTask() {
+        tasks.withType<DokkaMultiModuleTask>().configureEach {
+            sourceChildOutputDirectories.from({ childDokkaTasks.map { it.outputDirectory } })
         }
     }
 }
