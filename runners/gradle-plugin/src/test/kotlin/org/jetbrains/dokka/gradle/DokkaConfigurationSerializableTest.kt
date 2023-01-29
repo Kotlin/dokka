@@ -2,9 +2,11 @@ package org.jetbrains.dokka.gradle
 
 import org.gradle.kotlin.dsl.withType
 import org.gradle.testfixtures.ProjectBuilder
-import org.jetbrains.dokka.DokkaConfiguration
-import org.jetbrains.dokka.PluginConfigurationImpl
-import org.jetbrains.dokka.toJsonString
+import org.jetbrains.dokka.*
+import org.jetbrains.dokka.DokkaDefaults.documentedVisibilities
+import org.jetbrains.dokka.DokkaDefaults.includeNonPublic
+import org.jetbrains.dokka.DokkaDefaults.reportUndocumented
+import org.jetbrains.dokka.DokkaDefaults.skipDeprecated
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import java.io.File
@@ -13,6 +15,7 @@ import java.io.ObjectOutputStream
 import java.net.URL
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import org.jetbrains.dokka.gradle.tasks.DokkaTask
 
 @Suppress("UnstableApiUsage")
 class DokkaConfigurationSerializableTest {

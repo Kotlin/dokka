@@ -1,7 +1,9 @@
-package org.jetbrains.dokka.gradle
+package org.jetbrains.dokka.gradle.tasks
 
 import org.gradle.api.tasks.CacheableTask
 import org.jetbrains.dokka.DokkaConfigurationImpl
+import org.jetbrains.dokka.gradle.checkChildDokkaTasksIsNotEmpty
+import org.jetbrains.dokka.gradle.getSafe
 
 @CacheableTask
 abstract class DokkaCollectorTask : AbstractDokkaParentTask() {

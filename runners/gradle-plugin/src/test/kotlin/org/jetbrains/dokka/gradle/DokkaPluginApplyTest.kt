@@ -7,6 +7,8 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
+import org.jetbrains.dokka.gradle.tasks.AbstractDokkaParentTask
+import org.jetbrains.dokka.gradle.tasks.DokkaTask
 
 class DokkaPluginApplyTest {
 

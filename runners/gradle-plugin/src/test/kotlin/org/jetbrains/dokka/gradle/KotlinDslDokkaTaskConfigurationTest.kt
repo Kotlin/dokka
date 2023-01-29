@@ -3,6 +3,7 @@ package org.jetbrains.dokka.gradle
 import org.gradle.kotlin.dsl.withType
 import org.gradle.testfixtures.ProjectBuilder
 import org.jetbrains.dokka.DokkaSourceSetID
+import org.jetbrains.dokka.gradle.tasks.DokkaTask
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 import java.io.File
 import kotlin.test.Test

@@ -1,4 +1,4 @@
-package org.jetbrains.dokka.gradle
+package org.jetbrains.dokka.gradle.tasks
 
 import groovy.lang.Closure
 import org.gradle.api.Action

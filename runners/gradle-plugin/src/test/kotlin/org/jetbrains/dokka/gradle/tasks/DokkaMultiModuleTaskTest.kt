@@ -1,12 +1,13 @@
 @file:Suppress("UnstableApiUsage")
 
-package org.jetbrains.dokka.gradle
+package org.jetbrains.dokka.gradle.tasks
 
 import org.gradle.kotlin.dsl.*
 import org.gradle.testfixtures.ProjectBuilder
 import org.jetbrains.dokka.*
 import java.io.File
 import kotlin.test.*
+import org.jetbrains.dokka.gradle.*
 
 class DokkaMultiModuleTaskTest {
 

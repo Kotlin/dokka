@@ -1,11 +1,15 @@
-package org.jetbrains.dokka.gradle
+package org.jetbrains.dokka.gradle.tasks
 
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.internal.tasks.TaskDependencyInternal
-import org.gradle.api.provider.Property
+import org.gradle.api.provider.*
+import org.gradle.api.*
 import org.gradle.api.tasks.*
 import org.jetbrains.dokka.DokkaConfigurationImpl
 import org.jetbrains.dokka.DokkaModuleDescriptionImpl
+import org.jetbrains.dokka.gradle.DokkaMultiModuleFileLayout
+import org.jetbrains.dokka.gradle.tasks.*
+import org.jetbrains.dokka.gradle.*
 import java.io.File
 
 @Suppress("unused") // Shall provide source compatibility if possible
