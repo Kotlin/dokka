@@ -19,8 +19,6 @@ class DokkaPluginFunctionalTest {
             .withArguments("tasks")
             .build()
 
-        println(build.output.prependIndent("   | "))
-
         assertTrue(
             build.output.contains(
                 """
@@ -46,8 +44,6 @@ class DokkaPluginFunctionalTest {
         }.runner
             .withArguments("outgoingVariants")
             .build()
-
-        println(build.output.prependIndent("   | "))
 
         assertTrue(
             build.output.contains(
@@ -93,8 +89,6 @@ class DokkaPluginFunctionalTest {
         }.runner
             .withArguments("resolvableConfigurations")
             .build()
-
-        println(build.output.prependIndent("   | "))
 
         assertTrue(
             build.output.contains(
