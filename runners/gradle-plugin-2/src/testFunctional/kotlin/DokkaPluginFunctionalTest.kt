@@ -100,7 +100,13 @@ class DokkaPluginFunctionalTest {
                     
                     Attributes
                         - org.gradle.usage = org.jetbrains.dokka
-                    
+                """.trimIndent()
+            ),
+            "expect output contains dokka configurations\n\n${build.output.prependIndent("  | ")}"
+        )
+        assertTrue(
+            build.output.contains(
+                """
                     --------------------------------------------------
                     Configuration dokkaConfigurations
                     --------------------------------------------------
@@ -111,7 +117,13 @@ class DokkaPluginFunctionalTest {
                         - org.gradle.usage    = org.jetbrains.dokka
                     Extended Configurations
                         - dokka
-                    
+                """.trimIndent()
+            ),
+            "expect output contains dokka configurations\n\n${build.output.prependIndent("  | ")}"
+        )
+        assertTrue(
+            build.output.contains(
+                """
                     --------------------------------------------------
                     Configuration dokkaModuleDescriptor
                     --------------------------------------------------
@@ -122,11 +134,34 @@ class DokkaPluginFunctionalTest {
                         - org.gradle.usage    = org.jetbrains.dokka
                     Extended Configurations
                         - dokka
-                    
+                """.trimIndent()
+            ),
+            "expect output contains dokka configurations\n\n${build.output.prependIndent("  | ")}"
+        )
+        assertTrue(
+            build.output.contains(
+                """
                     --------------------------------------------------
                     Configuration dokkaRuntimeClasspath
                     --------------------------------------------------
                     Dokka generation task runtime classpath
+                    
+                    Attributes
+                        - org.gradle.category            = library
+                        - org.gradle.dependency.bundling = external
+                        - org.gradle.jvm.environment     = standard-jvm
+                        - org.gradle.libraryelements     = jar
+                """.trimIndent()
+            ),
+            "expect output contains dokka configurations\n\n${build.output.prependIndent("  | ")}"
+        )
+        assertTrue(
+            build.output.contains(
+                """
+                    --------------------------------------------------
+                    Configuration dokkaPluginsClasspath
+                    --------------------------------------------------
+                    Dokka Plugins classpath
                     
                     Attributes
                         - org.gradle.category            = library

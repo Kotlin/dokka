@@ -11,8 +11,10 @@ import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.withType
+import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.gradle.distibutions.DokkaPluginConfigurations
 import org.jetbrains.dokka.gradle.distibutions.setupDokkaConfigurations
+import org.jetbrains.dokka.gradle.dokka_configuration.DokkaConfigurationKxs
 import org.jetbrains.dokka.gradle.tasks.DokkaConfigurationTask
 import org.jetbrains.dokka.gradle.tasks.DokkaGenerateTask
 import org.jetbrains.dokka.gradle.tasks.DokkaModuleConfigurationTask
@@ -43,7 +45,7 @@ abstract class DokkaPlugin @Inject constructor(
 
         val dokkaConfigurationTask = target.tasks.registerCreateDokkaConfigurationTask(dokkaConfigurations)
 
-        target.tasks.registerDokkaExecutorTask(dokkaConfigurationTask)
+        target.tasks.registerDokkaExecutorTask(dokkaConfigurationTask, dokkaConfigurations)
 
         target.tasks.withType<DokkaConfigurationTask>().configureEach {
             cacheRoot.convention(target.rootProject.layout.buildDirectory.dir("dokka-cache"))
@@ -57,12 +59,20 @@ abstract class DokkaPlugin @Inject constructor(
             offlineMode.convention(false)
             moduleName.convention(provider.provider { project.name })
             moduleVersion.convention(provider.provider { project.version.toString() })
+//            pluginsConfiguration.add(
+//                DokkaConfigurationKxs.PluginConfigurationKxs(
+//                    fqPluginName = "org.jetbrains.dokka.base.DokkaBase",
+//                    serializationFormat = DokkaConfiguration.SerializationFormat.JSON,
+//                    values = "{}",
+//                )
+//            )
         }
     }
 
 
     private fun TaskContainer.registerDokkaExecutorTask(
         dokkaConfigurationTask: TaskProvider<DokkaConfigurationTask>,
+        dokkaConfigurations: DokkaPluginConfigurations,
     ): TaskProvider<DokkaGenerateTask> {
         return register<DokkaGenerateTask>("dokkaGenerate") {
             dokkaConfigurationJson.set(dokkaConfigurationTask.flatMap { it.dokkaConfigurationJson })
@@ -72,6 +82,8 @@ abstract class DokkaPlugin @Inject constructor(
             outputDirectory.convention(
                 layout.dir(dokkaConfigurationValue { outputDir })
             )
+            runtimeClasspath.from(dokkaConfigurations.dokkaRuntimeClasspath)
+            pluginClasspath.from(dokkaConfigurations.dokkaPluginsClasspath)
         }
     }
 
@@ -82,6 +94,11 @@ abstract class DokkaPlugin @Inject constructor(
         return register<DokkaConfigurationTask>("createDokkaConfiguration") {
             dokkaModuleDescriptorFiles.from(
                 dokkaConfigurations.dokkaModuleDescriptorsConsumer.map { elements ->
+                    elements.incoming.artifactView { lenient(true) }.files
+                }
+            )
+            pluginsClasspath.from(
+                dokkaConfigurations.dokkaPluginsClasspath.map { elements ->
                     elements.incoming.artifactView { lenient(true) }.files
                 }
             )
@@ -121,6 +138,7 @@ abstract class DokkaPlugin @Inject constructor(
         const val CONFIGURATION_NAME__DOKKA_MODULE_DESCRIPTOR_ELEMENTS = "dokkaModuleDescriptorElements"
 
         const val CONFIGURATION_NAME__DOKKA_RUNTIME_CLASSPATH = "dokkaRuntimeClasspath"
+        const val CONFIGURATION_NAME__DOKKA_PLUGINS_CLASSPATH = "dokkaPluginsClasspath"
 
         const val TASK_GROUP = "dokka"
         const val TASK_NAME__CREATE_DOKKA_CONFIGURATION = "createDokkaConfiguration"

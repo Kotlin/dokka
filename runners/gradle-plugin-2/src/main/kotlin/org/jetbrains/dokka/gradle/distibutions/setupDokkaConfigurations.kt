@@ -4,6 +4,7 @@ import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.attributes.*
 import org.gradle.api.attributes.java.TargetJvmEnvironment
+import org.gradle.api.model.ObjectFactory
 import org.gradle.kotlin.dsl.named
 import org.jetbrains.dokka.gradle.DokkaPlugin
 import org.jetbrains.dokka.gradle.DokkaPluginSettings
@@ -80,16 +81,9 @@ internal fun Project.setupDokkaConfigurations(dokkaSettings: DokkaPluginSettings
         description = "Dokka generation task runtime classpath"
         asConsumer()
         attributes {
-            attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category.LIBRARY))
-            attribute(Bundling.BUNDLING_ATTRIBUTE, objects.named(Bundling.EXTERNAL))
-            attribute(
-                TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE,
-                objects.named(TargetJvmEnvironment.STANDARD_JVM)
-            )
-            attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements.JAR))
+            jvmJar(objects)
         }
         defaultDependencies {
-
             fun dokka(module: String) = addLater(
                 dokkaSettings.dokkaVersion.map { version ->
                     project.dependencies.create("org.jetbrains.dokka:$module:$version")
@@ -98,10 +92,33 @@ internal fun Project.setupDokkaConfigurations(dokkaSettings: DokkaPluginSettings
             dokka("dokka-core")
             dokka("dokka-base")
             dokka("dokka-analysis")
-            dokka("kotlin-analysis-compiler")
+
+            // the order of intellij/compiler matters!!
+            // https://discuss.kotlinlang.org/t/problems-running-dokka-cli-1-7-10-jar-from-the-command-line/25439
             dokka("kotlin-analysis-intellij")
+            dokka("kotlin-analysis-compiler")
 
             add(project.dependencies.create("org.jetbrains.kotlinx:kotlinx-html:0.8.0"))
+            add(project.dependencies.create("org.jetbrains:markdown-jvm:0.3.1"))
+        }
+    }
+
+    val dokkaPluginsClasspath = configurations.register(DokkaPlugin.CONFIGURATION_NAME__DOKKA_PLUGINS_CLASSPATH) {
+        description = "Dokka Plugins classpath"
+        asConsumer()
+        attributes {
+            jvmJar(objects)
+        }
+//        isTransitive = false
+        defaultDependencies {
+            fun dokka(module: String) = addLater(
+                dokkaSettings.dokkaVersion.map { version ->
+                    project.dependencies.create("org.jetbrains.dokka:$module:$version")
+                }
+            )
+            dokka("dokka-base")
+            dokka("javadoc-plugin")
+            add(project.dependencies.create("org.jetbrains:markdown-jvm:0.3.1"))
         }
     }
 
@@ -112,6 +129,7 @@ internal fun Project.setupDokkaConfigurations(dokkaSettings: DokkaPluginSettings
         dokkaConfigurationsElements = dokkaConfigurationsProvider,
         dokkaModuleDescriptorsElements = dokkaModuleDescriptorsProvider,
         dokkaRuntimeClasspath = dokkaRuntimeClasspath,
+        dokkaPluginsClasspath = dokkaPluginsClasspath,
     )
 }
 
@@ -128,3 +146,16 @@ private fun Configuration.asConsumer() {
     isCanBeResolved = true
     isCanBeConsumed = false
 }
+
+private fun AttributeContainer.jvmJar(objects: ObjectFactory) {
+    attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category.LIBRARY))
+    attribute(Bundling.BUNDLING_ATTRIBUTE, objects.named(Bundling.EXTERNAL))
+    attribute(
+        TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE,
+        objects.named(TargetJvmEnvironment.STANDARD_JVM)
+    )
+    attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements.JAR))
+    attribute(kotlinPlatformType, "jvm")
+}
+
+private val kotlinPlatformType = Attribute.of("org.jetbrains.kotlin.platform.type", String::class.java)

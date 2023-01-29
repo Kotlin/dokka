@@ -32,4 +32,7 @@ internal data class DokkaPluginConfigurations(
      * @see org.jetbrains.dokka.gradle.tasks.DokkaGenerateTask
      */
     val dokkaRuntimeClasspath: NamedDomainObjectProvider<Configuration>,
+
+    // TODO KDoc me
+    val dokkaPluginsClasspath: NamedDomainObjectProvider<Configuration>,
 )

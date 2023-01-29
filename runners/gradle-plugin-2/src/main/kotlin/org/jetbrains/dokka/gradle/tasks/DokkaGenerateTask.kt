@@ -29,6 +29,9 @@ abstract class DokkaGenerateTask @Inject constructor(
     @get:Classpath
     abstract val runtimeClasspath: ConfigurableFileCollection
 
+    @get:Classpath
+    abstract val pluginClasspath: ConfigurableFileCollection
+
     @get:OutputDirectory
     abstract val cacheDirectory: DirectoryProperty
 
@@ -43,6 +46,7 @@ abstract class DokkaGenerateTask @Inject constructor(
 
         val workQueue = workers.processIsolation {
             classpath.from(runtimeClasspath)
+            classpath.from(pluginClasspath)
             forkOptions {
                 defaultCharacterEncoding = "UTF-8"
             }
