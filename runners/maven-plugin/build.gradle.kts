@@ -1,4 +1,3 @@
-import kotlinx.validation.sourceSets
 import org.jetbrains.CrossPlatformExec
 import org.jetbrains.SetupMaven
 import org.jetbrains.registerDokkaArtifactPublication
@@ -22,7 +21,7 @@ dependencies {
 val mavenBuildDir = setupMaven.mavenBuildDir
 val mavenBinDir = setupMaven.mavenBinDir
 
-tasks.named<Delete>("clean") {
+tasks.clean {
     delete(mavenBuildDir)
     delete(mavenBinDir)
 }
@@ -82,10 +81,10 @@ val pluginDescriptor by tasks.registering(CrossPlatformExec::class) {
 
 val sourceJar by tasks.registering(Jar::class) {
     archiveClassifier.set("sources")
-    from(sourceSets["main"].allSource)
+    from(java.sourceSets["main"].allSource)
 }
 
-tasks.named<Jar>("jar") {
+tasks.jar {
     dependsOn(pluginDescriptor, helpMojo)
     metaInf {
         from("${setupMaven.mavenBuildDir}/classes/java/main/META-INF")
