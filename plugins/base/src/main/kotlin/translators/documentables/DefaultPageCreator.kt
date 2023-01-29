@@ -6,28 +6,19 @@ import org.jetbrains.dokka.base.resolvers.anchors.SymbolAnchorHint
 import org.jetbrains.dokka.base.signatures.SignatureProvider
 import org.jetbrains.dokka.base.transformers.documentables.CallableExtensions
 import org.jetbrains.dokka.base.transformers.documentables.ClashingDriIdentifier
-import org.jetbrains.dokka.base.transformers.documentables.InheritorsInfo
 import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentConverter
 import org.jetbrains.dokka.base.transformers.pages.tags.CustomTagContentProvider
 import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder.DocumentableContentBuilder
 import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.links.PointingToDeclaration
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.utilities.DokkaLogger
-import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 import kotlin.reflect.KClass
-import kotlin.reflect.full.isSubclassOf
 
-internal const val KDOC_TAG_HEADER_LEVEL = 4
-
-private typealias GroupedTags = Map<KClass<out TagWrapper>, List<Pair<DokkaSourceSet?, TagWrapper>>>
-
-private val specialTags: Set<KClass<out TagWrapper>> =
-    setOf(Property::class, Description::class, Constructor::class, Param::class, See::class)
+internal typealias GroupedTags = Map<KClass<out TagWrapper>, List<Pair<DokkaSourceSet?, TagWrapper>>>
 
 open class DefaultPageCreator(
     configuration: DokkaBaseConfiguration?,
@@ -203,7 +194,6 @@ open class DefaultPageCreator(
                 }
             }
         }
-        +contentForComments(m)
 
         block(
             "Packages",
@@ -244,7 +234,6 @@ open class DefaultPageCreator(
             }
         }
         group(styles = setOf(ContentStyle.TabbedContent)) {
-            +contentForComments(p)
             +contentForScope(p, p.dri, p.sourceSets)
         }
     }
@@ -254,25 +243,13 @@ open class DefaultPageCreator(
         sourceSets: Set<DokkaSourceSet>
     ): ContentGroup {
         val types = scopes.flatMap { it.classlikes } + scopes.filterIsInstance<DPackage>().flatMap { it.typealiases }
-        val inheritors = scopes.fold(mutableMapOf<DokkaSourceSet, List<DRI>>()) { acc, scope ->
-            val inheritorsForScope =
-                scope.safeAs<WithExtraProperties<Documentable>>()?.let { it.extra[InheritorsInfo] }?.let { inheritors ->
-                    inheritors.value.filter { it.value.isNotEmpty() }
-                }.orEmpty()
-            inheritorsForScope.forEach { (k, v) ->
-                acc.compute(k) { _, value -> value?.plus(v) ?: v }
-            }
-            acc
-        }
-
         return contentForScope(
             @Suppress("UNCHECKED_CAST")
             (scopes as List<Documentable>).dri,
             sourceSets,
             types,
             scopes.flatMap { it.functions },
-            scopes.flatMap { it.properties },
-            inheritors
+            scopes.flatMap { it.properties }
         )
     }
 
@@ -285,12 +262,7 @@ open class DefaultPageCreator(
             s.classlikes,
             (s as? DPackage)?.typealiases ?: emptyList()
         ).flatten()
-        val inheritors =
-            s.safeAs<WithExtraProperties<Documentable>>()?.let { it.extra[InheritorsInfo] }?.let { inheritors ->
-                inheritors.value.filter { it.value.isNotEmpty() }
-            }.orEmpty()
-
-        return contentForScope(setOf(dri), sourceSets, types, s.functions, s.properties, inheritors)
+        return contentForScope(setOf(dri), sourceSets, types, s.functions, s.properties)
     }
 
     protected open fun contentForScope(
@@ -298,8 +270,7 @@ open class DefaultPageCreator(
         sourceSets: Set<DokkaSourceSet>,
         types: List<Documentable>,
         functions: List<DFunction>,
-        properties: List<DProperty>,
-        inheritors: SourceSetDependent<List<DRI>>
+        properties: List<DProperty>
     ) = contentBuilder.contentFor(dri, sourceSets) {
         divergentBlock("Types", types, ContentKind.Classlikes, extra = mainExtra + SimpleAttr.header("Types"))
         if (separateInheritedMembers) {
@@ -312,31 +283,6 @@ open class DefaultPageCreator(
         } else {
             functionsBlock("Functions", functions)
             propertiesBlock("Properties", properties, sourceSets)
-        }
-        if (inheritors.values.any()) {
-            header(2, "Inheritors") { }
-            +ContentTable(
-                header = listOf(contentBuilder.contentFor(mainDRI, mainSourcesetData) {
-                    text("Name")
-                }),
-                children = inheritors.entries.flatMap { entry -> entry.value.map { Pair(entry.key, it) } }
-                    .groupBy({ it.second }, { it.first }).map { (classlike, platforms) ->
-                        val label = classlike.classNames?.substringAfterLast(".") ?: classlike.toString()
-                            .also { logger.warn("No class name found for DRI $classlike") }
-                        buildGroup(
-                            setOf(classlike),
-                            platforms.toSet(),
-                            ContentKind.Inheritors,
-                            extra = mainExtra + SymbolAnchorHint(label, ContentKind.Inheritors)
-                        ) {
-                            link(label, classlike)
-                        }
-                    },
-                dci = DCI(dri, ContentKind.Inheritors),
-                sourceSets = sourceSets.toDisplaySourceSets(),
-                style = emptySet(),
-                extra = mainExtra + SimpleAttr.header("Inheritors")
-            )
         }
     }
 
@@ -354,7 +300,7 @@ open class DefaultPageCreator(
             val extensions = (classlikes as List<WithExtraProperties<DClasslike>>).flatMap {
                 it.extra[CallableExtensions]?.extensions
                     ?.filterIsInstance<Documentable>().orEmpty()
-            }
+            }.distinctBy{ it.sourceSets to it.dri} // [Documentable] has expensive equals/hashCode at the moment, see #2620
 
             // Extensions are added to sourceSets since they can be placed outside the sourceSets from classlike
             // Example would be an Interface in common and extension function in jvm
@@ -367,9 +313,7 @@ open class DefaultPageCreator(
                     }
                 }
             }
-
             group(styles = setOf(ContentStyle.TabbedContent), sourceSets = mainSourcesetData + extensions.sourceSets) {
-                +contentForComments(documentables)
                 val csWithConstructor = classlikes.filterIsInstance<WithConstructors>()
                 if (csWithConstructor.isNotEmpty() && documentables.shouldRenderConstructors()) {
                     val constructorsToDocumented = csWithConstructor.flatMap { it.constructors }
@@ -442,271 +386,27 @@ open class DefaultPageCreator(
     // and instantiated directly under normal circumstances, so constructors should not be rendered.
     private fun List<Documentable>.shouldRenderConstructors() = !this.any { it is DAnnotation }
 
-    @Suppress("UNCHECKED_CAST")
-    private inline fun <reified T : TagWrapper> GroupedTags.withTypeUnnamed(): SourceSetDependent<T> =
-        (this[T::class] as List<Pair<DokkaSourceSet, T>>?)?.toMap().orEmpty()
-
-    @Suppress("UNCHECKED_CAST")
-    private inline fun <reified T : NamedTagWrapper> GroupedTags.withTypeNamed(): Map<String, SourceSetDependent<T>> =
-        (this[T::class] as List<Pair<DokkaSourceSet, T>>?)
-            ?.groupByTo(linkedMapOf()) { it.second.name }
-            ?.mapValues { (_, v) -> v.toMap() }
-            .orEmpty()
-
-    private inline fun <reified T : TagWrapper> GroupedTags.isNotEmptyForTag(): Boolean =
-        this[T::class]?.isNotEmpty() ?: false
-
     protected open fun contentForDescription(
         d: Documentable
     ): List<ContentNode> {
-        val tags: GroupedTags = d.groupedTags
-        val platforms = d.sourceSets.toSet()
+        val sourceSets = d.sourceSets.toSet()
+        val tags = d.groupedTags
 
-        return contentBuilder.contentFor(d, styles = setOf(TextStyle.Block)) {
-            deprecatedSectionContent(d, platforms)
+        return contentBuilder.contentFor(d) {
+            deprecatedSectionContent(d, sourceSets)
 
-            val descriptions = d.descriptions
-            if (descriptions.any { it.value.root.children.isNotEmpty() }) {
-                platforms.forEach { platform ->
-                    descriptions[platform]?.also {
-                        group(sourceSets = setOf(platform), styles = emptySet()) {
-                            comment(it.root)
-                        }
-                    }
-                }
-            }
+            descriptionSectionContent(d, sourceSets)
+            customTagSectionContent(d, sourceSets, customTagContentProviders)
+            unnamedTagSectionContent(d, sourceSets) { toHeaderString() }
 
-            val customTags = d.customTags
-            if (customTags.isNotEmpty()) {
-                platforms.forEach { platform ->
-                    customTags.forEach { (_, sourceSetTag) ->
-                        sourceSetTag[platform]?.let { tag ->
-                            customTagContentProviders.filter { it.isApplicable(tag) }.forEach { provider ->
-                                group(sourceSets = setOf(platform), styles = setOf(ContentStyle.KDocTag)) {
-                                    with(provider) {
-                                        contentForDescription(platform, tag)
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            paramsSectionContent(tags)
+            seeAlsoSectionContent(tags)
+            throwsSectionContent(tags)
+            samplesSectionContent(tags)
 
-            val unnamedTags = tags.filterNot { (k, _) -> k.isSubclassOf(NamedTagWrapper::class) || k in specialTags }
-                .values.flatten().groupBy { it.first }.mapValues { it.value.map { it.second } }
-            if (unnamedTags.isNotEmpty()) {
-                platforms.forEach { platform ->
-                    unnamedTags[platform]?.let { tags ->
-                        if (tags.isNotEmpty()) {
-                            tags.groupBy { it::class }.forEach { (_, sameCategoryTags) ->
-                                group(sourceSets = setOf(platform), styles = setOf(ContentStyle.KDocTag)) {
-                                    header(
-                                        level = KDOC_TAG_HEADER_LEVEL,
-                                        text = sameCategoryTags.first().toHeaderString(),
-                                        styles = setOf()
-                                    )
-                                    sameCategoryTags.forEach { comment(it.root, styles = setOf()) }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            inheritorsSectionContent(d, logger)
         }.children
     }
-
-    private fun Set<DokkaSourceSet>.getPossibleFallbackSourcesets(sourceSet: DokkaSourceSet) =
-        this.filter { it.sourceSetID in sourceSet.dependentSourceSets }
-
-    private fun <V> Map<DokkaSourceSet, V>.fallback(sourceSets: List<DokkaSourceSet>): V? =
-        sourceSets.firstOrNull { it in this.keys }.let { this[it] }
-
-    protected open fun contentForComments(
-        d: Documentable,
-        isPlatformHintedContent: Boolean = true
-    ) = contentForComments(d.dri, d.sourceSets, d.groupedTags, isPlatformHintedContent)
-
-    protected open fun contentForComments(
-        d: List<Documentable>,
-        isPlatformHintedContent: Boolean = true
-    ) = contentForComments(d.first().dri, d.sourceSets, d.groupedTags, isPlatformHintedContent)
-
-    protected open fun contentForComments(
-        dri: DRI,
-        sourceSets: Set<DokkaSourceSet>,
-        tags: GroupedTags,
-        isPlatformHintedContent: Boolean = true
-    ): List<ContentNode> {
-
-        fun DocumentableContentBuilder.buildContent(
-            platforms: Set<DokkaSourceSet>,
-            contentBuilder: DocumentableContentBuilder.() -> Unit
-        ) = if (isPlatformHintedContent)
-            sourceSetDependentHint(
-                sourceSets = platforms,
-                kind = ContentKind.SourceSetDependentHint,
-                block = contentBuilder
-            )
-        else
-            contentBuilder()
-
-        fun DocumentableContentBuilder.contentForParams() {
-            if (tags.isNotEmptyForTag<Param>()) {
-                val params = tags.withTypeNamed<Param>()
-                val availablePlatforms = params.values.flatMap { it.keys }.toSet()
-
-                header(KDOC_TAG_HEADER_LEVEL, "Parameters", kind = ContentKind.Parameters, sourceSets = availablePlatforms)
-                group(
-                    extra = mainExtra + SimpleAttr.header("Parameters"),
-                    styles = setOf(ContentStyle.WithExtraAttributes),
-                    sourceSets = availablePlatforms
-                ) {
-                    buildContent(availablePlatforms) {
-                        table(kind = ContentKind.Parameters, sourceSets = availablePlatforms) {
-                            availablePlatforms.forEach { platform ->
-                                val possibleFallbacks = sourceSets.getPossibleFallbackSourcesets(platform)
-                                params.mapNotNull { (_, param) ->
-                                    (param[platform] ?: param.fallback(possibleFallbacks))?.let {
-                                        row(sourceSets = setOf(platform), kind = ContentKind.Parameters) {
-                                            text(
-                                                it.name,
-                                                kind = ContentKind.Parameters,
-                                                styles = mainStyles + setOf(ContentStyle.RowTitle, TextStyle.Underlined)
-                                            )
-                                            if (it.isNotEmpty()) {
-                                                comment(it.root)
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        fun DocumentableContentBuilder.contentForSeeAlso() {
-            if (tags.isNotEmptyForTag<See>()) {
-                val seeAlsoTags = tags.withTypeNamed<See>()
-                val availablePlatforms = seeAlsoTags.values.flatMap { it.keys }.toSet()
-
-                header(KDOC_TAG_HEADER_LEVEL, "See also", kind = ContentKind.Comment, sourceSets = availablePlatforms)
-                group(
-                    extra = mainExtra + SimpleAttr.header("See also"),
-                    styles = setOf(ContentStyle.WithExtraAttributes),
-                    sourceSets = availablePlatforms
-                ) {
-                    buildContent(availablePlatforms) {
-                        table(kind = ContentKind.Sample) {
-                            availablePlatforms.forEach { platform ->
-                                val possibleFallbacks = sourceSets.getPossibleFallbackSourcesets(platform)
-                                seeAlsoTags.forEach { (_, see) ->
-                                    (see[platform] ?: see.fallback(possibleFallbacks))?.let { seeTag ->
-                                        row(
-                                            sourceSets = setOf(platform),
-                                            kind = ContentKind.Comment,
-                                            styles = this@group.mainStyles,
-                                        ) {
-                                            seeTag.address?.let { dri ->
-                                                link(
-                                                    text = seeTag.name.removePrefix("${dri.packageName}."),
-                                                    address = dri,
-                                                    kind = ContentKind.Comment,
-                                                    styles = mainStyles + ContentStyle.RowTitle
-                                                )
-                                            } ?: text(
-                                                text = seeTag.name,
-                                                kind = ContentKind.Comment,
-                                                styles = mainStyles + ContentStyle.RowTitle
-                                            )
-                                            if (seeTag.isNotEmpty()) {
-                                                comment(seeTag.root)
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        fun DocumentableContentBuilder.contentForThrows() {
-            val throws = tags.withTypeNamed<Throws>()
-            if (throws.isNotEmpty()) {
-                val availablePlatforms = throws.values.flatMap { it.keys }.toSet()
-
-                header(KDOC_TAG_HEADER_LEVEL, "Throws", sourceSets = availablePlatforms)
-                buildContent(availablePlatforms) {
-                    availablePlatforms.forEach { sourceset ->
-                        table(
-                            kind = ContentKind.Main,
-                            sourceSets = setOf(sourceset),
-                            extra = mainExtra + SimpleAttr.header("Throws")
-                        ) {
-                            throws.entries.forEach { entry ->
-                                entry.value[sourceset]?.let { throws ->
-                                    row(sourceSets = setOf(sourceset)) {
-                                        group(styles = mainStyles + ContentStyle.RowTitle) {
-                                            throws.exceptionAddress?.let {
-                                                val className = it.takeIf { it.target is PointingToDeclaration }?.classNames
-                                                link(text = className ?: entry.key, address = it)
-                                            } ?: text(entry.key)
-                                        }
-                                        if (throws.isNotEmpty()) {
-                                            comment(throws.root)
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        fun DocumentableContentBuilder.contentForSamples() {
-            val samples = tags.withTypeNamed<Sample>()
-            if (samples.isNotEmpty()) {
-                val availablePlatforms = samples.values.flatMap { it.keys }.toSet()
-                header(KDOC_TAG_HEADER_LEVEL, "Samples", kind = ContentKind.Sample, sourceSets = availablePlatforms)
-                group(
-                    extra = mainExtra + SimpleAttr.header("Samples"),
-                    styles = emptySet(),
-                    sourceSets = availablePlatforms
-                ) {
-                    buildContent(availablePlatforms) {
-                        availablePlatforms.map { platformData ->
-                            val content = samples.filter { it.value.isEmpty() || platformData in it.value }
-                            group(
-                                sourceSets = setOf(platformData),
-                                kind = ContentKind.Sample,
-                                styles = setOf(TextStyle.Monospace, ContentStyle.RunnableSample)
-                            ) {
-                                content.forEach {
-                                    text(it.key)
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        return contentBuilder.contentFor(dri, sourceSets) {
-            if (tags.isNotEmpty()) {
-                contentForSamples()
-                contentForSeeAlso()
-                contentForParams()
-                contentForThrows()
-            }
-        }.children
-    }
-
-    private fun TagWrapper.isNotEmpty() = this.children.isNotEmpty()
 
     protected open fun DocumentableContentBuilder.contentForBrief(documentable: Documentable) {
         documentable.sourceSets.forEach { sourceSet ->
@@ -761,7 +461,6 @@ open class DefaultPageCreator(
                         }
                         after {
                             +contentForDescription(d)
-                            +contentForComments(d, isPlatformHintedContent = false)
                         }
                     }
                 }
@@ -802,6 +501,7 @@ open class DefaultPageCreator(
                 props.forEach {
                     +buildSignature(it)
                     contentForBrief(it)
+                    contentForCustomTagsBrief(it)
                 }
             }
         }
@@ -889,35 +589,39 @@ open class DefaultPageCreator(
     }
 
     protected open fun TagWrapper.toHeaderString() = this.javaClass.toGenericString().split('.').last()
-
-    private val List<Documentable>.sourceSets: Set<DokkaSourceSet>
-        get() = flatMap { it.sourceSets }.toSet()
-
-    private val List<Documentable>.dri: Set<DRI>
-        get() = map { it.dri }.toSet()
-
-    private val Documentable.groupedTags: GroupedTags
-        get() = documentation.flatMap { (pd, doc) ->
-            doc.children.map { pd to it }.toList()
-        }.groupBy { it.second::class }
-
-    private val List<Documentable>.groupedTags: GroupedTags
-        get() = this.flatMap {
-            it.documentation.flatMap { (pd, doc) ->
-                doc.children.map { pd to it }.toList()
-            }
-        }.groupBy { it.second::class }
-
-    private val Documentable.descriptions: SourceSetDependent<Description>
-        get() = groupedTags.withTypeUnnamed()
-
-    private val Documentable.customTags: Map<String, SourceSetDependent<CustomTagWrapper>>
-        get() = groupedTags.withTypeNamed()
-
-    private val Documentable.hasSeparatePage: Boolean
-        get() = this !is DTypeAlias
-
-    @Suppress("UNCHECKED_CAST")
-    private fun <T : Documentable> T.nameAfterClash(): String =
-        ((this as? WithExtraProperties<out Documentable>)?.extra?.get(DriClashAwareName)?.value ?: name).orEmpty()
 }
+
+internal val List<Documentable>.sourceSets: Set<DokkaSourceSet>
+    get() = flatMap { it.sourceSets }.toSet()
+
+internal val List<Documentable>.dri: Set<DRI>
+    get() = map { it.dri }.toSet()
+
+internal val Documentable.groupedTags: GroupedTags
+    get() = documentation.flatMap { (pd, doc) ->
+        doc.children.map { pd to it }.toList()
+    }.groupBy { it.second::class }
+
+internal val Documentable.descriptions: SourceSetDependent<Description>
+    get() = groupedTags.withTypeUnnamed()
+
+internal val Documentable.customTags: Map<String, SourceSetDependent<CustomTagWrapper>>
+    get() = groupedTags.withTypeNamed()
+
+private val Documentable.hasSeparatePage: Boolean
+    get() = this !is DTypeAlias
+
+@Suppress("UNCHECKED_CAST")
+private fun <T : Documentable> T.nameAfterClash(): String =
+    ((this as? WithExtraProperties<out Documentable>)?.extra?.get(DriClashAwareName)?.value ?: name).orEmpty()
+
+@Suppress("UNCHECKED_CAST")
+internal inline fun <reified T : TagWrapper> GroupedTags.withTypeUnnamed(): SourceSetDependent<T> =
+    (this[T::class] as List<Pair<DokkaSourceSet, T>>?)?.toMap().orEmpty()
+
+@Suppress("UNCHECKED_CAST")
+internal inline fun <reified T : NamedTagWrapper> GroupedTags.withTypeNamed(): Map<String, SourceSetDependent<T>> =
+    (this[T::class] as List<Pair<DokkaSourceSet, T>>?)
+        ?.groupByTo(linkedMapOf()) { it.second.name }
+        ?.mapValues { (_, v) -> v.toMap() }
+        .orEmpty()
