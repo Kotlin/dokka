@@ -81,6 +81,7 @@ testing.suites {
             implementation(project.dependencies.platform("io.kotest:kotest-bom:5.5.4"))
 //            implementation("io.kotest:kotest-runner-junit5")
             implementation("io.kotest:kotest-assertions-core")
+            implementation("io.kotest:kotest-assertions-json")
         }
     }
 
@@ -95,6 +96,7 @@ testing.suites {
             implementation(project.dependencies.platform("io.kotest:kotest-bom:5.5.4"))
 //            implementation("io.kotest:kotest-runner-junit5")
             implementation("io.kotest:kotest-assertions-core")
+            implementation("io.kotest:kotest-assertions-json")
 
             implementation(project.dependencies.gradleTestKit())
         }
