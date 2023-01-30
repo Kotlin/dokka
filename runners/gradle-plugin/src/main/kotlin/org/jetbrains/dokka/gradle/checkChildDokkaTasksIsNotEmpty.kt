@@ -3,26 +3,10 @@ package org.jetbrains.dokka.gradle
 import org.jetbrains.dokka.DokkaException
 
 internal fun AbstractDokkaParentTask.checkChildDokkaTasksIsNotEmpty() {
-    if (childDokkaTaskPaths.isEmpty()) {
-        throw DokkaException(
-            """
-            The ${this::class.java.simpleName} $path has no configured child tasks. 
-            Add some dokka tasks like e.g.: 
-            
-            tasks.named<AbstractDokkaParentTask>("$name") {
-                 addChildTask(..)
-                 addChildTasks(subprojects, "...")
-                 //...
-            }
-            """.trimIndent()
-        )
-    }
-
     if (childDokkaTasks.isEmpty()) {
         throw DokkaException(
             """
             The ${this::class.java.simpleName} $path could not find any registered child task. 
-            child tasks: $childDokkaTaskPaths
             
             Please make sure to apply the dokka plugin to all included (sub)-projects individually e.g.:
             
@@ -37,7 +21,7 @@ internal fun AbstractDokkaParentTask.checkChildDokkaTasksIsNotEmpty() {
             subprojects {
                 plugins.apply("org.jetbrains.dokka")
             }
-            """
+            """.trimIndent()
         )
     }
 }

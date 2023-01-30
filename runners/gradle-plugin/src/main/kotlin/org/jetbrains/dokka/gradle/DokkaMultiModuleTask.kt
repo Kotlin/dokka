@@ -1,7 +1,6 @@
 package org.jetbrains.dokka.gradle
 
 import org.gradle.api.file.ConfigurableFileCollection
-import org.gradle.api.internal.tasks.TaskDependencyInternal
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
 import org.jetbrains.dokka.DokkaConfigurationImpl
@@ -66,11 +65,6 @@ abstract class DokkaMultiModuleTask : AbstractDokkaParentTask() {
         get() = childDokkaTasks.filterIsInstance<DokkaTaskPartial>().associate { task ->
             task.path to task.dokkaSourceSets.flatMap { it.includes }.toSet()
         }
-
-    @Internal
-    override fun getTaskDependencies(): TaskDependencyInternal =
-        super.getTaskDependencies() + childDokkaTasks
-
 
     override fun generateDocumentation() {
         checkChildDokkaTasksIsNotEmpty()

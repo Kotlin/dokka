@@ -1,7 +1,6 @@
 package org.jetbrains.dokka.gradle
 
 import org.gradle.api.Project
-import org.gradle.api.UnknownTaskException
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.getByName
 import org.gradle.testfixtures.ProjectBuilder
@@ -175,17 +174,16 @@ class AbstractDokkaParentTaskTest {
         )
     }
 
+    // scenario: some subprojects don't have dokka plugin applied, it will lead to import failure
     @Test
-    fun `adding invalid path will not throw exception`() {
+    fun `adding invalid path will throw exception`() {
         parentTask.addChildTask(":some:stupid:path")
-        parentTask.childDokkaTasks
     }
 
     @Test
     fun `adding non dokka task will throw exception`() {
         val badTask = rootProject.tasks.create("badTask")
-        parentTask.addChildTask(badTask.path)
-        assertFailsWith<IllegalArgumentException> { parentTask.childDokkaTasks }
+        assertFailsWith<IllegalArgumentException> { parentTask.addChildTask(badTask.path) }
     }
 }
 
