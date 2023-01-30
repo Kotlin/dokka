@@ -176,7 +176,7 @@ class AbstractDokkaParentTaskTest {
 
     // scenario: some subprojects don't have dokka plugin applied, it will lead to import failure
     @Test
-    fun `adding invalid path will throw exception`() {
+    fun `adding invalid path will not throw exception`() {
         parentTask.addChildTask(":some:stupid:path")
     }
 
