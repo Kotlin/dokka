@@ -6,7 +6,7 @@ import kotlin.test.Test
 class DokkaPluginTest {
 
     @Test
-    fun `DokkaTask configuration toJsonString then parseJson`() {
+    fun `expect plugin can be applied to project successfully`() {
         val project = ProjectBuilder.builder().build()
         project.plugins.apply("org.jetbrains.dokka2")
     }

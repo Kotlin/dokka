@@ -8,7 +8,7 @@ plugins {
     kotlin("plugin.serialization") version embeddedKotlinVersion
     `jvm-test-suite`
 
-    id("org.jetbrains.kotlinx.binary-compatibility-validator") version "0.12.1"
+//    id("org.jetbrains.kotlinx.binary-compatibility-validator") version "0.12.1"
 }
 
 group = "org.jetbrains.dokka"
@@ -20,6 +20,8 @@ dependencies {
 //    compileOnly("com.android.tools.build:gradle:4.0.1")
 
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
+
+    // note: test dependencies are defined in the testing.suites {} configuration below
 }
 
 java {
@@ -72,10 +74,13 @@ testing.suites {
         useJUnitJupiter()
 
         dependencies {
-            implementation(project.dependencies.kotlin("test"))
             implementation(project.dependencies.gradleTestKit())
-//            implementation("org.jetbrains.kotlin:kotlin-gradle-plugin")
-//            implementation("com.android.tools.build:gradle:4.0.1")
+
+            implementation(project.dependencies.kotlin("test"))
+
+            implementation(project.dependencies.platform("io.kotest:kotest-bom:5.5.4"))
+//            implementation("io.kotest:kotest-runner-junit5")
+            implementation("io.kotest:kotest-assertions-core")
         }
     }
 
@@ -86,9 +91,12 @@ testing.suites {
             implementation(project)
 
             implementation(project.dependencies.kotlin("test"))
+
+            implementation(project.dependencies.platform("io.kotest:kotest-bom:5.5.4"))
+//            implementation("io.kotest:kotest-runner-junit5")
+            implementation("io.kotest:kotest-assertions-core")
+
             implementation(project.dependencies.gradleTestKit())
-//            implementation("org.jetbrains.kotlin:kotlin-gradle-plugin")
-//            implementation("com.android.tools.build:gradle:4.0.1")
         }
 
         targets.all {

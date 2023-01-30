@@ -26,46 +26,49 @@ class MultiModuleFunctionalTest {
                 }
             """.trimIndent()
 
-            createKtsFile("subproject/build.gradle.kts", """
-                import org.jetbrains.dokka.gradle.tasks.DokkaConfigurationTask
-                import org.jetbrains.dokka.gradle.dokka_configuration.DokkaConfigurationKxs
-                
-                plugins {
-                    `embedded-kotlin`
-                    id("org.jetbrains.dokka2") version "2.0.0"
-                }
-                
-                tasks.withType<DokkaConfigurationTask>().configureEach {
-                    sourceSets.add(
-                        DokkaConfigurationKxs.DokkaSourceSetKxs(
-                            displayName = "DEFAULT",
-                            sourceSetID = org.jetbrains.dokka.DokkaSourceSetID("DEFAULT", "DEFAULT"),
-                            classpath = emptyList(),
-                            sourceRoots = setOf(file("src/main/kotlin")),
-                            dependentSourceSets = emptySet(),
-                            samples = emptySet(),
-                            includes = emptySet(),
-                            documentedVisibilities = emptySet(),
-                            reportUndocumented = false,
-                            skipEmptyPackages = true,
-                            skipDeprecated = false,
-                            jdkVersion = 8,
-                            sourceLinks = emptySet(),
-                            perPackageOptions = emptyList(),
-                            externalDocumentationLinks = emptySet(),
-                            languageVersion = null,
-                            apiVersion = null,
-                            noStdlibLink = false,
-                            noJdkLink = false,
-                            suppressedFiles = emptySet(),
-                            analysisPlatform = org.jetbrains.dokka.Platform.DEFAULT
+            createKtsFile(
+                "subproject/build.gradle.kts",
+                """
+                    import org.jetbrains.dokka.gradle.tasks.DokkaConfigurationTask
+                    import org.jetbrains.dokka.gradle.dokka_configuration.DokkaConfigurationKxs
+                    
+                    plugins {
+                        `embedded-kotlin`
+                        id("org.jetbrains.dokka2") version "2.0.0"
+                    }
+                    
+                    tasks.withType<DokkaConfigurationTask>().configureEach {
+                        sourceSets.add(
+                            DokkaConfigurationKxs.DokkaSourceSetKxs(
+                                displayName = "DEFAULT",
+                                sourceSetID = org.jetbrains.dokka.DokkaSourceSetID("DEFAULT", "DEFAULT"),
+                                classpath = emptyList(),
+                                sourceRoots = setOf(file("src/main/kotlin")),
+                                dependentSourceSets = emptySet(),
+                                samples = emptySet(),
+                                includes = emptySet(),
+                                documentedVisibilities = emptySet(),
+                                reportUndocumented = false,
+                                skipEmptyPackages = true,
+                                skipDeprecated = false,
+                                jdkVersion = 8,
+                                sourceLinks = emptySet(),
+                                perPackageOptions = emptyList(),
+                                externalDocumentationLinks = emptySet(),
+                                languageVersion = null,
+                                apiVersion = null,
+                                noStdlibLink = false,
+                                noJdkLink = false,
+                                suppressedFiles = emptySet(),
+                                analysisPlatform = org.jetbrains.dokka.Platform.DEFAULT
+                            )
                         )
-                    )
-                }
+                    }
+                """.trimIndent()
+            )
 
-            """.trimIndent())
-
-            createKotlinFile("subproject/src/main/kotlin/Hello.kt", """
+            createKotlinFile(
+                "subproject/src/main/kotlin/Hello.kt", """
                 package com.project.hello
                 
                 /** The Hello class */
@@ -73,10 +76,11 @@ class MultiModuleFunctionalTest {
                     /** prints `Hello` to the console */  
                     fun sayHello() = println("Hello")
                 }
-            """.trimIndent())
+            """.trimIndent()
+            )
 
         }.runner
-            .withArguments(":subproject:dokkaGenerate","--stacktrace", "--info")
+            .withArguments(":subproject:dokkaGenerate", "--stacktrace", "--info")
             .forwardOutput()
             .build()
 
