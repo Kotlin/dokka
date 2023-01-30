@@ -33,11 +33,11 @@ class DokkaCollectorTaskTest {
 
         val collectorTasks = rootProject.tasks.withType<DokkaCollectorTask>()
         collectorTasks.configureEach { task ->
-            task.moduleName by "custom Module Name"
-            task.outputDirectory by File("customOutputDirectory")
-            task.cacheRoot by File("customCacheRoot")
-            task.failOnWarning by true
-            task.offlineMode by true
+            task.moduleName.set("custom Module Name")
+            task.outputDirectory.set(File("customOutputDirectory"))
+            task.cacheRoot.set(File("customCacheRoot"))
+            task.failOnWarning.set(true)
+            task.offlineMode.set(true)
         }
 
         assertTrue(collectorTasks.isNotEmpty(), "Expected at least one collector task")

@@ -1,10 +1,11 @@
-@file:Suppress("UnstableApiUsage")
-
 package org.jetbrains.dokka.gradle
 
 import org.gradle.kotlin.dsl.withType
 import org.gradle.testfixtures.ProjectBuilder
-import org.jetbrains.dokka.*
+import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.DokkaConfigurationImpl
+import org.jetbrains.dokka.PluginConfigurationImpl
+import org.jetbrains.dokka.toJsonString
 import java.io.File
 import java.net.URL
 import kotlin.test.Test
@@ -21,25 +22,29 @@ class DokkaConfigurationJsonTest {
             dependencies.clear()
         }
         dokkaTask.apply {
-            this.failOnWarning by true
-            this.offlineMode by true
-            this.outputDirectory by File("customOutputDir")
-            this.cacheRoot by File("customCacheRoot")
-            this.pluginsConfiguration.add(PluginConfigurationImpl("A", DokkaConfiguration.SerializationFormat.JSON, """ { "key" : "value1" } """))
-            this.pluginsConfiguration.add(PluginConfigurationImpl("B", DokkaConfiguration.SerializationFormat.JSON, """ { "key" : "value2" } """))
+            this.failOnWarning.set(true)
+            this.offlineMode.set(true)
+            this.outputDirectory.set(File("customOutputDir"))
+            this.cacheRoot.set(File("customCacheRoot"))
+            this.pluginsConfiguration.add(
+                PluginConfigurationImpl("A", DokkaConfiguration.SerializationFormat.JSON, """ { "key" : "value1" } """)
+            )
+            this.pluginsConfiguration.add(
+                PluginConfigurationImpl("B", DokkaConfiguration.SerializationFormat.JSON, """ { "key" : "value2" } """)
+            )
             this.dokkaSourceSets.create("main") { sourceSet ->
-                sourceSet.displayName by "customSourceSetDisplayName"
-                sourceSet.reportUndocumented by true
+                sourceSet.displayName.set("customSourceSetDisplayName")
+                sourceSet.reportUndocumented.set(true)
 
                 sourceSet.externalDocumentationLink { link ->
-                    link.packageListUrl by URL("http://some.url")
-                    link.url by URL("http://some.other.url")
+                    link.packageListUrl.set(URL("http://some.url"))
+                    link.url.set(URL("http://some.other.url"))
                 }
                 sourceSet.perPackageOption { packageOption ->
-                    packageOption.includeNonPublic by true
-                    packageOption.reportUndocumented by true
-                    packageOption.skipDeprecated by true
-                    packageOption.documentedVisibilities by setOf(DokkaConfiguration.Visibility.PRIVATE)
+                    packageOption.includeNonPublic.set(true)
+                    packageOption.reportUndocumented.set(true)
+                    packageOption.skipDeprecated.set(true)
+                    packageOption.documentedVisibilities.set(setOf(DokkaConfiguration.Visibility.PRIVATE))
                 }
             }
         }

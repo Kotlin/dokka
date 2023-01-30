@@ -465,9 +465,9 @@ open class GradleDokkaSourceSetBuilder(
     fun externalDocumentationLink(url: URL, packageListUrl: URL? = null) {
         externalDocumentationLinks.add(
             GradleExternalDocumentationLinkBuilder(project).apply {
-                this.url by url
+                this.url.convention(url)
                 if (packageListUrl != null) {
-                    this.packageListUrl by packageListUrl
+                    this.packageListUrl.convention(packageListUrl)
                 }
             }
         )
@@ -475,4 +475,3 @@ open class GradleDokkaSourceSetBuilder(
 
     override fun build(): DokkaSourceSetImpl = toDokkaSourceSetImpl()
 }
-
