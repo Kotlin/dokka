@@ -192,7 +192,7 @@ open class DefaultPageCreator(
         return Pair(first, second)
     }
 
-    private fun <T> Collection<T>.splitInheritedExtension(dri: Set<DRI>): Pair<List<T>, List<T>> where T : Callable, T : WithExtraProperties<T> =
+    private fun <T> Collection<T>.splitInheritedExtension(dri: Set<DRI>): Pair<List<T>, List<T>> where T : Callable =
         partition { it.receiver?.dri !in dri }
 
     private fun <T> Collection<T>.splitInherited(): Pair<List<T>, List<T>> where T : Documentable, T : WithExtraProperties<T> =
@@ -289,15 +289,14 @@ open class DefaultPageCreator(
             )
         )
         group(styles = setOf(ContentStyle.TabbedContent), extra = mainExtra + contentTabsExtra) {
-            +contentForScope(p, p.dri, p.sourceSets)
+            +contentForPackageScope(p, p.dri, p.sourceSets)
         }
     }
 
-    protected open fun contentForScopes(
+    protected open fun contentForClasslikesScopes(
         scopes: List<WithScope>,
         sourceSets: Set<DokkaSourceSet>,
-        extensions: List<Documentable> = emptyList(),
-        isClasslike: Boolean = false
+        extensions: List<Documentable> = emptyList()
     ): ContentGroup {
         val types = scopes.flatMap { it.classlikes } + scopes.filterIsInstance<DPackage>().flatMap { it.typealiases }
         return contentForScope(
@@ -308,15 +307,14 @@ open class DefaultPageCreator(
             scopes.flatMap { it.functions },
             scopes.flatMap { it.properties },
             extensions,
-            isClasslike
+            true
         )
     }
 
-    protected open fun contentForScope(
-        s: WithScope,
+    protected open fun contentForPackageScope(
+        s: DPackage,
         dri: DRI,
         sourceSets: Set<DokkaSourceSet>,
-        isClasslike: Boolean = false
     ): ContentGroup {
         val types = listOf(
             s.classlikes,
@@ -325,7 +323,7 @@ open class DefaultPageCreator(
         return contentForScope(setOf(dri), sourceSets, types, s.functions, s.properties, emptyList())
     }
 
-    protected open fun contentForScope(
+    private fun contentForScope(
         dri: Set<DRI>,
         sourceSets: Set<DokkaSourceSet>,
         types: List<Documentable>,
@@ -339,7 +337,7 @@ open class DefaultPageCreator(
             types,
             ContentKind.Classlikes,
             extra = mainExtra + ToggleableContentTypeExtra(BasicToggleableContentType.TYPE),
-            isVisibleHeader = isClasslike
+            headerExtra = if (isClasslike) mainExtra else mainExtra + ToggleableContentTypeExtra(BasicToggleableContentType.INVISIBLE)
         )
         val (extensionProps, extensionFuns) = extensions.splitPropsAndFuns()
         if (separateInheritedMembers) {
@@ -414,12 +412,12 @@ open class DefaultPageCreator(
             val scopes = documentables.filterIsInstance<WithScope>()
             val constructorsToDocumented = csWithConstructor.flatMap { it.constructors }
 
-            val containsAnyConstructor = constructorsToDocumented.isNotEmpty() && documentables.shouldRenderConstructors()
-            val containsAnyMember =
-                containsAnyConstructor || scopes.any { it.classlikes.isNotEmpty() || it.functions.isNotEmpty() || it.properties.isNotEmpty() }
+            val containsRenderableConstructors = constructorsToDocumented.isNotEmpty() && documentables.shouldRenderConstructors()
+            val containsRenderableMembers =
+                containsRenderableConstructors || scopes.any { it.classlikes.isNotEmpty() || it.functions.isNotEmpty() || it.properties.isNotEmpty() }
             val contentTabsExtra = ContentTabsExtra(
                 listOfNotNull(
-                    if (!containsAnyMember) null else ContentTab(
+                    if (!containsRenderableMembers) null else ContentTab(
                         ContentText(
                             "Members",
                             DCI(mainDRI, ContentKind.Main),
@@ -473,7 +471,7 @@ open class DefaultPageCreator(
                 if (csEnum.isNotEmpty()) {
                     +contentForEntries(csEnum.flatMap { it.entries }, csEnum.dri, csEnum.sourceSets)
                 }
-                +contentForScopes(scopes, documentables.sourceSets, extensions, isClasslike = true)
+                +contentForClasslikesScopes(scopes, documentables.sourceSets, extensions)
             }
         }
     protected open fun contentForConstructors(
@@ -490,7 +488,6 @@ open class DefaultPageCreator(
             @Suppress("UNCHECKED_CAST")
             (constructorsToDocumented as List<Documentable>).sourceSets,
             needsAnchors = true,
-            isVisibleHeader = true,
             extra = PropertyContainer.empty<ContentNode>() + ToggleableContentTypeExtra(
                 BasicToggleableContentType.CONSTRUCTOR
             ),
@@ -525,6 +522,7 @@ open class DefaultPageCreator(
             needsSorting = false,
             needsAnchors = true,
             extra = mainExtra + ToggleableContentTypeExtra(BasicToggleableContentType.ENTRY),
+            headerExtra = mainExtra + ToggleableContentTypeExtra(BasicToggleableContentType.ENTRY),
             styles = emptySet()
         ) { key, ds ->
             link(key, ds.first().dri)
@@ -636,13 +634,25 @@ open class DefaultPageCreator(
         toggleableContentType: ToggleableContentType,
         list: Collection<DFunction>,
         isVisibleHeader: Boolean = false
-    ) = divergentBlock(
-        name,
-        list.sorted(),
-        ContentKind.Functions,
-        extra = mainExtra + ToggleableContentTypeExtra(toggleableContentType),
-        isVisibleHeader = isVisibleHeader
-    )
+    ) {
+        val onlyExtensions = list.all { it.isExtension() }
+        val headerExtra =
+            when {
+                // corner case: when we have only extensions, the header should be only for EXTENSION
+                onlyExtensions && isVisibleHeader -> mainExtra + ToggleableContentTypeExtra(BasicToggleableContentType.EXTENSION)
+                isVisibleHeader -> mainExtra
+                !isVisibleHeader -> mainExtra + ToggleableContentTypeExtra(BasicToggleableContentType.INVISIBLE)
+                else -> throw IllegalStateException()
+            }
+
+        divergentBlock(
+            name,
+            list.sorted(),
+            ContentKind.Functions,
+            extra = mainExtra + ToggleableContentTypeExtra(toggleableContentType),
+            headerExtra = headerExtra
+        )
+    }
 
     private fun DocumentableContentBuilder.propertiesBlock(
         name: String,
@@ -651,22 +661,34 @@ open class DefaultPageCreator(
         sourceSets: Set<DokkaSourceSet>,
         isVisibleHeader: Boolean = false
     ) {
-        val groupedElements = list.groupBy { Pair(it.name, it.isExtension()) }.toList()
+        data class NameAndIsExtension(val name:String, val isExtension: Boolean)
+
+        val groupedElements = list.groupBy { NameAndIsExtension(it.name, it.isExtension()) }.toList()
         val sortedGroupedElements =
-            groupedElements.sortedWith(compareBy<Pair<Pair<String, Boolean>, List<DProperty>>, String>(nullsLast(String.CASE_INSENSITIVE_ORDER)) { it.first.first }.thenBy { it.first.second })
+            groupedElements.sortedWith(compareBy<Pair<NameAndIsExtension, List<DProperty>>, String>(nullsLast(String.CASE_INSENSITIVE_ORDER)) { it.first.name }.thenBy { it.first.isExtension })
+
+        val onlyExtensions = list.all { it.isExtension() }
+        val headerExtra =
+            when {
+                // corner case: when we have only extensions,  the header should be only for EXTENSION
+                onlyExtensions && isVisibleHeader -> mainExtra + ToggleableContentTypeExtra(BasicToggleableContentType.EXTENSION)
+                isVisibleHeader -> mainExtra
+                !isVisibleHeader -> mainExtra + ToggleableContentTypeExtra(BasicToggleableContentType.INVISIBLE)
+                else -> throw IllegalStateException()
+            }
 
         multiBlock(
             name,
             2,
             ContentKind.Properties,
-            sortedGroupedElements.map { it.first.first to it.second },
+            sortedGroupedElements.map { it.first.name to it.second },
             sourceSets,
             needsAnchors = true,
             extra = mainExtra + ToggleableContentTypeExtra(toggleableContentType),
             headers = listOf(
                 headers("Name", "Summary")
             ),
-            isVisibleHeader = isVisibleHeader
+            headerExtra = headerExtra,
         ) { key, props ->
             val extra =
                 if (props.all { it.isExtension() }) mainExtra + ToggleableContentTypeExtra(BasicToggleableContentType.EXTENSION) else mainExtra
@@ -701,18 +723,11 @@ open class DefaultPageCreator(
         collection: Collection<Documentable>,
         kind: ContentKind,
         extra: PropertyContainer<ContentNode> = mainExtra,
-        isVisibleHeader: Boolean = false
+        headerExtra: PropertyContainer<ContentNode> = extra
     ) {
         if (collection.any()) {
             group(extra = extra) {
-                // corner case
-                val onlyExtensions = collection.all { it.isExtension() }
-                val headerExtra = if (onlyExtensions)
-                    extra + ToggleableContentTypeExtra(BasicToggleableContentType.EXTENSION)
-                else
-                    extra
-                val headerExtraWithVisibility = if (isVisibleHeader) headerExtra else headerExtra + HtmlInvisibleExtra
-                header(2, name, kind = kind, extra = headerExtraWithVisibility) { }
+                header(2, name, kind = kind, extra = headerExtra) { }
 
                 table(kind, extra = extra, styles = emptySet()) {
                     header {
@@ -824,8 +839,6 @@ open class DefaultPageCreator(
 
     protected open fun TagWrapper.toHeaderString() = this.javaClass.toGenericString().split('.').last()
 }
-
-fun Documentable.isExtension() = this is Callable && receiver != null
 
 internal val List<Documentable>.sourceSets: Set<DokkaSourceSet>
     get() = flatMap { it.sourceSets }.toSet()

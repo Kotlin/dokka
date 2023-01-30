@@ -77,11 +77,11 @@ open class HtmlRenderer(
 
                 div(classes = "tabs-section") {
                     attributes["tabs-section"] = "tabs-section"
-                    contentTabs.forEachIndexed { index, node ->
+                    contentTabs.forEachIndexed { index, contentTab ->
                         button(classes = "section-tab") {
                             if (index == 0) attributes["data-active"] = ""
-                            attributes["data-togglable"] = node.toggleableContentTypes.joinToString(",")
-                            text(node.text.text)
+                            attributes["data-togglable"] = contentTab.toggleableContentTypes.joinToString(",")
+                            contentTab.text.build(this, pageContext, node.sourceSets)
                         }
                     }
                 }

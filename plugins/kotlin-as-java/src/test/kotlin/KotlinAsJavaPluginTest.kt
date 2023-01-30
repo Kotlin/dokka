@@ -92,8 +92,10 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
                     .map { it.content }
 
                 val children = contentList.flatMap { content ->
-                    (content.findTabWithType(BasicToggleableContentType.FUNCTION)
-                        ?: throw IllegalStateException("A function tab is not found")).children[0].children.filterIsInstance<ContentTable>()
+                    val functionTab = content.findTabWithType(BasicToggleableContentType.FUNCTION)
+                        ?: throw IllegalStateException("A function tab is not found")
+
+                    functionTab.children[0].children.filterIsInstance<ContentTable>()
                         .flatMap { it.children }
                 }
 

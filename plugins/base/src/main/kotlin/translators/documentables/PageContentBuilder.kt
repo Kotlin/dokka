@@ -8,6 +8,7 @@ import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.Documentable
 import org.jetbrains.dokka.model.SourceSetDependent
 import org.jetbrains.dokka.model.doc.DocTag
+import org.jetbrains.dokka.model.isExtension
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.model.properties.plus
 import org.jetbrains.dokka.model.toDisplaySourceSets
@@ -243,21 +244,13 @@ open class PageContentBuilder(
             needsSorting: Boolean = true,
             headers: List<ContentGroup> = emptyList(),
             needsAnchors: Boolean = false,
-            isVisibleHeader: Boolean = false,
+            headerExtra: PropertyContainer<ContentNode> = extra,
             operation: DocumentableContentBuilder.(String, List<Documentable>) -> Unit
         ) {
 
             if (renderWhenEmpty || groupedElements.any()) {
                 group(extra = extra) {
-
-                        // corner case
-                    val onlyExtensions = groupedElements.all { it.second.all { it.isExtension() } }
-                    val headerExtra = if (onlyExtensions)
-                        extra + ToggleableContentTypeExtra(BasicToggleableContentType.EXTENSION)
-                    else
-                        extra
-                    val headerExtraWithVisibility = if (isVisibleHeader) headerExtra else headerExtra + HtmlInvisibleExtra
-                    header(level, name, kind = kind, extra = headerExtraWithVisibility) { }
+                    header(level, name, kind = kind, extra = headerExtra) { }
                     contents += ContentTable(
                         header = headers,
                         children = groupedElements
