@@ -352,18 +352,20 @@ td:first-child {
 }
 
 .navigation-controls--theme {
-    display: inline-flex;
+    display: block;
     border-radius: 50%;
     background-color: inherit;
     margin-left: 4px;
     padding: 0;
     border: none;
     cursor: pointer;
+    font-size: 0;
+    line-height: 0;
 }
 
-.navigation-controls--theme, .navigation-controls--theme::before {
-    width: 40px;
+.navigation-controls--theme::before {
     height: 40px;
+    width: 40px;
 }
 
 .navigation-controls--theme:hover {
@@ -371,7 +373,7 @@ td:first-child {
 }
 
 .navigation-controls--theme::before {
-    display: inline-block;
+    display: block;
     content: url("../images/theme-toggle.svg");
 }
 
