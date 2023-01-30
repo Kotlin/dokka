@@ -2,6 +2,10 @@ name: Check
 
 on: pull_request
 
+concurrency:
+  group: '${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}'
+  cancel-in-progress: true
+
 jobs:
   validate-wrapper:
     runs-on: ubuntu-latest
@@ -17,6 +21,7 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: 11
+          cache: 'maven'
       - uses: gradle/gradle-build-action@v2
         with:
           arguments: apiCheck --stacktrace

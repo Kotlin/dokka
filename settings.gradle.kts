@@ -38,7 +38,7 @@ include("integration-tests:maven")
 
 include("test-utils")
 
-include("docs")
+include("mkdocs")
 
 pluginManagement {
     val kotlin_version: String by settings

@@ -1,181 +1,227 @@
 # Dokka 
 
 [![Kotlin Beta](https://kotl.in/badges/beta.svg)](https://kotlinlang.org/docs/components-stability.html)
-[![JetBrains official project](https://jb.gg/badges/official.svg)](https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub)
-[![TeamCity (build status)](https://teamcity.jetbrains.com/app/rest/builds/buildType:(id:Kotlin_Dokka_DokkaAntMavenGradle)/statusIcon)](https://teamcity.jetbrains.com/viewType.html?buildTypeId=Kotlin_Dokka_DokkaAntMavenGradle&branch_KotlinTools_Dokka=%3Cdefault%3E&tab=buildTypeStatusDiv)
+[![JetBrains official project](https://jb.gg/badges/official.svg)](https://github.com/JetBrains#jetbrains-on-github)
 
-Dokka is a documentation engine for Kotlin, performing the same function as javadoc for Java.
-Just like Kotlin itself, Dokka fully supports mixed-language Java/Kotlin projects. It understands
-standard Javadoc comments in Java files and [KDoc comments](https://kotlinlang.org/docs/reference/kotlin-doc.html) in Kotlin files,
-and can generate documentation in multiple formats including standard Javadoc, HTML and Markdown.
+Dokka is an API documentation engine for Kotlin.
 
-## Using Dokka
+Just like Kotlin itself, Dokka supports mixed-language projects. It understands Kotlin's
+[KDoc comments](https://kotlinlang.org/docs/kotlin-doc.html#kdoc-syntax) and Java's
+[Javadoc comments](https://www.oracle.com/technical-resources/articles/java/javadoc-tool.html).
 
-**Full documentation is available at [https://kotlin.github.io/dokka/1.7.20/](https://kotlin.github.io/dokka/1.7.20/)**
+Dokka can generate documentation in multiple formats, including its own modern [HTML format](#html),
+multiple flavors of [Markdown](#markdown), and Java's [Javadoc HTML](#javadoc).
 
-### Using the Gradle plugin
-_Note: If you are upgrading from 0.10.x to a current release of Dokka, please have a look at our 
-[migration guide](runners/gradle-plugin/MIGRATION.md)_
+Some libraries that use Dokka for their API reference documentation:
 
-The preferred way is to use `plugins` block.
- 
-build.gradle.kts:
+* [kotlinx.coroutines](https://kotlinlang.org/api/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines/)
+* [Bitmovin](https://cdn.bitmovin.com/player/android/3/docs/index.html)
+* [Hexagon](https://hexagonkt.com/api/index.html)
+* [Ktor](https://api.ktor.io/)
+* [OkHttp](https://square.github.io/okhttp/4.x/okhttp/okhttp3/) (Markdown)
+
+You can run Dokka using [Gradle](https://kotlinlang.org/docs/dokka-gradle.html), 
+[Maven](https://kotlinlang.org/docs/dokka-maven.html) or from the [command line](https://kotlinlang.org/docs/dokka-cli.html). 
+It is also [highly pluggable](https://kotlinlang.org/docs/dokka-plugins.html).
+
+:mega: Dokka team now leads the product to the Stable release.
+We’d really appreciate it if you could [take our brief survey](https://surveys.jetbrains.com/s3/dokka-survey) about
+your dev. experience with the tool. It helps us get priorities right and deliver the most valuable things first.
+
+## Documentation
+
+Comprehensive documentation for Dokka is available on [kotlinlang.org](https://kotlinlang.org/docs/dokka-introduction.html)
+
+## Get started with Dokka
+
+### Gradle
+
+<details open>
+<summary>Kotlin DSL</summary>
+
+Apply the Gradle plugin for Dokka in the root build script of your project:
+
 ```kotlin
 plugins {
     id("org.jetbrains.dokka") version "1.7.20"
 }
+```
 
-repositories {
-    mavenCentral()
+When documenting [multi-project](https://docs.gradle.org/current/userguide/multi_project_builds.html) builds, you need 
+to apply the Gradle plugin for Dokka within subprojects as well:
+
+```kotlin
+subprojects {
+    apply(plugin = "org.jetbrains.dokka")
 }
 ```
 
-The plugin adds `dokkaHtml`, `dokkaJavadoc`, `dokkaGfm` and `dokkaJekyll` tasks to the project.
- 
-#### Applying plugins
-Dokka plugin creates Gradle configuration for each output format in the form of `dokka${format}Plugin`:
+</details>
+
+<details>
+<summary>Groovy DSL</summary>
+
+Apply Gradle plugin for Dokka in the root project:
+
+```groovy
+plugins {
+    id 'org.jetbrains.dokka' version '1.7.20'
+}
+```
+
+When documenting [multi-project](https://docs.gradle.org/current/userguide/multi_project_builds.html) builds, you need 
+to apply the Gradle plugin for Dokka within subprojects as well:
+
+```groovy
+subprojects {
+    apply plugin: 'org.jetbrains.dokka'
+}
+```
+
+</details>
+
+To generate documentation, run the following Gradle tasks:
+
+* `dokkaHtml` for single-project builds
+* `dokkaHtmlMultiModule` for multi-project builds
+
+By default, the output directory is set to `/build/dokka/html` and `/build/dokka/htmlMultiModule` respectively.
+
+To learn more about the Gradle plugin for Dokka, see [documentation for Gradle](https://kotlinlang.org/docs/dokka-gradle.html).
+
+### Maven
+
+Add the Dokka Maven plugin to the `plugins` section of your POM file:
+
+```xml
+<build>
+    <plugins>
+        <plugin>
+            <groupId>org.jetbrains.dokka</groupId>
+            <artifactId>dokka-maven-plugin</artifactId>
+            <version>1.7.20</version>
+            <executions>
+                <execution>
+                    <phase>pre-site</phase>
+                    <goals>
+                        <goal>dokka</goal>
+                    </goals>
+                </execution>
+            </executions>
+        </plugin>
+    </plugins>
+</build>
+```
+
+To generate documentation, run the `dokka:dokka` goal.
+
+By default, the output directory is set to `target/dokka`.
+
+To learn more about using Dokka with Maven, see [documentation for Maven](https://kotlinlang.org/docs/dokka-maven.html).
+
+### CLI
+
+It is possible to run Dokka from the command line without having to use any of the build tools, but it's more
+difficult to set up and for that reason it is not covered in this section.
+
+Please consult [documentation for the command line runner](https://kotlinlang.org/docs/dokka-cli.html)
+to learn how to use it.
+
+### Android
+
+In addition to applying and configuring Dokka, you can apply Dokka's 
+[Android documentation plugin](plugins/android-documentation), which aims to improve documentation experience on the 
+Android platform:
+
+<details open>
+<summary>Gradle Kotlin DSL</summary>
 
 ```kotlin
 dependencies {
-    dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:1.7.20")
-}
-``` 
-
-You can also create a custom Dokka task and add plugins directly inside:
-
-```kotlin
-val customDokkaTask by creating(DokkaTask::class) {
-    dependencies {
-        plugins("org.jetbrains.dokka:kotlin-as-java-plugin:1.7.20")
-    }
+    dokkaPlugin("org.jetbrains.dokka:android-documentation-plugin:1.7.20")
 }
 ```
 
-Please note that `dokkaJavadoc` task will properly document only single `jvm` source set
+</details>
 
-To generate the documentation, use the appropriate `dokka${format}` Gradle task:
+<details>
+<summary>Gradle Groovy DSL</summary>
 
-```bash
-./gradlew dokkaHtml
-```
-
-Please see the [Dokka Gradle example project](https://github.com/Kotlin/dokka/tree/master/examples/gradle/dokka-gradle-example) for an example.
-
-We encourage users to create their own plugins and share them with the community on [official plugins list](docs/src/doc/docs/community/plugins-list.md).
-
-#### Android
-
-Make sure you apply Dokka after `com.android.library` and `kotlin-android`.
-
-```kotlin
-buildscript {
-    dependencies {
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlin_version}")
-        classpath("org.jetbrains.dokka:dokka-gradle-plugin:${dokka_version}")
-    }
-}
-repositories {
-    mavenCentral()
-}
-apply(plugin= "com.android.library")
-apply(plugin= "kotlin-android")
-apply(plugin= "org.jetbrains.dokka")
-```
-
-```kotlin
-dokkaHtml.configure {
-    dokkaSourceSets {
-        named("main") {
-            noAndroidSdkLink.set(false)
-        }   
-    }
+```groovy
+dependencies {
+    dokkaPlugin 'org.jetbrains.dokka:android-documentation-plugin:1.7.20'
 }
 ```
 
-#### Multi-module projects
-For documenting Gradle multi-module projects, you can use `dokka${format}Multimodule` tasks.
+</details>
 
-```kotlin
-tasks.dokkaHtmlMultiModule.configure {
-    outputDirectory.set(buildDir.resolve("dokkaCustomMultiModuleOutput"))
-}
-```
-
-`DokkaMultiModule` depends on all Dokka tasks in the subprojects, runs them, and creates a toplevel page
-with links to all generated (sub)documentations
-
-### Using the Maven plugin
-
-The Maven plugin does not support multi-platform projects. 
-
-Documentation is by default generated in `target/dokka`.
-
-The following goals are provided by the plugin:
-
-  * `dokka:dokka` - generate HTML documentation in Dokka format (showing declarations in Kotlin syntax)
-  * `dokka:javadoc` - generate HTML documentation in Javadoc format (showing declarations in Java syntax)
-  * `dokka:javadocJar` - generate a .jar file with Javadoc format documentation
-
-#### Applying plugins
-You can add plugins inside the `dokkaPlugins` block:
+<details>
+<summary>Maven</summary>
 
 ```xml
 <plugin>
     <groupId>org.jetbrains.dokka</groupId>
     <artifactId>dokka-maven-plugin</artifactId>
-    <version>${dokka.version}</version>
-    <executions>
-        <execution>
-            <phase>pre-site</phase>
-            <goals>
-                <goal>dokka</goal>
-            </goals>
-        </execution>
-    </executions>
+    ...
     <configuration>
         <dokkaPlugins>
             <plugin>
                 <groupId>org.jetbrains.dokka</groupId>
-                <artifactId>kotlin-as-java-plugin</artifactId>
-                <version>${dokka.version}</version>
+                <artifactId>android-documentation-plugin</artifactId>
+                <version>1.7.20</version>
             </plugin>
         </dokkaPlugins>
     </configuration>
 </plugin>
 ```
 
-Please see the [Dokka Maven example project](https://github.com/Kotlin/dokka/tree/master/examples/maven) for an example.
+</details>
 
-### Using the Command Line
+## Output formats
 
-To run Dokka from the command line, download the [Dokka CLI runner](https://mvnrepository.com/artifact/org.jetbrains.dokka/dokka-cli).
-To generate documentation, run the following command:
-```
-java -jar dokka-cli.jar <arguments>
-```
+### HTML
 
-You can also use a JSON file with dokka configuration:
- ```
- java -jar <dokka_cli.jar> <path_to_config.json>
- ```
+HTML is Dokka's default and recommended output format. You can see an example of the output by browsing documentation 
+for [kotlinx.coroutines](https://kotlinlang.org/api/kotlinx.coroutines/).
 
-### Output formats<a name="output_formats"></a>
-  Dokka documents Java classes as seen in Kotlin by default, with javadoc format being the only exception.
+HTML format is configurable and, among other things, allows you to modify stylesheets, add custom image assets, change
+footer message and revamp the structure of the generated HTML pages through templates.
 
-  * `html` - HTML format used by default
-  * `javadoc` - looks like JDK's Javadoc, Kotlin classes are translated to Java
-  * `gfm` - GitHub flavored markdown
-  * `jekyll` - Jekyll compatible markdown
+For more details and examples, see [documentation for HTML format](https://kotlinlang.org/docs/dokka-html.html).
 
-If you want to generate the documentation as seen from Java perspective, you can add the `kotlin-as-java` plugin
-to the Dokka plugins classpath, eg. in Gradle:
+### Markdown
 
-```kotlin
-dependencies{
-    implementation("...")
-    dokkaGfmPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:${dokka-version}")
-}
-```
+Dokka is able to generate documentation in GitHub Flavored and Jekyll compatible Markdown. However, both of these
+formats are still in Alpha, so you might encounter bugs and migration issues.
 
-#### FAQ
-If you encounter any problems, please see the [FAQ](https://github.com/Kotlin/dokka/wiki/faq).
+For more details and examples, see [documentation for Markdown formats](https://kotlinlang.org/docs/dokka-markdown.html).
+
+### Javadoc
+
+Dokka's Javadoc output format is a lookalike of Java's 
+[Javadoc HTML format](https://docs.oracle.com/en/java/javase/19/docs/api/index.html). This format is still in Alpha,
+so you might encounter bugs and migration issues.
+
+Javadoc format tries to visually mimic HTML pages generated by the Javadoc tool, but it's not a direct implementation 
+or an exact copy. In addition, all Kotlin signatures are translated to Java signatures.
+
+For more details and examples, see [documentation for Javadoc format](https://kotlinlang.org/docs/dokka-javadoc.html).
+
+## Dokka plugins
+
+Dokka was built from the ground up to be easily extensible and highly customizable, which allows the community to 
+implement plugins for missing or very specific features that are not provided out of the box.
+
+Learn more about Dokka plugins and their configuration in [Dokka plugins](https://kotlinlang.org/docs/dokka-plugins.html).
+
+If you want to learn how to develop Dokka plugins, see
+[Developer guides](https://kotlin.github.io/dokka/1.7.20/developer_guide/introduction/).
+
+## Community
+
+Dokka has a dedicated `#dokka` channel in [Kotlin Community Slack](https://surveys.jetbrains.com/s3/kotlin-slack-sign-up)
+where you can chat about Dokka, its plugins and how to develop them, as well as get in touch with maintainers.
+
+## Building and Contributing
+
+See [Contributing Guidelines](CONTRIBUTING.md)
