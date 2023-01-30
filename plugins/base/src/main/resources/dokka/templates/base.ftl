@@ -30,14 +30,16 @@
     <@resources/>
 </head>
 <body>
-    <@header.display/>
-    <div id="container">
-        <div class="sidebar" id="leftColumn">
-            <div class="sidebar--inner" id="sideMenu"></div>
-        </div>
-        <div id="main">
-            <@content/>
-            <@footer.display/>
+    <div class="root">
+        <@header.display/>
+        <div id="container">
+            <div class="sidebar" id="leftColumn">
+                <div class="sidebar--inner" id="sideMenu"></div>
+            </div>
+            <div id="main">
+                <@content/>
+                <@footer.display/>
+            </div>
         </div>
     </div>
 </body>
