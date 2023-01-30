@@ -109,7 +109,7 @@ internal fun Project.setupDokkaConfigurations(dokkaSettings: DokkaPluginSettings
         attributes {
             jvmJar(objects)
         }
-//        isTransitive = false
+        isTransitive = false
         defaultDependencies {
             fun dokka(module: String) = addLater(
                 dokkaSettings.dokkaVersion.map { version ->
@@ -120,6 +120,11 @@ internal fun Project.setupDokkaConfigurations(dokkaSettings: DokkaPluginSettings
             dokka("javadoc-plugin")
             add(project.dependencies.create("org.jetbrains:markdown-jvm:0.3.1"))
         }
+    }
+
+    dokkaRuntimeClasspath.configure {
+        // extend from plugins classpath (the result being that transitive dependencies of plugins are also available... maybe?)
+        extendsFrom(dokkaPluginsClasspath.get())
     }
 
     return DokkaPluginConfigurations(
