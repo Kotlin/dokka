@@ -41,6 +41,7 @@ abstract class DokkaModuleConfigurationTask @Inject constructor(
     }
 
     @get:InputFiles
+    @get:Optional
     @get:PathSensitive(RELATIVE)
     abstract val includes: ConfigurableFileCollection
 
