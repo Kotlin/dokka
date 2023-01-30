@@ -6,6 +6,8 @@ import org.gradle.workers.WorkParameters
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.DokkaGenerator
 import org.jetbrains.dokka.gradle.internal.LoggerAdapter
+import kotlin.time.ExperimentalTime
+import kotlin.time.measureTime
 
 /**
  * Gradle Worker Daemon for running [DokkaGenerator].
@@ -20,11 +22,17 @@ abstract class DokkaGeneratorWorker : WorkAction<DokkaGeneratorWorker.Parameters
         val dokkaConfiguration: Property<DokkaConfiguration>
     }
 
+    @OptIn(ExperimentalTime::class)
     override fun execute() {
         val dokkaConfiguration = parameters.dokkaConfiguration.get()
+        logger.info("Executing DokkaGeneratorWorker with dokkaConfiguration: $dokkaConfiguration")
 
         val generator = DokkaGenerator(dokkaConfiguration, logger)
 
-        generator.generate()
+        val duration = measureTime {
+            generator.generate()
+        }
+
+        logger.info("DokkaGeneratorWorker completed in $duration")
     }
 }

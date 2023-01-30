@@ -13,6 +13,11 @@ import org.jetbrains.dokka.gradle.DokkaPlugin.Companion.jsonMapper
 import org.jetbrains.dokka.gradle.dokka_configuration.DokkaConfigurationKxs
 import javax.inject.Inject
 
+/**
+ * Produces the Dokka Configuration for this project.
+ *
+ * Configurations from other modules (which are potentially from other Gradle subprojects) will also be included.
+ */
 @CacheableTask
 abstract class DokkaConfigurationTask @Inject constructor(
     objects: ObjectFactory,
@@ -99,6 +104,8 @@ abstract class DokkaConfigurationTask @Inject constructor(
 
         val encodedModuleDesc = jsonMapper.encodeToString(dokkaConfiguration)
 
+        logger.info(encodedModuleDesc)
+
         dokkaConfigurationJson.get().asFile.writeText(encodedModuleDesc)
     }
 
@@ -141,9 +148,7 @@ abstract class DokkaConfigurationTask @Inject constructor(
     }
 
     private fun dokkaModuleDescriptors(): List<DokkaConfigurationKxs.DokkaModuleDescriptionKxs> {
-        val dokkaModuleDescriptorFiles = dokkaModuleDescriptorFiles.files
-
-        return dokkaModuleDescriptorFiles.map { file ->
+        return dokkaModuleDescriptorFiles.files.map { file ->
             val fileContent = file.readText()
             jsonMapper.decodeFromString(
                 DokkaConfigurationKxs.DokkaModuleDescriptionKxs.serializer(),

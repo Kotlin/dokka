@@ -16,6 +16,11 @@ import org.jetbrains.dokka.gradle.dokka_configuration.DokkaConfigurationKxs
 import org.jetbrains.dokka.gradle.workers.DokkaGeneratorWorker
 import javax.inject.Inject
 
+/**
+ * Executes the Dokka Generator, and produces documentation.
+ *
+ * The type of documentation generated is determined by the supplied Dokka Plugins in [pluginClasspath].
+ */
 @CacheableTask
 abstract class DokkaGenerateTask @Inject constructor(
     private val providers: ProviderFactory,
@@ -43,6 +48,12 @@ abstract class DokkaGenerateTask @Inject constructor(
     fun generateDocumentation() {
         val dokkaConfigurationJsonFile = dokkaConfigurationJson.get().asFile
 
+        val dokkaConfiguration = jsonMapper.decodeFromStream(
+            DokkaConfigurationKxs.serializer(),
+            dokkaConfigurationJsonFile.inputStream(),
+        )
+
+        logger.info("dokkaConfiguration: $dokkaConfiguration")
 
         val workQueue = workers.processIsolation {
             classpath.from(runtimeClasspath)
@@ -51,13 +62,6 @@ abstract class DokkaGenerateTask @Inject constructor(
                 defaultCharacterEncoding = "UTF-8"
             }
         }
-
-        val dokkaConfiguration = jsonMapper.decodeFromStream(
-            DokkaConfigurationKxs.serializer(),
-            dokkaConfigurationJsonFile.inputStream(),
-        )
-
-        logger.info("dokkaConfiguration: $dokkaConfiguration")
 
         workQueue.submit(DokkaGeneratorWorker::class) worker@{
             this@worker.dokkaConfiguration.set(dokkaConfiguration)

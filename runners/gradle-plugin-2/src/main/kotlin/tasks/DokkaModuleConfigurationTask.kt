@@ -11,6 +11,9 @@ import org.jetbrains.dokka.gradle.DokkaPlugin.Companion.jsonMapper
 import org.jetbrains.dokka.gradle.dokka_configuration.DokkaConfigurationKxs
 import javax.inject.Inject
 
+/**
+ * Produces a Dokka Configuration for a single module, that should be part of a larger Dokka configuration.
+ */
 @CacheableTask
 abstract class DokkaModuleConfigurationTask @Inject constructor(
     private val layout: ProjectLayout,
@@ -59,6 +62,8 @@ abstract class DokkaModuleConfigurationTask @Inject constructor(
         )
 
         val encodedModuleDesc = jsonMapper.encodeToString(moduleDesc)
+
+        logger.info("encodedModuleDesc: $encodedModuleDesc")
 
         dokkaModuleConfigurationJson.get().asFile.writeText(encodedModuleDesc)
     }

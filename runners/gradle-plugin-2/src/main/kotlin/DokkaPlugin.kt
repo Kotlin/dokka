@@ -11,10 +11,8 @@ import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.withType
-import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.gradle.distibutions.DokkaPluginConfigurations
 import org.jetbrains.dokka.gradle.distibutions.setupDokkaConfigurations
-import org.jetbrains.dokka.gradle.dokka_configuration.DokkaConfigurationKxs
 import org.jetbrains.dokka.gradle.tasks.DokkaConfigurationTask
 import org.jetbrains.dokka.gradle.tasks.DokkaGenerateTask
 import org.jetbrains.dokka.gradle.tasks.DokkaModuleConfigurationTask
@@ -141,10 +139,10 @@ abstract class DokkaPlugin @Inject constructor(
         const val CONFIGURATION_NAME__DOKKA_PLUGINS_CLASSPATH = "dokkaPluginsClasspath"
 
         const val TASK_GROUP = "dokka"
-        const val TASK_NAME__CREATE_DOKKA_CONFIGURATION = "createDokkaConfiguration"
-        const val TASK_NAME__CREATE_DOKKA_MODULE_DESCRIPTOR = "createDokkaModuleDescriptor"
-
-        const val DOKKA__SERVICE_NAME__DOCUMENTATION_GENERATOR = "dokkaDocumentationGenerator"
+//        const val TASK_NAME__CREATE_DOKKA_CONFIGURATION = "createDokkaConfiguration"
+//        const val TASK_NAME__CREATE_DOKKA_MODULE_DESCRIPTOR = "createDokkaModuleDescriptor"
+//
+//        const val DOKKA__SERVICE_NAME__DOCUMENTATION_GENERATOR = "dokkaDocumentationGenerator"
 
         internal val jsonMapper = Json {
             prettyPrint = true
