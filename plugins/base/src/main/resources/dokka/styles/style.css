@@ -50,12 +50,6 @@
     --sidemenu-section-active-color: #7F52FF;
 }
 
-@media (max-width: 759px) {
-    :root {
-        --horizontal-spacing-for-content: 8px;
-    }
-}
-
 html {
     height: 100%;
     -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
@@ -421,6 +415,10 @@ td:first-child {
     width: var(--sidebar-width);
 }
 
+/*.theme-dark .sidebar {
+    box-shadow: inset 0 1px 0 0 hsl(0deg 0% 100% / 30%);
+}*/
+
 @media (max-width: 759px) {
     #container {
         position: relative;
@@ -455,12 +453,7 @@ td:first-child {
     font-weight: 400;
     line-height: 16px;
     padding-top: 22px;
-}
-
-@media (max-width: 759px) {
-    .sidebar--inner {
-        padding-bottom: 16px;
-    }
+    padding-bottom: 16px;
 }
 /* /--- Layout styles --- */
 
