@@ -326,6 +326,11 @@ td:first-child {
     display: none;
 }
 
+@media (min-width: 760px) {
+    .filter-section {
+        padding: 5px 0 5px;
+    }
+}
 /* --- Navigation controls --- */
 .navigation-controls {
     display: flex;
