@@ -60,7 +60,6 @@ data class ExtensionBuilder<T: Any> internal constructor(
     fun name(name: String) = copy(name = name)
 }
 
-@OptIn(PreviewDokkaPluginApi::class)
 abstract class DokkaJavaPlugin: DokkaPlugin() {
 
     fun <T: DokkaPlugin> plugin(clazz: Class<T>): T =

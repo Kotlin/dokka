@@ -7,7 +7,6 @@ import org.jetbrains.dokka.plugability.PreviewDokkaPluginApi
 import org.jetbrains.dokka.plugability.configuration
 import org.jetbrains.dokka.templates.TemplatingPlugin
 
-@OptIn(PreviewDokkaPluginApi::class)
 class VersioningPlugin : DokkaPlugin() {
 
     val versioningStorage by extensionPoint<VersioningStorage>()
@@ -50,5 +49,9 @@ class VersioningPlugin : DokkaPlugin() {
     }
     val previousDocumentationCopyPostAction by extending {
         postActions providing ::DefaultPreviousDocumentationCopyPostAction applyIf { !delayTemplateSubstitution }
+    }
+
+    @PreviewDokkaPluginApi
+    override fun previewDokkaPluginApiEmptyMethod() {
     }
 }

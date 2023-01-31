@@ -19,7 +19,6 @@ import org.gradle.work.DisableCachingByDefault
 import org.jetbrains.dokka.*
 import org.jetbrains.dokka.plugability.ConfigurableBlock
 import org.jetbrains.dokka.plugability.DokkaPlugin
-import org.jetbrains.dokka.plugability.PreviewDokkaPluginApi
 import java.io.File
 import java.util.function.BiConsumer
 import kotlin.reflect.full.createInstance
@@ -181,8 +180,6 @@ abstract class AbstractDokkaTask : DefaultTask() {
      * @param P Plugin class that extends [DokkaPlugin]
      * @param T Plugin configuration class that extends [ConfigurableBlock]
      */
-
-    @OptIn(PreviewDokkaPluginApi::class)
     inline fun <reified P : DokkaPlugin, reified T : ConfigurableBlock> pluginConfiguration(block: T.() -> Unit) {
         val instance = T::class.createInstance().apply(block)
         val pluginConfiguration = PluginConfigurationImpl(

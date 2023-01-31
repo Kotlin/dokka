@@ -1,6 +1,5 @@
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 subprojects {
     apply {
@@ -27,12 +26,5 @@ subprojects {
             showCauses = true
             showStackTraces = true
         }
-    }
-
-    val compileTestKotlin: KotlinCompile by tasks
-    compileTestKotlin.kotlinOptions {
-        freeCompilerArgs = freeCompilerArgs + listOf(
-            "-opt-in=org.jetbrains.dokka.plugability.PreviewDokkaPluginApi"
-        )
     }
 }

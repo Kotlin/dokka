@@ -5,6 +5,7 @@ import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.model.dfs
+import org.jetbrains.dokka.plugability.PreviewDokkaPluginApi
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 import org.jetbrains.dokka.transformers.pages.pageMapper
 import org.jetbrains.dokka.transformers.pages.pageScanner
@@ -18,6 +19,10 @@ class PageTransformerBuilderTest : BaseAbstractTest() {
 
     class ProxyPlugin(transformer: PageTransformer) : DokkaPlugin() {
         val pageTransformer by extending { CoreExtensions.pageTransformer with transformer }
+
+        @PreviewDokkaPluginApi
+        override fun previewDokkaPluginApiEmptyMethod() {
+        }
     }
 
     @Test
@@ -136,7 +141,7 @@ class PageTransformerBuilderTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `kotlin constructors should exist even though there is primary constructor only`() {
+    fun `kotlin constructors tab should exist even though there is primary constructor only`() {
         val configuration = dokkaConfiguration {
             sourceSets {
                 sourceSet {

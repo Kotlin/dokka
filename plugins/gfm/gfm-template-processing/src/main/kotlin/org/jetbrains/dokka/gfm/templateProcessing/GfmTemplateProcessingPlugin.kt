@@ -9,7 +9,6 @@ import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.plugability.PreviewDokkaPluginApi
 import org.jetbrains.dokka.templates.TemplatingPlugin
 
-@OptIn(PreviewDokkaPluginApi::class)
 class GfmTemplateProcessingPlugin : DokkaPlugin() {
 
     private val allModulesPagePlugin by lazy { plugin<AllModulesPagePlugin>() }
@@ -31,5 +30,9 @@ class GfmTemplateProcessingPlugin : DokkaPlugin() {
 
     val gfmPartialLocationProvider by extending {
         allModulesPagePlugin.partialLocationProviderFactory providing MarkdownLocationProvider::Factory override allModulesPagePlugin.baseLocationProviderFactory
+    }
+
+    @PreviewDokkaPluginApi
+    override fun previewDokkaPluginApiEmptyMethod() {
     }
 }

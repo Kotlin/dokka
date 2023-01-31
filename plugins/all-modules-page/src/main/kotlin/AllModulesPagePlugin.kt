@@ -10,7 +10,6 @@ import org.jetbrains.dokka.templates.TemplatingPlugin
 import org.jetbrains.dokka.transformers.pages.PageCreator
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 
-@OptIn(PreviewDokkaPluginApi::class)
 class AllModulesPagePlugin : DokkaPlugin() {
 
     val partialLocationProviderFactory by extensionPoint<LocationProviderFactory>()
@@ -46,5 +45,9 @@ class AllModulesPagePlugin : DokkaPlugin() {
 
     val multiModuleLinkResolver by extending {
         externalModuleLinkResolver providing ::DefaultExternalModuleLinkResolver
+    }
+
+    @PreviewDokkaPluginApi
+    override fun previewDokkaPluginApiEmptyMethod() {
     }
 }

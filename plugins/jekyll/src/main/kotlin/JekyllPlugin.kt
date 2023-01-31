@@ -14,7 +14,6 @@ import org.jetbrains.dokka.plugability.*
 import org.jetbrains.dokka.renderers.PostAction
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 
-@OptIn(PreviewDokkaPluginApi::class)
 class JekyllPlugin : DokkaPlugin() {
 
     val jekyllPreprocessors by extensionPoint<PageTransformer>()
@@ -56,6 +55,10 @@ class JekyllPlugin : DokkaPlugin() {
                 )
             }
         }
+    }
+
+    @PreviewDokkaPluginApi
+    override fun previewDokkaPluginApiEmptyMethod() {
     }
 }
 

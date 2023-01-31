@@ -10,7 +10,6 @@ import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.plugability.PreviewDokkaPluginApi
 import org.jetbrains.dokka.renderers.PostAction
 
-@OptIn(PreviewDokkaPluginApi::class)
 class KotlinAsJavaPlugin : DokkaPlugin() {
     val kotlinAsJavaDocumentableTransformer by extending {
         CoreExtensions.documentableTransformer with KotlinAsJavaDocumentableTransformer()
@@ -39,5 +38,9 @@ class KotlinAsJavaPlugin : DokkaPlugin() {
                 ctx.logger.info("KotlinAsJava plugin is in Alpha version, use at your own risk, expect bugs and migration issues")
             }
         }
+    }
+
+    @PreviewDokkaPluginApi
+    override fun previewDokkaPluginApiEmptyMethod() {
     }
 }

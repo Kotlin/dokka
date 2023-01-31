@@ -1,5 +1,3 @@
-@file:OptIn(PreviewDokkaPluginApi::class)
-
 package org.jetbrains.dokka.plugability
 
 import org.jetbrains.dokka.DokkaConfiguration

@@ -13,7 +13,6 @@ import org.jetbrains.dokka.plugability.PreviewDokkaPluginApi
 import org.jetbrains.dokka.renderers.PostAction
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 
-@OptIn(PreviewDokkaPluginApi::class)
 class GfmPlugin : DokkaPlugin() {
 
     val gfmPreprocessors by extensionPoint<PageTransformer>()
@@ -51,5 +50,9 @@ class GfmPlugin : DokkaPlugin() {
                 )
             }
         }
+    }
+
+    @PreviewDokkaPluginApi
+    override fun previewDokkaPluginApiEmptyMethod() {
     }
 }

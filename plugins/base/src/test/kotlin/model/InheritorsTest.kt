@@ -11,6 +11,7 @@ import org.jetbrains.dokka.model.DInterface
 import org.jetbrains.dokka.model.doc.P
 import org.jetbrains.dokka.model.doc.Text
 import org.jetbrains.dokka.plugability.DokkaPlugin
+import org.jetbrains.dokka.plugability.PreviewDokkaPluginApi
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import utils.AbstractModelTest
@@ -164,6 +165,10 @@ class InheritorsTest : AbstractModelTest("/src/main/kotlin/inheritors/Test.kt", 
                     analysisConfiguration = DokkaAnalysisConfiguration(ignoreCommonBuiltIns = true)
                 )
             } override dokkaBase.defaultKotlinAnalysis
+        }
+
+        @PreviewDokkaPluginApi
+        override fun previewDokkaPluginApiEmptyMethod() {
         }
     }
     @Test

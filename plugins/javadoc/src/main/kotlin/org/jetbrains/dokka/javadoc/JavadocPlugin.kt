@@ -18,7 +18,6 @@ import org.jetbrains.dokka.plugability.PreviewDokkaPluginApi
 import org.jetbrains.dokka.renderers.PostAction
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 
-@OptIn(PreviewDokkaPluginApi::class)
 class JavadocPlugin : DokkaPlugin() {
 
     val dokkaBasePlugin by lazy { plugin<DokkaBase>() }
@@ -95,6 +94,10 @@ class JavadocPlugin : DokkaPlugin() {
                 )
             }
         }
+    }
+
+    @PreviewDokkaPluginApi
+    override fun previewDokkaPluginApiEmptyMethod() {
     }
 }
 

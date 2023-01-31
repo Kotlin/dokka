@@ -6,7 +6,6 @@ import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.plugability.PreviewDokkaPluginApi
 import java.util.*
 
-@OptIn(PreviewDokkaPluginApi::class)
 class TestOutputWriterPlugin(failOnOverwrite: Boolean = true) : DokkaPlugin() {
     val writer = TestOutputWriter(failOnOverwrite)
 
@@ -16,6 +15,10 @@ class TestOutputWriterPlugin(failOnOverwrite: Boolean = true) : DokkaPlugin() {
         (dokkaBase.outputWriter
                 with writer
                 override dokkaBase.fileWriter)
+    }
+
+    @PreviewDokkaPluginApi
+    override fun previewDokkaPluginApiEmptyMethod() {
     }
 }
 

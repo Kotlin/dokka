@@ -14,7 +14,6 @@ import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.plugability.PreviewDokkaPluginApi
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 
-@OptIn(PreviewDokkaPluginApi::class)
 class MathjaxPlugin : DokkaPlugin() {
     val transformer by extending {
         CoreExtensions.pageTransformer with MathjaxTransformer
@@ -24,6 +23,10 @@ class MathjaxPlugin : DokkaPlugin() {
         plugin<DokkaBase>().customTagContentProvider with MathjaxTagContentProvider order {
             before(plugin<DokkaBase>().sinceKotlinTagContentProvider)
         }
+    }
+
+    @PreviewDokkaPluginApi
+    override fun previewDokkaPluginApiEmptyMethod() {
     }
 }
 

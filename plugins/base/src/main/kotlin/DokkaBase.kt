@@ -38,10 +38,11 @@ import org.jetbrains.dokka.base.translators.descriptors.ExternalDocumentablesPro
 import org.jetbrains.dokka.base.utils.NoopIntellijLoggerFactory
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.plugability.PreviewDokkaPluginApi
+import org.jetbrains.dokka.plugability.querySingle
+import org.jetbrains.dokka.renderers.PostAction
 import org.jetbrains.dokka.transformers.documentation.PreMergeDocumentableTransformer
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 
-@OptIn(PreviewDokkaPluginApi::class)
 class DokkaBase : DokkaPlugin() {
 
     val preMergeDocumentableTransformer by extensionPoint<PreMergeDocumentableTransformer>()
@@ -291,5 +292,9 @@ class DokkaBase : DokkaPlugin() {
             // there's not much the end user can do about it
             com.intellij.openapi.diagnostic.Logger.setFactory(NoopIntellijLoggerFactory())
         }
+    }
+
+    @PreviewDokkaPluginApi
+    override fun previewDokkaPluginApiEmptyMethod() {
     }
 }

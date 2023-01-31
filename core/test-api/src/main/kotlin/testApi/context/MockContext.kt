@@ -1,12 +1,9 @@
-@file:OptIn(PreviewDokkaPluginApi::class)
-
 package org.jetbrains.dokka.testApi.context
 
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.plugability.ExtensionPoint
-import org.jetbrains.dokka.plugability.PreviewDokkaPluginApi
 import org.jetbrains.dokka.utilities.DokkaConsoleLogger
 import org.jetbrains.dokka.utilities.LoggingLevel
 import kotlin.reflect.KClass

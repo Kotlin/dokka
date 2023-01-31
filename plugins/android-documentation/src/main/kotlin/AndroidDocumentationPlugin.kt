@@ -5,11 +5,14 @@ import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.plugability.PreviewDokkaPluginApi
 
-@OptIn(PreviewDokkaPluginApi::class)
 class AndroidDocumentationPlugin : DokkaPlugin() {
     private val dokkaBase by lazy { plugin<DokkaBase>() }
 
     val suppressedByHideTagDocumentableFilter by extending {
         dokkaBase.preMergeDocumentableTransformer providing ::HideTagDocumentableFilter order { before(dokkaBase.emptyPackagesFilter) }
+    }
+
+    @PreviewDokkaPluginApi
+    override fun previewDokkaPluginApiEmptyMethod() {
     }
 }

@@ -8,6 +8,8 @@ import org.jetbrains.dokka.links.PointingToDeclaration
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.plugability.DokkaPlugin
+import org.jetbrains.dokka.plugability.PreviewDokkaPluginApi
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import utils.assertNotNull
@@ -326,6 +328,10 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
         val psiOverrideDescriptorTranslator by extending {
             (dokkaBase.psiToDocumentableTranslator
                     override dokkaBase.descriptorToDocumentableTranslator)
+        }
+
+        @PreviewDokkaPluginApi
+        override fun previewDokkaPluginApiEmptyMethod() {
         }
     }
 

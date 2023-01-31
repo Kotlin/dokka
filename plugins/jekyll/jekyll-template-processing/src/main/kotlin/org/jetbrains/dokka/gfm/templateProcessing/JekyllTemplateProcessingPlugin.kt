@@ -8,7 +8,6 @@ import org.jetbrains.dokka.jekyll.JekyllPlugin
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.plugability.PreviewDokkaPluginApi
 
-@OptIn(PreviewDokkaPluginApi::class)
 class JekyllTemplateProcessingPlugin : DokkaPlugin() {
 
     private val allModulesPagePlugin by lazy { plugin<AllModulesPagePlugin>() }
@@ -30,5 +29,9 @@ class JekyllTemplateProcessingPlugin : DokkaPlugin() {
             allModulesPagePlugin.baseLocationProviderFactory,
             gfmTemplatingPlugin.gfmPartialLocationProvider
         )
+    }
+
+    @PreviewDokkaPluginApi
+    override fun previewDokkaPluginApiEmptyMethod() {
     }
 }

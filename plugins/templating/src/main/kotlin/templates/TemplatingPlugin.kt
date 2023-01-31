@@ -9,7 +9,6 @@ import templates.ReplaceVersionCommandHandler
 import templates.SourcesetDependencyProcessingStrategy
 
 @Suppress("unused")
-@OptIn(PreviewDokkaPluginApi::class)
 class TemplatingPlugin : DokkaPlugin() {
 
     val submoduleTemplateProcessor by extensionPoint<SubmoduleTemplateProcessor>()
@@ -71,5 +70,9 @@ class TemplatingPlugin : DokkaPlugin() {
     }
     val replaceVersionCommandHandler by extending {
         directiveBasedCommandHandlers providing ::ReplaceVersionCommandHandler
+    }
+
+    @PreviewDokkaPluginApi
+    override fun previewDokkaPluginApiEmptyMethod() {
     }
 }
