@@ -1048,11 +1048,11 @@ p.paragraph img {
 }
 
 .filter-section .platform-tag.native-like[data-active], .platform-tags .platform-tag.native-like {
-    background-color: #CD74F6;
+    background-color: #E082F3;
 }
 
 .filter-section .platform-tag.wasm-like[data-active], .platform-tags .platform-tag.wasm-like {
-    background-color: #654FF0;
+    background-color: #9585F9;
 }
 
 .filter-section .platform-tag[data-active]:hover {
