@@ -74,9 +74,9 @@ class DokkaPluginFunctionalTest {
                 Attributes
                     - org.gradle.category = module-descriptor
                     - org.gradle.usage    = org.jetbrains.dokka
-                Artifacts
-                    - build/dokka/createDokkaModuleConfiguration.json (artifactType = json)
             """.trimIndent()
+//                Artifacts
+//                    - build/dokka/createDokkaModuleConfiguration.json (artifactType = json)
         }
     }
 

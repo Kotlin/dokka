@@ -68,26 +68,25 @@ abstract class DokkaGenerateTask @Inject constructor(
         }
     }
 
-    /**
-     * Extract a property from [dokkaConfigurationJson] so it can be converted to a specific Gradle property type
-     * (for example, a [DirectoryProperty]) and used as a task property.
-     */
-    @OptIn(ExperimentalSerializationApi::class) // jsonMapper.decodeFromStream
-    internal inline fun <reified T : Any> dokkaConfigurationValue(
-        crossinline property: DokkaConfigurationKxs.() -> T?
-    ): Provider<T> = dokkaConfigurationJson.mapNotNull { dokkaConfigurationFile ->
-
-        val dokkaConfigurationJsonFile = dokkaConfigurationFile.asFile
-
-        val dokkaConfiguration = jsonMapper.decodeFromStream(
-            DokkaConfigurationKxs.serializer(),
-            dokkaConfigurationJsonFile.inputStream(),
-        )
-
-        dokkaConfiguration.property()
-    }
-
-    // workaround for https://github.com/gradle/gradle/issues/12388
-    private fun <T, R> Provider<T>.mapNotNull(map: (value: T) -> R?): Provider<R> =
-        flatMap { value -> providers.provider { map(value) } }
+//    /**
+//     * Extract a property from [dokkaConfigurationJson] so it can be converted to a specific Gradle property type
+//     * (for example, a [DirectoryProperty]) and used as a task property.
+//     */
+//    internal inline fun <reified T : Any> dokkaConfigurationValue(
+//        crossinline property: DokkaConfigurationKxs.() -> T?
+//    ): Provider<T> {
+//        return providers.fileContents(dokkaConfigurationJson).asText.mapNotNull { dokkaConfigurationJson ->
+//
+//            val dokkaConfiguration = jsonMapper.decodeFromString(
+//                DokkaConfigurationKxs.serializer(),
+//                dokkaConfigurationJson,
+//            )
+//
+//            dokkaConfiguration.property()
+//        }
+//    }
+//
+//    // workaround for https://github.com/gradle/gradle/issues/12388
+//    private fun <T, R> Provider<T>.mapNotNull(map: (value: T) -> R?): Provider<R> =
+//        flatMap { value -> providers.provider { map(value) } }
 }

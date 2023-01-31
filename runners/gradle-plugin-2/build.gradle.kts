@@ -1,5 +1,7 @@
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 
 plugins {
     `java-gradle-plugin`
@@ -106,10 +108,20 @@ testing.suites {
                 shouldRunAfter(test)
                 dependsOn(tasks.matching { it.name == "publishAllPublicationsToTestRepository" })
 
+                val baseTmpDir = "$buildDir/functional-tests/"
 //                dependsOn(installMavenInternal)
                 systemProperties(
                     "testMavenRepoDir" to file(projectTestMavenRepoDir).canonicalPath,
+                    "funcTestTempDir" to
+                            "$baseTmpDir/${LocalTime.now().format(DateTimeFormatter.ofPattern("HH" + "mm" + "ss"))}",
                 )
+
+                inputs.dir(projectTestMavenRepoDir)
+                outputs.dir(baseTmpDir)
+
+                doFirst {
+                    File(baseTmpDir).deleteRecursively()
+                }
             }
         }
 
@@ -130,10 +142,21 @@ testing.suites {
 
 tasks.withType<Test>().configureEach {
     testLogging {
-        events = TestLogEvent.values().toSet()
+        events = setOf(
+            TestLogEvent.STARTED,
+            TestLogEvent.PASSED,
+            TestLogEvent.SKIPPED,
+            TestLogEvent.FAILED,
+            TestLogEvent.STANDARD_OUT,
+//         TestLogEvent.STANDARD_ERROR,
+        )
         showStandardStreams = true
         showExceptions = true
         showCauses = true
         showStackTraces = true
     }
+}
+
+tasks.validatePlugins {
+    enableStricterValidation.set(true)
 }

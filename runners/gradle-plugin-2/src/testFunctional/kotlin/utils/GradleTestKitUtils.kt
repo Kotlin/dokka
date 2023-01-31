@@ -5,7 +5,9 @@ import org.intellij.lang.annotations.Language
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
+import java.nio.file.Paths
 import kotlin.properties.ReadWriteProperty
+import kotlin.random.Random
 import kotlin.reflect.KProperty
 
 
@@ -13,8 +15,8 @@ import kotlin.reflect.KProperty
 
 
 class GradleProjectTest(
-    val projectDir: Path,
-    val runner: GradleRunner,
+    val projectDir: Path = tempDir(),
+    val runner: GradleRunner = GradleRunner.create().withProjectDir(projectDir.toFile()),
 ) {
 
     val testMavenRepoDir: String = System.getProperty("testMavenRepoDir")
@@ -25,6 +27,18 @@ class GradleProjectTest(
             createNewFile()
             writeText(contents)
         }
+
+    companion object {
+        fun tempDir(): Path {
+            val funcTestTempDir = System.getProperty("funcTestTempDir")
+
+            return if (funcTestTempDir != null) {
+                Paths.get(funcTestTempDir, Random.nextInt(1_000_000, Int.MAX_VALUE).toString())
+            } else {
+                Files.createTempDirectory("dokka-test")
+            }
+        }
+    }
 }
 
 /**
@@ -34,11 +48,11 @@ class GradleProjectTest(
  * Groovy/Kotlin files will confuse Gradle.
  */
 fun gradleKtsProjectTest(
-    projectDir: Path = Files.createTempDirectory("dokka-test"),
-    runner: GradleRunner = GradleRunner.create().withProjectDir(projectDir.toFile()),
+//    projectDir: Path = Files.createTempDirectory("dokka-test"),
+//    runner: GradleRunner = GradleRunner.create().withProjectDir(projectDir.toFile()),
     build: GradleProjectTest.() -> Unit,
 ): GradleProjectTest {
-    return GradleProjectTest(projectDir, runner).apply {
+    return GradleProjectTest().apply {
 
         settingsGradleKts = """
             rootProject.name = "test"

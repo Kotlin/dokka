@@ -108,13 +108,28 @@ data class DokkaConfigurationKxs(
     ) : DokkaConfiguration.PluginConfiguration
 
 
+    /**
+     * Note: this class implements [java.io.Serializable] because it is used as a
+     * [Gradle Property][org.gradle.api.provider.Property], and Gradle must be able to fingerprint
+     * property values classes using Java Serialization.
+     *
+     * All other configuration data classes also implement [java.io.Serializable] via their parent interfaces.
+     */
     @Serializable
     data class DokkaModuleDescriptionKxs(
+        /** @see DokkaConfiguration.DokkaModuleDescription.name */
         val name: String,
+        /** @see DokkaConfiguration.DokkaModuleDescription.sourceOutputDirectory */
         val sourceOutputDirectory: File,
+        /** @see DokkaConfiguration.DokkaModuleDescription.includes */
         val includes: Set<File>,
+
+        /**
+         * Not part of the Dokka spec - will be used before Dokka Generation to compute the relative dir
+         * @see toCoreModel
+         */
         val moduleOutputDirectory: File,
-    ) {
+    ) : java.io.Serializable {
 
         /**
          * Map this Module Description to [DokkaConfiguration.DokkaModuleDescription]
@@ -126,6 +141,8 @@ data class DokkaConfigurationKxs(
             rootOutputDirectory: File
         ): DokkaConfiguration.DokkaModuleDescription {
             val relativePathToOutputDirectory = moduleOutputDirectory.relativeToOrSelf(rootOutputDirectory)
+
+            println("relativePathToOutputDirectory: $relativePathToOutputDirectory")
 
             return DokkaModuleDescriptionImpl(
                 name = name,

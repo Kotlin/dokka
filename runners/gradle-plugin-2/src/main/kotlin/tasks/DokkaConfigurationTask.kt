@@ -65,7 +65,13 @@ abstract class DokkaConfigurationTask @Inject constructor(
     @get:Input
     abstract val pluginsConfiguration: DomainObjectSet<DokkaConfigurationKxs.PluginConfigurationKxs>
 
-    /** Dokka Configuration from other subprojects. */
+    /** Dokka Configuration files from other subprojects that will be merged into this Dokka Configuration */
+    @get:InputFiles
+//    @get:NormalizeLineEndings
+    @get:PathSensitive(PathSensitivity.NAME_ONLY)
+    abstract val dokkaSubprojectConfigurations: ConfigurableFileCollection
+
+    /** Dokka Module Configuration from other subprojects. */
     @get:InputFiles
 //    @get:NormalizeLineEndings
     @get:PathSensitive(PathSensitivity.NAME_ONLY)
@@ -128,7 +134,8 @@ abstract class DokkaConfigurationTask @Inject constructor(
 
         val dokkaModuleDescriptors = dokkaModuleDescriptors()
 
-        return DokkaConfigurationKxs(
+        // construct the base configuration for THIS project
+        val baseDokkaConfiguration = DokkaConfigurationKxs(
             cacheRoot = cacheRoot,
             delayTemplateSubstitution = delayTemplateSubstitution,
             failOnWarning = failOnWarning,
@@ -145,6 +152,25 @@ abstract class DokkaConfigurationTask @Inject constructor(
             suppressInheritedMembers = suppressInheritedMembers,
             suppressObviousFunctions = suppressObviousFunctions,
         )
+
+        // fetch any configurations from OTHER subprojects
+        val subprojectConfigs = dokkaSubprojectConfigurations.files.map { file ->
+            val fileContent = file.readText()
+            jsonMapper.decodeFromString(
+                DokkaConfigurationKxs.serializer(),
+                fileContent,
+            )
+        }
+
+        // now, combine them:
+        return subprojectConfigs.fold(baseDokkaConfiguration) { acc, it: DokkaConfigurationKxs ->
+            acc.copy(
+                sourceSets = acc.sourceSets + it.sourceSets,
+                // TODO remove plugin classpath aggregation, plugin classpath should be shared via Gradle Configuration
+                //      so Gradle can correctly de-duplicate jars
+                pluginsClasspath = acc.pluginsClasspath + it.pluginsClasspath,
+            )
+        }
     }
 
     private fun dokkaModuleDescriptors(): List<DokkaConfigurationKxs.DokkaModuleDescriptionKxs> {

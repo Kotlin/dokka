@@ -6,7 +6,7 @@ import org.gradle.api.attributes.*
 import org.gradle.api.attributes.java.TargetJvmEnvironment
 import org.gradle.api.model.ObjectFactory
 import org.gradle.kotlin.dsl.named
-import org.jetbrains.dokka.gradle.DokkaPlugin
+import org.jetbrains.dokka.gradle.DokkaPlugin.Companion.ConfigurationName
 import org.jetbrains.dokka.gradle.DokkaPluginSettings
 
 
@@ -34,7 +34,7 @@ internal fun Project.setupDokkaConfigurations(dokkaSettings: DokkaPluginSettings
     }
 
     val dokkaConsumer =
-        configurations.register(DokkaPlugin.CONFIGURATION_NAME__DOKKA) {
+        configurations.register(ConfigurationName.DOKKA) {
             description = "Fetch all Dokka files from all configurations in other subprojects"
             asConsumer()
             attributes { dokkaUsageAttribute() }
@@ -43,7 +43,7 @@ internal fun Project.setupDokkaConfigurations(dokkaSettings: DokkaPluginSettings
 
     //<editor-fold desc="Dokka Configuration files">
     val dokkaConfigurationsConsumer =
-        configurations.register(DokkaPlugin.CONFIGURATION_NAME__DOKKA_CONFIGURATIONS) {
+        configurations.register(ConfigurationName.DOKKA_CONFIGURATIONS) {
             description = "Fetch Dokka Configuration files from other subprojects"
             asConsumer()
             attributes { dokkaConfigurationsAttributes() }
@@ -51,7 +51,7 @@ internal fun Project.setupDokkaConfigurations(dokkaSettings: DokkaPluginSettings
         }
 
     val dokkaConfigurationsProvider =
-        configurations.register(DokkaPlugin.CONFIGURATION_NAME__DOKKA_CONFIGURATION_ELEMENTS) {
+        configurations.register(ConfigurationName.DOKKA_CONFIGURATION_ELEMENTS) {
             description = "Provide Dokka Configurations files to other subprojects"
             asProvider()
             attributes { dokkaConfigurationsAttributes() }
@@ -61,7 +61,7 @@ internal fun Project.setupDokkaConfigurations(dokkaSettings: DokkaPluginSettings
 
     //<editor-fold desc="Module descriptor configurations">
     val dokkaModuleDescriptorsConsumer =
-        configurations.register(DokkaPlugin.CONFIGURATION_NAME__DOKKA_MODULE_DESCRIPTORS) {
+        configurations.register(ConfigurationName.DOKKA_MODULE_DESCRIPTORS) {
             description = "Fetch Dokka module descriptor files from other subprojects"
             asConsumer()
             attributes { dokkaModuleDescriptorAttributes() }
@@ -69,7 +69,7 @@ internal fun Project.setupDokkaConfigurations(dokkaSettings: DokkaPluginSettings
         }
 
     val dokkaModuleDescriptorsProvider =
-        configurations.register(DokkaPlugin.CONFIGURATION_NAME__DOKKA_MODULE_DESCRIPTOR_ELEMENTS) {
+        configurations.register(ConfigurationName.DOKKA_MODULE_DESCRIPTOR_ELEMENTS) {
             description = "Provide Dokka module descriptor files to other subprojects"
             asProvider()
             attributes { dokkaModuleDescriptorAttributes() }
@@ -77,7 +77,7 @@ internal fun Project.setupDokkaConfigurations(dokkaSettings: DokkaPluginSettings
     //</editor-fold>
 
 
-    val dokkaRuntimeClasspath = configurations.register(DokkaPlugin.CONFIGURATION_NAME__DOKKA_RUNTIME_CLASSPATH) {
+    val dokkaRuntimeClasspath = configurations.register(ConfigurationName.DOKKA_RUNTIME_CLASSPATH) {
         description = "Dokka generation task runtime classpath"
         asConsumer()
         attributes {
@@ -103,7 +103,7 @@ internal fun Project.setupDokkaConfigurations(dokkaSettings: DokkaPluginSettings
         }
     }
 
-    val dokkaPluginsClasspath = configurations.register(DokkaPlugin.CONFIGURATION_NAME__DOKKA_PLUGINS_CLASSPATH) {
+    val dokkaPluginsClasspath = configurations.register(ConfigurationName.DOKKA_PLUGINS_CLASSPATH) {
         description = "Dokka Plugins classpath"
         asConsumer()
         attributes {
@@ -117,7 +117,8 @@ internal fun Project.setupDokkaConfigurations(dokkaSettings: DokkaPluginSettings
                 }
             )
             dokka("dokka-base")
-            dokka("javadoc-plugin")
+//            dokka("javadoc-plugin")
+            dokka("jekyll-plugin")
             add(project.dependencies.create("org.jetbrains:markdown-jvm:0.3.1"))
         }
     }

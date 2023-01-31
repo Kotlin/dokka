@@ -12,7 +12,7 @@ import org.jetbrains.dokka.gradle.dokka_configuration.DokkaConfigurationKxs
 import javax.inject.Inject
 
 /**
- * Produces a Dokka Configuration for a single module, that should be part of a larger Dokka configuration.
+ * Produces a Dokka Configuration that describes a single module of a multimodule Dokka configuration.
  */
 @CacheableTask
 abstract class DokkaModuleConfigurationTask @Inject constructor(
@@ -25,6 +25,9 @@ abstract class DokkaModuleConfigurationTask @Inject constructor(
     @get:Input
     protected abstract val moduleOutputDirectoryPath: Property<String>
 
+    /**
+     * Evaluated as a file as defined by [org.gradle.api.Project.file].
+     */
     fun moduleOutputDirectoryPath(path: Any) {
         moduleOutputDirectoryPath.set(
             layout.files(path).singleFile.invariantSeparatorsPath
