@@ -140,15 +140,15 @@ internal fun Project.setupDokkaConfigurations(dokkaSettings: DokkaPluginSettings
 }
 
 /** Mark this [Configuration] as one that will be consumed by other subprojects. */
-private fun Configuration.asProvider() {
-    isVisible = false
+private fun Configuration.asProvider(visible: Boolean = false) {
+    isVisible = visible
     isCanBeResolved = false
     isCanBeConsumed = true
 }
 
 /** Mark this [Configuration] as one that will consume artifacts from other subprojects (also known as 'resolving') */
-private fun Configuration.asConsumer() {
-    isVisible = false
+private fun Configuration.asConsumer(visible: Boolean = false) {
+    isVisible = visible
     isCanBeResolved = true
     isCanBeConsumed = false
 }

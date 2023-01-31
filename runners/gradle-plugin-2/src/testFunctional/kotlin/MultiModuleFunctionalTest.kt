@@ -82,6 +82,7 @@ class MultiModuleFunctionalTest {
                     id("org.jetbrains.dokka2") version "2.0.0"
                 }
                 
+                // TODO copy the DSL from the old plugin
                 tasks.withType<DokkaConfigurationTask>().configureEach {
                     sourceSets.add(
                         DokkaConfigurationKxs.DokkaSourceSetKxs(

@@ -91,7 +91,7 @@ testing.suites {
         useJUnitJupiter()
 
         dependencies {
-            implementation(project)
+//            implementation(project)
 
             implementation(project.dependencies.kotlin("test"))
 
