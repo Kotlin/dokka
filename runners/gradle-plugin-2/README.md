@@ -19,6 +19,8 @@ Run tests (from the base Dokka project directory)
 ./gradlew :runners:gradle-plugin-2:check
 ```
 
+Check the sample projects in [`build/functional-tests`](./build/functional-tests).
+
 #### Functional tests
 
 Functional tests use Gradle TestKit to run the plugin as it would in a real project.
