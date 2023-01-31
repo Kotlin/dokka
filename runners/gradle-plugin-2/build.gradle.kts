@@ -10,7 +10,7 @@ plugins {
     kotlin("plugin.serialization") version embeddedKotlinVersion
     `jvm-test-suite`
 
-//    id("org.jetbrains.kotlinx.binary-compatibility-validator") version "0.12.1"
+    id("org.jetbrains.kotlinx.binary-compatibility-validator") version "0.12.1"
 }
 
 group = "org.jetbrains.dokka"
