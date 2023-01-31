@@ -102,6 +102,7 @@ object AssetsInstaller : PageTransformer {
         "images/copy-icon.svg",
         "images/copy-successful-icon.svg",
         "images/theme-toggle.svg",
+        "images/burger.svg",
 
         // navigation icons
         "images/nav-icons/abstract-class.svg",
