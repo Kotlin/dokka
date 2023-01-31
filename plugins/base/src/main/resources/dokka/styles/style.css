@@ -648,6 +648,16 @@ code.paragraph {
     position: relative;
 }
 
+code {
+    overflow-x: auto;
+    max-width: 100%;
+}
+
+code:not(.block) {
+    display: inline-block;
+    vertical-align: middle;
+}
+
 .symbol > a {
     color: var(--hover-link-color);
 }
