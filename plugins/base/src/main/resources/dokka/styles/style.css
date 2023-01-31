@@ -1007,13 +1007,6 @@ p.paragraph img {
     display: none !important;
 }
 
-
-.platform-selector:not([data-active]) {
-    border: 1px solid #DADFE6;
-    background-color: transparent;
-    color: var(--average-color);
-}
-
 .platform-tags, .filter-section {
     display: flex;
     flex-wrap: wrap;
