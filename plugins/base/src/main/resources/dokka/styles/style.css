@@ -1264,7 +1264,7 @@ Just in case of possible performance degradation it excluding tabs with briefs o
 
 @media print, (min-width: 960px) {
     .keyValue {
-        grid-template-columns: 20% 80%;
+        grid-template-columns: minmax(min-content, 20%) minmax(auto, 80%);
     }
 }
 
