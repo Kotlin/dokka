@@ -41,7 +41,7 @@ class DokkaMultiModuleFileLayoutTest {
 
         val targetOutputDirectory = CompactInParent.targetChildOutputDirectory(parentTask, childTask)
         assertEquals(
-            parentTask.outputDirectory.getSafe().resolve("intermediate/child"), targetOutputDirectory,
+            parentTask.outputDirectory.get().resolve("intermediate/child"), targetOutputDirectory,
             "Expected nested file structure representing project structure"
         )
     }
@@ -53,7 +53,7 @@ class DokkaMultiModuleFileLayoutTest {
         val childTask = project.tasks.create<DokkaTask>("child")
         val parentTask = project.tasks.create<DokkaMultiModuleTask>("parent")
 
-        val sourceOutputDirectory = childTask.outputDirectory.getSafe()
+        val sourceOutputDirectory = childTask.outputDirectory.get()
         sourceOutputDirectory.mkdirs()
         sourceOutputDirectory.resolve("some.file").writeText("some text")
         val subFolder = sourceOutputDirectory.resolve("subFolder")
@@ -105,7 +105,7 @@ class DokkaMultiModuleFileLayoutTest {
         val childTask = project.tasks.create<DokkaTask>("child")
         val parentTask = project.tasks.create<DokkaMultiModuleTask>("parent")
         parentTask.fileLayout.set(DokkaMultiModuleFileLayout { _, child ->
-            child.outputDirectory.getSafe().resolve("subfolder")
+            child.outputDirectory.get().resolve("subfolder")
         })
         assertFailsWith<DokkaException> { parentTask.copyChildOutputDirectory(childTask) }
     }
