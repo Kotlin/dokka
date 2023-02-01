@@ -56,7 +56,7 @@ class DokkaPluginApplyTest {
     fun `all dokka tasks are part of the documentation group`() {
         val project = ProjectBuilder.builder().build()
         project.plugins.apply("org.jetbrains.dokka")
-        assertTasksHaveDocumentationGroup(project.tasks)
+        assertDokkaTasksHaveDocumentationGroup(project.tasks)
     }
 
     @Test
@@ -65,8 +65,8 @@ class DokkaPluginApplyTest {
         val child = ProjectBuilder.builder().withName("child").withParent(root).build()
         root.plugins.apply("org.jetbrains.dokka")
         child.plugins.apply("org.jetbrains.dokka")
-        assertTasksHaveDocumentationGroup(root.tasks)
-        assertTasksHaveDocumentationGroup(child.tasks)
+        assertDokkaTasksHaveDocumentationGroup(root.tasks)
+        assertDokkaTasksHaveDocumentationGroup(child.tasks)
     }
 
     @Test
@@ -75,15 +75,15 @@ class DokkaPluginApplyTest {
         val child = ProjectBuilder.builder().withName("child").withParent(root).build()
         root.plugins.apply("org.jetbrains.dokka")
         child.plugins.apply("org.jetbrains.dokka")
-        assertTasksHaveDeprecatedGroup(root.tasks)
-        assertTasksHaveDeprecatedGroup(child.tasks)
+        assertOldDokkaTasksHaveDeprecatedGroup(root.tasks)
+        assertOldDokkaTasksHaveDeprecatedGroup(child.tasks)
     }
 
     @Test
     fun `all dokka tasks provide a task description`() {
         val project = ProjectBuilder.builder().build()
         project.plugins.apply("org.jetbrains.dokka")
-        assertTasksHaveDescription(project.tasks)
+        assertDokkaTasksHaveDescription(project.tasks)
     }
 
     @Test
@@ -92,8 +92,8 @@ class DokkaPluginApplyTest {
         val child = ProjectBuilder.builder().withName("child").withParent(root).build()
         root.plugins.apply("org.jetbrains.dokka")
         child.plugins.apply("org.jetbrains.dokka")
-        assertTasksHaveDescription(root.tasks)
-        assertTasksHaveDescription(child.tasks)
+        assertDokkaTasksHaveDescription(root.tasks)
+        assertDokkaTasksHaveDescription(child.tasks)
     }
 
     @Test
@@ -116,7 +116,7 @@ class DokkaPluginApplyTest {
     }
 }
 
-private fun assertTasksHaveDocumentationGroup(taskContainer: TaskContainer) {
+private fun assertDokkaTasksHaveDocumentationGroup(taskContainer: TaskContainer) {
     taskContainer.withType<AbstractDokkaTask>().forEach { dokkaTask ->
         assertEquals(
             JavaBasePlugin.DOCUMENTATION_GROUP,
@@ -126,7 +126,7 @@ private fun assertTasksHaveDocumentationGroup(taskContainer: TaskContainer) {
     }
 }
 
-private fun assertTasksHaveDeprecatedGroup(taskContainer: TaskContainer) {
+private fun assertOldDokkaTasksHaveDeprecatedGroup(taskContainer: TaskContainer) {
     taskContainer.names.filter { "Multimodule" in it }.forEach { dokkaTaskName ->
         val dokkaTask = taskContainer.getByName(dokkaTaskName)
         val expectedGroup = "deprecated"
@@ -138,7 +138,7 @@ private fun assertTasksHaveDeprecatedGroup(taskContainer: TaskContainer) {
     }
 }
 
-private fun assertTasksHaveDescription(taskContainer: TaskContainer) {
+private fun assertDokkaTasksHaveDescription(taskContainer: TaskContainer) {
     taskContainer.withType<AbstractDokkaTask>().forEach { dokkaTask ->
         assertTrue(
             @Suppress("UselessCallOnNotNull") // Task.description is nullable, but not inherited as Kotlin sees it.
