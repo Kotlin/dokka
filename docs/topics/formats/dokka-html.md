@@ -1,6 +1,8 @@
 [//]: # (title: HTML)
 
-HTML is Dokka's default and recommended output format. You can see an example of the final result by browsing documentation
+HTML is Dokka's default and recommended output format. It is currently in Beta and approaching the Stable release.
+
+You can see an example of the output by browsing documentation
 for [kotlinx.coroutines](https://kotlinlang.org/api/kotlinx.coroutines/).
 
 ## Generate HTML documentation
@@ -279,4 +281,8 @@ You can also use the following Dokka-defined [directives](https://freemarker.apa
 | `<@content/>`   | The main page content.                                                                                                                                                                       |
 | `<@resources/>` | Resources such as scripts and stylesheets.                                                                                                                                                   |
 | `<@version/>`   | The module version taken from configuration. If the [versioning plugin](https://github.com/Kotlin/dokka/tree/master/plugins/versioning) is applied, it is replaced with a version navigator. |
+
+<a href="https://surveys.jetbrains.com/s3/dokka-survey">
+   <img src="dokka-devx-survey-banner.png" width="700" alt="Dokka devX survey"/>
+</a>
 

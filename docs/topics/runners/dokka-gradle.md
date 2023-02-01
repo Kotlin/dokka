@@ -72,24 +72,7 @@ See [Configuration examples](#configuration-examples) if you are not sure where 
 > If you are using Dokka in a
 > [precompiled script plugin](https://docs.gradle.org/current/userguide/custom_plugins.html#sec:precompiled_plugins),
 > you need to add the [Kotlin Gradle plugin](https://kotlinlang.org/docs/gradle-configure-project.html#apply-the-plugin) 
-> as a dependency for it to work properly:
->
-> <tabs group="build-script">
-> <tab title="Kotlin" group-key="kotlin">
->
-> ```kotlin
-> implementation(kotlin("gradle-plugin", "%kotlinVersion%"))
-> ```
->
-> </tab>
-> <tab title="Groovy" group-key="groovy">
->
-> ```groovy
-> implementation 'org.jetbrains.kotlin:kotlin-gradle-plugin:%kotlinVersion%'
-> ```
->
-> </tab>
-> </tabs>
+> as a dependency for it to work properly.
 >
 {type="note"}
 
@@ -106,8 +89,6 @@ and [multi-project](#multi-project-builds) builds.
 ### Single-project builds
 
 Use the following tasks to build documentation for simple, single-project applications and libraries:
-
-#### Stable formats
 
 | **Task**       | **Description**                                                                     |
 |----------------|-------------------------------------------------------------------------------------|
@@ -138,13 +119,11 @@ cross-project references.
 
 Dokka creates the following tasks for **parent** projects automatically:
 
-#### Stable formats
-
 | **Task**                 | **Description**                                                        |
 |--------------------------|------------------------------------------------------------------------|
 | `dokkaHtmlMultiModule`   | Generates multi-module documentation in [HTML](dokka-html.md) output format. |
 
-#### Experimental formats
+#### Experimental formats (multi-module)
 
 | **Task**                 | **Description**                                                                                         |
 |--------------------------|---------------------------------------------------------------------------------------------------------|
@@ -211,7 +190,7 @@ parentProject
 
 These pages are generated after running `dokkaHtmlCollector`:
 
-![Screenshot for output of dokkaHtmlCollector task](dokkaHtmlCollector-example.png){width=800}
+![Screenshot for output of dokkaHtmlCollector task](dokkaHtmlCollector-example.png){width=706}
 
 See our [multi-module project example](https://github.com/Kotlin/dokka/tree/master/examples/gradle/dokka-multimodule-example)
 for more details.
@@ -847,40 +826,41 @@ tasks.withType<DokkaTask>().configureEach {
     // general configuration section
     // ..
 
-    // configuration exclusive to the 'linux' source set 
-    named("linux") {
-        dependsOn("native")
-        sourceRoots.from(file("linux/src"))
-    }
-    
-    dokkaSourceSets.configureEach {
-        suppress.set(false)
-        displayName.set(name)
-        documentedVisibilities.set(setOf(Visibility.PUBLIC))
-        reportUndocumented.set(false)
-        skipEmptyPackages.set(true)
-        skipDeprecated.set(false)
-        suppressGeneratedFiles.set(true)
-        jdkVersion.set(8)
-        languageVersion.set("1.7")
-        apiVersion.set("1.7")
-        noStdlibLink.set(false)
-        noJdkLink.set(false)
-        noAndroidSdkLink.set(false)
-        includes.from(project.files(), "packages.md", "extra.md")
-        platform.set(Platform.DEFAULT)
-        sourceRoots.from(file("src"))
-        classpath.from(project.files(), file("libs/dependency.jar"))
-        samples.from(project.files(), "samples/Basic.kt", "samples/Advanced.kt")
+    dokkaSourceSets {
+        // configuration exclusive to the 'linux' source set
+        named("linux") {
+            dependsOn("native")
+            sourceRoots.from(file("linux/src"))
+        }
+        configureEach {
+            suppress.set(false)
+            displayName.set(name)
+            documentedVisibilities.set(setOf(Visibility.PUBLIC))
+            reportUndocumented.set(false)
+            skipEmptyPackages.set(true)
+            skipDeprecated.set(false)
+            suppressGeneratedFiles.set(true)
+            jdkVersion.set(8)
+            languageVersion.set("1.7")
+            apiVersion.set("1.7")
+            noStdlibLink.set(false)
+            noJdkLink.set(false)
+            noAndroidSdkLink.set(false)
+            includes.from(project.files(), "packages.md", "extra.md")
+            platform.set(Platform.DEFAULT)
+            sourceRoots.from(file("src"))
+            classpath.from(project.files(), file("libs/dependency.jar"))
+            samples.from(project.files(), "samples/Basic.kt", "samples/Advanced.kt")
 
-        sourceLink {
-            // Source link section
-        }
-        externalDocumentationLink {
-            // External documentation link section
-        }
-        perPackageOption {
-            // Package options section
+            sourceLink {
+                // Source link section
+            }
+            externalDocumentationLink {
+                // External documentation link section
+            }
+            perPackageOption {
+                // Package options section
+            }
         }
     }
 }
@@ -902,41 +882,42 @@ tasks.withType(DokkaTask.class) {
     // ..
     // general configuration section
     // ..
-
-    // configuration exclusive to the 'linux' source set 
-    named("linux") {
-        dependsOn("native")
-        sourceRoots.from(file("linux/src"))
-    }
     
-    dokkaSourceSets.configureEach {
-        suppress.set(false)
-        displayName.set(name)
-        documentedVisibilities.set([Visibility.PUBLIC])
-        reportUndocumented.set(false)
-        skipEmptyPackages.set(true)
-        skipDeprecated.set(false)
-        suppressGeneratedFiles.set(true)
-        jdkVersion.set(8)
-        languageVersion.set("1.7")
-        apiVersion.set("1.7")
-        noStdlibLink.set(false)
-        noJdkLink.set(false)
-        noAndroidSdkLink.set(false)
-        includes.from(project.files(), "packages.md", "extra.md")
-        platform.set(Platform.DEFAULT)
-        sourceRoots.from(file("src"))
-        classpath.from(project.files(), file("libs/dependency.jar"))
-        samples.from(project.files(), "samples/Basic.kt", "samples/Advanced.kt")
+    dokkaSourceSets {
+        // configuration exclusive to the 'linux' source set 
+        named("linux") {
+            dependsOn("native")
+            sourceRoots.from(file("linux/src"))
+        }
+        configureEach {
+            suppress.set(false)
+            displayName.set(name)
+            documentedVisibilities.set([Visibility.PUBLIC])
+            reportUndocumented.set(false)
+            skipEmptyPackages.set(true)
+            skipDeprecated.set(false)
+            suppressGeneratedFiles.set(true)
+            jdkVersion.set(8)
+            languageVersion.set("1.7")
+            apiVersion.set("1.7")
+            noStdlibLink.set(false)
+            noJdkLink.set(false)
+            noAndroidSdkLink.set(false)
+            includes.from(project.files(), "packages.md", "extra.md")
+            platform.set(Platform.DEFAULT)
+            sourceRoots.from(file("src"))
+            classpath.from(project.files(), file("libs/dependency.jar"))
+            samples.from(project.files(), "samples/Basic.kt", "samples/Advanced.kt")
 
-        sourceLink {
-            // Source link section
-        }
-        externalDocumentationLink {
-            // External documentation link section
-        }
-        perPackageOption {
-            // Package options section
+            sourceLink {
+                // Source link section
+            }
+            externalDocumentationLink {
+                // External documentation link section
+            }
+            perPackageOption {
+                // Package options section
+            }
         }
     }
 }
@@ -1043,6 +1024,7 @@ tasks.withType(DokkaTask.class) {
         <p>Default: <code>false</code></p>
     </def>
     <def title="noAndroidSdkLink">
+        <anchor name="includes"/>
         <p>Whether to generate external documentation links to the Android SDK API reference</p>
         <p>This is only relevant in Android projects, ignored otherwise.</p>
         <p>Note: Links <b>are</b> generated when <code>noAndroidSdkLink</code> is set to <code>false</code>.</p>
@@ -1051,7 +1033,7 @@ tasks.withType(DokkaTask.class) {
     <def title="includes">
         <p>
             A list of Markdown files that contain
-            <a href="https://kotlinlang.org/docs/reference/kotlin-doc.html#module-and-package-documentation">module and package documentation</a>.
+            <a href="dokka-module-and-package-docs.md">module and package documentation</a>.
         </p>
         <p>The contents of the specified files are parsed and embedded into documentation as module and package descriptions.</p>
         <p>
@@ -1555,3 +1537,7 @@ tasks.withType(DokkaTask.class) {
 
 </tab>
 </tabs>
+
+<a href="https://surveys.jetbrains.com/s3/dokka-survey">
+   <img src="dokka-devx-survey-banner.png" width="700" alt="Dokka devX survey"/>
+</a>

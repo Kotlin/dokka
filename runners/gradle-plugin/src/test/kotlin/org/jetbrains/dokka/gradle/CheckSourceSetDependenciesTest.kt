@@ -50,7 +50,7 @@ class CheckSourceSetDependenciesTest {
             GradleDokkaSourceSetBuilder("common", project),
             GradleDokkaSourceSetBuilder("intermediate", project).apply {
                 dependsOn("common")
-                suppress by true
+                suppress.set(true)
             },
             GradleDokkaSourceSetBuilder("jvm", project).apply {
                 dependsOn("intermediate")

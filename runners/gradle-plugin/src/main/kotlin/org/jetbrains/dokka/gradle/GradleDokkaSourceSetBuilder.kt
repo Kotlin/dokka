@@ -68,7 +68,7 @@ open class GradleDokkaSourceSetBuilder(
 
     /**
      * List of Markdown files that contain
-     * [module and package documentation](https://kotlinlang.org/docs/reference/kotlin-doc.html#module-and-package-documentation).
+     * [module and package documentation](https://kotlinlang.org/docs/reference/dokka-module-and-package-docs.html).
      *
      * Contents of specified files will be parsed and embedded into documentation as module and package descriptions.
      *
@@ -465,9 +465,9 @@ open class GradleDokkaSourceSetBuilder(
     fun externalDocumentationLink(url: URL, packageListUrl: URL? = null) {
         externalDocumentationLinks.add(
             GradleExternalDocumentationLinkBuilder(project).apply {
-                this.url by url
+                this.url.convention(url)
                 if (packageListUrl != null) {
-                    this.packageListUrl by packageListUrl
+                    this.packageListUrl.convention(packageListUrl)
                 }
             }
         )
@@ -475,4 +475,3 @@ open class GradleDokkaSourceSetBuilder(
 
     override fun build(): DokkaSourceSetImpl = toDokkaSourceSetImpl()
 }
-

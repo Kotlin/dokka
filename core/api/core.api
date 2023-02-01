@@ -387,6 +387,7 @@ public final class org/jetbrains/dokka/Platform : java/lang/Enum {
 	public static final field js Lorg/jetbrains/dokka/Platform;
 	public static final field jvm Lorg/jetbrains/dokka/Platform;
 	public static final field native Lorg/jetbrains/dokka/Platform;
+	public static final field wasm Lorg/jetbrains/dokka/Platform;
 	public final fun getKey ()Ljava/lang/String;
 	public static fun valueOf (Ljava/lang/String;)Lorg/jetbrains/dokka/Platform;
 	public static fun values ()[Lorg/jetbrains/dokka/Platform;

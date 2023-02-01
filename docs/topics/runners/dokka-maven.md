@@ -38,8 +38,6 @@ To apply Dokka, you need to add `dokka-maven-plugin` to the `plugins` section of
 
 The following goals are provided by the Maven plugin:
 
-### Stable
-
 | **Goal**      | **Description**                                                                        |
 |---------------|----------------------------------------------------------------------------------------|
 | `dokka:dokka` | Generates documentation with Dokka plugins applied. [HTML](dokka-html.md) format by default. |
@@ -361,6 +359,7 @@ with [all configuration options](#complete-configuration) applied at the bottom 
         <p>Default: <code>false</code></p>
     </def>
     <def title="noJdkLink">
+    <anchor name="includes"/>
         <p>Whether to generate external documentation links to JDK's Javadocs.</p>
         <p>The version of JDK Javadocs is determined by the <code>jdkVersion</code> option.</p>
         <p>Note: Links <b>are</b> generated when <code>noJdkLink</code> is set to <code>false</code>.</p>
@@ -369,7 +368,7 @@ with [all configuration options](#complete-configuration) applied at the bottom 
     <def title="includes">
         <p>
             A list of Markdown files that contain 
-            <a href="https://kotlinlang.org/docs/reference/kotlin-doc.html#module-and-package-documentation">module and package documentation</a>
+            <a href="dokka-module-and-package-docs.md">module and package documentation</a>
         </p>
         <p>The contents of specified files are parsed and embedded into documentation as module and package descriptions.</p>
     </def>
@@ -644,3 +643,7 @@ Below you can see all the possible configuration options applied at the same tim
     </configuration>
 </plugin>
 ```
+
+<a href="https://surveys.jetbrains.com/s3/dokka-survey">
+   <img src="dokka-devx-survey-banner.png" width="700" alt="Dokka devX survey"/>
+</a>

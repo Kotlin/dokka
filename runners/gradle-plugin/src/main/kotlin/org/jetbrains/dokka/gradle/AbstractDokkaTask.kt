@@ -44,7 +44,7 @@ abstract class AbstractDokkaTask : DefaultTask() {
      */
     @Input
     val moduleVersion: Property<String> = project.objects.safeProperty<String>()
-        .safeConvention(project.version.toString())
+        .safeConvention(project.provider { project.version.toString() })
 
     /**
      * Directory to which documentation will be generated, regardless of format.
