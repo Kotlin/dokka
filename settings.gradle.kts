@@ -84,11 +84,11 @@ dependencyResolutionManagement {
         maven("https://cache-redirector.jetbrains.com/intellij-dependencies")
         maven("https://www.myget.org/F/rd-snapshots/maven/")
     }
+}
 
-    pluginManagement {
-        repositories {
-            gradlePluginPortal()
-            mavenCentral()
-        }
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        mavenCentral()
     }
 }
