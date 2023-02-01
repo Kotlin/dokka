@@ -1,5 +1,6 @@
 package org.jetbrains.dokka.gradle
 
+import org.gradle.api.Task
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.tasks.TaskContainer
 import org.gradle.kotlin.dsl.withType
@@ -107,7 +108,7 @@ class DokkaPluginApplyTest {
 }
 
 private fun assertTasksHaveGroup(taskContainer: TaskContainer) {
-    taskContainer.filter { "dokka" in it.name.toLowerCase() }.forEach { dokkaTask ->
+    taskContainer.filter(Task::isDokkaTask).forEach { dokkaTask ->
         val expectedGroup =
             if (dokkaTask.name.contains("Multimodule")) "deprecated" else JavaBasePlugin.DOCUMENTATION_GROUP
         assertEquals(
@@ -118,10 +119,13 @@ private fun assertTasksHaveGroup(taskContainer: TaskContainer) {
 }
 
 private fun assertTasksHaveDescription(taskContainer: TaskContainer) {
-    taskContainer.filter { "dokka" in it.name.toLowerCase() }.forEach { dokkaTask ->
+    taskContainer.filter(Task::isDokkaTask).forEach { dokkaTask ->
         assertTrue(
             dokkaTask.description.orEmpty().isNotEmpty(),
             "Expected description for task ${dokkaTask.name}"
         )
     }
 }
+
+private val Task.isDokkaTask: Boolean
+    get() = this.name.contains("dokka", ignoreCase = true)
