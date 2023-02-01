@@ -11,6 +11,7 @@ import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
+import org.jetbrains.dokka.javadoc.pages.JavadocFunctionNode
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.assertEquals
 
@@ -165,28 +166,68 @@ class JavadocLocationTest : BaseAbstractTest() {
             |/jvmSrc/javadoc/test/FunctionParameters.kt
             |package javadoc.test.functionparams
             |
-            |typealias FunctionParamTypealias = String
+            |typealias StringTypealias = String
             |
             |class FunctionParameters {
-            |    fun foo(param: FunctionParamTypealias) {}
+            |    fun withTypealias(typeAliasParam: StringTypealias) {}
             |}
         """.trimIndent()
 
         locationTestInline(query) { rootPageNode, dokkaContext ->
             val transformer = htmlTranslator(rootPageNode, dokkaContext)
-            val containingClass = rootPageNode
-                .firstChildOfType<JavadocPackagePageNode> { it.name == "javadoc.test.functionparams" }
-                .firstChildOfType<JavadocClasslikePageNode> { it.name == "FunctionParameters" }
-
-            val methodWithTypealiasParam = containingClass.methods.single { it.name == "foo" }
+            val methodWithTypealiasParam = rootPageNode.findFunctionNodeWithin(
+                packageName = "javadoc.test.functionparams",
+                className = "FunctionParameters",
+                methodName = "withTypealias"
+            )
             val methodSignatureHtml = transformer.htmlForContentNode(methodWithTypealiasParam.signature, null)
 
             val expectedSignatureHtml = "final <a href=https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html>Unit</a> " +
-                    "<a href=javadoc/test/functionparams/FunctionParameters.html#foo(javadoc.test.functionparams.FunctionParamTypealias)>foo</a>" +
-                    "(<a href=https://docs.oracle.com/javase/8/docs/api/java/lang/String.html>String</a> param)"
+                    "<a href=javadoc/test/functionparams/FunctionParameters.html#withTypealias(javadoc.test.functionparams.StringTypealias)>withTypealias</a>" +
+                    "(<a href=https://docs.oracle.com/javase/8/docs/api/java/lang/String.html>String</a> typeAliasParam)"
 
             assertEquals(expectedSignatureHtml, methodSignatureHtml)
         }
+    }
+
+    @Test
+    fun `should resolve definitely non nullable function parameter`() {
+        val query = """
+            |/jvmSrc/javadoc/test/FunctionParameters.kt
+            |package javadoc.test.functionparams
+            |
+            |class FunctionParameters {
+            |    fun <T> withDefinitelyNonNullableType(definitelyNonNullable: T & Any) {}
+            |}
+        """.trimIndent()
+
+        locationTestInline(query) { rootPageNode, dokkaContext ->
+            val transformer = htmlTranslator(rootPageNode, dokkaContext)
+            val methodWithVoidParam = rootPageNode.findFunctionNodeWithin(
+                packageName = "javadoc.test.functionparams",
+                className = "FunctionParameters",
+                methodName = "withDefinitelyNonNullableType"
+            )
+            val methodSignatureHtml = transformer.htmlForContentNode(methodWithVoidParam.signature, null)
+
+            val expectedSignatureHtml = "final &lt;T extends <a href=https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html>Any</a>&gt; " +
+                    "<a href=https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html>Unit</a> " +
+                    "<a href=javadoc/test/functionparams/FunctionParameters.html#withDefinitelyNonNullableType(T)>withDefinitelyNonNullableType</a>" +
+                    "(<a href=javadoc/test/functionparams/FunctionParameters.html#withDefinitelyNonNullableType(T)>T</a> definitelyNonNullable)"
+
+            assertEquals(expectedSignatureHtml, methodSignatureHtml)
+        }
+    }
+
+    private fun RootPageNode.findFunctionNodeWithin(
+        packageName: String,
+        className: String,
+        methodName: String
+    ): JavadocFunctionNode {
+        return this
+            .firstChildOfType<JavadocPackagePageNode> { it.name == packageName }
+            .firstChildOfType<JavadocClasslikePageNode> { it.name == className }
+            .methods.single { it.name == methodName }
     }
 
     private fun locationTestInline(query: String, testHandler: (RootPageNode, DokkaContext) -> Unit) {
