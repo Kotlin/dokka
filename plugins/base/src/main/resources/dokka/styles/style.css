@@ -1090,7 +1090,10 @@ p.paragraph img {
 
 .filter-section .platform-tag:not([data-active]) {
     color: #fff;
-    outline: 1px solid rgba(255,255,255,.6);
+    /* Safari doesn't work correctly for `outline` with `border-radius` */
+    /* outline: 1px solid rgba(255,255,255,.6); */
+    /* ...use `box-shadow` instead: */
+    box-shadow: 0 0 0 1px rgb(255 255 255 / 60%);
     background-color: rgba(255,255,255,.05);
 }
 
