@@ -1,14 +1,11 @@
-@file:Suppress("UnstableApiUsage")
-
 package org.jetbrains.dokka.gradle
 
 import org.gradle.kotlin.dsl.withType
 import org.gradle.testfixtures.ProjectBuilder
-import org.jetbrains.dokka.*
-import org.jetbrains.dokka.DokkaDefaults.documentedVisibilities
-import org.jetbrains.dokka.DokkaDefaults.includeNonPublic
-import org.jetbrains.dokka.DokkaDefaults.reportUndocumented
-import org.jetbrains.dokka.DokkaDefaults.skipDeprecated
+import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.DokkaConfigurationImpl
+import org.jetbrains.dokka.PluginConfigurationImpl
+import org.jetbrains.dokka.toJsonString
 import java.io.File
 import java.net.URL
 import kotlin.test.Test
@@ -29,22 +26,14 @@ class DokkaConfigurationJsonTest {
             this.outputDirectory.set(File("customOutputDir"))
             this.cacheRoot.set(File("customCacheRoot"))
             this.pluginsConfiguration.add(
-                PluginConfigurationImpl(
-                    "A",
-                    DokkaConfiguration.SerializationFormat.JSON,
-                    """ { "key" : "value1" } """
-                )
+                PluginConfigurationImpl("A", DokkaConfiguration.SerializationFormat.JSON, """ { "key" : "value1" } """)
             )
             this.pluginsConfiguration.add(
-                PluginConfigurationImpl(
-                    "B",
-                    DokkaConfiguration.SerializationFormat.JSON,
-                    """ { "key" : "value2" } """
-                )
+                PluginConfigurationImpl("B", DokkaConfiguration.SerializationFormat.JSON, """ { "key" : "value2" } """)
             )
-            this.dokkaSourceSets.create("main") {
-                displayName.set("customSourceSetDisplayName")
-                reportUndocumented.set(true)
+            this.dokkaSourceSets.create("main") { sourceSet ->
+                sourceSet.displayName.set("customSourceSetDisplayName")
+                sourceSet.reportUndocumented.set(true)
 
                 externalDocumentationLink {
                     packageListUrl.set(URL("http://some.url"))

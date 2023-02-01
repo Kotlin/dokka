@@ -63,7 +63,6 @@ class GradleDokkaSourceSetBuilderTest {
         )
 
         sourceSet.displayName.set("displayName")
-
         assertEquals(
             "displayName", sourceSet.build().displayName,
             "Expected previously set ${GradleDokkaSourceSetBuilder::displayName.name} to be present after build"
