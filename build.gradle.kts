@@ -34,20 +34,18 @@ val dokkaPublish by tasks.registering {
 }
 
 apiValidation {
-    ignoredProjects.addAll(
-        setOf(
-            "search-component",
-            "compiler-dependency",
-            "kotlin-analysis",
-            "intellij-dependency",
-            "frontend",
+    ignoredProjects += setOf(
+        "search-component",
+        "compiler-dependency",
+        "kotlin-analysis",
+        "intellij-dependency",
+        "frontend",
 
-            "integration-tests",
-            "gradle",
-            "cli",
-            "maven",
+        "integration-tests",
+        "gradle",
+        "cli",
+        "maven",
 
-            "test-utils",
-        )
+        "test-utils",
     )
 }
