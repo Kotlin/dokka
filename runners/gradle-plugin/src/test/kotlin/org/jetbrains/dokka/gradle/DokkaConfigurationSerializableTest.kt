@@ -30,26 +30,26 @@ class DokkaConfigurationSerializableTest {
         val dokkaTask = project.tasks.withType<DokkaTask>().first()
         dokkaTask.plugins.withDependencies { clear() }
         dokkaTask.apply {
-            this.failOnWarning by true
-            this.offlineMode by true
-            this.outputDirectory by File("customOutputDir")
-            this.cacheRoot by File("customCacheRoot")
+            this.failOnWarning.set(true)
+            this.offlineMode.set(true)
+            this.outputDirectory.set(File("customOutputDir"))
+            this.cacheRoot.set(File("customCacheRoot"))
             this.pluginsConfiguration.add(PluginConfigurationImpl("A", DokkaConfiguration.SerializationFormat.JSON, """ { "key" : "value1" } """))
             this.pluginsConfiguration.add(PluginConfigurationImpl("B", DokkaConfiguration.SerializationFormat.JSON, """ { "key" : "value2" } """))
             this.dokkaSourceSets.create("main") {
-                displayName by "customSourceSetDisplayName"
-                reportUndocumented by true
+                displayName.set("customSourceSetDisplayName")
+                reportUndocumented.set(true)
 
                 externalDocumentationLink {
-                    packageListUrl by URL("http://some.url")
-                    url by URL("http://some.other.url")
+                    packageListUrl.set(URL("http://some.url"))
+                    url.set(URL("http://some.other.url"))
                 }
 
                 perPackageOption {
-                    includeNonPublic by true
-                    reportUndocumented by true
-                    skipDeprecated by true
-                    documentedVisibilities by setOf(DokkaConfiguration.Visibility.PRIVATE)
+                    includeNonPublic.set(true)
+                    reportUndocumented.set(true)
+                    skipDeprecated.set(true)
+                    documentedVisibilities.set(setOf(DokkaConfiguration.Visibility.PRIVATE))
                 }
             }
         }
