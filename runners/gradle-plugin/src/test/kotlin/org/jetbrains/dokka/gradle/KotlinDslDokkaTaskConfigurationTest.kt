@@ -14,7 +14,7 @@ class KotlinDslDokkaTaskConfigurationTest {
         val project = ProjectBuilder.builder().build()
         project.plugins.apply("org.jetbrains.dokka")
         project.tasks.withType<DokkaTask>().configureEach {
-            outputDirectory by File("test")
+            outputDirectory.set(File("test"))
         }
 
         project.tasks.withType(DokkaTask::class.java).forEach { dokkaTask ->

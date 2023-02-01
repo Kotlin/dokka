@@ -62,8 +62,7 @@ class GradleDokkaSourceSetBuilderTest {
                     "after building source set with no ${GradleDokkaSourceSetBuilder::displayName.name} being set"
         )
 
-        sourceSet.displayName by "displayName"
-
+        sourceSet.displayName.set("displayName")
         assertEquals(
             "displayName", sourceSet.build().displayName,
             "Expected previously set ${GradleDokkaSourceSetBuilder::displayName.name} to be present after build"
@@ -220,21 +219,21 @@ class GradleDokkaSourceSetBuilderTest {
 
         sourceSet.sourceLinks.add(
             GradleSourceLinkBuilder(project).apply {
-                this.remoteLineSuffix by "ls1"
-                this.localDirectory by project.file("p1")
-                this.remoteUrl by URL("https://u1")
+                this.remoteLineSuffix.set("ls1")
+                this.localDirectory.set(project.file("p1"))
+                this.remoteUrl.set(URL("https://u1"))
             })
 
         sourceSet.sourceLink {
-            remoteLineSuffix by "ls2"
-            localDirectory by project.file("p2")
-            remoteUrl by URL("https://u2")
+            remoteLineSuffix.set("ls2")
+            localDirectory.set(project.file("p2"))
+            remoteUrl.set(URL("https://u2"))
         }
 
         sourceSet.sourceLink(project.closureOf<GradleSourceLinkBuilder> {
-            this.remoteLineSuffix by "ls3"
-            this.localDirectory by project.file("p3")
-            this.remoteUrl by URL("https://u3")
+            this.remoteLineSuffix.set("ls3")
+            this.localDirectory.set(project.file("p3"))
+            this.remoteUrl.set(URL("https://u3"))
         })
 
         assertEquals(
@@ -266,15 +265,15 @@ class GradleDokkaSourceSetBuilderTest {
         assertEquals(emptyList(), sourceSet.build().perPackageOptions, "Expected no default per package options")
 
         sourceSet.perPackageOptions.add(GradlePackageOptionsBuilder(project).apply {
-            this.matchingRegex by "p1.*"
+            this.matchingRegex.set("p1.*")
         })
 
         sourceSet.perPackageOption {
-            matchingRegex by "p2.*"
+            matchingRegex.set("p2.*")
         }
 
         sourceSet.perPackageOption(project.closureOf<GradlePackageOptionsBuilder> {
-            this.matchingRegex by "p3.*"
+            this.matchingRegex.set("p3.*")
         })
 
         assertEquals(
@@ -296,9 +295,9 @@ class GradleDokkaSourceSetBuilderTest {
     @Test
     fun externalDocumentationLink() {
         val sourceSet = GradleDokkaSourceSetBuilder("", project)
-        sourceSet.noAndroidSdkLink by true
-        sourceSet.noJdkLink by true
-        sourceSet.noStdlibLink by true
+        sourceSet.noAndroidSdkLink.set(true)
+        sourceSet.noJdkLink.set(true)
+        sourceSet.noStdlibLink.set(true)
         assertEquals(
             emptySet(), sourceSet.build().externalDocumentationLinks,
             "Expected no default external documentation links"
@@ -306,17 +305,17 @@ class GradleDokkaSourceSetBuilderTest {
 
         sourceSet.externalDocumentationLinks.add(
             GradleExternalDocumentationLinkBuilder(project).apply {
-                this.url by URL("https://u1")
-                this.packageListUrl by URL("https://pl1")
+                this.url.set(URL("https://u1"))
+                this.packageListUrl.set(URL("https://pl1"))
             }
         )
 
         sourceSet.externalDocumentationLink {
-            url by URL("https://u2")
+            url.set(URL("https://u2"))
         }
 
         sourceSet.externalDocumentationLink(project.closureOf<GradleExternalDocumentationLinkBuilder> {
-            url by URL("https://u3")
+            url.set(URL("https://u3"))
         })
 
         sourceSet.externalDocumentationLink(url = "https://u4", packageListUrl = "https://pl4")
@@ -340,7 +339,7 @@ class GradleDokkaSourceSetBuilderTest {
         val sourceSet = GradleDokkaSourceSetBuilder("", project)
         assertNull(sourceSet.build().languageVersion, "Expected no language version being set by default")
 
-        sourceSet.languageVersion by "JAVA_20"
+        sourceSet.languageVersion.set("JAVA_20")
         assertEquals(
             "JAVA_20", sourceSet.build().languageVersion,
             "Expected previously set language version to be present after build"
@@ -352,7 +351,7 @@ class GradleDokkaSourceSetBuilderTest {
         val sourceSet = GradleDokkaSourceSetBuilder("", project)
         assertNull(sourceSet.build().apiVersion, "Expected no api version being set by default")
 
-        sourceSet.apiVersion by "20"
+        sourceSet.apiVersion.set("20")
         assertEquals(
             "20", sourceSet.build().apiVersion,
             "Expected previously set api version to be present after build"
@@ -368,7 +367,7 @@ class GradleDokkaSourceSetBuilderTest {
             "https://kotlinlang.org/api" in it.url.toURI().toString()
         }, "Expected kotlin stdlib in external documentation links")
 
-        sourceSet.noStdlibLink by true
+        sourceSet.noStdlibLink.set(true)
 
         assertEquals(
             0, sourceSet.build().externalDocumentationLinks.count {
@@ -386,7 +385,7 @@ class GradleDokkaSourceSetBuilderTest {
             "https://docs.oracle.com/" in it.url.toURI().toString()
         }, "Expected java jdk in external documentation links")
 
-        sourceSet.noJdkLink by true
+        sourceSet.noJdkLink.set(true)
 
         assertEquals(
             0, sourceSet.build().externalDocumentationLinks.count {
@@ -417,18 +416,20 @@ class GradleDokkaSourceSetBuilderTest {
         }, "Expected android sdk in external documentation links")
 
         assertEquals(1, sourceSet.build().externalDocumentationLinks.count {
-            "https://developer.android.com/reference/kotlin/androidx/package-list" in it.packageListUrl.toURI().toString()
+            "https://developer.android.com/reference/kotlin/androidx/package-list" in it.packageListUrl.toURI()
+                .toString()
         }, "Expected androidx in external documentation links")
 
 
-        sourceSet.noAndroidSdkLink by true
+        sourceSet.noAndroidSdkLink.set(true)
 
         assertEquals(0, sourceSet.build().externalDocumentationLinks.count {
             "https://developer.android.com/reference" in it.url.toURI().toString()
         }, "Expected no android sdk in external documentation links")
 
         assertEquals(0, sourceSet.build().externalDocumentationLinks.count {
-            "https://developer.android.com/reference/kotlin/androidx/package-list" in it.packageListUrl.toURI().toString()
+            "https://developer.android.com/reference/kotlin/androidx/package-list" in it.packageListUrl.toURI()
+                .toString()
         }, "Expected no androidx in external documentation links")
     }
 
@@ -479,7 +480,7 @@ class GradleDokkaSourceSetBuilderTest {
         val sourceSet = GradleDokkaSourceSetBuilder("", project)
         assertEquals(Platform.DEFAULT, sourceSet.build().analysisPlatform, "Expected default platform if not specified")
 
-        sourceSet.platform by Platform.common
+        sourceSet.platform.set(Platform.common)
         assertEquals(
             Platform.common, sourceSet.build().analysisPlatform,
             "Expected previously set analysis platform being present after build"
