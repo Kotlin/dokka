@@ -135,6 +135,11 @@ blockquote {
     color: var(--average-color);
 }
 
+.theme-dark blockquote {
+    color: var(--default-font-color);
+    border-left-color: var(--code-background);
+}
+
 pre {
     display: block;
 }
@@ -573,10 +578,13 @@ td:first-child {
 }
 
 .main-content p.paragraph,
-.sample-container {
+.sample-container, blockquote,
+.content > .symbol {
     margin-top: 8px;
 }
 
+blockquote,
+.content > .symbol:first-of-type,
 p.paragraph:first-child,
 .brief p.paragraph {
     margin-top: 0;

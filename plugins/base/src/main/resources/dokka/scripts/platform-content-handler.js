@@ -329,6 +329,14 @@ function refreshFiltering() {
     refreshFilterButtons()
     refreshPlatformTabs()
     refreshNoContentNotification()
+    refreshPlaygroundSamples()
+}
+
+function refreshPlaygroundSamples() {
+    document.querySelectorAll('code.runnablesample').forEach(node => {
+        const playground = node.KotlinPlayground;
+        playground && playground.view.codemirror.refresh();
+    });
 }
 
 function refreshNoContentNotification() {
