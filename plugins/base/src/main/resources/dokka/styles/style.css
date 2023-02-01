@@ -528,6 +528,14 @@ td:first-child {
     margin-bottom: 16px;
 }
 
+.no-js .platform-bookmarks-row + .sourceset-dependent-content {
+    margin-top: 8px;
+}
+
+.no-js .platform-bookmarks-row + .sourceset-dependent-content:last-of-type {
+    margin-top: 0;
+}
+
 .section-tab:hover {
     color: var(--default-font-color);
     border-bottom: 2px solid var(--default-font-color);
@@ -1082,10 +1090,7 @@ p.paragraph img {
 
 .filter-section .platform-tag:not([data-active]) {
     color: #fff;
-    /* Safari `outline` is incompatible with `border-radius`... */
-    /* outline: 1px solid rgba(255,255,255,.6);  */
-    /* ...use box-shadow instead */
-    box-shadow: 0 0 0 1px rgba(255,255,255,.6) inset;
+    outline: 1px solid rgba(255,255,255,.6);
     background-color: rgba(255,255,255,.05);
 }
 
@@ -1173,8 +1178,12 @@ td.content {
     color: var(--active-section-color);
 }
 
-.platform-hinted > .content:not([data-active]),
-.tabs-section-body *[data-togglable]:not([data-active]) {
+.no-js .platform-bookmarks-row, .no-js .tabs-section {
+    display: none;
+}
+
+.js .platform-hinted > .content:not([data-active]),
+.js .tabs-section-body *[data-togglable]:not([data-active]) {
     display: none;
 }
 
