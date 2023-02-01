@@ -61,13 +61,19 @@ class DokkaMultiModuleTaskTest {
         }
 
         multiModuleTask.apply {
-            moduleVersion by "1.5.0"
-            moduleName by "custom Module Name"
-            outputDirectory by project.buildDir.resolve("customOutputDirectory")
-            cacheRoot by File("customCacheRoot")
-            pluginsConfiguration.add(PluginConfigurationImpl("pluginA", DokkaConfiguration.SerializationFormat.JSON, """ { "key" : "value2" } """))
-            failOnWarning by true
-            offlineMode by true
+            moduleVersion.set("1.5.0")
+            moduleName.set("custom Module Name")
+            outputDirectory.set(project.buildDir.resolve("customOutputDirectory"))
+            cacheRoot.set(File("customCacheRoot"))
+            pluginsConfiguration.add(
+                PluginConfigurationImpl(
+                    "pluginA",
+                    DokkaConfiguration.SerializationFormat.JSON,
+                    """ { "key" : "value2" } """
+                )
+            )
+            failOnWarning.set(true)
+            offlineMode.set(true)
             includes.from(listOf(topLevelInclude))
         }
 
@@ -78,7 +84,13 @@ class DokkaMultiModuleTaskTest {
                 moduleVersion = "1.5.0",
                 outputDir = multiModuleTask.project.buildDir.resolve("customOutputDirectory"),
                 cacheRoot = File("customCacheRoot"),
-                pluginsConfiguration = mutableListOf(PluginConfigurationImpl("pluginA", DokkaConfiguration.SerializationFormat.JSON, """ { "key" : "value2" } """)),
+                pluginsConfiguration = mutableListOf(
+                    PluginConfigurationImpl(
+                        "pluginA",
+                        DokkaConfiguration.SerializationFormat.JSON,
+                        """ { "key" : "value2" } """
+                    )
+                ),
                 pluginsClasspath = emptyList(),
                 failOnWarning = true,
                 offlineMode = true,
@@ -97,14 +109,14 @@ class DokkaMultiModuleTaskTest {
     }
 
     @Test
-    fun `multimodule task should not include unspecified version`(){
+    fun `multimodule task should not include unspecified version`() {
         childDokkaTask.apply {
             dokkaSourceSets.create("main")
             dokkaSourceSets.create("test")
         }
 
         multiModuleTask.apply {
-            moduleVersion by "unspecified"
+            moduleVersion.set("unspecified")
         }
 
         val dokkaConfiguration = multiModuleTask.buildDokkaConfiguration()
@@ -117,7 +129,10 @@ class DokkaMultiModuleTaskTest {
         assertEquals(1, dependenciesInitial.size, "Expected one dependency")
         val dependency = dependenciesInitial.single()
 
-        assertTrue(dependency is DokkaTaskPartial, "Expected dependency to be of Type ${DokkaTaskPartial::class.simpleName}")
+        assertTrue(
+            dependency is DokkaTaskPartial,
+            "Expected dependency to be of Type ${DokkaTaskPartial::class.simpleName}"
+        )
         assertEquals(childProject, dependency.project, "Expected dependency from child project")
 
 
@@ -184,7 +199,7 @@ class DokkaMultiModuleTaskTest {
         val childTask = child.tasks.create<DokkaTask>("child")
 
         parentTask.addChildTask(childTask)
-        childTask.outputDirectory by child.file("custom/output")
+        childTask.outputDirectory.set(child.file("custom/output"))
 
         assertEquals(
             listOf(parent.file("child/custom/output")), parentTask.sourceChildOutputDirectories,
@@ -202,10 +217,9 @@ class DokkaMultiModuleTaskTest {
 
         parentTask.addChildTask(childTask)
 
-        @Suppress("NAME_SHADOWING") // ¯\_(ツ)_/¯
-        parentTask.fileLayout by DokkaMultiModuleFileLayout { parent, child ->
-            parent.project.buildDir.resolve(child.name)
-        }
+        parentTask.fileLayout.set(DokkaMultiModuleFileLayout { taskParent, taskChild ->
+            taskParent.project.buildDir.resolve(taskChild.name)
+        })
 
         assertEquals(
             listOf(parent.project.buildDir.resolve("child")), parentTask.targetChildOutputDirectories,
