@@ -1,10 +1,12 @@
-package org.jetbrains.dokka.gradle
+package org.jetbrains.dokka.gradle.tasks
 
 import org.gradle.kotlin.dsl.create
 import org.gradle.testfixtures.ProjectBuilder
+import org.jetbrains.dokka.DokkaDefaults.suppress
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
+import org.jetbrains.dokka.gradle.*
 
 class DokkaTaskTest {
     @Test
@@ -18,7 +20,7 @@ class DokkaTaskTest {
         task.dokkaSourceSets.register("main")
         task.dokkaSourceSets.register("jvm")
         task.dokkaSourceSets.register("test") {
-            suppress by true
+            suppress.set(true)
         }
 
         assertEquals(

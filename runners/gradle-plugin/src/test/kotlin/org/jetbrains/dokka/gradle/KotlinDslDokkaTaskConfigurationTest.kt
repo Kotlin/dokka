@@ -3,6 +3,7 @@ package org.jetbrains.dokka.gradle
 import org.gradle.kotlin.dsl.withType
 import org.gradle.testfixtures.ProjectBuilder
 import org.jetbrains.dokka.DokkaSourceSetID
+import org.jetbrains.dokka.gradle.tasks.DokkaTask
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 import java.io.File
 import kotlin.test.Test
@@ -14,7 +15,7 @@ class KotlinDslDokkaTaskConfigurationTest {
         val project = ProjectBuilder.builder().build()
         project.plugins.apply("org.jetbrains.dokka")
         project.tasks.withType<DokkaTask>().configureEach {
-            outputDirectory by File("test")
+            outputDirectory.set(File("test"))
         }
 
         project.tasks.withType(DokkaTask::class.java).forEach { dokkaTask ->

@@ -1,4 +1,4 @@
-package org.jetbrains.dokka.gradle
+package org.jetbrains.dokka.gradle.tasks
 
 import org.gradle.api.Project
 import org.gradle.api.UnknownTaskException
@@ -6,6 +6,8 @@ import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.getByName
 import org.gradle.testfixtures.ProjectBuilder
 import org.jetbrains.dokka.DokkaConfigurationImpl
+import org.jetbrains.dokka.gradle.tasks.AbstractDokkaParentTask
+import org.jetbrains.dokka.gradle.tasks.DokkaTask
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith

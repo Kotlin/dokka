@@ -1,6 +1,8 @@
 package org.jetbrains.dokka.gradle
 
 import org.jetbrains.dokka.DokkaException
+import org.jetbrains.dokka.gradle.tasks.AbstractDokkaTask
+import org.jetbrains.dokka.gradle.tasks.DokkaMultiModuleTask
 import java.io.File
 
 /**

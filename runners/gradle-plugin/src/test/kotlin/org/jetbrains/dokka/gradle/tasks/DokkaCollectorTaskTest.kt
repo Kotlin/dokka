@@ -1,4 +1,4 @@
-package org.jetbrains.dokka.gradle
+package org.jetbrains.dokka.gradle.tasks
 
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.withType
@@ -14,6 +14,8 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
+import org.jetbrains.dokka.gradle.tasks.*
+import org.jetbrains.dokka.gradle.*
 
 class DokkaCollectorTaskTest {
 
@@ -37,11 +39,11 @@ class DokkaCollectorTaskTest {
 
         val collectorTasks = rootProject.tasks.withType<DokkaCollectorTask>()
         collectorTasks.configureEach {
-            moduleName by "custom Module Name"
-            outputDirectory by File("customOutputDirectory")
-            cacheRoot by File("customCacheRoot")
-            failOnWarning by true
-            offlineMode by true
+            moduleName.set("custom Module Name")
+            outputDirectory.set(File("customOutputDirectory"))
+            cacheRoot.set(File("customCacheRoot"))
+            failOnWarning.set(true)
+            offlineMode.set(true)
             finalizeCoroutines.set(false)
         }
 
