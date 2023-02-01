@@ -1,16 +1,13 @@
 package org.jetbrains.dokka.gradle.dokka_configuration
 
-import groovy.lang.Closure
 import org.gradle.api.*
 import org.gradle.api.file.ConfigurableFileCollection
-import org.gradle.api.file.FileSystemOperations
 import org.gradle.api.file.ProjectLayout
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.*
-import org.gradle.kotlin.dsl.domainObjectContainer
 import org.gradle.kotlin.dsl.polymorphicDomainObjectContainer
 import org.jetbrains.dokka.*
 import java.io.File
@@ -40,22 +37,23 @@ import javax.inject.Inject
  * }
  * ```
  */
-abstract class GradleDokkaSourceSetBuilder(
-    @get:Internal internal val sourceSetIdFactory: NamedDomainObjectFactory<DokkaSourceSetID>,
-) : DokkaConfigurationBuilder<DokkaConfigurationKxs.DokkaSourceSetKxs>, Named {
+abstract class GradleDokkaSourceSetBuilder : DokkaConfigurationBuilder<DokkaConfigurationKxs.DokkaSourceSetKxs>, Named {
 
-//    @get:Internal
+    //    @get:Internal
 //    @get:Inject
 //    protected abstract val files: FileSystemOperations
     @get:Internal
     @get:Inject
     protected abstract val layout: ProjectLayout
+
     @get:Internal
     @get:Inject
     protected abstract val objects: ObjectFactory
 
     @get:Input
-    val sourceSetID: DokkaSourceSetID = sourceSetIdFactory.create(name)
+    abstract val sourceSetID: Property<DokkaSourceSetID>
+
+    override fun getName(): String = sourceSetID.get().sourceSetName
 
     /**
      * Whether this source set should be skipped when generating documentation.
@@ -381,7 +379,7 @@ abstract class GradleDokkaSourceSetBuilder(
      * @see [DokkaPackageOptionsGradleBuilder] for details.
      */
     fun perPackageOption(action: Action<in DokkaPackageOptionsGradleBuilder>) {
-         val x = objects.polymorphicDomainObjectContainer(DokkaPackageOptionsGradleBuilder::class)
+        val x = objects.polymorphicDomainObjectContainer(DokkaPackageOptionsGradleBuilder::class)
 
 
         val option = DokkaPackageOptionsGradleBuilder()
