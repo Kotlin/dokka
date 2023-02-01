@@ -53,20 +53,20 @@ class DokkaPluginApplyTest {
     }
 
     @Test
-    fun `all dokka tasks are part of the documentation group`() {
+    fun `all dokka tasks are part of a group`() {
         val project = ProjectBuilder.builder().build()
         project.plugins.apply("org.jetbrains.dokka")
-        assertTasksHaveDocumentationGroup(project.tasks)
+        assertTasksHaveGroup(project.tasks)
     }
 
     @Test
-    fun `all dokka tasks are part of the documentation group in a multi module setup`() {
+    fun `all dokka tasks are part of a group in a multi module setup`() {
         val root = ProjectBuilder.builder().withName("root").build()
         val child = ProjectBuilder.builder().withName("child").withParent(root).build()
         root.plugins.apply("org.jetbrains.dokka")
         child.plugins.apply("org.jetbrains.dokka")
-        assertTasksHaveDocumentationGroup(root.tasks)
-        assertTasksHaveDocumentationGroup(child.tasks)
+        assertTasksHaveGroup(root.tasks)
+        assertTasksHaveGroup(child.tasks)
     }
 
     @Test
@@ -106,10 +106,12 @@ class DokkaPluginApplyTest {
     }
 }
 
-private fun assertTasksHaveDocumentationGroup(taskContainer: TaskContainer) {
+private fun assertTasksHaveGroup(taskContainer: TaskContainer) {
     taskContainer.filter { "dokka" in it.name.toLowerCase() }.forEach { dokkaTask ->
+        val expectedGroup =
+            if (dokkaTask.name.contains("Multimodule")) "deprecated" else JavaBasePlugin.DOCUMENTATION_GROUP
         assertEquals(
-            JavaBasePlugin.DOCUMENTATION_GROUP, dokkaTask.group,
+            expectedGroup, dokkaTask.group,
             "Expected task: ${dokkaTask.path} group to be ${JavaBasePlugin.DOCUMENTATION_GROUP}"
         )
     }

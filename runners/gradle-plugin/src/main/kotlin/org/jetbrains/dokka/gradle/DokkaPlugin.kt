@@ -75,7 +75,7 @@ open class DokkaPlugin : Plugin<Project> {
                 }
 
                 project.tasks.register<DefaultTask>("${name}Multimodule") {
-                    group = JavaBasePlugin.DOCUMENTATION_GROUP
+                    group = "deprecated"
                     description = "DEPRECATED: 'Multimodule' is deprecated. Use 'MultiModule' instead."
                     dependsOn(multiModuleName)
                     doLast {
