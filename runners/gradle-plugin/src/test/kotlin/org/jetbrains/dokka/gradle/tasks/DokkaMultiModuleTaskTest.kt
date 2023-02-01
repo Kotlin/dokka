@@ -218,10 +218,9 @@ class DokkaMultiModuleTaskTest {
 
         parentTask.addChildTask(childTask)
 
-        @Suppress("NAME_SHADOWING") // ¯\_(ツ)_/¯
-        (parentTask.fileLayout.set(DokkaMultiModuleFileLayout { parent, child ->
-            parent.project.buildDir.resolve(child.name)
-        }))
+        parentTask.fileLayout.set(DokkaMultiModuleFileLayout { taskParent, taskChild ->
+            taskParent.project.buildDir.resolve(taskChild.name)
+        })
 
         assertEquals(
             listOf(parent.project.buildDir.resolve("child")), parentTask.targetChildOutputDirectories,

@@ -300,7 +300,7 @@ class DefaultPsiToDocumentableTranslator(
                             classlikes = classlikes.await(),
                             visibility = visibility,
                             companion = null,
-                            constructors = parseConstructors(),
+                            constructors = parseConstructors(dri),
                             generics = mapTypeParameters(dri),
                             sourceSets = setOf(sourceSetData),
                             isExpectActual = false,
@@ -340,7 +340,7 @@ class DefaultPsiToDocumentableTranslator(
                         classlikes = classlikes.await(),
                         visibility = visibility,
                         companion = null,
-                        constructors = parseConstructors(),
+                        constructors = parseConstructors(dri),
                         supertypes = ancestors,
                         sourceSets = setOf(sourceSetData),
                         isExpectActual = false,
@@ -376,7 +376,7 @@ class DefaultPsiToDocumentableTranslator(
                     else -> DClass(
                         dri = dri,
                         name = name.orEmpty(),
-                        constructors = parseConstructors(),
+                        constructors = parseConstructors(dri),
                         functions = allFunctions.await(),
                         properties = allFields.await(),
                         classlikes = classlikes.await(),
@@ -401,13 +401,17 @@ class DefaultPsiToDocumentableTranslator(
             }
         }
 
-        private fun PsiClass.parseConstructors(): List<DFunction> {
+        /*
+         * Parameter `parentDRI` required for substitute package name:
+         * in the case of synthetic constructor, it will return empty from [DRI.Companion.from].
+         */
+        private fun PsiClass.parseConstructors(parentDRI: DRI): List<DFunction> {
             val constructors = when {
                 isAnnotationType || isInterface -> emptyArray()
                 isEnum -> this.constructors
                 else -> this.constructors.takeIf { it.isNotEmpty() } ?: arrayOf(createDefaultConstructor())
             }
-            return constructors.map { parseFunction(it, true) }
+            return constructors.map { parseFunction(psi = it, isConstructor = true, parentDRI = parentDRI) }
         }
 
         /**

@@ -60,11 +60,7 @@ class DokkaMultiModuleFileLayoutTest {
         subFolder.mkdirs()
         subFolder.resolve("other.file").writeText("other text")
 
-        parentTask.fileLayout.set(object : DokkaMultiModuleFileLayout {
-            override fun targetChildOutputDirectory(parent: DokkaMultiModuleTask, child: AbstractDokkaTask): File {
-                return parent.project.file("target/output")
-            }
-        })
+        parentTask.fileLayout.set(DokkaMultiModuleFileLayout { parent, _ -> parent.project.file("target/output") })
         parentTask.copyChildOutputDirectory(childTask)
 
         /* Assertions */
