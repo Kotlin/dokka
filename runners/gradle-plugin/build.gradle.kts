@@ -80,9 +80,9 @@ pluginBundle {
     }
 }
 
-val javadocJar by tasks.creating(Jar::class) {
+val javadocJar by tasks.registering(Jar::class) {
     group = JavaBasePlugin.DOCUMENTATION_GROUP
-    description = "Assembles java doc to jar"
+    description = "Assembles Javadoc into a JAR"
     archiveClassifier.set("javadoc")
     from(tasks.javadoc)
 }
@@ -98,6 +98,10 @@ publishing {
         register<MavenPublication>("pluginMaven") {
             configurePom("Dokka ${project.name}")
             artifactId = "dokka-gradle-plugin"
+        }
+
+        withType<MavenPublication>().configureEach {
+            // always add Javadoc, to verify it works during integration tests
             artifact(javadocJar)
         }
 
