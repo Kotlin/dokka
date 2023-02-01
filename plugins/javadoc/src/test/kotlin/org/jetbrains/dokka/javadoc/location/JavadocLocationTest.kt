@@ -16,57 +16,16 @@ import org.junit.jupiter.api.Assertions.assertEquals
 
 class JavadocLocationTest : BaseAbstractTest() {
 
-    private fun locationTestInline(testHandler: (RootPageNode, DokkaContext) -> Unit) {
-        val config = dokkaConfiguration {
-            format = "javadoc"
-            sourceSets {
-                sourceSet {
-                    sourceRoots = listOf("jvmSrc/")
-                    externalDocumentationLinks = listOf(
-                        DokkaConfiguration.ExternalDocumentationLink.jdk(8),
-                        DokkaConfiguration.ExternalDocumentationLink.kotlinStdlib()
-                    )
-                    analysisPlatform = "jvm"
-                }
-            }
-        }
-        testInline(
-            """
+    @Test
+    fun `resolved signature with external links`() {
+        val query = """
             |/jvmSrc/javadoc/test/Test.kt
             |package javadoc.test
             |import java.io.Serializable
-            |class Test<A>() : Serializable, Cloneable {
-            |   fun test() {}
-            |   fun test2(s: String) {}
-            |   fun <T> test3(a: A, t: T) {}
-            |}
-            |
-            |/jvmSrc/another/javadoc/example/Referenced.kt
-            |package javadoc.example.another
-            |/**
-            |  * Referencing element from another package: [javadoc.test.Test]
-            | */
-            |class Referenced {}
-            |
-            |/jvmSrc/javadoc/test/FunctionParameters.kt
-            |package javadoc.test.functionparams
-            |
-            |typealias FunctionParamTypealias = String
-            |
-            |class FunctionParameters {
-            |    fun foo(param: FunctionParamTypealias) {}
-            |}
-        """.trimIndent(),
-            config,
-            cleanupOutput = false,
-            pluginOverrides = listOf(JavadocPlugin())
-        ) { renderingStage = testHandler }
-    }
+            |class Test : Serializable, Cloneable {}
+        """.trimIndent()
 
-    @Test
-    fun `resolved signature with external links`() {
-
-        locationTestInline { rootPageNode, dokkaContext ->
+        locationTestInline(query) { rootPageNode, dokkaContext ->
             val transformer = htmlTranslator(rootPageNode, dokkaContext)
             val testClass = rootPageNode.firstChildOfType<JavadocPackagePageNode> { it.name == "javadoc.test" }
                 .firstChildOfType<JavadocClasslikePageNode>()
@@ -79,8 +38,15 @@ class JavadocLocationTest : BaseAbstractTest() {
 
     @Test
     fun `resolved signature to no argument function`() {
+        val query = """
+            |/jvmSrc/javadoc/test/Test.kt
+            |package javadoc.test
+            |class Test {
+            |   fun test() {}
+            |}
+        """.trimIndent()
 
-        locationTestInline { rootPageNode, dokkaContext ->
+        locationTestInline(query) { rootPageNode, dokkaContext ->
             val transformer = htmlTranslator(rootPageNode, dokkaContext)
             val testClassNode = rootPageNode.firstChildOfType<JavadocPackagePageNode> { it.name == "javadoc.test" }
                 .firstChildOfType<JavadocClasslikePageNode> { it.name == "Test" }
@@ -97,8 +63,15 @@ class JavadocLocationTest : BaseAbstractTest() {
 
     @Test
     fun `resolved signature to one argument function`() {
+        val query = """
+            |/jvmSrc/javadoc/test/Test.kt
+            |package javadoc.test
+            |class Test {
+            |   fun test2(s: String) {}
+            |}
+        """.trimIndent()
 
-        locationTestInline { rootPageNode, dokkaContext ->
+        locationTestInline(query) { rootPageNode, dokkaContext ->
             val transformer = htmlTranslator(rootPageNode, dokkaContext)
             val testClassNode = rootPageNode.firstChildOfType<JavadocPackagePageNode> { it.name == "javadoc.test" }
                 .firstChildOfType<JavadocClasslikePageNode> { it.name == "Test" }
@@ -115,8 +88,15 @@ class JavadocLocationTest : BaseAbstractTest() {
 
     @Test
     fun `resolved signature to generic function`() {
+        val query = """
+            |/jvmSrc/javadoc/test/Test.kt
+            |package javadoc.test
+            |class Test<A>() {
+            |   fun <T> test3(a: A, t: T) {}
+            |}
+        """.trimIndent()
 
-        locationTestInline { rootPageNode, dokkaContext ->
+        locationTestInline(query) { rootPageNode, dokkaContext ->
             val transformer = htmlTranslator(rootPageNode, dokkaContext)
             val testClassNode = rootPageNode.firstChildOfType<JavadocPackagePageNode> { it.name == "javadoc.test" }
                 .firstChildOfType<JavadocClasslikePageNode> { it.name == "Test" }
@@ -133,8 +113,13 @@ class JavadocLocationTest : BaseAbstractTest() {
 
     @Test
     fun `resolved package path`() {
+        val query = """
+            |/jvmSrc/javadoc/test/Test.kt
+            |package javadoc.test
+            |class Test {}
+        """.trimIndent()
 
-        locationTestInline { rootPageNode, dokkaContext ->
+        locationTestInline(query) { rootPageNode, dokkaContext ->
             val locationProvider = dokkaContext.plugin<JavadocPlugin>().querySingle { locationProviderFactory }
                 .getLocationProvider(rootPageNode)
             val packageNode = rootPageNode.firstChildOfType<JavadocPackagePageNode> { it.name == "javadoc.test" }
@@ -146,7 +131,21 @@ class JavadocLocationTest : BaseAbstractTest() {
 
     @Test
     fun `resolve link from another package`(){
-        locationTestInline { rootPageNode, dokkaContext ->
+        val query = """
+            |/jvmSrc/javadoc/test/Test.kt
+            |package javadoc.test
+            |class Test {}
+            |
+            |/jvmSrc/another/javadoc/example/Referenced.kt
+            |package javadoc.example.another
+            |
+            |/**
+            |  * Referencing element from another package: [javadoc.test.Test]
+            | */
+            |class Referenced {}
+        """.trimIndent()
+
+        locationTestInline(query) { rootPageNode, dokkaContext ->
             val transformer = htmlTranslator(rootPageNode, dokkaContext)
             val testClassNode = rootPageNode.firstChildOfType<JavadocPackagePageNode> { it.name == "javadoc.example.another" }
                 .firstChildOfType<JavadocClasslikePageNode> { it.name == "Referenced" }
@@ -162,7 +161,18 @@ class JavadocLocationTest : BaseAbstractTest() {
 
     @Test
     fun `should resolve typealias function parameter`() {
-        locationTestInline { rootPageNode, dokkaContext ->
+        val query = """
+            |/jvmSrc/javadoc/test/FunctionParameters.kt
+            |package javadoc.test.functionparams
+            |
+            |typealias FunctionParamTypealias = String
+            |
+            |class FunctionParameters {
+            |    fun foo(param: FunctionParamTypealias) {}
+            |}
+        """.trimIndent()
+
+        locationTestInline(query) { rootPageNode, dokkaContext ->
             val transformer = htmlTranslator(rootPageNode, dokkaContext)
             val containingClass = rootPageNode
                 .firstChildOfType<JavadocPackagePageNode> { it.name == "javadoc.test.functionparams" }
@@ -177,6 +187,28 @@ class JavadocLocationTest : BaseAbstractTest() {
 
             assertEquals(expectedSignatureHtml, methodSignatureHtml)
         }
+    }
+
+    private fun locationTestInline(query: String, testHandler: (RootPageNode, DokkaContext) -> Unit) {
+        val config = dokkaConfiguration {
+            format = "javadoc"
+            sourceSets {
+                sourceSet {
+                    sourceRoots = listOf("jvmSrc/")
+                    externalDocumentationLinks = listOf(
+                        DokkaConfiguration.ExternalDocumentationLink.jdk(8),
+                        DokkaConfiguration.ExternalDocumentationLink.kotlinStdlib()
+                    )
+                    analysisPlatform = "jvm"
+                }
+            }
+        }
+        testInline(
+            query = query,
+            configuration = config,
+            cleanupOutput = false,
+            pluginOverrides = listOf(JavadocPlugin())
+        ) { renderingStage = testHandler }
     }
 
     private fun htmlTranslator(rootPageNode: RootPageNode, dokkaContext: DokkaContext): JavadocContentToHtmlTranslator {
