@@ -1,6 +1,5 @@
 package org.jetbrains.dokka.gradle
 
-import org.gradle.api.Task
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.tasks.TaskContainer
 import org.gradle.kotlin.dsl.withType
@@ -54,20 +53,30 @@ class DokkaPluginApplyTest {
     }
 
     @Test
-    fun `all dokka tasks are part of a group`() {
+    fun `all dokka tasks are part of the documentation group`() {
         val project = ProjectBuilder.builder().build()
         project.plugins.apply("org.jetbrains.dokka")
-        assertTasksHaveGroup(project.tasks)
+        assertTasksHaveDocumentationGroup(project.tasks)
     }
 
     @Test
-    fun `all dokka tasks are part of a group in a multi module setup`() {
+    fun `all dokka tasks are part of the documentation group in a multi module setup`() {
         val root = ProjectBuilder.builder().withName("root").build()
         val child = ProjectBuilder.builder().withName("child").withParent(root).build()
         root.plugins.apply("org.jetbrains.dokka")
         child.plugins.apply("org.jetbrains.dokka")
-        assertTasksHaveGroup(root.tasks)
-        assertTasksHaveGroup(child.tasks)
+        assertTasksHaveDocumentationGroup(root.tasks)
+        assertTasksHaveDocumentationGroup(child.tasks)
+    }
+
+    @Test
+    fun `old dokka tasks are part of the deprecated group in a multi module setup`() {
+        val root = ProjectBuilder.builder().withName("root").build()
+        val child = ProjectBuilder.builder().withName("child").withParent(root).build()
+        root.plugins.apply("org.jetbrains.dokka")
+        child.plugins.apply("org.jetbrains.dokka")
+        assertTasksHaveDeprecatedGroup(root.tasks)
+        assertTasksHaveDeprecatedGroup(child.tasks)
     }
 
     @Test
@@ -107,25 +116,34 @@ class DokkaPluginApplyTest {
     }
 }
 
-private fun assertTasksHaveGroup(taskContainer: TaskContainer) {
-    taskContainer.filter(Task::isDokkaTask).forEach { dokkaTask ->
-        val expectedGroup =
-            if (dokkaTask.name.contains("Multimodule")) "deprecated" else JavaBasePlugin.DOCUMENTATION_GROUP
+private fun assertTasksHaveDocumentationGroup(taskContainer: TaskContainer) {
+    taskContainer.withType<AbstractDokkaTask>().forEach { dokkaTask ->
         assertEquals(
-            expectedGroup, dokkaTask.group,
-            "Expected task: ${dokkaTask.path} group to be ${JavaBasePlugin.DOCUMENTATION_GROUP}"
+            JavaBasePlugin.DOCUMENTATION_GROUP,
+            dokkaTask.group,
+            "Expected task: ${dokkaTask.path} group to be \"${JavaBasePlugin.DOCUMENTATION_GROUP}\""
+        )
+    }
+}
+
+private fun assertTasksHaveDeprecatedGroup(taskContainer: TaskContainer) {
+    taskContainer.names.filter { "Multimodule" in it }.forEach { dokkaTaskName ->
+        val dokkaTask = taskContainer.getByName(dokkaTaskName)
+        val expectedGroup = "deprecated"
+        assertEquals(
+            expectedGroup,
+            dokkaTask.group,
+            "Expected task: ${dokkaTask.path} group to be \"${expectedGroup}\""
         )
     }
 }
 
 private fun assertTasksHaveDescription(taskContainer: TaskContainer) {
-    taskContainer.filter(Task::isDokkaTask).forEach { dokkaTask ->
+    taskContainer.withType<AbstractDokkaTask>().forEach { dokkaTask ->
         assertTrue(
+            @Suppress("UselessCallOnNotNull") // Task.description is nullable, but not inherited as Kotlin sees it.
             dokkaTask.description.orEmpty().isNotEmpty(),
             "Expected description for task ${dokkaTask.name}"
         )
     }
 }
-
-private val Task.isDokkaTask: Boolean
-    get() = this.name.contains("dokka", ignoreCase = true)
