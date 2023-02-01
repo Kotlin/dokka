@@ -1,12 +1,15 @@
 package org.jetbrains.dokka.gradle
 
+import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.attributes.Category
 import org.gradle.api.attributes.Usage
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
+import org.gradle.kotlin.dsl.domainObjectContainer
 import org.gradle.kotlin.dsl.named
+import org.jetbrains.dokka.gradle.dokka_configuration.DokkaConfigurationKxs
 import javax.inject.Inject
 
 /**
@@ -15,15 +18,18 @@ import javax.inject.Inject
 abstract class DokkaPluginSettings @Inject constructor(
     private val objects: ObjectFactory
 ) {
+    /** Default version used for Dokka dependencies */
     abstract val dokkaVersion: Property<String>
+
+    /** Default Dokka cache directory */
     abstract val dokkaWorkDir: RegularFileProperty
 
-    // TODO use these properties to make relative paths in the Dokka Module config
-    abstract val rootWorkDirectory: RegularFileProperty
-    abstract val rootSourceDirectory: RegularFileProperty
-    abstract val rootCacheDirectory: RegularFileProperty
-
     val attributeValues = DokkaAttributeValues()
+
+    abstract val moduleName: Property<String>
+
+    val dokkaSourceSets: NamedDomainObjectContainer<DokkaConfigurationKxs.DokkaSourceSetKxs> =
+        objects.domainObjectContainer(DokkaConfigurationKxs.DokkaSourceSetKxs::class)
 
     inner class DokkaAttributeValues {
 

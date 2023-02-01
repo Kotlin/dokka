@@ -14,6 +14,7 @@ import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
+import org.gradle.api.Named
 import org.jetbrains.dokka.*
 import java.io.File
 import java.net.URL
@@ -42,11 +43,12 @@ data class DokkaConfigurationKxs(
     override val finalizeCoroutines: Boolean,
 
     val modulesKxs: List<DokkaModuleDescriptionKxs>,
-) : DokkaConfiguration {
+) : DokkaConfiguration, Named {
 
     override val modules: List<DokkaConfiguration.DokkaModuleDescription> =
         modulesKxs.map { it.toCoreModel(outputDir) }
 
+    override fun getName(): String = moduleName
 
     @Serializable
     data class DokkaSourceSetKxs(
@@ -71,7 +73,9 @@ data class DokkaConfigurationKxs(
         override val suppressedFiles: Set<File>,
         override val analysisPlatform: Platform,
         override val documentedVisibilities: Set<DokkaConfiguration.Visibility>,
-    ) : DokkaConfiguration.DokkaSourceSet {
+    ) : DokkaConfiguration.DokkaSourceSet, Named {
+
+        override fun getName(): String = displayName
 
         @Deprecated("see DokkaConfiguration.DokkaSourceSet.includeNonPublic")
         override val includeNonPublic: Boolean = DokkaDefaults.includeNonPublic
@@ -105,7 +109,9 @@ data class DokkaConfigurationKxs(
         override val fqPluginName: String,
         override val serializationFormat: DokkaConfiguration.SerializationFormat,
         override val values: String,
-    ) : DokkaConfiguration.PluginConfiguration
+    ) : DokkaConfiguration.PluginConfiguration, Named {
+        override fun getName(): String = fqPluginName
+    }
 
 
     /**
@@ -118,7 +124,7 @@ data class DokkaConfigurationKxs(
     @Serializable
     data class DokkaModuleDescriptionKxs(
         /** @see DokkaConfiguration.DokkaModuleDescription.name */
-        val name: String,
+        val moduleName: String,
         /** @see DokkaConfiguration.DokkaModuleDescription.sourceOutputDirectory */
         val sourceOutputDirectory: File,
         /** @see DokkaConfiguration.DokkaModuleDescription.includes */
@@ -129,7 +135,9 @@ data class DokkaConfigurationKxs(
          * @see toCoreModel
          */
         val moduleOutputDirectory: File,
-    ) : java.io.Serializable {
+    ) : java.io.Serializable, Named {
+
+        override fun getName(): String = moduleName
 
         /**
          * Map this Module Description to [DokkaConfiguration.DokkaModuleDescription]
@@ -201,7 +209,6 @@ private object URLSerializer : KSerializer<URL> {
     override fun deserialize(decoder: Decoder): URL = URL(decoder.decodeString())
 
     override fun serialize(encoder: Encoder, value: URL) = encoder.encodeString(value.toString())
-
 }
 
 
@@ -218,5 +225,4 @@ private object FileAsPathStringSerializer : KSerializer<File> {
 
     override fun serialize(encoder: Encoder, value: File): Unit =
         encoder.encodeString(value.absoluteFile.canonicalFile.invariantSeparatorsPath)
-
 }
