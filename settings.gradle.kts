@@ -42,6 +42,13 @@ include(
 
 val isCiBuild = System.getenv("GITHUB_ACTIONS") != null || System.getenv("TEAMCITY_VERSION") != null
 
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        mavenCentral()
+    }
+}
+
 plugins {
     `gradle-enterprise`
 }
@@ -64,6 +71,7 @@ dependencyResolutionManagement {
         google()
 
         // Declare the Node.js & Yarn download repositories
+        // Required by Gradle Node plugin: https://github.com/node-gradle/gradle-node-plugin/blob/795c36fe93b3998b0192073db66abb83bf849f67/docs/faq.md#is-this-plugin-compatible-with-centralized-repositories-declaration
         ivy("https://nodejs.org/dist/") {
             name = "Node Distributions at $url"
             patternLayout { artifact("v[revision]/[artifact](-v[revision]-[classifier]).[ext]") }
@@ -83,12 +91,5 @@ dependencyResolutionManagement {
         maven("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/kotlin-ide-plugin-dependencies")
         maven("https://cache-redirector.jetbrains.com/intellij-dependencies")
         maven("https://www.myget.org/F/rd-snapshots/maven/")
-    }
-}
-
-pluginManagement {
-    repositories {
-        gradlePluginPortal()
-        mavenCentral()
     }
 }
