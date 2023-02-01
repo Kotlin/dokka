@@ -255,7 +255,7 @@ td:first-child {
     /* Reset margin and use padding for border */
     margin-left: 0;
     margin-right: 0;
-    padding: 10px var(--horizontal-spacing-for-content) 13px;
+    padding: 10px var(--horizontal-spacing-for-content);
 
     z-index: 4;
 }
