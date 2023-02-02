@@ -69,6 +69,7 @@ open class DokkaPlugin : Plugin<Project> {
                 project.maybeCreateDokkaRuntimeConfiguration(multiModuleName)
 
                 project.tasks.register<DokkaMultiModuleTask>(multiModuleName) {
+                    @Suppress("DEPRECATION")
                     addSubprojectChildTasks("${name}Partial")
                     configuration()
                     description = "Runs all subprojects '$name' tasks and generates module navigation page"
@@ -85,6 +86,7 @@ open class DokkaPlugin : Plugin<Project> {
             }
 
             project.tasks.register<DokkaCollectorTask>("${name}Collector") {
+                @Suppress("DEPRECATION")
                 addSubprojectChildTasks(name)
                 description =
                     "Generates documentation merging all subprojects '$name' tasks into one virtual module"
