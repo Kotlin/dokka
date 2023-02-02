@@ -3,24 +3,24 @@ package org.jetbrains.dokka.gradle
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
 import org.gradle.api.UnknownDomainObjectException
-import org.gradle.kotlin.dsl.findByType
-import org.gradle.kotlin.dsl.getByType
 import org.gradle.util.Path
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
 
+
+/** Parse a Gradle path, e.g. `:project:subproject:taskName` */
 internal fun parsePath(path: String): Path = Path.path(path)
 
 internal val Project.kotlinOrNull: KotlinProjectExtension?
     get() = try {
-        project.extensions.findByType()
+        project.extensions.findByType(KotlinProjectExtension::class.java)
     } catch (e: NoClassDefFoundError) {
         null
     }
 
 internal val Project.kotlin: KotlinProjectExtension
-    get() = project.extensions.getByType()
+    get() = project.extensions.getByType(KotlinProjectExtension::class.java)
 
 internal fun Project.isAndroidProject() = try {
     project.extensions.getByName("android")

@@ -4,14 +4,9 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Dependency
-import org.gradle.kotlin.dsl.*
+import org.gradle.api.plugins.JavaBasePlugin
+import org.gradle.kotlin.dsl.register
 import org.gradle.util.GradleVersion
-import org.jetbrains.dokka.DokkaDefaults
-import org.jetbrains.dokka.gradle.tasks.AbstractDokkaTask
-import org.jetbrains.dokka.gradle.tasks.DokkaCollectorTask
-import org.jetbrains.dokka.gradle.tasks.DokkaMultiModuleTask
-import org.jetbrains.dokka.gradle.tasks.DokkaTask
-import org.jetbrains.dokka.gradle.tasks.DokkaTaskPartial
 
 open class DokkaPlugin : Plugin<Project> {
     override fun apply(project: Project) {
@@ -31,24 +26,15 @@ open class DokkaPlugin : Plugin<Project> {
             description = "Generates documentation in 'javadoc' format"
         }
 
-        project.setupDokkaTasks(
-            "dokkaGfm",
-            allModulesPageAndTemplateProcessing = project.dokkaArtifacts.gfmTemplateProcessing
-        ) {
+        project.setupDokkaTasks("dokkaGfm", allModulesPageAndTemplateProcessing = project.dokkaArtifacts.gfmTemplateProcessing) {
             plugins.dependencies.add(project.dokkaArtifacts.gfmPlugin)
             description = "Generates documentation in GitHub flavored markdown format"
         }
 
-        project.setupDokkaTasks(
-            "dokkaJekyll",
-            allModulesPageAndTemplateProcessing = project.dokkaArtifacts.jekyllTemplateProcessing
-        ) {
+        project.setupDokkaTasks("dokkaJekyll", allModulesPageAndTemplateProcessing = project.dokkaArtifacts.jekyllTemplateProcessing) {
             plugins.dependencies.add(project.dokkaArtifacts.jekyllPlugin)
             description = "Generates documentation in Jekyll flavored markdown format"
         }
-
-        project.configureEachAbstractDokkaTask()
-        project.configureEachDokkaMultiModuleTask()
     }
 
     /**
@@ -89,6 +75,8 @@ open class DokkaPlugin : Plugin<Project> {
                 }
 
                 project.tasks.register<DefaultTask>("${name}Multimodule") {
+                    group = "deprecated"
+                    description = "DEPRECATED: 'Multimodule' is deprecated. Use 'MultiModule' instead."
                     dependsOn(multiModuleName)
                     doLast {
                         logger.warn("'Multimodule' is deprecated. Use 'MultiModule' instead")
@@ -101,24 +89,6 @@ open class DokkaPlugin : Plugin<Project> {
                 description =
                     "Generates documentation merging all subprojects '$name' tasks into one virtual module"
             }
-        }
-
-        tasks.withType<AbstractDokkaTask>().configureEach {
-            finalizeCoroutines.convention(true)
-        }
-    }
-
-    private fun Project.configureEachAbstractDokkaTask() {
-        tasks.withType<AbstractDokkaTask>().configureEach {
-            val formatClassifier = name.removePrefix("dokka").decapitalize()
-            outputDirectory.convention(project.layout.buildDirectory.dir("dokka/$formatClassifier"))
-            cacheRoot.set(DokkaDefaults.cacheRoot)
-        }
-    }
-
-    private fun Project.configureEachDokkaMultiModuleTask() {
-        tasks.withType<DokkaMultiModuleTask>().configureEach {
-            sourceChildOutputDirectories.from({ childDokkaTasks.map { it.outputDirectory } })
         }
     }
 }

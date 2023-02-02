@@ -2,7 +2,6 @@ import org.gradle.configurationcache.extensions.serviceOf
 import org.jetbrains.*
 
 plugins {
-    `java-gradle-plugin`
     `kotlin-dsl`
     org.jetbrains.conventions.`maven-publish`
     id("com.gradle.plugin-publish")

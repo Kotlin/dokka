@@ -1,19 +1,15 @@
-@file:Suppress("UnstableApiUsage")
-
 package org.jetbrains.dokka.gradle
 
 import org.gradle.kotlin.dsl.withType
 import org.gradle.testfixtures.ProjectBuilder
-import org.jetbrains.dokka.*
-import org.jetbrains.dokka.DokkaDefaults.documentedVisibilities
-import org.jetbrains.dokka.DokkaDefaults.includeNonPublic
-import org.jetbrains.dokka.DokkaDefaults.reportUndocumented
-import org.jetbrains.dokka.DokkaDefaults.skipDeprecated
+import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.DokkaConfigurationImpl
+import org.jetbrains.dokka.PluginConfigurationImpl
+import org.jetbrains.dokka.toJsonString
 import java.io.File
 import java.net.URL
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import org.jetbrains.dokka.gradle.tasks.DokkaTask
 
 class DokkaConfigurationJsonTest {
 
@@ -22,39 +18,33 @@ class DokkaConfigurationJsonTest {
         val project = ProjectBuilder.builder().build()
         project.plugins.apply("org.jetbrains.dokka")
         val dokkaTask = project.tasks.withType<DokkaTask>().first()
-        dokkaTask.plugins.withDependencies { clear() }
+        dokkaTask.plugins.withDependencies { dependencies ->
+            dependencies.clear()
+        }
         dokkaTask.apply {
             this.failOnWarning.set(true)
             this.offlineMode.set(true)
             this.outputDirectory.set(File("customOutputDir"))
             this.cacheRoot.set(File("customCacheRoot"))
             this.pluginsConfiguration.add(
-                PluginConfigurationImpl(
-                    "A",
-                    DokkaConfiguration.SerializationFormat.JSON,
-                    """ { "key" : "value1" } """
-                )
+                PluginConfigurationImpl("A", DokkaConfiguration.SerializationFormat.JSON, """ { "key" : "value1" } """)
             )
             this.pluginsConfiguration.add(
-                PluginConfigurationImpl(
-                    "B",
-                    DokkaConfiguration.SerializationFormat.JSON,
-                    """ { "key" : "value2" } """
-                )
+                PluginConfigurationImpl("B", DokkaConfiguration.SerializationFormat.JSON, """ { "key" : "value2" } """)
             )
-            this.dokkaSourceSets.create("main") {
-                displayName.set("customSourceSetDisplayName")
-                reportUndocumented.set(true)
+            this.dokkaSourceSets.create("main") { sourceSet ->
+                sourceSet.displayName.set("customSourceSetDisplayName")
+                sourceSet.reportUndocumented.set(true)
 
-                externalDocumentationLink {
-                    packageListUrl.set(URL("http://some.url"))
-                    url.set(URL("http://some.other.url"))
+                sourceSet.externalDocumentationLink { link ->
+                    link.packageListUrl.set(URL("http://some.url"))
+                    link.url.set(URL("http://some.other.url"))
                 }
-                perPackageOption {
-                    includeNonPublic.set(true)
-                    reportUndocumented.set(true)
-                    skipDeprecated.set(true)
-                    documentedVisibilities.set(setOf(DokkaConfiguration.Visibility.PRIVATE))
+                sourceSet.perPackageOption { packageOption ->
+                    packageOption.includeNonPublic.set(true)
+                    packageOption.reportUndocumented.set(true)
+                    packageOption.skipDeprecated.set(true)
+                    packageOption.documentedVisibilities.set(setOf(DokkaConfiguration.Visibility.PRIVATE))
                 }
             }
         }
