@@ -11,6 +11,8 @@ import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.withType
+import org.jetbrains.dokka.Platform
+import org.jetbrains.dokka.gradle.adapters.DokkaKotlinAdapter
 import org.jetbrains.dokka.gradle.distibutions.DokkaPluginConfigurations
 import org.jetbrains.dokka.gradle.distibutions.setupDokkaConfigurations
 import org.jetbrains.dokka.gradle.tasks.DokkaConfigurationTask
@@ -65,6 +67,9 @@ abstract class DokkaPlugin @Inject constructor(
                 artifact(dokkaModuleConfigurationTask.map { it.dokkaModuleConfigurationJson })
             }
         }
+
+        // apply the plugin that will autoconfigure Dokka to use the sources of a Kotlin project
+        target.pluginManager.apply(DokkaKotlinAdapter::class)
     }
 
 
