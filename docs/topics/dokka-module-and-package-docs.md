@@ -74,7 +74,3 @@ If you are using JSON configuration, use the [includes](dokka-cli.md#includes-js
 
 </tab>
 </tabs>
-
-<a href="https://surveys.jetbrains.com/s3/dokka-survey">
-   <img src="dokka-devx-survey-banner.png" width="700" alt="Dokka devX survey"/>
-</a>

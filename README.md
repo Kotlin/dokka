@@ -24,10 +24,6 @@ You can run Dokka using [Gradle](https://kotlinlang.org/docs/dokka-gradle.html),
 [Maven](https://kotlinlang.org/docs/dokka-maven.html) or from the [command line](https://kotlinlang.org/docs/dokka-cli.html). 
 It is also [highly pluggable](https://kotlinlang.org/docs/dokka-plugins.html).
 
-:mega: Dokka team now leads the product to the Stable release.
-We’d really appreciate it if you could [take our brief survey](https://surveys.jetbrains.com/s3/dokka-survey) about
-your dev. experience with the tool. It helps us get priorities right and deliver the most valuable things first.
-
 ## Documentation
 
 Comprehensive documentation for Dokka is available on [kotlinlang.org](https://kotlinlang.org/docs/dokka-introduction.html)

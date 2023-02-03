@@ -26,7 +26,3 @@ See [Get started with Dokka](dokka-get-started.md) to take your first steps in u
 
 Dokka has a dedicated `#dokka` channel in [Kotlin Community Slack](https://surveys.jetbrains.com/s3/kotlin-slack-sign-up)
 where you can chat about Dokka, its plugins and how to develop them, as well as get in touch with maintainers.
-
-<a href="https://surveys.jetbrains.com/s3/dokka-survey">
-   <img src="dokka-devx-survey-banner.png" width="700" alt="Dokka devX survey"/>
-</a>

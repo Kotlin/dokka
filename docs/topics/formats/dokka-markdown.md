@@ -170,7 +170,3 @@ For more information, see the CLI runner's documentation for [Other output forma
 </tabs>
 
 You can find the source code on [GitHub](https://github.com/Kotlin/dokka/tree/%dokkaVersion%/plugins/jekyll).
-
-<a href="https://surveys.jetbrains.com/s3/dokka-survey">
-   <img src="dokka-devx-survey-banner.png" width="700" alt="Dokka devX survey"/>
-</a>

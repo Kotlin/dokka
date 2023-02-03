@@ -93,7 +93,3 @@ To learn more about using Dokka with Maven, see [Maven](dokka-maven.md).
 
 </tab>
 </tabs>
-
-<a href="https://surveys.jetbrains.com/s3/dokka-survey">
-   <img src="dokka-devx-survey-banner.png" width="700" alt="Dokka devX survey"/>
-</a>
