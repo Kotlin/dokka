@@ -4,13 +4,12 @@ import org.gradle.api.*
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.ProjectLayout
 import org.gradle.api.model.ObjectFactory
-import org.gradle.api.provider.ListProperty
-import org.gradle.api.provider.Property
-import org.gradle.api.provider.SetProperty
+import org.gradle.api.provider.*
 import org.gradle.api.tasks.*
-import org.gradle.kotlin.dsl.polymorphicDomainObjectContainer
+import org.gradle.kotlin.dsl.newInstance
 import org.jetbrains.dokka.*
 import java.io.File
+import java.io.Serializable
 import java.net.URL
 import javax.inject.Inject
 
@@ -37,23 +36,32 @@ import javax.inject.Inject
  * }
  * ```
  */
-abstract class GradleDokkaSourceSetBuilder : DokkaConfigurationBuilder<DokkaConfigurationKxs.DokkaSourceSetKxs>, Named {
+abstract class DokkaSourceSetGradleBuilder(
+    private val name: String
+)
+//@Inject constructor(
+//    private val objects: ObjectFactory,
+//)
+    : DokkaConfigurationBuilder<DokkaConfigurationKxs.DokkaSourceSetKxs>, Named, Serializable {
+
+    @Internal
+    override fun getName(): String = name
 
     //    @get:Internal
-//    @get:Inject
-//    protected abstract val files: FileSystemOperations
-    @get:Internal
-    @get:Inject
-    protected abstract val layout: ProjectLayout
-
-    @get:Internal
     @get:Inject
     protected abstract val objects: ObjectFactory
 
-    @get:Input
-    abstract val sourceSetID: Property<DokkaSourceSetID>
+    //    @get:Internal
+    @get:Inject
+    protected abstract val layout: ProjectLayout
 
-    override fun getName(): String = sourceSetID.get().sourceSetName
+    @get:Input
+    val sourceSetID: Provider<DokkaSourceSetID>
+        get() = sourceSetScope.map { scope -> DokkaSourceSetID(scope, getName()) }
+
+    @get:Input
+    abstract val sourceSetScope: Property<String>
+
 
     /**
      * Whether this source set should be skipped when generating documentation.
@@ -72,8 +80,7 @@ abstract class GradleDokkaSourceSetBuilder : DokkaConfigurationBuilder<DokkaConf
      * By default, the value is deduced from information provided by the Kotlin Gradle plugin.
      */
     @get:Input
-    @get:Optional
-    abstract val displayName: Property<String?>
+    abstract val displayName: Property<String>
 
     /**
      * List of Markdown files that contain
@@ -130,7 +137,7 @@ abstract class GradleDokkaSourceSetBuilder : DokkaConfigurationBuilder<DokkaConf
      * By default, the values are deduced from information provided by the Kotlin Gradle plugin.
      */
     @get:Input
-    abstract val dependentSourceSets: SetProperty<DokkaSourceSetID>
+    abstract val dependentSourceSets: NamedDomainObjectContainer<DokkaSourceSetIDGradleBuilder>
 
     /**
      * Classpath for analysis and interactive samples.
@@ -187,7 +194,7 @@ abstract class GradleDokkaSourceSetBuilder : DokkaConfigurationBuilder<DokkaConf
      * @see sourceLink
      */
     @get:Nested
-    abstract val sourceLinks: DomainObjectSet<DokkaSourceLinkGradleBuilder>
+    abstract val sourceLinks: NamedDomainObjectContainer<DokkaSourceLinkGradleBuilder>
 
     /**
      * Allows to customize documentation generation options on a per-package basis.
@@ -211,8 +218,7 @@ abstract class GradleDokkaSourceSetBuilder : DokkaConfigurationBuilder<DokkaConf
      * The default value is deduced from information provided by the Kotlin Gradle plugin.
      */
     @get:Input
-    @get:Optional
-    abstract val platform: Property<Platform>
+    abstract val analysisPlatform: Property<Platform>
 
     /**
      * Whether to skip packages that contain no visible declarations after
@@ -323,22 +329,32 @@ abstract class GradleDokkaSourceSetBuilder : DokkaConfigurationBuilder<DokkaConf
     @get:Input
     abstract val jdkVersion: Property<Int>
 
-    fun DokkaSourceSetID(sourceSetName: String): DokkaSourceSetID = sourceSetIdFactory.create(sourceSetName)
+    fun DokkaSourceSetID(sourceSetName: String): DokkaSourceSetIDGradleBuilder {
+        return dependentSourceSets.create("TODO figure out scope ID") {
+            this.sourceSetName = sourceSetName
+        }
+    }
 
     /** Convenient override to **append** source sets to [dependentSourceSets] */
-    fun dependsOn(sourceSet: SourceSet) = dependsOn(DokkaSourceSetID(sourceSet.name))
+    fun dependsOn(sourceSet: SourceSet): Unit = dependsOn(sourceSet.name)
+
+//    /** Convenient override to **append** source sets to [dependentSourceSets] */
+//    fun dependsOn(sourceSet: DokkaSourceSetGradleBuilder): Unit {
+//        dependentSourceSets.add(sourceSet.sourceSetID.get())
+//    }
 
     /** Convenient override to **append** source sets to [dependentSourceSets] */
-    fun dependsOn(sourceSet: GradleDokkaSourceSetBuilder) = dependsOn(sourceSet.sourceSetID)
+    fun dependsOn(sourceSet: DokkaConfiguration.DokkaSourceSet): Unit = dependsOn(sourceSet.sourceSetID)
 
     /** Convenient override to **append** source sets to [dependentSourceSets] */
-    fun dependsOn(sourceSet: DokkaConfiguration.DokkaSourceSet) = dependsOn(sourceSet.sourceSetID)
+    fun dependsOn(sourceSetName: String): Unit = dependsOn(sourceSetName)
 
     /** Convenient override to **append** source sets to [dependentSourceSets] */
-    fun dependsOn(sourceSetName: String) = dependsOn(DokkaSourceSetID(sourceSetName))
-
-    /** Convenient override to **append** source sets to [dependentSourceSets] */
-    fun dependsOn(sourceSetID: DokkaSourceSetID) = dependentSourceSets.add(sourceSetID)
+    fun dependsOn(sourceSetID: DokkaSourceSetID) {
+        dependentSourceSets.create(sourceSetID.scopeId) {
+            sourceSetName = sourceSetID.sourceSetName
+        }
+    }
 
     /** Convenient override to **append** source roots to [sourceRoots] */
     fun sourceRoot(file: File) {
@@ -356,10 +372,11 @@ abstract class GradleDokkaSourceSetBuilder : DokkaConfigurationBuilder<DokkaConf
      * @see [DokkaSourceLinkGradleBuilder] for details.
      */
     fun sourceLink(action: Action<in DokkaSourceLinkGradleBuilder>) {
-        val sourceLink = DokkaSourceLinkGradleBuilder()
-        action.execute(sourceLink)
-        sourceLinks.add(sourceLink)
-        sourceLinks
+        sourceLinks.add(
+            objects.newInstance(DokkaSourceLinkGradleBuilder::class).also {
+                action.execute(it)
+            }
+        )
     }
 
 //    /**
@@ -379,12 +396,11 @@ abstract class GradleDokkaSourceSetBuilder : DokkaConfigurationBuilder<DokkaConf
      * @see [DokkaPackageOptionsGradleBuilder] for details.
      */
     fun perPackageOption(action: Action<in DokkaPackageOptionsGradleBuilder>) {
-        val x = objects.polymorphicDomainObjectContainer(DokkaPackageOptionsGradleBuilder::class)
-
-
-        val option = DokkaPackageOptionsGradleBuilder()
-        action.execute(option)
-        perPackageOptions.add(option)
+        perPackageOptions.add(
+            objects.newInstance(DokkaPackageOptionsGradleBuilder::class).also {
+                action.execute(it)
+            }
+        )
     }
 
 //    /**
@@ -404,9 +420,11 @@ abstract class GradleDokkaSourceSetBuilder : DokkaConfigurationBuilder<DokkaConf
      * See [DokkaExternalDocumentationLinkGradleBuilder] for details.
      */
     fun externalDocumentationLink(action: Action<in DokkaExternalDocumentationLinkGradleBuilder>) {
-        val link = DokkaExternalDocumentationLinkGradleBuilder(project)
-        action.execute(link)
-        externalDocumentationLinks.add(link)
+        externalDocumentationLinks.add(
+            objects.newInstance(DokkaExternalDocumentationLinkGradleBuilder::class).also {
+                action.execute(it)
+            }
+        )
     }
 
     /** Convenient override to **append** external documentation links to [externalDocumentationLinks]. */
@@ -416,15 +434,41 @@ abstract class GradleDokkaSourceSetBuilder : DokkaConfigurationBuilder<DokkaConf
 
     /** Convenient override to **append** external documentation links to [externalDocumentationLinks]. */
     fun externalDocumentationLink(url: URL, packageListUrl: URL? = null) {
+
         externalDocumentationLinks.add(
-            DokkaExternalDocumentationLinkGradleBuilder(project).apply {
-                this.url.set(url)
+            objects.newInstance(DokkaExternalDocumentationLinkGradleBuilder::class).also {
+                it.url.set(url)
                 if (packageListUrl != null) {
-                    this.packageListUrl.set(packageListUrl)
+                    it.packageListUrl.set(packageListUrl)
                 }
             }
         )
     }
 
-//    override fun build(): DokkaSourceSetImpl = toDokkaSourceSetImpl()
+    override fun build(): DokkaConfigurationKxs.DokkaSourceSetKxs {
+        return DokkaConfigurationKxs.DokkaSourceSetKxs(
+            sourceSetID = sourceSetID.get(),
+            displayName = displayName.get(),
+            classpath = classpath.files.toList(),
+            sourceRoots = sourceRoots.files,
+            dependentSourceSets = dependentSourceSets.map(DokkaSourceSetIDGradleBuilder::build).toSet(),
+            samples = samples.files,
+            includes = includes.files,
+            reportUndocumented = reportUndocumented.get(),
+            skipEmptyPackages = skipEmptyPackages.get(),
+            skipDeprecated = skipDeprecated.get(),
+            jdkVersion = jdkVersion.get(),
+            sourceLinks = sourceLinks.map(DokkaSourceLinkGradleBuilder::build).toSet(),
+            perPackageOptions = perPackageOptions.get().map(DokkaPackageOptionsGradleBuilder::build),
+            externalDocumentationLinks =
+            externalDocumentationLinks.get().map(DokkaExternalDocumentationLinkGradleBuilder::build).toSet(),
+            languageVersion = languageVersion.orNull,
+            apiVersion = apiVersion.orNull,
+            noStdlibLink = noStdlibLink.get(),
+            noJdkLink = noJdkLink.get(),
+            suppressedFiles = suppressedFiles.files,
+            analysisPlatform = analysisPlatform.get(),
+            documentedVisibilities = documentedVisibilities.get(),
+        )
+    }
 }

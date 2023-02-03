@@ -1,12 +1,10 @@
 package org.jetbrains.dokka.gradle.dokka_configuration
 
-import org.gradle.api.Named
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.*
 import org.gradle.kotlin.dsl.*
 import org.jetbrains.dokka.DokkaConfigurationBuilder
-import org.jetbrains.dokka.SourceLinkDefinitionImpl
 import java.io.File
 import java.net.URL
 
@@ -25,7 +23,7 @@ import java.net.URL
  * }
  * ```
  */
-abstract class DokkaSourceLinkGradleBuilder {
+abstract class DokkaSourceLinkGradleBuilder : DokkaConfigurationBuilder<DokkaConfigurationKxs.SourceLinkDefinitionKxs> {
 
     /**
      * Path to the local source directory. The path must be relative to the root of current project.

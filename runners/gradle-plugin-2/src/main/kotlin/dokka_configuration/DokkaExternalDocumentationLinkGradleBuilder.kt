@@ -4,8 +4,6 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 import org.jetbrains.dokka.DokkaConfigurationBuilder
-import org.jetbrains.dokka.ExternalDocumentationLink
-import org.jetbrains.dokka.ExternalDocumentationLinkImpl
 import java.net.URL
 
 /**
@@ -30,7 +28,8 @@ import java.net.URL
  * }
  * ```
  */
-abstract class DokkaExternalDocumentationLinkGradleBuilder : DokkaConfigurationBuilder<ExternalDocumentationLinkImpl> {
+abstract class DokkaExternalDocumentationLinkGradleBuilder :
+    DokkaConfigurationBuilder<DokkaConfigurationKxs.ExternalDocumentationLinkKxs> {
 
     /**
      * Root URL of documentation to link with. **Must** contain a trailing slash.
@@ -64,8 +63,9 @@ abstract class DokkaExternalDocumentationLinkGradleBuilder : DokkaConfigurationB
     @get:Input
     abstract val packageListUrl: Property<URL?>
 
-    override fun build(): ExternalDocumentationLinkImpl = ExternalDocumentationLink(
-        url = checkNotNull(url.get()) { "url not specified " },
-        packageListUrl = packageListUrl.orNull,
-    )
+    override fun build() =
+        DokkaConfigurationKxs.ExternalDocumentationLinkKxs(
+            url = url.orNull ?: error("url not specified in ExternalDocumentationLink"),
+            packageListUrl = packageListUrl.get(),
+        )
 }

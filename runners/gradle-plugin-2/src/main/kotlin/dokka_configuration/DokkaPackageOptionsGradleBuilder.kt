@@ -8,7 +8,6 @@ import org.gradle.api.tasks.Input
 import org.gradle.kotlin.dsl.*
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.DokkaConfigurationBuilder
-import org.jetbrains.dokka.PackageOptionsImpl
 
 /**
  * Configuration builder that allows setting some options for specific packages
@@ -27,7 +26,8 @@ import org.jetbrains.dokka.PackageOptionsImpl
  * }
  * ```
  */
-abstract class DokkaPackageOptionsGradleBuilder : DokkaConfigurationBuilder<PackageOptionsImpl> {
+abstract class DokkaPackageOptionsGradleBuilder :
+    DokkaConfigurationBuilder<DokkaConfigurationKxs.PackageOptionsKxs> {
 
     /**
      * Regular expression that is used to match the package.
@@ -51,7 +51,7 @@ abstract class DokkaPackageOptionsGradleBuilder : DokkaConfigurationBuilder<Pack
      * This can be used if you want to document protected/internal/private declarations within a
      * specific package, as well as if you want to exclude public declarations and only document internal API.
      *
-     * Can be configured for a whole source set, see [GradleDokkaSourceSetBuilder.documentedVisibilities].
+     * Can be configured for a whole source set, see [DokkaSourceSetGradleBuilder.documentedVisibilities].
      *
      * Default is [DokkaConfiguration.Visibility.PUBLIC].
      */
@@ -61,7 +61,7 @@ abstract class DokkaPackageOptionsGradleBuilder : DokkaConfigurationBuilder<Pack
     /**
      * Whether to document declarations annotated with [Deprecated].
      *
-     * Can be overridden on source set level by setting [GradleDokkaSourceSetBuilder.skipDeprecated].
+     * Can be overridden on source set level by setting [DokkaSourceSetGradleBuilder.skipDeprecated].
      *
      * Default is `false`.
      */
@@ -74,7 +74,7 @@ abstract class DokkaPackageOptionsGradleBuilder : DokkaConfigurationBuilder<Pack
      *
      * This setting works well with [AbstractDokkaTask.failOnWarning].
      *
-     * Can be overridden on source set level by setting [GradleDokkaSourceSetBuilder.reportUndocumented].
+     * Can be overridden on source set level by setting [DokkaSourceSetGradleBuilder.reportUndocumented].
      *
      * Default is `false`.
      */
@@ -88,11 +88,10 @@ abstract class DokkaPackageOptionsGradleBuilder : DokkaConfigurationBuilder<Pack
     abstract val includeNonPublic: Property<Boolean>
 
 
-    override fun build(): PackageOptionsImpl = PackageOptionsImpl(
-        matchingRegex = checkNotNull(matchingRegex.get()) { "prefix not specified" },
-        includeNonPublic = includeNonPublic.get(),
+    override fun build() = DokkaConfigurationKxs.PackageOptionsKxs(
+        matchingRegex = matchingRegex.orNull ?: "prefix not specified",
         documentedVisibilities = documentedVisibilities.get(),
-        reportUndocumented = reportUndocumented.get(),
+        reportUndocumented = reportUndocumented.orNull,
         skipDeprecated = skipDeprecated.get(),
         suppress = suppress.get()
     )
