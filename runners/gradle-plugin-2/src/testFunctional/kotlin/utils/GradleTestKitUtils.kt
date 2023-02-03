@@ -45,10 +45,8 @@ class GradleProjectTest(
 }
 
 /**
- * Builder for testing a Gradle project that uses Kotlin script DSL
- *
- * Note that this sets default values for Gradle KTS files, and so should not be used if using the Groovy DSL as the
- * Groovy/Kotlin files will confuse Gradle.
+ * Builder for testing a Gradle project that uses Kotlin script DSL and creates default
+ * `settings.gradle.kts` and `gradle.properties` files.
  */
 fun gradleKtsProjectTest(
     name: String = Random.nextInt(100_000_000, 999_999_999).toString(),
@@ -57,31 +55,69 @@ fun gradleKtsProjectTest(
     return GradleProjectTest(name).apply {
 
         settingsGradleKts = """
-            rootProject.name = "test"
-            
-            @Suppress("UnstableApiUsage") // Central declaration of repositories is an incubating feature
-            dependencyResolutionManagement {
-            
-                repositories {
-                    mavenCentral()
-                    maven(file("$testMavenRepoDir"))
-                }
-            
-                pluginManagement {
-                    repositories {
-                        gradlePluginPortal()
-                        mavenCentral()
-                        maven(file("$testMavenRepoDir"))
-                    }
-                }
-            }
-
-        """.trimIndent()
+            |rootProject.name = "test"
+            |
+            |@Suppress("UnstableApiUsage") // Central declaration of repositories is an incubating feature
+            |dependencyResolutionManagement {
+            |    repositories {
+            |        mavenCentral()
+            |        maven(file("$testMavenRepoDir"))
+            |    }
+            |}
+            |
+            |pluginManagement {
+            |    repositories {
+            |        gradlePluginPortal()
+            |        mavenCentral()
+            |        maven(file("$testMavenRepoDir"))
+            |    }
+            |}
+            |
+        """.trimMargin()
 
         gradleProperties = """
-            kotlin.mpp.stability.nowarn=true
-            org.gradle.cache=true
-       """.trimIndent()
+            |kotlin.mpp.stability.nowarn=true
+            |org.gradle.cache=true
+       """.trimMargin()
+
+        build()
+    }
+}
+
+/**
+ * Builder for testing a Gradle project that uses Groovy script and creates default,
+ * `settings.gradle`, and `gradle.properties` files.
+ */
+fun gradleGroovyProjectTest(
+    name: String = Random.nextInt(100_000_000, 999_999_999).toString(),
+    build: GradleProjectTest.() -> Unit,
+): GradleProjectTest {
+    return GradleProjectTest(name).apply {
+
+        settingsGradle = """
+            |rootProject.name = "test"
+            |
+            |dependencyResolutionManagement {
+            |    repositories {
+            |        mavenCentral()
+            |        maven { url = file("$testMavenRepoDir") }
+            |    }
+            |}
+            |
+            |pluginManagement {
+            |    repositories {
+            |        gradlePluginPortal()
+            |        mavenCentral()
+            |        maven { url = file("$testMavenRepoDir") }
+            |    }
+            |}
+            |
+        """.trimMargin()
+
+        gradleProperties = """
+            |kotlin.mpp.stability.nowarn=true
+            |org.gradle.cache=true
+       """.trimMargin()
 
         build()
     }
@@ -101,32 +137,27 @@ private class TestProjectFile(
 }
 
 /** Set the content of `settings.gradle.kts` */
-@get:Language("kts")
-@set:Language("kts")
+@delegate:Language("kts")
 var GradleProjectTest.settingsGradleKts: String by TestProjectFile("settings.gradle.kts")
 
 
 /** Set the content of `build.gradle.kts` */
-@get:Language("kts")
-@set:Language("kts")
+@delegate:Language("kts")
 var GradleProjectTest.buildGradleKts: String by TestProjectFile("build.gradle.kts")
 
 
 /** Set the content of `settings.gradle` */
-@get:Language("groovy")
-@set:Language("groovy")
+@delegate:Language("groovy")
 var GradleProjectTest.settingsGradle: String by TestProjectFile("settings.gradle")
 
 
 /** Set the content of `build.gradle` */
-@get:Language("groovy")
-@set:Language("groovy")
+@delegate:Language("groovy")
 var GradleProjectTest.buildGradle: String by TestProjectFile("build.gradle")
 
 
 /** Set the content of `gradle.properties` */
-@get:Language("properties")
-@set:Language("properties")
+@delegate:Language("properties")
 var GradleProjectTest.gradleProperties: String by TestProjectFile("gradle.properties")
 
 fun GradleProjectTest.createKotlinFile(filePath: String, @Language("kotlin") contents: String) =
