@@ -8,6 +8,7 @@ import org.gradle.api.tasks.Input
 import org.gradle.kotlin.dsl.*
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.DokkaConfigurationBuilder
+import java.io.Serializable
 
 /**
  * Configuration builder that allows setting some options for specific packages
@@ -27,7 +28,8 @@ import org.jetbrains.dokka.DokkaConfigurationBuilder
  * ```
  */
 abstract class DokkaPackageOptionsGradleBuilder :
-    DokkaConfigurationBuilder<DokkaConfigurationKxs.PackageOptionsKxs> {
+    DokkaConfigurationBuilder<DokkaConfigurationKxs.PackageOptionsKxs>,
+    Serializable {
 
     /**
      * Regular expression that is used to match the package.
@@ -85,13 +87,14 @@ abstract class DokkaPackageOptionsGradleBuilder :
      * Deprecated. Use [documentedVisibilities] instead.
      */
     @get:Input
+    @Deprecated("Use documentedVisibilities instead")
     abstract val includeNonPublic: Property<Boolean>
 
 
     override fun build() = DokkaConfigurationKxs.PackageOptionsKxs(
-        matchingRegex = matchingRegex.orNull ?: "prefix not specified",
+        matchingRegex = matchingRegex.get(),
         documentedVisibilities = documentedVisibilities.get(),
-        reportUndocumented = reportUndocumented.orNull,
+        reportUndocumented = reportUndocumented.get(),
         skipDeprecated = skipDeprecated.get(),
         suppress = suppress.get()
     )

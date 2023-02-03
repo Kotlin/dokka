@@ -102,6 +102,10 @@ abstract class DokkaPlugin @Inject constructor(
 
         withType<DokkaConfigurationTask>().configureEach configTask@{
 
+            // helper for the old DSL, I want to move this configuration to the DokkaPluginSettings
+            // and out of the task
+            extensions.add("dokkaSourceSets", dokkaSourceSets)
+
             // depend on Dokka Configurations from other subprojects
             dokkaSubprojectConfigurations.from(
                 dokkaConfigurations.dokkaConfigurationsConsumer.map { elements ->
@@ -137,8 +141,20 @@ abstract class DokkaPlugin @Inject constructor(
                 suppressGeneratedFiles.convention(true)
                 displayName.convention(this@configTask.path)
                 analysisPlatform.convention(Platform.common)
-            }
 
+                sourceLinks.configureEach {
+                    localDirectory.convention(layout.projectDirectory.asFile)
+                    remoteLineSuffix.convention("#L")
+                }
+
+                perPackageOptions.configureEach {
+                    matchingRegex.convention(".*")
+                    suppress.convention(false)
+                    skipDeprecated.convention(false)
+                    reportUndocumented.convention(false)
+                    includeNonPublic.convention(true)
+                }
+            }
         }
 
         dokkaConfigurations.dokkaConfigurationsElements.configure {

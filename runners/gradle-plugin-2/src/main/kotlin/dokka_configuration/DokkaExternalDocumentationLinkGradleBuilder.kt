@@ -2,8 +2,8 @@ package org.jetbrains.dokka.gradle.dokka_configuration
 
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.Optional
 import org.jetbrains.dokka.DokkaConfigurationBuilder
+import java.io.Serializable
 import java.net.URL
 
 /**
@@ -29,7 +29,8 @@ import java.net.URL
  * ```
  */
 abstract class DokkaExternalDocumentationLinkGradleBuilder :
-    DokkaConfigurationBuilder<DokkaConfigurationKxs.ExternalDocumentationLinkKxs> {
+    DokkaConfigurationBuilder<DokkaConfigurationKxs.ExternalDocumentationLinkKxs>,
+    Serializable {
 
     /**
      * Root URL of documentation to link with. **Must** contain a trailing slash.
@@ -47,7 +48,7 @@ abstract class DokkaExternalDocumentationLinkGradleBuilder :
      * ```
      */
     @get:Input
-    abstract val url: Property<URL?>
+    abstract val url: Property<URL>
 
     /**
      * Specifies the exact location of a `package-list` instead of relying on Dokka
@@ -59,13 +60,12 @@ abstract class DokkaExternalDocumentationLinkGradleBuilder :
      * rootProject.projectDir.resolve("serialization.package.list").toURL()
      * ```
      */
-    @get:Optional
     @get:Input
-    abstract val packageListUrl: Property<URL?>
+    abstract val packageListUrl: Property<URL>
 
     override fun build() =
         DokkaConfigurationKxs.ExternalDocumentationLinkKxs(
-            url = url.orNull ?: error("url not specified in ExternalDocumentationLink"),
+            url = url.get(),
             packageListUrl = packageListUrl.get(),
         )
 }

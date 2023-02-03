@@ -194,7 +194,7 @@ abstract class DokkaSourceSetGradleBuilder(
      * @see sourceLink
      */
     @get:Nested
-    abstract val sourceLinks: NamedDomainObjectContainer<DokkaSourceLinkGradleBuilder>
+    abstract val sourceLinks: DomainObjectSet<DokkaSourceLinkGradleBuilder>
 
     /**
      * Allows to customize documentation generation options on a per-package basis.
@@ -202,7 +202,7 @@ abstract class DokkaSourceSetGradleBuilder(
      * @see DokkaPackageOptionsGradleBuilder for details
      */
     @get:Nested
-    abstract val perPackageOptions: ListProperty<DokkaPackageOptionsGradleBuilder>
+    abstract val perPackageOptions: DomainObjectSet<DokkaPackageOptionsGradleBuilder>
 
     /**
      * Allows linking to Dokka/Javadoc documentation of the project's dependencies.
@@ -210,7 +210,7 @@ abstract class DokkaSourceSetGradleBuilder(
      * Prefer using [externalDocumentationLink] action/closure for adding links.
      */
     @get:Nested
-    abstract val externalDocumentationLinks: SetProperty<DokkaExternalDocumentationLinkGradleBuilder>
+    abstract val externalDocumentationLinks: DomainObjectSet<DokkaExternalDocumentationLinkGradleBuilder>
 
     /**
      * Platform to be used for setting up code analysis and samples.
@@ -459,9 +459,9 @@ abstract class DokkaSourceSetGradleBuilder(
             skipDeprecated = skipDeprecated.get(),
             jdkVersion = jdkVersion.get(),
             sourceLinks = sourceLinks.map(DokkaSourceLinkGradleBuilder::build).toSet(),
-            perPackageOptions = perPackageOptions.get().map(DokkaPackageOptionsGradleBuilder::build),
+            perPackageOptions = perPackageOptions.map(DokkaPackageOptionsGradleBuilder::build),
             externalDocumentationLinks =
-            externalDocumentationLinks.get().map(DokkaExternalDocumentationLinkGradleBuilder::build).toSet(),
+            externalDocumentationLinks.map(DokkaExternalDocumentationLinkGradleBuilder::build).toSet(),
             languageVersion = languageVersion.orNull,
             apiVersion = apiVersion.orNull,
             noStdlibLink = noStdlibLink.get(),

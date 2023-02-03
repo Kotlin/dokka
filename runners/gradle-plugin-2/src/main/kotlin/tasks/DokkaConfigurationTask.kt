@@ -7,6 +7,7 @@ import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.model.ObjectFactory
+import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.*
@@ -186,4 +187,10 @@ abstract class DokkaConfigurationTask @Inject constructor(
             )
         }
     }
+
+
+    @get:Input
+    @Deprecated("TODO write adapter to the new DSL")
+    abstract val pluginsMapConfiguration: MapProperty<String, String>
+
 }

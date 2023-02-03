@@ -2,10 +2,12 @@ package org.jetbrains.dokka.gradle.dokka_configuration
 
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
-import org.gradle.api.tasks.*
-import org.gradle.kotlin.dsl.*
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.Optional
 import org.jetbrains.dokka.DokkaConfigurationBuilder
 import java.io.File
+import java.io.Serializable
 import java.net.URL
 
 /**
@@ -23,7 +25,9 @@ import java.net.URL
  * }
  * ```
  */
-abstract class DokkaSourceLinkGradleBuilder : DokkaConfigurationBuilder<DokkaConfigurationKxs.SourceLinkDefinitionKxs> {
+abstract class DokkaSourceLinkGradleBuilder :
+    DokkaConfigurationBuilder<DokkaConfigurationKxs.SourceLinkDefinitionKxs>,
+    Serializable {
 
     /**
      * Path to the local source directory. The path must be relative to the root of current project.
@@ -39,15 +43,16 @@ abstract class DokkaSourceLinkGradleBuilder : DokkaConfigurationBuilder<DokkaCon
      * ```
      */
     @get:Internal // changing contents of the directory should not invalidate the task
-    abstract val localDirectory: Property<File?>
+    abstract val localDirectory: Property<File>
 
     /**
      * The relative path to [localDirectory] from the project directory. Declared as an input to invalidate the task if that path changes.
      * Should not be used anywhere directly.
      */
-    @Suppress("unused")
+//    @Suppress("unused")
     @get:Input
-    protected abstract val localDirectoryPath: Provider<String?>
+    protected val localDirectoryPath: Provider<String>
+        get() = localDirectory.map { it.path }
 
     /**
      * URL of source code hosting service that can be accessed by documentation readers,
@@ -61,7 +66,7 @@ abstract class DokkaSourceLinkGradleBuilder : DokkaConfigurationBuilder<DokkaCon
      * ```
      */
     @get:Input
-    abstract val remoteUrl: Property<URL?>
+    abstract val remoteUrl: Property<URL>
 
     /**
      * Suffix used to append source code line number to the URL. This will help readers navigate
@@ -82,11 +87,11 @@ abstract class DokkaSourceLinkGradleBuilder : DokkaConfigurationBuilder<DokkaCon
     @get:Input
     abstract val remoteLineSuffix: Property<String>
 
-//    override fun build(): SourceLinkDefinitionImpl {
-//        return SourceLinkDefinitionImpl(
-//            localDirectory = localDirectory.orNull?.canonicalPath ?: project.projectDir.canonicalPath,
-//            remoteUrl = checkNotNull(remoteUrl.get()) { "missing remoteUrl on source link" },
-//            remoteLineSuffix = remoteLineSuffix.get()
-//        )
-//    }
+    override fun build(): DokkaConfigurationKxs.SourceLinkDefinitionKxs {
+        return DokkaConfigurationKxs.SourceLinkDefinitionKxs(
+            localDirectory = localDirectory.get().canonicalPath,
+            remoteUrl = remoteUrl.get(),
+            remoteLineSuffix = remoteLineSuffix.orNull,
+        )
+    }
 }
