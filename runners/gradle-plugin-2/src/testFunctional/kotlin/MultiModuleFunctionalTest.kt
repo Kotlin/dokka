@@ -22,7 +22,7 @@ class MultiModuleFunctionalTest {
                 |
                 |plugins {
                 |    // Kotlin plugin shouldn't be necessary here, but without Dokka errors
-                |    // with ClasNotFound KotlinPluginExtension... very weird
+                |    // with ClassNotFound KotlinPluginExtension... very weird
                 |    kotlin("jvm") version "1.7.20" 
                 |    //`embedded-kotlin`
                 |    id("org.jetbrains.dokka2") version "2.0.0"

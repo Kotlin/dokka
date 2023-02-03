@@ -5,9 +5,9 @@ import com.android.build.gradle.api.LibraryVariant
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.logging.Logging
-import org.gradle.api.model.ObjectFactory
 import org.gradle.api.plugins.ExtensionContainer
 import org.gradle.api.provider.Provider
+import org.gradle.api.provider.ProviderFactory
 import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.getByType
 import org.jetbrains.dokka.Platform
@@ -19,13 +19,14 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinJvmAndroidCompilation
+import java.io.File
 import javax.inject.Inject
 
 /**
- * Apply Kotlin specific configuration to the Dokka Plugin
+ * The [DokkaKotlinAdapter] plugin will automatically register Kotlin source sets as Dokka source sets.
  */
 abstract class DokkaKotlinAdapter @Inject constructor(
-    private val objects: ObjectFactory
+    private val providers: ProviderFactory,
 ) : Plugin<Project> {
 
     private val logger = Logging.getLogger(this::class.java)
@@ -34,47 +35,40 @@ abstract class DokkaKotlinAdapter @Inject constructor(
         logger.lifecycle("applied DokkaKotlinAdapter to ${project.path}")
 
         project.pluginManager.apply {
-//            withPlugin("kotlin") { asd(project) }
-//            withPlugin("kotlin-dsl") { asd(project) }
-//            withPlugin("embedded-kotlin") { asd(project) }
-//            withPlugin("kotlin-android") { asd(project) }
-//            withPlugin("kotlin-android-extensions") { asd(project) }
-//            withPlugin("kotlin-kapt") { asd(project) }
-//            withPlugin("kotlin-multiplatform") { asd(project) }
-//            withPlugin("kotlin-native-cocoapods") { asd(project) }
-//            withPlugin("kotlin-native-performance") { asd(project) }
-//            withPlugin("kotlin-parcelize") { asd(project) }
-//            withPlugin("kotlin-platform-android") { asd(project) }
-//            withPlugin("kotlin-platform-common") { asd(project) }
-//            withPlugin("kotlin-platform-js") { asd(project) }
-//            withPlugin("kotlin-platform-jvm") { asd(project) }
-//            withPlugin("kotlin-scripting") { asd(project) }
-//            withPlugin("org.jetbrains.kotlin.android.extensions") { asd(project) }
-            withPlugin("org.jetbrains.kotlin.android") { asd(project) }
-            withPlugin("org.jetbrains.kotlin.js") { asd(project) }
-            withPlugin("org.jetbrains.kotlin.jvm") { asd(project) }
-//            withPlugin("org.jetbrains.kotlin.kapt") { asd(project) }
-//            withPlugin("org.jetbrains.kotlin.multiplatform.pm20") { asd(project) }
-            withPlugin("org.jetbrains.kotlin.multiplatform") { asd(project) }
-//            withPlugin("org.jetbrains.kotlin.native.cocoapods") { asd(project) }
-//            withPlugin("org.jetbrains.kotlin.native.performance") { asd(project) }
-//            withPlugin("org.jetbrains.kotlin.platform.android") { asd(project) }
-//            withPlugin("org.jetbrains.kotlin.platform.common") { asd(project) }
-//            withPlugin("org.jetbrains.kotlin.platform.js") { asd(project) }
-//            withPlugin("org.jetbrains.kotlin.platform.jvm") { asd(project) }
-//            withPlugin("org.jetbrains.kotlin.plugin.parcelize") { asd(project) }
-//            withPlugin("org.jetbrains.kotlin.plugin.scripting") { asd(project) }
+//            withPlugin("kotlin") { registerKotlinSourceSets(project) }
+//            withPlugin("kotlin-dsl") { registerKotlinSourceSets(project) }
+//            withPlugin("embedded-kotlin") { registerKotlinSourceSets(project) }
+//            withPlugin("kotlin-android") { registerKotlinSourceSets(project) }
+//            withPlugin("kotlin-android-extensions") { registerKotlinSourceSets(project) }
+//            withPlugin("kotlin-kapt") { registerKotlinSourceSets(project) }
+//            withPlugin("kotlin-multiplatform") { registerKotlinSourceSets(project) }
+//            withPlugin("kotlin-native-cocoapods") { registerKotlinSourceSets(project) }
+//            withPlugin("kotlin-native-performance") { registerKotlinSourceSets(project) }
+//            withPlugin("kotlin-parcelize") { registerKotlinSourceSets(project) }
+//            withPlugin("kotlin-platform-android") { registerKotlinSourceSets(project) }
+//            withPlugin("kotlin-platform-common") { registerKotlinSourceSets(project) }
+//            withPlugin("kotlin-platform-js") { registerKotlinSourceSets(project) }
+//            withPlugin("kotlin-platform-jvm") { registerKotlinSourceSets(project) }
+//            withPlugin("kotlin-scripting") { registerKotlinSourceSets(project) }
+//            withPlugin("org.jetbrains.kotlin.android.extensions") { registerKotlinSourceSets(project) }
+            withPlugin("org.jetbrains.kotlin.android") { registerKotlinSourceSets(project) }
+            withPlugin("org.jetbrains.kotlin.js") { registerKotlinSourceSets(project) }
+            withPlugin("org.jetbrains.kotlin.jvm") { registerKotlinSourceSets(project) }
+//            withPlugin("org.jetbrains.kotlin.kapt") { registerKotlinSourceSets(project) }
+//            withPlugin("org.jetbrains.kotlin.multiplatform.pm20") { registerKotlinSourceSets(project) }
+            withPlugin("org.jetbrains.kotlin.multiplatform") { registerKotlinSourceSets(project) }
+//            withPlugin("org.jetbrains.kotlin.native.cocoapods") { registerKotlinSourceSets(project) }
+//            withPlugin("org.jetbrains.kotlin.native.performance") { registerKotlinSourceSets(project) }
+//            withPlugin("org.jetbrains.kotlin.platform.android") { registerKotlinSourceSets(project) }
+//            withPlugin("org.jetbrains.kotlin.platform.common") { registerKotlinSourceSets(project) }
+//            withPlugin("org.jetbrains.kotlin.platform.js") { registerKotlinSourceSets(project) }
+//            withPlugin("org.jetbrains.kotlin.platform.jvm") { registerKotlinSourceSets(project) }
+//            withPlugin("org.jetbrains.kotlin.plugin.parcelize") { registerKotlinSourceSets(project) }
+//            withPlugin("org.jetbrains.kotlin.plugin.scripting") { registerKotlinSourceSets(project) }
         }
     }
 
-    private fun asd(project: Project) {
-
-//        project.extensions.findByType<org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension>()
-
-//        project.extensions.configure<KotlinProjectExtension> {
-//            logger.lifecycle("configuring Kotlin Extension!!!")
-//
-//        }
+    private fun registerKotlinSourceSets(project: Project) {
 
         val kotlinExtension = project.extensions.findKotlinExtension()
         if (kotlinExtension == null) {
@@ -118,14 +112,15 @@ abstract class DokkaKotlinAdapter @Inject constructor(
                 }
             }
 
-            return project.provider {
+            return providers.provider {
                 val compilations = allCompilations()
                 compilations.isEmpty() || compilations.any { compilation -> compilation.isMainCompilation() }
             }
         }
 
 
-        val kotlinTarget = project.provider {
+        /** Determine the platform(s) that the Kotlin Plugin is targeting */
+        val kotlinTarget = providers.provider {
             when (kotlinExtension) {
                 is KotlinMultiplatformExtension -> {
                     kotlinExtension.targets
@@ -153,41 +148,39 @@ abstract class DokkaKotlinAdapter @Inject constructor(
             //  We probably need to change from "sourceRoots" to support "sourceFiles"
             //  https://github.com/Kotlin/dokka/issues/1215
             val sourceRoots = kotlinSourceSet.kotlin.sourceDirectories.filter { it.exists() }
-//            val sourceRoots = kotlinSourceSet.kotlin.sourceDirectories.
 
             logger.lifecycle("kotlin source set ${kotlinSourceSet.name} has source roots: ${sourceRoots.map { it.invariantSeparatorsPath }}")
-
-//            val dependentSourceSetNames = project.provider {
-//                kotlinSourceSet.dependsOn.map {otherSrcSet ->
-//                    objects.newInstance<DokkaSourceSetIDGradleBuilder>().apply {
-//                        this.sourceSetName
-//                    }
-//                    DokkaSourceSetID("TODO add scope ID", it.name)
-//                }.toSet()
-//            }
 
             dokka.dokkaSourceSets.register(kotlinSourceSet.name) {
                 this.suppress.set(kotlinSourceSet.isMainSourceSet())
                 this.sourceRoots.from(sourceRoots)
 
                 // need to check for resolution, because testImplementation can't be resolved....
-                // so as a workaround, just manually check if this can be resolved.
-                // maybe make a special, one-off, resolvable configuration?
-                val implConf = project.configurations.named(kotlinSourceSet.implementationConfigurationName)
-                if (implConf.get().isCanBeResolved) {
-                    this.classpath.from(implConf)
-                }
+                // > Resolving dependency configuration 'testImplementation' is not allowed as it is defined as 'canBeResolved=false'.
+                // >    Instead, a resolvable ('canBeResolved=true') dependency configuration that extends 'testImplementation' should be resolved.
+                // As a workaround, just manually check if the configuration can be resolved.
+                // If resolution is necessary, maybe make a special, one-off, resolvable configuration?
+                val sourceSetDependencies = project.configurations
+                    .named(kotlinSourceSet.implementationConfigurationName)
+                this.classpath.from(
+                    sourceSetDependencies.map { elements ->
+                        if (elements.isCanBeResolved) {
+                            elements.incoming.artifactView { lenient(true) }.files
+                        } else {
+                            emptySet<File>()
+                        }
+                    }
+                )
 
                 this.analysisPlatform.set(dokkaAnalysisPlatform)
 
                 kotlinSourceSet.dependsOn.forEach {
+                    // TODO remove dependentSourceSets.size workaround
                     this.dependentSourceSets.register(it.name + dependentSourceSets.size) {
                         this.sourceSetName = it.name
                     }
-
                 }
-//                this.dependentSourceSets.addAllLater(dependentSourceSetNames)
-//                this.dependentSourceSets.set(dependentSourceSetNames) // TODO fix dependent source sets
+
                 this.displayName.set(kotlinTarget.map { target ->
                     kotlinSourceSet.name.substringBeforeLast(
                         delimiter = "Main",
@@ -202,17 +195,8 @@ abstract class DokkaKotlinAdapter @Inject constructor(
 
         private fun ExtensionContainer.findKotlinExtension(): KotlinProjectExtension? =
             try {
-                findByType<KotlinProjectExtension>()
-            } catch (e: Throwable) {
-                when (e) {
-                    is TypeNotPresentException,
-                    is ClassNotFoundException,
-                    is NoClassDefFoundError -> null
-
-                    else -> throw e
-                }
-            } ?: try {
-                findByType<org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension>()
+                findByType()
+                    ?: findByType<org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension>()
             } catch (e: Throwable) {
                 when (e) {
                     is TypeNotPresentException,
