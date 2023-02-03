@@ -8,6 +8,7 @@ import org.gradle.api.file.ProjectLayout
 import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.tasks.TaskContainer
 import org.gradle.api.tasks.TaskProvider
+import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.withType
@@ -22,7 +23,7 @@ import javax.inject.Inject
 
 
 abstract class DokkaPlugin @Inject constructor(
-    private val provider: ProviderFactory,
+    private val providers: ProviderFactory,
     private val layout: ProjectLayout,
 ) : Plugin<Project> {
 
@@ -47,8 +48,8 @@ abstract class DokkaPlugin @Inject constructor(
             suppressInheritedMembers.convention(false)
             suppressObviousFunctions.convention(false)
             offlineMode.convention(false)
-            moduleName.convention(provider.provider { project.name })
-            moduleVersion.convention(provider.provider { project.version.toString() })
+            moduleName.convention(providers.provider { project.name })
+            moduleVersion.convention(providers.provider { project.version.toString() })
 //            pluginsConfiguration.add(
 //                DokkaConfigurationKxs.PluginConfigurationKxs(
 //                    fqPluginName = "org.jetbrains.dokka.base.DokkaBase",
@@ -56,6 +57,7 @@ abstract class DokkaPlugin @Inject constructor(
 //                    values = "{}",
 //                )
 //            )
+            dokkaSourceSets.addAllLater(providers.provider { dokkaSettings.dokkaSourceSets })
         }
 
         val dokkaGenerateTask = target.tasks.registerDokkaGenerateTask(dokkaConfigurationTask, dokkaConfigurations)
@@ -96,9 +98,9 @@ abstract class DokkaPlugin @Inject constructor(
     private fun TaskContainer.registerCreateDokkaConfigurationTask(
         dokkaConfigurations: DokkaPluginConfigurations,
     ): TaskProvider<DokkaConfigurationTask> {
-        val dokkaConfigurationTask =  register<DokkaConfigurationTask>(TaskName.CREATE_DOKKA_CONFIGURATION)
+        val dokkaConfigurationTask = register<DokkaConfigurationTask>(TaskName.CREATE_DOKKA_CONFIGURATION)
 
-        withType<DokkaConfigurationTask>().configureEach{
+        withType<DokkaConfigurationTask>().configureEach configTask@{
 
             // depend on Dokka Configurations from other subprojects
             dokkaSubprojectConfigurations.from(
@@ -120,6 +122,23 @@ abstract class DokkaPlugin @Inject constructor(
                     elements.incoming.artifactView { lenient(true) }.files
                 }
             )
+
+            dokkaSourceSets.configureEach {
+                // TODO copy default values from old plugin
+                jdkVersion.convention(11)
+                noJdkLink.convention(true)
+                noAndroidSdkLink.convention(true)
+                noStdlibLink.convention(true)
+                suppress.convention(true)
+                reportUndocumented.convention(false)
+                skipDeprecated.convention(false)
+                skipEmptyPackages.convention(false)
+                sourceSetScope.convention(this@configTask.path)
+                suppressGeneratedFiles.convention(true)
+                displayName.convention(this@configTask.path)
+                analysisPlatform.convention(Platform.common)
+            }
+
         }
 
         dokkaConfigurations.dokkaConfigurationsElements.configure {
@@ -145,8 +164,7 @@ abstract class DokkaPlugin @Inject constructor(
 
             dependsOn(dokkaGenerateTask)
 
-            moduleOutputDirectoryPath(dokkaGenerateTask.map { it.outputDirectory })
-            // TODO what should the source-output be?
+//            moduleOutputDirectoryPath(dokkaGenerateTask.map { it.outputDirectory })
             sourceOutputDirectory(dokkaGenerateTask.map { it.outputDirectory })
 //            sourceOutputDirectory(layout.buildDirectory.dir("dokka/source-output"))
         }

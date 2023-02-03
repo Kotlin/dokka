@@ -130,11 +130,11 @@ data class DokkaConfigurationKxs(
         /** @see DokkaConfiguration.DokkaModuleDescription.includes */
         val includes: Set<File>,
 
-        /**
-         * Not part of the Dokka spec - will be used before Dokka Generation to compute the relative dir
-         * @see toCoreModel
-         */
-        val moduleOutputDirectory: File,
+//        /**
+//         * Not part of the Dokka spec - will be used before Dokka Generation to compute the relative dir
+//         * @see toCoreModel
+//         */
+//        val moduleOutputDirectory: File,
     ) : java.io.Serializable, Named {
 
         override fun getName(): String = moduleName
@@ -148,7 +148,8 @@ data class DokkaConfigurationKxs(
         fun toCoreModel(
             rootOutputDirectory: File
         ): DokkaConfiguration.DokkaModuleDescription {
-            val relativePathToOutputDirectory = moduleOutputDirectory.relativeToOrSelf(rootOutputDirectory)
+//            val relativePathToOutputDirectory = moduleOutputDirectory.relativeToOrSelf(rootOutputDirectory)
+            val relativePathToOutputDirectory = sourceOutputDirectory.relativeToOrSelf(rootOutputDirectory)
 
             println("relativePathToOutputDirectory: $relativePathToOutputDirectory")
 

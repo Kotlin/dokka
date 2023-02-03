@@ -2,6 +2,7 @@ package org.jetbrains.dokka.gradle.tasks
 
 import kotlinx.serialization.encodeToString
 import org.gradle.api.DomainObjectSet
+import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
@@ -11,12 +12,14 @@ import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.*
 import org.jetbrains.dokka.gradle.DokkaPlugin.Companion.jsonMapper
 import org.jetbrains.dokka.gradle.dokka_configuration.DokkaConfigurationKxs
+import org.jetbrains.dokka.gradle.dokka_configuration.DokkaSourceSetGradleBuilder
 import javax.inject.Inject
 
 /**
- * Produces the Dokka Configuration for this project.
+ * Builds the Dokka Configuration that the Dokka Generator will use to produce a Dokka Publication for this project.
  *
- * Configurations from other modules (which are potentially from other Gradle subprojects) will also be included.
+ * Configurations from other modules (which are potentially from other Gradle subprojects) will also be included
+ * via ... TODO explain how to include other subprojects/modules
  */
 @CacheableTask
 abstract class DokkaConfigurationTask @Inject constructor(
@@ -55,8 +58,8 @@ abstract class DokkaConfigurationTask @Inject constructor(
     @get:Input
     abstract val offlineMode: Property<Boolean>
 
-    @get:Input
-    abstract val sourceSets: DomainObjectSet<DokkaConfigurationKxs.DokkaSourceSetKxs>
+    @get:Nested
+    abstract val dokkaSourceSets: NamedDomainObjectContainer<DokkaSourceSetGradleBuilder>
 
     @get:InputFiles
     @get:Classpath
@@ -122,7 +125,7 @@ abstract class DokkaConfigurationTask @Inject constructor(
         val outputDir = outputDir.asFile.get()
         val cacheRoot = cacheRoot.asFile.get()
         val offlineMode = offlineMode.get()
-        val sourceSets = sourceSets.toList()
+        val sourceSets = dokkaSourceSets.map(DokkaSourceSetGradleBuilder::build)
         val pluginsClasspath = pluginsClasspath.files.toList()
         val pluginsConfiguration = pluginsConfiguration.toList()
         val failOnWarning = failOnWarning.get()
@@ -133,6 +136,7 @@ abstract class DokkaConfigurationTask @Inject constructor(
         val finalizeCoroutines = finalizeCoroutines.get()
 
         val dokkaModuleDescriptors = dokkaModuleDescriptors()
+
 
         // construct the base configuration for THIS project
         val baseDokkaConfiguration = DokkaConfigurationKxs(

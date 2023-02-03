@@ -22,17 +22,17 @@ abstract class DokkaModuleConfigurationTask @Inject constructor(
     @get:Input
     abstract val moduleName: Property<String>
 
-    @get:Input
-    protected abstract val moduleOutputDirectoryPath: Property<String>
-
-    /**
-     * Evaluated as a file as defined by [org.gradle.api.Project.file].
-     */
-    fun moduleOutputDirectoryPath(path: Any) {
-        moduleOutputDirectoryPath.set(
-            layout.files(path).singleFile.invariantSeparatorsPath
-        )
-    }
+//    @get:Input
+//    protected abstract val moduleOutputDirectoryPath: Property<String>
+//
+//    /**
+//     * Evaluated as a file as defined by [org.gradle.api.Project.file].
+//     */
+//    fun moduleOutputDirectoryPath(path: Any) {
+//        moduleOutputDirectoryPath.set(
+//            layout.files(path).singleFile.invariantSeparatorsPath
+//        )
+//    }
 
     @get:Input
     protected abstract val sourceOutputDirectory: Property<String>
@@ -54,13 +54,13 @@ abstract class DokkaModuleConfigurationTask @Inject constructor(
     @TaskAction
     fun generateModuleConfiguration() {
         val moduleName = moduleName.get()
-        val moduleOutputDirectory = layout.files(moduleOutputDirectoryPath).singleFile
+//        val moduleOutputDirectory = layout.files(moduleOutputDirectoryPath).singleFile
         val sourceOutputDirectory = layout.files(sourceOutputDirectory).singleFile
         val includes = includes.files
 
         val moduleDesc = DokkaConfigurationKxs.DokkaModuleDescriptionKxs(
-            name = moduleName,
-            moduleOutputDirectory = moduleOutputDirectory,
+            moduleName = moduleName,
+//            moduleOutputDirectory = moduleOutputDirectory,
             sourceOutputDirectory = sourceOutputDirectory,
             includes = includes,
         )

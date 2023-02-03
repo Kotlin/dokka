@@ -15,7 +15,8 @@ import kotlin.reflect.KProperty
 
 
 class GradleProjectTest(
-    val projectDir: Path = tempDir(),
+    name: String,
+    val projectDir: Path = tempDir(name),
     val runner: GradleRunner = GradleRunner.create().withProjectDir(projectDir.toFile()),
 ) {
 
@@ -29,13 +30,15 @@ class GradleProjectTest(
         }
 
     companion object {
-        fun tempDir(): Path {
+        fun tempDir(name: String): Path {
             val funcTestTempDir = System.getProperty("funcTestTempDir")
 
+            val safeName = name.map { if (it.isLetterOrDigit()) it else "-" }.joinToString("")
+
             return if (funcTestTempDir != null) {
-                Paths.get(funcTestTempDir, Random.nextInt(1_000_000, Int.MAX_VALUE).toString())
+                Paths.get(funcTestTempDir, safeName)
             } else {
-                Files.createTempDirectory("dokka-test")
+                Files.createTempDirectory("dokka-test-$safeName")
             }
         }
     }
@@ -48,11 +51,10 @@ class GradleProjectTest(
  * Groovy/Kotlin files will confuse Gradle.
  */
 fun gradleKtsProjectTest(
-//    projectDir: Path = Files.createTempDirectory("dokka-test"),
-//    runner: GradleRunner = GradleRunner.create().withProjectDir(projectDir.toFile()),
+    name: String = Random.nextInt(100_000_000, 999_999_999).toString(),
     build: GradleProjectTest.() -> Unit,
 ): GradleProjectTest {
-    return GradleProjectTest().apply {
+    return GradleProjectTest(name).apply {
 
         settingsGradleKts = """
             rootProject.name = "test"
