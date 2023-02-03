@@ -1,16 +1,15 @@
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import java.time.LocalTime
-import java.time.format.DateTimeFormatter
 
 plugins {
-    `java-gradle-plugin`
     `kotlin-dsl`
     id("com.gradle.plugin-publish") version "1.0.0"
     kotlin("plugin.serialization") version embeddedKotlinVersion
     `jvm-test-suite`
 
-    id("org.jetbrains.kotlinx.binary-compatibility-validator") version "0.12.1"
+    idea
+
+//    id("org.jetbrains.kotlinx.binary-compatibility-validator") version "0.12.1"
 }
 
 group = "org.jetbrains.dokka"
@@ -19,9 +18,12 @@ version = "2.0.0"
 dependencies {
     implementation("org.jetbrains.dokka:dokka-core:1.7.20")
 
-//    compileOnly("com.android.tools.build:gradle:4.0.1")
+    compileOnly("org.jetbrains.kotlin:kotlin-gradle-plugin:1.7.20")
+//    compileOnly("org.jetbrains.kotlin:kotlin-gradle-plugin-api:1.7.20")
+    compileOnly("com.android.tools.build:gradle:4.0.1")
 
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
+
 
     // note: test dependencies are defined in the testing.suites {} configuration below
 }
@@ -78,7 +80,8 @@ testing.suites {
         dependencies {
             implementation(project.dependencies.gradleTestKit())
 
-            implementation(project.dependencies.kotlin("test"))
+//            implementation(project.dependencies.kotlin("test"))
+            implementation("org.jetbrains.kotlin:kotlin-test:1.7.20")
 
             implementation(project.dependencies.platform("io.kotest:kotest-bom:5.5.4"))
 //            implementation("io.kotest:kotest-runner-junit5")
@@ -93,7 +96,8 @@ testing.suites {
         dependencies {
 //            implementation(project)
 
-            implementation(project.dependencies.kotlin("test"))
+//            implementation(project.dependencies.kotlin("test"))
+            implementation("org.jetbrains.kotlin:kotlin-test:1.7.20")
 
             implementation(project.dependencies.platform("io.kotest:kotest-bom:5.5.4"))
 //            implementation("io.kotest:kotest-runner-junit5")
@@ -108,19 +112,18 @@ testing.suites {
                 shouldRunAfter(test)
                 dependsOn(tasks.matching { it.name == "publishAllPublicationsToTestRepository" })
 
-                val baseTmpDir = "$buildDir/functional-tests/"
+                val funcTestDir = "$buildDir/functional-tests/"
 //                dependsOn(installMavenInternal)
                 systemProperties(
                     "testMavenRepoDir" to file(projectTestMavenRepoDir).canonicalPath,
-                    "funcTestTempDir" to
-                            "$baseTmpDir/${LocalTime.now().format(DateTimeFormatter.ofPattern("HH" + "mm" + "ss"))}",
+                    "funcTestTempDir" to funcTestDir,
                 )
 
                 inputs.dir(projectTestMavenRepoDir)
-                outputs.dir(baseTmpDir)
+                outputs.dir(funcTestDir)
 
                 doFirst {
-                    File(baseTmpDir).deleteRecursively()
+                    File(funcTestDir).deleteRecursively()
                 }
             }
         }
