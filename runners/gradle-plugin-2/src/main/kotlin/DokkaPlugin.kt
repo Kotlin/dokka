@@ -4,18 +4,22 @@ import kotlinx.serialization.json.Json
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
+import org.gradle.api.artifacts.Dependency
 import org.gradle.api.file.ProjectLayout
+import org.gradle.api.model.ObjectFactory
+import org.gradle.api.provider.Provider
 import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.tasks.TaskContainer
 import org.gradle.api.tasks.TaskProvider
-import org.gradle.kotlin.dsl.apply
-import org.gradle.kotlin.dsl.create
-import org.gradle.kotlin.dsl.register
-import org.gradle.kotlin.dsl.withType
+import org.gradle.kotlin.dsl.*
+import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.Platform
+import org.jetbrains.dokka.gradle.DokkaPlugin.Companion.ConfigurationName.DOKKA_GENERATOR_CLASSPATH
+import org.jetbrains.dokka.gradle.DokkaPlugin.Companion.ConfigurationName.DOKKA_PLUGINS_CLASSPATH
 import org.jetbrains.dokka.gradle.adapters.DokkaKotlinAdapter
 import org.jetbrains.dokka.gradle.distibutions.DokkaPluginConfigurations
 import org.jetbrains.dokka.gradle.distibutions.setupDokkaConfigurations
+import org.jetbrains.dokka.gradle.dokka_configuration.DokkaPluginConfigurationGradleBuilder
 import org.jetbrains.dokka.gradle.tasks.DokkaConfigurationTask
 import org.jetbrains.dokka.gradle.tasks.DokkaGenerateTask
 import org.jetbrains.dokka.gradle.tasks.DokkaModuleConfigurationTask
@@ -25,6 +29,7 @@ import javax.inject.Inject
 abstract class DokkaPlugin @Inject constructor(
     private val providers: ProviderFactory,
     private val layout: ProjectLayout,
+    private val objects: ObjectFactory,
 ) : Plugin<Project> {
 
     override fun apply(target: Project) {
@@ -35,6 +40,25 @@ abstract class DokkaPlugin @Inject constructor(
         }
 
         val dokkaConfigurations = target.setupDokkaConfigurations(dokkaSettings)
+
+        target.dependencies {
+            fun dokka(module: String) =
+                dokkaSettings.dokkaVersion.map { version -> create("org.jetbrains.dokka:$module:$version") }
+
+//            dokkaPluginsClasspath("org.jetbrains:markdown:0.3.1")
+            dokkaPlugin("org.jetbrains:markdown-jvm:0.3.1")
+            dokkaPlugin(dokka("kotlin-analysis-intellij"))
+            dokkaPlugin(dokka("dokka-base"))
+            dokkaPlugin(dokka("templating-plugin"))
+            dokkaPlugin(dokka("dokka-analysis"))
+            dokkaPlugin(dokka("kotlin-analysis-compiler"))
+
+//            dokkaPluginsClasspath("org.jetbrains.kotlinx:kotlinx-html:0.8.0")
+            dokkaPlugin("org.jetbrains.kotlinx:kotlinx-html-jvm:0.8.0")
+            dokkaPlugin("org.freemarker:freemarker:2.3.31")
+
+            dokkaGenerator(dokka("dokka-core"))
+        }
 
         val dokkaConfigurationTask = target.tasks.registerCreateDokkaConfigurationTask(dokkaConfigurations)
 
@@ -50,13 +74,6 @@ abstract class DokkaPlugin @Inject constructor(
             offlineMode.convention(false)
             moduleName.convention(providers.provider { project.name })
             moduleVersion.convention(providers.provider { project.version.toString() })
-//            pluginsConfiguration.add(
-//                DokkaConfigurationKxs.PluginConfigurationKxs(
-//                    fqPluginName = "org.jetbrains.dokka.base.DokkaBase",
-//                    serializationFormat = DokkaConfiguration.SerializationFormat.JSON,
-//                    values = "{}",
-//                )
-//            )
             dokkaSourceSets.addAllLater(providers.provider { dokkaSettings.dokkaSourceSets })
         }
 
@@ -66,7 +83,14 @@ abstract class DokkaPlugin @Inject constructor(
 
         dokkaConfigurations.dokkaModuleDescriptorsElements.configure {
             outgoing {
+//                capability("org.jetbrains.dokka:dokka-module-descriptors:1")
                 artifact(dokkaModuleConfigurationTask.map { it.dokkaModuleConfigurationJson })
+            }
+        }
+        dokkaConfigurations.dokkaConfigurationsElements.configure {
+            outgoing {
+//                capability("org.jetbrains.dokka:dokka-configuration:1")
+                artifact(dokkaConfigurationTask.flatMap { it.dokkaConfigurationJson })
             }
         }
 
@@ -79,19 +103,18 @@ abstract class DokkaPlugin @Inject constructor(
         dokkaConfigurationTask: TaskProvider<DokkaConfigurationTask>,
         dokkaConfigurations: DokkaPluginConfigurations,
     ): TaskProvider<DokkaGenerateTask> {
-        return register<DokkaGenerateTask>(TaskName.DOKKA_GENERATE) {
+        val generateTask = register<DokkaGenerateTask>(TaskName.DOKKA_GENERATE)
+
+        withType<DokkaGenerateTask>().configureEach {
             dokkaConfigurationJson.set(dokkaConfigurationTask.flatMap { it.dokkaConfigurationJson })
             cacheDirectory.convention(dokkaConfigurationTask.flatMap { it.cacheRoot })
             outputDirectory.convention(dokkaConfigurationTask.flatMap { it.outputDir })
-//            cacheDirectory.convention(
-//                layout.dir(dokkaConfigurationValue { cacheRoot })
-//            )
-//            outputDirectory.convention(
-//                layout.dir(dokkaConfigurationValue { outputDir })
-//            )
-            runtimeClasspath.from(dokkaConfigurations.dokkaRuntimeClasspath)
-            pluginClasspath.from(dokkaConfigurations.dokkaPluginsClasspath)
+
+//            runtimeClasspath.from(dokkaConfigurations.dokkaPluginsClasspath.map(Configuration::resolve))
+            runtimeClasspath.from(dokkaConfigurations.dokkaGeneratorClasspath.map(Configuration::resolve))
         }
+
+        return generateTask
     }
 
 
@@ -102,8 +125,8 @@ abstract class DokkaPlugin @Inject constructor(
 
         withType<DokkaConfigurationTask>().configureEach configTask@{
 
-            // helper for the old DSL, I want to move this configuration to the DokkaPluginSettings
-            // and out of the task
+            // helper for the old DSL,
+            // todo I want to move dokkaSourceSets extension to the DokkaPluginSettings, out of tasks
             extensions.add("dokkaSourceSets", dokkaSourceSets)
 
             // depend on Dokka Configurations from other subprojects
@@ -120,12 +143,12 @@ abstract class DokkaPlugin @Inject constructor(
                 }
             )
 
-            //
-            pluginsClasspath.from(
-                dokkaConfigurations.dokkaPluginsClasspath.map { elements ->
-                    elements.incoming.artifactView { lenient(true) }.files
-                }
-            )
+            pluginsClasspath.from(dokkaConfigurations.dokkaPluginsIntransitiveClasspath.map {
+                it.incoming.artifactView { }.files
+            })
+//            pluginsClasspath.from(
+//                dokkaConfigurations.dokkaPluginsIntransitiveClasspath
+//            )
 
             dokkaSourceSets.configureEach {
                 // TODO copy default values from old plugin
@@ -140,7 +163,7 @@ abstract class DokkaPlugin @Inject constructor(
                 sourceSetScope.convention(this@configTask.path)
                 suppressGeneratedFiles.convention(true)
                 displayName.convention(this@configTask.path)
-                analysisPlatform.convention(Platform.common)
+                analysisPlatform.convention(Platform.DEFAULT)
 
                 sourceLinks.configureEach {
                     localDirectory.convention(layout.projectDirectory.asFile)
@@ -152,15 +175,27 @@ abstract class DokkaPlugin @Inject constructor(
                     suppress.convention(false)
                     skipDeprecated.convention(false)
                     reportUndocumented.convention(false)
-                    includeNonPublic.convention(true)
+                    @Suppress("DEPRECATION")
+                    includeNonPublic.convention(false)
                 }
             }
-        }
 
-        dokkaConfigurations.dokkaConfigurationsElements.configure {
-            outgoing {
-                artifact(dokkaConfigurationTask.flatMap { it.dokkaConfigurationJson })
+            pluginsConfiguration.configureEach {
+//                serializationFormat.convention("JSON")
+                serializationFormat.convention(DokkaConfiguration.SerializationFormat.JSON)
             }
+
+            pluginsConfiguration.addAllLater(
+                @Suppress("DEPRECATION")
+                pluginsMapConfiguration.map { pluginConfig ->
+                    pluginConfig.map { (pluginId, pluginConfiguration) ->
+                        objects.newInstance<DokkaPluginConfigurationGradleBuilder>().apply {
+                            fqPluginName.set(pluginId)
+                            values.set(pluginConfiguration)
+                        }
+                    }
+                }
+            )
         }
 
         return dokkaConfigurationTask
@@ -203,19 +238,33 @@ abstract class DokkaPlugin @Inject constructor(
             const val DOKKA = "dokka"
 
             /** Name of the [Configuration] that _consumes_ [org.jetbrains.dokka.DokkaConfiguration] from projects */
-            const val DOKKA_CONFIGURATIONS = "dokkaConfigurations"
+            const val DOKKA_CONFIGURATIONS = "dokkaConfiguration"
 
             /** Name of the [Configuration] that _provides_ [org.jetbrains.dokka.DokkaConfiguration] to other projects */
             const val DOKKA_CONFIGURATION_ELEMENTS = "dokkaConfigurationElements"
 
             /** Name of the [Configuration] that _consumes_ [org.jetbrains.dokka.DokkaConfiguration.DokkaModuleDescription] from projects */
-            const val DOKKA_MODULE_DESCRIPTORS = "dokkaModuleDescriptor"
+            const val DOKKA_MODULE_DESCRIPTORS = "dokkaModule"
 
             /** Name of the [Configuration] that _provides_ [org.jetbrains.dokka.DokkaConfiguration.DokkaModuleDescription] to other projects */
-            const val DOKKA_MODULE_DESCRIPTOR_ELEMENTS = "dokkaModuleDescriptorElements"
+            const val DOKKA_MODULE_DESCRIPTOR_ELEMENTS = "dokkaModuleDescriptors"
 
-            const val DOKKA_RUNTIME_CLASSPATH = "dokkaRuntimeClasspath"
-            const val DOKKA_PLUGINS_CLASSPATH = "dokkaPluginsClasspath"
+            /**
+             * Classpath used to execute the Dokka Generator.
+             *
+             * Extends [DOKKA_PLUGINS_CLASSPATH], so Dokka plugins and their dependencies are included.
+             */
+            const val DOKKA_GENERATOR_CLASSPATH = "dokkaGeneratorClasspath"
+
+            /** Dokka Plugins (transitive, so this can be passed to the Dokka Generator Worker classpath) */
+            const val DOKKA_PLUGINS_CLASSPATH = "dokkaPlugin"
+
+            /**
+             * Dokka Plugins (excluding transitive dependencies, so this be used to create Dokka Generator Configuration
+             *
+             * Generally, this configuration should not be invoked manually. Instead, use [DOKKA_PLUGINS_CLASSPATH].
+             */
+            internal const val DOKKA_PLUGINS_INTRANSITIVE_CLASSPATH = "${DOKKA_PLUGINS_CLASSPATH}Intransitive"
         }
 
         /**
@@ -234,6 +283,20 @@ abstract class DokkaPlugin @Inject constructor(
         internal val jsonMapper = Json {
             prettyPrint = true
         }
+
+        //<editor-fold desc="DependencyHandler utils">
+        private fun DependencyHandlerScope.dokkaPlugin(dependency: Provider<Dependency>) =
+            addProvider(DOKKA_PLUGINS_CLASSPATH, dependency)
+
+        private fun DependencyHandlerScope.dokkaPlugin(dependency: String) =
+            add(DOKKA_PLUGINS_CLASSPATH, dependency)
+
+        private fun DependencyHandlerScope.dokkaGenerator(dependency: Provider<Dependency>) =
+            addProvider(DOKKA_GENERATOR_CLASSPATH, dependency)
+
+        private fun DependencyHandlerScope.dokkaGenerator(dependency: String) =
+            add(DOKKA_GENERATOR_CLASSPATH, dependency)
+        //</editor-fold>
 
     }
 }

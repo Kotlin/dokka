@@ -5,7 +5,6 @@ import kotlinx.serialization.json.decodeFromStream
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
-import org.gradle.api.provider.Provider
 import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.tasks.*
 import org.gradle.api.tasks.PathSensitivity.NAME_ONLY
@@ -34,8 +33,8 @@ abstract class DokkaGenerateTask @Inject constructor(
     @get:Classpath
     abstract val runtimeClasspath: ConfigurableFileCollection
 
-    @get:Classpath
-    abstract val pluginClasspath: ConfigurableFileCollection
+//    @get:Classpath
+//    abstract val pluginClasspath: ConfigurableFileCollection
 
     @get:OutputDirectory
     abstract val cacheDirectory: DirectoryProperty
@@ -55,9 +54,11 @@ abstract class DokkaGenerateTask @Inject constructor(
 
         logger.info("dokkaConfiguration: $dokkaConfiguration")
 
+        logger.info("DokkaGeneratorWorker runtimeClasspath: ${runtimeClasspath.files.joinToString("\n") { it.name }}")
+
         val workQueue = workers.processIsolation {
             classpath.from(runtimeClasspath)
-            classpath.from(pluginClasspath)
+//            classpath.from(pluginClasspath)
             forkOptions {
                 defaultCharacterEncoding = "UTF-8"
             }

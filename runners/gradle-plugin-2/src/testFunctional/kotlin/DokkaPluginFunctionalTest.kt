@@ -52,31 +52,51 @@ class DokkaPluginFunctionalTest {
                 --------------------------------------------------
                 Variant dokkaConfigurationElements
                 --------------------------------------------------
-                Provide Dokka Configurations files to other subprojects
-                
+                Provide Dokka Generator Configuration files to other subprojects
+
                 Capabilities
                     - :test:unspecified (default capability)
                 Attributes
-                    - org.gradle.category = configuration
-                    - org.gradle.usage    = org.jetbrains.dokka
+                    - org.jetbrains.dokka.base     = dokka
+                    - org.jetbrains.dokka.category = configuration
+                Artifacts
+            """.trimIndent()
+        }
+
+        withClue("dokkaGeneratorProvider") {
+            build.output shouldContain """
+                --------------------------------------------------
+                Variant dokkaGeneratorClasspathElements
+                --------------------------------------------------
+                Provide Dokka Generator classpath to other subprojects
+
+                Capabilities
+                    - :test:unspecified (default capability)
+                Attributes
+                    - org.gradle.category            = library
+                    - org.gradle.dependency.bundling = external
+                    - org.gradle.jvm.environment     = standard-jvm
+                    - org.gradle.libraryelements     = jar
+                    - org.gradle.usage               = java-runtime
+                    - org.jetbrains.dokka.base       = dokka
+                    - org.jetbrains.dokka.category   = generator-classpath
             """.trimIndent()
         }
 
         withClue("dokkaModuleDescriptorElements") {
             build.output shouldContain """
                 --------------------------------------------------
-                Variant dokkaModuleDescriptorElements
+                Variant dokkaModuleDescriptors
                 --------------------------------------------------
-                Provide Dokka module descriptor files to other subprojects
-                
+                Provide Dokka Module descriptor files to other subprojects
+
                 Capabilities
                     - :test:unspecified (default capability)
                 Attributes
-                    - org.gradle.category = module-descriptor
-                    - org.gradle.usage    = org.jetbrains.dokka
+                    - org.jetbrains.dokka.base     = dokka
+                    - org.jetbrains.dokka.category = module-descriptor
+                Artifacts
             """.trimIndent()
-//                Artifacts
-//                    - build/dokka/createDokkaModuleConfiguration.json (artifactType = json)
         }
     }
 
@@ -100,20 +120,20 @@ class DokkaPluginFunctionalTest {
                 Fetch all Dokka files from all configurations in other subprojects
                 
                 Attributes
-                    - org.gradle.usage = org.jetbrains.dokka
+                    - org.jetbrains.dokka.base = dokka
             """.trimIndent()
         }
 
         withClue("dokkaConfigurations") {
             build.output shouldContain """
                 --------------------------------------------------
-                Configuration dokkaConfigurations
+                Configuration dokkaConfiguration
                 --------------------------------------------------
-                Fetch Dokka Configuration files from other subprojects
+                Fetch Dokka Generator Configuration files from other subprojects
                 
                 Attributes
-                    - org.gradle.category = configuration
-                    - org.gradle.usage    = org.jetbrains.dokka
+                    - org.jetbrains.dokka.base     = dokka
+                    - org.jetbrains.dokka.category = configuration
                 Extended Configurations
                     - dokka
             """.trimIndent()
@@ -122,31 +142,55 @@ class DokkaPluginFunctionalTest {
         withClue("dokkaModuleDescriptor") {
             build.output shouldContain """
                 --------------------------------------------------
-                Configuration dokkaModuleDescriptor
+                Configuration dokkaModule
                 --------------------------------------------------
-                Fetch Dokka module descriptor files from other subprojects
+                Fetch Dokka Module descriptor files from other subprojects
                 
                 Attributes
-                    - org.gradle.category = module-descriptor
-                    - org.gradle.usage    = org.jetbrains.dokka
+                    - org.jetbrains.dokka.base     = dokka
+                    - org.jetbrains.dokka.category = module-descriptor
+                
+                """.trimIndent()
+        }
+
+        withClue("dokkaPlugin") {
+            build.output shouldContain """
+                --------------------------------------------------
+                Configuration dokkaPlugin
+                --------------------------------------------------
+                Dokka Plugins classpath
+                
+                Attributes
+                    - org.gradle.category            = library
+                    - org.gradle.dependency.bundling = external
+                    - org.gradle.jvm.environment     = standard-jvm
+                    - org.gradle.libraryelements     = jar
+                    - org.gradle.usage               = java-runtime
+                    - org.jetbrains.dokka.base       = dokka
+                    - org.jetbrains.dokka.category   = plugins-classpath
                 Extended Configurations
                     - dokka
             """.trimIndent()
         }
 
-        withClue("dokkaPluginsClasspath") {
+        withClue("dokkaGenerator") {
             build.output shouldContain """
                 --------------------------------------------------
-                Configuration dokkaPluginsClasspath
+                Configuration dokkaGeneratorClasspath
                 --------------------------------------------------
-                Dokka Plugins classpath
+                Dokka Generator runtime classpath - will be used in Dokka Worker. Should contain all plugins, and transitive dependencies, so Dokka Worker can run.
                 
                 Attributes
-                    - org.gradle.category                = library
-                    - org.gradle.dependency.bundling     = external
-                    - org.gradle.jvm.environment         = standard-jvm
-                    - org.gradle.libraryelements         = jar
-                    - org.jetbrains.kotlin.platform.type = jvm
+                    - org.gradle.category            = library
+                    - org.gradle.dependency.bundling = external
+                    - org.gradle.jvm.environment     = standard-jvm
+                    - org.gradle.libraryelements     = jar
+                    - org.gradle.usage               = java-runtime
+                    - org.jetbrains.dokka.base       = dokka
+                    - org.jetbrains.dokka.category   = generator-classpath
+                Extended Configurations
+                    - dokka
+                    - dokkaPlugin
             """.trimIndent()
         }
     }

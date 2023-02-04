@@ -2,13 +2,26 @@ package org.jetbrains.dokka.gradle.distibutions
 
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
-import org.gradle.api.attributes.*
-import org.gradle.api.attributes.java.TargetJvmEnvironment
-import org.gradle.api.model.ObjectFactory
+import org.gradle.api.attributes.Attribute
+import org.gradle.api.attributes.AttributeContainer
+import org.gradle.api.attributes.Bundling.BUNDLING_ATTRIBUTE
+import org.gradle.api.attributes.Bundling.EXTERNAL
+import org.gradle.api.attributes.Category.CATEGORY_ATTRIBUTE
+import org.gradle.api.attributes.Category.LIBRARY
+import org.gradle.api.attributes.LibraryElements.JAR
+import org.gradle.api.attributes.LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE
+import org.gradle.api.attributes.Usage.JAVA_RUNTIME
+import org.gradle.api.attributes.Usage.USAGE_ATTRIBUTE
+import org.gradle.api.attributes.java.TargetJvmEnvironment.STANDARD_JVM
+import org.gradle.api.attributes.java.TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE
 import org.gradle.kotlin.dsl.named
+import org.gradle.kotlin.dsl.newInstance
 import org.jetbrains.dokka.gradle.DokkaPlugin.Companion.ConfigurationName
+import org.jetbrains.dokka.gradle.DokkaPlugin.Companion.ConfigurationName.DOKKA_PLUGINS_CLASSPATH
+import org.jetbrains.dokka.gradle.DokkaPlugin.Companion.ConfigurationName.DOKKA_PLUGINS_INTRANSITIVE_CLASSPATH
 import org.jetbrains.dokka.gradle.DokkaPluginSettings
-
+import org.jetbrains.dokka.gradle.distibutions.DokkaPluginAttributes.Companion.DOKKA_BASE_ATTRIBUTE
+import org.jetbrains.dokka.gradle.distibutions.DokkaPluginAttributes.Companion.DOKKA_CATEGORY_ATTRIBUTE
 
 /**
  * Initialise [DokkaPluginConfigurations].
@@ -19,42 +32,65 @@ import org.jetbrains.dokka.gradle.DokkaPluginSettings
  */
 internal fun Project.setupDokkaConfigurations(dokkaSettings: DokkaPluginSettings): DokkaPluginConfigurations {
 
-    fun AttributeContainer.dokkaUsageAttribute() {
-        attribute(Usage.USAGE_ATTRIBUTE, dokkaSettings.attributeValues.dokkaUsage)
+    val attributes = objects.newInstance<DokkaPluginAttributes>()
+
+    dependencies.attributesSchema {
+        attribute(DOKKA_BASE_ATTRIBUTE)
+        attribute(DOKKA_CATEGORY_ATTRIBUTE)
     }
 
-    fun AttributeContainer.dokkaConfigurationsAttributes() {
-        dokkaUsageAttribute()
-        attribute(Category.CATEGORY_ATTRIBUTE, dokkaSettings.attributeValues.dokkaConfigurationCategory)
+    /** A general attribute for all [Configuration]s that are used by the Dokka Gradle plugin */
+    fun AttributeContainer.dokkaBaseUsage() {
+        attribute(DOKKA_BASE_ATTRIBUTE, attributes.dokkaBaseUsage)
     }
 
-    fun AttributeContainer.dokkaModuleDescriptorAttributes() {
-        dokkaUsageAttribute()
-        attribute(Category.CATEGORY_ATTRIBUTE, dokkaSettings.attributeValues.dokkaModuleDescriptionCategory)
+    fun AttributeContainer.dokkaCategory(category: DokkaPluginAttributes.DokkaCategory) {
+        dokkaBaseUsage()
+        attribute(DOKKA_CATEGORY_ATTRIBUTE, category)
     }
 
-    val dokkaConsumer =
-        configurations.register(ConfigurationName.DOKKA) {
-            description = "Fetch all Dokka files from all configurations in other subprojects"
-            asConsumer()
-            attributes { dokkaUsageAttribute() }
+    fun AttributeContainer.jvmJar() {
+        attribute(USAGE_ATTRIBUTE, objects.named(JAVA_RUNTIME))
+        attribute(CATEGORY_ATTRIBUTE, objects.named(LIBRARY))
+        attribute(BUNDLING_ATTRIBUTE, objects.named(EXTERNAL))
+        attribute(TARGET_JVM_ENVIRONMENT_ATTRIBUTE, objects.named(STANDARD_JVM))
+        attribute(LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(JAR))
+
+//         tell Gradle to only resolve Kotlin/JVM dependencies (might not need this)
+//        attribute(kotlinPlatformType, "jvm")
+    }
+
+    val dokkaConsumer = configurations.register(ConfigurationName.DOKKA) {
+        description = "Fetch all Dokka files from all configurations in other subprojects"
+        asConsumer()
+        isVisible = false
+        attributes {
+            dokkaBaseUsage()
         }
-
+    }
 
     //<editor-fold desc="Dokka Configuration files">
     val dokkaConfigurationsConsumer =
         configurations.register(ConfigurationName.DOKKA_CONFIGURATIONS) {
-            description = "Fetch Dokka Configuration files from other subprojects"
+            description = "Fetch Dokka Generator Configuration files from other subprojects"
             asConsumer()
-            attributes { dokkaConfigurationsAttributes() }
             extendsFrom(dokkaConsumer.get())
+            isVisible = false
+            attributes {
+                dokkaCategory(attributes.dokkaConfiguration)
+            }
         }
 
     val dokkaConfigurationsProvider =
         configurations.register(ConfigurationName.DOKKA_CONFIGURATION_ELEMENTS) {
-            description = "Provide Dokka Configurations files to other subprojects"
+            description = "Provide Dokka Generator Configuration files to other subprojects"
             asProvider()
-            attributes { dokkaConfigurationsAttributes() }
+            // extend from dokkaConfigurationsConsumer, so Dokka Module Configs propagate api() style
+            extendsFrom(dokkaConfigurationsConsumer.get())
+            isVisible = true
+            attributes {
+                dokkaCategory(attributes.dokkaConfiguration)
+            }
         }
     //</editor-fold>
 
@@ -62,71 +98,98 @@ internal fun Project.setupDokkaConfigurations(dokkaSettings: DokkaPluginSettings
     //<editor-fold desc="Module descriptor configurations">
     val dokkaModuleDescriptorsConsumer =
         configurations.register(ConfigurationName.DOKKA_MODULE_DESCRIPTORS) {
-            description = "Fetch Dokka module descriptor files from other subprojects"
+            description = "Fetch Dokka Module descriptor files from other subprojects"
             asConsumer()
-            attributes { dokkaModuleDescriptorAttributes() }
-            extendsFrom(dokkaConsumer.get())
+            isVisible = false
+//            extendsFrom(dokkaConsumer.get()) // don't auto fetch, module dependencies must be declared explicitly
+            attributes {
+                dokkaCategory(attributes.dokkaModuleDescriptors)
+            }
         }
 
     val dokkaModuleDescriptorsProvider =
         configurations.register(ConfigurationName.DOKKA_MODULE_DESCRIPTOR_ELEMENTS) {
-            description = "Provide Dokka module descriptor files to other subprojects"
+            description = "Provide Dokka Module descriptor files to other subprojects"
             asProvider()
-            attributes { dokkaModuleDescriptorAttributes() }
+            isVisible = true
+            // extend from dokkaModuleDescriptorsConsumer, so Dokka Module Configs propagate api() style
+            extendsFrom(dokkaModuleDescriptorsConsumer.get())
+            attributes {
+                dokkaCategory(attributes.dokkaModuleDescriptors)
+            }
         }
     //</editor-fold>
 
 
-    val dokkaRuntimeClasspath = configurations.register(ConfigurationName.DOKKA_RUNTIME_CLASSPATH) {
-        description = "Dokka generation task runtime classpath"
-        asConsumer()
-        attributes {
-            jvmJar(objects)
-        }
-        defaultDependencies {
-            fun dokka(module: String) = addLater(
-                dokkaSettings.dokkaVersion.map { version ->
-                    project.dependencies.create("org.jetbrains.dokka:$module:$version")
-                }
-            )
-            dokka("dokka-core")
-            dokka("dokka-base")
-            dokka("dokka-analysis")
-
-            // the order of intellij/compiler matters!!
-            // https://discuss.kotlinlang.org/t/problems-running-dokka-cli-1-7-10-jar-from-the-command-line/25439
-            dokka("kotlin-analysis-intellij")
-            dokka("kotlin-analysis-compiler")
-
-            add(project.dependencies.create("org.jetbrains.kotlinx:kotlinx-html:0.8.0"))
-            add(project.dependencies.create("org.jetbrains:markdown-jvm:0.3.1"))
-        }
-    }
-
-    val dokkaPluginsClasspath = configurations.register(ConfigurationName.DOKKA_PLUGINS_CLASSPATH) {
+    //<editor-fold desc="Dokka Generator Plugins">
+    val dokkaPluginsClasspath = configurations.register(DOKKA_PLUGINS_CLASSPATH) {
         description = "Dokka Plugins classpath"
         asConsumer()
+        extendsFrom(dokkaConsumer.get())
+        isVisible = true
         attributes {
-            jvmJar(objects)
-        }
-        isTransitive = false
-        defaultDependencies {
-            fun dokka(module: String) = addLater(
-                dokkaSettings.dokkaVersion.map { version ->
-                    project.dependencies.create("org.jetbrains.dokka:$module:$version")
-                }
-            )
-            dokka("dokka-base")
-//            dokka("javadoc-plugin")
-            dokka("jekyll-plugin")
-            add(project.dependencies.create("org.jetbrains:markdown-jvm:0.3.1"))
+            jvmJar()
+            dokkaCategory(attributes.dokkaPluginsClasspath)
         }
     }
 
-    dokkaRuntimeClasspath.configure {
-        // extend from plugins classpath (the result being that transitive dependencies of plugins are also available... maybe?)
+    val dokkaPluginsIntransitiveClasspath = configurations.register(DOKKA_PLUGINS_INTRANSITIVE_CLASSPATH) {
+        description =
+            "Dokka Plugins classpath - for internal use. Fetch only the plugins (no transitive dependencies) for use in the Dokka JSON Configuration."
+        asConsumer()
         extendsFrom(dokkaPluginsClasspath.get())
+        isVisible = false
+        isTransitive = false
+        attributes {
+            jvmJar()
+            dokkaCategory(attributes.dokkaPluginsClasspath)
+        }
     }
+
+    val dokkaPluginsOutgoingClasspath = configurations.register(DOKKA_PLUGINS_CLASSPATH + "Elements") {
+        // defining this is _required_ otherwise Gradle will use its imagination and fill in the blanks with random dependencies
+        description = "share Dokka Plugins classpath with other subprojects"
+        asProvider()
+        isVisible = true
+        extendsFrom(dokkaPluginsClasspath.get())
+        attributes {
+            jvmJar()
+            dokkaCategory(attributes.dokkaPluginsClasspath)
+        }
+    }
+    //</editor-fold>
+
+    //<editor-fold desc="Dokka Generator Classpath (not plugins)">
+    val dokkaGeneratorClasspath = configurations.register(ConfigurationName.DOKKA_GENERATOR_CLASSPATH) {
+        description =
+            "Dokka Generator runtime classpath - will be used in Dokka Worker. Should contain all plugins, and transitive dependencies, so Dokka Worker can run."
+        asConsumer()
+        isVisible = false
+
+        extendsFrom(dokkaConsumer.get())
+
+        // extend from plugins classpath, so Dokka Worker can run the plugins
+        extendsFrom(dokkaPluginsClasspath.get())
+
+        isTransitive = true
+        attributes {
+            jvmJar()
+            dokkaCategory(attributes.dokkaGeneratorClasspath)
+        }
+    }
+
+    val dokkaGeneratorClasspathProvider =
+        configurations.register(ConfigurationName.DOKKA_GENERATOR_CLASSPATH + "Elements") {
+            description = "Provide Dokka Generator classpath to other subprojects"
+            asProvider()
+            isVisible = true
+            attributes {
+                jvmJar()
+                dokkaCategory(attributes.dokkaGeneratorClasspath)
+            }
+            extendsFrom(dokkaGeneratorClasspath.get())
+        }
+    //</editor-fold>
 
     return DokkaPluginConfigurations(
         dokkaConsumer = dokkaConsumer,
@@ -134,34 +197,37 @@ internal fun Project.setupDokkaConfigurations(dokkaSettings: DokkaPluginSettings
         dokkaModuleDescriptorsConsumer = dokkaModuleDescriptorsConsumer,
         dokkaConfigurationsElements = dokkaConfigurationsProvider,
         dokkaModuleDescriptorsElements = dokkaModuleDescriptorsProvider,
-        dokkaRuntimeClasspath = dokkaRuntimeClasspath,
         dokkaPluginsClasspath = dokkaPluginsClasspath,
+        dokkaGeneratorClasspath = dokkaGeneratorClasspath,
+        dokkaPluginsIntransitiveClasspath = dokkaPluginsIntransitiveClasspath,
     )
 }
 
-/** Mark this [Configuration] as one that will be consumed by other subprojects. */
-private fun Configuration.asProvider(visible: Boolean = false) {
-    isVisible = visible
+/**
+ * Mark this [Configuration] as one that will be consumed by other subprojects.
+ *
+ * ```
+ * isCanBeResolved = false
+ * isCanBeConsumed = true
+ * ```
+ */
+private fun Configuration.asProvider() {
     isCanBeResolved = false
     isCanBeConsumed = true
 }
 
-/** Mark this [Configuration] as one that will consume artifacts from other subprojects (also known as 'resolving') */
-private fun Configuration.asConsumer(visible: Boolean = false) {
-    isVisible = visible
+/**
+ * Mark this [Configuration] as one that will consume artifacts from other subprojects (also known as 'resolving')
+ *
+ * ```
+ * isCanBeResolved = true
+ * isCanBeConsumed = false
+ * ```
+ * */
+private fun Configuration.asConsumer() {
     isCanBeResolved = true
     isCanBeConsumed = false
 }
 
-private fun AttributeContainer.jvmJar(objects: ObjectFactory) {
-    attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category.LIBRARY))
-    attribute(Bundling.BUNDLING_ATTRIBUTE, objects.named(Bundling.EXTERNAL))
-    attribute(
-        TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE,
-        objects.named(TargetJvmEnvironment.STANDARD_JVM)
-    )
-    attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements.JAR))
-    attribute(kotlinPlatformType, "jvm")
-}
 
 private val kotlinPlatformType = Attribute.of("org.jetbrains.kotlin.platform.type", String::class.java)

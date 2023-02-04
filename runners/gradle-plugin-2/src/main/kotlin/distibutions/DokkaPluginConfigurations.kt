@@ -26,13 +26,30 @@ internal data class DokkaPluginConfigurations(
 
 
     /**
-     * Runtime classpath used to execute Dokka
+     * Runtime classpath used to execute Dokka Worker.
+     *
+     * Extends [dokkaPluginsClasspath].
      *
      * @see org.jetbrains.dokka.gradle.workers.DokkaGeneratorWorker
      * @see org.jetbrains.dokka.gradle.tasks.DokkaGenerateTask
      */
-    val dokkaRuntimeClasspath: NamedDomainObjectProvider<Configuration>,
+    val dokkaGeneratorClasspath: NamedDomainObjectProvider<Configuration>,
 
-    // TODO KDoc me
+    /**
+     * Dokka plugins.
+     *
+     * Users can add plugins to this dependency.
+     *
+     * Should not contain runtime dependencies.
+     */
     val dokkaPluginsClasspath: NamedDomainObjectProvider<Configuration>,
+
+    /**
+     * Dokka plugins, without transitive dependencies.
+     *
+     * Do not add dependencies to this configuration, because it extends [dokkaPluginsClasspath]
+     * the plugins are computed automatically.
+     */
+//    internal val dokkaPluginsIntransitiveClasspath: Configuration,
+    val dokkaPluginsIntransitiveClasspath: NamedDomainObjectProvider<Configuration>,
 )

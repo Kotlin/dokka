@@ -1,7 +1,14 @@
 package org.jetbrains.dokka.gradle
 
+import io.kotest.assertions.withClue
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.collections.shouldNotContainAnyOf
 import io.kotest.matchers.paths.shouldBeAFile
+import io.kotest.matchers.paths.shouldExist
 import io.kotest.matchers.string.shouldContain
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.json.decodeFromStream
+import org.jetbrains.dokka.gradle.dokka_configuration.DokkaConfigurationKxs
 import org.jetbrains.dokka.gradle.utils.*
 import org.junit.jupiter.api.Test
 
@@ -21,9 +28,10 @@ class MultiModuleFunctionalTest {
                 |import org.jetbrains.dokka.*
                 |
                 |plugins {
-                |    // Kotlin plugin shouldn't be necessary here, but without Dokka errors
+                |    // Kotlin plugin shouldn't be necessary here, but without it Dokka errors
                 |    // with ClassNotFound KotlinPluginExtension... very weird
-                |    kotlin("jvm") version "1.7.20" 
+                |    kotlin("jvm") version "1.7.20" apply false
+                |    //base
                 |    //`embedded-kotlin`
                 |    id("org.jetbrains.dokka2") version "2.0.0"
                 |}
@@ -219,7 +227,7 @@ class MultiModuleFunctionalTest {
         build.output shouldContain "BUILD SUCCESSFUL"
         build.output shouldContain "Generation completed successfully"
 
-        project.projectDir.toFile().walk().forEach { println(it) }
+//        project.projectDir.toFile().walk().forEach { println(it) }
 
 //        project.projectDir.resolve("subproject/build/dokka-output/com/project/hello/Hello.html").shouldBeAFile()
 //        project.projectDir.resolve("subproject/build/dokka-output/index.html").shouldBeAFile()
@@ -233,6 +241,34 @@ class MultiModuleFunctionalTest {
 //            com.project.hello
 //        """.trimIndent()
 //        )
-    }
 
+        val dokkaConfigurationFile = project.projectDir.resolve("build/dokka-config/dokka_configuration.json")
+        dokkaConfigurationFile.shouldExist()
+        dokkaConfigurationFile.shouldBeAFile()
+        @OptIn(ExperimentalSerializationApi::class)
+        val dokkaConfiguration = kotlinx.serialization.json.Json.decodeFromStream(
+            DokkaConfigurationKxs.serializer(),
+            dokkaConfigurationFile.toFile().inputStream(),
+        )
+
+        withClue("pluginsClasspath should not contain subproject jars") {
+            val pluginClasspathJars = dokkaConfiguration.pluginsClasspath.map { it.name }
+
+            pluginClasspathJars.shouldNotContainAnyOf(
+                "subproject-hello.jar",
+                "subproject-goodbye.jar",
+            )
+
+            pluginClasspathJars.shouldContainExactlyInAnyOrder(
+                "markdown-jvm-0.3.1.jar",
+                "kotlin-analysis-intellij-1.7.20.jar",
+                "dokka-base-1.7.20.jar",
+                "templating-plugin-1.7.20.jar",
+                "dokka-analysis-1.7.20.jar",
+                "kotlin-analysis-compiler-1.7.20.jar",
+                "kotlinx-html-jvm-0.8.0.jar",
+                "freemarker-2.3.31.jar"
+            )
+        }
+    }
 }

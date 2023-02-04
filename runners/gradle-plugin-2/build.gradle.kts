@@ -72,6 +72,16 @@ publishing {
             name = "Test"
         }
     }
+    publications.withType<MavenPublication>().configureEach {
+        // prevent warning message...
+        // Maven publication 'pluginMaven' pom metadata warnings (silence with 'suppressPomMetadataWarningsFor(variant)'):
+        // - Variant testFixturesApiElements:
+        // - Declares capability org.jetbrains.dokka:dokka-gradle-plugin-2-test-fixtures:2.0.0 which cannot be mapped to Maven
+        // - Variant testFixturesRuntimeElements:
+        // - Declares capability org.jetbrains.dokka:dokka-gradle-plugin-2-test-fixtures:2.0.0 which cannot be mapped to Maven
+        suppressPomMetadataWarningsFor("testFixturesApiElements")
+        suppressPomMetadataWarningsFor("testFixturesRuntimeElements")
+    }
 }
 
 
@@ -93,6 +103,9 @@ testing.suites {
             implementation("io.kotest:kotest-assertions-json")
 
             implementation(project.dependencies.testFixtures(project()))
+
+            implementation("org.jetbrains.dokka:dokka-core:1.7.20")
+            implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0-RC")
         }
     }
 

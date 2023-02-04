@@ -22,6 +22,7 @@ class BasicProjectIntegrationTest {
     fun `test basic project`() {
         val build = basicProject.runner
             .withArguments(
+                "clean",
                 "dokkaGenerate",
                 "--stacktrace",
                 "--info",

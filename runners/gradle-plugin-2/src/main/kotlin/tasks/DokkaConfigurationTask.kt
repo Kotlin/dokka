@@ -13,6 +13,7 @@ import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.*
 import org.jetbrains.dokka.gradle.DokkaPlugin.Companion.jsonMapper
 import org.jetbrains.dokka.gradle.dokka_configuration.DokkaConfigurationKxs
+import org.jetbrains.dokka.gradle.dokka_configuration.DokkaPluginConfigurationGradleBuilder
 import org.jetbrains.dokka.gradle.dokka_configuration.DokkaSourceSetGradleBuilder
 import javax.inject.Inject
 
@@ -67,7 +68,7 @@ abstract class DokkaConfigurationTask @Inject constructor(
     abstract val pluginsClasspath: ConfigurableFileCollection
 
     @get:Input
-    abstract val pluginsConfiguration: DomainObjectSet<DokkaConfigurationKxs.PluginConfigurationKxs>
+    abstract val pluginsConfiguration: DomainObjectSet<DokkaPluginConfigurationGradleBuilder>
 
     /** Dokka Configuration files from other subprojects that will be merged into this Dokka Configuration */
     @get:InputFiles
@@ -119,6 +120,7 @@ abstract class DokkaConfigurationTask @Inject constructor(
         dokkaConfigurationJson.get().asFile.writeText(encodedModuleDesc)
     }
 
+
     private fun buildDokkaConfiguration(): DokkaConfigurationKxs {
 
         val moduleName = moduleName.get()
@@ -128,7 +130,7 @@ abstract class DokkaConfigurationTask @Inject constructor(
         val offlineMode = offlineMode.get()
         val sourceSets = dokkaSourceSets.map(DokkaSourceSetGradleBuilder::build)
         val pluginsClasspath = pluginsClasspath.files.toList()
-        val pluginsConfiguration = pluginsConfiguration.toList()
+        val pluginsConfiguration = pluginsConfiguration.map(DokkaPluginConfigurationGradleBuilder::build)
         val failOnWarning = failOnWarning.get()
         val delayTemplateSubstitution = delayTemplateSubstitution.get()
         val suppressObviousFunctions = suppressObviousFunctions.get()
@@ -161,10 +163,7 @@ abstract class DokkaConfigurationTask @Inject constructor(
         // fetch any configurations from OTHER subprojects
         val subprojectConfigs = dokkaSubprojectConfigurations.files.map { file ->
             val fileContent = file.readText()
-            jsonMapper.decodeFromString(
-                DokkaConfigurationKxs.serializer(),
-                fileContent,
-            )
+            jsonMapper.decodeFromString(DokkaConfigurationKxs.serializer(), fileContent)
         }
 
         // now, combine them:
@@ -173,21 +172,19 @@ abstract class DokkaConfigurationTask @Inject constructor(
                 sourceSets = acc.sourceSets + it.sourceSets,
                 // TODO remove plugin classpath aggregation, plugin classpath should be shared via Gradle Configuration
                 //      so Gradle can correctly de-duplicate jars
-                pluginsClasspath = acc.pluginsClasspath + it.pluginsClasspath,
+//                pluginsClasspath = acc.pluginsClasspath + it.pluginsClasspath,
             )
         }
     }
 
-    private fun dokkaModuleDescriptors(): List<DokkaConfigurationKxs.DokkaModuleDescriptionKxs> {
-        return dokkaModuleDescriptorFiles.files.map { file ->
+    private fun dokkaModuleDescriptors(): List<DokkaConfigurationKxs.DokkaModuleDescriptionKxs> =
+        dokkaModuleDescriptorFiles.files.map { file ->
             val fileContent = file.readText()
             jsonMapper.decodeFromString(
                 DokkaConfigurationKxs.DokkaModuleDescriptionKxs.serializer(),
                 fileContent,
             )
         }
-    }
-
 
     @get:Input
     @Deprecated("TODO write adapter to the new DSL")

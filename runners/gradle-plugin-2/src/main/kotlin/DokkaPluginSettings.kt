@@ -26,8 +26,6 @@ abstract class DokkaPluginSettings @Inject constructor(
     /** Default Dokka cache directory */
     abstract val dokkaWorkDir: RegularFileProperty
 
-    val attributeValues = DokkaAttributeValues()
-
     abstract val moduleName: Property<String>
 
     /**
@@ -69,15 +67,4 @@ abstract class DokkaPluginSettings @Inject constructor(
     val dokkaModules: NamedDomainObjectContainer<DokkaModuleDescriptionGradleBuilder> =
         objects.domainObjectContainer(DokkaModuleDescriptionGradleBuilder::class)
 
-    inner class DokkaAttributeValues {
-
-        /** A general attribute for all [Configuration]s that are used by the Dokka Gradle plugin */
-        val dokkaUsage: Usage = objects.named("org.jetbrains.dokka")
-
-        /** for [Configuration]s that provide or consume Dokka configuration files */
-        val dokkaConfigurationCategory: Category = objects.named("configuration")
-
-        /** for [Configuration]s that provide or consume Dokka module descriptor files */
-        val dokkaModuleDescriptionCategory: Category = objects.named("module-descriptor")
-    }
 }
