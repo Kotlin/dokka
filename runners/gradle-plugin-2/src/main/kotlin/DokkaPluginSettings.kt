@@ -1,15 +1,10 @@
 package org.jetbrains.dokka.gradle
 
 import org.gradle.api.NamedDomainObjectContainer
-import org.gradle.api.artifacts.Configuration
-import org.gradle.api.attributes.Category
-import org.gradle.api.attributes.Usage
-import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
 import org.gradle.kotlin.dsl.domainObjectContainer
-import org.gradle.kotlin.dsl.named
-import org.jetbrains.dokka.gradle.dokka_configuration.DokkaConfigurationKxs
 import org.jetbrains.dokka.gradle.dokka_configuration.DokkaModuleDescriptionGradleBuilder
 import org.jetbrains.dokka.gradle.dokka_configuration.DokkaSourceSetGradleBuilder
 import javax.inject.Inject
@@ -24,9 +19,7 @@ abstract class DokkaPluginSettings @Inject constructor(
     abstract val dokkaVersion: Property<String>
 
     /** Default Dokka cache directory */
-    abstract val dokkaWorkDir: RegularFileProperty
-
-    abstract val moduleName: Property<String>
+    abstract val dokkaCacheDirectory: DirectoryProperty
 
     /**
      * Dokka Source Sets describe the source code that should be included in a Dokka Publication.

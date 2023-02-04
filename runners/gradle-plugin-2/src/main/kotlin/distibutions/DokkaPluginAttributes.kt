@@ -9,22 +9,22 @@ import org.gradle.kotlin.dsl.named
 import javax.inject.Inject
 
 abstract class DokkaPluginAttributes @Inject constructor(
-    private val objects: ObjectFactory,
+    objects: ObjectFactory,
 ) {
 
     /** A general attribute for all [Configuration]s that are used by the Dokka Gradle plugin */
 //    val dokkaBaseUsage: Usage = objects.named("org.jetbrains.dokka")
-    val dokkaBaseUsage: DokkaBase get() = objects.named("dokka")
+    val dokkaBaseUsage: DokkaBase = objects.named("dokka")
 
     /** for [Configuration]s that provide or consume Dokka configuration files */
-    val dokkaConfiguration: DokkaCategory get() = objects.named("configuration")
+    val dokkaConfiguration: DokkaCategory = objects.named("configuration")
 
     /** for [Configuration]s that provide or consume Dokka module descriptor files */
-    val dokkaModuleDescriptors: DokkaCategory get() = objects.named("module-descriptor")
+    val dokkaModuleDescriptors: DokkaCategory = objects.named("module-descriptor")
 
-    val dokkaGeneratorClasspath: DokkaCategory get() = objects.named("generator-classpath")
+    val dokkaGeneratorClasspath: DokkaCategory = objects.named("generator-classpath")
 
-    val dokkaPluginsClasspath: DokkaCategory get() = objects.named("plugins-classpath")
+    val dokkaPluginsClasspath: DokkaCategory = objects.named("plugins-classpath")
 
     interface DokkaBase : Usage
 
@@ -34,5 +34,4 @@ abstract class DokkaPluginAttributes @Inject constructor(
         val DOKKA_BASE_ATTRIBUTE = Attribute.of("org.jetbrains.dokka.base", DokkaBase::class.java)
         val DOKKA_CATEGORY_ATTRIBUTE = Attribute.of("org.jetbrains.dokka.category", DokkaCategory::class.java)
     }
-
 }

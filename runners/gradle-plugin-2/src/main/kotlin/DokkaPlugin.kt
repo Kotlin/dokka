@@ -36,12 +36,58 @@ abstract class DokkaPlugin @Inject constructor(
 
         val dokkaSettings = target.extensions.create<DokkaPluginSettings>(EXTENSION_NAME).apply {
             dokkaVersion.convention("1.7.20")
-            dokkaWorkDir.convention(target.rootProject.layout.buildDirectory.file("dokka-work-dir"))
+            dokkaCacheDirectory.convention(target.rootProject.layout.buildDirectory.dir("dokka-cache"))
         }
 
         val dokkaConfigurations = target.setupDokkaConfigurations(dokkaSettings)
 
-        target.dependencies {
+        target.addDokkaDependencies(dokkaSettings)
+
+        val dokkaConfigurationTask = target.tasks.registerCreateDokkaConfigurationTask(
+            dokkaSettings,
+            dokkaConfigurations,
+        )
+
+        val dokkaGenerateTask = target.tasks.registerDokkaGenerateTask(
+            dokkaSettings,
+            dokkaConfigurationTask,
+            dokkaConfigurations,
+        )
+
+        val dokkaModuleConfigurationTask = target.tasks.registerDokkaModuleConfigurationTask(dokkaGenerateTask)
+
+        dokkaConfigurations.dokkaModuleDescriptorsElements.configure {
+            outgoing {
+                artifact(dokkaModuleConfigurationTask.map { it.dokkaModuleConfigurationJson })
+            }
+        }
+        dokkaConfigurations.dokkaConfigurationsElements.configure {
+            outgoing {
+                artifact(dokkaConfigurationTask.flatMap { it.dokkaConfigurationJson })
+            }
+        }
+
+        // apply the plugin that will autoconfigure Dokka to use the sources of a Kotlin project
+        target.pluginManager.apply(DokkaKotlinAdapter::class)
+    }
+
+    private fun Project.addDokkaDependencies(dokkaSettings: DokkaPluginSettings) {
+
+        //<editor-fold desc="DependencyHandler utils">
+        fun DependencyHandlerScope.dokkaPlugin(dependency: Provider<Dependency>) =
+            addProvider(DOKKA_PLUGINS_CLASSPATH, dependency)
+
+        fun DependencyHandlerScope.dokkaPlugin(dependency: String) =
+            add(DOKKA_PLUGINS_CLASSPATH, dependency)
+
+        fun DependencyHandlerScope.dokkaGenerator(dependency: Provider<Dependency>) =
+            addProvider(DOKKA_GENERATOR_CLASSPATH, dependency)
+
+        fun DependencyHandlerScope.dokkaGenerator(dependency: String) =
+            add(DOKKA_GENERATOR_CLASSPATH, dependency)
+        //</editor-fold>
+
+        dependencies {
             fun dokka(module: String) =
                 dokkaSettings.dokkaVersion.map { version -> create("org.jetbrains.dokka:$module:$version") }
 
@@ -59,47 +105,10 @@ abstract class DokkaPlugin @Inject constructor(
 
             dokkaGenerator(dokka("dokka-core"))
         }
-
-        val dokkaConfigurationTask = target.tasks.registerCreateDokkaConfigurationTask(dokkaConfigurations)
-
-        target.tasks.withType<DokkaConfigurationTask>().configureEach {
-            cacheRoot.convention(target.rootProject.layout.buildDirectory.dir("dokka-cache"))
-            delayTemplateSubstitution.convention(true)
-            dokkaConfigurationJson.convention(layout.buildDirectory.file("dokka-config/dokka_configuration.json"))
-            outputDir.convention(layout.buildDirectory.dir("dokka-output"))
-            failOnWarning.convention(false)
-            finalizeCoroutines.convention(false)
-            suppressInheritedMembers.convention(false)
-            suppressObviousFunctions.convention(false)
-            offlineMode.convention(false)
-            moduleName.convention(providers.provider { project.name })
-            moduleVersion.convention(providers.provider { project.version.toString() })
-            dokkaSourceSets.addAllLater(providers.provider { dokkaSettings.dokkaSourceSets })
-        }
-
-        val dokkaGenerateTask = target.tasks.registerDokkaGenerateTask(dokkaConfigurationTask, dokkaConfigurations)
-
-        val dokkaModuleConfigurationTask = target.tasks.registerDokkaModuleConfigurationTask(dokkaGenerateTask)
-
-        dokkaConfigurations.dokkaModuleDescriptorsElements.configure {
-            outgoing {
-//                capability("org.jetbrains.dokka:dokka-module-descriptors:1")
-                artifact(dokkaModuleConfigurationTask.map { it.dokkaModuleConfigurationJson })
-            }
-        }
-        dokkaConfigurations.dokkaConfigurationsElements.configure {
-            outgoing {
-//                capability("org.jetbrains.dokka:dokka-configuration:1")
-                artifact(dokkaConfigurationTask.flatMap { it.dokkaConfigurationJson })
-            }
-        }
-
-        // apply the plugin that will autoconfigure Dokka to use the sources of a Kotlin project
-        target.pluginManager.apply(DokkaKotlinAdapter::class)
     }
 
-
     private fun TaskContainer.registerDokkaGenerateTask(
+        dokkaSettings: DokkaPluginSettings,
         dokkaConfigurationTask: TaskProvider<DokkaConfigurationTask>,
         dokkaConfigurations: DokkaPluginConfigurations,
     ): TaskProvider<DokkaGenerateTask> {
@@ -107,7 +116,7 @@ abstract class DokkaPlugin @Inject constructor(
 
         withType<DokkaGenerateTask>().configureEach {
             dokkaConfigurationJson.set(dokkaConfigurationTask.flatMap { it.dokkaConfigurationJson })
-            cacheDirectory.convention(dokkaConfigurationTask.flatMap { it.cacheRoot })
+            cacheDirectory.convention(dokkaSettings.dokkaCacheDirectory)
             outputDirectory.convention(dokkaConfigurationTask.flatMap { it.outputDir })
 
 //            runtimeClasspath.from(dokkaConfigurations.dokkaPluginsClasspath.map(Configuration::resolve))
@@ -119,11 +128,25 @@ abstract class DokkaPlugin @Inject constructor(
 
 
     private fun TaskContainer.registerCreateDokkaConfigurationTask(
+        dokkaSettings: DokkaPluginSettings,
         dokkaConfigurations: DokkaPluginConfigurations,
     ): TaskProvider<DokkaConfigurationTask> {
         val dokkaConfigurationTask = register<DokkaConfigurationTask>(TaskName.CREATE_DOKKA_CONFIGURATION)
 
         withType<DokkaConfigurationTask>().configureEach configTask@{
+
+            cacheRoot.convention(dokkaSettings.dokkaCacheDirectory)
+            delayTemplateSubstitution.convention(false)
+            dokkaConfigurationJson.convention(layout.buildDirectory.file("dokka-config/dokka_configuration.json"))
+            outputDir.convention(layout.buildDirectory.dir("dokka-output"))
+            failOnWarning.convention(false)
+            finalizeCoroutines.convention(false)
+            suppressInheritedMembers.convention(false)
+            suppressObviousFunctions.convention(false)
+            offlineMode.convention(false)
+            moduleName.convention(providers.provider { project.name })
+            moduleVersion.convention(providers.provider { project.version.toString() })
+            dokkaSourceSets.addAllLater(providers.provider { dokkaSettings.dokkaSourceSets })
 
             // helper for the old DSL,
             // todo I want to move dokkaSourceSets extension to the DokkaPluginSettings, out of tasks
@@ -146,9 +169,6 @@ abstract class DokkaPlugin @Inject constructor(
             pluginsClasspath.from(dokkaConfigurations.dokkaPluginsIntransitiveClasspath.map {
                 it.incoming.artifactView { }.files
             })
-//            pluginsClasspath.from(
-//                dokkaConfigurations.dokkaPluginsIntransitiveClasspath
-//            )
 
             dokkaSourceSets.configureEach {
                 // TODO copy default values from old plugin
@@ -164,6 +184,9 @@ abstract class DokkaPlugin @Inject constructor(
                 suppressGeneratedFiles.convention(true)
                 displayName.convention(this@configTask.path)
                 analysisPlatform.convention(Platform.DEFAULT)
+
+//                languageVersion.convention("1.7")
+//                apiVersion.convention("1.7")
 
                 sourceLinks.configureEach {
                     localDirectory.convention(layout.projectDirectory.asFile)
@@ -205,7 +228,10 @@ abstract class DokkaPlugin @Inject constructor(
     private fun TaskContainer.registerDokkaModuleConfigurationTask(
         dokkaGenerateTask: TaskProvider<DokkaGenerateTask>,
     ): TaskProvider<DokkaModuleConfigurationTask> {
-        return register<DokkaModuleConfigurationTask>(TaskName.CREATE_DOKKA_MODULE_CONFIGURATION) {
+        val dokkaModuleConfigurationTask =
+            register<DokkaModuleConfigurationTask>(TaskName.CREATE_DOKKA_MODULE_CONFIGURATION)
+
+        withType<DokkaModuleConfigurationTask>().configureEach {
             moduleName.set(project.name.map { it.takeIf(Char::isLetterOrDigit) ?: "-" }.joinToString(""))
             dokkaModuleConfigurationJson.set(
                 moduleName.flatMap { moduleName ->
@@ -219,6 +245,8 @@ abstract class DokkaPlugin @Inject constructor(
             sourceOutputDirectory(dokkaGenerateTask.map { it.outputDirectory })
 //            sourceOutputDirectory(layout.buildDirectory.dir("dokka/source-output"))
         }
+
+        return dokkaModuleConfigurationTask
     }
 
 
@@ -283,20 +311,5 @@ abstract class DokkaPlugin @Inject constructor(
         internal val jsonMapper = Json {
             prettyPrint = true
         }
-
-        //<editor-fold desc="DependencyHandler utils">
-        private fun DependencyHandlerScope.dokkaPlugin(dependency: Provider<Dependency>) =
-            addProvider(DOKKA_PLUGINS_CLASSPATH, dependency)
-
-        private fun DependencyHandlerScope.dokkaPlugin(dependency: String) =
-            add(DOKKA_PLUGINS_CLASSPATH, dependency)
-
-        private fun DependencyHandlerScope.dokkaGenerator(dependency: Provider<Dependency>) =
-            addProvider(DOKKA_GENERATOR_CLASSPATH, dependency)
-
-        private fun DependencyHandlerScope.dokkaGenerator(dependency: String) =
-            add(DOKKA_GENERATOR_CLASSPATH, dependency)
-        //</editor-fold>
-
     }
 }
