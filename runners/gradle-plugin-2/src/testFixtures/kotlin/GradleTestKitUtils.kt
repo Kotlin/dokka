@@ -25,7 +25,7 @@ class GradleProjectTest(
     )
 
     val runner: GradleRunner = GradleRunner.create().withProjectDir(projectDir.toFile())
-    val testMavenRepoRelativePath = projectDir.relativize(testMavenRepoDir)
+    val testMavenRepoRelativePath: Path = projectDir.relativize(testMavenRepoDir)
 
     fun createFile(filePath: String, contents: String): File =
         projectDir.resolve(filePath).toFile().apply {
@@ -106,7 +106,7 @@ fun gradleKtsProjectTest(
             |dependencyResolutionManagement {
             |    repositories {
             |        mavenCentral()
-            |        maven(file("$testMavenRepoDir"))
+            |        maven(file("$testMavenRepoRelativePath"))
             |    }
             |}
             |
@@ -114,7 +114,7 @@ fun gradleKtsProjectTest(
             |    repositories {
             |        gradlePluginPortal()
             |        mavenCentral()
-            |        maven(file("$testMavenRepoDir"))
+            |        maven(file("$testMavenRepoRelativePath"))
             |    }
             |}
             |
@@ -148,7 +148,7 @@ fun gradleGroovyProjectTest(
             |dependencyResolutionManagement {
             |    repositories {
             |        mavenCentral()
-            |        maven { url = file("$testMavenRepoDir") }
+            |        maven { url = file("$testMavenRepoRelativePath") }
             |    }
             |}
             |
@@ -156,7 +156,7 @@ fun gradleGroovyProjectTest(
             |    repositories {
             |        gradlePluginPortal()
             |        mavenCentral()
-            |        maven { url = file("$testMavenRepoDir") }
+            |        maven { url = file("$testMavenRepoRelativePath") }
             |    }
             |}
             |
