@@ -6,7 +6,6 @@
 
 package org.jetbrains.dokka.gradle.dokka_configuration
 
-import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
@@ -15,9 +14,6 @@ import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
-import kotlinx.serialization.json.JsonDecoder
-import kotlinx.serialization.json.JsonEncoder
-import kotlinx.serialization.json.JsonUnquotedLiteral
 import org.gradle.api.Named
 import org.jetbrains.dokka.*
 import java.io.File
@@ -112,7 +108,7 @@ data class DokkaConfigurationKxs(
     data class PluginConfigurationKxs(
         override val fqPluginName: String,
         override val serializationFormat: DokkaConfiguration.SerializationFormat,
-        @Serializable(with = JsonLiteralStringSerializer::class)
+        // a string that might contain escaped JSON/XML
         override val values: String,
     ) : DokkaConfiguration.PluginConfiguration
 
@@ -229,31 +225,4 @@ private object FileAsPathStringSerializer : KSerializer<File> {
 
     override fun serialize(encoder: Encoder, value: File): Unit =
         encoder.encodeString(value.invariantSeparatorsPath)
-}
-
-
-private object JsonLiteralStringSerializer : KSerializer<String> {
-
-    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("RawJsonString", PrimitiveKind.STRING)
-
-    /**
-     * Encodes [value] using [JsonUnquotedLiteral], if [encoder] is a [JsonEncoder],
-     * or with [Encoder.encodeString] otherwise.
-     */
-    @OptIn(ExperimentalSerializationApi::class)
-    override fun serialize(encoder: Encoder, value: String) = when (encoder) {
-        is JsonEncoder -> encoder.encodeJsonElement(JsonUnquotedLiteral(value))
-        else -> encoder.encodeString(value)
-    }
-
-    /**
-     * If [decoder] is a [JsonDecoder], decodes a [kotlinx.serialization.json.JsonElement] (which could be an object,
-     * array, or primitive) as a string.
-     *
-     * Otherwise, decode a string using [Decoder.decodeString].
-     */
-    override fun deserialize(decoder: Decoder): String = when (decoder) {
-        is JsonDecoder -> decoder.decodeJsonElement().toString()
-        else -> decoder.decodeString()
-    }
 }

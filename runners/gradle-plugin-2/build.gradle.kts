@@ -23,11 +23,11 @@ dependencies {
     compileOnly("org.jetbrains.kotlin:kotlin-gradle-plugin:1.7.20")
     compileOnly("com.android.tools.build:gradle:4.0.1")
 
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0-RC")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
 
     testFixturesImplementation(gradleApi())
     testFixturesImplementation(gradleTestKit())
-    testFixturesImplementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0-RC")
+    testFixturesImplementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
 
     // note: test dependencies are defined in the testing.suites {} configuration below
 }
@@ -105,7 +105,7 @@ testing.suites {
             implementation(project.dependencies.testFixtures(project()))
 
             implementation("org.jetbrains.dokka:dokka-core:1.7.20")
-            implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0-RC")
+            implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
         }
     }
 
