@@ -7,7 +7,7 @@ import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.DokkaGenerator
 import org.jetbrains.dokka.gradle.internal.LoggerAdapter
 import kotlin.time.ExperimentalTime
-import kotlin.time.measureTime
+import kotlin.time.nanoseconds
 
 /**
  * Gradle Worker Daemon for running [DokkaGenerator].
@@ -29,8 +29,10 @@ abstract class DokkaGeneratorWorker : WorkAction<DokkaGeneratorWorker.Parameters
 
         val generator = DokkaGenerator(dokkaConfiguration, logger)
 
-        val duration = measureTime {
+        // can't use kotlin.time.measureTime {} because the implementation isn't stable across Kotlin versions
+        val duration = System.nanoTime().let { startTime ->
             generator.generate()
+            (System.nanoTime() - startTime).nanoseconds
         }
 
         logger.info("DokkaGeneratorWorker completed in $duration")
