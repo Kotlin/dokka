@@ -6,6 +6,7 @@
 
 package org.jetbrains.dokka.gradle.dokka_configuration
 
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
@@ -14,6 +15,9 @@ import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.json.JsonDecoder
+import kotlinx.serialization.json.JsonEncoder
+import kotlinx.serialization.json.JsonUnquotedLiteral
 import org.gradle.api.Named
 import org.jetbrains.dokka.*
 import java.io.File
@@ -28,9 +32,9 @@ import java.nio.file.Paths
 @Serializable
 data class DokkaConfigurationKxs(
     override val moduleName: String,
-    override val moduleVersion: String?,
+    override val moduleVersion: String? = null,
     override val outputDir: File,
-    override val cacheRoot: File?,
+    override val cacheRoot: File? = null,
     override val offlineMode: Boolean,
     override val failOnWarning: Boolean,
     override val sourceSets: List<DokkaSourceSetKxs>,
@@ -66,8 +70,8 @@ data class DokkaConfigurationKxs(
         override val sourceLinks: Set<SourceLinkDefinitionKxs>,
         override val perPackageOptions: List<PackageOptionsKxs>,
         override val externalDocumentationLinks: Set<ExternalDocumentationLinkKxs>,
-        override val languageVersion: String?,
-        override val apiVersion: String?,
+        override val languageVersion: String? = null,
+        override val apiVersion: String? = null,
         override val noStdlibLink: Boolean,
         override val noJdkLink: Boolean,
         override val suppressedFiles: Set<File>,
@@ -86,14 +90,14 @@ data class DokkaConfigurationKxs(
     data class SourceLinkDefinitionKxs(
         override val localDirectory: String,
         override val remoteUrl: URL,
-        override val remoteLineSuffix: String?,
+        override val remoteLineSuffix: String? = null,
     ) : DokkaConfiguration.SourceLinkDefinition
 
 
     @Serializable
     data class PackageOptionsKxs(
         override val matchingRegex: String,
-        override val reportUndocumented: Boolean?,
+        override val reportUndocumented: Boolean? = null,
         override val skipDeprecated: Boolean,
         override val suppress: Boolean,
         override val documentedVisibilities: Set<DokkaConfiguration.Visibility>,
@@ -108,10 +112,9 @@ data class DokkaConfigurationKxs(
     data class PluginConfigurationKxs(
         override val fqPluginName: String,
         override val serializationFormat: DokkaConfiguration.SerializationFormat,
+        @Serializable(with = JsonLiteralStringSerializer::class)
         override val values: String,
-    ) : DokkaConfiguration.PluginConfiguration, Named {
-        override fun getName(): String = fqPluginName
-    }
+    ) : DokkaConfiguration.PluginConfiguration
 
 
     /**
@@ -225,5 +228,32 @@ private object FileAsPathStringSerializer : KSerializer<File> {
         Paths.get(decoder.decodeString()).toFile()
 
     override fun serialize(encoder: Encoder, value: File): Unit =
-        encoder.encodeString(value.absoluteFile.canonicalFile.invariantSeparatorsPath)
+        encoder.encodeString(value.invariantSeparatorsPath)
+}
+
+
+private object JsonLiteralStringSerializer : KSerializer<String> {
+
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("RawJsonString", PrimitiveKind.STRING)
+
+    /**
+     * Encodes [value] using [JsonUnquotedLiteral], if [encoder] is a [JsonEncoder],
+     * or with [Encoder.encodeString] otherwise.
+     */
+    @OptIn(ExperimentalSerializationApi::class)
+    override fun serialize(encoder: Encoder, value: String) = when (encoder) {
+        is JsonEncoder -> encoder.encodeJsonElement(JsonUnquotedLiteral(value))
+        else -> encoder.encodeString(value)
+    }
+
+    /**
+     * If [decoder] is a [JsonDecoder], decodes a [kotlinx.serialization.json.JsonElement] (which could be an object,
+     * array, or primitive) as a string.
+     *
+     * Otherwise, decode a string using [Decoder.decodeString].
+     */
+    override fun deserialize(decoder: Decoder): String = when (decoder) {
+        is JsonDecoder -> decoder.decodeJsonElement().toString()
+        else -> decoder.decodeString()
+    }
 }

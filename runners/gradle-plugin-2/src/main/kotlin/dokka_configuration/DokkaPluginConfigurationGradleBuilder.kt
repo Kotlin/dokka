@@ -2,11 +2,14 @@ package org.jetbrains.dokka.gradle.dokka_configuration
 
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.DokkaConfigurationBuilder
+import java.io.Serializable
 
 abstract class DokkaPluginConfigurationGradleBuilder :
-    DokkaConfigurationBuilder<DokkaConfigurationKxs.PluginConfigurationKxs> {
+    DokkaConfigurationBuilder<DokkaConfigurationKxs.PluginConfigurationKxs>,
+    Serializable {
 
     @get:Input
     abstract val fqPluginName: Property<String>
@@ -17,10 +20,11 @@ abstract class DokkaPluginConfigurationGradleBuilder :
     @get:Input
     abstract val values: Property<String>
 
-    override fun build() =
-        DokkaConfigurationKxs.PluginConfigurationKxs(
-            fqPluginName = fqPluginName.get(),
-            serializationFormat = serializationFormat.get(),
-            values = values.get(),
-        )
+    @Internal
+    override fun build() = DokkaConfigurationKxs.PluginConfigurationKxs(
+        fqPluginName = fqPluginName.get(),
+        serializationFormat = serializationFormat.get(),
+        values = values.get(),
+    )
+
 }
