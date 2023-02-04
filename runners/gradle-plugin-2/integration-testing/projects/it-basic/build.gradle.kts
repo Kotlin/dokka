@@ -40,8 +40,7 @@ tasks.withType<DokkaTask> {
                 localDirectory.set(file("src/main"))
                 remoteUrl.set(
                     URL(
-                        "https://github.com/Kotlin/dokka/tree/master/" +
-                                "integration-tests/gradle/projects/it-basic/src/main"
+                        "https://github.com/Kotlin/dokka/tree/master/integration-tests/gradle/projects/it-basic/src/main"
                     )
                 )
             }
@@ -55,11 +54,23 @@ tasks.withType<DokkaTask> {
 
     pluginsMapConfiguration.set(
         mapOf(
-            DokkaBase::class.qualifiedName to """{ "customStyleSheets": ["${file("../customResources/logo-styles.css").invariantSeparatorsPath}", "${
-                file(
-                    "../customResources/custom-style-to-add.css"
-                ).invariantSeparatorsPath
-            }"], "customAssets" : ["${file("../customResources/custom-resource.svg").invariantSeparatorsPath}"] }"""
+//            DokkaBase::class.qualifiedName to """{ "customStyleSheets": ["${file("../customResources/logo-styles.css").invariantSeparatorsPath}", "${
+//                file(
+//                    "../customResources/custom-style-to-add.css"
+//                ).invariantSeparatorsPath
+//            }"], "customAssets" : ["${file("../customResources/custom-resource.svg").invariantSeparatorsPath}"] }""",
+
+            DokkaBase::class.qualifiedName to """
+              {
+                "customStyleSheets": [
+                  "${file("./customResources/logo-styles.css").invariantSeparatorsPath}",
+                  "${file("./customResources/custom-style-to-add.css").invariantSeparatorsPath}"
+                ],
+                "customAssets": [
+                  "${file("./customResources/custom-resource.svg").invariantSeparatorsPath}"
+                ]
+              }
+            """.trimIndent(),
         )
     )
 }
