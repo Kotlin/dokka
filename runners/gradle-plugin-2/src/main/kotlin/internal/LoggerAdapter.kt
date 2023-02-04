@@ -3,6 +3,7 @@ package org.jetbrains.dokka.gradle.internal
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 import org.jetbrains.dokka.utilities.DokkaLogger
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.reflect.KClass
 
 /**
@@ -20,8 +21,16 @@ internal class LoggerAdapter(
 
     constructor(kClass: KClass<*>) : this(Logging.getLogger(kClass.java))
 
-    override var errorsCount: Int = 0
-    override var warningsCount: Int = 0
+    private val warningsCounter = AtomicInteger()
+    private val errorsCounter = AtomicInteger()
+
+    override var warningsCount: Int
+        get() = warningsCounter.get()
+        set(value) = warningsCounter.set(value)
+
+    override var errorsCount: Int
+        get() = errorsCounter.get()
+        set(value) = errorsCounter.set(value)
 
     override fun debug(message: String) = logger.debug(message)
     override fun progress(message: String) = logger.lifecycle(message)
