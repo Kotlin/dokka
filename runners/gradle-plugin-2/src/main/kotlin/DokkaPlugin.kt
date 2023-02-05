@@ -36,7 +36,7 @@ abstract class DokkaPlugin @Inject constructor(
 
         val dokkaSettings = target.extensions.create<DokkaPluginSettings>(EXTENSION_NAME).apply {
             dokkaVersion.convention("1.7.20")
-            dokkaCacheDirectory.convention(target.rootProject.layout.buildDirectory.dir("dokka-cache"))
+            dokkaCacheDirectory.convention(null)
         }
 
         val dokkaConfigurations = target.setupDokkaConfigurations(dokkaSettings)

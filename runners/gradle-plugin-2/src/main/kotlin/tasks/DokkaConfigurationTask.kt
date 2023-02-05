@@ -55,6 +55,7 @@ abstract class DokkaConfigurationTask @Inject constructor(
      * [cacheRootPath] is required so Gradle can determine if the task is up-to-date.
      */
     @get:Input
+    @get:Optional
     protected val cacheRootPath: Provider<String> = cacheRoot.map { it.asFile.invariantSeparatorsPath }
 
     @get:Input
@@ -126,7 +127,7 @@ abstract class DokkaConfigurationTask @Inject constructor(
         val moduleName = moduleName.get()
         val moduleVersion = moduleVersion.orNull?.takeIf { it != "unspecified" }
         val outputDir = outputDir.asFile.get()
-        val cacheRoot = cacheRoot.asFile.get()
+        val cacheRoot = cacheRoot.asFile.orNull
         val offlineMode = offlineMode.get()
         val sourceSets = dokkaSourceSets.map(DokkaSourceSetGradleBuilder::build)
         val pluginsClasspath = pluginsClasspath.files.toList()
