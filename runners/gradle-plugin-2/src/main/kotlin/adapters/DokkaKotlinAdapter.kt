@@ -13,7 +13,7 @@ import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.dokka.Platform
-import org.jetbrains.dokka.gradle.DokkaPluginSettings
+import org.jetbrains.dokka.gradle.DokkaExtension
 import org.jetbrains.dokka.gradle.tasks.DokkaConfigurationTask
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
@@ -79,7 +79,7 @@ abstract class DokkaKotlinAdapter @Inject constructor(
         }
         logger.lifecycle("Configuring Dokka in Gradle Kotlin Project ${project.path}")
 
-        val dokka = project.extensions.getByType<DokkaPluginSettings>()
+        val dokka = project.extensions.getByType<DokkaExtension>()
 
         val kotlinAdapterContext = KotlinAdapterContext(
             dokka,
@@ -111,7 +111,7 @@ abstract class DokkaKotlinAdapter @Inject constructor(
     }
 
     class KotlinAdapterContext(
-        val dokka: DokkaPluginSettings,
+        val dokka: DokkaExtension,
         private val kotlinExtension: KotlinProjectExtension,
         private val projectConfigurations: ConfigurationContainer,
         private val providers: ProviderFactory,

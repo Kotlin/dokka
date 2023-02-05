@@ -19,7 +19,6 @@ import org.gradle.kotlin.dsl.newInstance
 import org.jetbrains.dokka.gradle.DokkaPlugin.Companion.ConfigurationName
 import org.jetbrains.dokka.gradle.DokkaPlugin.Companion.ConfigurationName.DOKKA_PLUGINS_CLASSPATH
 import org.jetbrains.dokka.gradle.DokkaPlugin.Companion.ConfigurationName.DOKKA_PLUGINS_INTRANSITIVE_CLASSPATH
-import org.jetbrains.dokka.gradle.DokkaPluginSettings
 import org.jetbrains.dokka.gradle.distibutions.DokkaPluginAttributes.Companion.DOKKA_BASE_ATTRIBUTE
 import org.jetbrains.dokka.gradle.distibutions.DokkaPluginAttributes.Companion.DOKKA_CATEGORY_ATTRIBUTE
 
@@ -30,7 +29,7 @@ import org.jetbrains.dokka.gradle.distibutions.DokkaPluginAttributes.Companion.D
  * [DokkaConfiguration][org.jetbrains.dokka.gradle.dokka_configuration.DokkaConfigurationKxs]
  * is used to configure Dokka behaviour.)
  */
-internal fun Project.setupDokkaConfigurations(dokkaSettings: DokkaPluginSettings): DokkaPluginConfigurations {
+internal fun Project.setupDokkaConfigurations(): DokkaPluginConfigurations {
 
     val attributes = objects.newInstance<DokkaPluginAttributes>()
 

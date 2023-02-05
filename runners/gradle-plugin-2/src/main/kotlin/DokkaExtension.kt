@@ -11,7 +11,7 @@ import javax.inject.Inject
 /**
  * Configure the behaviour of the [DokkaPlugin].
  */
-abstract class DokkaPluginSettings @Inject constructor(
+abstract class DokkaExtension @Inject constructor(
     private val objects: ObjectFactory
 ) {
     /** Default version used for Dokka dependencies */

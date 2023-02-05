@@ -34,22 +34,22 @@ abstract class DokkaPlugin @Inject constructor(
 
     override fun apply(target: Project) {
 
-        val dokkaSettings = target.extensions.create<DokkaPluginSettings>(EXTENSION_NAME).apply {
+        val dokkaExtension = target.extensions.create<DokkaExtension>(EXTENSION_NAME).apply {
             dokkaVersion.convention("1.7.20")
             dokkaCacheDirectory.convention(null)
         }
 
-        val dokkaConfigurations = target.setupDokkaConfigurations(dokkaSettings)
+        val dokkaConfigurations = target.setupDokkaConfigurations()
 
-        target.addDokkaDependencies(dokkaSettings)
+        target.addDokkaDependencies(dokkaExtension)
 
         val dokkaConfigurationTask = target.tasks.registerCreateDokkaConfigurationTask(
-            dokkaSettings,
+            dokkaExtension,
             dokkaConfigurations,
         )
 
         val dokkaGenerateTask = target.tasks.registerDokkaGenerateTask(
-            dokkaSettings,
+            dokkaExtension,
             dokkaConfigurationTask,
             dokkaConfigurations,
         )
@@ -71,7 +71,7 @@ abstract class DokkaPlugin @Inject constructor(
         target.pluginManager.apply(DokkaKotlinAdapter::class)
     }
 
-    private fun Project.addDokkaDependencies(dokkaSettings: DokkaPluginSettings) {
+    private fun Project.addDokkaDependencies(dokkaExtension: DokkaExtension) {
 
         //<editor-fold desc="DependencyHandler utils">
         fun DependencyHandlerScope.dokkaPlugin(dependency: Provider<Dependency>) =
@@ -89,7 +89,7 @@ abstract class DokkaPlugin @Inject constructor(
 
         dependencies {
             fun dokka(module: String) =
-                dokkaSettings.dokkaVersion.map { version -> create("org.jetbrains.dokka:$module:$version") }
+                dokkaExtension.dokkaVersion.map { version -> create("org.jetbrains.dokka:$module:$version") }
 
 //            dokkaPluginsClasspath("org.jetbrains:markdown:0.3.1")
             dokkaPlugin("org.jetbrains:markdown-jvm:0.3.1")
@@ -108,7 +108,7 @@ abstract class DokkaPlugin @Inject constructor(
     }
 
     private fun TaskContainer.registerDokkaGenerateTask(
-        dokkaSettings: DokkaPluginSettings,
+        dokkaExtension: DokkaExtension,
         dokkaConfigurationTask: TaskProvider<DokkaConfigurationTask>,
         dokkaConfigurations: DokkaPluginConfigurations,
     ): TaskProvider<DokkaGenerateTask> {
@@ -116,7 +116,7 @@ abstract class DokkaPlugin @Inject constructor(
 
         withType<DokkaGenerateTask>().configureEach {
             dokkaConfigurationJson.set(dokkaConfigurationTask.flatMap { it.dokkaConfigurationJson })
-            cacheDirectory.convention(dokkaSettings.dokkaCacheDirectory)
+            cacheDirectory.convention(dokkaExtension.dokkaCacheDirectory)
             outputDirectory.convention(dokkaConfigurationTask.flatMap { it.outputDir })
 
 //            runtimeClasspath.from(dokkaConfigurations.dokkaPluginsClasspath.map(Configuration::resolve))
@@ -128,14 +128,14 @@ abstract class DokkaPlugin @Inject constructor(
 
 
     private fun TaskContainer.registerCreateDokkaConfigurationTask(
-        dokkaSettings: DokkaPluginSettings,
+        dokkaExtension: DokkaExtension,
         dokkaConfigurations: DokkaPluginConfigurations,
     ): TaskProvider<DokkaConfigurationTask> {
         val dokkaConfigurationTask = register<DokkaConfigurationTask>(TaskName.CREATE_DOKKA_CONFIGURATION)
 
         withType<DokkaConfigurationTask>().configureEach configTask@{
 
-            cacheRoot.convention(dokkaSettings.dokkaCacheDirectory)
+            cacheRoot.convention(dokkaExtension.dokkaCacheDirectory)
             delayTemplateSubstitution.convention(false)
             failOnWarning.convention(false)
             finalizeCoroutines.convention(false)
@@ -147,7 +147,7 @@ abstract class DokkaPlugin @Inject constructor(
             suppressObviousFunctions.convention(true)
 
             dokkaConfigurationJson.convention(layout.buildDirectory.file("dokka-config/dokka_configuration.json"))
-            dokkaSourceSets.addAllLater(providers.provider { dokkaSettings.dokkaSourceSets })
+            dokkaSourceSets.addAllLater(providers.provider { dokkaExtension.dokkaSourceSets })
 
             // depend on Dokka Configurations from other subprojects
             dokkaSubprojectConfigurations.from(
