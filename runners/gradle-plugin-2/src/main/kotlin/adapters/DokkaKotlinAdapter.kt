@@ -4,14 +4,17 @@ import com.android.build.gradle.api.ApplicationVariant
 import com.android.build.gradle.api.LibraryVariant
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.artifacts.ConfigurationContainer
 import org.gradle.api.logging.Logging
 import org.gradle.api.plugins.ExtensionContainer
 import org.gradle.api.provider.Provider
 import org.gradle.api.provider.ProviderFactory
 import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.getByType
+import org.gradle.kotlin.dsl.withType
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.gradle.DokkaPluginSettings
+import org.jetbrains.dokka.gradle.tasks.DokkaConfigurationTask
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinSingleTargetExtension
@@ -51,12 +54,12 @@ abstract class DokkaKotlinAdapter @Inject constructor(
 //            withPlugin("kotlin-platform-jvm") { registerKotlinSourceSets(project) }
 //            withPlugin("kotlin-scripting") { registerKotlinSourceSets(project) }
 //            withPlugin("org.jetbrains.kotlin.android.extensions") { registerKotlinSourceSets(project) }
-            withPlugin("org.jetbrains.kotlin.android") { registerKotlinSourceSets(project) }
-            withPlugin("org.jetbrains.kotlin.js") { registerKotlinSourceSets(project) }
-            withPlugin("org.jetbrains.kotlin.jvm") { registerKotlinSourceSets(project) }
+            withPlugin("org.jetbrains.kotlin.android") { exec(project) }
+            withPlugin("org.jetbrains.kotlin.js") { exec(project) }
+            withPlugin("org.jetbrains.kotlin.jvm") { exec(project) }
 //            withPlugin("org.jetbrains.kotlin.kapt") { registerKotlinSourceSets(project) }
 //            withPlugin("org.jetbrains.kotlin.multiplatform.pm20") { registerKotlinSourceSets(project) }
-            withPlugin("org.jetbrains.kotlin.multiplatform") { registerKotlinSourceSets(project) }
+            withPlugin("org.jetbrains.kotlin.multiplatform") { exec(project) }
 //            withPlugin("org.jetbrains.kotlin.native.cocoapods") { registerKotlinSourceSets(project) }
 //            withPlugin("org.jetbrains.kotlin.native.performance") { registerKotlinSourceSets(project) }
 //            withPlugin("org.jetbrains.kotlin.platform.android") { registerKotlinSourceSets(project) }
@@ -68,8 +71,7 @@ abstract class DokkaKotlinAdapter @Inject constructor(
         }
     }
 
-    private fun registerKotlinSourceSets(project: Project) {
-
+    private fun exec(project: Project) {
         val kotlinExtension = project.extensions.findKotlinExtension()
         if (kotlinExtension == null) {
             logger.lifecycle("could not find Kotlin Extension")
@@ -79,24 +81,61 @@ abstract class DokkaKotlinAdapter @Inject constructor(
 
         val dokka = project.extensions.getByType<DokkaPluginSettings>()
 
-        /** Determine if a source set is 'main', and not test sources */
-        fun KotlinSourceSet.isMainSourceSet(): Provider<Boolean> {
+        val kotlinAdapterContext = KotlinAdapterContext(
+            dokka,
+            kotlinExtension,
+            project.configurations,
+            providers,
+        )
 
-            fun allCompilations(): List<KotlinCompilation<*>> {
-                return when (kotlinExtension) {
-                    is KotlinMultiplatformExtension -> {
-                        val allCompilations = kotlinExtension.targets.flatMap { target -> target.compilations }
-                        return allCompilations.filter { compilation ->
+        kotlinExtension.sourceSets.all {
+            logger.lifecycle("auto configuring Kotlin Source Set $name")
+
+            kotlinAdapterContext.registerKotlinSourceSet(this)
+        }
+
+
+        // TODO remove this - tasks shouldn't be configured directly, instead source sets
+        //      should be added to the Dokka extension, which will then create and configure appropriate tasks
+        with(kotlinAdapterContext) {
+            project.tasks.withType<DokkaConfigurationTask>().configureEach {
+                dokkaSourceSets.configureEach {
+                    suppress.convention(
+                        todoSourceSetName.flatMap {
+                            kotlinExtension.sourceSets.named(it).flatMap { kss -> !kss.isMainSourceSet() }
+                        }
+                    )
+                }
+            }
+        }
+    }
+
+    class KotlinAdapterContext(
+        val dokka: DokkaPluginSettings,
+        private val kotlinExtension: KotlinProjectExtension,
+        private val projectConfigurations: ConfigurationContainer,
+        private val providers: ProviderFactory,
+    ) {
+        private val logger = Logging.getLogger(this::class.java)
+
+        /** Determine if a source set is 'main', and not test sources */
+        fun KotlinSourceSet.isMainSourceSet(): Provider<Boolean> = providers.provider {
+
+            val compilations = when (kotlinExtension) {
+                is KotlinMultiplatformExtension -> {
+                    kotlinExtension.targets
+                        .flatMap { target -> target.compilations }
+                        .filter { compilation ->
                             this in compilation.allKotlinSourceSets || this == compilation.defaultSourceSet
                         }
-                    }
-
-                    is KotlinSingleTargetExtension<*> -> {
-                        kotlinExtension.target.compilations.filter { compilation -> this in compilation.allKotlinSourceSets }
-                    }
-
-                    else -> emptyList()
                 }
+
+                is KotlinSingleTargetExtension<*> -> {
+                    kotlinExtension.target.compilations
+                        .filter { compilation -> this in compilation.allKotlinSourceSets }
+                }
+
+                else -> emptyList()
             }
 
             fun KotlinCompilation<*>.isMainCompilation(): Boolean {
@@ -112,62 +151,57 @@ abstract class DokkaKotlinAdapter @Inject constructor(
                 }
             }
 
-            return providers.provider {
-                val compilations = allCompilations()
-                compilations.isEmpty() || compilations.any { compilation -> compilation.isMainCompilation() }
-            }
+            compilations.isEmpty() || compilations.any { compilation -> compilation.isMainCompilation() }
         }
 
-
         /** Determine the platform(s) that the Kotlin Plugin is targeting */
-        val kotlinTarget = providers.provider {
+        private val kotlinTarget: Provider<KotlinPlatformType> = providers.provider {
             when (kotlinExtension) {
-                is KotlinMultiplatformExtension -> {
+                is KotlinMultiplatformExtension ->
                     kotlinExtension.targets
                         .map { it.platformType }
                         .singleOrNull()
                         ?: KotlinPlatformType.common
-                }
 
-                is KotlinSingleTargetExtension<*> -> {
+                is KotlinSingleTargetExtension<*> ->
                     kotlinExtension.target.platformType
-                }
 
                 else -> KotlinPlatformType.common
             }
         }
 
-        val dokkaAnalysisPlatform = kotlinTarget.map { target -> Platform.fromString(target.name) }
+        private val dokkaAnalysisPlatform: Provider<Platform> =
+            kotlinTarget.map { target -> Platform.fromString(target.name) }
 
-        kotlinExtension.sourceSets.all {
-            val kotlinSourceSet = this
 
-            logger.lifecycle("auto configuring Kotlin Source Set ${kotlinSourceSet.name}")
+        fun registerKotlinSourceSet(kotlinSourceSet: KotlinSourceSet) {
 
             // TODO: Needs to respect filters.
             //  We probably need to change from "sourceRoots" to support "sourceFiles"
             //  https://github.com/Kotlin/dokka/issues/1215
-            val sourceRoots = kotlinSourceSet.kotlin.sourceDirectories.filter { it.exists() }
+            val extantKotlinSourceRoots = kotlinSourceSet.kotlin.sourceDirectories.filter { it.exists() }
 
-            logger.lifecycle("kotlin source set ${kotlinSourceSet.name} has source roots: ${sourceRoots.map { it.invariantSeparatorsPath }}")
+            logger.lifecycle("kotlin source set ${kotlinSourceSet.name} has source roots: ${extantKotlinSourceRoots.map { it.invariantSeparatorsPath }}")
 
             dokka.dokkaSourceSets.register(kotlinSourceSet.name) {
-                this.suppress.set(kotlinSourceSet.isMainSourceSet())
-                this.sourceRoots.from(sourceRoots)
+                this.suppress.set(!kotlinSourceSet.isMainSourceSet())
+
+                this.sourceRoots.from(extantKotlinSourceRoots)
 
                 // need to check for resolution, because testImplementation can't be resolved....
                 // > Resolving dependency configuration 'testImplementation' is not allowed as it is defined as 'canBeResolved=false'.
                 // >    Instead, a resolvable ('canBeResolved=true') dependency configuration that extends 'testImplementation' should be resolved.
                 // As a workaround, just manually check if the configuration can be resolved.
                 // If resolution is necessary, maybe make a special, one-off, resolvable configuration?
-                val sourceSetDependencies = project.configurations
-                    .named(kotlinSourceSet.implementationConfigurationName)
+                val sourceSetDependencies = projectConfigurations.named(kotlinSourceSet.implementationConfigurationName)
                 this.classpath.from(
                     sourceSetDependencies.map { elements ->
-                        if (elements.isCanBeResolved) {
-                            elements.incoming.artifactView { lenient(true) }.files
-                        } else {
-                            emptySet<File>()
+                        when {
+                            elements.isCanBeResolved ->
+                                elements.incoming.artifactView { lenient(true) }.files
+
+                            else ->
+                                emptySet<File>()
                         }
                     }
                 )
@@ -208,3 +242,5 @@ abstract class DokkaKotlinAdapter @Inject constructor(
             }
     }
 }
+
+private operator fun Provider<Boolean>.not(): Provider<Boolean> = map { !it }
