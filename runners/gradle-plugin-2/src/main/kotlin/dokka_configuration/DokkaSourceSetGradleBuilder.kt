@@ -38,20 +38,14 @@ import javax.inject.Inject
  */
 abstract class DokkaSourceSetGradleBuilder(
     private val name: String
-)
-//@Inject constructor(
-//    private val objects: ObjectFactory,
-//)
-    : DokkaConfigurationBuilder<DokkaConfigurationKxs.DokkaSourceSetKxs>, Named, Serializable {
+) : DokkaConfigurationBuilder<DokkaConfigurationKxs.DokkaSourceSetKxs>, Named, Serializable {
 
     @Internal
     override fun getName(): String = name
 
-    //    @get:Internal
     @get:Inject
     protected abstract val objects: ObjectFactory
 
-    //    @get:Internal
     @get:Inject
     protected abstract val layout: ProjectLayout
 

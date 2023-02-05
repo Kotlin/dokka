@@ -2,11 +2,7 @@
 
 package org.jetbrains.dokka.gradle
 
-import org.gradle.api.provider.MapProperty
-import org.gradle.api.tasks.Input
-import org.gradle.kotlin.dsl.mapProperty
 import org.jetbrains.dokka.gradle.dokka_configuration.DokkaSourceSetGradleBuilder
-import org.jetbrains.dokka.gradle.tasks.DokkaConfigurationTask
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 
 @Deprecated("dokka2")
