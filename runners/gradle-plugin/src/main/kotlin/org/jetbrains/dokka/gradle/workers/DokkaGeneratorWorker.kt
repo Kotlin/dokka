@@ -6,6 +6,7 @@ import org.gradle.workers.WorkParameters
 import org.jetbrains.dokka.DokkaConfigurationImpl
 import org.jetbrains.dokka.DokkaGenerator
 import org.jetbrains.dokka.gradle.internal.LoggerAdapter
+import org.jetbrains.dokka.gradle.internal.toJsonString
 
 /**
  * Gradle Worker Daemon for running [DokkaGenerator].
@@ -22,6 +23,8 @@ abstract class DokkaGeneratorWorker : WorkAction<DokkaGeneratorWorker.Parameters
 
     override fun execute() {
         val dokkaConfiguration = parameters.dokkaConfiguration.get()
+
+        logger.progress("Dokka configuration:\n${toJsonString(dokkaConfiguration)}")
 
         val generator = DokkaGenerator(dokkaConfiguration, logger)
 
