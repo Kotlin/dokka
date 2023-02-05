@@ -145,7 +145,7 @@ internal fun Project.setupDokkaConfigurations(): DokkaPluginConfigurations {
         }
     }
 
-    val dokkaPluginsOutgoingClasspath = configurations.register(DOKKA_PLUGINS_CLASSPATH + "Elements") {
+    configurations.register(DOKKA_PLUGINS_CLASSPATH + "Elements") {
         // defining this is _required_ otherwise Gradle will use its imagination and fill in the blanks with random dependencies
         description = "share Dokka Plugins classpath with other subprojects"
         asProvider()
@@ -177,17 +177,16 @@ internal fun Project.setupDokkaConfigurations(): DokkaPluginConfigurations {
         }
     }
 
-    val dokkaGeneratorClasspathProvider =
-        configurations.register(ConfigurationName.DOKKA_GENERATOR_CLASSPATH + "Elements") {
-            description = "Provide Dokka Generator classpath to other subprojects"
-            asProvider()
-            isVisible = true
-            attributes {
-                jvmJar()
-                dokkaCategory(attributes.dokkaGeneratorClasspath)
-            }
-            extendsFrom(dokkaGeneratorClasspath.get())
+    configurations.register(ConfigurationName.DOKKA_GENERATOR_CLASSPATH + "Elements") {
+        description = "Provide Dokka Generator classpath to other subprojects"
+        asProvider()
+        isVisible = true
+        attributes {
+            jvmJar()
+            dokkaCategory(attributes.dokkaGeneratorClasspath)
         }
+        extendsFrom(dokkaGeneratorClasspath.get())
+    }
     //</editor-fold>
 
     return DokkaPluginConfigurations(
