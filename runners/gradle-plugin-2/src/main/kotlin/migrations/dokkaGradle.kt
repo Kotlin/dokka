@@ -12,7 +12,7 @@ typealias DokkaTask = org.jetbrains.dokka.gradle.tasks.DokkaConfigurationTask
 /**
  * Extension allowing configuration of Dokka source sets via Kotlin Gradle plugin source sets.
  */
-@Deprecated("dokka2")
+@Deprecated("dokka2") // TODO what's the replacement...?
 fun DokkaSourceSetGradleBuilder.kotlinSourceSet(kotlinSourceSet: KotlinSourceSet) {
-    // TODO write adapter to new DSL
+    todoSourceSetName.set(kotlinSourceSet.name)
 }

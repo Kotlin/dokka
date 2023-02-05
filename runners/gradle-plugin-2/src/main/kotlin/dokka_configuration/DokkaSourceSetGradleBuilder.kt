@@ -56,6 +56,12 @@ abstract class DokkaSourceSetGradleBuilder(
     @get:Input
     abstract val sourceSetScope: Property<String>
 
+    // Name of KotlinSourceSet to automagically configure later
+    // Adapter for the old DSL, because the old DSL had task-based configuration that I want to remove.
+    // This property should be used to lazily set conventions for the source set properties.
+    @get:Internal
+    @Deprecated("hack for adapting the old DSL - replacement TBD")
+    internal abstract val todoSourceSetName: Property<String>
 
     /**
      * Whether this source set should be skipped when generating documentation.
