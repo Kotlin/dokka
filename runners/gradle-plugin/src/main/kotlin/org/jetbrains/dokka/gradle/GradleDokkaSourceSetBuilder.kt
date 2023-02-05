@@ -64,8 +64,7 @@ open class GradleDokkaSourceSetBuilder(
      * By default, the value is deduced from information provided by the Kotlin Gradle plugin.
      */
     @Input
-    @Optional
-    val displayName: Property<String?> = project.objects.property()
+    val displayName: Property<String> = project.objects.property()
 
     /**
      * List of Markdown files that contain
