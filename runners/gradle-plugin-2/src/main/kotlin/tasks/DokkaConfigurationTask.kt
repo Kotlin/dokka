@@ -129,7 +129,11 @@ abstract class DokkaConfigurationTask @Inject constructor(
         val outputDir = outputDir.asFile.get()
         val cacheRoot = cacheRoot.asFile.orNull
         val offlineMode = offlineMode.get()
-        val sourceSets = dokkaSourceSets.map(DokkaSourceSetGradleBuilder::build)
+        val sourceSets = dokkaSourceSets.filterNot {
+            val suppressed = it.suppress.get()
+            logger.info("Dokka source set ${it.sourceSetID.get()} ${if (suppressed) "is" else "isn't"} suppressed")
+            suppressed
+        }.map(DokkaSourceSetGradleBuilder::build)
         val pluginsClasspath = pluginsClasspath.files.toList()
         val pluginsConfiguration = pluginsConfiguration.map(DokkaPluginConfigurationGradleBuilder::build)
         val failOnWarning = failOnWarning.get()
