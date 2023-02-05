@@ -8,17 +8,17 @@ import org.jsoup.nodes.Element
 import org.jsoup.parser.Tag
 import java.io.File
 import java.nio.file.Files
-import java.util.concurrent.ConcurrentHashMap
+import java.util.Collections
 
 class AddToNavigationCommandHandler(val context: DokkaContext) : CommandHandler {
-    private val navigationFragments = ConcurrentHashMap<String, Element>()
+    private val navigationFragments = Collections.synchronizedList(mutableListOf<Pair<String, Element>>())
 
     override fun handleCommandAsTag(command: Command, body: Element, input: File, output: File) {
         command as AddToNavigationCommand
         context.configuration.modules.find { it.name == command.moduleName }
             ?.relativePathToOutputDirectory
             ?.relativeToOrSelf(context.configuration.outputDir)
-            ?.let { key -> navigationFragments[key.toString()] = body }
+            ?.let { key -> navigationFragments.add(Pair(key.toString(), body)) }
     }
 
     override fun canHandle(command: Command) = command is AddToNavigationCommand
@@ -29,7 +29,7 @@ class AddToNavigationCommandHandler(val context: DokkaContext) : CommandHandler 
                 put("class", "sideMenu")
             }
             val node = Element(Tag.valueOf("div"), "", attributes)
-            navigationFragments.entries.sortedBy { it.key }.forEach { (moduleName, command) ->
+            navigationFragments.forEach { (moduleName, command) ->
                 command.select("a").forEach { a ->
                     a.attr("href").also { a.attr("href", "${moduleName}/${it}") }
                 }
@@ -45,9 +45,9 @@ class AddToNavigationCommandHandler(val context: DokkaContext) : CommandHandler 
             node.select("a").forEach { a ->
                 a.attr("href").also { a.attr("href", "../${it}") }
             }
-            navigationFragments.keys.forEach {
+            navigationFragments.forEach { (key, _) ->
                 Files.write(
-                    output.resolve(it).resolve("navigation.html").toPath(),
+                    output.resolve(key).resolve("navigation.html").toPath(),
                     listOf(node.outerHtml())
                 )
             }

@@ -52,6 +52,10 @@ abstract class DokkaMultiModuleTask : AbstractDokkaParentTask() {
     val fileLayout: Property<DokkaMultiModuleFileLayout> = project.objects.safeProperty<DokkaMultiModuleFileLayout>()
         .safeConvention(DokkaMultiModuleFileLayout.CompactInParent)
 
+    @Internal
+    val moduleOrder: Property<DokkaMultiModuleOrder> = project.objects.safeProperty<DokkaMultiModuleOrder>()
+        .safeConvention(DokkaMultiModuleOrder.Default)
+
     @get:InputFiles
     @get:PathSensitive(PathSensitivity.RELATIVE)
     internal val sourceChildOutputDirectories: Iterable<File>
@@ -93,7 +97,7 @@ abstract class DokkaMultiModuleTask : AbstractDokkaParentTask() {
                 includes = childDokkaTaskIncludes[dokkaTask.path].orEmpty(),
                 sourceOutputDirectory = dokkaTask.outputDirectory.getSafe()
             )
-        },
+        }.sortedWith(moduleOrder.get().comparator),
         includes = includes.toSet(),
     )
 }
