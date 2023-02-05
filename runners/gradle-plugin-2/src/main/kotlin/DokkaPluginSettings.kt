@@ -4,7 +4,6 @@ import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
-import org.gradle.kotlin.dsl.domainObjectContainer
 import org.jetbrains.dokka.gradle.dokka_configuration.DokkaModuleDescriptionGradleBuilder
 import org.jetbrains.dokka.gradle.dokka_configuration.DokkaSourceSetGradleBuilder
 import javax.inject.Inject
@@ -47,8 +46,7 @@ abstract class DokkaPluginSettings @Inject constructor(
      *
      * Dokka will merge Dokka Source Sets from other subprojects.
      */
-    val dokkaSourceSets: NamedDomainObjectContainer<DokkaSourceSetGradleBuilder> =
-        objects.domainObjectContainer(DokkaSourceSetGradleBuilder::class)
+    abstract val dokkaSourceSets: NamedDomainObjectContainer<DokkaSourceSetGradleBuilder>
 
     /**
      * Dokka Module Descriptions describe an independent Dokka publication, and these
@@ -57,7 +55,6 @@ abstract class DokkaPluginSettings @Inject constructor(
      * Only add a module if you want the Dokka Publication produced by _this project_ to be
      * included in the Dokka Publication of _another_ project.
      */
-    val dokkaModules: NamedDomainObjectContainer<DokkaModuleDescriptionGradleBuilder> =
-        objects.domainObjectContainer(DokkaModuleDescriptionGradleBuilder::class)
+    abstract val dokkaModules: NamedDomainObjectContainer<DokkaModuleDescriptionGradleBuilder>
 
 }

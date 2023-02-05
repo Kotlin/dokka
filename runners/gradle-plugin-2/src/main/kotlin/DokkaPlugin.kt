@@ -137,20 +137,17 @@ abstract class DokkaPlugin @Inject constructor(
 
             cacheRoot.convention(dokkaSettings.dokkaCacheDirectory)
             delayTemplateSubstitution.convention(false)
-            dokkaConfigurationJson.convention(layout.buildDirectory.file("dokka-config/dokka_configuration.json"))
-            outputDir.convention(layout.buildDirectory.dir("dokka-output"))
             failOnWarning.convention(false)
             finalizeCoroutines.convention(false)
-            suppressInheritedMembers.convention(false)
-            suppressObviousFunctions.convention(false)
-            offlineMode.convention(false)
             moduleName.convention(providers.provider { project.name })
             moduleVersion.convention(providers.provider { project.version.toString() })
-            dokkaSourceSets.addAllLater(providers.provider { dokkaSettings.dokkaSourceSets })
+            offlineMode.convention(false)
+            outputDir.convention(layout.buildDirectory.dir("dokka-output"))
+            suppressInheritedMembers.convention(false)
+            suppressObviousFunctions.convention(true)
 
-            // helper for the old DSL,
-            // todo I want to move dokkaSourceSets extension to the DokkaPluginSettings, out of tasks
-            extensions.add("dokkaSourceSets", dokkaSourceSets)
+            dokkaConfigurationJson.convention(layout.buildDirectory.file("dokka-config/dokka_configuration.json"))
+            dokkaSourceSets.addAllLater(providers.provider { dokkaSettings.dokkaSourceSets })
 
             // depend on Dokka Configurations from other subprojects
             dokkaSubprojectConfigurations.from(
@@ -172,18 +169,19 @@ abstract class DokkaPlugin @Inject constructor(
 
             dokkaSourceSets.configureEach {
                 // TODO copy default values from old plugin
-                jdkVersion.convention(11)
-                noJdkLink.convention(true)
-                noAndroidSdkLink.convention(true)
-                noStdlibLink.convention(true)
-                suppress.convention(true)
+                analysisPlatform.convention(Platform.DEFAULT)
+                displayName.convention(this@configTask.path)
+                documentedVisibilities.convention(listOf(DokkaConfiguration.Visibility.PUBLIC))
+                jdkVersion.convention(8)
+                noAndroidSdkLink.convention(false)
+                noJdkLink.convention(false)
+                noStdlibLink.convention(false)
                 reportUndocumented.convention(false)
                 skipDeprecated.convention(false)
-                skipEmptyPackages.convention(false)
+                skipEmptyPackages.convention(true)
                 sourceSetScope.convention(this@configTask.path)
+                suppress.convention(false)
                 suppressGeneratedFiles.convention(true)
-                displayName.convention(this@configTask.path)
-                analysisPlatform.convention(Platform.DEFAULT)
 
 //                languageVersion.convention("1.7")
 //                apiVersion.convention("1.7")
