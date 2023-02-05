@@ -29,7 +29,10 @@ dependencies {
     testFixturesImplementation(gradleTestKit())
     testFixturesImplementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
 
-    // note: test dependencies are defined in the testing.suites {} configuration below
+    val jacksonVersion = "2.12.7"
+    testFixturesImplementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
+
+    // don't define test dependencies here, instead define them in the testing.suites {} configuration below
 }
 
 java {
