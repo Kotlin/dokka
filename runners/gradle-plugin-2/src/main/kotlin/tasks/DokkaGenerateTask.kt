@@ -36,7 +36,7 @@ abstract class DokkaGenerateTask @Inject constructor(
 //    @get:Classpath
 //    abstract val pluginClasspath: ConfigurableFileCollection
 
-    @get:OutputDirectory
+    @get:LocalState
     abstract val cacheDirectory: DirectoryProperty
 
     @get:OutputDirectory

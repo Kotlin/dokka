@@ -46,7 +46,7 @@ abstract class DokkaConfigurationTask @Inject constructor(
     @get:Input
     protected val outputDirPath: Provider<String> = outputDir.map { it.asFile.invariantSeparatorsPath }
 
-    @get:Internal
+    @get:LocalState
     // marked as Internal because this task does not use the directory contents, only the location
     val cacheRoot: DirectoryProperty = objects.directoryProperty()
 
