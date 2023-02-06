@@ -8,6 +8,7 @@ plugins {
     `java-test-fixtures`
 
     `jvm-test-suite`
+    `test-report-aggregation`
 
     idea
 
@@ -47,6 +48,20 @@ gradlePlugin {
         implementationClass = "org.jetbrains.dokka.gradle.DokkaPlugin"
         isAutomatedPublishing = true
     }
+
+    fun registerDokkaPlugin(format: String, cls: String) {
+        plugins.create("dokka${format.capitalize()}Plugin") {
+            id = "org.jetbrains.dokka2.$format"
+            displayName = "Dokka plugin 2 - $format"
+            description = "Dokka, the Kotlin documentation tool"
+            implementationClass = "org.jetbrains.dokka.gradle.formats.$cls"
+            isAutomatedPublishing = true
+        }
+    }
+    registerDokkaPlugin("gfm", "DokkaGfmPublicationPlugin")
+    registerDokkaPlugin("html", "DokkaHtmlPublicationPlugin")
+    registerDokkaPlugin("javadoc", "DokkaJavadocPublicationPlugin")
+    registerDokkaPlugin("jekyll", "DokkaJekyllPublicationPlugin")
 }
 
 pluginBundle {
@@ -183,6 +198,9 @@ testing.suites {
 
 
 tasks.withType<Test>().configureEach {
+
+    mustRunAfter(tasks.withType<AbstractPublishToMaven>())
+
     testLogging {
         events = setOf(
             TestLogEvent.STARTED,

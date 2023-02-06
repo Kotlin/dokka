@@ -31,8 +31,6 @@ class MultiModuleFunctionalTest {
                 |    // Kotlin plugin shouldn't be necessary here, but without it Dokka errors
                 |    // with ClassNotFound KotlinPluginExtension... very weird
                 |    kotlin("jvm") version "1.7.20" apply false
-                |    //base
-                |    //`embedded-kotlin`
                 |    id("org.jetbrains.dokka2") version "2.0.0"
                 |}
                 |
@@ -84,9 +82,9 @@ class MultiModuleFunctionalTest {
         createKtsFile(
             "subproject-hello/build.gradle.kts",
             """
-                |import org.jetbrains.dokka.gradle.tasks.DokkaConfigurationTask
-                |import org.jetbrains.dokka.gradle.dokka_configuration.DokkaConfigurationKxs
-                |import org.jetbrains.dokka.*
+                |//import org.jetbrains.dokka.gradle.tasks.DokkaConfigurationTask
+                |//import org.jetbrains.dokka.gradle.dokka_configuration.DokkaConfigurationKxs
+                |//import org.jetbrains.dokka.*
                 |
                 |plugins {
                 |    kotlin("jvm") version "1.7.20"
@@ -94,7 +92,7 @@ class MultiModuleFunctionalTest {
                 |}
                 |
                 |// TODO copy the DSL from the old plugin
-                |tasks.withType<DokkaConfigurationTask>().configureEach {
+                |//tasks.withType<DokkaConfigurationTask>().configureEach {
                 |    //dokkaSourceSets.create("Hello Subproject") {
                 |       // sourceSetID = DokkaSourceSetID("moduleName", "main")
                 |       // classpath = emptyList()
@@ -117,7 +115,7 @@ class MultiModuleFunctionalTest {
                 |       // suppressedFiles = emptySet()
                 |       // analysisPlatform = org.jetbrains.dokka.Platform.DEFAULT
                 |    //}
-                |}
+                |//}
                 """.trimMargin()
         )
 
@@ -137,9 +135,9 @@ class MultiModuleFunctionalTest {
             "subproject-goodbye/build.gradle.kts",
             """
                 |
-                |import org.jetbrains.dokka.gradle.tasks.DokkaConfigurationTask
-                |import org.jetbrains.dokka.gradle.dokka_configuration.DokkaConfigurationKxs
-                |import org.jetbrains.dokka.*
+                |//import org.jetbrains.dokka.gradle.tasks.DokkaConfigurationTask
+                |//import org.jetbrains.dokka.gradle.dokka_configuration.DokkaConfigurationKxs
+                |//import org.jetbrains.dokka.*
                 |
                 |plugins {
                 |    kotlin("jvm") version "1.7.20"
@@ -148,7 +146,7 @@ class MultiModuleFunctionalTest {
                 |
                 |logger.lifecycle("with kotlin extension " + kotlin::class.toString())
                 |
-                |tasks.withType<DokkaConfigurationTask>().configureEach {
+                |//tasks.withType<DokkaConfigurationTask>().configureEach {
                 |   // dokkaSourceSets.create("Goodbye Subproject") {}
                 |//    sourceSets.add(
                 |//        DokkaConfigurationKxs.DokkaSourceSetKxs(
@@ -175,7 +173,7 @@ class MultiModuleFunctionalTest {
                 |//            analysisPlatform = org.jetbrains.dokka.Platform.DEFAULT,
                 |//        )
                 |//    )
-                |}
+                |//}
             """.trimMargin()
         )
 
@@ -203,11 +201,11 @@ class MultiModuleFunctionalTest {
         build.output shouldContain "Generation completed successfully"
 
 
-        project.projectDir.resolve("subproject/build/dokka-output/com/project/hello/Hello.html").shouldBeAFile()
-        project.projectDir.resolve("subproject/build/dokka-output/index.html").shouldBeAFile()
-        project.projectDir.resolve("subproject/build/dokka-config/dokka_configuration.json").shouldBeAFile()
-        project.projectDir.resolve("subproject/build/dokka-output/element-list").shouldBeAFile()
-        project.projectDir.resolve("subproject/build/dokka-output/element-list").toFile().readText().shouldContain(
+        project.projectDir.resolve("subproject/build/dokka/html/com/project/hello/Hello.html").shouldBeAFile()
+        project.projectDir.resolve("subproject/build/dokka/html/index.html").shouldBeAFile()
+        project.projectDir.resolve("subproject/build/dokka/html/dokka_configuration.json").shouldBeAFile()
+        project.projectDir.resolve("subproject/build/dokka/html/element-list").shouldBeAFile()
+        project.projectDir.resolve("subproject/build/dokka/html/element-list").toFile().readText().shouldContain(
             """
             ${'$'}dokka.format:javadoc-v1
             ${'$'}dokka.linkExtension:html
@@ -242,7 +240,7 @@ class MultiModuleFunctionalTest {
 //        """.trimIndent()
 //        )
 
-        val dokkaConfigurationFile = project.projectDir.resolve("build/dokka-config/dokka_configuration.json")
+        val dokkaConfigurationFile = project.projectDir.resolve("build/dokka-config/html/dokka_configuration.json")
         dokkaConfigurationFile.shouldExist()
         dokkaConfigurationFile.shouldBeAFile()
         @OptIn(ExperimentalSerializationApi::class)

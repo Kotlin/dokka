@@ -38,7 +38,10 @@ import javax.inject.Inject
  */
 abstract class DokkaSourceSetGradleBuilder(
     private val name: String
-) : DokkaConfigurationBuilder<DokkaConfigurationKxs.DokkaSourceSetKxs>, Named, Serializable {
+) :
+    DokkaConfigurationBuilder<DokkaConfigurationKxs.DokkaSourceSetKxs>,
+    Named,
+    Serializable {
 
     @Internal
     override fun getName(): String = name
@@ -136,7 +139,7 @@ abstract class DokkaSourceSetGradleBuilder(
      *
      * By default, the values are deduced from information provided by the Kotlin Gradle plugin.
      */
-    @get:Input
+    @get:Nested
     abstract val dependentSourceSets: NamedDomainObjectContainer<DokkaSourceSetIDGradleBuilder>
 
     /**
@@ -434,7 +437,6 @@ abstract class DokkaSourceSetGradleBuilder(
 
     /** Convenient override to **append** external documentation links to [externalDocumentationLinks]. */
     fun externalDocumentationLink(url: URL, packageListUrl: URL? = null) {
-
         externalDocumentationLinks.add(
             objects.newInstance(DokkaExternalDocumentationLinkGradleBuilder::class).also {
                 it.url.set(url)

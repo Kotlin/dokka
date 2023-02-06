@@ -14,6 +14,7 @@ import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.gradle.DokkaExtension
+import org.jetbrains.dokka.gradle.internal.not
 import org.jetbrains.dokka.gradle.tasks.DokkaConfigurationTask
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
@@ -88,22 +89,28 @@ abstract class DokkaKotlinAdapter @Inject constructor(
             providers,
         )
 
-        kotlinExtension.sourceSets.all {
-            logger.lifecycle("auto configuring Kotlin Source Set $name")
-
-            kotlinAdapterContext.registerKotlinSourceSet(this)
-        }
-
-
-        // TODO remove this - tasks shouldn't be configured directly, instead source sets
-        //      should be added to the Dokka extension, which will then create and configure appropriate tasks
         with(kotlinAdapterContext) {
+
+            kotlinExtension.sourceSets.all kss@{
+                logger.lifecycle("auto configuring Kotlin Source Set $name")
+
+                registerKotlinSourceSet(this@kss)
+
+                dokka.dokkaSourceSets.all dss@{
+                    if (this@kss.name == this@dss.name) {
+                        logger.lifecycle("setting suppress convention for SourceSet $name")
+                        suppress.convention(!this@kss.isMainSourceSet())
+                    }
+                }
+            }
+
+            // TODO remove this - tasks shouldn't be configured directly, instead source sets
+            //      should be added to the Dokka extension, which will then create and configure appropriate tasks
             project.tasks.withType<DokkaConfigurationTask>().configureEach {
                 dokkaSourceSets.configureEach {
                     suppress.convention(
-                        todoSourceSetName.flatMap {
-                            kotlinExtension.sourceSets.named(it).flatMap { kss -> !kss.isMainSourceSet() }
-                        }
+                        todoSourceSetName
+                            .flatMap { kotlinExtension.sourceSets.named(it).flatMap { kss -> !kss.isMainSourceSet() } }
                     )
                 }
             }
@@ -120,30 +127,34 @@ abstract class DokkaKotlinAdapter @Inject constructor(
 
         /** Determine if a source set is 'main', and not test sources */
         fun KotlinSourceSet.isMainSourceSet(): Provider<Boolean> = providers.provider {
+            val currentSourceSet = this
 
-            val compilations = when (kotlinExtension) {
+            val allCompilations = when (kotlinExtension) {
                 is KotlinMultiplatformExtension -> {
                     kotlinExtension.targets
                         .flatMap { target -> target.compilations }
-                        .filter { compilation ->
-                            this in compilation.allKotlinSourceSets || this == compilation.defaultSourceSet
-                        }
+
                 }
 
                 is KotlinSingleTargetExtension<*> -> {
                     kotlinExtension.target.compilations
-                        .filter { compilation -> this in compilation.allKotlinSourceSets }
                 }
 
                 else -> emptyList()
+            }.filter { compilation ->
+                currentSourceSet == compilation.defaultSourceSet
+                        || currentSourceSet in compilation.kotlinSourceSets
+                        || currentSourceSet in compilation.allKotlinSourceSets
             }
 
             fun KotlinCompilation<*>.isMainCompilation(): Boolean {
                 return try {
-                    if (this is KotlinJvmAndroidCompilation) {
-                        androidVariant is LibraryVariant || androidVariant is ApplicationVariant
-                    } else {
-                        name == "main"
+                    when (this) {
+                        is KotlinJvmAndroidCompilation ->
+                            androidVariant is LibraryVariant || androidVariant is ApplicationVariant
+
+                        else ->
+                            name == "main"
                     }
                 } catch (e: NoSuchMethodError) {
                     // Kotlin Plugin version below 1.4
@@ -151,7 +162,9 @@ abstract class DokkaKotlinAdapter @Inject constructor(
                 }
             }
 
-            compilations.isEmpty() || compilations.any { compilation -> compilation.isMainCompilation() }
+            logger.lifecycle("KotlinSourceSet $name. empty: ${allCompilations.isEmpty()}. main compilations: ${allCompilations.count { it.isMainCompilation() }}")
+
+            allCompilations.isEmpty() || allCompilations.any { compilation -> compilation.isMainCompilation() }
         }
 
         /** Determine the platform(s) that the Kotlin Plugin is targeting */
@@ -193,17 +206,18 @@ abstract class DokkaKotlinAdapter @Inject constructor(
                 // >    Instead, a resolvable ('canBeResolved=true') dependency configuration that extends 'testImplementation' should be resolved.
                 // As a workaround, just manually check if the configuration can be resolved.
                 // If resolution is necessary, maybe make a special, one-off, resolvable configuration?
-                val sourceSetDependencies = projectConfigurations.named(kotlinSourceSet.implementationConfigurationName)
                 this.classpath.from(
-                    sourceSetDependencies.map { elements ->
-                        when {
-                            elements.isCanBeResolved ->
-                                elements.incoming.artifactView { lenient(true) }.files
+                    projectConfigurations
+                        .named(kotlinSourceSet.implementationConfigurationName)
+                        .map { elements ->
+                            when {
+                                elements.isCanBeResolved ->
+                                    elements.incoming.artifactView { lenient(true) }.files
 
-                            else ->
-                                emptySet<File>()
+                                else ->
+                                    emptySet<File>()
+                            }
                         }
-                    }
                 )
 
                 this.analysisPlatform.set(dokkaAnalysisPlatform)
@@ -242,5 +256,3 @@ abstract class DokkaKotlinAdapter @Inject constructor(
             }
     }
 }
-
-private operator fun Provider<Boolean>.not(): Provider<Boolean> = map { !it }

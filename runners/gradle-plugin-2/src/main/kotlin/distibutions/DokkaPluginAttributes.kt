@@ -8,7 +8,12 @@ import org.gradle.api.model.ObjectFactory
 import org.gradle.kotlin.dsl.named
 import javax.inject.Inject
 
-abstract class DokkaPluginAttributes @Inject constructor(
+/**
+ * Gradle Configuration Attributes for Dokka files.
+ *
+ * These attributes are used to tag [Configuration]s, so files can be shared between subprojects.
+ */
+abstract class DokkaPluginAttributes @Inject constructor( // TODO rename to DokkaConfigurationAttributes
     objects: ObjectFactory,
 ) {
 
@@ -30,8 +35,11 @@ abstract class DokkaPluginAttributes @Inject constructor(
 
     interface DokkaCategory : Named
 
+    interface DokkaFormat : Named
+
     companion object {
         val DOKKA_BASE_ATTRIBUTE = Attribute.of("org.jetbrains.dokka.base", DokkaBase::class.java)
         val DOKKA_CATEGORY_ATTRIBUTE = Attribute.of("org.jetbrains.dokka.category", DokkaCategory::class.java)
+        val DOKKA_FORMAT_ATTRIBUTE = Attribute.of("org.jetbrains.dokka.format", DokkaCategory::class.java)
     }
 }

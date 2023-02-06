@@ -28,6 +28,40 @@ abstract class DokkaConfigurationTask @Inject constructor(
     objects: ObjectFactory,
 ) : DokkaTask() {
 
+    @get:OutputFile
+    abstract val dokkaConfigurationJson: RegularFileProperty
+
+    /** Dokka Configuration files from other subprojects that will be merged into this Dokka Configuration */
+    @get:InputFiles
+//    @get:NormalizeLineEndings
+    @get:PathSensitive(PathSensitivity.NAME_ONLY)
+    abstract val dokkaSubprojectConfigurations: ConfigurableFileCollection
+
+    /** Dokka Module Configuration files from other subprojects. */
+    @get:InputFiles
+//    @get:NormalizeLineEndings
+    @get:PathSensitive(PathSensitivity.NAME_ONLY)
+    abstract val dokkaModuleDescriptorFiles: ConfigurableFileCollection
+
+    @get:LocalState
+    abstract val cacheRoot: DirectoryProperty
+
+    @get:Input
+    abstract val delayTemplateSubstitution: Property<Boolean>
+
+    @get:Nested
+    abstract val dokkaSourceSets: NamedDomainObjectContainer<DokkaSourceSetGradleBuilder>
+
+    @get:Input
+    abstract val failOnWarning: Property<Boolean>
+
+    @get:InputFiles
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    abstract val includes: ConfigurableFileCollection
+
+    @get:Input
+    abstract val finalizeCoroutines: Property<Boolean>
+
     @get:Input
     abstract val moduleName: Property<String>
 
@@ -35,8 +69,10 @@ abstract class DokkaConfigurationTask @Inject constructor(
     @get:Optional
     abstract val moduleVersion: Property<String>
 
-    @get:Internal
-    // marked as Internal because this task does not use the directory contents, only the location
+    /**
+     * The directory used by Dokka Generator as the output (not the output directory of this task).
+     */
+    @get:Internal // marked as Internal because this task does not use the directory contents, only the location
     val outputDir: DirectoryProperty = objects.directoryProperty()
 
     /**
@@ -46,69 +82,30 @@ abstract class DokkaConfigurationTask @Inject constructor(
     @get:Input
     protected val outputDirPath: Provider<String> = outputDir.map { it.asFile.invariantSeparatorsPath }
 
-    @get:LocalState
-    // marked as Internal because this task does not use the directory contents, only the location
-    val cacheRoot: DirectoryProperty = objects.directoryProperty()
-
-    /**
-     * Because [cacheRoot] must be [Internal] (so Gradle doesn't check the directory contents),
-     * [cacheRootPath] is required so Gradle can determine if the task is up-to-date.
-     */
-    @get:Input
-    @get:Optional
-    protected val cacheRootPath: Provider<String> = cacheRoot.map { it.asFile.invariantSeparatorsPath }
-
     @get:Input
     abstract val offlineMode: Property<Boolean>
-
-    @get:Nested
-    abstract val dokkaSourceSets: NamedDomainObjectContainer<DokkaSourceSetGradleBuilder>
 
     @get:InputFiles
     @get:Classpath
     abstract val pluginsClasspath: ConfigurableFileCollection
 
-    @get:Input
+    @get:Nested
     abstract val pluginsConfiguration: DomainObjectSet<DokkaPluginConfigurationGradleBuilder>
-
-    /** Dokka Configuration files from other subprojects that will be merged into this Dokka Configuration */
-    @get:InputFiles
-//    @get:NormalizeLineEndings
-    @get:PathSensitive(PathSensitivity.NAME_ONLY)
-    abstract val dokkaSubprojectConfigurations: ConfigurableFileCollection
-
-    /** Dokka Module Configuration from other subprojects. */
-    @get:InputFiles
-//    @get:NormalizeLineEndings
-    @get:PathSensitive(PathSensitivity.NAME_ONLY)
-    abstract val dokkaModuleDescriptorFiles: ConfigurableFileCollection
-
-    @get:Input
-    abstract val failOnWarning: Property<Boolean>
-
-    @get:Input
-    abstract val delayTemplateSubstitution: Property<Boolean>
 
     @get:Input
     abstract val suppressObviousFunctions: Property<Boolean>
 
-    @get:InputFiles
-    @get:PathSensitive(PathSensitivity.NAME_ONLY)
-    abstract val includes: ConfigurableFileCollection
-
     @get:Input
     abstract val suppressInheritedMembers: Property<Boolean>
 
+    /** @see org.jetbrains.dokka.gradle.dokka_configuration.DokkaPublication.enabled */
     @get:Input
-    abstract val finalizeCoroutines: Property<Boolean>
-
-    @get:OutputFile
-    abstract val dokkaConfigurationJson: RegularFileProperty
+//    @get:Optional
+    abstract val publicationEnabled: Property<Boolean>
 
     init {
         description = "Assembles Dokka a configuration file, to be used when executing Dokka"
     }
-
 
     @TaskAction
     fun generateConfiguration() {
@@ -194,5 +191,4 @@ abstract class DokkaConfigurationTask @Inject constructor(
     @get:Input
     @Deprecated("TODO write adapter to the new DSL")
     abstract val pluginsMapConfiguration: MapProperty<String, String>
-
 }

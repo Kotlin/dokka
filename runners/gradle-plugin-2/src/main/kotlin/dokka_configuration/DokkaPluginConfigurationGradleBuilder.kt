@@ -20,7 +20,6 @@ abstract class DokkaPluginConfigurationGradleBuilder :
     @get:Input
     abstract val values: Property<String>
 
-    @Internal
     override fun build() = DokkaConfigurationKxs.PluginConfigurationKxs(
         fqPluginName = fqPluginName.get(),
         serializationFormat = serializationFormat.get(),

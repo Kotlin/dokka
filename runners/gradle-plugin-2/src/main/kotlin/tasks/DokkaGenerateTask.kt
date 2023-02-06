@@ -50,6 +50,8 @@ abstract class DokkaGenerateTask @Inject constructor(
         val dokkaConfiguration = jsonMapper.decodeFromStream(
             DokkaConfigurationKxs.serializer(),
             dokkaConfigurationJsonFile.inputStream(),
+        ).copy(
+            outputDir = outputDirectory.get().asFile,
         )
 
         logger.info("dokkaConfiguration: $dokkaConfiguration")

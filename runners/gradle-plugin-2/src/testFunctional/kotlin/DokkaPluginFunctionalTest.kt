@@ -4,7 +4,6 @@ import io.kotest.assertions.withClue
 import io.kotest.matchers.string.shouldContain
 import org.jetbrains.dokka.gradle.utils.buildGradleKts
 import org.jetbrains.dokka.gradle.utils.gradleKtsProjectTest
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 class DokkaPluginFunctionalTest {
@@ -21,18 +20,21 @@ class DokkaPluginFunctionalTest {
             .withArguments("tasks")
             .build()
 
-        assertTrue(
-            build.output.contains(
-                """
-                    Dokka tasks
-                    -----------
-                    createDokkaConfiguration - Assembles Dokka a configuration file, to be used when executing Dokka
-                    createDokkaModuleConfiguration
-                    dokkaGenerate
-                """.trimIndent()
-            ),
-            "expect output contains dokka tasks\n\n${build.output.prependIndent("  | ")}"
-        )
+        build.output shouldContain /* language=text */ """
+            |Dokka tasks
+            |-----------
+            |createDokkaConfiguration - Runs all Dokka Create Configuration tasks
+            |createDokkaConfigurationGfm - Creates Dokka Configuration for executing the Dokka Generator for the gfm publication
+            |createDokkaConfigurationHtml - Creates Dokka Configuration for executing the Dokka Generator for the html publication
+            |createDokkaConfigurationJavadoc - Creates Dokka Configuration for executing the Dokka Generator for the javadoc publication
+            |createDokkaConfigurationJekyll - Creates Dokka Configuration for executing the Dokka Generator for the jekyll publication
+            |dokkaGenerate - Runs all Dokka Generate tasks
+            |dokkaGenerateGfm - Executes the Dokka Generator, producing the gfm publication
+            |dokkaGenerateHtml - Executes the Dokka Generator, producing the html publication
+            |dokkaGenerateJavadoc - Executes the Dokka Generator, producing the javadoc publication
+            |dokkaGenerateJekyll - Executes the Dokka Generator, producing the jekyll publication
+            |
+        """.trimMargin()
     }
 
     @Test
@@ -47,57 +49,32 @@ class DokkaPluginFunctionalTest {
             .withArguments("outgoingVariants")
             .build()
 
-        withClue("dokkaConfigurationElements") {
-            build.output shouldContain """
-                --------------------------------------------------
-                Variant dokkaConfigurationElements
-                --------------------------------------------------
-                Provide Dokka Generator Configuration files to other subprojects
 
-                Capabilities
-                    - :test:unspecified (default capability)
-                Attributes
-                    - org.jetbrains.dokka.base     = dokka
-                    - org.jetbrains.dokka.category = configuration
-                Artifacts
-            """.trimIndent()
+        fun checkVariant(format: String) {
+            val formatCapitalized = format.capitalize()
+
+            build.output shouldContain /* language=text */ """
+                |--------------------------------------------------
+                |Variant dokkaConfigurationElements$formatCapitalized
+                |--------------------------------------------------
+                |Provide Dokka Generator Configuration files for $format to other subprojects
+                |
+                |Capabilities
+                |    - :test:unspecified (default capability)
+                |Attributes
+                |    - org.jetbrains.dokka.base     = dokka
+                |    - org.jetbrains.dokka.category = configuration
+                |    - org.jetbrains.dokka.format   = $format
+                |Artifacts
+                |    - build/dokka-config/$format/dokka_configuration.json (artifactType = json)
+                |
+            """.trimMargin()
         }
 
-        withClue("dokkaGeneratorProvider") {
-            build.output shouldContain """
-                --------------------------------------------------
-                Variant dokkaGeneratorClasspathElements
-                --------------------------------------------------
-                Provide Dokka Generator classpath to other subprojects
-
-                Capabilities
-                    - :test:unspecified (default capability)
-                Attributes
-                    - org.gradle.category            = library
-                    - org.gradle.dependency.bundling = external
-                    - org.gradle.jvm.environment     = standard-jvm
-                    - org.gradle.libraryelements     = jar
-                    - org.gradle.usage               = java-runtime
-                    - org.jetbrains.dokka.base       = dokka
-                    - org.jetbrains.dokka.category   = generator-classpath
-            """.trimIndent()
-        }
-
-        withClue("dokkaModuleDescriptorElements") {
-            build.output shouldContain """
-                --------------------------------------------------
-                Variant dokkaModuleDescriptors
-                --------------------------------------------------
-                Provide Dokka Module descriptor files to other subprojects
-
-                Capabilities
-                    - :test:unspecified (default capability)
-                Attributes
-                    - org.jetbrains.dokka.base     = dokka
-                    - org.jetbrains.dokka.category = module-descriptor
-                Artifacts
-            """.trimIndent()
-        }
+        checkVariant("gfm")
+        checkVariant("html")
+        checkVariant("javadoc")
+        checkVariant("jekyll")
     }
 
     @Test
@@ -113,85 +90,121 @@ class DokkaPluginFunctionalTest {
             .build()
 
         withClue("Configuration dokka") {
-            build.output shouldContain """
-                --------------------------------------------------
-                Configuration dokka
-                --------------------------------------------------
-                Fetch all Dokka files from all configurations in other subprojects
-                
-                Attributes
-                    - org.jetbrains.dokka.base = dokka
-            """.trimIndent()
+            build.output shouldContain /* language=text */ """
+                |--------------------------------------------------
+                |Configuration dokka
+                |--------------------------------------------------
+                |Fetch all Dokka files from all configurations in other subprojects
+                |
+                |Attributes
+                |    - org.jetbrains.dokka.base = dokka
+            """.trimMargin()
         }
 
-        withClue("dokkaConfigurations") {
-            build.output shouldContain """
-                --------------------------------------------------
-                Configuration dokkaConfiguration
-                --------------------------------------------------
-                Fetch Dokka Generator Configuration files from other subprojects
-                
-                Attributes
-                    - org.jetbrains.dokka.base     = dokka
-                    - org.jetbrains.dokka.category = configuration
-                Extended Configurations
-                    - dokka
-            """.trimIndent()
+        fun checkConfigurations(format: String) {
+            val formatCapitalized = format.capitalize()
+
+            build.output shouldContain /* language=text */ """
+                |--------------------------------------------------
+                |Configuration dokkaConfiguration$formatCapitalized
+                |--------------------------------------------------
+                |Fetch Dokka Generator Configuration files for $format from other subprojects
+                |
+                |Attributes
+                |    - org.jetbrains.dokka.base     = dokka
+                |    - org.jetbrains.dokka.category = configuration
+                |    - org.jetbrains.dokka.format   = $format
+                |Extended Configurations
+                |    - dokka
+            """.trimMargin()
+
+
+            build.output shouldContain /* language=text */ """
+                |--------------------------------------------------
+                |Configuration dokkaGeneratorClasspath$formatCapitalized
+                |--------------------------------------------------
+                |Dokka Generator runtime classpath for $format - will be used in Dokka Worker. Should contain all transitive dependencies, plugins (and their transitive dependencies), so Dokka Worker can run.
+                |
+                |Attributes
+                |    - org.gradle.category            = library
+                |    - org.gradle.dependency.bundling = external
+                |    - org.gradle.jvm.environment     = standard-jvm
+                |    - org.gradle.libraryelements     = jar
+                |    - org.gradle.usage               = java-runtime
+                |    - org.jetbrains.dokka.base       = dokka
+                |    - org.jetbrains.dokka.category   = generator-classpath
+                |    - org.jetbrains.dokka.format     = $format
+                |Extended Configurations
+                |    - dokkaPlugin$formatCapitalized
+            """.trimMargin()
+
+            build.output shouldContain /* language=text */ """
+                |--------------------------------------------------
+                |Configuration dokkaPlugin$formatCapitalized
+                |--------------------------------------------------
+                |Dokka Plugins classpath for $format
+                |
+                |Attributes
+                |    - org.gradle.category            = library
+                |    - org.gradle.dependency.bundling = external
+                |    - org.gradle.jvm.environment     = standard-jvm
+                |    - org.gradle.libraryelements     = jar
+                |    - org.gradle.usage               = java-runtime
+                |    - org.jetbrains.dokka.base       = dokka
+                |    - org.jetbrains.dokka.category   = plugins-classpath
+                |    - org.jetbrains.dokka.format     = $format
+            """.trimMargin()
+
+            build.output shouldContain /* language=text */ """
+                |--------------------------------------------------
+                |Configuration dokkaPluginIntransitive$formatCapitalized
+                |--------------------------------------------------
+                |Dokka Plugins classpath for $format - for internal use. Fetch only the plugins (no transitive dependencies) for use in the Dokka JSON Configuration.
+                |
+                |Attributes
+                |    - org.gradle.category            = library
+                |    - org.gradle.dependency.bundling = external
+                |    - org.gradle.jvm.environment     = standard-jvm
+                |    - org.gradle.libraryelements     = jar
+                |    - org.gradle.usage               = java-runtime
+                |    - org.jetbrains.dokka.base       = dokka
+                |    - org.jetbrains.dokka.category   = plugins-classpath
+                |    - org.jetbrains.dokka.format     = $format
+                |Extended Configurations
+                |    - dokkaPlugin$formatCapitalized
+            """.trimMargin()
         }
 
-        withClue("dokkaModuleDescriptor") {
-            build.output shouldContain """
-                --------------------------------------------------
-                Configuration dokkaModule
-                --------------------------------------------------
-                Fetch Dokka Module descriptor files from other subprojects
-                
-                Attributes
-                    - org.jetbrains.dokka.base     = dokka
-                    - org.jetbrains.dokka.category = module-descriptor
-                
-                """.trimIndent()
-        }
-
-        withClue("dokkaPlugin") {
-            build.output shouldContain """
-                --------------------------------------------------
-                Configuration dokkaPlugin
-                --------------------------------------------------
-                Dokka Plugins classpath
-                
-                Attributes
-                    - org.gradle.category            = library
-                    - org.gradle.dependency.bundling = external
-                    - org.gradle.jvm.environment     = standard-jvm
-                    - org.gradle.libraryelements     = jar
-                    - org.gradle.usage               = java-runtime
-                    - org.jetbrains.dokka.base       = dokka
-                    - org.jetbrains.dokka.category   = plugins-classpath
-                Extended Configurations
-                    - dokka
-            """.trimIndent()
-        }
-
-        withClue("dokkaGenerator") {
-            build.output shouldContain """
-                --------------------------------------------------
-                Configuration dokkaGeneratorClasspath
-                --------------------------------------------------
-                Dokka Generator runtime classpath - will be used in Dokka Worker. Should contain all plugins, and transitive dependencies, so Dokka Worker can run.
-                
-                Attributes
-                    - org.gradle.category            = library
-                    - org.gradle.dependency.bundling = external
-                    - org.gradle.jvm.environment     = standard-jvm
-                    - org.gradle.libraryelements     = jar
-                    - org.gradle.usage               = java-runtime
-                    - org.jetbrains.dokka.base       = dokka
-                    - org.jetbrains.dokka.category   = generator-classpath
-                Extended Configurations
-                    - dokka
-                    - dokkaPlugin
-            """.trimIndent()
-        }
+        checkConfigurations("gfm")
+        checkConfigurations("html")
+        checkConfigurations("javadoc")
+        checkConfigurations("jekyll")
     }
 }
+
+/*
+
+--------------------------------------------------
+Configuration dokkaConfigurationGfm
+--------------------------------------------------
+Fetch Dokka Generator Configuration files for gfm from other subprojects
+
+Attributes
+    - org.jetbrains.dokka.base     = dokka
+    - org.jetbrains.dokka.category = configuration
+    - org.jetbrains.dokka.format   = gfm
+Extended Configurations
+    - dokka
+
+--------------------------------------------------
+Configuration dokkaConfigurationGfm
+--------------------------------------------------
+Fetch Dokka Generator Configuration files for gfm from other subprojects
+
+Attributes
+    - org.jetbrains.dokka.base     = dokka
+    - org.jetbrains.dokka.category = configuration
+    - org.jetbrains.dokka.format   = gfm
+Extended Configurations
+    - dokka
+ */

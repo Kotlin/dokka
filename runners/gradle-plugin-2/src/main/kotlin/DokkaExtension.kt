@@ -2,59 +2,51 @@ package org.jetbrains.dokka.gradle
 
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.file.DirectoryProperty
-import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
-import org.jetbrains.dokka.gradle.dokka_configuration.DokkaModuleDescriptionGradleBuilder
+import org.jetbrains.dokka.gradle.dokka_configuration.DokkaPublication
 import org.jetbrains.dokka.gradle.dokka_configuration.DokkaSourceSetGradleBuilder
-import javax.inject.Inject
 
 /**
  * Configure the behaviour of the [DokkaPlugin].
  */
-abstract class DokkaExtension @Inject constructor(
-    private val objects: ObjectFactory
-) {
+abstract class DokkaExtension {
+
     /** Default version used for Dokka dependencies */
     abstract val dokkaVersion: Property<String>
+
+    /** Directory into which [DokkaPublication]s will be produced */
+    abstract val dokkaPublicationDirectory: DirectoryProperty
+
+    abstract val dokkaConfigurationsDirectory: DirectoryProperty
 
     /** Default Dokka cache directory */
     abstract val dokkaCacheDirectory: DirectoryProperty
 
+//    abstract val dokkaConfigurations: NamedDomainObjectContainer<DokkaConfigurationGradleBuilder>
+
+    abstract val moduleNameDefault: Property<String>
+    abstract val moduleVersionDefault: Property<String>
+
     /**
-     * Dokka Source Sets describe the source code that should be included in a Dokka Publication.
+     * String used to discriminate between source sets that originate from different Gradle subprojects
      *
-     * Dokka will not generate documentation at least there is at least one Dokka Source Set.
+     * Defaults to [the path of the subproject][org.gradle.api.Project.getPath].
+     */
+    abstract val sourceSetScopeDefault: Property<String>
+
+    /**
+     * Configuration for creating Dokka Publications.
      *
-     * Only source sets that are contained within _this project_ should be included here.
-     * To merge source sets from other projects, use the Gradle dependencies block.
+     * Each publication will generate one Dokka site based on the included Dokka Source Sets.
      *
-     * ```kotlin
-     * dependencies {
-     *   // merge :other-project into this project's Dokka Configuration
-     *   dokka(project(":other-project"))
-     * }
-     * ```
+     * The type of site is determined by the Dokka Plugins. By default, an HTML site will be generated.
+     */
+    abstract val dokkaPublications: NamedDomainObjectContainer<DokkaPublication>
+
+    /**
+     * Dokka Source Sets that describe source code in the local project (not subprojects)
      *
-     * Or, to include other Dokka Publications as a Module use
-     *
-     * ```kotlin
-     * dependencies {
-     *   // include :other-project as a module in this project's Dokka Configuration
-     *   dokkaModule(project(":other-project"))
-     * }
-     * ```
-     *
-     * Dokka will merge Dokka Source Sets from other subprojects.
+     * These source sets will be added to all [dokkaPublications].
      */
     abstract val dokkaSourceSets: NamedDomainObjectContainer<DokkaSourceSetGradleBuilder>
-
-    /**
-     * Dokka Module Descriptions describe an independent Dokka publication, and these
-     * descriptions are used by _other_ Dokka Configurations.
-     *
-     * Only add a module if you want the Dokka Publication produced by _this project_ to be
-     * included in the Dokka Publication of _another_ project.
-     */
-    abstract val dokkaModules: NamedDomainObjectContainer<DokkaModuleDescriptionGradleBuilder>
-
 }
