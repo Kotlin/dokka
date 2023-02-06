@@ -1,7 +1,6 @@
 package org.jetbrains.dokka.javadoc.pages
 
 import org.jetbrains.dokka.model.*
-import org.jetbrains.dokka.utilities.htmlEscape
 
 /**
  * Returns an unencoded, unescaped function anchor.
