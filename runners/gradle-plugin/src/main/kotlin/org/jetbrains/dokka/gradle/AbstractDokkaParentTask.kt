@@ -8,8 +8,9 @@ import org.gradle.work.DisableCachingByDefault
 private const val DEPRECATION_MESSAGE = """
     It is an anti-pattern to declare cross-project dependencies as it leads to various build problems. 
     For this reason, this API wil be removed with the introduction of project isolation. 
-    As an alternative, don't apply the Dokka plugin in subprojects that you don't want to document, 
-    or disable individual tasks using the Gradle API.
+    When it happens, we will provide a migration guide. In the meantime, you can keep using this API
+    if you have to, but please don't rely on it if possible. If you don't want to document a certain project,
+    don't apply the Dokka plugin for it, or disable individual project tasks using the Gradle API .
 """
 
 @Suppress("DEPRECATION")
