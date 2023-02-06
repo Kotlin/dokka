@@ -9,6 +9,7 @@ import org.jetbrains.dokka.base.transformers.documentables.ClashingDriIdentifier
 import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentConverter
 import org.jetbrains.dokka.base.transformers.pages.tags.CustomTagContentProvider
 import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder.DocumentableContentBuilder
+import org.jetbrains.dokka.links.Callable
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.doc.*
@@ -526,28 +527,29 @@ open class DefaultPageCreator(
                     .mapValues { if (it.value.any { it is DClasslike }) it.value.filter { it !is DTypeAlias } else it.value }
                     .toSortedMap(compareBy(nullsLast(String.CASE_INSENSITIVE_ORDER)) { it })
                     .forEach { (elementName, elements) -> // This groupBy should probably use LocationProvider
+                        val sortedElements = sortDivergentElementsDeterministically(elements)
                         row(
-                            dri = elements.map { it.dri }.toSet(),
-                            sourceSets = elements.flatMap { it.sourceSets }.toSet(),
+                            dri = sortedElements.map { it.dri }.toSet(),
+                            sourceSets = sortedElements.flatMap { it.sourceSets }.toSet(),
                             kind = kind,
                             styles = emptySet(),
                             extra = elementName?.let { name -> extra + SymbolAnchorHint(name, kind) } ?: extra
                         ) {
                             link(
                                 text = elementName.orEmpty(),
-                                address = elements.first().dri,
+                                address = sortedElements.first().dri,
                                 kind = kind,
                                 styles = setOf(ContentStyle.RowTitle),
-                                sourceSets = elements.sourceSets.toSet(),
+                                sourceSets = sortedElements.sourceSets.toSet(),
                                 extra = extra
                             )
                             divergentGroup(
                                 ContentDivergentGroup.GroupID(name),
-                                elements.map { it.dri }.toSet(),
+                                sortedElements.map { it.dri }.toSet(),
                                 kind = kind,
                                 extra = extra
                             ) {
-                                elements.map {
+                                sortedElements.map {
                                     instance(
                                         setOf(it.dri),
                                         it.sourceSets.toSet(),
@@ -570,6 +572,23 @@ open class DefaultPageCreator(
             }
         }
     }
+
+    /**
+     * Divergent elements, such as extensions for the same receiver, can have identical signatures
+     * if they are declared in different places. If such elements are shown on the same page together,
+     * they need to be rendered deterministically to have reproducible builds.
+     *
+     * For example, you can have three identical extensions, if they are declared as:
+     * 1) top-level in package A
+     * 2) top-level in package B
+     * 3) inside a companion object in package A/B
+     *
+     * @see divergentBlock
+     */
+    private fun sortDivergentElementsDeterministically(elements: List<Documentable>): List<Documentable> =
+        elements.takeIf { it.size > 1 }
+            ?.sortedWith(divergentDocumentableComparator)
+            ?: elements
 
     private fun DocumentableContentBuilder.contentForCustomTagsBrief(documentable: Documentable) {
         val customTags = documentable.customTags
@@ -610,6 +629,19 @@ internal val Documentable.customTags: Map<String, SourceSetDependent<CustomTagWr
 
 private val Documentable.hasSeparatePage: Boolean
     get() = this !is DTypeAlias
+
+/**
+ * @see DefaultPageCreator.sortDivergentElementsDeterministically for usage
+ */
+private val divergentDocumentableComparator =
+    compareBy<Documentable, String?>(nullsLast()) { it.dri.packageName }
+        .thenBy(nullsFirst()) { it.dri.classNames } // nullsFirst for top level to be first
+        .thenBy(
+            nullsLast(
+                compareBy<Callable> { it.params.size }
+                    .thenBy { it.signature() }
+            )
+        ) { it.dri.callable }
 
 @Suppress("UNCHECKED_CAST")
 private fun <T : Documentable> T.nameAfterClash(): String =

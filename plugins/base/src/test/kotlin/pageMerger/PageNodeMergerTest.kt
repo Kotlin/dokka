@@ -1,52 +1,28 @@
 package pageMerger
 
-import org.jetbrains.dokka.pages.ClasslikePageNode
-import org.jetbrains.dokka.pages.ContentPage
-import org.jetbrains.dokka.pages.PageNode
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
+import org.jetbrains.dokka.model.dfs
+import org.jetbrains.dokka.model.withDescendants
+import org.jetbrains.dokka.pages.*
+import org.junit.jupiter.api.RepeatedTest
+import java.lang.IllegalArgumentException
+import kotlin.test.assertEquals
 
 class PageNodeMergerTest : BaseAbstractTest() {
 
-    /* object SameNameStrategy : DokkaPlugin() {
-        val strategy by extending { CoreExtensions.pageMergerStrategy with SameMethodNamePageMergerStrategy }
-    }
-
-    class DefaultStrategy(val strList: MutableList<String> = mutableListOf()) : DokkaPlugin(), DokkaLogger {
-        val strategy by extending { CoreExtensions.pageMergerStrategy with DefaultPageMergerStrategy(this@DefaultStrategy) }
-
-        override var warningsCount: Int = 0
-        override var errorsCount: Int = 0
-
-        override fun debug(message: String) = TODO()
-
-        override fun info(message: String) = TODO()
-
-        override fun progress(message: String) = TODO()
-
-        override fun warn(message: String) {
-            strList += message
+    private val defaultConfiguration = dokkaConfiguration {
+        sourceSets {
+            sourceSet {
+                sourceRoots = listOf("src/main/kotlin")
+            }
         }
-
-        override fun error(message: String) = TODO()
-
-        override fun report() = TODO()
     }
-     */
 
     @Test
     fun sameNameStrategyTest() {
-
-        val configuration = dokkaConfiguration {
-            sourceSets {
-                sourceSet {
-                    sourceRoots = listOf("src/main/kotlin/pageMerger/Test.kt")
-                }
-            }
-        }
-
         testInline(
             """
             |/src/main/kotlin/pageMerger/Test.kt
@@ -60,8 +36,7 @@ class PageNodeMergerTest : BaseAbstractTest() {
             |   fun test(str: String): String = str
             |}
         """.trimMargin(),
-            configuration/*,
-            pluginOverrides = listOf(SameNameStrategy)*/
+            defaultConfiguration
         ) {
             pagesTransformationStage = {
                 val allChildren = it.childrenRec().filterIsInstance<ContentPage>()
@@ -82,14 +57,6 @@ class PageNodeMergerTest : BaseAbstractTest() {
     fun defaultStrategyTest() {
         val strList: MutableList<String> = mutableListOf()
 
-        val configuration = dokkaConfiguration {
-            sourceSets {
-                sourceSet {
-                    sourceRoots = listOf("src/main/kotlin/pageMerger/Test.kt")
-                }
-            }
-        }
-
         testInline(
             """
             |/src/main/kotlin/pageMerger/Test.kt
@@ -103,8 +70,7 @@ class PageNodeMergerTest : BaseAbstractTest() {
             |   fun test(str: String): String = str
             |}
         """.trimMargin(),
-            configuration/*,
-            pluginOverrides = listOf(DefaultStrategy(strList)) */
+            defaultConfiguration
         ) {
             pagesTransformationStage = { root ->
                 val allChildren = root.childrenRec().filterIsInstance<ContentPage>()
@@ -186,5 +152,221 @@ class PageNodeMergerTest : BaseAbstractTest() {
                 assertTrue(noClass.isEmpty()) { "There can't be any DoNotMerge page" }
             }
         }
+    }
+
+    @RepeatedTest(3)
+    fun `should deterministically render same name property extensions`() {
+        testInline(
+            """
+            |/src/main/kotlin/test/Test.kt
+            |package test
+            |
+            |class ExtensionReceiver
+            |
+            |/**
+            | * Top level val extension
+            | */
+            |val ExtensionReceiver.foo: String get() = "bar"
+            |
+            |class Obj {
+            |    companion object {
+            |        /**
+            |         * Companion val extension
+            |         */
+            |        val ExtensionReceiver.foo: String get() = "bar"
+            |    }
+            |}
+            |
+            |/src/main/kotlin/test/nestedpackage/Pckg.kt
+            |package test.nestedpackage
+            |
+            |import test.ExtensionReceiver
+            |
+            |/**
+            | * From nested package int val extension
+            | */
+            |val ExtensionReceiver.foo: Int get() = 42
+        """.trimMargin(),
+            defaultConfiguration
+        ) {
+            renderingStage = { rootPageNode, _ ->
+                val extensions = rootPageNode.findExtensionsOfClass("ExtensionReceiver")
+
+                extensions.assertContainsKDocsInOrder(
+                    "Top level val extension",
+                    "Companion val extension",
+                    "From nested package int val extension"
+                )
+            }
+        }
+    }
+
+    @RepeatedTest(3)
+    fun `should deterministically render parameterless same name function extensions`() {
+        testInline(
+            """
+            |/src/main/kotlin/test/Test.kt
+            |package test
+            |
+            |class ExtensionReceiver
+            |
+            |/**
+            | * Top level fun extension
+            | */
+            |fun ExtensionReceiver.bar(): String = "bar"
+            |
+            |class Obj {
+            |
+            |    companion object {
+            |        /**
+            |         * Companion fun extension
+            |         */
+            |        fun ExtensionReceiver.bar(): String = "bar"
+            |    }
+            |}
+            |
+            |/src/main/kotlin/test/nestedpackage/Pckg.kt
+            |package test.nestedpackage
+            |
+            |import test.ExtensionReceiver
+            |
+            |/**
+            | * From nested package fun extension
+            | */
+            |fun ExtensionReceiver.bar(): String = "bar"
+        """.trimMargin(),
+            defaultConfiguration
+        ) {
+            renderingStage = { rootPageNode, _ ->
+                val extensions = rootPageNode.findExtensionsOfClass("ExtensionReceiver")
+                extensions.assertContainsKDocsInOrder(
+                    "Top level fun extension",
+                    "Companion fun extension",
+                    "From nested package fun extension"
+                )
+            }
+        }
+    }
+
+    @RepeatedTest(3)
+    fun `should deterministically render same name function extensions with parameters`() {
+        testInline(
+            """
+            |/src/main/kotlin/test/Test.kt
+            |package test
+            |
+            |class ExtensionReceiver
+            |
+            |/**
+            | * Top level fun extension with one string param
+            | */
+            |fun ExtensionReceiver.bar(one: String): String = "bar"
+            |
+            |/**
+            | * Top level fun extension with one int param
+            | */
+            |fun ExtensionReceiver.bar(one: Int): Int = 42
+            |
+            |class Obj {
+            |
+            |    companion object {
+            |        /**
+            |         * Companion fun extension with two params
+            |         */
+            |        fun ExtensionReceiver.bar(one: String, two: String): String = "bar"
+            |    }
+            |}
+            |
+            |/src/main/kotlin/test/nestedpackage/Pckg.kt
+            |package test.nestedpackage
+            |
+            |import test.ExtensionReceiver
+            |
+            |/**
+            | * From nested package fun extension with two params
+            | */
+            |fun ExtensionReceiver.bar(one: String, two: String): String = "bar"
+            |
+            |/**
+            | * From nested package fun extension with three params
+            | */
+            |fun ExtensionReceiver.bar(one: String, two: String, three: String): String = "bar"
+            |
+            |/**
+            | * From nested package fun extension with four params
+            | */
+            |fun ExtensionReceiver.bar(one: String, two: String, three: String, four: String): String = "bar"
+        """.trimMargin(),
+            defaultConfiguration
+        ) {
+            renderingStage = { rootPageNode, _ ->
+                val extensions = rootPageNode.findExtensionsOfClass("ExtensionReceiver")
+                extensions.assertContainsKDocsInOrder(
+                    "Top level fun extension with one int param",
+                    "Top level fun extension with one string param",
+                    "Companion fun extension with two params",
+                    "From nested package fun extension with two params",
+                    "From nested package fun extension with three params",
+                    "From nested package fun extension with four params"
+                )
+            }
+        }
+    }
+
+    @RepeatedTest(3)
+    fun `should deterministically render same name function extensions with different receiver and return type`() {
+        testInline(
+            """
+            |/src/main/kotlin/test/Test.kt
+            |package test
+            |
+            |/**
+            | * Top level fun extension string
+            | */
+            |fun Int.bar(): String = "bar"
+            |
+            |/**
+            | * Top level fun extension int
+            | */
+            |fun String.bar(): Int = 42
+        """.trimMargin(),
+            defaultConfiguration
+        ) {
+            renderingStage = { rootPageNode, _ ->
+                val extensions = rootPageNode.findPackageExtensions("bar")
+                extensions.assertContainsKDocsInOrder(
+                    "Top level fun extension string",
+                    "Top level fun extension int"
+                )
+            }
+        }
+    }
+
+    private fun RootPageNode.findExtensionsOfClass(name: String): ContentDivergentGroup {
+        val extensionReceiverPage = this.dfs { it is ClasslikePageNode && it.name == name } as ClasslikePageNode
+        return extensionReceiverPage.content
+            .dfs { it is ContentDivergentGroup && it.groupID.name == "Extensions" } as ContentDivergentGroup
+    }
+
+    private fun RootPageNode.findPackageExtensions(extensionName: String): ContentDivergentGroup {
+        val extensionReceiverPage = this.dfs { it is MemberPageNode && it.name == extensionName } as MemberPageNode
+        return extensionReceiverPage.content
+            .dfs { it is ContentDivergentGroup && it.groupID.name == "member" } as ContentDivergentGroup
+    }
+
+    private fun ContentDivergentGroup.assertContainsKDocsInOrder(vararg expectedKDocs: String) {
+        expectedKDocs.forEachIndexed { index, expectedKDoc ->
+            assertEquals(expectedKDoc, this.getElementKDocText(index))
+        }
+    }
+
+    private fun ContentDivergentGroup.getElementKDocText(index: Int): String {
+        val element = this.children.getOrNull(index) ?: throw IllegalArgumentException("No element with index $index")
+        val commentNode = element.after
+            ?.withDescendants()
+            ?.singleOrNull { it is ContentText && it.dci.kind == ContentKind.Comment }
+            ?: throw IllegalStateException("Expected the element to contain a single paragraph of text / comment")
+
+        return (commentNode as ContentText).text
     }
 }
