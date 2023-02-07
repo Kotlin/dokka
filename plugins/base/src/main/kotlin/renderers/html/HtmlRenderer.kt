@@ -143,29 +143,6 @@ open class HtmlRenderer(
         }
     }
 
-    private fun FlowContent.filterButtons(page: PageNode) {
-        if (shouldRenderSourceSetBubbles && page is ContentPage) {
-            div(classes = "filter-section") {
-                id = "filter-section"
-                page.content.withDescendants().flatMap { it.sourceSets }.distinct()
-                    .sortedBy { it.comparableKey }.forEach {
-                        button(classes = "platform-tag platform-selector") {
-                            attributes["data-active"] = ""
-                            attributes["data-filter"] = it.sourceSetIDs.merged.toString()
-                            when (it.platform.key) {
-                                "common" -> classes = classes + "common-like"
-                                "native" -> classes = classes + "native-like"
-                                "jvm" -> classes = classes + "jvm-like"
-                                "js" -> classes = classes + "js-like"
-                                "wasm" -> classes = classes + "wasm-like"
-                            }
-                            text(it.name)
-                        }
-                    }
-            }
-        }
-    }
-
     private fun FlowContent.copyButton() = span(classes = "top-right-position") {
         span("copy-icon")
         copiedPopup("Content copied to clipboard", "popup-to-left")
