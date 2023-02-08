@@ -525,7 +525,7 @@ open class DefaultPageCreator(
                     .groupBy { it.name } // This groupBy should probably use LocationProvider
                     // This hacks displaying actual typealias signatures along classlike ones
                     .mapValues { if (it.value.any { it is DClasslike }) it.value.filter { it !is DTypeAlias } else it.value }
-                    .toSortedMap(compareBy(nullsLast(String.CASE_INSENSITIVE_ORDER)) { it })
+                    .entries.sortedBy { it.key }
                     .forEach { (elementName, elements) -> // This groupBy should probably use LocationProvider
                         val sortedElements = sortDivergentElementsDeterministically(elements)
                         row(

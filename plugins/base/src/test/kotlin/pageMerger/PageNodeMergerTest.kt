@@ -333,10 +333,49 @@ class PageNodeMergerTest : BaseAbstractTest() {
             defaultConfiguration
         ) {
             renderingStage = { rootPageNode, _ ->
-                val extensions = rootPageNode.findPackageExtensions("bar")
-                extensions.assertContainsKDocsInOrder(
+                val packageFunctionBlocks = rootPageNode.findPackageFunctionBlocks(packageName = "test")
+                assertEquals(1, packageFunctionBlocks.size, "Expected to find only one group for the functions")
+
+                val functionsBlock = packageFunctionBlocks[0]
+                functionsBlock.assertContainsKDocsInOrder(
                     "Top level fun extension string",
                     "Top level fun extension int"
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `should not ignore case when grouping by name`() {
+        testInline(
+            """
+            |/src/main/kotlin/test/Test.kt
+            |package test
+            |
+            |/**
+            | * Top level fun bAr
+            | */
+            |fun Int.bAr(): String = "bar"
+            |
+            |/**
+            | * Top level fun BaR
+            | */
+            |fun String.BaR(): Int = 42
+        """.trimMargin(),
+            defaultConfiguration
+        ) {
+            renderingStage = { rootPageNode, _ ->
+                val packageFunctionBlocks = rootPageNode.findPackageFunctionBlocks(packageName = "test")
+                assertEquals(2, packageFunctionBlocks.size, "Expected two separate function groups")
+
+                val firstGroup = packageFunctionBlocks[0]
+                firstGroup.assertContainsKDocsInOrder(
+                    "Top level fun BaR",
+                )
+
+                val secondGroup = packageFunctionBlocks[1]
+                secondGroup.assertContainsKDocsInOrder(
+                    "Top level fun bAr",
                 )
             }
         }
@@ -348,10 +387,15 @@ class PageNodeMergerTest : BaseAbstractTest() {
             .dfs { it is ContentDivergentGroup && it.groupID.name == "Extensions" } as ContentDivergentGroup
     }
 
-    private fun RootPageNode.findPackageExtensions(extensionName: String): ContentDivergentGroup {
-        val extensionReceiverPage = this.dfs { it is MemberPageNode && it.name == extensionName } as MemberPageNode
-        return extensionReceiverPage.content
-            .dfs { it is ContentDivergentGroup && it.groupID.name == "member" } as ContentDivergentGroup
+    private fun RootPageNode.findPackageFunctionBlocks(packageName: String): List<ContentDivergentGroup> {
+        val packagePage = this.dfs { it is PackagePage && it.name == packageName } as PackagePage
+        val packageFunctionTable = packagePage.content.dfs {
+            it is ContentTable && it.dci.kind == ContentKind.Functions
+        } as ContentTable
+
+        return packageFunctionTable.children.map { packageGroup ->
+            packageGroup.dfs { it is ContentDivergentGroup } as ContentDivergentGroup
+        }
     }
 
     private fun ContentDivergentGroup.assertContainsKDocsInOrder(vararg expectedKDocs: String) {
