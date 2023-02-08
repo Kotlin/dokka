@@ -23,9 +23,11 @@ subprojects {
 
     /**
      * Dokka's integration test task is not cacheable because the HTML outputs
-     * it produces when running the tests are used for showcasing resulting documentation.
+     * it produces when running the tests are used for showcasing resulting documentation,
+     * which does not work well with caching.
      *
      * At the moment there are two problems that do not allow to make it cacheable:
+     *
      * 1. The task's inputs are such that changes in Dokka's code do not invalidate the cache,
      *    because it is run with the same version of Dokka ("DOKKA_VERSION") on the same
      *    test project inputs.
@@ -37,7 +39,7 @@ subprojects {
      *
      * @see [org.jetbrains.dokka.it.TestOutputCopier] for more details on showcasing documentation
      */
-    @DisableCachingByDefault
+    @DisableCachingByDefault(because = "Contains incorrect inputs/outputs configuration, see the KDoc for details")
     abstract class NonCacheableIntegrationTest : Test()
 
     val integrationTest by tasks.register<NonCacheableIntegrationTest>("integrationTest") {
