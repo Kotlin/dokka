@@ -89,7 +89,7 @@ open class DokkaPlugin : Plugin<Project> {
         }
 
         tasks.withType<AbstractDokkaTask>().configureEach {
-            finalizeCoroutines.convention(true)
+            finalizeCoroutines.convention(false)
         }
     }
 }

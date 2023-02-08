@@ -23,8 +23,8 @@ abstract class DokkaGeneratorWorker : WorkAction<DokkaGeneratorWorker.Parameters
     override fun execute() {
         val dokkaConfiguration = parameters.dokkaConfiguration.get()
 
+        logger.progress("Run ${dokkaConfiguration.moduleName} ${if(dokkaConfiguration.delayTemplateSubstitution) "Partial" else "MultiModule"} task on ${ ProcessHandle.current().pid()}" )
         val generator = DokkaGenerator(dokkaConfiguration, logger)
-
         generator.generate()
     }
 }

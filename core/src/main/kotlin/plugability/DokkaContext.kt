@@ -27,12 +27,9 @@ interface DokkaContext {
             pluginOverrides: List<DokkaPlugin>
         ): DokkaContext =
             DokkaContextConfigurationImpl(logger, configuration).apply {
-                // File(it.path) is a workaround for an incorrect filesystem in a File instance returned by Gradle.
-                configuration.pluginsClasspath.map { File(it.path).toURI().toURL() }
-                    .toTypedArray()
-                    .let { URLClassLoader(it, this.javaClass.classLoader) }
-                    .also { checkClasspath(it) }
-                    .let { ServiceLoader.load(DokkaPlugin::class.java, it) }
+
+                //loadPluginsClasspath(configuration.pluginsClasspath.toSet(), this.javaClass.classLoader)
+                this.javaClass.classLoader.let { ServiceLoader.load(DokkaPlugin::class.java, it) }
                     .let { it + pluginOverrides }
                     .forEach { install(it) }
                 topologicallySortAndPrune()

@@ -19,7 +19,7 @@ data class DokkaConfigurationImpl(
     override val suppressObviousFunctions: Boolean = DokkaDefaults.suppressObviousFunctions,
     override val includes: Set<File> = emptySet(),
     override val suppressInheritedMembers: Boolean = DokkaDefaults.suppressInheritedMembers,
-    override val finalizeCoroutines: Boolean = true,
+    override val finalizeCoroutines: Boolean = false,
 ) : DokkaConfiguration
 
 data class PluginConfigurationImpl(
