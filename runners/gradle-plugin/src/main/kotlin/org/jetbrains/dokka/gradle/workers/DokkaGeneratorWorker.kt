@@ -6,6 +6,7 @@ import org.gradle.workers.WorkParameters
 import org.jetbrains.dokka.DokkaConfigurationImpl
 import org.jetbrains.dokka.DokkaGenerator
 import org.jetbrains.dokka.gradle.internal.LoggerAdapter
+import java.net.URLClassLoader
 
 /**
  * Gradle Worker Daemon for running [DokkaGenerator].
@@ -21,6 +22,8 @@ abstract class DokkaGeneratorWorker : WorkAction<DokkaGeneratorWorker.Parameters
     }
 
     override fun execute() {
+        println("Current classloader")
+        (this.javaClass.classLoader as URLClassLoader).urLs.forEach { println(it) }
         val dokkaConfiguration = parameters.dokkaConfiguration.get()
 
         logger.progress("Run ${dokkaConfiguration.moduleName} ${if(dokkaConfiguration.delayTemplateSubstitution) "Partial" else "MultiModule"} task on ${ ProcessHandle.current().pid()}" )

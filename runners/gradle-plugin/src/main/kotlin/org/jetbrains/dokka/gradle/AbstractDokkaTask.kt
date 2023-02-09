@@ -99,7 +99,9 @@ abstract class AbstractDokkaTask : DefaultTask() {
         val builtDokkaConfig = buildDokkaConfiguration()
 
         val workQueue = workers.processIsolation {
-            classpath.setFrom(runtime + plugins)
+            println("Runtime configuration")
+            runtime.resolve().toList().forEach { println(it) }
+            classpath.setFrom(runtime, plugins)
             forkOptions {
                 defaultCharacterEncoding = "UTF-8"
                 maxHeapSize = "1g"
