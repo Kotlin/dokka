@@ -1,2 +1,0 @@
-@Suppress("FOO") fun f() {
-}

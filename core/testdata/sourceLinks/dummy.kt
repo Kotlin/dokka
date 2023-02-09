@@ -1,6 +1,0 @@
-/**
- * Some doc.
- */
-fun foo(){
-
-}

@@ -1,5 +1,0 @@
-/**
- * Function fn
- */
-fun fn() {
-}

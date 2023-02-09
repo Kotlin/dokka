@@ -1,1 +1,0 @@
-@JvmName("FFF") fun f() {}

@@ -1,2 +1,0 @@
-/** doc */
-val property = "test"
