@@ -584,9 +584,12 @@ open class DefaultPageCreator(
      * 3) inside a companion object in package A/B
      *
      * @see divergentBlock
+     *
+     * @param elements can contain types (annotation/class/interface/object/typealias), functions and properties
+     * @return the original list if it has one or zero elements
      */
     private fun sortDivergentElementsDeterministically(elements: List<Documentable>): List<Documentable> =
-        elements.takeIf { it.size > 1 }
+        elements.takeIf { it.size > 1 } // the majority are single-element lists, but no real benchmarks done
             ?.sortedWith(divergentDocumentableComparator)
             ?: elements
 
