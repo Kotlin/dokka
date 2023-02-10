@@ -665,7 +665,7 @@ open class DefaultPageCreator(
 
         val groupedElements = list.groupBy { NameAndIsExtension(it.name, it.isExtension()) }.toList()
         val sortedGroupedElements =
-            groupedElements.sortedWith(compareBy<Pair<NameAndIsExtension, List<DProperty>>, String>(nullsLast(String.CASE_INSENSITIVE_ORDER)) { it.first.name }.thenBy { it.first.isExtension })
+            groupedElements.sortedWith(compareBy<Pair<NameAndIsExtension, List<DProperty>>, String>(String.CASE_INSENSITIVE_ORDER) { it.first.name }.thenBy { it.first.isExtension })
 
         val onlyExtensions = list.all { it.isExtension() }
         val headerExtra =

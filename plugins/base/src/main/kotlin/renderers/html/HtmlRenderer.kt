@@ -61,8 +61,7 @@ open class HtmlRenderer(
         pageContext: ContentPage,
         sourceSetRestriction: Set<DisplaySourceSet>?
     ) {
-        if(extra[HtmlInvisibleExtra] ==  null)
-            builder.buildContentNode(this, pageContext, sourceSetRestriction)
+        builder.buildContentNode(this, pageContext, sourceSetRestriction)
     }
 
     override fun FlowContent.wrapGroup(

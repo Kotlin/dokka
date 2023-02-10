@@ -8,10 +8,6 @@ class SimpleAttr(val extraKey: String, val extraValue: String) : ExtraProperty<C
 
 }
 
-object HtmlInvisibleExtra : ExtraProperty<ContentNode>, ExtraProperty.Key<ContentNode, HtmlInvisibleExtra> {
-    override val key: ExtraProperty.Key<ContentNode, *> = this
-}
-
 const val TOGGLEABLE_CONTENT_TYPE_ATTR = "data-togglable"
 enum class BasicToggleableContentType : ToggleableContentType {
     TYPE, CONSTRUCTOR, FUNCTION, PROPERTY, ENTRY, EXTENSION, INHERITED_FUNCTION, INHERITED_PROPERTY,
