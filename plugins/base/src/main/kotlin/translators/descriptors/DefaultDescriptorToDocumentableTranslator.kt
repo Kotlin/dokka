@@ -310,6 +310,7 @@ private class DokkaDescriptorVisitor(
 
         // synthetic values() and valueOf() functions are not present among average class functions
         val enumSyntheticFunctions = staticScopeForKotlinEnum.getContributedDescriptors { true }
+            .filterIsInstance<FunctionDescriptor>()
 
         return descriptorsWithKind.copy(functions = descriptorsWithKind.functions + enumSyntheticFunctions)
     }

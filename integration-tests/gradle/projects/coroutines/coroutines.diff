@@ -1,62 +1,60 @@
 diff --git a/build.gradle b/build.gradle
-index ba6d5c18c..bd31bca29 100644
+index 934d4c220..38321990e 100644
 --- a/build.gradle
 +++ b/build.gradle
-@@ -125,6 +125,7 @@ allprojects {
-          * transitive dependencies was removed from jcenter, thus breaking gradle dependency resolution
-          */
+@@ -131,6 +131,7 @@ allprojects {
          google()
-+        mavenLocal()
          mavenCentral()
-         maven { url "https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev" }
+         CommunityProjectsBuild.addDevRepositoryIfEnabled(delegate, project)
++        mavenLocal()
      }
+ }
+ 
 diff --git a/buildSrc/build.gradle.kts b/buildSrc/build.gradle.kts
-index eaa03f2f1..deae8d40d 100644
+index 785d13fdb..7fb19f467 100644
 --- a/buildSrc/build.gradle.kts
 +++ b/buildSrc/build.gradle.kts
-@@ -19,6 +19,7 @@ repositories {
-         maven("https://plugins.gradle.org/m2")
-     }
-     maven("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev")
-+    mavenLocal()
+@@ -25,6 +25,7 @@ repositories {
      if (buildSnapshotTrain) {
          mavenLocal()
      }
++    mavenLocal()
+ }
+ 
+ kotlinDslPluginOptions {
 diff --git a/buildSrc/settings.gradle.kts b/buildSrc/settings.gradle.kts
-index c2e859f65..80163ff95 100644
+index c2e859f65..43dc4f749 100644
 --- a/buildSrc/settings.gradle.kts
 +++ b/buildSrc/settings.gradle.kts
-@@ -4,6 +4,7 @@
- pluginManagement {
-     val build_snapshot_train: String? by settings
-     repositories {
+@@ -14,5 +14,6 @@ pluginManagement {
+         if (build_snapshot_train?.toBoolean() == true) {
+             mavenLocal()
+         }
 +        mavenLocal()
-         val cacheRedirectorEnabled = System.getenv("CACHE_REDIRECTOR")?.toBoolean() == true
-         if (cacheRedirectorEnabled) {
-             println("Redirecting repositories for buildSrc buildscript")
+     }
+ }
 diff --git a/gradle.properties b/gradle.properties
-index e452a07ee..471285c20 100644
+index db7cf099b..9c13c46fd 100644
 --- a/gradle.properties
 +++ b/gradle.properties
-@@ -14,7 +14,7 @@ atomicfu_version=0.17.3
+@@ -14,7 +14,7 @@ atomicfu_version=0.18.5
  knit_version=0.4.0
  html_version=0.7.2
- lincheck_version=2.14
--dokka_version=1.6.21
+ lincheck_version=2.14.1
+-dokka_version=1.7.20
 +dokka_version=for-integration-tests-SNAPSHOT
  byte_buddy_version=1.10.9
  reactor_version=3.4.1
  reactive_streams_version=1.0.3
 diff --git a/settings.gradle b/settings.gradle
-index f0a764898..1cc45fdf6 100644
+index 151c087fd..e578bdb93 100644
 --- a/settings.gradle
 +++ b/settings.gradle
-@@ -12,7 +12,7 @@ pluginManagement {
-     }
-
+@@ -11,6 +11,7 @@ pluginManagement {
      repositories {
--        maven { url "https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev/" }
-+        mavenLocal()
+         maven { url "https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev/" }
          gradlePluginPortal()
++        mavenLocal()
      }
  }
+

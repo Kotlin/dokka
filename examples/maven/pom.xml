@@ -8,7 +8,7 @@
     <artifactId>kotlin-maven-example</artifactId>
     <version>1.0-SNAPSHOT</version>
     <properties>
-        <kotlin.version>1.7.20</kotlin.version>
+        <kotlin.version>1.8.10</kotlin.version>
         <dokka.version>1.7.20</dokka.version>
     </properties>
 

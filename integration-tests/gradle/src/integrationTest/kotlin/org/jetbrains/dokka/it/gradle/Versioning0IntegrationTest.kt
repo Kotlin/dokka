@@ -10,7 +10,7 @@ class Versioning0IntegrationTest(override val versions: BuildVersions) : Abstrac
     companion object {
         @get:JvmStatic
         @get:Parameterized.Parameters(name = "{0}")
-        val versions = TestedVersions.BASE
+        val versions = TestedVersions.ALL_SUPPORTED
     }
 
     @BeforeTest
