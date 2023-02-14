@@ -9,7 +9,7 @@ import org.jetbrains.dokka.DokkaModuleDescriptionImpl
 import java.io.File
 
 @Suppress("unused") // Shall provide source compatibility if possible
-@Deprecated("Use 'DokkaMultimoduleTask' instead", ReplaceWith("DokkaMultimoduleTask"))
+@Deprecated("Use 'DokkaMultiModuleTask' instead", ReplaceWith("DokkaMultiModuleTask"), DeprecationLevel.ERROR)
 typealias DokkaMultimoduleTask = DokkaMultiModuleTask
 
 private typealias TaskPath = String

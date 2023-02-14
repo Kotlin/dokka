@@ -8,7 +8,6 @@ interface TemplateModelFactory {
         page: PageNode,
         resources: List<String>,
         locationProvider: LocationProvider,
-        shouldRenderSourceSetBubbles: Boolean,
         content: String
     ): TemplateMap
 

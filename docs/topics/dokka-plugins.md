@@ -276,7 +276,3 @@ Here are some notable Dokka plugins that you might find useful:
 
 If you are a Dokka plugin author and would like to add your plugin to this list, get in touch with maintainers
 via [Slack](dokka-introduction.md#community) or [GitHub](https://github.com/Kotlin/dokka/).
-
-<a href="https://surveys.jetbrains.com/s3/dokka-survey">
-   <img src="dokka-devx-survey-banner.png" width="700" alt="Dokka devX survey"/>
-</a>
