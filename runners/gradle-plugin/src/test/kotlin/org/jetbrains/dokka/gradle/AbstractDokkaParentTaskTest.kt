@@ -1,7 +1,8 @@
+@file:Suppress("DEPRECATION")
+
 package org.jetbrains.dokka.gradle
 
 import org.gradle.api.Project
-import org.gradle.api.UnknownTaskException
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.getByName
 import org.gradle.testfixtures.ProjectBuilder
