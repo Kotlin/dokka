@@ -4,7 +4,6 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Dependency
-import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.kotlin.dsl.register
 import org.gradle.util.GradleVersion
 
@@ -69,6 +68,7 @@ open class DokkaPlugin : Plugin<Project> {
                 project.maybeCreateDokkaRuntimeConfiguration(multiModuleName)
 
                 project.tasks.register<DokkaMultiModuleTask>(multiModuleName) {
+                    @Suppress("DEPRECATION")
                     addSubprojectChildTasks("${name}Partial")
                     configuration()
                     description = "Runs all subprojects '$name' tasks and generates module navigation page"
@@ -85,6 +85,7 @@ open class DokkaPlugin : Plugin<Project> {
             }
 
             project.tasks.register<DokkaCollectorTask>("${name}Collector") {
+                @Suppress("DEPRECATION")
                 addSubprojectChildTasks(name)
                 description =
                     "Generates documentation merging all subprojects '$name' tasks into one virtual module"
