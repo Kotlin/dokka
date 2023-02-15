@@ -5,7 +5,8 @@ import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.model.dfs
-import org.jetbrains.dokka.plugability.PreviewDokkaPluginApi
+import org.jetbrains.dokka.plugability.DokkaPluginApiPreview
+import org.jetbrains.dokka.plugability.PluginApiPreviewAcknowledgement
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 import org.jetbrains.dokka.transformers.pages.pageMapper
 import org.jetbrains.dokka.transformers.pages.pageScanner
@@ -20,9 +21,9 @@ class PageTransformerBuilderTest : BaseAbstractTest() {
     class ProxyPlugin(transformer: PageTransformer) : DokkaPlugin() {
         val pageTransformer by extending { CoreExtensions.pageTransformer with transformer }
 
-        @PreviewDokkaPluginApi
-        override fun previewDokkaPluginApiEmptyMethod() {
-        }
+        @OptIn(DokkaPluginApiPreview::class)
+        override fun warnDokkaPluginApiIsInPreviewEmptyMethod(): PluginApiPreviewAcknowledgement =
+            PluginApiPreviewAcknowledgement
     }
 
     @Test

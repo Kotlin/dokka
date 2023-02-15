@@ -14,7 +14,8 @@ import org.jetbrains.dokka.javadoc.transformers.documentables.JavadocDocumentabl
 import org.jetbrains.dokka.javadoc.validity.MultiplatformConfiguredChecker
 import org.jetbrains.dokka.kotlinAsJava.KotlinAsJavaPlugin
 import org.jetbrains.dokka.plugability.DokkaPlugin
-import org.jetbrains.dokka.plugability.PreviewDokkaPluginApi
+import org.jetbrains.dokka.plugability.DokkaPluginApiPreview
+import org.jetbrains.dokka.plugability.PluginApiPreviewAcknowledgement
 import org.jetbrains.dokka.renderers.PostAction
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 
@@ -96,8 +97,8 @@ class JavadocPlugin : DokkaPlugin() {
         }
     }
 
-    @PreviewDokkaPluginApi
-    override fun previewDokkaPluginApiEmptyMethod() {
-    }
+    @OptIn(DokkaPluginApiPreview::class)
+    override fun warnDokkaPluginApiIsInPreviewEmptyMethod(): PluginApiPreviewAcknowledgement =
+        PluginApiPreviewAcknowledgement
 }
 

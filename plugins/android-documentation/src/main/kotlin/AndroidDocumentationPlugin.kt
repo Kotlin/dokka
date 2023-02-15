@@ -3,7 +3,8 @@ package org.jetbrains.dokka.android
 import org.jetbrains.dokka.android.transformers.HideTagDocumentableFilter
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.plugability.DokkaPlugin
-import org.jetbrains.dokka.plugability.PreviewDokkaPluginApi
+import org.jetbrains.dokka.plugability.DokkaPluginApiPreview
+import org.jetbrains.dokka.plugability.PluginApiPreviewAcknowledgement
 
 class AndroidDocumentationPlugin : DokkaPlugin() {
     private val dokkaBase by lazy { plugin<DokkaBase>() }
@@ -12,7 +13,7 @@ class AndroidDocumentationPlugin : DokkaPlugin() {
         dokkaBase.preMergeDocumentableTransformer providing ::HideTagDocumentableFilter order { before(dokkaBase.emptyPackagesFilter) }
     }
 
-    @PreviewDokkaPluginApi
-    override fun previewDokkaPluginApiEmptyMethod() {
-    }
+    @OptIn(DokkaPluginApiPreview::class)
+    override fun warnDokkaPluginApiIsInPreviewEmptyMethod(): PluginApiPreviewAcknowledgement =
+        PluginApiPreviewAcknowledgement
 }

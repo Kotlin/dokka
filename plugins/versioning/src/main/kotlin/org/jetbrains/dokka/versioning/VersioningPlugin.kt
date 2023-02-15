@@ -3,7 +3,8 @@ package org.jetbrains.dokka.versioning
 import org.jetbrains.dokka.CoreExtensions.postActions
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.plugability.DokkaPlugin
-import org.jetbrains.dokka.plugability.PreviewDokkaPluginApi
+import org.jetbrains.dokka.plugability.DokkaPluginApiPreview
+import org.jetbrains.dokka.plugability.PluginApiPreviewAcknowledgement
 import org.jetbrains.dokka.plugability.configuration
 import org.jetbrains.dokka.templates.TemplatingPlugin
 
@@ -51,7 +52,7 @@ class VersioningPlugin : DokkaPlugin() {
         postActions providing ::DefaultPreviousDocumentationCopyPostAction applyIf { !delayTemplateSubstitution }
     }
 
-    @PreviewDokkaPluginApi
-    override fun previewDokkaPluginApiEmptyMethod() {
-    }
+    @OptIn(DokkaPluginApiPreview::class)
+    override fun warnDokkaPluginApiIsInPreviewEmptyMethod(): PluginApiPreviewAcknowledgement =
+        PluginApiPreviewAcknowledgement
 }

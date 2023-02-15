@@ -4394,13 +4394,16 @@ public abstract class org/jetbrains/dokka/plugability/DokkaPlugin {
 	protected final fun extending (Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/dokka/plugability/DokkaPlugin$ExtensionProvider;
 	protected final fun extensionPoint ()Lkotlin/properties/ReadOnlyProperty;
 	public final fun getContext ()Lorg/jetbrains/dokka/plugability/DokkaContext;
-	protected abstract fun previewDokkaPluginApiEmptyMethod ()V
 	public final fun setContext (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
 	protected final fun unsafeInstall (Lkotlin/Lazy;)V
+	protected abstract fun warnDokkaPluginApiIsInPreviewEmptyMethod ()Lorg/jetbrains/dokka/plugability/PluginApiPreviewAcknowledgement;
 }
 
 protected final class org/jetbrains/dokka/plugability/DokkaPlugin$ExtensionProvider {
 	public final fun provideDelegate (Lorg/jetbrains/dokka/plugability/DokkaPlugin;Lkotlin/reflect/KProperty;)Lkotlin/Lazy;
+}
+
+public abstract interface annotation class org/jetbrains/dokka/plugability/DokkaPluginApiPreview : java/lang/annotation/Annotation {
 }
 
 public final class org/jetbrains/dokka/plugability/DokkaPluginKt {
@@ -4484,7 +4487,8 @@ public final class org/jetbrains/dokka/plugability/OverrideKind$Present : org/je
 	public final fun getOverriden ()Ljava/util/List;
 }
 
-public abstract interface annotation class org/jetbrains/dokka/plugability/PreviewDokkaPluginApi : java/lang/annotation/Annotation {
+public final class org/jetbrains/dokka/plugability/PluginApiPreviewAcknowledgement {
+	public static final field INSTANCE Lorg/jetbrains/dokka/plugability/PluginApiPreviewAcknowledgement;
 }
 
 public final class org/jetbrains/dokka/plugability/ProvidedExtension {

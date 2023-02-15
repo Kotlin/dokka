@@ -8,8 +8,8 @@ import org.jetbrains.dokka.links.PointingToDeclaration
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.plugability.DokkaPlugin
-import org.jetbrains.dokka.plugability.PreviewDokkaPluginApi
-import org.junit.jupiter.api.Assertions
+import org.jetbrains.dokka.plugability.DokkaPluginApiPreview
+import org.jetbrains.dokka.plugability.PluginApiPreviewAcknowledgement
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import utils.assertNotNull
@@ -330,9 +330,9 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
                     override dokkaBase.descriptorToDocumentableTranslator)
         }
 
-        @PreviewDokkaPluginApi
-        override fun previewDokkaPluginApiEmptyMethod() {
-        }
+        @OptIn(DokkaPluginApiPreview::class)
+        override fun warnDokkaPluginApiIsInPreviewEmptyMethod(): PluginApiPreviewAcknowledgement =
+            PluginApiPreviewAcknowledgement
     }
 
     // for Kotlin classes from DefaultPsiToDocumentableTranslator

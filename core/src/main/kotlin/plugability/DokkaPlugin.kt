@@ -17,7 +17,14 @@ import kotlin.reflect.KProperty1
 )
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION, AnnotationTarget.FIELD)
 @Retention(AnnotationRetention.BINARY)
-annotation class PreviewDokkaPluginApi
+annotation class DokkaPluginApiPreview
+
+/**
+ * Acknowledgement for empty methods that inform users about [DokkaPluginApiPreview]
+ * Also, it allows to not propagates the annotation in IDE by default when a user autogenerate methods.
+ */
+@DokkaPluginApiPreview
+object PluginApiPreviewAcknowledgement
 
 abstract class DokkaPlugin {
     private val extensionDelegates = mutableListOf<KProperty<*>>()
@@ -26,8 +33,8 @@ abstract class DokkaPlugin {
     @PublishedApi
     internal var context: DokkaContext? = null
 
-    @PreviewDokkaPluginApi
-    protected abstract fun previewDokkaPluginApiEmptyMethod()
+    @DokkaPluginApiPreview
+    protected abstract fun warnDokkaPluginApiIsInPreviewEmptyMethod(): PluginApiPreviewAcknowledgement
     protected inline fun <reified T : DokkaPlugin> plugin(): T = context?.plugin(T::class) ?: throwIllegalQuery()
 
     protected fun <T : Any> extensionPoint() = ReadOnlyProperty<DokkaPlugin, ExtensionPoint<T>> { thisRef, property ->

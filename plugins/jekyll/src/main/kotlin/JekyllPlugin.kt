@@ -57,9 +57,9 @@ class JekyllPlugin : DokkaPlugin() {
         }
     }
 
-    @PreviewDokkaPluginApi
-    override fun previewDokkaPluginApiEmptyMethod() {
-    }
+    @OptIn(DokkaPluginApiPreview::class)
+    override fun warnDokkaPluginApiIsInPreviewEmptyMethod(): PluginApiPreviewAcknowledgement =
+        PluginApiPreviewAcknowledgement
 }
 
 class JekyllRenderer(

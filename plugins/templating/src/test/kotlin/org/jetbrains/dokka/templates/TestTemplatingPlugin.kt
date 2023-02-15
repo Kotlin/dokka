@@ -3,7 +3,8 @@ package org.jetbrains.dokka.templates
 import org.jetbrains.dokka.CoreExtensions
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.plugability.DokkaPlugin
-import org.jetbrains.dokka.plugability.PreviewDokkaPluginApi
+import org.jetbrains.dokka.plugability.DokkaPluginApiPreview
+import org.jetbrains.dokka.plugability.PluginApiPreviewAcknowledgement
 
 class TestTemplatingPlugin: DokkaPlugin() {
 
@@ -15,7 +16,7 @@ class TestTemplatingPlugin: DokkaPlugin() {
                 override dokkaBase.singleGeneration)
     }
 
-    @PreviewDokkaPluginApi
-    override fun previewDokkaPluginApiEmptyMethod() {
-    }
+    @OptIn(DokkaPluginApiPreview::class)
+    override fun warnDokkaPluginApiIsInPreviewEmptyMethod(): PluginApiPreviewAcknowledgement =
+        PluginApiPreviewAcknowledgement
 }

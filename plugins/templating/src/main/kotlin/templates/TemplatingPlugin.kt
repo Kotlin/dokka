@@ -3,7 +3,8 @@ package org.jetbrains.dokka.templates
 import org.jetbrains.dokka.allModulesPage.templates.PackageListProcessingStrategy
 import org.jetbrains.dokka.allModulesPage.templates.PagesSearchTemplateStrategy
 import org.jetbrains.dokka.plugability.DokkaPlugin
-import org.jetbrains.dokka.plugability.PreviewDokkaPluginApi
+import org.jetbrains.dokka.plugability.DokkaPluginApiPreview
+import org.jetbrains.dokka.plugability.PluginApiPreviewAcknowledgement
 import templates.ProjectNameSubstitutor
 import templates.ReplaceVersionCommandHandler
 import templates.SourcesetDependencyProcessingStrategy
@@ -72,7 +73,7 @@ class TemplatingPlugin : DokkaPlugin() {
         directiveBasedCommandHandlers providing ::ReplaceVersionCommandHandler
     }
 
-    @PreviewDokkaPluginApi
-    override fun previewDokkaPluginApiEmptyMethod() {
-    }
+    @OptIn(DokkaPluginApiPreview::class)
+    override fun warnDokkaPluginApiIsInPreviewEmptyMethod(): PluginApiPreviewAcknowledgement =
+        PluginApiPreviewAcknowledgement
 }

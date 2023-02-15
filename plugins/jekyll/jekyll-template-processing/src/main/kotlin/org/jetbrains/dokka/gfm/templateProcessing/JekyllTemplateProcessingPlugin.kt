@@ -6,7 +6,8 @@ import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.resolvers.local.DokkaLocationProviderFactory
 import org.jetbrains.dokka.jekyll.JekyllPlugin
 import org.jetbrains.dokka.plugability.DokkaPlugin
-import org.jetbrains.dokka.plugability.PreviewDokkaPluginApi
+import org.jetbrains.dokka.plugability.DokkaPluginApiPreview
+import org.jetbrains.dokka.plugability.PluginApiPreviewAcknowledgement
 
 class JekyllTemplateProcessingPlugin : DokkaPlugin() {
 
@@ -31,7 +32,7 @@ class JekyllTemplateProcessingPlugin : DokkaPlugin() {
         )
     }
 
-    @PreviewDokkaPluginApi
-    override fun previewDokkaPluginApiEmptyMethod() {
-    }
+    @OptIn(DokkaPluginApiPreview::class)
+    override fun warnDokkaPluginApiIsInPreviewEmptyMethod(): PluginApiPreviewAcknowledgement =
+        PluginApiPreviewAcknowledgement
 }
