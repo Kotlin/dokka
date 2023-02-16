@@ -136,6 +136,10 @@ class SinceKotlinTest : AbstractRenderingTest() {
                     sourceRoots = listOf("src/")
                     analysisPlatform = "js"
                 }
+                sourceSet {
+                    sourceRoots = listOf("src/")
+                    analysisPlatform = "wasm"
+                }
             }
         }
         testInline(
@@ -153,10 +157,11 @@ class SinceKotlinTest : AbstractRenderingTest() {
                     .children.filter { it.name == "ring" && it is DFunction } as List<DFunction>
                 with(funcs) {
                     val sinceKotlin = mapOf(
-                        Platform.common to SinceKotlinVersion("1.2"),
+                        Platform.common to SinceKotlinVersion("1.0"),
                         Platform.jvm to SinceKotlinVersion("1.0"),
                         Platform.js to SinceKotlinVersion("1.1"),
-                        Platform.native to SinceKotlinVersion("1.3")
+                        Platform.native to SinceKotlinVersion("1.3"),
+                        Platform.wasm to SinceKotlinVersion("1.8"),
                     )
 
                     for(i in sinceKotlin) {
@@ -191,6 +196,10 @@ class SinceKotlinTest : AbstractRenderingTest() {
                     sourceRoots = listOf("src/")
                     analysisPlatform = "js"
                 }
+                sourceSet {
+                    sourceRoots = listOf("src/")
+                    analysisPlatform = "wasm"
+                }
             }
         }
         testInline(
@@ -213,7 +222,8 @@ class SinceKotlinTest : AbstractRenderingTest() {
                         Platform.common to SinceKotlinVersion("1.3"),
                         Platform.jvm to SinceKotlinVersion("1.3"),
                         Platform.js to SinceKotlinVersion("1.3"),
-                        Platform.native to SinceKotlinVersion("1.3")
+                        Platform.native to SinceKotlinVersion("1.3"),
+                        Platform.wasm to SinceKotlinVersion("1.8"),
                     )
 
                     for(i in sinceKotlin) {

@@ -9,7 +9,7 @@ class Collector0IntegrationTest(override val versions: BuildVersions) : Abstract
     companion object {
         @get:JvmStatic
         @get:Parameterized.Parameters(name = "{0}")
-        val versions = TestedVersions.BASE
+        val versions = TestedVersions.ALL_SUPPORTED
     }
 
     @BeforeTest

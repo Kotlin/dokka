@@ -281,8 +281,3 @@ You can also use the following Dokka-defined [directives](https://freemarker.apa
 | `<@content/>`   | The main page content.                                                                                                                                                                       |
 | `<@resources/>` | Resources such as scripts and stylesheets.                                                                                                                                                   |
 | `<@version/>`   | The module version taken from configuration. If the [versioning plugin](https://github.com/Kotlin/dokka/tree/master/plugins/versioning) is applied, it is replaced with a version navigator. |
-
-<a href="https://surveys.jetbrains.com/s3/dokka-survey">
-   <img src="dokka-devx-survey-banner.png" width="700" alt="Dokka devX survey"/>
-</a>
-

@@ -14,7 +14,7 @@ import org.jetbrains.dokka.gradle.*
 import java.io.File
 
 @Suppress("unused") // Shall provide source compatibility if possible
-@Deprecated("Use 'DokkaMultimoduleTask' instead", ReplaceWith("DokkaMultimoduleTask"))
+@Deprecated("Use 'DokkaMultiModuleTask' instead", ReplaceWith("DokkaMultiModuleTask"), DeprecationLevel.ERROR)
 typealias DokkaMultimoduleTask = DokkaMultiModuleTask
 
 private typealias TaskPath = String
@@ -72,6 +72,9 @@ abstract class DokkaMultiModuleTask : AbstractDokkaParentTask() {
             task.path to task.dokkaSourceSets.flatMap { it.includes }.toSet()
         }
 
+    // The method contains a reference to internal Gradle API that is nice not to use.
+    // There was an attempt to get rid of it, but it was not successful
+    // See: https://github.com/Kotlin/dokka/pull/2835
     @Internal
     override fun getTaskDependencies(): TaskDependencyInternal =
         super.getTaskDependencies() + childDokkaTasks
