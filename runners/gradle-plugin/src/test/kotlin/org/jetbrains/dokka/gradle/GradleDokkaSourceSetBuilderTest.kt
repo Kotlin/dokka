@@ -7,6 +7,9 @@ import org.gradle.api.Project
 import org.gradle.kotlin.dsl.closureOf
 import org.gradle.testfixtures.ProjectBuilder
 import org.jetbrains.dokka.*
+import org.jetbrains.dokka.gradle.util.externalDocumentationLink_
+import org.jetbrains.dokka.gradle.util.perPackageOption_
+import org.jetbrains.dokka.gradle.util.sourceLink_
 import org.jetbrains.kotlin.gradle.plugin.sources.DefaultKotlinSourceSet
 import java.net.URL
 import kotlin.test.*
@@ -224,7 +227,7 @@ class GradleDokkaSourceSetBuilderTest {
                 this.remoteUrl.set(URL("https://u1"))
             })
 
-        sourceSet.sourceLink {
+        sourceSet.sourceLink_ {
             remoteLineSuffix.set("ls2")
             localDirectory.set(project.file("p2"))
             remoteUrl.set(URL("https://u2"))
@@ -268,7 +271,7 @@ class GradleDokkaSourceSetBuilderTest {
             this.matchingRegex.set("p1.*")
         })
 
-        sourceSet.perPackageOption {
+        sourceSet.perPackageOption_ {
             matchingRegex.set("p2.*")
         }
 
@@ -310,7 +313,7 @@ class GradleDokkaSourceSetBuilderTest {
             }
         )
 
-        sourceSet.externalDocumentationLink {
+        sourceSet.externalDocumentationLink_ {
             url.set(URL("https://u2"))
         }
 

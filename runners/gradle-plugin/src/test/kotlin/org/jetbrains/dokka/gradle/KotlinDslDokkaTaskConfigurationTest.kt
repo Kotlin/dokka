@@ -4,6 +4,8 @@ import org.gradle.kotlin.dsl.withType
 import org.gradle.testfixtures.ProjectBuilder
 import org.jetbrains.dokka.DokkaSourceSetID
 import org.jetbrains.dokka.gradle.tasks.DokkaTask
+import org.jetbrains.dokka.gradle.util.configureEach_
+import org.jetbrains.dokka.gradle.util.create_
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 import java.io.File
 import kotlin.test.Test
@@ -14,7 +16,7 @@ class KotlinDslDokkaTaskConfigurationTest {
     fun `configure dokka task`() {
         val project = ProjectBuilder.builder().build()
         project.plugins.apply("org.jetbrains.dokka")
-        project.tasks.withType<DokkaTask>().configureEach {
+        project.tasks.withType<DokkaTask>().configureEach_ {
             outputDirectory.set(File("test"))
         }
 
@@ -31,7 +33,7 @@ class KotlinDslDokkaTaskConfigurationTest {
         project.tasks.withType(DokkaTask::class.java).forEach { dokkaTask ->
             dokkaTask.dokkaSourceSets.run {
                 val commonMain = create("commonMain")
-                val jvmMain = create("jvmMain") {
+                val jvmMain = create_("jvmMain") {
                     dependsOn("commonMain")
                 }
 

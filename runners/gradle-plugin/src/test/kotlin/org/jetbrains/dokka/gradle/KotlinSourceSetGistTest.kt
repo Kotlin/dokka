@@ -4,6 +4,7 @@ import org.gradle.api.artifacts.FileCollectionDependency
 import org.gradle.kotlin.dsl.get
 import org.gradle.testfixtures.ProjectBuilder
 import org.jetbrains.dokka.gradle.kotlin.gistOf
+import org.jetbrains.dokka.gradle.util.withDependencies_
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
@@ -117,7 +118,7 @@ class KotlinSourceSetGistTest {
 
         /* Only work with file dependencies */
         project.configurations.forEach { configuration ->
-            configuration.withDependencies {
+            configuration.withDependencies_ {
                 removeIf { dependency ->
                     dependency !is FileCollectionDependency
                 }

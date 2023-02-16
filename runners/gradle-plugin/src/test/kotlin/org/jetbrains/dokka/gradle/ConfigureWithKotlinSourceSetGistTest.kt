@@ -5,6 +5,8 @@ import org.gradle.kotlin.dsl.get
 import org.gradle.testfixtures.ProjectBuilder
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.gradle.kotlin.KotlinSourceSetGist
+import org.jetbrains.dokka.gradle.util.configureEach_
+import org.jetbrains.dokka.gradle.util.withDependencies_
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import kotlin.test.Test
@@ -95,8 +97,8 @@ class ConfigureWithKotlinSourceSetGistTest {
         mainSourceSet.kotlin.sourceDirectories.elements.get().map { it.asFile }.forEach { it.mkdirs() }
 
         /* Make sure to remove dependencies that cannot be resolved during test */
-        project.configurations.configureEach {
-            withDependencies {
+        project.configurations.configureEach_ {
+            withDependencies_ {
                 removeIf { dependency -> dependency !is FileCollectionDependency }
             }
         }

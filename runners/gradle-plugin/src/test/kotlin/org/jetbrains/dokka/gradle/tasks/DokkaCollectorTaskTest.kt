@@ -16,6 +16,10 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 import org.jetbrains.dokka.gradle.tasks.*
 import org.jetbrains.dokka.gradle.*
+import org.jetbrains.dokka.gradle.util.all_
+import org.jetbrains.dokka.gradle.util.allprojects_
+import org.jetbrains.dokka.gradle.util.configureEach_
+import org.jetbrains.dokka.gradle.util.withDependencies_
 
 class DokkaCollectorTaskTest {
 
@@ -25,20 +29,20 @@ class DokkaCollectorTaskTest {
         val childProject = ProjectBuilder.builder().withParent(rootProject).build()
         childProject.plugins.apply("org.jetbrains.kotlin.jvm")
 
-        rootProject.allprojects {
+        rootProject.allprojects_ {
             plugins.apply("org.jetbrains.dokka")
-            tasks.withType<AbstractDokkaTask>().configureEach {
-                plugins.withDependencies { clear() }
+            tasks.withType<AbstractDokkaTask>().configureEach_ {
+                plugins.withDependencies_ { clear() }
             }
-            tasks.withType<DokkaTask>().configureEach {
-                dokkaSourceSets.configureEach {
+            tasks.withType<DokkaTask>().configureEach_ {
+                dokkaSourceSets.configureEach_ {
                     classpath.setFrom(emptyList<Any>())
                 }
             }
         }
 
         val collectorTasks = rootProject.tasks.withType<DokkaCollectorTask>()
-        collectorTasks.configureEach {
+        collectorTasks.configureEach_ {
             moduleName.set("custom Module Name")
             outputDirectory.set(File("customOutputDirectory"))
             cacheRoot.set(File("customCacheRoot"))
@@ -76,7 +80,7 @@ class DokkaCollectorTaskTest {
     fun `with no child tasks throws DokkaException`() {
         val project = ProjectBuilder.builder().build()
         val collectorTask = project.tasks.create<DokkaCollectorTask>("collector")
-        project.configurations.all { withDependencies { clear() } }
+        project.configurations.all_ { withDependencies_ { clear() } }
         assertFailsWith<DokkaException> { collectorTask.generateDocumentation() }
     }
 }

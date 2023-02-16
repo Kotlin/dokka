@@ -7,6 +7,9 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import org.jetbrains.dokka.gradle.*
+import org.jetbrains.dokka.gradle.util.all_
+import org.jetbrains.dokka.gradle.util.register_
+import org.jetbrains.dokka.gradle.util.withDependencies_
 
 class DokkaTaskTest {
     @Test
@@ -15,11 +18,11 @@ class DokkaTaskTest {
         project.plugins.apply("org.jetbrains.dokka")
 
         val task = project.tasks.create<DokkaTask>("dokkaTask")
-        project.configurations.all { withDependencies { clear() } }
+        project.configurations.all_ { withDependencies_ { clear() } }
 
         task.dokkaSourceSets.register("main")
         task.dokkaSourceSets.register("jvm")
-        task.dokkaSourceSets.register("test") {
+        task.dokkaSourceSets.register_("test") {
             suppress.set(true)
         }
 
@@ -36,7 +39,7 @@ class DokkaTaskTest {
         project.plugins.apply("org.jetbrains.dokka")
 
         val task = project.tasks.create<DokkaTask>("dokkaTask")
-        project.configurations.all { withDependencies { clear() } }
+        project.configurations.all_ { withDependencies_ { clear() } }
 
         task.dokkaSourceSets.register("main")
         assertNull(task.buildDokkaConfiguration().moduleVersion)

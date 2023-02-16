@@ -9,6 +9,10 @@ import org.jetbrains.dokka.*
 import java.io.File
 import kotlin.test.*
 import org.jetbrains.dokka.gradle.*
+import org.jetbrains.dokka.gradle.util.allprojects_
+import org.jetbrains.dokka.gradle.util.configureEach_
+import org.jetbrains.dokka.gradle.util.create_
+import org.jetbrains.dokka.gradle.util.withDependencies_
 
 class DokkaMultiModuleTaskTest {
 
@@ -31,9 +35,9 @@ class DokkaMultiModuleTaskTest {
         rootProject.plugins.apply("org.jetbrains.dokka")
         childProject.plugins.apply("org.jetbrains.dokka")
 
-        rootProject.allprojects {
-            tasks.withType<AbstractDokkaTask>().configureEach {
-                plugins.withDependencies { clear() }
+        rootProject.allprojects_ {
+            tasks.withType<AbstractDokkaTask>().configureEach_ {
+                plugins.withDependencies_ { clear() }
             }
         }
     }
@@ -60,7 +64,7 @@ class DokkaMultiModuleTaskTest {
         childDokkaTask.apply {
             dokkaSourceSets.create("main")
             dokkaSourceSets.create("test")
-            dokkaSourceSets.configureEach {
+            dokkaSourceSets.configureEach_ {
                 includes.from(include1, include2)
             }
         }
@@ -157,7 +161,7 @@ class DokkaMultiModuleTaskTest {
     fun `multimodule task with no child tasks throws DokkaException`() {
         val project = ProjectBuilder.builder().build()
         val multimodule = project.tasks.create<DokkaMultiModuleTask>("multimodule")
-        project.configurations.configureEach { withDependencies { clear() } }
+        project.configurations.configureEach_ { withDependencies_ { clear() } }
         assertFailsWith<DokkaException> { multimodule.generateDocumentation() }
     }
 
@@ -168,17 +172,17 @@ class DokkaMultiModuleTaskTest {
         val childDokkaTaskInclude3 = childProject.file("include3")
 
         childDokkaTask.apply {
-            dokkaSourceSets.create("main") {
+            dokkaSourceSets.create_("main") {
                 includes.from(childDokkaTaskInclude1, childDokkaTaskInclude2)
             }
-            dokkaSourceSets.create("main2") {
+            dokkaSourceSets.create_("main2") {
                 includes.from(childDokkaTaskInclude3)
             }
         }
 
         val secondChildDokkaTaskInclude = childProject.file("include4")
         val secondChildDokkaTask = childProject.tasks.create<DokkaTaskPartial>("secondChildDokkaTask") {
-            dokkaSourceSets.create("main") {
+            dokkaSourceSets.create_("main") {
                 includes.from(secondChildDokkaTaskInclude)
             }
         }

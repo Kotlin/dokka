@@ -3,10 +3,6 @@ package org.jetbrains.dokka.gradle
 import org.gradle.kotlin.dsl.withType
 import org.gradle.testfixtures.ProjectBuilder
 import org.jetbrains.dokka.*
-import org.jetbrains.dokka.DokkaDefaults.documentedVisibilities
-import org.jetbrains.dokka.DokkaDefaults.includeNonPublic
-import org.jetbrains.dokka.DokkaDefaults.reportUndocumented
-import org.jetbrains.dokka.DokkaDefaults.skipDeprecated
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import java.io.File
@@ -16,6 +12,9 @@ import java.net.URL
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import org.jetbrains.dokka.gradle.tasks.DokkaTask
+import org.jetbrains.dokka.gradle.util.create_
+import org.jetbrains.dokka.gradle.util.externalDocumentationLink_
+import org.jetbrains.dokka.gradle.util.withDependencies_
 
 @Suppress("UnstableApiUsage")
 class DokkaConfigurationSerializableTest {
@@ -28,7 +27,7 @@ class DokkaConfigurationSerializableTest {
         val project = ProjectBuilder.builder().build()
         project.plugins.apply("org.jetbrains.dokka")
         val dokkaTask = project.tasks.withType<DokkaTask>().first()
-        dokkaTask.plugins.withDependencies { clear() }
+        dokkaTask.plugins.withDependencies_ { clear() }
         dokkaTask.apply {
             this.failOnWarning.set(true)
             this.offlineMode.set(true)
@@ -48,11 +47,11 @@ class DokkaConfigurationSerializableTest {
                     """ { "key" : "value2" } """
                 )
             )
-            this.dokkaSourceSets.create("main") {
+            this.dokkaSourceSets.create_("main") {
                 displayName.set("customSourceSetDisplayName")
                 reportUndocumented.set(true)
 
-                externalDocumentationLink {
+                externalDocumentationLink_ {
                     packageListUrl.set(URL("http://some.url"))
                     url.set(URL("http://some.other.url"))
                 }
