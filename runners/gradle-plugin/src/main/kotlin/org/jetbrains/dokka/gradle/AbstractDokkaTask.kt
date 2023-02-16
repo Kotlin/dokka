@@ -200,7 +200,7 @@ abstract class AbstractDokkaTask : DefaultTask() {
     @TaskAction
     internal open fun generateDocumentation() {
         DokkaBootstrap(runtime, DokkaBootstrapImpl::class).apply {
-            configure(buildDokkaConfiguration().toJsonString(), dokkaLogger)
+            configure(buildDokkaConfiguration().toJsonString(), LoggerAdapter(logger))
             /**
              * Run in a new thread to avoid memory leaks that are related to ThreadLocal (that keeps `URLCLassLoader`)
              * Currently, all `ThreadLocal`s leaking are in the compiler/IDE codebase.
@@ -227,9 +227,5 @@ abstract class AbstractDokkaTask : DefaultTask() {
             )
         }
         return pluginsConfiguration.getSafe().mapNotNull { it as? PluginConfigurationImpl } + manuallyConfigured
-    }
-
-    companion object {
-        private val dokkaLogger = LoggerAdapter(AbstractDokkaTask::class)
     }
 }
