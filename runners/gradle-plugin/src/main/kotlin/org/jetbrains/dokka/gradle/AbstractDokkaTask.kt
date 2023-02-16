@@ -1,6 +1,5 @@
 package org.jetbrains.dokka.gradle
 
-import groovy.lang.Closure
 import org.gradle.api.Action
 import org.gradle.api.DefaultTask
 import org.gradle.api.Task
@@ -9,6 +8,7 @@ import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
+import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.tasks.*
 import org.gradle.kotlin.dsl.listProperty
 import org.gradle.kotlin.dsl.mapProperty
@@ -16,6 +16,7 @@ import org.gradle.kotlin.dsl.submit
 import org.gradle.work.DisableCachingByDefault
 import org.gradle.workers.WorkerExecutor
 import org.jetbrains.dokka.*
+import org.jetbrains.dokka.gradle.workers.DokkaGeneratorWithCachedClasspathWorker
 import org.jetbrains.dokka.gradle.workers.DokkaGeneratorWorker
 import org.jetbrains.dokka.plugability.ConfigurableBlock
 import org.jetbrains.dokka.plugability.DokkaPlugin
@@ -92,25 +93,38 @@ abstract class AbstractDokkaTask : DefaultTask() {
 
     final override fun doFirst(action: Action<in Task>): Task = super.doFirst(action)
 
-    final override fun doFirst(action: Closure<*>): Task = super.doFirst(action)
+    @get:Inject
+    protected abstract val propertyFactory: ProviderFactory
+
+    private fun getProperty(propertyName: String): String? = propertyFactory.gradleProperty(propertyName).orNull
 
     @TaskAction
     internal open fun generateDocumentation() {
         val builtDokkaConfig = buildDokkaConfiguration()
 
-        val workQueue = workers.processIsolation {
-            println("Runtime configuration")
-            runtime.resolve().toList().forEach { println(it) }
-            classpath.setFrom(runtime, plugins)
-            forkOptions {
-                defaultCharacterEncoding = "UTF-8"
-                maxHeapSize = "1g"
-                //jvmArgs = listOf("-XX:MaxHeapSize=4g")
+        val shouldUseProcessIsolation = getProperty("dokka.shouldUseProcessIsolation") == "true"
+        if(shouldUseProcessIsolation) {
+            val workQueue = workers.processIsolation {
+                println("Runtime configuration")
+                runtime.resolve().toList().forEach { println(it) }
+                classpath.setFrom(runtime, plugins)
+                forkOptions {
+                    defaultCharacterEncoding = "UTF-8"
+                    maxHeapSize = "1g"
+                    //jvmArgs = listOf("-XX:MaxHeapSize=4g")
+                }
             }
-        }
 
-        workQueue.submit(DokkaGeneratorWorker::class) {
-            dokkaConfiguration.set(builtDokkaConfig)
+            workQueue.submit(DokkaGeneratorWorker::class) {
+                dokkaConfiguration.set(builtDokkaConfig)
+            }
+        } else {
+            val workQueue = workers.noIsolation()
+
+            workQueue.submit(DokkaGeneratorWithCachedClasspathWorker::class) {
+                dokkaConfiguration.set(builtDokkaConfig)
+                dokkaClasspath.set(runtime + plugins)
+            }
         }
     }
 

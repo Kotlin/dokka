@@ -8,6 +8,7 @@ import org.jetbrains.dokka.generation.GracefulGenerationExit
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.utilities.DokkaLogger
+import java.net.URLClassLoader
 
 /**
  * DokkaGenerator is the main entry point for generating documentation
@@ -18,6 +19,12 @@ class DokkaGenerator(
     private val configuration: DokkaConfiguration,
     private val logger: DokkaLogger
 ) {
+
+    init {
+        println("Init DokkaGenerator")
+        println("Current classloader")
+        (this.javaClass.classLoader as URLClassLoader).urLs.forEach { println(it) }
+    }
 
     fun generate() = timed(logger) {
         report("Initializing plugins")
