@@ -14,10 +14,10 @@ import org.gradle.kotlin.dsl.listProperty
 import org.gradle.kotlin.dsl.mapProperty
 import org.gradle.work.DisableCachingByDefault
 import org.jetbrains.dokka.*
+import org.jetbrains.dokka.gradle.internal.LoggerAdapter
 import org.jetbrains.dokka.plugability.ConfigurableBlock
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import java.io.File
-import java.util.function.BiConsumer
 import kotlin.reflect.full.createInstance
 
 @DisableCachingByDefault(because = "Abstract super-class, not to be instantiated directly")
@@ -200,7 +200,7 @@ abstract class AbstractDokkaTask : DefaultTask() {
     @TaskAction
     internal open fun generateDocumentation() {
         DokkaBootstrap(runtime, DokkaBootstrapImpl::class).apply {
-            configure(buildDokkaConfiguration().toJsonString(), createProxyLogger())
+            configure(buildDokkaConfiguration().toJsonString(), dokkaLogger)
             /**
              * Run in a new thread to avoid memory leaks that are related to ThreadLocal (that keeps `URLCLassLoader`)
              * Currently, all `ThreadLocal`s leaking are in the compiler/IDE codebase.
@@ -213,16 +213,6 @@ abstract class AbstractDokkaTask : DefaultTask() {
     }
 
     internal abstract fun buildDokkaConfiguration(): DokkaConfigurationImpl
-
-    private fun createProxyLogger(): BiConsumer<String, String> = BiConsumer { level, message ->
-        when (level) {
-            "debug" -> logger.debug(message)
-            "info" -> logger.info(message)
-            "progress" -> logger.lifecycle(message)
-            "warn" -> logger.warn(message)
-            "error" -> logger.error(message)
-        }
-    }
 
     init {
         group = JavaBasePlugin.DOCUMENTATION_GROUP
@@ -237,5 +227,9 @@ abstract class AbstractDokkaTask : DefaultTask() {
             )
         }
         return pluginsConfiguration.getSafe().mapNotNull { it as? PluginConfigurationImpl } + manuallyConfigured
+    }
+
+    companion object {
+        private val dokkaLogger = LoggerAdapter(AbstractDokkaTask::class)
     }
 }

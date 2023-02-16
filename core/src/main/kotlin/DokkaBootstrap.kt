@@ -1,11 +1,10 @@
 package org.jetbrains.dokka
 
-import java.util.function.BiConsumer
-import kotlin.jvm.Throws
+import org.jetbrains.dokka.utilities.DokkaLogger
 
 interface DokkaBootstrap {
     @Throws(Throwable::class)
-    fun configure(serializedConfigurationJSON: String, logger: BiConsumer<String, String>)
+    fun configure(serializedConfigurationJSON: String, logger: DokkaLogger)
 
     @Throws(Throwable::class)
     fun generate()
