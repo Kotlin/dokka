@@ -427,10 +427,6 @@ td:first-child {
     display: none;
 }
 
-/*.theme-dark .sidebar {
-    box-shadow: inset 0 1px 0 0 hsl(0deg 0% 100% / 30%);
-}*/
-
 @media (max-width: 759px) {
     #container {
         position: relative;
@@ -1407,6 +1403,36 @@ div.runnablesample {
     content: url("../images/footer-go-to-link.svg");
 }
 /* /--- footer --- */
+
+/* Logo styles */
+:root {
+    --dokka-logo-image-url: url('../images/logo-icon.svg');
+    --dokka-logo-height: 50px;
+    --dokka-logo-width: 50px;
+}
+
+.library-name--link {
+    display: flex;
+    align-items: center;
+    color: #fff;
+    font-weight: 700;
+}
+
+.library-name--link::before {
+    content: '';
+    background: var(--dokka-logo-image-url) center no-repeat;
+    background-size: var(--dokka-logo-height) var(--dokka-logo-width);
+    margin-right: 5px;
+    width: var(--dokka-logo-height);
+    height: var(--dokka-logo-width);
+}
+
+@media (max-width: 759px) {
+    .library-name--link::before {
+        display: none;
+    }
+}
+/* / Logo styles */
 
 /*
 the hack to hide the headers inside tabs for a package page because each tab
