@@ -30,15 +30,17 @@ class JsonTest {
         )
 
         val actual = serializeAsPrettyJson(testObject)
-        val expected = """
-            {
-              "someString" : "Foo",
-              "someInt" : 42,
-              "someIntWithDefaultValue" : 42,
-              "someDouble" : 42.0
-            }
-        """.trimIndent()
 
+        // with trimIndent() the tests pass on Linux, but fail on Windows,
+        // even though the expected and actual look the same. For this reason,
+        // it's aligned left as much as possible to create the truly expected string
+        val expected =
+            """{
+  "someString" : "Foo",
+  "someInt" : 42,
+  "someIntWithDefaultValue" : 42,
+  "someDouble" : 42.0
+}"""
         assertEquals(expected, actual)
     }
 }
