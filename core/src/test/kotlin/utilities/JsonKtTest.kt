@@ -31,18 +31,22 @@ class JsonTest {
 
         val actual = serializeAsPrettyJson(testObject)
 
-        // with trimIndent() the tests pass on Linux, but fail on Windows,
-        // even though the expected and actual look the same. For this reason,
-        // it's aligned left as much as possible to create the truly expected string
-        val expected =
-            """{
-  "someString" : "Foo",
-  "someInt" : 42,
-  "someIntWithDefaultValue" : 42,
-  "someDouble" : 42.0
-}"""
+        val expected = """
+            {
+              "someString" : "Foo",
+              "someInt" : 42,
+              "someIntWithDefaultValue" : 42,
+              "someDouble" : 42.0
+            }""".trimIndent().withSystemLineSeparator()
+
         assertEquals(expected, actual)
     }
+
+    /**
+     * If the expected output was generated on Linux, but the tests are run under Windows,
+     * the test might fail when comparing the strings due to different separators.
+     */
+    private fun String.withSystemLineSeparator(): String = this.replace("\n", System.lineSeparator())
 }
 
 data class SimpleTestDataClass(
