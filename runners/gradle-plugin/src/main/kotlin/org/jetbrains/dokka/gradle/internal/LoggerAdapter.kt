@@ -19,8 +19,6 @@ internal class LoggerAdapter(
   private val logger: Logger
 ) : DokkaLogger {
 
-  constructor(kClass: KClass<*>) : this(Logging.getLogger(kClass.java))
-
   private val warningsCounter = AtomicInteger()
   private val errorsCounter = AtomicInteger()
 
