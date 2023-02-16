@@ -335,6 +335,8 @@ function refreshFiltering() {
 function refreshPlaygroundSamples() {
     document.querySelectorAll('code.runnablesample').forEach(node => {
         const playground = node.KotlinPlayground;
+        /* Some samples may be hidden by filter, they have 0px height  for visible code area
+         * after rendering. Call this method for re-calculate code area height */
         playground && playground.view.codemirror.refresh();
     });
 }
