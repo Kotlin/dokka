@@ -14,6 +14,8 @@ import org.jetbrains.dokka.utilities.DokkaLogger
  *
  * @param[logger] A Gradle logger
  * @see org.jetbrains.dokka.DokkaGenerator
+ * @see org.jetbrains.dokka.DokkaBootstrap.configure
+ * @see org.jetbrains.dokka.gradle.AbstractDokkaTask.generateDocumentation
  */
 internal class LoggerAdapter(
   private val logger: Logger
