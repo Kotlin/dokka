@@ -691,7 +691,7 @@ code:not(.block) {
     display: none;
 }
 
-.sample-container:hover span.copy-icon {
+.js .sample-container:hover span.copy-icon {
     display: inline-block;
 }
 
