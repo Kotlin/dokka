@@ -20,6 +20,80 @@ class NavigationTest : BaseAbstractTest() {
     }
 
     @Test
+    fun `should sort alphabetically ignoring case`() {
+        val writerPlugin = TestOutputWriterPlugin()
+        testInline(
+            """
+            |/src/main/kotlin/com/example/Sequences.kt
+            |package com.example
+            |
+            |fun <T> sequence(): Sequence<T>
+            |
+            |fun <T> Sequence(): Sequence<T>
+            |
+            |fun <T> Sequence<T>.any() {}
+            |
+            |interface Sequence<T>
+            """.trimMargin(),
+            configuration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                val content = writerPlugin.writer.navigationHtml().select("div.sideMenuPart")
+                assertEquals(6, content.size)
+
+                // Navigation menu should be the following:
+                // - root
+                //    - com.example
+                //       - any()
+                //       - Sequence interface
+                //       - Sequence()
+                //       - sequence()
+
+                content[0].assertNavigationLink(
+                    id = "root-nav-submenu",
+                    text = "root",
+                    address = "index.html",
+                )
+
+                content[1].assertNavigationLink(
+                    id = "root-nav-submenu-0",
+                    text = "com.example",
+                    address = "root/com.example/index.html",
+                )
+
+                content[2].assertNavigationLink(
+                    id = "root-nav-submenu-0-0",
+                    text = "any()",
+                    address = "root/com.example/any.html",
+                    icon = NavigationNodeIcon.FUNCTION
+                )
+
+                content[3].assertNavigationLink(
+                    id = "root-nav-submenu-0-1",
+                    text = "Sequence",
+                    address = "root/com.example/-sequence/index.html",
+                    icon = NavigationNodeIcon.INTERFACE_KT
+                )
+
+                content[4].assertNavigationLink(
+                    id = "root-nav-submenu-0-2",
+                    text = "Sequence()",
+                    address = "root/com.example/-sequence.html",
+                    icon = NavigationNodeIcon.FUNCTION
+                )
+
+                content[5].assertNavigationLink(
+                    id = "root-nav-submenu-0-3",
+                    text = "sequence()",
+                    address = "root/com.example/sequence.html",
+                    icon = NavigationNodeIcon.FUNCTION
+                )
+            }
+        }
+    }
+
+    @Test
     fun `should strike deprecated class link`() {
         val writerPlugin = TestOutputWriterPlugin()
         testInline(

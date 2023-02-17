@@ -381,6 +381,46 @@ class PageNodeMergerTest : BaseAbstractTest() {
         }
     }
 
+    @Test
+    fun `should sort groups alphabetically ignoring case`() {
+        testInline(
+            """
+            |/src/main/kotlin/test/Test.kt
+            |package test
+            |
+            |/** Sequence builder */
+            |fun <T> sequence(): Sequence<T>
+            |
+            |/** Sequence SAM constructor */
+            |fun <T> Sequence(): Sequence<T>
+            |
+            |/** Sequence.any() */
+            |fun <T> Sequence<T>.any() {}
+            |
+            |/** Sequence interface */
+            |interface Sequence<T>
+        """.trimMargin(),
+            defaultConfiguration
+        ) {
+            renderingStage = { rootPageNode, _ ->
+                val packageFunctionBlocks = rootPageNode.findPackageFunctionBlocks(packageName = "test")
+                assertEquals(3, packageFunctionBlocks.size, "Expected 3 separate function groups")
+
+                packageFunctionBlocks[0].assertContainsKDocsInOrder(
+                    "Sequence.any()",
+                )
+
+                packageFunctionBlocks[1].assertContainsKDocsInOrder(
+                    "Sequence SAM constructor",
+                )
+
+                packageFunctionBlocks[2].assertContainsKDocsInOrder(
+                    "Sequence builder",
+                )
+            }
+        }
+    }
+
     private fun RootPageNode.findExtensionsOfClass(name: String): ContentDivergentGroup {
         val extensionReceiverPage = this.dfs { it is ClasslikePageNode && it.name == name } as ClasslikePageNode
         return extensionReceiverPage.content

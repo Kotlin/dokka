@@ -9,6 +9,7 @@ import org.jetbrains.dokka.base.transformers.documentables.ClashingDriIdentifier
 import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentConverter
 import org.jetbrains.dokka.base.transformers.pages.tags.CustomTagContentProvider
 import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder.DocumentableContentBuilder
+import org.jetbrains.dokka.base.utils.canonicalAlphabeticalOrder
 import org.jetbrains.dokka.links.Callable
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.*
@@ -508,6 +509,9 @@ open class DefaultPageCreator(
         }
     }
 
+    private val groupKeyComparator: Comparator<Map.Entry<String?, *>> =
+        compareBy(nullsFirst(canonicalAlphabeticalOrder)) { it.key }
+
     protected open fun DocumentableContentBuilder.divergentBlock(
         name: String,
         collection: Collection<Documentable>,
@@ -525,7 +529,7 @@ open class DefaultPageCreator(
                     .groupBy { it.name } // This groupBy should probably use LocationProvider
                     // This hacks displaying actual typealias signatures along classlike ones
                     .mapValues { if (it.value.any { it is DClasslike }) it.value.filter { it !is DTypeAlias } else it.value }
-                    .entries.sortedBy { it.key }
+                    .entries.sortedWith(groupKeyComparator)
                     .forEach { (elementName, elements) -> // This groupBy should probably use LocationProvider
                         val sortedElements = sortDivergentElementsDeterministically(elements)
                         row(
