@@ -2,7 +2,7 @@ package org.jetbrains.dokka.gradle
 
 import org.jetbrains.dokka.DokkaBootstrap
 import org.jetbrains.dokka.gradle.AutomagicProxyTest.TestInterface
-import java.util.function.BiConsumer
+import org.jetbrains.dokka.utilities.DokkaLogger
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -27,7 +27,7 @@ class AutomagicProxyTest {
     @Test
     fun `exception throw in DokkaBootstrap is not wrapped inside UndeclaredThrowableException`() {
         val instanceThrowingTestException = object : DokkaBootstrap {
-            override fun configure(serializedConfigurationJSON: String, logger: BiConsumer<String, String>) = Unit
+            override fun configure(serializedConfigurationJSON: String, logger: DokkaLogger) = Unit
             override fun generate() {
                 throw TestException("Test Exception Message", Exception("Cause Exception Message"))
             }
