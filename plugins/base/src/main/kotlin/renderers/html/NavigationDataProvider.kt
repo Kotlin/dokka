@@ -6,6 +6,7 @@ import org.jetbrains.dokka.base.transformers.documentables.isDeprecated
 import org.jetbrains.dokka.base.transformers.documentables.isException
 import org.jetbrains.dokka.base.translators.documentables.DocumentableLanguage
 import org.jetbrains.dokka.base.translators.documentables.documentableLanguage
+import org.jetbrains.dokka.base.utils.canonicalAlphabeticalOrder
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.pages.*
 
@@ -90,6 +91,9 @@ abstract class NavigationDataProvider {
         }
     }
 
+    private val navigationNodeOrder: Comparator<NavigationNode> =
+        compareBy(canonicalAlphabeticalOrder) { it.name }
+
     private fun ContentPage.navigableChildren() =
         if (this is ClasslikePage) {
             this.navigableChildren()
@@ -97,7 +101,7 @@ abstract class NavigationDataProvider {
             children
                 .filterIsInstance<ContentPage>()
                 .map { visit(it) }
-                .sortedBy { it.name.toLowerCase() }
+                .sortedWith(navigationNodeOrder)
         }
 
     private fun ClasslikePage.navigableChildren(): List<NavigationNode> {
@@ -111,7 +115,7 @@ abstract class NavigationDataProvider {
             // no sorting for enum entries, should be the same order as in source code
             navigableChildren
         } else {
-            navigableChildren.sortedBy { it.name.toLowerCase() }
+            navigableChildren.sortedWith(navigationNodeOrder)
         }
     }
 }
