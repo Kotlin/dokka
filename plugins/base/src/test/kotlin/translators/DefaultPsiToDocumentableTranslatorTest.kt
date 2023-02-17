@@ -364,8 +364,9 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
             pluginOverrides = listOf(OnlyPsiPlugin()) // suppress a descriptor translator because of psi and descriptor translators work in parallel
         ) {
             documentablesMergingStage = { module ->
+                val javaLeafClass = module.packages.single().classlikes.find { it.name == "JavaLeafClass" }
                 val kotlinSubclassFunction =
-                    module.packages.single().classlikes.find { it.name == "JavaLeafClass" }?.functions?.find { it.name == "kotlinSubclassFunction" }
+                    javaLeafClass?.functions?.find { it.name == "kotlinSubclassFunction" }
                         .assertNotNull("kotlinSubclassFunction ")
 
                 assertEquals(
@@ -376,6 +377,11 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
                     "String",
                     (kotlinSubclassFunction.parameters.firstOrNull()?.type as? TypeConstructor)?.dri?.classNames
                 )
+
+                val javaLeafClassFunction =
+                    javaLeafClass?.functions?.find { it.name == "javaLeafClassFunction" }
+                        .assertNotNull("javaLeafClassFunction ")
+                assertEquals("example/JavaLeafClass/javaLeafClassFunction/#java.lang.String/PointingToDeclaration/", javaLeafClassFunction.dri.toString())
             }
         }
     }

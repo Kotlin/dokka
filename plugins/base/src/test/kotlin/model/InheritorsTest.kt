@@ -1,6 +1,7 @@
 package model
 
 import org.jetbrains.dokka.Platform
+import org.jetbrains.dokka.analysis.DescriptorDocumentableSource
 import org.jetbrains.dokka.analysis.DokkaAnalysisConfiguration
 import org.jetbrains.dokka.analysis.ProjectKotlinAnalysis
 import org.jetbrains.dokka.base.DokkaBase
@@ -11,6 +12,8 @@ import org.jetbrains.dokka.model.DInterface
 import org.jetbrains.dokka.model.doc.P
 import org.jetbrains.dokka.model.doc.Text
 import org.jetbrains.dokka.plugability.DokkaPlugin
+import org.jetbrains.kotlin.load.java.descriptors.JavaMethodDescriptor
+import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import utils.AbstractModelTest
@@ -410,6 +413,43 @@ class InheritorsTest : AbstractModelTest("/src/main/kotlin/inheritors/Test.kt", 
             }
             with((this / "inheritors" / "ArrayDeque2" / "contains").cast<DFunction>()) {
                 documentation.size equals 1
+            }
+        }
+    }
+
+    @Test
+    fun `should have correct dri for inherited java method from collection`() {
+        val testConfiguration = dokkaConfiguration {
+            suppressObviousFunctions = false
+            sourceSets {
+                sourceSet {
+                    sourceRoots = listOf("jvm/src/")
+                    analysisPlatform = "jvm"
+                }
+            }
+        }
+
+        testInline(
+            """
+            /jvm/src/collections.kt
+            package collections
+            
+            import java.util.AbstractCollection
+
+            abstract class MyCollection<E> : AbstractCollection<E>()
+            """.trimMargin(),
+            configuration = testConfiguration
+        ) {
+            documentablesTransformationStage = { m -> m.apply {
+                with((this / "collections" / "MyCollection" / "spliterator").cast<DFunction>()) {
+                    dri.packageName equals "kotlin.collections"
+                    val descriptor = (this.sources.entries.single().value as DescriptorDocumentableSource).descriptor as JavaMethodDescriptor
+                    val overriden = descriptor.overriddenDescriptors.single() as JavaMethodDescriptor
+                    overriden.fqNameSafe.asString() equals "java.util.AbstractCollection.spliterator"
+                    val overridenOverriden = overriden.overriddenDescriptors.single() as JavaMethodDescriptor
+                    overridenOverriden.fqNameSafe.asString() equals "kotlin.collections.MutableCollection.spliterator"
+                }
+            }
             }
         }
     }
