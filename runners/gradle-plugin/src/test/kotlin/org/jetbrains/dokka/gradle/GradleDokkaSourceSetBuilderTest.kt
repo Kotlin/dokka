@@ -7,6 +7,9 @@ import org.gradle.api.Project
 import org.gradle.kotlin.dsl.closureOf
 import org.gradle.testfixtures.ProjectBuilder
 import org.jetbrains.dokka.*
+import org.jetbrains.dokka.gradle.util.externalDocumentationLink_
+import org.jetbrains.dokka.gradle.util.perPackageOption_
+import org.jetbrains.dokka.gradle.util.sourceLink_
 import org.jetbrains.kotlin.gradle.plugin.sources.DefaultKotlinSourceSet
 import java.net.URL
 import kotlin.test.*
@@ -52,7 +55,7 @@ class GradleDokkaSourceSetBuilderTest {
     fun displayName() {
         val sourceSet = GradleDokkaSourceSetBuilder("myName", project)
         assertNull(
-            sourceSet.displayName.getSafe(),
+            sourceSet.displayName.orNull,
             "Expected no ${GradleDokkaSourceSetBuilder::displayName.name} being set by default"
         )
 
@@ -224,10 +227,10 @@ class GradleDokkaSourceSetBuilderTest {
                 this.remoteUrl.set(URL("https://u1"))
             })
 
-        sourceSet.sourceLink {
-            it.remoteLineSuffix.set("ls2")
-            it.localDirectory.set(project.file("p2"))
-            it.remoteUrl.set(URL("https://u2"))
+        sourceSet.sourceLink_ {
+            remoteLineSuffix.set("ls2")
+            localDirectory.set(project.file("p2"))
+            remoteUrl.set(URL("https://u2"))
         }
 
         sourceSet.sourceLink(project.closureOf<GradleSourceLinkBuilder> {
@@ -268,8 +271,8 @@ class GradleDokkaSourceSetBuilderTest {
             this.matchingRegex.set("p1.*")
         })
 
-        sourceSet.perPackageOption {
-            it.matchingRegex.set("p2.*")
+        sourceSet.perPackageOption_ {
+            matchingRegex.set("p2.*")
         }
 
         sourceSet.perPackageOption(project.closureOf<GradlePackageOptionsBuilder> {
@@ -310,8 +313,8 @@ class GradleDokkaSourceSetBuilderTest {
             }
         )
 
-        sourceSet.externalDocumentationLink {
-            it.url.set(URL("https://u2"))
+        sourceSet.externalDocumentationLink_ {
+            url.set(URL("https://u2"))
         }
 
         sourceSet.externalDocumentationLink(project.closureOf<GradleExternalDocumentationLinkBuilder> {
@@ -361,7 +364,7 @@ class GradleDokkaSourceSetBuilderTest {
     @Test
     fun noStdlibLink() {
         val sourceSet = GradleDokkaSourceSetBuilder("", project)
-        assertFalse(sourceSet.noStdlibLink.getSafe(), "Expected 'noStdlibLink' to be set to false by default")
+        assertFalse(sourceSet.noStdlibLink.get(), "Expected 'noStdlibLink' to be set to false by default")
 
         assertEquals(1, sourceSet.build().externalDocumentationLinks.count {
             "https://kotlinlang.org/api" in it.url.toURI().toString()
@@ -379,7 +382,7 @@ class GradleDokkaSourceSetBuilderTest {
     @Test
     fun noJdkLink() {
         val sourceSet = GradleDokkaSourceSetBuilder("", project)
-        assertFalse(sourceSet.noJdkLink.getSafe(), "Expected 'noJdkLink' to be set to false by default")
+        assertFalse(sourceSet.noJdkLink.get(), "Expected 'noJdkLink' to be set to false by default")
 
         assertEquals(1, sourceSet.build().externalDocumentationLinks.count {
             "https://docs.oracle.com/" in it.url.toURI().toString()
@@ -398,7 +401,7 @@ class GradleDokkaSourceSetBuilderTest {
     @Test
     fun noAndroidSdkLink() {
         val sourceSet = GradleDokkaSourceSetBuilder("", project)
-        assertFalse(sourceSet.noAndroidSdkLink.getSafe(), "Expected 'noAndroidSdkLink' to be set to false by default")
+        assertFalse(sourceSet.noAndroidSdkLink.get(), "Expected 'noAndroidSdkLink' to be set to false by default")
 
         assertEquals(0, sourceSet.build().externalDocumentationLinks.count {
             "https://developer.android.com/reference" in it.url.toURI().toString()

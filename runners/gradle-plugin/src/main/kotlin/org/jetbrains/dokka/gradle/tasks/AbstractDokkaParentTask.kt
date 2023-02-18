@@ -1,10 +1,11 @@
-package org.jetbrains.dokka.gradle
+package org.jetbrains.dokka.gradle.tasks
 
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Nested
 import org.gradle.work.DisableCachingByDefault
+import org.jetbrains.dokka.gradle.parsePath
 
 private const val DEPRECATION_MESSAGE = """
     It is an anti-pattern to declare cross-project dependencies as it leads to various build problems. 
@@ -99,4 +100,3 @@ abstract class AbstractDokkaParentTask : AbstractDokkaTask() {
         )
     }
 }
-

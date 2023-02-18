@@ -1,4 +1,4 @@
-package org.jetbrains.dokka.gradle
+package org.jetbrains.dokka.gradle.tasks
 
 import org.jetbrains.dokka.DokkaConfigurationImpl
 import org.jetbrains.dokka.build
@@ -9,18 +9,19 @@ abstract class DokkaTaskPartial : AbstractDokkaLeafTask() {
 
     override fun buildDokkaConfiguration(): DokkaConfigurationImpl {
         return DokkaConfigurationImpl(
-            moduleName = moduleName.getSafe(),
+            moduleName = moduleName.get(),
             moduleVersion = moduleVersion.orNull,
-            outputDir = outputDirectory.getSafe(),
-            cacheRoot = cacheRoot.getSafe(),
-            offlineMode = offlineMode.getSafe(),
-            failOnWarning = failOnWarning.getSafe(),
+            outputDir = outputDirectory.get(),
+            cacheRoot = cacheRoot.orNull,
+            offlineMode = offlineMode.get(),
+            failOnWarning = failOnWarning.get(),
             sourceSets = unsuppressedSourceSets.build(),
             pluginsConfiguration = buildPluginsConfiguration(),
             pluginsClasspath = plugins.resolve().toList(),
             delayTemplateSubstitution = true,
-            suppressObviousFunctions = suppressObviousFunctions.getSafe(),
-            suppressInheritedMembers = suppressInheritedMembers.getSafe(),
+            suppressObviousFunctions = suppressObviousFunctions.get(),
+            suppressInheritedMembers = suppressInheritedMembers.get(),
+            finalizeCoroutines = finalizeCoroutines.get(),
         )
     }
 }

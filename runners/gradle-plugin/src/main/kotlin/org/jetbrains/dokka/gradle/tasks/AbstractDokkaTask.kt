@@ -1,4 +1,4 @@
-package org.jetbrains.dokka.gradle
+package org.jetbrains.dokka.gradle.tasks
 
 import groovy.lang.Closure
 import org.gradle.api.Action
@@ -10,14 +10,20 @@ import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
-import org.gradle.kotlin.dsl.listProperty
+import org.gradle.kotlin.dsl.*
 import org.gradle.kotlin.dsl.mapProperty
+import org.gradle.kotlin.dsl.submit
 import org.gradle.work.DisableCachingByDefault
+import org.gradle.workers.WorkerExecutor
 import org.jetbrains.dokka.*
+import org.jetbrains.dokka.gradle.workers.DokkaGeneratorWorker
+import org.jetbrains.dokka.gradle.*
+import org.jetbrains.dokka.gradle.defaultDokkaOutputDirectory
+import org.jetbrains.dokka.gradle.maybeCreateDokkaPluginConfiguration
 import org.jetbrains.dokka.plugability.ConfigurableBlock
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import java.io.File
-import java.util.function.BiConsumer
+import javax.inject.Inject
 import kotlin.reflect.full.createInstance
 
 @DisableCachingByDefault(because = "Abstract super-class, not to be instantiated directly")
@@ -31,8 +37,8 @@ abstract class AbstractDokkaTask : DefaultTask() {
      * Default is Gradle project name.
      */
     @Input
-    val moduleName: Property<String> = project.objects.safeProperty<String>()
-        .safeConvention(project.name)
+    val moduleName: Property<String> = project.objects.property<String>()
+        .convention(project.name)
 
     /**
      * Module version.
@@ -43,8 +49,8 @@ abstract class AbstractDokkaTask : DefaultTask() {
      * Default is Gradle project version.
      */
     @Input
-    val moduleVersion: Property<String> = project.objects.safeProperty<String>()
-        .safeConvention(project.provider { project.version.toString() })
+    val moduleVersion: Property<String> = project.objects.property<String>()
+        .convention(project.provider { project.version.toString() })
 
     /**
      * Directory to which documentation will be generated, regardless of format.
@@ -54,8 +60,8 @@ abstract class AbstractDokkaTask : DefaultTask() {
      * for `dokkaHtmlMultiModule` task it will be `project/buildDir/htmlMultiModule`
      */
     @OutputDirectory
-    val outputDirectory: Property<File> = project.objects.safeProperty<File>()
-        .safeConvention(project.provider { defaultDokkaOutputDirectory() })
+    val outputDirectory: Property<File> = project.objects.property<File>()
+        .convention(project.provider { defaultDokkaOutputDirectory() })
 
     /**
      * Configuration for Dokka plugins. This property is not expected to be used directly - if possible, use
@@ -101,8 +107,8 @@ abstract class AbstractDokkaTask : DefaultTask() {
      * Default is `true`
      */
     @Input
-    val suppressObviousFunctions: Property<Boolean> = project.objects.safeProperty<Boolean>()
-        .safeConvention(DokkaDefaults.suppressObviousFunctions)
+    val suppressObviousFunctions: Property<Boolean> = project.objects.property<Boolean>()
+        .convention(DokkaDefaults.suppressObviousFunctions)
 
     /**
      * Whether to suppress inherited members that aren't explicitly overridden in a given class.
@@ -114,8 +120,8 @@ abstract class AbstractDokkaTask : DefaultTask() {
      * Default is `false`.
      */
     @Input
-    val suppressInheritedMembers: Property<Boolean> = project.objects.safeProperty<Boolean>()
-        .safeConvention(DokkaDefaults.suppressInheritedMembers)
+    val suppressInheritedMembers: Property<Boolean> = project.objects.property<Boolean>()
+        .convention(DokkaDefaults.suppressInheritedMembers)
 
     /**
      * Whether to resolve remote files/links over network.
@@ -133,8 +139,8 @@ abstract class AbstractDokkaTask : DefaultTask() {
      * Default is `false`.
      */
     @Input
-    val offlineMode: Property<Boolean> = project.objects.safeProperty<Boolean>()
-        .safeConvention(DokkaDefaults.offlineMode)
+    val offlineMode: Property<Boolean> = project.objects.property<Boolean>()
+        .convention(DokkaDefaults.offlineMode)
 
     /**
      * Whether to fail documentation generation if Dokka has emitted a warning or an error.
@@ -145,13 +151,16 @@ abstract class AbstractDokkaTask : DefaultTask() {
      * Default is `false`.
      */
     @Input
-    val failOnWarning: Property<Boolean> = project.objects.safeProperty<Boolean>()
-        .safeConvention(DokkaDefaults.failOnWarning)
+    val failOnWarning: Property<Boolean> = project.objects.property<Boolean>()
+        .convention(DokkaDefaults.failOnWarning)
+
+    @get:Input
+    abstract val finalizeCoroutines: Property<Boolean>
 
     @Optional
     @InputDirectory
     @PathSensitive(PathSensitivity.RELATIVE)
-    val cacheRoot: Property<File?> = project.objects.safeProperty()
+    val cacheRoot: Property<File?> = project.objects.property()
 
     /**
      * Type-safe configuration for a Dokka plugin.
@@ -193,49 +202,43 @@ abstract class AbstractDokkaTask : DefaultTask() {
     @Classpath
     val runtime: Configuration = project.maybeCreateDokkaRuntimeConfiguration(name)
 
+    @get:Inject
+    protected abstract val workers: WorkerExecutor
+
     final override fun doFirst(action: Action<in Task>): Task = super.doFirst(action)
 
     final override fun doFirst(action: Closure<*>): Task = super.doFirst(action)
 
     @TaskAction
     internal open fun generateDocumentation() {
-        DokkaBootstrap(runtime, DokkaBootstrapImpl::class).apply {
-            configure(buildDokkaConfiguration().toJsonString(), createProxyLogger())
-            /**
-             * Run in a new thread to avoid memory leaks that are related to ThreadLocal (that keeps `URLCLassLoader`)
-             * Currently, all `ThreadLocal`s leaking are in the compiler/IDE codebase.
-             */
-            Thread { generate() }.apply {
-                start()
-                join()
+        val builtDokkaConfig = buildDokkaConfiguration()
+
+        val workQueue = workers.processIsolation {
+            classpath.from(runtime + plugins)
+            forkOptions {
+                defaultCharacterEncoding = "UTF-8"
             }
+        }
+
+        workQueue.submit(DokkaGeneratorWorker::class) {
+            dokkaConfiguration.set(builtDokkaConfig)
         }
     }
 
     internal abstract fun buildDokkaConfiguration(): DokkaConfigurationImpl
-
-    private fun createProxyLogger(): BiConsumer<String, String> = BiConsumer { level, message ->
-        when (level) {
-            "debug" -> logger.debug(message)
-            "info" -> logger.info(message)
-            "progress" -> logger.lifecycle(message)
-            "warn" -> logger.warn(message)
-            "error" -> logger.error(message)
-        }
-    }
 
     init {
         group = JavaBasePlugin.DOCUMENTATION_GROUP
     }
 
     internal fun buildPluginsConfiguration(): List<PluginConfigurationImpl> {
-        val manuallyConfigured = pluginsMapConfiguration.getSafe().entries.map { entry ->
+        val manuallyConfigured = pluginsMapConfiguration.get().entries.map { entry ->
             PluginConfigurationImpl(
                 entry.key,
                 DokkaConfiguration.SerializationFormat.JSON,
                 entry.value
             )
         }
-        return pluginsConfiguration.getSafe().mapNotNull { it as? PluginConfigurationImpl } + manuallyConfigured
+        return pluginsConfiguration.get().mapNotNull { it as? PluginConfigurationImpl } + manuallyConfigured
     }
 }

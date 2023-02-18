@@ -4,8 +4,13 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Dependency
-import org.gradle.kotlin.dsl.register
+import org.gradle.kotlin.dsl.*
 import org.gradle.util.GradleVersion
+import org.jetbrains.dokka.gradle.tasks.AbstractDokkaTask
+import org.jetbrains.dokka.gradle.tasks.DokkaCollectorTask
+import org.jetbrains.dokka.gradle.tasks.DokkaMultiModuleTask
+import org.jetbrains.dokka.gradle.tasks.DokkaTask
+import org.jetbrains.dokka.gradle.tasks.DokkaTaskPartial
 
 open class DokkaPlugin : Plugin<Project> {
     override fun apply(project: Project) {
@@ -90,6 +95,10 @@ open class DokkaPlugin : Plugin<Project> {
                 description =
                     "Generates documentation merging all subprojects '$name' tasks into one virtual module"
             }
+        }
+
+        tasks.withType<AbstractDokkaTask>().configureEach {
+            finalizeCoroutines.convention(true)
         }
     }
 }

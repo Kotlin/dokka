@@ -4,6 +4,9 @@ import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.tasks.TaskContainer
 import org.gradle.kotlin.dsl.withType
 import org.gradle.testfixtures.ProjectBuilder
+import org.jetbrains.dokka.gradle.tasks.AbstractDokkaParentTask
+import org.jetbrains.dokka.gradle.tasks.AbstractDokkaTask
+import org.jetbrains.dokka.gradle.tasks.DokkaTask
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertSame
