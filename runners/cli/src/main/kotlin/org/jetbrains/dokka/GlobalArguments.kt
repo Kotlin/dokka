@@ -120,13 +120,13 @@ class GlobalArguments(args: Array<String>) : DokkaConfiguration {
                 "WARN" -> LoggingLevel.WARN
                 "ERROR" -> LoggingLevel.ERROR
                 else -> {
-                    println("""Failed to deserialize logging level, got $it expected one of 
-                        |"DEBUG", "PROGRESS", "INFO", "WARN", "ERROR", falling back to DEBUG""".trimMargin())
-                    LoggingLevel.DEBUG
+                    println("""Failed to deserialize logging level, got $it expected one of
+                        |"DEBUG", "PROGRESS", "INFO", "WARN", "ERROR", falling back to PROGRESS""".trimMargin())
+                    LoggingLevel.PROGRESS
                 }
             }
         }, toString = { it.toString() }
-        )).default(LoggingLevel.DEBUG)
+        )).default(LoggingLevel.PROGRESS)
 
     override val modules: List<DokkaConfiguration.DokkaModuleDescription> = emptyList()
 

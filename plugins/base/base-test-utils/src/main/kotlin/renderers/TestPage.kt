@@ -9,12 +9,13 @@ import org.jetbrains.dokka.model.doc.DocTag
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.utilities.DokkaConsoleLogger
+import org.jetbrains.dokka.utilities.LoggingLevel
 
 fun testPage(callback: PageContentBuilder.DocumentableContentBuilder.() -> Unit): RawTestPage {
     val content = PageContentBuilder(
         EmptyCommentConverter,
-        KotlinSignatureProvider(EmptyCommentConverter, DokkaConsoleLogger()),
-        DokkaConsoleLogger()
+        KotlinSignatureProvider(EmptyCommentConverter, DokkaConsoleLogger(LoggingLevel.DEBUG)),
+        DokkaConsoleLogger(LoggingLevel.DEBUG)
     ).contentFor(
         DRI.topLevel,
         emptySet(),

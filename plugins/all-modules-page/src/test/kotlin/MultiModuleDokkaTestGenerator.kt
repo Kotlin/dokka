@@ -13,6 +13,7 @@ import org.jetbrains.dokka.testApi.testRunner.TestBuilder
 import org.jetbrains.dokka.testApi.testRunner.TestMethods
 import org.jetbrains.dokka.utilities.DokkaConsoleLogger
 import org.jetbrains.dokka.utilities.DokkaLogger
+import org.jetbrains.dokka.utilities.LoggingLevel
 
 class MultiModuleDokkaTestGenerator(
     configuration: DokkaConfiguration,
@@ -85,7 +86,7 @@ class MultiModuleTestBuilder : TestBuilder<MultiModuleTestMethods>() {
     )
 }
 
-abstract class MultiModuleAbstractTest(logger: TestLogger = TestLogger(DokkaConsoleLogger())) :
+abstract class MultiModuleAbstractTest(logger: TestLogger = TestLogger(DokkaConsoleLogger(LoggingLevel.DEBUG))) :
     AbstractTest<MultiModuleTestMethods, MultiModuleTestBuilder, MultiModuleDokkaTestGenerator>(
         ::MultiModuleTestBuilder,
         ::MultiModuleDokkaTestGenerator,
