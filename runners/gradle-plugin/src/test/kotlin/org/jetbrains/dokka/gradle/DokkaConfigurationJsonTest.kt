@@ -2,10 +2,7 @@ package org.jetbrains.dokka.gradle
 
 import org.gradle.kotlin.dsl.withType
 import org.gradle.testfixtures.ProjectBuilder
-import org.jetbrains.dokka.DokkaConfiguration
-import org.jetbrains.dokka.DokkaConfigurationImpl
-import org.jetbrains.dokka.PluginConfigurationImpl
-import org.jetbrains.dokka.toJsonString
+import org.jetbrains.dokka.*
 import java.io.File
 import java.net.URL
 import kotlin.test.Test
@@ -50,7 +47,7 @@ class DokkaConfigurationJsonTest {
         }
 
         val sourceConfiguration = dokkaTask.buildDokkaConfiguration()
-        val configurationJson = sourceConfiguration.toJsonString()
+        val configurationJson = sourceConfiguration.toCompactJsonString()
         val parsedConfiguration = DokkaConfigurationImpl(configurationJson)
 
         assertEquals(sourceConfiguration, parsedConfiguration)
