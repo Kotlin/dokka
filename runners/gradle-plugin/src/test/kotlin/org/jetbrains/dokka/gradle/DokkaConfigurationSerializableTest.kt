@@ -4,7 +4,6 @@ import org.gradle.kotlin.dsl.withType
 import org.gradle.testfixtures.ProjectBuilder
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.PluginConfigurationImpl
-import org.jetbrains.dokka.toJsonString
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import java.io.File
