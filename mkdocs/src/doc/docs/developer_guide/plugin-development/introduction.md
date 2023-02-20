@@ -1,5 +1,13 @@
 # Introduction to plugin development
 
+Dokka was built from the ground up to be easily extensible and highly customizable, which allows the community to 
+implement plugins for missing or very specific features that are not provided out of the box.
+
+Dokka plugins range anywhere from supporting other programming language sources to exotic output formats. You can add 
+support for your own KDoc tags or annotations, teach Dokka how to render different DSLs that are found in KDoc 
+descriptions, visually redesign Dokka's pages to be seamlessly integrated into your company's website, integrate 
+it with other tools and so much more.
+
 In order to have an easier time developing plugins, it's a good idea to go through
 [Dokka's internals](../architecture/architecture_overview.md) first to learn more about its
 [data model](../architecture/data_model/documentables.md) and 
@@ -51,7 +59,8 @@ versions of Dokka.
 You can follow the [sample plugin tutorial](sample-plugin-tutorial.md) which covers creation of a simple plugin: hide members
 annotated with your own `@Internal` annotation, that is exclude these members from generated documentation.
 
-Fore more practical examples, have a look at sources of [community plugins](../../community/plugins-list.md).
+Fore more practical examples, have a look at sources of 
+[community plugins](https://kotlinlang.org/docs/dokka-plugins.html#notable-plugins).
 
 ## Help
 
