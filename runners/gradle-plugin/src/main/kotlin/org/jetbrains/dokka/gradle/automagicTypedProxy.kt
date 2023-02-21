@@ -14,8 +14,11 @@ import kotlin.reflect.KProperty
  * Creates [java.lang.reflect.Proxy] with pass through invocation algorithm,
  * to create access proxy for [delegate].
  */
-internal inline fun <reified T : Any> dynamicCast(noinline delegate: () -> Any): DynamicCastDelegate<T> =
+internal inline fun <reified T : Any> dynamicCast(
+    noinline delegate: () -> Any,
+): DynamicCastDelegate<T> =
     DynamicCastDelegate(T::class, delegate)
+
 
 internal class DynamicCastDelegate<out T : Any>(
     private val cls: KClass<T>,
@@ -42,23 +45,21 @@ internal class DynamicCastDelegate<out T : Any>(
         method: Method,
         args: Array<out Any?>?
     ): Any? {
-        delegateMethods.firstOrNull { it matches method }?.let { delegateMethod ->
-            try {
-                return if (args == null) {
-                    delegateMethod.invoke(delegate)
-                } else {
-                    delegateMethod.invoke(delegate, *args)
-                }
-            } catch (ex: InvocationTargetException) {
-                throw ex.targetException
+        val delegateMethod = delegateMethods.firstOrNull { it matches method }
+            ?: throw UnsupportedOperationException("$delegateName : $method args:${args?.joinToString()}")
+
+        try {
+            return when (args) {
+                null -> delegateMethod.invoke(delegate)
+                else -> delegateMethod.invoke(delegate, *args)
             }
+        } catch (ex: InvocationTargetException) {
+            throw ex.targetException
         }
-        throw UnsupportedOperationException("$delegateName : $method args:[${args?.joinToString()}]")
     }
 
     /** Delegated value provider */
     operator fun getValue(thisRef: Any?, property: KProperty<*>): T = proxy
-
 
     companion object {
         private infix fun Method.matches(other: Method): Boolean =
