@@ -53,7 +53,7 @@ class DefaultSubmoduleTemplateProcessor(
         coroutineScope {
             val source = this@visit
             if (source.isDirectory) {
-                target.mkdir()
+                target.mkdirs()
                 val files = source.list().orEmpty()
                 val accWithSelf = configuredModulesPaths[source.absolutePath]
                     ?.takeIf { files.firstOrNull { !it.startsWith(".") } != null }
