@@ -1,3 +1,5 @@
+@file:Suppress("PackageDirectoryMismatch")
+
 package org.jetbrains.dokka.gradle
 
 import org.gradle.api.Project
@@ -99,4 +101,3 @@ abstract class AbstractDokkaParentTask : AbstractDokkaTask() {
         )
     }
 }
-
