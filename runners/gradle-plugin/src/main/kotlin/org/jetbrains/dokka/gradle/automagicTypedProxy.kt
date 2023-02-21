@@ -4,42 +4,64 @@ import java.lang.reflect.InvocationHandler
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 import java.lang.reflect.Proxy
+import kotlin.reflect.KClass
+import kotlin.reflect.KProperty
 
 
 /**
  * Warning! Hard reflection magic used here.
  *
  * Creates [java.lang.reflect.Proxy] with pass through invocation algorithm,
- * to create access proxy for [delegate] into [targetClassLoader].
+ * to create access proxy for [delegate].
  */
-internal inline fun <reified T : Any> automagicTypedProxy(targetClassLoader: ClassLoader, delegate: Any): T =
-    automagicProxy(targetClassLoader, T::class.java, delegate) as T
+internal inline fun <reified T : Any> dynamicCast(noinline delegate: () -> Any): DynamicCastDelegate<T> =
+    DynamicCastDelegate(T::class, delegate)
 
+internal class DynamicCastDelegate<out T : Any>(
+    private val cls: KClass<T>,
+    delegateProvider: () -> Any,
+) : InvocationHandler {
 
-/**
- * Warning! Hard reflection magic used here.
- *
- * Creates [java.lang.reflect.Proxy] with pass through invocation algorithm,
- * to create access proxy for [delegate] into [targetClassLoader].
- *
- */
-private fun automagicProxy(targetClassLoader: ClassLoader, targetType: Class<*>, delegate: Any): Any =
-    Proxy.newProxyInstance(
-        targetClassLoader,
-        arrayOf(targetType),
-        DelegatedInvocationHandler(delegate)
-    )
+    private val delegate = delegateProvider()
 
-private class DelegatedInvocationHandler(private val delegate: Any) : InvocationHandler {
+    private val delegateName get() = delegate.javaClass.name
+    private val delegateMethods get() = delegate.javaClass.methods
 
-    @Throws(Throwable::class)
-    override fun invoke(proxy: Any, method: Method, args: Array<Any?>?): Any? {
-        val delegateMethod = delegate.javaClass.getMethod(method.name, *method.parameterTypes)
-        try {
-            delegateMethod.isAccessible = true
-            return delegateMethod.invoke(delegate, *(args ?: emptyArray()))
-        } catch (ex: InvocationTargetException) {
-            throw ex.targetException
+    private val proxy: T by lazy {
+        val proxy = Proxy.newProxyInstance(
+            delegate.javaClass.classLoader,
+            arrayOf(cls.java),
+            this,
+        )
+        @Suppress("UNCHECKED_CAST")
+        proxy as T
+    }
+
+    override fun invoke(
+        proxy: Any,
+        method: Method,
+        args: Array<out Any?>?
+    ): Any? {
+        delegateMethods.firstOrNull { it matches method }?.let { delegateMethod ->
+            try {
+                return if (args == null) {
+                    delegateMethod.invoke(delegate)
+                } else {
+                    delegateMethod.invoke(delegate, *args)
+                }
+            } catch (ex: InvocationTargetException) {
+                throw ex.targetException
+            }
         }
+        throw UnsupportedOperationException("$delegateName : $method args:[${args?.joinToString()}]")
+    }
+
+    /** Delegated value provider */
+    operator fun getValue(thisRef: Any?, property: KProperty<*>): T = proxy
+
+
+    companion object {
+        private infix fun Method.matches(other: Method): Boolean =
+            this.name == other.name && this.parameterTypes.contentEquals(other.parameterTypes)
     }
 }

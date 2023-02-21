@@ -1,27 +1,43 @@
 package org.jetbrains.dokka.gradle
 
+import org.gradle.api.logging.Logging
+import org.gradle.kotlin.dsl.provideDelegate
 import org.jetbrains.dokka.DokkaBootstrap
-import org.jetbrains.dokka.gradle.AutomagicProxyTest.TestInterface
+import org.jetbrains.dokka.gradle.internal.LoggerAdapter
 import org.jetbrains.dokka.utilities.DokkaLogger
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
+import kotlin.test.*
 
 
 class AutomagicProxyTest {
 
     private class TestException(message: String, cause: Throwable?) : Exception(message, cause)
 
-    private fun interface TestInterface {
-        @Throws(Throwable::class)
+    private interface TestInterfaceAlpha {
+        operator fun invoke(): Int
+    }
+
+    private interface TestInterfaceBeta {
         operator fun invoke(): Int
     }
 
     @Test
     fun `simple method invocation`() {
-        val instance = TestInterface { 0 }
-        val proxy = automagicTypedProxy<TestInterface>(instance.javaClass.classLoader, instance)
+        val instance = object : TestInterfaceAlpha {
+            override fun invoke(): Int = 0
+        }
+        val proxy: TestInterfaceBeta by dynamicCast { instance }
+
+        assertFalse(instance::class == proxy::class)
+
         assertEquals(0, proxy())
+    }
+
+    private interface DokkaBootstrapInternal {
+        @Throws(Throwable::class)
+        fun configure(serializedConfigurationJSON: String, logger: DokkaLogger)
+
+        @Throws(Throwable::class)
+        fun generate()
     }
 
     @Test
@@ -33,9 +49,13 @@ class AutomagicProxyTest {
             }
         }
 
-        val proxy = automagicTypedProxy<DokkaBootstrap>(
-            instanceThrowingTestException.javaClass.classLoader,
-            instanceThrowingTestException
+        val proxy: DokkaBootstrapInternal by dynamicCast { instanceThrowingTestException }
+
+        assertFalse(instanceThrowingTestException::class == proxy::class)
+
+        assertEquals(
+            Unit,
+            proxy.configure("asd", LoggerAdapter(Logging.getLogger("test-logger")))
         )
 
         val exception = assertFailsWith<TestException> {
