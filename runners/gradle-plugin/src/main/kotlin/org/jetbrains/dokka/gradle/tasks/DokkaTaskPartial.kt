@@ -1,3 +1,5 @@
+@file:Suppress("PackageDirectoryMismatch")
+
 package org.jetbrains.dokka.gradle
 
 import org.jetbrains.dokka.DokkaConfigurationImpl

@@ -1,3 +1,5 @@
+@file:Suppress("PackageDirectoryMismatch")
+
 package org.jetbrains.dokka.gradle
 
 import groovy.lang.Closure
@@ -182,7 +184,7 @@ abstract class AbstractDokkaTask : DefaultTask() {
         val pluginConfiguration = PluginConfigurationImpl(
             fqPluginName = P::class.qualifiedName!!,
             serializationFormat = DokkaConfiguration.SerializationFormat.JSON,
-            values = instance.toJsonString()
+            values = instance.toCompactJsonString()
         )
         pluginsConfiguration.add(pluginConfiguration)
     }
@@ -200,7 +202,7 @@ abstract class AbstractDokkaTask : DefaultTask() {
     @TaskAction
     internal open fun generateDocumentation() {
         DokkaBootstrap(runtime, DokkaBootstrapImpl::class).apply {
-            configure(buildDokkaConfiguration().toJsonString(), LoggerAdapter(logger))
+            configure(buildDokkaConfiguration().toCompactJsonString(), LoggerAdapter(logger))
             /**
              * Run in a new thread to avoid memory leaks that are related to ThreadLocal (that keeps `URLCLassLoader`)
              * Currently, all `ThreadLocal`s leaking are in the compiler/IDE codebase.

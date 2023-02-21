@@ -1,3 +1,5 @@
+@file:Suppress("PackageDirectoryMismatch")
+
 package org.jetbrains.dokka.gradle
 
 import org.gradle.kotlin.dsl.create
@@ -11,12 +13,12 @@ class DokkaTaskTest {
     fun `no suppressed source sets are present after in built configuration`() {
         val project = ProjectBuilder.builder().build()
         val task = project.tasks.create<DokkaTask>("dokkaTask")
-        project.configurations.all { configuration -> configuration.withDependencies { it.clear() } }
+        project.configurations.all { withDependencies { clear() } }
 
         task.dokkaSourceSets.register("main")
         task.dokkaSourceSets.register("jvm")
         task.dokkaSourceSets.register("test") {
-            it.suppress.set(true)
+            suppress.set(true)
         }
 
         assertEquals(
@@ -30,7 +32,7 @@ class DokkaTaskTest {
     fun `module version is not present if not specified`(){
         val project = ProjectBuilder.builder().build()
         val task = project.tasks.create<DokkaTask>("dokkaTask")
-        project.configurations.all { configuration -> configuration.withDependencies { it.clear() } }
+        project.configurations.all { withDependencies { clear() } }
 
         task.dokkaSourceSets.register("main")
         assertNull(task.buildDokkaConfiguration().moduleVersion)

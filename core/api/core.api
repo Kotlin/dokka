@@ -1,14 +1,21 @@
-public final class org/jetbrains/dokka/ConfigurationKt {
+public final class org/jetbrains/dokka/ConfigurationJsonUtilsKt {
 	public static final fun DokkaConfigurationImpl (Ljava/lang/String;)Lorg/jetbrains/dokka/DokkaConfigurationImpl;
+	public static final fun GlobalDokkaConfiguration (Ljava/lang/String;)Lorg/jetbrains/dokka/GlobalDokkaConfiguration;
+	public static final fun toCompactJsonString (Lorg/jetbrains/dokka/DokkaConfiguration;)Ljava/lang/String;
+	public static final fun toCompactJsonString (Lorg/jetbrains/dokka/plugability/ConfigurableBlock;)Ljava/lang/String;
+	public static final fun toJsonString (Lorg/jetbrains/dokka/DokkaConfiguration;)Ljava/lang/String;
+	public static final fun toJsonString (Lorg/jetbrains/dokka/plugability/ConfigurableBlock;)Ljava/lang/String;
+	public static final fun toPrettyJsonString (Lorg/jetbrains/dokka/DokkaConfiguration;)Ljava/lang/String;
+	public static final fun toPrettyJsonString (Lorg/jetbrains/dokka/plugability/ConfigurableBlock;)Ljava/lang/String;
+}
+
+public final class org/jetbrains/dokka/ConfigurationKt {
 	public static final fun ExternalDocumentationLink (Ljava/lang/String;Ljava/lang/String;)Lorg/jetbrains/dokka/ExternalDocumentationLinkImpl;
 	public static final fun ExternalDocumentationLink (Ljava/net/URL;Ljava/net/URL;)Lorg/jetbrains/dokka/ExternalDocumentationLinkImpl;
 	public static synthetic fun ExternalDocumentationLink$default (Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lorg/jetbrains/dokka/ExternalDocumentationLinkImpl;
 	public static synthetic fun ExternalDocumentationLink$default (Ljava/net/URL;Ljava/net/URL;ILjava/lang/Object;)Lorg/jetbrains/dokka/ExternalDocumentationLinkImpl;
-	public static final fun GlobalDokkaConfiguration (Ljava/lang/String;)Lorg/jetbrains/dokka/GlobalDokkaConfiguration;
 	public static final fun apply (Lorg/jetbrains/dokka/DokkaConfiguration;Lorg/jetbrains/dokka/GlobalDokkaConfiguration;)Lorg/jetbrains/dokka/DokkaConfiguration;
 	public static final fun build (Ljava/lang/Iterable;)Ljava/util/List;
-	public static final fun toJsonString (Lorg/jetbrains/dokka/DokkaConfiguration;)Ljava/lang/String;
-	public static final fun toJsonString (Lorg/jetbrains/dokka/plugability/ConfigurableBlock;)Ljava/lang/String;
 }
 
 public final class org/jetbrains/dokka/CoreExtensions {
