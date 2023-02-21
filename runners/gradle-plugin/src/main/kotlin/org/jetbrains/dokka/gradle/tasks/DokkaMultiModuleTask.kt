@@ -1,3 +1,5 @@
+@file:Suppress("PackageDirectoryMismatch")
+
 package org.jetbrains.dokka.gradle
 
 import org.gradle.api.file.ConfigurableFileCollection
@@ -100,4 +102,3 @@ abstract class DokkaMultiModuleTask : AbstractDokkaParentTask() {
         includes = includes.toSet(),
     )
 }
-

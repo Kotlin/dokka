@@ -1,4 +1,4 @@
-@file:Suppress("UnstableApiUsage", "DEPRECATION")
+@file:Suppress("UnstableApiUsage", "DEPRECATION", "PackageDirectoryMismatch")
 
 package org.jetbrains.dokka.gradle
 
