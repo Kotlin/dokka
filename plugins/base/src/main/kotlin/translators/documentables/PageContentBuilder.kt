@@ -244,13 +244,12 @@ open class PageContentBuilder(
             needsSorting: Boolean = true,
             headers: List<ContentGroup> = emptyList(),
             needsAnchors: Boolean = false,
-            headerExtra: PropertyContainer<ContentNode> = extra,
             operation: DocumentableContentBuilder.(String, List<Documentable>) -> Unit
         ) {
 
             if (renderWhenEmpty || groupedElements.any()) {
                 group(extra = extra) {
-                    header(level, name, kind = kind, extra = headerExtra) { }
+                    header(level, name, kind = kind) { }
                     contents += ContentTable(
                         header = headers,
                         children = groupedElements

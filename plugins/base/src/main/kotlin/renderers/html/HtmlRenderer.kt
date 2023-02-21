@@ -870,11 +870,19 @@ open class HtmlRenderer(
             content(this, page)
         }
 
+    private fun PageNode.getDocumentableType(): String? =
+        when(this) {
+            is PackagePage -> "package"
+            is ClasslikePage -> "classlike"
+            is MemberPage -> "member"
+            else -> null
+        }
 
     open fun buildHtml(page: PageNode, resources: List<String>, content: FlowContent.() -> Unit): String =
         templater.renderFromTemplate(DokkaTemplateTypes.BASE) {
             val generatedContent =
                 createHTML().div("main-content") {
+                    page.getDocumentableType()?.let { attributes["documentable-type"] = it }
                     id = "content"
                     (page as? ContentPage)?.let {
                         attributes["pageIds"] = "${context.configuration.moduleName}::${page.pageId}"
@@ -965,7 +973,7 @@ private val PageNode.isNavigable: Boolean
     get() = this !is RendererSpecificPage || strategy != RenderingStrategy.DoNothing
 
 private fun PropertyContainer<ContentNode>.extraHtmlAttributes() = allOfType<SimpleAttr>()
-private fun PropertyContainer<ContentNode>.extraToggleableContentType() = allOfType<TabbedContentTypeExtra>().lastOrNull()
+private fun PropertyContainer<ContentNode>.extraToggleableContentType() = this[TabbedContentTypeExtra]
 
 private val ContentNode.sourceSetsFilters: String
     get() = sourceSets.sourceSetIDs.joinToString(" ") { it.toString() }

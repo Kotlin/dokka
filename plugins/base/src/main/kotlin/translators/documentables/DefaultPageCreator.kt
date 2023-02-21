@@ -313,31 +313,27 @@ open class DefaultPageCreator(
                 "Properties",
                 BasicTabbedContentType.PROPERTY,
                 memberProperties + extensionProperties,
-                sourceSets,
-                isVisibleHeader = isClasslike
+                sourceSets
             )
             propertiesBlock(
                 "Inherited properties",
                 BasicTabbedContentType.PROPERTY,
                 inheritedProperties + inheritedExtensionProperties,
-                sourceSets,
-                isVisibleHeader = isClasslike
+                sourceSets
             )
-            functionsBlock("Functions", BasicTabbedContentType.FUNCTION, memberFunctions + extensionFunctions, isVisibleHeader = isClasslike)
+            functionsBlock("Functions", BasicTabbedContentType.FUNCTION, memberFunctions + extensionFunctions)
             functionsBlock(
                 "Inherited functions",
                 BasicTabbedContentType.FUNCTION,
-                inheritedFunctions + inheritedExtensionFunctions,
-                isVisibleHeader = isClasslike
+                inheritedFunctions + inheritedExtensionFunctions
             )
         } else {
-            functionsBlock("Functions", BasicTabbedContentType.FUNCTION, functions + extensionFuns, isVisibleHeader = isClasslike)
+            functionsBlock("Functions", BasicTabbedContentType.FUNCTION, functions + extensionFuns)
             propertiesBlock(
                 "Properties",
                 BasicTabbedContentType.PROPERTY,
                 properties + extensionProps,
-                sourceSets,
-                isVisibleHeader = isClasslike
+                sourceSets
             )
         }
     }
@@ -437,7 +433,6 @@ open class DefaultPageCreator(
             needsSorting = false,
             needsAnchors = true,
             extra = mainExtra + TabbedContentTypeExtra(BasicTabbedContentType.ENTRY),
-            headerExtra = mainExtra + TabbedContentTypeExtra(BasicTabbedContentType.ENTRY),
             styles = emptySet()
         ) { key, ds ->
             link(key, ds.first().dri)
@@ -544,25 +539,14 @@ open class DefaultPageCreator(
     private fun DocumentableContentBuilder.functionsBlock(
         name: String,
         tabbedContentType: TabbedContentType,
-        list: Collection<DFunction>,
-        isVisibleHeader: Boolean = false
+        list: Collection<DFunction>
     ) {
         val onlyExtensions = list.all { it.isExtension() }
-        val headerExtra =
-            when {
-                // corner case: when we have only extensions, the header should be only for EXTENSION
-                onlyExtensions && isVisibleHeader -> mainExtra + TabbedContentTypeExtra(BasicTabbedContentType.EXTENSION)
-                isVisibleHeader -> mainExtra
-                !isVisibleHeader -> mainExtra + TabbedContentTypeExtra(BasicTabbedContentType.INVISIBLE)
-                else -> throw IllegalStateException()
-            }
-
         divergentBlock(
             name,
             list.sorted(),
             ContentKind.Functions,
-            extra = mainExtra + TabbedContentTypeExtra(tabbedContentType),
-            headerExtra = headerExtra
+            extra = mainExtra + TabbedContentTypeExtra(if (onlyExtensions) BasicTabbedContentType.EXTENSION else tabbedContentType)
         )
     }
 
@@ -570,8 +554,7 @@ open class DefaultPageCreator(
         name: String,
         tabbedContentType: TabbedContentType,
         list: Collection<DProperty>,
-        sourceSets: Set<DokkaSourceSet>,
-        isVisibleHeader: Boolean = false
+        sourceSets: Set<DokkaSourceSet>
     ) {
         data class NameAndIsExtension(val name:String, val isExtension: Boolean)
 
@@ -580,15 +563,6 @@ open class DefaultPageCreator(
             groupedElements.sortedWith(compareBy<Pair<NameAndIsExtension, List<DProperty>>, String>(String.CASE_INSENSITIVE_ORDER) { it.first.name }.thenBy { it.first.isExtension })
 
         val onlyExtensions = list.all { it.isExtension() }
-        val headerExtra =
-            when {
-                // corner case: when we have only extensions,  the header should be only for EXTENSION
-                onlyExtensions && isVisibleHeader -> mainExtra + TabbedContentTypeExtra(BasicTabbedContentType.EXTENSION)
-                isVisibleHeader -> mainExtra
-                !isVisibleHeader -> mainExtra + TabbedContentTypeExtra(BasicTabbedContentType.INVISIBLE)
-                else -> throw IllegalStateException()
-            }
-
         multiBlock(
             name,
             2,
@@ -596,11 +570,10 @@ open class DefaultPageCreator(
             sortedGroupedElements.map { it.first.name to it.second },
             sourceSets,
             needsAnchors = true,
-            extra = mainExtra + TabbedContentTypeExtra(tabbedContentType),
+            extra = mainExtra + TabbedContentTypeExtra(if(onlyExtensions)  BasicTabbedContentType.EXTENSION  else tabbedContentType),
             headers = listOf(
                 headers("Name", "Summary")
-            ),
-            headerExtra = headerExtra,
+            )
         ) { key, props ->
             val extra =
                 if (props.all { it.isExtension() }) mainExtra + TabbedContentTypeExtra(BasicTabbedContentType.EXTENSION) else mainExtra
