@@ -21,6 +21,6 @@ fun DokkaBootstrap(
         runtimeClassLoader.loadClass(bootstrapClass.qualifiedName)
     val runtimeClassloaderBootstrapInstance =
         runtimeClassloaderBootstrapClass.constructors.first().newInstance()
-    val proxy: DokkaBootstrap by dynamicCast { runtimeClassloaderBootstrapInstance }
+    val proxy: DokkaBootstrap by dynamicCast(runtimeClassLoader) { runtimeClassloaderBootstrapInstance }
     return proxy
 }

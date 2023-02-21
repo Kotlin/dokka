@@ -4,6 +4,7 @@ import java.lang.reflect.InvocationHandler
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 import java.lang.reflect.Proxy
+import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 
@@ -15,15 +16,17 @@ import kotlin.reflect.KProperty
  * to create access proxy for [delegate].
  */
 internal inline fun <reified T : Any> dynamicCast(
+    classLoader: ClassLoader = T::class.java.classLoader,
     noinline delegate: () -> Any,
 ): DynamicCastDelegate<T> =
-    DynamicCastDelegate(T::class, delegate)
+    DynamicCastDelegate(T::class, classLoader, delegate)
 
 
 internal class DynamicCastDelegate<out T : Any>(
     private val cls: KClass<T>,
+    private val classLoader: ClassLoader,
     delegateProvider: () -> Any,
-) : InvocationHandler {
+) : InvocationHandler, ReadOnlyProperty<Any?, T> {
 
     private val delegate = delegateProvider()
 
@@ -32,7 +35,7 @@ internal class DynamicCastDelegate<out T : Any>(
 
     private val proxy: T by lazy {
         val proxy = Proxy.newProxyInstance(
-            delegate.javaClass.classLoader,
+            classLoader,
             arrayOf(cls.java),
             this,
         )
@@ -59,7 +62,7 @@ internal class DynamicCastDelegate<out T : Any>(
     }
 
     /** Delegated value provider */
-    operator fun getValue(thisRef: Any?, property: KProperty<*>): T = proxy
+    override operator fun getValue(thisRef: Any?, property: KProperty<*>): T = proxy
 
     companion object {
         private infix fun Method.matches(other: Method): Boolean =
