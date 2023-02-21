@@ -19,8 +19,8 @@ class AbstractDokkaParentTaskTest {
     private val subSubproject0 = ProjectBuilder.builder().withName("subSubproject0").withParent(subproject0).build()
 
     init {
-        rootProject.subprojects { project ->
-            project.tasks.create<DokkaTask>("dokkaTask")
+        rootProject.subprojects {
+            tasks.create<DokkaTask>("dokkaTask")
         }
     }
 

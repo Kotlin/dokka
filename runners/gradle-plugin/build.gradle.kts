@@ -2,7 +2,7 @@ import org.gradle.configurationcache.extensions.serviceOf
 import org.jetbrains.*
 
 plugins {
-    `java-gradle-plugin`
+    `kotlin-dsl`
     id("com.gradle.plugin-publish") version "0.20.0"
 }
 
