@@ -520,3 +520,8 @@ interface DocumentableSource {
 }
 
 data class TypeConstructorWithKind(val typeConstructor: TypeConstructor, val kind: ClassKind)
+
+// Annotations might have constructors to substitute reflection invocations
+// and for internal/compiler purposes, but they are not expected to be documented
+// and instantiated directly under normal circumstances, so constructors should not be rendered.
+fun List<Documentable>.shouldDocumentConstructors() = !this.any { it is DAnnotation }

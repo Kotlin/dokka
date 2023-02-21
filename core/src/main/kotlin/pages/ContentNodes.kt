@@ -394,7 +394,8 @@ enum class TextStyle : Style {
 enum class ContentStyle : Style {
     RowTitle,
     /**
-     * The content must have [ContentTabsExtra] to define tabs.
+     * The style is used only for HTML
+     * Creating and rendering tabs is a part of a renderer.
      */
     TabbedContent,
 

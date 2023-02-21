@@ -2,7 +2,7 @@ package content.signatures
 
 import matchers.content.*
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
-import org.jetbrains.dokka.pages.BasicToggleableContentType
+import org.jetbrains.dokka.pages.BasicTabbedContentType
 import org.jetbrains.dokka.pages.ContentPage
 import org.junit.jupiter.api.Test
 
@@ -192,7 +192,7 @@ class ConstructorsSignaturesTest : BaseAbstractTest() {
                     }
                     tabbedGroup {
                         group {
-                            tab(BasicToggleableContentType.CONSTRUCTOR) {
+                            tab(BasicTabbedContentType.CONSTRUCTOR) {
                                 header { +"Constructors" }
                                 table {
                                     group {
@@ -275,7 +275,7 @@ class ConstructorsSignaturesTest : BaseAbstractTest() {
                     }
                     tabbedGroup {
                         group {
-                            tab(BasicToggleableContentType.CONSTRUCTOR) {
+                            tab(BasicTabbedContentType.CONSTRUCTOR) {
                                 header { +"Constructors" }
                                 table {
                                     group {
@@ -377,7 +377,7 @@ class ConstructorsSignaturesTest : BaseAbstractTest() {
                     }
                     tabbedGroup {
                         group {
-                            tab(BasicToggleableContentType.CONSTRUCTOR) {
+                            tab(BasicTabbedContentType.CONSTRUCTOR) {
                                 header { +"Constructors" }
                                 table {
                                     group {

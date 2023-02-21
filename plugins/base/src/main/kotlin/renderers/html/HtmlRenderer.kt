@@ -14,9 +14,11 @@ import org.jetbrains.dokka.base.renderers.html.innerTemplating.HtmlTemplater
 import org.jetbrains.dokka.base.resolvers.anchors.SymbolAnchorHint
 import org.jetbrains.dokka.base.resolvers.local.DokkaBaseLocationProvider
 import org.jetbrains.dokka.base.templating.*
+import org.jetbrains.dokka.base.transformers.documentables.CallableExtensions
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.properties.PropertyContainer
+import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.pages.HtmlContent
 import org.jetbrains.dokka.plugability.*
@@ -49,13 +51,6 @@ open class HtmlRenderer(
         if (context.configuration.delayTemplateSubstitution || this is ImmediateResolutionTagConsumer) this
         else ImmediateResolutionTagConsumer(this, context)
 
-    private fun <T : ContentNode> sortTabs(strategy: TabSortingStrategy, tabs: Collection<T>): List<T> {
-        val sorted = strategy.sort(tabs)
-        if (sorted.size != tabs.size)
-            context.logger.warn("Tab sorting strategy has changed number of tabs from ${tabs.size} to ${sorted.size}")
-        return sorted
-    }
-
     override fun ContentNode.build(
         builder: FlowContent,
         pageContext: ContentPage,
@@ -63,6 +58,77 @@ open class HtmlRenderer(
     ) {
         builder.buildContentNode(this, pageContext, sourceSetRestriction)
     }
+
+    private fun createTabs(documentables: List<Documentable>) =  if (documentables.all { it is DClasslike || it is DEnumEntry}) {
+        val csEnum = documentables.filterIsInstance<DEnum>()
+        val csWithConstructor = documentables.filterIsInstance<WithConstructors>()
+        val scopes = documentables.filterIsInstance<WithScope>()
+        val constructorsToDocumented = csWithConstructor.flatMap { it.constructors }
+
+        val containsRenderableConstructors = constructorsToDocumented.isNotEmpty() && documentables.shouldDocumentConstructors()
+        val containsRenderableMembers =
+            containsRenderableConstructors || scopes.any { it.classlikes.isNotEmpty() || it.functions.isNotEmpty() || it.properties.isNotEmpty() }
+
+        @Suppress("UNCHECKED_CAST")
+        val extensions = (documentables as List<WithExtraProperties<DClasslike>>).flatMap {
+            it.extra[CallableExtensions]?.extensions
+                ?.filterIsInstance<Documentable>().orEmpty()
+        }
+            .distinctBy { it.sourceSets to it.dri } // [Documentable] has expensive equals/hashCode at the moment, see #2620
+        listOfNotNull(
+            if(!containsRenderableMembers) null else
+            ContentTab(
+                "Members",
+                listOf(
+                    BasicTabbedContentType.CONSTRUCTOR,
+                    BasicTabbedContentType.TYPE,
+                    BasicTabbedContentType.FUNCTION,
+                    BasicTabbedContentType.PROPERTY
+                )
+            ),
+            if (extensions.isEmpty()) null else ContentTab(
+                "Members & Extensions",
+                listOf(
+                    BasicTabbedContentType.CONSTRUCTOR,
+                    BasicTabbedContentType.TYPE,
+                    BasicTabbedContentType.FUNCTION,
+                    BasicTabbedContentType.PROPERTY,
+                    BasicTabbedContentType.EXTENSION,
+                )
+            ),
+            if(csEnum.isEmpty()) null else ContentTab(
+                "Entries",
+                listOf(
+                    BasicTabbedContentType.ENTRY
+                )
+            )
+        )
+    } else if (documentables.all { it is DPackage }) {
+        val p = documentables.single() as DPackage
+        listOfNotNull(
+            ContentTab(
+                "Types",
+                listOf(
+                    BasicTabbedContentType.TYPE,
+                )
+            ),
+            if (p.functions.isEmpty()) null else ContentTab(
+                "Functions",
+                listOf(
+                    BasicTabbedContentType.FUNCTION,
+                    BasicTabbedContentType.EXTENSION,
+                )
+            ),
+            if (p.properties.isEmpty()) null else ContentTab(
+                "Properties",
+                listOf(
+                    BasicTabbedContentType.PROPERTY,
+                    BasicTabbedContentType.EXTENSION,
+                )
+            )
+        )
+    } else throw IllegalStateException("The tabbed content must have ContentTabsExtra")
+
 
     override fun FlowContent.wrapGroup(
         node: ContentGroup,
@@ -72,15 +138,19 @@ open class HtmlRenderer(
         val additionalClasses = node.style.joinToString(" ") { it.toString().toLowerCase() }
         return when {
             node.hasStyle(ContentStyle.TabbedContent) -> div(additionalClasses) {
-                val contentTabs= node.extra[ContentTabsExtra]?.tabs ?: throw IllegalStateException("The tabbed content must have ContentTabsExtra")
+                /**
+                 * This is not the bast implementation.
+                 * The idea behind it is to decrease public API that we are not sure about
+                 */
+                val contentTabs =createTabs(pageContext.documentables())
 
                 div(classes = "tabs-section") {
                     attributes["tabs-section"] = "tabs-section"
                     contentTabs.forEachIndexed { index, contentTab ->
                         button(classes = "section-tab") {
                             if (index == 0) attributes["data-active"] = ""
-                            attributes["data-togglable"] = contentTab.toggleableContentTypes.joinToString(",")
-                            contentTab.text.build(this, pageContext, node.sourceSets)
+                            attributes["data-togglable"] = contentTab.tabbedContentTypes.joinToString(",")
+                            text(contentTab.text)
                         }
                     }
                 }
@@ -197,7 +267,7 @@ open class HtmlRenderer(
         div(divStyles) {
             attributes["data-platform-hinted"] = "data-platform-hinted"
             extra.extraHtmlAttributes().forEach { attributes[it.extraKey] = it.extraValue }
-            extra.extraToggleableContentType()?.let { attributes[TOGGLEABLE_CONTENT_TYPE_ATTR] = it.value.toString() }
+            extra.extraToggleableContentType()?.let { attributes[TOGGLEABLE_CONTENT_TYPE_ATTR] = it.value.toHtmlAttribute() }
             if (renderTabs) {
                 div("platform-bookmarks-row") {
                     attributes["data-toggle-list"] = "data-toggle-list"
@@ -440,7 +510,7 @@ open class HtmlRenderer(
         buildAnchor(contextNode)
         div(classes = "table-row") {
             contextNode.extra.extraHtmlAttributes().forEach { attributes[it.extraKey] = it.extraValue }
-            contextNode.extra.extraToggleableContentType()?.let { attributes[TOGGLEABLE_CONTENT_TYPE_ATTR] = it.value.toString() }
+            contextNode.extra.extraToggleableContentType()?.let { attributes[TOGGLEABLE_CONTENT_TYPE_ATTR] = it.value.toHtmlAttribute() }
             addSourceSetFilteringAttributes(contextNode)
             div("main-subrow keyValue " + contextNode.style.joinToString(separator = " ")) {
                 buildRowHeaderLink(toRender, pageContext, sourceSetRestriction, contextNode.anchor)
@@ -545,7 +615,7 @@ open class HtmlRenderer(
             node.style.contains(CommentTable) -> buildDefaultTable(node, pageContext, sourceSetRestriction)
             else -> div(classes = "table") {
                 node.extra.extraHtmlAttributes().forEach { attributes[it.extraKey] = it.extraValue }
-                node.extra.extraToggleableContentType()?.let { attributes[TOGGLEABLE_CONTENT_TYPE_ATTR] = it.value.toString() }
+                node.extra.extraToggleableContentType()?.let { attributes[TOGGLEABLE_CONTENT_TYPE_ATTR] = it.value.toHtmlAttribute() }
                 node.children.forEach {
                     buildRow(it, pageContext, sourceSetRestriction)
                 }
@@ -590,7 +660,7 @@ open class HtmlRenderer(
         val classes = node.style.joinToString { it.toString() }.toLowerCase()
         val contentWithExtraAttributes: FlowContent.() -> Unit = {
             node.extra.extraHtmlAttributes().forEach { attributes[it.extraKey] = it.extraValue }
-            node.extra.extraToggleableContentType()?.let { attributes[TOGGLEABLE_CONTENT_TYPE_ATTR] = it.value.toString() }
+            node.extra.extraToggleableContentType()?.let { attributes[TOGGLEABLE_CONTENT_TYPE_ATTR] = it.value.toHtmlAttribute() }
             content()
         }
         when (level) {
@@ -865,6 +935,28 @@ open class HtmlRenderer(
     private val isPartial = context.configuration.delayTemplateSubstitution
 }
 
+private fun TabbedContentType.toHtmlAttribute(): String =
+    when(this) {
+        is BasicTabbedContentType ->
+            when(this) {
+                BasicTabbedContentType.ENTRY -> "ENTRY"
+                BasicTabbedContentType.TYPE -> "TYPE"
+                BasicTabbedContentType.CONSTRUCTOR -> "CONSTRUCTOR"
+                BasicTabbedContentType.FUNCTION -> "FUNCTION"
+                BasicTabbedContentType.PROPERTY -> "PROPERTY"
+                BasicTabbedContentType.EXTENSION -> "EXTENSION"
+                BasicTabbedContentType.INVISIBLE -> "INVISIBLE"
+            }
+    else -> throw IllegalStateException("Unknown TabbedContentType $this")
+    }
+
+/**
+ * Tabs for a content with [ContentStyle.TabbedContent].
+ *
+ * @see ContentStyle.TabbedContent]
+ */
+private data class ContentTab(val text: String, val tabbedContentTypes: List<TabbedContentType>)
+
 fun List<SimpleAttr>.joinAttr() = joinToString(" ") { it.extraKey + "=" + it.extraValue }
 
 private fun String.stripDiv() = drop(5).dropLast(6) // TODO: Find a way to do it without arbitrary trims
@@ -873,7 +965,7 @@ private val PageNode.isNavigable: Boolean
     get() = this !is RendererSpecificPage || strategy != RenderingStrategy.DoNothing
 
 private fun PropertyContainer<ContentNode>.extraHtmlAttributes() = allOfType<SimpleAttr>()
-private fun PropertyContainer<ContentNode>.extraToggleableContentType() = allOfType<ToggleableContentTypeExtra>().lastOrNull()
+private fun PropertyContainer<ContentNode>.extraToggleableContentType() = allOfType<TabbedContentTypeExtra>().lastOrNull()
 
 private val ContentNode.sourceSetsFilters: String
     get() = sourceSets.sourceSetIDs.joinToString(" ") { it.toString() }

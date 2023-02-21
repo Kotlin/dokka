@@ -198,7 +198,7 @@ fun ContentMatcherBuilder<*>.propertySignature(
     tabbedGroup {
         group {
             skipAllNotMatching()
-            tab(BasicToggleableContentType.PROPERTY) {
+            tab(BasicTabbedContentType.PROPERTY) {
                 header{ + "Properties" }
                 table {
                     group {
@@ -242,7 +242,7 @@ fun ContentMatcherBuilder<*>.typealiasSignature(name: String, expressionTarget: 
     }
     group {
         group {
-            tab(BasicToggleableContentType.TYPE) {
+            tab(BasicTabbedContentType.TYPE) {
                 header{ + "Types" }
                 table {
                     group {

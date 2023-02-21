@@ -55,9 +55,9 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
         }
     }
 
-    private fun ContentNode.findTabWithType(type: ToggleableContentType): ContentNode? = dfs { node ->
+    private fun ContentNode.findTabWithType(type: TabbedContentType): ContentNode? = dfs { node ->
         node.children.filterIsInstance<ContentGroup>().any { gr ->
-            gr.extra[ToggleableContentTypeExtra]?.value == type
+            gr.extra[TabbedContentTypeExtra]?.value == type
         }
     }
 
@@ -92,7 +92,7 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
                     .map { it.content }
 
                 val children = contentList.flatMap { content ->
-                    val functionTab = content.findTabWithType(BasicToggleableContentType.FUNCTION)
+                    val functionTab = content.findTabWithType(BasicTabbedContentType.FUNCTION)
                         ?: throw IllegalStateException("A function tab is not found")
 
                     functionTab.children[0].children.filterIsInstance<ContentTable>()

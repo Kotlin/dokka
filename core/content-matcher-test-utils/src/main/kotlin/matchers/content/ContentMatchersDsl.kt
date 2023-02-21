@@ -75,16 +75,16 @@ fun ContentMatcherBuilder<*>.tabbedGroup(
     block: ContentMatcherBuilder<ContentGroup>.() -> Unit
 ) = composite<ContentGroup> {
     block()
-    check { assertThat(this::extra).transform { extra -> extra[ContentTabsExtra] }.isNotNull() }
+    check { assertThat(this::style).transform { style -> style.contains(ContentStyle.TabbedContent) }.isEqualTo(true) }
 }
 
 fun ContentMatcherBuilder<*>.tab(
-    toggleableContentType: ToggleableContentType, block: ContentMatcherBuilder<ContentGroup>.() -> Unit
+    tabbedContentType: TabbedContentType, block: ContentMatcherBuilder<ContentGroup>.() -> Unit
 ) = composite<ContentGroup> {
     block()
     check {
-        assertThat(this::extra).transform { extra -> extra[ToggleableContentTypeExtra]?.value }
-            .isEqualTo(toggleableContentType)
+        assertThat(this::extra).transform { extra -> extra[TabbedContentTypeExtra]?.value }
+            .isEqualTo(tabbedContentType)
     }
 }
 

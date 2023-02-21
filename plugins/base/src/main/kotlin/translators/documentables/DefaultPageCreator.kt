@@ -90,7 +90,7 @@ open class DefaultPageCreator(
         }
 
         val constructors =
-            if (documentables.shouldRenderConstructors()) {
+            if (documentables.shouldDocumentConstructors()) {
                 documentables.flatMap { (it as? WithConstructors)?.constructors ?: emptyList() }
             } else {
                 emptyList()
@@ -251,44 +251,7 @@ open class DefaultPageCreator(
                 }
             }
         }
-        val contentTabsExtra = ContentTabsExtra(
-            listOfNotNull(
-                ContentTab(
-                    ContentText(
-                        "Types",
-                        DCI(mainDRI, ContentKind.Main),
-                        sourceSets = mainSourcesetData.toDisplaySourceSets()
-                    ),
-                    listOf(
-                        BasicToggleableContentType.TYPE,
-                    )
-                ),
-                if (p.functions.isEmpty()) null else ContentTab(
-                    ContentText(
-                        "Functions",
-                        DCI(mainDRI, ContentKind.Main),
-                        sourceSets = mainSourcesetData.toDisplaySourceSets()
-                    ),
-                    listOf(
-                        BasicToggleableContentType.FUNCTION,
-                        BasicToggleableContentType.EXTENSION,
-                    )
-                ),
-                if (p.properties.isEmpty()) null else ContentTab(
-                    ContentText(
-                        "Properties",
-                        DCI(mainDRI, ContentKind.Main),
-                        sourceSets = mainSourcesetData.toDisplaySourceSets()
-                    ),
-                    listOf(
-                        BasicToggleableContentType.PROPERTY,
-                        BasicToggleableContentType.EXTENSION,
-                    )
-                )
-
-            )
-        )
-        group(styles = setOf(ContentStyle.TabbedContent), extra = mainExtra + contentTabsExtra) {
+        group(styles = setOf(ContentStyle.TabbedContent), extra = mainExtra) {
             +contentForPackageScope(p, p.dri, p.sourceSets)
         }
     }
@@ -336,8 +299,8 @@ open class DefaultPageCreator(
             "Types",
             types,
             ContentKind.Classlikes,
-            extra = mainExtra + ToggleableContentTypeExtra(BasicToggleableContentType.TYPE),
-            headerExtra = if (isClasslike) mainExtra else mainExtra + ToggleableContentTypeExtra(BasicToggleableContentType.INVISIBLE)
+            extra = mainExtra + TabbedContentTypeExtra(BasicTabbedContentType.TYPE),
+            headerExtra = if (isClasslike) mainExtra else mainExtra + TabbedContentTypeExtra(BasicTabbedContentType.INVISIBLE)
         )
         val (extensionProps, extensionFuns) = extensions.splitPropsAndFuns()
         if (separateInheritedMembers) {
@@ -348,30 +311,30 @@ open class DefaultPageCreator(
             val (inheritedExtensionProperties, extensionProperties) = extensionProps.splitInheritedExtension(dri)
             propertiesBlock(
                 "Properties",
-                BasicToggleableContentType.PROPERTY,
+                BasicTabbedContentType.PROPERTY,
                 memberProperties + extensionProperties,
                 sourceSets,
                 isVisibleHeader = isClasslike
             )
             propertiesBlock(
                 "Inherited properties",
-                BasicToggleableContentType.PROPERTY,
+                BasicTabbedContentType.PROPERTY,
                 inheritedProperties + inheritedExtensionProperties,
                 sourceSets,
                 isVisibleHeader = isClasslike
             )
-            functionsBlock("Functions", BasicToggleableContentType.FUNCTION, memberFunctions + extensionFunctions, isVisibleHeader = isClasslike)
+            functionsBlock("Functions", BasicTabbedContentType.FUNCTION, memberFunctions + extensionFunctions, isVisibleHeader = isClasslike)
             functionsBlock(
                 "Inherited functions",
-                BasicToggleableContentType.FUNCTION,
+                BasicTabbedContentType.FUNCTION,
                 inheritedFunctions + inheritedExtensionFunctions,
                 isVisibleHeader = isClasslike
             )
         } else {
-            functionsBlock("Functions", BasicToggleableContentType.FUNCTION, functions + extensionFuns, isVisibleHeader = isClasslike)
+            functionsBlock("Functions", BasicTabbedContentType.FUNCTION, functions + extensionFuns, isVisibleHeader = isClasslike)
             propertiesBlock(
                 "Properties",
-                BasicToggleableContentType.PROPERTY,
+                BasicTabbedContentType.PROPERTY,
                 properties + extensionProps,
                 sourceSets,
                 isVisibleHeader = isClasslike
@@ -412,60 +375,12 @@ open class DefaultPageCreator(
             val scopes = documentables.filterIsInstance<WithScope>()
             val constructorsToDocumented = csWithConstructor.flatMap { it.constructors }
 
-            val containsRenderableConstructors = constructorsToDocumented.isNotEmpty() && documentables.shouldRenderConstructors()
-            val containsRenderableMembers =
-                containsRenderableConstructors || scopes.any { it.classlikes.isNotEmpty() || it.functions.isNotEmpty() || it.properties.isNotEmpty() }
-            val contentTabsExtra = ContentTabsExtra(
-                listOfNotNull(
-                    if (!containsRenderableMembers) null else ContentTab(
-                        ContentText(
-                            "Members",
-                            DCI(mainDRI, ContentKind.Main),
-                            sourceSets = (mainSourcesetData + extensions.sourceSets).toDisplaySourceSets()
-                        ),
-                        listOf(
-                            BasicToggleableContentType.CONSTRUCTOR,
-                            BasicToggleableContentType.TYPE,
-                            BasicToggleableContentType.FUNCTION,
-                            BasicToggleableContentType.INHERITED_FUNCTION,
-                            BasicToggleableContentType.PROPERTY,
-                            BasicToggleableContentType.INHERITED_PROPERTY
-                        )
-                    ),
-                    if (extensions.isEmpty()) null else ContentTab(
-                        ContentText(
-                            "Members & Extensions",
-                            DCI(mainDRI, ContentKind.Main),
-                            sourceSets = (mainSourcesetData + extensions.sourceSets).toDisplaySourceSets()
-                        ),
-                        listOf(
-                            BasicToggleableContentType.CONSTRUCTOR,
-                            BasicToggleableContentType.TYPE,
-                            BasicToggleableContentType.FUNCTION,
-                            BasicToggleableContentType.INHERITED_FUNCTION,
-                            BasicToggleableContentType.PROPERTY,
-                            BasicToggleableContentType.INHERITED_PROPERTY,
-                            BasicToggleableContentType.EXTENSION,
-                        )
-                    ),
-                    if(csEnum.isEmpty()) null else ContentTab(
-                        ContentText(
-                            "Entries",
-                            DCI(mainDRI, ContentKind.Main),
-                            sourceSets = (mainSourcesetData + extensions.sourceSets).toDisplaySourceSets()
-                        ),
-                        listOf(
-                            BasicToggleableContentType.ENTRY
-                        )
-                    )
-                )
-            )
             group(
                 styles = setOf(ContentStyle.TabbedContent),
                 sourceSets = mainSourcesetData + extensions.sourceSets,
-                extra = mainExtra + contentTabsExtra
+                extra = mainExtra
             ) {
-                if (constructorsToDocumented.isNotEmpty() && documentables.shouldRenderConstructors()) {
+                if (constructorsToDocumented.isNotEmpty() && documentables.shouldDocumentConstructors()) {
                     +contentForConstructors(constructorsToDocumented, classlikes.dri, classlikes.sourceSets)
                 }
                 if (csEnum.isNotEmpty()) {
@@ -488,8 +403,8 @@ open class DefaultPageCreator(
             @Suppress("UNCHECKED_CAST")
             (constructorsToDocumented as List<Documentable>).sourceSets,
             needsAnchors = true,
-            extra = PropertyContainer.empty<ContentNode>() + ToggleableContentTypeExtra(
-                BasicToggleableContentType.CONSTRUCTOR
+            extra = PropertyContainer.empty<ContentNode>() + TabbedContentTypeExtra(
+                BasicTabbedContentType.CONSTRUCTOR
             ),
         ) { key, ds ->
             link(key, ds.first().dri, kind = ContentKind.Main, styles = setOf(ContentStyle.RowTitle))
@@ -521,8 +436,8 @@ open class DefaultPageCreator(
             entries.sourceSets,
             needsSorting = false,
             needsAnchors = true,
-            extra = mainExtra + ToggleableContentTypeExtra(BasicToggleableContentType.ENTRY),
-            headerExtra = mainExtra + ToggleableContentTypeExtra(BasicToggleableContentType.ENTRY),
+            extra = mainExtra + TabbedContentTypeExtra(BasicTabbedContentType.ENTRY),
+            headerExtra = mainExtra + TabbedContentTypeExtra(BasicTabbedContentType.ENTRY),
             styles = emptySet()
         ) { key, ds ->
             link(key, ds.first().dri)
@@ -540,10 +455,7 @@ open class DefaultPageCreator(
         }
     }
 
-    // Annotations might have constructors to substitute reflection invocations
-    // and for internal/compiler purposes, but they are not expected to be documented
-    // and instantiated directly under normal circumstances, so constructors should not be rendered.
-    private fun List<Documentable>.shouldRenderConstructors() = !this.any { it is DAnnotation }
+
 
     protected open fun contentForDescription(
         d: Documentable
@@ -631,7 +543,7 @@ open class DefaultPageCreator(
 
     private fun DocumentableContentBuilder.functionsBlock(
         name: String,
-        toggleableContentType: ToggleableContentType,
+        tabbedContentType: TabbedContentType,
         list: Collection<DFunction>,
         isVisibleHeader: Boolean = false
     ) {
@@ -639,9 +551,9 @@ open class DefaultPageCreator(
         val headerExtra =
             when {
                 // corner case: when we have only extensions, the header should be only for EXTENSION
-                onlyExtensions && isVisibleHeader -> mainExtra + ToggleableContentTypeExtra(BasicToggleableContentType.EXTENSION)
+                onlyExtensions && isVisibleHeader -> mainExtra + TabbedContentTypeExtra(BasicTabbedContentType.EXTENSION)
                 isVisibleHeader -> mainExtra
-                !isVisibleHeader -> mainExtra + ToggleableContentTypeExtra(BasicToggleableContentType.INVISIBLE)
+                !isVisibleHeader -> mainExtra + TabbedContentTypeExtra(BasicTabbedContentType.INVISIBLE)
                 else -> throw IllegalStateException()
             }
 
@@ -649,14 +561,14 @@ open class DefaultPageCreator(
             name,
             list.sorted(),
             ContentKind.Functions,
-            extra = mainExtra + ToggleableContentTypeExtra(toggleableContentType),
+            extra = mainExtra + TabbedContentTypeExtra(tabbedContentType),
             headerExtra = headerExtra
         )
     }
 
     private fun DocumentableContentBuilder.propertiesBlock(
         name: String,
-        toggleableContentType: ToggleableContentType,
+        tabbedContentType: TabbedContentType,
         list: Collection<DProperty>,
         sourceSets: Set<DokkaSourceSet>,
         isVisibleHeader: Boolean = false
@@ -671,9 +583,9 @@ open class DefaultPageCreator(
         val headerExtra =
             when {
                 // corner case: when we have only extensions,  the header should be only for EXTENSION
-                onlyExtensions && isVisibleHeader -> mainExtra + ToggleableContentTypeExtra(BasicToggleableContentType.EXTENSION)
+                onlyExtensions && isVisibleHeader -> mainExtra + TabbedContentTypeExtra(BasicTabbedContentType.EXTENSION)
                 isVisibleHeader -> mainExtra
-                !isVisibleHeader -> mainExtra + ToggleableContentTypeExtra(BasicToggleableContentType.INVISIBLE)
+                !isVisibleHeader -> mainExtra + TabbedContentTypeExtra(BasicTabbedContentType.INVISIBLE)
                 else -> throw IllegalStateException()
             }
 
@@ -684,14 +596,14 @@ open class DefaultPageCreator(
             sortedGroupedElements.map { it.first.name to it.second },
             sourceSets,
             needsAnchors = true,
-            extra = mainExtra + ToggleableContentTypeExtra(toggleableContentType),
+            extra = mainExtra + TabbedContentTypeExtra(tabbedContentType),
             headers = listOf(
                 headers("Name", "Summary")
             ),
             headerExtra = headerExtra,
         ) { key, props ->
             val extra =
-                if (props.all { it.isExtension() }) mainExtra + ToggleableContentTypeExtra(BasicToggleableContentType.EXTENSION) else mainExtra
+                if (props.all { it.isExtension() }) mainExtra + TabbedContentTypeExtra(BasicTabbedContentType.EXTENSION) else mainExtra
             link(
                 text = key,
                 address = props.first().dri,
@@ -748,7 +660,7 @@ open class DefaultPageCreator(
                             val elementName = elementNameAndIsExtension.first
                             val isExtension = elementNameAndIsExtension.second
                             val rowExtra =
-                                if (isExtension) extra + ToggleableContentTypeExtra(BasicToggleableContentType.EXTENSION) else extra
+                                if (isExtension) extra + TabbedContentTypeExtra(BasicTabbedContentType.EXTENSION) else extra
 
                             row(
                                 dri = elements.map { it.dri }.toSet(),
