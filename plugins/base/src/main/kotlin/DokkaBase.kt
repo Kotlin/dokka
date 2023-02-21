@@ -54,7 +54,7 @@ class DokkaBase : DokkaPlugin() {
     val outputWriter by extensionPoint<OutputWriter>()
     val htmlPreprocessors by extensionPoint<PageTransformer>()
     val kotlinAnalysis by extensionPoint<KotlinAnalysis>()
-    @Deprecated("It is not used anymore. The order can be changed in `ContentTabsExtra`, for example, by a transformer")
+    @Deprecated("It is not used anymore")
     val tabSortingStrategy by extensionPoint<TabSortingStrategy>()
     val immediateHtmlCommandConsumer by extensionPoint<ImmediateHtmlCommandConsumer>()
     val externalDocumentablesProvider by extensionPoint<ExternalDocumentablesProvider>()

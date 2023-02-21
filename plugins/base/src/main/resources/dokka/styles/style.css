@@ -1299,6 +1299,6 @@ div.runnablesample {
 }
 
 // the hack to hide the headers inside tabs for a package page
-.main-content[documentable-type="package"] .tabs-section-body > h2 {
+.main-content[data-documentable-type="package"] .tabs-section-body > h2  !important {
     display: none;
 }

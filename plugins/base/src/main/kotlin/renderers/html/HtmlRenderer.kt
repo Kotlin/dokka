@@ -93,7 +93,8 @@ open class HtmlRenderer(
                     BasicTabbedContentType.TYPE,
                     BasicTabbedContentType.FUNCTION,
                     BasicTabbedContentType.PROPERTY,
-                    BasicTabbedContentType.EXTENSION,
+                    BasicTabbedContentType.EXTENSION_PROPERTY,
+                    BasicTabbedContentType.EXTENSION_FUNCTION
                 )
             ),
             if(csEnum.isEmpty()) null else ContentTab(
@@ -116,14 +117,14 @@ open class HtmlRenderer(
                 "Functions",
                 listOf(
                     BasicTabbedContentType.FUNCTION,
-                    BasicTabbedContentType.EXTENSION,
+                    BasicTabbedContentType.EXTENSION_FUNCTION,
                 )
             ),
             if (p.properties.isEmpty()) null else ContentTab(
                 "Properties",
                 listOf(
                     BasicTabbedContentType.PROPERTY,
-                    BasicTabbedContentType.EXTENSION,
+                    BasicTabbedContentType.EXTENSION_PROPERTY,
                 )
             )
         )
@@ -882,7 +883,7 @@ open class HtmlRenderer(
         templater.renderFromTemplate(DokkaTemplateTypes.BASE) {
             val generatedContent =
                 createHTML().div("main-content") {
-                    page.getDocumentableType()?.let { attributes["documentable-type"] = it }
+                    page.getDocumentableType()?.let { attributes["data-documentable-type"] = it }
                     id = "content"
                     (page as? ContentPage)?.let {
                         attributes["pageIds"] = "${context.configuration.moduleName}::${page.pageId}"
@@ -952,8 +953,8 @@ private fun TabbedContentType.toHtmlAttribute(): String =
                 BasicTabbedContentType.CONSTRUCTOR -> "CONSTRUCTOR"
                 BasicTabbedContentType.FUNCTION -> "FUNCTION"
                 BasicTabbedContentType.PROPERTY -> "PROPERTY"
-                BasicTabbedContentType.EXTENSION -> "EXTENSION"
-                BasicTabbedContentType.INVISIBLE -> "INVISIBLE"
+                BasicTabbedContentType.EXTENSION_PROPERTY -> "EXTENSION_PROPERTY"
+                BasicTabbedContentType.EXTENSION_FUNCTION -> "EXTENSION_FUNCTION"
             }
     else -> throw IllegalStateException("Unknown TabbedContentType $this")
     }

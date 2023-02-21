@@ -262,7 +262,7 @@ open class PageContentBuilder(
                                 val documentables = it.second
                                 val newExtraWithTab =
                                     if (documentables.all { it.isExtension() }) mainExtra + TabbedContentTypeExtra(
-                                        BasicTabbedContentType.EXTENSION
+                                        BasicTabbedContentType.EXTENSION_PROPERTY
                                     ) else mainExtra
                                 val newExtra = if (needsAnchors) newExtraWithTab + SymbolAnchorHint(
                                     it.first,

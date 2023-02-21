@@ -269,8 +269,7 @@ open class DefaultPageCreator(
             types,
             scopes.flatMap { it.functions },
             scopes.flatMap { it.properties },
-            extensions,
-            true
+            extensions
         )
     }
 
@@ -292,15 +291,13 @@ open class DefaultPageCreator(
         types: List<Documentable>,
         functions: List<DFunction>,
         properties: List<DProperty>,
-        extensions: List<Documentable>,
-        isClasslike: Boolean = false
+        extensions: List<Documentable>
     ) = contentBuilder.contentFor(dri, sourceSets) {
         divergentBlock(
             "Types",
             types,
             ContentKind.Classlikes,
-            extra = mainExtra + TabbedContentTypeExtra(BasicTabbedContentType.TYPE),
-            headerExtra = if (isClasslike) mainExtra else mainExtra + TabbedContentTypeExtra(BasicTabbedContentType.INVISIBLE)
+            extra = mainExtra + TabbedContentTypeExtra(BasicTabbedContentType.TYPE)
         )
         val (extensionProps, extensionFuns) = extensions.splitPropsAndFuns()
         if (separateInheritedMembers) {
@@ -546,7 +543,7 @@ open class DefaultPageCreator(
             name,
             list.sorted(),
             ContentKind.Functions,
-            extra = mainExtra + TabbedContentTypeExtra(if (onlyExtensions) BasicTabbedContentType.EXTENSION else tabbedContentType)
+            extra = mainExtra + TabbedContentTypeExtra(if (onlyExtensions) BasicTabbedContentType.EXTENSION_FUNCTION else tabbedContentType)
         )
     }
 
@@ -570,13 +567,13 @@ open class DefaultPageCreator(
             sortedGroupedElements.map { it.first.name to it.second },
             sourceSets,
             needsAnchors = true,
-            extra = mainExtra + TabbedContentTypeExtra(if(onlyExtensions)  BasicTabbedContentType.EXTENSION  else tabbedContentType),
+            extra = mainExtra + TabbedContentTypeExtra(if(onlyExtensions)  BasicTabbedContentType.EXTENSION_PROPERTY  else tabbedContentType),
             headers = listOf(
                 headers("Name", "Summary")
             )
         ) { key, props ->
             val extra =
-                if (props.all { it.isExtension() }) mainExtra + TabbedContentTypeExtra(BasicTabbedContentType.EXTENSION) else mainExtra
+                if (props.all { it.isExtension() }) mainExtra + TabbedContentTypeExtra(BasicTabbedContentType.EXTENSION_PROPERTY) else mainExtra
             link(
                 text = key,
                 address = props.first().dri,
@@ -633,7 +630,7 @@ open class DefaultPageCreator(
                             val elementName = elementNameAndIsExtension.first
                             val isExtension = elementNameAndIsExtension.second
                             val rowExtra =
-                                if (isExtension) extra + TabbedContentTypeExtra(BasicTabbedContentType.EXTENSION) else extra
+                                if (isExtension) extra + TabbedContentTypeExtra(BasicTabbedContentType.EXTENSION_FUNCTION) else extra
 
                             row(
                                 dri = elements.map { it.dri }.toSet(),

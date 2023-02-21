@@ -10,8 +10,7 @@ class SimpleAttr(val extraKey: String, val extraValue: String) : ExtraProperty<C
 
 const val TOGGLEABLE_CONTENT_TYPE_ATTR = "data-togglable"
 enum class BasicTabbedContentType : TabbedContentType {
-    TYPE, CONSTRUCTOR, FUNCTION, PROPERTY, ENTRY, EXTENSION,
-    INVISIBLE
+    TYPE, CONSTRUCTOR, FUNCTION, PROPERTY, ENTRY, EXTENSION_PROPERTY, EXTENSION_FUNCTION
 }
 
 /**
