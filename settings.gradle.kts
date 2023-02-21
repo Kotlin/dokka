@@ -43,7 +43,7 @@ pluginManagement {
     plugins {
         id("org.jetbrains.kotlin.jvm") version kotlin_version
         id("com.github.johnrengelman.shadow") version "7.1.2"
-        id("com.gradle.plugin-publish") version "0.20.0"
+        id("com.gradle.plugin-publish") version "1.1.0"
     }
 }
 
