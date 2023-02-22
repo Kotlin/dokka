@@ -8,7 +8,7 @@ repositories {
     gradlePluginPortal()
 }
 
-// TODO define versions in Gradle Version Catalog
+// TODO define versions in Gradle Version Catalog https://github.com/Kotlin/dokka/pull/2884
 val properties = file("../gradle.properties").inputStream().use {
     Properties().apply { load(it) }
 }
