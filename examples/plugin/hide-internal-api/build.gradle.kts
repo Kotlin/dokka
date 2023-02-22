@@ -1,4 +1,6 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompilerOptions
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 import java.net.URI
 
 plugins {
@@ -30,8 +32,8 @@ dependencies {
 val dokkaOutputDir = "$buildDir/dokka"
 
 tasks {
-    withType<KotlinCompile> {
-        kotlinOptions.jvmTarget = "1.8"
+    withType<KotlinCompilationTask<*>>().configureEach {
+        (compilerOptions as? KotlinJvmCompilerOptions)?.jvmTarget?.set(JvmTarget.JVM_1_8)
     }
     dokkaHtml {
         outputDirectory.set(file(dokkaOutputDir))

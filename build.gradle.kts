@@ -1,5 +1,8 @@
 import org.jetbrains.*
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompilerOptions
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 
 plugins {
     kotlin("jvm") apply false
@@ -16,21 +19,21 @@ allprojects {
     group = "org.jetbrains.dokka"
     version = dokka_version
 
-
     val language_version: String by project
-    tasks.withType(KotlinCompile::class).all {
-        kotlinOptions {
-            freeCompilerArgs = freeCompilerArgs + listOf(
-                "-opt-in=kotlin.RequiresOptIn",
-                "-Xjsr305=strict",
-                "-Xskip-metadata-version-check",
-                // need 1.4 support, otherwise there might be problems with Gradle 6.x (it's bundling Kotlin 1.4)
-                "-Xsuppress-version-warnings"
+    tasks.withType<KotlinCompilationTask<*>>().configureEach {
+        compilerOptions {
+            freeCompilerArgs.addAll(
+                listOf(
+                    "-opt-in=kotlin.RequiresOptIn",
+                    "-Xjsr305=strict",
+                    "-Xskip-metadata-version-check",
+                    // need 1.4 support, otherwise there might be problems with Gradle 6.x (it's bundling Kotlin 1.4)
+                    "-Xsuppress-version-warnings"
+                )
             )
-            allWarningsAsErrors = true
-            languageVersion = language_version
-            apiVersion = language_version
-            jvmTarget = "1.8"
+            allWarningsAsErrors.set(true)
+            languageVersion.set(KotlinVersion.fromVersion(language_version))
+            (this as? KotlinJvmCompilerOptions)?.jvmTarget?.set(JvmTarget.JVM_1_8)
         }
     }
 
