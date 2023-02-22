@@ -40,7 +40,6 @@ class DefaultTemplateModelFactory(val context: DokkaContext) : TemplateModelFact
         page: PageNode,
         resources: List<String>,
         locationProvider: LocationProvider,
-        shouldRenderSourceSetBubbles: Boolean,
         content: String
     ): TemplateMap {
         val path = locationProvider.resolve(page)
@@ -66,14 +65,17 @@ class DefaultTemplateModelFactory(val context: DokkaContext) : TemplateModelFact
         }
         mapper["template_cmd"] = TemplateDirective(context.configuration, pathToRoot)
 
-        if (shouldRenderSourceSetBubbles && page is ContentPage) {
+        if (page is ContentPage) {
             val sourceSets = page.content.withDescendants()
                 .flatMap { it.sourceSets }
                 .distinct()
                 .sortedBy { it.comparableKey }
                 .map { SourceSetModel(it.name, it.platform.key, it.sourceSetIDs.merged.toString()) }
                 .toList()
-            mapper["sourceSets"] = sourceSets
+
+            if (sourceSets.isNotEmpty()) {
+                mapper["sourceSets"] = sourceSets
+            }
         }
         return mapper
     }

@@ -4,7 +4,7 @@ import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.dokka.Platform
 
 plugins {
-    kotlin("multiplatform") version "1.7.20"
+    kotlin("multiplatform") version "1.8.10"
     id("org.jetbrains.dokka") version "1.7.20"
 }
 
@@ -19,7 +19,7 @@ kotlin {
     jvm() // Creates a JVM target with the default name "jvm"
     linuxX64("linux")
     macosX64("macos")
-    js()
+    js(BOTH)
     sourceSets {
         val commonMain by getting {
             dependencies {

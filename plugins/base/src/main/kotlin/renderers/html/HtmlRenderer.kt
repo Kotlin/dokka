@@ -41,7 +41,7 @@ open class HtmlRenderer(
         setupSharedModel(templateModelMerger.invoke(templateModelFactories) { buildSharedModel() })
     }
 
-    private var shouldRenderSourceSetBubbles: Boolean = false
+    private var shouldRenderSourceSetTabs: Boolean = false
 
     override val preprocessors = context.plugin<DokkaBase>().query { htmlPreprocessors }
 
@@ -143,29 +143,6 @@ open class HtmlRenderer(
         }
     }
 
-    private fun FlowContent.filterButtons(page: PageNode) {
-        if (shouldRenderSourceSetBubbles && page is ContentPage) {
-            div(classes = "filter-section") {
-                id = "filter-section"
-                page.content.withDescendants().flatMap { it.sourceSets }.distinct()
-                    .sortedBy { it.comparableKey }.forEach {
-                        button(classes = "platform-tag platform-selector") {
-                            attributes["data-active"] = ""
-                            attributes["data-filter"] = it.sourceSetIDs.merged.toString()
-                            when (it.platform.key) {
-                                "common" -> classes = classes + "common-like"
-                                "native" -> classes = classes + "native-like"
-                                "jvm" -> classes = classes + "jvm-like"
-                                "js" -> classes = classes + "js-like"
-                                "wasm" -> classes = classes + "wasm-like"
-                            }
-                            text(it.name)
-                        }
-                    }
-            }
-        }
-    }
-
     private fun FlowContent.copyButton() = span(classes = "top-right-position") {
         span("copy-icon")
         copiedPopup("Content copied to clipboard", "popup-to-left")
@@ -198,7 +175,7 @@ open class HtmlRenderer(
         pageContext: ContentPage,
         extra: PropertyContainer<ContentNode> = PropertyContainer.empty(),
         styles: Set<Style> = emptySet(),
-        shouldHaveTabs: Boolean = shouldRenderSourceSetBubbles
+        shouldHaveTabs: Boolean = shouldRenderSourceSetTabs
     ) {
         val contents = contentsForSourceSetDependent(nodes, pageContext)
         val isOnlyCommonContent = contents.singleOrNull()?.let { (sourceSet, _) ->
@@ -523,19 +500,17 @@ open class HtmlRenderer(
     }
 
     private fun FlowContent.createPlatformTagBubbles(sourceSets: List<DisplaySourceSet>, cssClasses: String = "") {
-        if (shouldRenderSourceSetBubbles) {
-            div("platform-tags $cssClasses") {
-                sourceSets.sortedBy { it.name }.forEach {
-                    div("platform-tag") {
-                        when (it.platform.key) {
-                            "common" -> classes = classes + "common-like"
-                            "native" -> classes = classes + "native-like"
-                            "jvm" -> classes = classes + "jvm-like"
-                            "js" -> classes = classes + "js-like"
-                            "wasm" -> classes = classes + "wasm-like"
-                        }
-                        text(it.name)
+        div("platform-tags $cssClasses") {
+            sourceSets.sortedBy { it.name }.forEach {
+                div("platform-tag") {
+                    when (it.platform.key) {
+                        "common" -> classes = classes + "common-like"
+                        "native" -> classes = classes + "native-like"
+                        "jvm" -> classes = classes + "jvm-like"
+                        "js" -> classes = classes + "js-like"
+                        "wasm" -> classes = classes + "wasm-like"
                     }
+                    text(it.name)
                 }
             }
         }
@@ -802,7 +777,7 @@ open class HtmlRenderer(
     }
 
     override fun render(root: RootPageNode) {
-        shouldRenderSourceSetBubbles = shouldRenderSourceSetBubbles(root)
+        shouldRenderSourceSetTabs = shouldRenderSourceSetTabs(root)
         super.render(root)
     }
 
@@ -828,7 +803,6 @@ open class HtmlRenderer(
                     page,
                     resources,
                     locationProvider,
-                    shouldRenderSourceSetBubbles,
                     generatedContent
                 )
             }

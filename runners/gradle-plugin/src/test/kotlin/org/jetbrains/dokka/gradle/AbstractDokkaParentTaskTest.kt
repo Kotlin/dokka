@@ -1,7 +1,8 @@
+@file:Suppress("DEPRECATION")
+
 package org.jetbrains.dokka.gradle
 
 import org.gradle.api.Project
-import org.gradle.api.UnknownTaskException
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.getByName
 import org.gradle.testfixtures.ProjectBuilder
@@ -18,8 +19,8 @@ class AbstractDokkaParentTaskTest {
     private val subSubproject0 = ProjectBuilder.builder().withName("subSubproject0").withParent(subproject0).build()
 
     init {
-        rootProject.subprojects { project ->
-            project.tasks.create<DokkaTask>("dokkaTask")
+        rootProject.subprojects {
+            tasks.create<DokkaTask>("dokkaTask")
         }
     }
 

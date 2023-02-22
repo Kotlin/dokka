@@ -621,7 +621,7 @@ public final class org/jetbrains/dokka/base/renderers/html/command/consumers/Res
 
 public final class org/jetbrains/dokka/base/renderers/html/innerTemplating/DefaultTemplateModelFactory : org/jetbrains/dokka/base/renderers/html/innerTemplating/TemplateModelFactory {
 	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
-	public fun buildModel (Lorg/jetbrains/dokka/pages/PageNode;Ljava/util/List;Lorg/jetbrains/dokka/base/resolvers/local/LocationProvider;ZLjava/lang/String;)Ljava/util/Map;
+	public fun buildModel (Lorg/jetbrains/dokka/pages/PageNode;Ljava/util/List;Lorg/jetbrains/dokka/base/resolvers/local/LocationProvider;Ljava/lang/String;)Ljava/util/Map;
 	public fun buildSharedModel ()Ljava/util/Map;
 	public final fun getContext ()Lorg/jetbrains/dokka/plugability/DokkaContext;
 }
@@ -660,7 +660,7 @@ public final class org/jetbrains/dokka/base/renderers/html/innerTemplating/HtmlT
 }
 
 public abstract interface class org/jetbrains/dokka/base/renderers/html/innerTemplating/TemplateModelFactory {
-	public abstract fun buildModel (Lorg/jetbrains/dokka/pages/PageNode;Ljava/util/List;Lorg/jetbrains/dokka/base/resolvers/local/LocationProvider;ZLjava/lang/String;)Ljava/util/Map;
+	public abstract fun buildModel (Lorg/jetbrains/dokka/pages/PageNode;Ljava/util/List;Lorg/jetbrains/dokka/base/resolvers/local/LocationProvider;Ljava/lang/String;)Ljava/util/Map;
 	public abstract fun buildSharedModel ()Ljava/util/Map;
 }
 

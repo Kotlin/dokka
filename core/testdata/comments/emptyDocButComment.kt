@@ -1,2 +1,0 @@
-/* comment */
-val property = "test"

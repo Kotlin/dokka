@@ -7,36 +7,6 @@ env:
   bucket-name: 'dokka-snapshots'
 
 jobs:
-  stdlib:
-    runs-on: ubuntu-latest
-    if: github.repository == 'Kotlin/dokka'
-    steps:
-      - name: Checkout dokka
-        uses: actions/checkout@v3
-        with:
-          submodules: true
-      - uses: actions/setup-java@v3
-        with:
-          distribution: 'zulu'
-          java-version: 12
-          cache: 'maven'
-      - name: Document stdlib
-        uses: gradle/gradle-build-action@v2
-        with:
-          arguments: :integration-tests:gradle:integrationTest --tests org.jetbrains.dokka.it.gradle.kotlin.StdlibGradleIntegrationTest --stacktrace
-        env:
-          DOKKA_TEST_OUTPUT_PATH: /home/runner/work/dokka/stdlib
-      - name: Configure AWS credentials for S3 access
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: eu-central-1
-      - name: Copy files to dokka's S3 bucket
-        run: ./integration-tests/aws_sync.sh s3://${{ env.bucket-name }} stdlib ../stdlib
-      - name: Print link
-        run: echo https://dokka-snapshots.s3.eu-central-1.amazonaws.com/${{ env.branch-name }}/stdlib/${GITHUB_SHA::7}/index.html
-
   coroutines:
     runs-on: ubuntu-latest
     if: github.repository == 'Kotlin/dokka'

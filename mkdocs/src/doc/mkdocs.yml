@@ -1,4 +1,4 @@
-site_name: Dokka documentation
+site_name: Dokka
 
 # Meta tags (placed in header)
 site_description: Dokka is an API documentation engine for Kotlin, performing the same function as the Javadoc tool for Java
@@ -8,10 +8,10 @@ site_url: https://github.com/Kotlin/dokka
 # Repository (add link to repository on each page)
 repo_name: dokka
 repo_url: https://github.com/Kotlin/dokka
-edit_uri: edit/master/docs/src/doc/docs/
+edit_uri: edit/master/mkdocs/src/doc/docs/
 
 # Copyright (shown at the footer)
-copyright: 'Copyright &copy; 2022 JetBrains'
+copyright: 'Copyright &copy; 2023 JetBrains'
 
 # Material theme
 theme:
@@ -51,27 +51,17 @@ markdown_extensions:
             class: mermaid
             format: !!python/name:pymdownx.superfences.fence_code_format
 
-# Dev server binding
-#dev_addr: 127.0.0.1:3001
+# Dev server binding for livereload
+dev_addr: 127.0.0.1:3001
 
 nav:
   - Home:
       - index.md
-      - User guides: user_guide/introduction.md
+      - User guides: https://kotlinlang.org/docs/dokka-introduction.html
       - Developer guides: developer_guide/introduction.md
       - Community: community/slack.md
-      - FAQ: faq.md
   - User guides:
-      - User guides: user_guide/introduction.md
-      - Applying Dokka:
-          - Gradle: user_guide/applying/gradle.md
-          - Maven: user_guide/applying/maven.md
-          - Command line: user_guide/applying/cli.md
-      - Output formats:
-          - HTML: user_guide/output-formats/html.md
-      - Plugins:
-          - Versioning plugin: user_guide/plugins/versioning-plugin.md
-          - Android plugin: user_guide/plugins/android-plugin.md
+      - https://kotlinlang.org/docs/dokka-introduction.html
   - Developer guides:
       - Developer guides: developer_guide/introduction.md
       - Workflow: developer_guide/workflow.md
@@ -90,10 +80,6 @@ nav:
           - Sample plugin tutorial: developer_guide/plugin-development/sample-plugin-tutorial.md
   - Community:
       - Slack: community/slack.md
-      - Community plugins: community/plugins-list.md
-  - FAQ: faq.md
 
 extra_css:
   - dokka_colors.css
-extra_javascript:
-  - survey_banner.js

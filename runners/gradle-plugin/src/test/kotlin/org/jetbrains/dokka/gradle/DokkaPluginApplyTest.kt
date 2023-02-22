@@ -1,6 +1,7 @@
 package org.jetbrains.dokka.gradle
 
 import org.gradle.api.plugins.JavaBasePlugin
+import org.gradle.api.tasks.TaskContainer
 import org.gradle.kotlin.dsl.withType
 import org.gradle.testfixtures.ProjectBuilder
 import kotlin.test.Test
@@ -55,24 +56,44 @@ class DokkaPluginApplyTest {
     fun `all dokka tasks are part of the documentation group`() {
         val project = ProjectBuilder.builder().build()
         project.plugins.apply("org.jetbrains.dokka")
-        project.tasks.filter { "dokka" in it.name.toLowerCase() }.forEach { dokkaTask ->
-            assertEquals(
-                JavaBasePlugin.DOCUMENTATION_GROUP, dokkaTask.group,
-                "Expected task: ${dokkaTask.path} group to be ${JavaBasePlugin.DOCUMENTATION_GROUP}"
-            )
-        }
+        assertDokkaTasksHaveDocumentationGroup(project.tasks)
+    }
+
+    @Test
+    fun `all dokka tasks are part of the documentation group in a multi module setup`() {
+        val root = ProjectBuilder.builder().withName("root").build()
+        val child = ProjectBuilder.builder().withName("child").withParent(root).build()
+        root.plugins.apply("org.jetbrains.dokka")
+        child.plugins.apply("org.jetbrains.dokka")
+        assertDokkaTasksHaveDocumentationGroup(root.tasks)
+        assertDokkaTasksHaveDocumentationGroup(child.tasks)
+    }
+
+    @Test
+    fun `old dokka tasks are part of the deprecated group in a multi module setup`() {
+        val root = ProjectBuilder.builder().withName("root").build()
+        val child = ProjectBuilder.builder().withName("child").withParent(root).build()
+        root.plugins.apply("org.jetbrains.dokka")
+        child.plugins.apply("org.jetbrains.dokka")
+        assertOldDokkaTasksHaveDeprecatedGroup(root.tasks)
+        assertOldDokkaTasksHaveDeprecatedGroup(child.tasks)
     }
 
     @Test
     fun `all dokka tasks provide a task description`() {
         val project = ProjectBuilder.builder().build()
         project.plugins.apply("org.jetbrains.dokka")
-        project.tasks.filter { "dokka" in it.name.toLowerCase() }.forEach { dokkaTask ->
-            assertTrue(
-                dokkaTask.description.orEmpty().isNotEmpty(),
-                "Expected description for task ${dokkaTask.name}"
-            )
-        }
+        assertDokkaTasksHaveDescription(project.tasks)
+    }
+
+    @Test
+    fun `all dokka tasks provide a task description in a multi module setup`() {
+        val root = ProjectBuilder.builder().withName("root").build()
+        val child = ProjectBuilder.builder().withName("child").withParent(root).build()
+        root.plugins.apply("org.jetbrains.dokka")
+        child.plugins.apply("org.jetbrains.dokka")
+        assertDokkaTasksHaveDescription(root.tasks)
+        assertDokkaTasksHaveDescription(child.tasks)
     }
 
     @Test
@@ -92,5 +113,37 @@ class DokkaPluginApplyTest {
                 "Expected child dokka task from child project"
             )
         }
+    }
+}
+
+private fun assertDokkaTasksHaveDocumentationGroup(taskContainer: TaskContainer) {
+    taskContainer.withType<AbstractDokkaTask>().forEach { dokkaTask ->
+        assertEquals(
+            JavaBasePlugin.DOCUMENTATION_GROUP,
+            dokkaTask.group,
+            "Expected task: ${dokkaTask.path} group to be \"${JavaBasePlugin.DOCUMENTATION_GROUP}\""
+        )
+    }
+}
+
+private fun assertOldDokkaTasksHaveDeprecatedGroup(taskContainer: TaskContainer) {
+    taskContainer.names.filter { "Multimodule" in it }.forEach { dokkaTaskName ->
+        val dokkaTask = taskContainer.getByName(dokkaTaskName)
+        val expectedGroup = "deprecated"
+        assertEquals(
+            expectedGroup,
+            dokkaTask.group,
+            "Expected task: ${dokkaTask.path} group to be \"${expectedGroup}\""
+        )
+    }
+}
+
+private fun assertDokkaTasksHaveDescription(taskContainer: TaskContainer) {
+    taskContainer.withType<AbstractDokkaTask>().forEach { dokkaTask ->
+        assertTrue(
+            @Suppress("UselessCallOnNotNull") // Task.description is nullable, but not inherited as Kotlin sees it.
+            dokkaTask.description.orEmpty().isNotEmpty(),
+            "Expected description for task ${dokkaTask.name}"
+        )
     }
 }
