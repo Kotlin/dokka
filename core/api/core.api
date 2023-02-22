@@ -1449,6 +1449,7 @@ public abstract class org/jetbrains/dokka/model/Documentable : org/jetbrains/dok
 public final class org/jetbrains/dokka/model/DocumentableKt {
 	public static final fun dfs (Lorg/jetbrains/dokka/model/Documentable;Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/dokka/model/Documentable;
 	public static final fun orEmpty (Ljava/util/Map;)Ljava/util/Map;
+	public static final fun shouldDocumentConstructors (Ljava/util/List;)Z
 	public static final fun withDri (Lorg/jetbrains/dokka/model/Variance;Lorg/jetbrains/dokka/links/DRI;)Lorg/jetbrains/dokka/model/Variance;
 }
 
@@ -1460,6 +1461,7 @@ public final class org/jetbrains/dokka/model/DocumentableUtilsKt {
 	public static final fun filter (Lorg/jetbrains/dokka/model/DTypeParameter;Ljava/util/Set;)Lorg/jetbrains/dokka/model/DTypeParameter;
 	public static final fun filtered (Ljava/util/Map;Ljava/util/Set;)Ljava/util/Map;
 	public static final fun filtered (Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Ljava/util/Set;)Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;
+	public static final fun isExtension (Lorg/jetbrains/dokka/model/Documentable;)Z
 }
 
 public final class org/jetbrains/dokka/model/DoubleConstant : org/jetbrains/dokka/model/Expression {
@@ -3469,17 +3471,16 @@ public abstract interface class org/jetbrains/dokka/model/properties/WithExtraPr
 	public abstract fun withNewExtras (Lorg/jetbrains/dokka/model/properties/PropertyContainer;)Ljava/lang/Object;
 }
 
-public final class org/jetbrains/dokka/pages/BasicToggleableContentType : java/lang/Enum, org/jetbrains/dokka/pages/ToggleableContentType {
-	public static final field CONSTRUCTOR Lorg/jetbrains/dokka/pages/BasicToggleableContentType;
-	public static final field ENTRY Lorg/jetbrains/dokka/pages/BasicToggleableContentType;
-	public static final field EXTENSION Lorg/jetbrains/dokka/pages/BasicToggleableContentType;
-	public static final field FUNCTION Lorg/jetbrains/dokka/pages/BasicToggleableContentType;
-	public static final field INHERITED_FUNCTION Lorg/jetbrains/dokka/pages/BasicToggleableContentType;
-	public static final field INHERITED_PROPERTY Lorg/jetbrains/dokka/pages/BasicToggleableContentType;
-	public static final field PROPERTY Lorg/jetbrains/dokka/pages/BasicToggleableContentType;
-	public static final field TYPE Lorg/jetbrains/dokka/pages/BasicToggleableContentType;
-	public static fun valueOf (Ljava/lang/String;)Lorg/jetbrains/dokka/pages/BasicToggleableContentType;
-	public static fun values ()[Lorg/jetbrains/dokka/pages/BasicToggleableContentType;
+public final class org/jetbrains/dokka/pages/BasicTabbedContentType : java/lang/Enum, org/jetbrains/dokka/pages/TabbedContentType {
+	public static final field CONSTRUCTOR Lorg/jetbrains/dokka/pages/BasicTabbedContentType;
+	public static final field ENTRY Lorg/jetbrains/dokka/pages/BasicTabbedContentType;
+	public static final field EXTENSION_FUNCTION Lorg/jetbrains/dokka/pages/BasicTabbedContentType;
+	public static final field EXTENSION_PROPERTY Lorg/jetbrains/dokka/pages/BasicTabbedContentType;
+	public static final field FUNCTION Lorg/jetbrains/dokka/pages/BasicTabbedContentType;
+	public static final field PROPERTY Lorg/jetbrains/dokka/pages/BasicTabbedContentType;
+	public static final field TYPE Lorg/jetbrains/dokka/pages/BasicTabbedContentType;
+	public static fun valueOf (Ljava/lang/String;)Lorg/jetbrains/dokka/pages/BasicTabbedContentType;
+	public static fun values ()[Lorg/jetbrains/dokka/pages/BasicTabbedContentType;
 }
 
 public abstract interface class org/jetbrains/dokka/pages/ClasslikePage : org/jetbrains/dokka/pages/ContentPage, org/jetbrains/dokka/pages/WithDocumentables {
@@ -3946,19 +3947,6 @@ public final class org/jetbrains/dokka/pages/ContentStyle : java/lang/Enum, org/
 	public static fun values ()[Lorg/jetbrains/dokka/pages/ContentStyle;
 }
 
-public final class org/jetbrains/dokka/pages/ContentTab {
-	public fun <init> (Lorg/jetbrains/dokka/pages/ContentText;Ljava/util/List;)V
-	public final fun component1 ()Lorg/jetbrains/dokka/pages/ContentText;
-	public final fun component2 ()Ljava/util/List;
-	public final fun copy (Lorg/jetbrains/dokka/pages/ContentText;Ljava/util/List;)Lorg/jetbrains/dokka/pages/ContentTab;
-	public static synthetic fun copy$default (Lorg/jetbrains/dokka/pages/ContentTab;Lorg/jetbrains/dokka/pages/ContentText;Ljava/util/List;ILjava/lang/Object;)Lorg/jetbrains/dokka/pages/ContentTab;
-	public fun equals (Ljava/lang/Object;)Z
-	public final fun getText ()Lorg/jetbrains/dokka/pages/ContentText;
-	public final fun getToggleableContentTypes ()Ljava/util/List;
-	public fun hashCode ()I
-	public fun toString ()Ljava/lang/String;
-}
-
 public final class org/jetbrains/dokka/pages/ContentTable : org/jetbrains/dokka/pages/ContentComposite {
 	public fun <init> (Ljava/util/List;Lorg/jetbrains/dokka/pages/ContentGroup;Ljava/util/List;Lorg/jetbrains/dokka/pages/DCI;Ljava/util/Set;Ljava/util/Set;Lorg/jetbrains/dokka/model/properties/PropertyContainer;)V
 	public synthetic fun <init> (Ljava/util/List;Lorg/jetbrains/dokka/pages/ContentGroup;Ljava/util/List;Lorg/jetbrains/dokka/pages/DCI;Ljava/util/Set;Ljava/util/Set;Lorg/jetbrains/dokka/model/properties/PropertyContainer;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
@@ -3988,18 +3976,6 @@ public final class org/jetbrains/dokka/pages/ContentTable : org/jetbrains/dokka/
 	public fun withNewExtras (Lorg/jetbrains/dokka/model/properties/PropertyContainer;)Lorg/jetbrains/dokka/pages/ContentTable;
 	public synthetic fun withSourceSets (Ljava/util/Set;)Lorg/jetbrains/dokka/pages/ContentNode;
 	public fun withSourceSets (Ljava/util/Set;)Lorg/jetbrains/dokka/pages/ContentTable;
-}
-
-public final class org/jetbrains/dokka/pages/ContentTabsExtra : org/jetbrains/dokka/model/properties/ExtraProperty {
-	public static final field Companion Lorg/jetbrains/dokka/pages/ContentTabsExtra$Companion;
-	public fun <init> (Ljava/util/List;)V
-	public fun getKey ()Lorg/jetbrains/dokka/model/properties/ExtraProperty$Key;
-	public final fun getTabs ()Ljava/util/List;
-}
-
-public final class org/jetbrains/dokka/pages/ContentTabsExtra$Companion : org/jetbrains/dokka/model/properties/ExtraProperty$Key {
-	public synthetic fun mergeStrategyFor (Ljava/lang/Object;Ljava/lang/Object;)Lorg/jetbrains/dokka/model/properties/MergeStrategy;
-	public fun mergeStrategyFor (Lorg/jetbrains/dokka/pages/ContentTabsExtra;Lorg/jetbrains/dokka/pages/ContentTabsExtra;)Lorg/jetbrains/dokka/model/properties/MergeStrategy;
 }
 
 public final class org/jetbrains/dokka/pages/ContentText : org/jetbrains/dokka/pages/ContentNode {
@@ -4319,6 +4295,21 @@ public final class org/jetbrains/dokka/pages/SymbolContentKind : java/lang/Enum,
 	public static fun values ()[Lorg/jetbrains/dokka/pages/SymbolContentKind;
 }
 
+public abstract interface class org/jetbrains/dokka/pages/TabbedContentType {
+}
+
+public final class org/jetbrains/dokka/pages/TabbedContentTypeExtra : org/jetbrains/dokka/model/properties/ExtraProperty {
+	public static final field Companion Lorg/jetbrains/dokka/pages/TabbedContentTypeExtra$Companion;
+	public fun <init> (Lorg/jetbrains/dokka/pages/TabbedContentType;)V
+	public fun getKey ()Lorg/jetbrains/dokka/model/properties/ExtraProperty$Key;
+	public final fun getValue ()Lorg/jetbrains/dokka/pages/TabbedContentType;
+}
+
+public final class org/jetbrains/dokka/pages/TabbedContentTypeExtra$Companion : org/jetbrains/dokka/model/properties/ExtraProperty$Key {
+	public synthetic fun mergeStrategyFor (Ljava/lang/Object;Ljava/lang/Object;)Lorg/jetbrains/dokka/model/properties/MergeStrategy;
+	public fun mergeStrategyFor (Lorg/jetbrains/dokka/pages/TabbedContentTypeExtra;Lorg/jetbrains/dokka/pages/TabbedContentTypeExtra;)Lorg/jetbrains/dokka/model/properties/MergeStrategy;
+}
+
 public final class org/jetbrains/dokka/pages/TextStyle : java/lang/Enum, org/jetbrains/dokka/pages/Style {
 	public static final field Block Lorg/jetbrains/dokka/pages/TextStyle;
 	public static final field Bold Lorg/jetbrains/dokka/pages/TextStyle;
@@ -4340,21 +4331,6 @@ public final class org/jetbrains/dokka/pages/TextStyle : java/lang/Enum, org/jet
 	public static final field Var Lorg/jetbrains/dokka/pages/TextStyle;
 	public static fun valueOf (Ljava/lang/String;)Lorg/jetbrains/dokka/pages/TextStyle;
 	public static fun values ()[Lorg/jetbrains/dokka/pages/TextStyle;
-}
-
-public abstract interface class org/jetbrains/dokka/pages/ToggleableContentType {
-}
-
-public final class org/jetbrains/dokka/pages/ToggleableContentTypeExtra : org/jetbrains/dokka/model/properties/ExtraProperty {
-	public static final field Companion Lorg/jetbrains/dokka/pages/ToggleableContentTypeExtra$Companion;
-	public fun <init> (Lorg/jetbrains/dokka/pages/ToggleableContentType;)V
-	public fun getKey ()Lorg/jetbrains/dokka/model/properties/ExtraProperty$Key;
-	public final fun getValue ()Lorg/jetbrains/dokka/pages/ToggleableContentType;
-}
-
-public final class org/jetbrains/dokka/pages/ToggleableContentTypeExtra$Companion : org/jetbrains/dokka/model/properties/ExtraProperty$Key {
-	public synthetic fun mergeStrategyFor (Ljava/lang/Object;Ljava/lang/Object;)Lorg/jetbrains/dokka/model/properties/MergeStrategy;
-	public fun mergeStrategyFor (Lorg/jetbrains/dokka/pages/ToggleableContentTypeExtra;Lorg/jetbrains/dokka/pages/ToggleableContentTypeExtra;)Lorg/jetbrains/dokka/model/properties/MergeStrategy;
 }
 
 public final class org/jetbrains/dokka/pages/TokenStyle : java/lang/Enum, org/jetbrains/dokka/pages/Style {

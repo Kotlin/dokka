@@ -244,11 +244,17 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
                                 link {
                                     +"publicProperty"
                                 }
-                                platformHinted {
-                                    group {
-                                        +"public Int"
-                                        link {
-                                            +"publicProperty"
+                                divergentGroup {
+                                    divergentInstance {
+                                        divergent {
+                                            group {
+                                                group {
+                                                    +"public Int"
+                                                    link {
+                                                        +"publicProperty"
+                                                    }
+                                                }
+                                            }
                                         }
                                     }
                                 }

@@ -18,6 +18,7 @@ import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.utilities.DokkaLogger
+import java.util.Comparator
 import kotlin.reflect.KClass
 
 internal typealias GroupedTags = Map<KClass<out TagWrapper>, List<Pair<DokkaSourceSet?, TagWrapper>>>
@@ -192,7 +193,7 @@ open class DefaultPageCreator(
         return Pair(first, second)
     }
 
-    private fun <T> Collection<T>.splitInheritedExtension(dri: Set<DRI>): Pair<List<T>, List<T>> where T : Callable =
+    private fun <T> Collection<T>.splitInheritedExtension(dri: Set<DRI>): Pair<List<T>, List<T>> where T : org.jetbrains.dokka.model.Callable =
         partition { it.receiver?.dri !in dri }
 
     private fun <T> Collection<T>.splitInherited(): Pair<List<T>, List<T>> where T : Documentable, T : WithExtraProperties<T> =
@@ -309,14 +310,12 @@ open class DefaultPageCreator(
             propertiesBlock(
                 "Properties",
                 BasicTabbedContentType.PROPERTY,
-                memberProperties + extensionProperties,
-                sourceSets
+                memberProperties + extensionProperties
             )
             propertiesBlock(
                 "Inherited properties",
                 BasicTabbedContentType.PROPERTY,
-                inheritedProperties + inheritedExtensionProperties,
-                sourceSets
+                inheritedProperties + inheritedExtensionProperties
             )
             functionsBlock("Functions", BasicTabbedContentType.FUNCTION, memberFunctions + extensionFunctions)
             functionsBlock(
@@ -329,8 +328,7 @@ open class DefaultPageCreator(
             propertiesBlock(
                 "Properties",
                 BasicTabbedContentType.PROPERTY,
-                properties + extensionProps,
-                sourceSets
+                properties + extensionProps
             )
         }
     }
@@ -550,110 +548,82 @@ open class DefaultPageCreator(
     private fun DocumentableContentBuilder.propertiesBlock(
         name: String,
         tabbedContentType: TabbedContentType,
-        list: Collection<DProperty>,
-        sourceSets: Set<DokkaSourceSet>
+        list: Collection<DProperty>
     ) {
-        data class NameAndIsExtension(val name:String, val isExtension: Boolean)
-
-        val groupedElements = list.groupBy { NameAndIsExtension(it.name, it.isExtension()) }.toList()
-        val sortedGroupedElements =
-            groupedElements.sortedWith(compareBy<Pair<NameAndIsExtension, List<DProperty>>, String>(String.CASE_INSENSITIVE_ORDER) { it.first.name }.thenBy { it.first.isExtension })
-
         val onlyExtensions = list.all { it.isExtension() }
-        multiBlock(
+        divergentBlock(
             name,
-            2,
+            list,
             ContentKind.Properties,
-            sortedGroupedElements.map { it.first.name to it.second },
-            sourceSets,
-            needsAnchors = true,
-            extra = mainExtra + TabbedContentTypeExtra(if(onlyExtensions)  BasicTabbedContentType.EXTENSION_PROPERTY  else tabbedContentType),
-            headers = listOf(
-                headers("Name", "Summary")
-            )
-        ) { key, props ->
-            val extra =
-                if (props.all { it.isExtension() }) mainExtra + TabbedContentTypeExtra(BasicTabbedContentType.EXTENSION_PROPERTY) else mainExtra
-            link(
-                text = key,
-                address = props.first().dri,
-                kind = ContentKind.Main,
-                styles = setOf(ContentStyle.RowTitle),
-                extra = extra
-            )
-            sourceSetDependentHint(
-                props.dri,
-                props.sourceSets,
-                kind = ContentKind.SourceSetDependentHint,
-                extra = extra
-            ) {
+            extra = mainExtra + TabbedContentTypeExtra(if (onlyExtensions) BasicTabbedContentType.EXTENSION_PROPERTY else tabbedContentType)
+        )
 
-                props.forEach {
-                    +buildSignature(it)
-                    contentForBrief(it)
-                    contentForCustomTagsBrief(it)
-                }
-            }
-        }
     }
+    private data class NameAndIsExtension(val name:String?, val isExtension: Boolean)
 
-    private val groupKeyComparator: Comparator<Map.Entry<String?, *>> =
-        compareBy(nullsFirst(canonicalAlphabeticalOrder)) { it.key }
+    private fun groupAndSortDivergentCollection(collection: Collection<Documentable>): List<Map.Entry<NameAndIsExtension, List<Documentable>>> {
+        val groupKeyComparator: Comparator<Map.Entry<NameAndIsExtension, List<Documentable>>> =
+            compareBy<Map.Entry<NameAndIsExtension, List<Documentable>>, String?>(
+                nullsFirst(canonicalAlphabeticalOrder)
+            ) { it.key.name }
+                .thenBy { it.key.isExtension }
+
+       return collection
+            .groupBy {
+                NameAndIsExtension(
+                    it.name,
+                    it.isExtension()
+                )
+            } // This groupBy should probably use LocationProvider
+            // This hacks displaying actual typealias signatures along classlike ones
+            .mapValues { if (it.value.any { it is DClasslike }) it.value.filter { it !is DTypeAlias } else it.value }
+            .entries.sortedWith(groupKeyComparator)
+    }
 
     protected open fun DocumentableContentBuilder.divergentBlock(
         name: String,
         collection: Collection<Documentable>,
         kind: ContentKind,
-        extra: PropertyContainer<ContentNode> = mainExtra,
-        headerExtra: PropertyContainer<ContentNode> = extra
+        extra: PropertyContainer<ContentNode> = mainExtra
     ) {
         if (collection.any()) {
             group(extra = extra) {
-                header(2, name, kind = kind, extra = headerExtra) { }
-
+                header(2, name, kind = kind) { }
+                val isFunctions = collection.any { it is DFunction }
                 table(kind, extra = extra, styles = emptySet()) {
                     header {
                         group { text("Name") }
                         group { text("Summary") }
                     }
-                    collection
-                        .groupBy {
-                            Pair(
-                                it.name,
-                                it.isExtension()
-                            )
-                        } // This groupBy should probably use LocationProvider
-                        // This hacks displaying actual typealias signatures along classlike ones
-                        .mapValues { if (it.value.any { it is DClasslike }) it.value.filter { it !is DTypeAlias } else it.value }
-                        .toSortedMap(compareBy<Pair<String?, Boolean>, String?>(nullsLast(String.CASE_INSENSITIVE_ORDER)) { it.first }.thenBy { it.second })
+                        groupAndSortDivergentCollection(collection)
                         .forEach { (elementNameAndIsExtension, elements) -> // This groupBy should probably use LocationProvider
-                            val elementName = elementNameAndIsExtension.first
-                            val isExtension = elementNameAndIsExtension.second
+                            val elementName = elementNameAndIsExtension.name
+                            val isExtension = elementNameAndIsExtension.isExtension
                             val rowExtra =
-                                if (isExtension) extra + TabbedContentTypeExtra(BasicTabbedContentType.EXTENSION_FUNCTION) else extra
-
+                                if (isExtension) extra + TabbedContentTypeExtra(if(isFunctions) BasicTabbedContentType.EXTENSION_FUNCTION else BasicTabbedContentType.EXTENSION_PROPERTY) else extra
+                            val sortedElements = sortDivergentElementsDeterministically(elements)
                             row(
-                                dri = elements.map { it.dri }.toSet(),
-                                sourceSets = elements.flatMap { it.sourceSets }.toSet(),
+                                dri = sortedElements.map { it.dri }.toSet(),
+                                sourceSets = sortedElements.flatMap { it.sourceSets }.toSet(),
                                 kind = kind,
                                 styles = emptySet(),
                                 extra = elementName?.let { name -> rowExtra + SymbolAnchorHint(name, kind) } ?: rowExtra
                             ) {
                                 link(
                                     text = elementName.orEmpty(),
-                                    address = elements.first().dri,
+                                    address = sortedElements.first().dri,
                                     kind = kind,
                                     styles = setOf(ContentStyle.RowTitle),
-                                    sourceSets = elements.sourceSets.toSet(),
+                                    sourceSets = sortedElements.sourceSets.toSet(),
                                     extra = extra
                                 )
                                 divergentGroup(
                                     ContentDivergentGroup.GroupID(name),
-                                    elements.map { it.dri }.toSet(),
+                                    sortedElements.map { it.dri }.toSet(),
                                     kind = kind,
                                     extra = extra
                                 ) {
-                                    elements.map { element ->
+                                    sortedElements.map { element ->
                                         instance(
                                             setOf(element.dri),
                                             element.sourceSets.toSet(),

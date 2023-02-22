@@ -179,7 +179,7 @@ class MergeImplicitExpectActualDeclarationsTest : BaseAbstractTest() {
 
                 assertEquals(
                     2,
-                    prop1.firstChildOfType<PlatformHintedContent>().inner.children.size,
+                    prop1.firstChildOfType<ContentDivergentGroup>().children.size,
                     "Incorrect number of divergent instances found"
                 )
 

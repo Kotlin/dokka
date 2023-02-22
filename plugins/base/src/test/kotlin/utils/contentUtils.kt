@@ -203,27 +203,33 @@ fun ContentMatcherBuilder<*>.propertySignature(
                 table {
                     group {
                         link { +name }
-                        platformHinted {
-                            group {
-                                annotations.entries.forEach {
+                        divergentGroup {
+                            divergentInstance {
+                                divergent {
                                     group {
-                                        unwrapAnnotation(it)
-                                    }
-                                }
-                                if (visibility.isNotBlank()) +"$visibility "
-                                if (modifier.isNotBlank()) +"$modifier "
-                                +("${keywords.joinToString("") { "$it " }}$preposition ")
-                                link { +name }
-                                if (type != null) {
-                                    +(": ")
-                                    group {
-                                        link {
-                                            +(type)
+                                        group {
+                                            annotations.entries.forEach {
+                                                group {
+                                                    unwrapAnnotation(it)
+                                                }
+                                            }
+                                            if (visibility.isNotBlank()) +"$visibility "
+                                            if (modifier.isNotBlank()) +"$modifier "
+                                            +("${keywords.joinToString("") { "$it " }}$preposition ")
+                                            link { +name }
+                                            if (type != null) {
+                                                +(": ")
+                                                group {
+                                                    link {
+                                                        +(type)
+                                                    }
+                                                }
+                                            }
+                                            if (value != null) {
+                                                +(" = $value")
+                                            }
                                         }
                                     }
-                                }
-                                if (value != null) {
-                                    +(" = $value")
                                 }
                             }
                         }
