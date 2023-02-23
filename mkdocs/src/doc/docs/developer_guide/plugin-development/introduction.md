@@ -26,7 +26,7 @@ At a bare minimum, Dokka requires `Kotlin Gradle Plugin` and `dokka-core` depend
 
 ```kotlin
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompilerOptions
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("jvm") version "<kotlin_version>"
@@ -36,7 +36,7 @@ dependencies {
     compileOnly("org.jetbrains.dokka:dokka-core:<dokka_version>")
 }
 
-tasks.withType<KotlinCompilationTask<*>>().configureEach {
+tasks.withType<KotlinCompile>().configureEach {
     (compilerOptions as? KotlinJvmCompilerOptions)?.jvmTarget?.set(JvmTarget.JVM_1_8)
 }
 ```

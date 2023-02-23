@@ -2,7 +2,7 @@ import org.jetbrains.*
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompilerOptions
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("jvm") apply false
@@ -20,7 +20,7 @@ allprojects {
     version = dokka_version
 
     val language_version: String by project
-    tasks.withType<KotlinCompilationTask<*>>().configureEach {
+    tasks.withType<KotlinCompile>().configureEach {
         compilerOptions {
             freeCompilerArgs.addAll(
                 listOf(
@@ -33,7 +33,10 @@ allprojects {
             )
             allWarningsAsErrors.set(true)
             languageVersion.set(KotlinVersion.fromVersion(language_version))
-            (this as? KotlinJvmCompilerOptions)?.jvmTarget?.set(JvmTarget.JVM_1_8)
+            (this as? KotlinJvmCompilerOptions)?.run {
+                apiVersion.set(KotlinVersion.fromVersion(language_version))
+                jvmTarget.set(JvmTarget.JVM_1_8)
+            }
         }
     }
 
