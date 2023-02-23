@@ -61,10 +61,12 @@ gradleEnterprise {
     }
 }
 
-@Suppress("UnstableApiUsage") // Central declaration of repositories is an incubating feature
+@Suppress("UnstableApiUsage")
 dependencyResolutionManagement {
 
-    repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
+    // subproject :kotlin-analysis:intellij-dependency requires specific repositories that should not be shared with
+    // the other subprojects, so the repositoriesMode is not-set to allow subprojects to override.
+    //repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
 
     repositories {
         mavenCentral()
@@ -84,12 +86,5 @@ dependencyResolutionManagement {
             metadataSources { artifact() }
             content { includeModule("com.yarnpkg", "yarn") }
         }
-
-        maven("https://www.jetbrains.com/intellij-repository/snapshots")
-        maven("https://www.jetbrains.com/intellij-repository/releases")
-        maven("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/kotlin-ide")
-        maven("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/kotlin-ide-plugin-dependencies")
-        maven("https://cache-redirector.jetbrains.com/intellij-dependencies")
-        maven("https://www.myget.org/F/rd-snapshots/maven/")
     }
 }
