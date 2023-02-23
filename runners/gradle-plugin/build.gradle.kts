@@ -5,7 +5,6 @@ plugins {
     `kotlin-dsl`
     org.jetbrains.conventions.`maven-publish`
     id("com.gradle.plugin-publish")
-    id("org.jetbrains.conventions.dokka")
 }
 
 dependencies {
@@ -81,10 +80,6 @@ pluginBundle {
     }
 }
 
-val javadocJar = registerJavadocJar {
-    from(tasks.dokkaHtml)
-}
-
 publishing {
     publications {
         register<MavenPublication>("dokkaGradlePluginForIntegrationTests") {
@@ -96,11 +91,6 @@ publishing {
         register<MavenPublication>("pluginMaven") {
             configurePom("Dokka ${project.name}")
             artifactId = "dokka-gradle-plugin"
-        }
-
-        withType<MavenPublication>().configureEach {
-            // always add Javadoc, to verify it works during integration tests
-            artifact(javadocJar)
         }
 
         afterEvaluate {

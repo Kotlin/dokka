@@ -1,22 +1,14 @@
 package org.jetbrains.conventions
 
 import org.jetbrains.configureDokkaVersion
-import org.jetbrains.registerJavadocJar
-import org.jetbrains.isLocalPublication
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("org.jetbrains.conventions.base")
     kotlin("jvm")
-    id("org.jetbrains.conventions.dokka")
 }
 
 configureDokkaVersion()
-
-
-registerJavadocJar {
-    from(tasks.dokkaHtml)
-}
 
 val language_version: String by project
 

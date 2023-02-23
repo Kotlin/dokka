@@ -151,12 +151,3 @@ private fun Project.signPublicationsIfKeyPresent(vararg publications: String) {
         }
     }
 }
-
-fun Project.registerJavadocJar(configure: Jar.() -> Unit): TaskProvider<Jar> {
-    return tasks.register("javadocJar", Jar::class) {
-        group = JavaBasePlugin.DOCUMENTATION_GROUP
-        description = "Assembles a Javadoc JAR"
-        archiveClassifier.set("javadoc")
-        configure()
-    }
-}
