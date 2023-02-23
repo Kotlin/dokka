@@ -4,16 +4,9 @@ import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.withType
 import org.gradle.testfixtures.ProjectBuilder
 import org.jetbrains.dokka.DokkaConfigurationImpl
-import org.jetbrains.dokka.DokkaDefaults.cacheRoot
-import org.jetbrains.dokka.DokkaDefaults.failOnWarning
-import org.jetbrains.dokka.DokkaDefaults.moduleName
-import org.jetbrains.dokka.DokkaDefaults.offlineMode
 import org.jetbrains.dokka.DokkaException
 import java.io.File
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
-import kotlin.test.assertTrue
+import kotlin.test.*
 
 class DokkaCollectorTaskTest {
 
@@ -46,7 +39,7 @@ class DokkaCollectorTaskTest {
 
         assertTrue(collectorTasks.isNotEmpty(), "Expected at least one collector task")
 
-        collectorTasks.toList().forEach { task ->
+        collectorTasks.forEach { task ->
             val dokkaConfiguration = task.buildDokkaConfiguration()
             assertEquals(
                 DokkaConfigurationImpl(
@@ -63,8 +56,39 @@ class DokkaCollectorTaskTest {
                         .map { it.plugins.resolve().toList() }
                         .reduce { acc, mutableSet -> acc + mutableSet }
                 ),
-                dokkaConfiguration
+                dokkaConfiguration,
             )
+        }
+    }
+
+    @Test
+    fun `verify that cacheRoot is optional, and not required to build DokkaConfiguration`() {
+        val rootProject = ProjectBuilder.builder().build()
+        val childProject = ProjectBuilder.builder().withParent(rootProject).build()
+        childProject.plugins.apply("org.jetbrains.kotlin.jvm")
+
+        rootProject.allprojects {
+            plugins.apply("org.jetbrains.dokka")
+            tasks.withType<AbstractDokkaTask>().configureEach {
+                plugins.withDependencies { clear() }
+            }
+            tasks.withType<DokkaTask>().configureEach {
+                dokkaSourceSets.configureEach {
+                    classpath.setFrom(emptyList<Any>())
+                }
+            }
+        }
+
+        val collectorTasks = rootProject.tasks.withType<DokkaCollectorTask>()
+        collectorTasks.configureEach {
+            cacheRoot.set(null as File?)
+        }
+
+        assertTrue(collectorTasks.isNotEmpty(), "Expected at least one collector task")
+
+        collectorTasks.forEach { task ->
+            val dokkaConfiguration = task.buildDokkaConfiguration()
+            assertNull(dokkaConfiguration.cacheRoot, "Expect that cacheRoot is null")
         }
     }
 
