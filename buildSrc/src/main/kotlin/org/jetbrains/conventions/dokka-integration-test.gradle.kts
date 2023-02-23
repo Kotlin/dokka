@@ -41,7 +41,7 @@ val integrationTestRuntimeOnly by configurations.getting {
 @DisableCachingByDefault(because = "Contains incorrect inputs/outputs configuration, see the KDoc for details")
 abstract class NonCacheableIntegrationTest : Test()
 
-val integrationTest by tasks.register<NonCacheableIntegrationTest>("integrationTest") {
+val integrationTest by tasks.registering(NonCacheableIntegrationTest::class) {
     maxHeapSize = "2G"
     description = "Runs integration tests."
     group = "verification"
