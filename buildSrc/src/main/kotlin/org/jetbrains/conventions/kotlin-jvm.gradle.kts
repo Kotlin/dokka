@@ -18,6 +18,8 @@ tasks.dokkaHtml {
 }
 
 val javadocJar by tasks.registering(Jar::class) {
+    group = JavaBasePlugin.DOCUMENTATION_GROUP
+    description = "Assembles Dokka HTML into a Javadoc JAR"
     archiveClassifier.set("javadoc")
     from(tasks.dokkaHtml)
 }

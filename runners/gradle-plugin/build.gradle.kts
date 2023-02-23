@@ -80,13 +80,6 @@ pluginBundle {
     }
 }
 
-val javadocJar by tasks.registering(Jar::class) {
-    group = JavaBasePlugin.DOCUMENTATION_GROUP
-    description = "Assembles Javadoc into a JAR"
-    archiveClassifier.set("javadoc")
-    from(tasks.javadoc)
-}
-
 publishing {
     publications {
         register<MavenPublication>("dokkaGradlePluginForIntegrationTests") {
