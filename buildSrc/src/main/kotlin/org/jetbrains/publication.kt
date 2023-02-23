@@ -2,9 +2,13 @@ package org.jetbrains
 
 import com.github.jengelman.gradle.plugins.shadow.ShadowExtension
 import org.gradle.api.Project
+import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.maven.tasks.PublishToMavenRepository
+import org.gradle.api.tasks.TaskContainer
+import org.gradle.api.tasks.TaskProvider
+import org.gradle.api.tasks.bundling.Jar
 import org.gradle.kotlin.dsl.*
 import org.gradle.plugins.signing.SigningExtension
 import org.jetbrains.DokkaPublicationChannel.*
@@ -145,5 +149,14 @@ private fun Project.signPublicationsIfKeyPresent(vararg publications: String) {
                 }
             }
         }
+    }
+}
+
+fun Project.registerJavadocJar(configure: Jar.() -> Unit): TaskProvider<Jar> {
+    return tasks.register("javadocJar", Jar::class) {
+        group = JavaBasePlugin.DOCUMENTATION_GROUP
+        description = "Assembles a Javadoc JAR"
+        archiveClassifier.set("javadoc")
+        configure()
     }
 }

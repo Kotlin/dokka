@@ -5,6 +5,7 @@ plugins {
     `kotlin-dsl`
     org.jetbrains.conventions.`maven-publish`
     id("com.gradle.plugin-publish")
+    id("org.jetbrains.conventions.dokka")
 }
 
 dependencies {
@@ -78,6 +79,10 @@ pluginBundle {
         groupId = "org.jetbrains.dokka"
         artifactId = "dokka-gradle-plugin"
     }
+}
+
+val javadocJar = registerJavadocJar {
+    from(tasks.dokkaHtml)
 }
 
 publishing {

@@ -1,26 +1,20 @@
 package org.jetbrains.conventions
 
 import org.jetbrains.configureDokkaVersion
+import org.jetbrains.registerJavadocJar
 import org.jetbrains.isLocalPublication
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("org.jetbrains.conventions.base")
     kotlin("jvm")
-    id("org.jetbrains.dokka")
+    id("org.jetbrains.conventions.dokka")
 }
 
 configureDokkaVersion()
 
-tasks.dokkaHtml {
-    onlyIf { !isLocalPublication }
-    outputDirectory.set(layout.buildDirectory.dir("dokka").map { it.asFile })
-}
 
-val javadocJar by tasks.registering(Jar::class) {
-    group = JavaBasePlugin.DOCUMENTATION_GROUP
-    description = "Assembles Dokka HTML into a Javadoc JAR"
-    archiveClassifier.set("javadoc")
+registerJavadocJar {
     from(tasks.dokkaHtml)
 }
 
