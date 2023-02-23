@@ -23,7 +23,7 @@ fun interface DokkaMultiModuleFileLayout {
      */
     object NoCopy : DokkaMultiModuleFileLayout {
         override fun targetChildOutputDirectory(parent: DokkaMultiModuleTask, child: AbstractDokkaTask): File =
-            child.outputDirectory.getSafe()
+            child.outputDirectory.get()
     }
 
     /**
@@ -38,7 +38,7 @@ fun interface DokkaMultiModuleFileLayout {
             val relativeProjectPath = parent.project.relativeProjectPath(child.project.path)
             val relativeFilePath = relativeProjectPath.replace(":", File.separator)
             check(!File(relativeFilePath).isAbsolute) { "Unexpected absolute path $relativeFilePath" }
-            return parent.outputDirectory.getSafe().resolve(relativeFilePath)
+            return parent.outputDirectory.get().resolve(relativeFilePath)
         }
     }
 }
@@ -56,7 +56,7 @@ internal fun DokkaMultiModuleTask.copyChildOutputDirectories() {
 
 internal fun DokkaMultiModuleTask.copyChildOutputDirectory(child: AbstractDokkaTask) {
     val targetChildOutputDirectory = project.file(fileLayout.get().targetChildOutputDirectory(this, child))
-    val sourceChildOutputDirectory = child.outputDirectory.getSafe()
+    val sourceChildOutputDirectory = child.outputDirectory.get()
 
     /* Pointing to the same directory -> No copy necessary */
     if (sourceChildOutputDirectory.absoluteFile == targetChildOutputDirectory.absoluteFile) {
@@ -79,4 +79,3 @@ internal fun DokkaMultiModuleTask.copyChildOutputDirectory(child: AbstractDokkaT
 
     sourceChildOutputDirectory.copyRecursively(targetChildOutputDirectory, overwrite = true)
 }
-

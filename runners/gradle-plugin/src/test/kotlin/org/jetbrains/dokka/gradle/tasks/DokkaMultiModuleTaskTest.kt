@@ -101,7 +101,7 @@ class DokkaMultiModuleTaskTest {
                         name = "child",
                         relativePathToOutputDirectory = File("child"),
                         includes = setOf(include1, include2),
-                        sourceOutputDirectory = childDokkaTask.outputDirectory.getSafe()
+                        sourceOutputDirectory = childDokkaTask.outputDirectory.get()
                     )
                 )
             ),
