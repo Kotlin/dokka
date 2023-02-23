@@ -22,7 +22,6 @@ dependencies {
     // This should be the only place that Gradle plugin versions are defined, so they are aligned across all build scripts
 
     implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
-    implementation("com.github.jengelman.gradle.plugins:shadow:2.0.4")
     implementation("gradle.plugin.com.github.johnrengelman:shadow:7.1.2")
     implementation("org.jetbrains.kotlinx:binary-compatibility-validator:0.12.1")
     implementation("io.github.gradle-nexus:publish-plugin:1.1.0")
