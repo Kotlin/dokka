@@ -34,18 +34,21 @@ val dokkaPublish by tasks.registering {
 }
 
 apiValidation {
+    // note that subprojects are ignored by their name, not their path https://github.com/Kotlin/binary-compatibility-validator/issues/16
     ignoredProjects += setOf(
-        "search-component",
-        "compiler-dependency",
-        "kotlin-analysis",
-        "intellij-dependency",
-        "frontend",
+        // NAME                    PATH
+        "search-component",    // :plugins:search-component
+        "frontend",            // :plugins:base:frontend
 
-        "integration-tests",
-        "gradle",
-        "cli",
-        "maven",
+        "kotlin-analysis",     // :kotlin-analysis
+        "compiler-dependency", // :kotlin-analysis:compiler-dependency
+        "intellij-dependency", // :kotlin-analysis:intellij-dependency
 
-        "test-utils",
+        "integration-tests",   // :integration-tests
+        "gradle",              // :integration-tests:gradle
+        "cli",                 // :integration-tests:cli
+        "maven",               // integration-tests:maven
+
+        "test-utils",          // :test-utils
     )
 }
