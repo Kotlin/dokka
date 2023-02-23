@@ -13,10 +13,7 @@ import org.jetbrains.dokka.gradle.utils.allprojects_
 import org.jetbrains.dokka.gradle.utils.configureEach_
 import org.jetbrains.dokka.gradle.utils.withDependencies_
 import java.io.File
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
-import kotlin.test.assertTrue
+import kotlin.test.*
 
 class DokkaCollectorTaskTest {
 
@@ -49,7 +46,7 @@ class DokkaCollectorTaskTest {
 
         assertTrue(collectorTasks.isNotEmpty(), "Expected at least one collector task")
 
-        collectorTasks.toList().forEach { task ->
+        collectorTasks.forEach { task ->
             val dokkaConfiguration = task.buildDokkaConfiguration()
             assertEquals(
                 DokkaConfigurationImpl(
@@ -68,6 +65,37 @@ class DokkaCollectorTaskTest {
                 ),
                 dokkaConfiguration,
             )
+        }
+    }
+
+    @Test
+    fun `verify that cacheRoot is optional, and not required to build DokkaConfiguration`() {
+        val rootProject = ProjectBuilder.builder().build()
+        val childProject = ProjectBuilder.builder().withParent(rootProject).build()
+        childProject.plugins.apply("org.jetbrains.kotlin.jvm")
+
+        rootProject.allprojects_ {
+            plugins.apply("org.jetbrains.dokka")
+            tasks.withType<AbstractDokkaTask>().configureEach_ {
+                plugins.withDependencies_ { clear() }
+            }
+            tasks.withType<DokkaTask>().configureEach_ {
+                dokkaSourceSets.configureEach_ {
+                    classpath.setFrom(emptyList<Any>())
+                }
+            }
+        }
+
+        val collectorTasks = rootProject.tasks.withType<DokkaCollectorTask>()
+        collectorTasks.configureEach_ {
+            cacheRoot.set(null as File?)
+        }
+
+        assertTrue(collectorTasks.isNotEmpty(), "Expected at least one collector task")
+
+        collectorTasks.forEach { task ->
+            val dokkaConfiguration = task.buildDokkaConfiguration()
+            assertNull(dokkaConfiguration.cacheRoot, "Expect that cacheRoot is null")
         }
     }
 

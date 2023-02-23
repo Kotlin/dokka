@@ -10,16 +10,16 @@ import org.jetbrains.dokka.build
 abstract class DokkaTask : AbstractDokkaLeafTask() {
     override fun buildDokkaConfiguration(): DokkaConfigurationImpl =
         DokkaConfigurationImpl(
-            moduleName = moduleName.getSafe(),
+            moduleName = moduleName.get(),
             moduleVersion = moduleVersion.getValidVersionOrNull(),
             outputDir = outputDirectory.asFile.get(),
             cacheRoot = cacheRoot.asFile.orNull,
-            offlineMode = offlineMode.getSafe(),
-            failOnWarning = failOnWarning.getSafe(),
+            offlineMode = offlineMode.get(),
+            failOnWarning = failOnWarning.get(),
             sourceSets = unsuppressedSourceSets.build(),
             pluginsConfiguration = buildPluginsConfiguration(),
             pluginsClasspath = plugins.resolve().toList(),
-            suppressObviousFunctions = suppressObviousFunctions.getSafe(),
-            suppressInheritedMembers = suppressInheritedMembers.getSafe(),
+            suppressObviousFunctions = suppressObviousFunctions.get(),
+            suppressInheritedMembers = suppressInheritedMembers.get(),
         )
 }

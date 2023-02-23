@@ -8,6 +8,7 @@ import org.gradle.api.internal.tasks.TaskDependencyInternal
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.*
+import org.gradle.kotlin.dsl.property
 import org.jetbrains.dokka.DokkaConfigurationImpl
 import org.jetbrains.dokka.DokkaModuleDescriptionImpl
 import java.io.File
@@ -53,8 +54,8 @@ abstract class DokkaMultiModuleTask : AbstractDokkaParentTask() {
     abstract val includes: ConfigurableFileCollection
 
     @Internal
-    val fileLayout: Property<DokkaMultiModuleFileLayout> = project.objects.safeProperty<DokkaMultiModuleFileLayout>()
-        .safeConvention(DokkaMultiModuleFileLayout.CompactInParent)
+    val fileLayout: Property<DokkaMultiModuleFileLayout> = project.objects.property<DokkaMultiModuleFileLayout>()
+        .convention(DokkaMultiModuleFileLayout.CompactInParent)
 
     @get:InputFiles
     @get:PathSensitive(PathSensitivity.RELATIVE)
@@ -86,17 +87,17 @@ abstract class DokkaMultiModuleTask : AbstractDokkaParentTask() {
 
     override fun buildDokkaConfiguration(): DokkaConfigurationImpl {
         return DokkaConfigurationImpl(
-            moduleName = moduleName.getSafe(),
+            moduleName = moduleName.get(),
             moduleVersion = moduleVersion.getValidVersionOrNull(),
             outputDir = outputDirectory.asFile.get(),
             cacheRoot = cacheRoot.asFile.orNull,
             pluginsConfiguration = buildPluginsConfiguration(),
-            failOnWarning = failOnWarning.getSafe(),
-            offlineMode = offlineMode.getSafe(),
+        failOnWarning = failOnWarning.get(),
+        offlineMode = offlineMode.get(),
             pluginsClasspath = plugins.resolve().toList(),
             modules = childDokkaTasks.map { dokkaTask ->
                 DokkaModuleDescriptionImpl(
-                    name = dokkaTask.moduleName.getSafe(),
+                    name = dokkaTask.moduleName.get(),
                     relativePathToOutputDirectory = targetChildOutputDirectory(dokkaTask).get().asFile.relativeTo(
                         outputDirectory.asFile.get()
                     ),
