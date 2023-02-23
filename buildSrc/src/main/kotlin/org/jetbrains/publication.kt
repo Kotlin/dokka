@@ -37,7 +37,6 @@ fun Project.registerDokkaArtifactPublication(publicationName: String, configure:
                         artifact(tasks["sourcesJar"])
                     }
                 }
-                artifact(tasks["javadocJar"])
                 configurePom("Dokka ${project.name}")
             }
         }
