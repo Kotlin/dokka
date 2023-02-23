@@ -169,7 +169,7 @@ class InheritorsTest : AbstractModelTest("/src/main/kotlin/inheritors/Test.kt", 
         }
 
         @OptIn(DokkaPluginApiPreview::class)
-        override fun warnDokkaPluginApiIsInPreviewEmptyMethod(): PluginApiPreviewAcknowledgement =
+        override fun pluginApiPreviewAcknowledgement(): PluginApiPreviewAcknowledgement =
             PluginApiPreviewAcknowledgement
     }
     @Test

@@ -22,7 +22,7 @@ class PageTransformerBuilderTest : BaseAbstractTest() {
         val pageTransformer by extending { CoreExtensions.pageTransformer with transformer }
 
         @OptIn(DokkaPluginApiPreview::class)
-        override fun warnDokkaPluginApiIsInPreviewEmptyMethod(): PluginApiPreviewAcknowledgement =
+        override fun pluginApiPreviewAcknowledgement(): PluginApiPreviewAcknowledgement =
             PluginApiPreviewAcknowledgement
     }
 

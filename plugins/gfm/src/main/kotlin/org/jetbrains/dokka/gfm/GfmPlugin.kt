@@ -54,6 +54,6 @@ class GfmPlugin : DokkaPlugin() {
     }
 
     @OptIn(DokkaPluginApiPreview::class)
-    override fun warnDokkaPluginApiIsInPreviewEmptyMethod(): PluginApiPreviewAcknowledgement =
+    override fun pluginApiPreviewAcknowledgement(): PluginApiPreviewAcknowledgement =
         PluginApiPreviewAcknowledgement
 }

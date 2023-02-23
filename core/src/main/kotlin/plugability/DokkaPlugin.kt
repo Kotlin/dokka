@@ -33,8 +33,11 @@ abstract class DokkaPlugin {
     @PublishedApi
     internal var context: DokkaContext? = null
 
+    /**
+     * @see PluginApiPreviewAcknowledgement
+     */
     @DokkaPluginApiPreview
-    protected abstract fun warnDokkaPluginApiIsInPreviewEmptyMethod(): PluginApiPreviewAcknowledgement
+    protected abstract fun pluginApiPreviewAcknowledgement(): PluginApiPreviewAcknowledgement
     protected inline fun <reified T : DokkaPlugin> plugin(): T = context?.plugin(T::class) ?: throwIllegalQuery()
 
     protected fun <T : Any> extensionPoint() = ReadOnlyProperty<DokkaPlugin, ExtensionPoint<T>> { thisRef, property ->

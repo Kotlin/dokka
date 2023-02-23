@@ -4394,9 +4394,9 @@ public abstract class org/jetbrains/dokka/plugability/DokkaPlugin {
 	protected final fun extending (Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/dokka/plugability/DokkaPlugin$ExtensionProvider;
 	protected final fun extensionPoint ()Lkotlin/properties/ReadOnlyProperty;
 	public final fun getContext ()Lorg/jetbrains/dokka/plugability/DokkaContext;
+	protected abstract fun pluginApiPreviewAcknowledgement ()Lorg/jetbrains/dokka/plugability/PluginApiPreviewAcknowledgement;
 	public final fun setContext (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
 	protected final fun unsafeInstall (Lkotlin/Lazy;)V
-	protected abstract fun warnDokkaPluginApiIsInPreviewEmptyMethod ()Lorg/jetbrains/dokka/plugability/PluginApiPreviewAcknowledgement;
 }
 
 protected final class org/jetbrains/dokka/plugability/DokkaPlugin$ExtensionProvider {
