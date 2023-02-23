@@ -18,7 +18,7 @@ class KotlinDslDokkaTaskConfigurationTest {
         }
 
         project.tasks.withType(DokkaTask::class.java).forEach { dokkaTask ->
-            assertEquals(File("test"), dokkaTask.outputDirectory.getSafe())
+            assertEquals(File("test"), dokkaTask.outputDirectory.get())
         }
     }
 
