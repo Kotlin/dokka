@@ -17,7 +17,7 @@ abstract class DokkaCollectorTask : AbstractDokkaParentTask() {
         val initialDokkaConfiguration = DokkaConfigurationImpl(
             moduleName = moduleName.get(),
             outputDir = outputDirectory.get(),
-            cacheRoot = cacheRoot.get(),
+            cacheRoot = cacheRoot.orNull,
             failOnWarning = failOnWarning.get(),
             offlineMode = offlineMode.get(),
             pluginsClasspath = plugins.resolve().toList(),
