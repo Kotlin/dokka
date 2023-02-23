@@ -74,17 +74,28 @@ dependencyResolutionManagement {
 
         // Declare the Node.js & Yarn download repositories
         // Required by Gradle Node plugin: https://github.com/node-gradle/gradle-node-plugin/blob/795c36fe93b3998b0192073db66abb83bf849f67/docs/faq.md#is-this-plugin-compatible-with-centralized-repositories-declaration
-        ivy("https://nodejs.org/dist/") {
-            name = "Node Distributions at $url"
-            patternLayout { artifact("v[revision]/[artifact](-v[revision]-[classifier]).[ext]") }
-            metadataSources { artifact() }
-            content { includeModule("org.nodejs", "node") }
+        exclusiveContent {
+            forRepository {
+                ivy("https://nodejs.org/dist/") {
+                    name = "Node Distributions at $url"
+                    patternLayout { artifact("v[revision]/[artifact](-v[revision]-[classifier]).[ext]") }
+                    metadataSources { artifact() }
+                    content { includeModule("org.nodejs", "node") }
+                }
+            }
+            filter { includeGroup("org.nodejs") }
         }
-        ivy("https://github.com/yarnpkg/yarn/releases/download") {
-            name = "Yarn Distributions at $url"
-            patternLayout { artifact("v[revision]/[artifact](-v[revision]).[ext]") }
-            metadataSources { artifact() }
-            content { includeModule("com.yarnpkg", "yarn") }
+
+        exclusiveContent {
+            forRepository {
+                ivy("https://github.com/yarnpkg/yarn/releases/download") {
+                    name = "Yarn Distributions at $url"
+                    patternLayout { artifact("v[revision]/[artifact](-v[revision]).[ext]") }
+                    metadataSources { artifact() }
+                    content { includeModule("com.yarnpkg", "yarn") }
+                }
+            }
+            filter { includeGroup("com.yarnpkg") }
         }
     }
 }
