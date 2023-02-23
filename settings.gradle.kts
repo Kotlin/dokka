@@ -64,9 +64,9 @@ gradleEnterprise {
 @Suppress("UnstableApiUsage")
 dependencyResolutionManagement {
 
-    // subproject :kotlin-analysis:intellij-dependency requires specific repositories that should not be shared with
-    // the other subprojects, so the repositoriesMode is not-set to allow subprojects to override.
-    //repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
+    // subproject :kotlin-analysis:intellij-dependency requires specific repositories that should not be used in
+    // the other subprojects, so use PREFER_PROJECT to allow subprojects to override the repositories defined here.
+    repositoriesMode.set(RepositoriesMode.PREFER_PROJECT)
 
     repositories {
         mavenCentral()
