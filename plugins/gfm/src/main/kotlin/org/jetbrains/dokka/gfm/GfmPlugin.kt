@@ -9,6 +9,8 @@ import org.jetbrains.dokka.gfm.location.MarkdownLocationProvider
 import org.jetbrains.dokka.gfm.renderer.BriefCommentPreprocessor
 import org.jetbrains.dokka.gfm.renderer.CommonmarkRenderer
 import org.jetbrains.dokka.plugability.DokkaPlugin
+import org.jetbrains.dokka.plugability.DokkaPluginApiPreview
+import org.jetbrains.dokka.plugability.PluginApiPreviewAcknowledgement
 import org.jetbrains.dokka.renderers.PostAction
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 
@@ -50,4 +52,8 @@ class GfmPlugin : DokkaPlugin() {
             }
         }
     }
+
+    @OptIn(DokkaPluginApiPreview::class)
+    override fun pluginApiPreviewAcknowledgement(): PluginApiPreviewAcknowledgement =
+        PluginApiPreviewAcknowledgement
 }
