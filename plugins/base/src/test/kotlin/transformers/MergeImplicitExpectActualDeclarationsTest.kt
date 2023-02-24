@@ -57,6 +57,12 @@ class MergeImplicitExpectActualDeclarationsTest : BaseAbstractTest() {
         }?.children?.dropWhile { child -> child != sectionHeader  }?.drop(1)?.firstOrNull()
     }
 
+    private fun ContentNode.findTabWithType(type: TabbedContentType): ContentNode? = dfs { node ->
+        node.children.filterIsInstance<ContentGroup>().any { gr ->
+            gr.extra[TabbedContentTypeExtra]?.value == type
+        }
+    }
+
     @Test
     fun `should merge fun`() {
         testInline(
@@ -173,7 +179,7 @@ class MergeImplicitExpectActualDeclarationsTest : BaseAbstractTest() {
 
                 assertEquals(
                     2,
-                    prop1.firstChildOfType<PlatformHintedContent>().inner.children.size,
+                    prop1.firstChildOfType<ContentDivergentGroup>().children.size,
                     "Incorrect number of divergent instances found"
                 )
 
@@ -217,7 +223,7 @@ class MergeImplicitExpectActualDeclarationsTest : BaseAbstractTest() {
                 val classPage = root.dfs { it.name == "classA" } as? ClasslikePageNode
                 assertNotNull(classPage, "Tested class not found!")
 
-                val entries = classPage.findSectionWithName("Entries").assertNotNull("Entries")
+                val entries = classPage.content.findTabWithType(BasicTabbedContentType.ENTRY).assertNotNull("Entries")
                 entries.children.singleOrNull().assertNotNull("ENTRY")
 
                 val props = classPage.findSectionWithName("Properties").assertNotNull("Properties")

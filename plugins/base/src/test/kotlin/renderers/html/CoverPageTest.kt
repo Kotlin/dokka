@@ -38,7 +38,7 @@ class CoverPageTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 val content = writerPlugin.writer.renderedContent("root/example/-result/index.html")
-                val tableInheritors = content.select("div.table[data-togglable=Inheritors]").single()
+                val tableInheritors = content.select("div.table").single { it.previousElementSibling()?.text() == "Inheritors" && it.childrenSize() == 2 }
                 assertEquals(tableInheritors.getElementsContainingOwnText("Failed").singleOrNull()?.tagName(), "a")
                 assertEquals(tableInheritors.getElementsContainingOwnText("Success").singleOrNull()?.tagName(), "a")
             }

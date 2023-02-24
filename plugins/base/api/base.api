@@ -10,7 +10,6 @@ public final class org/jetbrains/dokka/base/DokkaBase : org/jetbrains/dokka/plug
 	public final fun getDefaultExternalDocumentablesProvider ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getDefaultKotlinAnalysis ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getDefaultSamplesTransformer ()Lorg/jetbrains/dokka/plugability/Extension;
-	public final fun getDefaultTabSortingStrategy ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getDeprecatedDocumentableFilter ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getDescriptorToDocumentableTranslator ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getDocTagToContentConverter ()Lorg/jetbrains/dokka/plugability/Extension;
@@ -270,11 +269,6 @@ public abstract class org/jetbrains/dokka/base/renderers/DefaultRenderer : org/j
 
 public final class org/jetbrains/dokka/base/renderers/DefaultRendererKt {
 	public static final fun sourceSets (Lorg/jetbrains/dokka/pages/ContentPage;)Ljava/util/Set;
-}
-
-public final class org/jetbrains/dokka/base/renderers/DefaultTabSortingStrategy : org/jetbrains/dokka/base/renderers/TabSortingStrategy {
-	public fun <init> ()V
-	public fun sort (Ljava/util/Collection;)Ljava/util/List;
 }
 
 public final class org/jetbrains/dokka/base/renderers/FileWriter : org/jetbrains/dokka/base/renderers/OutputWriter {
@@ -1450,16 +1444,19 @@ public class org/jetbrains/dokka/base/translators/documentables/DefaultPageCreat
 	public synthetic fun <init> (Lorg/jetbrains/dokka/base/DokkaBaseConfiguration;Lorg/jetbrains/dokka/base/transformers/pages/comments/CommentsToContentConverter;Lorg/jetbrains/dokka/base/signatures/SignatureProvider;Lorg/jetbrains/dokka/utilities/DokkaLogger;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	protected fun contentForBrief (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Lorg/jetbrains/dokka/model/Documentable;)V
 	protected fun contentForClasslikesAndEntries (Ljava/util/List;)Lorg/jetbrains/dokka/pages/ContentGroup;
+	protected fun contentForConstructors (Ljava/util/List;Ljava/util/Set;Ljava/util/Set;)Lorg/jetbrains/dokka/pages/ContentGroup;
 	protected fun contentForDescription (Lorg/jetbrains/dokka/model/Documentable;)Ljava/util/List;
+	protected fun contentForEntries (Ljava/util/List;Ljava/util/Set;Ljava/util/Set;)Lorg/jetbrains/dokka/pages/ContentGroup;
 	protected fun contentForFunction (Lorg/jetbrains/dokka/model/DFunction;)Lorg/jetbrains/dokka/pages/ContentGroup;
 	protected fun contentForMember (Lorg/jetbrains/dokka/model/Documentable;)Lorg/jetbrains/dokka/pages/ContentGroup;
 	protected fun contentForMembers (Ljava/util/List;)Lorg/jetbrains/dokka/pages/ContentGroup;
 	protected fun contentForModule (Lorg/jetbrains/dokka/model/DModule;)Lorg/jetbrains/dokka/pages/ContentGroup;
 	protected fun contentForPackage (Lorg/jetbrains/dokka/model/DPackage;)Lorg/jetbrains/dokka/pages/ContentGroup;
 	protected fun contentForProperty (Lorg/jetbrains/dokka/model/DProperty;)Lorg/jetbrains/dokka/pages/ContentGroup;
-	protected fun contentForScope (Ljava/util/Set;Ljava/util/Set;Ljava/util/List;Ljava/util/List;Ljava/util/List;)Lorg/jetbrains/dokka/pages/ContentGroup;
-	protected fun contentForScope (Lorg/jetbrains/dokka/model/WithScope;Lorg/jetbrains/dokka/links/DRI;Ljava/util/Set;)Lorg/jetbrains/dokka/pages/ContentGroup;
-	protected fun contentForScopes (Ljava/util/List;Ljava/util/Set;)Lorg/jetbrains/dokka/pages/ContentGroup;
+	protected fun contentForScope (Lorg/jetbrains/dokka/model/WithScope;Lorg/jetbrains/dokka/links/DRI;Ljava/util/Set;Ljava/util/List;)Lorg/jetbrains/dokka/pages/ContentGroup;
+	public static synthetic fun contentForScope$default (Lorg/jetbrains/dokka/base/translators/documentables/DefaultPageCreator;Lorg/jetbrains/dokka/model/WithScope;Lorg/jetbrains/dokka/links/DRI;Ljava/util/Set;Ljava/util/List;ILjava/lang/Object;)Lorg/jetbrains/dokka/pages/ContentGroup;
+	protected fun contentForScopes (Ljava/util/List;Ljava/util/Set;Ljava/util/List;)Lorg/jetbrains/dokka/pages/ContentGroup;
+	public static synthetic fun contentForScopes$default (Lorg/jetbrains/dokka/base/translators/documentables/DefaultPageCreator;Ljava/util/List;Ljava/util/Set;Ljava/util/List;ILjava/lang/Object;)Lorg/jetbrains/dokka/pages/ContentGroup;
 	protected fun divergentBlock (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Ljava/lang/String;Ljava/util/Collection;Lorg/jetbrains/dokka/pages/ContentKind;Lorg/jetbrains/dokka/model/properties/PropertyContainer;)V
 	public static synthetic fun divergentBlock$default (Lorg/jetbrains/dokka/base/translators/documentables/DefaultPageCreator;Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Ljava/lang/String;Ljava/util/Collection;Lorg/jetbrains/dokka/pages/ContentKind;Lorg/jetbrains/dokka/model/properties/PropertyContainer;ILjava/lang/Object;)V
 	protected fun getContentBuilder ()Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder;

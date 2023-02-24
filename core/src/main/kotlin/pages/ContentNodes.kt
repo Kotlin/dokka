@@ -392,7 +392,14 @@ enum class TextStyle : Style {
 }
 
 enum class ContentStyle : Style {
-    RowTitle, TabbedContent, WithExtraAttributes, RunnableSample, InDocumentationAnchor, Caption,
+    RowTitle,
+    /**
+     * The style is used only for HTML. It is applied only for [ContentGroup].
+     * Creating and rendering tabs is a part of a renderer.
+     */
+    TabbedContent,
+
+    WithExtraAttributes, RunnableSample, InDocumentationAnchor, Caption,
     Wrapped, Indented, KDocTag, Footnote
 }
 

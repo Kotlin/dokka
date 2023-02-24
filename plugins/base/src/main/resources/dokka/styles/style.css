@@ -947,7 +947,7 @@ td.content {
 }
 
 .platform-hinted > .content:not([data-active]),
-.tabs-section-body > *:not([data-active]) {
+.tabs-section-body *[data-togglable]:not([data-active]) {
     display: none;
 }
 
@@ -1296,4 +1296,12 @@ div.runnablesample {
 
 .floating-right {
     float: right;
+}
+
+/*
+the hack to hide the headers inside tabs for a package page because each tab
+has only one header, and the header text is the same as the tab name, so no point in showing it
+*/
+.main-content[data-page-type="package"] .tabs-section-body h2 {
+    display: none;
 }

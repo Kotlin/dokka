@@ -190,7 +190,7 @@ class PageNodeMergerTest : BaseAbstractTest() {
             defaultConfiguration
         ) {
             renderingStage = { rootPageNode, _ ->
-                val extensions = rootPageNode.findExtensionsOfClass("ExtensionReceiver")
+                val extensions = rootPageNode.findDivergencesOfClass("ExtensionReceiver", ContentKind.Extensions)
 
                 extensions.assertContainsKDocsInOrder(
                     "Top level val extension",
@@ -238,7 +238,7 @@ class PageNodeMergerTest : BaseAbstractTest() {
             defaultConfiguration
         ) {
             renderingStage = { rootPageNode, _ ->
-                val extensions = rootPageNode.findExtensionsOfClass("ExtensionReceiver")
+                val extensions = rootPageNode.findDivergencesOfClass("ExtensionReceiver", ContentKind.Extensions)
                 extensions.assertContainsKDocsInOrder(
                     "Top level fun extension",
                     "Companion fun extension",
@@ -300,7 +300,7 @@ class PageNodeMergerTest : BaseAbstractTest() {
             defaultConfiguration
         ) {
             renderingStage = { rootPageNode, _ ->
-                val extensions = rootPageNode.findExtensionsOfClass("ExtensionReceiver")
+                val extensions = rootPageNode.findDivergencesOfClass("ExtensionReceiver", ContentKind.Extensions)
                 extensions.assertContainsKDocsInOrder(
                     "Top level fun extension with one int param",
                     "Top level fun extension with one string param",
@@ -421,10 +421,10 @@ class PageNodeMergerTest : BaseAbstractTest() {
         }
     }
 
-    private fun RootPageNode.findExtensionsOfClass(name: String): ContentDivergentGroup {
-        val extensionReceiverPage = this.dfs { it is ClasslikePageNode && it.name == name } as ClasslikePageNode
+    private fun RootPageNode.findDivergencesOfClass(className: String, kind: ContentKind): ContentDivergentGroup {
+        val extensionReceiverPage = this.dfs { it is ClasslikePageNode && it.name == className } as ClasslikePageNode
         return extensionReceiverPage.content
-            .dfs { it is ContentDivergentGroup && it.groupID.name == "Extensions" } as ContentDivergentGroup
+            .dfs { it is ContentDivergentGroup && it.dci.kind == kind } as ContentDivergentGroup
     }
 
     private fun RootPageNode.findPackageFunctionBlocks(packageName: String): List<ContentDivergentGroup> {

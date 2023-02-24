@@ -62,12 +62,12 @@ class ObviousTypeSkippingTest : BaseAbstractTest(
             forProperty("val underTest = if (true) println(5) else null", "val underTest: Unit?"),
             forProperty("val underTest: Any = if (true) println(5) else 5", "val underTest: Any"),
             forProperty("val underTest = if (true) println(5) else 5", "val underTest: Any"),
-            forFunction("fun <T: Iterable<Any>> T.underTest() {}", "fun <T : Iterable<Any>> T.underTest()"),
-            forFunction("fun <T: Iterable<Any?>> T.underTest() {}", "fun <T : Iterable<Any?>> T.underTest()"),
-            forFunction("fun <T: Iterable<Any?>?> T.underTest() {}", "fun <T : Iterable<Any?>?> T.underTest()"),
-            forFunction("fun <T: Any> T.underTest() {}", "fun <T : Any> T.underTest()"),
-            forFunction("fun <T: Any?> T.underTest() {}", "fun <T> T.underTest()"),
-            forFunction("fun <T> T.underTest() {}", "fun <T> T.underTest()"),
+            forExtension("fun <T: Iterable<Any>> T.underTest() {}", "fun <T : Iterable<Any>> T.underTest()"),
+            forExtension("fun <T: Iterable<Any?>> T.underTest() {}", "fun <T : Iterable<Any?>> T.underTest()"),
+            forExtension("fun <T: Iterable<Any?>?> T.underTest() {}", "fun <T : Iterable<Any?>?> T.underTest()"),
+            forExtension("fun <T: Any> T.underTest() {}", "fun <T : Any> T.underTest()"),
+            forExtension("fun <T: Any?> T.underTest() {}", "fun <T> T.underTest()"),
+            forExtension("fun <T> T.underTest() {}", "fun <T> T.underTest()"),
             forClass("class Testable<T: Any>", "class Testable<T : Any>"),
             forClass("class Testable<T: Any?>", "class Testable<T>"),
             forClass("class Testable<T: Any?>(t: T)", "class Testable<T>(t: T)"),
@@ -167,6 +167,13 @@ private fun forFunction(codeFragment: String, expectedSignature: String, functio
         OnOwnPage(functionName)
     )
 
+private fun forExtension(codeFragment: String, expectedSignature: String, functionName: String = "underTest") =
+    TestData(
+        codeFragment,
+        expectedSignature,
+        OnParentPage(PackagePageNode::class, ContentKind.Extensions),
+        OnOwnPage(functionName)
+    )
 private fun forMethod(
     codeFragment: String,
     expectedSignature: String,
