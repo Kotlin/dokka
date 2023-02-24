@@ -3,6 +3,8 @@ package org.jetbrains.dokka.templates
 import org.jetbrains.dokka.allModulesPage.templates.PackageListProcessingStrategy
 import org.jetbrains.dokka.allModulesPage.templates.PagesSearchTemplateStrategy
 import org.jetbrains.dokka.plugability.DokkaPlugin
+import org.jetbrains.dokka.plugability.DokkaPluginApiPreview
+import org.jetbrains.dokka.plugability.PluginApiPreviewAcknowledgement
 import templates.ProjectNameSubstitutor
 import templates.ReplaceVersionCommandHandler
 import templates.SourcesetDependencyProcessingStrategy
@@ -70,4 +72,8 @@ class TemplatingPlugin : DokkaPlugin() {
     val replaceVersionCommandHandler by extending {
         directiveBasedCommandHandlers providing ::ReplaceVersionCommandHandler
     }
+
+    @OptIn(DokkaPluginApiPreview::class)
+    override fun pluginApiPreviewAcknowledgement(): PluginApiPreviewAcknowledgement =
+        PluginApiPreviewAcknowledgement
 }

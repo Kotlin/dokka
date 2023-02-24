@@ -9,6 +9,8 @@ import org.jetbrains.dokka.base.templating.toJsonString
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.DokkaPlugin
+import org.jetbrains.dokka.plugability.DokkaPluginApiPreview
+import org.jetbrains.dokka.plugability.PluginApiPreviewAcknowledgement
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 import org.jsoup.Jsoup
 import org.junit.jupiter.api.Test
@@ -32,6 +34,10 @@ class ResourceLinksTest : BaseAbstractTest() {
         val appender by extending {
             plugin<DokkaBase>().htmlPreprocessors with TestResourcesAppender(resources)
         }
+
+        @OptIn(DokkaPluginApiPreview::class)
+        override fun pluginApiPreviewAcknowledgement(): PluginApiPreviewAcknowledgement =
+            PluginApiPreviewAcknowledgement
     }
 
     @Test

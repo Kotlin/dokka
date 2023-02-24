@@ -3,6 +3,8 @@ package utils
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.renderers.OutputWriter
 import org.jetbrains.dokka.plugability.DokkaPlugin
+import org.jetbrains.dokka.plugability.DokkaPluginApiPreview
+import org.jetbrains.dokka.plugability.PluginApiPreviewAcknowledgement
 import java.util.*
 
 class TestOutputWriterPlugin(failOnOverwrite: Boolean = true) : DokkaPlugin() {
@@ -15,6 +17,10 @@ class TestOutputWriterPlugin(failOnOverwrite: Boolean = true) : DokkaPlugin() {
                 with writer
                 override dokkaBase.fileWriter)
     }
+
+    @OptIn(DokkaPluginApiPreview::class)
+    override fun pluginApiPreviewAcknowledgement(): PluginApiPreviewAcknowledgement =
+        PluginApiPreviewAcknowledgement
 }
 
 class TestOutputWriter(private val failOnOverwrite: Boolean = true) : OutputWriter {
