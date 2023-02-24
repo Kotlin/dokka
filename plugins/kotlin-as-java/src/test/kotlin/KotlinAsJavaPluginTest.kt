@@ -9,23 +9,18 @@ import org.jetbrains.dokka.model.Annotations
 import org.jetbrains.dokka.model.GenericTypeConstructor
 import org.jetbrains.dokka.model.dfs
 import org.jetbrains.dokka.pages.*
-import org.jetbrains.kotlin.utils.addToStdlib.cast
 import org.junit.Assert
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
-import signatures.Parameter
-import signatures.Parameters
-import signatures.firstSignature
-import signatures.renderedContent
-import utils.A
-import utils.TestOutputWriterPlugin
-import utils.match
+import signatures.*
+import utils.*
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 
 class KotlinAsJavaPluginTest : BaseAbstractTest() {
 
     @Test
-    fun topLevelTest() {
+    fun `top-level functions should be generated`() {
         val configuration = dokkaConfiguration {
             sourceSets {
                 sourceSet {
@@ -53,14 +48,18 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
             pagesGenerationStage = { root ->
                 val content = (root.children.single().children.first { it.name == "TestKt" } as ContentPage).content
 
-                val children = content.mainContents.first().cast<ContentGroup>()
-                    .children.filterIsInstance<ContentTable>()
-                    .filter { it.children.isNotEmpty() }
+                val functionRows = content.findTableWithKind(kind = ContentKind.Functions).children
+                functionRows.assertCount(6)
 
-                children.assertCount(2)
+                val propRows = content.findTableWithKind(kind = ContentKind.Properties).children
+                propRows.assertCount(1)
             }
         }
     }
+
+    private fun ContentNode.findTableWithKind(kind: ContentKind): ContentNode = dfs { node ->
+        node is ContentTable && node.dci.kind === kind
+    }.let { assertNotNull(it, "the table with kind $kind") }
 
     @Test
     fun topLevelWithClassTest() {
@@ -90,15 +89,17 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
             pagesGenerationStage = { root ->
                 val contentList = root.children
                     .flatMap { it.children<ContentPage>() }
-                    .map { it.content }
 
-                val children = contentList.flatMap { content ->
-                    content.mainContents.single { it is ContentGroup }.children
-                        .filterIsInstance<ContentTable>()
-                        .filter { it.children.isNotEmpty() }
+                contentList.find {it.name == "Test"}.apply {
+                    assertNotNull(this)
+                    content.findTableWithKind(ContentKind.Functions).children.assertCount(2)
+                    content.findTableWithKind(ContentKind.Properties).children.assertCount(1)
                 }
-
-                children.assertCount(4)
+                contentList.find {it.name == "TestKt"}.apply {
+                    assertNotNull(this)
+                    content.findTableWithKind(ContentKind.Functions).children.assertCount(2)
+                    content.findTableWithKind(ContentKind.Properties).children.assertCount(1)
+                }
             }
         }
     }
@@ -233,10 +234,9 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
             pagesGenerationStage = { root ->
                 val testClass = root.dfs { it.name == "TestJ" } as? ClasslikePageNode
                 assert(testClass != null)
-                (testClass!!.content as ContentGroup).children.last().assertNode {
-                    skipAllNotMatching()
+                (testClass!!.content as ContentGroup).children.last().children.last().assertNode {
                     group {
-                        header(2) {
+                        header(2){
                             +"Properties"
                         }
                         table {
@@ -244,11 +244,17 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
                                 link {
                                     +"publicProperty"
                                 }
-                                platformHinted {
-                                    group {
-                                        +"public Int"
-                                        link {
-                                            +"publicProperty"
+                                divergentGroup {
+                                    divergentInstance {
+                                        divergent {
+                                            group {
+                                                group {
+                                                    +"public Int"
+                                                    link {
+                                                        +"publicProperty"
+                                                    }
+                                                }
+                                            }
                                         }
                                     }
                                 }
@@ -602,4 +608,4 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
 private val ContentNode.mainContents: List<ContentNode>
     get() = (this as ContentGroup).children
     .filterIsInstance<ContentGroup>()
-    .single { it.dci.kind == ContentKind.Main }.children
+    .single { it.dci.kind == ContentKind.Main }.children[0].let { it.children[0] }.children

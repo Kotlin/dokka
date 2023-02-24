@@ -2,6 +2,7 @@ package content.signatures
 
 import matchers.content.*
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
+import org.jetbrains.dokka.pages.BasicTabbedContentType
 import org.jetbrains.dokka.pages.ContentPage
 import org.junit.jupiter.api.Test
 
@@ -189,27 +190,31 @@ class ConstructorsSignaturesTest : BaseAbstractTest() {
                             }
                         }
                     }
-                    group {
-                        header { +"Constructors" }
-                        table {
-                            group {
-                                link { +"SomeClass" }
-                                platformHinted {
+                    tabbedGroup {
+                        group {
+                            tab(BasicTabbedContentType.CONSTRUCTOR) {
+                                header { +"Constructors" }
+                                table {
                                     group {
-                                        +"constructor"
-                                        +"("
-                                        +")"
-                                    }
-                                    group {
-                                        +"constructor"
-                                        +"("
-                                        group {
+                                        link { +"SomeClass" }
+                                        platformHinted {
                                             group {
-                                                +"a: "
-                                                group { link { +"String" } }
+                                                +"constructor"
+                                                +"("
+                                                +")"
+                                            }
+                                            group {
+                                                +"constructor"
+                                                +"("
+                                                group {
+                                                    group {
+                                                        +"a: "
+                                                        group { link { +"String" } }
+                                                    }
+                                                }
+                                                +")"
                                             }
                                         }
-                                        +")"
                                     }
                                 }
                             }
@@ -268,56 +273,60 @@ class ConstructorsSignaturesTest : BaseAbstractTest() {
                             skipAllNotMatching()
                         }
                     }
-                    group {
-                        header { +"Constructors" }
-                        table {
-                            group {
-                                link { +"SomeClass" }
-                                platformHinted {
+                    tabbedGroup {
+                        group {
+                            tab(BasicTabbedContentType.CONSTRUCTOR) {
+                                header { +"Constructors" }
+                                table {
                                     group {
-                                        +"constructor"
-                                        +"("
-                                        +")"
-                                    }
-                                    group {
-                                        group {
-                                            group { +"ctor one" }
-                                        }
-                                    }
-                                    group {
-                                        +"constructor"
-                                        +"("
-                                        group {
+                                        link { +"SomeClass" }
+                                        platformHinted {
                                             group {
-                                                +"b: "
+                                                +"constructor"
+                                                +"("
+                                                +")"
+                                            }
+                                            group {
                                                 group {
-                                                    link { +"Int" }
+                                                    group { +"ctor one" }
                                                 }
                                             }
-                                        }
-                                        +")"
-                                    }
-                                    group {
-                                        group {
-                                            group { +"ctor two" }
-                                        }
-                                    }
-                                    group {
-                                        +"constructor"
-                                        +"("
-                                        group {
                                             group {
-                                                +"a: "
+                                                +"constructor"
+                                                +"("
                                                 group {
-                                                    link { +"String" }
+                                                    group {
+                                                        +"b: "
+                                                        group {
+                                                            link { +"Int" }
+                                                        }
+                                                    }
+                                                }
+                                                +")"
+                                            }
+                                            group {
+                                                group {
+                                                    group { +"ctor two" }
                                                 }
                                             }
-                                        }
-                                        +")"
-                                    }
-                                    group {
-                                        group {
-                                            group { +"ctor comment" }
+                                            group {
+                                                +"constructor"
+                                                +"("
+                                                group {
+                                                    group {
+                                                        +"a: "
+                                                        group {
+                                                            link { +"String" }
+                                                        }
+                                                    }
+                                                }
+                                                +")"
+                                            }
+                                            group {
+                                                group {
+                                                    group { +"ctor comment" }
+                                                }
+                                            }
                                         }
                                     }
                                 }
@@ -366,28 +375,32 @@ class ConstructorsSignaturesTest : BaseAbstractTest() {
                             skipAllNotMatching()
                         }
                     }
-                    group {
-                        header { +"Constructors" }
-                        table {
-                            group {
-                                link { +"SomeClass" }
-                                platformHinted {
+                    tabbedGroup {
+                        group {
+                            tab(BasicTabbedContentType.CONSTRUCTOR) {
+                                header { +"Constructors" }
+                                table {
                                     group {
-                                        +"constructor"
-                                        +"("
-                                        group {
+                                        link { +"SomeClass" }
+                                        platformHinted {
                                             group {
-                                                +"a: "
+                                                +"constructor"
+                                                +"("
                                                 group {
-                                                    link { +"String" }
+                                                    group {
+                                                        +"a: "
+                                                        group {
+                                                            link { +"String" }
+                                                        }
+                                                    }
+                                                }
+                                                +")"
+                                            }
+                                            group {
+                                                group {
+                                                    group { +"ctor comment" }
                                                 }
                                             }
-                                        }
-                                        +")"
-                                    }
-                                    group {
-                                        group {
-                                            group { +"ctor comment" }
                                         }
                                     }
                                 }
@@ -434,9 +447,11 @@ class ConstructorsSignaturesTest : BaseAbstractTest() {
                     }
                     group {
                         group {
-                            header { +"Properties" }
-                            table {
-                                skipAllNotMatching()
+                            group {
+                                header { +"Properties" }
+                                table {
+                                    skipAllNotMatching()
+                                }
                             }
                         }
                     }
