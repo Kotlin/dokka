@@ -257,7 +257,7 @@ open class DefaultPageCreator(
         }
     }
 
-    protected open fun contentForClasslikesScopes(
+    protected open fun contentForScopes(
         scopes: List<WithScope>,
         sourceSets: Set<DokkaSourceSet>,
         extensions: List<Documentable> = emptyList()
@@ -278,12 +278,13 @@ open class DefaultPageCreator(
         s: WithScope,
         dri: DRI,
         sourceSets: Set<DokkaSourceSet>,
+        extensions: List<Documentable> = emptyList()
     ): ContentGroup {
         val types = listOf(
             s.classlikes,
             (s as? DPackage)?.typealiases ?: emptyList()
         ).flatten()
-        return contentForScope(setOf(dri), sourceSets, types, s.functions, s.properties, emptyList())
+        return contentForScope(setOf(dri), sourceSets, types, s.functions, s.properties, extensions)
     }
 
     private fun contentForScope(
@@ -297,8 +298,7 @@ open class DefaultPageCreator(
         divergentBlock(
             "Types",
             types,
-            ContentKind.Classlikes,
-            extra = mainExtra + TabbedContentTypeExtra(BasicTabbedContentType.TYPE)
+            ContentKind.Classlikes
         )
         val (extensionProps, extensionFuns) = extensions.splitPropsAndFuns()
         if (separateInheritedMembers) {
@@ -308,27 +308,19 @@ open class DefaultPageCreator(
             val (inheritedExtensionFunctions, extensionFunctions) = extensionFuns.splitInheritedExtension(dri)
             val (inheritedExtensionProperties, extensionProperties) = extensionProps.splitInheritedExtension(dri)
             propertiesBlock(
-                "Properties",
-                BasicTabbedContentType.PROPERTY,
-                memberProperties + extensionProperties
+                "Properties", memberProperties + extensionProperties
             )
             propertiesBlock(
-                "Inherited properties",
-                BasicTabbedContentType.PROPERTY,
-                inheritedProperties + inheritedExtensionProperties
+                "Inherited properties", inheritedProperties + inheritedExtensionProperties
             )
-            functionsBlock("Functions", BasicTabbedContentType.FUNCTION, memberFunctions + extensionFunctions)
+            functionsBlock("Functions", memberFunctions + extensionFunctions)
             functionsBlock(
-                "Inherited functions",
-                BasicTabbedContentType.FUNCTION,
-                inheritedFunctions + inheritedExtensionFunctions
+                "Inherited functions", inheritedFunctions + inheritedExtensionFunctions
             )
         } else {
-            functionsBlock("Functions", BasicTabbedContentType.FUNCTION, functions + extensionFuns)
+            functionsBlock("Functions", functions + extensionFuns)
             propertiesBlock(
-                "Properties",
-                BasicTabbedContentType.PROPERTY,
-                properties + extensionProps
+                "Properties", properties + extensionProps
             )
         }
     }
@@ -377,7 +369,7 @@ open class DefaultPageCreator(
                 if (csEnum.isNotEmpty()) {
                     +contentForEntries(csEnum.flatMap { it.entries }, csEnum.dri, csEnum.sourceSets)
                 }
-                +contentForClasslikesScopes(scopes, documentables.sourceSets, extensions)
+                +contentForScopes(scopes, documentables.sourceSets, extensions)
             }
         }
     protected open fun contentForConstructors(
@@ -532,29 +524,25 @@ open class DefaultPageCreator(
 
     private fun DocumentableContentBuilder.functionsBlock(
         name: String,
-        tabbedContentType: TabbedContentType,
         list: Collection<DFunction>
     ) {
-        val onlyExtensions = list.all { it.isExtension() }
         divergentBlock(
             name,
             list.sorted(),
             ContentKind.Functions,
-            extra = mainExtra + TabbedContentTypeExtra(if (onlyExtensions) BasicTabbedContentType.EXTENSION_FUNCTION else tabbedContentType)
+            extra = mainExtra
         )
     }
 
     private fun DocumentableContentBuilder.propertiesBlock(
         name: String,
-        tabbedContentType: TabbedContentType,
         list: Collection<DProperty>
     ) {
-        val onlyExtensions = list.all { it.isExtension() }
         divergentBlock(
             name,
             list,
             ContentKind.Properties,
-            extra = mainExtra + TabbedContentTypeExtra(if (onlyExtensions) BasicTabbedContentType.EXTENSION_PROPERTY else tabbedContentType)
+            extra = mainExtra
         )
 
     }
@@ -586,8 +574,17 @@ open class DefaultPageCreator(
         extra: PropertyContainer<ContentNode> = mainExtra
     ) {
         if (collection.any()) {
-            group(extra = extra) {
-                header(2, name, kind = kind) { }
+            val onlyExtensions = collection.all { it.isExtension() }
+            val groupExtra = when(kind) {
+                ContentKind.Functions -> extra + TabbedContentTypeExtra(if (onlyExtensions) BasicTabbedContentType.EXTENSION_FUNCTION else BasicTabbedContentType.FUNCTION)
+                ContentKind.Properties -> extra + TabbedContentTypeExtra(if (onlyExtensions) BasicTabbedContentType.EXTENSION_PROPERTY else BasicTabbedContentType.PROPERTY)
+                ContentKind.Classlikes -> extra + TabbedContentTypeExtra(BasicTabbedContentType.TYPE)
+                else -> extra
+            }
+
+            group(extra = groupExtra) {
+                // be careful: groupExtra will be applied for children by default
+                header(2, name, kind = kind, extra = extra) { }
                 val isFunctions = collection.any { it is DFunction }
                 table(kind, extra = extra, styles = emptySet()) {
                     header {
@@ -742,4 +739,4 @@ internal inline fun <reified T : NamedTagWrapper> GroupedTags.withTypeNamed(): M
 // Annotations might have constructors to substitute reflection invocations
 // and for internal/compiler purposes, but they are not expected to be documented
 // and instantiated directly under normal circumstances, so constructors should not be rendered.
-fun List<Documentable>.shouldDocumentConstructors() = !this.any { it is DAnnotation }
+internal fun List<Documentable>.shouldDocumentConstructors() = !this.any { it is DAnnotation }

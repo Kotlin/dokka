@@ -1449,7 +1449,6 @@ public abstract class org/jetbrains/dokka/model/Documentable : org/jetbrains/dok
 public final class org/jetbrains/dokka/model/DocumentableKt {
 	public static final fun dfs (Lorg/jetbrains/dokka/model/Documentable;Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/dokka/model/Documentable;
 	public static final fun orEmpty (Ljava/util/Map;)Ljava/util/Map;
-	public static final fun shouldDocumentConstructors (Ljava/util/List;)Z
 	public static final fun withDri (Lorg/jetbrains/dokka/model/Variance;Lorg/jetbrains/dokka/links/DRI;)Lorg/jetbrains/dokka/model/Variance;
 }
 
@@ -3880,10 +3879,6 @@ public abstract interface class org/jetbrains/dokka/pages/ContentNode : org/jetb
 
 public final class org/jetbrains/dokka/pages/ContentNode$DefaultImpls {
 	public static fun getChildren (Lorg/jetbrains/dokka/pages/ContentNode;)Ljava/util/List;
-}
-
-public final class org/jetbrains/dokka/pages/ContentNodePropertiesKt {
-	public static final field TOGGLEABLE_CONTENT_TYPE_ATTR Ljava/lang/String;
 }
 
 public final class org/jetbrains/dokka/pages/ContentNodesKt {

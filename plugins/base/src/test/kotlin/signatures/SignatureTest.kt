@@ -926,7 +926,7 @@ class SignatureTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 val enumEntrySignatures = writerPlugin.writer.renderedContent("root/example/-enum-class/index.html")
-                    .select("div.table[data-togglable=ENTRY]")
+                    .select("div[data-togglable=ENTRY] .table")
                     .single()
                     .signature()
                     .select("div.block")

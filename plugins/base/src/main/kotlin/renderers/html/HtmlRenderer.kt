@@ -48,6 +48,15 @@ open class HtmlRenderer(
 
     override val preprocessors = context.plugin<DokkaBase>().query { htmlPreprocessors }
 
+    /**
+     * Tabs themselves are created in HTML plugin since, currently, only HTML format supports them.
+     * [TabbedContentType] is used to mark content that should be inside tab content.
+     * A tab can display multiple [TabbedContentType].
+     * The content style [ContentStyle.TabbedContent] is used to determine where tabs will be generated.
+     *
+     * @see TabbedContentType
+     * @see ContentStyle.TabbedContent
+     */
     private fun createTabs(pageContext: ContentPage): List<ContentTab> {
         return when(pageContext) {
             is ClasslikePage -> createTabsForClasslikes(pageContext)
@@ -150,7 +159,8 @@ open class HtmlRenderer(
                     contentTabs.forEachIndexed { index, contentTab ->
                         button(classes = "section-tab") {
                             if (index == 0) attributes["data-active"] = ""
-                            attributes[TOGGLEABLE_CONTENT_TYPE_ATTR] = contentTab.tabbedContentTypes.joinToString(",")
+                            attributes[TOGGLEABLE_CONTENT_TYPE_ATTR] =
+                                contentTab.tabbedContentTypes.joinToString(",") { it.toHtmlAttribute() }
                             text(contentTab.text)
                         }
                     }
@@ -215,6 +225,10 @@ open class HtmlRenderer(
             node.hasStyle(ListStyle.DescriptionDetails) -> DD(emptyMap(), consumer).visit {
                 this@wrapGroup.childrenCallback()
             }
+            node.extra.extraTabbedContentType() != null -> div() {
+                node.extra.extraTabbedContentType()?.let { attributes[TOGGLEABLE_CONTENT_TYPE_ATTR] = it.value.toHtmlAttribute() }
+                this@wrapGroup.childrenCallback()
+            }
             else -> childrenCallback()
         }
     }
@@ -268,7 +282,6 @@ open class HtmlRenderer(
         div(divStyles) {
             attributes["data-platform-hinted"] = "data-platform-hinted"
             extra.extraHtmlAttributes().forEach { attributes[it.extraKey] = it.extraValue }
-            extra.extraTabbedContentType()?.let { attributes[TOGGLEABLE_CONTENT_TYPE_ATTR] = it.value.toHtmlAttribute() }
             if (renderTabs) {
                 div("platform-bookmarks-row") {
                     attributes["data-toggle-list"] = "data-toggle-list"
@@ -615,7 +628,6 @@ open class HtmlRenderer(
             node.style.contains(CommentTable) -> buildDefaultTable(node, pageContext, sourceSetRestriction)
             else -> div(classes = "table") {
                 node.extra.extraHtmlAttributes().forEach { attributes[it.extraKey] = it.extraValue }
-                node.extra.extraTabbedContentType()?.let { attributes[TOGGLEABLE_CONTENT_TYPE_ATTR] = it.value.toHtmlAttribute() }
                 node.children.forEach {
                     buildRow(it, pageContext, sourceSetRestriction)
                 }
@@ -658,17 +670,13 @@ open class HtmlRenderer(
 
     override fun FlowContent.buildHeader(level: Int, node: ContentHeader, content: FlowContent.() -> Unit) {
         val classes = node.style.joinToString { it.toString() }.toLowerCase()
-        val contentWithExtraAttributes: FlowContent.() -> Unit = {
-            node.extra.extraTabbedContentType()?.let { attributes[TOGGLEABLE_CONTENT_TYPE_ATTR] = it.value.toHtmlAttribute() }
-            content()
-        }
         when (level) {
-            1 -> h1(classes = classes, contentWithExtraAttributes)
-            2 -> h2(classes = classes, contentWithExtraAttributes)
-            3 -> h3(classes = classes, contentWithExtraAttributes)
-            4 -> h4(classes = classes, contentWithExtraAttributes)
-            5 -> h5(classes = classes, contentWithExtraAttributes)
-            else -> h6(classes = classes, contentWithExtraAttributes)
+            1 -> h1(classes = classes, content)
+            2 -> h2(classes = classes, content)
+            3 -> h3(classes = classes, content)
+            4 -> h4(classes = classes, content)
+            5 -> h5(classes = classes, content)
+            else -> h6(classes = classes, content)
         }
     }
 

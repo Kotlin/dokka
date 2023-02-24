@@ -394,7 +394,7 @@ enum class TextStyle : Style {
 enum class ContentStyle : Style {
     RowTitle,
     /**
-     * The style is used only for HTML
+     * The style is used only for HTML. It is applied only for [ContentGroup].
      * Creating and rendering tabs is a part of a renderer.
      */
     TabbedContent,

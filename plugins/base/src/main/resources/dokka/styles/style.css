@@ -1298,8 +1298,10 @@ div.runnablesample {
     float: right;
 }
 
-// the hack to hide the headers inside tabs for a package page because each tab
-// has only one header, and the header text is the same as the tab name, so no point in showing it
-.main-content[data-page-type="package"] .tabs-section-body > h2  !important {
+/*
+the hack to hide the headers inside tabs for a package page because each tab
+has only one header, and the header text is the same as the tab name, so no point in showing it
+*/
+.main-content[data-page-type="package"] .tabs-section-body h2 !important {
     display: none;
 }
