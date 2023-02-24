@@ -190,7 +190,7 @@ class PageNodeMergerTest : BaseAbstractTest() {
             defaultConfiguration
         ) {
             renderingStage = { rootPageNode, _ ->
-                val extensions = rootPageNode.findDivergencesOfClass("ExtensionReceiver", ContentKind.Properties)
+                val extensions = rootPageNode.findDivergencesOfClass("ExtensionReceiver", ContentKind.Extensions)
 
                 extensions.assertContainsKDocsInOrder(
                     "Top level val extension",
@@ -238,7 +238,7 @@ class PageNodeMergerTest : BaseAbstractTest() {
             defaultConfiguration
         ) {
             renderingStage = { rootPageNode, _ ->
-                val extensions = rootPageNode.findDivergencesOfClass("ExtensionReceiver", ContentKind.Functions)
+                val extensions = rootPageNode.findDivergencesOfClass("ExtensionReceiver", ContentKind.Extensions)
                 extensions.assertContainsKDocsInOrder(
                     "Top level fun extension",
                     "Companion fun extension",
@@ -300,7 +300,7 @@ class PageNodeMergerTest : BaseAbstractTest() {
             defaultConfiguration
         ) {
             renderingStage = { rootPageNode, _ ->
-                val extensions = rootPageNode.findDivergencesOfClass("ExtensionReceiver", ContentKind.Functions)
+                val extensions = rootPageNode.findDivergencesOfClass("ExtensionReceiver", ContentKind.Extensions)
                 extensions.assertContainsKDocsInOrder(
                     "Top level fun extension with one int param",
                     "Top level fun extension with one string param",

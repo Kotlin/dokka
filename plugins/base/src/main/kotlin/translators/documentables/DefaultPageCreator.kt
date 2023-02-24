@@ -597,18 +597,19 @@ open class DefaultPageCreator(
                             val isExtension = elementNameAndIsExtension.isExtension
                             val rowExtra =
                                 if (isExtension) extra + TabbedContentTypeExtra(if(isFunctions) BasicTabbedContentType.EXTENSION_FUNCTION else BasicTabbedContentType.EXTENSION_PROPERTY) else extra
+                            val rowKind = if (isExtension) ContentKind.Extensions else kind
                             val sortedElements = sortDivergentElementsDeterministically(elements)
                             row(
                                 dri = sortedElements.map { it.dri }.toSet(),
                                 sourceSets = sortedElements.flatMap { it.sourceSets }.toSet(),
-                                kind = kind,
+                                kind = rowKind,
                                 styles = emptySet(),
                                 extra = elementName?.let { name -> rowExtra + SymbolAnchorHint(name, kind) } ?: rowExtra
                             ) {
                                 link(
                                     text = elementName.orEmpty(),
                                     address = sortedElements.first().dri,
-                                    kind = kind,
+                                    kind = rowKind,
                                     styles = setOf(ContentStyle.RowTitle),
                                     sourceSets = sortedElements.sourceSets.toSet(),
                                     extra = extra
@@ -616,7 +617,7 @@ open class DefaultPageCreator(
                                 divergentGroup(
                                     ContentDivergentGroup.GroupID(name),
                                     sortedElements.map { it.dri }.toSet(),
-                                    kind = kind,
+                                    kind = rowKind,
                                     extra = extra
                                 ) {
                                     sortedElements.map { element ->
@@ -624,7 +625,7 @@ open class DefaultPageCreator(
                                             setOf(element.dri),
                                             element.sourceSets.toSet(),
                                             extra = PropertyContainer.withAll(
-                                                SymbolAnchorHint(element.name ?: "", kind)
+                                                SymbolAnchorHint(element.name ?: "", rowKind)
                                             )
                                         ) {
                                             divergent(extra = PropertyContainer.empty()) {
