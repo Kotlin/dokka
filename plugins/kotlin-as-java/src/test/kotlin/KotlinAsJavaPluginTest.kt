@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test
 import signatures.*
 import utils.*
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 
 class KotlinAsJavaPluginTest : BaseAbstractTest() {
 
@@ -47,19 +48,18 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
             pagesGenerationStage = { root ->
                 val content = (root.children.single().children.first { it.name == "TestKt" } as ContentPage).content
 
-                val functionRows = content.mainContents.filterIsInstance<ContentTable>()
-                    .single().children
-
+                val functionRows = content.findTableWithKind(kind = ContentKind.Functions).children
                 functionRows.assertCount(6)
+
+                val propRows = content.findTableWithKind(kind = ContentKind.Properties).children
+                propRows.assertCount(1)
             }
         }
     }
 
-    private fun ContentNode.findTabWithType(type: TabbedContentType): ContentNode? = dfs { node ->
-        node.children.filterIsInstance<ContentGroup>().any { gr ->
-            gr.extra[TabbedContentTypeExtra]?.value == type
-        }
-    }
+    private fun ContentNode.findTableWithKind(kind: ContentKind): ContentNode = dfs { node ->
+        node is ContentTable && node.dci.kind === kind
+    }.let { assertNotNull(it, "the table with kind $kind") }
 
     @Test
     fun topLevelWithClassTest() {
@@ -89,17 +89,17 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
             pagesGenerationStage = { root ->
                 val contentList = root.children
                     .flatMap { it.children<ContentPage>() }
-                    .map { it.content }
 
-                val children = contentList.flatMap { content ->
-                    val functionTab = content.findTabWithType(BasicTabbedContentType.FUNCTION)
-                        ?: throw IllegalStateException("A function tab is not found")
-
-                    functionTab.children[0].children.filterIsInstance<ContentTable>()
-                        .flatMap { it.children }
+                contentList.find {it.name == "Test"}.apply {
+                    assertNotNull(this)
+                    content.findTableWithKind(ContentKind.Functions).children.assertCount(2)
+                    content.findTableWithKind(ContentKind.Properties).children.assertCount(1)
                 }
-
-                children.assertCount(4)
+                contentList.find {it.name == "TestKt"}.apply {
+                    assertNotNull(this)
+                    content.findTableWithKind(ContentKind.Functions).children.assertCount(2)
+                    content.findTableWithKind(ContentKind.Properties).children.assertCount(1)
+                }
             }
         }
     }

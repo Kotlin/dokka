@@ -253,7 +253,7 @@ open class DefaultPageCreator(
             }
         }
         group(styles = setOf(ContentStyle.TabbedContent), extra = mainExtra) {
-            +contentForPackageScope(p, p.dri, p.sourceSets)
+            +contentForScope(p, p.dri, p.sourceSets)
         }
     }
 
@@ -274,8 +274,8 @@ open class DefaultPageCreator(
         )
     }
 
-    protected open fun contentForPackageScope(
-        s: DPackage,
+    protected open fun contentForScope(
+        s: WithScope,
         dri: DRI,
         sourceSets: Set<DokkaSourceSet>,
     ): ContentGroup {
@@ -470,8 +470,7 @@ open class DefaultPageCreator(
     }
 
     protected open fun DocumentableContentBuilder.contentForBrief(
-        documentable: Documentable,
-        extra: PropertyContainer<ContentNode> = mainExtra
+        documentable: Documentable
     ) {
         documentable.sourceSets.forEach { sourceSet ->
             documentable.documentation[sourceSet]?.let {
@@ -485,7 +484,7 @@ open class DefaultPageCreator(
                 it.firstMemberOfTypeOrNull<Description>() ?: it.firstMemberOfTypeOrNull<Property>()
                     .takeIf { documentable is DProperty }
             }?.let {
-                group(sourceSets = setOf(sourceSet), kind = ContentKind.BriefComment, extra = extra) {
+                group(sourceSets = setOf(sourceSet), kind = ContentKind.BriefComment) {
                     if (documentable.hasSeparatePage) createBriefComment(documentable, sourceSet, it)
                     else comment(it.root)
                 }
@@ -739,3 +738,8 @@ internal inline fun <reified T : NamedTagWrapper> GroupedTags.withTypeNamed(): M
         ?.groupByTo(linkedMapOf()) { it.second.name }
         ?.mapValues { (_, v) -> v.toMap() }
         .orEmpty()
+
+// Annotations might have constructors to substitute reflection invocations
+// and for internal/compiler purposes, but they are not expected to be documented
+// and instantiated directly under normal circumstances, so constructors should not be rendered.
+fun List<Documentable>.shouldDocumentConstructors() = !this.any { it is DAnnotation }

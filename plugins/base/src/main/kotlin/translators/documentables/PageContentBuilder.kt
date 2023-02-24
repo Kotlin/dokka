@@ -8,7 +8,6 @@ import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.Documentable
 import org.jetbrains.dokka.model.SourceSetDependent
 import org.jetbrains.dokka.model.doc.DocTag
-import org.jetbrains.dokka.model.isExtension
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.model.properties.plus
 import org.jetbrains.dokka.model.toDisplaySourceSets
@@ -260,14 +259,10 @@ open class PageContentBuilder(
                             }
                             .map {
                                 val documentables = it.second
-                                val newExtraWithTab =
-                                    if (documentables.all { it.isExtension() }) mainExtra + TabbedContentTypeExtra(
-                                        BasicTabbedContentType.EXTENSION_PROPERTY
-                                    ) else mainExtra
-                                val newExtra = if (needsAnchors) newExtraWithTab + SymbolAnchorHint(
+                                val newExtra = if (needsAnchors) extra + SymbolAnchorHint(
                                     it.first,
                                     kind
-                                ) else newExtraWithTab
+                                ) else extra
                                 buildGroup(
                                     documentables.map { it.dri }.toSet(),
                                     documentables.flatMap { it.sourceSets }.toSet(),

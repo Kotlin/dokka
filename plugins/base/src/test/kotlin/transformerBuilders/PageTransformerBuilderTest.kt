@@ -13,7 +13,7 @@ import org.jsoup.Jsoup
 import org.junit.jupiter.api.Test
 import utils.TestOutputWriterPlugin
 import utils.assertContains
-
+import utils.assertNotNull
 class PageTransformerBuilderTest : BaseAbstractTest() {
 
     class ProxyPlugin(transformer: PageTransformer) : DokkaPlugin() {
@@ -136,7 +136,7 @@ class PageTransformerBuilderTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `kotlin constructors tab should exist even though there is primary constructor only`() {
+    fun `kotlin constructors should exist even though there is primary constructor only`() {
         val configuration = dokkaConfiguration {
             sourceSets {
                 sourceSet {
@@ -160,9 +160,12 @@ class PageTransformerBuilderTest : BaseAbstractTest() {
                     .filterIsInstance<ContentGroup>()
                     .single { it.dci.kind == ContentKind.Main }.children
 
-                val existsConstructorsHeader = content.any { tabContent -> tabContent.dfs {  it is ContentText && (it as? ContentText)?.text == "Constructors"} != null }
+                val contentWithConstructorsHeader = content.find { tabContent -> tabContent.dfs {  it is ContentText && (it as? ContentText)?.text == "Constructors"} != null }
 
-                assert(existsConstructorsHeader)
+                contentWithConstructorsHeader.assertNotNull("contentWithConstructorsHeader")
+
+                contentWithConstructorsHeader?.dfs { it.dci.kind == ContentKind.Constructors && it is ContentGroup }
+                    .assertNotNull("constructor group")
             }
         }
     }
