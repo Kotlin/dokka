@@ -1,10 +1,17 @@
-package org.jetbrains.dokka.gradle
+package org.jetbrains.dokka.gradle.tasks
 
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.withType
 import org.gradle.testfixtures.ProjectBuilder
 import org.jetbrains.dokka.DokkaConfigurationImpl
 import org.jetbrains.dokka.DokkaException
+import org.jetbrains.dokka.gradle.AbstractDokkaTask
+import org.jetbrains.dokka.gradle.DokkaCollectorTask
+import org.jetbrains.dokka.gradle.DokkaTask
+import org.jetbrains.dokka.gradle.utils.all_
+import org.jetbrains.dokka.gradle.utils.allprojects_
+import org.jetbrains.dokka.gradle.utils.configureEach_
+import org.jetbrains.dokka.gradle.utils.withDependencies_
 import java.io.File
 import kotlin.test.*
 
@@ -16,20 +23,20 @@ class DokkaCollectorTaskTest {
         val childProject = ProjectBuilder.builder().withParent(rootProject).build()
         childProject.plugins.apply("org.jetbrains.kotlin.jvm")
 
-        rootProject.allprojects {
+        rootProject.allprojects_ {
             plugins.apply("org.jetbrains.dokka")
-            tasks.withType<AbstractDokkaTask>().configureEach {
-                plugins.withDependencies { clear() }
+            tasks.withType<AbstractDokkaTask>().configureEach_ {
+                plugins.withDependencies_ { clear() }
             }
-            tasks.withType<DokkaTask>().configureEach {
-                dokkaSourceSets.configureEach {
+            tasks.withType<DokkaTask>().configureEach_ {
+                dokkaSourceSets.configureEach_ {
                     classpath.setFrom(emptyList<Any>())
                 }
             }
         }
 
         val collectorTasks = rootProject.tasks.withType<DokkaCollectorTask>()
-        collectorTasks.configureEach {
+        collectorTasks.configureEach_ {
             moduleName.set("custom Module Name")
             outputDirectory.set(File("customOutputDirectory"))
             cacheRoot.set(File("customCacheRoot"))
@@ -44,8 +51,8 @@ class DokkaCollectorTaskTest {
             assertEquals(
                 DokkaConfigurationImpl(
                     moduleName = "custom Module Name",
-                    outputDir = File("customOutputDirectory"),
-                    cacheRoot = File("customCacheRoot"),
+                    outputDir = rootProject.projectDir.resolve("customOutputDirectory"),
+                    cacheRoot = rootProject.projectDir.resolve("customCacheRoot"),
                     failOnWarning = true,
                     offlineMode = true,
                     sourceSets = task.childDokkaTasks
@@ -67,20 +74,20 @@ class DokkaCollectorTaskTest {
         val childProject = ProjectBuilder.builder().withParent(rootProject).build()
         childProject.plugins.apply("org.jetbrains.kotlin.jvm")
 
-        rootProject.allprojects {
+        rootProject.allprojects_ {
             plugins.apply("org.jetbrains.dokka")
-            tasks.withType<AbstractDokkaTask>().configureEach {
-                plugins.withDependencies { clear() }
+            tasks.withType<AbstractDokkaTask>().configureEach_ {
+                plugins.withDependencies_ { clear() }
             }
-            tasks.withType<DokkaTask>().configureEach {
-                dokkaSourceSets.configureEach {
+            tasks.withType<DokkaTask>().configureEach_ {
+                dokkaSourceSets.configureEach_ {
                     classpath.setFrom(emptyList<Any>())
                 }
             }
         }
 
         val collectorTasks = rootProject.tasks.withType<DokkaCollectorTask>()
-        collectorTasks.configureEach {
+        collectorTasks.configureEach_ {
             cacheRoot.set(null as File?)
         }
 
@@ -96,7 +103,7 @@ class DokkaCollectorTaskTest {
     fun `with no child tasks throws DokkaException`() {
         val project = ProjectBuilder.builder().build()
         val collectorTask = project.tasks.create<DokkaCollectorTask>("collector")
-        project.configurations.all { withDependencies { clear() } }
+        project.configurations.all_ { withDependencies_ { clear() } }
         assertFailsWith<DokkaException> { collectorTask.generateDocumentation() }
     }
 }
