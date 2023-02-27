@@ -20,14 +20,6 @@ dependencies {
     testImplementation(gradleKotlinDsl())
     testImplementation("org.jetbrains.kotlin:kotlin-gradle-plugin")
     testImplementation("com.android.tools.build:gradle:4.0.1")
-
-    // Fix https://github.com/gradle/gradle/issues/16774
-    testImplementation(
-        files(
-            serviceOf<org.gradle.api.internal.classpath.ModuleRegistry>().getModule("gradle-tooling-api-builders")
-                .classpath.asFiles.first()
-        )
-    )
 }
 
 // Gradle will put its own version of the stdlib in the classpath, do not pull our own we will end up with
