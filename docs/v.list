@@ -4,9 +4,9 @@
 
 <vars>
     <var name="dokkaVersion"
-         value="1.7.20"
+         value="1.8.10"
          type="string"/>
     <var name="kotlinVersion"
-         value="1.7.20"
+         value="1.8.10"
          type="string"/>
 </vars>
