@@ -96,6 +96,7 @@ open class DokkaLocationProvider(
                     .mapNotNull { ssid ->
                         dokkaContext.configuration.sourceSets.find { it.sourceSetID == ssid }?.toDisplaySourceSet()
                     }.map {
+                        // be careful `data DisplaySourceSet: Set<DisplaySourceSet>` but `setOf(someDisplaySourceSet) != someDisplaySourceSet`
                         setOf(it)
                     }
             }
