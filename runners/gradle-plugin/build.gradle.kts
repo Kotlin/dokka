@@ -1,4 +1,3 @@
-import org.gradle.configurationcache.extensions.serviceOf
 import org.jetbrains.*
 
 plugins {
