@@ -4,6 +4,7 @@ import org.jetbrains.*
 plugins {
     `kotlin-dsl`
     org.jetbrains.conventions.`maven-publish`
+    org.jetbrains.conventions.`base-java`
     id("com.gradle.plugin-publish")
 }
 

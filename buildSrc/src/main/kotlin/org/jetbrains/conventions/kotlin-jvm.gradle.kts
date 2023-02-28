@@ -5,6 +5,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("org.jetbrains.conventions.base")
+    id("org.jetbrains.conventions.base-java")
     kotlin("jvm")
 }
 
@@ -24,12 +25,5 @@ tasks.withType<KotlinCompile>().configureEach {
         allWarningsAsErrors = true
         languageVersion = language_version
         apiVersion = language_version
-        jvmTarget = "1.8"
     }
-}
-
-// Gradle metadata
-java {
-    withSourcesJar()
-    targetCompatibility = JavaVersion.VERSION_1_8
 }
