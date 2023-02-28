@@ -22,12 +22,12 @@ public abstract class org/jetbrains/dokka/gradle/AbstractDokkaTask : org/gradle/
 	public fun <init> ()V
 	public final fun doFirst (Lgroovy/lang/Closure;)Lorg/gradle/api/Task;
 	public final fun doFirst (Lorg/gradle/api/Action;)Lorg/gradle/api/Task;
-	public final fun getCacheRoot ()Lorg/gradle/api/provider/Property;
+	public abstract fun getCacheRoot ()Lorg/gradle/api/file/DirectoryProperty;
 	public final fun getFailOnWarning ()Lorg/gradle/api/provider/Property;
 	public final fun getModuleName ()Lorg/gradle/api/provider/Property;
 	public final fun getModuleVersion ()Lorg/gradle/api/provider/Property;
 	public final fun getOfflineMode ()Lorg/gradle/api/provider/Property;
-	public final fun getOutputDirectory ()Lorg/gradle/api/provider/Property;
+	public abstract fun getOutputDirectory ()Lorg/gradle/api/file/DirectoryProperty;
 	public final fun getPlugins ()Lorg/gradle/api/artifacts/Configuration;
 	public final fun getPluginsConfiguration ()Lorg/gradle/api/provider/ListProperty;
 	public final fun getPluginsMapConfiguration ()Lorg/gradle/api/provider/MapProperty;
@@ -45,23 +45,23 @@ public abstract class org/jetbrains/dokka/gradle/DokkaCollectorTask : org/jetbra
 }
 
 public abstract interface class org/jetbrains/dokka/gradle/DokkaMultiModuleFileLayout {
-	public abstract fun targetChildOutputDirectory (Lorg/jetbrains/dokka/gradle/DokkaMultiModuleTask;Lorg/jetbrains/dokka/gradle/AbstractDokkaTask;)Ljava/io/File;
+	public abstract fun targetChildOutputDirectory (Lorg/jetbrains/dokka/gradle/DokkaMultiModuleTask;Lorg/jetbrains/dokka/gradle/AbstractDokkaTask;)Lorg/gradle/api/provider/Provider;
 }
 
 public final class org/jetbrains/dokka/gradle/DokkaMultiModuleFileLayout$CompactInParent : org/jetbrains/dokka/gradle/DokkaMultiModuleFileLayout {
 	public static final field INSTANCE Lorg/jetbrains/dokka/gradle/DokkaMultiModuleFileLayout$CompactInParent;
-	public fun targetChildOutputDirectory (Lorg/jetbrains/dokka/gradle/DokkaMultiModuleTask;Lorg/jetbrains/dokka/gradle/AbstractDokkaTask;)Ljava/io/File;
+	public fun targetChildOutputDirectory (Lorg/jetbrains/dokka/gradle/DokkaMultiModuleTask;Lorg/jetbrains/dokka/gradle/AbstractDokkaTask;)Lorg/gradle/api/provider/Provider;
 }
 
 public final class org/jetbrains/dokka/gradle/DokkaMultiModuleFileLayout$NoCopy : org/jetbrains/dokka/gradle/DokkaMultiModuleFileLayout {
 	public static final field INSTANCE Lorg/jetbrains/dokka/gradle/DokkaMultiModuleFileLayout$NoCopy;
-	public fun targetChildOutputDirectory (Lorg/jetbrains/dokka/gradle/DokkaMultiModuleTask;Lorg/jetbrains/dokka/gradle/AbstractDokkaTask;)Ljava/io/File;
+	public fun targetChildOutputDirectory (Lorg/jetbrains/dokka/gradle/DokkaMultiModuleTask;Lorg/jetbrains/dokka/gradle/AbstractDokkaTask;)Lorg/gradle/api/provider/Provider;
 }
 
 public abstract class org/jetbrains/dokka/gradle/DokkaMultiModuleTask : org/jetbrains/dokka/gradle/AbstractDokkaParentTask {
 	public fun <init> ()V
 	public final fun getFileLayout ()Lorg/gradle/api/provider/Property;
-	public final fun getIncludes ()Lorg/gradle/api/file/ConfigurableFileCollection;
+	public abstract fun getIncludes ()Lorg/gradle/api/file/ConfigurableFileCollection;
 	public fun getTaskDependencies ()Lorg/gradle/api/internal/tasks/TaskDependencyInternal;
 	public synthetic fun getTaskDependencies ()Lorg/gradle/api/tasks/TaskDependency;
 }
