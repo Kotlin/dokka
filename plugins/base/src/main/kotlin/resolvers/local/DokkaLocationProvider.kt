@@ -89,23 +89,34 @@ open class DokkaLocationProvider(
 
     private fun getLocalLocation(driWithSourceSets: DRIWithSourceSets, context: PageNode?): String? {
         val (dri, originalSourceSet) = driWithSourceSets
-        val allSourceSets =
+        val allSourceSets: List<Set<DisplaySourceSet>> =
             listOf(originalSourceSet) + originalSourceSet.let { oss ->
                 dokkaContext.configuration.sourceSets.filter { it.sourceSetID in oss.sourceSetIDs }
                     .flatMap { it.dependentSourceSets }
                     .mapNotNull { ssid ->
                         dokkaContext.configuration.sourceSets.find { it.sourceSetID == ssid }?.toDisplaySourceSet()
+                    }.map {
+                        // be careful `data DisplaySourceSet: Set<DisplaySourceSet>` but `setOf(someDisplaySourceSet) != someDisplaySourceSet`
+                        setOf(it)
                     }
             }
 
-        return allSourceSets.asSequence().mapNotNull { displaySourceSet ->
-            pagesIndex[DRIWithSourceSets(dri, displaySourceSet)]?.let { page -> resolve(page, context) }
-                ?: anchorsIndex[driWithSourceSets]?.let { (page, kind) ->
-                    val dci = DCI(setOf(dri), kind)
-                    resolve(page, context) + "#" + anchorForDCI(dci, displaySourceSet)
-                }
-        }.firstOrNull()
+        return getLocalPageLink(dri, allSourceSets, context)
+            ?: getLocalAnchor(dri, allSourceSets, context)
     }
+
+    private fun getLocalPageLink(dri: DRI, allSourceSets: Iterable<Set<DisplaySourceSet>>, context: PageNode?)  =
+        allSourceSets.mapNotNull { displaySourceSet ->
+            pagesIndex[DRIWithSourceSets(dri, displaySourceSet)]
+        }.firstOrNull()?.let { page -> resolve(page, context) }
+
+    private fun getLocalAnchor(dri: DRI, allSourceSets: Iterable<Set<DisplaySourceSet>>, context: PageNode?)  =
+        allSourceSets.mapNotNull { displaySourceSet ->
+            anchorsIndex[DRIWithSourceSets(dri, displaySourceSet)]?.let { (page, kind) ->
+                val dci = DCI(setOf(dri), kind)
+                resolve(page, context) + "#" + anchorForDCI(dci, displaySourceSet)
+            }
+        }.firstOrNull()
 
     override fun pathToRoot(from: PageNode): String =
         pathTo(pageGraphRoot, from).removeSuffix(PAGE_WITH_CHILDREN_SUFFIX)
