@@ -17,8 +17,13 @@ internal fun parsePath(path: String): Path = Path.path(path)
 internal val Project.kotlinOrNull: KotlinProjectExtension?
     get() = try {
         project.extensions.findByType()
-    } catch (e: NoClassDefFoundError) {
-        null
+    } catch (e: Throwable) {
+        when (e) {
+            // if the user project doesn't have KGP applied, we won't be able to load the class;
+            // TypeNotPresentException is possible if it's loaded through reified generics.
+            is NoClassDefFoundError, is TypeNotPresentException, is ClassNotFoundException -> null
+            else -> throw e
+        }
     }
 
 internal val Project.kotlin: KotlinProjectExtension

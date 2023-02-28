@@ -3,7 +3,6 @@ package renderers.html
 import org.jetbrains.dokka.DokkaConfigurationImpl
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.base.DokkaBase
-import org.jetbrains.dokka.base.renderers.DefaultTabSortingStrategy
 import org.jetbrains.dokka.base.renderers.RootCreator
 import org.jetbrains.dokka.base.resolvers.external.DefaultExternalLocationProviderFactory
 import org.jetbrains.dokka.base.resolvers.external.javadoc.JavadocExternalLocationProviderFactory
@@ -53,7 +52,6 @@ abstract class HtmlRenderingOnlyTestBase : RenderingOnlyTestBase<Element>() {
         DokkaBase().htmlPreprocessors to { RootCreator },
         DokkaBase().externalLocationProviderFactory to ::JavadocExternalLocationProviderFactory,
         DokkaBase().externalLocationProviderFactory to ::DefaultExternalLocationProviderFactory,
-        DokkaBase().tabSortingStrategy to { DefaultTabSortingStrategy() },
         testConfiguration = configuration
     )
 

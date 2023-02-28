@@ -37,6 +37,8 @@ import org.jetbrains.dokka.base.translators.descriptors.ExternalClasslikesTransl
 import org.jetbrains.dokka.base.translators.descriptors.ExternalDocumentablesProvider
 import org.jetbrains.dokka.base.utils.NoopIntellijLoggerFactory
 import org.jetbrains.dokka.plugability.DokkaPlugin
+import org.jetbrains.dokka.plugability.DokkaPluginApiPreview
+import org.jetbrains.dokka.plugability.PluginApiPreviewAcknowledgement
 import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.renderers.PostAction
 import org.jetbrains.dokka.transformers.documentation.PreMergeDocumentableTransformer
@@ -54,6 +56,7 @@ class DokkaBase : DokkaPlugin() {
     val outputWriter by extensionPoint<OutputWriter>()
     val htmlPreprocessors by extensionPoint<PageTransformer>()
     val kotlinAnalysis by extensionPoint<KotlinAnalysis>()
+    @Deprecated("It is not used anymore")
     val tabSortingStrategy by extensionPoint<TabSortingStrategy>()
     val immediateHtmlCommandConsumer by extensionPoint<ImmediateHtmlCommandConsumer>()
     val externalDocumentablesProvider by extensionPoint<ExternalDocumentablesProvider>()
@@ -182,10 +185,6 @@ class DokkaBase : DokkaPlugin() {
         }
     }
 
-    val defaultTabSortingStrategy by extending {
-        tabSortingStrategy with DefaultTabSortingStrategy()
-    }
-
     val htmlRenderer by extending {
         CoreExtensions.renderer providing ::HtmlRenderer
     }
@@ -295,4 +294,8 @@ class DokkaBase : DokkaPlugin() {
             com.intellij.openapi.diagnostic.Logger.setFactory(NoopIntellijLoggerFactory())
         }
     }
+
+    @OptIn(DokkaPluginApiPreview::class)
+    override fun pluginApiPreviewAcknowledgement(): PluginApiPreviewAcknowledgement =
+        PluginApiPreviewAcknowledgement
 }
