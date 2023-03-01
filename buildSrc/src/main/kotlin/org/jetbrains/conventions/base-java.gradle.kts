@@ -17,9 +17,6 @@ java {
     }
 }
 
-plugins.withType<MavenPublishPlugin>().configureEach {
-    // enable the sources JAR if this project will be published
-    java {
-        withSourcesJar()
-    }
+java {
+    withSourcesJar()
 }
