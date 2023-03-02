@@ -71,6 +71,40 @@ class TabbedContentTest : BaseAbstractTest() {
         }
     }
 
+    @Test
+    fun `should not have Types-tab where there are not types`() {
+        val source = """
+            |/src/main/kotlin/test/Test.kt
+            |package example
+            |
+            |val p = 0
+            |fun foo() = 0
+            |
+            |/src/main/kotlin/test/PackageTwo.kt
+            |package example2
+            |
+            |class A
+            """
+        val writerPlugin = TestOutputWriterPlugin()
+
+        testInline(
+            source,
+            configuration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                val packagePage = writerPlugin.writer.renderedContent("root/example/index.html")
+                assertEquals(0, packagePage.select("*[data-togglable=TYPE]").size)
+                assertEquals(1, packagePage.getTabbedTable("PROPERTY").size)
+                assertEquals(1, packagePage.getTabbedTable("FUNCTION").size)
+
+                val packagePage2 = writerPlugin.writer.renderedContent("root/example2/index.html")
+                assertEquals(2, packagePage2.select("*[data-togglable=TYPE]").size)
+                assertEquals(0, packagePage2.getTabbedTable("PROPERTY").size)
+                assertEquals(0, packagePage2.getTabbedTable("FUNCTION").size)
+            }
+        }
+    }
 
     @Test
     fun `should have correct order of members and extensions`() {
