@@ -56,7 +56,7 @@ class ResolveLinkCommandResolutionTest : MultiModuleAbstractTest() {
             }
         }
 
-        val contentFile = setup(link)
+        val contentFile = setup(link, testedDri)
         val configuration = configuration()
 
         testFromData(configuration, useOutputLocationFromConfig = true) {
@@ -95,10 +95,16 @@ class ResolveLinkCommandResolutionTest : MultiModuleAbstractTest() {
         }
     }
 
-    fun setup(content: String): File {
+    private fun setup(content: String, resolutionTarget: DRI? = null): File {
         folder.create()
         val innerModule1 = folder.newFolder("module1")
         val innerModule2 = folder.newFolder("module2")
+        if (resolutionTarget != null) {
+            val resolvedFile = innerModule2
+                .resolve("${resolutionTarget.packageName}/-${resolutionTarget.classNames?.toLowerCase()}/index.html")
+            resolvedFile.parentFile.mkdirs()
+            resolvedFile.createNewFile()
+        }
         val packageList = innerModule2.resolve("package-list")
         packageList.writeText(mockedPackageListForPackages(RecognizedLinkFormat.DokkaHtml, "package2"))
         val contentFile = innerModule1.resolve("index.html")

@@ -5,7 +5,6 @@ import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.resolvers.shared.ExternalDocumentation
 import org.jetbrains.dokka.base.resolvers.shared.PackageList
 import org.jetbrains.dokka.base.resolvers.shared.PackageList.Companion.PACKAGE_LIST_NAME
-import org.jetbrains.dokka.base.resolvers.shared.RecognizedLinkFormat
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
@@ -52,15 +51,19 @@ class DefaultExternalModuleLinkResolver(val context: DokkaContext) : ExternalMod
         }
 
     override fun resolve(dri: DRI, fileContext: File): String? {
-        val absoluteLink = elps.mapNotNull { it.resolve(dri) }.firstOrNull() ?: return null
-        val modulePath = context.configuration.outputDir.absolutePath.split(File.separator)
-        val contextPath = fileContext.absolutePath.split(File.separator)
-        val commonPathElements = modulePath.zip(contextPath)
+        val resolvedLinks = elps.mapNotNull { it.resolve(dri)?.removePrefix("file:") }
+        val modulePath = context.configuration.outputDir.absolutePath
+        val validLink = resolvedLinks.firstOrNull {
+            val absolutePath = File(modulePath + it)
+            absolutePath.isFile
+        } ?: return null
+        val modulePathParts = modulePath.split(File.separator)
+        val contextPathParts = fileContext.absolutePath.split(File.separator)
+        val commonPathElements = modulePathParts.zip(contextPathParts)
             .takeWhile { (a, b) -> a == b }.count()
 
-        return (List(contextPath.size - commonPathElements - 1) { ".." } + modulePath.drop(commonPathElements)).joinToString(
-            "/"
-        ) + absoluteLink.removePrefix("file:")
+        return (List(contextPathParts.size - commonPathElements - 1) { ".." } + modulePathParts.drop(commonPathElements))
+            .joinToString("/") + validLink
     }
 
     override fun resolveLinkToModuleIndex(moduleName: String): String? =
