@@ -117,7 +117,7 @@ open class HtmlRenderer(
     private fun createTabsForPackage(page: PackagePage): List<ContentTab> {
         val p = page.documentables.single() as DPackage
         return listOfNotNull(
-            ContentTab(
+            if (p.typealiases.isEmpty() && p.classlikes.isEmpty()) null else ContentTab(
                 "Types",
                 listOf(
                     BasicTabbedContentType.TYPE,
