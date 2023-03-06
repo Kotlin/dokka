@@ -5,7 +5,7 @@ import org.jetbrains.dokka.Platform
 
 plugins {
     kotlin("multiplatform") version "1.8.10"
-    id("org.jetbrains.dokka") version "1.7.20"
+    id("org.jetbrains.dokka") version "1.8.10"
 }
 
 repositories {

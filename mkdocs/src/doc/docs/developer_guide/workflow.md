@@ -42,7 +42,7 @@ Having built Dokka locally, you can publish it to `mavenLocal()`. This will allo
 project as well as debug code remotely.
 
 1. Change `dokka_version` in `gradle.properties` to something that you will use later on as the dependency version.
-   For instance, you can set it to something like `1.7.20-my-fix-SNAPSHOT`. This version will be propagated to plugins
+   For instance, you can set it to something like `1.8.10-my-fix-SNAPSHOT`. This version will be propagated to plugins
    that reside inside Dokka's project (such as `mathjax`, `kotlin-as-java`, etc).
 2. Publish it to maven local (`./gradlew publishToMavenLocal`). Corresponding artifacts should appear in `~/.m2`
 3. In the project you want to generate documentation for or debug on, add maven local as a plugin/dependency
@@ -55,7 +55,7 @@ repositories {
 4. Update your dokka dependency to the version you've just published:
 ```kotlin
 plugins {
-    id("org.jetbrains.dokka") version "1.7.20-my-fix-SNAPSHOT"
+    id("org.jetbrains.dokka") version "1.8.10-my-fix-SNAPSHOT"
 }
 ```
 
