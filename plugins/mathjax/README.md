@@ -23,5 +23,5 @@ The MathJax plugin is published to Maven Central as a
 [separate artifact](https://mvnrepository.com/artifact/org.jetbrains.dokka/mathjax-plugin):
 
 ```text
-org.jetbrains.dokka:mathjax-plugin:1.7.20
+org.jetbrains.dokka:mathjax-plugin:1.8.10
 ```

@@ -19,7 +19,7 @@ You can apply the versioning plugin the same way as other Dokka plugins:
 
 ```kotlin
 dependencies {
-    dokkaHtmlPlugin("org.jetbrains.dokka:versioning-plugin:1.7.20")
+    dokkaHtmlPlugin("org.jetbrains.dokka:versioning-plugin:1.8.10")
 }
 ```
 
@@ -33,7 +33,7 @@ plugin within subprojects as well as in their parent project.
 
 ```groovy
 dependencies {
-    dokkaHtmlPlugin 'org.jetbrains.dokka:versioning-plugin:1.7.20'
+    dokkaHtmlPlugin 'org.jetbrains.dokka:versioning-plugin:1.8.10'
 }
 ```
 
@@ -55,7 +55,7 @@ plugin within subprojects as well as in their parent project.
             <plugin>
                 <groupId>org.jetbrains.dokka</groupId>
                 <artifactId>versioning-plugin</artifactId>
-                <version>1.7.20</version>
+                <version>1.8.10</version>
             </plugin>
         </dokkaPlugins>
     </configuration>
@@ -68,15 +68,15 @@ plugin within subprojects as well as in their parent project.
 <summary>CLI</summary>
 
 You can find the versioning plugin's artifact on
-[mvnrepository](https://mvnrepository.com/artifact/org.jetbrains.dokka/versioning-plugin/1.7.20) or by browsing
-[maven central repository](https://repo1.maven.org/maven2/org/jetbrains/dokka/versioning-plugin/1.7.20)
+[mvnrepository](https://mvnrepository.com/artifact/org.jetbrains.dokka/versioning-plugin/1.8.10) or by browsing
+[maven central repository](https://repo1.maven.org/maven2/org/jetbrains/dokka/versioning-plugin/1.8.10)
 directly, and pass it to `pluginsClasspath`.
 
 Via command line arguments:
 
 ```Bash
-java -jar dokka-cli-1.7.20.jar \
-     -pluginsClasspath "./dokka-base-1.7.20.jar;...;./versioning-plugin-1.7.20.jar" \
+java -jar dokka-cli-1.8.10.jar \
+     -pluginsClasspath "./dokka-base-1.8.10.jar;...;./versioning-plugin-1.8.10.jar" \
      ...
 ```
 
@@ -86,9 +86,9 @@ Via JSON configuration:
 {
   ...
   "pluginsClasspath": [
-    "./dokka-base-1.7.20.jar",
+    "./dokka-base-1.8.10.jar",
     "...",
-    "./versioning-plugin-1.7.20.jar"
+    "./versioning-plugin-1.8.10.jar"
   ],
   ...
 }
@@ -135,7 +135,7 @@ import org.jetbrains.dokka.versioning.VersioningConfiguration
 
 buildscript {
     dependencies {
-        classpath("org.jetbrains.dokka:versioning-plugin:1.7.20")
+        classpath("org.jetbrains.dokka:versioning-plugin:1.8.10")
     }
 }
 
@@ -232,7 +232,7 @@ dokkaHtml {
 <summary>CLI</summary>
 
 ```Bash
-java -jar dokka-cli-1.7.20.jar \
+java -jar dokka-cli-1.8.10.jar \
      ...
      -pluginsConfiguration "org.jetbrains.dokka.versioning.VersioningPlugin={\"version\": \"1.5\", \"versionsOrdering\": [\"1.5\", \"1.4\", \"1.3\", \"1.2\", \"1.1\", \"alpha-2\", \"alpha-1\"], \"olderVersionsDir\": \"documentation/version\", \"olderVersions\": [\"documentation/alpha/alpha-2\", \"documentation/alpha/alpha-1\"], \"renderVersionsNavigationOnAllPages\": true}"
 
@@ -290,12 +290,12 @@ import org.jetbrains.dokka.versioning.VersioningConfiguration
 
 buildscript {
     dependencies {
-        classpath("org.jetbrains.dokka:versioning-plugin:1.7.20")
+        classpath("org.jetbrains.dokka:versioning-plugin:1.8.10")
     }
 }
 
 dependencies {
-    dokkaPlugin("org.jetbrains.dokka:versioning-plugin:1.7.20")
+    dokkaPlugin("org.jetbrains.dokka:versioning-plugin:1.8.10")
 }
 
 tasks.dokkaHtml {
