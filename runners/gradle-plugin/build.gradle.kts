@@ -1,4 +1,5 @@
-import org.gradle.configurationcache.extensions.serviceOf
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.*
 
 plugins {
@@ -20,6 +21,13 @@ dependencies {
     testImplementation(gradleKotlinDsl())
     testImplementation("org.jetbrains.kotlin:kotlin-gradle-plugin")
     testImplementation("com.android.tools.build:gradle:4.0.1")
+}
+
+tasks.withType<KotlinCompile>().configureEach {
+    compilerOptions {
+        apiVersion.set(KotlinVersion.fromVersion("1.4"))
+        languageVersion.set(KotlinVersion.fromVersion("1.4"))
+    }
 }
 
 // Gradle will put its own version of the stdlib in the classpath, do not pull our own we will end up with
