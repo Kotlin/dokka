@@ -4,9 +4,10 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Dependency
-import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.kotlin.dsl.register
+import org.gradle.kotlin.dsl.withType
 import org.gradle.util.GradleVersion
+import org.jetbrains.dokka.DokkaDefaults
 
 open class DokkaPlugin : Plugin<Project> {
     override fun apply(project: Project) {
@@ -26,15 +27,24 @@ open class DokkaPlugin : Plugin<Project> {
             description = "Generates documentation in 'javadoc' format"
         }
 
-        project.setupDokkaTasks("dokkaGfm", allModulesPageAndTemplateProcessing = project.dokkaArtifacts.gfmTemplateProcessing) {
+        project.setupDokkaTasks(
+            "dokkaGfm",
+            allModulesPageAndTemplateProcessing = project.dokkaArtifacts.gfmTemplateProcessing
+        ) {
             plugins.dependencies.add(project.dokkaArtifacts.gfmPlugin)
             description = "Generates documentation in GitHub flavored markdown format"
         }
 
-        project.setupDokkaTasks("dokkaJekyll", allModulesPageAndTemplateProcessing = project.dokkaArtifacts.jekyllTemplateProcessing) {
+        project.setupDokkaTasks(
+            "dokkaJekyll",
+            allModulesPageAndTemplateProcessing = project.dokkaArtifacts.jekyllTemplateProcessing
+        ) {
             plugins.dependencies.add(project.dokkaArtifacts.jekyllPlugin)
             description = "Generates documentation in Jekyll flavored markdown format"
         }
+
+        project.configureEachAbstractDokkaTask()
+        project.configureEachDokkaMultiModuleTask()
     }
 
     /**
@@ -69,6 +79,7 @@ open class DokkaPlugin : Plugin<Project> {
                 project.maybeCreateDokkaRuntimeConfiguration(multiModuleName)
 
                 project.tasks.register<DokkaMultiModuleTask>(multiModuleName) {
+                    @Suppress("DEPRECATION")
                     addSubprojectChildTasks("${name}Partial")
                     configuration()
                     description = "Runs all subprojects '$name' tasks and generates module navigation page"
@@ -85,10 +96,25 @@ open class DokkaPlugin : Plugin<Project> {
             }
 
             project.tasks.register<DokkaCollectorTask>("${name}Collector") {
+                @Suppress("DEPRECATION")
                 addSubprojectChildTasks(name)
                 description =
                     "Generates documentation merging all subprojects '$name' tasks into one virtual module"
             }
+        }
+    }
+
+    private fun Project.configureEachAbstractDokkaTask() {
+        tasks.withType<AbstractDokkaTask>().configureEach {
+            val formatClassifier = name.removePrefix("dokka").decapitalize()
+            outputDirectory.convention(project.layout.buildDirectory.dir("dokka/$formatClassifier"))
+            cacheRoot.set(DokkaDefaults.cacheRoot)
+        }
+    }
+
+    private fun Project.configureEachDokkaMultiModuleTask() {
+        tasks.withType<DokkaMultiModuleTask>().configureEach {
+            sourceChildOutputDirectories.from({ childDokkaTasks.map { it.outputDirectory } })
         }
     }
 }

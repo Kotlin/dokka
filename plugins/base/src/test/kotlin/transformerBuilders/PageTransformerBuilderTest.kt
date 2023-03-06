@@ -4,6 +4,9 @@ import org.jetbrains.dokka.CoreExtensions
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
+import org.jetbrains.dokka.model.dfs
+import org.jetbrains.dokka.plugability.DokkaPluginApiPreview
+import org.jetbrains.dokka.plugability.PluginApiPreviewAcknowledgement
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 import org.jetbrains.dokka.transformers.pages.pageMapper
 import org.jetbrains.dokka.transformers.pages.pageScanner
@@ -12,12 +15,15 @@ import org.jsoup.Jsoup
 import org.junit.jupiter.api.Test
 import utils.TestOutputWriterPlugin
 import utils.assertContains
-import kotlin.test.assertEquals
-
+import utils.assertNotNull
 class PageTransformerBuilderTest : BaseAbstractTest() {
 
     class ProxyPlugin(transformer: PageTransformer) : DokkaPlugin() {
         val pageTransformer by extending { CoreExtensions.pageTransformer with transformer }
+
+        @OptIn(DokkaPluginApiPreview::class)
+        override fun pluginApiPreviewAcknowledgement(): PluginApiPreviewAcknowledgement =
+            PluginApiPreviewAcknowledgement
     }
 
     @Test
@@ -160,13 +166,12 @@ class PageTransformerBuilderTest : BaseAbstractTest() {
                     .filterIsInstance<ContentGroup>()
                     .single { it.dci.kind == ContentKind.Main }.children
 
-                val constructorTabsCount = content.filter { it is ContentHeader }.flatMap {
-                    it.children.filter { it is ContentText }
-                }.count {
-                    (it as? ContentText)?.text == "Constructors"
-                }
+                val contentWithConstructorsHeader = content.find { tabContent -> tabContent.dfs {  it is ContentText && (it as? ContentText)?.text == "Constructors"} != null }
 
-                assertEquals(1, constructorTabsCount)
+                contentWithConstructorsHeader.assertNotNull("contentWithConstructorsHeader")
+
+                contentWithConstructorsHeader?.dfs { it.dci.kind == ContentKind.Constructors && it is ContentGroup }
+                    .assertNotNull("constructor group")
             }
         }
     }

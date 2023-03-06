@@ -4,6 +4,8 @@ import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
 import org.gradle.api.UnknownDomainObjectException
 import org.gradle.util.Path
+import org.gradle.kotlin.dsl.findByType
+import org.gradle.kotlin.dsl.getByType
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
@@ -14,13 +16,18 @@ internal fun parsePath(path: String): Path = Path.path(path)
 
 internal val Project.kotlinOrNull: KotlinProjectExtension?
     get() = try {
-        project.extensions.findByType(KotlinProjectExtension::class.java)
-    } catch (e: NoClassDefFoundError) {
-        null
+        project.extensions.findByType()
+    } catch (e: Throwable) {
+        when (e) {
+            // if the user project doesn't have KGP applied, we won't be able to load the class;
+            // TypeNotPresentException is possible if it's loaded through reified generics.
+            is NoClassDefFoundError, is TypeNotPresentException, is ClassNotFoundException -> null
+            else -> throw e
+        }
     }
 
 internal val Project.kotlin: KotlinProjectExtension
-    get() = project.extensions.getByType(KotlinProjectExtension::class.java)
+    get() = project.extensions.getByType()
 
 internal fun Project.isAndroidProject() = try {
     project.extensions.getByName("android")

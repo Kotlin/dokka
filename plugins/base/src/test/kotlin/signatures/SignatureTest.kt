@@ -829,7 +829,7 @@ class SignatureTest : BaseAbstractTest() {
             renderingStage = { _, _ ->
                 val constructorTabFirstElement =
                     writerPlugin.writer.renderedContent("root/example/-primary-constructor-class/index.html")
-                        .tab("Constructors")
+                        .tab("CONSTRUCTOR")
                         .first() ?: throw NoSuchElementException("No Constructors tab found or it is empty")
 
                 constructorTabFirstElement.firstSignature().match(
@@ -926,7 +926,7 @@ class SignatureTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 val enumEntrySignatures = writerPlugin.writer.renderedContent("root/example/-enum-class/index.html")
-                    .select("div.table[data-togglable=Entries]")
+                    .select("div[data-togglable=ENTRY] .table")
                     .single()
                     .signature()
                     .select("div.block")

@@ -30,6 +30,8 @@ public final class matchers/content/ContentMatchersDslKt {
 	public static final fun platformHinted (Lmatchers/content/ContentMatcherBuilder;Lkotlin/jvm/functions/Function1;)V
 	public static final fun skipAllNotMatching (Lmatchers/content/ContentMatcherBuilder;)V
 	public static final fun somewhere (Lmatchers/content/ContentMatcherBuilder;Lkotlin/jvm/functions/Function1;)V
+	public static final fun tab (Lmatchers/content/ContentMatcherBuilder;Lorg/jetbrains/dokka/pages/TabbedContentType;Lkotlin/jvm/functions/Function1;)V
+	public static final fun tabbedGroup (Lmatchers/content/ContentMatcherBuilder;Lkotlin/jvm/functions/Function1;)V
 	public static final fun table (Lmatchers/content/ContentMatcherBuilder;Lkotlin/jvm/functions/Function1;)V
 }
 

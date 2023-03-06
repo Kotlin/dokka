@@ -2,7 +2,8 @@ package org.jetbrains.dokka.gradle
 
 import org.gradle.kotlin.dsl.withType
 import org.gradle.testfixtures.ProjectBuilder
-import org.jetbrains.dokka.DokkaSourceSetID
+import org.jetbrains.dokka.gradle.utils.configureEach_
+import org.jetbrains.dokka.gradle.utils.create_
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 import java.io.File
 import kotlin.test.Test
@@ -13,12 +14,12 @@ class KotlinDslDokkaTaskConfigurationTest {
     fun `configure dokka task`() {
         val project = ProjectBuilder.builder().build()
         project.plugins.apply("org.jetbrains.dokka")
-        project.tasks.withType<DokkaTask>().configureEach {
-            it.outputDirectory.set(File("test"))
+        project.tasks.withType<DokkaTask>().configureEach_ {
+            outputDirectory.set(File("test"))
         }
 
         project.tasks.withType(DokkaTask::class.java).forEach { dokkaTask ->
-            assertEquals(File("test"), dokkaTask.outputDirectory.getSafe())
+            assertEquals(File("test"), dokkaTask.outputDirectory.get().asFile.relativeTo(project.projectDir))
         }
     }
 
@@ -30,8 +31,8 @@ class KotlinDslDokkaTaskConfigurationTest {
         project.tasks.withType(DokkaTask::class.java).forEach { dokkaTask ->
             dokkaTask.dokkaSourceSets.run {
                 val commonMain = create("commonMain")
-                val jvmMain = create("jvmMain") {
-                    it.dependsOn("commonMain")
+                val jvmMain = create_("jvmMain") {
+                    dependsOn("commonMain")
                 }
 
                 assertEquals(
@@ -65,7 +66,7 @@ class KotlinDslDokkaTaskConfigurationTest {
             dokkaSourceSets.run {
                 val commonMain = create("commonMain")
                 val jvmMain = create("jvmMain") {
-                    it.dependsOn(commonMain)
+                    dependsOn(commonMain)
                 }
 
                 assertEquals(
@@ -86,7 +87,7 @@ class KotlinDslDokkaTaskConfigurationTest {
         project.tasks.withType(DokkaTask::class.java).first().apply {
             dokkaSourceSets.run {
                 val special = create("special") {
-                    it.dependsOn(kotlin.sourceSets.getByName("main"))
+                    dependsOn(kotlin.sourceSets.getByName("main"))
                 }
 
                 assertEquals(

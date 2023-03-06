@@ -147,5 +147,5 @@ and `CommonmarkRenderer`.
 `PostAction` is useful for when you want to run some actions after the documentation has been generated - for instance
 if you want to move some files around.
 
-[Versioning plugin](../../../user_guide/plugins/versioning-plugin.md) utilizes `PostAction` in order to move
+[Versioning plugin](https://github.com/Kotlin/dokka/tree/master/plugins/versioning) utilizes `PostAction` in order to move
 generated documentation to versioned folders.
