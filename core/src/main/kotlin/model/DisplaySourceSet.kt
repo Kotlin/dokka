@@ -5,6 +5,14 @@ import org.jetbrains.dokka.DokkaSourceSetID
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.utilities.SelfRepresentingSingletonSet
 
+/**
+ * TODO: fix the example (asymmetric equivalence relation with [Set]):
+ * ```
+ * val ds = DokkaSourceSetImpl(sourceSetID = DokkaSourceSetID("", "")).toDisplaySourceSet()
+ * println(setOf(ds) == ds) // true
+ * println(ds == setOf(ds)) // false
+ * ```
+ */
 data class DisplaySourceSet(
     val sourceSetIDs: CompositeSourceSetID,
     val name: String,

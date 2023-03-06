@@ -7,6 +7,7 @@ import org.gradle.api.Action
 import org.gradle.api.DefaultTask
 import org.gradle.api.Task
 import org.gradle.api.artifacts.Configuration
+import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.MapProperty
@@ -14,11 +15,11 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
 import org.gradle.kotlin.dsl.listProperty
 import org.gradle.kotlin.dsl.mapProperty
+import org.gradle.kotlin.dsl.property
 import org.gradle.work.DisableCachingByDefault
 import org.jetbrains.dokka.*
 import org.jetbrains.dokka.plugability.ConfigurableBlock
 import org.jetbrains.dokka.plugability.DokkaPlugin
-import java.io.File
 import java.util.function.BiConsumer
 import kotlin.reflect.full.createInstance
 
@@ -33,8 +34,8 @@ abstract class AbstractDokkaTask : DefaultTask() {
      * Default is Gradle project name.
      */
     @Input
-    val moduleName: Property<String> = project.objects.safeProperty<String>()
-        .safeConvention(project.name)
+    val moduleName: Property<String> = project.objects.property<String>()
+        .convention(project.name)
 
     /**
      * Module version.
@@ -45,8 +46,8 @@ abstract class AbstractDokkaTask : DefaultTask() {
      * Default is Gradle project version.
      */
     @Input
-    val moduleVersion: Property<String> = project.objects.safeProperty<String>()
-        .safeConvention(project.provider { project.version.toString() })
+    val moduleVersion: Property<String> = project.objects.property<String>()
+        .convention(project.provider { project.version.toString() })
 
     /**
      * Directory to which documentation will be generated, regardless of format.
@@ -55,9 +56,8 @@ abstract class AbstractDokkaTask : DefaultTask() {
      * Default is `project/buildDir/taskName.removePrefix("dokka").decapitalize()`, so
      * for `dokkaHtmlMultiModule` task it will be `project/buildDir/htmlMultiModule`
      */
-    @OutputDirectory
-    val outputDirectory: Property<File> = project.objects.safeProperty<File>()
-        .safeConvention(project.provider { defaultDokkaOutputDirectory() })
+    @get:OutputDirectory
+    abstract val outputDirectory: DirectoryProperty
 
     /**
      * Configuration for Dokka plugins. This property is not expected to be used directly - if possible, use
@@ -103,8 +103,8 @@ abstract class AbstractDokkaTask : DefaultTask() {
      * Default is `true`
      */
     @Input
-    val suppressObviousFunctions: Property<Boolean> = project.objects.safeProperty<Boolean>()
-        .safeConvention(DokkaDefaults.suppressObviousFunctions)
+    val suppressObviousFunctions: Property<Boolean> = project.objects.property<Boolean>()
+        .convention(DokkaDefaults.suppressObviousFunctions)
 
     /**
      * Whether to suppress inherited members that aren't explicitly overridden in a given class.
@@ -116,8 +116,8 @@ abstract class AbstractDokkaTask : DefaultTask() {
      * Default is `false`.
      */
     @Input
-    val suppressInheritedMembers: Property<Boolean> = project.objects.safeProperty<Boolean>()
-        .safeConvention(DokkaDefaults.suppressInheritedMembers)
+    val suppressInheritedMembers: Property<Boolean> = project.objects.property<Boolean>()
+        .convention(DokkaDefaults.suppressInheritedMembers)
 
     /**
      * Whether to resolve remote files/links over network.
@@ -135,8 +135,8 @@ abstract class AbstractDokkaTask : DefaultTask() {
      * Default is `false`.
      */
     @Input
-    val offlineMode: Property<Boolean> = project.objects.safeProperty<Boolean>()
-        .safeConvention(DokkaDefaults.offlineMode)
+    val offlineMode: Property<Boolean> = project.objects.property<Boolean>()
+        .convention(DokkaDefaults.offlineMode)
 
     /**
      * Whether to fail documentation generation if Dokka has emitted a warning or an error.
@@ -147,13 +147,13 @@ abstract class AbstractDokkaTask : DefaultTask() {
      * Default is `false`.
      */
     @Input
-    val failOnWarning: Property<Boolean> = project.objects.safeProperty<Boolean>()
-        .safeConvention(DokkaDefaults.failOnWarning)
+    val failOnWarning: Property<Boolean> = project.objects.property<Boolean>()
+        .convention(DokkaDefaults.failOnWarning)
 
-    @Optional
-    @InputDirectory
-    @PathSensitive(PathSensitivity.RELATIVE)
-    val cacheRoot: Property<File?> = project.objects.safeProperty()
+    @get:Optional
+    @get:InputDirectory
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    abstract val cacheRoot: DirectoryProperty
 
     /**
      * Type-safe configuration for a Dokka plugin.
@@ -231,13 +231,13 @@ abstract class AbstractDokkaTask : DefaultTask() {
     }
 
     internal fun buildPluginsConfiguration(): List<PluginConfigurationImpl> {
-        val manuallyConfigured = pluginsMapConfiguration.getSafe().entries.map { entry ->
+        val manuallyConfigured = pluginsMapConfiguration.get().entries.map { entry ->
             PluginConfigurationImpl(
                 entry.key,
                 DokkaConfiguration.SerializationFormat.JSON,
                 entry.value
             )
         }
-        return pluginsConfiguration.getSafe().mapNotNull { it as? PluginConfigurationImpl } + manuallyConfigured
+        return pluginsConfiguration.get().mapNotNull { it as? PluginConfigurationImpl } + manuallyConfigured
     }
 }

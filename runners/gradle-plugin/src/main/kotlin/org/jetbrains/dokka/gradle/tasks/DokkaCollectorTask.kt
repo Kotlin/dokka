@@ -15,15 +15,15 @@ abstract class DokkaCollectorTask : AbstractDokkaParentTask() {
 
     override fun buildDokkaConfiguration(): DokkaConfigurationImpl {
         val initialDokkaConfiguration = DokkaConfigurationImpl(
-            moduleName = moduleName.getSafe(),
-            outputDir = outputDirectory.getSafe(),
-            cacheRoot = cacheRoot.getSafe(),
-            failOnWarning = failOnWarning.getSafe(),
-            offlineMode = offlineMode.getSafe(),
+            moduleName = moduleName.get(),
+            outputDir = outputDirectory.asFile.get(),
+            cacheRoot = cacheRoot.asFile.orNull,
+            failOnWarning = failOnWarning.get(),
+            offlineMode = offlineMode.get(),
             pluginsClasspath = plugins.resolve().toList(),
             pluginsConfiguration = buildPluginsConfiguration(),
-            suppressObviousFunctions = suppressObviousFunctions.getSafe(),
-            suppressInheritedMembers = suppressInheritedMembers.getSafe(),
+            suppressObviousFunctions = suppressObviousFunctions.get(),
+            suppressInheritedMembers = suppressInheritedMembers.get(),
         )
 
         val subprojectDokkaConfigurations = childDokkaTasks.map { dokkaTask -> dokkaTask.buildDokkaConfiguration() }

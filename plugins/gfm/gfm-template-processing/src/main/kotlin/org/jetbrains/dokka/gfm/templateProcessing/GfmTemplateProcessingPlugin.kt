@@ -6,6 +6,8 @@ import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.gfm.GfmPlugin
 import org.jetbrains.dokka.gfm.location.MarkdownLocationProvider
 import org.jetbrains.dokka.plugability.DokkaPlugin
+import org.jetbrains.dokka.plugability.DokkaPluginApiPreview
+import org.jetbrains.dokka.plugability.PluginApiPreviewAcknowledgement
 import org.jetbrains.dokka.templates.TemplatingPlugin
 
 class GfmTemplateProcessingPlugin : DokkaPlugin() {
@@ -30,4 +32,8 @@ class GfmTemplateProcessingPlugin : DokkaPlugin() {
     val gfmPartialLocationProvider by extending {
         allModulesPagePlugin.partialLocationProviderFactory providing MarkdownLocationProvider::Factory override allModulesPagePlugin.baseLocationProviderFactory
     }
+
+    @OptIn(DokkaPluginApiPreview::class)
+    override fun pluginApiPreviewAcknowledgement(): PluginApiPreviewAcknowledgement =
+        PluginApiPreviewAcknowledgement
 }

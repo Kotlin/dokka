@@ -33,5 +33,5 @@ abstract class AbstractDokkaLeafTask : AbstractDokkaTask() {
         get() = dokkaSourceSets
             .toList()
             .also(::checkSourceSetDependencies)
-            .filterNot { it.suppress.getSafe() }
+            .filterNot { it.suppress.get() }
 }

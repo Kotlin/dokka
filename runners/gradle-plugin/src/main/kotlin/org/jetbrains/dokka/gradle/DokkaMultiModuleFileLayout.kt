@@ -1,6 +1,10 @@
 package org.jetbrains.dokka.gradle
 
+import org.gradle.api.file.Directory
+import org.gradle.api.provider.Provider
 import org.jetbrains.dokka.DokkaException
+import org.jetbrains.dokka.gradle.DokkaMultiModuleFileLayout.CompactInParent
+import org.jetbrains.dokka.gradle.DokkaMultiModuleFileLayout.NoCopy
 import java.io.File
 
 /**
@@ -16,14 +20,16 @@ fun interface DokkaMultiModuleFileLayout {
      * @return The target output directory of the [child] dokka task referenced by [parent]. This should
      * be unique for all registered child tasks.
      */
-    fun targetChildOutputDirectory(parent: DokkaMultiModuleTask, child: AbstractDokkaTask): File
+    fun targetChildOutputDirectory(parent: DokkaMultiModuleTask, child: AbstractDokkaTask): Provider<Directory>
 
     /**
      * Will link to the original [AbstractDokkaTask.outputDirectory]. This requires no copying of the output files.
      */
     object NoCopy : DokkaMultiModuleFileLayout {
-        override fun targetChildOutputDirectory(parent: DokkaMultiModuleTask, child: AbstractDokkaTask): File =
-            child.outputDirectory.getSafe()
+        override fun targetChildOutputDirectory(
+            parent: DokkaMultiModuleTask,
+            child: AbstractDokkaTask
+        ): Provider<Directory> = child.outputDirectory
     }
 
     /**
@@ -34,18 +40,21 @@ fun interface DokkaMultiModuleFileLayout {
      * {parent output directory}/firstAncestor/secondAncestor
      */
     object CompactInParent : DokkaMultiModuleFileLayout {
-        override fun targetChildOutputDirectory(parent: DokkaMultiModuleTask, child: AbstractDokkaTask): File {
+        override fun targetChildOutputDirectory(
+            parent: DokkaMultiModuleTask,
+            child: AbstractDokkaTask
+        ): Provider<Directory> {
             val relativeProjectPath = parent.project.relativeProjectPath(child.project.path)
             val relativeFilePath = relativeProjectPath.replace(":", File.separator)
             check(!File(relativeFilePath).isAbsolute) { "Unexpected absolute path $relativeFilePath" }
-            return parent.outputDirectory.getSafe().resolve(relativeFilePath)
+            return parent.outputDirectory.dir(relativeFilePath)
         }
     }
 }
 
 internal fun DokkaMultiModuleTask.targetChildOutputDirectory(
     child: AbstractDokkaTask
-): File = fileLayout.get().targetChildOutputDirectory(this, child)
+): Provider<Directory> = fileLayout.get().targetChildOutputDirectory(this, child)
 
 
 internal fun DokkaMultiModuleTask.copyChildOutputDirectories() {
@@ -56,7 +65,7 @@ internal fun DokkaMultiModuleTask.copyChildOutputDirectories() {
 
 internal fun DokkaMultiModuleTask.copyChildOutputDirectory(child: AbstractDokkaTask) {
     val targetChildOutputDirectory = project.file(fileLayout.get().targetChildOutputDirectory(this, child))
-    val sourceChildOutputDirectory = child.outputDirectory.getSafe()
+    val sourceChildOutputDirectory = child.outputDirectory.asFile.get()
 
     /* Pointing to the same directory -> No copy necessary */
     if (sourceChildOutputDirectory.absoluteFile == targetChildOutputDirectory.absoluteFile) {
@@ -79,4 +88,3 @@ internal fun DokkaMultiModuleTask.copyChildOutputDirectory(child: AbstractDokkaT
 
     sourceChildOutputDirectory.copyRecursively(targetChildOutputDirectory, overwrite = true)
 }
-
