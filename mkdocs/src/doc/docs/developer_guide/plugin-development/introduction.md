@@ -37,7 +37,7 @@ dependencies {
 }
 
 tasks.withType<KotlinCompile>().configureEach {
-    (compilerOptions as? KotlinJvmCompilerOptions)?.jvmTarget?.set(JvmTarget.JVM_1_8)
+    compilerOptions.jvmTarget.set(JvmTarget.JVM_1_8)
 }
 ```
 
