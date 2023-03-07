@@ -156,7 +156,7 @@ class BasicGradleIntegrationTest(override val versions: BuildVersions) : Abstrac
         val indexFile = File(this, "index.html")
         assertTrue(indexFile.isFile, "Missing index.html")
         assertTrue(
-            """<title>Basic Project 1.7.20-SNAPSHOT API </title>""" in indexFile.readText(),
+            """<title>Basic Project 1.8.10-SNAPSHOT API </title>""" in indexFile.readText(),
             "Header with version number not present in index.html"
         )
 
