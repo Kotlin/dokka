@@ -1,7 +1,13 @@
-import java.util.Properties
+import java.util.*
 
 plugins {
     `kotlin-dsl`
+}
+
+kotlin {
+    jvmToolchain {
+        languageVersion.set(JavaLanguageVersion.of(8))
+    }
 }
 
 // TODO define versions in Gradle Version Catalog https://github.com/Kotlin/dokka/pull/2884
