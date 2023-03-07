@@ -19,6 +19,11 @@ tasks.integrationTest {
     environment("DOKKA_VERSION", dokka_version)
     inputs.dir(file("projects"))
     dependsOnMavenLocalPublication()
+
+    javaLauncher.set(javaToolchains.launcherFor {
+        // kotlinx.coroutines requires Java 11+
+        languageVersion.set(JavaLanguageVersion.of(11))
+    })
 }
 
 tasks.clean {
