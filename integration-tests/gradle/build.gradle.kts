@@ -1,6 +1,11 @@
 import org.jetbrains.dependsOnMavenLocalPublication
 
+plugins {
+    org.jetbrains.conventions.`dokka-integration-test`
+}
+
 dependencies {
+    implementation(project(":integration-tests"))
     implementation(kotlin("stdlib"))
     implementation(kotlin("test-junit"))
     implementation(gradleTestKit())
@@ -14,8 +19,9 @@ tasks.integrationTest {
     environment("DOKKA_VERSION", dokka_version)
     inputs.dir(file("projects"))
     dependsOnMavenLocalPublication()
-}
 
-tasks.clean {
-    delete(File(buildDir, "gradle-test-kit"))
+    javaLauncher.set(javaToolchains.launcherFor {
+        // kotlinx.coroutines requires Java 11+
+        languageVersion.set(JavaLanguageVersion.of(11))
+    })
 }

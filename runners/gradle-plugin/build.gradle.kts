@@ -1,13 +1,10 @@
-import org.gradle.configurationcache.extensions.serviceOf
 import org.jetbrains.*
 
 plugins {
     `kotlin-dsl`
-    id("com.gradle.plugin-publish") version "0.20.0"
-}
-
-repositories {
-    google()
+    org.jetbrains.conventions.`maven-publish`
+    org.jetbrains.conventions.`base-java`
+    id("com.gradle.plugin-publish")
 }
 
 dependencies {
@@ -22,7 +19,7 @@ dependencies {
     testImplementation("com.android.tools.build:gradle:4.0.1")
 }
 
-// Gradle will put its own version of the stdlib in the classpath, do not pull our own we will end up with
+// Gradle will put its own version of the stdlib in the classpath, so not pull our own we will end up with
 // warnings like 'Runtime JAR files in the classpath should have the same version'
 configurations.api.configure {
     excludeGradleCommonDependencies()
@@ -86,7 +83,6 @@ publishing {
         register<MavenPublication>("pluginMaven") {
             configurePom("Dokka ${project.name}")
             artifactId = "dokka-gradle-plugin"
-            artifact(tasks["javadocJar"])
         }
 
         afterEvaluate {
@@ -109,4 +105,8 @@ afterEvaluate { // Workaround for an interesting design choice https://github.co
     configureSpacePublicationIfNecessary("pluginMaven", "dokkaGradlePluginPluginMarkerMaven")
     configureSonatypePublicationIfNecessary("pluginMaven", "dokkaGradlePluginPluginMarkerMaven")
     createDokkaPublishTaskIfNecessary()
+}
+
+tasks.processResources {
+    duplicatesStrategy = DuplicatesStrategy.WARN
 }
