@@ -25,7 +25,3 @@ tasks.integrationTest {
         languageVersion.set(JavaLanguageVersion.of(11))
     })
 }
-
-tasks.clean {
-    delete(File(buildDir, "gradle-test-kit"))
-}
