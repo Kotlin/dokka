@@ -1,7 +1,7 @@
 import org.jetbrains.*
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
-import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("jvm") apply false
@@ -19,7 +19,7 @@ allprojects {
     version = dokka_version
 
     val language_version: String by project
-    tasks.withType<KotlinJvmCompile>().configureEach {
+    tasks.withType<KotlinCompile>().configureEach {
         compilerOptions {
             freeCompilerArgs.addAll(
                 listOf(

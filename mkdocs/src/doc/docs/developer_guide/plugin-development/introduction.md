@@ -25,7 +25,6 @@ It has pre-configured dependencies, publishing and signing of your artifacts.
 At a bare minimum, Dokka requires `Kotlin Gradle Plugin` and `dokka-core` dependencies:
 
 ```kotlin
-import org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompilerOptions
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
