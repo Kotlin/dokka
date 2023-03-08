@@ -2,7 +2,7 @@ import org.jetbrains.ValidatePublications
 import org.jetbrains.publicationChannels
 
 plugins {
-    org.jetbrains.conventions.base
+    id("org.jetbrains.conventions.base")
     id("org.jetbrains.dokka")
     id("io.github.gradle-nexus.publish-plugin")
 
