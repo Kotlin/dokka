@@ -1034,7 +1034,11 @@ it with other tools and so much more.</p>
 It has pre-configured dependencies, publishing and signing of your artifacts.</p>
 <h3 id="manual">Manual<a class="headerlink" href="#manual" title="Permanent link">&para;</a></h3>
 <p>At a bare minimum, Dokka requires <code>Kotlin Gradle Plugin</code> and <code>dokka-core</code> dependencies:</p>
-<div class="highlight"><pre><span></span><code><span class="n">plugins</span> <span class="p">{</span>
+<div class="highlight"><pre><span></span><code><span class="k">import</span> <span class="nn">org.jetbrains.kotlin.gradle.dsl.JvmTarget</span>
+<span class="k">import</span> <span class="nn">org.jetbrains.kotlin.gradle.tasks.KotlinCompile</span>
+
+
+<span class="n">plugins</span> <span class="p">{</span>
     <span class="n">kotlin</span><span class="p">(</span><span class="s">&quot;jvm&quot;</span><span class="p">)</span> <span class="n">version</span> <span class="s">&quot;&lt;kotlin_version&gt;&quot;</span>
 <span class="p">}</span>
 
@@ -1042,8 +1046,8 @@ It has pre-configured dependencies, publishing and signing of your artifacts.</p
     <span class="n">compileOnly</span><span class="p">(</span><span class="s">&quot;org.jetbrains.dokka:dokka-core:&lt;dokka_version&gt;&quot;</span><span class="p">)</span>
 <span class="p">}</span>
 
-<span class="n">tasks</span><span class="p">.</span><span class="na">withType</span><span class="o">&lt;</span><span class="n">KotlinCompile</span><span class="o">&gt;</span> <span class="p">{</span>
-    <span class="n">kotlinOptions</span><span class="p">.</span><span class="na">jvmTarget</span> <span class="o">=</span> <span class="s">&quot;1.8&quot;</span>
+<span class="n">tasks</span><span class="p">.</span><span class="na">withType</span><span class="o">&lt;</span><span class="n">KotlinCompile</span><span class="o">&gt;</span><span class="p">().</span><span class="na">configureEach</span> <span class="p">{</span>
+    <span class="n">compilerOptions</span><span class="p">.</span><span class="na">jvmTarget</span><span class="p">.</span><span class="na">set</span><span class="p">(</span><span class="n">JvmTarget</span><span class="p">.</span><span class="na">JVM_1_8</span><span class="p">)</span>
 <span class="p">}</span>
 </code></pre></div>
 <p>In order to load a plugin into Dokka, your class must extend <code>DokkaPlugin</code> class. A fully qualified name of that class
