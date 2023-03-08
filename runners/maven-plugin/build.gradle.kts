@@ -81,11 +81,6 @@ val pluginDescriptor by tasks.registering(CrossPlatformExec::class) {
     outputs.dir(layout.buildDirectory.dir("maven/classes/java/main/META-INF/maven"))
 }
 
-val sourceJar by tasks.registering(Jar::class) {
-    archiveClassifier.set("sources")
-    from(java.sourceSets["main"].allSource)
-}
-
 tasks.jar {
     dependsOn(pluginDescriptor, helpMojo)
     metaInf {
