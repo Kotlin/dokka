@@ -1,11 +1,9 @@
-import org.jetbrains.SetupMaven
 import org.jetbrains.dependsOnMavenLocalPublication
 
 plugins {
     org.jetbrains.conventions.`dokka-integration-test`
+    org.jetbrains.conventions.`maven-cli-setup`
 }
-
-evaluationDependsOn(":runners:maven-plugin")
 
 dependencies {
     implementation(project(":integration-tests"))
@@ -16,10 +14,13 @@ dependencies {
 tasks.integrationTest {
     dependsOnMavenLocalPublication()
 
-    val setupMavenTask = project(":runners:maven-plugin").tasks.withType<SetupMaven>().single()
-    dependsOn(setupMavenTask)
+    dependsOn(tasks.installMavenBinary)
+    val mvn = setupMavenProperties.mvn
+    inputs.file(mvn)
 
     val dokka_version: String by project
     environment("DOKKA_VERSION", dokka_version)
-    environment("MVN_BINARY_PATH", setupMavenTask.mvn.absolutePath)
+    doFirst {
+        environment("MVN_BINARY_PATH", mvn.get().asFile.invariantSeparatorsPath)
+    }
 }
