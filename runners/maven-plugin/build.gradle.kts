@@ -26,10 +26,10 @@ val generatePom by tasks.registering(Sync::class) {
     val dokka_version: String by project
     inputs.property("dokka_version", dokka_version)
 
-    val pomTemplateFile = layout.projectDirectory.file("pom.tpl.xml")
+    val pomTemplateFile = layout.projectDirectory.file("pom.template.xml")
 
     from(pomTemplateFile) {
-        rename { it.replace(".tpl.xml", ".xml") }
+        rename { it.replace(".template.xml", ".xml") }
 
         expand(
             "mavenVersion" to setupMavenProperties.mavenVersion,
