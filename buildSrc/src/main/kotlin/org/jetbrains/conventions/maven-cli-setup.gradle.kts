@@ -4,6 +4,11 @@ import org.gradle.kotlin.dsl.support.serviceOf
 
 /**
  * Utility for downloading and installing a Maven binary.
+ *
+ * Provides the `setupMavenProperties` extension that contains the default versions and locations
+ * of the Maven binary.
+ *
+ * The task [installMavenBinary] will download and unzip the Maven bianry.
  */
 
 plugins {
@@ -11,18 +16,45 @@ plugins {
 }
 
 abstract class SetupMavenProperties {
-    val mavenVersion = "3.5.0"
-    val mavenPluginToolsVersion = "3.5.2"
+    abstract val mavenVersion: Property<String>
+    abstract val mavenPluginToolsVersion: Property<String>
     abstract val mavenBuildDir: DirectoryProperty
-    abstract val mavenBinDir: DirectoryProperty
+
+    /** Directory that will contain the unpacked Apache Maven dependency */
+    abstract val mavenInstallDir: DirectoryProperty
+
+    /**
+     * Path to the Maven executable.
+     *
+     * This should be different per OS:
+     *
+     * * Windows: `$mavenInstallDir/bin/mvn.cmd`
+     * * Unix: `$mavenInstallDir/bin/mvn`
+     */
     abstract val mvn: RegularFileProperty
 }
 
 val setupMavenProperties =
     extensions.create("setupMavenProperties", SetupMavenProperties::class).apply {
-        mavenBuildDir.set(layout.buildDirectory.dir("maven"))
-        mavenBinDir.set(layout.buildDirectory.dir("maven-bin"))
-        mvn.set(mavenBinDir.map { it.file("apache-maven-$mavenVersion/bin/mvn") })
+        mavenVersion.convention(providers.gradleProperty("mavenVersion"))
+        mavenPluginToolsVersion.convention(providers.gradleProperty("mavenPluginToolsVersion"))
+
+        mavenBuildDir.convention(layout.buildDirectory.dir("maven"))
+        mavenInstallDir.convention(layout.buildDirectory.dir("apache-maven"))
+
+        val isWindowsProvider =
+            providers.systemProperty("os.name").map { "win" in it.toLowerCase() }
+
+        mvn.convention(
+            providers.zip(mavenInstallDir, isWindowsProvider) { mavenInstallDir, isWindows ->
+                mavenInstallDir.file(
+                    when {
+                        isWindows -> "bin/mvn.cmd"
+                        else -> "bin/mvn"
+                    }
+                )
+            }
+        )
     }
 
 val mavenBinary by configurations.registering {
@@ -32,21 +64,21 @@ val mavenBinary by configurations.registering {
     isVisible = false
 
     defaultDependencies {
-        add(
+        addLater(setupMavenProperties.mavenVersion.map { mavenVersion ->
             project.dependencies.create(
                 group = "org.apache.maven",
                 name = "apache-maven",
-                version = setupMavenProperties.mavenVersion,
+                version = mavenVersion,
                 classifier = "bin",
                 ext = "zip"
             )
-        )
+        })
     }
 }
 
 tasks.clean {
     delete(setupMavenProperties.mavenBuildDir)
-    delete(setupMavenProperties.mavenBinDir)
+    delete(setupMavenProperties.mavenInstallDir)
 }
 
 val installMavenBinary by tasks.registering(Sync::class) {
@@ -57,6 +89,12 @@ val installMavenBinary by tasks.registering(Sync::class) {
                 artifacts.map { archives.zipTree(it.file) }
             }
         }
-    )
-    into(setupMavenProperties.mavenBinDir)
+    ) {
+        eachFile {
+            // drop the first directory inside the zipped Maven bin (apache-maven-$version)
+            relativePath = RelativePath(true, *relativePath.segments.drop(1).toTypedArray())
+        }
+        includeEmptyDirs = false
+    }
+    into(setupMavenProperties.mavenInstallDir)
 }

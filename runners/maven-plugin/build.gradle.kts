@@ -1,5 +1,4 @@
 import org.gradle.kotlin.dsl.support.appendReproducibleNewLine
-import org.jetbrains.CrossPlatformExec
 import org.jetbrains.registerDokkaArtifactPublication
 
 plugins {
@@ -10,9 +9,9 @@ plugins {
 
 dependencies {
     implementation(project(":core"))
-    implementation("org.apache.maven:maven-core:${setupMavenProperties.mavenVersion}")
-    implementation("org.apache.maven:maven-plugin-api:${setupMavenProperties.mavenVersion}")
-    implementation("org.apache.maven.plugin-tools:maven-plugin-annotations:${setupMavenProperties.mavenPluginToolsVersion}")
+    implementation("org.apache.maven:maven-core:${setupMavenProperties.mavenVersion.get()}")
+    implementation("org.apache.maven:maven-plugin-api:${setupMavenProperties.mavenVersion.get()}")
+    implementation("org.apache.maven.plugin-tools:maven-plugin-annotations:${setupMavenProperties.mavenPluginToolsVersion.get()}")
     implementation("org.apache.maven:maven-archiver:2.5")
     implementation(kotlin("stdlib-jdk8"))
 }
@@ -28,13 +27,16 @@ val generatePom by tasks.registering(Sync::class) {
 
     val pomTemplateFile = layout.projectDirectory.file("pom.template.xml")
 
+    val mavenVersion = setupMavenProperties.mavenVersion.get()
+    val mavenPluginToolsVersion = setupMavenProperties.mavenPluginToolsVersion.get()
+
     from(pomTemplateFile) {
         rename { it.replace(".template.xml", ".xml") }
 
         expand(
-            "mavenVersion" to setupMavenProperties.mavenVersion,
+            "mavenVersion" to mavenVersion,
             "dokka_version" to dokka_version,
-            "mavenPluginToolsVersion" to setupMavenProperties.mavenPluginToolsVersion,
+            "mavenPluginToolsVersion" to mavenPluginToolsVersion,
         )
     }
 
@@ -53,10 +55,11 @@ val prepareMavenPluginBuildDir by tasks.registering(Sync::class) {
     into(setupMavenProperties.mavenBuildDir)
 }
 
-val helpMojo by tasks.registering(CrossPlatformExec::class) {
+val helpMojo by tasks.registering(Exec::class) {
     group = mavenPluginTaskGroup
 
     dependsOn(tasks.installMavenBinary, prepareMavenPluginBuildDir)
+
     workingDir(setupMavenProperties.mavenBuildDir)
     executable(setupMavenProperties.mvn.get())
     args("-e", "-B", "org.apache.maven.plugins:maven-plugin-plugin:helpmojo")
@@ -81,10 +84,11 @@ val helpMojo by tasks.registering(CrossPlatformExec::class) {
     }
 }
 
-val pluginDescriptor by tasks.registering(CrossPlatformExec::class) {
+val pluginDescriptor by tasks.registering(Exec::class) {
     group = mavenPluginTaskGroup
 
     dependsOn(tasks.installMavenBinary, prepareMavenPluginBuildDir)
+
     workingDir(setupMavenProperties.mavenBuildDir)
     executable(setupMavenProperties.mvn.get())
     args("-e", "-B", "org.apache.maven.plugins:maven-plugin-plugin:descriptor")
