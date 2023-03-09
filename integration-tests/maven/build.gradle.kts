@@ -20,7 +20,7 @@ tasks.integrationTest {
 
     val dokka_version: String by project
     environment("DOKKA_VERSION", dokka_version)
-    doFirst {
+    doFirst("workaround for https://github.com/gradle/gradle/issues/24267") {
         environment("MVN_BINARY_PATH", mvn.get().asFile.invariantSeparatorsPath)
     }
 }
