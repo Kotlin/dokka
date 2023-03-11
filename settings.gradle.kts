@@ -39,6 +39,7 @@ include(
 
     ":mkdocs",
 )
+includeBuild("build-logic")
 
 val isCiBuild = System.getenv("GITHUB_ACTIONS") != null || System.getenv("TEAMCITY_VERSION") != null
 
@@ -47,8 +48,6 @@ pluginManagement {
         gradlePluginPortal()
         mavenCentral()
     }
-
-    includeBuild("build-logic")
 }
 
 plugins {
