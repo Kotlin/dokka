@@ -220,7 +220,7 @@ abstract class AbstractDokkaTask : DefaultTask() {
         when (level) {
             "debug" -> logger.debug(message)
             "info" -> logger.info(message)
-            "progress" -> logger.lifecycle(message)
+            "progress" -> logger.info(message)
             "warn" -> logger.warn(message)
             "error" -> logger.error(message)
         }
