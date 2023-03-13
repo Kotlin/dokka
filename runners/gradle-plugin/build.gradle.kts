@@ -43,47 +43,34 @@ fun Configuration.excludeGradleCommonDependencies() {
         }
 }
 
+group = "org.jetbrains.dokka"
+version = dokkaVersion
+
 gradlePlugin {
+    website.set("https://www.kotlinlang.org/")
+    vcsUrl.set("https://github.com/kotlin/dokka.git")
+
     plugins {
+        all {
+            implementationClass = "org.jetbrains.dokka.gradle.DokkaPlugin"
+            tags.set(listOf("dokka", "kotlin", "kdoc", "android", "documentation"))
+        }
         create("dokkaGradlePlugin") {
             id = "org.jetbrains.dokka"
             displayName = "Dokka plugin"
             description = "Dokka, the Kotlin documentation tool"
-            implementationClass = "org.jetbrains.dokka.gradle.DokkaPlugin"
-            version = dokkaVersion
             isAutomatedPublishing = true
         }
-    }
-}
 
-pluginBundle {
-    website = "https://www.kotlinlang.org/"
-    vcsUrl = "https://github.com/kotlin/dokka.git"
-    tags = listOf("dokka", "kotlin", "kdoc", "android", "documentation")
-
-    mavenCoordinates {
-        groupId = "org.jetbrains.dokka"
-        artifactId = "dokka-gradle-plugin"
-    }
-}
-
-publishing {
-    publications {
-        register<MavenPublication>("dokkaGradlePluginForIntegrationTests") {
-            artifactId = "dokka-gradle-plugin"
-            from(components["java"])
+        register("dokkaGradlePluginForIntegrationTests") {
+            id = "dokka-gradle-plugin"
+            //from(components["java"])
             version = "for-integration-tests-SNAPSHOT"
         }
 
-        register<MavenPublication>("pluginMaven") {
-            configurePom("Dokka ${project.name}")
-            artifactId = "dokka-gradle-plugin"
-        }
-
-        afterEvaluate {
-            named<MavenPublication>("dokkaGradlePluginPluginMarkerMaven") {
-                configurePom("Dokka plugin")
-            }
+        register("pluginMaven") {
+            id = "dokka-gradle-plugin"
+            //configurePom("Dokka ${project.name}")
         }
     }
 }
@@ -97,8 +84,8 @@ tasks.withType<PublishToMavenRepository>().configureEach {
 }
 
 afterEvaluate { // Workaround for an interesting design choice https://github.com/gradle/gradle/blob/c4f935f77377f1783f70ec05381c8182b3ade3ea/subprojects/plugin-development/src/main/java/org/gradle/plugin/devel/plugins/MavenPluginPublishPlugin.java#L49
-    configureSpacePublicationIfNecessary("pluginMaven", "dokkaGradlePluginPluginMarkerMaven")
-    configureSonatypePublicationIfNecessary("pluginMaven", "dokkaGradlePluginPluginMarkerMaven")
+    configureSpacePublicationIfNecessary("pluginMaven")
+    configureSonatypePublicationIfNecessary("pluginMaven")
     createDokkaPublishTaskIfNecessary()
 }
 
