@@ -5,7 +5,7 @@ plugins {
     id("org.jetbrains.conventions.base") apply false
     id("org.jetbrains.dokka") version "1.8.10"
     id("io.github.gradle-nexus.publish-plugin") version "1.1.0"
-    id("com.gradle.plugin-publish") version "0.20.0"
+    id("com.gradle.plugin-publish") version "1.1.0"
     id("org.jetbrains.kotlinx.binary-compatibility-validator") version "0.12.1"
 }
 
