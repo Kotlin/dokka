@@ -1,5 +1,5 @@
 plugins {
-    org.jetbrains.conventions.`kotlin-jvm`
+    id("org.jetbrains.conventions.kotlin-jvm")
 }
 
 dependencies {

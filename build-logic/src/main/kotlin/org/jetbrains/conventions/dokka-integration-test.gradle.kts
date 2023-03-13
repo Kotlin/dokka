@@ -7,16 +7,16 @@ plugins {
     id("org.jetbrains.conventions.kotlin-jvm")
 }
 
-val integrationTestSourceSet = sourceSets.create("integrationTest") {
+val integrationTestSourceSet: SourceSet = sourceSets.create("integrationTest") {
     compileClasspath += sourceSets.main.get().output
     runtimeClasspath += sourceSets.main.get().output
 }
 
-val integrationTestImplementation by configurations.getting {
+val integrationTestImplementation: Configuration by configurations.getting {
     extendsFrom(configurations.implementation.get())
 }
 
-val integrationTestRuntimeOnly by configurations.getting {
+val integrationTestRuntimeOnly: Configuration by configurations.getting {
     extendsFrom(configurations.runtimeOnly.get())
 }
 
