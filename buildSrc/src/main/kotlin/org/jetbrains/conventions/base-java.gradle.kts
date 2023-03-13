@@ -8,15 +8,22 @@ package org.jetbrains.conventions
  */
 
 plugins {
+    id("org.jetbrains.conventions.base")
     `java`
 }
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(8))
+        languageVersion.set(dokkaBuild.mainJavaVersion)
     }
 }
 
 java {
     withSourcesJar()
+}
+
+tasks.withType<Test>().configureEach {
+    javaLauncher.set(javaToolchains.launcherFor {
+        languageVersion.set(dokkaBuild.testJavaLauncherVErsion)
+    })
 }
