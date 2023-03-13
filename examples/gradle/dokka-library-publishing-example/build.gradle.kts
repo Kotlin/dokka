@@ -1,6 +1,6 @@
 plugins {
     kotlin("jvm") version "1.8.10"
-    id("org.jetbrains.dokka") version ("1.8.10")
+    id("org.jetbrains.dokka") version "1.8.10"
     `java-library`
     `maven-publish`
 }
@@ -38,7 +38,3 @@ publishing {
         }
     }
 }
-
-
-
-

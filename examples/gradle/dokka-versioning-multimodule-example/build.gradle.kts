@@ -1,6 +1,6 @@
 plugins {
     kotlin("jvm") version "1.8.10"
-    id("org.jetbrains.dokka") version ("1.8.10") apply false
+    id("org.jetbrains.dokka") version "1.8.10" apply false
 }
 
 // The versioning plugin must be applied in all submodules
