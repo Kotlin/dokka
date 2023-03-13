@@ -1,7 +1,7 @@
 import org.jetbrains.dependsOnMavenLocalPublication
 
 plugins {
-    org.jetbrains.conventions.`dokka-integration-test`
+    id("org.jetbrains.conventions.dokka-integration-test")
 }
 
 dependencies {
