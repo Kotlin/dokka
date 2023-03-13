@@ -5,6 +5,7 @@ plugins {
     id("org.jetbrains.conventions.maven-publish")
     id("org.jetbrains.conventions.base-java")
     id("com.gradle.plugin-publish")
+    signing
 }
 
 dependencies {
@@ -69,6 +70,10 @@ gradlePlugin {
             id = "dokka-gradle-plugin"
         }
     }
+}
+
+signing {
+    isRequired = false
 }
 
 tasks.validatePlugins {
