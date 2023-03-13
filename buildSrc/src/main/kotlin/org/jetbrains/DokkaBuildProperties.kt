@@ -34,6 +34,7 @@ abstract class DokkaBuildProperties @Inject constructor(
      */
     val testJavaLauncherVersion: Provider<JavaLanguageVersion> =
         dokkaProperty("javaToolchain.testLauncher") { JavaLanguageVersion.of(it) }
+            .orElse(mainJavaVersion)
 
     /**
      * The Kotlin language level that Dokka artifacts are compiled to support.
