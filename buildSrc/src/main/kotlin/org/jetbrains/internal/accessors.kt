@@ -1,4 +1,6 @@
-package org.gradle.kotlin.dsl
+@file:Suppress("PackageDirectoryMismatch")
+
+package org.gradle.kotlin.dsl // for convenience use a default package for gradle.kts scripts
 
 import org.gradle.api.Project
 import org.jetbrains.DokkaBuildProperties
