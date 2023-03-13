@@ -32,7 +32,7 @@ abstract class DokkaBuildProperties @Inject constructor(
      * This value is set in CI/CD environments to make sure that Dokka still works with different
      * versions of Java.
      */
-    val testJavaLauncherVErsion: Provider<JavaLanguageVersion> =
+    val testJavaLauncherVersion: Provider<JavaLanguageVersion> =
         dokkaProperty("javaToolchain.testLauncher") { JavaLanguageVersion.of(it) }
 
     /**

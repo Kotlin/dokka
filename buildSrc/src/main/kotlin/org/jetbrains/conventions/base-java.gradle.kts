@@ -24,6 +24,6 @@ java {
 
 tasks.withType<Test>().configureEach {
     javaLauncher.set(javaToolchains.launcherFor {
-        languageVersion.set(dokkaBuild.testJavaLauncherVErsion)
+        languageVersion.set(dokkaBuild.testJavaLauncherVersion)
     })
 }
