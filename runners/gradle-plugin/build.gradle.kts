@@ -61,16 +61,12 @@ gradlePlugin {
             description = "Dokka, the Kotlin documentation tool"
             isAutomatedPublishing = true
         }
-
         register("dokkaGradlePluginForIntegrationTests") {
             id = "dokka-gradle-plugin"
-            //from(components["java"])
             version = "for-integration-tests-SNAPSHOT"
         }
-
         register("pluginMaven") {
             id = "dokka-gradle-plugin"
-            //configurePom("Dokka ${project.name}")
         }
     }
 }
