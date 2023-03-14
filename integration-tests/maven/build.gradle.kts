@@ -1,8 +1,8 @@
 import org.jetbrains.dependsOnMavenLocalPublication
 
 plugins {
-    org.jetbrains.conventions.`dokka-integration-test`
-    org.jetbrains.conventions.`maven-cli-setup`
+    id("org.jetbrains.conventions.dokka-integration-test")
+    id("org.jetbrains.conventions.maven-cli-setup")
 }
 
 dependencies {

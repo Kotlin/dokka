@@ -2,9 +2,9 @@ import org.gradle.kotlin.dsl.support.appendReproducibleNewLine
 import org.jetbrains.registerDokkaArtifactPublication
 
 plugins {
-    org.jetbrains.conventions.`kotlin-jvm`
-    org.jetbrains.conventions.`maven-publish`
-    org.jetbrains.conventions.`maven-cli-setup`
+    id("org.jetbrains.conventions.kotlin-jvm")
+    id("org.jetbrains.conventions.maven-publish")
+    id("org.jetbrains.conventions.maven-cli-setup")
 }
 
 dependencies {

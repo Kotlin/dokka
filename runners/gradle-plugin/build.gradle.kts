@@ -2,8 +2,8 @@ import org.jetbrains.*
 
 plugins {
     `kotlin-dsl`
-    org.jetbrains.conventions.`maven-publish`
-    org.jetbrains.conventions.`base-java`
+    id("org.jetbrains.conventions.maven-publish")
+    id("org.jetbrains.conventions.base-java")
     id("com.gradle.plugin-publish")
 }
 
@@ -41,11 +41,6 @@ fun Configuration.excludeGradleCommonDependencies() {
             exclude(group = "org.jetbrains.kotlin", module = "kotlin-reflect")
             exclude(group = "org.jetbrains.kotlin", module = "kotlin-script-runtime")
         }
-}
-
-val sourceJar by tasks.registering(Jar::class) {
-    archiveClassifier.set("sources")
-    from(sourceSets["main"].allSource)
 }
 
 gradlePlugin {
