@@ -1,3 +1,3 @@
 dependencies {
-    implementation(kotlin("stdlib"))
+
 }
