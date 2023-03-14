@@ -1,12 +1,6 @@
 [versions]
 
-## compilation ##
-jvm = "11"
 kotlin = "1.8.10"
-kotlin-languageLevel = "1.4"
-
-
-## libs ##
 kotlin-plugin = "213-1.8.10-release-430-IJ6777.52"
 kotlinx-coroutines = "1.6.3"
 kotlinx-html = "0.7.5"
@@ -20,6 +14,7 @@ freemarker = "2.3.31"
 
 jetbrainsMarkdown = "0.3.1"
 
+soywiz-korte = "2.7.0"
 
 apache-maven = "3.5.0"
 apache-mavenArtifact = "3.8.5"
@@ -28,10 +23,11 @@ apache-mavenPluginTools = "3.5.2"
 
 eclipse-jgit = "5.12.0.202106070339-r"
 
-## test ##
+## test dependency versions ##
 junit = "5.9.2"
+assertk = "0.25"
 
-## gradle plugins ##
+## Gradle plugins ##
 gradlePlugin-shadow = "7.1.2"
 gradlePlugin-binaryCompatibilityValidator = "0.12.1"
 gradlePlugin-nexusPublish = "1.1.0"
@@ -42,9 +38,18 @@ gradlePlugin-gradle = "4.0.1"
 ## NPM ##
 node = "16.13.0"
 
+
 [libraries]
 
-## Kotlin ##
+eclipse-jgit = { module = "org.eclipse.jgit:org.eclipse.jgit", version.ref = "eclipse-jgit" }
+freemarker = { module = "org.freemarker:freemarker", version.ref = "freemarker" }
+jetbrainsIntelliJ-core = { module = "com.jetbrains.intellij.idea:intellij-core", version.ref = "idea" }
+jetbrainsIntelliJ-jpsStandalone = { module = "com.jetbrains.intellij.idea:jps-standalone", version.ref = "idea" }
+jetbrainsMarkdown = { module = "org.jetbrains:markdown", version.ref = "jetbrainsMarkdown" }
+jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
+soywiz-korte = { module = "com.soywiz.korlibs.korte:korte", version.ref = "soywiz-korte" }
+
+## Kotlin libs ##
 kotlin-bom = { module = "org.jetbrains.kotlin:kotlin-bom", version.ref = "kotlin" }
 
 kotlin-compiler = { module = "org.jetbrains.kotlin:kotlin-compiler", version.ref = "kotlin" }
@@ -59,27 +64,17 @@ kotlinx-html = { module = "org.jetbrains.kotlinx:kotlinx-html", version.ref = "k
 kotlinx-coroutines-bom = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-bom", version.ref = "kotlinx-coroutines" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
 
+## Kotlin Plugins ##
 kotlinPlugin-common = { module = "org.jetbrains.kotlin:common", version.ref = "kotlin.plugin" }
 kotlinPlugin-idea = { module = "org.jetbrains.kotlin:idea", version.ref = "kotlin.plugin" }
 kotlinPlugin-core = { module = "org.jetbrains.kotlin:core", version.ref = "kotlin.plugin" }
 kotlinPlugin-native = { module = "org.jetbrains.kotlin:native", version.ref = "kotlin.plugin" }
 
-jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
-jetbrainsMarkdown = { module = "org.jetbrains:markdown", version.ref = "jetbrainsMarkdown" }
-freemarker = { module = "org.freemarker:freemarker", version.ref = "freemarker" }
-soywiz-korte = { module = "com.soywiz.korlibs.korte:korte", version = "2.7.0" }
-
-jetbrainsIntelliJ-core = { module = "com.jetbrains.intellij.idea:intellij-core", version.ref = "idea" }
-jetbrainsIntelliJ-jpsStandalone = { module = "com.jetbrains.intellij.idea:jps-standalone", version.ref = "idea" }
-
 ## Jackson ##
 jackson-bom = { module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "jackson" }
 jackson-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "jackson" }
 jackson-xml = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-xml", version.ref = "jackson" }
-
 jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jacksonDatabind" }
-
-
 
 ## Apache Maven ##
 apache-mavenArchiver = { module = "org.apache.maven:maven-archiver", version.ref = "apache-mavenArchiver" }
@@ -89,25 +84,17 @@ apache-mavenPluginApi = { module = "org.apache.maven:maven-plugin-api", version.
 apache-mavenArtifact = { module = "org.apache.maven:maven-artifact", version.ref = "apache-mavenArtifact" }
 
 
-eclipse-jgit = { module = "org.eclipse.jgit:org.eclipse.jgit", version.ref = "eclipse-jgit" }
+#### test dependencies  ####
 
-## logging ##
-
-
-#############
-### test  ###
-#############
-
-## junit ##
+assertk = { module = "com.willowtreeapps.assertk:assertk", version.ref = "assertk" }
 
 ## junit ##
 junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
 
-assertk = { module = "com.willowtreeapps.assertk:assertk", version = "0.25" }
 
-### Gradle plugins  ###
-# The Maven coordinates of Gradle plugins that are used as
+#### Gradle plugins dependencies  ####
+# The Maven coordinates of Gradle plugins that are either used in convention plugins, or in Dokka subprojects
 
 gradlePlugin-dokka = { module = "org.jetbrains.dokka:dokka-gradle-plugin", version.ref = "gradlePlugin-dokka" }
 gradlePlugin-kotlin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
@@ -116,6 +103,9 @@ gradlePlugin-android = { module = "com.android.tools.build:gradle", version.ref 
 
 
 [plugins]
+# Gradle Plugins that are applied directly to subprojects
+# (Before defining plugins here, first consider creating convention plugins instead,
+# and define the Maven coordinates above to be used in build-logic/build.gradle.kts)
 
 kotlinx-binaryCompatibilityValidator = { id = "org.jetbrains.kotlinx.binary-compatibility-validator", version.ref = "gradlePlugin-binaryCompatibilityValidator" }
 shadow = { id = "com.github.johnrengelman.shadow", version.ref = "gradlePlugin-shadow" }
