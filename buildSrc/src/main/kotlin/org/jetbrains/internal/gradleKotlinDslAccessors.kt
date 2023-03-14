@@ -10,8 +10,8 @@ import org.jetbrains.DokkaBuildProperties
  *
  * (Gradle can't generate the nice DSL accessors for the project that defines them)
  *
- * These functions should be marked `internal`, because they are not needed outside of the
- * convention plugins project.
+ * These functions are not needed outside the convention plugins project and should be marked as
+ * `internal`
  */
 
 /**
