@@ -3,15 +3,13 @@ package org.jetbrains.dokka
 import org.jetbrains.dokka.utilities.DokkaLogger
 import java.util.concurrent.atomic.AtomicInteger
 
-import java.util.function.BiConsumer
-
 /**
  * Accessed with reflection
  */
 @Suppress("unused")
 class DokkaBootstrapImpl : DokkaBootstrap {
 
-    class DokkaProxyLogger(val consumer: BiConsumer<String, String>) : DokkaLogger {
+    class DokkaProxyLogger(val consumer: (String, String) -> Unit) : DokkaLogger {
         private val warningsCounter = AtomicInteger()
         private val errorsCounter = AtomicInteger()
 
@@ -24,23 +22,23 @@ class DokkaBootstrapImpl : DokkaBootstrap {
             set(value) = errorsCounter.set(value)
 
         override fun debug(message: String) {
-            consumer.accept("debug", message)
+            consumer("debug", message)
         }
 
         override fun info(message: String) {
-            consumer.accept("info", message)
+            consumer("info", message)
         }
 
         override fun progress(message: String) {
-            consumer.accept("progress", message)
+            consumer("progress", message)
         }
 
         override fun warn(message: String) {
-            consumer.accept("warn", message).also { warningsCounter.incrementAndGet() }
+            consumer("warn", message).also { warningsCounter.incrementAndGet() }
         }
 
         override fun error(message: String) {
-            consumer.accept("error", message).also { errorsCounter.incrementAndGet() }
+            consumer("error", message).also { errorsCounter.incrementAndGet() }
         }
     }
 
@@ -50,7 +48,7 @@ class DokkaBootstrapImpl : DokkaBootstrap {
         generator = DokkaGenerator(configuration, logger)
     }
 
-    override fun configure(serializedConfigurationJSON: String, logger: BiConsumer<String, String>) = configure(
+    override fun configure(serializedConfigurationJSON: String, logger: (String, String) -> Unit) = configure(
         DokkaProxyLogger(logger),
         DokkaConfigurationImpl(serializedConfigurationJSON)
     )

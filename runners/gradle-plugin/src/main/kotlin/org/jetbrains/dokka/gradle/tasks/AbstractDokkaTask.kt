@@ -20,7 +20,6 @@ import org.gradle.work.DisableCachingByDefault
 import org.jetbrains.dokka.*
 import org.jetbrains.dokka.plugability.ConfigurableBlock
 import org.jetbrains.dokka.plugability.DokkaPlugin
-import java.util.function.BiConsumer
 import kotlin.reflect.full.createInstance
 
 @DisableCachingByDefault(because = "Abstract super-class, not to be instantiated directly")
@@ -216,7 +215,7 @@ abstract class AbstractDokkaTask : DefaultTask() {
 
     internal abstract fun buildDokkaConfiguration(): DokkaConfigurationImpl
 
-    private fun createProxyLogger(): BiConsumer<String, String> = BiConsumer { level, message ->
+    private fun createProxyLogger(): (String, String) -> Unit = { level, message ->
         when (level) {
             "debug" -> logger.debug(message)
             "info" -> logger.info(message)
