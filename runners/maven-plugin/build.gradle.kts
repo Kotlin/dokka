@@ -10,12 +10,14 @@ plugins {
 val setupMaven by tasks.register<SetupMaven>("setupMaven")
 
 dependencies {
-    implementation(project(":core"))
-    implementation("org.apache.maven:maven-core:${setupMaven.mavenVersion}")
-    implementation("org.apache.maven:maven-plugin-api:${setupMaven.mavenVersion}")
-    implementation("org.apache.maven.plugin-tools:maven-plugin-annotations:${setupMaven.mavenPluginToolsVersion}")
-    implementation("org.apache.maven:maven-archiver:2.5")
-    implementation(kotlin("stdlib-jdk8"))
+    implementation(projects.core)
+
+    implementation(libs.apache.mavenCore)
+    implementation(libs.apache.mavenPluginApi)
+    implementation(libs.apache.mavenPluginAnnotations)
+    implementation(libs.apache.mavenArchiver)
+
+
 }
 
 val mavenBuildDir = setupMaven.mavenBuildDir
@@ -39,7 +41,10 @@ val generatePom by tasks.registering(Copy::class) {
 
     eachFile {
         filter { line ->
-            line.replace("<maven.version></maven.version>", "<maven.version>${setupMaven.mavenVersion}</maven.version>")
+            line.replace(
+                "<maven.version></maven.version>",
+                "<maven.version>${setupMaven.mavenVersion}</maven.version>"
+            )
         }
         filter { line ->
             line.replace("<version>dokka_version</version>", "<version>$dokka_version</version>")
@@ -76,7 +81,12 @@ val helpMojo by tasks.registering(CrossPlatformExec::class) {
 val pluginDescriptor by tasks.registering(CrossPlatformExec::class) {
     dependsOn(setupMaven, generatePom, syncClasses)
     workingDir(setupMaven.mavenBuildDir)
-    commandLine(setupMaven.mvn, "-e", "-B", "org.apache.maven.plugins:maven-plugin-plugin:descriptor")
+    commandLine(
+        setupMaven.mvn,
+        "-e",
+        "-B",
+        "org.apache.maven.plugins:maven-plugin-plugin:descriptor"
+    )
 
     outputs.dir(layout.buildDirectory.dir("maven/classes/java/main/META-INF/maven"))
 }

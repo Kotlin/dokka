@@ -6,17 +6,17 @@ plugins {
 }
 
 dependencies {
-    compileOnly(project(":core"))
-    implementation(kotlin("stdlib-jdk8"))
-    implementation(kotlin("stdlib"))
-    implementation(kotlin("reflect"))
+    compileOnly(projects.core)
 
-    implementation(project(":plugins:base"))
-    testImplementation(project(":plugins:base"))
-    testImplementation(project(":plugins:base:base-test-utils"))
-    testImplementation(project(":test-utils"))
-    testImplementation(project(":core:test-api"))
-    testImplementation("org.junit.jupiter:junit-jupiter:5.6.0")
+    implementation(kotlin("reflect"))
+    implementation(projects.plugins.base)
+
+    testImplementation(projects.plugins.base)
+    testImplementation(projects.plugins.base.baseTestUtils)
+    testImplementation(projects.testUtils)
+    testImplementation(projects.core.testApi)
+    testImplementation(platform(libs.junit.bom))
+    testImplementation(libs.junit.jupiter)
 }
 
 registerDokkaArtifactPublication("androidDocumentationPlugin") {

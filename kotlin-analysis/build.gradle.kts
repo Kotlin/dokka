@@ -7,7 +7,7 @@ plugins {
 }
 
 dependencies {
-    compileOnly(project(":core"))
+    compileOnly(projects.core)
     api(project("intellij-dependency", configuration = "shadow"))
     api(project("compiler-dependency", configuration = "shadow"))
 }

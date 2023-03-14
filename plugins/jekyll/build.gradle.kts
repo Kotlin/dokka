@@ -6,16 +6,15 @@ plugins {
 }
 
 dependencies {
-    compileOnly(project(":core"))
-    implementation(kotlin("stdlib-jdk8"))
-    implementation(kotlin("stdlib"))
+    compileOnly(projects.core)
     implementation(kotlin("reflect"))
-    implementation(project(":plugins:base"))
-    implementation(project(":plugins:gfm"))
+    implementation(projects.plugins.base)
+    implementation(projects.plugins.gfm)
 
-    testImplementation(project(":test-utils"))
-    testImplementation(project(":core:test-api"))
-    testImplementation("org.junit.jupiter:junit-jupiter:5.6.0")
+    testImplementation(projects.testUtils)
+    testImplementation(projects.core.testApi)
+    testImplementation(platform(libs.junit.bom))
+    testImplementation(libs.junit.jupiter)
 }
 
 registerDokkaArtifactPublication("jekyllPlugin") {

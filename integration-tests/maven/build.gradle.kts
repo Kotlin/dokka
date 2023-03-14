@@ -8,8 +8,8 @@ plugins {
 evaluationDependsOn(":runners:maven-plugin")
 
 dependencies {
-    implementation(project(":integration-tests"))
-    implementation(kotlin("stdlib"))
+    implementation(projects.integrationTests)
+
     implementation(kotlin("test-junit"))
 }
 

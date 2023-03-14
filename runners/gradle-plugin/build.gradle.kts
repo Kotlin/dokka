@@ -8,15 +8,14 @@ plugins {
 }
 
 dependencies {
-    api(project(":core"))
+    implementation(projects.core)
 
-    compileOnly("org.jetbrains.kotlin:kotlin-gradle-plugin")
-    compileOnly("com.android.tools.build:gradle:4.0.1")
-    compileOnly(gradleKotlinDsl())
-    testImplementation(project(":test-utils"))
-    testImplementation(gradleKotlinDsl())
-    testImplementation("org.jetbrains.kotlin:kotlin-gradle-plugin")
-    testImplementation("com.android.tools.build:gradle:4.0.1")
+    compileOnly(libs.gradlePlugin.kotlin)
+    compileOnly(libs.gradlePlugin.android)
+
+    testImplementation(projects.testUtils)
+    testImplementation(libs.gradlePlugin.kotlin)
+    testImplementation(libs.gradlePlugin.android)
 }
 
 // Gradle will put its own version of the stdlib in the classpath, so not pull our own we will end up with

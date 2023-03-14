@@ -35,19 +35,19 @@ fun jpsModel() = zipTree(jpsStandalone.singleFile).matching {
 }
 
 dependencies {
-    val kotlin_plugin_version: String by project
-    api("org.jetbrains.kotlin:common:$kotlin_plugin_version")
-    api("org.jetbrains.kotlin:idea:$kotlin_plugin_version") {
+//    val kotlin_plugin_version: String = libs.versions.kotlin.plugin.get()
+
+    api(libs.kotlinPlugin.common)
+    api(libs.kotlinPlugin.idea) {
         isTransitive = false
     }
-    api("org.jetbrains.kotlin:core:$kotlin_plugin_version")
-    api("org.jetbrains.kotlin:native:$kotlin_plugin_version")
+    api(libs.kotlinPlugin.core)
+    api(libs.kotlinPlugin.native)
 
-    val idea_version: String by project
-    intellijCore("com.jetbrains.intellij.idea:intellij-core:$idea_version")
+    intellijCore(libs.jetbrainsIntelliJ.core)
     implementation(intellijCoreAnalysis())
 
-    jpsStandalone("com.jetbrains.intellij.idea:jps-standalone:$idea_version")
+    jpsStandalone(libs.jetbrainsIntelliJ.jpsStandalone)
     implementation(jpsModel())
 }
 

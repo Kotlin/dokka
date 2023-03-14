@@ -6,22 +6,19 @@ plugins {
 }
 
 dependencies {
-    compileOnly(project(":core"))
-    implementation(kotlin("stdlib-jdk8"))
-    implementation(kotlin("stdlib"))
+    compileOnly(projects.core)
     implementation(kotlin("reflect"))
-    implementation(project(":plugins:base"))
-    testImplementation(project(":plugins:base"))
-    testImplementation(project(":plugins:base:base-test-utils"))
-    val jackson_version: String by project
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jackson_version")
-    testImplementation(project(":test-utils"))
-    testImplementation(project(":core:test-api"))
-    testImplementation("org.junit.jupiter:junit-jupiter:5.6.0")
-    
-    val jackson_databind_version: String by project
+    implementation(projects.plugins.base)
+    testImplementation(projects.plugins.base)
+    testImplementation(projects.plugins.base.baseTestUtils)
+    implementation(libs.jackson.kotlin)
+    testImplementation(projects.testUtils)
+    testImplementation(projects.core.testApi)
+    testImplementation(platform(libs.junit.bom))
+    testImplementation(libs.junit.jupiter)
+
     constraints {
-        implementation("com.fasterxml.jackson.core:jackson-databind:$jackson_databind_version") {
+        implementation(libs.jackson.databind) {
             because("CVE-2022-42003")
         }
     }
