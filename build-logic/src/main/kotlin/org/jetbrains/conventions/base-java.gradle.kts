@@ -9,7 +9,7 @@ package org.jetbrains.conventions
 
 plugins {
     id("org.jetbrains.conventions.base")
-    `java`
+    java
 }
 
 java {
