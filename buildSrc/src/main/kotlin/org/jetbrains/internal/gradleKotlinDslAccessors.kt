@@ -18,10 +18,10 @@ import org.jetbrains.DokkaBuildProperties
  * Retrieves the [dokkaBuild][org.jetbrains.DokkaBuildProperties] extension.
  */
 internal val Project.dokkaBuild: DokkaBuildProperties
-    get() = extensions.getByType<DokkaBuildProperties>()
+    get() = extensions.getByType()
 
 /**
  * Configures the [dokkaBuild][org.jetbrains.DokkaBuildProperties] extension.
  */
 internal fun Project.dokkaBuild(configure: DokkaBuildProperties.() -> Unit) =
-    extensions.configure<DokkaBuildProperties>(configure)
+    extensions.configure(configure)
