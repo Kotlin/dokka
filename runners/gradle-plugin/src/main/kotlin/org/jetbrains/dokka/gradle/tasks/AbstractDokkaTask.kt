@@ -215,7 +215,7 @@ abstract class AbstractDokkaTask : DefaultTask() {
 
     internal abstract fun buildDokkaConfiguration(): DokkaConfigurationImpl
 
-    private fun createProxyLogger(): (String, String) -> Unit = { level, message ->
+    private fun createProxyLogger() = { level: String, message: String ->
         when (level) {
             "debug" -> logger.debug(message)
             "info" -> logger.info(message)
