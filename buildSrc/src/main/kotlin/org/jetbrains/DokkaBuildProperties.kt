@@ -24,7 +24,7 @@ abstract class DokkaBuildProperties @Inject constructor(
      * Updating the Java target is a breaking change.
      */
     val mainJavaVersion: Provider<JavaLanguageVersion> =
-        dokkaProperty("javaToolchain.mainCompiler") { JavaLanguageVersion.of(it) }
+        dokkaProperty("javaToolchain.mainCompiler", JavaLanguageVersion::of)
 
     /**
      * The version of Java that should be used to run Dokka tests.
@@ -33,7 +33,7 @@ abstract class DokkaBuildProperties @Inject constructor(
      * versions of Java.
      */
     val testJavaLauncherVersion: Provider<JavaLanguageVersion> =
-        dokkaProperty("javaToolchain.testLauncher") { JavaLanguageVersion.of(it) }
+        dokkaProperty("javaToolchain.testLauncher", JavaLanguageVersion::of)
             .orElse(mainJavaVersion)
 
     /**
@@ -42,7 +42,7 @@ abstract class DokkaBuildProperties @Inject constructor(
      * Updating the language level is a breaking change.
      */
     val kotlinLanguageLevel: Provider<KotlinVersion> =
-        dokkaProperty("kotlinLanguageLevel") { KotlinVersion.fromVersion(it) }
+        dokkaProperty("kotlinLanguageLevel", KotlinVersion::fromVersion)
 
 
     private fun <T : Any> dokkaProperty(name: String, convert: (String) -> T) =
