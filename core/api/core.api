@@ -39,22 +39,22 @@ public final class org/jetbrains/dokka/DefaultExternalLinksKt {
 }
 
 public abstract interface class org/jetbrains/dokka/DokkaBootstrap {
-	public abstract fun configure (Ljava/lang/String;Ljava/util/function/BiConsumer;)V
+	public abstract fun configure (Ljava/lang/String;Lkotlin/jvm/functions/Function2;)V
 	public abstract fun generate ()V
 }
 
 public final class org/jetbrains/dokka/DokkaBootstrapImpl : org/jetbrains/dokka/DokkaBootstrap {
 	public fun <init> ()V
-	public fun configure (Ljava/lang/String;Ljava/util/function/BiConsumer;)V
+	public fun configure (Ljava/lang/String;Lkotlin/jvm/functions/Function2;)V
 	public final fun configure (Lorg/jetbrains/dokka/utilities/DokkaLogger;Lorg/jetbrains/dokka/DokkaConfigurationImpl;)V
 	public fun generate ()V
 }
 
 public final class org/jetbrains/dokka/DokkaBootstrapImpl$DokkaProxyLogger : org/jetbrains/dokka/utilities/DokkaLogger {
-	public fun <init> (Ljava/util/function/BiConsumer;)V
+	public fun <init> (Lkotlin/jvm/functions/Function2;)V
 	public fun debug (Ljava/lang/String;)V
 	public fun error (Ljava/lang/String;)V
-	public final fun getConsumer ()Ljava/util/function/BiConsumer;
+	public final fun getConsumer ()Lkotlin/jvm/functions/Function2;
 	public fun getErrorsCount ()I
 	public fun getWarningsCount ()I
 	public fun info (Ljava/lang/String;)V
