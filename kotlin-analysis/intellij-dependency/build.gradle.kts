@@ -35,8 +35,6 @@ fun jpsModel() = zipTree(jpsStandalone.singleFile).matching {
 }
 
 dependencies {
-//    val kotlin_plugin_version: String = libs.versions.kotlin.plugin.get()
-
     api(libs.kotlinPlugin.common)
     api(libs.kotlinPlugin.idea) {
         isTransitive = false
