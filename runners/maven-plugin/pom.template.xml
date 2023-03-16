@@ -4,17 +4,17 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.jetbrains.dokka</groupId>
     <artifactId>dokka-maven-plugin</artifactId>
-    <version>dokka_version</version>
+    <version>${dokka_version}</version>
     <packaging>maven-plugin</packaging>
     <properties>
-        <maven.version></maven.version>
+        <maven.version>${mavenVersion}</maven.version>
     </properties>
     <build>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-plugin-plugin</artifactId>
-                <version>maven-plugin-plugin</version>
+                <version>${mavenPluginToolsVersion}</version>
                 <configuration>
                     <helpPackageName>org.jetbrains.dokka.maven</helpPackageName>
                 </configuration>
