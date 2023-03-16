@@ -42,9 +42,11 @@ dependencies {
     api(libs.kotlinPlugin.core)
     api(libs.kotlinPlugin.native)
 
+    @Suppress("UnstableApiUsage")
     intellijCore(libs.jetbrainsIntelliJ.core)
     implementation(intellijCoreAnalysis())
 
+    @Suppress("UnstableApiUsage")
     jpsStandalone(libs.jetbrainsIntelliJ.jpsStandalone)
     implementation(jpsModel())
 }
