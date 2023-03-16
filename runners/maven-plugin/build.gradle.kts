@@ -27,9 +27,8 @@ val generatePom by tasks.registering(Sync::class) {
 
     val pomTemplateFile = layout.projectDirectory.file("pom.template.xml")
 
-    val mavenVersion = setupMavenProperties.mavenVersion.get()
-    val mavenPluginToolsVersion = setupMavenProperties.mavenPluginToolsVersion.get(
-            )
+    val mavenVersion = mavenCliSetup.mavenVersion.orNull
+    val mavenPluginToolsVersion = mavenCliSetup.mavenPluginToolsVersion.orNull
 
     from(pomTemplateFile) {
         rename { it.replace(".template.xml", ".xml") }
@@ -53,7 +52,7 @@ val prepareMavenPluginBuildDir by tasks.registering(Sync::class) {
 
     from(generatePom)
 
-    into(setupMavenProperties.mavenBuildDir)
+    into(mavenCliSetup.mavenBuildDir)
 }
 
 val helpMojo by tasks.registering(Exec::class) {
@@ -61,11 +60,11 @@ val helpMojo by tasks.registering(Exec::class) {
 
     dependsOn(tasks.installMavenBinary, prepareMavenPluginBuildDir)
 
-    workingDir(setupMavenProperties.mavenBuildDir)
-    executable(setupMavenProperties.mvn.get())
+    workingDir(mavenCliSetup.mavenBuildDir)
+    executable(mavenCliSetup.mvn.get())
     args("-e", "-B", "org.apache.maven.plugins:maven-plugin-plugin:helpmojo")
 
-    outputs.dir(setupMavenProperties.mavenBuildDir)
+    outputs.dir(mavenCliSetup.mavenBuildDir)
 
     doLast("normalize maven-plugin-help.properties") {
         // The maven-plugin-help.properties file contains a timestamp by default.
@@ -90,8 +89,8 @@ val pluginDescriptor by tasks.registering(Exec::class) {
 
     dependsOn(tasks.installMavenBinary, prepareMavenPluginBuildDir)
 
-    workingDir(setupMavenProperties.mavenBuildDir)
-    executable(setupMavenProperties.mvn.get())
+    workingDir(mavenCliSetup.mavenBuildDir)
+    executable(mavenCliSetup.mvn.get())
     args(
         "-e",
         "-B",
@@ -104,7 +103,7 @@ val pluginDescriptor by tasks.registering(Exec::class) {
 tasks.jar {
     dependsOn(pluginDescriptor, helpMojo)
     metaInf {
-        from(setupMavenProperties.mavenBuildDir.map { it.dir("classes/java/main/META-INF") })
+        from(mavenCliSetup.mavenBuildDir.map { it.dir("classes/java/main/META-INF") })
     }
     manifest {
         attributes("Class-Path" to configurations.runtimeClasspath.map { configuration ->

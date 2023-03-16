@@ -15,7 +15,7 @@ tasks.integrationTest {
     dependsOnMavenLocalPublication()
 
     dependsOn(tasks.installMavenBinary)
-    val mvn = setupMavenProperties.mvn
+    val mvn = mavenCliSetup.mvn
     inputs.file(mvn)
 
     val dokka_version: String by project
