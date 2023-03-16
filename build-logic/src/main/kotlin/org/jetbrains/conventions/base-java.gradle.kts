@@ -23,7 +23,7 @@ java {
 }
 
 tasks.withType<Test>().configureEach {
-    useJUnitPlatform()
+    useJUnit()
 
     javaLauncher.set(javaToolchains.launcherFor {
         languageVersion.set(dokkaBuild.testJavaLauncherVersion)
