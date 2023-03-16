@@ -33,6 +33,8 @@ tasks.withType<Test>().configureEach {
 dependencies {
     testImplementation(platform("org.junit:junit-bom:5.9.2"))
     // TODO Upgrade all subprojects to use JUnit Jupiter https://github.com/Kotlin/dokka/issues/2924
+    //      Replace these dependencies with `testImplementation("org.junit.jupiter:junit-jupiter:5.9.2")`
+    //      See https://junit.org/junit5/docs/current/user-guide/#running-tests-build-gradle-engines-configure
     // Ideally convention plugins should only provide sensible defaults that can be overridden by subprojects.
     // If a convention plugin defines dependencies, these cannot be easily overridden by subprojects, and so
     // this should be avoided. However, for now , both JUnit 4 and 5 must be supported, and since these are test
