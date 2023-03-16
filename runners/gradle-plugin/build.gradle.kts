@@ -8,7 +8,7 @@ plugins {
 }
 
 dependencies {
-    implementation(projects.core)
+    api(projects.core)
 
     compileOnly(libs.gradlePlugin.kotlin)
     compileOnly(libs.gradlePlugin.android)
