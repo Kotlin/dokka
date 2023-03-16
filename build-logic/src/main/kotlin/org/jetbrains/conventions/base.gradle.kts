@@ -12,8 +12,7 @@ plugins {
     base
 }
 
-val dokkaBuildProperties =
-    extensions.create<DokkaBuildProperties>(DokkaBuildProperties.EXTENSION_NAME)
+val dokkaBuildProperties: DokkaBuildProperties = extensions.create(DokkaBuildProperties.EXTENSION_NAME)
 
 
 if (project != rootProject) {
