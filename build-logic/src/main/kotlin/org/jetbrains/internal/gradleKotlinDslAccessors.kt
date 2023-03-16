@@ -4,6 +4,7 @@ package org.gradle.kotlin.dsl // for convenience use a default package for gradl
 
 import org.gradle.api.Project
 import org.gradle.accessors.dm.LibrariesForLibs
+import org.jetbrains.DokkaBuildProperties
 
 /*
  * Utility functions for accessing Gradle extensions that are created by convention plugins.
@@ -22,3 +23,15 @@ import org.gradle.accessors.dm.LibrariesForLibs
  */
 internal val Project.libs : LibrariesForLibs
     get() = extensions.getByType()
+
+/**
+ * Retrieves the [dokkaBuild][org.jetbrains.DokkaBuildProperties] extension.
+ */
+internal val Project.dokkaBuild: DokkaBuildProperties
+    get() = extensions.getByType()
+
+/**
+ * Configures the [dokkaBuild][org.jetbrains.DokkaBuildProperties] extension.
+ */
+internal fun Project.dokkaBuild(configure: DokkaBuildProperties.() -> Unit) =
+    extensions.configure(configure)

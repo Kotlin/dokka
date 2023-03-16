@@ -21,6 +21,8 @@ tasks.integrationTest {
 
     javaLauncher.set(javaToolchains.launcherFor {
         // kotlinx.coroutines requires Java 11+
-        languageVersion.set(JavaLanguageVersion.of(11))
+        languageVersion.set(dokkaBuild.testJavaLauncherVersion.map {
+            maxOf(it, JavaLanguageVersion.of(11))
+        })
     })
 }

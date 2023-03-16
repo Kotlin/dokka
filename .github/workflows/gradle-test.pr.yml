@@ -10,23 +10,25 @@ jobs:
   test-ubuntu:
     strategy:
       matrix:
-        version: [ 8, 11, 17 ]
+        javaVersion: [ 8, 11, 17 ]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
-          java-version: ${{ matrix.version }}
+          java-version: ${{ matrix.javaVersion }}
           cache: 'maven'
       - uses: gradle/gradle-build-action@v2
+        env:
+          ORG_GRADLE_PROJECT_org.jetbrains.dokka.javaToolchain.test: ${{ matrix.javaVersion }}
         with:
           arguments: clean test --stacktrace
 
   test-windows:
     strategy:
       matrix:
-        version: [ 11, 17 ]
+        javaVersion: [ 11, 17 ]
       fail-fast: false
     runs-on: windows-latest
     steps:
@@ -34,8 +36,10 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
-          java-version: ${{ matrix.version }}
+          java-version: ${{ matrix.javaVersion }}
           cache: 'maven'
       - uses: gradle/gradle-build-action@v2
+        env:
+          ORG_GRADLE_PROJECT_org.jetbrains.dokka.javaToolchain.test: ${{ matrix.javaVersion }}
         with:
           arguments: clean test --stacktrace --no-daemon --parallel --max-workers=1
