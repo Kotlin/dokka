@@ -4,15 +4,17 @@ kotlin = "1.8.10"
 kotlin-plugin = "213-1.8.10-release-430-IJ6777.52"
 kotlinx-coroutines = "1.6.3"
 kotlinx-html = "0.7.5"
-jsoup = "1.15.3"
+kotlinx-cli = "0.3.4"
+
 idea = "213.6777.52"
+jetbrainsMarkdown = "0.3.1"
+
+jsoup = "1.15.3"
 
 jackson = "2.12.7" # jackson 2.13.X does not support kotlin language version 1.4, check before updating
 jacksonDatabind = "2.12.7.1" # fixes CVE-2022-42003
 
 freemarker = "2.3.31"
-
-jetbrainsMarkdown = "0.3.1"
 
 soywiz-korte = "2.7.0"
 
@@ -58,7 +60,7 @@ kotlin-common = { module = "org.jetbrains.kotlin:common", version.ref = "kotlin"
 kotlin-core = { module = "org.jetbrains.kotlin:core", version.ref = "kotlin" }
 kotlin-native = { module = "org.jetbrains.kotlin:native", version.ref = "kotlin" }
 
-kotlinx-cli = { module = "org.jetbrains.kotlinx:kotlinx-cli-jvm", version = "0.3.4" }
+kotlinx-cli = { module = "org.jetbrains.kotlinx:kotlinx-cli-jvm", version.ref = "kotlinx-cli" }
 kotlinx-html = { module = "org.jetbrains.kotlinx:kotlinx-html-jvm", version.ref = "kotlinx-html" }
 
 kotlinx-coroutines-bom = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-bom", version.ref = "kotlinx-coroutines" }
