@@ -47,7 +47,7 @@ jetbrainsIntelliJ-core = { module = "com.jetbrains.intellij.idea:intellij-core",
 jetbrainsIntelliJ-jpsStandalone = { module = "com.jetbrains.intellij.idea:jps-standalone", version.ref = "idea" }
 jetbrainsMarkdown = { module = "org.jetbrains:markdown", version.ref = "jetbrainsMarkdown" }
 jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
-soywiz-korte = { module = "com.soywiz.korlibs.korte:korte", version.ref = "soywiz-korte" }
+soywiz-korte = { module = "com.soywiz.korlibs.korte:korte-jvm", version.ref = "soywiz-korte" }
 
 ## Kotlin libs ##
 kotlin-bom = { module = "org.jetbrains.kotlin:kotlin-bom", version.ref = "kotlin" }
@@ -58,8 +58,8 @@ kotlin-common = { module = "org.jetbrains.kotlin:common", version.ref = "kotlin"
 kotlin-core = { module = "org.jetbrains.kotlin:core", version.ref = "kotlin" }
 kotlin-native = { module = "org.jetbrains.kotlin:native", version.ref = "kotlin" }
 
-kotlinx-cli = { module = "org.jetbrains.kotlinx:kotlinx-cli", version = "0.3.4" }
-kotlinx-html = { module = "org.jetbrains.kotlinx:kotlinx-html", version.ref = "kotlinx-html" }
+kotlinx-cli = { module = "org.jetbrains.kotlinx:kotlinx-cli-jvm", version = "0.3.4" }
+kotlinx-html = { module = "org.jetbrains.kotlinx:kotlinx-html-jvm", version.ref = "kotlinx-html" }
 
 kotlinx-coroutines-bom = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-bom", version.ref = "kotlinx-coroutines" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
