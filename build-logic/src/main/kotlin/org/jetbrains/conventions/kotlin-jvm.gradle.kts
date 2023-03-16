@@ -1,7 +1,6 @@
 package org.jetbrains.conventions
 
 import org.jetbrains.configureDokkaVersion
-import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -11,8 +10,6 @@ plugins {
 }
 
 configureDokkaVersion()
-
-val language_version: String by project
 
 tasks.withType<KotlinCompile>().configureEach {
     compilerOptions {
@@ -26,7 +23,7 @@ tasks.withType<KotlinCompile>().configureEach {
             )
         )
         allWarningsAsErrors.set(true)
-        languageVersion.set(KotlinVersion.fromVersion(language_version))
-        apiVersion.set(KotlinVersion.fromVersion(language_version))
+        languageVersion.set(dokkaBuild.kotlinLanguageLevel)
+        apiVersion.set(dokkaBuild.kotlinLanguageLevel)
     }
 }
