@@ -6,28 +6,25 @@ plugins {
 }
 
 dependencies {
-    compileOnly(project(":core"))
-    implementation(kotlin("stdlib-jdk8"))
-    implementation(kotlin("stdlib"))
+    compileOnly(projects.core)
+    compileOnly(projects.kotlinAnalysis)
+
     implementation(kotlin("reflect"))
-    compileOnly(project(":kotlin-analysis"))
-    implementation("com.soywiz.korlibs.korte:korte-jvm:2.7.0")
-    implementation(project(":plugins:base"))
-    implementation(project(":plugins:kotlin-as-java"))
-    testImplementation(project(":plugins:base:base-test-utils"))
+    implementation(libs.soywiz.korte)
+    implementation(projects.plugins.base)
+    implementation(projects.plugins.kotlinAsJava)
 
-    val kotlinx_html_version: String by project
-    implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:$kotlinx_html_version")
+    implementation(libs.kotlinx.html)
+    implementation(libs.kotlinx.coroutines.core)
 
-    val coroutines_version: String by project
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version")
+    testImplementation(projects.plugins.base.baseTestUtils)
+    testImplementation(projects.testUtils)
+    testImplementation(projects.core.testApi)
 
-    val jsoup_version: String by project
-    testImplementation("org.jsoup:jsoup:$jsoup_version")
+    testImplementation(libs.jsoup)
 
-    testImplementation(project(":test-utils"))
-    testImplementation(project(":core:test-api"))
-    testImplementation("org.junit.jupiter:junit-jupiter:5.6.0")
+    testImplementation(platform(libs.junit.bom))
+    testImplementation(libs.junit.jupiter)
 }
 
 registerDokkaArtifactPublication("javadocPlugin") {

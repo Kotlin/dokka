@@ -13,7 +13,6 @@ kotlin {
 }
 
 dependencies {
-    implementation(kotlin("stdlib"))
     implementation(npm("is-sorted", "1.0.5"))
 
     val reactVersion = properties["react_version"]

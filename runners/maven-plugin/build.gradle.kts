@@ -8,12 +8,12 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":core"))
-    implementation("org.apache.maven:maven-core:${setupMavenProperties.mavenVersion.get()}")
-    implementation("org.apache.maven:maven-plugin-api:${setupMavenProperties.mavenVersion.get()}")
-    implementation("org.apache.maven.plugin-tools:maven-plugin-annotations:${setupMavenProperties.mavenPluginToolsVersion.get()}")
-    implementation("org.apache.maven:maven-archiver:2.5")
-    implementation(kotlin("stdlib-jdk8"))
+    implementation(projects.core)
+
+    implementation(libs.apache.mavenCore)
+    implementation(libs.apache.mavenPluginApi)
+    implementation(libs.apache.mavenPluginAnnotations)
+    implementation(libs.apache.mavenArchiver)
 }
 
 val mavenPluginTaskGroup = "maven plugin"
@@ -27,8 +27,8 @@ val generatePom by tasks.registering(Sync::class) {
 
     val pomTemplateFile = layout.projectDirectory.file("pom.template.xml")
 
-    val mavenVersion = setupMavenProperties.mavenVersion.get()
-    val mavenPluginToolsVersion = setupMavenProperties.mavenPluginToolsVersion.get()
+    val mavenVersion = mavenCliSetup.mavenVersion.orNull
+    val mavenPluginToolsVersion = mavenCliSetup.mavenPluginToolsVersion.orNull
 
     from(pomTemplateFile) {
         rename { it.replace(".template.xml", ".xml") }
@@ -52,7 +52,7 @@ val prepareMavenPluginBuildDir by tasks.registering(Sync::class) {
 
     from(generatePom)
 
-    into(setupMavenProperties.mavenBuildDir)
+    into(mavenCliSetup.mavenBuildDir)
 }
 
 val helpMojo by tasks.registering(Exec::class) {
@@ -60,11 +60,11 @@ val helpMojo by tasks.registering(Exec::class) {
 
     dependsOn(tasks.installMavenBinary, prepareMavenPluginBuildDir)
 
-    workingDir(setupMavenProperties.mavenBuildDir)
-    executable(setupMavenProperties.mvn.get())
+    workingDir(mavenCliSetup.mavenBuildDir)
+    executable(mavenCliSetup.mvn.get())
     args("-e", "-B", "org.apache.maven.plugins:maven-plugin-plugin:helpmojo")
 
-    outputs.dir(setupMavenProperties.mavenBuildDir)
+    outputs.dir(mavenCliSetup.mavenBuildDir)
 
     doLast("normalize maven-plugin-help.properties") {
         // The maven-plugin-help.properties file contains a timestamp by default.
@@ -89,9 +89,13 @@ val pluginDescriptor by tasks.registering(Exec::class) {
 
     dependsOn(tasks.installMavenBinary, prepareMavenPluginBuildDir)
 
-    workingDir(setupMavenProperties.mavenBuildDir)
-    executable(setupMavenProperties.mvn.get())
-    args("-e", "-B", "org.apache.maven.plugins:maven-plugin-plugin:descriptor")
+    workingDir(mavenCliSetup.mavenBuildDir)
+    executable(mavenCliSetup.mvn.get())
+    args(
+        "-e",
+        "-B",
+        "org.apache.maven.plugins:maven-plugin-plugin:descriptor"
+    )
 
     outputs.dir(layout.buildDirectory.dir("maven/classes/java/main/META-INF/maven"))
 }
@@ -99,7 +103,7 @@ val pluginDescriptor by tasks.registering(Exec::class) {
 tasks.jar {
     dependsOn(pluginDescriptor, helpMojo)
     metaInf {
-        from(setupMavenProperties.mavenBuildDir.map { it.dir("classes/java/main/META-INF") })
+        from(mavenCliSetup.mavenBuildDir.map { it.dir("classes/java/main/META-INF") })
     }
     manifest {
         attributes("Class-Path" to configurations.runtimeClasspath.map { configuration ->

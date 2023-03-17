@@ -21,7 +21,6 @@ version = "1.8.10-SNAPSHOT"
 apply(from = "../template.root.gradle.kts")
 
 dependencies {
-    implementation(kotlin("stdlib"))
     testImplementation(kotlin("test-junit"))
 }
 

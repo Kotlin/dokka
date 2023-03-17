@@ -6,10 +6,9 @@ plugins {
 }
 
 dependencies {
-    api(project(":core"))
-    implementation(project(":kotlin-analysis"))
+    api(projects.core)
+    implementation(projects.kotlinAnalysis)
     implementation("junit:junit:4.13.2") // TODO: remove dependency to junit
-    implementation(kotlin("stdlib"))
     implementation(kotlin("reflect"))
 }
 

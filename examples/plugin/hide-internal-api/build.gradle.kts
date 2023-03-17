@@ -19,7 +19,7 @@ repositories {
 
 val dokkaVersion: String by project
 dependencies {
-    implementation(kotlin("stdlib"))
+
     compileOnly("org.jetbrains.dokka:dokka-core:$dokkaVersion")
     implementation("org.jetbrains.dokka:dokka-base:$dokkaVersion")
 

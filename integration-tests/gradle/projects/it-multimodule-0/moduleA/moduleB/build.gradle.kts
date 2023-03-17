@@ -5,10 +5,6 @@ plugins {
     id("org.jetbrains.dokka")
 }
 
-dependencies {
-    implementation(kotlin("stdlib"))
-}
-
 tasks.withType<DokkaTask>().configureEach {
     moduleName.set("!Module B!")
     dokkaSourceSets.configureEach {

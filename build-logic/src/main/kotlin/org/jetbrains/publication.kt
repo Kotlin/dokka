@@ -2,13 +2,9 @@ package org.jetbrains
 
 import com.github.jengelman.gradle.plugins.shadow.ShadowExtension
 import org.gradle.api.Project
-import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.maven.tasks.PublishToMavenRepository
-import org.gradle.api.tasks.TaskContainer
-import org.gradle.api.tasks.TaskProvider
-import org.gradle.api.tasks.bundling.Jar
 import org.gradle.kotlin.dsl.*
 import org.gradle.plugins.signing.SigningExtension
 import org.jetbrains.DokkaPublicationChannel.*
@@ -24,7 +20,10 @@ class DokkaPublicationBuilder {
 }
 
 
-fun Project.registerDokkaArtifactPublication(publicationName: String, configure: DokkaPublicationBuilder.() -> Unit) {
+fun Project.registerDokkaArtifactPublication(
+    publicationName: String,
+    configure: DokkaPublicationBuilder.() -> Unit
+) {
     configure<PublishingExtension> {
         publications {
             register<MavenPublication>(publicationName) {
@@ -143,9 +142,10 @@ private fun Project.signPublicationsIfKeyPresent(vararg publications: String) {
                 useInMemoryPgpKeys(signingKey, signingKeyPassphrase)
             }
             publications.forEach { publicationName ->
-                extensions.findByType(PublishingExtension::class)!!.publications.findByName(publicationName)?.let {
-                    sign(it)
-                }
+                extensions.getByType<PublishingExtension>()
+                    .publications
+                    .findByName(publicationName)
+                    ?.let { sign(it) }
             }
         }
     }

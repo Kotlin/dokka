@@ -26,8 +26,3 @@ subprojects {
 tasks.dokkaHtmlMultiModule {
     moduleName.set("Dokka MultiModule Example")
 }
-
-dependencies {
-    implementation(kotlin("stdlib"))
-}
-

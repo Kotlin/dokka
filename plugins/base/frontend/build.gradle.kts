@@ -4,7 +4,7 @@ plugins {
 }
 
 node {
-    version.set("16.13.0")
+    version.set(libs.versions.node)
     download.set(true)
 }
 

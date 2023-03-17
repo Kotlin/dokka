@@ -18,10 +18,6 @@ buildscript {
 
 apply(from = "../template.root.gradle.kts")
 
-dependencies {
-    implementation(kotlin("stdlib"))
-}
-
 fun createTask(name: String) {
     tasks.register(name, org.jetbrains.dokka.gradle.DokkaTask::class) {
         dokkaSourceSets {
@@ -42,4 +38,3 @@ task("runTasks") {
         dependsOn ("task_"+i)
     }
 }
-

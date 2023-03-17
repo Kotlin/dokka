@@ -12,10 +12,6 @@ buildscript {
     }
 }
 
-dependencies {
-    implementation(kotlin("stdlib"))
-}
-
 val currentVersion = "1.0"
 val previousVersionsDirectory = project.rootProject.projectDir.resolve("previousDocVersions").invariantSeparatorsPath
 

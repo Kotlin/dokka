@@ -6,22 +6,20 @@ plugins {
 }
 
 dependencies {
-    compileOnly(project(":core"))
-    implementation(kotlin("stdlib-jdk8"))
-    implementation(kotlin("stdlib"))
+    compileOnly(projects.core)
     implementation(kotlin("reflect"))
-    implementation(project(":plugins:base"))
+    implementation(projects.plugins.base)
 
-    val jsoup_version: String by project
-    testImplementation("org.jsoup:jsoup:$jsoup_version")
-    testImplementation(project(":plugins:base:base-test-utils"))
-    testImplementation(project(":core:content-matcher-test-utils"))
+    testImplementation(libs.jsoup)
+    testImplementation(projects.plugins.base.baseTestUtils)
+    testImplementation(projects.core.contentMatcherTestUtils)
     testImplementation(kotlin("test-junit"))
-    testImplementation(project(":kotlin-analysis"))
+    testImplementation(projects.kotlinAnalysis)
 
-    testImplementation(project(":test-utils"))
-    testImplementation(project(":core:test-api"))
-    testImplementation("org.junit.jupiter:junit-jupiter:5.6.0")
+    testImplementation(projects.testUtils)
+    testImplementation(projects.core.testApi)
+    testImplementation(platform(libs.junit.bom))
+    testImplementation(libs.junit.jupiter)
 }
 
 registerDokkaArtifactPublication("mathjaxPlugin") {
