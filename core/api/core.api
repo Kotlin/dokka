@@ -367,6 +367,9 @@ public final class org/jetbrains/dokka/GlobalDokkaConfiguration {
 	public fun toString ()Ljava/lang/String;
 }
 
+public abstract interface annotation class org/jetbrains/dokka/InternalDokkaApi : java/lang/annotation/Annotation {
+}
+
 public final class org/jetbrains/dokka/PackageOptionsImpl : org/jetbrains/dokka/DokkaConfiguration$PackageOptions {
 	public fun <init> (Ljava/lang/String;ZLjava/lang/Boolean;ZZLjava/util/Set;)V
 	public final fun component1 ()Ljava/lang/String;
