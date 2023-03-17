@@ -3,3 +3,5 @@ $dokka.linkExtension:html
 
 module:childProjectA
 demo
+module:childProjectB
+demo

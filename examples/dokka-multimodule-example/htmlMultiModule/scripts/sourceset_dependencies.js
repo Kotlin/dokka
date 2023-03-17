@@ -1,1 +1,1 @@
-sourceset_dependencies = '{":parentProject:childProjectA:dokkaHtmlPartial/main":[]}'
+sourceset_dependencies = '{":parentProject:childProjectA:dokkaHtmlPartial/main":[],":parentProject:childProjectB:dokkaHtmlPartial/main":[]}'
