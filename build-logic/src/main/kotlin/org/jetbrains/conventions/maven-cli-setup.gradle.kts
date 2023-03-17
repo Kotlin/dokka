@@ -15,7 +15,7 @@ plugins {
     base
 }
 
-abstract class SetupMavenProperties {
+abstract class MavenCliSetupExtension {
     abstract val mavenVersion: Property<String>
     abstract val mavenPluginToolsVersion: Property<String>
     abstract val mavenBuildDir: DirectoryProperty
@@ -34,10 +34,10 @@ abstract class SetupMavenProperties {
     abstract val mvn: RegularFileProperty
 }
 
-val setupMavenProperties =
-    extensions.create("setupMavenProperties", SetupMavenProperties::class).apply {
-        mavenVersion.convention(providers.gradleProperty("mavenVersion"))
-        mavenPluginToolsVersion.convention(providers.gradleProperty("mavenPluginToolsVersion"))
+val mavenCliSetupExtension =
+    extensions.create("mavenCliSetup", MavenCliSetupExtension::class).apply {
+        mavenVersion.convention(libs.versions.apache.maven)
+        mavenPluginToolsVersion.convention(libs.versions.apache.mavenPluginTools)
 
         mavenBuildDir.convention(layout.buildDirectory.dir("maven"))
         mavenInstallDir.convention(layout.buildDirectory.dir("apache-maven"))
@@ -64,7 +64,7 @@ val mavenBinary by configurations.registering {
     isVisible = false
 
     defaultDependencies {
-        addLater(setupMavenProperties.mavenVersion.map { mavenVersion ->
+        addLater(mavenCliSetupExtension.mavenVersion.map { mavenVersion ->
             project.dependencies.create(
                 group = "org.apache.maven",
                 name = "apache-maven",
@@ -77,8 +77,8 @@ val mavenBinary by configurations.registering {
 }
 
 tasks.clean {
-    delete(setupMavenProperties.mavenBuildDir)
-    delete(setupMavenProperties.mavenInstallDir)
+    delete(mavenCliSetupExtension.mavenBuildDir)
+    delete(mavenCliSetupExtension.mavenInstallDir)
 }
 
 val installMavenBinary by tasks.registering(Sync::class) {
@@ -99,5 +99,5 @@ val installMavenBinary by tasks.registering(Sync::class) {
         }
         includeEmptyDirs = false
     }
-    into(setupMavenProperties.mavenInstallDir)
+    into(mavenCliSetupExtension.mavenInstallDir)
 }

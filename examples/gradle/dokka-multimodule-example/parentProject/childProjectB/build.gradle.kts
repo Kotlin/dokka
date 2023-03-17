@@ -5,10 +5,6 @@ plugins {
     id("org.jetbrains.dokka")
 }
 
-dependencies {
-    implementation(kotlin("stdlib"))
-}
-
 // configuration specific to this subproject.
 // notice the use of Partial task
 tasks.withType<DokkaTaskPartial>().configureEach {

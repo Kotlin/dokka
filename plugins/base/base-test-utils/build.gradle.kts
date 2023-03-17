@@ -6,20 +6,21 @@ plugins {
 }
 
 dependencies {
-    compileOnly(project(":core"))
-    implementation(kotlin("stdlib-jdk8"))
-    implementation(kotlin("stdlib"))
+    compileOnly(projects.core)
+
+
     implementation(kotlin("reflect"))
 
-    compileOnly(project(":plugins:base"))
-    implementation(project(":core:test-api"))
-    val jsoup_version: String by project
-    implementation("org.jsoup:jsoup:$jsoup_version")
+    compileOnly(projects.plugins.base)
+    implementation(projects.core.testApi)
+
+    implementation(libs.jsoup)
     implementation(kotlin("test-junit"))
 
-    testImplementation(project(":test-utils"))
-    testImplementation(project(":core:test-api"))
-    testImplementation("org.junit.jupiter:junit-jupiter:5.6.0")
+    testImplementation(projects.testUtils)
+    testImplementation(projects.core.testApi)
+    testImplementation(platform(libs.junit.bom))
+    testImplementation(libs.junit.jupiter)
 }
 
 registerDokkaArtifactPublication("dokkaBaseTestUtils") {

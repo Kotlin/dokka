@@ -8,7 +8,6 @@ repositories {
 }
 
 dependencies {
-    implementation(kotlin("stdlib"))
     testImplementation(kotlin("test-junit"))
 
     // Will apply the plugin to all Dokka tasks

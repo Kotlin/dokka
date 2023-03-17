@@ -5,13 +5,12 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":integration-tests"))
-    implementation(kotlin("stdlib"))
+    implementation(projects.integrationTests)
+
     implementation(kotlin("test-junit"))
     implementation(gradleTestKit())
 
-    val jsoup_version: String by project
-    implementation("org.jsoup:jsoup:$jsoup_version")
+    implementation(libs.jsoup)
 }
 
 tasks.integrationTest {

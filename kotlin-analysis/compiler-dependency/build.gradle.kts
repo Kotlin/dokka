@@ -8,8 +8,7 @@ plugins {
 }
 
 dependencies {
-    val kotlin_version: String by project
-    api("org.jetbrains.kotlin:kotlin-compiler:$kotlin_version")
+    api(libs.kotlin.compiler)
 }
 
 tasks {
