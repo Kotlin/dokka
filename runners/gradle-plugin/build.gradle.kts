@@ -46,6 +46,7 @@ fun Configuration.excludeGradleCommonDependencies() {
 group = "org.jetbrains.dokka"
 version = dokkaVersion
 
+@Suppress("UnstableApiUsage")
 gradlePlugin {
     website.set("https://www.kotlinlang.org/")
     vcsUrl.set("https://github.com/kotlin/dokka.git")
