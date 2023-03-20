@@ -10,37 +10,30 @@ registerDokkaArtifactPublication("dokkaAllModulesPage") {
 }
 
 dependencies {
-    compileOnly(project(":core"))
-    implementation(kotlin("stdlib-jdk8"))
-    implementation(kotlin("stdlib"))
+    compileOnly(projects.core)
     implementation(kotlin("reflect"))
 
-    compileOnly(project(":kotlin-analysis"))
-    implementation(project(":plugins:base"))
-    implementation(project(":plugins:templating"))
-    testImplementation(project(":plugins:base"))
-    testImplementation(project(":plugins:base:base-test-utils"))
-    testImplementation(project(":plugins:gfm"))
-    testImplementation(project(":plugins:gfm:gfm-template-processing"))
-    testImplementation(project(":core:content-matcher-test-utils"))
+    compileOnly(projects.kotlinAnalysis)
+    implementation(projects.plugins.base)
+    implementation(projects.plugins.templating)
+    testImplementation(projects.plugins.base)
+    testImplementation(projects.plugins.base.baseTestUtils)
+    testImplementation(projects.plugins.gfm)
+    testImplementation(projects.plugins.gfm.gfmTemplateProcessing)
+    testImplementation(projects.core.contentMatcherTestUtils)
 
-    val coroutines_version: String by project
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version")
-    val jackson_version: String by project
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jackson_version")
-    val jackson_databind_version: String by project
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.jackson.kotlin)
     constraints {
-        implementation("com.fasterxml.jackson.core:jackson-databind:$jackson_databind_version") {
+        implementation(libs.jackson.databind) {
             because("CVE-2022-42003")
         }
     }
-    val kotlinx_html_version: String by project
-    implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:$kotlinx_html_version")
+    implementation(libs.kotlinx.html)
+    implementation(libs.jsoup)
 
-    val jsoup_version: String by project
-    implementation("org.jsoup:jsoup:$jsoup_version")
-
-    testImplementation(project(":test-utils"))
-    testImplementation(project(":core:test-api"))
-    testImplementation("org.junit.jupiter:junit-jupiter:5.6.0")
+    testImplementation(projects.testUtils)
+    testImplementation(projects.core.testApi)
+    testImplementation(platform(libs.junit.bom))
+    testImplementation(libs.junit.jupiter)
 }

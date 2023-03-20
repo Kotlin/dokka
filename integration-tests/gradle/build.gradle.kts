@@ -5,13 +5,12 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":integration-tests"))
-    implementation(kotlin("stdlib"))
+    implementation(projects.integrationTests)
+
     implementation(kotlin("test-junit"))
     implementation(gradleTestKit())
 
-    val jsoup_version: String by project
-    implementation("org.jsoup:jsoup:$jsoup_version")
+    implementation(libs.jsoup)
 }
 
 tasks.integrationTest {
@@ -22,6 +21,8 @@ tasks.integrationTest {
 
     javaLauncher.set(javaToolchains.launcherFor {
         // kotlinx.coroutines requires Java 11+
-        languageVersion.set(JavaLanguageVersion.of(11))
+        languageVersion.set(dokkaBuild.testJavaLauncherVersion.map {
+            maxOf(it, JavaLanguageVersion.of(11))
+        })
     })
 }

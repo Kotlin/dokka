@@ -1,4 +1,5 @@
 import org.jetbrains.dokkaVersion
+import org.jetbrains.kotlin.gradle.tasks.*
 import org.jetbrains.registerDokkaArtifactPublication
 
 plugins {
@@ -7,26 +8,22 @@ plugins {
 }
 
 dependencies {
-    api("org.jetbrains:markdown:0.3.1")
+    api(libs.jetbrainsMarkdown)
     implementation(kotlin("reflect"))
 
-    val jsoup_version: String by project
-    implementation("org.jsoup:jsoup:$jsoup_version")
+    implementation(libs.jsoup)
 
-    val jackson_version: String by project
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jackson_version")
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:$jackson_version")
-    val jackson_databind_version: String by project
+    implementation(libs.jackson.kotlin)
+    implementation(libs.jackson.xml)
     constraints {
-        implementation("com.fasterxml.jackson.core:jackson-databind:$jackson_databind_version") {
+        implementation(libs.jackson.databind) {
             because("CVE-2022-42003")
         }
     }
 
-    val coroutines_version: String by project
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version")
+    implementation(libs.kotlinx.coroutines.core)
 
-    testImplementation(project(":core:test-api"))
+    testImplementation(projects.core.testApi)
     testImplementation(kotlin("test-junit"))
 }
 
@@ -40,6 +37,12 @@ tasks {
                 }
             }
         }
+    }
+}
+
+tasks.withType(KotlinCompile::class).all {
+    kotlinOptions {
+        freeCompilerArgs = freeCompilerArgs + listOf("-opt-in=org.jetbrains.dokka.InternalDokkaApi",)
     }
 }
 

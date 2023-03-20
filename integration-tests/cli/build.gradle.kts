@@ -10,9 +10,8 @@ evaluationDependsOn(":runners:cli")
 evaluationDependsOn(":plugins:base")
 
 dependencies {
-    implementation(kotlin("stdlib"))
     implementation(kotlin("test-junit"))
-    implementation(project(":integration-tests"))
+    implementation(projects.integrationTests)
 }
 
 /* Create a fat base plugin jar for cli tests */
@@ -23,8 +22,8 @@ val basePluginShadow: Configuration by configurations.creating {
 }
 
 dependencies {
-    basePluginShadow(project(":plugins:base"))
-    basePluginShadow(project(":kotlin-analysis")) // compileOnly in base plugin
+    basePluginShadow(projects.plugins.base)
+    basePluginShadow(projects.kotlinAnalysis) // compileOnly in base plugin
 }
 
 val basePluginShadowJar by tasks.register("basePluginShadowJar", ShadowJar::class) {
@@ -41,4 +40,3 @@ tasks.integrationTest {
     dependsOn(cliJar)
     dependsOn(basePluginShadowJar)
 }
-

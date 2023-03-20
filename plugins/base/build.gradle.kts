@@ -6,59 +6,55 @@ plugins {
 }
 
 dependencies {
-    compileOnly(project(":core"))
-    implementation(kotlin("stdlib-jdk8"))
-    implementation(kotlin("stdlib"))
+    compileOnly(projects.core)
+
     implementation(kotlin("reflect"))
 
-    val coroutines_version: String by project
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version")
+    implementation(libs.kotlinx.coroutines.core)
 
-    compileOnly(project(":kotlin-analysis"))
-    val jsoup_version: String by project
-    implementation("org.jsoup:jsoup:$jsoup_version")
+    compileOnly(projects.kotlinAnalysis)
+    implementation(libs.jsoup)
 
-    val jackson_version: String by project
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jackson_version")
-    val jackson_databind_version: String by project
+    implementation(libs.jackson.kotlin)
     constraints {
-        implementation("com.fasterxml.jackson.core:jackson-databind:$jackson_databind_version") {
+        implementation(libs.jackson.databind) {
             because("CVE-2022-42003")
         }
     }
 
-    val freemarker_version: String by project
-    implementation("org.freemarker:freemarker:$freemarker_version")
+    implementation(libs.freemarker)
 
-    testImplementation(project(":plugins:base:base-test-utils"))
-    testImplementation(project(":core:content-matcher-test-utils"))
+    testImplementation(projects.plugins.base.baseTestUtils)
+    testImplementation(projects.core.contentMatcherTestUtils)
 
-    val kotlinx_html_version: String by project
-    implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:$kotlinx_html_version")
+    implementation(libs.kotlinx.html)
 
-    testImplementation(project(":kotlin-analysis"))
-    testImplementation(project(":test-utils"))
-    testImplementation(project(":core:test-api"))
-    testImplementation("org.junit.jupiter:junit-jupiter:5.6.0")
+    testImplementation(projects.kotlinAnalysis)
+    testImplementation(projects.testUtils)
+    testImplementation(projects.core.testApi)
+    testImplementation(platform(libs.junit.bom))
+    testImplementation(libs.junit.jupiter)
 }
 
 val projectDistDir = project(":plugins:base:frontend").file("dist")
 val generateFrontendFiles = tasks.getByPath(":plugins:base:frontend:generateFrontendFiles")
 
-val copyJsFiles by tasks.registering(Copy::class){
-    from(projectDistDir){
+val copyJsFiles by tasks.registering(Copy::class) {
+    from(projectDistDir) {
         include("*.js")
     }
     dependsOn(generateFrontendFiles)
-    destinationDir = File(sourceSets.main.get().resources.sourceDirectories.singleFile, "dokka/scripts")
+    destinationDir =
+        File(sourceSets.main.get().resources.sourceDirectories.singleFile, "dokka/scripts")
 }
 
-val copyCssFiles by tasks.registering(Copy::class){
-    from(projectDistDir){
+val copyCssFiles by tasks.registering(Copy::class) {
+    from(projectDistDir) {
         include("*.css")
     }
     dependsOn(generateFrontendFiles)
-    destinationDir = File(sourceSets.main.get().resources.sourceDirectories.singleFile, "dokka/styles")
+    destinationDir =
+        File(sourceSets.main.get().resources.sourceDirectories.singleFile, "dokka/styles")
 }
 
 val copyFrontend by tasks.registering {
