@@ -52,17 +52,16 @@ gradlePlugin {
 
     plugins {
         all {
+            id = "org.jetbrains.dokka"
             implementationClass = "org.jetbrains.dokka.gradle.DokkaPlugin"
             tags.set(listOf("dokka", "kotlin", "kdoc", "android", "documentation"))
         }
         create("dokkaGradlePlugin") {
-            id = "org.jetbrains.dokka"
             displayName = "Dokka plugin"
             description = "Dokka, the Kotlin documentation tool"
             isAutomatedPublishing = true
         }
         register("dokkaGradlePluginForIntegrationTests") {
-            id = "dokka-gradle-plugin"
             version = "for-integration-tests-SNAPSHOT"
         }
         register("pluginMaven") {
