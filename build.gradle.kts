@@ -7,7 +7,7 @@ plugins {
     id("org.jetbrains.conventions.dokka")
 
     alias(libs.plugins.kotlinx.binaryCompatibilityValidator)
-    alias(libs.plugins.gradle.pluginPublish)
+    alias(libs.plugins.gradle.pluginPublish) apply false
     alias(libs.plugins.nexusPublish)
 }
 
