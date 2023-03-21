@@ -16,7 +16,6 @@ import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.model.doc.Deprecated
 import org.jetbrains.dokka.utilities.DokkaLogger
-import org.jetbrains.dokka.utilities.enumValueOrNull
 import org.jetbrains.dokka.utilities.htmlEscape
 import org.jetbrains.kotlin.idea.kdoc.resolveKDocLink
 import org.jetbrains.kotlin.idea.base.utils.fqname.getKotlinFqName
@@ -84,93 +83,106 @@ class JavadocParser(
             parseWithChildren = parseWithChildren
         )
 
-    private fun parseDocTag(tag: PsiDocTag, docComment: PsiDocComment, analysedElement: PsiNamedElement): TagWrapper =
-        enumValueOrNull<JavadocTag>(tag.name)?.let { javadocTag ->
-            val resolutionContext = CommentResolutionContext(comment = docComment, tag = javadocTag)
-            when (resolutionContext.tag) {
-                JavadocTag.PARAM -> {
-                    val name = tag.dataElements.firstOrNull()?.text.orEmpty()
-                    val index =
-                        (analysedElement as? PsiMethod)?.parameterList?.parameters?.map { it.name }?.indexOf(name)
-                    Param(
-                        wrapTagIfNecessary(
-                            convertJavadocElements(
-                                tag.contentElementsWithSiblingIfNeeded().drop(1),
-                                context = resolutionContext.copy(name = name, parameterIndex = index)
-                            )
-                        ),
-                        name
-                    )
-                }
-                JavadocTag.THROWS, JavadocTag.EXCEPTION -> {
-                    val resolved = tag.resolveToElement()
-                    val dri = resolved?.let { DRI.from(it) }
-                    val name = resolved?.getKotlinFqName()?.asString()
-                        ?: tag.dataElements.firstOrNull()?.text.orEmpty()
-                    Throws(
-                        root = wrapTagIfNecessary(
-                            convertJavadocElements(
-                                tag.dataElements.drop(1),
-                                context = resolutionContext.copy(name = name)
-                            )
-                        ),
-                        /* we always would like to have a fully qualified name as name,
+    private fun parseDocTag(tag: PsiDocTag, docComment: PsiDocComment, analysedElement: PsiNamedElement): TagWrapper {
+        val javadocTag = JavadocTag.lowercaseValueOfOrNull(tag.name)
+        if (javadocTag == null) {
+            return emptyTagWrapper(tag, docComment)
+        }
+        // Javadoc tag found
+        val resolutionContext = CommentResolutionContext(comment = docComment, tag = javadocTag)
+        return when (resolutionContext.tag) {
+            JavadocTag.PARAM -> {
+                val name = tag.dataElements.firstOrNull()?.text.orEmpty()
+                val index =
+                    (analysedElement as? PsiMethod)?.parameterList?.parameters?.map { it.name }?.indexOf(name)
+                Param(
+                    wrapTagIfNecessary(
+                        convertJavadocElements(
+                            tag.contentElementsWithSiblingIfNeeded().drop(1),
+                            context = resolutionContext.copy(name = name, parameterIndex = index)
+                        )
+                    ),
+                    name
+                )
+            }
+
+            JavadocTag.THROWS, JavadocTag.EXCEPTION -> {
+                val resolved = tag.resolveToElement()
+                val dri = resolved?.let { DRI.from(it) }
+                val name = resolved?.getKotlinFqName()?.asString()
+                    ?: tag.dataElements.firstOrNull()?.text.orEmpty()
+                Throws(
+                    root = wrapTagIfNecessary(
+                        convertJavadocElements(
+                            tag.dataElements.drop(1),
+                            context = resolutionContext.copy(name = name)
+                        )
+                    ),
+                    /* we always would like to have a fully qualified name as name,
                         *  because it will be used as a display name later and we would like to have those unified
                         *  even if documentation states shortened version
                         *
                         *  Only if dri search fails we should use the provided phrase (since then we are not able to get a fq name)
                         * */
-                        name = name,
-                        exceptionAddress = dri
-                    )
-                }
-                JavadocTag.RETURN -> Return(
-                    wrapTagIfNecessary(
-                        convertJavadocElements(
-                            tag.contentElementsWithSiblingIfNeeded(),
-                            context = resolutionContext
-                        )
-                    )
+                    name = name,
+                    exceptionAddress = dri
                 )
-                JavadocTag.AUTHOR -> Author(
-                    wrapTagIfNecessary(
-                        convertJavadocElements(
-                            tag.contentElementsWithSiblingIfNeeded(),
-                            context = resolutionContext
-                        )
-                    )
-                ) // Workaround: PSI returns first word after @author tag as a `DOC_TAG_VALUE_ELEMENT`, then the rest as a `DOC_COMMENT_DATA`, so for `Name Surname` we get them parted
-                JavadocTag.SEE -> {
-                    val name =
-                        tag.resolveToElement()?.getKotlinFqName()?.asString() ?: tag.referenceElement()?.text.orEmpty().removePrefix("#")
-                    getSeeTagElementContent(tag, resolutionContext.copy(name = name)).let {
-                        See(
-                            wrapTagIfNecessary(it.first),
-                            name,
-                            it.second
-                        )
-                    }
-                }
-                JavadocTag.DEPRECATED -> Deprecated(
-                    wrapTagIfNecessary(
-                        convertJavadocElements(
-                            tag.contentElementsWithSiblingIfNeeded(),
-                            context = resolutionContext
-                        )
-                    )
-                )
-                else -> null
-                //TODO https://github.com/Kotlin/dokka/issues/1618
             }
-        } ?: CustomTagWrapper(
-            wrapTagIfNecessary(
-                convertJavadocElements(
-                    tag.contentElementsWithSiblingIfNeeded(),
-                    context = CommentResolutionContext(docComment, null)
+
+            JavadocTag.RETURN -> Return(
+                wrapTagIfNecessary(
+                    convertJavadocElements(
+                        tag.contentElementsWithSiblingIfNeeded(),
+                        context = resolutionContext
+                    )
                 )
-            ),
-            tag.name
-        )
+            )
+
+            JavadocTag.AUTHOR -> Author(
+                wrapTagIfNecessary(
+                    convertJavadocElements(
+                        tag.contentElementsWithSiblingIfNeeded(),
+                        context = resolutionContext
+                    )
+                )
+            ) // Workaround: PSI returns first word after @author tag as a `DOC_TAG_VALUE_ELEMENT`, then the rest as a `DOC_COMMENT_DATA`, so for `Name Surname` we get them parted
+            JavadocTag.SEE -> {
+                val name =
+                    tag.resolveToElement()?.getKotlinFqName()?.asString() ?: tag.referenceElement()?.text.orEmpty()
+                        .removePrefix("#")
+                getSeeTagElementContent(tag, resolutionContext.copy(name = name)).let {
+                    See(
+                        wrapTagIfNecessary(it.first),
+                        name,
+                        it.second
+                    )
+                }
+            }
+
+            JavadocTag.DEPRECATED -> Deprecated(
+                wrapTagIfNecessary(
+                    convertJavadocElements(
+                        tag.contentElementsWithSiblingIfNeeded(),
+                        context = resolutionContext
+                    )
+                )
+            )
+
+            else -> emptyTagWrapper(tag, docComment)
+        }
+    }
+
+    // Wrapper for unsupported tags https://github.com/Kotlin/dokka/issues/1618
+    private fun emptyTagWrapper(
+        tag: PsiDocTag,
+        docComment: PsiDocComment
+    ) = CustomTagWrapper(
+        wrapTagIfNecessary(
+            convertJavadocElements(
+                tag.contentElementsWithSiblingIfNeeded(),
+                context = CommentResolutionContext(docComment, null)
+            )), tag.name
+    )
 
     private fun wrapTagIfNecessary(list: List<DocTag>): CustomDocTag =
         if (list.size == 1 && (list.first() as? CustomDocTag)?.name == MarkdownElementTypes.MARKDOWN_FILE.name)
