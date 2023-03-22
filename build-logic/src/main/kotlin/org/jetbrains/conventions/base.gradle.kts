@@ -14,7 +14,6 @@ plugins {
 
 val dokkaBuildProperties: DokkaBuildProperties = extensions.create(DokkaBuildProperties.EXTENSION_NAME)
 
-
 if (project != rootProject) {
     project.group = rootProject.group
     project.version = rootProject.version
