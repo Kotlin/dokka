@@ -18,7 +18,7 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
-          java-version: 11
+          java-version: 17
           cache: 'maven'
       - name: Document coroutines
         uses: gradle/gradle-build-action@v2
@@ -48,7 +48,7 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
-          java-version: 11
+          java-version: 17
           cache: 'maven'
       - name: Document serialization
         uses: gradle/gradle-build-action@v2
@@ -78,7 +78,7 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
-          java-version: 11
+          java-version: 17
           cache: 'maven'
       - name: Document biojava-core
         uses: gradle/gradle-build-action@v2

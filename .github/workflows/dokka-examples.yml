@@ -30,7 +30,7 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
-          java-version: 11
+          java-version: 17
           cache: 'maven'
       - uses: gradle/gradle-build-action@v2
       - run: ./gradlew build --no-daemon --stacktrace
@@ -59,7 +59,7 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
-          java-version: 11
+          java-version: 17
           cache: 'maven'
       - uses: gradle/gradle-build-action@v2
       - run: ./gradlew dokkaHtml --no-daemon --stacktrace
@@ -82,7 +82,7 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
-          java-version: 11
+          java-version: 17
           cache: 'maven'
       - uses: gradle/gradle-build-action@v2
       - run: ./gradlew ${{ matrix.tasks }} --no-daemon --stacktrace
@@ -107,7 +107,7 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
-          java-version: 11
+          java-version: 17
           cache: 'maven'
       - uses: gradle/gradle-build-action@v2
       - run: ./gradlew ${{ matrix.task }} --no-daemon --stacktrace
@@ -128,7 +128,7 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
-          java-version: 11
+          java-version: 17
           cache: 'maven'
       - run: mvn compile dokka:dokka
         working-directory: examples/maven
