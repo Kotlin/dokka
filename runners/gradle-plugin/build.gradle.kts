@@ -64,9 +64,7 @@ gradlePlugin {
         register("dokkaGradlePluginForIntegrationTests") {
             version = "for-integration-tests-SNAPSHOT"
         }
-        register("pluginMaven") {
-            id = "dokka-gradle-plugin"
-        }
+        register("pluginMaven")
     }
 }
 
