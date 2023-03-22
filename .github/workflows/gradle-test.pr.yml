@@ -23,6 +23,7 @@ jobs:
         env:
           ORG_GRADLE_PROJECT_org.jetbrains.dokka.javaToolchain.test: ${{ matrix.javaVersion }}
         with:
+          gradle-home-cache-cleanup: true
           arguments: clean test --stacktrace
 
   test-windows:
@@ -42,4 +43,5 @@ jobs:
         env:
           ORG_GRADLE_PROJECT_org.jetbrains.dokka.javaToolchain.test: ${{ matrix.javaVersion }}
         with:
+          gradle-home-cache-cleanup: true
           arguments: clean test --stacktrace --no-daemon --parallel --max-workers=1
