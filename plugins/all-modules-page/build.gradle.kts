@@ -32,7 +32,6 @@ dependencies {
     implementation(libs.kotlinx.html)
     implementation(libs.jsoup)
 
-    testImplementation(projects.testUtils)
     testImplementation(projects.core.testApi)
     testImplementation(platform(libs.junit.bom))
     testImplementation(libs.junit.jupiter)

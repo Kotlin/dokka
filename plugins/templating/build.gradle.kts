@@ -28,7 +28,6 @@ dependencies {
     implementation(libs.jsoup)
     testImplementation(projects.plugins.base.baseTestUtils)
 
-    testImplementation(projects.testUtils)
     testImplementation(projects.core.testApi)
     testImplementation(platform(libs.junit.bom))
     testImplementation(libs.junit.jupiter)
