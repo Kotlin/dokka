@@ -17,7 +17,6 @@ dependencies {
     implementation(libs.jsoup)
     implementation(kotlin("test-junit"))
 
-    testImplementation(projects.testUtils)
     testImplementation(projects.core.testApi)
     testImplementation(platform(libs.junit.bom))
     testImplementation(libs.junit.jupiter)

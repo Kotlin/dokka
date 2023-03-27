@@ -34,7 +34,7 @@ fun AbstractIntegrationTest.applyGitDiffFromFile(diffFile: File) {
 private fun removeGitFile(repository: Path) =
     repository.toFile()
         .listFiles().orEmpty()
-        .filter { it.name.toLowerCase() == ".git" }
+        .filter { it.name.lowercase() == ".git" }
         .forEach { it.delete() }
 
 
