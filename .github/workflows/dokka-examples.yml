@@ -33,6 +33,8 @@ jobs:
           java-version: 11
           cache: 'maven'
       - uses: gradle/gradle-build-action@v2
+        with:
+          gradle-home-cache-cleanup: true
       - run: ./gradlew build --no-daemon --stacktrace
         working-directory: ${{ matrix.projects }}
         if: steps.filter.outputs.examples_changed == 'true'
@@ -62,6 +64,8 @@ jobs:
           java-version: 11
           cache: 'maven'
       - uses: gradle/gradle-build-action@v2
+        with:
+          gradle-home-cache-cleanup: true
       - run: ./gradlew dokkaHtml --no-daemon --stacktrace
         working-directory: ${{ matrix.projects }}
         if: steps.filter.outputs.examples_changed == 'true'
@@ -85,6 +89,8 @@ jobs:
           java-version: 11
           cache: 'maven'
       - uses: gradle/gradle-build-action@v2
+        with:
+          gradle-home-cache-cleanup: true
       - run: ./gradlew ${{ matrix.tasks }} --no-daemon --stacktrace
         working-directory: examples/gradle/dokka-library-publishing-example
         if: steps.filter.outputs.examples_changed == 'true'
@@ -110,6 +116,8 @@ jobs:
           java-version: 11
           cache: 'maven'
       - uses: gradle/gradle-build-action@v2
+        with:
+          gradle-home-cache-cleanup: true
       - run: ./gradlew ${{ matrix.task }} --no-daemon --stacktrace
         working-directory: ${{ matrix.dir }}
         if: steps.filter.outputs.examples_changed == 'true'

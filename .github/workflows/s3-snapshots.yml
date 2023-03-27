@@ -23,6 +23,7 @@ jobs:
       - name: Document coroutines
         uses: gradle/gradle-build-action@v2
         with:
+          gradle-home-cache-cleanup: true
           arguments: :integration-tests:gradle:integrationTest --tests org.jetbrains.dokka.it.gradle.kotlin.CoroutinesGradleIntegrationTest --stacktrace
         env:
           DOKKA_TEST_OUTPUT_PATH: /home/runner/work/dokka/coroutines
@@ -53,6 +54,7 @@ jobs:
       - name: Document serialization
         uses: gradle/gradle-build-action@v2
         with:
+          gradle-home-cache-cleanup: true
           arguments: :integration-tests:gradle:integrationTest --tests org.jetbrains.dokka.it.gradle.kotlin.SerializationGradleIntegrationTest --stacktrace
         env:
           DOKKA_TEST_OUTPUT_PATH: /home/runner/work/dokka/serialization
@@ -83,6 +85,7 @@ jobs:
       - name: Document biojava-core
         uses: gradle/gradle-build-action@v2
         with:
+          gradle-home-cache-cleanup: true
           arguments: :integration-tests:maven:integrationTest --tests org.jetbrains.dokka.it.maven.BiojavaIntegrationTest --stacktrace
         env:
           DOKKA_TEST_OUTPUT_PATH: /home/runner/work/dokka/biojava

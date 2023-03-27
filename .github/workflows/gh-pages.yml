@@ -28,6 +28,8 @@ jobs:
           java-version: 11
           cache: 'maven'
       - uses: gradle/gradle-build-action@v2
+        with:
+          gradle-home-cache-cleanup: true
       - name: Get current dokka version
         run: echo "DOKKA_VERSION=`./gradlew :properties | grep '^version:.*' | cut -d ' ' -f 2`" >> $GITHUB_ENV
         if: github.event_name == 'release' || steps.filter.outputs.mkdocs_changed == 'true'
