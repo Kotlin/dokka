@@ -4,7 +4,6 @@ import org.jetbrains.dokka.javadoc.pages.JavadocContentKind
 import org.jetbrains.dokka.javadoc.pages.JavadocPackagePageNode
 import org.jetbrains.dokka.javadoc.pages.RowJavadocListEntry
 import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.test.assertIsInstance
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.io.File

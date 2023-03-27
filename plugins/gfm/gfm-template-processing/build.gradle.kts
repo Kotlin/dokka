@@ -16,7 +16,6 @@ dependencies {
 
     implementation(libs.kotlinx.coroutines.core)
 
-    testImplementation(projects.testUtils)
     testImplementation(projects.core.testApi)
     testImplementation(platform(libs.junit.bom))
     testImplementation(libs.junit.jupiter)

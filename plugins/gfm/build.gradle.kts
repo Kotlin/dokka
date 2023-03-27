@@ -12,7 +12,6 @@ dependencies {
     testImplementation(projects.plugins.base)
     testImplementation(projects.plugins.base.baseTestUtils)
     implementation(libs.jackson.kotlin)
-    testImplementation(projects.testUtils)
     testImplementation(projects.core.testApi)
     testImplementation(platform(libs.junit.bom))
     testImplementation(libs.junit.jupiter)

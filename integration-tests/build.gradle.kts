@@ -3,7 +3,7 @@ plugins {
 }
 
 dependencies {
-    api(projects.testUtils)
+    implementation(kotlin("test-junit"))
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.jsoup)
     implementation(libs.eclipse.jgit)

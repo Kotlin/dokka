@@ -1,10 +1,11 @@
 package org.jetbrains.dokka.it.gradle
 
 import org.gradle.testkit.runner.TaskOutcome
-import org.jetbrains.dokka.test.assumeAndroidSdkInstalled
+import org.junit.*
 import org.junit.runners.Parameterized.Parameters
 import java.io.File
 import kotlin.test.*
+import kotlin.test.Test
 
 class Android0GradleIntegrationTest(override val versions: BuildVersions) : AbstractGradleIntegrationTest() {
 
@@ -12,6 +13,20 @@ class Android0GradleIntegrationTest(override val versions: BuildVersions) : Abst
         @get:JvmStatic
         @get:Parameters(name = "{0}")
         val versions = TestedVersions.ANDROID
+
+        /**
+         * Indicating whether or not the current machine executing the test is a CI
+         */
+        private val isCI: Boolean get() = System.getenv("CI") == "true"
+
+        private val isAndroidSdkInstalled: Boolean = System.getenv("ANDROID_SDK_ROOT") != null ||
+                System.getenv("ANDROID_HOME") != null
+
+        fun assumeAndroidSdkInstalled() {
+            if (isCI) return
+            Assume.assumeTrue(isAndroidSdkInstalled)
+        }
+
     }
 
     @BeforeTest
