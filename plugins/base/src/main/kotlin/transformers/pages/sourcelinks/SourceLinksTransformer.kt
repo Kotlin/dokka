@@ -6,7 +6,7 @@ import com.intellij.psi.PsiIdentifier
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.analysis.DescriptorDocumentableSource
-import org.jetbrains.dokka.analysis.PsiDocumentableSource
+import org.jetbrains.dokka.analysis.java.util.PsiDocumentableSource
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder
 import org.jetbrains.dokka.links.DRI

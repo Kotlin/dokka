@@ -1,16 +1,11 @@
-package org.jetbrains.dokka.base.translators.psi
+package org.jetbrains.dokka.analysis.java.util
 
 import com.intellij.psi.PsiField
 import com.intellij.psi.PsiMethod
-import org.jetbrains.dokka.base.translators.firstNotNullOfOrNull
+import org.jetbrains.dokka.analysis.java.getVisibility
 import org.jetbrains.dokka.model.JavaVisibility
 import org.jetbrains.dokka.model.KotlinVisibility
 import org.jetbrains.dokka.model.Visibility
-import org.jetbrains.kotlin.load.java.JvmAbi
-import org.jetbrains.kotlin.load.java.propertyNameByGetMethodName
-import org.jetbrains.kotlin.load.java.propertyNamesBySetMethodName
-import org.jetbrains.kotlin.name.Name
-import org.jetbrains.kotlin.resolve.DescriptorUtils
 
 
 internal data class PsiFunctionsHolder(
@@ -38,6 +33,30 @@ internal fun splitFunctionsAndAccessors(fields: Array<PsiField>, methods: Array<
     return PsiFunctionsHolder(regularFunctions, accessors)
 }
 
+private fun PsiMethod.getPossiblePropertyNamesForFunction(): List<String> {
+    // TODO [beresnev] breaking abstraction?
+    val jvmName = getAnnotation("kotlin.jvm.JvmName")?.findAttributeValue("name")?.text
+    if (jvmName != null) return listOf(jvmName)
+
+    return when {
+            isGetterName(name) -> listOfNotNull(
+                propertyNameByGetMethodName(name)
+            )
+            isSetterName(name) -> {
+                propertyNamesBySetMethodName(name)
+            }
+            else -> listOf()
+        }
+}
+
+private fun isGetterName(name: String): Boolean {
+    return name.startsWith("get") || name.startsWith("is")
+}
+
+private fun isSetterName(name: String): Boolean {
+    return name.startsWith("set")
+}
+
 /**
  * If a field has no getter, it's not accessible as a property from Kotlin's perspective,
  * but it still might have a setter. In this case, this "setter" should be just a regular function
@@ -57,20 +76,6 @@ private fun removeNonAccessorsReturning(
     return nonAccessors
 }
 
-internal fun PsiMethod.getPossiblePropertyNamesForFunction(): List<String> {
-    val jvmName = getAnnotation(DescriptorUtils.JVM_NAME.asString())?.findAttributeValue("name")?.text
-    return jvmName?.let { listOf(jvmName) }
-        ?: when {
-            JvmAbi.isGetterName(name) -> listOfNotNull(
-                propertyNameByGetMethodName(Name.identifier(name))?.asString()
-            )
-            JvmAbi.isSetterName(name) -> {
-                propertyNamesBySetMethodName(Name.identifier(name)).map { it.asString() }
-            }
-            else -> listOf()
-        }
-}
-
 internal fun PsiMethod.isAccessorFor(field: PsiField): Boolean {
     return (this.isGetterFor(field) || this.isSetterFor(field))
             && !field.getVisibility().isPublicAPI()
@@ -85,7 +90,7 @@ internal fun PsiMethod.isSetterFor(field: PsiField): Boolean {
     return parameterList.getParameter(0)?.type == field.type
 }
 
-internal fun Visibility.isPublicAPI() = when(this) {
+private fun Visibility.isPublicAPI() = when(this) {
     KotlinVisibility.Public,
     KotlinVisibility.Protected,
     JavaVisibility.Public,

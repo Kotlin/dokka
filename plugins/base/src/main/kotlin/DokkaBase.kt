@@ -2,15 +2,29 @@
 
 package org.jetbrains.dokka.base
 
+import com.intellij.openapi.project.Project
+import com.intellij.psi.PsiNamedElement
 import org.jetbrains.dokka.CoreExtensions
+import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.analysis.DokkaResolutionFacade
 import org.jetbrains.dokka.analysis.KotlinAnalysis
 import org.jetbrains.dokka.analysis.ProjectKotlinAnalysis
+import org.jetbrains.dokka.analysis.from
+import org.jetbrains.dokka.analysis.java.*
+import org.jetbrains.dokka.analysis.java.doctag.DocTagParserContext
+import org.jetbrains.dokka.analysis.java.doctag.InheritDocTagContentProvider
+import org.jetbrains.dokka.analysis.java.parsers.*
+import org.jetbrains.dokka.analysis.java.parsers.doctag.InheritDocTagResolver
+import org.jetbrains.dokka.analysis.java.parsers.doctag.PsiDocTagParser
+import org.jetbrains.dokka.base.generation.SingleModuleGeneration
+import org.jetbrains.dokka.base.parsers.MarkdownParser
 import org.jetbrains.dokka.base.renderers.*
 import org.jetbrains.dokka.base.renderers.html.*
 import org.jetbrains.dokka.base.renderers.html.command.consumers.PathToRootConsumer
+import org.jetbrains.dokka.base.renderers.html.command.consumers.ReplaceVersionsConsumer
 import org.jetbrains.dokka.base.renderers.html.command.consumers.ResolveLinkConsumer
-import org.jetbrains.dokka.base.resolvers.external.ExternalLocationProviderFactory
 import org.jetbrains.dokka.base.resolvers.external.DefaultExternalLocationProviderFactory
+import org.jetbrains.dokka.base.resolvers.external.ExternalLocationProviderFactory
 import org.jetbrains.dokka.base.resolvers.external.javadoc.JavadocExternalLocationProviderFactory
 import org.jetbrains.dokka.base.resolvers.local.DokkaLocationProviderFactory
 import org.jetbrains.dokka.base.resolvers.local.LocationProviderFactory
@@ -25,24 +39,34 @@ import org.jetbrains.dokka.base.transformers.pages.comments.DocTagToContentConve
 import org.jetbrains.dokka.base.transformers.pages.merger.*
 import org.jetbrains.dokka.base.transformers.pages.samples.DefaultSamplesTransformer
 import org.jetbrains.dokka.base.transformers.pages.sourcelinks.SourceLinksTransformer
-import org.jetbrains.dokka.base.translators.descriptors.DefaultDescriptorToDocumentableTranslator
-import org.jetbrains.dokka.base.translators.documentables.DefaultDocumentableToPageTranslator
-import org.jetbrains.dokka.base.translators.psi.DefaultPsiToDocumentableTranslator
-import org.jetbrains.dokka.base.generation.SingleModuleGeneration
-import org.jetbrains.dokka.base.renderers.html.command.consumers.ReplaceVersionsConsumer
 import org.jetbrains.dokka.base.transformers.pages.tags.CustomTagContentProvider
 import org.jetbrains.dokka.base.transformers.pages.tags.SinceKotlinTagContentProvider
+import org.jetbrains.dokka.base.translators.descriptors.DefaultDescriptorToDocumentableTranslator
 import org.jetbrains.dokka.base.translators.descriptors.DefaultExternalDocumentablesProvider
 import org.jetbrains.dokka.base.translators.descriptors.ExternalClasslikesTranslator
 import org.jetbrains.dokka.base.translators.descriptors.ExternalDocumentablesProvider
+import org.jetbrains.dokka.base.translators.documentables.DefaultDocumentableToPageTranslator
 import org.jetbrains.dokka.base.utils.NoopIntellijLoggerFactory
-import org.jetbrains.dokka.plugability.DokkaPlugin
-import org.jetbrains.dokka.plugability.DokkaPluginApiPreview
-import org.jetbrains.dokka.plugability.PluginApiPreviewAcknowledgement
-import org.jetbrains.dokka.plugability.querySingle
+import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.model.doc.DocumentationNode
+import org.jetbrains.dokka.plugability.*
 import org.jetbrains.dokka.renderers.PostAction
 import org.jetbrains.dokka.transformers.documentation.PreMergeDocumentableTransformer
 import org.jetbrains.dokka.transformers.pages.PageTransformer
+import org.jetbrains.dokka.utilities.DokkaLogger
+import org.jetbrains.kotlin.asJava.elements.KtLightAbstractAnnotation
+import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
+import org.jetbrains.kotlin.cli.jvm.config.JavaSourceRoot
+import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
+import org.jetbrains.kotlin.idea.kdoc.findKDoc
+import org.jetbrains.kotlin.idea.kdoc.resolveKDocLink
+import org.jetbrains.kotlin.idea.search.usagesSearch.descriptor
+import org.jetbrains.kotlin.kdoc.psi.impl.KDocTag
+import org.jetbrains.kotlin.psi.KtDeclaration
+import org.jetbrains.kotlin.psi.KtElement
+import org.jetbrains.kotlin.resolve.DescriptorToSourceUtils
+import java.io.File
+import java.util.*
 
 class DokkaBase : DokkaPlugin() {
 
@@ -56,6 +80,7 @@ class DokkaBase : DokkaPlugin() {
     val outputWriter by extensionPoint<OutputWriter>()
     val htmlPreprocessors by extensionPoint<PageTransformer>()
     val kotlinAnalysis by extensionPoint<KotlinAnalysis>()
+
     @Deprecated("It is not used anymore")
     val tabSortingStrategy by extensionPoint<TabSortingStrategy>()
     val immediateHtmlCommandConsumer by extensionPoint<ImmediateHtmlCommandConsumer>()
@@ -71,7 +96,11 @@ class DokkaBase : DokkaPlugin() {
     }
 
     val psiToDocumentableTranslator by extending {
-        CoreExtensions.sourceToDocumentableTranslator providing ::DefaultPsiToDocumentableTranslator
+        CoreExtensions.sourceToDocumentableTranslator providing { context ->
+            DefaultPsiToDocumentableTranslator(
+                javaAnalysisHelper = DokkaAnalysisJavaHelper(),
+            )
+        }
     }
 
     val documentableMerger by extending {
@@ -298,4 +327,212 @@ class DokkaBase : DokkaPlugin() {
     @OptIn(DokkaPluginApiPreview::class)
     override fun pluginApiPreviewAcknowledgement(): PluginApiPreviewAcknowledgement =
         PluginApiPreviewAcknowledgement
+}
+
+class DokkaAnalysisJavaHelper : JavaAnalysisHelper {
+
+    override fun extractSourceRoots(sourceSet: DokkaConfiguration.DokkaSourceSet, context: DokkaContext): List<File> {
+        val kotlinAnalysis = context.plugin<DokkaBase>().querySingle { kotlinAnalysis }
+        val (environment, facade) = kotlinAnalysis[sourceSet]
+        return environment.configuration.get(CLIConfigurationKeys.CONTENT_ROOTS)
+            ?.filterIsInstance<JavaSourceRoot>()
+            ?.mapNotNull { it.file.takeIf { isFileInSourceRoots(it, sourceSet) } }
+            ?: listOf()
+    }
+
+    private fun isFileInSourceRoots(file: File, sourceSet: DokkaConfiguration.DokkaSourceSet): Boolean =
+        sourceSet.sourceRoots.any { root -> file.startsWith(root) }
+
+    override fun extractProject(sourceSet: DokkaConfiguration.DokkaSourceSet, context: DokkaContext): Project {
+        val kotlinAnalysis = context.plugin<DokkaBase>().querySingle { kotlinAnalysis }
+        return kotlinAnalysis[sourceSet].facade.project
+    }
+
+    override fun createPsiParser(sourceSet: DokkaConfiguration.DokkaSourceSet, context: DokkaContext): DokkaPsiParser {
+        val kotlinAnalysis = context.plugin<DokkaBase>().querySingle { kotlinAnalysis }
+
+        val docCommentFactory = DocCommentFactory(
+            docCommentCreators = listOf(
+                JavaDocCommentCreator(),
+                KotlinDocCommentCreator()
+            )
+        )
+        val docCommentFinder = DocCommentFinder(
+            logger = context.logger,
+            docCommentFactory = docCommentFactory
+        )
+        val kotlinDocCommentParser = KotlinDocCommentParser(
+            resolutionFacade = kotlinAnalysis[sourceSet].facade,
+            logger = context.logger
+        )
+        val psiDocTagParser = PsiDocTagParser(
+            inheritDocTagResolver = InheritDocTagResolver(
+                docCommentFactory = docCommentFactory,
+                docCommentFinder = docCommentFinder,
+                contentProviders = listOf(KotlinInheritDocTagContentProvider(kotlinDocCommentParser))
+            )
+        )
+        return DokkaPsiParser(
+            sourceSetData = sourceSet,
+            project = extractProject(sourceSet, context),
+            logger = context.logger,
+            javadocParser = JavadocParser(
+                docCommentParsers = listOf(
+                    JavaPsiDocCommentParser(
+                        psiDocTagParser = psiDocTagParser
+                    ),
+                    kotlinDocCommentParser
+                ),
+                docCommentFinder = docCommentFinder
+            ),
+            javaPsiDocCommentParser = JavaPsiDocCommentParser(
+                psiDocTagParser = psiDocTagParser
+            ),
+            isLightAnnotation = { it is KtLightAbstractAnnotation },
+            isLightAnnotationAttribute = { it is KtLightAbstractAnnotation }
+        )
+    }
+}
+
+internal class KotlinInheritDocTagContentProvider(
+    val parser: KotlinDocCommentParser
+) : InheritDocTagContentProvider {
+
+    override fun canConvert(content: DocumentationContent): Boolean = content is DescriptorDocumentationContent
+
+    override fun convertToHtml(content: DocumentationContent, docTagParserContext: DocTagParserContext): String {
+        val descriptorContent = content as DescriptorDocumentationContent
+        val inheritedDocNode = parser.parseDocumentation(
+            KotlinDocComment(descriptorContent.element, descriptorContent.descriptor),
+            parseWithChildren = false
+        )
+        val id = docTagParserContext.store(inheritedDocNode)
+        return """<inheritdoc id="$id"/>"""
+    }
+}
+
+internal data class DescriptorDocumentationContent(
+    val descriptor: DeclarationDescriptor,
+    val element: KDocTag,
+    override val tag: JavadocTag,
+) : DocumentationContent {
+    override fun resolveSiblings(): List<DocumentationContent> {
+        return listOf(this)
+    }
+}
+
+class KotlinDocCommentCreator : DocCommentCreator {
+    override fun create(element: PsiNamedElement): DocComment? {
+        val ktElement = element.navigationElement as? KtElement ?: return null
+        val kdoc = ktElement.findKDoc { DescriptorToSourceUtils.descriptorToDeclaration(it) } ?: return null
+        val descriptor = (element.navigationElement as? KtDeclaration)?.descriptor ?: return null
+        return KotlinDocComment(kdoc, descriptor)
+    }
+}
+
+class KotlinDocComment(
+    val comment: KDocTag,
+    val descriptor: DeclarationDescriptor
+) : DocComment {
+
+    private val tagsWithContent: List<KDocTag> = comment.children.mapNotNull { (it as? KDocTag) }
+
+    override fun hasTag(tag: JavadocTag): Boolean {
+        return when (tag) {
+            is DescriptionJavadocTag -> comment.getContent().isNotEmpty()
+            is ThrowingExceptionJavadocTag -> tagsWithContent.any { it.hasException(tag) }
+            else -> tagsWithContent.any { it.text.startsWith("@${tag.name}") }
+        }
+    }
+
+    private fun KDocTag.hasException(tag: ThrowingExceptionJavadocTag) =
+        text.startsWith("@${tag.name}") && getSubjectName() == tag.exceptionQualifiedName
+
+    override fun resolveTag(tag: JavadocTag): List<DocumentationContent> {
+        return when (tag) {
+            is DescriptionJavadocTag -> listOf(DescriptorDocumentationContent(descriptor, comment, tag))
+            is ParamJavadocTag -> {
+                val resolvedContent = resolveGeneric(tag)
+                listOf(resolvedContent[tag.paramIndex])
+            }
+            is ThrowsJavadocTag -> resolveThrowingException(tag)
+            is ExceptionJavadocTag -> resolveThrowingException(tag)
+            else -> resolveGeneric(tag)
+        }
+    }
+
+    private fun resolveThrowingException(tag: ThrowingExceptionJavadocTag): List<DescriptorDocumentationContent> {
+        val exceptionName = tag.exceptionQualifiedName ?: return resolveGeneric(tag)
+
+        return comment.children
+            .filterIsInstance<KDocTag>()
+            .filter { it.name == tag.name && it.getSubjectName() == exceptionName }
+            .map { DescriptorDocumentationContent(descriptor, it, tag) }
+    }
+
+    private fun resolveGeneric(tag: JavadocTag): List<DescriptorDocumentationContent> {
+        return comment.children.mapNotNull { element ->
+            if (element is KDocTag && element.name == tag.name) {
+                DescriptorDocumentationContent(descriptor, element, tag)
+            } else {
+                null
+            }
+        }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as KotlinDocComment
+
+        if (comment != other.comment) return false
+        if (descriptor != other.descriptor) return false
+        if (tagsWithContent != other.tagsWithContent) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = comment.hashCode()
+        result = 31 * result + descriptor.hashCode()
+        result = 31 * result + tagsWithContent.hashCode()
+        return result
+    }
+}
+
+class KotlinDocCommentParser(
+    private val resolutionFacade: DokkaResolutionFacade,
+    private val logger: DokkaLogger
+) : DocCommentParser {
+
+    override fun canParse(docComment: DocComment): Boolean {
+        return docComment is KotlinDocComment
+    }
+
+    override fun parse(docComment: DocComment, context: PsiNamedElement): DocumentationNode {
+        val kotlinDocComment = docComment as KotlinDocComment
+        return parseDocumentation(kotlinDocComment)
+    }
+
+    fun parseDocumentation(element: KotlinDocComment, parseWithChildren: Boolean = true): DocumentationNode =
+        MarkdownParser.parseFromKDocTag(
+            kDocTag = element.comment,
+            externalDri = { link: String ->
+                try {
+                    resolveKDocLink(
+                        context = resolutionFacade.resolveSession.bindingContext,
+                        resolutionFacade = resolutionFacade,
+                        fromDescriptor = element.descriptor,
+                        fromSubjectOfTag = null,
+                        qualifiedName = link.split('.')
+                    ).firstOrNull()?.let { DRI.from(it) }
+                } catch (e1: IllegalArgumentException) {
+                    logger.warn("Couldn't resolve link for $link")
+                    null
+                }
+            },
+            kdocLocation = null,
+            parseWithChildren = parseWithChildren
+        )
 }

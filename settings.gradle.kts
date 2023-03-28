@@ -46,6 +46,13 @@ dependencyResolutionManagement {
             }
             filter { includeGroup("com.yarnpkg") }
         }
+
+        maven("https://www.jetbrains.com/intellij-repository/releases")
+        maven("https://cache-redirector.jetbrains.com/intellij-dependencies")
+
+        maven("https://www.jetbrains.com/intellij-repository/snapshots") {
+            mavenContent { snapshotsOnly() }
+        }
     }
 }
 
@@ -57,6 +64,10 @@ include(
     ":core",
     ":core:test-api",
     ":core:content-matcher-test-utils",
+
+    ":analysis",
+    ":analysis:java-analysis",
+    ":analysis:java-analysis-api",
 
     ":kotlin-analysis",
     ":kotlin-analysis:intellij-dependency",

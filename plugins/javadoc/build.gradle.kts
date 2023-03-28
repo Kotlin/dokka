@@ -9,6 +9,9 @@ dependencies {
     compileOnly(projects.core)
     compileOnly(projects.kotlinAnalysis)
 
+    // TODO [beresnev] handle
+    implementation(projects.analysis.javaAnalysis)
+
     implementation(kotlin("reflect"))
     implementation(libs.soywiz.korte)
     implementation(projects.plugins.base)

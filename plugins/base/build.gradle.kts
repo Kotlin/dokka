@@ -22,6 +22,9 @@ dependencies {
         }
     }
 
+    implementation(projects.analysis.javaAnalysis)
+    implementation(projects.analysis.javaAnalysisApi)
+
     implementation(libs.freemarker)
 
     testImplementation(projects.plugins.base.baseTestUtils)

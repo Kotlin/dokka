@@ -680,12 +680,12 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
             configuration
         ) {
             documentablesMergingStage = { module ->
-                val kotlinEnum = module.packages.find { it.name == "test" }
+                val javaEnum = module.packages.find { it.name == "test" }
                     ?.classlikes
                     ?.single { it.name == "JavaEnum" }
-                checkNotNull(kotlinEnum)
+                checkNotNull(javaEnum)
 
-                val valueOfFunction = kotlinEnum.functions.single { it.name == "valueOf" }
+                val valueOfFunction = javaEnum.functions.single { it.name == "valueOf" }
 
                 val expectedDocumentation = DocumentationNode(listOf(
                     Description(

@@ -1,17 +1,17 @@
-package org.jetbrains.dokka.base.translators.psi
+package org.jetbrains.dokka.analysis.java
 
+import com.intellij.openapi.project.Project
 import com.intellij.psi.*
 import com.intellij.psi.javadoc.PsiDocComment
-import org.jetbrains.dokka.analysis.DokkaResolutionFacade
-import org.jetbrains.dokka.base.translators.psi.parsers.JavadocParser
+import org.jetbrains.dokka.analysis.java.parsers.JavaPsiDocCommentParser
 import org.jetbrains.dokka.model.doc.DocumentationNode
 
 private const val ENUM_VALUEOF_TEMPLATE_PATH = "/dokka/docs/javadoc/EnumValueOf.java.template"
 private const val ENUM_VALUES_TEMPLATE_PATH = "/dokka/docs/javadoc/EnumValues.java.template"
 
 internal class SyntheticElementDocumentationProvider(
-    private val javadocParser: JavadocParser,
-    private val resolutionFacade: DokkaResolutionFacade
+    private val javadocParser: JavaPsiDocCommentParser,
+    private val project: Project
 ) {
     fun isDocumented(psiElement: PsiElement): Boolean = psiElement is PsiMethod
             && (psiElement.isSyntheticEnumValuesMethod() || psiElement.isSyntheticEnumValueOfMethod())
@@ -24,12 +24,12 @@ internal class SyntheticElementDocumentationProvider(
             else -> return null
         }
         val docComment = loadSyntheticDoc(templatePath) ?: return null
-        return javadocParser.parseDocComment(docComment, psiElement)
+        return javadocParser.parsePsiDocComment(docComment, psiElement)
     }
 
     private fun loadSyntheticDoc(path: String): PsiDocComment? {
         val text = javaClass.getResource(path)?.readText() ?: return null
-        return JavaPsiFacade.getElementFactory(resolutionFacade.project).createDocCommentFromText(text)
+        return JavaPsiFacade.getElementFactory(project).createDocCommentFromText(text)
     }
 }
 

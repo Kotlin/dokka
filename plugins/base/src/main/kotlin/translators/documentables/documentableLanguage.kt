@@ -1,7 +1,7 @@
 package org.jetbrains.dokka.base.translators.documentables
 
 import org.jetbrains.dokka.DokkaConfiguration
-import org.jetbrains.dokka.analysis.PsiDocumentableSource
+import org.jetbrains.dokka.analysis.java.util.PsiDocumentableSource
 import org.jetbrains.dokka.model.WithSources
 
 internal enum class DocumentableLanguage {

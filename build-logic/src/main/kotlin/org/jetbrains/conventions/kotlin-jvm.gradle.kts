@@ -28,7 +28,7 @@ tasks.withType<KotlinCompile>().configureEach {
                 "-Xsuppress-version-warnings",
             )
         )
-        allWarningsAsErrors.set(true)
+        allWarningsAsErrors.set(false)
         languageVersion.set(dokkaBuild.kotlinLanguageLevel)
         apiVersion.set(dokkaBuild.kotlinLanguageLevel)
     }

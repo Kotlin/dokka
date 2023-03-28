@@ -3,7 +3,7 @@ package org.jetbrains.dokka.base.transformers.documentables.utils
 import com.intellij.psi.PsiClass
 import kotlinx.coroutines.*
 import org.jetbrains.dokka.analysis.DescriptorDocumentableSource
-import org.jetbrains.dokka.analysis.PsiDocumentableSource
+import org.jetbrains.dokka.analysis.java.util.PsiDocumentableSource
 import org.jetbrains.dokka.analysis.from
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.*

@@ -3,8 +3,8 @@ package org.jetbrains.dokka.javadoc.pages
 import com.intellij.psi.PsiClass
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.analysis.DescriptorDocumentableSource
-import org.jetbrains.dokka.analysis.PsiDocumentableSource
 import org.jetbrains.dokka.analysis.from
+import org.jetbrains.dokka.analysis.java.util.PsiDocumentableSource
 import org.jetbrains.dokka.base.renderers.sourceSets
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.*
@@ -475,6 +475,7 @@ class TreeViewPage(
             listOf(psi to l) + l.flatMap { gatherPsiClasses(it) }
         }
 
+        // TODO [beresnev] extract it into `java-analysis`
         val psiInheritanceTree =
             childrenDocumentables.flatMap { (_, v) -> (v as? WithSources)?.sources?.values.orEmpty() }
                 .filterIsInstance<PsiDocumentableSource>().mapNotNull { it.psi as? PsiClass }

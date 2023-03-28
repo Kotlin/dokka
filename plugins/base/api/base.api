@@ -1,3 +1,10 @@
+public final class org/jetbrains/dokka/base/DokkaAnalysisJavaHelper : org/jetbrains/dokka/analysis/java/JavaAnalysisHelper {
+	public fun <init> ()V
+	public fun createPsiParser (Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Lorg/jetbrains/dokka/plugability/DokkaContext;)Lorg/jetbrains/dokka/analysis/java/DokkaPsiParser;
+	public fun extractProject (Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Lorg/jetbrains/dokka/plugability/DokkaContext;)Lcom/intellij/openapi/project/Project;
+	public fun extractSourceRoots (Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Lorg/jetbrains/dokka/plugability/DokkaContext;)Ljava/util/List;
+}
+
 public final class org/jetbrains/dokka/base/DokkaBase : org/jetbrains/dokka/plugability/DokkaPlugin {
 	public fun <init> ()V
 	public final fun getActualTypealiasAdder ()Lorg/jetbrains/dokka/plugability/Extension;
@@ -102,6 +109,29 @@ public final class org/jetbrains/dokka/base/DokkaBaseConfiguration$Companion {
 	public final fun getDefaultCustomStyleSheets ()Ljava/util/List;
 	public final fun getDefaultFooterMessage ()Ljava/lang/String;
 	public final fun getDefaultTemplatesDir ()Ljava/io/File;
+}
+
+public final class org/jetbrains/dokka/base/KotlinDocComment : org/jetbrains/dokka/analysis/java/DocComment {
+	public fun <init> (Lorg/jetbrains/kotlin/kdoc/psi/impl/KDocTag;Lorg/jetbrains/kotlin/descriptors/DeclarationDescriptor;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getComment ()Lorg/jetbrains/kotlin/kdoc/psi/impl/KDocTag;
+	public final fun getDescriptor ()Lorg/jetbrains/kotlin/descriptors/DeclarationDescriptor;
+	public fun hasTag (Lorg/jetbrains/dokka/analysis/java/JavadocTag;)Z
+	public fun hashCode ()I
+	public fun resolveTag (Lorg/jetbrains/dokka/analysis/java/JavadocTag;)Ljava/util/List;
+}
+
+public final class org/jetbrains/dokka/base/KotlinDocCommentCreator : org/jetbrains/dokka/analysis/java/DocCommentCreator {
+	public fun <init> ()V
+	public fun create (Lcom/intellij/psi/PsiNamedElement;)Lorg/jetbrains/dokka/analysis/java/DocComment;
+}
+
+public final class org/jetbrains/dokka/base/KotlinDocCommentParser : org/jetbrains/dokka/analysis/java/DocCommentParser {
+	public fun <init> (Lorg/jetbrains/dokka/analysis/DokkaResolutionFacade;Lorg/jetbrains/dokka/utilities/DokkaLogger;)V
+	public fun canParse (Lorg/jetbrains/dokka/analysis/java/DocComment;)Z
+	public fun parse (Lorg/jetbrains/dokka/analysis/java/DocComment;Lcom/intellij/psi/PsiNamedElement;)Lorg/jetbrains/dokka/model/doc/DocumentationNode;
+	public final fun parseDocumentation (Lorg/jetbrains/dokka/base/KotlinDocComment;Z)Lorg/jetbrains/dokka/model/doc/DocumentationNode;
+	public static synthetic fun parseDocumentation$default (Lorg/jetbrains/dokka/base/KotlinDocCommentParser;Lorg/jetbrains/dokka/base/KotlinDocComment;ZILjava/lang/Object;)Lorg/jetbrains/dokka/model/doc/DocumentationNode;
 }
 
 public final class org/jetbrains/dokka/base/generation/SingleModuleGeneration : org/jetbrains/dokka/generation/Generation {
@@ -1619,29 +1649,5 @@ public class org/jetbrains/dokka/base/translators/documentables/PageContentBuild
 	public static synthetic fun header$default (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$TableBuilder;Ljava/util/Set;Ljava/util/Set;Lorg/jetbrains/dokka/pages/Kind;Ljava/util/Set;Lorg/jetbrains/dokka/model/properties/PropertyContainer;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
 	public final fun row (Ljava/util/Set;Ljava/util/Set;Lorg/jetbrains/dokka/pages/Kind;Ljava/util/Set;Lorg/jetbrains/dokka/model/properties/PropertyContainer;Lkotlin/jvm/functions/Function1;)V
 	public static synthetic fun row$default (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$TableBuilder;Ljava/util/Set;Ljava/util/Set;Lorg/jetbrains/dokka/pages/Kind;Ljava/util/Set;Lorg/jetbrains/dokka/model/properties/PropertyContainer;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
-}
-
-public final class org/jetbrains/dokka/base/translators/psi/DefaultPsiToDocumentableTranslator : org/jetbrains/dokka/transformers/sources/AsyncSourceToDocumentableTranslator {
-	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
-	public fun invoke (Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Lorg/jetbrains/dokka/plugability/DokkaContext;)Lorg/jetbrains/dokka/model/DModule;
-	public fun invokeSuspending (Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Lorg/jetbrains/dokka/plugability/DokkaContext;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-}
-
-public final class org/jetbrains/dokka/base/translators/psi/DefaultPsiToDocumentableTranslator$DokkaPsiParser {
-	public fun <init> (Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Lorg/jetbrains/dokka/analysis/DokkaResolutionFacade;Lorg/jetbrains/dokka/utilities/DokkaLogger;)V
-	public final fun parsePackage (Ljava/lang/String;Ljava/util/List;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-}
-
-public abstract interface class org/jetbrains/dokka/base/translators/psi/parsers/JavaDocumentationParser {
-	public abstract fun parseDocumentation (Lcom/intellij/psi/PsiNamedElement;)Lorg/jetbrains/dokka/model/doc/DocumentationNode;
-}
-
-public final class org/jetbrains/dokka/base/translators/psi/parsers/JavadocParser : org/jetbrains/dokka/base/translators/psi/parsers/JavaDocumentationParser {
-	public static final field Companion Lorg/jetbrains/dokka/base/translators/psi/parsers/JavadocParser$Companion;
-	public fun <init> (Lorg/jetbrains/dokka/utilities/DokkaLogger;Lorg/jetbrains/dokka/analysis/DokkaResolutionFacade;)V
-	public fun parseDocumentation (Lcom/intellij/psi/PsiNamedElement;)Lorg/jetbrains/dokka/model/doc/DocumentationNode;
-}
-
-public final class org/jetbrains/dokka/base/translators/psi/parsers/JavadocParser$Companion {
 }
 

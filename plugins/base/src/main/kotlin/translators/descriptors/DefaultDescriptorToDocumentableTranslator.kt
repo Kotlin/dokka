@@ -14,7 +14,16 @@ import org.jetbrains.dokka.analysis.KotlinAnalysis
 import org.jetbrains.dokka.analysis.from
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.parsers.MarkdownParser
-import org.jetbrains.dokka.base.translators.psi.parsers.JavadocParser
+import org.jetbrains.dokka.analysis.java.DocCommentFinder
+import org.jetbrains.dokka.analysis.java.JavaDocCommentCreator
+import org.jetbrains.dokka.analysis.java.DocCommentFactory
+import org.jetbrains.dokka.analysis.java.parsers.doctag.InheritDocTagResolver
+import org.jetbrains.dokka.analysis.java.parsers.JavaPsiDocCommentParser
+import org.jetbrains.dokka.analysis.java.parsers.JavadocParser
+import org.jetbrains.dokka.analysis.java.parsers.doctag.PsiDocTagParser
+import org.jetbrains.dokka.base.KotlinDocCommentCreator
+import org.jetbrains.dokka.base.KotlinDocCommentParser
+import org.jetbrains.dokka.base.KotlinInheritDocTagContentProvider
 import org.jetbrains.dokka.base.translators.typeConstructorsBeingExceptions
 import org.jetbrains.dokka.base.translators.unquotedValue
 import org.jetbrains.dokka.links.*
@@ -137,7 +146,39 @@ private class DokkaDescriptorVisitor(
     private val resolutionFacade: DokkaResolutionFacade,
     private val logger: DokkaLogger
 ) {
-    private val javadocParser = JavadocParser(logger, resolutionFacade)
+    val kotlinDocCommentParser = KotlinDocCommentParser(
+        resolutionFacade = resolutionFacade,
+        logger = logger
+    )
+    val docCommentFactory = DocCommentFactory(
+        docCommentCreators = listOf(
+            JavaDocCommentCreator(),
+            KotlinDocCommentCreator()
+        )
+    )
+    val docCommentFinder = DocCommentFinder(
+        docCommentFactory = docCommentFactory,
+        logger = logger
+    )
+    private val javadocParser = JavadocParser(
+        docCommentParsers = listOf(
+            JavaPsiDocCommentParser(
+                psiDocTagParser = PsiDocTagParser(
+                    inheritDocTagResolver = InheritDocTagResolver(
+                        docCommentFactory = docCommentFactory,
+                        docCommentFinder = docCommentFinder,
+                        contentProviders = listOf(
+                            KotlinInheritDocTagContentProvider(
+                                parser = kotlinDocCommentParser
+                            )
+                        )
+                    )
+                )
+            ),
+            kotlinDocCommentParser
+        ),
+        docCommentFinder = docCommentFinder
+    )
     private val syntheticDocProvider = SyntheticDescriptorDocumentationProvider(resolutionFacade)
 
     private fun Collection<DeclarationDescriptor>.filterDescriptorsInSourceSet() = filter {

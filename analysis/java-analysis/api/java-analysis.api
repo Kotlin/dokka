@@ -1,0 +1,124 @@
+public final class org/jetbrains/dokka/analysis/java/DefaultPsiToDocumentableTranslator : org/jetbrains/dokka/transformers/sources/AsyncSourceToDocumentableTranslator {
+	public fun <init> (Lorg/jetbrains/dokka/analysis/java/JavaAnalysisHelper;)V
+	public final fun getJavaAnalysisHelper ()Lorg/jetbrains/dokka/analysis/java/JavaAnalysisHelper;
+	public fun invoke (Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Lorg/jetbrains/dokka/plugability/DokkaContext;)Lorg/jetbrains/dokka/model/DModule;
+	public fun invokeSuspending (Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Lorg/jetbrains/dokka/plugability/DokkaContext;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class org/jetbrains/dokka/analysis/java/DefaultPsiToDocumentableTranslatorKt {
+	public static final fun getVisibility (Lcom/intellij/psi/PsiModifierListOwner;)Lorg/jetbrains/dokka/model/JavaVisibility;
+}
+
+public final class org/jetbrains/dokka/analysis/java/DocCommentFactory {
+	public fun <init> (Ljava/util/List;)V
+	public final fun fromElement (Lcom/intellij/psi/PsiNamedElement;)Lorg/jetbrains/dokka/analysis/java/DocComment;
+}
+
+public final class org/jetbrains/dokka/analysis/java/DocCommentFinder {
+	public fun <init> (Lorg/jetbrains/dokka/utilities/DokkaLogger;Lorg/jetbrains/dokka/analysis/java/DocCommentFactory;)V
+	public final fun findClosestToElement (Lcom/intellij/psi/PsiNamedElement;)Lorg/jetbrains/dokka/analysis/java/DocComment;
+}
+
+public final class org/jetbrains/dokka/analysis/java/DokkaPsiParser {
+	public fun <init> (Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Lcom/intellij/openapi/project/Project;Lorg/jetbrains/dokka/utilities/DokkaLogger;Lorg/jetbrains/dokka/analysis/java/parsers/JavadocParser;Lorg/jetbrains/dokka/analysis/java/parsers/JavaPsiDocCommentParser;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V
+	public final fun parsePackage (Ljava/lang/String;Ljava/util/List;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public abstract interface class org/jetbrains/dokka/analysis/java/JavaAnalysisHelper {
+	public abstract fun createPsiParser (Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Lorg/jetbrains/dokka/plugability/DokkaContext;)Lorg/jetbrains/dokka/analysis/java/DokkaPsiParser;
+	public abstract fun extractProject (Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Lorg/jetbrains/dokka/plugability/DokkaContext;)Lcom/intellij/openapi/project/Project;
+	public abstract fun extractSourceRoots (Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Lorg/jetbrains/dokka/plugability/DokkaContext;)Ljava/util/List;
+}
+
+public final class org/jetbrains/dokka/analysis/java/JavaDocComment : org/jetbrains/dokka/analysis/java/DocComment {
+	public fun <init> (Lcom/intellij/psi/javadoc/PsiDocComment;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getComment ()Lcom/intellij/psi/javadoc/PsiDocComment;
+	public fun hasTag (Lorg/jetbrains/dokka/analysis/java/JavadocTag;)Z
+	public fun hashCode ()I
+	public fun resolveTag (Lorg/jetbrains/dokka/analysis/java/JavadocTag;)Ljava/util/List;
+}
+
+public final class org/jetbrains/dokka/analysis/java/JavaDocCommentCreator : org/jetbrains/dokka/analysis/java/DocCommentCreator {
+	public fun <init> ()V
+	public fun create (Lcom/intellij/psi/PsiNamedElement;)Lorg/jetbrains/dokka/analysis/java/DocComment;
+}
+
+public final class org/jetbrains/dokka/analysis/java/parsers/CommentResolutionContext {
+	public fun <init> (Lcom/intellij/psi/javadoc/PsiDocComment;Lorg/jetbrains/dokka/analysis/java/JavadocTag;)V
+	public final fun component1 ()Lcom/intellij/psi/javadoc/PsiDocComment;
+	public final fun component2 ()Lorg/jetbrains/dokka/analysis/java/JavadocTag;
+	public final fun copy (Lcom/intellij/psi/javadoc/PsiDocComment;Lorg/jetbrains/dokka/analysis/java/JavadocTag;)Lorg/jetbrains/dokka/analysis/java/parsers/CommentResolutionContext;
+	public static synthetic fun copy$default (Lorg/jetbrains/dokka/analysis/java/parsers/CommentResolutionContext;Lcom/intellij/psi/javadoc/PsiDocComment;Lorg/jetbrains/dokka/analysis/java/JavadocTag;ILjava/lang/Object;)Lorg/jetbrains/dokka/analysis/java/parsers/CommentResolutionContext;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getComment ()Lcom/intellij/psi/javadoc/PsiDocComment;
+	public final fun getTag ()Lorg/jetbrains/dokka/analysis/java/JavadocTag;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class org/jetbrains/dokka/analysis/java/parsers/JavaDocumentationParser {
+	public abstract fun parseDocumentation (Lcom/intellij/psi/PsiNamedElement;)Lorg/jetbrains/dokka/model/doc/DocumentationNode;
+}
+
+public final class org/jetbrains/dokka/analysis/java/parsers/JavaPsiDocCommentParser : org/jetbrains/dokka/analysis/java/DocCommentParser {
+	public fun <init> (Lorg/jetbrains/dokka/analysis/java/parsers/doctag/PsiDocTagParser;)V
+	public fun canParse (Lorg/jetbrains/dokka/analysis/java/DocComment;)Z
+	public fun parse (Lorg/jetbrains/dokka/analysis/java/DocComment;Lcom/intellij/psi/PsiNamedElement;)Lorg/jetbrains/dokka/model/doc/DocumentationNode;
+}
+
+public final class org/jetbrains/dokka/analysis/java/parsers/JavadocParser : org/jetbrains/dokka/analysis/java/parsers/JavaDocumentationParser {
+	public fun <init> (Ljava/util/List;Lorg/jetbrains/dokka/analysis/java/DocCommentFinder;)V
+	public fun parseDocumentation (Lcom/intellij/psi/PsiNamedElement;)Lorg/jetbrains/dokka/model/doc/DocumentationNode;
+}
+
+public final class org/jetbrains/dokka/analysis/java/parsers/doctag/InheritDocTagResolver {
+	public fun <init> (Lorg/jetbrains/dokka/analysis/java/DocCommentFactory;Lorg/jetbrains/dokka/analysis/java/DocCommentFinder;Ljava/util/List;)V
+}
+
+public final class org/jetbrains/dokka/analysis/java/parsers/doctag/PsiDocTagParser {
+	public fun <init> (Lorg/jetbrains/dokka/analysis/java/parsers/doctag/InheritDocTagResolver;)V
+	public final fun parse (Ljava/lang/Iterable;Lorg/jetbrains/dokka/analysis/java/parsers/CommentResolutionContext;)Ljava/util/List;
+	public final fun parseAsParagraph (Ljava/lang/Iterable;Lorg/jetbrains/dokka/analysis/java/parsers/CommentResolutionContext;)Ljava/util/List;
+}
+
+public final class org/jetbrains/dokka/analysis/java/util/PropertiesConventionUtilKt {
+	public static final fun propertyNameByGetMethodName (Ljava/lang/String;)Ljava/lang/String;
+	public static final fun propertyNamesBySetMethodName (Ljava/lang/String;)Ljava/util/List;
+}
+
+public final class org/jetbrains/dokka/analysis/java/util/PsiCommentsUtilsKt {
+	public static final fun defaultLabel (Lcom/intellij/psi/PsiElement;)Lcom/intellij/psi/PsiElement;
+	public static final fun isSharpToken (Lcom/intellij/psi/javadoc/PsiDocToken;)Z
+	public static final fun linkElement (Lcom/intellij/psi/javadoc/PsiDocTag;)Lcom/intellij/psi/PsiElement;
+	public static final fun referenceElement (Lcom/intellij/psi/javadoc/PsiDocTag;)Lcom/intellij/psi/PsiElement;
+}
+
+public final class org/jetbrains/dokka/analysis/java/util/PsiDocumentableSource : org/jetbrains/dokka/model/DocumentableSource {
+	public fun <init> (Lcom/intellij/psi/PsiNamedElement;)V
+	public fun getPath ()Ljava/lang/String;
+	public final fun getPsi ()Lcom/intellij/psi/PsiNamedElement;
+}
+
+public final class org/jetbrains/dokka/analysis/java/util/PsiUtilKt {
+	public static final fun from (Lorg/jetbrains/dokka/links/Callable$Companion;Lcom/intellij/psi/PsiField;)Lorg/jetbrains/dokka/links/Callable;
+	public static final fun from (Lorg/jetbrains/dokka/links/Callable$Companion;Lcom/intellij/psi/PsiMethod;)Lorg/jetbrains/dokka/links/Callable;
+	public static final fun from (Lorg/jetbrains/dokka/links/DRI$Companion;Lcom/intellij/psi/PsiElement;)Lorg/jetbrains/dokka/links/DRI;
+	public static final fun from (Lorg/jetbrains/dokka/links/DriTarget$Companion;Lcom/intellij/psi/PsiElement;)Lorg/jetbrains/dokka/links/DriTarget;
+	public static final fun getKotlinFqName (Lcom/intellij/psi/PsiElement;)Ljava/lang/String;
+	public static final fun getKotlinFqNameProp (Lcom/intellij/psi/PsiElement;)Ljava/lang/String;
+	public static final fun getNextSiblingIgnoringWhitespace (Lcom/intellij/psi/PsiElement;Z)Lcom/intellij/psi/PsiElement;
+	public static synthetic fun getNextSiblingIgnoringWhitespace$default (Lcom/intellij/psi/PsiElement;ZILjava/lang/Object;)Lcom/intellij/psi/PsiElement;
+	public static final fun getParentsWithSelf (Lcom/intellij/psi/PsiElement;)Lkotlin/sequences/Sequence;
+	public static final fun siblings (Lcom/intellij/psi/PsiElement;ZZ)Lkotlin/sequences/Sequence;
+	public static synthetic fun siblings$default (Lcom/intellij/psi/PsiElement;ZZILjava/lang/Object;)Lkotlin/sequences/Sequence;
+}
+
+public final class org/jetbrains/dokka/analysis/java/util/StdlibUtilKt {
+	public static final fun lowercase (Ljava/lang/String;)Ljava/lang/String;
+	public static final fun lowercaseChar (C)C
+	public static final fun replaceFirstChar (Ljava/lang/String;Lkotlin/jvm/functions/Function1;)Ljava/lang/String;
+	public static final fun uppercase (Ljava/lang/String;)Ljava/lang/String;
+	public static final fun uppercaseChar (C)C
+}
+

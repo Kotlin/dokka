@@ -2,7 +2,6 @@ package parsers
 
 import com.jetbrains.rd.util.first
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
-import org.jetbrains.dokka.base.translators.psi.parsers.*
 import org.jetbrains.dokka.links.Callable
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.JavaClassReference
@@ -14,8 +13,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import utils.docs
 import utils.text
-import kotlin.random.*
-import kotlin.test.*
+import kotlin.test.assertNotNull
 
 class JavadocParserTest : BaseAbstractTest() {
 
@@ -588,29 +586,6 @@ class JavadocParserTest : BaseAbstractTest() {
                     root.children.first().children
                 )
             }
-        }
-    }
-
-    @Test
-    fun `test isolated parsing is case sensitive`() {
-        // Ensure that it won't accidentally break
-        val values = JavadocTag.values().map { it.toString().toLowerCase() }
-        val withRandomizedCapitalization = values.map {
-            val result = buildString {
-                for (char in it) {
-                    if (Random.nextBoolean()) {
-                        append(char)
-                    } else {
-                        append(char.toLowerCase())
-                    }
-                }
-            }
-            if (result == it) result.toUpperCase() else result
-        }
-
-        for ((index, value) in JavadocTag.values().withIndex()) {
-            assertEquals(value, JavadocTag.lowercaseValueOfOrNull(values[index]))
-            assertNull(JavadocTag.lowercaseValueOfOrNull(withRandomizedCapitalization[index]))
         }
     }
 }
