@@ -2,10 +2,9 @@ package content.signatures
 
 import matchers.content.*
 import org.jetbrains.dokka.DokkaConfiguration
-import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.model.doc.Text
-import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
+import org.jetbrains.dokka.pages.ContentPage
+import org.jetbrains.dokka.pages.PackagePageNode
 import org.junit.jupiter.api.Test
 import utils.ParamAttributes
 import utils.bareSignature

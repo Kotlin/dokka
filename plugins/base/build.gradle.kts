@@ -8,14 +8,16 @@ plugins {
 
 dependencies {
     compileOnly(projects.core)
+    compileOnly(projects.subprojects.analysisKotlinApi)
 
+    implementation(projects.subprojects.analysisMarkdownJb)
+
+    // Other
     implementation(kotlin("reflect"))
-
     implementation(libs.kotlinx.coroutines.core)
-
-    compileOnly(projects.kotlinAnalysis)
     implementation(libs.jsoup)
-
+    implementation(libs.freemarker)
+    implementation(libs.kotlinx.html)
     implementation(libs.jackson.kotlin)
     constraints {
         implementation(libs.jackson.databind) {
@@ -23,14 +25,9 @@ dependencies {
         }
     }
 
-    implementation(libs.freemarker)
-
+    // Test only
     testImplementation(projects.plugins.base.baseTestUtils)
     testImplementation(projects.core.contentMatcherTestUtils)
-
-    implementation(libs.kotlinx.html)
-
-    testImplementation(projects.kotlinAnalysis)
     testImplementation(projects.core.testApi)
     testImplementation(platform(libs.junit.bom))
     testImplementation(libs.junit.jupiter)

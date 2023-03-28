@@ -1,16 +1,15 @@
 package org.jetbrains.dokka.javadoc.translators.documentables
 
-import org.jetbrains.dokka.javadoc.pages.JavadocSignatureContentNode
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.base.signatures.SignatureProvider
 import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentConverter
 import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder
+import org.jetbrains.dokka.javadoc.pages.JavadocSignatureContentNode
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.pages.ContentKind
 import org.jetbrains.dokka.pages.ContentNode
 import org.jetbrains.dokka.utilities.DokkaLogger
-import java.lang.IllegalStateException
 
 class JavadocPageContentBuilder(
     commentsConverter: CommentsToContentConverter,

@@ -5,7 +5,6 @@ import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
-import org.jetbrains.kotlin.backend.common.push
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
@@ -49,7 +48,7 @@ class DokkaLocationProviderTest : BaseAbstractTest() {
         class ModulesDsl(val pages: MutableList<ModulePageNode> = mutableListOf()) {
             fun modulePage(name: String, fn: PackageDsl.() -> Unit) {
                 val packages = PackageDsl().also { it.fn() }
-                pages.push(
+                pages.add(
                     ModulePageNode(
                         name = name,
                         children = packages.pages,
@@ -63,7 +62,7 @@ class DokkaLocationProviderTest : BaseAbstractTest() {
         class PackageDsl(val pages: MutableList<PackagePageNode> = mutableListOf()) {
             fun packagePage(name: String, fn: ClassDsl.() -> Unit) {
                 val packages = ClassDsl().also { it.fn() }
-                pages.push(
+                pages.add(
                     PackagePageNode(
                         name = name,
                         children = packages.pages,
@@ -77,7 +76,7 @@ class DokkaLocationProviderTest : BaseAbstractTest() {
         @TestNavigationDSL
         class ClassDsl(val pages: MutableList<ClasslikePageNode> = mutableListOf()) {
             fun classPage(name: String) {
-                pages.push(
+                pages.add(
                     ClasslikePageNode(
                         name = name,
                         children = emptyList(),

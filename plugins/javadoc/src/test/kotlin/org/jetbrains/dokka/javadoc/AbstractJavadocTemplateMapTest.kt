@@ -1,14 +1,16 @@
 package org.jetbrains.dokka.javadoc
 
-import org.jetbrains.dokka.*
+import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.DokkaConfigurationImpl
+import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
+import org.jetbrains.dokka.javadoc.location.JavadocLocationProvider
 import org.jetbrains.dokka.javadoc.pages.JavadocPageNode
 import org.jetbrains.dokka.javadoc.renderer.JavadocContentToTemplateMapTranslator
-import org.jetbrains.dokka.javadoc.JavadocPlugin
-import org.jetbrains.dokka.javadoc.location.JavadocLocationProvider
+import org.jetbrains.dokka.jdk
+import org.jetbrains.dokka.kotlinStdlib
 import org.jetbrains.dokka.model.withDescendants
 import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.*
-import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 
 internal abstract class AbstractJavadocTemplateMapTest : BaseAbstractTest() {
     protected var config: DokkaConfigurationImpl = dokkaConfiguration {

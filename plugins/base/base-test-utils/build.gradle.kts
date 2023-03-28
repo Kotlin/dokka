@@ -7,11 +7,15 @@ plugins {
 
 dependencies {
     compileOnly(projects.core)
+    compileOnly(projects.plugins.base)
 
+    api(projects.subprojects.analysisKotlinApi)
+
+    // TODO [beresnev] analysis switcher
+    runtimeOnly(project(path = ":subprojects:analysis-kotlin-descriptors", configuration = "shadow"))
 
     implementation(kotlin("reflect"))
 
-    compileOnly(projects.plugins.base)
     implementation(projects.core.testApi)
 
     implementation(libs.jsoup)

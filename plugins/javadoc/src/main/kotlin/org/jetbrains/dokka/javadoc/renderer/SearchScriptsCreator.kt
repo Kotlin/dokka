@@ -1,16 +1,15 @@
 package org.jetbrains.dokka.javadoc.renderer
 
+import org.jetbrains.dokka.base.renderers.sourceSets
+import org.jetbrains.dokka.base.resolvers.local.LocationProvider
+import org.jetbrains.dokka.base.resolvers.local.resolveOrThrow
 import org.jetbrains.dokka.javadoc.pages.*
 import org.jetbrains.dokka.javadoc.renderer.SearchRecord.Companion.allTypes
-import org.jetbrains.dokka.base.renderers.sourceSets
-import org.jetbrains.dokka.base.resolvers.local.resolveOrThrow
-import org.jetbrains.dokka.base.resolvers.local.LocationProvider
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.DisplaySourceSet
 import org.jetbrains.dokka.model.Documentable
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.utilities.formatToEndWithHtml
-import java.lang.StringBuilder
 
 class SearchScriptsCreator(private val locationProvider: LocationProvider) {
 

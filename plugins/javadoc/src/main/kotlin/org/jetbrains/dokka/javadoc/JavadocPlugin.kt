@@ -1,15 +1,15 @@
 package org.jetbrains.dokka.javadoc
 
-import org.jetbrains.dokka.javadoc.location.JavadocLocationProviderFactory
-import org.jetbrains.dokka.javadoc.renderer.KorteJavadocRenderer
-import org.jetbrains.dokka.javadoc.signatures.JavadocSignatureProvider
 import org.jetbrains.dokka.CoreExtensions
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.renderers.PackageListCreator
 import org.jetbrains.dokka.base.renderers.RootCreator
 import org.jetbrains.dokka.base.resolvers.shared.PackageList.Companion.PACKAGE_LIST_NAME
 import org.jetbrains.dokka.base.resolvers.shared.RecognizedLinkFormat
+import org.jetbrains.dokka.javadoc.location.JavadocLocationProviderFactory
 import org.jetbrains.dokka.javadoc.pages.*
+import org.jetbrains.dokka.javadoc.renderer.KorteJavadocRenderer
+import org.jetbrains.dokka.javadoc.signatures.JavadocSignatureProvider
 import org.jetbrains.dokka.javadoc.transformers.documentables.JavadocDocumentableJVMSourceSetFilter
 import org.jetbrains.dokka.javadoc.validity.MultiplatformConfiguredChecker
 import org.jetbrains.dokka.kotlinAsJava.KotlinAsJavaPlugin
@@ -70,7 +70,7 @@ class JavadocPlugin : DokkaPlugin() {
     }
 
     val treeViewInstaller by extending {
-        javadocPreprocessors with TreeViewInstaller order { after(rootCreator) }
+        javadocPreprocessors providing ::TreeViewInstaller order { after(rootCreator) }
     }
 
     val allClassessPageInstaller by extending {

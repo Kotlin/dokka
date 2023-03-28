@@ -1,4 +1,4 @@
-import { IWindow } from "../search/types"
+import {IWindow} from "../search/types"
 
 export const relativizeUrlForRequest = (filePath: string) : string => {
     const pathToRoot = (window as IWindow).pathToRoot

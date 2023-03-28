@@ -1,12 +1,12 @@
 package org.jetbrains.dokka.javadoc.signatures
 
-import org.jetbrains.dokka.javadoc.translators.documentables.JavadocPageContentBuilder
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.signatures.JvmSignatureUtils
 import org.jetbrains.dokka.base.signatures.SignatureProvider
 import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentConverter
 import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder
+import org.jetbrains.dokka.javadoc.translators.documentables.JavadocPageContentBuilder
 import org.jetbrains.dokka.kotlinAsJava.signatures.JavaSignatureUtils
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.sureClassNames

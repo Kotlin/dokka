@@ -18,7 +18,8 @@ import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.utilities.DokkaLogger
-import java.util.Comparator
+import org.jetbrains.kotlin.analysis.kotlin.internal.DocumentableSourceLanguageParser
+import org.jetbrains.kotlin.analysis.kotlin.internal.DocumentableLanguage
 import kotlin.reflect.KClass
 
 internal typealias GroupedTags = Map<KClass<out TagWrapper>, List<Pair<DokkaSourceSet?, TagWrapper>>>
@@ -28,7 +29,8 @@ open class DefaultPageCreator(
     commentsToContentConverter: CommentsToContentConverter,
     signatureProvider: SignatureProvider,
     val logger: DokkaLogger,
-    val customTagContentProviders: List<CustomTagContentProvider> = emptyList()
+    val customTagContentProviders: List<CustomTagContentProvider> = emptyList(),
+    val documentableAnalyzer: DocumentableSourceLanguageParser
 ) {
     protected open val contentBuilder = PageContentBuilder(commentsToContentConverter, signatureProvider, logger)
 
@@ -506,12 +508,12 @@ open class DefaultPageCreator(
         sourceSet: DokkaSourceSet,
         tag: TagWrapper
     ) {
-        (documentable as? WithSources)?.documentableLanguage(sourceSet)?.let {
-            when (it) {
-                DocumentableLanguage.KOTLIN -> firstParagraphComment(tag.root)
-                DocumentableLanguage.JAVA -> firstSentenceComment(tag.root)
-            }
-        } ?: firstParagraphComment(tag.root)
+        val language = documentableAnalyzer.getLanguage(documentable, sourceSet)
+        when(language) {
+            DocumentableLanguage.JAVA -> firstSentenceComment(tag.root)
+            DocumentableLanguage.KOTLIN -> firstParagraphComment(tag.root)
+            else -> firstParagraphComment(tag.root)
+        }
     }
 
     protected open fun contentForFunction(f: DFunction) = contentForMember(f)

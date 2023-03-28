@@ -1,13 +1,13 @@
 package content.annotations
 
 import matchers.content.*
-import org.jetbrains.dokka.pages.ContentPage
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.base.transformers.documentables.deprecatedAnnotation
-import org.jetbrains.dokka.pages.ContentStyle
 import org.jetbrains.dokka.base.transformers.documentables.isDeprecated
 import org.jetbrains.dokka.model.Documentable
 import org.jetbrains.dokka.model.properties.WithExtraProperties
+import org.jetbrains.dokka.pages.ContentPage
+import org.jetbrains.dokka.pages.ContentStyle
 import org.junit.jupiter.api.Test
 import utils.ParamAttributes
 import utils.bareSignature

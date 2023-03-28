@@ -3,9 +3,9 @@ package renderers.html
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.junit.jupiter.api.Test
 import utils.TestOutputWriterPlugin
-import kotlin.test.assertEquals
 import utils.navigationHtml
 import utils.selectNavigationGrid
+import kotlin.test.assertEquals
 
 class NavigationIconTest : BaseAbstractTest() {
 

@@ -3,7 +3,9 @@ package org.jetbrains.dokka.base.transformers.pages.comments
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.model.doc.DocTag
 import org.jetbrains.dokka.model.properties.PropertyContainer
-import org.jetbrains.dokka.pages.*
+import org.jetbrains.dokka.pages.ContentNode
+import org.jetbrains.dokka.pages.DCI
+import org.jetbrains.dokka.pages.Style
 
 interface CommentsToContentConverter {
     fun buildContent(

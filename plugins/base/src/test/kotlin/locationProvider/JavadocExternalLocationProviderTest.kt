@@ -4,9 +4,12 @@ import org.jetbrains.dokka.base.resolvers.external.DefaultExternalLocationProvid
 import org.jetbrains.dokka.base.resolvers.external.javadoc.JavadocExternalLocationProvider
 import org.jetbrains.dokka.base.resolvers.shared.ExternalDocumentation
 import org.jetbrains.dokka.base.resolvers.shared.PackageList
-import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
-import org.jetbrains.dokka.links.*
+import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.links.DRIExtraContainer
+import org.jetbrains.dokka.links.EnumEntryDRIExtra
+import org.jetbrains.dokka.links.PointingToDeclaration
+import org.jetbrains.dokka.plugability.DokkaContext
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.net.URL
