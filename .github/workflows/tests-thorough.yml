@@ -26,4 +26,11 @@ jobs:
           ORG_GRADLE_PROJECT_org.jetbrains.dokka.javaToolchain.test: ${{ matrix.javaVersion }}
         with:
           gradle-home-cache-cleanup: true
-          arguments: clean test --stacktrace
+      - name: Run tests under Ubuntu/Macos
+        if: matrix.os == 'ubuntu-latest' || matrix.os == 'macos-latest'
+        run: ./gradlew clean test --stacktrace
+      - name: Run tests under Windows
+        if: matrix.os == 'windows-latest'
+        # Running tests without additional flags on windows agents leads to some very strange
+        # JVM crashes for some reason. Most likely a problem of Gradle/GitHub/Windows server
+        run: ./gradlew clean test --stacktrace --no-daemon --parallel --max-workers=1
