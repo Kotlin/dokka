@@ -4,7 +4,6 @@ import org.jetbrains.configureDokkaVersion
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("org.jetbrains.conventions.base")
     id("org.jetbrains.conventions.base-java")
     kotlin("jvm")
 }
