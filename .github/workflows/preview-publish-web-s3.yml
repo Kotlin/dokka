@@ -1,13 +1,13 @@
-name: Build example projects and publish them to GitHub Actions Artifacts
+name: Publish preview to web (S3)
 
-on:
-  pull_request:
-  push:
-    branches:
-      - master
+on: [push, workflow_dispatch]
+
+env:
+  branch-name: ${GITHUB_REF#refs/heads/}
+  bucket-name: 'dokka-snapshots'
 
 jobs:
-  coroutines:
+  kotlinx-coroutines:
     runs-on: ubuntu-latest
     if: github.repository == 'Kotlin/dokka'
     steps:
@@ -27,14 +27,18 @@ jobs:
           arguments: :integration-tests:gradle:integrationTest --tests org.jetbrains.dokka.it.gradle.kotlin.CoroutinesGradleIntegrationTest --stacktrace
         env:
           DOKKA_TEST_OUTPUT_PATH: /home/runner/work/dokka/coroutines
-      - name: Copy files to GitHub Actions Artifacts
-        uses: actions/upload-artifact@v3
+      - name: Configure AWS credentials for S3 access
+        uses: aws-actions/configure-aws-credentials@v1
         with:
-          name: dokka-coroutines
-          path: /home/runner/work/dokka/coroutines
-          retention-days: 7
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-central-1
+      - name: Copy files to dokka's S3 bucket
+        run: ./integration-tests/aws_sync.sh s3://${{ env.bucket-name }} coroutines ../coroutines
+      - name: Print link
+        run: echo https://dokka-snapshots.s3.eu-central-1.amazonaws.com/${{ env.branch-name }}/coroutines/${GITHUB_SHA::7}/index.html
 
-  serialization:
+  kotilnx-serialization:
     runs-on: ubuntu-latest
     if: github.repository == 'Kotlin/dokka'
     steps:
@@ -54,12 +58,16 @@ jobs:
           arguments: :integration-tests:gradle:integrationTest --tests org.jetbrains.dokka.it.gradle.kotlin.SerializationGradleIntegrationTest --stacktrace
         env:
           DOKKA_TEST_OUTPUT_PATH: /home/runner/work/dokka/serialization
-      - name: Copy files to GitHub Actions Artifacts
-        uses: actions/upload-artifact@v3
+      - name: Configure AWS credentials for S3 access
+        uses: aws-actions/configure-aws-credentials@v1
         with:
-          name: dokka-serialization
-          path: /home/runner/work/dokka/serialization
-          retention-days: 7
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-central-1
+      - name: Copy files to dokka's S3 bucket
+        run: ./integration-tests/aws_sync.sh s3://${{ env.bucket-name }} serialization ../serialization
+      - name: Print link
+        run: echo https://dokka-snapshots.s3.eu-central-1.amazonaws.com/${{ env.branch-name }}/serialization/${GITHUB_SHA::7}/index.html
 
   biojava:
     runs-on: ubuntu-latest
@@ -81,9 +89,13 @@ jobs:
           arguments: :integration-tests:maven:integrationTest --tests org.jetbrains.dokka.it.maven.BiojavaIntegrationTest --stacktrace
         env:
           DOKKA_TEST_OUTPUT_PATH: /home/runner/work/dokka/biojava
-      - name: Copy files to GitHub Actions Artifacts
-        uses: actions/upload-artifact@v3
+      - name: Configure AWS credentials for S3 access
+        uses: aws-actions/configure-aws-credentials@v1
         with:
-          name: dokka-biojava
-          path: /home/runner/work/dokka/biojava
-          retention-days: 7
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-central-1
+      - name: Copy files to dokka's S3 bucket
+        run: ./integration-tests/aws_sync.sh s3://${{ env.bucket-name }} biojava ../biojava
+      - name: Print link
+        run: echo https://dokka-snapshots.s3.eu-central-1.amazonaws.com/${{ env.branch-name }}/biojava/${GITHUB_SHA::7}/index.html

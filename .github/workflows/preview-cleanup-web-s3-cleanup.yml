@@ -1,4 +1,4 @@
-name: S3-cleanup
+name: Clean up S3
 
 on: delete
 
@@ -7,6 +7,7 @@ env:
 
 jobs:
   cleanup:
+    name: Branch preview
     runs-on: ubuntu-latest
     steps:
       - name: Configure AWS credentials for S3 access
