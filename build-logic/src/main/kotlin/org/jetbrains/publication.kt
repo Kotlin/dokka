@@ -32,11 +32,10 @@ fun Project.registerDokkaArtifactPublication(
                 when (builder.component) {
                     DokkaPublicationBuilder.Component.Java -> from(components["java"])
                     DokkaPublicationBuilder.Component.Shadow -> run {
-                        extensions.getByType(ShadowExtension::class.java).component(this)
+                        extensions.getByType<ShadowExtension>().component(this)
                         artifact(tasks["sourcesJar"])
                     }
                 }
-                configurePom("Dokka ${project.name}")
             }
         }
     }
@@ -95,36 +94,6 @@ fun Project.createDokkaPublishTaskIfNecessary() {
 fun Project.configureSonatypePublicationIfNecessary(vararg publications: String) {
     if (publicationChannels.any { it.isMavenRepository() }) {
         signPublicationsIfKeyPresent(*publications)
-    }
-}
-
-fun MavenPublication.configurePom(projectName: String) {
-    pom {
-        name.set(projectName)
-        description.set("Dokka is an API documentation engine for Kotlin and Java, performing the same function as Javadoc for Java")
-        url.set("https://github.com/Kotlin/dokka")
-
-        licenses {
-            license {
-                name.set("The Apache Software License, Version 2.0")
-                url.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
-                distribution.set("repo")
-            }
-        }
-
-        developers {
-            developer {
-                id.set("JetBrains")
-                name.set("JetBrains Team")
-                organization.set("JetBrains")
-                organizationUrl.set("https://www.jetbrains.com")
-            }
-        }
-
-        scm {
-            connection.set("scm:git:git://github.com/Kotlin/dokka.git")
-            url.set("https://github.com/Kotlin/dokka/tree/master")
-        }
     }
 }
 
