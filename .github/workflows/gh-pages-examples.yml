@@ -29,9 +29,11 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
-          java-version: 11
+          java-version: 17
           cache: 'maven'
       - uses: gradle/gradle-build-action@v2
+        with:
+          gradle-home-cache-cleanup: true
       - name: Build html
         run: ./gradlew dokkaHtml --no-daemon --stacktrace
         working-directory: examples/gradle/${{ matrix.projects }}
@@ -63,9 +65,11 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
-          java-version: 11
+          java-version: 17
           cache: 'maven'
       - uses: gradle/gradle-build-action@v2
+        with:
+          gradle-home-cache-cleanup: true
       - name: Build html
         run: ./gradlew dokkaHtmlMultiModule --no-daemon --stacktrace
         working-directory: examples/gradle/${{ matrix.projects }}

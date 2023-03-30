@@ -18,14 +18,15 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
-          java-version: 11
+          java-version: 17
           cache: 'maven'
       - name: Document coroutines
         uses: gradle/gradle-build-action@v2
         with:
+          gradle-home-cache-cleanup: true
           arguments: :integration-tests:gradle:integrationTest --tests org.jetbrains.dokka.it.gradle.kotlin.CoroutinesGradleIntegrationTest --stacktrace
         env:
-          DOKKA_TEST_OUTPUT_PATH: /home/runner/work/dokka/coroutines      
+          DOKKA_TEST_OUTPUT_PATH: /home/runner/work/dokka/coroutines
       - name: Copy files to GitHub Actions Artifacts
         uses: actions/upload-artifact@v3
         with:
@@ -44,11 +45,12 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
-          java-version: 11
+          java-version: 17
           cache: 'maven'
       - name: Document serialization
         uses: gradle/gradle-build-action@v2
         with:
+          gradle-home-cache-cleanup: true
           arguments: :integration-tests:gradle:integrationTest --tests org.jetbrains.dokka.it.gradle.kotlin.SerializationGradleIntegrationTest --stacktrace
         env:
           DOKKA_TEST_OUTPUT_PATH: /home/runner/work/dokka/serialization
@@ -70,14 +72,15 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
-          java-version: 11
+          java-version: 17
           cache: 'maven'
       - name: Document biojava-core
         uses: gradle/gradle-build-action@v2
         with:
+          gradle-home-cache-cleanup: true
           arguments: :integration-tests:maven:integrationTest --tests org.jetbrains.dokka.it.maven.BiojavaIntegrationTest --stacktrace
         env:
-          DOKKA_TEST_OUTPUT_PATH: /home/runner/work/dokka/biojava                        
+          DOKKA_TEST_OUTPUT_PATH: /home/runner/work/dokka/biojava
       - name: Copy files to GitHub Actions Artifacts
         uses: actions/upload-artifact@v3
         with:

@@ -17,12 +17,13 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
-          java-version: ${{ matrix.javaVersion }}
+          java-version: 17
           cache: 'maven'
       - uses: gradle/gradle-build-action@v2
         env:
           ORG_GRADLE_PROJECT_org.jetbrains.dokka.javaToolchain.test: ${{ matrix.javaVersion }}
         with:
+          gradle-home-cache-cleanup: true
           arguments: clean test --stacktrace
 
   test-windows:
@@ -36,10 +37,11 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
-          java-version: ${{ matrix.javaVersion }}
+          java-version: 17
           cache: 'maven'
       - uses: gradle/gradle-build-action@v2
         env:
           ORG_GRADLE_PROJECT_org.jetbrains.dokka.javaToolchain.test: ${{ matrix.javaVersion }}
         with:
+          gradle-home-cache-cleanup: true
           arguments: clean test --stacktrace --no-daemon --parallel --max-workers=1

@@ -20,8 +20,9 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
-          java-version: 11
+          java-version: 17
           cache: 'maven'
       - uses: gradle/gradle-build-action@v2
         with:
+          gradle-home-cache-cleanup: true
           arguments: apiCheck --stacktrace

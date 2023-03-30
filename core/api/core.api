@@ -4580,7 +4580,6 @@ public final class org/jetbrains/dokka/utilities/DokkaConsoleLogger : org/jetbra
 	public fun debug (Ljava/lang/String;)V
 	public fun error (Ljava/lang/String;)V
 	public fun getErrorsCount ()I
-	public final fun getMinLevel ()Lorg/jetbrains/dokka/utilities/LoggingLevel;
 	public fun getWarningsCount ()I
 	public fun info (Ljava/lang/String;)V
 	public fun progress (Ljava/lang/String;)V
