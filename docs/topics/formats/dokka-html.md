@@ -236,13 +236,13 @@ You can change the header completely, add your own banners/menus/search, load an
 
 Dokka uses the following templates:
 
-| **Template**                      | **Description**                                                                                                       |
-|-----------------------------------|-----------------------------------------------------------------------------------------------------------------------|
-| `base.ftl`                        | Defines the general design of all pages to be rendered.                                                               |
-| `includes/header.ft`              | The page header that by default contains the logo, version, source set selector, light/dark theme switch, and search. |
-| `includes/footer.ft`              | The page footer that contains the `footerMessage` [configuration option](#configuration) and copyright.               |
-| `includes/page_metadata.ft`       | Metadata used within `<head>` container.                                                                              |
-| `includes/source_set_selector.ft` | [The source set](https://kotlinlang.org/docs/multiplatform-discover-project.html#source-sets) selector in the header. |
+| **Template**                       | **Description**                                                                                                       |
+|------------------------------------|-----------------------------------------------------------------------------------------------------------------------|
+| `base.ftl`                         | Defines the general design of all pages to be rendered.                                                               |
+| `includes/header.ftl`              | The page header that by default contains the logo, version, source set selector, light/dark theme switch, and search. |
+| `includes/footer.ftl`              | The page footer that contains the `footerMessage` [configuration option](#configuration) and copyright.               |
+| `includes/page_metadata.ftl`       | Metadata used within `<head>` container.                                                                              |
+| `includes/source_set_selector.ftl` | [The source set](https://kotlinlang.org/docs/multiplatform-discover-project.html#source-sets) selector in the header. |
 
 The base template is `base.ftl` and it includes all of the remaining listed templates. You can find the source code for all of Dokka's templates
 [on GitHub](https://github.com/Kotlin/dokka/tree/%dokkaVersion%/plugins/base/src/main/resources/dokka/templates).
