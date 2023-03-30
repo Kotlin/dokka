@@ -26,5 +26,33 @@ publishing {
 
     publications.withType<MavenPublication>().configureEach {
         artifact(javadocJar)
+
+        pom {
+            name.convention(provider { "Dokka ${project.name}" })
+            description.convention("Dokka is an API documentation engine for Kotlin and Java, performing the same function as Javadoc for Java")
+            url.convention("https://github.com/Kotlin/dokka")
+
+            licenses {
+                license {
+                    name.convention("The Apache Software License, Version 2.0")
+                    url.convention("https://www.apache.org/licenses/LICENSE-2.0.txt")
+                    distribution.convention("repo")
+                }
+            }
+
+            developers {
+                developer {
+                    id.convention("JetBrains")
+                    name.convention("JetBrains Team")
+                    organization.convention("JetBrains")
+                    organizationUrl.convention("https://www.jetbrains.com")
+                }
+            }
+
+            scm {
+                connection.convention("scm:git:git://github.com/Kotlin/dokka.git")
+                url.convention("https://github.com/Kotlin/dokka/tree/master")
+            }
+        }
     }
 }

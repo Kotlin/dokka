@@ -74,14 +74,7 @@ publishing {
         }
 
         register<MavenPublication>("pluginMaven") {
-            configurePom("Dokka ${project.name}")
             artifactId = "dokka-gradle-plugin"
-        }
-
-        afterEvaluate {
-            named<MavenPublication>("dokkaGradlePluginPluginMarkerMaven") {
-                configurePom("Dokka plugin")
-            }
         }
     }
 }
