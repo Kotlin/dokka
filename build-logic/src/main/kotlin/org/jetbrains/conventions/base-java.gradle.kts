@@ -22,7 +22,7 @@ java {
 tasks.withType<Test>().configureEach {
     useJUnitPlatform()
 
-    maxParallelForks = if (System.getenv("CI") != null) {
+    maxParallelForks = if (System.getenv("GITHUB_ACTIONS") != null) {
         Runtime.getRuntime().availableProcessors()
     } else {
         (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1
