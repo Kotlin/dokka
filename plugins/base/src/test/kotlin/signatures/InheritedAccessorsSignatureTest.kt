@@ -205,13 +205,13 @@ class InheritedAccessorsSignatureTest : BaseAbstractTest() {
                     "Expected 5 signatures: class signature, constructor, property and two accessor lookalikes"
                 )
 
-                val getterLookalikeFunction = signatures[2]
+                val getterLookalikeFunction = signatures[3]
                 getterLookalikeFunction.match(
                     "open fun ", A("getA"), "():", A("Int"),
                     ignoreSpanWithTokenStyle = true
                 )
 
-                val setterLookalikeFunction = signatures[3]
+                val setterLookalikeFunction = signatures[4]
                 setterLookalikeFunction.match(
                     "open fun ", A("setA"), "(", Parameters(
                         Parameter("a: ", A("Int"))
@@ -219,7 +219,7 @@ class InheritedAccessorsSignatureTest : BaseAbstractTest() {
                     ignoreSpanWithTokenStyle = true
                 )
 
-                val property = signatures[4]
+                val property = signatures[2]
                 property.match(
                     "var ", A("a"), ":", A("Int"),
                     ignoreSpanWithTokenStyle = true
