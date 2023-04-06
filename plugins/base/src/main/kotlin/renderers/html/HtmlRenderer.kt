@@ -90,8 +90,8 @@ open class HtmlRenderer(
                     listOf(
                         BasicTabbedContentType.CONSTRUCTOR,
                         BasicTabbedContentType.TYPE,
-                        BasicTabbedContentType.FUNCTION,
-                        BasicTabbedContentType.PROPERTY
+                        BasicTabbedContentType.PROPERTY,
+                        BasicTabbedContentType.FUNCTION
                     )
                 ),
             if (extensions.isEmpty()) null else ContentTab(
@@ -99,8 +99,8 @@ open class HtmlRenderer(
                 listOf(
                     BasicTabbedContentType.CONSTRUCTOR,
                     BasicTabbedContentType.TYPE,
-                    BasicTabbedContentType.FUNCTION,
                     BasicTabbedContentType.PROPERTY,
+                    BasicTabbedContentType.FUNCTION,
                     BasicTabbedContentType.EXTENSION_PROPERTY,
                     BasicTabbedContentType.EXTENSION_FUNCTION
                 )

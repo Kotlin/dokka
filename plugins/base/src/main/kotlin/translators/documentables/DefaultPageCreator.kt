@@ -318,10 +318,10 @@ open class DefaultPageCreator(
                 "Inherited functions", inheritedFunctions + inheritedExtensionFunctions
             )
         } else {
-            functionsBlock("Functions", functions + extensionFuns)
             propertiesBlock(
                 "Properties", properties + extensionProps
             )
+            functionsBlock("Functions", functions + extensionFuns)
         }
     }
 
