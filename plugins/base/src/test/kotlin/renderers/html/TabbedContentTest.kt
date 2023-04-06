@@ -142,4 +142,40 @@ class TabbedContentTest : BaseAbstractTest() {
             }
         }
     }
+
+    @Test
+    fun `should have expected order of content types within a members tab`() {
+        val source = """
+            |/src/main/kotlin/test/Result.kt
+            |package example
+            |
+            |class Result(val d: Int = 0) {
+            |  class Success(): Result()
+            |  
+            |  val isFailed = false
+            |  fun reset() = 0
+            |  fun String.extension() = 0
+            |}
+            """
+        val writerPlugin = TestOutputWriterPlugin()
+
+        testInline(
+            source,
+            configuration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                val classContent = writerPlugin.writer.renderedContent("root/example/-result/index.html")
+                val tabSectionNames = classContent.select("div .tabs-section-body > div[data-togglable]")
+                    .map { it.attr("data-togglable") }
+
+                val expectedOrder = listOf("CONSTRUCTOR", "TYPE", "PROPERTY", "FUNCTION")
+
+                assertEquals(expectedOrder.size, tabSectionNames.size)
+                expectedOrder.forEachIndexed { index, element ->
+                    assertEquals(element, tabSectionNames[index])
+                }
+            }
+        }
+    }
 }
