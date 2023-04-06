@@ -1,6 +1,6 @@
 name: Publish preview to web (S3)
 
-on: [push, workflow_dispatch]
+on: [ push, workflow_dispatch ]
 
 env:
   branch-name: ${GITHUB_REF#refs/heads/}
