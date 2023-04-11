@@ -20,6 +20,7 @@ import org.gradle.work.DisableCachingByDefault
 import org.jetbrains.dokka.*
 import org.jetbrains.dokka.plugability.ConfigurableBlock
 import org.jetbrains.dokka.plugability.DokkaPlugin
+import java.util.concurrent.atomic.AtomicReference
 import java.util.function.BiConsumer
 import kotlin.reflect.full.createInstance
 
@@ -203,22 +204,17 @@ abstract class AbstractDokkaTask : DefaultTask() {
     internal open fun generateDocumentation() {
         DokkaBootstrap(runtime, DokkaBootstrapImpl::class).apply {
             configure(buildDokkaConfiguration().toCompactJsonString(), createProxyLogger())
-            var throwableInGenerate: Throwable? = null
+            val uncaughtExceptionHolder = AtomicReference<Throwable?>()
             /**
              * Run in a new thread to avoid memory leaks that are related to ThreadLocal (that keeps `URLCLassLoader`)
              * Currently, all `ThreadLocal`s leaking are in the compiler/IDE codebase.
              */
-            Thread {
-                try {
-                    generate()
-                } catch (t: Throwable) {
-                    throwableInGenerate = t
-                }
-            }.apply {
+            Thread { generate() }.apply {
+                setUncaughtExceptionHandler { _, throwable -> uncaughtExceptionHolder.set(throwable) }
                 start()
                 join()
             }
-            throwableInGenerate?.let { throw it }
+            uncaughtExceptionHolder.get()?.let { throw it }
         }
     }
 
