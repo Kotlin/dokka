@@ -50,20 +50,28 @@ gradlePlugin {
     vcsUrl.set("https://github.com/kotlin/dokka.git")
 
     plugins {
-        all {
+        create("dokkaGradlePlugin") {
             id = "org.jetbrains.dokka"
             implementationClass = "org.jetbrains.dokka.gradle.DokkaPlugin"
-            tags.set(listOf("dokka", "kotlin", "kdoc", "android", "documentation"))
-        }
-        create("dokkaGradlePlugin") {
             displayName = "Dokka plugin"
             description = "Dokka, the Kotlin documentation tool"
+            tags.set(listOf("dokka", "kotlin", "kdoc", "android", "documentation"))
             isAutomatedPublishing = true
         }
-        register("dokkaGradlePluginForIntegrationTests") {
+    }
+}
+
+publishing {
+    publications {
+        register<MavenPublication>("dokkaGradlePluginForIntegrationTests") {
+            artifactId = "dokka-gradle-plugin"
+            from(components["java"])
             version = "for-integration-tests-SNAPSHOT"
         }
-        register("pluginMaven")
+
+        register<MavenPublication>("pluginMaven") {
+            artifactId = "dokka-gradle-plugin"
+        }
     }
 }
 
@@ -76,8 +84,8 @@ tasks.withType<PublishToMavenRepository>().configureEach {
 }
 
 afterEvaluate { // Workaround for an interesting design choice https://github.com/gradle/gradle/blob/c4f935f77377f1783f70ec05381c8182b3ade3ea/subprojects/plugin-development/src/main/java/org/gradle/plugin/devel/plugins/MavenPluginPublishPlugin.java#L49
-    configureSpacePublicationIfNecessary("pluginMaven")
-    configureSonatypePublicationIfNecessary("pluginMaven")
+    configureSpacePublicationIfNecessary("pluginMaven", "dokkaGradlePluginPluginMarkerMaven")
+    configureSonatypePublicationIfNecessary("pluginMaven", "dokkaGradlePluginPluginMarkerMaven")
     createDokkaPublishTaskIfNecessary()
 }
 
