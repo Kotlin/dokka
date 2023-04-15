@@ -5,6 +5,7 @@ import com.android.build.gradle.api.LibraryVariant
 import org.gradle.api.Project
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinJvmAndroidCompilation
+import java.util.Locale
 
 internal fun Project.isMainSourceSet(sourceSet: KotlinSourceSet): Boolean {
     return isMainSourceSet(allCompilationsOf(sourceSet))
@@ -23,7 +24,7 @@ private fun isMainCompilation(compilation: KotlinCompilation): Boolean {
         }
     } catch (e: NoSuchMethodError) {
         // Kotlin Plugin version below 1.4
-        return !compilation.name.toLowerCase().endsWith("test")
+        return !compilation.name.lowercase(Locale.getDefault()).endsWith("test")
     }
     return compilation.name == "main"
 }

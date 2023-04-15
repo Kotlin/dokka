@@ -6,6 +6,7 @@ import org.gradle.api.internal.project.ProjectInternal
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.withType
 import org.gradle.testfixtures.ProjectBuilder
+import java.util.Locale
 import kotlin.test.*
 
 class AndroidAutoConfigurationTest {
@@ -47,7 +48,7 @@ class AndroidAutoConfigurationTest {
         project as ProjectInternal
         project.evaluate()
         dokkaTasks.flatMap { it.dokkaSourceSets }.forEach { sourceSet ->
-            if ("test" in sourceSet.name.toLowerCase()) {
+            if ("test" in sourceSet.name.lowercase(Locale.getDefault())) {
                 assertTrue(
                     sourceSet.suppress.get(),
                     "Expected source set `${sourceSet.name}` to be suppressed by default"

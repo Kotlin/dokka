@@ -8,6 +8,7 @@ import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.withType
 import org.gradle.util.GradleVersion
 import org.jetbrains.dokka.DokkaDefaults
+import java.util.Locale
 
 open class DokkaPlugin : Plugin<Project> {
     override fun apply(project: Project) {
@@ -106,7 +107,7 @@ open class DokkaPlugin : Plugin<Project> {
 
     private fun Project.configureEachAbstractDokkaTask() {
         tasks.withType<AbstractDokkaTask>().configureEach {
-            val formatClassifier = name.removePrefix("dokka").decapitalize()
+            val formatClassifier = name.removePrefix("dokka").replaceFirstChar { it.lowercase(Locale.getDefault()) }
             outputDirectory.convention(project.layout.buildDirectory.dir("dokka/$formatClassifier"))
             cacheRoot.set(DokkaDefaults.cacheRoot)
         }
