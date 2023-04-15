@@ -30,7 +30,7 @@ junit = "5.9.2"
 assertk = "0.25"
 
 ## Gradle plugins ##
-gradlePlugin-shadow = "7.1.2"
+gradlePlugin-shadow = "8.1.1"
 gradlePlugin-binaryCompatibilityValidator = "0.12.1"
 gradlePlugin-nexusPublish = "1.1.0"
 gradlePlugin-dokka = "1.7.10"
@@ -100,7 +100,7 @@ junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
 
 gradlePlugin-dokka = { module = "org.jetbrains.dokka:dokka-gradle-plugin", version.ref = "gradlePlugin-dokka" }
 gradlePlugin-kotlin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
-gradlePlugin-shadow = { module = "gradle.plugin.com.github.johnrengelman:shadow", version.ref = "gradlePlugin-shadow" }
+gradlePlugin-shadow = { module = "com.github.johnrengelman:shadow", version.ref = "gradlePlugin-shadow" }
 gradlePlugin-android = { module = "com.android.tools.build:gradle", version.ref = "gradlePlugin-gradle" }
 
 
