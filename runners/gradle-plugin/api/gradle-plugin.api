@@ -72,6 +72,11 @@ public class org/jetbrains/dokka/gradle/DokkaPlugin : org/gradle/api/Plugin {
 	public fun apply (Lorg/gradle/api/Project;)V
 }
 
+public final class org/jetbrains/dokka/gradle/DokkaPlugin$inlined$sam$i$org_gradle_api_Action$0 : org/gradle/api/Action {
+	public fun <init> (Lkotlin/jvm/functions/Function1;)V
+	public final synthetic fun execute (Ljava/lang/Object;)V
+}
+
 public abstract class org/jetbrains/dokka/gradle/DokkaTask : org/jetbrains/dokka/gradle/AbstractDokkaLeafTask {
 	public fun <init> ()V
 }
