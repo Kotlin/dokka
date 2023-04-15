@@ -1,6 +1,7 @@
 package org.jetbrains.conventions
 
 import org.gradle.kotlin.dsl.support.serviceOf
+import java.util.Locale
 
 /**
  * Utility for downloading and installing a Maven binary.
@@ -43,7 +44,7 @@ val mavenCliSetupExtension =
         mavenInstallDir.convention(layout.buildDirectory.dir("apache-maven"))
 
         val isWindowsProvider =
-            providers.systemProperty("os.name").map { "win" in it.toLowerCase() }
+            providers.systemProperty("os.name").map { "win" in it.lowercase(Locale.getDefault()) }
 
         mvn.convention(
             providers.zip(mavenInstallDir, isWindowsProvider) { mavenInstallDir, isWindows ->
