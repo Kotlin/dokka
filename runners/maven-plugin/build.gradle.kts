@@ -1,4 +1,3 @@
-import org.gradle.kotlin.dsl.support.appendReproducibleNewLine
 import org.jetbrains.registerDokkaArtifactPublication
 
 plugins {
@@ -116,4 +115,11 @@ tasks.jar {
 
 registerDokkaArtifactPublication("dokkaMavenPlugin") {
     artifactId = "dokka-maven-plugin"
+}
+
+fun Appendable.appendReproducibleNewLine(value: CharSequence = ""): Appendable {
+    assert('\r' !in value) {
+        "Unexpected line ending in string."
+    }
+    return append(value).append("\n")
 }
