@@ -33,7 +33,7 @@ assertk = "0.25"
 gradlePlugin-shadow = "8.1.1"
 gradlePlugin-binaryCompatibilityValidator = "0.12.1"
 gradlePlugin-nexusPublish = "1.1.0"
-gradlePlugin-dokka = "1.7.10"
+gradlePlugin-dokka = "1.8.10"
 gradlePlugin-gradlePluginPublish = "0.20.0"
 gradlePlugin-gradle = "4.0.1"
 
