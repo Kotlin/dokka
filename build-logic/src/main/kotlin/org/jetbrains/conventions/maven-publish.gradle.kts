@@ -1,5 +1,7 @@
 package org.jetbrains.conventions
 
+import com.github.jengelman.gradle.plugins.shadow.ShadowPlugin
+
 plugins {
     id("org.jetbrains.conventions.base")
     `maven-publish`
@@ -55,4 +57,10 @@ publishing {
             }
         }
     }
+}
+
+plugins.withType<ShadowPlugin>().configureEach {
+    // manually disable publication of Shadow elements https://github.com/johnrengelman/shadow/issues/651#issue-839148311
+    val javaComponent = components["java"] as AdhocComponentWithVariants
+    javaComponent.withVariantsFromConfiguration(configurations["shadowRuntimeElements"]) { skip() }
 }
