@@ -7,12 +7,15 @@ plugins {
 
 dependencies {
     compileOnly(projects.core)
+
     implementation(kotlin("reflect"))
     implementation(projects.plugins.base)
-    testImplementation(projects.plugins.base)
-testImplementation(testFixtures(projects.plugins.base))
     implementation(libs.jackson.kotlin)
+
     testImplementation(testFixtures(projects.core))
+    testImplementation(testFixtures(projects.plugins.base))
+
+    testImplementation(projects.plugins.base)
     testImplementation(platform(libs.junit.bom))
     testImplementation(libs.junit.jupiter)
 
