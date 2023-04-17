@@ -10,9 +10,9 @@ dependencies {
     implementation(kotlin("reflect"))
     implementation(projects.plugins.base)
     testImplementation(projects.plugins.base)
-    testImplementation(projects.plugins.base.baseTestUtils)
+testImplementation(testFixtures(projects.plugins.base))
     implementation(libs.jackson.kotlin)
-    testImplementation(projects.core.testApi)
+    testImplementation(testFixtures(projects.core))
     testImplementation(platform(libs.junit.bom))
     testImplementation(libs.junit.jupiter)
 

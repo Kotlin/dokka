@@ -12,7 +12,7 @@ dependencies {
     implementation(kotlin("reflect"))
 
     compileOnly(projects.plugins.base)
-    implementation(projects.core.testApi)
+//    implementation(projects.core.testApi)
 
     implementation(libs.jsoup)
     implementation(kotlin("test-junit"))
