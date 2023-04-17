@@ -30,6 +30,15 @@ interface WithBrief {
     val brief: List<ContentNode>
 }
 
+interface WithCommonTags {
+    val authors: List<List<ContentNode>>
+    val since: List<ContentNode>
+}
+
+interface WithExecutableTags {
+    val `return`: List<ContentNode>
+}
+
 class JavadocModulePageNode(
     override val name: String,
     override val content: JavadocContentNode,
@@ -149,6 +158,7 @@ data class JavadocPropertyNode(
     override val name: String,
     val signature: JavadocSignatureContentNode,
     override val brief: List<ContentNode>,
+
     override val extra: PropertyContainer<DProperty> = PropertyContainer.empty()
 ) : AnchorableJavadocNode(name, dri), WithJavadocExtra<DProperty>, WithBrief
 
@@ -157,10 +167,16 @@ data class JavadocFunctionNode(
     override val brief: List<ContentNode>,
     val description: List<ContentNode>,
     val parameters: List<JavadocParameterNode>,
+
+    override val authors: List<List<ContentNode>>,
+    override val since: List<ContentNode>,
+
+    override val `return`: List<ContentNode>,
+
     override val name: String,
     override val dri: DRI,
     override val extra: PropertyContainer<DFunction> = PropertyContainer.empty()
-) : AnchorableJavadocNode(name, dri), WithJavadocExtra<DFunction>, WithBrief {
+) : AnchorableJavadocNode(name, dri), WithJavadocExtra<DFunction>, WithBrief, WithCommonTags, WithExecutableTags {
     val isInherited: Boolean
         get() {
             val extra = extra[InheritedMember]
@@ -182,11 +198,15 @@ class JavadocClasslikePageNode(
     val classlikes: List<JavadocClasslikePageNode>,
     val properties: List<JavadocPropertyNode>,
     override val brief: List<ContentNode>,
+
+    override val authors: List<List<ContentNode>>,
+    override val since: List<ContentNode>,
+
     override val documentables: List<Documentable> = emptyList(),
     override val children: List<PageNode> = emptyList(),
     override val embeddedResources: List<String> = listOf(),
     override val extra: PropertyContainer<DClasslike> = PropertyContainer.empty(),
-) : JavadocPageNode, WithJavadocExtra<DClasslike>, NavigableJavadocNode, WithNavigable, WithBrief, ClasslikePage {
+) : JavadocPageNode, WithJavadocExtra<DClasslike>, NavigableJavadocNode, WithNavigable, WithBrief, WithCommonTags, ClasslikePage {
 
     override fun getAllNavigables(): List<NavigableJavadocNode> =
         methods + entries + classlikes.map { it.getAllNavigables() }.flatten() + this
@@ -215,6 +235,8 @@ class JavadocClasslikePageNode(
         classlikes,
         properties,
         brief,
+        authors,
+        since,
         documentables,
         children,
         embeddedResources,
@@ -240,6 +262,8 @@ class JavadocClasslikePageNode(
             classlikes,
             properties,
             brief,
+            authors,
+            since,
             documentables,
             children,
             embeddedResources,

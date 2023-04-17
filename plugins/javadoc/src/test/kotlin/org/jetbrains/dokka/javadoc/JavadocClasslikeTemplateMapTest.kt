@@ -342,6 +342,105 @@ internal class JavadocClasslikeTemplateMapTest : AbstractJavadocTemplateMapTest(
         }
     }
 
+    @Test
+    fun `@author @since @return method tags`(){
+        dualTestTemplateMapInline(
+            kotlin =
+            """
+            /src/source0.kt
+            package com.test.package0
+            class TestClass {
+                /**
+                 * Testing @author @since @return method tags
+                 * @author Test Author
+                 * @author Test Author2
+                 * @since 08 april 2023 
+                 * @return parameter's value in lower case
+                 */
+                fun testFunction(testParam: String?): String {
+                    return testParam?.lowercase() ?: ""
+                }
+            }
+            """,
+            java =
+            """
+            /src/com/test/package0/TestClass.java
+            package com.test.package0;
+            public final class TestClass {
+                /**
+                 * Testing @author @since @return method tags
+                 * @author Test Author
+                 * @author Test Author2
+                 * @since 08 april 2023 
+                 * @return parameter's value in lower case
+                 */
+                public final String testFunction(String testParam) {
+                    return testParam.toLowerCase();
+                }
+            }
+            """
+        ) {
+            val map = singlePageOfType<JavadocClasslikePageNode>().templateMap
+            assertEquals("TestClass", map["name"])
+
+            val methods = assertIsInstance<Map<String, Any?>>(map["methods"])
+            val testFunction = assertIsInstance<List<Map<String, Any?>>>(methods["own"]).single()
+            assertEquals("Testing @author @since @return method tags", testFunction["brief"])
+
+            assertEquals("testFunction", testFunction["name"])
+            assertEquals(listOf("<p>Test Author</p>", "<p>Test Author2</p>"), testFunction["authors"])
+            assertEquals("<p>08 april 2023</p>", testFunction["since"])
+            assertEquals("<p>parameter's value in lower case</p>", testFunction["return"])
+        }
+    }
+
+    @Test
+    fun `@author @since class tags`(){
+        dualTestTemplateMapInline(
+            kotlin =
+            """
+            /src/source0.kt
+            package com.test.package0
+            /**
+             * Testing @author @since class tags
+             * @author Test Author
+             * @author Test Author2
+             * @author Test Author3
+             * @since 08 april 2023 
+             */
+            class TestClass {
+                fun testFunction(testParam: String?): String {
+                    return testParam?.lowercase() ?: ""
+                }
+            }
+            """,
+            java =
+            """
+            /src/com/test/package0/TestClass.java
+            package com.test.package0;
+            /**
+             * Testing @author @since class tags
+             * @author Test Author
+             * @author Test Author2
+             * @author Test Author3
+             * @since 08 april 2023 
+             */
+            public final class TestClass {
+                public final String testFunction(String testParam) {
+                    return testParam.toLowerCase();
+                }
+            }
+            """
+        ) {
+            val map = singlePageOfType<JavadocClasslikePageNode>().templateMap
+
+            assertEquals("TestClass", map["name"])
+            assertEquals("<p>Testing @author @since class tags</p>", map["classlikeDocumentation"])
+            assertEquals(listOf("<p>Test Author</p>", "<p>Test Author2</p>", "<p>Test Author3</p>"), map["authors"])
+            assertEquals("<p>08 april 2023</p>", map["since"])
+        }
+    }
+
     private fun assertParameterNode(node: Map<String, Any?>, expectedName: String, expectedType: String, expectedDescription: String){
         assertEquals(expectedName, node["name"])
         assertEquals(expectedType, node["type"])

@@ -629,8 +629,8 @@ h1.hidden {
 }
 .deprecatedLabel, .descfrmTypeLabel, .implementationLabel, .memberNameLabel, .memberNameLink,
 .moduleLabelInPackage, .moduleLabelInType, .overrideSpecifyLabel, .packageLabelInType,
-.packageHierarchyLabel, .paramLabel, .returnLabel, .seeLabel, .simpleTagLabel,
-.throwsLabel, .typeNameLabel, .typeNameLink, .searchTagLink {
+.packageHierarchyLabel, .authorLabel, .paramLabel, .returnLabel, .seeLabel, .simpleTagLabel,
+.throwsLabel, .sinceLabel, .typeNameLabel, .typeNameLink, .searchTagLink {
     font-weight:bold;
 }
 .deprecationComment, .emphasizedPhrase, .interfaceName {
