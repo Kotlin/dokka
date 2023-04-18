@@ -11,6 +11,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
 import org.jetbrains.dokka.base.DokkaBase
 import java.io.File
 
+// TODO [beresnev] try to get rid of this copy-paste in #2933
 // THIS IS COPIED FROM BASE SINCE IT NEEDS TO BE INSTANTIATED ON THE SAME CLASS LOADER AS PLUGINS
 
 private val objectMapper = run {
@@ -26,10 +27,11 @@ private val objectMapper = run {
 }
 
 @PublishedApi
-internal class TypeReference<T> private constructor(
+internal class TypeReference<T> @PublishedApi internal constructor(
     internal val jackson: com.fasterxml.jackson.core.type.TypeReference<T>
 ) {
     companion object {
+        @PublishedApi
         internal inline operator fun <reified T> invoke(): TypeReference<T> = TypeReference(jacksonTypeRef())
     }
 }

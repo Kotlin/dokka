@@ -5,6 +5,7 @@ import org.jetbrains.dokka.model.Documentable
 import org.jetbrains.dokka.model.properties.WithExtraProperties
 
 internal fun WithExtraProperties<out Documentable>.hasJvmSynthetic(): Boolean {
+    @Suppress("TYPE_MISMATCH_WARNING_FOR_INCORRECT_CAPTURE_APPROXIMATION")
     return extra[Annotations]
         ?.directAnnotations
         ?.entries
