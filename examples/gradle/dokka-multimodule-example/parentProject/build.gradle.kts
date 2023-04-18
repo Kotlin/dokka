@@ -27,7 +27,7 @@ subprojects {
                 val exampleDir = "https://github.com/Kotlin/dokka/tree/master/examples/gradle/dokka-multimodule-example"
                 val projectRelativePath = rootProject.projectDir.toPath().relativize(projectDir.toPath())
 
-                localDirectory.set(file("src"))
+                localDirectory.set(projectDir.resolve("src"))
                 remoteUrl.set(URL("$exampleDir/$projectRelativePath/src"))
                 remoteLineSuffix.set("#L")
             }
