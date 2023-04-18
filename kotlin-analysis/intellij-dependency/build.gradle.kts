@@ -35,12 +35,12 @@ fun jpsModel() = zipTree(jpsStandalone.singleFile).matching {
 }
 
 dependencies {
-    api(libs.kotlinPlugin.common)
-    api(libs.kotlinPlugin.idea) {
+    api(libs.kotlinIdePlugin.common)
+    api(libs.kotlinIdePlugin.idea) {
         isTransitive = false
     }
-    api(libs.kotlinPlugin.core)
-    api(libs.kotlinPlugin.native)
+    api(libs.kotlinIdePlugin.core)
+    api(libs.kotlinIdePlugin.native)
 
     @Suppress("UnstableApiUsage")
     intellijCore(libs.jetbrainsIntelliJ.core)
