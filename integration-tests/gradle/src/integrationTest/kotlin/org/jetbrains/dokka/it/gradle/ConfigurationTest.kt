@@ -7,6 +7,18 @@ import org.junit.runners.Parameterized.Parameters
 import java.io.File
 import kotlin.test.*
 
+/**
+ * Tests for Dokka's configuration options of the Gradle runner.
+ *
+ * Options can be checked to work in combination with each other:
+ * for instance, you can check that `reportUndocumented` and `failOnWarning`
+ * work in synergy when both set to true.
+ *
+ * Configuration options can be passed as project properties using Gradle CLI arguments.
+ * For example, passing `-Pname=value` to Gradle will create a project-wide property with
+ * key `name` and value `value`, which you can use to set the corresponding option's value
+ * using Dokka's configuration DSL.
+ */
 class ConfigurationTest(override val versions: BuildVersions) : AbstractGradleIntegrationTest() {
 
     companion object {
