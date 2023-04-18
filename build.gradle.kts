@@ -1,5 +1,4 @@
 import org.jetbrains.ValidatePublications
-import org.jetbrains.kotlin.gradle.tasks.*
 import org.jetbrains.publicationChannels
 
 @Suppress("DSL_SCOPE_VIOLATION") // fixed in Gradle 8.1 https://github.com/gradle/gradle/pull/23639
@@ -40,7 +39,6 @@ apiValidation {
     // note that subprojects are ignored by their name, not their path https://github.com/Kotlin/binary-compatibility-validator/issues/16
     ignoredProjects += setOf(
         // NAME                    PATH
-        "search-component",    // :plugins:search-component
         "frontend",            // :plugins:base:frontend
 
         "kotlin-analysis",     // :kotlin-analysis

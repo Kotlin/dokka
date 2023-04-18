@@ -1,6 +1,10 @@
+import com.github.gradle.node.npm.task.NpmTask
+import org.jetbrains.kotlin.util.parseSpaceSeparatedArgs
+
+@Suppress("DSL_SCOPE_VIOLATION") // fixed in Gradle 8.1 https://github.com/gradle/gradle/pull/23639
 plugins {
-    base
-    id("com.github.node-gradle.node") version "3.2.1"
+    id("org.jetbrains.conventions.dokka-base-frontend-files")
+    alias(libs.plugins.gradleNode)
 }
 
 node {
@@ -11,19 +15,34 @@ node {
     distBaseUrl.set(null as String?) // Strange cast to avoid overload ambiguity
 }
 
-val npmRunBuild = tasks.getByName("npm_run_build") {
-    inputs.dir(file("src/main"))
-    inputs.files(file("package.json"), file("webpack.config.js"))
-    outputs.dir(file("dist/"))
+val distributionDirectory = layout.projectDirectory.dir("dist")
+
+val npmRunBuild by tasks.registering(NpmTask::class) {
+    dependsOn(tasks.npmInstall)
+
+    npmCommand.set(parseSpaceSeparatedArgs("run build"))
+
+    inputs.dir("src/main")
+    inputs.files(
+        "package.json",
+        "webpack.config.js",
+    )
+
+    outputs.dir(distributionDirectory)
     outputs.cacheIf { true }
 }
 
-task("generateFrontendFiles") {
-    dependsOn(npmRunBuild)
+configurations.dokkaBaseFrontendFilesElements.configure {
+    outgoing {
+        artifact(distributionDirectory) {
+            builtBy(npmRunBuild)
+        }
+    }
 }
 
-tasks {
-    clean {
-        delete(file("node_modules"), file("dist"))
-    }
+tasks.clean {
+    delete(
+        file("node_modules"),
+        file("dist"),
+    )
 }
