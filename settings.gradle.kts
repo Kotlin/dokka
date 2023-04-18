@@ -74,6 +74,7 @@ include(
     ":plugins:templating",
     ":plugins:versioning",
     ":plugins:android-documentation",
+    ":plugins:auxiliary-docs",
 
     ":plugins:mathjax",
     ":plugins:gfm",

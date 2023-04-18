@@ -12,7 +12,8 @@ import org.jetbrains.dokka.pages.*
 
 abstract class NavigationDataProvider {
     open fun navigableChildren(input: RootPageNode): NavigationNode = input.withDescendants()
-        .first { it is ModulePage || it is MultimoduleRootPage }.let { visit(it as ContentPage) }
+        .first { it is ModulePage || it is MultimoduleRootPage || it is CustomRootPage }
+        .let { visit(it as ContentPage) }
 
     open fun visit(page: ContentPage): NavigationNode =
         NavigationNode(
