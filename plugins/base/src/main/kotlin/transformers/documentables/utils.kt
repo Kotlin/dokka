@@ -5,10 +5,12 @@ import org.jetbrains.dokka.model.Documentable
 import org.jetbrains.dokka.model.ExceptionInSupertypes
 import org.jetbrains.dokka.model.properties.WithExtraProperties
 
+@Suppress("TYPE_MISMATCH_WARNING_FOR_INCORRECT_CAPTURE_APPROXIMATION")
 val <T : WithExtraProperties<out Documentable>> T.isException: Boolean
     get() = extra[ExceptionInSupertypes] != null
 
 
+@Suppress("TYPE_MISMATCH_WARNING_FOR_INCORRECT_CAPTURE_APPROXIMATION")
 val <T> T.deprecatedAnnotation where T : WithExtraProperties<out Documentable>
     get() = extra[Annotations]?.let { annotations ->
         annotations.directAnnotations.values.flatten().firstOrNull {
