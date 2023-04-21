@@ -57,16 +57,16 @@ class ConfigurationTest(override val versions: BuildVersions) : AbstractGradleIn
         result.output.contains("> Task :dokkaHtml FAILED")
         result.output.contains(
             """
-               FAILURE: Build failed with an exception.
+               FAILURE: Build failed with an exception\\.
 
                \* What went wrong:
-               Execution failed for task ':dokkaHtml'.
+               Execution failed for task ':dokkaHtml'\\.
                > Failed with warningCount=\d and errorCount=\d
            """.trimIndent().toRegex()
         )
 
         result.output.contains(
-            "Caused by: org.jetbrains.dokka.DokkaException: Failed with warningCount=\\d and errorCount=\\d".toRegex()
+            "Caused by: org\\.jetbrains\\.dokka\\.DokkaException: Failed with warningCount=\\d and errorCount=\\d".toRegex()
         )
     }
 }
