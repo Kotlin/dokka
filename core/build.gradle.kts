@@ -8,7 +8,7 @@ plugins {
 }
 
 dependencies {
-    api(libs.jetbrainsMarkdown)
+    api(libs.jetbrains.markdown)
     implementation(kotlin("reflect"))
 
     implementation(libs.jsoup)
