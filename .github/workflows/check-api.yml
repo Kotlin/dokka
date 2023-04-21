@@ -1,4 +1,4 @@
-name: Check
+name: API check
 
 on: pull_request
 
@@ -7,13 +7,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  validate-wrapper:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: gradle/wrapper-validation-action@v1
-
   apiCheck:
+    name: binary compatibility
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3

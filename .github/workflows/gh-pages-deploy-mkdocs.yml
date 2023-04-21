@@ -1,9 +1,11 @@
-name: Build and deploy MkDocs to GitHub Pages
+name: Deploy MkDocs to GitHub Pages
 
 on:
   push:
     branches:
       - master
+    paths:
+      - 'mkdocs/**'
   release:
     types: [ published ]
 
@@ -15,13 +17,6 @@ jobs:
       - uses: actions/checkout@v3
         with:
           path: dokka
-      - uses: dorny/paths-filter@v2
-        id: filter
-        with:
-          filters: |
-            mkdocs_changed:
-              - 'mkdocs/**'
-          working-directory: ./dokka
       - uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
@@ -32,15 +27,12 @@ jobs:
           gradle-home-cache-cleanup: true
       - name: Get current dokka version
         run: echo "DOKKA_VERSION=`./gradlew :properties | grep '^version:.*' | cut -d ' ' -f 2`" >> $GITHUB_ENV
-        if: github.event_name == 'release' || steps.filter.outputs.mkdocs_changed == 'true'
         working-directory: ./dokka
       - name: Build docs
         run: ./gradlew mkdocsBuild -Pdokka_version=$DOKKA_VERSION --info
-        if: github.event_name == 'release' || steps.filter.outputs.mkdocs_changed == 'true'
         working-directory: ./dokka
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
-        if: github.event_name == 'release' || steps.filter.outputs.mkdocs_changed == 'true'
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dokka/mkdocs/build/mkdocs
