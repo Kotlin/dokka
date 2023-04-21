@@ -1,9 +1,11 @@
-name: Build and deploy examples to GitHub Pages
+name: Deploy examples to GitHub Pages
 
 on:
   push:
     branches:
       - master
+    paths:
+      - 'examples/**'
 
 jobs:
   build-examples:

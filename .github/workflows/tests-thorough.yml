@@ -1,0 +1,36 @@
+name: Test [thorough]
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+
+jobs:
+  test-matrix:
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, windows-latest, macos-latest ]
+        javaVersion: [ 8, 11, 17 ]
+      fail-fast: false
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: 17
+          cache: 'maven'
+      - uses: gradle/gradle-build-action@v2
+        env:
+          ORG_GRADLE_PROJECT_org.jetbrains.dokka.javaToolchain.test: ${{ matrix.javaVersion }}
+        with:
+          gradle-home-cache-cleanup: true
+      - name: Run tests under Windows
+        if: matrix.os == 'windows-latest'
+        # Running tests with the Gradle daemon on windows agents leads to some very strange
+        # JVM crashes for some reason. Most likely a problem of Gradle/GitHub/Windows server
+        run: ./gradlew clean test --stacktrace --no-daemon
+      - name: Run tests under Ubuntu/Macos
+        if: matrix.os != 'windows-latest'
+        run: ./gradlew clean test --stacktrace
