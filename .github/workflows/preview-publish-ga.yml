@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     if: >  # Run this job only for pull requests from forks because members with write access have web preview
       github.event_name != 'pull_request' || 
-      (github.event_name == pull_request && github.event.pull_request.head.repo.full_name != 'Kotlin/dokka')
+      (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != 'Kotlin/dokka')
     steps:
       - name: Checkout dokka
         uses: actions/checkout@v3
@@ -41,7 +41,7 @@ jobs:
     runs-on: ubuntu-latest
     if: >  # Run this job only for pull requests from forks because members with write access have web preview
       github.event_name != 'pull_request' || 
-      (github.event_name == pull_request && github.event.pull_request.head.repo.full_name != 'Kotlin/dokka')
+      (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != 'Kotlin/dokka')
     steps:
       - name: Checkout dokka
         uses: actions/checkout@v3
@@ -70,7 +70,7 @@ jobs:
     runs-on: ubuntu-latest
     if: >  # Run this job only for pull requests from forks because members with write access have web preview
       github.event_name != 'pull_request' || 
-      (github.event_name == pull_request && github.event.pull_request.head.repo.full_name != 'Kotlin/dokka')
+      (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != 'Kotlin/dokka')
     steps:
       - name: Checkout dokka
         uses: actions/checkout@v3
