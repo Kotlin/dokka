@@ -3,6 +3,7 @@ package org.jetbrains.dokka.analysis
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.utilities.DokkaLogger
+import org.jetbrains.kotlin.analysis.api.standalone.StandaloneAnalysisAPISession
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSourceLocation
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
@@ -35,7 +36,7 @@ internal fun createAnalysisContext(
     classpath: List<File>,
     sourceRoots: Set<File>,
     sourceSet: DokkaConfiguration.DokkaSourceSet,
-    analysisConfiguration: DokkaAnalysisConfiguration
+    @Suppress("UNUSED_PARAMETER") analysisConfiguration: DokkaAnalysisConfiguration
 ): AnalysisContext {
     val analysisEnvironment = AnalysisEnvironment(DokkaMessageCollector(logger), sourceSet.analysisPlatform).apply {
         if (analysisPlatform == Platform.jvm) {
@@ -46,14 +47,16 @@ internal fun createAnalysisContext(
 
         loadLanguageVersionSettings(sourceSet.languageVersion, sourceSet.apiVersion)
     }
-
+    /*if(K1)
     val environment = analysisEnvironment.createCoreEnvironment()
     val (facade, _) = analysisEnvironment.createResolutionFacade(
         environment,
         analysisConfiguration.ignoreCommonBuiltIns
     )
 
-    return AnalysisContext(environment, facade, analysisEnvironment)
+    return K1AnalysisContextImpl(environment, facade, analysisEnvironment)*/
+    return K2AnalysisContextImpl(analysisEnvironment.createAnalysisSession(), analysisEnvironment)
+
 }
 
 class DokkaMessageCollector(private val logger: DokkaLogger) : MessageCollector {
@@ -73,12 +76,27 @@ class DokkaMessageCollector(private val logger: DokkaLogger) : MessageCollector 
     override fun hasErrors() = seenErrors
 }
 
+interface AnalysisContext
+
+class K2AnalysisContextImpl(
+    session: StandaloneAnalysisAPISession,
+    private val analysisEnvironment: AnalysisEnvironment
+) : AnalysisContext, Closeable {
+    private var isClosed: Boolean = false
+    val session: StandaloneAnalysisAPISession = session
+        get() = field.takeUnless { isClosed } ?: throw IllegalStateException("AnalysisEnvironment is already closed")
+    override fun close() {
+        isClosed = true
+        analysisEnvironment.dispose()
+    }
+}
+
 // It is not data class due to ill-defined equals
-class AnalysisContext(
+class K1AnalysisContextImpl(
     environment: KotlinCoreEnvironment,
     facade: DokkaResolutionFacade,
     private val analysisEnvironment: AnalysisEnvironment
-) : Closeable {
+) : AnalysisContext, Closeable {
     private var isClosed: Boolean = false
     val environment: KotlinCoreEnvironment = environment
         get() = field.takeUnless { isClosed } ?: throw IllegalStateException("AnalysisEnvironment is already closed")

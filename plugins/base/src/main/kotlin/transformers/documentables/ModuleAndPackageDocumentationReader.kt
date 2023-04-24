@@ -3,6 +3,7 @@
 package org.jetbrains.dokka.base.transformers.documentables
 
 import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.analysis.K1AnalysisContextImpl
 import org.jetbrains.dokka.analysis.KotlinAnalysis
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.parsers.moduleAndPackage.ModuleAndPackageDocumentation.Classifier
@@ -45,7 +46,7 @@ private class ContextModuleAndPackageDocumentationReader(
     ): SourceSetDependent<DocumentationNode> {
         return sourceSets.associateWithNotNull { sourceSet ->
             val fragments = documentationFragments[sourceSet].orEmpty().filter(predicate)
-            val resolutionFacade = kotlinAnalysis[sourceSet].facade
+            val resolutionFacade = (kotlinAnalysis[sourceSet] as? K1AnalysisContextImpl)?.facade
             val documentations = fragments.map { fragment ->
                 parseModuleAndPackageDocumentation(
                     context = ModuleAndPackageDocumentationParsingContext(context.logger, resolutionFacade),

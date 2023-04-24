@@ -8,6 +8,10 @@ kotlin {
     }
 }
 
+repositories {
+    mavenCentral()
+    gradlePluginPortal()
+}
 dependencies {
     implementation(libs.gradlePlugin.dokka)
     implementation(libs.gradlePlugin.kotlin)

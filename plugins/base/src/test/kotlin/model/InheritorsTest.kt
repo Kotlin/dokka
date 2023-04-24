@@ -179,7 +179,7 @@ class InheritorsTest : AbstractModelTest("/src/main/kotlin/inheritors/Test.kt", 
             sourceSets {
                 sourceSet {
                     sourceRoots = listOf("src/")
-                    analysisPlatform = "common"
+                    analysisPlatform = "jvm"
                     languageVersion = "1.4"
                 }
             }
@@ -190,6 +190,7 @@ class InheritorsTest : AbstractModelTest("/src/main/kotlin/inheritors/Test.kt", 
             package kotlin.collections
             
             import kotlin.internal.PlatformDependent
+            import java.util.AbstractCollection
             
             /**
              * Classes that inherit from this interface can be represented as a sequence of elements that can
@@ -356,6 +357,20 @@ class InheritorsTest : AbstractModelTest("/src/main/kotlin/inheritors/Test.kt", 
                 public fun subList(fromIndex: Int, toIndex: Int): List<E>
             }
             
+            
+public abstract class AbstractMutableCollection<E> protected constructor() : MutableCollection<E>, AbstractCollection<E>() {
+    /**
+     * Adds the specified element to the collection.
+     *
+     * This method is redeclared as abstract, because it's not implemented in the base class,
+     * so it must be always overridden in the concrete mutable collection implementation.
+     *
+     * @return `true` if the element has been added, `false` if the collection does not support duplicates
+     * and the element is already contained in the collection.
+     */
+     abstract override fun add(element: E): Boolean
+}
+
             // etc
             """.trimMargin(),
             platform = Platform.common.toString(),

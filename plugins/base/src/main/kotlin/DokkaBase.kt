@@ -35,6 +35,7 @@ import org.jetbrains.dokka.base.transformers.pages.tags.SinceKotlinTagContentPro
 import org.jetbrains.dokka.base.translators.descriptors.DefaultExternalDocumentablesProvider
 import org.jetbrains.dokka.base.translators.descriptors.ExternalClasslikesTranslator
 import org.jetbrains.dokka.base.translators.descriptors.ExternalDocumentablesProvider
+import org.jetbrains.dokka.base.translators.symbols.DefaultSymbolToDocumentableTranslator
 import org.jetbrains.dokka.base.utils.NoopIntellijLoggerFactory
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.plugability.DokkaPluginApiPreview
@@ -64,6 +65,10 @@ class DokkaBase : DokkaPlugin() {
 
     val singleGeneration by extending {
         CoreExtensions.generation providing ::SingleModuleGeneration
+    }
+
+    val dsymbolToDocumentableTranslator by extending {
+        CoreExtensions.sourceToDocumentableTranslator providing ::DefaultSymbolToDocumentableTranslator
     }
 
     val descriptorToDocumentableTranslator by extending {

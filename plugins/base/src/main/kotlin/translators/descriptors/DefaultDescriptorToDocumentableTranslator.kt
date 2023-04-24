@@ -8,10 +8,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
-import org.jetbrains.dokka.analysis.DescriptorDocumentableSource
-import org.jetbrains.dokka.analysis.DokkaResolutionFacade
-import org.jetbrains.dokka.analysis.KotlinAnalysis
-import org.jetbrains.dokka.analysis.from
+import org.jetbrains.dokka.analysis.*
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.parsers.MarkdownParser
 import org.jetbrains.dokka.base.translators.psi.parsers.JavadocParser
@@ -91,14 +88,19 @@ class DefaultDescriptorToDocumentableTranslator(
     private val kotlinAnalysis: KotlinAnalysis = context.plugin<DokkaBase>().querySingle { kotlinAnalysis }
 
     override suspend fun invokeSuspending(sourceSet: DokkaSourceSet, context: DokkaContext): DModule {
-        val (environment, facade) = kotlinAnalysis[sourceSet]
+        val (environment, facade) = kotlinAnalysis[sourceSet] as? K1AnalysisContextImpl?: return DModule(
+            "",
+            packages = emptyList(),
+            documentation = emptyMap(),
+            sourceSets = setOf(sourceSet)
+        )
         val packageFragments = environment.getSourceFiles().asSequence()
             .map { it.packageFqName }
             .distinct()
             .mapNotNull { facade.resolveSession.getPackageFragment(it) }
             .toList()
 
-        return DokkaDescriptorVisitor(sourceSet, kotlinAnalysis[sourceSet].facade, context.logger).run {
+        return DokkaDescriptorVisitor(sourceSet, facade, context.logger).run {
             packageFragments.mapNotNull { it.safeAs<PackageFragmentDescriptor>() }.parallelMap {
                 visitPackageFragmentDescriptor(
                     it
@@ -119,7 +121,7 @@ class DefaultDescriptorToDocumentableTranslator(
         val driInfo = DRI.from(descriptor.parents.first()).withEmptyInfo()
 
         return runBlocking(Dispatchers.Default) {
-            DokkaDescriptorVisitor(sourceSet, kotlinAnalysis[sourceSet].facade, context.logger)
+            DokkaDescriptorVisitor(sourceSet, (kotlinAnalysis[sourceSet] as K1AnalysisContextImpl).facade, context.logger)
                 .visitClassDescriptor(descriptor, driInfo)
         }
     }

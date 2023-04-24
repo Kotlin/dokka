@@ -1,6 +1,9 @@
+@file:OptIn(KtAnalysisApiInternals::class)
+
 package org.jetbrains.dokka.analysis
 
 import com.intellij.core.CoreApplicationEnvironment
+import com.intellij.ide.highlighter.JavaFileType
 import com.intellij.mock.MockApplication
 import com.intellij.mock.MockComponentManager
 import com.intellij.openapi.Disposable
@@ -9,6 +12,8 @@ import com.intellij.openapi.extensions.Extensions
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.vfs.StandardFileSystems
+import com.intellij.openapi.vfs.VirtualFileManager
+import com.intellij.psi.PsiFileSystemItem
 import com.intellij.psi.PsiNameHelper
 import com.intellij.psi.impl.PsiNameHelperImpl
 import com.intellij.psi.impl.source.javadoc.JavadocManagerImpl
@@ -18,6 +23,11 @@ import com.intellij.psi.javadoc.JavadocTagInfo
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.analysis.resolve.*
+import org.jetbrains.kotlin.analysis.api.KtAnalysisApiInternals
+import org.jetbrains.kotlin.analysis.api.fir.KtFirAnalysisSessionProvider
+import org.jetbrains.kotlin.analysis.api.lifetime.KtDefaultLifetimeTokenProvider
+import org.jetbrains.kotlin.analysis.api.lifetime.KtReadActionConfinementDefaultLifetimeTokenProvider
+import org.jetbrains.kotlin.analysis.api.session.KtAnalysisSessionProvider
 import org.jetbrains.kotlin.analyzer.*
 import org.jetbrains.kotlin.analyzer.common.*
 import org.jetbrains.kotlin.builtins.DefaultBuiltIns
@@ -76,8 +86,122 @@ import org.jetbrains.kotlin.resolve.konan.platform.NativePlatformAnalyzerService
 import org.jetbrains.kotlin.storage.LockBasedStorageManager
 import java.io.File
 import org.jetbrains.kotlin.konan.file.File as KFile
+import org.jetbrains.kotlin.analysis.api.standalone.buildStandaloneAnalysisAPISession
+import org.jetbrains.kotlin.analysis.project.structure.builder.buildKtSourceModule
+import com.intellij.psi.PsiManager
+import com.intellij.psi.search.ProjectScope
+import com.intellij.util.io.URLUtil
+import org.jetbrains.kotlin.analysis.api.impl.base.util.LibraryUtils
+import org.jetbrains.kotlin.analysis.api.standalone.StandaloneAnalysisAPISession
+import org.jetbrains.kotlin.analysis.project.structure.builder.KtModuleBuilder
+import org.jetbrains.kotlin.analysis.project.structure.builder.buildKtLibraryModule
+import org.jetbrains.kotlin.analysis.project.structure.builder.buildKtSdkModule
+import org.jetbrains.kotlin.idea.KotlinFileType
+import java.io.IOException
+import java.nio.file.*
+import java.nio.file.attribute.BasicFileAttributes
 
 const val JAR_SEPARATOR = "!/"
+
+val analysisSession: StandaloneAnalysisAPISession? =null
+
+internal fun Platform.toTargetPlatform() = when (this) {
+    Platform.js, Platform.wasm -> JsPlatforms.defaultJsPlatform
+    Platform.common -> CommonPlatforms.defaultCommonPlatform
+    Platform.native -> NativePlatforms.unspecifiedNativePlatform
+    Platform.jvm -> JvmPlatforms.defaultJvmPlatform
+}
+
+/**
+ * Collect source file path from the given [root] store them in [result].
+ *
+ * E.g., for `project/app/src` as a [root], this will walk the file tree and
+ * collect all `.kt` and `.java` files under that folder.
+ *
+ * Note that this util gracefully skips [IOException] during file tree traversal.
+ */
+internal fun collectSourceFilePaths(
+    root: Path,
+    result: MutableSet<String>
+) {
+    // NB: [Files#walk] throws an exception if there is an issue during IO.
+    // With [Files#walkFileTree] with a custom visitor, we can take control of exception handling.
+    Files.walkFileTree(
+        root,
+        object : SimpleFileVisitor<Path>() {
+            override fun preVisitDirectory(dir: Path, attrs: BasicFileAttributes): FileVisitResult {
+                return if (Files.isReadable(dir))
+                    FileVisitResult.CONTINUE
+                else
+                    FileVisitResult.SKIP_SUBTREE
+            }
+
+            override fun visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult {
+                if (!Files.isRegularFile(file) || !Files.isReadable(file))
+                    return FileVisitResult.CONTINUE
+                val ext = com.google.common.io.Files.getFileExtension(file.fileName.toString())
+                if (ext == KotlinFileType.EXTENSION || ext == JavaFileType.DEFAULT_EXTENSION) {
+                    result.add(file.toString())
+                }
+                return FileVisitResult.CONTINUE
+            }
+
+            override fun visitFileFailed(file: Path, exc: IOException?): FileVisitResult {
+                // TODO: report or log [IOException]?
+                // NB: this intentionally swallows the exception, hence fail-safe.
+                // Skipping subtree doesn't make any sense, since this is not a directory.
+                // Skipping sibling may drop valid file paths afterward, so we just continue.
+                return FileVisitResult.CONTINUE
+            }
+        }
+    )
+}
+
+/**
+ * Collect source file path as [String] from the given source roots in [sourceRoot].
+ *
+ * this util collects all `.kt` and `.java` files under source roots.
+ */
+fun getSourceFilePaths(
+    sourceRoot: Collection<String>,
+    includeDirectoryRoot: Boolean = false,
+): Set<String> {
+    val result = mutableSetOf<String>()
+    sourceRoot.forEach { srcRoot ->
+        val path = Paths.get(srcRoot)
+        if (Files.isDirectory(path)) {
+            // E.g., project/app/src
+            collectSourceFilePaths(path, result)
+            if (includeDirectoryRoot) {
+                result.add(srcRoot)
+            }
+        } else {
+            // E.g., project/app/src/some/pkg/main.kt
+            result.add(srcRoot)
+        }
+    }
+
+    return result
+}
+
+inline fun <reified T : PsiFileSystemItem> getPsiFilesFromPaths(
+    project: Project,
+    paths: Collection<String>,
+): List<T> {
+    val fs = StandardFileSystems.local()
+    val psiManager = PsiManager.getInstance(project)
+    val result = mutableListOf<T>()
+    for (path in paths) {
+        val vFile = fs.findFileByPath(path) ?: continue
+        val psiFileSystemItem =
+            if (vFile.isDirectory)
+                psiManager.findDirectory(vFile) as? T
+            else
+                psiManager.findFile(vFile) as? T
+        psiFileSystemItem?.let { result.add(it) }
+    }
+    return result
+}
 
 /**
  * Kotlin as a service entry point
@@ -94,6 +218,73 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
         configuration.put(CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY, messageCollector)
     }
 
+    fun createAnalysisSession(): StandaloneAnalysisAPISession {
+       /* val configFiles = when (analysisPlatform) {
+            Platform.jvm, Platform.common -> EnvironmentConfigFiles.JVM_CONFIG_FILES
+            Platform.native -> EnvironmentConfigFiles.NATIVE_CONFIG_FILES
+            Platform.js, Platform.wasm -> EnvironmentConfigFiles.JS_CONFIG_FILES
+        }*/
+
+        //val environment = KotlinCoreEnvironment.createForProduction(this, configuration, configFiles)
+        //analysisSession?.projec
+        val analysisSession = buildStandaloneAnalysisAPISession() {
+            val project = project
+            val targetPlatform = analysisPlatform.toTargetPlatform()
+            fun KtModuleBuilder.addModuleDependencies(moduleName: String) {
+                val libraryRoots = classpath
+                addRegularDependency(
+                    buildKtLibraryModule {
+                        contentScope = ProjectScope.getLibrariesScope(project)
+                        this.platform = targetPlatform
+                        this.project = project
+                        binaryRoots = libraryRoots.map { it.toPath() }
+                        libraryName = "Library for $moduleName"
+                    }
+                )
+                configuration.get(JVMConfigurationKeys.JDK_HOME)?.let { jdkHome ->
+                    val vfm = VirtualFileManager.getInstance()
+                    val jdkHomePath = jdkHome.toPath()
+                    val jdkHomeVirtualFile = vfm.findFileByNioPath(jdkHomePath)
+                    val binaryRoots = LibraryUtils.findClassesFromJdkHome(jdkHomePath).map {
+                        Paths.get(URLUtil.extractPath(it))
+                    }
+                    addRegularDependency(
+                        buildKtSdkModule {
+                            contentScope = GlobalSearchScope.fileScope(project, jdkHomeVirtualFile)
+                            this.platform = targetPlatform
+                            this.project = project
+                            this.binaryRoots = binaryRoots
+                            sdkName = "JDK for $moduleName"
+                        }
+                    )
+                }
+            }
+
+            buildKtModuleProvider {
+                platform = targetPlatform
+                this.project = project
+                addModule(buildKtSourceModule {
+                    //val fs = StandardFileSystems.local()
+                    //val psiManager = PsiManager.getInstance(project)
+                    // TODO: We should handle (virtual) file changes announced via LSP with the VFS
+                    /*val ktFiles = sources
+                        .flatMap { Files.walk(it).toList() }
+                        .mapNotNull { fs.findFileByPath(it.toString()) }
+                        .mapNotNull { psiManager.findFile(it) }
+                        .map { it as KtFile }*/
+                    val ktFiles: List<KtFile> = getPsiFilesFromPaths(project, getSourceFilePaths(sources))
+                    addSourceRoots(ktFiles)
+
+                    contentScope = TopDownAnalyzerFacadeForJVM.newModuleSearchScope(project, ktFiles)
+                    platform = targetPlatform
+                    moduleName = "<module>"
+                    this.project = project
+                    addModuleDependencies(moduleName)
+                })
+            }
+        }
+        return analysisSession
+    }
     fun createCoreEnvironment(): KotlinCoreEnvironment {
         System.setProperty("idea.io.use.nio2", "true")
         System.setProperty("idea.ignore.disabled.plugins", "true")
@@ -141,6 +332,33 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
             CustomJavadocTagProvider::class.java,
             CustomJavadocTagProvider { emptyList() }
         )
+
+        projectComponentManager.registerService(
+            KtAnalysisSessionProvider::class.java,
+            KtFirAnalysisSessionProvider(environment.project)
+        )
+
+        projectComponentManager.registerService(
+            KtDefaultLifetimeTokenProvider::class.java,
+            KtReadActionConfinementDefaultLifetimeTokenProvider::class.java
+        )
+
+        /*projectComponentManager.apply {
+            registerService(
+                ProjectStructureProvider::class.java,
+                ProjectStructureProviderDokkaImpl(environment.project)
+            )
+
+            registerService(
+                LLFirResolveSessionService::class.java,
+                LLFirResolveSessionService(environment.project)
+            )
+            registerService(
+                LLFirSessionCache::class.java,
+                LLFirSessionCache(environment.project)
+            )
+
+        }*/
 
         registerExtensionPoint(
             ApplicationExtensionDescriptor("org.jetbrains.kotlin.idePlatformKind", IdePlatformKind::class.java),
@@ -240,6 +458,11 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
                 else -> null
             } ?: throw IllegalArgumentException("Unexpected module info")
         }
+        /*ProjectStructureProviderDokkaImpl.getInstance(environment.project).apply {
+            this.rootModule = module
+            ktModuleConverter.modulesContent = modulesContent
+        }*/
+
 
         var builtIns: JvmBuiltIns? = null
 

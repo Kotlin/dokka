@@ -36,6 +36,7 @@ internal class TypeReference<T> private constructor(
 
 fun toJsonString(value: Any): String = objectMapper.writeValueAsString(value)
 
+@Suppress("DEPRECATED_IMPLICIT_NON_PUBLIC_API_ACCESS")
 inline fun <reified T : Any> parseJson(json: String): T = parseJson(json, TypeReference())
 
 @PublishedApi

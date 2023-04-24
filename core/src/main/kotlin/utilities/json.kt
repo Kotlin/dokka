@@ -44,6 +44,7 @@ internal fun serializeAsCompactJson(value: Any): String =
 internal fun serializeAsPrettyJson(value: Any): String =
     objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(value)
 
+@Suppress("DEPRECATED_IMPLICIT_NON_PUBLIC_API_ACCESS")
 @PublishedApi
 internal inline fun <reified T : Any> parseJson(json: String): T = parseJson(json, TypeReference())
 

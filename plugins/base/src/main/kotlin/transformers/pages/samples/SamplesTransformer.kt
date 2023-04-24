@@ -63,7 +63,7 @@ abstract class SamplesTransformer(val context: DokkaContext) : PageTransformer {
         fqName: String,
         analysis: KotlinAnalysis
     ): ContentNode {
-        val facade = analysis[sourceSet].facade
+        val facade = (analysis[sourceSet] as? K1AnalysisContextImpl)?.facade ?: throw IllegalStateException("Support of samples is only in K1")
         val psiElement = fqNameToPsiElement(facade, fqName)
             ?: return this.also { context.logger.warn("Cannot find PsiElement corresponding to $fqName") }
         val imports =

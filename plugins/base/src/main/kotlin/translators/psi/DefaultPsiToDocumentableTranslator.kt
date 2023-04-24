@@ -11,10 +11,7 @@ import com.intellij.psi.*
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
-import org.jetbrains.dokka.analysis.DokkaResolutionFacade
-import org.jetbrains.dokka.analysis.KotlinAnalysis
-import org.jetbrains.dokka.analysis.PsiDocumentableSource
-import org.jetbrains.dokka.analysis.from
+import org.jetbrains.dokka.analysis.*
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.translators.psi.parsers.JavadocParser
 import org.jetbrains.dokka.base.translators.typeConstructorsBeingExceptions
@@ -57,7 +54,13 @@ class DefaultPsiToDocumentableTranslator(
                 sourceSet.sourceRoots.any { root -> file.startsWith(root) }
 
 
-            val (environment, facade) = kotlinAnalysis[sourceSet]
+            val (environment, facade) = kotlinAnalysis[sourceSet] as? K1AnalysisContextImpl
+                ?: return@coroutineScope DModule(
+                    "",
+                    packages = emptyList(),
+                    documentation = emptyMap(),
+                    sourceSets = setOf(sourceSet)
+                )
 
             val sourceRoots = environment.configuration.get(CLIConfigurationKeys.CONTENT_ROOTS)
                 ?.filterIsInstance<JavaSourceRoot>()

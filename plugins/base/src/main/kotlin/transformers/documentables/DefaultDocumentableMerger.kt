@@ -1,13 +1,13 @@
 package org.jetbrains.dokka.base.transformers.documentables
 
 import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.base.utils.firstNotNullResult
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.properties.ExtraProperty
 import org.jetbrains.dokka.model.properties.MergeStrategy
 import org.jetbrains.dokka.model.properties.mergeExtras
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.transformers.documentation.DocumentableMerger
-import org.jetbrains.kotlin.util.firstNotNullResult
 
 internal class DefaultDocumentableMerger(val context: DokkaContext) : DocumentableMerger {
     private val dependencyInfo = context.getDependencyInfo()
@@ -269,6 +269,7 @@ internal class DefaultDocumentableMerger(val context: DokkaContext) : Documentab
         sourceSets = sourceSets + other.sourceSets
     ).mergeExtras(this, other)
 }
+
 
 data class ClashingDriIdentifier(val value: Set<DokkaConfiguration.DokkaSourceSet>) : ExtraProperty<Documentable> {
     companion object : ExtraProperty.Key<Documentable, ClashingDriIdentifier> {

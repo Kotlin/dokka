@@ -4,7 +4,10 @@ plugins {
     id("org.jetbrains.conventions.kotlin-jvm")
     id("org.jetbrains.conventions.maven-publish")
 }
-
+repositories {
+    mavenCentral()
+    maven("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/kotlin-ide-plugin-dependencies")
+}
 dependencies {
     compileOnly(projects.core)
 

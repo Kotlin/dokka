@@ -1,9 +1,9 @@
 package org.jetbrains.dokka.base.translators.documentables
 
+import org.jetbrains.dokka.base.utils.firstNotNullResult
 import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.model.withDescendants
 import org.jetbrains.dokka.pages.*
-import org.jetbrains.kotlin.util.firstNotNullResult
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 
 fun firstParagraphBrief(docTag: DocTag): DocTag? =

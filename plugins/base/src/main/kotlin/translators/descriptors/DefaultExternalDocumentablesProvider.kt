@@ -1,6 +1,7 @@
 package org.jetbrains.dokka.base.translators.descriptors
 
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
+import org.jetbrains.dokka.analysis.K1AnalysisContextImpl
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.DClasslike
@@ -23,7 +24,7 @@ class DefaultExternalDocumentablesProvider(context: DokkaContext) : ExternalDocu
         val pkg = dri.packageName?.let { FqName(it) } ?: FqName.ROOT
         val names = dri.classNames?.split('.') ?: return null
 
-        val packageDsc = analysis[sourceSet].facade.moduleDescriptor.getPackage(pkg)
+        val packageDsc = (analysis[sourceSet] as K1AnalysisContextImpl).facade.moduleDescriptor.getPackage(pkg)
         val classDsc = names.fold<String, DeclarationDescriptor?>(packageDsc) { dsc, name ->
             dsc?.scope?.getDescriptorsFiltered { it.identifier == name }
                 ?.filterIsInstance<ClassDescriptor>()

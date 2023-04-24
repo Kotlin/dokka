@@ -5,12 +5,19 @@ plugins {
     id("org.jetbrains.conventions.maven-publish")
 }
 
+repositories {
+    mavenCentral()
+    maven("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/kotlin-ide-plugin-dependencies")
+}
+
 dependencies {
     compileOnly(projects.core)
 
     implementation(kotlin("reflect"))
 
     implementation(libs.kotlinx.coroutines.core)
+
+
 
     compileOnly(projects.kotlinAnalysis)
     implementation(libs.jsoup)
@@ -33,6 +40,8 @@ dependencies {
     testImplementation(projects.core.testApi)
     testImplementation(platform(libs.junit.bom))
     testImplementation(libs.junit.jupiter)
+
+
 }
 
 val projectDistDir = project(":plugins:base:frontend").file("dist")

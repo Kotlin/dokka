@@ -102,7 +102,7 @@ internal open class EnvironmentKotlinAnalysis(
         environments.entries.firstOrNull { (sourceSet, _) -> sourceSet.sourceSetID == sourceSetID }?.value
 
     override fun close() {
-        environments.values.forEach(AnalysisContext::close)
+        environments.values.forEach { if (it is Closeable) it.close() }
     }
 }
 

@@ -22,6 +22,7 @@ import org.jetbrains.kotlin.js.resolve.diagnostics.findPsi
 import org.jetbrains.kotlin.psi.KtParameter
 import kotlin.text.Typography.nbsp
 
+@Suppress("TYPE_MISMATCH_WARNING_FOR_INCORRECT_CAPTURE_APPROXIMATION")
 class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogger)
     : SignatureProvider, JvmSignatureUtils by KotlinSignatureUtils {
     constructor(context: DokkaContext) : this(

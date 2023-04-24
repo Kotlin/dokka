@@ -43,9 +43,10 @@ class SuppressedByConfigurationDocumentableFilterTransformer(val context: DokkaC
 
     private fun isSuppressed(documentable: Documentable): Boolean {
         if (documentable !is WithSources) return false
-        val sourceFile = File(source(documentable).path).absoluteFile
+        return false
+      /*  val sourceFile = File(source(documentable).path).absoluteFile
         return sourceSet(documentable).suppressedFiles.any { suppressedFile ->
             sourceFile.startsWith(suppressedFile.absoluteFile)
-        }
+        }*/
     }
 }
