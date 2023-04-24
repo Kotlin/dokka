@@ -34,6 +34,7 @@ The Gradle plugin for Dokka creates convenient dependency configurations that al
 for a specific output format only.
 
 ```kotlin
+val dokkaPlugin by configurations
 dependencies {
     // Is applied universally
     dokkaPlugin("org.jetbrains.dokka:mathjax-plugin:%dokkaVersion%")
