@@ -33,14 +33,14 @@ It also appears under the first-level heading on your package's page.
 
 ## Level 2 heading for package org.jetbrains.kotlin.demo
 
-Content after this heading is also part of documentation for org.jetbrains.kotlin.demo
+Content after this heading is also part of documentation for `org.jetbrains.kotlin.demo`
 
 # Package org.jetbrains.kotlin.demo2
 
 This content appears under your package name in the packages list.
 It also appears under the first-level heading on your package's page.
 
-## Level 2 heading for package org.jetbrains.kotlin.demo
+## Level 2 heading for package org.jetbrains.kotlin.demo2
 
 Content after this heading is also part of documentation for `org.jetbrains.kotlin.demo2`
 ```

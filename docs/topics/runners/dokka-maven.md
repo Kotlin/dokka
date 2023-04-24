@@ -288,8 +288,8 @@ with [all configuration options](#complete-configuration) applied at the bottom 
     <def title="documentedVisibilities">
         <p>The set of visibility modifiers that should be documented.</p>
         <p>
-            This can be used if you want to document protected/internal/private declarations,
-            as well as if you want to exclude public declarations and only document internal API.
+            This can be used if you want to document <code>protected</code>/<code>internal</code>/<code>private</code> declarations,
+            as well as if you want to exclude <code>public</code> declarations and only document internal API.
         </p>
         <p>Can be configured on per-package basis.</p>
         <p>Default: <code>PUBLIC</code></p>
@@ -450,9 +450,9 @@ function in `kotlinx.coroutines`.
     </def>
 </deflist>
 
-#### External documentation links configuration
+### External documentation links configuration
 
-The `externalDocumentationLink` block allows the creation of links that lead to the externally hosted documentation of
+The `externalDocumentationLinks` block allows the creation of links that lead to the externally hosted documentation of
 your dependencies.
 
 For example, if you are using types from `kotlinx.serialization`, by default they are unclickable in your
@@ -545,8 +545,8 @@ The `perPackageOptions` configuration block allows setting some options for spec
     <def title="documentedVisibilities">
         <p>The set of visibility modifiers that should be documented.</p>
         <p>
-            This can be used if you want to document protected/internal/private declarations within this package,
-            as well as if you want to exclude public declarations and only document internal API.
+            This can be used if you want to document <code>protected</code>/<code>internal</code>/<code>private</code> declarations within this package,
+            as well as if you want to exclude <code>public</code> declarations and only document internal API.
         </p>
         <p>Default: <code>PUBLIC</code></p>
     </def>
