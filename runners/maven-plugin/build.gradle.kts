@@ -10,10 +10,10 @@ plugins {
 dependencies {
     implementation(projects.core)
 
-    implementation(libs.apache.mavenCore)
-    implementation(libs.apache.mavenPluginApi)
-    implementation(libs.apache.mavenPluginAnnotations)
-    implementation(libs.apache.mavenArchiver)
+    implementation(libs.apacheMaven.core)
+    implementation(libs.apacheMaven.pluginApi)
+    implementation(libs.apacheMaven.pluginAnnotations)
+    implementation(libs.apacheMaven.archiver)
 }
 
 val mavenPluginTaskGroup = "maven plugin"
