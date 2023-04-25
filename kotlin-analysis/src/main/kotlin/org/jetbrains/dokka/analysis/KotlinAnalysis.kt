@@ -1,5 +1,3 @@
-@file:Suppress("FunctionName")
-
 package org.jetbrains.dokka.analysis
 
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
@@ -9,6 +7,7 @@ import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.utilities.DokkaLogger
 import java.io.Closeable
 
+@Suppress("FunctionName")
 fun ProjectKotlinAnalysis(
     sourceSets: List<DokkaSourceSet>,
     logger: DokkaLogger,
@@ -30,6 +29,7 @@ fun ProjectKotlinAnalysis(
  *  Usually the analysis created for samples is short-lived and can be closed right after
  *  it's been used, there's no need to wait for [projectKotlinAnalysis] to be closed as it must be handled separately.
  */
+@Suppress("FunctionName")
 fun SamplesKotlinAnalysis(
     sourceSets: List<DokkaSourceSet>,
     logger: DokkaLogger,
@@ -46,7 +46,7 @@ fun SamplesKotlinAnalysis(
                 sourceSet = sourceSet,
                 analysisConfiguration = analysisConfiguration
             )
-    }
+        }
 
     return EnvironmentKotlinAnalysis(environments, projectKotlinAnalysis)
 }
@@ -59,13 +59,15 @@ class DokkaAnalysisConfiguration(
     val ignoreCommonBuiltIns: Boolean = false
 )
 
-@Deprecated(message = "Construct using list of DokkaSourceSets and logger",
+@Deprecated(
+    message = "Construct using list of DokkaSourceSets and logger",
     replaceWith = ReplaceWith("KotlinAnalysis(context.configuration.sourceSets, context.logger)")
 )
 fun KotlinAnalysis(context: DokkaContext): KotlinAnalysis =
     ProjectKotlinAnalysis(context.configuration.sourceSets, context.logger)
 
-@Deprecated(message = "It was renamed to `ProjectKotlinAnalysis`",
+@Deprecated(
+    message = "It was renamed to `ProjectKotlinAnalysis`",
     replaceWith = ReplaceWith("ProjectKotlinAnalysis(sourceSets, logger, analysisConfiguration)")
 )
 fun KotlinAnalysis(
@@ -85,11 +87,13 @@ abstract class KotlinAnalysis(
     operator fun get(key: DokkaSourceSet): AnalysisContext {
         return get(key.sourceSetID)
     }
+
     operator fun get(key: DokkaSourceSetID): AnalysisContext {
         return find(key)
             ?: parent?.get(key)
-            ?: throw IllegalStateException("Missing EnvironmentAndFacade for sourceSet ${key}")
+            ?: throw IllegalStateException("Missing EnvironmentAndFacade for sourceSet $key")
     }
+
     protected abstract fun find(sourceSetID: DokkaSourceSetID): AnalysisContext?
 }
 
@@ -105,5 +109,3 @@ internal open class EnvironmentKotlinAnalysis(
         environments.values.forEach(AnalysisContext::close)
     }
 }
-
-

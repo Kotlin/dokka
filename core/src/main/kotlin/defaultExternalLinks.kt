@@ -27,4 +27,3 @@ fun ExternalDocumentationLink.Companion.androidX(): ExternalDocumentationLinkImp
     url = URL("https://developer.android.com/reference/kotlin/"),
     packageListUrl = URL("https://developer.android.com/reference/kotlin/androidx/package-list")
 )
-

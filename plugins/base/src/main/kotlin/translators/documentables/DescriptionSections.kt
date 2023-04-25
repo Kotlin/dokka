@@ -14,7 +14,6 @@ import org.jetbrains.dokka.model.orEmpty
 import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.jetbrains.dokka.pages.ContentKind
 import org.jetbrains.dokka.pages.ContentStyle
-import org.jetbrains.dokka.pages.SimpleAttr
 import org.jetbrains.dokka.pages.TextStyle
 import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
@@ -340,5 +339,3 @@ private fun PageContentBuilder.DocumentableContentBuilder.tableSectionContentBlo
 private fun DRI.friendlyClassName() = classNames?.substringAfterLast(".")
 
 private fun <T> Map<String, SourceSetDependent<T>>.availableSourceSets() = values.flatMap { it.keys }.toSet()
-
-

@@ -1,5 +1,4 @@
 import org.jetbrains.dokkaVersion
-import org.jetbrains.kotlin.gradle.tasks.*
 import org.jetbrains.registerDokkaArtifactPublication
 
 plugins {

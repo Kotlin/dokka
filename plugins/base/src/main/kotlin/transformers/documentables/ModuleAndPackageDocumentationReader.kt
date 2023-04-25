@@ -1,5 +1,3 @@
-@file:Suppress("FunctionName")
-
 package org.jetbrains.dokka.base.transformers.documentables
 
 import org.jetbrains.dokka.DokkaConfiguration

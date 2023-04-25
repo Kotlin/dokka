@@ -3,9 +3,6 @@ package org.jetbrains.dokka.versioning
 import org.apache.maven.artifact.versioning.ComparableVersion
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.configuration
-import org.jetbrains.dokka.versioning.VersionId
-import org.jetbrains.dokka.versioning.VersioningConfiguration
-import org.jetbrains.dokka.versioning.VersioningPlugin
 
 fun interface VersionsOrdering {
     fun order(records: List<VersionId>): List<VersionId>
