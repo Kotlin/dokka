@@ -19,18 +19,12 @@ subprojects {
                 Visibility.PROTECTED
             ))
 
-            // In multi-project builds, `remoteUrl` must point to that project's dir specifically, so if you
-            // want to configure sourceLinks at once in `subprojects {}`, you have to find the relative path.
-            // Alternatively, you can move this configuration up into subproject build scripts,
-            // and just hardcode the exact paths as demonstrated in the basic dokka-gradle-example.
-            //
             // Read docs for more details: https://kotlinlang.org/docs/dokka-gradle.html#source-link-configuration
             sourceLink {
                 val exampleDir = "https://github.com/Kotlin/dokka/tree/master/examples/gradle/dokka-multimodule-example"
-                val projectRelativePath = rootProject.projectDir.toPath().relativize(projectDir.toPath())
 
-                localDirectory.set(projectDir.resolve("src"))
-                remoteUrl.set(URL("$exampleDir/$projectRelativePath/src"))
+                localDirectory.set(rootProject.projectDir)
+                remoteUrl.set(URL("$exampleDir"))
                 remoteLineSuffix.set("#L")
             }
         }
