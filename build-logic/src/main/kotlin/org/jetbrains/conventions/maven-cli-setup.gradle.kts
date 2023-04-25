@@ -36,8 +36,8 @@ abstract class MavenCliSetupExtension {
 
 val mavenCliSetupExtension =
     extensions.create("mavenCliSetup", MavenCliSetupExtension::class).apply {
-        mavenVersion.convention(libs.versions.apache.maven)
-        mavenPluginToolsVersion.convention(libs.versions.apache.mavenPluginTools)
+        mavenVersion.convention(libs.versions.apacheMaven.core)
+        mavenPluginToolsVersion.convention(libs.versions.apacheMaven.pluginTools)
 
         mavenBuildDir.convention(layout.buildDirectory.dir("maven"))
         mavenInstallDir.convention(layout.buildDirectory.dir("apache-maven"))
