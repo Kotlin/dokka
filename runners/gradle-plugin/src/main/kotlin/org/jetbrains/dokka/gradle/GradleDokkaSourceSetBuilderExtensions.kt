@@ -1,6 +1,6 @@
 package org.jetbrains.dokka.gradle
 
-import com.android.build.gradle.api.AndroidSourceSet
+import com.android.build.api.dsl.AndroidSourceSet
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 
 /**
