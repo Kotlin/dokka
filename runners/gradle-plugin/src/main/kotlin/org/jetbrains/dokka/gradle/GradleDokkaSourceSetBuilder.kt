@@ -69,7 +69,7 @@ open class GradleDokkaSourceSetBuilder(
 
     /**
      * List of Markdown files that contain
-     * [module and package documentation](https://kotlinlang.org/docs/reference/dokka-module-and-package-docs.html).
+     * [module and package documentation](https://kotlinlang.org/docs/dokka-module-and-package-docs.html).
      *
      * Contents of specified files will be parsed and embedded into documentation as module and package descriptions.
      *
