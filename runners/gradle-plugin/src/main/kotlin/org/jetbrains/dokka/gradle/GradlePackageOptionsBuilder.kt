@@ -1,5 +1,3 @@
-@file:Suppress("FunctionName")
-
 package org.jetbrains.dokka.gradle
 
 import org.gradle.api.Project

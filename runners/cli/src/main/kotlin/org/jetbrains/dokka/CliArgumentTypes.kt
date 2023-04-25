@@ -3,7 +3,6 @@ package org.jetbrains.dokka
 import kotlinx.cli.ArgParser
 import kotlinx.cli.ArgType
 import kotlinx.cli.CLIEntity
-import org.jetbrains.dokka.utilities.LoggingLevel
 import java.io.File
 import java.nio.file.Paths
 

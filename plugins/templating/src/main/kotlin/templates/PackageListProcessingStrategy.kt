@@ -2,7 +2,6 @@ package org.jetbrains.dokka.allModulesPage.templates
 
 import org.jetbrains.dokka.DokkaConfiguration.DokkaModuleDescription
 import org.jetbrains.dokka.base.renderers.PackageListService
-import org.jetbrains.dokka.base.resolvers.local.DokkaLocationProvider
 import org.jetbrains.dokka.base.resolvers.shared.PackageList
 import org.jetbrains.dokka.base.resolvers.shared.PackageList.Companion.PACKAGE_LIST_NAME
 import org.jetbrains.dokka.plugability.DokkaContext

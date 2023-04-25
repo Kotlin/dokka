@@ -1,5 +1,3 @@
-@file:Suppress("FunctionName")
-
 package org.jetbrains.dokka.it.gradle
 
 import org.gradle.testkit.runner.TaskOutcome
@@ -43,6 +41,7 @@ class ConfigurationTest(override val versions: BuildVersions) : AbstractGradleIn
      * and `failOnWarning` are enabled - it should fail
      */
     @Test
+    @Suppress("FunctionName")
     fun `should fail with DokkaException and readable message if failOnWarning is triggered`() {
         val result = createGradleRunner(
             "-info",
@@ -58,7 +57,7 @@ class ConfigurationTest(override val versions: BuildVersions) : AbstractGradleIn
         result.output.contains(
             """
                FAILURE: Build failed with an exception\\.
-
+               
                \* What went wrong:
                Execution failed for task ':dokkaHtml'\\.
                > Failed with warningCount=\d and errorCount=\d

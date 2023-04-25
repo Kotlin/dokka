@@ -1,5 +1,3 @@
-@file:Suppress("FunctionName")
-
 package org.jetbrains.dokka.base.parsers.moduleAndPackage
 
 fun parseModuleAndPackageDocumentation(
@@ -12,4 +10,3 @@ fun parseModuleAndPackageDocumentation(
         documentation = context.parse(fragment)
     )
 }
-

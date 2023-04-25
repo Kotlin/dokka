@@ -6,9 +6,6 @@ import com.intellij.psi.PsiMethod
 import com.intellij.psi.javadoc.PsiDocComment
 import com.intellij.psi.javadoc.PsiDocTag
 import org.jetbrains.dokka.utilities.DokkaLogger
-import org.jetbrains.kotlin.idea.refactoring.fqName.getKotlinFqName
-import org.jetbrains.kotlin.psi.KtElement
-import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
 
 internal data class CommentResolutionContext(
     val comment: PsiDocComment,

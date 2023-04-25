@@ -1,5 +1,3 @@
-@file:Suppress("FunctionName")
-
 package org.jetbrains.dokka.gradle
 
 import org.gradle.api.NamedDomainObjectFactory
@@ -10,6 +8,7 @@ internal fun DokkaSourceSetID(task: Task, sourceSetName: String): DokkaSourceSet
     return DokkaSourceSetID(task.path, sourceSetName)
 }
 
+@Suppress("FunctionName")
 internal fun Task.DokkaSourceSetIdFactory() = NamedDomainObjectFactory<DokkaSourceSetID> { name ->
     DokkaSourceSetID(this@DokkaSourceSetIdFactory, name)
 }

@@ -1,5 +1,3 @@
-@file:Suppress("TestFunctionName")
-
 package org.jetbrains.dokka.gradle
 
 import com.android.build.gradle.internal.api.DefaultAndroidSourceSet
@@ -12,7 +10,6 @@ import java.net.URL
 import kotlin.test.*
 
 class GradleDokkaSourceSetBuilderTest {
-
 
     private val project = ProjectBuilder.builder().withName("root").build()
 
@@ -488,5 +485,6 @@ class GradleDokkaSourceSetBuilderTest {
     }
 }
 
+@Suppress("TestFunctionName")
 private fun GradleDokkaSourceSetBuilder(name: String, project: Project) =
     GradleDokkaSourceSetBuilder(name, project, project.path)

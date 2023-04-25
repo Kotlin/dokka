@@ -1,5 +1,3 @@
-@file:Suppress("FunctionName")
-
 package org.jetbrains.dokka.base.parsers.moduleAndPackage
 
 import org.jetbrains.dokka.analysis.DokkaResolutionFacade
