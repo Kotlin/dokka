@@ -108,7 +108,7 @@ open class DokkaPlugin : Plugin<Project> {
         tasks.withType<AbstractDokkaTask>().configureEach {
             val formatClassifier = name.removePrefix("dokka").decapitalize()
             outputDirectory.convention(project.layout.buildDirectory.dir("dokka/$formatClassifier"))
-            cacheRoot.set(DokkaDefaults.cacheRoot)
+            cacheRoot.convention(project.layout.dir(providers.provider { DokkaDefaults.cacheRoot }))
         }
     }
 
