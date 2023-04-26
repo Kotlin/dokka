@@ -354,7 +354,7 @@ with [all configuration options](#complete-configuration) applied at the bottom 
     </def>
     <def title="externalDocumentationLinks">
         <p>The global configuration of external documentation links, regardless of the source set they are used in.</p>
-        <p>For a list of possible options, see <a href="#external-documentation-configuration">external documentation configuration</a>.</p>
+        <p>For a list of possible options, see <a href="#external-documentation-links-configuration">external documentation links configuration</a>.</p>
     </def>
     <def title="pluginsClasspath">
         <p>A list of JAR files with Dokka plugins and their dependencies.</p>
@@ -565,7 +565,7 @@ How to configure Kotlin
     </def>
     <def title="externalDocumentationLinks">
         <p>A set of parameters for external documentation links that is applied only for this source set.</p>
-        <p>For a list of possible options, see <a href="#external-documentation-configuration">external documentation configuration</a>.</p>
+        <p>For a list of possible options, see <a href="#external-documentation-links-configuration">external documentation links configuration</a>.</p>
     </def>
 </deflist>
 
