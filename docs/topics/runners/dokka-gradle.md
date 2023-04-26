@@ -36,7 +36,7 @@ plugins {
 </tab>
 </tabs>
 
-When documenting [multi-project](dokka-gradle.md#multi-project-builds) builds, you need to apply the Gradle plugin for Dokka 
+When documenting [multi-project](#multi-project-builds) builds, you need to apply the Gradle plugin for Dokka 
 within subprojects as well. You can use `allprojects {}` or `subprojects {}` Gradle configurations to achieve that:
 
 <tabs group="build-script">
@@ -451,8 +451,8 @@ plugins {
 tasks.withType(DokkaTask.class) {
     dokkaSourceSets.configureEach {
         documentedVisibilities.set([
-                DokkaConfiguration.Visibility.PUBLIC,
-                DokkaConfiguration.Visibility.PROTECTED
+                Visibility.PUBLIC,
+                Visibility.PROTECTED
         ])
 
         perPackageOption {
@@ -942,8 +942,8 @@ tasks.withType(DokkaTask.class) {
     <def title="documentedVisibilities">
         <p>The set of visibility modifiers that should be documented.</p>
         <p>
-            This can be used if you want to document protected/internal/private declarations,
-            as well as if you want to exclude public declarations and only document internal API.
+            This can be used if you want to document <code>protected</code>/<code>internal</code>/<code>private</code> declarations,
+            as well as if you want to exclude <code>public</code> declarations and only document internal API.
         </p>
         <p>This can be configured on per-package basis.</p>
         <p>Default: <code>DokkaConfiguration.Visibility.PUBLIC</code></p>
@@ -1025,7 +1025,7 @@ tasks.withType(DokkaTask.class) {
     </def>
     <def title="noAndroidSdkLink">
         <anchor name="includes"/>
-        <p>Whether to generate external documentation links to the Android SDK API reference</p>
+        <p>Whether to generate external documentation links to the Android SDK API reference.</p>
         <p>This is only relevant in Android projects, ignored otherwise.</p>
         <p>Note: Links <b>are</b> generated when <code>noAndroidSdkLink</code> is set to <code>false</code>.</p>
         <p>Default: <code>false</code></p>
@@ -1272,8 +1272,8 @@ tasks.withType(DokkaTask.class) {
     <def title="documentedVisibilities">
         <p>The set of visibility modifiers that should be documented.</p>
         <p>
-            This can be used if you want to document protected/internal/private declarations within this package,
-            as well as if you want to exclude public declarations and only document internal API.
+            This can be used if you want to document <code>protected</code>/<code>internal</code>/<code>private</code> declarations within this package,
+            as well as if you want to exclude <code>public</code> declarations and only document internal API.
         </p>
         <p>This can be configured on source set level.</p>
         <p>Default: <code>DokkaConfiguration.Visibility.PUBLIC</code></p>
