@@ -1,6 +1,7 @@
 [//]: # (title: Markdown)
 
-> The Markdown output formats are still in Alpha so you may find bugs and experience migration issues when using them. **You use them at your own risk.**
+> The Markdown output formats are still in Alpha, so you may find bugs and experience migration issues when using them.
+> **You use them at your own risk.**
 >
 {type="warning"}
 
