@@ -451,8 +451,8 @@ plugins {
 tasks.withType(DokkaTask.class) {
     dokkaSourceSets.configureEach {
         documentedVisibilities.set([
-            Visibility.PUBLIC,
-            Visibility.PROTECTED
+                Visibility.PUBLIC,
+                Visibility.PROTECTED
         ])
 
         perPackageOption {

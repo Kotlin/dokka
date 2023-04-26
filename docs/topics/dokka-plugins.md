@@ -112,13 +112,13 @@ If you are using [JSON configuration](dokka-cli.md#run-with-json-configuration),
 
 ```json
 {
-    ...
-    "pluginsClasspath": [
-        "./dokka-base-%dokkaVersion%.jar",
-        "...",
-        "./mathjax-plugin-%dokkaVersion%.jar"
-    ],
-    ...
+  ...
+  "pluginsClasspath": [
+    "./dokka-base-%dokkaVersion%.jar",
+    "...",
+    "./mathjax-plugin-%dokkaVersion%.jar"
+  ],
+  ...
 }
 ```
 
@@ -168,9 +168,9 @@ import org.jetbrains.dokka.gradle.DokkaTask
 tasks.withType<DokkaTask>().configureEach {
     val dokkaBaseConfiguration = """
     {
-        "customAssets": ["${file("assets/my-image.png")}"],
-        "customStyleSheets": ["${file("assets/my-styles.css")}"],
-        "footerMessage": "(c) 2022 MyOrg"
+      "customAssets": ["${file("assets/my-image.png")}"],
+      "customStyleSheets": ["${file("assets/my-styles.css")}"],
+      "footerMessage": "(c) 2022 MyOrg"
     }
     """
     pluginsMapConfiguration.set(
@@ -191,14 +191,14 @@ import org.jetbrains.dokka.gradle.DokkaTask
 tasks.withType(DokkaTask.class) {
     String dokkaBaseConfiguration = """
     {
-        "customAssets": ["${file("assets/my-image.png")}"],
-        "customStyleSheets": ["${file("assets/my-styles.css")}"],
-        "footerMessage": "(c) 2022 MyOrg"
+      "customAssets": ["${file("assets/my-image.png")}"],
+      "customStyleSheets": ["${file("assets/my-styles.css")}"],
+      "footerMessage": "(c) 2022 MyOrg"
     }
     """
     pluginsMapConfiguration.set(
-        // fully qualified plugin name to json configuration
-        ["org.jetbrains.dokka.base.DokkaBase": dokkaBaseConfiguration]
+            // fully qualified plugin name to json configuration
+            ["org.jetbrains.dokka.base.DokkaBase": dokkaBaseConfiguration]
     )
 }
 ```
@@ -248,14 +248,14 @@ If you are using [JSON configuration](dokka-cli.md#run-with-json-configuration),
 
 ```json
 {
-    "moduleName": "Dokka Example",
-    "pluginsConfiguration": [
-        {
-            "fqPluginName": "org.jetbrains.dokka.base.DokkaBase",
-            "serializationFormat": "JSON",
-            "values": "{\"customAssets\": [\"my-image.png\"], \"customStyleSheets\": [\"my-styles.css\"], \"footerMessage\": \"(c) 2022 MyOrg\"}"
-        }
-    ]
+  "moduleName": "Dokka Example",
+  "pluginsConfiguration": [
+    {
+      "fqPluginName": "org.jetbrains.dokka.base.DokkaBase",
+      "serializationFormat": "JSON",
+      "values": "{\"customAssets\": [\"my-image.png\"], \"customStyleSheets\": [\"my-styles.css\"], \"footerMessage\": \"(c) 2022 MyOrg\"}"
+    }
+  ]
 }
 ```
 
