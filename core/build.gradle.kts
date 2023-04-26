@@ -1,5 +1,4 @@
 import org.jetbrains.dokkaVersion
-import org.jetbrains.kotlin.gradle.tasks.*
 import org.jetbrains.registerDokkaArtifactPublication
 
 plugins {
@@ -8,7 +7,7 @@ plugins {
 }
 
 dependencies {
-    api(libs.jetbrainsMarkdown)
+    api(libs.jetbrains.markdown)
     implementation(kotlin("reflect"))
 
     implementation(libs.jsoup)

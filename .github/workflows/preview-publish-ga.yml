@@ -1,15 +1,18 @@
-name: Build example projects and publish them to GitHub Actions Artifacts
+name: Publish preview to GitHub Actions Artifacts
 
 on:
   pull_request:
   push:
     branches:
       - master
+  workflow_dispatch:
 
 jobs:
-  coroutines:
+  kotlinx-coroutines:
     runs-on: ubuntu-latest
-    if: github.repository == 'Kotlin/dokka'
+    if: >  # Run this job only for pull requests from forks because members with write access have web preview
+      github.event_name != 'pull_request' || 
+      (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != 'Kotlin/dokka')
     steps:
       - name: Checkout dokka
         uses: actions/checkout@v3
@@ -34,9 +37,11 @@ jobs:
           path: /home/runner/work/dokka/coroutines
           retention-days: 7
 
-  serialization:
+  kotlinx-serialization:
     runs-on: ubuntu-latest
-    if: github.repository == 'Kotlin/dokka'
+    if: >  # Run this job only for pull requests from forks because members with write access have web preview
+      github.event_name != 'pull_request' || 
+      (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != 'Kotlin/dokka')
     steps:
       - name: Checkout dokka
         uses: actions/checkout@v3
@@ -63,7 +68,9 @@ jobs:
 
   biojava:
     runs-on: ubuntu-latest
-    if: github.repository == 'Kotlin/dokka'
+    if: >  # Run this job only for pull requests from forks because members with write access have web preview
+      github.event_name != 'pull_request' || 
+      (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != 'Kotlin/dokka')
     steps:
       - name: Checkout dokka
         uses: actions/checkout@v3

@@ -1,5 +1,6 @@
 import org.jetbrains.dokka.DokkaConfiguration.Visibility
 import org.jetbrains.dokka.gradle.DokkaTaskPartial
+import java.net.URL
 
 plugins {
     kotlin("jvm")
@@ -17,6 +18,15 @@ subprojects {
                 Visibility.PUBLIC,
                 Visibility.PROTECTED
             ))
+
+            // Read docs for more details: https://kotlinlang.org/docs/dokka-gradle.html#source-link-configuration
+            sourceLink {
+                val exampleDir = "https://github.com/Kotlin/dokka/tree/master/examples/gradle/dokka-multimodule-example"
+
+                localDirectory.set(rootProject.projectDir)
+                remoteUrl.set(URL("$exampleDir"))
+                remoteLineSuffix.set("#L")
+            }
         }
     }
 }

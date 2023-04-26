@@ -26,7 +26,7 @@ dependencies {
     implementation(libs.kotlinx.html)
 
     implementation(libs.jsoup)
-    implementation(libs.apache.mavenArtifact)
+    implementation(libs.apacheMaven.artifact)
 
     testImplementation(projects.core.testApi)
     testImplementation(platform(libs.junit.bom))

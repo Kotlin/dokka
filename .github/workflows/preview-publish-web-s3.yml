@@ -1,13 +1,13 @@
-name: Build example projects and publish them to s3
+name: Publish preview to web (S3)
 
-on: push
+on: [ push, workflow_dispatch ]
 
 env:
   branch-name: ${GITHUB_REF#refs/heads/}
   bucket-name: 'dokka-snapshots'
 
 jobs:
-  coroutines:
+  kotlinx-coroutines:
     runs-on: ubuntu-latest
     if: github.repository == 'Kotlin/dokka'
     steps:
@@ -38,7 +38,7 @@ jobs:
       - name: Print link
         run: echo https://dokka-snapshots.s3.eu-central-1.amazonaws.com/${{ env.branch-name }}/coroutines/${GITHUB_SHA::7}/index.html
 
-  serialization:
+  kotilnx-serialization:
     runs-on: ubuntu-latest
     if: github.repository == 'Kotlin/dokka'
     steps:

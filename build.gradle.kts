@@ -1,5 +1,4 @@
 import org.jetbrains.ValidatePublications
-import org.jetbrains.kotlin.gradle.tasks.*
 import org.jetbrains.publicationChannels
 
 @Suppress("DSL_SCOPE_VIOLATION") // fixed in Gradle 8.1 https://github.com/gradle/gradle/pull/23639
@@ -8,7 +7,7 @@ plugins {
     id("org.jetbrains.conventions.dokka")
 
     alias(libs.plugins.kotlinx.binaryCompatibilityValidator)
-    alias(libs.plugins.gradle.pluginPublish)
+    alias(libs.plugins.gradlePublish)
     alias(libs.plugins.nexusPublish)
 }
 

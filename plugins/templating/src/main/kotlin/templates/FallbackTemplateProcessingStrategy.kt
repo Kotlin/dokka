@@ -1,7 +1,6 @@
 package org.jetbrains.dokka.templates
 
 import org.jetbrains.dokka.DokkaConfiguration
-import org.jetbrains.dokka.plugability.DokkaContext
 import java.io.File
 
 class FallbackTemplateProcessingStrategy : TemplateProcessingStrategy {
