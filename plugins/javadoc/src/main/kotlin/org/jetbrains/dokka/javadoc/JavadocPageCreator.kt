@@ -68,8 +68,8 @@ open class JavadocPageCreator(context: DokkaContext) {
                         PropertyContainer.withAll(it.indexesInDocumentation()),
                     )
                 },
-                authors = c.authorsToContentNodes(jvm),
-                since = c.sinceToContentNodes(jvm),
+                authorTagsContent = c.authorsToContentNodes(jvm),
+                sinceTagContent = c.sinceToContentNodes(jvm),
                 documentables = listOf(c),
                 children = children,
                 extra = extra + c.indexesInDocumentation()
@@ -164,9 +164,9 @@ open class JavadocPageCreator(context: DokkaContext) {
                     )
                 }
             },
-            authors = authorsToContentNodes(jvm),
-            since = sinceToContentNodes(jvm),
-            `return` = returnToContentNodes(jvm),
+            authorTagsContent = authorsToContentNodes(jvm),
+            sinceTagContent = sinceToContentNodes(jvm),
+            returnTagContent = returnToContentNodes(jvm),
             extra = extra + indexesInDocumentation()
         )
     }

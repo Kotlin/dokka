@@ -388,9 +388,9 @@ internal class JavadocClasslikeTemplateMapTest : AbstractJavadocTemplateMapTest(
             assertEquals("Testing @author @since @return method tags", testFunction["brief"])
 
             assertEquals("testFunction", testFunction["name"])
-            assertEquals(listOf("<p>Test Author</p>", "<p>Test Author2</p>"), testFunction["authors"])
-            assertEquals("<p>08 april 2023</p>", testFunction["since"])
-            assertEquals("<p>parameter's value in lower case</p>", testFunction["return"])
+            assertEquals(listOf("<p>Test Author</p>", "<p>Test Author2</p>"), testFunction["authorTagsContent"])
+            assertEquals("<p>08 april 2023</p>", testFunction["sinceTagContent"])
+            assertEquals("<p>parameter's value in lower case</p>", testFunction["returnTagContent"])
         }
     }
 
@@ -436,8 +436,8 @@ internal class JavadocClasslikeTemplateMapTest : AbstractJavadocTemplateMapTest(
 
             assertEquals("TestClass", map["name"])
             assertEquals("<p>Testing @author @since class tags</p>", map["classlikeDocumentation"])
-            assertEquals(listOf("<p>Test Author</p>", "<p>Test Author2</p>", "<p>Test Author3</p>"), map["authors"])
-            assertEquals("<p>08 april 2023</p>", map["since"])
+            assertEquals(listOf("<p>Test Author</p>", "<p>Test Author2</p>", "<p>Test Author3</p>"), map["authorTagsContent"])
+            assertEquals("<p>08 april 2023</p>", map["sinceTagContent"])
         }
     }
 

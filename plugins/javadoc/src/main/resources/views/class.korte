@@ -41,16 +41,16 @@
 
                     <dl>
 
-                    {% if authors.size() != 0 %}
+                    {% if authorTagsContent.size() != 0 %}
                         <dt><span class="authorLabel">Authors:</span></dt>
-                        {% for author in authors %}
+                        {% for author in authorTagsContent %}
                         <dd>{{ author|raw }}</dd>
                         {% endfor %}
                     {% endif %}
 
-                    {% if since != "" %}
+                    {% if sinceTagContent != "" %}
                         <dt><span class="sinceLabel">Since:</span></dt>
-                        <dd>{{ since|raw }}</dd>
+                        <dd>{{ sinceTagContent|raw }}</dd>
                     {% endif %}
 
                     </dl>
@@ -290,9 +290,9 @@
 
                                         <dl>
 
-                                        {% if method.authors.size() != 0 %}
+                                        {% if method.authorTagsContent.size() != 0 %}
                                             <dt><span class="authorLabel">Authors:</span></dt>
-                                            {% for author in method.authors %}
+                                            {% for author in method.authorTagsContent %}
                                             <dd>{{ author|raw }}</dd>
                                             {% endfor %}
                                         {% endif %}
@@ -306,12 +306,12 @@
                                             {% endfor %}
                                         {% endif %}
 
-                                        {% if method.return != "" %}
+                                        {% if method.returnTagContent != "" %}
                                             <dt><span class="returnLabel">Return:</span></dt>
                                             <dd>{{ method.return|raw }}</dd>
                                         {% endif %}
 
-                                        {% if method.since != "" %}
+                                        {% if method.sinceTagContent != "" %}
                                             <dt><span class="sinceLabel">Since:</span></dt>
                                             <dd>{{ method.since|raw }}</dd>
                                         {% endif %}
