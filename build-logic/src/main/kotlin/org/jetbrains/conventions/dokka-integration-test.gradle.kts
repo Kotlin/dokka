@@ -51,10 +51,8 @@ val integrationTest by tasks.registering(NonCacheableIntegrationTest::class) {
     classpath = integrationTestSourceSet.runtimeClasspath
 
     setForkEvery(1)
-    maxParallelForks = if (System.getenv("GITHUB_ACTIONS") != null) {
-        Runtime.getRuntime().availableProcessors()
-    } else {
-        (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1
+    project.properties["dokka_integration_test_parallelism"]?.toString()?.toIntOrNull()?.let { parallelism ->
+        maxParallelForks = parallelism
     }
     environment(
         "isExhaustive",
