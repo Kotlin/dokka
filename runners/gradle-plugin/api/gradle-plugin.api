@@ -131,7 +131,7 @@ public class org/jetbrains/dokka/gradle/GradleDokkaSourceSetBuilder : org/jetbra
 }
 
 public final class org/jetbrains/dokka/gradle/GradleDokkaSourceSetBuilderExtensionsKt {
-	public static final fun dependsOn (Lorg/jetbrains/dokka/gradle/GradleDokkaSourceSetBuilder;Lcom/android/build/gradle/api/AndroidSourceSet;)V
+	public static final fun dependsOn (Lorg/jetbrains/dokka/gradle/GradleDokkaSourceSetBuilder;Lcom/android/build/api/dsl/AndroidSourceSet;)V
 	public static final fun dependsOn (Lorg/jetbrains/dokka/gradle/GradleDokkaSourceSetBuilder;Lorg/jetbrains/kotlin/gradle/plugin/KotlinSourceSet;)V
 	public static final fun kotlinSourceSet (Lorg/jetbrains/dokka/gradle/GradleDokkaSourceSetBuilder;Lorg/jetbrains/kotlin/gradle/plugin/KotlinSourceSet;)V
 }
