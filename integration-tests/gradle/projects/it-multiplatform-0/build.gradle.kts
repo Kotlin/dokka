@@ -25,7 +25,10 @@ kotlin {
         }
         named("commonMain") {
             dependencies {
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9")
+                if (properties["dokka_it_kotlin_version"] in listOf("1.4.32", "1.5.31"))
+                    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9")
+                else
+                    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
             }
         }
     }

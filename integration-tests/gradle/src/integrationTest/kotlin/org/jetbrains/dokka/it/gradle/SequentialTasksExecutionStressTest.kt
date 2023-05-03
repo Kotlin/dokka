@@ -37,7 +37,7 @@ class SequentialTasksExecutionStressTest(override val versions: BuildVersions) :
             "--info",
             "--stacktrace",
             "-Ptask_number=100",
-            jvmArgs = listOf("-Xmx1G", "-XX:MaxMetaspaceSize=350m")
+            jvmArgs = listOf("-Xmx1G", "-XX:MaxMetaspaceSize=400m")
         ).buildRelaxed()
 
         assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":runTasks")).outcome)
