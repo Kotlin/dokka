@@ -144,6 +144,46 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
     }
 
     @Test
+    fun `should analyze recursive classes`() {
+        inlineModelTest(
+            """
+            |open class Klass() {
+            |val y = 2
+            |   companion object Default : Klass()  {
+            |        val x = 1
+            |        fun foo() {}
+            |    }
+            |}
+            |
+            |public sealed class PolymorphicKind : SerialKind() {
+            |   public object SEALED : PolymorphicKind()
+            |   public object OPEN : PolymorphicKind()
+            |}
+            """
+        ) {
+            with((this / "classes" / "Klass").cast<DClass>()) {
+                name equals "Klass"
+                children counts 5
+
+                with((this / "Default").cast<DObject>()) {
+                    name equals "Default"
+                    children counts 5
+
+                    with((this / "x").cast<DProperty>()) {
+                        name equals "x"
+                    }
+
+                    with((this / "foo").cast<DFunction>()) {
+                        name equals "foo"
+                        parameters counts 0
+                        type.name equals "Unit"
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
     fun dataClass() {
         inlineModelTest(
             """

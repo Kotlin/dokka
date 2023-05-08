@@ -157,10 +157,10 @@ class ContentForInheritorsTest : BaseAbstractTest() {
                             header(4) { +"Inheritors" }
                             table {
                                 group {
-                                    link { +"Foo" }
+                                    link { +"Bar" }
                                 }
                                 group {
-                                    link { +"Bar" }
+                                    link { +"Foo" }
                                 }
                             }
                         }

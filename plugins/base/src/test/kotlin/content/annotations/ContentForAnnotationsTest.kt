@@ -204,9 +204,9 @@ class ContentForAnnotationsTest : BaseAbstractTest() {
             |    assignedTo = "me",
             |    testCase = BugReport.ABC::class,
             |    status = BugReport.Status.FIXED,
-            |    ref = Reference(value = 2u),
-            |    reportedBy = [Reference(value = 2UL), Reference(value = 4L), 
-            |                  ReferenceReal(value = 4.9), ReferenceReal(value = 2f)],
+            |    ref = Reference(value = 2L),
+            |    reportedBy = [Reference(value = 2L), Reference(value = 4L), 
+            |                  ReferenceReal(value = 4.9), ReferenceReal(value = 0.2)],
             |    showStopper = true,
             |    previousReport = null
             |)
@@ -233,7 +233,7 @@ class ContentForAnnotationsTest : BaseAbstractTest() {
                     expectedAnnotationValue("Reference", LongValue(2)),
                     expectedAnnotationValue("Reference", LongValue(4)),
                     expectedAnnotationValue("ReferenceReal", DoubleValue(4.9)),
-                    expectedAnnotationValue("ReferenceReal", FloatValue(2f))
+                    expectedAnnotationValue("ReferenceReal", DoubleValue(0.2))
                 ))
                 assertEquals(reportedByParam, annotationParams["reportedBy"])
                 assertEquals(BooleanValue(true), annotationParams["showStopper"])

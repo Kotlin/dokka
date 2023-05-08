@@ -1,6 +1,6 @@
 [versions]
 
-kotlin = "1.8.20"
+kotlin = "1.8.10"
 kotlin-plugin = "213-1.8.10-release-430-IJ6777.52"
 kotlinx-coroutines = "1.6.3"
 kotlinx-html = "0.7.5"

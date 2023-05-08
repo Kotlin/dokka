@@ -227,7 +227,7 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
 
         //val environment = KotlinCoreEnvironment.createForProduction(this, configuration, configFiles)
         //analysisSession?.projec
-        val analysisSession = buildStandaloneAnalysisAPISession() {
+        val analysisSession = buildStandaloneAnalysisAPISession(withPsiDeclarationFromBinaryModuleProvider = true) {
             val project = project
             val targetPlatform = analysisPlatform.toTargetPlatform()
             fun KtModuleBuilder.addModuleDependencies(moduleName: String) {
@@ -272,9 +272,10 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
                         .mapNotNull { fs.findFileByPath(it.toString()) }
                         .mapNotNull { psiManager.findFile(it) }
                         .map { it as KtFile }*/
-                    val ktFiles: List<KtFile> = getPsiFilesFromPaths(project, getSourceFilePaths(sources))
-                    addSourceRoots(ktFiles)
-
+                    val (ktFilePath, javaFilePath) = getSourceFilePaths(sources).partition { it.endsWith(KotlinFileType.EXTENSION) }
+                    val javaFiles: List<PsiFileSystemItem> = getPsiFilesFromPaths(project, javaFilePath)
+                    val ktFiles: List<KtFile> = getPsiFilesFromPaths(project, getSourceFilePaths(ktFilePath))
+                    addSourceRoots(ktFiles + javaFiles)
                     contentScope = TopDownAnalyzerFacadeForJVM.newModuleSearchScope(project, ktFiles)
                     platform = targetPlatform
                     moduleName = "<module>"

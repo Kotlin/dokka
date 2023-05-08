@@ -761,6 +761,13 @@ class SignatureTest : BaseAbstractTest() {
                         arrayOf(
                             "constructor(",
                             Parameters(
+                                Parameter("x: ", A("Int"))
+                            ),
+                            ")",
+                        ),
+                        arrayOf(
+                            "constructor(",
+                            Parameters(
                                 Parameter("x: ", A("T"))
                             ),
                             ")",
@@ -794,13 +801,6 @@ class SignatureTest : BaseAbstractTest() {
                             "constructor(",
                             Parameters(
                                 Parameter("x: ", A("List"), "<", A("Comparable"), "<", A("Lazy"), "<", A("T"), ">>>?")
-                            ),
-                            ")",
-                        ),
-                        arrayOf(
-                            "constructor(",
-                            Parameters(
-                                Parameter("x: ", A("Int"))
                             ),
                             ")",
                         ),
