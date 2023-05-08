@@ -39,6 +39,7 @@ private fun KotlinCompilation.compileClasspathOf(project: Project): FileCollecti
         return this.classpathOf(project)
     }
 
+    @Suppress("DEPRECATION")
     val platformDependencyFiles: FileCollection = (this as? AbstractKotlinNativeCompilation)
         ?.target?.project?.configurations
         ?.findByName(this.defaultSourceSet.implementationMetadataConfigurationName)

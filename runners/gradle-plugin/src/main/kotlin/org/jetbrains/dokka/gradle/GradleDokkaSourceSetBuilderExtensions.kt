@@ -1,6 +1,5 @@
 package org.jetbrains.dokka.gradle
 
-import com.android.build.api.dsl.AndroidSourceSet
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 
 /**
@@ -13,7 +12,7 @@ fun GradleDokkaSourceSetBuilder.dependsOn(sourceSet: KotlinSourceSet) {
 /**
  * Convenient override to **append** source sets to [GradleDokkaSourceSetBuilder.dependentSourceSets]
  */
-fun GradleDokkaSourceSetBuilder.dependsOn(sourceSet: AndroidSourceSet) {
+fun GradleDokkaSourceSetBuilder.dependsOn(@Suppress("DEPRECATION") sourceSet: com.android.build.gradle.api.AndroidSourceSet) {
     dependsOn(DokkaSourceSetID(sourceSet.name))
 }
 
