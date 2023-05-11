@@ -102,9 +102,9 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
         }
     }
 
-    private fun <T : DClasslike> classlikeSignature(c: T): List<ContentNode> {
-        @Suppress("UNCHECKED_CAST", "TYPE_MISMATCH_WARNING_FOR_INCORRECT_CAPTURE_APPROXIMATION")
-        val typeAliasUnderlyingType = (c as? WithExtraProperties<out DClasslike>)
+    private fun classlikeSignature(c: DClasslike): List<ContentNode> {
+        @Suppress("UNCHECKED_CAST")
+        val typeAliasUnderlyingType = (c as? WithExtraProperties<DClasslike>)
             ?.extra
             ?.get(ActualTypealias)
             ?.underlyingType
