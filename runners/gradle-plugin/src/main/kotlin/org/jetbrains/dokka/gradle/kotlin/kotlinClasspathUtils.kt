@@ -27,6 +27,8 @@ internal fun Project.classpathOf(sourceSet: KotlinSourceSet): FileCollection {
             .map { compilation -> compilation.compileClasspathOf(project = this) }
             .reduce { acc, fileCollection -> acc + fileCollection }
     } else {
+        // Dokka suppresses source sets that do no have compilations
+        // since such configuration is invalid, it reports a warning or an error
         sourceSet.withAllDependentSourceSets()
             .toList()
             .map { it.kotlin.sourceDirectories }
@@ -39,10 +41,9 @@ private fun KotlinCompilation.compileClasspathOf(project: Project): FileCollecti
         return this.classpathOf(project)
     }
 
-    @Suppress("DEPRECATION")
     val platformDependencyFiles: FileCollection = (this as? AbstractKotlinNativeCompilation)
         ?.target?.project?.configurations
-        ?.findByName(this.defaultSourceSet.implementationMetadataConfigurationName)
+        ?.findByName(@Suppress("DEPRECATION") this.defaultSourceSet.implementationMetadataConfigurationName)
         ?: project.files()
 
     return this.compileDependencyFiles + platformDependencyFiles + this.classpathOf(project)
