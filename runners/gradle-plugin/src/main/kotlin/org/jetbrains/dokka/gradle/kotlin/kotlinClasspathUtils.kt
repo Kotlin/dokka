@@ -43,7 +43,7 @@ private fun KotlinCompilation.compileClasspathOf(project: Project): FileCollecti
 
     val platformDependencyFiles: FileCollection = (this as? AbstractKotlinNativeCompilation)
         ?.target?.project?.configurations
-        ?.findByName(@Suppress("DEPRECATION") this.defaultSourceSet.implementationMetadataConfigurationName)
+        ?.findByName(@Suppress("DEPRECATION") this.defaultSourceSet.implementationMetadataConfigurationName) // KT-58640
         ?: project.files()
 
     return this.compileDependencyFiles + platformDependencyFiles + this.classpathOf(project)
