@@ -1036,9 +1036,8 @@ p.paragraph img {
 }
 
 .platform-tag {
+    --platform-tag-color: #bababb;
     border: 0 none;
-    border-radius: 4px;
-    padding: 2px 16px;
     margin-right: 4px;
     margin-bottom: 8px;
 
@@ -1051,24 +1050,27 @@ p.paragraph img {
 .platform-tag.js-like, .platform-tag.jvm-like, .platform-tag.wasm-like {
     text-transform: uppercase;
 }
+
 .filter-section .platform-tag {
     cursor: pointer;
+    border-radius: 4px;
+    padding: 2px 16px;
 }
 
 .filter-section .platform-tag.jvm-like[data-active], .platform-tags .platform-tag.jvm-like {
-    background-color: #4dbb5f;
+    --platform-tag-color: #4dbb5f;
 }
 
 .filter-section .platform-tag.js-like[data-active], .platform-tags .platform-tag.js-like {
-    background-color: #ffc700;
+    --platform-tag-color: #ffc700;
 }
 
 .filter-section .platform-tag.native-like[data-active], .platform-tags .platform-tag.native-like {
-    background-color: #E082F3;
+    --platform-tag-color: #E082F3;
 }
 
 .filter-section .platform-tag.wasm-like[data-active], .platform-tags .platform-tag.wasm-like {
-    background-color: #9585F9;
+    --platform-tag-color: #9585F9;
 }
 
 .filter-section .platform-tag[data-active]:hover {
@@ -1085,9 +1087,27 @@ p.paragraph img {
     background-color: rgba(255,255,255,.05);
 }
 
-.filter-section .platform-tag[data-active], .platform-tag {
+.filter-section .platform-tag[data-active] {
     color: #19191c;
-    background-color: #bababb;
+    background-color: var(--platform-tag-color);
+}
+
+.platform-tags .platform-tag {
+    display: flex;
+    align-items: center;
+}
+
+.platform-tags .platform-tag::before {
+    display: inline-block;
+    content: '';
+    border-radius: 50%;
+    background: var(--platform-tag-color);
+    margin: 0 4px 0 8px;
+    height: 8px;
+    width: 8px;
+
+    font-size: 13px;
+    line-height: 1.6;
 }
 
 td.content {
