@@ -1,6 +1,6 @@
-@import url(https://fonts.googleapis.com/css?family=Open+Sans:300i,400,700);
-@import url('https://rsms.me/inter/inter.css');
-@import url('jetbrains-mono.css');
+@import url('https://fonts.googleapis.com/css?family=Open+Sans');
+@import url('https://fonts.googleapis.com/css?family=Inter');
+@import url('https://fonts.googleapis.com/css?family=JetBrains+Mono');
 
 /* --- root styles --- */
 :root {
@@ -26,7 +26,7 @@
     --background-color: var(--default-white);
     --dark-mode-and-search-icon-color: var(--default-white);
     --color-dark: #27282c;
-    --default-font-family: system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Droid Sans, Helvetica Neue, Arial, sans-serif;
+    --default-font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Droid Sans, Helvetica Neue, Arial, sans-serif;
     --default-monospace-font-family: JetBrains Mono, SFMono-Regular, Consolas, Liberation Mono, Menlo, Courier, monospace;
     --default-font-size: 15px;
     --average-color: var(--color-dark);
@@ -91,7 +91,7 @@ body, table {
     font-style: normal;
     font-weight: normal;
     font-size: var(--default-font-size);
-    line-height: 24px;
+    line-height: 1.6;
     margin: 0;
 }
 
@@ -727,7 +727,7 @@ code:not(.block) {
     box-sizing: border-box;
     box-shadow: 0 5px 10px var(--ring-popup-shadow-color);
     border-radius: 3px;
-    color: initial;
+    color: var(--default-font-color);
 }
 
 .copy-popup-wrapper > .copy-popup-icon::before {
@@ -1042,7 +1042,7 @@ p.paragraph img {
     margin-right: 4px;
     margin-bottom: 8px;
 
-    font-family: "JetBrains Sans", Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Droid Sans", "Helvetica Neue", Arial, sans-serif;
+    font-family: var(--default-font-family);
     font-size: 13px;
     line-height: 1.5;
     text-transform: capitalize;
@@ -1074,14 +1074,6 @@ p.paragraph img {
 .filter-section .platform-tag[data-active]:hover {
     color: #fff;
     background-color: rgba(186, 186, 187, .7);
-}
-
-@media (min-width: 940px) {
-    .filter-section .platform-tag {
-        font-size: 16px;
-        border-radius: 24px;
-        padding: 8px 24px;
-    }
 }
 
 .filter-section .platform-tag:not([data-active]) {
