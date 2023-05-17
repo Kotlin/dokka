@@ -482,7 +482,7 @@ internal fun ClassKind.asJava(): ClassKind {
     }
 }
 
-private fun PropertyContainer<out Documentable>.mergeAdditionalModifiers(second: SourceSetDependent<Set<ExtraModifiers>>) =
+private fun <T : Documentable> PropertyContainer<T>.mergeAdditionalModifiers(second: SourceSetDependent<Set<ExtraModifiers>>) =
     this[AdditionalModifiers]?.squash(AdditionalModifiers(second)) ?: AdditionalModifiers(second)
 
 private fun AdditionalModifiers.squash(second: AdditionalModifiers) =

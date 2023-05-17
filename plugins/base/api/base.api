@@ -1109,7 +1109,7 @@ public abstract class org/jetbrains/dokka/base/templating/SubstitutionCommand : 
 
 public final class org/jetbrains/dokka/base/templating/TypeReference {
 	public static final field Companion Lorg/jetbrains/dokka/base/templating/TypeReference$Companion;
-	public synthetic fun <init> (Lcom/fasterxml/jackson/core/type/TypeReference;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Lcom/fasterxml/jackson/core/type/TypeReference;)V
 }
 
 public final class org/jetbrains/dokka/base/templating/TypeReference$Companion {

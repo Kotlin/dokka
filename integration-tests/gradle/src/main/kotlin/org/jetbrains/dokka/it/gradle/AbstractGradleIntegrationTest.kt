@@ -28,7 +28,7 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
 
     fun createGradleRunner(
         vararg arguments: String,
-        jvmArgs: List<String> = listOf("-Xmx4G", "-XX:MaxMetaspaceSize=2G")
+        jvmArgs: List<String> = listOf("-Xmx2G", "-XX:MaxMetaspaceSize=1G")
     ): GradleRunner {
         return GradleRunner.create()
             .withProjectDir(projectDir)

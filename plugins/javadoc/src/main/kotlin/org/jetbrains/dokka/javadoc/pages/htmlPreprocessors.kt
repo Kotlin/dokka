@@ -119,9 +119,10 @@ object DeprecatedPageCreator : PageTransformer {
     override fun invoke(input: RootPageNode): RootPageNode {
         val elements = HashMap<DeprecatedPageSection, MutableSet<DeprecatedNode>>().apply {
 
-            fun <T> T.putAs(deprecatedPageSection: DeprecatedPageSection) where
+            fun <T, V> T.putAs(deprecatedPageSection: DeprecatedPageSection) where
                     T : NavigableJavadocNode,
-                    T : WithJavadocExtra<out Documentable> {
+                    V : Documentable,
+                    T : WithJavadocExtra<V> {
                 val deprecatedNode = DeprecatedNode(
                     listOfNotNull(
                         getDRI().packageName?.takeUnless { it.isBlank() },
@@ -159,7 +160,7 @@ object DeprecatedPageCreator : PageTransformer {
                             it.takeIf { it.isDeprecated() }?.putAs(DeprecatedPageSection.DeprecatedEnumConstants)
                         }
                         node.takeIf { it.isDeprecated() }?.putAs(
-                            if ((node as? WithJavadocExtra<out Documentable>)?.isException == true) DeprecatedPageSection.DeprecatedExceptions
+                            if ((node as? WithJavadocExtra<*>)?.isException == true) DeprecatedPageSection.DeprecatedExceptions
                             else when (node.kind) {
                                 "enum" -> DeprecatedPageSection.DeprecatedEnums
                                 "interface" -> DeprecatedPageSection.DeprecatedInterfaces

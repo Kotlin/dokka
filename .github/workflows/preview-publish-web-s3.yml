@@ -24,7 +24,7 @@ jobs:
         uses: gradle/gradle-build-action@v2
         with:
           gradle-home-cache-cleanup: true
-          arguments: :integration-tests:gradle:integrationTest --tests org.jetbrains.dokka.it.gradle.kotlin.CoroutinesGradleIntegrationTest --stacktrace
+          arguments: :integration-tests:gradle:integrationTest --tests org.jetbrains.dokka.it.gradle.kotlin.CoroutinesGradleIntegrationTest --stacktrace "-Dorg.gradle.jvmargs=-Xmx2g -XX:MaxMetaspaceSize=500m"
         env:
           DOKKA_TEST_OUTPUT_PATH: /home/runner/work/dokka/coroutines
       - name: Configure AWS credentials for S3 access
@@ -55,7 +55,7 @@ jobs:
         uses: gradle/gradle-build-action@v2
         with:
           gradle-home-cache-cleanup: true
-          arguments: :integration-tests:gradle:integrationTest --tests org.jetbrains.dokka.it.gradle.kotlin.SerializationGradleIntegrationTest --stacktrace
+          arguments: :integration-tests:gradle:integrationTest --tests org.jetbrains.dokka.it.gradle.kotlin.SerializationGradleIntegrationTest --stacktrace "-Dorg.gradle.jvmargs=-Xmx2g -XX:MaxMetaspaceSize=500m"
         env:
           DOKKA_TEST_OUTPUT_PATH: /home/runner/work/dokka/serialization
       - name: Configure AWS credentials for S3 access

@@ -4,7 +4,7 @@ import org.jetbrains.dokka.model.Annotations
 import org.jetbrains.dokka.model.Documentable
 import org.jetbrains.dokka.model.properties.WithExtraProperties
 
-internal fun WithExtraProperties<out Documentable>.hasJvmOverloads(): Boolean {
+internal fun <T : Documentable> WithExtraProperties<T>.hasJvmOverloads(): Boolean {
     return extra[Annotations]
         ?.directAnnotations
         ?.entries

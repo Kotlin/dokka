@@ -102,9 +102,9 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
         }
     }
 
-    private fun <T : DClasslike> classlikeSignature(c: T): List<ContentNode> {
+    private fun classlikeSignature(c: DClasslike): List<ContentNode> {
         @Suppress("UNCHECKED_CAST")
-        val typeAliasUnderlyingType = (c as? WithExtraProperties<out DClasslike>)
+        val typeAliasUnderlyingType = (c as? WithExtraProperties<DClasslike>)
             ?.extra
             ?.get(ActualTypealias)
             ?.underlyingType

@@ -25,7 +25,12 @@ kotlin {
         }
         named("commonMain") {
             dependencies {
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9")
+                if (properties["dokka_it_kotlin_version"] in listOf("1.4.32", "1.5.31"))
+                    // otherwise for a modern versin of coroutines:
+                    // Failed to resolve Kotlin library: project/build/kotlinSourceSetMetadata/commonMain/org.jetbrains.kotlinx-kotlinx-coroutines-core/org.jetbrains.kotlinx-kotlinx-coroutines-core-commonMain.klib
+                    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9")
+                else
+                    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
             }
         }
     }
