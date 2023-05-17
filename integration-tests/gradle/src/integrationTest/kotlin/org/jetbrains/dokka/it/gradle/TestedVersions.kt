@@ -2,7 +2,7 @@ package org.jetbrains.dokka.it.gradle
 
 internal object TestedVersions {
 
-    val LATEST = BuildVersions("7.4.2", "1.8.10")
+    val LATEST = BuildVersions("7.4.2", "1.8.20")
 
     /**
      * All supported Gradle/Kotlin versions, including [LATEST]
@@ -46,5 +46,6 @@ internal object TestedVersions {
         "1.7.20" to "18.2.0-pre.391",
         "1.8.0" to "18.2.0-pre.467",
         "1.8.10" to "18.2.0-pre.490",
+        "1.8.20" to "18.2.0-pre.546"
     )
 }

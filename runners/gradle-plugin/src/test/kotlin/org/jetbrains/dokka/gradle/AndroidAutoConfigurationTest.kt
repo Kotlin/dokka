@@ -33,7 +33,7 @@ class AndroidAutoConfigurationTest {
             assertEquals(
                 listOf(
                     "androidTest", "androidTestDebug", "debug", "main",
-                    "release", "test", "testDebug", "testRelease"
+                    "release", "test", "testDebug", "testRelease", "androidTestRelease"
                 ).sorted(),
                 sourceSets.map { it.name }.sorted(),
                 "Expected all default source sets being registered"
@@ -67,15 +67,16 @@ class AndroidAutoConfigurationTest {
         project as ProjectInternal
         project.evaluate()
 
-        dokkaTasks.flatMap { it.dokkaSourceSets }.forEach { sourceSet ->
+        dokkaTasks.flatMap { it.dokkaSourceSets }
+            .filterNot { it.name == "androidTestRelease"  && it.suppress.get() } // androidTestRelease has empty classpath, but it makes no sense for suppressed source set
+            .forEach { sourceSet ->
             /*
 
             There is no better way of checking for empty classpath at the moment (without resolving dependencies).
             We assume, that an empty classpath can be resolved
             We assume, that a non-empty classpath will not be able to resolve (no repositories defined)
              */
-
-            assertFailsWith<ResolveException> { sourceSet.classpath.files }
+            assertFailsWith<ResolveException>("SourceSet: " + sourceSet.name) { sourceSet.classpath.files }
         }
     }
 }

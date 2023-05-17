@@ -5,7 +5,7 @@ import org.jetbrains.dokka.model.Documentable
 import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.jetbrains.kotlin.util.firstNotNullResult
 
-internal fun WithExtraProperties<out Documentable>.jvmStatic(): Annotations.Annotation? =
+internal fun <T : Documentable> WithExtraProperties<T>.jvmStatic(): Annotations.Annotation? =
     extra[Annotations]?.directAnnotations?.entries?.firstNotNullResult { (_, annotations) -> annotations.jvmStaticAnnotation() }
 
 internal fun List<Annotations.Annotation>.jvmStaticAnnotation(): Annotations.Annotation? =
