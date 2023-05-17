@@ -722,9 +722,9 @@ private val divergentDocumentableComparator =
             )
         ) { it.dri.callable }
 
-@Suppress("UNCHECKED_CAST", "TYPE_MISMATCH_WARNING_FOR_INCORRECT_CAPTURE_APPROXIMATION")
+@Suppress("UNCHECKED_CAST")
 private fun <T : Documentable> T.nameAfterClash(): String =
-    ((this as? WithExtraProperties<out Documentable>)?.extra?.get(DriClashAwareName)?.value ?: name).orEmpty()
+    ((this as? WithExtraProperties<Documentable>)?.extra?.get(DriClashAwareName)?.value ?: name).orEmpty()
 
 @Suppress("UNCHECKED_CAST")
 internal inline fun <reified T : TagWrapper> GroupedTags.withTypeUnnamed(): SourceSetDependent<T> =

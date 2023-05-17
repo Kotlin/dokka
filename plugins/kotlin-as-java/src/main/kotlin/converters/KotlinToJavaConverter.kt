@@ -482,8 +482,7 @@ internal fun ClassKind.asJava(): ClassKind {
     }
 }
 
-@Suppress("TYPE_MISMATCH_WARNING_FOR_INCORRECT_CAPTURE_APPROXIMATION")
-private fun PropertyContainer<out Documentable>.mergeAdditionalModifiers(second: SourceSetDependent<Set<ExtraModifiers>>) =
+private fun <T : Documentable> PropertyContainer<T>.mergeAdditionalModifiers(second: SourceSetDependent<Set<ExtraModifiers>>) =
     this[AdditionalModifiers]?.squash(AdditionalModifiers(second)) ?: AdditionalModifiers(second)
 
 private fun AdditionalModifiers.squash(second: AdditionalModifiers) =
