@@ -635,7 +635,8 @@ class DefaultPsiToDocumentableTranslator(
         }
 
         private fun PsiModifierListOwner.getModifier(): JavaModifier {
-            if (this is PsiClass && this.isInterface) {
+            val isInterface = this is PsiClass && this.isInterface
+            if (isInterface) {
                 return JavaModifier.Empty // all Java modifiers are redundant for interfaces
             }
 
