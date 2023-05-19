@@ -856,6 +856,25 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
             }
         }
     }
+
+    @Test
+    fun `should add no redundant modifiers for interfaces`() {
+        testInline(
+            """
+            |/src/main/java/test/JavaInterface.java
+            |package test;
+            |interface JavaInterface {}
+        """.trimIndent(),
+            configuration
+        ) {
+            documentablesMergingStage = { module ->
+                val javaInterface = module.findClasslike(packageName = "test", "JavaInterface") as DInterface
+
+                val modifier = javaInterface.modifier.values.single()
+                assertEquals(JavaModifier.Empty, modifier)
+            }
+        }
+    }
 }
 
 private fun DFunction.visibility() = visibility.values.first()

@@ -363,6 +363,7 @@ class DefaultPsiToDocumentableTranslator(
                         visibility = visibility,
                         companion = null,
                         generics = mapTypeParameters(dri),
+                        modifier = modifiers,
                         supertypes = ancestors,
                         sourceSets = setOf(sourceSetData),
                         isExpectActual = false,
@@ -633,10 +634,16 @@ class DefaultPsiToDocumentableTranslator(
             else -> getBound(type)
         }
 
-        private fun PsiModifierListOwner.getModifier() = when {
-            hasModifier(JvmModifier.ABSTRACT) -> JavaModifier.Abstract
-            hasModifier(JvmModifier.FINAL) -> JavaModifier.Final
-            else -> JavaModifier.Empty
+        private fun PsiModifierListOwner.getModifier(): JavaModifier {
+            if (this is PsiClass && this.isInterface) {
+                return JavaModifier.Empty // all Java modifiers are redundant for interfaces
+            }
+
+            return when {
+                hasModifier(JvmModifier.ABSTRACT) -> JavaModifier.Abstract
+                hasModifier(JvmModifier.FINAL) -> JavaModifier.Final
+                else -> JavaModifier.Empty
+            }
         }
 
         private fun PsiTypeParameterListOwner.mapTypeParameters(dri: DRI): List<DTypeParameter> {

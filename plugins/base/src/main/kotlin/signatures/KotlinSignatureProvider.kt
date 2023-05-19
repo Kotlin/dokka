@@ -148,18 +148,8 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
             annotationsBlock(c)
             c.visibility[sourceSet]?.takeIf { it !in ignoredVisibilities }?.name?.let { keyword("$it ") }
             if (c.isExpectActual) keyword(if (sourceSet == c.expectPresentInSet) "expect " else "actual ")
-            if (c is DClass) {
-                val modifier =
-                    if (c.modifier[sourceSet] !in ignoredModifiers) {
-                        when {
-                            c.extra[AdditionalModifiers]?.content?.get(sourceSet)?.contains(ExtraModifiers.KotlinOnlyModifiers.Data) == true -> ""
-                            c.modifier[sourceSet] is JavaModifier.Empty -> "${KotlinModifier.Open.name} "
-                            else -> c.modifier[sourceSet]?.name?.let { "$it " }
-                        }
-                    } else {
-                        null
-                    }
-                modifier?.takeIf { it.isNotEmpty() }?.let { keyword(it) }
+            if (c is WithAbstraction) {
+                modifier(c, sourceSet)
             }
             when (c) {
                 is DClass -> {
@@ -257,9 +247,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                 annotationsBlock(p)
                 p.visibility[sourceSet].takeIf { it !in ignoredVisibilities }?.name?.let { keyword("$it ") }
                 if (p.isExpectActual) keyword(if (sourceSet == p.expectPresentInSet) "expect " else "actual ")
-                p.modifier[sourceSet].takeIf { it !in ignoredModifiers }?.let {
-                        if (it is JavaModifier.Empty) KotlinModifier.Open else it
-                    }?.name?.let { keyword("$it ") }
+                modifier(p, sourceSet)
                 p.modifiers()[sourceSet]?.toSignatureString()?.let { keyword(it) }
                 if (p.isMutable()) keyword("var ") else keyword("val ")
                 list(p.generics, prefix = "<", suffix = "> ",
@@ -312,9 +300,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                 if (f.isConstructor) {
                     keyword("constructor")
                 } else {
-                    f.modifier[sourceSet]?.takeIf { it !in ignoredModifiers }?.let {
-                        if (it is JavaModifier.Empty) KotlinModifier.Open else it
-                    }?.name?.let { keyword("$it ") }
+                    modifier(f, sourceSet)
                     f.modifiers()[sourceSet]?.toSignatureString()?.let { keyword(it) }
                     keyword("fun ")
                     list(
@@ -351,6 +337,30 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                 }
             }
         }
+
+    private fun <T> PageContentBuilder.DocumentableContentBuilder.modifier(
+        documentable: T,
+        sourceSet: DokkaSourceSet
+    ) where T : Documentable, T : WithAbstraction {
+
+        val modifier = documentable.modifier[sourceSet] ?: return
+        if (modifier in ignoredModifiers || documentable.isDataClass(sourceSet)) {
+            return
+        }
+
+        val modifierText = when {
+            modifier is JavaModifier.Empty && documentable !is DInterface-> "${KotlinModifier.Open.name} "
+            else -> modifier.name.let { "$it " }
+        }
+        modifierText.takeIf { it.isNotBlank() }?.let { keyword(it) }
+    }
+
+    private fun Documentable.isDataClass(sourceSet: DokkaSourceSet): Boolean {
+        return (this as? DClass)
+            ?.extra?.get(AdditionalModifiers)
+            ?.content?.get(sourceSet)
+            ?.contains(ExtraModifiers.KotlinOnlyModifiers.Data) == true
+    }
 
     private fun DFunction.documentReturnType() = when {
         this.isConstructor -> false

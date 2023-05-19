@@ -209,6 +209,7 @@ private class DokkaDescriptorVisitor(
                 visibility = descriptor.visibility.toDokkaVisibility().toSourceSetDependent(),
                 supertypes = info.supertypes.toSourceSetDependent(),
                 documentation = info.docs,
+                modifier = descriptor.modifier().toSourceSetDependent(),
                 generics = generics.await(),
                 companion = descriptor.companion(driWithPlatform),
                 sourceSets = setOf(sourceSet),
@@ -1063,12 +1064,23 @@ private class DokkaDescriptorVisitor(
         objectDescriptor(it, dri)
     }
 
-    private fun MemberDescriptor.modifier() = when (modality) {
-        Modality.FINAL -> KotlinModifier.Final
-        Modality.SEALED -> KotlinModifier.Sealed
-        Modality.OPEN -> KotlinModifier.Open
-        Modality.ABSTRACT -> KotlinModifier.Abstract
-        else -> KotlinModifier.Empty
+    private fun MemberDescriptor.modifier(): KotlinModifier {
+        val isInterface = this is ClassDescriptor && this.kind == ClassKind.INTERFACE
+        return if (isInterface) {
+            when (modality) {
+                // modifiers other than "sealed" are redundant for interfaces
+                Modality.SEALED -> KotlinModifier.Sealed
+                else -> KotlinModifier.Empty
+            }
+        } else {
+            when (modality) {
+                Modality.FINAL -> KotlinModifier.Final
+                Modality.SEALED -> KotlinModifier.Sealed
+                Modality.OPEN -> KotlinModifier.Open
+                Modality.ABSTRACT -> KotlinModifier.Abstract
+                else -> KotlinModifier.Empty
+            }
+        }
     }
 
     private fun MemberDescriptor.createSources(): SourceSetDependent<DocumentableSource> =

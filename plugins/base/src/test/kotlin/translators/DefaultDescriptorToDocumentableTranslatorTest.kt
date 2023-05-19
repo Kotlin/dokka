@@ -986,6 +986,50 @@ val soapXml = node("soap-env:Envelope", soapAttrs,
             }
         }
     }
+
+    @Test
+    fun `should add sealed modifier to sealed interfaces`() {
+        testInline(
+            """
+            |/src/main/kotlin/test/SealedInterface.kt
+            |package test
+            |
+            |sealed interface SealedInterface {
+            |    fun foo(): String
+            |}
+            """.trimIndent(),
+            configuration
+        ) {
+            documentablesMergingStage = { module ->
+                val sealedInterface = module.findClasslike("test", "SealedInterface") as DInterface
+
+                val modifier = sealedInterface.modifier.values.single()
+                assertEquals(KotlinModifier.Sealed, modifier)
+            }
+        }
+    }
+
+    @Test
+    fun `should add no redundant modifiers to plain interfaces`() {
+        testInline(
+            """
+            |/src/main/kotlin/test/PlainInterface.kt
+            |package test
+            |
+            |interface PlainInterface {
+            |    fun foo(): String
+            |}
+            """.trimIndent(),
+            configuration
+        ) {
+            documentablesMergingStage = { module ->
+                val plainInterface = module.findClasslike("test", "PlainInterface") as DInterface
+
+                val modifier = plainInterface.modifier.values.single()
+                assertEquals(KotlinModifier.Empty, modifier)
+            }
+        }
+    }
 }
 
 private sealed class TestSuite {

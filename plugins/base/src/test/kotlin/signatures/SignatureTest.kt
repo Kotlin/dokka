@@ -991,4 +991,72 @@ class SignatureTest : BaseAbstractTest() {
             }
         }
     }
+
+    @Test
+    fun `should add sealed keyword for sealed interfaces`() {
+        val writerPlugin = TestOutputWriterPlugin()
+        testInline(
+            """
+            |/src/main/kotlin/example/SealedInterface.kt
+            |package example
+            |
+            |sealed interface SealedInterface {}
+        """.trimIndent(),
+            configuration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                val sealedInterfacePage = writerPlugin.writer.renderedContent("root/example/-sealed-interface/index.html")
+
+                val signatures = sealedInterfacePage.signature().toList()
+                assertEquals(1, signatures.size, "Expected the page to have a single signature for SealedInterface")
+
+                signatures[0].match(
+                    "sealed interface ", A("SealedInterface"),
+                    ignoreSpanWithTokenStyle = true
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `should add no additional keywords for plain interfaces`() {
+        val writerPlugin = TestOutputWriterPlugin()
+        testInline(
+            """
+            |/src/main/kotlin/example/PlainKotlinInterface.kt
+            |package example
+            |
+            |interface PlainKotlinInterface {}
+            |
+            |/src/main/java/example/PlainJavaInterface.java
+            |package example;
+            |public interface PlainJavaInterface {}
+        """.trimIndent(),
+            configuration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                writerPlugin.writer.renderedContent("root/example/-plain-kotlin-interface/index.html").let { ktInterface ->
+                    val signatures = ktInterface.signature().toList()
+                    assertEquals(1, signatures.size, "Expected the page to have a single signature for SealedInterface")
+
+                    signatures[0].match(
+                        "interface ", A("PlainKotlinInterface"),
+                        ignoreSpanWithTokenStyle = true
+                    )
+                }
+
+                writerPlugin.writer.renderedContent("root/example/-plain-java-interface/index.html").let { javaInterface ->
+                    val signatures = javaInterface.signature().toList()
+                    assertEquals(1, signatures.size, "Expected the page to have a single signature for SealedInterface")
+
+                    signatures[0].match(
+                        "interface ", A("PlainJavaInterface"),
+                        ignoreSpanWithTokenStyle = true
+                    )
+                }
+            }
+        }
+    }
 }
