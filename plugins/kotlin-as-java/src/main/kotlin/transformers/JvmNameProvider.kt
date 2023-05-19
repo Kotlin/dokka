@@ -11,12 +11,12 @@ data class Name(val fqName: String) {
 }
 
 class JvmNameProvider {
-    fun <T> nameFor(entry: T): String where T : Documentable, T : WithExtraProperties<out Documentable> =
+    fun <T> nameFor(entry: T): String where T : Documentable, T : WithExtraProperties<T> =
         entry.directlyAnnotatedJvmName()?.jvmNameAsString()
             ?: entry.name
             ?: throw IllegalStateException("Failed to provide a name for ${entry.javaClass.canonicalName}")
 
-    fun <T> nameForSyntheticClass(entry: T): Name where T : WithSources, T : WithExtraProperties<out Documentable>, T : Documentable {
+    fun <T> nameForSyntheticClass(entry: T): Name where T : WithSources, T : WithExtraProperties<T>, T : Documentable {
         val name: String = (entry.fileLevelJvmName()?.params?.get("name") as? StringValue)?.value
             ?: (entry.sources.entries.first().value.path.split("/").last().split(".").first().capitalize() + "Kt")
         return Name("${entry.dri.packageName}.$name")

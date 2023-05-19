@@ -24,7 +24,7 @@ abstract class DokkaMultiModuleTask : AbstractDokkaParentTask() {
 
     /**
      * List of Markdown files that contain
-     * [module and package documentation](https://kotlinlang.org/docs/reference/dokka-module-and-package-docs.html).
+     * [module and package documentation](https://kotlinlang.org/docs/dokka-module-and-package-docs.html).
      *
      * Contents of specified files will be parsed and embedded into documentation as module and package descriptions.
      *
@@ -92,8 +92,8 @@ abstract class DokkaMultiModuleTask : AbstractDokkaParentTask() {
             outputDir = outputDirectory.asFile.get(),
             cacheRoot = cacheRoot.asFile.orNull,
             pluginsConfiguration = buildPluginsConfiguration(),
-        failOnWarning = failOnWarning.get(),
-        offlineMode = offlineMode.get(),
+            failOnWarning = failOnWarning.get(),
+            offlineMode = offlineMode.get(),
             pluginsClasspath = plugins.resolve().toList(),
             modules = childDokkaTasks.map { dokkaTask ->
                 DokkaModuleDescriptionImpl(

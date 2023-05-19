@@ -203,7 +203,7 @@ Short summary:
 | `displayName`                | Display name of the source set, used both internally and externally.                                                                                                           |
 | `classpath`                  | Classpath for analysis and interactive samples. Accepts multiple paths separated by semicolons.                                                                                |
 | `src`                        | Source code roots to be analyzed and documented. Accepts multiple paths separated by semicolons.                                                                               |
-| `dependentSourceSets`        | Names of the dependent source sets in format `moduleName/sourceSetName`. Accepts multiple paths separated by semicolons.                                                       |
+| `dependentSourceSets`        | Names of the dependent source sets in format `moduleName/sourceSetName`. Accepts multiple values separated by semicolons.                                                      |
 | `samples`                    | List of directories or files that contain sample functions. Accepts multiple paths separated by semicolons. <anchor name="includes-cli"/>                                      |
 | `includes`                   | Markdown files that contain [module and package documentation](dokka-module-and-package-docs.md). Accepts multiple paths separated by semicolons.                              |
 | `documentedVisibilities`     | Visibilities to be documented. Accepts multiple values separated by semicolons. Possible values: `PUBLIC`, `PRIVATE`, `PROTECTED`, `INTERNAL`, `PACKAGE`.                      |
@@ -354,7 +354,7 @@ with [all configuration options](#complete-configuration) applied at the bottom 
     </def>
     <def title="externalDocumentationLinks">
         <p>The global configuration of external documentation links, regardless of the source set they are used in.</p>
-        <p>For a list of possible options, see <a href="#external-documentation-configuration">external documentation configuration</a>.</p>
+        <p>For a list of possible options, see <a href="#external-documentation-links-configuration">external documentation links configuration</a>.</p>
     </def>
     <def title="pluginsClasspath">
         <p>A list of JAR files with Dokka plugins and their dependencies.</p>
@@ -436,8 +436,8 @@ How to configure Kotlin
     <def title="documentedVisibilities">
         <p>The set of visibility modifiers that should be documented.</p>
         <p>
-            This can be used if you want to document protected/internal/private declarations,
-            as well as if you want to exclude public declarations and only document internal API.
+            This can be used if you want to document <code>protected</code>/<code>internal</code>/<code>private</code> declarations,
+            as well as if you want to exclude <code>public</code> declarations and only document internal API.
         </p>
         <p>This can be configured on per-package basis.</p>
         <p>
@@ -565,7 +565,7 @@ How to configure Kotlin
     </def>
     <def title="externalDocumentationLinks">
         <p>A set of parameters for external documentation links that is applied only for this source set.</p>
-        <p>For a list of possible options, see <a href="#external-documentation-configuration">external documentation configuration</a>.</p>
+        <p>For a list of possible options, see <a href="#external-documentation-links-configuration">external documentation links configuration</a>.</p>
     </def>
 </deflist>
 
@@ -674,17 +674,17 @@ You can add package configurations for all source sets together at the same time
     <def title="documentedVisibilities">
         <p>The set of visibility modifiers that should be documented.</p>
         <p>
-            This can be used if you want to document protected/internal/private declarations within this package,
-            as well as if you want to exclude public declarations and only document internal API.
+            This can be used if you want to document <code>protected</code>/<code>internal</code>/<code>private</code> declarations within this package,
+            as well as if you want to exclude <code>public</code> declarations and only document internal API.
         </p>
         <p>Can be configured on source set level.</p>
         <p>Default: <code>PUBLIC</code></p>
     </def>
 </deflist>
 
-### External documentation configuration
+### External documentation links configuration
 
-The `externalDocumentationLink` block allows the creation of links that lead to the externally hosted documentation of
+The `externalDocumentationLinks` block allows the creation of links that lead to the externally hosted documentation of
 your dependencies.
 
 For example, if you are using types from `kotlinx.serialization`, by default they are unclickable in your

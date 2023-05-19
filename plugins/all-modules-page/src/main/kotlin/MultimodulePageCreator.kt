@@ -9,7 +9,6 @@ import org.jetbrains.dokka.base.parsers.moduleAndPackage.ModuleAndPackageDocumen
 import org.jetbrains.dokka.base.parsers.moduleAndPackage.parseModuleAndPackageDocumentation
 import org.jetbrains.dokka.base.parsers.moduleAndPackage.parseModuleAndPackageDocumentationFragments
 import org.jetbrains.dokka.base.resolvers.anchors.SymbolAnchorHint
-import org.jetbrains.dokka.base.templating.InsertTemplateExtra
 import org.jetbrains.dokka.base.transformers.pages.comments.DocTagToContentConverter
 import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder
 import org.jetbrains.dokka.links.DRI

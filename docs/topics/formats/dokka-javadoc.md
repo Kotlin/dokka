@@ -1,6 +1,6 @@
 [//]: # (title: Javadoc)
 
-> The Javadoc output format is still in Alpha so you may find bugs and experience migration issues when using it. 
+> The Javadoc output format is still in Alpha, so you may find bugs and experience migration issues when using it. 
 > Successful integration with tools that accept Java's Javadoc HTML as input is not guaranteed.
 > **You use it at your own risk.**
 >
