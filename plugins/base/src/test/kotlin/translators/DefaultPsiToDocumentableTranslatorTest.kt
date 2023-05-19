@@ -417,6 +417,36 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
     }
 
     @Test
+    fun `should not mark a multi-param setter overload as an accessor`() {
+        testInline(
+            """
+            |/src/main/java/test/A.java
+            |package test;
+            |public class A {
+            |    private int field = 1;
+            |
+            |    public void setField(int a, int b) { }
+            |    public int getField() { return a; }
+            |}
+        """.trimIndent(),
+            configuration
+        ) {
+            documentablesMergingStage = { module ->
+                val testClass = module.packages.single().classlikes.single { it.name == "A" } as DClass
+
+                val property = testClass.properties.single { it.name == "field" }
+                assertEquals("getField", property.getter?.name)
+                assertNull(property.setter)
+
+
+                // the setField function should not qualify to be an accessor due to the second param
+                assertEquals(1, testClass.functions.size)
+                assertEquals("setField", testClass.functions[0].name)
+            }
+        }
+    }
+
+    @Test
     fun `should not associate accessors with field because field is public api`() {
         val configuration = dokkaConfiguration {
             sourceSets {
