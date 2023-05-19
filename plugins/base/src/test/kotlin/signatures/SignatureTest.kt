@@ -1031,6 +1031,7 @@ class SignatureTest : BaseAbstractTest() {
             |
             |/src/main/java/example/PlainJavaInterface.java
             |package example;
+            |
             |public interface PlainJavaInterface {}
         """.trimIndent(),
             configuration,
