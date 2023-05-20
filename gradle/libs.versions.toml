@@ -41,11 +41,7 @@ node = "16.13.0"
 gradlePlugin-shadow = "7.1.2"
 gradlePlugin-nexusPublish = "1.1.0"
 gradlePlugin-gradlePluginPublish = "0.20.0"
-gradlePlugin-gradle = "4.0.1"
 gradlePlugin-gradleNode = "3.5.1"
-
-## NPM ##
-node = "16.13.0"
 
 ## Test
 junit = "5.9.2"
