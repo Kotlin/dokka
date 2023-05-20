@@ -3,7 +3,7 @@ import org.jetbrains.registerDokkaArtifactPublication
 plugins {
     id("org.jetbrains.conventions.kotlin-jvm")
     id("org.jetbrains.conventions.maven-publish")
-    id("org.jetbrains.conventions.dokka-base-frontend-files")
+    id("org.jetbrains.conventions.dokka-html-frontend-files")
 }
 
 dependencies {
@@ -35,26 +35,26 @@ dependencies {
     testImplementation(platform(libs.junit.bom))
     testImplementation(libs.junit.jupiter)
 
-    dokkaBaseFrontendFiles(projects.plugins.base.frontend) {
+    dokkaHtmlFrontendFiles(projects.plugins.base.frontend) {
         because("fetch frontend files from subproject :plugins:base:frontend")
     }
 }
 
 // access the frontend files via the dependency on :plugins:base:frontend
-val dokkaBaseFrontendFiles: Provider<FileCollection> =
-    configurations.dokkaBaseFrontendFiles.map { frontendFiles ->
+val dokkaHtmlFrontendFiles: Provider<FileCollection> =
+    configurations.dokkaHtmlFrontendFiles.map { frontendFiles ->
         frontendFiles.incoming.artifacts.artifactFiles
     }
 
-val prepareDokkaBaseFrontendFiles by tasks.registering(Sync::class) {
+val preparedokkaHtmlFrontendFiles by tasks.registering(Sync::class) {
     description = "copy Dokka Base frontend files into the resources directory"
 
-    from(dokkaBaseFrontendFiles) {
+    from(dokkaHtmlFrontendFiles) {
         include("*.js")
         into("dokka/scripts")
     }
 
-    from(dokkaBaseFrontendFiles) {
+    from(dokkaHtmlFrontendFiles) {
         include("*.css")
         into("dokka/styles")
     }
@@ -63,7 +63,7 @@ val prepareDokkaBaseFrontendFiles by tasks.registering(Sync::class) {
 }
 
 sourceSets.main {
-    resources.srcDir(prepareDokkaBaseFrontendFiles.map { it.destinationDir })
+    resources.srcDir(preparedokkaHtmlFrontendFiles.map { it.destinationDir })
 }
 
 tasks.test {
