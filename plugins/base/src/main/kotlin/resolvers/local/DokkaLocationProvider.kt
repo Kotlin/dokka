@@ -26,7 +26,7 @@ open class DokkaLocationProvider(
                 page.children.forEach { registerPath(it, prefix) }
             } else {
                 val newPrefix = prefix + page.pathName
-                put(page, if (page is ModulePageNode) prefix else newPrefix)
+                put(page, if (page is ModulePageNode || page is CustomRootPage) prefix else newPrefix)
                 page.children.forEach { registerPath(it, newPrefix) }
             }
 

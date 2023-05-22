@@ -11,57 +11,70 @@ import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.transformers.pages.CreationContext
+import org.jetbrains.dokka.transformers.pages.PageCreator
 import java.io.File
 
 
 class AuxiliaryDocPageCreator(
     private val context: DokkaContext,
-) {
+) : PageCreator<AuxiliaryDocPageContext> {
     private val commentsConverter by lazy { context.plugin<DokkaBase>().querySingle { commentsToContentConverter } }
     private val signatureProvider by lazy { context.plugin<DokkaBase>().querySingle { signatureProvider } }
 
-    fun root(creationContext: AuxiliaryDocPageContext): RootPageNode {
+
+    override fun invoke(creationContext: AuxiliaryDocPageContext): RootPageNode {
         return AuxiliaryRootPageNode(
-            name = creationContext.page,
-            dri = setOf(DRI(packageName = AUX_PACKAGE_PLACEHOLDER, classNames = creationContext.page)),
-            content = renderContent(creationContext)
+            name = creationContext.rootPage.pureFileName(),
+            dri = setOf(AUX_ROOT_DRI),
+            content = renderMarkdownContent(creationContext.rootPage),
+            children = childPages(creationContext)
         )
     }
 
-    fun page(creationContext: AuxiliaryDocPageContext): PageNode {
+    private fun File.pureFileName() = name.split(".").first()
+
+    private fun childPages(creationContext: AuxiliaryDocPageContext): List<PageNode> =
+        creationContext.contentPages.map { contentPage(it) }
+
+
+    private fun contentPage(contentFile: File, children: List<PageNode> = emptyList()): PageNode {
+        val displayName = contentFile.pureFileName()
         return AuxiliaryPageNode(
-            name = creationContext.page,
-            dri = setOf(DRI(packageName = AUX_PACKAGE_PLACEHOLDER, classNames = creationContext.page)),
-            content = renderContent(creationContext)
+            name = displayName,
+            dri = setOf(DRI(packageName = AUX_PACKAGE_PLACEHOLDER, classNames = displayName)),
+            content = renderMarkdownContent(contentFile),
+            children = children
         )
     }
 
-    private fun renderContent(creationContext: AuxiliaryDocPageContext): ContentGroup {
+    private fun renderMarkdownContent(contentFile: File): ContentGroup {
         val sourceSetData = emptySet<DokkaSourceSet>()
         val builder = PageContentBuilder(commentsConverter, signatureProvider, context.logger)
         return builder.contentFor(
-            dri = DRI(packageName = AUX_PACKAGE_PLACEHOLDER, classNames = creationContext.page),
+            dri = DRI(packageName = AUX_PACKAGE_PLACEHOLDER, classNames = contentFile.pureFileName()),
             kind = ContentKind.Cover,
             sourceSets = sourceSetData
         ) {
-            getMarkdownContent(creationContext.configuration.docs).takeIf { it.isNotEmpty() }?.let { nodes ->
+            getMarkdownContent(contentFile).let { node ->
                 group(kind = ContentKind.Cover) {
-                    nodes.forEach { node ->
-                        group {
-                            node.children.forEach { comment(it.root) }
-                        }
+                    group {
+                        node.children.forEach { comment(it.root) }
                     }
                 }
             }
         }
     }
 
-    private fun getMarkdownContent(files: Set<File>): List<DocumentationNode> =
-        files.map { MarkdownParser({ null }, it.absolutePath).parse(it.readText()) }
+    private fun getMarkdownContent(file: File): DocumentationNode =
+        MarkdownParser(
+            { DRI(packageName = AUX_PACKAGE_PLACEHOLDER, classNames = it) },
+            file.absolutePath
+        ).parse(file.readText())
 
 
     companion object {
-        const val AUX_PACKAGE_PLACEHOLDER = ".ext"
+        const val AUX_PACKAGE_PLACEHOLDER = ".aux_doc"
+        val AUX_ROOT_DRI = DRI.topLevel
     }
 }
 
@@ -90,12 +103,12 @@ class AuxiliaryPageNode(
 }
 
 class AuxiliaryRootPageNode(
-    override val name: String = "Home",
+    override val name: String,
     override val dri: Set<DRI>,
     override val content: ContentNode,
     override val embeddedResources: List<String> = emptyList(),
     override val children: List<PageNode> = emptyList(),
-) : RootPageNode(forceTopLevelName = true), CustomRootPage {
+) : RootPageNode(forceTopLevelName = false), CustomRootPage {
 
 
     override fun modified(name: String, children: List<PageNode>): RootPageNode {
@@ -108,12 +121,7 @@ class AuxiliaryRootPageNode(
         dri: Set<DRI>,
         embeddedResources: List<String>,
         children: List<PageNode>,
-    ) =
-        if (name == this.name && content === this.content && embeddedResources === this.embeddedResources && children shallowEq this.children) this
-        else AuxiliaryRootPageNode(name, dri, content, embeddedResources, children)
+    ) = AuxiliaryRootPageNode(name, dri, content, embeddedResources, children)
 }
 
-private infix fun <T> List<T>.shallowEq(other: List<T>) =
-    this === other || (this.size == other.size && (this zip other).all { (a, b) -> a === b })
-
-data class AuxiliaryDocPageContext(val page: String, val configuration: AuxiliaryConfiguration) : CreationContext
+data class AuxiliaryDocPageContext(val rootPage: File, val contentPages: Set<File>) : CreationContext

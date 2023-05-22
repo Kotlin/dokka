@@ -4,9 +4,13 @@ import org.jetbrains.dokka.plugability.ConfigurableBlock
 import java.io.File
 
 data class AuxiliaryConfiguration(
-    var docs: Set<File> = defaultDocs,
+    var entryPointNode: File? = defaultEntryPointNode,
+    var nodesDir: File? = defaultNodes,
+    var apiReferenceNodeName: String? = defaultApiReferenceNodeName,
 ) : ConfigurableBlock {
     companion object {
-        val defaultDocs: Set<File> = emptySet()
+        val defaultEntryPointNode: File? = null
+        val defaultNodes: File? = null
+        val defaultApiReferenceNodeName: String? = null
     }
 }
