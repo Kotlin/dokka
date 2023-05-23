@@ -963,7 +963,7 @@ h1.cover {
     word-break: break-word;
 }
 
-#main a:not([data-name]) {
+.main-content a:not([data-name]) {
     padding-bottom: 2px;
     border-bottom: 1px solid var(--border-color);
     cursor: pointer;
@@ -974,7 +974,7 @@ h1.cover {
     transition: color .1s, border-color .1s;
 }
 
-#main a:hover {
+.main-content a:hover {
     border-bottom-color: unset;
     color: inherit
 }
