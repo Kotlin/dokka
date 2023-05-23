@@ -174,7 +174,7 @@ public final class org/jetbrains/dokka/gradle/SourceSetKotlinGistConfigurationKt
 }
 
 public final class org/jetbrains/dokka/gradle/internal/AbstractDokkaTaskExtensionsKt {
-	public static final fun getJsonConfiguration (Lorg/jetbrains/dokka/gradle/AbstractDokkaTask;)Ljava/lang/String;
+	public static final fun buildJsonConfiguration (Lorg/jetbrains/dokka/gradle/AbstractDokkaTask;)Ljava/lang/String;
 }
 
 public final class org/jetbrains/dokka/gradle/kotlin/KotlinClasspathUtilsKt {

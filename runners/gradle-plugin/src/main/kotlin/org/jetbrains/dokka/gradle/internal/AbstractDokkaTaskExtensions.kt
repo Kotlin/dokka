@@ -13,6 +13,6 @@ import org.jetbrains.dokka.DokkaConfiguration
  * Better alternative should be introduced as part of [#2873](https://github.com/Kotlin/dokka/issues/2873).
  */
 @InternalDokkaApi
-fun AbstractDokkaTask.getJsonConfiguration(): String {
+fun AbstractDokkaTask.buildJsonConfiguration(): String {
     return this.buildDokkaConfiguration().toPrettyJsonString()
 }
