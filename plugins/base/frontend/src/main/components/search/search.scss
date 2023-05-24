@@ -1,24 +1,34 @@
 $font-color: hsla(0, 0%, 100%, 0.8);
 $secondary-font-color: hsla(0, 0%, 100%, 0.6);
 
-.search {
-  button {
-    margin-top: 10px;
+#pages-search {
+  cursor: pointer;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  fill: #fff;
+  fill: var(--dark-mode-and-search-icon-color);
 
-    cursor: pointer;
+  &:focus {
+    outline: none;
+  }
 
-    border: none;
-    background: var(--color-dark);
-    fill: #fff;
-    fill: var(--dark-mode-and-search-icon-color);
-
-    &:focus {
-      outline: none;
-    }
+  &:hover {
+    background: var(--white-10);
   }
 }
 
-.search-hotkey-popup{
+.search {
+  &, [data-test="ring-select"], [data-test="ring-tooltip"], [data-test="ring-select_focus"], #pages-search {
+    display: inline-block;
+    padding: 0;
+    margin: 0;
+    font-size: 0;
+    line-height: 0;
+  }
+}
+
+.search-hotkey-popup {
   background-color: var(--background-color) !important;
   padding: 4px;
 }
