@@ -195,7 +195,6 @@ It's also possible to override Dokka's default stylesheets by providing files wi
 | `style.css`          | Main stylesheet, contains most of the styles used across all pages |
 | `logo-styles.css`    | Header logo styling                                                |
 | `prism.css`          | Styles for [PrismJS](https://prismjs.com/) syntax highlighter      |
-| `jetbrains-mono.css` | Font styling                                                       |
 
 The source code for all of Dokka's stylesheets is
 [available on GitHub](https://github.com/Kotlin/dokka/tree/%dokkaVersion%/plugins/base/src/main/resources/dokka/styles).
