@@ -395,7 +395,7 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
             |public class A {
             |    private int a = 1;
             |    public String getA() { return "s"; } // wrong return type
-            |    public String getA(String param) { return "s"; } // shouldn't have params
+            |    public int getA(String param) { return 123; } // shouldn't have params
             |}
         """.trimIndent(),
             configuration
