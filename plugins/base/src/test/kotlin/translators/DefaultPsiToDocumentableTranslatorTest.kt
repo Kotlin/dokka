@@ -434,9 +434,9 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
             configuration
         ) {
             documentablesMergingStage = { module ->
-                val tetClass = module.packages.single().classlikes.single { it.name == "A" }
+                val testClass = module.packages.single().classlikes.single { it.name == "A" }
 
-                val property = tetClass.properties.single { it.name == "a" }
+                val property = testClass.properties.single { it.name == "a" }
                 assertNotNull(property.getter)
 
                 val setter = property.setter
@@ -444,7 +444,7 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
                 assertEquals(1, setter?.parameters?.size)
                 assertEquals(PrimitiveJavaType("int"), setter?.parameters?.get(0)?.type)
 
-                val regularSetterFunctions = tetClass.functions.filter { it.name == "setA" }
+                val regularSetterFunctions = testClass.functions.filter { it.name == "setA" }
                 assertEquals(4, regularSetterFunctions.size)
             }
         }
