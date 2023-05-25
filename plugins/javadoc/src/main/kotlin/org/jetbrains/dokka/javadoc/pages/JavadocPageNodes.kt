@@ -159,9 +159,8 @@ data class JavadocFunctionNode(
     val description: List<ContentNode>,
     val parameters: List<JavadocParameterNode>,
 
-    val authorTagsContent: List<List<ContentNode>>,
-    val sinceTagContent: List<ContentNode>,
     val returnTagContent: List<ContentNode>,
+    val sinceTagContent: List<ContentNode>,
 
     override val name: String,
     override val dri: DRI,
@@ -189,8 +188,8 @@ class JavadocClasslikePageNode(
     val properties: List<JavadocPropertyNode>,
     override val brief: List<ContentNode>,
 
-    val authorTagsContent: List<List<ContentNode>>,
     val sinceTagContent: List<ContentNode>,
+    val authorTagsContent: List<List<ContentNode>>,
 
     override val documentables: List<Documentable> = emptyList(),
     override val children: List<PageNode> = emptyList(),
@@ -225,8 +224,8 @@ class JavadocClasslikePageNode(
         classlikes,
         properties,
         brief,
-        authorTagsContent,
         sinceTagContent,
+        authorTagsContent,
         documentables,
         children,
         embeddedResources,
@@ -252,8 +251,8 @@ class JavadocClasslikePageNode(
             classlikes,
             properties,
             brief,
-            authorTagsContent,
             sinceTagContent,
+            authorTagsContent,
             documentables,
             children,
             embeddedResources,

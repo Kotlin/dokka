@@ -352,8 +352,6 @@ internal class JavadocClasslikeTemplateMapTest : AbstractJavadocTemplateMapTest(
             class TestClass {
                 /**
                  * Testing @author @since @return method tags
-                 * @author Test Author
-                 * @author Test Author2
                  * @since 08 april 2023 
                  * @return parameter's value in lower case
                  */
@@ -369,8 +367,6 @@ internal class JavadocClasslikeTemplateMapTest : AbstractJavadocTemplateMapTest(
             public final class TestClass {
                 /**
                  * Testing @author @since @return method tags
-                 * @author Test Author
-                 * @author Test Author2
                  * @since 08 april 2023 
                  * @return parameter's value in lower case
                  */
@@ -388,7 +384,6 @@ internal class JavadocClasslikeTemplateMapTest : AbstractJavadocTemplateMapTest(
             assertEquals("Testing @author @since @return method tags", testFunction["brief"])
 
             assertEquals("testFunction", testFunction["name"])
-            assertEquals(listOf("<p>Test Author</p>", "<p>Test Author2</p>"), testFunction["authorTagsContent"])
             assertEquals("<p>08 april 2023</p>", testFunction["sinceTagContent"])
             assertEquals("<p>parameter's value in lower case</p>", testFunction["returnTagContent"])
         }
