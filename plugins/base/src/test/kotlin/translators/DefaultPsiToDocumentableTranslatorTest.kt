@@ -421,14 +421,16 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
             |
             |   public int getA() { return a; }
             |
-            |   // additional non-qualifying setter are intentionally 
-            |   // first in case the order makes a difference
             |   public void setA(long a) { }
             |   public void setA(Number a) {}
+            |
+            |   // the qualifying setter is intentionally in the middle
+            |   // to rule out the order making a difference
+            |   public void setA(int a) { }
+            |
             |   public void setA(String a) {}
             |   public void setA() {}
             |
-            |   public void setA(int a) { }
             |}
         """.trimIndent(),
             configuration
