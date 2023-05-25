@@ -3,6 +3,7 @@ import org.jetbrains.registerDokkaArtifactPublication
 plugins {
     id("org.jetbrains.conventions.kotlin-jvm")
     id("org.jetbrains.conventions.maven-publish")
+    id("org.jetbrains.conventions.dokka-html-frontend-files")
 }
 
 dependencies {
@@ -33,45 +34,40 @@ dependencies {
     testImplementation(projects.core.testApi)
     testImplementation(platform(libs.junit.bom))
     testImplementation(libs.junit.jupiter)
+
+    dokkaHtmlFrontendFiles(projects.plugins.base.frontend) {
+        because("fetch frontend files from subproject :plugins:base:frontend")
+    }
 }
 
-val projectDistDir = project(":plugins:base:frontend").file("dist")
-val generateFrontendFiles = tasks.getByPath(":plugins:base:frontend:generateFrontendFiles")
+// access the frontend files via the dependency on :plugins:base:frontend
+val dokkaHtmlFrontendFiles: Provider<FileCollection> =
+    configurations.dokkaHtmlFrontendFiles.map { frontendFiles ->
+        frontendFiles.incoming.artifacts.artifactFiles
+    }
 
-val copyJsFiles by tasks.registering(Copy::class) {
-    from(projectDistDir) {
+val preparedokkaHtmlFrontendFiles by tasks.registering(Sync::class) {
+    description = "copy Dokka Base frontend files into the resources directory"
+
+    from(dokkaHtmlFrontendFiles) {
         include("*.js")
+        into("dokka/scripts")
     }
-    dependsOn(generateFrontendFiles)
-    destinationDir =
-        File(sourceSets.main.get().resources.sourceDirectories.singleFile, "dokka/scripts")
-}
 
-val copyCssFiles by tasks.registering(Copy::class) {
-    from(projectDistDir) {
+    from(dokkaHtmlFrontendFiles) {
         include("*.css")
+        into("dokka/styles")
     }
-    dependsOn(generateFrontendFiles)
-    destinationDir =
-        File(sourceSets.main.get().resources.sourceDirectories.singleFile, "dokka/styles")
+
+    into(layout.buildDirectory.dir("generated/src/main/resources"))
 }
 
-val copyFrontend by tasks.registering {
-    dependsOn(copyJsFiles, copyCssFiles)
+sourceSets.main {
+    resources.srcDir(preparedokkaHtmlFrontendFiles.map { it.destinationDir })
 }
 
-tasks {
-    processResources {
-        dependsOn(copyFrontend)
-    }
-
-    sourcesJar {
-        dependsOn(processResources)
-    }
-
-    test {
-        maxHeapSize = "4G"
-    }
+tasks.test {
+    maxHeapSize = "4G"
 }
 
 registerDokkaArtifactPublication("dokkaBase") {
