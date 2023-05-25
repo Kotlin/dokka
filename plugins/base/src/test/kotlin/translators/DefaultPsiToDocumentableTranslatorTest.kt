@@ -387,15 +387,15 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `should preserve regular functions that look like accessors, but are not accessors`() {
+    fun `should preserve regular functions that are named like getters, but are not getters`() {
         testInline(
             """
             |/src/main/java/test/A.java
             |package test;
             |public class A {
-            |    public int a = 1;
-            |    public void setA() { } // no arg
+            |    private int a = 1;
             |    public String getA() { return "s"; } // wrong return type
+            |    public String getA(String param) { return "s"; } // shouldn't have params
             |}
         """.trimIndent(),
             configuration
@@ -403,14 +403,95 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
             documentablesMergingStage = { module ->
                 val testClass = module.packages.single().classlikes.single { it.name == "A" }
 
-                val setterLookalike = testClass.functions.firstOrNull { it.name == "setA" }
-                assertNotNull(setterLookalike) {
-                    "Expected regular function not found, wrongly categorized as setter?"
+                val getterLookalikes = testClass.functions.filter { it.name == "getA" }
+                assertEquals(2, getterLookalikes.size) {
+                    "Not all expected regular functions found, wrongly categorized as getters?"
                 }
+            }
+        }
+    }
 
-                val getterLookalike = testClass.functions.firstOrNull { it.name == "getA" }
-                assertNotNull(getterLookalike) {
-                    "Expected regular function not found, wrongly categorized as getter?"
+    @Test
+    fun `should ignore additional non-accessor setters`() {
+        testInline(
+            """
+            |/src/main/java/test/A.java
+            |package test;
+            |public class A {
+            |   private int a = 1;
+            |
+            |   public int getA() { return a; }
+            |
+            |   // additional non-qualifying setter are intentionally 
+            |   // first in case the order makes a difference
+            |   public void setA(long a) { }
+            |   public void setA(Number a) {}
+            |   public void setA(String a) {}
+            |   public void setA() {}
+            |
+            |   public void setA(int a) { }
+            |}
+        """.trimIndent(),
+            configuration
+        ) {
+            documentablesMergingStage = { module ->
+                val tetClass = module.packages.single().classlikes.single { it.name == "A" }
+
+                val property = tetClass.properties.single { it.name == "a" }
+                assertNotNull(property.getter)
+
+                val setter = property.setter
+                assertNotNull(setter)
+                assertEquals(1, setter?.parameters?.size)
+                assertEquals(PrimitiveJavaType("int"), setter?.parameters?.get(0)?.type)
+
+                val regularSetterFunctions = tetClass.functions.filter { it.name == "setA" }
+                assertEquals(4, regularSetterFunctions.size)
+            }
+        }
+    }
+
+    @Test
+    fun `should not qualify methods with subtype parameters as type accessors`() {
+        testInline(
+            """
+            |/src/main/java/test/Shape.java
+            |package test;
+            |public class Shape { }
+            |
+            |/src/main/java/test/Triangle.java
+            |package test;
+            |public class Triangle extends Shape { }
+            |
+            |/src/main/java/test/Square.java
+            |package test;
+            |public class Square extends Shape { }
+            |
+            |/src/main/java/test/Test.java
+            |package test;
+            |public class Test {
+            |    private Shape foo = 1;
+            |
+            |    public Shape getFoo() { return new Square(); }
+            |
+            |    public void setFoo(Square foo) { }
+            |    public void setFoo(Triangle foo) { }
+            |}
+        """.trimIndent(),
+            configuration
+        ) {
+            documentablesMergingStage = { module ->
+                val testClass = module.packages.single().classlikes.single { it.name == "Test" }
+
+                val field = testClass.properties.singleOrNull { it.name == "foo" }
+                assertNotNull(field) {
+                    "Expected the foo property to exist because the field is private with a public getter"
+                }
+                assertNull(requireNotNull(field).setter)
+
+                val setterMethodsWithSubtypeParams = testClass.functions.filter { it.name == "setFoo" }
+                assertEquals(2, setterMethodsWithSubtypeParams.size) {
+                    "Expected the setter methods to not qualify as accessors because of subtype parameters"
                 }
             }
         }
