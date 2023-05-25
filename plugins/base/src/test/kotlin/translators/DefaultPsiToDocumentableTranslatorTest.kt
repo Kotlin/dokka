@@ -10,17 +10,16 @@ import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.plugability.DokkaPluginApiPreview
 import org.jetbrains.dokka.plugability.PluginApiPreviewAcknowledgement
+import org.jetbrains.dokka.DokkaConfiguration.Visibility
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import utils.assertNotNull
 
 class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
-    @Suppress("DEPRECATION") // for includeNonPublic
     val configuration = dokkaConfiguration {
         sourceSets {
             sourceSet {
                 sourceRoots = listOf("src/main/java")
-                includeNonPublic = true
             }
         }
     }
@@ -33,20 +32,20 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
             |package sample;
             |public class BaseClass1 {
             |    /** B1 */
-            |    void x() { }
+            |    public void x() { }
             |}
             |
             |/src/main/java/sample/BaseClass2.java
             |package sample;
             |public class BaseClass2 extends BaseClass1 {
             |    /** B2 */
-            |    void x() { }
+            |    public void x() { }
             |}
             |
             |/src/main/java/sample/X.java
             |package sample;
             |public class X extends BaseClass2 {
-            |    void x() { }
+            |    public void x() { }
             |}
             """.trimIndent(),
             configuration
@@ -70,20 +69,20 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
             |package sample;
             |public class BaseClass1 {
             |    /** B1 */
-            |    void x() { }
+            |    public void x() { }
             |}
             |
             |/src/main/java/sample/Interface1.java
             |package sample;
             |public interface Interface1 {
             |    /** I1 */
-            |    void x() {}
+            |    public void x() {}
             |}
             |
             |/src/main/java/sample/X.java
             |package sample;
             |public class X extends BaseClass1 implements Interface1 {
-            |    void x() { }
+            |    public void x() { }
             |}
             """.trimMargin(),
             configuration
@@ -107,19 +106,19 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
             |package sample;
             |public class BaseClass1 {
             |    /** B1 */
-            |    void x() { }
+            |    public void x() { }
             |}
             |
             |/src/main/java/sample/BaseClass2.java
             |package sample;
             |public class BaseClass2 extends BaseClass1 {
-            |    void x() {}
+            |    public void x() {}
             |}
             |
             |/src/main/java/sample/X.java
             |package sample;
             |public class X extends BaseClass2 {
-            |    void x() { }
+            |    public void x() { }
             |}
             """.trimMargin(),
             configuration
@@ -498,6 +497,36 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
     }
 
     @Test
+    fun `should preserve private fields without getters even if they have qualifying setters`() {
+        testInline(
+            """
+            |/src/main/java/test/A.java
+            |package test;
+            |public class A {
+            |   private int a = 1;
+            |
+            |   public void setA(int a) { }
+            |}
+        """.trimIndent(),
+            configuration
+        ) {
+            documentablesMergingStage = { module ->
+                val tetClass = module.packages.single().classlikes.single { it.name == "A" }
+
+                val property = tetClass.properties.firstOrNull { it.name == "a" }
+                assertNull(property) {
+                    "Expected the property to stay private because there are no getters"
+                }
+
+                val regularSetterFunction = tetClass.functions.firstOrNull { it.name == "setA" }
+                assertNotNull(regularSetterFunction) {
+                    "The qualifying setter function should stay a regular function because the field is inaccessible"
+                }
+            }
+        }
+    }
+
+    @Test
     fun `should not mark a multi-param setter overload as an accessor`() {
         testInline(
             """
@@ -621,7 +650,7 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
             |/src/main/java/test/A.java
             |package test;
             |public class A {
-            |   private int a = 1;
+            |   public int a = 1;
             |}
         """.trimIndent(),
             configuration
@@ -884,6 +913,15 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
 
     @Test
     fun `should have package-private default constructor in package-private class`() {
+        val configuration = dokkaConfiguration {
+            sourceSets {
+                sourceSet {
+                    sourceRoots = listOf("src/main/java")
+                    documentedVisibilities = setOf(Visibility.PUBLIC, Visibility.PACKAGE)
+                }
+            }
+        }
+
         testInline(
             """
             |/src/main/java/test/A.java
@@ -904,11 +942,20 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
 
     @Test
     fun `should have private default constructor in private nested class`() {
+        val configuration = dokkaConfiguration {
+            sourceSets {
+                sourceSet {
+                    sourceRoots = listOf("src/main/java")
+                    documentedVisibilities = setOf(Visibility.PUBLIC, Visibility.PRIVATE)
+                }
+            }
+        }
+
         testInline(
             """
             |/src/main/java/test/A.java
             |package test;
-            |class A {
+            |public class A {
             |    private static class PrivateNested{}
             |}
         """.trimIndent(),
@@ -925,7 +972,16 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `should not have a default constructor because have explicit private`() {
+    fun `should not have a default public constructor because have explicit private`() {
+        val configuration = dokkaConfiguration {
+            sourceSets {
+                sourceSet {
+                    sourceRoots = listOf("src/main/java")
+                    documentedVisibilities = setOf(Visibility.PUBLIC, Visibility.PRIVATE)
+                }
+            }
+        }
+
         testInline(
             """
             |/src/main/java/test/A.java
