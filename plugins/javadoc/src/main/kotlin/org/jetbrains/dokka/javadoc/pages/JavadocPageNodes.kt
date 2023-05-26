@@ -195,7 +195,7 @@ class JavadocClasslikePageNode(
     override val children: List<PageNode> = emptyList(),
     override val embeddedResources: List<String> = listOf(),
     override val extra: PropertyContainer<DClasslike> = PropertyContainer.empty(),
-) : JavadocPageNode, WithJavadocExtra<DClasslike>, NavigableJavadocNode, WithNavigable, WithBrief {
+) : JavadocPageNode, WithJavadocExtra<DClasslike>, NavigableJavadocNode, WithNavigable, WithBrief, ClasslikePage {
 
     override fun getAllNavigables(): List<NavigableJavadocNode> =
         methods + entries + classlikes.map { it.getAllNavigables() }.flatten() + this
