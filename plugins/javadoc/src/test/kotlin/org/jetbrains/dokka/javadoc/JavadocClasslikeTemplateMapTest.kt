@@ -352,6 +352,7 @@ internal class JavadocClasslikeTemplateMapTest : AbstractJavadocTemplateMapTest(
             class TestClass {
                 /**
                  * Testing @author @since @return method tags
+                 * @since 1.2
                  * @since 08 april 2023 
                  * @return parameter's value in lower case
                  */
@@ -367,6 +368,7 @@ internal class JavadocClasslikeTemplateMapTest : AbstractJavadocTemplateMapTest(
             public final class TestClass {
                 /**
                  * Testing @author @since @return method tags
+                 * @since 1.2
                  * @since 08 april 2023 
                  * @return parameter's value in lower case
                  */
@@ -384,7 +386,7 @@ internal class JavadocClasslikeTemplateMapTest : AbstractJavadocTemplateMapTest(
             assertEquals("Testing @author @since @return method tags", testFunction["brief"])
 
             assertEquals("testFunction", testFunction["name"])
-            assertEquals("<p>08 april 2023</p>", testFunction["sinceTagContent"])
+            assertEquals(listOf("<p>1.2</p>", "<p>08 april 2023</p>"), testFunction["sinceTagContent"])
             assertEquals("<p>parameter's value in lower case</p>", testFunction["returnTagContent"])
         }
     }
@@ -401,6 +403,7 @@ internal class JavadocClasslikeTemplateMapTest : AbstractJavadocTemplateMapTest(
              * @author Test Author
              * @author Test Author2
              * @author Test Author3
+             * @since 1.2
              * @since 08 april 2023 
              */
             class TestClass {
@@ -418,6 +421,7 @@ internal class JavadocClasslikeTemplateMapTest : AbstractJavadocTemplateMapTest(
              * @author Test Author
              * @author Test Author2
              * @author Test Author3
+             * @since 1.2
              * @since 08 april 2023 
              */
             public final class TestClass {
@@ -431,8 +435,8 @@ internal class JavadocClasslikeTemplateMapTest : AbstractJavadocTemplateMapTest(
 
             assertEquals("TestClass", map["name"])
             assertEquals("<p>Testing @author @since class tags</p>", map["classlikeDocumentation"])
-            assertEquals(listOf("<p>Test Author</p>", "<p>Test Author2</p>", "<p>Test Author3</p>"), map["authorTagsContent"])
-            assertEquals("<p>08 april 2023</p>", map["sinceTagContent"])
+            assertEquals(listOf("<p>Test Author</p>", "<p>Test Author2</p>", "<p>Test Author3</p>"), map["authorTagContent"])
+            assertEquals(listOf("<p>1.2</p>", "<p>08 april 2023</p>"), map["sinceTagContent"])
         }
     }
 

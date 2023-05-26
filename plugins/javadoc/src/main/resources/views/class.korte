@@ -43,12 +43,14 @@
 
                     {% if sinceTagContent != "" %}
                         <dt><span class="sinceLabel">Since:</span></dt>
-                        <dd>{{ sinceTagContent|raw }}</dd>
+                        {% for since in sinceTagContent %}
+                            <dd>{{ since|raw }}</dd>
+                        {% endfor %}
                     {% endif %}
 
-                    {% if authorTagsContent.size() != 0 %}
+                    {% if authorTagContent.size() != 0 %}
                         <dt><span class="authorLabel">Authors:</span></dt>
-                        {% for author in authorTagsContent %}
+                        {% for author in authorTagContent %}
                             <dd>{{ author|raw }}</dd>
                         {% endfor %}
                     {% endif %}
@@ -306,7 +308,9 @@
 
                                         {% if method.sinceTagContent != "" %}
                                             <dt><span class="sinceLabel">Since:</span></dt>
-                                            <dd>{{ method.sinceTagContent|raw }}</dd>
+                                            {% for since in method.sinceTagContent %}
+                                                <dd>{{ since|raw }}</dd>
+                                            {% endfor %}
                                         {% endif %}
 
                                         </dl>

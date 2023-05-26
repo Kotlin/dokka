@@ -69,7 +69,7 @@ open class JavadocPageCreator(context: DokkaContext) {
                     )
                 },
                 sinceTagContent = c.sinceToContentNodes(jvm),
-                authorTagsContent = c.authorsToContentNodes(jvm),
+                authorTagContent = c.authorsToContentNodes(jvm),
                 documentables = listOf(c),
                 children = children,
                 extra = extra + c.indexesInDocumentation()
@@ -246,7 +246,7 @@ open class JavadocPageCreator(context: DokkaContext) {
         allContentNodesFromType<Author>(sourceSet)
 
     private fun Documentable.sinceToContentNodes(sourceSet: DokkaSourceSet? = highestJvmSourceSet) =
-        contentNodesFromType<Since>(sourceSet)
+        allContentNodesFromType<Since>(sourceSet)
 
     private fun Documentable.returnToContentNodes(sourceSet: DokkaSourceSet? = highestJvmSourceSet) =
         contentNodesFromType<Return>(sourceSet)

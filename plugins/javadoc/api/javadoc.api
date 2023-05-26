@@ -182,7 +182,7 @@ public final class org/jetbrains/dokka/javadoc/pages/JavadocClasslikePageNode : 
 	public synthetic fun <init> (Ljava/lang/String;Lorg/jetbrains/dokka/javadoc/pages/JavadocContentNode;Ljava/util/Set;Lorg/jetbrains/dokka/javadoc/pages/JavadocSignatureContentNode;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Lorg/jetbrains/dokka/model/properties/PropertyContainer;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun getAllNavigables ()Ljava/util/List;
 	public final fun getAnchorables ()Ljava/util/List;
-	public final fun getAuthorTagsContent ()Ljava/util/List;
+	public final fun getAuthorTagContent ()Ljava/util/List;
 	public fun getBrief ()Ljava/util/List;
 	public fun getChildren ()Ljava/util/List;
 	public final fun getClasslikes ()Ljava/util/List;
