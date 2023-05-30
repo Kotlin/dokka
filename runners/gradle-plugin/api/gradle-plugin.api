@@ -174,6 +174,11 @@ public final class org/jetbrains/dokka/gradle/SourceSetKotlinGistConfigurationKt
 	public static final fun configureWithKotlinSourceSet (Lorg/jetbrains/dokka/gradle/GradleDokkaSourceSetBuilder;Lorg/jetbrains/kotlin/gradle/plugin/KotlinSourceSet;)V
 }
 
+public final class org/jetbrains/dokka/gradle/internal/AbstractDokkaTaskExtensionsKt {
+	public static final fun buildJsonConfiguration (Lorg/jetbrains/dokka/gradle/AbstractDokkaTask;Z)Ljava/lang/String;
+	public static synthetic fun buildJsonConfiguration$default (Lorg/jetbrains/dokka/gradle/AbstractDokkaTask;ZILjava/lang/Object;)Ljava/lang/String;
+}
+
 public final class org/jetbrains/dokka/gradle/kotlin/KotlinClasspathUtilsKt {
 	public static final fun isHMPPEnabled (Lorg/gradle/api/Project;)Z
 }
