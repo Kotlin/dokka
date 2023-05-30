@@ -1,3 +1,4 @@
+@import url('./font-jb-sans-auto.css');
 @import url('https://fonts.googleapis.com/css?family=JetBrains+Mono');
 
 /* --- root styles --- */
@@ -24,7 +25,7 @@
     --background-color: var(--default-white);
     --dark-mode-and-search-icon-color: var(--default-white);
     --color-dark: #27282c;
-    --default-font-family: system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Droid Sans, Helvetica Neue, Arial, sans-serif;
+    --default-font-family: JetBrains Sans, Inter, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI,Roboto, Oxygen, Ubuntu,Cantarell, Droid Sans, Helvetica Neue, Arial, sans-serif;
     --default-monospace-font-family: JetBrains Mono, SFMono-Regular, Consolas, Liberation Mono, Menlo, Courier, monospace;
     --default-font-size: 15px;
     --average-color: var(--color-dark);
@@ -144,7 +145,7 @@ pre {
 
 dt {
     color: #444;
-    font-weight: 700;
+    font-weight: 530;
 }
 
 img {
@@ -481,6 +482,10 @@ td:first-child {
 .main-content .content > hr {
     margin: 30px 0;
     border-top: 3px double #8c8b8b;
+}
+
+.main-content :is(h1, h2) {
+    font-weight: 530;
 }
 /* /--- Main Content styles --- */
 
@@ -1428,7 +1433,7 @@ div.runnablesample {
     display: flex;
     align-items: center;
     color: #fff;
-    font-weight: 700;
+    font-weight: 530;
 }
 
 .library-name--link::before {
