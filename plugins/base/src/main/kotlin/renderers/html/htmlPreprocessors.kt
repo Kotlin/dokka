@@ -77,7 +77,8 @@ class StylesInstaller(private val dokkaContext: DokkaContext) : PageTransformer 
         "styles/style.css",
         "styles/main.css",
         "styles/prism.css",
-        "styles/logo-styles.css"
+        "styles/logo-styles.css",
+        "styles/font-jb-sans-auto.css"
     )
 
     override fun invoke(input: RootPageNode): RootPageNode =
