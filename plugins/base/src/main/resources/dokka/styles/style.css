@@ -505,9 +505,10 @@ td:first-child {
 }
 /* /--- Breadcrumbs styles --- */
 
-.tabs-section > .section-tab:first-child,
-.platform-hinted > .platform-bookmarks-row > .platform-bookmark:first-child {
-    margin-left: 0;
+.tabs-section,
+.platform-hinted > .platform-bookmarks-row {
+    margin-left: -8px;
+    margin-right: -8px;
 }
 
 .section-tab,
