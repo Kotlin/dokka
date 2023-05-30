@@ -1131,7 +1131,7 @@ td.content {
     position: relative;
 }
 
-.main-subrow:hover .anchor-icon {
+.js .main-subrow:hover .anchor-icon {
     opacity: 1;
     transition: 0.2s;
 }
