@@ -1159,6 +1159,12 @@ td.content {
     fill: var(--hover-link-color);
 }
 
+@media (hover: none) {
+    .main-subrow .anchor-icon {
+        display: none;
+    }
+}
+
 .main-subrow .anchor-wrapper {
     position: relative;
     width: 24px;
