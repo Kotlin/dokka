@@ -41,7 +41,7 @@
 
                     <dl>
 
-                    {% if sinceTagContent != "" %}
+                    {% if sinceTagContent.size() != 0 %}
                         <dt><span class="sinceLabel">Since:</span></dt>
                         {% for since in sinceTagContent %}
                             <dd>{{ since|raw }}</dd>
@@ -306,7 +306,7 @@
                                             <dd>{{ method.returnTagContent|raw }}</dd>
                                         {% endif %}
 
-                                        {% if method.sinceTagContent != "" %}
+                                        {% if method.sinceTagContent.size() != 0 %}
                                             <dt><span class="sinceLabel">Since:</span></dt>
                                             {% for since in method.sinceTagContent %}
                                                 <dd>{{ since|raw }}</dd>
