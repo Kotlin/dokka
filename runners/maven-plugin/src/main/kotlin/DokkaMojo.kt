@@ -353,6 +353,12 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
             }
         }
 
+        if (moduleName.contains(',')) {
+            // To figure out why this is needed and if it is still relevant, see the comment here:
+            // https://github.com/Kotlin/dokka/issues/3011#issuecomment-1568620493
+            throw IllegalArgumentException("Module name cannot contain commas as it is used internally as a delimiter.")
+        }
+
         fun defaultLinks(config: DokkaSourceSetImpl): Set<ExternalDocumentationLinkImpl> {
             val links = mutableSetOf<ExternalDocumentationLinkImpl>()
             if (!config.noJdkLink)
