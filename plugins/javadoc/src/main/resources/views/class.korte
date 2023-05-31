@@ -38,6 +38,24 @@
 {% if signature.supertypes != null %}{{signature.supertypes|raw}}{% endif %}
                     </pre>
                     <div class="block">{{ classlikeDocumentation|raw }}</div>
+
+                    <dl>
+
+                    {% if sinceTagContent.size() != 0 %}
+                        <dt><span class="sinceLabel">Since:</span></dt>
+                        {% for since in sinceTagContent %}
+                            <dd>{{ since|raw }}</dd>
+                        {% endfor %}
+                    {% endif %}
+
+                    {% if authorTagContent.size() != 0 %}
+                        <dt><span class="authorLabel">Author:</span></dt>
+                        {% for author in authorTagContent %}
+                            <dd>{{ author|raw }}</dd>
+                        {% endfor %}
+                    {% endif %}
+
+                    </dl>
                 </li>
             </ul>
         </div>
@@ -271,17 +289,31 @@
                                         <h4>{{ method.name }}</h4>
                                         <pre class="methodSignature">{{ method.signature.annotations|raw }} {{ method.signature.modifiers|raw }} {{ method.signature.signatureWithoutModifiers|raw}}</pre>
                                         <div class="block">{{ method.description|raw }}</div>
-                                        {% if method.parameters.size != 0 && hasAnyDescription(method.parameters) %}
+
                                         <dl>
+
+                                        {% if method.parameters.size != 0 && hasAnyDescription(method.parameters) %}
                                             <dt><span class="paramLabel">Parameters:</span></dt>
                                             {% for parameter in method.parameters %}
                                             {% if parameter.description != "" %}
                                             <dd><code>{{ parameter.name }}</code> - {{ parameter.description|raw }}</dd>
                                             {% endif %}
                                             {% endfor %}
-                                        </dl>
                                         {% endif %}
-                                        <!-- TODO missing return annotation -->
+
+                                        {% if method.returnTagContent != "" %}
+                                            <dt><span class="returnLabel">Returns:</span></dt>
+                                            <dd>{{ method.returnTagContent|raw }}</dd>
+                                        {% endif %}
+
+                                        {% if method.sinceTagContent.size() != 0 %}
+                                            <dt><span class="sinceLabel">Since:</span></dt>
+                                            {% for since in method.sinceTagContent %}
+                                                <dd>{{ since|raw }}</dd>
+                                            {% endfor %}
+                                        {% endif %}
+
+                                        </dl>
                                     </li>
                                 </ul>
                                 {% endfor %}

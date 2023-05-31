@@ -122,6 +122,8 @@ internal class JavadocContentToTemplateMapTranslator(
             "description" to htmlForContentNodes(node.description,contextNode),
             "parameters" to node.parameters.map { templateMapForParameterNode(it) },
             "inlineParameters" to node.parameters.joinToString { renderInlineParameter(it) },
+            "returnTagContent" to htmlForContentNodes(node.returnTagContent, contextNode),
+            "sinceTagContent" to node.sinceTagContent.map { htmlForContentNodes(it, contextNode) },
             "anchorLink" to node.getAnchor(),
             "signature" to templateMapForSignatureNode(node.signature),
             "name" to node.name
@@ -137,6 +139,8 @@ internal class JavadocContentToTemplateMapTranslator(
                 "properties" to node.properties.map { templateMapForPropertyNode(it) },
                 "classlikes" to node.classlikes.map { templateMapForNestedClasslikeNode(it) },
                 "implementedInterfaces" to templateMapForImplementedInterfaces(node).sorted(),
+                "sinceTagContent" to node.sinceTagContent.map { htmlForContentNodes(it, contextNode) },
+                "authorTagContent" to node.authorTagContent.map { htmlForContentNodes(it, contextNode) },
                 "kind" to node.kind,
                 "packageName" to node.packageName,
                 "name" to node.name
