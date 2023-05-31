@@ -149,7 +149,6 @@ data class JavadocPropertyNode(
     override val name: String,
     val signature: JavadocSignatureContentNode,
     override val brief: List<ContentNode>,
-
     override val extra: PropertyContainer<DProperty> = PropertyContainer.empty()
 ) : AnchorableJavadocNode(name, dri), WithJavadocExtra<DProperty>, WithBrief
 
@@ -158,10 +157,6 @@ data class JavadocFunctionNode(
     override val brief: List<ContentNode>,
     val description: List<ContentNode>,
     val parameters: List<JavadocParameterNode>,
-
-    val returnTagContent: List<ContentNode>,
-    val sinceTagContent: List<List<ContentNode>>,
-
     override val name: String,
     override val dri: DRI,
     override val extra: PropertyContainer<DFunction> = PropertyContainer.empty()
@@ -187,10 +182,6 @@ class JavadocClasslikePageNode(
     val classlikes: List<JavadocClasslikePageNode>,
     val properties: List<JavadocPropertyNode>,
     override val brief: List<ContentNode>,
-
-    val sinceTagContent: List<List<ContentNode>>,
-    val authorTagContent: List<List<ContentNode>>,
-
     override val documentables: List<Documentable> = emptyList(),
     override val children: List<PageNode> = emptyList(),
     override val embeddedResources: List<String> = listOf(),
@@ -224,8 +215,6 @@ class JavadocClasslikePageNode(
         classlikes,
         properties,
         brief,
-        sinceTagContent,
-        authorTagContent,
         documentables,
         children,
         embeddedResources,
@@ -251,8 +240,6 @@ class JavadocClasslikePageNode(
             classlikes,
             properties,
             brief,
-            sinceTagContent,
-            authorTagContent,
             documentables,
             children,
             embeddedResources,

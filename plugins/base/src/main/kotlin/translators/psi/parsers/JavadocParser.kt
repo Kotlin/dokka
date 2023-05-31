@@ -168,15 +168,6 @@ class JavadocParser(
                 )
             )
 
-            JavadocTag.SINCE -> Since(
-                wrapTagIfNecessary(
-                    convertJavadocElements(
-                        tag.contentElementsWithSiblingIfNeeded(),
-                        context = resolutionContext
-                    )
-                )
-            )
-
             else -> emptyTagWrapper(tag, docComment)
         }
     }

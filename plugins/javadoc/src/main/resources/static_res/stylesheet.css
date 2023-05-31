@@ -352,12 +352,6 @@ ul.blockList li.blockList h2 {
     font-size:14px;
     font-family:'DejaVu Serif', Georgia, "Times New Roman", Times, serif;
 }
-
-.contentContainer .description dl dt p, .contentContainer .details dl dt p, .serializedFormContainer dl dt p,
-.contentContainer .description dl dd p, .contentContainer .details dl dd p, .serializedFormContainer dl dd p {
-    margin:5px 0 10px 0px;
-}
-
 .serializedFormContainer dl.nameValue dt {
     margin-left:1px;
     font-size:1.1em;
@@ -635,8 +629,8 @@ h1.hidden {
 }
 .deprecatedLabel, .descfrmTypeLabel, .implementationLabel, .memberNameLabel, .memberNameLink,
 .moduleLabelInPackage, .moduleLabelInType, .overrideSpecifyLabel, .packageLabelInType,
-.packageHierarchyLabel, .authorLabel, .paramLabel, .returnLabel, .seeLabel, .simpleTagLabel,
-.throwsLabel, .sinceLabel, .typeNameLabel, .typeNameLink, .searchTagLink {
+.packageHierarchyLabel, .paramLabel, .returnLabel, .seeLabel, .simpleTagLabel,
+.throwsLabel, .typeNameLabel, .typeNameLink, .searchTagLink {
     font-weight:bold;
 }
 .deprecationComment, .emphasizedPhrase, .interfaceName {

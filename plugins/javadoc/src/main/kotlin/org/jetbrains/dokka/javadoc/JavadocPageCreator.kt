@@ -7,7 +7,10 @@ import org.jetbrains.dokka.base.transformers.pages.comments.DocTagToContentConve
 import org.jetbrains.dokka.base.translators.documentables.firstSentenceBriefFromContentNodes
 import org.jetbrains.dokka.javadoc.pages.*
 import org.jetbrains.dokka.model.*
-import org.jetbrains.dokka.model.doc.*
+import org.jetbrains.dokka.model.doc.Description
+import org.jetbrains.dokka.model.doc.Index
+import org.jetbrains.dokka.model.doc.Param
+import org.jetbrains.dokka.model.doc.TagWrapper
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.jetbrains.dokka.pages.*
@@ -65,11 +68,9 @@ open class JavadocPageCreator(context: DokkaContext) {
                         it.name,
                         signatureForNode(it, jvm),
                         it.descriptionToContentNodes(jvm),
-                        PropertyContainer.withAll(it.indexesInDocumentation()),
+                        PropertyContainer.withAll(it.indexesInDocumentation())
                     )
                 },
-                sinceTagContent = c.sinceToContentNodes(jvm),
-                authorTagContent = c.authorsToContentNodes(jvm),
                 documentables = listOf(c),
                 children = children,
                 extra = extra + c.indexesInDocumentation()
@@ -164,8 +165,6 @@ open class JavadocPageCreator(context: DokkaContext) {
                     )
                 }
             },
-            returnTagContent = returnToContentNodes(jvm),
-            sinceTagContent = sinceToContentNodes(jvm),
             extra = extra + indexesInDocumentation()
         )
     }
@@ -177,9 +176,6 @@ open class JavadocPageCreator(context: DokkaContext) {
 
     private inline fun <reified T : TagWrapper> Documentable.findNodeInDocumentation(sourceSetData: DokkaSourceSet?): T? =
         documentation[sourceSetData]?.firstChildOfTypeOrNull<T>()
-
-    private inline fun <reified T : TagWrapper> Documentable.findAllNodesInDocumentation(sourceSetData: DokkaSourceSet?): List<T> =
-        documentation[sourceSetData]?.childrenOfType<T>() ?: emptyList()
 
     private fun Documentable.descriptionToContentNodes(sourceSet: DokkaSourceSet? = highestJvmSourceSet) =
         contentNodesFromType<Description>(sourceSet)
@@ -195,15 +191,6 @@ open class JavadocPageCreator(context: DokkaContext) {
                 sourceSets.toSet()
             )
         }.orEmpty()
-
-    private inline fun <reified T : TagWrapper> Documentable.allContentNodesFromType(sourceSet: DokkaSourceSet?) =
-        findAllNodesInDocumentation<T>(sourceSet).map {
-            DocTagToContentConverter().buildContent(
-                it.root,
-                DCI(setOf(dri), JavadocContentKind.OverviewSummary),
-                sourceSets.toSet()
-            )
-        }
 
     fun List<ContentNode>.nodeForJvm(jvm: DokkaSourceSet): ContentNode =
         firstOrNull { jvm.sourceSetID in it.sourceSets.sourceSetIDs }
@@ -241,14 +228,5 @@ open class JavadocPageCreator(context: DokkaContext) {
             }
         )
     }
-
-    private fun Documentable.authorsToContentNodes(sourceSet: DokkaSourceSet? = highestJvmSourceSet) =
-        allContentNodesFromType<Author>(sourceSet)
-
-    private fun Documentable.sinceToContentNodes(sourceSet: DokkaSourceSet? = highestJvmSourceSet) =
-        allContentNodesFromType<Since>(sourceSet)
-
-    private fun Documentable.returnToContentNodes(sourceSet: DokkaSourceSet? = highestJvmSourceSet) =
-        contentNodesFromType<Return>(sourceSet)
 }
 

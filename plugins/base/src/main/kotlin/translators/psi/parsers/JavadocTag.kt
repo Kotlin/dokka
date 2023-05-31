@@ -1,7 +1,7 @@
 package org.jetbrains.dokka.base.translators.psi.parsers
 
 internal enum class JavadocTag {
-    PARAM, THROWS, RETURN, AUTHOR, SEE, DEPRECATED, EXCEPTION, HIDE, SINCE,
+    PARAM, THROWS, RETURN, AUTHOR, SEE, DEPRECATED, EXCEPTION, HIDE,
 
     /**
      * Artificial tag created to handle tag-less section
