@@ -215,7 +215,7 @@ open class HtmlRenderer(
             node.isAnchorable -> buildAnchor(
                 node.anchor!!,
                 node.anchorLabel!!,
-                node.sourceSetsFilters
+                node.buildSourceSetFilterValues()
             ) { childrenCallback() }
             node.extra[InsertTemplateExtra] != null -> node.extra[InsertTemplateExtra]?.let { templateCommand(it.command) }
                 ?: Unit
@@ -568,10 +568,15 @@ open class HtmlRenderer(
     private fun FlowContent.addSourceSetFilteringAttributes(
         contextNode: ContentGroup,
     ) {
-        attributes["data-filterable-current"] = contextNode.sourceSets.joinToString(" ") {
-            it.sourceSetIDs.merged.toString()
-        }
-        attributes["data-filterable-set"] = contextNode.sourceSets.joinToString(" ") {
+        attributes["data-filterable-current"] = contextNode.buildSourceSetFilterValues()
+        attributes["data-filterable-set"] = contextNode.buildSourceSetFilterValues()
+    }
+
+    private fun ContentNode.buildSourceSetFilterValues(): String {
+        // This value is used in HTML and JS for filtering out source set declarations,
+        // it is expected that the separator is the same here and there.
+        // See https://github.com/Kotlin/dokka/issues/3011#issuecomment-1568620493
+        return this.sourceSets.joinToString(",") {
             it.sourceSetIDs.merged.toString()
         }
     }
@@ -699,7 +704,7 @@ open class HtmlRenderer(
         buildAnchor(anchor, anchorLabel, sourceSets) {}
 
     private fun FlowContent.buildAnchor(node: ContentNode) {
-        node.anchorLabel?.let { label -> buildAnchor(node.anchor!!, label, node.sourceSetsFilters) }
+        node.anchorLabel?.let { label -> buildAnchor(node.anchor!!, label, node.buildSourceSetFilterValues()) }
     }
 
 
@@ -981,9 +986,6 @@ private val PageNode.isNavigable: Boolean
 
 private fun PropertyContainer<ContentNode>.extraHtmlAttributes() = allOfType<SimpleAttr>()
 private fun PropertyContainer<ContentNode>.extraTabbedContentType() = this[TabbedContentTypeExtra]
-
-private val ContentNode.sourceSetsFilters: String
-    get() = sourceSets.sourceSetIDs.joinToString(" ") { it.toString() }
 
 private val DisplaySourceSet.comparableKey
         get() = sourceSetIDs.merged.let { it.scopeId + it.sourceSetName }
