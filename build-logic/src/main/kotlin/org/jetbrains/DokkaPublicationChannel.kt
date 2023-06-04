@@ -2,61 +2,46 @@
 
 package org.jetbrains
 
-import org.gradle.api.Project
+import org.jetbrains.DokkaVersionType.*
 
 enum class DokkaPublicationChannel {
-    SPACE_DOKKA_DEV,
-    MAVEN_CENTRAL,
-    MAVEN_CENTRAL_SNAPSHOT,
-    GRADLE_PLUGIN_PORTAL;
+    SpaceDokkaDev,
+    MavenCentral {
+        override val repositoryName = "sonatype"
+    },
+    MavenCentralSnapshot {
+        //
+        override val repositoryName = "sonatype"
+    },
+    GradlePluginPortal,
+    MavenProjectLocal,
+    ;
 
-    val acceptedDokkaVersionTypes: List<DokkaVersionType>
-        get() = when(this) {
-            MAVEN_CENTRAL -> listOf(DokkaVersionType.RELEASE, DokkaVersionType.RC)
-            MAVEN_CENTRAL_SNAPSHOT -> listOf(DokkaVersionType.SNAPSHOT)
-            SPACE_DOKKA_DEV -> listOf(DokkaVersionType.RELEASE, DokkaVersionType.RC, DokkaVersionType.DEV, DokkaVersionType.SNAPSHOT)
-            GRADLE_PLUGIN_PORTAL -> listOf(DokkaVersionType.RELEASE, DokkaVersionType.RC)
+    open val repositoryName: String = name
+
+    val acceptedDokkaVersionTypes: Set<DokkaVersionType>
+        get() = when (this) {
+            MavenCentral -> setOf(RELEASE, RC)
+            MavenCentralSnapshot -> setOf(SNAPSHOT)
+            SpaceDokkaDev -> setOf(RELEASE, RC, DEV, SNAPSHOT)
+            GradlePluginPortal -> setOf(RELEASE, RC)
+            MavenProjectLocal -> setOf(RELEASE, RC, DEV, SNAPSHOT)
         }
 
-    fun isSpaceRepository() = this == SPACE_DOKKA_DEV
+    fun isSpaceRepository() = this == SpaceDokkaDev
 
-    fun isMavenRepository() =  this == MAVEN_CENTRAL || this == MAVEN_CENTRAL_SNAPSHOT
+    fun isMavenRepository() = this == MavenCentral || this == MavenCentralSnapshot
 
-    fun isGradlePluginPortal() = this == GRADLE_PLUGIN_PORTAL
+    fun isGradlePluginPortal() = this == GradlePluginPortal
 
     companion object {
         fun fromPropertyString(value: String): DokkaPublicationChannel = when (value) {
-            "space-dokka-dev" -> SPACE_DOKKA_DEV
-            "maven-central-release" -> MAVEN_CENTRAL
-            "maven-central-snapshot" -> MAVEN_CENTRAL_SNAPSHOT
-            "gradle-plugin-portal" -> GRADLE_PLUGIN_PORTAL
-            else -> throw IllegalArgumentException("Unknown dokka_publication_channel=$value")
+            "space-dokka-dev" -> SpaceDokkaDev
+            "maven-central-release" -> MavenCentral
+            "maven-central-snapshot" -> MavenCentralSnapshot
+            "gradle-plugin-portal" -> GradlePluginPortal
+            "maven-project-local" -> MavenProjectLocal
+            else -> throw IllegalArgumentException("Unknown dokka_publication_channel '$value'")
         }
     }
 }
-
-val Project.publicationChannels: Set<DokkaPublicationChannel>
-    get() {
-        val publicationChannel = this.properties["dokka_publication_channel"]?.toString()
-        val publicationChannels = this.properties["dokka_publication_channels"]?.toString()
-        if (publicationChannel != null && publicationChannels != null) {
-            throw IllegalArgumentException(
-                "Only one of dokka_publication_channel and dokka_publication_channel*s* can be set. Found: \n" +
-                        "dokka_publication_channel=$publicationChannel\n" +
-                        "dokka_publication_channels=$publicationChannels"
-            )
-        }
-
-        if (publicationChannel != null) {
-            return setOf(DokkaPublicationChannel.fromPropertyString(publicationChannel))
-        }
-
-        if (publicationChannels != null) {
-            return publicationChannels.split("&").map { channel ->
-                DokkaPublicationChannel.fromPropertyString(channel)
-            }.toSet()
-        }
-
-        return emptySet()
-    }
-

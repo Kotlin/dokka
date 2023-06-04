@@ -12,6 +12,4 @@ dependencies {
     api(project("compiler-dependency", configuration = "shadow"))
 }
 
-registerDokkaArtifactPublication("dokkaAnalysis") {
-    artifactId = "dokka-analysis"
-}
+registerDokkaArtifactPublication("dokka-analysis")

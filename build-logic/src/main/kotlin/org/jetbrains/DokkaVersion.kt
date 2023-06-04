@@ -1,19 +1,12 @@
 package org.jetbrains
 
 import org.gradle.api.Project
-import org.gradle.kotlin.dsl.extra
-import org.gradle.kotlin.dsl.provideDelegate
+import org.gradle.kotlin.dsl.dokkaBuild
 
-@Suppress("LocalVariableName") // property name with underscore as taken from gradle.properties
-fun Project.configureDokkaVersion(): String {
-    val dokka_version: String? by this.extra
-    return checkNotNull(dokka_version)
-}
+// TODO migrate usages of these properties to use DokkaBuildProperties & Provider API
 
 val Project.dokkaVersion: String
-    get() = configureDokkaVersion()
+    get() = dokkaBuild.dokkaVersion.get()
 
 val Project.dokkaVersionType: DokkaVersionType?
-    get() = DokkaVersionType.values().find {
-        it.suffix.matches(dokkaVersion.substringAfter("-", ""))
-    }
+    get() = dokkaBuild.dokkaVersionType.orNull

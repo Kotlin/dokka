@@ -2,6 +2,7 @@ import org.jetbrains.dokkaVersionType
 import org.jetbrains.DokkaVersionType
 
 plugins {
+    id("org.jetbrains.conventions.base")
     id("ru.vyarus.mkdocs") version "2.3.0"
 }
 

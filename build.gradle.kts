@@ -1,5 +1,4 @@
 import org.jetbrains.ValidatePublications
-import org.jetbrains.publicationChannels
 
 @Suppress("DSL_SCOPE_VIOLATION") // fixed in Gradle 8.1 https://github.com/gradle/gradle/pull/23639
 plugins {
@@ -18,7 +17,10 @@ version = dokka_version
 
 
 logger.lifecycle("Publication version: $dokka_version")
-tasks.register<ValidatePublications>("validatePublications")
+
+tasks.register<ValidatePublications>("validatePublications") {
+    publicationChannels.set(dokkaBuild.publicationChannels)
+}
 
 nexusPublishing {
     repositories {
@@ -30,8 +32,8 @@ nexusPublishing {
 }
 
 val dokkaPublish by tasks.registering {
-    if (publicationChannels.any { it.isMavenRepository() }) {
-        finalizedBy(tasks.named("closeAndReleaseSonatypeStagingRepository"))
+    if (dokkaBuild.publicationChannels.any { it.isMavenRepository() }) {
+        finalizedBy(tasks.closeAndReleaseStagingRepository)
     }
 }
 
@@ -50,4 +52,12 @@ apiValidation {
         "cli",                 // :integration-tests:cli
         "maven",               // integration-tests:maven
     )
+}
+
+if ("dokka_publication_channel" in properties) {
+    error("`dokka_publication_channel` has been renamed to: `org.jetbrains.dokka.publicationChannels`")
+}
+
+if ("dokka_publication_channels" in properties) {
+    error("`dokka_publication_channels` has been renamed to: `org.jetbrains.dokka.publicationChannels`")
 }

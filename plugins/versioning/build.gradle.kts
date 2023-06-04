@@ -5,9 +5,7 @@ plugins {
     id("org.jetbrains.conventions.maven-publish")
 }
 
-registerDokkaArtifactPublication("versioning-plugin") {
-    artifactId = "versioning-plugin"
-}
+registerDokkaArtifactPublication("versioning-plugin")
 
 dependencies {
     compileOnly(projects.core)

@@ -46,7 +46,7 @@ val dokkaHtmlFrontendFiles: Provider<FileCollection> =
         frontendFiles.incoming.artifacts.artifactFiles
     }
 
-val preparedokkaHtmlFrontendFiles by tasks.registering(Sync::class) {
+val prepareDokkaHtmlFrontendFiles by tasks.registering(Sync::class) {
     description = "copy Dokka Base frontend files into the resources directory"
 
     from(dokkaHtmlFrontendFiles) {
@@ -63,13 +63,11 @@ val preparedokkaHtmlFrontendFiles by tasks.registering(Sync::class) {
 }
 
 sourceSets.main {
-    resources.srcDir(preparedokkaHtmlFrontendFiles.map { it.destinationDir })
+    resources.srcDir(prepareDokkaHtmlFrontendFiles.map { it.destinationDir })
 }
 
 tasks.test {
     maxHeapSize = "4G"
 }
 
-registerDokkaArtifactPublication("dokkaBase") {
-    artifactId = "dokka-base"
-}
+registerDokkaArtifactPublication("dokka-base")

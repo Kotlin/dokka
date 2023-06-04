@@ -1,5 +1,6 @@
 package org.jetbrains
 
+import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.provider.Provider
 import org.gradle.api.provider.ProviderFactory
 import org.gradle.jvm.toolchain.JavaLanguageVersion
@@ -16,8 +17,18 @@ import javax.inject.Inject
  */
 abstract class DokkaBuildProperties @Inject constructor(
     private val providers: ProviderFactory,
-) {
+) : ExtensionAware {
 
+    val dokkaVersion: Provider<String> = providers.gradleProperty("dokka_version")
+
+    val dokkaVersionType: Provider<DokkaVersionType> =
+        // workaround for https://github.com/gradle/gradle/issues/19088
+        dokkaVersion.flatMap { providers.provider { DokkaVersionType.from(it) } }
+    // replace in Gradle 8:
+    // dokkaVersion.map { DokkaVersionType.from(it) }
+
+
+    //region Compilation
     /**
      * The main version of Java that should be used to build Dokka source code.
      *
@@ -43,9 +54,45 @@ abstract class DokkaBuildProperties @Inject constructor(
      */
     val kotlinLanguageLevel: Provider<KotlinVersion> =
         dokkaProperty("kotlinLanguageLevel", KotlinVersion::fromVersion)
+    //endregion
+
+    //region Testing
+    /** Control the parallelism of integration tests */
+    val integrationTestParallelism: Provider<Int> =
+        dokkaProperty("integrationTest.parallelism", String::toInt)
+
+    /** Enable re-running integration tests with all potential input variables */
+    val integrationTestExhaustive: Provider<Boolean> =
+        dokkaProperty("integrationTest.exhaustive")
+            .orElse(providers.environmentVariable("DOKKA_INTEGRATION_TEST_IS_EXHAUSTIVE"))
+            .map(String::toBoolean)
+    //endregion
+
+    //region Publishing
+    /** Determines which Maven Repositories are enabled for publishing. */
+    val publicationChannels: Set<DokkaPublicationChannel> =
+        dokkaProperty("publicationChannels").map { publicationChannels ->
+            publicationChannels.split("&")
+                .filter(String::isNotBlank)
+                .map(DokkaPublicationChannel.Companion::fromPropertyString)
+                .toSet()
+        }.getOrElse(emptySet())
 
 
-    private fun <T : Any> dokkaProperty(name: String, convert: (String) -> T) =
+    val signingKeyId: Provider<String> =
+        dokkaProperty("signing.key_id").orElse(providers.systemProperty("SIGN_KEY_ID"))
+
+    val signingKey: Provider<String> =
+        dokkaProperty("signing.key").orElse(providers.systemProperty("SIGN_KEY"))
+
+    val signingKeyPassphrase: Provider<String> =
+        dokkaProperty("signing.key_passphrase").orElse(providers.systemProperty("SIGN_KEY_PASSPHRASE"))
+    //endregion
+
+    private fun dokkaProperty(name: String): Provider<String> =
+        providers.gradleProperty("org.jetbrains.dokka.$name")
+
+    private fun <T : Any> dokkaProperty(name: String, convert: (String) -> T): Provider<T> =
         providers.gradleProperty("org.jetbrains.dokka.$name").map(convert)
 
     companion object {

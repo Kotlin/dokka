@@ -113,7 +113,4 @@ tasks.jar {
     duplicatesStrategy = DuplicatesStrategy.WARN
 }
 
-
-registerDokkaArtifactPublication("dokkaMavenPlugin") {
-    artifactId = "dokka-maven-plugin"
-}
+registerDokkaArtifactPublication("dokka-maven-plugin")

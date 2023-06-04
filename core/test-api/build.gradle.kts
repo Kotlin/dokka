@@ -12,6 +12,4 @@ dependencies {
     implementation(kotlin("reflect"))
 }
 
-registerDokkaArtifactPublication("dokkaTestApi") {
-    artifactId = "dokka-test-api"
-}
+registerDokkaArtifactPublication("dokka-test-api")

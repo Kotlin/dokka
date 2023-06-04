@@ -23,6 +23,4 @@ dependencies {
     testImplementation(libs.junit.jupiter)
 }
 
-registerDokkaArtifactPublication("dokkaJekyllTemplateProcessing") {
-    artifactId = "jekyll-template-processing-plugin"
-}
+registerDokkaArtifactPublication("jekyll-template-processing-plugin")

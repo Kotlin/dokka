@@ -5,9 +5,7 @@ plugins {
     id("org.jetbrains.conventions.maven-publish")
 }
 
-registerDokkaArtifactPublication("dokkaAllModulesPage") {
-    artifactId = "all-modules-page-plugin"
-}
+registerDokkaArtifactPublication("all-modules-page-plugin")
 
 dependencies {
     compileOnly(projects.core)

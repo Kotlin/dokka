@@ -51,14 +51,11 @@ val integrationTest by tasks.registering(NonCacheableIntegrationTest::class) {
     classpath = integrationTestSourceSet.runtimeClasspath
 
     setForkEvery(1)
-    project.properties["dokka_integration_test_parallelism"]?.toString()?.toIntOrNull()?.let { parallelism ->
+    dokkaBuild.integrationTestParallelism.orNull?.let { parallelism ->
         maxParallelForks = parallelism
     }
     environment(
-        "isExhaustive",
-        project.properties["dokka_integration_test_is_exhaustive"]?.toString()?.toBoolean()
-            ?: System.getenv("DOKKA_INTEGRATION_TEST_IS_EXHAUSTIVE")?.toBoolean()
-            ?: false.toString()
+        "isExhaustive" to dokkaBuild.integrationTestExhaustive.get(),
     )
 
     testLogging {

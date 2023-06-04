@@ -21,6 +21,4 @@ dependencies {
     testImplementation(libs.junit.jupiter)
 }
 
-registerDokkaArtifactPublication("kotlinAsJavaPlugin") {
-    artifactId = "kotlin-as-java-plugin"
-}
+registerDokkaArtifactPublication("kotlin-as-java-plugin")

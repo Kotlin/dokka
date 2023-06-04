@@ -22,6 +22,4 @@ dependencies {
     testImplementation(libs.junit.jupiter)
 }
 
-registerDokkaArtifactPublication("dokkaBaseTestUtils") {
-    artifactId = "dokka-base-test-utils"
-}
+registerDokkaArtifactPublication("dokka-base-test-utils")

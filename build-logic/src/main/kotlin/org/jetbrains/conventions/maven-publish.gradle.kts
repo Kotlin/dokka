@@ -1,6 +1,10 @@
 package org.jetbrains.conventions
 
 import com.github.jengelman.gradle.plugins.shadow.ShadowPlugin
+import org.jetbrains.DokkaPublicationChannel
+import org.jetbrains.DokkaPublicationChannel.MavenProjectLocal
+import org.jetbrains.DokkaPublicationChannel.SpaceDokkaDev
+import org.jetbrains.DokkaVersionType
 
 plugins {
     id("org.jetbrains.conventions.base")
@@ -22,7 +26,15 @@ publishing {
         // ./gradlew publishAllPublicationsToMavenProjectLocalRepository
         // and check $rootDir/build/maven-project-local
         maven(rootProject.layout.buildDirectory.dir("maven-project-local")) {
-            name = "MavenProjectLocal"
+            name = MavenProjectLocal.repositoryName
+        }
+
+        maven("https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev") {
+            name = SpaceDokkaDev.repositoryName
+            credentials {
+                username = System.getenv("SPACE_PACKAGES_USER")
+                password = System.getenv("SPACE_PACKAGES_SECRET")
+            }
         }
     }
 
@@ -65,4 +77,80 @@ plugins.withType<ShadowPlugin>().configureEach {
     // For more details, see https://github.com/Kotlin/dokka/pull/2704#issuecomment-1499517930
     val javaComponent = components["java"] as AdhocComponentWithVariants
     javaComponent.withVariantsFromConfiguration(configurations["shadowRuntimeElements"]) { skip() }
+}
+
+tasks.withType<PublishToMavenRepository>().configureEach {
+    val artifactVersion = provider { DokkaVersionType.from(publication?.version) }
+    val artifactCoords = provider { publication?.run { "$groupId:$artifactId:$version" }.toString() }
+
+    // add an `onlyIf {}` check for each possibly enabled channel
+    DokkaPublicationChannel.values().forEach { channel ->
+        val channelRepoName = channel.repositoryName
+
+        val channelEnabledPredicate = provider {
+            // is this task publishing to $channel?
+            val publishingToChannel = repository == publishing.repositories.findByName(channelRepoName)
+
+            if (!publishingToChannel) {
+                // this check isn't applicable for the repository used for this task, so don't block publication
+                true
+            } else {
+                // only allow publication if $channel one of the enabled publication channels
+                channel in dokkaBuild.publicationChannels
+            }
+        }
+
+        onlyIf("given this task is publishing to $channelRepoName, then $channelRepoName must be enabled") {
+            channelEnabledPredicate.get().also { enabled ->
+                val gav = artifactCoords.get()
+                logger.lifecycle("$path - publishing $gav to $channelRepoName is ${if (enabled) "enabled" else "disabled"}")
+            }
+        }
+
+
+        val compatibleVersionPredicate = provider {
+            // is this task publishing to $channel?
+            val publishingToChannel = repository == publishing.repositories.findByName(channelRepoName)
+
+            if (!publishingToChannel) {
+                // this check isn't applicable for the repository used for this task, so don't block publication
+                true
+            } else {
+                // only allow publication if $channel one of the enabled publication channels
+                channel.acceptedDokkaVersionTypes.any {acceptedVersionType ->
+                    acceptedVersionType == artifactVersion.orNull
+                }
+            }
+        }
+
+        onlyIf("given this task is publishing to $channelRepoName, then the version must be compatible") {
+            compatibleVersionPredicate.get()
+        }
+    }
+}
+
+val dokkaPublish by tasks.registering {
+    description = "Lifecycle task for running all enabled Dokka Publication tasks for remote repositories"
+    dependsOn("publish", "publishToSonatype", "publishPlugins")
+}
+
+val signingKey = dokkaBuild.signingKey.orNull
+
+if (!signingKey.isNullOrBlank()) {
+    val signingKeyId = dokkaBuild.signingKeyId.orNull
+    val signingKeyPassphrase = dokkaBuild.signingKeyPassphrase.orNull
+
+    extensions.configure<SigningExtension> {
+        if (!signingKeyId.isNullOrBlank()) {
+            useInMemoryPgpKeys(signingKeyId, signingKey, signingKeyPassphrase)
+        } else {
+            useInMemoryPgpKeys(signingKey, signingKeyPassphrase)
+        }
+
+        // The signing plugin is not fully compatible with modern Gradle features.
+        // As a workaround, use afterEvaluate {}
+        afterEvaluate {
+            sign(extensions.getByType<PublishingExtension>().publications)
+        }
+    }
 }
