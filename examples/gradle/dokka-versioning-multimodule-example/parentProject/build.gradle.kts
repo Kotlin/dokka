@@ -4,7 +4,7 @@ import org.jetbrains.dokka.versioning.VersioningConfiguration
 
 buildscript {
     dependencies {
-        classpath("org.jetbrains.dokka:versioning-plugin:1.8.10")
+        classpath("org.jetbrains.dokka:versioning-plugin:1.8.20")
     }
 
     repositories {

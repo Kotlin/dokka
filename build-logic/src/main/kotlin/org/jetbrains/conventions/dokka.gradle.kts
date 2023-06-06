@@ -9,5 +9,5 @@ plugins {
 
 tasks.dokkaHtml {
     onlyIf { !isLocalPublication }
-    outputDirectory.set(layout.buildDirectory.dir("dokka").map { it.asFile })
+    outputDirectory.set(layout.buildDirectory.dir("dokka"))
 }
