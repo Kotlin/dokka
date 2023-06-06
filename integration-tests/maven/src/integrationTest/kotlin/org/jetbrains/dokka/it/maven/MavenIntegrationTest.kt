@@ -1,8 +1,8 @@
 package org.jetbrains.dokka.it.maven
 
 import org.jetbrains.dokka.it.AbstractIntegrationTest
-import org.jetbrains.dokka.it.awaitProcessResult
 import org.jetbrains.dokka.it.ProcessResult
+import org.jetbrains.dokka.it.awaitProcessResult
 import java.io.File
 import kotlin.test.*
 
@@ -22,9 +22,32 @@ class MavenIntegrationTest : AbstractIntegrationTest() {
             writeText(readText().replace("\$dokka_version", currentDokkaVersion))
         }
         val customResourcesDir = File(templateProjectDir, "customResources")
-        if(customResourcesDir.exists() && customResourcesDir.isDirectory) {
+        if (customResourcesDir.exists() && customResourcesDir.isDirectory) {
             customResourcesDir.copyRecursively(File(projectDir, "customResources"), overwrite = true)
         }
+    }
+
+    @Test
+    fun `dokka help`() {
+        val result = ProcessBuilder().directory(projectDir)
+            .command(mavenBinaryFile.absolutePath, "dokka:help", "-U", "-e")
+            .start()
+            .awaitProcessResult()
+
+        assertContains(
+            result.output,
+            """
+                This plugin has 4 goals:
+
+                dokka:dokka
+
+                dokka:help
+
+                dokka:javadoc
+
+                dokka:javadocJar
+            """.trimIndent()
+        )
     }
 
     @Test
@@ -62,7 +85,12 @@ class MavenIntegrationTest : AbstractIntegrationTest() {
         )
         assertTrue(stylesDir.resolve("custom-style-to-add.css").isFile)
         projectDir.allHtmlFiles().forEach { file ->
-            if(file.name != "navigation.html") assertTrue("custom-style-to-add.css" in file.readText(), "custom styles not added to html file ${file.name}")
+            if (file.name != "navigation.html") {
+                assertTrue(
+                    "custom-style-to-add.css" in file.readText(),
+                    "custom styles not added to html file ${file.name}"
+                )
+            }
         }
         assertEquals("""/* custom stylesheet */""", stylesDir.resolve("custom-style-to-add.css").readText())
         assertTrue(imagesDir.resolve("custom-resource.svg").isFile)

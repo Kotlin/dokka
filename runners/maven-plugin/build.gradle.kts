@@ -1,4 +1,3 @@
-import org.gradle.kotlin.dsl.support.appendReproducibleNewLine
 import org.jetbrains.registerDokkaArtifactPublication
 
 plugins {
@@ -43,77 +42,113 @@ val generatePom by tasks.registering(Sync::class) {
     into(temporaryDir)
 }
 
-val prepareMavenPluginBuildDir by tasks.registering(Sync::class) {
-    description = "Prepares all files for Maven Plugin task execution"
+val prepareHelpMojoDir by tasks.registering(Sync::class) {
+    description = "Prepare files for generating the Maven Plugin HelpMojo"
     group = mavenPluginTaskGroup
 
-    from(tasks.compileKotlin.flatMap { it.destinationDirectory }) { into("classes/java/main") }
-    from(tasks.compileJava.flatMap { it.destinationDirectory }) { into("classes/java/main") }
-
+    into(layout.buildDirectory.dir("maven-help-mojo"))
     from(generatePom)
-
-    into(mavenCliSetup.mavenBuildDir)
 }
 
 val helpMojo by tasks.registering(Exec::class) {
+    description = "Generate the Maven Plugin HelpMojo"
     group = mavenPluginTaskGroup
 
-    dependsOn(tasks.installMavenBinary, prepareMavenPluginBuildDir)
+    dependsOn(tasks.installMavenBinary, prepareHelpMojoDir)
 
-    workingDir(mavenCliSetup.mavenBuildDir)
+    workingDir(prepareHelpMojoDir.map { it.destinationDir })
     executable(mavenCliSetup.mvn.get())
     args("-e", "-B", "org.apache.maven.plugins:maven-plugin-plugin:helpmojo")
 
-    outputs.dir(mavenCliSetup.mavenBuildDir)
+    outputs.dir(workingDir)
+}
 
-    doLast("normalize maven-plugin-help.properties") {
-        // The maven-plugin-help.properties file contains a timestamp by default.
-        // It should be removed as it is not reproducible and impacts Gradle caching
-        val pluginHelpProperties = workingDir.resolve("maven-plugin-help.properties")
-        pluginHelpProperties.writeText(
-            buildString {
-                val lines = pluginHelpProperties.readText().lines().iterator()
-                // the first line is a descriptive comment
-                appendReproducibleNewLine(lines.next())
-                // the second line is the timestamp, which should be ignored
-                lines.next()
-                // the remaining lines are properties
-                lines.forEach { appendReproducibleNewLine(it) }
+val helpMojoSources by tasks.registering(Sync::class) {
+    description = "Sync the HelpMojo source files into a SourceSet SrcDir"
+    group = mavenPluginTaskGroup
+    from(helpMojo) {
+        eachFile {
+            // drop 2 leading directories
+            relativePath = RelativePath(true, *relativePath.segments.drop(2).toTypedArray())
+        }
+        filter { line ->
+            if (line.startsWith("public class HelpMojo")) {
+                """
+                  @Mojo( name = "help", requiresProject = false, threadSafe = true )
+                  public class HelpMojo
+              """.trimIndent()
+            } else if (line.startsWith("import org.apache.maven.plugin.AbstractMojo")) {
+                """
+                    import org.apache.maven.plugin.AbstractMojo;
+                    import org.apache.maven.plugins.annotations.Mojo;
+                """.trimIndent()
+            } else {
+                line
             }
-        )
+        }
     }
+    into(temporaryDir)
+    include("**/*.java")
+}
+
+val helpMojoResources by tasks.registering(Sync::class) {
+    description = "Sync the HelpMojo resource files into a SourceSet SrcDir"
+    group = mavenPluginTaskGroup
+    from(helpMojo)
+    into(temporaryDir)
+    include("**/**")
+    exclude("**/*.java")
+}
+
+sourceSets.main {
+    // use the generated HelpMojo as compilation input, so Gradle will automatically generate the mojo
+    java.srcDirs(helpMojoSources)
+    resources.srcDirs(helpMojoResources)
+}
+
+val preparePluginDescriptorDir by tasks.registering(Sync::class) {
+    description = "Prepare files for generating the Maven Plugin descriptor"
+    group = mavenPluginTaskGroup
+
+    into(layout.buildDirectory.dir("maven-plugin-descriptor"))
+
+    from(tasks.compileKotlin) { into("classes/java/main") }
+    from(tasks.compileJava) { into("classes/java/main") }
+    from(helpMojoResources)
 }
 
 val pluginDescriptor by tasks.registering(Exec::class) {
+    description = "Generate the Maven Plugin descriptor"
     group = mavenPluginTaskGroup
 
-    dependsOn(tasks.installMavenBinary, prepareMavenPluginBuildDir)
+    dependsOn(tasks.installMavenBinary, preparePluginDescriptorDir)
 
-    workingDir(mavenCliSetup.mavenBuildDir)
+    workingDir(preparePluginDescriptorDir.map { it.destinationDir })
     executable(mavenCliSetup.mvn.get())
-    args(
-        "-e",
-        "-B",
-        "org.apache.maven.plugins:maven-plugin-plugin:descriptor"
-    )
+    args("-e", "-B", "org.apache.maven.plugins:maven-plugin-plugin:descriptor")
 
-    outputs.dir(layout.buildDirectory.dir("maven/classes/java/main/META-INF/maven"))
+    outputs.dir("$workingDir/classes/java/main/META-INF/maven")
 }
 
 tasks.jar {
-    dependsOn(pluginDescriptor, helpMojo)
     metaInf {
-        from(mavenCliSetup.mavenBuildDir.map { it.dir("classes/java/main/META-INF") })
+        from(pluginDescriptor) {
+            into("maven")
+        }
     }
     manifest {
         attributes("Class-Path" to configurations.runtimeClasspath.map { configuration ->
             configuration.resolve().joinToString(" ") { it.name }
         })
     }
-    duplicatesStrategy = DuplicatesStrategy.WARN
 }
 
 
 registerDokkaArtifactPublication("dokkaMavenPlugin") {
     artifactId = "dokka-maven-plugin"
+}
+
+
+tasks.withType<Sync>().configureEach {
+    includeEmptyDirs = false
 }
