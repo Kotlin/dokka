@@ -393,7 +393,15 @@ public final class org/jetbrains/dokka/base/renderers/html/HtmlRendererKt {
 public abstract class org/jetbrains/dokka/base/renderers/html/NavigationDataProvider {
 	public fun <init> ()V
 	public fun navigableChildren (Lorg/jetbrains/dokka/pages/RootPageNode;)Lorg/jetbrains/dokka/base/renderers/html/NavigationNode;
-	public fun visit (Lorg/jetbrains/dokka/pages/ContentPage;)Lorg/jetbrains/dokka/base/renderers/html/NavigationNode;
+	public fun visit (Lorg/jetbrains/dokka/pages/PageNode;)Lorg/jetbrains/dokka/base/renderers/html/NavigationNode;
+}
+
+public final class org/jetbrains/dokka/base/renderers/html/NavigationDirectoryPage : org/jetbrains/dokka/pages/RendererSpecificPage {
+	public fun <init> (Ljava/lang/String;Ljava/util/List;)V
+	public fun getChildren ()Ljava/util/List;
+	public fun getName ()Ljava/lang/String;
+	public fun getStrategy ()Lorg/jetbrains/dokka/pages/RenderingStrategy;
+	public fun modified (Ljava/lang/String;Ljava/util/List;)Lorg/jetbrains/dokka/pages/PageNode;
 }
 
 public final class org/jetbrains/dokka/base/renderers/html/NavigationNode : org/jetbrains/dokka/model/WithChildren {

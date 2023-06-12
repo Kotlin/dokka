@@ -4002,6 +4002,13 @@ public final class org/jetbrains/dokka/pages/ContentText : org/jetbrains/dokka/p
 	public fun withSourceSets (Ljava/util/Set;)Lorg/jetbrains/dokka/pages/ContentText;
 }
 
+public abstract interface class org/jetbrains/dokka/pages/CustomRootPage : org/jetbrains/dokka/pages/ContentPage {
+}
+
+public final class org/jetbrains/dokka/pages/CustomRootPage$DefaultImpls {
+	public static fun getDocumentable (Lorg/jetbrains/dokka/pages/CustomRootPage;)Lorg/jetbrains/dokka/model/Documentable;
+}
+
 public final class org/jetbrains/dokka/pages/DCI {
 	public fun <init> (Ljava/util/Set;Lorg/jetbrains/dokka/pages/Kind;)V
 	public final fun component1 ()Ljava/util/Set;

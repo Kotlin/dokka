@@ -1,0 +1,90 @@
+public final class org/jetbrains/dokka/auxiliaryDocs/AuxiliaryConfiguration : org/jetbrains/dokka/plugability/ConfigurableBlock {
+	public static final field Companion Lorg/jetbrains/dokka/auxiliaryDocs/AuxiliaryConfiguration$Companion;
+	public fun <init> ()V
+	public fun <init> (Ljava/io/File;Ljava/io/File;Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/io/File;Ljava/io/File;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/io/File;
+	public final fun component2 ()Ljava/io/File;
+	public final fun component3 ()Ljava/lang/String;
+	public final fun copy (Ljava/io/File;Ljava/io/File;Ljava/lang/String;)Lorg/jetbrains/dokka/auxiliaryDocs/AuxiliaryConfiguration;
+	public static synthetic fun copy$default (Lorg/jetbrains/dokka/auxiliaryDocs/AuxiliaryConfiguration;Ljava/io/File;Ljava/io/File;Ljava/lang/String;ILjava/lang/Object;)Lorg/jetbrains/dokka/auxiliaryDocs/AuxiliaryConfiguration;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getApiReferenceNodeName ()Ljava/lang/String;
+	public final fun getEntryPointNode ()Ljava/io/File;
+	public final fun getNodesDir ()Ljava/io/File;
+	public fun hashCode ()I
+	public final fun setApiReferenceNodeName (Ljava/lang/String;)V
+	public final fun setEntryPointNode (Ljava/io/File;)V
+	public final fun setNodesDir (Ljava/io/File;)V
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/jetbrains/dokka/auxiliaryDocs/AuxiliaryConfiguration$Companion {
+	public final fun getDefaultApiReferenceNodeName ()Ljava/lang/String;
+	public final fun getDefaultEntryPointNode ()Ljava/io/File;
+	public final fun getDefaultNodes ()Ljava/io/File;
+}
+
+public final class org/jetbrains/dokka/auxiliaryDocs/AuxiliaryDocPageContext : org/jetbrains/dokka/transformers/pages/CreationContext {
+	public fun <init> (Ljava/io/File;Ljava/util/Set;)V
+	public final fun component1 ()Ljava/io/File;
+	public final fun component2 ()Ljava/util/Set;
+	public final fun copy (Ljava/io/File;Ljava/util/Set;)Lorg/jetbrains/dokka/auxiliaryDocs/AuxiliaryDocPageContext;
+	public static synthetic fun copy$default (Lorg/jetbrains/dokka/auxiliaryDocs/AuxiliaryDocPageContext;Ljava/io/File;Ljava/util/Set;ILjava/lang/Object;)Lorg/jetbrains/dokka/auxiliaryDocs/AuxiliaryDocPageContext;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getContentPages ()Ljava/util/Set;
+	public final fun getRootPage ()Ljava/io/File;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/jetbrains/dokka/auxiliaryDocs/AuxiliaryDocPageCreator : org/jetbrains/dokka/transformers/pages/PageCreator {
+	public static final field AUX_PACKAGE_PLACEHOLDER Ljava/lang/String;
+	public static final field Companion Lorg/jetbrains/dokka/auxiliaryDocs/AuxiliaryDocPageCreator$Companion;
+	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
+	public fun invoke (Lorg/jetbrains/dokka/auxiliaryDocs/AuxiliaryDocPageContext;)Lorg/jetbrains/dokka/pages/RootPageNode;
+	public synthetic fun invoke (Lorg/jetbrains/dokka/transformers/pages/CreationContext;)Lorg/jetbrains/dokka/pages/RootPageNode;
+}
+
+public final class org/jetbrains/dokka/auxiliaryDocs/AuxiliaryDocPageCreator$Companion {
+	public final fun getAUX_ROOT_DRI ()Lorg/jetbrains/dokka/links/DRI;
+}
+
+public final class org/jetbrains/dokka/auxiliaryDocs/AuxiliaryDocsPlugin : org/jetbrains/dokka/plugability/DokkaPlugin {
+	public fun <init> ()V
+	public final fun getTransformer ()Lorg/jetbrains/dokka/plugability/Extension;
+}
+
+public final class org/jetbrains/dokka/auxiliaryDocs/AuxiliaryDocsTransformer : org/jetbrains/dokka/transformers/pages/PageTransformer {
+	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
+	public fun invoke (Lorg/jetbrains/dokka/pages/RootPageNode;)Lorg/jetbrains/dokka/pages/RootPageNode;
+}
+
+public final class org/jetbrains/dokka/auxiliaryDocs/AuxiliaryPageNode : org/jetbrains/dokka/pages/ContentPage {
+	public fun <init> (Ljava/lang/String;Ljava/util/Set;Lorg/jetbrains/dokka/pages/ContentNode;Ljava/util/List;Ljava/util/List;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/util/Set;Lorg/jetbrains/dokka/pages/ContentNode;Ljava/util/List;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun getChildren ()Ljava/util/List;
+	public fun getContent ()Lorg/jetbrains/dokka/pages/ContentNode;
+	public fun getDocumentable ()Lorg/jetbrains/dokka/model/Documentable;
+	public fun getDri ()Ljava/util/Set;
+	public fun getEmbeddedResources ()Ljava/util/List;
+	public fun getName ()Ljava/lang/String;
+	public fun modified (Ljava/lang/String;Ljava/util/List;)Lorg/jetbrains/dokka/pages/PageNode;
+	public fun modified (Ljava/lang/String;Lorg/jetbrains/dokka/pages/ContentNode;Ljava/util/Set;Ljava/util/List;Ljava/util/List;)Lorg/jetbrains/dokka/pages/ContentPage;
+}
+
+public final class org/jetbrains/dokka/auxiliaryDocs/AuxiliaryRootPageNode : org/jetbrains/dokka/pages/RootPageNode, org/jetbrains/dokka/pages/CustomRootPage {
+	public fun <init> (Ljava/lang/String;Ljava/util/Set;Lorg/jetbrains/dokka/pages/ContentNode;Ljava/util/List;Ljava/util/List;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/util/Set;Lorg/jetbrains/dokka/pages/ContentNode;Ljava/util/List;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun getChildren ()Ljava/util/List;
+	public fun getContent ()Lorg/jetbrains/dokka/pages/ContentNode;
+	public fun getDocumentable ()Lorg/jetbrains/dokka/model/Documentable;
+	public fun getDri ()Ljava/util/Set;
+	public fun getEmbeddedResources ()Ljava/util/List;
+	public fun getName ()Ljava/lang/String;
+	public synthetic fun modified (Ljava/lang/String;Ljava/util/List;)Lorg/jetbrains/dokka/pages/PageNode;
+	public fun modified (Ljava/lang/String;Ljava/util/List;)Lorg/jetbrains/dokka/pages/RootPageNode;
+	public fun modified (Ljava/lang/String;Lorg/jetbrains/dokka/pages/ContentNode;Ljava/util/Set;Ljava/util/List;Ljava/util/List;)Lorg/jetbrains/dokka/auxiliaryDocs/AuxiliaryRootPageNode;
+	public synthetic fun modified (Ljava/lang/String;Lorg/jetbrains/dokka/pages/ContentNode;Ljava/util/Set;Ljava/util/List;Ljava/util/List;)Lorg/jetbrains/dokka/pages/ContentPage;
+}
+

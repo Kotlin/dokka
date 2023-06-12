@@ -48,20 +48,27 @@ class NavigationPage(
                             span("navButtonContent")
                         }
                     }
-                    buildLink(node.dri, node.sourceSets.toList()) {
-                        val withIcon = node.icon != null
-                        if (withIcon) {
-                            // in case link text is so long that it needs to have word breaks,
-                            // and it stretches to two or more lines, make sure the icon
-                            // is always on the left in the grid and is not wrapped with text
-                            span("nav-link-grid") {
-                                span("nav-link-child ${node.icon?.style()}")
-                                span("nav-link-child") {
-                                    nodeText(node)
-                                }
-                            }
-                        } else {
+                    if (node.dri == null) {
+                        a(href = "#") {
+                            onClick = "document.getElementById(\"$navId\").classList.toggle(\"hidden\"); return false;"
                             nodeText(node)
+                        }
+                    } else {
+                        buildLink(node.dri, node.sourceSets.toList()) {
+                            val withIcon = node.icon != null
+                            if (withIcon) {
+                                // in case link text is so long that it needs to have word breaks,
+                                // and it stretches to two or more lines, make sure the icon
+                                // is always on the left in the grid and is not wrapped with text
+                                span("nav-link-grid") {
+                                    span("nav-link-child ${node.icon?.style()}")
+                                    span("nav-link-child") {
+                                        nodeText(node)
+                                    }
+                                }
+                            } else {
+                                nodeText(node)
+                            }
                         }
                     }
                 }
@@ -82,7 +89,7 @@ class NavigationPage(
 
 data class NavigationNode(
     val name: String,
-    val dri: DRI,
+    val dri: DRI?,
     val sourceSets: Set<DisplaySourceSet>,
     val icon: NavigationNodeIcon?,
     val styles: Set<Style> = emptySet(),

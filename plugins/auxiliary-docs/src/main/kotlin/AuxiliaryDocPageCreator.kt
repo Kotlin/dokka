@@ -3,6 +3,7 @@ package org.jetbrains.dokka.auxiliaryDocs
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.parsers.MarkdownParser
+import org.jetbrains.dokka.base.renderers.html.NavigationDirectoryPage
 import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.doc.DocumentationNode
@@ -24,11 +25,30 @@ class AuxiliaryDocPageCreator(
 
     override fun invoke(creationContext: AuxiliaryDocPageContext): RootPageNode {
         return AuxiliaryRootPageNode(
-            name = creationContext.rootPage.pureFileName(),
+            name = creationContext.rootPage.name(),
             dri = setOf(AUX_ROOT_DRI),
             content = renderMarkdownContent(creationContext.rootPage),
-            children = childPages(creationContext)
+            children = listOf(
+                NavigationDirectoryPage(
+                    name = "Documentation",
+                    children = childPages(creationContext)
+                )
+            )
         )
+    }
+
+    private fun File.name(): String {
+        return if (this.isDirectory) {
+            this.name
+        } else {
+            val firstLine = this.readLines().first()
+            val regex = Regex("\\[//]:\\s#\\s\\(title:\\s(.+)\\)")
+            if (regex.matches(firstLine)) {
+                regex.find(firstLine)!!.groupValues[1]
+            } else {
+                this.pureFileName()
+            }
+        }
     }
 
     private fun File.pureFileName() = name.split(".").first()
@@ -38,13 +58,20 @@ class AuxiliaryDocPageCreator(
 
 
     private fun contentPage(contentFile: File, children: List<PageNode> = emptyList()): PageNode {
-        val displayName = contentFile.pureFileName()
-        return AuxiliaryPageNode(
-            name = displayName,
-            dri = setOf(DRI(packageName = AUX_PACKAGE_PLACEHOLDER, classNames = displayName)),
-            content = renderMarkdownContent(contentFile),
-            children = children
-        )
+        val displayName = contentFile.name()
+        return if (contentFile.isDirectory) {
+            NavigationDirectoryPage(
+                name = contentFile.name,
+                children = contentFile.listFiles()!!.map { contentPage(it) }
+            )
+        } else {
+            AuxiliaryPageNode(
+                name = displayName,
+                dri = setOf(DRI(packageName = AUX_PACKAGE_PLACEHOLDER, classNames = displayName)),
+                content = renderMarkdownContent(contentFile),
+                children = children
+            )
+        }
     }
 
     private fun renderMarkdownContent(contentFile: File): ContentGroup {

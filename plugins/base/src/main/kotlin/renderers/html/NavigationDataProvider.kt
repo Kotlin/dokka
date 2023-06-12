@@ -10,20 +10,44 @@ import org.jetbrains.dokka.base.utils.canonicalAlphabeticalOrder
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.pages.*
 
+class NavigationDirectoryPage(
+    override val name: String,
+    override val children: List<PageNode>
+) : RendererSpecificPage {
+    override val strategy: RenderingStrategy = RenderingStrategy.DoNothing
+
+    override fun modified(name: String, children: List<PageNode>): PageNode {
+        return NavigationDirectoryPage(name, children)
+    }
+}
+
 abstract class NavigationDataProvider {
     open fun navigableChildren(input: RootPageNode): NavigationNode = input.withDescendants()
         .first { it is ModulePage || it is MultimoduleRootPage || it is CustomRootPage }
-        .let { visit(it as ContentPage) }
+        .let { visit(it) }
 
-    open fun visit(page: ContentPage): NavigationNode =
-        NavigationNode(
-            name = page.displayableName(),
-            dri = page.dri.first(),
-            sourceSets = page.sourceSets(),
-            icon = chooseNavigationIcon(page),
-            styles = chooseStyles(page),
-            children = page.navigableChildren()
-        )
+    open fun visit(page: PageNode): NavigationNode {
+        return if (page is ContentPage) {
+            NavigationNode(
+                name = page.displayableName(),
+                dri = page.dri.first(),
+                sourceSets = page.sourceSets(),
+                icon = chooseNavigationIcon(page),
+                styles = chooseStyles(page),
+                children = page.navigableChildren()
+            )
+        } else if (page is NavigationDirectoryPage) {
+            NavigationNode(
+                name = page.name,
+                dri = null,
+                sourceSets = emptySet(),
+                icon = null,
+                children = page.navigableChildren()
+            )
+        } else {
+            TODO("Unsupported")
+        }
+    }
 
     /**
      * Parenthesis is applied in 1 case:
@@ -95,12 +119,12 @@ abstract class NavigationDataProvider {
     private val navigationNodeOrder: Comparator<NavigationNode> =
         compareBy(canonicalAlphabeticalOrder) { it.name }
 
-    private fun ContentPage.navigableChildren() =
+    private fun PageNode.navigableChildren() =
         if (this is ClasslikePage) {
             this.navigableChildren()
         } else {
             children
-                .filterIsInstance<ContentPage>()
+                .filter { it is ContentPage || it is NavigationDirectoryPage }
                 .map { visit(it) }
                 .sortedWith(navigationNodeOrder)
         }
