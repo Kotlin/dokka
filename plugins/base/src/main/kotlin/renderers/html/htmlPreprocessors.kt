@@ -119,6 +119,7 @@ object AssetsInstaller : PageTransformer {
         "images/nav-icons/interface.svg",
         "images/nav-icons/interface-kotlin.svg",
         "images/nav-icons/object.svg",
+        "images/nav-icons/typealias-kotlin.svg",
     )
 
     override fun invoke(input: RootPageNode) = input.modified(

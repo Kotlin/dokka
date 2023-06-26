@@ -41,6 +41,7 @@ abstract class NavigationDataProvider {
             val isJava = documentable?.hasAnyJavaSources() ?: false
 
             when (documentable) {
+                is DTypeAlias -> NavigationNodeIcon.TYPEALIAS_KT
                 is DClass -> when {
                     documentable.isException -> NavigationNodeIcon.EXCEPTION
                     documentable.isAbstract() -> {
