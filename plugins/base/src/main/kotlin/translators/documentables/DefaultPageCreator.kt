@@ -57,20 +57,19 @@ open class DefaultPageCreator(
         p.name, contentForPackage(p), setOf(p.dri), listOf(p),
         if (mergeImplicitExpectActualDeclarations)
             (p.classlikes + p.typealiases).filterOutActualTypeAlias()
-                .mergeClashingDocumentable().map(::pageForClasslikesAndTypeAliases) +
+                .mergeClashingDocumentable().map(::pageForClasslikes) +
                     p.functions.mergeClashingDocumentable().map(::pageForFunctions) +
                     p.properties.mergeClashingDocumentable().map(::pageForProperties)
         else
             (p.classlikes + p.typealiases).filterOutActualTypeAlias()
-                .renameClashingDocumentable().map(::pageForClasslikesOrTypeAlias) +
+                .renameClashingDocumentable().map(::pageForClasslike) +
                     p.functions.renameClashingDocumentable().map(::pageForFunction) +
                     p.properties.mapNotNull(::pageForProperty)
     )
 
     open fun pageForEnumEntry(e: DEnumEntry): ClasslikePageNode = pageForEnumEntries(listOf(e))
 
-    open fun pageForClasslike(c: DClasslike): ClasslikePageNode = pageForClasslikesAndTypeAliases(listOf(c))
-    open fun pageForClasslikesOrTypeAlias(c: Documentable): ClasslikePageNode = pageForClasslikesAndTypeAliases(listOf(c))
+    open fun pageForClasslike(c: Documentable): ClasslikePageNode = pageForClasslikes(listOf(c))
 
     open fun pageForEnumEntries(documentables: List<DEnumEntry>): ClasslikePageNode {
         val dri = documentables.dri.also {
@@ -100,7 +99,7 @@ open class DefaultPageCreator(
     /**
      * @param documentables a list of [DClasslike] and [DTypeAlias] with the same dri in different sourceSets
      */
-    open fun pageForClasslikesAndTypeAliases(documentables: List<Documentable>): ClasslikePageNode {
+    open fun pageForClasslikes(documentables: List<Documentable>): ClasslikePageNode {
         val dri = documentables.dri.also {
             if (it.size != 1) {
                 logger.error("Documentable dri should have the same one ${it.first()} inside the one page!")
@@ -123,7 +122,7 @@ open class DefaultPageCreator(
 
         val childrenPages = constructors.map(::pageForFunction) +
                 if (mergeImplicitExpectActualDeclarations)
-                    nestedClasslikes.mergeClashingDocumentable().map(::pageForClasslikesAndTypeAliases) +
+                    nestedClasslikes.mergeClashingDocumentable().map(::pageForClasslikes) +
                             functions.mergeClashingDocumentable().map(::pageForFunctions) +
                             props.mergeClashingDocumentable().map(::pageForProperties) +
                             entries.mergeClashingDocumentable().map(::pageForEnumEntries)
