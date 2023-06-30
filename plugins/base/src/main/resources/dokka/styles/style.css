@@ -913,6 +913,10 @@ code:not(.block) {
     content: url("../images/nav-icons/object.svg");
 }
 
+.nav-icon.typealias-kt::before {
+    content: url("../images/nav-icons/typealias-kotlin.svg");
+}
+
 .nav-icon.val::before {
     content: url("../images/nav-icons/field-value.svg");
 }

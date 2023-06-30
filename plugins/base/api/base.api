@@ -432,6 +432,7 @@ public final class org/jetbrains/dokka/base/renderers/html/NavigationNodeIcon : 
 	public static final field INTERFACE Lorg/jetbrains/dokka/base/renderers/html/NavigationNodeIcon;
 	public static final field INTERFACE_KT Lorg/jetbrains/dokka/base/renderers/html/NavigationNodeIcon;
 	public static final field OBJECT Lorg/jetbrains/dokka/base/renderers/html/NavigationNodeIcon;
+	public static final field TYPEALIAS_KT Lorg/jetbrains/dokka/base/renderers/html/NavigationNodeIcon;
 	public static final field VAL Lorg/jetbrains/dokka/base/renderers/html/NavigationNodeIcon;
 	public static final field VAR Lorg/jetbrains/dokka/base/renderers/html/NavigationNodeIcon;
 	public static fun valueOf (Ljava/lang/String;)Lorg/jetbrains/dokka/base/renderers/html/NavigationNodeIcon;
@@ -1464,7 +1465,7 @@ public class org/jetbrains/dokka/base/translators/documentables/DefaultPageCreat
 	public final fun getLogger ()Lorg/jetbrains/dokka/utilities/DokkaLogger;
 	protected final fun getMergeImplicitExpectActualDeclarations ()Z
 	protected final fun getSeparateInheritedMembers ()Z
-	public fun pageForClasslike (Lorg/jetbrains/dokka/model/DClasslike;)Lorg/jetbrains/dokka/pages/ClasslikePageNode;
+	public fun pageForClasslike (Lorg/jetbrains/dokka/model/Documentable;)Lorg/jetbrains/dokka/pages/ClasslikePageNode;
 	public fun pageForClasslikes (Ljava/util/List;)Lorg/jetbrains/dokka/pages/ClasslikePageNode;
 	public fun pageForEnumEntries (Ljava/util/List;)Lorg/jetbrains/dokka/pages/ClasslikePageNode;
 	public fun pageForEnumEntry (Lorg/jetbrains/dokka/model/DEnumEntry;)Lorg/jetbrains/dokka/pages/ClasslikePageNode;

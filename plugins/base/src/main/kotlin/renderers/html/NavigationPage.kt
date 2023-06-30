@@ -109,6 +109,7 @@ enum class NavigationNodeIcon(
     FUNCTION("function"),
     EXCEPTION("exception-class"),
     OBJECT("object"),
+    TYPEALIAS_KT("typealias-kt"),
     VAL("val"),
     VAR("var");
 
