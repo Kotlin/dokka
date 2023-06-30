@@ -603,7 +603,7 @@ class SignatureTest : BaseAbstractTest() {
             pluginOverrides = listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
-                writerPlugin.writer.renderedContent("root/example.html").firstSignature().match(
+                writerPlugin.writer.renderedContent("root/example/index.html").firstSignature().match(
                     "typealias ", A("PlainTypealias"), " = ", A("Int"),
                         ignoreSpanWithTokenStyle = true
                 )
@@ -663,7 +663,7 @@ class SignatureTest : BaseAbstractTest() {
             pluginOverrides = listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
-                writerPlugin.writer.renderedContent("root/example.html").firstSignature().match(
+                writerPlugin.writer.renderedContent("root/example/index.html").firstSignature().match(
                     "typealias ", A("PlainTypealias"), " = ", A("Comparable"),
                     "<", A("Int"), ">",
                         ignoreSpanWithTokenStyle = true
@@ -690,7 +690,7 @@ class SignatureTest : BaseAbstractTest() {
             pluginOverrides = listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
-                writerPlugin.writer.renderedContent("root/example.html").firstSignature().match(
+                writerPlugin.writer.renderedContent("root/example/index.html").firstSignature().match(
                     "typealias ", A("GenericTypealias"), "<", A("T"), "> = ", A("Comparable"),
                     "<", A("T"), ">",
                         ignoreSpanWithTokenStyle = true

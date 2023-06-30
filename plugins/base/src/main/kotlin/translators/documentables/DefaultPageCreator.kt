@@ -42,21 +42,34 @@ open class DefaultPageCreator(
     open fun pageForModule(m: DModule): ModulePageNode =
         ModulePageNode(m.name.ifEmpty { "<root>" }, contentForModule(m), listOf(m), m.packages.map(::pageForPackage))
 
+    /**
+     * We want to generate separated pages for no-actual typealias.
+     * Actual typealias are displayed on pages for their expect class (trough [ActualTypealias] extra).
+     *
+     * @see ActualTypealias
+     */
+    private fun List<Documentable>.filterOutActualTypeAlias(): List<Documentable> {
+        fun List<Documentable>.hasExpectClass(dri: DRI) = find { it is DClasslike && it.dri == dri && it.expectPresentInSet != null } != null
+        return this.filterNot { it is DTypeAlias && this.hasExpectClass(it.dri) }
+    }
+
     open fun pageForPackage(p: DPackage): PackagePageNode = PackagePageNode(
         p.name, contentForPackage(p), setOf(p.dri), listOf(p),
         if (mergeImplicitExpectActualDeclarations)
-            p.classlikes.mergeClashingDocumentable().map(::pageForClasslikes) +
+            (p.classlikes + p.typealiases).filterOutActualTypeAlias()
+                .mergeClashingDocumentable().map(::pageForClasslikes) +
                     p.functions.mergeClashingDocumentable().map(::pageForFunctions) +
                     p.properties.mergeClashingDocumentable().map(::pageForProperties)
         else
-            p.classlikes.renameClashingDocumentable().map(::pageForClasslike) +
+            (p.classlikes + p.typealiases).filterOutActualTypeAlias()
+                .renameClashingDocumentable().map(::pageForClasslike) +
                     p.functions.renameClashingDocumentable().map(::pageForFunction) +
                     p.properties.mapNotNull(::pageForProperty)
     )
 
     open fun pageForEnumEntry(e: DEnumEntry): ClasslikePageNode = pageForEnumEntries(listOf(e))
 
-    open fun pageForClasslike(c: DClasslike): ClasslikePageNode = pageForClasslikes(listOf(c))
+    open fun pageForClasslike(c: Documentable): ClasslikePageNode = pageForClasslikes(listOf(c))
 
     open fun pageForEnumEntries(documentables: List<DEnumEntry>): ClasslikePageNode {
         val dri = documentables.dri.also {
@@ -83,33 +96,38 @@ open class DefaultPageCreator(
         )
     }
 
-    open fun pageForClasslikes(documentables: List<DClasslike>): ClasslikePageNode {
+    /**
+     * @param documentables a list of [DClasslike] and [DTypeAlias] with the same dri in different sourceSets
+     */
+    open fun pageForClasslikes(documentables: List<Documentable>): ClasslikePageNode {
         val dri = documentables.dri.also {
             if (it.size != 1) {
                 logger.error("Documentable dri should have the same one ${it.first()} inside the one page!")
             }
         }
 
+        val classlikes = documentables.filterIsInstance<DClasslike>()
+
         val constructors =
-            if (documentables.shouldDocumentConstructors()) {
-                documentables.flatMap { (it as? WithConstructors)?.constructors ?: emptyList() }
+            if (classlikes.shouldDocumentConstructors()) {
+                classlikes.flatMap { (it as? WithConstructors)?.constructors ?: emptyList() }
             } else {
                 emptyList()
             }
 
-        val classlikes = documentables.flatMap { it.classlikes }
-        val functions = documentables.flatMap { it.filteredFunctions }
-        val props = documentables.flatMap { it.filteredProperties }
-        val entries = documentables.flatMap { if (it is DEnum) it.entries else emptyList() }
+        val nestedClasslikes = classlikes.flatMap { it.classlikes }
+        val functions = classlikes.flatMap { it.filteredFunctions }
+        val props = classlikes.flatMap { it.filteredProperties }
+        val entries = classlikes.flatMap { if (it is DEnum) it.entries else emptyList() }
 
         val childrenPages = constructors.map(::pageForFunction) +
                 if (mergeImplicitExpectActualDeclarations)
-                    classlikes.mergeClashingDocumentable().map(::pageForClasslikes) +
+                    nestedClasslikes.mergeClashingDocumentable().map(::pageForClasslikes) +
                             functions.mergeClashingDocumentable().map(::pageForFunctions) +
                             props.mergeClashingDocumentable().map(::pageForProperties) +
                             entries.mergeClashingDocumentable().map(::pageForEnumEntries)
                 else
-                    classlikes.renameClashingDocumentable().map(::pageForClasslike) +
+                    nestedClasslikes.renameClashingDocumentable().map(::pageForClasslike) +
                             functions.renameClashingDocumentable().map(::pageForFunction) +
                             props.renameClashingDocumentable().mapNotNull(::pageForProperty) +
                             entries.renameClashingDocumentable().map(::pageForEnumEntry)
@@ -329,7 +347,7 @@ open class DefaultPageCreator(
         sortedWith(compareBy({ it.name }, { it.parameters.size }, { it.dri.toString() }))
 
     /**
-     * @param documentables a list of [DClasslike] and [DEnumEntry] with the same dri in different sourceSets
+     * @param documentables a list of [DClasslike] and [DEnumEntry] and [DTypeAlias] with the same dri in different sourceSets
      */
     protected open fun contentForClasslikesAndEntries(documentables: List<Documentable>): ContentGroup =
         contentBuilder.contentFor(documentables.dri, documentables.sourceSets) {
@@ -477,8 +495,7 @@ open class DefaultPageCreator(
                     .takeIf { documentable is DProperty }
             }?.let {
                 group(sourceSets = setOf(sourceSet), kind = ContentKind.BriefComment) {
-                    if (documentable.hasSeparatePage) createBriefComment(documentable, sourceSet, it)
-                    else comment(it.root)
+                    createBriefComment(documentable, sourceSet, it)
                 }
             }
         }
@@ -689,6 +706,7 @@ open class DefaultPageCreator(
     protected open fun TagWrapper.toHeaderString() = this.javaClass.toGenericString().split('.').last()
 }
 
+
 internal val List<Documentable>.sourceSets: Set<DokkaSourceSet>
     get() = flatMap { it.sourceSets }.toSet()
 
@@ -705,9 +723,6 @@ internal val Documentable.descriptions: SourceSetDependent<Description>
 
 internal val Documentable.customTags: Map<String, SourceSetDependent<CustomTagWrapper>>
     get() = groupedTags.withTypeNamed()
-
-private val Documentable.hasSeparatePage: Boolean
-    get() = this !is DTypeAlias
 
 /**
  * @see DefaultPageCreator.sortDivergentElementsDeterministically for usage
