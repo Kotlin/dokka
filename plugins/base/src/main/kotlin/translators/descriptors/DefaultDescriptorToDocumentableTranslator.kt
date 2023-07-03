@@ -818,6 +818,7 @@ private class DokkaDescriptorVisitor(
                     documentation = resolveDescriptorData(),
                     sourceSets = setOf(sourceSet),
                     generics = generics.await(),
+                    sources = descriptor.createSources(),
                     extra = PropertyContainer.withAll(
                         descriptor.getAnnotations().toSourceSetDependent().toAnnotations(),
                         info.exceptionInSupertypesOrNull(),
