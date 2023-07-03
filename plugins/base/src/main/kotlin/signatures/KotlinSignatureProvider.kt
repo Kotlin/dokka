@@ -82,39 +82,18 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
             }
         }
 
-    private fun actualTypealiasedSignature(c: DClasslike, sourceSet: DokkaSourceSet, aliasedType: Bound): ContentGroup {
-        @Suppress("UNCHECKED_CAST")
-        val deprecationStyles = (c as? WithExtraProperties<out Documentable>)
-            ?.stylesIfDeprecated(sourceSet)
-            ?: emptySet()
-
-        return contentBuilder.contentFor(
-            c,
-            ContentKind.Symbol,
-            setOf(TextStyle.Monospace),
-            sourceSets = setOf(sourceSet)
-        ) {
-            keyword("actual ")
-            keyword("typealias ")
-            link(c.name.orEmpty(), c.dri, styles = mainStyles + deprecationStyles)
-            operator(" = ")
-            signatureForProjection(aliasedType)
-        }
-    }
-
     private fun classlikeSignature(c: DClasslike): List<ContentNode> {
         @Suppress("UNCHECKED_CAST")
-        val typeAliasUnderlyingType = (c as? WithExtraProperties<DClasslike>)
+        val typeAlias = (c as? WithExtraProperties<DClasslike>)
             ?.extra
             ?.get(ActualTypealias)
-            ?.underlyingType
+            ?.typeAlias
 
         return c.sourceSets.map { sourceSetData ->
-            val sourceSetType = typeAliasUnderlyingType?.get(sourceSetData)
-            if (sourceSetType == null) {
-                regularSignature(c, sourceSetData)
+            if (typeAlias != null && sourceSetData in typeAlias.sourceSets) {
+                regularSignature(typeAlias, sourceSetData)
             } else {
-                actualTypealiasedSignature(c, sourceSetData, sourceSetType)
+                regularSignature(c, sourceSetData)
             }
         }
     }
@@ -361,27 +340,33 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
 
     private fun signature(t: DTypeAlias) =
         t.sourceSets.map {
-            contentBuilder.contentFor(t, sourceSets = setOf(it)) {
-                t.underlyingType.entries.groupBy({ it.value }, { it.key }).map { (type, platforms) ->
-                    +contentBuilder.contentFor(
-                        t,
-                        ContentKind.Symbol,
-                        setOf(TextStyle.Monospace),
-                        sourceSets = platforms.toSet()
-                    ) {
-                        annotationsBlock(t)
-                        t.visibility[it]?.takeIf { it !in ignoredVisibilities }?.name?.let { keyword("$it ") }
-                        processExtraModifiers(t)
-                        keyword("typealias ")
-                        group(styles = mainStyles + t.stylesIfDeprecated(it)) {
-                            signatureForProjection(t.type)
-                        }
-                        operator(" = ")
-                        signatureForTypealiasTarget(t, type)
-                    }
+            regularSignature(t, it)
+        }
+
+    private fun regularSignature(
+        t: DTypeAlias,
+        sourceSet: DokkaSourceSet
+    ) = contentBuilder.contentFor(t, sourceSets = setOf(sourceSet)) {
+        t.underlyingType.entries.groupBy({ it.value }, { it.key }).map { (type, platforms) ->
+            +contentBuilder.contentFor(
+                t,
+                ContentKind.Symbol,
+                setOf(TextStyle.Monospace),
+                sourceSets = platforms.toSet()
+            ) {
+                annotationsBlock(t)
+                t.visibility[sourceSet]?.takeIf { it !in ignoredVisibilities }?.name?.let { keyword("$it ") }
+                if (t.expectPresentInSet != null) keyword("actual ")
+                processExtraModifiers(t)
+                keyword("typealias ")
+                group(styles = mainStyles + t.stylesIfDeprecated(sourceSet)) {
+                    signatureForProjection(t.type)
                 }
+                operator(" = ")
+                signatureForTypealiasTarget(t, type)
             }
         }
+    }
 
     private fun signature(t: DTypeParameter) =
         t.sourceSets.map {

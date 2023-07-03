@@ -8,7 +8,6 @@ import org.jetbrains.dokka.model.dfs
 import org.junit.jupiter.api.Test
 import utils.*
 import kotlin.test.assertEquals
-
 class SignatureTest : BaseAbstractTest() {
     private val configuration = dokkaConfiguration {
         sourceSets {
@@ -36,7 +35,8 @@ class SignatureTest : BaseAbstractTest() {
                 name = "jvm"
                 dependentSourceSets = setOf(DokkaSourceSetID("test", "common"))
                 sourceRoots = listOf("src/main/kotlin/jvm/Test.kt")
-                classpath = listOf(commonStdlibPath!!)
+                classpath = listOf(
+                    commonStdlibPath ?: throw IllegalStateException("Common stdlib is not found"),)
                 externalDocumentationLinks = listOf(stdlibExternalDocumentationLink)
             }
         }
@@ -544,6 +544,39 @@ class SignatureTest : BaseAbstractTest() {
                     "actual val ", A("prop"),
                     ": ", A("Int"),
                     " = 2",
+                    ignoreSpanWithTokenStyle = true
+                )
+            }
+        }
+    }
+    @Test
+    fun `actual typealias should have generic parameters and fully qualified name of the expansion type`() {
+        val writerPlugin = TestOutputWriterPlugin()
+
+        testInline(
+            """
+                |/src/main/kotlin/common/Test.kt
+                |package example
+                |
+                |expect class Array<T>
+                |
+                |/src/main/kotlin/jvm/Test.kt
+                |package example
+                |
+                |actual typealias Array<T> = kotlin.Array<T>
+            """.trimMargin(),
+            mppConfiguration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                val signatures = writerPlugin.writer.renderedContent("test/example/-array/index.html").signature().toList()
+
+                signatures[0].match(
+                    "expect class ", A("Array"), "<", A("T"), ">",
+                    ignoreSpanWithTokenStyle = true
+                )
+                signatures[1].match(
+                    "actual typealias ", A("Array"), "<", A("T"), "> = ", A("kotlin.Array"), "<", A("T"), ">",
                     ignoreSpanWithTokenStyle = true
                 )
             }
