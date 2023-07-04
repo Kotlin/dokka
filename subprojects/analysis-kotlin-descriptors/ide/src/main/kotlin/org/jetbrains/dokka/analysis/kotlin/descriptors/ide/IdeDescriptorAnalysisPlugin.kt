@@ -9,7 +9,7 @@ import org.jetbrains.dokka.plugability.PluginApiPreviewAcknowledgement
 @InternalDokkaApi
 class IdeDescriptorAnalysisPlugin : DokkaPlugin() {
 
-    internal val IdeKdocFinder by extending {
+    internal val ideKdocFinder by extending {
         plugin<CompilerDescriptorAnalysisPlugin>().kdocFinder providing ::IdePluginKDocFinder
     }
 

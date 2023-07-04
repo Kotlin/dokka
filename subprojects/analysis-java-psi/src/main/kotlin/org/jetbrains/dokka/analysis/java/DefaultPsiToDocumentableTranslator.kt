@@ -7,6 +7,7 @@ import com.intellij.psi.PsiManager
 import com.intellij.psi.PsiModifierListOwner
 import kotlinx.coroutines.coroutineScope
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
+import org.jetbrains.dokka.analysis.java.parsers.DokkaPsiParser
 import org.jetbrains.dokka.analysis.java.parsers.JavaPsiDocCommentParser
 import org.jetbrains.dokka.analysis.java.parsers.JavadocParser
 import org.jetbrains.dokka.model.DModule

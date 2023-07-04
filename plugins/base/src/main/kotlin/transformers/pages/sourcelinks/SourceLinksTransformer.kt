@@ -73,7 +73,7 @@ class SourceLinksTransformer(val context: DokkaContext) : PageTransformer {
         val sourcePath = File(this.path).invariantSeparatorsPath
         val sourceLinkPath = File(sourceLink.path).invariantSeparatorsPath
 
-        val lineNumber = this.lineNumber
+        val lineNumber = this.computeLineNumber()
         return sourceLink.url +
                 sourcePath.split(sourceLinkPath)[1] +
                 sourceLink.lineSuffix +

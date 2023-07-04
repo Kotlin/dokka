@@ -5,7 +5,7 @@ import org.intellij.markdown.MarkdownElementTypes
 import org.intellij.markdown.MarkdownTokenTypes
 import org.intellij.markdown.flavours.gfm.GFMElementTypes
 import org.intellij.markdown.flavours.gfm.GFMTokenTypes
-import org.jetbrains.dokka.analysis.markdown.jb.MARKDOWN_FILE_NAME
+import org.jetbrains.dokka.analysis.markdown.jb.MARKDOWN_ELEMENT_FILE_NAME
 import org.jetbrains.dokka.analysis.markdown.jb.parseHtmlEncodedWithNormalisedSpaces
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.doc.*
@@ -54,7 +54,7 @@ internal object DocTagsFromIElementFactory {
             GFMElementTypes.HEADER                      -> Th(children, params)
             GFMElementTypes.ROW                         -> Tr(children, params)
             GFMTokenTypes.CELL                          -> Td(children, params)
-            MarkdownElementTypes.MARKDOWN_FILE          -> CustomDocTag(children, params, MARKDOWN_FILE_NAME)
+            MarkdownElementTypes.MARKDOWN_FILE          -> CustomDocTag(children, params, MARKDOWN_ELEMENT_FILE_NAME)
             MarkdownElementTypes.HTML_BLOCK,
             MarkdownTokenTypes.HTML_TAG,
             MarkdownTokenTypes.HTML_BLOCK_CONTENT       -> Text(body.orEmpty(), params = params + contentTypeParam("html"))

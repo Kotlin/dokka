@@ -90,13 +90,12 @@ internal fun PsiElement.getNextSiblingIgnoringWhitespace(withItself: Boolean = f
 class PsiDocumentableSource(val psi: PsiNamedElement) : DocumentableSource {
     override val path = psi.containingFile.virtualFile.path
 
-    override val lineNumber: Int?
-        get() = this.psi.let {
-            val range = it.getChildOfType<PsiIdentifier>()?.textRange ?: it.textRange
-            val doc = PsiDocumentManager.getInstance(it.project).getDocument(it.containingFile)
-            // IJ uses 0-based line-numbers; external source browsers use 1-based
-            return doc?.getLineNumber(range.startOffset)?.plus(1)
-        }
+    override fun computeLineNumber(): Int? {
+        val range = psi.getChildOfType<PsiIdentifier>()?.textRange ?: psi.textRange
+        val doc = PsiDocumentManager.getInstance(psi.project).getDocument(psi.containingFile)
+        // IJ uses 0-based line-numbers; external source browsers use 1-based
+        return doc?.getLineNumber(range.startOffset)?.plus(1)
+    }
 }
 
 inline fun <reified T : PsiElement> PsiElement.getChildOfType(): T? {

@@ -2,7 +2,7 @@ package org.jetbrains.dokka.tests
 
 import markdown.KDocTest
 
-import org.jetbrains.dokka.analysis.markdown.jb.MARKDOWN_FILE_NAME
+import org.jetbrains.dokka.analysis.markdown.jb.MARKDOWN_ELEMENT_FILE_NAME
 import org.jetbrains.dokka.analysis.markdown.jb.MarkdownParser
 import org.jetbrains.dokka.model.doc.*
 import org.junit.jupiter.api.Disabled
@@ -26,7 +26,7 @@ class ParserTest : KDocTest() {
                 Description(
                     CustomDocTag(
                         listOf(P(listOf(Text("This is simple test of string Next line")))),
-                        name = MARKDOWN_FILE_NAME
+                        name = MARKDOWN_ELEMENT_FILE_NAME
                     )
                 )
             )
@@ -53,7 +53,7 @@ class ParserTest : KDocTest() {
                                 )
                             )
                         ),
-                        name = MARKDOWN_FILE_NAME
+                        name = MARKDOWN_ELEMENT_FILE_NAME
                     )
                 )
             )
@@ -82,7 +82,7 @@ class ParserTest : KDocTest() {
                                     B(listOf(I(listOf(Text("line")))))
                                 )
                             )
-                        ), name = MARKDOWN_FILE_NAME
+                        ), name = MARKDOWN_ELEMENT_FILE_NAME
                     )
                 )
             )
@@ -100,7 +100,7 @@ class ParserTest : KDocTest() {
                 Description(
                     CustomDocTag(
                         listOf(P(listOf(Text("This is simple text with: colon!")))),
-                        name = MARKDOWN_FILE_NAME
+                        name = MARKDOWN_ELEMENT_FILE_NAME
                     )
                 )
             )
@@ -120,7 +120,7 @@ class ParserTest : KDocTest() {
                 Description(
                     CustomDocTag(
                         listOf(P(listOf(Text("Text and String")))),
-                        name = MARKDOWN_FILE_NAME
+                        name = MARKDOWN_ELEMENT_FILE_NAME
                     )
                 )
             )
@@ -144,7 +144,7 @@ class ParserTest : KDocTest() {
                         listOf(
                             P(listOf(Text("Paragraph number one"))),
                             P(listOf(Text("Paragraph"), Br, Text("number two")))
-                        ), name = MARKDOWN_FILE_NAME
+                        ), name = MARKDOWN_ELEMENT_FILE_NAME
                     )
                 )
             )
@@ -160,7 +160,7 @@ class ParserTest : KDocTest() {
                 Description(
                     CustomDocTag(
                         listOf(P(listOf(I(listOf(Text("text")))))),
-                        name = MARKDOWN_FILE_NAME
+                        name = MARKDOWN_ELEMENT_FILE_NAME
                     )
                 )
             )
@@ -176,7 +176,7 @@ class ParserTest : KDocTest() {
                 Description(
                     CustomDocTag(
                         listOf(P(listOf(Text("text_with_underscores")))),
-                        name = MARKDOWN_FILE_NAME
+                        name = MARKDOWN_ELEMENT_FILE_NAME
                     )
                 )
             )
@@ -192,7 +192,7 @@ class ParserTest : KDocTest() {
                 Description(
                     CustomDocTag(
                         listOf(P(listOf(I(listOf(Text("text")))))),
-                        name = MARKDOWN_FILE_NAME
+                        name = MARKDOWN_ELEMENT_FILE_NAME
                     )
                 )
             )
@@ -221,7 +221,7 @@ class ParserTest : KDocTest() {
                                     Text("x\".")
                                 )
                             )
-                        ), name = MARKDOWN_FILE_NAME
+                        ), name = MARKDOWN_ELEMENT_FILE_NAME
                     )
                 )
             )
@@ -250,7 +250,7 @@ class ParserTest : KDocTest() {
                                     Text("x\".")
                                 )
                             )
-                        ), name = MARKDOWN_FILE_NAME
+                        ), name = MARKDOWN_ELEMENT_FILE_NAME
                     )
                 )
             )
@@ -267,7 +267,7 @@ class ParserTest : KDocTest() {
                     CustomDocTag(
                         listOf(
                             P(listOf(Text("Embedded*Star")))
-                        ), name = MARKDOWN_FILE_NAME
+                        ), name = MARKDOWN_ELEMENT_FILE_NAME
                     )
                 )
             )
@@ -293,7 +293,7 @@ class ParserTest : KDocTest() {
                                     Li(listOf(P(listOf(Text("list item 2")))))
                                 )
                             )
-                        ), name = MARKDOWN_FILE_NAME
+                        ), name = MARKDOWN_ELEMENT_FILE_NAME
                     )
                 )
             )
@@ -320,7 +320,7 @@ class ParserTest : KDocTest() {
                                     Li(listOf(P(listOf(Text("list item 2"), Br, Text("continue 2")))))
                                 )
                             )
-                        ), name = MARKDOWN_FILE_NAME
+                        ), name = MARKDOWN_ELEMENT_FILE_NAME
                     )
                 )
             )
@@ -367,7 +367,7 @@ class ParserTest : KDocTest() {
                                     )
                                 )
                             )
-                        ), name = MARKDOWN_FILE_NAME
+                        ), name = MARKDOWN_ELEMENT_FILE_NAME
                     )
                 )
             )
@@ -415,7 +415,7 @@ class ParserTest : KDocTest() {
                                 )
                             ),
                             P(listOf(Text("New paragraph")))
-                        ), name = MARKDOWN_FILE_NAME
+                        ), name = MARKDOWN_ELEMENT_FILE_NAME
                     )
                 )
             )
@@ -441,7 +441,7 @@ class ParserTest : KDocTest() {
                                 ),
                                 mapOf("start" to "1")
                             )
-                        ), name = MARKDOWN_FILE_NAME
+                        ), name = MARKDOWN_ELEMENT_FILE_NAME
                     )
                 )
             )
@@ -468,7 +468,7 @@ class ParserTest : KDocTest() {
                                 ),
                                 mapOf("start" to "9")
                             )
-                        ), name = MARKDOWN_FILE_NAME
+                        ), name = MARKDOWN_ELEMENT_FILE_NAME
                     )
                 )
             )
@@ -496,7 +496,7 @@ class ParserTest : KDocTest() {
                                 ),
                                 mapOf("start" to "2")
                             )
-                        ), name = MARKDOWN_FILE_NAME
+                        ), name = MARKDOWN_ELEMENT_FILE_NAME
                     )
                 )
             )
@@ -544,7 +544,7 @@ class ParserTest : KDocTest() {
                                 ),
                                 mapOf("start" to "1")
                             )
-                        ), name = MARKDOWN_FILE_NAME
+                        ), name = MARKDOWN_ELEMENT_FILE_NAME
                     )
                 )
             )
@@ -595,7 +595,7 @@ class ParserTest : KDocTest() {
                                 mapOf("start" to "1")
                             ),
                             P(listOf(Text("New paragraph")))
-                        ), name = MARKDOWN_FILE_NAME
+                        ), name = MARKDOWN_ELEMENT_FILE_NAME
                     )
                 )
             )
@@ -645,7 +645,7 @@ class ParserTest : KDocTest() {
                                 mapOf("start" to "1")
                             ),
                             P(listOf(Text("New paragraph")))
-                        ), name = MARKDOWN_FILE_NAME
+                        ), name = MARKDOWN_ELEMENT_FILE_NAME
                     )
                 )
             )
@@ -669,7 +669,7 @@ class ParserTest : KDocTest() {
                             H1(listOf(Text("Header 1"))),
                             P(listOf(Text("Following text"))),
                             P(listOf(Text("New paragraph")))
-                        ), name = MARKDOWN_FILE_NAME
+                        ), name = MARKDOWN_ELEMENT_FILE_NAME
                     )
                 )
             )
@@ -711,7 +711,7 @@ class ParserTest : KDocTest() {
                             P(listOf(Text("Text 5"))),
                             H6(listOf(Text("Header 6"))),
                             P(listOf(Text("Text 6")))
-                        ), name = MARKDOWN_FILE_NAME
+                        ), name = MARKDOWN_ELEMENT_FILE_NAME
                     )
                 )
             )
@@ -737,7 +737,7 @@ class ParserTest : KDocTest() {
                                     B(listOf(Text("line 2")))
                                 )
                             )
-                        ), name = MARKDOWN_FILE_NAME
+                        ), name = MARKDOWN_ELEMENT_FILE_NAME
                     )
                 )
             )
@@ -772,7 +772,7 @@ class ParserTest : KDocTest() {
                             HorizontalRule,
                             P(listOf(Text("text 4"))),
                             HorizontalRule
-                        ), name = MARKDOWN_FILE_NAME
+                        ), name = MARKDOWN_ELEMENT_FILE_NAME
                     )
                 )
             )
@@ -810,7 +810,7 @@ class ParserTest : KDocTest() {
                                     P(listOf(Text("Quote")))
                                 )
                             )
-                        ), name = MARKDOWN_FILE_NAME
+                        ), name = MARKDOWN_ELEMENT_FILE_NAME
                     )
                 )
             )
@@ -855,7 +855,7 @@ class ParserTest : KDocTest() {
                                     P(listOf(Text("Quote")))
                                 )
                             )
-                        ), name = MARKDOWN_FILE_NAME
+                        ), name = MARKDOWN_ELEMENT_FILE_NAME
                     )
                 )
             )
@@ -917,7 +917,7 @@ class ParserTest : KDocTest() {
                                     P(listOf(Text("Quote")))
                                 )
                             )
-                        ), name = MARKDOWN_FILE_NAME
+                        ), name = MARKDOWN_ELEMENT_FILE_NAME
                     )
                 )
             )
@@ -942,7 +942,7 @@ class ParserTest : KDocTest() {
                                     Text(" Sample text")
                                 )
                             )
-                        ), name = MARKDOWN_FILE_NAME
+                        ), name = MARKDOWN_ELEMENT_FILE_NAME
                     )
                 )
             )
@@ -983,7 +983,7 @@ class ParserTest : KDocTest() {
                                 mapOf("lang" to "kotlin")
                             ),
                             P(listOf(Text("Sample text")))
-                        ), name = MARKDOWN_FILE_NAME
+                        ), name = MARKDOWN_ELEMENT_FILE_NAME
                     )
                 )
             )
@@ -1010,7 +1010,7 @@ class ParserTest : KDocTest() {
                                     )
                                 )
                             )
-                        ), name = MARKDOWN_FILE_NAME
+                        ), name = MARKDOWN_ELEMENT_FILE_NAME
                     )
                 )
             )
@@ -1036,7 +1036,7 @@ class ParserTest : KDocTest() {
                                     )
                                 )
                             )
-                        ), name = MARKDOWN_FILE_NAME
+                        ), name = MARKDOWN_ELEMENT_FILE_NAME
                     )
                 )
             )
@@ -1064,7 +1064,7 @@ class ParserTest : KDocTest() {
                                     )
                                 )
                             )
-                        ), name = MARKDOWN_FILE_NAME
+                        ), name = MARKDOWN_ELEMENT_FILE_NAME
                     )
                 )
             )
@@ -1092,7 +1092,7 @@ class ParserTest : KDocTest() {
                                     )
                                 )
                             )
-                        ), name = MARKDOWN_FILE_NAME
+                        ), name = MARKDOWN_ELEMENT_FILE_NAME
                     )
                 )
             )
@@ -1122,7 +1122,7 @@ class ParserTest : KDocTest() {
                                     Text(".")
                                 )
                             )
-                        ), name = MARKDOWN_FILE_NAME
+                        ), name = MARKDOWN_ELEMENT_FILE_NAME
                     )
                 )
             )
@@ -1152,7 +1152,7 @@ class ParserTest : KDocTest() {
                                     Text(" and sometimes example.com (but not on Github, for example).")
                                 )
                             )
-                        ), name = MARKDOWN_FILE_NAME
+                        ), name = MARKDOWN_ELEMENT_FILE_NAME
                     )
                 )
             )
@@ -1241,7 +1241,7 @@ class ParserTest : KDocTest() {
                                 )
                             ),
                             P(listOf(Text("Some text to show that the reference links can follow later.")))
-                        ), name = MARKDOWN_FILE_NAME
+                        ), name = MARKDOWN_ELEMENT_FILE_NAME
                     )
                 )
             )
@@ -1262,7 +1262,7 @@ class ParserTest : KDocTest() {
                                     Text("text text")
                                 )
                             )
-                        ), name = MARKDOWN_FILE_NAME
+                        ), name = MARKDOWN_ELEMENT_FILE_NAME
                     )
                 )
             )
@@ -1289,7 +1289,7 @@ class ParserTest : KDocTest() {
                                     )
                                 )
                             )
-                        ), name = MARKDOWN_FILE_NAME
+                        ), name = MARKDOWN_ELEMENT_FILE_NAME
                     )
                 )
             )
@@ -1316,7 +1316,7 @@ class ParserTest : KDocTest() {
                                     A(listOf(Text("link to Google!")), mapOf("href" to "http://google.com"))
                                 )
                             )
-                        ), name = MARKDOWN_FILE_NAME
+                        ), name = MARKDOWN_ELEMENT_FILE_NAME
                     )
                 )
             )
@@ -1349,7 +1349,7 @@ class ParserTest : KDocTest() {
                                     )
                                 )
                             )
-                        ), name = MARKDOWN_FILE_NAME
+                        ), name = MARKDOWN_ELEMENT_FILE_NAME
                     )
                 )
             )
@@ -1414,7 +1414,7 @@ class ParserTest : KDocTest() {
                                     )
                                 )
                             )
-                        ), name = MARKDOWN_FILE_NAME
+                        ), name = MARKDOWN_ELEMENT_FILE_NAME
                     )
                 )
             )
@@ -1438,7 +1438,7 @@ class ParserTest : KDocTest() {
                                     Strikethrough(listOf(Text("strikethroughed")))
                                 )
                             )
-                        ), name = MARKDOWN_FILE_NAME
+                        ), name = MARKDOWN_ELEMENT_FILE_NAME
                     )
                 )
             )
@@ -1465,7 +1465,7 @@ class ParserTest : KDocTest() {
                                     )
                                 )
                             )
-                        ), name = MARKDOWN_FILE_NAME
+                        ), name = MARKDOWN_ELEMENT_FILE_NAME
                     )
                 )
             )
@@ -1515,7 +1515,7 @@ class ParserTest : KDocTest() {
                                 )
                             )
                         ),
-                        name = MARKDOWN_FILE_NAME
+                        name = MARKDOWN_ELEMENT_FILE_NAME
                     )
                 )
             )
@@ -1538,7 +1538,7 @@ class ParserTest : KDocTest() {
                                     CodeInline(listOf(Text("``` "))),
                                 )
                             )
-                        ), name = MARKDOWN_FILE_NAME
+                        ), name = MARKDOWN_ELEMENT_FILE_NAME
                     )
                 )
             )

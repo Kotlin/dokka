@@ -7,7 +7,6 @@ dependencies {
     compileOnly(projects.subprojects.analysisKotlinApi)
 
     implementation(projects.subprojects.analysisKotlinDescriptors.compiler)
-    implementation(projects.subprojects.analysisMarkdownJb)
 
     api(libs.kotlin.idePlugin.common)
     api(libs.kotlin.idePlugin.idea)

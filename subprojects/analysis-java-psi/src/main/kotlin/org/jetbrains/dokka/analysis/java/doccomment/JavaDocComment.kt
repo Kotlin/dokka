@@ -1,8 +1,9 @@
-package org.jetbrains.dokka.analysis.java
+package org.jetbrains.dokka.analysis.java.doccomment
 
 import com.intellij.psi.PsiElement
 import com.intellij.psi.javadoc.PsiDocComment
 import com.intellij.psi.javadoc.PsiDocTag
+import org.jetbrains.dokka.analysis.java.*
 import org.jetbrains.dokka.analysis.java.util.contentElementsWithSiblingIfNeeded
 import org.jetbrains.dokka.analysis.java.util.getKotlinFqName
 import org.jetbrains.dokka.analysis.java.util.hasTag

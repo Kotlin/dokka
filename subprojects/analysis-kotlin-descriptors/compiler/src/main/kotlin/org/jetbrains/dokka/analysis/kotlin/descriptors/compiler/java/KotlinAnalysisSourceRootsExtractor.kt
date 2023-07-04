@@ -11,6 +11,7 @@ import org.jetbrains.kotlin.cli.jvm.config.JavaSourceRoot
 import java.io.File
 
 internal class KotlinAnalysisSourceRootsExtractor : SourceRootsExtractor {
+
     override fun extract(sourceSet: DokkaConfiguration.DokkaSourceSet, context: DokkaContext): List<File> {
         val kotlinAnalysis = context.plugin<CompilerDescriptorAnalysisPlugin>().querySingle { kotlinAnalysis }
         val environment = kotlinAnalysis[sourceSet].environment

@@ -1,10 +1,12 @@
 package org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.java
 
 import org.jetbrains.dokka.analysis.java.*
+import org.jetbrains.dokka.analysis.java.doccomment.DocComment
+import org.jetbrains.dokka.analysis.java.doccomment.DocumentationContent
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocTag
 
-internal class KotlinDocComment(
+internal class DescriptorKotlinDocComment(
     val comment: KDocTag,
     val descriptor: DeclarationDescriptor
 ) : DocComment {
@@ -59,10 +61,10 @@ internal class KotlinDocComment(
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as KotlinDocComment
+        other as DescriptorKotlinDocComment
 
         if (comment != other.comment) return false
-        if (descriptor != other.descriptor) return false
+        if (descriptor.name != other.descriptor.name) return false
         if (tagsWithContent != other.tagsWithContent) return false
 
         return true
@@ -70,7 +72,7 @@ internal class KotlinDocComment(
 
     override fun hashCode(): Int {
         var result = comment.hashCode()
-        result = 31 * result + descriptor.hashCode()
+        result = 31 * result + descriptor.name.hashCode()
         result = 31 * result + tagsWithContent.hashCode()
         return result
     }

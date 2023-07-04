@@ -10,9 +10,11 @@ import com.intellij.psi.javadoc.PsiDocComment
 import com.intellij.psi.javadoc.PsiDocTag
 
 import org.jetbrains.dokka.analysis.java.*
+import org.jetbrains.dokka.analysis.java.doccomment.DocComment
+import org.jetbrains.dokka.analysis.java.doccomment.JavaDocComment
 import org.jetbrains.dokka.analysis.java.parsers.doctag.PsiDocTagParser
 import org.jetbrains.dokka.analysis.java.util.*
-import org.jetbrains.dokka.analysis.markdown.jb.MARKDOWN_FILE_NAME
+import org.jetbrains.dokka.analysis.markdown.jb.MARKDOWN_ELEMENT_FILE_NAME
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.model.doc.Deprecated
@@ -194,11 +196,11 @@ internal class JavaPsiDocCommentParser(
     }
 
     private fun wrapTagIfNecessary(tags: List<DocTag>): CustomDocTag {
-        val isFile = (tags.singleOrNull() as? CustomDocTag)?.name == MARKDOWN_FILE_NAME
+        val isFile = (tags.singleOrNull() as? CustomDocTag)?.name == MARKDOWN_ELEMENT_FILE_NAME
         return if (isFile) {
             tags.first() as CustomDocTag
         } else {
-            CustomDocTag(tags, name = MARKDOWN_FILE_NAME)
+            CustomDocTag(tags, name = MARKDOWN_ELEMENT_FILE_NAME)
         }
     }
 

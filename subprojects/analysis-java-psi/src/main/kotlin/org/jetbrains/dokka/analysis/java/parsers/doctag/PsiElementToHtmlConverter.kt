@@ -7,10 +7,9 @@ import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.javadoc.PsiDocTagValue
 import com.intellij.psi.javadoc.PsiDocToken
 import com.intellij.psi.javadoc.PsiInlineDocTag
-import org.jetbrains.dokka.analysis.java.DocumentationContent
+import org.jetbrains.dokka.analysis.java.doccomment.DocumentationContent
 import org.jetbrains.dokka.analysis.java.JavadocTag
-import org.jetbrains.dokka.analysis.java.PsiDocumentationContent
-import org.jetbrains.dokka.analysis.java.doctag.DocTagParserContext
+import org.jetbrains.dokka.analysis.java.doccomment.PsiDocumentationContent
 import org.jetbrains.dokka.analysis.java.parsers.CommentResolutionContext
 import org.jetbrains.dokka.analysis.java.util.*
 import org.jetbrains.dokka.links.DRI

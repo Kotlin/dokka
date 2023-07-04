@@ -1,7 +1,8 @@
-package org.jetbrains.dokka.analysis.java
+package org.jetbrains.dokka.analysis.java.doccomment
 
 import com.intellij.psi.PsiElement
 import com.intellij.psi.javadoc.PsiDocTag
+import org.jetbrains.dokka.analysis.java.JavadocTag
 import org.jetbrains.dokka.analysis.java.util.contentElementsWithSiblingIfNeeded
 
 internal data class PsiDocumentationContent(

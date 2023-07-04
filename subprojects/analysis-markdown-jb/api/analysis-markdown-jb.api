@@ -1,5 +1,5 @@
 public final class org/jetbrains/dokka/analysis/markdown/jb/MarkdownApiKt {
-	public static final fun getMARKDOWN_FILE_NAME ()Ljava/lang/String;
+	public static final fun getMARKDOWN_ELEMENT_FILE_NAME ()Ljava/lang/String;
 }
 
 public class org/jetbrains/dokka/analysis/markdown/jb/MarkdownParser : org/jetbrains/dokka/analysis/markdown/jb/Parser {

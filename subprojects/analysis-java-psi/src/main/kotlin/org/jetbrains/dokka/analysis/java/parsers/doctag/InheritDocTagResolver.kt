@@ -4,8 +4,8 @@ import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiMethod
 import com.intellij.psi.javadoc.PsiDocComment
 import org.jetbrains.dokka.analysis.java.*
-import org.jetbrains.dokka.analysis.java.doctag.DocTagParserContext
-import org.jetbrains.dokka.analysis.java.doctag.InheritDocTagContentProvider
+import org.jetbrains.dokka.analysis.java.doccomment.*
+import org.jetbrains.dokka.analysis.java.doccomment.JavaDocComment
 import org.jetbrains.dokka.analysis.java.parsers.CommentResolutionContext
 
 internal class InheritDocTagResolver(

@@ -1459,7 +1459,7 @@ public final class org/jetbrains/dokka/model/DocumentableKt {
 }
 
 public abstract interface class org/jetbrains/dokka/model/DocumentableSource {
-	public abstract fun getLineNumber ()Ljava/lang/Integer;
+	public abstract fun computeLineNumber ()Ljava/lang/Integer;
 	public abstract fun getPath ()Ljava/lang/String;
 }
 

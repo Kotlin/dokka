@@ -1,4 +1,4 @@
-package org.jetbrains.dokka.analysis.java.parsers
+package org.jetbrains.dokka.analysis.java.util
 
 import com.intellij.psi.PsiElement
 

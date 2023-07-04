@@ -2,10 +2,8 @@ package org.jetbrains.dokka.analysis.java.parsers.doctag
 
 import com.intellij.psi.PsiElement
 import com.intellij.psi.javadoc.PsiDocTag
-import org.jetbrains.dokka.analysis.java.doctag.DocTagParserContext
 import org.jetbrains.dokka.analysis.java.parsers.CommentResolutionContext
 import org.jetbrains.dokka.model.doc.*
-import java.util.*
 
 /**
  * Parses [PsiElement] of [PsiDocTag] into Dokka's [DocTag]

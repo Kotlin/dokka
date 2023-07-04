@@ -1,4 +1,4 @@
-package org.jetbrains.dokka.analysis.java
+package org.jetbrains.dokka.analysis.java.doccomment
 
 import com.intellij.psi.PsiDocCommentOwner
 import com.intellij.psi.PsiNamedElement

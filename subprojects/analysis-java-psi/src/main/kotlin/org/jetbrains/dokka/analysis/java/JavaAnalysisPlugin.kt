@@ -7,10 +7,16 @@ import com.intellij.psi.PsiAnnotation
 import org.jetbrains.dokka.CoreExtensions
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.InternalDokkaApi
-import org.jetbrains.dokka.analysis.java.doctag.InheritDocTagContentProvider
+import org.jetbrains.dokka.analysis.java.doccomment.DocCommentCreator
+import org.jetbrains.dokka.analysis.java.doccomment.DocCommentFactory
+import org.jetbrains.dokka.analysis.java.doccomment.DocCommentFinder
+import org.jetbrains.dokka.analysis.java.doccomment.JavaDocCommentCreator
+import org.jetbrains.dokka.analysis.java.parsers.DocCommentParser
+import org.jetbrains.dokka.analysis.java.parsers.doctag.InheritDocTagContentProvider
 import org.jetbrains.dokka.analysis.java.parsers.JavaPsiDocCommentParser
 import org.jetbrains.dokka.analysis.java.parsers.doctag.InheritDocTagResolver
 import org.jetbrains.dokka.analysis.java.parsers.doctag.PsiDocTagParser
+import org.jetbrains.dokka.analysis.java.util.NoopIntellijLoggerFactory
 import org.jetbrains.dokka.plugability.*
 import java.io.File
 
@@ -27,6 +33,7 @@ interface SourceRootsExtractor {
 
 @InternalDokkaApi
 interface BreakingAbstractionKotlinLightMethodChecker {
+    // TODO [beresnev] not even sure it's needed, but left for compatibility and to preserve behaviour
     fun isLightAnnotation(annotation: PsiAnnotation): Boolean
     fun isLightAnnotationAttribute(attribute: JvmAnnotationAttribute): Boolean
 }

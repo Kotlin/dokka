@@ -1,9 +1,9 @@
 package org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.java
 
-import org.jetbrains.dokka.analysis.java.DocumentationContent
+import org.jetbrains.dokka.analysis.java.doccomment.DocumentationContent
 import org.jetbrains.dokka.analysis.java.JavaAnalysisPlugin
-import org.jetbrains.dokka.analysis.java.doctag.DocTagParserContext
-import org.jetbrains.dokka.analysis.java.doctag.InheritDocTagContentProvider
+import org.jetbrains.dokka.analysis.java.parsers.doctag.DocTagParserContext
+import org.jetbrains.dokka.analysis.java.parsers.doctag.InheritDocTagContentProvider
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.query
@@ -12,9 +12,9 @@ internal class KotlinInheritDocTagContentProvider(
     context: DokkaContext
 ) : InheritDocTagContentProvider {
 
-    val parser: KotlinDocCommentParser by lazy {
+    val parser: DescriptorKotlinDocCommentParser by lazy {
         context.plugin<JavaAnalysisPlugin>().query { docCommentParsers }
-            .single { it is KotlinDocCommentParser } as KotlinDocCommentParser
+            .single { it is DescriptorKotlinDocCommentParser } as DescriptorKotlinDocCommentParser
     }
 
     override fun canConvert(content: DocumentationContent): Boolean = content is DescriptorDocumentationContent
@@ -22,7 +22,7 @@ internal class KotlinInheritDocTagContentProvider(
     override fun convertToHtml(content: DocumentationContent, docTagParserContext: DocTagParserContext): String {
         val descriptorContent = content as DescriptorDocumentationContent
         val inheritedDocNode = parser.parseDocumentation(
-            KotlinDocComment(descriptorContent.element, descriptorContent.descriptor),
+            DescriptorKotlinDocComment(descriptorContent.element, descriptorContent.descriptor),
             parseWithChildren = false
         )
         val id = docTagParserContext.store(inheritedDocNode)

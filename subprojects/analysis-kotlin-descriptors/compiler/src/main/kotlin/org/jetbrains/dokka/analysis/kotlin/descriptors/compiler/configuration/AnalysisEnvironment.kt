@@ -271,13 +271,6 @@ class AnalysisEnvironment(
 
         val resolverForModule = resolverForProject.resolverForModule(module)
 
-//        val libraryResolutionFacade =
-//            DokkaResolutionFacade(
-//                environment.project,
-//                libraryModuleDescriptor,
-//                resolverForLibrary
-//            )
-
         return analysisContextCreator.create(
             environment.project as MockProject,
             moduleDescriptor,

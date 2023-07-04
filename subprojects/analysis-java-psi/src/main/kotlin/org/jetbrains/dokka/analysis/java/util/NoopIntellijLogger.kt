@@ -1,4 +1,4 @@
-package org.jetbrains.dokka.analysis.java
+package org.jetbrains.dokka.analysis.java.util
 
 import com.intellij.openapi.diagnostic.Attachment
 import com.intellij.openapi.diagnostic.DefaultLogger

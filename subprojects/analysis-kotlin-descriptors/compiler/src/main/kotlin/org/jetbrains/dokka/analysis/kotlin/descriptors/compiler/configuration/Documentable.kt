@@ -11,8 +11,8 @@ import org.jetbrains.kotlin.resolve.source.getPsi
 internal class DescriptorDocumentableSource(val descriptor: DeclarationDescriptor) : DocumentableSource {
     override val path = descriptor.toSourceElement.containingFile.toString()
 
-    override val lineNumber: Int?
-        get() = (this.descriptor as DeclarationDescriptorWithSource)
+    override fun computeLineNumber(): Int? {
+        return (this.descriptor as DeclarationDescriptorWithSource)
             .source.getPsi()
             ?.let {
                 val range = it.node?.findChildByType(KtTokens.IDENTIFIER)?.textRange ?: it.textRange
@@ -20,4 +20,5 @@ internal class DescriptorDocumentableSource(val descriptor: DeclarationDescripto
                 // IJ uses 0-based line-numbers; external source browsers use 1-based
                 doc?.getLineNumber(range.startOffset)?.plus(1)
             }
+    }
 }

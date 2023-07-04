@@ -1,4 +1,4 @@
-package org.jetbrains.dokka.analysis.java
+package org.jetbrains.dokka.analysis.java.parsers
 
 import com.intellij.lang.jvm.JvmModifier
 import com.intellij.lang.jvm.annotation.JvmAnnotationAttribute
@@ -11,8 +11,9 @@ import com.intellij.psi.*
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import org.jetbrains.dokka.DokkaConfiguration
-import org.jetbrains.dokka.analysis.java.parsers.JavaPsiDocCommentParser
-import org.jetbrains.dokka.analysis.java.parsers.JavadocParser
+import org.jetbrains.dokka.analysis.java.BreakingAbstractionKotlinLightMethodChecker
+import org.jetbrains.dokka.analysis.java.SyntheticElementDocumentationProvider
+import org.jetbrains.dokka.analysis.java.getVisibility
 import org.jetbrains.dokka.analysis.java.util.*
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.nextTarget

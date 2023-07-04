@@ -95,13 +95,13 @@ class CompilerDescriptorAnalysisPlugin : DokkaPlugin() {
 
     internal val kotlinDocCommentCreator by extending {
         javaAnalysisPlugin.docCommentCreators providing {
-            KotlinDocCommentCreator(querySingle { kdocFinder }, querySingle { descriptorFinder })
+            DescriptorKotlinDocCommentCreator(querySingle { kdocFinder }, querySingle { descriptorFinder })
         }
     }
 
     internal val kotlinDocCommentParser by extending {
         javaAnalysisPlugin.docCommentParsers providing { context ->
-            KotlinDocCommentParser(
+            DescriptorKotlinDocCommentParser(
                 context,
                 context.logger
             )

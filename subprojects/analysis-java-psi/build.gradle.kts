@@ -12,7 +12,6 @@ dependencies {
     implementation(libs.intellij.java.psi.impl)
     implementation(libs.intellij.platform.util.api)
     implementation(libs.intellij.platform.util.rt)
-    implementation(libs.intellij.platform.jpsModel.impl)
 
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.jsoup)

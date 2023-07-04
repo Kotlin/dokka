@@ -3,7 +3,7 @@ package org.jetbrains.dokka.analysis.kotlin.descriptors
 
 import org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.impl.moduledocs.*
 import org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.impl.moduledocs.ModuleAndPackageDocumentation.Classifier.*
-import org.jetbrains.dokka.analysis.markdown.jb.MARKDOWN_FILE_NAME
+import org.jetbrains.dokka.analysis.markdown.jb.MARKDOWN_ELEMENT_FILE_NAME
 import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.utilities.DokkaLogger
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -257,14 +257,14 @@ class ParseModuleAndPackageDocumentationFragmentsTest {
                                     Text("@Smth")
                                 )
                             )
-                        ), name = MARKDOWN_FILE_NAME
+                        ), name = MARKDOWN_ELEMENT_FILE_NAME
                     )
                 ),
                 Author(
                     CustomDocTag(
                         listOf(
                             P(listOf(Text("Smb")))
-                        ), name = MARKDOWN_FILE_NAME
+                        ), name = MARKDOWN_ELEMENT_FILE_NAME
                     )
                 )
             )

@@ -2,7 +2,7 @@ package transformers
 
 
 import org.jetbrains.dokka.DokkaConfiguration
-import org.jetbrains.dokka.analysis.markdown.jb.MARKDOWN_FILE_NAME
+import org.jetbrains.dokka.analysis.markdown.jb.MARKDOWN_ELEMENT_FILE_NAME
 import org.jetbrains.dokka.base.transformers.documentables.ModuleAndPackageDocumentationTransformer
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.DModule
@@ -251,6 +251,6 @@ class ModuleAndPackageDocumentationTransformerUnitTest {
     private fun documentationNode(vararg texts: String): DocumentationNode {
         return DocumentationNode(
             texts.toList()
-                .map { Description(CustomDocTag(listOf(Text(it)), name = MARKDOWN_FILE_NAME)) })
+                .map { Description(CustomDocTag(listOf(Text(it)), name = MARKDOWN_ELEMENT_FILE_NAME)) })
     }
 }

@@ -2,7 +2,7 @@ package org.jetbrains.dokka.base.transformers.pages.comments
 
 
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
-import org.jetbrains.dokka.analysis.markdown.jb.MARKDOWN_FILE_NAME
+import org.jetbrains.dokka.analysis.markdown.jb.MARKDOWN_ELEMENT_FILE_NAME
 import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.model.properties.plus
@@ -262,5 +262,5 @@ open class DocTagToContentConverter : CommentsToContentConverter {
         }
     }
 
-    private fun CustomDocTag.isNonemptyFile() = name == MARKDOWN_FILE_NAME && children.size > 1
+    private fun CustomDocTag.isNonemptyFile() = name == MARKDOWN_ELEMENT_FILE_NAME && children.size > 1
 }

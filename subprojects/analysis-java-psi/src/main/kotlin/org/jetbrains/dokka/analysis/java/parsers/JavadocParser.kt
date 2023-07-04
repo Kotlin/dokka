@@ -2,8 +2,7 @@ package org.jetbrains.dokka.analysis.java.parsers
 
 import com.intellij.psi.PsiNamedElement
 import org.jetbrains.dokka.InternalDokkaApi
-import org.jetbrains.dokka.analysis.java.DocCommentFinder
-import org.jetbrains.dokka.analysis.java.DocCommentParser
+import org.jetbrains.dokka.analysis.java.doccomment.DocCommentFinder
 import org.jetbrains.dokka.model.doc.DocumentationNode
 
 internal fun interface JavaDocumentationParser {

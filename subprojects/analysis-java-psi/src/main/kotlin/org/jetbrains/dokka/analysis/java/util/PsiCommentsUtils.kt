@@ -11,7 +11,6 @@ import com.intellij.psi.javadoc.PsiDocToken
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.dokka.analysis.java.DescriptionJavadocTag
 import org.jetbrains.dokka.analysis.java.JavadocTag
-import org.jetbrains.dokka.analysis.java.parsers.resolveToGetDri
 
 internal fun PsiDocComment.hasTag(tag: JavadocTag): Boolean =
     when (tag) {

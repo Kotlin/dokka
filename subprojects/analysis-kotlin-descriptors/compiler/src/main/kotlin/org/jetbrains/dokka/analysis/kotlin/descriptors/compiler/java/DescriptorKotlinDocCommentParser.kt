@@ -2,8 +2,8 @@ package org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.java
 
 import com.intellij.psi.PsiNamedElement
 import org.jetbrains.dokka.Platform
-import org.jetbrains.dokka.analysis.java.DocComment
-import org.jetbrains.dokka.analysis.java.DocCommentParser
+import org.jetbrains.dokka.analysis.java.doccomment.DocComment
+import org.jetbrains.dokka.analysis.java.parsers.DocCommentParser
 import org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.CompilerDescriptorAnalysisPlugin
 import org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.configuration.from
 import org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.translator.parseFromKDocTag
@@ -14,21 +14,21 @@ import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.utilities.DokkaLogger
 
-internal class KotlinDocCommentParser(
+internal class DescriptorKotlinDocCommentParser(
     private val context: DokkaContext,
     private val logger: DokkaLogger
 ) : DocCommentParser {
 
     override fun canParse(docComment: DocComment): Boolean {
-        return docComment is KotlinDocComment
+        return docComment is DescriptorKotlinDocComment
     }
 
     override fun parse(docComment: DocComment, context: PsiNamedElement): DocumentationNode {
-        val kotlinDocComment = docComment as KotlinDocComment
+        val kotlinDocComment = docComment as DescriptorKotlinDocComment
         return parseDocumentation(kotlinDocComment)
     }
 
-    fun parseDocumentation(element: KotlinDocComment, parseWithChildren: Boolean = true): DocumentationNode {
+    fun parseDocumentation(element: DescriptorKotlinDocComment, parseWithChildren: Boolean = true): DocumentationNode {
         val sourceSet = context.configuration.sourceSets.let { sourceSets ->
             sourceSets.firstOrNull { it.sourceSetID.sourceSetName == "jvmMain" }
                 ?: sourceSets.first { it.analysisPlatform == Platform.jvm }

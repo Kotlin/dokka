@@ -1,6 +1,5 @@
 package org.jetbrains.dokka.analysis.java.parsers.doctag
 
-import org.jetbrains.dokka.analysis.java.doctag.DocTagParserContext
 import org.jetbrains.dokka.analysis.markdown.jb.parseHtmlEncodedWithNormalisedSpaces
 import org.jetbrains.dokka.model.doc.*
 import org.jsoup.Jsoup
