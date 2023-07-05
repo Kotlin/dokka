@@ -8,8 +8,9 @@ plugins {
 dependencies {
     compileOnly(projects.core)
 
-    implementation(kotlin("reflect"))
     implementation(projects.plugins.base)
+
+    implementation(kotlin("reflect"))
 
     testImplementation(projects.plugins.base)
     testImplementation(projects.plugins.base.baseTestUtils)

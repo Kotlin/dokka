@@ -7,7 +7,6 @@ plugins {
 
 dependencies {
     compileOnly(projects.core)
-    implementation(kotlin("reflect"))
 
     implementation(projects.plugins.base)
     implementation(projects.plugins.jekyll)
@@ -16,6 +15,7 @@ dependencies {
     implementation(projects.plugins.gfm)
     implementation(projects.plugins.gfm.gfmTemplateProcessing)
 
+    implementation(kotlin("reflect"))
     implementation(libs.kotlinx.coroutines.core)
 
     testImplementation(projects.core.testApi)

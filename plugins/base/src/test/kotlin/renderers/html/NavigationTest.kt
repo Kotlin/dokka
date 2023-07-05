@@ -5,8 +5,8 @@ import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jsoup.nodes.Element
 import org.junit.jupiter.api.Test
 import utils.TestOutputWriterPlugin
-import kotlin.test.assertEquals
 import utils.navigationHtml
+import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
 class NavigationTest : BaseAbstractTest() {

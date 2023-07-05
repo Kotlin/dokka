@@ -9,7 +9,7 @@ import org.jetbrains.dokka.model.doc.DocumentationNode
 import org.jetbrains.dokka.model.doc.Param
 import org.jetbrains.dokka.model.doc.Text
 import org.jetbrains.dokka.pages.*
-import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
+import org.jetbrains.dokka.utilities.firstIsInstanceOrNull
 import org.junit.jupiter.api.Test
 import utils.*
 import kotlin.test.assertEquals

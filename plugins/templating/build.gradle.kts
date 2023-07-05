@@ -12,23 +12,16 @@ registerDokkaArtifactPublication("templating-plugin") {
 dependencies {
     compileOnly(projects.core)
 
+    api(libs.jsoup)
 
-    implementation(kotlin("reflect"))
     implementation(projects.plugins.base)
 
+    implementation(kotlin("reflect"))
     implementation(libs.kotlinx.coroutines.core)
-    implementation(libs.jackson.kotlin)
-    constraints {
-        implementation(libs.jackson.databind) {
-            because("CVE-2022-42003")
-        }
-    }
-    implementation(libs.kotlinx.html)
 
-    implementation(libs.jsoup)
     testImplementation(projects.plugins.base.baseTestUtils)
-
     testImplementation(projects.core.testApi)
     testImplementation(platform(libs.junit.bom))
     testImplementation(libs.junit.jupiter)
+    testImplementation(libs.kotlinx.html)
 }

@@ -2,7 +2,7 @@ import Select from '@jetbrains/ring-ui/components/select/select';
 import {Option, OptionWithHighlightComponent, OptionWithSearchResult} from "./types";
 import fuzzyHighlight from '@jetbrains/ring-ui/components/global/fuzzy-highlight.js'
 import React from "react";
-import {SearchResultRow, signatureFromSearchResult} from "./searchResultRow";
+import {SearchResultRow} from "./searchResultRow";
 import _ from "lodash";
 
 const orderRecords = (records: OptionWithSearchResult[], searchPhrase: string): OptionWithSearchResult[] => {

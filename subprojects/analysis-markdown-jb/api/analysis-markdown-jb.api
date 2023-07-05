@@ -1,0 +1,28 @@
+public final class org/jetbrains/dokka/analysis/markdown/jb/MarkdownApiKt {
+	public static final fun getMARKDOWN_ELEMENT_FILE_NAME ()Ljava/lang/String;
+}
+
+public class org/jetbrains/dokka/analysis/markdown/jb/MarkdownParser : org/jetbrains/dokka/analysis/markdown/jb/Parser {
+	public static final field Companion Lorg/jetbrains/dokka/analysis/markdown/jb/MarkdownParser$Companion;
+	public fun <init> (Lkotlin/jvm/functions/Function1;Ljava/lang/String;)V
+	public fun parseStringToDocNode (Ljava/lang/String;)Lorg/jetbrains/dokka/model/doc/DocTag;
+	protected fun parseTagWithBody (Ljava/lang/String;Ljava/lang/String;)Lorg/jetbrains/dokka/model/doc/TagWrapper;
+	protected fun preparse (Ljava/lang/String;)Ljava/lang/String;
+}
+
+public final class org/jetbrains/dokka/analysis/markdown/jb/MarkdownParser$Companion {
+	public final fun fqDeclarationName (Lorg/jetbrains/dokka/links/DRI;)Ljava/lang/String;
+}
+
+public final class org/jetbrains/dokka/analysis/markdown/jb/ParseUtilsKt {
+	public static final fun parseHtmlEncodedWithNormalisedSpaces (Ljava/lang/String;Z)Ljava/util/List;
+}
+
+public abstract class org/jetbrains/dokka/analysis/markdown/jb/Parser {
+	public fun <init> ()V
+	public fun parse (Ljava/lang/String;)Lorg/jetbrains/dokka/model/doc/DocumentationNode;
+	public abstract fun parseStringToDocNode (Ljava/lang/String;)Lorg/jetbrains/dokka/model/doc/DocTag;
+	protected fun parseTagWithBody (Ljava/lang/String;Ljava/lang/String;)Lorg/jetbrains/dokka/model/doc/TagWrapper;
+	protected abstract fun preparse (Ljava/lang/String;)Ljava/lang/String;
+}
+

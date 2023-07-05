@@ -1,26 +1,19 @@
 package org.jetbrains.dokka.base.transformers.pages.sourcelinks
 
-import com.intellij.psi.PsiDocumentManager
-import com.intellij.psi.PsiElement
-import com.intellij.psi.PsiIdentifier
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
-import org.jetbrains.dokka.analysis.DescriptorDocumentableSource
-import org.jetbrains.dokka.analysis.PsiDocumentableSource
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder
 import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.model.*
+import org.jetbrains.dokka.model.Documentable
+import org.jetbrains.dokka.model.DocumentableSource
+import org.jetbrains.dokka.model.WithSources
+import org.jetbrains.dokka.model.sourceSetIDs
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.transformers.pages.PageTransformer
-import org.jetbrains.kotlin.descriptors.DeclarationDescriptorWithSource
-import org.jetbrains.kotlin.lexer.KtTokens
-import org.jetbrains.kotlin.psi.psiUtil.getChildOfType
-import org.jetbrains.kotlin.resolve.source.getPsi
-import org.jetbrains.kotlin.utils.addToStdlib.cast
 import java.io.File
 
 class SourceLinksTransformer(val context: DokkaContext) : PageTransformer {
@@ -80,29 +73,11 @@ class SourceLinksTransformer(val context: DokkaContext) : PageTransformer {
         val sourcePath = File(this.path).invariantSeparatorsPath
         val sourceLinkPath = File(sourceLink.path).invariantSeparatorsPath
 
-        val lineNumber = when (this) {
-            is DescriptorDocumentableSource -> this.descriptor
-                .cast<DeclarationDescriptorWithSource>()
-                .source.getPsi()
-                ?.lineNumber()
-            is PsiDocumentableSource -> this.psi.lineNumber()
-            else -> null
-        }
+        val lineNumber = this.computeLineNumber()
         return sourceLink.url +
                 sourcePath.split(sourceLinkPath)[1] +
                 sourceLink.lineSuffix +
                 "${lineNumber ?: 1}"
-    }
-
-    private fun PsiElement.lineNumber(): Int? {
-        val ktIdentifierTextRange = this.node?.findChildByType(KtTokens.IDENTIFIER)?.textRange
-        val javaIdentifierTextRange = this.getChildOfType<PsiIdentifier>()?.textRange
-        // synthetic and some light methods might return null
-        val textRange = ktIdentifierTextRange ?: javaIdentifierTextRange ?: textRange ?: return null
-
-        val doc = PsiDocumentManager.getInstance(project).getDocument(containingFile)
-        // IJ uses 0-based line-numbers; external source browsers use 1-based
-        return doc?.getLineNumber(textRange.startOffset)?.plus(1)
     }
 
     private fun ContentNode.signatureGroupOrNull() =

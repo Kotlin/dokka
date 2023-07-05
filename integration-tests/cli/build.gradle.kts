@@ -23,13 +23,19 @@ val basePluginShadow: Configuration by configurations.creating {
 
 dependencies {
     basePluginShadow(projects.plugins.base)
-    basePluginShadow(projects.kotlinAnalysis) // compileOnly in base plugin
+
+    // TODO [beresnev] analysis switcher
+    basePluginShadow(project(path = ":subprojects:analysis-kotlin-descriptors", configuration = "shadow"))
 }
 
 val basePluginShadowJar by tasks.register("basePluginShadowJar", ShadowJar::class) {
     configurations = listOf(basePluginShadow)
     archiveFileName.set("fat-base-plugin-$dokka_version.jar")
     archiveClassifier.set("")
+
+    // service files are merged to make sure all Dokka plugins
+    // from the dependencies are loaded, and not just a single one.
+    mergeServiceFiles()
 }
 
 tasks.integrationTest {

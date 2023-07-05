@@ -1,7 +1,10 @@
 package utils
 
 import matchers.content.*
-import org.jetbrains.dokka.pages.*
+import org.jetbrains.dokka.pages.BasicTabbedContentType
+import org.jetbrains.dokka.pages.ContentGroup
+import org.jetbrains.dokka.pages.ContentPage
+import org.jetbrains.dokka.pages.RootPageNode
 
 //TODO: Try to unify those functions after update to 1.4
 fun ContentMatcherBuilder<*>.functionSignature(

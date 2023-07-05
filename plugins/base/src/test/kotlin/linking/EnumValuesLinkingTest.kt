@@ -7,13 +7,12 @@ import org.jetbrains.dokka.model.dfs
 import org.jetbrains.dokka.model.doc.DocumentationLink
 import org.jetbrains.dokka.pages.ContentDRILink
 import org.jetbrains.dokka.pages.ContentPage
-import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 import org.jsoup.Jsoup
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
-import java.nio.file.Paths
 import utils.TestOutputWriterPlugin
-import kotlin.AssertionError
+import java.nio.file.Paths
 
 class EnumValuesLinkingTest : BaseAbstractTest() {
 
@@ -80,13 +79,13 @@ class EnumValuesLinkingTest : BaseAbstractTest() {
                 }
 
                 assertEquals(
-                    javaLinker.documentation.values.single().children[0].children[1].children[1].safeAs<DocumentationLink>()?.dri,
-                    kotlinLinker.documentation.values.single().children[0].children[0].children[5].safeAs<DocumentationLink>()?.dri
+                    javaLinker.documentation.values.single().children[0].children[1].children[1].let { it as? DocumentationLink }?.dri,
+                    kotlinLinker.documentation.values.single().children[0].children[0].children[5].let { it as? DocumentationLink }?.dri
                 )
 
                 assertEquals(
-                    javaLinker.documentation.values.single().children[0].children[2].children[1].safeAs<DocumentationLink>()?.dri,
-                    kotlinLinker.documentation.values.single().children[0].children[0].children[9].safeAs<DocumentationLink>()?.dri
+                    javaLinker.documentation.values.single().children[0].children[2].children[1].let { it as? DocumentationLink }?.dri,
+                    kotlinLinker.documentation.values.single().children[0].children[0].children[9].let { it as? DocumentationLink }?.dri
                 )
             }
 

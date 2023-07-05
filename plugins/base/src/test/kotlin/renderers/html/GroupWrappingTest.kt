@@ -3,7 +3,7 @@ package renderers.html
 import org.jetbrains.dokka.base.renderers.html.HtmlRenderer
 import org.jetbrains.dokka.pages.TextStyle
 import org.junit.jupiter.api.Test
-import renderers.*
+import renderers.testPage
 import utils.Div
 import utils.P
 import utils.match

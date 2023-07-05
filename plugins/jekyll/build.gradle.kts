@@ -7,9 +7,11 @@ plugins {
 
 dependencies {
     compileOnly(projects.core)
-    implementation(kotlin("reflect"))
+
     implementation(projects.plugins.base)
     implementation(projects.plugins.gfm)
+
+    implementation(kotlin("reflect"))
 
     testImplementation(projects.core.testApi)
     testImplementation(platform(libs.junit.bom))

@@ -12,8 +12,13 @@ import org.jetbrains.dokka.pages.*
 import org.junit.Assert
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
-import signatures.*
-import utils.*
+import signatures.Parameter
+import signatures.Parameters
+import signatures.firstSignature
+import signatures.renderedContent
+import utils.A
+import utils.TestOutputWriterPlugin
+import utils.match
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 

@@ -1,9 +1,9 @@
 package org.jetbrains.dokka.javadoc.packagelist
 
 import org.jetbrains.dokka.javadoc.AbstractJavadocTemplateMapTest
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import utils.TestOutputWriterPlugin
-import org.junit.jupiter.api.Assertions.*
 
 internal class JavadocPackageListTest : AbstractJavadocTemplateMapTest() {
     @Test

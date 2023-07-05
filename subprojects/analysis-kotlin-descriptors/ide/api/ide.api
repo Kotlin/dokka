@@ -1,0 +1,4 @@
+public final class org/jetbrains/dokka/analysis/kotlin/descriptors/ide/IdeDescriptorAnalysisPlugin : org/jetbrains/dokka/plugability/DokkaPlugin {
+	public fun <init> ()V
+}
+

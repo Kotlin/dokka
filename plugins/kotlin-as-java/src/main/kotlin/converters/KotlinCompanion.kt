@@ -46,20 +46,11 @@ internal fun DObject.companionInstancePropertyForJava(): DProperty? {
     )
 }
 
-internal fun DObject.companionAsJava(): DObject? {
-    if (hasNothingToRender()) return null
-
-    return asJava(
-        excludedProps = staticPropertiesForJava(),
-        excludedFunctions = staticFunctionsForJava()
-    )
-}
-
 /**
  * Hide companion object if there isn't members of parents.
  * Properties and functions that are moved to outer class are not counted as members.
  */
-private fun DObject.hasNothingToRender(): Boolean {
+internal fun DObject.hasNothingToRender(): Boolean {
     val nonStaticPropsCount = properties.size - staticPropertiesForJava().size
     val nonStaticFunctionsCount = functions.size - staticFunctionsForJava().size
     val classLikesCount = classlikes.size

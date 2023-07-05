@@ -8,12 +8,12 @@ plugins {
 dependencies {
     compileOnly(projects.core)
 
-    implementation(kotlin("reflect"))
     implementation(projects.plugins.base)
     implementation(projects.plugins.gfm)
     implementation(projects.plugins.allModulesPage)
     implementation(projects.plugins.templating)
 
+    implementation(kotlin("reflect"))
     implementation(libs.kotlinx.coroutines.core)
 
     testImplementation(projects.core.testApi)

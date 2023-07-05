@@ -1,9 +1,9 @@
 package org.jetbrains.dokka.javadoc
 
 import org.jsoup.Jsoup
-import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.assertEquals
-import utils.*
+import org.junit.jupiter.api.Test
+import utils.TestOutputWriterPlugin
 
 internal class JavadocAccessorNamingTest : AbstractJavadocTemplateMapTest() {
 

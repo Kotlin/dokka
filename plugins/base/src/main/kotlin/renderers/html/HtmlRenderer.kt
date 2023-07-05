@@ -23,7 +23,6 @@ import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.pages.HtmlContent
 import org.jetbrains.dokka.plugability.*
 import org.jetbrains.dokka.utilities.htmlEscape
-import org.jetbrains.kotlin.utils.addIfNotNull
 
 internal const val TEMPLATE_REPLACEMENT: String = "###"
 internal const val TOGGLEABLE_CONTENT_TYPE_ATTR = "data-togglable"
@@ -355,12 +354,10 @@ open class HtmlRenderer(
 
                 val contentOfSourceSet = mutableListOf<ContentNode>()
                 distinct.onEachIndexed{ index, (_, distinctInstances) ->
-                    contentOfSourceSet.addIfNotNull(distinctInstances.firstOrNull()?.before)
+                    distinctInstances.firstOrNull()?.before?.let { contentOfSourceSet.add(it) }
                     contentOfSourceSet.addAll(distinctInstances.map { it.divergent })
-                    contentOfSourceSet.addIfNotNull(
-                        distinctInstances.firstOrNull()?.after
-                            ?: if (index != distinct.size - 1) ContentBreakLine(it.key) else null
-                    )
+                    (distinctInstances.firstOrNull()?.after ?: if (index != distinct.size - 1) ContentBreakLine(it.key) else null)
+                        ?.let { contentOfSourceSet.add(it) }
 
                     // content kind main is important for declarations list to avoid double line breaks
                     if (node.dci.kind == ContentKind.Main && index != distinct.size - 1) {

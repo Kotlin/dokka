@@ -1,15 +1,17 @@
 package org.jetbrains.dokka.base.translators.documentables
 
-import org.jetbrains.dokka.model.doc.*
+import org.jetbrains.dokka.base.utils.firstNotNullOfOrNull
+import org.jetbrains.dokka.model.doc.CustomDocTag
+import org.jetbrains.dokka.model.doc.DocTag
+import org.jetbrains.dokka.model.doc.P
+import org.jetbrains.dokka.model.doc.Text
 import org.jetbrains.dokka.model.withDescendants
 import org.jetbrains.dokka.pages.*
-import org.jetbrains.kotlin.util.firstNotNullResult
-import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 
 fun firstParagraphBrief(docTag: DocTag): DocTag? =
     when(docTag){
         is P -> docTag
-        is CustomDocTag -> docTag.children.firstNotNullResult { firstParagraphBrief(it) }
+        is CustomDocTag -> docTag.children.firstNotNullOfOrNull { firstParagraphBrief(it) }
         is Text -> docTag
         else -> null
     }
@@ -18,7 +20,7 @@ fun firstSentenceBriefFromContentNodes(description: List<ContentNode>): List<Con
     val firstSentenceRegex = """^((?:[^.?!]|[.!?](?!\s))*[.!?])""".toRegex()
 
     //Description that is entirely based on html content. In html it is hard to define a brief so we render all of it
-    if(description.all { it.withDescendants().all { it is ContentGroup || it.safeAs<ContentText>()?.isHtml == true } }){
+    if(description.all { it.withDescendants().all { it is ContentGroup || (it as? ContentText)?.isHtml == true } }){
         return description
     }
 

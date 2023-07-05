@@ -3,7 +3,6 @@ package signatures
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.junit.jupiter.api.Test
 import utils.A
-import utils.Span
 import utils.TestOutputWriterPlugin
 import utils.match
 

@@ -1,10 +1,6 @@
 package org.jetbrains.dokka.javadoc.renderer
 
 import com.soywiz.korte.*
-import org.jetbrains.dokka.javadoc.location.JavadocLocationProvider
-import org.jetbrains.dokka.javadoc.pages.*
-import org.jetbrains.dokka.javadoc.renderer.JavadocContentToHtmlTranslator.Companion.buildLink
-import org.jetbrains.dokka.javadoc.toNormalized
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -12,14 +8,21 @@ import kotlinx.coroutines.runBlocking
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.renderers.OutputWriter
 import org.jetbrains.dokka.javadoc.JavadocPlugin
+import org.jetbrains.dokka.javadoc.location.JavadocLocationProvider
+import org.jetbrains.dokka.javadoc.pages.*
+import org.jetbrains.dokka.javadoc.renderer.JavadocContentToHtmlTranslator.Companion.buildLink
+import org.jetbrains.dokka.javadoc.toNormalized
 import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.pages.*
+import org.jetbrains.dokka.pages.PageNode
+import org.jetbrains.dokka.pages.RendererSpecificPage
+import org.jetbrains.dokka.pages.RenderingStrategy
+import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.query
 import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.renderers.Renderer
-import org.jetbrains.kotlin.utils.addToStdlib.safeAs
+import org.jetbrains.kotlin.analysis.kotlin.internal.InheritanceNode
 import java.time.LocalDate
 
 typealias TemplateMap = Map<String, Any?>
@@ -146,9 +149,9 @@ class KorteJavadocRenderer(val context: DokkaContext, resourceDir: String) :
             },
             TeFunction("renderInheritanceGraph") { args ->
                 @Suppress("UNCHECKED_CAST")
-                val rootNodes = args.first() as List<TreeViewPage.InheritanceNode>
+                val rootNodes = args.first() as List<InheritanceNode>
 
-                fun drawRec(node: TreeViewPage.InheritanceNode): String =
+                fun drawRec(node: InheritanceNode): String =
                     "<li class=\"circle\">" + node.dri.let { dri ->
                         listOfNotNull(
                             dri.packageName,
@@ -170,8 +173,9 @@ class KorteJavadocRenderer(val context: DokkaContext, resourceDir: String) :
             },
             Filter("length") { subject.dynamicLength() },
             TeFunction("hasAnyDescription") { args ->
-                args.first().safeAs<List<HashMap<String, String>>>()
-                    ?.any { it["description"]?.trim()?.isNotEmpty() ?: false }
+                @Suppress("UNCHECKED_CAST")
+                val map = args.first() as? List<HashMap<String, String>>
+                map?.any { it["description"]?.trim()?.isNotEmpty() ?: false }
             }
         ).forEach {
             when (it) {

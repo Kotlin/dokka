@@ -8,7 +8,6 @@ import org.jetbrains.dokka.model.childrenOfType
 import org.jetbrains.dokka.model.dfs
 import org.jetbrains.dokka.model.firstChildOfType
 import org.jetbrains.dokka.pages.*
-import org.jetbrains.kotlin.utils.addIfNotNull
 import org.junit.jupiter.api.Test
 import utils.assertNotNull
 import kotlin.test.assertEquals
@@ -39,7 +38,7 @@ class MergeImplicitExpectActualDeclarationsTest : BaseAbstractTest() {
                 sourceRoots = listOf("src/jvmMain/kotlin/pageMerger/Test.kt")
             }
         }
-        pluginsConfigurations.addIfNotNull(
+        pluginsConfigurations.add(
             PluginConfigurationImpl(
                 DokkaBase::class.qualifiedName!!,
                 DokkaConfiguration.SerializationFormat.JSON,
