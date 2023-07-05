@@ -1,19 +1,14 @@
 package org.jetbrains.dokka.javadoc.pages
 
-import com.intellij.psi.PsiClass
 import org.jetbrains.dokka.Platform
-import org.jetbrains.dokka.analysis.DescriptorDocumentableSource
-import org.jetbrains.dokka.analysis.PsiDocumentableSource
-import org.jetbrains.dokka.analysis.from
 import org.jetbrains.dokka.base.renderers.sourceSets
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.jetbrains.dokka.pages.*
-import org.jetbrains.kotlin.descriptors.ClassDescriptor
-import org.jetbrains.kotlin.descriptors.ClassKind
-import org.jetbrains.kotlin.resolve.DescriptorUtils.getClassDescriptorForType
+import org.jetbrains.kotlin.analysis.kotlin.internal.InheritanceBuilder
+import org.jetbrains.kotlin.analysis.kotlin.internal.InheritanceNode
 
 interface JavadocPageNode : ContentPage, WithDocumentables
 
@@ -386,7 +381,8 @@ class TreeViewPage(
     val classes: List<JavadocClasslikePageNode>?,
     override val dri: Set<DRI>,
     override val documentables: List<Documentable> = emptyList(),
-    val root: PageNode
+    val root: PageNode,
+    val inheritanceBuilder: InheritanceBuilder
 ) : JavadocPageNode {
     init {
         assert(packages == null || classes == null)
@@ -397,7 +393,6 @@ class TreeViewPage(
         getDocumentableEntries(node)
     }.groupBy({ it.first }) { it.second }.map { (l, r) -> l to r.first() }.toMap()
 
-    private val descriptorMap = getDescriptorMap()
     private val inheritanceTuple = generateInheritanceTree()
     internal val classGraph = inheritanceTuple.first
     internal val interfaceGraph = inheritanceTuple.second
@@ -427,7 +422,8 @@ class TreeViewPage(
             classes = children.filterIsInstance<JavadocClasslikePageNode>().takeIf { it.isNotEmpty() },
             dri = dri,
             documentables,
-            root = root
+            root = root,
+            inheritanceBuilder
         )
 
     override fun modified(name: String, children: List<PageNode>): PageNode =
@@ -437,7 +433,8 @@ class TreeViewPage(
             classes = children.filterIsInstance<JavadocClasslikePageNode>().takeIf { it.isNotEmpty() },
             dri = dri,
             documentables,
-            root = root
+            root = root,
+            inheritanceBuilder
         )
 
     override val embeddedResources: List<String> = emptyList()
@@ -484,51 +481,8 @@ class TreeViewPage(
 
         fun interfaceTree(node: InheritanceNode) = interfaceTreeRec(node).firstOrNull() // TODO.single()
 
-        fun gatherPsiClasses(psi: PsiClass): List<Pair<PsiClass, List<PsiClass>>> = psi.supers.toList().let { l ->
-            listOf(psi to l) + l.flatMap { gatherPsiClasses(it) }
-        }
-
-        val psiInheritanceTree =
-            childrenDocumentables.flatMap { (_, v) -> (v as? WithSources)?.sources?.values.orEmpty() }
-                .filterIsInstance<PsiDocumentableSource>().mapNotNull { it.psi as? PsiClass }
-                .flatMap(::gatherPsiClasses)
-                .flatMap { entry -> entry.second.map { it to entry.first } }
-                .let {
-                    it + it.map { it.second to null }
-                }
-                .groupBy({ it.first }) { it.second }
-                .map { it.key to it.value.filterNotNull().distinct() }
-                .map { (k, v) ->
-                    InheritanceNode(
-                        DRI.from(k),
-                        v.map { InheritanceNode(DRI.from(it)) },
-                        k.supers.filter { it.isInterface }.map { DRI.from(it) },
-                        k.isInterface
-                    )
-
-                }
-
-        val descriptorInheritanceTree = descriptorMap.flatMap { (_, v) ->
-            v.typeConstructor.supertypes
-                .map { getClassDescriptorForType(it) to v }
-        }
-            .let {
-                it + it.map { it.second to null }
-            }
-            .groupBy({ it.first }) { it.second }
-            .map { it.key to it.value.filterNotNull().distinct() }
-            .map { (k, v) ->
-                InheritanceNode(
-                    DRI.from(k),
-                    v.map { InheritanceNode(DRI.from(it)) },
-                    k.typeConstructor.supertypes.map { getClassDescriptorForType(it) }
-                        .mapNotNull { cd -> cd.takeIf { it.kind == ClassKind.INTERFACE }?.let { DRI.from(it) } },
-                    isInterface = k.kind == ClassKind.INTERFACE
-                )
-            }
-
-        descriptorInheritanceTree.forEach { addToMap(it, mergeMap) }
-        psiInheritanceTree.forEach { addToMap(it, mergeMap) }
+        val inheritanceNodes = inheritanceBuilder.build(childrenDocumentables)
+        inheritanceNodes.forEach { addToMap(it, mergeMap) }
 
         val rootNodes = mergeMap.entries.filter {
             it.key.classNames in setOf("Any", "Object") //TODO: Probably should be matched by DRI, not just className
@@ -539,47 +493,11 @@ class TreeViewPage(
         return rootNodes.let { Pair(it.mapNotNull(::classTree), it.mapNotNull(::interfaceTree)) }
     }
 
-    private fun generateInterfaceGraph() {
-        childrenDocumentables.values.filterIsInstance<DInterface>()
-    }
-
     private fun getDocumentableEntries(node: WithDocumentables): List<Pair<DRI, Documentable>> =
         node.documentables.map { it.dri to it } +
                 (node as? ContentPage)?.children?.filterIsInstance<WithDocumentables>()
                     ?.flatMap(::getDocumentableEntries).orEmpty()
 
-    private fun getDescriptorMap(): Map<DRI, ClassDescriptor> {
-        val map: MutableMap<DRI, ClassDescriptor> = mutableMapOf()
-        childrenDocumentables
-            .mapNotNull { (k, v) ->
-                v.descriptorForPlatform()?.let { k to it }?.also { (k, v) -> map[k] = v }
-            }.map { it.second }.forEach { gatherSupertypes(it, map) }
-
-        return map.toMap()
-    }
-
-    private fun gatherSupertypes(descriptor: ClassDescriptor, map: MutableMap<DRI, ClassDescriptor>) {
-        map.putIfAbsent(DRI.from(descriptor), descriptor)
-        descriptor.typeConstructor.supertypes.map { getClassDescriptorForType(it) }
-            .forEach { gatherSupertypes(it, map) }
-    }
-
-    private fun Documentable?.descriptorForPlatform(platform: Platform = Platform.jvm) =
-        (this as? WithSources).descriptorForPlatform(platform)
-
-    private fun WithSources?.descriptorForPlatform(platform: Platform = Platform.jvm) = this?.let {
-        it.sources.entries.find { it.key.analysisPlatform == platform }?.value?.let { it as? DescriptorDocumentableSource }?.descriptor as? ClassDescriptor
-    }
-
-    data class InheritanceNode(
-        val dri: DRI,
-        val children: List<InheritanceNode> = emptyList(),
-        val interfaces: List<DRI> = emptyList(),
-        val isInterface: Boolean = false
-    ) {
-        override fun equals(other: Any?): Boolean = other is InheritanceNode && other.dri == dri
-        override fun hashCode(): Int = dri.hashCode()
-    }
 }
 
 private fun Documentable.kind(): String? =

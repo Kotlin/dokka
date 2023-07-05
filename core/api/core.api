@@ -1459,6 +1459,7 @@ public final class org/jetbrains/dokka/model/DocumentableKt {
 }
 
 public abstract interface class org/jetbrains/dokka/model/DocumentableSource {
+	public abstract fun computeLineNumber ()Ljava/lang/Integer;
 	public abstract fun getPath ()Ljava/lang/String;
 }
 
@@ -1780,6 +1781,24 @@ public final class org/jetbrains/dokka/model/Invariance : org/jetbrains/dokka/mo
 	public fun getInner ()Lorg/jetbrains/dokka/model/Bound;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/jetbrains/dokka/model/IsAlsoParameter : org/jetbrains/dokka/model/properties/ExtraProperty {
+	public static final field Companion Lorg/jetbrains/dokka/model/IsAlsoParameter$Companion;
+	public fun <init> (Ljava/util/List;)V
+	public final fun component1 ()Ljava/util/List;
+	public final fun copy (Ljava/util/List;)Lorg/jetbrains/dokka/model/IsAlsoParameter;
+	public static synthetic fun copy$default (Lorg/jetbrains/dokka/model/IsAlsoParameter;Ljava/util/List;ILjava/lang/Object;)Lorg/jetbrains/dokka/model/IsAlsoParameter;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getInSourceSets ()Ljava/util/List;
+	public fun getKey ()Lorg/jetbrains/dokka/model/properties/ExtraProperty$Key;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/jetbrains/dokka/model/IsAlsoParameter$Companion : org/jetbrains/dokka/model/properties/ExtraProperty$Key {
+	public synthetic fun mergeStrategyFor (Ljava/lang/Object;Ljava/lang/Object;)Lorg/jetbrains/dokka/model/properties/MergeStrategy;
+	public fun mergeStrategyFor (Lorg/jetbrains/dokka/model/IsAlsoParameter;Lorg/jetbrains/dokka/model/IsAlsoParameter;)Lorg/jetbrains/dokka/model/properties/MergeStrategy;
 }
 
 public final class org/jetbrains/dokka/model/IsVar : org/jetbrains/dokka/model/properties/ExtraProperty, org/jetbrains/dokka/model/properties/ExtraProperty$Key {
@@ -4400,6 +4419,7 @@ public abstract class org/jetbrains/dokka/plugability/DokkaPlugin {
 	protected final fun extending (Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/dokka/plugability/DokkaPlugin$ExtensionProvider;
 	protected final fun extensionPoint ()Lkotlin/properties/ReadOnlyProperty;
 	public final fun getContext ()Lorg/jetbrains/dokka/plugability/DokkaContext;
+	protected final fun getLogger ()Lorg/jetbrains/dokka/utilities/DokkaLogger;
 	protected abstract fun pluginApiPreviewAcknowledgement ()Lorg/jetbrains/dokka/plugability/PluginApiPreviewAcknowledgement;
 	public final fun setContext (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
 	protected final fun unsafeInstall (Lkotlin/Lazy;)V

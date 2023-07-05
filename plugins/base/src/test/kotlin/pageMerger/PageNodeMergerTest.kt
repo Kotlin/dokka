@@ -1,14 +1,13 @@
 package pageMerger
 
-import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.Disabled
-import org.junit.jupiter.api.Test
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.model.dfs
 import org.jetbrains.dokka.model.withDescendants
 import org.jetbrains.dokka.pages.*
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.RepeatedTest
-import java.lang.IllegalArgumentException
+import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
 class PageNodeMergerTest : BaseAbstractTest() {

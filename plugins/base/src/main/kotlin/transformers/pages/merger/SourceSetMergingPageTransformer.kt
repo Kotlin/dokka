@@ -3,7 +3,9 @@ package org.jetbrains.dokka.base.transformers.pages.merger
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.model.DisplaySourceSet
 import org.jetbrains.dokka.model.toDisplaySourceSets
-import org.jetbrains.dokka.pages.*
+import org.jetbrains.dokka.pages.ContentComposite
+import org.jetbrains.dokka.pages.ContentNode
+import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 

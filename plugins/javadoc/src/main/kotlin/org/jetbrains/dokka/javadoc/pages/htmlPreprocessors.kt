@@ -8,7 +8,11 @@ import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.BooleanValue
 import org.jetbrains.dokka.model.Documentable
 import org.jetbrains.dokka.pages.*
+import org.jetbrains.dokka.plugability.DokkaContext
+import org.jetbrains.dokka.plugability.plugin
+import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.transformers.pages.PageTransformer
+import org.jetbrains.kotlin.analysis.kotlin.internal.InternalKotlinAnalysisPlugin
 
 object ResourcesInstaller : PageTransformer {
     override fun invoke(input: RootPageNode): RootPageNode = input.modified(
@@ -21,7 +25,7 @@ object ResourcesInstaller : PageTransformer {
     )
 }
 
-object TreeViewInstaller : PageTransformer {
+class TreeViewInstaller(private val context: DokkaContext) : PageTransformer {
     override fun invoke(input: RootPageNode): RootPageNode = install(input, input) as RootPageNode
 
     private fun install(node: PageNode, root: RootPageNode): PageNode = when (node) {
@@ -37,7 +41,8 @@ object TreeViewInstaller : PageTransformer {
             classes = null,
             dri = node.dri,
             documentables = node.documentables,
-            root = root
+            root = root,
+            inheritanceBuilder = context.plugin<InternalKotlinAnalysisPlugin>().querySingle { inheritanceBuilder }
         )
 
         val nodeChildren = node.children.map { childNode ->
@@ -56,7 +61,8 @@ object TreeViewInstaller : PageTransformer {
             classes = node.children.filterIsInstance<JavadocClasslikePageNode>(),
             dri = node.dri,
             documentables = node.documentables,
-            root = root
+            root = root,
+            inheritanceBuilder = context.plugin<InternalKotlinAnalysisPlugin>().querySingle { inheritanceBuilder }
         )
 
         return node.modified(children = node.children + packageTree) as JavadocPackagePageNode

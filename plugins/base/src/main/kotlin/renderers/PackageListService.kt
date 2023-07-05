@@ -3,14 +3,13 @@ package org.jetbrains.dokka.base.renderers
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.resolvers.shared.LinkFormat
 import org.jetbrains.dokka.base.resolvers.shared.PackageList.Companion.DOKKA_PARAM_PREFIX
-import org.jetbrains.dokka.base.resolvers.shared.PackageList.Companion.SINGLE_MODULE_NAME
 import org.jetbrains.dokka.base.resolvers.shared.PackageList.Companion.MODULE_DELIMITER
+import org.jetbrains.dokka.base.resolvers.shared.PackageList.Companion.SINGLE_MODULE_NAME
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.querySingle
-import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 
 class PackageListService(val context: DokkaContext, val rootPage: RootPageNode) {
 
@@ -29,7 +28,7 @@ class PackageListService(val context: DokkaContext, val rootPage: RootPageNode) 
                     ?.let { packages.add(it) }
             }
 
-            val contentPage = node.safeAs<ContentPage>()
+            val contentPage = node as? ContentPage
             contentPage?.dri?.forEach { dri ->
                 val nodeLocation = locationProvider.resolve(node, context = module, skipExtension = true)
                     ?: run { context.logger.error("Cannot resolve path for ${node.name}!"); null }

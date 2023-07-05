@@ -5,7 +5,6 @@ import org.jetbrains.dokka.base.transformers.pages.comments.DocTagToContentConve
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.pages.*
-import org.jetbrains.kotlin.utils.addToStdlib.assertedCast
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -335,7 +334,7 @@ class CommentsToContentConverterTest {
                     +"I'm an inline-style link"
                     check {
                         assertEquals(
-                            assertedCast<ContentResolvedLink> { "Link should be resolved" }.address,
+                            (this as? ContentResolvedLink)?.address ?: error("Link should be resolved"),
                             "https://www.google.com"
                         )
                     }

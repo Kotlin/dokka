@@ -2,10 +2,10 @@ package signatures
 
 import matchers.content.assertNode
 import matchers.content.hasExactText
+import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.model.firstMemberOfType
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.testApi.logger.TestLogger
-import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.utilities.DokkaConsoleLogger
 import org.jetbrains.dokka.utilities.LoggingLevel
 import org.junit.jupiter.params.ParameterizedTest

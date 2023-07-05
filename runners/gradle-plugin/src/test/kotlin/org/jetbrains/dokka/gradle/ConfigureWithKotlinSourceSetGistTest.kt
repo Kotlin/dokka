@@ -9,6 +9,7 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import org.jetbrains.dokka.gradle.utils.withDependencies_
 
 class ConfigureWithKotlinSourceSetGistTest {
     @Test
@@ -96,7 +97,7 @@ class ConfigureWithKotlinSourceSetGistTest {
 
         /* Make sure to remove dependencies that cannot be resolved during test */
         project.configurations.configureEach {
-            withDependencies {
+            withDependencies_ {
                 removeIf { dependency -> dependency !is FileCollectionDependency }
             }
         }
