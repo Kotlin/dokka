@@ -9,7 +9,7 @@ import org.jsoup.select.Elements
 
 internal fun TestOutputWriter.navigationHtml(): Element = contents.getValue("navigation.html").let { Jsoup.parse(it) }
 
-internal fun TestOutputWriter.pagesJson(fileName: String): List<SearchRecord> = jacksonObjectMapper().readValue(contents.getValue(fileName))
+internal fun TestOutputWriter.pagesJson(): List<SearchRecord> = jacksonObjectMapper().readValue(contents.getValue("scripts/pages.json"))
 
 internal fun Elements.selectNavigationGrid(): Element {
     return this.select("div.overview").select("span.nav-link-grid").single()
