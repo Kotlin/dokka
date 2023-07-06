@@ -30,7 +30,7 @@ open class SearchbarDataInstaller(val context: DokkaContext) : PageTransformer {
         val id: String
             get() = with(driWithSourceSets.dri) {
                 listOfNotNull(
-                    packageName,
+                    packageName?.takeIf { it.isNotBlank() },
                     classNames,
                     callable?.name
                 ).joinToString(".")
