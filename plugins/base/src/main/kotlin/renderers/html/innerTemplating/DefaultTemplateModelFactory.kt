@@ -92,7 +92,7 @@ class DefaultTemplateModelFactory(val context: DokkaContext) : TemplateModelFact
 
     private fun Appendable.resourcesForPage(pathToRoot: String, resources: List<String>): Unit =
         resources.forEach {
-            append(with(createHTML()) {
+            val resourceHtml = with(createHTML()) {
                 when {
                     it.URIExtension == "css" ->
                         link(
@@ -112,7 +112,11 @@ class DefaultTemplateModelFactory(val context: DokkaContext) : TemplateModelFact
                     it.isImage() -> link(href = if (it.isAbsolute) it else "$pathToRoot$it")
                     else -> null
                 }
-            } ?: it)
+            }
+
+            if (resourceHtml != null) {
+                append(resourceHtml)
+            }
         }
 }
 
