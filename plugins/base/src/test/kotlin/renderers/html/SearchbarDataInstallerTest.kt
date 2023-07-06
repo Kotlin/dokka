@@ -8,8 +8,8 @@ import utils.pagesJson
 
 class SearchbarDataInstallerTest: BaseAbstractTest() {
 
-    @Test
-    fun `should be displayed without leading dot`() {
+    @Test // see #2289
+    fun `should display description of root declarations without a leading dot`() {
         val configuration = dokkaConfiguration {
             moduleName = "Dokka Module"
 
