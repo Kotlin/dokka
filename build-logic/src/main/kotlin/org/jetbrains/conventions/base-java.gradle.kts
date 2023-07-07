@@ -30,17 +30,6 @@ tasks.withType<Test>().configureEach {
     javaLauncher.set(javaToolchains.launcherFor {
         languageVersion.set(dokkaBuild.testJavaLauncherVersion)
     })
-
-    doLast {
-        logger.quiet(
-            """
-                Tests were run with:
-                * mainCompiler=${dokkaBuild.mainJavaVersion.get()}
-                * testLauncher=${dokkaBuild.testJavaLauncherVersion.get()}
-            """.trimIndent()
-        )
-
-    }
 }
 
 dependencies {
