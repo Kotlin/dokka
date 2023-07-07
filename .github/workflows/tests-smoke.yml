@@ -6,6 +6,9 @@ concurrency:
   group: '${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}'
   cancel-in-progress: true
 
+env:
+  JAVA_TEST_VERSION: 11
+
 jobs:
   test-matrix:
     strategy:
@@ -21,15 +24,18 @@ jobs:
           java-version: 17
           cache: 'maven'
       - uses: gradle/gradle-build-action@v2
-        env:
-          ORG_GRADLE_PROJECT_org.jetbrains.dokka.javaToolchain.test: 11
         with:
           gradle-home-cache-cleanup: true
       - name: Run tests under Windows
         if: matrix.os == 'windows-latest'
         # Running tests with the Gradle daemon on windows agents leads to some very strange
         # JVM crashes for some reason. Most likely a problem of Gradle/GitHub/Windows server
-        run: ./gradlew clean test --stacktrace --no-daemon --no-parallel "-Dorg.gradle.jvmargs=-Xmx1g -XX:MaxMetaspaceSize=500m"
+        run: >
+          ./gradlew clean test --stacktrace --no-daemon --no-parallel 
+          "-Dorg.gradle.jvmargs=-Xmx1g -XX:MaxMetaspaceSize=500m"
+          "-Porg.jetbrains.dokka.javaToolchain.testLauncher=$JAVA_TEST_VERSION"
       - name: Run tests under Ubuntu
         if: matrix.os != 'windows-latest'
-        run: ./gradlew clean test --stacktrace
+        run: >
+          ./gradlew clean test --stacktrace 
+          "-Porg.jetbrains.dokka.javaToolchain.testLauncher=$JAVA_TEST_VERSION"
