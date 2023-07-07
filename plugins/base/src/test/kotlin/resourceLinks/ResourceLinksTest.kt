@@ -13,6 +13,7 @@ import org.jetbrains.dokka.plugability.DokkaPluginApiPreview
 import org.jetbrains.dokka.plugability.PluginApiPreviewAcknowledgement
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 import org.jsoup.Jsoup
+import org.jsoup.nodes.TextNode
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
@@ -209,11 +210,7 @@ class ResourceLinksTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `should not add unknown resources to the end of the head section`() {
-        val baseConfiguration = DokkaBaseConfiguration(
-            customAssets = listOf(File("test/relativePath.js"))
-        )
-
+    fun `should not add unknown resources as text to the head section`() {
         val configuration = dokkaConfiguration {
             sourceSets {
                 sourceSet {
@@ -223,9 +220,13 @@ class ResourceLinksTest : BaseAbstractTest() {
 
             pluginsConfigurations = mutableListOf(
                 PluginConfigurationImpl(
-                    fqPluginName = "org.jetbrains.dokka.base.DokkaBaseConfiguration",
-                    serializationFormat = DokkaConfiguration.SerializationFormat.JSON,
-                    values = toJsonString(baseConfiguration)
+                    DokkaBase::class.java.canonicalName,
+                    DokkaConfiguration.SerializationFormat.JSON,
+                    toJsonString(
+                        DokkaBaseConfiguration(
+                            customAssets = listOf(File("test/unknown-file.ext"))
+                        )
+                    )
                 )
             )
         }
@@ -242,21 +243,18 @@ class ResourceLinksTest : BaseAbstractTest() {
             pluginOverrides = listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
-                val generatedFiles = writerPlugin.writer.contents
-
-                val testPageHeadHtml = generatedFiles
+                val testClassPage = writerPlugin.writer.contents
                     .getValue("root/test/-test/-test.html")
                     .let { Jsoup.parse(it) }
-                    .select("head")
-                    .toString()
 
-                assertTrue {
-                    testPageHeadHtml.endsWith(
-                        """
-                         <script type="text/javascript" src="../../../scripts/symbol-parameters-wrapper_deferred.js" defer></script>
-                        </head>
-                        """.trimIndent()
-                    )
+                val headChildNodes = testClassPage.head().childNodes()
+                assertTrue("<head> section should not contain non-blank text nodes") {
+                    headChildNodes.all { it !is TextNode || it.isBlank }
+                }
+
+                val bodyChildNodes = testClassPage.body().childNodes()
+                assertTrue("<body> section should not contain non-blank text nodes. Something leaked from head?") {
+                    bodyChildNodes.all { it !is TextNode || it.isBlank }
                 }
             }
         }
