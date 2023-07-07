@@ -209,8 +209,8 @@ class ResourceLinksTest : BaseAbstractTest() {
         }
     }
 
-    @Test
-    fun `should not add unknown resources as text to the head section`() {
+    @Test // see #3040; plain text added to <head> can be rendered by engines inside <body> as well
+    fun `should not add unknown resources as text to the head or body section`() {
         val configuration = dokkaConfiguration {
             sourceSets {
                 sourceSet {
