@@ -15,6 +15,7 @@ import org.jetbrains.dokka.base.resolvers.anchors.SymbolAnchorHint
 import org.jetbrains.dokka.base.resolvers.local.DokkaBaseLocationProvider
 import org.jetbrains.dokka.base.templating.*
 import org.jetbrains.dokka.base.transformers.documentables.CallableExtensions
+import org.jetbrains.dokka.base.translators.documentables.shouldDocumentConstructors
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.properties.PropertyContainer
@@ -66,7 +67,6 @@ open class HtmlRenderer(
 
     private fun createTabsForClasslikes(page: ClasslikePage): List<ContentTab> {
         val documentables = page.documentables
-        fun List<Documentable>.shouldDocumentConstructors() = !this.any { it is DAnnotation }
         val csEnum = documentables.filterIsInstance<DEnum>()
         val csWithConstructor = documentables.filterIsInstance<WithConstructors>()
         val scopes = documentables.filterIsInstance<WithScope>()
