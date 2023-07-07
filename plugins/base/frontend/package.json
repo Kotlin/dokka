@@ -51,7 +51,7 @@
     "react-svg-loader": "^3.0.3",
     "sass": "^1.43.5",
     "sass-loader": "^12.3.0",
-    "stylelint": "^14.1.0",
+    "stylelint": "^15.10.1",
     "svg-inline-loader": "^0.8.2",
     "terser-webpack-plugin": "^5.2.5"
   },
