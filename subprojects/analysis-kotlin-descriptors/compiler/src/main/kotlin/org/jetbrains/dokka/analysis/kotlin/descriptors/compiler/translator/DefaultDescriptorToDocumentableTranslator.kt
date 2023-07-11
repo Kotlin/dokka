@@ -319,11 +319,13 @@ private class DokkaDescriptorVisitor(
         val descriptorsWithKind = this.unsubstitutedMemberScope.getDescriptorsWithKind()
         val staticScopeForKotlinEnum = (this.staticScope as? StaticScopeForKotlinEnum) ?: return descriptorsWithKind
 
-        // synthetic values() and valueOf() functions are not present among average class functions
-        val enumSyntheticFunctions = staticScopeForKotlinEnum.getContributedDescriptors { true }
-            .filterIsInstance<FunctionDescriptor>()
-
-        return descriptorsWithKind.copy(functions = descriptorsWithKind.functions + enumSyntheticFunctions)
+        // synthetic declarations, such as `entries`, `values()` and `valueOf()`,
+        // are not present among real in-code declarationg
+        val contributedDescriptors = staticScopeForKotlinEnum.getContributedDescriptors { true }
+        return descriptorsWithKind.copy(
+            properties = descriptorsWithKind.properties + contributedDescriptors.filterIsInstance<PropertyDescriptor>(),
+            functions = descriptorsWithKind.functions + contributedDescriptors.filterIsInstance<FunctionDescriptor>()
+        )
     }
 
     private suspend fun visitEnumEntryDescriptor(descriptor: ClassDescriptor, parent: DRIWithPlatformInfo): DEnumEntry {
@@ -507,7 +509,7 @@ private class DokkaDescriptorVisitor(
                 getter = getter,
                 setter = setter,
                 visibility = descriptor.getVisibility(implicitAccessors).toSourceSetDependent(),
-                documentation = descriptor.resolveDescriptorData(),
+                documentation = descriptor.getDocumentation(),
                 modifier = descriptor.modifier().toSourceSetDependent(),
                 type = descriptor.returnType!!.toBound(),
                 expectPresentInSet = sourceSet.takeIf { isExpect },
@@ -609,8 +611,8 @@ private class DokkaDescriptorVisitor(
         }
     }
 
-    private fun FunctionDescriptor.getDocumentation(): SourceSetDependent<DocumentationNode> {
-        val isSynthesized = this.kind == CallableMemberDescriptor.Kind.SYNTHESIZED
+    private fun DeclarationDescriptor.getDocumentation(): SourceSetDependent<DocumentationNode> {
+        val isSynthesized = this is CallableMemberDescriptor && this.kind == CallableMemberDescriptor.Kind.SYNTHESIZED
         return if (isSynthesized) {
             syntheticDocProvider.getDocumentation(this)?.toSourceSetDependent() ?: emptyMap()
         } else {
@@ -914,7 +916,7 @@ private class DokkaDescriptorVisitor(
         coroutineScope { parallelMap { visitEnumEntryDescriptor(it, parent) } }
 
     private fun DeclarationDescriptor.resolveDescriptorData(): SourceSetDependent<DocumentationNode> =
-        getDocumentation()?.toSourceSetDependent() ?: emptyMap()
+        resolveDocumentation()?.toSourceSetDependent() ?: emptyMap()
 
 
     private suspend fun toTypeConstructor(kt: KotlinType) =
@@ -1038,7 +1040,7 @@ private class DokkaDescriptorVisitor(
         return effectiveReferencedDescriptors.firstOrNull()?.let { DescriptorToSourceUtils.getSourceFromDescriptor(it) }
     }
 
-    private fun DeclarationDescriptor.getDocumentation(): DocumentationNode? {
+    private fun DeclarationDescriptor.resolveDocumentation(): DocumentationNode? {
         val find = with(kDocFinder) {
             find(::descriptorToAnyDeclaration)
         }
@@ -1050,7 +1052,7 @@ private class DokkaDescriptorVisitor(
                         try {
                             val kdocLink = with(kDocFinder) {
                                 resolveKDocLink(
-                                    fromDescriptor = this@getDocumentation,
+                                    fromDescriptor = this@resolveDocumentation,
                                     qualifiedName = link,
                                     sourceSet = sourceSet
                                 )
