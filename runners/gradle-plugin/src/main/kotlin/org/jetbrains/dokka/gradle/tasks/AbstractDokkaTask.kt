@@ -232,6 +232,7 @@ abstract class AbstractDokkaTask : DefaultTask() {
 
     init {
         group = JavaBasePlugin.DOCUMENTATION_GROUP
+        super.notCompatibleWithConfigurationCache("Dokka tasks are not yet compatible with the Gradle configuration cache. See https://github.com/Kotlin/dokka/issues/1217")
     }
 
     internal fun buildPluginsConfiguration(): List<PluginConfigurationImpl> {
