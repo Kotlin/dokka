@@ -1,10 +1,13 @@
 import org.jetbrains.*
 
+@Suppress("DSL_SCOPE_VIOLATION") // fixed in Gradle 8.1 https://github.com/gradle/gradle/pull/23639
 plugins {
     `kotlin-dsl`
     id("org.jetbrains.conventions.maven-publish")
     id("org.jetbrains.conventions.base-java")
     id("com.gradle.plugin-publish")
+
+    alias(libs.plugins.kotlinSam)
 }
 
 dependencies {
