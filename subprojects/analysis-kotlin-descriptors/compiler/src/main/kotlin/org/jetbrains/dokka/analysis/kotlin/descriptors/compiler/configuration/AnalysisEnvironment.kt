@@ -530,7 +530,14 @@ class AnalysisEnvironment(
     }
 
     // Set up JDK classpath roots explicitly because of https://github.com/JetBrains/kotlin/commit/f89765eb33dd95c8de33a919cca83651b326b246
-    internal fun configureJdkClasspathRoots() = configuration.configureJdkClasspathRoots()
+    internal fun configureJdkClasspathRoots() {
+        val jdkHome = File(System.getProperty("java.home"))
+        if (!jdkHome.exists()) {
+            messageCollector.report(CompilerMessageSeverity.WARNING, "Set existed java.home to use JDK")
+        }
+        configuration.put(JVMConfigurationKeys.JDK_HOME, jdkHome)
+        configuration.configureJdkClasspathRoots()
+    }
     /**
      * Adds path to classpath.
      * $path: path to add
