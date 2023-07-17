@@ -48,7 +48,6 @@ internal fun createAnalysisContext(
     val analysisEnvironment = AnalysisEnvironment(
         DokkaMessageCollector(context.logger),
         sourceSet.analysisPlatform,
-        context.plugin<CompilerDescriptorAnalysisPlugin>().querySingle { compilerExtensionPointProvider },
         context.plugin<CompilerDescriptorAnalysisPlugin>().querySingle { mockApplicationHack },
         context.plugin<CompilerDescriptorAnalysisPlugin>().querySingle { klibService },
     ).apply {
