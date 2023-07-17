@@ -91,7 +91,6 @@ internal const val JAR_SEPARATOR = "!/"
 class AnalysisEnvironment(
     private val messageCollector: MessageCollector,
     internal val analysisPlatform: Platform,
-    private val compilerExtensionPointProvider: CompilerExtensionPointProvider,
     private val mockApplicationHack: MockApplicationHack,
     private val kLibService: KLibService,
 ) : Disposable {
@@ -148,9 +147,6 @@ class AnalysisEnvironment(
             CustomJavadocTagProvider { emptyList() }
         )
 
-        compilerExtensionPointProvider.get().forEach { extension ->
-            registerExtensionPoint(extension.extensionDescriptor, extension.extensions, this)
-        }
         return environment
     }
 

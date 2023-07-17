@@ -10,6 +10,7 @@ import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptorWithSource
 import org.jetbrains.kotlin.idea.kdoc.findKDoc
+import org.jetbrains.kotlin.js.resolve.diagnostics.findPsi
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocTag
 import org.jetbrains.kotlin.psi.KtElement
 import org.jetbrains.kotlin.resolve.BindingContext
@@ -20,11 +21,11 @@ internal class IdePluginKDocFinder(
 ) : KDocFinder {
 
     override fun KtElement.findKDoc(): KDocTag? {
-        return this.findKDoc { DescriptorToSourceUtils.descriptorToDeclaration(it) }
+        return this.findKDoc { DescriptorToSourceUtils.descriptorToDeclaration(it) }?.contentTag
     }
 
     override fun DeclarationDescriptor.find(descriptorToPsi: (DeclarationDescriptorWithSource) -> PsiElement?): KDocTag? {
-        return this.findKDoc(descriptorToPsi)
+        return this.findKDoc(descriptorToPsi)?.contentTag
     }
 
     override fun resolveKDocLink(
@@ -42,7 +43,8 @@ internal class IdePluginKDocFinder(
             resolutionFacade = facadeAnalysisContext.facade,
             fromDescriptor = fromDescriptor,
             fromSubjectOfTag = null,
-            qualifiedName = qualifiedName.split('.')
+            qualifiedName = qualifiedName.split('.'),
+            contextElement = fromDescriptor.findPsi()
         )
     }
 }

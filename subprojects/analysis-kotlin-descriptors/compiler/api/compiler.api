@@ -55,7 +55,7 @@ public abstract interface class org/jetbrains/dokka/analysis/kotlin/descriptors/
 }
 
 public final class org/jetbrains/dokka/analysis/kotlin/descriptors/compiler/configuration/AnalysisEnvironment : com/intellij/openapi/Disposable {
-	public fun <init> (Lorg/jetbrains/kotlin/cli/common/messages/MessageCollector;Lorg/jetbrains/dokka/Platform;Lorg/jetbrains/dokka/analysis/kotlin/descriptors/compiler/CompilerExtensionPointProvider;Lorg/jetbrains/dokka/analysis/kotlin/descriptors/compiler/MockApplicationHack;Lorg/jetbrains/dokka/analysis/kotlin/descriptors/compiler/KLibService;)V
+	public fun <init> (Lorg/jetbrains/kotlin/cli/common/messages/MessageCollector;Lorg/jetbrains/dokka/Platform;Lorg/jetbrains/dokka/analysis/kotlin/descriptors/compiler/MockApplicationHack;Lorg/jetbrains/dokka/analysis/kotlin/descriptors/compiler/KLibService;)V
 	public fun dispose ()V
 }
 
