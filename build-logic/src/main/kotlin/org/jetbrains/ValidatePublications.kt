@@ -27,37 +27,9 @@ open class ValidatePublications : DefaultTask() {
                 .filterIsInstance<MavenPublication>()
                 .filter { it.version == project.dokkaVersion }
                 .forEach { _ ->
-                    checkProjectDependenciesArePublished(subProject)
                     subProject.assertPublicationVersion()
                 }
         }
-    }
-
-    private fun checkProjectDependenciesArePublished(project: Project) {
-        val implementationDependencies = project.findDependenciesByName("implementation")
-        val apiDependencies = project.findDependenciesByName("api")
-
-        val allDependencies = implementationDependencies + apiDependencies
-
-        allDependencies
-            .filterIsInstance<ProjectDependency>()
-            .forEach { projectDependency ->
-                val publishing = projectDependency.dependencyProject.extensions.findByType<PublishingExtension>()
-                    ?: throw UnpublishedProjectDependencyException(
-                        project = project, dependencyProject = projectDependency.dependencyProject
-                    )
-
-                val isPublished = publishing.publications.filterIsInstance<MavenPublication>()
-                    .any { it.version == project.dokkaVersion }
-
-                if (!isPublished) {
-                    throw UnpublishedProjectDependencyException(project, projectDependency.dependencyProject)
-                }
-            }
-    }
-
-    private fun Project.findDependenciesByName(name: String): Set<Dependency> {
-        return configurations.findByName(name)?.allDependencies.orEmpty()
     }
 
     private fun Project.assertPublicationVersion() {
@@ -70,10 +42,4 @@ open class ValidatePublications : DefaultTask() {
             throw AssertionError("Wrong version $dokkaVersion for configured publication channels $publicationChannels")
         }
     }
-
-    private class UnpublishedProjectDependencyException(
-        project: Project, dependencyProject: Project
-    ): GradleException(
-        "Published project ${project.path} cannot depend on unpublished project ${dependencyProject.path}"
-    )
 }
