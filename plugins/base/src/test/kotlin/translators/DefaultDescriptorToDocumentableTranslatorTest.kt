@@ -1,10 +1,12 @@
 package translators
 
 import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.base.signatures.KotlinSignatureUtils.annotations
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.PointingToDeclaration
 import org.jetbrains.dokka.model.*
+import org.jetbrains.dokka.model.ClassValue as AnnotationClassValue
 import org.jetbrains.dokka.model.doc.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
@@ -703,6 +705,52 @@ val soapXml = node("soap-env:Envelope", soapAttrs,
                     type.extra[Annotations]?.directAnnotations?.values?.single()?.single()
                 )
                 assertEquals("kotlin/Int///PointingToDeclaration/", type.dri.toString())
+            }
+        }
+    }
+
+    @Test
+    fun `should document SubclassOptInRequired annotation`() {
+        testInline(
+            """
+            |/src/main/kotlin/sample/UnstableApi.kt
+            |package sample
+            |
+            |@RequiresOptIn(
+            |    level = RequiresOptIn.Level.WARNING,
+            |    message = "Interfaces in this library are experimental"
+            |)
+            |annotation class UnstableApi()
+            |
+            |/src/main/kotlin/sample/MyClass.kt
+            |package sample
+            |
+            |@SubclassOptInRequired(markerClass = UnstableApi::class)
+            |open class MyClass {}
+            """.trimMargin(),
+            configuration
+        ) {
+            documentablesMergingStage = { module ->
+                val classWithAnnotation = module.packages.single().classlikes.single { it.name == "MyClass" }
+
+                val expectedAnnotation = Annotations.Annotation(
+                    dri = DRI("kotlin", "SubclassOptInRequired"),
+                    mustBeDocumented = true,
+                    params = mapOf(
+                        "markerClass" to AnnotationClassValue(
+                            className = "UnstableApi",
+                            classDRI = DRI(
+                                packageName = "sample",
+                                classNames = "UnstableApi"
+                            )
+                        )
+                    )
+                )
+                val actualAnnotation = classWithAnnotation.annotations().values.single().single()
+
+                assertEquals(expectedAnnotation, actualAnnotation)
+                assertEquals(expectedAnnotation.mustBeDocumented, actualAnnotation.mustBeDocumented)
+                assertEquals(expectedAnnotation.params, actualAnnotation.params)
             }
         }
     }

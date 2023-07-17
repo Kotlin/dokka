@@ -1174,10 +1174,16 @@ private class DokkaDescriptorVisitor(
 
     private fun AnnotationDescriptor.toAnnotation(scope: Annotations.AnnotationScope = Annotations.AnnotationScope.DIRECT): Annotations.Annotation =
         Annotations.Annotation(
-            DRI.from(annotationClass as DeclarationDescriptor),
-            allValueArguments.map { it.key.asString() to it.value.toValue() }.toMap(),
-            mustBeDocumented(),
-            scope
+            dri = DRI.from(annotationClass as DeclarationDescriptor),
+            params = allValueArguments.map { it.key.asString() to it.value.toValue() }.toMap(),
+            mustBeDocumented = mustBeDocumented()
+                .let {
+                    // This hack exists because `SubclassOptInRequired` was not annotated with `@MustBeDocumented`
+                    // by mistake, but it will be corrected in future Kotlin versions.
+                    // When `SubclassOptInRequired` has `@MustBeDocumented`, this whole let needs to be removed.
+                    if (this.fqName?.asString() == "kotlin.SubclassOptInRequired") true else it
+                },
+            scope = scope
         )
 
     private fun AnnotationDescriptor.mustBeDocumented(): Boolean =

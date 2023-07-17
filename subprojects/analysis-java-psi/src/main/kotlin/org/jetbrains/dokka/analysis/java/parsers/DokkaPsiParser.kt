@@ -789,6 +789,16 @@ internal class DokkaPsiParser(
                     annotation.hasQualifiedName("java.lang.annotation.Documented")
                 }
             )
+                .let {
+                    // This hack exists because `SubclassOptInRequired` was not annotated with `@MustBeDocumented`
+                    // by mistake, but it will be corrected in future Kotlin versions.
+                    // When `SubclassOptInRequired` has `@MustBeDocumented`, this whole let needs to be removed.
+                    if (it.dri.packageName == "kotlin" && it.dri.classNames == "SubclassOptInRequired") {
+                        it.copy(mustBeDocumented = true)
+                    } else {
+                        it
+                    }
+                }
         }
     }
 
