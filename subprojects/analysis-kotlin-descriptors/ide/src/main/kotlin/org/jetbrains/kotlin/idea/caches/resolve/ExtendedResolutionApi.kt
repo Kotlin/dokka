@@ -34,6 +34,17 @@ internal fun KtDeclaration.resolveToDescriptorIfAny(
     }
 }
 
+internal fun KtParameter.resolveToParameterDescriptorIfAny(bodyResolveMode: BodyResolveMode = BodyResolveMode.PARTIAL) =
+    resolveToParameterDescriptorIfAny(getResolutionFacade(), bodyResolveMode)
+
+internal fun KtParameter.resolveToParameterDescriptorIfAny(
+    resolutionFacade: ResolutionFacade,
+    bodyResolveMode: BodyResolveMode = BodyResolveMode.PARTIAL
+): ValueParameterDescriptor? {
+    val context = safeAnalyze(resolutionFacade, bodyResolveMode)
+    return context.get(BindingContext.VALUE_PARAMETER, this) as? ValueParameterDescriptor
+}
+
 internal fun KtDeclaration.resolveToDescriptorIfAny(
     bodyResolveMode: BodyResolveMode = BodyResolveMode.PARTIAL
 ): DeclarationDescriptor? =

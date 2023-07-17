@@ -21,10 +21,6 @@ class IdeDescriptorAnalysisPlugin : DokkaPlugin() {
         plugin<CompilerDescriptorAnalysisPlugin>().klibService providing { IdeKLibService() }
     }
 
-    internal val ideCompilerExtensionPointProvider by extending {
-        plugin<CompilerDescriptorAnalysisPlugin>().compilerExtensionPointProvider providing { IdeCompilerExtensionPointProvider() }
-    }
-
     internal val ideApplicationHack by extending {
         plugin<CompilerDescriptorAnalysisPlugin>().mockApplicationHack providing { IdeMockApplicationHack() }
     }
