@@ -10,7 +10,7 @@ import org.jetbrains.kotlin.descriptors.impl.CompositePackageFragmentProvider
 import org.jetbrains.kotlin.descriptors.impl.ModuleDescriptorImpl
 import org.jetbrains.kotlin.frontend.di.createContainerForLazyResolve
 import org.jetbrains.kotlin.incremental.components.LookupTracker
-import org.jetbrains.kotlin.konan.util.KlibMetadataFactories
+import org.jetbrains.kotlin.library.metadata.KlibMetadataFactories
 import org.jetbrains.kotlin.library.metadata.NullFlexibleTypeDeserializer
 import org.jetbrains.kotlin.resolve.CodeAnalyzerInitializer
 import org.jetbrains.kotlin.resolve.SealedClassInheritorsProvider
@@ -28,6 +28,10 @@ internal class DokkaNativeResolverForModuleFactory(
         private val metadataFactories = KlibMetadataFactories(::KonanBuiltIns, NullFlexibleTypeDeserializer)
     }
 
+    @Deprecated(
+        "Left only for compatibility, please use full version",
+        replaceWith = ReplaceWith("createResolverForModule(moduleDescriptor, moduleContext, moduleContent, resolverForProject, languageVersionSettings, sealedInheritorsProvider, null)")
+    )
     override fun <M : ModuleInfo> createResolverForModule(
         moduleDescriptor: ModuleDescriptorImpl,
         moduleContext: ModuleContext,

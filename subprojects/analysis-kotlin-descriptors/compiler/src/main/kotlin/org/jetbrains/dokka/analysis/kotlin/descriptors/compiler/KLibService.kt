@@ -1,7 +1,7 @@
 package org.jetbrains.dokka.analysis.kotlin.descriptors.compiler
 
 import org.jetbrains.dokka.InternalDokkaApi
-import org.jetbrains.kotlin.backend.common.serialization.metadata.KlibMetadataModuleDescriptorFactory
+import org.jetbrains.kotlin.library.metadata.KlibMetadataModuleDescriptorFactory
 import org.jetbrains.kotlin.config.LanguageVersionSettings
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor
 import org.jetbrains.kotlin.descriptors.PackageFragmentProvider
