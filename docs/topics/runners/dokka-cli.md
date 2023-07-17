@@ -34,12 +34,10 @@ Since there is no build tool to manage dependencies, you have to provide depende
 
 Listed below are the dependencies that you need for any output format:
 
-| **Group**             | **Artifact**               | **Version**    | **Link**                                                                                                        |
-|-----------------------|----------------------------|----------------|-----------------------------------------------------------------------------------------------------------------|
-| `org.jetbrains.dokka` | `dokka-base`               | %dokkaVersion% | [mvnrepository](https://mvnrepository.com/artifact/org.jetbrains.dokka/dokka-base/%dokkaVersion%)               |
-| `org.jetbrains.dokka` | `dokka-analysis`           | %dokkaVersion% | [mvnrepository](https://mvnrepository.com/artifact/org.jetbrains.dokka/dokka-analysis/%dokkaVersion%)           |
-| `org.jetbrains.dokka` | `kotlin-analysis-compiler` | %dokkaVersion% | [mvnrepository](https://mvnrepository.com/artifact/org.jetbrains.dokka/kotlin-analysis-compiler/%dokkaVersion%) |
-| `org.jetbrains.dokka` | `kotlin-analysis-intellij` | %dokkaVersion% | [mvnrepository](https://mvnrepository.com/artifact/org.jetbrains.dokka/kotlin-analysis-intellij/%dokkaVersion%) |
+| **Group**             | **Artifact**                  | **Version**    | **Link**                                                                                                           |
+|-----------------------|-------------------------------|----------------|--------------------------------------------------------------------------------------------------------------------|
+| `org.jetbrains.dokka` | `dokka-base`                  | %dokkaVersion% | [mvnrepository](https://mvnrepository.com/artifact/org.jetbrains.dokka/dokka-base/%dokkaVersion%)                  |
+| `org.jetbrains.dokka` | `analysis-kotlin-descriptors` | %dokkaVersion% | [mvnrepository](https://mvnrepository.com/artifact/org.jetbrains.dokka/analysis-kotlin-descriptors/%dokkaVersion%) |
 
 Below are the additional dependencies that you need for [HTML](dokka-html.md) output format:
 
@@ -61,15 +59,10 @@ At the very least you need to provide the following options:
 
 ```Bash
 java -jar dokka-cli-%dokkaVersion%.jar \
-     -pluginsClasspath "./dokka-base-%dokkaVersion%.jar;./dokka-analysis-%dokkaVersion%.jar;./kotlin-analysis-intellij-%dokkaVersion%.jar;./kotlin-analysis-compiler-%dokkaVersion%.jar;./kotlinx-html-jvm-0.8.0.jar;./freemarker-2.3.31.jar" \
+     -pluginsClasspath "./dokka-base-%dokkaVersion%.jar;./analysis-kotlin-descriptors-%dokkaVersion%.jar;./kotlinx-html-jvm-0.8.0.jar;./freemarker-2.3.31.jar" \
      -sourceSet "-src /home/myCoolProject/src/main/kotlin" \
      -outputDir "./dokka/html"
 ```
-
-> Due to an internal class conflict, first pass `kotlin-analysis-intellij` and only then `kotlin-analysis-compiler`.
-> Otherwise you may see obscure exceptions, such as `NoSuchFieldError`.
->
-{type="note"}
 
 Executing the given example generates documentation in [HTML](dokka-html.md) output format.
 
@@ -104,18 +97,11 @@ At the very least, you need the following JSON configuration file:
   "pluginsClasspath": [
     "./dokka-base-%dokkaVersion%.jar",
     "./kotlinx-html-jvm-0.8.0.jar",
-    "./dokka-analysis-%dokkaVersion%.jar",
-    "./kotlin-analysis-intellij-%dokkaVersion%.jar",
-    "./kotlin-analysis-compiler-%dokkaVersion%.jar",
+    "./analysis-kotlin-descriptors-%dokkaVersion%.jar",
     "./freemarker-2.3.31.jar"
   ]
 }
 ```
-
-> Due to an internal class conflict, first pass `kotlin-analysis-intellij` and only then `kotlin-analysis-compiler`.
-> Otherwise you may see obscure exceptions, such as `NoSuchFieldError`.
->
-{type="note"}
 
 See [JSON configuration options](#json-configuration) for more details.
 
@@ -255,9 +241,7 @@ with [all configuration options](#complete-configuration) applied at the bottom 
   "pluginsClasspath": [
     "./dokka-base-%dokkaVersion%.jar",
     "./kotlinx-html-jvm-0.8.0.jar",
-    "./dokka-analysis-%dokkaVersion%.jar",
-    "./kotlin-analysis-intellij-%dokkaVersion%.jar",
-    "./kotlin-analysis-compiler-%dokkaVersion%.jar",
+    "./analysis-kotlin-descriptors-%dokkaVersion%.jar",
     "./freemarker-2.3.31.jar"
   ]
 }
@@ -841,9 +825,7 @@ Below you can see all possible configuration options applied at the same time.
   "pluginsClasspath": [
     "./dokka-base-%dokkaVersion%.jar",
     "./kotlinx-html-jvm-0.8.0.jar",
-    "./dokka-analysis-%dokkaVersion%.jar",
-    "./kotlin-analysis-intellij-%dokkaVersion%.jar",
-    "./kotlin-analysis-compiler-%dokkaVersion%.jar",
+    "./analysis-kotlin-descriptors-%dokkaVersion%.jar",
     "./freemarker-2.3.31.jar"
   ],
   "pluginsConfiguration": [
