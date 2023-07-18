@@ -9,7 +9,7 @@ import org.jetbrains.kotlin.library.KLIB_MANIFEST_FILE_NAME
 import org.jetbrains.kotlin.library.KLIB_METADATA_FILE_EXTENSION
 import org.jetbrains.kotlin.library.KLIB_MODULE_METADATA_FILE_NAME
 import org.jetbrains.kotlin.library.metadata.KlibMetadataProtoBuf
-import org.jetbrains.kotlin.backend.common.serialization.metadata.KlibMetadataVersion
+import org.jetbrains.kotlin.library.metadata.KlibMetadataVersion
 import org.jetbrains.kotlin.library.metadata.parseModuleHeader
 import org.jetbrains.kotlin.library.metadata.parsePackageFragment
 import org.jetbrains.kotlin.library.readKonanLibraryVersioning

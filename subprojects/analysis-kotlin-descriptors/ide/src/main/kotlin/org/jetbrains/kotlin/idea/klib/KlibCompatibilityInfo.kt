@@ -5,8 +5,8 @@ package org.jetbrains.kotlin.idea.klib
 
 
 import org.jetbrains.kotlin.library.*
-import org.jetbrains.kotlin.backend.common.serialization.metadata.KlibMetadataVersion
-import org.jetbrains.kotlin.backend.common.serialization.metadata.metadataVersion
+import org.jetbrains.kotlin.library.metadata.KlibMetadataVersion
+import org.jetbrains.kotlin.library.metadata.metadataVersion
 import java.io.IOException
 
 /**
@@ -30,7 +30,7 @@ internal val KotlinLibrary.compatibilityInfo: KlibCompatibilityInfo
         if (hasPre14Manifest)
             return KlibCompatibilityInfo.Pre14Layout
 
-        val metadataVersion = safeRead(null) { metadataVersion }
+        val metadataVersion = safeRead(null) { this.metadataVersion }
         @Suppress("DEPRECATION")
         return when {
             metadataVersion == null -> {

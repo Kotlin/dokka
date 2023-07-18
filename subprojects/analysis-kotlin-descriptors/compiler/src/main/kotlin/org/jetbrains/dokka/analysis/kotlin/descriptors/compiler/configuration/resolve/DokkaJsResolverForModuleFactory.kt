@@ -13,7 +13,7 @@ import org.jetbrains.kotlin.descriptors.impl.ModuleDescriptorImpl
 import org.jetbrains.kotlin.frontend.di.createContainerForLazyResolve
 import org.jetbrains.kotlin.incremental.components.LookupTracker
 import org.jetbrains.kotlin.js.resolve.JsPlatformAnalyzerServices
-import org.jetbrains.kotlin.konan.util.KlibMetadataFactories
+import org.jetbrains.kotlin.library.metadata.KlibMetadataFactories
 import org.jetbrains.kotlin.resolve.CodeAnalyzerInitializer
 import org.jetbrains.kotlin.resolve.SealedClassInheritorsProvider
 import org.jetbrains.kotlin.resolve.TargetEnvironment
@@ -22,7 +22,8 @@ import org.jetbrains.kotlin.resolve.lazy.declarations.DeclarationProviderFactory
 import org.jetbrains.kotlin.serialization.js.DynamicTypeDeserializer
 import org.jetbrains.kotlin.serialization.js.KotlinJavascriptSerializationUtil
 import org.jetbrains.kotlin.serialization.js.createKotlinJavascriptPackageFragmentProvider
-import org.jetbrains.kotlin.serialization.konan.impl.KlibMetadataModuleDescriptorFactoryImpl
+import org.jetbrains.kotlin.library.metadata.impl.KlibMetadataModuleDescriptorFactoryImpl
+import org.jetbrains.kotlin.resolve.scopes.optimization.OptimizingOptions
 import org.jetbrains.kotlin.utils.KotlinJavascriptMetadataUtils
 import java.io.File
 
@@ -48,7 +49,8 @@ internal class DokkaJsResolverForModuleFactory(
         moduleContent: ModuleContent<M>,
         resolverForProject: ResolverForProject<M>,
         languageVersionSettings: LanguageVersionSettings,
-        sealedInheritorsProvider: SealedClassInheritorsProvider
+        sealedInheritorsProvider: SealedClassInheritorsProvider,
+        resolveOptimizingOptions: OptimizingOptions?
     ): ResolverForModule {
         val declarationProviderFactory = DeclarationProviderFactoryService.createDeclarationProviderFactory(
             moduleContext.project,
@@ -110,7 +112,7 @@ internal class DokkaJsResolverForModuleFactory(
                         emptyList()
                     }
                 }
-                .filter { it.version.isCompatible() }
+                .filter { it.version.isCompatibleWithCurrentCompilerVersion() }
                 .map { metadata ->
                     val (header, packageFragmentProtos) =
                         KotlinJavascriptSerializationUtil.readModuleAsProto(metadata.body, metadata.version)
