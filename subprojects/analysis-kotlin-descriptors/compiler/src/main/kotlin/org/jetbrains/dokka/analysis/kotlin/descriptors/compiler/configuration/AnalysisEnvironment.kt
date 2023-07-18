@@ -20,7 +20,6 @@ import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.dokka.InternalDokkaApi
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.AnalysisContextCreator
-import org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.CompilerExtensionPointProvider
 import org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.KLibService
 import org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.MockApplicationHack
 import org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.configuration.resolve.*
@@ -49,7 +48,6 @@ import org.jetbrains.kotlin.context.ProjectContext
 import org.jetbrains.kotlin.context.withModule
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor
 import org.jetbrains.kotlin.descriptors.impl.ModuleDescriptorImpl
-import org.jetbrains.kotlin.extensions.ApplicationExtensionDescriptor
 import org.jetbrains.kotlin.js.config.JSConfigurationKeys
 import org.jetbrains.kotlin.js.resolve.JsPlatformAnalyzerServices
 import org.jetbrains.kotlin.library.KLIB_FILE_EXTENSION
@@ -345,22 +343,23 @@ class AnalysisEnvironment(
                 moduleInfo: ModuleInfo
             ): ResolverForModule =
                 CommonResolverForModuleFactory(
-                    CommonAnalysisParameters(
-                        metadataPartProviderFactory = { content ->
-                            environment.createPackagePartProvider(content.moduleContentScope)
-                        }
-                    ),
-                    CompilerEnvironment,
-                    unspecifiedJvmPlatform,
-                    true,
-                    dependencyContainer
-                ).createResolverForModule(
-                    descriptor as ModuleDescriptorImpl,
-                    projectContext.withModule(descriptor),
-                    modulesContent(moduleInfo),
-                    this,
-                    LanguageVersionSettingsImpl.DEFAULT,
-                    CliSealedClassInheritorsProvider,
+                                CommonAnalysisParameters(
+                                    metadataPartProviderFactory = { content ->
+                                        environment.createPackagePartProvider(content.moduleContentScope)
+                                    }
+                                ),
+                                CompilerEnvironment,
+                                unspecifiedJvmPlatform,
+                                true,
+                                dependencyContainer
+                            ).createResolverForModule(
+                    moduleDescriptor = descriptor as ModuleDescriptorImpl,
+                    moduleContext = projectContext.withModule(descriptor),
+                    moduleContent = modulesContent(moduleInfo),
+                    resolverForProject = this,
+                    languageVersionSettings = LanguageVersionSettingsImpl.DEFAULT,
+                    sealedInheritorsProvider = CliSealedClassInheritorsProvider,
+                    resolveOptimizingOptions = null
                 )
 
             override fun sdkDependency(module: ModuleInfo): ModuleInfo? = null
@@ -382,12 +381,13 @@ class AnalysisEnvironment(
                 descriptor: ModuleDescriptor,
                 moduleInfo: ModuleInfo
             ): ResolverForModule = DokkaJsResolverForModuleFactory(CompilerEnvironment, kLibService).createResolverForModule(
-                descriptor as ModuleDescriptorImpl,
-                projectContext.withModule(descriptor),
-                modulesContent(moduleInfo),
-                this,
-                LanguageVersionSettingsImpl.DEFAULT,
-                CliSealedClassInheritorsProvider,
+                moduleDescriptor = descriptor as ModuleDescriptorImpl,
+                moduleContext = projectContext.withModule(descriptor),
+                moduleContent = modulesContent(moduleInfo),
+                resolverForProject = this,
+                languageVersionSettings = LanguageVersionSettingsImpl.DEFAULT,
+                sealedInheritorsProvider = CliSealedClassInheritorsProvider,
+                resolveOptimizingOptions = null
             )
 
             override fun builtInsForModule(module: ModuleInfo): KotlinBuiltIns = DefaultBuiltIns.Instance
@@ -413,12 +413,13 @@ class AnalysisEnvironment(
             ): ResolverForModule {
 
                 return DokkaNativeResolverForModuleFactory(CompilerEnvironment, kLibService).createResolverForModule(
-                    descriptor as ModuleDescriptorImpl,
-                    projectContext.withModule(descriptor),
-                    modulesContent(moduleInfo),
-                    this,
-                    LanguageVersionSettingsImpl.DEFAULT,
-                    CliSealedClassInheritorsProvider,
+                    moduleDescriptor = descriptor as ModuleDescriptorImpl,
+                    moduleContext = projectContext.withModule(descriptor),
+                    moduleContent = modulesContent(moduleInfo),
+                    resolverForProject = this,
+                    languageVersionSettings = LanguageVersionSettingsImpl.DEFAULT,
+                    sealedInheritorsProvider = CliSealedClassInheritorsProvider,
+                    resolveOptimizingOptions = null
                 )
             }
 
@@ -463,32 +464,33 @@ class AnalysisEnvironment(
                 descriptor: ModuleDescriptor,
                 moduleInfo: ModuleInfo
             ): ResolverForModule = JvmResolverForModuleFactory(
-                JvmPlatformParameters(packagePartProviderFactory = { content ->
-                    JvmPackagePartProvider(
-                        configuration.languageVersionSettings,
-                        content.moduleContentScope
-                    )
-                        .apply {
-                            addRoots(javaRoots, messageCollector)
-                        }
-                }, moduleByJavaClass = {
-                    val file =
-                        (it as? BinaryJavaClass)?.virtualFile ?: (it as JavaClassImpl).psi.containingFile.virtualFile
-                    if (file in sourcesScope)
-                        module
-                    else
-                        library
-                }, resolverForReferencedModule = null,
-                    useBuiltinsProviderForModule = { false }),
-                CompilerEnvironment,
-                unspecifiedJvmPlatform
-            ).createResolverForModule(
-                descriptor as ModuleDescriptorImpl,
-                projectContext.withModule(descriptor),
-                modulesContent(moduleInfo),
-                this,
-                configuration.languageVersionSettings,
-                CliSealedClassInheritorsProvider,
+                        JvmPlatformParameters(packagePartProviderFactory = { content ->
+                            JvmPackagePartProvider(
+                                configuration.languageVersionSettings,
+                                content.moduleContentScope
+                            )
+                                .apply {
+                                    addRoots(javaRoots, messageCollector)
+                                }
+                        }, moduleByJavaClass = {
+                            val file =
+                                (it as? BinaryJavaClass)?.virtualFile ?: (it as JavaClassImpl).psi.containingFile.virtualFile
+                            if (file in sourcesScope)
+                                module
+                            else
+                                library
+                        }, resolverForReferencedModule = null,
+                            useBuiltinsProviderForModule = { false }),
+                        CompilerEnvironment,
+                        unspecifiedJvmPlatform
+                    ).createResolverForModule(
+                moduleDescriptor = descriptor as ModuleDescriptorImpl,
+                moduleContext = projectContext.withModule(descriptor),
+                moduleContent = modulesContent(moduleInfo),
+                resolverForProject = this,
+                languageVersionSettings = configuration.languageVersionSettings,
+                sealedInheritorsProvider = CliSealedClassInheritorsProvider,
+                resolveOptimizingOptions = null
             )
 
             override fun sdkDependency(module: ModuleInfo): ModuleInfo? = null
@@ -528,7 +530,14 @@ class AnalysisEnvironment(
     }
 
     // Set up JDK classpath roots explicitly because of https://github.com/JetBrains/kotlin/commit/f89765eb33dd95c8de33a919cca83651b326b246
-    internal fun configureJdkClasspathRoots() = configuration.configureJdkClasspathRoots()
+    internal fun configureJdkClasspathRoots() {
+        val jdkHome = File(System.getProperty("java.home"))
+        if (!jdkHome.exists()) {
+            messageCollector.report(CompilerMessageSeverity.WARNING, "Set existed java.home to use JDK")
+        }
+        configuration.put(JVMConfigurationKeys.JDK_HOME, jdkHome)
+        configuration.configureJdkClasspathRoots() // only non-nodular JDK
+    }
     /**
      * Adds path to classpath.
      * $path: path to add
@@ -573,23 +582,6 @@ class AnalysisEnvironment(
         Disposer.dispose(this)
     }
 
-    private companion object {
-        private fun <T : Any> registerExtensionPoint(
-            appExtension: ApplicationExtensionDescriptor<T>,
-            instances: List<T>,
-            disposable: Disposable
-        ) {
-            @Suppress("DEPRECATION")
-            val extensionArea = Extensions.getRootArea()
-
-            if (extensionArea.hasExtensionPoint(appExtension.extensionPointName)) {
-                return
-            }
-
-            appExtension.registerExtensionPoint()
-            instances.forEach { extension -> appExtension.registerExtension(extension, disposable) }
-        }
-    }
 }
 
 
