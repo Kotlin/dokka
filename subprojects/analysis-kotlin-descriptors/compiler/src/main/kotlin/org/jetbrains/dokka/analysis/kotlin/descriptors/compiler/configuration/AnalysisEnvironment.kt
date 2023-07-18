@@ -536,7 +536,7 @@ class AnalysisEnvironment(
             messageCollector.report(CompilerMessageSeverity.WARNING, "Set existed java.home to use JDK")
         }
         configuration.put(JVMConfigurationKeys.JDK_HOME, jdkHome)
-        configuration.configureJdkClasspathRoots()
+        configuration.configureJdkClasspathRoots() // only non-nodular JDK
     }
     /**
      * Adds path to classpath.
