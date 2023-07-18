@@ -39,7 +39,7 @@ public final class org/jetbrains/dokka/analysis/kotlin/descriptors/compiler/KDoc
 }
 
 public abstract interface class org/jetbrains/dokka/analysis/kotlin/descriptors/compiler/KLibService {
-	public abstract fun createPackageFragmentProvider (Lorg/jetbrains/kotlin/library/KotlinLibrary;Lorg/jetbrains/kotlin/storage/StorageManager;Lorg/jetbrains/kotlin/backend/common/serialization/metadata/KlibMetadataModuleDescriptorFactory;Lorg/jetbrains/kotlin/config/LanguageVersionSettings;Lorg/jetbrains/kotlin/descriptors/ModuleDescriptor;Lorg/jetbrains/kotlin/incremental/components/LookupTracker;)Lorg/jetbrains/kotlin/descriptors/PackageFragmentProvider;
+	public abstract fun createPackageFragmentProvider (Lorg/jetbrains/kotlin/library/KotlinLibrary;Lorg/jetbrains/kotlin/storage/StorageManager;Lorg/jetbrains/kotlin/library/metadata/KlibMetadataModuleDescriptorFactory;Lorg/jetbrains/kotlin/config/LanguageVersionSettings;Lorg/jetbrains/kotlin/descriptors/ModuleDescriptor;Lorg/jetbrains/kotlin/incremental/components/LookupTracker;)Lorg/jetbrains/kotlin/descriptors/PackageFragmentProvider;
 	public abstract fun isAnalysisCompatible (Lorg/jetbrains/kotlin/library/KotlinLibrary;)Z
 }
 
