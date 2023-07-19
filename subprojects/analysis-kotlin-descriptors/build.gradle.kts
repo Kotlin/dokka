@@ -8,6 +8,10 @@ plugins {
 }
 
 dependencies {
+    // to override some interfaces (JvmAnnotationEnumFieldValue, JvmAnnotationConstantValue) from compiler since thet are empty there
+    api(libs.intellij.java.psi.api) {
+        isTransitive = false
+    }
     implementation(projects.subprojects.analysisKotlinApi)
     implementation(projects.subprojects.analysisKotlinDescriptors.compiler)
     implementation(projects.subprojects.analysisKotlinDescriptors.ide)

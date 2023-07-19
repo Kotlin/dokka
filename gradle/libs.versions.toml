@@ -9,13 +9,13 @@ kotlinx-coroutines = "1.6.3"
 kotlinx-bcv = "0.12.1"
 
 ## Analysis
-kotlin-compiler = "1.8.20"
+kotlin-compiler = "1.9.0"
 
 # MUST match the version of the intellij platform used in the kotlin compiler,
 # otherwise this will lead to different versions of psi API and implementations
 # on the classpath and will fail with hard to debug problems in runtime.
 # See: https://github.com/JetBrains/kotlin/blob/e6633d3d9214402fcf3585ae8c24213a4761cc8b/gradle/versions.properties#L1
-intellij-platform = "203.8084.24"
+intellij-platform = "213.7172.25"
 
 ## HTML
 jsoup = "1.15.3"

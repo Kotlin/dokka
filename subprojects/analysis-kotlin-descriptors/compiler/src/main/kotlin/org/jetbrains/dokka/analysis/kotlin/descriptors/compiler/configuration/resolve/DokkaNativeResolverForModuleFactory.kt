@@ -16,6 +16,7 @@ import org.jetbrains.kotlin.resolve.CodeAnalyzerInitializer
 import org.jetbrains.kotlin.resolve.SealedClassInheritorsProvider
 import org.jetbrains.kotlin.resolve.TargetEnvironment
 import org.jetbrains.kotlin.resolve.konan.platform.NativePlatformAnalyzerServices
+import org.jetbrains.kotlin.resolve.lazy.AbsentDescriptorHandler
 import org.jetbrains.kotlin.resolve.lazy.ResolveSession
 import org.jetbrains.kotlin.resolve.lazy.declarations.DeclarationProviderFactoryService
 import org.jetbrains.kotlin.resolve.scopes.optimization.OptimizingOptions
@@ -36,7 +37,8 @@ internal class DokkaNativeResolverForModuleFactory(
         resolverForProject: ResolverForProject<M>,
         languageVersionSettings: LanguageVersionSettings,
         sealedInheritorsProvider: SealedClassInheritorsProvider,
-        resolveOptimizingOptions: OptimizingOptions?
+        resolveOptimizingOptions: OptimizingOptions?,
+        absentDescriptorHandlerClass: Class<out AbsentDescriptorHandler>?
     ): ResolverForModule {
 
         val declarationProviderFactory = DeclarationProviderFactoryService.createDeclarationProviderFactory(
@@ -48,13 +50,14 @@ internal class DokkaNativeResolverForModuleFactory(
         )
 
         val container = createContainerForLazyResolve(
-            moduleContext,
-            declarationProviderFactory,
-            CodeAnalyzerInitializer.getInstance(moduleContext.project).createTrace(),
-            moduleDescriptor.platform!!,
-            NativePlatformAnalyzerServices,
-            targetEnvironment,
-            languageVersionSettings
+            moduleContext = moduleContext,
+            declarationProviderFactory = declarationProviderFactory,
+            bindingTrace = CodeAnalyzerInitializer.getInstance(moduleContext.project).createTrace(),
+            platform = moduleDescriptor.platform!!,
+            analyzerServices = NativePlatformAnalyzerServices,
+            targetEnvironment = targetEnvironment,
+            languageVersionSettings = languageVersionSettings,
+            absentDescriptorHandlerClass = null
         )
 
         var packageFragmentProvider = container.get<ResolveSession>().packageFragmentProvider
