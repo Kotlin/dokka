@@ -1,12 +1,7 @@
 import org.jetbrains.*
 
 plugins {
-    `kotlin-dsl`
-    id("org.jetbrains.conventions.maven-publish")
-    id("org.jetbrains.conventions.kotlin-jvm")
-    id("com.gradle.plugin-publish")
-
-    id("org.jetbrains.kotlin.jvm")
+    id("org.jetbrains.conventions.gradle-plugin")
 }
 
 dependencies {
