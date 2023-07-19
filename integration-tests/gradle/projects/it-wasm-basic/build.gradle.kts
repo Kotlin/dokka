@@ -14,6 +14,7 @@ repositories {
 }
 
 kotlin {
+    jvm() // artificial empty target to avoid single target project
     wasm()
     sourceSets {
         val wasmMain by getting {
