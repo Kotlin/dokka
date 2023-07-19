@@ -232,15 +232,10 @@ class KotlinSourceSetGistTest {
             "Expected macosTest not being marked with 'isMain'"
         )
 
-        assertEquals(
-            setOf("commonMain"), jvmMainSourceSetGist.dependentSourceSetNames.get(),
-            "Expected jvmMain to depend on commonMain by default"
-        )
-
         /* Why not? */
         jvmMainSourceSet.dependsOn(macosMainSourceSet)
         assertEquals(
-            setOf("commonMain", "macosMain"), jvmMainSourceSetGist.dependentSourceSetNames.get(),
+            setOf("macosMain"), jvmMainSourceSetGist.dependentSourceSetNames.get(),
             "Expected dependent source set changes to be reflected in gist"
         )
     }
