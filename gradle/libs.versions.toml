@@ -111,6 +111,5 @@ junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
 # and define the Maven coordinates above to be used in build-logic/build.gradle.kts)
 
 kotlinx-binaryCompatibilityValidator = { id = "org.jetbrains.kotlinx.binary-compatibility-validator", version.ref = "kotlinx-bcv" }
-shadow = { id = "com.github.johnrengelman.shadow", version.ref = "gradlePlugin-shadow" }
 nexusPublish = { id = "io.github.gradle-nexus.publish-plugin", version.ref = "gradlePlugin-nexusPublish" }
 gradleNode = { id = "com.github.node-gradle.node", version.ref = "gradlePlugin-gradleNode" }
