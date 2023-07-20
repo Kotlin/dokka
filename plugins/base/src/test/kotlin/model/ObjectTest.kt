@@ -29,10 +29,11 @@ class ObjectTest : AbstractModelTest("/src/main/kotlin/objects/Test.kt", "object
             |data object KotlinDataObject {}
             """.trimIndent()
         ) {
-            val dataObject = packages.flatMap { it.classlikes }.first() as DObject
-            dataObject.name equals "KotlinDataObject"
-            dataObject.extra[AdditionalModifiers]?.content?.values?.single()
-                ?.single() equals ExtraModifiers.KotlinOnlyModifiers.Data
+            with((this / "objects" / "KotlinDataObject").cast<DObject>()) {
+                name equals "KotlinDataObject"
+                extra[AdditionalModifiers]?.content?.values?.single()
+                    ?.single() equals ExtraModifiers.KotlinOnlyModifiers.Data
+            }
         }
     }
 }
