@@ -70,7 +70,7 @@ internal class DokkaJsResolverForModuleFactory(
             analyzerServices = JsPlatformAnalyzerServices,
             targetEnvironment = targetEnvironment,
             languageVersionSettings = languageVersionSettings,
-            absentDescriptorHandlerClass = null
+            absentDescriptorHandlerClass = absentDescriptorHandlerClass
         )
 
         var packageFragmentProvider = container.get<ResolveSession>().packageFragmentProvider

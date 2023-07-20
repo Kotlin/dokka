@@ -57,7 +57,7 @@ internal class DokkaNativeResolverForModuleFactory(
             analyzerServices = NativePlatformAnalyzerServices,
             targetEnvironment = targetEnvironment,
             languageVersionSettings = languageVersionSettings,
-            absentDescriptorHandlerClass = null
+            absentDescriptorHandlerClass = absentDescriptorHandlerClass
         )
 
         var packageFragmentProvider = container.get<ResolveSession>().packageFragmentProvider

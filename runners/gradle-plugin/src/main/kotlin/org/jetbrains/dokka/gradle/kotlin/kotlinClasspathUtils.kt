@@ -56,7 +56,6 @@ private fun KotlinCompilation.classpathOf(project: Project): FileCollection {
     val shouldKeepBackwardsCompatibility = (kgpVersion != null && kgpVersion < KotlinGradlePluginVersion(1, 7, 0))
     return if (shouldKeepBackwardsCompatibility) {
         // removed since 1.9.0, left for compatibility with < Kotlin 1.7
-        @Suppress("UNCHECKED_CAST")
         val classpathGetter= kotlinCompile::class.members
             .first { it.name == "getClasspath" }
         classpathGetter.call(kotlinCompile) as FileCollection

@@ -1,3 +1,5 @@
+import org.gradle.kotlin.dsl.support.expectedKotlinDslPluginsVersion
+
 plugins {
     `kotlin-dsl`
 }
@@ -12,8 +14,8 @@ dependencies {
     implementation(libs.gradlePlugin.dokka)
     implementation(libs.gradlePlugin.kotlin)
     implementation(libs.gradlePlugin.shadow)
-    implementation(libs.gradlePlugin.kotlinDsl)
-    implementation(libs.gradlePlugin.pluginPublish)
+    implementation("org.gradle.kotlin:gradle-kotlin-dsl-plugins:$expectedKotlinDslPluginsVersion")
+    implementation(libs.gradlePlugin.gradlePublish)
 
     // workaround for accessing version-catalog in convention plugins
     // https://github.com/gradle/gradle/issues/15383#issuecomment-779893192
