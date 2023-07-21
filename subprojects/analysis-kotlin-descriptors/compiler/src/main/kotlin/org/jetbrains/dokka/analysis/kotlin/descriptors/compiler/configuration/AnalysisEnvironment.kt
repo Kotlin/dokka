@@ -343,23 +343,24 @@ class AnalysisEnvironment(
                 moduleInfo: ModuleInfo
             ): ResolverForModule =
                 CommonResolverForModuleFactory(
-                                CommonAnalysisParameters(
-                                    metadataPartProviderFactory = { content ->
-                                        environment.createPackagePartProvider(content.moduleContentScope)
-                                    }
-                                ),
-                                CompilerEnvironment,
-                                unspecifiedJvmPlatform,
-                                true,
-                                dependencyContainer
-                            ).createResolverForModule(
+                                            CommonAnalysisParameters(
+                                                metadataPartProviderFactory = { content ->
+                                                    environment.createPackagePartProvider(content.moduleContentScope)
+                                                }
+                                            ),
+                                            CompilerEnvironment,
+                                            unspecifiedJvmPlatform,
+                                            true,
+                                            dependencyContainer
+                                        ).createResolverForModule(
                     moduleDescriptor = descriptor as ModuleDescriptorImpl,
                     moduleContext = projectContext.withModule(descriptor),
                     moduleContent = modulesContent(moduleInfo),
                     resolverForProject = this,
                     languageVersionSettings = LanguageVersionSettingsImpl.DEFAULT,
                     sealedInheritorsProvider = CliSealedClassInheritorsProvider,
-                    resolveOptimizingOptions = null
+                    resolveOptimizingOptions = null,
+                    absentDescriptorHandlerClass = null
                 )
 
             override fun sdkDependency(module: ModuleInfo): ModuleInfo? = null
@@ -387,7 +388,8 @@ class AnalysisEnvironment(
                 resolverForProject = this,
                 languageVersionSettings = LanguageVersionSettingsImpl.DEFAULT,
                 sealedInheritorsProvider = CliSealedClassInheritorsProvider,
-                resolveOptimizingOptions = null
+                resolveOptimizingOptions = null,
+                absentDescriptorHandlerClass = null
             )
 
             override fun builtInsForModule(module: ModuleInfo): KotlinBuiltIns = DefaultBuiltIns.Instance
@@ -419,7 +421,8 @@ class AnalysisEnvironment(
                     resolverForProject = this,
                     languageVersionSettings = LanguageVersionSettingsImpl.DEFAULT,
                     sealedInheritorsProvider = CliSealedClassInheritorsProvider,
-                    resolveOptimizingOptions = null
+                    resolveOptimizingOptions = null,
+                    absentDescriptorHandlerClass = null
                 )
             }
 
@@ -464,33 +467,34 @@ class AnalysisEnvironment(
                 descriptor: ModuleDescriptor,
                 moduleInfo: ModuleInfo
             ): ResolverForModule = JvmResolverForModuleFactory(
-                        JvmPlatformParameters(packagePartProviderFactory = { content ->
-                            JvmPackagePartProvider(
-                                configuration.languageVersionSettings,
-                                content.moduleContentScope
-                            )
-                                .apply {
-                                    addRoots(javaRoots, messageCollector)
-                                }
-                        }, moduleByJavaClass = {
-                            val file =
-                                (it as? BinaryJavaClass)?.virtualFile ?: (it as JavaClassImpl).psi.containingFile.virtualFile
-                            if (file in sourcesScope)
-                                module
-                            else
-                                library
-                        }, resolverForReferencedModule = null,
-                            useBuiltinsProviderForModule = { false }),
-                        CompilerEnvironment,
-                        unspecifiedJvmPlatform
-                    ).createResolverForModule(
+                                JvmPlatformParameters(packagePartProviderFactory = { content ->
+                                    JvmPackagePartProvider(
+                                        configuration.languageVersionSettings,
+                                        content.moduleContentScope
+                                    )
+                                        .apply {
+                                            addRoots(javaRoots, messageCollector)
+                                        }
+                                }, moduleByJavaClass = {
+                                    val file =
+                                        (it as? BinaryJavaClass)?.virtualFile ?: (it as JavaClassImpl).psi.containingFile.virtualFile
+                                    if (file in sourcesScope)
+                                        module
+                                    else
+                                        library
+                                }, resolverForReferencedModule = null,
+                                    useBuiltinsProviderForModule = { false }),
+                                CompilerEnvironment,
+                                unspecifiedJvmPlatform
+                            ).createResolverForModule(
                 moduleDescriptor = descriptor as ModuleDescriptorImpl,
                 moduleContext = projectContext.withModule(descriptor),
                 moduleContent = modulesContent(moduleInfo),
                 resolverForProject = this,
                 languageVersionSettings = configuration.languageVersionSettings,
                 sealedInheritorsProvider = CliSealedClassInheritorsProvider,
-                resolveOptimizingOptions = null
+                resolveOptimizingOptions = null,
+                absentDescriptorHandlerClass = null
             )
 
             override fun sdkDependency(module: ModuleInfo): ModuleInfo? = null

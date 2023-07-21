@@ -1149,14 +1149,14 @@ private class DokkaDescriptorVisitor(
             fullEnumEntryName(),
             DRI(enumClassId.packageFqName.asString(), fullEnumEntryName())
         )
-        is ConstantsKtClassValue -> when (value) {
-            is NormalClass -> (value as NormalClass).value.classId.let {
+        is ConstantsKtClassValue -> when (val value = value) {
+            is NormalClass -> value.classId.let {
                 ClassValue(
                     it.relativeClassName.asString(),
                     DRI(it.packageFqName.asString(), it.relativeClassName.asString())
                 )
             }
-            is LocalClass -> (value as LocalClass).type.let {
+            is LocalClass -> value.type.let {
                 ClassValue(
                     it.toString(),
                     DRI.from(it.constructor.declarationDescriptor as DeclarationDescriptor)

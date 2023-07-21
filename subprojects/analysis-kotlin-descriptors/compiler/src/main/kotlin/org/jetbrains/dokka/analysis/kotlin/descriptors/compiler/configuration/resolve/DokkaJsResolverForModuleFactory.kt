@@ -23,6 +23,7 @@ import org.jetbrains.kotlin.serialization.js.DynamicTypeDeserializer
 import org.jetbrains.kotlin.serialization.js.KotlinJavascriptSerializationUtil
 import org.jetbrains.kotlin.serialization.js.createKotlinJavascriptPackageFragmentProvider
 import org.jetbrains.kotlin.library.metadata.impl.KlibMetadataModuleDescriptorFactoryImpl
+import org.jetbrains.kotlin.resolve.lazy.AbsentDescriptorHandler
 import org.jetbrains.kotlin.resolve.scopes.optimization.OptimizingOptions
 import org.jetbrains.kotlin.utils.KotlinJavascriptMetadataUtils
 import java.io.File
@@ -50,7 +51,8 @@ internal class DokkaJsResolverForModuleFactory(
         resolverForProject: ResolverForProject<M>,
         languageVersionSettings: LanguageVersionSettings,
         sealedInheritorsProvider: SealedClassInheritorsProvider,
-        resolveOptimizingOptions: OptimizingOptions?
+        resolveOptimizingOptions: OptimizingOptions?,
+        absentDescriptorHandlerClass: Class<out AbsentDescriptorHandler>?
     ): ResolverForModule {
         val declarationProviderFactory = DeclarationProviderFactoryService.createDeclarationProviderFactory(
             moduleContext.project,
@@ -61,13 +63,14 @@ internal class DokkaJsResolverForModuleFactory(
         )
 
         val container = createContainerForLazyResolve(
-            moduleContext,
-            declarationProviderFactory,
-            CodeAnalyzerInitializer.getInstance(moduleContext.project).createTrace(), // BindingTraceContext(/* allowSliceRewrite = */ true),
-            moduleDescriptor.platform!!,
-            JsPlatformAnalyzerServices,
-            targetEnvironment,
-            languageVersionSettings
+            moduleContext = moduleContext,
+            declarationProviderFactory = declarationProviderFactory,
+            bindingTrace = CodeAnalyzerInitializer.getInstance(moduleContext.project).createTrace(), // BindingTraceContext(/* allowSliceRewrite = */ true),
+            platform = moduleDescriptor.platform!!,
+            analyzerServices = JsPlatformAnalyzerServices,
+            targetEnvironment = targetEnvironment,
+            languageVersionSettings = languageVersionSettings,
+            absentDescriptorHandlerClass = absentDescriptorHandlerClass
         )
 
         var packageFragmentProvider = container.get<ResolveSession>().packageFragmentProvider
