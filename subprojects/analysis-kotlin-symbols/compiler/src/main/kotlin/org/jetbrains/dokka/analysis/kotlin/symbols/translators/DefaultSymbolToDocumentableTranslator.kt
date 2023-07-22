@@ -4,18 +4,16 @@ package org.jetbrains.dokka.analysis.kotlin.symbols.translators
 
 
 import org.jetbrains.dokka.analysis.kotlin.symbols.compiler.*
-import org.jetbrains.dokka.analysis.kotlin.symbols.compiler.getDRIFromNonErrorClassType
 import org.jetbrains.dokka.analysis.kotlin.symbols.compiler.getDRIFromSymbol
-import org.jetbrains.dokka.analysis.kotlin.symbols.compiler.getDRIFromTypeParameter
-import org.jetbrains.dokka.analysis.kotlin.symbols.compiler.getDocumentation
+import org.jetbrains.dokka.analysis.kotlin.symbols.kdoc.getDocumentation
 import com.intellij.psi.util.PsiLiteralUtil
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.analysis.kotlin.symbols.AnalysisContext
 import org.jetbrains.dokka.analysis.kotlin.symbols.KtPsiDocumentableSource
+import org.jetbrains.dokka.analysis.kotlin.symbols.utils.typeConstructorsBeingExceptions
 import org.jetbrains.dokka.links.*
 import org.jetbrains.dokka.links.Callable
 import org.jetbrains.dokka.model.*
-import org.jetbrains.dokka.model.Nullable
 import org.jetbrains.dokka.model.Visibility
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.plugability.DokkaContext
@@ -27,14 +25,11 @@ import org.jetbrains.kotlin.KtNodeTypes
 import org.jetbrains.kotlin.analysis.api.*
 import org.jetbrains.kotlin.analysis.api.annotations.*
 import org.jetbrains.kotlin.analysis.api.annotations.KtAnnotated
-import org.jetbrains.kotlin.analysis.api.base.KtConstantValue
 import org.jetbrains.kotlin.analysis.api.symbols.*
 import org.jetbrains.kotlin.analysis.api.symbols.markers.KtNamedSymbol
 import org.jetbrains.kotlin.analysis.api.symbols.markers.KtSymbolWithModality
 import org.jetbrains.kotlin.analysis.api.symbols.markers.KtSymbolWithVisibility
 import org.jetbrains.kotlin.analysis.api.types.*
-import org.jetbrains.kotlin.analysis.api.types.KtDynamicType
-import org.jetbrains.kotlin.analysis.api.types.KtIntersectionType
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.descriptors.java.JavaVisibilities
 import org.jetbrains.kotlin.lexer.KtTokens
@@ -43,11 +38,10 @@ import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.psi.psiUtil.hasActualModifier
-import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 import org.jetbrains.kotlin.psi.psiUtil.hasExpectModifier
-import org.jetbrains.kotlin.utils.addToStdlib.UnsafeCastFunction
 import java.nio.file.Paths
 
+// 747 / 839
 //   487 / 707
 class DefaultSymbolToDocumentableTranslator(context: DokkaContext) : AsyncSourceToDocumentableTranslator {
     private val kotlinAnalysis = context.plugin<SymbolsAnalysisPlugin>().querySingle { kotlinAnalysis }
@@ -82,14 +76,27 @@ class TranslatorError(message: String, cause: Throwable?) : IllegalStateExceptio
             e
         )
     }
+internal fun <T : Bound> T.wrapWithVariance(variance: org.jetbrains.kotlin.types.Variance) =
+    when (variance) {
+        org.jetbrains.kotlin.types.Variance.INVARIANT -> Invariance(this)
+        org.jetbrains.kotlin.types.Variance.IN_VARIANCE -> Contravariance(this)
+        org.jetbrains.kotlin.types.Variance.OUT_VARIANCE -> Covariance(this)
+    }
 
-private class DokkaSymbolVisitor(
+val parameterName = ClassId(FqName("kotlin"), FqName("ParameterName"), false)
+internal fun KtAnnotated.getPresentableName(): String? =
+    this.annotationsByClassId(parameterName)
+        .firstOrNull()?.arguments?.firstOrNull { it.name == Name.identifier("name") }?.expression?.let { it as? KtConstantAnnotationValue }
+        ?.let { it.constantValue.value.toString() }
+
+internal class DokkaSymbolVisitor(
     private val sourceSet: DokkaConfiguration.DokkaSourceSet,
     private val moduleName: String,
     private val analysisContext: AnalysisContext,
     private val logger: DokkaLogger
 ) {
     private var annotationTranslator = AnnotationTranslator()
+    private var typeTranslator = TypeTranslator(sourceSet, annotationTranslator)
 
     /**
      * to avoid recursive classes
@@ -169,8 +176,7 @@ private class DokkaSymbolVisitor(
     }
 
     fun KtAnalysisSession.visitPackageSymbol(packageSymbol: KtPackageSymbol): DPackage {
-        val name = packageSymbol.fqName.asString().takeUnless { it.isBlank() } ?: ""
-        val dri = DRI(packageName = name)
+        val dri = getDRIFromPackage(packageSymbol)
         val scope = packageSymbol.getPackageScope()
         val callables = scope.getCallableSymbols().toList().filterSymbolsInSourceSet()
         val classifiers = scope.getClassifierSymbols().toList().filterSymbolsInSourceSet()
@@ -200,6 +206,8 @@ private class DokkaSymbolVisitor(
         val name = typeAliasSymbol.name.asString()
         val dri = parent.withClass(name)
 
+        val ancestryInfo = with(typeTranslator) { buildAncestryInformationFrom(typeAliasSymbol.expandedType) }
+
         val generics =
             typeAliasSymbol.typeParameters.mapIndexed { index, symbol -> visitVariantTypeParameter(index, symbol, dri) }
 
@@ -217,8 +225,8 @@ private class DokkaSymbolVisitor(
             generics = generics,
             sources = typeAliasSymbol.getSource(),
             extra = PropertyContainer.withAll(
-                getDokkaAnnotationsFrom(typeAliasSymbol)?.toSourceSetDependent()?.toAnnotations()
-                //info.exceptionInSupertypesOrNull(),
+                getDokkaAnnotationsFrom(typeAliasSymbol)?.toSourceSetDependent()?.toAnnotations(),
+                ancestryInfo.exceptionInSupertypesOrNull(),
             )
         )
 
@@ -268,10 +276,10 @@ private class DokkaSymbolVisitor(
             )
         }
 
-        val ancestryInfo = buildAncestryInformationFrom(namedClassOrObjectSymbol.buildSelfClassType())
+        val ancestryInfo = with(typeTranslator) { buildAncestryInformationFrom(namedClassOrObjectSymbol.buildSelfClassType()) }
         val supertypes =
             //(ancestryInfo.interfaces.map{ it.typeConstructor } + listOfNotNull(ancestryInfo.superclass?.typeConstructor))
-            namedClassOrObjectSymbol.superTypes.filterNot { it.isAny }.map { toTypeConstructorWithKindFrom(it) }
+            namedClassOrObjectSymbol.superTypes.filterNot { it.isAny }.map {  with(typeTranslator) { toTypeConstructorWithKindFrom(it) } }
                 .toSourceSetDependent()
 
         return@withExceptionCatcher when (namedClassOrObjectSymbol.classKind) {
@@ -294,7 +302,7 @@ private class DokkaSymbolVisitor(
                             ?.toAdditionalModifiers(),
                         getDokkaAnnotationsFrom(namedClassOrObjectSymbol)?.toSourceSetDependent()?.toAnnotations(),
                         ImplementedInterfaces(ancestryInfo.allImplementedInterfaces().toSourceSetDependent()),
-                        //ancestryInfo.exceptionInSupertypesOrNull()
+                        ancestryInfo.exceptionInSupertypesOrNull()
                     )
                 )
 
@@ -324,7 +332,7 @@ private class DokkaSymbolVisitor(
                     namedClassOrObjectSymbol.additionalExtras()?.toSourceSetDependent()?.toAdditionalModifiers(),
                     getDokkaAnnotationsFrom(namedClassOrObjectSymbol)?.toSourceSetDependent()?.toAnnotations(),
                     ImplementedInterfaces(ancestryInfo.allImplementedInterfaces().toSourceSetDependent()),
-                    // info.ancestry.exceptionInSupertypesOrNull()
+                    ancestryInfo.exceptionInSupertypesOrNull()
                 )
             )
 
@@ -352,7 +360,7 @@ private class DokkaSymbolVisitor(
                     namedClassOrObjectSymbol.additionalExtras()?.toSourceSetDependent()?.toAdditionalModifiers(),
                     getDokkaAnnotationsFrom(namedClassOrObjectSymbol)?.toSourceSetDependent()?.toAnnotations(),
                     ImplementedInterfaces(ancestryInfo.allImplementedInterfaces().toSourceSetDependent()),
-                    // info.ancestry.exceptionInSupertypesOrNull()
+                    ancestryInfo.exceptionInSupertypesOrNull()
                 )
             )
 
@@ -466,63 +474,9 @@ private class DokkaSymbolVisitor(
         )
     }
 
-    fun KtClassKind.toDokkaClassKind() = when (this) {
-        KtClassKind.CLASS -> KotlinClassKindTypes.CLASS
-        KtClassKind.ENUM_CLASS -> KotlinClassKindTypes.ENUM_CLASS
-        KtClassKind.ANNOTATION_CLASS -> KotlinClassKindTypes.ANNOTATION_CLASS
-        KtClassKind.OBJECT -> KotlinClassKindTypes.OBJECT
-        KtClassKind.COMPANION_OBJECT -> KotlinClassKindTypes.OBJECT
-        KtClassKind.INTERFACE -> KotlinClassKindTypes.INTERFACE
-        KtClassKind.ANONYMOUS_OBJECT -> KotlinClassKindTypes.OBJECT
-    }
 
-    private fun KtAnalysisSession.toTypeConstructorWithKindFrom(type: KtType): TypeConstructorWithKind {
-        try {
-            return when (type) {
-                is KtUsualClassType ->
-                    when (val classSymbol = type.classSymbol) {
-                        is KtNamedClassOrObjectSymbol -> TypeConstructorWithKind(
-                            toTypeConstructorFrom(type),
-                            classSymbol.classKind.toDokkaClassKind()
-                        )
-                        is KtAnonymousObjectSymbol -> TODO()
-                        is KtTypeAliasSymbol -> toTypeConstructorWithKindFrom(classSymbol.expandedType)
-                    }
-                is KtClassErrorType -> TypeConstructorWithKind(
-                    GenericTypeConstructor(
-                        dri = DRI("[error]", "", null),
-                        projections = emptyList(), // TODO: since 1.8.20 replace  `typeArguments ` with `ownTypeArguments`
 
-                    ),
-                    KotlinClassKindTypes.CLASS
-                )
-                is KtFunctionalType -> TypeConstructorWithKind(
-                    toFunctionalTypeConstructorFrom(type),
-                    KotlinClassKindTypes.CLASS
-                )
-                is KtDefinitelyNotNullType -> toTypeConstructorWithKindFrom(type.original)
 
-//            is KtCapturedType -> TODO()
-//            is KtDynamicType -> TODO()
-//            is KtFlexibleType -> TODO()
-//            is KtIntegerLiteralType -> TODO()
-//            is KtIntersectionType -> TODO()
-//            is KtTypeParameterType -> TODO()
-                else -> throw IllegalStateException("Unknown ")
-            }
-        } catch (e: Throwable) {
-            logger.error("Type error: ${type.asStringForDebugging()}\n" + e) // TODO
-            return TypeConstructorWithKind(
-                GenericTypeConstructor(
-                    dri = DRI("[error]", "", null),
-                    projections = emptyList(), // TODO: since 1.8.20 replace  `typeArguments ` with `ownTypeArguments`
-
-                ),
-                KotlinClassKindTypes.CLASS
-            )
-            //throw IllegalStateException("Type error: ${type.asStringForDebugging()}" + type, e)
-        }
-    }
 
     private fun KtAnalysisSession.visitPropertySymbol(propertySymbol: KtPropertySymbol, parent: DRI): DProperty {
 
@@ -821,8 +775,6 @@ private class DokkaSymbolVisitor(
         }
     }
 
-
-
     private fun KtExpression.toDefaultValueExpression(): Expression? = when (node?.elementType) {
         KtNodeTypes.INTEGER_CONSTANT -> PsiLiteralUtil.parseLong(node?.text)?.let { IntegerConstant(it) }
         KtNodeTypes.FLOAT_CONSTANT -> if (node?.text?.toLowerCase()?.endsWith('f') == true)
@@ -835,11 +787,13 @@ private class DokkaSymbolVisitor(
     }
 
 
+
     private fun KtAnalysisSession.visitVariantTypeParameter(
         index: Int,
         typeParameterSymbol: KtTypeParameterSymbol,
         dri: DRI
     ): DTypeParameter {
+        val upperBoundsOrNullableAny = typeParameterSymbol.upperBounds.takeIf { it.isNotEmpty() } ?: listOf(this.builtinTypes.NULLABLE_ANY)
         // val dri = typeParameterSymbol.getContainingSymbol()?.let { getDRIFrom(it) } ?: throw IllegalStateException("`getContainingSymbol` is null for type parameter") // TODO add PointingToGenericParameters(descriptor.index)
         return DTypeParameter(
             variantTypeParameter = TypeParameter(
@@ -849,7 +803,7 @@ private class DokkaSymbolVisitor(
             ).wrapWithVariance(typeParameterSymbol.variance),
             documentation = getDocumentation(typeParameterSymbol)?.toSourceSetDependent() ?: emptyMap(),
             expectPresentInSet = null,
-            bounds = typeParameterSymbol.upperBounds.map { toBoundFrom(it) },
+            bounds = upperBoundsOrNullableAny.map { toBoundFrom(it) },
             sourceSets = setOf(sourceSet),
             extra = PropertyContainer.withAll(
                 getDokkaAnnotationsFrom(typeParameterSymbol)?.toSourceSetDependent()?.toAnnotations()
@@ -857,15 +811,11 @@ private class DokkaSymbolVisitor(
         )
     }
 
-    private fun <T : Bound> T.wrapWithVariance(variance: org.jetbrains.kotlin.types.Variance) =
-        when (variance) {
-            org.jetbrains.kotlin.types.Variance.INVARIANT -> Invariance(this)
-            org.jetbrains.kotlin.types.Variance.IN_VARIANCE -> Contravariance(this)
-            org.jetbrains.kotlin.types.Variance.OUT_VARIANCE -> Covariance(this)
-        }
-
     fun KtAnalysisSession.getDokkaAnnotationsFrom(annotated: KtAnnotated): List<Annotations.Annotation>? =
         with(annotationTranslator) { getAllAnnotationsFrom(annotated) }.takeUnless { it.isEmpty() }
+
+    fun KtAnalysisSession.toBoundFrom(type: KtType) =
+        with(typeTranslator) { toBoundFrom(type) }
 
     /**
      * `createDRI` returns the DRI of the exact element and potential DRI of an element that is overriding it
@@ -901,94 +851,11 @@ private class DokkaSymbolVisitor(
         }
     }
 
-    @OptIn(UnsafeCastFunction::class)
-    private fun KtAnnotated.getPresentableName(): String? =
-        this.annotationsByClassId(ClassId(FqName("kotlin"), FqName("ParameterName"), false)).firstOrNull()
-            ?.arguments?.firstOrNull { it.name == Name.identifier("") }?.expression
-            .safeAs<KtConstantValue.KtStringConstantValue>()?.value
+
 
 
 // ----------- Translators of type to bound ----------------------------------------------------------------------------
-    // TODO
-//        private fun KtAnalysisSession.toProjection(typeProjection: KtTypeProjection): Projection =
-//            when (typeProjection) {
-//                is KtStarTypeProjection -> Star
-//                is KtTypeArgumentWithVariance -> toBound(typeProjection.type).wrapWithVariance(typeProjection.variance)
-//            }
 
-    private fun KtAnalysisSession.toTypeConstructorFrom(classType: KtUsualClassType) =
-        GenericTypeConstructor(
-            dri = getDRIFromNonErrorClassType(classType),
-            projections = classType.ownTypeArguments.mapNotNull { it.type?.let { t -> toBoundFrom(t) } }, // TODO: since 1.8.20 replace  `typeArguments ` with `ownTypeArguments`
-            extra = PropertyContainer.withAll(
-                getDokkaAnnotationsFrom(classType)?.toSourceSetDependent()?.toAnnotations()
-            )
-            //type.ownTypeArguments.map{ toProjection(it) }
-        )
-
-    private fun KtAnalysisSession.toFunctionalTypeConstructorFrom(functionalType: KtFunctionalType) =
-        FunctionalTypeConstructor(
-            dri = getDRIFromNonErrorClassType(functionalType),
-            projections = functionalType.ownTypeArguments.mapNotNull { it.type?.let { t -> toBoundFrom(t) } }, // TODO: since 1.8.20 replace  `typeArguments ` with ownTypeArguments
-            isExtensionFunction = functionalType.receiverType != null,
-            isSuspendable = functionalType.isSuspend,
-            presentableName = functionalType.getPresentableName(),
-            extra = PropertyContainer.withAll(
-                getDokkaAnnotationsFrom(functionalType)?.toSourceSetDependent()?.toAnnotations()
-            )
-        )
-
-    private fun KtAnalysisSession.toBoundFrom(type: KtType): Bound =
-        when (type) {
-            is KtUsualClassType -> toTypeConstructorFrom(type)
-            is KtTypeParameterType -> TypeParameter(
-                dri = getDRIFromTypeParameter(type.symbol),
-                name = type.name.asString(),
-                presentableName = type.getPresentableName(),
-                extra = PropertyContainer.withAll(
-                    getDokkaAnnotationsFrom(type)?.toSourceSetDependent()?.toAnnotations()
-                )
-            )
-
-            is KtClassErrorType -> UnresolvedBound(type.toString())
-            is KtFunctionalType -> toFunctionalTypeConstructorFrom(type)
-            is KtDynamicType -> Dynamic
-            is KtDefinitelyNotNullType -> DefinitelyNonNullable(
-                toBoundFrom(type.original)
-            )
-
-            is KtCapturedType -> TODO("Not yet implemented")
-            is KtFlexibleType -> TypeAliased(
-                toBoundFrom(type.upperBound),
-                toBoundFrom(type.lowerBound),
-                extra = PropertyContainer.withAll(
-                    getDokkaAnnotationsFrom(type)?.toSourceSetDependent()?.toAnnotations()
-                )
-            )
-
-            is KtIntegerLiteralType -> TODO("Not yet implemented")
-            is KtIntersectionType -> TODO("Not yet implemented")
-            is KtTypeErrorType -> UnresolvedBound(type.toString())
-        }.let {
-            if (type.isMarkedNullable) Nullable(it) else it
-        }
-
-    private fun KtAnalysisSession.buildAncestryInformationFrom(
-        type: KtType
-    ): AncestryNode {
-        val (interfaces, superclass) = type.getDirectSuperTypes().filterNot { it.isAny }
-            .partition {
-                val typeConstructorWithKind = toTypeConstructorWithKindFrom(it)
-                typeConstructorWithKind.kind == KotlinClassKindTypes.INTERFACE ||
-                        typeConstructorWithKind.kind == JavaClassKindTypes.INTERFACE
-            }
-
-        return AncestryNode(
-            typeConstructor = toTypeConstructorWithKindFrom(type).typeConstructor,
-            superclass = superclass.map { buildAncestryInformationFrom(it) }.singleOrNull(),
-            interfaces = interfaces.map { buildAncestryInformationFrom(it) }
-        )
-    }
 
     // ----------- Translators of modifiers ----------------------------------------------------------------------------
     private fun KtSymbolWithModality.getDokkaModality() = modality.toDokkaModifier()
@@ -1057,6 +924,10 @@ private class DokkaSymbolVisitor(
     }
 
     private fun KtSymbol.getSource() = KtPsiDocumentableSource(psi).toSourceSetDependent()
+
+    private fun AncestryNode.exceptionInSupertypesOrNull(): ExceptionInSupertypes? =
+        typeConstructorsBeingExceptions().takeIf { it.isNotEmpty() }?.let { ExceptionInSupertypes(it.toSourceSetDependent()) }
+
 }
 
 

@@ -1,10 +1,10 @@
 package org.jetbrains.dokka.analysis.kotlin.symbols.compiler
 
-import org.jetbrains.dokka.links.RecursiveType
-import org.jetbrains.dokka.links.TypeConstructor
-import org.jetbrains.dokka.links.TypeParam
-import org.jetbrains.dokka.links.TypeReference
+import org.jetbrains.dokka.links.*
 import org.jetbrains.kotlin.analysis.api.KtAnalysisSession
+import org.jetbrains.kotlin.analysis.api.KtStarTypeProjection
+import org.jetbrains.kotlin.analysis.api.KtTypeArgumentWithVariance
+import org.jetbrains.kotlin.analysis.api.KtTypeProjection
 import org.jetbrains.kotlin.analysis.api.types.*
 
 internal fun KtAnalysisSession.getTypeReferenceFrom(type: KtType): TypeReference =
@@ -23,21 +23,23 @@ private fun KtAnalysisSession.getTypeReferenceFromPossiblyRecursive(type: KtType
     return when (type) {
         is KtNonErrorClassType -> TypeConstructor(
             type.classId.asFqNameString(), // TODO: remove '!!'
-            type.ownTypeArguments.mapNotNull {
-                it.type?.let { it1 ->
-                    getTypeReferenceFromPossiblyRecursive(
-                        it1,
-                        paramTrace
-                    )
-                }
-            } // replace  `typeArguments ` with ownTypeArguments
+            type.ownTypeArguments.map {
+                getTypeReferenceFromTypeProjection(
+                    it,
+                    paramTrace
+                )
+            }
         )
-        is KtTypeParameterType -> TypeParam(bounds = type.symbol.upperBounds.map {
-            getTypeReferenceFromPossiblyRecursive(
-                it,
-                paramTrace + type
-            )
-        })
+        is KtTypeParameterType -> {
+            val upperBoundsOrNullableAny = type.symbol.upperBounds.takeIf { it.isNotEmpty() } ?: listOf(this.builtinTypes.NULLABLE_ANY)
+
+            TypeParam(bounds = upperBoundsOrNullableAny.map {
+                getTypeReferenceFromPossiblyRecursive(
+                    it,
+                    paramTrace + type
+                )
+            })
+        }
         is KtClassErrorType ->  TypeConstructor(type.errorMessage, emptyList())
         is KtFlexibleType ->  getTypeReferenceFromPossiblyRecursive(
             type.upperBound,
@@ -59,10 +61,9 @@ private fun KtAnalysisSession.getTypeReferenceFromPossiblyRecursive(type: KtType
 }
 
 // TODO
-/*
-fun KtAnalysisSession.getTypeReferenceFrom(typeProjection: KtTypeProjection): TypeReference =
+
+private fun KtAnalysisSession.getTypeReferenceFromTypeProjection(typeProjection: KtTypeProjection, paramTrace: List<KtType>): TypeReference =
     when (typeProjection) {
         is KtStarTypeProjection -> StarProjection
-        is KtTypeArgumentWithVariance -> getTypeReferenceFrom(typeProjection.type)
+        is KtTypeArgumentWithVariance -> getTypeReferenceFromPossiblyRecursive(typeProjection.type, paramTrace)
     }
-*/

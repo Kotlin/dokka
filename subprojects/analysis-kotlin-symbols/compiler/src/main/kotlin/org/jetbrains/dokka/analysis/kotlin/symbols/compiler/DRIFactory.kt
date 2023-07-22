@@ -72,16 +72,28 @@ internal fun KtAnalysisSession.getDRIFromFunctionLike(symbol: KtFunctionLikeSymb
 }
 
 internal fun getDRIFromClassLike(symbol: KtClassLikeSymbol): DRI =
-    symbol.classIdIfNonLocal?.createDRI() ?: throw IllegalStateException()
+    symbol.classIdIfNonLocal?.createDRI() ?: throw IllegalStateException("Can not get class Id due to it is local")
+
+internal fun getDRIFromPackage(symbol: KtPackageSymbol): DRI =
+    DRI(packageName = symbol.fqName.asString())
+
+internal fun KtAnalysisSession.getDRIFromValueParameter(symbol: KtValueParameterSymbol): DRI {
+    val function = symbol.getContainingSymbol() as KtFunctionLikeSymbol
+    val index = function.valueParameters.indexOfFirst { it.name == symbol.name }
+    val funDRI = getDRIFromFunctionLike(function)
+    return funDRI.copy(target = PointingToCallableParameters(index))
+}
 
 internal fun KtAnalysisSession.getDRIFromSymbol(symbol: KtSymbol): DRI =
     when (symbol) {
         is KtEnumEntrySymbol -> getDRIFromEnumEntry(symbol)
         is KtTypeParameterSymbol -> getDRIFromTypeParameter(symbol)
         is KtConstructorSymbol -> getDRIFromConstructor(symbol)
+        is KtValueParameterSymbol -> getDRIFromValueParameter(symbol)
         is KtVariableLikeSymbol -> getDRIFromVariableLike(symbol)
         is KtFunctionLikeSymbol -> getDRIFromFunctionLike(symbol)
         is KtClassLikeSymbol -> getDRIFromClassLike(symbol)
+        is KtPackageSymbol -> getDRIFromPackage(symbol)
         else -> throw IllegalStateException("Unknown symbol while creating DRI ")
     }
 
