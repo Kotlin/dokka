@@ -7,21 +7,20 @@ import org.jetbrains.dokka.model.ClassValue
 import org.jetbrains.kotlin.analysis.api.KtAnalysisSession
 import org.jetbrains.kotlin.analysis.api.annotations.*
 import org.jetbrains.kotlin.analysis.api.base.KtConstantValue
-import org.jetbrains.kotlin.analysis.api.symbols.KtPropertySymbol
 import org.jetbrains.kotlin.analysis.api.symbols.KtSymbol
 import org.jetbrains.kotlin.analysis.api.symbols.KtSymbolOrigin
 import org.jetbrains.kotlin.descriptors.annotations.AnnotationUseSiteTarget
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.KtFile
-import org.jetbrains.kotlin.psi.KtProperty
 
 internal class AnnotationTranslator {
     private fun KtAnalysisSession.getFileLevelAnnotationsFrom(symbol: KtSymbol) =
         if (symbol.origin != KtSymbolOrigin.SOURCE)
             null
         else
-            (symbol.psi?.containingFile as? KtFile)?.getFileSymbol()?.annotations?.map { toDokkaAnnotation(it) }
+            (symbol.psi?.containingFile as? KtFile)?.getFileSymbol()?.annotations
+                ?.map { toDokkaAnnotation(it) }
 
     private fun KtAnalysisSession.getDirectAnnotationsFrom(annotated: KtAnnotated) =
         annotated.annotations.map { toDokkaAnnotation(it) }
@@ -32,6 +31,7 @@ internal class AnnotationTranslator {
         return directAnnotations + fileLevelAnnotations
     }
 
+    private fun KtAnnotationApplication.isNoExistedInSource() = psi == null
     private fun AnnotationUseSiteTarget.toDokkaAnnotationScope(): Annotations.AnnotationScope = when (this) {
         AnnotationUseSiteTarget.PROPERTY_GETTER -> Annotations.AnnotationScope.DIRECT // due to compatibility with Dokka K1
         AnnotationUseSiteTarget.PROPERTY_SETTER -> Annotations.AnnotationScope.DIRECT // due to compatibility with Dokka K1
@@ -40,6 +40,7 @@ internal class AnnotationTranslator {
     }
 
     private fun KtAnalysisSession.mustBeDocumented(annotationApplication: KtAnnotationApplication): Boolean {
+        if(annotationApplication.isNoExistedInSource()) return false
         val annotationClass = getClassOrObjectSymbolByClassId(annotationApplication.classId ?: return false)
         return annotationClass?.hasAnnotation(ClassId(FqName("kotlin.annotation"), FqName("MustBeDocumented"), false))
             ?: false
