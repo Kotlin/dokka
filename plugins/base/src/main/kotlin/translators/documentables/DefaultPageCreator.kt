@@ -122,7 +122,7 @@ open class DefaultPageCreator(
         val props = classlikes.flatMap { it.filteredProperties }
         val entries = classlikes.flatMap { if (it is DEnum) it.entries else emptyList() }
 
-        val childrenPages = constructors.map(::pageForFunction) +
+        val childrenPages = sortDivergentElementsDeterministically(constructors).map(::pageForFunction) + // to keep order after page merging of overloads, see [SameMethodNamePageMergerStrategy]
                 if (mergeImplicitExpectActualDeclarations)
                     nestedClasslikes.mergeClashingDocumentable().map(::pageForClasslikes) +
                             functions.mergeClashingDocumentable().map(::pageForFunctions) +
@@ -402,7 +402,7 @@ open class DefaultPageCreator(
             2,
             ContentKind.Constructors,
             constructorsToDocumented.groupBy { it.name }
-                .map { (_, v) -> v.first().name to v },
+                .map { (_, v) -> v.first().name to sortDivergentElementsDeterministically(v) },
             @Suppress("UNCHECKED_CAST")
             (constructorsToDocumented as List<Documentable>).sourceSets,
             needsAnchors = true,
@@ -683,7 +683,7 @@ open class DefaultPageCreator(
      * @param elements can contain types (annotation/class/interface/object/typealias), functions and properties
      * @return the original list if it has one or zero elements
      */
-    private fun sortDivergentElementsDeterministically(elements: List<Documentable>): List<Documentable> =
+    private fun <T : Documentable> sortDivergentElementsDeterministically(elements: List<T>): List<T> =
         elements.takeIf { it.size > 1 } // the majority are single-element lists, but no real benchmarks done
             ?.sortedWith(divergentDocumentableComparator)
             ?: elements
