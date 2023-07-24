@@ -4,6 +4,7 @@ The Documentable model represents the data that is parsed from some programming 
 of something that could be seen or produced by a compiler frontend, it's not far off from the truth.
 
 By default, the documentables are parsed from:
+
 * Descriptors (Kotlin's K1 compiler)
 * Symbols (Kotlin's K2 compiler)
 * [Psi](https://plugins.jetbrains.com/docs/intellij/psi.html) (Java's model). 

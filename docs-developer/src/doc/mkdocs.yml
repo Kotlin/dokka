@@ -59,7 +59,7 @@ nav:
       - index.md
       - User guides: https://kotlinlang.org/docs/dokka-introduction.html
       - Developer guides: developer_guide/introduction.md
-      - Community: community/slack.md
+      - Community: developer_guide/community/slack.md
   - User guides:
       - https://kotlinlang.org/docs/dokka-introduction.html
   - Developer guides:
@@ -75,11 +75,12 @@ nav:
               - Extension points: developer_guide/architecture/extension_points/extension_points.md
               - Core extension points: developer_guide/architecture/extension_points/core_extension_points.md
               - Base extensions: developer_guide/architecture/extension_points/base_plugin.md
+              - Generation implementations: developer_guide/architecture/extension_points/generation_implementations.md
       - Plugin development:
           - Plugin development: developer_guide/plugin-development/introduction.md
           - Sample plugin tutorial: developer_guide/plugin-development/sample-plugin-tutorial.md
   - Community:
-      - Slack: community/slack.md
+      - Slack: developer_guide/community/slack.md
 
 extra_css:
   - dokka_colors.css

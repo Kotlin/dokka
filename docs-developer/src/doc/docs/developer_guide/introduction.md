@@ -6,8 +6,8 @@ start developing your own plugins or contributing features and fixes to Dokka it
 If you want to start hacking on Dokka right away, the only thing you need to be aware of is the
 [general workflow](workflow.md): it will teach you how to build, debug and test Dokka locally.
 
-[CONTRIBUTING.md](../../../../../CONTRIBUTING.md) contains information that can be useful if you want to contribute
-to Dokka.
+[CONTRIBUTING.md](https://github.com/Kotlin/dokka/blob/master/CONTRIBUTING.md) contains information that can be useful 
+if you want to contribute to Dokka.
 
 If you want to get into plugin development quick, see
 [Introduction to plugin development](plugin-development/introduction.md).

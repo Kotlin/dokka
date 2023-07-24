@@ -13,7 +13,15 @@ You can build the documentation locally:
 ./gradlew :docs-developer:mkdocsBuild
 ```
 
-The output directory is `build/mkdocs`
+The output directory is `build/mkdocs`.
+
+### Docker
+
+Alternatively, you can use Docker:
+
+```bash
+docker run --rm -it -p 8000:8000 -v ./docs-developer/src/doc:/docs squidfunk/mkdocs-material
+```
 
 ### Livereload server
 

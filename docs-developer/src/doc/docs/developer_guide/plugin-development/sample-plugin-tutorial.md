@@ -54,7 +54,7 @@ and `groupId` in `build.gradle.kts`.
 
 After preparing the project we can begin extending Dokka with our own extension.
 
-Having read through [Core extensions](../architecture/extension_points/core_extensions.md), it's clear that we need
+Having read through [Core extensions](../architecture/extension_points/core_extension_points.md), it's clear that we need
 a `PreMergeDocumentableTransformer` extension in order to filter out undesired documentables. 
 
 Moreover, the article mentioned a convenient abstract transformer `SuppressedByConditionDocumentableFilterTransformer`
