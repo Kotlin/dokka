@@ -10,8 +10,8 @@ it with other tools and so much more.
 
 In order to have an easier time developing plugins, it's a good idea to go through
 [Dokka's internals](../architecture/architecture_overview.md) first to learn more about its
-[data model](../architecture/data_model/documentables.md) and 
-[extensions](../architecture/extension_points/introduction.md).
+[data model](../architecture/data_model/documentable_model.md) and 
+[extensions](../architecture/extension_points/extension_points.md).
 
 ## Setup
 
@@ -22,7 +22,7 @@ It has pre-configured dependencies, publishing and signing of your artifacts.
 
 ### Manual
 
-At a bare minimum, Dokka requires `Kotlin Gradle Plugin` and `dokka-core` dependencies:
+At a bare minimum, a Dokka plugin requires Kotlin Gradle Plugin and `dokka-core` as dependencies:
 
 ```kotlin
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
@@ -49,11 +49,11 @@ All instances are automatically loaded during Dokka setup using `java.util.Servi
 ## Extension points 
 
 Dokka provides a set of entry points for which you can create your own implementations. If you are not sure which
-extension point to use, have a look at [core extensions](../architecture/extension_points/core_extensions.md) and
-[base extensions](../architecture/extension_points/base_extensions.md).
+extension point to use, have a look at [core extensions](../architecture/extension_points/core_extension_points.md) and
+[base extensions](../architecture/extension_points/base_plugin.md).
 
 You can learn how to declare extension points and use extensions in
-[Introduction to Extension points](../architecture/extension_points/introduction.md).
+[Introduction to Extension points](../architecture/extension_points/extension_points.md).
 
 In case no suitable extension point exists for your use case, do share the details - it might be added in future
 versions of Dokka.
@@ -68,5 +68,5 @@ Fore more practical examples, have a look at sources of
 
 ## Help
 
-If you have any further questions, feel free to get in touch with maintainers via [Slack](../../community/slack.md) or
+If you have any further questions, feel free to get in touch with maintainers via [Slack](../community/slack.md) or
 [GitHub](https://github.com/kotlin/dokka).

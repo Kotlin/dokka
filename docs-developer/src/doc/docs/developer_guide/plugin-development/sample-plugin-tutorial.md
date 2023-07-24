@@ -86,7 +86,7 @@ and values a given `Documentable` has.
 
 To do that, we'll need to register our extension point first, then we can publish our plugin and set the breakpoint.
 
-Having read through [Introduction to extensions](../architecture/extension_points/introduction.md), we now know
+Having read through [Introduction to extensions](../architecture/extension_points/extension_points.md), we now know
 how to register our extensions:
 
 ```kotlin

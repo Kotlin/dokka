@@ -1,18 +1,21 @@
-# Documentables Model
+# Documentable Model
 
-Documentables represent data that is parsed from sources. Think of this data model as of something that could be
-seen or produced by a compiler frontend, it's not far off from the truth.
+The Documentable model represents the data that is parsed from some programming language sources. Think of this data as 
+of something that could be seen or produced by a compiler frontend, it's not far off from the truth.
 
-By default, documentables are parsed from `Descriptor` (for `Kotlin`)
-and [Psi](https://plugins.jetbrains.com/docs/intellij/psi.html)
-(for `Java`) models. Code-wise, you can have a look at following classes:
+By default, the documentables are parsed from:
+* Descriptors (Kotlin's K1 compiler)
+* Symbols (Kotlin's K2 compiler)
+* [Psi](https://plugins.jetbrains.com/docs/intellij/psi.html) (Java's model). 
 
-* `DefaultDescriptorToDocumentableTranslator` - responsible for `Kotlin` -> `Documentable` mapping
-* `DefaultPsiToDocumentableTranslator` - responsible for `Java` -> `Documentable` mapping
+Code-wise, you can have a look at following classes:
 
-Upon creation, it's a collection of trees, each with `DModule` as root.
+* `DefaultDescriptorToDocumentableTranslator` - responsible for Kotlin -> `Documentable` mapping
+* `DefaultPsiToDocumentableTranslator` - responsible for Java -> `Documentable` mapping
 
-Take some arbitrary `Kotlin` source code that is located within the same module:
+Upon creation, the documentable model represents a collection of trees, each with `DModule` as root.
+
+Take some arbitrary Kotlin source code that is located within the same module:
 
 ```kotlin
 // Package 1
@@ -28,7 +31,7 @@ enum class Enum { }
 val topLevelProperty: String
 ```
 
-This would be represented roughly as the following `Documentable` tree:
+This would be represented roughly as the following Documentable tree:
 
 ```mermaid
 flowchart TD
@@ -43,20 +46,23 @@ flowchart TD
     secondPackage --> secondPackageProperty[DProperty]
 ```
 
-At later stages of transformation, all trees are folded into one (by `DocumentableMerger`).
+At later stages of transformation, all trees are folded into one by 
+[DocumentableMerger](../extension_points/core_extension_points.md#documentablemerger).
 
 ## Documentable
 
-The main building block of documentables model is `Documentable` class. It's the base class for all more specific types
-that represent elements of parsed sources with mostly self-explanatory names (`DFunction`, `DPackage`, `DProperty`, etc)
-.
-`DClasslike` is the base class for class-like documentables such as `DClass`, `DEnum`, `DAnnotation`, etc.
+The main building block of the documentable model is the `Documentable` class. It is the base class for all more specific 
+types. All implementations represent elements of source code with mostly self-explanatory names: `DFunction`, 
+`DPackage`, `DProperty`, and so on.
 
-The contents of each documentable normally represent what you would see in source code. For instance, if you open
-`DClass`, you should find that it contains references to functions, properties, companion object, constructors and so
-on.
-`DEnum` should have references to enum entries, and `DPackage` can have references to both classlikes and top-level
-functions and properties (`Kotlin`-specific).
+`DClasslike` is the base class for all class-like documentables, such as `DClass`, `DEnum`, `DAnnotation` and others.
+
+The contents of each documentable normally represent what you would see in the source code. 
+
+For example, if you open
+`DClass`, you should find that it contains references to functions, properties, companion objects, constructors and so
+on. `DEnum` should have references to its entries, and `DPackage` can have references to both classlikes and top-level
+functions and properties (Kotlin-specific).
 
 Here's an example of a documentable:
 
@@ -85,7 +91,7 @@ data class DClass(
 
 ___
 
-There are three non-documentable classes that important for this model:
+There are three non-documentable classes that are important for this model:
 
 * `DRI`
 * `SourceSetDependent`
@@ -94,9 +100,9 @@ There are three non-documentable classes that important for this model:
 ### DRI
 
 `DRI` stans for _Dokka Resource Identifier_ - a unique value that identifies a specific `Documentable`.
-All references and relations between documentables (other than direct ownership) are described using `DRI`.
+All references and relations between the documentables (other than direct ownership) are described using `DRI`.
 
-For example, `DFunction` with a parameter of type `Foo` has only `Foo`'s `DRI`, not the actual reference
+For example, `DFunction` with a parameter of type `Foo` only has `Foo`'s `DRI`, but not the actual reference
 to `Foo`'s `Documentable` object.
 
 #### Example
@@ -146,11 +152,11 @@ kotlinx.coroutines/MainCoroutineDispatcher/limitedParallelism/#kotlin.Int/Pointi
 ### SourceSetDependent
 
 `SourceSetDependent` helps handling multiplatform data by associating platform-specific data (declared with either
-`expect` or `actual` modifier) with particular 
+`expect` or `actual` modifiers) with particular 
 [source sets](https://kotlinlang.org/docs/multiplatform-discover-project.html#source-sets).
 
-This comes in handy if `expect`/`actual` declarations differ. For instance, the default value for `actual` might differ
-from that declared in `expect`, or code comments written for `expect` might be different from what's written
+This comes in handy if the `expect` / `actual` declarations differ. For example, the default value for `actual` might 
+differ from that declared in `expect`, or code comments written for `expect` might be different from what's written
 for `actual`.
 
 Under the hood, it's a `typealias` to a `Map`:
@@ -171,18 +177,18 @@ ___
 
 ## Documentation model
 
-Documentation model is used alongside Documentables to store data obtained by parsing
-code comments (such as `KDoc`/`Javadoc`).
+The Documentation model is used alongside documentables to store data obtained by parsing
+code comments (such as KDocs / Javadocs).
 
 ### DocTag
 
 `DocTag` describes a specific documentation syntax element.
 
-It's universal across source languages. For instance, DocTag `B` is the same for `**bold**` in `Kotlin` and
-`<b>bold</b>` in `Java`.
+It's universal across language sources. For example, the DocTag `B` is the same for `**bold**` in Kotlin and
+`<b>bold</b>` in Java.
 
-However, some `DocTag` elements are specific to a certain language, there are many such examples for `Java`
-because it allows HTML tags inside `Javadoc` comments, some of which are simply not possible to reproduce with `Markdown`.
+However, some DocTag elements are specific to one language. There are many such examples for Java, because it allows 
+HTML tags inside the Javadoc comments, some of which are simply not possible to reproduce with Markdown that KDocs use.
 
 `DocTag` elements can be deeply nested with other `DocTag` children elements.
 
@@ -218,10 +224,9 @@ data class CodeBlock(
 
 ### TagWrapper
 
-`TagWrapper` describes the whole comment description or a specific comment tag.
-For example: `@see` / `@author` / `@return`.
+`TagWrapper` describes the whole comment description or a specific comment tag. For example: `@see` / `@author` / `@return`.
 
-Since each such section may contain formatted text inside of it, each `TagWrapper` has `DocTag` children.
+Since each such section may contain formatted text inside it, each `TagWrapper` has `DocTag` children.
 
 ```kotlin
 /**
