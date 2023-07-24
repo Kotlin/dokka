@@ -56,8 +56,14 @@ internal class DokkaAnalysisConfiguration(
      * Only for common platform ignore BuiltIns for StdLib since it can cause a conflict
      * between BuiltIns from a compiler and ones from source code.
      */
-    val ignoreCommonBuiltIns: Boolean = false
-)
+    val ignoreCommonBuiltIns: Boolean = shouldIgnoreCommonBuiltIns()
+) {
+    companion object {
+        private const val SHOULD_IGNORE_COMMON_BUILT_INS_SYS_PROP = "dokka.shouldIgnoreCommonBuiltIns"
+        internal fun shouldIgnoreCommonBuiltIns() =
+            System.getProperty(SHOULD_IGNORE_COMMON_BUILT_INS_SYS_PROP) in listOf("true", "1")
+    }
+}
 
 /**
  * First child delegation. It does not close [parent].
