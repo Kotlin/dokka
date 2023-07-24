@@ -1,6 +1,12 @@
 version = 1
 
 [[analyzers]]
+name = "python"
+
+  [analyzers.meta]
+  runtime_version = "3.x.x"
+
+[[analyzers]]
 name = "kotlin"
 
   [analyzers.meta]
@@ -9,3 +15,6 @@ name = "kotlin"
 
 [[transformers]]
 name = "ktlint"
+
+[[transformers]]
+name = "autopep8"
