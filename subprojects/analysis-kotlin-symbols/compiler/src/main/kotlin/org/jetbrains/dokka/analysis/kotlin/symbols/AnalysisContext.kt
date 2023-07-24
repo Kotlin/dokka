@@ -9,7 +9,26 @@ import org.jetbrains.dokka.model.SourceSetDependent
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.kotlin.analysis.api.standalone.StandaloneAnalysisAPISession
 import java.io.Closeable
+import java.io.File
 
+@Suppress("FunctionName", "UNUSED_PARAMETER")
+internal fun SamplesKotlinAnalysis(
+    sourceSets: List<DokkaConfiguration.DokkaSourceSet>,
+    context: DokkaContext,
+    projectKotlinAnalysis: KotlinAnalysis
+): KotlinAnalysis {
+    val environments = sourceSets
+        .filter { it.samples.isNotEmpty() }
+        .associateWith { sourceSet ->
+            createAnalysisContext(
+                classpath = sourceSet.classpath,
+                sourceRoots = sourceSet.samples,
+                sourceSet = sourceSet
+            )
+        }
+
+    return EnvironmentKotlinAnalysis(environments, projectKotlinAnalysis)
+}
 
 internal fun ProjectKotlinAnalysis(
     sourceSets: List<DokkaConfiguration.DokkaSourceSet>,
@@ -25,6 +44,7 @@ internal fun ProjectKotlinAnalysis(
     return EnvironmentKotlinAnalysis(environments)
 }
 
+
 @Suppress("UNUSED_PARAMETER")
 internal fun createAnalysisContext(
     context: DokkaContext,
@@ -35,7 +55,15 @@ internal fun createAnalysisContext(
     val classpath = sourceSet.classpath + parentSourceSets.flatMap { it.classpath }
     val sources = sourceSet.sourceRoots + parentSourceSets.flatMap { it.sourceRoots }
 
-    return AnalysisContextImpl(createAnalysisSession(classpath, sources))
+    return createAnalysisContext(classpath, sources, sourceSet)
+}
+
+internal fun createAnalysisContext(
+    classpath: List<File>,
+    sourceRoots: Set<File>,
+    sourceSet: DokkaConfiguration.DokkaSourceSet
+): AnalysisContext {
+    return AnalysisContextImpl(createAnalysisSession(classpath, sourceRoots, sourceSet.analysisPlatform))
 }
 
 

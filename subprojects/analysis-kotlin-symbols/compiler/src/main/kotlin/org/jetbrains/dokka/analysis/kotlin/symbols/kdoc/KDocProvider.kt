@@ -1,8 +1,7 @@
-package org.jetbrains.dokka.analysis.kotlin.symbols.compiler
+package org.jetbrains.dokka.analysis.kotlin.symbols.kdoc
 
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.dokka.analysis.kotlin.symbols.kdoc.parseFromKDocTag
-
+import org.jetbrains.dokka.analysis.kotlin.symbols.translators.getDRIFromSymbol
 import org.jetbrains.kotlin.analysis.api.KtAnalysisSession
 import org.jetbrains.kotlin.analysis.api.symbols.KtCallableSymbol
 import org.jetbrains.kotlin.analysis.api.symbols.KtSymbol
@@ -32,7 +31,12 @@ internal fun KtAnalysisSession.getDocumentation(symbol: KtSymbol) = findKDoc(sym
 
     parseFromKDocTag(
         kDocTag = it.contentTag,
-        externalDri = { _ ->
+        externalDri = { link ->
+            val linkedSymbol = resolveKDocLink(link, symbol)
+            if (linkedSymbol == null) null
+            else getDRIFromSymbol(linkedSymbol)
+
+
 //            try {
 //                resolveKDocLink(
 //                    context = resolutionFacade.resolveSession.bindingContext,
@@ -45,11 +49,12 @@ internal fun KtAnalysisSession.getDocumentation(symbol: KtSymbol) = findKDoc(sym
 //                logger.warn("Couldn't resolve link for $link")
 //                null
 //            }
-            null
         },
         kdocLocation = kdocLocation
     )
 } // TODO ?: getJavaDocs())?.takeIf { it.children.isNotEmpty() }
+
+
 
 
 // ----------- copy-paste from IDE ----------------------------------------------------------------------------
@@ -60,7 +65,8 @@ data class KDocContent(
 )
 
 internal fun KtAnalysisSession.findKDoc(symbol: KtSymbol): KDocContent? {
-    if (symbol.origin == KtSymbolOrigin.LIBRARY) return null
+    // for generated function (e.g. `copy`) psi returns class, see test `data class kdocs over generated methods`
+    if (symbol.origin == KtSymbolOrigin.LIBRARY || symbol.origin == KtSymbolOrigin.SOURCE_MEMBER_GENERATED) return null
     val ktElement = symbol.psi as? KtElement
     ktElement?.findKDoc()?.let {
         return it

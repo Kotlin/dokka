@@ -1,8 +1,6 @@
 package org.jetbrains.dokka.analysis.kotlin.symbols.translators
 
 import org.jetbrains.dokka.DokkaConfiguration
-import org.jetbrains.dokka.analysis.kotlin.symbols.compiler.getDRIFromNonErrorClassType
-import org.jetbrains.dokka.analysis.kotlin.symbols.compiler.getDRIFromTypeParameter
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.properties.PropertyContainer

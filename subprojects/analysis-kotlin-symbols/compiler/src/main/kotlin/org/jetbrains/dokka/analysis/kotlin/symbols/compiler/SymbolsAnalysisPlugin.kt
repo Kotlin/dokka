@@ -5,16 +5,23 @@ import com.intellij.psi.PsiAnnotation
 import org.jetbrains.dokka.CoreExtensions
 import org.jetbrains.dokka.analysis.java.BreakingAbstractionKotlinLightMethodChecker
 import org.jetbrains.dokka.analysis.java.JavaAnalysisPlugin
+import org.jetbrains.dokka.analysis.kotlin.symbols.kdoc.java.KotlinInheritDocTagContentProvider
 import org.jetbrains.dokka.analysis.kotlin.symbols.KotlinAnalysis
 import org.jetbrains.dokka.analysis.kotlin.symbols.ProjectKotlinAnalysis
+import org.jetbrains.dokka.analysis.kotlin.symbols.kdoc.java.DescriptorKotlinDocCommentCreator
+import org.jetbrains.dokka.analysis.kotlin.symbols.kdoc.java.KotlinDocCommentParser
+import org.jetbrains.dokka.analysis.kotlin.symbols.kdoc.moduledocs.ModuleAndPackageDocumentationReader
+import org.jetbrains.dokka.analysis.kotlin.symbols.services.DefaultSamplesTransformer
+import org.jetbrains.dokka.analysis.kotlin.symbols.services.SymbolExternalDocumentablesProvider
+import org.jetbrains.dokka.analysis.kotlin.symbols.services.SymbolFullClassHierarchyBuilder
 import org.jetbrains.dokka.analysis.kotlin.symbols.translators.DefaultSymbolToDocumentableTranslator
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.plugability.DokkaPluginApiPreview
 import org.jetbrains.dokka.plugability.PluginApiPreviewAcknowledgement
-import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.kotlin.analysis.kotlin.internal.InternalKotlinAnalysisPlugin
 import org.jetbrains.kotlin.asJava.elements.KtLightAbstractAnnotation
 
+@Suppress("unused")
 class SymbolsAnalysisPlugin : DokkaPlugin() {
 
     val kotlinAnalysis by extensionPoint<KotlinAnalysis>()
@@ -45,24 +52,23 @@ class SymbolsAnalysisPlugin : DokkaPlugin() {
     internal val sourceRootsExtractor by extending {
         javaAnalysisPlugin.sourceRootsExtractor providing { KotlinAnalysisSourceRootsExtractor() }
     }
-
+*/
     internal val kotlinDocCommentCreator by extending {
         javaAnalysisPlugin.docCommentCreators providing {
-            DescriptorKotlinDocCommentCreator(querySingle { kdocFinder }, querySingle { descriptorFinder })
+            DescriptorKotlinDocCommentCreator()
         }
     }
 
     internal val kotlinDocCommentParser by extending {
         javaAnalysisPlugin.docCommentParsers providing { context ->
-            DescriptorKotlinDocCommentParser(
-                context,
-                context.logger
+            KotlinDocCommentParser(
+                context
             )
         }
     }
     internal val inheritDocTagProvider by extending {
         javaAnalysisPlugin.inheritDocTagContentProviders providing ::KotlinInheritDocTagContentProvider
-    }*/
+    }
     internal val kotlinLightMethodChecker by extending {
         javaAnalysisPlugin.kotlinLightMethodChecker providing {
             object : BreakingAbstractionKotlinLightMethodChecker {
@@ -78,14 +84,14 @@ class SymbolsAnalysisPlugin : DokkaPlugin() {
     }
 
 
-    internal val documentableAnalyzerImpl by extending {
+    internal val symbolAnalyzerImpl by extending {
         plugin<InternalKotlinAnalysisPlugin>().documentableSourceLanguageParser providing { CompilerDocumentableSourceLanguageParser() }
     }
-    internal val descriptorFullClassHierarchyBuilder by extending {
+    internal val symbolFullClassHierarchyBuilder by extending {
         plugin<InternalKotlinAnalysisPlugin>().fullClassHierarchyBuilder providing { SymbolFullClassHierarchyBuilder() }
     }
 
-    internal val descriptorSyntheticDocumentableDetector by extending {
+    internal val symbolSyntheticDocumentableDetector by extending {
         plugin<InternalKotlinAnalysisPlugin>().syntheticDocumentableDetector providing { SymbolSyntheticDocumentableDetector() }
     }
 
@@ -100,10 +106,14 @@ class SymbolsAnalysisPlugin : DokkaPlugin() {
  intern val descriptorInheritanceBuilder by extending {
      plugin<InternalKotlinAnalysisPlugin>().inheritanceBuilder providing { DescriptorInheritanceBuilder() }
  }
+*/
+ internal val symbolExternalDocumentablesProvider by extending {
+     plugin<InternalKotlinAnalysisPlugin>().externalDocumentablesProvider providing ::SymbolExternalDocumentablesProvider
+ }
 
- internal val defaultExternalDocumentablesProvider by extending {
-     plugin<InternalKotlinAnalysisPlugin>().externalDocumentablesProvider providing ::DefaultExternalDocumentablesProvider
- }*/
+    internal val defaultSamplesTransformer by extending {
+        CoreExtensions.pageTransformer providing ::DefaultSamplesTransformer
+    }
 
  @OptIn(DokkaPluginApiPreview::class)
  override fun pluginApiPreviewAcknowledgement(): PluginApiPreviewAcknowledgement = PluginApiPreviewAcknowledgement
