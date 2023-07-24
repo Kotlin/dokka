@@ -1,4 +1,4 @@
-package org.jetbrains.dokka.analysis.kotlin.symbols.compiler
+package org.jetbrains.dokka.analysis.kotlin.symbols.translators
 
 import org.jetbrains.dokka.links.*
 import org.jetbrains.kotlin.analysis.api.KtAnalysisSession
@@ -55,7 +55,7 @@ private fun KtAnalysisSession.getTypeReferenceFromPossiblyRecursive(type: KtType
         is KtIntersectionType -> TODO()
         is KtTypeErrorType -> TODO()
     }.let {
-        if (type.isMarkedNullable) org.jetbrains.dokka.links.Nullable(it) else it
+        if (type.isMarkedNullable) Nullable(it) else it
     }
 
 }

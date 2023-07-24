@@ -9,6 +9,10 @@ import org.jetbrains.kotlin.analysis.kotlin.internal.DocumentableLanguage
 import org.jetbrains.kotlin.analysis.kotlin.internal.DocumentableSourceLanguageParser
 
 internal class CompilerDocumentableSourceLanguageParser : DocumentableSourceLanguageParser {
+
+    /**
+     * For members inherited from Java in Kotlin - it returns [DocumentableLanguage.KOTLIN]
+     */
     override fun getLanguage(
         documentable: Documentable,
         sourceSet: DokkaConfiguration.DokkaSourceSet,

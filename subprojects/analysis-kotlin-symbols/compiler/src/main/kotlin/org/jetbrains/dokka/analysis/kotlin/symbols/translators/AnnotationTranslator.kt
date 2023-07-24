@@ -1,7 +1,7 @@
 package org.jetbrains.dokka.analysis.kotlin.symbols.translators
 
-import org.jetbrains.dokka.analysis.kotlin.symbols.compiler.createDRI
 import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.links.withEnumEntryExtra
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.ClassValue
 import org.jetbrains.kotlin.analysis.api.KtAnalysisSession
@@ -42,7 +42,7 @@ internal class AnnotationTranslator {
     private fun KtAnalysisSession.mustBeDocumented(annotationApplication: KtAnnotationApplication): Boolean {
         if(annotationApplication.isNoExistedInSource()) return false
         val annotationClass = getClassOrObjectSymbolByClassId(annotationApplication.classId ?: return false)
-        return annotationClass?.hasAnnotation(ClassId(FqName("kotlin.annotation"), FqName("MustBeDocumented"), false))
+        return annotationClass?.hasAnnotation(mustBeDocumentedAnnotation)
             ?: false
     }
     private fun KtAnalysisSession.toDokkaAnnotation(annotationApplication: KtAnnotationApplication)  = Annotations.Annotation(
@@ -97,6 +97,10 @@ internal class AnnotationTranslator {
                 callableId.callableName.asString(),
                 params = emptyList(),
             )*/
-        )//.withEnumEntryExtra()
+        ).withEnumEntryExtra()
+    }
+
+    companion object {
+        val mustBeDocumentedAnnotation = ClassId(FqName("kotlin.annotation"), FqName("MustBeDocumented"), false)
     }
 }

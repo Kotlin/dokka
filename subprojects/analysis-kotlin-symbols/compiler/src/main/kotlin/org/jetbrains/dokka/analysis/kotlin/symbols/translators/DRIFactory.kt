@@ -1,13 +1,16 @@
-package org.jetbrains.dokka.analysis.kotlin.symbols.compiler
+package org.jetbrains.dokka.analysis.kotlin.symbols.translators
 
 import org.jetbrains.dokka.links.*
 import org.jetbrains.kotlin.analysis.api.KtAnalysisSession
 import org.jetbrains.kotlin.analysis.api.symbols.*
 import org.jetbrains.kotlin.analysis.api.symbols.markers.KtNamedSymbol
+import org.jetbrains.kotlin.analysis.api.symbols.markers.KtSymbolKind
+import org.jetbrains.kotlin.analysis.api.symbols.markers.KtSymbolWithKind
 import org.jetbrains.kotlin.analysis.api.symbols.markers.KtSymbolWithTypeParameters
 import org.jetbrains.kotlin.analysis.api.types.KtNonErrorClassType
 import org.jetbrains.kotlin.name.CallableId
 import org.jetbrains.kotlin.name.ClassId
+import org.jetbrains.kotlin.name.FqName
 
 internal fun ClassId.createDRI(): DRI = DRI(
     packageName = this.packageFqName.asString(), classNames = this.relativeClassName.asString()
@@ -25,7 +28,7 @@ private fun CallableId.createDRI(receiver: TypeReference?, params: List<TypeRefe
 
 internal fun getDRIFromNonErrorClassType(nonErrorClassType: KtNonErrorClassType): DRI = nonErrorClassType.classId.createDRI()
 
-// because od compatibility with oDokka K1, entry is treated as non-callable
+// because of compatibility with Dokka K1, DRI of entry is kept as non-callable
 internal fun getDRIFromEnumEntry(symbol: KtEnumEntrySymbol): DRI =
     symbol.callableIdIfNonLocal?.let {
         DRI(
@@ -37,7 +40,7 @@ internal fun getDRIFromEnumEntry(symbol: KtEnumEntrySymbol): DRI =
 
 internal fun KtAnalysisSession.getDRIFromTypeParameter(symbol: KtTypeParameterSymbol): DRI {
     val containingSymbol =
-        symbol.getContainingSymbol() ?: throw IllegalStateException("`getContainingSymbol` is null for type parameter")
+        symbol.getContainingSymbol() ?: throw IllegalStateException("Containing symbol is null for type parameter")
     val typeParameters = (containingSymbol as? KtSymbolWithTypeParameters)?.typeParameters
     val index = typeParameters?.indexOfFirst { symbol.name == it.name } ?: -1
     return if (index == -1)
@@ -55,7 +58,7 @@ internal fun KtAnalysisSession.getDRIFromConstructor(symbol: KtConstructorSymbol
         ?: throw IllegalStateException("")
 
 internal fun KtAnalysisSession.getDRIFromVariableLike(symbol: KtVariableLikeSymbol): DRI {
-    val receiver = symbol.receiverType?.let {// TODO: replace `receiverType` with `receiverParameter`
+    val receiver = symbol.receiverType?.let {
         getTypeReferenceFrom(it)
     }
     return symbol.callableIdIfNonLocal?.createDRI(receiver, emptyList())
@@ -64,7 +67,7 @@ internal fun KtAnalysisSession.getDRIFromVariableLike(symbol: KtVariableLikeSymb
 
 internal fun KtAnalysisSession.getDRIFromFunctionLike(symbol: KtFunctionLikeSymbol): DRI {
     val params = symbol.valueParameters.map { getTypeReferenceFrom(it.returnType) }
-    val receiver = symbol.receiverType?.let { // TODO: replace `receiverType` with `receiverParameter`
+    val receiver = symbol.receiverType?.let {
         getTypeReferenceFrom(it)
     }
     return symbol.callableIdIfNonLocal?.createDRI(receiver, params)
@@ -97,20 +100,33 @@ internal fun KtAnalysisSession.getDRIFromSymbol(symbol: KtSymbol): DRI =
         else -> throw IllegalStateException("Unknown symbol while creating DRI ")
     }
 
+private fun KtAnalysisSession.getDRIFromNonCallablePossibleLocalSymbol(symbol: KtSymbol): DRI {
+    if((symbol as? KtSymbolWithKind)?.symbolKind == KtSymbolKind.LOCAL) {
+        return symbol.getContainingSymbol()?.let { getDRIFromNonCallablePossibleLocalSymbol(it) } ?: throw IllegalStateException("Can't get containing symbol for local symbol")
+    }
+    return getDRIFromSymbol(symbol)
+}
+
+/**
+ * Currently, it's used only for functions from enum entry,
+ * For its members: `memberSymbol.callableIdIfNonLocal=null`
+ */
 private fun KtAnalysisSession.getDRIFromLocalFunction(symbol: KtFunctionLikeSymbol): DRI {
     /**
-     * in enum entry: memberSymbol.callableIdIfNonLocal=null
+     * A function is inside local object
      */
-    return getDRIFromSymbol(symbol.getContainingSymbol() as KtSymbol).copy(
+    val containingSymbolDRI = symbol.getContainingSymbol()?.let { getDRIFromNonCallablePossibleLocalSymbol(it) } ?: throw IllegalStateException("Can't get containing symbol for local function")
+    return containingSymbolDRI.copy(
         callable = Callable(
             (symbol as? KtNamedSymbol)?.name?.asString() ?: "",
             params = symbol.valueParameters.map { getTypeReferenceFrom(it.returnType) },
-            receiver = symbol.receiverType?.let { // TODO: replace `receiverType` with `receiverParameter`
+            receiver = symbol.receiverType?.let {
                 getTypeReferenceFrom(it)
             }
-//                    receiver = symbol.receiverParameter?.let {
-//                        getTypeReferenceFrom(it)
-//                    }
         )
     )
 }
+
+// ----------- DRI => compiler identifiers ----------------------------------------------------------------------------
+internal fun getClassIdFromDRI(dri: DRI) = ClassId(FqName(dri.packageName ?: ""), FqName(dri.classNames ?: throw IllegalStateException("DRI must have `classNames` to get ClassID")), false)
+

@@ -9,7 +9,6 @@ import com.intellij.psi.PsiManager
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.ProjectScope
 import com.intellij.util.io.URLUtil
-import org.jetbrains.dokka.DokkaDefaults.analysisPlatform
 import org.jetbrains.dokka.Platform
 import org.jetbrains.kotlin.analysis.api.impl.base.util.LibraryUtils
 import org.jetbrains.kotlin.analysis.api.resolve.extensions.KtResolveExtensionProvider
@@ -141,7 +140,8 @@ fun getJdkHomeFromSystemProperty(): File? {
 
 fun createAnalysisSession(
     classpath: List<File>,
-    sources: Set<File>,
+    sourceRoots: Set<File>,
+    analysisPlatform: Platform
 ): StandaloneAnalysisAPISession {
 
     val analysisSession = buildStandaloneAnalysisAPISession(withPsiDeclarationFromBinaryModuleProvider = false) {
@@ -191,7 +191,7 @@ fun createAnalysisSession(
                     .mapNotNull { fs.findFileByPath(it.toString()) }
                     .mapNotNull { psiManager.findFile(it) }
                     .map { it as KtFile }*/
-                val sourcePaths = sources.map { it.absolutePath }
+                val sourcePaths = sourceRoots.map { it.absolutePath }
                 val (ktFilePath, javaFilePath) = getSourceFilePaths(sourcePaths).partition { it.endsWith(KotlinFileType.EXTENSION) }
                 val javaFiles: List<PsiFileSystemItem> = getPsiFilesFromPaths(project, javaFilePath)
                 val ktFiles: List<KtFile> = getPsiFilesFromPaths(project, getSourceFilePaths(ktFilePath))
@@ -204,7 +204,7 @@ fun createAnalysisSession(
             })
         }
     }
-    @Suppress("UnstableApiUsage")
+    // TODO remove further
     CoreApplicationEnvironment.registerExtensionPoint(
         analysisSession.project.extensionArea,
         KtResolveExtensionProvider.EP_NAME.name,
