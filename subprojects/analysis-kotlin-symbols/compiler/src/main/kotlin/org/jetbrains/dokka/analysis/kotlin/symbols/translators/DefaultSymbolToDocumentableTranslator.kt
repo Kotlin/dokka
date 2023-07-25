@@ -3,21 +3,21 @@
 package org.jetbrains.dokka.analysis.kotlin.symbols.translators
 
 
-import com.intellij.psi.PsiNamedElement
 import org.jetbrains.dokka.analysis.kotlin.symbols.compiler.*
-import org.jetbrains.dokka.analysis.kotlin.symbols.kdoc.getDocumentation
 import com.intellij.psi.util.PsiLiteralUtil
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.analysis.java.JavaAnalysisPlugin
 import org.jetbrains.dokka.analysis.java.parsers.JavadocParser
 import org.jetbrains.dokka.analysis.kotlin.symbols.AnalysisContext
 import org.jetbrains.dokka.analysis.kotlin.symbols.KtPsiDocumentableSource
+import org.jetbrains.dokka.analysis.kotlin.symbols.kdoc.getJavaDocDocumentationFrom
+import org.jetbrains.dokka.analysis.kotlin.symbols.kdoc.getKDocDocumentationFrom
 import org.jetbrains.dokka.analysis.kotlin.symbols.utils.typeConstructorsBeingExceptions
 import org.jetbrains.dokka.links.*
 import org.jetbrains.dokka.links.Callable
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.Visibility
-import org.jetbrains.dokka.model.doc.DocumentationNode
+import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
@@ -134,16 +134,6 @@ internal class DokkaSymbolVisitor(
         } == true
     }
 
-    // TODO
-    private fun KtAnalysisSession.getJavaDocsFrom(symbol: KtCallableSymbol): DocumentationNode? {
-        val overriddenSymbols = symbol.getAllOverriddenSymbols()
-        val allSymbols= overriddenSymbols + listOf(symbol)
-        return allSymbols
-            .mapNotNull { it.psi as? PsiNamedElement }
-            .firstOrNull()
-            ?.let { javadocParser?.parseDocumentation(it) }
-    }
-
     internal fun visitModule(): DModule {
 
         //val sourceFiles = environment.getSourceFiles()
@@ -236,7 +226,7 @@ internal class DokkaSymbolVisitor(
             name = name,
             type = GenericTypeConstructor(
                 dri = dri,
-                projections = generics.map { it.variantTypeParameter }), // this property can be removed
+                projections = generics.map { it.variantTypeParameter }), // this property can be removed in DTypeAlias
             expectPresentInSet = null,
             underlyingType = toBoundFrom(typeAliasSymbol.expandedType).toSourceSetDependent(),
             visibility = typeAliasSymbol.getDokkaVisibility().toSourceSetDependent(),
@@ -523,15 +513,12 @@ internal class DokkaSymbolVisitor(
             return DProperty(
                 dri = dri,
                 name = propertySymbol.name.asString(),
-                receiver = propertySymbol.receiverType?.let {
+                receiver = propertySymbol.receiverParameter?.let {
                     visitReceiverParameter(
                         it,
                         dri
                     )
-                } // TODO replace `receiverType` with `receiverParameter`
-                /*functionSymbol.receiverParameter?.let {
-                    visitReceiverParameter(it, dri)
-                }*/,
+                },
                 sources = propertySymbol.getSource(),
                 getter = propertySymbol.getter?.let { visitPropertyAccessor(it, propertySymbol, dri) },
                 setter = propertySymbol.setter?.let { visitPropertyAccessor(it, propertySymbol, dri) },
@@ -595,15 +582,12 @@ internal class DokkaSymbolVisitor(
             return DProperty(
                 dri = dri,
                 name = javaFieldSymbol.name.asString(),
-                receiver = javaFieldSymbol.receiverType?.let {
+                receiver = javaFieldSymbol.receiverParameter?.let {
                     visitReceiverParameter(
                         it,
                         dri
                     )
-                } // TODO replace `receiverType` with `receiverParameter`
-                /*functionSymbol.receiverParameter?.let {
-                    visitReceiverParameter(it, dri)
-                }*/,
+                },
                 sources = javaFieldSymbol.getSource(),
                 getter = getterFunctionSymbol?.let { visitFunctionSymbol(it, parent) },
                 setter = setterFunctionSymbol?.let { visitFunctionSymbol(it, parent) },
@@ -676,15 +660,12 @@ internal class DokkaSymbolVisitor(
             dri = dri,
             name = name,
             isConstructor = false,
-            receiver = propertyAccessorSymbol.receiverType?.let {
+            receiver = propertyAccessorSymbol.receiverParameter?.let {
                 visitReceiverParameter(
                     it,
                     dri
                 )
-            } // TODO replace `receiverType` with `receiverParameter`
-            /*functionSymbol.receiverParameter?.let {
-                visitReceiverParameter(it, dri)
-            }*/,
+            },
             parameters = propertyAccessorSymbol.valueParameters.mapIndexed { index, symbol ->
                 visitValueParameter(index, symbol, dri)
             },
@@ -723,19 +704,26 @@ internal class DokkaSymbolVisitor(
             )
         }
 
+        val documentation = getDocumentation(constructorSymbol)?.let { docNode ->
+            if (constructorSymbol.isPrimary) {
+                docNode.copy(children = (docNode.children.find { it is Constructor }?.root?.let { constructor ->
+                    listOf(Description(constructor))
+                } ?: emptyList<TagWrapper>()) + docNode.children.filterIsInstance<Param>())
+            } else {
+                docNode
+            }
+        }?.toSourceSetDependent()
+
         return DFunction(
             dri = dri,
             name = name,
             isConstructor = true,
-            receiver = constructorSymbol.receiverType?.let {
+            receiver = constructorSymbol.receiverParameter?.let {
                 visitReceiverParameter(
                     it,
                     dri
                 )
-            } // TODO replace `receiverType` with `receiverParameter`
-            /*functionSymbol.receiverParameter?.let {
-                visitReceiverParameter(it, dri)
-            }*/,
+            },
             parameters = constructorSymbol.valueParameters.mapIndexed { index, symbol ->
                 visitValueParameter(index, symbol, dri)
             },
@@ -743,7 +731,7 @@ internal class DokkaSymbolVisitor(
             sources = constructorSymbol.getSource(),
             visibility = constructorSymbol.visibility.toDokkaVisibility().toSourceSetDependent(),
             generics = generics,
-            documentation = getDocumentation(constructorSymbol)?.toSourceSetDependent() ?: emptyMap(),
+            documentation = documentation ?: emptyMap(),
             modifier = KotlinModifier.Empty.toSourceSetDependent(), // CONSIDER
             type = toBoundFrom(constructorSymbol.returnType),
             sourceSets = setOf(sourceSet),
@@ -776,15 +764,12 @@ internal class DokkaSymbolVisitor(
             dri = dri,
             name = functionSymbol.name.asString(),
             isConstructor = false,
-            receiver = functionSymbol.receiverType?.let {
+            receiver = functionSymbol.receiverParameter?.let {
                 visitReceiverParameter(
                     it,
                     dri
                 )
-            } // TODO replace `receiverType` with `receiverParameter`
-            /*functionSymbol.receiverParameter?.let {
-                visitReceiverParameter(it, dri)
-            }*/,
+            },
             parameters = functionSymbol.valueParameters.mapIndexed { index, symbol ->
                 visitValueParameter(index, symbol, dri)
             },
@@ -830,22 +815,11 @@ internal class DokkaSymbolVisitor(
         name = null,
         type = toBoundFrom(receiverParameterSymbol.type),
         expectPresentInSet = null,
-        documentation = getDocumentation(receiverParameterSymbol)?.toSourceSetDependent() ?: emptyMap(), // TODO
-        sourceSets = setOf(sourceSet)
-        //extra = PropertyContainer.withAll(getAnnotations(receiverParameterSymbol).toSourceSetDependent().toAnnotations())
-    )
-
-    // TODO: this fun should be replaced with a function above
-    private fun KtAnalysisSession.visitReceiverParameter(
-        type: KtType, dri: DRI
-    ) = DParameter(
-        dri = dri.copy(target = PointingToDeclaration),
-        name = null,
-        type = toBoundFrom(type),
-        expectPresentInSet = null,
-        documentation = emptyMap(), // TODO
-        sourceSets = setOf(sourceSet)
-        //extra = PropertyContainer.withAll(descriptor.getAnnotations().toSourceSetDependent().toAnnotations())
+        documentation = getDocumentation(receiverParameterSymbol)?.toSourceSetDependent() ?: emptyMap(),
+        sourceSets = setOf(sourceSet),
+        extra = PropertyContainer.withAll(listOfNotNull(
+            getDokkaAnnotationsFrom(receiverParameterSymbol)?.toSourceSetDependent()?.toAnnotations()
+        ))
     )
 
     private fun KtValueParameterSymbol.getDefaultValue(): Expression? =
@@ -936,8 +910,8 @@ internal class DokkaSymbolVisitor(
         }
     }
 
-
-
+    private fun KtAnalysisSession.getDocumentation(symbol: KtSymbol) =
+        getKDocDocumentationFrom(symbol) ?: javadocParser?.let { getJavaDocDocumentationFrom(symbol, it) }
 
 // ----------- Translators of type to bound ----------------------------------------------------------------------------
 
