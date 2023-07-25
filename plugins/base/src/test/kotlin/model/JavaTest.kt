@@ -439,4 +439,43 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
         }
     }
 
+    @Test
+    fun variances() {
+        inlineModelTest(
+            """
+            |public class Foo {
+            |    public void superBound(java.util.List<? super String> param) {}
+            |    public void extendsBound(java.util.List<? extends String> param) {}
+            |    public void unbounded(java.util.List<?> param) {}
+            |}
+            """, configuration = configuration
+        ) {
+            with((this / "java" / "Foo").cast<DClass>()) {
+                for (function in functions) {
+                    val param = function.parameters.single()
+                    val type = param.type as GenericTypeConstructor
+                    val variance = type.projections.single()
+
+                    when (function.name) {
+                        "superBound" -> {
+                            assertTrue(variance is Contravariance<*>)
+                            val bound = (variance as Contravariance<*>).inner
+                            assertEquals((bound as GenericTypeConstructor).dri.classNames, "String")
+                        }
+                        "extendsBound" -> {
+                            assertTrue(variance is Covariance<*>)
+                            val bound = (variance as Covariance<*>).inner
+                            assertEquals((bound as GenericTypeConstructor).dri.classNames, "String")
+                        }
+                        "unbounded" -> {
+                            assertTrue(variance is Covariance<*>)
+                            val bound = (variance as Covariance<*>).inner
+                            assertTrue(bound is JavaObject)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 }
