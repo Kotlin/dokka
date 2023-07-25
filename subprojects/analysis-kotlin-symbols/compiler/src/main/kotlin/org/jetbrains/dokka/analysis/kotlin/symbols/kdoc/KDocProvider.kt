@@ -1,7 +1,10 @@
 package org.jetbrains.dokka.analysis.kotlin.symbols.kdoc
 
+import com.intellij.psi.PsiNamedElement
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.dokka.analysis.java.parsers.JavadocParser
 import org.jetbrains.dokka.analysis.kotlin.symbols.translators.getDRIFromSymbol
+import org.jetbrains.dokka.model.doc.DocumentationNode
 import org.jetbrains.kotlin.analysis.api.KtAnalysisSession
 import org.jetbrains.kotlin.analysis.api.symbols.KtCallableSymbol
 import org.jetbrains.kotlin.analysis.api.symbols.KtSymbol
@@ -18,8 +21,27 @@ import org.jetbrains.kotlin.psi.psiUtil.getChildrenOfType
 import org.jetbrains.kotlin.psi.psiUtil.isPropertyParameter
 import org.jetbrains.kotlin.util.capitalizeDecapitalize.toLowerCaseAsciiOnly
 
+internal fun KtAnalysisSession.getJavaDocDocumentationFrom(
+    symbol: KtSymbol,
+    javadocParser: JavadocParser
+): DocumentationNode? {
+    if (symbol.origin == KtSymbolOrigin.JAVA) {
+        return (symbol.psi as? PsiNamedElement)?.let {
+            javadocParser.parseDocumentation(it)
+        }
+    } else if (symbol.origin == KtSymbolOrigin.SOURCE && symbol is KtCallableSymbol) {
+        // Note: javadocParser searches in overridden JAVA declarations for JAVA method, not Kotlin
+        symbol.getAllOverriddenSymbols().forEach { overrider ->
+            if (overrider.origin == KtSymbolOrigin.JAVA)
+                return@getJavaDocDocumentationFrom (overrider.psi as? PsiNamedElement)?.let {
+                    javadocParser.parseDocumentation(it)
+                }
+        }
+    }
+    return null
+}
 
-internal fun KtAnalysisSession.getDocumentation(symbol: KtSymbol) = findKDoc(symbol)?.let {
+internal fun KtAnalysisSession.getKDocDocumentationFrom(symbol: KtSymbol) = findKDoc(symbol)?.let {
 
     val ktElement = symbol.psi
     val kdocLocation = ktElement?.containingFile?.name?.let {
@@ -52,7 +74,7 @@ internal fun KtAnalysisSession.getDocumentation(symbol: KtSymbol) = findKDoc(sym
         },
         kdocLocation = kdocLocation
     )
-} // TODO ?: getJavaDocs())?.takeIf { it.children.isNotEmpty() }
+}
 
 
 
