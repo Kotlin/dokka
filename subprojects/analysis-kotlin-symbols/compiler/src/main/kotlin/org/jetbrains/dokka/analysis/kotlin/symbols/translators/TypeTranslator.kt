@@ -19,12 +19,26 @@ internal class TypeTranslator(
 
     private fun <T> T.toSourceSetDependent() = if (this != null) mapOf(sourceSet to this) else emptyMap()
 
-
     private fun KtAnalysisSession.toProjection(typeProjection: KtTypeProjection): Projection =
         when (typeProjection) {
             is KtStarTypeProjection -> Star
             is KtTypeArgumentWithVariance -> toBoundFrom(typeProjection.type).wrapWithVariance(typeProjection.variance)
         }
+
+    private fun KtAnalysisSession.toTypeConstructorFromTypeAliased(classType: KtUsualClassType): TypeAliased {
+        val classSymbol = classType.classSymbol
+        return if (classSymbol is KtTypeAliasSymbol)
+            TypeAliased(
+                typeAlias = GenericTypeConstructor(
+                    dri = getDRIFromNonErrorClassType(classType),
+                    projections = classType.ownTypeArguments.map { toProjection(it) }),
+                inner = toBoundFrom(classSymbol.expandedType),
+                extra = PropertyContainer.withAll(
+                    getDokkaAnnotationsFrom(classType)?.toSourceSetDependent()?.toAnnotations()
+                )
+            ) else
+            throw IllegalStateException("Expected type alias symbol in type")
+    }
 
     private fun KtAnalysisSession.toTypeConstructorFrom(classType: KtUsualClassType) =
         GenericTypeConstructor(
@@ -50,7 +64,10 @@ internal class TypeTranslator(
 
     internal fun KtAnalysisSession.toBoundFrom(type: KtType): Bound =
         when (type) {
-            is KtUsualClassType -> toTypeConstructorFrom(type)
+            is KtUsualClassType -> {
+                if (type.classSymbol is KtTypeAliasSymbol) toTypeConstructorFromTypeAliased(type)
+                else toTypeConstructorFrom(type)
+            }
             is KtTypeParameterType -> TypeParameter(
                 dri = getDRIFromTypeParameter(type.symbol),
                 name = type.name.asString(),
