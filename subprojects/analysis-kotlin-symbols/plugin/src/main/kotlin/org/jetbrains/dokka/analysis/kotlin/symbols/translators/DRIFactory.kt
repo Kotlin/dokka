@@ -26,7 +26,8 @@ private fun CallableId.createDRI(receiver: TypeReference?, params: List<TypeRefe
     )
 )
 
-internal fun getDRIFromNonErrorClassType(nonErrorClassType: KtNonErrorClassType): DRI = nonErrorClassType.classId.createDRI()
+internal fun getDRIFromNonErrorClassType(nonErrorClassType: KtNonErrorClassType): DRI =
+    nonErrorClassType.classId.createDRI()
 
 private val KtCallableSymbol.callableId
     get() = this.callableIdIfNonLocal ?: throw IllegalStateException("Can not get callable Id due to it is local")
@@ -43,7 +44,8 @@ internal fun getDRIFromEnumEntry(symbol: KtEnumEntrySymbol): DRI =
 
 internal fun KtAnalysisSession.getDRIFromTypeParameter(symbol: KtTypeParameterSymbol): DRI {
     val containingSymbol =
-        (symbol.getContainingSymbol() as? KtSymbolWithTypeParameters) ?: throw IllegalStateException("Containing symbol is null for type parameter")
+        (symbol.getContainingSymbol() as? KtSymbolWithTypeParameters)
+            ?: throw IllegalStateException("Containing symbol is null for type parameter")
     val typeParameters = containingSymbol.typeParameters
     val index = typeParameters.indexOfFirst { symbol.name == it.name }
     return getDRIFromSymbol(containingSymbol).copy(target = PointingToGenericParameters(index))
@@ -80,7 +82,8 @@ internal fun getDRIFromPackage(symbol: KtPackageSymbol): DRI =
     DRI(packageName = symbol.fqName.asString())
 
 internal fun KtAnalysisSession.getDRIFromValueParameter(symbol: KtValueParameterSymbol): DRI {
-    val function = (symbol.getContainingSymbol() as? KtFunctionLikeSymbol) ?: throw IllegalStateException("Containing symbol is null for type parameter")
+    val function = (symbol.getContainingSymbol() as? KtFunctionLikeSymbol)
+        ?: throw IllegalStateException("Containing symbol is null for type parameter")
     val index = function.valueParameters.indexOfFirst { it.name == symbol.name }
     val funDRI = getDRIFromFunctionLike(function)
     return funDRI.copy(target = PointingToCallableParameters(index))
@@ -100,8 +103,9 @@ internal fun KtAnalysisSession.getDRIFromSymbol(symbol: KtSymbol): DRI =
     }
 
 private fun KtAnalysisSession.getDRIFromNonCallablePossibleLocalSymbol(symbol: KtSymbol): DRI {
-    if((symbol as? KtSymbolWithKind)?.symbolKind == KtSymbolKind.LOCAL) {
-        return symbol.getContainingSymbol()?.let { getDRIFromNonCallablePossibleLocalSymbol(it) } ?: throw IllegalStateException("Can't get containing symbol for local symbol")
+    if ((symbol as? KtSymbolWithKind)?.symbolKind == KtSymbolKind.LOCAL) {
+        return symbol.getContainingSymbol()?.let { getDRIFromNonCallablePossibleLocalSymbol(it) }
+            ?: throw IllegalStateException("Can't get containing symbol for local symbol")
     }
     return getDRIFromSymbol(symbol)
 }
@@ -114,7 +118,8 @@ private fun KtAnalysisSession.getDRIFromLocalFunction(symbol: KtFunctionLikeSymb
     /**
      * A function is inside local object
      */
-    val containingSymbolDRI = symbol.getContainingSymbol()?.let { getDRIFromNonCallablePossibleLocalSymbol(it) } ?: throw IllegalStateException("Can't get containing symbol for local function")
+    val containingSymbolDRI = symbol.getContainingSymbol()?.let { getDRIFromNonCallablePossibleLocalSymbol(it) }
+        ?: throw IllegalStateException("Can't get containing symbol for local function")
     return containingSymbolDRI.copy(
         callable = Callable(
             (symbol as? KtNamedSymbol)?.name?.asString() ?: "",
@@ -127,5 +132,9 @@ private fun KtAnalysisSession.getDRIFromLocalFunction(symbol: KtFunctionLikeSymb
 }
 
 // ----------- DRI => compiler identifiers ----------------------------------------------------------------------------
-internal fun getClassIdFromDRI(dri: DRI) = ClassId(FqName(dri.packageName ?: ""), FqName(dri.classNames ?: throw IllegalStateException("DRI must have `classNames` to get ClassID")), false)
+internal fun getClassIdFromDRI(dri: DRI) = ClassId(
+    FqName(dri.packageName ?: ""),
+    FqName(dri.classNames ?: throw IllegalStateException("DRI must have `classNames` to get ClassID")),
+    false
+)
 

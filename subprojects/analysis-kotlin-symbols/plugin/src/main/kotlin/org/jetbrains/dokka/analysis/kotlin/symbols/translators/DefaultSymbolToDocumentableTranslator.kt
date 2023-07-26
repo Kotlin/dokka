@@ -1,5 +1,3 @@
-@file:Suppress("UNUSED_PARAMETER")
-
 package org.jetbrains.dokka.analysis.kotlin.symbols.translators
 
 
@@ -45,8 +43,7 @@ import org.jetbrains.kotlin.psi.psiUtil.hasActualModifier
 import org.jetbrains.kotlin.psi.psiUtil.hasExpectModifier
 import java.nio.file.Paths
 
-// 792 / 839
-//   487 / 707
+// 806 / 843
 class DefaultSymbolToDocumentableTranslator(context: DokkaContext) : AsyncSourceToDocumentableTranslator {
     private val kotlinAnalysis = context.plugin<SymbolsAnalysisPlugin>().querySingle { kotlinAnalysis }
     private val javadocParser = JavadocParser(
@@ -93,6 +90,7 @@ inline fun <R> KtAnalysisSession.withExceptionCatcher(symbol: KtSymbol, action: 
             e
         )
     }
+
 internal fun <T : Bound> T.wrapWithVariance(variance: org.jetbrains.kotlin.types.Variance) =
     when (variance) {
         org.jetbrains.kotlin.types.Variance.INVARIANT -> Invariance(this)
@@ -104,7 +102,7 @@ internal class DokkaSymbolVisitor(
     private val sourceSet: DokkaConfiguration.DokkaSourceSet,
     private val moduleName: String,
     private val analysisContext: AnalysisContext,
-    private val logger: DokkaLogger,
+    @Suppress("unused") private val logger: DokkaLogger, // TODO
     private val javadocParser: JavadocParser? = null
 ) {
     private var annotationTranslator = AnnotationTranslator()
@@ -117,8 +115,8 @@ internal class DokkaSymbolVisitor(
      *   object Default : Klass()
      * }
      */
-    private val visitedNamedClassOrObjectSymbol: MutableSet<KtNamedClassOrObjectSymbol> =
-        mutableSetOf() // or MutableSet<ClassId>
+    private val visitedNamedClassOrObjectSymbol: MutableSet<ClassId> =
+        mutableSetOf()
 
     private fun <T> T.toSourceSetDependent() = if (this != null) mapOf(sourceSet to this) else emptyMap()
 
@@ -154,7 +152,7 @@ internal class DokkaSymbolVisitor(
                         )
                     }
                 }
-            
+
             DModule(
                 name = moduleName,
                 packages = packageSymbols,
@@ -226,7 +224,7 @@ internal class DokkaSymbolVisitor(
         namedClassOrObjectSymbol: KtNamedClassOrObjectSymbol,
         parent: DRI
     ): DClasslike = withExceptionCatcher(namedClassOrObjectSymbol) {
-        visitedNamedClassOrObjectSymbol.add(namedClassOrObjectSymbol)
+        namedClassOrObjectSymbol.classIdIfNonLocal?.let { visitedNamedClassOrObjectSymbol.add(it) }
 
         val name = namedClassOrObjectSymbol.name.asString()
         val dri = parent.withClass(name)
@@ -236,7 +234,7 @@ internal class DokkaSymbolVisitor(
         val isActual = namedClassOrObjectSymbol.isActual
         val documentation = getDocumentation(namedClassOrObjectSymbol)?.toSourceSetDependent() ?: emptyMap()
 
-        val constructors = scope.getConstructors().map { visitConstructorSymbol(it, dri) }.toList()
+        val constructors = scope.getConstructors().map { visitConstructorSymbol(it) }.toList()
 
 
         val callables = scope.getCallableSymbols().toList()
@@ -250,7 +248,6 @@ internal class DokkaSymbolVisitor(
          *
          *         val syntheticProperties = getSyntheticJavaPropertiesScope()
          *         ?.filterIsInstance<KtSyntheticJavaPropertySymbol>()
-         *         .orEmpty()
          */
         val (regularFunctions, accessors) = splitFunctionsAndInheritedAccessors(
             fields = javaFields,
@@ -269,16 +266,20 @@ internal class DokkaSymbolVisitor(
                 }
 
 
-       // hack, by default, compiler adds an empty companion object for enum
+        // hack, by default, compiler adds an empty companion object for enum
+        // TODO check if it is empty
         fun List<KtNamedClassOrObjectSymbol>.filterOutEnumCompanion() = filterNot {
             if (namedClassOrObjectSymbol.classKind == KtClassKind.ENUM_CLASS)
-                it.name.asString() == "Companion"
+                it.name.asString() == "Companion" && it.classKind == KtClassKind.COMPANION_OBJECT
             else false
         }
 
         val classlikes = classifiers.filterIsInstance<KtNamedClassOrObjectSymbol>()
             .filterOutEnumCompanion() // hack to filter out companion for enum
-            .filterNot { symbol -> visitedNamedClassOrObjectSymbol.contains(symbol).also { if(!it) visitedNamedClassOrObjectSymbol.add(symbol) } }
+            .filterNot { symbol ->
+                visitedNamedClassOrObjectSymbol.contains(symbol.classIdIfNonLocal)
+                    .also { if (!it) symbol.classIdIfNonLocal?.let { classId -> visitedNamedClassOrObjectSymbol.add(classId) } }
+            }
             .map { visitNamedClassOrObjectSymbol(it, dri) }
 
         val generics = namedClassOrObjectSymbol.typeParameters.mapIndexed { index, symbol ->
@@ -289,10 +290,12 @@ internal class DokkaSymbolVisitor(
             )
         }
 
-        val ancestryInfo = with(typeTranslator) { buildAncestryInformationFrom(namedClassOrObjectSymbol.buildSelfClassType()) }
+        val ancestryInfo =
+            with(typeTranslator) { buildAncestryInformationFrom(namedClassOrObjectSymbol.buildSelfClassType()) }
         val supertypes =
             //(ancestryInfo.interfaces.map{ it.typeConstructor } + listOfNotNull(ancestryInfo.superclass?.typeConstructor))
-            namedClassOrObjectSymbol.superTypes.filterNot { it.isAny }.map {  with(typeTranslator) { toTypeConstructorWithKindFrom(it) } }
+            namedClassOrObjectSymbol.superTypes.filterNot { it.isAny }
+                .map { with(typeTranslator) { toTypeConstructorWithKindFrom(it) } }
                 .toSourceSetDependent()
 
         return@withExceptionCatcher when (namedClassOrObjectSymbol.classKind) {
@@ -507,12 +510,12 @@ internal class DokkaSymbolVisitor(
                 generics = generics,
                 isExpectActual = (isExpect || isActual),
                 extra = PropertyContainer.withAll(
-                        propertySymbol.additionalExtras()?.toSourceSetDependent()?.toAdditionalModifiers(),
-                        getDokkaAnnotationsFrom(propertySymbol)?.toSourceSetDependent()?.toAnnotations(),
-                        propertySymbol.getDefaultValue()?.let { DefaultValue(it.toSourceSetDependent()) },
-                        inheritedFrom?.let { InheritedMember(it.toSourceSetDependent()) },
-                        takeUnless { propertySymbol.isVal }?.let { IsVar },
-                        takeIf { propertySymbol.psi is KtParameter }?.let { IsAlsoParameter(listOf(sourceSet)) }
+                    propertySymbol.additionalExtras()?.toSourceSetDependent()?.toAdditionalModifiers(),
+                    getDokkaAnnotationsFrom(propertySymbol)?.toSourceSetDependent()?.toAnnotations(),
+                    propertySymbol.getDefaultValue()?.let { DefaultValue(it.toSourceSetDependent()) },
+                    inheritedFrom?.let { InheritedMember(it.toSourceSetDependent()) },
+                    takeUnless { propertySymbol.isVal }?.let { IsVar },
+                    takeIf { propertySymbol.psi is KtParameter }?.let { IsAlsoParameter(listOf(sourceSet)) }
                 )
             )
         }
@@ -574,12 +577,12 @@ internal class DokkaSymbolVisitor(
                 generics = generics,
                 isExpectActual = (isExpect || isActual),
                 extra = PropertyContainer.withAll(
-                        javaFieldSymbol.additionalExtras()?.toSourceSetDependent()?.toAdditionalModifiers(),
-                        getDokkaAnnotationsFrom(javaFieldSymbol)?.toSourceSetDependent()?.toAnnotations(),
-                        //javaFieldSymbol.getDefaultValue()?.let { DefaultValue(it.toSourceSetDependent()) },
-                        inheritedFrom?.let { InheritedMember(it.toSourceSetDependent()) },
-                        // non-final java property should be var if it has no accessors at all or has a setter
-                        IsVar.takeIf { (!javaFieldSymbol.isVal && getterFunctionSymbol == null && setterFunctionSymbol == null) || setterFunctionSymbol != null }
+                    javaFieldSymbol.additionalExtras()?.toSourceSetDependent()?.toAdditionalModifiers(),
+                    getDokkaAnnotationsFrom(javaFieldSymbol)?.toSourceSetDependent()?.toAnnotations(),
+                    //javaFieldSymbol.getDefaultValue()?.let { DefaultValue(it.toSourceSetDependent()) },
+                    inheritedFrom?.let { InheritedMember(it.toSourceSetDependent()) },
+                    // non-final java property should be var if it has no accessors at all or has a setter
+                    IsVar.takeIf { (!javaFieldSymbol.isVal && getterFunctionSymbol == null && setterFunctionSymbol == null) || setterFunctionSymbol != null }
                 )
             )
         }
@@ -658,8 +661,7 @@ internal class DokkaSymbolVisitor(
     }
 
     private fun KtAnalysisSession.visitConstructorSymbol(
-        constructorSymbol: KtConstructorSymbol,
-        parent: DRI
+        constructorSymbol: KtConstructorSymbol
     ): DFunction = withExceptionCatcher(constructorSymbol) {
         val name = constructorSymbol.containingClassIdIfNonLocal?.shortClassName?.asString()
             ?: throw IllegalStateException("Unknown containing class of constructor")
@@ -714,46 +716,53 @@ internal class DokkaSymbolVisitor(
         )
     }
 
-    private fun KtAnalysisSession.visitFunctionSymbol(functionSymbol: KtFunctionSymbol, parent: DRI): DFunction = withExceptionCatcher(functionSymbol) {
-        val dri = createDRIWithOverridden(functionSymbol).origin
-        val inheritedFrom = dri.getInheritedFromDRI(parent)
-        val isExpect = functionSymbol.isExpect
-        val isActual = functionSymbol.isActual
+    private fun KtAnalysisSession.visitFunctionSymbol(functionSymbol: KtFunctionSymbol, parent: DRI): DFunction =
+        withExceptionCatcher(functionSymbol) {
+            val dri = createDRIWithOverridden(functionSymbol).origin
+            val inheritedFrom = dri.getInheritedFromDRI(parent)
+            val isExpect = functionSymbol.isExpect
+            val isActual = functionSymbol.isActual
 
-        val generics =
-            functionSymbol.typeParameters.mapIndexed { index, symbol -> visitVariantTypeParameter(index, symbol, dri) }
+            val generics =
+                functionSymbol.typeParameters.mapIndexed { index, symbol ->
+                    visitVariantTypeParameter(
+                        index,
+                        symbol,
+                        dri
+                    )
+                }
 
-        return DFunction(
-            dri = dri,
-            name = functionSymbol.name.asString(),
-            isConstructor = false,
-            receiver = functionSymbol.receiverParameter?.let {
-                visitReceiverParameter(
-                    it,
-                    dri
+            return DFunction(
+                dri = dri,
+                name = functionSymbol.name.asString(),
+                isConstructor = false,
+                receiver = functionSymbol.receiverParameter?.let {
+                    visitReceiverParameter(
+                        it,
+                        dri
+                    )
+                },
+                parameters = functionSymbol.valueParameters.mapIndexed { index, symbol ->
+                    visitValueParameter(index, symbol, dri)
+                },
+                expectPresentInSet = sourceSet.takeIf { isExpect },
+                sources = functionSymbol.getSource(),
+                visibility = functionSymbol.getDokkaVisibility().toSourceSetDependent(),
+                generics = generics,
+                documentation = getDocumentation(functionSymbol)?.toSourceSetDependent() ?: emptyMap(),
+                modifier = functionSymbol.getDokkaModality().toSourceSetDependent(),
+                type = toBoundFrom(functionSymbol.returnType),
+                sourceSets = setOf(sourceSet),
+                isExpectActual = (isExpect || isActual),
+                extra = PropertyContainer.withAll(
+                    inheritedFrom?.let { InheritedMember(it.toSourceSetDependent()) },
+                    functionSymbol.additionalExtras()?.toSourceSetDependent()?.toAdditionalModifiers(),
+                    getDokkaAnnotationsFrom(functionSymbol)
+                        ?.toSourceSetDependent()?.toAnnotations(),
+                    ObviousMember.takeIf { isObvious(functionSymbol) },
                 )
-            },
-            parameters = functionSymbol.valueParameters.mapIndexed { index, symbol ->
-                visitValueParameter(index, symbol, dri)
-            },
-            expectPresentInSet = sourceSet.takeIf { isExpect },
-            sources = functionSymbol.getSource(),
-            visibility = functionSymbol.getDokkaVisibility().toSourceSetDependent(),
-            generics = generics,
-            documentation = getDocumentation(functionSymbol)?.toSourceSetDependent() ?: emptyMap(),
-            modifier = functionSymbol.getDokkaModality().toSourceSetDependent(),
-            type = toBoundFrom(functionSymbol.returnType),
-            sourceSets = setOf(sourceSet),
-            isExpectActual = (isExpect || isActual),
-            extra = PropertyContainer.withAll(
-                inheritedFrom?.let { InheritedMember(it.toSourceSetDependent()) },
-                functionSymbol.additionalExtras()?.toSourceSetDependent()?.toAdditionalModifiers(),
-                getDokkaAnnotationsFrom(functionSymbol)
-                    ?.toSourceSetDependent()?.toAnnotations(),
-                ObviousMember.takeIf { isObvious(functionSymbol) },
             )
-        )
-    }
+        }
 
     private fun KtAnalysisSession.visitValueParameter(
         index: Int, valueParameterSymbol: KtValueParameterSymbol, dri: DRI
@@ -810,7 +819,8 @@ internal class DokkaSymbolVisitor(
         typeParameterSymbol: KtTypeParameterSymbol,
         dri: DRI
     ): DTypeParameter {
-        val upperBoundsOrNullableAny = typeParameterSymbol.upperBounds.takeIf { it.isNotEmpty() } ?: listOf(this.builtinTypes.NULLABLE_ANY)
+        val upperBoundsOrNullableAny =
+            typeParameterSymbol.upperBounds.takeIf { it.isNotEmpty() } ?: listOf(this.builtinTypes.NULLABLE_ANY)
         return DTypeParameter(
             variantTypeParameter = TypeParameter(
                 dri = dri.copy(target = PointingToGenericParameters(index)),
@@ -875,6 +885,7 @@ internal class DokkaSymbolVisitor(
         return functionSymbol.origin == KtSymbolOrigin.SOURCE_MEMBER_GENERATED ||
                 !functionSymbol.isOverride && functionSymbol.callableIdIfNonLocal?.classId?.isObvious() == true
     }
+
     private fun ClassId.isObvious(): Boolean = with(asString()) {
         return this == "kotlin/Any" || this == "kotlin/Enum"
                 || this == "java.lang/Object" || this == "java.lang/Enum"
@@ -883,7 +894,8 @@ internal class DokkaSymbolVisitor(
     private fun KtSymbol.getSource() = KtPsiDocumentableSource(psi).toSourceSetDependent()
 
     private fun AncestryNode.exceptionInSupertypesOrNull(): ExceptionInSupertypes? =
-        typeConstructorsBeingExceptions().takeIf { it.isNotEmpty() }?.let { ExceptionInSupertypes(it.toSourceSetDependent()) }
+        typeConstructorsBeingExceptions().takeIf { it.isNotEmpty() }
+            ?.let { ExceptionInSupertypes(it.toSourceSetDependent()) }
 
 
     // ----------- Translators of modifiers ----------------------------------------------------------------------------
@@ -892,8 +904,6 @@ internal class DokkaSymbolVisitor(
     private fun KtValueParameterSymbol.additionalExtras() = listOfNotNull(
         ExtraModifiers.KotlinOnlyModifiers.NoInline.takeIf { isNoinline },
         ExtraModifiers.KotlinOnlyModifiers.CrossInline.takeIf { isCrossinline },
-//ExtraModifiers.KotlinOnlyModifiers.Const.takeIf { isConst },
-//ExtraModifiers.KotlinOnlyModifiers.LateInit.takeIf { isLateInit },
         ExtraModifiers.KotlinOnlyModifiers.VarArg.takeIf { isVararg }
     ).toSet().takeUnless { it.isEmpty() }
 
@@ -937,7 +947,7 @@ internal class DokkaSymbolVisitor(
     ).toSet().takeUnless { it.isEmpty() }
 
     private fun Modality.toDokkaModifier() = when (this) {
-        Modality.FINAL -> KotlinModifier.Final //  OR else -> KotlinModifier.Empty
+        Modality.FINAL -> KotlinModifier.Final
         Modality.SEALED -> KotlinModifier.Sealed
         Modality.OPEN -> KotlinModifier.Open
         Modality.ABSTRACT -> KotlinModifier.Abstract

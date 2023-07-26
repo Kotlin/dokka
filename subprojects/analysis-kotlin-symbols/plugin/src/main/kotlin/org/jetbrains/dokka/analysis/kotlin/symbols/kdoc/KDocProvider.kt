@@ -55,22 +55,8 @@ internal fun KtAnalysisSession.getKDocDocumentationFrom(symbol: KtSymbol) = find
         kDocTag = it.contentTag,
         externalDri = { link ->
             val linkedSymbol = resolveKDocLink(link, symbol)
-            if (linkedSymbol == null) null
+            if (linkedSymbol == null) null // logger.warn("Couldn't resolve link for $link")
             else getDRIFromSymbol(linkedSymbol)
-
-
-//            try {
-//                resolveKDocLink(
-//                    context = resolutionFacade.resolveSession.bindingContext,
-//                    resolutionFacade = resolutionFacade,
-//                    fromDescriptor = this,
-//                    fromSubjectOfTag = null,
-//                    qualifiedName = link.split('.')
-//                ).firstOrNull()?.let { DRI.from(it) }
-//            } catch (e1: IllegalArgumentException) {
-//                logger.warn("Couldn't resolve link for $link")
-//                null
-//            }
         },
         kdocLocation = kdocLocation
     )
@@ -88,7 +74,7 @@ data class KDocContent(
 
 internal fun KtAnalysisSession.findKDoc(symbol: KtSymbol): KDocContent? {
     // for generated function (e.g. `copy`) psi returns class, see test `data class kdocs over generated methods`
-    if (symbol.origin == KtSymbolOrigin.LIBRARY || symbol.origin == KtSymbolOrigin.SOURCE_MEMBER_GENERATED) return null
+    if (symbol.origin != KtSymbolOrigin.SOURCE) return null
     val ktElement = symbol.psi as? KtElement
     ktElement?.findKDoc()?.let {
         return it
@@ -105,15 +91,10 @@ internal fun KtAnalysisSession.findKDoc(symbol: KtSymbol): KDocContent? {
 }
 
 
-fun KtElement.findKDoc(): KDocContent? {
-    return try {
-        this.lookupOwnedKDoc()
-            ?: this.lookupKDocInContainer()
-    } catch (e: Throwable) { // Attempt to load text for binary file which doesn't have a decompiler plugged in
-        // com.intellij.openapi.fileEditor.impl.LoadTextUtil.loadText
-        null
-    }
-}
+fun KtElement.findKDoc(): KDocContent? = this.lookupOwnedKDoc()
+    ?: this.lookupKDocInContainer()
+
+
 
 private fun KtElement.lookupOwnedKDoc(): KDocContent? {
     // KDoc for primary constructor is located inside of its class KDoc
