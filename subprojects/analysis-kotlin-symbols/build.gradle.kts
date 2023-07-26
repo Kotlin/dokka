@@ -8,27 +8,8 @@ plugins {
 }
 
 dependencies {
-    implementation("com.jetbrains.intellij.platform:core:213.7172.25")
-
-    listOf(
-        "com.jetbrains.intellij.platform:util-rt",
-        "com.jetbrains.intellij.platform:util-class-loader",
-        "com.jetbrains.intellij.platform:util-text-matching",
-        "com.jetbrains.intellij.platform:util",
-        "com.jetbrains.intellij.platform:util-base",
-        "com.jetbrains.intellij.platform:util-xml-dom",
-        "com.jetbrains.intellij.platform:core",
-        "com.jetbrains.intellij.platform:core-impl",
-        "com.jetbrains.intellij.platform:extensions",
-        "com.jetbrains.intellij.java:java-psi",
-        "com.jetbrains.intellij.java:java-psi-impl"
-    ).forEach {
-        implementation("$it:213.7172.25") { isTransitive = false }
-    }
-
     implementation(projects.subprojects.analysisKotlinApi)
     implementation(projects.subprojects.analysisKotlinSymbols.plugin)
-    //implementation(projects.subprojects.analysisKotlinSymbols.ide)
 }
 
 tasks {
