@@ -27,7 +27,7 @@ dependencies {
     }
 
     implementation(projects.subprojects.analysisKotlinApi)
-    implementation(projects.subprojects.analysisKotlinSymbols.compiler)
+    implementation(projects.subprojects.analysisKotlinSymbols.plugin)
     //implementation(projects.subprojects.analysisKotlinSymbols.ide)
 }
 
