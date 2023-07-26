@@ -17,6 +17,7 @@ dependencies {
     testImplementation(projects.core.testApi)
     testImplementation(platform(libs.junit.bom))
     testImplementation(libs.junit.jupiter)
+    testRuntimeOnly(project(path = ":subprojects:analysis-kotlin-descriptors", configuration = "shadow"))
 }
 
 registerDokkaArtifactPublication("androidDocumentationPlugin") {
