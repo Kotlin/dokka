@@ -37,6 +37,36 @@ dependencies {
     }
 }
 
+val descriptorsTestConfiguration: Configuration by configurations.creating {
+    extendsFrom(configurations.testImplementation.get())
+}
+val symbolsTestConfiguration: Configuration by configurations.creating {
+    extendsFrom(configurations.testImplementation.get())
+}
+
+dependencies {
+    symbolsTestConfiguration(project(path = ":subprojects:analysis-kotlin-symbols", configuration = "shadow"))
+    descriptorsTestConfiguration(project(path = ":subprojects:analysis-kotlin-descriptors", configuration = "shadow"))
+}
+
+
+val symbolsTest = tasks.register<Test>("symbolsTest") {
+    useJUnitPlatform {
+       excludeTags("onlyDescriptors", "onlyDescriptorsMPP")
+    }
+    classpath += symbolsTestConfiguration
+}
+
+tasks.test {
+    //enabled = false
+    classpath += descriptorsTestConfiguration
+    //dependsOn(symbolTest)
+}
+
+tasks.check {
+    dependsOn(symbolsTest)
+}
+
 // access the frontend files via the dependency on :plugins:base:frontend
 val dokkaHtmlFrontendFiles: Provider<FileCollection> =
     configurations.dokkaHtmlFrontendFiles.map { frontendFiles ->

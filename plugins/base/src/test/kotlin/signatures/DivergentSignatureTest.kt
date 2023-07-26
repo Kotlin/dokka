@@ -1,8 +1,11 @@
 package signatures
 
 import org.junit.jupiter.api.Test
+import utils.OnlyDescriptors
+import utils.OnlyDescriptorsMPP
 import utils.TestOutputWriterPlugin
 
+@OnlyDescriptorsMPP
 class DivergentSignatureTest : AbstractRenderingTest() {
 
     @Test

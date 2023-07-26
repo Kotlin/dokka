@@ -7,6 +7,7 @@ import org.jetbrains.dokka.analysis.markdown.jb.MarkdownParser
 import org.jetbrains.dokka.model.doc.*
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
+import utils.OnlyDescriptors
 import kotlin.test.assertEquals
 
 
@@ -1473,6 +1474,8 @@ class ParserTest : KDocTest() {
         executeTest(kdoc, expectedDocumentationNode)
     }
 
+
+    @OnlyDescriptors // TODO
     @Test
     fun `exception thrown by empty header should point to location of a file`() {
         val kdoc = """

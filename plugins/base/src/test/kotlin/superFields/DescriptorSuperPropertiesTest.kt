@@ -173,6 +173,7 @@ class DescriptorSuperPropertiesTest : BaseAbstractTest() {
         }
     }
 
+    // protected is publicAPI
     @Test
     fun `kotlin inheriting java should not append anything since field is public api`() {
         val configuration = dokkaConfiguration {

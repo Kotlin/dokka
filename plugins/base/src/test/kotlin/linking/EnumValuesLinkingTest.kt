@@ -11,11 +11,13 @@ import org.jsoup.Jsoup
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
+import utils.OnlyDescriptors
 import utils.TestOutputWriterPlugin
 import java.nio.file.Paths
 
 class EnumValuesLinkingTest : BaseAbstractTest() {
 
+    @OnlyDescriptors // TODO
     @Test
     fun `check if enum values are correctly linked`() {
         val writerPlugin = TestOutputWriterPlugin()

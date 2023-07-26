@@ -10,6 +10,7 @@ import org.jetbrains.dokka.model.doc.*
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
+import utils.OnlyDescriptors
 import utils.text
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
@@ -855,6 +856,7 @@ val soapXml = node("soap-env:Envelope", soapAttrs,
         }
     }
 
+    @OnlyDescriptors // TODO
     @Test
     fun `should have documentation for synthetic Enum values functions`() {
         testInline(
@@ -917,6 +919,7 @@ val soapXml = node("soap-env:Envelope", soapAttrs,
         }
     }
 
+    @OnlyDescriptors // TODO
     @Test
     fun `should have documentation for synthetic Enum entries property`() {
         testInline(
@@ -980,6 +983,7 @@ val soapXml = node("soap-env:Envelope", soapAttrs,
         }
     }
 
+    @OnlyDescriptors // TODO
     @Test
     fun `should have documentation for synthetic Enum valueOf functions`() {
         testInline(

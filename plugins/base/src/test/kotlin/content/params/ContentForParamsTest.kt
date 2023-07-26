@@ -473,6 +473,7 @@ class ContentForParamsTest : BaseAbstractTest() {
         }
     }
 
+    @OnlyDescriptors("Fixed in 1.9.20 (IMPORT STAR)")
     @Test
     fun `multiline kotlin throws with comment`() {
         testInline(
