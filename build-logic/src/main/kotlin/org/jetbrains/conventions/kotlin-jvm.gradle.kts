@@ -25,7 +25,6 @@ tasks.withType<KotlinCompile>().configureEach {
                 "-Xskip-metadata-version-check",
                 // need 1.4 support, otherwise there might be problems with Gradle 6.x (it's bundling Kotlin 1.4)
                 "-Xsuppress-version-warnings",
-               // "-XXLanguage:+SamConversionForKotlinFunctions",
             )
         )
         allWarningsAsErrors.set(true)

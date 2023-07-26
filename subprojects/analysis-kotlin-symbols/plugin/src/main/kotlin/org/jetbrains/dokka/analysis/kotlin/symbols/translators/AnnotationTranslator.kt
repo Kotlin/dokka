@@ -15,6 +15,9 @@ import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.KtFile
 
+/**
+ * Map [KtAnnotationApplication] to Dokka [Annotations.Annotation]
+ */
 internal class AnnotationTranslator {
     private fun KtAnalysisSession.getFileLevelAnnotationsFrom(symbol: KtSymbol) =
         if (symbol.origin != KtSymbolOrigin.SOURCE)
@@ -26,6 +29,9 @@ internal class AnnotationTranslator {
     private fun KtAnalysisSession.getDirectAnnotationsFrom(annotated: KtAnnotated) =
         annotated.annotations.map { toDokkaAnnotation(it) }
 
+    /**
+     * @return direct annotations and file-level annotations
+     */
     fun KtAnalysisSession.getAllAnnotationsFrom(annotated: KtAnnotated): List<Annotations.Annotation> {
         val directAnnotations = getDirectAnnotationsFrom(annotated)
         val fileLevelAnnotations = (annotated as? KtSymbol)?.let { getFileLevelAnnotationsFrom(it) } ?: emptyList()
@@ -116,6 +122,10 @@ internal class AnnotationTranslator {
     companion object {
         val mustBeDocumentedAnnotation = ClassId(FqName("kotlin.annotation"), FqName("MustBeDocumented"), false)
         private val parameterNameAnnotation = ClassId(FqName("kotlin"), FqName("ParameterName"), false)
+
+        /**
+         * Functional types can have **generated** [ParameterName] annotation
+         */
         internal fun KtAnnotated.getPresentableName(): String? =
             this.annotationsByClassId(parameterNameAnnotation)
                 .firstOrNull()?.arguments?.firstOrNull { it.name == Name.identifier("name") }?.expression?.let { it as? KtConstantAnnotationValue }

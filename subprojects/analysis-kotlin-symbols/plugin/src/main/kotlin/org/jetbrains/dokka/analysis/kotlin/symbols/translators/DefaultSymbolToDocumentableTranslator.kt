@@ -28,7 +28,6 @@ import org.jetbrains.kotlin.KtNodeTypes
 import org.jetbrains.kotlin.analysis.api.*
 import org.jetbrains.kotlin.analysis.api.annotations.KtAnnotated
 import org.jetbrains.kotlin.analysis.api.symbols.*
-import org.jetbrains.kotlin.analysis.api.symbols.markers.KtNamedSymbol
 import org.jetbrains.kotlin.analysis.api.symbols.markers.KtSymbolWithModality
 import org.jetbrains.kotlin.analysis.api.symbols.markers.KtSymbolWithVisibility
 import org.jetbrains.kotlin.analysis.api.types.*
@@ -67,30 +66,6 @@ class DefaultSymbolToDocumentableTranslator(context: DokkaContext) : AsyncSource
     }
 }
 
-class TranslatorError(message: String, cause: Throwable?) : IllegalStateException(message, cause)
-
-inline fun <R> KtAnalysisSession.withExceptionCatcher(symbol: KtSymbol, action: KtAnalysisSession.() -> R): R =
-    try {
-        action()
-    } catch (e: TranslatorError) {
-        throw e
-    } catch (e: Throwable) {
-        val file = try {
-            symbol.psi?.containingFile?.virtualFile?.path
-        } catch (e: Throwable) {
-            "[$e]"
-        }
-        val textRange = try {
-            symbol.psi?.textRange.toString()
-        } catch (e: Throwable) {
-            "[$e]"
-        }
-        throw TranslatorError(
-            "Error in translating of symbol (${(symbol as? KtNamedSymbol)?.name}) $symbol in file: $file, $textRange",
-            e
-        )
-    }
-
 internal fun <T : Bound> T.wrapWithVariance(variance: org.jetbrains.kotlin.types.Variance) =
     when (variance) {
         org.jetbrains.kotlin.types.Variance.INVARIANT -> Invariance(this)
@@ -98,6 +73,9 @@ internal fun <T : Bound> T.wrapWithVariance(variance: org.jetbrains.kotlin.types
         org.jetbrains.kotlin.types.Variance.OUT_VARIANCE -> Covariance(this)
     }
 
+/**
+ * Maps [KtSymbol] to Documentable model [Documentable]
+ */
 internal class DokkaSymbolVisitor(
     private val sourceSet: DokkaConfiguration.DokkaSourceSet,
     private val moduleName: String,
@@ -109,7 +87,7 @@ internal class DokkaSymbolVisitor(
     private var typeTranslator = TypeTranslator(sourceSet, annotationTranslator)
 
     /**
-     * to avoid recursive classes
+     * To avoid recursive classes
      * e.g.
      * open class Klass() {
      *   object Default : Klass()
@@ -134,7 +112,7 @@ internal class DokkaSymbolVisitor(
         } == true
     }
 
-    internal fun visitModule(): DModule {
+    fun visitModule(): DModule {
         val ktFiles: List<KtFile> = getPsiFilesFromPaths(
             analysisContext.project,
             getSourceFilePaths(sourceSet.sourceRoots.map { it.canonicalPath })
