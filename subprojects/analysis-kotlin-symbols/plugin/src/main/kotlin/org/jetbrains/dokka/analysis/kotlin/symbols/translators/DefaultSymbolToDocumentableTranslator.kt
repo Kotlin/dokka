@@ -142,11 +142,11 @@ internal class DokkaSymbolVisitor(
             getSourceFilePaths(sourceSet.sourceRoots.map { it.canonicalPath })
         )
         val processedPackages: MutableSet<FqName> = mutableSetOf()
-        val packageSymbols: List<DPackage> = ktFiles
-            .mapNotNull {
-                analyze(it) {
+        return analyze(analysisContext.mainModule) {
+            val packageSymbols: List<DPackage> = ktFiles
+                .mapNotNull {
                     if (processedPackages.contains(it.packageFqName))
-                        return@analyze null
+                        return@mapNotNull null
                     processedPackages.add(it.packageFqName)
                     getPackageSymbolIfPackageExists(it.packageFqName)?.let { it1 ->
                         visitPackageSymbol(
@@ -154,16 +154,15 @@ internal class DokkaSymbolVisitor(
                         )
                     }
                 }
-            }
-
-        return DModule(
-            name = moduleName,
-            packages = packageSymbols,
-            documentation = emptyMap(),
-            expectPresentInSet = null,
-            sourceSets = setOf(sourceSet)
-        )
-
+            
+            DModule(
+                name = moduleName,
+                packages = packageSymbols,
+                documentation = emptyMap(),
+                expectPresentInSet = null,
+                sourceSets = setOf(sourceSet)
+            )
+        }
     }
 
     private fun KtAnalysisSession.visitPackageSymbol(packageSymbol: KtPackageSymbol): DPackage {

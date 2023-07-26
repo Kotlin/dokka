@@ -60,13 +60,7 @@ internal abstract class SamplesTransformerImpl(val context: DokkaContext) : Page
         kotlinAnalysis: KotlinAnalysis
     ): ContentNode {
         val analysisContext = kotlinAnalysis[sourceSet]
-        // TODO research another ways to get AnalysisSession
-        val someKtFile = getPsiFilesFromPaths<KtFile>(
-            analysisContext.project,
-            getSourceFilePaths(sourceSet.samples.map { it.canonicalPath })
-        ).first()
-        // TODO Potential bug
-        val psiElement = analyze(someKtFile) {
+        val psiElement = analyze(analysisContext.mainModule) {
             val lastDotIndex = fqName.lastIndexOf('.')
 
             val functionName = if (lastDotIndex == -1) fqName else fqName.substring(lastDotIndex + 1, fqName.length)

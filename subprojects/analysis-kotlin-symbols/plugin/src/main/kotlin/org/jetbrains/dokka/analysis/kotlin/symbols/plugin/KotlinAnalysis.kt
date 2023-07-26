@@ -14,11 +14,13 @@ import org.jetbrains.kotlin.analysis.api.impl.base.util.LibraryUtils
 import org.jetbrains.kotlin.analysis.api.resolve.extensions.KtResolveExtensionProvider
 import org.jetbrains.kotlin.analysis.api.standalone.StandaloneAnalysisAPISession
 import org.jetbrains.kotlin.analysis.api.standalone.buildStandaloneAnalysisAPISession
+import org.jetbrains.kotlin.analysis.project.structure.KtSourceModule
 import org.jetbrains.kotlin.analysis.project.structure.builder.KtModuleBuilder
 import org.jetbrains.kotlin.analysis.project.structure.builder.buildKtLibraryModule
 import org.jetbrains.kotlin.analysis.project.structure.builder.buildKtSdkModule
 import org.jetbrains.kotlin.analysis.project.structure.builder.buildKtSourceModule
 import org.jetbrains.kotlin.cli.jvm.compiler.TopDownAnalyzerFacadeForJVM
+import org.jetbrains.kotlin.config.*
 import org.jetbrains.kotlin.idea.KotlinFileType
 import org.jetbrains.kotlin.platform.CommonPlatforms
 import org.jetbrains.kotlin.platform.js.JsPlatforms
@@ -138,12 +140,29 @@ fun getJdkHomeFromSystemProperty(): File? {
     return File("/home/Vadim.Mishenev/.jdks/adopt-openjdk-11.0.11")
 }
 
+internal fun getLanguageVersionSettings(languageVersionString: String?, apiVersionString: String?): LanguageVersionSettingsImpl {
+    val languageVersion = LanguageVersion.fromVersionString(languageVersionString) ?: LanguageVersion.LATEST_STABLE
+    val apiVersion =
+        apiVersionString?.let { ApiVersion.parse(it) } ?: ApiVersion.createByLanguageVersion(languageVersion)
+    return LanguageVersionSettingsImpl(
+        languageVersion = languageVersion,
+        apiVersion = apiVersion, analysisFlags = hashMapOf(
+            // special flag for Dokka
+            // force to resolve light classes (lazily by default)
+            AnalysisFlags.eagerResolveOfLightClasses to true
+        )
+    )
+}
+
 fun createAnalysisSession(
     classpath: List<File>,
     sourceRoots: Set<File>,
-    analysisPlatform: Platform
-): StandaloneAnalysisAPISession {
+    analysisPlatform: Platform,
+    languageVersion: String?,
+    apiVersion: String?
+): Pair<StandaloneAnalysisAPISession, KtSourceModule> {
 
+    var sourceModule: KtSourceModule? = null
     val analysisSession = buildStandaloneAnalysisAPISession(withPsiDeclarationFromBinaryModuleProvider = false) {
         val project = project
         val targetPlatform = analysisPlatform.toTargetPlatform()
@@ -176,32 +195,33 @@ fun createAnalysisSession(
                 )
             }
         }
+        sourceModule = buildKtSourceModule {
+             this.languageVersionSettings = getLanguageVersionSettings(languageVersion, apiVersion)
+
+            //val fs = StandardFileSystems.local()
+            //val psiManager = PsiManager.getInstance(project)
+            // TODO: We should handle (virtual) file changes announced via LSP with the VFS
+            /*val ktFiles = sources
+                .flatMap { Files.walk(it).toList() }
+                .mapNotNull { fs.findFileByPath(it.toString()) }
+                .mapNotNull { psiManager.findFile(it) }
+                .map { it as KtFile }*/
+            val sourcePaths = sourceRoots.map { it.absolutePath }
+            val (ktFilePath, javaFilePath) = getSourceFilePaths(sourcePaths).partition { it.endsWith(KotlinFileType.EXTENSION) }
+            val javaFiles: List<PsiFileSystemItem> = getPsiFilesFromPaths(project, javaFilePath)
+            val ktFiles: List<KtFile> = getPsiFilesFromPaths(project, getSourceFilePaths(ktFilePath))
+            addSourceRoots(ktFiles + javaFiles)
+            contentScope = TopDownAnalyzerFacadeForJVM.newModuleSearchScope(project, ktFiles)
+            platform = targetPlatform
+            moduleName = "<module>"
+            this.project = project
+            addModuleDependencies(moduleName)
+        }
 
         buildKtModuleProvider {
             platform = targetPlatform
             this.project = project
-            addModule(buildKtSourceModule {
-                //this.languageVersionSettings = it
-
-                //val fs = StandardFileSystems.local()
-                //val psiManager = PsiManager.getInstance(project)
-                // TODO: We should handle (virtual) file changes announced via LSP with the VFS
-                /*val ktFiles = sources
-                    .flatMap { Files.walk(it).toList() }
-                    .mapNotNull { fs.findFileByPath(it.toString()) }
-                    .mapNotNull { psiManager.findFile(it) }
-                    .map { it as KtFile }*/
-                val sourcePaths = sourceRoots.map { it.absolutePath }
-                val (ktFilePath, javaFilePath) = getSourceFilePaths(sourcePaths).partition { it.endsWith(KotlinFileType.EXTENSION) }
-                val javaFiles: List<PsiFileSystemItem> = getPsiFilesFromPaths(project, javaFilePath)
-                val ktFiles: List<KtFile> = getPsiFilesFromPaths(project, getSourceFilePaths(ktFilePath))
-                addSourceRoots(ktFiles + javaFiles)
-                contentScope = TopDownAnalyzerFacadeForJVM.newModuleSearchScope(project, ktFiles)
-                platform = targetPlatform
-                moduleName = "<module>"
-                this.project = project
-                addModuleDependencies(moduleName)
-            })
+            addModule(sourceModule!!)
         }
     }
     // TODO remove further
@@ -210,5 +230,5 @@ fun createAnalysisSession(
         KtResolveExtensionProvider.EP_NAME.name,
         KtResolveExtensionProvider::class.java
     )
-    return analysisSession
+    return Pair(analysisSession, sourceModule ?: throw IllegalStateException())
 }

@@ -36,17 +36,8 @@ internal fun ModuleAndPackageDocumentationParsingContext(
     if(kotlinAnalysis == null || sourceSet == null) {
         MarkdownParser(externalDri = { null }, sourceLocation)
     } else {
-        // TODO research another ways to get AnalysisSession
         val analysisContext = kotlinAnalysis[sourceSet]
-        val someKtFile = getPsiFilesFromPaths<KtFile>(
-            analysisContext.project,
-            getSourceFilePaths(sourceSet.sourceRoots.map { it.canonicalPath })
-        ).firstOrNull()
-
-        if (someKtFile == null)
-            MarkdownParser(externalDri = { null }, sourceLocation)
-        else
-        analyze(someKtFile) {
+        analyze(analysisContext.mainModule) {
             val contextSymbol = when (fragment.classifier) {
                 Module -> getPackageSymbolIfPackageExists(FqName.topLevel(Name.identifier("")))
                 Package -> getPackageSymbolIfPackageExists(FqName(fragment.name))
