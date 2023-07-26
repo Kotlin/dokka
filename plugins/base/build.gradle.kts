@@ -60,7 +60,7 @@ val symbolsTest = tasks.register<Test>("symbolsTest") {
 tasks.test {
     //enabled = false
     classpath += descriptorsTestConfiguration
-    //dependsOn(symbolTest)
+    dependsOn(symbolsTest)
 }
 
 tasks.check {

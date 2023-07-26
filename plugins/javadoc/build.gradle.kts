@@ -22,6 +22,7 @@ dependencies {
     testImplementation(libs.jsoup)
     testImplementation(platform(libs.junit.bom))
     testImplementation(libs.junit.jupiter)
+    testRuntimeOnly(project(path = ":subprojects:analysis-kotlin-descriptors", configuration = "shadow"))
 }
 
 registerDokkaArtifactPublication("javadocPlugin") {
