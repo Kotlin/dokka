@@ -180,7 +180,7 @@ class ContentForAnnotationsTest : BaseAbstractTest() {
             |
             |@MustBeDocumented
             |@Retention(AnnotationRetention.SOURCE)
-            |@Target(AnnotationTarget.FIELD)
+            |@Target(AnnotationTarget.PROPERTY)
             |annotation class BugReport(
             |    val assignedTo: String = "[none]",
             |    val testCase: KClass<ABC> = ABC::class,
