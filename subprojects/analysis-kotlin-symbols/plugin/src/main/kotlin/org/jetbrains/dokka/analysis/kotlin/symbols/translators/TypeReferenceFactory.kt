@@ -12,12 +12,15 @@ internal fun KtAnalysisSession.getTypeReferenceFrom(type: KtType): TypeReference
 
 
 // see `deep recursive typebound #1342` test
-private fun KtAnalysisSession.getTypeReferenceFromPossiblyRecursive(type: KtType, paramTrace: List<KtType>): TypeReference {
-    if(type is KtTypeParameterType) {
+private fun KtAnalysisSession.getTypeReferenceFromPossiblyRecursive(
+    type: KtType,
+    paramTrace: List<KtType>
+): TypeReference {
+    if (type is KtTypeParameterType) {
         // compare by symbol since, e.g. T? and T have the different KtType, but the same type parameter
         paramTrace.indexOfFirst { it is KtTypeParameterType && type.symbol == it.symbol }
             .takeIf { it >= 0 }
-            ?.let{ return RecursiveType(it) }
+            ?.let { return RecursiveType(it) }
     }
 
     return when (type) {
@@ -30,8 +33,10 @@ private fun KtAnalysisSession.getTypeReferenceFromPossiblyRecursive(type: KtType
                 )
             }
         )
+
         is KtTypeParameterType -> {
-            val upperBoundsOrNullableAny = type.symbol.upperBounds.takeIf { it.isNotEmpty() } ?: listOf(this.builtinTypes.NULLABLE_ANY)
+            val upperBoundsOrNullableAny =
+                type.symbol.upperBounds.takeIf { it.isNotEmpty() } ?: listOf(this.builtinTypes.NULLABLE_ANY)
 
             TypeParam(bounds = upperBoundsOrNullableAny.map {
                 getTypeReferenceFromPossiblyRecursive(
@@ -40,15 +45,18 @@ private fun KtAnalysisSession.getTypeReferenceFromPossiblyRecursive(type: KtType
                 )
             })
         }
-        is KtClassErrorType ->  TypeConstructor("$ERROR_CLASS_NAME $type", emptyList())
-        is KtFlexibleType ->  getTypeReferenceFromPossiblyRecursive(
+
+        is KtClassErrorType -> TypeConstructor("$ERROR_CLASS_NAME $type", emptyList())
+        is KtFlexibleType -> getTypeReferenceFromPossiblyRecursive(
             type.upperBound,
             paramTrace
         )
-        is KtDefinitelyNotNullType ->  getTypeReferenceFromPossiblyRecursive(
+
+        is KtDefinitelyNotNullType -> getTypeReferenceFromPossiblyRecursive(
             type.original,
             paramTrace
         )
+
         is KtDynamicType -> TypeConstructor("[dynamic]", emptyList())
         is KtTypeErrorType -> TypeConstructor("$ERROR_CLASS_NAME $type", emptyList())
         is KtCapturedType -> throw NotImplementedError()
@@ -60,7 +68,10 @@ private fun KtAnalysisSession.getTypeReferenceFromPossiblyRecursive(type: KtType
 
 }
 
-private fun KtAnalysisSession.getTypeReferenceFromTypeProjection(typeProjection: KtTypeProjection, paramTrace: List<KtType>): TypeReference =
+private fun KtAnalysisSession.getTypeReferenceFromTypeProjection(
+    typeProjection: KtTypeProjection,
+    paramTrace: List<KtType>
+): TypeReference =
     when (typeProjection) {
         is KtStarTypeProjection -> StarProjection
         is KtTypeArgumentWithVariance -> getTypeReferenceFromPossiblyRecursive(typeProjection.type, paramTrace)

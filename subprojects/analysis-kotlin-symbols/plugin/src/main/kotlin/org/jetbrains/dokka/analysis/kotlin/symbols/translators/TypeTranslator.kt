@@ -14,6 +14,7 @@ import org.jetbrains.kotlin.analysis.api.symbols.*
 import org.jetbrains.kotlin.analysis.api.types.*
 
 const val ERROR_CLASS_NAME = "<ERROR CLASS>"
+
 internal class TypeTranslator(
     private val sourceSet: DokkaConfiguration.DokkaSourceSet,
     private val annotationTranslator: AnnotationTranslator
@@ -70,6 +71,7 @@ internal class TypeTranslator(
                 if (type.classSymbol is KtTypeAliasSymbol) toTypeConstructorFromTypeAliased(type)
                 else toTypeConstructorFrom(type)
             }
+
             is KtTypeParameterType -> TypeParameter(
                 dri = getDRIFromTypeParameter(type.symbol),
                 name = type.name.asString(),
@@ -78,12 +80,14 @@ internal class TypeTranslator(
                     getDokkaAnnotationsFrom(type)?.toSourceSetDependent()?.toAnnotations()
                 )
             )
+
             is KtClassErrorType -> UnresolvedBound(type.toString())
             is KtFunctionalType -> toFunctionalTypeConstructorFrom(type)
             is KtDynamicType -> Dynamic
             is KtDefinitelyNotNullType -> DefinitelyNonNullable(
                 toBoundFrom(type.original)
             )
+
             is KtFlexibleType -> TypeAliased(
                 toBoundFrom(type.upperBound),
                 toBoundFrom(type.lowerBound),
@@ -91,6 +95,7 @@ internal class TypeTranslator(
                     getDokkaAnnotationsFrom(type)?.toSourceSetDependent()?.toAnnotations()
                 )
             )
+
             is KtTypeErrorType -> UnresolvedBound(type.toString())
             is KtCapturedType -> throw NotImplementedError()
             is KtIntegerLiteralType -> throw NotImplementedError()
@@ -133,21 +138,24 @@ internal class TypeTranslator(
                 dri = DRI("$ERROR_CLASS_NAME $type", "", null),
                 projections = emptyList(),
 
-            ),
+                ),
             KotlinClassKindTypes.CLASS
         )
+
         is KtTypeErrorType -> TypeConstructorWithKind(
             GenericTypeConstructor(
                 dri = DRI("$ERROR_CLASS_NAME $type", "", null),
                 projections = emptyList(),
 
-            ),
+                ),
             KotlinClassKindTypes.CLASS
         )
+
         is KtFunctionalType -> TypeConstructorWithKind(
             toFunctionalTypeConstructorFrom(type),
             KotlinClassKindTypes.CLASS
         )
+
         is KtDefinitelyNotNullType -> toTypeConstructorWithKindFrom(type.original)
 
         is KtCapturedType -> throw NotImplementedError()
