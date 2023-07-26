@@ -8,7 +8,7 @@ import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.KtElement
 
 /**
- *  Give priority to callable independent of scope order
+ *  Callable have priority independent of scope order
  */
 private fun KtAnalysisSession.searchInScope(scope: KtScope, inndexOfLinkSegment: Int, linkSegments: List<Name>): KtSymbol? {
     val identifier = linkSegments[inndexOfLinkSegment]
@@ -37,6 +37,6 @@ internal fun KtAnalysisSession.resolveKDocLink(link: String, contextElement: KtE
     val  file = contextElement.containingKtFile
     val scope =  file.getScopeContextForPosition(contextElement).getCompositeScope()
 
-    return searchInScope(scope, 0, linkParts)
-        ?: searchInScope(ROOT_PACKAGE_SYMBOL.getPackageScope(), 0, linkParts)
+    return searchInScope(scope, 0, linkParts) // relative link
+        ?: searchInScope(ROOT_PACKAGE_SYMBOL.getPackageScope(), 0, linkParts) // fq link
 }

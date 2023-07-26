@@ -13,8 +13,13 @@ import org.jetbrains.kotlin.analysis.api.annotations.*
 import org.jetbrains.kotlin.analysis.api.symbols.*
 import org.jetbrains.kotlin.analysis.api.types.*
 
-const val ERROR_CLASS_NAME = "<ERROR CLASS>"
+internal const val ERROR_CLASS_NAME = "<ERROR CLASS>"
 
+/**
+ * Maps [KtType] to Dokka [Bound] or [TypeConstructorWithKind].
+ *
+ * Also, build [AncestryNode] tree from [KtType]
+ */
 internal class TypeTranslator(
     private val sourceSet: DokkaConfiguration.DokkaSourceSet,
     private val annotationTranslator: AnnotationTranslator
@@ -65,7 +70,7 @@ internal class TypeTranslator(
             )
         )
 
-    internal fun KtAnalysisSession.toBoundFrom(type: KtType): Bound =
+    fun KtAnalysisSession.toBoundFrom(type: KtType): Bound =
         when (type) {
             is KtUsualClassType -> {
                 if (type.classSymbol is KtTypeAliasSymbol) toTypeConstructorFromTypeAliased(type)
