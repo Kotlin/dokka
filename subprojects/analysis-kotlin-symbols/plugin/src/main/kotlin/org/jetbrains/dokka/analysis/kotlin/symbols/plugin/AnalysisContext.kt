@@ -7,6 +7,7 @@ import org.jetbrains.dokka.InternalDokkaApi
 import org.jetbrains.dokka.model.SourceSetDependent
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.kotlin.analysis.api.standalone.StandaloneAnalysisAPISession
+import org.jetbrains.kotlin.analysis.project.structure.KtSourceModule
 import java.io.Closeable
 import java.io.File
 
@@ -62,7 +63,14 @@ internal fun createAnalysisContext(
     sourceRoots: Set<File>,
     sourceSet: DokkaConfiguration.DokkaSourceSet
 ): AnalysisContext {
-    return AnalysisContextImpl(createAnalysisSession(classpath, sourceRoots, sourceSet.analysisPlatform))
+    val analysis= createAnalysisSession(
+        classpath = classpath,
+        sourceRoots = sourceRoots,
+        analysisPlatform = sourceSet.analysisPlatform,
+        languageVersion = sourceSet.languageVersion,
+        apiVersion = sourceSet.apiVersion
+    )
+    return AnalysisContextImpl(analysis.first, analysis.second,)
 }
 
 
@@ -102,9 +110,10 @@ internal open class EnvironmentKotlinAnalysis(
 
 interface AnalysisContext: Closeable {
     val project: Project
+    val mainModule: KtSourceModule
 }
 
-class AnalysisContextImpl(private val analysisSession: StandaloneAnalysisAPISession) : AnalysisContext {
+class AnalysisContextImpl(private val analysisSession: StandaloneAnalysisAPISession, override val mainModule: KtSourceModule) : AnalysisContext {
     override val project: Project
         get() = analysisSession.project
 

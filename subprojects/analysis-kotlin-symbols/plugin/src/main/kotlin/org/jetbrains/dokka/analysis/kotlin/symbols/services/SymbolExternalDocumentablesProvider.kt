@@ -25,17 +25,13 @@ internal class SymbolExternalDocumentablesProvider(val context: DokkaContext) : 
 
         // TODO research another ways to get AnalysisSession
         val analysisContext = kotlinAnalysis[sourceSet]
-        val someKtFile = getPsiFilesFromPaths<KtFile>(
-            analysisContext.project,
-            getSourceFilePaths(sourceSet.sourceRoots.map { it.canonicalPath })
-        ).first()
-        analyze(someKtFile) {
-            val symbol = getClassOrObjectSymbolByClassId(classId) as? KtNamedClassOrObjectSymbol?: return null
+        return analyze(analysisContext.mainModule) {
+            val symbol = getClassOrObjectSymbolByClassId(classId) as? KtNamedClassOrObjectSymbol?: return@analyze null
             val translator = DokkaSymbolVisitor(sourceSet, sourceSet.displayName, analysisContext, logger = context.logger)
 
             val parentDRI = symbol.getContainingSymbol()?.let { getDRIFromSymbol(it) } ?: /* top level */ DRI(dri.packageName)
             with(translator) {
-                return visitNamedClassOrObjectSymbol(symbol, parentDRI)
+                return@analyze visitNamedClassOrObjectSymbol(symbol, parentDRI)
             }
         }
     }
