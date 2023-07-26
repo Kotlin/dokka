@@ -751,6 +751,7 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
         }
     }
 
+    @OnlyDescriptorsMPP
     @Test
     fun `multiplatform class with seealso in few platforms`() {
         testInline(

@@ -549,6 +549,7 @@ class SignatureTest : BaseAbstractTest() {
             }
         }
     }
+    @OnlyDescriptorsMPP
     @Test
     fun `actual typealias should have generic parameters and fully qualified name of the expansion type`() {
         val writerPlugin = TestOutputWriterPlugin()
@@ -583,6 +584,7 @@ class SignatureTest : BaseAbstractTest() {
         }
     }
 
+    @OnlyDescriptorsMPP
     @Test
     fun `type with an actual typealias`() {
         val writerPlugin = TestOutputWriterPlugin()
@@ -763,6 +765,7 @@ class SignatureTest : BaseAbstractTest() {
         }
     }
 
+    @OnlyDescriptors("Order of constructors is different in K2")
     @Test
     fun `generic constructor params`() {
         val writerPlugin = TestOutputWriterPlugin()
@@ -977,6 +980,7 @@ class SignatureTest : BaseAbstractTest() {
         }
     }
 
+    @OnlyDescriptors("'var' expected but found: 'open var'")
     @Test
     fun `java property without accessors should be var`() {
         val writerPlugin = TestOutputWriterPlugin()

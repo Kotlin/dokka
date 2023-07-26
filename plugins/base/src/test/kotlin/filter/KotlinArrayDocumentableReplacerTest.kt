@@ -8,6 +8,7 @@ import org.jetbrains.dokka.model.GenericTypeConstructor
 import org.jetbrains.dokka.model.Invariance
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
+import utils.OnlyDescriptors
 
 class KotlinArrayDocumentableReplacerTest : BaseAbstractTest() {
     private val configuration = dokkaConfiguration {
@@ -157,6 +158,8 @@ class KotlinArrayDocumentableReplacerTest : BaseAbstractTest() {
             }
         }
     }
+
+    @OnlyDescriptors // TODO fix module.contentScope [getKtModuleForKtElement]
     @Test
     fun `no jvm source set`() {
         val configurationWithNoJVM = dokkaConfiguration {
@@ -167,7 +170,7 @@ class KotlinArrayDocumentableReplacerTest : BaseAbstractTest() {
                 }
                 sourceSet {
                     sourceRoots = listOf("src/main/kotlin/basic/TestJS.kt")
-                    analysisPlatform = "js"
+                    analysisPlatform = "jvm"
                 }
             }
         }

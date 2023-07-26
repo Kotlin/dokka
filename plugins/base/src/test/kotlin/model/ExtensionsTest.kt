@@ -85,7 +85,7 @@ class ExtensionsTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "cl
             }
         }
     }
-
+    
     @Test
     fun `should be extension for typealias`() {
         inlineModelTest(
