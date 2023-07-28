@@ -89,7 +89,7 @@ internal fun collectSourceFilePaths(
  *
  * this util collects all `.kt` and `.java` files under source roots.
  */
-fun getSourceFilePaths(
+internal fun getSourceFilePaths(
     sourceRoot: Collection<String>,
     includeDirectoryRoot: Boolean = false,
 ): Set<String> {
@@ -111,7 +111,7 @@ fun getSourceFilePaths(
     return result
 }
 
-inline fun <reified T : PsiFileSystemItem> getPsiFilesFromPaths(
+internal inline fun <reified T : PsiFileSystemItem> getPsiFilesFromPaths(
     project: Project,
     paths: Collection<String>,
 ): List<T> {
@@ -131,7 +131,7 @@ inline fun <reified T : PsiFileSystemItem> getPsiFilesFromPaths(
 }
 
 
-fun getJdkHomeFromSystemProperty(): File? {
+private fun getJdkHomeFromSystemProperty(): File? {
     val javaHome = File(System.getProperty("java.home"))
     if (!javaHome.exists()) {
        // messageCollector.report(CompilerMessageSeverity.WARNING, "Set existed java.home to use JDK")
@@ -154,7 +154,8 @@ internal fun getLanguageVersionSettings(languageVersionString: String?, apiVersi
     )
 }
 
-fun createAnalysisSession(
+
+internal fun createAnalysisSession(
     classpath: List<File>,
     sourceRoots: Set<File>,
     analysisPlatform: Platform,

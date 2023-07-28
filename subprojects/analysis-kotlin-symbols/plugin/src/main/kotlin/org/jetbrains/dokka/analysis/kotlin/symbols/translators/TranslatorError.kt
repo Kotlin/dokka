@@ -4,9 +4,9 @@ import org.jetbrains.kotlin.analysis.api.KtAnalysisSession
 import org.jetbrains.kotlin.analysis.api.symbols.KtSymbol
 import org.jetbrains.kotlin.analysis.api.symbols.markers.KtNamedSymbol
 
-class TranslatorError(message: String, cause: Throwable?) : IllegalStateException(message, cause)
+internal class TranslatorError(message: String, cause: Throwable?) : IllegalStateException(message, cause)
 
-inline fun <R> KtAnalysisSession.withExceptionCatcher(symbol: KtSymbol, action: KtAnalysisSession.() -> R): R =
+internal inline fun <R> KtAnalysisSession.withExceptionCatcher(symbol: KtSymbol, action: KtAnalysisSession.() -> R): R =
     try {
         action()
     } catch (e: TranslatorError) {

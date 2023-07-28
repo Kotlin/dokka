@@ -9,7 +9,7 @@ import org.jetbrains.dokka.model.WithSources
 import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.jetbrains.kotlin.analysis.kotlin.internal.SyntheticDocumentableDetector
 
-class SymbolSyntheticDocumentableDetector : SyntheticDocumentableDetector {
+internal class SymbolSyntheticDocumentableDetector : SyntheticDocumentableDetector {
 
    /**
     * Currently, it's used only for [org.jetbrains.dokka.base.transformers.documentables.ReportUndocumentedTransformer]
