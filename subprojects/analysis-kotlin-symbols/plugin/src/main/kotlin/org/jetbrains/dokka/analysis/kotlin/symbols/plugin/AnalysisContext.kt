@@ -108,12 +108,13 @@ internal open class EnvironmentKotlinAnalysis(
     }
 }
 
+@InternalDokkaApi
 interface AnalysisContext: Closeable {
     val project: Project
     val mainModule: KtSourceModule
 }
 
-class AnalysisContextImpl(private val analysisSession: StandaloneAnalysisAPISession, override val mainModule: KtSourceModule) : AnalysisContext {
+internal class AnalysisContextImpl(private val analysisSession: StandaloneAnalysisAPISession, override val mainModule: KtSourceModule) : AnalysisContext {
     override val project: Project
         get() = analysisSession.project
 

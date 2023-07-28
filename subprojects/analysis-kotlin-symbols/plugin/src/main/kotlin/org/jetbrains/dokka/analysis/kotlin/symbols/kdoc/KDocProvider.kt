@@ -67,7 +67,7 @@ internal fun KtAnalysisSession.getKDocDocumentationFrom(symbol: KtSymbol) = find
 
 // ----------- copy-paste from IDE ----------------------------------------------------------------------------
 
-data class KDocContent(
+internal data class KDocContent(
     val contentTag: KDocTag,
     val sections: List<KDocSection>
 )
@@ -91,7 +91,7 @@ internal fun KtAnalysisSession.findKDoc(symbol: KtSymbol): KDocContent? {
 }
 
 
-fun KtElement.findKDoc(): KDocContent? = this.lookupOwnedKDoc()
+internal fun KtElement.findKDoc(): KDocContent? = this.lookupOwnedKDoc()
     ?: this.lookupKDocInContainer()
 
 
