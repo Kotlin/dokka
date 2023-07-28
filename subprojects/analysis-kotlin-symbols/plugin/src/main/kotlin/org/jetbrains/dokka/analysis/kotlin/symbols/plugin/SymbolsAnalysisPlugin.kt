@@ -17,6 +17,8 @@ import org.jetbrains.dokka.analysis.kotlin.symbols.translators.DefaultSymbolToDo
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.plugability.DokkaPluginApiPreview
 import org.jetbrains.dokka.plugability.PluginApiPreviewAcknowledgement
+import org.jetbrains.dokka.plugability.querySingle
+import org.jetbrains.dokka.renderers.PostAction
 import org.jetbrains.kotlin.analysis.kotlin.internal.InternalKotlinAnalysisPlugin
 import org.jetbrains.kotlin.asJava.elements.KtLightAbstractAnnotation
 
@@ -25,7 +27,7 @@ class SymbolsAnalysisPlugin : DokkaPlugin() {
 
     val kotlinAnalysis by extensionPoint<KotlinAnalysis>()
 
-    internal  val defaultKotlinAnalysis by extending {
+    internal val defaultKotlinAnalysis by extending {
         kotlinAnalysis providing { ctx ->
             ProjectKotlinAnalysis(
                 sourceSets = ctx.configuration.sourceSets,
@@ -34,6 +36,9 @@ class SymbolsAnalysisPlugin : DokkaPlugin() {
         }
     }
 
+    internal val disposeKotlinAnalysisPostAction by extending {
+        CoreExtensions.postActions with PostAction { querySingle { kotlinAnalysis }.close() }
+    }
 
     val symbolToDocumentableTranslator by extending {
         CoreExtensions.sourceToDocumentableTranslator providing ::DefaultSymbolToDocumentableTranslator
@@ -44,11 +49,12 @@ class SymbolsAnalysisPlugin : DokkaPlugin() {
     internal val projectProvider by extending {
         javaAnalysisPlugin.projectProvider providing { KotlinAnalysisProjectProvider() }
     }
-/*
-    internal val sourceRootsExtractor by extending {
-        javaAnalysisPlugin.sourceRootsExtractor providing { KotlinAnalysisSourceRootsExtractor() }
-    }
-*/
+
+    /*
+        internal val sourceRootsExtractor by extending {
+            javaAnalysisPlugin.sourceRootsExtractor providing { KotlinAnalysisSourceRootsExtractor() }
+        }
+    */
     internal val kotlinDocCommentCreator by extending {
         javaAnalysisPlugin.docCommentCreators providing {
             DescriptorKotlinDocCommentCreator()
@@ -95,22 +101,22 @@ class SymbolsAnalysisPlugin : DokkaPlugin() {
         plugin<InternalKotlinAnalysisPlugin>().moduleAndPackageDocumentationReader providing ::ModuleAndPackageDocumentationReader
     }
 
-/* internal val kotlinToJavaMapper by extending {
-     plugin<InternalKotlinAnalysisPlugin>().kotlinToJavaService providing { DescriptorKotlinToJavaMapper() }
- }
+    /* internal val kotlinToJavaMapper by extending {
+         plugin<InternalKotlinAnalysisPlugin>().kotlinToJavaService providing { DescriptorKotlinToJavaMapper() }
+     }
 
- intern val descriptorInheritanceBuilder by extending {
-     plugin<InternalKotlinAnalysisPlugin>().inheritanceBuilder providing { DescriptorInheritanceBuilder() }
- }
-*/
- internal val symbolExternalDocumentablesProvider by extending {
-     plugin<InternalKotlinAnalysisPlugin>().externalDocumentablesProvider providing ::SymbolExternalDocumentablesProvider
- }
+     intern val descriptorInheritanceBuilder by extending {
+         plugin<InternalKotlinAnalysisPlugin>().inheritanceBuilder providing { DescriptorInheritanceBuilder() }
+     }
+    */
+    internal val symbolExternalDocumentablesProvider by extending {
+        plugin<InternalKotlinAnalysisPlugin>().externalDocumentablesProvider providing ::SymbolExternalDocumentablesProvider
+    }
 
     internal val defaultSamplesTransformer by extending {
         CoreExtensions.pageTransformer providing ::DefaultSamplesTransformer
     }
 
- @OptIn(DokkaPluginApiPreview::class)
- override fun pluginApiPreviewAcknowledgement(): PluginApiPreviewAcknowledgement = PluginApiPreviewAcknowledgement
+    @OptIn(DokkaPluginApiPreview::class)
+    override fun pluginApiPreviewAcknowledgement(): PluginApiPreviewAcknowledgement = PluginApiPreviewAcknowledgement
 }
