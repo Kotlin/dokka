@@ -38,5 +38,6 @@ class Multiplatform0GradleIntegrationTest(override val versions: BuildVersions) 
             assertNoEmptyLinks(file)
             assertNoEmptySpans(file)
         }
+        assertStringExistsInOutput(dokkaOutputDir.allHtmlFiles().toList(), "otherMainFunction")
     }
 }

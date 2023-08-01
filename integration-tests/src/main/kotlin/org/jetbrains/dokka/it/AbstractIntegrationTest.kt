@@ -165,4 +165,11 @@ abstract class AbstractIntegrationTest {
             )
         }
     }
+
+    protected fun assertStringExistsInOutput(outputFiles: List<File>, expectedString: String) {
+        outputFiles.forEach {
+            if (expectedString in it.readText()) return
+        }
+        assert(false) { "failed to find $expectedString in any output file!" }
+    }
 }
