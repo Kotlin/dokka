@@ -8,9 +8,9 @@ import org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.configuration.fr
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.utilities.parallelForEach
-import org.jetbrains.kotlin.analysis.kotlin.internal.ClassHierarchy
-import org.jetbrains.kotlin.analysis.kotlin.internal.FullClassHierarchyBuilder
-import org.jetbrains.kotlin.analysis.kotlin.internal.Supertypes
+import org.jetbrains.dokka.analysis.kotlin.internal.ClassHierarchy
+import org.jetbrains.dokka.analysis.kotlin.internal.FullClassHierarchyBuilder
+import org.jetbrains.dokka.analysis.kotlin.internal.Supertypes
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.typeUtil.immediateSupertypes

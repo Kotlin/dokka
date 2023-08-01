@@ -8,7 +8,7 @@ import org.jetbrains.dokka.base.translators.documentables.DefaultPageCreator
 import org.jetbrains.dokka.model.DProperty
 import org.jetbrains.dokka.pages.MemberPageNode
 import org.jetbrains.dokka.utilities.DokkaLogger
-import org.jetbrains.kotlin.analysis.kotlin.internal.DocumentableSourceLanguageParser
+import org.jetbrains.dokka.analysis.kotlin.internal.DocumentableSourceLanguageParser
 
 class KotlinAsJavaPageCreator(
     configuration: DokkaBaseConfiguration?,
