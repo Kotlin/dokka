@@ -14,7 +14,7 @@ import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.utilities.associateWithNotNull
-import org.jetbrains.kotlin.analysis.kotlin.internal.ModuleAndPackageDocumentationReader
+import org.jetbrains.dokka.analysis.kotlin.internal.ModuleAndPackageDocumentationReader
 
 internal fun ModuleAndPackageDocumentationReader(context: DokkaContext): ModuleAndPackageDocumentationReader =
     ContextModuleAndPackageDocumentationReader(context)

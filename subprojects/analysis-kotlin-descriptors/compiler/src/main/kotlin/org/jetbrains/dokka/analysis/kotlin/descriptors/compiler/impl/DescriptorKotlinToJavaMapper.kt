@@ -2,7 +2,7 @@ package org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.impl
 
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.PointingToDeclaration
-import org.jetbrains.kotlin.analysis.kotlin.internal.KotlinToJavaService
+import org.jetbrains.dokka.analysis.kotlin.internal.KotlinToJavaService
 import org.jetbrains.kotlin.builtins.jvm.JavaToKotlinClassMap
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName

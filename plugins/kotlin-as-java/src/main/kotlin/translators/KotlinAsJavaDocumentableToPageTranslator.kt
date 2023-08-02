@@ -7,7 +7,7 @@ import org.jetbrains.dokka.pages.ModulePageNode
 import org.jetbrains.dokka.plugability.*
 import org.jetbrains.dokka.transformers.documentation.DocumentableToPageTranslator
 import org.jetbrains.dokka.utilities.DokkaLogger
-import org.jetbrains.kotlin.analysis.kotlin.internal.InternalKotlinAnalysisPlugin
+import org.jetbrains.dokka.analysis.kotlin.internal.InternalKotlinAnalysisPlugin
 
 class KotlinAsJavaDocumentableToPageTranslator(context: DokkaContext) : DocumentableToPageTranslator {
     private val configuration = configuration<DokkaBase, DokkaBaseConfiguration>(context)

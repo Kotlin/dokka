@@ -18,7 +18,7 @@ import org.jetbrains.dokka.plugability.DokkaPluginApiPreview
 import org.jetbrains.dokka.plugability.PluginApiPreviewAcknowledgement
 import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.renderers.PostAction
-import org.jetbrains.kotlin.analysis.kotlin.internal.InternalKotlinAnalysisPlugin
+import org.jetbrains.dokka.analysis.kotlin.internal.InternalKotlinAnalysisPlugin
 import org.jetbrains.kotlin.asJava.elements.KtLightAbstractAnnotation
 
 @InternalDokkaApi

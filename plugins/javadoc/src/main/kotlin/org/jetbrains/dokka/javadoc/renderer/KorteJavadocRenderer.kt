@@ -22,7 +22,7 @@ import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.query
 import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.renderers.Renderer
-import org.jetbrains.kotlin.analysis.kotlin.internal.InheritanceNode
+import org.jetbrains.dokka.analysis.kotlin.internal.InheritanceNode
 import java.time.LocalDate
 
 typealias TemplateMap = Map<String, Any?>

@@ -8,8 +8,8 @@ import org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.configuration.fr
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.Documentable
 import org.jetbrains.dokka.model.WithSources
-import org.jetbrains.kotlin.analysis.kotlin.internal.InheritanceBuilder
-import org.jetbrains.kotlin.analysis.kotlin.internal.InheritanceNode
+import org.jetbrains.dokka.analysis.kotlin.internal.InheritanceBuilder
+import org.jetbrains.dokka.analysis.kotlin.internal.InheritanceNode
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.descriptors.ClassKind
 import org.jetbrains.kotlin.resolve.DescriptorUtils.getClassDescriptorForType
