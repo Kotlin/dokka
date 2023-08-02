@@ -10,6 +10,7 @@ import org.jetbrains.dokka.model.doc.Text
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import utils.AbstractModelTest
+import utils.assertContains
 import utils.assertNotNull
 import utils.name
 import kotlin.test.assertEquals
@@ -451,6 +452,11 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
             """, configuration = configuration
         ) {
             with((this / "java" / "Foo").cast<DClass>()) {
+                val functionNames = functions.map { it.name }
+                assertContains(functionNames, "superBound")
+                assertContains(functionNames, "extendsBound")
+                assertContains(functionNames, "unbounded")
+
                 for (function in functions) {
                     val param = function.parameters.single()
                     val type = param.type as GenericTypeConstructor
