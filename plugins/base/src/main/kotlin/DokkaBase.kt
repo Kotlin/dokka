@@ -1,5 +1,3 @@
-@file:Suppress("unused")
-
 package org.jetbrains.dokka.base
 
 import org.jetbrains.dokka.CoreExtensions
@@ -19,6 +17,7 @@ import org.jetbrains.dokka.base.signatures.KotlinSignatureProvider
 import org.jetbrains.dokka.base.signatures.SignatureProvider
 import org.jetbrains.dokka.base.templating.ImmediateHtmlCommandConsumer
 import org.jetbrains.dokka.base.transformers.documentables.*
+import org.jetbrains.dokka.base.transformers.pages.DefaultSamplesTransformer
 import org.jetbrains.dokka.base.transformers.pages.annotations.SinceKotlinTransformer
 import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentConverter
 import org.jetbrains.dokka.base.transformers.pages.comments.DocTagToContentConverter
@@ -33,6 +32,7 @@ import org.jetbrains.dokka.plugability.PluginApiPreviewAcknowledgement
 import org.jetbrains.dokka.transformers.documentation.PreMergeDocumentableTransformer
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 
+@Suppress("unused")
 class DokkaBase : DokkaPlugin() {
 
     val preMergeDocumentableTransformer by extensionPoint<PreMergeDocumentableTransformer>()
@@ -189,6 +189,12 @@ class DokkaBase : DokkaPlugin() {
 
     val rootCreator by extending {
         htmlPreprocessors with RootCreator applyIf { !delayTemplateSubstitution }
+    }
+
+    val defaultSamplesTransformer by extending {
+        CoreExtensions.pageTransformer providing ::DefaultSamplesTransformer order {
+            before(pageMerger)
+        }
     }
 
     val sourceLinksTransformer by extending {
