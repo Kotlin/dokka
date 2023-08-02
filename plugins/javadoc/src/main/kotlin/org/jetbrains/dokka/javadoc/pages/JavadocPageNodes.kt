@@ -7,8 +7,8 @@ import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.jetbrains.dokka.pages.*
-import org.jetbrains.kotlin.analysis.kotlin.internal.InheritanceBuilder
-import org.jetbrains.kotlin.analysis.kotlin.internal.InheritanceNode
+import org.jetbrains.dokka.analysis.kotlin.internal.InheritanceBuilder
+import org.jetbrains.dokka.analysis.kotlin.internal.InheritanceNode
 
 interface JavadocPageNode : ContentPage, WithDocumentables
 
