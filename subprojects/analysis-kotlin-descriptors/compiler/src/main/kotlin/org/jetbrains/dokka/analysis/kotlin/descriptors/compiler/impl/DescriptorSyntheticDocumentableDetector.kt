@@ -4,7 +4,7 @@ import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.configuration.DescriptorDocumentableSource
 import org.jetbrains.dokka.model.Documentable
 import org.jetbrains.dokka.model.WithSources
-import org.jetbrains.kotlin.analysis.kotlin.internal.SyntheticDocumentableDetector
+import org.jetbrains.dokka.analysis.kotlin.internal.SyntheticDocumentableDetector
 import org.jetbrains.kotlin.descriptors.CallableMemberDescriptor
 
 internal class DescriptorSyntheticDocumentableDetector : SyntheticDocumentableDetector {

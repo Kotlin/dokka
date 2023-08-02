@@ -18,8 +18,8 @@ import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.utilities.DokkaLogger
-import org.jetbrains.kotlin.analysis.kotlin.internal.DocumentableSourceLanguageParser
-import org.jetbrains.kotlin.analysis.kotlin.internal.DocumentableLanguage
+import org.jetbrains.dokka.analysis.kotlin.internal.DocumentableSourceLanguageParser
+import org.jetbrains.dokka.analysis.kotlin.internal.DocumentableLanguage
 import kotlin.reflect.KClass
 
 internal typealias GroupedTags = Map<KClass<out TagWrapper>, List<Pair<DokkaSourceSet?, TagWrapper>>>

@@ -18,7 +18,7 @@ import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.transformers.pages.PageCreator
 import org.jetbrains.dokka.utilities.DokkaLogger
-import org.jetbrains.kotlin.analysis.kotlin.internal.InternalKotlinAnalysisPlugin
+import org.jetbrains.dokka.analysis.kotlin.internal.InternalKotlinAnalysisPlugin
 import java.io.File
 
 class MultimodulePageCreator(

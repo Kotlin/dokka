@@ -588,8 +588,8 @@ public final class org/jetbrains/dokka/javadoc/pages/TreeViewInstaller : org/jet
 }
 
 public final class org/jetbrains/dokka/javadoc/pages/TreeViewPage : org/jetbrains/dokka/javadoc/pages/JavadocPageNode {
-	public fun <init> (Ljava/lang/String;Ljava/util/List;Ljava/util/List;Ljava/util/Set;Ljava/util/List;Lorg/jetbrains/dokka/pages/PageNode;Lorg/jetbrains/kotlin/analysis/kotlin/internal/InheritanceBuilder;)V
-	public synthetic fun <init> (Ljava/lang/String;Ljava/util/List;Ljava/util/List;Ljava/util/Set;Ljava/util/List;Lorg/jetbrains/dokka/pages/PageNode;Lorg/jetbrains/kotlin/analysis/kotlin/internal/InheritanceBuilder;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Ljava/lang/String;Ljava/util/List;Ljava/util/List;Ljava/util/Set;Ljava/util/List;Lorg/jetbrains/dokka/pages/PageNode;Lorg/jetbrains/dokka/analysis/kotlin/internal/InheritanceBuilder;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/util/List;Ljava/util/List;Ljava/util/Set;Ljava/util/List;Lorg/jetbrains/dokka/pages/PageNode;Lorg/jetbrains/dokka/analysis/kotlin/internal/InheritanceBuilder;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun getChildren ()Ljava/util/List;
 	public final fun getClasses ()Ljava/util/List;
 	public fun getContent ()Lorg/jetbrains/dokka/pages/ContentNode;
@@ -597,7 +597,7 @@ public final class org/jetbrains/dokka/javadoc/pages/TreeViewPage : org/jetbrain
 	public fun getDocumentables ()Ljava/util/List;
 	public fun getDri ()Ljava/util/Set;
 	public fun getEmbeddedResources ()Ljava/util/List;
-	public final fun getInheritanceBuilder ()Lorg/jetbrains/kotlin/analysis/kotlin/internal/InheritanceBuilder;
+	public final fun getInheritanceBuilder ()Lorg/jetbrains/dokka/analysis/kotlin/internal/InheritanceBuilder;
 	public final fun getKind ()Ljava/lang/String;
 	public fun getName ()Ljava/lang/String;
 	public final fun getPackages ()Ljava/util/List;
