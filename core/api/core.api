@@ -1400,36 +1400,19 @@ public final class org/jetbrains/dokka/model/DefinitelyNonNullable : org/jetbrai
 	public fun toString ()Ljava/lang/String;
 }
 
-public final class org/jetbrains/dokka/model/DisplaySourceSet : org/jetbrains/dokka/utilities/SelfRepresentingSingletonSet {
+public final class org/jetbrains/dokka/model/DisplaySourceSet {
 	public fun <init> (Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;)V
 	public fun <init> (Lorg/jetbrains/dokka/model/CompositeSourceSetID;Ljava/lang/String;Lorg/jetbrains/dokka/Platform;)V
-	public synthetic fun add (Ljava/lang/Object;)Z
-	public fun add (Lorg/jetbrains/dokka/model/DisplaySourceSet;)Z
-	public fun addAll (Ljava/util/Collection;)Z
-	public fun clear ()V
 	public final fun component1 ()Lorg/jetbrains/dokka/model/CompositeSourceSetID;
 	public final fun component2 ()Ljava/lang/String;
 	public final fun component3 ()Lorg/jetbrains/dokka/Platform;
-	public final fun contains (Ljava/lang/Object;)Z
-	public fun contains (Lorg/jetbrains/dokka/model/DisplaySourceSet;)Z
-	public synthetic fun contains (Lorg/jetbrains/dokka/utilities/SelfRepresentingSingletonSet;)Z
-	public fun containsAll (Ljava/util/Collection;)Z
 	public final fun copy (Lorg/jetbrains/dokka/model/CompositeSourceSetID;Ljava/lang/String;Lorg/jetbrains/dokka/Platform;)Lorg/jetbrains/dokka/model/DisplaySourceSet;
 	public static synthetic fun copy$default (Lorg/jetbrains/dokka/model/DisplaySourceSet;Lorg/jetbrains/dokka/model/CompositeSourceSetID;Ljava/lang/String;Lorg/jetbrains/dokka/Platform;ILjava/lang/Object;)Lorg/jetbrains/dokka/model/DisplaySourceSet;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getName ()Ljava/lang/String;
 	public final fun getPlatform ()Lorg/jetbrains/dokka/Platform;
-	public fun getSize ()I
 	public final fun getSourceSetIDs ()Lorg/jetbrains/dokka/model/CompositeSourceSetID;
 	public fun hashCode ()I
-	public fun isEmpty ()Z
-	public fun iterator ()Ljava/util/Iterator;
-	public fun remove (Ljava/lang/Object;)Z
-	public fun removeAll (Ljava/util/Collection;)Z
-	public fun retainAll (Ljava/util/Collection;)Z
-	public final fun size ()I
-	public fun toArray ()[Ljava/lang/Object;
-	public fun toArray ([Ljava/lang/Object;)[Ljava/lang/Object;
 	public fun toString ()Ljava/lang/String;
 }
 
