@@ -785,7 +785,6 @@ code:not(.block) {
     padding-left: 23px;
 }
 
-
 .sideMenuPart a:hover {
     text-decoration: none;
     color: var(--default-font-color);
@@ -971,6 +970,14 @@ h1.cover {
 .UnderCoverText table {
     margin: 8px 0 8px 0;
     word-break: break-word;
+}
+
+@media (max-width: 960px) {
+    .UnderCoverText table {
+        display: block;
+        word-break: normal;
+        overflow:  auto;
+    }
 }
 
 .main-content a:not([data-name]) {
