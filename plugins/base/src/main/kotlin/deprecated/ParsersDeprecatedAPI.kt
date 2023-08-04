@@ -1,4 +1,4 @@
-@file:Suppress("PackageDirectoryMismatch", "DEPRECATION_ERROR", "DeprecatedCallableAddReplaceWith")
+@file:Suppress("PackageDirectoryMismatch", "DEPRECATION_ERROR", "DeprecatedCallableAddReplaceWith", "unused")
 
 package org.jetbrains.dokka.base.parsers
 
@@ -29,10 +29,10 @@ open class MarkdownParser(
     companion object {
         @Deprecated(message = ANALYSIS_API_DEPRECATION_MESSAGE, level = DeprecationLevel.ERROR)
         fun parseFromKDocTag(
-            kDocTag: Any?,
-            externalDri: (String) -> DRI?,
-            kdocLocation: String?,
-            parseWithChildren: Boolean = true
+            @Suppress("UNUSED_PARAMETER") kDocTag: Any?,
+            @Suppress("UNUSED_PARAMETER") externalDri: (String) -> DRI?,
+            @Suppress("UNUSED_PARAMETER") kdocLocation: String?,
+            @Suppress("UNUSED_PARAMETER") parseWithChildren: Boolean = true
         ): DocumentationNode = throw AnalysisApiDeprecatedError()
     }
 }

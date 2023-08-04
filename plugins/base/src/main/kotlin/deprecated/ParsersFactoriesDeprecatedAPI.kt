@@ -1,4 +1,4 @@
-@file:Suppress("DeprecatedCallableAddReplaceWith", "PackageDirectoryMismatch")
+@file:Suppress("DeprecatedCallableAddReplaceWith", "PackageDirectoryMismatch", "unused")
 
 package org.jetbrains.dokka.base.parsers.factories
 
@@ -11,10 +11,10 @@ import org.jetbrains.dokka.model.doc.DocTag
 object DocTagsFromStringFactory {
     @Deprecated(message = ANALYSIS_API_DEPRECATION_MESSAGE, level = DeprecationLevel.ERROR)
     fun getInstance(
-        name: String,
-        children: List<DocTag> = emptyList(),
-        params: Map<String, String> = emptyMap(),
-        body: String? = null,
-        dri: DRI? = null,
+        @Suppress("UNUSED_PARAMETER") name: String,
+        @Suppress("UNUSED_PARAMETER") children: List<DocTag> = emptyList(),
+        @Suppress("UNUSED_PARAMETER") params: Map<String, String> = emptyMap(),
+        @Suppress("UNUSED_PARAMETER") body: String? = null,
+        @Suppress("UNUSED_PARAMETER") dri: DRI? = null,
     ): DocTag = throw AnalysisApiDeprecatedError()
 }

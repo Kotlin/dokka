@@ -1,4 +1,4 @@
-@file:Suppress("PackageDirectoryMismatch", "DeprecatedCallableAddReplaceWith")
+@file:Suppress("PackageDirectoryMismatch", "DeprecatedCallableAddReplaceWith", "unused")
 
 package org.jetbrains.dokka.base.translators.psi
 
@@ -11,7 +11,7 @@ import org.jetbrains.dokka.transformers.sources.AsyncSourceToDocumentableTransla
 
 @Deprecated(message = ANALYSIS_API_DEPRECATION_MESSAGE, level = DeprecationLevel.ERROR)
 class DefaultPsiToDocumentableTranslator(
-    context: DokkaContext,
+    @Suppress("UNUSED_PARAMETER") context: DokkaContext,
 ) : AsyncSourceToDocumentableTranslator {
     @Deprecated(message = ANALYSIS_API_DEPRECATION_MESSAGE, level = DeprecationLevel.ERROR)
     override suspend fun invokeSuspending(

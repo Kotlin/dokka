@@ -1,4 +1,4 @@
-@file:Suppress("PackageDirectoryMismatch", "DEPRECATION_ERROR", "DeprecatedCallableAddReplaceWith")
+@file:Suppress("PackageDirectoryMismatch", "DEPRECATION_ERROR", "DeprecatedCallableAddReplaceWith", "unused")
 
 package org.jetbrains.dokka.base.translators.descriptors
 
@@ -18,7 +18,9 @@ fun interface ExternalDocumentablesProvider {
 }
 
 @Deprecated(message = ANALYSIS_API_DEPRECATION_MESSAGE, level = DeprecationLevel.ERROR)
-class DefaultExternalDocumentablesProvider(context: DokkaContext) : ExternalDocumentablesProvider {
+class DefaultExternalDocumentablesProvider(
+    @Suppress("UNUSED_PARAMETER") context: DokkaContext
+) : ExternalDocumentablesProvider {
     @Deprecated(message = ANALYSIS_API_DEPRECATION_MESSAGE, level = DeprecationLevel.ERROR)
     override fun findClasslike(dri: DRI, sourceSet: DokkaConfiguration.DokkaSourceSet): DClasslike =
         throw AnalysisApiDeprecatedError()

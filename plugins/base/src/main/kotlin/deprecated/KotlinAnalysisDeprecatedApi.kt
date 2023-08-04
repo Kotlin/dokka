@@ -1,5 +1,5 @@
 @file:Suppress("PackageDirectoryMismatch", "FunctionName", "UNUSED_PARAMETER", "unused", "DEPRECATION_ERROR",
-    "DeprecatedCallableAddReplaceWith"
+    "DeprecatedCallableAddReplaceWith", "unused"
 )
 
 package org.jetbrains.dokka.analysis
