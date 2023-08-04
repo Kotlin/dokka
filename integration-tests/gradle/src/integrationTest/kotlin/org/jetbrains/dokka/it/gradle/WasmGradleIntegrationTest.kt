@@ -10,7 +10,8 @@ class WasmGradleIntegrationTest(override val versions: BuildVersions) : Abstract
     companion object {
         @get:JvmStatic
         @get:Parameters(name = "{0}")
-        val versions = listOf(TestedVersions.LATEST)
+        val versions = TestedVersions.ALL_SUPPORTED
+            .filter { it.kotlinVersion >= "1.8.20" } // 1.8.20 is the first public version that can be tested with wasm
     }
 
     @BeforeTest

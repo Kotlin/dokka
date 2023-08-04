@@ -179,7 +179,3 @@ public final class org/jetbrains/dokka/gradle/internal/AbstractDokkaTaskExtensio
 	public static synthetic fun buildJsonConfiguration$default (Lorg/jetbrains/dokka/gradle/AbstractDokkaTask;ZILjava/lang/Object;)Ljava/lang/String;
 }
 
-public final class org/jetbrains/dokka/gradle/kotlin/KotlinClasspathUtilsKt {
-	public static final fun isHMPPEnabled (Lorg/gradle/api/Project;)Z
-}
-
