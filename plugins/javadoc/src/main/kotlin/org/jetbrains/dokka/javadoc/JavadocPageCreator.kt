@@ -206,7 +206,7 @@ open class JavadocPageCreator(context: DokkaContext) {
         }
 
     fun List<ContentNode>.nodeForJvm(jvm: DokkaSourceSet): ContentNode =
-        firstOrNull { jvm.sourceSetID in it.sourceSets.sourceSetIDs }
+        firstOrNull { jvm.sourceSetID in it.sourceSets.computeSourceSetIds() }
             ?: throw IllegalStateException("No source set found for ${jvm.sourceSetID} ")
 
     private fun Documentable.brief(sourceSet: DokkaSourceSet? = highestJvmSourceSet): List<ContentNode> =

@@ -48,4 +48,9 @@ public fun Iterable<DokkaSourceSet>.toDisplaySourceSets(): Set<DisplaySourceSet>
     map { it.toDisplaySourceSet() }.toSet()
 
 @InternalDokkaApi
+@Deprecated("Use computeSourceSetIds() and cache its results instead", replaceWith = ReplaceWith("computeSourceSetIds()"))
 public val Iterable<DisplaySourceSet>.sourceSetIDs: List<DokkaSourceSetID> get() = this.flatMap { it.sourceSetIDs.all }
+
+@InternalDokkaApi
+public fun Iterable<DisplaySourceSet>.computeSourceSetIds(): Set<DokkaSourceSetID> =
+    fold(hashSetOf()) { acc, set -> acc.addAll(set.sourceSetIDs.all); acc }

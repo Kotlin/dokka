@@ -1417,6 +1417,7 @@ public final class org/jetbrains/dokka/model/DisplaySourceSet {
 }
 
 public final class org/jetbrains/dokka/model/DisplaySourceSetKt {
+	public static final fun computeSourceSetIds (Ljava/lang/Iterable;)Ljava/util/Set;
 	public static final fun getSourceSetIDs (Ljava/lang/Iterable;)Ljava/util/List;
 	public static final fun toDisplaySourceSet (Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;)Lorg/jetbrains/dokka/model/DisplaySourceSet;
 	public static final fun toDisplaySourceSets (Ljava/lang/Iterable;)Ljava/util/Set;

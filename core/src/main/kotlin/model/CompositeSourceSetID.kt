@@ -13,16 +13,14 @@ data class CompositeSourceSetID(
         require(children.isNotEmpty()) { "Expected at least one source set id" }
     }
 
-    val merged: DokkaSourceSetID
-        get() = children.sortedBy { it.scopeId + it.sourceSetName }.let { sortedChildren ->
-            DokkaSourceSetID(
-                scopeId = sortedChildren.joinToString(separator = "+") { it.scopeId },
-                sourceSetName = sortedChildren.joinToString(separator = "+") { it.sourceSetName }
-            )
-        }
+    val merged: DokkaSourceSetID = children.sortedBy { it.scopeId + it.sourceSetName }.let { sortedChildren ->
+        DokkaSourceSetID(
+            scopeId = sortedChildren.joinToString(separator = "+") { it.scopeId },
+            sourceSetName = sortedChildren.joinToString(separator = "+") { it.sourceSetName }
+        )
+    }
 
-    val all: Set<DokkaSourceSetID>
-        get() = setOf(merged, *children.toTypedArray())
+    val all: Set<DokkaSourceSetID> = setOf(merged, *children.toTypedArray())
 
     operator fun contains(sourceSetId: DokkaSourceSetID): Boolean {
         return sourceSetId in all
