@@ -1,11 +1,11 @@
-name: Deploy MkDocs to GitHub Pages
+name: Deploy developer docs to GitHub Pages
 
 on:
   push:
     branches:
       - master
     paths:
-      - 'mkdocs/**'
+      - 'docs-developer/**'
   release:
     types: [ published ]
 
@@ -25,7 +25,7 @@ jobs:
       - uses: gradle/gradle-build-action@v2
         with:
           gradle-home-cache-cleanup: true
-      - name: Get current dokka version
+      - name: Get current Dokka version
         run: echo "DOKKA_VERSION=`./gradlew :properties | grep '^version:.*' | cut -d ' ' -f 2`" >> $GITHUB_ENV
         working-directory: ./dokka
       - name: Build docs
@@ -35,6 +35,6 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dokka/mkdocs/build/mkdocs
+          publish_dir: ./dokka/docs-developer/build/mkdocs
           keep_files: true
           full_commit_message: Publish ${{ env.DOKKA_VERSION }} documentation

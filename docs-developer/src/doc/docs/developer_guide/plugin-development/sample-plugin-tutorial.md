@@ -54,7 +54,7 @@ and `groupId` in `build.gradle.kts`.
 
 After preparing the project we can begin extending Dokka with our own extension.
 
-Having read through [Core extensions](../architecture/extension_points/core_extensions.md), it's clear that we need
+Having read through [Core extensions](../architecture/extension_points/core_extension_points.md), it's clear that we need
 a `PreMergeDocumentableTransformer` extension in order to filter out undesired documentables. 
 
 Moreover, the article mentioned a convenient abstract transformer `SuppressedByConditionDocumentableFilterTransformer`
@@ -86,7 +86,7 @@ and values a given `Documentable` has.
 
 To do that, we'll need to register our extension point first, then we can publish our plugin and set the breakpoint.
 
-Having read through [Introduction to extensions](../architecture/extension_points/introduction.md), we now know
+Having read through [Introduction to extensions](../architecture/extension_points/extension_points.md), we now know
 how to register our extensions:
 
 ```kotlin
