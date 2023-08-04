@@ -17,14 +17,14 @@ internal fun Project.compilationsOf(sourceSet: KotlinSourceSet): List<KotlinComp
         sourceSet in compilation.kotlinSourceSets || sourceSet == compilation.defaultSourceSet
     }
 
-    val hasCompatibilityMetadataVariant = compilations.size >= 2
+    val hasAdditionalCommonCompatibilityMetadataVariant = compilations.size >= 2
             && this.isHmppEnabled()
             && compilations.any { it is KotlinCommonCompilation && it.compilationName == "main" }
             && compilations.any { it is KotlinCommonCompilation && it.compilationName == "commonMain" }
 
-    return if (hasCompatibilityMetadataVariant) {
+    return if (hasAdditionalCommonCompatibilityMetadataVariant) {
         // If the project has `kotlin.mpp.enableCompatibilityMetadataVariant` set to `true`
-        // and it produces a legacy variant, we filter it out because one of the dependencies
+        // and it produces a legacy variant for common, we filter it out because one of the dependencies
         // might be published without it, and it would lead to the following error:
         //
         // > Execution failed for task ':project:dokkaHtmlPartial'.
