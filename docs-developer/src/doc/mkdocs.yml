@@ -8,7 +8,7 @@ site_url: https://github.com/Kotlin/dokka
 # Repository (add link to repository on each page)
 repo_name: dokka
 repo_url: https://github.com/Kotlin/dokka
-edit_uri: edit/master/mkdocs/src/doc/docs/
+edit_uri: edit/master/docs-developer/src/doc/docs/
 
 # Copyright (shown at the footer)
 copyright: 'Copyright &copy; 2023 JetBrains'
@@ -59,7 +59,7 @@ nav:
       - index.md
       - User guides: https://kotlinlang.org/docs/dokka-introduction.html
       - Developer guides: developer_guide/introduction.md
-      - Community: community/slack.md
+      - Community: developer_guide/community/slack.md
   - User guides:
       - https://kotlinlang.org/docs/dokka-introduction.html
   - Developer guides:
@@ -68,18 +68,19 @@ nav:
       - Internals:
           - Architecture: developer_guide/architecture/architecture_overview.md
           - Data model:
-              -  Documentables: developer_guide/architecture/data_model/documentables.md
+              -  Documentables: developer_guide/architecture/data_model/documentable_model.md
               -  Page & Content: developer_guide/architecture/data_model/page_content.md
               -  Extra properties: developer_guide/architecture/data_model/extra.md
-          - Extension points:
-              - Extension points: developer_guide/architecture/extension_points/introduction.md
-              - Core extension points: developer_guide/architecture/extension_points/core_extensions.md
-              - Base extensions: developer_guide/architecture/extension_points/base_extensions.md
+          - Extensions:
+              - Extension points: developer_guide/architecture/extension_points/extension_points.md
+              - Core extension points: developer_guide/architecture/extension_points/core_extension_points.md
+              - Base extensions: developer_guide/architecture/extension_points/base_plugin.md
+              - Generation implementations: developer_guide/architecture/extension_points/generation_implementations.md
       - Plugin development:
           - Plugin development: developer_guide/plugin-development/introduction.md
           - Sample plugin tutorial: developer_guide/plugin-development/sample-plugin-tutorial.md
   - Community:
-      - Slack: community/slack.md
+      - Slack: developer_guide/community/slack.md
 
 extra_css:
   - dokka_colors.css

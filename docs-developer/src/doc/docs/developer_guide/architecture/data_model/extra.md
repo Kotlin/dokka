@@ -2,24 +2,13 @@
 
 ## Introduction
 
-`ExtraProperty` classes are used both by [Documentable](documentables.md) and [Content](page_content.md#content-model)
+`ExtraProperty` is used to store any additional information that falls outside of the regular model. It is highly 
+recommended to use extras to provide any additional information when creating custom Dokka plugins.
+
+`ExtraProperty` classes are available both in the [Documentable](documentable_model.md) and the [Content](page_content.md#content-model)
 models.
 
-Source code for `ExtraProperty`:
-
-```kotlin
-interface ExtraProperty<in C : Any> {
-    interface Key<in C : Any, T : Any> {
-        fun mergeStrategyFor(left: T, right: T): MergeStrategy<C> = MergeStrategy.Fail {
-            throw NotImplementedError("Property merging for $this is not implemented")
-        }
-    }
-
-    val key: Key<C, *>
-}
-```
-
-To declare a new extra, you need to implement `ExtraProperty` interface. It is advised to use following pattern
+To create a new extra, you need to implement the `ExtraProperty` interface. It is advised to use the following pattern
 when declaring new extras:
 
 ```kotlin
@@ -32,14 +21,14 @@ data class CustomExtra(
 }
 ```
 
-Merge strategy (`mergeStrategyFor` method) for extras is invoked during
-[merging](../extension_points/core_extensions.md#documentablemerger) if documentables from different 
-[source sets](https://kotlinlang.org/docs/multiplatform-discover-project.html#source-sets) each
-have their own `Extra` of the same type. 
+Merge strategy (the `mergeStrategyFor` method) for extras is invoked during the
+[merging](../extension_points/core_extension_points.md#documentablemerger) of the documentables from different 
+[source sets](https://kotlinlang.org/docs/multiplatform-discover-project.html#source-sets), when the documentables being
+merged have their own `Extra` of the same type. 
 
 ## PropertyContainer
 
-All extras for `ContentNode` and `Documentable` classes are stored in `PropertyContainer<C : Any>` class instances.
+All extras for `ContentNode` and `Documentable` classes are stored in the `PropertyContainer<C : Any>` class instances.
 
 ```kotlin
 data class DFunction(
@@ -51,26 +40,29 @@ data class DFunction(
 
 `PropertyContainer` has a number of convenient functions for handling extras in a collection-like manner.
 
-The `C` generic class parameter limits the type of properties that can be stored in the container -  it must
-match generic `C` class parameter from `ExtraProperty` interface. This allows creating extra properties
+The generic class parameter `C` limits the types of properties that can be stored in the container - it must
+match the generic `C` class parameter from the `ExtraProperty` interface. This allows creating extra properties
 which can only be stored in a specific `Documentable`.
 
 ## Usage example
 
-In following example we will create a `DFunction`-only property, store it and then retrieve its value:
+In following example we will create a `DFunction`-only extra property, store it and then retrieve its value:
 
 ```kotlin
+// Extra that is applicable only to DFunction
 data class CustomExtra(val customExtraValue: String) : ExtraProperty<DFunction> {
     override val key: ExtraProperty.Key<Documentable, *> = CustomExtra
     companion object: ExtraProperty.Key<Documentable, CustomExtra>
 }
 
+// Storing it inside the documentable
 fun DFunction.withCustomExtraProperty(data: String): DFunction {
     return this.copy(
         extra = extra + CustomExtra(data)
     )
 }
 
+// Retrieveing it from the documentable
 fun DFunction.getCustomExtraPropertyValue(): String? {
     return this.extra[CustomExtra]?.customExtraValue
 }

@@ -2,7 +2,7 @@ import org.jetbrains.dokkaVersionType
 import org.jetbrains.DokkaVersionType
 
 plugins {
-    id("ru.vyarus.mkdocs") version "2.3.0"
+    id("ru.vyarus.mkdocs") version "2.4.0"
 }
 
 if (dokkaVersionType != DokkaVersionType.RELEASE) {
