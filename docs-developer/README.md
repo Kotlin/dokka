@@ -23,6 +23,8 @@ Alternatively, you can use Docker:
 docker run --rm -it -p 8000:8000 -v ./docs-developer/src/doc:/docs squidfunk/mkdocs-material
 ```
 
+This will build the docs and start a web server under [localhost:8000/Kotlin/dokka](http://localhost:8000/Kotlin/dokka/).
+
 ### Livereload server
 
 Alternatively, you can run a livereload server that automatically rebuilds documentation on every change:
@@ -31,7 +33,7 @@ Alternatively, you can run a livereload server that automatically rebuilds docum
 ./gradlew :docs-developer:mkdocsServe
 ```
 
-By default, it is run under [127.0.0.1:3001](http://127.0.0.1:3001/), but you can change it in 
+By default, it is run under [localhost:3001](http://localhost:3001/), but you can change it in 
 [mkdocs.yml](src/doc/mkdocs.yml) by setting the `dev_addr` option.
 
 ## Publishing

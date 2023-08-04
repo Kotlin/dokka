@@ -2,22 +2,11 @@
 
 ## Introduction
 
-`ExtraProperty` classes are used both by the [Documentable](documentable_model.md) and the [Content](page_content.md#content-model)
+`ExtraProperty` is used to store any additional information that falls outside of the regular model. It is highly 
+recommended to use extras to provide any additional information when creating custom Dokka plugins.
+
+`ExtraProperty` classes are available both in the [Documentable](documentable_model.md) and the [Content](page_content.md#content-model)
 models.
-
-`ExtraProperty` is declared as:
-
-```kotlin
-interface ExtraProperty<in C : Any> {
-    interface Key<in C : Any, T : Any> {
-        fun mergeStrategyFor(left: T, right: T): MergeStrategy<C> = MergeStrategy.Fail {
-            throw NotImplementedError("Property merging for $this is not implemented")
-        }
-    }
-
-    val key: Key<C, *>
-}
-```
 
 To create a new extra, you need to implement the `ExtraProperty` interface. It is advised to use the following pattern
 when declaring new extras:
@@ -33,9 +22,9 @@ data class CustomExtra(
 ```
 
 Merge strategy (the `mergeStrategyFor` method) for extras is invoked during the
-[merging](../extension_points/core_extension_points.md#documentablemerger) of documentables from different 
-[source sets](https://kotlinlang.org/docs/multiplatform-discover-project.html#source-sets), where each documentable
-has its own `Extra` of the same type. 
+[merging](../extension_points/core_extension_points.md#documentablemerger) of the documentables from different 
+[source sets](https://kotlinlang.org/docs/multiplatform-discover-project.html#source-sets), when the documentables being
+merged have their own `Extra` of the same type. 
 
 ## PropertyContainer
 

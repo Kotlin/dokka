@@ -15,7 +15,7 @@ selective changes on a given level.
 
 ## Overview of data model
 
-Generating API documentation begins with input source files (`.kts`, `.java`, etc) and ends with some output files
+Generating API documentation begins with input source files (`.kt`, `.java`, etc) and ends with some output files
 (`.html`/`.md`, etc). However, to allow for extensibility and customization, several input and output independent
 abstractions have been added to the data model.
 
@@ -27,12 +27,12 @@ flowchart TD
 ```
 
 * `Input` - generalization of sources, by default Kotlin / Java sources, but could be virtually anything
-* `Documentables` - unified data model that represents _any_ parsed sources as a tree, independent of the source
-  language. Examples of a `Documentable`: class, function, package, property, etc
-* `Pages` - universal model that represents output pages (e.g a function/property page) and the content it's composed of
-  (lists, text, code blocks) that the users needs to see. Not to be confused with `.html` pages. Goes hand in hand
-  with so-called "Content model".
-* `Output` - specific output format like HTML / Markdown / Javadoc and so on. This is a mapping of the pages/content 
+* [`Documentables`](data_model/documentable_model.md) - unified data model that represents _any_ parsed sources as a 
+  tree, independent of the source language. Examples of a `Documentable`: class, function, package, property, etc
+* [`Pages`](data_model/page_content.md) - universal model that represents output pages (e.g a function/property page) 
+  and the content it's composed of (lists, text, code blocks) that the users needs to see. Not to be confused with 
+  `.html` pages. Goes hand in hand with the so-called [Content model](data_model/page_content.md#content-model).
+* `Output` - specific output formats like HTML / Markdown / Javadoc and so on. This is a mapping of the pages/content 
   model to a human-readable and visual representation. For instance:
     * `PageNode` is mapped as 
         * `.html` file for the HTML format

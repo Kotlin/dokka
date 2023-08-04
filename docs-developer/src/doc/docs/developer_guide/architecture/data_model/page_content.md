@@ -42,7 +42,7 @@ Almost all pages are derivatives of `ContentPage` - it's the type of a page that
 The Content model describes what the pages consist of. It is essentially a set of building blocks that you can put 
 together to represent some content. It is also output-format independent and universal.
 
-For an example, have a look at еру subclasses of `ContentNode`: `ContentText`, `ContentList`, `ContentTable`, 
+For an example, have a look at the subclasses of `ContentNode`: `ContentText`, `ContentList`, `ContentTable`, 
 `ContentCodeBlock`, `ContentHeader` and so on -- all self-explanatory. You can group chunks of content together with 
 `ContentGroup` - for example, to wrap all children with a style.
 
