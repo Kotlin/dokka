@@ -6,6 +6,7 @@ import org.jetbrains.dokka.gradle.isAndroidTarget
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.plugin.mpp.AbstractKotlinNativeCompilation
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompileTool
 
 internal fun Project.classpathOf(sourceSet: KotlinSourceSet): FileCollection {
     val compilations = compilationsOf(sourceSet)
@@ -23,6 +24,26 @@ internal fun Project.classpathOf(sourceSet: KotlinSourceSet): FileCollection {
 }
 
 private fun KotlinCompilation.compileClasspathOf(project: Project): FileCollection {
+    val kgpVersion = project.getKgpVersion()
+
+    // if KGP version < 1.9 or org.jetbrains.dokka.classpath.useOldResolution=true
+    // we will use old (pre 1.9) resolution of classpath
+    if (kgpVersion == null ||
+        kgpVersion < KotlinGradlePluginVersion(1, 9, 0) ||
+        project.classpathProperty("useOldResolution", default = false)
+    ) {
+        return oldCompileClasspathOf(project)
+    }
+
+    return newCompileClasspathOf(project)
+}
+
+private fun KotlinCompilation.newCompileClasspathOf(project: Project): FileCollection {
+    val compilationClasspath = (compileTaskProvider.get() as? KotlinCompileTool)?.libraries ?: project.files()
+    return compilationClasspath + platformDependencyFiles()
+}
+
+private fun KotlinCompilation.oldCompileClasspathOf(project: Project): FileCollection {
     if (this.target.isAndroidTarget()) { // Workaround for https://youtrack.jetbrains.com/issue/KT-33893
         return this.classpathOf(project)
     }
