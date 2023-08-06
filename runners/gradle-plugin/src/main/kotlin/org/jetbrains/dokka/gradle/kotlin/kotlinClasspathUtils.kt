@@ -28,12 +28,7 @@ private fun KotlinCompilation.compileClasspathOf(project: Project): FileCollecti
         return this.classpathOf(project)
     }
 
-    val platformDependencyFiles: FileCollection = (this as? AbstractKotlinNativeCompilation)
-        ?.target?.project?.configurations
-        ?.findByName(@Suppress("DEPRECATION") this.defaultSourceSet.implementationMetadataConfigurationName) // KT-58640
-        ?: project.files()
-
-    return this.compileDependencyFiles + platformDependencyFiles + this.classpathOf(project)
+    return this.compileDependencyFiles + platformDependencyFiles() + this.classpathOf(project)
 }
 
 private fun KotlinCompilation.classpathOf(project: Project): FileCollection {
@@ -43,7 +38,7 @@ private fun KotlinCompilation.classpathOf(project: Project): FileCollection {
     val shouldKeepBackwardsCompatibility = (kgpVersion != null && kgpVersion < KotlinGradlePluginVersion(1, 7, 0))
     return if (shouldKeepBackwardsCompatibility) {
         // removed since 1.9.0, left for compatibility with < Kotlin 1.7
-        val classpathGetter= kotlinCompile::class.members
+        val classpathGetter = kotlinCompile::class.members
             .first { it.name == "getClasspath" }
         classpathGetter.call(kotlinCompile) as FileCollection
     } else {
@@ -59,4 +54,11 @@ private fun KotlinCompilation.getKotlinCompileTask(kgpVersion: KotlinGradlePlugi
     } else {
         this.compileTaskProvider.get() as? KotlinCompile // introduced in 1.8.0
     }
+}
+
+private fun KotlinCompilation.platformDependencyFiles(): FileCollection {
+    return (this as? AbstractKotlinNativeCompilation)
+        ?.target?.project?.configurations
+        ?.findByName(@Suppress("DEPRECATION") this.defaultSourceSet.implementationMetadataConfigurationName) // KT-58640
+        ?: project.files()
 }
