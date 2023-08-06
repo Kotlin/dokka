@@ -12,14 +12,13 @@ internal fun Project.classpathOf(sourceSet: KotlinSourceSet): FileCollection {
     return if (compilations.isNotEmpty()) {
         compilations
             .map { compilation -> compilation.compileClasspathOf(project = this) }
-            .reduce { acc, fileCollection -> acc + fileCollection }
+            .reduce(FileCollection::plus)
     } else {
         // Dokka suppresses source sets that do no have compilations
         // since such configuration is invalid, it reports a warning or an error
         sourceSet.withAllDependentSourceSets()
-            .toList()
             .map { it.kotlin.sourceDirectories }
-            .reduce { acc, fileCollection -> acc + fileCollection }
+            .reduce(FileCollection::plus)
     }
 }
 
