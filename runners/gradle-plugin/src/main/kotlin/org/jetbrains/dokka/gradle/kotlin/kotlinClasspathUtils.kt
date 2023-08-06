@@ -57,8 +57,14 @@ private fun KotlinCompilation.getKotlinCompileTask(kgpVersion: KotlinGradlePlugi
 }
 
 private fun KotlinCompilation.platformDependencyFiles(): FileCollection {
+    val excludePlatformDependencyFiles = project.classpathProperty("excludePlatformDependencyFiles", default = false)
+
+    if (excludePlatformDependencyFiles) return project.files()
     return (this as? AbstractKotlinNativeCompilation)
         ?.target?.project?.configurations
         ?.findByName(@Suppress("DEPRECATION") this.defaultSourceSet.implementationMetadataConfigurationName) // KT-58640
         ?: project.files()
 }
+
+private fun Project.classpathProperty(name: String, default: Boolean): Boolean =
+    (findProperty("org.jetbrains.dokka.classpath.$name") as? String)?.toBoolean() ?: default
