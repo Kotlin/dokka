@@ -170,19 +170,6 @@
 
     <pluginRepositories>
         <pluginRepository>
-            <id>kotlin-eap</id>
-            <url>https://cache-redirector.jetbrains.com/dl.bintray.com/kotlin/kotlin-eap/</url>
-        </pluginRepository>
-        <pluginRepository>
-            <id>kotlin-dev</id>
-            <url>https://cache-redirector.jetbrains.com/dl.bintray.com/kotlin/kotlin-dev/</url>
-        </pluginRepository>
-        <pluginRepository>
-            <id>jcenter</id>
-            <name>JCenter</name>
-            <url>https://cache-redirector.jetbrains.com/jcenter.bintray.com/</url>
-        </pluginRepository>
-        <pluginRepository>
             <id>Space</id>
             <name>Space</name>
             <url>https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven/</url>

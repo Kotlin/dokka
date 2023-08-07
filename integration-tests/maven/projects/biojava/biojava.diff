@@ -2,23 +2,11 @@ diff --git a/pom.xml b/pom.xml
 index 7e3e806d1..765b6dea3 100644
 --- a/pom.xml
 +++ b/pom.xml
-@@ -31,6 +31,24 @@
+@@ -31,6 +31,12 @@
  			<distribution>repo</distribution>
  		</license>
  	</licenses>
 +	<pluginRepositories>
-+		<pluginRepository>
-+			<id>kotlin-dev</id>
-+			<url>https://dl.bintray.com/kotlin/kotlin-dev</url>
-+		</pluginRepository>
-+		<pluginRepository>
-+			<id>kotlin-eap</id>
-+			<url>https://dl.bintray.com/kotlin/kotlin-eap</url>
-+		</pluginRepository>
-+		<pluginRepository>
-+			<id>jcenter</id>
-+			<url>https://jcenter.bintray.com/</url>
-+		</pluginRepository>
 +		<pluginRepository>
 +			<id>space</id>
 +			<url>https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven/</url>
