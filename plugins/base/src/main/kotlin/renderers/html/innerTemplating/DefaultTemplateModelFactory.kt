@@ -24,7 +24,6 @@ import org.jetbrains.dokka.pages.ContentPage
 import org.jetbrains.dokka.pages.PageNode
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.configuration
-import org.jsoup.Jsoup
 import java.net.URI
 
 class DefaultTemplateModelFactory(val context: DokkaContext) : TemplateModelFactory {
@@ -93,17 +92,6 @@ class DefaultTemplateModelFactory(val context: DokkaContext) : TemplateModelFact
 
     private fun Appendable.resourcesForPage(pathToRoot: String, resources: List<String>): Unit =
         resources.forEach { resource ->
-            /**
-             * Workaround for resources that have no extension
-             * e.g. `<script src="`https://unpkg.com/kotlin-playground@1`"></script>`
-             */
-            if (resource.startsWith("<")) {
-                val tag = Jsoup.parse(resource).head().child(0)
-                if (tag.tagName() == "script" || tag.tagName() == "style") {
-                    append(resource)
-                }
-                return@forEach
-            }
 
             val resourceHtml = with(createHTML()) {
                 when {

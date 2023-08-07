@@ -13,7 +13,7 @@ import org.jetbrains.dokka.analysis.kotlin.internal.InternalKotlinAnalysisPlugin
 import org.jetbrains.dokka.analysis.kotlin.internal.SampleProvider
 import org.jetbrains.dokka.analysis.kotlin.internal.SampleProviderFactory
 
-internal const val KOTLIN_PLAYGROUND_SCRIPT = "<script src=\"`https://unpkg.com/kotlin-playground@1`\"></script>"
+internal const val KOTLIN_PLAYGROUND_SCRIPT = "https://unpkg.com/kotlin-playground@1/dist/playground.min.js"
 
 internal class DefaultSamplesTransformer(val context: DokkaContext) : PageTransformer {
 
