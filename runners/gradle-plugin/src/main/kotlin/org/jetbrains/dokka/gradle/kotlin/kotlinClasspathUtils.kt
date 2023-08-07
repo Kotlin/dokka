@@ -40,7 +40,7 @@ private fun KotlinCompilation.compileClasspathOf(project: Project): FileCollecti
 
 private fun KotlinCompilation.newCompileClasspathOf(project: Project): FileCollection {
     val compilationClasspath = (compileTaskProvider.get() as? KotlinCompileTool)?.libraries ?: project.files()
-    return compilationClasspath + platformDependencyFiles()
+    return compilationClasspath + platformDependencyFiles(project)
 }
 
 private fun KotlinCompilation.oldCompileClasspathOf(project: Project): FileCollection {
@@ -48,7 +48,7 @@ private fun KotlinCompilation.oldCompileClasspathOf(project: Project): FileColle
         return this.classpathOf(project)
     }
 
-    return this.compileDependencyFiles + platformDependencyFiles() + this.classpathOf(project)
+    return this.compileDependencyFiles + platformDependencyFiles(project) + this.classpathOf(project)
 }
 
 private fun KotlinCompilation.classpathOf(project: Project): FileCollection {
@@ -76,7 +76,7 @@ private fun KotlinCompilation.getKotlinCompileTask(kgpVersion: KotlinGradlePlugi
     }
 }
 
-private fun KotlinCompilation.platformDependencyFiles(): FileCollection {
+private fun KotlinCompilation.platformDependencyFiles(project: Project): FileCollection {
     val excludePlatformDependencyFiles = project.classpathProperty("excludePlatformDependencyFiles", default = false)
 
     if (excludePlatformDependencyFiles) return project.files()
