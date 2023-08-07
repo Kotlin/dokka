@@ -14,7 +14,6 @@ version = "1.4-SNAPSHOT"
 
 repositories {
     mavenCentral()
-    jcenter()
 }
 
 val dokkaVersion: String by project
