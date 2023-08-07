@@ -14,6 +14,7 @@ import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
  *
  * [DisplaySourceSet]s typically have a one-to-one correspondence to the build system source sets,
  * are created by the base plugin from [DokkaSourceSet] and never tweaked manually.
+ * [DisplaySourceSet] is uniquely identified by the corresponding [CompositeSourceSetID].
  *
  * @property sourceSetIDs unique stable id of the display source set.
  *  It is composite by definition, as it uniquely defines the source set and all nested source sets.

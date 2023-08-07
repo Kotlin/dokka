@@ -863,10 +863,6 @@ public final class org/jetbrains/dokka/model/CompositeSourceSetID {
 	public fun toString ()Ljava/lang/String;
 }
 
-public final class org/jetbrains/dokka/model/CompositeSourceSetIDKt {
-	public static final fun plus (Lorg/jetbrains/dokka/DokkaSourceSetID;Lorg/jetbrains/dokka/DokkaSourceSetID;)Lorg/jetbrains/dokka/model/CompositeSourceSetID;
-}
-
 public final class org/jetbrains/dokka/model/Contravariance : org/jetbrains/dokka/model/Variance {
 	public fun <init> (Lorg/jetbrains/dokka/model/Bound;)V
 	public final fun component1 ()Lorg/jetbrains/dokka/model/Bound;
