@@ -9,9 +9,9 @@ import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.transformers.pages.PageTransformer
-import org.jetbrains.kotlin.analysis.kotlin.internal.InternalKotlinAnalysisPlugin
-import org.jetbrains.kotlin.analysis.kotlin.internal.SampleProvider
-import org.jetbrains.kotlin.analysis.kotlin.internal.SampleProviderFactory
+import org.jetbrains.dokka.analysis.kotlin.internal.InternalKotlinAnalysisPlugin
+import org.jetbrains.dokka.analysis.kotlin.internal.SampleProvider
+import org.jetbrains.dokka.analysis.kotlin.internal.SampleProviderFactory
 
 internal const val KOTLIN_PLAYGROUND_SCRIPT = "<script src=\"`https://unpkg.com/kotlin-playground@1`\"></script>"
 

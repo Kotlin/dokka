@@ -11,8 +11,8 @@ import org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.configuration.Sa
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.querySingle
-import org.jetbrains.kotlin.analysis.kotlin.internal.SampleProvider
-import org.jetbrains.kotlin.analysis.kotlin.internal.SampleProviderFactory
+import org.jetbrains.dokka.analysis.kotlin.internal.SampleProvider
+import org.jetbrains.dokka.analysis.kotlin.internal.SampleProviderFactory
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.KtBlockExpression
 import org.jetbrains.kotlin.psi.KtDeclarationWithBody

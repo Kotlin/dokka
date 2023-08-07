@@ -275,11 +275,6 @@ class DokkaBase : DokkaPlugin() {
     val defaultKotlinAnalysis: org.jetbrains.dokka.plugability.Extension<org.jetbrains.dokka.analysis.KotlinAnalysis, *, *>
         get() = throw org.jetbrains.dokka.base.deprecated.AnalysisApiDeprecatedError()
 
-    @Suppress("DeprecatedCallableAddReplaceWith")
-    @Deprecated(message = org.jetbrains.dokka.base.deprecated.ANALYSIS_API_DEPRECATION_MESSAGE, level = DeprecationLevel.ERROR)
-    val defaultSamplesTransformer: org.jetbrains.dokka.plugability.Extension<PageTransformer, *, *>
-        get() = throw org.jetbrains.dokka.base.deprecated.AnalysisApiDeprecatedError()
-
     @Suppress("DEPRECATION_ERROR", "DeprecatedCallableAddReplaceWith")
     @Deprecated(message = org.jetbrains.dokka.base.deprecated.ANALYSIS_API_DEPRECATION_MESSAGE, level = DeprecationLevel.ERROR)
     val defaultExternalDocumentablesProvider: org.jetbrains.dokka.plugability.Extension<org.jetbrains.dokka.base.translators.descriptors.ExternalDocumentablesProvider, *, *>
