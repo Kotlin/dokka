@@ -149,7 +149,6 @@ class DokkaBase : DokkaPlugin() {
 
     val pageMerger by extending {
         CoreExtensions.pageTransformer providing ::PageMerger order {
-            // TODO [beresnev] make last() or at least after samples transformer
         }
     }
 
