@@ -21,6 +21,7 @@ import org.jetbrains.dokka.renderers.PostAction
 import org.jetbrains.dokka.analysis.kotlin.internal.InternalKotlinAnalysisPlugin
 import org.jetbrains.kotlin.asJava.elements.KtLightAbstractAnnotation
 
+@Suppress("unused")
 @InternalDokkaApi
 class CompilerDescriptorAnalysisPlugin : DokkaPlugin() {
 
@@ -42,7 +43,7 @@ class CompilerDescriptorAnalysisPlugin : DokkaPlugin() {
         plugin<InternalKotlinAnalysisPlugin>().documentableSourceLanguageParser providing { CompilerDocumentableSourceLanguageParser() }
     }
 
-    internal  val defaultKotlinAnalysis by extending {
+    internal val defaultKotlinAnalysis by extending {
         kotlinAnalysis providing { ctx ->
             ProjectKotlinAnalysis(
                 sourceSets = ctx.configuration.sourceSets,
@@ -51,7 +52,7 @@ class CompilerDescriptorAnalysisPlugin : DokkaPlugin() {
         }
     }
 
-    internal  val descriptorToDocumentableTranslator by extending {
+    internal val descriptorToDocumentableTranslator by extending {
         CoreExtensions.sourceToDocumentableTranslator providing ::DefaultDescriptorToDocumentableTranslator
     }
 
@@ -61,6 +62,10 @@ class CompilerDescriptorAnalysisPlugin : DokkaPlugin() {
 
     internal val descriptorFullClassHierarchyBuilder by extending {
         plugin<InternalKotlinAnalysisPlugin>().fullClassHierarchyBuilder providing { DescriptorFullClassHierarchyBuilder() }
+    }
+
+    internal val kotlinSampleProviderFactory by extending {
+        plugin<InternalKotlinAnalysisPlugin>().sampleProviderFactory providing ::KotlinSampleProviderFactory
     }
 
     internal val descriptorSyntheticDocumentableDetector by extending {
