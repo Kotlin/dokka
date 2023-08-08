@@ -2,12 +2,15 @@ package content.samples
 
 import matchers.content.*
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
+import org.jetbrains.dokka.base.transformers.pages.KOTLIN_PLAYGROUND_SCRIPT
 import org.jetbrains.dokka.model.DisplaySourceSet
 import org.junit.jupiter.api.Test
+import utils.TestOutputWriterPlugin
 import utils.classSignature
 import utils.findTestType
 import java.nio.file.Paths
 import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
 
 class ContentForSamplesTest : BaseAbstractTest() {
     private val testDataDir = getTestDataDir("content/samples").toAbsolutePath()
@@ -61,6 +64,7 @@ class ContentForSamplesTest : BaseAbstractTest() {
 
     @Test
     fun `samples block is rendered in the description`() {
+        val writerPlugin = TestOutputWriterPlugin()
         testInline(
             """
             |/src/main/kotlin/test/source.kt
@@ -70,10 +74,12 @@ class ContentForSamplesTest : BaseAbstractTest() {
             | * @sample [test.sampleForClassDescription]
             | */
             |class Foo
-        """.trimIndent(), testConfiguration
+        """.trimIndent(), testConfiguration,
+            pluginOverrides = listOf(writerPlugin)
         ) {
             pagesTransformationStage = { module ->
                 val page = module.findTestType("test", "Foo")
+                assert(KOTLIN_PLAYGROUND_SCRIPT in page.embeddedResources)
                 page.content.assertNode {
                     group {
                         header(1) { +"Foo" }
@@ -100,6 +106,9 @@ class ContentForSamplesTest : BaseAbstractTest() {
                     }
                     skipAllNotMatching()
                 }
+            }
+            renderingStage = { _, _ ->
+                assertNotEquals(-1, writerPlugin.writer.contents["root/test/-foo/index.html"]?.indexOf(KOTLIN_PLAYGROUND_SCRIPT))
             }
         }
     }
@@ -134,6 +143,7 @@ class ContentForSamplesTest : BaseAbstractTest() {
         ) {
             pagesTransformationStage = { module ->
                 val page = module.findTestType("pageMerger", "Parent")
+                assert(KOTLIN_PLAYGROUND_SCRIPT in page.embeddedResources)
                 page.content.assertNode {
                     group {
                         header(1) { +"Parent" }

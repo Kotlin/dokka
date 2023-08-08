@@ -91,29 +91,30 @@ class DefaultTemplateModelFactory(val context: DokkaContext) : TemplateModelFact
         get() = URI(this).isAbsolute
 
     private fun Appendable.resourcesForPage(pathToRoot: String, resources: List<String>): Unit =
-        resources.forEach {
+        resources.forEach { resource ->
+
             val resourceHtml = with(createHTML()) {
                 when {
-                    it.URIExtension == "css" ->
+
+                    resource.URIExtension == "css" ->
                         link(
                             rel = LinkRel.stylesheet,
-                            href = if (it.isAbsolute) it else "$pathToRoot$it"
+                            href = if (resource.isAbsolute) resource else "$pathToRoot$resource"
                         )
-                    it.URIExtension == "js" ->
+                    resource.URIExtension == "js" ->
                         script(
                             type = ScriptType.textJavaScript,
-                            src = if (it.isAbsolute) it else "$pathToRoot$it"
+                            src = if (resource.isAbsolute) resource else "$pathToRoot$resource"
                         ) {
-                            if (it == "scripts/main.js" || it.endsWith("_deferred.js"))
+                            if (resource == "scripts/main.js" || resource.endsWith("_deferred.js"))
                                 defer = true
                             else
                                 async = true
                         }
-                    it.isImage() -> link(href = if (it.isAbsolute) it else "$pathToRoot$it")
+                    resource.isImage() -> link(href = if (resource.isAbsolute) resource else "$pathToRoot$resource")
                     else -> null
                 }
             }
-
             if (resourceHtml != null) {
                 append(resourceHtml)
             }
