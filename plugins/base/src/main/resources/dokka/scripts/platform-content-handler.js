@@ -12,6 +12,13 @@ const samplesDarkThemeName = 'darcula'
 const samplesLightThemeName = 'idea'
 
 window.addEventListener('load', () => {
+    initContent()
+    document.addEventListener('updateContentPage', () => {
+        initContent()
+     })
+})
+
+const initContent = () => {
     document.querySelectorAll("div[data-platform-hinted]")
         .forEach(elem => elem.addEventListener('click', (event) => togglePlatformDependent(event, elem)))
     document.querySelectorAll("div[tabs-section]")
@@ -26,7 +33,7 @@ window.addEventListener('load', () => {
     initHidingLeftNavigation()
     topNavbarOffset = document.getElementById('navigation-wrapper')
     darkModeSwitch()
-})
+}
 
 const darkModeSwitch = () => {
     const localStorageKey = "dokka-dark-mode"

@@ -76,6 +76,10 @@ if (document.readyState === 'loading') {
     wrapAllSymbolParameters()
 }
 
+document.addEventListener('updateContentPage', () => {
+    wrapAllSymbolParameters()
+})
+
 window.onresize = event => {
     // need to re-calculate if params need to be wrapped after resize
     resetAllSymbolParametersWrapping()
