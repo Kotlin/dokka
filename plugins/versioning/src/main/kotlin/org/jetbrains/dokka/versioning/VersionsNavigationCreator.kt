@@ -67,9 +67,13 @@ class HtmlVersionsNavigationCreator(private val context: DokkaContext) : Version
                                     else
                                         versioningStorage.currentVersion.dir.resolve("not-found-version.html")
 
-                                a(href = absolutePath?.toRelativeString(position) +
-                                        if (!isExistsFile) "?v=" + version.urlEncoded() else "") {
-                                        text(version)
+                                val href =
+                                    absolutePath?.toRelativeString(position) + if (!isExistsFile) "?v=" + version.urlEncoded() else ""
+                                a(
+                                    href = href,
+                                    classes = if (!isExistsFile) "unavailable-version" else null
+                                ) {
+                                    text(version)
                                 }
                             }
                         }
