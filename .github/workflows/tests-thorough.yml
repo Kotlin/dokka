@@ -35,5 +35,5 @@ jobs:
       - name: Run tests under Ubuntu/Macos
         if: matrix.os != 'windows-latest'
         run: >
-          ./gradlew clean symbolsTest --stacktrace 
+          ./gradlew clean test --stacktrace 
           "-Porg.jetbrains.dokka.javaToolchain.testLauncher=${{ matrix.javaVersion }}"
