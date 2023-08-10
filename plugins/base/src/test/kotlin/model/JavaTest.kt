@@ -8,12 +8,14 @@ import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.doc.Param
 import org.jetbrains.dokka.model.doc.Text
 import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import utils.AbstractModelTest
 import utils.assertNotNull
 import utils.name
 import kotlin.test.assertEquals
 
+@Tag("java")
 class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
     val configuration = dokkaConfiguration {
         sourceSets {

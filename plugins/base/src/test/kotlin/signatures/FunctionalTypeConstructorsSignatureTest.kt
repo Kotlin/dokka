@@ -5,10 +5,7 @@ import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.jdk
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
-import utils.A
-import utils.Span
-import utils.TestOutputWriterPlugin
-import utils.match
+import utils.*
 
 class FunctionalTypeConstructorsSignatureTest : BaseAbstractTest() {
     private val configuration = dokkaConfiguration {
@@ -254,6 +251,7 @@ class FunctionalTypeConstructorsSignatureTest : BaseAbstractTest() {
         }
     }
 
+    @MixedJava
     @Test
     fun `java with java function`() {
         val source = """
@@ -280,6 +278,7 @@ class FunctionalTypeConstructorsSignatureTest : BaseAbstractTest() {
         }
     }
 
+    @MixedJava
     @Test
     fun `java with kotlin function`() {
         val source = """

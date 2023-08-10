@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test
 import utils.*
 import kotlin.test.assertEquals
 
+@MixedJava
 class ContentForParamsTest : BaseAbstractTest() {
     private val testConfiguration = dokkaConfiguration {
         sourceSets {

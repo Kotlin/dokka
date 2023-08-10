@@ -10,10 +10,7 @@ import org.jetbrains.dokka.pages.ContentText
 import org.jetbrains.dokka.pages.MemberPageNode
 import org.jetbrains.dokka.pages.PackagePageNode
 import org.junit.jupiter.api.Test
-import utils.ParamAttributes
-import utils.assertNotNull
-import utils.bareSignature
-import utils.propertySignature
+import utils.*
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -318,6 +315,7 @@ class ContentForAnnotationsTest : BaseAbstractTest() {
         }
     }
 
+    @MixedJava
     @Test
     fun `annotated bounds in Java`() {
         testInline(

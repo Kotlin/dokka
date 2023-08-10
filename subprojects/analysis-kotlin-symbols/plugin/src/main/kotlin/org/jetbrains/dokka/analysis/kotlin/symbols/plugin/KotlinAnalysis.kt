@@ -137,7 +137,7 @@ private fun getJdkHomeFromSystemProperty(): File? {
        // messageCollector.report(CompilerMessageSeverity.WARNING, "Set existed java.home to use JDK")
         return null
     }
-    return javaHome
+    return null // File("/home/Vadim.Mishenev/.jdks/adopt-openjdk-11.0.11")
 }
 
 internal fun getLanguageVersionSettings(languageVersionString: String?, apiVersionString: String?): LanguageVersionSettingsImpl {

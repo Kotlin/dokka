@@ -8,11 +8,13 @@ import org.jetbrains.dokka.model.Documentable
 import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.jetbrains.dokka.pages.ContentPage
 import org.jetbrains.dokka.pages.ContentStyle
+import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import utils.pWrapped
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
+@Tag("java")
 class JavaDeprecatedTest : BaseAbstractTest() {
 
     private val testConfiguration = dokkaConfiguration {

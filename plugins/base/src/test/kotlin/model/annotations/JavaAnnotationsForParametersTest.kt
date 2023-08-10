@@ -4,11 +4,14 @@ import org.jetbrains.dokka.base.signatures.KotlinSignatureUtils.annotations
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.utilities.cast
+import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import utils.AbstractModelTest
+import utils.MixedJava
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
+@Tag("java")
 class JavaAnnotationsForParametersTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
 
     @Test

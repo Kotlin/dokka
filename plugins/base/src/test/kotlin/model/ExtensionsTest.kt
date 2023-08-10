@@ -9,6 +9,7 @@ import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import utils.AbstractModelTest
+import utils.MixedJava
 
 class ExtensionsTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "classes") {
     private fun <T : WithExtraProperties<R>, R : Documentable> T.checkExtension(name: String = "extension") =
@@ -67,6 +68,7 @@ class ExtensionsTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "cl
         }
     }
 
+    @MixedJava
     @Test
     fun `should be extension for external classes`() {
         inlineModelTest(

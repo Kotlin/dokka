@@ -9,6 +9,7 @@ import org.jetbrains.dokka.model.DModule
 import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.utilities.firstIsInstanceOrNull
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import utils.docs
 import utils.text
@@ -478,6 +479,7 @@ class JavadocParserTest : BaseAbstractTest() {
     }
 
     @Test
+    @Tag("java")
     fun `undocumented see also from java`() {
         testInline(
             """
@@ -515,6 +517,7 @@ class JavadocParserTest : BaseAbstractTest() {
         }
     }
 
+    @Tag("java")
     @Test
     fun `documented see also from java`() {
         testInline(
