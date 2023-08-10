@@ -10,6 +10,7 @@ import org.jetbrains.dokka.model.doc.Param
 import org.jetbrains.dokka.model.doc.Text
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.utilities.firstIsInstanceOrNull
+import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import utils.*
 import kotlin.test.assertEquals
@@ -784,6 +785,7 @@ class ContentForParamsTest : BaseAbstractTest() {
         }
     }
 
+    @Tag("java")
     @Test
     fun `return tag in kotlin`() {
         testInline(

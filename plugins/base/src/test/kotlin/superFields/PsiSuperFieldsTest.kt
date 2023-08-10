@@ -8,10 +8,11 @@ import org.jetbrains.dokka.model.IsVar
 import org.jetbrains.dokka.model.isJvmField
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
-
+@Tag("java")
 class PsiSuperFieldsTest : BaseAbstractTest() {
 
     private val commonTestConfiguration = dokkaConfiguration {

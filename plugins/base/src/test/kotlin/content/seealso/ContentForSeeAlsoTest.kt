@@ -201,7 +201,7 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
                             header(4) { +"See also" }
                             table {
                                 group {
-                                    +"abc"
+                                    link { +"abc" }
                                 }
                             }
                         }

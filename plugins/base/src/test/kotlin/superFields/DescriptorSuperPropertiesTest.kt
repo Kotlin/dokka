@@ -6,11 +6,13 @@ import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.InheritedMember
 import org.jetbrains.dokka.model.IsVar
 import org.jetbrains.dokka.model.KotlinVisibility
+import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
+@Tag("java")
 class DescriptorSuperPropertiesTest : BaseAbstractTest() {
 
     private val commonTestConfiguration = dokkaConfiguration {
@@ -93,6 +95,7 @@ class DescriptorSuperPropertiesTest : BaseAbstractTest() {
     }
 
 
+    @Tag("java")
     @Test
     fun `kotlin inheriting java should append getter and setter`() {
         testInline(

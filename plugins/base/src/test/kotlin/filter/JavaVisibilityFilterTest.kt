@@ -7,6 +7,7 @@ import org.jetbrains.dokka.PackageOptionsImpl
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.model.DClass
 import org.jetbrains.dokka.model.DModule
+import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
@@ -101,6 +102,7 @@ class JavaVisibilityFilterTest : BaseAbstractTest() {
         }
     }
 
+    @Tag("java")
     @Test
     fun `should document protected within public class`() {
         testVisibility(

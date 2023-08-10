@@ -2,6 +2,7 @@ package signatures
 
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
+import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import utils.*
 import kotlin.test.assertEquals
@@ -124,6 +125,7 @@ class InheritedAccessorsSignatureTest : BaseAbstractTest() {
         }
     }
 
+    @Tag("java")
     @Test
     fun `should keep inherited java setter as a regular function due to inaccessible property`() {
         val writerPlugin = TestOutputWriterPlugin()

@@ -11,8 +11,10 @@ import org.jetbrains.dokka.plugability.DokkaPluginApiPreview
 import org.jetbrains.dokka.plugability.PluginApiPreviewAcknowledgement
 import org.jetbrains.dokka.DokkaConfiguration.Visibility
 import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 
+@Tag("java")
 class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
     val configuration = dokkaConfiguration {
         sourceSets {
@@ -172,6 +174,7 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
         }
     }
 
+    @Tag("java")
     @Test
     fun `java package-info package annotations`() {
         testInline(
