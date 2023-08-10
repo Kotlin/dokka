@@ -1,6 +1,7 @@
 package org.jetbrains.dokka.analysis.kotlin.symbols.plugin
 
 import com.intellij.core.CoreApplicationEnvironment
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.StandardFileSystems
 import com.intellij.openapi.vfs.VirtualFileManager
@@ -160,11 +161,13 @@ internal fun createAnalysisSession(
     sourceRoots: Set<File>,
     analysisPlatform: Platform,
     languageVersion: String?,
-    apiVersion: String?
+    apiVersion: String?,
+    applicationDisposable: Disposable,
+    projectDisposable: Disposable
 ): Pair<StandaloneAnalysisAPISession, KtSourceModule> {
 
     var sourceModule: KtSourceModule? = null
-    val analysisSession = buildStandaloneAnalysisAPISession(withPsiDeclarationFromBinaryModuleProvider = false) {
+    val analysisSession = buildStandaloneAnalysisAPISession(applicationDisposable, projectDisposable, withPsiDeclarationFromBinaryModuleProvider = false) {
         val project = project
         val targetPlatform = analysisPlatform.toTargetPlatform()
         fun KtModuleBuilder.addModuleDependencies(moduleName: String) {
