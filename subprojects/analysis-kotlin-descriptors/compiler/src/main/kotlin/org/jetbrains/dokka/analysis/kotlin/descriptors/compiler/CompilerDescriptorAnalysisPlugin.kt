@@ -56,9 +56,6 @@ class CompilerDescriptorAnalysisPlugin : DokkaPlugin() {
         CoreExtensions.sourceToDocumentableTranslator providing ::DefaultDescriptorToDocumentableTranslator
     }
 
-    internal val defaultSamplesTransformer by extending {
-        CoreExtensions.pageTransformer providing ::DefaultSamplesTransformer
-    }
 
     internal val descriptorFullClassHierarchyBuilder by extending {
         plugin<InternalKotlinAnalysisPlugin>().fullClassHierarchyBuilder providing { DescriptorFullClassHierarchyBuilder() }
