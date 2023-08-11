@@ -1,6 +1,8 @@
 package org.jetbrains.dokka.analysis.kotlin.symbols.plugin
 
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.Disposer
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.DokkaSourceSetID
 import org.jetbrains.dokka.InternalDokkaApi
@@ -63,14 +65,24 @@ internal fun createAnalysisContext(
     sourceRoots: Set<File>,
     sourceSet: DokkaConfiguration.DokkaSourceSet
 ): AnalysisContext {
+    val applicationDisposable: Disposable = Disposer.newDisposable("StandaloneAnalysisAPISession.application")
+    val projectDisposable: Disposable = Disposer.newDisposable("StandaloneAnalysisAPISession.project")
+
     val analysis= createAnalysisSession(
         classpath = classpath,
         sourceRoots = sourceRoots,
         analysisPlatform = sourceSet.analysisPlatform,
         languageVersion = sourceSet.languageVersion,
-        apiVersion = sourceSet.apiVersion
+        apiVersion = sourceSet.apiVersion,
+        applicationDisposable = applicationDisposable,
+        projectDisposable = projectDisposable
     )
-    return AnalysisContextImpl(analysis.first, analysis.second,)
+    return AnalysisContextImpl(
+        mainModule = analysis.second,
+        analysisSession = analysis.first,
+        applicationDisposable = applicationDisposable,
+        projectDisposable = projectDisposable
+    )
 }
 
 
@@ -114,12 +126,17 @@ interface AnalysisContext: Closeable {
     val mainModule: KtSourceModule
 }
 
-internal class AnalysisContextImpl(private val analysisSession: StandaloneAnalysisAPISession, override val mainModule: KtSourceModule) : AnalysisContext {
+private class AnalysisContextImpl(
+    override val mainModule: KtSourceModule,
+    private val analysisSession: StandaloneAnalysisAPISession,
+    private val applicationDisposable: Disposable,
+    private val projectDisposable: Disposable
+) : AnalysisContext {
     override val project: Project
         get() = analysisSession.project
 
     override fun close() {
-        analysisSession.application.dispose()
-        analysisSession.project.dispose()
+        Disposer.dispose(applicationDisposable)
+        Disposer.dispose(projectDisposable)
     }
 }

@@ -1,6 +1,7 @@
 package org.jetbrains.dokka.analysis.kotlin.symbols.plugin
 
 import com.intellij.core.CoreApplicationEnvironment
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.StandardFileSystems
 import com.intellij.openapi.vfs.VirtualFileManager
@@ -134,13 +135,16 @@ internal inline fun <reified T : PsiFileSystemItem> getPsiFilesFromPaths(
 private fun getJdkHomeFromSystemProperty(): File? {
     val javaHome = File(System.getProperty("java.home"))
     if (!javaHome.exists()) {
-       // messageCollector.report(CompilerMessageSeverity.WARNING, "Set existed java.home to use JDK")
+        // messageCollector.report(CompilerMessageSeverity.WARNING, "Set existed java.home to use JDK")
         return null
     }
     return javaHome
 }
 
-internal fun getLanguageVersionSettings(languageVersionString: String?, apiVersionString: String?): LanguageVersionSettingsImpl {
+internal fun getLanguageVersionSettings(
+    languageVersionString: String?,
+    apiVersionString: String?
+): LanguageVersionSettingsImpl {
     val languageVersion = LanguageVersion.fromVersionString(languageVersionString) ?: LanguageVersion.LATEST_STABLE
     val apiVersion =
         apiVersionString?.let { ApiVersion.parse(it) } ?: ApiVersion.createByLanguageVersion(languageVersion)
@@ -160,11 +164,17 @@ internal fun createAnalysisSession(
     sourceRoots: Set<File>,
     analysisPlatform: Platform,
     languageVersion: String?,
-    apiVersion: String?
+    apiVersion: String?,
+    applicationDisposable: Disposable,
+    projectDisposable: Disposable
 ): Pair<StandaloneAnalysisAPISession, KtSourceModule> {
 
     var sourceModule: KtSourceModule? = null
-    val analysisSession = buildStandaloneAnalysisAPISession(withPsiDeclarationFromBinaryModuleProvider = false) {
+    val analysisSession = buildStandaloneAnalysisAPISession(
+        applicationDisposable = applicationDisposable,
+        projectDisposable = projectDisposable,
+        withPsiDeclarationFromBinaryModuleProvider = false
+    ) {
         val project = project
         val targetPlatform = analysisPlatform.toTargetPlatform()
         fun KtModuleBuilder.addModuleDependencies(moduleName: String) {
@@ -197,7 +207,7 @@ internal fun createAnalysisSession(
             }
         }
         sourceModule = buildKtSourceModule {
-             this.languageVersionSettings = getLanguageVersionSettings(languageVersion, apiVersion)
+            this.languageVersionSettings = getLanguageVersionSettings(languageVersion, apiVersion)
 
             //val fs = StandardFileSystems.local()
             //val psiManager = PsiManager.getInstance(project)
