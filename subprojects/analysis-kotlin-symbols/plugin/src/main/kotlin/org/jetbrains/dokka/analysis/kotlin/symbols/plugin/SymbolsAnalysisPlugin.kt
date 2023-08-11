@@ -5,13 +5,13 @@ import com.intellij.psi.PsiAnnotation
 import org.jetbrains.dokka.CoreExtensions
 import org.jetbrains.dokka.analysis.java.BreakingAbstractionKotlinLightMethodChecker
 import org.jetbrains.dokka.analysis.java.JavaAnalysisPlugin
+import org.jetbrains.dokka.analysis.kotlin.internal.InternalKotlinAnalysisPlugin
 import org.jetbrains.dokka.analysis.kotlin.symbols.kdoc.java.KotlinInheritDocTagContentProvider
 import org.jetbrains.dokka.analysis.kotlin.symbols.kdoc.java.DescriptorKotlinDocCommentCreator
 import org.jetbrains.dokka.analysis.kotlin.symbols.kdoc.java.KotlinDocCommentParser
 import org.jetbrains.dokka.analysis.kotlin.symbols.kdoc.moduledocs.ModuleAndPackageDocumentationReader
 import org.jetbrains.dokka.analysis.kotlin.symbols.services.*
 import org.jetbrains.dokka.analysis.kotlin.symbols.services.KotlinDocumentableSourceLanguageParser
-import org.jetbrains.dokka.analysis.kotlin.symbols.services.DefaultSamplesTransformer
 import org.jetbrains.dokka.analysis.kotlin.symbols.services.SymbolExternalDocumentablesProvider
 import org.jetbrains.dokka.analysis.kotlin.symbols.translators.DefaultSymbolToDocumentableTranslator
 import org.jetbrains.dokka.plugability.DokkaPlugin
@@ -19,7 +19,6 @@ import org.jetbrains.dokka.plugability.DokkaPluginApiPreview
 import org.jetbrains.dokka.plugability.PluginApiPreviewAcknowledgement
 import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.renderers.PostAction
-import org.jetbrains.kotlin.analysis.kotlin.internal.InternalKotlinAnalysisPlugin
 import org.jetbrains.kotlin.asJava.elements.KtLightAbstractAnnotation
 
 @Suppress("unused")
@@ -113,8 +112,8 @@ class SymbolsAnalysisPlugin : DokkaPlugin() {
         plugin<InternalKotlinAnalysisPlugin>().externalDocumentablesProvider providing ::SymbolExternalDocumentablesProvider
     }
 
-    internal val defaultSamplesTransformer by extending {
-        CoreExtensions.pageTransformer providing ::DefaultSamplesTransformer
+    internal val kotlinSampleProviderFactory by extending {
+        plugin<InternalKotlinAnalysisPlugin>().sampleProviderFactory providing ::KotlinSampleProviderFactory
     }
 
     @OptIn(DokkaPluginApiPreview::class)

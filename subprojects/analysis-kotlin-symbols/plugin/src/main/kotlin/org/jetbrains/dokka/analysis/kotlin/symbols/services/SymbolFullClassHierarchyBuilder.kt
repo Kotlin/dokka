@@ -9,9 +9,9 @@ import org.jetbrains.dokka.model.*
 import org.jetbrains.kotlin.analysis.api.KtAnalysisSession
 import org.jetbrains.kotlin.analysis.api.analyze
 import org.jetbrains.kotlin.analysis.api.types.KtType
-import org.jetbrains.kotlin.analysis.kotlin.internal.ClassHierarchy
-import org.jetbrains.kotlin.analysis.kotlin.internal.FullClassHierarchyBuilder
-import org.jetbrains.kotlin.analysis.kotlin.internal.Supertypes
+import org.jetbrains.dokka.analysis.kotlin.internal.ClassHierarchy
+import org.jetbrains.dokka.analysis.kotlin.internal.FullClassHierarchyBuilder
+import org.jetbrains.dokka.analysis.kotlin.internal.Supertypes
 import org.jetbrains.kotlin.psi.KtClassOrObject
 import java.util.concurrent.ConcurrentHashMap
 

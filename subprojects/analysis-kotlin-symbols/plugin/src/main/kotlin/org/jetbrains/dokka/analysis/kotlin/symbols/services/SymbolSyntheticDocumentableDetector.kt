@@ -7,7 +7,7 @@ import org.jetbrains.dokka.model.Documentable
 import org.jetbrains.dokka.model.InheritedMember
 import org.jetbrains.dokka.model.WithSources
 import org.jetbrains.dokka.model.properties.WithExtraProperties
-import org.jetbrains.kotlin.analysis.kotlin.internal.SyntheticDocumentableDetector
+import org.jetbrains.dokka.analysis.kotlin.internal.SyntheticDocumentableDetector
 
 internal class SymbolSyntheticDocumentableDetector : SyntheticDocumentableDetector {
 
