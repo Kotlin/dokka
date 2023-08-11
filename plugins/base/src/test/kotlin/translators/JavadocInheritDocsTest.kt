@@ -8,6 +8,7 @@ import org.jetbrains.dokka.model.doc.Text
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
+import utils.JavaCode
 
 class JavadocInheritDocsTest : BaseAbstractTest() {
     val configuration = dokkaConfiguration {
@@ -211,6 +212,7 @@ class JavadocInheritDocsTest : BaseAbstractTest() {
     }
 
 
+    @JavaCode
     @Test
     fun `work with multiple supertypes`() {
         testInline(

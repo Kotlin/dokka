@@ -9,10 +9,12 @@ import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.jetbrains.dokka.pages.ContentPage
 import org.jetbrains.dokka.pages.ContentStyle
 import org.junit.jupiter.api.Test
+import utils.JavaCode
 import utils.pWrapped
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
+@JavaCode
 class JavaDeprecatedTest : BaseAbstractTest() {
 
     private val testConfiguration = dokkaConfiguration {

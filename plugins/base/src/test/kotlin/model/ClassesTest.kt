@@ -521,6 +521,7 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
         }
     }
 
+    @UsingJDK
     @Test
     fun doublyTypealiasedException() {
         inlineModelTest(

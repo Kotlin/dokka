@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test
 import utils.*
 import kotlin.test.assertEquals
 
+@JavaCode
 class InheritedAccessorsSignatureTest : BaseAbstractTest() {
 
     private val configuration = dokkaConfiguration {
@@ -228,6 +229,7 @@ class InheritedAccessorsSignatureTest : BaseAbstractTest() {
         }
     }
 
+    @JavaCode
     @Test
     fun `should keep kotlin property with no accessors when java inherits kotlin a var`() {
         val writerPlugin = TestOutputWriterPlugin()
@@ -265,6 +267,7 @@ class InheritedAccessorsSignatureTest : BaseAbstractTest() {
         }
     }
 
+    @JavaCode
     @Test
     fun `kotlin property with compute get and set`() {
         val writerPlugin = TestOutputWriterPlugin()

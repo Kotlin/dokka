@@ -242,6 +242,7 @@ class ContentForParamsTest : BaseAbstractTest() {
         }
     }
 
+    @JavaCode
     @Test
     fun `deprecated with multiple links inside`() {
         testInline(
@@ -346,6 +347,7 @@ class ContentForParamsTest : BaseAbstractTest() {
         }
     }
 
+    @JavaCode
     @Test
     fun `deprecated with an multiple inline links`() {
         testInline(
@@ -410,6 +412,7 @@ class ContentForParamsTest : BaseAbstractTest() {
         }
     }
 
+    @JavaCode
     @Test
     fun `multiline throws with comment`() {
         testInline(
@@ -591,6 +594,7 @@ class ContentForParamsTest : BaseAbstractTest() {
         }
     }
 
+    @JavaCode
     @Test
     fun `multiline throws where exception is not in the same line as description`() {
         testInline(
@@ -674,6 +678,7 @@ class ContentForParamsTest : BaseAbstractTest() {
     }
 
 
+    @JavaCode
     @Test
     fun `documentation splitted in 2 using enters`() {
         testInline(
@@ -719,6 +724,7 @@ class ContentForParamsTest : BaseAbstractTest() {
         }
     }
 
+    @JavaCode
     @Test
     fun `multiline return tag with param`() {
         testInline(
@@ -784,6 +790,7 @@ class ContentForParamsTest : BaseAbstractTest() {
         }
     }
 
+    @UsingJDK
     @Test
     fun `return tag in kotlin`() {
         testInline(
@@ -831,6 +838,7 @@ class ContentForParamsTest : BaseAbstractTest() {
         }
     }
 
+    @JavaCode
     @Test
     fun `list with links and description`() {
         testInline(
@@ -1477,6 +1485,7 @@ class ContentForParamsTest : BaseAbstractTest() {
         }
     }
 
+    @JavaCode
     @Test
     fun javaDocCommentWithDocumentedParameters() {
         testInline(

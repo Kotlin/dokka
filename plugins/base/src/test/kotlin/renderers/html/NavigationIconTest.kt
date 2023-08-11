@@ -3,6 +3,7 @@ package renderers.html
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.junit.jupiter.api.Test
 import utils.TestOutputWriterPlugin
+import utils.UsingJDK
 import utils.navigationHtml
 import utils.selectNavigationGrid
 import kotlin.test.assertEquals
@@ -182,6 +183,7 @@ class NavigationIconTest : BaseAbstractTest() {
         )
     }
 
+    @UsingJDK
     @Test
     fun `should add icon styles to kotlin exception class navigation item`() {
         assertNavigationIcon(

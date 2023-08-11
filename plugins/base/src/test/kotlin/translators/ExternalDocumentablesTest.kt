@@ -11,8 +11,10 @@ import org.jetbrains.dokka.analysis.kotlin.internal.InternalKotlinAnalysisPlugin
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import utils.OnlyDescriptors
+import utils.UsingJDK
 
 class ExternalDocumentablesTest : BaseAbstractTest() {
+    @UsingJDK
     @Test
     fun `external documentable from java stdlib`() {
         val configuration = dokkaConfiguration {

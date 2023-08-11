@@ -9,6 +9,7 @@ import org.jetbrains.dokka.model.firstChildOfType
 import org.jetbrains.dokka.model.firstMemberOfType
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import utils.UsingJDK
 import utils.text
 
 class JavadocParserTest : BaseAbstractTest() {
@@ -159,6 +160,7 @@ class JavadocParserTest : BaseAbstractTest() {
         }
     }
 
+    @UsingJDK
     @Test
     fun `correctly parsed see tags`() {
         performJavadocTest { module ->

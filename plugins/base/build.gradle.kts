@@ -52,15 +52,19 @@ dependencies {
 
 val symbolsTest = tasks.register<Test>("symbolsTest") {
     useJUnitPlatform {
-       excludeTags("onlyDescriptors", "onlyDescriptorsMPP")
+       excludeTags("onlyDescriptors", "onlyDescriptorsMPP", "javaCode", "usingJDK")
     }
     classpath += symbolsTestConfiguration
 }
-
+// run symbols and descriptors tests
 tasks.test {
     //enabled = false
     classpath += descriptorsTestConfiguration
     dependsOn(symbolsTest)
+}
+
+val descriptorsTest = tasks.register<Test>("descriptorsTest") {
+    classpath += descriptorsTestConfiguration
 }
 
 tasks.check {
