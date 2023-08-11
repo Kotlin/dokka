@@ -140,7 +140,7 @@ internal class TypeTranslator(
 
         is KtClassErrorType -> TypeConstructorWithKind(
             GenericTypeConstructor(
-                dri = DRI("$ERROR_CLASS_NAME $type", "", null),
+                dri = DRI(packageName = "", classNames = "$ERROR_CLASS_NAME $type"),
                 projections = emptyList(),
 
                 ),
@@ -149,7 +149,7 @@ internal class TypeTranslator(
 
         is KtTypeErrorType -> TypeConstructorWithKind(
             GenericTypeConstructor(
-                dri = DRI("$ERROR_CLASS_NAME $type", "", null),
+                dri = DRI(packageName = "", classNames = "$ERROR_CLASS_NAME $type"),
                 projections = emptyList(),
 
                 ),

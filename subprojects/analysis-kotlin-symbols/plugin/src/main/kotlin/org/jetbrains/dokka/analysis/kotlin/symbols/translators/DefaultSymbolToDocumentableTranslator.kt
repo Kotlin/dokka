@@ -513,7 +513,6 @@ internal class DokkaSymbolVisitor(
 
         return visibility.toDokkaVisibility()
     }
-
     private fun KtAnalysisSession.visitJavaFieldSymbol(
         javaFieldSymbol: KtJavaFieldSymbol,
         parent: DRI,
@@ -570,9 +569,21 @@ internal class DokkaSymbolVisitor(
         propertySymbol: KtPropertySymbol,
         propertyDRI: DRI
     ): DFunction = withExceptionCatcher(propertyAccessorSymbol) {
-        val dri = propertyDRI.copy(
-            callable = Callable("", null, emptyList())
-        )
+        val isGetter = propertyAccessorSymbol is KtPropertyGetterSymbol
+        // it also covers @JvmName annotation
+        val name = (if (isGetter) propertySymbol.javaGetterName else propertySymbol.javaSetterName)?.asString() ?: ""
+
+        // SyntheticJavaProperty has callableIdIfNonLocal, propertyAccessorSymbol.origin = JAVA_SYNTHETIC_PROPERTY
+        // For Kotlin properties callableIdIfNonLocal=null
+        val dri = if (propertyAccessorSymbol.callableIdIfNonLocal != null)
+            getDRIFromFunctionLike(propertyAccessorSymbol)
+        else
+            propertyDRI.copy(
+                callable = Callable(name, null, propertyAccessorSymbol.valueParameters.map { getTypeReferenceFrom(it.returnType) })
+            )
+        // for SyntheticJavaProperty
+        val inheritedFrom = if(propertyAccessorSymbol.origin == KtSymbolOrigin.JAVA_SYNTHETIC_PROPERTY) dri.copy(callable = null) else null
+
         val isExpect = propertyAccessorSymbol.isExpect
         val isActual = propertyAccessorSymbol.isActual
 
@@ -582,31 +593,6 @@ internal class DokkaSymbolVisitor(
                 symbol,
                 dri
             )
-        }
-        val isGetter = propertyAccessorSymbol is KtPropertyGetterSymbol
-
-        val name = run {
-            val modifier = if (isGetter) "get" else "set"
-            val rawName = propertySymbol.name.asString()
-            "$modifier${rawName.capitalize()}"
-            /*
-             * Kotlin has special rules for conversion around properties that
-             * start with "is" For more info see:
-             * https://kotlinlang.org/docs/java-interop.html#getters-and-setters
-             * https://kotlinlang.org/docs/java-to-kotlin-interop.html#properties
-             *
-             * Based on our testing, this rule only applies when the letter after
-             * the "is" is *not* lowercase. This means that words like "issue" won't
-             * have the rule applied but "is_foobar" and "is1of" will have the rule applied.
-             */
-            val specialCaseIs = rawName.startsWith("is")
-                    && rawName.getOrNull(2)?.isLowerCase() == false
-
-            if (specialCaseIs) {
-                if (isGetter) rawName else rawName.replaceFirst("is", "set")
-            } else {
-                if (isGetter) "get${rawName.capitalize()}" else "set${rawName.capitalize()}"
-            }
         }
 
         return DFunction(
@@ -633,6 +619,7 @@ internal class DokkaSymbolVisitor(
             isExpectActual = (isExpect || isActual),
             extra = PropertyContainer.withAll(
                 propertyAccessorSymbol.additionalExtras()?.toSourceSetDependent()?.toAdditionalModifiers(),
+                inheritedFrom?.let { InheritedMember(it.toSourceSetDependent()) },
                 getDokkaAnnotationsFrom(propertyAccessorSymbol)?.toSourceSetDependent()?.toAnnotations()
             )
         )

@@ -56,7 +56,7 @@ internal class AnnotationTranslator {
     private fun KtAnalysisSession.toDokkaAnnotation(annotationApplication: KtAnnotationApplication) =
         Annotations.Annotation(
             dri = annotationApplication.classId?.createDRI()
-                ?: throw IllegalStateException("The annotation application does not have class id"),
+                ?: DRI(packageName = "", classNames = ERROR_CLASS_NAME), // classId might be null on a non-existing annotation call,
             params = if (annotationApplication is KtAnnotationApplicationWithArgumentsInfo) annotationApplication.arguments.associate {
                 it.name.asString() to toDokkaAnnotationValue(
                     it.expression
