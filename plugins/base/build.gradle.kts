@@ -52,7 +52,7 @@ dependencies {
 
 val symbolsTest = tasks.register<Test>("symbolsTest") {
     useJUnitPlatform {
-       excludeTags("onlyDescriptors", "onlyDescriptorsMPP", "java", "mixedJava")
+       excludeTags("onlyDescriptors", "onlyDescriptorsMPP", "java")
     }
     classpath += symbolsTestConfiguration
 }

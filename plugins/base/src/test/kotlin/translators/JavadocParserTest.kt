@@ -8,9 +8,7 @@ import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.model.firstChildOfType
 import org.jetbrains.dokka.model.firstMemberOfType
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
-import utils.MixedJava
 import utils.text
 
 class JavadocParserTest : BaseAbstractTest() {
@@ -162,7 +160,6 @@ class JavadocParserTest : BaseAbstractTest() {
     }
 
     @Test
-    @Tag("java")
     fun `correctly parsed see tags`() {
         performJavadocTest { module ->
             val sees = module.findClasslike().documentation.values.single().childrenOfType<See>()

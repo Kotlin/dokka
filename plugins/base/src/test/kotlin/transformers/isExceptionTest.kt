@@ -5,9 +5,7 @@ import org.jetbrains.dokka.model.DClass
 import org.jetbrains.dokka.model.DTypeAlias
 import org.junit.jupiter.api.Test
 import utils.AbstractModelTest
-import utils.MixedJava
 
-@MixedJava
 class IsExceptionKotlinTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "classes") {
     @Test
     fun `isException should work for kotlin exception`(){
@@ -102,7 +100,6 @@ class IsExceptionKotlinTest : AbstractModelTest("/src/main/kotlin/classes/Test.k
     }
 }
 
-@MixedJava
 class IsExceptionJavaTest: AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
     @Test
     fun `isException should work for java exceptions`(){

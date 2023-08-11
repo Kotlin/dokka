@@ -11,11 +11,9 @@ import org.jetbrains.dokka.pages.MemberPageNode
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
-import utils.MixedJava
 
 class LinkTest : BaseAbstractTest() {
     @Test
-    @MixedJava
     fun linkToClassLoader() {
         val configuration = dokkaConfiguration {
             sourceSets {

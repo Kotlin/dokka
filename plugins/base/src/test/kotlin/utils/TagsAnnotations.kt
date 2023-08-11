@@ -36,15 +36,3 @@ annotation class OnlyDescriptors(val reason: String = "")
 )
 @Tag("onlyDescriptorsMPP")
 annotation class OnlyDescriptorsMPP(val reason: String = "")
-
-@Target(
-    AnnotationTarget.CLASS,
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.PROPERTY_GETTER,
-    AnnotationTarget.PROPERTY_SETTER
-)
-@Retention(
-    AnnotationRetention.RUNTIME
-)
-@Tag("mixedJava")
-annotation class MixedJava(val reason: String = "")

@@ -522,7 +522,6 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
     }
 
     @Test
-    @MixedJava
     fun doublyTypealiasedException() {
         inlineModelTest(
             """

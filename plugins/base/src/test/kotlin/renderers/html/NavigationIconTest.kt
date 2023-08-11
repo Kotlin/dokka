@@ -2,7 +2,6 @@ package renderers.html
 
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.junit.jupiter.api.Test
-import utils.MixedJava
 import utils.TestOutputWriterPlugin
 import utils.navigationHtml
 import utils.selectNavigationGrid
@@ -184,7 +183,6 @@ class NavigationIconTest : BaseAbstractTest() {
     }
 
     @Test
-    @MixedJava
     fun `should add icon styles to kotlin exception class navigation item`() {
         assertNavigationIcon(
             source = kotlinSource("class KotlinException : Exception() {}"),
