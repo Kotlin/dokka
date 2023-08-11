@@ -4,7 +4,6 @@ import matchers.content.*
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.model.DisplaySourceSet
 import org.jetbrains.dokka.pages.ContentDRILink
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import utils.*
 import kotlin.test.assertEquals
@@ -173,7 +172,6 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
     }
 
     @Test
-    @Disabled
     fun `undocumented seealso with reference to parameter for class`() {
         testInline(
             """
