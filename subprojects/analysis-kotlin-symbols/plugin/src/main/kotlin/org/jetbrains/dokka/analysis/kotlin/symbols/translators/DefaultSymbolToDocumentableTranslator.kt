@@ -218,28 +218,33 @@ internal class DokkaSymbolVisitor(
         val callables = scope.getCallableSymbols().toList()
         val classifiers = scope.getClassifierSymbols().toList()
 
+        val syntheticJavaProperties =
+            namedClassOrObjectSymbol.buildSelfClassType().getSyntheticJavaPropertiesScope()?.getCallableSignatures()
+                ?.map { it.symbol }
+                ?.filterIsInstance<KtSyntheticJavaPropertySymbol>() ?: emptySequence()
+
+        fun List<KtJavaFieldSymbol>.filterOutSyntheticJavaPropBackingField() =
+            filterNot { javaField -> syntheticJavaProperties.any { it.hasBackingField && javaField.name == it.name } }
 
         val javaFields = callables.filterIsInstance<KtJavaFieldSymbol>()
+            .filterOutSyntheticJavaPropBackingField()
 
-        /**
-         * TODO: For synthetic Java properties KTIJ-22359 to research:
-         *
-         *         val syntheticProperties = getSyntheticJavaPropertiesScope()
-         *         ?.filterIsInstance<KtSyntheticJavaPropertySymbol>()
-         */
-        val (regularFunctions, accessors) = splitFunctionsAndInheritedAccessors(
-            fields = javaFields,
-            functions = callables.filterIsInstance<KtFunctionSymbol>()
-        )
+        fun List<KtFunctionSymbol>.filterOutSyntheticJavaPropAccessors() = filterNot { fn ->
+            if (fn.origin == KtSymbolOrigin.JAVA && fn.callableIdIfNonLocal != null)
+                syntheticJavaProperties.any { fn.callableIdIfNonLocal == it.javaGetterSymbol.callableIdIfNonLocal || fn.callableIdIfNonLocal == it.javaSetterSymbol?.callableIdIfNonLocal }
+            else false
+        }
 
-        val functions = regularFunctions.map { visitFunctionSymbol(it, dri) }
+        val functions = callables.filterIsInstance<KtFunctionSymbol>()
+            .filterOutSyntheticJavaPropAccessors().map { visitFunctionSymbol(it, dri) }
+
+
         val properties = callables.filterIsInstance<KtPropertySymbol>().map { visitPropertySymbol(it, dri) } +
+                syntheticJavaProperties.map { visitPropertySymbol(it, dri) } +
                 javaFields.map {
                     visitJavaFieldSymbol(
                         javaFieldSymbol = it,
-                        parent = dri,
-                        getterFunctionSymbol = accessors[it]?.getter,
-                        setterFunctionSymbol = accessors[it]?.setter
+                        parent = dri
                     )
                 }
 
@@ -457,7 +462,6 @@ internal class DokkaSymbolVisitor(
             val inheritedFrom = dri.getInheritedFromDRI(parent)
             val isExpect = propertySymbol.isExpect
             val isActual = propertySymbol.isActual
-            propertySymbol.origin
             val generics =
                 propertySymbol.typeParameters.mapIndexed { index, symbol ->
                     visitVariantTypeParameter(
@@ -498,26 +502,9 @@ internal class DokkaSymbolVisitor(
             )
         }
 
-    private fun KtJavaFieldSymbol.getVisibility(getterFunctionSymbol: KtFunctionSymbol? = null): Visibility {
-        val isNonPublicJavaProperty = !this.visibility.isPublicAPI
-        val visibility =
-            if (isNonPublicJavaProperty) {
-                // only try to take implicit getter's visibility if it's a java property
-                // because it's not guaranteed that implicit accessor will be used
-                // for the kotlin property, as it may have an explicit accessor of its own,
-                // i.eю in data classes or with get() and set() are overridden
-                getterFunctionSymbol?.visibility ?: this.visibility
-            } else {
-                this.visibility
-            }
-
-        return visibility.toDokkaVisibility()
-    }
     private fun KtAnalysisSession.visitJavaFieldSymbol(
         javaFieldSymbol: KtJavaFieldSymbol,
-        parent: DRI,
-        getterFunctionSymbol: KtFunctionSymbol? = null,
-        setterFunctionSymbol: KtFunctionSymbol? = null,
+        parent: DRI
     ): DProperty =
         withExceptionCatcher(javaFieldSymbol) {
             val dri = createDRIWithOverridden(javaFieldSymbol).origin
@@ -543,9 +530,9 @@ internal class DokkaSymbolVisitor(
                     )
                 },
                 sources = javaFieldSymbol.getSource(),
-                getter = getterFunctionSymbol?.let { visitFunctionSymbol(it, parent) },
-                setter = setterFunctionSymbol?.let { visitFunctionSymbol(it, parent) },
-                visibility = javaFieldSymbol.getVisibility(getterFunctionSymbol).toSourceSetDependent(),
+                getter = null,
+                setter = null,
+                visibility = javaFieldSymbol.getDokkaVisibility().toSourceSetDependent(),
                 documentation = getDocumentation(javaFieldSymbol)?.toSourceSetDependent() ?: emptyMap(), // TODO
                 modifier = javaFieldSymbol.modality.toDokkaModifier().toSourceSetDependent(),
                 type = toBoundFrom(javaFieldSymbol.returnType),
@@ -559,7 +546,7 @@ internal class DokkaSymbolVisitor(
                     //javaFieldSymbol.getDefaultValue()?.let { DefaultValue(it.toSourceSetDependent()) },
                     inheritedFrom?.let { InheritedMember(it.toSourceSetDependent()) },
                     // non-final java property should be var if it has no accessors at all or has a setter
-                    IsVar.takeIf { (!javaFieldSymbol.isVal && getterFunctionSymbol == null && setterFunctionSymbol == null) || setterFunctionSymbol != null }
+                    IsVar
                 )
             )
         }
@@ -764,9 +751,7 @@ internal class DokkaSymbolVisitor(
         else null
 
     private fun KtPropertySymbol.getDefaultValue(): Expression? =
-        if (origin == KtSymbolOrigin.SOURCE) psi?.children?.filterIsInstance<KtConstantExpression>()?.firstOrNull()
-            ?.toDefaultValueExpression() else null
-
+        (initializer?.initializerPsi as? KtConstantExpression)?.toDefaultValueExpression() // TODO consider [KtConstantInitializerValue], but should we keep an original format, e.g. 0xff or 0b101?
 
     private fun KtExpression.toDefaultValueExpression(): Expression? = when (node?.elementType) {
         KtNodeTypes.INTEGER_CONSTANT -> PsiLiteralUtil.parseLong(node?.text)?.let { IntegerConstant(it) }
