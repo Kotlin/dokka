@@ -7,7 +7,6 @@ import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Disabled
-import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 
 
@@ -842,7 +841,6 @@ class ReportUndocumentedTransformerTest : BaseAbstractTest() {
         }
     }
 
-    @Tag("java")
     @Test
     fun `java overridden function does not get reported when super is documented`() {
         val configuration = dokkaConfiguration {

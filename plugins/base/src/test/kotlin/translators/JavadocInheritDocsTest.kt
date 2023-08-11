@@ -7,10 +7,8 @@ import org.jetbrains.dokka.model.doc.P
 import org.jetbrains.dokka.model.doc.Text
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Disabled
-import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 
-@Tag("java")
 class JavadocInheritDocsTest : BaseAbstractTest() {
     val configuration = dokkaConfiguration {
         sourceSets {

@@ -6,7 +6,6 @@ import org.jetbrains.dokka.model.DFunction
 import org.jetbrains.dokka.model.DInterface
 import org.jetbrains.dokka.model.Documentable
 import org.jetbrains.dokka.model.properties.WithExtraProperties
-import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import utils.AbstractModelTest
 
@@ -114,7 +113,6 @@ class ExtensionsTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "cl
         }
     }
 
-    @Tag("java")
     @Test
     fun `should be extension for java classes`() {
         val testConfiguration = dokkaConfiguration {
