@@ -42,7 +42,6 @@ import org.jetbrains.kotlin.psi.psiUtil.hasActualModifier
 import org.jetbrains.kotlin.psi.psiUtil.hasExpectModifier
 import java.nio.file.Paths
 
-// 806 / 843
 class DefaultSymbolToDocumentableTranslator(context: DokkaContext) : AsyncSourceToDocumentableTranslator {
     private val kotlinAnalysis = context.plugin<SymbolsAnalysisPlugin>().querySingle { kotlinAnalysis }
     private val javadocParser = JavadocParser(
@@ -195,7 +194,6 @@ internal class DokkaSymbolVisitor(
                 ancestryInfo.exceptionInSupertypesOrNull(),
             )
         )
-
     }
 
     fun KtAnalysisSession.visitNamedClassOrObjectSymbol(
@@ -207,63 +205,11 @@ internal class DokkaSymbolVisitor(
         val name = namedClassOrObjectSymbol.name.asString()
         val dri = parent.withClass(name)
 
-        val scope = namedClassOrObjectSymbol.getMemberScope()
         val isExpect = namedClassOrObjectSymbol.isExpect
         val isActual = namedClassOrObjectSymbol.isActual
         val documentation = getDocumentation(namedClassOrObjectSymbol)?.toSourceSetDependent() ?: emptyMap()
 
-        val constructors = scope.getConstructors().map { visitConstructorSymbol(it) }.toList()
-
-
-        val callables = scope.getCallableSymbols().toList()
-        val classifiers = scope.getClassifierSymbols().toList()
-
-        val syntheticJavaProperties =
-            namedClassOrObjectSymbol.buildSelfClassType().getSyntheticJavaPropertiesScope()?.getCallableSignatures()
-                ?.map { it.symbol }
-                ?.filterIsInstance<KtSyntheticJavaPropertySymbol>() ?: emptySequence()
-
-        fun List<KtJavaFieldSymbol>.filterOutSyntheticJavaPropBackingField() =
-            filterNot { javaField -> syntheticJavaProperties.any { it.hasBackingField && javaField.name == it.name } }
-
-        val javaFields = callables.filterIsInstance<KtJavaFieldSymbol>()
-            .filterOutSyntheticJavaPropBackingField()
-
-        fun List<KtFunctionSymbol>.filterOutSyntheticJavaPropAccessors() = filterNot { fn ->
-            if (fn.origin == KtSymbolOrigin.JAVA && fn.callableIdIfNonLocal != null)
-                syntheticJavaProperties.any { fn.callableIdIfNonLocal == it.javaGetterSymbol.callableIdIfNonLocal || fn.callableIdIfNonLocal == it.javaSetterSymbol?.callableIdIfNonLocal }
-            else false
-        }
-
-        val functions = callables.filterIsInstance<KtFunctionSymbol>()
-            .filterOutSyntheticJavaPropAccessors().map { visitFunctionSymbol(it, dri) }
-
-
-        val properties = callables.filterIsInstance<KtPropertySymbol>().map { visitPropertySymbol(it, dri) } +
-                syntheticJavaProperties.map { visitPropertySymbol(it, dri) } +
-                javaFields.map {
-                    visitJavaFieldSymbol(
-                        javaFieldSymbol = it,
-                        parent = dri
-                    )
-                }
-
-
-        // hack, by default, compiler adds an empty companion object for enum
-        // TODO check if it is empty
-        fun List<KtNamedClassOrObjectSymbol>.filterOutEnumCompanion() = filterNot {
-            if (namedClassOrObjectSymbol.classKind == KtClassKind.ENUM_CLASS)
-                it.name.asString() == "Companion" && it.classKind == KtClassKind.COMPANION_OBJECT
-            else false
-        }
-
-        val classlikes = classifiers.filterIsInstance<KtNamedClassOrObjectSymbol>()
-            .filterOutEnumCompanion() // hack to filter out companion for enum
-            .filterNot { symbol ->
-                visitedNamedClassOrObjectSymbol.contains(symbol.classIdIfNonLocal)
-                    .also { if (!it) symbol.classIdIfNonLocal?.let { classId -> visitedNamedClassOrObjectSymbol.add(classId) } }
-            }
-            .map { visitNamedClassOrObjectSymbol(it, dri) }
+        val (constructors, functions, properties, classlikes) = getDokkaScopeFrom(namedClassOrObjectSymbol, dri)
 
         val generics = namedClassOrObjectSymbol.typeParameters.mapIndexed { index, symbol ->
             visitVariantTypeParameter(
@@ -425,6 +371,80 @@ internal class DokkaSymbolVisitor(
         }
     }
 
+    private data class DokkaScope(
+        val constructors: List<DFunction>,
+        val functions: List<DFunction>,
+        val properties: List<DProperty>,
+        val classlikes: List<DClasslike>
+    )
+    private fun KtAnalysisSession.getDokkaScopeFrom(
+        namedClassOrObjectSymbol: KtNamedClassOrObjectSymbol,
+        dri: DRI
+    ): DokkaScope {
+        val scope = namedClassOrObjectSymbol.getMemberScope()
+        val constructors = scope.getConstructors().map { visitConstructorSymbol(it) }.toList()
+
+        val callables = scope.getCallableSymbols().toList()
+        val classifiers = scope.getClassifierSymbols().toList()
+
+        val syntheticJavaProperties =
+            namedClassOrObjectSymbol.buildSelfClassType().getSyntheticJavaPropertiesScope()?.getCallableSignatures()
+                ?.map { it.symbol }
+                ?.filterIsInstance<KtSyntheticJavaPropertySymbol>() ?: emptySequence()
+
+        fun List<KtJavaFieldSymbol>.filterOutSyntheticJavaPropBackingField() =
+            filterNot { javaField -> syntheticJavaProperties.any { it.hasBackingField && javaField.name == it.name } }
+
+        val javaFields = callables.filterIsInstance<KtJavaFieldSymbol>()
+            .filterOutSyntheticJavaPropBackingField()
+
+        fun List<KtFunctionSymbol>.filterOutSyntheticJavaPropAccessors() = filterNot { fn ->
+            if (fn.origin == KtSymbolOrigin.JAVA && fn.callableIdIfNonLocal != null)
+                syntheticJavaProperties.any { fn.callableIdIfNonLocal == it.javaGetterSymbol.callableIdIfNonLocal || fn.callableIdIfNonLocal == it.javaSetterSymbol?.callableIdIfNonLocal }
+            else false
+        }
+
+        val functions = callables.filterIsInstance<KtFunctionSymbol>()
+            .filterOutSyntheticJavaPropAccessors().map { visitFunctionSymbol(it, dri) }
+
+
+        val properties = callables.filterIsInstance<KtPropertySymbol>().map { visitPropertySymbol(it, dri) } +
+                syntheticJavaProperties.map { visitPropertySymbol(it, dri) } +
+                javaFields.map { visitJavaFieldSymbol(it, dri) }
+
+
+        // hack, by default, compiler adds an empty companion object for enum
+        // TODO check if it is empty
+        fun List<KtNamedClassOrObjectSymbol>.filterOutEnumCompanion() =
+            if (namedClassOrObjectSymbol.classKind == KtClassKind.ENUM_CLASS)
+                filterNot {
+                    it.name.asString() == "Companion" && it.classKind == KtClassKind.COMPANION_OBJECT
+                } else this
+
+        fun List<KtNamedClassOrObjectSymbol>.filterOutAndMarkAlreadyVisited() = filterNot { symbol ->
+            visitedNamedClassOrObjectSymbol.contains(symbol.classIdIfNonLocal)
+                .also {
+                    if (!it) symbol.classIdIfNonLocal?.let { classId ->
+                        visitedNamedClassOrObjectSymbol.add(
+                            classId
+                        )
+                    }
+                }
+        }
+
+        val classlikes = classifiers.filterIsInstance<KtNamedClassOrObjectSymbol>()
+            .filterOutEnumCompanion() // hack to filter out companion for enum
+            .filterOutAndMarkAlreadyVisited()
+            .map { visitNamedClassOrObjectSymbol(it, dri) }
+
+        return DokkaScope(
+            constructors = constructors,
+            functions = functions,
+            properties = properties,
+            classlikes = classlikes
+        )
+    }
+
     private fun KtAnalysisSession.visitEnumEntrySymbol(
         enumEntrySymbol: KtEnumEntrySymbol
     ): DEnumEntry = withExceptionCatcher(enumEntrySymbol) {
@@ -545,8 +565,8 @@ internal class DokkaSymbolVisitor(
                     getDokkaAnnotationsFrom(javaFieldSymbol)?.toSourceSetDependent()?.toAnnotations(),
                     //javaFieldSymbol.getDefaultValue()?.let { DefaultValue(it.toSourceSetDependent()) },
                     inheritedFrom?.let { InheritedMember(it.toSourceSetDependent()) },
-                    // non-final java property should be var if it has no accessors at all or has a setter
-                    IsVar
+                    // non-final java property should be var
+                    takeUnless { javaFieldSymbol.isVal }?.let { IsVar }
                 )
             )
         }
