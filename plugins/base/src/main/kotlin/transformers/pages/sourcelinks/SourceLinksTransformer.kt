@@ -5,10 +5,7 @@ import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder
 import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.model.Documentable
-import org.jetbrains.dokka.model.DocumentableSource
-import org.jetbrains.dokka.model.WithSources
-import org.jetbrains.dokka.model.sourceSetIDs
+import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
@@ -87,9 +84,10 @@ class SourceLinksTransformer(val context: DokkaContext) : PageTransformer {
         contentNode: ContentNode, sources: Map<DRI, List<Pair<DokkaSourceSet, String>>>
     ): ContentNode =
         contentNode.signatureGroupOrNull()?.let { sg ->
+            val sgIds = sg.sourceSets.computeSourceSetIds()
             sources[sg.dci.dri.singleOrNull()]?.let { sourceLinks ->
                 sourceLinks
-                    .filter { it.first.sourceSetID in sg.sourceSets.sourceSetIDs }
+                    .filter { it.first.sourceSetID in sgIds }
                     .takeIf { it.isNotEmpty() }
                     ?.let { filteredSourcesLinks ->
                         sg.copy(children = sg.children + filteredSourcesLinks.map {
