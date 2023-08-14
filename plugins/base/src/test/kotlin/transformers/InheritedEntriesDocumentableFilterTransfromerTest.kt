@@ -134,7 +134,7 @@ class InheritedEntriesDocumentableFilterTransformerTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyDescriptors // TODO
+    @OnlyDescriptors("Entry does not have `name` and `ordinal`") // TODO
     @Test
     fun `should work with enum entries when not suppressing`(){
         testInline(

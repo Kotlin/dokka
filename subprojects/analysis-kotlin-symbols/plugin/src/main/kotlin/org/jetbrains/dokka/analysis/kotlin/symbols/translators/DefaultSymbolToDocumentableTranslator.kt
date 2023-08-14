@@ -6,10 +6,12 @@ import com.intellij.psi.util.PsiLiteralUtil
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.analysis.java.JavaAnalysisPlugin
 import org.jetbrains.dokka.analysis.java.parsers.JavadocParser
+import org.jetbrains.dokka.analysis.kotlin.symbols.kdoc.getGeneratedKDocDocumentationFrom
 import org.jetbrains.dokka.analysis.kotlin.symbols.plugin.AnalysisContext
 import org.jetbrains.dokka.analysis.kotlin.symbols.services.KtPsiDocumentableSource
 import org.jetbrains.dokka.analysis.kotlin.symbols.kdoc.getJavaDocDocumentationFrom
 import org.jetbrains.dokka.analysis.kotlin.symbols.kdoc.getKDocDocumentationFrom
+import org.jetbrains.dokka.analysis.kotlin.symbols.kdoc.hasGeneratedKDocDocumentation
 import org.jetbrains.dokka.analysis.kotlin.symbols.translators.AnnotationTranslator.Companion.getPresentableName
 import org.jetbrains.dokka.analysis.kotlin.symbols.utils.typeConstructorsBeingExceptions
 import org.jetbrains.dokka.links.*
@@ -381,7 +383,8 @@ internal class DokkaSymbolVisitor(
         namedClassOrObjectSymbol: KtNamedClassOrObjectSymbol,
         dri: DRI
     ): DokkaScope {
-        val scope = namedClassOrObjectSymbol.getMemberScope()
+        // e.g. getStaticMemberScope contains `valueOf`, `values` and `entries` members for Enum
+        val scope = listOf(namedClassOrObjectSymbol.getMemberScope(), namedClassOrObjectSymbol.getStaticMemberScope()).asCompositeScope()
         val constructors = scope.getConstructors().map { visitConstructorSymbol(it) }.toList()
 
         val callables = scope.getCallableSymbols().toList()
@@ -849,10 +852,13 @@ internal class DokkaSymbolVisitor(
     }
 
     private fun KtAnalysisSession.getDocumentation(symbol: KtSymbol) =
-        getKDocDocumentationFrom(symbol) ?: javadocParser?.let { getJavaDocDocumentationFrom(symbol, it) }
+        if (symbol.origin == KtSymbolOrigin.SOURCE_MEMBER_GENERATED)
+            getGeneratedKDocDocumentationFrom(symbol)
+        else
+            getKDocDocumentationFrom(symbol) ?: javadocParser?.let { getJavaDocDocumentationFrom(symbol, it) }
 
-    private fun isObvious(functionSymbol: KtFunctionSymbol): Boolean {
-        return functionSymbol.origin == KtSymbolOrigin.SOURCE_MEMBER_GENERATED ||
+    private fun KtAnalysisSession.isObvious(functionSymbol: KtFunctionSymbol): Boolean {
+        return functionSymbol.origin == KtSymbolOrigin.SOURCE_MEMBER_GENERATED && !hasGeneratedKDocDocumentation(functionSymbol) ||
                 !functionSymbol.isOverride && functionSymbol.callableIdIfNonLocal?.classId?.isObvious() == true
     }
 

@@ -9,7 +9,6 @@ import org.jetbrains.dokka.model.dfs
 import org.jetbrains.dokka.pages.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import utils.OnlyDescriptors
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
@@ -60,7 +59,6 @@ class ContentForBriefTest : BaseAbstractTest() {
         """.trimIndent()
 
 
-    @OnlyDescriptors // TODO
     @Test
     fun `primary constructor should not inherit docs from its parameter`() {
         testInline(codeWithSecondaryAndPrimaryConstructorsDocumented, testConfiguration) {
@@ -117,7 +115,6 @@ class ContentForBriefTest : BaseAbstractTest() {
             .dfs { it is ContentText && it.dci.kind == ContentKind.Comment } as ContentText
     }
 
-    @OnlyDescriptors // TODO
     @Test
     fun `primary constructor should not inherit docs from its parameter when no specific docs are provided`() {
         testInline(codeWithDocumentedParameter, testConfiguration) {

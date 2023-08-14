@@ -7,6 +7,7 @@ import org.jetbrains.dokka.analysis.kotlin.symbols.translators.getDRIFromSymbol
 import org.jetbrains.dokka.model.doc.DocumentationNode
 import org.jetbrains.kotlin.analysis.api.KtAnalysisSession
 import org.jetbrains.kotlin.analysis.api.symbols.KtCallableSymbol
+import org.jetbrains.kotlin.analysis.api.symbols.KtClassOrObjectSymbol
 import org.jetbrains.kotlin.analysis.api.symbols.KtSymbol
 import org.jetbrains.kotlin.analysis.api.symbols.KtSymbolOrigin
 import org.jetbrains.kotlin.analysis.api.symbols.markers.KtNamedSymbol
@@ -45,7 +46,13 @@ internal fun KtAnalysisSession.getKDocDocumentationFrom(symbol: KtSymbol) = find
 
     val ktElement = symbol.psi
     val kdocLocation = ktElement?.containingFile?.name?.let {
-        val name = (symbol as? KtNamedSymbol)?.name?.asString()
+        val name = when(symbol) {
+            is KtCallableSymbol -> symbol.callableIdIfNonLocal?.toString()
+            is KtClassOrObjectSymbol -> symbol.classIdIfNonLocal?.toString()
+            is KtNamedSymbol -> symbol.name.asString()
+            else -> null
+        }?.replace('/', '.')
+
         if (name != null) "$it/$name"
         else it
     }

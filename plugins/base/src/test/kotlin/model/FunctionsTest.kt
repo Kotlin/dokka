@@ -272,7 +272,7 @@ class FunctionTest : AbstractModelTest("/src/main/kotlin/function/Test.kt", "fun
         }
     }
 
-    @OnlyDescriptors("DRI entry")
+    @OnlyDescriptors("Bug in descriptors, DRI of entry should have [EnumEntryDRIExtra]")
     @Test
     fun annotatedFunctionWithAnnotationParameters() {
         inlineModelTest(

@@ -270,7 +270,7 @@ class MergeImplicitExpectActualDeclarationsTest : BaseAbstractTest() {
 
     fun PageNode.childrenRec(): List<PageNode> = listOf(this) + children.flatMap { it.childrenRec() }
 
-    @OnlyDescriptors // TODO
+    @OnlyDescriptors("Enum entry [SMTH] does not have functions") // TODO
     @Test
     fun `should merge enum entries`() {
         testInline(

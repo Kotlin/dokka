@@ -7,7 +7,6 @@ import org.jetbrains.dokka.analysis.markdown.jb.MarkdownParser
 import org.jetbrains.dokka.model.doc.*
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
-import utils.OnlyDescriptors
 import kotlin.test.assertEquals
 
 
@@ -1475,7 +1474,6 @@ class ParserTest : KDocTest() {
     }
 
 
-    @OnlyDescriptors // TODO
     @Test
     fun `exception thrown by empty header should point to location of a file`() {
         val kdoc = """
@@ -1484,9 +1482,10 @@ class ParserTest : KDocTest() {
         val expectedDocumentationNode = DocumentationNode(emptyList())
         val exception = runCatching { executeTest(kdoc, expectedDocumentationNode) }.exceptionOrNull()
 
-        assertEquals(
-            "Wrong AST Tree. Header does not contain expected content in Test.kt/example.Test, element starts from offset 0 and ends 3: ###",
-            exception?.message
+        val expectedMessage = "Wrong AST Tree. Header does not contain expected content in Test.kt/example.Test, element starts from offset 0 and ends 3: ###"
+        assert(
+            exception?.message == expectedMessage
+            || /* for K2 */ exception?.cause?.cause?.message == expectedMessage
         )
     }
 

@@ -856,7 +856,6 @@ val soapXml = node("soap-env:Envelope", soapAttrs,
         }
     }
 
-    @OnlyDescriptors // TODO
     @Test
     fun `should have documentation for synthetic Enum values functions`() {
         testInline(
@@ -919,7 +918,6 @@ val soapXml = node("soap-env:Envelope", soapAttrs,
         }
     }
 
-    @OnlyDescriptors // TODO
     @Test
     fun `should have documentation for synthetic Enum entries property`() {
         testInline(
@@ -983,7 +981,7 @@ val soapXml = node("soap-env:Envelope", soapAttrs,
         }
     }
 
-    @OnlyDescriptors // TODO
+    @OnlyDescriptors("Fix kdoc link") // TODO
     @Test
     fun `should have documentation for synthetic Enum valueOf functions`() {
         testInline(

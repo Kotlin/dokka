@@ -159,7 +159,7 @@ class KotlinArrayDocumentableReplacerTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyDescriptors // TODO fix module.contentScope [getKtModuleForKtElement]
+    @OnlyDescriptors("Fix module.contentScope in new Standalone API") // TODO fix module.contentScope [getKtModuleForKtElement]
     @Test
     fun `no jvm source set`() {
         val configurationWithNoJVM = dokkaConfiguration {

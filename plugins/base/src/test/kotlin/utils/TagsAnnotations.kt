@@ -54,7 +54,7 @@ annotation class OnlyDescriptorsMPP(val reason: String = "")
 annotation class JavaCode
 
 /**
- * For test containing .java code
+ * For test using JDK
  */
 @Target(
     AnnotationTarget.CLASS,

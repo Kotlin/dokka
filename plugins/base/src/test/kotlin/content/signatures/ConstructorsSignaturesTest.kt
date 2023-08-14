@@ -342,7 +342,6 @@ class ConstructorsSignaturesTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyDescriptors // TODO
     @Test
     fun `class with explicitly documented constructor`() {
         testInline(
