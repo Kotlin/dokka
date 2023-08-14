@@ -43,7 +43,7 @@ public data class DisplaySourceSet(
 public fun DokkaSourceSet.toDisplaySourceSet(): DisplaySourceSet = DisplaySourceSet(this)
 
 /**
- * Transforms all the given [DokkaSourceSet]s into [DisplaySourceSet].
+ * Transforms all the given [DokkaSourceSet]s into [DisplaySourceSet]s.
  */
 public fun Iterable<DokkaSourceSet>.toDisplaySourceSets(): Set<DisplaySourceSet> =
     map { it.toDisplaySourceSet() }.toSet()
