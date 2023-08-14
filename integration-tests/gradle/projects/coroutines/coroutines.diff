@@ -1,17 +1,27 @@
 diff --git a/build.gradle b/build.gradle
-index 934d4c220..38321990e 100644
+index e7d405e12..0ca2169fe 100644
 --- a/build.gradle
 +++ b/build.gradle
-@@ -131,6 +131,7 @@ allprojects {
+@@ -107,6 +107,9 @@ allprojects {
+             mavenLocal()
+         }
+     }
++    repositories {
++        mavenLocal()
++    }
+
+     ext.unpublished = unpublished
+
+@@ -142,6 +145,7 @@ allprojects {
          google()
          mavenCentral()
          CommunityProjectsBuild.addDevRepositoryIfEnabled(delegate, project)
 +        mavenLocal()
      }
  }
- 
+
 diff --git a/buildSrc/build.gradle.kts b/buildSrc/build.gradle.kts
-index 785d13fdb..7fb19f467 100644
+index ae54ad0f6..4655940a9 100644
 --- a/buildSrc/build.gradle.kts
 +++ b/buildSrc/build.gradle.kts
 @@ -25,6 +25,7 @@ repositories {
@@ -20,8 +30,8 @@ index 785d13fdb..7fb19f467 100644
      }
 +    mavenLocal()
  }
- 
- kotlinDslPluginOptions {
+
+ val gradleProperties = Properties().apply {
 diff --git a/buildSrc/settings.gradle.kts b/buildSrc/settings.gradle.kts
 index c2e859f65..43dc4f749 100644
 --- a/buildSrc/settings.gradle.kts
@@ -34,14 +44,14 @@ index c2e859f65..43dc4f749 100644
      }
  }
 diff --git a/gradle.properties b/gradle.properties
-index db7cf099b..9c13c46fd 100644
+index 3d9431be0..b60114bc2 100644
 --- a/gradle.properties
 +++ b/gradle.properties
-@@ -14,7 +14,7 @@ atomicfu_version=0.18.5
- knit_version=0.4.0
+@@ -14,7 +14,7 @@ atomicfu_version=0.21.0
+ knit_version=0.5.0-Beta
  html_version=0.7.2
- lincheck_version=2.14.1
--dokka_version=1.7.20
+ lincheck_version=2.18.1
+-dokka_version=1.8.10
 +dokka_version=for-integration-tests-SNAPSHOT
  byte_buddy_version=1.10.9
  reactor_version=3.4.1

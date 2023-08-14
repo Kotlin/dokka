@@ -15,8 +15,8 @@ class SerializationGradleIntegrationTest(override val versions: BuildVersions) :
         @get:JvmStatic
         @get:Parameterized.Parameters(name = "{0}")
         val versions = BuildVersions.permutations(
-            gradleVersions = listOf("7.4.2"),
-            kotlinVersions = listOf("1.7.10")
+            gradleVersions = listOf("7.6.1"),
+            kotlinVersions = listOf("1.9.0")
         )
     }
 

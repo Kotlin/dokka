@@ -97,8 +97,13 @@ abstract class DefaultRenderer<T>(
         builder: T,
         pageContext: ContentPage,
         sourceSetRestriction: Set<DisplaySourceSet>? = null
-    ) =
-        builder.buildContentNode(this, pageContext, sourceSetRestriction)
+    ) = builder.buildContentNode(this, pageContext, sourceSetRestriction)
+
+    fun T.buildContentNode(
+        node: ContentNode,
+        pageContext: ContentPage,
+        sourceSetRestriction: DisplaySourceSet
+    ) = buildContentNode(node, pageContext, setOf(sourceSetRestriction))
 
     open fun T.buildContentNode(
         node: ContentNode,

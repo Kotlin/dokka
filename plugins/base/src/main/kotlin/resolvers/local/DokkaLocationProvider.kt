@@ -4,10 +4,7 @@ import org.jetbrains.dokka.base.renderers.sourceSets
 import org.jetbrains.dokka.base.resolvers.anchors.SymbolAnchorHint
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.PointingToDeclaration
-import org.jetbrains.dokka.model.DisplaySourceSet
-import org.jetbrains.dokka.model.sourceSetIDs
-import org.jetbrains.dokka.model.toDisplaySourceSet
-import org.jetbrains.dokka.model.withDescendants
+import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import java.util.*
@@ -91,12 +88,12 @@ open class DokkaLocationProvider(
         val (dri, originalSourceSet) = driWithSourceSets
         val allSourceSets: List<Set<DisplaySourceSet>> =
             listOf(originalSourceSet) + originalSourceSet.let { oss ->
-                dokkaContext.configuration.sourceSets.filter { it.sourceSetID in oss.sourceSetIDs }
+                val ossIds = oss.computeSourceSetIds()
+                dokkaContext.configuration.sourceSets.filter { it.sourceSetID in ossIds }
                     .flatMap { it.dependentSourceSets }
                     .mapNotNull { ssid ->
                         dokkaContext.configuration.sourceSets.find { it.sourceSetID == ssid }?.toDisplaySourceSet()
                     }.map {
-                        // be careful `data DisplaySourceSet: Set<DisplaySourceSet>` but `setOf(someDisplaySourceSet) != someDisplaySourceSet`
                         setOf(it)
                     }
             }

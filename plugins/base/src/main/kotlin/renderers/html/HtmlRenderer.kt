@@ -309,7 +309,7 @@ open class HtmlRenderer(
         return nodes.toList().map { (sourceSet, elements) ->
             val htmlContent = createHTML(prettyPrint = false).prepareForTemplates().div {
                 elements.forEach {
-                    buildContentNode(it, pageContext, sourceSet.toSet())
+                    buildContentNode(it, pageContext, sourceSet)
                 }
             }.stripDiv()
             sourceSet to createHTML(prettyPrint = false).prepareForTemplates()
@@ -356,7 +356,7 @@ open class HtmlRenderer(
                 distinct.onEachIndexed{ index, (_, distinctInstances) ->
                     distinctInstances.firstOrNull()?.before?.let { contentOfSourceSet.add(it) }
                     contentOfSourceSet.addAll(distinctInstances.map { it.divergent })
-                    (distinctInstances.firstOrNull()?.after ?: if (index != distinct.size - 1) ContentBreakLine(it.key) else null)
+                    (distinctInstances.firstOrNull()?.after ?: if (index != distinct.size - 1) ContentBreakLine(setOf(it.key)) else null)
                         ?.let { contentOfSourceSet.add(it) }
 
                     // content kind main is important for declarations list to avoid double line breaks
@@ -364,9 +364,9 @@ open class HtmlRenderer(
                         if (isPageWithOverloadedMembers) {
                             // add some spacing and distinction between function/property overloads.
                             // not ideal, but there's no other place to modify overloads page atm
-                            contentOfSourceSet.add(ContentBreakLine(it.key, style = setOf(HorizontalBreakLineStyle)))
+                            contentOfSourceSet.add(ContentBreakLine(setOf(it.key), style = setOf(HorizontalBreakLineStyle)))
                         } else {
-                            contentOfSourceSet.add(ContentBreakLine(it.key))
+                            contentOfSourceSet.add(ContentBreakLine(setOf(it.key)))
                         }
                     }
                 }
