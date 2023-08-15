@@ -10,6 +10,7 @@ public final class org/jetbrains/dokka/analysis/kotlin/descriptors/compiler/Comp
 	public final fun getKdocFinder ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
 	public final fun getKlibService ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
 	public final fun getKotlinAnalysis ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
+	public final fun getKotlinSampleProviderFactory ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getMockApplicationHack ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
 }
 
