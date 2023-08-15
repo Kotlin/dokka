@@ -2,8 +2,8 @@ package transformers
 
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.model.DClass
-import kotlin.test.assertEquals
 import org.junit.jupiter.api.Test
+import kotlin.test.assertEquals
 
 class HideTagDocumentableFilterTest : BaseAbstractTest() {
     private val configuration = dokkaConfiguration {

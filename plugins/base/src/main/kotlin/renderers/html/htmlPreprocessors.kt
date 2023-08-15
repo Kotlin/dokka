@@ -11,7 +11,7 @@ import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.configuration
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 
-open class NavigationPageInstaller(val context: DokkaContext) : NavigationDataProvider(), PageTransformer {
+open class NavigationPageInstaller(val context: DokkaContext) : NavigationDataProvider(context), PageTransformer {
     override fun invoke(input: RootPageNode): RootPageNode =
         input.modified(
             children = input.children + NavigationPage(
@@ -120,6 +120,7 @@ object AssetsInstaller : PageTransformer {
         "images/nav-icons/interface.svg",
         "images/nav-icons/interface-kotlin.svg",
         "images/nav-icons/object.svg",
+        "images/nav-icons/typealias-kotlin.svg",
     )
 
     override fun invoke(input: RootPageNode) = input.modified(

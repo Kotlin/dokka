@@ -2,7 +2,6 @@ package org.jetbrains.dokka.base.signatures
 
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.Platform
-import org.jetbrains.dokka.analysis.DescriptorDocumentableSource
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.signatures.KotlinSignatureUtils.dri
 import org.jetbrains.dokka.base.signatures.KotlinSignatureUtils.driOrNull
@@ -18,15 +17,14 @@ import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.utilities.DokkaLogger
-import org.jetbrains.kotlin.js.resolve.diagnostics.findPsi
-import org.jetbrains.kotlin.psi.KtParameter
 import kotlin.text.Typography.nbsp
 
 class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogger)
     : SignatureProvider, JvmSignatureUtils by KotlinSignatureUtils {
+
     constructor(context: DokkaContext) : this(
         context.plugin<DokkaBase>().querySingle { commentsToContentConverter },
-        context.logger
+        context.logger,
     )
     private val contentBuilder = PageContentBuilder(ctcc, this, logger)
 
@@ -82,39 +80,18 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
             }
         }
 
-    private fun actualTypealiasedSignature(c: DClasslike, sourceSet: DokkaSourceSet, aliasedType: Bound): ContentGroup {
-        @Suppress("UNCHECKED_CAST")
-        val deprecationStyles = (c as? WithExtraProperties<out Documentable>)
-            ?.stylesIfDeprecated(sourceSet)
-            ?: emptySet()
-
-        return contentBuilder.contentFor(
-            c,
-            ContentKind.Symbol,
-            setOf(TextStyle.Monospace),
-            sourceSets = setOf(sourceSet)
-        ) {
-            keyword("actual ")
-            keyword("typealias ")
-            link(c.name.orEmpty(), c.dri, styles = mainStyles + deprecationStyles)
-            operator(" = ")
-            signatureForProjection(aliasedType)
-        }
-    }
-
     private fun classlikeSignature(c: DClasslike): List<ContentNode> {
         @Suppress("UNCHECKED_CAST")
-        val typeAliasUnderlyingType = (c as? WithExtraProperties<DClasslike>)
+        val typeAlias = (c as? WithExtraProperties<DClasslike>)
             ?.extra
             ?.get(ActualTypealias)
-            ?.underlyingType
+            ?.typeAlias
 
         return c.sourceSets.map { sourceSetData ->
-            val sourceSetType = typeAliasUnderlyingType?.get(sourceSetData)
-            if (sourceSetType == null) {
-                regularSignature(c, sourceSetData)
+            if (typeAlias != null && sourceSetData in typeAlias.sourceSets) {
+                regularSignature(typeAlias, sourceSetData)
             } else {
-                actualTypealiasedSignature(c, sourceSetData, sourceSetType)
+                regularSignature(c, sourceSetData)
             }
         }
     }
@@ -243,8 +220,12 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
      * An example would be a primary constructor `class A(val s: String)`,
      * where `s` is both a function parameter and a property
      */
-    private fun DProperty.isAlsoParameter(sourceSet: DokkaSourceSet) =
-        (this.sources[sourceSet] as? DescriptorDocumentableSource)?.descriptor?.findPsi() is KtParameter
+    private fun DProperty.isAlsoParameter(sourceSet: DokkaSourceSet): Boolean {
+        return this.extra[IsAlsoParameter]
+            ?.inSourceSets
+            ?.any { it.sourceSetID == sourceSet.sourceSetID }
+            ?: false
+    }
 
     private fun propertySignature(p: DProperty) =
         p.sourceSets.map { sourceSet ->
@@ -361,27 +342,33 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
 
     private fun signature(t: DTypeAlias) =
         t.sourceSets.map {
-            contentBuilder.contentFor(t, sourceSets = setOf(it)) {
-                t.underlyingType.entries.groupBy({ it.value }, { it.key }).map { (type, platforms) ->
-                    +contentBuilder.contentFor(
-                        t,
-                        ContentKind.Symbol,
-                        setOf(TextStyle.Monospace),
-                        sourceSets = platforms.toSet()
-                    ) {
-                        annotationsBlock(t)
-                        t.visibility[it]?.takeIf { it !in ignoredVisibilities }?.name?.let { keyword("$it ") }
-                        processExtraModifiers(t)
-                        keyword("typealias ")
-                        group(styles = mainStyles + t.stylesIfDeprecated(it)) {
-                            signatureForProjection(t.type)
-                        }
-                        operator(" = ")
-                        signatureForTypealiasTarget(t, type)
-                    }
+            regularSignature(t, it)
+        }
+
+    private fun regularSignature(
+        t: DTypeAlias,
+        sourceSet: DokkaSourceSet
+    ) = contentBuilder.contentFor(t, sourceSets = setOf(sourceSet)) {
+        t.underlyingType.entries.groupBy({ it.value }, { it.key }).map { (type, platforms) ->
+            +contentBuilder.contentFor(
+                t,
+                ContentKind.Symbol,
+                setOf(TextStyle.Monospace),
+                sourceSets = platforms.toSet()
+            ) {
+                annotationsBlock(t)
+                t.visibility[sourceSet]?.takeIf { it !in ignoredVisibilities }?.name?.let { keyword("$it ") }
+                if (t.expectPresentInSet != null) keyword("actual ")
+                processExtraModifiers(t)
+                keyword("typealias ")
+                group(styles = mainStyles + t.stylesIfDeprecated(sourceSet)) {
+                    signatureForProjection(t.type)
                 }
+                operator(" = ")
+                signatureForTypealiasTarget(t, type)
             }
         }
+    }
 
     private fun signature(t: DTypeParameter) =
         t.sourceSets.map {

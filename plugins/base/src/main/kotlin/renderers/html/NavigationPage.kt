@@ -2,6 +2,8 @@ package org.jetbrains.dokka.base.renderers.html
 
 import kotlinx.html.*
 import kotlinx.html.stream.createHTML
+import org.jetbrains.dokka.base.renderers.html.NavigationNodeIcon.CLASS
+import org.jetbrains.dokka.base.renderers.html.NavigationNodeIcon.CLASS_KT
 import org.jetbrains.dokka.base.renderers.pageId
 import org.jetbrains.dokka.base.templating.AddToNavigationCommand
 import org.jetbrains.dokka.links.DRI
@@ -109,6 +111,7 @@ enum class NavigationNodeIcon(
     FUNCTION("function"),
     EXCEPTION("exception-class"),
     OBJECT("object"),
+    TYPEALIAS_KT("typealias-kt"),
     VAL("val"),
     VAR("var");
 

@@ -8,7 +8,6 @@ import org.jetbrains.dokka.model.childrenOfType
 import org.jetbrains.dokka.model.dfs
 import org.jetbrains.dokka.model.firstChildOfType
 import org.jetbrains.dokka.pages.*
-import org.jetbrains.kotlin.utils.addIfNotNull
 import org.junit.jupiter.api.Test
 import utils.assertNotNull
 import kotlin.test.assertEquals
@@ -39,7 +38,7 @@ class MergeImplicitExpectActualDeclarationsTest : BaseAbstractTest() {
                 sourceRoots = listOf("src/jvmMain/kotlin/pageMerger/Test.kt")
             }
         }
-        pluginsConfigurations.addIfNotNull(
+        pluginsConfigurations.add(
             PluginConfigurationImpl(
                 DokkaBase::class.qualifiedName!!,
                 DokkaConfiguration.SerializationFormat.JSON,
@@ -113,6 +112,38 @@ class MergeImplicitExpectActualDeclarationsTest : BaseAbstractTest() {
         }
     }
 
+    @Test
+    fun `should merge class and typealias`() {
+        testInline(
+            """
+                |/src/jvmMain/kotlin/pageMerger/Test.kt
+                |package pageMerger
+                |
+                |class A {
+                |   fun method1(): String
+                |}
+                |
+                |/src/jsMain/kotlin/pageMerger/Test.kt
+                |package pageMerger
+                |
+                |typealias A = String
+                |
+        """.trimMargin(),
+            configuration(true),
+            cleanupOutput = true
+        ) {
+            pagesTransformationStage = { root ->
+                val classPage = root.dfs { it.name == "A" } as? ClasslikePageNode
+                assertNotNull(classPage, "Tested class not found!")
+
+                val platformHintedContent = classPage.content.dfs { it is PlatformHintedContent }.assertNotNull("platformHintedContent")
+                assertEquals(2, platformHintedContent.sourceSets.size)
+
+                platformHintedContent.dfs { it is ContentText && it.text == "class " }.assertNotNull("class keyword")
+                platformHintedContent.dfs { it is ContentText && it.text == "typealias " }.assertNotNull("typealias keyword")
+            }
+        }
+    }
     @Test
     fun `should merge method and prop`() {
         testInline(

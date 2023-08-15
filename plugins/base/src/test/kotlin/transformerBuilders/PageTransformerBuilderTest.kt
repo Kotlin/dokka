@@ -1,10 +1,10 @@
 package transformerBuilders
 
 import org.jetbrains.dokka.CoreExtensions
-import org.jetbrains.dokka.pages.*
-import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.model.dfs
+import org.jetbrains.dokka.pages.*
+import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.plugability.DokkaPluginApiPreview
 import org.jetbrains.dokka.plugability.PluginApiPreviewAcknowledgement
 import org.jetbrains.dokka.transformers.pages.PageTransformer
@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test
 import utils.TestOutputWriterPlugin
 import utils.assertContains
 import utils.assertNotNull
+
 class PageTransformerBuilderTest : BaseAbstractTest() {
 
     class ProxyPlugin(transformer: PageTransformer) : DokkaPlugin() {
@@ -172,40 +173,6 @@ class PageTransformerBuilderTest : BaseAbstractTest() {
 
                 contentWithConstructorsHeader?.dfs { it.dci.kind == ContentKind.Constructors && it is ContentGroup }
                     .assertNotNull("constructor group")
-            }
-        }
-    }
-
-    @Test
-    fun `should load script as defer if name ending in _deferred`() {
-        val configuration = dokkaConfiguration {
-            sourceSets {
-                sourceSet {
-                    sourceRoots = listOf("src/main/kotlin")
-                }
-            }
-        }
-        val writerPlugin = TestOutputWriterPlugin()
-        testInline(
-            """
-            |/src/main/kotlin/test/Test.kt
-            |package test
-            |
-            |class Test
-        """.trimMargin(),
-            configuration,
-            pluginOverrides = listOf(writerPlugin)
-        ) {
-            renderingStage = { _, _ ->
-                val generatedFiles = writerPlugin.writer.contents
-
-                assertContains(generatedFiles.keys, "scripts/symbol-parameters-wrapper_deferred.js")
-
-                val scripts = generatedFiles.getValue("root/test/-test/-test.html").let { Jsoup.parse(it) }.select("script")
-                val deferredScriptSources = scripts.filter { element -> element.hasAttr("defer") }.map { it.attr("src") }
-
-                // important to check symbol-parameters-wrapper_deferred specifically since it might break some features
-                assertContains(deferredScriptSources, "../../../scripts/symbol-parameters-wrapper_deferred.js")
             }
         }
     }

@@ -1,16 +1,17 @@
 package org.jetbrains.dokka.javadoc.renderer
 
+import org.jetbrains.dokka.Platform
+import org.jetbrains.dokka.base.renderers.sourceSets
 import org.jetbrains.dokka.javadoc.location.JavadocLocationProvider
 import org.jetbrains.dokka.javadoc.pages.*
 import org.jetbrains.dokka.javadoc.toNormalized
-import org.jetbrains.dokka.Platform
-import org.jetbrains.dokka.base.renderers.sourceSets
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.parent
 import org.jetbrains.dokka.links.sureClassNames
 import org.jetbrains.dokka.model.ImplementedInterfaces
 import org.jetbrains.dokka.model.InheritedMember
-import org.jetbrains.dokka.pages.*
+import org.jetbrains.dokka.pages.ContentNode
+import org.jetbrains.dokka.pages.PageNode
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.utilities.formatToEndWithHtml
 import java.io.File

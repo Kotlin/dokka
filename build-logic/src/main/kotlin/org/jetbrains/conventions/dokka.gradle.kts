@@ -15,4 +15,5 @@ tasks.dokkaHtml {
     onlyIf("running tests or not publishing to MavenLocal") {
         !localPublicationPredicate.get()
     }
+    outputDirectory.set(layout.buildDirectory.dir("dokka"))
 }

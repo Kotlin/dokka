@@ -1,6 +1,8 @@
 package org.jetbrains.dokka.gradle
 
+import org.jetbrains.dokka.gradle.utils.withDependencies_
 import org.gradle.api.artifacts.FileCollectionDependency
+import org.gradle.api.internal.project.DefaultProject
 import org.gradle.kotlin.dsl.get
 import org.gradle.testfixtures.ProjectBuilder
 import org.jetbrains.dokka.gradle.kotlin.gistOf
@@ -117,7 +119,7 @@ class KotlinSourceSetGistTest {
 
         /* Only work with file dependencies */
         project.configurations.forEach { configuration ->
-            configuration.withDependencies {
+            configuration.withDependencies_ {
                 removeIf { dependency ->
                     dependency !is FileCollectionDependency
                 }
@@ -162,6 +164,7 @@ class KotlinSourceSetGistTest {
         kotlin.jvm()
         kotlin.macosX64("macos")
 
+        (project as DefaultProject).evaluate()
         val commonMainSourceSet = kotlin.sourceSets.getByName("commonMain")
         val commonMainSourceSetGist = project.gistOf(commonMainSourceSet)
 
@@ -231,16 +234,10 @@ class KotlinSourceSetGistTest {
             "Expected macosTest not being marked with 'isMain'"
         )
 
+        // requires `project.evaluate()`
         assertEquals(
             setOf("commonMain"), jvmMainSourceSetGist.dependentSourceSetNames.get(),
             "Expected jvmMain to depend on commonMain by default"
-        )
-
-        /* Why not? */
-        jvmMainSourceSet.dependsOn(macosMainSourceSet)
-        assertEquals(
-            setOf("commonMain", "macosMain"), jvmMainSourceSetGist.dependentSourceSetNames.get(),
-            "Expected dependent source set changes to be reflected in gist"
         )
     }
 

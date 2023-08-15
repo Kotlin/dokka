@@ -4,13 +4,20 @@ import org.jetbrains.dokka.base.renderers.sourceSets
 import org.jetbrains.dokka.base.signatures.KotlinSignatureUtils.annotations
 import org.jetbrains.dokka.base.transformers.documentables.isDeprecated
 import org.jetbrains.dokka.base.transformers.documentables.isException
-import org.jetbrains.dokka.base.translators.documentables.DocumentableLanguage
-import org.jetbrains.dokka.base.translators.documentables.documentableLanguage
 import org.jetbrains.dokka.base.utils.canonicalAlphabeticalOrder
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.pages.*
+import org.jetbrains.dokka.plugability.DokkaContext
+import org.jetbrains.dokka.plugability.plugin
+import org.jetbrains.dokka.plugability.querySingle
+import org.jetbrains.dokka.analysis.kotlin.internal.DocumentableLanguage
+import org.jetbrains.dokka.analysis.kotlin.internal.InternalKotlinAnalysisPlugin
 
-abstract class NavigationDataProvider {
+abstract class NavigationDataProvider(
+    dokkaContext: DokkaContext
+) {
+    private val documentableSourceLanguageParser = dokkaContext.plugin<InternalKotlinAnalysisPlugin>().querySingle { documentableSourceLanguageParser }
+
     open fun navigableChildren(input: RootPageNode): NavigationNode = input.withDescendants()
         .first { it is ModulePage || it is MultimoduleRootPage }.let { visit(it as ContentPage) }
 
@@ -41,6 +48,7 @@ abstract class NavigationDataProvider {
             val isJava = documentable?.hasAnyJavaSources() ?: false
 
             when (documentable) {
+                is DTypeAlias -> NavigationNodeIcon.TYPEALIAS_KT
                 is DClass -> when {
                     documentable.isException -> NavigationNodeIcon.EXCEPTION
                     documentable.isAbstract() -> {
@@ -67,8 +75,9 @@ abstract class NavigationDataProvider {
         }
 
     private fun Documentable.hasAnyJavaSources(): Boolean {
-        val withSources = this as? WithSources ?: return false
-        return this.sourceSets.any { withSources.documentableLanguage(it) == DocumentableLanguage.JAVA }
+        return this.sourceSets.any { sourceSet ->
+            documentableSourceLanguageParser.getLanguage(this, sourceSet) == DocumentableLanguage.JAVA
+        }
     }
 
     private fun DClass.isAbstract() =

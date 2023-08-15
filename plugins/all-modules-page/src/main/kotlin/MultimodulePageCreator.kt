@@ -2,12 +2,8 @@ package org.jetbrains.dokka.allModulesPage
 
 import org.jetbrains.dokka.DokkaConfiguration.DokkaModuleDescription
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
+import org.jetbrains.dokka.analysis.markdown.jb.MarkdownParser
 import org.jetbrains.dokka.base.DokkaBase
-import org.jetbrains.dokka.base.parsers.MarkdownParser
-import org.jetbrains.dokka.base.parsers.moduleAndPackage.ModuleAndPackageDocumentation.Classifier.Module
-import org.jetbrains.dokka.base.parsers.moduleAndPackage.ModuleAndPackageDocumentationParsingContext
-import org.jetbrains.dokka.base.parsers.moduleAndPackage.parseModuleAndPackageDocumentation
-import org.jetbrains.dokka.base.parsers.moduleAndPackage.parseModuleAndPackageDocumentationFragments
 import org.jetbrains.dokka.base.resolvers.anchors.SymbolAnchorHint
 import org.jetbrains.dokka.base.transformers.pages.comments.DocTagToContentConverter
 import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder
@@ -22,6 +18,7 @@ import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.transformers.pages.PageCreator
 import org.jetbrains.dokka.utilities.DokkaLogger
+import org.jetbrains.dokka.analysis.kotlin.internal.InternalKotlinAnalysisPlugin
 import java.io.File
 
 class MultimodulePageCreator(
@@ -31,6 +28,7 @@ class MultimodulePageCreator(
 
     private val commentsConverter by lazy { context.plugin<DokkaBase>().querySingle { commentsToContentConverter } }
     private val signatureProvider by lazy { context.plugin<DokkaBase>().querySingle { signatureProvider } }
+    private val moduleDocumentationReader by lazy { context.plugin<InternalKotlinAnalysisPlugin>().querySingle { moduleAndPackageDocumentationReader } }
 
     override fun invoke(creationContext: AllModulesPageGeneration.DefaultAllModulesContext): RootPageNode {
         val modules = context.configuration.modules
@@ -88,15 +86,7 @@ class MultimodulePageCreator(
         files.map { MarkdownParser({ null }, it.absolutePath).parse(it.readText()) }
 
     private fun getDisplayedModuleDocumentation(module: DokkaModuleDescription): P? {
-        val parsingContext = ModuleAndPackageDocumentationParsingContext(logger)
-
-        val documentationFragment = module.includes
-            .flatMap { include -> parseModuleAndPackageDocumentationFragments(include) }
-            .firstOrNull { fragment -> fragment.classifier == Module && fragment.name == module.name }
-            ?: return null
-
-        val moduleDocumentation = parseModuleAndPackageDocumentation(parsingContext, documentationFragment)
-        return moduleDocumentation.documentation.firstParagraph()
+        return moduleDocumentationReader.read(module)?.firstParagraph()
     }
 
     private fun DocumentationNode.firstParagraph(): P? =

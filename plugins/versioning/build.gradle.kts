@@ -9,22 +9,20 @@ registerDokkaArtifactPublication("versioning-plugin")
 
 dependencies {
     compileOnly(projects.core)
-    implementation(kotlin("reflect"))
+
     implementation(projects.plugins.base)
     implementation(projects.plugins.templating)
-    implementation(projects.plugins.templating)
 
+    implementation(kotlin("reflect"))
     implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.html)
+    implementation(libs.apacheMaven.artifact)
     implementation(libs.jackson.kotlin)
     constraints {
         implementation(libs.jackson.databind) {
             because("CVE-2022-42003")
         }
     }
-    implementation(libs.kotlinx.html)
-
-    implementation(libs.jsoup)
-    implementation(libs.apacheMaven.artifact)
 
     testImplementation(projects.core.testApi)
     testImplementation(platform(libs.junit.bom))

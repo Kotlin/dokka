@@ -1,15 +1,14 @@
 package signatures
 
 import org.jetbrains.dokka.DokkaConfiguration
-import org.jetbrains.dokka.jdk
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
+import org.jetbrains.dokka.jdk
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import utils.A
 import utils.Span
 import utils.TestOutputWriterPlugin
 import utils.match
-import java.lang.IllegalStateException
 
 class FunctionalTypeConstructorsSignatureTest : BaseAbstractTest() {
     private val configuration = dokkaConfiguration {

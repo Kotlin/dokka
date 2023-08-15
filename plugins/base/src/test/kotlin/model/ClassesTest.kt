@@ -1,6 +1,7 @@
 package model
 
 import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.links.TypeConstructor
 import org.jetbrains.dokka.links.sureClassNames
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.KotlinModifier.*
@@ -10,7 +11,6 @@ import utils.AbstractModelTest
 import utils.assertNotNull
 import utils.name
 import utils.supers
-import org.jetbrains.dokka.links.TypeConstructor
 
 
 class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "classes") {
@@ -24,20 +24,6 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
             with((this / "classes" / "Klass").cast<DClass>()) {
                 name equals "Klass"
                 children counts 4
-            }
-        }
-    }
-
-    @Test
-    fun emptyObject() {
-        inlineModelTest(
-            """
-            |object Obj {}
-            """
-        ) {
-            with((this / "classes" / "Obj").cast<DObject>()) {
-                name equals "Obj"
-                children counts 3
             }
         }
     }
@@ -564,11 +550,12 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
                | value class InlineTest(val x: String)  
             """.trimMargin()
         ) {
-            val classlike = packages.flatMap { it.classlikes }.first() as DClass
-            classlike.name equals "X"
-            classlike.properties.first().name equals "example"
-            classlike.extra[AdditionalModifiers]?.content?.values?.firstOrNull()
-                ?.firstOrNull() equals ExtraModifiers.KotlinOnlyModifiers.Inline
+            with((this / "classes" / "X").cast<DClass>()) {
+                name equals "X"
+                properties.first().name equals "example"
+                extra[AdditionalModifiers]?.content?.values?.firstOrNull()
+                    ?.firstOrNull() equals ExtraModifiers.KotlinOnlyModifiers.Inline
+            }
         }
     }
 

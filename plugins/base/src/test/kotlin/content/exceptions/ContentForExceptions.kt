@@ -6,7 +6,6 @@ import org.jetbrains.dokka.PluginConfigurationImpl
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.model.DisplaySourceSet
-import org.jetbrains.kotlin.utils.addIfNotNull
 import org.junit.jupiter.api.Test
 import utils.ParamAttributes
 import utils.bareSignature
@@ -47,7 +46,7 @@ class ContentForExceptions : BaseAbstractTest() {
                 sourceRoots = listOf("src/linuxX64Main/kotlin/pageMerger/Test.kt")
             }
         }
-        pluginsConfigurations.addIfNotNull(
+        pluginsConfigurations.add(
             PluginConfigurationImpl(
                 DokkaBase::class.qualifiedName!!,
                 DokkaConfiguration.SerializationFormat.JSON,

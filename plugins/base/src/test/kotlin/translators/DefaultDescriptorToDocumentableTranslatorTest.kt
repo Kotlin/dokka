@@ -1,13 +1,13 @@
 package translators
 
 import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.base.signatures.KotlinSignatureUtils.modifiers
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.PointingToDeclaration
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.doc.*
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import utils.text
@@ -190,7 +190,7 @@ val soapXml = node("soap-env:Envelope", soapAttrs,
                             )
                             assertEquals(
                                 testSuite.additionalModifiers,
-                                extra[AdditionalModifiers]?.content?.values?.single(),
+                                extra[AdditionalModifiers]?.content?.values?.single() ?: emptySet<ExtraModifiers>(),
                                 "Test for class ${classlike.name} with property $name failed"
                             )
                         }
@@ -213,7 +213,7 @@ val soapXml = node("soap-env:Envelope", soapAttrs,
                             )
                             assertEquals(
                                 testSuite.additionalModifiers,
-                                extra[AdditionalModifiers]?.content?.values?.single(),
+                                extra[AdditionalModifiers]?.content?.values?.single() ?: emptySet<ExtraModifiers>(),
                                 "Test for class ${classlike.name} with function $name failed"
                             )
                         }
@@ -918,6 +918,69 @@ val soapXml = node("soap-env:Envelope", soapAttrs,
     }
 
     @Test
+    fun `should have documentation for synthetic Enum entries property`() {
+        testInline(
+            """
+            |/src/main/kotlin/test/KotlinEnum.kt
+            |package test
+            |
+            |enum class KotlinEnum {
+            |    FOO, BAR;
+            |}
+            """.trimIndent(),
+            configuration
+        ) {
+            documentablesMergingStage = { module ->
+                val kotlinEnum = module.packages.find { it.name == "test" }
+                    ?.classlikes
+                    ?.single { it.name == "KotlinEnum" }
+
+                checkNotNull(kotlinEnum)
+
+                val entriesProperty = kotlinEnum.properties.single { it.name == "entries" }
+                val expectedEntriesType = GenericTypeConstructor(
+                    dri = DRI(
+                        packageName = "kotlin.enums",
+                        classNames = "EnumEntries"
+                    ),
+                    projections = listOf(
+                        Invariance(
+                            GenericTypeConstructor(
+                                dri = DRI(
+                                    packageName = "test",
+                                    classNames = "KotlinEnum"
+                                ),
+                                projections = emptyList()
+                            )
+                        )
+                    )
+                )
+                assertEquals(expectedEntriesType, entriesProperty.type)
+
+                val expectedDocumentation = DocumentationNode(listOf(
+                    Description(
+                        CustomDocTag(
+                            children = listOf(
+                                P(listOf(
+                                    Text(
+                                        "Returns a representation of an immutable list of all enum entries, " +
+                                                "in the order they're declared."
+                                    ),
+                                )),
+                                P(listOf(
+                                    Text("This method may be used to iterate over the enum entries.")
+                                ))
+                            ),
+                            name = "MARKDOWN_FILE"
+                        )
+                    )
+                ))
+                assertEquals(expectedDocumentation, entriesProperty.documentation.values.single())
+            }
+        }
+    }
+
+    @Test
     fun `should have documentation for synthetic Enum valueOf functions`() {
         testInline(
             """
@@ -983,6 +1046,30 @@ val soapXml = node("soap-env:Envelope", soapAttrs,
 
                 val valueOfParamDRI = (valueOfFunction.parameters.single().type as GenericTypeConstructor).dri
                 assertEquals(DRI(packageName = "kotlin", classNames = "String"), valueOfParamDRI)
+            }
+        }
+    }
+
+    @Test
+    fun `should add data modifier to data objects`() {
+        testInline(
+            """
+            |/src/main/kotlin/test/KotlinDataObject.kt
+            |package test
+            |
+            |data object KotlinDataObject {}
+            """.trimIndent(),
+            configuration
+        ) {
+            documentablesMergingStage = { module ->
+                val pckg = module.packages.single { it.name == "test" }
+
+                val dataObject = pckg.classlikes.single { it.name == "KotlinDataObject" }
+                assertInstanceOf(DObject::class.java, dataObject)
+
+                val modifiers = (dataObject as DObject).modifiers().values.flatten()
+                assertEquals(1, modifiers.size)
+                assertEquals(ExtraModifiers.KotlinOnlyModifiers.Data, modifiers[0])
             }
         }
     }

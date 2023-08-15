@@ -7,11 +7,8 @@ plugins {
 }
 
 dependencies {
-    api(libs.jetbrains.markdown)
     implementation(kotlin("reflect"))
-
-    implementation(libs.jsoup)
-
+    implementation(libs.kotlinx.coroutines.core)
     implementation(libs.jackson.kotlin)
     implementation(libs.jackson.xml)
     constraints {
@@ -19,8 +16,6 @@ dependencies {
             because("CVE-2022-42003")
         }
     }
-
-    implementation(libs.kotlinx.coroutines.core)
 
     testImplementation(projects.core.testApi)
     testImplementation(kotlin("test-junit"))

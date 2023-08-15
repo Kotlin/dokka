@@ -1,11 +1,11 @@
 package org.jetbrains.dokka.javadoc.location
 
 import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.jdk
 import org.jetbrains.dokka.kotlinStdlib
 import org.jetbrains.dokka.model.doc.DocumentationLink
 import org.jetbrains.dokka.model.doc.Text
-import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.utilities.cast
 import org.junit.jupiter.api.Test
 import utils.TestOutputWriterPlugin

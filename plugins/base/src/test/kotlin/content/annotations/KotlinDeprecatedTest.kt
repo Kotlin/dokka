@@ -1,13 +1,13 @@
 package content.annotations
 
 import matchers.content.*
-import org.jetbrains.dokka.pages.ContentPage
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.base.transformers.documentables.deprecatedAnnotation
-import org.jetbrains.dokka.pages.ContentStyle
 import org.jetbrains.dokka.base.transformers.documentables.isDeprecated
 import org.jetbrains.dokka.model.Documentable
 import org.jetbrains.dokka.model.properties.WithExtraProperties
+import org.jetbrains.dokka.pages.ContentPage
+import org.jetbrains.dokka.pages.ContentStyle
 import org.junit.jupiter.api.Test
 import utils.ParamAttributes
 import utils.bareSignature
@@ -33,7 +33,7 @@ class KotlinDeprecatedTest : BaseAbstractTest() {
         testInline(
             """
             |/src/main/kotlin/kotlin/KotlinFile.kt
-            |package kotlin
+            |package deprecated
             |
             |@Deprecated(
             |    message = "Fancy message"
@@ -44,7 +44,7 @@ class KotlinDeprecatedTest : BaseAbstractTest() {
         ) {
             documentablesTransformationStage = { module ->
                 val deprecatedFunction = module.children
-                    .single { it.name == "kotlin" }.children
+                    .single { it.name == "deprecated" }.children
                     .single { it.name == "simpleFunction" }
 
                 val isDeprecated = (deprecatedFunction as WithExtraProperties<out Documentable>).isDeprecated()
@@ -65,7 +65,7 @@ class KotlinDeprecatedTest : BaseAbstractTest() {
         testInline(
             """
             |/src/main/kotlin/kotlin/DeprecatedKotlin.kt
-            |package kotlin
+            |package deprecated
             |
             |/**
             | * Average function description
@@ -84,7 +84,7 @@ class KotlinDeprecatedTest : BaseAbstractTest() {
         ) {
             pagesTransformationStage = { module ->
                 val functionWithDeprecatedFunction = module.children
-                    .single { it.name == "kotlin" }.children
+                    .single { it.name == "deprecated" }.children
                     .single { it.name == "oldLegacyFunction" } as ContentPage
 
                 functionWithDeprecatedFunction.content.assertNode {
@@ -130,7 +130,7 @@ class KotlinDeprecatedTest : BaseAbstractTest() {
         testInline(
             """
             |/src/main/kotlin/kotlin/DeprecatedKotlin.kt
-            |package kotlin
+            |package deprecated
             |
             |/**
             | * Average function description
@@ -156,7 +156,7 @@ class KotlinDeprecatedTest : BaseAbstractTest() {
         ) {
             pagesTransformationStage = { module ->
                 val functionWithDeprecatedFunction = module.children
-                    .single { it.name == "kotlin" }.children
+                    .single { it.name == "deprecated" }.children
                     .single { it.name == "oldLegacyFunction" } as ContentPage
 
                 functionWithDeprecatedFunction.content.assertNode {
@@ -217,7 +217,7 @@ class KotlinDeprecatedTest : BaseAbstractTest() {
         testInline(
             """
             |/src/main/kotlin/kotlin/DeprecatedKotlin.kt
-            |package kotlin
+            |package deprecated
             |
             |/**
             | * Average function description
@@ -240,7 +240,7 @@ class KotlinDeprecatedTest : BaseAbstractTest() {
         ) {
             pagesTransformationStage = { module ->
                 val functionWithDeprecatedFunction = module.children
-                    .single { it.name == "kotlin" }.children
+                    .single { it.name == "deprecated" }.children
                     .single { it.name == "oldLegacyFunction" } as ContentPage
 
                 functionWithDeprecatedFunction.content.assertNode {
@@ -298,7 +298,7 @@ class KotlinDeprecatedTest : BaseAbstractTest() {
         testInline(
             """
             |/src/main/kotlin/kotlin/DeprecatedKotlin.kt
-            |package kotlin
+            |package deprecated
             |
             |/**
             | * Average function description
@@ -330,7 +330,7 @@ class KotlinDeprecatedTest : BaseAbstractTest() {
         ) {
             pagesTransformationStage = { module ->
                 val functionWithDeprecatedFunction = module.children
-                    .single { it.name == "kotlin" }.children
+                    .single { it.name == "deprecated" }.children
                     .single { it.name == "oldLegacyFunction" } as ContentPage
 
                 functionWithDeprecatedFunction.content.assertNode {

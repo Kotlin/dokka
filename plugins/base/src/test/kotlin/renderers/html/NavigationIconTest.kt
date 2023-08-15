@@ -3,9 +3,9 @@ package renderers.html
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.junit.jupiter.api.Test
 import utils.TestOutputWriterPlugin
-import kotlin.test.assertEquals
 import utils.navigationHtml
 import utils.selectNavigationGrid
+import kotlin.test.assertEquals
 
 class NavigationIconTest : BaseAbstractTest() {
 
@@ -37,7 +37,7 @@ class NavigationIconTest : BaseAbstractTest() {
                     .filterKeys { it.startsWith("images/nav-icons") }
                     .keys.sorted()
 
-                assertEquals(15, navIconAssets.size)
+                assertEquals(16, navIconAssets.size)
                 assertEquals("images/nav-icons/abstract-class-kotlin.svg", navIconAssets[0])
                 assertEquals("images/nav-icons/abstract-class.svg", navIconAssets[1])
                 assertEquals("images/nav-icons/annotation-kotlin.svg", navIconAssets[2])
@@ -53,6 +53,7 @@ class NavigationIconTest : BaseAbstractTest() {
                 assertEquals("images/nav-icons/interface-kotlin.svg", navIconAssets[12])
                 assertEquals("images/nav-icons/interface.svg", navIconAssets[13])
                 assertEquals("images/nav-icons/object.svg", navIconAssets[14])
+                assertEquals("images/nav-icons/typealias-kotlin.svg", navIconAssets[15])
             }
         }
     }
@@ -96,6 +97,15 @@ class NavigationIconTest : BaseAbstractTest() {
             ),
             expectedIconClass = "abstract-class",
             expectedNavLinkText = "AbstractJavaClazz"
+        )
+    }
+
+    @Test
+    fun `should add icon styles to kotlin typealias navigation item`() {
+        assertNavigationIcon(
+            source = kotlinSource("typealias KotlinTypealias = String"),
+            expectedIconClass = "typealias-kt",
+            expectedNavLinkText = "KotlinTypealias"
         )
     }
 

@@ -7,7 +7,7 @@
     <version>1.0-SNAPSHOT</version>
 
     <properties>
-        <kotlin.version>1.8.10</kotlin.version>
+        <kotlin.version>1.9.0</kotlin.version>
     </properties>
     <build>
         <plugins>
@@ -169,19 +169,6 @@
     </build>
 
     <pluginRepositories>
-        <pluginRepository>
-            <id>kotlin-eap</id>
-            <url>https://cache-redirector.jetbrains.com/dl.bintray.com/kotlin/kotlin-eap/</url>
-        </pluginRepository>
-        <pluginRepository>
-            <id>kotlin-dev</id>
-            <url>https://cache-redirector.jetbrains.com/dl.bintray.com/kotlin/kotlin-dev/</url>
-        </pluginRepository>
-        <pluginRepository>
-            <id>jcenter</id>
-            <name>JCenter</name>
-            <url>https://cache-redirector.jetbrains.com/jcenter.bintray.com/</url>
-        </pluginRepository>
         <pluginRepository>
             <id>Space</id>
             <name>Space</name>

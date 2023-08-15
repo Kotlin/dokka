@@ -15,6 +15,7 @@ import org.jetbrains.dokka.base.resolvers.anchors.SymbolAnchorHint
 import org.jetbrains.dokka.base.resolvers.local.DokkaBaseLocationProvider
 import org.jetbrains.dokka.base.templating.*
 import org.jetbrains.dokka.base.transformers.documentables.CallableExtensions
+import org.jetbrains.dokka.base.translators.documentables.shouldDocumentConstructors
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.properties.PropertyContainer
@@ -23,7 +24,6 @@ import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.pages.HtmlContent
 import org.jetbrains.dokka.plugability.*
 import org.jetbrains.dokka.utilities.htmlEscape
-import org.jetbrains.kotlin.utils.addIfNotNull
 
 internal const val TEMPLATE_REPLACEMENT: String = "###"
 internal const val TOGGLEABLE_CONTENT_TYPE_ATTR = "data-togglable"
@@ -67,7 +67,6 @@ open class HtmlRenderer(
 
     private fun createTabsForClasslikes(page: ClasslikePage): List<ContentTab> {
         val documentables = page.documentables
-        fun List<Documentable>.shouldDocumentConstructors() = !this.any { it is DAnnotation }
         val csEnum = documentables.filterIsInstance<DEnum>()
         val csWithConstructor = documentables.filterIsInstance<WithConstructors>()
         val scopes = documentables.filterIsInstance<WithScope>()
@@ -310,7 +309,7 @@ open class HtmlRenderer(
         return nodes.toList().map { (sourceSet, elements) ->
             val htmlContent = createHTML(prettyPrint = false).prepareForTemplates().div {
                 elements.forEach {
-                    buildContentNode(it, pageContext, sourceSet.toSet())
+                    buildContentNode(it, pageContext, sourceSet)
                 }
             }.stripDiv()
             sourceSet to createHTML(prettyPrint = false).prepareForTemplates()
@@ -355,21 +354,19 @@ open class HtmlRenderer(
 
                 val contentOfSourceSet = mutableListOf<ContentNode>()
                 distinct.onEachIndexed{ index, (_, distinctInstances) ->
-                    contentOfSourceSet.addIfNotNull(distinctInstances.firstOrNull()?.before)
+                    distinctInstances.firstOrNull()?.before?.let { contentOfSourceSet.add(it) }
                     contentOfSourceSet.addAll(distinctInstances.map { it.divergent })
-                    contentOfSourceSet.addIfNotNull(
-                        distinctInstances.firstOrNull()?.after
-                            ?: if (index != distinct.size - 1) ContentBreakLine(it.key) else null
-                    )
+                    (distinctInstances.firstOrNull()?.after ?: if (index != distinct.size - 1) ContentBreakLine(setOf(it.key)) else null)
+                        ?.let { contentOfSourceSet.add(it) }
 
                     // content kind main is important for declarations list to avoid double line breaks
                     if (node.dci.kind == ContentKind.Main && index != distinct.size - 1) {
                         if (isPageWithOverloadedMembers) {
                             // add some spacing and distinction between function/property overloads.
                             // not ideal, but there's no other place to modify overloads page atm
-                            contentOfSourceSet.add(ContentBreakLine(it.key, style = setOf(HorizontalBreakLineStyle)))
+                            contentOfSourceSet.add(ContentBreakLine(setOf(it.key), style = setOf(HorizontalBreakLineStyle)))
                         } else {
-                            contentOfSourceSet.add(ContentBreakLine(it.key))
+                            contentOfSourceSet.add(ContentBreakLine(setOf(it.key)))
                         }
                     }
                 }

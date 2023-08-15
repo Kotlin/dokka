@@ -15,6 +15,10 @@ public final class org/jetbrains/dokka/kotlinAsJava/TransformToJavaKt {
 	public static synthetic fun transformToJava$default (Lorg/jetbrains/dokka/model/DProperty;Lorg/jetbrains/dokka/plugability/DokkaContext;ZLjava/lang/String;ILjava/lang/Object;)Lorg/jetbrains/dokka/model/DProperty;
 }
 
+public final class org/jetbrains/dokka/kotlinAsJava/converters/KotlinToJavaConverter {
+	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
+}
+
 public final class org/jetbrains/dokka/kotlinAsJava/converters/KotlinToJavaConverterKt {
 	public static final fun getJvmNameProvider ()Lorg/jetbrains/dokka/kotlinAsJava/transformers/JvmNameProvider;
 }
@@ -93,7 +97,7 @@ public final class org/jetbrains/dokka/kotlinAsJava/translators/KotlinAsJavaDocu
 }
 
 public final class org/jetbrains/dokka/kotlinAsJava/translators/KotlinAsJavaPageCreator : org/jetbrains/dokka/base/translators/documentables/DefaultPageCreator {
-	public fun <init> (Lorg/jetbrains/dokka/base/DokkaBaseConfiguration;Lorg/jetbrains/dokka/base/transformers/pages/comments/CommentsToContentConverter;Lorg/jetbrains/dokka/base/signatures/SignatureProvider;Lorg/jetbrains/dokka/utilities/DokkaLogger;Ljava/util/List;)V
+	public fun <init> (Lorg/jetbrains/dokka/base/DokkaBaseConfiguration;Lorg/jetbrains/dokka/base/transformers/pages/comments/CommentsToContentConverter;Lorg/jetbrains/dokka/base/signatures/SignatureProvider;Lorg/jetbrains/dokka/utilities/DokkaLogger;Ljava/util/List;Lorg/jetbrains/dokka/analysis/kotlin/internal/DocumentableSourceLanguageParser;)V
 	public fun pageForProperty (Lorg/jetbrains/dokka/model/DProperty;)Lorg/jetbrains/dokka/pages/MemberPageNode;
 }
 

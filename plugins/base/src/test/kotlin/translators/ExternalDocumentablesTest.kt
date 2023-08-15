@@ -1,15 +1,13 @@
 package translators
 
-import com.intellij.openapi.application.PathManager
-import kotlinx.coroutines.Job
-import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
-import org.jetbrains.dokka.base.translators.descriptors.ExternalDocumentablesProvider
 import org.jetbrains.dokka.model.DClass
 import org.jetbrains.dokka.model.DInterface
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.utilities.cast
+import org.jetbrains.dokka.analysis.kotlin.internal.ExternalDocumentablesProvider
+import org.jetbrains.dokka.analysis.kotlin.internal.InternalKotlinAnalysisPlugin
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
@@ -36,7 +34,7 @@ class ExternalDocumentablesTest : BaseAbstractTest() {
         ) {
             lateinit var provider: ExternalDocumentablesProvider
             pluginsSetupStage = {
-                provider = it.plugin<DokkaBase>().querySingle { externalDocumentablesProvider }
+                provider = it.plugin<InternalKotlinAnalysisPlugin>().querySingle { externalDocumentablesProvider }
             }
             documentablesTransformationStage = { mod ->
                 val entry = mod.packages.single().classlikes.single().cast<DClass>().supertypes.entries.single()
@@ -59,7 +57,10 @@ class ExternalDocumentablesTest : BaseAbstractTest() {
     @Test
     fun `external documentable from dependency`() {
         val coroutinesPath =
-            PathManager.getResourceRoot(Job::class.java, "/kotlinx/coroutines/Job.class")
+            ClassLoader.getSystemResource("kotlinx/coroutines/Job.class")
+                ?.file
+                ?.replace("file:", "")
+                ?.replaceAfter(".jar", "")
 
         val configuration = dokkaConfiguration {
             sourceSets {
@@ -82,7 +83,7 @@ class ExternalDocumentablesTest : BaseAbstractTest() {
         ) {
             lateinit var provider: ExternalDocumentablesProvider
             pluginsSetupStage = {
-                provider = it.plugin<DokkaBase>().querySingle { externalDocumentablesProvider }
+                provider = it.plugin<InternalKotlinAnalysisPlugin>().querySingle { externalDocumentablesProvider }
             }
             documentablesTransformationStage = { mod ->
                 val entry = mod.packages.single().classlikes.single().cast<DClass>().supertypes.entries.single()
@@ -124,7 +125,7 @@ class ExternalDocumentablesTest : BaseAbstractTest() {
         ) {
             lateinit var provider: ExternalDocumentablesProvider
             pluginsSetupStage = {
-                provider = it.plugin<DokkaBase>().querySingle { externalDocumentablesProvider }
+                provider = it.plugin<InternalKotlinAnalysisPlugin>().querySingle { externalDocumentablesProvider }
             }
             documentablesTransformationStage = { mod ->
                 val entry = mod.packages.single().classlikes.single().cast<DClass>().supertypes.entries.single()

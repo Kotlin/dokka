@@ -1,9 +1,9 @@
 package org.jetbrains.dokka.gfm
 
-import org.jetbrains.dokka.base.templating.toJsonString
-import org.jetbrains.dokka.links.DRI
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id.CLASS
+import org.jetbrains.dokka.base.templating.toJsonString
+import org.jetbrains.dokka.links.DRI
 
 @JsonTypeInfo(use = CLASS)
 sealed class GfmCommand {

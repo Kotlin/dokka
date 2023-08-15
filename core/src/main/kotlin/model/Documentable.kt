@@ -376,8 +376,9 @@ data class DTypeAlias(
     override val expectPresentInSet: DokkaSourceSet?,
     override val sourceSets: Set<DokkaSourceSet>,
     override val generics: List<DTypeParameter>,
+    override val sources: SourceSetDependent<DocumentableSource>,
     override val extra: PropertyContainer<DTypeAlias> = PropertyContainer.empty()
-) : Documentable(), WithType, WithVisibility, WithExtraProperties<DTypeAlias>, WithGenerics {
+) : Documentable(), WithType, WithVisibility, WithExtraProperties<DTypeAlias>, WithGenerics, WithSources {
     override val children: List<Nothing>
         get() = emptyList()
 
@@ -517,6 +518,15 @@ fun <T> SourceSetDependent<T>?.orEmpty(): SourceSetDependent<T> = this ?: emptyM
 
 interface DocumentableSource {
     val path: String
+
+    /**
+     * Computes the first line number of the documentable's declaration/signature/identifier.
+     *
+     * Numbering is always 1-based.
+     *
+     * May return null if the sources could not be found - for example, for synthetic/generated declarations.
+     */
+    fun computeLineNumber(): Int?
 }
 
 data class TypeConstructorWithKind(val typeConstructor: TypeConstructor, val kind: ClassKind)
