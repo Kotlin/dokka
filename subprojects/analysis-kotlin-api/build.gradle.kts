@@ -9,6 +9,4 @@ dependencies {
     compileOnly(projects.core)
 }
 
-registerDokkaArtifactPublication("analysisKotlinApi") {
-    artifactId = "analysis-kotlin-api"
-}
+registerDokkaArtifactPublication("analysis-kotlin-api")

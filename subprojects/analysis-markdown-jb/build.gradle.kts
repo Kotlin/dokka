@@ -12,6 +12,4 @@ dependencies {
     implementation(libs.jetbrains.markdown)
 }
 
-registerDokkaArtifactPublication("analysisMarkdown") {
-    artifactId = "analysis-markdown"
-}
+registerDokkaArtifactPublication("analysis-markdown")

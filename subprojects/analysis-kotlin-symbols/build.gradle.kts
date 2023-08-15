@@ -28,7 +28,4 @@ tasks {
     }
 }
 
-registerDokkaArtifactPublication("analysisKotlinSymbols") {
-    artifactId = "analysis-kotlin-symbols"
-    component = DokkaPublicationBuilder.Component.Shadow
-}
+registerDokkaArtifactPublication("analysis-kotlin-symbols", DokkaPublicationBuilder.Component.Shadow)

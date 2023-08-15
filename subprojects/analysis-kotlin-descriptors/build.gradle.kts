@@ -42,7 +42,4 @@ tasks {
     }
 }
 
-registerDokkaArtifactPublication("analysisKotlinDescriptors") {
-    artifactId = "analysis-kotlin-descriptors"
-    component = DokkaPublicationBuilder.Component.Shadow
-}
+registerDokkaArtifactPublication("analysis-kotlin-descriptors", DokkaPublicationBuilder.Component.Shadow)
