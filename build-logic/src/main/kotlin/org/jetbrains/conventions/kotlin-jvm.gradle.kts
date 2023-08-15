@@ -1,6 +1,5 @@
 package org.jetbrains.conventions
 
-import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -8,9 +7,14 @@ plugins {
     kotlin("jvm")
 }
 
-plugins.withType<MavenPublishPlugin>().configureEach {
-    // only enable opt-ins & strict checks for projects that are published to Maven
-
+//region only enable opt-ins & strict checks for specific subprojects
+val projectsWithoutOptInDependency = setOf(
+    ":integration-tests",
+    ":integration-tests:cli",
+    ":integration-tests:gradle",
+    ":integration-tests:maven",
+)
+if (project.path !in projectsWithoutOptInDependency) {
     tasks.withType<KotlinCompile>().configureEach {
         compilerOptions {
             freeCompilerArgs.addAll(
@@ -29,3 +33,4 @@ plugins.withType<MavenPublishPlugin>().configureEach {
         }
     }
 }
+//endregion
