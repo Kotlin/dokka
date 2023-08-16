@@ -11,7 +11,7 @@ import org.jetbrains.dokka.utilities.parallelForEach
 import org.jetbrains.dokka.analysis.kotlin.internal.ClassHierarchy
 import org.jetbrains.dokka.analysis.kotlin.internal.FullClassHierarchyBuilder
 import org.jetbrains.dokka.analysis.kotlin.internal.Supertypes
-import org.jetbrains.kotlin.descriptors.ClassDescriptor
+import org.jetbrains.kotlin.descriptors.ClassifierDescriptorWithTypeParameters
 import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.typeUtil.immediateSupertypes
 import org.jetbrains.kotlin.types.typeUtil.isAnyOrNullableAny
@@ -72,7 +72,7 @@ internal class DescriptorFullClassHierarchyBuilder : FullClassHierarchyBuilder {
             // is not enough since it keeps only one level of hierarchy
             documentable.sources.forEach { (sourceSet, source) ->
                 if (source is DescriptorDocumentableSource) {
-                    val descriptor = source.descriptor as ClassDescriptor
+                    val descriptor = source.descriptor as? ClassifierDescriptorWithTypeParameters ?: return@forEach // it can be typealias as well
                     val type = descriptor.defaultType
                     hierarchy[sourceSet]?.let { collectSupertypesFromKotlinType(documentable.dri to type, it) }
                 } else if (source is PsiDocumentableSource) {
