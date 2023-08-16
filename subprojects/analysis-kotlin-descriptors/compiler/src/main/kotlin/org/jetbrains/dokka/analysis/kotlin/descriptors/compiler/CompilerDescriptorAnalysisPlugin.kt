@@ -56,15 +56,17 @@ class CompilerDescriptorAnalysisPlugin : DokkaPlugin() {
         CoreExtensions.sourceToDocumentableTranslator providing ::DefaultDescriptorToDocumentableTranslator
     }
 
-    internal val defaultSamplesTransformer by extending {
-        CoreExtensions.pageTransformer providing ::DefaultSamplesTransformer
-    }
 
     internal val descriptorFullClassHierarchyBuilder by extending {
         plugin<InternalKotlinAnalysisPlugin>().fullClassHierarchyBuilder providing { DescriptorFullClassHierarchyBuilder() }
     }
 
-    internal val kotlinSampleProviderFactory by extending {
+    /**
+     * StdLib has its own a sample provider
+     * So it should have a possibility to override this extension
+     */
+    @InternalDokkaApi
+    val kotlinSampleProviderFactory by extending {
         plugin<InternalKotlinAnalysisPlugin>().sampleProviderFactory providing ::KotlinSampleProviderFactory
     }
 
