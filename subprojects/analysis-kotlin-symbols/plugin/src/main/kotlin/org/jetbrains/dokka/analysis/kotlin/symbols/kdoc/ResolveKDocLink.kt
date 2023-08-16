@@ -1,42 +1,42 @@
 package org.jetbrains.dokka.analysis.kotlin.symbols.kdoc
 
+import com.intellij.psi.PsiElement
+import org.jetbrains.dokka.analysis.kotlin.symbols.translators.getDRIFromSymbol
+import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.kotlin.analysis.api.KtAnalysisSession
-import org.jetbrains.kotlin.analysis.api.scopes.KtScope
-import org.jetbrains.kotlin.analysis.api.symbols.KtSymbol
-import org.jetbrains.kotlin.analysis.api.symbols.markers.KtSymbolWithMembers
-import org.jetbrains.kotlin.name.Name
-import org.jetbrains.kotlin.psi.KtElement
+import org.jetbrains.kotlin.idea.references.mainReference
+import org.jetbrains.kotlin.kdoc.psi.api.KDoc
+import org.jetbrains.kotlin.kdoc.psi.impl.KDocLink
+import org.jetbrains.kotlin.kdoc.psi.impl.KDocName
+import org.jetbrains.kotlin.psi.KtPsiFactory
+
+internal fun DRI?.logIfNotResolved(link: String, logger: DokkaLogger): DRI? {
+    if(this == null)
+    logger.warn("Couldn't resolve link for $link")
+    return this
+}
 
 /**
- *  Callable have priority independent of scope order
+ * It resolves KDoc link via creating PSI.
+ *
  */
-private fun KtAnalysisSession.searchInScope(scope: KtScope, inndexOfLinkSegment: Int, linkSegments: List<Name>): KtSymbol? {
-    val identifier = linkSegments[inndexOfLinkSegment]
-    val isLastPart = inndexOfLinkSegment == linkSegments.size - 1
-    if(isLastPart) {
-        val callableSymbols = scope.getCallableSymbols { name -> name == identifier }
-        callableSymbols.firstOrNull()?.let { return it }
-    }
-
-    val classifierSymbols = scope.getClassifierSymbols { name -> name == identifier }
-    if(isLastPart) classifierSymbols.firstOrNull()?.let{ return it }
-    val packageSymbols = scope.getPackageSymbols { name -> name == identifier }
-    if(isLastPart) return packageSymbols.firstOrNull()
-
-    val packageAndClassifierScopes = packageSymbols.map { it.getPackageScope() } + classifierSymbols.filterIsInstance<KtSymbolWithMembers>().map { it.getDeclaredMemberScope() }
-    val compositeScope = packageAndClassifierScopes.toList().asCompositeScope()
-
-    return searchInScope(compositeScope, inndexOfLinkSegment + 1, linkSegments)
+internal fun KtAnalysisSession.resolveKDocTextLink(link: String, context: PsiElement? = null): DRI? {
+    val psiFactory = context?.let { KtPsiFactory.contextual(it) } ?: KtPsiFactory(this.useSiteModule.project)
+    val kDoc = psiFactory.createComment(
+        """
+    /**
+    * [$link]
+    */
+ """.trimIndent()
+    ) as? KDoc
+    val kDocLink = kDoc?.getDefaultSection()?.children?.filterIsInstance<KDocLink>()?.singleOrNull()
+    return kDocLink?.let { resolveKDocLink(it) }
 }
-internal fun KtAnalysisSession.resolveKDocLink(link: String, contextSymbol: KtSymbol) =
-    (contextSymbol.psi as? KtElement)?.let { ktElement -> resolveKDocLink(link, ktElement) }
 
-internal fun KtAnalysisSession.resolveKDocLink(link: String, contextElement: KtElement): KtSymbol? {
-    val linkParts = link.split(".").map {  Name.identifier(it) }
-
-    val  file = contextElement.containingKtFile
-    val scope =  file.getScopeContextForPosition(contextElement).getCompositeScope()
-
-    return searchInScope(scope, 0, linkParts) // relative link
-        ?: searchInScope(ROOT_PACKAGE_SYMBOL.getPackageScope(), 0, linkParts) // fq link
+internal fun KtAnalysisSession.resolveKDocLink(link: KDocLink): DRI? {
+    val lastNameSegment = link.children.filterIsInstance<KDocName>().lastOrNull()
+    val linkedSymbol = lastNameSegment?.mainReference?.resolveToSymbols()?.firstOrNull()
+    return if (linkedSymbol == null) null // logger.warn("Couldn't resolve link for $link")
+    else getDRIFromSymbol(linkedSymbol)
 }

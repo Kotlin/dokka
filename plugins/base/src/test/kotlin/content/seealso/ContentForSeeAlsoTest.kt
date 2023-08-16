@@ -171,6 +171,7 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
         }
     }
 
+    @OnlyDescriptors("No link for `abc` in K1")
     @Test
     fun `undocumented seealso with reference to parameter for class`() {
         testInline(
@@ -201,7 +202,7 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
                             header(4) { +"See also" }
                             table {
                                 group {
-                                    +"abc"
+                                    +"abc"  // link { +"abc" }
                                 }
                             }
                         }

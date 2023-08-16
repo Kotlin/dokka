@@ -81,7 +81,7 @@ internal class DokkaSymbolVisitor(
     private val sourceSet: DokkaConfiguration.DokkaSourceSet,
     private val moduleName: String,
     private val analysisContext: AnalysisContext,
-    @Suppress("unused") private val logger: DokkaLogger, // TODO
+    private val logger: DokkaLogger,
     private val javadocParser: JavadocParser? = null
 ) {
     private var annotationTranslator = AnnotationTranslator()
@@ -855,7 +855,7 @@ internal class DokkaSymbolVisitor(
         if (symbol.origin == KtSymbolOrigin.SOURCE_MEMBER_GENERATED)
             getGeneratedKDocDocumentationFrom(symbol)
         else
-            getKDocDocumentationFrom(symbol) ?: javadocParser?.let { getJavaDocDocumentationFrom(symbol, it) }
+            getKDocDocumentationFrom(symbol, logger) ?: javadocParser?.let { getJavaDocDocumentationFrom(symbol, it) }
 
     private fun KtAnalysisSession.isObvious(functionSymbol: KtFunctionSymbol): Boolean {
         return functionSymbol.origin == KtSymbolOrigin.SOURCE_MEMBER_GENERATED && !hasGeneratedKDocDocumentation(functionSymbol) ||

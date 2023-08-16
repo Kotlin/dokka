@@ -1,11 +1,11 @@
 package org.jetbrains.dokka.analysis.kotlin.symbols.kdoc.moduledocs
 
 import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.analysis.kotlin.symbols.kdoc.logIfNotResolved
 import org.jetbrains.dokka.analysis.kotlin.symbols.plugin.KotlinAnalysis
 import org.jetbrains.dokka.analysis.kotlin.symbols.kdoc.moduledocs.ModuleAndPackageDocumentation.Classifier.Module
 import org.jetbrains.dokka.analysis.kotlin.symbols.kdoc.moduledocs.ModuleAndPackageDocumentation.Classifier.Package
-import org.jetbrains.dokka.analysis.kotlin.symbols.kdoc.resolveKDocLink
-import org.jetbrains.dokka.analysis.kotlin.symbols.translators.getDRIFromSymbol
+import org.jetbrains.dokka.analysis.kotlin.symbols.kdoc.resolveKDocTextLink
 import org.jetbrains.dokka.analysis.markdown.jb.MarkdownParser
 import org.jetbrains.dokka.model.doc.DocumentationNode
 import org.jetbrains.dokka.utilities.DokkaLogger
@@ -38,18 +38,10 @@ internal fun ModuleAndPackageDocumentationParsingContext(
                 Package -> getPackageSymbolIfPackageExists(FqName(fragment.name))
             }
 
-            val externalDri = { link: String ->
-                try {
-                    val linkedSymbol = contextSymbol?.let { resolveKDocLink(link, it) }
-                    if (linkedSymbol == null) null
-                    else getDRIFromSymbol(linkedSymbol)
-                } catch (e1: IllegalArgumentException) {
-                    logger.warn("Couldn't resolve link for $link")
-                    null
-                }
-            }
-
-            MarkdownParser(externalDri = externalDri, sourceLocation)
+            MarkdownParser(
+                externalDri = { resolveKDocTextLink(it, contextSymbol?.psi).logIfNotResolved(it, logger) },
+                sourceLocation
+            )
         }
     }
 }

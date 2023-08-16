@@ -3,8 +3,8 @@ package org.jetbrains.dokka.analysis.kotlin.symbols.kdoc
 import com.intellij.psi.PsiNamedElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.dokka.analysis.java.parsers.JavadocParser
-import org.jetbrains.dokka.analysis.kotlin.symbols.translators.getDRIFromSymbol
 import org.jetbrains.dokka.model.doc.DocumentationNode
+import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.kotlin.analysis.api.KtAnalysisSession
 import org.jetbrains.kotlin.analysis.api.symbols.KtCallableSymbol
 import org.jetbrains.kotlin.analysis.api.symbols.KtClassOrObjectSymbol
@@ -42,7 +42,7 @@ internal fun KtAnalysisSession.getJavaDocDocumentationFrom(
     return null
 }
 
-internal fun KtAnalysisSession.getKDocDocumentationFrom(symbol: KtSymbol) = findKDoc(symbol)?.let {
+internal fun KtAnalysisSession.getKDocDocumentationFrom(symbol: KtSymbol, logger: DokkaLogger) = findKDoc(symbol)?.let {
 
     val ktElement = symbol.psi
     val kdocLocation = ktElement?.containingFile?.name?.let {
@@ -60,11 +60,7 @@ internal fun KtAnalysisSession.getKDocDocumentationFrom(symbol: KtSymbol) = find
 
     parseFromKDocTag(
         kDocTag = it.contentTag,
-        externalDri = { link ->
-            val linkedSymbol = resolveKDocLink(link, symbol)
-            if (linkedSymbol == null) null // logger.warn("Couldn't resolve link for $link")
-            else getDRIFromSymbol(linkedSymbol)
-        },
+        externalDri = { link -> resolveKDocLink(link).logIfNotResolved(link.getLinkText(), logger) },
         kdocLocation = kdocLocation
     )
 }

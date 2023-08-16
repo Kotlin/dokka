@@ -1,7 +1,6 @@
 package org.jetbrains.dokka.analysis.kotlin.symbols.kdoc
 
 import org.jetbrains.dokka.analysis.kotlin.symbols.plugin.SymbolsAnalysisPlugin
-import org.jetbrains.dokka.analysis.kotlin.symbols.translators.getDRIFromSymbol
 import org.jetbrains.dokka.analysis.markdown.jb.MarkdownParser
 import org.jetbrains.dokka.model.doc.DocumentationNode
 import org.jetbrains.kotlin.analysis.api.KtAnalysisSession
@@ -26,6 +25,7 @@ private fun KtAnalysisSession.getDocumentationTemplatePath(symbol: KtSymbol): St
                 else -> null
             }
         }
+
         else -> null
     }
 
@@ -44,20 +44,13 @@ private fun KtAnalysisSession.isEnumValueOfMethod(symbol: KtFunctionSymbol): Boo
 
 internal fun KtAnalysisSession.getGeneratedKDocDocumentationFrom(symbol: KtSymbol): DocumentationNode? {
     val templatePath = getDocumentationTemplatePath(symbol) ?: return null
-    return loadTemplate(symbol, templatePath)
+    return loadTemplate(templatePath)
 }
 
-private fun KtAnalysisSession.loadTemplate(symbol: KtSymbol, filePath: String): DocumentationNode? {
+private fun KtAnalysisSession.loadTemplate(filePath: String): DocumentationNode? {
     val kdoc = loadContent(filePath) ?: return null
     val externalDriProvider = { link: String ->
-        try {
-            val linkedSymbol = resolveKDocLink(link, symbol)
-            if (linkedSymbol == null) null
-            else getDRIFromSymbol(linkedSymbol)
-        } catch (e1: IllegalArgumentException) {
-            /// logger.warn("Couldn't resolve link for $link")
-            null
-        }
+        resolveKDocTextLink(link)
     }
 
     val parser = MarkdownParser(externalDriProvider, filePath)
