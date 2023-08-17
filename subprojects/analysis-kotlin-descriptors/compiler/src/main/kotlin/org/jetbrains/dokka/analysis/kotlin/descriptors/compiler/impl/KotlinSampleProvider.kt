@@ -13,6 +13,7 @@ import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.analysis.kotlin.internal.SampleProvider
 import org.jetbrains.dokka.analysis.kotlin.internal.SampleProviderFactory
+import org.jetbrains.dokka.plugability.DokkaPluginApiPreview
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.KtBlockExpression
 import org.jetbrains.kotlin.psi.KtDeclarationWithBody
@@ -39,6 +40,7 @@ open class KotlinSampleProvider(val context: DokkaContext): SampleProvider {
          * Currently, all `ThreadLocal`s are in a compiler/IDE codebase.
          */
         runBlocking(Dispatchers.Default) {
+            @OptIn(DokkaPluginApiPreview::class)
             SamplesKotlinAnalysis(
                 sourceSets = context.configuration.sourceSets,
                 context = context,

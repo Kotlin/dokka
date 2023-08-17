@@ -4,9 +4,12 @@ import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.DokkaSourceSetID
 import org.jetbrains.dokka.InternalDokkaApi
 import org.jetbrains.dokka.model.SourceSetDependent
+import org.jetbrains.dokka.plugability.ConfigurableBlock
 import org.jetbrains.dokka.plugability.DokkaContext
+import org.jetbrains.dokka.plugability.DokkaPluginApiPreview
 import java.io.Closeable
 
+@OptIn(DokkaPluginApiPreview::class)
 @Suppress("FunctionName")
 internal fun ProjectKotlinAnalysis(
     sourceSets: List<DokkaSourceSet>,
@@ -29,6 +32,7 @@ internal fun ProjectKotlinAnalysis(
  *  Usually the analysis created for samples is short-lived and can be closed right after
  *  it's been used, there's no need to wait for [projectKotlinAnalysis] to be closed as it must be handled separately.
  */
+@OptIn(DokkaPluginApiPreview::class)
 @Suppress("FunctionName")
 internal fun SamplesKotlinAnalysis(
     sourceSets: List<DokkaSourceSet>,
@@ -50,18 +54,16 @@ internal fun SamplesKotlinAnalysis(
 
     return EnvironmentKotlinAnalysis(environments, projectKotlinAnalysis)
 }
-
-internal class DokkaAnalysisConfiguration(
+@DokkaPluginApiPreview
+data class DokkaAnalysisConfiguration(
     /**
      * Only for common platform ignore BuiltIns for StdLib since it can cause a conflict
      * between BuiltIns from a compiler and ones from source code.
      */
-    val ignoreCommonBuiltIns: Boolean = shouldIgnoreCommonBuiltIns()
-) {
+    val ignoreCommonBuiltIns: Boolean = DEFAULT_IGNORE_COMMON_BUILT_INS
+): ConfigurableBlock {
     companion object {
-        private const val SHOULD_IGNORE_COMMON_BUILT_INS_SYS_PROP = "dokka.shouldIgnoreCommonBuiltIns"
-        internal fun shouldIgnoreCommonBuiltIns() =
-            System.getProperty(SHOULD_IGNORE_COMMON_BUILT_INS_SYS_PROP) in listOf("true", "1")
+        const val DEFAULT_IGNORE_COMMON_BUILT_INS = false
     }
 }
 
