@@ -195,9 +195,9 @@ class ObviousAndInheritedFunctionsDocumentableFilterTest : BaseAbstractTest() {
         }
     }
 
-    @JavaCode
     @ParameterizedTest
     @MethodSource(value = ["nonSuppressingObviousConfiguration", "nonSuppressingInheritedConfiguration"])
+    @JavaCode
     fun `should not suppress toString, equals and hashcode if custom config is provided in Java`(nonSuppressingConfiguration: DokkaConfigurationImpl) {
         testInline(
             """

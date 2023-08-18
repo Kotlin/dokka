@@ -10,6 +10,7 @@ import org.jetbrains.dokka.analysis.kotlin.symbols.kdoc.java.KotlinInheritDocTag
 import org.jetbrains.dokka.analysis.kotlin.symbols.kdoc.java.DescriptorKotlinDocCommentCreator
 import org.jetbrains.dokka.analysis.kotlin.symbols.kdoc.java.KotlinDocCommentParser
 import org.jetbrains.dokka.analysis.kotlin.symbols.kdoc.moduledocs.ModuleAndPackageDocumentationReader
+import org.jetbrains.dokka.analysis.kotlin.symbols.services.KotlinAnalysisSourceRootsExtractor
 import org.jetbrains.dokka.analysis.kotlin.symbols.services.*
 import org.jetbrains.dokka.analysis.kotlin.symbols.services.KotlinDocumentableSourceLanguageParser
 import org.jetbrains.dokka.analysis.kotlin.symbols.services.SymbolExternalDocumentablesProvider
@@ -114,6 +115,10 @@ class SymbolsAnalysisPlugin : DokkaPlugin() {
 
     internal val kotlinSampleProviderFactory by extending {
         plugin<InternalKotlinAnalysisPlugin>().sampleProviderFactory providing ::KotlinSampleProviderFactory
+    }
+
+    internal val sourceRootsExtractor by extending {
+        javaAnalysisPlugin.sourceRootsExtractor providing { KotlinAnalysisSourceRootsExtractor() }
     }
 
     @OptIn(DokkaPluginApiPreview::class)

@@ -170,7 +170,7 @@ class KotlinArrayDocumentableReplacerTest : BaseAbstractTest() {
                 }
                 sourceSet {
                     sourceRoots = listOf("src/main/kotlin/basic/TestJS.kt")
-                    analysisPlatform = "jvm"
+                    analysisPlatform = "js"
                 }
             }
         }

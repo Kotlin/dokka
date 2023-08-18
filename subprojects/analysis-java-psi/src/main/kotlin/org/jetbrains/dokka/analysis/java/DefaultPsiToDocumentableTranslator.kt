@@ -27,7 +27,8 @@ internal class DefaultPsiToDocumentableTranslator : AsyncSourceToDocumentableTra
             val projectProvider = context.plugin<JavaAnalysisPlugin>().querySingle { projectProvider }
             val project = projectProvider.getProject(sourceSet, context)
 
-            val sourceRoots = sourceSet.sourceRoots.filter { directory -> directory.isDirectory || directory.extension == "java" }
+            val sourceRootsExtractor = context.plugin<JavaAnalysisPlugin>().querySingle { sourceRootsExtractor }
+            val sourceRoots = sourceRootsExtractor.extract(sourceSet, context)
 
             val localFileSystem = VirtualFileManager.getInstance().getFileSystem("file")
 

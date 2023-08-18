@@ -16,6 +16,11 @@ public final class org/jetbrains/dokka/analysis/kotlin/symbols/plugin/SymbolsAna
 	public final fun getSymbolToDocumentableTranslator ()Lorg/jetbrains/dokka/plugability/Extension;
 }
 
+public final class org/jetbrains/dokka/analysis/kotlin/symbols/services/KotlinAnalysisSourceRootsExtractor : org/jetbrains/dokka/analysis/java/SourceRootsExtractor {
+	public fun <init> ()V
+	public fun extract (Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Lorg/jetbrains/dokka/plugability/DokkaContext;)Ljava/util/List;
+}
+
 public class org/jetbrains/dokka/analysis/kotlin/symbols/services/KotlinSampleProvider : org/jetbrains/dokka/analysis/kotlin/internal/SampleProvider {
 	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
 	public fun close ()V
