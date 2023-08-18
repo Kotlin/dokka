@@ -26,7 +26,9 @@ dependencies {
     }
 
     // Test only
-    testImplementation(projects.plugins.base.baseTestUtils)
+    testImplementation(projects.plugins.base.baseTestUtils) {
+        exclude(module = "analysis-kotlin-descriptors")
+    }
     testImplementation(projects.core.contentMatcherTestUtils)
     testImplementation(projects.core.testApi)
     testImplementation(platform(libs.junit.bom))

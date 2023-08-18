@@ -8,7 +8,6 @@ plugins {
 }
 
 dependencies {
-    implementation(projects.subprojects.analysisKotlinApi)
     implementation(projects.subprojects.analysisKotlinSymbols.plugin)
 }
 
