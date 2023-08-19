@@ -67,7 +67,6 @@ include(
     ":subprojects:analysis-kotlin-descriptors:compiler",
     ":subprojects:analysis-kotlin-descriptors:ide",
     ":subprojects:analysis-kotlin-symbols",
-    ":subprojects:analysis-kotlin-symbols:plugin",
     ":subprojects:analysis-markdown-jb",
 
     ":runners:gradle-plugin",

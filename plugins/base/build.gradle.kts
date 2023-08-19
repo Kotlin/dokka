@@ -51,7 +51,6 @@ dependencies {
     descriptorsTestConfiguration(project(path = ":subprojects:analysis-kotlin-descriptors", configuration = "shadow"))
 }
 
-
 val symbolsTest = tasks.register<Test>("symbolsTest") {
     useJUnitPlatform {
        excludeTags("onlyDescriptors", "onlyDescriptorsMPP", "javaCode", "usingJDK")
