@@ -4,6 +4,7 @@ plugins {
     id("org.jetbrains.conventions.kotlin-jvm")
     id("org.jetbrains.conventions.maven-publish")
     id("org.jetbrains.conventions.dokka-html-frontend-files")
+    id("org.jetbrains.conventions.base-unit-test")
 }
 
 dependencies {
@@ -26,6 +27,8 @@ dependencies {
     }
 
     // Test only
+    symbolsTestConfiguration(project(path = ":subprojects:analysis-kotlin-symbols", configuration = "shadow"))
+    descriptorsTestConfiguration(project(path = ":subprojects:analysis-kotlin-descriptors", configuration = "shadow"))
     testImplementation(projects.plugins.base.baseTestUtils) {
         exclude(module = "analysis-kotlin-descriptors")
     }
@@ -39,38 +42,11 @@ dependencies {
     }
 }
 
-val descriptorsTestConfiguration: Configuration by configurations.creating {
-    extendsFrom(configurations.testImplementation.get())
-}
-val symbolsTestConfiguration: Configuration by configurations.creating {
-    extendsFrom(configurations.testImplementation.get())
-}
 
-dependencies {
-    symbolsTestConfiguration(project(path = ":subprojects:analysis-kotlin-symbols", configuration = "shadow"))
-    descriptorsTestConfiguration(project(path = ":subprojects:analysis-kotlin-descriptors", configuration = "shadow"))
-}
 
-val symbolsTest = tasks.register<Test>("symbolsTest") {
-    useJUnitPlatform {
-       excludeTags("onlyDescriptors", "onlyDescriptorsMPP", "javaCode", "usingJDK")
-    }
-    classpath += symbolsTestConfiguration
-}
-// run symbols and descriptors tests
-tasks.test {
-    //enabled = false
-    classpath += descriptorsTestConfiguration
-    dependsOn(symbolsTest)
-}
 
-val descriptorsTest = tasks.register<Test>("descriptorsTest") {
-    classpath += descriptorsTestConfiguration
-}
 
-tasks.check {
-    dependsOn(symbolsTest)
-}
+
 
 // access the frontend files via the dependency on :plugins:base:frontend
 val dokkaHtmlFrontendFiles: Provider<FileCollection> =
