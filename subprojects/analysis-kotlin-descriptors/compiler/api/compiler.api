@@ -60,6 +60,24 @@ public final class org/jetbrains/dokka/analysis/kotlin/descriptors/compiler/conf
 	public fun dispose ()V
 }
 
+public final class org/jetbrains/dokka/analysis/kotlin/descriptors/compiler/configuration/DokkaAnalysisConfiguration : org/jetbrains/dokka/plugability/ConfigurableBlock {
+	public static final field Companion Lorg/jetbrains/dokka/analysis/kotlin/descriptors/compiler/configuration/DokkaAnalysisConfiguration$Companion;
+	public static final field DEFAULT_IGNORE_COMMON_BUILT_INS Z
+	public fun <init> ()V
+	public fun <init> (Z)V
+	public synthetic fun <init> (ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Z
+	public final fun copy (Z)Lorg/jetbrains/dokka/analysis/kotlin/descriptors/compiler/configuration/DokkaAnalysisConfiguration;
+	public static synthetic fun copy$default (Lorg/jetbrains/dokka/analysis/kotlin/descriptors/compiler/configuration/DokkaAnalysisConfiguration;ZILjava/lang/Object;)Lorg/jetbrains/dokka/analysis/kotlin/descriptors/compiler/configuration/DokkaAnalysisConfiguration;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getIgnoreCommonBuiltIns ()Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/jetbrains/dokka/analysis/kotlin/descriptors/compiler/configuration/DokkaAnalysisConfiguration$Companion {
+}
+
 public abstract class org/jetbrains/dokka/analysis/kotlin/descriptors/compiler/configuration/KotlinAnalysis : java/io/Closeable {
 	public fun <init> ()V
 	public fun <init> (Lorg/jetbrains/dokka/analysis/kotlin/descriptors/compiler/configuration/KotlinAnalysis;)V

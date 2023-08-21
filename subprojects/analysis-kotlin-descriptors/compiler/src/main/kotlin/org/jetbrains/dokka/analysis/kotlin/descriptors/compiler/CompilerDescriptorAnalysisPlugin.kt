@@ -6,6 +6,7 @@ import org.jetbrains.dokka.CoreExtensions
 import org.jetbrains.dokka.InternalDokkaApi
 import org.jetbrains.dokka.analysis.java.BreakingAbstractionKotlinLightMethodChecker
 import org.jetbrains.dokka.analysis.java.JavaAnalysisPlugin
+import org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.configuration.DokkaAnalysisConfiguration
 import org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.configuration.KotlinAnalysis
 import org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.configuration.ProjectKotlinAnalysis
 import org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.impl.*
@@ -13,12 +14,9 @@ import org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.impl.moduledocs.
 import org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.java.*
 import org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.translator.DefaultDescriptorToDocumentableTranslator
 import org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.translator.DefaultExternalDocumentablesProvider
-import org.jetbrains.dokka.plugability.DokkaPlugin
-import org.jetbrains.dokka.plugability.DokkaPluginApiPreview
-import org.jetbrains.dokka.plugability.PluginApiPreviewAcknowledgement
-import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.renderers.PostAction
 import org.jetbrains.dokka.analysis.kotlin.internal.InternalKotlinAnalysisPlugin
+import org.jetbrains.dokka.plugability.*
 import org.jetbrains.kotlin.asJava.elements.KtLightAbstractAnnotation
 
 @Suppress("unused")
@@ -44,10 +42,14 @@ class CompilerDescriptorAnalysisPlugin : DokkaPlugin() {
     }
 
     internal val defaultKotlinAnalysis by extending {
+        @OptIn(DokkaPluginApiPreview::class)
         kotlinAnalysis providing { ctx ->
+            val configuration = configuration<CompilerDescriptorAnalysisPlugin, DokkaAnalysisConfiguration>(ctx)
+                ?: DokkaAnalysisConfiguration()
             ProjectKotlinAnalysis(
                 sourceSets = ctx.configuration.sourceSets,
-                context = ctx
+                context = ctx,
+                analysisConfiguration = configuration
             )
         }
     }

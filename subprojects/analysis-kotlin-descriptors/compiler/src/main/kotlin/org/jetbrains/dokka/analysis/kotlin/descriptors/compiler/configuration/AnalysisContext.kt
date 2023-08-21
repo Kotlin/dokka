@@ -6,6 +6,7 @@ import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.AnalysisContextCreator
 import org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.CompilerDescriptorAnalysisPlugin
 import org.jetbrains.dokka.plugability.DokkaContext
+import org.jetbrains.dokka.plugability.DokkaPluginApiPreview
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.utilities.DokkaLogger
@@ -19,6 +20,7 @@ import org.jetbrains.kotlin.resolve.lazy.ResolveSession
 import java.io.Closeable
 import java.io.File
 
+@OptIn(DokkaPluginApiPreview::class)
 internal fun createAnalysisContext(
     context: DokkaContext,
     sourceSets: List<DokkaConfiguration.DokkaSourceSet>,
@@ -38,6 +40,7 @@ internal fun createAnalysisContext(
     )
 }
 
+@OptIn(DokkaPluginApiPreview::class)
 internal fun createAnalysisContext(
     context: DokkaContext,
     classpath: List<File>,
