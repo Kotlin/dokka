@@ -5,8 +5,8 @@ import markdown.KDocTest
 import org.jetbrains.dokka.analysis.markdown.jb.MARKDOWN_ELEMENT_FILE_NAME
 import org.jetbrains.dokka.analysis.markdown.jb.MarkdownParser
 import org.jetbrains.dokka.model.doc.*
-import org.junit.jupiter.api.Disabled
-import org.junit.jupiter.api.Test
+import kotlin.test.Ignore
+import kotlin.test.Test
 import kotlin.test.assertEquals
 
 
@@ -677,7 +677,7 @@ class ParserTest : KDocTest() {
         executeTest(kdoc, expectedDocumentationNode)
     }
 
-    @Disabled //TODO: ATX_2 to ATX_6 and sometimes ATX_1 from jetbrains parser consumes white space. Need to handle it in their library
+    @Ignore //TODO: ATX_2 to ATX_6 and sometimes ATX_1 from jetbrains parser consumes white space. Need to handle it in their library
     @Test
     fun `All headers`() {
         val kdoc = """
@@ -863,7 +863,7 @@ class ParserTest : KDocTest() {
         executeTest(kdoc, expectedDocumentationNode)
     }
 
-    @Disabled //TODO: Again ATX_1 consumes white space
+    @Ignore //TODO: Again ATX_1 consumes white space
     @Test
     fun `Blockquote nested with fancy text enhancement`() {
         val kdoc = """

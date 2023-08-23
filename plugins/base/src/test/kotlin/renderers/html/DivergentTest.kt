@@ -3,10 +3,10 @@ package renderers.html
 import org.jetbrains.dokka.base.renderers.html.HtmlRenderer
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.pages.ContentDivergentGroup
-import org.junit.jupiter.api.Test
 import renderers.testPage
 import utils.Br
 import utils.match
+import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class DivergentTest : HtmlRenderingOnlyTestBase() {

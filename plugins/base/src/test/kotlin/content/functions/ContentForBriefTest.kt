@@ -7,8 +7,8 @@ import org.jetbrains.dokka.model.DClass
 import org.jetbrains.dokka.model.DPackage
 import org.jetbrains.dokka.model.dfs
 import org.jetbrains.dokka.pages.*
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 

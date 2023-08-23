@@ -16,15 +16,13 @@ dependencies {
     runtimeOnly(project(path = ":subprojects:analysis-kotlin-descriptors", configuration = "shadow"))
 
     implementation(kotlin("reflect"))
+    implementation(libs.jsoup)
 
+    implementation(kotlin("test"))
     implementation(projects.core.testApi)
 
-    implementation(libs.jsoup)
-    implementation(kotlin("test-junit"))
-
+    testImplementation(kotlin("test"))
     testImplementation(projects.core.testApi)
-    testImplementation(platform(libs.junit.bom))
-    testImplementation(libs.junit.jupiter)
 }
 
 registerDokkaArtifactPublication("dokkaBaseTestUtils") {

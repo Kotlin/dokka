@@ -13,10 +13,9 @@ dependencies {
 
     implementation(kotlin("reflect"))
 
+    testImplementation(kotlin("test"))
     testImplementation(projects.plugins.base)
     testImplementation(projects.core.testApi)
-    testImplementation(platform(libs.junit.bom))
-    testImplementation(libs.junit.jupiter)
 
     symbolsTestConfiguration(project(path = ":subprojects:analysis-kotlin-symbols", configuration = "shadow"))
     descriptorsTestConfiguration(project(path = ":subprojects:analysis-kotlin-descriptors", configuration = "shadow"))

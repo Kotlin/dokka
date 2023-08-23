@@ -13,13 +13,12 @@ dependencies {
 
     implementation(kotlin("reflect"))
 
+    testImplementation(kotlin("test"))
     testImplementation(libs.jsoup)
     testImplementation(projects.plugins.base)
     testImplementation(projects.plugins.base.baseTestUtils)
     testImplementation(projects.core.contentMatcherTestUtils)
     testImplementation(projects.core.testApi)
-    testImplementation(platform(libs.junit.bom))
-    testImplementation(libs.junit.jupiter)
 }
 
 registerDokkaArtifactPublication("kotlinAsJavaPlugin") {

@@ -1,11 +1,11 @@
 package expect
 
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
-import org.junit.jupiter.api.Assertions.assertTrue
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.concurrent.TimeUnit
+import kotlin.test.assertTrue
 
 abstract class AbstractExpectTest(
     val testDir: Path? = Paths.get("src/test", "resources", "expect"),
@@ -40,9 +40,9 @@ abstract class AbstractExpectTest(
             ).also { logger.info("git diff command: ${it.command().joinToString(" ")}") }
                 .also { it.redirectErrorStream() }.start()
 
-            assertTrue(gitCompare.waitFor(gitTimeout, TimeUnit.MILLISECONDS)) { "Git timed out after $gitTimeout" }
+            assertTrue(gitCompare.waitFor(gitTimeout, TimeUnit.MILLISECONDS), "Git timed out after $gitTimeout")
             gitCompare.inputStream.bufferedReader().lines().forEach { logger.info(it) }
-            assertTrue(gitCompare.exitValue() == 0) { "${path.fileName}: outputs don't match" }
+            assertTrue(gitCompare.exitValue() == 0, "${path.fileName}: outputs don't match")
         } ?: throw AssertionError("obtained path is null")
     }
 

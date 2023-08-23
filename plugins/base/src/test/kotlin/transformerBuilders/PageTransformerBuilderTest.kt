@@ -11,11 +11,9 @@ import org.jetbrains.dokka.transformers.pages.PageTransformer
 import org.jetbrains.dokka.transformers.pages.pageMapper
 import org.jetbrains.dokka.transformers.pages.pageScanner
 import org.jetbrains.dokka.transformers.pages.pageStructureTransformer
-import org.jsoup.Jsoup
-import org.junit.jupiter.api.Test
-import utils.TestOutputWriterPlugin
-import utils.assertContains
 import utils.assertNotNull
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class PageTransformerBuilderTest : BaseAbstractTest() {
 
@@ -178,11 +176,10 @@ class PageTransformerBuilderTest : BaseAbstractTest() {
     }
 
     private fun <T> Collection<T>.assertCount(n: Int, prefix: String = "") =
-        assert(count() == n) { "${prefix}Expected $n, got ${count()}" }
+        assertEquals(n, count(), "${prefix}Expected $n, got ${count()}")
 
-    private fun <T> T.assertEqual(expected: T, prefix: String = "") = assert(this == expected) {
-        "${prefix}Expected $expected, got $this"
-    }
+    private fun <T> T.assertEqual(expected: T, prefix: String = "") =
+        assertEquals(expected, this, "${prefix}Expected $expected, got $this")
 
     private fun PageNode.assertTransform(expected: PageNode, block: (PageNode) -> PageNode = { it }): Unit = this.let {
         it.name.assertEqual(block(expected).name)

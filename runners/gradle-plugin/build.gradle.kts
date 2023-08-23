@@ -10,6 +10,7 @@ dependencies {
     compileOnly(libs.gradlePlugin.kotlin)
     compileOnly(libs.gradlePlugin.android)
 
+    testImplementation(kotlin("test"))
     testImplementation(libs.gradlePlugin.kotlin)
     testImplementation(libs.gradlePlugin.android)
 }

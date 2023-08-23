@@ -45,15 +45,17 @@ val integrationTest by tasks.registering(NonCacheableIntegrationTest::class) {
     maxHeapSize = "2G"
     description = "Runs integration tests."
     group = "verification"
-    useJUnit()
-
     testClassesDirs = integrationTestSourceSet.output.classesDirs
     classpath = integrationTestSourceSet.runtimeClasspath
+
+    useJUnitPlatform()
 
     setForkEvery(1)
     project.properties["dokka_integration_test_parallelism"]?.toString()?.toIntOrNull()?.let { parallelism ->
         maxParallelForks = parallelism
     }
+
+
     environment(
         "isExhaustive",
         project.properties["dokka_integration_test_is_exhaustive"]?.toString()?.toBoolean()

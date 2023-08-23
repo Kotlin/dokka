@@ -3,8 +3,8 @@ package org.jetbrains.dokka.javadoc
 import org.jetbrains.dokka.javadoc.pages.IndexPage
 import org.jetbrains.dokka.javadoc.renderer.TemplateMap
 import org.jetbrains.dokka.links.DRI
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
 internal class JavadocIndexTest : AbstractJavadocTemplateMapTest() {

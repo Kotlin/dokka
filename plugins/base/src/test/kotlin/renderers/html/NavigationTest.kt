@@ -3,10 +3,11 @@ package renderers.html
 import org.jetbrains.dokka.base.renderers.html.NavigationNodeIcon
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jsoup.nodes.Element
-import org.junit.jupiter.api.Test
 import utils.TestOutputWriterPlugin
 import utils.navigationHtml
+import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
 class NavigationTest : BaseAbstractTest() {
@@ -389,7 +390,7 @@ class NavigationTest : BaseAbstractTest() {
         assertEquals(id, this.id())
 
         val link = this.selectFirst("a")
-        checkNotNull(link)
+        assertNotNull(link)
         assertEquals(text, link.text())
         assertEquals(address, link.attr("href"))
         if (icon != null) {

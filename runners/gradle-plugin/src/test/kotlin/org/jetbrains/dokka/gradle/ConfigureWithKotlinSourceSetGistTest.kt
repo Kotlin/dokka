@@ -10,6 +10,7 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import org.jetbrains.dokka.gradle.utils.withDependencies_
+import kotlin.test.assertTrue
 
 class ConfigureWithKotlinSourceSetGistTest {
     @Test
@@ -18,11 +19,11 @@ class ConfigureWithKotlinSourceSetGistTest {
 
         val f1Jar = project.file("f1.jar")
         val f2Jar = project.file("f2.jar")
-        check(f1Jar.createNewFile())
-        check(f2Jar.createNewFile())
+        assertTrue(f1Jar.createNewFile())
+        assertTrue(f2Jar.createNewFile())
 
         val customSourceRoot = project.file("customSourceRoot")
-        check(customSourceRoot.mkdirs())
+        assertTrue(customSourceRoot.mkdirs())
 
         val gist = KotlinSourceSetGist(
             name = "customName",
@@ -112,7 +113,7 @@ class ConfigureWithKotlinSourceSetGistTest {
         )
 
         val customSourceRoot = project.file("src/main/customRoot")
-        check(customSourceRoot.mkdirs())
+        assertTrue(customSourceRoot.mkdirs())
         mainSourceSet.kotlin.srcDir(customSourceRoot)
 
         assertEquals(

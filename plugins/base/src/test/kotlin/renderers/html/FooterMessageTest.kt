@@ -4,11 +4,11 @@ import org.jetbrains.dokka.base.DokkaBaseConfiguration.Companion.defaultFooterMe
 import org.jetbrains.dokka.base.renderers.html.HtmlRenderer
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
-import org.junit.jupiter.api.Test
 import renderers.testPage
 import utils.A
 import utils.Span
 import utils.match
+import kotlin.test.Test
 
 class FooterMessageTest : HtmlRenderingOnlyTestBase() {
     @Test

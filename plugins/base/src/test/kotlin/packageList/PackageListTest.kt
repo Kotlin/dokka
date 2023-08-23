@@ -2,8 +2,8 @@ package packageList
 
 import org.jetbrains.dokka.base.renderers.PackageListService
 import org.jetbrains.dokka.base.resolvers.shared.RecognizedLinkFormat
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class PackageListTest {
     @Test

@@ -5,9 +5,9 @@ import org.jetbrains.dokka.pages.TextStyle
 import org.jetbrains.dokka.pages.TokenStyle
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
-import org.junit.jupiter.api.Test
 import renderers.testPage
 import utils.*
+import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class TextStylesTest : HtmlRenderingOnlyTestBase() {

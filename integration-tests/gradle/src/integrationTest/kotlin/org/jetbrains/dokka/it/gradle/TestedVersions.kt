@@ -1,5 +1,13 @@
 package org.jetbrains.dokka.it.gradle
 
+import org.junit.jupiter.api.extension.ExtensionContext
+import org.junit.jupiter.params.provider.Arguments
+import org.junit.jupiter.params.provider.ArgumentsProvider
+import java.util.stream.Stream
+
+internal class LatestTestedVersionsArgumentsProvider : TestedVersionsArgumentsProvider(listOf(TestedVersions.LATEST))
+internal open class AllSupportedTestedVersionsArgumentsProvider : TestedVersionsArgumentsProvider(TestedVersions.ALL_SUPPORTED)
+
 internal object TestedVersions {
 
     val LATEST = BuildVersions("7.6.2", "1.9.0")
@@ -49,4 +57,10 @@ internal object TestedVersions {
         "1.8.20" to "18.2.0-pre.546",
         "1.9.0" to "18.2.0-pre.597",
     )
+}
+
+abstract class TestedVersionsArgumentsProvider(private val buildVersions: List<BuildVersions>) : ArgumentsProvider {
+    override fun provideArguments(context: ExtensionContext?): Stream<out Arguments> {
+        return buildVersions.stream().map { Arguments.of(it) }
+    }
 }

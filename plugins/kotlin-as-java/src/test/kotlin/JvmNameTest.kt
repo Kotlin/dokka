@@ -7,7 +7,7 @@ import org.jetbrains.dokka.links.TypeConstructor
 import org.jetbrains.dokka.model.Annotations
 import org.jetbrains.dokka.model.DClass
 import org.jetbrains.dokka.model.isJvmName
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 

@@ -6,10 +6,10 @@ import org.jetbrains.dokka.pages.ContentEmbeddedResource
 import org.jetbrains.dokka.pages.ContentKind
 import org.jetbrains.dokka.pages.DCI
 import org.jetbrains.dokka.pages.TextStyle
-import org.junit.Assert.assertEquals
-import org.junit.jupiter.api.Test
 import renderers.RawTestPage
 import renderers.testPage
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class SimpleElementsTest : GfmRenderingOnlyTestBase() {
 

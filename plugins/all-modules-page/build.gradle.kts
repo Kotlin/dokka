@@ -20,12 +20,11 @@ dependencies {
 
     implementation(libs.kotlinx.html)
 
+    testImplementation(kotlin("test"))
     testImplementation(projects.plugins.base)
     testImplementation(projects.plugins.base.baseTestUtils)
     testImplementation(projects.plugins.gfm)
     testImplementation(projects.plugins.gfm.gfmTemplateProcessing)
     testImplementation(projects.core.contentMatcherTestUtils)
     testImplementation(projects.core.testApi)
-    testImplementation(platform(libs.junit.bom))
-    testImplementation(libs.junit.jupiter)
 }

@@ -8,11 +8,12 @@ import org.jetbrains.dokka.model.Documentable
 import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.jetbrains.dokka.pages.ContentPage
 import org.jetbrains.dokka.pages.ContentStyle
-import org.junit.jupiter.api.Test
 import utils.ParamAttributes
 import utils.bareSignature
 import utils.pWrapped
+import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 
@@ -51,7 +52,7 @@ class KotlinDeprecatedTest : BaseAbstractTest() {
                 assertTrue(isDeprecated)
 
                 val deprecatedAnnotation = (deprecatedFunction as WithExtraProperties<out Documentable>).deprecatedAnnotation
-                checkNotNull(deprecatedAnnotation)
+                assertNotNull(deprecatedAnnotation)
 
                 assertTrue(deprecatedAnnotation.isDeprecated())
                 assertEquals("kotlin", deprecatedAnnotation.dri.packageName)

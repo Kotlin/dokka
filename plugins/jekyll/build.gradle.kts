@@ -13,9 +13,8 @@ dependencies {
 
     implementation(kotlin("reflect"))
 
+    testImplementation(kotlin("test"))
     testImplementation(projects.core.testApi)
-    testImplementation(platform(libs.junit.bom))
-    testImplementation(libs.junit.jupiter)
 }
 
 registerDokkaArtifactPublication("jekyllPlugin") {
