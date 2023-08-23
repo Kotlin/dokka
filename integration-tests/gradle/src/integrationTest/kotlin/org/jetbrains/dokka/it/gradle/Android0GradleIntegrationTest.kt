@@ -1,7 +1,6 @@
 package org.jetbrains.dokka.it.gradle
 
 import org.gradle.testkit.runner.TaskOutcome
-import org.junit.jupiter.api.Assumptions.assumeTrue
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ArgumentsSource
 import java.io.File
@@ -25,7 +24,9 @@ class Android0GradleIntegrationTest : AbstractGradleIntegrationTest() {
 
         fun assumeAndroidSdkInstalled() {
             if (isCI) return
-            assumeTrue(isAndroidSdkInstalled)
+            if (!isAndroidSdkInstalled) {
+                throw IllegalStateException("Expected Android SDK to be installed")
+            }
         }
     }
 
