@@ -21,7 +21,9 @@ import org.jetbrains.kotlin.psi.KtBlockExpression
 import org.jetbrains.kotlin.psi.KtDeclarationWithBody
 import org.jetbrains.kotlin.psi.KtFile
 
-class KotlinSampleProviderFactory(val context: DokkaContext): SampleProviderFactory {
+public class KotlinSampleProviderFactory(
+    public val context: DokkaContext
+): SampleProviderFactory {
     override fun build(): SampleProvider {
         return KotlinSampleProvider(context)
     }
@@ -32,7 +34,9 @@ class KotlinSampleProviderFactory(val context: DokkaContext): SampleProviderFact
  * with [processBody] and [processImports]
  */
 @InternalDokkaApi
-open class KotlinSampleProvider(val context: DokkaContext): SampleProvider {
+public open class KotlinSampleProvider(
+    public val context: DokkaContext
+): SampleProvider {
     private val kotlinAnalysis = SamplesKotlinAnalysis(
         sourceSets = context.configuration.sourceSets,
         context = context,

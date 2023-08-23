@@ -4,7 +4,7 @@
 
 package org.jetbrains.dokka.base.renderers.html.innerTemplating
 
-class DefaultTemplateModelMerger : TemplateModelMerger {
+public class DefaultTemplateModelMerger : TemplateModelMerger {
     override fun invoke(
         factories: List<TemplateModelFactory>,
         buildModel: TemplateModelFactory.() -> TemplateMap

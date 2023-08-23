@@ -9,4 +9,4 @@ import org.jetbrains.dokka.InternalDokkaApi
 
 // TODO [beresnev] move/rename if it's only used for CustomDocTag. for now left as is for compatibility
 @InternalDokkaApi
-val MARKDOWN_ELEMENT_FILE_NAME = MarkdownElementTypes.MARKDOWN_FILE.name
+public val MARKDOWN_ELEMENT_FILE_NAME: String = MarkdownElementTypes.MARKDOWN_FILE.name

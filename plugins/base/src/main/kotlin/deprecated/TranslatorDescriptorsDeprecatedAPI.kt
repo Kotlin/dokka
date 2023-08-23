@@ -16,13 +16,13 @@ import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.transformers.sources.AsyncSourceToDocumentableTranslator
 
 @Deprecated(message = ANALYSIS_API_DEPRECATION_MESSAGE, level = DeprecationLevel.ERROR)
-fun interface ExternalDocumentablesProvider {
+public fun interface ExternalDocumentablesProvider {
     @Deprecated(message = ANALYSIS_API_DEPRECATION_MESSAGE, level = DeprecationLevel.ERROR)
-    fun findClasslike(dri: DRI, sourceSet: DokkaConfiguration.DokkaSourceSet): DClasslike?
+    public fun findClasslike(dri: DRI, sourceSet: DokkaConfiguration.DokkaSourceSet): DClasslike?
 }
 
 @Deprecated(message = ANALYSIS_API_DEPRECATION_MESSAGE, level = DeprecationLevel.ERROR)
-class DefaultExternalDocumentablesProvider(
+public class DefaultExternalDocumentablesProvider(
     @Suppress("UNUSED_PARAMETER") context: DokkaContext
 ) : ExternalDocumentablesProvider {
     @Deprecated(message = ANALYSIS_API_DEPRECATION_MESSAGE, level = DeprecationLevel.ERROR)
@@ -31,13 +31,13 @@ class DefaultExternalDocumentablesProvider(
 }
 
 @Deprecated(message = ANALYSIS_API_DEPRECATION_MESSAGE, level = DeprecationLevel.ERROR)
-fun interface ExternalClasslikesTranslator {
+public fun interface ExternalClasslikesTranslator {
     @Deprecated(message = ANALYSIS_API_DEPRECATION_MESSAGE, level = DeprecationLevel.ERROR)
-    fun translateClassDescriptor(descriptor: Any, sourceSet: DokkaConfiguration.DokkaSourceSet): DClasslike
+    public fun translateClassDescriptor(descriptor: Any, sourceSet: DokkaConfiguration.DokkaSourceSet): DClasslike
 }
 
 @Deprecated(message = ANALYSIS_API_DEPRECATION_MESSAGE, level = DeprecationLevel.ERROR)
-class DefaultDescriptorToDocumentableTranslator(
+public class DefaultDescriptorToDocumentableTranslator(
     private val context: DokkaContext
 ) : AsyncSourceToDocumentableTranslator, ExternalClasslikesTranslator {
     @Deprecated(message = ANALYSIS_API_DEPRECATION_MESSAGE, level = DeprecationLevel.ERROR)

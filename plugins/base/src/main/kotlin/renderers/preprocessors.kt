@@ -9,19 +9,21 @@ import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 
-object RootCreator : PageTransformer {
-    override fun invoke(input: RootPageNode) =
+public object RootCreator : PageTransformer {
+    override fun invoke(input: RootPageNode): RootPageNode =
         RendererSpecificRootPage("", listOf(input), RenderingStrategy.DoNothing)
 }
 
-class PackageListCreator(
-    val context: DokkaContext,
-    val format: LinkFormat,
-    val outputFilesNames: List<String> = listOf("package-list")
+public class PackageListCreator(
+    public val context: DokkaContext,
+    public val format: LinkFormat,
+    public val outputFilesNames: List<String> = listOf("package-list")
 ) : PageTransformer {
-    override fun invoke(input: RootPageNode) = input.transformPageNodeTree { pageNode ->
+    override fun invoke(input: RootPageNode): RootPageNode {
+        return input.transformPageNodeTree { pageNode ->
             pageNode.takeIf { it is ModulePage }?.let { it.modified(children = it.children + packageList(input, it as ModulePage)) } ?: pageNode
         }
+    }
 
     private fun packageList(rootPageNode: RootPageNode, module: ModulePage): List<RendererSpecificPage> {
         val content = PackageListService(context, rootPageNode).createPackageList(

@@ -8,11 +8,11 @@ import org.jetbrains.dokka.InternalDokkaApi
 import org.jetbrains.kotlin.extensions.ApplicationExtensionDescriptor
 
 @InternalDokkaApi
-interface CompilerExtensionPointProvider {
-    fun get(): List<CompilerExtensionPoint>
+public interface CompilerExtensionPointProvider {
+    public fun get(): List<CompilerExtensionPoint>
 
-    class CompilerExtensionPoint(
-        val extensionDescriptor: ApplicationExtensionDescriptor<Any>,
-        val extensions: List<Any>
+    public class CompilerExtensionPoint(
+        public val extensionDescriptor: ApplicationExtensionDescriptor<Any>,
+        public val extensions: List<Any>
     )
 }

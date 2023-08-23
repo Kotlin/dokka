@@ -15,21 +15,23 @@ import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.query
 
-class ImmediateResolutionTagConsumer<out R>(
+public class ImmediateResolutionTagConsumer<out R>(
     private val downstream: TagConsumer<R>,
     private val context: DokkaContext
 ): TagConsumer<R> by downstream {
-    fun processCommand(command: Command, block: TemplateBlock) {
+
+    public fun processCommand(command: Command, block: TemplateBlock) {
         context.plugin<DokkaBase>().query { immediateHtmlCommandConsumer }
             .find { it.canProcess(command) }
             ?.processCommand(command, block, this)
             ?: run { templateCommandFor(command, downstream).visit(block) }
     }
 
-    fun processCommandAndFinalize(command: Command, block: TemplateBlock): R =
-        context.plugin<DokkaBase>().query { immediateHtmlCommandConsumer }
+    public fun processCommandAndFinalize(command: Command, block: TemplateBlock): R {
+        return context.plugin<DokkaBase>().query { immediateHtmlCommandConsumer }
             .find { it.canProcess(command) }
             ?.processCommandAndFinalize(command, block, this)
             ?: downstream.templateCommand(command, block)
+    }
 }
 

@@ -17,12 +17,12 @@ import org.jetbrains.dokka.model.DClasslike
  * of classes defined in project).
  */
 @InternalDokkaApi
-fun interface ExternalDocumentablesProvider {
+public fun interface ExternalDocumentablesProvider {
 
     /**
      * Returns [DClasslike] matching provided [DRI] in specified source set.
      *
      * Result is null if compiler haven't generated matching class descriptor.
      */
-    fun findClasslike(dri: DRI, sourceSet: DokkaConfiguration.DokkaSourceSet): DClasslike?
+    public fun findClasslike(dri: DRI, sourceSet: DokkaConfiguration.DokkaSourceSet): DClasslike?
 }

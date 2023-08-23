@@ -14,7 +14,7 @@ import org.jetbrains.dokka.model.toDisplaySourceSets
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.utilities.firstIsInstanceOrNull
 
-open class DocTagToContentConverter : CommentsToContentConverter {
+public open class DocTagToContentConverter : CommentsToContentConverter {
     override fun buildContent(
         docTag: DocTag,
         dci: DCI,

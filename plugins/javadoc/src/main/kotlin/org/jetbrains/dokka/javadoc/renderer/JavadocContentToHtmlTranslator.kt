@@ -31,7 +31,7 @@ internal class JavadocContentToHtmlTranslator(
             else -> ""
         }
 
-    fun htmlForText(node: ContentText): String {
+    private fun htmlForText(node: ContentText): String {
         val escapedText = node.text.htmlEscape()
         return when {
             node.style.contains(ContentStyle.InDocumentationAnchor) -> """<em><a id="$escapedText" class="searchTagResult">${escapedText}</a></em>"""

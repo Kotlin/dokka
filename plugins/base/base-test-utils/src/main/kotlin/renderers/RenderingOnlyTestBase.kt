@@ -6,7 +6,7 @@ package renderers
 
 import org.jetbrains.dokka.testApi.context.MockContext
 
-abstract class RenderingOnlyTestBase<T> {
-    abstract val context: MockContext
-    abstract val renderedContent: T
+public abstract class RenderingOnlyTestBase<T> {
+    public abstract val context: MockContext
+    public abstract val renderedContent: T
 }

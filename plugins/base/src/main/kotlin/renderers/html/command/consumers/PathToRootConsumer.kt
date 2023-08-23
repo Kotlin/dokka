@@ -10,8 +10,8 @@ import org.jetbrains.dokka.base.templating.Command
 import org.jetbrains.dokka.base.templating.ImmediateHtmlCommandConsumer
 import org.jetbrains.dokka.base.templating.PathToRootSubstitutionCommand
 
-object PathToRootConsumer: ImmediateHtmlCommandConsumer {
-    override fun canProcess(command: Command) = command is PathToRootSubstitutionCommand
+public object PathToRootConsumer: ImmediateHtmlCommandConsumer {
+    override fun canProcess(command: Command): Boolean = command is PathToRootSubstitutionCommand
 
     override fun <R> processCommand(command: Command, block: TemplateBlock, tagConsumer: ImmediateResolutionTagConsumer<R>) {
         command as PathToRootSubstitutionCommand

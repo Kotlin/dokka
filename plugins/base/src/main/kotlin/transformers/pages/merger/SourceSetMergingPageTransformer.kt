@@ -13,7 +13,7 @@ import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 
-class SourceSetMergingPageTransformer(context: DokkaContext) : PageTransformer {
+public class SourceSetMergingPageTransformer(context: DokkaContext) : PageTransformer {
 
     private val mergedSourceSets = context.configuration.sourceSets.toDisplaySourceSets()
         .associateBy { sourceSet -> sourceSet.key }

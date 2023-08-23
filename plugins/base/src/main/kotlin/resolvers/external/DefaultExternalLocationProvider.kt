@@ -9,12 +9,12 @@ import org.jetbrains.dokka.base.resolvers.shared.ExternalDocumentation
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.plugability.DokkaContext
 
-open class DefaultExternalLocationProvider(
-    val externalDocumentation: ExternalDocumentation,
-    val extension: String,
-    val dokkaContext: DokkaContext
+public open class DefaultExternalLocationProvider(
+    public val externalDocumentation: ExternalDocumentation,
+    public val extension: String,
+    public val dokkaContext: DokkaContext
 ) : ExternalLocationProvider {
-    val docURL = externalDocumentation.documentationURL.toString().removeSuffix("/") + "/"
+    public val docURL: String = externalDocumentation.documentationURL.toString().removeSuffix("/") + "/"
 
     override fun resolve(dri: DRI): String? {
         externalDocumentation.packageList.locations[dri.toString()]?.let { path -> return "$docURL$path" }

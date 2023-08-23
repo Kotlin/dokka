@@ -15,7 +15,7 @@ import org.jsoup.nodes.Element
 import org.jsoup.parser.Tag
 import java.io.File
 
-class ResolveLinkCommandHandler(context: DokkaContext) : CommandHandler {
+public class ResolveLinkCommandHandler(context: DokkaContext) : CommandHandler {
 
     private val externalModuleLinkResolver =
         context.plugin<AllModulesPagePlugin>().querySingle { externalModuleLinkResolver }

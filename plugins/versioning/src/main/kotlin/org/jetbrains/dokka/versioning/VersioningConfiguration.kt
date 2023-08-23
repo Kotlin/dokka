@@ -8,7 +8,7 @@ import org.jetbrains.dokka.plugability.ConfigurableBlock
 import org.jetbrains.dokka.plugability.DokkaContext
 import java.io.File
 
-data class VersioningConfiguration(
+public data class VersioningConfiguration(
     var olderVersionsDir: File? = defaultOlderVersionsDir,
     var olderVersions: List<File>? = defaultOlderVersions,
     var versionsOrdering: List<String>? = defaultVersionsOrdering,
@@ -25,14 +25,14 @@ data class VersioningConfiguration(
         return olderVersionsDir?.listFiles()?.toList().orEmpty() + olderVersions.orEmpty()
     }
 
-    companion object {
-        val defaultOlderVersionsDir: File? = null
-        val defaultOlderVersions: List<File>? = null
-        val defaultVersionsOrdering: List<String>? = null
-        val defaultVersion = null
-        val defaultRenderVersionsNavigationOnAllPages = true
+    public companion object {
+        public val defaultOlderVersionsDir: File? = null
+        public val defaultOlderVersions: List<File>? = null
+        public val defaultVersionsOrdering: List<String>? = null
+        public val defaultVersion: String? = null
+        public val defaultRenderVersionsNavigationOnAllPages: Boolean = true
 
-        const val OLDER_VERSIONS_DIR = "older"
-        const val VERSIONS_FILE = "version.json"
+        public const val OLDER_VERSIONS_DIR: String = "older"
+        public const val VERSIONS_FILE: String = "version.json"
     }
 }

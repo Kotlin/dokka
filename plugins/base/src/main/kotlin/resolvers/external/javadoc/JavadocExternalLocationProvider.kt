@@ -13,10 +13,10 @@ import org.jetbrains.dokka.links.EnumEntryDRIExtra
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.utilities.htmlEscape
 
-open class JavadocExternalLocationProvider(
+public open class JavadocExternalLocationProvider(
         externalDocumentation: ExternalDocumentation,
-        val brackets: String,
-        val separator: String,
+        public val brackets: String,
+        public val separator: String,
         dokkaContext: DokkaContext
 ) : DefaultExternalLocationProvider(externalDocumentation, ".html", dokkaContext) {
 
@@ -53,9 +53,10 @@ open class JavadocExternalLocationProvider(
         return ("$docWithModule$classLink#" + anchorPart(callableChecked)).htmlEscape()
     }
 
-    protected open fun anchorPart(callable: Callable) = callable.name +
-            "${brackets.first()}" +
-            callable.params.joinToString(separator) +
-            "${brackets.last()}"
-
+    protected open fun anchorPart(callable: Callable): String {
+        return callable.name +
+                "${brackets.first()}" +
+                callable.params.joinToString(separator) +
+                "${brackets.last()}"
+    }
 }

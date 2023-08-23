@@ -6,6 +6,7 @@ package org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.configuration
 
 import com.intellij.openapi.project.Project
 import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.InternalDokkaApi
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.AnalysisContextCreator
 import org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.CompilerDescriptorAnalysisPlugin
@@ -92,9 +93,10 @@ internal class DokkaMessageCollector(private val logger: DokkaLogger) : MessageC
     override fun hasErrors() = seenErrors
 }
 
-interface AnalysisContext : Closeable {
-    val environment: KotlinCoreEnvironment
-    val resolveSession: ResolveSession
-    val moduleDescriptor: ModuleDescriptor
-    val project: Project
+@InternalDokkaApi
+public interface AnalysisContext : Closeable {
+    public val environment: KotlinCoreEnvironment
+    public val resolveSession: ResolveSession
+    public val moduleDescriptor: ModuleDescriptor
+    public val project: Project
 }

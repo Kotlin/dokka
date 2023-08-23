@@ -9,7 +9,7 @@ import java.io.File
 import kotlin.test.BeforeTest
 import kotlin.test.assertTrue
 
-abstract class AbstractCliIntegrationTest : AbstractIntegrationTest() {
+public abstract class AbstractCliIntegrationTest : AbstractIntegrationTest() {
 
     protected val cliJarFile: File by lazy {
         File(tempFolder, "dokka.jar")
@@ -20,7 +20,7 @@ abstract class AbstractCliIntegrationTest : AbstractIntegrationTest() {
     }
 
     @BeforeTest
-    fun copyJarFiles() {
+    public fun copyJarFiles() {
         val cliJarPathEnvironmentKey = "CLI_JAR_PATH"
         val cliJarFile = File(System.getenv(cliJarPathEnvironmentKey))
         assertTrue(

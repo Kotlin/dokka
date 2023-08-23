@@ -8,8 +8,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id.CLASS
 
 @JsonTypeInfo(use = CLASS)
-interface Command
+public interface Command
 
-abstract class SubstitutionCommand : Command {
-    abstract val pattern: String
+public abstract class SubstitutionCommand : Command {
+    public abstract val pattern: String
 }

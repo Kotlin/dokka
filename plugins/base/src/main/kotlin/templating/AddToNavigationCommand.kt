@@ -4,4 +4,6 @@
 
 package org.jetbrains.dokka.base.templating
 
-class AddToNavigationCommand(val moduleName: String) : Command
+public class AddToNavigationCommand(
+    public val moduleName: String
+) : Command
