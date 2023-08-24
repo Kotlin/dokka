@@ -16,7 +16,7 @@ import org.jetbrains.kotlin.psi.KtClassOrObject
 import java.util.concurrent.ConcurrentHashMap
 
 
-class SymbolFullClassHierarchyBuilder : FullClassHierarchyBuilder {
+internal class SymbolFullClassHierarchyBuilder : FullClassHierarchyBuilder {
     override suspend fun build(module: DModule): ClassHierarchy  {
         val map = module.sourceSets.associateWith { ConcurrentHashMap<DRI, List<DRI>>() }
         module.packages.forEach { visitDocumentable(it, map) }

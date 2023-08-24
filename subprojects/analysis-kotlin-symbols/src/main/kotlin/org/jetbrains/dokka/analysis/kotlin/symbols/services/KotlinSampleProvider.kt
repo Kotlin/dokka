@@ -29,7 +29,7 @@ class KotlinSampleProviderFactory(val context: DokkaContext): SampleProviderFact
  */
 @InternalDokkaApi
 open class KotlinSampleProvider(val context: DokkaContext): SampleProvider {
-    val kotlinAnalysis = SamplesKotlinAnalysis(
+    private val kotlinAnalysis = SamplesKotlinAnalysis(
         sourceSets = context.configuration.sourceSets,
         context = context,
         projectKotlinAnalysis = context.plugin<SymbolsAnalysisPlugin>().querySingle { kotlinAnalysis }
@@ -38,7 +38,7 @@ open class KotlinSampleProvider(val context: DokkaContext): SampleProvider {
     protected open fun processBody(psiElement: PsiElement): String {
         val text = processSampleBody(psiElement).trim { it == '\n' || it == '\r' }.trimEnd()
         val lines = text.split("\n")
-        val indent = lines.filter(String::isNotBlank).map { it.takeWhile(Char::isWhitespace).count() }.minOrNull() ?: 0
+        val indent = lines.filter(String::isNotBlank).minOfOrNull { it.takeWhile(Char::isWhitespace).count() } ?: 0
         return lines.joinToString("\n") { it.drop(indent) }
     }
 

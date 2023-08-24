@@ -23,9 +23,9 @@ import org.jetbrains.dokka.renderers.PostAction
 import org.jetbrains.kotlin.asJava.elements.KtLightAbstractAnnotation
 
 @Suppress("unused")
-class SymbolsAnalysisPlugin : DokkaPlugin() {
+public class SymbolsAnalysisPlugin : DokkaPlugin() {
 
-    val kotlinAnalysis by extensionPoint<KotlinAnalysis>()
+    internal val kotlinAnalysis by extensionPoint<KotlinAnalysis>()
 
     internal val defaultKotlinAnalysis by extending {
         kotlinAnalysis providing { ctx ->
@@ -40,7 +40,7 @@ class SymbolsAnalysisPlugin : DokkaPlugin() {
         CoreExtensions.postActions with PostAction { querySingle { kotlinAnalysis }.close() }
     }
 
-    val symbolToDocumentableTranslator by extending {
+    internal val symbolToDocumentableTranslator by extending {
         CoreExtensions.sourceToDocumentableTranslator providing ::DefaultSymbolToDocumentableTranslator
     }
 
@@ -50,11 +50,10 @@ class SymbolsAnalysisPlugin : DokkaPlugin() {
         javaAnalysisPlugin.projectProvider providing { KotlinAnalysisProjectProvider() }
     }
 
-    /*
-        internal val sourceRootsExtractor by extending {
-            javaAnalysisPlugin.sourceRootsExtractor providing { KotlinAnalysisSourceRootsExtractor() }
-        }
-    */
+    internal val sourceRootsExtractor by extending {
+        javaAnalysisPlugin.sourceRootsExtractor providing { KotlinAnalysisSourceRootsExtractor() }
+    }
+
     internal val kotlinDocCommentCreator by extending {
         javaAnalysisPlugin.docCommentCreators providing {
             DescriptorKotlinDocCommentCreator()
@@ -115,10 +114,6 @@ class SymbolsAnalysisPlugin : DokkaPlugin() {
 
     internal val kotlinSampleProviderFactory by extending {
         plugin<InternalKotlinAnalysisPlugin>().sampleProviderFactory providing ::KotlinSampleProviderFactory
-    }
-
-    internal val sourceRootsExtractor by extending {
-        javaAnalysisPlugin.sourceRootsExtractor providing { KotlinAnalysisSourceRootsExtractor() }
     }
 
     @OptIn(DokkaPluginApiPreview::class)

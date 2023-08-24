@@ -42,7 +42,7 @@ internal fun KtAnalysisSession.getJavaDocDocumentationFrom(
     return null
 }
 
-internal fun KtAnalysisSession.getKDocDocumentationFrom(symbol: KtSymbol, logger: DokkaLogger) = findKDoc(symbol)?.let {
+internal fun KtAnalysisSession.getKDocDocumentationFrom(symbol: KtSymbol, logger: DokkaLogger) = findKDoc(symbol)?.let { kDocContent ->
 
     val ktElement = symbol.psi
     val kdocLocation = ktElement?.containingFile?.name?.let {
@@ -51,7 +51,7 @@ internal fun KtAnalysisSession.getKDocDocumentationFrom(symbol: KtSymbol, logger
             is KtClassOrObjectSymbol -> symbol.classIdIfNonLocal?.toString()
             is KtNamedSymbol -> symbol.name.asString()
             else -> null
-        }?.replace('/', '.')
+        }?.replace('/', '.') // replace to be compatible with K1
 
         if (name != null) "$it/$name"
         else it
@@ -59,7 +59,7 @@ internal fun KtAnalysisSession.getKDocDocumentationFrom(symbol: KtSymbol, logger
 
 
     parseFromKDocTag(
-        kDocTag = it.contentTag,
+        kDocTag = kDocContent.contentTag,
         externalDri = { link -> resolveKDocLink(link).logIfNotResolved(link.getLinkText(), logger) },
         kdocLocation = kdocLocation
     )

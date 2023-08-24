@@ -29,68 +29,62 @@ internal fun parseFromKDocTag(
         val allTags =
             listOf(kDocTag) + if (kDocTag.canHaveParent() && parseWithChildren) getAllKDocTags(findParent(kDocTag)) else emptyList()
         DocumentationNode(
-            allTags.map {
-                val links = it.allChildren.filterIsInstance<KDocLink>().associate { it.getLinkText() to externalDri(it) }
+            allTags.map { tag ->
+                val links = tag.allChildren.filterIsInstance<KDocLink>().associate { it.getLinkText() to externalDri(it) }
                 val externalDRIProvider = { linkText: String -> links[linkText] }
 
-                when (it.knownTag) {
-                    null -> if (it.name == null) Description(parseStringToDocNode(it.getContent(), externalDRIProvider)) else CustomTagWrapper(
-                        parseStringToDocNode(it.getContent(), externalDRIProvider),
-                        it.name!!
+                when (tag.knownTag) {
+                    null -> if (tag.name == null) Description(parseStringToDocNode(tag.getContent(), externalDRIProvider)) else CustomTagWrapper(
+                        parseStringToDocNode(tag.getContent(), externalDRIProvider),
+                        tag.name!!
                     )
-                    KDocKnownTag.AUTHOR -> Author(parseStringToDocNode(it.getContent(), externalDRIProvider))
+                    KDocKnownTag.AUTHOR -> Author(parseStringToDocNode(tag.getContent(), externalDRIProvider))
                     KDocKnownTag.THROWS -> {
-                        val dri = pointedLink(it)
+                        val dri = pointedLink(tag)
                         Throws(
-                            parseStringToDocNode(it.getContent(), externalDRIProvider),
-                            dri?.fqDeclarationName() ?: it.getSubjectName().orEmpty(),
+                            parseStringToDocNode(tag.getContent(), externalDRIProvider),
+                            dri?.fqDeclarationName() ?: tag.getSubjectName().orEmpty(),
                             dri,
                         )
                     }
                     KDocKnownTag.EXCEPTION -> {
-                        val dri = pointedLink(it)
+                        val dri = pointedLink(tag)
                         Throws(
-                            parseStringToDocNode(it.getContent(), externalDRIProvider),
-                            dri?.fqDeclarationName() ?: it.getSubjectName().orEmpty(),
+                            parseStringToDocNode(tag.getContent(), externalDRIProvider),
+                            dri?.fqDeclarationName() ?: tag.getSubjectName().orEmpty(),
                             dri
                         )
                     }
                     KDocKnownTag.PARAM -> Param(
-                        parseStringToDocNode(it.getContent(), externalDRIProvider),
-                        it.getSubjectName().orEmpty()
+                        parseStringToDocNode(tag.getContent(), externalDRIProvider),
+                        tag.getSubjectName().orEmpty()
                     )
-                    KDocKnownTag.RECEIVER -> Receiver(parseStringToDocNode(it.getContent(), externalDRIProvider))
-                    KDocKnownTag.RETURN -> Return(parseStringToDocNode(it.getContent(), externalDRIProvider))
+                    KDocKnownTag.RECEIVER -> Receiver(parseStringToDocNode(tag.getContent(), externalDRIProvider))
+                    KDocKnownTag.RETURN -> Return(parseStringToDocNode(tag.getContent(), externalDRIProvider))
                     KDocKnownTag.SEE -> {
-                        val dri = pointedLink(it)
+                        val dri = pointedLink(tag)
                         See(
-                            parseStringToDocNode(it.getContent(), externalDRIProvider),
-                            dri?.fqDeclarationName() ?: it.getSubjectName().orEmpty(),
+                            parseStringToDocNode(tag.getContent(), externalDRIProvider),
+                            dri?.fqDeclarationName() ?: tag.getSubjectName().orEmpty(),
                             dri,
                         )
                     }
-                    KDocKnownTag.SINCE -> Since(parseStringToDocNode(it.getContent(), externalDRIProvider))
-                    KDocKnownTag.CONSTRUCTOR -> Constructor(parseStringToDocNode(it.getContent(), externalDRIProvider))
+                    KDocKnownTag.SINCE -> Since(parseStringToDocNode(tag.getContent(), externalDRIProvider))
+                    KDocKnownTag.CONSTRUCTOR -> Constructor(parseStringToDocNode(tag.getContent(), externalDRIProvider))
                     KDocKnownTag.PROPERTY -> Property(
-                        parseStringToDocNode(it.getContent(), externalDRIProvider),
-                        it.getSubjectName().orEmpty()
+                        parseStringToDocNode(tag.getContent(), externalDRIProvider),
+                        tag.getSubjectName().orEmpty()
                     )
                     KDocKnownTag.SAMPLE -> Sample(
-                        parseStringToDocNode(it.getContent(), externalDRIProvider),
-                        it.getSubjectName().orEmpty()
+                        parseStringToDocNode(tag.getContent(), externalDRIProvider),
+                        tag.getSubjectName().orEmpty()
                     )
-                    KDocKnownTag.SUPPRESS -> Suppress(parseStringToDocNode(it.getContent(), externalDRIProvider))
+                    KDocKnownTag.SUPPRESS -> Suppress(parseStringToDocNode(tag.getContent(), externalDRIProvider))
                 }
             }
         )
     }
 }
-
-//Horrible hack but since link resolution is passed as a function i am not able to resolve them otherwise
-@kotlin.Suppress("DeprecatedCallableAddReplaceWith")
-@Deprecated("This function makes wrong assumptions and is missing a lot of corner cases related to generics, " +
-        "parameters and static members. This is not supposed to be public API and will not be supported in the future")
-internal fun DRI.fqName(): String? = "$packageName.$classNames".takeIf { packageName != null && classNames != null }
 
 private fun findParent(kDoc: PsiElement): PsiElement =
     if (kDoc.canHaveParent()) findParent(kDoc.parent) else kDoc

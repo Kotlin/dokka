@@ -1,31 +1,11 @@
-public abstract interface class org/jetbrains/dokka/analysis/kotlin/symbols/plugin/AnalysisContext : java/io/Closeable {
-	public abstract fun getMainModule ()Lorg/jetbrains/kotlin/analysis/project/structure/KtSourceModule;
-	public abstract fun getProject ()Lcom/intellij/openapi/project/Project;
-}
-
-public abstract class org/jetbrains/dokka/analysis/kotlin/symbols/plugin/KotlinAnalysis : java/io/Closeable {
-	public fun <init> ()V
-	public fun <init> (Lorg/jetbrains/dokka/analysis/kotlin/symbols/plugin/KotlinAnalysis;)V
-	public synthetic fun <init> (Lorg/jetbrains/dokka/analysis/kotlin/symbols/plugin/KotlinAnalysis;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun get (Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;)Lorg/jetbrains/dokka/analysis/kotlin/symbols/plugin/AnalysisContext;
-}
-
 public final class org/jetbrains/dokka/analysis/kotlin/symbols/plugin/SymbolsAnalysisPlugin : org/jetbrains/dokka/plugability/DokkaPlugin {
 	public fun <init> ()V
-	public final fun getKotlinAnalysis ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
-	public final fun getSymbolToDocumentableTranslator ()Lorg/jetbrains/dokka/plugability/Extension;
-}
-
-public final class org/jetbrains/dokka/analysis/kotlin/symbols/services/KotlinAnalysisSourceRootsExtractor : org/jetbrains/dokka/analysis/java/SourceRootsExtractor {
-	public fun <init> ()V
-	public fun extract (Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Lorg/jetbrains/dokka/plugability/DokkaContext;)Ljava/util/List;
 }
 
 public class org/jetbrains/dokka/analysis/kotlin/symbols/services/KotlinSampleProvider : org/jetbrains/dokka/analysis/kotlin/internal/SampleProvider {
 	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
 	public fun close ()V
 	public final fun getContext ()Lorg/jetbrains/dokka/plugability/DokkaContext;
-	public final fun getKotlinAnalysis ()Lorg/jetbrains/dokka/analysis/kotlin/symbols/plugin/KotlinAnalysis;
 	public fun getSample (Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Ljava/lang/String;)Lorg/jetbrains/dokka/analysis/kotlin/internal/SampleProvider$SampleSnippet;
 	protected fun processBody (Lcom/intellij/psi/PsiElement;)Ljava/lang/String;
 	protected fun processImports (Lcom/intellij/psi/PsiElement;)Ljava/lang/String;
@@ -35,16 +15,5 @@ public final class org/jetbrains/dokka/analysis/kotlin/symbols/services/KotlinSa
 	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
 	public fun build ()Lorg/jetbrains/dokka/analysis/kotlin/internal/SampleProvider;
 	public final fun getContext ()Lorg/jetbrains/dokka/plugability/DokkaContext;
-}
-
-public final class org/jetbrains/dokka/analysis/kotlin/symbols/services/SymbolFullClassHierarchyBuilder : org/jetbrains/dokka/analysis/kotlin/internal/FullClassHierarchyBuilder {
-	public fun <init> ()V
-	public fun build (Lorg/jetbrains/dokka/model/DModule;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-}
-
-public final class org/jetbrains/dokka/analysis/kotlin/symbols/translators/DefaultSymbolToDocumentableTranslator : org/jetbrains/dokka/transformers/sources/AsyncSourceToDocumentableTranslator {
-	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
-	public fun invoke (Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Lorg/jetbrains/dokka/plugability/DokkaContext;)Lorg/jetbrains/dokka/model/DModule;
-	public fun invokeSuspending (Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Lorg/jetbrains/dokka/plugability/DokkaContext;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 

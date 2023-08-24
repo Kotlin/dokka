@@ -5,7 +5,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.DokkaSourceSetID
-import org.jetbrains.dokka.InternalDokkaApi
 import org.jetbrains.dokka.model.SourceSetDependent
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.kotlin.analysis.api.standalone.StandaloneAnalysisAPISession
@@ -89,8 +88,7 @@ internal fun createAnalysisContext(
 /**
  * First child delegation. It does not close [parent].
  */
-@InternalDokkaApi
-abstract class KotlinAnalysis(
+internal abstract class KotlinAnalysis(
     private val parent: KotlinAnalysis? = null
 ) : Closeable {
 
@@ -120,8 +118,7 @@ internal open class EnvironmentKotlinAnalysis(
     }
 }
 
-@InternalDokkaApi
-interface AnalysisContext: Closeable {
+internal interface AnalysisContext: Closeable {
     val project: Project
     val mainModule: KtSourceModule
 }

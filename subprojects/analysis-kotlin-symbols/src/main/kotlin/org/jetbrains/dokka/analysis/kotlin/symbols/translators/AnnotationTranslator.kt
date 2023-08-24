@@ -101,8 +101,12 @@ internal class AnnotationTranslator {
                 annotationValue.classId.createDRI()
             )
 
-            is KtKClassAnnotationValue.KtLocalKClassAnnotationValue -> TODO()
-            is KtKClassAnnotationValue.KtErrorClassAnnotationValue -> TODO()
+            is KtKClassAnnotationValue.KtLocalKClassAnnotationValue -> throw IllegalStateException("Unexpected a local class in annotation")
+            is KtKClassAnnotationValue.KtErrorClassAnnotationValue -> ClassValue(
+                annotationValue.unresolvedQualifierName ?: "",
+                DRI(packageName = "", classNames = ERROR_CLASS_NAME)
+            )
+
             KtUnsupportedAnnotationValue -> TODO()
         }
 
@@ -112,10 +116,6 @@ internal class AnnotationTranslator {
         return DRI(
             packageName = callableId.packageName.asString(),
             classNames = callableId.className?.asString() + "." + callableId.callableName.asString(),
-            /*callable = Callable(
-                callableId.callableName.asString(),
-                params = emptyList(),
-            )*/
         ).withEnumEntryExtra()
     }
 
