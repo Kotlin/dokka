@@ -22,6 +22,7 @@ Some libraries that use Dokka for their API reference documentation:
 * [Hexagon](https://hexagonkt.com/api/index.html)
 * [Ktor](https://api.ktor.io/)
 * [OkHttp](https://square.github.io/okhttp/4.x/okhttp/okhttp3/) (Markdown)
+* [Gradle](https://docs.gradle.org/current/kotlin-dsl/index.html)
 
 You can run Dokka using [Gradle](https://kotlinlang.org/docs/dokka-gradle.html), 
 [Maven](https://kotlinlang.org/docs/dokka-maven.html) or from the [command line](https://kotlinlang.org/docs/dokka-cli.html). 
