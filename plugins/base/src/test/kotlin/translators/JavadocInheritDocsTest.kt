@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import utils.JavaCode
 
+@JavaCode
 class JavadocInheritDocsTest : BaseAbstractTest() {
     val configuration = dokkaConfiguration {
         sourceSets {
