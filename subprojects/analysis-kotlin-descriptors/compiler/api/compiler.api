@@ -82,3 +82,27 @@ public final class org/jetbrains/dokka/analysis/kotlin/descriptors/compiler/impl
 	public final fun getContext ()Lorg/jetbrains/dokka/plugability/DokkaContext;
 }
 
+public final class org/jetbrains/kotlin/cli/jvm/compiler/KotlinCliJavaFileManagerImpl : com/intellij/core/CoreJavaFileManager, org/jetbrains/kotlin/resolve/jvm/KotlinCliJavaFileManager {
+	public static final field Companion Lorg/jetbrains/kotlin/cli/jvm/compiler/KotlinCliJavaFileManagerImpl$Companion;
+	public fun <init> (Lcom/intellij/psi/PsiManager;)V
+	public fun findClass (Ljava/lang/String;Lcom/intellij/psi/search/GlobalSearchScope;)Lcom/intellij/psi/PsiClass;
+	public fun findClass (Lorg/jetbrains/kotlin/load/java/JavaClassFinder$Request;Lcom/intellij/psi/search/GlobalSearchScope;)Lorg/jetbrains/kotlin/load/java/structure/JavaClass;
+	public final fun findClass (Lorg/jetbrains/kotlin/name/ClassId;Lcom/intellij/psi/search/GlobalSearchScope;)Lorg/jetbrains/kotlin/load/java/structure/JavaClass;
+	public fun findClasses (Ljava/lang/String;Lcom/intellij/psi/search/GlobalSearchScope;)[Lcom/intellij/psi/PsiClass;
+	public fun findModules (Ljava/lang/String;Lcom/intellij/psi/search/GlobalSearchScope;)Ljava/util/Collection;
+	public fun findPackage (Ljava/lang/String;)Lcom/intellij/psi/PsiPackage;
+	public fun getNonTrivialPackagePrefixes ()Ljava/util/Collection;
+	public final fun initialize (Lorg/jetbrains/kotlin/cli/jvm/index/JvmDependenciesIndex;Ljava/util/List;Lorg/jetbrains/kotlin/cli/jvm/index/SingleJavaFileRootsIndex;Z)V
+	public fun knownClassNamesInPackage (Lorg/jetbrains/kotlin/name/FqName;)Ljava/util/Set;
+}
+
+public final class org/jetbrains/kotlin/cli/jvm/compiler/KotlinCliJavaFileManagerImpl$Companion {
+}
+
+public final class org/jetbrains/kotlin/cli/jvm/index/JvmDependenciesIndexImpl : org/jetbrains/kotlin/cli/jvm/index/JvmDependenciesIndex {
+	public fun <init> (Ljava/util/List;)V
+	public fun findClass (Lorg/jetbrains/kotlin/name/ClassId;Ljava/util/Set;Lkotlin/jvm/functions/Function2;)Ljava/lang/Object;
+	public fun getIndexedRoots ()Lkotlin/sequences/Sequence;
+	public fun traverseDirectoriesInPackage (Lorg/jetbrains/kotlin/name/FqName;Ljava/util/Set;Lkotlin/jvm/functions/Function2;)V
+}
+
