@@ -9,6 +9,7 @@ import org.jetbrains.dokka.model.dfs
 import org.jetbrains.dokka.model.firstChildOfType
 import org.jetbrains.dokka.pages.*
 import org.junit.jupiter.api.Test
+import utils.OnlyDescriptors
 import utils.assertNotNull
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -269,6 +270,7 @@ class MergeImplicitExpectActualDeclarationsTest : BaseAbstractTest() {
 
     fun PageNode.childrenRec(): List<PageNode> = listOf(this) + children.flatMap { it.childrenRec() }
 
+    @OnlyDescriptors("Enum entry [SMTH] does not have functions") // TODO
     @Test
     fun `should merge enum entries`() {
         testInline(

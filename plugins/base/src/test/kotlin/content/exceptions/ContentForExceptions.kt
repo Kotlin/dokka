@@ -7,9 +7,7 @@ import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.model.DisplaySourceSet
 import org.junit.jupiter.api.Test
-import utils.ParamAttributes
-import utils.bareSignature
-import utils.findTestType
+import utils.*
 import kotlin.test.assertEquals
 
 class ContentForExceptions : BaseAbstractTest() {
@@ -55,6 +53,7 @@ class ContentForExceptions : BaseAbstractTest() {
         )
     }
 
+    @OnlyDescriptors("Fixed in 1.9.20 (IMPORT STAR)")
     @Test
     fun `function with navigatable thrown exception`() {
         testInline(

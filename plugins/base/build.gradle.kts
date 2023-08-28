@@ -4,6 +4,7 @@ plugins {
     id("org.jetbrains.conventions.kotlin-jvm")
     id("org.jetbrains.conventions.maven-publish")
     id("org.jetbrains.conventions.dokka-html-frontend-files")
+    id("org.jetbrains.conventions.base-unit-test")
 }
 
 dependencies {
@@ -26,7 +27,11 @@ dependencies {
     }
 
     // Test only
-    testImplementation(projects.plugins.base.baseTestUtils)
+    symbolsTestConfiguration(project(path = ":subprojects:analysis-kotlin-symbols", configuration = "shadow"))
+    descriptorsTestConfiguration(project(path = ":subprojects:analysis-kotlin-descriptors", configuration = "shadow"))
+    testImplementation(projects.plugins.base.baseTestUtils) {
+        exclude(module = "analysis-kotlin-descriptors")
+    }
     testImplementation(projects.core.contentMatcherTestUtils)
     testImplementation(projects.core.testApi)
     testImplementation(platform(libs.junit.bom))
@@ -36,6 +41,12 @@ dependencies {
         because("fetch frontend files from subproject :plugins:base:frontend")
     }
 }
+
+
+
+
+
+
 
 // access the frontend files via the dependency on :plugins:base:frontend
 val dokkaHtmlFrontendFiles: Provider<FileCollection> =
