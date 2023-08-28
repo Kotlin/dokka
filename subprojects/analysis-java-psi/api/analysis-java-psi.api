@@ -146,3 +146,7 @@ public final class org/jetbrains/dokka/analysis/java/util/PsiDocumentableSource 
 	public final fun getPsi ()Lcom/intellij/psi/PsiNamedElement;
 }
 
+public final class org/jetbrains/dokka/analysis/java/util/PsiUtilKt {
+	public static final fun from (Lorg/jetbrains/dokka/links/DRI$Companion;Lcom/intellij/psi/PsiElement;)Lorg/jetbrains/dokka/links/DRI;
+}
+

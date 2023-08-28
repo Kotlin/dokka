@@ -12,6 +12,7 @@ dependencies {
     api(projects.subprojects.analysisKotlinApi)
 
     // TODO [beresnev] analysis switcher
+    //runtimeOnly(project(path = ":subprojects:analysis-kotlin-symbols", configuration = "shadow"))
     runtimeOnly(project(path = ":subprojects:analysis-kotlin-descriptors", configuration = "shadow"))
 
     implementation(kotlin("reflect"))

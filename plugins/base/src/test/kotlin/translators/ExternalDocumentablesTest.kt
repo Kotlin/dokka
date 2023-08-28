@@ -10,8 +10,11 @@ import org.jetbrains.dokka.analysis.kotlin.internal.ExternalDocumentablesProvide
 import org.jetbrains.dokka.analysis.kotlin.internal.InternalKotlinAnalysisPlugin
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import utils.OnlyDescriptors
+import utils.UsingJDK
 
 class ExternalDocumentablesTest : BaseAbstractTest() {
+    @UsingJDK
     @Test
     fun `external documentable from java stdlib`() {
         val configuration = dokkaConfiguration {
@@ -54,6 +57,10 @@ class ExternalDocumentablesTest : BaseAbstractTest() {
         }
     }
 
+
+    // typealias CompletionHandler = (cause: Throwable?) -> Unit
+    // FunctionalTypeConstructor(dri=kotlinx.coroutines/CompletionHandler///PointingToDeclaration/, projections=[], isExtensionFunction=false, isSuspendable=false, presentableName=null, extra=PropertyContainer(map={}))
+    @OnlyDescriptors(reason = "FunctionType has not parameters") // TODO
     @Test
     fun `external documentable from dependency`() {
         val coroutinesPath =

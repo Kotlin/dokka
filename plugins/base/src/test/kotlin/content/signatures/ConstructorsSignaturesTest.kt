@@ -5,6 +5,7 @@ import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.pages.BasicTabbedContentType
 import org.jetbrains.dokka.pages.ContentPage
 import org.junit.jupiter.api.Test
+import utils.OnlyDescriptors
 
 class ConstructorsSignaturesTest : BaseAbstractTest() {
     private val testConfiguration = dokkaConfiguration {
@@ -157,6 +158,7 @@ class ConstructorsSignaturesTest : BaseAbstractTest() {
         }
     }
 
+    @OnlyDescriptors("Order of constructors is different in K2")
     @Test
     fun `class with a parameterless secondary constructor`() {
         testInline(
@@ -227,6 +229,7 @@ class ConstructorsSignaturesTest : BaseAbstractTest() {
     }
 
 
+    @OnlyDescriptors("Order of constructors is different in K2")
     @Test
     fun `class with a few documented constructors`() {
         testInline(
