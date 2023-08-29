@@ -5,6 +5,7 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.concurrent.TimeUnit
+import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 abstract class AbstractExpectTest(
@@ -42,7 +43,7 @@ abstract class AbstractExpectTest(
 
             assertTrue(gitCompare.waitFor(gitTimeout, TimeUnit.MILLISECONDS), "Git timed out after $gitTimeout")
             gitCompare.inputStream.bufferedReader().lines().forEach { logger.info(it) }
-            assertTrue(gitCompare.exitValue() == 0, "${path.fileName}: outputs don't match")
+            assertEquals(0, gitCompare.exitValue(), "${path.fileName}: outputs don't match")
         } ?: throw AssertionError("obtained path is null")
     }
 
@@ -54,7 +55,7 @@ abstract class AbstractExpectTest(
     ) {
         obtained?.let { _ ->
             val (res, out, err) = runDiff(expected, obtained, excludes, timeout)
-            assertTrue(res == 0, "Outputs differ:\nstdout - $out\n\nstderr - ${err ?: ""}")
+            assertEquals(0, res, "Outputs differ:\nstdout - $out\n\nstderr - ${err ?: ""}")
         } ?: throw AssertionError("obtained path is null")
     }
 

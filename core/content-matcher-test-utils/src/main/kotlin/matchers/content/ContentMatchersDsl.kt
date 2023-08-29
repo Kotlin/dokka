@@ -5,7 +5,7 @@ import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.test.tools.matchers.content.*
 import kotlin.reflect.KClass
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
+import kotlin.test.asserter
 
 // entry point:
 fun ContentNode.assertNode(block: ContentMatcherBuilder<ContentComposite>.() -> Unit) {
@@ -73,7 +73,7 @@ fun ContentMatcherBuilder<*>.tabbedGroup(
     block: ContentMatcherBuilder<ContentGroup>.() -> Unit
 ) = composite<ContentGroup> {
     block()
-    check { assertTrue(this.style.contains(ContentStyle.TabbedContent)) }
+    check { assertContains(this.style, ContentStyle.TabbedContent) }
 }
 
 fun ContentMatcherBuilder<*>.tab(
@@ -94,7 +94,7 @@ fun ContentMatcherBuilder<*>.header(expectedLevel: Int? = null, block: ContentMa
 fun ContentMatcherBuilder<*>.p(block: ContentMatcherBuilder<ContentGroup>.() -> Unit) =
     composite<ContentGroup> {
         block()
-        check { assertTrue(this.style.contains(TextStyle.Paragraph)) }
+        check { assertContains(this.style, TextStyle.Paragraph) }
     }
 
 fun ContentMatcherBuilder<*>.link(block: ContentMatcherBuilder<ContentLink>.() -> Unit) = composite(block)
@@ -112,7 +112,7 @@ fun ContentMatcherBuilder<*>.codeInline(block: ContentMatcherBuilder<ContentCode
 
 fun ContentMatcherBuilder<*>.caption(block: ContentMatcherBuilder<ContentGroup>.() -> Unit) = composite<ContentGroup> {
     block()
-    check { assertTrue(this.style.contains(ContentStyle.Caption)) }
+    check { assertContains(this.style, ContentStyle.Caption) }
 }
 
 fun ContentMatcherBuilder<*>.br() = node<ContentBreakLine>()
@@ -137,3 +137,13 @@ fun ContentMatcherBuilder<ContentDivergentInstance>.divergent(block: ContentMatc
 
 fun ContentMatcherBuilder<ContentDivergentInstance>.after(block: ContentMatcherBuilder<ContentComposite>.() -> Unit) =
     composite(block)
+
+/*
+ * TODO replace with kotlin.test.assertContains after migrating to Kotlin language version 1.5+
+ */
+private fun <T> assertContains(iterable: Iterable<T>, element: T) {
+    asserter.assertTrue(
+        { "Expected the collection to contain the element.\nCollection <$iterable>, element <$element>." },
+        iterable.contains(element)
+    )
+}
