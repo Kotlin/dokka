@@ -8,6 +8,7 @@ import org.jetbrains.dokka.model.doc.*
 import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 
 class ParserTest : KDocTest() {
@@ -1483,7 +1484,7 @@ class ParserTest : KDocTest() {
         val exception = runCatching { executeTest(kdoc, expectedDocumentationNode) }.exceptionOrNull()
 
         val expectedMessage = "Wrong AST Tree. Header does not contain expected content in Test.kt/example.Test, element starts from offset 0 and ends 3: ###"
-        assert(
+        assertTrue(
             exception?.message == expectedMessage
             || /* for K2 */ exception?.cause?.cause?.message == expectedMessage
         )
