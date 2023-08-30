@@ -4,9 +4,9 @@ import org.jetbrains.dokka.javadoc.pages.JavadocContentKind
 import org.jetbrains.dokka.javadoc.pages.JavadocPackagePageNode
 import org.jetbrains.dokka.javadoc.pages.RowJavadocListEntry
 import org.jetbrains.dokka.links.DRI
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Test
 import java.io.File
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 internal class JavadocPackageTemplateMapTest : AbstractJavadocTemplateMapTest() {
 

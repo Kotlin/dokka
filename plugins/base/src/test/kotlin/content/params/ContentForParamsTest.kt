@@ -10,8 +10,8 @@ import org.jetbrains.dokka.model.doc.Param
 import org.jetbrains.dokka.model.doc.Text
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.utilities.firstIsInstanceOrNull
-import org.junit.jupiter.api.Test
 import utils.*
+import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class ContentForParamsTest : BaseAbstractTest() {
@@ -1515,10 +1515,10 @@ class ContentForParamsTest : BaseAbstractTest() {
                     it.documentation[jvm]
                 }
 
-                assert(forJvm.size == 2)
+                assertEquals(2, forJvm.size)
                 val (first, second) = forJvm.map { it.paramsDescription() }
-                assert(first == "comment to first param")
-                assert(second == "comment to second param")
+                assertEquals("comment to first param", first)
+                assertEquals("comment to second param", second)
             }
         }
     }

@@ -17,11 +17,10 @@ dependencies {
     implementation(libs.kotlinx.html)
     implementation(libs.kotlinx.coroutines.core)
 
+    testImplementation(kotlin("test"))
     testImplementation(projects.plugins.base.baseTestUtils)
     testImplementation(projects.core.testApi)
     testImplementation(libs.jsoup)
-    testImplementation(platform(libs.junit.bom))
-    testImplementation(libs.junit.jupiter)
 }
 
 registerDokkaArtifactPublication("javadocPlugin") {

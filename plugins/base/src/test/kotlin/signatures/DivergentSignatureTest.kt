@@ -1,9 +1,10 @@
 package signatures
 
-import org.junit.jupiter.api.Test
+import utils.TestOutputWriterPlugin
+import kotlin.test.Test
+import kotlin.test.assertEquals
 import utils.OnlyDescriptors
 import utils.OnlyDescriptorsMPP
-import utils.TestOutputWriterPlugin
 
 @OnlyDescriptorsMPP
 class DivergentSignatureTest : AbstractRenderingTest() {
@@ -20,10 +21,10 @@ class DivergentSignatureTest : AbstractRenderingTest() {
             renderingStage = { _, _ ->
                 val content = writerPlugin.renderedSourceDependentContent("example/example/-clock/get-time.html")
 
-                assert(content.count() == 3)
+                assertEquals(3, content.count())
                 val sourceSets = listOf("example/common", "example/js", "example/jvm")
                 sourceSets.forEach {
-                    assert(content.select("[data-togglable=$it]").single().brief == "")
+                    assertEquals("", content.select("[data-togglable=$it]").single().brief)
                 }
             }
         }
@@ -41,10 +42,10 @@ class DivergentSignatureTest : AbstractRenderingTest() {
             renderingStage = { _, _ ->
                 val content = writerPlugin.renderedSourceDependentContent("example/example/-clock/get-times-in-millis.html")
 
-                assert(content.count() == 3)
-                assert(content.select("[data-togglable=example/common]").single().brief == "Time in minis")
-                assert(content.select("[data-togglable=example/jvm]").single().brief == "Time in minis")
-                assert(content.select("[data-togglable=example/js]").single().brief == "JS implementation of getTimeInMillis" )
+                assertEquals(3, content.count())
+                assertEquals("Time in minis", content.select("[data-togglable=example/common]").single().brief)
+                assertEquals("Time in minis", content.select("[data-togglable=example/jvm]").single().brief)
+                assertEquals("JS implementation of getTimeInMillis", content.select("[data-togglable=example/js]").single().brief)
             }
         }
     }
@@ -60,10 +61,10 @@ class DivergentSignatureTest : AbstractRenderingTest() {
         ) {
             renderingStage = { _, _ ->
                 val content = writerPlugin.renderedSourceDependentContent("example/example/-clock/get-year.html")
-                assert(content.count() == 3)
-                assert(content.select("[data-togglable=example/jvm]").single().brief == "JVM custom kdoc")
-                assert(content.select("[data-togglable=example/js]").single().brief == "JS custom kdoc")
-                assert(content.select("[data-togglable=example/common]").single().brief == "")
+                assertEquals(3, content.count())
+                assertEquals("JVM custom kdoc", content.select("[data-togglable=example/jvm]").single().brief)
+                assertEquals("JS custom kdoc", content.select("[data-togglable=example/js]").single().brief)
+                assertEquals("", content.select("[data-togglable=example/common]").single().brief)
             }
         }
     }

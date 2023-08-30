@@ -6,40 +6,35 @@ import org.gradle.testkit.runner.internal.DefaultGradleRunner
 import org.gradle.tooling.GradleConnectionException
 import org.gradle.util.GradleVersion
 import org.jetbrains.dokka.it.AbstractIntegrationTest
-import org.junit.AssumptionViolatedException
-import org.junit.runner.RunWith
-import org.junit.runners.Parameterized
 import java.io.File
 import java.net.URI
 import kotlin.test.BeforeTest
 
-@RunWith(Parameterized::class)
 abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
-
-    abstract val versions: BuildVersions
 
     @BeforeTest
     fun copyTemplates() {
         File("projects").listFiles().orEmpty()
             .filter { it.isFile }
             .filter { it.name.startsWith("template.") }
-            .forEach { file -> file.copyTo(File(temporaryTestFolder.root, file.name)) }
+            .forEach { file -> file.copyTo(File(tempFolder, file.name)) }
     }
 
     fun createGradleRunner(
+        buildVersions: BuildVersions,
         vararg arguments: String,
         jvmArgs: List<String> = listOf("-Xmx2G", "-XX:MaxMetaspaceSize=1G")
     ): GradleRunner {
         return GradleRunner.create()
             .withProjectDir(projectDir)
             .forwardOutput()
-            .withJetBrainsCachedGradleVersion(versions.gradleVersion)
+            .withJetBrainsCachedGradleVersion(buildVersions.gradleVersion)
             .withTestKitDir(File("build", "gradle-test-kit").absoluteFile)
             .withArguments(
                 listOfNotNull(
-                    "-Pkotlin_version=${versions.kotlinVersion}",
-                    "-Pdokka_it_kotlin_version=${versions.kotlinVersion}",
-                    versions.androidGradlePluginVersion?.let { androidVersion ->
+                    "-Pkotlin_version=${buildVersions.kotlinVersion}",
+                    "-Pdokka_it_kotlin_version=${buildVersions.kotlinVersion}",
+                    buildVersions.androidGradlePluginVersion?.let { androidVersion ->
                         "-Pdokka_it_android_gradle_plugin_version=$androidVersion"
                     },
                     * arguments
@@ -55,7 +50,7 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
             val gradleConnectionException = e.withAllCauses().find { it is GradleConnectionException }
             if (gradleConnectionException != null) {
                 gradleConnectionException.printStackTrace()
-                throw AssumptionViolatedException("Assumed Gradle connection", gradleConnectionException)
+                throw IllegalStateException("Assumed Gradle connection", gradleConnectionException)
 
             }
             throw e

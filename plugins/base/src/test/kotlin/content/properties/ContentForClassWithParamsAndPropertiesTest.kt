@@ -6,7 +6,7 @@ import org.jetbrains.dokka.model.dfs
 import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.pages.ClasslikePageNode
 import org.jetbrains.dokka.pages.RootPageNode
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class ContentForClassWithParamsAndPropertiesTest : BaseAbstractTest() {

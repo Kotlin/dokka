@@ -5,10 +5,10 @@ import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.PluginConfigurationImpl
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
-import org.junit.jupiter.api.Test
 import utils.OnlyDescriptors
 import utils.classSignature
 import utils.findTestType
+import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class ContentForInheritorsTest : BaseAbstractTest() {

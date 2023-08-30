@@ -3,12 +3,12 @@ package renderers.html
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.base.renderers.html.HtmlRenderer
 import org.jetbrains.dokka.pages.TextStyle
-import org.junit.jupiter.api.Test
 import renderers.testPage
 import testApi.testRunner.defaultSourceSet
 import utils.Div
 import utils.match
 import java.io.File
+import kotlin.test.Test
 
 class SourceSetDependentHintTest : HtmlRenderingOnlyTestBase() {
 

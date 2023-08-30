@@ -4,7 +4,7 @@ import matchers.content.*
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.pages.BasicTabbedContentType
 import org.jetbrains.dokka.pages.ContentPage
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
 import utils.OnlyDescriptors
 
 class ConstructorsSignaturesTest : BaseAbstractTest() {

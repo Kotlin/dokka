@@ -1,7 +1,7 @@
 package org.example.dokka.plugin
 
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
-import org.junit.Test
+import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class HideInternalApiPluginTest : BaseAbstractTest() {

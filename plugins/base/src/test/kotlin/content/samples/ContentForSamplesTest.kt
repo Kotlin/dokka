@@ -4,11 +4,12 @@ import matchers.content.*
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.base.transformers.pages.KOTLIN_PLAYGROUND_SCRIPT
 import org.jetbrains.dokka.model.DisplaySourceSet
-import org.junit.jupiter.api.Test
 import utils.TestOutputWriterPlugin
+import utils.assertContains
 import utils.classSignature
 import utils.findTestType
 import java.nio.file.Paths
+import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 
@@ -79,7 +80,7 @@ class ContentForSamplesTest : BaseAbstractTest() {
         ) {
             pagesTransformationStage = { module ->
                 val page = module.findTestType("test", "Foo")
-                assert(KOTLIN_PLAYGROUND_SCRIPT in page.embeddedResources)
+                assertContains(page.embeddedResources, KOTLIN_PLAYGROUND_SCRIPT)
                 page.content.assertNode {
                     group {
                         header(1) { +"Foo" }
@@ -143,7 +144,7 @@ class ContentForSamplesTest : BaseAbstractTest() {
         ) {
             pagesTransformationStage = { module ->
                 val page = module.findTestType("pageMerger", "Parent")
-                assert(KOTLIN_PLAYGROUND_SCRIPT in page.embeddedResources)
+                assertContains(page.embeddedResources, KOTLIN_PLAYGROUND_SCRIPT)
                 page.content.assertNode {
                     group {
                         header(1) { +"Parent" }

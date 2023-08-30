@@ -1,11 +1,11 @@
 package expect
 
-import org.junit.jupiter.api.Disabled
-import org.junit.jupiter.api.Test
+import kotlin.test.Ignore
+import kotlin.test.Test
 
 class ExpectGenerator : AbstractExpectTest() {
 
-    @Disabled
+    @Ignore
     @Test
     fun generateAll() = testDir?.dirsWithFormats(formats).orEmpty().forEach { (p, f) ->
         generateExpect(p, f)

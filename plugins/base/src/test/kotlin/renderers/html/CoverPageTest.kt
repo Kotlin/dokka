@@ -1,9 +1,9 @@
 package renderers.html
 
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
-import org.junit.jupiter.api.Test
 import signatures.renderedContent
 import utils.TestOutputWriterPlugin
+import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class CoverPageTest : BaseAbstractTest() {

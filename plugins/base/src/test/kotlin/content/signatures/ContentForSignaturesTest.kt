@@ -5,11 +5,11 @@ import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.pages.ContentPage
 import org.jetbrains.dokka.pages.PackagePageNode
-import org.junit.jupiter.api.Test
 import utils.ParamAttributes
 import utils.bareSignature
 import utils.propertySignature
 import utils.typealiasSignature
+import kotlin.test.Test
 
 class ContentForSignaturesTest : BaseAbstractTest() {
 

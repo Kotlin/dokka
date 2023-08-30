@@ -10,7 +10,7 @@ evaluationDependsOn(":runners:cli")
 evaluationDependsOn(":plugins:base")
 
 dependencies {
-    implementation(kotlin("test-junit"))
+    implementation(kotlin("test-junit5"))
     implementation(projects.integrationTests)
 }
 

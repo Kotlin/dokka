@@ -3,9 +3,10 @@ package content.typealiases
 import matchers.content.*
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.model.dfs
-import org.jetbrains.dokka.pages.*
-import org.junit.jupiter.api.Test
+import org.jetbrains.dokka.pages.ClasslikePageNode
+import org.jetbrains.dokka.pages.PlatformHintedContent
 import utils.assertNotNull
+import kotlin.test.Test
 
 
 class TypealiasTest : BaseAbstractTest() {

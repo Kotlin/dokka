@@ -7,7 +7,10 @@ plugins {
 dependencies {
     implementation(projects.integrationTests)
 
-    implementation(kotlin("test-junit"))
+    implementation(kotlin("test-junit5"))
+    implementation(libs.junit.jupiterApi)
+    implementation(libs.junit.jupiterParams)
+
     implementation(gradleTestKit())
 
     implementation(libs.jsoup)

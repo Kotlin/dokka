@@ -145,10 +145,10 @@ class KotlinSourceSetGistTest {
         )
 
         /* Creating dependency files */
-        check(implementationJar.createNewFile())
-        check(compileOnlyJar.createNewFile())
-        check(apiJar.createNewFile())
-        check(runtimeOnlyJar.createNewFile())
+        assertTrue(implementationJar.createNewFile())
+        assertTrue(compileOnlyJar.createNewFile())
+        assertTrue(apiJar.createNewFile())
+        assertTrue(runtimeOnlyJar.createNewFile())
 
         assertEquals(
             setOf(implementationJar, compileOnlyJar, apiJar), mainSourceSetGist.classpath.get().files,

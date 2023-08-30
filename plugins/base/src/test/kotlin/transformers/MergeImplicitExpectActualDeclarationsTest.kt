@@ -8,11 +8,11 @@ import org.jetbrains.dokka.model.childrenOfType
 import org.jetbrains.dokka.model.dfs
 import org.jetbrains.dokka.model.firstChildOfType
 import org.jetbrains.dokka.pages.*
-import org.junit.jupiter.api.Test
-import utils.OnlyDescriptors
 import utils.assertNotNull
+import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import utils.OnlyDescriptors
 
 class MergeImplicitExpectActualDeclarationsTest : BaseAbstractTest() {
 

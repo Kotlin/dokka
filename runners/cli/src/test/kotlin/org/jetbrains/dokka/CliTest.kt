@@ -1,8 +1,7 @@
 package org.jetbrains.dokka
 
-import org.junit.Test
-import java.lang.IllegalStateException
 import java.nio.file.Paths
+import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 

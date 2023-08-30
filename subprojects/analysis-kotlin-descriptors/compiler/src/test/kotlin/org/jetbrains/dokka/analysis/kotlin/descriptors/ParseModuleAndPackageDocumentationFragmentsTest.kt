@@ -2,16 +2,17 @@ package org.jetbrains.dokka.analysis.kotlin.descriptors
 
 
 import org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.impl.moduledocs.*
-import org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.impl.moduledocs.ModuleAndPackageDocumentation.Classifier.*
+import org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.impl.moduledocs.ModuleAndPackageDocumentation.Classifier.Module
+import org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.impl.moduledocs.ModuleAndPackageDocumentation.Classifier.Package
 import org.jetbrains.dokka.analysis.markdown.jb.MARKDOWN_ELEMENT_FILE_NAME
 import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.utilities.DokkaLogger
-import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.io.TempDir
 import java.nio.file.Path
+import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlin.test.assertTrue
 
 class ParseModuleAndPackageDocumentationFragmentsTest {
 
@@ -69,7 +70,7 @@ class ParseModuleAndPackageDocumentationFragmentsTest {
 
     @Test
     fun `no module name specified fails`() {
-        val exception = assertThrows<IllegalModuleAndPackageDocumentation> {
+        val exception = assertFailsWith<IllegalModuleAndPackageDocumentation> {
             parseModuleAndPackageDocumentationFragments(
                 source(
                     """
@@ -137,7 +138,7 @@ class ParseModuleAndPackageDocumentationFragmentsTest {
 
     @Test
     fun `white space in package name fails`() {
-        val exception = assertThrows<IllegalModuleAndPackageDocumentation> {
+        val exception = assertFailsWith<IllegalModuleAndPackageDocumentation> {
             parseModuleAndPackageDocumentationFragments(
                 source(
                     """

@@ -1,7 +1,7 @@
 package kotlinAsJavaPlugin
 
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class JvmOverloadsTest : BaseAbstractTest() {

@@ -1,8 +1,8 @@
 package renderers.gfm
 
 import org.jetbrains.dokka.gfm.renderer.CommonmarkRenderer
-import org.junit.jupiter.api.Test
 import renderers.testPage
+import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class CodeWrappingTest : GfmRenderingOnlyTestBase() {

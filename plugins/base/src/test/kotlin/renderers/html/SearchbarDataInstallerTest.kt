@@ -1,10 +1,10 @@
 package renderers.html
 
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
-import org.junit.Test
-import org.junit.jupiter.api.Assertions
 import utils.TestOutputWriterPlugin
 import utils.pagesJson
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class SearchbarDataInstallerTest: BaseAbstractTest() {
 
@@ -36,7 +36,7 @@ class SearchbarDataInstallerTest: BaseAbstractTest() {
             renderingStage = { _, _ ->
                 val searchRecords = writerPlugin.writer.pagesJson()
 
-                Assertions.assertEquals(
+                assertEquals(
                     "Test",
                     searchRecords.find { record -> record.name == "class Test" }?.description ?: ""
                 )

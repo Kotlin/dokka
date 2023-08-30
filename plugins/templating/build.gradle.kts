@@ -19,9 +19,10 @@ dependencies {
     implementation(kotlin("reflect"))
     implementation(libs.kotlinx.coroutines.core)
 
+    testImplementation(kotlin("test"))
+    testImplementation(libs.junit.jupiterParams)
+
     testImplementation(projects.plugins.base.baseTestUtils)
     testImplementation(projects.core.testApi)
-    testImplementation(platform(libs.junit.bom))
-    testImplementation(libs.junit.jupiter)
     testImplementation(libs.kotlinx.html)
 }

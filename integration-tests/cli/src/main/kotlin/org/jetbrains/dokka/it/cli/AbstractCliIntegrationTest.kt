@@ -8,11 +8,11 @@ import kotlin.test.assertTrue
 abstract class AbstractCliIntegrationTest : AbstractIntegrationTest() {
 
     protected val cliJarFile: File by lazy {
-        File(temporaryTestFolder.root, "dokka.jar")
+        File(tempFolder, "dokka.jar")
     }
 
     protected val basePluginJarFile: File by lazy {
-        File(temporaryTestFolder.root, "base-plugin.jar")
+        File(tempFolder, "base-plugin.jar")
     }
 
     @BeforeTest

@@ -11,10 +11,9 @@ dependencies {
     implementation(projects.subprojects.analysisMarkdownJb)
     implementation(projects.subprojects.analysisJavaPsi)
 
+    testImplementation(kotlin("test"))
     testImplementation(projects.core.contentMatcherTestUtils)
     testImplementation(projects.core.testApi)
-    testImplementation(platform(libs.junit.bom))
-    testImplementation(libs.junit.jupiter)
 
     // TODO [beresnev] get rid of it
     compileOnly(libs.kotlinx.coroutines.core)

@@ -17,8 +17,8 @@ dependencies {
         }
     }
 
+    testImplementation(kotlin("test"))
     testImplementation(projects.core.testApi)
-    testImplementation(kotlin("test-junit"))
 }
 
 tasks {

@@ -10,9 +10,9 @@ import org.jetbrains.dokka.links.DRIExtraContainer
 import org.jetbrains.dokka.links.EnumEntryDRIExtra
 import org.jetbrains.dokka.links.PointingToDeclaration
 import org.jetbrains.dokka.plugability.DokkaContext
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Test
 import java.net.URL
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class JavadocExternalLocationProviderTest : BaseAbstractTest() {
     private val testDataDir =

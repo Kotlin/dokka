@@ -4,10 +4,11 @@ import org.jetbrains.dokka.DokkaSourceSetID
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.gfm.renderer.CommonmarkRenderer
 import org.jetbrains.dokka.pages.TextStyle
-import org.junit.jupiter.api.Test
 import renderers.testPage
 import testApi.testRunner.defaultSourceSet
 import java.io.File
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class SourceSetDependentHintTest : GfmRenderingOnlyTestBase() {
 
@@ -45,7 +46,7 @@ class SourceSetDependentHintTest : GfmRenderingOnlyTestBase() {
                         |abc""".trimMargin()
 
         CommonmarkRenderer(context).render(page)
-        assert(renderedContent == expect)
+        assertEquals(expect, renderedContent)
     }
 
     @Test
@@ -69,7 +70,7 @@ class SourceSetDependentHintTest : GfmRenderingOnlyTestBase() {
                         |c""".trimMargin()
 
         CommonmarkRenderer(context).render(page)
-        assert(renderedContent == expect)
+        assertEquals(expect, renderedContent)
     }
 
     @Test
@@ -90,7 +91,7 @@ class SourceSetDependentHintTest : GfmRenderingOnlyTestBase() {
                         |bc""".trimMargin()
 
         CommonmarkRenderer(context).render(page)
-        assert(renderedContent == expect)
+        assertEquals(expect, renderedContent)
     }
 
     @Test
@@ -108,7 +109,7 @@ class SourceSetDependentHintTest : GfmRenderingOnlyTestBase() {
                         |ab""".trimMargin()
 
         CommonmarkRenderer(context).render(page)
-        assert(renderedContent == expect)
+        assertEquals(expect, renderedContent)
     }
 
     @Test
@@ -133,7 +134,7 @@ class SourceSetDependentHintTest : GfmRenderingOnlyTestBase() {
                         |b""".trimMargin()
 
         CommonmarkRenderer(context).render(page)
-        assert(renderedContent == expect)
+        assertEquals(expect, renderedContent)
     }
 
     @Test
@@ -153,7 +154,7 @@ class SourceSetDependentHintTest : GfmRenderingOnlyTestBase() {
                         |ab""".trimMargin()
 
         CommonmarkRenderer(context).render(page)
-        assert(renderedContent == expect)
+        assertEquals(expect, renderedContent)
     }
 
     @Test
@@ -174,6 +175,6 @@ class SourceSetDependentHintTest : GfmRenderingOnlyTestBase() {
                         |b""".trimMargin()
 
         CommonmarkRenderer(context).render(page)
-        assert(renderedContent == expect)
+        assertEquals(expect, renderedContent)
     }
 }

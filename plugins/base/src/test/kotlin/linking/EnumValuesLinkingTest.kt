@@ -8,12 +8,12 @@ import org.jetbrains.dokka.model.doc.DocumentationLink
 import org.jetbrains.dokka.pages.ContentDRILink
 import org.jetbrains.dokka.pages.ContentPage
 import org.jsoup.Jsoup
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNotNull
-import org.junit.jupiter.api.Test
-import utils.OnlyDescriptors
 import utils.TestOutputWriterPlugin
 import java.nio.file.Paths
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import utils.OnlyDescriptors
 
 class EnumValuesLinkingTest : BaseAbstractTest() {
 

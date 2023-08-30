@@ -6,8 +6,11 @@ import org.jetbrains.dokka.PluginConfigurationImpl
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.model.DisplaySourceSet
-import org.junit.jupiter.api.Test
-import utils.*
+import utils.ParamAttributes
+import utils.bareSignature
+import utils.findTestType
+import utils.OnlyDescriptors
+import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class ContentForExceptions : BaseAbstractTest() {

@@ -4,7 +4,7 @@ import kotlinx.html.body
 import kotlinx.html.html
 import kotlinx.html.stream.createHTML
 import org.jetbrains.dokka.base.renderers.html.buildBreakableText
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class FormattingUtilsTest {

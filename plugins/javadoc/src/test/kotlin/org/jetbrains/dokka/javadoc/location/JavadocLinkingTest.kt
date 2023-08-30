@@ -7,8 +7,8 @@ import org.jetbrains.dokka.kotlinStdlib
 import org.jetbrains.dokka.model.doc.DocumentationLink
 import org.jetbrains.dokka.model.doc.Text
 import org.jetbrains.dokka.utilities.cast
-import org.junit.jupiter.api.Test
 import utils.TestOutputWriterPlugin
+import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class JavadocLinkingTest : BaseAbstractTest() {

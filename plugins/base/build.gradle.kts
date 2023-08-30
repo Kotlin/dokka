@@ -27,6 +27,9 @@ dependencies {
     }
 
     // Test only
+    testImplementation(kotlin("test"))
+    testImplementation(libs.junit.jupiterParams)
+
     symbolsTestConfiguration(project(path = ":subprojects:analysis-kotlin-symbols", configuration = "shadow"))
     descriptorsTestConfiguration(project(path = ":subprojects:analysis-kotlin-descriptors", configuration = "shadow"))
     testImplementation(projects.plugins.base.baseTestUtils) {
@@ -34,19 +37,11 @@ dependencies {
     }
     testImplementation(projects.core.contentMatcherTestUtils)
     testImplementation(projects.core.testApi)
-    testImplementation(platform(libs.junit.bom))
-    testImplementation(libs.junit.jupiter)
 
     dokkaHtmlFrontendFiles(projects.plugins.base.frontend) {
         because("fetch frontend files from subproject :plugins:base:frontend")
     }
 }
-
-
-
-
-
-
 
 // access the frontend files via the dependency on :plugins:base:frontend
 val dokkaHtmlFrontendFiles: Provider<FileCollection> =
