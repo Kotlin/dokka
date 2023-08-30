@@ -6,5 +6,5 @@ dependencies {
     implementation(projects.core.testApi)
 
     implementation(kotlin("reflect"))
-    implementation(libs.assertk)
+    implementation(kotlin("test"))
 }

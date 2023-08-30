@@ -1,15 +1,15 @@
 package translators
 
+import org.jetbrains.dokka.analysis.kotlin.internal.ExternalDocumentablesProvider
+import org.jetbrains.dokka.analysis.kotlin.internal.InternalKotlinAnalysisPlugin
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.model.DClass
 import org.jetbrains.dokka.model.DInterface
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.utilities.cast
-import org.jetbrains.dokka.analysis.kotlin.internal.ExternalDocumentablesProvider
-import org.jetbrains.dokka.analysis.kotlin.internal.InternalKotlinAnalysisPlugin
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
+import kotlin.test.assertEquals
 import utils.OnlyDescriptors
 import utils.UsingJDK
 

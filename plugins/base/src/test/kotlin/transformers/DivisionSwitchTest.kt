@@ -9,7 +9,7 @@ import org.jetbrains.dokka.pages.ClasslikePageNode
 import org.jetbrains.dokka.pages.ContentHeader
 import org.jetbrains.dokka.pages.ContentNode
 import org.jetbrains.dokka.pages.ContentText
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 

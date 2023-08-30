@@ -14,12 +14,12 @@ import org.jetbrains.dokka.plugability.PluginApiPreviewAcknowledgement
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 import org.jsoup.Jsoup
 import org.jsoup.nodes.TextNode
-import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 import utils.TestOutputWriterPlugin
 import utils.assertContains
 import java.io.File
+import kotlin.test.Test
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -79,10 +79,10 @@ class ResourceLinksTest : BaseAbstractTest() {
                     .select("link, script")
                     .let {
                         absoluteResources.forEach { r ->
-                            assert(it.`is`("[href=$r], [src=$r]"))
+                            assertTrue(it.`is`("[href=$r], [src=$r]"))
                         }
                         relativeResources.forEach { r ->
-                            assert(it.`is`("[href=../$r] , [src=../$r]"))
+                            assertTrue(it.`is`("[href=../$r] , [src=../$r]"))
                         }
                     }
             }
@@ -139,7 +139,7 @@ class ResourceLinksTest : BaseAbstractTest() {
                             .select("link, script")
                             .let {
                                 listOf("styles/customStyle.css").forEach { r ->
-                                    assert(it.`is`("[href=$TEMPLATE_REPLACEMENT$r]"))
+                                    assertTrue(it.`is`("[href=$TEMPLATE_REPLACEMENT$r]"))
                                 }
                             }
                     } else {
@@ -149,7 +149,7 @@ class ResourceLinksTest : BaseAbstractTest() {
                             .select("link, script")
                             .let {
                                 listOf("styles/customStyle.css").forEach { r ->
-                                    assert(it.`is`("[href=../$r], [src=../$r]"))
+                                    assertTrue(it.`is`("[href=../$r], [src=../$r]"))
                                 }
                             }
                     }
@@ -198,10 +198,10 @@ class ResourceLinksTest : BaseAbstractTest() {
                         .select("link, script")
                         .let {
                             absoluteResources.forEach { r ->
-                                assert(it.`is`("[href=$r], [src=$r]"))
+                                assertTrue(it.`is`("[href=$r], [src=$r]"))
                             }
                             relativeResources.forEach { r ->
-                                assert(it.`is`("[href=../$r] , [src=../$r]"))
+                                assertTrue(it.`is`("[href=../$r] , [src=../$r]"))
                             }
                         }
                 }

@@ -3,11 +3,11 @@ package kotlinAsJavaPlugin
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.jdk
-import org.junit.jupiter.api.Test
 import signatures.firstSignature
 import signatures.renderedContent
 import signatures.signature
 import utils.*
+import kotlin.test.Test
 
 class KotlinAsJavaSignatureTest : BaseAbstractTest() {
 

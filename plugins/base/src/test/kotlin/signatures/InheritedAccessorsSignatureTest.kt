@@ -2,8 +2,13 @@ package signatures
 
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
-import org.junit.jupiter.api.Test
-import utils.*
+import utils.A
+import utils.Span
+import utils.TestOutputWriterPlugin
+import utils.match
+import utils.JavaCode
+import utils.OnlyDescriptors
+import kotlin.test.Test
 import kotlin.test.assertEquals
 
 @JavaCode

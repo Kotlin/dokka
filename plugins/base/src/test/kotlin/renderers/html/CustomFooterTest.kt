@@ -9,12 +9,12 @@ import org.jetbrains.dokka.base.renderers.html.HtmlRenderer
 import org.jetbrains.dokka.base.templating.toJsonString
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
-import org.junit.jupiter.api.Test
 import renderers.testPage
 import utils.A
 import utils.Div
 import utils.Span
 import utils.match
+import kotlin.test.Test
 
 class CustomFooterTest : HtmlRenderingOnlyTestBase() {
     @Test

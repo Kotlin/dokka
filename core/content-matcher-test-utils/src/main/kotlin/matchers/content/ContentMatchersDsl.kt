@@ -1,12 +1,11 @@
 package matchers.content
 
-import assertk.assertThat
-import assertk.assertions.contains
-import assertk.assertions.isEqualTo
 import org.jetbrains.dokka.model.withDescendants
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.test.tools.matchers.content.*
 import kotlin.reflect.KClass
+import kotlin.test.assertEquals
+import kotlin.test.asserter
 
 // entry point:
 fun ContentNode.assertNode(block: ContentMatcherBuilder<ContentComposite>.() -> Unit) {
@@ -48,7 +47,7 @@ private val ContentComposite.extractedText
 
 fun <T : ContentComposite> ContentMatcherBuilder<T>.hasExactText(expected: String) {
     assertions += {
-        assertThat(this::extractedText).isEqualTo(expected)
+        assertEquals(expected, this.extractedText)
     }
 }
 
@@ -74,7 +73,7 @@ fun ContentMatcherBuilder<*>.tabbedGroup(
     block: ContentMatcherBuilder<ContentGroup>.() -> Unit
 ) = composite<ContentGroup> {
     block()
-    check { assertThat(this::style).transform { style -> style.contains(ContentStyle.TabbedContent) }.isEqualTo(true) }
+    check { assertContains(this.style, ContentStyle.TabbedContent) }
 }
 
 fun ContentMatcherBuilder<*>.tab(
@@ -82,21 +81,20 @@ fun ContentMatcherBuilder<*>.tab(
 ) = composite<ContentGroup> {
     block()
     check {
-        assertThat(this::extra).transform { extra -> extra[TabbedContentTypeExtra]?.value }
-            .isEqualTo(tabbedContentType)
+        assertEquals(tabbedContentType, this.extra[TabbedContentTypeExtra]?.value)
     }
 }
 
 fun ContentMatcherBuilder<*>.header(expectedLevel: Int? = null, block: ContentMatcherBuilder<ContentHeader>.() -> Unit) =
     composite<ContentHeader> {
         block()
-        check { if (expectedLevel != null) assertThat(this::level).isEqualTo(expectedLevel) }
+        check { if (expectedLevel != null) assertEquals(expectedLevel, this.level) }
     }
 
 fun ContentMatcherBuilder<*>.p(block: ContentMatcherBuilder<ContentGroup>.() -> Unit) =
     composite<ContentGroup> {
         block()
-        check { assertThat(this::style).contains(TextStyle.Paragraph) }
+        check { assertContains(this.style, TextStyle.Paragraph) }
     }
 
 fun ContentMatcherBuilder<*>.link(block: ContentMatcherBuilder<ContentLink>.() -> Unit) = composite(block)
@@ -114,7 +112,7 @@ fun ContentMatcherBuilder<*>.codeInline(block: ContentMatcherBuilder<ContentCode
 
 fun ContentMatcherBuilder<*>.caption(block: ContentMatcherBuilder<ContentGroup>.() -> Unit) = composite<ContentGroup> {
     block()
-    check { assertThat(this::style).contains(ContentStyle.Caption) }
+    check { assertContains(this.style, ContentStyle.Caption) }
 }
 
 fun ContentMatcherBuilder<*>.br() = node<ContentBreakLine>()
@@ -139,3 +137,13 @@ fun ContentMatcherBuilder<ContentDivergentInstance>.divergent(block: ContentMatc
 
 fun ContentMatcherBuilder<ContentDivergentInstance>.after(block: ContentMatcherBuilder<ContentComposite>.() -> Unit) =
     composite(block)
+
+/*
+ * TODO replace with kotlin.test.assertContains after migrating to Kotlin language version 1.5+
+ */
+private fun <T> assertContains(iterable: Iterable<T>, element: T) {
+    asserter.assertTrue(
+        { "Expected the collection to contain the element.\nCollection <$iterable>, element <$element>." },
+        iterable.contains(element)
+    )
+}

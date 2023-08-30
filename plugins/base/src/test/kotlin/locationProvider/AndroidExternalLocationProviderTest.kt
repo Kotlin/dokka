@@ -10,9 +10,9 @@ import org.jetbrains.dokka.links.Callable
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.TypeConstructor
 import org.jetbrains.dokka.plugability.DokkaContext
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Test
 import java.net.URL
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class AndroidExternalLocationProviderTest : BaseAbstractTest() {
     private val android = ExternalDocumentation(

@@ -8,7 +8,6 @@ plugins {
 dependencies {
     api(projects.core)
 
-    implementation("junit:junit:4.13.2") // TODO: remove dependency to junit
     implementation(kotlin("reflect"))
 }
 

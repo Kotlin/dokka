@@ -8,11 +8,12 @@ import org.jetbrains.dokka.model.Documentable
 import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.jetbrains.dokka.pages.ContentPage
 import org.jetbrains.dokka.pages.ContentStyle
-import org.junit.jupiter.api.Test
-import utils.JavaCode
 import utils.pWrapped
+import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+import utils.JavaCode
 
 @JavaCode
 class JavaDeprecatedTest : BaseAbstractTest() {
@@ -48,7 +49,7 @@ class JavaDeprecatedTest : BaseAbstractTest() {
                 assertTrue(isDeprecated)
 
                 val deprecatedAnnotation = (deprecatedClass as WithExtraProperties<out Documentable>).deprecatedAnnotation
-                checkNotNull(deprecatedAnnotation)
+                assertNotNull(deprecatedAnnotation)
 
                 assertTrue(deprecatedAnnotation.isDeprecated())
                 assertEquals("java.lang", deprecatedAnnotation.dri.packageName)

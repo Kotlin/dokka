@@ -9,15 +9,12 @@ import org.jetbrains.dokka.model.dfs
 import org.jetbrains.dokka.model.doc.CustomTagWrapper
 import org.jetbrains.dokka.model.doc.Text
 import org.jetbrains.dokka.pages.ContentPage
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import signatures.AbstractRenderingTest
 import utils.ParamAttributes
 import utils.TestOutputWriterPlugin
 import utils.assertNotNull
 import utils.bareSignature
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 
 class SinceKotlinTest : AbstractRenderingTest() {
@@ -31,23 +28,23 @@ class SinceKotlinTest : AbstractRenderingTest() {
         }
     }
 
-    @BeforeEach
+    @BeforeTest
     fun setSystemProperty() {
         System.setProperty(SinceKotlinTransformer.SHOULD_DISPLAY_SINCE_KOTLIN_SYS_PROP, "true")
     }
-    @AfterEach
+    @AfterTest
     fun clearSystemProperty() {
         System.clearProperty(SinceKotlinTransformer.SHOULD_DISPLAY_SINCE_KOTLIN_SYS_PROP)
     }
 
     @Test
     fun versionsComparing() {
-        assert(SinceKotlinVersion("1.0").compareTo(SinceKotlinVersion("1.0")) == 0)
-        assert(SinceKotlinVersion("1.0.0").compareTo(SinceKotlinVersion("1")) == 0)
-        assert(SinceKotlinVersion("1.0") >= SinceKotlinVersion("1.0"))
-        assert(SinceKotlinVersion("1.1") > SinceKotlinVersion("1"))
-        assert(SinceKotlinVersion("1.0") < SinceKotlinVersion("2.0"))
-        assert(SinceKotlinVersion("1.0") < SinceKotlinVersion("2.2"))
+        assertTrue(SinceKotlinVersion("1.0").compareTo(SinceKotlinVersion("1.0")) == 0)
+        assertTrue(SinceKotlinVersion("1.0.0").compareTo(SinceKotlinVersion("1")) == 0)
+        assertTrue(SinceKotlinVersion("1.0") >= SinceKotlinVersion("1.0"))
+        assertTrue(SinceKotlinVersion("1.1") > SinceKotlinVersion("1"))
+        assertTrue(SinceKotlinVersion("1.0") < SinceKotlinVersion("2.0"))
+        assertTrue(SinceKotlinVersion("1.0") < SinceKotlinVersion("2.2"))
     }
 
     @Test
@@ -77,7 +74,7 @@ class SinceKotlinTest : AbstractRenderingTest() {
         ) {
             renderingStage = { _, _ ->
                 val content = writerPlugin.renderedContent("root/test/index.html")
-                assert(content.getElementsContainingOwnText("Since Kotlin").count() == 4)
+                assertEquals(4, content.getElementsContainingOwnText("Since Kotlin").count())
             }
         }
     }

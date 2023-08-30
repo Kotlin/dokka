@@ -2,10 +2,12 @@ package org.jetbrains.dokka.it.gradle
 
 import org.gradle.util.GradleVersion
 import java.io.File
-import kotlin.test.*
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
-abstract class AbstractGradleCachingIntegrationTest(override val versions: BuildVersions): AbstractGradleIntegrationTest() {
-    fun setupProject(project: File) {
+abstract class AbstractGradleCachingIntegrationTest : AbstractGradleIntegrationTest() {
+
+    fun setupProject(buildVersions: BuildVersions, project: File) {
         val templateProjectDir = File("projects", "it-basic")
         project.mkdirs()
         templateProjectDir.listFiles().orEmpty()
@@ -22,7 +24,7 @@ abstract class AbstractGradleCachingIntegrationTest(override val versions: Build
         }
 
         // clean local cache for each test
-        if (versions.gradleVersion >= GradleVersion.version("7.0")) {
+        if (buildVersions.gradleVersion >= GradleVersion.version("7.0")) {
             //Gradle 7.0 removed the old syntax
             project.toPath().resolve("settings.gradle.kts").toFile().appendText(
                 """

@@ -1,17 +1,15 @@
 package org.jetbrains.dokka.it.gradle
 
 import org.gradle.testkit.runner.TaskOutcome
-import org.junit.runners.Parameterized
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ArgumentsSource
 import java.io.File
-import kotlin.test.*
+import kotlin.test.BeforeTest
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
-class Multiplatform0GradleIntegrationTest(override val versions: BuildVersions) : AbstractGradleIntegrationTest() {
-
-    companion object {
-        @get:JvmStatic
-        @get:Parameterized.Parameters(name = "{0}")
-        val versions = TestedVersions.ALL_SUPPORTED
-    }
+class Multiplatform0GradleIntegrationTest : AbstractGradleIntegrationTest() {
 
     @BeforeTest
     fun prepareProjectFiles() {
@@ -22,9 +20,10 @@ class Multiplatform0GradleIntegrationTest(override val versions: BuildVersions) 
         File(templateProjectDir, "src").copyRecursively(File(projectDir, "src"))
     }
 
-    @Test
-    fun execute() {
-        val result = createGradleRunner("dokkaHtml", "-i", "-s").buildRelaxed()
+    @ParameterizedTest(name = "{0}")
+    @ArgumentsSource(AllSupportedTestedVersionsArgumentsProvider::class)
+    fun execute(buildVersions: BuildVersions) {
+        val result = createGradleRunner(buildVersions, "dokkaHtml", "-i", "-s").buildRelaxed()
 
         assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":dokkaHtml")).outcome)
 

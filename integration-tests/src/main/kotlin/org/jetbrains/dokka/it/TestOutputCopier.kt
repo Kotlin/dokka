@@ -1,12 +1,12 @@
 package org.jetbrains.dokka.it
 
-import org.junit.After
 import java.io.File
+import kotlin.test.AfterTest
 
 interface TestOutputCopier {
     val projectOutputLocation: File
 
-    @After
+    @AfterTest
     fun copyToLocation() {
         System.getenv("DOKKA_TEST_OUTPUT_PATH")?.also { location ->
             println("Copying to ${File(location).absolutePath}")

@@ -4,8 +4,8 @@ package kotlinAsJavaPlugin
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.model.DClass
 import org.jetbrains.dokka.model.DEnum
-import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
+import kotlin.test.assertTrue
 
 class DRITranslationTest : BaseAbstractTest() {
     val configuration = dokkaConfiguration {

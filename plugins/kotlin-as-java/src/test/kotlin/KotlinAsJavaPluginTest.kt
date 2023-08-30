@@ -9,9 +9,6 @@ import org.jetbrains.dokka.model.Annotations
 import org.jetbrains.dokka.model.GenericTypeConstructor
 import org.jetbrains.dokka.model.dfs
 import org.jetbrains.dokka.pages.*
-import org.junit.Assert
-import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.Test
 import signatures.Parameter
 import signatures.Parameters
 import signatures.firstSignature
@@ -19,8 +16,7 @@ import signatures.renderedContent
 import utils.A
 import utils.TestOutputWriterPlugin
 import utils.match
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
+import kotlin.test.*
 
 class KotlinAsJavaPluginTest : BaseAbstractTest() {
 
@@ -141,21 +137,22 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
                 classes["TestKt"].let {
                     it?.children.orEmpty().assertCount(1, "(Kotlin) TestKt members: ")
                     it!!.children.first()
-                        .let { assert(it.name == "testF") { "(Kotlin) Expected method name: testF, got: ${it.name}" } }
+                        .let { assertEquals("testF", it.name, "(Kotlin) Expected method name: testF, got: ${it.name}") }
                 }
 
                 classes["TestJ"].let {
                     it?.children.orEmpty().assertCount(2, "(Java) TestJ members: ") // constructor + method
                     it!!.children.map { it.name }
                         .let {
-                            assert(
+                            assertTrue(
                                 it.containsAll(
                                     setOf(
                                         "testF",
                                         "TestJ"
                                     )
-                                )
-                            ) { "(Java) Expected method name: testF, got: $it" }
+                                ),
+                                "(Java) Expected method name: testF, got: $it"
+                            )
                         }
                 }
             }
@@ -185,8 +182,8 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
         ) {
             pagesTransformationStage = { rootPageNode ->
                 val propertyGetter = rootPageNode.dfs { it is MemberPageNode && it.name == "getPublicProperty" } as? MemberPageNode
-                assert(propertyGetter != null)
-                propertyGetter!!.content.assertNode {
+                assertNotNull(propertyGetter)
+                propertyGetter.content.assertNode {
                     group {
                         header(1) {
                             +"getPublicProperty"
@@ -238,8 +235,8 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
         ) {
             pagesGenerationStage = { root ->
                 val testClass = root.dfs { it.name == "TestJ" } as? ClasslikePageNode
-                assert(testClass != null)
-                (testClass!!.content as ContentGroup).children.last().children.last().assertNode {
+                assertNotNull(testClass)
+                (testClass.content as ContentGroup).children.last().children.last().assertNode {
                     group {
                         header(2){
                             +"Properties"
@@ -294,8 +291,8 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
         ) {
             pagesGenerationStage = { root ->
                 val testClass = root.dfs { it.name == "C" } as? ClasslikePageNode
-                assert(testClass != null)
-                testClass!!.content.assertNode {
+                assertNotNull(testClass)
+                testClass.content.assertNode {
                     group {
                         header(expectedLevel = 1) {
                             +"C"
@@ -328,7 +325,7 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
     }
 
     private fun <T> Collection<T>.assertCount(n: Int, prefix: String = "") =
-        assert(count() == n) { "${prefix}Expected $n, got ${count()}" }
+        assertEquals(n, count(), "${prefix}Expected $n, got ${count()}")
 
     @Test
     fun `typealias`() {
@@ -430,7 +427,7 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
             cleanupOutput = true
         ) {
             renderingStage = { _, _ ->
-                Assert.assertNull(writerPlugin.writer.contents["root/kotlinAsJavaPlugin/-test-kt/get-f-i-r-s-t.html"])
+                assertNull(writerPlugin.writer.contents["root/kotlinAsJavaPlugin/-test-kt/get-f-i-r-s-t.html"])
             }
         }
     }
@@ -553,12 +550,12 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
                     .classlikes.first { it.name == "TestKt" }
                     .functions.single()
                     .type as GenericTypeConstructor
-                Assertions.assertEquals(
+                assertEquals(
                     Annotations.Annotation(DRI("kotlinAsJavaPlugin", "Hello"), emptyMap()),
                     type.extra[Annotations]?.directAnnotations?.values?.single()?.single()
                 )
                 // A bug; the GenericTypeConstructor cast should fail and this should be a PrimitiveJavaType
-                Assertions.assertEquals("java.lang/Integer///PointingToDeclaration/", type.dri.toString())
+                assertEquals("java.lang/Integer///PointingToDeclaration/", type.dri.toString())
             }
         }
     }

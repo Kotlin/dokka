@@ -11,7 +11,7 @@ dependencies {
     implementation(projects.core)
     implementation(libs.kotlinx.cli)
 
-    testImplementation(kotlin("test-junit"))
+    testImplementation(kotlin("test"))
 }
 
 tasks {

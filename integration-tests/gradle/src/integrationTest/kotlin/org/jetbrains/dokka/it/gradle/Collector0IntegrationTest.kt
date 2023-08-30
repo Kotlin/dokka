@@ -1,16 +1,15 @@
 package org.jetbrains.dokka.it.gradle
 
 import org.gradle.testkit.runner.TaskOutcome
-import org.junit.runners.Parameterized
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ArgumentsSource
 import java.io.File
-import kotlin.test.*
+import kotlin.test.BeforeTest
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
-class Collector0IntegrationTest(override val versions: BuildVersions) : AbstractGradleIntegrationTest() {
-    companion object {
-        @get:JvmStatic
-        @get:Parameterized.Parameters(name = "{0}")
-        val versions = TestedVersions.ALL_SUPPORTED
-    }
+class Collector0IntegrationTest : AbstractGradleIntegrationTest() {
 
     @BeforeTest
     fun prepareProjectFiles() {
@@ -21,9 +20,11 @@ class Collector0IntegrationTest(override val versions: BuildVersions) : Abstract
         File(templateProjectDir, "moduleA").copyRecursively(File(projectDir, "moduleA"))
     }
 
-    @Test
-    fun execute() {
+    @ParameterizedTest(name = "{0}")
+    @ArgumentsSource(AllSupportedTestedVersionsArgumentsProvider::class)
+    fun execute(buildVersions: BuildVersions) {
         val result = createGradleRunner(
+            buildVersions,
             ":moduleA:dokkaHtmlCollector",
             ":moduleA:dokkaJavadocCollector",
             ":moduleA:dokkaGfmCollector",

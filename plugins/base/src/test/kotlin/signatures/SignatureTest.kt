@@ -5,9 +5,11 @@ import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.model.DFunction
 import org.jetbrains.dokka.model.DefinitelyNonNullable
 import org.jetbrains.dokka.model.dfs
-import org.junit.jupiter.api.Test
 import utils.*
+import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
+
 class SignatureTest : BaseAbstractTest() {
     private val configuration = dokkaConfiguration {
         sourceSets {
@@ -204,8 +206,8 @@ class SignatureTest : BaseAbstractTest() {
             documentablesTransformationStage = {
                 val fn = (it.dfs { it.name == "elvisLike" } as? DFunction).assertNotNull("Function elvisLike")
 
-                assert(fn.type is DefinitelyNonNullable)
-                assert(fn.parameters[1].type is DefinitelyNonNullable)
+                assertTrue(fn.type is DefinitelyNonNullable)
+                assertTrue(fn.parameters[1].type is DefinitelyNonNullable)
             }
             renderingStage = { _, _ ->
                 val signature = writerPlugin.writer.renderedContent("root/example/elvis-like.html")

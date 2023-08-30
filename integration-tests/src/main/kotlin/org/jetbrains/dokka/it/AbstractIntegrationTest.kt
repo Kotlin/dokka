@@ -1,10 +1,7 @@
 package org.jetbrains.dokka.it
 
 import org.jsoup.Jsoup
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
+import org.junit.jupiter.api.io.TempDir
 import java.io.File
 import java.net.URL
 import kotlin.test.assertEquals
@@ -12,13 +9,12 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-@RunWith(JUnit4::class)
 abstract class AbstractIntegrationTest {
 
-    @get:Rule
-    val temporaryTestFolder = TemporaryFolder()
+    @field:TempDir
+    lateinit var tempFolder: File
 
-    val projectDir get() = File(temporaryTestFolder.root, "project")
+    val projectDir get() = File(tempFolder, "project")
 
     fun File.allDescendentsWithExtension(extension: String): Sequence<File> =
         this.walkTopDown().filter { it.isFile && it.extension == extension }

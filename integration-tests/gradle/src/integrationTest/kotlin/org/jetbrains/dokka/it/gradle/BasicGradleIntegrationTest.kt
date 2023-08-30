@@ -1,17 +1,15 @@
 package org.jetbrains.dokka.it.gradle
 
 import org.gradle.testkit.runner.TaskOutcome
-import org.junit.runners.Parameterized.Parameters
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ArgumentsSource
 import java.io.File
-import kotlin.test.*
+import kotlin.test.BeforeTest
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
-class BasicGradleIntegrationTest(override val versions: BuildVersions) : AbstractGradleIntegrationTest() {
-
-    companion object {
-        @get:JvmStatic
-        @get:Parameters(name = "{0}")
-        val versions = TestedVersions.ALL_SUPPORTED
-    }
+class BasicGradleIntegrationTest : AbstractGradleIntegrationTest() {
 
     @BeforeTest
     fun prepareProjectFiles() {
@@ -32,14 +30,16 @@ class BasicGradleIntegrationTest(override val versions: BuildVersions) : Abstrac
         }
     }
 
-    @Test
-    fun execute() {
-        runAndAssertOutcome(TaskOutcome.SUCCESS)
-        runAndAssertOutcome(TaskOutcome.UP_TO_DATE)
+    @ParameterizedTest(name = "{0}")
+    @ArgumentsSource(AllSupportedTestedVersionsArgumentsProvider::class)
+    fun execute(buildVersions: BuildVersions) {
+        runAndAssertOutcome(buildVersions, TaskOutcome.SUCCESS)
+        runAndAssertOutcome(buildVersions, TaskOutcome.UP_TO_DATE)
     }
 
-    private fun runAndAssertOutcome(expectedOutcome: TaskOutcome) {
+    private fun runAndAssertOutcome(buildVersions: BuildVersions, expectedOutcome: TaskOutcome) {
         val result = createGradleRunner(
+            buildVersions,
             "dokkaHtml",
             "dokkaJavadoc",
             "dokkaGfm",
