@@ -6,7 +6,6 @@ import org.jetbrains.dokka.gradle.isAndroidTarget
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.plugin.mpp.AbstractKotlinNativeCompilation
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompileTool
 
 internal fun Project.classpathOf(sourceSet: KotlinSourceSet): FileCollection {
     val compilations = compilationsOf(sourceSet)
@@ -39,8 +38,20 @@ private fun KotlinCompilation.compileClasspathOf(project: Project): FileCollecti
 }
 
 private fun KotlinCompilation.newCompileClasspathOf(project: Project): FileCollection {
-    val compilationClasspath = (compileTaskProvider.get() as? KotlinCompileTool)?.libraries ?: project.files()
-    return compilationClasspath + platformDependencyFiles(project)
+    val result = project.objects.fileCollection()
+    result.from({ compileDependencyFiles })
+
+    val kgpVersion = project.getKgpVersion()
+    // Since Kotlin 2.0 native distributiuon dependencies will be included to compileDependencyFiles
+    if (kgpVersion != null && kgpVersion <= KotlinGradlePluginVersion(1, 9, 255)) {
+        if (this is AbstractKotlinNativeCompilation) {
+            val kotlinNativeDistributionAccessor = KotlinNativeDistributionAccessor(project)
+            result.from(kotlinNativeDistributionAccessor.stdlibDir)
+            result.from(kotlinNativeDistributionAccessor.platformDependencies(konanTarget))
+        }
+    }
+
+    return result
 }
 
 private fun KotlinCompilation.oldCompileClasspathOf(project: Project): FileCollection {
