@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 import Select from '@jetbrains/ring-ui/components/select/select';
 import {Option, OptionWithHighlightComponent, OptionWithSearchResult} from "./types";
 import fuzzyHighlight from '@jetbrains/ring-ui/components/global/fuzzy-highlight.js'

@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 import React, {useCallback, useEffect, useState} from 'react';
 import List from '@jetbrains/ring-ui/components/list/list';
 import Select from '@jetbrains/ring-ui/components/select/select';
