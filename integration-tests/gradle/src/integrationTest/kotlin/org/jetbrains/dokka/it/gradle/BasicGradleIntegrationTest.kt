@@ -134,12 +134,13 @@ class BasicGradleIntegrationTest : AbstractGradleIntegrationTest() {
             "Anchors should not have hashes inside"
         )
 
-        assertContains(
-            stylesDir.resolve("logo-styles.css").readText(),
-            "--dokka-logo-image-url: url('https://upload.wikimedia.org/wikipedia/commons/9/9d/Ubuntu_logo.svg');",
+        assertTrue(
+            stylesDir.resolve("logo-styles.css").readText().contains(
+                "--dokka-logo-image-url: url('https://upload.wikimedia.org/wikipedia/commons/9/9d/Ubuntu_logo.svg');",
+            )
         )
         assertTrue(stylesDir.resolve("custom-style-to-add.css").isFile)
-        assertContains(stylesDir.resolve("custom-style-to-add.css").readText(), "/* custom stylesheet */")
+        assertTrue(stylesDir.resolve("custom-style-to-add.css").readText().contains("/* custom stylesheet */"))
         allHtmlFiles().forEach { file ->
             if (file.name != "navigation.html") assertTrue(
                 "custom-style-to-add.css" in file.readText(),
