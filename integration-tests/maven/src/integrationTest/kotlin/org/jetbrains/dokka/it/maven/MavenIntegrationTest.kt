@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.it.maven
 
 import org.jetbrains.dokka.it.AbstractIntegrationTest
@@ -56,15 +60,15 @@ class MavenIntegrationTest : AbstractIntegrationTest() {
             assertNoEmptySpans(file)
         }
 
-        assertEquals(
-            """#logo{background-image:url('https://upload.wikimedia.org/wikipedia/commons/9/9d/Ubuntu_logo.svg');}""",
-            stylesDir.resolve("logo-styles.css").readText().replace("\\s".toRegex(), ""),
+        assertContains(
+            stylesDir.resolve("logo-styles.css").readText(),
+            "--dokka-logo-image-url: url('https://upload.wikimedia.org/wikipedia/commons/9/9d/Ubuntu_logo.svg');",
         )
         assertTrue(stylesDir.resolve("custom-style-to-add.css").isFile)
         projectDir.allHtmlFiles().forEach { file ->
             if(file.name != "navigation.html") assertTrue("custom-style-to-add.css" in file.readText(), "custom styles not added to html file ${file.name}")
         }
-        assertEquals("""/* custom stylesheet */""", stylesDir.resolve("custom-style-to-add.css").readText())
+        assertContains(stylesDir.resolve("custom-style-to-add.css").readText(), """/* custom stylesheet */""")
         assertTrue(imagesDir.resolve("custom-resource.svg").isFile)
 
         assertConfiguredVisibility(projectDir)

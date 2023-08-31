@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 import React from "react";
 import Tooltip from '@jetbrains/ring-ui/components/tooltip/tooltip';
 import SearchIcon from 'react-svg-loader!../assets/searchIcon.svg';

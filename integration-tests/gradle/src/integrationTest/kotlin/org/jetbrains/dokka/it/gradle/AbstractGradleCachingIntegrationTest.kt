@@ -1,8 +1,12 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.it.gradle
 
 import org.gradle.util.GradleVersion
 import java.io.File
-import kotlin.test.assertEquals
+import kotlin.test.assertContains
 import kotlin.test.assertTrue
 
 abstract class AbstractGradleCachingIntegrationTest : AbstractGradleIntegrationTest() {
@@ -124,12 +128,12 @@ abstract class AbstractGradleCachingIntegrationTest : AbstractGradleIntegrationT
             "Anchors should not have hashes inside"
         )
 
-        assertEquals(
-            """#logo{background-image:url('https://upload.wikimedia.org/wikipedia/commons/9/9d/Ubuntu_logo.svg');}""",
-            stylesDir.resolve("logo-styles.css").readText().replace("\\s".toRegex(), ""),
+        assertContains(
+            stylesDir.resolve("logo-styles.css").readText(),
+            "--dokka-logo-image-url: url('https://upload.wikimedia.org/wikipedia/commons/9/9d/Ubuntu_logo.svg');",
         )
         assertTrue(stylesDir.resolve("custom-style-to-add.css").isFile)
-        assertEquals("""/* custom stylesheet */""", stylesDir.resolve("custom-style-to-add.css").readText())
+        assertContains(stylesDir.resolve("custom-style-to-add.css").readText(), "/* custom stylesheet */")
         allHtmlFiles().forEach { file ->
             if(file.name != "navigation.html") assertTrue("custom-style-to-add.css" in file.readText(), "custom styles not added to html file ${file.name}")
         }
