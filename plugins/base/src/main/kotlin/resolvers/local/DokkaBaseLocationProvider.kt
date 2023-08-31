@@ -11,7 +11,7 @@ import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.utilities.urlEncoded
 
-abstract class DokkaBaseLocationProvider(
+public abstract class DokkaBaseLocationProvider(
     pageGraphRoot: RootPageNode,
     dokkaContext: DokkaContext
 ) : DefaultLocationProvider(pageGraphRoot, dokkaContext) {
@@ -21,7 +21,7 @@ abstract class DokkaBaseLocationProvider(
      * The idea is to make them as short as possible and just use a hashCode from sourcesets in order to match the
      * 2040 characters limit
      */
-    open fun anchorForDCI(dci: DCI, sourceSets: Set<DisplaySourceSet>): String =
+    public open fun anchorForDCI(dci: DCI, sourceSets: Set<DisplaySourceSet>): String =
         (dci.dri.shortenToUrl().toString() + "/" + dci.kind + "/" + sourceSets.shortenToUrl()).urlEncoded()
 
 }

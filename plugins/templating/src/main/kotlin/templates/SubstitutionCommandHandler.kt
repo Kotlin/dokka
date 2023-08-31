@@ -15,7 +15,7 @@ import org.jsoup.nodes.Node
 import org.jsoup.nodes.TextNode
 import java.io.File
 
-class SubstitutionCommandHandler(context: DokkaContext) : CommandHandler {
+public class SubstitutionCommandHandler(context: DokkaContext) : CommandHandler {
 
     override fun handleCommandAsTag(command: Command, body: Element, input: File, output: File) {
         command as SubstitutionCommand

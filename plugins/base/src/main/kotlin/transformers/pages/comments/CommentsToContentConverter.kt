@@ -11,8 +11,8 @@ import org.jetbrains.dokka.pages.ContentNode
 import org.jetbrains.dokka.pages.DCI
 import org.jetbrains.dokka.pages.Style
 
-interface CommentsToContentConverter {
-    fun buildContent(
+public interface CommentsToContentConverter {
+    public fun buildContent(
         docTag: DocTag,
         dci: DCI,
         sourceSets: Set<DokkaSourceSet>,

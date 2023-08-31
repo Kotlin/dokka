@@ -114,7 +114,7 @@ public final class org/jetbrains/dokka/versioning/VersioningConfiguration$Compan
 	public final fun getDefaultOlderVersions ()Ljava/util/List;
 	public final fun getDefaultOlderVersionsDir ()Ljava/io/File;
 	public final fun getDefaultRenderVersionsNavigationOnAllPages ()Z
-	public final fun getDefaultVersion ()Ljava/lang/Void;
+	public final fun getDefaultVersion ()Ljava/lang/String;
 	public final fun getDefaultVersionsOrdering ()Ljava/util/List;
 }
 

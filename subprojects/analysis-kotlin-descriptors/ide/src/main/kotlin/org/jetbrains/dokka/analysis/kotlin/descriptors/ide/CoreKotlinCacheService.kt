@@ -25,7 +25,7 @@ internal class CoreKotlinCacheService(private val resolutionFacade: DokkaResolut
 
     override fun getResolutionFacadeByFile(
         file: PsiFile,
-        platform: org.jetbrains.kotlin.platform.TargetPlatform
+        platform: TargetPlatform
     ): ResolutionFacade {
         return resolutionFacade
     }
@@ -39,7 +39,7 @@ internal class CoreKotlinCacheService(private val resolutionFacade: DokkaResolut
 
     override fun getResolutionFacadeByModuleInfo(
         moduleInfo: ModuleInfo,
-        platform: org.jetbrains.kotlin.platform.TargetPlatform
+        platform: TargetPlatform
     ): ResolutionFacade {
         return resolutionFacade
     }

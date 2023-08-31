@@ -17,15 +17,15 @@ import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.analysis.kotlin.internal.DocumentableLanguage
 import org.jetbrains.dokka.analysis.kotlin.internal.InternalKotlinAnalysisPlugin
 
-abstract class NavigationDataProvider(
+public abstract class NavigationDataProvider(
     dokkaContext: DokkaContext
 ) {
     private val documentableSourceLanguageParser = dokkaContext.plugin<InternalKotlinAnalysisPlugin>().querySingle { documentableSourceLanguageParser }
 
-    open fun navigableChildren(input: RootPageNode): NavigationNode = input.withDescendants()
+    public open fun navigableChildren(input: RootPageNode): NavigationNode = input.withDescendants()
         .first { it is ModulePage || it is MultimoduleRootPage }.let { visit(it as ContentPage) }
 
-    open fun visit(page: ContentPage): NavigationNode =
+    public open fun visit(page: ContentPage): NavigationNode =
         NavigationNode(
             name = page.displayableName(),
             dri = page.dri.first(),

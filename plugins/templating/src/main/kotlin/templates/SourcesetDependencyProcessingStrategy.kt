@@ -15,7 +15,9 @@ import java.util.concurrent.ConcurrentHashMap
 
 private typealias Entry = Map<String, List<String>>
 
-class SourcesetDependencyProcessingStrategy(val context: DokkaContext) : TemplateProcessingStrategy {
+public class SourcesetDependencyProcessingStrategy(
+    public val context: DokkaContext
+) : TemplateProcessingStrategy {
     private val fileName = "sourceset_dependencies.js"
     private val fragments = ConcurrentHashMap<String, Entry>()
 

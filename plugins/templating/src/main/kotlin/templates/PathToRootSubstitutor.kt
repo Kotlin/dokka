@@ -9,7 +9,9 @@ import org.jetbrains.dokka.base.templating.SubstitutionCommand
 import org.jetbrains.dokka.plugability.DokkaContext
 import java.io.File
 
-class PathToRootSubstitutor(private val dokkaContext: DokkaContext) : Substitutor {
+public class PathToRootSubstitutor(
+    private val dokkaContext: DokkaContext
+) : Substitutor {
 
     override fun trySubstitute(context: TemplatingContext<SubstitutionCommand>, match: MatchResult): String? =
         if (context.command is PathToRootSubstitutionCommand) {

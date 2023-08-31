@@ -14,10 +14,10 @@ import org.jetbrains.kotlin.psi.KtElement
 import org.jetbrains.kotlin.resolve.DescriptorToSourceUtils
 
 @InternalDokkaApi
-interface KDocFinder {
-    fun KtElement.findKDoc(): KDocTag?
+public interface KDocFinder {
+    public fun KtElement.findKDoc(): KDocTag?
 
-    fun DeclarationDescriptor.find(
+    public fun DeclarationDescriptor.find(
         descriptorToPsi: (DeclarationDescriptorWithSource) -> PsiElement? = {
             DescriptorToSourceUtils.descriptorToDeclaration(
                 it
@@ -25,7 +25,7 @@ interface KDocFinder {
         }
     ): KDocTag?
 
-    fun resolveKDocLink(
+    public fun resolveKDocLink(
         fromDescriptor: DeclarationDescriptor,
         qualifiedName: String,
         sourceSet: DokkaConfiguration.DokkaSourceSet,

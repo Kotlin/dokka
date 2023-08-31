@@ -90,7 +90,7 @@ internal const val JAR_SEPARATOR = "!/"
  * $body: optional and can be used to configure environment without creating local variable
  */
 @InternalDokkaApi
-class AnalysisEnvironment(
+public class AnalysisEnvironment(
     private val messageCollector: MessageCollector,
     internal val analysisPlatform: Platform,
     private val mockApplicationHack: MockApplicationHack,

@@ -9,7 +9,9 @@ import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.validity.PreGenerationChecker
 import org.jetbrains.dokka.validity.PreGenerationCheckerOutput
 
-class MultiplatformConfiguredChecker(val context: DokkaContext) : PreGenerationChecker {
+public class MultiplatformConfiguredChecker(
+    public val context: DokkaContext
+) : PreGenerationChecker {
 
     override fun invoke(): PreGenerationCheckerOutput {
         val isSinglePlatform = context.configuration.sourceSets.all { sourceSet ->
@@ -19,8 +21,8 @@ class MultiplatformConfiguredChecker(val context: DokkaContext) : PreGenerationC
         return PreGenerationCheckerOutput(isSinglePlatform, listOfNotNull(errorMessage.takeUnless { isSinglePlatform }))
     }
 
-    companion object {
-        const val errorMessage =
+    public companion object {
+        public const val errorMessage: String =
             "Dokka Javadoc plugin currently does not support generating documentation for multiplatform project. Please, adjust your configuration"
     }
 }

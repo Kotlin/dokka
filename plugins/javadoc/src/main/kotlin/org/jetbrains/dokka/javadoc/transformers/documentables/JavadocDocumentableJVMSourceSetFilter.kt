@@ -10,7 +10,9 @@ import org.jetbrains.dokka.model.DModule
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.transformers.documentation.PreMergeDocumentableTransformer
 
-class JavadocDocumentableJVMSourceSetFilter(val context: DokkaContext) : PreMergeDocumentableTransformer {
+public class JavadocDocumentableJVMSourceSetFilter(
+    public val context: DokkaContext
+) : PreMergeDocumentableTransformer {
 
     private val allowedSourceSets = context.configuration.sourceSets.filter { it.analysisPlatform == Platform.jvm }
         .flatMap { it.getAllDependentSourceSets() }.distinct()

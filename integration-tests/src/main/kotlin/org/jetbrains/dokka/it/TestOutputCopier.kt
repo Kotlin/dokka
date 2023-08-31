@@ -7,11 +7,11 @@ package org.jetbrains.dokka.it
 import java.io.File
 import kotlin.test.AfterTest
 
-interface TestOutputCopier {
-    val projectOutputLocation: File
+public interface TestOutputCopier {
+    public val projectOutputLocation: File
 
     @AfterTest
-    fun copyToLocation() {
+    public fun copyToLocation() {
         System.getenv("DOKKA_TEST_OUTPUT_PATH")?.also { location ->
             println("Copying to ${File(location).absolutePath}")
             projectOutputLocation.copyRecursively(File(location))

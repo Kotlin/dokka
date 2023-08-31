@@ -658,7 +658,7 @@ public final class org/jetbrains/dokka/model/ActualTypealias : org/jetbrains/dok
 
 public final class org/jetbrains/dokka/model/ActualTypealias$Companion : org/jetbrains/dokka/model/properties/ExtraProperty$Key {
 	public synthetic fun mergeStrategyFor (Ljava/lang/Object;Ljava/lang/Object;)Lorg/jetbrains/dokka/model/properties/MergeStrategy;
-	public fun mergeStrategyFor (Lorg/jetbrains/dokka/model/ActualTypealias;Lorg/jetbrains/dokka/model/ActualTypealias;)Lorg/jetbrains/dokka/model/properties/MergeStrategy$Fail;
+	public fun mergeStrategyFor (Lorg/jetbrains/dokka/model/ActualTypealias;Lorg/jetbrains/dokka/model/ActualTypealias;)Lorg/jetbrains/dokka/model/properties/MergeStrategy;
 }
 
 public final class org/jetbrains/dokka/model/AdditionalExtrasKt {
@@ -817,7 +817,7 @@ public final class org/jetbrains/dokka/model/CheckedExceptions : org/jetbrains/d
 
 public final class org/jetbrains/dokka/model/CheckedExceptions$Companion : org/jetbrains/dokka/model/properties/ExtraProperty$Key {
 	public synthetic fun mergeStrategyFor (Ljava/lang/Object;Ljava/lang/Object;)Lorg/jetbrains/dokka/model/properties/MergeStrategy;
-	public fun mergeStrategyFor (Lorg/jetbrains/dokka/model/CheckedExceptions;Lorg/jetbrains/dokka/model/CheckedExceptions;)Lorg/jetbrains/dokka/model/properties/MergeStrategy$Replace;
+	public fun mergeStrategyFor (Lorg/jetbrains/dokka/model/CheckedExceptions;Lorg/jetbrains/dokka/model/CheckedExceptions;)Lorg/jetbrains/dokka/model/properties/MergeStrategy;
 }
 
 public abstract interface class org/jetbrains/dokka/model/ClassKind {
@@ -1505,7 +1505,7 @@ public final class org/jetbrains/dokka/model/ExceptionInSupertypes : org/jetbrai
 
 public final class org/jetbrains/dokka/model/ExceptionInSupertypes$Companion : org/jetbrains/dokka/model/properties/ExtraProperty$Key {
 	public synthetic fun mergeStrategyFor (Ljava/lang/Object;Ljava/lang/Object;)Lorg/jetbrains/dokka/model/properties/MergeStrategy;
-	public fun mergeStrategyFor (Lorg/jetbrains/dokka/model/ExceptionInSupertypes;Lorg/jetbrains/dokka/model/ExceptionInSupertypes;)Lorg/jetbrains/dokka/model/properties/MergeStrategy$Replace;
+	public fun mergeStrategyFor (Lorg/jetbrains/dokka/model/ExceptionInSupertypes;Lorg/jetbrains/dokka/model/ExceptionInSupertypes;)Lorg/jetbrains/dokka/model/properties/MergeStrategy;
 }
 
 public abstract interface class org/jetbrains/dokka/model/Expression {
@@ -1707,7 +1707,7 @@ public final class org/jetbrains/dokka/model/ImplementedInterfaces : org/jetbrai
 
 public final class org/jetbrains/dokka/model/ImplementedInterfaces$Companion : org/jetbrains/dokka/model/properties/ExtraProperty$Key {
 	public synthetic fun mergeStrategyFor (Ljava/lang/Object;Ljava/lang/Object;)Lorg/jetbrains/dokka/model/properties/MergeStrategy;
-	public fun mergeStrategyFor (Lorg/jetbrains/dokka/model/ImplementedInterfaces;Lorg/jetbrains/dokka/model/ImplementedInterfaces;)Lorg/jetbrains/dokka/model/properties/MergeStrategy$Replace;
+	public fun mergeStrategyFor (Lorg/jetbrains/dokka/model/ImplementedInterfaces;Lorg/jetbrains/dokka/model/ImplementedInterfaces;)Lorg/jetbrains/dokka/model/properties/MergeStrategy;
 }
 
 public final class org/jetbrains/dokka/model/InheritedMember : org/jetbrains/dokka/model/properties/ExtraProperty {
@@ -1726,7 +1726,7 @@ public final class org/jetbrains/dokka/model/InheritedMember : org/jetbrains/dok
 
 public final class org/jetbrains/dokka/model/InheritedMember$Companion : org/jetbrains/dokka/model/properties/ExtraProperty$Key {
 	public synthetic fun mergeStrategyFor (Ljava/lang/Object;Ljava/lang/Object;)Lorg/jetbrains/dokka/model/properties/MergeStrategy;
-	public fun mergeStrategyFor (Lorg/jetbrains/dokka/model/InheritedMember;Lorg/jetbrains/dokka/model/InheritedMember;)Lorg/jetbrains/dokka/model/properties/MergeStrategy$Replace;
+	public fun mergeStrategyFor (Lorg/jetbrains/dokka/model/InheritedMember;Lorg/jetbrains/dokka/model/InheritedMember;)Lorg/jetbrains/dokka/model/properties/MergeStrategy;
 }
 
 public final class org/jetbrains/dokka/model/IntValue : org/jetbrains/dokka/model/LiteralValue {
@@ -4103,8 +4103,7 @@ public final class org/jetbrains/dokka/pages/MultimoduleRootPageNode : org/jetbr
 	public fun getName ()Ljava/lang/String;
 	public synthetic fun modified (Ljava/lang/String;Ljava/util/List;)Lorg/jetbrains/dokka/pages/PageNode;
 	public fun modified (Ljava/lang/String;Ljava/util/List;)Lorg/jetbrains/dokka/pages/RootPageNode;
-	public synthetic fun modified (Ljava/lang/String;Lorg/jetbrains/dokka/pages/ContentNode;Ljava/util/Set;Ljava/util/List;Ljava/util/List;)Lorg/jetbrains/dokka/pages/ContentPage;
-	public fun modified (Ljava/lang/String;Lorg/jetbrains/dokka/pages/ContentNode;Ljava/util/Set;Ljava/util/List;Ljava/util/List;)Lorg/jetbrains/dokka/pages/MultimoduleRootPageNode;
+	public fun modified (Ljava/lang/String;Lorg/jetbrains/dokka/pages/ContentNode;Ljava/util/Set;Ljava/util/List;Ljava/util/List;)Lorg/jetbrains/dokka/pages/ContentPage;
 }
 
 public final class org/jetbrains/dokka/pages/MultimoduleTable : org/jetbrains/dokka/pages/Style {
@@ -4166,7 +4165,7 @@ public final class org/jetbrains/dokka/pages/PlatformHintedContent : org/jetbrai
 	public synthetic fun transformChildren (Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/dokka/pages/ContentComposite;
 	public fun transformChildren (Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/dokka/pages/PlatformHintedContent;
 	public synthetic fun withNewExtras (Lorg/jetbrains/dokka/model/properties/PropertyContainer;)Ljava/lang/Object;
-	public fun withNewExtras (Lorg/jetbrains/dokka/model/properties/PropertyContainer;)Ljava/lang/Void;
+	public fun withNewExtras (Lorg/jetbrains/dokka/model/properties/PropertyContainer;)Lorg/jetbrains/dokka/pages/ContentNode;
 	public synthetic fun withSourceSets (Ljava/util/Set;)Lorg/jetbrains/dokka/pages/ContentNode;
 	public fun withSourceSets (Ljava/util/Set;)Lorg/jetbrains/dokka/pages/PlatformHintedContent;
 }

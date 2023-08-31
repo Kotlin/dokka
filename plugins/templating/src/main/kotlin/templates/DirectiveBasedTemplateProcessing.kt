@@ -21,7 +21,7 @@ import org.jsoup.nodes.TextNode
 import java.io.File
 import java.nio.file.Files
 
-class DirectiveBasedHtmlTemplateProcessingStrategy(private val context: DokkaContext) : TemplateProcessingStrategy {
+public class DirectiveBasedHtmlTemplateProcessingStrategy(private val context: DokkaContext) : TemplateProcessingStrategy {
 
     private val directiveBasedCommandHandlers =
         context.plugin<TemplatingPlugin>().query { directiveBasedCommandHandlers }
@@ -45,11 +45,11 @@ class DirectiveBasedHtmlTemplateProcessingStrategy(private val context: DokkaCon
             true
         } else false
 
-    fun handleCommandAsTag(element: Element, command: Command, input: File, output: File) {
+    public fun handleCommandAsTag(element: Element, command: Command, input: File, output: File) {
         traverseHandlers(command) { handleCommandAsTag(command, element, input, output) }
     }
 
-    fun handleCommandAsComment(command: Command, body: List<Node>, input: File, output: File) {
+    public fun handleCommandAsComment(command: Command, body: List<Node>, input: File, output: File) {
         traverseHandlers(command) { handleCommandAsComment(command, body, input, output) }
     }
 

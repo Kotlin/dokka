@@ -18,7 +18,8 @@ import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 import org.jetbrains.dokka.analysis.kotlin.internal.InternalKotlinAnalysisPlugin
 
-object ResourcesInstaller : PageTransformer {
+public object ResourcesInstaller : PageTransformer {
+
     override fun invoke(input: RootPageNode): RootPageNode = input.modified(
         children = input.children +
                 RendererSpecificResourcePage(
@@ -29,7 +30,10 @@ object ResourcesInstaller : PageTransformer {
     )
 }
 
-class TreeViewInstaller(private val context: DokkaContext) : PageTransformer {
+public class TreeViewInstaller(
+    private val context: DokkaContext
+) : PageTransformer {
+
     override fun invoke(input: RootPageNode): RootPageNode = install(input, input) as RootPageNode
 
     private fun install(node: PageNode, root: RootPageNode): PageNode = when (node) {
@@ -73,7 +77,8 @@ class TreeViewInstaller(private val context: DokkaContext) : PageTransformer {
     }
 }
 
-object AllClassesPageInstaller : PageTransformer {
+public object AllClassesPageInstaller : PageTransformer {
+
     override fun invoke(input: RootPageNode): RootPageNode {
         val classes = (input as JavadocModulePageNode).children.filterIsInstance<JavadocPackagePageNode>().flatMap {
             it.children.filterIsInstance<JavadocClasslikePageNode>()
@@ -83,7 +88,8 @@ object AllClassesPageInstaller : PageTransformer {
     }
 }
 
-object IndexGenerator : PageTransformer {
+public object IndexGenerator : PageTransformer {
+
     override fun invoke(input: RootPageNode): RootPageNode {
         val elements = HashMap<Char, MutableSet<NavigableJavadocNode>>()
         (input as JavadocModulePageNode).children.filterIsInstance<JavadocPackagePageNode>().forEach {
@@ -125,7 +131,8 @@ object IndexGenerator : PageTransformer {
     }
 }
 
-object DeprecatedPageCreator : PageTransformer {
+public object DeprecatedPageCreator : PageTransformer {
+
     override fun invoke(input: RootPageNode): RootPageNode {
         val elements = HashMap<DeprecatedPageSection, MutableSet<DeprecatedNode>>().apply {
 

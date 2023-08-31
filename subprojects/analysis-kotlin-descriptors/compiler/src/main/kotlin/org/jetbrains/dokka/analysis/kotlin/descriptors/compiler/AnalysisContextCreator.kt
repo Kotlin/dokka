@@ -13,8 +13,8 @@ import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor
 
 @InternalDokkaApi
-interface AnalysisContextCreator {
-    fun create(
+public interface AnalysisContextCreator {
+    public fun create(
         project: MockProject,
         moduleDescriptor: ModuleDescriptor,
         moduleResolver: ResolverForModule,

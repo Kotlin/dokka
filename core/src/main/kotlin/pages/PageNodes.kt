@@ -9,28 +9,28 @@ import org.jetbrains.dokka.model.Documentable
 import org.jetbrains.dokka.model.WithChildren
 import java.util.*
 
-interface PageNode : WithChildren<PageNode> {
-    val name: String
+public interface PageNode : WithChildren<PageNode> {
+    public val name: String
     override val children: List<PageNode>
 
-    fun modified(
+    public fun modified(
         name: String = this.name,
         children: List<PageNode> = this.children
     ): PageNode
 }
 
-interface ContentPage : PageNode {
-    val content: ContentNode
-    val dri: Set<DRI>
-    val embeddedResources: List<String>
+public interface ContentPage : PageNode {
+    public val content: ContentNode
+    public val dri: Set<DRI>
+    public val embeddedResources: List<String>
 
     @Deprecated("Deprecated. Remove its usages from your code.",
         ReplaceWith("this.documentables.firstOrNull()")
     )
-    val documentable: Documentable?
+    public val documentable: Documentable?
         get() = if (this is WithDocumentables) this.documentables.firstOrNull() else null
 
-    fun modified(
+    public fun modified(
         name: String = this.name,
         content: ContentNode = this.content,
         dri: Set<DRI> = this.dri,
@@ -39,12 +39,14 @@ interface ContentPage : PageNode {
     ): ContentPage
 }
 
-interface WithDocumentables {
-    val documentables: List<Documentable>
+public interface WithDocumentables {
+    public val documentables: List<Documentable>
 }
 
-abstract class RootPageNode(val forceTopLevelName: Boolean = false) : PageNode {
-    val parentMap: Map<PageNode, PageNode> by lazy {
+public abstract class RootPageNode(
+    public val forceTopLevelName: Boolean = false
+) : PageNode {
+    public val parentMap: Map<PageNode, PageNode> by lazy {
         IdentityHashMap<PageNode, PageNode>().apply {
             fun process(parent: PageNode) {
                 parent.children.forEach { child ->
@@ -56,10 +58,10 @@ abstract class RootPageNode(val forceTopLevelName: Boolean = false) : PageNode {
         }
     }
 
-    fun transformPageNodeTree(operation: (PageNode) -> PageNode) =
+    public fun transformPageNodeTree(operation: (PageNode) -> PageNode): RootPageNode =
         this.transformNode(operation) as RootPageNode
 
-    fun transformContentPagesTree(operation: (ContentPage) -> ContentPage) = transformPageNodeTree {
+    public fun transformContentPagesTree(operation: (ContentPage) -> ContentPage): RootPageNode = transformPageNodeTree {
         if (it is ContentPage) operation(it) else it
     }
 
@@ -74,7 +76,7 @@ abstract class RootPageNode(val forceTopLevelName: Boolean = false) : PageNode {
     ): RootPageNode
 }
 
-class ModulePageNode(
+public class ModulePageNode(
     override val name: String,
     override val content: ContentNode,
     override val documentables: List<Documentable> = listOf(),
@@ -97,7 +99,7 @@ class ModulePageNode(
         else ModulePageNode(name, content, documentables, children, embeddedResources)
 }
 
-class PackagePageNode(
+public class PackagePageNode(
     override val name: String,
     override val content: ContentNode,
     override val dri: Set<DRI>,
@@ -124,7 +126,7 @@ class PackagePageNode(
         else PackagePageNode(name, content, dri, documentables, children, embeddedResources)
 }
 
-class ClasslikePageNode(
+public class ClasslikePageNode(
     override val name: String,
     override val content: ContentNode,
     override val dri: Set<DRI>,
@@ -146,7 +148,7 @@ class ClasslikePageNode(
         else ClasslikePageNode(name, content, dri, documentables, children, embeddedResources)
 }
 
-class MemberPageNode(
+public class MemberPageNode(
     override val name: String,
     override val content: ContentNode,
     override val dri: Set<DRI>,
@@ -169,12 +171,12 @@ class MemberPageNode(
 }
 
 
-class MultimoduleRootPageNode(
+public class MultimoduleRootPageNode(
     override val dri: Set<DRI>,
     override val content: ContentNode,
     override val embeddedResources: List<String> = emptyList()
 ) : RootPageNode(forceTopLevelName = true), MultimoduleRootPage {
-    override val name = "All modules"
+    override val name: String = "All modules"
 
     override val children: List<PageNode> = emptyList()
 
@@ -187,12 +189,12 @@ class MultimoduleRootPageNode(
         dri: Set<DRI>,
         embeddedResources: List<String>,
         children: List<PageNode>
-    ) =
+    ): ContentPage =
         if (name == this.name && content === this.content && embeddedResources === this.embeddedResources && children shallowEq this.children) this
         else MultimoduleRootPageNode(dri, content, embeddedResources)
 }
 
-inline fun <reified T : PageNode> PageNode.children() = children.filterIsInstance<T>()
+public inline fun <reified T : PageNode> PageNode.children(): List<T> = children.filterIsInstance<T>()
 
 private infix fun <T> List<T>.shallowEq(other: List<T>) =
     this === other || (this.size == other.size && (this zip other).all { (a, b) -> a === b })

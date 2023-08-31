@@ -9,7 +9,7 @@ import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.transformers.documentation.DocumentableTransformer
 
-class JvmNameDocumentableTransformer : DocumentableTransformer {
+public class JvmNameDocumentableTransformer : DocumentableTransformer {
     private val jvmNameProvider = JvmNameProvider()
 
     override fun invoke(original: DModule, context: DokkaContext): DModule {

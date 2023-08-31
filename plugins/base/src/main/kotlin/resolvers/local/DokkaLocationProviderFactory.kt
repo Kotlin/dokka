@@ -8,11 +8,15 @@ import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.DokkaContext
 import java.util.concurrent.ConcurrentHashMap
 
-class DokkaLocationProviderFactory(private val context: DokkaContext) : LocationProviderFactory {
+public class DokkaLocationProviderFactory(
+    private val context: DokkaContext
+) : LocationProviderFactory {
     private val cache = ConcurrentHashMap<CacheWrapper, LocationProvider>()
 
-    override fun getLocationProvider(pageNode: RootPageNode) = cache.computeIfAbsent(CacheWrapper(pageNode)) {
-        DokkaLocationProvider(pageNode, context)
+    override fun getLocationProvider(pageNode: RootPageNode): LocationProvider {
+        return cache.computeIfAbsent(CacheWrapper(pageNode)) {
+            DokkaLocationProvider(pageNode, context)
+        }
     }
 
     private class CacheWrapper(val pageNode: RootPageNode) {

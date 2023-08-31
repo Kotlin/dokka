@@ -17,7 +17,7 @@ import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.analysis.kotlin.internal.InternalKotlinAnalysisPlugin
 
-val jvmNameProvider = JvmNameProvider()
+public val jvmNameProvider: JvmNameProvider = JvmNameProvider()
 internal const val OBJECT_INSTANCE_NAME = "INSTANCE"
 
 internal val DProperty.isConst: Boolean
@@ -37,7 +37,7 @@ private fun DProperty.hasModifier(modifier: ExtraModifiers.KotlinOnlyModifiers):
         ?.content
         ?.any { (_, modifiers) -> modifier in modifiers } == true
 
-class KotlinToJavaConverter(
+public class KotlinToJavaConverter(
     private val context: DokkaContext
 ) {
     private val kotlinToJavaMapper by lazy {

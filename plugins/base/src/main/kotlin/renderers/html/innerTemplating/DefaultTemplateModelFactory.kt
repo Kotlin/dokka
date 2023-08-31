@@ -30,7 +30,9 @@ import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.configuration
 import java.net.URI
 
-class DefaultTemplateModelFactory(val context: DokkaContext) : TemplateModelFactory {
+public class DefaultTemplateModelFactory(
+    public val context: DokkaContext
+) : TemplateModelFactory {
     private val configuration = configuration<DokkaBase, DokkaBaseConfiguration>(context)
     private val isPartial = context.configuration.delayTemplateSubstitution
 
@@ -38,7 +40,7 @@ class DefaultTemplateModelFactory(val context: DokkaContext) : TemplateModelFact
         if (context.configuration.delayTemplateSubstitution || this is ImmediateResolutionTagConsumer) this
         else ImmediateResolutionTagConsumer(this, context)
 
-    data class SourceSetModel(val name: String, val platform: String, val filter: String)
+    public data class SourceSetModel(val name: String, val platform: String, val filter: String)
 
     override fun buildModel(
         page: PageNode,

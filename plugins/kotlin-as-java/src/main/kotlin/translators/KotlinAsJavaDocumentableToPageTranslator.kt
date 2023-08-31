@@ -13,7 +13,9 @@ import org.jetbrains.dokka.transformers.documentation.DocumentableToPageTranslat
 import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.dokka.analysis.kotlin.internal.InternalKotlinAnalysisPlugin
 
-class KotlinAsJavaDocumentableToPageTranslator(context: DokkaContext) : DocumentableToPageTranslator {
+public class KotlinAsJavaDocumentableToPageTranslator(
+    context: DokkaContext
+) : DocumentableToPageTranslator {
     private val configuration = configuration<DokkaBase, DokkaBaseConfiguration>(context)
     private val commentsToContentConverter = context.plugin<DokkaBase>().querySingle { commentsToContentConverter }
     private val signatureProvider = context.plugin<DokkaBase>().querySingle { signatureProvider }

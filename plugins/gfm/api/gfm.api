@@ -30,8 +30,7 @@ public final class org/jetbrains/dokka/gfm/location/MarkdownLocationProvider : o
 
 public final class org/jetbrains/dokka/gfm/location/MarkdownLocationProvider$Factory : org/jetbrains/dokka/base/resolvers/local/LocationProviderFactory {
 	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
-	public synthetic fun getLocationProvider (Lorg/jetbrains/dokka/pages/RootPageNode;)Lorg/jetbrains/dokka/base/resolvers/local/LocationProvider;
-	public fun getLocationProvider (Lorg/jetbrains/dokka/pages/RootPageNode;)Lorg/jetbrains/dokka/gfm/location/MarkdownLocationProvider;
+	public fun getLocationProvider (Lorg/jetbrains/dokka/pages/RootPageNode;)Lorg/jetbrains/dokka/base/resolvers/local/LocationProvider;
 }
 
 public final class org/jetbrains/dokka/gfm/renderer/BriefCommentPreprocessor : org/jetbrains/dokka/transformers/pages/PageTransformer {

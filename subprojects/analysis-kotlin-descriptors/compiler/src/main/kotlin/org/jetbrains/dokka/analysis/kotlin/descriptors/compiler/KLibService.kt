@@ -14,8 +14,8 @@ import org.jetbrains.kotlin.library.KotlinLibrary
 import org.jetbrains.kotlin.storage.StorageManager
 
 @InternalDokkaApi
-interface KLibService {
-    fun KotlinLibrary.createPackageFragmentProvider(
+public interface KLibService {
+    public fun KotlinLibrary.createPackageFragmentProvider(
         storageManager: StorageManager,
         metadataModuleDescriptorFactory: KlibMetadataModuleDescriptorFactory,
         languageVersionSettings: LanguageVersionSettings,
@@ -23,5 +23,5 @@ interface KLibService {
         lookupTracker: LookupTracker
     ): PackageFragmentProvider?
 
-    fun isAnalysisCompatible(kotlinLibrary: KotlinLibrary): Boolean
+    public fun isAnalysisCompatible(kotlinLibrary: KotlinLibrary): Boolean
 }

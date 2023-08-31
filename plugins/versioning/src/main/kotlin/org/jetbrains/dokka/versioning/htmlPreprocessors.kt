@@ -10,7 +10,9 @@ import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 
-class MultiModuleStylesInstaller(private val dokkaContext: DokkaContext) : PageTransformer {
+public class MultiModuleStylesInstaller(
+    private val dokkaContext: DokkaContext
+) : PageTransformer {
     private val stylesPages = listOf(
         "styles/multimodule.css",
     )
@@ -26,7 +28,9 @@ class MultiModuleStylesInstaller(private val dokkaContext: DokkaContext) : PageT
         }
 }
 
-class NotFoundPageInstaller(private val dokkaContext: DokkaContext) : PageTransformer {
+public class NotFoundPageInstaller(
+    private val dokkaContext: DokkaContext
+) : PageTransformer {
     private val notFoundPage = listOf(
         "not-found-version.html",
     )

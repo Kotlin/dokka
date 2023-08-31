@@ -27,12 +27,13 @@ import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.pages.HtmlContent
 import org.jetbrains.dokka.plugability.*
+import org.jetbrains.dokka.transformers.pages.PageTransformer
 import org.jetbrains.dokka.utilities.htmlEscape
 
 internal const val TEMPLATE_REPLACEMENT: String = "###"
 internal const val TOGGLEABLE_CONTENT_TYPE_ATTR = "data-togglable"
 
-open class HtmlRenderer(
+public open class HtmlRenderer(
     context: DokkaContext
 ) : DefaultRenderer<FlowContent>(context) {
     private val sourceSetDependencyMap: Map<DokkaSourceSetID, List<DokkaSourceSetID>> =
@@ -50,7 +51,7 @@ open class HtmlRenderer(
 
     private var shouldRenderSourceSetTabs: Boolean = false
 
-    override val preprocessors = context.plugin<DokkaBase>().query { htmlPreprocessors }
+    override val preprocessors: List<PageTransformer> = context.plugin<DokkaBase>().query { htmlPreprocessors }
 
     /**
      * Tabs themselves are created in HTML plugin since, currently, only HTML format supports them.
@@ -253,7 +254,7 @@ open class HtmlRenderer(
         content: PlatformHintedContent,
         pageContext: ContentPage,
         sourceSetRestriction: Set<DisplaySourceSet>?
-    ) =
+    ) {
         buildPlatformDependent(
             content.sourceSets.filter {
                 sourceSetRestriction == null || it in sourceSetRestriction
@@ -262,6 +263,7 @@ open class HtmlRenderer(
             content.extra,
             content.style
         )
+    }
 
     private fun FlowContent.buildPlatformDependent(
         nodes: Map<DisplaySourceSet, Collection<ContentNode>>,
@@ -409,19 +411,21 @@ open class HtmlRenderer(
         node: ContentList,
         pageContext: ContentPage,
         sourceSetRestriction: Set<DisplaySourceSet>?
-    ) = when {
-        node.ordered -> {
-            ol { buildListItems(node.children, pageContext, sourceSetRestriction) }
-        }
-        node.hasStyle(ListStyle.DescriptionList) -> {
-            dl { node.children.forEach { it.build(this, pageContext, sourceSetRestriction) } }
-        }
-        else -> {
-            ul { buildListItems(node.children, pageContext, sourceSetRestriction) }
+    ) {
+        return when {
+            node.ordered -> {
+                ol { buildListItems(node.children, pageContext, sourceSetRestriction) }
+            }
+            node.hasStyle(ListStyle.DescriptionList) -> {
+                dl { node.children.forEach { it.build(this, pageContext, sourceSetRestriction) } }
+            }
+            else -> {
+                ul { buildListItems(node.children, pageContext, sourceSetRestriction) }
+            }
         }
     }
 
-    open fun OL.buildListItems(
+    public open fun OL.buildListItems(
         items: List<ContentNode>,
         pageContext: ContentPage,
         sourceSetRestriction: Set<DisplaySourceSet>? = null
@@ -434,7 +438,7 @@ open class HtmlRenderer(
         }
     }
 
-    open fun UL.buildListItems(
+    public open fun UL.buildListItems(
         items: List<ContentNode>,
         pageContext: ContentPage,
         sourceSetRestriction: Set<DisplaySourceSet>? = null
@@ -450,12 +454,13 @@ open class HtmlRenderer(
     override fun FlowContent.buildResource(
         node: ContentEmbeddedResource,
         pageContext: ContentPage
-    ) = // TODO: extension point there
+    ) { // TODO: extension point there
         if (node.isImage()) {
             img(src = node.address, alt = node.altText)
         } else {
             println("Unrecognized resource type: $node")
         }
+    }
 
     private fun FlowContent.buildRow(
         node: ContentGroup,
@@ -642,7 +647,7 @@ open class HtmlRenderer(
 
     }
 
-    fun FlowContent.buildDefaultTable(
+    public fun FlowContent.buildDefaultTable(
         node: ContentTable,
         pageContext: ContentPage,
         sourceSetRestriction: Set<DisplaySourceSet>?
@@ -709,7 +714,7 @@ open class HtmlRenderer(
     }
 
 
-    override fun FlowContent.buildNavigation(page: PageNode) =
+    override fun FlowContent.buildNavigation(page: PageNode) {
         div(classes = "breadcrumbs") {
             val path = locationProvider.ancestors(page).filterNot { it is RendererSpecificPage }.asReversed()
             if (path.size > 1) {
@@ -722,6 +727,7 @@ open class HtmlRenderer(
                 }
             }
         }
+    }
 
     private fun FlowContent.buildNavigationElement(node: PageNode, page: PageNode) =
         if (node.isNavigable) {
@@ -747,7 +753,7 @@ open class HtmlRenderer(
             text(to.name)
         }
 
-    fun FlowContent.buildAnchorCopyButton(pointingTo: String) {
+    public fun FlowContent.buildAnchorCopyButton(pointingTo: String) {
         span(classes = "anchor-wrapper") {
             span(classes = "anchor-icon") {
                 attributes["pointing-to"] = pointingTo
@@ -756,17 +762,23 @@ open class HtmlRenderer(
         }
     }
 
-    fun FlowContent.buildLink(
+    public fun FlowContent.buildLink(
         to: DRI,
         platforms: List<DisplaySourceSet>,
         from: PageNode? = null,
         block: FlowContent.() -> Unit
-    ) = locationProvider.resolve(to, platforms.toSet(), from)?.let { buildLink(it, block) }
-        ?: run { context.logger.error("Cannot resolve path for `$to` from `$from`"); block() }
+    ) {
+        locationProvider.resolve(to, platforms.toSet(), from)?.let { buildLink(it, block) }
+            ?: run { context.logger.error("Cannot resolve path for `$to` from `$from`"); block() }
+    }
 
-    override fun buildError(node: ContentNode) = context.logger.error("Unknown ContentNode type: $node")
+    override fun buildError(node: ContentNode) {
+        context.logger.error("Unknown ContentNode type: $node")
+    }
 
-    override fun FlowContent.buildLineBreak() = br()
+    override fun FlowContent.buildLineBreak() {
+        br()
+    }
     override fun FlowContent.buildLineBreak(node: ContentBreakLine, pageContext: ContentPage) {
         if (node.style.contains(HorizontalBreakLineStyle)) {
             hr()
@@ -775,25 +787,28 @@ open class HtmlRenderer(
         }
     }
 
-    override fun FlowContent.buildLink(address: String, content: FlowContent.() -> Unit) =
+    override fun FlowContent.buildLink(address: String, content: FlowContent.() -> Unit) {
         a(href = address, block = content)
+    }
 
     override fun FlowContent.buildDRILink(
         node: ContentDRILink,
         pageContext: ContentPage,
         sourceSetRestriction: Set<DisplaySourceSet>?
-    ) = locationProvider.resolve(node.address, node.sourceSets, pageContext)?.let { address ->
-        buildLink(address) {
-            buildText(node.children, pageContext, sourceSetRestriction)
-        }
-    } ?: if (isPartial) {
-        templateCommand(ResolveLinkCommand(node.address)) {
-            buildText(node.children, pageContext, sourceSetRestriction)
-        }
-    } else {
-        span {
-            attributes["data-unresolved-link"] = node.address.toString().htmlEscape()
-            buildText(node.children, pageContext, sourceSetRestriction)
+    ) {
+        locationProvider.resolve(node.address, node.sourceSets, pageContext)?.let { address ->
+            buildLink(address) {
+                buildText(node.children, pageContext, sourceSetRestriction)
+            }
+        } ?: if (isPartial) {
+            templateCommand(ResolveLinkCommand(node.address)) {
+                buildText(node.children, pageContext, sourceSetRestriction)
+            }
+        } else {
+            span {
+                attributes["data-unresolved-link"] = node.address.toString().htmlEscape()
+                buildText(node.children, pageContext, sourceSetRestriction)
+            }
         }
     }
 
@@ -830,7 +845,9 @@ open class HtmlRenderer(
         }
     }
 
-    override fun FlowContent.buildText(textNode: ContentText) = buildText(textNode, textNode.style)
+    override fun FlowContent.buildText(textNode: ContentText) {
+        buildText(textNode, textNode.style)
+    }
 
     private fun FlowContent.buildText(textNode: ContentText, unappliedStyles: Set<Style>) {
         when {
@@ -891,8 +908,11 @@ open class HtmlRenderer(
             else -> null
         }
 
-    open fun buildHtml(page: PageNode, resources: List<String>, content: FlowContent.() -> Unit): String =
-        templater.renderFromTemplate(DokkaTemplateTypes.BASE) {
+    public open fun buildHtml(
+        page: PageNode,
+        resources: List<String>, content: FlowContent.() -> Unit
+    ): String {
+        return templater.renderFromTemplate(DokkaTemplateTypes.BASE) {
             val generatedContent =
                 createHTML().div("main-content") {
                     page.getDocumentableType()?.let { attributes["data-page-type"] = it }
@@ -912,12 +932,13 @@ open class HtmlRenderer(
                 )
             }
         }
+    }
 
     /**
      * This is deliberately left open for plugins that have some other pages above ours and would like to link to them
      * instead of ours when clicking the logo
      */
-    open fun FlowContent.clickableLogo(page: PageNode, pathToRoot: String) {
+    public open fun FlowContent.clickableLogo(page: PageNode, pathToRoot: String) {
         if (context.configuration.delayTemplateSubstitution && page is ContentPage) {
             templateCommand(PathToRootSubstitutionCommand(pattern = "###", default = pathToRoot)) {
                 a {
@@ -978,7 +999,7 @@ private fun TabbedContentType.toHtmlAttribute(): String =
  */
 private data class ContentTab(val text: String, val tabbedContentTypes: List<TabbedContentType>)
 
-fun List<SimpleAttr>.joinAttr() = joinToString(" ") { it.extraKey + "=" + it.extraValue }
+public fun List<SimpleAttr>.joinAttr(): String = joinToString(" ") { it.extraKey + "=" + it.extraValue }
 
 private fun String.stripDiv() = drop(5).dropLast(6) // TODO: Find a way to do it without arbitrary trims
 

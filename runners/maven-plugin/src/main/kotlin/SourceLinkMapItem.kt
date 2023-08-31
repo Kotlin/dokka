@@ -23,7 +23,7 @@ import org.apache.maven.plugins.annotations.Parameter
  * </sourceLinks>
  * ```
  */
-class SourceLinkMapItem {
+public class SourceLinkMapItem {
 
     /**
      * Path to the local source directory. The path must be relative to the root of current project.
@@ -35,7 +35,7 @@ class SourceLinkMapItem {
      * ```
      */
     @Parameter(name = "path", required = true)
-    var path: String = ""
+    public var path: String = ""
 
     /**
      * URL of source code hosting service that can be accessed by documentation readers,
@@ -49,7 +49,7 @@ class SourceLinkMapItem {
      * ```
      */
     @Parameter(name = "url", required = true)
-    var url: String = ""
+    public var url: String = ""
 
     /**
      * Suffix used to append source code line number to the URL. This will help readers navigate
@@ -65,5 +65,5 @@ class SourceLinkMapItem {
      * - Bitbucket: `#lines-`
      */
     @Parameter(name = "lineSuffix")
-    var lineSuffix: String? = null
+    public var lineSuffix: String? = null
 }

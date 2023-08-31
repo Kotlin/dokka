@@ -13,4 +13,4 @@ internal const val ANALYSIS_API_DEPRECATION_MESSAGE =
             "https://github.com/Kotlin/dokka/issues/3099"
 
 @InternalDokkaApi
-class AnalysisApiDeprecatedError : Error(ANALYSIS_API_DEPRECATION_MESSAGE)
+public class AnalysisApiDeprecatedError : Error(ANALYSIS_API_DEPRECATION_MESSAGE)

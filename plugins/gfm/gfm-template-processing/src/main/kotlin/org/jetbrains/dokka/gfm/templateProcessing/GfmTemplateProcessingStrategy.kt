@@ -20,7 +20,9 @@ import org.jetbrains.dokka.templates.TemplateProcessingStrategy
 import java.io.BufferedWriter
 import java.io.File
 
-class GfmTemplateProcessingStrategy(val context: DokkaContext) : TemplateProcessingStrategy {
+public class GfmTemplateProcessingStrategy(
+    public val context: DokkaContext
+) : TemplateProcessingStrategy {
 
     private val externalModuleLinkResolver =
         context.plugin<AllModulesPagePlugin>().querySingle { externalModuleLinkResolver }

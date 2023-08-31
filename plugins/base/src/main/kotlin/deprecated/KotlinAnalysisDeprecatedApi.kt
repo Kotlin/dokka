@@ -17,58 +17,58 @@ import org.jetbrains.dokka.utilities.DokkaLogger
 import java.io.Closeable
 
 @Deprecated(message = ANALYSIS_API_DEPRECATION_MESSAGE, level = DeprecationLevel.ERROR)
-abstract class KotlinAnalysis(
+public abstract class KotlinAnalysis(
     private val parent: KotlinAnalysis? = null
 ) : Closeable {
     @Deprecated(message = ANALYSIS_API_DEPRECATION_MESSAGE, level = DeprecationLevel.ERROR)
-    operator fun get(key: DokkaConfiguration.DokkaSourceSet): AnalysisContext = throw AnalysisApiDeprecatedError()
+    public operator fun get(key: DokkaConfiguration.DokkaSourceSet): AnalysisContext = throw AnalysisApiDeprecatedError()
 
     @Deprecated(message = ANALYSIS_API_DEPRECATION_MESSAGE, level = DeprecationLevel.ERROR)
-    operator fun get(key: DokkaSourceSetID): AnalysisContext = throw AnalysisApiDeprecatedError()
+    public operator fun get(key: DokkaSourceSetID): AnalysisContext = throw AnalysisApiDeprecatedError()
 
     @Deprecated(message = ANALYSIS_API_DEPRECATION_MESSAGE, level = DeprecationLevel.ERROR)
     protected abstract fun find(sourceSetID: DokkaSourceSetID): AnalysisContext?
 }
 
-class AnalysisContext(environment: Any, facade: Any, private val analysisEnvironment: Any) : Closeable {
+public class AnalysisContext(environment: Any, facade: Any, private val analysisEnvironment: Any) : Closeable {
     @Deprecated(message = ANALYSIS_API_DEPRECATION_MESSAGE, level = DeprecationLevel.ERROR)
-    val environment: Any get() = throw AnalysisApiDeprecatedError()
+    public val environment: Any get() = throw AnalysisApiDeprecatedError()
 
     @Deprecated(message = ANALYSIS_API_DEPRECATION_MESSAGE, level = DeprecationLevel.ERROR)
-    val facade: Any get() = throw AnalysisApiDeprecatedError()
+    public val facade: Any get() = throw AnalysisApiDeprecatedError()
 
     @Deprecated(message = ANALYSIS_API_DEPRECATION_MESSAGE, level = DeprecationLevel.ERROR)
-    operator fun component1(): Any = throw AnalysisApiDeprecatedError()
+    public operator fun component1(): Any = throw AnalysisApiDeprecatedError()
 
     @Deprecated(message = ANALYSIS_API_DEPRECATION_MESSAGE, level = DeprecationLevel.ERROR)
-    operator fun component2(): Any = throw AnalysisApiDeprecatedError()
+    public operator fun component2(): Any = throw AnalysisApiDeprecatedError()
 
     @Deprecated(message = ANALYSIS_API_DEPRECATION_MESSAGE, level = DeprecationLevel.ERROR)
-    override fun close() = throw AnalysisApiDeprecatedError()
+    override fun close() { throw AnalysisApiDeprecatedError() }
 }
 
 @Deprecated(message = ANALYSIS_API_DEPRECATION_MESSAGE, level = DeprecationLevel.ERROR)
-class DokkaAnalysisConfiguration(val ignoreCommonBuiltIns: Boolean = false)
+public class DokkaAnalysisConfiguration(public val ignoreCommonBuiltIns: Boolean = false)
 
 @Deprecated(message = ANALYSIS_API_DEPRECATION_MESSAGE, level = DeprecationLevel.ERROR)
-fun KotlinAnalysis(context: DokkaContext): KotlinAnalysis = throw AnalysisApiDeprecatedError()
+public fun KotlinAnalysis(context: DokkaContext): KotlinAnalysis = throw AnalysisApiDeprecatedError()
 
 @Deprecated(message = ANALYSIS_API_DEPRECATION_MESSAGE, level = DeprecationLevel.ERROR)
-fun KotlinAnalysis(
+public fun KotlinAnalysis(
     sourceSets: List<DokkaConfiguration.DokkaSourceSet>,
     logger: DokkaLogger,
     analysisConfiguration: DokkaAnalysisConfiguration = DokkaAnalysisConfiguration()
 ): KotlinAnalysis = throw AnalysisApiDeprecatedError()
 
 @Deprecated(message = ANALYSIS_API_DEPRECATION_MESSAGE, level = DeprecationLevel.ERROR)
-fun ProjectKotlinAnalysis(
+public fun ProjectKotlinAnalysis(
     sourceSets: List<DokkaConfiguration.DokkaSourceSet>,
     logger: DokkaLogger,
     analysisConfiguration: DokkaAnalysisConfiguration = DokkaAnalysisConfiguration()
 ): KotlinAnalysis = throw AnalysisApiDeprecatedError()
 
 @Deprecated(message = ANALYSIS_API_DEPRECATION_MESSAGE, level = DeprecationLevel.ERROR)
-fun SamplesKotlinAnalysis(
+public fun SamplesKotlinAnalysis(
     sourceSets: List<DokkaConfiguration.DokkaSourceSet>,
     logger: DokkaLogger,
     projectKotlinAnalysis: KotlinAnalysis,

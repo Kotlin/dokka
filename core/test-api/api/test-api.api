@@ -3,8 +3,7 @@ public final class org/jetbrains/dokka/testApi/context/MockContext : org/jetbrai
 	public synthetic fun <init> ([Lkotlin/Pair;Lorg/jetbrains/dokka/DokkaConfiguration;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun get (Lorg/jetbrains/dokka/plugability/ExtensionPoint;)Ljava/util/List;
 	public fun getConfiguration ()Lorg/jetbrains/dokka/DokkaConfiguration;
-	public fun getLogger ()Lorg/jetbrains/dokka/utilities/DokkaConsoleLogger;
-	public synthetic fun getLogger ()Lorg/jetbrains/dokka/utilities/DokkaLogger;
+	public fun getLogger ()Lorg/jetbrains/dokka/utilities/DokkaLogger;
 	public fun getUnusedPoints ()Ljava/util/Collection;
 	public fun plugin (Lkotlin/reflect/KClass;)Lorg/jetbrains/dokka/plugability/DokkaPlugin;
 	public fun single (Lorg/jetbrains/dokka/plugability/ExtensionPoint;)Ljava/lang/Object;

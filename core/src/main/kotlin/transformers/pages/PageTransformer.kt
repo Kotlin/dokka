@@ -6,6 +6,6 @@ package org.jetbrains.dokka.transformers.pages
 
 import org.jetbrains.dokka.pages.RootPageNode
 
-fun interface PageTransformer {
-    operator fun invoke(input: RootPageNode): RootPageNode
+public fun interface PageTransformer {
+    public operator fun invoke(input: RootPageNode): RootPageNode
 }

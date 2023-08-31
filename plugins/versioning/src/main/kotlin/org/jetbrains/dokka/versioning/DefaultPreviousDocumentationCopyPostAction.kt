@@ -17,7 +17,9 @@ import org.jetbrains.dokka.templates.TemplateProcessingStrategy
 import org.jetbrains.dokka.templates.TemplatingPlugin
 import java.io.File
 
-class DefaultPreviousDocumentationCopyPostAction(private val context: DokkaContext) : PostAction {
+public class DefaultPreviousDocumentationCopyPostAction(
+    private val context: DokkaContext
+) : PostAction {
     private val versioningStorage by lazy { context.plugin<VersioningPlugin>().querySingle { versioningStorage } }
     private val processingStrategies: List<TemplateProcessingStrategy> =
         context.plugin<TemplatingPlugin>().query { templateProcessingStrategy }

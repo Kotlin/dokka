@@ -17,7 +17,9 @@ import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 import java.io.File
 
-class SourceLinksTransformer(val context: DokkaContext) : PageTransformer {
+public class SourceLinksTransformer(
+    public val context: DokkaContext
+) : PageTransformer {
 
     private val builder : PageContentBuilder = PageContentBuilder(
         context.plugin<DokkaBase>().querySingle { commentsToContentConverter },
@@ -120,8 +122,16 @@ class SourceLinksTransformer(val context: DokkaContext) : PageTransformer {
     }
 }
 
-data class SourceLink(val path: String, val url: String, val lineSuffix: String?, val sourceSetData: DokkaSourceSet) {
-    constructor(sourceLinkDefinition: DokkaConfiguration.SourceLinkDefinition, sourceSetData: DokkaSourceSet) : this(
+public data class SourceLink(
+    val path: String,
+    val url: String,
+    val lineSuffix: String?,
+    val sourceSetData: DokkaSourceSet
+) {
+    public constructor(
+        sourceLinkDefinition: DokkaConfiguration.SourceLinkDefinition,
+        sourceSetData: DokkaSourceSet
+    ) : this(
         sourceLinkDefinition.localDirectory,
         sourceLinkDefinition.remoteUrl.toExternalForm(),
         sourceLinkDefinition.remoteLineSuffix,

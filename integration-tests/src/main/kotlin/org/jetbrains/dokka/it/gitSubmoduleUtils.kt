@@ -9,13 +9,14 @@ import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 import java.io.File
 import java.nio.file.Path
 
-fun AbstractIntegrationTest.copyAndApplyGitDiff(diffFile: File) =
+public fun AbstractIntegrationTest.copyAndApplyGitDiff(diffFile: File) {
     copyGitDiffFileToParent(diffFile).let(::applyGitDiffFromFile)
+}
 
-fun AbstractIntegrationTest.copyGitDiffFileToParent(originalDiffFile: File) =
+public fun AbstractIntegrationTest.copyGitDiffFileToParent(originalDiffFile: File): File =
     originalDiffFile.copyTo(File(projectDir.parent, originalDiffFile.name))
 
-fun AbstractIntegrationTest.applyGitDiffFromFile(diffFile: File) {
+public fun AbstractIntegrationTest.applyGitDiffFromFile(diffFile: File) {
     val projectGitFile = projectDir.resolve(".git")
     val git = if (projectGitFile.exists()) {
         if (projectGitFile.isFile) {
@@ -38,7 +39,7 @@ fun AbstractIntegrationTest.applyGitDiffFromFile(diffFile: File) {
 private fun removeGitFile(repository: Path) =
     repository.toFile()
         .listFiles().orEmpty()
-        .filter { it.name.lowercase() == ".git" }
+        .filter { it.name.toLowerCase() == ".git" }
         .forEach { it.delete() }
 
 

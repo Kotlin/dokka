@@ -11,7 +11,7 @@ import org.jetbrains.dokka.plugability.DokkaPluginApiPreview
 import org.jetbrains.dokka.plugability.PluginApiPreviewAcknowledgement
 
 @InternalDokkaApi
-class IdeDescriptorAnalysisPlugin : DokkaPlugin() {
+public class IdeDescriptorAnalysisPlugin : DokkaPlugin() {
 
     internal val ideKdocFinder by extending {
         plugin<CompilerDescriptorAnalysisPlugin>().kdocFinder providing ::IdePluginKDocFinder

@@ -14,7 +14,9 @@ import java.io.File
 import java.nio.file.Files
 import java.util.concurrent.ConcurrentHashMap
 
-class AddToNavigationCommandHandler(val context: DokkaContext) : CommandHandler {
+public class AddToNavigationCommandHandler(
+    public val context: DokkaContext
+) : CommandHandler {
     private val navigationFragments = ConcurrentHashMap<String, Element>()
 
     override fun handleCommandAsTag(command: Command, body: Element, input: File, output: File) {
@@ -25,7 +27,7 @@ class AddToNavigationCommandHandler(val context: DokkaContext) : CommandHandler 
             ?.let { key -> navigationFragments[key.toString()] = body }
     }
 
-    override fun canHandle(command: Command) = command is AddToNavigationCommand
+    override fun canHandle(command: Command): Boolean = command is AddToNavigationCommand
 
     override fun finish(output: File) {
         if (navigationFragments.isNotEmpty()) {

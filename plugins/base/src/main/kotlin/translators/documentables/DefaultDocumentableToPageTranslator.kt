@@ -12,7 +12,7 @@ import org.jetbrains.dokka.plugability.*
 import org.jetbrains.dokka.transformers.documentation.DocumentableToPageTranslator
 import org.jetbrains.dokka.analysis.kotlin.internal.InternalKotlinAnalysisPlugin
 
-class DefaultDocumentableToPageTranslator(
+public class DefaultDocumentableToPageTranslator(
     context: DokkaContext
 ) : DocumentableToPageTranslator {
     private val configuration = configuration<DokkaBase, DokkaBaseConfiguration>(context)

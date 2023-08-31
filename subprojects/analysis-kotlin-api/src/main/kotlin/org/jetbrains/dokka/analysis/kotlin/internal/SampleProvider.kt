@@ -8,13 +8,13 @@ import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.InternalDokkaApi
 
 @InternalDokkaApi
-interface SampleProviderFactory {
+public interface SampleProviderFactory {
     /**
      * [SampleProvider] is a short-lived closeable instance.
      * It assumes that [SampleProvider] scope of use is not big.
      * Otherwise, it can lead to high memory consumption / leaks during Dokka running.
      */
-    fun build(): SampleProvider
+    public fun build(): SampleProvider
 }
 
 /**
@@ -23,12 +23,14 @@ interface SampleProviderFactory {
  * In general case, it creates a separate project to analysis samples directories.
  */
 @InternalDokkaApi
-interface SampleProvider: AutoCloseable {
-    class SampleSnippet(val imports: String, val body:String)
-
+public interface SampleProvider: AutoCloseable {
+    public class SampleSnippet(
+        public val imports: String,
+        public val body: String
+    )
 
     /**
      * @return [SampleSnippet] or null if it has not found by [fqLink]
      */
-    fun getSample(sourceSet: DokkaConfiguration.DokkaSourceSet, fqLink: String): SampleSnippet?
+    public fun getSample(sourceSet: DokkaConfiguration.DokkaSourceSet, fqLink: String): SampleSnippet?
 }

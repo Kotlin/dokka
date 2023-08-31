@@ -30,7 +30,6 @@ public final class org/jetbrains/dokka/allModulesPage/AllModulesPagePlugin : org
 	public final fun getAllModulesPageGeneration ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getAllModulesPageTransformer ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
 	public final fun getBaseLocationProviderFactory ()Lorg/jetbrains/dokka/plugability/Extension;
-	public final fun getDokkaBase ()Lorg/jetbrains/dokka/base/DokkaBase;
 	public final fun getExternalModuleLinkResolver ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
 	public final fun getMultiModuleLinkResolver ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getMultimoduleLocationProvider ()Lorg/jetbrains/dokka/plugability/Extension;
@@ -62,8 +61,7 @@ public class org/jetbrains/dokka/allModulesPage/MultimoduleLocationProvider : or
 
 public final class org/jetbrains/dokka/allModulesPage/MultimoduleLocationProvider$Factory : org/jetbrains/dokka/base/resolvers/local/LocationProviderFactory {
 	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
-	public fun getLocationProvider (Lorg/jetbrains/dokka/pages/RootPageNode;)Lorg/jetbrains/dokka/allModulesPage/MultimoduleLocationProvider;
-	public synthetic fun getLocationProvider (Lorg/jetbrains/dokka/pages/RootPageNode;)Lorg/jetbrains/dokka/base/resolvers/local/LocationProvider;
+	public fun getLocationProvider (Lorg/jetbrains/dokka/pages/RootPageNode;)Lorg/jetbrains/dokka/base/resolvers/local/LocationProvider;
 }
 
 public final class org/jetbrains/dokka/allModulesPage/MultimodulePageCreator : org/jetbrains/dokka/transformers/pages/PageCreator {

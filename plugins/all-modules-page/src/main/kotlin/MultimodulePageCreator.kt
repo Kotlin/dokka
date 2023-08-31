@@ -25,11 +25,9 @@ import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.dokka.analysis.kotlin.internal.InternalKotlinAnalysisPlugin
 import java.io.File
 
-class MultimodulePageCreator(
+public class MultimodulePageCreator(
     private val context: DokkaContext,
 ) : PageCreator<AllModulesPageGeneration.DefaultAllModulesContext> {
-    private val logger: DokkaLogger = context.logger
-
     private val commentsConverter by lazy { context.plugin<DokkaBase>().querySingle { commentsToContentConverter } }
     private val signatureProvider by lazy { context.plugin<DokkaBase>().querySingle { signatureProvider } }
     private val moduleDocumentationReader by lazy { context.plugin<InternalKotlinAnalysisPlugin>().querySingle { moduleAndPackageDocumentationReader } }
@@ -109,8 +107,9 @@ class MultimodulePageCreator(
         else firstChildParagraph
     }
 
-    companion object {
-        const val MULTIMODULE_PACKAGE_PLACEHOLDER = ".ext"
-        val MULTIMODULE_ROOT_DRI = DRI(packageName = MULTIMODULE_PACKAGE_PLACEHOLDER, classNames = "allModules")
+    public companion object {
+        public const val MULTIMODULE_PACKAGE_PLACEHOLDER: String = ".ext"
+        public val MULTIMODULE_ROOT_DRI: DRI =
+            DRI(packageName = MULTIMODULE_PACKAGE_PLACEHOLDER, classNames = "allModules")
     }
 }

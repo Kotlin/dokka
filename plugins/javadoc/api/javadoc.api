@@ -16,14 +16,12 @@ public final class org/jetbrains/dokka/javadoc/JavadocPlugin : org/jetbrains/dok
 	public final fun getAllClassessPageInstaller ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getDeprecatedPageCreator ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getDocumentableSourceSetFilter ()Lorg/jetbrains/dokka/plugability/Extension;
-	public final fun getDokkaBasePlugin ()Lorg/jetbrains/dokka/base/DokkaBase;
 	public final fun getDokkaJavadocPlugin ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getIndexGenerator ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getJavadocLocationProviderFactory ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getJavadocMultiplatformCheck ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getJavadocPreprocessors ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
 	public final fun getJavadocSignatureProvider ()Lorg/jetbrains/dokka/plugability/Extension;
-	public final fun getKotinAsJavaPlugin ()Lorg/jetbrains/dokka/kotlinAsJava/KotlinAsJavaPlugin;
 	public final fun getLocationProviderFactory ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
 	public final fun getPackageListCreator ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getPageTranslator ()Lorg/jetbrains/dokka/plugability/Extension;
@@ -45,8 +43,7 @@ public final class org/jetbrains/dokka/javadoc/location/JavadocLocationProvider 
 
 public final class org/jetbrains/dokka/javadoc/location/JavadocLocationProviderFactory : org/jetbrains/dokka/base/resolvers/local/LocationProviderFactory {
 	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
-	public synthetic fun getLocationProvider (Lorg/jetbrains/dokka/pages/RootPageNode;)Lorg/jetbrains/dokka/base/resolvers/local/LocationProvider;
-	public fun getLocationProvider (Lorg/jetbrains/dokka/pages/RootPageNode;)Lorg/jetbrains/dokka/javadoc/location/JavadocLocationProvider;
+	public fun getLocationProvider (Lorg/jetbrains/dokka/pages/RootPageNode;)Lorg/jetbrains/dokka/base/resolvers/local/LocationProvider;
 }
 
 public final class org/jetbrains/dokka/javadoc/pages/AllClassesPage : org/jetbrains/dokka/javadoc/pages/JavadocPageNode {

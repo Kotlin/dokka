@@ -12,7 +12,7 @@ import kotlin.test.assertEquals
 import kotlin.test.asserter
 
 // entry point:
-fun ContentNode.assertNode(block: ContentMatcherBuilder<ContentComposite>.() -> Unit) {
+public fun ContentNode.assertNode(block: ContentMatcherBuilder<ContentComposite>.() -> Unit) {
     val matcher = ContentMatcherBuilder(ContentComposite::class).apply(block).build()
     try {
         matcher.tryMatch(this)
@@ -24,123 +24,161 @@ fun ContentNode.assertNode(block: ContentMatcherBuilder<ContentComposite>.() -> 
 
 // DSL:
 @DslMarker
-annotation class ContentMatchersDsl
+public annotation class ContentMatchersDsl
 
 @ContentMatchersDsl
-class ContentMatcherBuilder<T : ContentComposite> @PublishedApi internal constructor(private val kclass: KClass<T>) {
+public class ContentMatcherBuilder<T : ContentComposite> @PublishedApi internal constructor(private val kclass: KClass<T>) {
     @PublishedApi
-    internal val children = mutableListOf<MatcherElement>()
+    internal val children: MutableList<MatcherElement> = mutableListOf()
     internal val assertions = mutableListOf<T.() -> Unit>()
 
-    fun build() = CompositeMatcher(kclass, childrenOrSkip()) { assertions.forEach { it() } }
+    public fun build(): CompositeMatcher<T> = CompositeMatcher(kclass, childrenOrSkip()) { assertions.forEach { it() } }
 
     // part of DSL that cannot be defined as an extension
-    operator fun String.unaryPlus() {
+    public operator fun String.unaryPlus() {
         children += TextMatcher(this)
     }
 
     private fun childrenOrSkip() = if (children.isEmpty() && assertions.isNotEmpty()) listOf(Anything) else children
 }
 
-fun <T : ContentComposite> ContentMatcherBuilder<T>.check(assertion: T.() -> Unit) {
+public fun <T : ContentComposite> ContentMatcherBuilder<T>.check(assertion: T.() -> Unit) {
     assertions += assertion
 }
 
 private val ContentComposite.extractedText
     get() = withDescendants().filterIsInstance<ContentText>().joinToString(separator = "") { it.text }
 
-fun <T : ContentComposite> ContentMatcherBuilder<T>.hasExactText(expected: String) {
+public fun <T : ContentComposite> ContentMatcherBuilder<T>.hasExactText(expected: String) {
     assertions += {
         assertEquals(expected, this.extractedText)
     }
 }
 
-inline fun <reified S : ContentComposite> ContentMatcherBuilder<*>.composite(
+public inline fun <reified S : ContentComposite> ContentMatcherBuilder<*>.composite(
     block: ContentMatcherBuilder<S>.() -> Unit
 ) {
     children += ContentMatcherBuilder(S::class).apply(block).build()
 }
 
-inline fun <reified S : ContentNode> ContentMatcherBuilder<*>.node(noinline assertions: S.() -> Unit = {}) {
+public inline fun <reified S : ContentNode> ContentMatcherBuilder<*>.node(noinline assertions: S.() -> Unit = {}) {
     children += NodeMatcher(S::class, assertions)
 }
 
-fun ContentMatcherBuilder<*>.skipAllNotMatching() {
+public fun ContentMatcherBuilder<*>.skipAllNotMatching() {
     children += Anything
 }
 
 
 // Convenience functions:
-fun ContentMatcherBuilder<*>.group(block: ContentMatcherBuilder<ContentGroup>.() -> Unit) = composite(block)
-
-fun ContentMatcherBuilder<*>.tabbedGroup(
-    block: ContentMatcherBuilder<ContentGroup>.() -> Unit
-) = composite<ContentGroup> {
-    block()
-    check { assertContains(this.style, ContentStyle.TabbedContent) }
+public fun ContentMatcherBuilder<*>.group(block: ContentMatcherBuilder<ContentGroup>.() -> Unit) {
+    composite(block)
 }
 
-fun ContentMatcherBuilder<*>.tab(
-    tabbedContentType: TabbedContentType, block: ContentMatcherBuilder<ContentGroup>.() -> Unit
-) = composite<ContentGroup> {
-    block()
-    check {
-        assertEquals(tabbedContentType, this.extra[TabbedContentTypeExtra]?.value)
+public fun ContentMatcherBuilder<*>.tabbedGroup(
+    block: ContentMatcherBuilder<ContentGroup>.() -> Unit
+) {
+    composite<ContentGroup> {
+        block()
+        check { assertContains(this.style, ContentStyle.TabbedContent) }
     }
 }
 
-fun ContentMatcherBuilder<*>.header(expectedLevel: Int? = null, block: ContentMatcherBuilder<ContentHeader>.() -> Unit) =
+public fun ContentMatcherBuilder<*>.tab(
+    tabbedContentType: TabbedContentType, block: ContentMatcherBuilder<ContentGroup>.() -> Unit
+) {
+    composite<ContentGroup> {
+        block()
+        check {
+            assertEquals(tabbedContentType, this.extra[TabbedContentTypeExtra]?.value)
+        }
+    }
+}
+
+public fun ContentMatcherBuilder<*>.header(expectedLevel: Int? = null, block: ContentMatcherBuilder<ContentHeader>.() -> Unit) {
     composite<ContentHeader> {
         block()
         check { if (expectedLevel != null) assertEquals(expectedLevel, this.level) }
     }
+}
 
-fun ContentMatcherBuilder<*>.p(block: ContentMatcherBuilder<ContentGroup>.() -> Unit) =
+public fun ContentMatcherBuilder<*>.p(block: ContentMatcherBuilder<ContentGroup>.() -> Unit) {
     composite<ContentGroup> {
         block()
         check { assertContains(this.style, TextStyle.Paragraph) }
     }
+}
 
-fun ContentMatcherBuilder<*>.link(block: ContentMatcherBuilder<ContentLink>.() -> Unit) = composite(block)
+public fun ContentMatcherBuilder<*>.link(block: ContentMatcherBuilder<ContentLink>.() -> Unit) {
+    composite(block)
+}
 
-fun ContentMatcherBuilder<*>.table(block: ContentMatcherBuilder<ContentTable>.() -> Unit) = composite(block)
+public fun ContentMatcherBuilder<*>.table(block: ContentMatcherBuilder<ContentTable>.() -> Unit) {
+    composite(block)
+}
 
-fun ContentMatcherBuilder<*>.platformHinted(block: ContentMatcherBuilder<ContentGroup>.() -> Unit) =
+public fun ContentMatcherBuilder<*>.platformHinted(block: ContentMatcherBuilder<ContentGroup>.() -> Unit) {
     composite<PlatformHintedContent> { group(block) }
-
-fun ContentMatcherBuilder<*>.list(block: ContentMatcherBuilder<ContentList>.() -> Unit) = composite(block)
-
-fun ContentMatcherBuilder<*>.codeBlock(block: ContentMatcherBuilder<ContentCodeBlock>.() -> Unit) = composite(block)
-
-fun ContentMatcherBuilder<*>.codeInline(block: ContentMatcherBuilder<ContentCodeInline>.() -> Unit) = composite(block)
-
-fun ContentMatcherBuilder<*>.caption(block: ContentMatcherBuilder<ContentGroup>.() -> Unit) = composite<ContentGroup> {
-    block()
-    check { assertContains(this.style, ContentStyle.Caption) }
 }
 
-fun ContentMatcherBuilder<*>.br() = node<ContentBreakLine>()
+public fun ContentMatcherBuilder<*>.list(block: ContentMatcherBuilder<ContentList>.() -> Unit) {
+    composite(block)
+}
 
-fun ContentMatcherBuilder<*>.somewhere(block: ContentMatcherBuilder<*>.() -> Unit) {
+public fun ContentMatcherBuilder<*>.codeBlock(block: ContentMatcherBuilder<ContentCodeBlock>.() -> Unit) {
+    composite(block)
+}
+
+public fun ContentMatcherBuilder<*>.codeInline(block: ContentMatcherBuilder<ContentCodeInline>.() -> Unit) {
+    composite(block)
+}
+
+public fun ContentMatcherBuilder<*>.caption(block: ContentMatcherBuilder<ContentGroup>.() -> Unit) {
+    composite<ContentGroup> {
+        block()
+        check { assertContains(this.style, ContentStyle.Caption) }
+    }
+}
+
+public fun ContentMatcherBuilder<*>.br() {
+    node<ContentBreakLine>()
+}
+
+public fun ContentMatcherBuilder<*>.somewhere(block: ContentMatcherBuilder<*>.() -> Unit) {
     skipAllNotMatching()
     block()
     skipAllNotMatching()
 }
 
-fun ContentMatcherBuilder<*>.divergentGroup(block: ContentMatcherBuilder<ContentDivergentGroup>.() -> Unit) =
+public fun ContentMatcherBuilder<*>.divergentGroup(
+    block: ContentMatcherBuilder<ContentDivergentGroup>.() -> Unit
+) {
     composite(block)
+}
 
-fun ContentMatcherBuilder<ContentDivergentGroup>.divergentInstance(block: ContentMatcherBuilder<ContentDivergentInstance>.() -> Unit) =
+public fun ContentMatcherBuilder<ContentDivergentGroup>.divergentInstance(
+    block: ContentMatcherBuilder<ContentDivergentInstance>.() -> Unit
+) {
     composite(block)
+}
 
-fun ContentMatcherBuilder<ContentDivergentInstance>.before(block: ContentMatcherBuilder<ContentComposite>.() -> Unit) =
+public fun ContentMatcherBuilder<ContentDivergentInstance>.before(
+    block: ContentMatcherBuilder<ContentComposite>.() -> Unit
+) {
     composite(block)
+}
 
-fun ContentMatcherBuilder<ContentDivergentInstance>.divergent(block: ContentMatcherBuilder<ContentComposite>.() -> Unit) =
+public fun ContentMatcherBuilder<ContentDivergentInstance>.divergent(
+    block: ContentMatcherBuilder<ContentComposite>.() -> Unit
+) {
     composite(block)
+}
 
-fun ContentMatcherBuilder<ContentDivergentInstance>.after(block: ContentMatcherBuilder<ContentComposite>.() -> Unit) =
+public fun ContentMatcherBuilder<ContentDivergentInstance>.after(
+    block: ContentMatcherBuilder<ContentComposite>.() -> Unit
+) {
     composite(block)
+}
 
 /*
  * TODO replace with kotlin.test.assertContains after migrating to Kotlin language version 1.5+
