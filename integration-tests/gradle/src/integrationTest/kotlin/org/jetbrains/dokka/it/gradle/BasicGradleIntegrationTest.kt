@@ -8,10 +8,7 @@ import org.gradle.testkit.runner.TaskOutcome
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ArgumentsSource
 import java.io.File
-import kotlin.test.BeforeTest
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
+import kotlin.test.*
 
 class BasicGradleIntegrationTest : AbstractGradleIntegrationTest() {
 
@@ -137,12 +134,12 @@ class BasicGradleIntegrationTest : AbstractGradleIntegrationTest() {
             "Anchors should not have hashes inside"
         )
 
-        assertEquals(
-            """#logo{background-image:url('https://upload.wikimedia.org/wikipedia/commons/9/9d/Ubuntu_logo.svg');}""",
-            stylesDir.resolve("logo-styles.css").readText().replace("\\s".toRegex(), ""),
+        assertContains(
+            stylesDir.resolve("logo-styles.css").readText(),
+            "--dokka-logo-image-url: url('https://upload.wikimedia.org/wikipedia/commons/9/9d/Ubuntu_logo.svg');",
         )
         assertTrue(stylesDir.resolve("custom-style-to-add.css").isFile)
-        assertEquals("""/* custom stylesheet */""", stylesDir.resolve("custom-style-to-add.css").readText())
+        assertContains(stylesDir.resolve("custom-style-to-add.css").readText(), "/* custom stylesheet */")
         allHtmlFiles().forEach { file ->
             if (file.name != "navigation.html") assertTrue(
                 "custom-style-to-add.css" in file.readText(),
