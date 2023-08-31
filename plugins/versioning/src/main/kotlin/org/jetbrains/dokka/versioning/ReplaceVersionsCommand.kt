@@ -14,9 +14,9 @@ import org.jetbrains.dokka.templates.CommandHandler
 import org.jsoup.nodes.Element
 import java.io.File
 
-class ReplaceVersionCommandHandler(context: DokkaContext) : CommandHandler {
+public class ReplaceVersionCommandHandler(context: DokkaContext) : CommandHandler {
 
-    val versionsNavigationCreator by lazy {
+    public val versionsNavigationCreator: VersionsNavigationCreator by lazy {
         context.plugin<VersioningPlugin>().querySingle { versionsNavigationCreator }
     }
 

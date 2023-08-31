@@ -9,6 +9,6 @@ import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.psi.KtDeclaration
 
 @InternalDokkaApi
-interface DescriptorFinder {
-    fun KtDeclaration.findDescriptor(): DeclarationDescriptor?
+public interface DescriptorFinder {
+    public fun KtDeclaration.findDescriptor(): DeclarationDescriptor?
 }

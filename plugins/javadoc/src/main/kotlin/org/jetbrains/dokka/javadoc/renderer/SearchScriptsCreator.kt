@@ -15,9 +15,11 @@ import org.jetbrains.dokka.model.Documentable
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.utilities.formatToEndWithHtml
 
-class SearchScriptsCreator(private val locationProvider: LocationProvider) {
+public class SearchScriptsCreator(
+    private val locationProvider: LocationProvider
+) {
 
-    fun invoke(input: RootPageNode): List<RendererSpecificPage> {
+    public fun invoke(input: RootPageNode): List<RendererSpecificPage> {
         val data = when (input) {
             is JavadocModulePageNode -> processModules(listOf(input))
             else -> processModules(input.children.filterIsInstance<JavadocModulePageNode>())

@@ -12,7 +12,7 @@ import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.query
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 
-class PageMerger(context: DokkaContext) : PageTransformer {
+public class PageMerger(context: DokkaContext) : PageTransformer {
 
     private val strategies: Iterable<PageMergerStrategy> = context.plugin<DokkaBase>().query { pageMergerStrategy }
 

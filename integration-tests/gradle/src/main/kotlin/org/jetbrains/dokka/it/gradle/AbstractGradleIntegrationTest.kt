@@ -14,17 +14,17 @@ import java.io.File
 import java.net.URI
 import kotlin.test.BeforeTest
 
-abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
+public abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
 
     @BeforeTest
-    fun copyTemplates() {
+    public fun copyTemplates() {
         File("projects").listFiles().orEmpty()
             .filter { it.isFile }
             .filter { it.name.startsWith("template.") }
             .forEach { file -> file.copyTo(File(tempFolder, file.name)) }
     }
 
-    fun createGradleRunner(
+    public fun createGradleRunner(
         buildVersions: BuildVersions,
         vararg arguments: String,
         jvmArgs: List<String> = listOf("-Xmx2G", "-XX:MaxMetaspaceSize=1G")
@@ -47,7 +47,7 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
             .withJvmArguments(jvmArgs)
     }
 
-    fun GradleRunner.buildRelaxed(): BuildResult {
+    public fun GradleRunner.buildRelaxed(): BuildResult {
         return try {
             build()
         } catch (e: Throwable) {

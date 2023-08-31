@@ -28,7 +28,9 @@ import org.jetbrains.dokka.DokkaConfiguration.ExternalDocumentationLink
 import java.io.File
 import java.net.URL
 
-abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependency>) : AbstractMojo() {
+public abstract class AbstractDokkaMojo(
+    private val defaultDokkaPlugins: List<Dependency>
+) : AbstractMojo() {
 
     @Parameter(defaultValue = "\${project}", readonly = true, required = true)
     protected var mavenProject: MavenProject? = null
@@ -47,10 +49,10 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
     private var resolutionErrorHandler: ResolutionErrorHandler? = null
 
     @Parameter(defaultValue = "JVM")
-    var displayName: String = "JVM"
+    public var displayName: String = "JVM"
 
     @Parameter
-    var sourceSetName: String = "JVM"
+    public var sourceSetName: String = "JVM"
 
     /**
      * Source code roots to be analyzed and documented.
@@ -59,14 +61,14 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
      * Default is `{project.compileSourceRoots}`.
      */
     @Parameter(required = true, defaultValue = "\${project.compileSourceRoots}")
-    var sourceDirectories: List<String> = emptyList()
+    public var sourceDirectories: List<String> = emptyList()
 
     /**
      * List of directories or files that contain sample functions which are referenced via
      * [@sample](https://kotlinlang.org/docs/kotlin-doc.html#sample-identifier) KDoc tag.
      */
     @Parameter
-    var samples: List<String> = emptyList()
+    public var samples: List<String> = emptyList()
 
     /**
      * List of Markdown files that contain
@@ -95,7 +97,7 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
      * ```
      */
     @Parameter
-    var includes: List<String> = emptyList()
+    public var includes: List<String> = emptyList()
 
     /**
      * Classpath for analysis and interactive samples.
@@ -106,14 +108,14 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
      * Default is `{project.compileClasspathElements}`.
      */
     @Parameter(required = true, defaultValue = "\${project.compileClasspathElements}")
-    var classpath: List<String> = emptyList()
+    public var classpath: List<String> = emptyList()
 
     /**
      * Specifies the location of the project source code on the Web. If provided, Dokka generates
      * "source" links for each declaration. See [SourceLinkMapItem] for more details.
      */
     @Parameter
-    var sourceLinks: List<SourceLinkMapItem> = emptyList()
+    public var sourceLinks: List<SourceLinkMapItem> = emptyList()
 
     /**
      * Display name used to refer to the project/module. Used for ToC, navigation, logging, etc.
@@ -121,7 +123,7 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
      * Default is `{project.artifactId}`.
      */
     @Parameter(required = true, defaultValue = "\${project.artifactId}")
-    var moduleName: String = ""
+    public var moduleName: String = ""
 
     /**
      * Whether to skip documentation generation.
@@ -129,7 +131,7 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
      * Default is `false`.
      */
     @Parameter(required = false, defaultValue = "false")
-    var skip: Boolean = false
+    public var skip: Boolean = false
 
     /**
      * JDK version to use when generating external documentation links for Java types.
@@ -141,7 +143,7 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
      * Default is JDK 8.
      */
     @Parameter(required = false, defaultValue = "${DokkaDefaults.jdkVersion}")
-    var jdkVersion: Int = DokkaDefaults.jdkVersion
+    public var jdkVersion: Int = DokkaDefaults.jdkVersion
 
     /**
      * Whether to document declarations annotated with [Deprecated].
@@ -151,7 +153,7 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
      * Default is `false`.
      */
     @Parameter
-    var skipDeprecated: Boolean = DokkaDefaults.skipDeprecated
+    public var skipDeprecated: Boolean = DokkaDefaults.skipDeprecated
 
     /**
      * Whether to skip packages that contain no visible declarations after
@@ -163,7 +165,7 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
      * Default is `true`.
      */
     @Parameter
-    var skipEmptyPackages: Boolean = DokkaDefaults.skipEmptyPackages
+    public var skipEmptyPackages: Boolean = DokkaDefaults.skipEmptyPackages
 
     /**
      * Whether to emit warnings about visible undocumented declarations, that is declarations without KDocs
@@ -176,7 +178,7 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
      * Default is `false`.
      */
     @Parameter
-    var reportUndocumented: Boolean = DokkaDefaults.reportUndocumented
+    public var reportUndocumented: Boolean = DokkaDefaults.reportUndocumented
 
     /**
      * Allows to customize documentation generation options on a per-package basis.
@@ -184,7 +186,7 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
      * @see PackageOptions for details
      */
     @Parameter
-    var perPackageOptions: List<PackageOptions> = emptyList()
+    public var perPackageOptions: List<PackageOptions> = emptyList()
 
     /**
      * Allows linking to Dokka/Javadoc documentation of the project's dependencies.
@@ -192,7 +194,7 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
      * @see ExternalDocumentationLinkBuilder for details
      */
     @Parameter
-    var externalDocumentationLinks: List<ExternalDocumentationLinkBuilder> = emptyList()
+    public var externalDocumentationLinks: List<ExternalDocumentationLinkBuilder> = emptyList()
 
     /**
      * Whether to generate external documentation links that lead to API reference
@@ -201,7 +203,7 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
      * Default is `false`, meaning links will be generated.
      */
     @Parameter(defaultValue = "${DokkaDefaults.noStdlibLink}")
-    var noStdlibLink: Boolean = DokkaDefaults.noStdlibLink
+    public var noStdlibLink: Boolean = DokkaDefaults.noStdlibLink
 
     /**
      * Whether to generate external documentation links to JDK's Javadocs
@@ -212,7 +214,7 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
      * Default is `false`, meaning links will be generated.
      */
     @Parameter(defaultValue = "${DokkaDefaults.noJdkLink}")
-    var noJdkLink: Boolean = DokkaDefaults.noJdkLink
+    public var noJdkLink: Boolean = DokkaDefaults.noJdkLink
 
     /**
      * Whether to resolve remote files/links over network.
@@ -230,7 +232,7 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
      * Default is `false`.
      */
     @Parameter(defaultValue = "${DokkaDefaults.offlineMode}")
-    var offlineMode: Boolean = DokkaDefaults.offlineMode
+    public var offlineMode: Boolean = DokkaDefaults.offlineMode
 
     /**
      * [Kotlin language version](https://kotlinlang.org/docs/compatibility-modes.html)
@@ -240,7 +242,7 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
      * By default, the latest language version available to Dokka's embedded compiler will be used.
      */
     @Parameter
-    var languageVersion: String? = null
+    public var languageVersion: String? = null
 
     /**
      * [Kotlin API version](https://kotlinlang.org/docs/compatibility-modes.html)
@@ -250,14 +252,14 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
      * By default, it will be deduced from [languageVersion].
      */
     @Parameter
-    var apiVersion: String? = null
+    public var apiVersion: String? = null
 
     /**
      * Directories or individual files that should be suppressed, meaning declarations from them
      * will be not documented.
      */
     @Parameter
-    var suppressedFiles: List<String> = emptyList()
+    public var suppressedFiles: List<String> = emptyList()
 
     /**
      * Set of visibility modifiers that should be documented.
@@ -270,7 +272,7 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
      * Default is [DokkaConfiguration.Visibility.PUBLIC].
      */
     @Parameter(property = "visibility")
-    var documentedVisibilities: Set<DokkaConfiguration.Visibility> = DokkaDefaults.documentedVisibilities
+    public var documentedVisibilities: Set<DokkaConfiguration.Visibility> = DokkaDefaults.documentedVisibilities
         // hack to set the default value for lists, didn't find any other safe way
         // maven seems to overwrite Kotlin's default initialization value, so it doesn't matter what you put there
         get() = field.ifEmpty { DokkaDefaults.documentedVisibilities }
@@ -284,7 +286,7 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
      * Default is `false`.
      */
     @Parameter
-    var failOnWarning: Boolean = DokkaDefaults.failOnWarning
+    public var failOnWarning: Boolean = DokkaDefaults.failOnWarning
 
     /**
      * Whether to suppress obvious functions.
@@ -298,7 +300,7 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
      * Default is `true`
      */
     @Parameter(defaultValue = "${DokkaDefaults.suppressObviousFunctions}")
-    var suppressObviousFunctions: Boolean = DokkaDefaults.suppressObviousFunctions
+    public var suppressObviousFunctions: Boolean = DokkaDefaults.suppressObviousFunctions
 
     /**
      * Whether to suppress inherited members that aren't explicitly overridden in a given class.
@@ -310,7 +312,7 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
      * Default is `false`.
      */
     @Parameter(defaultValue = "${DokkaDefaults.suppressInheritedMembers}")
-    var suppressInheritedMembers: Boolean = DokkaDefaults.suppressInheritedMembers
+    public var suppressInheritedMembers: Boolean = DokkaDefaults.suppressInheritedMembers
 
     /**
      * Dokka plugins to be using during documentation generation.
@@ -328,20 +330,20 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
      * ```
      */
     @Parameter
-    var dokkaPlugins: List<Dependency> = emptyList()
+    public var dokkaPlugins: List<Dependency> = emptyList()
         get() = field + defaultDokkaPlugins
 
     @Parameter
-    var cacheRoot: String? = null
+    public var cacheRoot: String? = null
 
     @Parameter
-    var platform: String = ""
+    public var platform: String = ""
 
     /**
      * Deprecated. Use [documentedVisibilities] instead.
      */
     @Parameter
-    var includeNonPublic: Boolean = DokkaDefaults.includeNonPublic
+    public var includeNonPublic: Boolean = DokkaDefaults.includeNonPublic
 
     protected abstract fun getOutDir(): String
 
@@ -493,7 +495,7 @@ abstract class AbstractDokkaMojo(private val defaultDokkaPlugins: List<Dependenc
     requiresDependencyResolution = ResolutionScope.COMPILE,
     requiresProject = true
 )
-class DokkaMojo : AbstractDokkaMojo(emptyList()) {
+public class DokkaMojo : AbstractDokkaMojo(emptyList()) {
 
     /**
      * Directory to which documentation will be generated.
@@ -501,9 +503,9 @@ class DokkaMojo : AbstractDokkaMojo(emptyList()) {
      * Default is `{project.basedir}/target/dokka`.
      */
     @Parameter(required = true, defaultValue = "\${project.basedir}/target/dokka")
-    var outputDir: String = ""
+    public var outputDir: String = ""
 
-    override fun getOutDir() = outputDir
+    override fun getOutDir(): String = outputDir
 }
 
 @Mojo(
@@ -513,7 +515,7 @@ class DokkaMojo : AbstractDokkaMojo(emptyList()) {
     requiresDependencyResolution = ResolutionScope.COMPILE,
     requiresProject = true
 )
-class DokkaJavadocMojo : AbstractDokkaMojo(listOf(javadocDependency)) {
+public class DokkaJavadocMojo : AbstractDokkaMojo(listOf(javadocDependency)) {
 
     /**
      * Directory to which documentation will be generated.
@@ -521,9 +523,9 @@ class DokkaJavadocMojo : AbstractDokkaMojo(listOf(javadocDependency)) {
      * Default is `{project.basedir}/target/dokkaJavadoc`.
      */
     @Parameter(required = true, defaultValue = "\${project.basedir}/target/dokkaJavadoc")
-    var outputDir: String = ""
+    public var outputDir: String = ""
 
-    override fun getOutDir() = outputDir
+    override fun getOutDir(): String = outputDir
 }
 
 @Mojo(
@@ -533,7 +535,7 @@ class DokkaJavadocMojo : AbstractDokkaMojo(listOf(javadocDependency)) {
     requiresDependencyResolution = ResolutionScope.COMPILE,
     requiresProject = true
 )
-class DokkaJavadocJarMojo : AbstractDokkaMojo(listOf(javadocDependency)) {
+public class DokkaJavadocJarMojo : AbstractDokkaMojo(listOf(javadocDependency)) {
 
     /**
      * Directory to which documentation jar will be generated.
@@ -541,7 +543,7 @@ class DokkaJavadocJarMojo : AbstractDokkaMojo(listOf(javadocDependency)) {
      * Default is `{project.basedir}/target/dokkaJavadocJar`.
      */
     @Parameter(required = true, defaultValue = "\${project.basedir}/target/dokkaJavadocJar")
-    var outputDir: String = ""
+    public var outputDir: String = ""
 
     /**
      * Specifies the directory where the generated jar file will be put.
@@ -578,7 +580,7 @@ class DokkaJavadocJarMojo : AbstractDokkaMojo(listOf(javadocDependency)) {
     @Component(role = Archiver::class, hint = "jar")
     private var jarArchiver: JarArchiver? = null
 
-    override fun getOutDir() = outputDir
+    override fun getOutDir(): String = outputDir
 
     override fun execute() {
         super.execute()

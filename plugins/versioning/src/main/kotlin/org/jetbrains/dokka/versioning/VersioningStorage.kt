@@ -11,18 +11,21 @@ import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.configuration
 import java.io.File
 
-data class VersionDirs(val src: File, val dst: File)
-data class CurrentVersion(val name: String, val dir: File)
+public data class VersionDirs(val src: File, val dst: File)
+public data class CurrentVersion(val name: String, val dir: File)
 
-interface VersioningStorage {
-    val previousVersions: Map<VersionId, VersionDirs>
-    val currentVersion: CurrentVersion
-    fun createVersionFile()
+public interface VersioningStorage {
+    public val previousVersions: Map<VersionId, VersionDirs>
+    public val currentVersion: CurrentVersion
+
+    public fun createVersionFile()
 }
 
-typealias VersionId = String
+public typealias VersionId = String
 
-class DefaultVersioningStorage(val context: DokkaContext) : VersioningStorage {
+public class DefaultVersioningStorage(
+    public val context: DokkaContext
+) : VersioningStorage {
 
     private val mapper = ObjectMapper()
     private val configuration = configuration<VersioningPlugin, VersioningConfiguration>(context)

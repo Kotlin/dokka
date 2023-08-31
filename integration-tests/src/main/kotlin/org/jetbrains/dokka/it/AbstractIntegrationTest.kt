@@ -13,19 +13,19 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-abstract class AbstractIntegrationTest {
+public abstract class AbstractIntegrationTest {
 
     @field:TempDir
-    lateinit var tempFolder: File
+    public lateinit var tempFolder: File
 
-    val projectDir get() = File(tempFolder, "project")
+    public val projectDir: File get() = File(tempFolder, "project")
 
-    fun File.allDescendentsWithExtension(extension: String): Sequence<File> =
+    public fun File.allDescendentsWithExtension(extension: String): Sequence<File> =
         this.walkTopDown().filter { it.isFile && it.extension == extension }
 
-    fun File.allHtmlFiles(): Sequence<File> = allDescendentsWithExtension("html")
+    public fun File.allHtmlFiles(): Sequence<File> = allDescendentsWithExtension("html")
 
-    fun File.allGfmFiles(): Sequence<File> = allDescendentsWithExtension("md")
+    public fun File.allGfmFiles(): Sequence<File> = allDescendentsWithExtension("md")
 
     protected fun assertContainsNoErrorClass(file: File) {
         val fileText = file.readText()

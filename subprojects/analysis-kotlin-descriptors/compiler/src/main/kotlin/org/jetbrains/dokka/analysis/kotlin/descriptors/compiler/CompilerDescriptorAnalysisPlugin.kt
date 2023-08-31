@@ -20,26 +20,34 @@ import org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.translator.Defau
 import org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.translator.DefaultExternalDocumentablesProvider
 import org.jetbrains.dokka.renderers.PostAction
 import org.jetbrains.dokka.analysis.kotlin.internal.InternalKotlinAnalysisPlugin
+import org.jetbrains.dokka.analysis.kotlin.internal.SampleProviderFactory
 import org.jetbrains.dokka.plugability.*
 import org.jetbrains.kotlin.asJava.elements.KtLightAbstractAnnotation
 
 @Suppress("unused")
 @InternalDokkaApi
-class CompilerDescriptorAnalysisPlugin : DokkaPlugin() {
+public class CompilerDescriptorAnalysisPlugin : DokkaPlugin() {
 
-    val kdocFinder by extensionPoint<KDocFinder>()
+    @InternalDokkaApi
+    public val kdocFinder: ExtensionPoint<KDocFinder> by extensionPoint()
 
-    val descriptorFinder by extensionPoint<DescriptorFinder>()
+    @InternalDokkaApi
+    public val descriptorFinder: ExtensionPoint<DescriptorFinder> by extensionPoint()
 
-    val klibService by extensionPoint<KLibService>()
+    @InternalDokkaApi
+    public val klibService: ExtensionPoint<KLibService> by extensionPoint()
 
-    val compilerExtensionPointProvider by extensionPoint<CompilerExtensionPointProvider>()
+    @InternalDokkaApi
+    public val compilerExtensionPointProvider: ExtensionPoint<CompilerExtensionPointProvider> by extensionPoint()
 
-    val mockApplicationHack by extensionPoint<MockApplicationHack>()
+    @InternalDokkaApi
+    public val mockApplicationHack: ExtensionPoint<MockApplicationHack> by extensionPoint()
 
-    val analysisContextCreator by extensionPoint<AnalysisContextCreator>()
+    @InternalDokkaApi
+    public val analysisContextCreator: ExtensionPoint<AnalysisContextCreator> by extensionPoint()
 
-    val kotlinAnalysis by extensionPoint<KotlinAnalysis>()
+    @InternalDokkaApi
+    public val kotlinAnalysis: ExtensionPoint<KotlinAnalysis> by extensionPoint()
 
     internal val documentableAnalyzerImpl by extending {
         plugin<InternalKotlinAnalysisPlugin>().documentableSourceLanguageParser providing { CompilerDocumentableSourceLanguageParser() }
@@ -72,7 +80,7 @@ class CompilerDescriptorAnalysisPlugin : DokkaPlugin() {
      * So it should have a possibility to override this extension
      */
     @InternalDokkaApi
-    val kotlinSampleProviderFactory by extending {
+    public val kotlinSampleProviderFactory: Extension<SampleProviderFactory, *, *> by extending {
         plugin<InternalKotlinAnalysisPlugin>().sampleProviderFactory providing ::KotlinSampleProviderFactory
     }
 

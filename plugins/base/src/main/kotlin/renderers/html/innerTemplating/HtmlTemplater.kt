@@ -17,13 +17,15 @@ import org.jetbrains.dokka.plugability.configuration
 import java.io.StringWriter
 
 
-enum class DokkaTemplateTypes(val path: String) {
+public enum class DokkaTemplateTypes(
+    public val path: String
+) {
     BASE("base.ftl")
 }
 
-typealias TemplateMap = Map<String, Any?>
+public typealias TemplateMap = Map<String, Any?>
 
-class HtmlTemplater(
+public class HtmlTemplater(
     context: DokkaContext
 ) {
 
@@ -60,11 +62,11 @@ class HtmlTemplater(
         templateUpdateDelayMilliseconds = Long.MAX_VALUE
     }
 
-    fun setupSharedModel(model: TemplateMap) {
+    public fun setupSharedModel(model: TemplateMap) {
         templaterConfiguration.setSharedVariables(model)
     }
 
-    fun renderFromTemplate(
+    public fun renderFromTemplate(
         templateType: DokkaTemplateTypes,
         generateModel: () -> TemplateMap
     ): String {

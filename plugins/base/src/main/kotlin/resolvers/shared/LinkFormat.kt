@@ -4,7 +4,7 @@
 
 package org.jetbrains.dokka.base.resolvers.shared
 
-interface LinkFormat {
-    val formatName: String
-    val linkExtension: String
+public interface LinkFormat {
+    public val formatName: String
+    public val linkExtension: String
 }

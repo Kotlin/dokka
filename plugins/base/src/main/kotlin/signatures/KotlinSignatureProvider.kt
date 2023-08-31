@@ -23,13 +23,16 @@ import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.utilities.DokkaLogger
 import kotlin.text.Typography.nbsp
 
-class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogger)
-    : SignatureProvider, JvmSignatureUtils by KotlinSignatureUtils {
+public class KotlinSignatureProvider(
+    ctcc: CommentsToContentConverter,
+    logger: DokkaLogger
+) : SignatureProvider, JvmSignatureUtils by KotlinSignatureUtils {
 
-    constructor(context: DokkaContext) : this(
+    public constructor(context: DokkaContext) : this(
         context.plugin<DokkaBase>().querySingle { commentsToContentConverter },
         context.logger,
     )
+
     private val contentBuilder = PageContentBuilder(ctcc, this, logger)
 
     private val ignoredVisibilities = setOf(JavaVisibility.Public, KotlinVisibility.Public)

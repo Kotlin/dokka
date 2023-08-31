@@ -8,7 +8,9 @@ import org.jetbrains.dokka.pages.ContentPage
 import org.jetbrains.dokka.pages.PageNode
 import org.jetbrains.dokka.utilities.DokkaLogger
 
-class FallbackPageMergerStrategy(private val logger: DokkaLogger) : PageMergerStrategy {
+public class FallbackPageMergerStrategy(
+    private val logger: DokkaLogger
+) : PageMergerStrategy {
     override fun tryMerge(pages: List<PageNode>, path: List<String>): List<PageNode> {
         pages.map {
             (it as? ContentPage)

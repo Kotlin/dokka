@@ -4,12 +4,12 @@
 
 package org.jetbrains.dokka.pages
 
-interface MultimoduleRootPage : ContentPage
+public interface MultimoduleRootPage : ContentPage
 
-interface ModulePage : ContentPage, WithDocumentables
+public interface ModulePage : ContentPage, WithDocumentables
 
-interface PackagePage : ContentPage, WithDocumentables
+public interface PackagePage : ContentPage, WithDocumentables
 
-interface ClasslikePage : ContentPage, WithDocumentables
+public interface ClasslikePage : ContentPage, WithDocumentables
 
-interface MemberPage : ContentPage, WithDocumentables
+public interface MemberPage : ContentPage, WithDocumentables

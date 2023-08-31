@@ -6,10 +6,10 @@ package org.jetbrains.dokka.pages
 
 import kotlin.reflect.KClass
 
-inline fun <reified T : ContentNode, R : ContentNode> R.mapTransform(noinline operation: (T) -> T): R =
+public inline fun <reified T : ContentNode, R : ContentNode> R.mapTransform(noinline operation: (T) -> T): R =
     mapTransform(T::class, operation)
 
-inline fun <reified T : ContentNode, R : ContentNode> R.recursiveMapTransform(noinline operation: (T) -> T): R =
+public inline fun <reified T : ContentNode, R : ContentNode> R.recursiveMapTransform(noinline operation: (T) -> T): R =
         recursiveMapTransform(T::class, operation)
 
 @PublishedApi

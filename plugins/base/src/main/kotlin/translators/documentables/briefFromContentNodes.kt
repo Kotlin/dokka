@@ -12,7 +12,7 @@ import org.jetbrains.dokka.model.doc.Text
 import org.jetbrains.dokka.model.withDescendants
 import org.jetbrains.dokka.pages.*
 
-fun firstParagraphBrief(docTag: DocTag): DocTag? =
+public fun firstParagraphBrief(docTag: DocTag): DocTag? =
     when(docTag){
         is P -> docTag
         is CustomDocTag -> docTag.children.firstNotNullOfOrNull { firstParagraphBrief(it) }
@@ -20,7 +20,7 @@ fun firstParagraphBrief(docTag: DocTag): DocTag? =
         else -> null
     }
 
-fun firstSentenceBriefFromContentNodes(description: List<ContentNode>): List<ContentNode> {
+public fun firstSentenceBriefFromContentNodes(description: List<ContentNode>): List<ContentNode> {
     val firstSentenceRegex = """^((?:[^.?!]|[.!?](?!\s))*[.!?])""".toRegex()
 
     //Description that is entirely based on html content. In html it is hard to define a brief so we render all of it

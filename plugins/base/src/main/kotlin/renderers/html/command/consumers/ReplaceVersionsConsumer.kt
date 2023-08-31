@@ -10,8 +10,8 @@ import org.jetbrains.dokka.base.templating.ImmediateHtmlCommandConsumer
 import org.jetbrains.dokka.base.templating.ReplaceVersionsCommand
 import org.jetbrains.dokka.plugability.DokkaContext
 
-class ReplaceVersionsConsumer(private val context: DokkaContext) : ImmediateHtmlCommandConsumer {
-    override fun canProcess(command: Command) = command is ReplaceVersionsCommand
+public class ReplaceVersionsConsumer(private val context: DokkaContext) : ImmediateHtmlCommandConsumer {
+    override fun canProcess(command: Command): Boolean = command is ReplaceVersionsCommand
 
     override fun <R> processCommand(
         command: Command,

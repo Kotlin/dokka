@@ -16,19 +16,19 @@ import org.jetbrains.dokka.model.WithChildren
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 
-class NavigationPage(
-    val root: NavigationNode,
-    val moduleName: String,
-    val context: DokkaContext
+public class NavigationPage(
+    public val root: NavigationNode,
+    public val moduleName: String,
+    public val context: DokkaContext
 ) : RendererSpecificPage {
 
-    override val name = "navigation"
+    override val name: String = "navigation"
 
-    override val children = emptyList<PageNode>()
+    override val children: List<PageNode> = emptyList()
 
-    override fun modified(name: String, children: List<PageNode>) = this
+    override fun modified(name: String, children: List<PageNode>): NavigationPage = this
 
-    override val strategy = RenderingStrategy<HtmlRenderer> {
+    override val strategy: RenderingStrategy = RenderingStrategy<HtmlRenderer> {
         createHTML().visit(root, this)
     }
 
@@ -86,7 +86,7 @@ class NavigationPage(
     }
 }
 
-data class NavigationNode(
+public data class NavigationNode(
     val name: String,
     val dri: DRI,
     val sourceSets: Set<DisplaySourceSet>,
@@ -99,7 +99,7 @@ data class NavigationNode(
  * [CLASS] represents a neutral (a.k.a Java-style) icon,
  * whereas [CLASS_KT] should be Kotlin-styled
  */
-enum class NavigationNodeIcon(
+public enum class NavigationNodeIcon(
     private val cssClass: String
 ) {
     CLASS("class"),
@@ -122,8 +122,8 @@ enum class NavigationNodeIcon(
     internal fun style(): String = "nav-icon $cssClass"
 }
 
-fun NavigationPage.transform(block: (NavigationNode) -> NavigationNode) =
+public fun NavigationPage.transform(block: (NavigationNode) -> NavigationNode): NavigationPage =
     NavigationPage(root.transform(block), moduleName, context)
 
-fun NavigationNode.transform(block: (NavigationNode) -> NavigationNode) =
+public fun NavigationNode.transform(block: (NavigationNode) -> NavigationNode): NavigationNode =
     run(block).let { NavigationNode(it.name, it.dri, it.sourceSets, it.icon, it.styles, it.children.map(block)) }

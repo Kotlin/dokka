@@ -16,12 +16,14 @@ import org.jetbrains.dokka.plugability.query
 import java.io.File
 import java.net.URL
 
-interface ExternalModuleLinkResolver {
-    fun resolve(dri: DRI, fileContext: File): String?
-    fun resolveLinkToModuleIndex(moduleName: String): String?
+public interface ExternalModuleLinkResolver {
+    public fun resolve(dri: DRI, fileContext: File): String?
+    public fun resolveLinkToModuleIndex(moduleName: String): String?
 }
 
-class DefaultExternalModuleLinkResolver(val context: DokkaContext) : ExternalModuleLinkResolver {
+public class DefaultExternalModuleLinkResolver(
+    public val context: DokkaContext
+) : ExternalModuleLinkResolver {
     private val elpFactory = context.plugin<DokkaBase>().query { externalLocationProviderFactory }
     private val externalDocumentations by lazy(::setupExternalDocumentations)
     private val elps by lazy {

@@ -12,9 +12,9 @@ import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.doc.DocTag
 
 @Deprecated(message = ANALYSIS_API_DEPRECATION_MESSAGE, level = DeprecationLevel.ERROR)
-object DocTagsFromStringFactory {
+public object DocTagsFromStringFactory {
     @Deprecated(message = ANALYSIS_API_DEPRECATION_MESSAGE, level = DeprecationLevel.ERROR)
-    fun getInstance(
+    public fun getInstance(
         @Suppress("UNUSED_PARAMETER") name: String,
         @Suppress("UNUSED_PARAMETER") children: List<DocTag> = emptyList(),
         @Suppress("UNUSED_PARAMETER") params: Map<String, String> = emptyMap(),

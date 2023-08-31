@@ -29,10 +29,11 @@ import org.jetbrains.dokka.renderers.Renderer
 import org.jetbrains.dokka.analysis.kotlin.internal.InheritanceNode
 import java.time.LocalDate
 
-typealias TemplateMap = Map<String, Any?>
+public typealias TemplateMap = Map<String, Any?>
 
-class KorteJavadocRenderer(val context: DokkaContext, resourceDir: String) :
-    Renderer {
+public class KorteJavadocRenderer(
+    public val context: DokkaContext, resourceDir: String
+) : Renderer {
     private val outputWriter: OutputWriter = context.plugin<DokkaBase>().querySingle { outputWriter }
     private lateinit var locationProvider: JavadocLocationProvider
     private val registeredPreprocessors = context.plugin<JavadocPlugin>().query { javadocPreprocessors }
@@ -45,11 +46,13 @@ class KorteJavadocRenderer(val context: DokkaContext, resourceDir: String) :
         JavadocContentToTemplateMapTranslator(locationProvider, context)
     }
 
-    override fun render(root: RootPageNode) = root.let { registeredPreprocessors.fold(root) { r, t -> t.invoke(r) } }.let { newRoot ->
-        locationProvider = context.plugin<JavadocPlugin>().querySingle { locationProviderFactory }.getLocationProvider(newRoot) as JavadocLocationProvider
-        runBlocking(Dispatchers.IO) {
-            renderPage(newRoot)
-            SearchScriptsCreator(locationProvider).invoke(newRoot).forEach { renderSpecificPage(it, "") }
+    override fun render(root: RootPageNode) {
+        root.let { registeredPreprocessors.fold(root) { r, t -> t.invoke(r) } }.let { newRoot ->
+            locationProvider = context.plugin<JavadocPlugin>().querySingle { locationProviderFactory }.getLocationProvider(newRoot) as JavadocLocationProvider
+            runBlocking(Dispatchers.IO) {
+                renderPage(newRoot)
+                SearchScriptsCreator(locationProvider).invoke(newRoot).forEach { renderSpecificPage(it, "") }
+            }
         }
     }
 

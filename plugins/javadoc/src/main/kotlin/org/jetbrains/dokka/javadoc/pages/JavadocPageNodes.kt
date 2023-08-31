@@ -14,22 +14,22 @@ import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.analysis.kotlin.internal.InheritanceBuilder
 import org.jetbrains.dokka.analysis.kotlin.internal.InheritanceNode
 
-interface JavadocPageNode : ContentPage, WithDocumentables
+public interface JavadocPageNode : ContentPage, WithDocumentables
 
-interface WithJavadocExtra<T : Documentable> : WithExtraProperties<T> {
+public interface WithJavadocExtra<T : Documentable> : WithExtraProperties<T> {
     override fun withNewExtras(newExtras: PropertyContainer<T>): T =
         throw IllegalStateException("Merging extras is not applicable for javadoc")
 }
 
-fun interface WithNavigable {
-    fun getAllNavigables(): List<NavigableJavadocNode>
+public fun interface WithNavigable {
+    public fun getAllNavigables(): List<NavigableJavadocNode>
 }
 
-interface WithBrief {
-    val brief: List<ContentNode>
+public interface WithBrief {
+    public val brief: List<ContentNode>
 }
 
-class JavadocModulePageNode(
+public class JavadocModulePageNode(
     override val name: String,
     override val content: JavadocContentNode,
     override val children: List<PageNode>,
@@ -60,7 +60,7 @@ class JavadocModulePageNode(
     override fun getDRI(): DRI = dri.first()
 }
 
-class JavadocPackagePageNode(
+public class JavadocPackagePageNode(
     override val name: String,
     override val content: JavadocContentNode,
     override val dri: Set<DRI>,
@@ -116,17 +116,20 @@ class JavadocPackagePageNode(
     override fun getDRI(): DRI = dri.first()
 }
 
-interface NavigableJavadocNode {
-    fun getId(): String
-    fun getDRI(): DRI
+public interface NavigableJavadocNode {
+    public fun getId(): String
+    public fun getDRI(): DRI
 }
 
-sealed class AnchorableJavadocNode(open val name: String, open val dri: DRI) : NavigableJavadocNode {
+public sealed class AnchorableJavadocNode(
+    public open val name: String,
+    public open val dri: DRI
+) : NavigableJavadocNode {
     override fun getId(): String = name
     override fun getDRI(): DRI = dri
 }
 
-data class JavadocEntryNode(
+public data class JavadocEntryNode(
     override val dri: DRI,
     override val name: String,
     val signature: JavadocSignatureContentNode,
@@ -134,7 +137,7 @@ data class JavadocEntryNode(
     override val extra: PropertyContainer<DEnumEntry> = PropertyContainer.empty()
 ) : AnchorableJavadocNode(name, dri), WithJavadocExtra<DEnumEntry>, WithBrief
 
-data class JavadocParameterNode(
+public data class JavadocParameterNode(
     override val dri: DRI,
     override val name: String,
     val type: ContentNode,
@@ -143,7 +146,7 @@ data class JavadocParameterNode(
     override val extra: PropertyContainer<DParameter> = PropertyContainer.empty()
 ) : AnchorableJavadocNode(name, dri), WithJavadocExtra<DParameter>
 
-data class JavadocPropertyNode(
+public data class JavadocPropertyNode(
     override val dri: DRI,
     override val name: String,
     val signature: JavadocSignatureContentNode,
@@ -152,7 +155,7 @@ data class JavadocPropertyNode(
     override val extra: PropertyContainer<DProperty> = PropertyContainer.empty()
 ) : AnchorableJavadocNode(name, dri), WithJavadocExtra<DProperty>, WithBrief
 
-data class JavadocFunctionNode(
+public data class JavadocFunctionNode(
     val signature: JavadocSignatureContentNode,
     override val brief: List<ContentNode>,
     val description: List<ContentNode>,
@@ -174,21 +177,21 @@ data class JavadocFunctionNode(
         }
 }
 
-class JavadocClasslikePageNode(
+public class JavadocClasslikePageNode(
     override val name: String,
     override val content: JavadocContentNode,
     override val dri: Set<DRI>,
-    val signature: JavadocSignatureContentNode,
-    val description: List<ContentNode>,
-    val constructors: List<JavadocFunctionNode>,
-    val methods: List<JavadocFunctionNode>,
-    val entries: List<JavadocEntryNode>,
-    val classlikes: List<JavadocClasslikePageNode>,
-    val properties: List<JavadocPropertyNode>,
+    public val signature: JavadocSignatureContentNode,
+    public val description: List<ContentNode>,
+    public val constructors: List<JavadocFunctionNode>,
+    public val methods: List<JavadocFunctionNode>,
+    public val entries: List<JavadocEntryNode>,
+    public val classlikes: List<JavadocClasslikePageNode>,
+    public val properties: List<JavadocPropertyNode>,
     override val brief: List<ContentNode>,
 
-    val sinceTagContent: List<List<ContentNode>>,
-    val authorTagContent: List<List<ContentNode>>,
+    public val sinceTagContent: List<List<ContentNode>>,
+    public val authorTagContent: List<List<ContentNode>>,
 
     override val documentables: List<Documentable> = emptyList(),
     override val children: List<PageNode> = emptyList(),
@@ -199,11 +202,11 @@ class JavadocClasslikePageNode(
     override fun getAllNavigables(): List<NavigableJavadocNode> =
         methods + entries + classlikes.map { it.getAllNavigables() }.flatten() + this
 
-    fun getAnchorables(): List<AnchorableJavadocNode> =
+    public fun getAnchorables(): List<AnchorableJavadocNode> =
         constructors + methods + entries + properties
 
-    val kind: String? = documentables.firstOrNull()?.kind()
-    val packageName = dri.first().packageName
+    public val kind: String? = documentables.firstOrNull()?.kind()
+    public val packageName: String? = dri.first().packageName
 
     override fun getId(): String = name
     override fun getDRI(): DRI = dri.first()
@@ -259,8 +262,10 @@ class JavadocClasslikePageNode(
         )
 }
 
-class AllClassesPage(val classes: List<JavadocClasslikePageNode>) : JavadocPageNode {
-    val classEntries =
+public class AllClassesPage(
+    public val classes: List<JavadocClasslikePageNode>
+) : JavadocPageNode {
+    public val classEntries: List<LinkJavadocListEntry> =
         classes.map { LinkJavadocListEntry(it.name, it.dri, ContentKind.Classlikes, it.sourceSets().toSet()) }
 
     override val name: String = "All Classes"
@@ -291,8 +296,8 @@ class AllClassesPage(val classes: List<JavadocClasslikePageNode>) : JavadocPageN
 
 }
 
-class DeprecatedPage(
-    val elements: Map<DeprecatedPageSection, Set<DeprecatedNode>>,
+public class DeprecatedPage(
+    public val elements: Map<DeprecatedPageSection, Set<DeprecatedNode>>,
     sourceSet: Set<DisplaySourceSet>
 ) : JavadocPageNode {
     override val name: String = "deprecated"
@@ -322,14 +327,22 @@ class DeprecatedPage(
 
 }
 
-class DeprecatedNode(val name: String, val address: DRI, val description: List<ContentNode>) {
+public class DeprecatedNode(
+    public val name: String,
+    public val address: DRI,
+    public val description: List<ContentNode>
+) {
     override fun equals(other: Any?): Boolean =
         (other as? DeprecatedNode)?.address == address
 
     override fun hashCode(): Int = address.hashCode()
 }
 
-enum class DeprecatedPageSection(val id: String, val caption: String, val header: String) {
+public enum class DeprecatedPageSection(
+    public val id: String,
+    public val caption: String,
+    public val header: String,
+) {
     DeprecatedModules("module", "Modules", "Module"),
     DeprecatedInterfaces("interface", "Interfaces", "Interface"),
     DeprecatedClasses("class", "Classes", "Class"),
@@ -344,10 +357,11 @@ enum class DeprecatedPageSection(val id: String, val caption: String, val header
     internal fun getPosition() = ordinal
 }
 
-class IndexPage(
-    val id: Int,
-    val elements: List<NavigableJavadocNode>,
-    val keys: List<Char>,
+public class IndexPage(
+    public val id: Int,
+    public val elements: List<NavigableJavadocNode>,
+    public val keys: List<Char>,
+
     sourceSet: Set<DisplaySourceSet>
 
 ) : JavadocPageNode {
@@ -356,7 +370,7 @@ class IndexPage(
     override val documentables: List<Documentable> = emptyList()
     override val children: List<PageNode> = emptyList()
     override val embeddedResources: List<String> = listOf()
-    val title: String = "${keys[id - 1]}-index"
+    public val title: String = "${keys[id - 1]}-index"
 
     override val content: ContentNode = EmptyNode(
         DRI.topLevel,
@@ -379,14 +393,14 @@ class IndexPage(
 
 }
 
-class TreeViewPage(
+public class TreeViewPage(
     override val name: String,
-    val packages: List<JavadocPackagePageNode>?,
-    val classes: List<JavadocClasslikePageNode>?,
+    public val packages: List<JavadocPackagePageNode>?,
+    public val classes: List<JavadocClasslikePageNode>?,
     override val dri: Set<DRI>,
     override val documentables: List<Documentable> = emptyList(),
-    val root: PageNode,
-    val inheritanceBuilder: InheritanceBuilder
+    public val root: PageNode,
+    public val inheritanceBuilder: InheritanceBuilder
 ) : JavadocPageNode {
     init {
         assert(packages == null || classes == null)
@@ -403,12 +417,12 @@ class TreeViewPage(
 
     override val children: List<PageNode> = emptyList()
 
-    val title = when (documentables.firstOrNull()) {
+    public val title: String = when (documentables.firstOrNull()) {
         is DPackage -> "$name Class Hierarchy"
         else -> "All packages"
     }
 
-    val kind = when (documentables.firstOrNull()) {
+    public val kind: String = when (documentables.firstOrNull()) {
         is DPackage -> "package"
         else -> "main"
     }

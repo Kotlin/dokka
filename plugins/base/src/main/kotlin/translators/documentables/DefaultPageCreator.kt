@@ -28,24 +28,26 @@ import kotlin.reflect.KClass
 
 internal typealias GroupedTags = Map<KClass<out TagWrapper>, List<Pair<DokkaSourceSet?, TagWrapper>>>
 
-open class DefaultPageCreator(
+public open class DefaultPageCreator(
     configuration: DokkaBaseConfiguration?,
     commentsToContentConverter: CommentsToContentConverter,
     signatureProvider: SignatureProvider,
-    val logger: DokkaLogger,
-    val customTagContentProviders: List<CustomTagContentProvider> = emptyList(),
-    val documentableAnalyzer: DocumentableSourceLanguageParser
+    public val logger: DokkaLogger,
+    public val customTagContentProviders: List<CustomTagContentProvider> = emptyList(),
+    public val documentableAnalyzer: DocumentableSourceLanguageParser
 ) {
-    protected open val contentBuilder = PageContentBuilder(commentsToContentConverter, signatureProvider, logger)
+    protected open val contentBuilder: PageContentBuilder = PageContentBuilder(
+        commentsToContentConverter, signatureProvider, logger
+    )
 
-    protected val mergeImplicitExpectActualDeclarations =
+    protected val mergeImplicitExpectActualDeclarations: Boolean =
         configuration?.mergeImplicitExpectActualDeclarations
             ?: DokkaBaseConfiguration.mergeImplicitExpectActualDeclarationsDefault
 
-    protected val separateInheritedMembers =
+    protected val separateInheritedMembers: Boolean =
         configuration?.separateInheritedMembers ?: DokkaBaseConfiguration.separateInheritedMembersDefault
 
-    open fun pageForModule(m: DModule): ModulePageNode =
+    public open fun pageForModule(m: DModule): ModulePageNode =
         ModulePageNode(m.name.ifEmpty { "<root>" }, contentForModule(m), listOf(m), m.packages.map(::pageForPackage))
 
     /**
@@ -59,25 +61,32 @@ open class DefaultPageCreator(
         return this.filterNot { it is DTypeAlias && this.hasExpectClass(it.dri) }
     }
 
-    open fun pageForPackage(p: DPackage): PackagePageNode = PackagePageNode(
-        p.name, contentForPackage(p), setOf(p.dri), listOf(p),
-        if (mergeImplicitExpectActualDeclarations)
+    public open fun pageForPackage(p: DPackage): PackagePageNode {
+        val children = if (mergeImplicitExpectActualDeclarations) {
             (p.classlikes + p.typealiases).filterOutActualTypeAlias()
                 .mergeClashingDocumentable().map(::pageForClasslikes) +
                     p.functions.mergeClashingDocumentable().map(::pageForFunctions) +
                     p.properties.mergeClashingDocumentable().map(::pageForProperties)
-        else
+        } else {
             (p.classlikes + p.typealiases).filterOutActualTypeAlias()
                 .renameClashingDocumentable().map(::pageForClasslike) +
                     p.functions.renameClashingDocumentable().map(::pageForFunction) +
                     p.properties.mapNotNull(::pageForProperty)
-    )
+        }
+        return PackagePageNode(
+            name = p.name,
+            content = contentForPackage(p),
+            dri = setOf(p.dri),
+            documentables = listOf(p),
+            children = children
+        )
+    }
 
-    open fun pageForEnumEntry(e: DEnumEntry): ClasslikePageNode = pageForEnumEntries(listOf(e))
+    public open fun pageForEnumEntry(e: DEnumEntry): ClasslikePageNode = pageForEnumEntries(listOf(e))
 
-    open fun pageForClasslike(c: Documentable): ClasslikePageNode = pageForClasslikes(listOf(c))
+    public open fun pageForClasslike(c: Documentable): ClasslikePageNode = pageForClasslikes(listOf(c))
 
-    open fun pageForEnumEntries(documentables: List<DEnumEntry>): ClasslikePageNode {
+    public open fun pageForEnumEntries(documentables: List<DEnumEntry>): ClasslikePageNode {
         val dri = documentables.dri.also {
             if (it.size != 1) {
                 logger.error("Documentable dri should have the same one ${it.first()} inside the one page!")
@@ -105,7 +114,7 @@ open class DefaultPageCreator(
     /**
      * @param documentables a list of [DClasslike] and [DTypeAlias] with the same dri in different sourceSets
      */
-    open fun pageForClasslikes(documentables: List<Documentable>): ClasslikePageNode {
+    public open fun pageForClasslikes(documentables: List<Documentable>): ClasslikePageNode {
         val dri = documentables.dri.also {
             if (it.size != 1) {
                 logger.error("Documentable dri should have the same one ${it.first()} inside the one page!")
@@ -171,10 +180,10 @@ open class DefaultPageCreator(
     private fun <T : Documentable> List<T>.mergeClashingDocumentable(): List<List<T>> =
         groupBy { it.dri }.values.toList()
 
-    open fun pageForFunction(f: DFunction) =
+    public open fun pageForFunction(f: DFunction): MemberPageNode =
         MemberPageNode(f.nameAfterClash(), contentForFunction(f), setOf(f.dri), listOf(f))
 
-    open fun pageForFunctions(fs: List<DFunction>): MemberPageNode {
+    public open fun pageForFunctions(fs: List<DFunction>): MemberPageNode {
         val dri = fs.dri.also {
             if (it.size != 1) {
                 logger.error("Function dri should have the same one ${it.first()} inside the one page!")
@@ -183,10 +192,10 @@ open class DefaultPageCreator(
         return MemberPageNode(fs.first().nameAfterClash(), contentForMembers(fs), dri, fs)
     }
 
-    open fun pageForProperty(p: DProperty): MemberPageNode? =
+    public open fun pageForProperty(p: DProperty): MemberPageNode? =
         MemberPageNode(p.nameAfterClash(), contentForProperty(p), setOf(p.dri), listOf(p))
 
-    open fun pageForProperties(ps: List<DProperty>): MemberPageNode {
+    public open fun pageForProperties(ps: List<DProperty>): MemberPageNode {
         val dri = ps.dri.also {
             if (it.size != 1) {
                 logger.error("Property dri should have the same one ${it.first()} inside the one page!")
@@ -223,61 +232,65 @@ open class DefaultPageCreator(
     private fun <T> Collection<T>.splitInherited(): Pair<List<T>, List<T>> where T : Documentable, T : WithExtraProperties<T> =
         partition { it.isInherited() }
 
-    protected open fun contentForModule(m: DModule) = contentBuilder.contentFor(m) {
-        group(kind = ContentKind.Cover) {
-            cover(m.name)
-            if (contentForDescription(m).isNotEmpty()) {
-                sourceSetDependentHint(
-                    m.dri,
-                    m.sourceSets.toSet(),
-                    kind = ContentKind.SourceSetDependentHint,
-                    styles = setOf(TextStyle.UnderCoverText)
-                ) {
-                    +contentForDescription(m)
+    protected open fun contentForModule(m: DModule): ContentGroup {
+        return contentBuilder.contentFor(m) {
+            group(kind = ContentKind.Cover) {
+                cover(m.name)
+                if (contentForDescription(m).isNotEmpty()) {
+                    sourceSetDependentHint(
+                        m.dri,
+                        m.sourceSets.toSet(),
+                        kind = ContentKind.SourceSetDependentHint,
+                        styles = setOf(TextStyle.UnderCoverText)
+                    ) {
+                        +contentForDescription(m)
+                    }
                 }
             }
-        }
 
-        block(
-            "Packages",
-            2,
-            ContentKind.Packages,
-            m.packages,
-            m.sourceSets.toSet(),
-            needsAnchors = true,
-            headers = listOf(
-                headers("Name")
-            )
-        ) {
-            val documentations = it.sourceSets.map { platform ->
-                it.descriptions[platform]?.also { it.root }
-            }
-            val haveSameContent =
-                documentations.all { it?.root == documentations.firstOrNull()?.root && it?.root != null }
+            block(
+                name = "Packages",
+                level = 2,
+                kind = ContentKind.Packages,
+                elements = m.packages,
+                sourceSets = m.sourceSets.toSet(),
+                needsAnchors = true,
+                headers = listOf(
+                    headers("Name")
+                )
+            ) {
+                val documentations = it.sourceSets.map { platform ->
+                    it.descriptions[platform]?.also { it.root }
+                }
+                val haveSameContent =
+                    documentations.all { it?.root == documentations.firstOrNull()?.root && it?.root != null }
 
-            link(it.name, it.dri)
-            if (it.sourceSets.size == 1 || (documentations.isNotEmpty() && haveSameContent)) {
-                documentations.first()?.let { firstParagraphComment(kind = ContentKind.Comment, content = it.root) }
+                link(it.name, it.dri)
+                if (it.sourceSets.size == 1 || (documentations.isNotEmpty() && haveSameContent)) {
+                    documentations.first()?.let { firstParagraphComment(kind = ContentKind.Comment, content = it.root) }
+                }
             }
         }
     }
 
-    protected open fun contentForPackage(p: DPackage) = contentBuilder.contentFor(p) {
-        group(kind = ContentKind.Cover) {
-            cover("Package-level declarations")
-            if (contentForDescription(p).isNotEmpty()) {
-                sourceSetDependentHint(
-                    p.dri,
-                    p.sourceSets.toSet(),
-                    kind = ContentKind.SourceSetDependentHint,
-                    styles = setOf(TextStyle.UnderCoverText)
-                ) {
-                    +contentForDescription(p)
+    protected open fun contentForPackage(p: DPackage): ContentGroup {
+        return contentBuilder.contentFor(p) {
+            group(kind = ContentKind.Cover) {
+                cover("Package-level declarations")
+                if (contentForDescription(p).isNotEmpty()) {
+                    sourceSetDependentHint(
+                        dri = p.dri,
+                        sourcesetData = p.sourceSets.toSet(),
+                        kind = ContentKind.SourceSetDependentHint,
+                        styles = setOf(TextStyle.UnderCoverText)
+                    ) {
+                        +contentForDescription(p)
+                    }
                 }
             }
-        }
-        group(styles = setOf(ContentStyle.TabbedContent), extra = mainExtra) {
-            +contentForScope(p, p.dri, p.sourceSets)
+            group(styles = setOf(ContentStyle.TabbedContent), extra = mainExtra) {
+                +contentForScope(p, p.dri, p.sourceSets)
+            }
         }
     }
 
@@ -400,31 +413,32 @@ open class DefaultPageCreator(
         constructorsToDocumented: List<DFunction>,
         dri: Set<DRI>,
         sourceSets: Set<DokkaSourceSet>
-    ) = contentBuilder.contentFor(dri, sourceSets) {
-        multiBlock(
-            "Constructors",
-            2,
-            ContentKind.Constructors,
-            constructorsToDocumented.groupBy { it.name }
-                .map { (_, v) -> v.first().name to v },
-            @Suppress("UNCHECKED_CAST")
-            (constructorsToDocumented as List<Documentable>).sourceSets,
-            needsAnchors = true,
-            extra = PropertyContainer.empty<ContentNode>() + TabbedContentTypeExtra(
-                BasicTabbedContentType.CONSTRUCTOR
-            ),
-        ) { key, ds ->
-            link(key, ds.first().dri, kind = ContentKind.Main, styles = setOf(ContentStyle.RowTitle))
-            sourceSetDependentHint(
-                ds.dri,
-                ds.sourceSets,
-                kind = ContentKind.SourceSetDependentHint,
-                styles = emptySet(),
-                extra = PropertyContainer.empty<ContentNode>()
-            ) {
-                ds.forEach {
-                    +buildSignature(it)
-                    contentForBrief(it)
+    ): ContentGroup {
+        return contentBuilder.contentFor(dri, sourceSets) {
+            multiBlock(
+                name = "Constructors",
+                level = 2,
+                kind = ContentKind.Constructors,
+                groupedElements = constructorsToDocumented.groupBy { it.name }
+                    .map { (_, v) -> v.first().name to v },
+                sourceSets = (constructorsToDocumented as List<Documentable>).sourceSets,
+                needsAnchors = true,
+                extra = PropertyContainer.empty<ContentNode>() + TabbedContentTypeExtra(
+                    BasicTabbedContentType.CONSTRUCTOR
+                ),
+            ) { key, ds ->
+                link(key, ds.first().dri, kind = ContentKind.Main, styles = setOf(ContentStyle.RowTitle))
+                sourceSetDependentHint(
+                    dri = ds.dri,
+                    sourceSets = ds.sourceSets,
+                    kind = ContentKind.SourceSetDependentHint,
+                    styles = emptySet(),
+                    extra = PropertyContainer.empty()
+                ) {
+                    ds.forEach {
+                        +buildSignature(it)
+                        contentForBrief(it)
+                    }
                 }
             }
         }
@@ -434,28 +448,30 @@ open class DefaultPageCreator(
         entries: List<DEnumEntry>,
         dri: Set<DRI>,
         sourceSets: Set<DokkaSourceSet>
-    ) = contentBuilder.contentFor(dri, sourceSets) {
-        multiBlock(
-            "Entries",
-            2,
-            ContentKind.Classlikes,
-            entries.groupBy { it.name }.toList(),
-            entries.sourceSets,
-            needsSorting = false,
-            needsAnchors = true,
-            extra = mainExtra + TabbedContentTypeExtra(BasicTabbedContentType.ENTRY),
-            styles = emptySet()
-        ) { key, ds ->
-            link(key, ds.first().dri)
-            sourceSetDependentHint(
-                ds.dri,
-                ds.sourceSets,
-                kind = ContentKind.SourceSetDependentHint,
-                extra = PropertyContainer.empty<ContentNode>()
-            ) {
-                ds.forEach {
-                    +buildSignature(it)
-                    contentForBrief(it)
+    ): ContentGroup {
+        return contentBuilder.contentFor(dri, sourceSets) {
+            multiBlock(
+                name = "Entries",
+                level = 2,
+                kind = ContentKind.Classlikes,
+                groupedElements = entries.groupBy { it.name }.toList(),
+                sourceSets = entries.sourceSets,
+                needsSorting = false,
+                needsAnchors = true,
+                extra = mainExtra + TabbedContentTypeExtra(BasicTabbedContentType.ENTRY),
+                styles = emptySet()
+            ) { key, ds ->
+                link(key, ds.first().dri)
+                sourceSetDependentHint(
+                    dri = ds.dri,
+                    sourceSets = ds.sourceSets,
+                    kind = ContentKind.SourceSetDependentHint,
+                    extra = PropertyContainer.empty<ContentNode>()
+                ) {
+                    ds.forEach {
+                        +buildSignature(it)
+                        contentForBrief(it)
+                    }
                 }
             }
         }
@@ -520,13 +536,13 @@ open class DefaultPageCreator(
         }
     }
 
-    protected open fun contentForFunction(f: DFunction) = contentForMember(f)
+    protected open fun contentForFunction(f: DFunction): ContentGroup = contentForMember(f)
 
-    protected open fun contentForProperty(p: DProperty) = contentForMember(p)
+    protected open fun contentForProperty(p: DProperty): ContentGroup = contentForMember(p)
 
-    protected open fun contentForMember(d: Documentable) = contentForMembers(listOf(d))
+    protected open fun contentForMember(d: Documentable): ContentGroup = contentForMembers(listOf(d))
 
-    protected open fun contentForMembers(doumentables: List<Documentable>) =
+    protected open fun contentForMembers(doumentables: List<Documentable>): ContentGroup =
         contentBuilder.contentFor(doumentables.dri, doumentables.sourceSets) {
             group(kind = ContentKind.Cover) {
                 cover(doumentables.first().name.orEmpty())
@@ -709,9 +725,8 @@ open class DefaultPageCreator(
         }
     }
 
-    protected open fun TagWrapper.toHeaderString() = this.javaClass.toGenericString().split('.').last()
+    protected open fun TagWrapper.toHeaderString(): String = this.javaClass.toGenericString().split('.').last()
 }
-
 
 internal val List<Documentable>.sourceSets: Set<DokkaSourceSet>
     get() = flatMap { it.sourceSets }.toSet()

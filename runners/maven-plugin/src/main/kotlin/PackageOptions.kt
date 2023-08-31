@@ -31,7 +31,7 @@ import org.jetbrains.dokka.DokkaDefaults
  * </configuration>
  * ```
  */
-class PackageOptions : DokkaConfiguration.PackageOptions {
+public class PackageOptions : DokkaConfiguration.PackageOptions {
 
     /**
      * Regular expression that is used to match the package.

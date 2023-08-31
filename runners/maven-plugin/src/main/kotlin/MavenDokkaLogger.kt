@@ -8,7 +8,9 @@ import org.apache.maven.plugin.logging.Log
 import org.jetbrains.dokka.utilities.DokkaLogger
 import java.util.concurrent.atomic.AtomicInteger
 
-class MavenDokkaLogger(val log: Log) : DokkaLogger {
+public class MavenDokkaLogger(
+    public val log: Log
+) : DokkaLogger {
     private val warningsCounter = AtomicInteger()
     private val errorsCounter = AtomicInteger()
 
@@ -20,9 +22,23 @@ class MavenDokkaLogger(val log: Log) : DokkaLogger {
         get() = errorsCounter.get()
         set(value) = errorsCounter.set(value)
 
-    override fun debug(message: String) = log.debug(message)
-    override fun info(message: String) = log.info(message)
-    override fun progress(message: String) = log.info(message)
-    override fun warn(message: String) = log.warn(message).also { warningsCounter.incrementAndGet() }
-    override fun error(message: String) = log.error(message).also { errorsCounter.incrementAndGet() }
+    override fun debug(message: String) {
+        log.debug(message)
+    }
+
+    override fun info(message: String) {
+        log.info(message)
+    }
+
+    override fun progress(message: String) {
+        log.info(message)
+    }
+
+    override fun warn(message: String) {
+        this.log.warn(message).also { warningsCounter.incrementAndGet() }
+    }
+
+    override fun error(message: String) {
+        log.error(message).also { errorsCounter.incrementAndGet() }
+    }
 }

@@ -10,12 +10,12 @@ import org.jetbrains.dokka.links.Callable
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.plugability.DokkaContext
 
-open class Dokka010ExternalLocationProvider(
-    val externalDocumentation: ExternalDocumentation,
-    val extension: String,
-    val dokkaContext: DokkaContext
+public open class Dokka010ExternalLocationProvider(
+    public val externalDocumentation: ExternalDocumentation,
+    public val extension: String,
+    public val dokkaContext: DokkaContext
 ) : ExternalLocationProvider {
-    val docURL = externalDocumentation.documentationURL.toString().removeSuffix("/") + "/"
+    public val docURL: String = externalDocumentation.documentationURL.toString().removeSuffix("/") + "/"
 
     override fun resolve(dri: DRI): String? {
 

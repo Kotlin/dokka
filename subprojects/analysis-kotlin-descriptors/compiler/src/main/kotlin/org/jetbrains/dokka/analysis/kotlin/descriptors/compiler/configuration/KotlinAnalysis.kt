@@ -59,15 +59,15 @@ internal fun SamplesKotlinAnalysis(
     return EnvironmentKotlinAnalysis(environments, projectKotlinAnalysis)
 }
 @DokkaPluginApiPreview
-data class DokkaAnalysisConfiguration(
+public data class DokkaAnalysisConfiguration(
     /**
      * Only for common platform ignore BuiltIns for StdLib since it can cause a conflict
      * between BuiltIns from a compiler and ones from source code.
      */
     val ignoreCommonBuiltIns: Boolean = DEFAULT_IGNORE_COMMON_BUILT_INS
 ): ConfigurableBlock {
-    companion object {
-        const val DEFAULT_IGNORE_COMMON_BUILT_INS = false
+    public companion object {
+        public const val DEFAULT_IGNORE_COMMON_BUILT_INS: Boolean = false
     }
 }
 
@@ -75,11 +75,11 @@ data class DokkaAnalysisConfiguration(
  * First child delegation. It does not close [parent].
  */
 @InternalDokkaApi
-abstract class KotlinAnalysis(
+public abstract class KotlinAnalysis(
     private val parent: KotlinAnalysis? = null
 ) : Closeable {
 
-    operator fun get(key: DokkaSourceSet): AnalysisContext {
+    public operator fun get(key: DokkaSourceSet): AnalysisContext {
         return get(key.sourceSetID)
     }
 

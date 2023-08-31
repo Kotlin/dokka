@@ -20,25 +20,27 @@ import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.querySingle
 import kotlin.reflect.KClass
 
-open class JavadocPageCreator(context: DokkaContext) {
+public open class JavadocPageCreator(context: DokkaContext) {
     private val signatureProvider: SignatureProvider = context.plugin<DokkaBase>().querySingle { signatureProvider }
     private val documentationVersion = context.configuration.moduleVersion
 
-    fun pageForModule(m: DModule): JavadocModulePageNode =
-        JavadocModulePageNode(
+    public fun pageForModule(m: DModule): JavadocModulePageNode {
+        return JavadocModulePageNode(
             name = m.name.ifEmpty { "root" },
             content = contentForModule(m),
             children = m.packages.map { pageForPackage(it) },
             dri = setOf(m.dri),
             extra = ((m as? WithExtraProperties<DModule>)?.extra ?: PropertyContainer.empty())
         )
+    }
 
-    fun pageForPackage(p: DPackage) =
-        JavadocPackagePageNode(p.name, contentForPackage(p), setOf(p.dri), listOf(p),
+    public fun pageForPackage(p: DPackage): JavadocPackagePageNode {
+        return JavadocPackagePageNode(p.name, contentForPackage(p), setOf(p.dri), listOf(p),
             p.classlikes.mapNotNull { pageForClasslike(it) }
         )
+    }
 
-    fun pageForClasslike(c: DClasslike): JavadocClasslikePageNode? {
+    public fun pageForClasslike(c: DClasslike): JavadocClasslikePageNode? {
         return c.highestJvmSourceSet?.let { jvm ->
             @Suppress("UNCHECKED_CAST")
             val extra = ((c as? WithExtraProperties<Documentable>)?.extra ?: PropertyContainer.empty())
@@ -209,9 +211,10 @@ open class JavadocPageCreator(context: DokkaContext) {
             )
         }
 
-    fun List<ContentNode>.nodeForJvm(jvm: DokkaSourceSet): ContentNode =
-        firstOrNull { jvm.sourceSetID in it.sourceSets.computeSourceSetIds() }
+    public fun List<ContentNode>.nodeForJvm(jvm: DokkaSourceSet): ContentNode {
+        return firstOrNull { jvm.sourceSetID in it.sourceSets.computeSourceSetIds() }
             ?: throw IllegalStateException("No source set found for ${jvm.sourceSetID} ")
+    }
 
     private fun Documentable.brief(sourceSet: DokkaSourceSet? = highestJvmSourceSet): List<ContentNode> =
         firstSentenceBriefFromContentNodes(descriptionToContentNodes(sourceSet))

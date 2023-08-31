@@ -8,6 +8,6 @@ import com.intellij.mock.MockApplication
 import org.jetbrains.dokka.InternalDokkaApi
 
 @InternalDokkaApi
-interface MockApplicationHack { // ¯\_(ツ)_/¯
-    fun hack(mockApplication: MockApplication)
+public interface MockApplicationHack { // ¯\_(ツ)_/¯
+    public fun hack(mockApplication: MockApplication)
 }
