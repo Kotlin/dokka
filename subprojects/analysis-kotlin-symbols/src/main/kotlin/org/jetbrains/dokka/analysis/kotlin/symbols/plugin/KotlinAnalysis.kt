@@ -11,8 +11,11 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.ProjectScope
 import com.intellij.util.io.URLUtil
 import org.jetbrains.dokka.Platform
+import org.jetbrains.kotlin.analysis.api.KtAnalysisApiInternals
 import org.jetbrains.kotlin.analysis.api.impl.base.util.LibraryUtils
+import org.jetbrains.kotlin.analysis.api.lifetime.KtLifetimeTokenProvider
 import org.jetbrains.kotlin.analysis.api.resolve.extensions.KtResolveExtensionProvider
+import org.jetbrains.kotlin.analysis.api.standalone.KtAlwaysAccessibleLifetimeTokenProvider
 import org.jetbrains.kotlin.analysis.api.standalone.StandaloneAnalysisAPISession
 import org.jetbrains.kotlin.analysis.api.standalone.buildStandaloneAnalysisAPISession
 import org.jetbrains.kotlin.analysis.project.structure.KtSourceModule
@@ -67,6 +70,7 @@ internal fun getLanguageVersionSettings(
 }
 
 // it should be changed after https://github.com/Kotlin/dokka/issues/3114
+@OptIn(KtAnalysisApiInternals::class)
 internal fun createAnalysisSession(
     classpath: List<File>,
     sourceRoots: Set<File>,
@@ -83,72 +87,41 @@ internal fun createAnalysisSession(
         projectDisposable = projectDisposable,
         withPsiDeclarationFromBinaryModuleProvider = false
     ) {
-        val project = project
+        registerProjectService(KtLifetimeTokenProvider::class.java, KtAlwaysAccessibleLifetimeTokenProvider())
         val targetPlatform = analysisPlatform.toTargetPlatform()
-        fun KtModuleBuilder.addModuleDependencies(moduleName: String) {
-            val libraryRoots = classpath
-            addRegularDependency(
-                buildKtLibraryModule {
-                    contentScope = ProjectScope.getLibrariesScope(project)
-                    this.platform = targetPlatform
-                    this.project = project
-                    binaryRoots = libraryRoots.map { it.toPath() }
-                    libraryName = "Library for $moduleName"
-                }
-            )
-            getJdkHomeFromSystemProperty()?.let { jdkHome ->
-                val vfm = VirtualFileManager.getInstance()
-                val jdkHomePath = jdkHome.toPath()
-                val jdkHomeVirtualFile = vfm.findFileByNioPath(jdkHome.toPath())//vfm.findFileByPath(jdkHomePath)
-                val binaryRoots = LibraryUtils.findClassesFromJdkHome(jdkHomePath).map {
-                    Paths.get(URLUtil.extractPath(it))
-                }
-                addRegularDependency(
-                    buildKtSdkModule {
-                        contentScope = GlobalSearchScope.fileScope(project, jdkHomeVirtualFile)
-                        this.platform = targetPlatform
-                        this.project = project
-                        this.binaryRoots = binaryRoots
-                        sdkName = "JDK for $moduleName"
-                    }
-                )
-            }
-        }
-        sourceModule = buildKtSourceModule {
-            this.languageVersionSettings = getLanguageVersionSettings(languageVersion, apiVersion)
-
-            //val fs = StandardFileSystems.local()
-            //val psiManager = PsiManager.getInstance(project)
-            // TODO: We should handle (virtual) file changes announced via LSP with the VFS
-            /*val ktFiles = sources
-                .flatMap { Files.walk(it).toList() }
-                .mapNotNull { fs.findFileByPath(it.toString()) }
-                .mapNotNull { psiManager.findFile(it) }
-                .map { it as KtFile }*/
-            val sourcePaths = sourceRoots.map { it.absolutePath }
-            val (ktFilePath, javaFilePath) = getSourceFilePaths(sourcePaths).partition { it.endsWith(KotlinFileType.EXTENSION) }
-            val javaFiles: List<PsiFileSystemItem> = getPsiFilesFromPaths(project, javaFilePath)
-            val ktFiles: List<KtFile> = getPsiFilesFromPaths(project, getSourceFilePaths(ktFilePath))
-            addSourceRoots(ktFiles + javaFiles)
-            contentScope = TopDownAnalyzerFacadeForJVM.newModuleSearchScope(project, ktFiles)
-            platform = targetPlatform
-            moduleName = "<module>"
-            this.project = project
-            addModuleDependencies(moduleName)
-        }
 
         buildKtModuleProvider {
+            val libraryRoots = classpath
+            fun KtModuleBuilder.addModuleDependencies(moduleName: String) {
+                addRegularDependency(
+                    buildKtLibraryModule {
+                        this.platform = targetPlatform
+                        addBinaryRoots(libraryRoots.map { it.toPath() })
+                        libraryName = "Library for $moduleName"
+                    }
+                )
+                getJdkHomeFromSystemProperty()?.let { jdkHome ->
+                    addRegularDependency(
+                        buildKtSdkModule {
+                            this.platform = targetPlatform
+                            addBinaryRootsFromJdkHome(jdkHome.toPath(), isJre = true)
+                            sdkName = "JDK for $moduleName"
+                        }
+                    )
+                }
+            }
+            sourceModule = buildKtSourceModule {
+                languageVersionSettings = getLanguageVersionSettings(languageVersion, apiVersion)
+                platform = targetPlatform
+                moduleName = "<module>"
+                // TODO: We should handle (virtual) file changes announced via LSP with the VFS
+                addSourceRoots(sourceRoots.map { it.toPath() })
+                addModuleDependencies(moduleName)
+            }
             platform = targetPlatform
-            this.project = project
             addModule(sourceModule!!)
         }
     }
-    // TODO remove further
-    CoreApplicationEnvironment.registerExtensionPoint(
-        analysisSession.project.extensionArea,
-        KtResolveExtensionProvider.EP_NAME.name,
-        KtResolveExtensionProvider::class.java
-    )
     return Pair(analysisSession, sourceModule ?: throw IllegalStateException())
 }
 
