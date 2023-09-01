@@ -1061,7 +1061,7 @@ will review API changes thoroughly, so please make sure it's intentional and rat
 project as well as debug code remotely.</p>
 <ol>
 <li>Change <code>dokka_version</code> in <code>gradle.properties</code> to something that you will use later on as the dependency version.
-   For instance, you can set it to something like <code>1.8.20-my-fix-SNAPSHOT</code>. This version will be propagated to plugins
+   For instance, you can set it to something like <code>1.9.0-my-fix-SNAPSHOT</code>. This version will be propagated to plugins
    that reside inside Dokka's project (such as <code>mathjax</code>, <code>kotlin-as-java</code>, etc).</li>
 <li>Publish it to Maven Local (<code>./gradlew publishToMavenLocal</code>). Corresponding artifacts should appear in <code>~/.m2</code></li>
 <li>In the project you want to generate documentation for or debug on, add maven local as a plugin/dependency
@@ -1072,7 +1072,7 @@ project as well as debug code remotely.</p>
 </code></pre></div></li>
 <li>Update your Dokka dependency to the version you've just published:
 <div class="highlight"><pre><span></span><code><span class="n">plugins</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">id</span><span class="p">(</span><span class="s">&quot;org.jetbrains.dokka&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">&quot;1.8.20-my-fix-SNAPSHOT&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="n">id</span><span class="p">(</span><span class="s">&quot;org.jetbrains.dokka&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">&quot;1.9.0-my-fix-SNAPSHOT&quot;</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span>
 </code></pre></div></li>
 </ol>
