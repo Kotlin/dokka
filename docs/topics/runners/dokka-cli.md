@@ -10,8 +10,8 @@ difficult to set up as there is no autoconfiguration, especially in multiplatfor
 
 The CLI runner is published to Maven Central as a separate runnable artifact.
 
-You can find it on [mvnrepository](https://mvnrepository.com/artifact/org.jetbrains.dokka/dokka-cli/%dokkaVersion%) or by browsing
-[maven central repository directories](https://repo1.maven.org/maven2/org/jetbrains/dokka/dokka-cli/%dokkaVersion%) directly.
+You can find it on [Maven Central](https://central.sonatype.com/artifact/org.jetbrains.dokka/dokka-cli) or 
+[download it directly](https://repo1.maven.org/maven2/org/jetbrains/dokka/dokka-cli/%dokkaVersion%/dokka-cli-%dokkaVersion%.jar).
 
 With the `dokka-cli-%dokkaVersion%.jar` file saved on your computer, run it with the `-help` option to see all 
 available configuration options and their description:
@@ -34,17 +34,17 @@ Since there is no build tool to manage dependencies, you have to provide depende
 
 Listed below are the dependencies that you need for any output format:
 
-| **Group**             | **Artifact**                  | **Version**    | **Link**                                                                                                           |
-|-----------------------|-------------------------------|----------------|--------------------------------------------------------------------------------------------------------------------|
-| `org.jetbrains.dokka` | `dokka-base`                  | %dokkaVersion% | [mvnrepository](https://mvnrepository.com/artifact/org.jetbrains.dokka/dokka-base/%dokkaVersion%)                  |
-| `org.jetbrains.dokka` | `analysis-kotlin-descriptors` | %dokkaVersion% | [mvnrepository](https://mvnrepository.com/artifact/org.jetbrains.dokka/analysis-kotlin-descriptors/%dokkaVersion%) |
+| **Group**             | **Artifact**                  | **Version**    | **Link**                                                                                                                                                 |
+|-----------------------|-------------------------------|----------------|----------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `org.jetbrains.dokka` | `dokka-base`                  | %dokkaVersion% | [download](https://repo1.maven.org/maven2/org/jetbrains/dokka/dokka-base/%dokkaVersion%/dokka-base-%dokkaVersion%.jar)                                   |
+| `org.jetbrains.dokka` | `analysis-kotlin-descriptors` | %dokkaVersion% | [download](https://repo1.maven.org/maven2/org/jetbrains/dokka/analysis-kotlin-descriptors/%dokkaVersion%/analysis-kotlin-descriptors-%dokkaVersion%.jar) |
 
 Below are the additional dependencies that you need for [HTML](dokka-html.md) output format:
 
-| **Group**               | **Artifact**       | **Version** | **Link**                                                                                         |
-|-------------------------|--------------------|-------------|--------------------------------------------------------------------------------------------------|
-| `org.jetbrains.kotlinx` | `kotlinx-html-jvm` | 0.8.0       | [mvnrepository](https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-html-jvm/0.8.0) |
-| `org.freemarker`        | `freemarker`       | 2.3.31      | [mvnrepository](https://mvnrepository.com/artifact/org.freemarker/freemarker/2.3.31)             |
+| **Group**               | **Artifact**       | **Version** | **Link**                                                                                                           |
+|-------------------------|--------------------|-------------|--------------------------------------------------------------------------------------------------------------------|
+| `org.jetbrains.kotlinx` | `kotlinx-html-jvm` | 0.8.0       | [download](https://repo1.maven.org/maven2/org/jetbrains/kotlinx/kotlinx-html-jvm/0.8.0/kotlinx-html-jvm-0.8.0.jar) |
+| `org.freemarker`        | `freemarker`       | 2.3.31      | [download](https://repo1.maven.org/maven2/org/freemarker/freemarker/2.3.31/freemarker-2.3.31.jar)                  |
 
 
 ### Run with command line options
@@ -113,8 +113,8 @@ All other output formats are implemented as [Dokka plugins](dokka-plugins.md). I
 on the plugins classpath.
 
 For example, if you want to generate documentation in the experimental [GFM](dokka-markdown.md#gfm) output format, you need to download and
-pass [gfm-plugin's JAR](https://mvnrepository.com/artifact/org.jetbrains.dokka/gfm-plugin/%dokkaVersion%) into 
-the `pluginsClasspath` configuration option.
+pass gfm-plugin's JAR ([download](https://repo1.maven.org/maven2/org/jetbrains/dokka/gfm-plugin/%dokkaVersion%/gfm-plugin-%dokkaVersion%.jar))
+into the `pluginsClasspath` configuration option.
 
 Via command line options:
 
