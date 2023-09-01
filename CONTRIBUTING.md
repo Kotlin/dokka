@@ -23,9 +23,9 @@ Bug reports, feature requests and questions are welcome. Submit issues [here](ht
 
 ## Submitting PRs
 
-Dokka has extensive [Developer Guides](https://kotlin.github.io/dokka/1.8.20/developer_guide/introduction/) documentation
-which goes over the development [Workflow](https://kotlin.github.io/dokka/1.8.20/developer_guide/workflow/) and 
-[Dokka's architecture](https://kotlin.github.io/dokka/1.8.20/developer_guide/architecture/architecture_overview/),
+Dokka has extensive [Developer Guides](https://kotlin.github.io/dokka/1.9.0/developer_guide/introduction/) documentation
+which goes over the development [Workflow](https://kotlin.github.io/dokka/1.9.0/developer_guide/workflow/) and 
+[Dokka's architecture](https://kotlin.github.io/dokka/1.9.0/developer_guide/architecture/architecture_overview/),
 which can help you understand how to achieve what you want and where to look.
 
 All development (both new features and bugfixes) takes place in the `master` branch, it contains sources for the next
@@ -61,10 +61,10 @@ Unit tests which are run as part of `build` should not take much time, but you c
 ### Use/test locally built Dokka
 
 Below you will find a bare-bones instruction on how to use and test locally built Dokka. For more details and examples, 
-visit [Workflow](https://kotlin.github.io/dokka/1.8.20/developer_guide/workflow/) topic.
+visit [Workflow](https://kotlin.github.io/dokka/1.9.0/developer_guide/workflow/) topic.
 
 1. Change `dokka_version` in `gradle.properties` to something that you will use later on as the dependency version.
-   For instance, you can set it to something like `1.8.20-my-fix-SNAPSHOT`.
+   For instance, you can set it to something like `1.9.0-my-fix-SNAPSHOT`.
 2. Publish it to Maven Local (`./gradlew publishToMavenLocal`)
 3. In the project for which you want to generate documentation add Maven Local as a buildscript/dependency
    repository (`mavenLocal()`)
@@ -72,7 +72,7 @@ visit [Workflow](https://kotlin.github.io/dokka/1.8.20/developer_guide/workflow/
 
 ```kotlin
 plugins {
-    id("org.jetbrains.dokka") version "1.8.20-my-fix-SNAPSHOT"
+    id("org.jetbrains.dokka") version "1.9.0-my-fix-SNAPSHOT"
 }
 ```
 
