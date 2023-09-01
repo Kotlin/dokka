@@ -32,20 +32,28 @@ internal fun ModuleAndPackageDocumentationParsingContext(
     sourceSet: DokkaConfiguration.DokkaSourceSet? = null
 ) = ModuleAndPackageDocumentationParsingContext { fragment, sourceLocation ->
 
-    if(kotlinAnalysis == null || sourceSet == null) {
+    if (kotlinAnalysis == null || sourceSet == null) {
         MarkdownParser(externalDri = { null }, sourceLocation)
     } else {
         val analysisContext = kotlinAnalysis[sourceSet]
-        analyze(analysisContext.mainModule) {
+        val contextPsi = analyze(analysisContext.mainModule) {
             val contextSymbol = when (fragment.classifier) {
                 Module -> ROOT_PACKAGE_SYMBOL
                 Package -> getPackageSymbolIfPackageExists(FqName(fragment.name))
             }
-
-            MarkdownParser(
-                externalDri = { resolveKDocTextLink(it, contextSymbol?.psi).logIfNotResolved(it, logger) },
-                sourceLocation
-            )
+            contextSymbol?.psi
         }
+        MarkdownParser(
+            externalDri = {
+                analyze(analysisContext.mainModule) {
+                    resolveKDocTextLink(
+                        it,
+                        contextPsi
+                    ).logIfNotResolved("$it in ${fragment.name.ifBlank { "module documentation" }}", logger)
+                }
+            },
+            sourceLocation
+        )
+
     }
 }
