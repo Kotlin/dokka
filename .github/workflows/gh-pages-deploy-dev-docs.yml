@@ -1,6 +1,7 @@
 name: Deploy developer docs to GitHub Pages
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - master
