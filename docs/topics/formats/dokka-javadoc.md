@@ -56,12 +56,12 @@ by using the following goals:
 <tab title="CLI" group-key="cli">
 
 Since the Javadoc output format is a [Dokka plugin](dokka-plugins.md#apply-dokka-plugins), you need to 
-download the plugin's [JAR file](https://mvnrepository.com/artifact/org.jetbrains.dokka/javadoc-plugin/%dokkaVersion%).
+[download the plugin's JAR file](https://repo1.maven.org/maven2/org/jetbrains/dokka/javadoc-plugin/%dokkaVersion%/javadoc-plugin-%dokkaVersion%.jar).
 
 The Javadoc output format has two dependencies that you need to provide as additional JAR files:
 
-* [kotlin-as-java plugin](https://mvnrepository.com/artifact/org.jetbrains.dokka/kotlin-as-java-plugin/%dokkaVersion%)
-* [korte-jvm](https://mvnrepository.com/artifact/com.soywiz.korlibs.korte/korte-jvm/3.3.0)
+* [kotlin-as-java plugin](https://repo1.maven.org/maven2/org/jetbrains/dokka/kotlin-as-java-plugin/%dokkaVersion%/kotlin-as-java-plugin-%dokkaVersion%.jar)
+* [korte-jvm](https://repo1.maven.org/maven2/com/soywiz/korlibs/korte/korte-jvm/3.3.0/korte-jvm-3.3.0.jar)
 
 Via [command line options](dokka-cli.md#run-with-command-line-options):
 
