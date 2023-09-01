@@ -42,7 +42,7 @@ Apply the Gradle plugin for Dokka in the root build script of your project:
 
 ```kotlin
 plugins {
-    id("org.jetbrains.dokka") version "1.8.20"
+    id("org.jetbrains.dokka") version "1.9.0"
 }
 ```
 
@@ -64,7 +64,7 @@ Apply Gradle plugin for Dokka in the root project:
 
 ```groovy
 plugins {
-    id 'org.jetbrains.dokka' version '1.8.20'
+    id 'org.jetbrains.dokka' version '1.9.0'
 }
 ```
 
@@ -98,7 +98,7 @@ Add the Dokka Maven plugin to the `plugins` section of your POM file:
         <plugin>
             <groupId>org.jetbrains.dokka</groupId>
             <artifactId>dokka-maven-plugin</artifactId>
-            <version>1.8.20</version>
+            <version>1.9.0</version>
             <executions>
                 <execution>
                     <phase>pre-site</phase>
@@ -137,7 +137,7 @@ Android platform:
 
 ```kotlin
 dependencies {
-    dokkaPlugin("org.jetbrains.dokka:android-documentation-plugin:1.8.20")
+    dokkaPlugin("org.jetbrains.dokka:android-documentation-plugin:1.9.0")
 }
 ```
 
@@ -148,7 +148,7 @@ dependencies {
 
 ```groovy
 dependencies {
-    dokkaPlugin 'org.jetbrains.dokka:android-documentation-plugin:1.8.20'
+    dokkaPlugin 'org.jetbrains.dokka:android-documentation-plugin:1.9.0'
 }
 ```
 
@@ -167,7 +167,7 @@ dependencies {
             <plugin>
                 <groupId>org.jetbrains.dokka</groupId>
                 <artifactId>android-documentation-plugin</artifactId>
-                <version>1.8.20</version>
+                <version>1.9.0</version>
             </plugin>
         </dokkaPlugins>
     </configuration>
@@ -214,7 +214,7 @@ implement plugins for missing or very specific features that are not provided ou
 Learn more about Dokka plugins and their configuration in [Dokka plugins](https://kotlinlang.org/docs/dokka-plugins.html).
 
 If you want to learn how to develop Dokka plugins, see
-[Developer guides](https://kotlin.github.io/dokka/1.8.20/developer_guide/introduction/).
+[Developer guides](https://kotlin.github.io/dokka/1.9.0/developer_guide/introduction/).
 
 ## Community
 
