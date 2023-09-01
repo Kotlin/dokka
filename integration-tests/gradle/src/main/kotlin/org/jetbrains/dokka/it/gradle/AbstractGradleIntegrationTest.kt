@@ -42,7 +42,7 @@ public abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() 
                         "-Pdokka_it_android_gradle_plugin_version=$androidVersion"
                     },
                     * arguments
-                )
+                ).filter { it.isNotBlank() }
             ).run { this as DefaultGradleRunner }
             .withJvmArguments(jvmArgs)
     }

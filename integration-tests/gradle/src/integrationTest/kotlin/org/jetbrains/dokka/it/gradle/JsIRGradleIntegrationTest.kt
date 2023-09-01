@@ -36,16 +36,16 @@ class JsIRGradleIntegrationTest : AbstractGradleIntegrationTest() {
         File(templateProjectDir, "src").copyRecursively(File(projectDir, "src"))
     }
 
-    @ParameterizedTest(name = "{0}")
-    @ArgumentsSource(AllSupportedTestedVersionsArgumentsProvider::class)
-    fun execute(buildVersions: BuildVersions) {
+    @ParameterizedTest(name = "{0} {1}")
+    @ArgumentsSource(AllSupportedTestedVersionsWithK2SwitcherArgumentsProvider::class)
+    fun execute(buildVersions: BuildVersions, extraParameter: String) {
         if (ignoredKotlinVersions.contains(buildVersions.kotlinVersion)) {
             return
         }
 
         val reactVersion = TestedVersions.KT_REACT_WRAPPER_MAPPING[buildVersions.kotlinVersion]
             ?: throw IllegalStateException("Unspecified version of react for kotlin " + buildVersions.kotlinVersion)
-        val result = createGradleRunner(buildVersions, "-Preact_version=$reactVersion", "dokkaHtml", "-i", "-s").buildRelaxed()
+        val result = createGradleRunner(buildVersions, "-Preact_version=$reactVersion", "dokkaHtml", "-i", "-s", extraParameter).buildRelaxed()
         assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":dokkaHtml")).outcome)
 
         val htmlOutputDir = File(projectDir, "build/dokka/html")

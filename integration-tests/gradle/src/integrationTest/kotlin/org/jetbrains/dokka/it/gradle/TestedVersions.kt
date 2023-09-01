@@ -9,8 +9,10 @@ import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.ArgumentsProvider
 import java.util.stream.Stream
 
+const val useK2PropertyCLIArgument = "-Porg.jetbrains.dokka.useK2=true"
 internal class LatestTestedVersionsArgumentsProvider : TestedVersionsArgumentsProvider(listOf(TestedVersions.LATEST))
 internal open class AllSupportedTestedVersionsArgumentsProvider : TestedVersionsArgumentsProvider(TestedVersions.ALL_SUPPORTED)
+internal open class AllSupportedTestedVersionsWithK2SwitcherArgumentsProvider : TestedVersionsWithK2SwitcherArgumentsProvider(listOf(TestedVersions.LATEST))
 
 internal object TestedVersions {
 
@@ -68,5 +70,14 @@ internal object TestedVersions {
 abstract class TestedVersionsArgumentsProvider(private val buildVersions: List<BuildVersions>) : ArgumentsProvider {
     override fun provideArguments(context: ExtensionContext?): Stream<out Arguments> {
         return buildVersions.stream().map { Arguments.of(it) }
+    }
+}
+
+/**
+ * The first argument is [BuildVersions], the second one is an extra CLI argument for Gradle
+ */
+internal abstract class TestedVersionsWithK2SwitcherArgumentsProvider(private val buildVersions: List<BuildVersions>) : ArgumentsProvider {
+    override fun provideArguments(context: ExtensionContext?): Stream<out Arguments> {
+        return (buildVersions.map { Arguments.of(it, "") } + buildVersions.map { Arguments.of(it, useK2PropertyCLIArgument) }).stream()
     }
 }

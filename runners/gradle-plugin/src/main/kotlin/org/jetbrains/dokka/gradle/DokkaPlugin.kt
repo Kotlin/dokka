@@ -18,6 +18,8 @@ open class DokkaPlugin : Plugin<Project> {
         if (GradleVersion.version(project.gradle.gradleVersion) < GradleVersion.version("5.6")) {
             project.logger.warn("Dokka: Build is using unsupported gradle version, expected at least 5.6 but got ${project.gradle.gradleVersion}. This may result in strange errors")
         }
+        if (project.shouldUseK2())
+            project.logger.info("K2 Analysis is using")
 
         project.setupDokkaTasks("dokkaHtml") {
             description = "Generates documentation in 'html' format"

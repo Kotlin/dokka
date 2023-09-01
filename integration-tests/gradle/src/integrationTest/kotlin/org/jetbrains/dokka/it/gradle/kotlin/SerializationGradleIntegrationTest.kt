@@ -9,28 +9,22 @@ import org.jetbrains.dokka.it.TestOutputCopier
 import org.jetbrains.dokka.it.copyAndApplyGitDiff
 import org.jetbrains.dokka.it.gradle.AbstractGradleIntegrationTest
 import org.jetbrains.dokka.it.gradle.BuildVersions
-import org.junit.jupiter.api.extension.ExtensionContext
+import org.jetbrains.dokka.it.gradle.TestedVersionsWithK2SwitcherArgumentsProvider
 import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.Arguments
-import org.junit.jupiter.params.provider.ArgumentsProvider
 import org.junit.jupiter.params.provider.ArgumentsSource
 import java.io.File
-import java.util.stream.Stream
 import kotlin.test.BeforeTest
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-class SerializationBuildVersionsArgumentsProvider : ArgumentsProvider {
-    private val buildVersions = BuildVersions.permutations(
-        gradleVersions = listOf("7.6.1"),
-        kotlinVersions = listOf("1.9.0")
-    )
+private val buildVersions = BuildVersions.permutations(
+    gradleVersions = listOf("7.6.1"),
+    kotlinVersions = listOf("1.9.0")
+)
 
-    override fun provideArguments(context: ExtensionContext?): Stream<out Arguments> {
-        return buildVersions.stream().map { Arguments.of(it) }
-    }
-}
+internal class SerializationBuildVersionsArgumentsProvider :
+    TestedVersionsWithK2SwitcherArgumentsProvider(buildVersions)
 
 class SerializationGradleIntegrationTest : AbstractGradleIntegrationTest(), TestOutputCopier {
 
@@ -44,10 +38,10 @@ class SerializationGradleIntegrationTest : AbstractGradleIntegrationTest(), Test
         copyAndApplyGitDiff(File("projects", "serialization/serialization.diff"))
     }
 
-    @ParameterizedTest(name = "{0}")
+    @ParameterizedTest(name = "{0} {1}")
     @ArgumentsSource(SerializationBuildVersionsArgumentsProvider::class)
-    fun execute(buildVersions: BuildVersions) {
-        val result = createGradleRunner(buildVersions, ":dokkaHtmlMultiModule", "-i", "-s").buildRelaxed()
+    fun execute(buildVersions: BuildVersions, extraParameter: String) {
+        val result = createGradleRunner(buildVersions, ":dokkaHtmlMultiModule", "-i", "-s", extraParameter).buildRelaxed()
 
         assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":dokkaHtmlMultiModule")).outcome)
 

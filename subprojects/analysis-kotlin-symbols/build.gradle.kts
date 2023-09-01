@@ -13,7 +13,7 @@ plugins {
 
 dependencies {
     compileOnly(projects.core)
-    compileOnly(projects.subprojects.analysisKotlinApi)
+    implementation(projects.subprojects.analysisKotlinApi)
 
     implementation(projects.subprojects.analysisMarkdownJb)
     implementation(projects.subprojects.analysisJavaPsi)
@@ -82,7 +82,6 @@ dependencies {
 
     // TODO [beresnev] get rid of it
     compileOnly(libs.kotlinx.coroutines.core)
-
 }
 
 tasks {

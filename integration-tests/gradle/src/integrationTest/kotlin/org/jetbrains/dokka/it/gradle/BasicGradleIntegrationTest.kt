@@ -31,14 +31,14 @@ class BasicGradleIntegrationTest : AbstractGradleIntegrationTest() {
         }
     }
 
-    @ParameterizedTest(name = "{0}")
-    @ArgumentsSource(AllSupportedTestedVersionsArgumentsProvider::class)
-    fun execute(buildVersions: BuildVersions) {
-        runAndAssertOutcome(buildVersions, TaskOutcome.SUCCESS)
-        runAndAssertOutcome(buildVersions, TaskOutcome.UP_TO_DATE)
+    @ParameterizedTest(name = "{0} {1}")
+    @ArgumentsSource(AllSupportedTestedVersionsWithK2SwitcherArgumentsProvider::class)
+    fun execute(buildVersions: BuildVersions, extraParameter: String) {
+        runAndAssertOutcome(buildVersions, TaskOutcome.SUCCESS, extraParameter)
+        runAndAssertOutcome(buildVersions, TaskOutcome.UP_TO_DATE, extraParameter)
     }
 
-    private fun runAndAssertOutcome(buildVersions: BuildVersions, expectedOutcome: TaskOutcome) {
+    private fun runAndAssertOutcome(buildVersions: BuildVersions, expectedOutcome: TaskOutcome, extraParameter: String) {
         val result = createGradleRunner(
             buildVersions,
             "dokkaHtml",
@@ -46,7 +46,8 @@ class BasicGradleIntegrationTest : AbstractGradleIntegrationTest() {
             "dokkaGfm",
             "dokkaJekyll",
             "-i",
-            "-s"
+            "-s",
+            extraParameter
         ).buildRelaxed()
 
         assertEquals(expectedOutcome, assertNotNull(result.task(":dokkaHtml")).outcome)

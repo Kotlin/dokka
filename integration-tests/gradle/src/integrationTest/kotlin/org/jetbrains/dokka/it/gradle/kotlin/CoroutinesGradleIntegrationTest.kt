@@ -9,29 +9,22 @@ import org.jetbrains.dokka.it.TestOutputCopier
 import org.jetbrains.dokka.it.copyAndApplyGitDiff
 import org.jetbrains.dokka.it.gradle.AbstractGradleIntegrationTest
 import org.jetbrains.dokka.it.gradle.BuildVersions
-import org.junit.jupiter.api.extension.ExtensionContext
+import org.jetbrains.dokka.it.gradle.TestedVersionsWithK2SwitcherArgumentsProvider
 import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.Arguments
-import org.junit.jupiter.params.provider.ArgumentsProvider
 import org.junit.jupiter.params.provider.ArgumentsSource
 import java.io.File
-import java.util.stream.Stream
 import kotlin.test.BeforeTest
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-class CoroutinesBuildVersionsArgumentsProvider : ArgumentsProvider {
-    private val buildVersions = BuildVersions.permutations(
-        gradleVersions = listOf("7.4.2"),
-        kotlinVersions = listOf("1.8.10")
-    )
+private val buildVersions = BuildVersions.permutations(
+    gradleVersions = listOf("7.4.2"),
+    kotlinVersions = listOf("1.8.10")
+)
 
-    override fun provideArguments(context: ExtensionContext?): Stream<out Arguments> {
-        return buildVersions.stream().map { Arguments.of(it) }
-    }
-}
-
+internal class CoroutinesBuildVersionsArgumentsProvider :
+    TestedVersionsWithK2SwitcherArgumentsProvider(buildVersions)
 class CoroutinesGradleIntegrationTest : AbstractGradleIntegrationTest(), TestOutputCopier {
 
     override val projectOutputLocation: File by lazy { File(projectDir, "build/dokka/htmlMultiModule") }
@@ -45,12 +38,12 @@ class CoroutinesGradleIntegrationTest : AbstractGradleIntegrationTest(), TestOut
         copyAndApplyGitDiff(File("projects", "coroutines/coroutines.diff"))
     }
 
-    @ParameterizedTest(name = "{0}")
+    @ParameterizedTest(name = "{0} {1}")
     @ArgumentsSource(CoroutinesBuildVersionsArgumentsProvider::class)
-    fun execute(buildVersions: BuildVersions) {
+    fun execute(buildVersions: BuildVersions, extraParameter: String) {
         val result = createGradleRunner(
             buildVersions,
-            ":dokkaHtmlMultiModule", "-i", "-s",
+            ":dokkaHtmlMultiModule", "-i", "-s", extraParameter,
             jvmArgs = listOf("-Xmx2G", "-XX:MaxMetaspaceSize=500m")
         ).buildRelaxed()
 
