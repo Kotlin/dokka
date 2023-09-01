@@ -15,7 +15,7 @@
         <link rel="canonical" href="https://github.com/Kotlin/dokka/1.9.0-SNAPSHOT/developer_guide/architecture/architecture_overview/">
       
       <link rel="icon" href="../../../favicon.svg">
-      <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-8.2.8">
+      <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-8.3.6">
     
     
       
@@ -23,11 +23,12 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.644de097.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.4a0965b7.min.css">
       
         
-        <link rel="stylesheet" href="../../../assets/stylesheets/palette.e6a45f82.min.css">
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.cbb835fc.min.css">
         
+      
       
     
     
@@ -84,11 +85,11 @@
     <a href="../../.." title="Dokka" class="md-header__button md-logo" aria-label="Dokka" data-md-component="logo">
       
   
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
     </label>
     <div class="md-header__title" data-md-component="header-title">
       <div class="md-header__ellipsis">
@@ -110,7 +111,7 @@
     
     
       <label class="md-header__button md-icon" for="__search">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
       </label>
       <div class="md-search" data-md-component="search" role="dialog">
   <label class="md-search__overlay" for="__search"></label>
@@ -118,13 +119,13 @@
     <form class="md-search__form" name="search">
       <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
       <label class="md-search__icon md-icon" for="__search">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
       </label>
       <nav class="md-search__options" aria-label="Search">
         
         <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
         </button>
       </nav>
       
@@ -228,7 +229,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../../community/slack/" class="md-tabs__link">
+      <a href="../../community/slack/" class="md-tabs__link">
         Community
       </a>
     </li>
@@ -259,7 +260,7 @@
     <a href="../../.." title="Dokka" class="md-nav__button md-logo" aria-label="Dokka" data-md-component="logo">
       
   
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
 
     </a>
     Dokka
@@ -290,7 +291,7 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_1" data-md-state="indeterminate" type="checkbox" id="__nav_1" checked>
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_1" type="checkbox" id="__nav_1" checked>
       
       
       
@@ -361,7 +362,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../community/slack/" class="md-nav__link">
+      <a href="../../community/slack/" class="md-nav__link">
         Community
       </a>
     </li>
@@ -386,7 +387,7 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2" data-md-state="indeterminate" type="checkbox" id="__nav_2" checked>
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_2" type="checkbox" id="__nav_2" checked>
       
       
       
@@ -609,7 +610,7 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_3_2" data-md-state="indeterminate" type="checkbox" id="__nav_3_3_2" checked>
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_3_3_2" type="checkbox" id="__nav_3_3_2" checked>
       
       
       
@@ -640,7 +641,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../data_model/documentables/" class="md-nav__link">
+      <a href="../data_model/documentable_model/" class="md-nav__link">
         Documentables
       </a>
     </li>
@@ -692,10 +693,12 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_3_3" data-md-state="indeterminate" type="checkbox" id="__nav_3_3_3" checked>
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_3_3_3" type="checkbox" id="__nav_3_3_3" checked>
       
       
       
+        
+          
         
           
         
@@ -706,14 +709,14 @@
       
       
         <label class="md-nav__link" for="__nav_3_3_3">
-          Extension points
+          Extensions
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <nav class="md-nav" aria-label="Extension points" data-md-level="3">
+      <nav class="md-nav" aria-label="Extensions" data-md-level="3">
         <label class="md-nav__title" for="__nav_3_3_3">
           <span class="md-nav__icon md-icon"></span>
-          Extension points
+          Extensions
         </label>
         <ul class="md-nav__list" data-md-scrollfix>
           
@@ -723,7 +726,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../extension_points/introduction/" class="md-nav__link">
+      <a href="../extension_points/extension_points/" class="md-nav__link">
         Extension points
       </a>
     </li>
@@ -737,7 +740,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../extension_points/core_extensions/" class="md-nav__link">
+      <a href="../extension_points/core_extension_points/" class="md-nav__link">
         Core extension points
       </a>
     </li>
@@ -751,8 +754,22 @@
   
   
     <li class="md-nav__item">
-      <a href="../extension_points/base_extensions/" class="md-nav__link">
+      <a href="../extension_points/base_plugin/" class="md-nav__link">
         Base extensions
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../extension_points/generation_implementations/" class="md-nav__link">
+        Generation implementations
       </a>
     </li>
   
@@ -782,7 +799,7 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_4" data-md-state="indeterminate" type="checkbox" id="__nav_3_4" checked>
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_3_4" type="checkbox" id="__nav_3_4" checked>
       
       
       
@@ -857,7 +874,7 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4" data-md-state="indeterminate" type="checkbox" id="__nav_4" checked>
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_4" type="checkbox" id="__nav_4" checked>
       
       
       
@@ -884,7 +901,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../community/slack/" class="md-nav__link">
+      <a href="../../community/slack/" class="md-nav__link">
         Slack
       </a>
     </li>
@@ -957,127 +974,128 @@
             <article class="md-content__inner md-typeset">
               
                 
-<a href="https://github.com/Kotlin/dokka/edit/master/mkdocs/src/doc/docs/developer_guide/architecture/architecture_overview.md" title="Edit this page" class="md-content__button md-icon">
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
-</a>
+  <a href="https://github.com/Kotlin/dokka/edit/master/docs-developer/src/doc/docs/developer_guide/architecture/architecture_overview.md" title="Edit this page" class="md-content__button md-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg>
+  </a>
 
 
 
 <h1 id="architecture-overview">Architecture overview<a class="headerlink" href="#architecture-overview" title="Permanent link">&para;</a></h1>
-<p>Normally, you would think that a tool like <code>Dokka</code> simply parses some programming language sources and generates
-<code>HTML</code> pages for whatever it sees along the way, with little to no abstractions. That would be the simplest and
-shortest way to implement an API documentation engine.</p>
-<p>However, it was clear that <code>Dokka</code> may need to generate documentation from various sources (not only <code>Kotlin</code>), that users
-might request additional output formats (like <code>Markdown</code>), that users might need additional features like supporting
-custom <code>KDoc</code> tags or rendering <code>mermaid.js</code> diagrams - all these things would require changing a lot of code inside
-<code>Dokka</code> itself if all solutions were hardcoded.</p>
-<p>For this reason, <code>Dokka</code> was built from the ground up to be easily extensible and customizable by adding several layers
+<p>Normally, you would think that a tool like Dokka simply parses some programming language sources and generates
+HTML pages for whatever it sees along the way, with little to no abstractions. That would be the simplest and
+the most straightforward way to implement an API documentation engine.</p>
+<p>However, it was clear that Dokka may need to generate documentation from various sources (not only Kotlin), that users
+might request additional output formats (like Markdown), that users might need additional features like supporting
+custom KDoc tags or rendering <a href="https://mermaid.js.org/">mermaid.js</a> diagrams - all these things would require changing 
+a lot of code inside Dokka itself if all solutions were hardcoded.</p>
+<p>For this reason, Dokka was built from the ground up to be easily extensible and customizable by adding several layers
 of abstractions to the data model, and by providing pluggable extension points, giving you the ability to introduce
-selective changes on a single level.</p>
+selective changes on a given level.</p>
 <h2 id="overview-of-data-model">Overview of data model<a class="headerlink" href="#overview-of-data-model" title="Permanent link">&para;</a></h2>
-<p>Generating API documentation begins with <code>Input</code> source files (<code>.kts</code>, <code>.java</code>, etc) and ends with some <code>Output</code> files
-(<code>.html</code>/<code>.md</code> pages, etc). However, to allow for extensibility and customization, several input and output independent
+<p>Generating API documentation begins with input source files (<code>.kt</code>, <code>.java</code>, etc) and ends with some output files
+(<code>.html</code>/<code>.md</code>, etc). However, to allow for extensibility and customization, several input and output independent
 abstractions have been added to the data model.</p>
 <p>Below you can find the general pipeline of processing data gathered from sources and the explanation for each stage.</p>
 <pre class="mermaid"><code>flowchart TD
     Input --&gt; Documentables --&gt; Pages --&gt; Output</code></pre>
 <ul>
-<li><code>Input</code> - generalization of sources, by default <code>Kotlin</code>/<code>Java</code> sources, but could be virtually anything</li>
-<li><code>Documentables</code> - unified data model that represents <em>any</em> parsed sources as a tree, independent of the source
-  language. Examples of a <code>Documentable</code>: class, function, package, property, etc</li>
-<li><code>Pages</code> - universal model that represents output pages (e.g a function/property page) and the content it's composed of
-  (lists, text, code blocks) that the users needs to see. Not to be confused with <code>.html</code> pages. Goes hand in hand
-  with so-called <code>Content</code> model.</li>
-<li><code>Output</code> - specific output format like <code>HTML</code>/<code>Markdown</code>/<code>Javadoc</code>/etc. This is a mapping of pages/content model to
-  some human-readable and visual representation. For instance:<ul>
+<li><code>Input</code> - generalization of sources, by default Kotlin / Java sources, but could be virtually anything</li>
+<li><a href="../data_model/documentable_model/"><code>Documentables</code></a> - unified data model that represents <em>any</em> parsed sources as a 
+  tree, independent of the source language. Examples of a <code>Documentable</code>: class, function, package, property, etc</li>
+<li><a href="../data_model/page_content/"><code>Pages</code></a> - universal model that represents output pages (e.g a function/property page) 
+  and the content it's composed of (lists, text, code blocks) that the users needs to see. Not to be confused with 
+  <code>.html</code> pages. Goes hand in hand with the so-called <a href="../data_model/page_content/#content-model">Content model</a>.</li>
+<li><code>Output</code> - specific output formats like HTML / Markdown / Javadoc and so on. This is a mapping of the pages/content 
+  model to a human-readable and visual representation. For instance:<ul>
 <li><code>PageNode</code> is mapped as <ul>
-<li><code>.html</code> file for <code>HTML</code> format</li>
-<li><code>.md</code> file for <code>Markdown</code> format</li>
+<li><code>.html</code> file for the HTML format</li>
+<li><code>.md</code> file for the Markdown format</li>
 </ul>
 </li>
 <li><code>ContentList</code> is mapped as<ul>
-<li><code>&lt;li&gt;</code> / <code>&lt;ul&gt;</code> for <code>HTML</code> format</li>
-<li><code>1.</code> / <code>*</code> for <code>Markdown</code> format</li>
+<li><code>&lt;li&gt;</code> / <code>&lt;ul&gt;</code> for the HTML format</li>
+<li><code>1.</code> / <code>*</code> for the Markdown format</li>
 </ul>
 </li>
 <li><code>ContentCodeBlock</code> is mapped as<ul>
-<li><code>&lt;code&gt;</code> or <code>&lt;pre&gt;</code> with some CSS styles in <code>HTML</code> format</li>
-<li>Text wrapped in triple backticks for <code>Markdown</code> format</li>
+<li><code>&lt;code&gt;</code> or <code>&lt;pre&gt;</code> with some CSS styles in the HTML format</li>
+<li>Text wrapped in triple backticks for the Markdown format</li>
 </ul>
 </li>
 </ul>
 </li>
 </ul>
-<p>You, as a <code>Dokka</code> developer or a plugin writer, can use extension points to introduce selective changes to the
-model on one particular level without touching everything else. </p>
-<p>For instance, if you wanted to make some annotation/function/class invisible in the final documentation, you would only
-need to modify the <code>Documentables</code> model by filtering undesirable members out. If you wanted to display all overloaded
-methods on the same page instead of on separate ones, you would only need to modify the <code>Page</code> model by merging multiple
+<p>You, as a Dokka developer or a plugin writer, can use extension points to introduce selective changes to the
+model on one particular level without altering everything else. </p>
+<p>For instance, if you wanted to make an annotation / function / class invisible in the final documentation, you would only
+need to modify the <code>Documentables</code> level by filtering undesirable declarations out. If you wanted to display all overloaded
+methods on the same page instead of on separate ones, you would only need to modify the <code>Pages</code> layer by merging multiple
 pages into one, and so on.</p>
 <p>For a deeper dive into Dokka's model with more examples and details,
-see sections about <a href="../data_model/documentables/">Documentables</a> and <a href="../data_model/page_content/">Page/Content</a></p>
+see sections about <a href="../data_model/documentable_model/">Documentables</a> and <a href="../data_model/page_content/">Page/Content</a></p>
 <p>For an overview of existing extension points that let you transform Dokka's models, see 
-<a href="../extension_points/core_extensions/">Core extension points</a> and <a href="../extension_points/base_extensions/">Base extensions</a>.</p>
+<a href="../extension_points/core_extension_points/">Core extension points</a> and <a href="../extension_points/base_plugin/">Base extensions</a>.</p>
 <h2 id="overview-of-extension-points">Overview of extension points<a class="headerlink" href="#overview-of-extension-points" title="Permanent link">&para;</a></h2>
-<p>An extension point usually represents some pluggable interface that performs an action during one of the stages of
-generating documentation. An extension is therefore an implementation of that interface which is extending the
+<p>An <em>extension point</em> usually represents a pluggable interface that performs an action during one of the stages of
+generating documentation. An <em>extension</em> is, therefore, an implementation of the interface which is extending the
 extension point.</p>
 <p>You can create extension points, provide your own implementations (extensions) and configure them. All of
-this is possible with Dokka's plugin/extension point API.</p>
+this is possible with Dokka's plugin / extension point API.</p>
 <p>Here's a sneak peek of the DSL:</p>
-<div class="highlight"><pre><span></span><code><span class="kd">class</span> <span class="nc">MyPlugin</span> <span class="p">:</span> <span class="n">DokkaPlugin</span><span class="p">()</span> <span class="p">{</span>
-    <span class="c1">// create an extension point for other developers</span>
-    <span class="kd">val</span> <span class="nv">signatureProvider</span> <span class="k">by</span> <span class="n">extensionPoint</span><span class="o">&lt;</span><span class="n">SignatureProvider</span><span class="o">&gt;</span><span class="p">()</span>
+<div class="highlight"><pre><span></span><code><span class="c1">// declare your own plugin</span><span class="w"></span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">MyPlugin</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">DokkaPlugin</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="c1">// create an extension point for developers to use</span><span class="w"></span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">signatureProvider</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">extensionPoint</span><span class="o">&lt;</span><span class="n">SignatureProvider</span><span class="o">&gt;</span><span class="p">()</span><span class="w"></span>
 
-    <span class="c1">// provide a default implementation</span>
-    <span class="kd">val</span> <span class="nv">defaultSignatureProvider</span> <span class="k">by</span> <span class="n">extending</span> <span class="p">{</span>
-        <span class="n">signatureProvider</span> <span class="n">with</span> <span class="n">KotlinSignatureProvider</span><span class="p">()</span>
-    <span class="p">}</span>
+<span class="w">    </span><span class="c1">// provide a default implementation</span><span class="w"></span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">defaultSignatureProvider</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">extending</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">signatureProvider</span><span class="w"> </span><span class="n">with</span><span class="w"> </span><span class="n">KotlinSignatureProvider</span><span class="p">()</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-    <span class="c1">// register our own extension in base plugin and override its default</span>
-    <span class="kd">val</span> <span class="nv">dokkaBasePlugin</span> <span class="k">by</span> <span class="n">lazy</span> <span class="p">{</span> <span class="n">plugin</span><span class="o">&lt;</span><span class="n">DokkaBase</span><span class="o">&gt;</span><span class="p">()</span> <span class="p">}</span>
-    <span class="kd">val</span> <span class="nv">multimoduleLocationProvider</span> <span class="k">by</span> <span class="n">extending</span> <span class="p">{</span>
-        <span class="p">(</span><span class="n">dokkaBasePlugin</span><span class="p">.</span><span class="na">locationProviderFactory</span>
-                <span class="n">providing</span> <span class="n">MultimoduleLocationProvider</span><span class="o">::</span><span class="n">Factory</span>
-                <span class="n">override</span> <span class="n">dokkaBasePlugin</span><span class="p">.</span><span class="na">locationProvider</span><span class="p">)</span>
-    <span class="p">}</span>
-<span class="p">}</span>
+<span class="w">    </span><span class="c1">// register our own extension in Dokka&#39;s Base plugin by overriding its default implementation</span><span class="w"></span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">dokkaBasePlugin</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">lazy</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">plugin</span><span class="o">&lt;</span><span class="n">DokkaBase</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">multimoduleLocationProvider</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">extending</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="p">(</span><span class="n">dokkaBasePlugin</span><span class="p">.</span><span class="na">locationProviderFactory</span><span class="w"></span>
+<span class="w">                </span><span class="n">providing</span><span class="w"> </span><span class="n">MultimoduleLocationProvider</span><span class="o">::</span><span class="n">Factory</span><span class="w"></span>
+<span class="w">                </span><span class="n">override</span><span class="w"> </span><span class="n">dokkaBasePlugin</span><span class="p">.</span><span class="na">locationProvider</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-<span class="c1">// use a registered extention, pretty much dependency injection</span>
-<span class="kd">class</span> <span class="nc">MyExtension</span><span class="p">(</span><span class="kd">val</span> <span class="nv">context</span><span class="p">:</span> <span class="n">DokkaContext</span><span class="p">)</span> <span class="p">{</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">MyExtension</span><span class="p">(</span><span class="kd">val</span><span class="w"> </span><span class="nv">context</span><span class="p">:</span><span class="w"> </span><span class="n">DokkaContext</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 
-    <span class="kd">val</span> <span class="nv">signatureProvider</span><span class="p">:</span> <span class="n">SignatureProvider</span> <span class="o">=</span> <span class="n">context</span><span class="p">.</span><span class="na">plugin</span><span class="o">&lt;</span><span class="n">MyPlugin</span><span class="o">&gt;</span><span class="p">().</span><span class="na">querySingle</span> <span class="p">{</span> <span class="n">signatureProvider</span> <span class="p">}</span>
+<span class="w">    </span><span class="c1">// use an existing extension</span><span class="w"></span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">signatureProvider</span><span class="p">:</span><span class="w"> </span><span class="n">SignatureProvider</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">context</span><span class="p">.</span><span class="na">plugin</span><span class="o">&lt;</span><span class="n">MyPlugin</span><span class="o">&gt;</span><span class="p">().</span><span class="na">querySingle</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">signatureProvider</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
 
-    <span class="kd">fun</span> <span class="nf">doSomething</span><span class="p">()</span> <span class="p">{</span>
-        <span class="n">signatureProvider</span><span class="p">.</span><span class="na">signature</span><span class="p">(..)</span>
-    <span class="p">}</span>
-<span class="p">}</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">doSomething</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">signatureProvider</span><span class="p">.</span><span class="na">signature</span><span class="p">(..)</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-<span class="kd">interface</span> <span class="nc">SignatureProvider</span> <span class="p">{</span>
-    <span class="kd">fun</span> <span class="nf">signature</span><span class="p">(</span><span class="n">documentable</span><span class="p">:</span> <span class="n">Documentable</span><span class="p">):</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">ContentNode</span><span class="o">&gt;</span>
-<span class="p">}</span>
+<span class="kd">interface</span><span class="w"> </span><span class="nc">SignatureProvider</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">signature</span><span class="p">(</span><span class="n">documentable</span><span class="p">:</span><span class="w"> </span><span class="n">Documentable</span><span class="p">):</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">ContentNode</span><span class="o">&gt;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-<span class="kd">class</span> <span class="nc">KotlinSignatureProvider</span> <span class="p">:</span> <span class="n">SignatureProvider</span> <span class="p">{</span>
-    <span class="kd">override</span> <span class="kd">fun</span> <span class="nf">signature</span><span class="p">(</span><span class="n">documentable</span><span class="p">:</span> <span class="n">Documentable</span><span class="p">):</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">ContentNode</span><span class="o">&gt;</span> <span class="o">=</span> <span class="n">listOf</span><span class="p">()</span>
-<span class="p">}</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">KotlinSignatureProvider</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">SignatureProvider</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kd">override</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">signature</span><span class="p">(</span><span class="n">documentable</span><span class="p">:</span><span class="w"> </span><span class="n">Documentable</span><span class="p">):</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">ContentNode</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">listOf</span><span class="p">()</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </code></pre></div>
-<p>For a deeper dive into extensions and extension points with more examples and details, see
-<a href="../extension_points/introduction/">Introduction to Extensions</a>.</p>
-<p>For an overview of existing extension points, see <a href="../extension_points/core_extensions/">Core extension points</a> and
-<a href="../extension_points/base_extensions/">Base extensions</a>.</p>
+<p>For a deeper dive into extensions and extension points, see <a href="../extension_points/extension_points/">Introduction to Extensions</a>.</p>
+<p>For an overview of existing extension points, see <a href="../extension_points/core_extension_points/">Core extension points</a> and
+<a href="../extension_points/base_plugin/">Base extensions</a>.</p>
 <h2 id="historical-context">Historical context<a class="headerlink" href="#historical-context" title="Permanent link">&para;</a></h2>
 <p>This is a second iteration of Dokka that was built from scratch.</p>
-<p>If you want to learn more about why Dokka has been designed this way, watch this great talk by Paweł Marks:
+<p>If you want to learn more about why Dokka was redesigned this way, watch this great talk by Paweł Marks:
 <a href="https://www.youtube.com/watch?v=OvFoTRhqaKg">New Dokka - Designed for Fearless Creativity</a>. The general principles 
 and general architecture are the same, although it may be outdated in some areas, so please double-check.</p>
 
               
             </article>
+            
           </div>
         </div>
         
-          <a href="#" class="md-top md-icon" data-md-component="top" data-md-state="hidden">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"/></svg>
+          <a href="#" class="md-top md-icon" data-md-component="top" hidden>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
             Back to top
           </a>
         
@@ -1085,12 +1103,13 @@ and general architecture are the same, although it may be outdated in some areas
       
         <footer class="md-footer">
   
-    <nav class="md-footer__inner md-grid" aria-label="Footer">
+    
+    <nav class="md-footer__inner md-grid" aria-label="Footer" >
       
         
         <a href="../../workflow/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Workflow" rel="prev">
           <div class="md-footer__button md-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
           </div>
           <div class="md-footer__title">
             <div class="md-ellipsis">
@@ -1104,7 +1123,7 @@ and general architecture are the same, although it may be outdated in some areas
       
       
         
-        <a href="../data_model/documentables/" class="md-footer__link md-footer__link--next" aria-label="Next: Documentables" rel="next">
+        <a href="../data_model/documentable_model/" class="md-footer__link md-footer__link--next" aria-label="Next: Documentables" rel="next">
           <div class="md-footer__title">
             <div class="md-ellipsis">
               <span class="md-footer__direction">
@@ -1114,7 +1133,7 @@ and general architecture are the same, although it may be outdated in some areas
             </div>
           </div>
           <div class="md-footer__button md-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
           </div>
         </a>
       
@@ -1144,10 +1163,10 @@ and general architecture are the same, although it may be outdated in some areas
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.expand", "navigation.tabs", "navigation.instant", "navigation.indexes", "navigation.top"], "search": "../../../assets/javascripts/workers/search.5e67fbfe.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.expand", "navigation.tabs", "navigation.instant", "navigation.indexes", "navigation.top"], "search": "../../../assets/javascripts/workers/search.85cb4492.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.c44cc438.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.a877e258.min.js"></script>
       
     
   </body>

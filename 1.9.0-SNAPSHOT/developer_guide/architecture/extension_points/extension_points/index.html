@@ -12,14 +12,14 @@
         <meta name="author" content="JetBrains">
       
       
-        <link rel="canonical" href="https://github.com/Kotlin/dokka/1.9.0-SNAPSHOT/developer_guide/architecture/data_model/page_content/">
+        <link rel="canonical" href="https://github.com/Kotlin/dokka/1.9.0-SNAPSHOT/developer_guide/architecture/extension_points/extension_points/">
       
       <link rel="icon" href="../../../../favicon.svg">
       <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-8.3.6">
     
     
       
-        <title>Page & Content - Dokka</title>
+        <title>Extension points - Dokka</title>
       
     
     
@@ -68,7 +68,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#page-content-model" class="md-skip">
+        <a href="#extension-points" class="md-skip">
           Skip to content
         </a>
       
@@ -101,7 +101,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Page & Content
+              Extension points
             
           </span>
         </div>
@@ -550,14 +550,12 @@
               
   
   
-    
-  
   
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_3_2" type="checkbox" id="__nav_3_3_2" checked>
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_3_3_2" type="checkbox" id="__nav_3_3_2" checked>
       
       
       
@@ -588,7 +586,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../documentable_model/" class="md-nav__link">
+      <a href="../../data_model/documentable_model/" class="md-nav__link">
         Documentables
       </a>
     </li>
@@ -600,93 +598,11 @@
               
   
   
-    
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          Page & Content
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../data_model/page_content/" class="md-nav__link">
         Page & Content
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#page" class="md-nav__link">
-    Page
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#content-model" class="md-nav__link">
-    Content Model
-  </a>
-  
-    <nav class="md-nav" aria-label="Content Model">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#dci" class="md-nav__link">
-    DCI
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#contentkind" class="md-nav__link">
-    ContentKind
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#styles" class="md-nav__link">
-    Styles
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#extra" class="md-nav__link">
-    Extra
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -698,7 +614,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../extra/" class="md-nav__link">
+      <a href="../../data_model/extra/" class="md-nav__link">
         Extra properties
       </a>
     </li>
@@ -717,12 +633,14 @@
               
   
   
+    
+  
   
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_3_3_3" type="checkbox" id="__nav_3_3_3" checked>
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_3_3" type="checkbox" id="__nav_3_3_3" checked>
       
       
       
@@ -753,11 +671,100 @@
               
   
   
+    
   
-    <li class="md-nav__item">
-      <a href="../../extension_points/extension_points/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Extension points
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         Extension points
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#declaring-extension-points" class="md-nav__link">
+    Declaring extension points
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#extending-from-extension-points" class="md-nav__link">
+    Extending from extension points
+  </a>
+  
+    <nav class="md-nav" aria-label="Extending from extension points">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#providing" class="md-nav__link">
+    Providing
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#override" class="md-nav__link">
+    Override
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#order" class="md-nav__link">
+    Order
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#conditional-apply" class="md-nav__link">
+    Conditional apply
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#obtaining-extension-instance" class="md-nav__link">
+    Obtaining extension instance
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -769,7 +776,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../extension_points/core_extension_points/" class="md-nav__link">
+      <a href="../core_extension_points/" class="md-nav__link">
         Core extension points
       </a>
     </li>
@@ -783,7 +790,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../extension_points/base_plugin/" class="md-nav__link">
+      <a href="../base_plugin/" class="md-nav__link">
         Base extensions
       </a>
     </li>
@@ -797,7 +804,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../extension_points/generation_implementations/" class="md-nav__link">
+      <a href="../generation_implementations/" class="md-nav__link">
         Generation implementations
       </a>
     </li>
@@ -971,50 +978,57 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#page" class="md-nav__link">
-    Page
+  <a href="#declaring-extension-points" class="md-nav__link">
+    Declaring extension points
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#content-model" class="md-nav__link">
-    Content Model
+  <a href="#extending-from-extension-points" class="md-nav__link">
+    Extending from extension points
   </a>
   
-    <nav class="md-nav" aria-label="Content Model">
+    <nav class="md-nav" aria-label="Extending from extension points">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#dci" class="md-nav__link">
-    DCI
+  <a href="#providing" class="md-nav__link">
+    Providing
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#contentkind" class="md-nav__link">
-    ContentKind
+  <a href="#override" class="md-nav__link">
+    Override
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#styles" class="md-nav__link">
-    Styles
+  <a href="#order" class="md-nav__link">
+    Order
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#extra" class="md-nav__link">
-    Extra
+  <a href="#conditional-apply" class="md-nav__link">
+    Conditional apply
   </a>
   
 </li>
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#obtaining-extension-instance" class="md-nav__link">
+    Obtaining extension instance
+  </a>
   
 </li>
       
@@ -1030,116 +1044,135 @@
             <article class="md-content__inner md-typeset">
               
                 
-  <a href="https://github.com/Kotlin/dokka/edit/master/docs-developer/src/doc/docs/developer_guide/architecture/data_model/page_content.md" title="Edit this page" class="md-content__button md-icon">
+  <a href="https://github.com/Kotlin/dokka/edit/master/docs-developer/src/doc/docs/developer_guide/architecture/extension_points/extension_points.md" title="Edit this page" class="md-content__button md-icon">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg>
   </a>
 
 
 
-<h1 id="page-content-model">Page / Content Model<a class="headerlink" href="#page-content-model" title="Permanent link">&para;</a></h1>
-<p>Even though the <code>Page</code> and <code>Content</code> models reside on the same level (under <code>Page</code>), it is easier to view them as two 
-different models altogether, even though <code>Content</code> is only used in conjunction with and inside the <code>Page</code> model only.</p>
-<h2 id="page">Page<a class="headerlink" href="#page" title="Permanent link">&para;</a></h2>
-<p>The Page model represents the structure of documentation pages to be generated. During rendering, each page
-is processed separately, so one page corresponds to exactly one output file.</p>
-<p>The Page model is independent of the final output format. In other words, it's universal. Which file extension the pages
-should be created as (<code>.html</code>, <code>.md</code>, etc), and how, is up to the 
-<a href="../../extension_points/core_extension_points/#renderer">Renderer</a> extension.</p>
-<p>Subclasses of the <code>PageNode</code> class represent the different kinds of pages, such as <code>ModulePage</code>, <code>PackagePage</code>,
-<code>ClasslikePage</code>, <code>MemberPage</code> and so on.</p>
-<p>The Page model can be represented as a tree, with <code>RootPageNode</code> at the root.</p>
-<p>Here's an example of how an arbitrary project's <code>Page</code> tree might look like, if the project consists of a module with 
-3 packages, one of which contains a top level function, a top level property and a class, inside which there's a function
-and a property:</p>
-<pre class="mermaid"><code>flowchart TD
-    RootPageNode --&gt; firstPackage[PackagePageNode]
-    RootPageNode --&gt; secondPackage[PackagePageNode]
-    RootPageNode --&gt; thirdPackage[PackagePageNode]
-    firstPackage --&gt; firstPackageFirstMember[MemberPageNode - Function]
-    firstPackage --&gt; firstPackageSecondMember[MemberPageNode - Property]
-    firstPackage ---&gt; firstPackageClasslike[ClasslikePageNode - Class]
-    firstPackageClasslike --&gt; firstPackageClasslikeFirstMember[MemberPageNode - Function]
-    firstPackageClasslike --&gt; firstPackageClasslikeSecondMember[MemberPageNode - Property]
-    secondPackage --&gt; etcOne[...]
-    thirdPackage --&gt; etcTwo[...]</code></pre>
-<p>Almost all pages are derivatives of <code>ContentPage</code> - it's the type of a page that has user-visible content on it.</p>
-<h2 id="content-model">Content Model<a class="headerlink" href="#content-model" title="Permanent link">&para;</a></h2>
-<p>The Content model describes what the pages consist of. It is essentially a set of building blocks that you can put 
-together to represent some content. It is also output-format independent and universal.</p>
-<p>For an example, have a look at the subclasses of <code>ContentNode</code>: <code>ContentText</code>, <code>ContentList</code>, <code>ContentTable</code>, 
-<code>ContentCodeBlock</code>, <code>ContentHeader</code> and so on -- all self-explanatory. You can group chunks of content together with 
-<code>ContentGroup</code> - for example, to wrap all children with a style.</p>
-<div class="highlight"><pre><span></span><code><span class="c1">// real example of composing content using the `DocumentableContentBuilder` DSL</span><span class="w"></span>
-<span class="n">orderedList</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">item</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="n">text</span><span class="p">(</span><span class="s">&quot;This list contains a nested table:&quot;</span><span class="p">)</span><span class="w"></span>
-<span class="w">        </span><span class="n">table</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">            </span><span class="n">header</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">                </span><span class="n">text</span><span class="p">(</span><span class="s">&quot;Col1&quot;</span><span class="p">)</span><span class="w"></span>
-<span class="w">                </span><span class="n">text</span><span class="p">(</span><span class="s">&quot;Col2&quot;</span><span class="p">)</span><span class="w"></span>
-<span class="w">            </span><span class="p">}</span><span class="w"></span>
-<span class="w">            </span><span class="n">row</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">                </span><span class="n">text</span><span class="p">(</span><span class="s">&quot;Text1&quot;</span><span class="p">)</span><span class="w"></span>
-<span class="w">                </span><span class="n">text</span><span class="p">(</span><span class="s">&quot;Text2&quot;</span><span class="p">)</span><span class="w"></span>
-<span class="w">            </span><span class="p">}</span><span class="w"></span>
-<span class="w">        </span><span class="p">}</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
-<span class="w">    </span><span class="n">item</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="n">group</span><span class="p">(</span><span class="n">styles</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">setOf</span><span class="p">(</span><span class="n">TextStyle</span><span class="p">.</span><span class="na">Bold</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">            </span><span class="n">text</span><span class="p">(</span><span class="s">&quot;This is bald&quot;</span><span class="p">)</span><span class="w"></span>
-<span class="w">            </span><span class="n">text</span><span class="p">(</span><span class="s">&quot;This is also bald&quot;</span><span class="p">)</span><span class="w"></span>
-<span class="w">        </span><span class="p">}</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
-</code></pre></div>
-<p>It is the responsibility of the <code>Renderer</code> (i.e a specific output format) to render it in a way the user can process it,
-be it visually (html pages) or otherwise (json).</p>
-<p>For instance, <code>HtmlRenderer</code> might render <code>ContentCodeBlock</code> as <code>&lt;code&gt;text&lt;/code&gt;</code>, but <code>CommonmarkRenderer</code> might 
-render it using backticks.</p>
-<h3 id="dci">DCI<a class="headerlink" href="#dci" title="Permanent link">&para;</a></h3>
-<p>Each node is identified by a unique <code>DCI</code>, which stands for <em>Dokka Content Identifier</em>. </p>
-<p><code>DCI</code> aggregates <code>DRI</code>s of all documentables that are used by the given <code>ContentNode</code>.</p>
-<div class="highlight"><pre><span></span><code><span class="kd">data</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nc">DCI</span><span class="p">(</span><span class="kd">val</span><span class="w"> </span><span class="nv">dri</span><span class="p">:</span><span class="w"> </span><span class="n">Set</span><span class="o">&lt;</span><span class="n">DRI</span><span class="o">&gt;</span><span class="p">,</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">kind</span><span class="p">:</span><span class="w"> </span><span class="n">Kind</span><span class="p">)</span><span class="w"></span>
-</code></pre></div>
-<p>All references to other nodes (other than direct ownership) are described using <code>DCI</code>.</p>
-<h3 id="contentkind">ContentKind<a class="headerlink" href="#contentkind" title="Permanent link">&para;</a></h3>
-<p><code>ContentKind</code> represents a grouping of content of one kind that can be rendered as part of a composite
-page, like a single one tab or a block within a class's page.</p>
-<p>For example, on the same page that describes a class you can have multiple sections (== <code>ContentKind</code>s).
-One to describe functions, one to describe properties, another one to describe the constructors, and so on.</p>
-<h3 id="styles">Styles<a class="headerlink" href="#styles" title="Permanent link">&para;</a></h3>
-<p>Each <code>ContentNode</code> has a <code>styles</code> property in case you want to indicate to the <code>Renderer</code> that this content needs to be
-rendered in a certain way.</p>
-<div class="highlight"><pre><span></span><code><span class="n">group</span><span class="p">(</span><span class="n">styles</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">setOf</span><span class="p">(</span><span class="n">TextStyle</span><span class="p">.</span><span class="na">Paragraph</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">text</span><span class="p">(</span><span class="s">&quot;Text1&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">styles</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">setOf</span><span class="p">(</span><span class="n">TextStyle</span><span class="p">.</span><span class="na">Bold</span><span class="p">))</span><span class="w"></span>
-<span class="w">    </span><span class="n">text</span><span class="p">(</span><span class="s">&quot;Text2&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">styles</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">setOf</span><span class="p">(</span><span class="n">TextStyle</span><span class="p">.</span><span class="na">Italic</span><span class="p">))</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
-</code></pre></div>
-<p>It is responsibility of the <code>Renderer</code> (i.e a specific output format) to render it in a way the user can process it. 
-For instance, <code>HtmlRenderer</code> might render <code>TextStyle.Bold</code> as <code>&lt;b&gt;text&lt;/b&gt;</code>, but <code>CommonmarkRenderer</code> might render it 
-as <code>**text**</code>.</p>
-<p>There's a number of existing styles that you can use, most of them are supported by the <code>HtmlRenderer</code> extension out of 
-the box:</p>
-<div class="highlight"><pre><span></span><code><span class="c1">// for code highlighting</span><span class="w"></span>
-<span class="kd">enum</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nc">TokenStyle</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">Style</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">Keyword</span><span class="p">,</span><span class="w"> </span><span class="n">Punctuation</span><span class="p">,</span><span class="w"> </span><span class="n">Function</span><span class="p">,</span><span class="w"> </span><span class="n">Operator</span><span class="p">,</span><span class="w"> </span><span class="n">Annotation</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="n">Number</span><span class="p">,</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span><span class="w"> </span><span class="kt">Boolean</span><span class="p">,</span><span class="w"> </span><span class="n">Constant</span><span class="p">,</span><span class="w"> </span><span class="n">Builtin</span><span class="p">,</span><span class="w"> </span><span class="p">...</span><span class="w"></span>
+<h1 id="extension-points">Extension points<a class="headerlink" href="#extension-points" title="Permanent link">&para;</a></h1>
+<p>In this section you can learn how to create new extension points, how to configure existing ones, and how to query for 
+registered extensions when generating documentation.</p>
+<h2 id="declaring-extension-points">Declaring extension points<a class="headerlink" href="#declaring-extension-points" title="Permanent link">&para;</a></h2>
+<p>If you are writing a plugin, you can create your own extension points that other developers (or you) can use in other 
+plugins / parts of code.</p>
+<div class="highlight"><pre><span></span><code><span class="kd">class</span><span class="w"> </span><span class="nc">MyPlugin</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">DokkaPlugin</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">sampleExtensionPoint</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">extensionPoint</span><span class="o">&lt;</span><span class="n">SampleExtensionPointInterface</span><span class="o">&gt;</span><span class="p">()</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span>
 
-<span class="kd">enum</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nc">TextStyle</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">Style</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">Bold</span><span class="p">,</span><span class="w"> </span><span class="n">Italic</span><span class="p">,</span><span class="w"> </span><span class="n">Strong</span><span class="p">,</span><span class="w"> </span><span class="n">Strikethrough</span><span class="p">,</span><span class="w"> </span><span class="n">Paragraph</span><span class="p">,</span><span class="w"> </span><span class="p">...</span><span class="w"></span>
+<span class="kd">interface</span><span class="w"> </span><span class="nc">SampleExtensionPointInterface</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">doSomething</span><span class="p">(</span><span class="n">input</span><span class="p">:</span><span class="w"> </span><span class="n">Input</span><span class="p">):</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Output</span><span class="o">&gt;</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span>
 
-<span class="kd">enum</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nc">ContentStyle</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">Style</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">TabbedContent</span><span class="p">,</span><span class="w"> </span><span class="n">RunnableSample</span><span class="p">,</span><span class="w"> </span><span class="n">Wrapped</span><span class="p">,</span><span class="w"> </span><span class="n">Indented</span><span class="p">,</span><span class="w"> </span><span class="p">...</span><span class="w"></span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">Input</span><span class="w"></span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">Output</span><span class="w"></span>
+</code></pre></div>
+<p>Usually, you would want to provide some default implementations for your extension points. You can do that
+within the same plugin class by extending an extension point you've just created. See 
+<a href="#extending-from-extension-points">Extending from extension points</a> for examples.</p>
+<h2 id="extending-from-extension-points">Extending from extension points<a class="headerlink" href="#extending-from-extension-points" title="Permanent link">&para;</a></h2>
+<p>You can use extension points to provide your own implementations in order to customize a plugin's behaviour.</p>
+<p>If you want to provide an implementation for an extension point declared in an external plugin (including <code>DokkaBase</code>), 
+you can use plugin querying API to do that. </p>
+<p>The example below shows how to extend <code>MyPlugin</code> (that was created above) with an implementation of 
+<code>SampleExtensionPointInterface</code>.</p>
+<div class="highlight"><pre><span></span><code><span class="kd">class</span><span class="w"> </span><span class="nc">MyExtendedPlugin</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">DokkaPlugin</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">mySampleExtensionImplementation</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">extending</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">plugin</span><span class="o">&lt;</span><span class="n">MyPlugin</span><span class="o">&gt;</span><span class="p">().</span><span class="na">sampleExtensionPoint</span><span class="w"> </span><span class="n">with</span><span class="w"> </span><span class="n">SampleExtensionImpl</span><span class="p">()</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+
+<span class="kd">class</span><span class="w"> </span><span class="nc">SampleExtensionImpl</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">SampleExtensionPointInterface</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kd">override</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">doSomething</span><span class="p">(</span><span class="n">input</span><span class="p">:</span><span class="w"> </span><span class="n">Input</span><span class="p">):</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Output</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">listOf</span><span class="p">()</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span>
 </code></pre></div>
-<h3 id="extra">Extra<a class="headerlink" href="#extra" title="Permanent link">&para;</a></h3>
-<p><code>ExtraProperty</code> is used to store any additional information that falls outside of the regular model. </p>
-<p>It is highly recommended to use extras to provide any additional information when creating custom Dokka plugins.</p>
-<p>All <code>ExtraProperty</code> elements from the <code>Documentable</code> model are propagated into the <code>Content</code> model, and are available
-in the <code>Renderer</code> extensions.</p>
-<p>This element is a bit complex, so you can read more about how to use it <a href="../extra/">in a separate section</a>.</p>
+<p>Alternatively, if it is your own plugin, you can do that within the same class as the extension point itself:</p>
+<div class="highlight"><pre><span></span><code><span class="kd">open</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nc">MyPlugin</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">DokkaPlugin</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">sampleExtensionPoint</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">extensionPoint</span><span class="o">&lt;</span><span class="n">SampleExtensionPointInterface</span><span class="o">&gt;</span><span class="p">()</span><span class="w"></span>
+
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">defaultSampleExtension</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">extending</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">sampleExtensionPoint</span><span class="w"> </span><span class="n">with</span><span class="w"> </span><span class="n">DefaultSampleExtension</span><span class="p">()</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+
+<span class="kd">class</span><span class="w"> </span><span class="nc">DefaultSampleExtension</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">SampleExtensionPointInterface</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kd">override</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">doSomething</span><span class="p">(</span><span class="n">input</span><span class="p">:</span><span class="w"> </span><span class="n">Input</span><span class="p">):</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Output</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">listOf</span><span class="p">()</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+<h3 id="providing">Providing<a class="headerlink" href="#providing" title="Permanent link">&para;</a></h3>
+<p>If you need to have access to <code>DokkaContext</code> when creating an extension, you can use the <code>providing</code> keyword instead. </p>
+<div class="highlight"><pre><span></span><code><span class="kd">val</span><span class="w"> </span><span class="nv">defaultSampleExtension</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">extending</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">sampleExtensionPoint</span><span class="w"> </span><span class="n">providing</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">context</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"></span>
+<span class="w">        </span><span class="c1">// can use context to query other extensions or get configuration </span><span class="w"></span>
+<span class="w">        </span><span class="n">DefaultSampleExtension</span><span class="p">()</span><span class="w"> </span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+<p>You can read more on what you can do with <code>context</code> in <a href="#obtaining-extension-instance">Obtaining extension instance</a>.</p>
+<h3 id="override">Override<a class="headerlink" href="#override" title="Permanent link">&para;</a></h3>
+<p>By extending an extension point, you are registering an <em>additional</em> extension. This behaviour is expected by some
+extension points, for example the <code>Documentable</code> transformers, because all registered transformer extensions do their own 
+transformations independently and one after the other.</p>
+<p>However, a plugin can expect only a single extension to be registered for an extension point. In this case, you can use 
+the <code>override</code> keyword to override the existing registered extension:</p>
+<div class="highlight"><pre><span></span><code><span class="kd">class</span><span class="w"> </span><span class="nc">MyExtendedPlugin</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">DokkaPlugin</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">myPlugin</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">lazy</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">plugin</span><span class="o">&lt;</span><span class="n">MyPlugin</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">mySampleExtensionImplementation</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">extending</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="p">(</span><span class="n">myPlugin</span><span class="p">.</span><span class="na">sampleExtensionPoint</span><span class="w"></span>
+<span class="w">                </span><span class="n">with</span><span class="w"> </span><span class="n">SampleExtensionImpl</span><span class="p">()</span><span class="w"></span>
+<span class="w">                </span><span class="n">override</span><span class="w"> </span><span class="n">myPlugin</span><span class="p">.</span><span class="na">defaultSampleExtension</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+<p>This is also useful if you wish to override some extension from <code>DokkaBase</code>, to disable or alter it.</p>
+<h3 id="order">Order<a class="headerlink" href="#order" title="Permanent link">&para;</a></h3>
+<p>Sometimes, the order in which extensions are invoked matters. This is something you can control as well using the 
+<code>order</code> construct:</p>
+<div class="highlight"><pre><span></span><code><span class="kd">class</span><span class="w"> </span><span class="nc">MyExtendedPlugin</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">DokkaPlugin</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">myPlugin</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">lazy</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">plugin</span><span class="o">&lt;</span><span class="n">MyPlugin</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">mySampleExtensionImplementation</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">extending</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">myPlugin</span><span class="p">.</span><span class="na">sampleExtensionPoint</span><span class="w"> </span><span class="n">with</span><span class="w"> </span><span class="n">SampleExtensionImpl</span><span class="p">()</span><span class="w"> </span><span class="n">order</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="n">before</span><span class="p">(</span><span class="n">myPlugin</span><span class="p">.</span><span class="na">firstExtension</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="n">after</span><span class="p">(</span><span class="n">myPlugin</span><span class="p">.</span><span class="na">thirdExtension</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+<h3 id="conditional-apply">Conditional apply<a class="headerlink" href="#conditional-apply" title="Permanent link">&para;</a></h3>
+<p>If you want your extension to be registered only if some condition is <code>true</code>, you can use the <code>applyIf</code> construct:</p>
+<div class="highlight"><pre><span></span><code><span class="kd">class</span><span class="w"> </span><span class="nc">MyExtendedPlugin</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">DokkaPlugin</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">myPlugin</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">lazy</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">plugin</span><span class="o">&lt;</span><span class="n">MyPlugin</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">mySampleExtensionImplementation</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">extending</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">myPlugin</span><span class="p">.</span><span class="na">sampleExtensionPoint</span><span class="w"> </span><span class="n">with</span><span class="w"> </span><span class="n">SampleExtensionImpl</span><span class="p">()</span><span class="w"> </span><span class="n">applyIf</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="n">Random</span><span class="p">.</span><span class="na">Default</span><span class="p">.</span><span class="na">nextBoolean</span><span class="p">()</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+<h2 id="obtaining-extension-instance">Obtaining extension instance<a class="headerlink" href="#obtaining-extension-instance" title="Permanent link">&para;</a></h2>
+<p>After an extension point has been <a href="#declaring-extension-points">created</a> and some extensions have been
+<a href="#extending-from-extension-points">registered</a>, you can use <code>query</code> and <code>querySingle</code> functions to find all or just a 
+single implementation.</p>
+<div class="highlight"><pre><span></span><code><span class="kd">class</span><span class="w"> </span><span class="nc">MyExtension</span><span class="p">(</span><span class="n">context</span><span class="p">:</span><span class="w"> </span><span class="n">DokkaContext</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="c1">// returns all registered extensions for the extension point</span><span class="w"></span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">allSampleExtensions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">context</span><span class="p">.</span><span class="na">plugin</span><span class="o">&lt;</span><span class="n">MyPlugin</span><span class="o">&gt;</span><span class="p">().</span><span class="na">query</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">sampleExtensionPoint</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">    </span><span class="c1">// will throw an exception if more than one extension is found.</span><span class="w"></span>
+<span class="w">    </span><span class="c1">// use if you expect only a single extension to be registered for the extension point</span><span class="w"></span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">singleSampleExtensions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">context</span><span class="p">.</span><span class="na">plugin</span><span class="o">&lt;</span><span class="n">MyPlugin</span><span class="o">&gt;</span><span class="p">().</span><span class="na">querySingle</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">sampleExtensionPoint</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">invoke</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">allSampleExtensions</span><span class="p">.</span><span class="na">forEach</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nb">it</span><span class="p">.</span><span class="na">doSomething</span><span class="p">(</span><span class="n">Input</span><span class="p">())</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">singleSampleExtensions</span><span class="p">.</span><span class="na">doSomething</span><span class="p">(</span><span class="n">Input</span><span class="p">())</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+<p>In order to have access to <code>DokkaContext</code>, you can use the <a href="#providing">providing</a> keyword when registering an extension.</p>
 
               
             </article>
@@ -1160,7 +1193,7 @@ in the <code>Renderer</code> extensions.</p>
     <nav class="md-footer__inner md-grid" aria-label="Footer" >
       
         
-        <a href="../documentable_model/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Documentables" rel="prev">
+        <a href="../../data_model/extra/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Extra properties" rel="prev">
           <div class="md-footer__button md-icon">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
           </div>
@@ -1169,20 +1202,20 @@ in the <code>Renderer</code> extensions.</p>
               <span class="md-footer__direction">
                 Previous
               </span>
-              Documentables
+              Extra properties
             </div>
           </div>
         </a>
       
       
         
-        <a href="../extra/" class="md-footer__link md-footer__link--next" aria-label="Next: Extra properties" rel="next">
+        <a href="../core_extension_points/" class="md-footer__link md-footer__link--next" aria-label="Next: Core extension points" rel="next">
           <div class="md-footer__title">
             <div class="md-ellipsis">
               <span class="md-footer__direction">
                 Next
               </span>
-              Extra properties
+              Core extension points
             </div>
           </div>
           <div class="md-footer__button md-icon">

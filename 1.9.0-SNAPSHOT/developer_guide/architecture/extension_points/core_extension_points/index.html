@@ -12,21 +12,21 @@
         <meta name="author" content="JetBrains">
       
       
-        <link rel="canonical" href="https://github.com/Kotlin/dokka/1.9.0-SNAPSHOT/developer_guide/plugin-development/introduction/">
+        <link rel="canonical" href="https://github.com/Kotlin/dokka/1.9.0-SNAPSHOT/developer_guide/architecture/extension_points/core_extension_points/">
       
-      <link rel="icon" href="../../../favicon.svg">
+      <link rel="icon" href="../../../../favicon.svg">
       <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-8.3.6">
     
     
       
-        <title>Plugin development - Dokka</title>
+        <title>Core extension points - Dokka</title>
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.4a0965b7.min.css">
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.4a0965b7.min.css">
       
         
-        <link rel="stylesheet" href="../../../assets/stylesheets/palette.cbb835fc.min.css">
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.cbb835fc.min.css">
         
       
       
@@ -42,9 +42,9 @@
       
     
     
-      <link rel="stylesheet" href="../../../dokka_colors.css">
+      <link rel="stylesheet" href="../../../../dokka_colors.css">
     
-    <script>__md_scope=new URL("../../..",location),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../../../..",location),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -68,7 +68,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#introduction-to-plugin-development" class="md-skip">
+        <a href="#core-extension-points" class="md-skip">
           Skip to content
         </a>
       
@@ -82,7 +82,7 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../../.." title="Dokka" class="md-header__button md-logo" aria-label="Dokka" data-md-component="logo">
+    <a href="../../../.." title="Dokka" class="md-header__button md-logo" aria-label="Dokka" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
@@ -101,7 +101,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Plugin development
+              Core extension points
             
           </span>
         </div>
@@ -179,7 +179,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../.." class="md-tabs__link">
+      <a href="../../../.." class="md-tabs__link">
         Home
       </a>
     </li>
@@ -213,7 +213,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../introduction/" class="md-tabs__link md-tabs__link--active">
+      <a href="../../../introduction/" class="md-tabs__link md-tabs__link--active">
         Developer guides
       </a>
     </li>
@@ -229,7 +229,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../community/slack/" class="md-tabs__link">
+      <a href="../../../community/slack/" class="md-tabs__link">
         Community
       </a>
     </li>
@@ -257,7 +257,7 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../../.." title="Dokka" class="md-nav__button md-logo" aria-label="Dokka" data-md-component="logo">
+    <a href="../../../.." title="Dokka" class="md-nav__button md-logo" aria-label="Dokka" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
@@ -311,7 +311,7 @@
         
         
         <div class="md-nav__link md-nav__link--index ">
-          <a href="../../..">Home</a>
+          <a href="../../../..">Home</a>
           
             <label for="__nav_1">
               <span class="md-nav__icon md-icon"></span>
@@ -348,7 +348,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../introduction/" class="md-nav__link">
+      <a href="../../../introduction/" class="md-nav__link">
         Developer guides
       </a>
     </li>
@@ -362,7 +362,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../community/slack/" class="md-nav__link">
+      <a href="../../../community/slack/" class="md-nav__link">
         Community
       </a>
     </li>
@@ -474,7 +474,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../introduction/" class="md-nav__link">
+      <a href="../../../introduction/" class="md-nav__link">
         Developer guides
       </a>
     </li>
@@ -488,7 +488,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../workflow/" class="md-nav__link">
+      <a href="../../../workflow/" class="md-nav__link">
         Workflow
       </a>
     </li>
@@ -500,12 +500,14 @@
               
   
   
+    
+  
   
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_3_3" type="checkbox" id="__nav_3_3" checked>
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_3" type="checkbox" id="__nav_3_3" checked>
       
       
       
@@ -536,7 +538,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/architecture_overview/" class="md-nav__link">
+      <a href="../../architecture_overview/" class="md-nav__link">
         Architecture
       </a>
     </li>
@@ -584,7 +586,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/data_model/documentable_model/" class="md-nav__link">
+      <a href="../../data_model/documentable_model/" class="md-nav__link">
         Documentables
       </a>
     </li>
@@ -598,7 +600,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/data_model/page_content/" class="md-nav__link">
+      <a href="../../data_model/page_content/" class="md-nav__link">
         Page & Content
       </a>
     </li>
@@ -612,7 +614,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/data_model/extra/" class="md-nav__link">
+      <a href="../../data_model/extra/" class="md-nav__link">
         Extra properties
       </a>
     </li>
@@ -631,12 +633,14 @@
               
   
   
+    
+  
   
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_3_3_3" type="checkbox" id="__nav_3_3_3" checked>
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_3_3" type="checkbox" id="__nav_3_3_3" checked>
       
       
       
@@ -669,7 +673,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/extension_points/extension_points/" class="md-nav__link">
+      <a href="../extension_points/" class="md-nav__link">
         Extension points
       </a>
     </li>
@@ -681,11 +685,108 @@
               
   
   
+    
   
-    <li class="md-nav__item">
-      <a href="../../architecture/extension_points/core_extension_points/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Core extension points
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         Core extension points
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#pregenerationchecker" class="md-nav__link">
+    PreGenerationChecker
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#generation" class="md-nav__link">
+    Generation
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sourcetodocumentabletranslator" class="md-nav__link">
+    SourceToDocumentableTranslator
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#documentablemerger" class="md-nav__link">
+    DocumentableMerger
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#documentabletransformer" class="md-nav__link">
+    DocumentableTransformer
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#documentabletopagetranslator" class="md-nav__link">
+    DocumentableToPageTranslator
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pagetransformer" class="md-nav__link">
+    PageTransformer
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#renderer" class="md-nav__link">
+    Renderer
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#postaction" class="md-nav__link">
+    PostAction
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -697,7 +798,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/extension_points/base_plugin/" class="md-nav__link">
+      <a href="../base_plugin/" class="md-nav__link">
         Base extensions
       </a>
     </li>
@@ -711,7 +812,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/extension_points/generation_implementations/" class="md-nav__link">
+      <a href="../generation_implementations/" class="md-nav__link">
         Generation implementations
       </a>
     </li>
@@ -737,14 +838,12 @@
               
   
   
-    
-  
   
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_4" type="checkbox" id="__nav_3_4" checked>
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_3_4" type="checkbox" id="__nav_3_4" checked>
       
       
       
@@ -771,93 +870,11 @@
               
   
   
-    
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          Plugin development
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../../plugin-development/introduction/" class="md-nav__link">
         Plugin development
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#setup" class="md-nav__link">
-    Setup
-  </a>
-  
-    <nav class="md-nav" aria-label="Setup">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#template" class="md-nav__link">
-    Template
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#manual" class="md-nav__link">
-    Manual
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#extension-points" class="md-nav__link">
-    Extension points
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#example" class="md-nav__link">
-    Example
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#help" class="md-nav__link">
-    Help
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -869,7 +886,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../sample-plugin-tutorial/" class="md-nav__link">
+      <a href="../../../plugin-development/sample-plugin-tutorial/" class="md-nav__link">
         Sample plugin tutorial
       </a>
     </li>
@@ -928,7 +945,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../community/slack/" class="md-nav__link">
+      <a href="../../../community/slack/" class="md-nav__link">
         Slack
       </a>
     </li>
@@ -969,49 +986,64 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#setup" class="md-nav__link">
-    Setup
-  </a>
-  
-    <nav class="md-nav" aria-label="Setup">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#template" class="md-nav__link">
-    Template
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#manual" class="md-nav__link">
-    Manual
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#extension-points" class="md-nav__link">
-    Extension points
+  <a href="#pregenerationchecker" class="md-nav__link">
+    PreGenerationChecker
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#example" class="md-nav__link">
-    Example
+  <a href="#generation" class="md-nav__link">
+    Generation
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#help" class="md-nav__link">
-    Help
+  <a href="#sourcetodocumentabletranslator" class="md-nav__link">
+    SourceToDocumentableTranslator
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#documentablemerger" class="md-nav__link">
+    DocumentableMerger
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#documentabletransformer" class="md-nav__link">
+    DocumentableTransformer
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#documentabletopagetranslator" class="md-nav__link">
+    DocumentableToPageTranslator
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pagetransformer" class="md-nav__link">
+    PageTransformer
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#renderer" class="md-nav__link">
+    Renderer
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#postaction" class="md-nav__link">
+    PostAction
   </a>
   
 </li>
@@ -1028,65 +1060,79 @@
             <article class="md-content__inner md-typeset">
               
                 
-  <a href="https://github.com/Kotlin/dokka/edit/master/docs-developer/src/doc/docs/developer_guide/plugin-development/introduction.md" title="Edit this page" class="md-content__button md-icon">
+  <a href="https://github.com/Kotlin/dokka/edit/master/docs-developer/src/doc/docs/developer_guide/architecture/extension_points/core_extension_points.md" title="Edit this page" class="md-content__button md-icon">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg>
   </a>
 
 
 
-<h1 id="introduction-to-plugin-development">Introduction to plugin development<a class="headerlink" href="#introduction-to-plugin-development" title="Permanent link">&para;</a></h1>
-<p>Dokka was built from the ground up to be easily extensible and highly customizable, which allows the community to 
-implement plugins for missing or very specific features that are not provided out of the box.</p>
-<p>Dokka plugins range anywhere from supporting other programming language sources to exotic output formats. You can add 
-support for your own KDoc tags or annotations, teach Dokka how to render different DSLs that are found in KDoc 
-descriptions, visually redesign Dokka's pages to be seamlessly integrated into your company's website, integrate 
-it with other tools and so much more.</p>
-<p>In order to have an easier time developing plugins, it's a good idea to go through
-<a href="../../architecture/architecture_overview/">Dokka's internals</a> first, to learn more about its
-<a href="../../architecture/data_model/documentable_model/">data model</a> and 
-<a href="../../architecture/extension_points/extension_points/">extensions</a>.</p>
-<h2 id="setup">Setup<a class="headerlink" href="#setup" title="Permanent link">&para;</a></h2>
-<h3 id="template">Template<a class="headerlink" href="#template" title="Permanent link">&para;</a></h3>
-<p>The easiest way to start is to use the convenient <a href="https://github.com/Kotlin/dokka-plugin-template">Dokka plugin template</a>.
-It has pre-configured dependencies, publishing and signing of your artifacts.</p>
-<h3 id="manual">Manual<a class="headerlink" href="#manual" title="Permanent link">&para;</a></h3>
-<p>At a bare minimum, a Dokka plugin requires <code>dokka-core</code> as a dependency:</p>
-<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nn">org.jetbrains.kotlin.gradle.dsl.JvmTarget</span><span class="w"></span>
-<span class="k">import</span><span class="w"> </span><span class="nn">org.jetbrains.kotlin.gradle.tasks.KotlinCompile</span><span class="w"></span>
-
-
-<span class="n">plugins</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">kotlin</span><span class="p">(</span><span class="s">&quot;jvm&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">&quot;&lt;kotlin_version&gt;&quot;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
-
-<span class="n">dependencies</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">compileOnly</span><span class="p">(</span><span class="s">&quot;org.jetbrains.dokka:dokka-core:&lt;dokka_version&gt;&quot;</span><span class="p">)</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
-
-<span class="n">tasks</span><span class="p">.</span><span class="na">withType</span><span class="o">&lt;</span><span class="n">KotlinCompile</span><span class="o">&gt;</span><span class="p">().</span><span class="na">configureEach</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">compilerOptions</span><span class="p">.</span><span class="na">jvmTarget</span><span class="p">.</span><span class="na">set</span><span class="p">(</span><span class="n">JvmTarget</span><span class="p">.</span><span class="na">JVM_1_8</span><span class="p">)</span><span class="w"></span>
+<h1 id="core-extension-points">Core extension points<a class="headerlink" href="#core-extension-points" title="Permanent link">&para;</a></h1>
+<p>Core extension points represent the main stages of generating documentation. </p>
+<p>These extension points are plugin and output format independent, meaning it's the very core functionality and as
+low-level as can get in Dokka. </p>
+<p>For higher-level extension functions that can be used in different output formats, have a look at the 
+<a href="../base_plugin/">Base plugin</a>.</p>
+<p>You can find all core extensions in the <code>CoreExtensions</code> class:</p>
+<div class="highlight"><pre><span></span><code><span class="kd">object</span><span class="w"> </span><span class="nc">CoreExtensions</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">preGenerationCheck</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">coreExtensionPoint</span><span class="o">&lt;</span><span class="n">PreGenerationChecker</span><span class="o">&gt;</span><span class="p">()</span><span class="w"></span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">generation</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">coreExtensionPoint</span><span class="o">&lt;</span><span class="n">Generation</span><span class="o">&gt;</span><span class="p">()</span><span class="w"></span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">sourceToDocumentableTranslator</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">coreExtensionPoint</span><span class="o">&lt;</span><span class="n">SourceToDocumentableTranslator</span><span class="o">&gt;</span><span class="p">()</span><span class="w"></span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">documentableMerger</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">coreExtensionPoint</span><span class="o">&lt;</span><span class="n">DocumentableMerger</span><span class="o">&gt;</span><span class="p">()</span><span class="w"></span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">documentableTransformer</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">coreExtensionPoint</span><span class="o">&lt;</span><span class="n">DocumentableTransformer</span><span class="o">&gt;</span><span class="p">()</span><span class="w"></span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">documentableToPageTranslator</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">coreExtensionPoint</span><span class="o">&lt;</span><span class="n">DocumentableToPageTranslator</span><span class="o">&gt;</span><span class="p">()</span><span class="w"></span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">pageTransformer</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">coreExtensionPoint</span><span class="o">&lt;</span><span class="n">PageTransformer</span><span class="o">&gt;</span><span class="p">()</span><span class="w"></span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">renderer</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">coreExtensionPoint</span><span class="o">&lt;</span><span class="n">Renderer</span><span class="o">&gt;</span><span class="p">()</span><span class="w"></span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">postActions</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">coreExtensionPoint</span><span class="o">&lt;</span><span class="n">PostAction</span><span class="o">&gt;</span><span class="p">()</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span>
 </code></pre></div>
-<p>In order to load a plugin into Dokka, your class must extend the <code>DokkaPlugin</code> class. A fully qualified name of that class
-must be placed in a file named <code>org.jetbrains.dokka.plugability.DokkaPlugin</code> under <code>resources/META-INF/services</code>. 
-All instances are automatically loaded during Dokka's configuration step using <code>java.util.ServiceLoader</code>.</p>
-<h2 id="extension-points">Extension points<a class="headerlink" href="#extension-points" title="Permanent link">&para;</a></h2>
-<p>Dokka provides a set of entry points for which you can create your own implementations. If you are not sure which
-extension points to use, have a look at <a href="../../architecture/extension_points/core_extension_points/">core extensions</a> and
-<a href="../../architecture/extension_points/base_plugin/">base extensions</a>.</p>
-<p>You can learn how to declare extension points and extensions in
-<a href="../../architecture/extension_points/extension_points/">Introduction to Extension points</a>.</p>
-<p>In case no suitable extension point exists for your use case, do share the use case with the 
-<a href="../../community/slack/">maintainers</a> — it might be added in a future version of Dokka.</p>
-<h2 id="example">Example<a class="headerlink" href="#example" title="Permanent link">&para;</a></h2>
-<p>You can follow the <a href="../sample-plugin-tutorial/">sample plugin tutorial</a>, which covers the creation of a simple plugin 
-that hides members annotated with your own <code>@Internal</code> annotation: that is, it excludes these members from the generated
-documentation.</p>
-<p>For more practical examples, have a look at sources of 
-<a href="https://kotlinlang.org/docs/dokka-plugins.html#notable-plugins">community plugins</a>.</p>
-<h2 id="help">Help<a class="headerlink" href="#help" title="Permanent link">&para;</a></h2>
-<p>If you have any further questions, feel free to get in touch with Dokka's maintainers via <a href="../../community/slack/">Slack</a> 
-or <a href="https://github.com/kotlin/dokka">GitHub</a>.</p>
+<p>On this page, we'll go over each extension point individually.</p>
+<h2 id="pregenerationchecker">PreGenerationChecker<a class="headerlink" href="#pregenerationchecker" title="Permanent link">&para;</a></h2>
+<p><code>PreGenerationChecker</code> can be used to run some checks and constraints. </p>
+<p>For example, Dokka's Javadoc plugin does not support generating documentation for multi-platform projects, so it uses
+<code>PreGenerationChecker</code> to check for multi-platform
+<a href="https://kotlinlang.org/docs/multiplatform-discover-project.html#source-sets">source sets</a>, and fails if it finds any.</p>
+<h2 id="generation">Generation<a class="headerlink" href="#generation" title="Permanent link">&para;</a></h2>
+<p><code>Generation</code> is responsible for generating documentation as a whole, utilizing higher-level extensions and extension 
+points where applicable.</p>
+<p>See <a href="../generation_implementations/">Generation implementations</a> to learn about the default implementations.</p>
+<h2 id="sourcetodocumentabletranslator">SourceToDocumentableTranslator<a class="headerlink" href="#sourcetodocumentabletranslator" title="Permanent link">&para;</a></h2>
+<p><code>SourceToDocumentableTranslator</code> translates any given sources into the Documentable model. </p>
+<p>Kotlin and Java sources are supported by default by the <a href="../base_plugin/">Base plugin</a>, but you can analyze any language 
+as long as you can map it to the <a href="../../data_model/documentable_model/">Documentable</a> model.</p>
+<p>For reference, see</p>
+<ul>
+<li><code>DefaultDescriptorToDocumentableTranslator</code> for Kotlin sources translation</li>
+<li><code>DefaultPsiToDocumentableTranslator</code> for Java sources translation</li>
+</ul>
+<h2 id="documentablemerger">DocumentableMerger<a class="headerlink" href="#documentablemerger" title="Permanent link">&para;</a></h2>
+<p><code>DocumentableMerger</code> merges all <code>DModule</code> instances into one. Only one extension of this type is expected to be 
+registered.</p>
+<h2 id="documentabletransformer">DocumentableTransformer<a class="headerlink" href="#documentabletransformer" title="Permanent link">&para;</a></h2>
+<p><code>DocumentableTransformer</code> performs the same function as <code>PreMergeDocumentableTransformer</code>, but after merging source
+sets.</p>
+<p>Notable example is <code>InheritorsExtractorTransformer</code>, it extracts inheritance information from 
+<a href="https://kotlinlang.org/docs/multiplatform-discover-project.html#source-sets">source sets</a> and creates an inheritance
+map.</p>
+<h2 id="documentabletopagetranslator">DocumentableToPageTranslator<a class="headerlink" href="#documentabletopagetranslator" title="Permanent link">&para;</a></h2>
+<p><code>DocumentableToPageTranslator</code> is responsible for creating pages and their content. See 
+<a href="../../data_model/page_content/">Page / Content model</a> page for more information and examples.</p>
+<p>Output formats can either use the same page structure or define their own.</p>
+<p>Only a single extension of this type is expected to be registered. </p>
+<h2 id="pagetransformer">PageTransformer<a class="headerlink" href="#pagetransformer" title="Permanent link">&para;</a></h2>
+<p><code>PageTransformer</code> is useful if you need to add, remove or modify generated pages or their content.</p>
+<p>Using this extension point, plugins like <code>org.jetbrains.dokka:mathjax-pligin</code> can add <code>.js</code> scripts to the HTML pages. </p>
+<p>If you want all overloaded functions to be rendered on the same page instead of separate ones,
+you can use <code>PageTransformer</code> to combine the pages into a single one.</p>
+<h2 id="renderer">Renderer<a class="headerlink" href="#renderer" title="Permanent link">&para;</a></h2>
+<p><code>Renderer</code> - defines the rules on how to render pages and their content: which files to create and how to display
+the content properly. </p>
+<p>Custom output format plugins should use the <code>Renderer</code> extension point. Notable examples are <code>HtmlRenderer</code>
+and <code>CommonmarkRenderer</code>.</p>
+<h2 id="postaction">PostAction<a class="headerlink" href="#postaction" title="Permanent link">&para;</a></h2>
+<p><code>PostAction</code> can be used for when you want to run some actions after the documentation has been generated - for example,
+if you want to move some files around or log some informational messages.</p>
+<p>Dokka's <a href="https://github.com/Kotlin/dokka/tree/master/plugins/versioning">Versioning plugin</a> utilizes <code>PostAction</code> 
+to move generated documentation to the versioned directories.</p>
 
               
             </article>
@@ -1107,7 +1153,7 @@ or <a href="https://github.com/kotlin/dokka">GitHub</a>.</p>
     <nav class="md-footer__inner md-grid" aria-label="Footer" >
       
         
-        <a href="../../architecture/extension_points/generation_implementations/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Generation implementations" rel="prev">
+        <a href="../extension_points/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Extension points" rel="prev">
           <div class="md-footer__button md-icon">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
           </div>
@@ -1116,20 +1162,20 @@ or <a href="https://github.com/kotlin/dokka">GitHub</a>.</p>
               <span class="md-footer__direction">
                 Previous
               </span>
-              Generation implementations
+              Extension points
             </div>
           </div>
         </a>
       
       
         
-        <a href="../sample-plugin-tutorial/" class="md-footer__link md-footer__link--next" aria-label="Next: Sample plugin tutorial" rel="next">
+        <a href="../base_plugin/" class="md-footer__link md-footer__link--next" aria-label="Next: Base extensions" rel="next">
           <div class="md-footer__title">
             <div class="md-ellipsis">
               <span class="md-footer__direction">
                 Next
               </span>
-              Sample plugin tutorial
+              Base extensions
             </div>
           </div>
           <div class="md-footer__button md-icon">
@@ -1163,10 +1209,10 @@ or <a href="https://github.com/kotlin/dokka">GitHub</a>.</p>
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.expand", "navigation.tabs", "navigation.instant", "navigation.indexes", "navigation.top"], "search": "../../../assets/javascripts/workers/search.85cb4492.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": "../../../..", "features": ["navigation.expand", "navigation.tabs", "navigation.instant", "navigation.indexes", "navigation.top"], "search": "../../../../assets/javascripts/workers/search.85cb4492.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.a877e258.min.js"></script>
+      <script src="../../../../assets/javascripts/bundle.a877e258.min.js"></script>
       
     
   </body>
