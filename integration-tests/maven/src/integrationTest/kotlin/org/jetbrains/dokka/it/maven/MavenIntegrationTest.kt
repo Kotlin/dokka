@@ -4,6 +4,7 @@
 
 package org.jetbrains.dokka.it.maven
 
+import org.intellij.lang.annotations.Language
 import org.jetbrains.dokka.it.AbstractIntegrationTest
 import org.jetbrains.dokka.it.ProcessResult
 import org.jetbrains.dokka.it.awaitProcessResult
@@ -38,19 +39,18 @@ class MavenIntegrationTest : AbstractIntegrationTest() {
             .start()
             .awaitProcessResult()
 
+        // format the output to remove blank lines and make newlines system-independent
+        val output = result.output.lines().filter { it.isNotBlank() }.joinToString("\n")
+
         assertContains(
-            result.output,
+            output,
             """
-                This plugin has 4 goals:
-
-                dokka:dokka
-
-                dokka:help
-
-                dokka:javadoc
-
-                dokka:javadocJar
-            """.trimIndent()
+                |This plugin has 4 goals:
+                |dokka:dokka
+                |dokka:help
+                |dokka:javadoc
+                |dokka:javadocJar
+            """.trimMargin()
         )
     }
 
@@ -205,7 +205,11 @@ class MavenIntegrationTest : AbstractIntegrationTest() {
         /*
          * TODO replace with kotlin.test.assertContains after migrating to Kotlin language version 1.5+
          */
-        fun assertContains(charSequence: CharSequence, other: CharSequence, ignoreCase: Boolean = false) {
+        fun assertContains(
+            charSequence: CharSequence,
+            @Language("TEXT") other: CharSequence,
+            ignoreCase: Boolean = false
+        ) {
             asserter.assertTrue(
                 { "Expected the char sequence to contain the substring.\nCharSequence <$charSequence>, substring <$other>, ignoreCase <$ignoreCase>." },
                 charSequence.contains(other, ignoreCase)
