@@ -76,6 +76,9 @@ val helpMojoSources by tasks.registering(Sync::class) {
             relativePath = RelativePath(true, *relativePath.segments.drop(2).toTypedArray())
         }
         filter { line ->
+            // For some reason the HelpMojo.java file that Maven generates is missing
+            // a required `@Mojo` annotation. I have no idea why. As a workaround I
+            // added in this find/replace. Is there a better fix?
             if (line.startsWith("public class HelpMojo")) {
                 """
                   @Mojo( name = "help", requiresProject = false, threadSafe = true )
