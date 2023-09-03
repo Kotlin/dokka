@@ -75,25 +75,8 @@ val helpMojoSources by tasks.registering(Sync::class) {
             // drop 2 leading directories
             relativePath = RelativePath(true, *relativePath.segments.drop(2).toTypedArray())
         }
-        filter { line ->
-            // For some reason the HelpMojo.java file that Maven generates is missing
-            // a required `@Mojo` annotation. I have no idea why. As a workaround I
-            // added in this find/replace. Is there a better fix?
-            if (line.startsWith("public class HelpMojo")) {
-                """
-                  @Mojo( name = "help", requiresProject = false, threadSafe = true )
-                  public class HelpMojo
-              """.trimIndent()
-            } else if (line.startsWith("import org.apache.maven.plugin.AbstractMojo")) {
-                """
-                    import org.apache.maven.plugin.AbstractMojo;
-                    import org.apache.maven.plugins.annotations.Mojo;
-                """.trimIndent()
-            } else {
-                line
-            }
-        }
     }
+    includeEmptyDirs = false
     into(temporaryDir)
     include("**/*.java")
 }
@@ -150,12 +133,6 @@ tasks.jar {
     }
 }
 
-
 registerDokkaArtifactPublication("dokkaMavenPlugin") {
     artifactId = "dokka-maven-plugin"
-}
-
-
-tasks.withType<Sync>().configureEach {
-    includeEmptyDirs = false
 }
