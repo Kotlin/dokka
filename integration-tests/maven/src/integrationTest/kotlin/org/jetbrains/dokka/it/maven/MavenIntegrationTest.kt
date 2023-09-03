@@ -200,4 +200,16 @@ class MavenIntegrationTest : AbstractIntegrationTest() {
             )
         )
     }
+
+    companion object {
+        /*
+         * TODO replace with kotlin.test.assertContains after migrating to Kotlin language version 1.5+
+         */
+        fun assertContains(charSequence: CharSequence, other: CharSequence, ignoreCase: Boolean = false) {
+            asserter.assertTrue(
+                { "Expected the char sequence to contain the substring.\nCharSequence <$charSequence>, substring <$other>, ignoreCase <$ignoreCase>." },
+                charSequence.contains(other, ignoreCase)
+            )
+        }
+    }
 }
